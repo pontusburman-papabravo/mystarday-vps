@@ -50,6 +50,20 @@ describe('Android Play stability guards', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-shell.js'), 'utf8');
     assert.match(src, /isAndroidNative/);
     assert.match(src, /if \(isAndroidNative\(\)\) return/);
+    assert.match(src, /is-native-android/);
+  });
+
+  it('platform-native.css flattens parent-magic 3D on Android', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/css/platform-native.css'), 'utf8');
+    assert.match(src, /parent-magic-view \.magic-3d-scene/);
+    assert.match(src, /transform-style: flat !important/);
+    assert.match(src, /parent-ready-child:active/);
+  });
+
+  it('dashboard-home-hub skips magic-3d-scene on Android', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-home-hub.js'), 'utf8');
+    assert.match(src, /isAndroidFlatMode/);
+    assert.match(src, /is-native-android/);
   });
 
   it('prepare-android-native.mjs strips Apple Sign In package', () => {
@@ -66,11 +80,29 @@ describe('Android Play stability guards', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
     assert.match(pkg.scripts['cap:sync:android'], /verify-android-native\.mjs/);
     assert.match(pkg.scripts['cap:sync:android'], /prepare-android-native\.mjs/);
+    assert.match(pkg.scripts['cap:sync:android'], /patch-android-main-activity\.mjs/);
   });
 
   it('android-version.json bumped for Play resubmission', () => {
     const versions = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8'));
-    assert.ok(versions.versionCode >= 4);
+    assert.ok(versions.versionCode >= 5);
+  });
+
+  it('platform-html ensures native-debug assets even when already injected', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /ensureNativeDebugAssets/);
+    assert.match(src, /INJECT_MARKER\)\) \{[\s\S]*ensureNativeDebugAssets/);
+  });
+
+  it('native-debug overlay script and WebView debugging patch exist', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/native-debug.js'), 'utf8');
+    assert.match(js, /native_debug/);
+    assert.match(js, /nativeDebugPanel/);
+    assert.doesNotMatch(js, /location\.assign\s*=/, 'must not patch read-only location.assign (Android WebView crash)');
+    const html = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(html, /native-debug\.js/);
+    const patch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-main-activity.mjs'), 'utf8');
+    assert.match(patch, /setWebContentsDebuggingEnabled\(true\)/);
   });
 
   it('patch-android-version.mjs is idempotent when build.gradle already matches', () => {

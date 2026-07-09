@@ -1,0 +1,72 @@
+/**
+ * native-debug.css — On-screen log panel for Capacitor diagnostics.
+ * Only shown when native-debug.js enables the overlay.
+ */
+#nativeDebugPanel {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  top: auto;
+  max-height: 28vh;
+  z-index: 2147483000;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #e8ffe8;
+  background: rgba(8, 12, 8, 0.94);
+  border: 1px solid rgba(120, 255, 120, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+#nativeDebugPanel.is-collapsed #nativeDebugList {
+  display: block;
+  max-height: 2.8em;
+  overflow: hidden;
+  opacity: 0.9;
+  font-size: 9px;
+}
+
+#nativeDebugHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(120, 255, 120, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+#nativeDebugHeader strong {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+#nativeDebugActions {
+  display: flex;
+  gap: 6px;
+}
+
+#nativeDebugActions button {
+  min-height: 28px;
+  min-width: 28px;
+  padding: 2px 8px;
+  border: 1px solid rgba(120, 255, 120, 0.35);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8ffe8;
+  font-size: 10px;
+}
+
+#nativeDebugList {
+  margin: 0;
+  padding: 8px;
+  max-height: calc(42vh - 40px);
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-overflow-scrolling: touch;
+}

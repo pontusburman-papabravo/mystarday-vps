@@ -202,10 +202,41 @@ function maybeSetNoindexHeader(res, reqPath) {
   }
 }
 
+function ensureNativeDebugAssets(body) {
+  if (typeof body !== 'string') return body;
+  const DEBUG_JS = '/js/native-debug.js?v=1.0.5';
+  const DEBUG_CSS = '/css/native-debug.css?v=1.0.4';
+  if (!body.includes('native-debug.js')) {
+    const tailMarker = '</body>';
+    const idx = body.lastIndexOf(tailMarker);
+    if (idx !== -1) {
+      body = body.slice(0, idx) +
+        '<script src="' + DEBUG_JS + '"><\/script>\n' +
+        body.slice(idx);
+    }
+  }
+  if (!body.includes('native-debug.css')) {
+    const headMarker = '<head>';
+    const idx = body.indexOf(headMarker);
+    if (idx !== -1) {
+      body = body.slice(0, idx + headMarker.length) + '\n' +
+        '<link rel="stylesheet" href="' + DEBUG_CSS + '">\n' +
+        body.slice(idx + headMarker.length);
+    }
+  }
+  return body;
+}
+
 function injectPlatformHtml(body, reqPath) {
   if (typeof body !== 'string') return body;
   body = injectNoindexMeta(body, reqPath);
-  if (body.includes(INJECT_MARKER)) return body;
+  if (body.includes(INJECT_MARKER)) {
+    body = injectEarlyMagicHtml(body, reqPath);
+    body = injectParentMagicRouter(body, reqPath);
+    body = injectParentMagicHtml(body, reqPath);
+    body = ensureMagicShellAssets(body, reqPath);
+    return ensureNativeDebugAssets(body);
+  }
 
   const headMarker = '<head>';
   const tailMarker = '</body>';
@@ -229,7 +260,8 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.7">',
+    '<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.8">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/parent-tab-bar.css?v=' + RELEASE_TAG + '">'
@@ -237,6 +269,7 @@ function injectPlatformHtml(body, reqPath) {
   const headInject = headParts.join('\n') + '\n';
 
   const bodyInject =
+    '<script src="/js/native-debug.js?v=1.0.5"><\/script>\n' +
     '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n' +
     '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
@@ -262,7 +295,7 @@ function injectPlatformHtml(body, reqPath) {
   body = injectEarlyMagicHtml(body, reqPath);
   body = injectParentMagicRouter(body, reqPath);
   body = injectParentMagicHtml(body, reqPath);
-  return ensureMagicShellAssets(body, reqPath);
+  return ensureNativeDebugAssets(ensureMagicShellAssets(body, reqPath));
 }
 
 function platformHtmlInject(req, res, next) {

@@ -85,6 +85,7 @@
         sessionStorage.removeItem('cl_add_child_pending');
         sessionStorage.removeItem('cl_add_child_next');
         if (window.DeviceMode) DeviceMode.enterParent();
+        if (window.NativeDebug) NativeDebug.log('login_redirect', { to: '/onboarding?flow=add-child' });
         window.location.href = '/onboarding?flow=add-child';
         return;
       }
@@ -94,12 +95,14 @@
         const next = new URLSearchParams(window.location.search).get('next');
         if (next && next.startsWith('/') && !next.startsWith('//')) {
           if (window.DeviceMode) DeviceMode.enterParent();
+          if (window.NativeDebug) NativeDebug.log('login_redirect', { to: next });
           window.location.href = next;
           return;
         }
       } catch { /* fall through */ }
     }
     if (window.DeviceMode) DeviceMode.enterParent();
+    if (window.NativeDebug) NativeDebug.log('login_redirect', { to: '/dashboard' });
     window.location.href = '/dashboard';
   }
 

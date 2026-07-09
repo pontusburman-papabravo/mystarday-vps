@@ -28,6 +28,7 @@
   }
 
   function isAndroidNative() {
+    if (document.documentElement.classList.contains('is-native-android')) return true;
     return typeof window.Platform !== 'undefined' &&
       typeof Platform.isAndroid === 'function' &&
       Platform.isAndroid();
@@ -128,6 +129,9 @@
 
   function refresh() {
     const magic = isMagic();
+    if (window.NativeDebug) {
+      NativeDebug.log('magic_shell_refresh', { magic: magic, page: _page });
+    }
     applyPageClasses(magic);
     if (magic) {
       ensureOrbs();

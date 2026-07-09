@@ -37,6 +37,14 @@
     return true;
   }
 
+  function isAndroidFlatMode() {
+    return document.documentElement.classList.contains('is-native-android');
+  }
+
+  function magic3dClass(base) {
+    return isAndroidFlatMode() ? base : base + ' magic-3d-card';
+  }
+
   function timeGreeting() {
     if (window.DashboardDailySummary && typeof window.DashboardDailySummary.timeGreeting === 'function') {
       return window.DashboardDailySummary.timeGreeting();
@@ -177,7 +185,7 @@
       const active = c.id === focusId ? ' is-active' : '';
       const href = childRowHref(c);
       const name = capName(c.name);
-      return '<a href="' + escHtml(href) + '" class="parent-ready-child magic-3d-card' + active + ' no-underline" data-child-id="' + escHtml(c.id) + '" aria-label="' + escHtml(name) + ' — visa dagens aktiviteter">' +
+      return '<a href="' + escHtml(href) + '" class="' + magic3dClass('parent-ready-child') + active + ' no-underline" data-child-id="' + escHtml(c.id) + '" aria-label="' + escHtml(name) + ' — visa dagens aktiviteter">' +
         (active ? '<span class="parent-ready-badge" aria-hidden="true">⭐</span>' : '') +
         '<div class="parent-ready-avatar">' + renderAvatar(c, 44) + '</div>' +
         '<div class="parent-ready-name">' + escHtml(name) + '</div>' +
@@ -264,7 +272,7 @@
     const weekSeries = buildWeekSeries(children);
 
     mount.innerHTML =
-      '<div class="parent-home-hub magic-3d-scene">' +
+      '<div class="parent-home-hub' + (isAndroidFlatMode() ? '' : ' magic-3d-scene') + '">' +
       '<div id="parentHubDailySummaryMount" class="parent-hub-daily-summary" aria-live="polite"></div>' +
       '<div class="parent-hub-greeting-block">' +
       '<h1 class="parent-hub-greeting">' + escHtml(timeGreeting()) + '</h1>' +

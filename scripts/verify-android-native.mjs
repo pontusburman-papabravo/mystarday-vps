@@ -84,4 +84,34 @@ if (fs.existsSync(capSettings)) {
   }
 }
 
+const mainActivityPatch = path.join(ROOT, 'scripts', 'patch-android-main-activity.mjs');
+if (!fs.existsSync(mainActivityPatch)) {
+  fail('scripts/patch-android-main-activity.mjs missing');
+} else {
+  const patchSrc = fs.readFileSync(mainActivityPatch, 'utf8');
+  if (!patchSrc.includes('setWebContentsDebuggingEnabled(true)')) {
+    fail('patch-android-main-activity.mjs missing WebView debugging');
+  } else {
+    ok('MainActivity WebView debugging patch script');
+  }
+}
+
+if (fs.existsSync(path.join(ROOT, 'android', 'app', 'build.gradle'))) {
+  const gradle = fs.readFileSync(path.join(ROOT, 'android', 'app', 'build.gradle'), 'utf8');
+  const nsMatch = gradle.match(/namespace\s+"([^"]+)"/);
+  if (nsMatch) {
+    const mainActivity = mainActivityPathFromNs(nsMatch[1]);
+    if (fs.existsSync(mainActivity)) {
+      const mainSrc = fs.readFileSync(mainActivity, 'utf8');
+      if (!mainSrc.includes('setWebContentsDebuggingEnabled(true)')) {
+        fail('MainActivity.java missing WebView debugging — run patch-android-main-activity.mjs');
+      }
+    }
+  }
+}
+
+function mainActivityPathFromNs(namespace) {
+  return path.join(ROOT, 'android', 'app', 'src', 'main', 'java', ...namespace.split('.'), 'MainActivity.java');
+}
+
 process.exit(failed ? 1 : 0);

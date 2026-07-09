@@ -21,7 +21,9 @@ test('public router exposes POST /client-log', () => {
   const fs = require('fs');
   const src = fs.readFileSync(path.join(__dirname, '../src/routes/public.js'), 'utf8');
   assert.ok(src.includes("router.post('/client-log'"), 'POST /client-log route missing');
-  assert.ok(src.includes("channel: 'apple_sign_in'") || src.includes("'apple_sign_in'"), 'apple_sign_in channel expected');
+  assert.ok(src.includes("'apple_sign_in'"), 'apple_sign_in channel expected');
+  assert.ok(src.includes("'native_debug'"), 'native_debug channel expected');
+  assert.ok(src.includes('native_debug_overlay'), 'native_debug_overlay app-config flag expected');
 });
 
 test('login.html exposes Apple Sign In diagnostics on parent login', () => {
