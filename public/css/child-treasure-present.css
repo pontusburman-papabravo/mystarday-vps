@@ -60,6 +60,27 @@
   opacity: 0.95;
 }
 
+[data-barnets-samling="on"] .btp-goal--chest {
+  position: relative;
+  padding-top: 1.35rem;
+  background: linear-gradient(165deg, rgba(255, 251, 243, 0.98), rgba(255, 255, 255, 0.98));
+  border: 1.5px solid rgba(107, 79, 168, 0.18);
+  box-shadow: 0 12px 36px rgba(74, 44, 122, 0.12);
+}
+
+[data-barnets-samling="on"] .btp-goal-chest-lid {
+  position: absolute;
+  top: -0.65rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.35rem;
+  filter: drop-shadow(0 2px 4px rgba(27, 35, 64, 0.12));
+}
+
+[data-barnets-samling="on"] .btp-goal-chest-body {
+  padding-top: 0.25rem;
+}
+
 [data-barnets-samling="on"] .btp-goal {
   padding: 1rem 1.1rem;
   border-radius: 1.25rem;

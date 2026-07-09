@@ -134,7 +134,7 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
     render(data.rewardsData, data.goalData, data.manualData);
     assert.match(viewEl.innerHTML, /Du kan lösa in den här nu/);
     assert.match(viewEl.innerHTML, /Fråga om att lösa in/);
-    assert.match(viewEl.innerHTML, /Kan lösas in/);
+    assert.doesNotMatch(viewEl.innerHTML, /btp-collect-hint/);
   });
 
   it('shows pending as Väntar på vuxen without redeem CTA on that reward', () => {

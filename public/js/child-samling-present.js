@@ -47,13 +47,30 @@
     return 'De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.';
   }
 
-  function renderHeader() {
+  function renderHeroPanel(universe) {
+    const total = lifetimeStars(universe);
+    const fillPct = glassFillPct(total);
+    const jarAria = total === 0
+      ? 'Stjärnglas som väntar på dina stjärnor'
+      : 'Stjärnglas fyllt till ' + fillPct + ' procent';
+
     return (
-      '<header class="bsp-header" aria-label="Min samling">' +
+      '<section class="bsp-hero-panel" aria-label="Min samling">' +
         '<p class="bsp-kicker" aria-hidden="true">🏆</p>' +
         '<h2 class="bsp-title">Min samling</h2>' +
         '<p class="bsp-subtitle">Titta vad du har samlat</p>' +
-      '</header>'
+        '<div class="bsp-hero-glass-row">' +
+          '<div class="bsp-glass-jar bsp-glass-jar--hero' + (total === 0 ? ' bsp-glass-jar--empty' : '') +
+            '" role="img" aria-label="' + esc(jarAria) + '">' +
+            '<div class="bsp-glass-fill" style="height:' + fillPct + '%"></div>' +
+            '<span class="bsp-glass-count" aria-hidden="true">' + total + ' ⭐</span>' +
+          '</div>' +
+          '<div class="bsp-hero-glass-copy">' +
+            '<p class="bsp-glass-total" aria-live="polite">' + esc(totalStarsLabel(total)) + '</p>' +
+            '<p class="bsp-hero-glass-lead">' + esc(glassLeadCopy(total)) + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</section>'
     );
   }
 
@@ -78,26 +95,31 @@
     );
   }
 
-  function renderGlassSection(universe) {
-    const total = lifetimeStars(universe);
-    const fillPct = glassFillPct(total);
-
-    const jarAria = total === 0
-      ? 'Stjärnglas som väntar på dina stjärnor'
-      : 'Stjärnglas fyllt till ' + fillPct + ' procent';
-
+  function renderPreviewStrip(universe, extras) {
+    const achievements = (universe && universe.achievements) || [];
+    const memories = getRewardMemories(extras);
+    const streak = currentStreak(universe);
+    const chips = [
+      '<span class="bsp-preview-chip">🏅 ' + achievements.length + ' troféer</span>',
+      '<span class="bsp-preview-chip">🃏 ' + memories.length + ' minnen</span>',
+    ];
+    if (streak > 0) {
+      chips.push('<span class="bsp-preview-chip">🔥 ' + streak + ' dagar</span>');
+    }
     return (
-      '<section class="bsp-section bsp-glass" aria-label="Stjärnglas">' +
+      '<nav class="bsp-preview-strip" aria-label="Överblick">' +
+        chips.join('') +
+      '</nav>'
+    );
+  }
+
+  function renderMedalSection(universe) {
+    const total = lifetimeStars(universe);
+    return (
+      '<section class="bsp-section bsp-medals" aria-label="Stjärnmedaljer">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">✨</span>' +
-          '<h3 class="bsp-section-title">Stjärnglaset</h3>' +
-        '</div>' +
-        '<p class="bsp-glass-total" aria-live="polite">' + esc(totalStarsLabel(total)) + '</p>' +
-        '<p class="bsp-section-lead">' + esc(glassLeadCopy(total)) + '</p>' +
-        '<div class="bsp-glass-jar' + (total === 0 ? ' bsp-glass-jar--empty' : '') + '" role="img" aria-label="' +
-          esc(jarAria) + '">' +
-          '<div class="bsp-glass-fill" style="height:' + fillPct + '%"></div>' +
-          '<span class="bsp-glass-count" aria-hidden="true">' + total + ' ⭐</span>' +
+          '<h3 class="bsp-section-title">Stjärnmedaljer</h3>' +
         '</div>' +
         renderMedalLadder(total) +
       '</section>'
@@ -281,7 +303,7 @@
 
     if (!achievements.length) {
       return (
-        '<section class="bsp-section bsp-wall" aria-label="Trofévägg">' +
+        '<section class="bsp-section bsp-wall" id="bsp-wall" aria-label="Trofévägg">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">🏅</span>' +
             '<h3 class="bsp-section-title">Trofévägg</h3>' +
@@ -304,6 +326,7 @@
       const desc = a.description || '';
       return (
         '<button type="button" class="bsp-trophy-card" style="--bsp-trophy-delay:' + (i * 50) + 'ms"' +
+          ' aria-expanded="false"' +
           ' aria-label="' + esc((a.name || 'Trofé') + (dateLabel ? ', ' + dateLabel : '')) + '">' +
           '<span class="bsp-trophy-emoji" aria-hidden="true">' + esc(a.emoji || '🏆') + '</span>' +
           '<span class="bsp-trophy-name">' + esc(a.name || '') + '</span>' +
@@ -334,13 +357,25 @@
 
   function bindTrophyCards(root) {
     if (!root) return;
-    const peekMs = 600;
     root.querySelectorAll('.bsp-trophy-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        card.classList.add('is-peek');
-        window.setTimeout(function () {
-          card.classList.remove('is-peek');
-        }, peekMs);
+      card.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const wasSelected = card.classList.contains('is-selected');
+        root.querySelectorAll('.bsp-trophy-card').forEach(function (c) {
+          c.classList.remove('is-selected');
+          c.setAttribute('aria-expanded', 'false');
+        });
+        if (!wasSelected) {
+          card.classList.add('is-selected');
+          card.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('.bsp-trophy-card')) return;
+      root.querySelectorAll('.bsp-trophy-card.is-selected').forEach(function (c) {
+        c.classList.remove('is-selected');
+        c.setAttribute('aria-expanded', 'false');
       });
     });
   }
@@ -484,8 +519,9 @@
     const memories = getRewardMemories(extras);
     return (
       '<div class="bsp-page">' +
-        renderHeader() +
-        renderGlassSection(universe) +
+        renderHeroPanel(universe) +
+        renderPreviewStrip(universe, extras) +
+        renderMedalSection(universe) +
         renderWallSection(universe) +
         renderStreakSection(universe) +
         renderMemoryCardsSection(memories) +

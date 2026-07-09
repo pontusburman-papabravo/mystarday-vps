@@ -59,7 +59,8 @@ describe('barnets_samling nav — #588', () => {
   it('child-samling-present defines Min samling shell sections', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
     assert.match(src, /ChildSamlingPresent/);
-    assert.match(src, /Stjärnglaset/);
+    assert.match(src, /bsp-hero-panel/);
+    assert.match(src, /Stjärnmedaljer/);
     assert.match(src, /Trofévägg/);
     assert.match(src, /Dagar i rad/);
     assert.match(src, /Mina minneskort/);

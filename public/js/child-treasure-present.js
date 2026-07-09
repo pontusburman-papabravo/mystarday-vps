@@ -71,7 +71,9 @@
     const remaining = Math.max(0, (goal.star_cost || 0) - (skatt.starBalance || 0));
     const icon = goal.reward_icon || '🎁';
     let html =
-      '<section class="btp-goal" aria-label="Aktivt mål">' +
+      '<section class="btp-goal btp-goal--chest" aria-label="Aktivt mål">' +
+        '<div class="btp-goal-chest-lid" aria-hidden="true">📦</div>' +
+        '<div class="btp-goal-chest-body">' +
         '<p class="btp-goal-kicker">Du sparar till</p>' +
         '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>' +
         '<p class="btp-goal-progress">' +
@@ -97,7 +99,7 @@
       html += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
     }
 
-    html += '</section>';
+    html += '</div></section>';
     return html;
   }
 
@@ -119,12 +121,6 @@
             '✨ Välj en belöning att spara till' +
           '</button>' +
         '</div>'
-      );
-    }
-    if (skatt.collectHint && skatt.collectHint.starsToGo > 0) {
-      return (
-        '<p class="btp-collect-hint" role="status">Fortsätt samla — ' +
-          skatt.collectHint.starsToGo + ' ⭐ kvar till målet</p>'
       );
     }
     return '';
@@ -214,7 +210,10 @@
   }
 
   function renderRewardsList(rewards, starBalance, redemptions, goal) {
+    const activeGoalId = goal && goal.reward_id ? goal.reward_id : null;
+
     if (!rewards || rewards.length === 0) {
+      if (activeGoalId) return '';
       return (
         '<section class="btp-rewards" aria-label="Belöningar">' +
           '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
@@ -227,9 +226,29 @@
       );
     }
 
+    const listRewards = activeGoalId
+      ? rewards.filter(function (r) { return r.id !== activeGoalId; })
+      : rewards;
+
+    if (!listRewards.length) {
+      if (!activeGoalId) {
+        return (
+          '<section class="btp-rewards" aria-label="Belöningar">' +
+            '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
+            '<div class="btp-empty">' +
+              '<p class="btp-empty-emoji" aria-hidden="true">🎁</p>' +
+              '<p class="btp-empty-title">Här kan du välja vad du vill spara till</p>' +
+              '<p class="btp-empty-sub">Be en vuxen lägga till belöningar åt dig.</p>' +
+            '</div>' +
+          '</section>'
+        );
+      }
+      return '';
+    }
+
     const sortFn = window.sortRewardsForList;
     const stateFn = window.skattRewardState;
-    const sorted = sortFn ? sortFn(rewards, starBalance, redemptions, goal) : rewards;
+    const sorted = sortFn ? sortFn(listRewards, starBalance, redemptions, goal) : listRewards;
 
     let cards = '';
     sorted.forEach(function (r, idx) {

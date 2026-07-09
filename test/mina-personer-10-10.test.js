@@ -43,7 +43,7 @@ describe('Mina personer barn 10/10', () => {
     assert.match(src, /Mina personer/);
     assert.match(src, /De som hjälper mig/);
     assert.match(src, /cfh-persons-primary/);
-    assert.match(src, /cfh-below-fold/);
+    assert.match(src, /cfh-secondary-sections/);
     assert.doesNotMatch(src, /Familjehallen/);
     assert.doesNotMatch(src, /Familjeskista/);
     assert.doesNotMatch(src, /checklist/i);

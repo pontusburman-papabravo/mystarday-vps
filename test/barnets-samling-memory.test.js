@@ -120,7 +120,7 @@ describe('#586 Fas D — Min samling render with memories', () => {
     assert.match(html, /Det här klarade du/);
     assert.match(html, /⭐ 20/);
     assert.match(html, /bsp-shelf-board/);
-    assert.match(html, /Stjärnglaset/);
+    assert.match(html, /bsp-hero-panel/);
     assert.match(html, /Trofévägg/);
     assert.doesNotMatch(html, /starBalance/);
   });

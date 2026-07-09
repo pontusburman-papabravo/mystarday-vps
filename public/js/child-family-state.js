@@ -157,7 +157,7 @@
     if (personCount > 0) {
       return Object.assign({}, base, {
         state: FAMILY_STATES.TOGETHER,
-        statusLine: personCount === 1 ? 'Du har någon här' : 'De som hjälper dig',
+        statusLine: personCount === 1 ? 'Du har någon här' : '',
       });
     }
 

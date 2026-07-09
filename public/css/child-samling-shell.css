@@ -1,0 +1,291 @@
+/**
+ * child-samling-shell.css — Shared mobile presentation (gate ON only).
+ * Layout, contrast, safe-area — no feature logic.
+ */
+
+/* ── Stronger scrim on illustrated backgrounds ─────────── */
+[data-barnets-samling="on"] .cwb-layer::after {
+  background: linear-gradient(
+    180deg,
+    rgba(247, 243, 235, 0.22) 0%,
+    rgba(247, 243, 235, 0.12) 28%,
+    rgba(247, 243, 235, 0.55) 58%,
+    rgba(247, 243, 235, 0.94) 82%,
+    rgba(247, 243, 235, 0.98) 100%
+  ) !important;
+}
+
+[data-barnets-samling="on"] .cwb-world::after,
+[data-barnets-samling="on"] .cwb-family::after {
+  background: linear-gradient(
+    180deg,
+    rgba(27, 35, 64, 0.18) 0%,
+    rgba(247, 243, 235, 0.14) 30%,
+    rgba(247, 243, 235, 0.62) 62%,
+    rgba(247, 243, 235, 0.96) 88%,
+    rgba(247, 243, 235, 0.99) 100%
+  ) !important;
+}
+
+html[data-child-layer='collection'] .cwb-world,
+html[data-child-world='collection'] .cwb-world,
+html[data-child-world-active='collection'] .cwb-world {
+  opacity: 1;
+}
+
+/* ── Content views: transparent over bg, safe bottom inset ─ */
+[data-barnets-samling="on"] #scheduleView,
+[data-barnets-samling="on"] #collectionView,
+[data-barnets-samling="on"] #rewardsView,
+[data-barnets-samling="on"] #familyView {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px) + 12px) !important;
+}
+
+[data-barnets-samling="on"] #todayFocusMount {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(237, 231, 246, 0.85);
+  box-shadow: 0 4px 20px rgba(27, 35, 64, 0.06);
+}
+
+[data-barnets-samling="on"] #scheduleView {
+  padding-top: 0.35rem;
+}
+
+/* Idag cards — solid surfaces, slightly tighter first viewport */
+[data-barnets-samling="on"] #scheduleView .now-card:not(.done) {
+  margin-top: 0.25rem;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card:not(.done),
+[data-barnets-samling="on"] #scheduleView .nl-card:not(.done) {
+  box-shadow: 0 4px 16px rgba(27, 35, 64, 0.08);
+}
+
+/* ── Mina personer content panel ───────────────────────── */
+[data-barnets-samling="on"] .cfh-shell {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 0.65rem 0.85rem 0;
+}
+
+[data-barnets-samling="on"] .cfh-hero-panel {
+  text-align: center;
+  padding: 1.1rem 1rem 1rem;
+  margin-bottom: 0.85rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1.5px solid rgba(27, 35, 64, 0.08);
+  box-shadow: 0 6px 24px rgba(27, 35, 64, 0.1);
+}
+
+.dark [data-barnets-samling="on"] .cfh-hero-panel {
+  background: rgba(30, 37, 69, 0.96);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-barnets-samling="on"] .cfh-hero-panel .cfh-title,
+[data-barnets-samling="on"] .cfh-hero-panel .cfh-subtitle,
+[data-barnets-samling="on"] .cfh-hero-panel .cfh-status {
+  text-shadow: none;
+}
+
+[data-barnets-samling="on"] .cfh-warm-banner {
+  margin: 0 0 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 251, 235, 0.98);
+  border: 1.5px solid rgba(245, 166, 35, 0.25);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #92400e;
+  line-height: 1.4;
+  text-align: center;
+}
+
+[data-barnets-samling="on"] .cfh-section-muted {
+  padding: 0.85rem 1rem;
+  border-radius: 1.15rem;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.5px solid rgba(27, 35, 64, 0.07);
+  box-shadow: 0 4px 16px rgba(27, 35, 64, 0.06);
+  margin-bottom: 0.75rem;
+}
+
+.dark [data-barnets-samling="on"] .cfh-section-muted {
+  background: rgba(30, 37, 69, 0.94);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-barnets-samling="on"] .cfh-person-card {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(27, 35, 64, 0.08) !important;
+  box-shadow: 0 3px 12px rgba(27, 35, 64, 0.07) !important;
+}
+
+[data-barnets-samling="on"] .cfh-card,
+[data-barnets-samling="on"] .cfh-chest,
+[data-barnets-samling="on"] .cfh-story-item {
+  background: rgba(255, 255, 255, 0.98) !important;
+  opacity: 1 !important;
+}
+
+/* ── Skattkammaren goal card readability ───────────────── */
+[data-barnets-samling="on"] .btp-goal .skatt-star-grid-wrap {
+  margin-top: 0.65rem;
+}
+
+[data-barnets-samling="on"] .btp-goal .skatt-star-grid {
+  max-width: 15.5rem;
+  gap: 3px;
+}
+
+[data-barnets-samling="on"] .btp-goal .skatt-star-cell {
+  font-size: 0.95rem;
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+[data-barnets-samling="on"] .btp-goal .skatt-star-grid-goal {
+  font-size: 1.75rem;
+  margin-top: 0.35rem;
+}
+
+[data-barnets-samling="on"] .btp-goal .skatt-star-grid-more {
+  font-size: 0.72rem;
+  color: #7a8198;
+  margin-top: 0.35rem;
+}
+
+[data-barnets-samling="on"] .btp-skatt {
+  padding-bottom: 0.5rem;
+}
+
+/* ── Idag: checkbox/checkoff layout — no overlap ─────── */
+[data-barnets-samling="on"] #scheduleView .now-activity {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 2.75rem;
+  grid-template-rows: auto auto;
+  gap: 0.45rem 0.75rem;
+  align-items: center;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-emoji {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1.55rem;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-details {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-check {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  max-width: 2.75rem;
+  align-self: center;
+  justify-self: end;
+  border: 2px solid rgba(107, 79, 168, 0.22);
+  box-shadow: 0 2px 10px rgba(27, 35, 64, 0.08);
+}
+
+[data-barnets-samling="on"] #scheduleView .time-timer-wrap,
+[data-barnets-samling="on"] #scheduleView .activity-timer-wrap {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+[data-barnets-samling="on"] #scheduleView .now-card:not(.done) {
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 28px rgba(245, 166, 35, 0.14);
+  border: 1.5px solid rgba(245, 166, 35, 0.28);
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card > .flex.items-center {
+  display: flex !important;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.65rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .text-3xl {
+  order: 1;
+  flex-shrink: 0;
+  font-size: 1.65rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .flex-1 {
+  order: 2;
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .card-check {
+  order: 3;
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  min-width: 2.75rem !important;
+  max-width: 2.75rem !important;
+  flex: 0 0 2.75rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView .activity-card .drag-handle {
+  order: 0;
+}
+
+/* ── Mina personer: visible secondary sections ───────── */
+[data-barnets-samling="on"] .cfh-secondary-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+[data-barnets-samling="on"] .cfh-section--goals,
+[data-barnets-samling="on"] .cfh-section--story {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(255, 251, 243, 0.94));
+}
+
+[data-barnets-samling="on"] .cfh-person-grid {
+  gap: 0.65rem;
+}
+
+/* ── Storybook depth — shared card language ────────────── */
+[data-barnets-samling="on"] .bsp-hero-panel,
+[data-barnets-samling="on"] .bsp-section,
+[data-barnets-samling="on"] .btp-goal--chest,
+[data-barnets-samling="on"] .cfh-hero-panel,
+[data-barnets-samling="on"] .cfh-section-muted {
+  box-shadow: 0 10px 32px rgba(27, 35, 64, 0.09);
+}
+
+[data-barnets-samling="on"] .bsp-preview-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  margin: -0.25rem 0 0.15rem;
+}
+
+[data-barnets-samling="on"] .bsp-preview-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(74, 139, 196, 0.16);
+  color: #3d4a6b;
+  box-shadow: 0 2px 8px rgba(27, 35, 64, 0.05);
+}
