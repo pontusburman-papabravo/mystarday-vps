@@ -98,6 +98,7 @@ describe('Android Play stability guards', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/native-debug.js'), 'utf8');
     assert.match(js, /native_debug/);
     assert.match(js, /nativeDebugPanel/);
+    assert.doesNotMatch(js, /location\.assign\s*=/, 'must not patch read-only location.assign (Android WebView crash)');
     const html = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(html, /native-debug\.js/);
     const patch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-main-activity.mjs'), 'utf8');

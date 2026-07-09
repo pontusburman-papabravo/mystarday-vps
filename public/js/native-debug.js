@@ -214,25 +214,6 @@
     }, true);
   }
 
-  function hookNavigation() {
-    if (window.__nativeDebugNavHooked) return;
-    window.__nativeDebugNavHooked = true;
-    const origAssign = location.assign.bind(location);
-    const origReplace = location.replace.bind(location);
-    location.assign = function (url) {
-      if (window.NativeDebug && NativeDebug.isEnabled()) {
-        NativeDebug.log('navigate', { method: 'assign', to: String(url).slice(0, 120) });
-      }
-      return origAssign(url);
-    };
-    location.replace = function (url) {
-      if (window.NativeDebug && NativeDebug.isEnabled()) {
-        NativeDebug.log('navigate', { method: 'replace', to: String(url).slice(0, 120) });
-      }
-      return origReplace(url);
-    };
-  }
-
   function enable(reason) {
     if (enabled) return;
     enabled = true;
@@ -253,7 +234,6 @@
     hookFetch();
     hookLifecycle();
     hookUiClicks();
-    hookNavigation();
   }
 
   function hookFetch() {
