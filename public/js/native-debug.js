@@ -1,15 +1,19 @@
 /**
  * native-debug.js — On-screen diagnostics for Capacitor (Android/iOS).
- * Panel-only logging (no server spam) to avoid rate-limit feedback loops.
+ * Singleton — must not load twice (duplicate tags broke logging).
  */
 (function () {
   'use strict';
+
+  if (window.__stjarndagNativeDebugLoaded) return;
+  window.__stjarndagNativeDebugLoaded = true;
 
   const MAX_LINES = 100;
   const lines = [];
   let enabled = false;
   let panel = null;
   let listEl = null;
+  let headerEl = null;
   let collapsed = true;
 
   function isNativeShell() {
@@ -66,14 +70,27 @@
     return false;
   }
 
+  function updateHeader() {
+    if (!headerEl) return;
+    const n = lines.length;
+    headerEl.textContent = n ? 'Native debug · ' + n + ' rader' : 'Native debug · väntar…';
+  }
+
   function renderPanel() {
     if (!listEl) return;
     listEl.textContent = lines.join('\n');
     listEl.scrollTop = listEl.scrollHeight;
+    updateHeader();
   }
 
   function ensurePanel() {
     if (panel) return;
+    panel = document.getElementById('nativeDebugPanel');
+    if (panel) {
+      listEl = panel.querySelector('#nativeDebugList');
+      headerEl = panel.querySelector('#nativeDebugHeader strong');
+      return;
+    }
     panel = document.createElement('div');
     panel.id = 'nativeDebugPanel';
     panel.setAttribute('role', 'log');
@@ -90,18 +107,20 @@
       '</span></div>' +
       '<pre id="nativeDebugList"></pre>';
     document.body.appendChild(panel);
-    listEl = document.getElementById('nativeDebugList');
-    document.getElementById('nativeDebugCollapse').addEventListener('click', function () {
+    listEl = panel.querySelector('#nativeDebugList');
+    headerEl = panel.querySelector('#nativeDebugHeader strong');
+    panel.querySelector('#nativeDebugCollapse').addEventListener('click', function () {
       collapsed = !collapsed;
       panel.classList.toggle('is-collapsed', collapsed);
       this.textContent = collapsed ? '+' : '−';
     });
-    document.getElementById('nativeDebugCopy').addEventListener('click', function () {
+    panel.querySelector('#nativeDebugCopy').addEventListener('click', function () {
       const text = lines.join('\n');
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).catch(function () {});
       }
     });
+    updateHeader();
   }
 
   function log(step, detail) {
@@ -115,6 +134,7 @@
     lines.push(line);
     if (lines.length > MAX_LINES) lines.shift();
     console.log('[NATIVE-DEBUG]', step, detail || '');
+    if (!panel && document.body) ensurePanel();
     if (panel) renderPanel();
   }
 
@@ -122,6 +142,19 @@
     if (url.indexOf('/api/client-log') !== -1) return false;
     if (status >= 400) return true;
     return /\/api\/auth\/(login|me|refresh|csrf-token)|\/api\/app-config|\/api\/family\//.test(url);
+  }
+
+  function hookUiClicks() {
+    if (window.__nativeDebugUiHooked) return;
+    window.__nativeDebugUiHooked = true;
+    document.addEventListener('click', function (e) {
+      if (!enabled) return;
+      const el = e.target.closest('button, a[href], [role="button"]');
+      if (!el || el.closest('#nativeDebugPanel')) return;
+      const id = el.id || '';
+      const text = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 48);
+      log('ui_click', { id: id, text: text });
+    }, true);
   }
 
   function enable(reason) {
@@ -133,6 +166,7 @@
     log('debug_enabled', { reason: reason || 'unknown', snap: platformSnapshot() });
     hookFetch();
     hookLifecycle();
+    hookUiClicks();
   }
 
   function hookFetch() {
@@ -143,16 +177,21 @@
     window.fetch = function (input, init) {
       const url = typeof input === 'string' ? input : (input && input.url) || '';
       return orig.apply(this, arguments).then(function (res) {
-        if (enabled && url.indexOf('/api/') !== -1 && shouldLogFetch(url, res.status)) {
-          log(res.status >= 400 ? 'fetch_error' : 'fetch_ok', {
+        if (window.NativeDebug && NativeDebug.isEnabled() &&
+            url.indexOf('/api/') !== -1 && shouldLogFetch(url, res.status)) {
+          NativeDebug.log(res.status >= 400 ? 'fetch_error' : 'fetch_ok', {
             url: url.slice(0, 120),
             status: res.status,
           });
         }
         return res;
       }).catch(function (err) {
-        if (enabled && url.indexOf('/api/') !== -1 && url.indexOf('/api/client-log') === -1) {
-          log('fetch_fail', { url: url.slice(0, 120), err: String(err && err.message || err) });
+        if (window.NativeDebug && NativeDebug.isEnabled() &&
+            url.indexOf('/api/') !== -1 && url.indexOf('/api/client-log') === -1) {
+          NativeDebug.log('fetch_fail', {
+            url: url.slice(0, 120),
+            err: String(err && err.message || err),
+          });
         }
         throw err;
       });
@@ -163,34 +202,41 @@
     if (window.__nativeDebugLifecycleHooked) return;
     window.__nativeDebugLifecycleHooked = true;
     window.addEventListener('error', function (ev) {
-      log('window_error', {
-        message: ev.message,
-        source: ev.filename,
-        line: ev.lineno,
-        col: ev.colno,
-      });
+      if (window.NativeDebug) {
+        NativeDebug.log('window_error', {
+          message: ev.message,
+          source: ev.filename,
+          line: ev.lineno,
+          col: ev.colno,
+        });
+      }
     });
     window.addEventListener('unhandledrejection', function (ev) {
-      log('unhandled_rejection', { reason: String(ev.reason && ev.reason.message || ev.reason) });
+      if (window.NativeDebug) {
+        NativeDebug.log('unhandled_rejection', {
+          reason: String(ev.reason && ev.reason.message || ev.reason),
+        });
+      }
     });
     window.addEventListener('beforeunload', function () {
-      log('beforeunload', platformSnapshot());
+      if (window.NativeDebug) NativeDebug.log('beforeunload', platformSnapshot());
     });
     window.addEventListener('stjarndag-view-mode', function (ev) {
-      log('view_mode', ev.detail || null);
-    });
-    window.addEventListener('stjarndag-magic-navigated', function (ev) {
-      log('magic_navigated', ev.detail || null);
+      if (window.NativeDebug) NativeDebug.log('view_mode', ev.detail || null);
     });
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () {
-        log('dom_ready', platformSnapshot());
+        if (window.NativeDebug && NativeDebug.isEnabled()) {
+          NativeDebug.log('dom_ready', platformSnapshot());
+        }
       });
-    } else {
+    } else if (window.NativeDebug && NativeDebug.isEnabled()) {
       log('dom_ready', platformSnapshot());
     }
     window.addEventListener('pageshow', function (ev) {
-      log('pageshow', { persisted: !!ev.persisted, snap: platformSnapshot() });
+      if (window.NativeDebug) {
+        NativeDebug.log('pageshow', { persisted: !!ev.persisted, snap: platformSnapshot() });
+      }
     });
   }
 

@@ -23,7 +23,11 @@
 }
 
 #nativeDebugPanel.is-collapsed #nativeDebugList {
-  display: none;
+  display: block;
+  max-height: 2.8em;
+  overflow: hidden;
+  opacity: 0.9;
+  font-size: 9px;
 }
 
 #nativeDebugHeader {
