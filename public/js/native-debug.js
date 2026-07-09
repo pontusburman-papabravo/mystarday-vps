@@ -1,22 +1,16 @@
 /**
  * native-debug.js — On-screen diagnostics for Capacitor (Android/iOS).
- * Shows lifecycle steps, fetch results, and JS errors before a WebView crash.
- *
- * Enable:
- *   - Server: NATIVE_DEBUG_OVERLAY=true → app-config.native_debug_overlay
- *   - URL once: ?native_debug=1 (persisted in sessionStorage)
- *   - Secret: 7 taps on login title (persisted in localStorage)
+ * Panel-only logging (no server spam) to avoid rate-limit feedback loops.
  */
 (function () {
   'use strict';
 
-  const CHANNEL = 'native_debug';
   const MAX_LINES = 100;
   const lines = [];
   let enabled = false;
   let panel = null;
   let listEl = null;
-  let collapsed = false;
+  let collapsed = true;
 
   function isNativeShell() {
     if (document.documentElement.classList.contains('is-native')) return true;
@@ -72,27 +66,6 @@
     return false;
   }
 
-  function serverLog(step, detail) {
-    const payload = {
-      channel: CHANNEL,
-      step: step,
-      detail: detail || null,
-      ts: Date.now(),
-      native: isNativeShell(),
-      android: document.documentElement.classList.contains('is-native-android'),
-      ios: document.documentElement.classList.contains('is-native-ios'),
-    };
-    try {
-      fetch('/api/client-log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify(payload),
-        keepalive: true,
-      }).catch(function () {});
-    } catch (_) {}
-  }
-
   function renderPanel() {
     if (!listEl) return;
     listEl.textContent = lines.join('\n');
@@ -105,11 +78,14 @@
     panel.id = 'nativeDebugPanel';
     panel.setAttribute('role', 'log');
     panel.setAttribute('aria-live', 'polite');
+    panel.classList.toggle('is-collapsed', collapsed);
     panel.innerHTML =
       '<div id="nativeDebugHeader">' +
       '<strong>Native debug</strong>' +
       '<span id="nativeDebugActions">' +
-      '<button type="button" id="nativeDebugCollapse" aria-label="Minimera">−</button>' +
+      '<button type="button" id="nativeDebugCollapse" aria-label="Visa eller dölj logg">' +
+      (collapsed ? '+' : '−') +
+      '</button>' +
       '<button type="button" id="nativeDebugCopy" aria-label="Kopiera logg">Kopiera</button>' +
       '</span></div>' +
       '<pre id="nativeDebugList"></pre>';
@@ -139,13 +115,19 @@
     lines.push(line);
     if (lines.length > MAX_LINES) lines.shift();
     console.log('[NATIVE-DEBUG]', step, detail || '');
-    serverLog(step, detail);
     if (panel) renderPanel();
+  }
+
+  function shouldLogFetch(url, status) {
+    if (url.indexOf('/api/client-log') !== -1) return false;
+    if (status >= 400) return true;
+    return /\/api\/auth\/(login|me|refresh|csrf-token)|\/api\/app-config|\/api\/family\//.test(url);
   }
 
   function enable(reason) {
     if (enabled) return;
     enabled = true;
+    collapsed = true;
     persistEnabled();
     if (document.body) ensurePanel();
     log('debug_enabled', { reason: reason || 'unknown', snap: platformSnapshot() });
@@ -160,14 +142,16 @@
     if (typeof orig !== 'function') return;
     window.fetch = function (input, init) {
       const url = typeof input === 'string' ? input : (input && input.url) || '';
-      const isApi = url.indexOf('/api/') !== -1;
       return orig.apply(this, arguments).then(function (res) {
-        if (enabled && isApi) {
-          log('fetch_ok', { url: url.slice(0, 120), status: res.status });
+        if (enabled && url.indexOf('/api/') !== -1 && shouldLogFetch(url, res.status)) {
+          log(res.status >= 400 ? 'fetch_error' : 'fetch_ok', {
+            url: url.slice(0, 120),
+            status: res.status,
+          });
         }
         return res;
       }).catch(function (err) {
-        if (enabled && isApi) {
+        if (enabled && url.indexOf('/api/') !== -1 && url.indexOf('/api/client-log') === -1) {
           log('fetch_fail', { url: url.slice(0, 120), err: String(err && err.message || err) });
         }
         throw err;
@@ -192,14 +176,8 @@
     window.addEventListener('beforeunload', function () {
       log('beforeunload', platformSnapshot());
     });
-    document.addEventListener('visibilitychange', function () {
-      log('visibility', { state: document.visibilityState, snap: platformSnapshot() });
-    });
     window.addEventListener('stjarndag-view-mode', function (ev) {
       log('view_mode', ev.detail || null);
-    });
-    window.addEventListener('stjarndag-parent-nav-layout', function () {
-      log('parent_nav_layout', platformSnapshot());
     });
     window.addEventListener('stjarndag-magic-navigated', function (ev) {
       log('magic_navigated', ev.detail || null);
@@ -220,6 +198,7 @@
     const path = (location.pathname || '').replace(/\/$/, '') || '/';
     if (path !== '/login' && path !== '/app-entry') return;
     const targets = [
+      document.querySelector('.login-magic-logo h1'),
       document.querySelector('.login-magic-title'),
       document.querySelector('.app-entry-title'),
       document.querySelector('h1'),

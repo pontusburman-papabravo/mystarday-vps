@@ -62,6 +62,7 @@ const API_BOOTSTRAP_PREFIXES = [
   '/subscription/preview-data',
   '/features',
   '/app-config',
+  '/client-log',
   '/public/professional-interest',
   '/waitlist',
 ];

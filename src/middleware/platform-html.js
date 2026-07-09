@@ -204,7 +204,7 @@ function maybeSetNoindexHeader(res, reqPath) {
 
 function ensureNativeDebugAssets(body) {
   if (typeof body !== 'string') return body;
-  const DEBUG_JS = '/js/native-debug.js?v=1.0.1';
+  const DEBUG_JS = '/js/native-debug.js?v=1.0.2';
   const DEBUG_CSS = '/css/native-debug.css?v=1.0.1';
   if (!body.includes('native-debug.js')) {
     const tailMarker = '</body>';
@@ -269,7 +269,7 @@ function injectPlatformHtml(body, reqPath) {
   const headInject = headParts.join('\n') + '\n';
 
   const bodyInject =
-    '<script src="/js/native-debug.js?v=1.0.1"><\/script>\n' +
+    '<script src="/js/native-debug.js?v=1.0.2"><\/script>\n' +
     '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n' +
     '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
