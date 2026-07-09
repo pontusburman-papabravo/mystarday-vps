@@ -27,7 +27,14 @@
     return window.AppViewMode && AppViewMode.isAllowed() && AppViewMode.isMagic();
   }
 
+  function isAndroidNative() {
+    return typeof window.Platform !== 'undefined' &&
+      typeof Platform.isAndroid === 'function' &&
+      Platform.isAndroid();
+  }
+
   function ensureOrbs() {
+    if (isAndroidNative()) return;
     if (document.querySelector('.magic-3d-orbs')) return;
     const wrap = document.createElement('div');
     wrap.className = 'magic-3d-orbs';

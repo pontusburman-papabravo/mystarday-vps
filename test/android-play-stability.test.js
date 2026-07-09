@@ -38,10 +38,18 @@ describe('Android Play stability guards', () => {
     assert.doesNotMatch(src, /DOMContentLoaded.*is-native-android/);
   });
 
-  it('platform.js applies native DOM classes synchronously', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/platform.js'), 'utf8');
-    assert.match(src, /Synchronous — Android GPU guards/);
-    assert.match(src, /run\(\)/);
+  it('platform-native.css keeps login magic-input dark-theme on Android', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/css/platform-native.css'), 'utf8');
+    assert.match(src, /login-magic-bg \.magic-form-fields \.magic-input/);
+    assert.match(src, /color: #fff !important/);
+    assert.doesNotMatch(src, /magic-form-fields \.magic-input,\s*\nhtml\.is-native-android #ppin-overlay/);
+    assert.match(src, /\.magic-3d-orbs/);
+  });
+
+  it('parent-magic-shell skips 3D orbs on Android native', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-shell.js'), 'utf8');
+    assert.match(src, /isAndroidNative/);
+    assert.match(src, /if \(isAndroidNative\(\)\) return/);
   });
 
   it('prepare-android-native.mjs strips Apple Sign In package', () => {
