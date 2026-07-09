@@ -134,7 +134,13 @@ html[data-child-world-active='collection'] .cwb-world {
   opacity: 1 !important;
 }
 
-/* ── Skattkammaren goal card readability ───────────────── */
+/* ── Skattkammaren: suppress legacy goal chrome when gate ON ── */
+[data-barnets-samling="on"] #childGoalProgressMount,
+[data-barnets-samling="on"] #childPendingRedemptionMount {
+  display: none !important;
+}
+
+/* ── Skattkammaren goal card readability (legacy star grid fallback) ── */
 [data-barnets-samling="on"] .btp-goal .skatt-star-grid-wrap {
   margin-top: 0.65rem;
 }
@@ -353,7 +359,8 @@ html[data-barnets-samling="on"] body.first-star-mode #scheduleView .now-check {
 /* ── Storybook depth — shared card language ────────────── */
 [data-barnets-samling="on"] .bsp-hero-panel,
 [data-barnets-samling="on"] .bsp-section,
-[data-barnets-samling="on"] .btp-goal--chest,
+[data-barnets-samling="on"] .btp-goal--wish,
+[data-barnets-samling="on"] .btp-goal-wish-inner,
 [data-barnets-samling="on"] .cfh-hero-panel,
 [data-barnets-samling="on"] .cfh-section-muted {
   box-shadow: 0 10px 32px rgba(27, 35, 64, 0.09);

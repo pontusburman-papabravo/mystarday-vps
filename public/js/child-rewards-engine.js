@@ -83,6 +83,12 @@
       '<p class="text-sm text-text-soft">' + pending.length + ' belöning' + (pending.length === 1 ? '' : 'ar') + ' väntar på en vuxen.</p></div>';
   }
 
+  function isBarnetsSamlingPresentation() {
+    return !!(window.ChildWorlds
+      && ChildWorlds.isBarnetsSamlingEnabled
+      && ChildWorlds.isBarnetsSamlingEnabled());
+  }
+
   function isWorldSceneActive() {
     if (window.ChildWorlds && ChildWorlds.isWorldHubEntryDisabled
         && ChildWorlds.isWorldHubEntryDisabled()) {
@@ -119,7 +125,7 @@
   }
 
   function mountPendingBannerIfNeeded() {
-    if (isWorldSceneActive()) return;
+    if (isBarnetsSamlingPresentation() || isWorldSceneActive()) return;
     const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view) return;
     const existing = document.getElementById('childPendingRedemptionMount');
@@ -162,7 +168,7 @@
   }
 
   function mountGoalProgress() {
-    if (isWorldSceneActive()) return;
+    if (isBarnetsSamlingPresentation() || isWorldSceneActive()) return;
     const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view || !_goalData || !_goalData.goal) return;
     const existing = document.getElementById('childGoalProgressMount');

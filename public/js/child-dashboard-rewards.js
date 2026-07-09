@@ -151,8 +151,12 @@ async function loadRewardsInner(options) {
       if (window.ChildRewardsEngine) {
         ChildRewardsEngine.setGoalData(goalData);
         ChildRewardsEngine.setRewardsData(rewardsData);
-        ChildRewardsEngine.mountGoalProgress();
-        ChildRewardsEngine.mountPendingBannerIfNeeded();
+        if (window.ChildTreasurePresent && ChildTreasurePresent.shouldUse()) {
+          ChildRewardsEngine.clearGoalChrome();
+        } else {
+          ChildRewardsEngine.mountGoalProgress();
+          ChildRewardsEngine.mountPendingBannerIfNeeded();
+        }
       }
     } catch (renderErr) {
       console.error('[loadRewards] renderSkattkammaren failed:', renderErr);

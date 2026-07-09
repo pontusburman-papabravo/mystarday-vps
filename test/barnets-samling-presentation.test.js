@@ -84,6 +84,19 @@ describe('barnets samling — presentation polish', () => {
     assert.match(src, /activeGoalId/);
     assert.match(src, /listRewards/);
     assert.doesNotMatch(src, /btp-collect-hint/);
+    assert.doesNotMatch(src, /starGridHtml/);
+    assert.match(src, /btp-wish-ring/);
+    assert.match(src, /btp-gem-trail/);
+  });
+
+  it('Skattkammaren skips legacy goal chrome when gate ON', () => {
+    const rewards = read('public/js/child-dashboard-rewards.js');
+    assert.match(rewards, /ChildTreasurePresent\.shouldUse/);
+    assert.match(rewards, /clearGoalChrome/);
+    const engine = read('public/js/child-rewards-engine.js');
+    assert.match(engine, /isBarnetsSamlingPresentation/);
+    const shell = read('public/css/child-samling-shell.css');
+    assert.match(shell, /#childGoalProgressMount/);
   });
 
   it('Mina personer shows secondary sections without details fold', () => {

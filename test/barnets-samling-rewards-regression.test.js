@@ -207,7 +207,7 @@ describe('#592 reward flow regression — render saldo, pending, redeem, history
     assert.match(viewEl.innerHTML, /Fråga om att lösa in/);
   });
 
-  it('gate ON render shows väntar på vuxen for pending redemption', () => {
+  it('gate ON render shows väntar på godkännande for pending redemption', () => {
     const { renderSkattkammaren, viewEl } = loadRewardsRuntime({ gateOn: true });
     const data = fixture({
       rewardsData: {
@@ -217,7 +217,7 @@ describe('#592 reward flow regression — render saldo, pending, redeem, history
       },
     });
     renderSkattkammaren(data.rewardsData, data.goalData, data.manualData);
-    assert.match(viewEl.innerHTML, /Väntar på vuxen/);
+    assert.match(viewEl.innerHTML, /Väntar på godkännande/);
     assert.doesNotMatch(viewEl.innerHTML, /Fråga om att lösa in/);
   });
 
