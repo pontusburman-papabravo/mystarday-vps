@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v548';
-// stjarndag-v548: Fas E #587 — årsbok + Skattkammaren hylla/kista polish
+const CACHE_NAME = 'stjarndag-v549';
+// stjarndag-v549: Android login contrast fix + disable magic 3D orbs post-login
 // stjarndag-v547: Android Play stability — early is-native-android + filter:blur GPU guard
 // stjarndag-v546: Fas D #586 — minneskort, hylla, diplom i Min samling
 // stjarndag-v543: Fas B #618 — streak-kedja från stats.streak

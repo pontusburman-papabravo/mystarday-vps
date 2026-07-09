@@ -179,8 +179,27 @@ html.is-native-android .entry-highlight-chip {
   border-color: rgba(255, 255, 255, 0.22) !important;
 }
 
+/* Login form — keep dark-theme glass (white bg + white text was unreadable) */
+html.is-native-android .login-magic-bg .magic-form-fields label {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+html.is-native-android .login-magic-bg .magic-form-fields .magic-input {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #fff !important;
+}
+
+html.is-native-android .login-magic-bg .magic-form-fields .magic-input::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* Parent magic 3D orbs — filter:blur + perspective crash post-login on mid Android */
+html.is-native-android .magic-3d-orbs {
+  display: none !important;
+}
+
 html.is-native-android .app-entry-screen .entry-choice-card,
-html.is-native-android .magic-form-fields .magic-input,
 html.is-native-android #ppin-overlay > div {
   background: rgba(255, 255, 255, 0.98) !important;
 }
