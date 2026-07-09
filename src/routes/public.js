@@ -144,6 +144,7 @@ router.get('/app-config', (req, res) => {
     parental_gate_enabled: process.env.PARENTAL_GATE_ENABLED !== 'false',
     native_tabbar_enabled: process.env.NATIVE_TABBAR_ENABLED !== 'false',
     sentryDsn: process.env.SENTRY_DSN || process.env.SENTRY_DSN_PUBLIC || '',
+    native_debug_overlay: process.env.NATIVE_DEBUG_OVERLAY === 'true',
     googleWebClientId: process.env.GOOGLE_WEB_CLIENT_ID || '',
     // Web Sign in with Apple requires the Services ID — never fall back to bundle ID.
     appleClientId: process.env.APPLE_CLIENT_ID || '',
@@ -166,10 +167,10 @@ const clientLogLimiter = rateLimit({
   },
 });
 
-const CLIENT_LOG_CHANNELS = new Set(['apple_sign_in']);
+const CLIENT_LOG_CHANNELS = new Set(['apple_sign_in', 'native_debug']);
 
 router.post('/client-log', clientLogLimiter, (req, res) => {
-  const { channel, step, detail, ts, native, ios, applePlugin } = req.body || {};
+  const { channel, step, detail, ts, native, ios, applePlugin, android } = req.body || {};
   if (!channel || !CLIENT_LOG_CHANNELS.has(channel) || !step) {
     return res.status(400).json({ ok: false });
   }
@@ -180,6 +181,7 @@ router.post('/client-log', clientLogLimiter, (req, res) => {
     ts: ts || Date.now(),
     native: !!native,
     ios: !!ios,
+    android: !!android,
     applePlugin: !!applePlugin,
     ip: req.ip,
     ua: (req.get('user-agent') || '').slice(0, 120),

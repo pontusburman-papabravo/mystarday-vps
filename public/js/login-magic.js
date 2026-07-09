@@ -100,6 +100,7 @@
       } catch { /* fall through */ }
     }
     if (window.DeviceMode) DeviceMode.enterParent();
+    if (window.NativeDebug) NativeDebug.log('login_redirect_dashboard', {});
     window.location.href = '/dashboard';
   }
 

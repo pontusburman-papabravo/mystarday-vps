@@ -129,6 +129,9 @@
 
   function refresh() {
     const magic = isMagic();
+    if (window.NativeDebug) {
+      NativeDebug.log('magic_shell_refresh', { magic: magic, page: _page });
+    }
     applyPageClasses(magic);
     if (magic) {
       ensureOrbs();

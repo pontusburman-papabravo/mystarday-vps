@@ -97,6 +97,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
   const user = await window.authGuard();
   if (!user) return;
+  if (window.NativeDebug) {
+    NativeDebug.log('dashboard_auth_ok', { userId: user.id, type: user.type });
+  }
   if (window.AppleSignInDiagnostics && AppleSignInDiagnostics.logPost) {
     AppleSignInDiagnostics.logPost('step_8_dashboard_loaded', {
       path: window.location.pathname,
@@ -209,6 +212,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (window.ParentMagicShell) {
     await ParentMagicShell.init('dashboard');
+    if (window.NativeDebug) NativeDebug.log('dashboard_magic_shell_done', {});
   } else if (window.AppViewMode) {
     await AppViewMode.initParent();
     if (AppViewMode.isAllowed()) {
@@ -246,6 +250,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
+  if (window.NativeDebug) NativeDebug.log('dashboard_data_loaded', {});
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
   showMedforalderCtaIfEligible();

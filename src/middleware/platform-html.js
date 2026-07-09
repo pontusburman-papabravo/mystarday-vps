@@ -229,6 +229,7 @@ function injectPlatformHtml(body, reqPath) {
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<link rel="stylesheet" href="/css/native-debug.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.8">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
@@ -237,6 +238,7 @@ function injectPlatformHtml(body, reqPath) {
   const headInject = headParts.join('\n') + '\n';
 
   const bodyInject =
+    '<script src="/js/native-debug.js?v=1.0.0"><\/script>\n' +
     '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n' +
     '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
