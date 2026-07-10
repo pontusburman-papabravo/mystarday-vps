@@ -116,8 +116,12 @@ function androidStabilityLog(step, detail) {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
   androidStabilityLog('dashboard_dom_ready');
+  androidStabilityLog('dashboard_auth_start');
   const user = await window.authGuard();
-  if (!user) return;
+  if (!user) {
+    androidStabilityLog('dashboard_auth_missing');
+    return;
+  }
   androidStabilityLog('dashboard_auth_ok', { type: user.type });
   if (window.NativeDebug) {
     NativeDebug.log('dashboard_auth_ok', { userId: user.id, type: user.type });

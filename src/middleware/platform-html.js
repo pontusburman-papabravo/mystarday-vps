@@ -208,6 +208,59 @@ function shouldInjectNativeDebug(req) {
   return false;
 }
 
+function isAndroidWebViewRequest(req) {
+  if (!req || typeof req.get !== 'function') return false;
+  const ua = req.get('user-agent') || '';
+  return /Android/i.test(ua) && /wv/i.test(ua);
+}
+
+function stripAndroidGpuHtml(body) {
+  if (typeof body !== 'string') return body;
+  return body.replace(
+    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|dashboard-magic|dashboard-warmth|dashboard-polish)\.css[^"]*"[^>]*>\s*/gi,
+    ''
+  );
+}
+
+const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = [
+  'journey-celebration',
+  'journey-coach',
+  'dashboard-sse',
+  'sse-client',
+  'dashboard-tour',
+  'survey-popup',
+  'engine-coach',
+  'engine-client',
+  'engine-voice',
+  'dashboard-home-hub',
+  'home-bump-time',
+  'activation-program-banner',
+  'preview-shell',
+  'dashboard-weekly-story',
+  'for-dig-outcome-banner',
+  'journey-first-week',
+  'journey-parent-ack',
+  'journey-context-client',
+];
+
+function stripAndroidHeavyScripts(body, reqPath) {
+  if (typeof body !== 'string') return body;
+  if (normalizeHtmlPath(reqPath) !== '/dashboard') return body;
+  let out = body;
+  ANDROID_DASHBOARD_SCRIPT_FRAGMENTS.forEach(function (frag) {
+    const re = new RegExp('<script\\b[^>]*src="[^"]*' + frag + '[^"]*"[^>]*>\\s*</script>\\s*', 'gi');
+    out = out.replace(re, '');
+  });
+  return out;
+}
+
+function applyAndroidWebViewHardening(body, reqPath, req) {
+  if (!isAndroidWebViewRequest(req)) return body;
+  body = stripAndroidGpuHtml(body);
+  body = stripAndroidHeavyScripts(body, reqPath);
+  return body;
+}
+
 function ensureNativeDebugAssets(body) {
   if (typeof body !== 'string') return body;
   const DEBUG_JS = '/js/native-debug.js?v=1.0.5';
@@ -242,7 +295,7 @@ function injectPlatformHtml(body, reqPath, req) {
     body = injectParentMagicRouter(body, reqPath);
     body = injectParentMagicHtml(body, reqPath);
     body = ensureMagicShellAssets(body, reqPath);
-    return injectDebug ? ensureNativeDebugAssets(body) : body;
+    return applyAndroidWebViewHardening(injectDebug ? ensureNativeDebugAssets(body) : body, reqPath, req);
   }
 
   const headMarker = '<head>';
@@ -259,6 +312,8 @@ function injectPlatformHtml(body, reqPath, req) {
       'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|dashboard-magic/.test(h))l.disabled=true;});}catch(e){}}' +
       '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss);' +
       'new MutationObserver(_stripGpuCss).observe(document.documentElement,{childList:true,subtree:true});' +
+      'window.addEventListener("error",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"window_error",detail:{message:ev.message,source:ev.filename,line:ev.lineno},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
+      'window.addEventListener("unhandledrejection",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"unhandled_rejection",detail:{reason:String(ev.reason&&(ev.reason.message||ev.reason))},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
       '}' +
       '}}catch(e){}})();<\/script>'
   );
@@ -311,7 +366,8 @@ function injectPlatformHtml(body, reqPath, req) {
   body = injectEarlyMagicHtml(body, reqPath);
   body = injectParentMagicRouter(body, reqPath);
   body = injectParentMagicHtml(body, reqPath);
-  return injectDebug ? ensureNativeDebugAssets(ensureMagicShellAssets(body, reqPath)) : ensureMagicShellAssets(body, reqPath);
+  body = injectDebug ? ensureNativeDebugAssets(ensureMagicShellAssets(body, reqPath)) : ensureMagicShellAssets(body, reqPath);
+  return applyAndroidWebViewHardening(body, reqPath, req);
 }
 
 function platformHtmlInject(req, res, next) {
@@ -363,5 +419,8 @@ function platformHtmlInject(req, res, next) {
 
 module.exports = platformHtmlInject;
 module.exports.shouldInjectNativeDebug = shouldInjectNativeDebug;
+module.exports.isAndroidWebViewRequest = isAndroidWebViewRequest;
+module.exports.stripAndroidGpuHtml = stripAndroidGpuHtml;
+module.exports.applyAndroidWebViewHardening = applyAndroidWebViewHardening;
 module.exports.injectPlatformHtml = injectPlatformHtml;
 module.exports.injectParentMagicHtml = injectParentMagicHtml;

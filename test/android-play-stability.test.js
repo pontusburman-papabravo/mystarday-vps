@@ -138,6 +138,17 @@ describe('Android Play stability guards', () => {
     assert.match(js, /is-native-android[\s\S]*classic/);
   });
 
+  it('server strips GPU CSS for Android WebView user-agent', () => {
+    const { injectPlatformHtml, stripAndroidGpuHtml } = require('../src/middleware/platform-html');
+    const html = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/css/parent-magic-3d.css?v=1"><link rel="stylesheet" href="/css/theme.css?v=1"></head><body></body></html>';
+    assert.doesNotMatch(stripAndroidGpuHtml(html), /parent-magic-3d/);
+    assert.match(stripAndroidGpuHtml(html), /theme\.css/);
+    const req = { get: function (h) { return h === 'user-agent' ? 'Mozilla/5.0 (Linux; Android 16; wv) AppleWebKit/537.36' : ''; }, query: {} };
+    const out = injectPlatformHtml(html, '/dashboard', req);
+    assert.doesNotMatch(out, /dashboard-magic\.css/);
+    assert.doesNotMatch(out, /journey-celebration/);
+  });
+
   it('platform-html strips GPU css on Android boot', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /_stripGpuCss/);
