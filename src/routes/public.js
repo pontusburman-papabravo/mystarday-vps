@@ -167,7 +167,7 @@ const clientLogLimiter = rateLimit({
   },
 });
 
-const CLIENT_LOG_CHANNELS = new Set(['apple_sign_in', 'native_debug']);
+const CLIENT_LOG_CHANNELS = new Set(['apple_sign_in', 'native_debug', 'android_stability']);
 
 router.post('/client-log', clientLogLimiter, (req, res) => {
   const { channel, step, detail, ts, native, ios, applePlugin, android } = req.body || {};

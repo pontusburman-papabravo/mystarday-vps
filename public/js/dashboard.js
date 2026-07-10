@@ -93,10 +93,32 @@ if (window.ScheduleCalNav) {
 // ── Calendar helpers — /js/schedule-cal-nav.js (Fas 8 PR-S2) ─
 
 // ── Init ─────────────────────────────────────────────────
+function androidStabilityLog(step, detail) {
+  if (!document.documentElement.classList.contains('is-native-android')) return;
+  try {
+    fetch('/api/client-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        channel: 'android_stability',
+        step: step,
+        detail: detail || null,
+        ts: Date.now(),
+        native: true,
+        android: true,
+      }),
+      keepalive: true,
+    }).catch(function () {});
+  } catch (_) {}
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+  androidStabilityLog('dashboard_dom_ready');
   const user = await window.authGuard();
   if (!user) return;
+  androidStabilityLog('dashboard_auth_ok', { type: user.type });
   if (window.NativeDebug) {
     NativeDebug.log('dashboard_auth_ok', { userId: user.id, type: user.type });
   }
@@ -212,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (window.ParentMagicShell) {
     await ParentMagicShell.init('dashboard');
-    if (window.NativeDebug) NativeDebug.log('dashboard_magic_shell_done', {});
+    androidStabilityLog('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
   } else if (window.AppViewMode) {
     await AppViewMode.initParent();
     if (AppViewMode.isAllowed()) {
@@ -250,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
-  if (window.NativeDebug) NativeDebug.log('dashboard_data_loaded', {});
+  androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
   showMedforalderCtaIfEligible();

@@ -254,7 +254,12 @@ function injectPlatformHtml(body, reqPath, req) {
       'if(c&&c.isNativePlatform&&c.isNativePlatform()){' +
       'window.WEBVIEW_SERVER_URL=location.origin;' +
       'var el=document.documentElement;el.classList.add("is-native");' +
-      'if(c.getPlatform&&c.getPlatform()==="android")el.classList.add("is-native-android");' +
+      'if(c.getPlatform&&c.getPlatform()==="android"){' +
+      'el.classList.add("is-native-android");' +
+      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|dashboard-magic/.test(h))l.disabled=true;});}catch(e){}}' +
+      '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss);' +
+      'new MutationObserver(_stripGpuCss).observe(document.documentElement,{childList:true,subtree:true});' +
+      '}' +
       '}}catch(e){}})();<\/script>'
   );
   if (!/\/js\/platform\.js/i.test(body)) {

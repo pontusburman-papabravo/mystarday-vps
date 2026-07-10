@@ -105,6 +105,19 @@
     window.dispatchEvent(new CustomEvent('stjarndag-view-mode', { detail: { mode: _mode, role: _role, allowed: _allowed } }));
   }
 
+  function isAndroidNative() {
+    if (document.documentElement.classList.contains('is-native-android')) return true;
+    return typeof window.Platform !== 'undefined' &&
+      typeof Platform.isAndroid === 'function' &&
+      Platform.isAndroid();
+  }
+
+  function parentMagicEnabled() {
+    if (_role === 'parent' && isAndroidNative()) return false;
+    if (_role === 'parent') return true;
+    return _mode === 'magic' && (_allowed || _optimisticMagic);
+  }
+
   function notifyTheme() {
     for (let i = 0; i < _themeListeners.length; i++) {
       try { _themeListeners[i](_theme); } catch (_) {}
@@ -124,7 +137,7 @@
   }
 
   function applyBodyClasses() {
-    const magic = _mode === 'magic' && (_allowed || _optimisticMagic);
+    const magic = parentMagicEnabled();
     document.body.classList.toggle('parent-magic-view', _role === 'parent' && magic);
     if (_role === 'parent' && !magic) {
       document.body.classList.remove('parent-magic-dashboard');
@@ -146,8 +159,8 @@
     if (!document.body) return false;
     _role = 'parent';
     _childId = null;
-    _mode = 'magic';
-    _optimisticMagic = true;
+    _mode = isAndroidNative() ? 'classic' : 'magic';
+    _optimisticMagic = !isAndroidNative();
     const storedTheme = readStoredTheme();
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
@@ -189,7 +202,7 @@
   function finishInitParent() {
     _optimisticMagic = false;
     _allowed = true;
-    _mode = 'magic';
+    _mode = isAndroidNative() ? 'classic' : 'magic';
     _ready = true;
     applyThemeClass();
     applyBodyClasses();
@@ -213,8 +226,8 @@
     _role = 'parent';
     _childId = null;
     _allowed = true;
-    _mode = 'magic';
-    _optimisticMagic = true;
+    _mode = isAndroidNative() ? 'classic' : 'magic';
+    _optimisticMagic = !isAndroidNative();
     const storedTheme = readStoredTheme();
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
@@ -255,8 +268,7 @@
   }
 
   function isMagic() {
-    if (_role === 'parent') return true;
-    return _mode === 'magic' && (_allowed || _optimisticMagic);
+    return parentMagicEnabled();
   }
 
   function isClassic() {
@@ -291,9 +303,9 @@
   }
 
   function setMode(mode) {
-    // Parents are magic-only; ignore attempts to switch to classic.
+    // Parents are magic-only on web/iOS; Android native uses classic (GPU stability).
     if (_role === 'parent') {
-      _mode = 'magic';
+      _mode = isAndroidNative() ? 'classic' : 'magic';
       applyBodyClasses();
       return _mode;
     }
@@ -315,7 +327,7 @@
 
   function toggle() {
     // View toggle removed for parents. For children, keep legacy behaviour.
-    if (_role === 'parent') return 'magic';
+    if (_role === 'parent') return isAndroidNative() ? 'classic' : 'magic';
     if (!_allowed) return 'classic';
     return setMode(_mode === 'magic' ? 'classic' : 'magic');
   }

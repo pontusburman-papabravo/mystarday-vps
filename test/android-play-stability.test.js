@@ -131,6 +131,19 @@ describe('Android Play stability guards', () => {
     assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
   });
 
+  it('app-view-mode disables parent magic on Android native', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/app-view-mode.js'), 'utf8');
+    assert.match(js, /isAndroidNative/);
+    assert.match(js, /parentMagicEnabled/);
+    assert.match(js, /is-native-android[\s\S]*classic/);
+  });
+
+  it('platform-html strips GPU css on Android boot', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /_stripGpuCss/);
+    assert.match(src, /parent-magic-3d/);
+  });
+
   it('app-entry shows role pick for logged-in Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/app-entry.js'), 'utf8');
     assert.match(js, /ENTRY_ROLE_PICK/);

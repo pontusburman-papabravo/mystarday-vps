@@ -23,6 +23,7 @@ test('public router exposes POST /client-log', () => {
   assert.ok(src.includes("router.post('/client-log'"), 'POST /client-log route missing');
   assert.ok(src.includes("'apple_sign_in'"), 'apple_sign_in channel expected');
   assert.ok(src.includes("'native_debug'"), 'native_debug channel expected');
+  assert.ok(src.includes("'android_stability'"), 'android_stability channel expected');
   assert.ok(src.includes('native_debug_overlay'), 'native_debug_overlay app-config flag expected');
 });
 

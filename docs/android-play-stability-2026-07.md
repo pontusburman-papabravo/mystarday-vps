@@ -18,6 +18,7 @@ Google Play rejected **versionCode 3** for app stability during Family Policy re
 | Login → dashboard crash loop | Auto-redirect when already logged in + GPU crash on dashboard | Stop auto-redirect on Android; flat dashboard CSS |
 | Blank login (logo only) | Early `return` skipped `AppEntry.init()` | Fall through to init; show role pick |
 | Debug overlay on all users | `native-debug` injected unconditionally | Gate behind `NATIVE_DEBUG_OVERLAY=true` |
+| Post-login dashboard GPU crash | Parent magic 3D + dashboard-magic CSS on WebView | **Classic dashboard on Android**; strip GPU CSS |
 
 ## Server-side fixes (no new AAB required)
 
