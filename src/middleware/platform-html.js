@@ -432,8 +432,7 @@ function injectPlatformHtml(body, reqPath, req) {
       'el.classList.remove("parent-magic-early","parent-theme-dark","parent-theme-light");' +
       'window.androidStabilityLog=function(s,d){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:s,detail:d||null,ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}};' +
       'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-polish|dashboard-warmth|skeleton/.test(h))l.remove();});}catch(e){}}' +
-      '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss);' +
-      'new MutationObserver(_stripGpuCss).observe(document.documentElement,{childList:true,subtree:true});' +
+      '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss,{once:true});' +
       'window.addEventListener("error",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"window_error",detail:{message:ev.message,source:ev.filename,line:ev.lineno},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
       'window.addEventListener("unhandledrejection",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"unhandled_rejection",detail:{reason:String(ev.reason&&(ev.reason.message||ev.reason))},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
       '}' +

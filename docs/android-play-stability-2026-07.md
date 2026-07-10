@@ -69,6 +69,7 @@ curl -s "$APP_URL/sw.js" | grep CACHE_NAME
 - [x] **v568** — classic dashboard on Android: keep essential scripts (`parent-magic-auto`, `dashboard-activity-modal`, `birthday-picker`, `dnd-touch-bridge`), retain `app-view-toggle.css` for top chrome safe-area, guard optional dashboard init, prefetch CSRF after auth
 - [x] **v569** — **först visa data**: parallel dashboard-stats fetch on Android; skip duplicate `/api/auth/me` in `initParent`; CSRF non-blocking
 - [x] **v570** — cache-bust dashboard JS (`?v=2.40.0-android`); activity-modal ScheduleCore guard; lightweight GET fetch on Android
+- [x] **v571** — fix `Maximum call stack size exceeded` — remove GPU CSS MutationObserver; data-first Android init; `var` shared dashboard state
 - [ ] Human QA on physical Android (paused — tester)
 - [ ] AAB v5 upload + Play resubmission
 

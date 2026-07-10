@@ -92,6 +92,7 @@
 
   // MutationObserver: re-apply gate to newly inserted [data-feature] elements
   function observeNewElements() {
+    if (document.documentElement.classList.contains('is-native-android')) return;
     if (typeof MutationObserver === 'undefined') return;
     const observer = new MutationObserver(function () {
       if (window._stjarndagFeatures) {

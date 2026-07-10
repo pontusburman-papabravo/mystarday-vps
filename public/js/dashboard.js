@@ -51,8 +51,8 @@ function calculateAge(birthday) {
   return years + ' år';
 }
 
-// ── State ────────────────────────────────────────────────
-let children = [];
+// ── State (var = shared across dashboard-*.js classic scripts) ─────────────
+var children = [];
 const activities = [];
 const childSchedules = {};
 let currentChildId = null;
@@ -250,19 +250,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Android Play safe mode: show child cards ASAP — data fetch parallel with chrome init.
+  // Android Play safe mode: top chrome + data first (avoid observer/promise races).
   if (androidFlat && window.ParentMagicAuto) {
     ParentMagicAuto.prepareDom();
   }
 
-  let androidDataPromise = null;
   if (androidFlat) {
     androidStabilityLog('dashboard_data_fetch_start');
-    androidDataPromise = Promise.all([
-      typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
-      typeof loadTemplates === 'function' ? loadTemplates() : Promise.resolve(),
-      typeof loadDashboardCards === 'function' ? loadDashboardCards() : Promise.resolve(),
-    ]);
+    try {
+      await Promise.all([
+        typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
+        typeof loadDashboardCards === 'function' ? loadDashboardCards() : Promise.resolve(),
+      ]);
+      androidStabilityLog('dashboard_data_loaded', { classic: true });
+    } catch (dataErr) {
+      androidStabilityLog('dashboard_data_error', { message: dataErr && dataErr.message });
+    }
+    if (typeof loadTemplates === 'function') {
+      loadTemplates().catch(function () { /* non-blocking */ });
+    }
   }
 
   if (window.ParentMagicShell && !androidFlat) {
@@ -271,7 +277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else if (window.AppViewMode) {
     const viewInit = AppViewMode.initParent();
     if (androidFlat) {
-      await Promise.all([viewInit, androidDataPromise, csrfPromise]);
+      await Promise.all([viewInit, csrfPromise]);
     } else {
       await viewInit;
     }
@@ -309,9 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (androidFlat) {
-    androidStabilityLog('dashboard_data_loaded', { classic: true });
-  } else {
+  if (!androidFlat) {
     await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
     androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   }
@@ -327,9 +331,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // force a render with whatever data we have. This prevents the "Laddar…"
   // placeholder from staying on screen permanently.
   const gridEl = document.getElementById('childCardsGrid');
-  if (gridEl && gridEl.querySelector('.text-text-soft.text-sm.py-8')) {
-    // Loading placeholder is still visible — force render
-    renderDashboardCards();
+  if (gridEl && gridEl.textContent && gridEl.textContent.indexOf('Laddar') !== -1) {
+    if (typeof renderDashboardCards === 'function') renderDashboardCards();
+    if (gridEl.textContent.indexOf('Laddar') !== -1 && typeof loadDashboardCards === 'function') {
+      await loadDashboardCards();
+    }
   }
 
   if (typeof pickSection === 'function') pickSection('dag');
@@ -450,7 +456,7 @@ window.addEventListener('stjarndag-magic-navigated', function (e) {
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js
 function escHtml(s) { return escapeHtml(s); }
 // ── Dashboard state ──────────────────────────────────────
-let dashboardStats = null; // cached stats from /api/family/dashboard-stats
+var dashboardStats = null; // cached stats from /api/family/dashboard-stats
 
 // ── Dashboard cards (tidsblock pills + child grid) — /js/dashboard-cards.js (Fas 8 D1) ──
 
@@ -461,7 +467,10 @@ async function loadChildren() {
     const res = isAndroid
       ? await fetch('/api/children', { credentials: 'include' })
       : await window.apiFetch('/api/children');
-    if (res.ok) { children = await res.json(); }
+    if (res.ok) {
+      children = await res.json();
+      window.children = children;
+    }
   } catch (e) {
     console.error('[DASHBOARD] loadChildren failed:', e);
   }

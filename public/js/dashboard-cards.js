@@ -90,13 +90,25 @@ async function loadDashboardCards() {
       }
       return;
     }
-    dashboardStats = await res.json();
+    const stats = await res.json();
+    window.dashboardStats = stats;
+    dashboardStats = stats;
     renderDashboardCards();
+    if (isAndroid && typeof window.androidStabilityLog === 'function') {
+      window.androidStabilityLog('dashboard_stats_ok', { childCount: (stats.children || []).length });
+    }
     if (window.HomeBumpTime && typeof HomeBumpTime.render === 'function') {
       HomeBumpTime.render(dashboardStats);
     }
   } catch (e) {
     console.error('[DASHBOARD] loadDashboardCards failed:', e);
+    if (document.documentElement.classList.contains('is-native-android') && typeof window.androidStabilityLog === 'function') {
+      window.androidStabilityLog('dashboard_stats_error', { message: e && e.message });
+    }
+    const container = document.getElementById('childCardsGrid');
+    if (container) {
+      container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm">Kunde inte ladda barnkort. Dra ned för att uppdatera.</div>';
+    }
   }
 }
 // Track which card is expanded
@@ -105,9 +117,11 @@ let _expandedCardId = null;
 function renderDashboardCards() {
   const container = document.getElementById('childCardsGrid');
   if (!container) return;
-  const ch = dashboardStats?.children || [];
+  const stats = window.dashboardStats || dashboardStats;
+  const childSource = window.children || (typeof children !== 'undefined' ? children : []);
+  const ch = stats?.children || [];
 
-  if (ch.length === 0 && children.length === 0) {
+  if (ch.length === 0 && childSource.length === 0) {
     container.innerHTML = `<div class="text-center py-16">
       <p class="text-5xl mb-4">👨‍👩‍👧</p>
       <p class="font-semibold text-navy mb-1">Inga barn tillagda ännu</p>
@@ -118,7 +132,7 @@ function renderDashboardCards() {
   }
 
   // Use stats for children that have data; fall back to children list
-  let childList = ch.length > 0 ? ch : children.map(c => ({
+  let childList = ch.length > 0 ? ch : childSource.map(c => ({
     id: c.id, name: c.name, emoji: c.emoji,
     today_total: 0, today_completed: 0, today_pct: null,
     today_log_id: null, today_is_paused: false,
@@ -205,7 +219,7 @@ function renderDashboardCards() {
             stroke-dasharray="${ringCirc}" stroke-dashoffset="${ringOffset}"
             stroke-linecap="round" transform="rotate(-90 32 32)"/>
         </svg>` : ''}
-        <span class="dash-avatar-emoji">${renderChildAvatar(c, 32)}</span>
+        <span class="dash-avatar-emoji">${(window.renderChildAvatar || renderChildAvatar)(c, 32)}</span>
       </div>`;
 
     // ── Tidsblock-engine: map items → blocks with trafikljus-färg ─

@@ -251,6 +251,17 @@ describe('Android Play stability guards', () => {
     assert.match(js, /is-native-android[\s\S]*!isMutation[\s\S]*fetch\(url/);
   });
 
+  it('Android GPU strip does not use MutationObserver', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.doesNotMatch(src, /MutationObserver\(_stripGpuCss\)/);
+    assert.match(src, /_stripGpuCss/);
+  });
+
+  it('feature-check skips MutationObserver on Android', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/feature-check.js'), 'utf8');
+    assert.match(js, /is-native-android[\s\S]*observeNewElements/);
+  });
+
   it('authGuard uses lightweight fetch on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
     assert.match(js, /is-native-android[\s\S]*auth_me_fetch_start/);
