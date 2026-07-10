@@ -194,6 +194,15 @@ describe('Android Play stability guards', () => {
     assert.match(js, /is-native-android[\s\S]*ParentMagicShell/);
   });
 
+  it('ANDROID_PLAY_REVIEW_SAFE_MODE keeps schedule-core.js', () => {
+    const { injectPlatformHtml } = require('../src/middleware/platform-html');
+    const html = '<!DOCTYPE html><html><head></head><body><script src="/js/schedule-core.js?v=1"><\/script><script src="/js/dashboard.js?v=1"><\/script></body></html>';
+    const req = { get: function (h) { return h === 'user-agent' ? 'Mozilla/5.0 (Linux; Android 16; wv) AppleWebKit/537.36' : ''; }, query: {} };
+    const out = injectPlatformHtml(html, '/dashboard', req);
+    assert.match(out, /schedule-core\.js/);
+    assert.doesNotMatch(out, /sortablejs/);
+  });
+
   it('authGuard uses lightweight fetch on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
     assert.match(js, /is-native-android[\s\S]*auth_me_fetch_start/);

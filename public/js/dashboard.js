@@ -24,6 +24,7 @@ document.addEventListener('touchstart', e => {
 }, { passive: false });
 
 // ── Constants ────────────────────────────────────────────
+const _scheduleCore = window.ScheduleCore || {};
 const {
   DAYS,
   DAYS_SHORT,
@@ -32,7 +33,10 @@ const {
   sectionTimeLabel,
   getDayDateLabel,
   buildSectionCardsHtml,
-} = window.ScheduleCore;
+} = _scheduleCore;
+if (!window.ScheduleCore) {
+  console.warn('[DASHBOARD] ScheduleCore missing — schedule-core.js must load before dashboard.js');
+}
 
 function calculateAge(birthday) {
   const birth = new Date(birthday);

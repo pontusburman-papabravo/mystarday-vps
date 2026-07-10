@@ -259,7 +259,6 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'home-readiness',
   'for-dig-goal-badge',
   'schedule-cal-nav',
-  'schedule-core',
   'dashboard-custody',
   'custody-banner',
   'custody-a11y',
