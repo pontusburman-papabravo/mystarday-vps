@@ -269,6 +269,14 @@ describe('Android Play stability guards', () => {
     assert.match(js, /auth_me_json_ok/);
   });
 
+  it('dashboard.js does not shadow window.androidStabilityLog (stack overflow guard)', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    assert.doesNotMatch(js, /function\s+androidStabilityLog\s*\(/);
+    assert.doesNotMatch(js, /window\.androidStabilityLog\s*\(/);
+    assert.match(js, /_injectedAndroidStabilityLog/);
+    assert.match(js, /logDashboardStability/);
+  });
+
   it('ANDROID_PLAY_REVIEW_SAFE_MODE documented in platform-html', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /ANDROID_PLAY_REVIEW_SAFE_MODE/);

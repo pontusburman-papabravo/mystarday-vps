@@ -97,10 +97,14 @@ if (window.ScheduleCalNav) {
 // ── Calendar helpers — /js/schedule-cal-nav.js (Fas 8 PR-S2) ─
 
 // ── Init ─────────────────────────────────────────────────
-function androidStabilityLog(step, detail) {
+// Capture platform-html injected logger before any local binding (top-level
+// function declarations become window.* and would recurse into themselves).
+var _injectedAndroidStabilityLog = window.androidStabilityLog;
+
+var logDashboardStability = function (step, detail) {
   if (!document.documentElement.classList.contains('is-native-android')) return;
-  if (typeof window.androidStabilityLog === 'function') {
-    window.androidStabilityLog(step, detail);
+  if (typeof _injectedAndroidStabilityLog === 'function') {
+    _injectedAndroidStabilityLog(step, detail);
     return;
   }
   try {
@@ -119,22 +123,22 @@ function androidStabilityLog(step, detail) {
       keepalive: true,
     }).catch(function () {});
   } catch (_) {}
-}
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-  androidStabilityLog('dashboard_dom_ready');
-  androidStabilityLog('dashboard_auth_start');
+  logDashboardStability('dashboard_dom_ready');
+  logDashboardStability('dashboard_auth_start');
   const user = await window.authGuard();
   if (!user) {
-    androidStabilityLog('dashboard_auth_missing');
+    logDashboardStability('dashboard_auth_missing');
     return;
   }
-  androidStabilityLog('dashboard_auth_ok', { type: user.type });
+  logDashboardStability('dashboard_auth_ok', { type: user.type });
   const androidFlat = document.documentElement.classList.contains('is-native-android');
   const csrfPromise = androidFlat && window.Auth
     ? Auth.ensureCsrfToken()
-      .then(function () { androidStabilityLog('dashboard_csrf_ready'); })
+      .then(function () { logDashboardStability('dashboard_csrf_ready'); })
       .catch(function () { /* non-blocking */ })
     : Promise.resolve();
   if (window.NativeDebug) {
@@ -256,15 +260,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (androidFlat) {
-    androidStabilityLog('dashboard_data_fetch_start');
+    logDashboardStability('dashboard_data_fetch_start');
     try {
       await Promise.all([
         typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
         typeof loadDashboardCards === 'function' ? loadDashboardCards() : Promise.resolve(),
       ]);
-      androidStabilityLog('dashboard_data_loaded', { classic: true });
+      logDashboardStability('dashboard_data_loaded', { classic: true });
     } catch (dataErr) {
-      androidStabilityLog('dashboard_data_error', { message: dataErr && dataErr.message });
+      logDashboardStability('dashboard_data_error', { message: dataErr && dataErr.message });
     }
     if (typeof loadTemplates === 'function') {
       loadTemplates().catch(function () { /* non-blocking */ });
@@ -273,7 +277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (window.ParentMagicShell && !androidFlat) {
     await ParentMagicShell.init('dashboard');
-    androidStabilityLog('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
+    logDashboardStability('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
   } else if (window.AppViewMode) {
     const viewInit = AppViewMode.initParent();
     if (androidFlat) {
@@ -317,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!androidFlat) {
     await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
-    androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
+    logDashboardStability('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   }
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
@@ -395,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeof bindRecurrenceAddHandlers === 'function') bindRecurrenceAddHandlers();
   } catch (err) {
     console.error('[DASHBOARD] Init error:', err);
-    androidStabilityLog('dashboard_init_error', { message: err && err.message, stack: err && err.stack && err.stack.slice(0, 200) });
+    logDashboardStability('dashboard_init_error', { message: err && err.message, stack: err && err.stack && err.stack.slice(0, 200) });
     const grid = document.getElementById('childCardsGrid');
     if (grid) grid.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</div>';
   }

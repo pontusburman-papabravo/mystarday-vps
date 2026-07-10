@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v571';
+const CACHE_NAME = 'stjarndag-v572';
+// stjarndag-v572: Android — fix androidStabilityLog recursion (dashboard shadowed window fn)
 // stjarndag-v571: Android — remove GPU CSS MutationObserver (stack overflow fix)
 // stjarndag-v569: Android dashboard — data fetch parallel with chrome (först visa data)
 // stjarndag-v568: Android classic dashboard — restore essential scripts + top chrome
