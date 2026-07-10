@@ -139,18 +139,49 @@ describe('Android Play stability guards', () => {
   });
 
   it('server strips GPU CSS for Android WebView user-agent', () => {
-    const { injectPlatformHtml, stripAndroidGpuHtml, isAndroidClassicDashboard } = require('../src/middleware/platform-html');
-    const html = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/css/parent-magic-3d.css?v=1"><link rel="stylesheet" href="/css/parent-magic-common.css?v=1"><link rel="stylesheet" href="/css/theme.css?v=1"></head><body></body></html>';
+    const {
+      injectPlatformHtml,
+      stripAndroidGpuHtml,
+      isAndroidPlayReviewSafeMode,
+      isAndroidWebViewRequest,
+      isAndroidDashboardPath,
+    } = require('../src/middleware/platform-html');
+    const html = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/css/parent-magic-3d.css?v=1"><link rel="stylesheet" href="/css/parent-magic-common.css?v=1"><link rel="stylesheet" href="/css/theme.css?v=1"><script src="/js/parent-magic-shell.js?v=1"><\/script></head><body></body></html>';
     assert.doesNotMatch(stripAndroidGpuHtml(html), /parent-magic-3d/);
     assert.doesNotMatch(stripAndroidGpuHtml(html), /parent-magic-common/);
     assert.match(stripAndroidGpuHtml(html), /theme\.css/);
-    const req = { get: function (h) { return h === 'user-agent' ? 'Mozilla/5.0 (Linux; Android 16; wv) AppleWebKit/537.36' : ''; }, query: {} };
-    assert.equal(isAndroidClassicDashboard(req, '/dashboard'), true);
-    const out = injectPlatformHtml(html, '/dashboard', req);
+
+    const wvReq = { get: function (h) {
+      if (h === 'user-agent') return 'Mozilla/5.0 (Linux; Android 16; wv) AppleWebKit/537.36';
+      return '';
+    }, query: {} };
+    assert.equal(isAndroidWebViewRequest(wvReq), true);
+    assert.equal(isAndroidDashboardPath('/dashboard'), true);
+    assert.equal(isAndroidDashboardPath('/parent'), true);
+    assert.equal(isAndroidDashboardPath('/'), true);
+    assert.equal(isAndroidPlayReviewSafeMode(wvReq, '/dashboard'), true);
+
+    const chromeReq = { get: function (h) {
+      if (h === 'user-agent') return 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0.0.0 Mobile Safari/537.36';
+      return '';
+    }, query: {} };
+    assert.equal(isAndroidWebViewRequest(chromeReq), true);
+
+    const appReq = { get: function (h) {
+      if (h === 'user-agent') return 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36';
+      if (h === 'x-requested-with') return 'app.' + 'mys' + 'tar' + 'day' + '.native';
+      return '';
+    }, query: {} };
+    assert.equal(isAndroidWebViewRequest(appReq), true);
+
+    const out = injectPlatformHtml(html, '/dashboard', wvReq);
     assert.doesNotMatch(out, /dashboard-magic\.css/);
     assert.doesNotMatch(out, /parent-magic-shell/);
     assert.doesNotMatch(out, /parent-magic-early-boot/);
     assert.doesNotMatch(out, /journey-celebration/);
+    assert.match(out, /android-webview-hardening-beacon/);
+    assert.match(out, /android_webview_hardening_applied/);
+    assert.match(out, /__ANDROID_PLAY_REVIEW_SAFE_MODE__/);
   });
 
   it('parent-magic-bootstrap skips auto-init on Android native', () => {
@@ -161,6 +192,12 @@ describe('Android Play stability guards', () => {
   it('dashboard skips ParentMagicShell on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
     assert.match(js, /is-native-android[\s\S]*ParentMagicShell/);
+  });
+
+  it('ANDROID_PLAY_REVIEW_SAFE_MODE documented in platform-html', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
+    assert.match(src, /ANDROID_PLAY_REVIEW_SAFE_MODE/);
+    assert.match(src, /android_webview_hardening_applied/);
   });
 
   it('platform-html strips GPU css on Android boot', () => {

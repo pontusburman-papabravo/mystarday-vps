@@ -208,32 +208,12 @@ function shouldInjectNativeDebug(req) {
   return false;
 }
 
-function isAndroidWebViewRequest(req) {
-  if (!req || typeof req.get !== 'function') return false;
-  const ua = req.get('user-agent') || '';
-  return /Android/i.test(ua) && /wv/i.test(ua);
-}
-
-function isAndroidClassicDashboard(req, reqPath) {
-  return isAndroidWebViewRequest(req) && normalizeHtmlPath(reqPath) === '/dashboard';
-}
-
-function stripAndroidGpuHtml(body) {
-  if (typeof body !== 'string') return body;
-  return body.replace(
-    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish)\.css[^"]*"[^>]*>\s*/gi,
-    ''
-  );
-}
-
-function stripAndroidMagicBoot(body) {
-  if (typeof body !== 'string') return body;
-  return body
-    .replace(/<style id="parent-magic-early-style">[\s\S]*?<\/style>\s*/gi, '')
-    .replace(/<script id="parent-magic-early-boot">[\s\S]*?<\/script>\s*/gi, '');
-}
-
-const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = [
+/**
+ * ANDROID_PLAY_REVIEW_SAFE_MODE — temporary simplified parent dashboard for
+ * Android WebView Play review stability. Strips GPU CSS + heavy scripts server-side.
+ * Remove or narrow once WebView GPU crash is root-caused per device.
+ */
+const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'journey-celebration',
   'journey-coach',
   'dashboard-sse',
@@ -263,19 +243,96 @@ const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = [
   'help-journey-tip',
 ];
 
-function stripAndroidHeavyScripts(body, reqPath) {
+function androidNativeAppHeaderMatch(xRequestedWith) {
+  if (!xRequestedWith) return false;
+  const marker = 'mys' + 'tar' + 'day';
+  return xRequestedWith.toLowerCase().indexOf(marker) !== -1;
+}
+
+function isAndroidWebViewRequest(req) {
+  if (!req || typeof req.get !== 'function') return false;
+  const ua = req.get('user-agent') || '';
+  const xRequestedWith = req.get('x-requested-with') || '';
+  return /Android/i.test(ua) && (
+    /wv/i.test(ua) ||
+    /Version\/\d+\.\d+.*Chrome/i.test(ua) ||
+    androidNativeAppHeaderMatch(xRequestedWith)
+  );
+}
+
+function isAndroidDashboardPath(reqPath) {
+  const p = normalizeHtmlPath(reqPath);
+  return p === '/' ||
+    p === '/dashboard' ||
+    p === '/parent' ||
+    p.indexOf('/dashboard/') === 0 ||
+    p.indexOf('/parent/') === 0;
+}
+
+function isAndroidPlayReviewSafeMode(req, reqPath) {
+  return isAndroidWebViewRequest(req) && isAndroidDashboardPath(reqPath);
+}
+
+/** @deprecated use isAndroidPlayReviewSafeMode */
+function isAndroidClassicDashboard(req, reqPath) {
+  return isAndroidPlayReviewSafeMode(req, reqPath);
+}
+
+function stripAndroidGpuHtml(body) {
   if (typeof body !== 'string') return body;
-  if (normalizeHtmlPath(reqPath) !== '/dashboard') return body;
+  return body.replace(
+    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish)\.css[^"]*"[^>]*>\s*/gi,
+    ''
+  );
+}
+
+function stripAndroidMagicBoot(body) {
+  if (typeof body !== 'string') return body;
+  return body
+    .replace(/<style id="parent-magic-early-style">[\s\S]*?<\/style>\s*/gi, '')
+    .replace(/<script id="parent-magic-early-boot">[\s\S]*?<\/script>\s*/gi, '');
+}
+
+const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS;
+
+function stripAndroidPlayReviewSafeModeScripts(body) {
+  if (typeof body !== 'string') return body;
   let out = body;
-  ANDROID_DASHBOARD_SCRIPT_FRAGMENTS.forEach(function (frag) {
+  ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS.forEach(function (frag) {
     const re = new RegExp('<script\\b[^>]*src="[^"]*' + frag + '[^"]*"[^>]*>\\s*</script>\\s*', 'gi');
     out = out.replace(re, '');
   });
   return out;
 }
 
+function stripAndroidHeavyScripts(body, reqPath) {
+  if (typeof body !== 'string') return body;
+  if (!isAndroidDashboardPath(reqPath)) return body;
+  return stripAndroidPlayReviewSafeModeScripts(body);
+}
+
+function buildAndroidHardeningBeacon(reqPath) {
+  const p = normalizeHtmlPath(reqPath);
+  return (
+    '<script id="android-webview-hardening-beacon">' +
+    'window.__ANDROID_WEBVIEW_HARDENING__=true;' +
+    'window.__ANDROID_PLAY_REVIEW_SAFE_MODE__=true;' +
+    'try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"android_webview_hardening_applied",detail:{path:' + JSON.stringify(p) + '},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}' +
+    '<\/script>\n'
+  );
+}
+
+function injectAndroidHardeningBeacon(body, reqPath) {
+  if (typeof body !== 'string' || body.includes('android-webview-hardening-beacon')) return body;
+  const headMarker = '<head>';
+  const idx = body.indexOf(headMarker);
+  if (idx === -1) return body;
+  return body.slice(0, idx + headMarker.length) + '\n' +
+    buildAndroidHardeningBeacon(reqPath) + body.slice(idx + headMarker.length);
+}
+
 function injectParentMagicStack(body, reqPath, req) {
-  if (isAndroidClassicDashboard(req, reqPath)) return body;
+  if (isAndroidPlayReviewSafeMode(req, reqPath)) return body;
   body = injectEarlyMagicHtml(body, reqPath);
   body = injectParentMagicRouter(body, reqPath);
   body = injectParentMagicHtml(body, reqPath);
@@ -285,10 +342,11 @@ function injectParentMagicStack(body, reqPath, req) {
 function applyAndroidWebViewHardening(body, reqPath, req) {
   if (!isAndroidWebViewRequest(req)) return body;
   body = stripAndroidGpuHtml(body);
-  if (isAndroidClassicDashboard(req, reqPath)) {
+  if (isAndroidPlayReviewSafeMode(req, reqPath)) {
     body = stripAndroidMagicBoot(body);
+    body = stripAndroidHeavyScripts(body, reqPath);
+    body = injectAndroidHardeningBeacon(body, reqPath);
   }
-  body = stripAndroidHeavyScripts(body, reqPath);
   return body;
 }
 
@@ -447,9 +505,12 @@ function platformHtmlInject(req, res, next) {
 module.exports = platformHtmlInject;
 module.exports.shouldInjectNativeDebug = shouldInjectNativeDebug;
 module.exports.isAndroidWebViewRequest = isAndroidWebViewRequest;
+module.exports.isAndroidDashboardPath = isAndroidDashboardPath;
+module.exports.isAndroidPlayReviewSafeMode = isAndroidPlayReviewSafeMode;
 module.exports.stripAndroidGpuHtml = stripAndroidGpuHtml;
 module.exports.isAndroidClassicDashboard = isAndroidClassicDashboard;
 module.exports.injectParentMagicStack = injectParentMagicStack;
+module.exports.buildAndroidHardeningBeacon = buildAndroidHardeningBeacon;
 module.exports.applyAndroidWebViewHardening = applyAndroidWebViewHardening;
 module.exports.injectPlatformHtml = injectPlatformHtml;
 module.exports.injectParentMagicHtml = injectParentMagicHtml;
