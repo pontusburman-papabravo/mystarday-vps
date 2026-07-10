@@ -203,6 +203,37 @@ describe('Android Play stability guards', () => {
     assert.doesNotMatch(out, /sortablejs/);
   });
 
+  it('ANDROID_PLAY_REVIEW_SAFE_MODE keeps classic dashboard essentials', () => {
+    const { injectPlatformHtml } = require('../src/middleware/platform-html');
+    const html = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/css/app-view-toggle.css?v=10"></head><body>' +
+      '<script src="/js/parent-magic-auto.js?v=10"><\/script>' +
+      '<script src="/js/dashboard-activity-modal.js?v=2"><\/script>' +
+      '<script src="/js/dnd-touch-bridge.js?v=1"><\/script>' +
+      '<script src="/js/birthday-picker.js?v=2"><\/script>' +
+      '<script src="/js/parent-magic-shell.js?v=1"><\/script></body></html>';
+    const req = { get: function (h) { return h === 'user-agent' ? 'Mozilla/5.0 (Linux; Android 16; wv) AppleWebKit/537.36' : ''; }, query: {} };
+    const out = injectPlatformHtml(html, '/dashboard', req);
+    assert.match(out, /app-view-toggle\.css/);
+    assert.match(out, /parent-magic-auto\.js/);
+    assert.match(out, /dashboard-activity-modal\.js/);
+    assert.match(out, /dnd-touch-bridge\.js/);
+    assert.match(out, /birthday-picker\.js/);
+    assert.doesNotMatch(out, /parent-magic-shell\.js/);
+  });
+
+  it('dashboard guards optional init on Android safe mode', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    assert.match(js, /typeof initBirthdayPicker === 'function'/);
+    assert.match(js, /typeof bindRecurrenceAddHandlers === 'function'/);
+    assert.match(js, /dashboard_csrf_ready/);
+  });
+
+  it('parent-magic-auto boots classic chrome on Android', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-auto.js'), 'utf8');
+    assert.match(js, /bootClassicChrome/);
+    assert.match(js, /__ANDROID_PLAY_REVIEW_SAFE_MODE__/);
+  });
+
   it('authGuard uses lightweight fetch on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
     assert.match(js, /is-native-android[\s\S]*auth_me_fetch_start/);

@@ -131,6 +131,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   androidStabilityLog('dashboard_auth_ok', { type: user.type });
+  if (document.documentElement.classList.contains('is-native-android') && window.Auth) {
+    try { await Auth.ensureCsrfToken(); } catch (_) { /* non-blocking */ }
+    androidStabilityLog('dashboard_csrf_ready');
+  }
   if (window.NativeDebug) {
     NativeDebug.log('dashboard_auth_ok', { userId: user.id, type: user.type });
   }
@@ -250,6 +254,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     androidStabilityLog('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
   } else if (window.AppViewMode) {
     await AppViewMode.initParent();
+    if (document.documentElement.classList.contains('is-native-android') && window.ParentMagicAuto) {
+      ParentMagicAuto.prepareDom();
+    }
     if (AppViewMode.isAllowed()) {
       const toggleMount = document.getElementById('appViewToggleMount');
       if (toggleMount) AppViewMode.mountToggle(toggleMount);
@@ -292,8 +299,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
-  showMedforalderCtaIfEligible();
-  initDelaAppenCta();
+  if (typeof showMedforalderCtaIfEligible === 'function') showMedforalderCtaIfEligible();
+  if (typeof initDelaAppenCta === 'function') initDelaAppenCta();
   if (window.DashboardChildHandoff) DashboardChildHandoff.init();
   if (skeletonTimer) skeletonTimer.stop();
 
@@ -308,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   pickSection('dag');
-  initBirthdayPicker('childBirthday');
+  if (typeof initBirthdayPicker === 'function') initBirthdayPicker('childBirthday');
 
   let selectedChildEmoji = '';
   document.querySelectorAll('.emoji-opt').forEach(btn => {
@@ -359,8 +366,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = false; btn.textContent = 'Lägg till';
   });
 
-  initTouchDndBridge();
-  bindRecurrenceAddHandlers();
+  if (typeof initTouchDndBridge === 'function') initTouchDndBridge();
+  if (typeof bindRecurrenceAddHandlers === 'function') bindRecurrenceAddHandlers();
   } catch (err) {
     console.error('[DASHBOARD] Init error:', err);
     const grid = document.getElementById('childCardsGrid');

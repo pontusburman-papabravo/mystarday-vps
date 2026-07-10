@@ -107,4 +107,17 @@
   window.addEventListener('stjarndag-magic-navigated', function () {
     ensureTopChrome();
   });
+
+  function bootClassicChrome() {
+    if (!isParentShellPage(window.location.pathname)) return;
+    if (document.documentElement.classList.contains('is-native-android') || window.__ANDROID_PLAY_REVIEW_SAFE_MODE__) {
+      prepareDom();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootClassicChrome);
+  } else {
+    bootClassicChrome();
+  }
 })();

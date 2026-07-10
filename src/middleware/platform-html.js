@@ -232,7 +232,6 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'journey-first-week',
   'journey-parent-ack',
   'journey-context-client',
-  'parent-magic-auto',
   'parent-magic-bootstrap',
   'parent-magic-page-boot',
   'parent-magic-router',
@@ -243,14 +242,11 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'help-journey-tip',
   'sortablejs',
   'Sortable.min',
-  'dnd-touch-bridge',
   'dashboard-dnd',
   'dashboard-views',
   'dashboard-special-days',
   'dashboard-star-history',
-  'dashboard-activity-modal',
   'dashboard-copy-modals',
-  'dashboard-approvals',
   'skeleton',
   'founder-banner',
   'pwa-install',
@@ -269,7 +265,6 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'dashboard-package-triggers',
   'package-interest-triggers',
   'dashboard-banner',
-  'birthday-picker',
   'dashboard-system-messages',
   'sw-register',
   'apple-sign-in-diagnostics',
@@ -315,7 +310,7 @@ function isAndroidClassicDashboard(req, reqPath) {
 function stripAndroidGpuHtml(body) {
   if (typeof body !== 'string') return body;
   return body.replace(
-    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish|skeleton|for-dig-goal-badge|parent-bottom-nav|app-view-toggle)\.css[^"]*"[^>]*>\s*/gi,
+    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish|skeleton|for-dig-goal-badge|parent-bottom-nav)\.css[^"]*"[^>]*>\s*/gi,
     ''
   );
 }

@@ -62,11 +62,16 @@ curl -s "$APP_URL/login" | grep native-debug   # empty when overlay off
 curl -s "$APP_URL/sw.js" | grep CACHE_NAME
 ```
 
-## Status (2026-07-09 evening)
+## Status (2026-07-10)
 
 - [x] Fixes merged to `main` and deployed to VPS
 - [x] `NATIVE_DEBUG_OVERLAY` off in prod (normal users)
+- [x] **v568** — classic dashboard on Android: keep essential scripts (`parent-magic-auto`, `dashboard-activity-modal`, `birthday-picker`, `dnd-touch-bridge`), retain `app-view-toggle.css` for top chrome safe-area, guard optional dashboard init, prefetch CSRF after auth
 - [ ] Human QA on physical Android (paused — tester)
 - [ ] AAB v5 upload + Play resubmission
+
+### Android classic mode (intentional)
+
+Magic view stays **disabled** on Android (`app-view-mode.js` + safe mode strips GPU/magic stack). Goal: stable **classic** Hem with child cards, activity modals, and correct header (🔔 + avatar right-aligned under safe area).
 
 POS: 15 Section B (native stability)
