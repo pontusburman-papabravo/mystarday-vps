@@ -111,6 +111,7 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
     assert.equal(render(data.rewardsData, data.goalData, data.manualData), true);
     assert.match(viewEl.innerHTML, /stjärnor att använda/);
     assert.match(viewEl.innerHTML, />15</);
+    assert.match(viewEl.innerHTML, /Mål/);
     assert.match(viewEl.innerHTML, /Du sparar till/);
     assert.match(viewEl.innerHTML, /Biokväll/);
     assert.match(viewEl.innerHTML, /15 av 50 stjärnor/);
@@ -137,7 +138,7 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
     assert.doesNotMatch(viewEl.innerHTML, /btp-collect-hint/);
   });
 
-  it('shows pending as Väntar på vuxen without redeem CTA on that reward', () => {
+  it('shows pending as Väntar på godkännande without redeem CTA on that reward', () => {
     const { render, viewEl } = loadTreasureRuntime();
     const data = fixture({
       rewardsData: {
@@ -153,7 +154,7 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
       },
     });
     render(data.rewardsData, data.goalData, data.manualData);
-    assert.match(viewEl.innerHTML, /Väntar på vuxen/);
+    assert.match(viewEl.innerHTML, /Väntar på godkännande/);
     assert.doesNotMatch(viewEl.innerHTML, /Fråga om att lösa in/);
   });
 

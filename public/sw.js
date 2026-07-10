@@ -217,10 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v560';
+const CACHE_NAME = 'stjarndag-v561';
+// stjarndag-v561: Skattkammaren component polish — scene, plaque, progress stars, pending card
 // stjarndag-v560: gate native-debug injection behind NATIVE_DEBUG_OVERLAY
-// stjarndag-v556: native-debug remove location.assign patch (read-only crash)
-// stjarndag-v550: Android dashboard flat mode — disable parent-magic-3d perspective/translateZ
 // stjarndag-v549: Android login contrast fix + disable magic 3D orbs post-login
 // stjarndag-v547: Android Play stability — early is-native-android + filter:blur GPU guard
 // stjarndag-v546: Fas D #586 — minneskort, hylla, diplom i Min samling

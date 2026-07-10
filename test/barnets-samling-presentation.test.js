@@ -84,6 +84,44 @@ describe('barnets samling — presentation polish', () => {
     assert.match(src, /activeGoalId/);
     assert.match(src, /listRewards/);
     assert.doesNotMatch(src, /btp-collect-hint/);
+    assert.doesNotMatch(src, /starGridHtml/);
+    assert.match(src, /btp-plaque/);
+    assert.match(src, /btp-progress-star/);
+    assert.match(src, /btp-scene/);
+    assert.match(src, /btp-pending-card/);
+    assert.match(src, /PROGRESS_STAR_MAX = 16/);
+  });
+
+  it('Skattkammaren progress stars cap at 16 with proportional fill', () => {
+    const src = read('public/js/child-treasure-present.js');
+    const ctx = {
+      window: {
+        ChildRewardsEngine: {
+          computeStarGridProgress: function (filled, target) {
+            const totalTarget = Math.max(1, parseInt(target, 10) || 1);
+            const totalFilled = Math.max(0, parseInt(filled, 10) || 0);
+            return { totalTarget: totalTarget, totalFilled: totalFilled, target: 24, filled: 7, truncated: true };
+          },
+        },
+      },
+      document: { createElement: function () { return { textContent: '' }; } },
+    };
+    vm.runInNewContext(src, ctx);
+    const p = ctx.window.ChildTreasurePresent.computeProgressStars(99, 350);
+    assert.equal(p.target, 16);
+    assert.equal(p.totalTarget, 350);
+    assert.equal(p.totalFilled, 99);
+    assert.ok(p.filled > 0 && p.filled <= 16);
+  });
+
+  it('Skattkammaren skips legacy goal chrome when gate ON', () => {
+    const rewards = read('public/js/child-dashboard-rewards.js');
+    assert.match(rewards, /ChildTreasurePresent\.shouldUse/);
+    assert.match(rewards, /clearGoalChrome/);
+    const engine = read('public/js/child-rewards-engine.js');
+    assert.match(engine, /isBarnetsSamlingPresentation/);
+    const shell = read('public/css/child-samling-shell.css');
+    assert.match(shell, /#childGoalProgressMount/);
   });
 
   it('Mina personer shows secondary sections without details fold', () => {

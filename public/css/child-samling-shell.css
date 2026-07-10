@@ -33,6 +33,19 @@ html[data-child-world-active='collection'] .cwb-world {
   opacity: 1;
 }
 
+html[data-child-layer='treasure'] [data-barnets-samling="on"] .cwb-world::after,
+html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-world::after,
+html[data-child-world-active='treasure'] [data-barnets-samling="on"] .cwb-world::after {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 14, 42, 0.42) 0%,
+    rgba(30, 20, 55, 0.28) 22%,
+    rgba(247, 243, 235, 0.18) 48%,
+    rgba(247, 243, 235, 0.72) 78%,
+    rgba(247, 243, 235, 0.97) 100%
+  ) !important;
+}
+
 /* ── Content views: transparent over bg, safe bottom inset ─ */
 [data-barnets-samling="on"] #scheduleView,
 [data-barnets-samling="on"] #collectionView,
@@ -134,7 +147,13 @@ html[data-child-world-active='collection'] .cwb-world {
   opacity: 1 !important;
 }
 
-/* ── Skattkammaren goal card readability ───────────────── */
+/* ── Skattkammaren: suppress legacy goal chrome when gate ON ── */
+[data-barnets-samling="on"] #childGoalProgressMount,
+[data-barnets-samling="on"] #childPendingRedemptionMount {
+  display: none !important;
+}
+
+/* ── Skattkammaren goal card readability (legacy star grid fallback) ── */
 [data-barnets-samling="on"] .btp-goal .skatt-star-grid-wrap {
   margin-top: 0.65rem;
 }
@@ -353,7 +372,7 @@ html[data-barnets-samling="on"] body.first-star-mode #scheduleView .now-check {
 /* ── Storybook depth — shared card language ────────────── */
 [data-barnets-samling="on"] .bsp-hero-panel,
 [data-barnets-samling="on"] .bsp-section,
-[data-barnets-samling="on"] .btp-goal--chest,
+[data-barnets-samling="on"] .btp-plaque,
 [data-barnets-samling="on"] .cfh-hero-panel,
 [data-barnets-samling="on"] .cfh-section-muted {
   box-shadow: 0 10px 32px rgba(27, 35, 64, 0.09);
