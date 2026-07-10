@@ -131,10 +131,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   androidStabilityLog('dashboard_auth_ok', { type: user.type });
-  if (document.documentElement.classList.contains('is-native-android') && window.Auth) {
-    try { await Auth.ensureCsrfToken(); } catch (_) { /* non-blocking */ }
-    androidStabilityLog('dashboard_csrf_ready');
-  }
+  const androidFlat = document.documentElement.classList.contains('is-native-android');
+  const csrfPromise = androidFlat && window.Auth
+    ? Auth.ensureCsrfToken()
+      .then(function () { androidStabilityLog('dashboard_csrf_ready'); })
+      .catch(function () { /* non-blocking */ })
+    : Promise.resolve();
   if (window.NativeDebug) {
     NativeDebug.log('dashboard_auth_ok', { userId: user.id, type: user.type });
   }
@@ -242,20 +244,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Skeleton loading on Capacitor: show shimmer immediately if slow
   const grid = document.getElementById('childCardsGrid');
   let skeletonTimer;
-  const androidFlat = document.documentElement.classList.contains('is-native-android');
   if (window.Skeleton && window.Skeleton.isNative() && !androidFlat) {
     skeletonTimer = window.Skeleton.createTimer(function () {
       window.Skeleton.showParentDashboardSkeleton();
     });
   }
 
-  if (window.ParentMagicShell && !document.documentElement.classList.contains('is-native-android')) {
+  // Android Play safe mode: show child cards ASAP — data fetch parallel with chrome init.
+  if (androidFlat && window.ParentMagicAuto) {
+    ParentMagicAuto.prepareDom();
+  }
+
+  let androidDataPromise = null;
+  if (androidFlat) {
+    androidStabilityLog('dashboard_data_fetch_start');
+    androidDataPromise = Promise.all([loadChildren(), loadTemplates(), loadDashboardCards()]);
+  }
+
+  if (window.ParentMagicShell && !androidFlat) {
     await ParentMagicShell.init('dashboard');
     androidStabilityLog('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
   } else if (window.AppViewMode) {
-    await AppViewMode.initParent();
-    if (document.documentElement.classList.contains('is-native-android') && window.ParentMagicAuto) {
-      ParentMagicAuto.prepareDom();
+    const viewInit = AppViewMode.initParent();
+    if (androidFlat) {
+      await Promise.all([viewInit, androidDataPromise, csrfPromise]);
+    } else {
+      await viewInit;
     }
     if (AppViewMode.isAllowed()) {
       const toggleMount = document.getElementById('appViewToggleMount');
@@ -292,11 +306,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (androidFlat) {
-    await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards()]);
+    androidStabilityLog('dashboard_data_loaded', { classic: true });
   } else {
     await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
+    androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   }
-  androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families
   if (typeof showMedforalderCtaIfEligible === 'function') showMedforalderCtaIfEligible();

@@ -67,6 +67,7 @@ curl -s "$APP_URL/sw.js" | grep CACHE_NAME
 - [x] Fixes merged to `main` and deployed to VPS
 - [x] `NATIVE_DEBUG_OVERLAY` off in prod (normal users)
 - [x] **v568** — classic dashboard on Android: keep essential scripts (`parent-magic-auto`, `dashboard-activity-modal`, `birthday-picker`, `dnd-touch-bridge`), retain `app-view-toggle.css` for top chrome safe-area, guard optional dashboard init, prefetch CSRF after auth
+- [x] **v569** — **först visa data**: parallel dashboard-stats fetch on Android; skip duplicate `/api/auth/me` in `initParent`; CSRF non-blocking
 - [ ] Human QA on physical Android (paused — tester)
 - [ ] AAB v5 upload + Play resubmission
 

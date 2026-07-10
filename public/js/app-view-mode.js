@@ -232,6 +232,14 @@
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
     applyBodyClasses();
+    // Android: authGuard already fetched /api/auth/me — skip duplicate round-trip
+    // so dashboard can show child cards immediately (Play review stability).
+    if (isAndroidNative()) {
+      const result = finishInitParent();
+      writeStoredTheme(_theme);
+      writeStorage(PARENT_KEY, 'classic');
+      return Promise.resolve(result);
+    }
     return fetchAccess().then(function () {
       _allowed = true; // magic-only for parents regardless of allowlist
       const result = finishInitParent();

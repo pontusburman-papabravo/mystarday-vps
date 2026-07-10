@@ -226,6 +226,13 @@ describe('Android Play stability guards', () => {
     assert.match(js, /typeof initBirthdayPicker === 'function'/);
     assert.match(js, /typeof bindRecurrenceAddHandlers === 'function'/);
     assert.match(js, /dashboard_csrf_ready/);
+    assert.match(js, /dashboard_data_fetch_start/);
+  });
+
+  it('Android initParent skips duplicate auth/me fetch', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/app-view-mode.js'), 'utf8');
+    assert.match(js, /isAndroidNative\(\)[\s\S]*finishInitParent/);
+    assert.match(js, /skip duplicate round-trip/);
   });
 
   it('parent-magic-auto boots classic chrome on Android', () => {

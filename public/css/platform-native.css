@@ -291,3 +291,8 @@ html.is-native-android main > .parent-nav-header-actions:not(.parent-top-chrome 
   background: rgba(255, 255, 255, 0.98);
   border-bottom: 1px solid rgba(27, 35, 64, 0.08);
 }
+
+/* Classic dashboard: child cards must never stay hidden on Android safe mode */
+html.is-native-android #childCardsGrid {
+  display: flex !important;
+}
