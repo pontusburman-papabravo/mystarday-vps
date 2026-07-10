@@ -849,10 +849,19 @@ function setLoading(btn, loading) {
  * Returns raw Response (does NOT throw on non-2xx).
  */
 window.apiFetch = async function(url, options = {}) {
-  await Auth._ensureFreshToken();
-
+  const isAndroid = document.documentElement.classList.contains('is-native-android');
   const method = (options.method || 'GET').toUpperCase();
   const isMutation = !['GET', 'HEAD', 'OPTIONS'].includes(method);
+
+  // Android read path: skip silentRefresh round-trip — authGuard already verified cookies.
+  if (isAndroid && !isMutation) {
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    const token = Auth.getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return fetch(url, { ...options, headers, credentials: 'include' });
+  }
+
+  await Auth._ensureFreshToken();
 
   if (isMutation) await Auth.ensureCsrfToken();
 

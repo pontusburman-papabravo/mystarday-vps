@@ -241,6 +241,16 @@ describe('Android Play stability guards', () => {
     assert.match(js, /__ANDROID_PLAY_REVIEW_SAFE_MODE__/);
   });
 
+  it('dashboard-activity-modal guards missing ScheduleCore', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-activity-modal.js'), 'utf8');
+    assert.match(js, /window\.ScheduleCore \|\| \{\}/);
+  });
+
+  it('apiFetch skips silentRefresh on Android GET', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
+    assert.match(js, /is-native-android[\s\S]*!isMutation[\s\S]*fetch\(url/);
+  });
+
   it('authGuard uses lightweight fetch on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
     assert.match(js, /is-native-android[\s\S]*auth_me_fetch_start/);

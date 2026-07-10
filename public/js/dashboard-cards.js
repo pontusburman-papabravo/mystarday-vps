@@ -79,9 +79,15 @@ function buildBlockPills(items) {
 }
 async function loadDashboardCards() {
   try {
-    const res = await window.apiFetch('/api/family/dashboard-stats');
+    const isAndroid = document.documentElement.classList.contains('is-native-android');
+    const res = isAndroid
+      ? await fetch('/api/family/dashboard-stats', { credentials: 'include' })
+      : await window.apiFetch('/api/family/dashboard-stats');
     if (!res.ok) {
       console.error('[DASHBOARD] dashboard-stats response:', res.status);
+      if (isAndroid && typeof window.androidStabilityLog === 'function') {
+        window.androidStabilityLog('dashboard_stats_failed', { status: res.status });
+      }
       return;
     }
     dashboardStats = await res.json();
@@ -98,6 +104,7 @@ let _expandedCardId = null;
 
 function renderDashboardCards() {
   const container = document.getElementById('childCardsGrid');
+  if (!container) return;
   const ch = dashboardStats?.children || [];
 
   if (ch.length === 0 && children.length === 0) {

@@ -4,7 +4,11 @@
  * Reads/writes dashboard.js globals; handlers on window for inline onclick.
  */
 (function () {
-  const { DAYS, SECTIONS } = window.ScheduleCore;
+  const _scheduleCore = window.ScheduleCore || {};
+  const { DAYS, SECTIONS } = _scheduleCore;
+  if (!window.ScheduleCore) {
+    console.warn('[DASHBOARD] activity-modal: ScheduleCore missing');
+  }
 
 async function loadTemplates() {
   try {
@@ -172,9 +176,13 @@ function selectTemplate(id) {
 }
 function clearSelectedTemplate() { selectedTemplateId=null; document.getElementById('selectedTemplateInfo').classList.add('hidden'); renderTemplateList(document.getElementById('templateSearch').value); }
 function pickSection(sec) {
-  addSectionOverride=sec; document.getElementById('addSection').value=sec;
+  addSectionOverride=sec;
+  const addSection = document.getElementById('addSection');
+  if (addSection) addSection.value = sec;
   document.querySelectorAll('.section-pick-btn').forEach(btn=>{ const s=btn.dataset.sec===sec; btn.classList.toggle('bg-navy',s);btn.classList.toggle('text-white',s);btn.classList.toggle('border-navy',s); });
-  if(!document.getElementById('addActivityModal').classList.contains('hidden')) renderTemplateList(document.getElementById('templateSearch').value);
+  const modal = document.getElementById('addActivityModal');
+  const search = document.getElementById('templateSearch');
+  if (modal && search && !modal.classList.contains('hidden')) renderTemplateList(search.value);
 }
 // Pending recurrence state
 let _pendingTemplateId = null;

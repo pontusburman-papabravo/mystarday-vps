@@ -258,7 +258,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   let androidDataPromise = null;
   if (androidFlat) {
     androidStabilityLog('dashboard_data_fetch_start');
-    androidDataPromise = Promise.all([loadChildren(), loadTemplates(), loadDashboardCards()]);
+    androidDataPromise = Promise.all([
+      typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
+      typeof loadTemplates === 'function' ? loadTemplates() : Promise.resolve(),
+      typeof loadDashboardCards === 'function' ? loadDashboardCards() : Promise.resolve(),
+    ]);
   }
 
   if (window.ParentMagicShell && !androidFlat) {
@@ -328,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderDashboardCards();
   }
 
-  pickSection('dag');
+  if (typeof pickSection === 'function') pickSection('dag');
   if (typeof initBirthdayPicker === 'function') initBirthdayPicker('childBirthday');
 
   let selectedChildEmoji = '';
@@ -341,7 +345,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  document.getElementById('addChildForm').addEventListener('submit', async (e) => {
+  const addChildForm = document.getElementById('addChildForm');
+  if (addChildForm) addChildForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const msg = document.getElementById('addChildMsg');
     const btn = document.getElementById('addChildSubmit');
@@ -384,6 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeof bindRecurrenceAddHandlers === 'function') bindRecurrenceAddHandlers();
   } catch (err) {
     console.error('[DASHBOARD] Init error:', err);
+    androidStabilityLog('dashboard_init_error', { message: err && err.message, stack: err && err.stack && err.stack.slice(0, 200) });
     const grid = document.getElementById('childCardsGrid');
     if (grid) grid.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</div>';
   }
@@ -451,7 +457,10 @@ let dashboardStats = null; // cached stats from /api/family/dashboard-stats
 // ── Children loader ──────────────────────────────────────
 async function loadChildren() {
   try {
-    const res = await window.apiFetch('/api/children');
+    const isAndroid = document.documentElement.classList.contains('is-native-android');
+    const res = isAndroid
+      ? await fetch('/api/children', { credentials: 'include' })
+      : await window.apiFetch('/api/children');
     if (res.ok) { children = await res.json(); }
   } catch (e) {
     console.error('[DASHBOARD] loadChildren failed:', e);
