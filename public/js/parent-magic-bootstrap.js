@@ -7,6 +7,7 @@
   let _started = false;
 
   function boot() {
+    if (document.documentElement.classList.contains('is-native-android')) return;
     if (_started || !window.ParentMagicShell) return;
 
     let page = document.body && document.body.getAttribute('data-magic-page');

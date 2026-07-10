@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v563';
+const CACHE_NAME = 'stjarndag-v564';
+// stjarndag-v564: Android classic dashboard — skip parent-magic injection + strip magic scripts
 // stjarndag-v563: server-side strip GPU CSS + heavy scripts on Android WebView
 // stjarndag-v561: Skattkammaren component polish — scene, plaque, progress stars, pending card
 // stjarndag-v560: gate native-debug injection behind NATIVE_DEBUG_OVERLAY

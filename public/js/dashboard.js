@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (window.ParentMagicShell) {
+  if (window.ParentMagicShell && !document.documentElement.classList.contains('is-native-android')) {
     await ParentMagicShell.init('dashboard');
     androidStabilityLog('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
   } else if (window.AppViewMode) {

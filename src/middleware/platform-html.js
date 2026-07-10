@@ -214,12 +214,23 @@ function isAndroidWebViewRequest(req) {
   return /Android/i.test(ua) && /wv/i.test(ua);
 }
 
+function isAndroidClassicDashboard(req, reqPath) {
+  return isAndroidWebViewRequest(req) && normalizeHtmlPath(reqPath) === '/dashboard';
+}
+
 function stripAndroidGpuHtml(body) {
   if (typeof body !== 'string') return body;
   return body.replace(
-    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|dashboard-magic|dashboard-warmth|dashboard-polish)\.css[^"]*"[^>]*>\s*/gi,
+    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish)\.css[^"]*"[^>]*>\s*/gi,
     ''
   );
+}
+
+function stripAndroidMagicBoot(body) {
+  if (typeof body !== 'string') return body;
+  return body
+    .replace(/<style id="parent-magic-early-style">[\s\S]*?<\/style>\s*/gi, '')
+    .replace(/<script id="parent-magic-early-boot">[\s\S]*?<\/script>\s*/gi, '');
 }
 
 const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = [
@@ -241,6 +252,15 @@ const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = [
   'journey-first-week',
   'journey-parent-ack',
   'journey-context-client',
+  'parent-magic-auto',
+  'parent-magic-bootstrap',
+  'parent-magic-page-boot',
+  'parent-magic-router',
+  'parent-magic-shell',
+  'parent-magic-page-hubs',
+  'dashboard-polish',
+  'dashboard-daily-summary',
+  'help-journey-tip',
 ];
 
 function stripAndroidHeavyScripts(body, reqPath) {
@@ -254,9 +274,20 @@ function stripAndroidHeavyScripts(body, reqPath) {
   return out;
 }
 
+function injectParentMagicStack(body, reqPath, req) {
+  if (isAndroidClassicDashboard(req, reqPath)) return body;
+  body = injectEarlyMagicHtml(body, reqPath);
+  body = injectParentMagicRouter(body, reqPath);
+  body = injectParentMagicHtml(body, reqPath);
+  return ensureMagicShellAssets(body, reqPath);
+}
+
 function applyAndroidWebViewHardening(body, reqPath, req) {
   if (!isAndroidWebViewRequest(req)) return body;
   body = stripAndroidGpuHtml(body);
+  if (isAndroidClassicDashboard(req, reqPath)) {
+    body = stripAndroidMagicBoot(body);
+  }
   body = stripAndroidHeavyScripts(body, reqPath);
   return body;
 }
@@ -291,10 +322,7 @@ function injectPlatformHtml(body, reqPath, req) {
   const injectDebug = shouldInjectNativeDebug(req);
   body = injectNoindexMeta(body, reqPath);
   if (body.includes(INJECT_MARKER)) {
-    body = injectEarlyMagicHtml(body, reqPath);
-    body = injectParentMagicRouter(body, reqPath);
-    body = injectParentMagicHtml(body, reqPath);
-    body = ensureMagicShellAssets(body, reqPath);
+    body = injectParentMagicStack(body, reqPath, req);
     return applyAndroidWebViewHardening(injectDebug ? ensureNativeDebugAssets(body) : body, reqPath, req);
   }
 
@@ -309,7 +337,8 @@ function injectPlatformHtml(body, reqPath, req) {
       'var el=document.documentElement;el.classList.add("is-native");' +
       'if(c.getPlatform&&c.getPlatform()==="android"){' +
       'el.classList.add("is-native-android");' +
-      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|dashboard-magic/.test(h))l.disabled=true;});}catch(e){}}' +
+      'el.classList.remove("parent-magic-early","parent-theme-dark","parent-theme-light");' +
+      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-polish|dashboard-warmth/.test(h))l.remove();});}catch(e){}}' +
       '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss);' +
       'new MutationObserver(_stripGpuCss).observe(document.documentElement,{childList:true,subtree:true});' +
       'window.addEventListener("error",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"window_error",detail:{message:ev.message,source:ev.filename,line:ev.lineno},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
@@ -363,10 +392,8 @@ function injectPlatformHtml(body, reqPath, req) {
     body = body.slice(0, tailIdx) + bodyInject + body.slice(tailIdx);
   }
 
-  body = injectEarlyMagicHtml(body, reqPath);
-  body = injectParentMagicRouter(body, reqPath);
-  body = injectParentMagicHtml(body, reqPath);
-  body = injectDebug ? ensureNativeDebugAssets(ensureMagicShellAssets(body, reqPath)) : ensureMagicShellAssets(body, reqPath);
+  body = injectParentMagicStack(body, reqPath, req);
+  body = injectDebug ? ensureNativeDebugAssets(body) : body;
   return applyAndroidWebViewHardening(body, reqPath, req);
 }
 
@@ -421,6 +448,8 @@ module.exports = platformHtmlInject;
 module.exports.shouldInjectNativeDebug = shouldInjectNativeDebug;
 module.exports.isAndroidWebViewRequest = isAndroidWebViewRequest;
 module.exports.stripAndroidGpuHtml = stripAndroidGpuHtml;
+module.exports.isAndroidClassicDashboard = isAndroidClassicDashboard;
+module.exports.injectParentMagicStack = injectParentMagicStack;
 module.exports.applyAndroidWebViewHardening = applyAndroidWebViewHardening;
 module.exports.injectPlatformHtml = injectPlatformHtml;
 module.exports.injectParentMagicHtml = injectParentMagicHtml;
