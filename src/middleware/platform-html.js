@@ -241,6 +241,41 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'dashboard-polish',
   'dashboard-daily-summary',
   'help-journey-tip',
+  'sortablejs',
+  'Sortable.min',
+  'dnd-touch-bridge',
+  'dashboard-dnd',
+  'dashboard-views',
+  'dashboard-special-days',
+  'dashboard-star-history',
+  'dashboard-activity-modal',
+  'dashboard-copy-modals',
+  'dashboard-approvals',
+  'skeleton',
+  'founder-banner',
+  'pwa-install',
+  'push-manager',
+  'feedback',
+  'home-readiness',
+  'for-dig-goal-badge',
+  'schedule-cal-nav',
+  'schedule-core',
+  'dashboard-custody',
+  'custody-banner',
+  'custody-a11y',
+  'coparent-invite-ui',
+  'dashboard-cta',
+  'pictogram-registry',
+  'activation-program-aha-card',
+  'dashboard-package-triggers',
+  'package-interest-triggers',
+  'dashboard-banner',
+  'birthday-picker',
+  'dashboard-system-messages',
+  'sw-register',
+  'apple-sign-in-diagnostics',
+  'crash-reporter',
+  'referral-share',
 ];
 
 function androidNativeAppHeaderMatch(xRequestedWith) {
@@ -281,7 +316,7 @@ function isAndroidClassicDashboard(req, reqPath) {
 function stripAndroidGpuHtml(body) {
   if (typeof body !== 'string') return body;
   return body.replace(
-    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish)\.css[^"]*"[^>]*>\s*/gi,
+    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish|skeleton|for-dig-goal-badge|parent-bottom-nav|app-view-toggle)\.css[^"]*"[^>]*>\s*/gi,
     ''
   );
 }
@@ -295,9 +330,14 @@ function stripAndroidMagicBoot(body) {
 
 const ANDROID_DASHBOARD_SCRIPT_FRAGMENTS = ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS;
 
+function stripAndroidExternalScripts(body) {
+  if (typeof body !== 'string') return body;
+  return body.replace(/<script\b[^>]*src="https?:\/\/[^"]*"[^>]*>\s*<\/script>\s*/gi, '');
+}
+
 function stripAndroidPlayReviewSafeModeScripts(body) {
   if (typeof body !== 'string') return body;
-  let out = body;
+  let out = stripAndroidExternalScripts(body);
   ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS.forEach(function (frag) {
     const re = new RegExp('<script\\b[^>]*src="[^"]*' + frag + '[^"]*"[^>]*>\\s*</script>\\s*', 'gi');
     out = out.replace(re, '');
@@ -396,7 +436,8 @@ function injectPlatformHtml(body, reqPath, req) {
       'if(c.getPlatform&&c.getPlatform()==="android"){' +
       'el.classList.add("is-native-android");' +
       'el.classList.remove("parent-magic-early","parent-theme-dark","parent-theme-light");' +
-      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-polish|dashboard-warmth/.test(h))l.remove();});}catch(e){}}' +
+      'window.androidStabilityLog=function(s,d){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:s,detail:d||null,ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}};' +
+      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-polish|dashboard-warmth|skeleton/.test(h))l.remove();});}catch(e){}}' +
       '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss);' +
       'new MutationObserver(_stripGpuCss).observe(document.documentElement,{childList:true,subtree:true});' +
       'window.addEventListener("error",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"window_error",detail:{message:ev.message,source:ev.filename,line:ev.lineno},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
@@ -426,14 +467,15 @@ function injectPlatformHtml(body, reqPath, req) {
   );
   const headInject = headParts.join('\n') + '\n';
 
+  const androidSafe = isAndroidPlayReviewSafeMode(req, reqPath);
   const bodyInject =
     (injectDebug ? '<script src="/js/native-debug.js?v=1.0.5"><\/script>\n' : '') +
-    '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n' +
-    '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    (androidSafe ? '' : '<script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22c"><\/script>\n') +
+    (androidSafe ? '' : '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n') +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/nav-config.js?v=' + RELEASE_TAG + '"><\/script>\n' +
-    '<script src="/js/referral-share.js?v=' + RELEASE_TAG + '"><\/script>\n' +
+    (androidSafe ? '' : '<script src="/js/referral-share.js?v=' + RELEASE_TAG + '"><\/script>\n') +
     '<script src="/js/native-tab-bar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parent-nav-sidebar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parent-nav-header.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +

@@ -95,6 +95,10 @@ if (window.ScheduleCalNav) {
 // ── Init ─────────────────────────────────────────────────
 function androidStabilityLog(step, detail) {
   if (!document.documentElement.classList.contains('is-native-android')) return;
+  if (typeof window.androidStabilityLog === 'function') {
+    window.androidStabilityLog(step, detail);
+    return;
+  }
   try {
     fetch('/api/client-log', {
       method: 'POST',
@@ -230,7 +234,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Skeleton loading on Capacitor: show shimmer immediately if slow
   const grid = document.getElementById('childCardsGrid');
   let skeletonTimer;
-  if (window.Skeleton && window.Skeleton.isNative()) {
+  const androidFlat = document.documentElement.classList.contains('is-native-android');
+  if (window.Skeleton && window.Skeleton.isNative() && !androidFlat) {
     skeletonTimer = window.Skeleton.createTimer(function () {
       window.Skeleton.showParentDashboardSkeleton();
     });
@@ -275,7 +280,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
+  if (androidFlat) {
+    await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards()]);
+  } else {
+    await Promise.all([loadChildren(), loadTemplates(), loadDashboardCards(), loadStarHistory()]);
+  }
   androidStabilityLog('dashboard_data_loaded', { classic: !!(window.AppViewMode && AppViewMode.isClassic()) });
   if (window.ActivationProgramBanner) ActivationProgramBanner.init();
   // Medförälder CTA: show banner for single-parent families

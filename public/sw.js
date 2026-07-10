@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v565';
+const CACHE_NAME = 'stjarndag-v566';
+// stjarndag-v566: Android auth guard lightweight fetch + ultra-minimal dashboard scripts
 // stjarndag-v565: ANDROID_PLAY_REVIEW_SAFE_MODE — broader WebView detect + hardening beacon
 // stjarndag-v564: Android classic dashboard — skip parent-magic injection + strip magic scripts
 // stjarndag-v563: server-side strip GPU CSS + heavy scripts on Android WebView

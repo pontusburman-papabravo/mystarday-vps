@@ -783,8 +783,9 @@ const Auth = {
 
 window.Auth = Auth;
 
-// Re-schedule refresh on page load.
+// Re-schedule refresh on page load (skip on Android — defer until after dashboard auth).
 (function () {
+  if (document.documentElement.classList.contains('is-native-android')) return;
   const expMs = Auth._getExpiryMs();
   if (expMs) {
     if (Date.now() < expMs) {
@@ -795,9 +796,10 @@ window.Auth = Auth;
   }
 })();
 
-// Proactively fetch CSRF token on page load (cookie + localStorage must stay in sync).
+// Proactively fetch CSRF token on page load (skip on Android dashboard safe mode).
 (function () {
   if (!Auth.isLoggedIn()) return;
+  if (document.documentElement.classList.contains('is-native-android')) return;
   Auth.ensureCsrfToken();
 })();
 
@@ -908,9 +910,23 @@ function redirectIncompleteOnboarding(user) {
 
 window.authGuard = async function() {
   const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
+  const isAndroid = document.documentElement.classList.contains('is-native-android');
+  const stabilityLog = function (step, detail) {
+    if (typeof window.androidStabilityLog === 'function') {
+      window.androidStabilityLog(step, detail);
+    }
+  };
   try {
-    const res = await window.apiFetch('/api/auth/me');
+    let res;
+    if (isAndroid) {
+      stabilityLog('auth_me_fetch_start');
+      res = await fetch('/api/auth/me', { credentials: 'include' });
+      stabilityLog('auth_me_fetch_done', { status: res.status, ok: res.ok });
+    } else {
+      res = await window.apiFetch('/api/auth/me');
+    }
     if (!res.ok) {
+      stabilityLog('auth_me_failed', { status: res.status });
       if (diag && diag.traceLoginBounce) {
         diag.traceLoginBounce('auth_me_failed', { status: res.status, path: window.location.pathname });
       }
@@ -925,9 +941,11 @@ window.authGuard = async function() {
       return Auth.getUser();
     }
     const user = await res.json();
+    stabilityLog('auth_me_json_ok', { type: user && user.type });
     if (redirectIncompleteOnboarding(user)) return null;
     return user;
   } catch (err) {
+    stabilityLog('auth_me_error', { message: err && err.message });
     if (diag && diag.traceLoginBounce) {
       diag.traceLoginBounce('auth_me_error', { message: err && err.message, path: window.location.pathname });
     }

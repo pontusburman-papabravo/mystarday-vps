@@ -194,6 +194,13 @@ describe('Android Play stability guards', () => {
     assert.match(js, /is-native-android[\s\S]*ParentMagicShell/);
   });
 
+  it('authGuard uses lightweight fetch on Android native', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
+    assert.match(js, /is-native-android[\s\S]*auth_me_fetch_start/);
+    assert.match(js, /fetch\('\/api\/auth\/me'/);
+    assert.match(js, /auth_me_json_ok/);
+  });
+
   it('ANDROID_PLAY_REVIEW_SAFE_MODE documented in platform-html', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /ANDROID_PLAY_REVIEW_SAFE_MODE/);
