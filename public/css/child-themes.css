@@ -1,6 +1,6 @@
 /**
  * child-themes.css — Barnets samling per-child themes (gate ON only).
- * PR 1: CSS gradient scenes + accent tokens. WebP backgrounds in PR 2.
+ * PR 2: WebP backgrounds lazy-loaded over gradient fallback.
  * Asset paths: public/images/child/themes/<theme>/
  */
 
@@ -203,9 +203,9 @@ html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
     linear-gradient(168deg, #fadbd8 0%, #f1948a 32%, #e74c3c 58%, #922b21 100%);
 }
 
-/* PR 2: when background@2x.webp exists, layer over gradient (no layout shift) */
+/* PR 2: when background@2x.webp loads, layer over gradient (no layout shift) */
 [data-barnets-samling="on"] .cwb-theme-scene.ct-bg-loaded {
-  background-image: var(--ct-bg-image), var(--ct-bg-gradient, none);
+  background-image: var(--ct-background-image), var(--ct-bg-gradient, none);
 }
 
 /* ── Accent hooks for presentation polish (PR 4 builds on these) ─── */

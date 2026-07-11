@@ -1,7 +1,7 @@
 /**
  * child-theme.js — Per-child visual theme for Barnets samling (presentation only).
  * Gate: barnets_samling ON. Does not use legacy Min värld house themes.
- * PR 1: CSS accents + emoji icon fallback. Background/icon assets in follow-up PRs.
+ * PR 1: CSS accents + emoji icon fallback. PR 2: WebP backgrounds (gate ON, lazy-loaded).
  */
 (function () {
   'use strict';
@@ -143,6 +143,7 @@
   };
 
   let _activeThemeId = DEFAULT_THEME;
+  let _bgLoadToken = 0;
 
   function isSamlingGateOn() {
     if (typeof document === 'undefined') return false;
@@ -179,6 +180,7 @@
 
   function clearThemeDom() {
     if (typeof document === 'undefined') return;
+    _bgLoadToken += 1;
     const root = document.documentElement;
     root.removeAttribute('data-child-theme');
     THEME_IDS.forEach(function (tid) {
@@ -203,6 +205,24 @@
     return scene;
   }
 
+  function preloadThemeBackground(scene, backgroundUrl) {
+    if (!scene || !backgroundUrl) return;
+    _bgLoadToken += 1;
+    const token = _bgLoadToken;
+    scene.classList.remove('ct-bg-loaded');
+    if (typeof Image === 'undefined') return;
+    const img = new Image();
+    img.onload = function () {
+      if (token !== _bgLoadToken) return;
+      scene.classList.add('ct-bg-loaded');
+    };
+    img.onerror = function () {
+      if (token !== _bgLoadToken) return;
+      scene.classList.remove('ct-bg-loaded');
+    };
+    img.src = backgroundUrl;
+  }
+
   function applyThemeDom(themeId) {
     const id = normalizeThemeId(themeId);
     const theme = getTheme(id);
@@ -219,7 +239,8 @@
     const scene = ensureThemeSceneLayer();
     if (scene) {
       scene.setAttribute('data-theme-scene', id);
-      scene.style.setProperty('--ct-bg-image', 'url("' + theme.assets.background + '")');
+      scene.style.setProperty('--ct-background-image', 'url("' + theme.assets.background + '")');
+      preloadThemeBackground(scene, theme.assets.background);
     }
 
     _activeThemeId = id;

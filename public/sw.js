@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v580';
+const CACHE_NAME = 'stjarndag-v581';
+// stjarndag-v581: Barnets samling theme backgrounds — runtime SW cache (not precached, ~1.6 MB total)
 // stjarndag-v580: Barnets samling themes — 10 canonical themes, adventure fallback + aliases
 // stjarndag-v577: Skattkammaren visual fix — crown crop, CSS scene bg, cleaner progress
 // stjarndag-v576: Google login button — branded logo + label-safe loading state
@@ -702,7 +703,7 @@ self.addEventListener('fetch', (event) => {
   // and updates cache so the NEXT load gets the fresh version. This ensures
   // bug fixes propagate within one page load cycle instead of being stuck forever.
   if (
-    url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)
+    url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff|woff2|ttf|eot)$/)
   ) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
