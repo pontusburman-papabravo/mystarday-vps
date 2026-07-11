@@ -2,34 +2,53 @@
 
 Design reference sheets for per-child visual themes (presentation only).
 
-## Theme slugs (runtime)
+**Visual language (all themes):** lekvärld, rörelse, föremål och miljöer — inte gulliga maskotar eller bebisillustrationer.
 
-| Slug | Swedish label |
-|------|---------------|
-| `space` | Rymd |
-| `dinosaurs` | Dinosaurier |
-| `cars` | Bilar |
-| `dolls` | Dockor |
-| `airplanes` | Flygplan |
-| `animals` | Djur |
-| `fantasy` | Fantasi (default fallback) |
+## Canonical theme slugs (runtime)
+
+| Slug | Swedish label | Visual direction |
+|------|---------------|------------------|
+| `adventure` | Äventyr | kartor, stigar, märken, gömda platser |
+| `space` | Rymd | planeter, raketspår, kontrollpanel |
+| `dinosaurs` | Dinosaurier | fossil, fotspår, djungel, utgrävning |
+| `vehicles` | Fordon | banor, hjul, ramper, vägmarkeringar |
+| `animals` | Vilda djur | spår, habitat, safari, natur |
+| `ocean` | Havet | undervattensvärld, vågor, ubåt, koraller |
+| `sports` | Sport | planer, mål, koner, resultattavla |
+| `builders` | Bygg & skapa | klossar, kugghjul, ritningar, verktyg |
+| `music` | Musik & rytm | instrument, beats, ljudvågor, scen |
+| `arcade` | Spelhall | banor, nivåer, pixelformer, power-ups |
+
+**Default fallback:** `adventure`
+
+## Temporary aliases (normalize before apply)
+
+| Alias | Resolves to |
+|-------|-------------|
+| `fantasy` | `adventure` |
+| `cars` | `vehicles` |
+| `airplanes` | `vehicles` |
+| `dolls` | `builders` |
+
+Unknown values (e.g. `castle`) → `adventure`.
 
 ## Reference files (inspiration only — not runtime)
 
-Place combined reference PNGs here:
-
 ```
 docs/design/barnets-samling-themes/
+  adventure-reference.png
   space-reference.png
   dinosaurs-reference.png
-  cars-reference.png
-  dolls-reference.png
-  airplanes-reference.png
+  vehicles-reference.png
   animals-reference.png
-  fantasy-reference.png
+  ocean-reference.png
+  sports-reference.png
+  builders-reference.png
+  music-reference.png
+  arcade-reference.png
 ```
 
-Do **not** use these combined sheets as runtime UI. Separate WebP asset files only.
+Do **not** use combined reference sheets as runtime UI. Separate WebP asset files only.
 
 ## Runtime assets (WebP)
 
@@ -49,20 +68,22 @@ public/images/child/themes/<theme>/
 
 | File | Role |
 |------|------|
-| `public/js/child-theme.js` | Theme config, fallback, `data-child-theme` |
+| `public/js/child-theme.js` | Theme config, aliases, fallback, `data-child-theme` |
 | `public/css/child-themes.css` | Per-theme CSS variables + gradient scenes |
 
 ## Fallback
 
 ```js
-theme = child.visual_theme || child.child_view_config?.visual_theme || 'fantasy'
+theme = normalizeThemeId(
+  child.visual_theme || child.child_view_config?.visual_theme || 'adventure'
+)
 ```
 
-Unknown values → `fantasy`. Legacy `house_config.theme` is **ignored** when `barnets_samling` gate is ON.
+Legacy `house_config.theme` is **ignored** when `barnets_samling` gate is ON.
 
 ## Follow-up (not PR 1)
 
-- PR 2: `background@2x.webp` for fantasy, space, animals
+- PR 2: `background@2x.webp` for adventure, space, animals
 - PR 3: Tab icon WebP assets
-- PR 4: Per-flik presentation polish (dagstavla, samlingsrum, skattkammare, familjevägg)
+- PR 4: Per-flik presentation polish
 - Parent settings UI + optional `child_view_config.visual_theme` write path
