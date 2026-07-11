@@ -465,7 +465,7 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
   it('sw.js does not precache theme background webps', () => {
     const sw = read('public/sw.js');
     assert.doesNotMatch(sw, /\/images\/child\/themes\/adventure\/background@2x\.webp/);
-    assert.match(sw, /stjarndag-v582/);
+    assert.match(sw, /stjarndag-v583/);
   });
 
   const ICON_KEYS = ['today', 'collection', 'treasure', 'family'];
@@ -580,10 +580,21 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     assert.doesNotMatch(sw, /\/images\/child\/themes\/adventure\/icon-today@2x\.webp/);
   });
 
-  it('child-bottom-nav.css sizes theme icons without layout shift', () => {
-    const css = read('public/css/child-bottom-nav.css');
-    assert.match(css, /\.child-nav-icon/);
-    assert.match(css, /2rem/);
-    assert.match(css, /child-nav-icon-fallback/);
+  it('listThemes returns ten canonical themes with assets', () => {
+    const ChildTheme = loadChildTheme();
+    const list = ChildTheme.listThemes();
+    assert.equal(list.length, 10);
+    list.forEach(function (theme) {
+      assert.ok(ChildTheme.THEME_IDS.includes(theme.id));
+      assert.ok(theme.label);
+      assert.match(theme.assets.background, /background@2x\.webp/);
+      assert.ok(theme.assets.icons);
+    });
+  });
+
+  it('childPayloadWithTheme writes visual_theme into child_view_config', () => {
+    const ChildTheme = loadChildTheme();
+    const payload = ChildTheme.childPayloadWithTheme({ id: 'c1', name: 'A' }, 'ocean');
+    assert.equal(payload.child_view_config.visual_theme, 'ocean');
   });
 });

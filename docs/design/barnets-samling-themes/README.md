@@ -83,6 +83,23 @@ theme = normalizeThemeId(
 
 Legacy `house_config.theme` is **ignored** when `barnets_samling` gate is ON.
 
+## Theme picker (Min samling)
+
+**Plats:** Min samling → **Mitt tema** (kort under hero).
+
+**Lagring:** `child_view_config.visual_theme` (canonical ID only).
+
+**API:** `PATCH /api/children/:id/visual-theme` med `{ "visual_theme": "space" }` — barn (self) eller förälder med åtkomst.
+
+**Gate OFF:** ingen temaväljare, ingen theme-save.
+
+**Lokal test (gate ON):**
+```js
+ChildTheme.apply({ child_view_config: { visual_theme: 'animals' } })
+```
+
+Alias normaliseras vid läsning men sparas aldrig via API.
+
 ## Follow-up (not PR 1)
 
 - ~~PR 2: `background@2x.webp` for all ten themes~~ (done on `cursor/child-theme-shell-37d3`)

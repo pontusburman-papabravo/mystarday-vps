@@ -138,6 +138,29 @@ Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **
 
 ---
 
+## Barnets temaväljare
+
+Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **Android PWA** (om möjligt).
+
+| # | Kontroll |
+|---|----------|
+| 1 | Öppna **Min samling** → kortet **Mitt tema** syns (gate ON) |
+| 2 | Alla tio teman visas i väljaren |
+| 3 | Default **adventure** när inget sparat / okänt värde |
+| 4 | Välj **space** → förhandsvisa → **Avbryt** → tidigare tema åter |
+| 5 | Välj **animals** → **Använd tema** → sparat |
+| 6 | Samma tema på alla fyra flikar efter sparning |
+| 7 | Ladda om → temat kvar (`child_view_config.visual_theme`) |
+| 8 | Simulera save-fel (offline) → felmeddelande + återställning |
+| 9 | Simulera saknad previewbild → gradient + namn, fortfarande valbart |
+| 10 | Bottom nav täcker inget; ingen horisontell scroll |
+| 11 | Gate OFF → ingen temaväljare; legacy oförändrat |
+| 12 | Min samling / Skattkammaren / redeem utan regression |
+
+**Manuella testteman:** `adventure`, `space`, `animals`
+
+---
+
 ## Presentation polish (mobil)
 
 Kör på **iPhone Safari** och **Android Chrome** med gate ON.

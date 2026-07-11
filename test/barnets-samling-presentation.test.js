@@ -43,6 +43,12 @@ describe('barnets samling — presentation polish', () => {
     assert.ok(p.filled > 0 && p.filled <= 24);
   });
 
+  it('Min samling includes Mitt tema entry when gate on', () => {
+    const src = read('public/js/child-samling-present.js');
+    assert.match(src, /Mitt tema/);
+    assert.match(src, /bspOpenThemePicker/);
+  });
+
   it('Min samling hero panel shows glass above fold', () => {
     const src = read('public/js/child-samling-present.js');
     assert.match(src, /renderHeroPanel/);
