@@ -122,6 +122,9 @@ function createApp() {
     res.send(buildRobotsTxt());
   });
 
+  const { registerAabDownloadRoute } = require('./src/routes/aab-download');
+  registerAabDownloadRoute(app);
+
   registerRoutes(app);
 
   app.use(express.static(path.join(__dirname, 'public'), { index: false }));

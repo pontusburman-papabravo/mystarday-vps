@@ -7,6 +7,8 @@ node_modules/
 # Uploaded images (local disk storage)
 data/uploads/*
 !data/uploads/.gitkeep
+data/downloads/*
+!data/downloads/.gitkeep
 
 # Prisma
 prisma/*.db
@@ -32,6 +34,7 @@ android/
 
 # Android upload keystore (backup locally — required for all future Play updates)
 assets/play-store/signing/*.keystore
+android/keystore.properties
 assets/play-store/signing/*.jks
 
 # Polsia safety (auto-injected)
