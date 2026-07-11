@@ -47,6 +47,27 @@
     return 'De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.';
   }
 
+  function renderPictogramEntry() {
+    if (!window.ChildPictogramPacks || !ChildPictogramPacks.isSamlingGateOn || !ChildPictogramPacks.isSamlingGateOn()) {
+      return '';
+    }
+    const packId = ChildPictogramPacks.getActivePackId ? ChildPictogramPacks.getActivePackId() : 'simple';
+    const pack = ChildPictogramPacks.PACKS[packId] || ChildPictogramPacks.PACKS.simple;
+    const preview = pack.preview || '';
+    return (
+      '<section class="bsp-pictogram-entry" aria-label="Bildstil">' +
+        '<button type="button" class="bsp-pictogram-entry-btn" id="bspOpenPictogramPicker">' +
+          '<span class="bsp-pictogram-entry-preview" style="background-image:url(\'' + preview + '\')" aria-hidden="true"></span>' +
+          '<span class="bsp-pictogram-entry-copy">' +
+            '<span class="bsp-pictogram-entry-kicker">Bildstil</span>' +
+            '<span class="bsp-pictogram-entry-label">' + esc(pack.label) + '</span>' +
+          '</span>' +
+          '<span class="bsp-pictogram-entry-chevron" aria-hidden="true">›</span>' +
+        '</button>' +
+      '</section>'
+    );
+  }
+
   function renderThemeEntry() {
     if (!window.ChildTheme || !ChildTheme.isSamlingGateOn || !ChildTheme.isSamlingGateOn()) {
       return '';
@@ -541,6 +562,7 @@
       '<div class="bsp-page">' +
         renderHeroPanel(universe) +
         renderThemeEntry() +
+        renderPictogramEntry() +
         renderPreviewStrip(universe, extras) +
         renderMedalSection(universe) +
         renderWallSection(universe) +

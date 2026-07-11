@@ -36,6 +36,9 @@
 | `G2-celebration-frame` | Idag / firande | `today-celebration-frame-v1@2x.webp` | `public/images/child/decals/today-celebration-frame-v1@2x.webp` | Firande-overlay ≤2 s (ej kopplad) | behöver iteration |
 | `garden-scene-bg` | Morgonhus → Trädgården | `scene-bg.webp` (+ srcset) | `public/images/child/world/garden/` | `child-garden.js`, `garden-asset-pipeline.js` (legacy `/assets/worlds/garden/` tills Agent 4) | godkänd |
 | `memory-hall-scene` | Minnesrummet | `scene@2x.webp` (+ srcset) | `public/images/child/world/memory-hall/` | `child-memory-hall.js`, `memory-hall-asset-pipeline.js` | v2 diorama (137KB master) |
+| `pictogram-pack-simple` | Idag / aktiviteter | `{activity-key}@2x.webp` | `public/images/child/pictograms/simple/` | `child-pictogram-packs.js`, `activity-visual.js` (gate ON) | godkänd |
+| `pictogram-pack-action` | Idag / aktiviteter | `{activity-key}@2x.webp` | `public/images/child/pictograms/action/` | `child-pictogram-packs.js`, `activity-visual.js` (gate ON) | godkänd |
+| `pictogram-pack-preview` | Min samling / Bildstil | `preview-{simple\|action}.webp` | `public/images/child/pictograms/` | `child-pictogram-picker.js` | godkänd |
 
 ### Rum-ID (Min värld)
 
@@ -49,6 +52,13 @@ Källa: `BASE_ROOMS` i `child-skatt-house.js` — `chest`, `dreams`, `trophy`, `
 2. **Upplösning:** @2x räcker ofta för mobil; lägg srcset-varianter endast när filen är stor (se garden-mönstret).
 3. **Innan agent kodar:** Ladda ner från ChatGPT/illustratör → committa till sökväg i tabellen → uppdatera **Status** här.
 4. **Efter commit:** SW-bump + ev. uppdatera CSS/JS `url()` eller asset-pipeline manifest.
+
+### Barnets samling — aktivitetspictogram (simple / action)
+
+- **Manifest:** `config/child-pictogram-manifest.json` (48 aktivitetsnycklar, kebab-case)
+- **Resolver:** `config/child-pictogram-packs.js` (server) · `public/js/child-pictogram-packs.js` (klient)
+- **Lagring:** `child_view_config.pictogram_pack` (`simple` \| `action`, default `simple`)
+- **Offline:** 96 aktivitets-WebP **inte** i initial precache — runtime stale-while-revalidate via SW (samma mönster som temabakgrunder/ikoner, ~3.5 MB totalt)
 
 ---
 
@@ -69,4 +79,4 @@ Migrera legacy-sökvägar när filerna finns i `public/images/child/` — en PR 
 - [barnmeny-v2.md](barnmeny-v2.md) §5 — rum och vyer
 - Art Bible §14 — `stjarndag-{world}-{asset}-v{n}-@2x` (källfilnamn)
 
-*Senast uppdaterad: 2026-07-02*
+*Senast uppdaterad: 2026-07-11*

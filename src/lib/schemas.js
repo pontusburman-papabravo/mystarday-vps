@@ -166,6 +166,10 @@ const ChildViewConfigSchema = z.object({
   }).optional(),
 });
 
+const PictogramPackBodySchema = z.object({
+  pictogram_pack: z.enum(['simple', 'action']),
+}).strict();
+
 const VisualThemeBodySchema = z.object({
   visual_theme: z.enum([
     'adventure',
@@ -565,6 +569,7 @@ module.exports = {
   UpdateChildPinSchema,
   ChildViewConfigSchema,
   VisualThemeBodySchema,
+  PictogramPackBodySchema,
   // Activities
   CreateActivitySchema,
   UpdateActivitySchema,

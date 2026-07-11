@@ -1,6 +1,6 @@
 /**
  * activity-visual.js — render activity icon (emoji) or custom photo.
- * Priority: image_url > icon_key pictogram > emoji (icon field).
+ * Priority: image_url > barnets_samling pack > legacy pictogram > emoji.
  */
 (function () {
   'use strict';
@@ -14,9 +14,22 @@
       .replace(/"/g, '&quot;');
   }
 
+  function packImageUrl(item) {
+    if (!item || item.image_url) return null;
+    if (!window.ChildPictogramPacks || !ChildPictogramPacks.isEnabled()) return null;
+    const packId = ChildPictogramPacks.getActivePackId
+      ? ChildPictogramPacks.getActivePackId()
+      : ChildPictogramPacks.DEFAULT_PACK;
+    return ChildPictogramPacks.resolveActivityAsset(item.icon_key, packId);
+  }
+
   function pictogramEmoji(item) {
     if (!item || item.image_url) return null;
     if (item.pictogram_emoji) return item.pictogram_emoji;
+    if (window.ChildPictogramPacks && ChildPictogramPacks.isEnabled()) {
+      const fromPack = ChildPictogramPacks.activityEmoji(item.icon_key);
+      if (fromPack) return fromPack;
+    }
     if (item.icon_key && window.PictogramRegistry && window.PictogramRegistry.getEmoji) {
       return window.PictogramRegistry.getEmoji(item.icon_key);
     }
@@ -25,6 +38,8 @@
 
   function pictogramImageUrl(item) {
     if (!item || item.image_url) return null;
+    const packUrl = packImageUrl(item);
+    if (packUrl) return packUrl;
     if (item.pictogram_url) return item.pictogram_url;
     if (item.icon_key && window.PictogramRegistry && window.PictogramRegistry.getUrl) {
       return window.PictogramRegistry.getUrl(item.icon_key);
@@ -52,7 +67,7 @@
     const p = pick(item);
     if (p.url) {
       const cls = 'activity-visual-img' + (imgClass ? ' ' + imgClass : '');
-      return '<img src="' + esc(p.url) + '" alt="" class="' + cls + '" loading="lazy">';
+      return '<img src="' + esc(p.url) + '" alt="" class="' + cls + '" loading="lazy" decoding="async">';
     }
     return p.icon;
   }
@@ -67,5 +82,6 @@
     inline: inline,
     thumb: thumb,
     pictogramEmoji: pictogramEmoji,
+    packImageUrl: packImageUrl,
   };
 })();
