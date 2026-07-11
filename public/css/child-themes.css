@@ -171,7 +171,17 @@ html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
   background-image: var(--ct-bg-image), var(--ct-bg-gradient, none);
 }
 
-/* ── Accent hooks for future presentation polish (PR 4) ─── */
+/* ── Accent hooks for presentation polish (PR 4 builds on these) ─── */
+[data-barnets-samling="on"][data-child-theme] #todayFocusMount {
+  border-bottom-color: var(--ct-card-border, rgba(237, 231, 246, 0.85));
+  box-shadow: 0 4px 20px var(--ct-card-glow, rgba(27, 35, 64, 0.06));
+}
+
+[data-barnets-samling="on"][data-child-theme] #scheduleView .now-card:not(.done) {
+  border-color: var(--ct-card-border, rgba(245, 166, 35, 0.25));
+  box-shadow: 0 4px 16px var(--ct-card-glow, rgba(27, 35, 64, 0.08));
+}
+
 [data-barnets-samling="on"][data-child-theme] .bsp-hero-panel,
 [data-barnets-samling="on"][data-child-theme] .btp-hero,
 [data-barnets-samling="on"][data-child-theme] .cfh-hero-panel {

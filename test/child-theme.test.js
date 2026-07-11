@@ -112,7 +112,7 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     const themeId = ChildTheme.apply({ visual_theme: 'space' }, { silent: true });
     assert.equal(themeId, 'space');
     assert.equal(attrs['data-child-theme'], 'space');
-    assert.ok(classes.indexOf('child-theme-space') >= 0);
+    assert.ok(classes.indexOf('theme-space') >= 0);
   });
 
   it('apply clears theme when barnets_samling gate is OFF', () => {
@@ -134,6 +134,13 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     const themeId = ChildTheme.apply({ visual_theme: 'space' });
     assert.equal(themeId, 'fantasy');
     assert.equal(attrs['data-child-theme'], undefined);
+  });
+
+  it('applyThemeDom uses theme.className from config (not child-theme- prefix)', () => {
+    const src = read('public/js/child-theme.js');
+    assert.match(src, /theme\.className/);
+    assert.doesNotMatch(src, /child-theme-' \+ id/);
+    assert.match(src, /className: 'theme-space'/);
   });
 
   it('does not use legacy Min värld house theme at runtime', () => {

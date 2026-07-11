@@ -85,6 +85,27 @@ Relevanta suites: `barnets-samling-*.test.js`, `idag-*.test.js`, `mina-personer-
 
 ---
 
+## Theme system shell
+
+Kör på **iPhone Safari** och **Android Chrome**. Testa även PWA där det är möjligt.
+
+| # | Kontroll |
+|---|----------|
+| 1 | Gate ON utan tema → `data-child-theme="fantasy"` |
+| 2 | Okänt/legacy-tema, t.ex. `castle` → fantasy |
+| 3 | `visual_theme="space"` gäller på alla fyra flikar (Idag · Min samling · Skattkammaren · Mina personer) |
+| 4 | `visual_theme="animals"` gäller på alla fyra flikar |
+| 5 | Bottom nav täcker inte innehåll eller CTA |
+| 6 | Ingen horisontell scroll eller låst vertikal scroll |
+| 7 | Min samling: ingen visuell regression |
+| 8 | Skattkammaren och redeem: ingen visuell regression |
+| 9 | Gate OFF → legacy-värld och legacy-tema oförändrade |
+
+**Simulera tema i konsol (gate ON):** `ChildTheme.apply({ visual_theme: 'space' })`  
+**DB (dev):** `child_view_config.visual_theme` utan föräldra-UI i PR 1.
+
+---
+
 ## Presentation polish (mobil)
 
 Kör på **iPhone Safari** och **Android Chrome** med gate ON.

@@ -167,10 +167,10 @@
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
     root.removeAttribute('data-child-theme');
-    document.body.classList.remove.apply(
-      document.body.classList,
-      THEME_IDS.map(function (id) { return 'child-theme-' + id; })
-    );
+    THEME_IDS.forEach(function (tid) {
+      const cn = CHILD_THEMES[tid] && CHILD_THEMES[tid].className;
+      if (cn) document.body.classList.remove(cn);
+    });
     const scene = document.querySelector('.cwb-theme-scene');
     if (scene && scene.parentNode) scene.parentNode.removeChild(scene);
     _applied = false;
@@ -196,11 +196,12 @@
     const root = document.documentElement;
 
     THEME_IDS.forEach(function (tid) {
-      document.body.classList.remove('child-theme-' + tid);
+      const cn = CHILD_THEMES[tid] && CHILD_THEMES[tid].className;
+      if (cn) document.body.classList.remove(cn);
     });
 
     root.setAttribute('data-child-theme', id);
-    document.body.classList.add('child-theme-' + id);
+    if (theme.className) document.body.classList.add(theme.className);
 
     const scene = ensureThemeSceneLayer();
     if (scene) {
