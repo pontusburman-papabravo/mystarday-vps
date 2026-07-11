@@ -80,23 +80,13 @@
   }
 
   function renderScene() {
-    return (
-      '<div class="btp-scene" aria-hidden="true">' +
-        '<img class="btp-scene-bg" src="' + ASSETS.scene + '" alt="" decoding="async" loading="lazy" />' +
-        '<div class="btp-scene-vignette"></div>' +
-        '<div class="btp-scene-sparkles">' +
-          '<span class="btp-scene-sparkle btp-scene-sparkle--1">✦</span>' +
-          '<span class="btp-scene-sparkle btp-scene-sparkle--2">✦</span>' +
-          '<span class="btp-scene-sparkle btp-scene-sparkle--3">·</span>' +
-        '</div>' +
-      '</div>'
-    );
+    return '';
   }
 
   function renderRewardBadge(icon) {
     return (
       '<div class="btp-reward-badge" aria-hidden="true">' +
-        '<img class="btp-reward-badge-chest" src="' + ASSETS.chestClosed + '" alt="" decoding="async" />' +
+        '<span class="btp-reward-badge-ring"></span>' +
         '<span class="btp-reward-badge-icon">' + icon + '</span>' +
       '</div>'
     );
@@ -115,20 +105,24 @@
     return html;
   }
 
-  function renderProgressBlock(starBalance, starCost, pct) {
+  function renderProgressBlock(starBalance, starCost, pct, remaining) {
     const progressText = esc(String(starBalance || 0)) + ' av ' + esc(String(starCost)) + ' stjärnor';
     const clamped = Math.max(0, Math.min(100, pct || 0));
+    const left = remaining > 0
+      ? '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>'
+      : '<p class="btp-goal-remaining btp-goal-remaining--ready">Du kan lösa in den här nu.</p>';
     return (
-      renderProgressStars(starBalance, starCost) +
-      '<div class="btp-goal-track-wrap">' +
+      '<div class="btp-goal-progress-block">' +
+        renderProgressStars(starBalance, starCost) +
         '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + clamped +
           '" aria-valuemin="0" aria-valuemax="100">' +
           '<div class="btp-goal-fill" style="width:' + clamped + '%"></div>' +
         '</div>' +
-        '<img class="btp-goal-track-chest" src="' + ASSETS.chestClosed +
-          '" alt="" decoding="async" style="left:' + clamped + '%" />' +
-      '</div>' +
-      '<p class="btp-goal-progress">' + progressText + '</p>'
+        '<div class="btp-goal-progress-meta">' +
+          '<p class="btp-goal-progress">' + progressText + '</p>' +
+          left +
+        '</div>' +
+      '</div>'
     );
   }
 
@@ -183,20 +177,16 @@
     const pct = skatt.progressPct || 0;
     let html =
       '<section class="btp-plaque" aria-label="Aktivt mål">' +
-        '<img class="btp-plaque-crown" src="' + ASSETS.plaqueCrown + '" alt="" decoding="async" />' +
+        '<div class="btp-plaque-crown-wrap" aria-hidden="true">' +
+          '<img class="btp-plaque-crown" src="' + ASSETS.plaqueCrown + '" alt="" decoding="async" />' +
+        '</div>' +
         '<div class="btp-plaque-inner">' +
           renderRewardBadge(icon) +
           '<p class="btp-plaque-label">Mål</p>' +
           '<p class="btp-plaque-sub">Du sparar till</p>' +
           '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>';
 
-    if (remaining > 0) {
-      html += '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>';
-    } else {
-      html += '<p class="btp-goal-remaining btp-goal-remaining--ready">Du kan lösa in den här nu.</p>';
-    }
-
-    html += renderProgressBlock(skatt.starBalance, goal.star_cost, pct);
+    html += renderProgressBlock(skatt.starBalance, goal.star_cost, pct, remaining);
     html += renderGoalNudge(remaining);
 
     if (skatt.showGoalChangeLink) {
