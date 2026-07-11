@@ -15,6 +15,22 @@ const { withAdvisoryLock } = require('./scheduler-lock');
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 
+const NUDGE_CANDIDATE_SQL = `
+  SELECT s.family_id, p.email, p.name AS parent_name
+  FROM family_activation_state s
+  JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+  LEFT JOIN notification_preference np ON np.parent_id = p.id
+  WHERE s.p0_activated_within_48h = false
+    AND s.p0_activated_at IS NULL
+    AND s.activation_nudge_sent_at IS NULL
+    AND (s.schema_saved_at IS NULL OR s.child_access_completed_at IS NOT NULL)
+    AND s.signup_at >= NOW() - INTERVAL '48 hours'
+    AND s.signup_at <= NOW() - INTERVAL '24 hours'
+    AND p.email IS NOT NULL
+    AND COALESCE(np.email_enabled, true) = true
+  ORDER BY s.signup_at ASC
+  LIMIT 50`;
+
 function resolveNudgeCtaUrl() {
   const base = String(process.env.APP_URL || config.email?.baseUrl || '').replace(/\/$/, '');
   if (!base || base.includes('[REDACTED]')) return '/dashboard';
@@ -30,26 +46,16 @@ async function isNudgeFlagEnabled() {
   return row.rows[0]?.enabled === true;
 }
 
+async function fetchNudgeCandidates(client = db) {
+  return client.query(NUDGE_CANDIDATE_SQL);
+}
+
 async function runActivationNudgeJob() {
   if (process.env.EMAIL_ENABLED === 'false') return;
   if (!(await isNudgeFlagEnabled())) return;
 
   const outcome = await withAdvisoryLock(ACTIVATION_NUDGE_LOCK_ID, async () => {
-    const candidates = await db.query(
-      `SELECT s.family_id, p.email, p.name AS parent_name
-       FROM family_activation_state s
-       JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
-       LEFT JOIN notification_preference np ON np.parent_id = p.id
-       WHERE s.p0_activated_within_48h = false
-         AND s.p0_activated_at IS NULL
-         AND s.activation_nudge_sent_at IS NULL
-         AND s.signup_at >= NOW() - INTERVAL '48 hours'
-         AND s.signup_at <= NOW() - INTERVAL '24 hours'
-         AND p.email IS NOT NULL
-         AND COALESCE(np.email_enabled, true) = true
-       ORDER BY s.signup_at ASC
-       LIMIT 50`
-    );
+    const candidates = await fetchNudgeCandidates();
 
     for (const row of candidates.rows) {
       try {
@@ -120,5 +126,7 @@ module.exports = {
   startActivationNudgeScheduler,
   stopActivationNudgeScheduler,
   runActivationNudgeJob,
+  fetchNudgeCandidates,
   resolveNudgeCtaUrl,
+  NUDGE_CANDIDATE_SQL,
 };

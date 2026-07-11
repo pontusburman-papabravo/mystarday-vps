@@ -108,9 +108,10 @@ describe('child handoff reminder scheduler (PR 2)', () => {
       email.indexOf('async function sendActivationNudgeEmail')
     );
     assert.match(block, /Låt barnet testa första steget/);
-    assert.match(block, /Öppna barnläget/);
+    assert.match(block, /Fortsätt till barninloggning/);
     assert.match(block, /Schemat är klart/);
-    assert.match(block, /config\.email\.fromName/);
+    assert.match(block, /barnet logga in med PIN/i);
+    assert.doesNotMatch(block, /Öppna barnläget/);
     assert.doesNotMatch(block, /hoppa över/i);
     assert.doesNotMatch(block, /inte gjort klart/i);
   });
