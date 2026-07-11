@@ -87,7 +87,7 @@ describe('barnets samling — presentation polish', () => {
     assert.doesNotMatch(src, /starGridHtml/);
     assert.match(src, /btp-plaque/);
     assert.match(src, /btp-progress-star/);
-    assert.match(src, /btp-scene/);
+    assert.match(src, /btp-plaque-crown-wrap/);
     assert.match(src, /btp-pending-card/);
     assert.match(src, /PROGRESS_STAR_MAX = 16/);
   });
@@ -116,11 +116,12 @@ describe('barnets samling — presentation polish', () => {
 
   it('Skattkammaren uses Barn art assets as separate components', () => {
     const src = read('public/js/child-treasure-present.js');
+    const css = read('public/css/child-treasure-present.css');
     assert.match(src, /\/img\/barn\/skattkammaren\/scene-room\.webp/);
     assert.match(src, /plaque-crown\.webp/);
     assert.match(src, /deco-hourglass\.webp/);
     assert.match(src, /history-chest-lid\.webp/);
-    assert.match(src, /btp-scene-bg/);
+    assert.match(css, /#skattkammarView\.btp-active[\s\S]*scene-room\.webp/);
     assert.match(src, /btp-goal-nudge/);
     const fsSync = require('fs');
     const pathMod = require('path');
