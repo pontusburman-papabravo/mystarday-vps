@@ -46,12 +46,15 @@ function loadChildTheme(opts) {
 }
 
 describe('child-theme — Barnets samling theme shell (PR 1)', () => {
-  it('defines all seven theme slugs + fantasy default', () => {
+  it('defines ten canonical themes with adventure default', () => {
     const ChildTheme = loadChildTheme();
-    assert.equal(ChildTheme.DEFAULT_THEME, 'fantasy');
-    assert.equal(ChildTheme.THEME_IDS.length, 7);
-    assert.ok(ChildTheme.THEME_IDS.includes('fantasy'));
-    assert.ok(ChildTheme.THEME_IDS.includes('space'));
+    assert.equal(ChildTheme.DEFAULT_THEME, 'adventure');
+    assert.equal(ChildTheme.THEME_IDS.length, 10);
+    assert.ok(ChildTheme.THEME_IDS.includes('adventure'));
+    assert.ok(ChildTheme.THEME_IDS.includes('vehicles'));
+    assert.ok(ChildTheme.THEME_IDS.includes('arcade'));
+    assert.ok(!ChildTheme.THEME_IDS.includes('fantasy'));
+    assert.ok(!ChildTheme.THEME_IDS.includes('cars'));
     ChildTheme.THEME_IDS.forEach(function (id) {
       assert.ok(ChildTheme.CHILD_THEMES[id], 'missing theme config: ' + id);
       assert.ok(ChildTheme.CHILD_THEMES[id].className);
@@ -59,10 +62,10 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     });
   });
 
-  it('resolveTheme uses visual_theme then child_view_config.visual_theme then fantasy', () => {
+  it('resolveTheme uses visual_theme then child_view_config.visual_theme then adventure', () => {
     const ChildTheme = loadChildTheme();
-    assert.equal(ChildTheme.resolveTheme(null), 'fantasy');
-    assert.equal(ChildTheme.resolveTheme({}), 'fantasy');
+    assert.equal(ChildTheme.resolveTheme(null), 'adventure');
+    assert.equal(ChildTheme.resolveTheme({}), 'adventure');
     assert.equal(ChildTheme.resolveTheme({ visual_theme: 'space' }), 'space');
     assert.equal(
       ChildTheme.resolveTheme({ child_view_config: { visual_theme: 'animals' } }),
@@ -70,20 +73,32 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     );
     assert.equal(
       ChildTheme.resolveTheme({
-        visual_theme: 'cars',
+        visual_theme: 'ocean',
         child_view_config: { visual_theme: 'animals' },
       }),
-      'cars'
+      'ocean'
     );
   });
 
-  it('normalizeThemeId falls back to fantasy for unknown values', () => {
+  it('normalizeThemeId falls back to adventure for unknown legacy values', () => {
     const ChildTheme = loadChildTheme();
-    assert.equal(ChildTheme.normalizeThemeId('castle'), 'fantasy');
-    assert.equal(ChildTheme.normalizeThemeId('treehouse'), 'fantasy');
-    assert.equal(ChildTheme.normalizeThemeId(''), 'fantasy');
-    assert.equal(ChildTheme.normalizeThemeId(undefined), 'fantasy');
+    assert.equal(ChildTheme.normalizeThemeId('castle'), 'adventure');
+    assert.equal(ChildTheme.normalizeThemeId('treehouse'), 'adventure');
+    assert.equal(ChildTheme.normalizeThemeId(''), 'adventure');
+    assert.equal(ChildTheme.normalizeThemeId(undefined), 'adventure');
     assert.equal(ChildTheme.normalizeThemeId('SPACE'), 'space');
+  });
+
+  it('normalizeThemeId resolves temporary aliases', () => {
+    const ChildTheme = loadChildTheme();
+    assert.equal(ChildTheme.normalizeThemeId('fantasy'), 'adventure');
+    assert.equal(ChildTheme.normalizeThemeId('cars'), 'vehicles');
+    assert.equal(ChildTheme.normalizeThemeId('airplanes'), 'vehicles');
+    assert.equal(ChildTheme.normalizeThemeId('dolls'), 'builders');
+    assert.equal(ChildTheme.THEME_ALIASES.fantasy, 'adventure');
+    assert.equal(ChildTheme.THEME_ALIASES.cars, 'vehicles');
+    assert.equal(ChildTheme.THEME_ALIASES.airplanes, 'vehicles');
+    assert.equal(ChildTheme.THEME_ALIASES.dolls, 'builders');
   });
 
   it('apply sets data-child-theme when barnets_samling gate is ON', () => {
@@ -115,6 +130,29 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     assert.ok(classes.indexOf('theme-space') >= 0);
   });
 
+  it('apply resolves alias cars to vehicles on DOM', () => {
+    const classes = [];
+    const attrs = {};
+    const root = {
+      setAttribute: function (k, v) { attrs[k] = v; },
+      removeAttribute: function (k) { delete attrs[k]; },
+      getAttribute: function (k) {
+        if (k === 'data-barnets-samling') return 'on';
+        return attrs[k] || null;
+      },
+    };
+    const ChildTheme = loadChildTheme({
+      document: makeDocumentMock({
+        documentElement: root,
+        body: { classList: { remove: function () {}, add: function (c) { classes.push(c); } } },
+      }),
+    });
+    const themeId = ChildTheme.apply({ visual_theme: 'cars' }, { silent: true });
+    assert.equal(themeId, 'vehicles');
+    assert.equal(attrs['data-child-theme'], 'vehicles');
+    assert.ok(classes.indexOf('theme-vehicles') >= 0);
+  });
+
   it('apply clears theme when barnets_samling gate is OFF', () => {
     const attrs = { 'data-child-theme': 'space' };
     const root = {
@@ -132,7 +170,7 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
       }),
     });
     const themeId = ChildTheme.apply({ visual_theme: 'space' });
-    assert.equal(themeId, 'fantasy');
+    assert.equal(themeId, 'adventure');
     assert.equal(attrs['data-child-theme'], undefined);
   });
 
@@ -140,7 +178,7 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     const src = read('public/js/child-theme.js');
     assert.match(src, /theme\.className/);
     assert.doesNotMatch(src, /child-theme-' \+ id/);
-    assert.match(src, /className: 'theme-space'/);
+    assert.match(src, /className: 'theme-adventure'/);
   });
 
   it('does not use legacy Min värld house theme at runtime', () => {
@@ -177,11 +215,15 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     assert.match(worlds, /configureFromFeatures/);
   });
 
-  it('child-themes.css scopes to data-barnets-samling gate', () => {
+  it('child-themes.css scopes to data-barnets-samling gate and ten themes', () => {
     const css = read('public/css/child-themes.css');
     assert.match(css, /\[data-barnets-samling="on"\]/);
-    assert.match(css, /data-child-theme="fantasy"/);
+    assert.match(css, /data-child-theme="adventure"/);
     assert.match(css, /data-child-theme="space"/);
+    assert.match(css, /data-child-theme="vehicles"/);
+    assert.match(css, /data-child-theme="arcade"/);
+    assert.doesNotMatch(css, /data-child-theme="fantasy"/);
+    assert.doesNotMatch(css, /data-child-theme="cars"/);
     assert.match(css, /cwb-theme-scene/);
   });
 

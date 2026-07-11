@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v579';
-// stjarndag-v579: Barnets samling child-theme shell — 7 themes, CSS accents, fantasy fallback
+const CACHE_NAME = 'stjarndag-v580';
+// stjarndag-v580: Barnets samling themes — 10 canonical themes, adventure fallback + aliases
 // stjarndag-v577: Skattkammaren visual fix — crown crop, CSS scene bg, cleaner progress
 // stjarndag-v576: Google login button — branded logo + label-safe loading state
 // stjarndag-v575: Android — re-enable flat magic view (shell + home hub, no 3D GPU)

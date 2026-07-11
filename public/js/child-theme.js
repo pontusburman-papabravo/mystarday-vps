@@ -6,118 +6,130 @@
 (function () {
   'use strict';
 
-  const DEFAULT_THEME = 'fantasy';
+  const DEFAULT_THEME = 'adventure';
 
   const THEME_IDS = [
+    'adventure',
     'space',
     'dinosaurs',
-    'cars',
-    'dolls',
-    'airplanes',
+    'vehicles',
     'animals',
-    'fantasy',
+    'ocean',
+    'sports',
+    'builders',
+    'music',
+    'arcade',
   ];
+
+  const THEME_ALIASES = {
+    fantasy: 'adventure',
+    cars: 'vehicles',
+    airplanes: 'vehicles',
+    dolls: 'builders',
+  };
 
   const ASSET_BASE = '/images/child/themes';
 
+  function themeAssets(id) {
+    return {
+      background: ASSET_BASE + '/' + id + '/background@2x.webp',
+      today: ASSET_BASE + '/' + id + '/icon-today@2x.webp',
+      collection: ASSET_BASE + '/' + id + '/icon-collection@2x.webp',
+      treasure: ASSET_BASE + '/' + id + '/icon-treasure@2x.webp',
+      family: ASSET_BASE + '/' + id + '/icon-family@2x.webp',
+    };
+  }
+
   const CHILD_THEMES = {
+    adventure: {
+      label: 'Äventyr',
+      className: 'theme-adventure',
+      roomHint: 'utforskarrum',
+      direction: 'kartor, stigar, märken, gömda platser',
+      accents: { primary: '#C17F3E', soft: '#F5E6C8', glow: '#F5A623' },
+      icons: { today: '🧭', collection: '🏅', treasure: '🗺️', family: '❤️' },
+      assets: themeAssets('adventure'),
+    },
     space: {
       label: 'Rymd',
       className: 'theme-space',
       roomHint: 'stjärnarkiv',
+      direction: 'planeter, raketspår, kontrollpanel',
       accents: { primary: '#6C5CE7', soft: '#A29BFE', glow: '#F4C542' },
       icons: { today: '☀️', collection: '🏆', treasure: '🎁', family: '❤️' },
-      assets: {
-        background: ASSET_BASE + '/space/background@2x.webp',
-        today: ASSET_BASE + '/space/icon-today@2x.webp',
-        collection: ASSET_BASE + '/space/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/space/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/space/icon-family@2x.webp',
-      },
+      assets: themeAssets('space'),
     },
     dinosaurs: {
       label: 'Dinosaurier',
       className: 'theme-dinosaurs',
       roomHint: 'dino-museum',
+      direction: 'fossil, fotspår, djungel, utgrävning',
       accents: { primary: '#8A9A5B', soft: '#C4B59A', glow: '#F5C542' },
       icons: { today: '🌞', collection: '🦴', treasure: '🥚', family: '💚' },
-      assets: {
-        background: ASSET_BASE + '/dinosaurs/background@2x.webp',
-        today: ASSET_BASE + '/dinosaurs/icon-today@2x.webp',
-        collection: ASSET_BASE + '/dinosaurs/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/dinosaurs/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/dinosaurs/icon-family@2x.webp',
-      },
+      assets: themeAssets('dinosaurs'),
     },
-    cars: {
-      label: 'Bilar',
-      className: 'theme-cars',
-      roomHint: 'garagepokalrum',
+    vehicles: {
+      label: 'Fordon',
+      className: 'theme-vehicles',
+      roomHint: 'banrum',
+      direction: 'banor, hjul, ramper, vägmarkeringar',
       accents: { primary: '#3B82C4', soft: '#E8DCC8', glow: '#F5A623' },
       icons: { today: '☀️', collection: '🏁', treasure: '🎁', family: '❤️' },
-      assets: {
-        background: ASSET_BASE + '/cars/background@2x.webp',
-        today: ASSET_BASE + '/cars/icon-today@2x.webp',
-        collection: ASSET_BASE + '/cars/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/cars/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/cars/icon-family@2x.webp',
-      },
-    },
-    dolls: {
-      label: 'Dockor',
-      className: 'theme-dolls',
-      roomHint: 'dockhus-samlingsrum',
-      accents: { primary: '#F8A8C8', soft: '#FFF5E6', glow: '#FFD966' },
-      icons: { today: '🌞', collection: '🏆', treasure: '🎁', family: '❤️' },
-      assets: {
-        background: ASSET_BASE + '/dolls/background@2x.webp',
-        today: ASSET_BASE + '/dolls/icon-today@2x.webp',
-        collection: ASSET_BASE + '/dolls/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/dolls/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/dolls/icon-family@2x.webp',
-      },
-    },
-    airplanes: {
-      label: 'Flygplan',
-      className: 'theme-airplanes',
-      roomHint: 'flygarkiv',
-      accents: { primary: '#A4C8E1', soft: '#FDF5E6', glow: '#F4C542' },
-      icons: { today: '☀️', collection: '🏆', treasure: '🎁', family: '❤️' },
-      assets: {
-        background: ASSET_BASE + '/airplanes/background@2x.webp',
-        today: ASSET_BASE + '/airplanes/icon-today@2x.webp',
-        collection: ASSET_BASE + '/airplanes/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/airplanes/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/airplanes/icon-family@2x.webp',
-      },
+      assets: themeAssets('vehicles'),
     },
     animals: {
-      label: 'Djur',
+      label: 'Vilda djur',
       className: 'theme-animals',
-      roomHint: 'skogssamling',
+      roomHint: 'safari-samling',
+      direction: 'spår, habitat, safari, natur',
       accents: { primary: '#7A9E7E', soft: '#F5EDD6', glow: '#E8B84A' },
       icons: { today: '🌞', collection: '🐾', treasure: '🎁', family: '❤️' },
-      assets: {
-        background: ASSET_BASE + '/animals/background@2x.webp',
-        today: ASSET_BASE + '/animals/icon-today@2x.webp',
-        collection: ASSET_BASE + '/animals/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/animals/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/animals/icon-family@2x.webp',
-      },
+      assets: themeAssets('animals'),
     },
-    fantasy: {
-      label: 'Fantasi',
-      className: 'theme-fantasy',
-      roomHint: 'magiskt samlingsrum',
-      accents: { primary: '#9B7FD4', soft: '#F3E8FF', glow: '#F5C542' },
-      icons: { today: '☀️', collection: '🏆', treasure: '🎁', family: '❤️' },
-      assets: {
-        background: ASSET_BASE + '/fantasy/background@2x.webp',
-        today: ASSET_BASE + '/fantasy/icon-today@2x.webp',
-        collection: ASSET_BASE + '/fantasy/icon-collection@2x.webp',
-        treasure: ASSET_BASE + '/fantasy/icon-treasure@2x.webp',
-        family: ASSET_BASE + '/fantasy/icon-family@2x.webp',
-      },
+    ocean: {
+      label: 'Havet',
+      className: 'theme-ocean',
+      roomHint: 'undervattensarkiv',
+      direction: 'undervattensvärld, vågor, ubåt, koraller',
+      accents: { primary: '#2E86AB', soft: '#B8E0F0', glow: '#5BC0EB' },
+      icons: { today: '🌊', collection: '🐚', treasure: '💎', family: '❤️' },
+      assets: themeAssets('ocean'),
+    },
+    sports: {
+      label: 'Sport',
+      className: 'theme-sports',
+      roomHint: 'resultattavla',
+      direction: 'planer, mål, koner, resultattavla',
+      accents: { primary: '#2D9C5C', soft: '#D4F0DC', glow: '#F5A623' },
+      icons: { today: '☀️', collection: '🏆', treasure: '⚽', family: '❤️' },
+      assets: themeAssets('sports'),
+    },
+    builders: {
+      label: 'Bygg & skapa',
+      className: 'theme-builders',
+      roomHint: 'verkstadsrum',
+      direction: 'klossar, kugghjul, ritningar, verktyg',
+      accents: { primary: '#E67E22', soft: '#FDEBD0', glow: '#F5C542' },
+      icons: { today: '🔧', collection: '🧱', treasure: '📐', family: '❤️' },
+      assets: themeAssets('builders'),
+    },
+    music: {
+      label: 'Musik & rytm',
+      className: 'theme-music',
+      roomHint: 'scenrum',
+      direction: 'instrument, beats, ljudvågor, scen',
+      accents: { primary: '#9B59B6', soft: '#F0E6F6', glow: '#F4C542' },
+      icons: { today: '🎵', collection: '🎸', treasure: '🎹', family: '❤️' },
+      assets: themeAssets('music'),
+    },
+    arcade: {
+      label: 'Spelhall',
+      className: 'theme-arcade',
+      roomHint: 'nivåarkiv',
+      direction: 'banor, nivåer, pixelformer, power-ups',
+      accents: { primary: '#E74C3C', soft: '#FADBD8', glow: '#F1C40F' },
+      icons: { today: '👾', collection: '🕹️', treasure: '⭐', family: '❤️' },
+      assets: themeAssets('arcade'),
     },
   };
 
@@ -131,7 +143,6 @@
   };
 
   let _activeThemeId = DEFAULT_THEME;
-  let _applied = false;
 
   function isSamlingGateOn() {
     if (typeof document === 'undefined') return false;
@@ -142,9 +153,12 @@
   }
 
   function normalizeThemeId(raw) {
-    if (raw == null || raw === '') return DEFAULT_THEME;
-    const id = String(raw).trim().toLowerCase();
-    return THEME_IDS.indexOf(id) >= 0 ? id : DEFAULT_THEME;
+    if (raw == null || String(raw).trim() === '') {
+      return DEFAULT_THEME;
+    }
+    const requestedId = String(raw).trim().toLowerCase();
+    const resolvedId = THEME_ALIASES[requestedId] || requestedId;
+    return THEME_IDS.includes(resolvedId) ? resolvedId : DEFAULT_THEME;
   }
 
   function resolveTheme(child) {
@@ -173,7 +187,6 @@
     });
     const scene = document.querySelector('.cwb-theme-scene');
     if (scene && scene.parentNode) scene.parentNode.removeChild(scene);
-    _applied = false;
   }
 
   function ensureThemeSceneLayer() {
@@ -210,7 +223,6 @@
     }
 
     _activeThemeId = id;
-    _applied = true;
   }
 
   function apply(child, opts) {
@@ -261,6 +273,7 @@
   window.ChildTheme = {
     DEFAULT_THEME: DEFAULT_THEME,
     THEME_IDS: THEME_IDS,
+    THEME_ALIASES: THEME_ALIASES,
     CHILD_THEMES: CHILD_THEMES,
     normalizeThemeId: normalizeThemeId,
     resolveTheme: resolveTheme,

@@ -12,7 +12,6 @@
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-  /* PR 2: var(--ct-bg-image) layered when asset exists */
   transition: opacity 0.35s ease;
 }
 
@@ -43,7 +42,6 @@
   pointer-events: none;
 }
 
-/* Collection + treasure layers use same theme scene */
 html[data-child-layer='collection'] [data-barnets-samling="on"] .cwb-theme-scene,
 html[data-child-world='collection'] [data-barnets-samling="on"] .cwb-theme-scene,
 html[data-child-layer='treasure'] [data-barnets-samling="on"] .cwb-theme-scene,
@@ -51,13 +49,13 @@ html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
   opacity: 1;
 }
 
-/* ── Shared accent custom properties ───────────────────── */
+/* ── Shared accent custom properties (adventure default) ── */
 [data-barnets-samling="on"][data-child-theme] {
-  --ct-primary: #9B7FD4;
-  --ct-soft: #F3E8FF;
-  --ct-glow: #F5C542;
-  --ct-card-border: rgba(155, 127, 212, 0.22);
-  --ct-card-glow: rgba(155, 127, 212, 0.12);
+  --ct-primary: #C17F3E;
+  --ct-soft: #F5E6C8;
+  --ct-glow: #F5A623;
+  --ct-card-border: rgba(193, 127, 62, 0.22);
+  --ct-card-glow: rgba(193, 127, 62, 0.12);
 }
 
 [data-barnets-samling="on"][data-child-theme] .child-bottom-nav-btn.is-active {
@@ -71,7 +69,20 @@ html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
   line-height: 1;
 }
 
-/* ── space ─────────────────────────────────────────────── */
+/* ── adventure (default) ─────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="adventure"] {
+  --ct-primary: #C17F3E;
+  --ct-soft: #F5E6C8;
+  --ct-glow: #F5A623;
+  --ct-scrim-top: rgba(120, 80, 40, 0.16);
+}
+
+[data-barnets-samling="on"][data-child-theme="adventure"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #f5e6c8 0%, #e8c99a 30%, #c17f3e 58%, #8b5a2b 100%);
+}
+
+/* ── space ───────────────────────────────────────────── */
 [data-barnets-samling="on"][data-child-theme="space"] {
   --ct-primary: #6C5CE7;
   --ct-soft: #A29BFE;
@@ -101,43 +112,17 @@ html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
     linear-gradient(170deg, #e8dcc8 0%, #c4b59a 32%, #8a9a5b 58%, #5c6b3a 100%);
 }
 
-/* ── cars ──────────────────────────────────────────────── */
-[data-barnets-samling="on"][data-child-theme="cars"] {
+/* ── vehicles ────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="vehicles"] {
   --ct-primary: #3B82C4;
   --ct-soft: #E8DCC8;
   --ct-glow: #F5A623;
   --ct-scrim-top: rgba(59, 130, 196, 0.12);
 }
 
-[data-barnets-samling="on"][data-child-theme="cars"] .cwb-theme-scene {
+[data-barnets-samling="on"][data-child-theme="vehicles"] .cwb-theme-scene {
   background-image:
     linear-gradient(175deg, #fdf5e6 0%, #d4e8c4 35%, #a8d4e8 62%, #e8dcc8 100%);
-}
-
-/* ── dolls ─────────────────────────────────────────────── */
-[data-barnets-samling="on"][data-child-theme="dolls"] {
-  --ct-primary: #F8A8C8;
-  --ct-soft: #FFF5E6;
-  --ct-glow: #FFD966;
-  --ct-scrim-top: rgba(248, 168, 200, 0.14);
-}
-
-[data-barnets-samling="on"][data-child-theme="dolls"] .cwb-theme-scene {
-  background-image:
-    linear-gradient(168deg, #fff5f8 0%, #fce4ec 38%, #f8c8dc 62%, #ffe8d6 100%);
-}
-
-/* ── airplanes ─────────────────────────────────────────── */
-[data-barnets-samling="on"][data-child-theme="airplanes"] {
-  --ct-primary: #A4C8E1;
-  --ct-soft: #FDF5E6;
-  --ct-glow: #F4C542;
-  --ct-scrim-top: rgba(164, 200, 225, 0.18);
-}
-
-[data-barnets-samling="on"][data-child-theme="airplanes"] .cwb-theme-scene {
-  background-image:
-    linear-gradient(180deg, #fdf5e6 0%, #e8f4fc 42%, #a4c8e1 72%, #f4e4bc 100%);
 }
 
 /* ── animals ─────────────────────────────────────────── */
@@ -153,17 +138,69 @@ html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
     linear-gradient(172deg, #f5edd6 0%, #d4e4c8 36%, #7a9e7e 64%, #5a7a5e 100%);
 }
 
-/* ── fantasy (default) ─────────────────────────────────── */
-[data-barnets-samling="on"][data-child-theme="fantasy"] {
-  --ct-primary: #9B7FD4;
-  --ct-soft: #F3E8FF;
-  --ct-glow: #F5C542;
-  --ct-scrim-top: rgba(155, 127, 212, 0.16);
+/* ── ocean ───────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="ocean"] {
+  --ct-primary: #2E86AB;
+  --ct-soft: #B8E0F0;
+  --ct-glow: #5BC0EB;
+  --ct-scrim-top: rgba(46, 134, 171, 0.18);
 }
 
-[data-barnets-samling="on"][data-child-theme="fantasy"] .cwb-theme-scene {
+[data-barnets-samling="on"][data-child-theme="ocean"] .cwb-theme-scene {
   background-image:
-    linear-gradient(168deg, #f3e8ff 0%, #e8d4f8 35%, #c4a8e8 58%, #9b7fd4 82%, #6b4fa0 100%);
+    linear-gradient(175deg, #b8e0f0 0%, #5bc0eb 35%, #2e86ab 62%, #1a5276 100%);
+}
+
+/* ── sports ──────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="sports"] {
+  --ct-primary: #2D9C5C;
+  --ct-soft: #D4F0DC;
+  --ct-glow: #F5A623;
+  --ct-scrim-top: rgba(45, 156, 92, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="sports"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(172deg, #d4f0dc 0%, #7dcea0 38%, #2d9c5c 65%, #1e6b3d 100%);
+}
+
+/* ── builders ────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="builders"] {
+  --ct-primary: #E67E22;
+  --ct-soft: #FDEBD0;
+  --ct-glow: #F5C542;
+  --ct-scrim-top: rgba(230, 126, 34, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="builders"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(170deg, #fdebd0 0%, #f5cba7 35%, #e67e22 62%, #a04000 100%);
+}
+
+/* ── music ───────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="music"] {
+  --ct-primary: #9B59B6;
+  --ct-soft: #F0E6F6;
+  --ct-glow: #F4C542;
+  --ct-scrim-top: rgba(155, 89, 182, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="music"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #f0e6f6 0%, #d7bde2 35%, #9b59b6 62%, #6c3483 100%);
+}
+
+/* ── arcade ──────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="arcade"] {
+  --ct-primary: #E74C3C;
+  --ct-soft: #FADBD8;
+  --ct-glow: #F1C40F;
+  --ct-scrim-top: rgba(231, 76, 60, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="arcade"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #fadbd8 0%, #f1948a 32%, #e74c3c 58%, #922b21 100%);
 }
 
 /* PR 2: when background@2x.webp exists, layer over gradient (no layout shift) */
