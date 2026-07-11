@@ -7,6 +7,14 @@
 
   const PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
   const PROGRESS_STAR_MAX = 16;
+  const ASSETS = {
+    scene: '/img/barn/skattkammaren/scene-room.webp',
+    plaqueCrown: '/img/barn/skattkammaren/plaque-crown.webp',
+    hourglass: '/img/barn/skattkammaren/deco-hourglass.webp',
+    chestOpen: '/img/barn/skattkammaren/deco-chest-open.webp',
+    chestClosed: '/img/barn/skattkammaren/deco-chest-closed.webp',
+    historyLid: '/img/barn/skattkammaren/history-chest-lid.webp',
+  };
 
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -74,10 +82,8 @@
   function renderScene() {
     return (
       '<div class="btp-scene" aria-hidden="true">' +
+        '<img class="btp-scene-bg" src="' + ASSETS.scene + '" alt="" decoding="async" loading="lazy" />' +
         '<div class="btp-scene-vignette"></div>' +
-        '<div class="btp-scene-lantern"></div>' +
-        '<div class="btp-scene-shelf"></div>' +
-        '<div class="btp-scene-chest"></div>' +
         '<div class="btp-scene-sparkles">' +
           '<span class="btp-scene-sparkle btp-scene-sparkle--1">✦</span>' +
           '<span class="btp-scene-sparkle btp-scene-sparkle--2">✦</span>' +
@@ -90,7 +96,7 @@
   function renderRewardBadge(icon) {
     return (
       '<div class="btp-reward-badge" aria-hidden="true">' +
-        '<span class="btp-reward-badge-ring"></span>' +
+        '<img class="btp-reward-badge-chest" src="' + ASSETS.chestClosed + '" alt="" decoding="async" />' +
         '<span class="btp-reward-badge-icon">' + icon + '</span>' +
       '</div>'
     );
@@ -111,13 +117,31 @@
 
   function renderProgressBlock(starBalance, starCost, pct) {
     const progressText = esc(String(starBalance || 0)) + ' av ' + esc(String(starCost)) + ' stjärnor';
+    const clamped = Math.max(0, Math.min(100, pct || 0));
     return (
       renderProgressStars(starBalance, starCost) +
-      '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + pct +
-        '" aria-valuemin="0" aria-valuemax="100">' +
-        '<div class="btp-goal-fill" style="width:' + pct + '%"></div>' +
+      '<div class="btp-goal-track-wrap">' +
+        '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + clamped +
+          '" aria-valuemin="0" aria-valuemax="100">' +
+          '<div class="btp-goal-fill" style="width:' + clamped + '%"></div>' +
+        '</div>' +
+        '<img class="btp-goal-track-chest" src="' + ASSETS.chestClosed +
+          '" alt="" decoding="async" style="left:' + clamped + '%" />' +
       '</div>' +
       '<p class="btp-goal-progress">' + progressText + '</p>'
+    );
+  }
+
+  function renderGoalNudge(remaining) {
+    if (!remaining || remaining <= 0) return '';
+    return (
+      '<div class="btp-goal-nudge" role="note">' +
+        '<img class="btp-goal-nudge-art" src="' + ASSETS.chestOpen + '" alt="" decoding="async" />' +
+        '<div class="btp-goal-nudge-copy">' +
+          '<p class="btp-goal-nudge-title">Du är på väg!</p>' +
+          '<p class="btp-goal-nudge-text">Fortsätt så — snart är belöningen din!</p>' +
+        '</div>' +
+      '</div>'
     );
   }
 
@@ -159,7 +183,7 @@
     const pct = skatt.progressPct || 0;
     let html =
       '<section class="btp-plaque" aria-label="Aktivt mål">' +
-        '<div class="btp-plaque-frame" aria-hidden="true"></div>' +
+        '<img class="btp-plaque-crown" src="' + ASSETS.plaqueCrown + '" alt="" decoding="async" />' +
         '<div class="btp-plaque-inner">' +
           renderRewardBadge(icon) +
           '<p class="btp-plaque-label">Mål</p>' +
@@ -173,6 +197,7 @@
     }
 
     html += renderProgressBlock(skatt.starBalance, goal.star_cost, pct);
+    html += renderGoalNudge(remaining);
 
     if (skatt.showGoalChangeLink) {
       html += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
@@ -190,7 +215,7 @@
       : count + ' belöningar väntar på en vuxen.';
     return (
       '<section class="btp-pending-card" role="status" aria-label="Väntar på godkännande">' +
-        '<span class="btp-pending-icon" aria-hidden="true">⏳</span>' +
+        '<img class="btp-pending-art" src="' + ASSETS.hourglass + '" alt="" decoding="async" />' +
         '<div class="btp-pending-body">' +
           '<h3 class="btp-pending-title">Väntar på godkännande</h3>' +
           '<p class="btp-pending-text">' + esc(text) + '</p>' +
@@ -397,10 +422,9 @@
 
     return (
       '<section class="btp-history" aria-label="Inlösta belöningar">' +
-        '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
-        '<div class="btp-chest" role="img" aria-label="Minnesskattkista">' +
-          '<div class="btp-chest-lid" aria-hidden="true">📦</div>' +
-          '<div class="btp-history-list btp-chest-body">' + cards + '</div>' +
+        '<img class="btp-history-lid" src="' + ASSETS.historyLid + '" alt="" decoding="async" />' +
+        '<div class="btp-history-body">' +
+          '<div class="btp-history-list">' + cards + '</div>' +
         '</div>' +
       '</section>'
     );
@@ -476,5 +500,6 @@
     rewardPresentStatus: rewardPresentStatus,
     computeProgressStars: computeProgressStars,
     PROGRESS_STAR_MAX: PROGRESS_STAR_MAX,
+    ASSETS: ASSETS,
   };
 })();

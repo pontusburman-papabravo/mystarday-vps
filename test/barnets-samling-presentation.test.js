@@ -114,6 +114,22 @@ describe('barnets samling — presentation polish', () => {
     assert.ok(p.filled > 0 && p.filled <= 16);
   });
 
+  it('Skattkammaren uses Barn art assets as separate components', () => {
+    const src = read('public/js/child-treasure-present.js');
+    assert.match(src, /\/img\/barn\/skattkammaren\/scene-room\.webp/);
+    assert.match(src, /plaque-crown\.webp/);
+    assert.match(src, /deco-hourglass\.webp/);
+    assert.match(src, /history-chest-lid\.webp/);
+    assert.match(src, /btp-scene-bg/);
+    assert.match(src, /btp-goal-nudge/);
+    const fsSync = require('fs');
+    const pathMod = require('path');
+    const assetDir = pathMod.join(ROOT, 'public/img/barn/skattkammaren');
+    ['scene-room.webp', 'plaque-crown.webp', 'deco-hourglass.webp'].forEach(function (f) {
+      assert.ok(fsSync.existsSync(pathMod.join(assetDir, f)), 'missing asset ' + f);
+    });
+  });
+
   it('Skattkammaren skips legacy goal chrome when gate ON', () => {
     const rewards = read('public/js/child-dashboard-rewards.js');
     assert.match(rewards, /ChildTreasurePresent\.shouldUse/);

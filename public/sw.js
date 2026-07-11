@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v572';
+const CACHE_NAME = 'stjarndag-v573';
+// stjarndag-v573: Skattkammaren Barn art assets — scene, plaque, pending, history
 // stjarndag-v572: Android — fix androidStabilityLog recursion (dashboard shadowed window fn)
 // stjarndag-v571: Android — remove GPU CSS MutationObserver (stack overflow fix)
 // stjarndag-v569: Android dashboard — data fetch parallel with chrome (först visa data)
@@ -562,6 +563,12 @@ const STATIC_ASSETS = [
   '/images/child/world/trophy-room/scene-bg-430.webp',
   '/images/child/world/trophy-room/scene-bg-860.webp',
   '/images/child/world/trophy-room/scene-bg-1280.webp',
+  '/img/barn/skattkammaren/scene-room.webp',
+  '/img/barn/skattkammaren/plaque-crown.webp',
+  '/img/barn/skattkammaren/deco-hourglass.webp',
+  '/img/barn/skattkammaren/deco-chest-open.webp',
+  '/img/barn/skattkammaren/deco-chest-closed.webp',
+  '/img/barn/skattkammaren/history-chest-lid.webp',
   '/images/child/world/reading-corner/scene-bg.webp',
   '/images/child/world/reading-corner/scene-bg-430.webp',
   '/images/child/world/reading-corner/scene-bg-860.webp',

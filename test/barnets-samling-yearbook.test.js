@@ -126,8 +126,8 @@ describe('#587 Fas E — Skattkammaren shelf/chest polish', () => {
     const src = read(TREASURE_PATH);
     assert.match(src, /btp-shelf-stage/);
     assert.match(src, /btp-shelf-board/);
-    assert.match(src, /btp-chest/);
-    assert.match(src, /btp-chest-lid/);
+    assert.match(src, /btp-history-lid/);
+    assert.match(src, /btp-history-body/);
     assert.doesNotMatch(src, /ChildCollections/);
   });
 });
