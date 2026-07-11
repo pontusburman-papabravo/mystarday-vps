@@ -114,23 +114,22 @@ router.patch('/:id/visual-theme', requireAuth, validateParams(UUIDParam), valida
       }
     }
 
-    const existing = await db.query(
-      'SELECT child_view_config FROM child WHERE id = $1',
-      [childId]
+    const result = await db.query(
+      `UPDATE child SET child_view_config = jsonb_set(
+        COALESCE(child_view_config, '{}'::jsonb),
+        '{visual_theme}',
+        to_jsonb($1::text),
+        true
+      )
+      WHERE id = $2
+      RETURNING child_view_config`,
+      [req.body.visual_theme, childId]
     );
-    if (existing.rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Barnet hittades inte' });
     }
 
-    const current = existing.rows[0].child_view_config || {};
-    const merged = Object.assign({}, current, { visual_theme: req.body.visual_theme });
-
-    await db.query(
-      'UPDATE child SET child_view_config = $1 WHERE id = $2',
-      [JSON.stringify(merged), childId]
-    );
-
-    res.json(merged);
+    res.json(result.rows[0].child_view_config);
   } catch (err) {
     console.error('[VISUAL-THEME] PATCH error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

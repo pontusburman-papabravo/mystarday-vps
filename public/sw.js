@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v584';
+const CACHE_NAME = 'stjarndag-v585';
+// stjarndag-v585: Theme picker — atomic visual_theme save + focus trap polish
 // stjarndag-v584: Barnets temaväljare — child-theme-picker.js/css (gate ON, Min samling)
 // stjarndag-v583: Barnets samling themed tab icons — runtime SW cache (not precached, ~5.1 MB total)
 // stjarndag-v582: Barnets samling theme backgrounds — runtime SW cache (not precached, ~1.6 MB total)

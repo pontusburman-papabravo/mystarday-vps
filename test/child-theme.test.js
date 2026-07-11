@@ -465,7 +465,7 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
   it('sw.js does not precache theme background webps', () => {
     const sw = read('public/sw.js');
     assert.doesNotMatch(sw, /\/images\/child\/themes\/adventure\/background@2x\.webp/);
-    assert.match(sw, /stjarndag-v583/);
+    assert.match(sw, /stjarndag-v584/);
   });
 
   const ICON_KEYS = ['today', 'collection', 'treasure', 'family'];

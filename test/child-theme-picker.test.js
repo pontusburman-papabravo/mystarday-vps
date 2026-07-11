@@ -74,6 +74,21 @@ describe('child-theme-picker — UI and config', () => {
     assert.doesNotMatch(src, /house_config/);
   });
 
+  it('picker uses atomic jsonb_set in visual-theme route', () => {
+    const src = read('src/routes/children.js');
+    assert.match(src, /jsonb_set/);
+    assert.match(src, /RETURNING child_view_config/);
+    assert.doesNotMatch(src, /Object\.assign\(\{\}, current, \{ visual_theme/);
+  });
+
+  it('picker restores body overflow and traps focus', () => {
+    const src = read('public/js/child-theme-picker.js');
+    assert.match(src, /_previousBodyOverflow/);
+    assert.match(src, /unlockBodyScroll/);
+    assert.match(src, /trapFocus/);
+    assert.match(src, /focusInitial/);
+  });
+
   it('cancel reverts via ChildTheme.revertToSaved', () => {
     const src = read('public/js/child-theme-picker.js');
     assert.match(src, /revertToSaved/);
@@ -144,6 +159,26 @@ test('PATCH /api/children/:id/visual-theme — child saves canonical theme', asy
 
     const row = await db.query('SELECT child_view_config FROM child WHERE id = $1', [childId]);
     assert.equal(row.rows[0].child_view_config.visual_theme, 'animals');
+
+    await db.query(
+      `UPDATE child SET child_view_config = $1 WHERE id = $2`,
+      [JSON.stringify({ view_mode: 'classic', show_star_goal: true, visual_theme: 'animals' }), childId]
+    );
+
+    const preserveRes = await fetch(`${http.baseUrl}/api/children/${childId}/visual-theme`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(cookies),
+        'X-CSRF-Token': csrf,
+      },
+      body: JSON.stringify({ visual_theme: 'space' }),
+    });
+    assert.equal(preserveRes.status, 200);
+    const preserved = await preserveRes.json();
+    assert.equal(preserved.visual_theme, 'space');
+    assert.equal(preserved.view_mode, 'classic');
+    assert.equal(preserved.show_star_goal, true);
 
     const badRes = await fetch(`${http.baseUrl}/api/children/${childId}/visual-theme`, {
       method: 'PATCH',

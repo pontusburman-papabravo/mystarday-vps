@@ -9,6 +9,9 @@
   const PANEL_ID = 'childThemePickerPanel';
   let _shellReady = false;
   let _previousFocus = null;
+  let _previousBodyOverflow = null;
+
+  const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
   const state = {
     open: false,
@@ -78,8 +81,58 @@
       if (e.key === 'Escape') {
         e.preventDefault();
         cancel();
+        return;
       }
+      if (e.key === 'Tab') trapFocus(e, panel);
     });
+  }
+
+  function getFocusableElements(panel) {
+    if (!panel) return [];
+    return Array.prototype.filter.call(
+      panel.querySelectorAll(FOCUSABLE_SELECTOR),
+      function (el) {
+        return el.offsetParent !== null || el === document.activeElement;
+      }
+    );
+  }
+
+  function trapFocus(e, panel) {
+    const focusable = getFocusableElements(panel);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first || !panel.contains(document.activeElement)) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (document.activeElement === last || !panel.contains(document.activeElement)) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function focusInitial(panel) {
+    const selected = panel.querySelector('.ctp-theme-card.is-selected');
+    const firstCard = panel.querySelector('.ctp-theme-card');
+    const closeBtn = panel.querySelector('#childThemePickerClose');
+    const target = selected || firstCard || closeBtn;
+    if (target && typeof target.focus === 'function') target.focus();
+  }
+
+  function lockBodyScroll() {
+    _previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function unlockBodyScroll() {
+    if (_previousBodyOverflow === null) {
+      document.body.style.removeProperty('overflow');
+    } else {
+      document.body.style.overflow = _previousBodyOverflow;
+    }
+    _previousBodyOverflow = null;
   }
 
   function renderGrid() {
@@ -182,10 +235,8 @@
     updateFooter();
     backdrop.classList.add('is-open');
     panel.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-
-    const firstCard = panel.querySelector('.ctp-theme-card');
-    if (firstCard) firstCard.focus();
+    lockBodyScroll();
+    focusInitial(panel);
   }
 
   function closePanel() {
@@ -196,7 +247,7 @@
     state.open = false;
     backdrop.classList.remove('is-open');
     panel.classList.remove('is-open');
-    document.body.style.overflow = '';
+    unlockBodyScroll();
 
     if (_previousFocus && typeof _previousFocus.focus === 'function') {
       _previousFocus.focus();
