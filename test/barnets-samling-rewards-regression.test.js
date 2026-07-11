@@ -238,7 +238,7 @@ describe('#592 reward flow regression — render saldo, pending, redeem, history
       },
     });
     renderSkattkammaren(data.rewardsData, data.goalData, data.manualData);
-    assert.match(viewEl.innerHTML, /btp-history-lid/);
+    assert.match(viewEl.innerHTML, /btp-history-list/);
     assert.match(viewEl.innerHTML, /Filmkväll/);
     assert.match(viewEl.innerHTML, /Genomförd/);
   });

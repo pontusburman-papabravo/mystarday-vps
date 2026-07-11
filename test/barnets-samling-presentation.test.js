@@ -85,10 +85,10 @@ describe('barnets samling — presentation polish', () => {
     assert.match(src, /listRewards/);
     assert.doesNotMatch(src, /btp-collect-hint/);
     assert.doesNotMatch(src, /starGridHtml/);
-    assert.match(src, /btp-plaque/);
-    assert.match(src, /btp-progress-star/);
-    assert.match(src, /btp-plaque-crown-wrap/);
-    assert.match(src, /btp-pending-card/);
+    assert.match(src, /btp-hero/);
+    assert.match(src, /btp-hero-meter/);
+    assert.match(src, /btp-plaque-label/);
+    assert.match(src, /btp-status-strip/);
     assert.match(src, /PROGRESS_STAR_MAX = 16/);
   });
 
@@ -114,21 +114,17 @@ describe('barnets samling — presentation polish', () => {
     assert.ok(p.filled > 0 && p.filled <= 16);
   });
 
-  it('Skattkammaren uses Barn art assets as separate components', () => {
+  it('Skattkammaren follows vision order — hero before status strip', () => {
     const src = read('public/js/child-treasure-present.js');
+    const renderBlock = src.slice(src.indexOf('function render(rewardsData'), src.indexOf('window.ChildTreasurePresent'));
+    const heroIdx = renderBlock.indexOf('renderHero');
+    const statusIdx = renderBlock.indexOf('renderStatusStrip');
+    const rewardsIdx = renderBlock.indexOf('renderRewardsList');
+    assert.ok(heroIdx >= 0 && statusIdx > heroIdx, 'hero before status');
+    assert.ok(rewardsIdx > heroIdx && statusIdx > rewardsIdx, 'status after rewards list');
     const css = read('public/css/child-treasure-present.css');
-    assert.match(src, /\/img\/barn\/skattkammaren\/scene-room\.webp/);
-    assert.match(src, /plaque-crown\.webp/);
-    assert.match(src, /deco-hourglass\.webp/);
-    assert.match(src, /history-chest-lid\.webp/);
-    assert.match(css, /#skattkammarView\.btp-active[\s\S]*scene-room\.webp/);
-    assert.match(src, /btp-goal-nudge/);
-    const fsSync = require('fs');
-    const pathMod = require('path');
-    const assetDir = pathMod.join(ROOT, 'public/img/barn/skattkammaren');
-    ['scene-room.webp', 'plaque-crown.webp', 'deco-hourglass.webp'].forEach(function (f) {
-      assert.ok(fsSync.existsSync(pathMod.join(assetDir, f)), 'missing asset ' + f);
-    });
+    assert.match(css, /btp-hero/);
+    assert.doesNotMatch(css, /scene-room\.webp/);
   });
 
   it('Skattkammaren skips legacy goal chrome when gate ON', () => {

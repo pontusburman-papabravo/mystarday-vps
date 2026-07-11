@@ -121,13 +121,13 @@ describe('#587 Fas E — Min samling årsbok render', () => {
   });
 });
 
-describe('#587 Fas E — Skattkammaren shelf/chest polish', () => {
-  it('treasure present uses shelf stage and chest wrappers', () => {
+describe('#587 Fas E — Skattkammaren presentation layout', () => {
+  it('treasure present uses unified hero and clean section layout', () => {
     const src = read(TREASURE_PATH);
-    assert.match(src, /btp-shelf-stage/);
-    assert.match(src, /btp-shelf-board/);
-    assert.match(src, /btp-history-lid/);
-    assert.match(src, /btp-history-body/);
+    assert.match(src, /btp-hero/);
+    assert.match(src, /btp-card-list/);
+    assert.match(src, /btp-history-list/);
+    assert.doesNotMatch(src, /btp-history-lid/);
     assert.doesNotMatch(src, /ChildCollections/);
   });
 });
