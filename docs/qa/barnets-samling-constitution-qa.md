@@ -101,6 +101,14 @@ Kör på **iPhone Safari** och **Android Chrome**. Testa även PWA där det är 
 | 8 | Min samling: ingen visuell regression |
 | 9 | Skattkammaren och redeem: ingen visuell regression |
 | 10 | Gate OFF → legacy-värld och legacy-tema oförändrade |
+| 11 | Gate ON: gradient syns direkt; WebP-bakgrund fade-in utan layout shift |
+| 12 | Kort och text läsbara över bakgrund (scrim/overlay) |
+| 13 | Ingen horisontell scroll från bakgrundsbild |
+| 14 | Vertikal scroll fungerar på alla flikar |
+| 15 | Offline/reload: vald bakgrund cachelagras efter första visning (PWA) |
+| 16 | Trasig/saknad bild → gradient-fallback, sidan fortfarande läsbar |
+
+**Manuella testteman:** `adventure` (default), `space`, `animals`
 
 **Simulera tema i konsol (gate ON):** `ChildTheme.apply({ visual_theme: 'space' })`  
 **DB (dev):** `child_view_config.visual_theme` utan föräldra-UI i PR 1.

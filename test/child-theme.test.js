@@ -41,6 +41,9 @@ function loadChildTheme(opts) {
     window: win,
     document: (opts && opts.document) || makeDocumentMock(),
   };
+  if (opts && opts.window && opts.window.Image) {
+    ctx.Image = opts.window.Image;
+  }
   vm.runInNewContext(script, ctx, { filename: 'child-theme.js' });
   return win.ChildTheme;
 }
@@ -232,6 +235,236 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
     ChildTheme.THEME_IDS.forEach(function (id) {
       const assets = ChildTheme.CHILD_THEMES[id].assets;
       assert.match(assets.background, new RegExp('/images/child/themes/' + id + '/'));
+      assert.equal(
+        assets.background,
+        '/images/child/themes/' + id + '/background@2x.webp'
+      );
     });
+  });
+
+  it('all ten canonical background assets exist on disk', () => {
+    const ChildTheme = loadChildTheme();
+    ChildTheme.THEME_IDS.forEach(function (id) {
+      const rel = 'public/images/child/themes/' + id + '/background@2x.webp';
+      assert.ok(fs.existsSync(path.join(ROOT, rel)), 'missing asset: ' + rel);
+      const buf = fs.readFileSync(path.join(ROOT, rel));
+      assert.equal(buf.slice(0, 4).toString(), 'RIFF');
+      assert.equal(buf.slice(8, 12).toString(), 'WEBP');
+    });
+  });
+
+  it('alias themes resolve to canonical background asset paths', () => {
+    const ChildTheme = loadChildTheme();
+    assert.equal(
+      ChildTheme.getTheme('fantasy').assets.background,
+      '/images/child/themes/adventure/background@2x.webp'
+    );
+    assert.equal(
+      ChildTheme.getTheme('cars').assets.background,
+      '/images/child/themes/vehicles/background@2x.webp'
+    );
+    assert.equal(
+      ChildTheme.getTheme('airplanes').assets.background,
+      '/images/child/themes/vehicles/background@2x.webp'
+    );
+    assert.equal(
+      ChildTheme.getTheme('dolls').assets.background,
+      '/images/child/themes/builders/background@2x.webp'
+    );
+    assert.equal(
+      ChildTheme.getTheme('castle').assets.background,
+      '/images/child/themes/adventure/background@2x.webp'
+    );
+  });
+
+  it('gate ON sets --ct-background-image on theme scene', () => {
+    const styleProps = {};
+    const scene = {
+      classList: { remove: function () {}, add: function () {} },
+      style: {
+        setProperty: function (k, v) { styleProps[k] = v; },
+      },
+      setAttribute: function () {},
+    };
+    const host = {
+      querySelector: function (sel) {
+        return sel === '.cwb-theme-scene' ? scene : null;
+      },
+      appendChild: function () {},
+    };
+    const attrs = {};
+    const root = {
+      setAttribute: function (k, v) { attrs[k] = v; },
+      removeAttribute: function (k) { delete attrs[k]; },
+      getAttribute: function (k) {
+        if (k === 'data-barnets-samling') return 'on';
+        return attrs[k] || null;
+      },
+    };
+    const ChildTheme = loadChildTheme({
+      document: makeDocumentMock({
+        documentElement: root,
+        body: { classList: { remove: function () {}, add: function () {} } },
+        getElementById: function (id) { return id === 'childWorldBg' ? host : null; },
+      }),
+    });
+    ChildTheme.apply({ visual_theme: 'animals' }, { silent: true });
+    assert.equal(
+      styleProps['--ct-background-image'],
+      'url("/images/child/themes/animals/background@2x.webp")'
+    );
+    assert.equal(attrs['data-child-theme'], 'animals');
+  });
+
+  it('gate OFF does not set theme background variable', () => {
+    const styleProps = {};
+    const scene = {
+      classList: { remove: function () {}, add: function () {} },
+      style: {
+        setProperty: function (k, v) { styleProps[k] = v; },
+      },
+      setAttribute: function () {},
+      parentNode: { removeChild: function () {} },
+    };
+    const attrs = { 'data-child-theme': 'space' };
+    const root = {
+      setAttribute: function (k, v) { attrs[k] = v; },
+      removeAttribute: function (k) { delete attrs[k]; },
+      getAttribute: function (k) {
+        if (k === 'data-barnets-samling') return 'off';
+        return attrs[k] || null;
+      },
+    };
+    const ChildTheme = loadChildTheme({
+      document: makeDocumentMock({
+        documentElement: root,
+        body: { classList: { remove: function () {}, add: function () {} } },
+        querySelector: function () { return scene; },
+      }),
+    });
+    ChildTheme.apply({ visual_theme: 'space' });
+    assert.equal(styleProps['--ct-background-image'], undefined);
+    assert.equal(attrs['data-child-theme'], undefined);
+  });
+
+  it('failed background load keeps gradient without ct-bg-loaded', () => {
+    const classes = [];
+    const scene = {
+      classList: {
+        remove: function (c) {
+          const i = classes.indexOf(c);
+          if (i >= 0) classes.splice(i, 1);
+        },
+        add: function (c) { classes.push(c); },
+      },
+      style: { setProperty: function () {} },
+      setAttribute: function () {},
+    };
+    const host = {
+      querySelector: function (sel) {
+        return sel === '.cwb-theme-scene' ? scene : null;
+      },
+      appendChild: function () {},
+    };
+    function MockImage() {
+      this._onerror = null;
+      const self = this;
+      Object.defineProperty(this, 'onerror', {
+        get: function () { return self._onerror; },
+        set: function (fn) {
+          self._onerror = fn;
+          if (fn) fn();
+        },
+      });
+      this.onload = null;
+    }
+    const ChildTheme = loadChildTheme({
+      window: { Image: MockImage },
+      document: makeDocumentMock({
+        documentElement: {
+          setAttribute: function () {},
+          removeAttribute: function () {},
+          getAttribute: function (k) {
+            return k === 'data-barnets-samling' ? 'on' : null;
+          },
+        },
+        body: { classList: { remove: function () {}, add: function () {} } },
+        getElementById: function (id) { return id === 'childWorldBg' ? host : null; },
+      }),
+    });
+    ChildTheme.apply({ visual_theme: 'space' }, { silent: true });
+    assert.ok(classes.indexOf('ct-bg-loaded') < 0);
+  });
+
+  it('successful background load adds ct-bg-loaded class', () => {
+    const classes = [];
+    const scene = {
+      classList: {
+        remove: function (c) {
+          const i = classes.indexOf(c);
+          if (i >= 0) classes.splice(i, 1);
+        },
+        add: function (c) { classes.push(c); },
+      },
+      style: { setProperty: function () {} },
+      setAttribute: function () {},
+    };
+    const host = {
+      querySelector: function (sel) {
+        return sel === '.cwb-theme-scene' ? scene : null;
+      },
+      appendChild: function () {},
+    };
+    function MockImage() {
+      this._onload = null;
+      const self = this;
+      Object.defineProperty(this, 'onload', {
+        get: function () { return self._onload; },
+        set: function (fn) {
+          self._onload = fn;
+          if (fn) fn();
+        },
+      });
+      this.onerror = null;
+    }
+    const ChildTheme = loadChildTheme({
+      window: { Image: MockImage },
+      document: makeDocumentMock({
+        documentElement: {
+          setAttribute: function () {},
+          removeAttribute: function () {},
+          getAttribute: function (k) {
+            return k === 'data-barnets-samling' ? 'on' : null;
+          },
+        },
+        body: { classList: { remove: function () {}, add: function () {} } },
+        getElementById: function (id) { return id === 'childWorldBg' ? host : null; },
+      }),
+    });
+    ChildTheme.apply({ visual_theme: 'ocean' }, { silent: true });
+    assert.ok(classes.indexOf('ct-bg-loaded') >= 0);
+  });
+
+  it('theme scene is shared across all four worlds (single apply path)', () => {
+    const src = read('public/js/child-theme.js');
+    assert.match(src, /ensureThemeSceneLayer/);
+    assert.match(src, /childWorldBg/);
+    assert.doesNotMatch(src, /data-child-layer/);
+    const css = read('public/css/child-themes.css');
+    assert.match(css, /cwb-theme-scene/);
+    assert.match(css, /data-child-layer='collection'/);
+    assert.match(css, /data-child-layer='treasure'/);
+  });
+
+  it('child-themes.css uses --ct-background-image for loaded backgrounds', () => {
+    const css = read('public/css/child-themes.css');
+    assert.match(css, /--ct-background-image/);
+    assert.doesNotMatch(css, /--ct-bg-image/);
+  });
+
+  it('sw.js does not precache theme background webps', () => {
+    const sw = read('public/sw.js');
+    assert.doesNotMatch(sw, /\/images\/child\/themes\/adventure\/background@2x\.webp/);
+    assert.match(sw, /stjarndag-v581/);
   });
 });
