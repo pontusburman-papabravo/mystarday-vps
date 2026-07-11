@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v578';
-// stjarndag-v578: Skattkammaren redesign — unified CSS hero, vision order, no PNG clutter
+const CACHE_NAME = 'stjarndag-v579';
+// stjarndag-v579: Barnets samling child-theme shell — 7 themes, CSS accents, fantasy fallback
 // stjarndag-v577: Skattkammaren visual fix — crown crop, CSS scene bg, cleaner progress
 // stjarndag-v576: Google login button — branded logo + label-safe loading state
 // stjarndag-v575: Android — re-enable flat magic view (shell + home hub, no 3D GPU)
@@ -476,11 +476,13 @@ const STATIC_ASSETS = [
   '/js/platform-feedback-child.js',
   '/js/child-dashboard-rewards.js',
   '/js/child-worlds.js',
+  '/js/child-theme.js',
   '/js/child-worlds-nav.js',
   '/js/child-layer-router.js',
   '/js/child-samling-present.js',
   '/js/child-samling-view.js',
   '/css/child-samling.css',
+  '/css/child-themes.css',
   '/js/child-world-bg-lazy.js',
   '/js/child-world-wayfinder.js',
   '/css/child-world-wayfinder.css',

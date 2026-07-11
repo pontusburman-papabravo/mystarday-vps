@@ -612,10 +612,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.init();
 
     let dbViewMode = 'classic';
+    let viewCfgForTheme = null;
     try {
       const viewCfgRes = await Auth.api(`/api/children/${me.id}/view-config`);
+      viewCfgForTheme = viewCfgRes;
       if (viewCfgRes && viewCfgRes.view_mode) dbViewMode = viewCfgRes.view_mode;
     } catch (_) { /* default classic */ }
+
+    if (window.ChildTheme && ChildTheme.apply) {
+      ChildTheme.apply(Object.assign({}, me, { child_view_config: viewCfgForTheme }));
+    }
 
     if (window.AppViewMode) {
       await AppViewMode.initChild(me.id, dbViewMode);
