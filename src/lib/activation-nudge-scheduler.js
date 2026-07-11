@@ -23,7 +23,6 @@ const NUDGE_CANDIDATE_SQL = `
   WHERE s.p0_activated_within_48h = false
     AND s.p0_activated_at IS NULL
     AND s.activation_nudge_sent_at IS NULL
-    AND s.child_handoff_reminder_sent_at IS NULL
     AND (s.schema_saved_at IS NULL OR s.child_access_completed_at IS NOT NULL)
     AND s.signup_at >= NOW() - INTERVAL '48 hours'
     AND s.signup_at <= NOW() - INTERVAL '24 hours'

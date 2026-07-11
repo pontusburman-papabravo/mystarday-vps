@@ -83,13 +83,13 @@ describe('activation nudge scheduler (PR 5)', () => {
     assert.doesNotMatch(src, /newsletter_subscribed/);
   });
 
-  it('excludes handoff segment and post-handoff families from nudge SQL', () => {
+  it('excludes handoff segment (schema without child access) from nudge SQL', () => {
     const src = fs.readFileSync(
       path.join(ROOT, 'src/lib/activation-nudge-scheduler.js'),
       'utf8'
     );
-    assert.match(src, /child_handoff_reminder_sent_at IS NULL/);
     assert.match(src, /schema_saved_at IS NULL OR s\.child_access_completed_at IS NOT NULL/);
+    assert.doesNotMatch(src, /child_handoff_reminder_sent_at IS NULL/);
   });
 
   it('CTA points to Hem dashboard (slim signup)', () => {
@@ -162,7 +162,7 @@ describe('activation nudge candidates (DB)', () => {
     }
   });
 
-  it('excludes families that already received handoff reminder', async (t) => {
+  it('includes families that received handoff reminder after child access completed', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -173,11 +173,13 @@ describe('activation nudge candidates (DB)', () => {
 
     try {
       const { familyId } = await seedNudgeCandidateFamily(db, {
-        suffix: `handoff-sent-${Date.now()}`,
-        handoffReminderSentAt: new Date(),
+        suffix: `handoff-then-access-${Date.now()}`,
+        schemaSavedAt: new Date(Date.now() - 10 * 60 * 60 * 1000),
+        childAccessCompletedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        handoffReminderSentAt: new Date(Date.now() - 8 * 60 * 60 * 1000),
       });
       const result = await fetchNudgeCandidates(db);
-      assert.ok(!result.rows.some((r) => r.family_id === familyId));
+      assert.ok(result.rows.some((r) => r.family_id === familyId));
     } finally {
       await db.cleanup();
     }
