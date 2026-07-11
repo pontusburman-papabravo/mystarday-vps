@@ -45,6 +45,8 @@
       return;
     }
 
+    nav.removeAttribute('data-nav-ready');
+
     const active = ChildWorlds.activeChildNavItem(
       window.location.pathname,
       window.location.hash
@@ -76,6 +78,7 @@
     });
 
     nav.innerHTML = html;
+    nav.setAttribute('data-nav-ready', 'true');
     nav.setAttribute('role', 'navigation');
     nav.setAttribute('aria-label', 'Barnnavigering');
     nav.style.display = '';

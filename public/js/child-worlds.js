@@ -316,6 +316,34 @@
     return _barnetsSamling ? SAMLING_HASH : LEGACY_HASH;
   }
 
+  function finishAppBoot() {
+    if (typeof document === 'undefined') return;
+    document.documentElement.classList.remove('child-app-boot');
+    const header = document.getElementById('childMainHeader');
+    if (header) header.style.removeProperty('visibility');
+  }
+
+  function applySamlingChromeEarly() {
+    if (typeof document === 'undefined' || !_barnetsSamling) return;
+    document.body.classList.add('child-worlds-v2', 'child-has-bottom-nav');
+    const legacyNav = document.getElementById('childLayerNav');
+    if (legacyNav) {
+      legacyNav.classList.add('hidden');
+      legacyNav.setAttribute('aria-hidden', 'true');
+    }
+    const home = document.getElementById('tabHome');
+    const more = document.getElementById('tabMore');
+    if (home) home.style.display = 'none';
+    if (more) more.style.display = 'none';
+    const homeView = document.getElementById('homeView');
+    const moreView = document.getElementById('moreView');
+    if (homeView) homeView.classList.add('hidden');
+    if (moreView) moreView.classList.add('hidden');
+    if (window.ChildWorldsNav && typeof ChildWorldsNav.renderBottomNav === 'function') {
+      ChildWorldsNav.renderBottomNav();
+    }
+  }
+
   function configureFromFeatures(features) {
     const list = features || [];
     _barnetsSamling = list.some(function (f) {
@@ -327,6 +355,10 @@
         'data-barnets-samling',
         _barnetsSamling ? 'on' : 'off'
       );
+      finishAppBoot();
+      if (_barnetsSamling) {
+        applySamlingChromeEarly();
+      }
       document.dispatchEvent(new CustomEvent('child-worlds-configured'));
       if (_barnetsSamling) {
         const p = normalizePath(window.location.pathname);
@@ -451,5 +483,6 @@
     prepareTreasureEntry: prepareTreasureEntry,
     shouldSkipHubForRewards: shouldSkipHubForRewards,
     configureFromFeatures: configureFromFeatures,
+    finishAppBoot: finishAppBoot,
   };
 })();
