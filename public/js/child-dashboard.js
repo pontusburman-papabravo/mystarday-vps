@@ -623,6 +623,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       ChildTheme.apply(Object.assign({}, me, { child_view_config: viewCfgForTheme }));
     }
 
+    window.ChildDashboardContext = {
+      me: me,
+      viewConfig: viewCfgForTheme || {},
+    };
+
     if (window.AppViewMode) {
       await AppViewMode.initChild(me.id, dbViewMode);
       if (AppViewMode.isAllowed()) {

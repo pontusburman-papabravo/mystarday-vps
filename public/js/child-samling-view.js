@@ -29,6 +29,9 @@
       if (typeof ChildSamlingPresent.bindInteractions === 'function') {
         ChildSamlingPresent.bindInteractions(mount);
       }
+      if (window.ChildThemePicker && typeof ChildThemePicker.bindEntry === 'function') {
+        ChildThemePicker.bindEntry(mount);
+      }
     } else {
       mount.innerHTML =
         '<div class="max-w-lg mx-auto px-4 pt-6 pb-8 text-center">' +

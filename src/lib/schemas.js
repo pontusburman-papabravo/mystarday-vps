@@ -166,6 +166,21 @@ const ChildViewConfigSchema = z.object({
   }).optional(),
 });
 
+const VisualThemeBodySchema = z.object({
+  visual_theme: z.enum([
+    'adventure',
+    'space',
+    'dinosaurs',
+    'vehicles',
+    'animals',
+    'ocean',
+    'sports',
+    'builders',
+    'music',
+    'arcade',
+  ]),
+}).strict();
+
 // ─── Activities ───────────────────────────────────────────
 
 const timeGroupEnum = z.enum(['morgon', 'formiddag', 'eftermiddag', 'kvall']);
@@ -549,6 +564,7 @@ module.exports = {
   ChildPinLoginSchema,
   UpdateChildPinSchema,
   ChildViewConfigSchema,
+  VisualThemeBodySchema,
   // Activities
   CreateActivitySchema,
   UpdateActivitySchema,

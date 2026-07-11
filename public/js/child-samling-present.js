@@ -47,6 +47,26 @@
     return 'De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.';
   }
 
+  function renderThemeEntry() {
+    if (!window.ChildTheme || !ChildTheme.isSamlingGateOn || !ChildTheme.isSamlingGateOn()) {
+      return '';
+    }
+    const theme = ChildTheme.getTheme(ChildTheme.getActiveThemeId());
+    const bg = theme.assets && theme.assets.background ? theme.assets.background : '';
+    return (
+      '<section class="bsp-theme-entry" aria-label="Mitt tema">' +
+        '<button type="button" class="bsp-theme-entry-btn" id="bspOpenThemePicker">' +
+          '<span class="bsp-theme-entry-preview" style="background-image:url(\'' + bg + '\')" aria-hidden="true"></span>' +
+          '<span class="bsp-theme-entry-copy">' +
+            '<span class="bsp-theme-entry-kicker">Mitt tema</span>' +
+            '<span class="bsp-theme-entry-label">' + esc(theme.label) + '</span>' +
+          '</span>' +
+          '<span class="bsp-theme-entry-chevron" aria-hidden="true">›</span>' +
+        '</button>' +
+      '</section>'
+    );
+  }
+
   function renderHeroPanel(universe) {
     const total = lifetimeStars(universe);
     const fillPct = glassFillPct(total);
@@ -520,6 +540,7 @@
     return (
       '<div class="bsp-page">' +
         renderHeroPanel(universe) +
+        renderThemeEntry() +
         renderPreviewStrip(universe, extras) +
         renderMedalSection(universe) +
         renderWallSection(universe) +

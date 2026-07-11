@@ -2,6 +2,7 @@
  * child-theme.js — Per-child visual theme for Barnets samling (presentation only).
  * Gate: barnets_samling ON. Does not use legacy Min värld house themes.
  * PR 1: CSS accents + emoji icon fallback. PR 2: WebP backgrounds. PR 3: WebP tab icons.
+ * PR 4: Theme picker (Min samling) — listThemes + preview via apply().
  */
 (function () {
   'use strict';
@@ -313,6 +314,48 @@
     return accents[name] || accents.primary || '#F5A623';
   }
 
+  function listThemes() {
+    return THEME_IDS.map(function (id) {
+      const theme = CHILD_THEMES[id];
+      return {
+        id: id,
+        label: theme.label,
+        className: theme.className,
+        assets: theme.assets,
+        accents: theme.accents,
+        emojiIcons: theme.icons,
+      };
+    });
+  }
+
+  function childPayloadWithTheme(child, themeId) {
+    const base = child && typeof child === 'object' ? child : {};
+    const cfg = Object.assign({}, base.child_view_config || {}, {
+      visual_theme: normalizeThemeId(themeId),
+    });
+    return Object.assign({}, base, { child_view_config: cfg });
+  }
+
+  function applyPreview(child, themeId, opts) {
+    if (!isSamlingGateOn()) return DEFAULT_THEME;
+    const theme = normalizeThemeId(themeId);
+    applyThemeDom(theme);
+    if (!opts || !opts.silent) {
+      document.dispatchEvent(new CustomEvent('child-theme-preview', {
+        detail: { themeId: theme },
+      }));
+    }
+    return theme;
+  }
+
+  function revertToSaved(child, opts) {
+    if (!isSamlingGateOn()) {
+      clearThemeDom();
+      return DEFAULT_THEME;
+    }
+    return apply(child, opts);
+  }
+
   window.ChildTheme = {
     DEFAULT_THEME: DEFAULT_THEME,
     THEME_IDS: THEME_IDS,
@@ -323,6 +366,10 @@
     getTheme: getTheme,
     getActiveThemeId: getActiveThemeId,
     isSamlingGateOn: isSamlingGateOn,
+    listThemes: listThemes,
+    childPayloadWithTheme: childPayloadWithTheme,
+    applyPreview: applyPreview,
+    revertToSaved: revertToSaved,
     apply: apply,
     clearThemeDom: clearThemeDom,
     iconForWorld: iconForWorld,

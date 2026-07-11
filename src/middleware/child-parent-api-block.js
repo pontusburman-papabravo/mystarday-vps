@@ -19,6 +19,7 @@ const CHILD_ALLOWED = [
   /^\/family\/verify-pin$/,
   /^\/family\/restore-parent-session$/,
   /^\/children\/[^/]+\/view-config$/,
+  /^\/children\/[^/]+\/visual-theme$/,
 ];
 
 function childParentApiBlock(req, res, next) {

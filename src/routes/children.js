@@ -10,6 +10,7 @@ const {
   UpdateChildSchema,
   UpdateChildPinSchema,
   ChildViewConfigSchema,
+  VisualThemeBodySchema,
   ReorderSchema,
   UUIDParam,
 } = require('../lib/schemas');
@@ -89,6 +90,49 @@ router.patch('/:id/view-config/self', requireAuth, validateParams(UUIDParam), as
     res.json(merged);
   } catch (err) {
     console.error('[VIEW-CONFIG] PATCH self error:', err.message);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── PATCH /api/children/:id/visual-theme (child self or parent — visual_theme only) ──
+router.patch('/:id/visual-theme', requireAuth, validateParams(UUIDParam), validate(VisualThemeBodySchema), async (req, res) => {
+  try {
+    const childId = req.params.id;
+
+    if (req.user.type === 'child') {
+      if (req.user.id !== childId) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      }
+    } else {
+      const access = await db.query(
+        `SELECT role FROM parent_child
+         WHERE parent_id = $1 AND child_id = $2 AND revoked_at IS NULL`,
+        [req.user.id, childId]
+      );
+      if (access.rows.length === 0) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      }
+    }
+
+    const existing = await db.query(
+      'SELECT child_view_config FROM child WHERE id = $1',
+      [childId]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Barnet hittades inte' });
+    }
+
+    const current = existing.rows[0].child_view_config || {};
+    const merged = Object.assign({}, current, { visual_theme: req.body.visual_theme });
+
+    await db.query(
+      'UPDATE child SET child_view_config = $1 WHERE id = $2',
+      [JSON.stringify(merged), childId]
+    );
+
+    res.json(merged);
+  } catch (err) {
+    console.error('[VISUAL-THEME] PATCH error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
