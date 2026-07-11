@@ -195,7 +195,7 @@ describe('barnets_samling treasure presentation — gate ON (Fas C slice)', () =
     const css = fs.readFileSync(path.join(ROOT, 'public/css/child-treasure-present.css'), 'utf8');
     assert.match(css, /\[data-barnets-samling="on"\]/);
     assert.match(css, /prefers-reduced-motion/);
-    assert.match(css, /\.btp-header/);
+    assert.match(css, /\.btp-hero/);
     assert.doesNotMatch(css, /^\.btp-/m);
     assert.doesNotMatch(css, /^body\.btp/m);
   });

@@ -7,14 +7,6 @@
 
   const PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
   const PROGRESS_STAR_MAX = 16;
-  const ASSETS = {
-    scene: '/img/barn/skattkammaren/scene-room.webp',
-    plaqueCrown: '/img/barn/skattkammaren/plaque-crown.webp',
-    hourglass: '/img/barn/skattkammaren/deco-hourglass.webp',
-    chestOpen: '/img/barn/skattkammaren/deco-chest-open.webp',
-    chestClosed: '/img/barn/skattkammaren/deco-chest-closed.webp',
-    historyLid: '/img/barn/skattkammaren/history-chest-lid.webp',
-  };
 
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -79,138 +71,64 @@
     return { key: 'saving', label: 'Sparar', className: 'btp-status-saving' };
   }
 
-  function renderScene() {
-    return '';
-  }
-
-  function renderRewardBadge(icon) {
-    return (
-      '<div class="btp-reward-badge" aria-hidden="true">' +
-        '<span class="btp-reward-badge-ring"></span>' +
-        '<span class="btp-reward-badge-icon">' + icon + '</span>' +
-      '</div>'
-    );
-  }
-
-  function renderProgressStars(filled, target) {
-    const progress = computeProgressStars(filled, target);
-    if (!progress.target) return '';
-    let html =
-      '<div class="btp-progress-stars" role="img" aria-label="' +
-        progress.totalFilled + ' av ' + progress.totalTarget + ' stjärnor mot målet">';
-    for (let i = 0; i < progress.target; i++) {
-      html += '<span class="btp-progress-star' + (i < progress.filled ? ' is-filled' : '') + '"></span>';
-    }
-    html += '</div>';
-    return html;
-  }
-
-  function renderProgressBlock(starBalance, starCost, pct, remaining) {
+  function renderGoalMeter(starBalance, starCost, pct, remaining) {
     const progressText = esc(String(starBalance || 0)) + ' av ' + esc(String(starCost)) + ' stjärnor';
     const clamped = Math.max(0, Math.min(100, pct || 0));
     const left = remaining > 0
       ? '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>'
       : '<p class="btp-goal-remaining btp-goal-remaining--ready">Du kan lösa in den här nu.</p>';
     return (
-      '<div class="btp-goal-progress-block">' +
-        renderProgressStars(starBalance, starCost) +
-        '<div class="btp-goal-track" role="progressbar" aria-valuenow="' + clamped +
-          '" aria-valuemin="0" aria-valuemax="100">' +
-          '<div class="btp-goal-fill" style="width:' + clamped + '%"></div>' +
-        '</div>' +
-        '<div class="btp-goal-progress-meta">' +
-          '<p class="btp-goal-progress">' + progressText + '</p>' +
-          left +
-        '</div>' +
+      '<div class="btp-hero-meter" role="progressbar" aria-valuenow="' + clamped +
+        '" aria-valuemin="0" aria-valuemax="100" aria-label="' + progressText + '">' +
+        '<div class="btp-hero-meter-fill" style="width:' + clamped + '%"></div>' +
+      '</div>' +
+      '<div class="btp-goal-progress-meta">' +
+        '<p class="btp-goal-progress">' + progressText + '</p>' +
+        left +
       '</div>'
     );
   }
 
-  function renderGoalNudge(remaining) {
-    if (!remaining || remaining <= 0) return '';
-    return (
-      '<div class="btp-goal-nudge" role="note">' +
-        '<img class="btp-goal-nudge-art" src="' + ASSETS.chestOpen + '" alt="" decoding="async" />' +
-        '<div class="btp-goal-nudge-copy">' +
-          '<p class="btp-goal-nudge-title">Du är på väg!</p>' +
-          '<p class="btp-goal-nudge-text">Fortsätt så — snart är belöningen din!</p>' +
-        '</div>' +
-      '</div>'
-    );
-  }
-
-  function renderHeader(starBalance) {
+  function renderHero(skatt, starBalance) {
     const count = Number(starBalance) || 0;
     const label = count === 1
       ? 'Du har 1 stjärna att använda'
       : 'Du har ' + count + ' stjärnor att använda';
+    const goal = skatt.goal;
+    let goalHtml = '';
+
+    if (!goal || !goal.reward_id) {
+      goalHtml =
+        '<div class="btp-hero-goal btp-hero-goal--empty">' +
+          '<p class="btp-hero-goal-lead">Här kan du välja vad du vill spara till</p>' +
+        '</div>';
+    } else {
+      const remaining = Math.max(0, (goal.star_cost || 0) - count);
+      const icon = goal.reward_icon || '🎁';
+      const pct = skatt.progressPct || 0;
+      goalHtml =
+        '<div class="btp-hero-goal">' +
+          '<p class="btp-plaque-label">Mål</p>' +
+          '<p class="btp-plaque-sub">Du sparar till</p>' +
+          '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>' +
+          renderGoalMeter(count, goal.star_cost, pct, remaining);
+      if (skatt.showGoalChangeLink) {
+        goalHtml += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
+      }
+      goalHtml += '</div>';
+    }
+
     return (
-      '<header class="btp-header" aria-label="Dina stjärnor">' +
-        '<p class="btp-kicker">🎁 Skattkammaren</p>' +
-        '<div class="btp-balance" aria-hidden="true">' +
-          '<span class="btp-balance-emoji">⭐</span>' +
+      '<header class="btp-hero" aria-label="Skattkammaren">' +
+        '<p class="btp-kicker" aria-hidden="true">🎁</p>' +
+        '<h1 class="btp-hero-title">Skattkammaren</h1>' +
+        '<div class="btp-hero-stars" aria-label="' + esc(label) + '">' +
+          '<span class="btp-balance-emoji" aria-hidden="true">⭐</span>' +
           '<span class="btp-balance-count">' + count + '</span>' +
         '</div>' +
         '<p class="btp-balance-label">' + esc(label) + '</p>' +
+        goalHtml +
       '</header>'
-    );
-  }
-
-  function renderGoalSection(skatt) {
-    const goal = skatt.goal;
-    if (!goal || !goal.reward_id) {
-      return (
-        '<section class="btp-plaque btp-plaque--empty" aria-label="Aktivt mål">' +
-          '<div class="btp-plaque-inner">' +
-            '<p class="btp-plaque-label">Mål</p>' +
-            '<p class="btp-goal-empty-text">Här kan du välja vad du vill spara till</p>' +
-            '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
-              '✨ Välj belöning' +
-            '</button>' +
-          '</div>' +
-        '</section>'
-      );
-    }
-
-    const remaining = Math.max(0, (goal.star_cost || 0) - (skatt.starBalance || 0));
-    const icon = goal.reward_icon || '🎁';
-    const pct = skatt.progressPct || 0;
-    let html =
-      '<section class="btp-plaque" aria-label="Aktivt mål">' +
-        '<div class="btp-plaque-crown-wrap" aria-hidden="true">' +
-          '<img class="btp-plaque-crown" src="' + ASSETS.plaqueCrown + '" alt="" decoding="async" />' +
-        '</div>' +
-        '<div class="btp-plaque-inner">' +
-          renderRewardBadge(icon) +
-          '<p class="btp-plaque-label">Mål</p>' +
-          '<p class="btp-plaque-sub">Du sparar till</p>' +
-          '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>';
-
-    html += renderProgressBlock(skatt.starBalance, goal.star_cost, pct, remaining);
-    html += renderGoalNudge(remaining);
-
-    if (skatt.showGoalChangeLink) {
-      html += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
-    }
-
-    html += '</div></section>';
-    return html;
-  }
-
-  function renderPendingCard(pending) {
-    if (!pending || !pending.length) return '';
-    const count = pending.length;
-    const text = count === 1
-      ? '1 belöning väntar på en vuxen.'
-      : count + ' belöningar väntar på en vuxen.';
-    return (
-      '<section class="btp-pending-card" role="status" aria-label="Väntar på godkännande">' +
-        '<img class="btp-pending-art" src="' + ASSETS.hourglass + '" alt="" decoding="async" />' +
-        '<div class="btp-pending-body">' +
-          '<h3 class="btp-pending-title">Väntar på godkännande</h3>' +
-          '<p class="btp-pending-text">' + esc(text) + '</p>' +
-        '</div>' +
-      '</section>'
     );
   }
 
@@ -237,14 +155,26 @@
     return '';
   }
 
-  function renderStatusBanners(skatt, deniedRecent) {
+  function renderStatusStrip(skatt, deniedRecent) {
     let html = '';
     const SKATT_STATES = window.SKATT_STATES || {};
 
+    if (skatt.pending && skatt.pending.length) {
+      const count = skatt.pending.length;
+      const text = count === 1
+        ? '1 belöning väntar på en vuxen.'
+        : count + ' belöningar väntar på en vuxen.';
+      html +=
+        '<div class="btp-status-note btp-status-note--waiting" role="status">' +
+          '<span class="btp-status-note-icon" aria-hidden="true">⏳</span>' +
+          '<div><strong>Väntar på godkännande</strong><p>' + esc(text) + '</p></div>' +
+        '</div>';
+    }
+
     if (skatt.pendingChangeReq) {
       html +=
-        '<div class="btp-banner btp-banner--waiting" role="status">' +
-          '<span aria-hidden="true">⏳</span>' +
+        '<div class="btp-status-note btp-status-note--waiting" role="status">' +
+          '<span class="btp-status-note-icon" aria-hidden="true">⏳</span>' +
           '<div><strong>Byter belöning</strong><p>Väntar på svar från vuxen</p></div>' +
         '</div>';
     }
@@ -252,8 +182,8 @@
     if (skatt.state === SKATT_STATES.COMPLETED && skatt.completedReward) {
       const cr = skatt.completedReward;
       html +=
-        '<div class="btp-banner btp-banner--approved" role="status">' +
-          '<span aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
+        '<div class="btp-status-note btp-status-note--approved" role="status">' +
+          '<span class="btp-status-note-icon" aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
           '<div><strong>Godkänd</strong>' +
           '<p>' + esc(cr.reward_name) + ' — njut av belöningen 🌟</p></div>' +
         '</div>';
@@ -262,15 +192,15 @@
     if (deniedRecent && deniedRecent.length > 0) {
       deniedRecent.forEach(function (r) {
         html +=
-          '<div class="btp-banner btp-banner--gentle" role="status">' +
-            '<span aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
+          '<div class="btp-status-note btp-status-note--gentle" role="status">' +
+            '<span class="btp-status-note-icon" aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
             '<div><strong>' + esc(r.reward_name) + '</strong>' +
             '<p>Inte den här gången — du kan försöka igen senare 💛</p></div>' +
           '</div>';
       });
     }
 
-    return html ? '<section class="btp-status-banners">' + html + '</section>' : '';
+    return html ? '<section class="btp-status-strip" aria-label="Status">' + html + '</section>' : '';
   }
 
   function renderRewardCard(r, st, idx, starBalance) {
@@ -361,10 +291,7 @@
     return (
       '<section class="btp-rewards" aria-label="Belöningar">' +
         '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
-        '<div class="btp-shelf-stage" role="img" aria-label="Belöningshylla">' +
-          '<div class="btp-shelf-board" aria-hidden="true"></div>' +
-          '<div class="btp-card-list btp-shelf-items">' + cards + '</div>' +
-        '</div>' +
+        '<div class="btp-card-list">' + cards + '</div>' +
       '</section>'
     );
   }
@@ -412,10 +339,8 @@
 
     return (
       '<section class="btp-history" aria-label="Inlösta belöningar">' +
-        '<img class="btp-history-lid" src="' + ASSETS.historyLid + '" alt="" decoding="async" />' +
-        '<div class="btp-history-body">' +
-          '<div class="btp-history-list">' + cards + '</div>' +
-        '</div>' +
+        '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
+        '<div class="btp-history-list">' + cards + '</div>' +
       '</section>'
     );
   }
@@ -467,15 +392,11 @@
       view.style.animation = 'btpEntrance 0.4s ease-out forwards';
     }
 
-    let html = '<div class="btp-skatt">';
-    html += renderScene();
-    html += '<div class="btp-skatt-stack">';
-    html += renderHeader(starBalance);
-    html += renderPendingCard(skatt.pending);
-    html += renderStatusBanners(skatt, deniedRecent);
-    html += renderGoalSection(skatt);
+    let html = '<div class="btp-skatt"><div class="btp-skatt-stack">';
+    html += renderHero(skatt, starBalance);
     html += renderPrimaryAction(skatt);
     html += renderRewardsList(rewards, starBalance, redemptions, skatt.goal);
+    html += renderStatusStrip(skatt, deniedRecent);
     html += renderHistory(trophies);
     html += renderBonusGrants(grants);
     html += '</div></div>';
@@ -490,6 +411,5 @@
     rewardPresentStatus: rewardPresentStatus,
     computeProgressStars: computeProgressStars,
     PROGRESS_STAR_MAX: PROGRESS_STAR_MAX,
-    ASSETS: ASSETS,
   };
 })();

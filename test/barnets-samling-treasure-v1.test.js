@@ -181,7 +181,7 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
     });
     render(data.rewardsData, data.goalData, data.manualData);
     assert.match(viewEl.innerHTML, /<strong>Godkänd<\/strong>/);
-    assert.match(viewEl.innerHTML, /btp-history-lid/);
+    assert.match(viewEl.innerHTML, /btp-history-list/);
     assert.match(viewEl.innerHTML, /Genomförd/);
   });
 
