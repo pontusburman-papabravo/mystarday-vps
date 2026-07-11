@@ -1,0 +1,180 @@
+/**
+ * child-themes.css — Barnets samling per-child themes (gate ON only).
+ * PR 1: CSS gradient scenes + accent tokens. WebP backgrounds in PR 2.
+ * Asset paths: public/images/child/themes/<theme>/
+ */
+
+/* ── Theme scene layer (replaces legacy illustrated layers when gate ON) ── */
+[data-barnets-samling="on"] .cwb-theme-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  /* PR 2: var(--ct-bg-image) layered when asset exists */
+  transition: opacity 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .cwb-theme-scene {
+    transition: none;
+  }
+}
+
+[data-barnets-samling="on"] .cwb-today,
+[data-barnets-samling="on"] .cwb-world,
+[data-barnets-samling="on"] .cwb-family {
+  opacity: 0 !important;
+}
+
+[data-barnets-samling="on"] .cwb-theme-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--ct-scrim-top, rgba(247, 243, 235, 0.12)) 0%,
+    var(--ct-scrim-mid, rgba(247, 243, 235, 0.06)) 32%,
+    var(--ct-scrim-low, rgba(247, 243, 235, 0.52)) 62%,
+    var(--ct-scrim-base, rgba(247, 243, 235, 0.94)) 86%,
+    rgba(247, 243, 235, 0.98) 100%
+  );
+  pointer-events: none;
+}
+
+/* Collection + treasure layers use same theme scene */
+html[data-child-layer='collection'] [data-barnets-samling="on"] .cwb-theme-scene,
+html[data-child-world='collection'] [data-barnets-samling="on"] .cwb-theme-scene,
+html[data-child-layer='treasure'] [data-barnets-samling="on"] .cwb-theme-scene,
+html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
+  opacity: 1;
+}
+
+/* ── Shared accent custom properties ───────────────────── */
+[data-barnets-samling="on"][data-child-theme] {
+  --ct-primary: #9B7FD4;
+  --ct-soft: #F3E8FF;
+  --ct-glow: #F5C542;
+  --ct-card-border: rgba(155, 127, 212, 0.22);
+  --ct-card-glow: rgba(155, 127, 212, 0.12);
+}
+
+[data-barnets-samling="on"][data-child-theme] .child-bottom-nav-btn.is-active {
+  color: var(--ct-primary);
+  border-top-color: var(--ct-glow);
+}
+
+[data-barnets-samling="on"][data-child-theme] .child-theme-nav-emoji {
+  display: inline-block;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+/* ── space ─────────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="space"] {
+  --ct-primary: #6C5CE7;
+  --ct-soft: #A29BFE;
+  --ct-glow: #F4C542;
+  --ct-scrim-top: rgba(20, 14, 48, 0.35);
+  --ct-scrim-mid: rgba(30, 20, 60, 0.18);
+  --ct-scrim-low: rgba(247, 243, 235, 0.55);
+  --ct-scrim-base: rgba(247, 243, 235, 0.95);
+}
+
+[data-barnets-samling="on"][data-child-theme="space"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(165deg, #0f0c29 0%, #302b63 38%, #6C5CE7 68%, #24243e 100%);
+}
+
+/* ── dinosaurs ─────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="dinosaurs"] {
+  --ct-primary: #8A9A5B;
+  --ct-soft: #C4B59A;
+  --ct-glow: #F5C542;
+  --ct-scrim-top: rgba(74, 58, 40, 0.2);
+  --ct-scrim-mid: rgba(138, 154, 91, 0.1);
+}
+
+[data-barnets-samling="on"][data-child-theme="dinosaurs"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(170deg, #e8dcc8 0%, #c4b59a 32%, #8a9a5b 58%, #5c6b3a 100%);
+}
+
+/* ── cars ──────────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="cars"] {
+  --ct-primary: #3B82C4;
+  --ct-soft: #E8DCC8;
+  --ct-glow: #F5A623;
+  --ct-scrim-top: rgba(59, 130, 196, 0.12);
+}
+
+[data-barnets-samling="on"][data-child-theme="cars"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(175deg, #fdf5e6 0%, #d4e8c4 35%, #a8d4e8 62%, #e8dcc8 100%);
+}
+
+/* ── dolls ─────────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="dolls"] {
+  --ct-primary: #F8A8C8;
+  --ct-soft: #FFF5E6;
+  --ct-glow: #FFD966;
+  --ct-scrim-top: rgba(248, 168, 200, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="dolls"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #fff5f8 0%, #fce4ec 38%, #f8c8dc 62%, #ffe8d6 100%);
+}
+
+/* ── airplanes ─────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="airplanes"] {
+  --ct-primary: #A4C8E1;
+  --ct-soft: #FDF5E6;
+  --ct-glow: #F4C542;
+  --ct-scrim-top: rgba(164, 200, 225, 0.18);
+}
+
+[data-barnets-samling="on"][data-child-theme="airplanes"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(180deg, #fdf5e6 0%, #e8f4fc 42%, #a4c8e1 72%, #f4e4bc 100%);
+}
+
+/* ── animals ─────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="animals"] {
+  --ct-primary: #7A9E7E;
+  --ct-soft: #F5EDD6;
+  --ct-glow: #E8B84A;
+  --ct-scrim-top: rgba(122, 158, 126, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="animals"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(172deg, #f5edd6 0%, #d4e4c8 36%, #7a9e7e 64%, #5a7a5e 100%);
+}
+
+/* ── fantasy (default) ─────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="fantasy"] {
+  --ct-primary: #9B7FD4;
+  --ct-soft: #F3E8FF;
+  --ct-glow: #F5C542;
+  --ct-scrim-top: rgba(155, 127, 212, 0.16);
+}
+
+[data-barnets-samling="on"][data-child-theme="fantasy"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #f3e8ff 0%, #e8d4f8 35%, #c4a8e8 58%, #9b7fd4 82%, #6b4fa0 100%);
+}
+
+/* PR 2: when background@2x.webp exists, layer over gradient (no layout shift) */
+[data-barnets-samling="on"] .cwb-theme-scene.ct-bg-loaded {
+  background-image: var(--ct-bg-image), var(--ct-bg-gradient, none);
+}
+
+/* ── Accent hooks for future presentation polish (PR 4) ─── */
+[data-barnets-samling="on"][data-child-theme] .bsp-hero-panel,
+[data-barnets-samling="on"][data-child-theme] .btp-hero,
+[data-barnets-samling="on"][data-child-theme] .cfh-hero-panel {
+  border-color: var(--ct-card-border, rgba(27, 35, 64, 0.08));
+  box-shadow: 0 6px 24px var(--ct-card-glow, rgba(27, 35, 64, 0.1));
+}
