@@ -86,6 +86,12 @@
     nav.removeAttribute('aria-hidden');
     document.body.classList.add('child-has-bottom-nav');
 
+    nav.querySelectorAll('.child-nav-icon-img').forEach(function (img) {
+      img.addEventListener('error', function () {
+        img.classList.add('is-broken');
+      });
+    });
+
     nav.querySelectorAll('[data-child-world]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const worldId = btn.getAttribute('data-child-world');

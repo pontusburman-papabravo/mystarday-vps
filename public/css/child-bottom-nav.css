@@ -58,6 +58,36 @@ body.child-has-bottom-nav .child-bottom-nav {
   line-height: 1;
 }
 
+.child-bottom-nav-btn .child-nav-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.child-bottom-nav-btn .child-nav-icon-img {
+  width: 2rem;
+  height: 2rem;
+  display: block;
+  object-fit: contain;
+}
+
+.child-bottom-nav-btn .child-nav-icon-img.is-broken {
+  display: none;
+}
+
+.child-bottom-nav-btn .child-nav-icon-fallback {
+  display: none;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.child-bottom-nav-btn .child-nav-icon-img.is-broken + .child-nav-icon-fallback {
+  display: block;
+}
+
 .child-bottom-nav-btn.is-active {
   color: #7B61FF;
   background: rgba(123, 97, 255, 0.1);

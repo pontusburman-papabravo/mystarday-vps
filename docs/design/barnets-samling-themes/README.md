@@ -86,6 +86,6 @@ Legacy `house_config.theme` is **ignored** when `barnets_samling` gate is ON.
 ## Follow-up (not PR 1)
 
 - ~~PR 2: `background@2x.webp` for all ten themes~~ (done on `cursor/child-theme-shell-37d3`)
-- PR 3: Tab icon WebP assets (40 themed tab icons)
+- ~~PR 3: Tab icon WebP assets (40 themed tab icons)~~ (done on `cursor/child-theme-shell-37d3`)
 - PR 4: Per-flik presentation polish
 - Parent settings UI + optional `child_view_config.visual_theme` write path

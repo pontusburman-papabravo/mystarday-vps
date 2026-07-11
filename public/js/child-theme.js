@@ -1,7 +1,7 @@
 /**
  * child-theme.js — Per-child visual theme for Barnets samling (presentation only).
  * Gate: barnets_samling ON. Does not use legacy Min värld house themes.
- * PR 1: CSS accents + emoji icon fallback. PR 2: WebP backgrounds (gate ON, lazy-loaded).
+ * PR 1: CSS accents + emoji icon fallback. PR 2: WebP backgrounds. PR 3: WebP tab icons.
  */
 (function () {
   'use strict';
@@ -31,12 +31,15 @@
   const ASSET_BASE = '/images/child/themes';
 
   function themeAssets(id) {
+    const base = ASSET_BASE + '/' + id;
     return {
-      background: ASSET_BASE + '/' + id + '/background@2x.webp',
-      today: ASSET_BASE + '/' + id + '/icon-today@2x.webp',
-      collection: ASSET_BASE + '/' + id + '/icon-collection@2x.webp',
-      treasure: ASSET_BASE + '/' + id + '/icon-treasure@2x.webp',
-      family: ASSET_BASE + '/' + id + '/icon-family@2x.webp',
+      background: base + '/background@2x.webp',
+      icons: {
+        today: base + '/icon-today@2x.webp',
+        collection: base + '/icon-collection@2x.webp',
+        treasure: base + '/icon-treasure@2x.webp',
+        family: base + '/icon-family@2x.webp',
+      },
     };
   }
 
@@ -276,13 +279,32 @@
     return (theme.icons && theme.icons[key]) || '⭐';
   }
 
+  function iconAssetForWorld(worldId, themeId) {
+    const theme = getTheme(themeId || _activeThemeId);
+    const key = iconKeyForWorld(worldId);
+    const icons = theme.assets && theme.assets.icons;
+    return (icons && icons[key]) || null;
+  }
+
   function iconHtmlForWorld(worldId, themeId) {
+    if (!isSamlingGateOn()) {
+      const emoji = iconForWorld(worldId, themeId);
+      return '<span class="child-theme-nav-emoji" aria-hidden="true">' + emoji + '</span>';
+    }
     const id = normalizeThemeId(themeId || _activeThemeId);
     const theme = getTheme(id);
     const key = iconKeyForWorld(worldId);
     const emoji = (theme.icons && theme.icons[key]) || '⭐';
-    /* PR 3: swap to <img> when asset exists */
-    return '<span class="child-theme-nav-emoji" aria-hidden="true">' + emoji + '</span>';
+    const assetUrl = theme.assets && theme.assets.icons && theme.assets.icons[key];
+    if (!assetUrl) {
+      return '<span class="child-theme-nav-emoji" aria-hidden="true">' + emoji + '</span>';
+    }
+    return (
+      '<span class="child-nav-icon" aria-hidden="true">' +
+      '<img class="child-nav-icon-img" src="' + assetUrl + '" alt="" decoding="async" width="32" height="32">' +
+      '<span class="child-nav-icon-fallback" aria-hidden="true">' + emoji + '</span>' +
+      '</span>'
+    );
   }
 
   function accent(name, themeId) {
@@ -304,6 +326,7 @@
     apply: apply,
     clearThemeDom: clearThemeDom,
     iconForWorld: iconForWorld,
+    iconAssetForWorld: iconAssetForWorld,
     iconHtmlForWorld: iconHtmlForWorld,
     iconKeyForWorld: iconKeyForWorld,
     accent: accent,

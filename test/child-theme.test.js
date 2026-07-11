@@ -465,6 +465,125 @@ describe('child-theme — Barnets samling theme shell (PR 1)', () => {
   it('sw.js does not precache theme background webps', () => {
     const sw = read('public/sw.js');
     assert.doesNotMatch(sw, /\/images\/child\/themes\/adventure\/background@2x\.webp/);
-    assert.match(sw, /stjarndag-v581/);
+    assert.match(sw, /stjarndag-v582/);
+  });
+
+  const ICON_KEYS = ['today', 'collection', 'treasure', 'family'];
+
+  it('all ten canonical themes have four icon asset paths', () => {
+    const ChildTheme = loadChildTheme();
+    ChildTheme.THEME_IDS.forEach(function (id) {
+      const icons = ChildTheme.CHILD_THEMES[id].assets.icons;
+      ICON_KEYS.forEach(function (key) {
+        assert.equal(
+          icons[key],
+          '/images/child/themes/' + id + '/icon-' + key + '@2x.webp'
+        );
+      });
+    });
+  });
+
+  it('all forty icon assets exist on disk', () => {
+    const ChildTheme = loadChildTheme();
+    let count = 0;
+    ChildTheme.THEME_IDS.forEach(function (id) {
+      ICON_KEYS.forEach(function (key) {
+        const rel = 'public/images/child/themes/' + id + '/icon-' + key + '@2x.webp';
+        assert.ok(fs.existsSync(path.join(ROOT, rel)), 'missing icon: ' + rel);
+        const buf = fs.readFileSync(path.join(ROOT, rel));
+        assert.equal(buf.slice(0, 4).toString(), 'RIFF');
+        assert.equal(buf.slice(8, 12).toString(), 'WEBP');
+        count += 1;
+      });
+    });
+    assert.equal(count, 40);
+  });
+
+  it('alias themes resolve to canonical icon asset paths', () => {
+    const ChildTheme = loadChildTheme();
+    assert.equal(
+      ChildTheme.iconAssetForWorld('today', 'cars'),
+      '/images/child/themes/vehicles/icon-today@2x.webp'
+    );
+    assert.equal(
+      ChildTheme.iconAssetForWorld('family', 'fantasy'),
+      '/images/child/themes/adventure/icon-family@2x.webp'
+    );
+    assert.equal(
+      ChildTheme.iconAssetForWorld('treasure', 'dolls'),
+      '/images/child/themes/builders/icon-treasure@2x.webp'
+    );
+  });
+
+  it('gate ON iconHtmlForWorld renders WebP img with emoji fallback', () => {
+    const ChildTheme = loadChildTheme({
+      document: makeDocumentMock({
+        documentElement: {
+          getAttribute: function (k) {
+            return k === 'data-barnets-samling' ? 'on' : null;
+          },
+        },
+      }),
+    });
+    const html = ChildTheme.iconHtmlForWorld('today', 'space');
+    assert.match(html, /child-nav-icon/);
+    assert.match(html, /child-nav-icon-img/);
+    assert.match(html, /src="\/images\/child\/themes\/space\/icon-today@2x\.webp"/);
+    assert.match(html, /alt=""/);
+    assert.match(html, /child-nav-icon-fallback/);
+    assert.match(html, /aria-hidden="true"/);
+  });
+
+  it('gate OFF iconHtmlForWorld renders emoji only', () => {
+    const ChildTheme = loadChildTheme({
+      document: makeDocumentMock({
+        documentElement: {
+          getAttribute: function (k) {
+            return k === 'data-barnets-samling' ? 'off' : null;
+          },
+        },
+      }),
+    });
+    const html = ChildTheme.iconHtmlForWorld('today', 'space');
+    assert.match(html, /child-theme-nav-emoji/);
+    assert.doesNotMatch(html, /<img/);
+  });
+
+  it('missing icon asset falls back to emoji markup', () => {
+    const ChildTheme = loadChildTheme({
+      document: makeDocumentMock({
+        documentElement: {
+          getAttribute: function (k) {
+            return k === 'data-barnets-samling' ? 'on' : null;
+          },
+        },
+      }),
+    });
+    const broken = ChildTheme.getTheme('adventure');
+    const saved = broken.assets.icons.today;
+    broken.assets.icons.today = '';
+    const html = ChildTheme.iconHtmlForWorld('today', 'adventure');
+    broken.assets.icons.today = saved;
+    assert.match(html, /child-theme-nav-emoji/);
+    assert.doesNotMatch(html, /<img/);
+  });
+
+  it('child-worlds-nav wires image error fallback for theme icons', () => {
+    const src = read('public/js/child-worlds-nav.js');
+    assert.match(src, /child-nav-icon-img/);
+    assert.match(src, /is-broken/);
+    assert.match(src, /ChildTheme\.iconHtmlForWorld/);
+  });
+
+  it('sw.js does not precache theme icon webps', () => {
+    const sw = read('public/sw.js');
+    assert.doesNotMatch(sw, /\/images\/child\/themes\/adventure\/icon-today@2x\.webp/);
+  });
+
+  it('child-bottom-nav.css sizes theme icons without layout shift', () => {
+    const css = read('public/css/child-bottom-nav.css');
+    assert.match(css, /\.child-nav-icon/);
+    assert.match(css, /2rem/);
+    assert.match(css, /child-nav-icon-fallback/);
   });
 });
