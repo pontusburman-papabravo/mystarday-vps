@@ -131,6 +131,32 @@
     }
   }
 
+  function getGoogleBtnLabel(btn) {
+    if (!btn) return null;
+    return btn.querySelector('.google-btn-magic__label');
+  }
+
+  function setGoogleBtnLoading(btn, loading, loadingText) {
+    if (!btn) return;
+    const labelEl = getGoogleBtnLabel(btn);
+    btn.disabled = loading;
+    if (labelEl) {
+      if (loading) {
+        if (!labelEl.dataset.origLabel) labelEl.dataset.origLabel = labelEl.textContent;
+        labelEl.textContent = loadingText || 'Google…';
+      } else {
+        labelEl.textContent = labelEl.dataset.origLabel || labelEl.textContent;
+      }
+      return;
+    }
+    if (loading) {
+      if (!btn.dataset.origLabel) btn.dataset.origLabel = btn.textContent;
+      btn.textContent = loadingText || 'Google…';
+    } else {
+      btn.textContent = btn.dataset.origLabel || btn.textContent;
+    }
+  }
+
   async function handleGoogleLogin(opts) {
     if (!window.Platform || !Platform.googleSignIn) return;
     opts = opts || {};
@@ -143,8 +169,7 @@
     dismissGoogleLinking();
 
     const btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');
-    const orig = btn ? btn.textContent : '';
-    if (btn) { btn.disabled = true; btn.textContent = 'Google…'; }
+    setGoogleBtnLoading(btn, true);
     if (window.AppEntry && typeof AppEntry.trackAuthMethod === 'function') {
       AppEntry.trackAuthMethod('google');
     }
@@ -194,7 +219,7 @@
       }
       showErr(errEl, msg);
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = orig; }
+      setGoogleBtnLoading(btn, false);
     }
   }
 

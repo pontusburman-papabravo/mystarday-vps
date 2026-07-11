@@ -208,6 +208,38 @@
 .apple-btn-magic:active { transform: scale(0.98); }
 .apple-btn-magic svg { flex-shrink: 0; }
 
+/* ── Google Sign In (web PWA + Android native) ───────────────────────────── */
+.google-btn-magic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  background: #fff;
+  color: #1f1f1f;
+  font-family: 'Roboto', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.25;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid #dadce0;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  min-height: 50px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.google-btn-magic:hover {
+  background: #f8f9fa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.google-btn-magic:active { transform: scale(0.98); }
+.google-btn-magic:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+.google-btn-magic__icon { flex-shrink: 0; }
+
 /* ── Ghost / text buttons ─────────────────────────────────────────────────── */
 .ghost-btn {
   background: transparent;

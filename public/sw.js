@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v575';
+const CACHE_NAME = 'stjarndag-v576';
+// stjarndag-v576: Google login button — branded logo + label-safe loading state
 // stjarndag-v575: Android — re-enable flat magic view (shell + home hub, no 3D GPU)
 // stjarndag-v573: Skattkammaren Barn art assets — scene, plaque, pending, history
 // stjarndag-v572: Android — fix androidStabilityLog recursion (dashboard shadowed window fn)

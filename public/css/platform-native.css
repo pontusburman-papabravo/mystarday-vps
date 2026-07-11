@@ -194,6 +194,14 @@ html.is-native-android .login-magic-bg .magic-form-fields .magic-input::placehol
   color: rgba(255, 255, 255, 0.45) !important;
 }
 
+/* Google OAuth — crisp branded button on flat Android WebView (no glass bleed) */
+html.is-native-android .google-btn-magic {
+  background: #ffffff !important;
+  color: #1f1f1f !important;
+  border-color: #dadce0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Parent magic 3D orbs — filter:blur + perspective crash post-login on mid Android */
 html.is-native-android .magic-3d-orbs {
   display: none !important;

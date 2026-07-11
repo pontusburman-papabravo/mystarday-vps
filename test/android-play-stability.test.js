@@ -131,6 +131,16 @@ describe('Android Play stability guards', () => {
     assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
   });
 
+  it('login Google button uses branded markup (logo + label span for loading state)', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
+    assert.match(html, /id="googleLoginBtn"[^>]*class="google-btn-magic"/);
+    assert.match(html, /google-btn-magic__icon/);
+    assert.match(html, /google-btn-magic__label/);
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/google-auth-ui.js'), 'utf8');
+    assert.match(js, /google-btn-magic__label/);
+    assert.match(js, /setGoogleBtnLoading/);
+  });
+
   it('app-view-mode enables parent magic flat on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/app-view-mode.js'), 'utf8');
     assert.match(js, /isAndroidNative/);
