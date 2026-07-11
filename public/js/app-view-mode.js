@@ -113,7 +113,6 @@
   }
 
   function parentMagicEnabled() {
-    if (_role === 'parent' && isAndroidNative()) return false;
     if (_role === 'parent') return true;
     return _mode === 'magic' && (_allowed || _optimisticMagic);
   }
@@ -159,8 +158,8 @@
     if (!document.body) return false;
     _role = 'parent';
     _childId = null;
-    _mode = isAndroidNative() ? 'classic' : 'magic';
-    _optimisticMagic = !isAndroidNative();
+    _mode = 'magic';
+    _optimisticMagic = true;
     const storedTheme = readStoredTheme();
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
@@ -202,7 +201,7 @@
   function finishInitParent() {
     _optimisticMagic = false;
     _allowed = true;
-    _mode = isAndroidNative() ? 'classic' : 'magic';
+    _mode = 'magic';
     _ready = true;
     applyThemeClass();
     applyBodyClasses();
@@ -226,8 +225,8 @@
     _role = 'parent';
     _childId = null;
     _allowed = true;
-    _mode = isAndroidNative() ? 'classic' : 'magic';
-    _optimisticMagic = !isAndroidNative();
+    _mode = 'magic';
+    _optimisticMagic = true;
     const storedTheme = readStoredTheme();
     if (storedTheme) _theme = storedTheme;
     applyThemeClass();
@@ -237,7 +236,7 @@
     if (isAndroidNative()) {
       const result = finishInitParent();
       writeStoredTheme(_theme);
-      writeStorage(PARENT_KEY, 'classic');
+      writeStorage(PARENT_KEY, 'magic');
       return Promise.resolve(result);
     }
     return fetchAccess().then(function () {
@@ -311,9 +310,9 @@
   }
 
   function setMode(mode) {
-    // Parents are magic-only on web/iOS; Android native uses classic (GPU stability).
+    // Parents are magic-only on all platforms; Android uses flat CSS (no 3D orbs).
     if (_role === 'parent') {
-      _mode = isAndroidNative() ? 'classic' : 'magic';
+      _mode = 'magic';
       applyBodyClasses();
       return _mode;
     }
@@ -335,7 +334,7 @@
 
   function toggle() {
     // View toggle removed for parents. For children, keep legacy behaviour.
-    if (_role === 'parent') return isAndroidNative() ? 'classic' : 'magic';
+    if (_role === 'parent') return 'magic';
     if (!_allowed) return 'classic';
     return setMode(_mode === 'magic' ? 'classic' : 'magic');
   }

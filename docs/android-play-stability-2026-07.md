@@ -73,8 +73,14 @@ curl -s "$APP_URL/sw.js" | grep CACHE_NAME
 - [ ] Human QA on physical Android (paused — tester)
 - [ ] AAB v5 upload + Play resubmission
 
-### Android classic mode (intentional)
+### Android magic flat mode (2026-07-11)
 
-Magic view stays **disabled** on Android (`app-view-mode.js` + safe mode strips GPU/magic stack). Goal: stable **classic** Hem with child cards, activity modals, and correct header (🔔 + avatar right-aligned under safe area).
+- [x] **v575** — Re-enable parent magic view on Android (flat CSS, no 3D orbs)
+- Magic shell + `dashboard-home-hub` loaded; GPU CSS (`parent-magic-3d`) still stripped
+- Stability fixes retained: data-first init, `logDashboardStability`, `var` shared state
+
+### Android classic mode (superseded)
+
+Magic view was temporarily **disabled** on Android during Play review (v547–v574). Now **flat magic** with GPU guards.
 
 POS: 15 Section B (native stability)

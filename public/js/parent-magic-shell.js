@@ -6,6 +6,7 @@
   'use strict';
 
   let _page = null;
+  let _initPromise = null;
   const MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(max-width: 767px)')
     : null;
@@ -158,6 +159,7 @@
   }
 
   function init(page) {
+    if (_initPromise) return _initPromise;
     _page = page || 'dashboard';
     if (window.ParentMagicAuto) {
       ParentMagicAuto.prepareDom();
@@ -167,10 +169,11 @@
     }
     if (!window.AppViewMode) {
       refresh();
-      return Promise.resolve(false);
+      _initPromise = Promise.resolve(false);
+      return _initPromise;
     }
 
-    return AppViewMode.initParent().then(function () {
+    _initPromise = AppViewMode.initParent().then(function () {
       const toggleMount = document.getElementById('appViewToggleMount');
       if (toggleMount && AppViewMode.isAllowed()) {
         AppViewMode.mountToggle(toggleMount);
@@ -181,6 +184,7 @@
       refresh();
       return isMagic();
     });
+    return _initPromise;
   }
 
   window.addEventListener('stjarndag-parent-nav-layout', refresh);

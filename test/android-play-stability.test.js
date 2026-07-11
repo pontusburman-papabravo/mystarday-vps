@@ -131,11 +131,12 @@ describe('Android Play stability guards', () => {
     assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
   });
 
-  it('app-view-mode disables parent magic on Android native', () => {
+  it('app-view-mode enables parent magic flat on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/app-view-mode.js'), 'utf8');
     assert.match(js, /isAndroidNative/);
     assert.match(js, /parentMagicEnabled/);
-    assert.match(js, /is-native-android[\s\S]*classic/);
+    assert.doesNotMatch(js, /isAndroidNative\(\)\) return false/);
+    assert.match(js, /_mode = 'magic'/);
   });
 
   it('server strips GPU CSS for Android WebView user-agent', () => {
@@ -148,7 +149,7 @@ describe('Android Play stability guards', () => {
     } = require('../src/middleware/platform-html');
     const html = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/css/parent-magic-3d.css?v=1"><link rel="stylesheet" href="/css/parent-magic-common.css?v=1"><link rel="stylesheet" href="/css/theme.css?v=1"><script src="/js/parent-magic-shell.js?v=1"><\/script></head><body></body></html>';
     assert.doesNotMatch(stripAndroidGpuHtml(html), /parent-magic-3d/);
-    assert.doesNotMatch(stripAndroidGpuHtml(html), /parent-magic-common/);
+    assert.match(stripAndroidGpuHtml(html), /parent-magic-common/);
     assert.match(stripAndroidGpuHtml(html), /theme\.css/);
 
     const wvReq = { get: function (h) {
@@ -175,23 +176,24 @@ describe('Android Play stability guards', () => {
     assert.equal(isAndroidWebViewRequest(appReq), true);
 
     const out = injectPlatformHtml(html, '/dashboard', wvReq);
-    assert.doesNotMatch(out, /dashboard-magic\.css/);
-    assert.doesNotMatch(out, /parent-magic-shell/);
-    assert.doesNotMatch(out, /parent-magic-early-boot/);
+    assert.doesNotMatch(out, /parent-magic-3d\.css/);
+    assert.match(out, /parent-magic-common\.css|parent-magic-shell/);
+    assert.match(out, /parent-magic-early-boot/);
     assert.doesNotMatch(out, /journey-celebration/);
     assert.match(out, /android-webview-hardening-beacon/);
     assert.match(out, /android_webview_hardening_applied/);
     assert.match(out, /__ANDROID_PLAY_REVIEW_SAFE_MODE__/);
   });
 
-  it('parent-magic-bootstrap skips auto-init on Android native', () => {
+  it('parent-magic-bootstrap boots on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-bootstrap.js'), 'utf8');
-    assert.match(js, /is-native-android/);
+    assert.doesNotMatch(js, /is-native-android[\s\S]*return;/);
+    assert.match(js, /ParentMagicShell\.init/);
   });
 
-  it('dashboard skips ParentMagicShell on Android native', () => {
+  it('dashboard uses ParentMagicShell on Android native', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
-    assert.match(js, /is-native-android[\s\S]*ParentMagicShell/);
+    assert.match(js, /androidFlat[\s\S]*ParentMagicShell\.init/);
   });
 
   it('ANDROID_PLAY_REVIEW_SAFE_MODE keeps schedule-core.js', () => {
@@ -203,10 +205,11 @@ describe('Android Play stability guards', () => {
     assert.doesNotMatch(out, /sortablejs/);
   });
 
-  it('ANDROID_PLAY_REVIEW_SAFE_MODE keeps classic dashboard essentials', () => {
+  it('ANDROID_PLAY_REVIEW_SAFE_MODE keeps magic shell + home hub', () => {
     const { injectPlatformHtml } = require('../src/middleware/platform-html');
     const html = '<!DOCTYPE html><html><head><link rel="stylesheet" href="/css/app-view-toggle.css?v=10"></head><body>' +
       '<script src="/js/parent-magic-auto.js?v=10"><\/script>' +
+      '<script src="/js/dashboard-home-hub.js?v=6"><\/script>' +
       '<script src="/js/dashboard-activity-modal.js?v=2"><\/script>' +
       '<script src="/js/dnd-touch-bridge.js?v=1"><\/script>' +
       '<script src="/js/birthday-picker.js?v=2"><\/script>' +
@@ -215,10 +218,10 @@ describe('Android Play stability guards', () => {
     const out = injectPlatformHtml(html, '/dashboard', req);
     assert.match(out, /app-view-toggle\.css/);
     assert.match(out, /parent-magic-auto\.js/);
+    assert.match(out, /dashboard-home-hub\.js/);
     assert.match(out, /dashboard-activity-modal\.js/);
-    assert.match(out, /dnd-touch-bridge\.js/);
-    assert.match(out, /birthday-picker\.js/);
-    assert.doesNotMatch(out, /parent-magic-shell\.js/);
+    assert.match(out, /parent-magic-shell\.js/);
+    assert.doesNotMatch(out, /sortablejs/);
   });
 
   it('dashboard guards optional init on Android safe mode', () => {

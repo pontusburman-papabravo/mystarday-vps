@@ -254,9 +254,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Android Play safe mode: top chrome + data first (avoid observer/promise races).
-  if (androidFlat && window.ParentMagicAuto) {
-    ParentMagicAuto.prepareDom();
+  // Android: magic shell before data fetch so DashboardHomeHub.shouldUse() is true.
+  if (androidFlat && window.ParentMagicShell) {
+    await ParentMagicShell.init('dashboard');
+    logDashboardStability('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
   }
 
   if (androidFlat) {
@@ -266,7 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
         typeof loadDashboardCards === 'function' ? loadDashboardCards() : Promise.resolve(),
       ]);
-      logDashboardStability('dashboard_data_loaded', { classic: true });
+      logDashboardStability('dashboard_data_loaded', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
     } catch (dataErr) {
       logDashboardStability('dashboard_data_error', { message: dataErr && dataErr.message });
     }
@@ -278,7 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.ParentMagicShell && !androidFlat) {
     await ParentMagicShell.init('dashboard');
     logDashboardStability('dashboard_shell_done', { magic: !!(window.AppViewMode && AppViewMode.isMagic()) });
-  } else if (window.AppViewMode) {
+  } else if (!androidFlat && window.AppViewMode) {
     const viewInit = AppViewMode.initParent();
     if (androidFlat) {
       await Promise.all([viewInit, csrfPromise]);

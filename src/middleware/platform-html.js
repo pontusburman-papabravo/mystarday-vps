@@ -209,9 +209,8 @@ function shouldInjectNativeDebug(req) {
 }
 
 /**
- * ANDROID_PLAY_REVIEW_SAFE_MODE — temporary simplified parent dashboard for
- * Android WebView Play review stability. Strips GPU CSS + heavy scripts server-side.
- * Remove or narrow once WebView GPU crash is root-caused per device.
+ * ANDROID_PLAY_REVIEW_SAFE_MODE — strips heavy non-essential scripts on Android WebView.
+ * Magic shell + home hub stay loaded; GPU CSS (3D/blur) still stripped separately.
  */
 const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'journey-celebration',
@@ -223,8 +222,6 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'engine-coach',
   'engine-client',
   'engine-voice',
-  'dashboard-home-hub',
-  'home-bump-time',
   'activation-program-banner',
   'preview-shell',
   'dashboard-weekly-story',
@@ -232,13 +229,7 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'journey-first-week',
   'journey-parent-ack',
   'journey-context-client',
-  'parent-magic-bootstrap',
-  'parent-magic-page-boot',
-  'parent-magic-router',
-  'parent-magic-shell',
-  'parent-magic-page-hubs',
   'dashboard-polish',
-  'dashboard-daily-summary',
   'help-journey-tip',
   'sortablejs',
   'Sortable.min',
@@ -252,14 +243,12 @@ const ANDROID_PLAY_REVIEW_SAFE_MODE_SCRIPTS = [
   'pwa-install',
   'push-manager',
   'feedback',
-  'home-readiness',
   'for-dig-goal-badge',
   'schedule-cal-nav',
   'dashboard-custody',
   'custody-banner',
   'custody-a11y',
   'coparent-invite-ui',
-  'dashboard-cta',
   'pictogram-registry',
   'activation-program-aha-card',
   'dashboard-package-triggers',
@@ -310,7 +299,7 @@ function isAndroidClassicDashboard(req, reqPath) {
 function stripAndroidGpuHtml(body) {
   if (typeof body !== 'string') return body;
   return body.replace(
-    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-warmth|dashboard-polish|skeleton|for-dig-goal-badge|parent-bottom-nav)\.css[^"]*"[^>]*>\s*/gi,
+    /<link\b[^>]*href="[^"]*(?:parent-magic-3d|dashboard-polish|dashboard-warmth|skeleton|for-dig-goal-badge|parent-bottom-nav)\.css[^"]*"[^>]*>\s*/gi,
     ''
   );
 }
@@ -366,7 +355,6 @@ function injectAndroidHardeningBeacon(body, reqPath) {
 }
 
 function injectParentMagicStack(body, reqPath, req) {
-  if (isAndroidPlayReviewSafeMode(req, reqPath)) return body;
   body = injectEarlyMagicHtml(body, reqPath);
   body = injectParentMagicRouter(body, reqPath);
   body = injectParentMagicHtml(body, reqPath);
@@ -377,7 +365,6 @@ function applyAndroidWebViewHardening(body, reqPath, req) {
   if (!isAndroidWebViewRequest(req)) return body;
   body = stripAndroidGpuHtml(body);
   if (isAndroidPlayReviewSafeMode(req, reqPath)) {
-    body = stripAndroidMagicBoot(body);
     body = stripAndroidHeavyScripts(body, reqPath);
     body = injectAndroidHardeningBeacon(body, reqPath);
   }
@@ -431,7 +418,7 @@ function injectPlatformHtml(body, reqPath, req) {
       'el.classList.add("is-native-android");' +
       'el.classList.remove("parent-magic-early","parent-theme-dark","parent-theme-light");' +
       'window.androidStabilityLog=function(s,d){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:s,detail:d||null,ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}};' +
-      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|parent-magic-common|dashboard-magic|dashboard-polish|dashboard-warmth|skeleton/.test(h))l.remove();});}catch(e){}}' +
+      'function _stripGpuCss(){try{document.querySelectorAll(\'link[rel="stylesheet"]\').forEach(function(l){var h=l.href||"";if(/parent-magic-3d|dashboard-polish|dashboard-warmth|skeleton/.test(h))l.remove();});}catch(e){}}' +
       '_stripGpuCss();if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_stripGpuCss,{once:true});' +
       'window.addEventListener("error",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"window_error",detail:{message:ev.message,source:ev.filename,line:ev.lineno},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
       'window.addEventListener("unhandledrejection",function(ev){try{fetch("/api/client-log",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({channel:"android_stability",step:"unhandled_rejection",detail:{reason:String(ev.reason&&(ev.reason.message||ev.reason))},ts:Date.now(),native:true,android:true}),keepalive:true});}catch(e){}});' +
