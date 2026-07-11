@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v583';
+const CACHE_NAME = 'stjarndag-v584';
+// stjarndag-v584: Barnets temaväljare — child-theme-picker.js/css (gate ON, Min samling)
 // stjarndag-v583: Barnets samling themed tab icons — runtime SW cache (not precached, ~5.1 MB total)
 // stjarndag-v582: Barnets samling theme backgrounds — runtime SW cache (not precached, ~1.6 MB total)
 // stjarndag-v581: Barnets samling themes — 10 canonical themes, adventure fallback + aliases
@@ -482,12 +483,14 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-rewards.js',
   '/js/child-worlds.js',
   '/js/child-theme.js',
+  '/js/child-theme-picker.js',
   '/js/child-worlds-nav.js',
   '/js/child-layer-router.js',
   '/js/child-samling-present.js',
   '/js/child-samling-view.js',
   '/css/child-samling.css',
   '/css/child-themes.css',
+  '/css/child-theme-picker.css',
   '/js/child-world-bg-lazy.js',
   '/js/child-world-wayfinder.js',
   '/css/child-world-wayfinder.css',
