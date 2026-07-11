@@ -277,6 +277,22 @@ describe('Android Play stability guards', () => {
     assert.match(js, /logDashboardStability/);
   });
 
+  it('dashboard.js shared mutable state uses var (activity-modal assigns)', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    const mutable = [
+      'selectedTemplateId',
+      'addSectionOverride',
+      'editSectionVal',
+      'allTemplates',
+      '_onceMode',
+      '_pendingTargetChildIds',
+    ];
+    for (const name of mutable) {
+      assert.doesNotMatch(js, new RegExp('const\\s+' + name + '\\s*='));
+      assert.match(js, new RegExp('var\\s+' + name + '\\s*='));
+    }
+  });
+
   it('ANDROID_PLAY_REVIEW_SAFE_MODE documented in platform-html', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /ANDROID_PLAY_REVIEW_SAFE_MODE/);

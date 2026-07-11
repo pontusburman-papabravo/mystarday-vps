@@ -60,26 +60,26 @@ let currentDay = new Date().getDay();
 let currentScheduleId = null;
 let scheduleItems = [];
 let sectionTimes = {};
-const selectedTemplateId = null;
-const addSectionOverride = 'dag';
-const editSectionVal = 'dag';
-const copyDaySelections = [];
-const _pendingDeleteItemId = null;
-const _pendingTargetChildIds = [];
-const copyTargetChildId = null;
-const allExpanded = true;
-const _onceMode = false; // true when addActivityModal is opened for a one-time task
-const _onceCreateContext = null; // snapshot of once-flow context when "Skapa ny" is opened from once mode
+var selectedTemplateId = null;
+var addSectionOverride = 'dag';
+var editSectionVal = 'dag';
+var copyDaySelections = [];
+var _pendingDeleteItemId = null;
+var _pendingTargetChildIds = [];
+var copyTargetChildId = null;
+var allExpanded = true;
+var _onceMode = false; // true when addActivityModal is opened for a one-time task
+var _onceCreateContext = null; // snapshot of once-flow context when "Skapa ny" is opened from once mode
 
 // DnD state
 let dndType = null; // 'within-day' | 'activity-to-day' | 'day-tab' | 'timeline' | 'sbs'
 let dndSrcDay = null;
 let currentViewMode = 'normal';
-const sbsChildId = null;
-const sbsItems = [];
-const sbsScheduleId = null;
-const sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
-const allTemplates = [];
+var sbsChildId = null;
+var sbsItems = [];
+var sbsScheduleId = null;
+var sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
+var allTemplates = [];
 
 // ── Calendar navigation state ─────────────────────────────
 let calView = 'week'; // 'day' | 'week' | 'month'
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  if (typeof pickSection === 'function') pickSection('dag');
+  if (!androidFlat && typeof pickSection === 'function') pickSection('dag');
   if (typeof initBirthdayPicker === 'function') initBirthdayPicker('childBirthday');
 
   let selectedChildEmoji = '';

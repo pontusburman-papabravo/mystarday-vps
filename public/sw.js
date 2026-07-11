@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v573';
+const CACHE_NAME = 'stjarndag-v574';
+// stjarndag-v574: Android — dashboard shared state var (pickSection const crash)
 // stjarndag-v573: Skattkammaren Barn art assets — scene, plaque, pending, history
 // stjarndag-v572: Android — fix androidStabilityLog recursion (dashboard shadowed window fn)
 // stjarndag-v571: Android — remove GPU CSS MutationObserver (stack overflow fix)
