@@ -628,7 +628,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderDayTabs();
     updateDateLine();
-    await loadDay(todayStr);
 
     if (window.ChildLayerRouter) {
       ChildLayerRouter.init();
@@ -642,6 +641,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyChildViewMode();
     } else {
       showTab('schedule');
+    }
+
+    const initialWorld = window.ChildWorlds && ChildWorlds.activeChildNavItem
+      ? ChildWorlds.activeChildNavItem(window.location.pathname, window.location.hash)
+      : null;
+    const needsScheduleNow = !initialWorld || initialWorld.id === 'today';
+
+    if (needsScheduleNow) {
+      await loadDay(todayStr);
+    } else {
+      loadDay(todayStr).catch(function (err) {
+        console.error('Background schedule preload failed:', err);
+      });
     }
   } catch (err) {
     console.error('Init error:', err);

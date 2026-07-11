@@ -109,7 +109,7 @@
       ChildTodayFocus.onTabChange('schedule');
     }
 
-    if (isWorld && scheduleView) {
+    if ((isWorld || isCollection) && scheduleView) {
       scheduleView.setAttribute('data-layer-hidden', 'true');
     } else if (scheduleView) {
       scheduleView.removeAttribute('data-layer-hidden');

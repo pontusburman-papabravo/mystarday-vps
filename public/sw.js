@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v578';
+const CACHE_NAME = 'stjarndag-v579';
+// stjarndag-v579: Defer schedule load off Idag — faster Min samling / Skattkammaren entry
 // stjarndag-v578: Skattkammaren redesign — unified CSS hero, vision order, no PNG clutter
 // stjarndag-v577: Skattkammaren visual fix — crown crop, CSS scene bg, cleaner progress
 // stjarndag-v576: Google login button — branded logo + label-safe loading state
