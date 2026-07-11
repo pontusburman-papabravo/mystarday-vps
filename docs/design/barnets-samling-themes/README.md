@@ -21,6 +21,8 @@ Design reference sheets for per-child visual themes (presentation only).
 
 **Default fallback:** `adventure`
 
+**Remote branch:** `cursor/child-theme-shell-37d3` — 10 canonical themes + `THEME_ALIASES` (CSS/emoji only in PR 1).
+
 ## Temporary aliases (normalize before apply)
 
 | Alias | Resolves to |
