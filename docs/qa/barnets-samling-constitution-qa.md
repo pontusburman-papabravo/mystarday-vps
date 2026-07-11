@@ -115,6 +115,29 @@ Kör på **iPhone Safari** och **Android Chrome**. Testa även PWA där det är 
 
 ---
 
+## Theme tab icons (bottom nav)
+
+Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **Android PWA** (om möjligt).
+
+| # | Kontroll |
+|---|----------|
+| 1 | `adventure` (default) visar fyra WebP-ikoner i bottom nav |
+| 2 | `space` visar fyra WebP-ikoner |
+| 3 | `animals` visar fyra WebP-ikoner |
+| 4 | Samma tema-ikoner på alla fyra flikar (Idag · Min samling · Skattkammaren · Mina personer) |
+| 5 | Aktiv flik markeras tydligt (befintlig accent-CSS) |
+| 6 | Simulerad 404 på ikon → emoji-fallback utan layout shift |
+| 7 | Ikon dubbelläses inte av skärmläsare (dekorativ `alt=""`, fliktext kvar) |
+| 8 | Bottom nav täcker inget innehåll; touchytor ≥ befintlig storlek |
+| 9 | Ingen horisontell scroll; ingen layout shift vid ikonladdning |
+| 10 | Gate OFF → legacy bottom nav oförändrad (inga theme WebP) |
+| 11 | Min samling / Skattkammaren / redeem utan regression |
+| 12 | Bakgrundsbilder från föregående assetpaket fungerar fortfarande |
+
+**Simulera 404-fallback:** DevTools → blockera t.ex. `/images/child/themes/space/icon-today@2x.webp` → emoji ska visas.
+
+---
+
 ## Presentation polish (mobil)
 
 Kör på **iPhone Safari** och **Android Chrome** med gate ON.
