@@ -11,6 +11,7 @@ const {
   UpdateChildPinSchema,
   ChildViewConfigSchema,
   VisualThemeBodySchema,
+  PictogramPackBodySchema,
   ReorderSchema,
   UUIDParam,
 } = require('../lib/schemas');
@@ -132,6 +133,48 @@ router.patch('/:id/visual-theme', requireAuth, validateParams(UUIDParam), valida
     res.json(result.rows[0].child_view_config);
   } catch (err) {
     console.error('[VISUAL-THEME] PATCH error:', err.message);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── PATCH /api/children/:id/pictogram-pack (child self or parent — pictogram_pack only) ──
+router.patch('/:id/pictogram-pack', requireAuth, validateParams(UUIDParam), validate(PictogramPackBodySchema), async (req, res) => {
+  try {
+    const childId = req.params.id;
+
+    if (req.user.type === 'child') {
+      if (req.user.id !== childId) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      }
+    } else {
+      const access = await db.query(
+        `SELECT role FROM parent_child
+         WHERE parent_id = $1 AND child_id = $2 AND revoked_at IS NULL`,
+        [req.user.id, childId]
+      );
+      if (access.rows.length === 0) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      }
+    }
+
+    const result = await db.query(
+      `UPDATE child SET child_view_config = jsonb_set(
+        COALESCE(child_view_config, '{}'::jsonb),
+        '{pictogram_pack}',
+        to_jsonb($1::text),
+        true
+      )
+      WHERE id = $2
+      RETURNING child_view_config`,
+      [req.body.pictogram_pack, childId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Barnet hittades inte' });
+    }
+
+    res.json(result.rows[0].child_view_config);
+  } catch (err) {
+    console.error('[PICTOGRAM-PACK] PATCH error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

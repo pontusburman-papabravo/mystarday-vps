@@ -622,6 +622,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.ChildTheme && ChildTheme.apply) {
       ChildTheme.apply(Object.assign({}, me, { child_view_config: viewCfgForTheme }));
     }
+    if (window.ChildPictogramPacks && ChildPictogramPacks.applyFromConfig) {
+      ChildPictogramPacks.applyFromConfig(viewCfgForTheme);
+    }
 
     window.ChildDashboardContext = {
       me: me,

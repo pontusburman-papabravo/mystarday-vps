@@ -12,7 +12,7 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 npm run check:css
 ```
 
-Relevanta suites: `barnets-samling-*.test.js`, `idag-*.test.js`, `mina-personer-*.test.js`, `skattkammaren-*.test.js`.
+Relevanta suites: `barnets-samling-*.test.js`, `child-pictogram-packs.test.js`, `idag-*.test.js`, `mina-personer-*.test.js`, `skattkammaren-*.test.js`.
 
 ---
 
@@ -158,6 +158,38 @@ Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **
 | 12 | Min samling / Skattkammaren / redeem utan regression |
 
 **Manuella testteman:** `adventure`, `space`, `animals`
+
+---
+
+## Bildstil (aktivitetspictogram)
+
+Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **Android PWA** (om möjligt).
+
+| # | Kontroll |
+|---|----------|
+| 1 | Öppna **Min samling** → kortet **Bildstil** syns under **Mitt tema** (gate ON) |
+| 2 | Default **Tydliga bilder** (`simple`) när inget sparat / okänt värde |
+| 3 | Välj **Aktiva bilder** → förhandsvisa → **Avbryt** → tidigare stil åter |
+| 4 | Välj **Aktiva bilder** → **Spara bildstil** → sparat (`child_view_config.pictogram_pack`) |
+| 5 | Synliga aktiviteter uppdateras utan full reload (☀️ Idag) |
+| 6 | **Frukost** (`breakfast`): pack-bild visas när ingen egen foto |
+| 7 | **Bada** (`bath`): pack-bild i vald stil |
+| 8 | **Borsta tänderna** (`brush_teeth` / alias): pack-bild via alias |
+| 9 | **Skola** (`school`): pack-bild |
+| 10 | **Lek** (`play` / `toy`): pack-bild |
+| 11 | **Sova** (`sleep`): pack-bild |
+| 12 | Aktivitet med **eget foto** (`image_url`) → foto vinner alltid över pack |
+| 13 | Okänd `icon_key` (t.ex. `happy`) → emoji/legacy utan krasch |
+| 14 | Bottom nav täcker inget; ingen horisontell scroll; vertikal scroll OK |
+| 15 | Gate OFF → ingen bildstilsväljare; legacy pictogram/emoji oförändrat |
+| 16 | Offline/reload: pack-bilder cachelagras efter första visning (PWA, runtime SW) |
+| 17 | Min samling / Skattkammaren / redeem utan regression |
+
+**Fallbackkedja (gate ON):** eget foto → valt pack → `simple` → befintligt pictogram/emoji
+
+**Manuella testpaket:** `simple` (default), `action`
+
+**Simulera okänd nyckel:** aktivitet med `icon_key: mom` → emoji, ingen vit ruta eller JS-fel.
 
 ---
 

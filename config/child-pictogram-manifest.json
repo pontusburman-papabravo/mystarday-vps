@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "default_pack": "simple",
+  "fallback_order": [
+    "custom-photo",
+    "selected-pack",
+    "simple",
+    "emoji"
+  ],
+  "packs": {
+    "simple": {
+      "label": "Tydliga bilder"
+    },
+    "action": {
+      "label": "Aktiva bilder"
+    }
+  },
+  "activities": {
+    "wake-up": {
+      "label_sv": "Vakna",
+      "emoji": "🌅",
+      "files": {
+        "simple": "/images/child/pictograms/simple/wake-up@2x.webp",
+        "action": "/images/child/pictograms/action/wake-up@2x.webp"
+      }
+    },
+    "toilet": {
+      "label_sv": "Toalett",
+      "emoji": "🚽",
+      "files": {
+        "simple": "/images/child/pictograms/simple/toilet@2x.webp",
+        "action": "/images/child/pictograms/action/toilet@2x.webp"
+      }
+    },
+    "wash-hands": {
+      "label_sv": "Tvätta händerna",
+      "emoji": "🧼",
+      "files": {
+        "simple": "/images/child/pictograms/simple/wash-hands@2x.webp",
+        "action": "/images/child/pictograms/action/wash-hands@2x.webp"
+      }
+    },
+    "wash-face": {
+      "label_sv": "Tvätta ansiktet",
+      "emoji": "🫧",
+      "files": {
+        "simple": "/images/child/pictograms/simple/wash-face@2x.webp",
+        "action": "/images/child/pictograms/action/wash-face@2x.webp"
+      }
+    },
+    "brush-teeth": {
+      "label_sv": "Borsta tänderna",
+      "emoji": "🪥",
+      "files": {
+        "simple": "/images/child/pictograms/simple/brush-teeth@2x.webp",
+        "action": "/images/child/pictograms/action/brush-teeth@2x.webp"
+      }
+    },
+    "comb-hair": {
+      "label_sv": "Kamma håret",
+      "emoji": "🪮",
+      "files": {
+        "simple": "/images/child/pictograms/simple/comb-hair@2x.webp",
+        "action": "/images/child/pictograms/action/comb-hair@2x.webp"
+      }
+    },
+    "shower": {
+      "label_sv": "Duscha",
+      "emoji": "🚿",
+      "files": {
+        "simple": "/images/child/pictograms/simple/shower@2x.webp",
+        "action": "/images/child/pictograms/action/shower@2x.webp"
+      }
+    },
+    "bath": {
+      "label_sv": "Bada",
+      "emoji": "🛁",
+      "files": {
+        "simple": "/images/child/pictograms/simple/bath@2x.webp",
+        "action": "/images/child/pictograms/action/bath@2x.webp"
+      }
+    },
+    "get-dressed": {
+      "label_sv": "Klä på sig",
+      "emoji": "👕",
+      "files": {
+        "simple": "/images/child/pictograms/simple/get-dressed@2x.webp",
+        "action": "/images/child/pictograms/action/get-dressed@2x.webp"
+      }
+    },
+    "outerwear": {
+      "label_sv": "Ta på ytterkläder",
+      "emoji": "🧥",
+      "files": {
+        "simple": "/images/child/pictograms/simple/outerwear@2x.webp",
+        "action": "/images/child/pictograms/action/outerwear@2x.webp"
+      }
+    },
+    "medicine": {
+      "label_sv": "Ta medicin",
+      "emoji": "💊",
+      "files": {
+        "simple": "/images/child/pictograms/simple/medicine@2x.webp",
+        "action": "/images/child/pictograms/action/medicine@2x.webp"
+      }
+    },
+    "breakfast": {
+      "label_sv": "Frukost",
+      "emoji": "🥣",
+      "files": {
+        "simple": "/images/child/pictograms/simple/breakfast@2x.webp",
+        "action": "/images/child/pictograms/action/breakfast@2x.webp"
+      }
+    },
+    "snack": {
+      "label_sv": "Mellanmål",
+      "emoji": "🍎",
+      "files": {
+        "simple": "/images/child/pictograms/simple/snack@2x.webp",
+        "action": "/images/child/pictograms/action/snack@2x.webp"
+      }
+    },
+    "lunch": {
+      "label_sv": "Lunch",
+      "emoji": "🥪",
+      "files": {
+        "simple": "/images/child/pictograms/simple/lunch@2x.webp",
+        "action": "/images/child/pictograms/action/lunch@2x.webp"
+      }
+    },
+    "dinner": {
+      "label_sv": "Middag",
+      "emoji": "🍽️",
+      "files": {
+        "simple": "/images/child/pictograms/simple/dinner@2x.webp",
+        "action": "/images/child/pictograms/action/dinner@2x.webp"
+      }
+    },
+    "drink-water": {
+      "label_sv": "Dricka vatten",
+      "emoji": "🥤",
+      "files": {
+        "simple": "/images/child/pictograms/simple/drink-water@2x.webp",
+        "action": "/images/child/pictograms/action/drink-water@2x.webp"
+      }
+    },
+    "fruit": {
+      "label_sv": "Äta frukt",
+      "emoji": "🍌",
+      "files": {
+        "simple": "/images/child/pictograms/simple/fruit@2x.webp",
+        "action": "/images/child/pictograms/action/fruit@2x.webp"
+      }
+    },
+    "cook": {
+      "label_sv": "Laga mat",
+      "emoji": "🍳",
+      "files": {
+        "simple": "/images/child/pictograms/simple/cook@2x.webp",
+        "action": "/images/child/pictograms/action/cook@2x.webp"
+      }
+    },
+    "set-table": {
+      "label_sv": "Duka",
+      "emoji": "🍽️",
+      "files": {
+        "simple": "/images/child/pictograms/simple/set-table@2x.webp",
+        "action": "/images/child/pictograms/action/set-table@2x.webp"
+      }
+    },
+    "clear-table": {
+      "label_sv": "Plocka undan",
+      "emoji": "🧺",
+      "files": {
+        "simple": "/images/child/pictograms/simple/clear-table@2x.webp",
+        "action": "/images/child/pictograms/action/clear-table@2x.webp"
+      }
+    },
+    "preschool": {
+      "label_sv": "Förskola",
+      "emoji": "🏠",
+      "files": {
+        "simple": "/images/child/pictograms/simple/preschool@2x.webp",
+        "action": "/images/child/pictograms/action/preschool@2x.webp"
+      }
+    },
+    "school": {
+      "label_sv": "Skola",
+      "emoji": "🏫",
+      "files": {
+        "simple": "/images/child/pictograms/simple/school@2x.webp",
+        "action": "/images/child/pictograms/action/school@2x.webp"
+      }
+    },
+    "pack-bag": {
+      "label_sv": "Packa väskan",
+      "emoji": "🎒",
+      "files": {
+        "simple": "/images/child/pictograms/simple/pack-bag@2x.webp",
+        "action": "/images/child/pictograms/action/pack-bag@2x.webp"
+      }
+    },
+    "leave-home": {
+      "label_sv": "Gå hemifrån",
+      "emoji": "🚪",
+      "files": {
+        "simple": "/images/child/pictograms/simple/leave-home@2x.webp",
+        "action": "/images/child/pictograms/action/leave-home@2x.webp"
+      }
+    },
+    "homework": {
+      "label_sv": "Läxor",
+      "emoji": "📚",
+      "files": {
+        "simple": "/images/child/pictograms/simple/homework@2x.webp",
+        "action": "/images/child/pictograms/action/homework@2x.webp"
+      }
+    },
+    "read": {
+      "label_sv": "Läsa",
+      "emoji": "📖",
+      "files": {
+        "simple": "/images/child/pictograms/simple/read@2x.webp",
+        "action": "/images/child/pictograms/action/read@2x.webp"
+      }
+    },
+    "write": {
+      "label_sv": "Skriva",
+      "emoji": "✏️",
+      "files": {
+        "simple": "/images/child/pictograms/simple/write@2x.webp",
+        "action": "/images/child/pictograms/action/write@2x.webp"
+      }
+    },
+    "math": {
+      "label_sv": "Räkna",
+      "emoji": "➕",
+      "files": {
+        "simple": "/images/child/pictograms/simple/math@2x.webp",
+        "action": "/images/child/pictograms/action/math@2x.webp"
+      }
+    },
+    "clean-room": {
+      "label_sv": "Städa",
+      "emoji": "🧹",
+      "files": {
+        "simple": "/images/child/pictograms/simple/clean-room@2x.webp",
+        "action": "/images/child/pictograms/action/clean-room@2x.webp"
+      }
+    },
+    "tidy-toys": {
+      "label_sv": "Plocka undan leksaker",
+      "emoji": "🧸",
+      "files": {
+        "simple": "/images/child/pictograms/simple/tidy-toys@2x.webp",
+        "action": "/images/child/pictograms/action/tidy-toys@2x.webp"
+      }
+    },
+    "play": {
+      "label_sv": "Leka",
+      "emoji": "🪁",
+      "files": {
+        "simple": "/images/child/pictograms/simple/play@2x.webp",
+        "action": "/images/child/pictograms/action/play@2x.webp"
+      }
+    },
+    "build": {
+      "label_sv": "Bygga",
+      "emoji": "🧱",
+      "files": {
+        "simple": "/images/child/pictograms/simple/build@2x.webp",
+        "action": "/images/child/pictograms/action/build@2x.webp"
+      }
+    },
+    "draw": {
+      "label_sv": "Rita",
+      "emoji": "🖍️",
+      "files": {
+        "simple": "/images/child/pictograms/simple/draw@2x.webp",
+        "action": "/images/child/pictograms/action/draw@2x.webp"
+      }
+    },
+    "craft": {
+      "label_sv": "Pyssla",
+      "emoji": "✂️",
+      "files": {
+        "simple": "/images/child/pictograms/simple/craft@2x.webp",
+        "action": "/images/child/pictograms/action/craft@2x.webp"
+      }
+    },
+    "music": {
+      "label_sv": "Musik",
+      "emoji": "🎵",
+      "files": {
+        "simple": "/images/child/pictograms/simple/music@2x.webp",
+        "action": "/images/child/pictograms/action/music@2x.webp"
+      }
+    },
+    "dance": {
+      "label_sv": "Dansa",
+      "emoji": "🕺",
+      "files": {
+        "simple": "/images/child/pictograms/simple/dance@2x.webp",
+        "action": "/images/child/pictograms/action/dance@2x.webp"
+      }
+    },
+    "outdoor-play": {
+      "label_sv": "Gå ut och leka",
+      "emoji": "🌳",
+      "files": {
+        "simple": "/images/child/pictograms/simple/outdoor-play@2x.webp",
+        "action": "/images/child/pictograms/action/outdoor-play@2x.webp"
+      }
+    },
+    "walk": {
+      "label_sv": "Promenad",
+      "emoji": "👣",
+      "files": {
+        "simple": "/images/child/pictograms/simple/walk@2x.webp",
+        "action": "/images/child/pictograms/action/walk@2x.webp"
+      }
+    },
+    "bike": {
+      "label_sv": "Cykla",
+      "emoji": "🚲",
+      "files": {
+        "simple": "/images/child/pictograms/simple/bike@2x.webp",
+        "action": "/images/child/pictograms/action/bike@2x.webp"
+      }
+    },
+    "swim": {
+      "label_sv": "Simma",
+      "emoji": "🏊",
+      "files": {
+        "simple": "/images/child/pictograms/simple/swim@2x.webp",
+        "action": "/images/child/pictograms/action/swim@2x.webp"
+      }
+    },
+    "football": {
+      "label_sv": "Fotboll",
+      "emoji": "⚽",
+      "files": {
+        "simple": "/images/child/pictograms/simple/football@2x.webp",
+        "action": "/images/child/pictograms/action/football@2x.webp"
+      }
+    },
+    "exercise": {
+      "label_sv": "Träning",
+      "emoji": "🏃",
+      "files": {
+        "simple": "/images/child/pictograms/simple/exercise@2x.webp",
+        "action": "/images/child/pictograms/action/exercise@2x.webp"
+      }
+    },
+    "break": {
+      "label_sv": "Paus",
+      "emoji": "⏸️",
+      "files": {
+        "simple": "/images/child/pictograms/simple/break@2x.webp",
+        "action": "/images/child/pictograms/action/break@2x.webp"
+      }
+    },
+    "calm-time": {
+      "label_sv": "Lugn stund",
+      "emoji": "🪷",
+      "files": {
+        "simple": "/images/child/pictograms/simple/calm-time@2x.webp",
+        "action": "/images/child/pictograms/action/calm-time@2x.webp"
+      }
+    },
+    "screen-time": {
+      "label_sv": "Skärmtid",
+      "emoji": "📱",
+      "files": {
+        "simple": "/images/child/pictograms/simple/screen-time@2x.webp",
+        "action": "/images/child/pictograms/action/screen-time@2x.webp"
+      }
+    },
+    "travel-car": {
+      "label_sv": "Åka bil",
+      "emoji": "🚗",
+      "files": {
+        "simple": "/images/child/pictograms/simple/travel-car@2x.webp",
+        "action": "/images/child/pictograms/action/travel-car@2x.webp"
+      }
+    },
+    "pajamas": {
+      "label_sv": "Ta på pyjamas",
+      "emoji": "🌙",
+      "files": {
+        "simple": "/images/child/pictograms/simple/pajamas@2x.webp",
+        "action": "/images/child/pictograms/action/pajamas@2x.webp"
+      }
+    },
+    "sleep": {
+      "label_sv": "Sova",
+      "emoji": "😴",
+      "files": {
+        "simple": "/images/child/pictograms/simple/sleep@2x.webp",
+        "action": "/images/child/pictograms/action/sleep@2x.webp"
+      }
+    }
+  }
+}

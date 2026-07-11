@@ -32,6 +32,9 @@
       if (window.ChildThemePicker && typeof ChildThemePicker.bindEntry === 'function') {
         ChildThemePicker.bindEntry(mount);
       }
+      if (window.ChildPictogramPicker && typeof ChildPictogramPicker.bindEntry === 'function') {
+        ChildPictogramPicker.bindEntry(mount);
+      }
     } else {
       mount.innerHTML =
         '<div class="max-w-lg mx-auto px-4 pt-6 pb-8 text-center">' +
