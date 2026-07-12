@@ -1,0 +1,227 @@
+/**
+ * child-themes.css — Barnets samling per-child themes (gate ON only).
+ * PR 2: WebP backgrounds lazy-loaded over gradient fallback.
+ * Asset paths: public/images/child/themes/<theme>/
+ */
+
+/* ── Theme scene layer (replaces legacy illustrated layers when gate ON) ── */
+[data-barnets-samling="on"] .cwb-theme-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  transition: opacity 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .cwb-theme-scene {
+    transition: none;
+  }
+}
+
+[data-barnets-samling="on"] .cwb-today,
+[data-barnets-samling="on"] .cwb-world,
+[data-barnets-samling="on"] .cwb-family {
+  opacity: 0 !important;
+}
+
+[data-barnets-samling="on"] .cwb-theme-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--ct-scrim-top, rgba(247, 243, 235, 0.12)) 0%,
+    var(--ct-scrim-mid, rgba(247, 243, 235, 0.06)) 32%,
+    var(--ct-scrim-low, rgba(247, 243, 235, 0.52)) 62%,
+    var(--ct-scrim-base, rgba(247, 243, 235, 0.94)) 86%,
+    rgba(247, 243, 235, 0.98) 100%
+  );
+  pointer-events: none;
+}
+
+html[data-child-layer='collection'] [data-barnets-samling="on"] .cwb-theme-scene,
+html[data-child-world='collection'] [data-barnets-samling="on"] .cwb-theme-scene,
+html[data-child-layer='treasure'] [data-barnets-samling="on"] .cwb-theme-scene,
+html[data-child-world='treasure'] [data-barnets-samling="on"] .cwb-theme-scene {
+  opacity: 1;
+}
+
+/* ── Shared accent custom properties (adventure default) ── */
+[data-barnets-samling="on"][data-child-theme] {
+  --ct-primary: #C17F3E;
+  --ct-soft: #F5E6C8;
+  --ct-glow: #F5A623;
+  --ct-card-border: rgba(193, 127, 62, 0.22);
+  --ct-card-glow: rgba(193, 127, 62, 0.12);
+}
+
+[data-barnets-samling="on"][data-child-theme] .child-bottom-nav-btn.is-active {
+  color: var(--ct-primary);
+  border-top-color: var(--ct-glow);
+}
+
+[data-barnets-samling="on"][data-child-theme] .child-theme-nav-emoji {
+  display: inline-block;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+/* ── adventure (default) ─────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="adventure"] {
+  --ct-primary: #C17F3E;
+  --ct-soft: #F5E6C8;
+  --ct-glow: #F5A623;
+  --ct-scrim-top: rgba(120, 80, 40, 0.16);
+}
+
+[data-barnets-samling="on"][data-child-theme="adventure"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #f5e6c8 0%, #e8c99a 30%, #c17f3e 58%, #8b5a2b 100%);
+}
+
+/* ── space ───────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="space"] {
+  --ct-primary: #6C5CE7;
+  --ct-soft: #A29BFE;
+  --ct-glow: #F4C542;
+  --ct-scrim-top: rgba(20, 14, 48, 0.35);
+  --ct-scrim-mid: rgba(30, 20, 60, 0.18);
+  --ct-scrim-low: rgba(247, 243, 235, 0.55);
+  --ct-scrim-base: rgba(247, 243, 235, 0.95);
+}
+
+[data-barnets-samling="on"][data-child-theme="space"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(165deg, #0f0c29 0%, #302b63 38%, #6C5CE7 68%, #24243e 100%);
+}
+
+/* ── dinosaurs ─────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="dinosaurs"] {
+  --ct-primary: #8A9A5B;
+  --ct-soft: #C4B59A;
+  --ct-glow: #F5C542;
+  --ct-scrim-top: rgba(74, 58, 40, 0.2);
+  --ct-scrim-mid: rgba(138, 154, 91, 0.1);
+}
+
+[data-barnets-samling="on"][data-child-theme="dinosaurs"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(170deg, #e8dcc8 0%, #c4b59a 32%, #8a9a5b 58%, #5c6b3a 100%);
+}
+
+/* ── vehicles ────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="vehicles"] {
+  --ct-primary: #3B82C4;
+  --ct-soft: #E8DCC8;
+  --ct-glow: #F5A623;
+  --ct-scrim-top: rgba(59, 130, 196, 0.12);
+}
+
+[data-barnets-samling="on"][data-child-theme="vehicles"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(175deg, #fdf5e6 0%, #d4e8c4 35%, #a8d4e8 62%, #e8dcc8 100%);
+}
+
+/* ── animals ─────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="animals"] {
+  --ct-primary: #7A9E7E;
+  --ct-soft: #F5EDD6;
+  --ct-glow: #E8B84A;
+  --ct-scrim-top: rgba(122, 158, 126, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="animals"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(172deg, #f5edd6 0%, #d4e4c8 36%, #7a9e7e 64%, #5a7a5e 100%);
+}
+
+/* ── ocean ───────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="ocean"] {
+  --ct-primary: #2E86AB;
+  --ct-soft: #B8E0F0;
+  --ct-glow: #5BC0EB;
+  --ct-scrim-top: rgba(46, 134, 171, 0.18);
+}
+
+[data-barnets-samling="on"][data-child-theme="ocean"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(175deg, #b8e0f0 0%, #5bc0eb 35%, #2e86ab 62%, #1a5276 100%);
+}
+
+/* ── sports ──────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="sports"] {
+  --ct-primary: #2D9C5C;
+  --ct-soft: #D4F0DC;
+  --ct-glow: #F5A623;
+  --ct-scrim-top: rgba(45, 156, 92, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="sports"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(172deg, #d4f0dc 0%, #7dcea0 38%, #2d9c5c 65%, #1e6b3d 100%);
+}
+
+/* ── builders ────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="builders"] {
+  --ct-primary: #E67E22;
+  --ct-soft: #FDEBD0;
+  --ct-glow: #F5C542;
+  --ct-scrim-top: rgba(230, 126, 34, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="builders"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(170deg, #fdebd0 0%, #f5cba7 35%, #e67e22 62%, #a04000 100%);
+}
+
+/* ── music ───────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="music"] {
+  --ct-primary: #9B59B6;
+  --ct-soft: #F0E6F6;
+  --ct-glow: #F4C542;
+  --ct-scrim-top: rgba(155, 89, 182, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="music"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #f0e6f6 0%, #d7bde2 35%, #9b59b6 62%, #6c3483 100%);
+}
+
+/* ── arcade ──────────────────────────────────────────── */
+[data-barnets-samling="on"][data-child-theme="arcade"] {
+  --ct-primary: #E74C3C;
+  --ct-soft: #FADBD8;
+  --ct-glow: #F1C40F;
+  --ct-scrim-top: rgba(231, 76, 60, 0.14);
+}
+
+[data-barnets-samling="on"][data-child-theme="arcade"] .cwb-theme-scene {
+  background-image:
+    linear-gradient(168deg, #fadbd8 0%, #f1948a 32%, #e74c3c 58%, #922b21 100%);
+}
+
+/* PR 2: when background@2x.webp loads, layer over gradient (no layout shift) */
+[data-barnets-samling="on"] .cwb-theme-scene.ct-bg-loaded {
+  background-image: var(--ct-background-image), var(--ct-bg-gradient, none);
+}
+
+/* ── Accent hooks for presentation polish (PR 4 builds on these) ─── */
+[data-barnets-samling="on"][data-child-theme] #todayFocusMount {
+  border-bottom-color: var(--ct-card-border, rgba(237, 231, 246, 0.85));
+  box-shadow: 0 4px 20px var(--ct-card-glow, rgba(27, 35, 64, 0.06));
+}
+
+[data-barnets-samling="on"][data-child-theme] #scheduleView .now-card:not(.done) {
+  border-color: var(--ct-card-border, rgba(245, 166, 35, 0.25));
+  box-shadow: 0 4px 16px var(--ct-card-glow, rgba(27, 35, 64, 0.08));
+}
+
+[data-barnets-samling="on"][data-child-theme] .bsp-hero-panel,
+[data-barnets-samling="on"][data-child-theme] .btp-hero,
+[data-barnets-samling="on"][data-child-theme] .cfh-hero-panel {
+  border-color: var(--ct-card-border, rgba(27, 35, 64, 0.08));
+  box-shadow: 0 6px 24px var(--ct-card-glow, rgba(27, 35, 64, 0.1));
+}

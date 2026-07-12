@@ -56,8 +56,14 @@
     const worlds = ChildWorlds.getChildWorlds ? ChildWorlds.getChildWorlds() : ChildWorlds.CHILD_WORLDS;
 
     let html = '';
+    const gateOn = ChildWorlds.isBarnetsSamlingEnabled && ChildWorlds.isBarnetsSamlingEnabled();
+    const useThemeIcons = gateOn && window.ChildTheme && ChildTheme.iconHtmlForWorld;
+
     worlds.forEach(function (world) {
       const isActive = world.id === activeId;
+      const iconMarkup = useThemeIcons
+        ? ChildTheme.iconHtmlForWorld(world.id)
+        : '<span class="child-bottom-nav-icon" aria-hidden="true">' + world.icon + '</span>';
       html +=
         '<button type="button" class="' +
         NAV_BTN_CLASS +
@@ -69,9 +75,7 @@
         '"' +
         (isActive ? ' aria-current="page"' : '') +
         '>' +
-        '<span class="child-bottom-nav-icon" aria-hidden="true">' +
-        world.icon +
-        '</span>' +
+        iconMarkup +
         '<span>' +
         ChildWorlds.labelForWorld(world, ctx) +
         '</span></button>';
@@ -84,6 +88,12 @@
     nav.style.display = '';
     nav.removeAttribute('aria-hidden');
     document.body.classList.add('child-has-bottom-nav');
+
+    nav.querySelectorAll('.child-nav-icon-img').forEach(function (img) {
+      img.addEventListener('error', function () {
+        img.classList.add('is-broken');
+      });
+    });
 
     nav.querySelectorAll('[data-child-world]').forEach(function (btn) {
       btn.addEventListener('click', function () {

@@ -85,6 +85,59 @@ Relevanta suites: `barnets-samling-*.test.js`, `idag-*.test.js`, `mina-personer-
 
 ---
 
+## Theme system shell
+
+Kör på **iPhone Safari** och **Android Chrome**. Testa även PWA där det är möjligt.
+
+| # | Kontroll |
+|---|----------|
+| 1 | Gate ON utan tema → `data-child-theme="adventure"` |
+| 2 | Okänt/legacy-tema, t.ex. `castle` → adventure |
+| 3 | Alias `fantasy` → adventure; `cars`/`airplanes` → vehicles; `dolls` → builders |
+| 4 | `visual_theme="space"` gäller på alla fyra flikar (Idag · Min samling · Skattkammaren · Mina personer) |
+| 5 | `visual_theme="animals"` gäller på alla fyra flikar |
+| 6 | Bottom nav täcker inte innehåll eller CTA |
+| 7 | Ingen horisontell scroll eller låst vertikal scroll |
+| 8 | Min samling: ingen visuell regression |
+| 9 | Skattkammaren och redeem: ingen visuell regression |
+| 10 | Gate OFF → legacy-värld och legacy-tema oförändrade |
+| 11 | Gate ON: gradient syns direkt; WebP-bakgrund fade-in utan layout shift |
+| 12 | Kort och text läsbara över bakgrund (scrim/overlay) |
+| 13 | Ingen horisontell scroll från bakgrundsbild |
+| 14 | Vertikal scroll fungerar på alla flikar |
+| 15 | Offline/reload: vald bakgrund cachelagras efter första visning (PWA) |
+| 16 | Trasig/saknad bild → gradient-fallback, sidan fortfarande läsbar |
+
+**Manuella testteman:** `adventure` (default), `space`, `animals`
+
+**Simulera tema i konsol (gate ON):** `ChildTheme.apply({ visual_theme: 'space' })`  
+**DB (dev):** `child_view_config.visual_theme` utan föräldra-UI i PR 1.
+
+---
+
+## Theme tab icons (bottom nav)
+
+Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **Android PWA** (om möjligt).
+
+| # | Kontroll |
+|---|----------|
+| 1 | `adventure` (default) visar fyra WebP-ikoner i bottom nav |
+| 2 | `space` visar fyra WebP-ikoner |
+| 3 | `animals` visar fyra WebP-ikoner |
+| 4 | Samma tema-ikoner på alla fyra flikar (Idag · Min samling · Skattkammaren · Mina personer) |
+| 5 | Aktiv flik markeras tydligt (befintlig accent-CSS) |
+| 6 | Simulerad 404 på ikon → emoji-fallback utan layout shift |
+| 7 | Ikon dubbelläses inte av skärmläsare (dekorativ `alt=""`, fliktext kvar) |
+| 8 | Bottom nav täcker inget innehåll; touchytor ≥ befintlig storlek |
+| 9 | Ingen horisontell scroll; ingen layout shift vid ikonladdning |
+| 10 | Gate OFF → legacy bottom nav oförändrad (inga theme WebP) |
+| 11 | Min samling / Skattkammaren / redeem utan regression |
+| 12 | Bakgrundsbilder från föregående assetpaket fungerar fortfarande |
+
+**Simulera 404-fallback:** DevTools → blockera t.ex. `/images/child/themes/space/icon-today@2x.webp` → emoji ska visas.
+
+---
+
 ## Presentation polish (mobil)
 
 Kör på **iPhone Safari** och **Android Chrome** med gate ON.
