@@ -24,13 +24,19 @@
   ];
   const COLORS = ['#F5A623', '#6C5CE7', '#00B894', '#E17055', '#74B9FF', '#FD79A8'];
 
-  function renderPreview(cfg, avatarUrl, emoji) {
+  function photoSrc(avatar) {
+    if (!avatar) return null;
+    return avatar.avatar_src || avatar.avatar_url || null;
+  }
+
+  function renderPreview(cfg, avatarOrUrl, emoji) {
     const color = cfg.color || '#F5A623';
     const hair = (HAIR.find(function (h) { return h.id === cfg.hair; }) || HAIR[0]).emoji;
     const outfit = (OUTFITS.find(function (o) { return o.id === cfg.outfit; }) || OUTFITS[0]).emoji;
     const hat = cfg.hat && cfg.hat !== 'none'
       ? (HATS.find(function (h) { return h.id === cfg.hat; }) || {}).emoji || ''
       : '';
+    const avatarUrl = typeof avatarOrUrl === 'string' ? avatarOrUrl : photoSrc(avatarOrUrl);
 
     if (avatarUrl) {
       return '<div class="cu-avatar-preview has-photo" style="--cu-color:' + color + '">' +
@@ -70,7 +76,7 @@
       '</div>' +
       '<div class="skatt-section-body">' +
         '<div class="cu-avatar-center" id="cuAvatarPreview">' +
-          renderPreview(cfg, universe.avatar.avatar_url, universe.avatar.emoji) +
+          renderPreview(cfg, universe.avatar, universe.avatar.emoji) +
         '</div>' +
         pickerRow('Frisyr', HAIR, 'hair', cfg.hair) +
         pickerRow('Kläder', OUTFITS, 'outfit', cfg.outfit) +
@@ -92,7 +98,7 @@
           section.querySelectorAll('[data-field="' + field + '"]').forEach(function (b) {
             b.classList.toggle('is-active', b.getAttribute('data-val') === val);
           });
-          root.innerHTML = renderPreview(cfg, universe.avatar.avatar_url, universe.avatar.emoji);
+          root.innerHTML = renderPreview(cfg, universe.avatar, universe.avatar.emoji);
           if (window.ChildUniverse) {
             ChildUniverse.patchAvatar(cfg).then(function () {
               if (onChange) onChange(cfg);
@@ -109,7 +115,7 @@
     const cfg = universe && universe.avatar ? universe.avatar.config : {};
     return renderPreview(
       Object.assign({ hair: 'short', outfit: 'tee', color: '#F5A623', hat: 'none' }, cfg),
-      universe && universe.avatar ? universe.avatar.avatar_url : null,
+      universe && universe.avatar ? universe.avatar : null,
       universe && universe.avatar ? universe.avatar.emoji : '😊'
     );
   }

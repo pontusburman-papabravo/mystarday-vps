@@ -28,6 +28,9 @@
   // @param {number} size    - px width/height of the img (default 32)
   // @returns {string}       - HTML string safe for innerHTML
   function renderChildAvatar(child, size) {
+    if (root.MemberAvatar && typeof root.MemberAvatar.renderChildAvatar === 'function') {
+      return root.MemberAvatar.renderChildAvatar(child, size);
+    }
     size = size || 32;
     const url = child && child.avatar_url;
     if (url) {

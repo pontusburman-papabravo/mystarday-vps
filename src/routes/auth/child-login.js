@@ -24,6 +24,7 @@ const { createSystemMessage } = require('../../../db/system-messages');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { ChildLoginSchema } = require('../../lib/schemas');
+const { avatarApiFields } = require('../../lib/avatar-api');
 const { parseDuration } = require('./session');
 
 const router = express.Router();
@@ -51,14 +52,14 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
 
     // Find child — username match first, then display name
     const childResult = await db.query(
-      'SELECT id, family_id, name, emoji, username, pin, avatar_url FROM child WHERE LOWER(username) = $1',
+      'SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at FROM child WHERE LOWER(username) = $1',
       [normalizedInput]
     );
     let child = childResult.rows[0];
 
     if (!child) {
       const nameResult = await db.query(
-        'SELECT id, family_id, name, emoji, username, pin, avatar_url FROM child WHERE LOWER(name) = $1',
+        'SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at FROM child WHERE LOWER(name) = $1',
         [normalizedInput]
       );
       if (nameResult.rows.length === 1) {
@@ -300,10 +301,10 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
       id: child.id,
       name: child.name,
       emoji: child.emoji,
-      avatar_url: child.avatar_url || null,
       familyId: child.family_id,
       username: child.username,
       type: 'child',
+      ...avatarApiFields(child, 'child'),
     };
     // expiresAt lets the frontend schedule proactive silent refresh
     const expiresAt = Date.now() + expiresInSecs * 1000;

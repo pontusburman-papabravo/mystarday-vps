@@ -276,23 +276,18 @@ function initEmojiPicker(currentEmoji) {
 }
 
 // ── Header avatar preview ───────────────────────────────
-function setHeaderAvatarPreview(url) {
+function setHeaderAvatarPreview(child) {
   const card = document.querySelector('.section-card .flex.items-center.gap-4');
-  if (!card || !url) return;
-  const hdrImg = document.getElementById('headerAvatarImg');
-  if (hdrImg) {
-    hdrImg.src = url;
-    hdrImg.classList.add('ring-2', 'ring-gold');
+  if (!card || !child) return;
+  const wrap = document.getElementById('headerAvatarWrap');
+  if (wrap && window.MemberAvatar) {
+    wrap.innerHTML = MemberAvatar.renderChildAvatar(child, 64);
     return;
   }
-  const emojiSpan = card.querySelector('span.text-5xl');
-  if (emojiSpan) {
-    const img = document.createElement('img');
-    img.id = 'headerAvatarImg';
-    img.src = url;
-    img.alt = childData?.name || '';
-    img.className = 'w-16 h-16 rounded-full object-cover flex-shrink-0 ring-2 ring-gold';
-    emojiSpan.replaceWith(img);
+  const hdrImg = document.getElementById('headerAvatarImg');
+  if (hdrImg && child.avatar_src) {
+    hdrImg.src = child.avatar_src;
+    return;
   }
 }
 
@@ -307,8 +302,7 @@ async function saveProfile(e) {
   const birthday = (bdYear && bdMonth && bdDay) ? `${bdYear}-${bdMonth}-${bdDay}` : undefined;
   const body = { name: nameVal, emoji: selectedEmoji };
   if (birthday) body.birthday = birthday;
-  // Include avatar_url if parent picked a new photo
-  if (selectedAvatarUrl) body.avatar_url = selectedAvatarUrl;
+  // Profile photo uses dedicated avatar endpoints (not PUT body).
   try {
     const updated = await Auth.api(`/api/children/${childId}`, {
       method: 'PUT',
@@ -317,7 +311,7 @@ async function saveProfile(e) {
     childData = { ...childData, ...updated };
     document.getElementById('pageTitle').textContent = updated.name || 'Inställningar';
     document.getElementById('pageEmoji').textContent = updated.emoji || '⭐';
-    if (updated.avatar_url) setHeaderAvatarPreview(updated.avatar_url);
+    if (updated.has_avatar !== undefined) setHeaderAvatarPreview({ ...childData, ...updated });
     showSuccessToast('Inställningar sparade!');
   } catch (err) {
     showToast('Kunde inte spara: ' + err.message, true);
@@ -327,42 +321,34 @@ async function saveProfile(e) {
 // ── Avatar photo picker (PWA + native) ───────────────────
 async function changeChildPhoto() {
   const btn = document.getElementById('changePhotoBtn');
-  if (!btn) return;
+  if (!btn || !window.AvatarUploadFlow) return;
   const orig = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Laddar…';
+  btn.disabled = true;
+  btn.textContent = 'Laddar…';
   try {
-    const result = await Platform.camera.pick({ quality: 'medium' });
-    if (!result) { btn.disabled = false; btn.textContent = orig; return; }
-    if (result.error) {
-      showToast(result.error, true);
-      btn.disabled = false; btn.textContent = orig;
-      return;
-    }
-    btn.textContent = 'Laddar upp…';
-    const url = await Platform.camera.upload(result);
-    selectedAvatarUrl = url;
-    setHeaderAvatarPreview(url);
-    btn.textContent = 'Sparar…';
-    const updated = await Auth.api(`/api/children/${childId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ avatar_url: url }),
-    });
+    const endpoint = '/api/children/' + encodeURIComponent(childId) + '/avatar';
+    const updated = await AvatarUploadFlow.pickCropAndUpload(endpoint);
+    if (!updated) return;
     childData = { ...childData, ...updated };
-    selectedAvatarUrl = updated.avatar_url || url;
+    selectedAvatarUrl = null;
+    setHeaderAvatarPreview(childData);
     if (childData.username && typeof Auth.persistKnownChildrenFromSession === 'function') {
       Auth.persistKnownChildrenFromSession([childData], Auth.getFamilyId());
     }
     btn.textContent = '✓ Bild sparad';
-    btn.classList.remove('text-gold'); btn.classList.add('text-green-600');
-    setTimeout(() => { btn.textContent = '🔄 Byt bild'; btn.classList.remove('text-green-600'); btn.classList.add('text-gold'); }, 2000);
+    btn.classList.remove('text-gold');
+    btn.classList.add('text-green-600');
+    setTimeout(function () {
+      btn.textContent = '🔄 Byt bild';
+      btn.classList.remove('text-green-600');
+      btn.classList.add('text-gold');
+    }, 2000);
   } catch (err) {
     console.error('[child-settings] photo change failed:', err.message);
     showToast(err.message || 'Kunde inte byta bild. Försök igen.', true);
   } finally {
     btn.disabled = false;
-    if (btn.textContent === 'Laddar…' || btn.textContent === 'Laddar upp…') {
-      btn.textContent = orig;
-    }
+    if (btn.textContent === 'Laddar…') btn.textContent = orig;
   }
 }
 
@@ -526,7 +512,11 @@ function escHtml(s) {
 function renderPage(child) {
   const currentViewType = child.view_type || 'day_sections';
   const ageText = child.birthday ? calcAge(child.birthday) : null;
-  const avatarUrl = selectedAvatarUrl || child.avatar_url || null;
+  const avatarBlock = window.MemberAvatar
+    ? '<div id="headerAvatarWrap" class="flex-shrink-0">' + MemberAvatar.renderChildAvatar(child, 64) + '</div>'
+    : (child.has_avatar && child.avatar_src
+      ? '<img src="' + escHtml(child.avatar_src) + '" class="w-16 h-16 rounded-full object-cover flex-shrink-0" alt="' + escHtml(child.name) + '" id="headerAvatarImg" />'
+      : '<span class="text-5xl flex-shrink-0">' + (child.emoji || '👤') + '</span>');
   const moodMode = child.mood_input_mode || 'slider';
   const leadMins = Array.isArray(child.transition_lead_minutes) ? child.transition_lead_minutes : [5, 1];
 
@@ -534,10 +524,7 @@ function renderPage(child) {
   <!-- Child header card -->
   <div class="section-card fade-in" style="background: linear-gradient(135deg, #FFF9EE, #FFF0D0); border: 2px solid rgba(245,166,35,0.3);">
     <div class="flex items-center gap-4">
-      ${avatarUrl
-        ? `<img src="${escHtml(avatarUrl)}" class="w-16 h-16 rounded-full object-cover flex-shrink-0" alt="${escHtml(child.name)}" id="headerAvatarImg" />`
-        : `<span class="text-5xl flex-shrink-0">${child.emoji || '👤'}</span>`
-      }
+      ${avatarBlock}
       <div>
         <h2 class="text-xl font-heading font-bold text-navy">${escHtml(child.name)}</h2>
         <p class="text-sm text-text-soft">${ageText ? ageText : 'Ålder okänd'}</p>

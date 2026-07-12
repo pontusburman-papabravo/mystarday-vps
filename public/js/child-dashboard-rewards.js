@@ -566,7 +566,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       : '',
     childName: me && me.name,
     childEmoji: me && me.emoji,
-    avatarUrl: me && me.avatar_url,
+    avatarUrl: me && (me.avatar_src || null),
   };
 
   if (!minimalUiActive && childUiMagic && window.ChildSkattHouse) {

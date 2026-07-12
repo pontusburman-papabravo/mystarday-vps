@@ -192,7 +192,12 @@
     btn.setAttribute('aria-label', 'Kontomeny');
     btn.setAttribute('aria-haspopup', 'true');
     btn.setAttribute('aria-expanded', 'false');
-    btn.textContent = userInitial(user);
+    if (window.MemberAvatar && user) {
+      btn.innerHTML = MemberAvatar.renderParentAvatar(user, 44);
+      btn.classList.add('overflow-hidden', 'p-0');
+    } else {
+      btn.textContent = userInitial(user);
+    }
 
     const menu = document.createElement('div');
     menu.id = MENU_ID;

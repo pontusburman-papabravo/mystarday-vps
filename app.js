@@ -130,7 +130,13 @@ function createApp() {
   app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
   const { getLocalUploadDir } = require('./src/lib/object-storage');
-  app.use('/uploads', express.static(getLocalUploadDir(), { index: false, maxAge: '7d' }));
+  app.use('/uploads', (req, res, next) => {
+    const p = req.path || '';
+    if (p.startsWith('/avatars') || p.startsWith('/avatars-private')) {
+      return res.status(404).end();
+    }
+    next();
+  }, express.static(getLocalUploadDir(), { index: false, maxAge: '7d' }));
   app.use('/V2.0', express.static(path.join(__dirname, 'public', 'v2'), { index: 'index.html' }));
 
   app.use(require('./src/routes/public-pages'));

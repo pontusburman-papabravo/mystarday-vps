@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v591';
-// stjarndag-v591: Idag warmth — theme decal, day narrative, section complete, micro spark
+const CACHE_NAME = 'stjarndag-v593';
+// stjarndag-v593: Family Avatar v1 — client migration to avatar_src, onboarding deferred upload
+// stjarndag-v592: Family Avatar v1 — private storage, member-avatar, crop upload flow
 // stjarndag-v590: Idag fun polish — star trail, greetings, current dagdel highlight
 // stjarndag-v589: Infer pictogram pack keys from activity name/emoji when icon_key missing
 // stjarndag-v588: Activity card size — standard/large presentation (gate ON)

@@ -12,5 +12,6 @@ router.use('/', require('./password'));
 router.use('/', require('./notifications'));
 router.use('/', require('./lifecycle'));
 router.use('/', require('./identity'));
+router.use('/', require('./avatar'));
 
 module.exports = router;

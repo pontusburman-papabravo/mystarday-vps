@@ -12,6 +12,7 @@ const db = require('../../lib/db');
 const config = require('../../lib/config');
 const { loginLimiter } = require('../../middleware/rateLimiter');
 const { getParentRoles, getChildrenForParent, syncAccountType } = require('../../../db/parent-access');
+const { mapChildForFamilyApi, mapParentForFamilyApi, avatarApiFields } = require('../../lib/avatar-api');
 const { recordLoginEvent } = require('../../lib/login-event');
 const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../../lib/magic-view-access');
 const { requireAuth } = require('../../middleware/auth');
@@ -223,7 +224,8 @@ router.get('/me', requireAuth, async (req, res) => {
   try {
     if (req.user.type === 'parent') {
       const parentResult = await db.query(
-        `SELECT p.id, p.email, p.family_id, p.is_admin, p.verified, p.created_at,
+        `SELECT p.id, p.email, p.name, p.family_id, p.is_admin, p.verified, p.created_at,
+                p.avatar_storage_key, p.avatar_updated_at,
                 COALESCE(p.onboarding_completed, true) as onboarding_completed,
                 COALESCE(p.account_type, 'family') as account_type,
                 COALESCE(p.preferred_view_mode, 'parent') as preferred_view_mode,
@@ -281,16 +283,17 @@ router.get('/me', requireAuth, async (req, res) => {
 
       // Get children via getChildrenForParent (revoked_at filtering applied there)
       const children = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
-      // Strip sensitive fields before sending to client
-      for (const child of children) {
-        delete child.pin;
-        delete child.pin_fingerprint;
-        delete child.pin_hint;
-        delete child.pin_is_set;
-      }
+      const childrenPublic = children.map((c) => mapChildForFamilyApi(c));
+
+      const parentPublic = mapParentForFamilyApi(parent);
 
       return res.json({
-        ...parent,
+        ...parentPublic,
+        family_id: parent.family_id,
+        is_admin: parent.is_admin,
+        verified: parent.verified,
+        created_at: parent.created_at,
+        onboarding_completed: parent.onboarding_completed,
         type: 'parent',
         ui_view_mode: uiViewMode,
         theme_preference: themePreference,
@@ -310,13 +313,13 @@ router.get('/me', requireAuth, async (req, res) => {
           canUnlinkApple: parent.has_password && parent.has_apple_linked,
           canUnlinkGoogle: parent.has_password && parent.has_google_linked,
         },
-        children,
+        children: childrenPublic,
       });
     }
 
     if (req.user.type === 'child') {
       const childResult = await db.query(
-        `SELECT id, name, emoji, avatar_url, family_id, username, view_mode, timezone, birthday, created_at
+        `SELECT id, name, emoji, avatar_storage_key, avatar_updated_at, family_id, username, view_mode, timezone, birthday, created_at
          FROM child WHERE id = $1`,
         [req.user.id]
       );
@@ -327,7 +330,17 @@ router.get('/me', requireAuth, async (req, res) => {
       const child = childResult.rows[0];
       const magicViewEnabled = await familyHasMagicViewAccess(child.family_id);
 
-      return res.json({ ...child, type: 'child', magic_view_enabled: magicViewEnabled });
+      return res.json({
+        ...mapChildForFamilyApi(child),
+        family_id: child.family_id,
+        username: child.username,
+        view_mode: child.view_mode,
+        timezone: child.timezone,
+        birthday: child.birthday,
+        created_at: child.created_at,
+        type: 'child',
+        magic_view_enabled: magicViewEnabled,
+      });
     }
 
     res.status(400).json({ error: 'Okänd användartyp' });
@@ -365,8 +378,8 @@ router.get('/login-picker-children', async (req, res) => {
         username: c.username,
         name: c.name,
         emoji: c.emoji || '⭐',
-        avatar_url: c.avatar_url || null,
         familyId: c.family_id || null,
+        ...avatarApiFields(c, 'child'),
       })),
       parent: {
         id: parentRow.id,

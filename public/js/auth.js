@@ -605,7 +605,8 @@ const Auth = {
           username: c.username,
           name: c.name || c.username,
           emoji: c.emoji || '⭐',
-          avatar_url: c.avatar_url || null,
+          has_avatar: !!c.has_avatar,
+          avatar_src: c.avatar_src || null,
           familyId: c.familyId || c.family_id || familyId || null,
         };
         const idx = known.findIndex(function (k) { return k.username === entry.username; });
