@@ -18,6 +18,14 @@
     return String(s || '');
   }
 
+  function imageSlot(item) {
+    return (
+      '<div class="photo-activity-card__img-slot">' +
+        '<img src="' + esc(photoUrl(item)) + '" alt="" class="photo-activity-card__img" loading="lazy" decoding="async">' +
+      '</div>'
+    );
+  }
+
   function renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) {
     if (!subStepCount) return '';
     const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
@@ -113,7 +121,7 @@
         '<div class="photo-activity-card__badge-wrap">' +
           '<div class="now-badge"><div class="pulse-dot"></div> NU</div>' +
         '</div>' +
-        '<img src="' + esc(photoUrl(item)) + '" alt="" class="photo-activity-card__img" loading="lazy">' +
+        imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
           activityTimerHtml +
@@ -194,7 +202,7 @@
            ' data-sub-step-count="' + subStepCount + '"' +
            outerClick + '>' +
         (badgeHtml ? '<div class="photo-activity-card__badge-wrap">' + badgeHtml + '</div>' : '') +
-        '<img src="' + esc(photoUrl(item)) + '" alt="" class="photo-activity-card__img" loading="lazy">' +
+        imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           dragHtml +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
@@ -211,7 +219,7 @@
     return (
       '<div class="activity-card photo-activity-card photo-activity-card--done-history done" id="card-' + item.id + '"' +
            ' data-item-id="' + item.id + '" style="pointer-events:none;opacity:0.65;">' +
-        '<img src="' + esc(photoUrl(item)) + '" alt="" class="photo-activity-card__img" loading="lazy">' +
+        imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           '<div class="photo-activity-card__title" style="text-decoration:line-through;color:#6B7280;">' + esc(item.name) + '</div>' +
           '<div class="photo-activity-card__check photo-activity-card__check--done">' +

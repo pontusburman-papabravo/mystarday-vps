@@ -193,6 +193,29 @@ Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **
 
 ---
 
+## Kortstorlek (aktivitetsbilder)
+
+Kör på **iPhone Safari**, **iPhone PWA**, **Android Chrome**, **Android PWA**.
+
+| # | Kontroll |
+|---|----------|
+| 1 | Min samling → **Kortstorlek** under **Bildstil** (gate ON) |
+| 2 | Default **Vanliga kort** (`standard`) |
+| 3 | Välj **Stora bilder** → förhandsvisa → **Avbryt** → åter |
+| 4 | Välj **Stora bilder** → **Spara kortstorlek** → sparat (`child_view_config.activity_card_size`) |
+| 5 | ☀️ Idag uppdateras utan full reload |
+| 6 | **Vanliga kort:** bild ~64–80 px, flera aktiviteter synliga |
+| 7 | **Stora bilder:** listbild ~112–144 px, NU-bild ~160–200 px, en rad per aktivitet |
+| 8 | `object-fit: contain`, ingen layout shift vid laddning |
+| 9 | Aktivitetstext kvar under/bredvid bilden |
+| 10 | Oberoende från **Bildstil** (t.ex. Tydliga + Stora) |
+| 11 | Ingen åldersstyrd låsning |
+| 12 | Gate OFF → legacy kortstorlek oförändrad |
+
+**Kända simple-symboler att förbättra (v2 assets):** wash-hands, wash-face, get-dressed, leave-home, clear-table, break, calm-time, pajamas — kör igenkänningstest utan text med barn.
+
+---
+
 ## Presentation polish (mobil)
 
 Kör på **iPhone Safari** och **Android Chrome** med gate ON.

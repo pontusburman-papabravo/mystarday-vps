@@ -35,6 +35,9 @@
       if (window.ChildPictogramPicker && typeof ChildPictogramPicker.bindEntry === 'function') {
         ChildPictogramPicker.bindEntry(mount);
       }
+      if (window.ChildActivityCardSizePicker && typeof ChildActivityCardSizePicker.bindEntry === 'function') {
+        ChildActivityCardSizePicker.bindEntry(mount);
+      }
     } else {
       mount.innerHTML =
         '<div class="max-w-lg mx-auto px-4 pt-6 pb-8 text-center">' +
