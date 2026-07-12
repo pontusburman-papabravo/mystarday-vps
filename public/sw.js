@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v594';
+const CACHE_NAME = 'stjarndag-v595';
+// stjarndag-v595: Mitt-flik — PIN-gräns, personlig nav-ikon, lint baseline 885
 // stjarndag-v594: Barnets samling — Mitt-flik (utseende + förälder-PIN) i bottennav
 // stjarndag-v593: Idag kompakta kort + synlig stjärnbelöning
 // stjarndag-v591: Idag warmth — theme decal, day narrative, section complete, micro spark

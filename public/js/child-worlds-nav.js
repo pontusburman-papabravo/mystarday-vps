@@ -36,6 +36,22 @@
     return { childName: nameEl ? nameEl.textContent : '' };
   }
 
+  function escNavText(str) {
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : String(str);
+    return d.innerHTML;
+  }
+
+  function settingsNavIconMarkup() {
+    const emojiEl = document.getElementById('childEmoji');
+    const emoji = emojiEl && emojiEl.textContent ? emojiEl.textContent.trim() : '⭐';
+    return (
+      '<span class="child-mitt-nav-icon" aria-hidden="true">' +
+        '<span class="child-mitt-nav-avatar">' + escNavText(emoji) + '</span>' +
+      '</span>'
+    );
+  }
+
   function renderBottomNav() {
     const nav = document.getElementById('childBottomNav');
     if (!nav) return;
@@ -61,9 +77,11 @@
 
     worlds.forEach(function (world) {
       const isActive = world.id === activeId;
-      const iconMarkup = (useThemeIcons && world.id !== 'settings')
-        ? ChildTheme.iconHtmlForWorld(world.id)
-        : '<span class="child-bottom-nav-icon" aria-hidden="true">' + world.icon + '</span>';
+      const iconMarkup = world.id === 'settings'
+        ? settingsNavIconMarkup()
+        : (useThemeIcons
+          ? ChildTheme.iconHtmlForWorld(world.id)
+          : '<span class="child-bottom-nav-icon" aria-hidden="true">' + world.icon + '</span>');
       html +=
         '<button type="button" class="' +
         NAV_BTN_CLASS +

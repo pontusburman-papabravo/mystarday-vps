@@ -22,13 +22,6 @@
       window.switchChildMember();
       return;
     }
-    if (actionId === 'dark_mode' && typeof window.toggleChildDarkMode === 'function') {
-      window.toggleChildDarkMode();
-      return;
-    }
-    if (actionId === 'logout' && typeof window.childLogout === 'function') {
-      window.childLogout();
-    }
   }
 
   function openMenu() {
