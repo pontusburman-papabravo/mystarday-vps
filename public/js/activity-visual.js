@@ -20,14 +20,14 @@
     const packId = ChildPictogramPacks.getActivePackId
       ? ChildPictogramPacks.getActivePackId()
       : ChildPictogramPacks.DEFAULT_PACK;
-    return ChildPictogramPacks.resolveActivityAsset(item.icon_key, packId);
+    return ChildPictogramPacks.resolveActivityAsset(item, packId);
   }
 
   function pictogramEmoji(item) {
     if (!item || item.image_url) return null;
     if (item.pictogram_emoji) return item.pictogram_emoji;
     if (window.ChildPictogramPacks && ChildPictogramPacks.isEnabled()) {
-      const fromPack = ChildPictogramPacks.activityEmoji(item.icon_key);
+      const fromPack = ChildPictogramPacks.activityEmoji(item);
       if (fromPack) return fromPack;
     }
     if (item.icon_key && window.PictogramRegistry && window.PictogramRegistry.getEmoji) {

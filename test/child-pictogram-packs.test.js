@@ -228,6 +228,29 @@ describe('child-pictogram-packs — client mirror', () => {
     win.ChildPictogramPacks.revertToSaved({ silent: true });
     assert.equal(win.ChildPictogramPacks.getActivePackId(), 'simple');
   });
+
+  it('infers activity key from legacy schedule rows without icon_key (Astrid QA)', () => {
+    const activityVisual = read('public/js/activity-visual.js');
+    const win = loadClientPictogramPacks(true);
+    win.ChildPictogramPacks.applyFromConfig({ pictogram_pack: 'action' }, { silent: true });
+    const sandbox = {
+      window: win,
+      document: win.document,
+      CustomEvent: win.CustomEvent,
+      ChildPictogramPacks: win.ChildPictogramPacks,
+    };
+    vm.runInNewContext(activityVisual, sandbox, { filename: 'activity-visual.js' });
+
+    const brush = win.ActivityVisual.pick({ name: 'Borsta tänderna (kväll)', icon: '🪥', icon_key: null });
+    assert.equal(brush.url, '/images/child/pictograms/action/brush-teeth@2x.webp');
+
+    const pajamasAction = win.ActivityVisual.pick({ name: 'Pyjamas', icon: '🧸', icon_key: null });
+    assert.equal(pajamasAction.url, '/images/child/pictograms/action/pajamas@2x.webp');
+
+    win.ChildPictogramPacks.applyFromConfig({ pictogram_pack: 'simple' }, { silent: true });
+    const pajamasSimple = win.ActivityVisual.pick({ name: 'Pyjamas', icon: '🧸', icon_key: null });
+    assert.equal(pajamasSimple.url, '/images/child/pictograms/simple/pajamas@2x.webp');
+  });
 });
 
 describe('child-pictogram-picker — UI wiring', () => {
