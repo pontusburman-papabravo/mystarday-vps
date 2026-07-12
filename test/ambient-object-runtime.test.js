@@ -313,12 +313,14 @@ describe('scene integration wiring', () => {
     assert.doesNotMatch(src, /onGameplayBed/);
   });
 
-  it('child-dashboard loads director before runtime', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
-    const directorIdx = html.indexOf('ambient-director.js');
-    const runtimeIdx = html.indexOf('ambient-object-runtime.js');
+  it('child-dashboard loads director before runtime via legacy chunk', () => {
+    const chunk = fs.readFileSync(path.join(ROOT, 'public/js/child-legacy-chunk.js'), 'utf8');
+    const directorIdx = chunk.indexOf('ambient-director.js');
+    const runtimeIdx = chunk.indexOf('ambient-object-runtime.js');
     assert.ok(directorIdx > 0);
     assert.ok(runtimeIdx > directorIdx);
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(html, /child-legacy-chunk\.js/);
   });
 
   it('generate:ambient-objects script exists', () => {

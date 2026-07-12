@@ -300,9 +300,10 @@
     if (!assetUrl) {
       return '<span class="child-theme-nav-emoji" aria-hidden="true">' + emoji + '</span>';
     }
+    const lazyAttr = worldId === 'today' ? '' : ' loading="lazy"';
     return (
       '<span class="child-nav-icon" aria-hidden="true">' +
-      '<img class="child-nav-icon-img" src="' + assetUrl + '" alt="" decoding="async" width="32" height="32">' +
+      '<img class="child-nav-icon-img" src="' + assetUrl + '" alt="" decoding="async"' + lazyAttr + ' width="32" height="32">' +
       '<span class="child-nav-icon-fallback" aria-hidden="true">' + emoji + '</span>' +
       '</span>'
     );

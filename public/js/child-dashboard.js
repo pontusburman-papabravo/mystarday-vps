@@ -540,17 +540,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    // Feature gate: hide mood rating if emotion_tracking is not available
+    // Feature gate + session in parallel (one /api/features via features-cache)
     let featureSlugs = [];
+    let feats = [];
     try {
-      const feats = window.fetchStjarndagFeatures
-        ? await window.fetchStjarndagFeatures()
-        : await fetch('/api/features', { credentials: 'include' }).then(function (r) {
+      const featsPromise = window.fetchStjarndagFeatures
+        ? window.fetchStjarndagFeatures()
+        : fetch('/api/features', { credentials: 'include' }).then(function (r) {
           return r.ok ? r.json() : [];
         });
-      featureSlugs = (feats || []).map(function (f) { return f.slug; });
+      const [featsRes, meRes] = await Promise.all([featsPromise, Auth.api('/api/auth/me')]);
+      feats = featsRes || [];
+      featureSlugs = feats.map(function (f) { return f.slug; });
+      me = meRes;
       if (window.ChildWorlds && ChildWorlds.configureFromFeatures) {
-        ChildWorlds.configureFromFeatures(feats || []);
+        ChildWorlds.configureFromFeatures(feats);
       }
       if (window.applyChildViewChrome) applyChildViewChrome();
       if (!featureSlugs.includes('emotion_tracking')) {
@@ -559,9 +563,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       transitionSupportEnabled = featureSlugs.includes('transition_support');
     } catch {
       if (window.ChildWorlds && ChildWorlds.finishAppBoot) ChildWorlds.finishAppBoot();
+      me = await Auth.api('/api/auth/me');
     }
 
-    me = await Auth.api('/api/auth/me');
     if (me.type !== 'child') {
       console.warn('[child-dashboard] Session is not child (got', me.type, ') — redirect to barnväljare');
       Auth.clearAuth();
@@ -582,20 +586,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const darkBtn = document.getElementById('childDarkBtn');
     if (darkBtn) darkBtn.textContent = Theme.isDark() ? '☀️' : '🌙';
 
-    // Minimal UI: hide print/dark/logout if minimal_ui feature is accessible
-    // and child_view_config.minimal_ui is true
+    // Minimal UI + view config (single fetch)
     let minimalUiActive = false;
+    let dbViewMode = 'classic';
+    let viewCfgForTheme = null;
     try {
-      const [featRes, viewCfgRes] = await Promise.all([
-        window.fetchStjarndagFeatures
-          ? window.fetchStjarndagFeatures()
-          : fetch('/api/features', { credentials: 'include' }).then(function (r) {
-            return r.ok ? r.json() : [];
-          }),
-        Auth.api(`/api/children/${me.id}/view-config`).catch(() => null),
-      ]);
-      const slugs = (featRes || []).map(function (f) { return f.slug; });
-      if (slugs.includes('minimal_ui') && viewCfgRes && viewCfgRes.minimal_ui) {
+      const viewCfgRes = await Auth.api(`/api/children/${me.id}/view-config`).catch(() => null);
+      viewCfgForTheme = viewCfgRes;
+      if (viewCfgRes && viewCfgRes.view_mode) dbViewMode = viewCfgRes.view_mode;
+      if (featureSlugs.includes('minimal_ui') && viewCfgRes && viewCfgRes.minimal_ui) {
         minimalUiActive = true;
       }
     } catch { /* fail open */ }
@@ -613,14 +612,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     todayStr = getLocalDate();
     currentDate = todayStr;
     if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.init();
-
-    let dbViewMode = 'classic';
-    let viewCfgForTheme = null;
-    try {
-      const viewCfgRes = await Auth.api(`/api/children/${me.id}/view-config`);
-      viewCfgForTheme = viewCfgRes;
-      if (viewCfgRes && viewCfgRes.view_mode) dbViewMode = viewCfgRes.view_mode;
-    } catch (_) { /* default classic */ }
 
     if (window.ChildTheme && ChildTheme.apply) {
       ChildTheme.apply(Object.assign({}, me, { child_view_config: viewCfgForTheme }));

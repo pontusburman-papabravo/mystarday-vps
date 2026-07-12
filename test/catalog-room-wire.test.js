@@ -29,12 +29,14 @@ const SCENE_FILES = [
 ];
 
 describe('catalog room wire-in (all exportable rooms)', () => {
-  it('child-dashboard loads catalog room scripts', () => {
+  it('child-dashboard loads catalog room scripts via legacy chunk', () => {
+    const chunk = fs.readFileSync(path.join(ROOT, 'public/js/child-legacy-chunk.js'), 'utf8');
+    assert.match(chunk, /living-world-scenes-catalog\.js/);
+    assert.match(chunk, /living-world-room-pipelines\.js/);
+    assert.match(chunk, /child-catalog-room\.js/);
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
-    assert.match(html, /living-world-scenes-catalog\.js/);
-    assert.match(html, /living-world-room-pipelines\.js/);
-    assert.match(html, /child-catalog-room\.js/);
     assert.match(html, /child-catalog-room\.css/);
+    assert.match(html, /child-legacy-chunk\.js/);
   });
 
   it('morgonhus exposes hall navigation via wayfinder config', () => {

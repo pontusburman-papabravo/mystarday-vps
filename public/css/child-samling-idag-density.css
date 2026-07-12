@@ -1,0 +1,163 @@
+/**
+ * child-samling-idag-density.css — Tätare Idag-layout + sticky fokus (barnets_samling).
+ * Minskar tomma ytor i bildkort och håller hälsning synlig vid scroll.
+ */
+
+/* ── Sticky fokusbar ─────────────────────────────────────── */
+[data-barnets-samling="on"] #todayFocusMount {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+}
+
+[data-barnets-samling="on"] #todayFocusMount .ctf-bar {
+  padding: 10px 16px 8px;
+}
+
+[data-barnets-samling="on"] .ctf-greeting {
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+
+[data-barnets-samling="on"] .ctf-day-narrative {
+  margin-bottom: 0.35rem;
+  font-size: 0.88rem;
+}
+
+[data-barnets-samling="on"] .ctf-progress-trail {
+  margin: 0.2rem 0 0.45rem;
+}
+
+[data-barnets-samling="on"] .ctf-missions-head {
+  padding-bottom: 2px;
+}
+
+/* ── Kompakta bildkort (horisontell rad) ─────────────────── */
+[data-barnets-samling="on"] .photo-activity-card {
+  display: grid !important;
+  grid-template-columns: 5.25rem minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 0.65rem;
+  padding: 0.55rem 0.65rem 0.55rem 0.55rem !important;
+  min-height: 0;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__badge-wrap {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  padding: 0 0 0.15rem !important;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__img-slot {
+  grid-column: 1;
+  grid-row: 2 / span 2;
+  width: 5.25rem !important;
+  height: 5.25rem !important;
+  min-height: 0 !important;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: linear-gradient(145deg, #f4f4f8 0%, #ececf2 100%);
+}
+
+[data-barnets-samling="on"] .photo-activity-card--now .photo-activity-card__img-slot {
+  height: 5.5rem !important;
+  width: 5.5rem !important;
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.35);
+}
+
+[data-barnets-samling="on"] .photo-activity-card__img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center;
+  padding: 0.35rem;
+  box-sizing: border-box;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__foot {
+  grid-column: 2 / 4;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 !important;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__title {
+  flex: 1;
+  text-align: left !important;
+  font-size: 0.98rem !important;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] .photo-activity-card--now .photo-activity-card__title {
+  font-size: 1.05rem !important;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__meta {
+  grid-column: 2;
+  grid-row: 3;
+  justify-content: flex-start !important;
+  padding: 0 0 0.1rem !important;
+  gap: 0.45rem;
+  font-size: 0.74rem;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__check {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  margin: 0;
+  grid-column: 3;
+  grid-row: 2;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__foot .photo-activity-card__check {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+/* Delsteg under hela raden */
+[data-barnets-samling="on"] .photo-activity-card > .mt-3 {
+  grid-column: 1 / -1;
+  margin-top: 0.35rem !important;
+  padding-top: 0.35rem !important;
+}
+
+/* Stora kort: något högre bild, fortfarande kompakt */
+html[data-barnets-samling="on"][data-activity-card-size="large"] .photo-activity-card__img-slot {
+  width: 6rem !important;
+  height: 6rem !important;
+}
+
+html[data-barnets-samling="on"][data-activity-card-size="large"] .photo-activity-card--now .photo-activity-card__img-slot {
+  width: 6.25rem !important;
+  height: 6.25rem !important;
+}
+
+html[data-barnets-samling="on"][data-activity-card-size="large"] .photo-activity-card {
+  grid-template-columns: 6.25rem minmax(0, 1fr) auto;
+}
+
+/* Tätare dagdel-sektioner */
+[data-barnets-samling="on"] .dagdel-section {
+  margin-bottom: 0.65rem !important;
+}
+
+[data-barnets-samling="on"] .dagdel-items {
+  gap: 0.5rem !important;
+  padding: 0.35rem 0.5rem 0.55rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView {
+  padding-top: 0.15rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] #todayFocusMount {
+    position: sticky;
+  }
+}
