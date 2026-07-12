@@ -71,7 +71,7 @@
     },
     {
       id: 'settings',
-      icon: '⚙️',
+      icon: '⭐',
       href: '/child/settings',
       tabKey: 'settings',
       labels: { default: 'Mitt' },

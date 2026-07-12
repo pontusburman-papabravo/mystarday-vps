@@ -218,7 +218,7 @@
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 const CACHE_NAME = 'stjarndag-v599';
-// stjarndag-v599: Barnets samling — Mitt-flik (utseende + förälder-PIN) i bottennav
+// stjarndag-v599: Mitt-flik — PIN-gräns, personlig nav-ikon; merge med family avatar + settings restore
 // stjarndag-v598: Child Mina personer — parent avatar_src in /api/me/family; settings group restore after re-tag
 // stjarndag-v597: Familj — loading skeleton, prefetch, Inställningar-länk
 // stjarndag-v596: Avatar crop — square viewport + EXIF orientation (fix distortion)

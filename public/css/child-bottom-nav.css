@@ -110,6 +110,35 @@ body.child-has-bottom-nav .child-bottom-nav {
   transform: scale(0.96);
 }
 
+.child-mitt-nav-icon {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.child-mitt-nav-avatar {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(123, 97, 255, 0.12);
+  border: 1.5px solid rgba(123, 97, 255, 0.28);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.child-bottom-nav-btn.is-active .child-mitt-nav-avatar {
+  background: rgba(123, 97, 255, 0.2);
+  border-color: rgba(123, 97, 255, 0.45);
+  box-shadow: 0 0 0 2px rgba(123, 97, 255, 0.15);
+}
+
 /* Extra bottom padding on scroll areas when bottom nav visible */
 body.child-has-bottom-nav #scheduleView,
 body.child-has-bottom-nav #collectionView,

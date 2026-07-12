@@ -1,8 +1,17 @@
 /**
- * child-settings-view.js — Mitt-fliken: utseende + föräldergärdade val (PIN).
+ * child-settings-view.js — Mitt-fliken: barnets val + vuxen-PIN där det behövs.
  */
 (function () {
   'use strict';
+
+  const CHILD_ACTIONS = [
+    { id: 'dark_mode', label: 'Mörkt läge', hint: 'Ljus eller mörk bakgrund' },
+    { id: 'logout', label: 'Logga ut', hint: 'Lämna din session på den här enheten' },
+  ];
+
+  const PARENT_ACTIONS = [
+    { id: 'switch_child', label: 'Byt barn', hint: 'Kräver förälders PIN' },
+  ];
 
   let _rendered = false;
 
@@ -13,12 +22,44 @@
     return d.innerHTML;
   }
 
-  function parentActionsHtml() {
-    if (!window.ChildCapabilities || !ChildCapabilities.CHILD_SYSTEM_ACTIONS) return '';
-    return ChildCapabilities.CHILD_SYSTEM_ACTIONS.map(function (action) {
+  function headerKickerHtml() {
+    const emojiEl = document.getElementById('childEmoji');
+    const emoji = emojiEl && emojiEl.textContent ? emojiEl.textContent.trim() : '⭐';
+    return '<span class="csv-avatar-kicker" aria-hidden="true">' + esc(emoji) + '</span>';
+  }
+
+  function darkModeStatusLabel() {
+    if (window.Theme && typeof Theme.isDark === 'function') {
+      return Theme.isDark() ? 'På' : 'Av';
+    }
+    return document.documentElement.classList.contains('dark') ? 'På' : 'Av';
+  }
+
+  function childActionsHtml() {
+    return CHILD_ACTIONS.map(function (action) {
+      const value = action.id === 'dark_mode' ? darkModeStatusLabel() : '';
       return (
-        '<button type="button" class="csv-action-btn" data-parent-action="' + esc(action.id) + '">' +
-          '<span class="csv-action-label">' + esc(action.label) + '</span>' +
+        '<button type="button" class="csv-action-btn csv-action-btn-child" data-child-action="' + esc(action.id) + '">' +
+          '<span class="csv-action-copy">' +
+            '<span class="csv-action-label">' + esc(action.label) + '</span>' +
+            (action.hint ? '<span class="csv-action-hint">' + esc(action.hint) + '</span>' : '') +
+          '</span>' +
+          (value
+            ? '<span class="csv-action-value">' + esc(value) + '</span>'
+            : '<span class="csv-action-chevron" aria-hidden="true">›</span>') +
+        '</button>'
+      );
+    }).join('');
+  }
+
+  function parentActionsHtml() {
+    return PARENT_ACTIONS.map(function (action) {
+      return (
+        '<button type="button" class="csv-action-btn csv-action-btn-parent" data-parent-action="' + esc(action.id) + '">' +
+          '<span class="csv-action-copy">' +
+            '<span class="csv-action-label">' + esc(action.label) + '</span>' +
+            (action.hint ? '<span class="csv-action-hint">' + esc(action.hint) + '</span>' : '') +
+          '</span>' +
           '<span class="csv-action-chevron" aria-hidden="true">›</span>' +
         '</button>'
       );
@@ -36,9 +77,9 @@
     mount.innerHTML =
       '<div class="csv-page">' +
         '<header class="csv-header">' +
-          '<p class="csv-kicker" aria-hidden="true">⚙️</p>' +
+          headerKickerHtml() +
           '<h1 class="csv-title">Mitt</h1>' +
-          '<p class="csv-lead">Här kan du göra appen mer din — eller be en vuxen om hjälp.</p>' +
+          '<p class="csv-lead">Gör appen mer din — eller be en vuxen om hjälp med det som gäller hela familjen.</p>' +
         '</header>' +
         (customization
           ? '<section class="csv-section" aria-labelledby="csvLookHeading">' +
@@ -46,6 +87,10 @@
               '<div class="csv-customization">' + customization + '</div>' +
             '</section>'
           : '') +
+        '<section class="csv-section" aria-labelledby="csvMineHeading">' +
+          '<h2 id="csvMineHeading" class="csv-section-title">Mina val</h2>' +
+          '<div class="csv-actions">' + childActionsHtml() + '</div>' +
+        '</section>' +
         '<section class="csv-section csv-section-parent" aria-labelledby="csvParentHeading">' +
           '<h2 id="csvParentHeading" class="csv-section-title">För en vuxen</h2>' +
           '<p class="csv-section-hint">Kräver förälders PIN</p>' +
@@ -56,22 +101,41 @@
     if (window.ChildCustomizationEntries) {
       ChildCustomizationEntries.bindPickers(mount);
     }
+    bindChildActions(mount);
     bindParentActions(mount);
     _rendered = true;
+  }
+
+  function runChildAction(actionId) {
+    if (actionId === 'dark_mode' && typeof window.toggleChildDarkMode === 'function') {
+      window.toggleChildDarkMode();
+      const valueEl = document.querySelector('[data-child-action="dark_mode"] .csv-action-value');
+      if (valueEl) valueEl.textContent = darkModeStatusLabel();
+      return;
+    }
+    if (actionId === 'logout') {
+      if (!window.confirm('Vill du logga ut?')) return;
+      if (typeof window.childLogout === 'function') {
+        window.childLogout();
+      }
+    }
   }
 
   function runParentAction(actionId) {
     if (actionId === 'switch_child' && typeof window.switchChildMember === 'function') {
       window.switchChildMember();
-      return;
     }
-    if (actionId === 'dark_mode' && typeof window.toggleChildDarkMode === 'function') {
-      window.toggleChildDarkMode();
-      return;
-    }
-    if (actionId === 'logout' && typeof window.childLogout === 'function') {
-      window.childLogout();
-    }
+  }
+
+  function bindChildActions(root) {
+    if (!root) return;
+    root.querySelectorAll('[data-child-action]').forEach(function (btn) {
+      if (btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        runChildAction(btn.getAttribute('data-child-action'));
+      });
+    });
   }
 
   function bindParentActions(root) {
