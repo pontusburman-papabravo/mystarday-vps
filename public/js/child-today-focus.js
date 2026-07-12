@@ -195,6 +195,8 @@
     const progress = state.progressLabel || '';
     const nextStep = state.nextStepLabel || '';
     const nowName = state.nowItem ? state.nowItem.name : '';
+    const fun = window.ChildTodayFun;
+    const samlingFun = fun && fun.isSamlingGateOn && fun.isSamlingGateOn();
 
     let headline = 'Dagens uppdrag';
     if (state.state === IDAG_STATES.ACTIVE && nowName) {
@@ -204,13 +206,23 @@
     }
 
     const illus = state.state === IDAG_STATES.NO_TASKS ? emptyIllusHtml() : '';
+    const greeting = samlingFun && fun.greetingLine
+      ? fun.greetingLine(_childName)
+      : 'Hej ' + firstName(_childName) + ' 👋';
+    const progressTrail = samlingFun && fun.renderProgressTrail && state.total > 0
+      ? fun.renderProgressTrail(state.completed, state.total)
+      : '';
+    const starTeaser = samlingFun && fun.starsTeaser && state.starsOnNow > 0
+      ? fun.starsTeaser(state.starsOnNow)
+      : '';
 
-    return '<div class="ctf-bar" id="todayFocusBar">' +
+    return '<div class="ctf-bar' + (samlingFun ? ' ctf-bar--fun' : '') + '" id="todayFocusBar">' +
       illus +
-      '<div class="ctf-greeting">Hej ' + firstName(_childName) + ' 👋</div>' +
+      '<div class="ctf-greeting">' + greeting + '</div>' +
+      progressTrail +
       '<div class="ctf-missions-head">' +
         '<span class="ctf-missions-title">' + headline + '</span>' +
-        '<span class="ctf-missions-sub">' + progress + '</span>' +
+        (starTeaser || '<span class="ctf-missions-sub">' + progress + '</span>') +
       '</div>' +
       (nextStep
         ? '<p class="ctf-next-step">' + nextStep + '</p>'

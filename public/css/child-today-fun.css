@@ -1,0 +1,133 @@
+/**
+ * child-today-fun.css — Playful Idag polish (barnets_samling gate ON).
+ */
+
+[data-barnets-samling="on"] #todayFocusMount {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 251, 243, 0.96) 100%
+  ) !important;
+  border-bottom-color: rgba(245, 166, 35, 0.18) !important;
+}
+
+[data-barnets-samling="on"] .ctf-greeting {
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+
+[data-barnets-samling="on"] .ctf-missions-title {
+  font-size: 1.05rem;
+  color: var(--ct-primary, #7b61ff);
+}
+
+.ctf-progress-trail {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.35rem 0 0.65rem;
+  flex-wrap: wrap;
+}
+
+.ctf-progress-trail__stars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  line-height: 1;
+}
+
+.ctf-progress-star {
+  font-size: 1.05rem;
+  opacity: 0.35;
+  transform: scale(0.92);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.ctf-progress-star--done {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ctf-progress-trail__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b45309;
+  white-space: nowrap;
+}
+
+.ctf-progress-trail--bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.ctf-progress-trail__track {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: rgba(245, 166, 35, 0.15);
+  overflow: hidden;
+}
+
+.ctf-progress-trail__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f5a623 0%, #fbbf24 100%);
+  transition: width 0.35s ease;
+}
+
+[data-barnets-samling="on"] .dagdel-section {
+  border-radius: 1.35rem !important;
+  box-shadow: 0 6px 22px rgba(27, 35, 64, 0.09) !important;
+}
+
+[data-barnets-samling="on"] .dagdel-header {
+  border-radius: 1.1rem 1.1rem 0 0;
+}
+
+[data-barnets-samling="on"] .dagdel-emoji {
+  font-size: 1.75rem;
+  filter: drop-shadow(0 2px 4px rgba(27, 35, 64, 0.12));
+}
+
+[data-barnets-samling="on"] .dagdel-section--current {
+  box-shadow:
+    0 0 0 2px rgba(245, 166, 35, 0.45),
+    0 8px 26px rgba(27, 35, 64, 0.12) !important;
+}
+
+[data-barnets-samling="on"] .dagdel-now-badge {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #b45309;
+  flex-shrink: 0;
+}
+
+[data-barnets-samling="on"] .dagdel-section--current .dagdel-count {
+  margin-left: 0;
+}
+
+@keyframes ctfDagdelBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+[data-barnets-samling="on"] .dagdel-section--current .dagdel-emoji {
+  animation: ctfDagdelBob 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-barnets-samling="on"] .dagdel-section--current .dagdel-emoji {
+    animation: none;
+  }
+
+  .ctf-progress-star,
+  .ctf-progress-trail__fill {
+    transition: none;
+  }
+}

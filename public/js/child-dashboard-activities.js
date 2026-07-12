@@ -294,10 +294,20 @@ function renderActivities(data, trueStarBalance) {
       const totalCount = group.items.length;
 
       const progress = doneCount === 0 ? 'none' : doneCount === totalCount ? 'done' : 'partial';
-      html += `<div class="dagdel-section" data-section="${group.key}" style="background:${cfg.bg};border:2px solid ${cfg.border};">
+      const currentKey = window.ChildTodayFun && ChildTodayFun.currentDagdelKey
+        ? ChildTodayFun.currentDagdelKey()
+        : null;
+      const isCurrent = isToday && currentKey === group.key
+        && window.ChildTodayFun && ChildTodayFun.isSamlingGateOn && ChildTodayFun.isSamlingGateOn();
+      const currentCls = isCurrent ? ' dagdel-section--current' : '';
+      const nowBadge = isCurrent
+        ? '<span class="dagdel-now-badge" aria-hidden="true">Nu</span>'
+        : '';
+      html += `<div class="dagdel-section${currentCls}" data-section="${group.key}" style="background:${cfg.bg};border:2px solid ${cfg.border};">
         <div class="dagdel-header" style="background:${cfg.headerBg};">
           <span class="dagdel-emoji">${cfg.emoji}</span>
           <span class="dagdel-label" style="color:${cfg.headerText};">${cfg.label}</span>
+          ${nowBadge}
           <span class="dagdel-count" data-progress="${progress}" onclick="toggleNextInSection('${group.key}', event)" title="Bocka av nästa aktivitet">${doneCount}/${totalCount}</span>
         </div>
         <div class="dagdel-body">

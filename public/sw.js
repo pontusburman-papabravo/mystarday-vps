@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v589';
+const CACHE_NAME = 'stjarndag-v590';
+// stjarndag-v590: Idag fun polish — star trail, greetings, current dagdel highlight
 // stjarndag-v589: Infer pictogram pack keys from activity name/emoji when icon_key missing
 // stjarndag-v588: Activity card size — standard/large presentation (gate ON)
 // stjarndag-v587: Barnets samling pictogram packs — simple/action (runtime SW cache, ~3.5 MB, not precached)
