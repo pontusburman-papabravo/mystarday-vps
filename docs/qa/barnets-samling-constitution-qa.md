@@ -193,6 +193,131 @@ Kör på **iPhone Safari**, **iPhone PWA** (om möjligt), **Android Chrome**, **
 
 ---
 
+## Igenkänningstest för aktivitetspictogram
+
+> **Merge-blocker:** Nej — teknisk merge av #648/#649 kräver inte detta test.  
+> **Marknadsförings-blocker:** Ja — kör och dokumentera innan **simple** beskrivs som validerat bildstöd för barn som inte läser.
+
+Syftet är att kontrollera om ett barn kan förstå aktivitetens betydelse **utan** att läsa aktivitetens text.
+
+### Genomförande
+
+1. Testa med pictogrammets text och aktivitetsnamn **dolda**.
+2. Visa **en bild i taget** i ungefär den storlek som används i appen:
+   - Vanliga kort (`standard`)
+   - Stora bilder (`large`)
+3. Fråga neutralt:
+
+   > Vad tror du att den här bilden betyder?
+
+4. Ge inte ledtrådar och läs inte upp aktivitetens namn innan barnet har svarat.
+5. Om barnet inte svarar kan du efter några sekunder fråga:
+
+   > Vad gör personen eller vad händer på bilden?
+
+6. Undvik ja/nej-frågor som kan styra svaret.
+
+### Registrera per bild
+
+- Barnet förstod direkt, inom cirka 3 sekunder
+- Barnet förstod efter den neutrala följdfrågan
+- Barnet gav en närliggande men inte tillräckligt tydlig tolkning
+- Barnet förstod inte bilden
+- Barnet blandade ihop bilden med en annan aktivitet
+
+Anteckna barnets **faktiska svar**. Skriv inte bara godkänd eller underkänd.
+
+### Godkännanderegel
+
+En bild är tillräckligt tydlig när barnet utan text:
+
+- identifierar rätt aktivitet direkt eller med en neutral följdfråga
+- inte regelbundet blandar ihop den med en annan aktivitet
+- kan känna igen bilden igen senare under samma test
+
+Bilden bör revideras om:
+
+- barnet främst namnger ett föremål men inte handlingen
+- flera barn ger samma felaktiga tolkning
+- förståelsen kräver att en vuxen förklarar symbolen
+- bilden bara fungerar efter att barnet lärt sig dess betydelse utantill
+
+### Prioriterade bilder i simple v1
+
+Testa minst:
+
+| Nyckel | Aktivitet |
+|--------|-----------|
+| `wash-hands` | Tvätta händerna |
+| `wash-face` | Tvätta ansiktet |
+| `get-dressed` | Klä på sig |
+| `leave-home` | Gå hemifrån |
+| `clear-table` | Plocka undan |
+| `break` | Paus |
+| `calm-time` | Lugn stund |
+| `pajamas` | Ta på pyjamas |
+
+Kontrollera även några **tydliga referensbilder**:
+
+| Nyckel | Aktivitet |
+|--------|-----------|
+| `toilet` | Toalett |
+| `brush-teeth` | Borsta tänderna |
+| `bath` | Bada |
+| `breakfast` | Frukost |
+| `school` | Skola |
+| `football` | Fotboll |
+| `sleep` | Sova |
+
+Referensbilderna hjälper till att skilja ett generellt problem med testupplägget från ett problem med en specifik symbol.
+
+### Testmatris
+
+Kör prioriterade bilder i följande kombinationer:
+
+| Bildstil | Kortstorlek |
+|----------|-------------|
+| Tydliga bilder (`simple`) | Vanliga kort (`standard`) |
+| Tydliga bilder (`simple`) | Stora bilder (`large`) |
+| Aktiva bilder (`action`) | Vanliga kort (`standard`) |
+| Aktiva bilder (`action`) | Stora bilder (`large`) |
+
+Kontrollera särskilt om större presentation **förbättrar förståelsen** eller bara gör en otydlig symbol större.
+
+### Enkel resultatmall
+
+| Bild | Pack | Storlek | Barnets svar | Direkt förstådd | Behöver ändras |
+|------|------|---------|--------------|-----------------|----------------|
+| wash-hands | simple | large | | Ja/Nej | Ja/Nej |
+| wash-face | simple | large | | Ja/Nej | Ja/Nej |
+| get-dressed | simple | large | | Ja/Nej | Ja/Nej |
+| leave-home | simple | large | | Ja/Nej | Ja/Nej |
+| clear-table | simple | large | | Ja/Nej | Ja/Nej |
+| break | simple | large | | Ja/Nej | Ja/Nej |
+| calm-time | simple | large | | Ja/Nej | Ja/Nej |
+| pajamas | simple | large | | Ja/Nej | Ja/Nej |
+
+Fyll i en rad per testad kombination (pack + storlek). Duplicera mallen för `standard` och `action` vid behov.
+
+### Integritet och testmiljö
+
+- Testa i lugn miljö utan tidspress.
+- Gör testet frivilligt och kort.
+- Avsluta om barnet tappar intresset eller blir frustrerat.
+- Samla inte in foto, ljud eller personuppgifter om det inte behövs och har godkänts.
+- Testa gärna med fler än ett barn innan en symbol bedöms som generell.
+
+### Ship-bedömning
+
+| Fas | Krav |
+|-----|------|
+| **Teknisk merge (#648/#649)** | Automatiserade tester + funktionell mobil-QA (Bildstil, Kortstorlek, fallback). Igenkänningstest **krävs inte**. |
+| **Marknadsföring av simple för icke-läsande barn** | Prioriterade bilder testade utan text · återkommande feltolkningar dokumenterade · otydliga bilder ersatta eller märkta v1 · fallback till text, eget foto eller emoji verifierad |
+
+**Rekommenderad testordning:** merga **#650** (boot-fixar) före manuell mobil-QA så att test sker med slutligt bootbeteende.
+
+---
+
 ## Kortstorlek (aktivitetsbilder)
 
 Kör på **iPhone Safari**, **iPhone PWA**, **Android Chrome**, **Android PWA**.
@@ -212,7 +337,7 @@ Kör på **iPhone Safari**, **iPhone PWA**, **Android Chrome**, **Android PWA**.
 | 11 | Ingen åldersstyrd låsning |
 | 12 | Gate OFF → legacy kortstorlek oförändrad |
 
-**Kända simple-symboler att förbättra (v2 assets):** wash-hands, wash-face, get-dressed, leave-home, clear-table, break, calm-time, pajamas — kör igenkänningstest utan text med barn.
+**Kända simple-symboler att förbättra (v2 assets):** se prioriterad lista i [Igenkänningstest](#igenkänningstest-för-aktivitetspictogram) ovan.
 
 ---
 
