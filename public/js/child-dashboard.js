@@ -182,6 +182,7 @@ function showTab(tab) {
   const rv = document.getElementById('rewardsView');
   const cv = document.getElementById('collectionView');
   const fv = document.getElementById('familyView');
+  const stv = document.getElementById('settingsView');
   const mv = document.getElementById('moreView');
   const weekNav = document.getElementById('weekNavDetails');
   const progress = document.getElementById('progressSection');
@@ -191,6 +192,7 @@ function showTab(tab) {
   const isUniverse = tab === 'rewards';
   const isCollection = tab === 'collection';
   const isFamily = tab === 'family';
+  const isSettings = tab === 'settings';
   const isMore = tab === 'more';
 
   if (hv) hv.classList.toggle('hidden', !isHome);
@@ -198,6 +200,7 @@ function showTab(tab) {
   if (rv) rv.classList.toggle('hidden', !isUniverse);
   if (cv) cv.classList.toggle('hidden', !isCollection);
   if (fv) fv.classList.toggle('hidden', !isFamily);
+  if (stv) stv.classList.toggle('hidden', !isSettings);
   if (mv) mv.classList.toggle('hidden', !isMore);
 
   const showChildBottomNav = childUiMagic
@@ -249,6 +252,7 @@ function showTab(tab) {
   }
   if (isCollection && window.ChildSamlingView) ChildSamlingView.refresh();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
+  if (isSettings && window.ChildSettingsView) ChildSettingsView.refresh();
 
   if (window.ChildWorldsNav) {
     ChildWorldsNav.highlightActive(tab);

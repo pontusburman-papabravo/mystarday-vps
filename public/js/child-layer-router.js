@@ -69,6 +69,7 @@
           treasure: 'universe',
           world: 'universe',
           family: 'family',
+          settings: 'settings',
         }[layerOrWorld] || 'today');
       const target = '#' + hashKey;
       if (window.location.hash !== target) {
@@ -93,12 +94,14 @@
     const todayFocus = document.getElementById('todayFocusMount');
     const rewardsView = document.getElementById('rewardsView');
     const familyView = document.getElementById('familyView');
+    const settingsView = document.getElementById('settingsView');
     const homeView = document.getElementById('homeView');
 
     const isToday = layerOrWorld === 'today' || layerOrWorld === 'home';
     const isWorld = layerOrWorld === 'world' || layerOrWorld === 'universe' || layerOrWorld === 'treasure';
     const isCollection = layerOrWorld === 'collection';
     const isFamily = layerOrWorld === 'family';
+    const isSettings = layerOrWorld === 'settings';
 
     const collectionView = document.getElementById('collectionView');
     if (collectionView) {
@@ -119,12 +122,19 @@
       familyView.setAttribute('data-active', isFamily ? 'true' : 'false');
     }
 
+    if (settingsView) {
+      settingsView.setAttribute('data-active', isSettings ? 'true' : 'false');
+    }
+
     if (homeView) {
       homeView.setAttribute('data-active', 'false');
     }
 
     if (isFamily && window.ChildFamilyHall) {
       ChildFamilyHall.refresh();
+    }
+    if (isSettings && window.ChildSettingsView) {
+      ChildSettingsView.refresh();
     }
   }
 

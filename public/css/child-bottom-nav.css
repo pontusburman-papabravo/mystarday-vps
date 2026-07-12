@@ -40,17 +40,25 @@ body.child-has-bottom-nav .child-bottom-nav {
   justify-content: center;
   gap: 2px;
   min-height: 52px;
-  padding: 4px 6px;
+  padding: 4px 4px;
   border: none;
   background: transparent;
   color: #9AA0B8;
   font-family: 'Outfit', sans-serif;
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
   cursor: pointer;
   border-radius: 12px;
   transition: color 0.15s ease, background 0.15s ease;
   -webkit-tap-highlight-color: transparent;
+}
+
+.child-bottom-nav-btn span:last-child {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
 }
 
 .child-bottom-nav-btn .child-bottom-nav-icon {
@@ -107,10 +115,12 @@ body.child-has-bottom-nav #scheduleView,
 body.child-has-bottom-nav #collectionView,
 body.child-has-bottom-nav #rewardsView,
 body.child-has-bottom-nav #familyView,
+body.child-has-bottom-nav #settingsView,
 body.child-worlds-v2 #scheduleView,
 body.child-worlds-v2 #collectionView,
 body.child-worlds-v2 #rewardsView,
 body.child-worlds-v2 #familyView,
+body.child-worlds-v2 #settingsView,
 body.child-home-active #homeView {
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
 }

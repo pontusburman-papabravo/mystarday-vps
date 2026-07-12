@@ -96,12 +96,12 @@ describe('child-activity-card-size — client', () => {
 });
 
 describe('child-activity-card-size — UI wiring', () => {
-  it('renders Kortstorlek entry after Bildstil in Min samling', () => {
-    const src = read('public/js/child-samling-present.js');
+  it('renders Kortstorlek entry in customization module', () => {
+    const src = read('public/js/child-customization-entries.js');
     assert.match(src, /renderCardSizeEntry/);
     assert.match(src, /bspOpenCardSizePicker/);
-    assert.match(src, /renderPictogramEntry\(\)/);
-    assert.match(src, /renderCardSizeEntry\(\)/);
+    assert.match(src, /renderPictogramEntry/);
+    assert.match(src, /renderCardSizeEntry/);
   });
 
   it('picker scripts and styles load on child dashboard', () => {

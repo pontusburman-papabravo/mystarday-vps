@@ -254,12 +254,12 @@ describe('child-pictogram-packs — client mirror', () => {
 });
 
 describe('child-pictogram-picker — UI wiring', () => {
-  it('renders Bildstil entry near theme picker in Min samling', () => {
-    const src = read('public/js/child-samling-present.js');
+  it('renders Bildstil entry in customization module', () => {
+    const src = read('public/js/child-customization-entries.js');
     assert.match(src, /renderPictogramEntry/);
     assert.match(src, /bspOpenPictogramPicker/);
-    assert.match(src, /renderThemeEntry\(\)/);
-    assert.match(src, /renderPictogramEntry\(\)/);
+    assert.match(src, /renderThemeEntry/);
+    assert.match(src, /renderPictogramEntry/);
   });
 
   it('picker scripts and styles load on child dashboard', () => {

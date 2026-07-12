@@ -50,7 +50,8 @@ html[data-child-world-active='treasure'] [data-barnets-samling="on"] .cwb-world:
 [data-barnets-samling="on"] #scheduleView,
 [data-barnets-samling="on"] #collectionView,
 [data-barnets-samling="on"] #rewardsView,
-[data-barnets-samling="on"] #familyView {
+[data-barnets-samling="on"] #familyView,
+[data-barnets-samling="on"] #settingsView {
   position: relative;
   z-index: 1;
   background: transparent !important;
