@@ -113,9 +113,14 @@
         window.Platform.haptics.medium();
       }
       const checkEl = document.querySelector(`#card-${itemId} .card-check`) ||
+                      document.querySelector(`#card-${itemId} .photo-activity-card__check`) ||
                       document.querySelector(`#card-${itemId} .now-check`) ||
                       document.getElementById('card-' + itemId);
-      launchDopaminBurst(checkEl);
+      if (window.ChildTodayWarmth && ChildTodayWarmth.shouldUseWarmthCheckoff()) {
+        ChildTodayWarmth.microSpark(checkEl);
+      } else {
+        launchDopaminBurst(checkEl);
+      }
     }
 
     _checkOffQueue.push({

@@ -127,4 +127,37 @@ No tasks
 
 ---
 
-*Senast uppdaterad: 2026-07-01*
+*Senast uppdaterad: 2026-07-12*
+
+---
+
+## Roadmap — värme & igenkänning (ej spel)
+
+> **Idag ska kännas levande och personligt — inte som ett spel.** Prioritet: värme och igenkänning framför fler animationer.
+
+### Klart (stack 1–4 + polish)
+
+1. Theme shell + temaväljare
+2. Bildstil (simple/action)
+3. Kortstorlek
+4. Idag-polish: hälsning, stjärnspår, Nu-markering, rundare kort
+
+### Nästa (stack 5 — värme)
+
+| # | Insats | Princip |
+|---|--------|---------|
+| 5a | **Temadecal** i högra hörnet (liten emoji per tema) | "Det här är Astrids värld" |
+| 5b | **Mikroanimation** vid avbockning (⭐ pop / 2–3 gnistor, ~0,3 s) | Ingen explosion |
+| 5c | **Dagens berättelse** istället för "5 av 8" | NPF-vänligt språk |
+| 5d | **Klar sektion** — "✓ Morgon klar", grön ton | Lugn feedback |
+| 5e | **Tema-vaknar** när hela dagen är klar (2–3 s, temaspecifik) | Belöning kopplad till tema, inte poäng |
+
+### Senare (stack 6–8)
+
+6. Revidera 8–12 simple-pictogram (handlingsorienterade)
+7. Årsbok/minnessamling med samma tema
+8. Subtila bakgrundsrörelser (8–12 s intervall, reduced-motion av)
+
+### Undvik på Idag
+
+Stora konfettiregn · mynt · XP · level up · blinkande knappar · explosioner · många ljud

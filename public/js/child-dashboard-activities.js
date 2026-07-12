@@ -299,11 +299,17 @@ function renderActivities(data, trueStarBalance) {
         : null;
       const isCurrent = isToday && currentKey === group.key
         && window.ChildTodayFun && ChildTodayFun.isSamlingGateOn && ChildTodayFun.isSamlingGateOn();
+      const isComplete = isToday && doneCount === totalCount && totalCount > 0
+        && window.ChildTodayWarmth && ChildTodayWarmth.isSamlingGateOn && ChildTodayWarmth.isSamlingGateOn();
       const currentCls = isCurrent ? ' dagdel-section--current' : '';
+      const completeCls = isComplete ? ' dagdel-section--complete' : '';
       const nowBadge = isCurrent
         ? '<span class="dagdel-now-badge" aria-hidden="true">Nu</span>'
         : '';
-      html += `<div class="dagdel-section${currentCls}" data-section="${group.key}" style="background:${cfg.bg};border:2px solid ${cfg.border};">
+      const completeFoot = isComplete
+        ? '<div class="dagdel-complete-foot">' + ChildTodayWarmth.sectionCompleteLabel(group.key) + '</div>'
+        : '';
+      html += `<div class="dagdel-section${currentCls}${completeCls}" data-section="${group.key}" style="background:${cfg.bg};border:2px solid ${cfg.border};">
         <div class="dagdel-header" style="background:${cfg.headerBg};">
           <span class="dagdel-emoji">${cfg.emoji}</span>
           <span class="dagdel-label" style="color:${cfg.headerText};">${cfg.label}</span>
@@ -318,6 +324,7 @@ function renderActivities(data, trueStarBalance) {
       }
       html += `</div>
         </div>
+        ${completeFoot}
       </div>`;
     }
 
@@ -425,6 +432,9 @@ function renderActivities(data, trueStarBalance) {
   }
 
   container.innerHTML = html;
+  if (window.ChildTodayWarmth && ChildTodayWarmth.mountThemeDecal) {
+    ChildTodayWarmth.mountThemeDecal();
+  }
   // Start Time Timer ticks after DOM is updated
   initTimeTimers();
   if (window.ChildActivityTimer) {

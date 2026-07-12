@@ -197,6 +197,8 @@
     const nowName = state.nowItem ? state.nowItem.name : '';
     const fun = window.ChildTodayFun;
     const samlingFun = fun && fun.isSamlingGateOn && fun.isSamlingGateOn();
+    const warmth = window.ChildTodayWarmth;
+    const samlingWarmth = warmth && warmth.isSamlingGateOn && warmth.isSamlingGateOn();
 
     let headline = 'Dagens uppdrag';
     if (state.state === IDAG_STATES.ACTIVE && nowName) {
@@ -212,6 +214,12 @@
     const progressTrail = samlingFun && fun.renderProgressTrail && state.total > 0
       ? fun.renderProgressTrail(state.completed, state.total)
       : '';
+    const trailHtml = progressTrail
+      ? progressTrail.replace('ctf-progress-trail', 'ctf-progress-trail' + (samlingWarmth ? ' ctf-progress-trail--warm' : ''))
+      : '';
+    const dayStory = samlingWarmth && warmth.dayNarrative
+      ? warmth.dayNarrative(state)
+      : '';
     const starTeaser = samlingFun && fun.starsTeaser && state.starsOnNow > 0
       ? fun.starsTeaser(state.starsOnNow)
       : '';
@@ -219,10 +227,11 @@
     return '<div class="ctf-bar' + (samlingFun ? ' ctf-bar--fun' : '') + '" id="todayFocusBar">' +
       illus +
       '<div class="ctf-greeting">' + greeting + '</div>' +
-      progressTrail +
+      (dayStory ? '<p class="ctf-day-narrative">' + dayStory + '</p>' : '') +
+      trailHtml +
       '<div class="ctf-missions-head">' +
         '<span class="ctf-missions-title">' + headline + '</span>' +
-        (starTeaser || '<span class="ctf-missions-sub">' + progress + '</span>') +
+        (starTeaser || (!samlingWarmth ? '<span class="ctf-missions-sub">' + progress + '</span>' : '')) +
       '</div>' +
       (nextStep
         ? '<p class="ctf-next-step">' + nextStep + '</p>'

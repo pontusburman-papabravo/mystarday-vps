@@ -29,6 +29,9 @@
   }
 
   function checkMilestones(total, completed) {
+    if (window.ChildTodayWarmth && ChildTodayWarmth.shouldSuppressMilestoneConfetti()) {
+      return;
+    }
     if (total === 0) return;
     const pct = Math.round((completed / total) * 100);
     const triggered = getTriggeredMilestones();
