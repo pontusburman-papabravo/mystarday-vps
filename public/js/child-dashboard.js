@@ -628,6 +628,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.ChildPictogramPacks && ChildPictogramPacks.applyFromConfig) {
       ChildPictogramPacks.applyFromConfig(viewCfgForTheme);
     }
+    if (window.ChildActivityCardSize && ChildActivityCardSize.applyFromConfig) {
+      ChildActivityCardSize.applyFromConfig(viewCfgForTheme);
+    }
 
     window.ChildDashboardContext = {
       me: me,

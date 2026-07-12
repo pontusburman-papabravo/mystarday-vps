@@ -170,6 +170,10 @@ const PictogramPackBodySchema = z.object({
   pictogram_pack: z.enum(['simple', 'action']),
 }).strict();
 
+const ActivityCardSizeBodySchema = z.object({
+  activity_card_size: z.enum(['standard', 'large']),
+}).strict();
+
 const VisualThemeBodySchema = z.object({
   visual_theme: z.enum([
     'adventure',
@@ -570,6 +574,7 @@ module.exports = {
   ChildViewConfigSchema,
   VisualThemeBodySchema,
   PictogramPackBodySchema,
+  ActivityCardSizeBodySchema,
   // Activities
   CreateActivitySchema,
   UpdateActivitySchema,

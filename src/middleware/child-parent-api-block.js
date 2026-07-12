@@ -21,6 +21,7 @@ const CHILD_ALLOWED = [
   /^\/children\/[^/]+\/view-config$/,
   /^\/children\/[^/]+\/visual-theme$/,
   /^\/children\/[^/]+\/pictogram-pack$/,
+  /^\/children\/[^/]+\/activity-card-size$/,
 ];
 
 function childParentApiBlock(req, res, next) {

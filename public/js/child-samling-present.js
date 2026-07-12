@@ -68,6 +68,26 @@
     );
   }
 
+  function renderCardSizeEntry() {
+    if (!window.ChildActivityCardSize || !ChildActivityCardSize.isSamlingGateOn || !ChildActivityCardSize.isSamlingGateOn()) {
+      return '';
+    }
+    const sizeId = ChildActivityCardSize.getActiveSizeId ? ChildActivityCardSize.getActiveSizeId() : 'standard';
+    const size = ChildActivityCardSize.SIZES[sizeId] || ChildActivityCardSize.SIZES.standard;
+    return (
+      '<section class="bsp-cardsize-entry" aria-label="Kortstorlek">' +
+        '<button type="button" class="bsp-cardsize-entry-btn" id="bspOpenCardSizePicker">' +
+          '<span class="bsp-cardsize-entry-preview" aria-hidden="true"></span>' +
+          '<span class="bsp-cardsize-entry-copy">' +
+            '<span class="bsp-cardsize-entry-kicker">Kortstorlek</span>' +
+            '<span class="bsp-cardsize-entry-label">' + esc(size.label) + '</span>' +
+          '</span>' +
+          '<span class="bsp-cardsize-entry-chevron" aria-hidden="true">›</span>' +
+        '</button>' +
+      '</section>'
+    );
+  }
+
   function renderThemeEntry() {
     if (!window.ChildTheme || !ChildTheme.isSamlingGateOn || !ChildTheme.isSamlingGateOn()) {
       return '';
@@ -563,6 +583,7 @@
         renderHeroPanel(universe) +
         renderThemeEntry() +
         renderPictogramEntry() +
+        renderCardSizeEntry() +
         renderPreviewStrip(universe, extras) +
         renderMedalSection(universe) +
         renderWallSection(universe) +
