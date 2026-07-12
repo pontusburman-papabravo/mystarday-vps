@@ -1,5 +1,5 @@
 /**
- * child-worlds.js — Barnnav: legacy tre världar eller Barnets samling (fyra flikar).
+ * child-worlds.js — Barnnav: legacy tre världar eller Barnets samling (fem flikar).
  * Gate: barnets_samling via ChildWorlds.configureFromFeatures().
  * Consumers: child-shell.js, child-worlds-nav.js, child-layer-router.js
  */
@@ -69,6 +69,14 @@
       labels: { default: 'Mina personer' },
       paths: ['/child/family'],
     },
+    {
+      id: 'settings',
+      icon: '⚙️',
+      href: '/child/settings',
+      tabKey: 'settings',
+      labels: { default: 'Mitt' },
+      paths: ['/child/settings'],
+    },
   ];
 
   const LEGACY_HASH = {
@@ -103,8 +111,12 @@
     world: 'treasure',
     family: 'family',
     familj: 'family',
-    more: 'today',
-    mer: 'today',
+    settings: 'settings',
+    inställningar: 'settings',
+    installningar: 'settings',
+    mitt: 'settings',
+    more: 'settings',
+    mer: 'settings',
   };
 
   let _barnetsSamling = false;
@@ -244,7 +256,13 @@
 
   function hashForWorld(worldId) {
     if (_barnetsSamling) {
-      const map = { today: 'today', collection: 'collection', treasure: 'treasure', family: 'family' };
+      const map = {
+        today: 'today',
+        collection: 'collection',
+        treasure: 'treasure',
+        family: 'family',
+        settings: 'settings',
+      };
       return map[worldId] || 'today';
     }
     const legacy = { today: 'today', world: 'universe', family: 'family' };

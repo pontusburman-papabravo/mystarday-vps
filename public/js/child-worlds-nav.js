@@ -61,7 +61,7 @@
 
     worlds.forEach(function (world) {
       const isActive = world.id === activeId;
-      const iconMarkup = useThemeIcons
+      const iconMarkup = (useThemeIcons && world.id !== 'settings')
         ? ChildTheme.iconHtmlForWorld(world.id)
         : '<span class="child-bottom-nav-icon" aria-hidden="true">' + world.icon + '</span>';
       html +=

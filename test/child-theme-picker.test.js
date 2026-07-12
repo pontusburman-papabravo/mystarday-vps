@@ -53,8 +53,8 @@ describe('child-theme-picker — UI and config', () => {
     assert.ok(!themes.some(function (t) { return t.id === 'fantasy'; }));
   });
 
-  it('renders Mitt tema entry only in samling present when gate on', () => {
-    const src = read('public/js/child-samling-present.js');
+  it('renders Mitt tema entry in customization module when gate on', () => {
+    const src = read('public/js/child-customization-entries.js');
     assert.match(src, /renderThemeEntry/);
     assert.match(src, /bspOpenThemePicker/);
     assert.match(src, /ChildTheme\.isSamlingGateOn/);
@@ -108,8 +108,8 @@ describe('child-theme-picker — UI and config', () => {
     assert.match(src, /loading="lazy"/);
   });
 
-  it('gate OFF does not render theme entry in present', () => {
-    const src = read('public/js/child-samling-present.js');
+  it('gate OFF does not render theme entry in customization module', () => {
+    const src = read('public/js/child-customization-entries.js');
     assert.match(src, /!ChildTheme\.isSamlingGateOn/);
   });
 });
