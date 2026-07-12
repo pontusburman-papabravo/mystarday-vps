@@ -127,6 +127,29 @@ async function deleteAvatarForParentRecord(parentId) {
   await deletePrivateObject(row.avatar_storage_key);
 }
 
+/**
+ * Delete all avatar objects for a family (account deletion / dissolution).
+ */
+async function deleteAvatarsForFamily(familyId) {
+  if (!familyId) return;
+  const { rows: childRows } = await db.query(
+    `SELECT avatar_storage_key FROM child
+     WHERE family_id = $1 AND avatar_storage_key IS NOT NULL`,
+    [familyId]
+  );
+  const { rows: parentRows } = await db.query(
+    `SELECT avatar_storage_key FROM parent
+     WHERE family_id = $1 AND avatar_storage_key IS NOT NULL`,
+    [familyId]
+  );
+  const keys = new Set();
+  for (const row of childRows) keys.add(row.avatar_storage_key);
+  for (const row of parentRows) keys.add(row.avatar_storage_key);
+  for (const key of keys) {
+    await deletePrivateObject(key);
+  }
+}
+
 module.exports = {
   getChildAvatarRow,
   getParentAvatarRow,
@@ -136,4 +159,5 @@ module.exports = {
   clearParentAvatar,
   deleteAvatarForChildRecord,
   deleteAvatarForParentRecord,
+  deleteAvatarsForFamily,
 };

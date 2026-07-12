@@ -8,6 +8,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
+const { deleteAvatarsForFamily } = require('../../lib/avatar-service');
 
 const router = express.Router();
 
@@ -85,6 +86,8 @@ router.delete('/delete-account', requireParent, async (req, res) => {
     await client.query(`DELETE FROM parent_child WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM parent_child WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM email_subscriptions WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
+
+    await deleteAvatarsForFamily(family_id);
 
     await client.query(`DELETE FROM child WHERE family_id = $1`, [family_id]);
     await client.query(`DELETE FROM parent WHERE family_id = $1`, [family_id]);

@@ -9,6 +9,9 @@ const { getPrivateObjectMeta } = require('../lib/avatar-storage');
 
 const router = express.Router();
 
+/** Revalidate on every use — authz runs before 304; avoids stale body after revoked access. */
+const AVATAR_CACHE_CONTROL = 'private, no-cache, must-revalidate';
+
 async function loadAvatarRecord(memberType, memberId) {
   if (memberType === 'child') return getChildAvatarRow(memberId);
   if (memberType === 'parent') return getParentAvatarRow(memberId);
@@ -45,11 +48,15 @@ router.get('/:memberType/:memberId', optionalAuth, async (req, res) => {
 
     const etag = `"av-${memberType}-${memberId}-${avatarVersion(record.avatar_updated_at)}"`;
     if (req.headers['if-none-match'] === etag) {
+      res.setHeader('Cache-Control', AVATAR_CACHE_CONTROL);
+      res.setHeader('Vary', 'Cookie');
+      res.setHeader('ETag', etag);
       return res.status(304).end();
     }
 
     res.setHeader('Content-Type', meta.contentType);
-    res.setHeader('Cache-Control', 'private, max-age=3600, must-revalidate');
+    res.setHeader('Cache-Control', AVATAR_CACHE_CONTROL);
+    res.setHeader('Vary', 'Cookie');
     res.setHeader('ETag', etag);
     if (meta.size) res.setHeader('Content-Length', String(meta.size));
 
@@ -66,3 +73,4 @@ router.get('/:memberType/:memberId', optionalAuth, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.AVATAR_CACHE_CONTROL = AVATAR_CACHE_CONTROL;

@@ -7,6 +7,31 @@
   const EXPORT_SIZE = 512;
   let modalEl = null;
   let state = null;
+  let previousFocus = null;
+  let onKeyDown = null;
+
+  function trapFocus(e) {
+    if (!modalEl || modalEl.classList.contains('hidden')) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close(null);
+      return;
+    }
+    if (e.key !== 'Tab' || !modalEl.contains(document.activeElement)) return;
+    const focusable = modalEl.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 
   function ensureModal() {
     if (modalEl) return modalEl;
@@ -19,7 +44,8 @@
     modalEl.innerHTML =
       '<div class="bg-white dark:bg-navy w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-4 shadow-xl">' +
         '<h2 id="avatarCropTitle" class="text-lg font-heading font-bold text-navy dark:text-white mb-3">Beskär profilbild</h2>' +
-        '<div id="avatarCropViewport" class="relative w-full aspect-square bg-gray-900 rounded-xl overflow-hidden touch-none" style="max-height:min(70vh,400px);"></div>' +
+        '<p id="avatarCropHelp" class="text-xs text-text-soft mt-1 mb-2">Dra bilden för att placera den. Använd zoom eller piltangenterna på reglaget.</p>' +
+        '<div id="avatarCropViewport" class="relative w-full aspect-square bg-gray-900 rounded-xl overflow-hidden touch-none" style="max-height:min(70vh,400px);" aria-describedby="avatarCropHelp"></div>' +
         '<label class="block mt-3 text-xs font-semibold text-text-soft">Zoom</label>' +
         '<input type="range" id="avatarCropZoom" min="1" max="3" step="0.01" value="1" class="w-full mt-1" />' +
         '<div class="flex gap-2 mt-4">' +
@@ -159,6 +185,14 @@
     const vp = viewport();
     if (vp) vp.innerHTML = '';
     state = null;
+    if (onKeyDown) {
+      document.removeEventListener('keydown', onKeyDown);
+      onKeyDown = null;
+    }
+    if (previousFocus && typeof previousFocus.focus === 'function') {
+      try { previousFocus.focus(); } catch (_) { /* ignore */ }
+    }
+    previousFocus = null;
     if (resolve) resolve(result);
   }
 
@@ -191,6 +225,11 @@
           drag: null,
         };
         modalEl.classList.remove('hidden');
+        previousFocus = document.activeElement;
+        onKeyDown = trapFocus;
+        document.addEventListener('keydown', onKeyDown);
+        const cancelBtn = modalEl.querySelector('#avatarCropCancelBtn');
+        if (cancelBtn) cancelBtn.focus();
         resetEditor();
       };
       img.onerror = function () {

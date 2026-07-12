@@ -114,7 +114,7 @@ Pedagog ser **inte** avatarer för barn de inte är kopplade till (403/404).
 | Barn raderas | Radera barnets avatarobjekt i samma transaktion/flöde |
 | Vuxen tas bort från familj / konto raderas | Radera vuxens avatarobjekt |
 | `parent_child` återkallas | Ingen filradering; authz nekar framtida GET |
-| Familj raderas | CASCADE på child/parent → cleanup-jobb raderar kvarvarande nycklar |
+| Familj raderas | `deleteAvatarsForFamily` raderar alla objekt före child/parent-rader |
 
 ### Migrering av befintliga publika avatarer
 
@@ -125,11 +125,14 @@ Pedagog ser **inte** avatarer för barn de inte är kopplade till (403/404).
 
 Bilder som inte går att mappa rensas (`avatar_url` null) — användare får ladda upp igen.
 
+**Release-notering:** Efter migration är `avatar_url` null i DB. Klienter som fortfarande har gamla publika URL:er i cache visar trasig bild tills användaren laddar upp på nytt via v1-flödet. Detta är avsiktligt — inga permanenta publika länkar.
+
 ### Cache och revoke
 
-- Authz på **varje** GET (även vid `If-None-Match`).
-- Vid nekad authz: **404** (läcker inte om avatar finns).
-- `?v=` från `avatar_updated_at` ogiltigförklarar browsercache vid byte/radering.
+- Authz på **varje** GET (även vid `If-None-Match` / 304).
+- Vid nekad authz: **404** för alla medlemstyper (barn, vuxen, pedagog) — ingen 403 som läcker existens.
+- `Cache-Control: private, no-cache, must-revalidate` + `Vary: Cookie` — klienten måste omvalidera vid varje visning; inget `max-age` som tillåter offline-cache efter återkallad behörighet.
+- `?v=` från `avatar_updated_at` ogiltigförklarar ETag vid byte/radering.
 
 ---
 
