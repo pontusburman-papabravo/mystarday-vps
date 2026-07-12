@@ -552,11 +552,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (window.ChildWorlds && ChildWorlds.configureFromFeatures) {
         ChildWorlds.configureFromFeatures(feats || []);
       }
+      if (window.applyChildViewChrome) applyChildViewChrome();
       if (!featureSlugs.includes('emotion_tracking')) {
         showMoodRating = false;
       }
       transitionSupportEnabled = featureSlugs.includes('transition_support');
-    } catch { /* fail open for transition; mood stays gated below */ }
+    } catch {
+      if (window.ChildWorlds && ChildWorlds.finishAppBoot) ChildWorlds.finishAppBoot();
+    }
 
     me = await Auth.api('/api/auth/me');
     if (me.type !== 'child') {
@@ -628,7 +631,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderDayTabs();
     updateDateLine();
-    await loadDay(todayStr);
 
     if (window.ChildLayerRouter) {
       ChildLayerRouter.init();
@@ -643,7 +645,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       showTab('schedule');
     }
+
+    const initialWorld = window.ChildWorlds && ChildWorlds.activeChildNavItem
+      ? ChildWorlds.activeChildNavItem(window.location.pathname, window.location.hash)
+      : null;
+    const needsScheduleNow = !initialWorld || initialWorld.id === 'today';
+
+    if (needsScheduleNow) {
+      await loadDay(todayStr);
+    } else {
+      loadDay(todayStr).catch(function (err) {
+        console.error('Background schedule preload failed:', err);
+      });
+    }
   } catch (err) {
+    if (window.ChildWorlds && ChildWorlds.finishAppBoot) ChildWorlds.finishAppBoot();
     console.error('Init error:', err);
     Auth.clearAuth();
     const path = (window.location.pathname || '').replace(/\/$/, '') || '/';

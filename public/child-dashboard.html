@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <script>
+    (function () {
+      var p = (location.pathname || '').replace(/\/$/, '') || '/';
+      if (p === '/child-dashboard' || p.indexOf('/child/') === 0) {
+        document.documentElement.classList.add('child-app-boot');
+      }
+    }());
+  </script>
   <script src="/js/platform.js?v=1.0.0"></script>
+  <link rel="stylesheet" href="/css/child-app-boot.css?v=1.0.0">
     <meta property="og:title" content="Min Stjärndag — Förenkla vardagen för hela familjen">
     <meta property="og:description" content="Skapa och följ dagliga scheman, aktiviteter och belöningar">
     <meta property="og:type" content="website">

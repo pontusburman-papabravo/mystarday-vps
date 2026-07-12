@@ -29,10 +29,23 @@ describe('barnets_samling nav — #588', () => {
     assert.match(src, /\/child\/family/);
   });
 
+  it('child-worlds applies early samling chrome and boot guard', () => {
+    const worlds = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
+    const bootCss = fs.readFileSync(path.join(ROOT, 'public/css/child-app-boot.css'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(worlds, /finishAppBoot/);
+    assert.match(worlds, /applySamlingChromeEarly/);
+    assert.match(worlds, /child-app-boot/);
+    assert.match(bootCss, /child-app-boot/);
+    assert.match(bootCss, /data-nav-ready/);
+    assert.match(html, /child-app-boot/);
+  });
+
   it('child-worlds-nav waits for feature configuration', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
     assert.match(src, /child-worlds-configured/);
     assert.match(src, /getChildWorlds/);
+    assert.match(src, /data-nav-ready/);
   });
 
   it('child-dashboard gates nav via configureFromFeatures', () => {

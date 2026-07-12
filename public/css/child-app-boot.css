@@ -1,0 +1,47 @@
+/**
+ * child-app-boot.css — Hide legacy chrome until barnets_samling / child init resolves.
+ * html.child-app-boot is set synchronously in <head> on /child/* routes.
+ */
+
+html.child-app-boot #progressSection,
+html.child-app-boot #weekNavDetails,
+html.child-app-boot #viewToggleBtn,
+html.child-app-boot #printBtn,
+html.child-app-boot #childDarkBtn,
+html.child-app-boot #childHeaderRing,
+html.child-app-boot #childLayerNav,
+html.child-app-boot #scheduleView,
+html.child-app-boot #homeView,
+html.child-app-boot #rewardsView,
+html.child-app-boot #familyView,
+html.child-app-boot #collectionView,
+html.child-app-boot #todayFocusMount,
+html.child-app-boot #childBottomNav,
+html.child-app-boot #appViewToggleMount {
+  display: none !important;
+}
+
+html.child-app-boot body {
+  background: #f7f3eb;
+}
+
+html.child-app-boot #childMainHeader {
+  visibility: hidden;
+}
+
+/* Avoid flashing legacy Hem/Schema bottom nav before ChildWorldsNav renders */
+body.child-worlds-v2 #childBottomNav:not([data-nav-ready="true"]) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Gate ON: legacy progress/header tools stay hidden (today-focus owns Idag chrome) */
+[data-barnets-samling="on"] #progressSection,
+[data-barnets-samling="on"] #viewToggleBtn,
+[data-barnets-samling="on"] #printBtn,
+[data-barnets-samling="on"] #childDarkBtn,
+[data-barnets-samling="on"] #childHeaderRing,
+[data-barnets-samling="on"] #goalTeaserBtn,
+[data-barnets-samling="on"] #childLayerNav {
+  display: none !important;
+}

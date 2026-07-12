@@ -246,9 +246,11 @@
   display: none;
 }
 
-/* Route guard: universe must not leak task DOM */
+/* Route guard: non-today layers must not leak task DOM */
 [data-child-layer="universe"] #scheduleView,
 [data-child-layer="universe"] #todayFocusMount,
+[data-child-layer="collection"] #scheduleView,
+[data-child-layer="collection"] #todayFocusMount,
 [data-child-layer="family"] #scheduleView,
 [data-child-layer="family"] #todayFocusMount,
 [data-child-layer="family"] #rewardsView {
