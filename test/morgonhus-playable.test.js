@@ -442,7 +442,7 @@ describe('ChildMorgonhus client module', () => {
       'utf8'
     );
     assert.match(dashSrc, /isUniverse && window\.ChildMorgonhus && !window\.ChildMorgonhus\.isActive\(\)/);
-    assert.match(dashSrc, /loadRewards\(\{ force: true, skipHub: skipHub \}\)/);
+    assert.match(dashSrc, /force: true, skipHub: skipHub/);
     assert.match(dashSrc, /shouldSkipHubForRewards/);
   });
 

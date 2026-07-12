@@ -73,6 +73,7 @@ describe('barnets_samling Skattkammaren route — #591', () => {
     assert.match(fn, /\/child\/treasure/);
     assert.match(fn, /prepareTreasureEntry/);
     assert.match(fn, /syncChildRoute/);
+    assert.doesNotMatch(fn, /gateOn[\s\S]*location\.href = '\/child\/treasure'/);
   });
 
   it('child-shell bootstraps treasure via ChildTreasureView and prepareTreasureEntry', () => {

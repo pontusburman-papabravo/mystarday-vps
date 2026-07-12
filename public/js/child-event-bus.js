@@ -39,6 +39,9 @@
     if (window.ChildUniverse && typeof ChildUniverse.invalidate === 'function') {
       ChildUniverse.invalidate();
     }
+    if (window.ChildSamlingView && typeof ChildSamlingView.invalidate === 'function') {
+      ChildSamlingView.invalidate();
+    }
     if (window.ChildFamily && typeof ChildFamily.invalidate === 'function') {
       ChildFamily.invalidate();
     }

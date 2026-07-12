@@ -224,19 +224,28 @@ function showTab(tab) {
       && (!window.ChildGarden || !window.ChildGarden.isActive())
       && (!window.ChildWorldHub || !window.ChildWorldHub.isActive())
       && (!window.LivingWorldTransition || !window.LivingWorldTransition.isActive())) {
+    const samlingGate = window.ChildWorlds && ChildWorlds.isBarnetsSamlingEnabled
+      && ChildWorlds.isBarnetsSamlingEnabled();
     if (window.ChildWorlds && ChildWorlds.prepareTreasureEntry) {
       ChildWorlds.prepareTreasureEntry();
     }
-    window.rewardsLoaded = false;
-    if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
-      window.ChildMorgonhus.clearPreferSkatt();
-    }
-    if (window.ChildTreasureView) {
-      ChildTreasureView.refresh({ force: true });
+    if (samlingGate && window.rewardsLoaded) {
+      const view = document.getElementById('skattkammarView');
+      const loader = document.getElementById('skattkammarLoading');
+      if (view) view.style.display = '';
+      if (loader) loader.style.display = 'none';
     } else {
-      const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
-        && ChildWorlds.shouldSkipHubForRewards());
-      loadRewards({ force: true, skipHub: skipHub });
+      if (!samlingGate) window.rewardsLoaded = false;
+      if (typeof window.ChildMorgonhus.clearPreferSkatt === 'function') {
+        window.ChildMorgonhus.clearPreferSkatt();
+      }
+      if (window.ChildTreasureView) {
+        ChildTreasureView.refresh(samlingGate ? {} : { force: true });
+      } else {
+        const skipHub = !!(window.ChildWorlds && ChildWorlds.shouldSkipHubForRewards
+          && ChildWorlds.shouldSkipHubForRewards());
+        loadRewards(samlingGate ? { skipHub: skipHub } : { force: true, skipHub: skipHub });
+      }
     }
   } else if ((isHome || isUniverse) && !window.rewardsLoaded) {
     if (window.ChildTreasureView && isUniverse) {
