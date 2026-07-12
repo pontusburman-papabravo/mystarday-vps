@@ -40,4 +40,12 @@ describe('barnets_samling SPA tab navigation', () => {
     assert.match(fn, /samlingGate && window\.rewardsLoaded/);
     assert.match(fn, /ChildTreasureView\.refresh\(samlingGate \? \{\}/);
   });
+
+  it('photo cards render visible star reward badge when gate on', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-photo-cards.js'), 'utf8');
+    assert.match(src, /photo-activity-card__star-reward/);
+    assert.match(src, /data-barnets-samling/);
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(html, /child-samling-idag-density\.css/);
+  });
 });

@@ -1,0 +1,173 @@
+/**
+ * child-samling-idag-density.css — Tätare Idag-kort + synlig stjärnbelöning (barnets_samling).
+ */
+
+/* ── Sticky fokusbar ─────────────────────────────────────── */
+[data-barnets-samling="on"] #todayFocusMount {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+}
+
+[data-barnets-samling="on"] #todayFocusMount .ctf-bar {
+  padding: 10px 16px 8px;
+}
+
+/* ── Kompakta bildkort (horisontell rad) ─────────────────── */
+[data-barnets-samling="on"] .photo-activity-card {
+  display: grid !important;
+  grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 0.65rem;
+  padding: 0.6rem 0.7rem 0.6rem 0.6rem !important;
+  min-height: 0;
+  border-radius: 1.1rem !important;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__badge-wrap {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  padding: 0 0 0.2rem !important;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__img-slot {
+  grid-column: 1;
+  grid-row: 2 / span 2;
+  width: 5.5rem !important;
+  height: 5.5rem !important;
+  min-height: 0 !important;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: linear-gradient(145deg, #f8f8fc 0%, #ececf2 100%);
+}
+
+[data-barnets-samling="on"] .photo-activity-card--now .photo-activity-card__img-slot {
+  height: 5.75rem !important;
+  width: 5.75rem !important;
+  box-shadow: inset 0 0 0 2px rgba(245, 166, 35, 0.4);
+}
+
+[data-barnets-samling="on"] .photo-activity-card__img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center;
+  padding: 0.4rem;
+  box-sizing: border-box;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__foot {
+  grid-column: 2 / 4;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 !important;
+  min-width: 0;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__title-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__title {
+  flex: none;
+  text-align: left !important;
+  font-size: 1rem !important;
+  line-height: 1.2;
+  width: 100%;
+}
+
+[data-barnets-samling="on"] .photo-activity-card--now .photo-activity-card__title {
+  font-size: 1.05rem !important;
+}
+
+/* Synlig stjärnbelöning under titeln */
+[data-barnets-samling="on"] .photo-activity-card__star-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #b45309;
+  background: linear-gradient(135deg, rgba(255, 248, 231, 0.98), rgba(254, 243, 199, 0.95));
+  border: 1.5px solid rgba(245, 166, 35, 0.45);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(245, 166, 35, 0.15);
+}
+
+[data-barnets-samling="on"] .photo-activity-card .ctf-reward-teaser {
+  margin-left: 0;
+  font-size: 0.88rem;
+  padding: 0.2rem 0.65rem;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__meta {
+  grid-column: 2;
+  grid-row: 3;
+  justify-content: flex-start !important;
+  padding: 0 0 0.15rem !important;
+  gap: 0.5rem;
+  font-size: 0.76rem;
+}
+
+[data-barnets-samling="on"] .photo-activity-card__check {
+  width: 2.85rem;
+  height: 2.85rem;
+  min-width: 2.85rem;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+[data-barnets-samling="on"] .photo-activity-card > .mt-3 {
+  grid-column: 1 / -1;
+  margin-top: 0.35rem !important;
+  padding: 0.45rem 0.5rem 0.35rem !important;
+  border-top-color: rgba(237, 231, 246, 0.85) !important;
+}
+
+[data-barnets-samling="on"] .photo-activity-card > .mt-3 .expand-btn {
+  font-size: 0.82rem;
+}
+
+/* Stora kort: något högre bild, fortfarande kompakt rad */
+html[data-barnets-samling="on"][data-activity-card-size="large"] .photo-activity-card {
+  grid-template-columns: 6.25rem minmax(0, 1fr) auto;
+}
+
+html[data-barnets-samling="on"][data-activity-card-size="large"] .photo-activity-card__img-slot {
+  width: 6.25rem !important;
+  height: 6.25rem !important;
+}
+
+html[data-barnets-samling="on"][data-activity-card-size="large"] .photo-activity-card--now .photo-activity-card__img-slot {
+  width: 6.5rem !important;
+  height: 6.5rem !important;
+}
+
+/* Tätare dagdel-sektioner */
+[data-barnets-samling="on"] .dagdel-section {
+  margin-bottom: 0.65rem !important;
+}
+
+[data-barnets-samling="on"] .dagdel-items {
+  gap: 0.5rem !important;
+  padding: 0.4rem 0.55rem 0.6rem !important;
+}
+
+[data-barnets-samling="on"] #scheduleView {
+  padding-top: 0.15rem;
+}
+
+[data-barnets-samling="on"] .dagdel-header {
+  padding: 0.65rem 0.85rem;
+}

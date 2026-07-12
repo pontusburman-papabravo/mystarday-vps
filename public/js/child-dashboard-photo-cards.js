@@ -18,6 +18,25 @@
     return String(s || '');
   }
 
+  function starRewardBadge(item) {
+    if (!item || item.completed || !(item.star_value > 0)) return '';
+    if (document.documentElement.getAttribute('data-barnets-samling') !== 'on') return '';
+    return (
+      '<span class="photo-activity-card__star-reward" aria-label="Belöning vid avklaring">' +
+        '+' + item.star_value + ' ⭐' +
+      '</span>'
+    );
+  }
+
+  function titleBlock(item, isDone) {
+    return (
+      '<div class="photo-activity-card__title-col">' +
+        '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+        starRewardBadge(item) +
+      '</div>'
+    );
+  }
+
   function imageSlot(item) {
     return (
       '<div class="photo-activity-card__img-slot">' +
@@ -123,7 +142,7 @@
         '</div>' +
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
-          '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          titleBlock(item, isDone) +
           activityTimerHtml +
           timerHtml +
           checkButton(item, isDone, canToggle, checkAttr) +
@@ -205,7 +224,7 @@
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           dragHtml +
-          '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          titleBlock(item, isDone) +
           cardCheck +
         '</div>' +
         metaRow(item, timeStr, subBadge + ratingHtml) +

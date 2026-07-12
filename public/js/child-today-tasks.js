@@ -30,13 +30,16 @@
       const card = document.getElementById('card-' + id);
       if (!card || card.classList.contains('done')) return;
       if (card.querySelector('.ctf-reward-teaser')) return;
+      if (card.querySelector('.photo-activity-card__star-reward')) return;
 
       const teaser = document.createElement('span');
       teaser.className = 'ctf-reward-teaser';
       teaser.setAttribute('aria-label', 'Belöning vid avklaring');
       teaser.textContent = '+' + starMap[id] + ' ⭐';
 
-      const anchor = card.querySelector('.now-details .flex') ||
+      const anchor = card.querySelector('.photo-activity-card__title-col') ||
+        card.querySelector('.photo-activity-card__foot') ||
+        card.querySelector('.now-details .flex') ||
         card.querySelector('.flex-1 .flex') ||
         card.querySelector('.nl-info') ||
         card.querySelector('.now-details') ||

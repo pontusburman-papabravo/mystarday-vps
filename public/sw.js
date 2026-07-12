@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v592';
-// stjarndag-v592: SPA flikbyte barnets_samling + Min samling universe-fix
+const CACHE_NAME = 'stjarndag-v593';
+// stjarndag-v593: Idag kompakta kort + synlig stjärnbelöning
 // stjarndag-v591: Idag warmth — theme decal, day narrative, section complete, micro spark
 // stjarndag-v590: Idag fun polish — star trail, greetings, current dagdel highlight
 // stjarndag-v589: Infer pictogram pack keys from activity name/emoji when icon_key missing
