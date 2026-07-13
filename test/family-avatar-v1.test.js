@@ -66,6 +66,14 @@ describe('family avatar v1 — crop modal a11y', () => {
     assert.match(src, /avatarCropHelp/);
     assert.match(src, /avatarCropCancelBtn/);
   });
+
+  it('uses square crop region to avoid aspect distortion', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/avatar-image-crop.js'), 'utf8');
+    assert.match(src, /sw: side \/ s/);
+    assert.match(src, /sh: side \/ s/);
+    assert.match(src, /scheduleLayout/);
+    assert.match(src, /imageOrientation: 'from-image'/);
+  });
 });
 
 describe('family avatar v1 — cache & error policy', () => {

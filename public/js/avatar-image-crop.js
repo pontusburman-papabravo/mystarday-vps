@@ -9,6 +9,7 @@
   let state = null;
   let previousFocus = null;
   let onKeyDown = null;
+  let layoutScheduled = false;
 
   function trapFocus(e) {
     if (!modalEl || modalEl.classList.contains('hidden')) return;
@@ -45,7 +46,7 @@
       '<div class="bg-white dark:bg-navy w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-4 shadow-xl">' +
         '<h2 id="avatarCropTitle" class="text-lg font-heading font-bold text-navy dark:text-white mb-3">Beskär profilbild</h2>' +
         '<p id="avatarCropHelp" class="text-xs text-text-soft mt-1 mb-2">Dra bilden för att placera den. Använd zoom eller piltangenterna på reglaget.</p>' +
-        '<div id="avatarCropViewport" class="relative w-full aspect-square bg-gray-900 rounded-xl overflow-hidden touch-none" style="max-height:min(70vh,400px);" aria-describedby="avatarCropHelp"></div>' +
+        '<div id="avatarCropViewport" class="relative mx-auto w-full max-w-[400px] bg-gray-900 rounded-xl overflow-hidden touch-none" style="aspect-ratio:1/1;" aria-describedby="avatarCropHelp"></div>' +
         '<label class="block mt-3 text-xs font-semibold text-text-soft">Zoom</label>' +
         '<input type="range" id="avatarCropZoom" min="1" max="3" step="0.01" value="1" class="w-full mt-1" />' +
         '<div class="flex gap-2 mt-4">' +
@@ -77,6 +78,13 @@
     vp.addEventListener('pointermove', onPointerMove);
     vp.addEventListener('pointerup', onPointerUp);
     vp.addEventListener('pointercancel', onPointerUp);
+
+    window.addEventListener('resize', function () {
+      if (state && modalEl && !modalEl.classList.contains('hidden')) {
+        scheduleLayout();
+      }
+    });
+
     return modalEl;
   }
 
@@ -84,25 +92,57 @@
     return modalEl && modalEl.querySelector('#avatarCropViewport');
   }
 
+  function imgW(img) {
+    return img.naturalWidth || img.width || 1;
+  }
+
+  function imgH(img) {
+    return img.naturalHeight || img.height || 1;
+  }
+
   function scale() {
     return state.baseScale * state.zoom;
   }
 
-  function dispW() { return state.img.naturalWidth * scale(); }
-  function dispH() { return state.img.naturalHeight * scale(); }
+  function dispW() { return imgW(state.img) * scale(); }
+  function dispH() { return imgH(state.img) * scale(); }
+
+  /** Square crop window — avoids squashing when viewport layout is not 1:1 yet. */
+  function viewportSide(vp) {
+    if (!vp) return 0;
+    const w = vp.clientWidth;
+    const h = vp.clientHeight;
+    if (w > 0 && h > 0) return Math.min(w, h);
+    if (w > 0) return w;
+    if (h > 0) return h;
+    return vp.offsetWidth || 0;
+  }
+
+  function ensureSquareViewport(vp) {
+    const side = viewportSide(vp);
+    if (side > 0) {
+      vp.style.width = side + 'px';
+      vp.style.height = side + 'px';
+    }
+    return side;
+  }
 
   function clampPan() {
     const vp = viewport();
     if (!vp || !state.img) return;
-    state.panX = Math.min(0, Math.max(vp.clientWidth - dispW(), state.panX));
-    state.panY = Math.min(0, Math.max(vp.clientHeight - dispH(), state.panY));
+    const side = viewportSide(vp);
+    if (!side) return;
+    state.panX = Math.min(0, Math.max(side - dispW(), state.panX));
+    state.panY = Math.min(0, Math.max(side - dispH(), state.panY));
   }
 
   function center() {
     const vp = viewport();
     if (!vp || !state.img) return;
-    state.panX = (vp.clientWidth - dispW()) / 2;
-    state.panY = (vp.clientHeight - dispH()) / 2;
+    const side = viewportSide(vp);
+    if (!side) return;
+    state.panX = (side - dispW()) / 2;
+    state.panY = (side - dispH()) / 2;
     clampPan();
   }
 
@@ -110,18 +150,34 @@
     const vp = viewport();
     if (!vp || !state || !state.imgEl) return;
     const s = scale();
-    state.imgEl.style.width = (state.img.naturalWidth * s) + 'px';
-    state.imgEl.style.height = (state.img.naturalHeight * s) + 'px';
+    state.imgEl.style.width = (imgW(state.img) * s) + 'px';
+    state.imgEl.style.height = (imgH(state.img) * s) + 'px';
     state.imgEl.style.left = state.panX + 'px';
     state.imgEl.style.top = state.panY + 'px';
+  }
+
+  function scheduleLayout() {
+    if (layoutScheduled) return;
+    layoutScheduled = true;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        layoutScheduled = false;
+        resetEditor();
+      });
+    });
   }
 
   function resetEditor() {
     const vp = viewport();
     if (!vp || !state || !state.img) return;
-    const sx = vp.clientWidth / state.img.naturalWidth;
-    const sy = vp.clientHeight / state.img.naturalHeight;
-    state.baseScale = Math.max(sx, sy);
+    const side = ensureSquareViewport(vp);
+    if (!side) {
+      scheduleLayout();
+      return;
+    }
+    const iw = imgW(state.img);
+    const ih = imgH(state.img);
+    state.baseScale = Math.max(side / iw, side / ih);
     state.zoom = 1;
     const slider = modalEl.querySelector('#avatarCropZoom');
     if (slider) slider.value = '1';
@@ -131,18 +187,21 @@
 
   function cropRect() {
     const vp = viewport();
+    const side = viewportSide(vp);
     const s = scale();
     return {
       sx: -state.panX / s,
       sy: -state.panY / s,
-      sw: vp.clientWidth / s,
-      sh: vp.clientHeight / s,
+      sw: side / s,
+      sh: side / s,
     };
   }
 
   function exportFile() {
     return new Promise(function (resolve, reject) {
       if (!state || !state.img) return reject(new Error('Ingen bild'));
+      const side = viewportSide(viewport());
+      if (!side) return reject(new Error('Kunde inte mäta beskärningsytan'));
       const canvas = document.createElement('canvas');
       canvas.width = EXPORT_SIZE;
       canvas.height = EXPORT_SIZE;
@@ -181,9 +240,16 @@
     if (!state) return;
     const resolve = state.resolve;
     if (state.objectUrl) URL.revokeObjectURL(state.objectUrl);
+    if (state.bitmap && typeof state.bitmap.close === 'function') {
+      try { state.bitmap.close(); } catch { /* ignore */ }
+    }
     if (modalEl) modalEl.classList.add('hidden');
     const vp = viewport();
-    if (vp) vp.innerHTML = '';
+    if (vp) {
+      vp.innerHTML = '';
+      vp.style.width = '';
+      vp.style.height = '';
+    }
     state = null;
     if (onKeyDown) {
       document.removeEventListener('keydown', onKeyDown);
@@ -196,27 +262,51 @@
     if (resolve) resolve(result);
   }
 
+  function loadImageFromFile(file) {
+    if (typeof createImageBitmap === 'function') {
+      return createImageBitmap(file, { imageOrientation: 'from-image' }).catch(function () {
+        return loadImageViaObjectUrl(file);
+      });
+    }
+    return loadImageViaObjectUrl(file);
+  }
+
+  function loadImageViaObjectUrl(file) {
+    return new Promise(function (resolve, reject) {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = function () { resolve(img); };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error('Kunde inte läsa bilden'));
+      };
+      img.src = url;
+    });
+  }
+
   function openFromFile(file) {
     return new Promise(function (resolve, reject) {
       if (!file) return resolve(null);
       ensureModal();
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.onload = function () {
+      loadImageFromFile(file).then(function (img) {
         const vp = viewport();
+        const isBitmap = typeof ImageBitmap !== 'undefined' && img instanceof ImageBitmap;
+        const previewUrl = URL.createObjectURL(file);
         vp.innerHTML = '';
         const imgEl = document.createElement('img');
-        imgEl.src = url;
+        imgEl.src = previewUrl;
         imgEl.alt = '';
         imgEl.draggable = false;
         imgEl.style.position = 'absolute';
         imgEl.style.userSelect = 'none';
         imgEl.style.touchAction = 'none';
+        imgEl.style.maxWidth = 'none';
         vp.appendChild(imgEl);
         state = {
           img: img,
           imgEl: imgEl,
-          objectUrl: url,
+          objectUrl: previewUrl,
+          bitmap: isBitmap ? img : null,
           resolve: resolve,
           baseScale: 1,
           zoom: 1,
@@ -230,13 +320,10 @@
         document.addEventListener('keydown', onKeyDown);
         const cancelBtn = modalEl.querySelector('#avatarCropCancelBtn');
         if (cancelBtn) cancelBtn.focus();
-        resetEditor();
-      };
-      img.onerror = function () {
-        URL.revokeObjectURL(url);
-        reject(new Error('Kunde inte läsa bilden'));
-      };
-      img.src = url;
+        scheduleLayout();
+      }).catch(function (err) {
+        reject(err);
+      });
     });
   }
 
