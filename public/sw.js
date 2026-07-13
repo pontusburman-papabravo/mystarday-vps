@@ -217,8 +217,10 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v605';
-// stjarndag-v605: Mina personer tap sheet + role labels (Pappa/Mamma) + member avatars on child dashboard
+const CACHE_NAME = 'stjarndag-v607';
+// stjarndag-v607: merge — Mina personer tap sheet + Familj inställningar back nav
+// stjarndag-v606: Familj → Inställningar back nav fix (hash #profil loop)
+// stjarndag-v605: Mina personer tap sheet + role labels + member avatars; handoff film no music
 // stjarndag-v604: Mitt tab isolation, header cleanup, activity cards, family avatars
 // stjarndag-v603: handoff film — brand styling + melodic ambient music
 // stjarndag-v602: Barnets samling — hide duplicate header Byt barn/Logga ut/Förälder (Mitt owns actions)

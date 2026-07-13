@@ -422,22 +422,6 @@
   border-bottom: 1px solid rgba(245, 166, 35, 0.28);
 }
 
-.ohf-mute-btn {
-  position: absolute;
-  top: 52px;
-  right: 10px;
-  z-index: 2;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  border: 1.5px solid var(--ohf-lavender);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--ohf-navy);
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(27, 35, 64, 0.1);
-}
-
 @keyframes ohf-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
