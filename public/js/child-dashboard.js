@@ -413,6 +413,7 @@ function renderNowNextLaterZones(opts) {
   const nextItems = opts.nextItems || [];
   const laterItems = opts.laterItems || [];
   const isToday = opts.isToday !== false;
+  const samlingQuest = !!opts.samlingQuest;
 
   const renderNow = window.renderNowCard;
   const renderDone = window.renderDoneHistoryCard;
@@ -421,7 +422,7 @@ function renderNowNextLaterZones(opts) {
 
   let html = '';
 
-  if (doneItems.length > 0 && typeof renderDone === 'function') {
+  if (!samlingQuest && doneItems.length > 0 && typeof renderDone === 'function') {
     html += `<div class="nnl-done-history mb-4">
       <div class="nl-section-label" style="color:#22C55E;">✅ Klart</div>
       <div class="space-y-2">`;
@@ -431,7 +432,7 @@ function renderNowNextLaterZones(opts) {
     html += `</div></div>`;
   }
 
-  html += '<div class="nnl-zones-layout">';
+  html += '<div class="nnl-zones-layout' + (samlingQuest ? ' nnl-zones-layout--samling' : '') + '">';
 
   html += `<div class="nnl-zone nnl-zone--now">
     <div class="nnl-zone-header">⚡ NU</div>
@@ -448,8 +449,9 @@ function renderNowNextLaterZones(opts) {
   html += `<div class="nnl-zone nnl-zone--next">
     <div class="nnl-zone-header">▶ Nästa</div>
     <div class="sortable-section space-y-3" data-sortable-section="next">`;
-  if (nextItems.length > 0) {
-    for (const item of nextItems) {
+  const nextVisible = samlingQuest ? nextItems.slice(0, 3) : nextItems;
+  if (nextVisible.length > 0) {
+    for (const item of nextVisible) {
       html += renderCard(item, isToday, 'next');
     }
   } else {
@@ -457,6 +459,7 @@ function renderNowNextLaterZones(opts) {
   }
   html += `</div></div>`;
 
+  if (!samlingQuest) {
   html += `<div class="nnl-zone nnl-zone--later">
     <div class="nnl-zone-header">📋 Senare</div>
     <div class="sortable-section space-y-3" data-sortable-section="later">`;
@@ -468,6 +471,7 @@ function renderNowNextLaterZones(opts) {
     html += '<p class="nnl-zone-empty text-sm text-text-soft px-1">—</p>';
   }
   html += `</div></div>`;
+  }
 
   html += '</div>';
   return html;

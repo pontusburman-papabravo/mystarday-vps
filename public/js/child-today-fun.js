@@ -17,6 +17,56 @@
       && window.ChildWorlds.isBarnetsSamlingEnabled());
   }
 
+  /** barnets_samling + Idag — quest layout without parent show_now_next opt-in. */
+  function isSamlingTodayFocus(isToday) {
+    if (!isToday) return false;
+    if (!isSamlingGateOn()) return false;
+    if (typeof document !== 'undefined'
+        && document.documentElement.classList.contains('today-focus-mode')) {
+      return true;
+    }
+    return isSamlingGateOn();
+  }
+
+  /**
+   * Time-aware NU/Nästa/Senare for samling Idag (aligns focus bar + list).
+   * Past incomplete items → hidden "past" bucket (not above fold per idag-vision).
+   */
+  function buildTimeQuestQueue(items) {
+    const classify = window.classifyActivities;
+    const getTime = window.getCurrentTimeHHMM;
+    if (typeof classify !== 'function' || typeof getTime !== 'function') return null;
+
+    const open = (items || []).filter(function (item) { return item && !item.completed; });
+    const cl = classify(open, getTime());
+    return {
+      now: cl.now || [],
+      next: cl.next || [],
+      later: cl.laterFuture || [],
+      past: cl.laterPast || [],
+    };
+  }
+
+  function applyTimeQuestTags(items) {
+    const queue = buildTimeQuestQueue(items);
+    if (!queue) return null;
+
+    const nowIds = new Set(queue.now.map(function (i) { return i.id; }));
+    const nextIds = new Set(queue.next.map(function (i) { return i.id; }));
+    const laterIds = new Set(queue.later.map(function (i) { return i.id; }));
+    const pastIds = new Set(queue.past.map(function (i) { return i.id; }));
+
+    return (items || []).map(function (item) {
+      if (!item) return item;
+      if (item.completed) return Object.assign({}, item, { _nnl_status: 'done' });
+      if (nowIds.has(item.id)) return Object.assign({}, item, { _nnl_status: 'now' });
+      if (nextIds.has(item.id)) return Object.assign({}, item, { _nnl_status: 'next' });
+      if (laterIds.has(item.id)) return Object.assign({}, item, { _nnl_status: 'later' });
+      if (pastIds.has(item.id)) return Object.assign({}, item, { _nnl_status: 'past' });
+      return Object.assign({}, item, { _nnl_status: 'later' });
+    });
+  }
+
   function firstName(name) {
     if (!name) return 'du';
     return String(name).trim().split(/\s+/)[0];
@@ -80,6 +130,9 @@
 
   window.ChildTodayFun = {
     isSamlingGateOn: isSamlingGateOn,
+    isSamlingTodayFocus: isSamlingTodayFocus,
+    buildTimeQuestQueue: buildTimeQuestQueue,
+    applyTimeQuestTags: applyTimeQuestTags,
     greetingLine: greetingLine,
     renderProgressTrail: renderProgressTrail,
     currentDagdelKey: currentDagdelKey,
