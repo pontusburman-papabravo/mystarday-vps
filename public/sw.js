@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v599';
+const CACHE_NAME = 'stjarndag-v600';
+// stjarndag-v600: fix handoff film preview deploy + config race + reduced-motion
 // stjarndag-v599: onboarding handoff film preview page /onboarding/film-preview
 // stjarndag-v598: onboarding handoff film — music + text after schema save
 // stjarndag-v597: Familj — loading skeleton, prefetch, Inställningar-länk

@@ -311,10 +311,6 @@
       completeOnboardingAndGoHome();
     });
 
-    if (reduced) {
-      return Promise.resolve('film');
-    }
-
     let idx = 0;
     let elapsed = 0;
 
@@ -327,6 +323,12 @@
       });
       captionEl.textContent = SCENES[i].caption;
       runSceneFx(SCENES[i].id, sceneEls[i]);
+    }
+
+    if (reduced) {
+      activateScene(0);
+      showCta();
+      return Promise.resolve('film');
     }
 
     activateScene(0);
@@ -364,7 +366,13 @@
   }
 
   /** Called after schema save (+ optional activity guide) — film or legacy step 5. */
-  function goToHandoffAfterSchema() {
+  async function goToHandoffAfterSchema() {
+    const oa = act();
+    if (oa && typeof oa.loadConfig === 'function') {
+      try {
+        await oa.loadConfig();
+      } catch (_) {}
+    }
     maybeShowInsteadOfHandoffStep(function () {
       if (typeof goToStep === 'function') goToStep(5);
     });
