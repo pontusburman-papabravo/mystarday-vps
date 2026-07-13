@@ -41,6 +41,95 @@
     let drawerChildId = null;
     const drawerChildData = null;
     let drawerEmojiSelected = '';
+    let familyCache = null;
+    let inflightFamily = null;
+    let initInFlight = null;
+
+    function setFamilyLoading(loading) {
+      const skeleton = document.getElementById('familyLoadingSkeleton');
+      const dataSections = document.getElementById('familyDataSections');
+      if (skeleton) skeleton.classList.toggle('hidden', !loading);
+      if (dataSections) dataSections.classList.toggle('hidden', loading);
+      const summary = document.getElementById('familyHubSummary');
+      if (summary && loading && !familyCache) summary.textContent = 'Laddar…';
+    }
+
+    function fetchFamily() {
+      if (inflightFamily) return inflightFamily;
+      if (window.__familyWarmFetch) {
+        inflightFamily = window.__familyWarmFetch
+          .then(function (data) {
+            familyCache = data;
+            window.__familyWarmFetch = null;
+            inflightFamily = null;
+            return data;
+          })
+          .catch(function (err) {
+            window.__familyWarmFetch = null;
+            inflightFamily = null;
+            throw err;
+          });
+        return inflightFamily;
+      }
+      inflightFamily = Auth.api('/api/family')
+        .then(function (data) {
+          familyCache = data;
+          inflightFamily = null;
+          return data;
+        })
+        .catch(function (err) {
+          inflightFamily = null;
+          throw err;
+        });
+      return inflightFamily;
+    }
+
+    function prefetchFamily() {
+      if (familyCache || inflightFamily || window.__familyWarmFetch) return;
+      if (!window.Auth || typeof Auth.api !== 'function') return;
+      window.__familyWarmFetch = Auth.api('/api/family')
+        .then(function (data) {
+          familyCache = data;
+          return data;
+        })
+        .catch(function () {
+          window.__familyWarmFetch = null;
+          return null;
+        });
+    }
+
+    // ─── Init ────────────────────────────────────────────
+    async function init() {
+      if (initInFlight) return initInFlight;
+      initInFlight = (async function () {
+        try {
+          if (familyCache) {
+            renderAll(familyCache);
+          } else {
+            setFamilyLoading(true);
+          }
+          familyData = await fetchFamily();
+          renderAll(familyData);
+          initFamilyDnD();
+          if (window.FamilyMuseum) FamilyMuseum.mount('familyMuseumMount');
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const childParam = urlParams.get('child');
+          const tabParam = urlParams.get('tab');
+          if (childParam && familyChildren.some(c => c.id === childParam)) {
+            const q = tabParam ? '?tab=' + encodeURIComponent(tabParam) : '';
+            window.location.replace('/family/child/' + encodeURIComponent(childParam) + q);
+            return;
+          }
+        } catch (err) {
+          showToast('Kunde inte ladda familjeinformation: ' + err.message, true);
+        } finally {
+          setFamilyLoading(false);
+          initInFlight = null;
+        }
+      })();
+      return initInFlight;
+    }
 
     var _domRenderChildAvatar = window.renderChildAvatar;
     function childAvatarHtml(child, size) {
@@ -57,27 +146,6 @@
         Math.round(size * 0.8) + 'px;line-height:1;">' + safe + '</span>';
     }
 
-    // ─── Init ────────────────────────────────────────────
-    async function init() {
-      try {
-        familyData = await Auth.api('/api/family');
-        renderAll(familyData);
-        initFamilyDnD();
-        if (window.FamilyMuseum) FamilyMuseum.mount('familyMuseumMount');
-
-        // Handle URL params: ?child=ID&tab=rewards opens the child drawer on that tab
-        const urlParams = new URLSearchParams(window.location.search);
-        const childParam = urlParams.get('child');
-        const tabParam = urlParams.get('tab');
-        if (childParam && familyChildren.some(c => c.id === childParam)) {
-          const q = tabParam ? '?tab=' + encodeURIComponent(tabParam) : '';
-          window.location.replace('/family/child/' + encodeURIComponent(childParam) + q);
-          return;
-        }
-      } catch (err) {
-        showToast('Kunde inte ladda familjeinformation: ' + err.message, true);
-      }
-    }
     initBirthdayPicker('drawerEditBirthday');
     init();
     if (window.ParentMagicShell) ParentMagicShell.init('family');
@@ -1180,6 +1248,8 @@
 if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('family', init);
 }
+
+window.FamilyPage = { prefetch: prefetchFamily };
 
 window.addEventListener('stjarndag-magic-navigated', function (e) {
   if (!e.detail || e.detail.pageId !== 'family') return;

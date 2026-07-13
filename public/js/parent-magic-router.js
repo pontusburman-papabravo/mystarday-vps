@@ -55,7 +55,7 @@
       '/js/family-chest-setting.js?v=1.0.0',
       '/js/custody-settings.js?v=4',
       '/js/family-hub.js?v=1.0.0',
-      '/js/family.js?v=2.15.0',
+      '/js/family.js?v=2.16.0',
       '/js/coparent-invite-ui.js?v=1',
     ],
     planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.6.1'],
@@ -201,12 +201,24 @@
     });
   }
 
+  function warmFamilyFetch() {
+    if (global.__familyWarmFetch || !global.Auth || typeof global.Auth.api !== 'function') return;
+    global.__familyWarmFetch = global.Auth.api('/api/family').catch(function () {
+      global.__familyWarmFetch = null;
+      return null;
+    });
+  }
+
   async function navigateTo(href, options) {
     options = options || {};
     if (_navigating) return false;
 
     const path = normalizePath(href);
     const pageId = SOFT_PATHS[path];
+    if (path === '/family') {
+      warmFamilyFetch();
+      if (global.FamilyPage && global.FamilyPage.prefetch) global.FamilyPage.prefetch();
+    }
     if (!pageId) {
       global.location.href = href;
       return false;

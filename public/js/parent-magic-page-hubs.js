@@ -323,6 +323,10 @@
       }, 120);
       return true;
     }
+    if (hash === 'profil' || hash === 'profile') {
+      showSettingsGroup('profile');
+      return true;
+    }
     return false;
   }
 
