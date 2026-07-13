@@ -26,6 +26,7 @@ describe('Onboarding handoff film', () => {
     assert.match(src, /Testa barnläget nu/);
     assert.match(src, /Gör det senare/);
     assert.match(src, /startMusic/);
+    assert.match(src, /MUSIC_MELODY/);
     assert.doesNotMatch(src, /speechSynthesis/);
   });
 
