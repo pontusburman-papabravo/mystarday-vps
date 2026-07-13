@@ -78,7 +78,7 @@
 
   function mountThemeDecal(themeId) {
     if (typeof document === 'undefined' || !isSamlingGateOn()) return;
-    const host = document.getElementById('scheduleView');
+    const host = document.getElementById('todayFocusMount');
     if (!host) return;
 
     let el = document.getElementById('ctfThemeDecal');
@@ -87,7 +87,9 @@
       el.id = 'ctfThemeDecal';
       el.className = 'ctf-theme-decal';
       el.setAttribute('aria-hidden', 'true');
-      host.prepend(el);
+      host.appendChild(el);
+    } else if (el.parentNode !== host) {
+      host.appendChild(el);
     }
 
     const id = themeId || resolveThemeId();

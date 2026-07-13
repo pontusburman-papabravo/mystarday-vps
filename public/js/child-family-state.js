@@ -27,6 +27,7 @@
         avatarUrl: p.avatar_src || p.avatarUrl || '',
         hasAvatar: !!p.has_avatar,
         kind: 'parent',
+        familyRole: p.family_role || null,
         roleLabel: p.roleLabel || 'Hjälper mig hemma',
         away: !!p.away,
         awayLabel: p.awayLabel || p.away_label || '',
@@ -41,7 +42,7 @@
         avatarUrl: s.avatar_src || s.avatarUrl || '',
         hasAvatar: !!s.has_avatar,
         kind: 'sibling',
-        roleLabel: 'Syskon',
+        roleLabel: s.roleLabel || 'Syskon',
         away: false,
         awayLabel: '',
       });

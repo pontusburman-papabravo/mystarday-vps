@@ -28,12 +28,18 @@
     if (_v10Enabled) {
       const state = resolveState(data);
       root.innerHTML = render(data);
+      if (window.ChildFamilyPersonSheet) {
+        ChildFamilyPersonSheet.bindCards(root);
+      }
       scheduleWarmMomentRerender(data, state);
       return;
     }
     clearWarmTimer();
     if (window.ChildFamilyHallLegacy && ChildFamilyHallLegacy.render) {
       root.innerHTML = ChildFamilyHallLegacy.render(data);
+      if (window.ChildFamilyPersonSheet) {
+        ChildFamilyPersonSheet.bindCards(root);
+      }
       return;
     }
     root.innerHTML = render(data);
@@ -117,17 +123,18 @@
     if (!state.persons.length) {
       return '<p class="cfh-empty cfh-empty-hero">Här visas de som hjälper mig varje dag.</p>';
     }
+    if (window.ChildFamilyPersonSheet && ChildFamilyPersonSheet.setPersons) {
+      ChildFamilyPersonSheet.setPersons(state.persons);
+    }
     return '<div class="cfh-person-grid" role="list">' + state.persons.map(function (person) {
       const highlightCls = state.highlightPersonKey === person.key ? ' cfh-person-card--highlight' : '';
-      const awayNote = person.cardNote || '';
-      return '<div class="cfh-person-card' + highlightCls + '" role="listitem">' +
+      return '<button type="button" class="cfh-person-card cfh-person-card-btn' + highlightCls + '"' +
+        ' role="listitem" data-cfh-person-key="' + esc(person.key) + '"' +
+        ' aria-label="' + esc(person.name + ', ' + person.roleLabel) + '">' +
         personAvatarHtml(person) +
         '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
         '<span class="cfh-person-role">' + esc(person.roleLabel) + '</span>' +
-        (awayNote
-          ? '<span class="cfh-person-away">' + esc(awayNote) + '</span>'
-          : '') +
-      '</div>';
+      '</button>';
     }).join('') + '</div>';
   }
 

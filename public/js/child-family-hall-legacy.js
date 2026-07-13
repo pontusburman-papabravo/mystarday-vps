@@ -69,47 +69,67 @@
     '</section>';
   }
 
-  function renderPersonCard(person, roleLabel) {
+  function renderPersonCard(person, key) {
     const member = {
       id: person.id,
       name: person.name,
       emoji: person.emoji,
       avatar_src: person.avatar_src || person.avatarUrl || '',
       has_avatar: person.has_avatar || person.hasAvatar,
-      type: 'parent',
-      member_type: 'parent',
+      type: person.kind === 'sibling' ? 'child' : 'parent',
+      member_type: person.kind === 'sibling' ? 'child' : 'parent',
     };
+    const memberType = person.kind === 'sibling' ? 'child' : 'parent';
     const avatar = window.MemberAvatar && MemberAvatar.renderMemberAvatar
-      ? MemberAvatar.renderMemberAvatar(member, 52, { memberType: 'parent' })
-      : '<span class="cfh-person-emoji">' + esc(person.emoji || '👤') + '</span>';
-    return '<div class="cfh-person-card">' + avatar +
+      ? MemberAvatar.renderMemberAvatar(member, 52, { memberType: memberType })
+      : '<span class="cfh-person-emoji">' + esc(person.emoji || (memberType === 'child' ? '⭐' : '👤')) + '</span>';
+    const label = person.roleLabel || (memberType === 'child' ? 'Syskon' : 'Hjälper mig hemma');
+    return '<button type="button" class="cfh-person-card cfh-person-card-btn" data-cfh-person-key="' + esc(key) + '"' +
+      ' aria-label="' + esc(person.name + ', ' + label) + '">' + avatar +
       '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
-      '<span class="cfh-person-role">' + esc(roleLabel) + '</span></div>';
+      '<span class="cfh-person-role">' + esc(label) + '</span></button>';
   }
 
   function renderPersons(data) {
     const persons = data.persons;
     if (!persons) return '';
+    const sheetPersons = [];
     let cards = '';
-    (persons.parents || []).forEach(function (p) {
-      cards += renderPersonCard(p, 'Vuxen');
+    (persons.parents || []).forEach(function (p, i) {
+      const key = 'legacy-parent-' + (p.id || i);
+      const person = {
+        key: key,
+        id: p.id,
+        name: p.name,
+        emoji: p.emoji,
+        avatarUrl: p.avatar_src || '',
+        hasAvatar: !!p.has_avatar,
+        kind: 'parent',
+        roleLabel: p.roleLabel || 'Hjälper mig hemma',
+        cardNote: '',
+      };
+      sheetPersons.push(person);
+      cards += renderPersonCard(person, key);
     });
-    (persons.siblings || []).forEach(function (s) {
-      const siblingMember = {
+    (persons.siblings || []).forEach(function (s, i) {
+      const key = 'legacy-sibling-' + (s.id || i);
+      const person = {
+        key: key,
         id: s.id,
         name: s.name,
         emoji: s.emoji,
-        avatar_src: s.avatar_src || s.avatarUrl || '',
-        has_avatar: s.has_avatar || s.hasAvatar,
-        type: 'child',
-        member_type: 'child',
+        avatarUrl: s.avatar_src || '',
+        hasAvatar: !!s.has_avatar,
+        kind: 'sibling',
+        roleLabel: s.roleLabel || 'Syskon',
+        cardNote: '',
       };
-      const avatar = window.MemberAvatar && MemberAvatar.renderMemberAvatar
-        ? MemberAvatar.renderMemberAvatar(siblingMember, 52, { memberType: 'child' })
-        : '<span class="cfh-person-emoji">' + esc(s.emoji || '⭐') + '</span>';
-      cards += '<div class="cfh-person-card">' + avatar +
-        '<span class="cfh-person-name">' + esc(s.name) + '</span><span class="cfh-person-role">Syskon</span></div>';
+      sheetPersons.push(person);
+      cards += renderPersonCard(person, key);
     });
+    if (window.ChildFamilyPersonSheet && ChildFamilyPersonSheet.setPersons) {
+      ChildFamilyPersonSheet.setPersons(sheetPersons);
+    }
     if (!cards) {
       return '<p class="cfh-empty">Här visas familjen som hjälper dig varje dag.</p>';
     }
