@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v604';
-// stjarndag-v604: handoff film — remove music (text + animation only)
+const CACHE_NAME = 'stjarndag-v605';
+// stjarndag-v605: handoff film — remove music (text + animation only)
+// stjarndag-v604: Mitt tab isolation, header cleanup, activity cards, family avatars
 // stjarndag-v603: handoff film — brand styling + melodic ambient music
 // stjarndag-v602: Barnets samling — hide duplicate header Byt barn/Logga ut/Förälder (Mitt owns actions)
 // stjarndag-v601: merge — Mitt-flik + SPA layer fix + family avatar + handoff film preview
