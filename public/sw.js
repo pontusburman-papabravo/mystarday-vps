@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v594';
+const CACHE_NAME = 'stjarndag-v595';
+// stjarndag-v595: Family Avatar — show Profilbild in Inställningar → Profil & konto (magic group tag)
 // stjarndag-v594: Family Avatar merge gates — no-cache proxy, lifecycle cleanup, crop a11y
 // stjarndag-v593: Family Avatar v1 — client migration to avatar_src, onboarding deferred upload
 // stjarndag-v592: Family Avatar v1 — private storage, member-avatar, crop upload flow

@@ -286,6 +286,7 @@
       sec.classList.add('hidden');
     }
     tagChild('magicAppearanceSection', 'appearance');
+    tagChild('settingsAvatarSection', 'profile');
     tagChild('nativeAccountActions', 'profile');
     tagChild('accountSection', 'profile');
     tagChild('parentPinSection', 'profile');
