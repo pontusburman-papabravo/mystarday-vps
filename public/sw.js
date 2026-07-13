@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v608';
+const CACHE_NAME = 'stjarndag-v609';
+// stjarndag-v609: allow child JWT to fetch /api/avatars for Mina personer profile photos
 // stjarndag-v608: Mina personer — warm role emojis, larger person cards, richer detail sheet
 // stjarndag-v607: merge — Mina personer tap sheet + Familj inställningar back nav
 // stjarndag-v606: Familj → Inställningar back nav fix (hash #profil loop)

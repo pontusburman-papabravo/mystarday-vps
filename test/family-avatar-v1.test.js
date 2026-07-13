@@ -367,6 +367,25 @@ test('GET /api/me/family exposes parent avatar_src to logged-in child', async (t
     assert.equal(parent.has_avatar, true);
     assert.match(parent.avatar_src, /^\/api\/avatars\/parent\//);
     assert.equal(parent.id, parentId);
+
+    const { putPrivateObject } = require('../src/lib/avatar-storage');
+    const { isObjectStorageConfigured, usesLocalStorage } = require('../src/lib/object-storage');
+    if (isObjectStorageConfigured() && usesLocalStorage()) {
+      await putPrivateObject({
+        storageKey: 'avatars-private/test/parent-face.jpg',
+        buffer: Buffer.from('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=', 'base64'),
+        contentType: 'image/jpeg',
+      });
+    }
+
+    const avatarRes = await fetch(`${http.baseUrl}/api/avatars/parent/${parentId}`, {
+      headers: { Cookie: cookieHeader(childCookies) },
+    });
+    assert.notEqual(avatarRes.status, 403, 'child must reach avatar authz, not CHILD_PARENT_API_BLOCKED');
+    if (isObjectStorageConfigured() && usesLocalStorage()) {
+      assert.equal(avatarRes.status, 200);
+      assert.match(avatarRes.headers.get('content-type') || '', /^image\//);
+    }
   } finally {
     await http.close();
     await db.cleanup();
