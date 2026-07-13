@@ -67,17 +67,22 @@ function resolveSceneClips(manifest, state, { usePlaceholders } = {}) {
     const v4Path = path.join(PATHS.raw, manifest.id, scene.outputFilename);
     let localPath = null;
 
-    if (scene.skipPika) {
+    if (scene.sourceClip) {
+      const src = path.join(PATHS.raw, sourceId, scene.sourceClip);
+      if (fs.existsSync(src)) localPath = src;
+    }
+
+    if (scene.skipPika || scene.keyframeMotion) {
       generateScenePlaceholder(scene, v4Path, manifest.scenes.indexOf(scene), {
         manifest,
         assetRoot: path.join(PATHS.assets, '..'),
       });
       localPath = v4Path;
-    } else if (sourceByFilename.has(scene.outputFilename)) {
+    } else if (!localPath && sourceByFilename.has(scene.outputFilename)) {
       localPath = sourceByFilename.get(scene.outputFilename);
-    } else if (isSceneComplete(state, scene.id)) {
+    } else if (!localPath && isSceneComplete(state, scene.id)) {
       localPath = state.scenes[scene.id].localPath;
-    } else if (fs.existsSync(path.join(PATHS.raw, sourceId, scene.outputFilename))) {
+    } else if (!localPath && fs.existsSync(path.join(PATHS.raw, sourceId, scene.outputFilename))) {
       localPath = path.join(PATHS.raw, sourceId, scene.outputFilename);
     }
 
@@ -113,18 +118,18 @@ export async function runRender(argv = process.argv.slice(2)) {
   for (const filePath of manifestFiles) {
     const { manifest } = loadManifest(filePath);
 
-    // Refresh local clips: app screens + end board only.
-    const localScenes = manifest.scenes.filter((s) => s.skipPika);
-    if (localScenes.length && !manifest.rawSourceManifest) {
+    // Refresh local / keyframe clips (always when reusing source footage).
+    const localScenes = manifest.scenes.filter((s) => s.skipPika || s.keyframeMotion);
+    if (localScenes.length) {
       for (const [index, scene] of manifest.scenes.entries()) {
-        if (!scene.skipPika) continue;
+        if (!scene.skipPika && !scene.keyframeMotion) continue;
         const out = path.join(PATHS.raw, manifest.id, scene.outputFilename);
         generateScenePlaceholder(scene, out, index, {
           manifest,
           assetRoot: path.join(PATHS.assets, '..'),
         });
       }
-      console.log(`  refreshed ${localScenes.length} local clip(s) (app/end board)`);
+      console.log(`  refreshed ${localScenes.length} local/keyframe clip(s)`);
     }
 
     const state = loadState(manifest.id);
@@ -187,6 +192,7 @@ export async function runRender(argv = process.argv.slice(2)) {
         duration: scene.duration,
         renderDuration: renderDur,
         colourGrade: resolveSceneColourGrade(scene, manifest),
+        clipStartSec: scene.clipStartSec ?? 0,
       });
 
       normalizedPaths.push(normPath);

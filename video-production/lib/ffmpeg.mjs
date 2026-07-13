@@ -75,11 +75,17 @@ export function normalizeSceneClip({
   renderDuration,
   fps = 30,
   colourGrade = 'neutral',
+  clipStartSec = 0,
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   const outDur = renderDuration ?? duration;
   const holdSec = outDur > duration ? outDur - duration : 0;
   const grade = buildColourGradeFilter(colourGrade);
+
+  const inputArgs = [];
+  if (clipStartSec > 0.01) {
+    inputArgs.push('-ss', String(clipStartSec));
+  }
 
   const vf = [
     `scale=${width}:${height}:force_original_aspect_ratio=decrease`,
@@ -92,6 +98,7 @@ export function normalizeSceneClip({
 
   runFfmpeg([
     '-y',
+    ...inputArgs,
     '-i', inputPath,
     '-vf', vf,
     '-t', String(outDur),

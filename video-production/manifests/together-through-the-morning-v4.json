@@ -1,6 +1,6 @@
 {
   "id": "together-through-the-morning-v4",
-  "title": "Together Through the Morning v4",
+  "title": "Together Through the Morning v4.1",
   "aspectRatio": "16:9",
   "defaultSceneDuration": 5,
   "outputBasename": "together-through-the-morning",
@@ -8,34 +8,53 @@
   "rawSourceManifest": "together-through-the-morning",
   "seed": 42010,
   "taglineVariantDefault": "E",
-  "creativeBrief": "v4 premium Scandinavian family commercial — reuse Pika footage, minimal UI (~12%), ElevenLabs music, documentary pacing, logo-only end.",
+  "creativeBrief": "v4.1 regi — love before chaos, hand-before-phone, ~8% UI, faces after Vad är nästa?, no redeem UI, longer breath ending, music almost silent at key beat.",
   "visualStyle": "cartoon",
   "endBoardShowUrl": false,
   "endBoardLogoOnly": true,
   "colourGradeDefault": "neutral",
   "ambient": {
     "file": "audio/summer-ambient.m4a",
-    "volume": 0.22,
+    "volume": 0.24,
     "fadeInSec": 0.5,
-    "fadeOutSec": 3
+    "fadeOutSec": 4
   },
   "music": {
     "file": "audio/generated/selected-music.m4a",
-    "volume": 0.32,
-    "startSec": 8,
-    "fadeInSec": 10,
-    "fadeOutSec": 4
+    "volume": 0.26,
+    "startSec": 10,
+    "fadeInSec": 12,
+    "fadeOutSec": 5
   },
   "musicDuck": [
-    { "startSec": 17.8, "endSec": 22.8, "volume": 0.025 },
-    { "startSec": 35.5, "endSec": 40.5, "volume": 0.1 }
+    { "startSec": 21, "endSec": 30, "volume": 0.004 },
+    { "startSec": 30, "endSec": 33, "volume": 0.08 },
+    { "startSec": 39, "endSec": 45, "volume": 0.06 }
   ],
   "sfx": [
-    { "file": "audio/sfx/check-pling.m4a", "sceneId": "app-check-star", "atSecInScene": 0.2, "volume": 0.38 },
-    { "file": "audio/sfx/redeem-pling.m4a", "sceneId": "app-redeem", "atSecInScene": 0.1, "volume": 0.42 },
-    { "file": "audio/sfx/door-summer.m4a", "sceneId": "ella-exit", "atSecInScene": 0.8, "volume": 0.4 }
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "app-check-star", "atSecInScene": 0.15, "volume": 0.32 },
+    { "file": "audio/sfx/redeem-pling.m4a", "sceneId": "friday-movie-pride", "atSecInScene": 0.12, "volume": 0.38 },
+    { "file": "audio/sfx/door-summer.m4a", "sceneId": "ella-exit", "atSecInScene": 1.2, "volume": 0.38 },
+    { "file": "audio/sfx/door-close.m4a", "sceneId": "sara-doorway-relief", "atSecInScene": 0.4, "volume": 0.32 },
+    { "file": "audio/sfx/birds-morning.m4a", "sceneId": "sara-doorway-relief", "atSecInScene": 1.6, "volume": 0.28 }
   ],
   "scenes": [
+    {
+      "id": "love-glance",
+      "role": "recognition",
+      "duration": 5,
+      "renderDuration": 2.5,
+      "keyframeMotion": true,
+      "keyframeMotionStyle": "push-in",
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/together-keyframes/00-love-glance.png",
+      "pikaPrompt": "Very still bedroom doorway, Sara peeks in smiling softly at sleeping Ella in summer morning light, toddler asleep nearby, tender quiet moment, subtle 2D animation, no text",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.12,
+      "outputFilename": "00-love-glance.mp4"
+    },
     {
       "id": "chaos-summer",
       "role": "chaos",
@@ -51,31 +70,47 @@
       "outputFilename": "01-chaos-summer.mp4"
     },
     {
+      "id": "together-hand",
+      "role": "hope",
+      "duration": 5,
+      "renderDuration": 1.2,
+      "keyframeMotion": true,
+      "keyframeMotionStyle": "hold",
+      "colourGrade": "neutral",
+      "referenceImage": "assets/references/together-keyframes/02b-together-hand.png",
+      "pikaPrompt": "Hallway floor eye level, Sara places open palm on wooden floor beside Ella, Ella looks up at mother, no phone visible yet, intimate documentary framing, warm summer light, gentle 2D motion",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "02b-together-hand.mp4"
+    },
+    {
       "id": "together-phone",
       "role": "story",
       "duration": 5,
-      "renderDuration": 6,
+      "renderDuration": 5,
       "colourGrade": "neutral",
       "referenceImage": "assets/references/together-keyframes/02-together-phone.png",
       "pikaPrompt": "Very slow push-in, mother and daughter sit on floor looking down at phone between them, calm breathing, warm light flickers through window, gentle 2D character bob, phone screen not readable",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "transitionDuration": 0.85,
+      "transitionDuration": 0.75,
       "outputFilename": "02-together-phone.mp4"
     },
     {
       "id": "app-morning-list",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 1.3,
+      "renderDuration": 0.95,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/morning-list.png",
       "appMotion": "push-in",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
-      "transitionDuration": 0.1,
+      "transitionDuration": 0.08,
       "outputFilename": "03-app-morning-list.mp4"
     },
     {
@@ -96,14 +131,14 @@
       "id": "app-check-star",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 0.95,
+      "renderDuration": 0.6,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/check-star.png",
       "appMotion": "push-in",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
-      "transitionDuration": 0.1,
+      "transitionDuration": 0.08,
       "outputFilename": "05-app-check-star.mp4"
     },
     {
@@ -111,33 +146,51 @@
       "role": "validation",
       "validationScene": true,
       "duration": 5,
-      "renderDuration": 7.2,
+      "renderDuration": 3.6,
       "colourGrade": "warm",
       "referenceImage": "assets/references/together-keyframes/06-whats-next.png",
       "duckMusic": true,
       "pikaPrompt": "Ella looks up at mother, Sara lips part then close into knowing smile without speaking, Ella glances toward blurred phone, two beats of stillness, subtle eye movement, emotional restraint, child protagonist",
       "swedishText": "Vad är nästa?",
       "showCaption": true,
-      "transition": "fade",
-      "transitionDuration": 1.2,
+      "transition": "cut",
+      "transitionDuration": 0.1,
       "outputFilename": "06-whats-next.mp4",
       "audioCues": [
-        { "type": "silence", "description": "Music ducked — Sara silent beat", "atSec": 2.2 }
+        { "type": "silence", "description": "Music nearly gone under question", "atSec": 1.8 }
       ]
     },
     {
       "id": "app-next-activity",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 1.15,
+      "renderDuration": 0.95,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/next-activity.png",
       "appMotion": "push-in",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
-      "transitionDuration": 0.1,
+      "transitionDuration": 0.08,
       "outputFilename": "07-app-next-activity.mp4"
+    },
+    {
+      "id": "whats-next-hold",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 4.8,
+      "colourGrade": "warm",
+      "sourceClip": "06-whats-next.mp4",
+      "clipStartSec": 1.4,
+      "pikaPrompt": "Ella and Sara eye contact beat, child decides, mother waits, phone forgotten, stillness, warm light, child protagonist",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "transitionDuration": 1.1,
+      "outputFilename": "06b-whats-next-hold.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Faces only — music breath return", "atSec": 0 }
+      ]
     },
     {
       "id": "pack-bag",
@@ -157,27 +210,10 @@
       ]
     },
     {
-      "id": "app-redeem",
-      "role": "app-screen",
-      "duration": 5,
-      "renderDuration": 0.75,
-      "skipPika": true,
-      "appScreenshot": "assets/app-screens/redeem.png",
-      "appMotion": "zoom-star",
-      "swedishText": "",
-      "showCaption": false,
-      "transition": "cut",
-      "transitionDuration": 0.1,
-      "outputFilename": "09-app-redeem.mp4",
-      "audioCues": [
-        { "type": "sfx", "description": "Redeem pling — brief UI then cut to face", "atSec": 0 }
-      ]
-    },
-    {
       "id": "friday-movie-pride",
       "role": "payoff",
       "duration": 5,
-      "renderDuration": 4.8,
+      "renderDuration": 5.2,
       "colourGrade": "warm",
       "referenceImage": "assets/references/together-keyframes/10-friday-movie-pride.png",
       "pikaPrompt": "Close-up Ella face brightens with proud joyful expression, small bounce, eyes sparkle, speaking excitedly to mother off-camera, summer golden light, gentle 2D motion",
@@ -185,13 +221,16 @@
       "showCaption": true,
       "transition": "fade",
       "transitionDuration": 1,
-      "outputFilename": "10-friday-movie-pride.mp4"
+      "outputFilename": "10-friday-movie-pride.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Quick tap pling — not redeem UI", "atSec": 0 }
+      ]
     },
     {
       "id": "ella-exit",
       "role": "story",
       "duration": 5,
-      "renderDuration": 2.8,
+      "renderDuration": 2.6,
       "colourGrade": "warm",
       "referenceImage": "assets/references/together-keyframes/11-ella-exit.png",
       "pikaPrompt": "Ella puts on sandals, smiles back toward mother inside, then runs out into sunny garden path, backpack bounces, door open, natural child energy, slow dolly follow",
@@ -205,25 +244,25 @@
       "id": "sara-doorway-relief",
       "role": "validation",
       "duration": 5,
-      "renderDuration": 3.2,
+      "renderDuration": 4.8,
       "colourGrade": "warm",
       "referenceImage": "assets/references/together-keyframes/12-sara-doorway-relief.png",
       "pikaPrompt": "Sara in doorway shoulders drop with visible relief, one slow exhale, soft smile, watches children leave, warm backlight breeze in hair, restrained emotion not theatrical",
       "swedishText": "",
       "showCaption": false,
       "transition": "fadeblack",
-      "transitionDuration": 1.5,
+      "transitionDuration": 1.8,
       "outputFilename": "12-sara-doorway-relief.mp4",
       "audioCues": [
-        { "type": "ambient", "description": "Audible exhale — key sound", "atSec": 1.2 },
-        { "type": "silence", "description": "Room for breath before black", "atSec": 0 }
+        { "type": "ambient", "description": "Door latch + birds + exhale", "atSec": 1.4 },
+        { "type": "silence", "description": "Hold before black", "atSec": 0 }
       ]
     },
     {
       "id": "black-leader",
       "role": "story",
       "duration": 5,
-      "renderDuration": 2,
+      "renderDuration": 3,
       "skipPika": true,
       "swedishText": "",
       "showCaption": false,

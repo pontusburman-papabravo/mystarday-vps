@@ -84,6 +84,9 @@ const SceneSchema = z.object({
   duckMusic: z.boolean().default(false),
   colourGrade: ColourGradeSchema,
   transitionDuration: z.number().min(0).max(3).optional(),
+  sourceClip: z.string().optional(),
+  clipStartSec: z.number().min(0).optional(),
+  keyframeMotion: z.boolean().default(false),
   pikaPrompt: z.string().min(10).optional(),
   swedishText: z.string().default(''),
   showCaption: z.boolean().default(true),
@@ -97,8 +100,8 @@ const SceneSchema = z.object({
   soundCue: SoundCueSchema,
   audioCues: z.array(AudioCueNoteSchema).optional(),
 }).refine(
-  (scene) => scene.skipPika || scene.cartoonScene || (scene.pikaPrompt && scene.pikaPrompt.length >= 10),
-  { message: 'pikaPrompt is required unless skipPika or cartoonScene is true' },
+  (scene) => scene.skipPika || scene.keyframeMotion || scene.cartoonScene || (scene.pikaPrompt && scene.pikaPrompt.length >= 10),
+  { message: 'pikaPrompt is required unless skipPika, keyframeMotion, or cartoonScene is true' },
 );
 
 export const ManifestSchema = z.object({

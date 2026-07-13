@@ -68,12 +68,42 @@ function doorSfx(out) {
   ]);
 }
 
+function doorCloseSfx(out) {
+  run([
+    '-y', '-f', 'lavfi', '-i', 'anoisesrc=d=0.22:color=brown',
+    '-af', 'volume=0.4,lowpass=f=420,highpass=f=80,afade=t=in:st=0:d=0.01,afade=t=out:st=0.12:d=0.08,aformat=channel_layouts=stereo',
+    '-c:a', 'aac', out,
+  ]);
+}
+
+function birdsMorningSfx(out) {
+  run([
+    '-y',
+    '-f', 'lavfi', '-i', 'sine=frequency=2800:duration=0.08',
+    '-f', 'lavfi', '-i', 'sine=frequency=3200:duration=0.06',
+    '-f', 'lavfi', '-i', 'sine=frequency=2600:duration=0.09',
+    '-filter_complex',
+    [
+      '[0:a]adelay=0|0,volume=0.25[a0]',
+      '[1:a]adelay=180|180,volume=0.2[a1]',
+      '[2:a]adelay=420|420,volume=0.22[a2]',
+      '[a0][a1][a2]amix=inputs=3:duration=longest:dropout_transition=0',
+      'highpass=f=1800',
+      'afade=t=out:st=0.5:d=0.25',
+      'aformat=channel_layouts=stereo',
+    ].join(','),
+    '-c:a', 'aac', out,
+  ]);
+}
+
 ensureDir(path.join(AUDIO, 'sfx'));
 ensureDir(path.join(AUDIO, 'vo'));
 
 pling(path.join(AUDIO, 'sfx', 'check-pling.m4a'), 920);
 pling(path.join(AUDIO, 'sfx', 'redeem-pling.m4a'), 740);
 doorSfx(path.join(AUDIO, 'sfx', 'door-summer.m4a'));
+doorCloseSfx(path.join(AUDIO, 'sfx', 'door-close.m4a'));
+birdsMorningSfx(path.join(AUDIO, 'sfx', 'birds-morning.m4a'));
 ambientBed(path.join(AUDIO, 'summer-ambient.m4a'));
 themeBed(path.join(AUDIO, 'summer-morning-theme.m4a'));
 

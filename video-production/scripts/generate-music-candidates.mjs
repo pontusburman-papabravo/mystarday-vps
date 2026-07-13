@@ -27,7 +27,7 @@ const CANDIDATES = [
       'Warm Scandinavian acoustic instrumental for a calm family morning commercial.',
       'Felt piano lead, very sparse opening, gentle hope, no vocals, no choir, no lyrics.',
       'Honest, quiet, human, modern, hopeful. Not trailer music, not children TV, not ukulele ad.',
-      'Soft resolved ending. 45 seconds total arc: sparse pulse, piano enters, brief silence room at midpoint, warm return, soft close.',
+      '45 seconds total arc: sparse pulse, piano enters, long near-silent gap when child asks a question (seconds 21–30), then return like a breath not a crescendo, soft close.',
     ].join(' '),
   },
   {

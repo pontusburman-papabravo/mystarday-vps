@@ -58,6 +58,48 @@ export function generatePlaceholderClip({
   ], { label: `placeholder ${path.basename(outputPath)}` });
 }
 
+export function generateKeyframeMotionClip({
+  outputPath,
+  duration,
+  imagePath,
+  width = 1920,
+  height = 1080,
+  motion = 'push-in',
+}) {
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  if (!fs.existsSync(imagePath)) {
+    generatePlaceholderClip({
+      outputPath,
+      duration,
+      color: '0xF5E6D3',
+      label: path.basename(imagePath, '.png'),
+      width,
+      height,
+    });
+    return;
+  }
+
+  const frames = Math.max(1, Math.round(duration * 30));
+  const zoomExpr = motion === 'hold'
+    ? '1.02'
+    : 'min(1.0+0.0004*on,1.06)';
+  const vf = [
+    `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`,
+    `zoompan=z='${zoomExpr}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${frames}:s=${width}x${height}:fps=30`,
+  ].join(',');
+
+  runFfmpeg([
+    '-y',
+    '-loop', '1',
+    '-i', imagePath,
+    '-vf', vf,
+    '-t', String(duration),
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    outputPath,
+  ], { label: `keyframe-motion ${path.basename(outputPath)}` });
+}
+
 export function generateScenePlaceholder(scene, outputPath, index = 0, { manifest, assetRoot } = {}) {
   const duration = sceneRenderDuration(scene);
   if (scene.endBoard) {
@@ -69,6 +111,19 @@ export function generateScenePlaceholder(scene, outputPath, index = 0, { manifes
       showUrl: manifest?.endBoardShowUrl !== false,
       brandUrl: manifest?.brandUrl?.trim() || BRAND_URL,
       logoOnly: manifest?.endBoardLogoOnly === true,
+    });
+    return;
+  }
+  if (scene.keyframeMotion && scene.referenceImage) {
+    const root = assetRoot || path.join(PATHS.assets, '..');
+    const imgPath = path.isAbsolute(scene.referenceImage)
+      ? scene.referenceImage
+      : path.join(root, scene.referenceImage);
+    generateKeyframeMotionClip({
+      outputPath,
+      duration,
+      imagePath: imgPath,
+      motion: scene.keyframeMotionStyle || 'push-in',
     });
     return;
   }

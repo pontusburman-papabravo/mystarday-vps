@@ -31,8 +31,16 @@ const KEYFRAMES_SPEC = [
     prompt: `${STYLE}, family portrait in bright Nordic apartment hallway, summer morning, warm window light, mother Sara with Ella and toddler, friendly establishing shot, 16:9`,
   },
   {
+    file: '00-love-glance.png',
+    prompt: `${STYLE}, quiet bedroom morning, Sara mother peeks through half-open door smiling tenderly at sleeping Ella age 6 in bed, soft summer light, toddler asleep in background, love before chaos, wide gentle shot, no text`,
+  },
+  {
     file: '01-chaos-summer.png',
     prompt: `${STYLE}, morning chaos in apartment hallway 07:52, Ella sits on wooden floor refusing sandals scattered around, Sara stressed standing, toddler crying, breakfast table visible, painful but loving not comedy, wide shot`,
+  },
+  {
+    file: '02b-together-hand.png',
+    prompt: `${STYLE}, hallway wooden floor eye level, Sara places open hand palm-down on floor beside seated Ella, Ella looks up at mother, NO phone in frame, together before technology, intimate medium shot, warm light`,
   },
   {
     file: '02-together-phone.png',

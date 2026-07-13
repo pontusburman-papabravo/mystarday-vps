@@ -108,15 +108,20 @@ test('together-through-the-morning v3 is ~38 seconds', () => {
 test('together-through-the-morning v4 commercial edit is ~40 seconds with low UI', () => {
   const { manifest } = loadManifest('together-through-the-morning-v4');
   const dur = computeTimelineDuration(manifest.scenes);
-  assert.ok(dur >= 38 && dur <= 42, `duration ${dur}s`);
+  assert.ok(dur >= 40 && dur <= 46, `duration ${dur}s`);
   assert.equal(manifest.endBoardShowUrl, false);
+  assert.equal(manifest.endBoardLogoOnly, true);
   assert.equal(manifest.rawSourceManifest, 'together-through-the-morning');
+  assert.ok(manifest.scenes.find((s) => s.id === 'love-glance'));
+  assert.ok(manifest.scenes.find((s) => s.id === 'together-hand'));
+  assert.ok(!manifest.scenes.find((s) => s.id === 'app-redeem'));
   assert.ok(!manifest.scenes.find((s) => s.id === 'app-check-star-2'));
   const app = computeAppScreenRatio(manifest);
-  assert.ok(app.ratio <= 0.2, `UI ${Math.round(app.ratio * 100)}% exceeds 20%`);
-  assert.equal(manifest.music?.startSec, 8);
+  assert.ok(app.ratio <= 0.1, `UI ${Math.round(app.ratio * 100)}% exceeds 10%`);
+  assert.ok(manifest.music?.startSec >= 8);
   const black = manifest.scenes.find((s) => s.id === 'black-leader');
   assert.ok(black?.skipPika);
+  assert.equal(black.renderDuration, 3);
   const v = manifest.scenes.filter((s) => s.validationScene);
   assert.equal(v.length, 1);
   assert.equal(v[0].id, 'whats-next');

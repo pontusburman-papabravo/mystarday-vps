@@ -145,13 +145,14 @@ function main() {
     appScreenSec: Number(ui.appSec.toFixed(2)),
     totalSec: Number(ui.totalSec.toFixed(2)),
     uiExposurePercent: Number((ui.ratio * 100).toFixed(1)),
-    targetPercent: '15–20%',
+    targetPercent: '8–10%',
     passesTarget: ui.ratio <= 0.2,
     appScenes: v4.scenes.filter((s) => s.role === 'app-screen').map((s) => ({
       id: s.id,
       durationSec: sceneRenderDuration(s),
     })),
-    removedFromV3: ['app-check-star-2'],
+    removedFromV3: ['app-check-star-2', 'app-redeem'],
+    targetPercent: '8–10%',
   };
 
   const emotionTimeline = buildEmotionTimeline(v4, totalSec);
