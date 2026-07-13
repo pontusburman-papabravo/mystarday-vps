@@ -48,6 +48,7 @@ const SEO_CRAWL_DISALLOW_PATHS = [
   '/library',
   '/calendar',
   '/onboarding',
+  '/onboarding/film-preview',
   '/child-wizard',
   '/child-dashboard',
   '/child/',

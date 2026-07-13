@@ -207,16 +207,17 @@
   }
 
   /**
-   * @param {{ onFallback?: function }} [opts]
+   * @param {{ onFallback?: function, preview?: boolean }} [opts]
    * @returns {Promise<'film'|'fallback'|'skip'>}
    */
   function showHandoffFilm(opts) {
     opts = opts || {};
-    if (shownThisSession || !isFilmEnabled()) {
+    const isPreview = Boolean(opts.preview);
+    if (!isPreview && (shownThisSession || !isFilmEnabled())) {
       if (opts.onFallback) opts.onFallback();
       return Promise.resolve('fallback');
     }
-    shownThisSession = true;
+    if (!isPreview) shownThisSession = true;
 
     const reduced = prefersReducedMotion();
 
@@ -241,6 +242,7 @@
 
     overlay.innerHTML = [
       '<div class="ohf-card">',
+      isPreview ? '<p class="ohf-preview-banner" role="status">Förhandsvisning — musik + text (ingen voiceover)</p>' : '',
       '  <button type="button" class="ohf-mute-btn" id="ohfMuteBtn" aria-label="Ljud på — tryck för att stänga av">🔊</button>',
       '  <div class="ohf-stage" id="ohfStage">',
       scenesHtml,
@@ -257,7 +259,11 @@
 
     document.body.appendChild(overlay);
 
-    trackEvent('onboarding_handoff_film_shown', { child_id: childId(), reduced_motion: reduced });
+    trackEvent(isPreview ? 'onboarding_handoff_film_preview_shown' : 'onboarding_handoff_film_shown', {
+      child_id: childId(),
+      reduced_motion: reduced,
+      preview: isPreview,
+    });
 
     const muteBtn = overlay.querySelector('#ohfMuteBtn');
     if (muteBtn) muteBtn.addEventListener('click', function () { toggleMute(muteBtn); });
@@ -280,14 +286,28 @@
     }
 
     overlay.querySelector('#ohfTryChildBtn').addEventListener('click', function () {
-      trackEvent('onboarding_handoff_film_cta_try', { child_id: childId() });
+      trackEvent(isPreview ? 'onboarding_handoff_film_preview_cta_try' : 'onboarding_handoff_film_cta_try', {
+        child_id: childId(),
+        preview: isPreview,
+      });
       teardown();
+      if (isPreview) {
+        window.location.href = '/child-login';
+        return;
+      }
       openChildLogin();
     });
 
     overlay.querySelector('#ohfLaterBtn').addEventListener('click', function () {
-      trackEvent('onboarding_handoff_film_cta_later', { child_id: childId() });
+      trackEvent(isPreview ? 'onboarding_handoff_film_preview_cta_later' : 'onboarding_handoff_film_cta_later', {
+        child_id: childId(),
+        preview: isPreview,
+      });
       teardown();
+      if (isPreview) {
+        showHandoffFilm({ preview: true });
+        return;
+      }
       completeOnboardingAndGoHome();
     });
 
@@ -350,6 +370,10 @@
     });
   }
 
+  function showPreview() {
+    return showHandoffFilm({ preview: true });
+  }
+
   function init() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
     const oa = act();
@@ -361,6 +385,7 @@
   window.OnboardingHandoffFilm = {
     init: init,
     show: showHandoffFilm,
+    showPreview: showPreview,
     maybeShowInsteadOfHandoffStep: maybeShowInsteadOfHandoffStep,
     goToHandoffAfterSchema: goToHandoffAfterSchema,
     isEnabled: isFilmEnabled,

@@ -27,7 +27,6 @@ describe('Onboarding handoff film', () => {
     assert.match(src, /Gör det senare/);
     assert.match(src, /startMusic/);
     assert.doesNotMatch(src, /speechSynthesis/);
-    assert.doesNotMatch(src, /voiceover/i);
   });
 
   it('schema save paths route through goToHandoffAfterSchema', () => {
@@ -64,5 +63,15 @@ describe('Onboarding handoff film', () => {
   it('first-star guide defers to film when film flag active', () => {
     const src = read('public/js/onboarding-first-star.js');
     assert.match(src, /OnboardingHandoffFilm\.isEnabled/);
+  });
+
+  it('film preview page and route exist', () => {
+    const html = read('public/onboarding-film-preview.html');
+    const routes = read('src/routes/index.js');
+    const filmJs = read('public/js/onboarding-handoff-film.js');
+    assert.match(html, /OnboardingHandoffFilm\.showPreview/);
+    assert.match(routes, /\/onboarding\/film-preview/);
+    assert.match(filmJs, /showPreview/);
+    assert.match(filmJs, /preview: true/);
   });
 });

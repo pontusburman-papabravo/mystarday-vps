@@ -263,6 +263,17 @@
 
 .ohf-cta-secondary:hover { color: #64748b; }
 
+.ohf-preview-banner {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: #4338ca;
+  background: rgba(99, 102, 241, 0.12);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+}
+
 .ohf-mute-btn {
   position: absolute;
   top: 10px;
