@@ -97,17 +97,26 @@
     });
   }
 
+  function avatarPreviewHtml(child) {
+    if (window.MemberAvatar) {
+      return '<div id="profileSetupAvatarWrap">' + MemberAvatar.renderChildAvatar(child, 64) + '</div>';
+    }
+    return '<span class="text-5xl" id="profileSetupEmoji">' + esc(child.emoji || '⭐') + '</span>';
+  }
+
   function setupHtml(child, viewConfig) {
     const vm = viewConfig || {};
-    const avatar = safeAvatarUrl(child.avatar_url)
-      ? '<img src="' + esc(child.avatar_url) + '" alt="" class="w-16 h-16 rounded-full object-cover ring-2 ring-gold" id="profileSetupAvatar">'
-      : '<span class="text-5xl" id="profileSetupEmoji">' + esc(child.emoji || '⭐') + '</span>';
+    const avatar = avatarPreviewHtml(child);
+    const hasPhoto = !!child.has_avatar;
     return '<div class="space-y-4">' +
       '<div class="bg-white rounded-2xl border border-lavender p-4">' +
       '<p class="font-semibold text-navy mb-3">Profilbild</p>' +
       '<div class="flex items-center gap-4 mb-3">' + avatar + '</div>' +
-      '<button type="button" id="profileSetupPhotoBtn" class="w-full py-3 bg-sky text-navy rounded-xl font-semibold text-sm">Byt foto</button>' +
-      '</div>' +
+      '<div class="flex flex-col gap-2">' +
+      '<button type="button" id="profileSetupPhotoBtn" class="w-full py-3 bg-sky text-navy rounded-xl font-semibold text-sm min-h-[44px]">' +
+      (hasPhoto ? 'Byt foto' : 'Lägg till foto') + '</button>' +
+      (hasPhoto ? '<button type="button" id="profileSetupPhotoRemoveBtn" class="w-full py-3 border border-lavender text-red-600 rounded-xl font-semibold text-sm min-h-[44px]">Ta bort bild</button>' : '') +
+      '</div></div>' +
       '<div class="bg-white rounded-2xl border border-lavender p-4">' +
       '<p class="font-semibold text-navy mb-2">Barnvy</p>' +
       '<div class="grid grid-cols-2 gap-2 mb-3">' +
@@ -231,41 +240,19 @@
     if (rewardsMount) loadRewardsList(child.id, rewardsMount);
 
     const photoBtn = document.getElementById('profileSetupPhotoBtn');
-    if (photoBtn && window.Platform && Platform.camera) {
+    const removeBtn = document.getElementById('profileSetupPhotoRemoveBtn');
+    if (photoBtn && window.AvatarUploadFlow) {
       photoBtn.addEventListener('click', async function () {
+        photoBtn.disabled = true;
+        const orig = photoBtn.textContent;
+        photoBtn.textContent = 'Laddar…';
         try {
-          const result = await Platform.camera.pick({ quality: 'medium' });
-          if (!result || result.error) {
-            if (result && result.error) showToast(result.error, true);
-            return;
-          }
-          photoBtn.disabled = true;
-          photoBtn.textContent = 'Laddar upp…';
-          const url = await Platform.camera.upload(result);
-          if (!url || !safeAvatarUrl(url)) {
-            throw new Error('Uppladdningen gav en ogiltig bildadress — försök igen');
-          }
-          const res = await saveChildField(child.id, 'avatar_url', url);
-          if (!res.ok) {
-            throw new Error(await formatApiError(res, 'Kunde inte spara profilbilden'));
-          }
-          const updated = await res.json();
-          child.avatar_url = updated.avatar_url || url;
-          if (!safeAvatarUrl(child.avatar_url)) {
-            throw new Error('Profilbilden sparades men kunde inte visas — ladda om sidan');
-          }
-          const img = document.getElementById('profileSetupAvatar');
-          if (img) img.src = child.avatar_url;
-          else {
-            const emoji = document.getElementById('profileSetupEmoji');
-            if (emoji) {
-              const newImg = document.createElement('img');
-              newImg.id = 'profileSetupAvatar';
-              newImg.src = child.avatar_url;
-              newImg.className = 'w-16 h-16 rounded-full object-cover ring-2 ring-gold';
-              emoji.replaceWith(newImg);
-            }
-          }
+          const endpoint = '/api/children/' + encodeURIComponent(child.id) + '/avatar';
+          const updated = await AvatarUploadFlow.pickCropAndUpload(endpoint);
+          if (!updated) return;
+          Object.assign(child, updated);
+          _wiring = false;
+          wireSetup(child, viewConfig, pinSetupHtml, onPinWire);
           showToast('Bild sparad!');
         } catch (err) {
           const msg = (err && err.message) ? err.message : 'Kunde inte spara bild';
@@ -273,11 +260,31 @@
           showToast(msg, 'error', 7000);
         } finally {
           photoBtn.disabled = false;
-          photoBtn.textContent = 'Byt foto';
+          photoBtn.textContent = orig;
+          _wiring = false;
         }
       });
     } else if (photoBtn) {
       photoBtn.classList.add('hidden');
+    }
+
+    if (removeBtn && window.AvatarUploadFlow) {
+      removeBtn.addEventListener('click', async function () {
+        removeBtn.disabled = true;
+        try {
+          const endpoint = '/api/children/' + encodeURIComponent(child.id) + '/avatar';
+          const updated = await AvatarUploadFlow.deleteAvatar(endpoint);
+          Object.assign(child, updated);
+          _wiring = false;
+          wireSetup(child, viewConfig, pinSetupHtml, onPinWire);
+          showToast('Profilbilden togs bort');
+        } catch (err) {
+          showToast(err.message || 'Kunde inte ta bort', 'error', 7000);
+        } finally {
+          removeBtn.disabled = false;
+          _wiring = false;
+        }
+      });
     }
 
     const classicBtn = document.getElementById('profileViewClassic');

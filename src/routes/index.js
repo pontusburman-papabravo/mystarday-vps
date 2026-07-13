@@ -40,6 +40,7 @@ function registerRoutes(app) {
   app.use('/api/events', require('./events'));
   app.use('/api/auth', require('./auth'));
   app.use('/api/family', require('./family'));
+  app.use('/api/children', require('./children-avatar'));
   app.use('/api/children', require('./children'));
   app.use('/api/children', require('./mood-summary'));
   app.use('/api/children', require('./observations'));
@@ -79,6 +80,8 @@ function registerRoutes(app) {
 
   // Image upload for manual star grants
   app.use('/api/upload', require('./upload'));
+  app.use('/api/avatars', require('./avatars'));
+  app.use('/api/me', require('./me-profile-photo'));
 
   // Ratings routes
   const ratings = require('./ratings');

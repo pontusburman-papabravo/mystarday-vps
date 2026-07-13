@@ -460,6 +460,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/parent-nav-sidebar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parent-nav-header.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/billing-ui.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/member-avatar.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/parent-avatar-menu.js?v=' + RELEASE_TAG + '" defer><\/script>\n';
 
   const headIdx = body.indexOf(headMarker);

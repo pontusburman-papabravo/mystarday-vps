@@ -25,6 +25,7 @@ const {
 } = require('../lib/schemas');
 const { getOrGenerateDailyLog, syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
+const { avatarApiFields } = require('../lib/avatar-api');
 const { SECTION_ORDER_SQL, sectionOrderClause } = require('../lib/default-schedule-order');
 
 const router = express.Router();
@@ -64,7 +65,13 @@ const VALID_TEMPLATE_GROUPS = Object.keys(TEMPLATE_GROUP_META);
 // Gates: child_creation_wizard feature. Admin bypass via requireFeature.
 router.post('/child', requireParent, requireFeature('child_creation_wizard'), validate(OnboardingChildSchema), async (req, res) => {
   try {
-    const { name, emoji, birthday, avatar_url } = req.body;
+    const { name, emoji, birthday } = req.body;
+
+    if (req.body.avatar_url !== undefined) {
+      return res.status(400).json({
+        error: 'Profilbild laddas upp via PUT /api/children/:id/avatar efter att barnet skapats',
+      });
+    }
 
     if (!name || typeof name !== 'string' || name.trim().length < 1) {
       return res.status(400).json({ error: 'Barnets namn krävs' });
@@ -132,10 +139,10 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
 
       // Insert child
       const childResult = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint, avatar_url)
-         VALUES ($1, $2, $3, $4, 'Europe/Stockholm', 'auto', 'now_next_later', $5, $6, $7, $8)
-         RETURNING id, name, emoji, birthday, view_type, username, avatar_url, created_at`,
-        [req.user.familyId, childName, emoji, childBirthday, pinHash, username, pinFp, avatar_url || null]
+        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint)
+         VALUES ($1, $2, $3, $4, 'Europe/Stockholm', 'auto', 'now_next_later', $5, $6, $7)
+         RETURNING id, name, emoji, birthday, view_type, username, avatar_storage_key, avatar_updated_at, created_at`,
+        [req.user.familyId, childName, emoji, childBirthday, pinHash, username, pinFp]
       );
       const child = childResult.rows[0];
 
@@ -203,6 +210,7 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
         birthday: child.birthday,
         username: child.username,
         pin: rawPin, // show once so parent can note it
+        ...avatarApiFields(child, 'child'),
       });
     } catch (err) {
       await client.query('ROLLBACK');

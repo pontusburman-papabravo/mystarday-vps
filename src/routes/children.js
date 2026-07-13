@@ -19,6 +19,8 @@ const {
 const pinLockout = require('../../db/pin-lockout');
 const { getChildrenForParent } = require('../../db/parent-access');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
+const { avatarApiFields } = require('../lib/avatar-api');
+const { deleteAvatarForChildRecord } = require('../lib/avatar-service');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 const { resolveDefaultScheduleName, seedChildDefaultSchedule } = require('../lib/seed-child-default-schedule');
 const {
@@ -309,9 +311,9 @@ function toChildListResponse(row) {
     color_coding: row.color_coding,
     view_type: row.view_type,
     username: row.username,
-    avatar_url: row.avatar_url,
     created_at: row.created_at,
     role: row.role,
+    ...avatarApiFields(row, 'child'),
   };
 }
 
@@ -371,6 +373,12 @@ router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('
 router.post('/', validate(CreateChildSchema), async (req, res) => {
   try {
     const { name, emoji, birthday, timezone, view_mode, pin } = req.body;
+
+    if (req.body.avatar_url !== undefined) {
+      return res.status(400).json({
+        error: 'Profilbild laddas upp via PUT /api/children/:id/avatar efter att barnet skapats',
+      });
+    }
 
     // Validation
     if (!name || !emoji) {
@@ -455,10 +463,10 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
 
       // Create child
       const childResult = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint, avatar_url)
-         VALUES ($1, $2, $3, $4, $5, $6, 'now_next_later', $7, $8, $9, $10)
-         RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, username, avatar_url, created_at`,
-        [req.user.familyId, name.trim(), emoji, birthday || null, childTimezone, childViewMode, pinHash, username, pinFp, req.body.avatar_url || null]
+        `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint)
+         VALUES ($1, $2, $3, $4, $5, $6, 'now_next_later', $7, $8, $9)
+         RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, username, avatar_storage_key, avatar_updated_at, created_at`,
+        [req.user.familyId, name.trim(), emoji, birthday || null, childTimezone, childViewMode, pinHash, username, pinFp]
       );
 
       const child = childResult.rows[0];
@@ -522,7 +530,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
       }
 
       res.status(201).json({
-        ...child,
+        ...toChildListResponse(child),
         pin: rawPin,
         message: `${name.trim()} har lagts till! Spara PIN-koden: ${rawPin}`,
         wizard: true,
@@ -571,7 +579,7 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
       `SELECT id, name, emoji, birthday, timezone, view_mode, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating,
               mood_input_mode, transition_lead_minutes,
               hide_clock, lock_schedule, dopamin_animation, visual_timer, activity_timers_enabled,
-              username, avatar_url, created_at
+              username, avatar_storage_key, avatar_updated_at, created_at
        FROM child WHERE id = $1`,
       [req.params.id]
     );
@@ -579,7 +587,8 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
       return res.status(404).json({ error: 'Barnet hittades inte' });
     }
 
-    res.json({ ...result.rows[0], role: access.role });
+    const row = result.rows[0];
+    res.json({ ...toChildListResponse(row), role: access.role });
   } catch (err) {
     console.error('[CHILDREN] Get error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -630,6 +639,12 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     }
 
     const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, activity_timers_enabled, time_adjustment, color_coding, avatar_url } = req.body;
+
+    if (avatar_url !== undefined) {
+      return res.status(400).json({
+        error: 'Profilbild uppdateras via PUT /api/children/:id/avatar',
+      });
+    }
     const updates = [];
     const values = [];
     let idx = 1;
@@ -727,10 +742,6 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       updates.push(`color_coding = $${idx++}`);
       values.push(!!color_coding);
     }
-    if (avatar_url !== undefined) {
-      updates.push(`avatar_url = $${idx++}`);
-      values.push(avatar_url);
-    }
 
     if (updates.length === 0) {
       return res.status(400).json({ error: 'Inget att uppdatera' });
@@ -739,11 +750,11 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE child SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, activity_timers_enabled, time_adjustment, color_coding, username, avatar_url, created_at`,
+       RETURNING id, name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, activity_timers_enabled, time_adjustment, color_coding, username, avatar_storage_key, avatar_updated_at, created_at`,
       values
     );
 
-    res.json(result.rows[0]);
+    res.json(toChildListResponse(result.rows[0]));
   } catch (err) {
     if (isDuplicateNameError(err)) {
       const trimmedName = (req.body.name || '').trim();
@@ -811,6 +822,8 @@ router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
         [req.params.id]
       );
       await client.query('DELETE FROM weekly_schedule WHERE child_id = $1', [req.params.id]);
+
+      await deleteAvatarForChildRecord(req.params.id);
 
       // Delete parent-child links and child
       await client.query('DELETE FROM parent_child WHERE child_id = $1', [req.params.id]);

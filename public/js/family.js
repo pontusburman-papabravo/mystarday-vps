@@ -769,8 +769,9 @@
 
       return `
         <div class="bg-sky dark:bg-navy-soft rounded-2xl p-4 card-hover fade-in">
-          <div class="flex items-start justify-between mb-3">
-            <div>
+          <div class="flex items-start gap-3 mb-3">
+            <div class="flex-shrink-0">${typeof window.renderParentAvatar === 'function' ? renderParentAvatar(parent, 48) : ''}</div>
+            <div class="flex-1 min-w-0">
               <p class="font-heading font-bold text-navy dark:text-white">${parent.name || 'Förälder'}</p>
               <p class="text-sm text-text-soft">${parent.email}</p>
               ${isSelf ? '<span class="inline-block mt-1 text-xs bg-gold-light text-gold px-2 py-0.5 rounded-full font-medium">Du</span>' : ''}

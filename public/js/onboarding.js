@@ -36,7 +36,7 @@ let selectedDayPref = null;      // template_group key (e.g. 'forskola', 'morgon
 let selectedViewType = 'timeline';    // 'day' | 'timeline' — default: Nu/Nästa/Senare
 const selectedRewards = [];        // array of { name, icon, star_cost }
 let selectedEmojiValue = null;
-let selectedAvatarUrl = null;    // uploaded avatar URL (iOS native camera) — null = use emoji
+let selectedAvatarFile = null;   // compressed JPEG File for deferred upload after child create
 let weekendScheduleAdded = false; // true if parent opted in to helg schedule for Sat+Sun
 let availableRewards = [];       // loaded from admin library
 let loadedChildren = [];         // for invite child-selection
@@ -380,7 +380,7 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
   errorEl.classList.add('hidden');
 
   if (!name) { showError(errorEl, 'Ange barnets namn'); return; }
-  const hasAvatar = Platform && Platform.isNative() && selectedAvatarUrl;
+  const hasAvatar = Platform && Platform.isNative() && selectedAvatarFile;
   if (!emoji && !hasAvatar) {
     // iOS/iPad: emoji rutnät ska vara synligt; fallback till 🌟 om inget valts
     if (Platform && Platform.isIOS()) emoji = ensureDefaultEmoji();
@@ -395,12 +395,20 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
     const birthday = document.getElementById('childBirthday').value || null;
     const res = await window.apiFetch('/api/onboarding/child', {
       method: 'POST',
-      body: JSON.stringify({ name, emoji, birthday, avatar_url: selectedAvatarUrl }),
+      body: JSON.stringify({ name, emoji, birthday }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Något gick fel');
 
     childId = data.id;
+    if (selectedAvatarFile && window.AvatarUploadFlow && typeof AvatarUploadFlow.putAvatarFile === 'function') {
+      try {
+        await AvatarUploadFlow.putAvatarFile('/api/children/' + childId + '/avatar', selectedAvatarFile);
+      } catch (uploadErr) {
+        console.error('[onboarding] avatar upload failed:', uploadErr.message);
+        showToast('Barnet skapades men fotot kunde inte sparas. Du kan lägga till det under Familj.', true);
+      }
+    }
     if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function') {
       OnboardingActivation.setChildId(childId);
     }
@@ -1211,7 +1219,7 @@ function initIOSAvatarPicker() {
 
   // "Use default" — deselects photo, keep emoji
   if (useDefaultBtn) useDefaultBtn.addEventListener('click', () => {
-    selectedAvatarUrl = null;
+    selectedAvatarFile = null;
     preview.src = 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/bac2e263-dc2f-4046-8870-cc4f4dd6f3a0.jpg';
     preview.classList.remove('ring-2', 'ring-gold');
     chooseBtn.classList.remove('hidden');
@@ -1232,11 +1240,13 @@ function initIOSAvatarPicker() {
         showToast(result.error, true);
         return;
       }
-      // Upload to CDN
-      chooseBtn.textContent = 'Laddar upp…';
-      const url = await Platform.camera.upload(result);
-      selectedAvatarUrl = url;
-      preview.src = url;
+      chooseBtn.textContent = 'Förbereder…';
+      const file = Platform.camera.toAvatarFile
+        ? await Platform.camera.toAvatarFile(result)
+        : null;
+      if (!file) throw new Error('Kunde inte läsa bilden');
+      selectedAvatarFile = file;
+      preview.src = URL.createObjectURL(file);
       preview.classList.add('ring-2', 'ring-gold');
       chooseBtn.classList.add('hidden');
       useDefaultBtn.classList.remove('hidden');

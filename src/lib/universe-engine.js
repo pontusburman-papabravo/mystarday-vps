@@ -1,6 +1,7 @@
 'use strict';
 
 const universeDb = require('../../db/child-universe');
+const { avatarApiFields } = require('./avatar-api');
 
 const ROOM_UNLOCKS = [
   { room: 'chest', minStars: 0 },
@@ -116,8 +117,8 @@ async function getUniverseState(childId) {
     avatar: {
       config: refreshed.avatar_config || {},
       emoji: child.emoji,
-      avatar_url: child.avatar_url,
       name: child.name,
+      ...avatarApiFields(child, 'child'),
     },
     house: {
       theme: house.theme || 'castle',

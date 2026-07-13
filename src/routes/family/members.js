@@ -7,6 +7,7 @@
 
 const express = require('express');
 const db = require('../../lib/db');
+const { deleteAvatarForChildRecord, deleteAvatarForParentRecord } = require('../../lib/avatar-service');
 const { validate } = require('../../middleware/validate');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { UpdateFamilyMemberSchema } = require('../../lib/schemas');
@@ -151,6 +152,9 @@ router.delete('/members/:id', async (req, res) => {
       [memberId]
     );
 
+    // Delete avatar file before parent row is removed
+    await deleteAvatarForParentRecord(memberId);
+
     // Delete the parent
     await client.query('DELETE FROM parent WHERE id = $1', [memberId]);
 
@@ -212,6 +216,8 @@ router.delete('/children/:id', requireNotPedagogOnly, async (req, res) => {
        )`, [childId]
     );
     await client.query('DELETE FROM weekly_schedule WHERE child_id = $1', [childId]);
+
+    await deleteAvatarForChildRecord(childId);
 
     // parent-child links and child record
     await client.query('DELETE FROM parent_child WHERE child_id = $1', [childId]);

@@ -164,48 +164,10 @@ async function handleImageUpload(req, res) {
 router.post('/', requireParent, imageUpload, handleImageUpload);
 router.post('/image', requireParent, imageUpload, handleImageUpload);
 
-router.post('/avatar', requireParent, avatarUpload, async (req, res) => {
-  try {
-    if (!isObjectStorageConfigured()) {
-      return res.status(503).json({ error: 'Bilduppladdning är inte konfigurerad' });
-    }
-    if (!req.file) return res.status(400).json({ error: 'Ingen bild skickad' });
-
-    const declaredType = (req.file.mimetype || '').toLowerCase();
-    if (isDangerousDeclaredType(declaredType)) {
-      return res.status(400).json({ error: 'Filtypen är inte tillåten' });
-    }
-
-    let normalized;
-    try {
-      normalized = await normalizeUploadBuffer(req.file.buffer, declaredType);
-    } catch (normErr) {
-      if (normErr.userMessage) {
-        return res.status(400).json({ error: normErr.userMessage });
-      }
-      throw normErr;
-    }
-    if (!normalized) {
-      return res.status(400).json({ error: 'Endast JPEG, PNG eller WebP är tillåtna' });
-    }
-
-    let safeFilename = sanitizeFilename(req.file.originalname || 'avatar.jpg');
-    if (normalized.contentType === 'image/jpeg' && !/\.jpe?g$/i.test(safeFilename)) {
-      safeFilename = safeFilename.replace(/\.[^.]+$/, '') + '.jpg';
-      if (safeFilename === '.jpg') safeFilename = 'avatar.jpg';
-    }
-
-    const url = await uploadImage({
-      buffer: normalized.buffer,
-      filename: safeFilename,
-      contentType: normalized.contentType,
-      prefix: 'avatars',
-    });
-    res.json({ url });
-  } catch (err) {
-    console.error('[UPLOAD/AVATAR] error:', err.message);
-    res.status(500).json({ error: 'Uppladdning misslyckades' });
-  }
+router.post('/avatar', requireParent, (_req, res) => {
+  res.status(410).json({
+    error: 'Använd PUT /api/children/:childId/avatar eller PUT /api/account/avatar',
+  });
 });
 
 module.exports = router;

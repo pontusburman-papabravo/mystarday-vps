@@ -1055,69 +1055,60 @@ var Platform = (function () {
     },
 
     /**
-     * Upload a child avatar (dataUrl) to /api/upload/avatar.
-     * Returns the CDN URL on success, or throws on failure.
-     * Uses the dedicated avatar endpoint (2MB, jpeg/png/webp).
+     * Compress pick result to a JPEG File (no upload).
      */
-    async upload(dataUrlOrResult) {
+    async toAvatarFile(dataUrlOrResult) {
       let blob;
-      let filename = 'avatar.jpg';
       if (typeof dataUrlOrResult === 'string') {
         blob = dataUrlToBlob(dataUrlOrResult);
       } else if (dataUrlOrResult && dataUrlOrResult.file) {
         blob = dataUrlOrResult.file;
-        let ext = (dataUrlOrResult.mimeType || '').split('/')[1] || 'jpg';
-        if (ext === 'jpeg') ext = 'jpg';
-        if (ext === 'heic' || ext === 'heif') ext = 'jpg';
-        filename = 'avatar.' + ext;
       } else if (dataUrlOrResult && dataUrlOrResult.dataUrl) {
         blob = dataUrlToBlob(dataUrlOrResult.dataUrl);
       } else {
-        throw new Error('Ingen bild att ladda upp');
+        throw new Error('Ingen bild att bearbeta');
+      }
+      blob = await compressAvatarBlob(blob);
+      return new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+    },
+
+    /**
+     * Upload avatar to authenticated PUT endpoint. Returns avatar_src from API.
+     */
+    async upload(dataUrlOrResult, options) {
+      options = options || {};
+      const file = await this.toAvatarFile(dataUrlOrResult);
+      if (options.defer) return { file: file };
+
+      const endpoint = options.endpoint;
+      if (!endpoint) {
+        throw new Error('Profilbilder laddas upp via PUT /api/children/:id/avatar eller /api/account/avatar');
       }
 
-      blob = await compressAvatarBlob(blob);
-      const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+      const authObj = (typeof Auth !== 'undefined' && Auth) || window.Auth;
+      if (!authObj || typeof authObj.ensureCsrfToken !== 'function') {
+        throw new Error('Ej inloggad');
+      }
+      await authObj.ensureCsrfToken();
+      const csrf = authObj.getCsrfToken();
+      if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
 
       const fd = new FormData();
       fd.append('image', file, 'avatar.jpg');
-
-      async function postAvatar(retry) {
-        const authObj = (typeof Auth !== 'undefined' && Auth) || window.Auth;
-        if (!authObj || typeof authObj.ensureCsrfToken !== 'function') {
-          throw new Error('Ej inloggad');
-        }
-        if (retry) localStorage.removeItem(authObj.CSRF_KEY);
-        await authObj.ensureCsrfToken();
-        const csrf = authObj.getCsrfToken();
-        if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
-        const headers = { 'X-CSRF-Token': csrf };
-        return fetch('/api/upload/avatar', {
-          method: 'POST',
-          credentials: 'include',
-          headers: headers,
-          body: fd,
-        });
-      }
-
-      let result = await postAvatar(false);
-      if (result.status === 403) {
-        const errBody = await result.clone().json().catch(function () { return {}; });
-        if (errBody.code === 'CSRF_MISSING' || errBody.code === 'CSRF_INVALID') {
-          result = await postAvatar(true);
-        }
-      }
+      const result = await fetch(endpoint, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'X-CSRF-Token': csrf },
+        body: fd,
+      });
       if (!result.ok) {
         const err = await result.json().catch(function () { return {}; });
-        if (result.status === 413) {
-          throw new Error('Bilden är för stor (max 2 MB)');
-        }
+        if (result.status === 413) throw new Error('Bilden är för stor (max 2 MB)');
         throw new Error(err.error || 'Uppladdning misslyckades (' + result.status + ')');
       }
       const json = await result.json();
-      const url = normalizePublicUrl(json.url);
-      if (!url) throw new Error('Servern returnerade ingen bild-URL');
-      return url;
+      if (!json.avatar_src) throw new Error('Servern returnerade ingen bild-URL');
+      return json.avatar_src;
     },
   };
 

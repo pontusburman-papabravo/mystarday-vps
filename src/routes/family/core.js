@@ -8,6 +8,7 @@
 
 const express = require('express');
 const db = require('../../lib/db');
+const { mapChildForFamilyApi, mapParentForFamilyApi } = require('../../lib/avatar-api');
 const { requireParent } = require('../../middleware/auth');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { getChildrenForParent } = require('../../../db/parent-access');
@@ -40,7 +41,9 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
 
     // Get parents in family with their child links
     const parentsResult = await db.query(
-      'SELECT id, email, name, is_admin, family_role, created_at FROM parent WHERE family_id = $1',
+      `SELECT id, email, name, is_admin, family_role, created_at,
+              avatar_storage_key, avatar_updated_at
+       FROM parent WHERE family_id = $1`,
       [req.user.familyId]
     );
 
@@ -61,22 +64,17 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       p.linked_child_ids = linksByParent[p.id] || [];
     }
 
-    // Get children in family (only those the current parent has access to — revoked_at filtered by getChildrenForParent)
     const children = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
-    // children already has .id, .name, .emoji, .birthday, .username, .timezone, .sort_order, .role
-    // Add has_pin computed field
-    const childrenWithPin = children.map(c => ({
-      ...c,
+    const childrenWithPin = children.map((c) => mapChildForFamilyApi(c, {
       has_pin: c.pin != null && c.pin !== '',
     }));
 
-    // Get ALL children in family (for parent-child assignment UI)
     const allChildrenResult = await db.query(
-      `SELECT id, name, emoji FROM child WHERE family_id = $1 ORDER BY sort_order ASC, created_at ASC`,
+      `SELECT id, name, emoji, avatar_storage_key, avatar_updated_at
+       FROM child WHERE family_id = $1 ORDER BY sort_order ASC, created_at ASC`,
       [req.user.familyId]
     );
 
-    // Get pending invites
     const invitesResult = await db.query(
       `SELECT id, email, expires_at, accepted, created_at
        FROM family_invite
@@ -85,11 +83,17 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       [req.user.familyId]
     );
 
+    const parentsPublic = parentsResult.rows.map((p) => mapParentForFamilyApi(p, {
+      linked_child_ids: p.linked_child_ids,
+    }));
+
+    const allChildrenPublic = allChildrenResult.rows.map((c) => mapChildForFamilyApi(c));
+
     res.json({
       ...family,
-      parents: parentsResult.rows,
+      parents: parentsPublic,
       children: childrenWithPin,
-      allChildren: allChildrenResult.rows,
+      allChildren: allChildrenPublic,
       pendingInvites: invitesResult.rows,
     });
   } catch (err) {

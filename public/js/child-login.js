@@ -9,7 +9,7 @@
 
 // ── State ────────────────────────────────────────────────────────────────────
 let pinDigits = [];          // max 4 digits
-let selectedChild = null;   // { username, name, emoji, avatar_url, familyId, lastLoginAt }
+let selectedChild = null;   // { username, name, emoji, has_avatar, avatar_src, familyId, lastLoginAt }
 /** True when exactly one child — skip profile picker and go straight to PIN. */
 let directPinMode = false;
 /** Senast renderad barnlista (API + known_children) — selectChild måste använda denna. */
@@ -27,9 +27,12 @@ function renderClChildAvatar(child, size) {
     return window.renderChildAvatar(child, size || 52);
   }
   size = size || 52;
-  if (child && child.avatar_url) {
-    return '<img src="' + escapeHtml(child.avatar_url) + '" alt="' + escapeHtml(child.name || '') + '" ' +
-      'style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;" />';
+  if (child && (child.avatar_src || child.has_avatar)) {
+    const src = child.avatar_src || '';
+    if (src) {
+      return '<img src="' + escapeHtml(src) + '" alt="' + escapeHtml(child.name || '') + '" ' +
+        'style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;" />';
+    }
   }
   const emoji = (child && child.emoji) || '⭐';
   return '<span style="font-size:' + Math.round(size * 0.85) + 'px;">' + escapeHtml(emoji) + '</span>';
@@ -41,7 +44,8 @@ function mergeKnownIntoApiChild(apiChild, knownEntry) {
     username: apiChild.username || knownEntry.username,
     name: apiChild.name || knownEntry.name,
     emoji: apiChild.emoji || knownEntry.emoji || '⭐',
-    avatar_url: apiChild.avatar_url || knownEntry.avatar_url || null,
+    has_avatar: apiChild.has_avatar || knownEntry.has_avatar || false,
+    avatar_src: apiChild.avatar_src || knownEntry.avatar_src || null,
     familyId: apiChild.familyId || knownEntry.familyId || null,
     lastLoginAt: knownEntry.lastLoginAt || null,
   };
@@ -227,7 +231,8 @@ function mapPickerChild(c, familyIdFallback) {
     username: c.username || (c.name && String(c.name).toLowerCase().replace(/\s+/g, '')) || c.name,
     name: c.name || c.username,
     emoji: c.emoji || '⭐',
-    avatar_url: c.avatar_url || null,
+    has_avatar: !!c.has_avatar,
+    avatar_src: c.avatar_src || null,
     familyId: c.familyId || c.family_id || familyIdFallback || null,
     lastLoginAt: null,
   };
@@ -322,7 +327,7 @@ window.selectChild = function(username, opts) {
     child = known.find(function (k) { return k.username === username; });
   }
   if (!child) {
-    child = { username: username, name: username, emoji: '⭐', avatar_url: null, familyId: null };
+    child = { username: username, name: username, emoji: '⭐', has_avatar: false, avatar_src: null, familyId: null };
   }
 
   selectedChild = child;
@@ -949,7 +954,8 @@ async function submitLogin() {
       username: data.user.username,
       name: data.user.name,
       emoji: data.user.emoji || '⭐',
-      avatar_url: data.user.avatar_url || null,
+      has_avatar: !!data.user.has_avatar,
+      avatar_src: data.user.avatar_src || null,
       familyId: data.user.familyId || null,
     });
     trackChildEntry('child_login_success', { username: data.user.username });
@@ -1144,7 +1150,8 @@ window.handleManualName = function(e) {
     username: name.toLowerCase(),
     name: name,
     emoji: '⭐',
-    avatar_url: null,
+    has_avatar: false,
+    avatar_src: null,
     familyId: null,
     lastLoginAt: null,
   };
