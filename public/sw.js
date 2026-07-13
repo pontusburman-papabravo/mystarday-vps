@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v605';
+const CACHE_NAME = 'stjarndag-v606';
+// stjarndag-v606: handoff film — slim-path fix, activation state, dashboard CTA
 // stjarndag-v605: handoff film — remove music (text + animation only)
 // stjarndag-v604: Mitt tab isolation, header cleanup, activity cards, family avatars
 // stjarndag-v603: handoff film — brand styling + melodic ambient music

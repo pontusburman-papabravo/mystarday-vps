@@ -19,7 +19,38 @@
     return window.matchMedia('(max-width: 767px)').matches;
   }
 
+  function wantsChildHandoffDeepLink() {
+    try {
+      return new URLSearchParams(window.location.search).get('next_step') === 'child_handoff';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function clearHandoffDeepLink() {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('next_step') !== 'child_handoff') return;
+      url.searchParams.delete('next_step');
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+    } catch (_) {}
+  }
+
+  async function loadActivationHandoffNeeded() {
+    if (!window.apiFetch) return false;
+    try {
+      const res = await window.apiFetch('/api/family/activation-config');
+      if (!res.ok) return false;
+      const cfg = await res.json();
+      const st = cfg.state || {};
+      return Boolean(st.schema_saved_at && !st.child_access_completed_at);
+    } catch (_) {
+      return false;
+    }
+  }
+
   function isDismissed() {
+    if (wantsChildHandoffDeepLink()) return false;
     if (isNativeShell()) return false;
     try {
       const raw = localStorage.getItem(DISMISS_KEY);
@@ -75,7 +106,8 @@
       && ctx.recommended_experiences.includes('handoff_to_child');
   }
 
-  function bindEvents(el) {
+  function bindEvents(el, opts) {
+    opts = opts || {};
     const childBtn = document.getElementById('dashboardChildLoginBtn');
     const logoutBtn = document.getElementById('dashboardParentLogoutBtn');
     const dismissBtn = document.getElementById('dashboardChildHandoffDismiss');
@@ -83,7 +115,8 @@
     if (childBtn) childBtn.addEventListener('click', startChildLogin);
     if (logoutBtn) logoutBtn.addEventListener('click', parentLogout);
     if (dismissBtn) {
-      dismissBtn.classList.toggle('hidden', isNativeShell());
+      const hideDismiss = isNativeShell() || Boolean(opts.persistent);
+      dismissBtn.classList.toggle('hidden', hideDismiss);
       dismissBtn.addEventListener('click', dismiss);
     }
   }
@@ -91,8 +124,34 @@
   async function resolveVisibility(el) {
     if (!el) return;
 
-    if (!isNativeShell() && !isMobileWeb()) {
+    const activationNeeded = await loadActivationHandoffNeeded();
+    const deepLink = wantsChildHandoffDeepLink();
+
+    if (deepLink) {
+      try { localStorage.removeItem(DISMISS_KEY); } catch (_) {}
+    }
+
+    if (!isNativeShell() && !isMobileWeb() && !activationNeeded && !deepLink) {
       el.classList.add('hidden');
+      return;
+    }
+
+    if (activationNeeded || deepLink) {
+      el.classList.remove('hidden');
+      bindEvents(el, { persistent: true });
+      if (deepLink) {
+        clearHandoffDeepLink();
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (window.apiFetch) {
+          window.apiFetch('/api/analytics/event', {
+            method: 'POST',
+            body: JSON.stringify({
+              event_type: 'onboarding_handoff_opened',
+              metadata: { source: 'dashboard_deeplink' },
+            }),
+          }).catch(function () {});
+        }
+      }
       return;
     }
 
