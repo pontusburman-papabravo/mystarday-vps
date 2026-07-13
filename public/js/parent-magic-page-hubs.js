@@ -275,6 +275,7 @@
   }
 
   function tagSettingsSections() {
+    const restoreGroup = _activeSettingsGroup;
     bindThemePickerDelegation();
     ensureAppearanceSection();
     function tagChild(childId, groupId) {
@@ -303,6 +304,9 @@
     tagChild('consentSection', 'app');
     tagChild('dataExportSection', 'app');
     tagChild('deletionSection', 'app');
+    if (restoreGroup) {
+      showSettingsGroup(restoreGroup);
+    }
   }
 
   function resetSettingsState() {

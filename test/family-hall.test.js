@@ -35,6 +35,13 @@ describe('family-hall formatStoryEvent', () => {
   it('parents query is valid PostgreSQL (no DISTINCT with foreign ORDER BY)', () => {
     const src = require('fs').readFileSync(require('path').join(__dirname, '../db/family-hall.js'), 'utf8');
     assert.doesNotMatch(src, /SELECT DISTINCT p\.name[\s\S]*?ORDER BY p\.created_at/);
-    assert.match(src, /SELECT p\.name[\s\S]*?ORDER BY p\.created_at ASC/);
+    assert.match(src, /SELECT p\.id, p\.name[\s\S]*?ORDER BY p\.created_at ASC/);
+  });
+
+  it('child persons include avatar fields via avatar-api mappers', () => {
+    const src = require('fs').readFileSync(require('path').join(__dirname, '../db/family-hall.js'), 'utf8');
+    assert.match(src, /mapParentForFamilyApi/);
+    assert.match(src, /mapChildForFamilyApi/);
+    assert.match(src, /avatar_storage_key/);
   });
 });

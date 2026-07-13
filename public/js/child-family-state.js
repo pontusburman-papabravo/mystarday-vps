@@ -20,7 +20,8 @@
     const list = [];
     (persons.parents || []).forEach(function (p, i) {
       list.push({
-        key: 'parent-' + i,
+        key: 'parent-' + (p.id || i),
+        id: p.id || null,
         name: p.name,
         emoji: p.emoji || '👤',
         avatarUrl: p.avatar_src || p.avatarUrl || '',
@@ -34,6 +35,7 @@
     (persons.siblings || []).forEach(function (s) {
       list.push({
         key: 'sibling-' + (s.id || s.name),
+        id: s.id || null,
         name: s.name,
         emoji: s.emoji || '⭐',
         avatarUrl: s.avatar_src || s.avatarUrl || '',

@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v597';
+const CACHE_NAME = 'stjarndag-v598';
+// stjarndag-v598: Child Mina personer — parent avatar_src in /api/me/family; settings group restore after re-tag
 // stjarndag-v597: Familj — loading skeleton, prefetch, Inställningar-länk
 // stjarndag-v596: Avatar crop — square viewport + EXIF orientation (fix distortion)
 // stjarndag-v595: Family Avatar — show Profilbild in Inställningar → Profil & konto (magic group tag)
