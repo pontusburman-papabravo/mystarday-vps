@@ -42,6 +42,16 @@ const SceneRoleSchema = z.enum([
   'brand',
 ]);
 
+export const TAGLINE_VARIANTS = {
+  A: 'Morgnar kan kännas så här.',
+  B: 'Mer lugn. Mindre tjat.',
+  C: 'En bättre morgon börjar tillsammans.',
+  D: 'Det här är bara början.',
+  E: '',
+};
+
+const TaglineVariantIdSchema = z.enum(['A', 'B', 'C', 'D', 'E']);
+
 const SceneSchema = z.object({
   id: z.string().min(1),
   duration: z.number().int().refine((v) => v === 5 || v === 10, {
@@ -51,6 +61,7 @@ const SceneSchema = z.object({
   role: SceneRoleSchema.optional(),
   skipPika: z.boolean().default(false),
   validationScene: z.boolean().default(false),
+  duckMusic: z.boolean().default(false),
   pikaPrompt: z.string().min(10).optional(),
   swedishText: z.string().default(''),
   showCaption: z.boolean().default(true),
@@ -76,10 +87,30 @@ export const ManifestSchema = z.object({
   referenceImage: z.string().min(1),
   seed: z.number().int().optional(),
   creativeBrief: z.string().optional(),
+  taglineVariantDefault: TaglineVariantIdSchema.default('E'),
+  taglineVariants: z.record(z.string()).optional(),
   music: MusicCueSchema,
   ambient: AmbientCueSchema,
   scenes: z.array(SceneSchema).min(1),
 });
+
+export function resolveTaglineVariants(manifest) {
+  return { ...TAGLINE_VARIANTS, ...(manifest.taglineVariants || {}) };
+}
+
+export function resolveBrandCaption(manifest, variantId) {
+  const key = variantId || manifest.taglineVariantDefault || 'E';
+  const variants = resolveTaglineVariants(manifest);
+  return variants[key]?.trim() || '';
+}
+
+export function sceneRenderCaption(manifest, scene, { taglineVariant } = {}) {
+  if (scene.role === 'brand') {
+    const text = resolveBrandCaption(manifest, taglineVariant);
+    return text;
+  }
+  return sceneCaptionText(scene);
+}
 
 export function sceneCaptionText(scene) {
   if (scene.showCaption === false) return '';

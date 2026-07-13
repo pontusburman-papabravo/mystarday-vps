@@ -6,7 +6,8 @@
   "outputBasename": "tomorrow-starts-here",
   "referenceImage": "assets/references/evening-family.png",
   "seed": 42002,
-  "creativeBrief": "Kvällen skapar morgonen — the product story. Love → chaos → hope → solution. Evening recognition and quiet planning; morning payoff without showing rewards. One blurred app glimpse max. Same door ending and tagline.",
+  "taglineVariantDefault": "E",
+  "creativeBrief": "Kvällen skapar morgonen — product truth in the arc, not the ending slogan. Love → chaos → hope → solution. One blurred app glimpse max. Ending sells calm normal morning (variant E default). Viewer discovers product through behaviour.",
   "music": {
     "file": "audio/evening-theme.mp3",
     "volume": 0.24,
@@ -82,20 +83,31 @@
       "role": "payoff",
       "duration": 5,
       "renderDuration": 7,
-      "pikaPrompt": "Bright Swedish morning hallway, same child puts on shoes independently, same parent looks up surprised then smiles with quiet pride, match cut from evening peace to morning confidence, documentary natural light, no stars, no phone, no text overlays",
+      "duckMusic": true,
+      "pikaPrompt": "Bright Swedish morning hallway, same child zips up shoes and looks up at parent, parent meets eyes and smiles, child smiles back — mutual eye contact not phone, match cut from evening peace to morning confidence, documentary natural light, no stars, no readable phone, no text overlays",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "outputFilename": "06-morning-shoes.mp4"
+      "outputFilename": "06-morning-shoes.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Zipper close — tactile, no score under", "atSec": 1.2 },
+        { "type": "silence", "description": "Hold two beats after shared smile", "atSec": 3 }
+      ]
     },
     {
       "id": "scene-07-door-brand",
       "role": "brand",
       "duration": 5,
-      "pikaPrompt": "Wide shot same family leaving home calmly, child holds backpack, parent with coffee, soft winter morning, unhurried goodbye energy through the door, slow dolly out, no branding in scene",
-      "swedishText": "Lugnare morgnar\nbörjar kvällen innan.",
+      "renderDuration": 7,
+      "pikaPrompt": "Wide shot same family leaving home calmly, child holds backpack, parent with coffee, soft winter morning, front door closes behind them, unhurried goodbye energy, slow dolly out, no branding in scene, no phones",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fadeblack",
-      "outputFilename": "07-door-brand.mp4"
+      "outputFilename": "07-door-brand.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Front door latch close", "atSec": 3.5 },
+        { "type": "silence", "description": "Two seconds of quiet before logo in post", "atSec": 5 }
+      ]
     }
   ]
 }

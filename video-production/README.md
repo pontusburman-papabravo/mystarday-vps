@@ -51,7 +51,9 @@ Each scene defines:
 - Swedish caption (empty for hook/app-glimpse; use `\n` for manual line breaks)
 - `audioCues` — sound-design notes for post (VO, SFX, silence)
 - `skipPika: true` on black breath scenes (no API cost)
-- `validationScene: true` on the first-star scene to test before full generation
+- `validationScene: true` on the shoes scene — iterate on Pika before full generation
+- `duckMusic: true` on validation/payoff shoes beats — score out, zipper SFX carries the moment
+- `taglineVariantDefault: "E"` — logo-only ending; test A–D with `--tagline B` at render
 
 ## Commands (from repo root)
 
@@ -62,9 +64,17 @@ npm run video:render           # ffmpeg editing + export
 npm run video:all              # generate + render
 ```
 
+### Compare ending taglines (placeholder render)
+
+```bash
+npm run video:render -- --film a-morning-without-nagging --placeholders --tagline B
+```
+
+Omit `--tagline` for variant **E** (door → silence → logo only).
+
 ### Validate visual style with one scene (~$0.35)
 
-The **shoes scene** — child puts on shoes alone, parent looks up and smiles:
+The **shoes scene** — child puts on shoes, looks up, parent smiles, child smiles back:
 
 ```bash
 npm run video:dry-run -- --film a-morning-without-nagging --scene scene-05-shoes-alone

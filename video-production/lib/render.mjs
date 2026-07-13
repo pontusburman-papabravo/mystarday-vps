@@ -4,7 +4,8 @@ import { PATHS } from './config.mjs';
 import {
   listManifestFiles,
   loadManifest,
-  sceneCaptionText,
+  sceneRenderCaption,
+  resolveBrandCaption,
 } from './manifest.mjs';
 import {
   loadState,
@@ -77,6 +78,17 @@ export async function runRender(argv = process.argv.slice(2)) {
     const workDir = path.join(PATHS.output, 'work', manifest.id);
     fs.mkdirSync(workDir, { recursive: true });
 
+    const taglineVariant = options.tagline || manifest.taglineVariantDefault || 'E';
+    if (taglineVariant && !['A', 'B', 'C', 'D', 'E'].includes(taglineVariant)) {
+      throw new Error(`Invalid --tagline "${taglineVariant}". Use A, B, C, D, or E.`);
+    }
+    const brandCaption = resolveBrandCaption(manifest, taglineVariant);
+    if (brandCaption) {
+      console.log(`  brand tagline variant ${taglineVariant}: ${brandCaption.replace(/\n/g, ' / ')}`);
+    } else {
+      console.log(`  brand tagline variant ${taglineVariant}: (logo only — no slogan)`);
+    }
+
     const normalizedPaths = [];
     const renderDurations = [];
     const swedishTexts = [];
@@ -98,7 +110,7 @@ export async function runRender(argv = process.argv.slice(2)) {
 
       normalizedPaths.push(normPath);
       renderDurations.push(renderDur);
-      swedishTexts.push(sceneCaptionText(scene));
+      swedishTexts.push(sceneRenderCaption(manifest, scene, { taglineVariant }));
       if (i < scenes.length - 1) {
         transitions.push(scene.transition);
       }

@@ -6,7 +6,8 @@
   "outputBasename": "real-families",
   "referenceImage": "assets/references/real-family.png",
   "seed": 42003,
-  "creativeBrief": "Love → chaos → hope → solution for diverse Swedish families. Identity not features. No stars, no app in this film. End on belonging and the evening tagline.",
+  "taglineVariantDefault": "E",
+  "creativeBrief": "Love → chaos → hope → solution for diverse Swedish families. Identity not features. No stars, no app. Emotional payoff = parent-child eye contact. Default ending E: door, silence, logo.",
   "music": {
     "file": "audio/families-theme.mp3",
     "volume": 0.28,
@@ -63,7 +64,7 @@
       "id": "scene-04-eye-level-moment",
       "role": "story",
       "duration": 5,
-      "pikaPrompt": "Documentary moment, parent kneels to child's eye level in hallway, calm supportive presence after chaos, child nods slowly, soft natural light, diverse modern Swedish home, focus on faces, no devices, no text",
+      "pikaPrompt": "Documentary moment, parent kneels to child's eye level in hallway, calm supportive presence after chaos, parent and child meet eyes, child nods slowly then small smile, parent smiles back, soft natural light, diverse modern Swedish home, focus on faces, no devices, no text",
       "swedishText": "När någon möter barnet där det är",
       "transition": "dissolve",
       "outputFilename": "04-eye-level-moment.mp4"
@@ -82,10 +83,16 @@
       "id": "scene-06-door-brand",
       "role": "brand",
       "duration": 5,
-      "pikaPrompt": "Wide documentary shot, family leaves Swedish apartment building together calmly, child carries own bag, parent with coffee, winter morning, belonging and relief in body language, slow dolly out",
-      "swedishText": "Lugnare morgnar\nbörjar kvällen innan.",
+      "renderDuration": 7,
+      "pikaPrompt": "Wide documentary shot, family leaves Swedish apartment building together calmly, child carries own bag, parent with coffee, winter morning, building door closes behind them, belonging and relief in body language, slow dolly out, no phones",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fadeblack",
-      "outputFilename": "06-door-brand.mp4"
+      "outputFilename": "06-door-brand.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Building door latch close", "atSec": 3.5 },
+        { "type": "silence", "description": "Two seconds of quiet before logo in post", "atSec": 5 }
+      ]
     }
   ]
 }

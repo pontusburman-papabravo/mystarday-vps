@@ -6,7 +6,8 @@
   "outputBasename": "morning-without-nagging",
   "referenceImage": "assets/references/morning-family.png",
   "seed": 42001,
-  "creativeBrief": "Love → chaos → hope → solution. Sell the parent identity: Jag vill vara den föräldern. No stars, no rewards on screen. No app in this film — understanding comes from the child acting, not from UI. Validation scene: shoes alone.",
+  "taglineVariantDefault": "E",
+  "creativeBrief": "Love → chaos → hope → solution. Sell the feeling: morgonen blev normal. No stars, no rewards, no app. Emotional payoff = mutual eye contact at shoes, not a slogan. Default ending E: door, silence, logo.",
   "music": {
     "file": "audio/morning-theme.mp3",
     "volume": 0.26,
@@ -77,20 +78,31 @@
       "duration": 5,
       "renderDuration": 7,
       "validationScene": true,
-      "pikaPrompt": "Close documentary shot in Swedish hallway, child kneels and puts on shoes completely alone with quiet determination, father looks up from tying his own shoe or reading a note, brief surprised pause then warm genuine smile, two beats of stillness, eye contact, golden morning window light, no phone visible, no UI, no stars, emotional authenticity is everything",
+      "duckMusic": true,
+      "pikaPrompt": "Close documentary shot in Swedish hallway, child kneels and zips up shoes alone, child looks up at parent, parent meets child's eyes and smiles warmly, child smiles back — mutual eye contact between child and parent not phone, two beats of stillness, golden morning window light, no phone visible, no UI, no stars, emotional payoff is the shared smile",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "outputFilename": "05-shoes-alone.mp4"
+      "outputFilename": "05-shoes-alone.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Zipper close — tactile, prominent, no score under", "atSec": 1.2 },
+        { "type": "silence", "description": "Score out or fully ducked — hold two beats after smile", "atSec": 3 }
+      ]
     },
     {
       "id": "scene-06-door-brand",
       "role": "brand",
       "duration": 5,
-      "pikaPrompt": "Wide documentary shot, same family exits Swedish front door into soft snowy morning, child carries own backpack confidently, father walks beside with coffee mug in hand relaxed shoulders, unhurried energy, slow dolly out, no logos in environment, no phones",
-      "swedishText": "Lugnare morgnar\nbörjar kvällen innan.",
+      "renderDuration": 7,
+      "pikaPrompt": "Wide documentary shot, same family walks out Swedish front door into soft snowy morning, child carries own backpack, parent beside with coffee mug relaxed shoulders, door closes behind them, unhurried energy, slow dolly out, no logos in environment, no phones, no text",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fadeblack",
-      "outputFilename": "06-door-brand.mp4"
+      "outputFilename": "06-door-brand.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Front door latch close", "atSec": 3.5 },
+        { "type": "silence", "description": "Two seconds of quiet before logo in post", "atSec": 5 }
+      ]
     }
   ]
 }

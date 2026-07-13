@@ -13,10 +13,14 @@ export function parseArgs(argv = process.argv.slice(2)) {
     else if (arg === '--help' || arg === '-h') flags.add('help');
     else if (arg === '--film' && argv[i + 1]) {
       options.film = argv[++i];
-    } else if (arg === '--scene' && argv[i + 1]) {
+    }     else if (arg === '--scene' && argv[i + 1]) {
       options.scene = argv[++i];
+    } else if (arg === '--tagline' && argv[i + 1]) {
+      options.tagline = argv[++i].toUpperCase();
     } else if (arg.startsWith('--scene=')) {
       options.scene = arg.slice('--scene='.length);
+    } else if (arg.startsWith('--tagline=')) {
+      options.tagline = arg.slice('--tagline='.length).toUpperCase();
     } else if (arg.startsWith('--film=')) {
       options.film = arg.slice('--film='.length);
     } else if (!arg.startsWith('-')) {
@@ -32,6 +36,7 @@ export function printHelp(command) {
 Options:
   --film <id>       Process a single manifest id (default: all manifests)
   --scene <id>      Process only one scene (for style validation)
+  --tagline <A-E>   Brand ending caption variant (default: E = logo only)
   --confirm         Required for billable Pika API generation
   --placeholders    Use ffmpeg color clips instead of Pika (no API cost)
   --help            Show this help

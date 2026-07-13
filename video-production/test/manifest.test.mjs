@@ -6,6 +6,9 @@ import {
   loadManifest,
   computeAppScreenRatio,
   sceneCaptionText,
+  sceneRenderCaption,
+  resolveBrandCaption,
+  TAGLINE_VARIANTS,
   planGeneration,
 } from '../lib/manifest.mjs';
 import { TRANSITIONS } from '../lib/config.mjs';
@@ -14,14 +17,21 @@ import { computeTimelineDuration } from '../lib/ffmpeg.mjs';
 const FILM_IDS = ['a-morning-without-nagging', 'tomorrow-starts-here', 'real-families'];
 
 test('wrapCaption respects manual line breaks', () => {
-  const result = wrapCaption('Lugnare morgnar\nbörjar kvällen innan.', 24);
-  assert.match(result, /^Lugnare morgnar\n/);
+  const result = wrapCaption('Mer lugn. Mindre tjat.', 24);
+  assert.match(result, /^Mer lugn/);
+});
+
+test('tagline variants include feeling-first options and empty E', () => {
+  assert.match(TAGLINE_VARIANTS.A, /kännas så här/i);
+  assert.match(TAGLINE_VARIANTS.B, /Mindre tjat/i);
+  assert.equal(TAGLINE_VARIANTS.E, '');
 });
 
 test('all films follow love-chaos-hope-solution arc', () => {
   for (const id of FILM_IDS) {
     const { manifest } = loadManifest(id);
     assert.ok(manifest.creativeBrief?.length > 20, `${id} missing creativeBrief`);
+    assert.equal(manifest.taglineVariantDefault, 'E');
 
     assert.equal(manifest.scenes[0].role, 'recognition');
     assert.equal(sceneCaptionText(manifest.scenes[0]), '');
@@ -44,7 +54,11 @@ test('all films follow love-chaos-hope-solution arc', () => {
     assert.ok(ratio <= 0.25, `${id} app ratio ${Math.round(ratio * 100)}% exceeds 25%`);
 
     const brand = manifest.scenes.find((s) => s.role === 'brand');
-    assert.match(brand.swedishText, /kvällen innan/i);
+    assert.equal(brand.showCaption, false);
+    assert.equal(brand.swedishText, '');
+    assert.equal(resolveBrandCaption(manifest, 'E'), '');
+    assert.equal(sceneRenderCaption(manifest, brand, { taglineVariant: 'E' }), '');
+    assert.match(resolveBrandCaption(manifest, 'B'), /Mindre tjat/i);
 
     for (const scene of manifest.scenes) {
       assert.ok(TRANSITIONS.has(scene.transition));
@@ -57,6 +71,15 @@ test('all films follow love-chaos-hope-solution arc', () => {
       }
     }
   }
+});
+
+test('shoes validation scene emphasizes parent-child eye contact', () => {
+  const { manifest } = loadManifest('a-morning-without-nagging');
+  const shoes = manifest.scenes.find((s) => s.id === 'scene-05-shoes-alone');
+  assert.equal(shoes.validationScene, true);
+  assert.equal(shoes.duckMusic, true);
+  assert.match(shoes.pikaPrompt, /smiles back|mutual eye contact/i);
+  assert.ok(shoes.audioCues?.some((c) => /zipper/i.test(c.description)));
 });
 
 test('exactly one validation scene across all films: shoes alone', () => {
@@ -79,12 +102,22 @@ test('tomorrow flagship has evening hope line and one app glimpse', () => {
   assert.equal(manifest.scenes.filter((s) => s.role === 'app-glimpse').length, 1);
   const shoes = manifest.scenes.find((s) => s.id === 'scene-06-morning-shoes');
   assert.equal(shoes.renderDuration, 7);
+  assert.match(shoes.pikaPrompt, /smiles back|mutual eye contact/i);
   assert.ok(computeTimelineDuration(manifest.scenes) > 28);
 });
 
 test('morning film has no app scenes', () => {
   const { manifest } = loadManifest('a-morning-without-nagging');
   assert.equal(computeAppScreenRatio(manifest).ratio, 0);
+});
+
+test('brand scenes hold two extra seconds for post-logo silence', () => {
+  for (const id of FILM_IDS) {
+    const { manifest } = loadManifest(id);
+    const brand = manifest.scenes.find((s) => s.role === 'brand');
+    assert.equal(brand.renderDuration, 7);
+    assert.ok(brand.audioCues?.some((c) => /silence|quiet/i.test(c.description)));
+  }
 });
 
 test('manifest schema rejects renderDuration shorter than duration', () => {
