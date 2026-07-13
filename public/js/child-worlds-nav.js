@@ -181,6 +181,12 @@
       if (typeof window.showTab === 'function') {
         window.showTab(tabKey);
       }
+      if (window.ChildWorldsNav) {
+        ChildWorldsNav.highlightActive(tabKey);
+      }
+      if (tabKey === 'settings' && window.ChildSettingsView) {
+        ChildSettingsView.refresh({ force: true });
+      }
       if (window.ChildWorlds && ChildWorlds.syncChildRoute) {
         ChildWorlds.syncChildRoute(worldId, { push: true });
       }

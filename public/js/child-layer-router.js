@@ -108,14 +108,24 @@
       collectionView.setAttribute('data-active', isCollection ? 'true' : 'false');
     }
 
-    if (isToday && todayFocus && window.ChildTodayFocus) {
-      ChildTodayFocus.onTabChange('schedule');
+    const hideIdagChrome = isWorld || isCollection || isFamily || isSettings;
+
+    if (scheduleView) {
+      if (hideIdagChrome) {
+        scheduleView.setAttribute('data-layer-hidden', 'true');
+      } else {
+        scheduleView.removeAttribute('data-layer-hidden');
+      }
     }
 
-    if ((isWorld || isCollection) && scheduleView) {
-      scheduleView.setAttribute('data-layer-hidden', 'true');
-    } else if (scheduleView) {
-      scheduleView.removeAttribute('data-layer-hidden');
+    if (todayFocus) {
+      todayFocus.classList.toggle('hidden', hideIdagChrome);
+    }
+
+    if (isToday && todayFocus && window.ChildTodayFocus) {
+      ChildTodayFocus.onTabChange('schedule');
+    } else if (hideIdagChrome && window.ChildTodayFocus) {
+      ChildTodayFocus.onTabChange(layerOrWorld);
     }
 
     if (familyView) {

@@ -89,6 +89,19 @@
   }
 
   function personAvatarHtml(person) {
+    if (window.MemberAvatar && MemberAvatar.renderMemberAvatar) {
+      const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
+      const member = {
+        id: person.id,
+        name: person.name,
+        emoji: person.emoji,
+        avatar_src: person.avatarUrl || '',
+        has_avatar: person.hasAvatar,
+        type: memberType,
+        member_type: memberType,
+      };
+      return MemberAvatar.renderMemberAvatar(member, 52, { memberType: memberType });
+    }
     let src = person.avatarUrl || '';
     if (!src && person.hasAvatar && person.id) {
       const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
