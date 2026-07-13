@@ -46,14 +46,14 @@ function lift(withRate, withoutRate) {
 }
 
 /**
- * @param {Array<{ id: string, d30: boolean, [key: string]: unknown }>} rows
+ * @param {Array<{ id: string, d30_retained: boolean, [key: string]: unknown }>} rows
  * @param {string} key
  */
 function predictorStats(rows, key) {
   const withSig = rows.filter((r) => r[key]);
   const withoutSig = rows.filter((r) => !r[key]);
-  const withRet = withSig.filter((r) => r.d30).length;
-  const withoutRet = withoutSig.filter((r) => r.d30).length;
+  const withRet = withSig.filter((r) => r.d30_retained).length;
+  const withoutRet = withoutSig.filter((r) => r.d30_retained).length;
   const withRate = withSig.length ? withRet / withSig.length : 0;
   const withoutRate = withoutSig.length ? withoutRet / withoutSig.length : 0;
   return {
