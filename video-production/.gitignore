@@ -7,6 +7,9 @@ audio/*.mp3
 audio/*.wav
 audio/*.m4a
 audio/*.aac
+audio/generated/*.mp3
+audio/generated/*.m4a
+!audio/generated/*.json
 !audio/.gitkeep
 !audio/README.md
 assets/references/*.png

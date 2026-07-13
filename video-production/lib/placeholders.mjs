@@ -68,6 +68,7 @@ export function generateScenePlaceholder(scene, outputPath, index = 0, { manifes
       brandName: BRAND_NAME,
       showUrl: manifest?.endBoardShowUrl !== false,
       brandUrl: manifest?.brandUrl?.trim() || BRAND_URL,
+      logoOnly: manifest?.endBoardLogoOnly === true,
     });
     return;
   }
@@ -164,6 +165,7 @@ export function generateEndBoardClip({
   brandName = BRAND_NAME,
   showUrl = true,
   brandUrl = BRAND_URL,
+  logoOnly = false,
   width = 1920,
   height = 1080,
 }) {
@@ -173,7 +175,6 @@ export function generateEndBoardClip({
       `End board requires brand mark at ${brandMarkPath}. Run setup-brand-assets.mjs first.`,
     );
   }
-  const name = (brandName || BRAND_NAME).replace(/:/g, '\\:').replace(/'/g, "\\'");
   const url = showUrl
     ? (brandUrl || BRAND_URL).replace(/:/g, '\\:').replace(/'/g, "\\'")
     : '';
@@ -181,13 +182,25 @@ export function generateEndBoardClip({
   const navy = '0x1B2340';
   const filters = [
     '[1:v]scale=220:-1,format=rgba[mark]',
-    '[0:v][mark]overlay=(W-w)/2:(H-h)/2-88[withmark]',
-    `[withmark]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf:text='${name}':fontsize=50:fontcolor=white@0.96:x=(w-text_w)/2:y=(h/2)+28[withname]`,
+    '[0:v][mark]overlay=(W-w)/2:(H-h)/2:format=auto',
   ];
-  if (url) {
+  if (!logoOnly) {
+    const name = (brandName || BRAND_NAME).replace(/:/g, '\\:').replace(/'/g, "\\'");
+    filters.length = 0;
     filters.push(
-      `[withname]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='${url}':fontsize=28:fontcolor=white@0.55:x=(w-text_w)/2:y=(h/2)+100`,
+      '[1:v]scale=220:-1,format=rgba[mark]',
+      '[0:v][mark]overlay=(W-w)/2:(H-h)/2-88[withmark]',
     );
+    if (url) {
+      filters.push(
+        `[withmark]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf:text='${name}':fontsize=50:fontcolor=white@0.96:x=(w-text_w)/2:y=(h/2)+28[withname]`,
+        `[withname]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='${url}':fontsize=28:fontcolor=white@0.55:x=(w-text_w)/2:y=(h/2)+100`,
+      );
+    } else {
+      filters.push(
+        `[withmark]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf:text='${name}':fontsize=50:fontcolor=white@0.96:x=(w-text_w)/2:y=(h/2)+28`,
+      );
+    }
   }
 
   runFfmpeg([

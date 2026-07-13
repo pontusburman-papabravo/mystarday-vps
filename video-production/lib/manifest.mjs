@@ -70,6 +70,8 @@ export const TAGLINE_VARIANTS = {
 
 const TaglineVariantIdSchema = z.enum(['A', 'B', 'C', 'D', 'E']);
 
+const ColourGradeSchema = z.enum(['cool', 'neutral', 'warm']).optional();
+
 const SceneSchema = z.object({
   id: z.string().min(1),
   duration: z.number().int().refine((v) => v === 5 || v === 10, {
@@ -80,6 +82,8 @@ const SceneSchema = z.object({
   skipPika: z.boolean().default(false),
   validationScene: z.boolean().default(false),
   duckMusic: z.boolean().default(false),
+  colourGrade: ColourGradeSchema,
+  transitionDuration: z.number().min(0).max(3).optional(),
   pikaPrompt: z.string().min(10).optional(),
   swedishText: z.string().default(''),
   showCaption: z.boolean().default(true),
@@ -104,12 +108,15 @@ export const ManifestSchema = z.object({
   defaultSceneDuration: z.number().int().refine((v) => v === 5 || v === 10).default(5),
   outputBasename: z.string().min(1),
   referenceImage: z.string().min(1),
+  rawSourceManifest: z.string().min(1).optional(),
   seed: z.number().int().optional(),
   creativeBrief: z.string().optional(),
   taglineVariantDefault: TaglineVariantIdSchema.default('E'),
   taglineVariants: z.record(z.string()).optional(),
   brandUrl: z.string().optional(),
   endBoardShowUrl: z.boolean().default(true),
+  endBoardLogoOnly: z.boolean().default(false),
+  colourGradeDefault: ColourGradeSchema,
   visualStyle: z.enum(['documentary', 'cartoon']).default('documentary'),
   music: MusicCueSchema,
   ambient: AmbientCueSchema,
@@ -148,16 +155,37 @@ export function resolveBrandUrl(manifest) {
 
 const TRANSITION_OVERLAP_SEC = 0.6;
 
+/** Per-scene transition overlap into the next shot (seconds). */
+export function sceneTransitionDurations(scenes, defaultSec = TRANSITION_OVERLAP_SEC) {
+  const out = [];
+  for (let i = 0; i < scenes.length - 1; i++) {
+    const d = scenes[i].transitionDuration;
+    out.push(d != null ? d : defaultSec);
+  }
+  return out;
+}
+
 /** Scene start times on the final timeline (seconds). */
 export function computeSceneStarts(scenes, transitionOverlapSec = TRANSITION_OVERLAP_SEC) {
+  const overlaps = sceneTransitionDurations(scenes, transitionOverlapSec);
   const starts = [];
   let t = 0;
   for (let i = 0; i < scenes.length; i++) {
     starts.push(t);
     const dur = sceneRenderDuration(scenes[i]);
-    t += dur - (i < scenes.length - 1 ? transitionOverlapSec : 0);
+    t += dur - (i < scenes.length - 1 ? overlaps[i] : 0);
   }
   return starts;
+}
+
+/** Total timeline length with variable transition overlaps. */
+export function computeManifestDuration(manifest, defaultTransitionSec = TRANSITION_OVERLAP_SEC) {
+  const scenes = manifest.scenes;
+  const durations = scenes.map((s) => sceneRenderDuration(s));
+  if (durations.length === 0) return 0;
+  const overlaps = sceneTransitionDurations(scenes, defaultTransitionSec);
+  const overlapSum = overlaps.reduce((a, b) => a + b, 0);
+  return durations.reduce((a, b) => a + b, 0) - overlapSum;
 }
 
 /** Resolve vo/sfx cues — supports sceneId+atSecInScene or legacy global atSec. */
@@ -183,9 +211,8 @@ export function resolveTimedAudioCues(manifest) {
 }
 
 export function computeAppScreenRatio(manifest, transitionOverlapSec = 0.6) {
+  const total = computeManifestDuration(manifest, transitionOverlapSec);
   const durations = manifest.scenes.map((s) => sceneRenderDuration(s));
-  const total = durations.reduce((a, b) => a + b, 0)
-    - Math.max(0, durations.length - 1) * transitionOverlapSec;
   const appSec = manifest.scenes
     .filter((s) => s.role === 'app-glimpse' || s.role === 'app-screen')
     .reduce((sum, s) => sum + sceneRenderDuration(s), 0);

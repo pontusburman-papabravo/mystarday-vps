@@ -9,6 +9,7 @@ import {
   buildScaleCropFilter,
   sceneRenderDuration,
 } from './caption-layout.mjs';
+import { buildColourGradeFilter, resolveSceneColourGrade } from './colour-grade.mjs';
 
 export const LOUDNESS = {
   I: -16,
@@ -73,16 +74,19 @@ export function normalizeSceneClip({
   duration,
   renderDuration,
   fps = 30,
+  colourGrade = 'neutral',
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   const outDur = renderDuration ?? duration;
   const holdSec = outDur > duration ? outDur - duration : 0;
+  const grade = buildColourGradeFilter(colourGrade);
 
   const vf = [
     `scale=${width}:${height}:force_original_aspect_ratio=decrease`,
     `pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=black`,
     'setsar=1',
     `fps=${fps}`,
+    ...(grade ? [grade] : []),
     ...(holdSec > 0.01 ? [`tpad=stop_mode=clone:stop_duration=${holdSec.toFixed(3)}`] : []),
   ].join(',');
 
@@ -135,6 +139,7 @@ export function concatWithTransitions({
   sceneClips,
   transitions,
   transitionDurationSec,
+  transitionDurations,
   outputPath,
   fps = 30,
 }) {
@@ -147,16 +152,21 @@ export function concatWithTransitions({
 
   const inputs = sceneClips.flatMap((clip) => ['-i', clip.path]);
   const durations = sceneClips.map((clip) => clip.duration);
+  const perTransition = transitionDurations?.length
+    ? transitionDurations
+    : sceneClips.slice(0, -1).map(() => transitionDurationSec);
 
   let filter = '';
   let lastLabel = '[0:v]';
+  let consumedOverlap = 0;
 
   for (let i = 0; i < sceneClips.length - 1; i++) {
     const transition = transitions[i] || 'fade';
-    const offset = durations.slice(0, i + 1).reduce((a, b) => a + b, 0) - (i + 1) * transitionDurationSec;
+    const xfadeDur = transition === 'cut' ? 0.01 : (perTransition[i] ?? transitionDurationSec);
+    const offset = durations.slice(0, i + 1).reduce((a, b) => a + b, 0) - consumedOverlap - xfadeDur;
+    consumedOverlap += xfadeDur;
     const outLabel = i === sceneClips.length - 2 ? '[vout]' : `[v${i + 1}]`;
     const xfadeType = transition === 'cut' ? 'fade' : transition;
-    const xfadeDur = transition === 'cut' ? 0.01 : transitionDurationSec;
 
     filter += `${lastLabel}[${i + 1}:v]xfade=transition=${xfadeType}:duration=${xfadeDur}:offset=${Math.max(0, offset).toFixed(3)}${outLabel};`;
     lastLabel = outLabel;
@@ -350,13 +360,17 @@ export function muxVideoAudio({
 export function computeTimelineDuration(scenes, transitionDurationSec = TRANSITION_DURATION_SEC) {
   const durations = scenes.map((s) => sceneRenderDuration(s));
   if (durations.length === 0) return 0;
-  const overlap = (durations.length - 1) * transitionDurationSec;
+  const perTransition = scenes.slice(0, -1).map((s, i) => (
+    s.transitionDuration != null ? s.transitionDuration : transitionDurationSec
+  ));
+  const overlap = perTransition.reduce((a, b) => a + b, 0);
   return durations.reduce((a, b) => a + b, 0) - overlap;
 }
 
 export function renderFilmFormat({
   normalizedScenes,
   transitions,
+  transitionDurations,
   layout,
   logoPath,
   swedishTexts,
@@ -389,6 +403,7 @@ export function renderFilmFormat({
     sceneClips: composed,
     transitions,
     transitionDurationSec: TRANSITION_DURATION_SEC,
+    transitionDurations,
     outputPath: concatPath,
   });
 
@@ -408,4 +423,4 @@ export function renderFilmFormat({
   return { withLogoPath, videoDuration };
 }
 
-export { FORMAT_LAYOUTS, OUTPUT_FORMATS, sceneRenderDuration };
+export { FORMAT_LAYOUTS, OUTPUT_FORMATS, sceneRenderDuration, resolveSceneColourGrade };

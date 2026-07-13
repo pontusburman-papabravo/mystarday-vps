@@ -105,6 +105,23 @@ test('together-through-the-morning v3 is ~38 seconds', () => {
   assert.ok(app.ratio >= 0.08 && app.ratio <= 0.35);
 });
 
+test('together-through-the-morning v4 commercial edit is ~40 seconds with low UI', () => {
+  const { manifest } = loadManifest('together-through-the-morning-v4');
+  const dur = computeTimelineDuration(manifest.scenes);
+  assert.ok(dur >= 38 && dur <= 42, `duration ${dur}s`);
+  assert.equal(manifest.endBoardShowUrl, false);
+  assert.equal(manifest.rawSourceManifest, 'together-through-the-morning');
+  assert.ok(!manifest.scenes.find((s) => s.id === 'app-check-star-2'));
+  const app = computeAppScreenRatio(manifest);
+  assert.ok(app.ratio <= 0.2, `UI ${Math.round(app.ratio * 100)}% exceeds 20%`);
+  assert.equal(manifest.music?.startSec, 8);
+  const black = manifest.scenes.find((s) => s.id === 'black-leader');
+  assert.ok(black?.skipPika);
+  const v = manifest.scenes.filter((s) => s.validationScene);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].id, 'whats-next');
+});
+
 test('tomorrow flagship has evening hope line and one app glimpse', () => {
   const { manifest } = loadManifest('tomorrow-starts-here');
   const hope = manifest.scenes.find((s) => s.role === 'hope');

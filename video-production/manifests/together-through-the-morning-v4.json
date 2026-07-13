@@ -1,0 +1,248 @@
+{
+  "id": "together-through-the-morning-v4",
+  "title": "Together Through the Morning v4",
+  "aspectRatio": "16:9",
+  "defaultSceneDuration": 5,
+  "outputBasename": "together-through-the-morning",
+  "referenceImage": "assets/references/summer-family-cartoon.png",
+  "rawSourceManifest": "together-through-the-morning",
+  "seed": 42010,
+  "taglineVariantDefault": "E",
+  "creativeBrief": "v4 premium Scandinavian family commercial — reuse Pika footage, minimal UI (~12%), ElevenLabs music, documentary pacing, logo-only end.",
+  "visualStyle": "cartoon",
+  "endBoardShowUrl": false,
+  "endBoardLogoOnly": true,
+  "colourGradeDefault": "neutral",
+  "ambient": {
+    "file": "audio/summer-ambient.m4a",
+    "volume": 0.22,
+    "fadeInSec": 0.5,
+    "fadeOutSec": 3
+  },
+  "music": {
+    "file": "audio/generated/selected-music.m4a",
+    "volume": 0.32,
+    "startSec": 8,
+    "fadeInSec": 10,
+    "fadeOutSec": 4
+  },
+  "musicDuck": [
+    { "startSec": 17.8, "endSec": 22.8, "volume": 0.025 },
+    { "startSec": 35.5, "endSec": 40.5, "volume": 0.1 }
+  ],
+  "sfx": [
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "app-check-star", "atSecInScene": 0.2, "volume": 0.38 },
+    { "file": "audio/sfx/redeem-pling.m4a", "sceneId": "app-redeem", "atSecInScene": 0.1, "volume": 0.42 },
+    { "file": "audio/sfx/door-summer.m4a", "sceneId": "ella-exit", "atSecInScene": 0.8, "volume": 0.4 }
+  ],
+  "scenes": [
+    {
+      "id": "chaos-summer",
+      "role": "chaos",
+      "duration": 10,
+      "renderDuration": 8,
+      "colourGrade": "cool",
+      "referenceImage": "assets/references/together-keyframes/01-chaos-summer.png",
+      "pikaPrompt": "Slow gentle camera pan right, Ella wiggles upset on floor, Sara breathes stressed, toddler cries softly, sandals scattered, clock 07:52, warm summer window light, subtle 2D animation motion, no readable text",
+      "swedishText": "Jag hittar inte mina sandaler!",
+      "showCaption": true,
+      "transition": "cut",
+      "transitionDuration": 0.15,
+      "outputFilename": "01-chaos-summer.mp4"
+    },
+    {
+      "id": "together-phone",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 6,
+      "colourGrade": "neutral",
+      "referenceImage": "assets/references/together-keyframes/02-together-phone.png",
+      "pikaPrompt": "Very slow push-in, mother and daughter sit on floor looking down at phone between them, calm breathing, warm light flickers through window, gentle 2D character bob, phone screen not readable",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "transitionDuration": 0.85,
+      "outputFilename": "02-together-phone.mp4"
+    },
+    {
+      "id": "app-morning-list",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 1.3,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/morning-list.png",
+      "appMotion": "push-in",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "03-app-morning-list.mp4"
+    },
+    {
+      "id": "brush-teeth",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 3.2,
+      "colourGrade": "neutral",
+      "referenceImage": "assets/references/together-keyframes/04-brush-teeth.png",
+      "pikaPrompt": "Ella brushes teeth with small arm motion at sink, mother in doorway smile slowly grows, subtle head turn, bathroom morning light, calm independent child energy, no dialogue mouth movement",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "04-brush-teeth.mp4"
+    },
+    {
+      "id": "app-check-star",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 0.95,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/check-star.png",
+      "appMotion": "push-in",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "05-app-check-star.mp4"
+    },
+    {
+      "id": "whats-next",
+      "role": "validation",
+      "validationScene": true,
+      "duration": 5,
+      "renderDuration": 7.2,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/together-keyframes/06-whats-next.png",
+      "duckMusic": true,
+      "pikaPrompt": "Ella looks up at mother, Sara lips part then close into knowing smile without speaking, Ella glances toward blurred phone, two beats of stillness, subtle eye movement, emotional restraint, child protagonist",
+      "swedishText": "Vad är nästa?",
+      "showCaption": true,
+      "transition": "fade",
+      "transitionDuration": 1.2,
+      "outputFilename": "06-whats-next.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Music ducked — Sara silent beat", "atSec": 2.2 }
+      ]
+    },
+    {
+      "id": "app-next-activity",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 1.15,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/next-activity.png",
+      "appMotion": "push-in",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "07-app-next-activity.mp4"
+    },
+    {
+      "id": "pack-bag",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 2.4,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/together-keyframes/08-pack-bag.png",
+      "pikaPrompt": "Ella zips backpack with focused hand motion, slight body lean, hallway summer light, determined calm child energy, medium shot stable camera",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "08-pack-bag.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Zipper close", "atSec": 1 }
+      ]
+    },
+    {
+      "id": "app-redeem",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 0.75,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/redeem.png",
+      "appMotion": "zoom-star",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "09-app-redeem.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Redeem pling — brief UI then cut to face", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "friday-movie-pride",
+      "role": "payoff",
+      "duration": 5,
+      "renderDuration": 4.8,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/together-keyframes/10-friday-movie-pride.png",
+      "pikaPrompt": "Close-up Ella face brightens with proud joyful expression, small bounce, eyes sparkle, speaking excitedly to mother off-camera, summer golden light, gentle 2D motion",
+      "swedishText": "Jag får välja fredagsfilm!\nVad mysigt.",
+      "showCaption": true,
+      "transition": "fade",
+      "transitionDuration": 1,
+      "outputFilename": "10-friday-movie-pride.mp4"
+    },
+    {
+      "id": "ella-exit",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 2.8,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/together-keyframes/11-ella-exit.png",
+      "pikaPrompt": "Ella puts on sandals, smiles back toward mother inside, then runs out into sunny garden path, backpack bounces, door open, natural child energy, slow dolly follow",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "transitionDuration": 1,
+      "outputFilename": "11-ella-exit.mp4"
+    },
+    {
+      "id": "sara-doorway-relief",
+      "role": "validation",
+      "duration": 5,
+      "renderDuration": 3.2,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/together-keyframes/12-sara-doorway-relief.png",
+      "pikaPrompt": "Sara in doorway shoulders drop with visible relief, one slow exhale, soft smile, watches children leave, warm backlight breeze in hair, restrained emotion not theatrical",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fadeblack",
+      "transitionDuration": 1.5,
+      "outputFilename": "12-sara-doorway-relief.mp4",
+      "audioCues": [
+        { "type": "ambient", "description": "Audible exhale — key sound", "atSec": 1.2 },
+        { "type": "silence", "description": "Room for breath before black", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "black-leader",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 2,
+      "skipPika": true,
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0,
+      "outputFilename": "14-black-leader.mp4"
+    },
+    {
+      "id": "end-brand",
+      "role": "brand",
+      "duration": 5,
+      "renderDuration": 2,
+      "skipPika": true,
+      "endBoard": true,
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0,
+      "outputFilename": "13-end-brand.mp4"
+    }
+  ]
+}

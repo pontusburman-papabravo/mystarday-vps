@@ -14,6 +14,10 @@
     "dry-run": "node bin/dry-run.mjs",
     "keyframes": "node scripts/generate-cartoon-keyframes.mjs",
     "reset-pika": "node scripts/reset-pika-scenes.mjs",
+    "music:candidates": "node scripts/generate-music-candidates.mjs",
+    "music:analyse": "node scripts/analyse-music.mjs",
+    "music:select": "node scripts/select-music.mjs",
+    "v4:reports": "node scripts/v4-deliverables.mjs",
     "test:placeholders": "node test/placeholder-pipeline.test.mjs",
     "test": "node --test test/*.test.mjs"
   },

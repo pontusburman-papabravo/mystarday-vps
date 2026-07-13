@@ -1,0 +1,32 @@
+{
+  "analysedAt": "2026-07-13T22:50:16.643Z",
+  "target": {
+    "integratedLufs": -16,
+    "truePeakMax": -1,
+    "stereo": true
+  },
+  "tracks": [
+    {
+      "id": "a",
+      "slug": "candidate-a-warm-felt-piano",
+      "label": "Candidate A — Warm Felt Piano",
+      "status": "missing",
+      "error": "File not found — run music:candidates -- --confirm"
+    },
+    {
+      "id": "b",
+      "slug": "candidate-b-organic-acoustic",
+      "label": "Candidate B — Organic Acoustic",
+      "status": "missing",
+      "error": "File not found — run music:candidates -- --confirm"
+    },
+    {
+      "id": "c",
+      "slug": "candidate-c-quiet-cinematic",
+      "label": "Candidate C — Quiet Cinematic",
+      "status": "missing",
+      "error": "File not found — run music:candidates -- --confirm"
+    }
+  ],
+  "recommendation": null
+}

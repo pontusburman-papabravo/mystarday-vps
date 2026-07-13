@@ -7,10 +7,12 @@ import {
   sceneRenderCaption,
   resolveBrandCaption,
   resolveTimedAudioCues,
+  sceneTransitionDurations,
 } from './manifest.mjs';
 import {
   loadState,
   listCompletedScenePaths,
+  isSceneComplete,
 } from './state.mjs';
 import {
   normalizeSceneClip,
@@ -18,6 +20,7 @@ import {
   renderFilmFormat,
   computeTimelineDuration,
   sceneRenderDuration,
+  resolveSceneColourGrade,
   FORMAT_LAYOUTS,
   OUTPUT_FORMATS,
   probeAudioChannels,
@@ -38,6 +41,64 @@ import {
 const MASTER_WIDTH = 1920;
 const MASTER_HEIGHT = 1080;
 
+function resolveSceneClips(manifest, state, { usePlaceholders } = {}) {
+  const sourceId = manifest.rawSourceManifest || manifest.id;
+  const sourceState = sourceId !== manifest.id ? loadState(sourceId) : state;
+  const sourceByFilename = new Map();
+
+  for (const scene of manifest.scenes) {
+    const entry = sourceState.scenes?.[scene.id];
+    if (entry?.localPath && fs.existsSync(entry.localPath)) {
+      sourceByFilename.set(scene.outputFilename, entry.localPath);
+    }
+  }
+
+  for (const scene of manifest.scenes) {
+    if (!scene.skipPika) {
+      const entry = sourceState.scenes?.[scene.id];
+      if (entry?.localPath && fs.existsSync(entry.localPath)) {
+        sourceByFilename.set(scene.outputFilename, entry.localPath);
+      }
+    }
+  }
+
+  const scenes = [];
+  for (const scene of manifest.scenes) {
+    const v4Path = path.join(PATHS.raw, manifest.id, scene.outputFilename);
+    let localPath = null;
+
+    if (scene.skipPika) {
+      generateScenePlaceholder(scene, v4Path, manifest.scenes.indexOf(scene), {
+        manifest,
+        assetRoot: path.join(PATHS.assets, '..'),
+      });
+      localPath = v4Path;
+    } else if (sourceByFilename.has(scene.outputFilename)) {
+      localPath = sourceByFilename.get(scene.outputFilename);
+    } else if (isSceneComplete(state, scene.id)) {
+      localPath = state.scenes[scene.id].localPath;
+    } else if (fs.existsSync(path.join(PATHS.raw, sourceId, scene.outputFilename))) {
+      localPath = path.join(PATHS.raw, sourceId, scene.outputFilename);
+    }
+
+    if (!localPath && usePlaceholders) {
+      generateScenePlaceholder(scene, v4Path, manifest.scenes.indexOf(scene), {
+        manifest,
+        assetRoot: path.join(PATHS.assets, '..'),
+      });
+      localPath = v4Path;
+    }
+
+    if (!localPath) {
+      scenes.push(null);
+    } else {
+      scenes.push({ scene, localPath });
+    }
+  }
+
+  return scenes;
+}
+
 export async function runRender(argv = process.argv.slice(2)) {
   const { flags, options } = parseArgs(argv);
   const usePlaceholders = flags.has('placeholders');
@@ -54,29 +115,22 @@ export async function runRender(argv = process.argv.slice(2)) {
 
     // Refresh local clips: app screens + end board only.
     const localScenes = manifest.scenes.filter((s) => s.skipPika);
-    for (const [index, scene] of manifest.scenes.entries()) {
-      if (!scene.skipPika) continue;
-      const out = path.join(PATHS.raw, manifest.id, scene.outputFilename);
-      generateScenePlaceholder(scene, out, index, {
-        manifest,
-        assetRoot: path.join(PATHS.assets, '..'),
-      });
-    }
-    if (localScenes.length) {
+    if (localScenes.length && !manifest.rawSourceManifest) {
+      for (const [index, scene] of manifest.scenes.entries()) {
+        if (!scene.skipPika) continue;
+        const out = path.join(PATHS.raw, manifest.id, scene.outputFilename);
+        generateScenePlaceholder(scene, out, index, {
+          manifest,
+          assetRoot: path.join(PATHS.assets, '..'),
+        });
+      }
       console.log(`  refreshed ${localScenes.length} local clip(s) (app/end board)`);
     }
 
-    let scenes = listCompletedScenePaths(manifest, loadState(manifest.id));
+    const state = loadState(manifest.id);
+    let scenes = resolveSceneClips(manifest, state, { usePlaceholders });
 
-    for (const scene of manifest.scenes) {
-      if (!scene.skipPika) continue;
-      const localPath = path.join(PATHS.raw, manifest.id, scene.outputFilename);
-      if (!scenes.find((s) => s.scene.id === scene.id)) {
-        scenes.push({ scene, localPath });
-      }
-    }
-
-    if (scenes.length !== manifest.scenes.length && usePlaceholders) {
+    if (scenes.some((s) => s == null) && usePlaceholders) {
       console.log(`[${manifest.id}] Missing raw clips — generating placeholders for render test.`);
       generatePlaceholdersForManifest(manifest, PATHS.raw);
       scenes = manifest.scenes.map((scene) => ({
@@ -85,10 +139,9 @@ export async function runRender(argv = process.argv.slice(2)) {
       }));
     }
 
-    if (scenes.length !== manifest.scenes.length) {
+    if (scenes.some((s) => s == null)) {
       const missing = manifest.scenes
-        .filter((s) => !s.skipPika)
-        .filter((s) => !scenes.find((c) => c.scene.id === s.id))
+        .filter((s, i) => scenes[i] == null)
         .map((s) => s.id);
       throw new Error(
         `Cannot render ${manifest.id}: missing completed scenes: ${missing.join(', ')}. ` +
@@ -96,16 +149,12 @@ export async function runRender(argv = process.argv.slice(2)) {
       );
     }
 
-    // Re-order completed scenes to match manifest order (may include new local scenes).
-    const sceneById = new Map(scenes.map((s) => [s.scene.id, s]));
-    scenes = manifest.scenes.map((scene) => {
-      const hit = sceneById.get(scene.id);
-      if (hit) return hit;
-      return {
-        scene,
-        localPath: path.join(PATHS.raw, manifest.id, scene.outputFilename),
-      };
-    });
+    if (manifest.rawSourceManifest) {
+      console.log(`  reusing raw clips from ${manifest.rawSourceManifest}`);
+    }
+
+    // Re-order to manifest order (resolveSceneClips already ordered).
+    scenes = scenes.filter(Boolean);
 
     console.log(`\n[${manifest.id}] Rendering ${manifest.title}…`);
     const workDir = path.join(PATHS.output, 'work', manifest.id);
@@ -123,6 +172,7 @@ export async function runRender(argv = process.argv.slice(2)) {
     const renderDurations = [];
     const swedishTexts = [];
     const transitions = [];
+    const transitionDurations = sceneTransitionDurations(manifest.scenes);
 
     for (let i = 0; i < scenes.length; i++) {
       const { scene, localPath } = scenes[i];
@@ -136,6 +186,7 @@ export async function runRender(argv = process.argv.slice(2)) {
         height: MASTER_HEIGHT,
         duration: scene.duration,
         renderDuration: renderDur,
+        colourGrade: resolveSceneColourGrade(scene, manifest),
       });
 
       normalizedPaths.push(normPath);
@@ -163,11 +214,20 @@ export async function runRender(argv = process.argv.slice(2)) {
     const resolvedVo = vo.map((c) => ({ ...c, file: resolveAudio(c.file) }));
     const resolvedSfx = sfx.map((c) => ({ ...c, file: resolveAudio(c.file) }));
 
-    if (music && !fs.existsSync(music.file) && usePlaceholders) {
-      const bed = path.join(workDir, 'music-bed.m4a');
-      generateSilentMusicBed(bed, videoDuration + 2);
-      music.file = bed;
-      console.log('  (using synthesized music bed — add licensed file to audio/)');
+    if (music && !fs.existsSync(music.file)) {
+      const fallback = path.join(PATHS.audio, 'summer-morning-theme.m4a');
+      if (fs.existsSync(fallback)) {
+        console.warn(`  music file missing (${path.basename(music.file)}) — fallback to summer-morning-theme.m4a`);
+        console.warn('  Run: npm run music:candidates -- --confirm  for ElevenLabs tracks');
+        music.file = fallback;
+      } else if (usePlaceholders) {
+        const bed = path.join(workDir, 'music-bed.m4a');
+        generateSilentMusicBed(bed, videoDuration + 2);
+        music.file = bed;
+        console.log('  (using synthesized music bed — add licensed file to audio/)');
+      } else {
+        throw new Error(`Music file not found: ${music.file}. Generate with npm run music:candidates -- --confirm`);
+      }
     }
 
     const audioLayers = mixAudioLayers({
@@ -199,6 +259,7 @@ export async function runRender(argv = process.argv.slice(2)) {
       const { withLogoPath } = renderFilmFormat({
         normalizedScenes: normalizedPaths,
         transitions,
+        transitionDurations,
         layout,
         logoPath: PATHS.logo,
         swedishTexts,

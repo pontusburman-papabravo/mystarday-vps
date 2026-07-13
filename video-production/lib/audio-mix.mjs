@@ -153,10 +153,11 @@ export function mixAudioLayers({
     const fadeOutStart = Math.max(0, videoDuration - fadeOut);
     const baseVol = music.volume ?? 0.12;
     const volExpr = buildMusicVolumeExpr(baseVol, duck);
+    const startMs = Math.round((music.startSec ?? 0) * 1000);
     renderLayer({
       outputPath: paths.music,
       inputs: ['-i', music.file],
-      filterComplex: `[0:a]volume='${volExpr}':eval=frame,afade=t=in:st=0:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut},apad=whole_dur=${videoDuration}`,
+      filterComplex: `[0:a]adelay=${startMs}|${startMs},volume='${volExpr}':eval=frame,afade=t=in:st=0:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut},apad=whole_dur=${videoDuration}`,
       videoDuration,
     });
   } else {
