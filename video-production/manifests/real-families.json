@@ -6,10 +6,10 @@
   "outputBasename": "real-families",
   "referenceImage": "assets/references/real-family.png",
   "seed": 42003,
-  "creativeBrief": "Authentic Swedish families in real stress and real calm. Diversity of homes and needs. App appears once, peripheral. Emotion and eye contact over features. End on belonging, not a feature list.",
+  "creativeBrief": "Love → chaos → hope → solution for diverse Swedish families. Identity not features. No stars, no app in this film. End on belonging and the evening tagline.",
   "music": {
     "file": "audio/families-theme.mp3",
-    "volume": 0.3,
+    "volume": 0.28,
     "fadeInSec": 0,
     "fadeOutSec": 2.5
   },
@@ -21,66 +21,71 @@
   },
   "scenes": [
     {
-      "id": "scene-01-hook-morning-chaos",
-      "role": "hook",
+      "id": "scene-01-recognition-love",
+      "role": "recognition",
       "duration": 5,
-      "pikaPrompt": "Raw documentary handheld shot, single parent in modest Swedish apartment juggling two children at morning rush, coats and bags scattered, loving but overwhelmed faces, natural window light, authentic clutter not staged, no phones visible, no text",
+      "pikaPrompt": "Tender documentary shot, single Swedish parent watches sleeping child in small apartment bedroom, early morning grey-blue light, loving tired face, stillness before the day, authentic not styled, no phones, no text",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "outputFilename": "01-hook-morning-chaos.mp4",
+      "outputFilename": "01-recognition-love.mp4",
       "audioCues": [
-        { "type": "sfx", "description": "Overlapping morning voices, cupboard slam", "atSec": 0 }
+        { "type": "ambient", "description": "Quiet apartment, distant traffic soft", "atSec": 0 }
       ]
     },
     {
-      "id": "scene-02-breath-question",
-      "role": "breath",
+      "id": "scene-02-chaos-morning",
+      "role": "chaos",
+      "duration": 5,
+      "pikaPrompt": "Handheld documentary chaos, same single parent in Swedish apartment morning rush with two children, coats and bags everywhere, loving overwhelm on parent's face, clock shows 07:12, painful recognition, no screens visible, no readable text",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "02-chaos-morning.mp4",
+      "audioCues": [
+        { "type": "vo", "description": "Overlapping child voices", "atSec": 1 },
+        { "type": "vo", "description": "Parent sigh", "atSec": 3.5 }
+      ]
+    },
+    {
+      "id": "scene-03-hope-identity",
+      "role": "hope",
       "duration": 5,
       "skipPika": true,
-      "swedishText": "Olika familjer.\nSamma längtan efter lugn.",
+      "swedishText": "Den familj vi vill vara\npå morgonen.",
       "transition": "fadeblack",
-      "outputFilename": "02-breath-question.mp4",
+      "outputFilename": "03-hope-identity.mp4",
       "audioCues": [
-        { "type": "silence", "description": "Pause after chaos", "atSec": 0 }
+        { "type": "silence", "description": "Silence after chaos", "atSec": 0 }
       ]
     },
     {
-      "id": "scene-03-eye-level-support",
+      "id": "scene-04-eye-level-moment",
       "role": "story",
       "duration": 5,
-      "pikaPrompt": "Documentary moment, parent kneels to child's eye level in Swedish hallway, calm supportive expression, child breathes out tension, soft natural light, blended family or single parent energy, focus on faces and body language, no screens, no text",
+      "pikaPrompt": "Documentary moment, parent kneels to child's eye level in hallway, calm supportive presence after chaos, child nods slowly, soft natural light, diverse modern Swedish home, focus on faces, no devices, no text",
       "swedishText": "När någon möter barnet där det är",
       "transition": "dissolve",
-      "outputFilename": "03-eye-level-support.mp4"
+      "outputFilename": "04-eye-level-moment.mp4"
     },
     {
-      "id": "scene-04-app-glimpse",
-      "role": "app-glimpse",
+      "id": "scene-05-toothbrush-alone",
+      "role": "payoff",
       "duration": 5,
-      "pikaPrompt": "Phone on kitchen table completely out of focus in extreme foreground bokeh, sharp focus on child confidently tying shoes in hallway beyond, parent watches with relieved shoulders, sensory-calm Scandinavian interior, phone is barely visible prop, no readable UI",
+      "pikaPrompt": "Same child brushes teeth independently while parent leans on doorframe, surprised gentle smile forming, small quiet victory, documentary bathroom light, no rewards shown, no phone, emotional realism",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "outputFilename": "04-app-glimpse.mp4"
+      "outputFilename": "05-toothbrush-alone.mp4"
     },
     {
-      "id": "scene-05-small-victory",
-      "role": "payoff",
-      "duration": 5,
-      "pikaPrompt": "Close documentary shot, child finishes small morning task and looks up with genuine pride, parent shares a restrained smile and one quiet clap, sibling peeks in smiling, afternoon-gold light in Swedish living room, emotional realism, no star graphics, no phone",
-      "swedishText": "Verkliga framsteg. Verklig glädje.",
-      "transition": "fade",
-      "outputFilename": "05-small-victory.mp4"
-    },
-    {
-      "id": "scene-06-belonging",
+      "id": "scene-06-door-brand",
       "role": "brand",
       "duration": 5,
-      "pikaPrompt": "Slow documentary orbit in Swedish kitchen, two different family moments interwoven in one continuous calm shot feel: breakfast shared, shoes by door, hug before leaving, warm Nordic light, authentic not stock, no logos in scene",
-      "swedishText": "Stjärndag\nFör familjer som vill ha lugnare vardag",
+      "pikaPrompt": "Wide documentary shot, family leaves Swedish apartment building together calmly, child carries own bag, parent with coffee, winter morning, belonging and relief in body language, slow dolly out",
+      "swedishText": "Lugnare morgnar\nbörjar kvällen innan.",
       "transition": "fadeblack",
-      "outputFilename": "06-belonging.mp4"
+      "outputFilename": "06-door-brand.mp4"
     }
   ]
 }

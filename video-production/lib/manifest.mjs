@@ -32,11 +32,13 @@ const AudioCueNoteSchema = z.object({
 });
 
 const SceneRoleSchema = z.enum([
-  'hook',
-  'breath',
+  'recognition',
+  'chaos',
+  'hope',
+  'payoff',
+  'validation',
   'story',
   'app-glimpse',
-  'payoff',
   'brand',
 ]);
 

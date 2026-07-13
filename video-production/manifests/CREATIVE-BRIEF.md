@@ -1,51 +1,70 @@
 # Emotional brand films — creative brief
 
-These manifests are **brand films**, not product demos.
+These are **advertising**, not product demos. We sell an identity:
 
-## Story arc (all three films)
+> Den familj vi vill vara på morgonen.
+
+Not: an app that helps.
+
+## Story arc (all films)
 
 ```
-kaos → känsla → lösning
+Kärlek → Kaos → Hopp → Lösning
 ```
 
-Not: family → app → stars → calm.
+| Beat | What the viewer feels | On-screen text |
+|------|----------------------|----------------|
+| **recognition** | Love first — parent watches sleeping child, birds, stillness | None |
+| **chaos** | 07:08 reality — painful recognition, sigh | None |
+| **hope** | Black + identity line (`Jag vill vara den föräldern.` / `Kvällen skapar morgonen.`) | One line |
+| **payoff** | Child acts alone — toothbrush, shoes — parent surprised, smiles | None |
+| **validation** | **Shoes scene** — iterate 20× on Pika before anything else | None |
+| **brand** | Family out the door, backpack, coffee → fade → logo | Tagline |
 
-| Beat | Purpose | On-screen text |
-|------|---------|----------------|
-| **hook** | Stress the viewer recognises — no app, no logo | None |
-| **breath** | Silence + question on black (ffmpeg, no Pika cost) | One emotional question |
-| **story** | Child + parent + home — faces, hands, eye contact | Sparse |
-| **app-glimpse** | Phone peripheral, UI unreadable (~5 s total) | None |
-| **payoff** | Pride, stolthet, first star moment | One line max |
-| **brand** | Feeling they want for their mornings | Brand line |
+## What we do NOT show
 
-## Rules
+- First star / reward animation
+- Readable app UI (tomorrow film: one blurred glimpse max)
+- Product features or star economy
 
-1. **Child is protagonist.** Phone is rekvisita.
-2. **≤25% app on screen** — exactly one `app-glimpse` scene per film (~18% of ~28 s).
-3. **No readable UI in Pika prompts** — extreme shallow DOF, blurred screens.
-4. **Hook has no captions** — sound design carries the first five seconds (`audioCues` in manifest).
-5. **App is invisible helper** — never the hero shot.
+The phone is rekvisita. The child is protagonist. Understanding comes from **behaviour**, not UI.
 
-## Pika validation (before full film)
+## Product truth
 
-Generate **one scene only** — the first-star / pride moment:
+**Kvällen skapar morgonen.**
+
+Parent plans in the evening. Child succeeds in the morning. *Tomorrow Starts Here* is the flagship film for this idea.
+
+## Tagline (all films)
+
+```
+Lugnare morgnar börjar kvällen innan.
+```
+
+Brand scene = family leaving. Logo + line in ffmpeg post — not in Pika.
+
+## Pika validation (~$0.35)
+
+One scene only — **not** first star, **not** UI:
 
 ```bash
-npm run video:dry-run -- --film a-morning-without-nagging --scene scene-05-first-star
-npm run video:generate -- --film a-morning-without-nagging --scene scene-05-first-star --confirm
+npm run video:generate -- \
+  --film a-morning-without-nagging \
+  --scene scene-05-shoes-alone \
+  --confirm
 ```
 
-Ask: Does the child feel real? Is motion natural? Are colours on-brand? If yes → generate remaining scenes.
+Ask: Does the child feel real? Does the parent's smile arrive naturally? Two seconds of silence?
 
-~$0.35 validates the entire visual style.
+If yes → generate remaining scenes. If no → iterate prompt and reference still.
 
-## Sound notes
+## Sound
 
-`audioCues` in each manifest are sound-mix notes (VO, SFX, silence). Wire to `audio/` files when licensed assets exist.
+`audioCues` in manifests are mix notes. Hook chaos uses VO/SFX; recognition uses birds and silence.
 
-## POS alignment
+## POS
 
-- Child protagonist (P-02) — child acts, parent supports
-- Reality before celebration (G-01) — pride after real completion
-- No surprise modals — emotional hook earns attention, not UI
+- Child protagonist (P-02)
+- Parent supports, does not nag on screen
+- Reality before celebration (G-01) — no star reward in ad
+- Evening handoff supports product truth without dashboard patterns

@@ -6,10 +6,10 @@
   "outputBasename": "morning-without-nagging",
   "referenceImage": "assets/references/morning-family.png",
   "seed": 42001,
-  "creativeBrief": "Chaos → feeling → solution. The child is the hero; the app is an invisible helper. Visible phone UI ≤ one scene (~18% of runtime). Sell the feeling of a calmer morning, not the product.",
+  "creativeBrief": "Love → chaos → hope → solution. Sell the parent identity: Jag vill vara den föräldern. No stars, no rewards on screen. No app in this film — understanding comes from the child acting, not from UI. Validation scene: shoes alone.",
   "music": {
     "file": "audio/morning-theme.mp3",
-    "volume": 0.28,
+    "volume": 0.26,
     "fadeInSec": 0,
     "fadeOutSec": 3
   },
@@ -21,71 +21,76 @@
   },
   "scenes": [
     {
-      "id": "scene-01-hook-chaos",
-      "role": "hook",
+      "id": "scene-01-recognition-love",
+      "role": "recognition",
       "duration": 5,
-      "pikaPrompt": "Handheld documentary chaos in a Swedish family kitchen at 07:21, winter morning light, stressed parent by the doorway, child running past with open backpack spilling papers, toothbrush left on counter, shoes missing, clock on wall, shallow depth of field, authentic Nordic home, tense warm color grade, no phones, no logos, no readable text anywhere",
+      "pikaPrompt": "Tender documentary shot, Swedish father sits on edge of child's bed in soft early morning blue light, watches his young daughter sleep peacefully, gentle loving expression, stillness, birds audible implied through open window frost, shallow depth of field on her face, Scandinavian bedroom, cinematic warmth, no clock yet, no stress, no phones, no text",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "outputFilename": "01-hook-chaos.mp4",
+      "outputFilename": "01-recognition-love.mp4",
       "audioCues": [
-        { "type": "vo", "description": "Child off-screen: Mammaaa!", "atSec": 0.5 },
-        { "type": "vo", "description": "Child: Var är mina skor?", "atSec": 1.8 },
-        { "type": "vo", "description": "Parent strained: Vi blir sena!", "atSec": 3.2 },
-        { "type": "sfx", "description": "Backpack thud, hurried footsteps, clock tick", "atSec": 0 }
+        { "type": "ambient", "description": "Soft birds, distant quiet home", "atSec": 0 },
+        { "type": "silence", "description": "Hold stillness — no dialogue", "atSec": 0 }
       ]
     },
     {
-      "id": "scene-02-breath-question",
-      "role": "breath",
+      "id": "scene-02-chaos-reality",
+      "role": "chaos",
+      "duration": 5,
+      "pikaPrompt": "Same Swedish family home now 07:08, wall clock visible, morning chaos erupts, child on floor refusing socks, toothbrush on counter, open backpack, father exhales with tired loving frustration not anger, handheld documentary energy, painful recognition, Nordic winter kitchen light, no phones, no readable text",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "02-chaos-reality.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Clock tick becomes prominent at 07:08", "atSec": 0.5 },
+        { "type": "vo", "description": "Child: Jag vill inte!", "atSec": 2.5 },
+        { "type": "vo", "description": "Parent quiet sigh", "atSec": 4 }
+      ]
+    },
+    {
+      "id": "scene-03-hope-identity",
+      "role": "hope",
       "duration": 5,
       "skipPika": true,
-      "swedishText": "Vad skulle hända\nom morgonen började annorlunda?",
+      "swedishText": "Jag vill vara den föräldern.",
       "transition": "fadeblack",
-      "outputFilename": "02-breath-question.mp4",
+      "outputFilename": "03-hope-identity.mp4",
       "audioCues": [
-        { "type": "silence", "description": "Hard cut to silence after chaos", "atSec": 0 },
-        { "type": "ambient", "description": "Barely audible room tone", "atSec": 1 }
+        { "type": "silence", "description": "Cut to silence after chaos", "atSec": 0 }
       ]
     },
     {
-      "id": "scene-03-breakfast-calm",
-      "role": "story",
+      "id": "scene-04-toothbrush-alone",
+      "role": "payoff",
       "duration": 5,
-      "pikaPrompt": "Same Swedish family kitchen now calm, soft morning light, child sits eating breakfast with relaxed posture, parent pours coffee with a gentle smile, eye contact between them, documentary intimacy, Scandinavian wooden interior, phone not visible, focus on faces and hands, cinematic naturalism, no text",
-      "swedishText": "Så här vill man att det ska kännas",
+      "pikaPrompt": "Documentary bathroom moment, same Swedish child brushes teeth independently at sink, focused calm face, father passes doorway and stops, surprised soft expression turning into restrained smile, morning light, intimate realism, no phone, no star graphics, no reward animation, child is protagonist",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "dissolve",
-      "outputFilename": "03-breakfast-calm.mp4"
+      "outputFilename": "04-toothbrush-alone.mp4"
     },
     {
-      "id": "scene-04-app-glimpse",
-      "role": "app-glimpse",
+      "id": "scene-05-shoes-alone",
+      "role": "validation",
       "duration": 5,
-      "pikaPrompt": "Extreme shallow depth of field on a smartphone lying on kitchen counter, screen heavily blurred and unreadable, child in sharp focus in background putting on jacket with quiet confidence, parent soft smile out of focus, phone is prop not hero, Nordic morning light, documentary style, no legible UI, no logos",
+      "renderDuration": 7,
+      "validationScene": true,
+      "pikaPrompt": "Close documentary shot in Swedish hallway, child kneels and puts on shoes completely alone with quiet determination, father looks up from tying his own shoe or reading a note, brief surprised pause then warm genuine smile, two beats of stillness, eye contact, golden morning window light, no phone visible, no UI, no stars, emotional authenticity is everything",
       "swedishText": "",
       "showCaption": false,
       "transition": "fade",
-      "outputFilename": "04-app-glimpse.mp4"
+      "outputFilename": "05-shoes-alone.mp4"
     },
     {
-      "id": "scene-05-first-star",
-      "role": "payoff",
-      "duration": 5,
-      "validationScene": true,
-      "pikaPrompt": "Intimate close-up documentary shot, Swedish child around age 7 beams with quiet pride after finishing a morning task, eyes bright, small natural fist pump, parent in soft focus makes warm eye contact and nods once, golden window light on faces, emotional realism not cartoon, no phone screen visible, no star graphics, no on-screen text, child is the absolute focus",
-      "swedishText": "Stolthet i det lilla",
-      "transition": "fade",
-      "outputFilename": "05-first-star.mp4"
-    },
-    {
-      "id": "scene-06-door-peace",
+      "id": "scene-06-door-brand",
       "role": "brand",
       "duration": 5,
-      "pikaPrompt": "Wide documentary shot, same family leaving through a Swedish front door into soft snowy morning, child waves confidently, parent relaxed beside them, unhurried goodbye energy, house feels peaceful behind them, slow dolly out, no branding visible in environment",
-      "swedishText": "En morgon utan tjat",
+      "pikaPrompt": "Wide documentary shot, same family exits Swedish front door into soft snowy morning, child carries own backpack confidently, father walks beside with coffee mug in hand relaxed shoulders, unhurried energy, slow dolly out, no logos in environment, no phones",
+      "swedishText": "Lugnare morgnar\nbörjar kvällen innan.",
       "transition": "fadeblack",
-      "outputFilename": "06-door-peace.mp4"
+      "outputFilename": "06-door-brand.mp4"
     }
   ]
 }
