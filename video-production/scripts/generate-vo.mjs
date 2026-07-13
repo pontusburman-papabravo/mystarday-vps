@@ -33,8 +33,8 @@ for (const line of LINES) {
   const out = path.join(VO_DIR, line.file);
   run(EDGE, ['--voice', line.voice, '--text', line.text, '--write-media', mp3]);
   const af = line.child
-    ? 'asetrate=48000*1.12,aresample=48000,atempo=1.05,volume=0.95'
-    : 'volume=0.9';
+    ? 'highpass=f=120,lowpass=f=10000,volume=0.92'
+    : 'highpass=f=100,lowpass=f=9000,volume=0.88';
   run('ffmpeg', ['-y', '-i', mp3, '-af', af, '-c:a', 'aac', '-b:a', '128k', out]);
   fs.unlinkSync(mp3);
   console.log(`  ✓ ${line.file}`);

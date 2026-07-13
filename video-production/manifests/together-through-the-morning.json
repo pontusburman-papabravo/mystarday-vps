@@ -7,32 +7,27 @@
   "referenceImage": "assets/references/summer-family.png",
   "seed": 42010,
   "taglineVariantDefault": "E",
-  "creativeBrief": "v3 launch film — 38s. Summer Swedish morning. Chaos → together → whats-next → pride → relief. App ~25% as app-screen clips from real UI. VO/SFX in post. Default exit: smile + run out (no hug).",
+  "creativeBrief": "v3.1 — ~42s. App clips 1.5–2s with motion. Branded end board from icon-512. Layered audio mix, VO-centered, -16 LUFS.",
+  "endBoardShowUrl": true,
   "music": {
     "file": "audio/summer-morning-theme.m4a",
-    "volume": 0.22,
-    "fadeInSec": 0,
-    "fadeOutSec": 2.5
-  },
-  "ambient": {
-    "file": "audio/summer-ambient.m4a",
     "volume": 0.12,
-    "fadeInSec": 0,
-    "fadeOutSec": 2
+    "fadeInSec": 2,
+    "fadeOutSec": 3
   },
   "sfx": [
-    { "file": "audio/sfx/check-pling.m4a", "atSec": 12.5, "volume": 0.5 },
-    { "file": "audio/sfx/check-pling.m4a", "atSec": 15.8, "volume": 0.45 },
-    { "file": "audio/sfx/redeem-pling.m4a", "atSec": 25.2, "volume": 0.55 },
-    { "file": "audio/sfx/door-summer.m4a", "atSec": 31.5, "volume": 0.35 }
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "app-check-star", "atSecInScene": 0.25, "volume": 0.22 },
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "app-check-star-2", "atSecInScene": 0.2, "volume": 0.2 },
+    { "file": "audio/sfx/redeem-pling.m4a", "sceneId": "app-redeem", "atSecInScene": 0.15, "volume": 0.28 },
+    { "file": "audio/sfx/door-summer.m4a", "sceneId": "ella-exit", "atSecInScene": 1, "volume": 0.25 }
   ],
   "vo": [
-    { "file": "audio/vo/ella-sandals.m4a", "atSec": 4.5, "volume": 0.85 },
-    { "file": "audio/vo/sara-dress-1.m4a", "atSec": 6.8, "volume": 0.8 },
-    { "file": "audio/vo/sara-late.m4a", "atSec": 8.5, "volume": 0.8 },
-    { "file": "audio/vo/ella-whats-next.m4a", "atSec": 18.2, "volume": 0.9 },
-    { "file": "audio/vo/ella-friday-movie.m4a", "atSec": 27.5, "volume": 0.95 },
-    { "file": "audio/vo/sara-vad-mysigt.m4a", "atSec": 29.8, "volume": 0.75 }
+    { "file": "audio/vo/ella-sandals.m4a", "sceneId": "chaos-summer", "atSecInScene": 4.5, "volume": 0.88 },
+    { "file": "audio/vo/sara-dress-1.m4a", "sceneId": "chaos-summer", "atSecInScene": 6.8, "volume": 0.84 },
+    { "file": "audio/vo/sara-late.m4a", "sceneId": "chaos-summer", "atSecInScene": 8.5, "volume": 0.84 },
+    { "file": "audio/vo/ella-whats-next.m4a", "sceneId": "whats-next", "atSecInScene": 1.2, "volume": 0.9 },
+    { "file": "audio/vo/ella-friday-movie.m4a", "sceneId": "friday-movie-pride", "atSecInScene": 0.5, "volume": 0.92 },
+    { "file": "audio/vo/sara-vad-mysigt.m4a", "sceneId": "friday-movie-pride", "atSecInScene": 3, "volume": 0.76 }
   ],
   "scenes": [
     {
@@ -67,9 +62,10 @@
       "id": "app-morning-list",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 1,
+      "renderDuration": 1.75,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/morning-list.png",
+      "appMotion": "push-in",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
@@ -90,16 +86,27 @@
       "id": "app-check-star",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 1,
+      "renderDuration": 1.1,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/check-star.png",
+      "appMotion": "push-in",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
-      "outputFilename": "05-app-check-star.mp4",
-      "audioCues": [
-        { "type": "sfx", "description": "Check pling + star chime 0.5s", "atSec": 0 }
-      ]
+      "outputFilename": "05-app-check-star.mp4"
+    },
+    {
+      "id": "app-check-star-2",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 0.9,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/check-star.png",
+      "appMotion": "zoom-star",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "05b-app-check-star-2.mp4"
     },
     {
       "id": "whats-next",
@@ -122,9 +129,10 @@
       "id": "app-next-activity",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 1,
+      "renderDuration": 1.5,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/next-activity.png",
+      "appMotion": "push-in",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
@@ -148,9 +156,10 @@
       "id": "app-redeem",
       "role": "app-screen",
       "duration": 5,
-      "renderDuration": 1,
+      "renderDuration": 1.75,
       "skipPika": true,
       "appScreenshot": "assets/app-screens/redeem.png",
+      "appMotion": "zoom-star",
       "swedishText": "",
       "showCaption": false,
       "transition": "cut",
@@ -204,7 +213,7 @@
       "id": "end-brand",
       "role": "brand",
       "duration": 5,
-      "renderDuration": 2,
+      "renderDuration": 2.25,
       "skipPika": true,
       "endBoard": true,
       "swedishText": "",

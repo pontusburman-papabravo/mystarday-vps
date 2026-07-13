@@ -19,8 +19,8 @@ function ensureDir(p) {
 
 function pling(out, freq = 880) {
   run([
-    '-y', '-f', 'lavfi', '-i', `sine=frequency=${freq}:duration=0.15`,
-    '-af', 'afade=t=out:st=0.05:d=0.1,volume=0.4,aformat=channel_layouts=stereo',
+    '-y', '-f', 'lavfi', '-i', `sine=frequency=${freq}:duration=0.08`,
+    '-af', 'afade=t=out:st=0.02:d=0.05,volume=0.25,aformat=channel_layouts=stereo',
     '-c:a', 'aac', '-b:a', '128k', out,
   ]);
 }

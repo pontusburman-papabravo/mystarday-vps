@@ -32,6 +32,7 @@ export const PATHS = {
   assets: path.join(ROOT, 'assets'),
   references: path.join(ROOT, 'assets', 'references'),
   logo: path.join(ROOT, 'assets', 'logo', 'brand-logo.png'),
+  brandMark: path.join(ROOT, 'assets', 'logo', 'brand-mark.png'),
   state: path.join(ROOT, 'state'),
   raw: path.join(ROOT, 'raw'),
   output: path.join(ROOT, 'output'),
@@ -61,6 +62,9 @@ export const TRANSITIONS = new Set(['cut', 'fade', 'fadeblack', 'fadewhite', 'di
 
 /** End-board URL — resolved when manifest omits brandUrl (avoids secret-scan false positive in JSON). */
 export const BRAND_URL = 'mystarday.se'; // pragma: allowlist secret
+
+/** Wordmark on end board */
+export const BRAND_NAME = 'Min Stjärndag'; // pragma: allowlist secret
 
 export const NEGATIVE_PROMPT = [
   'text', 'logo', 'watermark', 'subtitle', 'caption', 'typography',

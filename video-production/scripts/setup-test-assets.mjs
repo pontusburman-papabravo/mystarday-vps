@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runFfmpeg } from '../lib/ffmpeg.mjs';
 import { generatePlaceholderLogo } from '../lib/placeholders.mjs';
+import { ensureBrandAssets } from './setup-brand-assets.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -26,4 +27,5 @@ for (const [name, color] of refs) {
 }
 
 generatePlaceholderLogo();
+ensureBrandAssets();
 console.log('Test assets ready.');

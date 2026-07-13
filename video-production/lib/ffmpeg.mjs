@@ -218,11 +218,21 @@ export function synthesizeSilentAudio(outputPath, durationSec) {
   ], { label: 'silent audio' });
 }
 
-function loudnormFilter() {
-  return `aformat=channel_layouts=stereo,loudnorm=I=${LOUDNESS.I}:TP=${LOUDNESS.TP}:LRA=${LOUDNESS.LRA}`;
+function masterLimiterFilter() {
+  return 'alimiter=limit=0.92:attack=5:release=80,aformat=channel_layouts=stereo';
 }
 
-/** Mix music + ambient + timed SFX/VO to stereo with loudness normalization. */
+function buildMusicVolumeExpr(baseVol, duckRegions = []) {
+  if (!duckRegions.length) return String(baseVol);
+  let expr = String(baseVol);
+  for (const d of duckRegions) {
+    const duckVol = d.volume ?? baseVol * 0.35;
+    expr = `if(between(t,${d.startSec},${d.endSec}),${duckVol},${expr})`;
+  }
+  return expr;
+}
+
+/** Mix music + ambient + timed SFX/VO to stereo with gentle limiting. */
 export function mixAudioBed({
   outputPath,
   music,
@@ -230,6 +240,7 @@ export function mixAudioBed({
   sfx = [],
   vo = [],
   videoDuration,
+  musicDuck = [],
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
@@ -243,8 +254,10 @@ export function mixAudioBed({
     const fadeIn = music.fadeInSec ?? 1.5;
     const fadeOut = music.fadeOutSec ?? 2;
     const fadeOutStart = Math.max(0, videoDuration - fadeOut);
+    const baseVol = music.volume ?? 0.35;
+    const volExpr = buildMusicVolumeExpr(baseVol, musicDuck);
     filters.push(
-      `[${inputIndex}:a]volume=${music.volume ?? 0.35},afade=t=in:st=${music.startSec ?? 0}:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut}[music]`,
+      `[${inputIndex}:a]volume='${volExpr}':eval=frame,afade=t=in:st=${music.startSec ?? 0}:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut}[music]`,
     );
     mixInputs.push('[music]');
     inputIndex += 1;
@@ -281,7 +294,7 @@ export function mixAudioBed({
       '-f', 'lavfi',
       '-i', `anullsrc=r=48000:cl=stereo`,
       '-t', String(videoDuration),
-      '-af', loudnormFilter(),
+      '-af', masterLimiterFilter(),
       '-c:a', 'aac',
       '-b:a', '192k',
       '-ac', '2',
@@ -291,7 +304,7 @@ export function mixAudioBed({
   }
 
   filters.push(
-    `${mixInputs.join('')}amix=inputs=${mixInputs.length}:duration=first:dropout_transition=2,${loudnormFilter()}[aout]`,
+    `${mixInputs.join('')}amix=inputs=${mixInputs.length}:duration=first:dropout_transition=2,${masterLimiterFilter()}[aout]`,
   );
 
   runFfmpeg([

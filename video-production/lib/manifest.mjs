@@ -33,8 +33,19 @@ const AudioCueNoteSchema = z.object({
 
 const SfxCueSchema = z.object({
   file: z.string().min(1),
-  atSec: z.number().min(0),
+  atSec: z.number().min(0).optional(),
+  sceneId: z.string().min(1).optional(),
+  atSecInScene: z.number().min(0).optional(),
   volume: z.number().min(0).max(1).default(0.55),
+}).refine(
+  (c) => c.atSec != null || (c.sceneId && c.atSecInScene != null),
+  { message: 'Audio cue needs atSec or sceneId+atSecInScene' },
+);
+
+const MusicDuckSchema = z.object({
+  startSec: z.number().min(0),
+  endSec: z.number().min(0),
+  volume: z.number().min(0).max(1),
 });
 
 const SceneRoleSchema = z.enum([
@@ -76,6 +87,7 @@ const SceneSchema = z.object({
   outputFilename: z.string().min(1),
   referenceImage: z.string().optional(),
   appScreenshot: z.string().optional(),
+  appMotion: z.enum(['none', 'push-in', 'zoom-star']).default('none'),
   endBoard: z.boolean().default(false),
   soundCue: SoundCueSchema,
   audioCues: z.array(AudioCueNoteSchema).optional(),
@@ -96,8 +108,10 @@ export const ManifestSchema = z.object({
   taglineVariantDefault: TaglineVariantIdSchema.default('E'),
   taglineVariants: z.record(z.string()).optional(),
   brandUrl: z.string().optional(),
+  endBoardShowUrl: z.boolean().default(true),
   music: MusicCueSchema,
   ambient: AmbientCueSchema,
+  musicDuck: z.array(MusicDuckSchema).optional(),
   sfx: z.array(SfxCueSchema).optional(),
   vo: z.array(SfxCueSchema).optional(),
   scenes: z.array(SceneSchema).min(1),
@@ -128,6 +142,42 @@ export function sceneCaptionText(scene) {
 
 export function resolveBrandUrl(manifest) {
   return manifest?.brandUrl?.trim() || BRAND_URL;
+}
+
+const TRANSITION_OVERLAP_SEC = 0.6;
+
+/** Scene start times on the final timeline (seconds). */
+export function computeSceneStarts(scenes, transitionOverlapSec = TRANSITION_OVERLAP_SEC) {
+  const starts = [];
+  let t = 0;
+  for (let i = 0; i < scenes.length; i++) {
+    starts.push(t);
+    const dur = sceneRenderDuration(scenes[i]);
+    t += dur - (i < scenes.length - 1 ? transitionOverlapSec : 0);
+  }
+  return starts;
+}
+
+/** Resolve vo/sfx cues — supports sceneId+atSecInScene or legacy global atSec. */
+export function resolveTimedAudioCues(manifest) {
+  const starts = computeSceneStarts(manifest.scenes);
+  const sceneIndex = new Map(manifest.scenes.map((s, i) => [s.id, i]));
+
+  const resolve = (cue) => {
+    let atSec = cue.atSec;
+    if (cue.sceneId != null && cue.atSecInScene != null) {
+      const idx = sceneIndex.get(cue.sceneId);
+      if (idx == null) throw new Error(`Unknown sceneId in audio cue: ${cue.sceneId}`);
+      atSec = starts[idx] + cue.atSecInScene;
+    }
+    if (atSec == null) throw new Error(`Audio cue missing timing: ${cue.file}`);
+    return { ...cue, atSec };
+  };
+
+  return {
+    vo: (manifest.vo || []).map(resolve),
+    sfx: (manifest.sfx || []).map(resolve),
+  };
 }
 
 export function computeAppScreenRatio(manifest, transitionOverlapSec = 0.6) {

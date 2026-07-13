@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { runFfmpeg, sceneRenderDuration } from './ffmpeg.mjs';
-import { PATHS, BRAND_URL } from './config.mjs';
+import { PATHS, BRAND_NAME, BRAND_URL } from './config.mjs';
 
 const PLACEHOLDER_COLORS = [
   '0x1E3A5F',
@@ -63,7 +63,9 @@ export function generateScenePlaceholder(scene, outputPath, index = 0, { manifes
     generateEndBoardClip({
       outputPath,
       duration,
-      logoPath: PATHS.logo,
+      brandMarkPath: PATHS.brandMark,
+      brandName: BRAND_NAME,
+      showUrl: manifest?.endBoardShowUrl !== false,
       brandUrl: manifest?.brandUrl?.trim() || BRAND_URL,
     });
     return;
@@ -73,7 +75,12 @@ export function generateScenePlaceholder(scene, outputPath, index = 0, { manifes
     const imgPath = path.isAbsolute(scene.appScreenshot)
       ? scene.appScreenshot
       : path.join(root, scene.appScreenshot);
-    generateAppScreenshotClip({ outputPath, duration, screenshotPath: imgPath });
+    generateAppScreenshotClip({
+      outputPath,
+      duration,
+      screenshotPath: imgPath,
+      appMotion: scene.appMotion || 'none',
+    });
     return;
   }
   if (scene.skipPika) {
@@ -89,20 +96,35 @@ export function generateScenePlaceholder(scene, outputPath, index = 0, { manifes
   });
 }
 
+export function buildAppPhoneFilter({ appMotion, duration, phoneWidth }) {
+  const frames = Math.max(1, Math.round(duration * 30));
+  const phoneH = Math.round(phoneWidth * 2.05);
+  const baseScale = Math.round(phoneWidth * 1.15);
+
+  if (appMotion === 'push-in') {
+    return `[1:v]scale=${baseScale}:-1:flags=lanczos,zoompan=z='min(1.02+0.0006*on,1.09)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${frames}:s=${phoneWidth}x${phoneH}:fps=30,format=rgba[phone]`;
+  }
+  if (appMotion === 'zoom-star') {
+    return `[1:v]scale=${baseScale}:-1:flags=lanczos,zoompan=z='min(1.04+0.0009*on,1.14)':x='iw/2-(iw/zoom/2)':y='ih*0.38-(ih/zoom/2)':d=${frames}:s=${phoneWidth}x${phoneH}:fps=30,format=rgba[phone]`;
+  }
+  return `[1:v]scale=${phoneWidth}:-1:flags=lanczos,format=rgba[phone]`;
+}
+
 export function generateAppScreenshotClip({
   outputPath,
   duration,
   screenshotPath,
   width = 1920,
   height = 1080,
-  phoneWidth = 440,
+  phoneWidth = 500,
+  appMotion = 'none',
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   if (!fs.existsSync(screenshotPath)) {
     generatePlaceholderClip({
       outputPath,
       duration,
-      color: '0x1a1a2e',
+      color: '0x1B2340',
       label: path.basename(screenshotPath, '.png'),
       width,
       height,
@@ -110,15 +132,16 @@ export function generateAppScreenshotClip({
     return;
   }
 
+  const phoneFilter = buildAppPhoneFilter({ appMotion, duration, phoneWidth });
   const filter = [
-    `[1:v]scale=${phoneWidth}:-1:flags=lanczos,format=rgba[phone]`,
+    phoneFilter,
     `[0:v][phone]overlay=(W-w)/2:(H-h)/2:format=auto`,
   ].join(';');
 
   runFfmpeg([
     '-y',
     '-f', 'lavfi',
-    '-i', `color=c=0x0f1419:s=${width}x${height}:r=30:d=${duration}`,
+    '-i', `color=c=0x1B2340:s=${width}x${height}:r=30:d=${duration}`,
     '-loop', '1',
     '-i', screenshotPath,
     '-filter_complex', filter,
@@ -132,36 +155,40 @@ export function generateAppScreenshotClip({
 export function generateEndBoardClip({
   outputPath,
   duration,
-  logoPath,
-  brandUrl = '',
+  brandMarkPath,
+  brandName = BRAND_NAME,
+  showUrl = true,
+  brandUrl = BRAND_URL,
   width = 1920,
   height = 1080,
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  const url = brandUrl.replace(/:/g, '\\:').replace(/'/g, "\\'");
-
-  const filters = [];
-  const inputs = ['-f', 'lavfi', '-i', `color=c=black:s=${width}x${height}:r=30:d=${duration}`];
-  let inputCount = 1;
-
-  if (fs.existsSync(logoPath)) {
-    inputs.push('-loop', '1', '-i', logoPath);
-    filters.push(
-      `[${inputCount}:v]scale=320:-1,format=rgba[logo]`,
-      `[0:v][logo]overlay=(W-w)/2:(H-h)/2-40[bg]`,
+  if (!brandMarkPath || !fs.existsSync(brandMarkPath)) {
+    throw new Error(
+      `End board requires brand mark at ${brandMarkPath}. Run setup-brand-assets.mjs first.`,
     );
-    inputCount += 1;
-  } else {
-    filters.push('[0:v]copy[bg]');
   }
+  const name = (brandName || BRAND_NAME).replace(/:/g, '\\:').replace(/'/g, "\\'");
+  const url = showUrl
+    ? (brandUrl || BRAND_URL).replace(/:/g, '\\:').replace(/'/g, "\\'")
+    : '';
 
-  filters.push(
-    `[bg]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='${url}':fontsize=36:fontcolor=white@0.85:x=(w-text_w)/2:y=(h/2)+60`,
-  );
+  const navy = '0x1B2340';
+  const filters = [
+    '[1:v]scale=220:-1,format=rgba[mark]',
+    '[0:v][mark]overlay=(W-w)/2:(H-h)/2-88[withmark]',
+    `[withmark]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf:text='${name}':fontsize=50:fontcolor=white@0.96:x=(w-text_w)/2:y=(h/2)+28[withname]`,
+  ];
+  if (url) {
+    filters.push(
+      `[withname]drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='${url}':fontsize=28:fontcolor=white@0.55:x=(w-text_w)/2:y=(h/2)+100`,
+    );
+  }
 
   runFfmpeg([
     '-y',
-    ...inputs,
+    '-f', 'lavfi', '-i', `color=c=${navy}:s=${width}x${height}:r=30:d=${duration}`,
+    '-loop', '1', '-i', brandMarkPath,
     '-filter_complex', filters.join(';'),
     '-t', String(duration),
     '-c:v', 'libx264',

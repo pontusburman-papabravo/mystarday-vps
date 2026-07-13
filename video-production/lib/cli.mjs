@@ -17,8 +17,10 @@ export function parseArgs(argv = process.argv.slice(2)) {
       options.scene = argv[++i];
     } else if (arg === '--tagline' && argv[i + 1]) {
       options.tagline = argv[++i].toUpperCase();
-    } else if (arg === '--export-suffix' && argv[i + 1]) {
+    }     else if (arg === '--export-suffix' && argv[i + 1]) {
       options.exportSuffix = argv[++i];
+    } else if (arg === '--no-audio-diagnose') {
+      flags.add('no-audio-diagnose');
     } else if (arg.startsWith('--scene=')) {
       options.scene = arg.slice('--scene='.length);
     } else if (arg.startsWith('--tagline=')) {

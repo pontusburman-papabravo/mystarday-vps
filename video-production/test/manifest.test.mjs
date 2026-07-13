@@ -99,7 +99,7 @@ test('each flagship film has exactly one validation scene', () => {
 test('together-through-the-morning v3 is ~38 seconds', () => {
   const { manifest } = loadManifest('together-through-the-morning');
   const dur = computeTimelineDuration(manifest.scenes);
-  assert.ok(dur >= 36 && dur <= 40, `duration ${dur}s`);
+  assert.ok(dur >= 38 && dur <= 44, `duration ${dur}s`);
   assert.equal(resolveBrandUrl(manifest), BRAND_URL);
   const app = computeAppScreenRatio(manifest);
   assert.ok(app.ratio >= 0.08 && app.ratio <= 0.35);
