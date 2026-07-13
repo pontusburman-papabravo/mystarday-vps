@@ -19,34 +19,51 @@ function ensureDir(p) {
 
 function pling(out, freq = 880) {
   run([
-    '-y', '-f', 'lavfi', '-i', `sine=frequency=${freq}:duration=0.08`,
-    '-af', 'afade=t=out:st=0.02:d=0.05,volume=0.25,aformat=channel_layouts=stereo',
+    '-y', '-f', 'lavfi', '-i', `sine=frequency=${freq}:duration=0.12`,
+    '-af', 'afade=t=out:st=0.04:d=0.06,volume=0.55,aformat=channel_layouts=stereo',
     '-c:a', 'aac', '-b:a', '128k', out,
-  ]);
-}
-
-function ambientBed(out, dur = 45) {
-  run([
-    '-y', '-f', 'lavfi', '-i', `sine=frequency=196:duration=${dur}`,
-    '-f', 'lavfi', '-i', `sine=frequency=294:duration=${dur}`,
-    '-filter_complex',
-    '[0:a][1:a]amix=inputs=2,volume=0.04,afade=t=in:st=0:d=2,afade=t=out:st=' + (dur - 3) + ':d=3,aformat=channel_layouts=stereo',
-    '-t', String(dur), '-c:a', 'aac', '-b:a', '128k', out,
   ]);
 }
 
 function themeBed(out, dur = 45) {
   run([
-    '-y', '-f', 'lavfi', '-i', `sine=frequency=262:duration=${dur}`,
-    '-af', 'volume=0.06,lowpass=f=800,afade=t=in:st=0:d=3,afade=t=out:st=' + (dur - 4) + ':d=4,aformat=channel_layouts=stereo',
-    '-t', String(dur), '-c:a', 'aac', '-b:a', '128k', out,
+    '-y',
+    '-f', 'lavfi', '-i', `sine=frequency=262:duration=${dur}`,
+    '-f', 'lavfi', '-i', `sine=frequency=330:duration=${dur}`,
+    '-f', 'lavfi', '-i', `sine=frequency=392:duration=${dur}`,
+    '-f', 'lavfi', '-i', `sine=frequency=523:duration=${dur}`,
+    '-filter_complex',
+    [
+      '[0:a]volume=0.35[a0]',
+      '[1:a]volume=0.28[a1]',
+      '[2:a]volume=0.22[a2]',
+      '[3:a]volume=0.15[a3]',
+      '[a0][a1][a2][a3]amix=inputs=4:duration=first:dropout_transition=0:normalize=0',
+      'volume=0.75',
+      'lowpass=f=1400',
+      'afade=t=in:st=0:d=2.5',
+      'afade=t=out:st=' + (dur - 4) + ':d=4',
+      'aformat=channel_layouts=stereo',
+    ].join(','),
+    '-t', String(dur), '-c:a', 'aac', '-b:a', '192k', out,
+  ]);
+}
+
+function ambientBed(out, dur = 45) {
+  run([
+    '-y',
+    '-f', 'lavfi', '-i', `sine=frequency=196:duration=${dur}`,
+    '-f', 'lavfi', '-i', `sine=frequency=247:duration=${dur}`,
+    '-filter_complex',
+    '[0:a]volume=0.2[a0];[1:a]volume=0.14[a1];[a0][a1]amix=inputs=2:duration=first:normalize=0,volume=0.4,lowpass=f=500,afade=t=in:st=0:d=2,afade=t=out:st=' + (dur - 3) + ':d=3,aformat=channel_layouts=stereo',
+    '-t', String(dur), '-c:a', 'aac', '-b:a', '192k', out,
   ]);
 }
 
 function doorSfx(out) {
   run([
-    '-y', '-f', 'lavfi', '-i', 'anoisesrc=d=0.3:color=pink',
-    '-af', 'volume=0.15,afade=t=in:st=0:d=0.02,afade=t=out:st=0.2:d=0.08,aformat=channel_layouts=stereo',
+    '-y', '-f', 'lavfi', '-i', 'anoisesrc=d=0.35:color=pink',
+    '-af', 'volume=0.35,lowpass=f=800,afade=t=in:st=0:d=0.02,afade=t=out:st=0.22:d=0.1,aformat=channel_layouts=stereo',
     '-c:a', 'aac', out,
   ]);
 }

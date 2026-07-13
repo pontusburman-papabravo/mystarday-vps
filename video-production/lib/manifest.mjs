@@ -89,11 +89,12 @@ const SceneSchema = z.object({
   appScreenshot: z.string().optional(),
   appMotion: z.enum(['none', 'push-in', 'zoom-star']).default('none'),
   endBoard: z.boolean().default(false),
+  cartoonScene: z.boolean().default(false),
   soundCue: SoundCueSchema,
   audioCues: z.array(AudioCueNoteSchema).optional(),
 }).refine(
-  (scene) => scene.skipPika || (scene.pikaPrompt && scene.pikaPrompt.length >= 10),
-  { message: 'pikaPrompt is required unless skipPika is true' },
+  (scene) => scene.skipPika || scene.cartoonScene || (scene.pikaPrompt && scene.pikaPrompt.length >= 10),
+  { message: 'pikaPrompt is required unless skipPika or cartoonScene is true' },
 );
 
 export const ManifestSchema = z.object({
@@ -109,6 +110,7 @@ export const ManifestSchema = z.object({
   taglineVariants: z.record(z.string()).optional(),
   brandUrl: z.string().optional(),
   endBoardShowUrl: z.boolean().default(true),
+  visualStyle: z.enum(['documentary', 'cartoon']).default('documentary'),
   music: MusicCueSchema,
   ambient: AmbientCueSchema,
   musicDuck: z.array(MusicDuckSchema).optional(),

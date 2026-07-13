@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { generateCartoonScene, isCartoonScene } from './cartoon-scenes.mjs';
 import { runFfmpeg, sceneRenderDuration } from './ffmpeg.mjs';
 import { PATHS, BRAND_NAME, BRAND_URL } from './config.mjs';
 
@@ -68,6 +69,10 @@ export function generateScenePlaceholder(scene, outputPath, index = 0, { manifes
       showUrl: manifest?.endBoardShowUrl !== false,
       brandUrl: manifest?.brandUrl?.trim() || BRAND_URL,
     });
+    return;
+  }
+  if (isCartoonScene(scene, manifest)) {
+    generateCartoonScene(scene, outputPath, duration);
     return;
   }
   if (scene.appScreenshot) {
