@@ -44,6 +44,13 @@ describe('family avatar v1 — ADR', () => {
   });
 });
 
+describe('family avatar v1 — settings magic group', () => {
+  it('tags settingsAvatarSection for Profil & konto group', () => {
+    const hubs = fs.readFileSync(path.join(__dirname, '../public/js/parent-magic-page-hubs.js'), 'utf8');
+    assert.match(hubs, /tagChild\('settingsAvatarSection',\s*'profile'\)/);
+  });
+});
+
 describe('family avatar v1 — lifecycle cleanup', () => {
   it('delete-account route calls deleteAvatarsForFamily', () => {
     const src = fs.readFileSync(path.join(__dirname, '../src/routes/family/account.js'), 'utf8');
