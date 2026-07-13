@@ -42,7 +42,6 @@
       if (window.ChildWorlds && ChildWorlds.prepareTreasureEntry) {
         ChildWorlds.prepareTreasureEntry();
       }
-      if (typeof window.showTab === 'function') window.showTab('rewards');
     }
     if (window.ChildFamilyWorld && worldId === 'family') ChildFamilyWorld.onEnter();
   }
@@ -74,9 +73,17 @@
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ChildWorlds && ChildWorlds.isConfigured && ChildWorlds.isConfigured()) {
+        init();
+      } else {
+        document.addEventListener('child-worlds-configured', init, { once: true });
+      }
+    });
+  } else if (window.ChildWorlds && ChildWorlds.isConfigured && ChildWorlds.isConfigured()) {
     init();
+  } else {
+    document.addEventListener('child-worlds-configured', init, { once: true });
   }
 
   document.addEventListener('child-worlds-configured', function () {

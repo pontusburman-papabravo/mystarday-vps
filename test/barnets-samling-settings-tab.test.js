@@ -85,6 +85,15 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.doesNotMatch(src, /id: 'logout'/);
   });
 
+  it('navigateWorld uses SPA showTab when barnets_samling gate is on', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
+    const fn = src.slice(src.indexOf('function navigateWorld'), src.indexOf('function applyV2Chrome'));
+    const gateBlock = fn.slice(fn.indexOf('if (gateOn)'), fn.indexOf('if (world && world.href)'));
+    assert.match(gateBlock, /showTab\(tabKey\)/);
+    assert.match(gateBlock, /syncChildRoute\(worldId/);
+    assert.doesNotMatch(gateBlock, /location\.href/);
+  });
+
   it('five-tab bottom nav keeps 44px+ touch targets', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/child-bottom-nav.css'), 'utf8');
     assert.match(css, /min-height: 52px/);

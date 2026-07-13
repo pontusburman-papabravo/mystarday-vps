@@ -2,7 +2,7 @@
  * child-family-hall.css — Mina personer 10/10 (personkort först).
  */
 
-#familyView[data-active="true"] {
+#familyView[data-active="true"]:not(.hidden) {
   display: block;
 }
 

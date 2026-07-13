@@ -272,10 +272,18 @@
       });
   }
 
-  function refresh() {
+  function refresh(options) {
+    options = options || {};
     if (!window.ChildFamily) return Promise.resolve();
+
+    const root = document.getElementById('familyHallMount');
+    if (!options.force && _cachedData && root && root.querySelector('.cfh-shell')) {
+      paint(root, _cachedData);
+      return Promise.resolve();
+    }
+
     clearWarmTimer();
-    ChildFamily.invalidate();
+    if (options.force) ChildFamily.invalidate();
     mount();
     return Promise.resolve();
   }
