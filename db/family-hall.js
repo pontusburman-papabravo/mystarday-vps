@@ -3,6 +3,10 @@
 const db = require('../src/lib/db');
 const { formatStoryEvent } = require('../src/lib/family-story-format');
 const { mapChildForFamilyApi, mapParentForFamilyApi } = require('../src/lib/avatar-api');
+const {
+  childRoleLabelForParent,
+  childRoleLabelForSibling,
+} = require('../src/lib/family-person-role');
 
 /**
  * Get family hall read model (projects, chest, story events).
@@ -43,7 +47,7 @@ async function getFamilyHall(familyId, options) {
   if (options.includePersons) {
     const [parentsRes, siblingsRes] = await Promise.all([
       db.query(
-        `SELECT p.id, p.name, p.avatar_storage_key, p.avatar_updated_at
+        `SELECT p.id, p.name, p.family_role, p.avatar_storage_key, p.avatar_updated_at
          FROM parent p
          WHERE p.family_id = $1
          ORDER BY p.created_at ASC`,
@@ -59,10 +63,11 @@ async function getFamilyHall(familyId, options) {
     persons = {
       parents: parentsRes.rows.map((p) => mapParentForFamilyApi(p, {
         emoji: '👤',
-        roleLabel: 'Hjälper mig hemma',
+        family_role: p.family_role || null,
+        roleLabel: childRoleLabelForParent(p),
       })),
       siblings: siblingsRes.rows.map((c) => mapChildForFamilyApi(c, {
-        roleLabel: 'Syskon',
+        roleLabel: childRoleLabelForSibling(),
       })),
     };
   }

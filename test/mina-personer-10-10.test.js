@@ -72,9 +72,12 @@ describe('Mina personer barn 10/10', () => {
   });
 
   it('away copy uses safe framing on cards', () => {
-    const src = fs.readFileSync(HALL, 'utf8');
-    assert.match(src, /person\.cardNote/);
-    assert.doesNotMatch(src, /person\.awayLabel/);
+    const sheet = fs.readFileSync(path.join(ROOT, 'public/js/child-family-person-sheet.js'), 'utf8');
+    const state = fs.readFileSync(STATE, 'utf8');
+    assert.match(sheet, /person\.cardNote/);
+    assert.doesNotMatch(sheet, /person\.awayLabel/);
+    assert.match(state, /awayCardNote/);
+    assert.match(state, /softenAwayLabel/);
   });
 
   it('gates v10 behind mina_personer_10_10 feature', () => {
@@ -82,6 +85,27 @@ describe('Mina personer barn 10/10', () => {
     assert.match(src, /mina_personer_10_10/);
     assert.match(src, /ChildFamilyHallLegacy/);
     assert.match(src, /fetchFeatures/);
+  });
+
+  it('person cards open expanded sheet with role label', () => {
+    const hall = fs.readFileSync(HALL, 'utf8');
+    const sheet = fs.readFileSync(path.join(ROOT, 'public/js/child-family-person-sheet.js'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(hall, /ChildFamilyPersonSheet/);
+    assert.match(hall, /data-cfh-person-key/);
+    assert.match(hall, /cfh-person-card-btn/);
+    assert.match(sheet, /cfh-person-sheet-role/);
+    assert.match(sheet, /bindCards/);
+    assert.match(html, /child-family-person-sheet\.js/);
+    assert.match(html, /child-family-person-sheet\.css/);
+    assert.match(html, /member-avatar\.js/);
+  });
+
+  it('family hall API assigns roleLabel via family-person-role', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'db/family-hall.js'), 'utf8');
+    assert.match(src, /family-person-role/);
+    assert.match(src, /roleLabel: childRoleLabelForParent/);
+    assert.match(src, /roleLabel: childRoleLabelForSibling/);
   });
 
   it('SW bumped for Mina personer 10/10', () => {

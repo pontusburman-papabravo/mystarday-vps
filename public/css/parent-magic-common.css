@@ -251,6 +251,7 @@ body.parent-magic-view:not(.parent-theme-light) .magic-page-shell {
   gap: 8px;
   margin: 0 16px 12px;
   padding: 10px 14px;
+  min-height: 44px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.06);
@@ -292,6 +293,8 @@ body.parent-magic-view.magic-settings-in-group .flex-1.overflow-auto > hr {
 .magic-settings-back-bar {
   display: none;
   padding: 8px 16px 0;
+  position: relative;
+  z-index: 20;
 }
 
 /* ── Dark content overrides (dark theme only) ── */

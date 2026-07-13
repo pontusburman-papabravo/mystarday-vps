@@ -2,14 +2,23 @@
  * child-today-warmth.css — Värme & igenkänning (barnets_samling gate ON).
  */
 
+[data-barnets-samling="on"] #todayFocusMount {
+  position: relative;
+}
+
+[data-barnets-samling="on"] #todayFocusMount .ctf-bar {
+  padding-bottom: 0.35rem;
+}
+
 [data-barnets-samling="on"] #scheduleView {
   position: relative;
+  padding-top: 0.15rem;
 }
 
 .ctf-theme-decal {
   position: absolute;
-  top: 0.35rem;
-  right: 0.5rem;
+  top: 0.5rem;
+  right: 0.65rem;
   z-index: 3;
   width: 2.75rem;
   height: 2.75rem;
