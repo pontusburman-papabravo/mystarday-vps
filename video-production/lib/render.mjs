@@ -128,6 +128,12 @@ export async function runRender(argv = process.argv.slice(2)) {
       ? { ...manifest.ambient, file: path.normalize(path.join(root, manifest.ambient.file)) }
       : null;
 
+    const resolveAudio = (rel) => path.normalize(path.join(root, rel));
+    const sfx = (manifest.sfx || [])
+      .map((c) => ({ ...c, file: resolveAudio(c.file) }));
+    const vo = (manifest.vo || [])
+      .map((c) => ({ ...c, file: resolveAudio(c.file) }));
+
     if (music && !fs.existsSync(music.file) && usePlaceholders) {
       const bed = path.join(workDir, 'music-bed.m4a');
       generateSilentMusicBed(bed, videoDuration + 2);
@@ -140,6 +146,8 @@ export async function runRender(argv = process.argv.slice(2)) {
       outputPath: audioPath,
       music,
       ambient,
+      sfx,
+      vo,
       videoDuration,
     });
 
@@ -167,6 +175,7 @@ export async function runRender(argv = process.argv.slice(2)) {
         renderDurations,
         workDir,
         outputPath: null,
+        manifest,
       });
 
       const outPath = path.join(filmOutDir, `${exportBasename}-${format.suffix}.mp4`);

@@ -113,11 +113,13 @@ export async function runGenerate(argv = process.argv.slice(2)) {
       const localPath = path.join(PATHS.raw, manifest.id, scene.outputFilename);
 
       if (scene.skipPika) {
-        console.log(`\n[${manifest.id}] Local black frame ${scene.id} (skip Pika)…`);
-        generateScenePlaceholder(scene, localPath, index);
+        const kind = scene.endBoard ? 'end board' : scene.appScreenshot ? 'app screen' : 'local clip';
+        console.log(`\n[${manifest.id}] Local ${kind} ${scene.id} (skip Pika)…`);
+        const assetRoot = path.join(PATHS.assets, '..');
+        generateScenePlaceholder(scene, localPath, index, { manifest, assetRoot });
         updateSceneState(state, scene.id, {
           status: 'completed',
-          source: 'local-black',
+          source: scene.endBoard ? 'end-board' : scene.appScreenshot ? 'app-screen' : 'local-black',
           localPath,
           completedAt: new Date().toISOString(),
         });

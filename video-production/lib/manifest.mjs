@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
-import { PATHS, TRANSITIONS } from './config.mjs';
+import { PATHS, TRANSITIONS, BRAND_URL } from './config.mjs';
 import { sceneRenderDuration } from './caption-layout.mjs';
 
 const MusicCueSchema = z.object({
@@ -31,6 +31,12 @@ const AudioCueNoteSchema = z.object({
   atSec: z.number().min(0).optional(),
 });
 
+const SfxCueSchema = z.object({
+  file: z.string().min(1),
+  atSec: z.number().min(0),
+  volume: z.number().min(0).max(1).default(0.55),
+});
+
 const SceneRoleSchema = z.enum([
   'recognition',
   'chaos',
@@ -39,6 +45,7 @@ const SceneRoleSchema = z.enum([
   'validation',
   'story',
   'app-glimpse',
+  'app-screen',
   'brand',
 ]);
 
@@ -68,12 +75,11 @@ const SceneSchema = z.object({
   transition: z.enum([...TRANSITIONS]).default('fade'),
   outputFilename: z.string().min(1),
   referenceImage: z.string().optional(),
+  appScreenshot: z.string().optional(),
+  endBoard: z.boolean().default(false),
   soundCue: SoundCueSchema,
   audioCues: z.array(AudioCueNoteSchema).optional(),
 }).refine(
-  (scene) => !scene.renderDuration || scene.renderDuration >= scene.duration,
-  { message: 'renderDuration must be >= duration (Pika clip length)' },
-).refine(
   (scene) => scene.skipPika || (scene.pikaPrompt && scene.pikaPrompt.length >= 10),
   { message: 'pikaPrompt is required unless skipPika is true' },
 );
@@ -89,8 +95,11 @@ export const ManifestSchema = z.object({
   creativeBrief: z.string().optional(),
   taglineVariantDefault: TaglineVariantIdSchema.default('E'),
   taglineVariants: z.record(z.string()).optional(),
+  brandUrl: z.string().optional(),
   music: MusicCueSchema,
   ambient: AmbientCueSchema,
+  sfx: z.array(SfxCueSchema).optional(),
+  vo: z.array(SfxCueSchema).optional(),
   scenes: z.array(SceneSchema).min(1),
 });
 
@@ -117,12 +126,16 @@ export function sceneCaptionText(scene) {
   return scene.swedishText?.trim() || '';
 }
 
+export function resolveBrandUrl(manifest) {
+  return manifest?.brandUrl?.trim() || BRAND_URL;
+}
+
 export function computeAppScreenRatio(manifest, transitionOverlapSec = 0.6) {
   const durations = manifest.scenes.map((s) => sceneRenderDuration(s));
   const total = durations.reduce((a, b) => a + b, 0)
     - Math.max(0, durations.length - 1) * transitionOverlapSec;
   const appSec = manifest.scenes
-    .filter((s) => s.role === 'app-glimpse')
+    .filter((s) => s.role === 'app-glimpse' || s.role === 'app-screen')
     .reduce((sum, s) => sum + sceneRenderDuration(s), 0);
   return { appSec, totalSec: total, ratio: total > 0 ? appSec / total : 0 };
 }

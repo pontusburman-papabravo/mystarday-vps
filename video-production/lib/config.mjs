@@ -59,6 +59,9 @@ export const OUTPUT_FORMATS = [
 
 export const TRANSITIONS = new Set(['cut', 'fade', 'fadeblack', 'fadewhite', 'dissolve']);
 
+/** End-board URL — resolved when manifest omits brandUrl (avoids secret-scan false positive in JSON). */
+export const BRAND_URL = 'mystarday.se'; // pragma: allowlist secret
+
 export const NEGATIVE_PROMPT = [
   'text', 'logo', 'watermark', 'subtitle', 'caption', 'typography',
   'ugly', 'blurry', 'distorted faces', 'extra fingers',

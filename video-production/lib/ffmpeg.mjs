@@ -75,7 +75,8 @@ export function normalizeSceneClip({
   fps = 30,
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  const holdSec = Math.max(0, (renderDuration ?? duration) - duration);
+  const outDur = renderDuration ?? duration;
+  const holdSec = outDur > duration ? outDur - duration : 0;
 
   const vf = [
     `scale=${width}:${height}:force_original_aspect_ratio=decrease`,
@@ -89,7 +90,7 @@ export function normalizeSceneClip({
     '-y',
     '-i', inputPath,
     '-vf', vf,
-    '-t', String(renderDuration ?? duration),
+    '-t', String(outDur),
     '-an',
     '-c:v', 'libx264',
     '-pix_fmt', 'yuv420p',
@@ -221,11 +222,13 @@ function loudnormFilter() {
   return `aformat=channel_layouts=stereo,loudnorm=I=${LOUDNESS.I}:TP=${LOUDNESS.TP}:LRA=${LOUDNESS.LRA}`;
 }
 
-/** Mix music + ambient to stereo with EBU R128 loudness normalization. */
+/** Mix music + ambient + timed SFX/VO to stereo with loudness normalization. */
 export function mixAudioBed({
   outputPath,
   music,
   ambient,
+  sfx = [],
+  vo = [],
   videoDuration,
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
@@ -256,6 +259,19 @@ export function mixAudioBed({
       `[${inputIndex}:a]volume=${ambient.volume ?? 0.15},afade=t=in:st=0:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut},apad=whole_dur=${videoDuration}[ambient]`,
     );
     mixInputs.push('[ambient]');
+    inputIndex += 1;
+  }
+
+  const timedCues = [...sfx, ...vo];
+  for (const cue of timedCues) {
+    if (!cue?.file || !fs.existsSync(cue.file)) continue;
+    inputs.push('-i', cue.file);
+    const delayMs = Math.round((cue.atSec ?? 0) * 1000);
+    const label = `sfx${inputIndex}`;
+    filters.push(
+      `[${inputIndex}:a]adelay=${delayMs}|${delayMs},volume=${cue.volume ?? 0.5},apad=whole_dur=${videoDuration}[${label}]`,
+    );
+    mixInputs.push(`[${label}]`);
     inputIndex += 1;
   }
 
@@ -334,6 +350,7 @@ export function renderFilmFormat({
   renderDurations,
   workDir,
   outputPath,
+  manifest,
 }) {
   const formatDir = path.join(workDir, layout.id);
   fs.mkdirSync(formatDir, { recursive: true });
@@ -363,12 +380,17 @@ export function renderFilmFormat({
   });
 
   const withLogoPath = path.join(formatDir, 'with-logo.mp4');
-  overlayLogoForFormat({
-    inputPath: concatPath,
-    logoPath,
-    outputPath: withLogoPath,
-    layout,
-  });
+  const logoInEndBoard = manifest?.scenes?.some((s) => s.endBoard);
+  if (logoInEndBoard) {
+    fs.copyFileSync(concatPath, withLogoPath);
+  } else {
+    overlayLogoForFormat({
+      inputPath: concatPath,
+      logoPath,
+      outputPath: withLogoPath,
+      layout,
+    });
+  }
 
   return { withLogoPath, videoDuration };
 }

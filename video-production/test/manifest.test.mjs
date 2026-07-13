@@ -8,10 +8,11 @@ import {
   sceneCaptionText,
   sceneRenderCaption,
   resolveBrandCaption,
+  resolveBrandUrl,
   TAGLINE_VARIANTS,
   planGeneration,
 } from '../lib/manifest.mjs';
-import { TRANSITIONS } from '../lib/config.mjs';
+import { TRANSITIONS, BRAND_URL } from '../lib/config.mjs';
 import { computeTimelineDuration } from '../lib/ffmpeg.mjs';
 
 const FILM_IDS = ['a-morning-without-nagging', 'tomorrow-starts-here', 'real-families'];
@@ -82,17 +83,26 @@ test('shoes validation scene emphasizes parent-child eye contact', () => {
   assert.ok(shoes.audioCues?.some((c) => /zipper/i.test(c.description)));
 });
 
-test('exactly one validation scene across all films: shoes alone', () => {
-  let count = 0;
-  let id = null;
-  for (const filmId of FILM_IDS) {
+test('each flagship film has exactly one validation scene', () => {
+  const expected = {
+    'a-morning-without-nagging': 'scene-05-shoes-alone',
+    'together-through-the-morning': 'whats-next',
+  };
+  for (const [filmId, sceneId] of Object.entries(expected)) {
     const { manifest } = loadManifest(filmId);
     const v = manifest.scenes.filter((s) => s.validationScene);
-    count += v.length;
-    if (v.length) id = v[0].id;
+    assert.equal(v.length, 1, filmId);
+    assert.equal(v[0].id, sceneId, filmId);
   }
-  assert.equal(count, 1);
-  assert.equal(id, 'scene-05-shoes-alone');
+});
+
+test('together-through-the-morning v3 is ~38 seconds', () => {
+  const { manifest } = loadManifest('together-through-the-morning');
+  const dur = computeTimelineDuration(manifest.scenes);
+  assert.ok(dur >= 36 && dur <= 40, `duration ${dur}s`);
+  assert.equal(resolveBrandUrl(manifest), BRAND_URL);
+  const app = computeAppScreenRatio(manifest);
+  assert.ok(app.ratio >= 0.08 && app.ratio <= 0.35);
 });
 
 test('tomorrow flagship has evening hope line and one app glimpse', () => {
@@ -120,7 +130,7 @@ test('brand scenes hold two extra seconds for post-logo silence', () => {
   }
 });
 
-test('manifest schema rejects renderDuration shorter than duration', () => {
+test('manifest schema rejects invalid scene without prompt', () => {
   assert.throws(() => ManifestSchema.parse({
     id: 'x',
     title: 'X',
@@ -129,8 +139,7 @@ test('manifest schema rejects renderDuration shorter than duration', () => {
     scenes: [{
       id: 's1',
       duration: 5,
-      renderDuration: 3,
-      pikaPrompt: 'A long enough prompt here for testing',
+      pikaPrompt: 'short',
       swedishText: 'Hej',
       transition: 'fade',
       outputFilename: 's1.mp4',

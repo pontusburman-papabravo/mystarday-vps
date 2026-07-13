@@ -38,7 +38,8 @@ npm run test:placeholders
 
 | ID | Title | Scenes |
 |----|-------|--------|
-| `a-morning-without-nagging` | A Morning Without Nagging | 5 × 5s |
+| `together-through-the-morning` | Together Through the Morning (v3 launch) | 13 scenes · ~38s |
+| `a-morning-without-nagging` | A Morning Without Nagging | 6 scenes |
 | `tomorrow-starts-here` | Tomorrow Starts Here | 5 × 5s |
 | `real-families` | Real Families | 5 × 5s |
 

@@ -1,0 +1,216 @@
+{
+  "id": "together-through-the-morning",
+  "title": "Together Through the Morning",
+  "aspectRatio": "16:9",
+  "defaultSceneDuration": 5,
+  "outputBasename": "together-through-the-morning",
+  "referenceImage": "assets/references/summer-family.png",
+  "seed": 42010,
+  "taglineVariantDefault": "E",
+  "creativeBrief": "v3 launch film — 38s. Summer Swedish morning. Chaos → together → whats-next → pride → relief. App ~25% as app-screen clips from real UI. VO/SFX in post. Default exit: smile + run out (no hug).",
+  "music": {
+    "file": "audio/summer-morning-theme.m4a",
+    "volume": 0.22,
+    "fadeInSec": 0,
+    "fadeOutSec": 2.5
+  },
+  "ambient": {
+    "file": "audio/summer-ambient.m4a",
+    "volume": 0.12,
+    "fadeInSec": 0,
+    "fadeOutSec": 2
+  },
+  "sfx": [
+    { "file": "audio/sfx/check-pling.m4a", "atSec": 12.5, "volume": 0.5 },
+    { "file": "audio/sfx/check-pling.m4a", "atSec": 15.8, "volume": 0.45 },
+    { "file": "audio/sfx/redeem-pling.m4a", "atSec": 25.2, "volume": 0.55 },
+    { "file": "audio/sfx/door-summer.m4a", "atSec": 31.5, "volume": 0.35 }
+  ],
+  "vo": [
+    { "file": "audio/vo/ella-sandals.m4a", "atSec": 4.5, "volume": 0.85 },
+    { "file": "audio/vo/sara-dress-1.m4a", "atSec": 6.8, "volume": 0.8 },
+    { "file": "audio/vo/sara-late.m4a", "atSec": 8.5, "volume": 0.8 },
+    { "file": "audio/vo/ella-whats-next.m4a", "atSec": 18.2, "volume": 0.9 },
+    { "file": "audio/vo/ella-friday-movie.m4a", "atSec": 27.5, "volume": 0.95 },
+    { "file": "audio/vo/sara-vad-mysigt.m4a", "atSec": 29.8, "volume": 0.75 }
+  ],
+  "scenes": [
+    {
+      "id": "chaos-summer",
+      "role": "chaos",
+      "duration": 10,
+      "renderDuration": 10,
+      "pikaPrompt": "Handheld documentary Swedish summer morning chaos in Nordic apartment hallway and kitchen, mother Sara tense shoulders stressed breathing, daughter Ella age 6 sits on floor in summer pyjamas refusing shoes, toddler brother cries, untouched breakfast on table, open empty backpack, wall clock 07:52, warm sunlight through open window, authentic painful recognition not comedy, same family as reference image, cinematic natural light, no readable text on screen",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "01-chaos-summer.mp4",
+      "audioCues": [
+        { "type": "vo", "description": "VO post: Jag hittar inte mina sandaler!", "atSec": 4.5 },
+        { "type": "vo", "description": "VO post: Nu måste vi klä på oss.", "atSec": 6.8 },
+        { "type": "vo", "description": "VO post: Vi kommer att bli sena.", "atSec": 8.5 },
+        { "type": "ambient", "description": "Birds, fridge, clock tick — no music", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "together-phone",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 5,
+      "pikaPrompt": "Documentary Swedish summer morning, mother Sara sits on hallway floor beside daughter Ella age 6 at eye level, places smartphone between them, both look down together, warm Nordic sunlight, calm after chaos, phone screen not readable, intimacy not tech demo, same family as reference, restrained natural acting",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "02-together-phone.mp4"
+    },
+    {
+      "id": "app-morning-list",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 1,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/morning-list.png",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "03-app-morning-list.mp4"
+    },
+    {
+      "id": "brush-teeth",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 3,
+      "pikaPrompt": "Documentary bathroom doorway Swedish summer morning, Ella age 6 brushes teeth independently at sink, mother Sara watches from doorway with surprised gentle smile, says nothing, warm light, same family as reference, natural not staged",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "04-brush-teeth.mp4"
+    },
+    {
+      "id": "app-check-star",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 1,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/check-star.png",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "05-app-check-star.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Check pling + star chime 0.5s", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "whats-next",
+      "role": "validation",
+      "validationScene": true,
+      "duration": 5,
+      "renderDuration": 6,
+      "duckMusic": true,
+      "pikaPrompt": "Close documentary shot Swedish summer morning, Ella age 6 looks up at mother Sara on hallway floor, Sara begins to open mouth to answer then stops herself and closes lips with gentle knowing smile, does not speak, Ella glances toward phone between them, subtle restrained emotion not theatrical, same family faces as reference, warm Nordic light, child protagonist, no readable phone UI",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "06-whats-next.mp4",
+      "audioCues": [
+        { "type": "vo", "description": "VO post: Vad är nästa?", "atSec": 1.2 },
+        { "type": "silence", "description": "Music ducked — Sara silent beat", "atSec": 2 }
+      ]
+    },
+    {
+      "id": "app-next-activity",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 1,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/next-activity.png",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "07-app-next-activity.mp4"
+    },
+    {
+      "id": "pack-bag",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 2,
+      "pikaPrompt": "Swedish girl Ella age 6 packs school backpack in sunny hallway, zips bag with focus, summer clothes, documentary natural, same child as reference",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "08-pack-bag.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Zipper close", "atSec": 1 }
+      ]
+    },
+    {
+      "id": "app-redeem",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 1,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/redeem.png",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "09-app-redeem.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Redeem pling — 1s UI then cut to face", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "friday-movie-pride",
+      "role": "payoff",
+      "duration": 5,
+      "renderDuration": 5,
+      "pikaPrompt": "Tight close-up Swedish girl Ella age 6 face summer morning light, proud joyful expression speaking excitedly to mother off-camera, documentary shallow depth of field, authentic child emotion not theatrical, same face as reference image",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "10-friday-movie-pride.mp4",
+      "audioCues": [
+        { "type": "vo", "description": "VO post: Jag får välja fredagsfilm!", "atSec": 0.5 },
+        { "type": "vo", "description": "VO post: Vad mysigt. (Sara, warm)", "atSec": 3 }
+      ]
+    },
+    {
+      "id": "ella-exit",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 4,
+      "pikaPrompt": "Swedish summer morning, Ella age 6 with backpack puts on sandals at open front door, smiles back toward mother inside, runs out into sunny garden path, no hug, natural child energy, Nordic suburban home, documentary handheld",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "11-ella-exit.mp4"
+    },
+    {
+      "id": "sara-doorway-relief",
+      "role": "validation",
+      "duration": 5,
+      "renderDuration": 4,
+      "pikaPrompt": "Portrait Swedish mother Sara in doorway summer morning, shoulders visibly relaxed, watches children leave, takes one audible relieved breath, soft genuine smile, warm backlight, documentary restrained emotion not theatrical, same woman as reference",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fadeblack",
+      "outputFilename": "12-sara-doorway-relief.mp4",
+      "audioCues": [
+        { "type": "ambient", "description": "Audible exhale — key sound", "atSec": 1.5 },
+        { "type": "silence", "description": "No music under breath", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "end-brand",
+      "role": "brand",
+      "duration": 5,
+      "renderDuration": 2,
+      "skipPika": true,
+      "endBoard": true,
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "outputFilename": "13-end-brand.mp4"
+    }
+  ]
+}
