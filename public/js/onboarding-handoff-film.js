@@ -1,6 +1,6 @@
 /**
  * onboarding-handoff-film.js — ACT-1 handoff film after schema save.
- * Music + on-screen text only (no voiceover). Drives parent to child login.
+ * On-screen text only (no voiceover, no music). Drives parent to child login.
  */
 (function () {
   'use strict';
@@ -16,20 +16,6 @@
   const TOTAL_MS = SCENES.reduce(function (sum, s) { return sum + s.durationMs; }, 0);
 
   let shownThisSession = false;
-  let audioCtx = null;
-  let musicNodes = null;
-  let musicMasterGain = null;
-  let musicMuted = false;
-
-  const MUSIC_BEAT_MS = 520;
-  const MUSIC_PENTA = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25];
-  const MUSIC_MELODY = [
-    0, 2, 4, 5, 4, -1,
-    2, 4, 2, 0, -1, 2, 4, 5,
-    4, 5, 6, 5, 4, 2, -1, 4,
-    5, 6, 7, 6, 5, -1, 4, 5,
-    6, 7, 6, 5, 7, -1, -1,
-  ];
 
   function act() {
     return window.OnboardingActivation || null;
@@ -84,92 +70,6 @@
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     } catch {
       return false;
-    }
-  }
-
-  function stopMusic() {
-    if (!musicNodes && !musicMasterGain) return;
-    try {
-      if (musicMasterGain && audioCtx) {
-        musicMasterGain.gain.setValueAtTime(musicMasterGain.gain.value, audioCtx.currentTime);
-        musicMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
-      }
-      if (musicNodes) {
-        musicNodes.forEach(function (node) {
-          if (node.gain) {
-            node.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-            node.gain.gain.setValueAtTime(node.gain.gain.value, audioCtx.currentTime);
-            node.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
-          }
-          if (node.osc) node.osc.stop(audioCtx.currentTime + 0.25);
-        });
-      }
-    } catch {}
-    musicNodes = null;
-    musicMasterGain = null;
-  }
-
-  function scheduleTone(freq, startTime, durationSec, volume, waveType) {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = waveType || 'triangle';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(volume, startTime + 0.035);
-    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSec);
-    osc.connect(gain);
-    gain.connect(musicMasterGain);
-    osc.start(startTime);
-    osc.stop(startTime + durationSec + 0.05);
-    musicNodes.push({ osc: osc, gain: gain });
-  }
-
-  function startMusic() {
-    if (musicMuted || prefersReducedMotion()) return;
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      audioCtx = audioCtx || new Ctx();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-
-      musicNodes = [];
-      musicMasterGain = audioCtx.createGain();
-      musicMasterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-      musicMasterGain.gain.linearRampToValueAtTime(0.9, audioCtx.currentTime + 0.55);
-      musicMasterGain.connect(audioCtx.destination);
-
-      const beatSec = MUSIC_BEAT_MS / 1000;
-      const noteDur = beatSec * 0.82;
-      const startAt = audioCtx.currentTime + 0.12;
-
-      MUSIC_MELODY.forEach(function (noteIdx, i) {
-        if (noteIdx < 0) return;
-        const freq = MUSIC_PENTA[noteIdx];
-        const t = startAt + i * beatSec;
-        scheduleTone(freq, t, noteDur, 0.085, 'triangle');
-        if (i % 6 === 5) {
-          scheduleTone(freq * 2, t, noteDur * 0.45, 0.028, 'sine');
-        }
-      });
-
-      for (let b = 0; b < MUSIC_MELODY.length; b += 4) {
-        const noteIdx = MUSIC_MELODY[b];
-        if (noteIdx < 0) continue;
-        scheduleTone(MUSIC_PENTA[noteIdx] / 2, startAt + b * beatSec, beatSec * 1.6, 0.038, 'sine');
-      }
-    } catch {}
-  }
-
-  function toggleMute(btn) {
-    musicMuted = !musicMuted;
-    if (musicMuted) {
-      stopMusic();
-      btn.textContent = '🔇';
-      btn.setAttribute('aria-label', 'Ljud av — tryck för att sätta på');
-    } else {
-      startMusic();
-      btn.textContent = '🔊';
-      btn.setAttribute('aria-label', 'Ljud på — tryck för att stänga av');
     }
   }
 
@@ -299,8 +199,7 @@
       '    <div class="ohf-brand-logo" aria-hidden="true">⭐</div>',
       '    <span class="ohf-brand-name">' + esc(brandLabel()) + '</span>',
       '  </div>',
-      isPreview ? '<p class="ohf-preview-banner" role="status">Förhandsvisning — musik + text</p>' : '',
-      '  <button type="button" class="ohf-mute-btn" id="ohfMuteBtn" aria-label="Ljud på — tryck för att stänga av">🔊</button>',
+      isPreview ? '<p class="ohf-preview-banner" role="status">Förhandsvisning — text och animation</p>' : '',
       '  <div class="ohf-stage" id="ohfStage">',
       scenesHtml,
       '  </div>',
@@ -322,18 +221,12 @@
       preview: isPreview,
     });
 
-    const muteBtn = overlay.querySelector('#ohfMuteBtn');
-    if (muteBtn) muteBtn.addEventListener('click', function () { toggleMute(muteBtn); });
-
-    startMusic();
-
     const captionEl = overlay.querySelector('#ohfCaption');
     const ctaPanel = overlay.querySelector('#ohfCtaPanel');
     const sceneEls = overlay.querySelectorAll('.ohf-scene');
     const dotEls = overlay.querySelectorAll('.ohf-dot');
 
     function teardown() {
-      stopMusic();
       overlay.remove();
     }
 
