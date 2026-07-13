@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v610';
+const CACHE_NAME = 'stjarndag-v611';
+// stjarndag-v611: allow child JWT to fetch /api/avatars for Mina personer profile photos
 // stjarndag-v610: handoff film demo MP4 + ACT-1 integration deploy
 // stjarndag-v609: handoff film demo MP4 + ACT-1 integration
 // stjarndag-v608: Mina personer — warm role emojis, larger person cards, richer detail sheet

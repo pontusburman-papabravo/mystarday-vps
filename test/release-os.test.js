@@ -23,6 +23,17 @@ test('childParentApiBlock allows verify-pin for child JWT', () => {
   assert.equal(called, true);
 });
 
+test('childParentApiBlock allows family member avatars for child JWT', () => {
+  let called = false;
+  const req = {
+    user: { type: 'child', id: 'c1', familyId: 'f1' },
+    path: '/avatars/parent/p1',
+  };
+  const res = { status() { return res; }, json() {} };
+  childParentApiBlock(req, res, () => { called = true; });
+  assert.equal(called, true);
+});
+
 test('childParentApiBlock blocks /family for child JWT', () => {
   let statusCode;
   const req = { user: { type: 'child', id: 'c1' }, path: '/family/members' };
