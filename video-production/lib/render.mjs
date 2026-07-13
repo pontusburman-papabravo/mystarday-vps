@@ -52,15 +52,10 @@ export async function runRender(argv = process.argv.slice(2)) {
   for (const filePath of manifestFiles) {
     const { manifest } = loadManifest(filePath);
 
-    // Refresh local clips: app screens, end board, and cartoon story scenes.
-    const localScenes = manifest.scenes.filter(
-      (s) => s.skipPika || s.cartoonScene || manifest.visualStyle === 'cartoon',
-    );
+    // Refresh local clips: app screens + end board only.
+    const localScenes = manifest.scenes.filter((s) => s.skipPika);
     for (const [index, scene] of manifest.scenes.entries()) {
-      const needsLocal = scene.skipPika
-        || scene.cartoonScene
-        || (manifest.visualStyle === 'cartoon' && !scene.appScreenshot && !scene.endBoard && scene.role !== 'app-screen');
-      if (!needsLocal) continue;
+      if (!scene.skipPika) continue;
       const out = path.join(PATHS.raw, manifest.id, scene.outputFilename);
       generateScenePlaceholder(scene, out, index, {
         manifest,
@@ -68,26 +63,21 @@ export async function runRender(argv = process.argv.slice(2)) {
       });
     }
     if (localScenes.length) {
-      console.log(`  refreshed ${localScenes.length} local clip(s) (cartoon/app/end board)`);
+      console.log(`  refreshed ${localScenes.length} local clip(s) (app/end board)`);
     }
 
-    const usesCartoon = manifest.visualStyle === 'cartoon';
     let scenes = listCompletedScenePaths(manifest, loadState(manifest.id));
 
     for (const scene of manifest.scenes) {
-      const isLocal = scene.skipPika || scene.cartoonScene
-        || (usesCartoon && !scene.appScreenshot && !scene.endBoard);
-      if (!isLocal) continue;
+      if (!scene.skipPika) continue;
       const localPath = path.join(PATHS.raw, manifest.id, scene.outputFilename);
       if (!scenes.find((s) => s.scene.id === scene.id)) {
         scenes.push({ scene, localPath });
       }
     }
 
-    if (scenes.length !== manifest.scenes.length && (usePlaceholders || usesCartoon)) {
-      if (!usesCartoon) {
-        console.log(`[${manifest.id}] Missing raw clips — generating placeholders for render test.`);
-      }
+    if (scenes.length !== manifest.scenes.length && usePlaceholders) {
+      console.log(`[${manifest.id}] Missing raw clips — generating placeholders for render test.`);
       generatePlaceholdersForManifest(manifest, PATHS.raw);
       scenes = manifest.scenes.map((scene) => ({
         scene,
@@ -97,7 +87,7 @@ export async function runRender(argv = process.argv.slice(2)) {
 
     if (scenes.length !== manifest.scenes.length) {
       const missing = manifest.scenes
-        .filter((s) => !s.skipPika && !s.cartoonScene && !usesCartoon)
+        .filter((s) => !s.skipPika)
         .filter((s) => !scenes.find((c) => c.scene.id === s.id))
         .map((s) => s.id);
       throw new Error(

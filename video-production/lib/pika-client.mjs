@@ -1,8 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fal } from '@fal-ai/client';
-import { CONFIG, NEGATIVE_PROMPT } from './config.mjs';
-import { PATHS } from './config.mjs';
+import {
+  CONFIG,
+  NEGATIVE_PROMPT,
+  CARTOON_NEGATIVE_PROMPT,
+  CARTOON_MOTION_PREFIX,
+} from './config.mjs';
+import { parseFalError } from './fal-health.mjs';
 
 export function configureFal() {
   if (!CONFIG.falKey) {
@@ -20,21 +25,29 @@ export async function uploadReferenceImage(imagePath) {
   return fal.storage.upload(file);
 }
 
-export async function submitScene({ prompt, referenceImagePath, duration, resolution, seed }) {
+export async function submitScene({ prompt, referenceImagePath, duration, resolution, seed, visualStyle }) {
   configureFal();
   const imageUrl = await uploadReferenceImage(referenceImagePath);
 
+  const isCartoon = visualStyle === 'cartoon';
+  const fullPrompt = isCartoon ? `${CARTOON_MOTION_PREFIX}${prompt}` : prompt;
+  const negativePrompt = isCartoon ? CARTOON_NEGATIVE_PROMPT : NEGATIVE_PROMPT;
+
   const input = {
     image_url: imageUrl,
-    prompt,
-    negative_prompt: NEGATIVE_PROMPT,
+    prompt: fullPrompt,
+    negative_prompt: negativePrompt,
     resolution,
     duration,
   };
   if (seed != null) input.seed = seed;
 
-  const { request_id: requestId } = await fal.queue.submit(CONFIG.pikaModel, { input });
-  return { requestId, imageUrl };
+  try {
+    const { request_id: requestId } = await fal.queue.submit(CONFIG.pikaModel, { input });
+    return { requestId, imageUrl };
+  } catch (err) {
+    throw new Error(parseFalError(err));
+  }
 }
 
 export async function pollUntilComplete(requestId, { onStatus } = {}) {

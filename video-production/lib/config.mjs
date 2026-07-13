@@ -70,3 +70,12 @@ export const NEGATIVE_PROMPT = [
   'text', 'logo', 'watermark', 'subtitle', 'caption', 'typography',
   'ugly', 'blurry', 'distorted faces', 'extra fingers',
 ].join(', ');
+
+export const CARTOON_NEGATIVE_PROMPT = [
+  'photorealistic', 'live action', 'documentary', 'uncanny valley',
+  'text', 'logo', 'watermark', 'subtitle', 'caption', 'typography',
+  'ugly', 'blurry', 'distorted faces', 'extra fingers', '3d render',
+].join(', ');
+
+export const CARTOON_MOTION_PREFIX =
+  'Stylized 2D animated children\'s series motion, soft rounded characters, gentle fluid animation, warm Nordic summer palette, ';

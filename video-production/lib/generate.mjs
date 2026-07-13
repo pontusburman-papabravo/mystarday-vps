@@ -149,6 +149,7 @@ export async function runGenerate(argv = process.argv.slice(2)) {
           duration: scene.duration,
           resolution: CONFIG.pikaResolution,
           seed: manifest.seed,
+          visualStyle: manifest.visualStyle,
         });
 
         updateSceneState(state, scene.id, {

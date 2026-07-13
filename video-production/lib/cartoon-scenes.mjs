@@ -236,9 +236,7 @@ export function generateCartoonScene(scene, outputPath, duration, {
 }
 
 export function isCartoonScene(scene, manifest) {
-  if (scene.cartoonScene) return true;
-  if (scene.skipPika && scene.role !== 'app-screen' && scene.role !== 'brand' && !scene.appScreenshot && !scene.endBoard) {
-    return Boolean(manifest?.visualStyle === 'cartoon');
-  }
-  return false;
+  if (!scene.cartoonScene) return false;
+  // cartoonScene=true means local ffmpeg illustration (legacy/fallback only)
+  return scene.cartoonScene === true;
 }
