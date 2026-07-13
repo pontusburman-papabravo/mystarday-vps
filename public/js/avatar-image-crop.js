@@ -173,7 +173,7 @@
 
   function onPointerUp(e) {
     if (!state || !state.drag) return;
-    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
     state.drag = null;
   }
 
@@ -190,7 +190,7 @@
       onKeyDown = null;
     }
     if (previousFocus && typeof previousFocus.focus === 'function') {
-      try { previousFocus.focus(); } catch (_) { /* ignore */ }
+      try { previousFocus.focus(); } catch { /* ignore */ }
     }
     previousFocus = null;
     if (resolve) resolve(result);

@@ -6,10 +6,6 @@
 
   const SECTION_ID = 'settingsAvatarSection';
 
-  function esc(s) {
-    return typeof window.escHtml === 'function' ? window.escHtml(s) : String(s || '');
-  }
-
   function renderPreview(user) {
     if (!window.MemberAvatar) return '';
     return MemberAvatar.renderParentAvatar(user, 64);
