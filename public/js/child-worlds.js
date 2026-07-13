@@ -341,8 +341,18 @@
     if (header) header.style.removeProperty('visibility');
   }
 
+  function hideSamlingHeaderActions() {
+    ['switchChildBtn', 'logoutBtn', 'childSystemIconBtn'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    const menu = document.getElementById('childSystemMenu');
+    if (menu) menu.classList.add('hidden');
+  }
+
   function applySamlingChromeEarly() {
     if (typeof document === 'undefined' || !_barnetsSamling) return;
+    hideSamlingHeaderActions();
     document.body.classList.add('child-worlds-v2', 'child-has-bottom-nav');
     const legacyNav = document.getElementById('childLayerNav');
     if (legacyNav) {

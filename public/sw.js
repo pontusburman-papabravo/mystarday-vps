@@ -217,8 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v602';
-// stjarndag-v602: handoff film — brand styling + melodic ambient music
+const CACHE_NAME = 'stjarndag-v603';
+// stjarndag-v603: handoff film — brand styling + melodic ambient music
+// stjarndag-v602: Barnets samling — hide duplicate header Byt barn/Logga ut/Förälder (Mitt owns actions)
 // stjarndag-v601: merge — Mitt-flik + SPA layer fix + family avatar + handoff film preview
 // stjarndag-v600: Barn SPA-flikbyte; handoff film preview deploy fix
 // stjarndag-v599: Mitt-flik; onboarding handoff film preview /onboarding/film-preview
