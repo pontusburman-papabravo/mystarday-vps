@@ -7,11 +7,11 @@
   "referenceImage": "assets/references/summer-family.png",
   "seed": 42010,
   "taglineVariantDefault": "E",
-  "creativeBrief": "v3.1 — ~42s. App clips 1.5–2s with motion. Branded end board from icon-512. Layered audio mix, VO-centered, -16 LUFS.",
+  "creativeBrief": "v3.1 text — ~40s. Burned-in Swedish captions, music + SFX only (no voiceover).",
   "endBoardShowUrl": true,
   "music": {
     "file": "audio/summer-morning-theme.m4a",
-    "volume": 0.12,
+    "volume": 0.2,
     "fadeInSec": 2,
     "fadeOutSec": 3
   },
@@ -21,14 +21,6 @@
     { "file": "audio/sfx/redeem-pling.m4a", "sceneId": "app-redeem", "atSecInScene": 0.15, "volume": 0.28 },
     { "file": "audio/sfx/door-summer.m4a", "sceneId": "ella-exit", "atSecInScene": 1, "volume": 0.25 }
   ],
-  "vo": [
-    { "file": "audio/vo/ella-sandals.m4a", "sceneId": "chaos-summer", "atSecInScene": 4.5, "volume": 0.88 },
-    { "file": "audio/vo/sara-dress-1.m4a", "sceneId": "chaos-summer", "atSecInScene": 6.8, "volume": 0.84 },
-    { "file": "audio/vo/sara-late.m4a", "sceneId": "chaos-summer", "atSecInScene": 8.5, "volume": 0.84 },
-    { "file": "audio/vo/ella-whats-next.m4a", "sceneId": "whats-next", "atSecInScene": 1.2, "volume": 0.9 },
-    { "file": "audio/vo/ella-friday-movie.m4a", "sceneId": "friday-movie-pride", "atSecInScene": 0.5, "volume": 0.92 },
-    { "file": "audio/vo/sara-vad-mysigt.m4a", "sceneId": "friday-movie-pride", "atSecInScene": 3, "volume": 0.76 }
-  ],
   "scenes": [
     {
       "id": "chaos-summer",
@@ -36,16 +28,10 @@
       "duration": 10,
       "renderDuration": 10,
       "pikaPrompt": "Handheld documentary Swedish summer morning chaos in Nordic apartment hallway and kitchen, mother Sara tense shoulders stressed breathing, daughter Ella age 6 sits on floor in summer pyjamas refusing shoes, toddler brother cries, untouched breakfast on table, open empty backpack, wall clock 07:52, warm sunlight through open window, authentic painful recognition not comedy, same family as reference image, cinematic natural light, no readable text on screen",
-      "swedishText": "",
-      "showCaption": false,
+      "swedishText": "Jag hittar inte mina sandaler!",
+      "showCaption": true,
       "transition": "fade",
-      "outputFilename": "01-chaos-summer.mp4",
-      "audioCues": [
-        { "type": "vo", "description": "VO post: Jag hittar inte mina sandaler!", "atSec": 4.5 },
-        { "type": "vo", "description": "VO post: Nu måste vi klä på oss.", "atSec": 6.8 },
-        { "type": "vo", "description": "VO post: Vi kommer att bli sena.", "atSec": 8.5 },
-        { "type": "ambient", "description": "Birds, fridge, clock tick — no music", "atSec": 0 }
-      ]
+      "outputFilename": "01-chaos-summer.mp4"
     },
     {
       "id": "together-phone",
@@ -116,13 +102,12 @@
       "renderDuration": 6,
       "duckMusic": true,
       "pikaPrompt": "Close documentary shot Swedish summer morning, Ella age 6 looks up at mother Sara on hallway floor, Sara begins to open mouth to answer then stops herself and closes lips with gentle knowing smile, does not speak, Ella glances toward phone between them, subtle restrained emotion not theatrical, same family faces as reference, warm Nordic light, child protagonist, no readable phone UI",
-      "swedishText": "",
-      "showCaption": false,
+      "swedishText": "Vad är nästa?",
+      "showCaption": true,
       "transition": "fade",
       "outputFilename": "06-whats-next.mp4",
       "audioCues": [
-        { "type": "vo", "description": "VO post: Vad är nästa?", "atSec": 1.2 },
-        { "type": "silence", "description": "Music ducked — Sara silent beat", "atSec": 2 }
+        { "type": "silence", "description": "Music soft under caption — Sara silent beat", "atSec": 2 }
       ]
     },
     {
@@ -174,14 +159,10 @@
       "duration": 5,
       "renderDuration": 5,
       "pikaPrompt": "Tight close-up Swedish girl Ella age 6 face summer morning light, proud joyful expression speaking excitedly to mother off-camera, documentary shallow depth of field, authentic child emotion not theatrical, same face as reference image",
-      "swedishText": "",
-      "showCaption": false,
+      "swedishText": "Jag får välja fredagsfilm!\nVad mysigt.",
+      "showCaption": true,
       "transition": "fade",
-      "outputFilename": "10-friday-movie-pride.mp4",
-      "audioCues": [
-        { "type": "vo", "description": "VO post: Jag får välja fredagsfilm!", "atSec": 0.5 },
-        { "type": "vo", "description": "VO post: Vad mysigt. (Sara, warm)", "atSec": 3 }
-      ]
+      "outputFilename": "10-friday-movie-pride.mp4"
     },
     {
       "id": "ella-exit",
