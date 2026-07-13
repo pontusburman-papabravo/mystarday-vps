@@ -213,6 +213,11 @@ async function fetchFamilyFeatures(minAgeDays, d30Start, d30End) {
       GROUP BY s.family_id, s.grp
       HAVING COUNT(*) >= 3
     ),
+    first_star_14d AS (
+      SELECT DISTINCT co.family_id, true AS has_first_star
+      FROM completion_offsets co
+      WHERE co.day_offset BETWEEN 0 AND 13
+    ),
     features AS (
       SELECT
         b.family_id,
@@ -224,8 +229,7 @@ async function fetchFamilyFeatures(minAgeDays, d30Start, d30End) {
             JOIN child c ON c.id = ws.child_id
             WHERE c.family_id = b.family_id
           )) AS has_schema,
-        (s.first_completion_at IS NOT NULL
-          AND s.first_completion_at <= b.created_at + interval '14 days') AS first_star_14d,
+        COALESCE(fs.has_first_star, false) AS first_star_14d,
         COALESCE(fr.has_redemption_14d, false) AS first_redemption_14d,
         COALESCE(w1.srd_days_week1, 0) AS srd_days_week1,
         COALESCE(w2.srd_days_week2, 0) AS srd_days_week2,
@@ -242,6 +246,7 @@ async function fetchFamilyFeatures(minAgeDays, d30Start, d30End) {
       LEFT JOIN first_redemption fr ON fr.family_id = b.family_id
       LEFT JOIN d30_activity d30 ON d30.family_id = b.family_id
       LEFT JOIN three_day_streak st ON st.family_id = b.family_id
+      LEFT JOIN first_star_14d fs ON fs.family_id = b.family_id
     )
     SELECT * FROM features
     ORDER BY signup_date
