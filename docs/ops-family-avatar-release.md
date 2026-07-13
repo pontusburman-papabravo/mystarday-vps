@@ -53,3 +53,16 @@ Eller manuellt:
 - [ ] Escape stänger och återställer fokus
 - [ ] Avbryt och Spara har begripliga etiketter
 - [ ] Borttagning av befintlig bild fungerar i barnredigering + Inställningar
+
+## Post-release smoke (ej blockerare — kör efter merge/deploy)
+
+Kort kvitto i **produktion** med verkliga konton (t.ex. QA-konto i `docs/qa-test-account.md`):
+
+- [ ] Ladda upp barnavatar → syns på Familj, barnväljare och övriga relevanta vyer
+- [ ] Ladda upp vuxenavatar (Inställningar) → syns i header/familjelista
+- [ ] Ta bort avatar → emoji/initialer visas direkt (ingen trasig bildruta)
+- [ ] Två olika familjer → ingen korsvis åtkomst till `/api/avatars/...`
+- [ ] Känd legacy publik URL → inte längre åtkomlig (403/404, ingen bilddata)
+- [ ] Byt bild → cache-busting (`?v=` / ny `avatar_src`) visar uppdaterad bild utan hård omladdning av hela appen
+
+Dokumentera datum + vem som körde i PR eller deploy-logg om avvikelse hittas.
