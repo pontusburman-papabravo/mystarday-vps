@@ -43,6 +43,10 @@ body.child-worlds-v2 #childBottomNav:not([data-nav-ready="true"]) {
 [data-barnets-samling="on"] #childDarkBtn,
 [data-barnets-samling="on"] #childHeaderRing,
 [data-barnets-samling="on"] #goalTeaserBtn,
-[data-barnets-samling="on"] #childLayerNav {
+[data-barnets-samling="on"] #childLayerNav,
+[data-barnets-samling="on"] #switchChildBtn,
+[data-barnets-samling="on"] #logoutBtn,
+[data-barnets-samling="on"] #childSystemIconBtn,
+[data-barnets-samling="on"] #childSystemMenu {
   display: none !important;
 }

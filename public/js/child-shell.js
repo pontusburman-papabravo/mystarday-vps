@@ -59,7 +59,9 @@
         ChildWorldsNav.syncFirstStarHide();
       }
     }
-    if (window.ChildSystemMenu) ChildSystemMenu.mount();
+    if (window.ChildSystemMenu && ChildSystemMenu.shouldMount && ChildSystemMenu.shouldMount()) {
+      ChildSystemMenu.mount();
+    }
 
     bootstrapModules(worldId);
     trackPageView(worldId);

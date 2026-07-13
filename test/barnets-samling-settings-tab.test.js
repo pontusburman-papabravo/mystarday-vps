@@ -85,6 +85,21 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.doesNotMatch(src, /id: 'logout'/);
   });
 
+  it('barnets_samling hides duplicate header actions — Mitt tab owns system actions', () => {
+    const bootCss = fs.readFileSync(path.join(ROOT, 'public/css/child-app-boot.css'), 'utf8');
+    const worlds = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
+    const systemMenu = fs.readFileSync(path.join(ROOT, 'public/js/child-system-menu.js'), 'utf8');
+    const shell = fs.readFileSync(path.join(ROOT, 'public/js/child-shell.js'), 'utf8');
+    assert.match(bootCss, /\[data-barnets-samling="on"\] #switchChildBtn/);
+    assert.match(bootCss, /\[data-barnets-samling="on"\] #logoutBtn/);
+    assert.match(bootCss, /\[data-barnets-samling="on"\] #childSystemIconBtn/);
+    assert.match(worlds, /hideSamlingHeaderActions/);
+    assert.match(systemMenu, /shouldMount/);
+    assert.match(systemMenu, /isBarnetsSamlingEnabled/);
+    assert.doesNotMatch(systemMenu, /DOMContentLoaded.*mount/);
+    assert.match(shell, /ChildSystemMenu\.shouldMount/);
+  });
+
   it('navigateWorld uses SPA showTab when barnets_samling gate is on', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
     const fn = src.slice(src.indexOf('function navigateWorld'), src.indexOf('function applyV2Chrome'));
