@@ -37,6 +37,11 @@ function kinshipLabelFromName(name) {
  */
 function childRoleLabelForParent(parent) {
   const role = parent && parent.family_role;
+  if (role === 'annan') {
+    const fromName = kinshipLabelFromName(parent && parent.name);
+    if (fromName) return fromName;
+    return FAMILY_ROLE_LABELS.annan;
+  }
   if (role && FAMILY_ROLE_LABELS[role]) {
     return FAMILY_ROLE_LABELS[role];
   }
