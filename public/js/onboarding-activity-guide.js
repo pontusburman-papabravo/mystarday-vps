@@ -97,7 +97,9 @@
       if (!res.ok) throw new Error(data.error || 'Kunde inte spara valet');
 
       if (typeof populateStep5LoginInfo === 'function') populateStep5LoginInfo();
-      if (typeof goToStep === 'function') {
+      if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
+        OnboardingHandoffFilm.goToHandoffAfterSchema();
+      } else if (typeof goToStep === 'function') {
         goToStep(5);
         const label = document.getElementById('stepLabel');
         if (label) label.textContent = 'Steg 3 av 3';

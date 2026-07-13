@@ -654,7 +654,9 @@
       }
 
       document.getElementById('stepStarterPlan').classList.remove('active');
-      if (typeof window.goToStep === 'function') {
+      if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
+        OnboardingHandoffFilm.goToHandoffAfterSchema();
+      } else if (typeof window.goToStep === 'function') {
         // PR3: schema sparat → handoff (steg 5). Belöningar seedas vid registrering.
         window.goToStep(5);
       }

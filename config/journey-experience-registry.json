@@ -4,9 +4,9 @@
     "FIRST_USE": {
       "handoff_to_child": {
         "tone": "coach",
-        "headline": "Nu är det barnets tur!",
-        "body": "Låt barnet logga in med namn och PIN — då kan hen börja samla stjärnor.",
-        "cta": "Låt barnet börja"
+        "headline": "Låt barnet testa sin rutin",
+        "body": "Öppna barnläget tillsammans — barnet ser direkt vad som ska göras.",
+        "cta": "Testa barnläget nu"
       },
       "parent_ack_completion": {
         "tone": "coach",

@@ -13,6 +13,7 @@ const FLAG_KEYS = {
   referral: 'referral_program',
   nudge: 'activation_nudge_v1',
   signupSlim: 'activation_signup_slim_v1',
+  handoffFilm: 'activation_onboarding_handoff_film_v1',
 };
 
 /** PR 1–4 rollout — template, handoff, first star guide, AI (excludes PR 5 nudge). */
@@ -21,6 +22,7 @@ const ACT1_PR14_FLAG_KEYS = [
   FLAG_KEYS.childHandoff,
   FLAG_KEYS.firstStarGuide,
   FLAG_KEYS.aiStarterPlan,
+  FLAG_KEYS.handoffFilm,
 ];
 
 /** Core ACT-1 onboarding flags — includes PR 5 nudge; excludes legacy 7-day program. */
