@@ -144,12 +144,22 @@
 
       <div class="flex-1 p-4 md:p-8 overflow-auto space-y-6 magic-hub-content pb-20 md:pb-8" id="familyHubMain">
 
-        <header class="family-hub-intro max-w-lg mb-1 md:mb-2">
-          <h1 class="text-xl font-heading font-bold text-navy dark:text-white">Familj</h1>
-          <p id="familyHubSummary" class="text-sm text-text-soft mt-0.5" aria-live="polite"></p>
+        <header class="family-hub-intro max-w-lg mb-1 md:mb-2 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h1 class="text-xl font-heading font-bold text-navy dark:text-white">Familj</h1>
+            <p id="familyHubSummary" class="text-sm text-text-soft mt-0.5" aria-live="polite">Laddar…</p>
+          </div>
+          <a href="/settings#profil" class="flex-shrink-0 min-h-[44px] inline-flex items-center px-3 py-2 text-sm font-semibold text-gold hover:text-yellow-500 no-underline rounded-xl border border-gold/40">
+            <span aria-hidden="true">⚙️</span><span class="ml-1">Inställningar</span>
+          </a>
         </header>
 
-        <!-- ─── Barn (priority 1) ─────────────────────────────── -->
+        <div id="familyLoadingSkeleton" class="max-w-lg space-y-4" aria-hidden="true">
+          <div class="rounded-2xl h-[72px] bg-white/10 dark:bg-white/5 animate-pulse"></div>
+          <div class="rounded-2xl h-[72px] bg-white/10 dark:bg-white/5 animate-pulse"></div>
+        </div>
+
+        <div id="familyDataSections" class="space-y-6 hidden">
         <section id="familyChildrenSection">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg md:text-xl font-heading font-bold text-navy dark:text-white">Barn</h3>
@@ -205,6 +215,8 @@
             <button id="inviteBtn" type="button" onclick="openFamilyModal('inviteModal')" class="hidden text-gold font-semibold underline">Bjud in via e-post (admin)</button>
           </p>
         </section>
+
+        </div><!-- /familyDataSections -->
 
         <div id="familyPedagogSection" class="hidden" aria-live="polite"></div>
 
@@ -878,7 +890,7 @@
   <script src="/js/custody-a11y.js?v=1"></script>
   <script src="/js/custody-settings.js?v=6"></script>
   <script src="/js/family-hub.js?v=1.0.0"></script>
-  <script src="/js/family.js?v=2.15.0"></script>
+  <script src="/js/family.js?v=2.16.0"></script>
   <script src="/js/coparent-invite-ui.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
