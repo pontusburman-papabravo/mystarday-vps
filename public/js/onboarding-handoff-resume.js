@@ -11,7 +11,7 @@
   function isResumeHandoffQuery() {
     try {
       return new URLSearchParams(window.location.search).get('resume') === RESUME_PARAM;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -78,7 +78,7 @@
         return { action: 'normal_onboarding' };
       }
       return { action: 'dashboard' };
-    } catch (_) {
+    } catch {
       return { action: 'normal_onboarding' };
     }
   }

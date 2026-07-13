@@ -15,7 +15,6 @@
 
   const TOTAL_MS = SCENES.reduce(function (sum, s) { return sum + s.durationMs; }, 0);
 
-  let config = null;
   let shownThisSession = false;
   let audioCtx = null;
   let musicNodes = null;
@@ -83,7 +82,7 @@
   function prefersReducedMotion() {
     try {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -105,7 +104,7 @@
           if (node.osc) node.osc.stop(audioCtx.currentTime + 0.25);
         });
       }
-    } catch (_) {}
+    } catch {}
     musicNodes = null;
     musicMasterGain = null;
   }
@@ -158,7 +157,7 @@
         if (noteIdx < 0) continue;
         scheduleTone(MUSIC_PENTA[noteIdx] / 2, startAt + b * beatSec, beatSec * 1.6, 0.038, 'sine');
       }
-    } catch (_) {}
+    } catch {}
   }
 
   function toggleMute(btn) {
@@ -256,7 +255,7 @@
         user.onboarding_completed = true;
         if (window.Auth && Auth.setAuth) Auth.setAuth(Auth.getToken(), user);
       }
-    } catch (_) {}
+    } catch {}
     window.location.href = '/dashboard';
   }
 
@@ -429,7 +428,7 @@
     if (oa && typeof oa.loadConfig === 'function') {
       try {
         await oa.loadConfig();
-      } catch (_) {}
+      } catch {}
     }
     maybeShowInsteadOfHandoffStep(function () {
       if (typeof goToStep === 'function') goToStep(5);
