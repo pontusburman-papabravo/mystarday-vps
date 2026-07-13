@@ -32,4 +32,10 @@ describe('family-person-role — child-facing labels', () => {
     assert.equal(childRoleLabelForSibling(), 'Syskon');
     assert.equal(childRoleLabelForPedagog(), 'Hjälper mig i skolan');
   });
+
+  it('uses warm role emoji when parent has no photo', () => {
+    const { childDisplayEmojiForParent } = require('../src/lib/family-person-role');
+    assert.equal(childDisplayEmojiForParent({ name: 'Pontus', family_role: 'pappa' }), '👨');
+    assert.equal(childDisplayEmojiForParent({ name: 'Mormor', family_role: 'annan' }), '👵');
+  });
 });

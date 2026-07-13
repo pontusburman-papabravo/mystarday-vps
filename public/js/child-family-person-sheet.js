@@ -21,20 +21,35 @@
     return d.innerHTML;
   }
 
+  function warmGreeting(roleLabel) {
+    if (roleLabel === 'Pappa') return 'Min pappa';
+    if (roleLabel === 'Mamma') return 'Min mamma';
+    if (roleLabel === 'Syskon') return 'Mitt syskon';
+    if (roleLabel === 'Mormor' || roleLabel === 'Farmor') return 'Min ' + roleLabel.toLowerCase();
+    if (roleLabel === 'Morfar' || roleLabel === 'Farfar') return 'Min ' + roleLabel.toLowerCase();
+    return 'Hjälper mig varje dag';
+  }
+
   function avatarHtml(person, size) {
     if (window.MemberAvatar && MemberAvatar.renderMemberAvatar) {
       const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
-      return MemberAvatar.renderMemberAvatar({
-        id: person.id,
-        name: person.name,
-        emoji: person.emoji,
-        avatar_src: person.avatarUrl || '',
-        has_avatar: person.hasAvatar,
-        type: memberType,
-        member_type: memberType,
-      }, size, { memberType: memberType });
+      const opts = {
+        memberType: memberType,
+        displayEmoji: person.displayEmoji || person.emoji || (memberType === 'child' ? '⭐' : '👤'),
+      };
+      return '<div class="cfh-person-avatar-ring" data-role="' + esc(person.roleLabel) + '">' +
+        MemberAvatar.renderMemberAvatar({
+          id: person.id,
+          name: person.name,
+          emoji: person.emoji,
+          display_emoji: person.displayEmoji,
+          avatar_src: person.avatarUrl || '',
+          has_avatar: person.hasAvatar,
+          type: memberType,
+          member_type: memberType,
+        }, size, opts) + '</div>';
     }
-    return '<span class="cfh-person-emoji" aria-hidden="true">' + esc(person.emoji || '👤') + '</span>';
+    return '<span class="cfh-person-emoji cfh-person-emoji--face" aria-hidden="true">' + esc(person.emoji || '👤') + '</span>';
   }
 
   function close() {
@@ -75,9 +90,11 @@
     if (!body) return;
 
     const awayNote = person.cardNote || '';
+    const greeting = warmGreeting(person.roleLabel);
     body.innerHTML =
       '<div class="cfh-person-sheet-card">' +
-        '<div class="cfh-person-sheet-avatar">' + avatarHtml(person, 112) + '</div>' +
+        '<p class="cfh-person-sheet-kicker">' + esc(greeting) + '</p>' +
+        '<div class="cfh-person-sheet-avatar">' + avatarHtml(person, 128) + '</div>' +
         '<h2 class="cfh-person-sheet-name">' + esc(person.name) + '</h2>' +
         '<p class="cfh-person-sheet-role">' + esc(person.roleLabel) + '</p>' +
         (awayNote

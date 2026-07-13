@@ -22,7 +22,7 @@
     const hasPhoto = !!user.has_avatar;
     mount.innerHTML =
       '<h3 class="text-xl font-heading font-bold text-navy mb-2">Profilbild</h3>' +
-      '<p class="text-sm text-text-soft mb-4">Din bild syns för familjen på Familj-sidan.</p>' +
+      '<p class="text-sm text-text-soft mb-4">Din bild syns för barnet under Mina personer och på Familj-sidan.</p>' +
       '<div class="flex items-center gap-4 mb-4" id="settingsAvatarPreview">' + renderPreview(user) + '</div>' +
       '<div class="flex flex-col sm:flex-row gap-2">' +
         '<button type="button" id="settingsAvatarChangeBtn" class="min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-bold">' +
