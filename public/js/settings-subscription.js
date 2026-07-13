@@ -73,7 +73,7 @@
               '<a href="/pricing-info" class="text-gold font-semibold underline">Kommande paket och förhandsvisningar →</a>' +
               '</p>';
           }
-        } catch (_) { /* optional */ }
+        } catch { /* optional */ }
       }
 
       mount.innerHTML = html;

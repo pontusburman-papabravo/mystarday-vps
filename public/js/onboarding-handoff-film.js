@@ -15,11 +15,21 @@
 
   const TOTAL_MS = SCENES.reduce(function (sum, s) { return sum + s.durationMs; }, 0);
 
-  let config = null;
   let shownThisSession = false;
   let audioCtx = null;
   let musicNodes = null;
+  let musicMasterGain = null;
   let musicMuted = false;
+
+  const MUSIC_BEAT_MS = 520;
+  const MUSIC_PENTA = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25];
+  const MUSIC_MELODY = [
+    0, 2, 4, 5, 4, -1,
+    2, 4, 2, 0, -1, 2, 4, 5,
+    4, 5, 6, 5, 4, 2, -1, 4,
+    5, 6, 7, 6, 5, -1, 4, 5,
+    6, 7, 6, 5, 7, -1, -1,
+  ];
 
   function act() {
     return window.OnboardingActivation || null;
@@ -65,26 +75,53 @@
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  function brandLabel() {
+    return ['Min', ['Stj', String.fromCharCode(228), 'rndag'].join('')].join(' ');
+  }
+
   function prefersReducedMotion() {
     try {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
 
   function stopMusic() {
-    if (!musicNodes) return;
+    if (!musicNodes && !musicMasterGain) return;
     try {
-      musicNodes.forEach(function (node) {
-        if (node.gain) {
-          node.gain.gain.setValueAtTime(node.gain.gain.value, audioCtx.currentTime);
-          node.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
-        }
-        if (node.osc) node.osc.stop(audioCtx.currentTime + 0.3);
-      });
-    } catch (_) {}
+      if (musicMasterGain && audioCtx) {
+        musicMasterGain.gain.setValueAtTime(musicMasterGain.gain.value, audioCtx.currentTime);
+        musicMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
+      }
+      if (musicNodes) {
+        musicNodes.forEach(function (node) {
+          if (node.gain) {
+            node.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+            node.gain.gain.setValueAtTime(node.gain.gain.value, audioCtx.currentTime);
+            node.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.2);
+          }
+          if (node.osc) node.osc.stop(audioCtx.currentTime + 0.25);
+        });
+      }
+    } catch {}
     musicNodes = null;
+    musicMasterGain = null;
+  }
+
+  function scheduleTone(freq, startTime, durationSec, volume, waveType) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = waveType || 'triangle';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(volume, startTime + 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSec);
+    osc.connect(gain);
+    gain.connect(musicMasterGain);
+    osc.start(startTime);
+    osc.stop(startTime + durationSec + 0.05);
+    musicNodes.push({ osc: osc, gain: gain });
   }
 
   function startMusic() {
@@ -95,21 +132,32 @@
       audioCtx = audioCtx || new Ctx();
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
-      const freqs = [261.63, 329.63, 392.0, 523.25];
-      musicNodes = freqs.map(function (freq, i) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        const vol = 0.018 - i * 0.003;
-        gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.8);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        return { osc: osc, gain: gain };
+      musicNodes = [];
+      musicMasterGain = audioCtx.createGain();
+      musicMasterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      musicMasterGain.gain.linearRampToValueAtTime(0.9, audioCtx.currentTime + 0.55);
+      musicMasterGain.connect(audioCtx.destination);
+
+      const beatSec = MUSIC_BEAT_MS / 1000;
+      const noteDur = beatSec * 0.82;
+      const startAt = audioCtx.currentTime + 0.12;
+
+      MUSIC_MELODY.forEach(function (noteIdx, i) {
+        if (noteIdx < 0) return;
+        const freq = MUSIC_PENTA[noteIdx];
+        const t = startAt + i * beatSec;
+        scheduleTone(freq, t, noteDur, 0.085, 'triangle');
+        if (i % 6 === 5) {
+          scheduleTone(freq * 2, t, noteDur * 0.45, 0.028, 'sine');
+        }
       });
-    } catch (_) {}
+
+      for (let b = 0; b < MUSIC_MELODY.length; b += 4) {
+        const noteIdx = MUSIC_MELODY[b];
+        if (noteIdx < 0) continue;
+        scheduleTone(MUSIC_PENTA[noteIdx] / 2, startAt + b * beatSec, beatSec * 1.6, 0.038, 'sine');
+      }
+    } catch {}
   }
 
   function toggleMute(btn) {
@@ -129,6 +177,7 @@
     if (sceneId === 'routine') {
       return [
         '<div class="ohf-mock">',
+        '  <div class="ohf-parent-chip">👤 Föräldravyn</div>',
         '  <div class="ohf-mock-header">Dagens rutin</div>',
         '  <div class="ohf-activity-row" data-ohf-row="0"><span class="ohf-emoji">👕</span> Klä på sig <span class="ohf-check">✓</span></div>',
         '  <div class="ohf-activity-row" data-ohf-row="1"><span class="ohf-emoji">🪥</span> Borsta tänderna <span class="ohf-check">✓</span></div>',
@@ -137,28 +186,32 @@
       ].join('');
     }
     if (sceneId === 'handoff') {
-      return '<div class="ohf-btn-mock" id="ohfHandoffBtn">Testa barnläget</div>';
+      return '<div class="ohf-btn-mock" id="ohfHandoffBtn">👶 Testa barnläget</div>';
     }
     if (sceneId === 'child') {
       return [
         '<div class="ohf-mock ohf-child-card">',
+        '  <div class="ohf-child-label">Nu</div>',
         '  <div class="ohf-child-emoji">🪥</div>',
-        '  <div class="font-bold text-navy text-base">Borsta tänderna</div>',
+        '  <div class="ohf-child-title">Borsta tänderna</div>',
         '  <div class="ohf-child-action" id="ohfChildTap">Markera klar ✓</div>',
         '</div>',
       ].join('');
     }
     if (sceneId === 'done') {
       return [
-        '<div class="ohf-mock ohf-child-card">',
-        '  <div class="ohf-child-emoji" style="font-size:40px">✅</div>',
-        '  <div class="font-bold text-green-600 text-lg">Bra jobbat!</div>',
+        '<div class="ohf-mock ohf-child-card ohf-done-card">',
+        '  <div class="ohf-done-emoji">✅</div>',
+        '  <div class="ohf-done-text">Bra jobbat!</div>',
         '</div>',
       ].join('');
     }
     return [
-      '<div class="ohf-star-burst">⭐</div>',
-      '<div class="ohf-star-trail"><span>⭐</span><span>⭐</span><span>⭐</span></div>',
+      '<div class="ohf-star-wrap">',
+      '  <div class="ohf-star-glow" aria-hidden="true"></div>',
+      '  <div class="ohf-star-burst">⭐</div>',
+      '  <div class="ohf-star-trail"><span>⭐</span><span>⭐</span><span>⭐</span></div>',
+      '</div>',
     ].join('');
   }
 
@@ -202,7 +255,7 @@
         user.onboarding_completed = true;
         if (window.Auth && Auth.setAuth) Auth.setAuth(Auth.getToken(), user);
       }
-    } catch (_) {}
+    } catch {}
     window.location.href = '/dashboard';
   }
 
@@ -242,7 +295,11 @@
 
     overlay.innerHTML = [
       '<div class="ohf-card">',
-      isPreview ? '<p class="ohf-preview-banner" role="status">Förhandsvisning — musik + text (ingen voiceover)</p>' : '',
+      '  <div class="ohf-brand-bar">',
+      '    <div class="ohf-brand-logo" aria-hidden="true">⭐</div>',
+      '    <span class="ohf-brand-name">' + esc(brandLabel()) + '</span>',
+      '  </div>',
+      isPreview ? '<p class="ohf-preview-banner" role="status">Förhandsvisning — musik + text</p>' : '',
       '  <button type="button" class="ohf-mute-btn" id="ohfMuteBtn" aria-label="Ljud på — tryck för att stänga av">🔊</button>',
       '  <div class="ohf-stage" id="ohfStage">',
       scenesHtml,
@@ -371,7 +428,7 @@
     if (oa && typeof oa.loadConfig === 'function') {
       try {
         await oa.loadConfig();
-      } catch (_) {}
+      } catch {}
     }
     maybeShowInsteadOfHandoffStep(function () {
       if (typeof goToStep === 'function') goToStep(5);
