@@ -29,13 +29,17 @@ const SceneSchema = z.object({
   duration: z.number().int().refine((v) => v === 5 || v === 10, {
     message: 'Pika scene duration must be 5 or 10 seconds',
   }),
+  renderDuration: z.number().positive().optional(),
   pikaPrompt: z.string().min(10),
   swedishText: z.string().min(1),
   transition: z.enum([...TRANSITIONS]).default('fade'),
   outputFilename: z.string().min(1),
   referenceImage: z.string().optional(),
   soundCue: SoundCueSchema,
-});
+}).refine(
+  (scene) => !scene.renderDuration || scene.renderDuration >= scene.duration,
+  { message: 'renderDuration must be >= duration (Pika clip length)' },
+);
 
 export const ManifestSchema = z.object({
   id: z.string().min(1),

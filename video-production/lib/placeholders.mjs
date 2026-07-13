@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { runFfmpeg } from './ffmpeg.mjs';
+import { runFfmpeg, sceneRenderDuration } from './ffmpeg.mjs';
 import { PATHS } from './config.mjs';
 
 const PLACEHOLDER_COLORS = [
@@ -60,7 +60,7 @@ export function generatePlaceholdersForManifest(manifest, rawDir) {
     const color = PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length];
     generatePlaceholderClip({
       outputPath: out,
-      duration: scene.duration,
+      duration: sceneRenderDuration(scene),
       color,
       label: scene.id,
     });
@@ -76,9 +76,10 @@ export function generateSilentMusicBed(outputPath, durationSec) {
     '-f', 'lavfi',
     '-i', 'sine=frequency=220:sample_rate=48000',
     '-t', String(durationSec),
-    '-af', 'volume=0.02',
+    '-af', 'volume=0.02,aformat=channel_layouts=stereo',
     '-c:a', 'aac',
     '-b:a', '128k',
+    '-ac', '2',
     outputPath,
   ], { label: 'silent music bed' });
 }

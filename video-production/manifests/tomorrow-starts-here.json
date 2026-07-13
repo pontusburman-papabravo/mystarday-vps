@@ -31,7 +31,7 @@
       "id": "scene-02-plan-together",
       "duration": 5,
       "pikaPrompt": "Same family at a kitchen table in evening light, parent helps child drag routine cards on a tablet with blurred interface, collaborative gentle motion, Scandinavian interior, hopeful mood, no logos or legible UI text",
-      "swedishText": "Tillsammans sätter ni morgondagens steg",
+      "swedishText": "Ni förbereder morgondagen tillsammans.",
       "transition": "fade",
       "outputFilename": "02-plan-together.mp4"
     },
@@ -46,6 +46,7 @@
     {
       "id": "scene-04-morning-preview",
       "duration": 5,
+      "renderDuration": 7,
       "pikaPrompt": "Match cut feel to bright morning in the same home, child wakes up and stretches with confidence, sunlight on wooden floors, same bedroom details for continuity, energetic but calm, documentary style, no on-screen text",
       "swedishText": "Morgondagen börjar här",
       "transition": "fade",

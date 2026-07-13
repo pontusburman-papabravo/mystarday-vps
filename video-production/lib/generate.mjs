@@ -26,8 +26,6 @@ import {
   ensureDirs,
 } from './cli.mjs';
 
-const TRANSITION_DURATION_SEC = 0.6;
-
 export async function runGenerate(argv = process.argv.slice(2)) {
   const { flags, options } = parseArgs(argv);
   const usePlaceholders = flags.has('placeholders');
@@ -178,5 +176,3 @@ export async function runGenerate(argv = process.argv.slice(2)) {
   console.log(`\nDone. Generated: ${generatedThisRun}, skipped: ${skipped}`);
   return { generated: generatedThisRun, skipped };
 }
-
-export { TRANSITION_DURATION_SEC };

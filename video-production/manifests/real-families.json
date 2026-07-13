@@ -55,7 +55,7 @@
       "id": "scene-05-community-montage",
       "duration": 5,
       "pikaPrompt": "Slow montage feel in one continuous shot passing different Swedish family moments in the same home style: breakfast, shoes by the door, hug goodbye, documentary warmth, connected rhythm, cinematic natural light, no logos",
-      "swedishText": "Stjärndag — för familjer som vill ha lugnare vardag",
+      "swedishText": "Stjärndag\nFör familjer som vill ha lugnare vardag",
       "transition": "fadeblack",
       "outputFilename": "05-community-montage.mp4"
     }

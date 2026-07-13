@@ -11,10 +11,14 @@ import {
 } from './state.mjs';
 import {
   normalizeSceneClip,
-  concatWithTransitions,
-  overlayLogo,
   mixAudioBed,
-  exportAllFormats,
+  muxVideoAudio,
+  renderFilmFormat,
+  computeTimelineDuration,
+  sceneRenderDuration,
+  FORMAT_LAYOUTS,
+  OUTPUT_FORMATS,
+  probeAudioChannels,
 } from './ffmpeg.mjs';
 import {
   generatePlaceholdersForManifest,
@@ -26,7 +30,6 @@ import {
   requireFilmSelection,
   ensureDirs,
 } from './cli.mjs';
-import { TRANSITION_DURATION_SEC } from './generate.mjs';
 
 const MASTER_WIDTH = 1920;
 const MASTER_HEIGHT = 1080;
@@ -73,39 +76,36 @@ export async function runRender(argv = process.argv.slice(2)) {
     const workDir = path.join(PATHS.output, 'work', manifest.id);
     fs.mkdirSync(workDir, { recursive: true });
 
-    const normalized = [];
-    for (const { scene, localPath } of scenes) {
+    const normalizedPaths = [];
+    const renderDurations = [];
+    const swedishTexts = [];
+    const transitions = [];
+
+    for (let i = 0; i < scenes.length; i++) {
+      const { scene, localPath } = scenes[i];
+      const renderDur = sceneRenderDuration(scene);
       const normPath = path.join(workDir, `norm-${scene.outputFilename}`);
+
       normalizeSceneClip({
         inputPath: localPath,
         outputPath: normPath,
         width: MASTER_WIDTH,
         height: MASTER_HEIGHT,
         duration: scene.duration,
-        swedishText: scene.swedishText,
+        renderDuration: renderDur,
       });
-      normalized.push({
-        path: normPath,
-        duration: scene.duration,
-        transition: scene.transition,
-      });
+
+      normalizedPaths.push(normPath);
+      renderDurations.push(renderDur);
+      swedishTexts.push(scene.swedishText);
+      if (i < scenes.length - 1) {
+        transitions.push(scene.transition);
+      }
     }
 
-    const concatPath = path.join(workDir, 'concat.mp4');
-    const transitions = scenes.map((s) => s.scene.transition);
-    const videoDuration = concatWithTransitions({
-      sceneClips: normalized,
-      transitions,
-      transitionDurationSec: TRANSITION_DURATION_SEC,
-      outputPath: concatPath,
-    });
-
-    const withLogoPath = path.join(workDir, 'with-logo.mp4');
-    overlayLogo({
-      inputPath: concatPath,
-      logoPath: PATHS.logo,
-      outputPath: withLogoPath,
-    });
+    const videoDuration = computeTimelineDuration(
+      scenes.map((s) => s.scene),
+    );
 
     const root = path.join(PATHS.audio, '..');
     const music = manifest.music
@@ -122,21 +122,48 @@ export async function runRender(argv = process.argv.slice(2)) {
       console.log('  (using synthesized music bed — add licensed file to audio/)');
     }
 
-    const masterPath = path.join(workDir, 'master.mp4');
+    const audioPath = path.join(workDir, 'master-audio.m4a');
     mixAudioBed({
-      videoPath: withLogoPath,
-      outputPath: masterPath,
+      outputPath: audioPath,
       music,
       ambient,
       videoDuration,
     });
 
-    const filmOutDir = path.join(PATHS.output, manifest.outputBasename);
-    const exports = exportAllFormats(masterPath, manifest.outputBasename, filmOutDir);
-
-    for (const file of exports) {
-      console.log(`  ✓ ${file}`);
+    const channels = probeAudioChannels(audioPath);
+    if (channels < 2) {
+      console.warn(`  warning: audio bed is ${channels}-channel; expected stereo`);
     }
+
+    const filmOutDir = path.join(PATHS.output, manifest.outputBasename);
+    fs.mkdirSync(filmOutDir, { recursive: true });
+
+    const exports = [];
+
+    for (const format of OUTPUT_FORMATS) {
+      const layout = FORMAT_LAYOUTS[format.id];
+      const { withLogoPath } = renderFilmFormat({
+        normalizedScenes: normalizedPaths,
+        transitions,
+        layout,
+        logoPath: PATHS.logo,
+        swedishTexts,
+        renderDurations,
+        workDir,
+        outputPath: null,
+      });
+
+      const outPath = path.join(filmOutDir, `${manifest.outputBasename}-${format.suffix}.mp4`);
+      muxVideoAudio({
+        videoPath: withLogoPath,
+        audioPath,
+        outputPath: outPath,
+        duration: videoDuration,
+      });
+      exports.push(outPath);
+      console.log(`  ✓ ${outPath}`);
+    }
+
     rendered.push({ manifestId: manifest.id, exports });
   }
 
