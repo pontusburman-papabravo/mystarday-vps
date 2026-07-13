@@ -61,6 +61,10 @@
     });
   }
 
+  function isSamlingFocus() {
+    return !!(window.ChildTodayFun && ChildTodayFun.isSamlingGateOn && ChildTodayFun.isSamlingGateOn());
+  }
+
   function softenQuestChrome() {
     document.querySelectorAll('#scheduleView .nl-section-label').forEach(function (label) {
       label.classList.add('ctf-hidden');
@@ -71,6 +75,17 @@
     document.querySelectorAll('#scheduleView .later-card').forEach(function (card) {
       card.classList.add('ctf-hidden');
     });
+    if (isSamlingFocus()) {
+      document.querySelectorAll('#scheduleView .nnl-zone-header').forEach(function (hdr) {
+        hdr.classList.add('ctf-hidden');
+      });
+      document.querySelectorAll('#scheduleView .nnl-zone--later').forEach(function (zone) {
+        zone.classList.add('ctf-hidden');
+      });
+      document.querySelectorAll('#scheduleView .dagdel-section').forEach(function (sec) {
+        sec.classList.add('ctf-hidden');
+      });
+    }
   }
 
   function capIncompleteTasks() {
@@ -80,7 +95,9 @@
     }
 
     const queueCards = Array.from(document.querySelectorAll(
-      '#scheduleView .now-card:not(.done), #scheduleView .next-card:not(.done)'
+      '#scheduleView .now-card:not(.done), #scheduleView .next-card:not(.done), ' +
+      '#scheduleView .photo-activity-card--now:not(.done), ' +
+      '#scheduleView .photo-activity-card.next-card:not(.done)'
     ));
 
     let hidden = 0;

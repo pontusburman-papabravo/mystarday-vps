@@ -251,7 +251,11 @@ function renderActivities(data, trueStarBalance) {
     sections[s].push(item);
   }
 
-  if (viewType === 'day_sections' && !(isTodayFocusLayer() && isToday)) {
+  const samlingTodayFocus = window.ChildTodayFun && ChildTodayFun.isSamlingTodayFocus
+    ? ChildTodayFun.isSamlingTodayFocus(isToday)
+    : false;
+
+  if (viewType === 'day_sections' && !(isTodayFocusLayer() && isToday) && !samlingTodayFocus) {
     // ── Dagsvy: Färgkodade dagdelssektioner ──────────────────
     // 'dag' items are split visually: <12:00 → förmiddag, ≥12:00 or no time → eftermiddag
     // Section rendering order: morgon → förmiddag → eftermiddag → kvall → natt
@@ -331,7 +335,7 @@ function renderActivities(data, trueStarBalance) {
   } else {
     // ── NOW/NEXT/LATER timeline layout ────────────────────────
 
-    const focusQuestMode = isTodayFocusLayer() && isToday && showNowNext &&
+    const focusQuestMode = isTodayFocusLayer() && isToday && (showNowNext || samlingTodayFocus) &&
       !(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
 
     // Determine NOW/NEXT/LATER status for each item.
@@ -344,21 +348,32 @@ function renderActivities(data, trueStarBalance) {
         timeStatusMap[item.id] = item._nnl_status || 'now';
       }
     } else if (isToday && (showNowNext || focusQuestMode)) {
-      // Client-side fallback: tag ALL items (done/now/next/later)
-      let globalUnchecked = 0;
-      for (const section of sectionOrder) {
-        if (!sections[section]) continue;
-        for (const item of sections[section]) {
-          if (item.completed) {
-            timeStatusMap[item.id] = 'done';
-          } else {
-            globalUnchecked++;
-            if (globalUnchecked === 1) {
-              timeStatusMap[item.id] = 'now';
-            } else if (globalUnchecked === 2) {
-              timeStatusMap[item.id] = 'next';
+      if (samlingTodayFocus && window.ChildTodayFun
+          && typeof ChildTodayFun.applyTimeQuestTags === 'function') {
+        const tagged = ChildTodayFun.applyTimeQuestTags(items);
+        if (tagged) {
+          for (const taggedItem of tagged) {
+            timeStatusMap[taggedItem.id] = taggedItem._nnl_status;
+          }
+        }
+      }
+      if (!Object.keys(timeStatusMap).length) {
+        // Client-side fallback: tag ALL items (done/now/next/later)
+        let globalUnchecked = 0;
+        for (const section of sectionOrder) {
+          if (!sections[section]) continue;
+          for (const item of sections[section]) {
+            if (item.completed) {
+              timeStatusMap[item.id] = 'done';
             } else {
-              timeStatusMap[item.id] = 'later';
+              globalUnchecked++;
+              if (globalUnchecked === 1) {
+                timeStatusMap[item.id] = 'now';
+              } else if (globalUnchecked === 2) {
+                timeStatusMap[item.id] = 'next';
+              } else {
+                timeStatusMap[item.id] = 'later';
+              }
             }
           }
         }
@@ -391,6 +406,7 @@ function renderActivities(data, trueStarBalance) {
           nextItems,
           laterItems,
           isToday,
+          samlingQuest: samlingTodayFocus,
         });
       }
     } else {
