@@ -73,7 +73,11 @@
     "android:aab": "node scripts/build-android-aab.mjs",
     "android:aab:publish": "node scripts/publish-aab-download.mjs",
     "qa:mobile-gate": "QA_MODE=gate node scripts/smoke-mobile-full-qa.mjs",
-    "qa:mobile-full": "QA_MODE=full node scripts/smoke-mobile-full-qa.mjs"
+    "qa:mobile-full": "QA_MODE=full node scripts/smoke-mobile-full-qa.mjs",
+    "video:generate": "node scripts/video-generate.mjs",
+    "video:render": "node scripts/video-render.mjs",
+    "video:all": "node scripts/video-all.mjs",
+    "video:dry-run": "node scripts/video-dry-run.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",

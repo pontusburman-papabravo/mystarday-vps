@@ -44,3 +44,16 @@ assets/play-store/signing/*.jks
 projects/
 *.jsonl
 artifacts/
+
+# Video pipeline package (isolated from app build/deploy)
+video-*/.env
+video-*/node_modules/
+video-*/state/
+video-*/raw/
+video-*/output/
+video-*/audio/*.mp3
+video-*/audio/*.wav
+video-*/audio/*.m4a
+video-*/audio/*.aac
+!video-*/audio/.gitkeep
+!video-*/audio/README.md

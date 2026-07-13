@@ -1,0 +1,63 @@
+{
+  "id": "real-families",
+  "title": "Real Families",
+  "aspectRatio": "16:9",
+  "defaultSceneDuration": 5,
+  "outputBasename": "real-families",
+  "referenceImage": "assets/references/real-family.png",
+  "seed": 42003,
+  "music": {
+    "file": "audio/families-theme.mp3",
+    "volume": 0.34,
+    "fadeInSec": 1.5,
+    "fadeOutSec": 2.5
+  },
+  "ambient": {
+    "file": "audio/home-ambient.mp3",
+    "volume": 0.08,
+    "fadeInSec": 2,
+    "fadeOutSec": 2
+  },
+  "scenes": [
+    {
+      "id": "scene-01-single-parent",
+      "duration": 5,
+      "pikaPrompt": "Documentary-style shot of a single parent in a Swedish apartment helping two children get ready, morning clutter but loving energy, natural light, handheld authenticity, diverse modern family, no text or logos",
+      "swedishText": "Riktiga familjer. Riktiga morgnar.",
+      "transition": "fade",
+      "outputFilename": "01-single-parent.mp4"
+    },
+    {
+      "id": "scene-02-blended-family",
+      "duration": 5,
+      "pikaPrompt": "Same visual family tone, blended family in a hallway coordinating coats and bags, cooperative gestures, warm smiles, Scandinavian home, gentle camera orbit, authentic not staged, no readable screens",
+      "swedishText": "Olika hem — samma behov av lugn",
+      "transition": "fade",
+      "outputFilename": "02-blended-family.mp4"
+    },
+    {
+      "id": "scene-03-npf-calm",
+      "duration": 5,
+      "pikaPrompt": "Child with thoughtful expression follows a visual routine chart on the wall with pictograms blurred, parent kneels to child's eye level offering support, soft colors, calm sensory-friendly environment, respectful documentary tone, no legible text",
+      "swedishText": "Extra tydlighet när det behövs",
+      "transition": "dissolve",
+      "outputFilename": "03-npf-calm.mp4"
+    },
+    {
+      "id": "scene-04-celebration-small",
+      "duration": 5,
+      "pikaPrompt": "Small genuine celebration as child completes a task, parent claps once quietly, sibling watches smiling, living room afternoon light, emotional realism, no confetti graphics or on-screen rewards text",
+      "swedishText": "Stjärnor för verkliga framsteg",
+      "transition": "fade",
+      "outputFilename": "04-celebration-small.mp4"
+    },
+    {
+      "id": "scene-05-community-montage",
+      "duration": 5,
+      "pikaPrompt": "Slow montage feel in one continuous shot passing different Swedish family moments in the same home style: breakfast, shoes by the door, hug goodbye, documentary warmth, connected rhythm, cinematic natural light, no logos",
+      "swedishText": "Stjärndag — för familjer som vill ha lugnare vardag",
+      "transition": "fadeblack",
+      "outputFilename": "05-community-montage.mp4"
+    }
+  ]
+}

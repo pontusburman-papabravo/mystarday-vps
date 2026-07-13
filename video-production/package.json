@@ -1,0 +1,23 @@
+{
+  "name": "@stjarndag/promo-films",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Isolated promotional film pipeline — Pika (fal.ai) + ffmpeg. Not part of app build/deploy.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "generate": "node bin/generate.mjs",
+    "render": "node bin/render.mjs",
+    "all": "node bin/all.mjs",
+    "dry-run": "node bin/dry-run.mjs",
+    "test:placeholders": "node test/placeholder-pipeline.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@fal-ai/client": "^1.2.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.22.4"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "a-morning-without-nagging",
+  "title": "A Morning Without Nagging",
+  "aspectRatio": "16:9",
+  "defaultSceneDuration": 5,
+  "outputBasename": "morning-without-nagging",
+  "referenceImage": "assets/references/morning-family.png",
+  "seed": 42001,
+  "music": {
+    "file": "audio/morning-theme.mp3",
+    "volume": 0.32,
+    "fadeInSec": 2,
+    "fadeOutSec": 3
+  },
+  "ambient": {
+    "file": "audio/morning-ambient.mp3",
+    "volume": 0.12,
+    "fadeInSec": 1.5,
+    "fadeOutSec": 2.5
+  },
+  "scenes": [
+    {
+      "id": "scene-01-chaos",
+      "duration": 5,
+      "pikaPrompt": "Gentle cinematic push-in on a Swedish family kitchen at 7:15 AM, soft Nordic winter light through the window, a parent looking stressed near the doorway while a child searches for shoes, natural documentary feel, shallow depth of field, warm but tense atmosphere, no on-screen text",
+      "swedishText": "Känner du igen morgonen?",
+      "transition": "fade",
+      "outputFilename": "01-chaos.mp4"
+    },
+    {
+      "id": "scene-02-calm-app",
+      "duration": 5,
+      "pikaPrompt": "Same family kitchen, the child now looks at a phone on the counter showing a colorful routine app interface blurred and unreadable, parent steps back with relieved body language, calm morning light, slow handheld documentary motion, no logos or readable text on screen",
+      "swedishText": "Barnet ser vad som kommer härnäst",
+      "transition": "fade",
+      "outputFilename": "02-calm-app.mp4"
+    },
+    {
+      "id": "scene-03-routine-flow",
+      "duration": 5,
+      "pikaPrompt": "Same child confidently putting on jacket and backpack in a Swedish hallway, parent watches with a small smile, morning sunlight, smooth tracking shot, authentic family moment, cozy Scandinavian home details, no text overlays",
+      "swedishText": "Ingen tjat — bara tydliga steg",
+      "transition": "dissolve",
+      "outputFilename": "03-routine-flow.mp4"
+    },
+    {
+      "id": "scene-04-star-moment",
+      "duration": 5,
+      "pikaPrompt": "Close-up of the child's happy face earning a small celebration gesture after completing a morning task, parent gives a thumbs up in soft focus background, warm golden light, emotional but restrained, cinematic shallow focus, no graphics or text",
+      "swedishText": "Stjärnor för det som faktiskt händer",
+      "transition": "fade",
+      "outputFilename": "04-star-moment.mp4"
+    },
+    {
+      "id": "scene-05-door-goodbye",
+      "duration": 5,
+      "pikaPrompt": "Wide shot of the family leaving through the front door into a calm snowy Swedish morning, peaceful goodbye wave, slow dolly out, documentary warmth, the house feels organized behind them, no signage or text",
+      "swedishText": "En morgon utan tjat",
+      "transition": "fadeblack",
+      "outputFilename": "05-door-goodbye.mp4"
+    }
+  ]
+}

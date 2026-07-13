@@ -1,0 +1,63 @@
+{
+  "id": "tomorrow-starts-here",
+  "title": "Tomorrow Starts Here",
+  "aspectRatio": "16:9",
+  "defaultSceneDuration": 5,
+  "outputBasename": "tomorrow-starts-here",
+  "referenceImage": "assets/references/evening-family.png",
+  "seed": 42002,
+  "music": {
+    "file": "audio/evening-theme.mp3",
+    "volume": 0.3,
+    "fadeInSec": 2.5,
+    "fadeOutSec": 3
+  },
+  "ambient": {
+    "file": "audio/evening-ambient.mp3",
+    "volume": 0.1,
+    "fadeInSec": 2,
+    "fadeOutSec": 3
+  },
+  "scenes": [
+    {
+      "id": "scene-01-evening-wind-down",
+      "duration": 5,
+      "pikaPrompt": "Soft evening light in a Swedish child's bedroom, parent and child sit together reviewing a simple paper schedule on the bed, cozy lamp glow, intimate documentary framing, calm anticipation for tomorrow, no readable text on props",
+      "swedishText": "Kvällen förbereder morgondagen",
+      "transition": "fade",
+      "outputFilename": "01-evening-wind-down.mp4"
+    },
+    {
+      "id": "scene-02-plan-together",
+      "duration": 5,
+      "pikaPrompt": "Same family at a kitchen table in evening light, parent helps child drag routine cards on a tablet with blurred interface, collaborative gentle motion, Scandinavian interior, hopeful mood, no logos or legible UI text",
+      "swedishText": "Tillsammans sätter ni morgondagens steg",
+      "transition": "fade",
+      "outputFilename": "02-plan-together.mp4"
+    },
+    {
+      "id": "scene-03-sleep-peace",
+      "duration": 5,
+      "pikaPrompt": "Child tucked into bed smiling peacefully, parent turns off a small bedside lamp, blue-hour light through curtains, slow push-in, quiet trust and safety, cinematic softness, no text",
+      "swedishText": "Barnet vet vad som väntar i morgon",
+      "transition": "dissolve",
+      "outputFilename": "03-sleep-peace.mp4"
+    },
+    {
+      "id": "scene-04-morning-preview",
+      "duration": 5,
+      "pikaPrompt": "Match cut feel to bright morning in the same home, child wakes up and stretches with confidence, sunlight on wooden floors, same bedroom details for continuity, energetic but calm, documentary style, no on-screen text",
+      "swedishText": "Morgondagen börjar här",
+      "transition": "fade",
+      "outputFilename": "04-morning-preview.mp4"
+    },
+    {
+      "id": "scene-05-ready-start",
+      "duration": 5,
+      "pikaPrompt": "Same child walks downstairs already dressed, parent pours breakfast with relaxed smile, golden morning rays, smooth steadicam follow, authentic Swedish family rhythm, no branding visible",
+      "swedishText": "Lugnt. Tydligt. Redo.",
+      "transition": "fadeblack",
+      "outputFilename": "05-ready-start.mp4"
+    }
+  ]
+}
