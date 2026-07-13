@@ -162,6 +162,18 @@ describe('magic soft navigation', () => {
     assert.match(avatar, /settingsPath === '\/settings'/);
   });
 
+  it('settings back clears hash so profile group does not reopen', () => {
+    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    const family = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
+    assert.match(hubs, /clearSettingsHash/);
+    assert.match(hubs, /skipHash/);
+    assert.match(hubs, /returnToSettingsMenu/);
+    assert.match(hubs, /← Inställningar/);
+    assert.match(hubs, /bindSettingsDelegation/);
+    assert.match(family, /href="\/settings"/);
+    assert.doesNotMatch(family, /href="\/settings#profil"/);
+  });
+
   it('magic settings tags prenumeration and handles hash', () => {
     const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
     const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');

@@ -164,11 +164,21 @@
   }
 
   function renderSettingsBackBar() {
-    const g = SETTINGS_GROUPS.find(function (x) { return x.id === _activeSettingsGroup; });
-    const title = g ? g.title : 'Tillbaka';
     return '<div class="magic-settings-back-bar">' +
-      '<button type="button" class="magic-settings-back" data-settings-back="1">← ' + escHtml(title) + '</button>' +
+      '<button type="button" class="magic-settings-back" data-settings-back="1" aria-label="Tillbaka till inställningar">← Inställningar</button>' +
       '</div>';
+  }
+
+  function clearSettingsHash() {
+    if (!window.location.hash) return;
+    const url = window.location.pathname + window.location.search;
+    history.replaceState(history.state, '', url);
+  }
+
+  function returnToSettingsMenu() {
+    clearSettingsHash();
+    hideSettingsGroup();
+    refresh('settings', true, { skipHash: true });
   }
 
   function showSettingsGroup(groupId) {
@@ -192,22 +202,20 @@
       const groupBtn = e.target.closest('[data-settings-group]');
       if (groupBtn) {
         showSettingsGroup(groupBtn.getAttribute('data-settings-group'));
-        return;
-      }
-      if (e.target.closest('[data-settings-back]')) {
-        hideSettingsGroup();
-        refresh('settings', true);
       }
     };
-    const backMount = document.getElementById('magicSettingsBackBar');
-    if (backMount) {
-      backMount.onclick = function (e) {
-        if (e.target.closest('[data-settings-back]')) {
-          hideSettingsGroup();
-          refresh('settings', true);
-        }
-      };
-    }
+  }
+
+  function bindSettingsDelegation() {
+    if (window._magicSettingsNavBound) return;
+    window._magicSettingsNavBound = true;
+    document.addEventListener('click', function (e) {
+      if (!document.body.classList.contains('parent-magic-page-settings')) return;
+      if (e.target.closest('[data-settings-back]')) {
+        e.preventDefault();
+        returnToSettingsMenu();
+      }
+    }, true);
   }
 
   function renderThemePicker() {
@@ -334,7 +342,8 @@
     return false;
   }
 
-  function refresh(page, magic) {
+  function refresh(page, magic, opts) {
+    opts = opts || {};
     const el = mount();
     if (!el) return;
 
@@ -369,7 +378,7 @@
       bindSettingsEvents(el);
       const backBar = document.getElementById('magicSettingsBackBar');
       if (backBar) backBar.innerHTML = '';
-      openFromHash();
+      if (!opts.skipHash) openFromHash();
     } else if (page === 'planning') {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -396,7 +405,10 @@
     resetSettingsState: resetSettingsState,
     openFromHash: openFromHash,
     showSettingsGroup: showSettingsGroup,
+    returnToSettingsMenu: returnToSettingsMenu,
+    clearSettingsHash: clearSettingsHash,
   };
 
   bindThemePickerDelegation();
+  bindSettingsDelegation();
 })();
