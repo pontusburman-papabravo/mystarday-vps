@@ -150,6 +150,9 @@ export async function runRender(argv = process.argv.slice(2)) {
 
     const filmOutDir = path.join(PATHS.output, manifest.outputBasename);
     fs.mkdirSync(filmOutDir, { recursive: true });
+    const exportBasename = options.exportSuffix
+      ? `${manifest.outputBasename}-${options.exportSuffix}`
+      : manifest.outputBasename;
 
     const exports = [];
 
@@ -166,7 +169,7 @@ export async function runRender(argv = process.argv.slice(2)) {
         outputPath: null,
       });
 
-      const outPath = path.join(filmOutDir, `${manifest.outputBasename}-${format.suffix}.mp4`);
+      const outPath = path.join(filmOutDir, `${exportBasename}-${format.suffix}.mp4`);
       muxVideoAudio({
         videoPath: withLogoPath,
         audioPath,

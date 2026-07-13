@@ -17,6 +17,8 @@ export function parseArgs(argv = process.argv.slice(2)) {
       options.scene = argv[++i];
     } else if (arg === '--tagline' && argv[i + 1]) {
       options.tagline = argv[++i].toUpperCase();
+    } else if (arg === '--export-suffix' && argv[i + 1]) {
+      options.exportSuffix = argv[++i];
     } else if (arg.startsWith('--scene=')) {
       options.scene = arg.slice('--scene='.length);
     } else if (arg.startsWith('--tagline=')) {
@@ -37,6 +39,7 @@ Options:
   --film <id>       Process a single manifest id (default: all manifests)
   --scene <id>      Process only one scene (for style validation)
   --tagline <A-E>   Brand ending caption variant (default: E = logo only)
+  --export-suffix <slug>  Append to output basename (e.g. version-a for A/B exports)
   --confirm         Required for billable Pika API generation
   --placeholders    Use ffmpeg color clips instead of Pika (no API cost)
   --help            Show this help
