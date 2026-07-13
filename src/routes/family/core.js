@@ -920,10 +920,31 @@ router.get('/activation-config', async (req, res) => {
       p0_activated_within_48h: !!state?.p0_activated_within_48h,
       primary_child_id: primaryChildRow.rows[0]?.id || null,
       schema_saved: Boolean(state?.schema_saved_at),
+      state: {
+        schema_saved_at: state?.schema_saved_at || null,
+        child_access_completed_at: state?.child_access_completed_at || null,
+        handoff_film_completed_at: state?.handoff_film_completed_at || null,
+      },
     });
   } catch (err) {
     console.error('[FAMILY] activation-config error:', err);
     res.status(500).json({ error: 'Kunde inte hämta aktiveringsinställningar' });
+  }
+});
+
+// ─── POST /api/family/activation/handoff-film-seen ───────
+router.post('/activation/handoff-film-seen', async (req, res) => {
+  try {
+    const activationDb = require('../../../db/family-activation-state');
+    const familyId = req.user.familyId;
+    const state = await activationDb.getByFamilyId(familyId);
+    if (!state?.handoff_film_completed_at) {
+      await activationDb.patchState(familyId, { handoff_film_completed_at: new Date() });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[FAMILY] handoff-film-seen error:', err);
+    res.status(500).json({ error: 'Kunde inte spara handoff-filmstatus' });
   }
 });
 

@@ -98,7 +98,9 @@
 
       if (typeof populateStep5LoginInfo === 'function') populateStep5LoginInfo();
       if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
-        OnboardingHandoffFilm.goToHandoffAfterSchema();
+        OnboardingHandoffFilm.goToHandoffAfterSchema('activity_guide');
+      } else if (typeof window.enterChildHandoff === 'function') {
+        await window.enterChildHandoff('activity_guide');
       } else if (typeof goToStep === 'function') {
         goToStep(5);
         const label = document.getElementById('stepLabel');

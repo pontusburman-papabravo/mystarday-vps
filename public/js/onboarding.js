@@ -319,11 +319,7 @@ function goToStep(n) {
 async function resumeAct1Onboarding(funnelStep) {
   const step = funnelStep || 'signup';
   if (step === 'schema_saved') {
-    if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
-      OnboardingHandoffFilm.goToHandoffAfterSchema();
-    } else {
-      goToStep(5);
-    }
+    await enterChildHandoff('resume_schema_saved');
     return;
   }
   if (['child_access', 'first_completion', 'p0_activated', 'p0_activated_48h'].includes(step)) {
@@ -368,12 +364,22 @@ async function finalizeSchemaAndGoHandoff() {
   }
   if (window.OnboardingActivityGuide && typeof OnboardingActivityGuide.goToActivityGuideStep === 'function') {
     OnboardingActivityGuide.goToActivityGuideStep();
-  } else if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
-    OnboardingHandoffFilm.goToHandoffAfterSchema();
   } else {
-    goToStep(5);
+    await enterChildHandoff('legacy_wizard');
   }
 }
+
+/** Unified handoff entry — film when enabled, else steg 5. */
+async function enterChildHandoff(entryPoint) {
+  window.__onboardingHandoffEntry = entryPoint || 'unknown';
+  if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
+    await OnboardingHandoffFilm.goToHandoffAfterSchema(entryPoint);
+    return;
+  }
+  populateStep5LoginInfo();
+  goToStep(5);
+}
+window.enterChildHandoff = enterChildHandoff;
 
 // ────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Create child
@@ -633,7 +639,7 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
         body: JSON.stringify({ name: reward.name, icon: reward.icon, star_cost: reward.star_cost }),
       })
     ));
-    goToStep(5);
+    await enterChildHandoff('legacy_rewards');
   } catch (err) {
     showError(errorEl, err.message || 'Något gick fel. Försök igen.');
   } finally {
@@ -1345,7 +1351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (resumeResult.action === 'handoff') {
       handoffResumeHandled = true;
-      goToStep(5);
+      await enterChildHandoff('email_resume');
     }
   }
 

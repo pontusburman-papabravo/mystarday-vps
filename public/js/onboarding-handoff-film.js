@@ -22,34 +22,60 @@
   }
 
   function trackEvent(eventType, metadata) {
+    const meta = Object.assign({}, activationMeta(), metadata || {});
     const oa = act();
     if (oa && typeof oa.trackEvent === 'function') {
-      oa.trackEvent(eventType, metadata);
+      oa.trackEvent(eventType, meta);
     } else if (window.apiFetch) {
       window.apiFetch('/api/analytics/event', {
         method: 'POST',
-        body: JSON.stringify({ event_type: eventType, metadata: metadata || {} }),
+        body: JSON.stringify({ event_type: eventType, metadata: meta }),
       }).catch(function () {});
     }
   }
 
-  function isSlimFastPath() {
-    if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function') {
-      return OnboardingStarterPlan.isSlimFastPath();
-    }
+  function activationMeta() {
     const oa = act();
-    if (!oa || typeof oa.getConfig !== 'function') return false;
+    const cfg = oa && typeof oa.getConfig === 'function' ? oa.getConfig() : null;
+    return {
+      activation_variant: (cfg && cfg.activation_variant) || 'legacy',
+      entry_point: window.__onboardingHandoffEntry || 'unknown',
+      child_id: childId(),
+      device_context: 'same_device',
+    };
+  }
+
+  function activationState() {
+    const oa = act();
+    if (!oa || typeof oa.getConfig !== 'function') return {};
     const cfg = oa.getConfig();
-    return Boolean(cfg && cfg.flags && cfg.flags.activation_signup_slim_v1);
+    return (cfg && cfg.state) || {};
   }
 
   function isFilmEnabled() {
     if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return false;
-    if (isSlimFastPath()) return false;
     const oa = act();
     if (!oa || typeof oa.getConfig !== 'function') return false;
     const cfg = oa.getConfig();
-    return Boolean(cfg && cfg.flags && cfg.flags.activation_onboarding_handoff_film_v1);
+    if (!cfg || !cfg.flags || !cfg.flags.activation_onboarding_handoff_film_v1) return false;
+    const st = activationState();
+    if (!st.schema_saved_at) return false;
+    if (st.child_access_completed_at) return false;
+    if (st.handoff_film_completed_at) return false;
+    return true;
+  }
+
+  function markFilmSeen() {
+    const oa = act();
+    if (oa && typeof oa.loadConfig === 'function') {
+      const cfg = oa.getConfig();
+      if (cfg && cfg.state) {
+        cfg.state.handoff_film_completed_at = cfg.state.handoff_film_completed_at || new Date().toISOString();
+      }
+    }
+    if (window.apiFetch) {
+      window.apiFetch('/api/family/activation/handoff-film-seen', { method: 'POST' }).catch(function () {});
+    }
   }
 
   function childId() {
@@ -132,7 +158,20 @@
     }
   }
 
+  function getHandoffLoginInfo() {
+    if (typeof populateStep5LoginInfo === 'function') populateStep5LoginInfo();
+    const nameEl = document.getElementById('s5ChildName');
+    const userEl = document.getElementById('s5Username');
+    const pinEl = document.getElementById('s5Pin');
+    return {
+      name: nameEl ? nameEl.textContent.trim() : 'Barnet',
+      username: userEl ? userEl.textContent.trim() : '',
+      pin: pinEl ? pinEl.textContent.trim() : '',
+    };
+  }
+
   function openChildLogin() {
+    trackEvent('onboarding_handoff_opened', { source: 'film_handoff_panel' });
     const oa = act();
     if (oa && typeof oa.startChildHandoff === 'function') {
       oa.startChildHandoff('onboarding_film');
@@ -145,18 +184,53 @@
     window.location.href = '/child-login';
   }
 
-  async function completeOnboardingAndGoHome() {
-    try {
-      if (window.apiFetch) {
-        await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-      }
-      const user = window.Auth && Auth.getUser();
-      if (user) {
-        user.onboarding_completed = true;
-        if (window.Auth && Auth.setAuth) Auth.setAuth(Auth.getToken(), user);
-      }
-    } catch {}
-    window.location.href = '/dashboard';
+  function postponeHandoff() {
+    markFilmSeen();
+    window.location.href = '/dashboard?next_step=child_handoff';
+  }
+
+  function showHandoffPanel(overlay, ctaPanel) {
+    const info = getHandoffLoginInfo();
+    markFilmSeen();
+    trackEvent('onboarding_handoff_opened', { source: 'film_cta_try' });
+
+    ctaPanel.innerHTML = [
+      '<h2 class="ohf-cta-title">Logga in som barnet</h2>',
+      '<p class="ohf-handoff-lead"><strong>' + esc(info.name) + '</strong> loggar in med namn och PIN.</p>',
+      '<div class="ohf-handoff-credentials">',
+      '  <p class="ohf-handoff-row"><span class="ohf-handoff-label">Användarnamn</span>',
+      '  <strong class="ohf-handoff-value" id="ohfHandoffUsername">' + esc(info.username) + '</strong></p>',
+      '  <p class="ohf-handoff-row"><span class="ohf-handoff-label">PIN-kod</span>',
+      '  <strong class="ohf-handoff-pin" id="ohfHandoffPin">' + esc(info.pin) + '</strong></p>',
+      '</div>',
+      '<p class="ohf-handoff-hint">Sätt er tillsammans — samma eller annan enhet fungerar.</p>',
+      '<button type="button" class="ohf-cta-secondary ohf-copy-btn" id="ohfCopyLoginBtn">📋 Kopiera inloggning</button>',
+      '<button type="button" class="ohf-cta-primary" id="ohfOpenChildBtn">Öppna barnläget</button>',
+    ].join('');
+
+    ctaPanel.classList.add('is-visible');
+    overlay.querySelector('#ohfCaption').textContent = '';
+
+    const copyBtn = ctaPanel.querySelector('#ohfCopyLoginBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        const login = getHandoffLoginInfo();
+        const text = login.name + '\nAnvändarnamn: ' + login.username + '\nPIN: ' + login.pin;
+        const done = function () {
+          copyBtn.textContent = '✓ Kopierat!';
+          setTimeout(function () { copyBtn.textContent = '📋 Kopiera inloggning'; }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () { alert(text); });
+        } else {
+          alert(text);
+        }
+      });
+    }
+    ctaPanel.querySelector('#ohfOpenChildBtn').addEventListener('click', function () {
+      overlay.remove();
+      openChildLogin();
+    });
   }
 
   /**
@@ -231,26 +305,25 @@
     }
 
     function showCta() {
+      markFilmSeen();
       ctaPanel.classList.add('is-visible');
       captionEl.textContent = '';
     }
 
     overlay.querySelector('#ohfTryChildBtn').addEventListener('click', function () {
       trackEvent(isPreview ? 'onboarding_handoff_film_preview_cta_try' : 'onboarding_handoff_film_cta_try', {
-        child_id: childId(),
         preview: isPreview,
       });
-      teardown();
       if (isPreview) {
+        teardown();
         window.location.href = '/child-login';
         return;
       }
-      openChildLogin();
+      showHandoffPanel(overlay, ctaPanel);
     });
 
     overlay.querySelector('#ohfLaterBtn').addEventListener('click', function () {
       trackEvent(isPreview ? 'onboarding_handoff_film_preview_cta_later' : 'onboarding_handoff_film_cta_later', {
-        child_id: childId(),
         preview: isPreview,
       });
       teardown();
@@ -258,7 +331,7 @@
         showHandoffFilm({ preview: true });
         return;
       }
-      completeOnboardingAndGoHome();
+      postponeHandoff();
     });
 
     let idx = 0;
@@ -316,7 +389,8 @@
   }
 
   /** Called after schema save (+ optional activity guide) — film or legacy step 5. */
-  async function goToHandoffAfterSchema() {
+  async function goToHandoffAfterSchema(entryPoint) {
+    window.__onboardingHandoffEntry = entryPoint || 'schema_saved';
     const oa = act();
     if (oa && typeof oa.loadConfig === 'function') {
       try {
@@ -324,6 +398,7 @@
       } catch {}
     }
     maybeShowInsteadOfHandoffStep(function () {
+      if (typeof populateStep5LoginInfo === 'function') populateStep5LoginInfo();
       if (typeof goToStep === 'function') goToStep(5);
     });
   }

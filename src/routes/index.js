@@ -193,6 +193,10 @@ function registerRoutes(app) {
     res.sendFile(join(__dirname, '../../public', 'onboarding-film-preview.html'));
   });
 
+  app.get('/onboarding/handoff-film.mp4', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'onboarding', 'handoff-film.mp4'));
+  });
+
   for (const page of appPages) {
     app.get(`/${page}`, (req, res) => {
       res.sendFile(join(__dirname, '../../public', `${page}.html`));
