@@ -20,14 +20,14 @@ describe('Onboarding handoff film', () => {
     assert.ok(actIdx >= 0 && filmIdx > actIdx);
   });
 
-  it('film module uses music + text only (no voiceover)', () => {
+  it('film module uses text only (no voiceover, no music)', () => {
     const src = read('public/js/onboarding-handoff-film.js');
     assert.match(src, /SCENES/);
     assert.match(src, /Testa barnläget nu/);
     assert.match(src, /Gör det senare/);
-    assert.match(src, /startMusic/);
-    assert.match(src, /MUSIC_MELODY/);
     assert.doesNotMatch(src, /speechSynthesis/);
+    assert.doesNotMatch(src, /startMusic/);
+    assert.doesNotMatch(src, /AudioContext/);
   });
 
   it('schema save paths route through goToHandoffAfterSchema', () => {
