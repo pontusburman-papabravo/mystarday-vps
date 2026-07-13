@@ -33,9 +33,14 @@ describe('Onboarding handoff film', () => {
     const starter = read('public/js/onboarding-starter-plan.js');
     const guide = read('public/js/onboarding-activity-guide.js');
     const onboarding = read('public/js/onboarding.js');
+    const film = read('public/js/onboarding-handoff-film.js');
+    const activation = read('public/js/onboarding-activation.js');
     assert.match(starter, /OnboardingHandoffFilm\.goToHandoffAfterSchema/);
     assert.match(guide, /OnboardingHandoffFilm\.goToHandoffAfterSchema/);
     assert.match(onboarding, /OnboardingHandoffFilm\.goToHandoffAfterSchema/);
+    assert.match(film, /async function goToHandoffAfterSchema/);
+    assert.match(film, /await oa\.loadConfig\(\)/);
+    assert.match(activation, /loadConfig: loadConfig/);
   });
 
   it('film CTA try opens child login; later completes onboarding', () => {

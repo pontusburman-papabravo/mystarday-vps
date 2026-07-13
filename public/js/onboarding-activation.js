@@ -165,6 +165,7 @@
 
   window.OnboardingActivation = {
     init: init,
+    loadConfig: loadConfig,
     setChildId: function (id) { childId = id; },
     getChildId: function () { return childId; },
     getConfig: function () { return config; },
