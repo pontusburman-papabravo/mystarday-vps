@@ -111,6 +111,13 @@ describe('family avatar v1 — upload validation', () => {
       (err) => err.userMessage && /tillåtna|läsas/i.test(err.userMessage)
     );
   });
+
+  it('upload module exports isDangerousDeclaredType for avatar-upload', () => {
+    const upload = require('../src/routes/upload');
+    assert.equal(typeof upload.isDangerousDeclaredType, 'function');
+    assert.equal(upload.isDangerousDeclaredType('image/svg+xml'), true);
+    assert.equal(upload.isDangerousDeclaredType('image/jpeg'), false);
+  });
 });
 
 test('avatars GET: cross-family returns 404', async (t) => {

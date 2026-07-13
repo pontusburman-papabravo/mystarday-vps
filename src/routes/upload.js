@@ -173,5 +173,6 @@ router.post('/avatar', requireParent, (_req, res) => {
 module.exports = router;
 module.exports.detectImageMime = detectImageMime;
 module.exports.isHeicBuffer = isHeicBuffer;
+module.exports.isDangerousDeclaredType = isDangerousDeclaredType;
 module.exports.normalizeUploadBuffer = normalizeUploadBuffer;
 module.exports.sanitizeFilename = sanitizeFilename;
