@@ -6,9 +6,9 @@
 
   var VOICE = {
     SHOW_CHILD: {
-      headline: 'Visa barnet rutinen',
-      body: 'Nästa steg är att barnet ser sin dag — det tar under en minut.',
-      cta: 'Visa barnet',
+      headline: 'Låt barnet testa sin rutin',
+      body: 'Öppna barnläget tillsammans — barnet ser direkt vad som ska göras.',
+      cta: 'Testa barnläget nu',
       route: '/child-login',
       tone: 'coach',
     },

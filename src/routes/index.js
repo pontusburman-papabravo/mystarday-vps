@@ -188,6 +188,10 @@ function registerRoutes(app) {
     res.sendFile(join(__dirname, '../../public', 'family-child.html'));
   });
 
+  app.get('/onboarding/film-preview', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'onboarding-film-preview.html'));
+  });
+
   for (const page of appPages) {
     app.get(`/${page}`, (req, res) => {
       res.sendFile(join(__dirname, '../../public', `${page}.html`));

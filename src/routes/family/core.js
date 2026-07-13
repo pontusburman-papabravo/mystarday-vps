@@ -898,12 +898,14 @@ router.get('/activation-config', async (req, res) => {
         isActivationFlagEnabled(FLAG_KEYS.firstStarGuide, familyId),
         isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, familyId),
         isActivationFlagEnabled(FLAG_KEYS.signupSlim, familyId),
-      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan, signupSlim]) => ({
+        isActivationFlagEnabled(FLAG_KEYS.handoffFilm, familyId),
+      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan, signupSlim, handoffFilm]) => ({
         activation_onboarding_v1: onboarding,
         activation_child_handoff_v1: childHandoff,
         activation_first_star_guide_v1: firstStarGuide,
         activation_ai_starter_plan: aiStarterPlan,
         activation_signup_slim_v1: signupSlim,
+        activation_onboarding_handoff_film_v1: handoffFilm,
       })),
       activationDb.getByFamilyId(familyId),
       db.query(

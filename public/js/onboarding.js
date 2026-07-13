@@ -319,7 +319,11 @@ function goToStep(n) {
 async function resumeAct1Onboarding(funnelStep) {
   const step = funnelStep || 'signup';
   if (step === 'schema_saved') {
-    goToStep(5);
+    if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
+      OnboardingHandoffFilm.goToHandoffAfterSchema();
+    } else {
+      goToStep(5);
+    }
     return;
   }
   if (['child_access', 'first_completion', 'p0_activated', 'p0_activated_48h'].includes(step)) {
@@ -364,6 +368,8 @@ async function finalizeSchemaAndGoHandoff() {
   }
   if (window.OnboardingActivityGuide && typeof OnboardingActivityGuide.goToActivityGuideStep === 'function') {
     OnboardingActivityGuide.goToActivityGuideStep();
+  } else if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
+    OnboardingHandoffFilm.goToHandoffAfterSchema();
   } else {
     goToStep(5);
   }

@@ -217,7 +217,9 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v597';
+const CACHE_NAME = 'stjarndag-v599';
+// stjarndag-v599: onboarding handoff film preview page /onboarding/film-preview
+// stjarndag-v598: onboarding handoff film — music + text after schema save
 // stjarndag-v597: Familj — loading skeleton, prefetch, Inställningar-länk
 // stjarndag-v596: Avatar crop — square viewport + EXIF orientation (fix distortion)
 // stjarndag-v595: Family Avatar — show Profilbild in Inställningar → Profil & konto (magic group tag)

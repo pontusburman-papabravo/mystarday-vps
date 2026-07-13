@@ -12,6 +12,9 @@
   function isGuideEnabled() {
     const oa = act();
     if (!oa || typeof oa.getConfig !== 'function') return false;
+    if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.isEnabled === 'function') {
+      if (OnboardingHandoffFilm.isEnabled()) return false;
+    }
     if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function') {
       if (OnboardingStarterPlan.isSlimFastPath()) return false;
     } else {
