@@ -1,0 +1,28 @@
+{
+  "model": "fal-ai/elevenlabs/music",
+  "generatedAt": "2026-07-13T23:07:18.040Z",
+  "musicLengthMs": 45000,
+  "candidates": [
+    {
+      "id": "a",
+      "slug": "candidate-a-warm-felt-piano",
+      "label": "Candidate A — Warm Felt Piano",
+      "m4a": "audio/generated/candidate-a-warm-felt-piano.m4a",
+      "requestId": "019f5dbb-9743-7061-94c2-6dccf1cf07c6"
+    },
+    {
+      "id": "b",
+      "slug": "candidate-b-organic-acoustic",
+      "label": "Candidate B — Organic Acoustic",
+      "m4a": "audio/generated/candidate-b-organic-acoustic.m4a",
+      "requestId": "019f5dbb-c53f-7f61-a2bc-263ad31d7799"
+    },
+    {
+      "id": "c",
+      "slug": "candidate-c-quiet-cinematic",
+      "label": "Candidate C — Quiet Cinematic",
+      "m4a": "audio/generated/candidate-c-quiet-cinematic.m4a",
+      "requestId": "019f5dbb-f35d-7833-a050-c19595a1fbf6"
+    }
+  ]
+}

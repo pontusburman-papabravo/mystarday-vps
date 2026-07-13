@@ -1,5 +1,5 @@
 {
-  "analysedAt": "2026-07-13T22:50:16.643Z",
+  "analysedAt": "2026-07-13T23:07:32.348Z",
   "target": {
     "integratedLufs": -16,
     "truePeakMax": -1,
@@ -10,23 +10,122 @@
       "id": "a",
       "slug": "candidate-a-warm-felt-piano",
       "label": "Candidate A — Warm Felt Piano",
-      "status": "missing",
-      "error": "File not found — run music:candidates -- --confirm"
+      "status": "ok",
+      "file": "audio/generated/candidate-a-warm-felt-piano.m4a",
+      "durationSec": 44100,
+      "stereo": true,
+      "channels": 2,
+      "sampleRate": 45,
+      "integratedLufs": -15.24,
+      "truePeak": -1.17,
+      "dynamicRangeLra": 13.4,
+      "clipping": false,
+      "silence": {
+        "silenceRegions": 3,
+        "totalSilenceSec": 34.49
+      },
+      "segments": {
+        "beginning": {
+          "startSec": 0,
+          "endSec": 14700,
+          "integratedLufs": -15.25,
+          "truePeak": -1.07
+        },
+        "middle": {
+          "startSec": 14700,
+          "endSec": 29400,
+          "integratedLufs": null,
+          "truePeak": null
+        },
+        "ending": {
+          "startSec": 29400,
+          "endSec": 44100,
+          "integratedLufs": null,
+          "truePeak": null
+        }
+      },
+      "passesTarget": true
     },
     {
       "id": "b",
       "slug": "candidate-b-organic-acoustic",
       "label": "Candidate B — Organic Acoustic",
-      "status": "missing",
-      "error": "File not found — run music:candidates -- --confirm"
+      "status": "ok",
+      "file": "audio/generated/candidate-b-organic-acoustic.m4a",
+      "durationSec": 44100,
+      "stereo": true,
+      "channels": 2,
+      "sampleRate": 44,
+      "integratedLufs": -13.27,
+      "truePeak": -1.43,
+      "dynamicRangeLra": 3.6,
+      "clipping": false,
+      "silence": {
+        "silenceRegions": 2,
+        "totalSilenceSec": 11.72
+      },
+      "segments": {
+        "beginning": {
+          "startSec": 0,
+          "endSec": 14700,
+          "integratedLufs": -13.29,
+          "truePeak": -1.31
+        },
+        "middle": {
+          "startSec": 14700,
+          "endSec": 29400,
+          "integratedLufs": null,
+          "truePeak": null
+        },
+        "ending": {
+          "startSec": 29400,
+          "endSec": 44100,
+          "integratedLufs": null,
+          "truePeak": null
+        }
+      },
+      "passesTarget": false
     },
     {
       "id": "c",
       "slug": "candidate-c-quiet-cinematic",
       "label": "Candidate C — Quiet Cinematic",
-      "status": "missing",
-      "error": "File not found — run music:candidates -- --confirm"
+      "status": "ok",
+      "file": "audio/generated/candidate-c-quiet-cinematic.m4a",
+      "durationSec": 44100,
+      "stereo": true,
+      "channels": 2,
+      "sampleRate": 44,
+      "integratedLufs": -15.58,
+      "truePeak": -3.06,
+      "dynamicRangeLra": 6.6,
+      "clipping": false,
+      "silence": {
+        "silenceRegions": 2,
+        "totalSilenceSec": 15.21
+      },
+      "segments": {
+        "beginning": {
+          "startSec": 0,
+          "endSec": 14700,
+          "integratedLufs": -15.6,
+          "truePeak": -3.07
+        },
+        "middle": {
+          "startSec": 14700,
+          "endSec": 29400,
+          "integratedLufs": null,
+          "truePeak": null
+        },
+        "ending": {
+          "startSec": 29400,
+          "endSec": 44100,
+          "integratedLufs": null,
+          "truePeak": null
+        }
+      },
+      "passesTarget": true
     }
   ],
-  "recommendation": null
+  "recommendation": "a"
 }
