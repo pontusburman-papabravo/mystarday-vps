@@ -26,6 +26,10 @@ import {
   ensureDirs,
 } from './cli.mjs';
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function runGenerate(argv = process.argv.slice(2)) {
   const { flags, options } = parseArgs(argv);
   const usePlaceholders = flags.has('placeholders');
@@ -139,62 +143,81 @@ export async function runGenerate(argv = process.argv.slice(2)) {
 
       console.log(`\n[${manifest.id}] Generating ${scene.id}…`);
 
-      try {
-        updateSceneState(state, scene.id, { status: 'submitting' });
-        saveState(manifest.id, state);
+      const maxAttempts = 4;
+      let lastErr;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          if (attempt > 1) {
+            const waitSec = 5 * attempt;
+            console.log(`  retry ${attempt}/${maxAttempts} in ${waitSec}s…`);
+            await sleep(waitSec * 1000);
+          }
 
-        const { requestId, imageUrl } = await submitScene({
-          prompt: scene.pikaPrompt,
-          referenceImagePath: resolvedRef,
-          duration: scene.duration,
-          resolution: CONFIG.pikaResolution,
-          seed: manifest.seed,
-          visualStyle: manifest.visualStyle,
-        });
+          updateSceneState(state, scene.id, { status: 'submitting' });
+          saveState(manifest.id, state);
 
-        updateSceneState(state, scene.id, {
-          status: 'queued',
-          requestId,
-          referenceImageUrl: imageUrl,
-        });
-        saveState(manifest.id, state);
+          const { requestId, imageUrl } = await submitScene({
+            prompt: scene.pikaPrompt,
+            referenceImagePath: resolvedRef,
+            duration: scene.duration,
+            resolution: CONFIG.pikaResolution,
+            seed: manifest.seed,
+            visualStyle: manifest.visualStyle,
+          });
 
-        const result = await pollUntilComplete(requestId, {
-          onStatus: (status) => {
-            if (status.status === 'IN_PROGRESS') {
-              process.stdout.write('.');
-            }
-          },
-        });
-        console.log('');
+          updateSceneState(state, scene.id, {
+            status: 'queued',
+            requestId,
+            referenceImageUrl: imageUrl,
+          });
+          saveState(manifest.id, state);
 
-        const videoUrl = result.data?.video?.url;
-        if (!videoUrl) {
-          throw new Error(`No video URL in Pika result for ${scene.id}`);
+          const result = await pollUntilComplete(requestId, {
+            onStatus: (status) => {
+              if (status.status === 'IN_PROGRESS') {
+                process.stdout.write('.');
+              }
+            },
+          });
+          console.log('');
+
+          const videoUrl = result.data?.video?.url;
+          if (!videoUrl) {
+            throw new Error(`No video URL in Pika result for ${scene.id}`);
+          }
+
+          await downloadVideo(videoUrl, localPath);
+
+          updateSceneState(state, scene.id, {
+            status: 'completed',
+            requestId,
+            videoUrl,
+            localPath,
+            completedAt: new Date().toISOString(),
+            error: undefined,
+          });
+          incrementDailyGenerations(state, 1);
+          saveState(manifest.id, state);
+
+          generatedThisRun += 1;
+          console.log(`  ✓ ${scene.id} → ${localPath}`);
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          const retryable = /forbidden|429|rate|timeout/i.test(err.message);
+          if (!retryable || attempt === maxAttempts) {
+            updateSceneState(state, scene.id, {
+              status: 'failed',
+              error: err.message,
+            });
+            saveState(manifest.id, state);
+            throw new Error(`Generation failed for ${manifest.id}/${scene.id}: ${err.message}`);
+          }
+          console.warn(`  attempt ${attempt} failed (${err.message})`);
         }
-
-        await downloadVideo(videoUrl, localPath);
-
-        updateSceneState(state, scene.id, {
-          status: 'completed',
-          requestId,
-          videoUrl,
-          localPath,
-          completedAt: new Date().toISOString(),
-        });
-        incrementDailyGenerations(state, 1);
-        saveState(manifest.id, state);
-
-        generatedThisRun += 1;
-        console.log(`  ✓ ${scene.id} → ${localPath}`);
-      } catch (err) {
-        updateSceneState(state, scene.id, {
-          status: 'failed',
-          error: err.message,
-        });
-        saveState(manifest.id, state);
-        throw new Error(`Generation failed for ${manifest.id}/${scene.id}: ${err.message}`);
       }
+      if (lastErr) continue;
     }
   }
 

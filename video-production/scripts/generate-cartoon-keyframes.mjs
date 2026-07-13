@@ -78,14 +78,21 @@ async function main() {
       continue;
     }
     console.log(`  → ${spec.file}`);
-    const { url } = await generateAndSaveFluxImage({
-      prompt: spec.prompt,
-      destPath: dest,
-      seed: SEED,
-      imageSize: 'landscape_16_9',
-    });
-    console.log(`    ✓ ${dest}`);
-    console.log(`    ${url}\n`);
+    try {
+      const { url } = await generateAndSaveFluxImage({
+        prompt: spec.prompt,
+        destPath: dest,
+        seed: SEED,
+        imageSize: 'landscape_16_9',
+      });
+      console.log(`    ✓ ${dest}`);
+      console.log(`    ${url}\n`);
+    } catch (err) {
+      console.error(`    ✗ ${spec.file}: ${err.message}`);
+      throw err;
+    }
+    // Brief pause — avoids transient 403/rate-limit between queue submits.
+    await new Promise((r) => setTimeout(r, 2000));
   }
 
   console.log('Keyframes ready. Run: npm run generate -- --film together-through-the-morning --confirm');
