@@ -6,6 +6,7 @@ const { mapChildForFamilyApi, mapParentForFamilyApi } = require('../src/lib/avat
 const {
   childRoleLabelForParent,
   childRoleLabelForSibling,
+  childDisplayEmojiForParent,
 } = require('../src/lib/family-person-role');
 
 /**
@@ -62,7 +63,8 @@ async function getFamilyHall(familyId, options) {
     ]);
     persons = {
       parents: parentsRes.rows.map((p) => mapParentForFamilyApi(p, {
-        emoji: '👤',
+        emoji: childDisplayEmojiForParent(p),
+        display_emoji: childDisplayEmojiForParent(p),
         family_role: p.family_role || null,
         roleLabel: childRoleLabelForParent(p),
       })),

@@ -21,6 +21,27 @@ const KINSHIP_FROM_NAME = [
   { pattern: /^morbror$/i, label: 'Morbror' },
 ];
 
+/** Warm recognition emoji when no profile photo (child-facing). */
+const ROLE_DISPLAY_EMOJI = {
+  mamma: '👩',
+  pappa: '👨',
+  'bonusförälder': '🧑',
+  annan: '🧑',
+};
+
+const KINSHIP_DISPLAY_EMOJI = {
+  Mormor: '👵',
+  Morfar: '👴',
+  Farmor: '👵',
+  Farfar: '👴',
+  Mamma: '👩',
+  Pappa: '👨',
+  Faster: '👩',
+  Farbror: '👨',
+  Moster: '👩',
+  Morbror: '👨',
+};
+
 function kinshipLabelFromName(name) {
   const trimmed = (name || '').trim();
   if (!trimmed) return null;
@@ -58,10 +79,35 @@ function childRoleLabelForPedagog() {
   return 'Hjälper mig i skolan';
 }
 
+/**
+ * Emoji for child recognition when no uploaded photo exists.
+ * @param {{ name?: string, family_role?: string|null }} parent
+ */
+function childDisplayEmojiForParent(parent) {
+  const role = parent && parent.family_role;
+  if (role === 'annan') {
+    const fromName = kinshipLabelFromName(parent && parent.name);
+    if (fromName && KINSHIP_DISPLAY_EMOJI[fromName]) {
+      return KINSHIP_DISPLAY_EMOJI[fromName];
+    }
+    return ROLE_DISPLAY_EMOJI.annan;
+  }
+  if (role && ROLE_DISPLAY_EMOJI[role]) {
+    return ROLE_DISPLAY_EMOJI[role];
+  }
+  const label = childRoleLabelForParent(parent);
+  if (KINSHIP_DISPLAY_EMOJI[label]) {
+    return KINSHIP_DISPLAY_EMOJI[label];
+  }
+  return '👤';
+}
+
 module.exports = {
   FAMILY_ROLE_LABELS,
   childRoleLabelForParent,
   childRoleLabelForSibling,
   childRoleLabelForPedagog,
   kinshipLabelFromName,
+  childDisplayEmojiForParent,
+  ROLE_DISPLAY_EMOJI,
 };

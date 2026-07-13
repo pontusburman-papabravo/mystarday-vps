@@ -94,29 +94,57 @@
     return { state: 'together', persons: [], personCount: 0, statusLine: '', togetherLine: '' };
   }
 
-  function personAvatarHtml(person) {
+  const PERSON_AVATAR_SIZE = 76;
+
+  function personAvatarOptions(person) {
+    const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
+    return {
+      memberType: memberType,
+      displayEmoji: person.displayEmoji || person.emoji || (memberType === 'child' ? '⭐' : '👤'),
+    };
+  }
+
+  function personMember(person) {
+    const opts = personAvatarOptions(person);
+    return {
+      id: person.id,
+      name: person.name,
+      emoji: person.emoji,
+      display_emoji: person.displayEmoji,
+      avatar_src: person.avatarUrl || '',
+      has_avatar: person.hasAvatar,
+      type: opts.memberType,
+      member_type: opts.memberType,
+    };
+  }
+
+  function personAvatarHtml(person, size) {
+    size = size || PERSON_AVATAR_SIZE;
+    const opts = personAvatarOptions(person);
     if (window.MemberAvatar && MemberAvatar.renderMemberAvatar) {
-      const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
-      const member = {
-        id: person.id,
-        name: person.name,
-        emoji: person.emoji,
-        avatar_src: person.avatarUrl || '',
-        has_avatar: person.hasAvatar,
-        type: memberType,
-        member_type: memberType,
-      };
-      return MemberAvatar.renderMemberAvatar(member, 52, { memberType: memberType });
+      return '<div class="cfh-person-avatar-ring" data-role="' + esc(person.roleLabel) + '">' +
+        MemberAvatar.renderMemberAvatar(personMember(person), size, opts) +
+        '</div>';
     }
     let src = person.avatarUrl || '';
     if (!src && person.hasAvatar && person.id) {
-      const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
-      src = '/api/avatars/' + memberType + '/' + person.id;
+      src = '/api/avatars/' + opts.memberType + '/' + person.id;
     }
     if (src) {
-      return '<img class="cfh-person-photo" src="' + esc(src) + '" alt="" loading="lazy" decoding="async" />';
+      return '<div class="cfh-person-avatar-ring" data-role="' + esc(person.roleLabel) + '">' +
+        '<img class="cfh-person-photo" src="' + esc(src) + '" alt="" loading="lazy" decoding="async" />' +
+        '</div>';
     }
-    return '<span class="cfh-person-emoji" aria-hidden="true">' + esc(person.emoji || '👤') + '</span>';
+    return '<div class="cfh-person-avatar-ring" data-role="' + esc(person.roleLabel) + '">' +
+      '<span class="cfh-person-emoji cfh-person-emoji--face" aria-hidden="true">' +
+      esc(opts.displayEmoji) + '</span></div>';
+  }
+
+  function roleBadgeClass(roleLabel) {
+    if (roleLabel === 'Pappa') return 'cfh-person-role--pappa';
+    if (roleLabel === 'Mamma') return 'cfh-person-role--mamma';
+    if (roleLabel === 'Syskon') return 'cfh-person-role--sibling';
+    return 'cfh-person-role--other';
   }
 
   function renderPersonCards(state) {
@@ -128,12 +156,14 @@
     }
     return '<div class="cfh-person-grid" role="list">' + state.persons.map(function (person) {
       const highlightCls = state.highlightPersonKey === person.key ? ' cfh-person-card--highlight' : '';
+      const roleCls = roleBadgeClass(person.roleLabel);
       return '<button type="button" class="cfh-person-card cfh-person-card-btn' + highlightCls + '"' +
         ' role="listitem" data-cfh-person-key="' + esc(person.key) + '"' +
         ' aria-label="' + esc(person.name + ', ' + person.roleLabel) + '">' +
         personAvatarHtml(person) +
         '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
-        '<span class="cfh-person-role">' + esc(person.roleLabel) + '</span>' +
+        '<span class="cfh-person-role ' + roleCls + '">' + esc(person.roleLabel) + '</span>' +
+        '<span class="cfh-person-tap-hint">Tryck för mer</span>' +
       '</button>';
     }).join('') + '</div>';
   }

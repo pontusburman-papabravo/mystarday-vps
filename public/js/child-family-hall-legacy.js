@@ -70,24 +70,29 @@
   }
 
   function renderPersonCard(person, key) {
+    const memberType = person.kind === 'sibling' ? 'child' : 'parent';
+    const displayEmoji = person.displayEmoji || person.emoji || (memberType === 'child' ? '⭐' : '👤');
     const member = {
       id: person.id,
       name: person.name,
       emoji: person.emoji,
+      display_emoji: displayEmoji,
       avatar_src: person.avatar_src || person.avatarUrl || '',
       has_avatar: person.has_avatar || person.hasAvatar,
-      type: person.kind === 'sibling' ? 'child' : 'parent',
-      member_type: person.kind === 'sibling' ? 'child' : 'parent',
+      type: memberType,
+      member_type: memberType,
     };
-    const memberType = person.kind === 'sibling' ? 'child' : 'parent';
     const avatar = window.MemberAvatar && MemberAvatar.renderMemberAvatar
-      ? MemberAvatar.renderMemberAvatar(member, 52, { memberType: memberType })
-      : '<span class="cfh-person-emoji">' + esc(person.emoji || (memberType === 'child' ? '⭐' : '👤')) + '</span>';
+      ? '<div class="cfh-person-avatar-ring" data-role="' + esc(person.roleLabel || '') + '">' +
+        MemberAvatar.renderMemberAvatar(member, 76, { memberType: memberType, displayEmoji: displayEmoji }) +
+        '</div>'
+      : '<span class="cfh-person-emoji cfh-person-emoji--face">' + esc(displayEmoji) + '</span>';
     const label = person.roleLabel || (memberType === 'child' ? 'Syskon' : 'Hjälper mig hemma');
     return '<button type="button" class="cfh-person-card cfh-person-card-btn" data-cfh-person-key="' + esc(key) + '"' +
       ' aria-label="' + esc(person.name + ', ' + label) + '">' + avatar +
       '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
-      '<span class="cfh-person-role">' + esc(label) + '</span></button>';
+      '<span class="cfh-person-role">' + esc(label) + '</span>' +
+      '<span class="cfh-person-tap-hint">Tryck för mer</span></button>';
   }
 
   function renderPersons(data) {
@@ -101,7 +106,8 @@
         key: key,
         id: p.id,
         name: p.name,
-        emoji: p.emoji,
+        emoji: p.emoji || p.display_emoji || '👤',
+        displayEmoji: p.display_emoji || p.emoji || '👤',
         avatarUrl: p.avatar_src || '',
         hasAvatar: !!p.has_avatar,
         kind: 'parent',

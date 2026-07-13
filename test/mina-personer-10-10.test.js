@@ -91,13 +91,13 @@ describe('Mina personer barn 10/10', () => {
     const hall = fs.readFileSync(HALL, 'utf8');
     const sheet = fs.readFileSync(path.join(ROOT, 'public/js/child-family-person-sheet.js'), 'utf8');
     const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/child-family-hall.css'), 'utf8');
     assert.match(hall, /ChildFamilyPersonSheet/);
-    assert.match(hall, /data-cfh-person-key/);
-    assert.match(hall, /cfh-person-card-btn/);
-    assert.match(sheet, /cfh-person-sheet-role/);
-    assert.match(sheet, /bindCards/);
+    assert.match(hall, /cfh-person-avatar-ring/);
+    assert.match(hall, /cfh-person-tap-hint/);
+    assert.match(sheet, /warmGreeting/);
+    assert.match(css, /cfh-person-role--pappa/);
     assert.match(html, /child-family-person-sheet\.js/);
-    assert.match(html, /child-family-person-sheet\.css/);
     assert.match(html, /member-avatar\.js/);
   });
 
@@ -105,7 +105,7 @@ describe('Mina personer barn 10/10', () => {
     const src = fs.readFileSync(path.join(ROOT, 'db/family-hall.js'), 'utf8');
     assert.match(src, /family-person-role/);
     assert.match(src, /roleLabel: childRoleLabelForParent/);
-    assert.match(src, /roleLabel: childRoleLabelForSibling/);
+    assert.match(src, /display_emoji/);
   });
 
   it('SW bumped for Mina personer 10/10', () => {

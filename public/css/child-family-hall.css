@@ -210,21 +210,72 @@
 .cfh-person-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
+}
+
+.cfh-person-grid:has(.cfh-person-card:only-child) {
+  grid-template-columns: 1fr;
+  max-width: 14rem;
+  margin: 0 auto;
 }
 
 .cfh-person-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 14px 10px;
+  gap: 6px;
+  padding: 16px 12px 12px;
   min-height: 44px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.96);
   border: 1.5px solid #EDE7F6;
-  border-radius: 16px;
+  border-radius: 18px;
   text-align: center;
-  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.06);
+  box-shadow: 0 6px 18px rgba(27, 35, 64, 0.08);
+}
+
+.cfh-person-avatar-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.25rem;
+  height: 5.25rem;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff9f3 0%, #f3ecff 100%);
+  border: 2.5px solid rgba(123, 97, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(27, 35, 64, 0.1);
+  margin-bottom: 2px;
+}
+
+.cfh-person-avatar-ring[data-role="Pappa"] {
+  border-color: rgba(59, 130, 246, 0.35);
+  background: linear-gradient(145deg, #eff6ff 0%, #f8fafc 100%);
+}
+
+.cfh-person-avatar-ring[data-role="Mamma"] {
+  border-color: rgba(236, 72, 153, 0.32);
+  background: linear-gradient(145deg, #fdf2f8 0%, #fff7ed 100%);
+}
+
+.cfh-person-avatar-ring[data-role="Syskon"] {
+  border-color: rgba(245, 166, 35, 0.38);
+  background: linear-gradient(145deg, #fffbeb 0%, #fff7ed 100%);
+}
+
+.cfh-person-avatar-ring img,
+.cfh-person-avatar-ring .cfh-person-emoji--face {
+  width: 4.5rem !important;
+  height: 4.5rem !important;
+  border-radius: 50%;
+}
+
+.cfh-person-emoji--face {
+  font-size: 2.65rem !important;
+  line-height: 1;
+}
+
+.cfh-person-emoji--fallback {
+  font-size: 2.65rem;
+  line-height: 1;
 }
 
 .cfh-person-card--away {
@@ -242,23 +293,53 @@
 }
 
 .cfh-person-photo {
-  width: 52px;
-  height: 52px;
+  width: 4.5rem;
+  height: 4.5rem;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #EDE7F6;
+  border: none;
 }
 
 .cfh-person-name {
-  font-weight: 700;
+  font-weight: 800;
   color: #1B2340;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  line-height: 1.2;
 }
 
 .cfh-person-role {
-  font-size: 0.7rem;
-  color: #5A6178;
-  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(123, 97, 255, 0.12);
+  color: #5b4bb7;
+}
+
+.cfh-person-role--pappa {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+}
+
+.cfh-person-role--mamma {
+  background: rgba(236, 72, 153, 0.14);
+  color: #be185d;
+}
+
+.cfh-person-role--sibling {
+  background: rgba(245, 166, 35, 0.16);
+  color: #b45309;
+}
+
+.cfh-person-tap-hint {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #9AA0B8;
+  margin-top: 2px;
 }
 
 .cfh-together-line--warm {

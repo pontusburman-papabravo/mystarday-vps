@@ -217,9 +217,10 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v609';
-// stjarndag-v609: handoff film demo MP4 + ACT-1 integration deploy
-// stjarndag-v608: handoff film — ACT-1 integration (slim path, dashboard CTA, handoff panel)
+const CACHE_NAME = 'stjarndag-v610';
+// stjarndag-v610: handoff film demo MP4 + ACT-1 integration deploy
+// stjarndag-v609: handoff film demo MP4 + ACT-1 integration
+// stjarndag-v608: Mina personer — warm role emojis, larger person cards, richer detail sheet
 // stjarndag-v607: merge — Mina personer tap sheet + Familj inställningar back nav
 // stjarndag-v606: Familj → Inställningar back nav fix (hash #profil loop)
 // stjarndag-v604: Mitt tab isolation, header cleanup, activity cards, family avatars

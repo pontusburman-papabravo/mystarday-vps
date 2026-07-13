@@ -48,6 +48,10 @@
     if (photo) {
       return { kind: 'photo', src: photo, alt: member.name || '' };
     }
+    const displayEmoji = options.displayEmoji || member.display_emoji;
+    if (memberType === 'parent' && displayEmoji) {
+      return { kind: 'emoji', value: displayEmoji };
+    }
     if (memberType === 'child' && member.emoji) {
       return { kind: 'emoji', value: member.emoji };
     }
@@ -69,16 +73,18 @@
     const baseStyle = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;display:inline-block;vertical-align:middle;flex-shrink:0;';
 
     if (resolved.kind === 'photo') {
-      const fallbackEmoji = member.emoji ? escapeHtml(member.emoji) : '';
-      const onerr = fallbackEmoji
-        ? ' onerror="this.outerHTML=\'<span class=\\\'cfh-person-emoji\\\' aria-hidden=\\\'true\\\'>' + fallbackEmoji + '</span>\'"'
+      const fallbackEmoji = options.displayEmoji || member.display_emoji || member.emoji || '';
+      const safeFallback = fallbackEmoji ? escapeHtml(fallbackEmoji) : '';
+      const onerr = safeFallback
+        ? ' onerror="this.outerHTML=\'<span class=\\\'cfh-person-emoji cfh-person-emoji--fallback\\\' aria-hidden=\\\'true\\\'>' + safeFallback + '</span>\'"'
         : '';
       return '<img src="' + escapeHtml(resolved.src) + '" alt="' + alt + '" ' +
         'style="' + baseStyle + 'object-fit:cover;" loading="lazy" decoding="async"' + onerr + ' />';
     }
     if (resolved.kind === 'emoji') {
-      return '<span role="img" aria-label="' + alt + '" style="display:inline-flex;align-items:center;justify-content:center;' +
-        'font-size:' + Math.round(size * 0.8) + 'px;line-height:1;width:' + size + 'px;height:' + size + 'px;">' +
+      return '<span role="img" aria-label="' + alt + '" class="cfh-person-emoji cfh-person-emoji--face"' +
+        ' style="display:inline-flex;align-items:center;justify-content:center;' +
+        'font-size:' + Math.round(size * 0.72) + 'px;line-height:1;width:' + size + 'px;height:' + size + 'px;">' +
         escapeHtml(resolved.value) + '</span>';
     }
     if (resolved.kind === 'initials') {
