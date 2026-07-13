@@ -158,6 +158,27 @@ function applyChildViewMode() {
   }
 }
 
+function applySamlingTabChrome(tab) {
+  if (!window.ChildWorlds || !ChildWorlds.isBarnetsSamlingEnabled || !ChildWorlds.isBarnetsSamlingEnabled()) {
+    return;
+  }
+  const isToday = tab === 'schedule';
+  const focus = document.getElementById('todayFocusMount');
+  const weekNav = document.getElementById('weekNavDetails');
+  const progress = document.getElementById('progressSection');
+  if (focus) focus.classList.toggle('hidden', !isToday);
+  if (weekNav) {
+    weekNav.classList.toggle('hidden', !isToday);
+    if (!isToday) weekNav.setAttribute('aria-hidden', 'true');
+    else weekNav.removeAttribute('aria-hidden');
+  }
+  if (progress) {
+    progress.classList.toggle('hidden', !isToday);
+    if (!isToday) progress.setAttribute('aria-hidden', 'true');
+    else progress.removeAttribute('aria-hidden');
+  }
+}
+
 function showTab(tab) {
   if (window.ChildFirstStarMode && ChildFirstStarMode.isActive() && tab !== 'schedule') {
     return;
@@ -262,6 +283,8 @@ function showTab(tab) {
   if (isCollection && window.ChildSamlingView) ChildSamlingView.refresh();
   if (isFamily && window.ChildFamilyHall) ChildFamilyHall.refresh();
   if (isSettings && window.ChildSettingsView) ChildSettingsView.refresh();
+
+  applySamlingTabChrome(tab);
 
   if (window.ChildWorldsNav) {
     ChildWorldsNav.highlightActive(tab);

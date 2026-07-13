@@ -37,6 +37,10 @@ body.child-worlds-v2 #childBottomNav:not([data-nav-ready="true"]) {
 }
 
 /* Gate ON: legacy progress/header tools stay hidden (today-focus owns Idag chrome) */
+[data-barnets-samling="on"] #childMainHeader {
+  display: none !important;
+}
+
 [data-barnets-samling="on"] #progressSection,
 [data-barnets-samling="on"] #viewToggleBtn,
 [data-barnets-samling="on"] #printBtn,

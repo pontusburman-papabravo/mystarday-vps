@@ -79,11 +79,12 @@ describe('barnets samling — presentation polish', () => {
     assert.match(hall, /project_completed/);
   });
 
-  it('Idag checkoff places checkbox on separate row', () => {
+  it('Idag checkoff keeps NU-card checkbox on separate row; activity cards use flex', () => {
     const css = read('public/css/child-samling-shell.css');
     assert.match(css, /now-check[\s\S]*grid-row: 3/);
-    assert.match(css, /card-check[\s\S]*grid-row: 2/);
-    assert.match(css, /!important/);
+    assert.match(css, /activity-card > \.flex\.items-center/);
+    assert.match(css, /activity-card \.card-check/);
+    assert.doesNotMatch(css, /activity-card \.card-check[\s\S]*grid-row: 2/);
   });
 
   it('Skattkammaren excludes active goal from reward list', () => {

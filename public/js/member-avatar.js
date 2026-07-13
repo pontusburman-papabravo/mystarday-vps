@@ -69,8 +69,12 @@
     const baseStyle = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;display:inline-block;vertical-align:middle;flex-shrink:0;';
 
     if (resolved.kind === 'photo') {
+      const fallbackEmoji = member.emoji ? escapeHtml(member.emoji) : '';
+      const onerr = fallbackEmoji
+        ? ' onerror="this.outerHTML=\'<span class=\\\'cfh-person-emoji\\\' aria-hidden=\\\'true\\\'>' + fallbackEmoji + '</span>\'"'
+        : '';
       return '<img src="' + escapeHtml(resolved.src) + '" alt="' + alt + '" ' +
-        'style="' + baseStyle + 'object-fit:cover;" loading="lazy" decoding="async" />';
+        'style="' + baseStyle + 'object-fit:cover;" loading="lazy" decoding="async"' + onerr + ' />';
     }
     if (resolved.kind === 'emoji') {
       return '<span role="img" aria-label="' + alt + '" style="display:inline-flex;align-items:center;justify-content:center;' +

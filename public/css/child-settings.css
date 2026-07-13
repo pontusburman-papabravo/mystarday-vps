@@ -2,6 +2,10 @@
  * child-settings.css — Mitt-fliken (barnets_samling gate ON).
  */
 
+#settingsView[data-active="true"]:not(.hidden) {
+  display: block;
+}
+
 [data-barnets-samling="on"] #settingsView {
   padding-bottom: 0;
 }

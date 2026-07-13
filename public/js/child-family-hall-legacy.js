@@ -69,16 +69,45 @@
     '</section>';
   }
 
+  function renderPersonCard(person, roleLabel) {
+    const member = {
+      id: person.id,
+      name: person.name,
+      emoji: person.emoji,
+      avatar_src: person.avatar_src || person.avatarUrl || '',
+      has_avatar: person.has_avatar || person.hasAvatar,
+      type: 'parent',
+      member_type: 'parent',
+    };
+    const avatar = window.MemberAvatar && MemberAvatar.renderMemberAvatar
+      ? MemberAvatar.renderMemberAvatar(member, 52, { memberType: 'parent' })
+      : '<span class="cfh-person-emoji">' + esc(person.emoji || '👤') + '</span>';
+    return '<div class="cfh-person-card">' + avatar +
+      '<span class="cfh-person-name">' + esc(person.name) + '</span>' +
+      '<span class="cfh-person-role">' + esc(roleLabel) + '</span></div>';
+  }
+
   function renderPersons(data) {
     const persons = data.persons;
     if (!persons) return '';
     let cards = '';
     (persons.parents || []).forEach(function (p) {
-      cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(p.emoji || '👤') + '</span>' +
-        '<span class="cfh-person-name">' + esc(p.name) + '</span><span class="cfh-person-role">Vuxen</span></div>';
+      cards += renderPersonCard(p, 'Vuxen');
     });
     (persons.siblings || []).forEach(function (s) {
-      cards += '<div class="cfh-person-card"><span class="cfh-person-emoji">' + esc(s.emoji || '⭐') + '</span>' +
+      const siblingMember = {
+        id: s.id,
+        name: s.name,
+        emoji: s.emoji,
+        avatar_src: s.avatar_src || s.avatarUrl || '',
+        has_avatar: s.has_avatar || s.hasAvatar,
+        type: 'child',
+        member_type: 'child',
+      };
+      const avatar = window.MemberAvatar && MemberAvatar.renderMemberAvatar
+        ? MemberAvatar.renderMemberAvatar(siblingMember, 52, { memberType: 'child' })
+        : '<span class="cfh-person-emoji">' + esc(s.emoji || '⭐') + '</span>';
+      cards += '<div class="cfh-person-card">' + avatar +
         '<span class="cfh-person-name">' + esc(s.name) + '</span><span class="cfh-person-role">Syskon</span></div>';
     });
     if (!cards) {

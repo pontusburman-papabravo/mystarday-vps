@@ -93,11 +93,33 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.match(bootCss, /\[data-barnets-samling="on"\] #switchChildBtn/);
     assert.match(bootCss, /\[data-barnets-samling="on"\] #logoutBtn/);
     assert.match(bootCss, /\[data-barnets-samling="on"\] #childSystemIconBtn/);
+    assert.match(bootCss, /\[data-barnets-samling="on"\] #childMainHeader/);
     assert.match(worlds, /hideSamlingHeaderActions/);
     assert.match(systemMenu, /shouldMount/);
     assert.match(systemMenu, /isBarnetsSamlingEnabled/);
     assert.doesNotMatch(systemMenu, /DOMContentLoaded.*mount/);
     assert.match(shell, /ChildSystemMenu\.shouldMount/);
+  });
+
+  it('Mitt tab isolates Idag chrome — settings layer hides schedule/focus', () => {
+    const dash = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/child-layer-router.js'), 'utf8');
+    const nav = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
+    const focusCss = fs.readFileSync(path.join(ROOT, 'public/css/child-today-focus.css'), 'utf8');
+    const settingsCss = fs.readFileSync(path.join(ROOT, 'public/css/child-settings.css'), 'utf8');
+    assert.match(dash, /applySamlingTabChrome/);
+    assert.match(router, /isSettings/);
+    assert.match(router, /hideIdagChrome/);
+    assert.match(nav, /tabKey === 'settings'/);
+    assert.match(focusCss, /\[data-child-layer="settings"\] #scheduleView/);
+    assert.match(focusCss, /\[data-child-layer="settings"\] #todayFocusMount/);
+    assert.match(settingsCss, /#settingsView\[data-active="true"\]/);
+  });
+
+  it('legacy family hall renders parent avatars via MemberAvatar', () => {
+    const legacy = fs.readFileSync(path.join(ROOT, 'public/js/child-family-hall-legacy.js'), 'utf8');
+    assert.match(legacy, /MemberAvatar\.renderMemberAvatar/);
+    assert.match(legacy, /avatar_src/);
   });
 
   it('navigateWorld uses SPA showTab when barnets_samling gate is on', () => {
