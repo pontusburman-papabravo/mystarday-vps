@@ -217,10 +217,11 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v600';
-// stjarndag-v600: fix handoff film preview deploy + config race + reduced-motion
-// stjarndag-v599: onboarding handoff film preview page /onboarding/film-preview
-// stjarndag-v598: onboarding handoff film — music + text after schema save
+const CACHE_NAME = 'stjarndag-v601';
+// stjarndag-v601: merge — Mitt-flik + SPA layer fix + family avatar + handoff film preview
+// stjarndag-v600: Barn SPA-flikbyte; handoff film preview deploy fix
+// stjarndag-v599: Mitt-flik; onboarding handoff film preview /onboarding/film-preview
+// stjarndag-v598: Child Mina personer avatar_src; onboarding handoff film music
 // stjarndag-v597: Familj — loading skeleton, prefetch, Inställningar-länk
 // stjarndag-v596: Avatar crop — square viewport + EXIF orientation (fix distortion)
 // stjarndag-v595: Family Avatar — show Profilbild in Inställningar → Profil & konto (magic group tag)

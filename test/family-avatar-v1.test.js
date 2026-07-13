@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { setupTestDb } = require('./helpers/setup.js');
-const { cookieHeader, listenApp } = require('./helpers/http.js');
+const { cookieHeader, listenApp, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
 const { extractStorageKeyFromLegacyUrl } = require('../migrations/1810000000000_family_avatar_private_storage.js');
 
@@ -48,6 +48,8 @@ describe('family avatar v1 — settings magic group', () => {
   it('tags settingsAvatarSection for Profil & konto group', () => {
     const hubs = fs.readFileSync(path.join(__dirname, '../public/js/parent-magic-page-hubs.js'), 'utf8');
     assert.match(hubs, /tagChild\('settingsAvatarSection',\s*'profile'\)/);
+    assert.match(hubs, /restoreGroup/);
+    assert.match(hubs, /if \(restoreGroup\)/);
   });
 });
 
@@ -307,6 +309,64 @@ test('DELETE child avatar clears storage key and GET returns 404', async (t) => 
       headers: { Cookie: cookieHeader(session.cookies) },
     });
     assert.equal(getRes.status, 404);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('GET /api/me/family exposes parent avatar_src to logged-in child', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const session = await registerAndLogin(http.baseUrl, { name: 'Pontus Parent' });
+    const parentId = (await db.query(
+      'SELECT id FROM parent WHERE LOWER(email) = $1',
+      [session.email.toLowerCase()]
+    )).rows[0].id;
+
+    await db.query(
+      `UPDATE parent SET avatar_storage_key = $2, avatar_updated_at = NOW()
+       WHERE id = $1`,
+      [parentId, 'avatars-private/test/parent-face.jpg']
+    );
+
+    const childId = await createChild(http.baseUrl, session, {
+      name: 'Astrid',
+      emoji: '🦄',
+      pin: '8642',
+    });
+    const username = (await db.query('SELECT username FROM child WHERE id = $1', [childId])).rows[0].username;
+
+    const loginRes = await fetch(`${http.baseUrl}/api/auth/child-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username, pin: '8642' }),
+    });
+    assert.equal(loginRes.status, 200);
+    let childCookies = {};
+    for (const header of getSetCookieHeaders(loginRes)) {
+      childCookies = mergeCookies(childCookies, [header]);
+    }
+
+    const hallRes = await fetch(`${http.baseUrl}/api/me/family`, {
+      headers: { Cookie: cookieHeader(childCookies) },
+    });
+    assert.equal(hallRes.status, 200);
+    const hall = await hallRes.json();
+    assert.ok(hall.persons, 'persons block required for child');
+    assert.ok(hall.persons.parents.length >= 1);
+    const parent = hall.persons.parents.find((p) => p.name === 'Pontus Parent') || hall.persons.parents[0];
+    assert.equal(parent.has_avatar, true);
+    assert.match(parent.avatar_src, /^\/api\/avatars\/parent\//);
+    assert.equal(parent.id, parentId);
   } finally {
     await http.close();
     await db.cleanup();

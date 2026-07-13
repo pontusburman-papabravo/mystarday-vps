@@ -89,8 +89,13 @@
   }
 
   function personAvatarHtml(person) {
-    if (person.avatarUrl) {
-      return '<img class="cfh-person-photo" src="' + esc(person.avatarUrl) + '" alt="" loading="lazy" decoding="async" />';
+    let src = person.avatarUrl || '';
+    if (!src && person.hasAvatar && person.id) {
+      const memberType = person.kind === 'parent' || person.kind === 'pedagog' ? 'parent' : 'child';
+      src = '/api/avatars/' + memberType + '/' + person.id;
+    }
+    if (src) {
+      return '<img class="cfh-person-photo" src="' + esc(src) + '" alt="" loading="lazy" decoding="async" />';
     }
     return '<span class="cfh-person-emoji" aria-hidden="true">' + esc(person.emoji || '👤') + '</span>';
   }
@@ -267,10 +272,18 @@
       });
   }
 
-  function refresh() {
+  function refresh(options) {
+    options = options || {};
     if (!window.ChildFamily) return Promise.resolve();
+
+    const root = document.getElementById('familyHallMount');
+    if (!options.force && _cachedData && root && root.querySelector('.cfh-shell')) {
+      paint(root, _cachedData);
+      return Promise.resolve();
+    }
+
     clearWarmTimer();
-    ChildFamily.invalidate();
+    if (options.force) ChildFamily.invalidate();
     mount();
     return Promise.resolve();
   }

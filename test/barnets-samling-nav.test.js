@@ -21,12 +21,13 @@ describe('barnets_samling nav — #588', () => {
     assert.match(src, /Mina personer/);
   });
 
-  it('samling worlds expose four tabs with correct routes', () => {
+  it('samling worlds expose five tabs with correct routes', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
     assert.match(src, /\/child\/collection/);
     assert.match(src, /\/child\/treasure/);
     assert.match(src, /\/child\/today/);
     assert.match(src, /\/child\/family/);
+    assert.match(src, /\/child\/settings/);
   });
 
   it('child-worlds applies early samling chrome and boot guard', () => {
@@ -129,9 +130,10 @@ describe('barnets_samling nav — #588', () => {
     assert.match(html, /child-samling\.css/);
   });
 
-  it('routes register collection and treasure child paths', () => {
+  it('routes register collection, treasure, and settings child paths', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(src, /\/child\/collection/);
     assert.match(src, /\/child\/treasure/);
+    assert.match(src, /\/child\/settings/);
   });
 });

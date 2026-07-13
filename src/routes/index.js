@@ -132,6 +132,7 @@ function registerRoutes(app) {
   app.get('/child/collection', (req, res) => res.sendFile(childDashboardHtml));
   app.get('/child/treasure', (req, res) => res.sendFile(childDashboardHtml));
   app.get('/child/family', (req, res) => res.sendFile(childDashboardHtml));
+  app.get('/child/settings', (req, res) => res.sendFile(childDashboardHtml));
 
   // ─── PWA + child view routes ─────────────────────────────────
   app.use('/', require('./static-routes'));

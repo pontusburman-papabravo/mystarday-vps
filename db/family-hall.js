@@ -2,6 +2,7 @@
 
 const db = require('../src/lib/db');
 const { formatStoryEvent } = require('../src/lib/family-story-format');
+const { mapChildForFamilyApi, mapParentForFamilyApi } = require('../src/lib/avatar-api');
 
 /**
  * Get family hall read model (projects, chest, story events).
@@ -42,22 +43,27 @@ async function getFamilyHall(familyId, options) {
   if (options.includePersons) {
     const [parentsRes, siblingsRes] = await Promise.all([
       db.query(
-        `SELECT p.name
+        `SELECT p.id, p.name, p.avatar_storage_key, p.avatar_updated_at
          FROM parent p
          WHERE p.family_id = $1
          ORDER BY p.created_at ASC`,
         [familyId]
       ),
       db.query(
-        `SELECT id, name, emoji FROM child
+        `SELECT id, name, emoji, avatar_storage_key, avatar_updated_at FROM child
          WHERE family_id = $1${options.childId ? ' AND id != $2' : ''}
          ORDER BY sort_order ASC, created_at ASC`,
         options.childId ? [familyId, options.childId] : [familyId]
       ),
     ]);
     persons = {
-      parents: parentsRes.rows.map((p) => ({ name: p.name, emoji: p.emoji || '👤' })),
-      siblings: siblingsRes.rows.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji || '⭐' })),
+      parents: parentsRes.rows.map((p) => mapParentForFamilyApi(p, {
+        emoji: '👤',
+        roleLabel: 'Hjälper mig hemma',
+      })),
+      siblings: siblingsRes.rows.map((c) => mapChildForFamilyApi(c, {
+        roleLabel: 'Syskon',
+      })),
     };
   }
 
