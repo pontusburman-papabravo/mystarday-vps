@@ -9,8 +9,16 @@
   const MENU_ID = 'childSystemMenu';
   const BTN_ID = 'childSystemIconBtn';
 
+  function shouldMount() {
+    return !(
+      window.ChildWorlds &&
+      ChildWorlds.isBarnetsSamlingEnabled &&
+      ChildWorlds.isBarnetsSamlingEnabled()
+    );
+  }
+
   function hideLegacyHeaderActions() {
-    ['childDarkBtn', 'viewToggleBtn', 'printBtn'].forEach(function (id) {
+    ['childDarkBtn', 'viewToggleBtn', 'printBtn', 'switchChildBtn', 'logoutBtn'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -50,6 +58,7 @@
   }
 
   function mount() {
+    if (!shouldMount()) return;
     if (document.getElementById(BTN_ID)) return;
 
     let header = document.querySelector('#childMainHeader .flex.items-center.gap-1\\.5');
@@ -118,11 +127,5 @@
     header.appendChild(wrap);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mount);
-  } else {
-    mount();
-  }
-
-  window.ChildSystemMenu = { mount: mount, closeMenu: closeMenu };
+  window.ChildSystemMenu = { mount: mount, closeMenu: closeMenu, shouldMount: shouldMount };
 })();
