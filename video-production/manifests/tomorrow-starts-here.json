@@ -6,59 +6,83 @@
   "outputBasename": "tomorrow-starts-here",
   "referenceImage": "assets/references/evening-family.png",
   "seed": 42002,
+  "creativeBrief": "Evening anxiety → quiet connection → confident morning. The app appears once, blurred, as a helper. Child protagonist throughout. Bridge the gap between tonight's setup and tomorrow's first step.",
   "music": {
     "file": "audio/evening-theme.mp3",
-    "volume": 0.3,
-    "fadeInSec": 2.5,
+    "volume": 0.26,
+    "fadeInSec": 0,
     "fadeOutSec": 3
   },
   "ambient": {
     "file": "audio/evening-ambient.mp3",
     "volume": 0.1,
-    "fadeInSec": 2,
+    "fadeInSec": 0,
     "fadeOutSec": 3
   },
   "scenes": [
     {
-      "id": "scene-01-evening-wind-down",
+      "id": "scene-01-hook-evening-stress",
+      "role": "hook",
       "duration": 5,
-      "pikaPrompt": "Soft evening light in a Swedish child's bedroom, parent and child sit together reviewing a simple paper schedule on the bed, cozy lamp glow, intimate documentary framing, calm anticipation for tomorrow, no readable text on props",
-      "swedishText": "Kvällen förbereder morgondagen",
+      "pikaPrompt": "Documentary evening in a Swedish home, tired parent at kitchen table rubbing temples, tomorrow's stress visible in body language, child restless on stair in background, lunch boxes half-packed, blue-hour light through windows, handheld authenticity, no phones, no readable text, emotional not melodramatic",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fade",
-      "outputFilename": "01-evening-wind-down.mp4"
+      "outputFilename": "01-hook-evening-stress.mp4",
+      "audioCues": [
+        { "type": "ambient", "description": "Low evening home sounds, distant child calling", "atSec": 0 },
+        { "type": "vo", "description": "Parent quiet sigh", "atSec": 2.5 }
+      ]
     },
     {
-      "id": "scene-02-plan-together",
+      "id": "scene-02-breath-question",
+      "role": "breath",
       "duration": 5,
-      "pikaPrompt": "Same family at a kitchen table in evening light, parent helps child drag routine cards on a tablet with blurred interface, collaborative gentle motion, Scandinavian interior, hopeful mood, no logos or legible UI text",
+      "skipPika": true,
+      "swedishText": "Tänk om morgondagen\nbörjade redan i kväll?",
+      "transition": "fadeblack",
+      "outputFilename": "02-breath-question.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Silence after hook", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "scene-03-bedtime-bond",
+      "role": "story",
+      "duration": 5,
+      "pikaPrompt": "Intimate Swedish child's bedroom at night, parent sits on bed edge talking softly with child, lamp glow, child listens with trusting eyes, parent touches child's shoulder gently, same family faces for continuity, documentary warmth, no screens visible, no text",
       "swedishText": "Ni förbereder morgondagen tillsammans.",
-      "transition": "fade",
-      "outputFilename": "02-plan-together.mp4"
-    },
-    {
-      "id": "scene-03-sleep-peace",
-      "duration": 5,
-      "pikaPrompt": "Child tucked into bed smiling peacefully, parent turns off a small bedside lamp, blue-hour light through curtains, slow push-in, quiet trust and safety, cinematic softness, no text",
-      "swedishText": "Barnet vet vad som väntar i morgon",
       "transition": "dissolve",
-      "outputFilename": "03-sleep-peace.mp4"
+      "outputFilename": "03-bedtime-bond.mp4"
     },
     {
-      "id": "scene-04-morning-preview",
+      "id": "scene-04-app-glimpse",
+      "role": "app-glimpse",
+      "duration": 5,
+      "pikaPrompt": "Over-shoulder documentary shot, parent's hands hold phone far from camera with screen completely out of focus and unreadable, child beside them points at nothing specific with calm smile, evening lamp light, phone is small in frame, emotional connection is large, Scandinavian bedroom, no legible UI",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "outputFilename": "04-app-glimpse.mp4"
+    },
+    {
+      "id": "scene-05-morning-wake",
+      "role": "payoff",
       "duration": 5,
       "renderDuration": 7,
-      "pikaPrompt": "Match cut feel to bright morning in the same home, child wakes up and stretches with confidence, sunlight on wooden floors, same bedroom details for continuity, energetic but calm, documentary style, no on-screen text",
+      "pikaPrompt": "Bright Swedish morning in same bedroom, child wakes and stretches with quiet confidence, sunlight on wooden floor, same room details as evening scene, parent visible in doorway smiling not shouting, documentary hope, no phone, no text overlays",
       "swedishText": "Morgondagen börjar här",
       "transition": "fade",
-      "outputFilename": "04-morning-preview.mp4"
+      "outputFilename": "05-morning-wake.mp4"
     },
     {
-      "id": "scene-05-ready-start",
+      "id": "scene-06-breakfast-ready",
+      "role": "brand",
       "duration": 5,
-      "pikaPrompt": "Same child walks downstairs already dressed, parent pours breakfast with relaxed smile, golden morning rays, smooth steadicam follow, authentic Swedish family rhythm, no branding visible",
+      "pikaPrompt": "Same child walks into Swedish kitchen already dressed, parent sets breakfast plate with relaxed body language, golden morning rays, steam from coffee, eye contact and small shared smile, steadicam follow, no devices in focus, peaceful rhythm",
       "swedishText": "Lugnt. Tydligt. Redo.",
       "transition": "fadeblack",
-      "outputFilename": "05-ready-start.mp4"
+      "outputFilename": "06-breakfast-ready.mp4"
     }
   ]
 }

@@ -6,58 +6,86 @@
   "outputBasename": "morning-without-nagging",
   "referenceImage": "assets/references/morning-family.png",
   "seed": 42001,
+  "creativeBrief": "Chaos → feeling → solution. The child is the hero; the app is an invisible helper. Visible phone UI ≤ one scene (~18% of runtime). Sell the feeling of a calmer morning, not the product.",
   "music": {
     "file": "audio/morning-theme.mp3",
-    "volume": 0.32,
-    "fadeInSec": 2,
+    "volume": 0.28,
+    "fadeInSec": 0,
     "fadeOutSec": 3
   },
   "ambient": {
     "file": "audio/morning-ambient.mp3",
-    "volume": 0.12,
-    "fadeInSec": 1.5,
+    "volume": 0.14,
+    "fadeInSec": 0,
     "fadeOutSec": 2.5
   },
   "scenes": [
     {
-      "id": "scene-01-chaos",
+      "id": "scene-01-hook-chaos",
+      "role": "hook",
       "duration": 5,
-      "pikaPrompt": "Gentle cinematic push-in on a Swedish family kitchen at 7:15 AM, soft Nordic winter light through the window, a parent looking stressed near the doorway while a child searches for shoes, natural documentary feel, shallow depth of field, warm but tense atmosphere, no on-screen text",
-      "swedishText": "Känner du igen morgonen?",
+      "pikaPrompt": "Handheld documentary chaos in a Swedish family kitchen at 07:21, winter morning light, stressed parent by the doorway, child running past with open backpack spilling papers, toothbrush left on counter, shoes missing, clock on wall, shallow depth of field, authentic Nordic home, tense warm color grade, no phones, no logos, no readable text anywhere",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fade",
-      "outputFilename": "01-chaos.mp4"
+      "outputFilename": "01-hook-chaos.mp4",
+      "audioCues": [
+        { "type": "vo", "description": "Child off-screen: Mammaaa!", "atSec": 0.5 },
+        { "type": "vo", "description": "Child: Var är mina skor?", "atSec": 1.8 },
+        { "type": "vo", "description": "Parent strained: Vi blir sena!", "atSec": 3.2 },
+        { "type": "sfx", "description": "Backpack thud, hurried footsteps, clock tick", "atSec": 0 }
+      ]
     },
     {
-      "id": "scene-02-calm-app",
+      "id": "scene-02-breath-question",
+      "role": "breath",
       "duration": 5,
-      "pikaPrompt": "Same family kitchen, the child now looks at a phone on the counter showing a colorful routine app interface blurred and unreadable, parent steps back with relieved body language, calm morning light, slow handheld documentary motion, no logos or readable text on screen",
-      "swedishText": "Barnet ser vad som kommer härnäst",
-      "transition": "fade",
-      "outputFilename": "02-calm-app.mp4"
+      "skipPika": true,
+      "swedishText": "Vad skulle hända\nom morgonen började annorlunda?",
+      "transition": "fadeblack",
+      "outputFilename": "02-breath-question.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Hard cut to silence after chaos", "atSec": 0 },
+        { "type": "ambient", "description": "Barely audible room tone", "atSec": 1 }
+      ]
     },
     {
-      "id": "scene-03-routine-flow",
+      "id": "scene-03-breakfast-calm",
+      "role": "story",
       "duration": 5,
-      "pikaPrompt": "Same child confidently putting on jacket and backpack in a Swedish hallway, parent watches with a small smile, morning sunlight, smooth tracking shot, authentic family moment, cozy Scandinavian home details, no text overlays",
-      "swedishText": "Ingen tjat — bara tydliga steg",
+      "pikaPrompt": "Same Swedish family kitchen now calm, soft morning light, child sits eating breakfast with relaxed posture, parent pours coffee with a gentle smile, eye contact between them, documentary intimacy, Scandinavian wooden interior, phone not visible, focus on faces and hands, cinematic naturalism, no text",
+      "swedishText": "Så här vill man att det ska kännas",
       "transition": "dissolve",
-      "outputFilename": "03-routine-flow.mp4"
+      "outputFilename": "03-breakfast-calm.mp4"
     },
     {
-      "id": "scene-04-star-moment",
+      "id": "scene-04-app-glimpse",
+      "role": "app-glimpse",
       "duration": 5,
-      "pikaPrompt": "Close-up of the child's happy face earning a small celebration gesture after completing a morning task, parent gives a thumbs up in soft focus background, warm golden light, emotional but restrained, cinematic shallow focus, no graphics or text",
-      "swedishText": "Stjärnor för det som faktiskt händer",
+      "pikaPrompt": "Extreme shallow depth of field on a smartphone lying on kitchen counter, screen heavily blurred and unreadable, child in sharp focus in background putting on jacket with quiet confidence, parent soft smile out of focus, phone is prop not hero, Nordic morning light, documentary style, no legible UI, no logos",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fade",
-      "outputFilename": "04-star-moment.mp4"
+      "outputFilename": "04-app-glimpse.mp4"
     },
     {
-      "id": "scene-05-door-goodbye",
+      "id": "scene-05-first-star",
+      "role": "payoff",
       "duration": 5,
-      "pikaPrompt": "Wide shot of the family leaving through the front door into a calm snowy Swedish morning, peaceful goodbye wave, slow dolly out, documentary warmth, the house feels organized behind them, no signage or text",
+      "validationScene": true,
+      "pikaPrompt": "Intimate close-up documentary shot, Swedish child around age 7 beams with quiet pride after finishing a morning task, eyes bright, small natural fist pump, parent in soft focus makes warm eye contact and nods once, golden window light on faces, emotional realism not cartoon, no phone screen visible, no star graphics, no on-screen text, child is the absolute focus",
+      "swedishText": "Stolthet i det lilla",
+      "transition": "fade",
+      "outputFilename": "05-first-star.mp4"
+    },
+    {
+      "id": "scene-06-door-peace",
+      "role": "brand",
+      "duration": 5,
+      "pikaPrompt": "Wide documentary shot, same family leaving through a Swedish front door into soft snowy morning, child waves confidently, parent relaxed beside them, unhurried goodbye energy, house feels peaceful behind them, slow dolly out, no branding visible in environment",
       "swedishText": "En morgon utan tjat",
       "transition": "fadeblack",
-      "outputFilename": "05-door-goodbye.mp4"
+      "outputFilename": "06-door-peace.mp4"
     }
   ]
 }

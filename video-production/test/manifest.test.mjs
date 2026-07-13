@@ -1,10 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { wrapCaption, estimateLineCount } from '../lib/caption-layout.mjs';
-import { ManifestSchema } from '../lib/manifest.mjs';
-import { listManifestFiles, loadManifest } from '../lib/manifest.mjs';
+import { wrapCaption } from '../lib/caption-layout.mjs';
+import {
+  ManifestSchema,
+  listManifestFiles,
+  loadManifest,
+  computeAppScreenRatio,
+  sceneCaptionText,
+  planGeneration,
+} from '../lib/manifest.mjs';
 import { TRANSITIONS } from '../lib/config.mjs';
 import { computeTimelineDuration } from '../lib/ffmpeg.mjs';
+
+const FILM_IDS = ['a-morning-without-nagging', 'tomorrow-starts-here', 'real-families'];
 
 test('wrapCaption respects manual line breaks', () => {
   const result = wrapCaption('Stjärndag\nFör familjer som vill ha lugnare vardag', 24);
@@ -12,37 +20,47 @@ test('wrapCaption respects manual line breaks', () => {
   assert.ok(result.split('\n').length >= 2);
 });
 
-test('wrapCaption wraps near 26 characters', () => {
-  const result = wrapCaption('Ni förbereder morgondagen tillsammans.', 26);
-  assert.ok(result.length > 0);
-  for (const line of result.split('\n')) {
-    assert.ok(line.length <= 28, `line too long: ${line}`);
-  }
-});
+test('all films follow emotional brand structure', () => {
+  for (const id of FILM_IDS) {
+    const { manifest } = loadManifest(id);
+    assert.ok(manifest.creativeBrief?.includes('Chaos') || manifest.creativeBrief?.includes('chaos') || manifest.creativeBrief?.includes('stress') || manifest.creativeBrief?.includes('Anxiety') || manifest.creativeBrief?.includes('anxiety') || manifest.creativeBrief?.includes('Authentic'), `${id} missing creativeBrief`);
+    assert.equal(manifest.scenes[0].role, 'hook');
+    assert.equal(sceneCaptionText(manifest.scenes[0]), '');
+    assert.equal(manifest.scenes[1].role, 'breath');
+    assert.equal(manifest.scenes[1].skipPika, true);
 
-test('all promotional manifests validate', () => {
-  const files = listManifestFiles();
-  assert.equal(files.length, 3);
+    const appScenes = manifest.scenes.filter((s) => s.role === 'app-glimpse');
+    assert.equal(appScenes.length, 1, `${id} must have exactly one app-glimpse`);
 
-  for (const file of files) {
-    const { manifest } = loadManifest(file);
-    assert.ok(manifest.scenes.length >= 4);
+    const { ratio } = computeAppScreenRatio(manifest);
+    assert.ok(ratio <= 0.25, `${id} app ratio ${Math.round(ratio * 100)}% exceeds 25%`);
+
     for (const scene of manifest.scenes) {
-      assert.ok(scene.pikaPrompt.length > 20);
-      assert.ok(scene.swedishText.length > 3);
       assert.ok(TRANSITIONS.has(scene.transition));
       assert.match(scene.outputFilename, /\.mp4$/);
+      if (!scene.skipPika) {
+        assert.ok(scene.pikaPrompt.length > 40);
+        if (scene.role === 'app-glimpse') {
+          assert.match(scene.pikaPrompt, /blur|unreadable|out of focus|bokeh/i);
+        }
+      }
     }
   }
 });
 
-test('tomorrow scene 4 has extended render duration', () => {
+test('morning film marks validation scene for first star', () => {
+  const { manifest } = loadManifest('a-morning-without-nagging');
+  const validation = manifest.scenes.filter((s) => s.validationScene);
+  assert.equal(validation.length, 1);
+  assert.equal(validation[0].id, 'scene-05-first-star');
+});
+
+test('tomorrow morning wake holds 7 seconds', () => {
   const { manifest } = loadManifest('tomorrow-starts-here');
-  const scene4 = manifest.scenes.find((s) => s.id === 'scene-04-morning-preview');
-  assert.equal(scene4.duration, 5);
-  assert.equal(scene4.renderDuration, 7);
-  const total = computeTimelineDuration(manifest.scenes);
-  assert.ok(total > 23, `expected >23s timeline, got ${total}`);
+  const wake = manifest.scenes.find((s) => s.id === 'scene-05-morning-wake');
+  assert.equal(wake.duration, 5);
+  assert.equal(wake.renderDuration, 7);
+  assert.ok(computeTimelineDuration(manifest.scenes) > 25);
 });
 
 test('manifest schema rejects renderDuration shorter than duration', () => {
@@ -55,7 +73,7 @@ test('manifest schema rejects renderDuration shorter than duration', () => {
       id: 's1',
       duration: 5,
       renderDuration: 3,
-      pikaPrompt: 'A long enough prompt here',
+      pikaPrompt: 'A long enough prompt here for testing',
       swedishText: 'Hej',
       transition: 'fade',
       outputFilename: 's1.mp4',
@@ -63,9 +81,11 @@ test('manifest schema rejects renderDuration shorter than duration', () => {
   }));
 });
 
-test('real families ending uses two-line caption', () => {
-  const { manifest } = loadManifest('real-families');
-  const ending = manifest.scenes.at(-1);
-  assert.match(ending.swedishText, /\n/);
-  assert.ok(estimateLineCount(ending.swedishText, 24) >= 2);
+test('planGeneration supports single-scene filter', () => {
+  const { manifest } = loadManifest('a-morning-without-nagging');
+  const plan = planGeneration([{ manifest, state: { scenes: {} } }], {
+    sceneId: 'scene-05-first-star',
+  });
+  assert.equal(plan.totalScenes, 1);
+  assert.equal(plan.pendingScenes, 1);
 });

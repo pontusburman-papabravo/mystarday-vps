@@ -17,7 +17,7 @@ import {
   incrementDailyGenerations,
 } from './state.mjs';
 import { submitScene, pollUntilComplete, downloadVideo } from './pika-client.mjs';
-import { generatePlaceholdersForManifest } from './placeholders.mjs';
+import { generatePlaceholdersForManifest, generateScenePlaceholder } from './placeholders.mjs';
 import {
   parseArgs,
   requireFilmSelection,
@@ -40,7 +40,10 @@ export async function runGenerate(argv = process.argv.slice(2)) {
     return { filePath, manifest, state };
   });
 
-  const plan = planGeneration(bundles.map((b) => ({ manifest: b.manifest, state: b.state })));
+  const plan = planGeneration(
+    bundles.map((b) => ({ manifest: b.manifest, state: b.state })),
+    { sceneId: options.scene },
+  );
   printPlanSummary(plan, { estimatedCostPerScene: CONFIG.estimatedCostPerSceneUsd });
   assertConfirmForBillable({ confirm, placeholders: usePlaceholders, pendingScenes: plan.pendingScenes });
 
@@ -52,7 +55,7 @@ export async function runGenerate(argv = process.argv.slice(2)) {
   if (!usePlaceholders && plan.pendingScenes > CONFIG.maxGenerationsPerRun) {
     throw new Error(
       `Safety limit: ${plan.pendingScenes} pending scenes exceeds MAX_GENERATIONS_PER_RUN (${CONFIG.maxGenerationsPerRun}). ` +
-      'Raise the limit in .env or run with --film to process one film at a time.',
+      'Raise the limit in .env or run with --film / --scene to narrow scope.',
     );
   }
 
@@ -65,7 +68,7 @@ export async function runGenerate(argv = process.argv.slice(2)) {
 
     if (usePlaceholders) {
       console.log(`\n[${manifest.id}] Generating placeholder clips…`);
-      const clips = generatePlaceholdersForManifest(manifest, PATHS.raw);
+      const clips = generatePlaceholdersForManifest(manifest, PATHS.raw, { sceneId: options.scene });
       for (const { scene, localPath } of clips) {
         updateSceneState(state, scene.id, {
           status: 'completed',
@@ -79,18 +82,22 @@ export async function runGenerate(argv = process.argv.slice(2)) {
       continue;
     }
 
-    const pending = countPendingScenes(manifest, state);
+    const pending = countPendingScenes(manifest, state, { sceneId: options.scene });
+    const billablePending = pending.filter((s) => !s.skipPika);
     const dailyCount = countDailyGenerations(state);
-    if (dailyCount + pending.length > CONFIG.maxGenerationsPerDay) {
+    if (dailyCount + billablePending.length > CONFIG.maxGenerationsPerDay) {
       throw new Error(
         `Daily limit would be exceeded for ${manifest.id}: ` +
-        `${dailyCount} already today + ${pending.length} pending > MAX_GENERATIONS_PER_DAY (${CONFIG.maxGenerationsPerDay})`,
+        `${dailyCount} already today + ${billablePending.length} pending > MAX_GENERATIONS_PER_DAY (${CONFIG.maxGenerationsPerDay})`,
       );
     }
 
     const paths = resolveManifestPaths(manifest);
 
-    for (const scene of manifest.scenes) {
+    for (let index = 0; index < manifest.scenes.length; index++) {
+      const scene = manifest.scenes[index];
+      if (options.scene && scene.id !== options.scene) continue;
+
       if (isSceneComplete(state, scene.id)) {
         console.log(`  skip ${scene.id} (already completed)`);
         skipped += 1;
@@ -101,6 +108,22 @@ export async function runGenerate(argv = process.argv.slice(2)) {
         console.log(`  stop: MAX_GENERATIONS_PER_RUN (${CONFIG.maxGenerationsPerRun}) reached`);
         saveState(manifest.id, state);
         return { generated: generatedThisRun, skipped };
+      }
+
+      const localPath = path.join(PATHS.raw, manifest.id, scene.outputFilename);
+
+      if (scene.skipPika) {
+        console.log(`\n[${manifest.id}] Local black frame ${scene.id} (skip Pika)…`);
+        generateScenePlaceholder(scene, localPath, index);
+        updateSceneState(state, scene.id, {
+          status: 'completed',
+          source: 'local-black',
+          localPath,
+          completedAt: new Date().toISOString(),
+        });
+        saveState(manifest.id, state);
+        generatedThisRun += 1;
+        continue;
       }
 
       const resolvedRef = paths.scenes.find((s) => s.id === scene.id)?.referenceImage || paths.referenceImage;
@@ -147,7 +170,6 @@ export async function runGenerate(argv = process.argv.slice(2)) {
           throw new Error(`No video URL in Pika result for ${scene.id}`);
         }
 
-        const localPath = path.join(PATHS.raw, manifest.id, scene.outputFilename);
         await downloadVideo(videoUrl, localPath);
 
         updateSceneState(state, scene.id, {

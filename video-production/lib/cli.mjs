@@ -13,6 +13,10 @@ export function parseArgs(argv = process.argv.slice(2)) {
     else if (arg === '--help' || arg === '-h') flags.add('help');
     else if (arg === '--film' && argv[i + 1]) {
       options.film = argv[++i];
+    } else if (arg === '--scene' && argv[i + 1]) {
+      options.scene = argv[++i];
+    } else if (arg.startsWith('--scene=')) {
+      options.scene = arg.slice('--scene='.length);
     } else if (arg.startsWith('--film=')) {
       options.film = arg.slice('--film='.length);
     } else if (!arg.startsWith('-')) {
@@ -27,6 +31,7 @@ export function printHelp(command) {
   const common = `
 Options:
   --film <id>       Process a single manifest id (default: all manifests)
+  --scene <id>      Process only one scene (for style validation)
   --confirm         Required for billable Pika API generation
   --placeholders    Use ffmpeg color clips instead of Pika (no API cost)
   --help            Show this help
@@ -60,6 +65,9 @@ export function printPlanSummary(plan, { estimatedCostPerScene }) {
     console.log(`  scenes: ${film.totalScenes} total, ${film.completedScenes} done, ${film.pendingScenes} pending`);
     if (film.pending.length) {
       console.log(`  pending ids: ${film.pending.join(', ')}`);
+    }
+    if (film.appScreenPct != null) {
+      console.log(`  app on screen: ~${film.appScreenPct}% (target ≤25%)`);
     }
   }
   console.log(`\nTotal API calls if all pending scenes run: ${plan.pendingScenes}`);

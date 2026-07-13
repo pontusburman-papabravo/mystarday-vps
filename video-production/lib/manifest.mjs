@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
 import { PATHS, TRANSITIONS } from './config.mjs';
+import { sceneRenderDuration } from './caption-layout.mjs';
 
 const MusicCueSchema = z.object({
   file: z.string().min(1),
@@ -24,21 +25,44 @@ const SoundCueSchema = z.object({
   volume: z.number().min(0).max(1).default(0.5),
 }).optional();
 
+const AudioCueNoteSchema = z.object({
+  type: z.enum(['vo', 'sfx', 'ambient', 'silence']),
+  description: z.string().min(1),
+  atSec: z.number().min(0).optional(),
+});
+
+const SceneRoleSchema = z.enum([
+  'hook',
+  'breath',
+  'story',
+  'app-glimpse',
+  'payoff',
+  'brand',
+]);
+
 const SceneSchema = z.object({
   id: z.string().min(1),
   duration: z.number().int().refine((v) => v === 5 || v === 10, {
     message: 'Pika scene duration must be 5 or 10 seconds',
   }),
   renderDuration: z.number().positive().optional(),
-  pikaPrompt: z.string().min(10),
-  swedishText: z.string().min(1),
+  role: SceneRoleSchema.optional(),
+  skipPika: z.boolean().default(false),
+  validationScene: z.boolean().default(false),
+  pikaPrompt: z.string().min(10).optional(),
+  swedishText: z.string().default(''),
+  showCaption: z.boolean().default(true),
   transition: z.enum([...TRANSITIONS]).default('fade'),
   outputFilename: z.string().min(1),
   referenceImage: z.string().optional(),
   soundCue: SoundCueSchema,
+  audioCues: z.array(AudioCueNoteSchema).optional(),
 }).refine(
   (scene) => !scene.renderDuration || scene.renderDuration >= scene.duration,
   { message: 'renderDuration must be >= duration (Pika clip length)' },
+).refine(
+  (scene) => scene.skipPika || (scene.pikaPrompt && scene.pikaPrompt.length >= 10),
+  { message: 'pikaPrompt is required unless skipPika is true' },
 );
 
 export const ManifestSchema = z.object({
@@ -49,10 +73,26 @@ export const ManifestSchema = z.object({
   outputBasename: z.string().min(1),
   referenceImage: z.string().min(1),
   seed: z.number().int().optional(),
+  creativeBrief: z.string().optional(),
   music: MusicCueSchema,
   ambient: AmbientCueSchema,
   scenes: z.array(SceneSchema).min(1),
 });
+
+export function sceneCaptionText(scene) {
+  if (scene.showCaption === false) return '';
+  return scene.swedishText?.trim() || '';
+}
+
+export function computeAppScreenRatio(manifest, transitionOverlapSec = 0.6) {
+  const durations = manifest.scenes.map((s) => sceneRenderDuration(s));
+  const total = durations.reduce((a, b) => a + b, 0)
+    - Math.max(0, durations.length - 1) * transitionOverlapSec;
+  const appSec = manifest.scenes
+    .filter((s) => s.role === 'app-glimpse')
+    .reduce((sum, s) => sum + sceneRenderDuration(s), 0);
+  return { appSec, totalSec: total, ratio: total > 0 ? appSec / total : 0 };
+}
 
 export function listManifestFiles() {
   return fs.readdirSync(PATHS.manifests)
@@ -100,8 +140,9 @@ export function resolveManifestPaths(manifest) {
   };
 }
 
-export function countPendingScenes(manifest, state, { includeCompleted = false } = {}) {
+export function countPendingScenes(manifest, state, { includeCompleted = false, sceneId } = {}) {
   return manifest.scenes.filter((scene) => {
+    if (sceneId && scene.id !== sceneId) return false;
     const entry = state.scenes?.[scene.id];
     if (!entry) return true;
     if (entry.status === 'completed' && !includeCompleted) return false;
@@ -110,22 +151,33 @@ export function countPendingScenes(manifest, state, { includeCompleted = false }
   });
 }
 
-export function planGeneration(manifests) {
+export function planGeneration(manifests, { sceneId } = {}) {
   let totalScenes = 0;
   let pendingScenes = 0;
   const films = [];
 
   for (const { manifest, state } of manifests) {
-    const pending = countPendingScenes(manifest, state);
-    totalScenes += manifest.scenes.length;
+    const scope = sceneId
+      ? manifest.scenes.filter((s) => s.id === sceneId)
+      : manifest.scenes;
+
+    if (sceneId && scope.length === 0) {
+      throw new Error(`Scene "${sceneId}" not found in film "${manifest.id}"`);
+    }
+
+    const pending = countPendingScenes(manifest, state, { sceneId });
+    totalScenes += scope.length;
     pendingScenes += pending.length;
+    const app = computeAppScreenRatio(manifest);
     films.push({
       id: manifest.id,
       title: manifest.title,
-      totalScenes: manifest.scenes.length,
+      totalScenes: scope.length,
       pendingScenes: pending.length,
-      completedScenes: manifest.scenes.length - pending.length,
+      completedScenes: scope.length - pending.length,
       pending: pending.map((s) => s.id),
+      appScreenPct: Math.round(app.ratio * 100),
+      sceneFilter: sceneId || null,
     });
   }
 

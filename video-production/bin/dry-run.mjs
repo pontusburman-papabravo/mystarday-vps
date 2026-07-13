@@ -25,7 +25,7 @@ const bundles = manifestFiles.map((filePath) => {
   return { manifest, state: loadState(manifest.id) };
 });
 
-const plan = planGeneration(bundles);
+const plan = planGeneration(bundles, { sceneId: options.scene });
 printPlanSummary(plan, { estimatedCostPerScene: CONFIG.estimatedCostPerSceneUsd });
 
 console.log('Dry-run only — no API calls or ffmpeg rendering.');

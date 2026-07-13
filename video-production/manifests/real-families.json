@@ -6,58 +6,81 @@
   "outputBasename": "real-families",
   "referenceImage": "assets/references/real-family.png",
   "seed": 42003,
+  "creativeBrief": "Authentic Swedish families in real stress and real calm. Diversity of homes and needs. App appears once, peripheral. Emotion and eye contact over features. End on belonging, not a feature list.",
   "music": {
     "file": "audio/families-theme.mp3",
-    "volume": 0.34,
-    "fadeInSec": 1.5,
+    "volume": 0.3,
+    "fadeInSec": 0,
     "fadeOutSec": 2.5
   },
   "ambient": {
     "file": "audio/home-ambient.mp3",
-    "volume": 0.08,
-    "fadeInSec": 2,
+    "volume": 0.09,
+    "fadeInSec": 0,
     "fadeOutSec": 2
   },
   "scenes": [
     {
-      "id": "scene-01-single-parent",
+      "id": "scene-01-hook-morning-chaos",
+      "role": "hook",
       "duration": 5,
-      "pikaPrompt": "Documentary-style shot of a single parent in a Swedish apartment helping two children get ready, morning clutter but loving energy, natural light, handheld authenticity, diverse modern family, no text or logos",
-      "swedishText": "Riktiga familjer. Riktiga morgnar.",
+      "pikaPrompt": "Raw documentary handheld shot, single parent in modest Swedish apartment juggling two children at morning rush, coats and bags scattered, loving but overwhelmed faces, natural window light, authentic clutter not staged, no phones visible, no text",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fade",
-      "outputFilename": "01-single-parent.mp4"
+      "outputFilename": "01-hook-morning-chaos.mp4",
+      "audioCues": [
+        { "type": "sfx", "description": "Overlapping morning voices, cupboard slam", "atSec": 0 }
+      ]
     },
     {
-      "id": "scene-02-blended-family",
+      "id": "scene-02-breath-question",
+      "role": "breath",
       "duration": 5,
-      "pikaPrompt": "Same visual family tone, blended family in a hallway coordinating coats and bags, cooperative gestures, warm smiles, Scandinavian home, gentle camera orbit, authentic not staged, no readable screens",
-      "swedishText": "Olika hem — samma behov av lugn",
-      "transition": "fade",
-      "outputFilename": "02-blended-family.mp4"
+      "skipPika": true,
+      "swedishText": "Olika familjer.\nSamma längtan efter lugn.",
+      "transition": "fadeblack",
+      "outputFilename": "02-breath-question.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Pause after chaos", "atSec": 0 }
+      ]
     },
     {
-      "id": "scene-03-npf-calm",
+      "id": "scene-03-eye-level-support",
+      "role": "story",
       "duration": 5,
-      "pikaPrompt": "Child with thoughtful expression follows a visual routine chart on the wall with pictograms blurred, parent kneels to child's eye level offering support, soft colors, calm sensory-friendly environment, respectful documentary tone, no legible text",
-      "swedishText": "Extra tydlighet när det behövs",
+      "pikaPrompt": "Documentary moment, parent kneels to child's eye level in Swedish hallway, calm supportive expression, child breathes out tension, soft natural light, blended family or single parent energy, focus on faces and body language, no screens, no text",
+      "swedishText": "När någon möter barnet där det är",
       "transition": "dissolve",
-      "outputFilename": "03-npf-calm.mp4"
+      "outputFilename": "03-eye-level-support.mp4"
     },
     {
-      "id": "scene-04-celebration-small",
+      "id": "scene-04-app-glimpse",
+      "role": "app-glimpse",
       "duration": 5,
-      "pikaPrompt": "Small genuine celebration as child completes a task, parent claps once quietly, sibling watches smiling, living room afternoon light, emotional realism, no confetti graphics or on-screen rewards text",
-      "swedishText": "Stjärnor för verkliga framsteg",
+      "pikaPrompt": "Phone on kitchen table completely out of focus in extreme foreground bokeh, sharp focus on child confidently tying shoes in hallway beyond, parent watches with relieved shoulders, sensory-calm Scandinavian interior, phone is barely visible prop, no readable UI",
+      "swedishText": "",
+      "showCaption": false,
       "transition": "fade",
-      "outputFilename": "04-celebration-small.mp4"
+      "outputFilename": "04-app-glimpse.mp4"
     },
     {
-      "id": "scene-05-community-montage",
+      "id": "scene-05-small-victory",
+      "role": "payoff",
       "duration": 5,
-      "pikaPrompt": "Slow montage feel in one continuous shot passing different Swedish family moments in the same home style: breakfast, shoes by the door, hug goodbye, documentary warmth, connected rhythm, cinematic natural light, no logos",
+      "pikaPrompt": "Close documentary shot, child finishes small morning task and looks up with genuine pride, parent shares a restrained smile and one quiet clap, sibling peeks in smiling, afternoon-gold light in Swedish living room, emotional realism, no star graphics, no phone",
+      "swedishText": "Verkliga framsteg. Verklig glädje.",
+      "transition": "fade",
+      "outputFilename": "05-small-victory.mp4"
+    },
+    {
+      "id": "scene-06-belonging",
+      "role": "brand",
+      "duration": 5,
+      "pikaPrompt": "Slow documentary orbit in Swedish kitchen, two different family moments interwoven in one continuous calm shot feel: breakfast shared, shoes by door, hug before leaving, warm Nordic light, authentic not stock, no logos in scene",
       "swedishText": "Stjärndag\nFör familjer som vill ha lugnare vardag",
       "transition": "fadeblack",
-      "outputFilename": "05-community-montage.mp4"
+      "outputFilename": "06-belonging.mp4"
     }
   ]
 }

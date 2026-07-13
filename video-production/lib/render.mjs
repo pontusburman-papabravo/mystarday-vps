@@ -4,6 +4,7 @@ import { PATHS } from './config.mjs';
 import {
   listManifestFiles,
   loadManifest,
+  sceneCaptionText,
 } from './manifest.mjs';
 import {
   loadState,
@@ -97,7 +98,7 @@ export async function runRender(argv = process.argv.slice(2)) {
 
       normalizedPaths.push(normPath);
       renderDurations.push(renderDur);
-      swedishTexts.push(scene.swedishText);
+      swedishTexts.push(sceneCaptionText(scene));
       if (i < scenes.length - 1) {
         transitions.push(scene.transition);
       }

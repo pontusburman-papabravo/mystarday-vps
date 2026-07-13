@@ -12,6 +12,24 @@ const PLACEHOLDER_COLORS = [
   '0x3D6B6B',
 ];
 
+export function generateBlackClip({
+  outputPath,
+  duration,
+  width = 1920,
+  height = 1080,
+}) {
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  runFfmpeg([
+    '-y',
+    '-f', 'lavfi',
+    '-i', `color=c=black:s=${width}x${height}:r=30:d=${duration}`,
+    '-c:v', 'libx264',
+    '-pix_fmt', 'yuv420p',
+    '-t', String(duration),
+    outputPath,
+  ], { label: `black ${path.basename(outputPath)}` });
+}
+
 export function generatePlaceholderClip({
   outputPath,
   duration,
@@ -39,6 +57,21 @@ export function generatePlaceholderClip({
   ], { label: `placeholder ${path.basename(outputPath)}` });
 }
 
+export function generateScenePlaceholder(scene, outputPath, index = 0) {
+  const duration = sceneRenderDuration(scene);
+  if (scene.skipPika) {
+    generateBlackClip({ outputPath, duration });
+    return;
+  }
+  const color = PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length];
+  generatePlaceholderClip({
+    outputPath,
+    duration,
+    color,
+    label: scene.id,
+  });
+}
+
 export function generatePlaceholderLogo(outputPath = PATHS.logo) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
@@ -53,17 +86,12 @@ export function generatePlaceholderLogo(outputPath = PATHS.logo) {
   ], { label: 'placeholder logo' });
 }
 
-export function generatePlaceholdersForManifest(manifest, rawDir) {
+export function generatePlaceholdersForManifest(manifest, rawDir, { sceneId } = {}) {
   const clips = [];
   manifest.scenes.forEach((scene, index) => {
+    if (sceneId && scene.id !== sceneId) return;
     const out = path.join(rawDir, manifest.id, scene.outputFilename);
-    const color = PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length];
-    generatePlaceholderClip({
-      outputPath: out,
-      duration: sceneRenderDuration(scene),
-      color,
-      label: scene.id,
-    });
+    generateScenePlaceholder(scene, out, index);
     clips.push({ scene, localPath: out });
   });
   return clips;

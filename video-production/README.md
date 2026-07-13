@@ -42,12 +42,16 @@ npm run test:placeholders
 | `tomorrow-starts-here` | Tomorrow Starts Here | 5 × 5s |
 | `real-families` | Real Families | 5 × 5s |
 
-Manifests live in `manifests/*.json`. Each scene defines:
+Manifests live in `manifests/*.json`. See **`manifests/CREATIVE-BRIEF.md`** for the emotional storytelling rules (chaos → feeling → solution, app ≤25% screen time).
 
-- English Pika prompt (no text/logos in generation)
-- Swedish on-screen caption (added in ffmpeg)
-- Transition type, duration, output filename
-- Optional per-scene reference image (defaults to film reference)
+Each scene defines:
+
+- English Pika prompt (no readable UI; phone scenes use extreme blur)
+- `role`: hook | breath | story | app-glimpse | payoff | brand
+- Swedish caption (empty for hook/app-glimpse; use `\n` for manual line breaks)
+- `audioCues` — sound-design notes for post (VO, SFX, silence)
+- `skipPika: true` on black breath scenes (no API cost)
+- `validationScene: true` on the first-star scene to test before full generation
 
 ## Commands (from repo root)
 
@@ -57,6 +61,16 @@ npm run video:generate         # Submit scenes to Pika (requires --confirm)
 npm run video:render           # ffmpeg editing + export
 npm run video:all              # generate + render
 ```
+
+### Validate visual style with one scene (~$0.35)
+
+```bash
+npm run video:dry-run -- --film a-morning-without-nagging --scene scene-05-first-star
+npm run video:generate -- --film a-morning-without-nagging --scene scene-05-first-star --confirm
+npm run video:render -- --film a-morning-without-nagging --placeholders
+```
+
+Only generate the full film after the first-star scene feels real.
 
 From this package directory:
 

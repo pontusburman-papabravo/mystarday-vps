@@ -108,6 +108,7 @@ export function escapeDrawtext(text) {
 }
 
 export function buildCaptionDrawtextFilters(text, layout) {
+  if (!text || !String(text).trim()) return [];
   const wrapped = wrapCaption(text, layout.caption.maxChars);
   const lines = wrapped.split('\n');
   const { fontSize, lineSpacing, bottomSafe } = layout.caption;
