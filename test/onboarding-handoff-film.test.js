@@ -20,14 +20,16 @@ describe('Onboarding handoff film', () => {
     assert.ok(actIdx >= 0 && filmIdx > actIdx);
   });
 
-  it('film module uses text only (no voiceover, no music)', () => {
+  it('film module uses emotional bridge copy and subtle SFX (no voiceover, no music)', () => {
     const src = read('public/js/onboarding-handoff-film.js');
-    assert.match(src, /SCENES/);
-    assert.match(src, /Testa barnläget nu/);
+    assert.match(src, /buildScenes/);
+    assert.match(src, /I morgon gör ni det här tillsammans/);
+    assert.match(src, /Börja tillsammans/);
     assert.match(src, /Gör det senare/);
+    assert.match(src, /Imorgon gör ni första morgonen tillsammans/);
+    assert.match(src, /createSfx/);
     assert.doesNotMatch(src, /speechSynthesis/);
     assert.doesNotMatch(src, /startMusic/);
-    assert.doesNotMatch(src, /AudioContext/);
   });
 
   it('film enabled by activation state, not slim fast path', () => {
@@ -72,10 +74,10 @@ describe('Onboarding handoff film', () => {
   it('handoff copy on dashboard matches activation spec', () => {
     const dash = read('public/dashboard.html');
     const registry = read('config/journey-experience-registry.json');
-    assert.match(dash, /Nästa steg: Låt barnet testa sin rutin/);
-    assert.match(dash, /Öppna barnläget/);
-    assert.match(registry, /"cta": "Testa barnläget nu"/);
-    assert.match(registry, /Låt barnet testa sin rutin/);
+    assert.match(dash, /Imorgon gör ni första morgonen tillsammans/);
+    assert.match(dash, /Börja tillsammans/);
+    assert.match(registry, /"cta": "Börja tillsammans"/);
+    assert.match(registry, /första morgonen tillsammans/);
   });
 
   it('first-star guide defers to film when film flag active', () => {
@@ -96,5 +98,13 @@ describe('Onboarding handoff film', () => {
   it('email resume uses enterChildHandoff', () => {
     const onboarding = read('public/js/onboarding.js');
     assert.match(onboarding, /enterChildHandoff\('email_resume'\)/);
+  });
+
+  it('human opener supports optional video with illustrated fallback', () => {
+    const src = read('public/js/onboarding-handoff-film.js');
+    const css = read('public/css/onboarding-handoff-film.css');
+    assert.match(src, /handoff-film-open\.mp4/);
+    assert.match(src, /ohf-human-fallback/);
+    assert.match(css, /\.ohf-human-scene/);
   });
 });
