@@ -22,7 +22,7 @@
   function wantsChildHandoffDeepLink() {
     try {
       return new URLSearchParams(window.location.search).get('next_step') === 'child_handoff';
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -33,7 +33,7 @@
       if (url.searchParams.get('next_step') !== 'child_handoff') return;
       url.searchParams.delete('next_step');
       window.history.replaceState({}, '', url.pathname + url.search + url.hash);
-    } catch (_) {}
+    } catch {}
   }
 
   async function loadActivationHandoffNeeded() {
@@ -44,7 +44,7 @@
       const cfg = await res.json();
       const st = cfg.state || {};
       return Boolean(st.schema_saved_at && !st.child_access_completed_at);
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -57,7 +57,7 @@
       if (!raw) return false;
       const parsed = JSON.parse(raw);
       return Date.now() - parsed.ts < DISMISS_TTL;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -69,7 +69,7 @@
     }
     try {
       localStorage.setItem(DISMISS_KEY, JSON.stringify({ ts: Date.now() }));
-    } catch (_) {}
+    } catch {}
     const el = document.getElementById('dashboardChildHandoff');
     if (el) el.classList.add('hidden');
   }
@@ -128,7 +128,7 @@
     const deepLink = wantsChildHandoffDeepLink();
 
     if (deepLink) {
-      try { localStorage.removeItem(DISMISS_KEY); } catch (_) {}
+      try { localStorage.removeItem(DISMISS_KEY); } catch {}
     }
 
     if (!isNativeShell() && !isMobileWeb() && !activationNeeded && !deepLink) {
@@ -171,7 +171,7 @@
             return;
           }
         }
-      } catch (_) {}
+      } catch {}
     }
 
     if (isDismissed()) {
