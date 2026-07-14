@@ -64,21 +64,15 @@
       }
       applyTabletClass(true);
       try {
-        if (!sessionStorage.getItem('native_landing_redirected')) {
-          const path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
-          const nonRedirectPaths = ['/login', '/register', '/child-login', '/dashboard',
-            '/child-dashboard', '/child/today', '/child/world', '/child/family', '/foralder', '/barn', '/settings', '/scheman',
-            '/aktiviteter', '/beloningar', '/rapporter', '/pedagoger', '/faq',
-            '/inkorg', '/nyheter', '/villkor', '/integritet', '/faq'];
-          if (
-            (path === '/' || path === '/index.html' || path === '/en' || path === '/en.html') &&
-            nonRedirectPaths.indexOf(path) === -1 &&
-            !window.location.pathname.startsWith('/api/')
-          ) {
-            sessionStorage.setItem('native_landing_redirected', '1');
-            window.location.replace('/login');
-            return;
-          }
+        const path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+        const marketingPaths = ['/', '/index.html', '/en', '/en.html'];
+        if (marketingPaths.indexOf(path) !== -1 && !window.location.pathname.startsWith('/api/')) {
+          let loggedIn = false;
+          try {
+            loggedIn = !!localStorage.getItem('stjarndag_user');
+          } catch (_) {}
+          window.location.replace(loggedIn ? '/dashboard' : '/login');
+          return;
         }
       } catch (_) {}
       try {
@@ -86,9 +80,6 @@
       } catch (_) {}
     } else {
       root.classList.add('platform-web');
-      try {
-        sessionStorage.removeItem('native_landing_redirected');
-      } catch (_) {}
     }
   }
 

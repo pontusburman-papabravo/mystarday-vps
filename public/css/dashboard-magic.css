@@ -269,9 +269,17 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
 }
 
 .parent-quick-tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
   font-size: 22px;
-  display: block;
   margin-bottom: 4px;
+}
+
+.parent-quick-tile-icon .app-icon--hub {
+  width: 28px;
+  height: 28px;
 }
 
 .parent-quick-tile-label {

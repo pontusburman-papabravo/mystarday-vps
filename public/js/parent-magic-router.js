@@ -203,10 +203,15 @@
 
   function warmFamilyFetch() {
     if (global.__familyWarmFetch || !global.Auth || typeof global.Auth.api !== 'function') return;
-    global.__familyWarmFetch = global.Auth.api('/api/family').catch(function () {
-      global.__familyWarmFetch = null;
-      return null;
-    });
+    global.__familyWarmFetch = global.Auth.api('/api/family')
+      .then(function (data) {
+        global.__familyWarmData = data;
+        return data;
+      })
+      .catch(function () {
+        global.__familyWarmFetch = null;
+        return null;
+      });
   }
 
   async function navigateTo(href, options) {
@@ -360,6 +365,7 @@
     isSoftNavPath: isSoftNavPath,
     isFullLoadPath: isFullLoadPath,
     shouldSoftNav: shouldSoftNav,
+    warmFamilyFetch: warmFamilyFetch,
     SOFT_PATHS: SOFT_PATHS,
   };
 

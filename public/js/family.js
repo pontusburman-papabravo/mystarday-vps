@@ -45,6 +45,12 @@
     let inflightFamily = null;
     let initInFlight = null;
 
+    function applyWarmFamilyData() {
+      if (!familyCache && window.__familyWarmData) {
+        familyCache = window.__familyWarmData;
+      }
+    }
+
     function setFamilyLoading(loading) {
       const skeleton = document.getElementById('familyLoadingSkeleton');
       const dataSections = document.getElementById('familyDataSections');
@@ -74,6 +80,7 @@
       inflightFamily = Auth.api('/api/family')
         .then(function (data) {
           familyCache = data;
+          window.__familyWarmData = data;
           inflightFamily = null;
           return data;
         })
@@ -90,6 +97,7 @@
       window.__familyWarmFetch = Auth.api('/api/family')
         .then(function (data) {
           familyCache = data;
+          window.__familyWarmData = data;
           return data;
         })
         .catch(function () {
@@ -103,8 +111,10 @@
       if (initInFlight) return initInFlight;
       initInFlight = (async function () {
         try {
+          applyWarmFamilyData();
           if (familyCache) {
             renderAll(familyCache);
+            setFamilyLoading(false);
           } else {
             setFamilyLoading(true);
           }
