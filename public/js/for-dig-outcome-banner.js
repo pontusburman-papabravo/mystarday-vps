@@ -56,10 +56,10 @@
     const isPositive = score >= 3;
     const prompt = isPositive ? 'Vad blev bättre?' : 'Vad saknas?';
     banner.innerHTML = `
-      <p class="text-sm font-medium text-amber-900 mb-2">${prompt} (valfritt)</p>
+      <p class="text-sm font-medium text-navy mb-2">${prompt} (valfritt)</p>
       <textarea id="forDigOutcomeText" rows="2" maxlength="500" class="w-full text-sm rounded-lg border border-amber-200 p-2 mb-2"></textarea>
       <button type="button" id="forDigOutcomeFollowSubmit" class="w-full py-2 rounded-lg bg-amber-500 text-white font-semibold text-sm">Skicka</button>
-      <button type="button" id="forDigOutcomeFollowSkip" class="w-full mt-2 text-xs text-amber-800 underline">Hoppa över</button>
+      <button type="button" id="forDigOutcomeFollowSkip" class="w-full mt-2 text-xs text-text-soft underline">Hoppa över</button>
     `;
     banner.querySelector('#forDigOutcomeFollowSkip').addEventListener('click', () => banner.classList.add('hidden'));
     banner.querySelector('#forDigOutcomeFollowSubmit').addEventListener('click', async () => {
@@ -75,8 +75,8 @@
     const banner = ensureBanner();
     banner.classList.remove('hidden');
     banner.innerHTML = `
-      <p class="font-heading font-bold text-amber-900">Hur har det gått med ${esc(item.goal_title)}?</p>
-      <p class="text-xs text-amber-800 mt-1">För ${esc(item.child_name)} — aktiverat för över en vecka sedan</p>
+      <p class="font-heading font-bold text-navy">Hur har det gått med ${esc(item.goal_title)}?</p>
+      <p class="text-xs text-text-soft mt-1">För ${esc(item.child_name)} — aktiverat för över en vecka sedan</p>
       <div class="flex flex-wrap gap-2 mt-3" id="forDigOutcomeButtons">
         ${OUTCOMES.map((o) => `
           <button type="button" data-score="${o.score}" class="flex-1 min-w-[120px] py-2 px-2 rounded-lg border-2 border-amber-300 bg-white text-sm font-medium hover:bg-amber-100">

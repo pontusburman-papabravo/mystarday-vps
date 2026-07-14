@@ -221,6 +221,7 @@ const CACHE_NAME = 'stjarndag-v624';
 // stjarndag-v624: Stjärndag Icon System v1 — global SVG icons (nav, header, hubs, child fallback)
 // stjarndag-v623: parent header icons — Notiser (klocka), Inställningar (kugghjul), Tipsa (glödlampa)
 // stjarndag-v622: parent header — dela (tydlig ikon) + notiser + inställningar (kugghjul); delningsmejl med mottagare
+// stjarndag-v621: handoff film in new-family + add-child onboarding
 // stjarndag-v620: remove handoff film preview banner
 // stjarndag-v619: admin overview — unique child self-checkoffs metrics
 // stjarndag-v618: handoff film replay timer cleanup
@@ -426,6 +427,7 @@ const CACHE_NAME = 'stjarndag-v624';
 // stjarndag-v475: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v476: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v518: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v622: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
