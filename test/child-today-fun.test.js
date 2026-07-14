@@ -57,36 +57,4 @@ describe('child-today-fun — playful Idag helpers', () => {
     const funCss = read('public/css/child-today-fun.css');
     assert.match(funCss, /dagdel-section--current/);
   });
-
-  it('applyTimeQuestTags marks past incomplete as hidden past bucket', () => {
-    const script = read('public/js/child-today-fun.js');
-    const items = [
-      { id: 'a', name: 'Morgon', completed: false },
-      { id: 'b', name: 'Nu', completed: false },
-      { id: 'c', name: 'Nästa', completed: false },
-    ];
-    const win = {
-      ChildWorlds: { isBarnetsSamlingEnabled: function () { return true; } },
-      classifyActivities: function () {
-        return {
-          now: [items[1]],
-          next: [items[2]],
-          laterFuture: [],
-          laterPast: [items[0]],
-        };
-      },
-      getCurrentTimeHHMM: function () { return '20:00'; },
-      document: {
-        documentElement: {
-          getAttribute: function () { return 'on'; },
-          classList: { contains: function () { return true; } },
-        },
-      },
-    };
-    vm.runInNewContext(script, { window: win, document: win.document }, { filename: 'child-today-fun.js' });
-    const tagged = win.ChildTodayFun.applyTimeQuestTags(items);
-    assert.equal(tagged.find(function (i) { return i.id === 'a'; })._nnl_status, 'past');
-    assert.equal(tagged.find(function (i) { return i.id === 'b'; })._nnl_status, 'now');
-    assert.equal(tagged.find(function (i) { return i.id === 'c'; })._nnl_status, 'next');
-  });
 });

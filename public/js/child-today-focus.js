@@ -53,17 +53,6 @@
       return result;
     }
 
-    if (window.ChildTodayFun && typeof ChildTodayFun.buildTimeQuestQueue === 'function'
-        && ChildTodayFun.isSamlingTodayFocus && ChildTodayFun.isSamlingTodayFocus(true)) {
-      const timeQ = ChildTodayFun.buildTimeQuestQueue(items);
-      if (timeQ) {
-        result.now = timeQ.now;
-        result.next = timeQ.next;
-        result.later = timeQ.later;
-        return result;
-      }
-    }
-
     let unchecked = 0;
     sorted.forEach(function (item) {
       if (item.completed) return;

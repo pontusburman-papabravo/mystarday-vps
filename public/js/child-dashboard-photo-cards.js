@@ -55,12 +55,17 @@
     if (timeStr && typeof hideClock !== 'undefined' && !hideClock) {
       parts.push('<span class="photo-activity-card__time">🕐 ' + esc(timeStr) + '</span>');
     }
-    if (item.star_value > 0) {
-      parts.push('<span class="photo-activity-card__stars">' + '⭐'.repeat(Math.min(item.star_value, 5)) + '</span>');
-    }
     if (extraHtml) parts.push(extraHtml);
     if (!parts.length) return '';
     return '<div class="photo-activity-card__meta">' + parts.join('') + '</div>';
+  }
+
+  function starRewardHtml(item) {
+    if (!item || !item.star_value || item.star_value < 1) return '';
+    return (
+      '<span class="photo-activity-card__reward" aria-label="Belöning vid avklaring">+' +
+      item.star_value + ' ⭐</span>'
+    );
   }
 
   function checkButton(item, isDone, canToggle, checkAttr) {
@@ -124,6 +129,7 @@
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          starRewardHtml(item) +
           activityTimerHtml +
           timerHtml +
           checkButton(item, isDone, canToggle, checkAttr) +
@@ -145,7 +151,6 @@
       : '';
     const isNext = timeStatus === 'next';
     const isLater = timeStatus === 'later';
-    const cardRoleCls = isNext ? ' next-card' : (isLater ? ' later-card' : '');
     const subStepCount = item.sub_step_count || 0;
     const cachedSteps = typeof subStepCache !== 'undefined' ? subStepCache[item.id] : null;
     const isExpanded = typeof subStepExpanded !== 'undefined' ? !!subStepExpanded[item.id] : false;
@@ -194,7 +199,7 @@
     const cursorCls = canToggle && !isDone ? ' cursor-pointer' : '';
 
     return (
-      '<div class="activity-card photo-activity-card' + cardRoleCls + cursorCls + ' ' + (isDone ? 'done' : '') + ' ' + (isLater && !isDone ? 'opacity-60' : '') + ' ' + colorCls + '"' +
+      '<div class="activity-card photo-activity-card' + cursorCls + ' ' + (isDone ? 'done' : '') + ' ' + (isLater && !isDone ? 'opacity-60' : '') + ' ' + colorCls + '"' +
            ' id="card-' + item.id + '"' +
            ' data-feedback-for="' + esc(feedbackFor) + '"' +
            ' data-item-icon="' + esc(item.icon || '⭐') + '"' +
@@ -207,6 +212,7 @@
         '<div class="photo-activity-card__foot">' +
           dragHtml +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          starRewardHtml(item) +
           cardCheck +
         '</div>' +
         metaRow(item, timeStr, subBadge + ratingHtml) +

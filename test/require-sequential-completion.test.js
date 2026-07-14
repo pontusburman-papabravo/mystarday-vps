@@ -23,9 +23,9 @@ describe('NU/NÄSTA/SEDAN parent opt-in (default off)', () => {
     assert.match(src, /require_sequential_completion === true/);
   });
 
-  it('focus quest mode requires showNowNext parent opt-in or barnets_samling today', () => {
+  it('focus quest mode requires showNowNext parent opt-in', () => {
     const src = read('public/js/child-dashboard-activities.js');
-    assert.match(src, /focusQuestMode = isTodayFocusLayer\(\) && isToday && \(showNowNext \|\| samlingTodayFocus\)/);
+    assert.match(src, /focusQuestMode = isTodayFocusLayer\(\) && isToday && showNowNext/);
   });
 
   it('child-settings and child-profile-setup couple NU/NÄSTA/SEDAN toggle to both fields', () => {

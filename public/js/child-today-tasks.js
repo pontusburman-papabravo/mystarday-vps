@@ -29,7 +29,9 @@
     Object.keys(starMap).forEach(function (id) {
       const card = document.getElementById('card-' + id);
       if (!card || card.classList.contains('done')) return;
+      if (card.classList.contains('photo-activity-card')) return;
       if (card.querySelector('.ctf-reward-teaser')) return;
+      if (card.querySelector('.photo-activity-card__reward')) return;
 
       const teaser = document.createElement('span');
       teaser.className = 'ctf-reward-teaser';
@@ -61,10 +63,6 @@
     });
   }
 
-  function isSamlingFocus() {
-    return !!(window.ChildTodayFun && ChildTodayFun.isSamlingGateOn && ChildTodayFun.isSamlingGateOn());
-  }
-
   function softenQuestChrome() {
     document.querySelectorAll('#scheduleView .nl-section-label').forEach(function (label) {
       label.classList.add('ctf-hidden');
@@ -75,17 +73,6 @@
     document.querySelectorAll('#scheduleView .later-card').forEach(function (card) {
       card.classList.add('ctf-hidden');
     });
-    if (isSamlingFocus()) {
-      document.querySelectorAll('#scheduleView .nnl-zone-header').forEach(function (hdr) {
-        hdr.classList.add('ctf-hidden');
-      });
-      document.querySelectorAll('#scheduleView .nnl-zone--later').forEach(function (zone) {
-        zone.classList.add('ctf-hidden');
-      });
-      document.querySelectorAll('#scheduleView .dagdel-section').forEach(function (sec) {
-        sec.classList.add('ctf-hidden');
-      });
-    }
   }
 
   function capIncompleteTasks() {
@@ -95,9 +82,7 @@
     }
 
     const queueCards = Array.from(document.querySelectorAll(
-      '#scheduleView .now-card:not(.done), #scheduleView .next-card:not(.done), ' +
-      '#scheduleView .photo-activity-card--now:not(.done), ' +
-      '#scheduleView .photo-activity-card.next-card:not(.done)'
+      '#scheduleView .now-card:not(.done), #scheduleView .next-card:not(.done)'
     ));
 
     let hidden = 0;
