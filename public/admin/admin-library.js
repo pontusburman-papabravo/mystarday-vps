@@ -680,6 +680,7 @@
       'overviewNewFamilies', 'overviewNewParents', 'overviewNewChildren',
       'overviewActiveFamilies', 'overviewActiveParents', 'overviewActiveChildren',
       'overviewCompletions', 'overviewStars',
+      'overviewChildSelfUnique', 'overviewChildSelfCompletions',
       'overviewLoginParentTotal', 'overviewLoginChildTotal',
     ];
 
@@ -731,6 +732,10 @@
           document.getElementById('overviewActiveChildren').textContent = fmtOverviewNum(data.active?.children);
           document.getElementById('overviewCompletions').textContent = fmtOverviewNum(data.activity?.completions);
           document.getElementById('overviewStars').textContent = fmtOverviewNum(data.activity?.stars);
+          document.getElementById('overviewChildSelfUnique').textContent =
+            fmtOverviewNum(data.activity?.child_self?.unique_children);
+          document.getElementById('overviewChildSelfCompletions').textContent =
+            fmtOverviewNum(data.activity?.child_self?.completions);
           document.getElementById('overviewLoginParentTotal').textContent = fmtOverviewNum(data.logins?.parents);
           document.getElementById('overviewLoginChildTotal').textContent = fmtOverviewNum(data.logins?.children);
           _overviewFamiliesData = data.families || [];
@@ -753,7 +758,7 @@
     function loadOverviewLoginStats(retries) { return loadOverviewStats(retries); }
 
     function overviewUserActive(u) {
-      return (u.logins || 0) > 0 || (u.completions || 0) > 0 || !!u.last_activity;
+      return (u.logins || 0) > 0 || (u.completions || 0) > 0 || (u.self_completions || 0) > 0 || !!u.last_activity;
     }
 
     function overviewFamilyActive(family) {
@@ -842,6 +847,7 @@
               <tr class="text-left text-text-soft text-xs border-b border-lavender">
                 <th class="py-2 pr-4 font-semibold">${isParent ? 'E-post / namn' : 'Namn / användarnamn'}</th>
                 <th class="py-2 pr-4 font-semibold text-right">Avbockningar</th>
+                <th class="py-2 pr-4 font-semibold text-right">Varav själv</th>
                 <th class="py-2 pr-4 font-semibold text-right">Inloggningar</th>
                 <th class="py-2 font-semibold text-right">Senaste aktivitet</th>
               </tr>
@@ -860,6 +866,7 @@
         <tr class="hover:bg-sky transition-colors">
           <td class="py-2 pr-4 font-medium text-navy">${escHtml(label)}</td>
           <td class="py-2 pr-4 text-right text-text-soft">—</td>
+          <td class="py-2 pr-4 text-right text-text-soft">—</td>
           <td class="py-2 pr-4 text-right font-heading font-bold text-navy">${u.logins || 0}</td>
           <td class="py-2 text-right text-text-soft text-xs">${fmtOverviewDate(u.last_activity)}</td>
         </tr>
@@ -875,6 +882,7 @@
         <tr class="hover:bg-sky transition-colors">
           <td class="py-2 pr-4 font-medium text-navy">${escHtml(label)}${starsHint}</td>
           <td class="py-2 pr-4 text-right font-heading font-bold text-navy">${u.completions || 0}</td>
+          <td class="py-2 pr-4 text-right font-heading font-bold text-green-700">${u.self_completions || 0}</td>
           <td class="py-2 pr-4 text-right text-text-soft">${u.logins || 0}</td>
           <td class="py-2 text-right text-text-soft text-xs">${fmtOverviewDate(u.last_activity)}</td>
         </tr>
