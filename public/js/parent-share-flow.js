@@ -25,17 +25,9 @@
     tempEl.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
     document.body.appendChild(tempEl);
     tempEl.select();
-    try { document.execCommand('copy'); } catch (_) { /* ignore */ }
+    try { document.execCommand('copy'); } catch { /* ignore */ }
     document.body.removeChild(tempEl);
     if (callback) callback();
-  }
-
-  function showToast(message) {
-    const el = document.createElement('div');
-    el.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-navy text-white text-sm px-4 py-2 rounded-lg shadow-lg z-[9500]';
-    el.textContent = message;
-    document.body.appendChild(el);
-    setTimeout(function () { el.remove(); }, 2500);
   }
 
   function getSharePayload(ref) {
@@ -83,19 +75,19 @@
         credentials: 'include',
         body: JSON.stringify(body),
       }).catch(function () { /* silent */ });
-    } catch (_) { /* silent */ }
+    } catch { /* silent */ }
   }
 
   function rememberRecipient(value) {
     try {
       if (value) localStorage.setItem(RECIPIENT_KEY, value);
-    } catch (_) {}
+    } catch { /* ignore */ }
   }
 
   function readRememberedRecipient() {
     try {
       return localStorage.getItem(RECIPIENT_KEY) || '';
-    } catch (_) {
+    } catch {
       return '';
     }
   }

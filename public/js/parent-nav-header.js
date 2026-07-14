@@ -115,7 +115,7 @@
         credentials: 'include',
         keepalive: true,
       }).catch(function () {});
-    } catch (_) {}
+    } catch {}
   }
 
   function selectorForAction(action) {
