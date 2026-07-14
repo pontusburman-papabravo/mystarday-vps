@@ -272,14 +272,14 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 44px;
   font-size: 22px;
   margin-bottom: 4px;
 }
 
 .parent-quick-tile-icon .app-icon--hub {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
 }
 
 .parent-quick-tile-label {

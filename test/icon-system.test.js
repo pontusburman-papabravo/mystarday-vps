@@ -7,7 +7,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 
-describe('icon-system v2', () => {
+describe('icon-system v3', () => {
   it('icon-system.js exposes render helpers and nav keys', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/icon-system.js'), 'utf8');
     assert.match(src, /window\.IconSystem/);
@@ -35,11 +35,11 @@ describe('icon-system v2', () => {
     assert.match(src, /icon-system\.css/);
   });
 
-  it('manifest is premium v2', () => {
+  it('manifest is readable v3', () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'public/img/stjarnadag-icons/manifest.json'), 'utf8')
     );
-    assert.equal(manifest.version, '2.0.0');
+    assert.equal(manifest.version, '3.0.0');
     assert.ok(manifest.icons.length >= 60);
   });
 

@@ -1,5 +1,5 @@
 /**
- * icon-system.js — Stjärndag Premium Icon System v2.0
+ * icon-system.js — Stjärndag High Contrast Icon System v3.0
  * Assets: public/img/stjarnadag-icons/ (manifest.json)
  */
 (function () {
@@ -83,9 +83,9 @@
   };
 
   const SIZES = {
-    nav: 28,
-    header: 28,
-    hub: 42,
+    nav: 30,
+    header: 30,
+    hub: 44,
     hero: 48,
     childNav: 32,
   };

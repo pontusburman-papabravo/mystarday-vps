@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v629';
+const CACHE_NAME = 'stjarndag-v630';
+// stjarndag-v630: High Contrast Icon System v3 — near-white symbols, no CSS glow
 // stjarndag-v629: Premium Icon System v2 — stronger glow icons, no white tiles
 // stjarndag-v628: light icon tiles on dark magic — purple icons readable on purple bg
 // stjarndag-v627: native startup redirect, family fast-path, Hem quick-action icons

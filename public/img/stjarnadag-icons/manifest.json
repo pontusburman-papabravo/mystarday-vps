@@ -1,6 +1,6 @@
 {
-  "name": "Stjärndag Premium Icon System",
-  "version": "2.0.0",
+  "name": "Stjärndag High Contrast Icon System",
+  "version": "3.0.0",
   "format": "SVG",
   "count": 65,
   "icons": [
@@ -460,10 +460,13 @@
       "themeOverrideAllowed": true
     }
   ],
-  "style": "transparent dark-mode duotone",
+  "style": "high-contrast dark-mode",
   "notes": [
-    "Ingen vit ikonruta",
-    "Badge och antal ritas dynamiskt",
-    "Barnets temabaserade ikoner prioriteras"
+    "65 separata SVG-ikoner",
+    "Nästan vit grundfärg",
+    "Tjockare linjer för mobil",
+    "Ingen vit ruta",
+    "Minimal skugga och ingen neon-glow",
+    "Badge och antal ritas dynamiskt"
   ]
 }

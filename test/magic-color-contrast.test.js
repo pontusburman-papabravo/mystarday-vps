@@ -24,10 +24,10 @@ describe('magic color contrast', () => {
     assert.match(css, /#childProfileTabBar \.child-profile-tab:not\(\.is-active\)/);
   });
 
-  it('premium v2 uses transparent icons without white tile backgrounds', () => {
+  it('readable v3 has no extra CSS glow on dark magic', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/icon-system.css'), 'utf8');
-    assert.match(css, /Premium Icon System v2/);
+    assert.match(css, /High Contrast Icon System v3/);
+    assert.doesNotMatch(css, /filter:\s*drop-shadow/);
     assert.doesNotMatch(css, /rgba\(255, 255, 255, 0\.94\)/);
-    assert.match(css, /drop-shadow/);
   });
 });

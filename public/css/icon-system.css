@@ -1,4 +1,4 @@
-/* Stjärndag Premium Icon System v2.0 */
+/* Stjärndag High Contrast Icon System v3.0 */
 .app-icon {
   display: block;
   width: 2rem;
@@ -10,18 +10,18 @@
 }
 
 .app-icon--nav {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 }
 
 .app-icon--header {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 }
 
 .app-icon--hub {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
 }
 
 .app-icon--hero {
@@ -81,13 +81,4 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-/* Premium v2 — transparent icons with built-in glow on dark magic shells */
-body.parent-magic-view:not(.parent-theme-light) .app-icon {
-  filter: drop-shadow(0 2px 8px rgba(5, 3, 20, 0.45));
-}
-
-body.parent-magic-view:not(.parent-theme-light) .parent-hub-icon-btn .app-icon--header {
-  filter: drop-shadow(0 2px 6px rgba(5, 3, 20, 0.4));
 }
