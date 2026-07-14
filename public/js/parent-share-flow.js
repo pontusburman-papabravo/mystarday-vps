@@ -154,7 +154,8 @@
     closeOverlay('sharePopup');
 
     const shareUrl = payload.url;
-    const shareText = payload.text;
+    const shareMessage = payload.message || payload.text;
+    const shareText = payload.text || shareMessage + ' ' + shareUrl;
     const overlay = document.createElement('div');
     overlay.id = 'sharePopup';
     overlay.className = 'share-popup-overlay';
@@ -175,7 +176,10 @@
         (recipient
           ? '<p class="share-popup-text" style="font-size:0.85rem;margin:0 0 8px;"><strong>Till:</strong> ' + recipient.replace(/</g, '&lt;') + '</p>'
           : '') +
-        '<p class="share-popup-text">' + shareText.replace(shareUrl, '<a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>') + '</p>' +
+        '<p class="share-popup-text">' +
+          shareMessage.replace(/</g, '&lt;') +
+          ' <a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>' +
+        '</p>' +
         '<div class="share-popup-actions">' +
           '<button class="share-popup-btn share-popup-copy" type="button">' +
             '<span>📋</span> Kopiera länk' +
@@ -237,8 +241,8 @@
 
       if (navigator.share && isMobileDevice()) {
         navigator.share({
-          title: 'appen',
-          text: payload.text,
+          title: 'Min ' + 'Stj\u00e4rndag',
+          text: payload.message || payload.text,
           url: payload.url,
         }).then(function () {
           notifyShareBackend({ recipient: recipient, channel: 'native_share' });

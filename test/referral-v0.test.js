@@ -32,12 +32,24 @@ describe('referral v0', () => {
     const src = read('public/js/referral-share.js');
     assert.match(src, /registerUrl/);
     assert.match(src, /window\.ReferralShare/);
+    assert.match(src, /message:/);
   });
 
-  it('mobile-nav uses ReferralShare instead of hardcoded mystarday.se', () => {
+  it('native share uses message without embedded URL to avoid duplicate links', () => {
+    const referral = read('public/js/referral-share.js');
+    const parent = read('public/js/parent-share-flow.js');
+    const landing = read('public/js/landing-share.js');
+    assert.match(referral, /referralMessage/);
+    assert.match(referral, /message: message/);
+    assert.match(referral, /text: message \+ ' ' \+ ref\.registerUrl/);
+    assert.match(parent, /payload\.message/);
+    assert.match(landing, /payload\.message/);
+  });
+
+  it('mobile-nav uses ParentShareFlow instead of hardcoded share URL', () => {
     const src = read('public/js/mobile-nav.js');
-    assert.match(src, /ReferralShare/);
-    assert.doesNotMatch(src, /var SHARE_URL = 'https:\/\/mystarday\.se'/);
+    assert.match(src, /ParentShareFlow/);
+    assert.doesNotMatch(src, /var SHARE_URL = 'https:\/\/[REDACTED]\.se'/);
   });
 
   it('dashboard-cta uses ReferralShare for personal links', () => {

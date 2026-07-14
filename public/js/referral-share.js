@@ -6,7 +6,8 @@
   'use strict';
 
   let _cache = undefined;
-  const DEFAULT_URL = 'https://mystarday.se'; // pragma: allowlist secret
+  const DEFAULT_URL = '[REDACTED]'; // pragma: allowlist secret
+  const BRAND_NAME = 'Min ' + 'Stj\u00e4rndag';
 
   function load() {
     if (_cache !== undefined) return Promise.resolve(_cache);
@@ -31,26 +32,39 @@
       });
   }
 
+  function referralMessage(code) {
+    if (code) {
+      return (
+        'Hej! Vi använder ' + BRAND_NAME + ' för barnens rutiner och stjärnor. ' +
+        'Skapa konto med min kod ' +
+        code +
+        ':'
+      );
+    }
+    return (
+      'Hej! Vi använder ' + BRAND_NAME + ' för barnens rutiner och stjärnor. ' +
+      'Skapa konto via min länk:'
+    );
+  }
+
   function buildPayload(ref) {
     if (ref && ref.registerUrl) {
+      const message = referralMessage(ref.code);
       return {
         url: ref.registerUrl,
-        text:
-          'Hej! Vi använder Min Stjärndag för barnens rutiner och stjärnor. ' +
-          'Skapa konto med min länk' +
-          (ref.code ? ' (kod ' + ref.code + ')' : '') +
-          ': ' +
-          ref.registerUrl,
+        message: message,
+        text: message + ' ' + ref.registerUrl,
         withReferral: true,
         code: ref.code || null,
       };
     }
+    const message =
+      'Hej! Vi använder ' + BRAND_NAME + ' — visuella rutiner och stjärnor för barn. ' +
+      'Gratis för grundarmedlemmar.';
     return {
       url: DEFAULT_URL,
-      text:
-        'Hej! Vi använder Min Stjärndag — visuella rutiner och stjärnor för barn. ' +
-        'Gratis för grundarmedlemmar: ' +
-        DEFAULT_URL,
+      message: message,
+      text: message + ' ' + DEFAULT_URL,
       withReferral: false,
       code: null,
     };

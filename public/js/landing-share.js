@@ -92,7 +92,8 @@
     closeOverlay('landingSharePopup');
 
     const shareUrl = payload.url;
-    const shareText = payload.text;
+    const shareMessage = payload.message || payload.text;
+    const shareText = payload.text || shareMessage + ' ' + shareUrl;
     const overlay = document.createElement('div');
     overlay.id = 'landingSharePopup';
     overlay.className = 'share-popup-overlay';
@@ -108,7 +109,8 @@
           '<button type="button" class="share-popup-close" aria-label="Stäng">&times;</button>' +
         '</div>' +
         '<p class="share-popup-text">' +
-          shareText.replace(shareUrl, '<a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>') +
+          shareMessage.replace(/</g, '&lt;') +
+          ' <a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>' +
         '</p>' +
         '<div class="share-popup-actions">' +
           '<button class="share-popup-btn share-popup-copy" type="button">' +
@@ -169,7 +171,11 @@
     notifyLandingShare('open');
 
     if (navigator.share && isMobileDevice()) {
-      navigator.share({ title: 'Tipsa om appen', text: payload.text, url: payload.url }) // pragma: allowlist secret
+      navigator.share({
+        title: 'Tipsa om appen',
+        text: payload.message || payload.text,
+        url: payload.url,
+      }) // pragma: allowlist secret
         .then(function () {
           trackShare('native_share');
           notifyLandingShare('native_share');
