@@ -312,17 +312,13 @@ body.parent-magic-dashboard .app-view-toggle-btn:not(.is-active) {
   stroke: #ffffff;
 }
 
-body.parent-magic-view [data-parent-nav-settings] {
-  background: rgba(255, 255, 255, 0.16) !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  color: #fff !important;
-}
-
-body.parent-magic-view [data-parent-nav-tipsa],
-body.parent-magic-view [data-parent-nav-share] {
-  background: rgba(255, 255, 255, 0.16) !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  color: #fff !important;
+body.parent-magic-view:not(.parent-theme-light) [data-parent-nav-settings],
+body.parent-magic-view:not(.parent-theme-light) [data-parent-nav-tipsa],
+body.parent-magic-view:not(.parent-theme-light) [data-parent-nav-share] {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  color: #1b2340 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
 }
 
 .parent-avatar-wrap {

@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '25';
+const MAGIC_VERSION = '26';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',

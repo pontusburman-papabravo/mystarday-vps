@@ -111,9 +111,9 @@
           '<button type="button" class="share-popup-close" aria-label="Stäng">&times;</button>' +
         '</div>' +
         '<p class="share-popup-text" style="margin-bottom:12px;">Vem tipsar du om? (valfritt — hjälper oss följa upp)</p>' +
-        '<label class="block text-sm font-semibold text-navy mb-1" for="parentShareRecipientInput">Till vem</label>' +
+        '<label class="share-popup-field-label" for="parentShareRecipientInput">Till vem</label>' +
         '<input id="parentShareRecipientInput" type="text" maxlength="200" placeholder="Namn, e-post eller &quot;kollega på förskolan&quot;" ' +
-          'class="w-full px-3 py-2 border border-lavender rounded-xl text-navy text-sm mb-4" />' +
+          'class="share-popup-field-input" />' +
         '<div class="share-popup-actions" style="justify-content:flex-end;">' +
           '<button type="button" class="share-popup-btn share-popup-copy" id="parentShareRecipientCancel">Avbryt</button>' +
           '<button type="button" class="share-popup-btn share-popup-email" id="parentShareRecipientGo">Dela vidare</button>' +

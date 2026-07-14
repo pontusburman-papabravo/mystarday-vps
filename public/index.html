@@ -18,7 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=8">
+  <link rel="stylesheet" href="/css/landing.css?v=9">
+  <link rel="stylesheet" href="/css/icon-system.css?v=1">
+  <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.json">
@@ -86,6 +88,10 @@
     <a href="#faq" class="landing-nav__link">FAQ</a>
   </div>
   <div class="landing-nav__actions">
+    <button type="button" class="landing-nav__tipsa" data-landing-share data-track="landing_share_click" aria-label="Tipsa en familj" title="Tipsa en familj om appen">
+      <span class="landing-nav__tipsa-icon" aria-hidden="true"></span>
+      <span class="landing-nav__tipsa-label">Tipsa</span>
+    </button>
     <a href="/child-login" class="landing-nav__child-login" data-track="nav_child_login_click" title="Barninloggning">🌟 Barn</a>
     <a href="/login" class="landing-nav__login" data-track="nav_login_click">Logga in</a>
     <a href="/register" class="btn-primary" data-track="nav_signup_click">Skapa konto gratis</a>
@@ -120,6 +126,7 @@
   <a href="#skattkammaren">Skattkammaren</a>
   <a href="/pedagoger-och-terapeuter">För pedagoger &amp; terapeuter</a>
   <a href="#faq">FAQ</a>
+  <a href="#" class="landing-mobile-menu__tipsa" data-landing-share data-track="landing_share_click">Tipsa en familj</a>
   <p class="landing-mobile-menu__section">App Store</p>
   <a href="https://apple.co/4v2ESuH" class="landing-mobile-menu__app-store" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Hämta Min Stjärndag i App Store">
     <svg class="app-store-badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 52" width="140" height="47" aria-hidden="true" focusable="false">
@@ -135,6 +142,11 @@
   <a href="/register" class="btn-primary" style="text-align:center;margin-top:0.25rem;" data-track="nav_signup_click">Skapa konto gratis</a>
   <a href="/en">🇬🇧 English</a>
 </div>
+
+<button type="button" class="landing-tipsa-fixed" data-landing-share data-track="landing_share_click" aria-label="Tipsa en familj">
+  <span class="landing-tipsa-fixed__icon" aria-hidden="true"></span>
+  <span class="landing-tipsa-fixed__label">Tipsa</span>
+</button>
 
 <!-- Admin landing news (server-injected) -->
 <div id="landingNewsSection" style="display:none;padding-top:5rem;">
@@ -789,6 +801,8 @@
 </script>
 <!-- ===== SCRIPTS ===== -->
 <script src="/js/landing-nav.js?v=1"></script>
+<script src="/js/icon-system.js?v=1"></script>
+<script src="/js/landing-share.js?v=1"></script>
 <script src="/js/landing-faq.js?v=1"></script>
 <script src="/js/landing-events.js?v=1"></script>
 <script src="/js/landing-founder.js?v=3"></script>

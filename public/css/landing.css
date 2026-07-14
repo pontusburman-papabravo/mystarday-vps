@@ -193,6 +193,73 @@ body.platform-web.landing-magic-bg {
 
 .landing-nav__lang:hover { background: var(--amber-lt); }
 
+.landing-nav__tipsa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  background: linear-gradient(135deg, rgba(255, 217, 102, 0.35), rgba(245, 166, 35, 0.22));
+  color: var(--navy);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.landing-nav__tipsa:hover {
+  background: linear-gradient(135deg, #ffd966, #f5a623);
+  border-color: #f5a623;
+}
+
+.landing-nav__tipsa-icon,
+.landing-tipsa-fixed__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.landing-nav__tipsa-icon .app-icon,
+.landing-tipsa-fixed__icon .app-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.landing-mobile-menu__tipsa {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--amber-dk) !important;
+}
+
+.landing-tipsa-fixed {
+  display: none;
+  position: fixed;
+  right: 1rem;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  z-index: 9000;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd966 0%, #f5a623 100%);
+  color: #1b2340;
+  font-size: 0.92rem;
+  font-weight: 800;
+  box-shadow: 0 8px 28px rgba(245, 166, 35, 0.45);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.landing-tipsa-fixed:hover {
+  filter: brightness(1.03);
+}
+
 .landing-nav__hamburger {
   display: none;
   align-items: center;
@@ -1412,9 +1479,11 @@ body.platform-web.landing-magic-bg {
   .landing-nav__actions .btn-primary,
   .landing-nav__actions .landing-nav__lang,
   .landing-nav__actions .landing-nav__login,
-  .landing-nav__actions .landing-nav__child-login { display: none; }
+  .landing-nav__actions .landing-nav__child-login,
+  .landing-nav__actions .landing-nav__tipsa { display: none; }
 
   .landing-nav__hamburger { display: inline-flex; }
+  .landing-tipsa-fixed { display: inline-flex; }
 
   .landing-login-entry--hero { display: none; }
 

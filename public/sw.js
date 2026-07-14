@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v624';
+const CACHE_NAME = 'stjarndag-v625';
+// stjarndag-v625: share popup contrast + header icon tiles; landing Tipsa restored with icon system
 // stjarndag-v624: Stjärndag Icon System v1 — global SVG icons (nav, header, hubs, child fallback)
 // stjarndag-v623: parent header icons — Notiser (klocka), Inställningar (kugghjul), Tipsa (glödlampa)
 // stjarndag-v622: parent header — dela (tydlig ikon) + notiser + inställningar (kugghjul); delningsmejl med mottagare

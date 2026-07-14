@@ -441,3 +441,58 @@
   font-size: 1.1rem;
   flex-shrink: 0;
 }
+
+.share-popup-field-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1b2340;
+  margin-bottom: 0.35rem;
+}
+
+.share-popup-field-input {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(28, 35, 64, 0.18);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1b2340;
+  font-size: 0.875rem;
+  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+}
+
+.share-popup-field-input::placeholder {
+  color: #8a92aa;
+}
+
+.share-popup-field-input:focus {
+  outline: none;
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
+}
+
+/* Magic dark shell forces light inputs globally — keep share card readable */
+body.parent-magic-view .share-popup-card,
+body.parent-magic-view .share-popup-card .share-popup-field-label,
+body.parent-magic-view .share-popup-card .share-popup-text,
+body.parent-magic-view .share-popup-card .share-popup-header strong {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .share-popup-card .share-popup-text {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view .share-popup-card input[type="text"],
+body.parent-magic-view .share-popup-card input[type="email"] {
+  background: #ffffff !important;
+  border-color: rgba(28, 35, 64, 0.18) !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view .share-popup-card input[type="text"]::placeholder,
+body.parent-magic-view .share-popup-card input[type="email"]::placeholder {
+  color: #8a92aa !important;
+}

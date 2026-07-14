@@ -82,6 +82,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'footer_signup_click',
   'child_view_example_click',
   'landing_guide_card_click',
+  'landing_share_click',
   'landing_faq_expand',
   'app_store_click',
   // SEO guide articles (public/js/article-events.js)

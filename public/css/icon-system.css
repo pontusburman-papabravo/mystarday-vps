@@ -82,3 +82,8 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+/* Header chrome — colorful SVGs need a solid light tile on magic dark */
+body.parent-magic-view:not(.parent-theme-light) .parent-hub-icon-btn .app-icon--header {
+  filter: drop-shadow(0 1px 1px rgba(27, 35, 64, 0.18));
+}

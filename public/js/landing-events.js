@@ -20,6 +20,7 @@
     footer_signup_click: true,
     child_view_example_click: true,
     landing_guide_card_click: true,
+    landing_share_click: true,
   };
 
   function track(eventType, metadata) {
@@ -70,6 +71,7 @@
     bindCta('[data-track="footer_signup_click"]', 'footer_signup_click');
     bindCta('[data-track="child_view_example_click"]', 'child_view_example_click');
     bindCta('[data-track="landing_guide_card_click"]', 'landing_guide_card_click');
+    bindCta('[data-track="landing_share_click"]', 'landing_share_click');
   }
 
   if (document.readyState === 'loading') {
