@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v614';
+const CACHE_NAME = 'stjarndag-v615';
+// stjarndag-v615: NNL mode — show Nästa/Senare upcoming activities in focus view
 // stjarndag-v614: revert Idag quest layout; photo card star reward in foot row
 // stjarndag-v613: Idag samling quest — NU/Nästa stack, time-aware, no empty dagdel
 // stjarndag-v612: handoff film v1.5 — human opener, emotional copy, SFX, Börja tillsammans CTA
