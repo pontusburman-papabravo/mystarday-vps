@@ -63,7 +63,12 @@
     });
   }
 
-  function softenQuestChrome() {
+  function isNnlModeOn(data) {
+    return !!(data && data.show_now_next === true);
+  }
+
+  function softenQuestChrome(nnlMode) {
+    if (nnlMode) return;
     document.querySelectorAll('#scheduleView .nl-section-label').forEach(function (label) {
       label.classList.add('ctf-hidden');
     });
@@ -75,7 +80,21 @@
     });
   }
 
-  function capIncompleteTasks() {
+  function ensureNnlZonesVisible() {
+    document.querySelectorAll(
+      '#scheduleView .nnl-zone, #scheduleView .nnl-zone-header, ' +
+      '#scheduleView .next-card, #scheduleView .later-card, ' +
+      '#scheduleView .photo-activity-card.next-card, #scheduleView .photo-activity-card.later-card'
+    ).forEach(function (el) {
+      el.classList.remove('ctf-hidden');
+    });
+  }
+
+  function capIncompleteTasks(nnlMode) {
+    if (nnlMode) {
+      removeMoreHint();
+      return;
+    }
     if (!isFocusMode()) {
       capLegacyIncompleteTasks();
       return;
@@ -188,10 +207,15 @@
       return;
     }
     const items = (data && data.items) || [];
+    const nnlOn = isNnlModeOn(data);
     injectRewardTeasers(buildStarMap(items));
     hideDoneHistory();
-    softenQuestChrome();
-    capIncompleteTasks();
+    softenQuestChrome(nnlOn);
+    if (nnlOn) {
+      ensureNnlZonesVisible();
+    } else {
+      capIncompleteTasks(false);
+    }
     mountSkattCta();
   }
 

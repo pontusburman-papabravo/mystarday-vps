@@ -151,6 +151,7 @@
       : '';
     const isNext = timeStatus === 'next';
     const isLater = timeStatus === 'later';
+    const cardRoleCls = isNext ? ' next-card' : (isLater ? ' later-card' : '');
     const subStepCount = item.sub_step_count || 0;
     const cachedSteps = typeof subStepCache !== 'undefined' ? subStepCache[item.id] : null;
     const isExpanded = typeof subStepExpanded !== 'undefined' ? !!subStepExpanded[item.id] : false;
@@ -199,7 +200,7 @@
     const cursorCls = canToggle && !isDone ? ' cursor-pointer' : '';
 
     return (
-      '<div class="activity-card photo-activity-card' + cursorCls + ' ' + (isDone ? 'done' : '') + ' ' + (isLater && !isDone ? 'opacity-60' : '') + ' ' + colorCls + '"' +
+      '<div class="activity-card photo-activity-card' + cardRoleCls + cursorCls + ' ' + (isDone ? 'done' : '') + ' ' + (isLater && !isDone ? 'opacity-60' : '') + ' ' + colorCls + '"' +
            ' id="card-' + item.id + '"' +
            ' data-feedback-for="' + esc(feedbackFor) + '"' +
            ' data-item-icon="' + esc(item.icon || '⭐') + '"' +

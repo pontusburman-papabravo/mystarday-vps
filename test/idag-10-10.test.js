@@ -72,10 +72,12 @@ describe('Idag barn 10/10', () => {
     assert.match(src, /isTodayFocusLayer\(\)\) return/);
   });
 
-  it('softens quest chrome — hides schema labels and later pile in focus mode', () => {
+  it('softens quest chrome in focus mode but keeps NNL zones when show_now_next', () => {
     const src = fs.readFileSync(TASKS, 'utf8');
     assert.match(src, /softenQuestChrome/);
     assert.match(src, /later-card/);
-    assert.match(src, /nl-section-label/);
+    assert.match(src, /isNnlModeOn/);
+    assert.match(src, /ensureNnlZonesVisible/);
+    assert.match(src, /if \(nnlMode\) return/);
   });
 });
