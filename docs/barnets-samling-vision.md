@@ -292,20 +292,15 @@ Varje fas ska vara shippbar — inget halvfärdigt spel i produktion.
 
 ---
 
-## Rollout (tills produktklar)
+## Rollout
 
-**Endast dessa familjer ska se implementationen** (Fas A och framåt) tills vi sätter `status=live`:
+**Status:** `live` för alla familjer sedan 2026-07-14 (produktsign-off efter constitution QA + senaste bugfixar).
 
-| Förälder | Syfte |
-|----------|--------|
-| `pontus@burman.cc` | Intern test |
-| Testanvändaren (intern testkonto — ej App Review) | Intern QA |
+**Teknik:** feature slug `barnets_samling` · `features.status = 'live'` → `hasAccess(familyId, 'barnets_samling')` för alla aktiva familjer.
 
-**Teknik:** feature slug `barnets_samling` · `status=dev` · `family_features` per familj (samma mönster som `mina_personer_10_10`).
+**Historik (dev):** Före go-live testades implementationen via `family_features` för `pontus@burman.cc` och testanvändaren (intern QA, ej App Review).
 
-**Implementation (Fas A+):** Barnnav, labels och hub-borttagning ska vara bakom `hasAccess(familyId, 'barnets_samling')`. Övriga familjer behåller nuvarande barnmeny tills rollout.
-
-**Gå live:** Sätt `features.status = 'live'` först efter explicit produktsign-off — inte automatiskt vid merge.
+**Implementation:** Barnnav, labels och hub-borttagning bakom `hasAccess(familyId, 'barnets_samling')`. Gate OFF behåller legacy barnmeny.
 
 ---
 
