@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v621';
+const CACHE_NAME = 'stjarndag-v622';
 // stjarndag-v621: handoff film in new-family + add-child onboarding
 // stjarndag-v620: remove handoff film preview banner
 // stjarndag-v619: admin overview — unique child self-checkoffs metrics
@@ -424,6 +424,7 @@ const CACHE_NAME = 'stjarndag-v621';
 // stjarndag-v475: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v476: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v518: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v622: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
