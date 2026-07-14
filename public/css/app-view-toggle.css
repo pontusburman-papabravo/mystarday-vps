@@ -269,6 +269,38 @@ body.parent-magic-dashboard .app-view-toggle-btn:not(.is-active) {
   color: rgba(244, 244, 255, 0.82);
 }
 
+.parent-hub-icon-btn .parent-hub-icon-img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.parent-hub-icon-btn[data-parent-nav-notifications] {
+  position: relative;
+}
+
+.parent-nav-notif-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(27, 35, 64, 0.25);
+  pointer-events: none;
+}
+
 .parent-hub-icon-btn .parent-hub-icon-svg {
   display: block;
   width: 22px;
@@ -286,6 +318,7 @@ body.parent-magic-view [data-parent-nav-settings] {
   color: #fff !important;
 }
 
+body.parent-magic-view [data-parent-nav-tipsa],
 body.parent-magic-view [data-parent-nav-share] {
   background: rgba(255, 255, 255, 0.16) !important;
   border: 1px solid rgba(255, 255, 255, 0.28) !important;

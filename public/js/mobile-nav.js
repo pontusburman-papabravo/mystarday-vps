@@ -148,8 +148,8 @@
     '</a>' +
     '<div class="topbar-actions">' +
       (isParentUser
-        ? '<button class="topbar-share-btn" title="Tipsa en familj om appen!" aria-label="Dela appen">' +
-          (window.ParentNavIcons ? window.ParentNavIcons.share : '↗') +
+        ? '<button class="topbar-share-btn" title="Tipsa en familj om appen!" aria-label="Tipsa">' +
+          (window.ParentNavIcons ? window.ParentNavIcons.tipsa : '💡') +
           '</button>'
         : '') +
       (darkToggleFn
@@ -183,7 +183,7 @@
   if (isParentUser) {
     linksHtml +=
       '<button class="btn-dropdown-share" type="button">' +
-        (window.ParentNavIcons ? window.ParentNavIcons.share : '↗') +
+        (window.ParentNavIcons ? window.ParentNavIcons.tipsa : '💡') +
         ' Tipsa en familj!' +
       '</button>';
   }
@@ -286,7 +286,7 @@
       var sidebarShareBtn = document.createElement('button');
       sidebarShareBtn.className = 'sidebar-share-btn w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2';
       sidebarShareBtn.type = 'button';
-      sidebarShareBtn.innerHTML = (window.ParentNavIcons ? window.ParentNavIcons.share : '<span>↗</span>') + ' Tipsa en familj!';
+      sidebarShareBtn.innerHTML = (window.ParentNavIcons ? window.ParentNavIcons.tipsa : '💡') + ' Tipsa en familj!';
       // Insert as first child of the footer section
       sidebarFooter.insertBefore(sidebarShareBtn, sidebarFooter.firstChild);
     }

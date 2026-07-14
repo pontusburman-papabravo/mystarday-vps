@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v622';
+const CACHE_NAME = 'stjarndag-v623';
+// stjarndag-v623: parent header icons — Notiser (klocka), Inställningar (kugghjul), Tipsa (glödlampa)
 // stjarndag-v622: parent header — dela (tydlig ikon) + notiser + inställningar (kugghjul); delningsmejl med mottagare
 // stjarndag-v620: remove handoff film preview banner
 // stjarndag-v619: admin overview — unique child self-checkoffs metrics

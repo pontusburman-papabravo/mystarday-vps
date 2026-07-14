@@ -1,6 +1,5 @@
 /**
- * parent-nav-header.js — Top chrome: Dela + Notiser + Inställningar (kugghjul).
- * Avatar-meny hanteras inte här — inställningar nås via kugghjulsikonen.
+ * parent-nav-header.js — Top chrome: Notiser + Inställningar + Tipsa.
  */
 (function () {
   'use strict';
@@ -12,22 +11,49 @@
   if (!NavConfig.isParentShellPath(path) && path !== '/settings') return;
 
   const ICON_BTN =
-    'parent-hub-icon-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/80 border border-lavender';
+    'parent-hub-icon-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/80 border border-lavender shadow-sm';
 
   function iconMarkup(action) {
-    if (action.icon === 'share' && window.ParentNavIcons) return window.ParentNavIcons.share;
-    if (action.icon === 'settings' && window.ParentNavIcons) return window.ParentNavIcons.settings;
+    if (!window.ParentNavIcons) return action.icon || '';
+    if (action.icon === 'notiser' || action.id === 'notifications') return ParentNavIcons.notiser;
+    if (action.icon === 'settings') return ParentNavIcons.settings;
+    if (action.icon === 'tipsa' || action.icon === 'share') return ParentNavIcons.tipsa;
     return action.icon || '';
   }
 
+  function fetchUnreadBadge(link) {
+    if (!link || typeof fetch !== 'function') return;
+    fetch('/api/notifications/unread-count', { credentials: 'include' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (!data) return;
+        const count = parseInt(data.count, 10) || 0;
+        let badge = link.querySelector('.parent-nav-notif-badge');
+        if (count <= 0) {
+          if (badge) badge.hidden = true;
+          return;
+        }
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'parent-nav-notif-badge';
+          badge.setAttribute('aria-hidden', 'true');
+          link.appendChild(badge);
+        }
+        badge.textContent = count > 9 ? '9+' : String(count);
+        badge.hidden = false;
+      })
+      .catch(function () {});
+  }
+
   function buildActionElement(action) {
-    if (action.action === 'share') {
+    if (action.action === 'tipsa' || action.action === 'share') {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = ICON_BTN;
-      btn.setAttribute('aria-label', action.label || 'Dela appen');
+      btn.setAttribute('aria-label', action.label || 'Tipsa en familj');
+      btn.setAttribute('data-parent-nav-tipsa', '1');
       btn.setAttribute('data-parent-nav-share', '1');
-      btn.title = action.label || 'Dela appen';
+      btn.title = action.label || 'Tipsa';
       btn.innerHTML = iconMarkup(action);
       btn.addEventListener('click', function (e) {
         e.preventDefault();
@@ -42,13 +68,14 @@
 
     const link = document.createElement('a');
     link.href = action.href || '/settings';
-    link.className = ICON_BTN + ' text-lg';
+    link.className = ICON_BTN;
     link.setAttribute('aria-label', action.label || '');
     link.title = action.label || '';
 
     if (action.id === 'notifications') {
       link.setAttribute('data-parent-nav-notifications', '1');
-      link.textContent = '🔔';
+      link.innerHTML = iconMarkup(action);
+      fetchUnreadBadge(link);
       return link;
     }
 
@@ -87,6 +114,29 @@
     } catch (_) {}
   }
 
+  function selectorForAction(action) {
+    if (action.id === 'notifications') return '[data-parent-nav-notifications]';
+    if (action.id === 'settings') return '[data-parent-nav-settings]';
+    if (action.action === 'tipsa' || action.action === 'share' || action.id === 'tipsa') {
+      return '[data-parent-nav-tipsa]';
+    }
+    return null;
+  }
+
+  function refreshHeaderIcons(bar) {
+    const actions = NavConfig.HEADER_ACTIONS || [];
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      const sel = selectorForAction(action);
+      if (!sel) continue;
+      const el = bar.querySelector(sel);
+      if (!el) continue;
+      const markup = iconMarkup(action);
+      if (markup && el.innerHTML !== markup) el.innerHTML = markup;
+      if (action.id === 'notifications') fetchUnreadBadge(el);
+    }
+  }
+
   function ensureHeaderBar() {
     let bar = document.querySelector('[data-parent-nav-header]');
     const actions = NavConfig.HEADER_ACTIONS || [];
@@ -109,19 +159,12 @@
     } else {
       for (let j = 0; j < actions.length; j++) {
         const action = actions[j];
-        const selector =
-          action.id === 'share'
-            ? '[data-parent-nav-share]'
-            : action.id === 'notifications'
-              ? '[data-parent-nav-notifications]'
-              : action.id === 'settings'
-                ? '[data-parent-nav-settings]'
-                : null;
+        const selector = selectorForAction(action);
         if (selector && !bar.querySelector(selector)) {
           bar.appendChild(buildActionElement(action));
         }
       }
-      // Remove legacy gold avatar button from older header chrome
+      refreshHeaderIcons(bar);
       const legacyAvatar = bar.querySelector('#parentAvatarBtn');
       if (legacyAvatar && legacyAvatar.parentNode) {
         legacyAvatar.parentNode.remove();
@@ -147,5 +190,9 @@
 
   window.ParentNavHeader = {
     ensure: ensureHeaderBar,
+    refreshBadges: function () {
+      const link = document.querySelector('[data-parent-nav-notifications]');
+      if (link) fetchUnreadBadge(link);
+    },
   };
 })();
