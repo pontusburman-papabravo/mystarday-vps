@@ -1,4 +1,4 @@
-/* Stjärndag Icon System v1.0 */
+/* Stjärndag High Contrast Icon System v3.0 */
 .app-icon {
   display: block;
   width: 2rem;
@@ -10,18 +10,18 @@
 }
 
 .app-icon--nav {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 
 .app-icon--header {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 }
 
 .app-icon--hub {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
 }
 
 .app-icon--hero {
@@ -81,9 +81,4 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-/* Header chrome — colorful SVGs need a solid light tile on magic dark */
-body.parent-magic-view:not(.parent-theme-light) .parent-hub-icon-btn .app-icon--header {
-  filter: drop-shadow(0 1px 1px rgba(27, 35, 64, 0.18));
 }

@@ -315,10 +315,10 @@ body.parent-magic-dashboard .app-view-toggle-btn:not(.is-active) {
 body.parent-magic-view:not(.parent-theme-light) [data-parent-nav-settings],
 body.parent-magic-view:not(.parent-theme-light) [data-parent-nav-tipsa],
 body.parent-magic-view:not(.parent-theme-light) [data-parent-nav-share] {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  color: #1b2340 !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #f4f4ff !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
 }
 
 .parent-avatar-wrap {

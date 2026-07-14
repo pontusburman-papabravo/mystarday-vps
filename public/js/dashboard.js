@@ -135,6 +135,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   logDashboardStability('dashboard_auth_ok', { type: user.type });
+  if (window.ParentMagicRouter && ParentMagicRouter.warmFamilyFetch) {
+    ParentMagicRouter.warmFamilyFetch();
+  }
   const androidFlat = document.documentElement.classList.contains('is-native-android');
   const csrfPromise = androidFlat && window.Auth
     ? Auth.ensureCsrfToken()

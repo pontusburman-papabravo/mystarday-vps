@@ -204,20 +204,27 @@
     return '/daily-log';
   }
 
+  function quickActionIcon(key, emojiFallback) {
+    if (window.IconSystem && IconSystem.has(key)) {
+      return '<span class="parent-quick-tile-icon">' + IconSystem.hub(key) + '</span>';
+    }
+    return '<span class="parent-quick-tile-icon" aria-hidden="true">' + emojiFallback + '</span>';
+  }
+
   function renderQuickActions(children) {
     const logHref = escHtml(retroactiveLogHref(children));
     return '<div class="parent-quick-grid" role="group" aria-label="Snabbåtgärder">' +
       '<a href="' + logHref + '" class="parent-quick-tile parent-quick-tile-link no-underline">' +
-      '<span class="parent-quick-tile-icon" aria-hidden="true">📝</span>' +
+      quickActionIcon('registrera-i-efterhand', '📝') +
       '<span class="parent-quick-tile-label">I efterhand</span></a>' +
       '<button type="button" class="parent-quick-tile" data-action="once-task">' +
-      '<span class="parent-quick-tile-icon" aria-hidden="true">📋</span>' +
+      quickActionIcon('engangsaktivitet', '📋') +
       '<span class="parent-quick-tile-label">Engångs-<wbr>aktivitet</span></button>' +
       '<button type="button" class="parent-quick-tile" data-action="give-stars">' +
-      '<span class="parent-quick-tile-icon" aria-hidden="true">⭐</span>' +
+      quickActionIcon('extra-stjarnor', '⭐') +
       '<span class="parent-quick-tile-label">Extra stjärnor</span></button>' +
       '<button type="button" class="parent-quick-tile" data-action="ledig-dag">' +
-      '<span class="parent-quick-tile-icon" aria-hidden="true">🏠</span>' +
+      quickActionIcon('kalender', '🏠') +
       '<span class="parent-quick-tile-label">Ledig dag</span></button>' +
       '</div>';
   }

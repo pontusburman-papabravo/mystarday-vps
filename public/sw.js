@@ -217,9 +217,12 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v628';
-// stjarndag-v628: share links — clean /register URL, no ?ref= codes
-// stjarndag-v627: referral share — message without URL (fixes duplicate link in native share)
+const CACHE_NAME = 'stjarndag-v631';
+// stjarndag-v631: share links — clean /register URL, no ?ref= codes; fix duplicate native share URL
+// stjarndag-v630: High Contrast Icon System v3 — near-white symbols, no CSS glow
+// stjarndag-v629: Premium Icon System v2 — stronger glow icons, no white tiles
+// stjarndag-v628: light icon tiles on dark magic — purple icons readable on purple bg
+// stjarndag-v627: native startup redirect, family fast-path, Hem quick-action icons
 // stjarndag-v626: landing mobile — no parent tab bar on /, scrollable menu, Tipsa in header
 // stjarndag-v625: share popup contrast + header icon tiles; landing Tipsa restored with icon system
 // stjarndag-v624: Stjärndag Icon System v1 — global SVG icons (nav, header, hubs, child fallback)

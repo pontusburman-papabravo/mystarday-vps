@@ -1,6 +1,6 @@
 {
-  "name": "Stjärndag Icon System",
-  "version": "1.0.0",
+  "name": "Stjärndag High Contrast Icon System",
+  "version": "3.0.0",
   "format": "SVG",
   "count": 65,
   "icons": [
@@ -459,5 +459,14 @@
       "purpose": "logga ut",
       "themeOverrideAllowed": true
     }
+  ],
+  "style": "high-contrast dark-mode",
+  "notes": [
+    "65 separata SVG-ikoner",
+    "Nästan vit grundfärg",
+    "Tjockare linjer för mobil",
+    "Ingen vit ruta",
+    "Minimal skugga och ingen neon-glow",
+    "Badge och antal ritas dynamiskt"
   ]
 }
