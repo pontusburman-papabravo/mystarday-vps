@@ -556,14 +556,28 @@
             </div>
 
             <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Aktivitet i perioden</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div class="bg-gold-light rounded-2xl p-6 border-2 border-gold/30">
                 <p class="text-text-soft text-sm font-semibold mb-1">KLARMARKERADE AKTIVITETER</p>
                 <p id="overviewCompletions" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+                <p class="text-xs text-text-soft mt-1">Totalt antal avbockningar (alla)</p>
               </div>
               <div class="bg-gold-light rounded-2xl p-6 border-2 border-gold/30">
                 <p class="text-text-soft text-sm font-semibold mb-1">UTDELADE STJÄRNOR</p>
                 <p id="overviewStars" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+              </div>
+            </div>
+            <p class="text-xs font-heading font-bold text-text-soft uppercase tracking-wider mb-3">Barn som bockar själva <span class="font-normal normal-case text-text-soft">(viktigare än inloggningar)</span></p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div class="bg-mint rounded-2xl p-6 border-2 border-mint">
+                <p class="text-text-soft text-sm font-semibold mb-1">UNIKA BARN SOM BOCKADE SJÄLVA</p>
+                <p id="overviewChildSelfUnique" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+                <p class="text-xs text-text-soft mt-1">Minst en självbockning i perioden</p>
+              </div>
+              <div class="bg-sky rounded-2xl p-6 border-2 border-lavender">
+                <p class="text-text-soft text-sm font-semibold mb-1">AVBOCKNINGAR AV BARN</p>
+                <p id="overviewChildSelfCompletions" class="text-3xl font-heading font-bold text-navy">&mdash;</p>
+                <p class="text-xs text-text-soft mt-1">Totalt antal självbockningar i perioden</p>
               </div>
             </div>
 

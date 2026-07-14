@@ -107,8 +107,13 @@ router.get('/overview-stats', async (req, res) => {
       db.query(`
         SELECT
           COUNT(*) FILTER (WHERE dli.completed = true)::int AS completions,
-          COALESCE(SUM(dli.star_value) FILTER (WHERE dli.completed = true), 0)::int AS stars
+          COALESCE(SUM(dli.star_value) FILTER (WHERE dli.completed = true), 0)::int AS stars,
+          COUNT(*) FILTER (WHERE dli.completed = true AND dli.completed_by = 'child')::int AS child_self_completions,
+          COUNT(DISTINCT dl.child_id) FILTER (
+            WHERE dli.completed = true AND dli.completed_by = 'child'
+          )::int AS child_self_unique
         FROM daily_log_item dli
+        JOIN daily_log dl ON dl.id = dli.daily_log_id
         WHERE dli.completed = true
           AND dli.completed_at >= NOW() - $1::interval
       `, [interval]),
@@ -129,6 +134,7 @@ router.get('/overview-stats', async (req, res) => {
         child_completions AS (
           SELECT dl.child_id,
                  COUNT(*)::int AS completions,
+                 COUNT(*) FILTER (WHERE dli.completed_by = 'child')::int AS self_completions,
                  COALESCE(SUM(dli.star_value), 0)::int AS stars,
                  MAX(dli.completed_at) AS last_activity
           FROM daily_log_item dli
@@ -165,6 +171,7 @@ router.get('/overview-stats', async (req, res) => {
             'username', COALESCE(c.username, ''),
             'logins', COALESCE(cl.logins, 0),
             'completions', COALESCE(cc.completions, 0),
+            'self_completions', COALESCE(cc.self_completions, 0),
             'stars', COALESCE(cc.stars, 0),
             'last_activity', CASE
               WHEN cl.last_login IS NULL AND cc.last_activity IS NULL THEN NULL
@@ -206,6 +213,10 @@ router.get('/overview-stats', async (req, res) => {
       activity: {
         completions: activityCounts.rows[0].completions,
         stars: activityCounts.rows[0].stars,
+        child_self: {
+          unique_children: activityCounts.rows[0].child_self_unique,
+          completions: activityCounts.rows[0].child_self_completions,
+        },
       },
       families: familiesResult.rows
         .map(row => ({
@@ -221,6 +232,7 @@ router.get('/overview-stats', async (req, res) => {
             ...c,
             logins: parseInt(c.logins, 10) || 0,
             completions: parseInt(c.completions, 10) || 0,
+            self_completions: parseInt(c.self_completions, 10) || 0,
             stars: parseInt(c.stars, 10) || 0,
           })),
         }))

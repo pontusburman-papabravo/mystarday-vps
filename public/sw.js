@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v618';
+const CACHE_NAME = 'stjarndag-v619';
+// stjarndag-v619: admin overview — unique child self-checkoffs metrics
 // stjarndag-v618: handoff film replay timer cleanup
 // stjarndag-v617: barnets_samling live for all families
 // stjarndag-v616: NNL mode — show Nästa/Senare upcoming activities in focus view
