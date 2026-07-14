@@ -40,11 +40,22 @@ describe('referral v0', () => {
   it('parent share flow does not fetch personal referral codes', () => {
     const parent = read('public/js/parent-share-flow.js');
     const landing = read('public/js/landing-share.js');
+    const referral = read('public/js/referral-share.js');
     assert.doesNotMatch(parent, /loadReferral/);
     assert.doesNotMatch(parent, /referral_link_shared/);
     assert.doesNotMatch(parent, /Din kod:/);
     assert.match(parent, /buildPayload\(\)/);
     assert.match(landing, /REGISTER_URL/);
+    assert.match(referral, /message: text/);
+    assert.match(referral, /text: text/);
+  });
+
+  it('native share uses full text with URL (no separate url field)', () => {
+    const parent = read('public/js/parent-share-flow.js');
+    const landing = read('public/js/landing-share.js');
+    assert.match(parent, /text: payload\.text \|\| payload\.message/);
+    assert.doesNotMatch(parent, /url: payload\.url,/);
+    assert.match(landing, /text: payload\.text \|\| payload\.message/);
   });
 
   it('mobile-nav uses ParentShareFlow instead of hardcoded share URL', () => {

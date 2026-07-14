@@ -17,7 +17,7 @@
     return {
       url: REGISTER_URL,
       text:
-      message: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här:',
+      message: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL,
       text: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL,
     };
   }
@@ -89,8 +89,7 @@
     closeOverlay('landingSharePopup');
 
     const shareUrl = payload.url;
-    const shareMessage = payload.message || payload.text;
-    const shareText = payload.text || shareMessage + ' ' + shareUrl;
+    const shareText = payload.text || payload.message || shareUrl;
     const overlay = document.createElement('div');
     overlay.id = 'landingSharePopup';
     overlay.className = 'share-popup-overlay';
@@ -105,10 +104,7 @@
           '<strong id="landingShareTitle">Tipsa en familj</strong>' +
           '<button type="button" class="share-popup-close" aria-label="Stäng">&times;</button>' +
         '</div>' +
-        '<p class="share-popup-text">' +
-          shareMessage.replace(/</g, '&lt;') +
-          ' <a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>' +
-        '</p>' +
+        '<p class="share-popup-text">' + shareText.replace(/</g, '&lt;') + '</p>' +
         '<div class="share-popup-actions">' +
           '<button class="share-popup-btn share-popup-copy" type="button">' +
             '<span aria-hidden="true">📋</span> Kopiera länk' +
@@ -170,8 +166,7 @@
     if (navigator.share && isMobileDevice()) {
       navigator.share({
         title: 'Tipsa om appen',
-        text: payload.message || payload.text,
-        url: payload.url,
+        text: payload.text || payload.message,
       }) // pragma: allowlist secret
         .then(function () {
           trackShare('native_share');

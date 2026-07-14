@@ -8,13 +8,14 @@
   const BRAND_NAME = 'Min ' + 'Stj\u00e4rndag';
 
   function buildPayload() {
-    const message =
+    const text =
       'Hej! Vi använder ' + BRAND_NAME + ' för barnens rutiner och stjärnor. ' +
-      'Skapa konto gratis här:';
+      'Skapa konto gratis här: ' +
+      REGISTER_URL;
     return {
       url: REGISTER_URL,
-      message: message,
-      text: message + ' ' + REGISTER_URL,
+      message: text,
+      text: text,
     };
   }
 
