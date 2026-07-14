@@ -1,0 +1,148 @@
+{
+  "id": "child-drives-the-morning",
+  "title": "Barnet styr morgonen",
+  "aspectRatio": "16:9",
+  "defaultSceneDuration": 5,
+  "outputBasename": "child-drives-the-morning",
+  "referenceImage": "assets/references/summer-family-cartoon.png",
+  "seed": 42020,
+  "taglineVariantDefault": "B",
+  "taglineVariants": {
+    "B": "Mindre tjat. Mer självständighet."
+  },
+  "creativeBrief": "Tecknad 25s — en historia, inte produktdemo. Inga repliker, bara text. Börjar där problemet börjar (tandborstning). Ingen nedladdning. Kvällswizard som förberedelse. Barnets perspektiv i copy. Båge: föräldern driver morgonen → barnet driver morgonen.",
+  "visualStyle": "cartoon",
+  "endBoardShowUrl": false,
+  "endBoardLogoOnly": true,
+  "colourGradeDefault": "neutral",
+  "ambient": {
+    "file": "audio/summer-ambient.m4a",
+    "volume": 0.18,
+    "fadeInSec": 0.5,
+    "fadeOutSec": 2
+  },
+  "music": {
+    "file": "audio/generated/selected-music.m4a",
+    "volume": 0.48,
+    "startSec": 0,
+    "fadeInSec": 2,
+    "fadeOutSec": 3
+  },
+  "musicDuck": [
+    { "startSec": 10, "endSec": 15, "volume": 0.12 },
+    { "startSec": 19, "endSec": 23, "volume": 0.1 }
+  ],
+  "sfx": [
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "child-check-stars", "atSecInScene": 0.4, "volume": 0.34 },
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "child-check-stars", "atSecInScene": 1.6, "volume": 0.34 },
+    { "file": "audio/sfx/check-pling.m4a", "sceneId": "child-check-stars", "atSecInScene": 2.8, "volume": 0.34 },
+    { "file": "audio/sfx/redeem-pling.m4a", "sceneId": "treasure-chamber", "atSecInScene": 1.2, "volume": 0.36 }
+  ],
+  "scenes": [
+    {
+      "id": "bathroom-problem",
+      "role": "chaos",
+      "duration": 5,
+      "renderDuration": 3,
+      "colourGrade": "cool",
+      "referenceImage": "assets/references/child-drives-keyframes/01-bathroom-problem.png",
+      "pikaPrompt": "Premium 2D cartoon bathroom morning, Ella age 6 sits on tiled floor arms crossed refusing, toothbrush on sink counter above, Sara mother leans on doorframe tired loving expression not angry, soft Nordic light, child protagonist, gentle subtle motion, no readable text, no dialogue mouths",
+      "swedishText": "Varje morgon börjar likadant.",
+      "showCaption": true,
+      "transition": "cut",
+      "transitionDuration": 0.12,
+      "outputFilename": "01-bathroom-problem.mp4"
+    },
+    {
+      "id": "evening-wizard",
+      "role": "hope",
+      "duration": 5,
+      "renderDuration": 3,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/child-drives-keyframes/02-evening-wizard.png",
+      "pikaPrompt": "Premium 2D cartoon evening living room, Sara sits on sofa in warm lamp light holding phone, screen glow on face but UI blurred unreadable, calm focused expression building tomorrow routine together, toddler asleep on cushion, intimate medium shot, subtle 2D motion, no app store, no download icons, no readable text",
+      "swedishText": "Jag vet vad jag ska göra.",
+      "showCaption": true,
+      "transition": "fade",
+      "transitionDuration": 0.35,
+      "outputFilename": "02-evening-wizard.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Wizard glimpses implied — no VO", "atSec": 0 }
+      ]
+    },
+    {
+      "id": "child-morning-list",
+      "role": "app-screen",
+      "duration": 5,
+      "renderDuration": 4,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/morning-list.png",
+      "appMotion": "push-in",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "03-child-morning-list.mp4"
+    },
+    {
+      "id": "child-check-stars",
+      "role": "payoff",
+      "duration": 5,
+      "renderDuration": 5,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/check-star.png",
+      "appMotion": "zoom-star",
+      "swedishText": "Jag klarade det!",
+      "showCaption": true,
+      "transition": "cut",
+      "transitionDuration": 0.1,
+      "outputFilename": "04-child-check-stars.mp4"
+    },
+    {
+      "id": "treasure-chamber",
+      "role": "story",
+      "duration": 5,
+      "renderDuration": 4,
+      "skipPika": true,
+      "appScreenshot": "assets/app-screens/redeem.png",
+      "appMotion": "push-in",
+      "swedishText": "Jag sparar till fredagsfilmen.",
+      "showCaption": true,
+      "transition": "fade",
+      "transitionDuration": 0.4,
+      "outputFilename": "05-treasure-chamber.mp4"
+    },
+    {
+      "id": "morning-payoff",
+      "role": "validation",
+      "validationScene": true,
+      "duckMusic": true,
+      "duration": 5,
+      "renderDuration": 4,
+      "colourGrade": "warm",
+      "referenceImage": "assets/references/child-drives-keyframes/06-morning-payoff.png",
+      "pikaPrompt": "Premium 2D cartoon morning montage feel in one shot, Ella brushes teeth at sink then sits putting on shoes in hallway, Sara watches from doorway soft proud smile, child drives the routine independently, warm summer light, gentle motion, no phone visible, no dialogue, mutual calm eye contact at end",
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fade",
+      "transitionDuration": 0.5,
+      "outputFilename": "06-morning-payoff.mp4",
+      "audioCues": [
+        { "type": "silence", "description": "Hold payoff — score ducked", "atSec": 2 }
+      ]
+    },
+    {
+      "id": "end-brand",
+      "role": "brand",
+      "duration": 5,
+      "renderDuration": 2,
+      "skipPika": true,
+      "endBoard": true,
+      "swedishText": "",
+      "showCaption": false,
+      "transition": "fadeblack",
+      "transitionDuration": 0.3,
+      "outputFilename": "07-end-brand.mp4"
+    }
+  ]
+}

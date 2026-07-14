@@ -72,14 +72,41 @@ const KEYFRAMES_SPEC = [
   },
 ];
 
+const CHILD_DRIVES_KEYFRAMES = path.join(ROOT, 'assets', 'references', 'child-drives-keyframes');
+
+const CHILD_DRIVES_SPEC = [
+  {
+    file: '01-bathroom-problem.png',
+    dir: CHILD_DRIVES_KEYFRAMES,
+    prompt: `${STYLE}, bathroom morning, Ella age 6 sits on floor refusing to brush teeth, toothbrush on white sink, Sara mother tired at doorway, painful recognition not comedy, cool morning light, medium wide shot, no text`,
+  },
+  {
+    file: '02-evening-wizard.png',
+    dir: CHILD_DRIVES_KEYFRAMES,
+    prompt: `${STYLE}, evening living room warm lamp light, Sara on sofa with smartphone screen blurred glow, calm focused building routine, toddler asleep on cushion, cozy Nordic apartment, medium shot, no readable UI, no text`,
+  },
+  {
+    file: '06-morning-payoff.png',
+    dir: CHILD_DRIVES_KEYFRAMES,
+    prompt: `${STYLE}, split-feel morning payoff, Ella brushes teeth at sink and puts on sandals in sunny hallway, Sara in doorway proud gentle smile watching, child independent calm energy, warm light, medium shot, no phone, no text`,
+  },
+];
+
 async function main() {
+  const film = process.argv.find((a) => a.startsWith('--film='))?.slice('--film='.length) || 'together';
   const only = process.argv.find((a) => a.startsWith('--scene='))?.slice('--scene='.length);
+
+  const specs = film === 'child-drives-the-morning'
+    ? CHILD_DRIVES_SPEC
+    : KEYFRAMES_SPEC;
+
   fs.mkdirSync(KEYFRAMES, { recursive: true });
+  fs.mkdirSync(CHILD_DRIVES_KEYFRAMES, { recursive: true });
 
-  const specs = KEYFRAMES_SPEC.filter((s) => !only || s.file.includes(only));
-  console.log(`Generating ${specs.length} Flux keyframe(s)…\n`);
+  const filtered = specs.filter((s) => !only || s.file.includes(only));
+  console.log(`Generating ${filtered.length} Flux keyframe(s) for ${film}…\n`);
 
-  for (const spec of specs) {
+  for (const spec of filtered) {
     const dest = path.join(spec.dir || KEYFRAMES, spec.file);
     if (fs.existsSync(dest) && !process.argv.includes('--force')) {
       console.log(`  skip ${spec.file} (exists — use --force to regenerate)`);

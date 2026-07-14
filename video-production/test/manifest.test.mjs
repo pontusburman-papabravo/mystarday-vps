@@ -169,6 +169,27 @@ test('manifest schema rejects invalid scene without prompt', () => {
   }));
 });
 
+test('child-drives-the-morning is ~25s cartoon single-story arc', () => {
+  const { manifest } = loadManifest('child-drives-the-morning');
+  const dur = computeTimelineDuration(manifest.scenes);
+  assert.ok(dur >= 23 && dur <= 27, `duration ${dur}s`);
+  assert.equal(manifest.visualStyle, 'cartoon');
+  assert.equal(manifest.scenes[0].role, 'chaos');
+  assert.equal(manifest.scenes[0].swedishText, 'Varje morgon börjar likadant.');
+  assert.match(manifest.scenes[1].swedishText, /Jag vet vad jag ska göra/i);
+  assert.equal(manifest.scenes[1].swedishText, 'Jag vet vad jag ska göra.');
+  assert.match(manifest.scenes[3].swedishText, /Jag klarade det/i);
+  assert.match(manifest.scenes[4].swedishText, /fredagsfilmen/i);
+  assert.equal(resolveBrandCaption(manifest, 'B'), 'Mindre tjat. Mer självständighet.');
+  assert.equal(manifest.vo?.length ?? 0, 0);
+  const evening = manifest.scenes.find((s) => s.id === 'evening-wizard');
+  assert.ok(evening);
+  assert.doesNotMatch(evening.pikaPrompt, /ladda ner appen|download the app|app store badge/i);
+  const v = manifest.scenes.filter((s) => s.validationScene);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].id, 'morning-payoff');
+});
+
 test('planGeneration supports shoes validation scene filter', () => {
   const { manifest } = loadManifest('a-morning-without-nagging');
   const plan = planGeneration([{ manifest, state: { scenes: {} } }], {
