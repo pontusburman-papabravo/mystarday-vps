@@ -14,8 +14,27 @@
   ];
 
   const TOTAL_MS = SCENES.reduce(function (sum, s) { return sum + s.durationMs; }, 0);
+  const TICK_MS = 200;
 
   let shownThisSession = false;
+  /** @type {{ timerId?: ReturnType<typeof setInterval>, timeoutIds: number[], overlay?: HTMLElement, isPreview?: boolean } | null} */
+  let activeSession = null;
+
+  function destroyActiveSession() {
+    if (!activeSession) return;
+    if (activeSession.timerId) clearInterval(activeSession.timerId);
+    activeSession.timeoutIds.forEach(function (id) { clearTimeout(id); });
+    if (activeSession.overlay && activeSession.overlay.parentNode) {
+      activeSession.overlay.parentNode.removeChild(activeSession.overlay);
+    }
+    activeSession = null;
+  }
+
+  function scheduleSceneTimeout(fn, ms) {
+    const id = setTimeout(fn, ms);
+    if (activeSession) activeSession.timeoutIds.push(id);
+    return id;
+  }
 
   function act() {
     return window.OnboardingActivation || null;
@@ -141,20 +160,31 @@
     ].join('');
   }
 
+  function resetSceneFx(root) {
+    root.querySelectorAll('.is-done, .is-pressed, .is-tapped').forEach(function (el) {
+      el.classList.remove('is-done', 'is-pressed', 'is-tapped');
+    });
+    root.querySelectorAll('.ohf-star-burst, .ohf-star-trail span').forEach(function (el) {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    });
+  }
+
   function runSceneFx(sceneId, root) {
     if (sceneId === 'routine') {
       const rows = root.querySelectorAll('[data-ohf-row]');
       rows.forEach(function (row, i) {
-        setTimeout(function () { row.classList.add('is-done'); }, 400 + i * 500);
+        scheduleSceneTimeout(function () { row.classList.add('is-done'); }, 400 + i * 500);
       });
     }
     if (sceneId === 'handoff') {
       const btn = root.querySelector('#ohfHandoffBtn');
-      if (btn) setTimeout(function () { btn.classList.add('is-pressed'); }, 1200);
+      if (btn) scheduleSceneTimeout(function () { btn.classList.add('is-pressed'); }, 1200);
     }
     if (sceneId === 'child') {
       const tap = root.querySelector('#ohfChildTap');
-      if (tap) setTimeout(function () { tap.classList.add('is-tapped'); }, 1400);
+      if (tap) scheduleSceneTimeout(function () { tap.classList.add('is-tapped'); }, 1400);
     }
   }
 
@@ -246,6 +276,8 @@
     }
     if (!isPreview) shownThisSession = true;
 
+    destroyActiveSession();
+
     const reduced = prefersReducedMotion();
 
     const overlay = document.createElement('div');
@@ -289,6 +321,12 @@
 
     document.body.appendChild(overlay);
 
+    activeSession = {
+      overlay: overlay,
+      timeoutIds: [],
+      isPreview: isPreview,
+    };
+
     trackEvent(isPreview ? 'onboarding_handoff_film_preview_shown' : 'onboarding_handoff_film_shown', {
       child_id: childId(),
       reduced_motion: reduced,
@@ -301,11 +339,11 @@
     const dotEls = overlay.querySelectorAll('.ohf-dot');
 
     function teardown() {
-      overlay.remove();
+      destroyActiveSession();
     }
 
     function showCta() {
-      markFilmSeen();
+      if (!isPreview) markFilmSeen();
       ctaPanel.classList.add('is-visible');
       captionEl.textContent = '';
     }
@@ -339,12 +377,16 @@
 
     function activateScene(i) {
       sceneEls.forEach(function (el, j) {
-        el.classList.toggle('is-active', j === i);
+        const on = j === i;
+        el.classList.toggle('is-active', on);
+        el.setAttribute('aria-hidden', on ? 'false' : 'true');
+        if (!on) resetSceneFx(el);
       });
       dotEls.forEach(function (el, j) {
         el.classList.toggle('is-active', j === i);
       });
       captionEl.textContent = SCENES[i].caption;
+      resetSceneFx(sceneEls[i]);
       runSceneFx(SCENES[i].id, sceneEls[i]);
     }
 
@@ -357,20 +399,26 @@
     activateScene(0);
 
     const timer = setInterval(function () {
-      elapsed += 200;
+      if (!activeSession || activeSession.overlay !== overlay) {
+        clearInterval(timer);
+        return;
+      }
+      elapsed += TICK_MS;
       const scene = SCENES[idx];
       if (elapsed >= scene.durationMs) {
         elapsed = 0;
         idx += 1;
         if (idx >= SCENES.length) {
           clearInterval(timer);
+          if (activeSession) activeSession.timerId = undefined;
           showCta();
           trackEvent('onboarding_handoff_film_complete', { child_id: childId(), duration_ms: TOTAL_MS });
           return;
         }
         activateScene(idx);
       }
-    }, 200);
+    }, TICK_MS);
+    activeSession.timerId = timer;
 
     return Promise.resolve('film');
   }

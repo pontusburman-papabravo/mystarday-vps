@@ -13,7 +13,9 @@ const URL = `${BASE.replace(/\/$/, '')}/onboarding/film-preview`;
 const OUT_DIR = path.join(process.cwd(), 'tmp', 'handoff-film-capture');
 const OUT_MP4 = path.join(process.cwd(), 'public', 'onboarding', 'handoff-film.mp4');
 const FPS = 10;
-const DURATION_MS = 24000;
+const FILM_MS = 20000;
+const CTA_TAIL_MS = 2000;
+const DURATION_MS = FILM_MS + CTA_TAIL_MS;
 
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
