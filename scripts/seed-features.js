@@ -917,8 +917,8 @@ const FEATURES = [
   {
     slug: 'barnets_samling',
     name: 'Barnets samling',
-    description: 'Fyra-fliks barnnav + Min samling — per-familj dev-rollout tills produktklar',
-    status: 'dev',
+    description: 'Fyra-fliks barnnav + Min samling — live för alla familjer',
+    status: 'live',
     tags: ['barn', 'belöningar'],
     priority: 'high',
     complexity: 6,
@@ -926,7 +926,7 @@ const FEATURES = [
     documentation: {
       purpose: 'Kontrollerad rollout av Barnets samling (Fas A–E) utan att exponera halvfärdig nav för alla familjer.',
       user_story: 'Som barn i testfamilj vill jag se Min samling och fyra-fliks-nav när familjen har tillgång.',
-      acceptance_criteria: 'status=dev kräver family_features; allowlist pontus@burman.cc + testanvändaren; status=live först efter produktsign-off.',
+      acceptance_criteria: 'status=live ger alla familjer tillgång via hasAccess; family_features kvar för dev-test vid behov.',
       technical_notes: 'hasAccess(familyId, barnets_samling). child-worlds.js / barnnav gate. docs/barnets-samling-vision.md.',
     },
     dev_notes: [],
