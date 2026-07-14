@@ -12,16 +12,13 @@
 
   function sharePayload() {
     if (window.ReferralShare && window.ReferralShare.buildPayload) {
-      return window.ReferralShare.buildPayload(null);
+      return window.ReferralShare.buildPayload();
     }
     return {
-      url: SITE_URL,
+      url: REGISTER_URL,
       text:
-        'Hej! Kolla in appen för barns rutiner och stjärnor. ' + // pragma: allowlist secret
-        'Gratis för grundarmedlemmar: ' +
-        SITE_URL,
-      withReferral: false,
-      code: null,
+      message: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här:',
+      text: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL,
     };
   }
 

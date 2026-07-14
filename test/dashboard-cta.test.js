@@ -12,8 +12,7 @@ describe('F2b dashboard-cta.js', () => {
     assert.match(src, /^\(function \(\) \{/m);
     assert.match(src, /function showMedforalderCtaIfEligible\(/);
     assert.match(src, /function openDelaAppenShare\(/);
-    assert.match(src, /function loadReferralShare\(/);
-    assert.match(src, /ReferralShare/);
+    assert.match(src, /ParentShareFlow/);
     assert.match(src, /const MEDFORALDER_CTA_KEY =/);
     assert.match(src, /const DELA_APPEN_KEY =/);
   });

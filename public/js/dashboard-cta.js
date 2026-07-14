@@ -147,30 +147,6 @@
   const DELA_APPEN_KEY = 'dela_appen_cta_dismissed';
   const DELA_APPEN_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-  function loadReferralShare() {
-    if (window.ReferralShare && window.ReferralShare.load) {
-      return window.ReferralShare.load();
-    }
-    return Promise.resolve(null);
-  }
-
-  function getSharePayload(ref) {
-    if (window.ReferralShare && window.ReferralShare.buildPayload) {
-      return window.ReferralShare.buildPayload(ref);
-    }
-    return {
-      url: 'https://mystarday.se',
-      text: 'Min Stjärndag — Hjälp ditt barn med vardagsrutiner och stjärnor!',
-      withReferral: false,
-    };
-  }
-
-  function trackReferralShare(ref) {
-    if (window.ReferralShare && window.ReferralShare.trackShared) {
-      window.ReferralShare.trackShared(ref, trackEvent);
-    }
-  }
-
   function showShareToast(message) {
     const el = document.createElement('div');
     el.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-navy text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
@@ -229,13 +205,6 @@
 
   function initDelaAppenCta() {
     showDelaAppenCtaIfEligible();
-    loadReferralShare().then(function (ref) {
-      if (!ref || !ref.code) return;
-      const sub = document.querySelector('#delaAppenCtaBanner .text-xs.text-text-soft');
-      if (sub) {
-        sub.textContent = 'Din kod: ' + ref.code + ' — dela länken så vi kan följa värvningar';
-      }
-    });
   }
 
   // Exposed for inline onclick (dashboard.html) + dashboard.js init calls

@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v627';
+const CACHE_NAME = 'stjarndag-v628';
+// stjarndag-v628: share links — clean /register URL, no ?ref= codes
 // stjarndag-v627: referral share — message without URL (fixes duplicate link in native share)
 // stjarndag-v626: landing mobile — no parent tab bar on /, scrollable menu, Tipsa in header
 // stjarndag-v625: share popup contrast + header icon tiles; landing Tipsa restored with icon system

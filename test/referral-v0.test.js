@@ -28,22 +28,23 @@ describe('referral v0', () => {
     assert.doesNotMatch(src, /Referral ej tillgängligt/);
   });
 
-  it('referral-share.js is shared module for share flows', () => {
+  it('referral-share.js provides clean register URL for share flows', () => {
     const src = read('public/js/referral-share.js');
-    assert.match(src, /registerUrl/);
+    assert.match(src, /REGISTER_URL/);
     assert.match(src, /window\.ReferralShare/);
-    assert.match(src, /message:/);
+    assert.match(src, /\/register/);
+    assert.doesNotMatch(src, /\?ref=/);
+    assert.doesNotMatch(src, /\/api\/account\/referral/);
   });
 
-  it('native share uses message without embedded URL to avoid duplicate links', () => {
-    const referral = read('public/js/referral-share.js');
+  it('parent share flow does not fetch personal referral codes', () => {
     const parent = read('public/js/parent-share-flow.js');
     const landing = read('public/js/landing-share.js');
-    assert.match(referral, /referralMessage/);
-    assert.match(referral, /message: message/);
-    assert.match(referral, /text: message \+ ' ' \+ ref\.registerUrl/);
-    assert.match(parent, /payload\.message/);
-    assert.match(landing, /payload\.message/);
+    assert.doesNotMatch(parent, /loadReferral/);
+    assert.doesNotMatch(parent, /referral_link_shared/);
+    assert.doesNotMatch(parent, /Din kod:/);
+    assert.match(parent, /buildPayload\(\)/);
+    assert.match(landing, /REGISTER_URL/);
   });
 
   it('mobile-nav uses ParentShareFlow instead of hardcoded share URL', () => {
@@ -52,10 +53,12 @@ describe('referral v0', () => {
     assert.doesNotMatch(src, /var SHARE_URL = 'https:\/\/[REDACTED]\.se'/);
   });
 
-  it('dashboard-cta uses ReferralShare for personal links', () => {
+  it('dashboard-cta opens ParentShareFlow without referral code UI', () => {
     const src = read('public/js/dashboard-cta.js');
-    assert.match(src, /ReferralShare/);
-    assert.match(src, /getSharePayload/);
+    assert.match(src, /ParentShareFlow/);
+    assert.match(src, /openDelaAppenShare/);
+    assert.doesNotMatch(src, /loadReferralShare/);
+    assert.doesNotMatch(src, /Din kod:/);
   });
 
   it('admin analytics loads referrals table', () => {

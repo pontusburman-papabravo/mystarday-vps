@@ -30,34 +30,15 @@
     if (callback) callback();
   }
 
-  function getSharePayload(ref) {
+  function getSharePayload() {
     if (window.ReferralShare && window.ReferralShare.buildPayload) {
-      return window.ReferralShare.buildPayload(ref);
+      return window.ReferralShare.buildPayload();
     }
     return {
-      url: window.ReferralShare && window.ReferralShare.DEFAULT_URL ? window.ReferralShare.DEFAULT_URL : '/',
-      text: 'Tipsa om appen — visuella rutiner och stjärnor för barn.',
-      withReferral: false,
-      code: null,
+      url: '/register',
+      message: 'Tipsa om appen — visuella rutiner och stjärnor för barn.',
+      text: 'Tipsa om appen — visuella rutiner och stjärnor för barn. /register',
     };
-  }
-
-  function loadReferral() {
-    if (window.ReferralShare && window.ReferralShare.load) {
-      return window.ReferralShare.load();
-    }
-    return Promise.resolve(null);
-  }
-
-  function trackReferralShared(ref, trackFn) {
-    if (!ref || !ref.code) return;
-    if (typeof trackFn === 'function') {
-      trackFn('referral_link_shared', { code: ref.code });
-      return;
-    }
-    if (window.ReferralShare && window.ReferralShare.trackShared) {
-      window.ReferralShare.trackShared(ref, trackFn);
-    }
   }
 
   function notifyShareBackend(meta) {
@@ -150,7 +131,7 @@
     }
   }
 
-  function showSharePopup(payload, recipient, ref, trackFn) {
+  function showSharePopup(payload, recipient) {
     closeOverlay('sharePopup');
 
     const shareUrl = payload.url;
@@ -170,9 +151,6 @@
           '<strong>Tipsa en familj om appen!</strong>' +
           '<button class="share-popup-close" aria-label="Stäng">&times;</button>' +
         '</div>' +
-        (payload.code
-          ? '<p class="share-popup-code" style="font-size:0.85rem;font-weight:700;margin:0 0 8px;">Din kod: ' + payload.code + '</p>'
-          : '') +
         (recipient
           ? '<p class="share-popup-text" style="font-size:0.85rem;margin:0 0 8px;"><strong>Till:</strong> ' + recipient.replace(/</g, '&lt;') + '</p>'
           : '') +
@@ -209,7 +187,6 @@
       copyToClipboard(shareUrl, function () {
         btn.innerHTML = '<span>✅</span> Kopierad!';
         notifyShareBackend({ recipient: recipient, channel: 'copy' });
-        if (payload.withReferral) trackReferralShared(ref, trackFn);
         setTimeout(function () { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
       });
     });
@@ -218,46 +195,35 @@
     if (emailLink) {
       emailLink.addEventListener('click', function () {
         notifyShareBackend({ recipient: recipient, channel: 'email' });
-        if (payload.withReferral) trackReferralShared(ref, trackFn);
       });
     }
     const fbLink = overlay.querySelector('.share-popup-facebook');
     if (fbLink) {
       fbLink.addEventListener('click', function () {
         notifyShareBackend({ recipient: recipient, channel: 'facebook' });
-        if (payload.withReferral) trackReferralShared(ref, trackFn);
       });
     }
   }
 
   function executeShare(recipient, options) {
-    const trackFn = options && options.trackFn;
-    loadReferral().then(function (ref) {
-      const payload = getSharePayload(ref);
-      if (ref && ref.registerUrl) {
-        payload.withReferral = true;
-        payload.code = ref.code;
-      }
+    const payload = getSharePayload();
 
-      if (navigator.share && isMobileDevice()) {
-        navigator.share({
-          title: 'Min ' + 'Stj\u00e4rndag',
-          text: payload.message || payload.text,
-          url: payload.url,
-        }).then(function () {
-          notifyShareBackend({ recipient: recipient, channel: 'native_share' });
-          if (payload.withReferral) trackReferralShared(ref, trackFn);
-          if (options && options.onShared) options.onShared();
-        }).catch(function (e) {
-          if (e && e.name === 'AbortError') return;
-          notifyShareBackend({ recipient: recipient, channel: 'native_share' });
-          if (payload.withReferral) trackReferralShared(ref, trackFn);
-        });
-        return;
-      }
+    if (navigator.share && isMobileDevice()) {
+      navigator.share({
+        title: 'Min ' + 'Stj\u00e4rndag',
+        text: payload.message || payload.text,
+        url: payload.url,
+      }).then(function () {
+        notifyShareBackend({ recipient: recipient, channel: 'native_share' });
+        if (options && options.onShared) options.onShared();
+      }).catch(function (e) {
+        if (e && e.name === 'AbortError') return;
+        notifyShareBackend({ recipient: recipient, channel: 'native_share' });
+      });
+      return;
+    }
 
-      showSharePopup(payload, recipient, ref, trackFn);
-    });
+    showSharePopup(payload, recipient);
   }
 
   function openShareFlow(options) {
