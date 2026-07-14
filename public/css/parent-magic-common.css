@@ -345,6 +345,21 @@ body.parent-magic-view:not(.parent-theme-light) .section-card.border-indigo-200 
   border-color: rgba(129, 140, 248, 0.35) !important;
 }
 
+/* För dig — 7-day outcome banner readable on magic dark */
+body.parent-magic-view:not(.parent-theme-light) #forDigOutcomeBanner {
+  background: rgba(251, 191, 36, 0.14) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #forDigOutcomeBanner .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #forDigOutcomeBanner .font-heading {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #forDigOutcomeBanner .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
 body.parent-magic-view:not(.parent-theme-light) .activity-item.bg-white {
   background: rgba(12, 12, 36, 0.72) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
