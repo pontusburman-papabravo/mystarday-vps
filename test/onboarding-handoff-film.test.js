@@ -97,4 +97,12 @@ describe('Onboarding handoff film', () => {
     const onboarding = read('public/js/onboarding.js');
     assert.match(onboarding, /enterChildHandoff\('email_resume'\)/);
   });
+
+  it('preview replay destroys prior timer session (no ghost last scene)', () => {
+    const src = read('public/js/onboarding-handoff-film.js');
+    assert.match(src, /destroyActiveSession/);
+    assert.match(src, /activeSession\.timerId/);
+    assert.match(src, /scheduleSceneTimeout/);
+    assert.match(src, /activeSession\.overlay !== overlay/);
+  });
 });

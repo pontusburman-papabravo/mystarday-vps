@@ -95,6 +95,11 @@
 .ohf-scene.is-active {
   opacity: 1;
   transform: translateY(0);
+  visibility: visible;
+}
+
+.ohf-scene:not(.is-active) {
+  visibility: hidden;
 }
 
 .ohf-mock {
