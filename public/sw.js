@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v619';
+const CACHE_NAME = 'stjarndag-v620';
+// stjarndag-v620: remove handoff film preview banner
 // stjarndag-v619: admin overview — unique child self-checkoffs metrics
 // stjarndag-v618: handoff film replay timer cleanup
 // stjarndag-v617: barnets_samling live for all families

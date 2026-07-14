@@ -305,7 +305,6 @@
       '    <div class="ohf-brand-logo" aria-hidden="true">⭐</div>',
       '    <span class="ohf-brand-name">' + esc(brandLabel()) + '</span>',
       '  </div>',
-      isPreview ? '<p class="ohf-preview-banner" role="status">Förhandsvisning — text och animation</p>' : '',
       '  <div class="ohf-stage" id="ohfStage">',
       scenesHtml,
       '  </div>',
