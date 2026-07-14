@@ -152,12 +152,15 @@ export function mixAudioLayers({
     const fadeOut = music.fadeOutSec ?? 3;
     const fadeOutStart = Math.max(0, videoDuration - fadeOut);
     const baseVol = music.volume ?? 0.12;
-    const volExpr = buildMusicVolumeExpr(baseVol, duck);
-    const startMs = Math.round((music.startSec ?? 0) * 1000);
+    const startSec = music.startSec ?? 0;
+    let volExpr = buildMusicVolumeExpr(baseVol, duck);
+    if (startSec > 0) {
+      volExpr = `if(lt(t,${startSec}),0,${volExpr})`;
+    }
     renderLayer({
       outputPath: paths.music,
       inputs: ['-i', music.file],
-      filterComplex: `[0:a]adelay=${startMs}|${startMs},volume='${volExpr}':eval=frame,afade=t=in:st=0:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut},apad=whole_dur=${videoDuration}`,
+      filterComplex: `[0:a]volume='${volExpr}':eval=frame,afade=t=in:st=${startSec}:d=${fadeIn},afade=t=out:st=${fadeOutStart}:d=${fadeOut},apad=whole_dur=${videoDuration}`,
       videoDuration,
     });
   } else {
@@ -204,14 +207,15 @@ export function mixAudioLayers({
     renderSilent(paths.sfx, videoDuration);
   }
 
-  // —— Full mix: layers → loudnorm once ——
+  // —— Full mix: layers → limiter (music already loudnorm'd) ——
   runFfmpeg([
     '-y',
     '-i', paths.music,
     '-i', paths.sfx,
     '-i', paths.voice,
     '-filter_complex',
-    '[0:a][1:a][2:a]amix=inputs=3:duration=first:dropout_transition=0,' + FINAL_LOUDNESS + '[aout]',
+    // normalize=0 — default amix divides gain by input count and crushes music under silent VO/SFX beds.
+    '[0:a][1:a][2:a]amix=inputs=3:duration=first:dropout_transition=0:normalize=0,' + FINAL_LOUDNESS + '[aout]',
     '-map', '[aout]',
     '-t', String(videoDuration),
     '-c:a', 'aac',

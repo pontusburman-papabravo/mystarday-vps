@@ -18,6 +18,8 @@ export const LOUDNESS = {
 };
 
 export const TRANSITION_DURATION_SEC = 0.6;
+/** ffmpeg xfade becomes unstable below ~0.1s and truncates output. */
+export const MIN_XFADE_SEC = 0.12;
 
 export function runFfmpeg(args, { label = 'ffmpeg' } = {}) {
   const result = spawnSync(CONFIG.ffmpegBin, args, {
@@ -79,7 +81,9 @@ export function normalizeSceneClip({
 }) {
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   const outDur = renderDuration ?? duration;
-  const holdSec = outDur > duration ? outDur - duration : 0;
+  const sourceTotal = probeDuration(inputPath);
+  const availFromStart = Math.max(0, sourceTotal - (clipStartSec ?? 0));
+  const holdSec = outDur > availFromStart ? outDur - availFromStart : 0;
   const grade = buildColourGradeFilter(colourGrade);
 
   const inputArgs = [];
@@ -158,24 +162,33 @@ export function concatWithTransitions({
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
   const inputs = sceneClips.flatMap((clip) => ['-i', clip.path]);
-  const durations = sceneClips.map((clip) => clip.duration);
+  const durations = sceneClips.map((clip) => {
+    const probed = probeDuration(clip.path);
+    if (clip.duration && Math.abs(probed - clip.duration) > 0.25) {
+      return probed;
+    }
+    return clip.duration ?? probed;
+  });
   const perTransition = transitionDurations?.length
     ? transitionDurations
     : sceneClips.slice(0, -1).map(() => transitionDurationSec);
 
   let filter = '';
   let lastLabel = '[0:v]';
-  let consumedOverlap = 0;
+  let timelineLen = durations[0];
 
   for (let i = 0; i < sceneClips.length - 1; i++) {
     const transition = transitions[i] || 'fade';
-    const xfadeDur = transition === 'cut' ? 0.01 : (perTransition[i] ?? transitionDurationSec);
-    const offset = durations.slice(0, i + 1).reduce((a, b) => a + b, 0) - consumedOverlap - xfadeDur;
-    consumedOverlap += xfadeDur;
+    const rawDur = transition === 'cut'
+      ? MIN_XFADE_SEC
+      : (perTransition[i] ?? transitionDurationSec);
+    const xfadeDur = Math.max(MIN_XFADE_SEC, rawDur);
+    const offset = Math.max(0, timelineLen - xfadeDur);
+    timelineLen = timelineLen + durations[i + 1] - xfadeDur;
     const outLabel = i === sceneClips.length - 2 ? '[vout]' : `[v${i + 1}]`;
     const xfadeType = transition === 'cut' ? 'fade' : transition;
 
-    filter += `${lastLabel}[${i + 1}:v]xfade=transition=${xfadeType}:duration=${xfadeDur}:offset=${Math.max(0, offset).toFixed(3)}${outLabel};`;
+    filter += `${lastLabel}[${i + 1}:v]xfade=transition=${xfadeType}:duration=${xfadeDur}:offset=${offset.toFixed(3)}${outLabel};`;
     lastLabel = outLabel;
   }
 

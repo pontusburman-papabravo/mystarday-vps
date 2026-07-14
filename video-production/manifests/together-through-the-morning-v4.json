@@ -21,15 +21,15 @@
   },
   "music": {
     "file": "audio/generated/selected-music.m4a",
-    "volume": 0.26,
+    "volume": 0.55,
     "startSec": 10,
-    "fadeInSec": 12,
+    "fadeInSec": 8,
     "fadeOutSec": 5
   },
   "musicDuck": [
-    { "startSec": 21, "endSec": 30, "volume": 0.004 },
-    { "startSec": 30, "endSec": 33, "volume": 0.08 },
-    { "startSec": 39, "endSec": 45, "volume": 0.06 }
+    { "startSec": 22, "endSec": 27, "volume": 0.06 },
+    { "startSec": 27, "endSec": 30, "volume": 0.18 },
+    { "startSec": 40, "endSec": 45, "volume": 0.12 }
   ],
   "sfx": [
     { "file": "audio/sfx/check-pling.m4a", "sceneId": "app-check-star", "atSecInScene": 0.15, "volume": 0.32 },
@@ -59,7 +59,7 @@
       "id": "chaos-summer",
       "role": "chaos",
       "duration": 10,
-      "renderDuration": 8,
+      "renderDuration": 7,
       "colourGrade": "cool",
       "referenceImage": "assets/references/together-keyframes/01-chaos-summer.png",
       "pikaPrompt": "Slow gentle camera pan right, Ella wiggles upset on floor, Sara breathes stressed, toddler cries softly, sandals scattered, clock 07:52, warm summer window light, subtle 2D animation motion, no readable text",
@@ -178,10 +178,10 @@
       "id": "whats-next-hold",
       "role": "story",
       "duration": 5,
-      "renderDuration": 4.8,
+      "renderDuration": 3.6,
       "colourGrade": "warm",
       "sourceClip": "06-whats-next.mp4",
-      "clipStartSec": 1.4,
+      "clipStartSec": 1.0,
       "pikaPrompt": "Ella and Sara eye contact beat, child decides, mother waits, phone forgotten, stillness, warm light, child protagonist",
       "swedishText": "",
       "showCaption": false,
