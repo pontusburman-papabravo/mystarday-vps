@@ -217,56 +217,14 @@
 
   function openDelaAppenShare() {
     trackEvent('cta_share_app_clicked');
-
-    loadReferralShare().then(function (ref) {
-      const payload = getSharePayload(ref);
-
-      if (navigator.share) {
-        navigator.share({
-          title: 'Min Stjärndag',
-          text: payload.text,
-          url: payload.url,
-        }).then(function () {
-          if (payload.withReferral) trackReferralShare(ref);
-          sendShareNotify();
-          dismissDelaAppenCtaBanner();
-        }).catch(function (e) {
-          if (e.name !== 'AbortError') {
-            if (payload.withReferral) trackReferralShare(ref);
-            sendShareNotify();
-            dismissDelaAppenCtaBanner();
-          }
-        });
-        return;
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(payload.url).then(function () {
-          showShareToast(payload.withReferral ? '📋 Din värvningslänk kopierad!' : '📋 Länk kopierad!');
-          if (payload.withReferral) trackReferralShare(ref);
-          sendShareNotify();
-          dismissDelaAppenCtaBanner();
-        }).catch(function () {
-          sendShareNotify();
-          dismissDelaAppenCtaBanner();
-        });
-      } else {
-        if (payload.withReferral) trackReferralShare(ref);
-        sendShareNotify();
-        dismissDelaAppenCtaBanner();
-      }
-    });
-  }
-
-  function sendShareNotify() {
-    const csrf = typeof Auth !== 'undefined' && Auth.getCsrfToken ? Auth.getCsrfToken() : null;
-    const headers = { 'Content-Type': 'application/json' };
-    if (csrf) headers['X-CSRF-Token'] = csrf;
-    fetch('/api/account/share-notify', {
-      method: 'POST',
-      headers: headers,
-      credentials: 'include',
-    }).catch(function () { /* silent */ });
+    if (window.ParentShareFlow && ParentShareFlow.open) {
+      ParentShareFlow.open({
+        trackFn: trackEvent,
+        onShared: dismissDelaAppenCtaBanner,
+      });
+      return;
+    }
+    dismissDelaAppenCtaBanner();
   }
 
   function initDelaAppenCta() {

@@ -141,18 +141,38 @@ router.post('/share-notify', requireParent, async (req, res) => {
 
     const { email: parentEmail, name: parentName } = parentResult.rows[0];
     const now = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' });
+    const body = req.body || {};
+    const recipient = typeof body.recipient === 'string' ? body.recipient.trim().slice(0, 200) : '';
+    const channel = typeof body.channel === 'string' ? body.channel.trim().slice(0, 40) : '';
+    const channelLabels = {
+      native_share: 'Telefonens delningsmeny',
+      copy: 'Kopierad länk',
+      email: 'E-post',
+      facebook: 'Facebook',
+      whatsapp: 'WhatsApp',
+    };
+    const channelLabel = channelLabels[channel] || (channel || '—');
+    const recipientLine = recipient || '— (ej angivet)';
+    const plainBody =
+      'Förälder: ' + (parentName || '—') + '\n' +
+      'E-post: ' + parentEmail + '\n' +
+      'Till vem: ' + recipientLine + '\n' +
+      'Kanal: ' + channelLabel + '\n' +
+      'Tidpunkt: ' + now;
 
-    // Send notification email to info@mystarday.se (fire-and-forget) // pragma: allowlist secret
+    // Send notification email to [REDACTED] (fire-and-forget) // pragma: allowlist secret
     const { sendEmail } = require('../../lib/email');
     sendEmail({
-      to: 'info@mystarday.se', // pragma: allowlist secret
-      subject: `🌟 Delning — ${parentName || parentEmail} tipsade en familj!`,
-      body: `Förälder: ${parentName || '—'}\nE-post: ${parentEmail}\nTidpunkt: ${now}`,
+      to: '[REDACTED]', // pragma: allowlist secret
+      subject: `📤 Delning — ${parentName || parentEmail} tipsade${recipient ? ' ' + recipient : ''}`,
+      body: plainBody,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2 style="color: #1B2340;">🌟 Ny delning av Stjärndag!</h2>
+          <h2 style="color: #1B2340;">📤 Ny delning av appen</h2>
           <p><strong>Förälder:</strong> ${parentName || '—'}</p>
           <p><strong>E-post:</strong> ${parentEmail}</p>
+          <p><strong>Till vem:</strong> ${recipientLine}</p>
+          <p><strong>Kanal:</strong> ${channelLabel}</p>
           <p><strong>Tidpunkt:</strong> ${now}</p>
         </div>`,
     }).catch(err => {

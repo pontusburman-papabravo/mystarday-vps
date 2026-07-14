@@ -269,6 +269,29 @@ body.parent-magic-dashboard .app-view-toggle-btn:not(.is-active) {
   color: rgba(244, 244, 255, 0.82);
 }
 
+.parent-hub-icon-btn .parent-hub-icon-svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.mobile-topbar .topbar-share-btn .parent-hub-icon-svg {
+  stroke: #ffffff;
+}
+
+body.parent-magic-view [data-parent-nav-settings] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-view [data-parent-nav-share] {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: #fff !important;
+}
+
 .parent-avatar-wrap {
   position: relative;
   z-index: 130;

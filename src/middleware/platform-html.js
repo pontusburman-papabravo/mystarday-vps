@@ -456,6 +456,8 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/nav-config.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     (androidSafe ? '' : '<script src="/js/referral-share.js?v=' + RELEASE_TAG + '"><\/script>\n') +
+    '<script src="/js/parent-nav-icons.js?v=' + RELEASE_TAG + '"><\/script>\n' +
+    '<script src="/js/parent-share-flow.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/native-tab-bar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parent-nav-sidebar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parent-nav-header.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +

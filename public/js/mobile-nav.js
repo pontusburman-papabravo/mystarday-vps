@@ -144,11 +144,13 @@
   topbar.innerHTML =
     '<a href="/dashboard" class="topbar-brand">' +
       '<span>⭐</span>' +
-      '<h1>Min Stjärndag</h1>' +
+      '<h1>appen</h1>' +
     '</a>' +
     '<div class="topbar-actions">' +
       (isParentUser
-        ? '<button class="topbar-share-btn" title="Tipsa en familj om Stjärndag!" aria-label="Dela Stjärndag">🌟</button>'
+        ? '<button class="topbar-share-btn" title="Tipsa en familj om appen!" aria-label="Dela appen">' +
+          (window.ParentNavIcons ? window.ParentNavIcons.share : '↗') +
+          '</button>'
         : '') +
       (darkToggleFn
         ? '<button class="topbar-dark-toggle" title="Mörkt läge" aria-label="Växla mörkt läge">🌙</button>'
@@ -181,7 +183,8 @@
   if (isParentUser) {
     linksHtml +=
       '<button class="btn-dropdown-share" type="button">' +
-        '🌟 Tipsa en familj!' +
+        (window.ParentNavIcons ? window.ParentNavIcons.share : '↗') +
+        ' Tipsa en familj!' +
       '</button>';
   }
 
@@ -283,136 +286,17 @@
       var sidebarShareBtn = document.createElement('button');
       sidebarShareBtn.className = 'sidebar-share-btn w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2';
       sidebarShareBtn.type = 'button';
-      sidebarShareBtn.innerHTML = '<span>🌟</span> Tipsa en familj!';
+      sidebarShareBtn.innerHTML = (window.ParentNavIcons ? window.ParentNavIcons.share : '<span>↗</span>') + ' Tipsa en familj!';
       // Insert as first child of the footer section
       sidebarFooter.insertBefore(sidebarShareBtn, sidebarFooter.firstChild);
     }
   }
 
-  // ── Share helper — shared logic for both topbar and sidebar ────
-  function notifyShareBackend() {
-    try {
-      // Cookie-only auth: no Authorization header needed. Browser sends httpOnly cookie.
-      const headers = { 'Content-Type': 'application/json' };
-      const csrf = typeof Auth !== 'undefined' && Auth.getCsrfToken ? Auth.getCsrfToken() : null;
-      if (csrf) headers['X-CSRF-Token'] = csrf;
-      fetch('/api/account/share-notify', {
-        method: 'POST',
-        headers: headers,
-        credentials: 'include',
-      }).catch(function () { /* silent */ });
-    } catch (e) { /* silent */ }
-  }
-
-  // Copy text to clipboard with fallback for older browsers
-  function copyToClipboard(text, callback) {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(callback).catch(function () { callback(); });
-    } else {
-      const tempEl = document.createElement('textarea');
-      tempEl.value = text;
-      tempEl.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
-      document.body.appendChild(tempEl);
-      tempEl.select();
-      try { document.execCommand('copy'); } catch (e) { /* ignore */ }
-      document.body.removeChild(tempEl);
-      if (callback) callback();
-    }
-  }
-
-  // Desktop share popup — shown when Web Share API is unavailable
-  function showSharePopup(payload) {
-    // Remove existing popup if open
-    const existing = document.getElementById('sharePopup');
-    if (existing) existing.remove();
-
-    const shareUrl = payload.url;
-    const shareText = payload.text;
-    const overlay = document.createElement('div');
-    overlay.id = 'sharePopup';
-    overlay.className = 'share-popup-overlay';
-
-    const mailSubject = encodeURIComponent('Tipsa: Min Stjärndag'); // pragma: allowlist secret
-    const mailBody = encodeURIComponent(shareText);
-    const fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
-
-    overlay.innerHTML =
-      '<div class="share-popup-card">' +
-        '<div class="share-popup-header">' +
-          '<span style="font-size:1.3rem;">🌟</span>' +
-          '<strong>Tipsa en familj om Stjärndag!</strong>' +
-          '<button class="share-popup-close" aria-label="Stäng">&times;</button>' +
-        '</div>' +
-        (payload.code
-          ? '<p class="share-popup-code" style="font-size:0.85rem;font-weight:700;margin:0 0 8px;">Din kod: ' + payload.code + '</p>'
-          : '') +
-        '<p class="share-popup-text">' + shareText.replace(shareUrl, '<a href="' + shareUrl + '" target="_blank" rel="noopener">' + shareUrl + '</a>') + '</p>' +
-        '<div class="share-popup-actions">' +
-          '<button class="share-popup-btn share-popup-copy" type="button">' +
-            '<span>📋</span> Kopiera länk' +
-          '</button>' +
-          '<a href="mailto:?subject=' + mailSubject + '&body=' + mailBody + '" class="share-popup-btn share-popup-email">' +
-            '<span>✉️</span> Skicka via mejl' +
-          '</a>' +
-          '<a href="' + fbUrl + '" target="_blank" rel="noopener noreferrer" class="share-popup-btn share-popup-facebook">' +
-            '<span style="color:#1877F2;">f</span> Dela på Facebook' +
-          '</a>' +
-        '</div>' +
-      '</div>';
-
-    document.body.appendChild(overlay);
-
-    // Wire up close
-    function closePopup() { overlay.remove(); }
-    overlay.querySelector('.share-popup-close').addEventListener('click', closePopup);
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) closePopup();
-    });
-
-    // Wire up copy button
-    overlay.querySelector('.share-popup-copy').addEventListener('click', function () {
-      const btn = this;
-      copyToClipboard(shareUrl, function () {
-        btn.innerHTML = '<span>✅</span> Kopierad!';
-        setTimeout(function () { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
-      });
-    });
-
-    // Track email and facebook clicks as shares too
-    const emailLink = overlay.querySelector('.share-popup-email');
-    if (emailLink) emailLink.addEventListener('click', function () { notifyShareBackend(); });
-    const fbLink = overlay.querySelector('.share-popup-facebook');
-    if (fbLink) fbLink.addEventListener('click', function () { notifyShareBackend(); });
-  }
-
-  // Detect actual mobile/tablet device (not desktop Safari which also has navigator.share)
-  function isMobileDevice() {
-    return ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 768;
-  }
 
   function handleShare() {
-    const shareApi = window.ReferralShare;
-    const loadPromise = shareApi && shareApi.load ? shareApi.load() : Promise.resolve(null);
-    loadPromise.then(function (ref) {
-      const payload = shareApi && shareApi.buildPayload
-        ? shareApi.buildPayload(ref)
-        : { url: 'https://mystarday.se', text: 'https://mystarday.se', withReferral: false };
-
-      notifyShareBackend();
-      if (payload.withReferral && shareApi) {
-        shareApi.trackShared(ref);
-      }
-
-      // Only use native Web Share API on actual mobile devices.
-      // Desktop Safari supports navigator.share but shows a useless OS-level popover.
-      if (navigator.share && isMobileDevice()) {
-        navigator.share({ title: 'Min Stjärndag', text: payload.text, url: payload.url })
-          .catch(function () { /* user cancelled — silent */ });
-      } else {
-        // Desktop (or mobile without Web Share): show popup with copy / email / Facebook options
-        showSharePopup(payload);
-      }
-    });
+    if (window.ParentShareFlow && ParentShareFlow.open) {
+      ParentShareFlow.open();
+    }
   }
 
   // ── Wire up share buttons (topbar + sidebar) ──────────────────

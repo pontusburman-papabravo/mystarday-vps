@@ -61,7 +61,9 @@
   };
 
   const HEADER_ACTIONS = [
+    { id: 'share', action: 'share', icon: 'share', label: 'Dela appen' },
     { id: 'notifications', href: '/notifications', icon: '🔔', label: 'Notiser' },
+    { id: 'settings', href: '/settings', icon: 'settings', label: 'Inställningar' },
   ];
 
   /** Capability placements — feature-gated deep links (vuxenmeny v2 Sprint 6). */

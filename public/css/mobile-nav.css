@@ -114,6 +114,13 @@
   position: relative;
 }
 
+.topbar-share-btn .parent-hub-icon-svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  stroke: #ffffff;
+}
+
 .topbar-share-btn:hover,
 .topbar-share-btn:active {
   background: #2A3458;
