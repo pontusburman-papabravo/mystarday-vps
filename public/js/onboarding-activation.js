@@ -150,8 +150,8 @@
   }
 
   function init() {
-    if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
     loadConfig().then(function () {
+      if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
       maybeTrackOnboardingStarted();
       wireStep5Handoff();
       const obs = new MutationObserver(function () {

@@ -71,12 +71,34 @@
     return (cfg && cfg.state) || {};
   }
 
-  function isFilmEnabled() {
-    if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return false;
+  function isAddChildFlow() {
+    return typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD;
+  }
+
+  function isFilmFlagOn() {
     const oa = act();
     if (!oa || typeof oa.getConfig !== 'function') return false;
     const cfg = oa.getConfig();
-    if (!cfg || !cfg.flags || !cfg.flags.activation_onboarding_handoff_film_v1) return false;
+    return Boolean(cfg && cfg.flags && cfg.flags.activation_onboarding_handoff_film_v1);
+  }
+
+  /**
+   * @param {{ afterSchemaSave?: boolean }} [opts]
+   */
+  function isFilmEnabled(opts) {
+    opts = opts || {};
+    if (!isFilmFlagOn()) return false;
+
+    const cid = childId();
+    if (isAddChildFlow()) {
+      if (!cid) return false;
+      return window.__handoffFilmSeenForChild !== cid;
+    }
+
+    if (opts.afterSchemaSave) {
+      return Boolean(cid);
+    }
+
     const st = activationState();
     if (!st.schema_saved_at) return false;
     if (st.child_access_completed_at) return false;
@@ -85,6 +107,11 @@
   }
 
   function markFilmSeen() {
+    const cid = childId();
+    if (isAddChildFlow()) {
+      window.__handoffFilmSeenForChild = cid;
+      return;
+    }
     const oa = act();
     if (oa && typeof oa.loadConfig === 'function') {
       const cfg = oa.getConfig();
@@ -425,9 +452,10 @@
   /**
    * Intercept handoff step — show film instead of step 5 when enabled.
    * @param {function} [fallback] called when film disabled (typically goToStep(5))
+   * @param {{ afterSchemaSave?: boolean }} [opts]
    */
-  function maybeShowInsteadOfHandoffStep(fallback) {
-    if (!isFilmEnabled()) {
+  function maybeShowInsteadOfHandoffStep(fallback, opts) {
+    if (!isFilmEnabled(opts)) {
       if (typeof fallback === 'function') fallback();
       return;
     }
@@ -447,7 +475,7 @@
     maybeShowInsteadOfHandoffStep(function () {
       if (typeof populateStep5LoginInfo === 'function') populateStep5LoginInfo();
       if (typeof goToStep === 'function') goToStep(5);
-    });
+    }, { afterSchemaSave: true });
   }
 
   function showPreview() {
@@ -455,7 +483,6 @@
   }
 
   function init() {
-    if (typeof window.IS_ADD_CHILD !== 'undefined' && window.IS_ADD_CHILD) return;
     const oa = act();
     if (oa && typeof oa.loadConfig === 'function') {
       oa.loadConfig().catch(function () {});
