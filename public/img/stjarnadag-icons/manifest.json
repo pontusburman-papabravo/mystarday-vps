@@ -1,6 +1,6 @@
 {
-  "name": "Stjärndag Icon System",
-  "version": "1.0.0",
+  "name": "Stjärndag Premium Icon System",
+  "version": "2.0.0",
   "format": "SVG",
   "count": 65,
   "icons": [
@@ -459,5 +459,11 @@
       "purpose": "logga ut",
       "themeOverrideAllowed": true
     }
+  ],
+  "style": "transparent dark-mode duotone",
+  "notes": [
+    "Ingen vit ikonruta",
+    "Badge och antal ritas dynamiskt",
+    "Barnets temabaserade ikoner prioriteras"
   ]
 }

@@ -1,19 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
 <title id="title">Hjalp</title>
 <defs>
-  <linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-    <stop stop-color="#60A5FA"/>
-    <stop offset="1" stop-color="#2563EB"/>
+  <linearGradient id="g" x1="8" y1="7" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#A5F3FC"/>
+    <stop offset=".52" stop-color="#38BDF8"/>
+    <stop offset="1" stop-color="#38BDF8"/>
   </linearGradient>
-  <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%">
-    <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#101828" flood-opacity=".20"/>
+  <filter id="shadow" x="-40%" y="-40%" width="180%" height="190%">
+    <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#050314" flood-opacity=".50"/>
+    <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#38BDF8" flood-opacity=".42"/>
   </filter>
 </defs>
 <g filter="url(#shadow)">
-  <circle cx="32" cy="32" r="29" fill="url(#g)" opacity=".15"/>
-  <g fill="none" stroke="url(#g)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="url(#g)" fill-opacity=".14" stroke="url(#g)" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="32" cy="32" r="24"/><path d="M24 24c1-7 15-9 17-1 2 7-9 8-9 15M32 46h.1"/>
   </g>
-  <path d="M18 13c8-6 19-7 28-2" fill="none" stroke="#fff" stroke-opacity=".52" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 13c8-6 20-7 29-1" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="2.6" stroke-linecap="round"/>
+
+  <g aria-hidden="true">
+    <circle cx="52" cy="12" r="4.4" fill="#F6C453"/>
+    <path d="m52 8.7 1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3Z" fill="#FFF8D8"/>
+  </g>
 </g>
 </svg>

@@ -1,4 +1,4 @@
-/* Stjärndag Icon System v1.0 */
+/* Stjärndag Premium Icon System v2.0 */
 .app-icon {
   display: block;
   width: 2rem;
@@ -10,8 +10,8 @@
 }
 
 .app-icon--nav {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .app-icon--header {
@@ -20,8 +20,8 @@
 }
 
 .app-icon--hub {
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
 }
 
 .app-icon--hero {
@@ -83,65 +83,11 @@
   gap: 0.5rem;
 }
 
-/* Header chrome — colorful SVGs need a solid light tile on magic dark */
+/* Premium v2 — transparent icons with built-in glow on dark magic shells */
+body.parent-magic-view:not(.parent-theme-light) .app-icon {
+  filter: drop-shadow(0 2px 8px rgba(5, 3, 20, 0.45));
+}
+
 body.parent-magic-view:not(.parent-theme-light) .parent-hub-icon-btn .app-icon--header {
-  filter: drop-shadow(0 1px 1px rgba(27, 35, 64, 0.18));
-}
-
-/*
- * Dark magic surfaces — gradient SVG icons are purple/lilac and disappear on
- * purple shells. Give them a light frosted tile (same idea as header buttons).
- */
-body.parent-magic-view:not(.parent-theme-light) .parent-quick-tile-icon {
-  width: 40px;
-  height: 40px;
-  min-height: 40px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-}
-
-body.parent-magic-view:not(.parent-theme-light) .parent-quick-tile-icon .app-icon--hub {
-  width: 26px;
-  height: 26px;
-}
-
-body.parent-magic-view:not(.parent-theme-light) .native-tab-bar .tab-icon,
-body.parent-magic-view:not(.parent-theme-light) .parent-bottom-nav-btn .parent-bottom-nav-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-body.parent-magic-view:not(.parent-theme-light) .native-tab-bar .tab-item.active .tab-icon,
-body.parent-magic-view:not(.parent-theme-light) .parent-bottom-nav-btn.is-active .parent-bottom-nav-icon {
-  border-color: rgba(255, 204, 51, 0.65);
-  box-shadow: 0 0 0 2px rgba(255, 204, 51, 0.22), 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-body.parent-magic-view:not(.parent-theme-light) .magic-hub-links .app-icon,
-body.parent-magic-view:not(.parent-theme-light) .library-magic-menu-icon .app-icon {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  border-radius: 12px;
-  padding: 5px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-}
-
-body.parent-magic-view:not(.parent-theme-light) .magic-settings-group-icon {
-  background: rgba(255, 255, 255, 0.94) !important;
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-}
-
-/* Header buttons already have their own white circle — skip double tile */
-body.parent-magic-view:not(.parent-theme-light) .parent-hub-icon-btn .app-icon--header {
-  background: transparent;
-  border: none;
-  padding: 0;
-  box-shadow: none;
+  filter: drop-shadow(0 2px 6px rgba(5, 3, 20, 0.4));
 }

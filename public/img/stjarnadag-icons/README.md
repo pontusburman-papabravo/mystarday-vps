@@ -1,63 +1,47 @@
-# Stjärndag Icon System v1.0
+# Stjärndag Premium Icon System v2
 
-Ett komplett SVG-paket för föräldraläge, gemensamma systemfunktioner och fallback-ikoner i barnläget.
+65 transparenta SVG-ikoner omgjorda för Stjärndags mörka gränssnitt.
 
-## Innehåll
+## Det som är nytt
 
-- **65 separata SVG-filer**
-- `manifest.json` med sökvägar och användningsområden
-- `stjarnadag-icons.sprite.svg` för SVG-sprite-användning
-- Barnens befintliga temaikoner ska fortsatt prioriteras
-- `child-fallback/` används bara när valt tema saknar en egen ikon
+- Ingen vit ruta eller inbakad knappbakgrund
+- Kraftigare symboler som syns tydligt på mobil
+- Lila, blå och guldiga duotoner med diskret glow
+- Samma stil för toppmeny, snabbåtgärder och bottennavigation
+- Inga inbakade notissiffror eller antal stjärnor
+- Befintliga temaikoner i barnläget ska fortsatt prioriteras
 
-## Rekommenderad placering
+## Rekommenderade storlekar
 
-Kopiera mappen till:
+- Bottennavigation: 28–32 px
+- Toppmeny: 26–30 px
+- Snabbåtgärder: 38–44 px
+- Stora illustrationer: 56–72 px
 
-```text
-public/assets/icons/stjarnadag/
-```
+## Viktig CSS-regel
 
-## Enkel användning
-
-```html
-<img
-  src="/assets/icons/stjarnadag/parent/extra-stjarnor.svg"
-  width="32"
-  height="32"
-  alt=""
-  aria-hidden="true"
-/>
-```
-
-## CSS
+Lägg inte ikonerna i en helvit ruta. Använd transparent bakgrund eller en mycket diskret glasyta.
 
 ```css
-.app-icon {
+.sd-icon {
   width: 2rem;
   height: 2rem;
-  object-fit: contain;
-  flex: 0 0 auto;
+  display: block;
 }
 
-.app-icon--large {
-  width: 3.5rem;
-  height: 3.5rem;
+.sd-icon--action {
+  width: 2.625rem;
+  height: 2.625rem;
+}
+
+.sd-icon-button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
 }
 ```
 
-## Regel för barnläget
+## Prompt till Cursor
 
-1. Försök ladda ikon från barnets valda tema.
-2. Finns ingen temavariant, använd motsvarande ikon i `child-fallback/`.
-3. Använd aldrig föräldraikoner som temagrafik i barnläget.
-
-## Dynamiskt innehåll
-
-Badge, antal stjärnor och statusvärden ska ritas i HTML/CSS och inte bakas in i SVG-filen.
-
-## Cursor-instruktion
-
-Kopiera ZIP-filen till projektet och be Cursor:
-
-> Packa upp Stjärndag Icon System under `public/assets/icons/stjarnadag`. Inventera befintliga ikonreferenser i HTML, JavaScript och CSS. Ersätt föräldra- och systemikoner med motsvarande filer från manifest.json. Behåll befintliga temabaserade barnikoner och använd `child-fallback` endast när temat saknar ikon. Rita badges och antal dynamiskt i koden. Gör ändringarna stegvis och kör befintliga tester efteråt.
+Packa upp mappen under `public/assets/icons/stjarnadag`. Läs `manifest.json` och ersätt nuvarande föräldra-, navigations- och systemikoner med motsvarande SVG. Ta bort vita ikonrutor där de bara används som ikonbakgrund. Behåll barnets befintliga temabaserade ikoner och använd `child-fallback` endast där temat saknar en variant. Låt notisbadge och antal stjärnor vara dynamiska HTML/CSS-element.

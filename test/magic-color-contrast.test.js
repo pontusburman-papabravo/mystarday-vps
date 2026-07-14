@@ -24,11 +24,10 @@ describe('magic color contrast', () => {
     assert.match(css, /#childProfileTabBar \.child-profile-tab:not\(\.is-active\)/);
   });
 
-  it('icon-system adds light tiles for gradient icons on magic dark', () => {
+  it('premium v2 uses transparent icons without white tile backgrounds', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/icon-system.css'), 'utf8');
-    assert.match(css, /parent-quick-tile-icon/);
-    assert.match(css, /native-tab-bar \.tab-icon/);
-    assert.match(css, /magic-hub-links \.app-icon/);
-    assert.match(css, /rgba\(255, 255, 255, 0\.94\)/);
+    assert.match(css, /Premium Icon System v2/);
+    assert.doesNotMatch(css, /rgba\(255, 255, 255, 0\.94\)/);
+    assert.match(css, /drop-shadow/);
   });
 });
