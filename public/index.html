@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=9">
+  <link rel="stylesheet" href="/css/landing.css?v=10">
   <link rel="stylesheet" href="/css/icon-system.css?v=1">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
@@ -57,7 +57,7 @@
   }
   </script>
 </head>
-<body class="platform-web">
+<body class="platform-web landing-page">
 
 <div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
 <div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
@@ -780,6 +780,7 @@
     if (spacer) spacer.style.height = h + 'px';
     if (nav) nav.style.top = h + 'px';
     if (banner && banner.style.display !== 'none') banner.style.top = '0';
+    if (typeof window.syncLandingMobileMenuLayout === 'function') window.syncLandingMobileMenuLayout();
   }
   fetch('/api/dagens-nyhet/active').then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
     if (!data || !data.title) return;

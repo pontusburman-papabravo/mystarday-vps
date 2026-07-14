@@ -182,6 +182,7 @@
   }
 
   function boot() {
+    if (document.querySelector('.landing-nav') || document.body.classList.contains('landing-page')) return;
     if (typeof Auth !== 'undefined' && Auth.isLoggedIn && !Auth.isLoggedIn()) return;
     ensureHeaderBar();
   }

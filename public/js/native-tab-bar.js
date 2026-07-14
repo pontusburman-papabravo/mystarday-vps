@@ -10,8 +10,14 @@
     return false;
   }
 
-  const path = (window.location.pathname || '').replace(/\/$/, '');
+  const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
   if (path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0) return;
+  if (
+    (path === '/' || path === '') &&
+    (document.querySelector('.landing-nav') || document.body.classList.contains('landing-page'))
+  ) {
+    return;
+  }
   if (!window.NavConfig) return;
 
   let activeTabs = NavConfig.primaryNavForTabs();

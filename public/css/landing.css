@@ -313,20 +313,30 @@ body.platform-web.landing-magic-bg {
 .landing-mobile-menu {
   display: none;
   position: fixed;
-  top: 60px;
+  top: var(--landing-nav-offset, 60px);
   left: 0;
   right: 0;
-  z-index: 199;
+  bottom: 0;
+  z-index: 10350;
   background: rgba(253, 250, 244, 0.98);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border);
-  padding: 1rem 1.5rem 1.5rem;
+  padding: 1rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
   flex-direction: column;
   gap: 0.25rem;
   box-shadow: 0 8px 32px rgba(28, 35, 64, 0.1);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .landing-mobile-menu.is-open { display: flex; }
+
+body.landing-menu-open {
+  overflow: hidden;
+}
 
 .landing-mobile-menu a {
   text-decoration: none;
@@ -1479,11 +1489,22 @@ body.platform-web.landing-magic-bg {
   .landing-nav__actions .btn-primary,
   .landing-nav__actions .landing-nav__lang,
   .landing-nav__actions .landing-nav__login,
-  .landing-nav__actions .landing-nav__child-login,
-  .landing-nav__actions .landing-nav__tipsa { display: none; }
+  .landing-nav__actions .landing-nav__child-login { display: none; }
+
+  .landing-nav__actions .landing-nav__tipsa {
+    display: inline-flex;
+    padding: 0.4rem 0.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .landing-nav__tipsa-label { display: none; }
 
   .landing-nav__hamburger { display: inline-flex; }
-  .landing-tipsa-fixed { display: inline-flex; }
+
+  /* Tipsa lives in header on mobile — avoid duplicate FAB behind browser chrome */
+  .landing-tipsa-fixed { display: none !important; }
 
   .landing-login-entry--hero { display: none; }
 

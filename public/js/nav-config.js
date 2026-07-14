@@ -12,7 +12,7 @@
       href: '/dashboard',
       label: 'Hem',
       icon: 'hem',
-      paths: ['/dashboard', '/daily-log', '/'],
+      paths: ['/dashboard', '/daily-log'],
     },
     {
       id: 'planning',
