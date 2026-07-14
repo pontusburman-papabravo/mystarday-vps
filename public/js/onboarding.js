@@ -1168,6 +1168,13 @@ async function completeAddChild() {
   setLoading(btn, 'Slutför…');
 
   try {
+    if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.isEnabled === 'function' &&
+        OnboardingHandoffFilm.isEnabled()) {
+      setLoading(btn, 'Klar! →', false);
+      await enterChildHandoff('add_child_step6');
+      return;
+    }
+
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
     if (!res.ok) throw new Error('Kunde inte slutföra');
 

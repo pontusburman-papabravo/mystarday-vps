@@ -98,6 +98,16 @@ describe('Onboarding handoff film', () => {
     assert.match(onboarding, /enterChildHandoff\('email_resume'\)/);
   });
 
+  it('add-child onboarding shows handoff film after schema save', () => {
+    const src = read('public/js/onboarding-handoff-film.js');
+    const onboarding = read('public/js/onboarding.js');
+    assert.match(src, /isAddChildFlow/);
+    assert.match(src, /afterSchemaSave/);
+    assert.match(src, /__handoffFilmSeenForChild/);
+    assert.doesNotMatch(src, /IS_ADD_CHILD\) return false/);
+    assert.match(onboarding, /enterChildHandoff\('add_child_step6'\)/);
+  });
+
   it('preview replay destroys prior timer session (no ghost last scene)', () => {
     const src = read('public/js/onboarding-handoff-film.js');
     assert.match(src, /destroyActiveSession/);
