@@ -14,10 +14,14 @@
     'parent-hub-icon-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/80 border border-lavender shadow-sm';
 
   function iconMarkup(action) {
-    if (!window.ParentNavIcons) return action.icon || '';
-    if (action.icon === 'notiser' || action.id === 'notifications') return ParentNavIcons.notiser;
-    if (action.icon === 'settings') return ParentNavIcons.settings;
-    if (action.icon === 'tipsa' || action.icon === 'share') return ParentNavIcons.tipsa;
+    if (window.IconSystem && IconSystem.has(action.icon)) {
+      return IconSystem.header(action.icon);
+    }
+    if (window.ParentNavIcons) {
+      if (action.icon === 'notiser' || action.id === 'notifications') return ParentNavIcons.notiser;
+      if (action.icon === 'installningar' || action.icon === 'settings') return ParentNavIcons.settings;
+      if (action.icon === 'tipsa' || action.icon === 'share') return ParentNavIcons.tipsa;
+    }
     return action.icon || '';
   }
 

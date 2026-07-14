@@ -7,7 +7,7 @@
 
   const MANAGE_LINK = {
     href: '/library#rewards',
-    icon: '🎁',
+    icon: 'beloning',
     title: 'Hantera belöningar',
     sub: 'Skapa och redigera i biblioteket',
   };
@@ -26,6 +26,13 @@
     }
   }
 
+  function hubIcon(l) {
+    if (window.IconSystem && IconSystem.has(l.icon)) {
+      return IconSystem.hub(l.icon);
+    }
+    return '<span class="text-2xl" aria-hidden="true">' + l.icon + '</span>';
+  }
+
   function linkHtml(l) {
     return (
       '<a href="' +
@@ -33,9 +40,7 @@
       '" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="' +
       escHtml(l.title) +
       '" data-full-load="1">' +
-      '<span class="text-2xl" aria-hidden="true">' +
-      l.icon +
-      '</span>' +
+      hubIcon(l) +
       '<span><span class="font-heading font-bold text-navy block">' +
       escHtml(l.title) +
       '</span>' +
@@ -122,7 +127,7 @@
       if (!reports) return '';
       return linkHtml({
         href: '/reports',
-        icon: '📊',
+        icon: 'statistik',
         title: 'Rapporter',
         sub: 'Utveckling och delning',
       });

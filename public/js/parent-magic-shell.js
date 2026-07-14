@@ -84,7 +84,9 @@
       const active = item.id === activeId ? ' is-active' : '';
       const aria = item.id === activeId ? ' aria-current="page"' : '';
       return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '"' + aria + '>' +
-        '<span class="parent-bottom-nav-icon" aria-hidden="true">' + item.icon + '</span>' +
+        '<span class="parent-bottom-nav-icon" aria-hidden="true">' +
+        (window.IconSystem ? IconSystem.forItem(item, 24, 'app-icon app-icon--nav') : item.icon) +
+        '</span>' +
         '<span>' + item.label + '</span></a>';
     }).join('');
     if (!nav.dataset.magicNavBound) {

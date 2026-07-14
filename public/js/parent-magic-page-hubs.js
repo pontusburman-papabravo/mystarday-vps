@@ -5,23 +5,23 @@
   'use strict';
 
   const SETTINGS_GROUPS = [
-    { id: 'profile', icon: '👤', iconClass: 'profile', title: 'Profil & konto', sub: 'Inloggning, PIN och konto' },
-    { id: 'family', icon: '👨‍👩‍👧', iconClass: 'family', title: 'Familj', sub: 'Lägg till vuxen, namn och pedagoger' },
-    { id: 'appearance', icon: '🎨', iconClass: 'app', title: 'Utseende', sub: 'Mörkt eller ljust tema' },
-    { id: 'app', icon: '📱', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
+    { id: 'profile', icon: 'profil', iconClass: 'profile', title: 'Profil & konto', sub: 'Inloggning, PIN och konto' },
+    { id: 'family', icon: 'familj', iconClass: 'family', title: 'Familj', sub: 'Lägg till vuxen, namn och pedagoger' },
+    { id: 'appearance', icon: 'info', iconClass: 'app', title: 'Utseende', sub: 'Mörkt eller ljust tema' },
+    { id: 'app', icon: 'notiser', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
   ];
 
   const PAGE_HEROES = {
-    planning: { icon: '📅', title: 'Planering', sub: 'Bygg innehåll eller planera barnens vecka.' },
-    rewards: { icon: '🎁', title: 'Belöningar', sub: 'Stjärnor, belöningar och familjekista.' },
-    calendar: { icon: '📆', title: 'Kalender', sub: 'Månadsvy över alla barn' },
-    activities: { icon: '📋', title: 'Aktiviteter', sub: 'Hantera barnens aktiviteter' },
-    'assign-schedule': { icon: '📅', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
-    'daily-log': { icon: '📝', title: 'Daglig logg', sub: 'Följ barnens dag — fyll i stjärnor i efterhand' },
-    skattkammaren: { icon: '🏆', title: 'Skattkammaren', sub: 'Belöningar och stjärnor' },
-    'child-settings': { icon: '⭐', title: 'Barninställningar', sub: 'Vy, PIN och anpassning' },
-    'family-child': { icon: '⚙️', title: 'Barnets inställningar', sub: 'Schema, vy, PIN och anpassning' },
-    notifications: { icon: '🔔', title: 'Notiser', sub: 'Påminnelser och meddelanden' },
+    planning: { icon: 'schema', title: 'Planering', sub: 'Bygg innehåll eller planera barnens vecka.' },
+    rewards: { icon: 'beloningar', title: 'Belöningar', sub: 'Stjärnor, belöningar och familjekista.' },
+    calendar: { icon: 'kalender', title: 'Kalender', sub: 'Månadsvy över alla barn' },
+    activities: { icon: 'aktiviteter', title: 'Aktiviteter', sub: 'Hantera barnens aktiviteter' },
+    'assign-schedule': { icon: 'kopiera-aktivitet', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
+    'daily-log': { icon: 'historik', title: 'Daglig logg', sub: 'Följ barnens dag — fyll i stjärnor i efterhand' },
+    skattkammaren: { icon: 'skattkammaren', title: 'Skattkammaren', sub: 'Belöningar och stjärnor' },
+    'child-settings': { icon: 'barn', title: 'Barninställningar', sub: 'Vy, PIN och anpassning' },
+    'family-child': { icon: 'installningar', title: 'Barnets inställningar', sub: 'Schema, vy, PIN och anpassning' },
+    notifications: { icon: 'notiser', title: 'Notiser', sub: 'Påminnelser och meddelanden' },
   };
 
   let _activeSettingsGroup = null;
@@ -78,11 +78,21 @@
     });
   }
 
+  function pageIcon(iconKey, size) {
+    if (window.IconSystem && IconSystem.has(iconKey)) {
+      return IconSystem.render(iconKey, {
+        size: size || IconSystem.SIZES.hero,
+        className: 'app-icon app-icon--hero',
+      });
+    }
+    return iconKey;
+  }
+
   function renderGenericHero(cfg) {
     return '<div class="magic-page-shell magic-3d-scene">' +
       planningBackButton() +
       '<div class="magic-page-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + cfg.icon + '</div>' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon(cfg.icon) + '</div>' +
       '<div><h1>' + escHtml(cfg.title) + '</h1><p>' + escHtml(cfg.sub) + '</p></div>' +
       '</div></div>';
   }
@@ -95,7 +105,7 @@
     return '<div class="magic-page-shell magic-3d-scene">' +
       planningBackButton() +
       '<div class="magic-page-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">📅</div>' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('schema') + '</div>' +
       '<div><h1>Veckoschema</h1><p>Planera och anpassa barnens dagar</p></div>' +
       '</div>' +
       renderScheduleModeBar() +
@@ -110,7 +120,7 @@
     const focus = (opts && opts.focus) || 'Vad vill du fokusera på just nu?';
     return '<div class="magic-page-shell magic-3d-scene">' +
       '<div class="magic-page-hero for-dig-magic-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">✨</div>' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('for-dig') + '</div>' +
       '<div><h1>' + escHtml(greeting) + '</h1><p class="for-dig-magic-focus">' + escHtml(focus) + '</p></div>' +
       '</div></div>';
   }
@@ -131,7 +141,7 @@
     const adultN = document.querySelectorAll('#adultsGrid > *').length;
     return '<div class="magic-page-shell magic-3d-scene">' +
       '<div class="magic-page-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">👨‍👩‍👧</div>' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('familj') + '</div>' +
       '<div><h1>Familjen</h1><p>' + escHtml(sub) + '</p></div>' +
       '</div>' +
       '<div class="magic-page-stats">' +
@@ -140,7 +150,7 @@
       '</div>' +
       '<div class="magic-hub-links grid gap-3 mt-3 max-w-lg">' +
       '<a href="#custodyScheduleSection" class="flex items-center gap-3 p-4 bg-white/80 rounded-2xl border-2 border-lavender no-underline text-navy">' +
-      '<span class="text-2xl" aria-hidden="true">🏠</span>' +
+      '<span class="text-2xl" aria-hidden="true">' + pageIcon('familj', 32) + '</span>' +
       '<span><strong class="block">Boendeschema</strong>' +
       '<span class="text-text-soft text-sm">Växelvis boende — vecka A/B</span></span></a>' +
       '</div></div>';
@@ -149,13 +159,13 @@
   function renderSettingsMenu() {
     return '<div class="magic-page-shell magic-3d-scene magic-page-hero-wrap">' +
       '<div class="magic-page-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">⚙️</div>' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('installningar') + '</div>' +
       '<div><h1>Inställningar</h1><p>Profil, familj och app — grupperat som i mockupen</p></div>' +
       '</div></div>' +
       '<div class="magic-settings-menu">' +
       SETTINGS_GROUPS.map(function (g) {
         return '<button type="button" class="magic-settings-group-card magic-3d-card" data-settings-group="' + g.id + '">' +
-          '<span class="magic-settings-group-icon ' + g.iconClass + '" aria-hidden="true">' + g.icon + '</span>' +
+          '<span class="magic-settings-group-icon ' + g.iconClass + '" aria-hidden="true">' + pageIcon(g.icon, 28) + '</span>' +
           '<span class="magic-settings-group-text"><strong>' + escHtml(g.title) + '</strong>' +
           '<span>' + escHtml(g.sub) + '</span></span>' +
           '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';

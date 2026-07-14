@@ -50,7 +50,7 @@
         '<a href="' + tab.href + '" class="tab-item' + (active ? ' active' : '') + '"' +
         ' data-tab-href="' + tab.href + '"' +
         (active ? ' aria-current="page"' : '') + '>' +
-        '<span class="tab-icon">' + tab.icon + '</span>' +
+        '<span class="tab-icon">' + (window.IconSystem ? IconSystem.forItem(tab, 24, 'app-icon app-icon--nav') : tab.icon) + '</span>' +
         '<span class="tab-label">' + tab.label + '</span></a>';
     }
     return items;

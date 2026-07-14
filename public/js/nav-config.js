@@ -11,14 +11,14 @@
       id: 'home',
       href: '/dashboard',
       label: 'Hem',
-      icon: '🏠',
+      icon: 'hem',
       paths: ['/dashboard', '/daily-log', '/'],
     },
     {
       id: 'planning',
       href: '/planning',
       label: 'Planering',
-      icon: '📅',
+      icon: 'schema',
       paths: [
         '/planning',
         '/schedule',
@@ -33,21 +33,21 @@
       id: 'rewards',
       href: '/rewards',
       label: 'Belöningar',
-      icon: '🎁',
+      icon: 'beloningar',
       paths: ['/rewards', '/skattkammaren-parent'],
     },
     {
       id: 'for_you',
       href: '/for-dig',
       label: 'För dig',
-      icon: '✨',
+      icon: 'for-dig',
       paths: ['/for-dig'],
     },
     {
       id: 'family',
       href: '/family',
       label: 'Familj',
-      icon: '👨‍👩‍👧',
+      icon: 'familj',
       paths: ['/family', '/family/child'],
     },
   ];
@@ -56,13 +56,13 @@
     id: 'settings',
     href: '/settings',
     label: 'Inställningar',
-    icon: '⚙️',
+    icon: 'installningar',
     paths: ['/settings', '/upgrade', '/payment-success', '/child-settings'],
   };
 
   const HEADER_ACTIONS = [
     { id: 'notifications', href: '/notifications', icon: 'notiser', label: 'Notiser' },
-    { id: 'settings', href: '/settings', icon: 'settings', label: 'Inställningar' },
+    { id: 'settings', href: '/settings', icon: 'installningar', label: 'Inställningar' },
     { id: 'tipsa', action: 'tipsa', icon: 'tipsa', label: 'Tipsa' },
   ];
 

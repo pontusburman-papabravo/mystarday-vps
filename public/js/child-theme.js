@@ -298,6 +298,12 @@
     const emoji = (theme.icons && theme.icons[key]) || '⭐';
     const assetUrl = theme.assets && theme.assets.icons && theme.assets.icons[key];
     if (!assetUrl) {
+      if (window.IconSystem && IconSystem.childFallback) {
+        const fallback = IconSystem.childFallback(key);
+        if (fallback) {
+          return '<span class="child-nav-icon" aria-hidden="true">' + fallback + '</span>';
+        }
+      }
       return '<span class="child-theme-nav-emoji" aria-hidden="true">' + emoji + '</span>';
     }
     return (

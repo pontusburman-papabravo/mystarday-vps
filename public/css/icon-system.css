@@ -1,0 +1,84 @@
+/* Stjärndag Icon System v1.0 */
+.app-icon {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  flex: 0 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.app-icon--nav {
+  width: 24px;
+  height: 24px;
+}
+
+.app-icon--header {
+  width: 28px;
+  height: 28px;
+}
+
+.app-icon--hub {
+  width: 32px;
+  height: 32px;
+}
+
+.app-icon--hero {
+  width: 48px;
+  height: 48px;
+}
+
+.app-icon--child-nav {
+  width: 32px;
+  height: 32px;
+}
+
+.native-tab-bar .tab-icon,
+.parent-bottom-nav-btn .parent-bottom-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.native-tab-bar .tab-icon .app-icon,
+.parent-bottom-nav-btn .parent-bottom-nav-icon .app-icon {
+  margin: 0 auto;
+}
+
+.sidebar-nav .app-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.mobile-dropdown-links .app-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.btn-dropdown-share .app-icon,
+.sidebar-share-btn .app-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.magic-page-hero-icon .app-icon--hero {
+  width: 56px;
+  height: 56px;
+}
+
+.magic-settings-group-icon .app-icon,
+.library-magic-menu-icon .app-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.library-magic-chrome-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}

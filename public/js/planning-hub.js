@@ -6,32 +6,32 @@
   'use strict';
 
   const CONTENT_LINKS = [
-    { href: '/library', icon: '📚', title: 'Bibliotek', sub: 'Skapa aktiviteter och belöningar' },
-    { href: '/library#magic-bilder', icon: '📷', title: 'Bildarkiv', sub: 'Egna foton — tandborste, säng, skola' },
+    { href: '/library', icon: 'aktiviteter', title: 'Bibliotek', sub: 'Skapa aktiviteter och belöningar' },
+    { href: '/library#magic-bilder', icon: 'redigera', title: 'Bildarkiv', sub: 'Egna foton — tandborste, säng, skola' },
   ];
 
   const PLAN_LINKS = [
-    { href: '/schedule', icon: '📅', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
-    { href: '/calendar', icon: '🗓️', title: 'Kalender', sub: 'Se månad och specialdagar' },
+    { href: '/schedule', icon: 'schema', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
+    { href: '/calendar', icon: 'kalender', title: 'Kalender', sub: 'Se månad och specialdagar' },
   ];
 
   const CUSTODY_LINK = {
     href: '/family#custodyScheduleSection',
-    icon: '🏠',
+    icon: 'familj',
     title: 'Boendeschema',
     sub: 'Växelvis boende mellan hushåll',
   };
 
   const OTHER_LINKS = [
-    { href: '/daily-log', icon: '📝', title: 'Daglig logg', sub: 'Se och justera tidigare dagar' },
-    { href: '/print-schema', icon: '📄', title: 'Skapa PDF — schema', sub: 'Skriv ut schema' },
-    { href: '/assign-schedule', icon: '📋', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
+    { href: '/daily-log', icon: 'historik', title: 'Daglig logg', sub: 'Se och justera tidigare dagar' },
+    { href: '/print-schema', icon: 'rapport', title: 'Skapa PDF — schema', sub: 'Skriv ut schema' },
+    { href: '/assign-schedule', icon: 'kopiera-aktivitet', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
   ];
 
   const CAPABILITY_LINKS = {
-    reports: { href: '/reports', icon: '📊', title: 'Rapporter', sub: 'Utveckling och delning' },
-    samarbete: { href: '/samarbete', icon: '🤝', title: 'Pedagogsamarbete', sub: 'Samarbeta med pedagog' },
-    barn_stod: { href: '/barn-stod', icon: '🧩', title: 'Extra stöd', sub: 'Visuellt stöd och TEACCH' },
+    reports: { href: '/reports', icon: 'rapport', title: 'Rapporter', sub: 'Utveckling och delning' },
+    samarbete: { href: '/samarbete', icon: 'pedagog', title: 'Pedagogsamarbete', sub: 'Samarbeta med pedagog' },
+    barn_stod: { href: '/barn-stod', icon: 'support', title: 'Extra stöd', sub: 'Visuellt stöd och TEACCH' },
   };
 
   function escHtml(str) {
@@ -48,6 +48,13 @@
     }
   }
 
+  function hubIcon(l) {
+    if (window.IconSystem && IconSystem.has(l.icon)) {
+      return IconSystem.hub(l.icon);
+    }
+    return '<span class="text-2xl" aria-hidden="true">' + l.icon + '</span>';
+  }
+
   function linkHtml(l) {
     return (
       '<a href="' +
@@ -55,9 +62,7 @@
       '" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="' +
       escHtml(l.title) +
       '" data-full-load="1">' +
-      '<span class="text-2xl" aria-hidden="true">' +
-      l.icon +
-      '</span>' +
+      hubIcon(l) +
       '<span><span class="font-heading font-bold text-navy block">' +
       escHtml(l.title) +
       '</span>' +

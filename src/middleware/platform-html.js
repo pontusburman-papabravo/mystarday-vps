@@ -163,6 +163,7 @@ function injectParentMagicHtml(body, reqPath) {
 
   const cssBlock = [
     MAGIC_INJECT_MARKER,
+    '<link rel="stylesheet" href="/css/icon-system.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">',
@@ -170,6 +171,7 @@ function injectParentMagicHtml(body, reqPath) {
   ].join('\n');
 
   const scriptBlock = [
+    '<script src="/js/icon-system.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/app-view-mode.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/planning-back-nav.js?v=' + MAGIC_VERSION + '"><\/script>',
@@ -440,6 +442,7 @@ function injectPlatformHtml(body, reqPath, req) {
     headParts.push('<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">');
   }
   headParts.push(
+    '<link rel="stylesheet" href="/css/icon-system.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.9">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
@@ -454,6 +457,7 @@ function injectPlatformHtml(body, reqPath, req) {
     (androidSafe ? '' : '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n') +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/icon-system.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/nav-config.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     (androidSafe ? '' : '<script src="/js/referral-share.js?v=' + RELEASE_TAG + '"><\/script>\n') +
     '<script src="/js/parent-nav-icons.js?v=' + RELEASE_TAG + '"><\/script>\n' +

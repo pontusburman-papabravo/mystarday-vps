@@ -21,15 +21,22 @@
     return base + ' text-white hover:bg-navy-soft';
   }
 
+  function navIconMarkup(item) {
+    if (window.IconSystem && IconSystem.has(item.icon)) {
+      return IconSystem.nav(item.icon);
+    }
+    return item.icon + ' ';
+  }
+
   const primaryHtml = NavConfig.PRIMARY_NAV.map(function (item) {
     return '<li><a href="' + item.href + '" class="' + linkClass(item.id) + '">' +
-      item.icon + ' ' + item.label + '</a></li>';
+      navIconMarkup(item) + item.label + '</a></li>';
   }).join('');
 
   const settings = NavConfig.SETTINGS_NAV;
   const settingsHtml =
     '<li class="mt-4 pt-4 border-t border-navy-soft"><a href="' + settings.href + '" class="' +
-    linkClass('settings') + '">' + settings.icon + ' ' + settings.label + '</a></li>';
+    linkClass('settings') + '">' + navIconMarkup(settings) + settings.label + '</a></li>';
 
   const list = sidebar.querySelector('ul');
   if (list) {

@@ -11,35 +11,35 @@
       tab: 'standard',
       title: 'Standardscheman',
       subtitle: 'Färdiga mallar att kopiera',
-      icon: '📕',
+      icon: 'schema',
       iconClass: 'schedules',
     },
     activities: {
       tab: 'activities',
       title: 'Aktiviteter',
       subtitle: 'Dina aktiviteter — emoji eller eget foto',
-      icon: '📋',
+      icon: 'aktiviteter',
       iconClass: 'activities',
     },
     bilder: {
       tab: 'activities',
       title: 'Bildarkiv',
       subtitle: 'Egna foton — tandborste, säng, skola',
-      icon: '📷',
+      icon: 'redigera',
       iconClass: 'images',
     },
     rewards: {
       tab: 'rewards',
       title: 'Belöningar',
       subtitle: 'Mål barnen strävar mot',
-      icon: '🏆',
+      icon: 'trofe',
       iconClass: 'rewards',
     },
     mine: {
       tab: 'schema',
       title: 'Mina bibliotek',
-      subtitle: 'Egna scheman och mallar',
-      icon: '📁',
+      subtitle: 'Egna scheman och mallor',
+      icon: 'historik',
       iconClass: 'mine',
     },
   };
@@ -207,10 +207,17 @@
     }
   }
 
+  function sectionIcon(iconKey) {
+    if (window.IconSystem && IconSystem.has(iconKey)) {
+      return IconSystem.hub(iconKey);
+    }
+    return iconKey;
+  }
+
   function menuCard(key) {
     const s = SECTIONS[key];
     return '<button type="button" class="library-magic-menu-card magic-3d-card" data-library-section="' + key + '">' +
-      '<span class="library-magic-menu-icon ' + s.iconClass + '" aria-hidden="true">' + s.icon + '</span>' +
+      '<span class="library-magic-menu-icon ' + s.iconClass + '" aria-hidden="true">' + sectionIcon(s.icon) + '</span>' +
       '<span class="library-magic-menu-text"><strong>' + escHtml(s.title) + '</strong><span>' + escHtml(s.subtitle) + '</span></span>' +
       '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';
   }
@@ -238,7 +245,7 @@
     chrome.innerHTML =
       '<div class="library-magic-chrome">' +
       '<button type="button" class="library-magic-back" data-library-action="back" aria-label="Tillbaka">←</button>' +
-      '<div class="library-magic-chrome-title"><h2>' + escHtml(s.icon + ' ' + s.title) + '</h2><p>' + escHtml(s.subtitle) + '</p></div>' +
+      '<div class="library-magic-chrome-title"><h2 class="library-magic-chrome-heading">' + sectionIcon(s.icon) + '<span>' + escHtml(s.title) + '</span></h2><p>' + escHtml(s.subtitle) + '</p></div>' +
       actionHtml +
       '</div>';
 

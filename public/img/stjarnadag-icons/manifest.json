@@ -1,0 +1,463 @@
+{
+  "name": "Stjärndag Icon System",
+  "version": "1.0.0",
+  "format": "SVG",
+  "count": 65,
+  "icons": [
+    {
+      "name": "hem",
+      "category": "navigation",
+      "path": "navigation/hem.svg",
+      "purpose": "hem",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "schema",
+      "category": "navigation",
+      "path": "navigation/schema.svg",
+      "purpose": "schema",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "for-dig",
+      "category": "navigation",
+      "path": "navigation/for-dig.svg",
+      "purpose": "for dig",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "familj",
+      "category": "navigation",
+      "path": "navigation/familj.svg",
+      "purpose": "familj",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "aktiviteter",
+      "category": "navigation",
+      "path": "navigation/aktiviteter.svg",
+      "purpose": "aktiviteter",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "beloningar",
+      "category": "navigation",
+      "path": "navigation/beloningar.svg",
+      "purpose": "beloningar",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "installningar",
+      "category": "navigation",
+      "path": "navigation/installningar.svg",
+      "purpose": "installningar",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "notiser",
+      "category": "parent",
+      "path": "parent/notiser.svg",
+      "purpose": "notiser",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "tipsa",
+      "category": "parent",
+      "path": "parent/tipsa.svg",
+      "purpose": "tipsa",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "engangsaktivitet",
+      "category": "parent",
+      "path": "parent/engangsaktivitet.svg",
+      "purpose": "engangsaktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "aterkommande-aktivitet",
+      "category": "parent",
+      "path": "parent/aterkommande-aktivitet.svg",
+      "purpose": "aterkommande aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "registrera-i-efterhand",
+      "category": "parent",
+      "path": "parent/registrera-i-efterhand.svg",
+      "purpose": "registrera i efterhand",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "extra-stjarnor",
+      "category": "parent",
+      "path": "parent/extra-stjarnor.svg",
+      "purpose": "extra stjarnor",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "ta-bort-stjarnor",
+      "category": "parent",
+      "path": "parent/ta-bort-stjarnor.svg",
+      "purpose": "ta bort stjarnor",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "godkann-aktivitet",
+      "category": "parent",
+      "path": "parent/godkann-aktivitet.svg",
+      "purpose": "godkann aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "missad-aktivitet",
+      "category": "parent",
+      "path": "parent/missad-aktivitet.svg",
+      "purpose": "missad aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "lagg-till-aktivitet",
+      "category": "parent",
+      "path": "parent/lagg-till-aktivitet.svg",
+      "purpose": "lagg till aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "redigera-aktivitet",
+      "category": "parent",
+      "path": "parent/redigera-aktivitet.svg",
+      "purpose": "redigera aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "kopiera-aktivitet",
+      "category": "parent",
+      "path": "parent/kopiera-aktivitet.svg",
+      "purpose": "kopiera aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "flytta-aktivitet",
+      "category": "parent",
+      "path": "parent/flytta-aktivitet.svg",
+      "purpose": "flytta aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "ta-bort-aktivitet",
+      "category": "parent",
+      "path": "parent/ta-bort-aktivitet.svg",
+      "purpose": "ta bort aktivitet",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "statistik",
+      "category": "parent",
+      "path": "parent/statistik.svg",
+      "purpose": "statistik",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "framsteg",
+      "category": "parent",
+      "path": "parent/framsteg.svg",
+      "purpose": "framsteg",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "historik",
+      "category": "parent",
+      "path": "parent/historik.svg",
+      "purpose": "historik",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "rapport",
+      "category": "parent",
+      "path": "parent/rapport.svg",
+      "purpose": "rapport",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "barn",
+      "category": "parent",
+      "path": "parent/barn.svg",
+      "purpose": "barn",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "foralder",
+      "category": "parent",
+      "path": "parent/foralder.svg",
+      "purpose": "foralder",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "pedagog",
+      "category": "parent",
+      "path": "parent/pedagog.svg",
+      "purpose": "pedagog",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "bjud-in",
+      "category": "parent",
+      "path": "parent/bjud-in.svg",
+      "purpose": "bjud in",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "profil",
+      "category": "parent",
+      "path": "parent/profil.svg",
+      "purpose": "profil",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "support",
+      "category": "parent",
+      "path": "parent/support.svg",
+      "purpose": "support",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "skattkammaren",
+      "category": "rewards",
+      "path": "rewards/skattkammaren.svg",
+      "purpose": "skattkammaren",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "beloning",
+      "category": "rewards",
+      "path": "rewards/beloning.svg",
+      "purpose": "beloning",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "trofe",
+      "category": "rewards",
+      "path": "rewards/trofe.svg",
+      "purpose": "trofe",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "present",
+      "category": "rewards",
+      "path": "rewards/present.svg",
+      "purpose": "present",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "last-beloning",
+      "category": "rewards",
+      "path": "rewards/last-beloning.svg",
+      "purpose": "last beloning",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "upplast-beloning",
+      "category": "rewards",
+      "path": "rewards/upplast-beloning.svg",
+      "purpose": "upplast beloning",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "los-in",
+      "category": "rewards",
+      "path": "rewards/los-in.svg",
+      "purpose": "los in",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "stjarnsaldo",
+      "category": "rewards",
+      "path": "rewards/stjarnsaldo.svg",
+      "purpose": "stjarnsaldo",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "lagg-till",
+      "category": "shared",
+      "path": "shared/lagg-till.svg",
+      "purpose": "lagg till",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "ta-bort",
+      "category": "shared",
+      "path": "shared/ta-bort.svg",
+      "purpose": "ta bort",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "redigera",
+      "category": "shared",
+      "path": "shared/redigera.svg",
+      "purpose": "redigera",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "sok",
+      "category": "shared",
+      "path": "shared/sok.svg",
+      "purpose": "sok",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "filter",
+      "category": "shared",
+      "path": "shared/filter.svg",
+      "purpose": "filter",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "tillbaka",
+      "category": "shared",
+      "path": "shared/tillbaka.svg",
+      "purpose": "tillbaka",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "nasta",
+      "category": "shared",
+      "path": "shared/nasta.svg",
+      "purpose": "nasta",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "stang",
+      "category": "shared",
+      "path": "shared/stang.svg",
+      "purpose": "stang",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "bekrafta",
+      "category": "shared",
+      "path": "shared/bekrafta.svg",
+      "purpose": "bekrafta",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "info",
+      "category": "shared",
+      "path": "shared/info.svg",
+      "purpose": "info",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "hjalp",
+      "category": "shared",
+      "path": "shared/hjalp.svg",
+      "purpose": "hjalp",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "dela",
+      "category": "shared",
+      "path": "shared/dela.svg",
+      "purpose": "dela",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "kalender",
+      "category": "shared",
+      "path": "shared/kalender.svg",
+      "purpose": "kalender",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "klocka",
+      "category": "shared",
+      "path": "shared/klocka.svg",
+      "purpose": "klocka",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "morgon",
+      "category": "shared",
+      "path": "shared/morgon.svg",
+      "purpose": "morgon",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "dag",
+      "category": "shared",
+      "path": "shared/dag.svg",
+      "purpose": "dag",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "eftermiddag",
+      "category": "shared",
+      "path": "shared/eftermiddag.svg",
+      "purpose": "eftermiddag",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "kvall",
+      "category": "shared",
+      "path": "shared/kvall.svg",
+      "purpose": "kvall",
+      "themeOverrideAllowed": false
+    },
+    {
+      "name": "klar",
+      "category": "child-fallback",
+      "path": "child-fallback/klar.svg",
+      "purpose": "klar",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "inte-klar",
+      "category": "child-fallback",
+      "path": "child-fallback/inte-klar.svg",
+      "purpose": "inte klar",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "min-dag",
+      "category": "child-fallback",
+      "path": "child-fallback/min-dag.svg",
+      "purpose": "min dag",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "mina-stjarnor",
+      "category": "child-fallback",
+      "path": "child-fallback/mina-stjarnor.svg",
+      "purpose": "mina stjarnor",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "skattkammaren",
+      "category": "child-fallback",
+      "path": "child-fallback/skattkammaren.svg",
+      "purpose": "skattkammaren",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "profil",
+      "category": "child-fallback",
+      "path": "child-fallback/profil.svg",
+      "purpose": "profil",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "hjalp",
+      "category": "child-fallback",
+      "path": "child-fallback/hjalp.svg",
+      "purpose": "hjalp",
+      "themeOverrideAllowed": true
+    },
+    {
+      "name": "logga-ut",
+      "category": "child-fallback",
+      "path": "child-fallback/logga-ut.svg",
+      "purpose": "logga ut",
+      "themeOverrideAllowed": true
+    }
+  ]
+}

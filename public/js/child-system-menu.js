@@ -86,7 +86,7 @@
     btn.setAttribute('aria-label', 'Förälder');
     btn.setAttribute('aria-haspopup', 'menu');
     btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = '<span aria-hidden="true">⚙️</span><span>Förälder</span>';
+    btn.innerHTML = '<span aria-hidden="true">' + (window.IconSystem ? IconSystem.nav('installningar') : '⚙️') + '</span><span>Förälder</span>';
 
     const menu = document.createElement('div');
     menu.id = MENU_ID;
