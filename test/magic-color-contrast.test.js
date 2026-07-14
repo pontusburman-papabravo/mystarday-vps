@@ -24,8 +24,11 @@ describe('magic color contrast', () => {
     assert.match(css, /#childProfileTabBar \.child-profile-tab:not\(\.is-active\)/);
   });
 
-  it('bg-sky/95 is included in magic dark surface overrides', () => {
-    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
-    assert.match(css, /bg-sky\\\/95/);
+  it('icon-system adds light tiles for gradient icons on magic dark', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/icon-system.css'), 'utf8');
+    assert.match(css, /parent-quick-tile-icon/);
+    assert.match(css, /native-tab-bar \.tab-icon/);
+    assert.match(css, /magic-hub-links \.app-icon/);
+    assert.match(css, /rgba\(255, 255, 255, 0\.94\)/);
   });
 });
