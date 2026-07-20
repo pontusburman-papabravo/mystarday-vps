@@ -70,6 +70,7 @@ router.delete('/delete-account', requireParent, async (req, res) => {
     await client.query(`DELETE FROM pin_lockout WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM pin_notification_log WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM pin_audit_log WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`, [family_id]);
+    await client.query(`DELETE FROM schedule_date_exclusion WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`, [family_id]);
 
     await client.query(`DELETE FROM family_invite WHERE family_id = $1`, [family_id]);
     await client.query(`DELETE FROM pedagog_invite WHERE family_id = $1`, [family_id]);
@@ -81,10 +82,17 @@ router.delete('/delete-account', requireParent, async (req, res) => {
     await client.query(`DELETE FROM refresh_token WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM email_verification WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM password_reset WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
-    await client.query(`DELETE FROM waitlist WHERE family_id = $1`, [family_id]);
+    // waitlist is a public marketing signup table (no family_id) — never delete here.
+    await client.query(`DELETE FROM analytics_events WHERE family_id = $1`, [family_id]);
     await client.query(`DELETE FROM notification_preference WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM parent_child WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM parent_child WHERE child_id IN (SELECT id FROM child WHERE family_id = $1)`, [family_id]);
+    // parent_child.revoked_by is ON DELETE NO ACTION — clear before parent rows go away.
+    await client.query(
+      `UPDATE parent_child SET revoked_by = NULL
+       WHERE revoked_by IN (SELECT id FROM parent WHERE family_id = $1)`,
+      [family_id]
+    );
     await client.query(`DELETE FROM email_subscriptions WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
 
     await deleteAvatarsForFamily(family_id);
