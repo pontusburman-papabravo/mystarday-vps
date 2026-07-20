@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '26';
+const MAGIC_VERSION = '27';
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -164,6 +164,7 @@ function injectParentMagicHtml(body, reqPath) {
   const cssBlock = [
     MAGIC_INJECT_MARKER,
     '<link rel="stylesheet" href="/css/icon-system.css?v=' + MAGIC_VERSION + '">',
+    '<link rel="stylesheet" href="/css/stjarnadag-icons-v4.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">',
@@ -447,6 +448,7 @@ function injectPlatformHtml(body, reqPath, req) {
   }
   headParts.push(
     '<link rel="stylesheet" href="/css/icon-system.css?v=' + RELEASE_TAG + '">',
+    '<link rel="stylesheet" href="/css/stjarnadag-icons-v4.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.9">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',

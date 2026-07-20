@@ -1,4 +1,4 @@
-/* Stjärndag High Contrast Icon System v3.0 */
+/* Stjärndag Icon System — nav v4 Nordic Calm + chrome v3 */
 .app-icon {
   display: block;
   width: 2rem;
@@ -10,13 +10,13 @@
 }
 
 .app-icon--nav {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 .app-icon--header {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 .app-icon--hub {

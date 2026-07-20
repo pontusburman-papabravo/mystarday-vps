@@ -55,7 +55,19 @@ body.has-native-tab-bar .parent-bottom-nav {
 }
 
 .parent-bottom-nav-btn.is-active {
-  color: #ffcc33;
+  color: #d8b35d;
+}
+
+.parent-bottom-nav-btn:focus-visible {
+  outline: 2px solid #e3c36b;
+  outline-offset: 2px;
+  border-radius: 16px;
+}
+
+.parent-bottom-nav-btn:disabled,
+.parent-bottom-nav-btn[aria-disabled="true"] {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .parent-bottom-nav-btn:active {

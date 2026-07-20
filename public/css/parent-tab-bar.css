@@ -44,7 +44,19 @@
   }
 
   body.has-native-tab-bar .native-tab-bar .tab-item.active {
-    color: #007AFF;
+    color: #d8b35d;
+  }
+
+  body.has-native-tab-bar .native-tab-bar .tab-item:focus-visible {
+    outline: 2px solid #e3c36b;
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+
+  body.has-native-tab-bar .native-tab-bar .tab-item:disabled,
+  body.has-native-tab-bar .native-tab-bar .tab-item[aria-disabled="true"] {
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   /* Six-tab layout (Hem·Schema·För dig·Skatt·Extra·Mer) */
@@ -81,7 +93,7 @@
 
   html.dark body.has-native-tab-bar .native-tab-bar .tab-item.active,
   body.dark.has-native-tab-bar .native-tab-bar .tab-item.active {
-    color: #0A84FF;
+    color: #d8b35d;
   }
 
   /* Main content clearance above tab bar */

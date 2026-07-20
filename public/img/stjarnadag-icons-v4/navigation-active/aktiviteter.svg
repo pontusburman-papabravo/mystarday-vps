@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Aktiviteter">
+  <circle cx="16" cy="16" r="10.7" stroke="#F7F2E8" stroke-width="2.6"/>
+  <path d="M16 9.3v7.1l-5 3.3" stroke="#F7F2E8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M8.1 8.9 5.8 6.6M23.9 8.9l2.3-2.3" stroke="#D8B35D" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

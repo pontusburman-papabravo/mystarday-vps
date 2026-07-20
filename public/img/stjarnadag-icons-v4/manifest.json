@@ -1,0 +1,61 @@
+{
+  "name": "Stjärndag Nordic Calm UI Icons",
+  "version": "4.0.0",
+  "source": "Nordic Calm UI Icons v4 — replaces stjarnadag-icons v3 navigation",
+  "grid": "32x32",
+  "recommendedSizes": {
+    "bottomNavigation": "28-30px",
+    "topActions": "26-28px"
+  },
+  "theme": {
+    "cssVariables": {
+      "--msd-icon": "primary icon color",
+      "--msd-accent": "subtle category/state accent"
+    },
+    "inactive": {
+      "--msd-icon": "#B9B5AE",
+      "--msd-accent": "#8FA9A5"
+    },
+    "active": {
+      "--msd-icon": "#F7F2E8",
+      "--msd-accent": "#D8B35D"
+    }
+  },
+  "icons": [
+    {
+      "key": "hem",
+      "path": "navigation/hem.svg",
+      "label": "Hem"
+    },
+    {
+      "key": "schema",
+      "path": "navigation/schema.svg",
+      "label": "Planering"
+    },
+    {
+      "key": "aktiviteter",
+      "path": "navigation/aktiviteter.svg",
+      "label": "Aktiviteter"
+    },
+    {
+      "key": "beloningar",
+      "path": "navigation/beloningar.svg",
+      "label": "Belöningar"
+    },
+    {
+      "key": "for-dig",
+      "path": "navigation/for-dig.svg",
+      "label": "För dig"
+    },
+    {
+      "key": "familj",
+      "path": "navigation/familj.svg",
+      "label": "Familj"
+    },
+    {
+      "key": "installningar",
+      "path": "navigation/installningar.svg",
+      "label": "Inställningar"
+    }
+  ]
+}

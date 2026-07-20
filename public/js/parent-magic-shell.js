@@ -81,11 +81,13 @@
     const activeId = activeNavId();
     const items = getNavItems();
     nav.innerHTML = items.map(function (item) {
-      const active = item.id === activeId ? ' is-active' : '';
-      const aria = item.id === activeId ? ' aria-current="page"' : '';
+      const isActive = item.id === activeId;
+      const active = isActive ? ' is-active' : '';
+      const aria = isActive ? ' aria-current="page"' : '';
+      const iconItem = Object.assign({}, item, { active: isActive });
       return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '"' + aria + '>' +
         '<span class="parent-bottom-nav-icon" aria-hidden="true">' +
-        (window.IconSystem ? IconSystem.forItem(item, 24, 'app-icon app-icon--nav') : item.icon) +
+        (window.IconSystem ? IconSystem.forItem(iconItem, 28, 'app-icon app-icon--nav') : item.icon) +
         '</span>' +
         '<span>' + item.label + '</span></a>';
     }).join('');

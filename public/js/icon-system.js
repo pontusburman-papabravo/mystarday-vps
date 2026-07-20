@@ -1,11 +1,24 @@
 /**
- * icon-system.js — Stjärndag High Contrast Icon System v3.0
- * Assets: public/img/stjarnadag-icons/ (manifest.json)
+ * icon-system.js — Stjärndag Icon System
+ * Nav (v4 Nordic Calm): public/img/stjarnadag-icons-v4/
+ * Parent / rewards / shared / child-fallback (v3): public/img/stjarnadag-icons/
  */
 (function () {
   'use strict';
 
-  const BASE = '/img/stjarnadag-icons/';
+  const BASE_V3 = '/img/stjarnadag-icons/';
+  const BASE_V4 = '/img/stjarnadag-icons-v4/';
+
+  /** Bottom-nav destinations with unique v4 geometry + active/inactive assets. */
+  const NAV_V4_KEYS = {
+    hem: true,
+    schema: true,
+    'for-dig': true,
+    familj: true,
+    aktiviteter: true,
+    beloningar: true,
+    installningar: true,
+  };
 
   const PATHS = {
     hem: 'navigation/hem.svg',
@@ -83,8 +96,8 @@
   };
 
   const SIZES = {
-    nav: 30,
-    header: 30,
+    nav: 28,
+    header: 28,
     hub: 44,
     hero: 48,
     childNav: 32,
@@ -94,14 +107,23 @@
     return !!(name && PATHS[name]);
   }
 
-  function url(name) {
-    const path = PATHS[name];
-    return path ? BASE + path : null;
+  function isNavV4(name) {
+    return !!(name && NAV_V4_KEYS[name]);
+  }
+
+  function url(name, opts) {
+    opts = opts || {};
+    if (!PATHS[name]) return null;
+    if (isNavV4(name)) {
+      const folder = opts.active ? 'navigation-active/' : 'navigation-inactive/';
+      return BASE_V4 + folder + name + '.svg';
+    }
+    return BASE_V3 + PATHS[name];
   }
 
   function render(name, opts) {
     opts = opts || {};
-    const src = url(name);
+    const src = url(name, opts);
     if (!src) {
       return opts.fallback != null ? String(opts.fallback) : '';
     }
@@ -109,17 +131,21 @@
     const cls = opts.className || 'app-icon';
     const alt = opts.alt != null ? String(opts.alt) : '';
     const hidden = opts.decorative !== false ? ' aria-hidden="true"' : '';
+    const stateClass = isNavV4(name)
+      ? (opts.active ? ' app-icon--nav-active' : ' app-icon--nav-inactive')
+      : '';
     return (
-      '<img src="' + src + '" class="' + cls + '" width="' + size + '" height="' + size + '"' +
+      '<img src="' + src + '" class="' + cls + stateClass + '" width="' + size + '" height="' + size + '"' +
       ' alt="' + alt + '" decoding="async"' + hidden + '>'
     );
   }
 
-  function nav(name, fallback) {
+  function nav(name, fallback, active) {
     return render(name, {
       size: SIZES.nav,
       className: 'app-icon app-icon--nav',
       fallback: fallback,
+      active: !!active,
     });
   }
 
@@ -154,6 +180,7 @@
       return render(key, {
         size: size || SIZES.nav,
         className: className || 'app-icon app-icon--nav',
+        active: !!(item.active || item.isActive),
       });
     }
     return key || '';
@@ -169,10 +196,14 @@
   }
 
   window.IconSystem = {
-    BASE: BASE,
+    BASE: BASE_V3,
+    BASE_V3: BASE_V3,
+    BASE_V4: BASE_V4,
     PATHS: PATHS,
+    NAV_V4_KEYS: NAV_V4_KEYS,
     SIZES: SIZES,
     has: has,
+    isNavV4: isNavV4,
     url: url,
     render: render,
     nav: nav,

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Planering">
+  <rect x="5.1" y="6.8" width="21.8" height="20.1" rx="4"
+        stroke="var(--msd-icon, #B9B5AE)" stroke-width="2.6"/>
+  <path d="M10 4.8v4.1M22 4.8v4.1M5.4 12.2h21.2"
+        stroke="var(--msd-icon, #B9B5AE)" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="m10.2 18.5 2.3 2.3 4.2-4.5M18.9 19.1h4"
+        stroke="var(--msd-accent, #8FA9A5)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

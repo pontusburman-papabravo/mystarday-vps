@@ -1,0 +1,43 @@
+/* Stjärndag UI Icons v4 — Nordic Calm */
+:root {
+  --msd-nav-bg: #0B0A21;
+  --msd-nav-icon: #B9B5AE;
+  --msd-nav-icon-active: #F7F2E8;
+  --msd-nav-accent: #8FA9A5;
+  --msd-nav-accent-active: #D8B35D;
+  --msd-nav-active-surface: #2B2A42;
+  --msd-nav-focus: #E3C36B;
+}
+
+.msd-bottom-nav {
+  background: var(--msd-nav-bg);
+  border-top: 1px solid rgb(216 179 93 / 18%);
+}
+
+.msd-bottom-nav__item {
+  --msd-icon: var(--msd-nav-icon);
+  --msd-accent: var(--msd-nav-accent);
+  color: #9f9ba8;
+  min-width: 48px;
+  min-height: 56px;
+  border-radius: 16px;
+}
+
+.msd-bottom-nav__item[aria-current="page"],
+.msd-bottom-nav__item.is-active {
+  --msd-icon: var(--msd-nav-icon-active);
+  --msd-accent: var(--msd-nav-accent-active);
+  color: var(--msd-nav-accent-active);
+  background: var(--msd-nav-active-surface);
+}
+
+.msd-bottom-nav__item:focus-visible {
+  outline: 2px solid var(--msd-nav-focus);
+  outline-offset: 2px;
+}
+
+.msd-bottom-nav__icon {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
