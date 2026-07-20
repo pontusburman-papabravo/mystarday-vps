@@ -254,6 +254,63 @@ const PICTOGRAMS = [
 
 const VALID_KEYS = new Set(PICTOGRAMS.map((p) => p.key));
 
+/** Schedule names that may not match pictogram label exactly (longest first). */
+const EXTRA_NAME_TO_KEY = [
+  ['plocka undan leksaker', 'toy'],
+  ['gå ut och leka', 'playground'],
+  ['ta på ytterkläder', 'coat'],
+  ['borsta tänderna', 'brush_teeth'],
+  ['tvätta händerna', 'wash_hands'],
+  ['tvätta ansiktet', 'wash_hands'],
+  ['ta på pyjamas', 'pajamas'],
+  ['packa väskan', 'pack_bag'],
+  ['gå hemifrån', 'walk'],
+  ['dricka vatten', 'drink'],
+  ['lugn stund', 'quiet'],
+  ['klä på sig', 'dress'],
+  ['kamma håret', 'hair_brush'],
+  ['kvällsaktivitet', 'screen'],
+  ['äta frukt', 'snack'],
+  ['laga mat', 'kitchen'],
+  ['åka bil', 'car'],
+];
+
+function normalizeActivityName(name) {
+  return String(name || '')
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+const NAME_MATCHERS = (function buildNameMatchers() {
+  const rows = [];
+  PICTOGRAMS.forEach((p) => rows.push([p.label.toLowerCase(), p.key]));
+  EXTRA_NAME_TO_KEY.forEach(([name, key]) => {
+    if (VALID_KEYS.has(key)) rows.push([name, key]);
+  });
+  rows.sort((a, b) => b[0].length - a[0].length);
+  return rows;
+}());
+
+function inferPictogramKey(row) {
+  if (!row) return null;
+  if (row.icon_key && VALID_KEYS.has(row.icon_key)) return row.icon_key;
+  const name = normalizeActivityName(row.name);
+  if (name) {
+    for (let i = 0; i < NAME_MATCHERS.length; i++) {
+      const pattern = NAME_MATCHERS[i][0];
+      const key = NAME_MATCHERS[i][1];
+      if (name === pattern || name.includes(pattern)) return key;
+    }
+  }
+  const icon = String(row.icon || '').trim();
+  if (icon) {
+    const matches = PICTOGRAMS.filter((p) => p.emoji === icon);
+    if (matches.length === 1) return matches[0].key;
+  }
+  return null;
+}
+
 function designKitIconName(key) {
   return DESIGN_KIT_BY_KEY[key] || null;
 }
@@ -297,12 +354,17 @@ function listPictogramsForApi() {
 
 function enrichPictogramFields(row) {
   if (!row || row.image_url) return row;
-  if (!row.icon_key) return row;
-  const pic = getPictogram(row.icon_key);
+  const key = (row.icon_key && VALID_KEYS.has(row.icon_key))
+    ? row.icon_key
+    : inferPictogramKey(row);
+  if (!key) return row;
+  const pic = getPictogram(key);
   if (!pic) return row;
+  const url = designKitIconPath(key);
+  if (!url) return row;
   return Object.assign({}, row, {
     pictogram_emoji: pic.emoji,
-    pictogram_url: pic.imagePath || pictogramImagePath(pic.key),
+    pictogram_url: url,
   });
 }
 
@@ -315,6 +377,7 @@ module.exports = {
   PICTOGRAM_IMAGE_BASE,
   DESIGN_KIT_ICON_BASE,
   DESIGN_KIT_BY_KEY,
+  inferPictogramKey,
   getPictogram,
   isValidPictogramKey,
   validatePictogramKey,

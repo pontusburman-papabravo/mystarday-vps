@@ -11,6 +11,7 @@ const {
   validatePictogramKey,
   listPictogramsForApi,
   enrichPictogramFields,
+  inferPictogramKey,
 } = require('../config/pictogram-library');
 const { CreateActivitySchema } = require('../src/lib/schemas');
 
@@ -60,6 +61,18 @@ describe('bildstöd core — pictogram library', () => {
     assert.match(enriched.pictogram_url, /borsta-tanderna\.svg$/);
     const withPhoto = enrichPictogramFields({ icon_key: 'brush_teeth', image_url: '/uploads/x.jpg' });
     assert.equal(withPhoto.pictogram_emoji, undefined);
+  });
+
+  it('inferPictogramKey matches legacy schedule names without icon_key', () => {
+    assert.equal(inferPictogramKey({ name: 'Borsta tänderna (kväll)', icon: '🪥' }), 'brush_teeth');
+    assert.equal(inferPictogramKey({ name: 'Pyjamas', icon: '🧸' }), 'pajamas');
+    assert.equal(inferPictogramKey({ name: 'Okänd grej', icon: '❓' }), null);
+  });
+
+  it('enrichPictogramFields infers design kit URL for legacy activities', () => {
+    const enriched = enrichPictogramFields({ name: 'Frukost', icon: '🥣' });
+    assert.match(enriched.pictogram_url, /frukost\.svg$/);
+    assert.equal(enriched.pictogram_emoji, '🥣');
   });
 });
 
