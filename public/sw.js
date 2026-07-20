@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v641';
+const CACHE_NAME = 'stjarndag-v642';
+// stjarndag-v642: icon-system v4 only — hub/chrome/child assets, no v3 fallback
 // stjarndag-v641: v4 chrome notiser bell (warm gray + gold, not white v3)
 // stjarndag-v640: Quick Actions v4 — Hem snabbvalskort (Nordic Calm)
 // stjarndag-v639: revert Design Kit legacy inference — keep v4 nav only

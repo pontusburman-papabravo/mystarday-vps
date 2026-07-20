@@ -1,13 +1,11 @@
 /**
- * icon-system.js — Stjärndag Icon System
- * Nav (v4 Nordic Calm): public/img/stjarnadag-icons-v4/
- * Hem quick actions (v4): public/img/stjarnadag-quick-actions-v4/
- * Parent / rewards / shared / child-fallback (v3): public/img/stjarnadag-icons/
+ * icon-system.js — Stjärndag Icon System (v4 only)
+ * Nav: public/img/stjarnadag-icons-v4/
+ * Hem quick actions: public/img/stjarnadag-quick-actions-v4/
  */
 (function () {
   'use strict';
 
-  const BASE_V3 = '/img/stjarnadag-icons/';
   const BASE_V4 = '/img/stjarnadag-icons-v4/';
   const BASE_QA_V4 = '/img/stjarnadag-quick-actions-v4/';
 
@@ -22,9 +20,41 @@
     installningar: true,
   };
 
-  /** Header chrome — Nordic Calm v4 (not v3 white-glow parent icons). */
+  /** Keys that reuse a nav icon (inactive) on hub/header surfaces. */
+  const NAV_ALIASES = {
+    beloning: 'beloningar',
+  };
+
+  /** Header chrome — Nordic Calm v4. */
   const CHROME_V4_KEYS = {
     notiser: true,
+    tipsa: true,
+  };
+
+  /** Hub cards and secondary parent surfaces. */
+  const HUB_V4_KEYS = {
+    kalender: true,
+    historik: true,
+    rapport: true,
+    redigera: true,
+    'kopiera-aktivitet': true,
+    pedagog: true,
+    support: true,
+    profil: true,
+    info: true,
+    barn: true,
+    statistik: true,
+    skattkammaren: true,
+    trofe: true,
+    dag: true,
+  };
+
+  /** Child bottom-nav fallback icons (v4). */
+  const CHILD_V4_KEYS = {
+    'min-dag': true,
+    'mina-stjarnor': true,
+    skattkammaren: true,
+    profil: true,
   };
 
   /** Hem snabbåtgärder — Nordic Calm v4 (dark / dark-active / light SVG folders). */
@@ -35,79 +65,16 @@
     'ledig-dag': 'ledig-dag.svg',
   };
 
-  const PATHS = {
-    hem: 'navigation/hem.svg',
-    schema: 'navigation/schema.svg',
-    'for-dig': 'navigation/for-dig.svg',
-    familj: 'navigation/familj.svg',
-    aktiviteter: 'navigation/aktiviteter.svg',
-    beloningar: 'navigation/beloningar.svg',
-    installningar: 'navigation/installningar.svg',
-    notiser: 'parent/notiser.svg',
-    tipsa: 'parent/tipsa.svg',
-    engangsaktivitet: 'parent/engangsaktivitet.svg',
-    'aterkommande-aktivitet': 'parent/aterkommande-aktivitet.svg',
-    'registrera-i-efterhand': 'parent/registrera-i-efterhand.svg',
-    'extra-stjarnor': 'parent/extra-stjarnor.svg',
-    'ta-bort-stjarnor': 'parent/ta-bort-stjarnor.svg',
-    'godkann-aktivitet': 'parent/godkann-aktivitet.svg',
-    'missad-aktivitet': 'parent/missad-aktivitet.svg',
-    'lagg-till-aktivitet': 'parent/lagg-till-aktivitet.svg',
-    'redigera-aktivitet': 'parent/redigera-aktivitet.svg',
-    'kopiera-aktivitet': 'parent/kopiera-aktivitet.svg',
-    'flytta-aktivitet': 'parent/flytta-aktivitet.svg',
-    'ta-bort-aktivitet': 'parent/ta-bort-aktivitet.svg',
-    statistik: 'parent/statistik.svg',
-    framsteg: 'parent/framsteg.svg',
-    historik: 'parent/historik.svg',
-    rapport: 'parent/rapport.svg',
-    barn: 'parent/barn.svg',
-    foralder: 'parent/foralder.svg',
-    pedagog: 'parent/pedagog.svg',
-    'bjud-in': 'parent/bjud-in.svg',
-    profil: 'parent/profil.svg',
-    support: 'parent/support.svg',
-    skattkammaren: 'rewards/skattkammaren.svg',
-    beloning: 'rewards/beloning.svg',
-    trofe: 'rewards/trofe.svg',
-    present: 'rewards/present.svg',
-    'last-beloning': 'rewards/last-beloning.svg',
-    'upplast-beloning': 'rewards/upplast-beloning.svg',
-    'los-in': 'rewards/los-in.svg',
-    stjarnsaldo: 'rewards/stjarnsaldo.svg',
-    'lagg-till': 'shared/lagg-till.svg',
-    'ta-bort': 'shared/ta-bort.svg',
-    redigera: 'shared/redigera.svg',
-    sok: 'shared/sok.svg',
-    filter: 'shared/filter.svg',
-    tillbaka: 'shared/tillbaka.svg',
-    nasta: 'shared/nasta.svg',
-    stang: 'shared/stang.svg',
-    bekrafta: 'shared/bekrafta.svg',
-    info: 'shared/info.svg',
-    hjalp: 'shared/hjalp.svg',
-    dela: 'shared/dela.svg',
-    kalender: 'shared/kalender.svg',
-    klocka: 'shared/klocka.svg',
-    morgon: 'shared/morgon.svg',
-    dag: 'shared/dag.svg',
-    eftermiddag: 'shared/eftermiddag.svg',
-    kvall: 'shared/kvall.svg',
-    klar: 'child-fallback/klar.svg',
-    'inte-klar': 'child-fallback/inte-klar.svg',
-    'min-dag': 'child-fallback/min-dag.svg',
-    'mina-stjarnor': 'child-fallback/mina-stjarnor.svg',
-    'child-skattkammaren': 'child-fallback/skattkammaren.svg',
-    'child-profil': 'child-fallback/profil.svg',
-    'child-hjalp': 'child-fallback/hjalp.svg',
-    'logga-ut': 'child-fallback/logga-ut.svg',
-  };
-
   const CHILD_THEME_KEYS = {
     today: 'min-dag',
     collection: 'mina-stjarnor',
-    treasure: 'child-skattkammaren',
-    family: 'child-profil',
+    treasure: 'skattkammaren',
+    family: 'profil',
+  };
+
+  const CHILD_KEY_ALIASES = {
+    'child-skattkammaren': 'skattkammaren',
+    'child-profil': 'profil',
   };
 
   const SIZES = {
@@ -119,8 +86,17 @@
     childNav: 32,
   };
 
-  function has(name) {
-    return isQuickActionV4(name) || isChromeV4(name) || !!(name && PATHS[name]);
+  function resolveNavKey(name) {
+    if (!name) return null;
+    if (NAV_V4_KEYS[name]) return name;
+    if (NAV_ALIASES[name]) return NAV_ALIASES[name];
+    return null;
+  }
+
+  function resolveChildKey(name) {
+    if (!name) return null;
+    const aliased = CHILD_KEY_ALIASES[name] || name;
+    return CHILD_V4_KEYS[aliased] ? aliased : null;
   }
 
   function isChromeV4(name) {
@@ -132,7 +108,28 @@
   }
 
   function isNavV4(name) {
-    return !!(name && NAV_V4_KEYS[name]);
+    return !!resolveNavKey(name);
+  }
+
+  function isHubV4(name) {
+    return !!(name && HUB_V4_KEYS[name]);
+  }
+
+  function isChildV4(name) {
+    return !!resolveChildKey(name);
+  }
+
+  function has(name) {
+    return isQuickActionV4(name)
+      || isChromeV4(name)
+      || isNavV4(name)
+      || isHubV4(name)
+      || isChildV4(name);
+  }
+
+  function navUrl(navKey, active) {
+    const folder = active ? 'navigation-active/' : 'navigation-inactive/';
+    return BASE_V4 + folder + navKey + '.svg';
   }
 
   function url(name, opts) {
@@ -146,12 +143,18 @@
       const theme = opts.active ? 'dark-active' : (opts.theme || 'dark');
       return BASE_QA_V4 + 'svg/' + theme + '/' + file;
     }
-    if (!PATHS[name]) return null;
-    if (isNavV4(name)) {
-      const folder = opts.active ? 'navigation-active/' : 'navigation-inactive/';
-      return BASE_V4 + folder + name + '.svg';
+    const navKey = resolveNavKey(name);
+    if (navKey) {
+      return navUrl(navKey, !!opts.active);
     }
-    return BASE_V3 + PATHS[name];
+    if (isHubV4(name)) {
+      return BASE_V4 + 'hub/' + name + '.svg';
+    }
+    const childKey = resolveChildKey(name);
+    if (childKey) {
+      return BASE_V4 + 'child/' + childKey + '.svg';
+    }
+    return null;
   }
 
   function render(name, opts) {
@@ -243,19 +246,22 @@
   }
 
   window.IconSystem = {
-    BASE: BASE_V3,
-    BASE_V3: BASE_V3,
+    BASE: BASE_V4,
     BASE_V4: BASE_V4,
     BASE_QA_V4: BASE_QA_V4,
-    PATHS: PATHS,
     NAV_V4_KEYS: NAV_V4_KEYS,
+    NAV_ALIASES: NAV_ALIASES,
     CHROME_V4_KEYS: CHROME_V4_KEYS,
+    HUB_V4_KEYS: HUB_V4_KEYS,
+    CHILD_V4_KEYS: CHILD_V4_KEYS,
     QUICK_ACTION_V4: QUICK_ACTION_V4,
     SIZES: SIZES,
     has: has,
     isChromeV4: isChromeV4,
     isQuickActionV4: isQuickActionV4,
     isNavV4: isNavV4,
+    isHubV4: isHubV4,
+    isChildV4: isChildV4,
     url: url,
     render: render,
     nav: nav,

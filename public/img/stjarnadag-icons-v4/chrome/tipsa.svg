@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Tipsa">
+  <path d="M16 6.5a7.5 7.5 0 0 0-7.5 7.5c0 4.1 2.4 6.2 4.8 8.5H18.7c2.4-2.3 4.8-4.4 4.8-8.5A7.5 7.5 0 0 0 16 6.5Z"
+        stroke="#B9B5AE" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M13.2 24.8h5.6M14.2 27.4h3.6"
+        stroke="#B9B5AE" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="m13.5 15.2 2.5 2.5 2.5-5"
+        stroke="#8FA9A5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="23.5" cy="8.5" r="2.2" fill="#D8B35D"/>
+</svg>

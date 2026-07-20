@@ -15,14 +15,17 @@ function loadIconSystem() {
   return ctx.window.IconSystem;
 }
 
-describe('icon-system v4 nav + v3 chrome', () => {
-  it('icon-system.js exposes render helpers and nav keys', () => {
+describe('icon-system v4 only', () => {
+  it('icon-system.js exposes v4 helpers without v3 fallback', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/icon-system.js'), 'utf8');
     assert.match(src, /window\.IconSystem/);
     assert.match(src, /BASE_V4/);
     assert.match(src, /navigation-active/);
     assert.match(src, /navigation-inactive/);
-    assert.match(src, /notiser: 'parent\/notiser\.svg'/);
+    assert.match(src, /HUB_V4_KEYS/);
+    assert.match(src, /CHROME_V4_KEYS/);
+    assert.doesNotMatch(src, /BASE_V3/);
+    assert.doesNotMatch(src, /stjarnadag-icons\//);
     assert.match(src, /childFallback/);
   });
 
@@ -44,24 +47,6 @@ describe('icon-system v4 nav + v3 chrome', () => {
     assert.ok(iconIdx > -1 && navIdx > iconIdx);
     assert.match(src, /icon-system\.css/);
     assert.match(src, /stjarnadag-icons-v4\.css/);
-  });
-
-  it('v3 chrome manifest remains readable', () => {
-    const manifest = JSON.parse(
-      fs.readFileSync(path.join(ROOT, 'public/img/stjarnadag-icons/manifest.json'), 'utf8')
-    );
-    assert.equal(manifest.version, '3.0.0');
-    assert.ok(manifest.icons.length >= 60);
-  });
-
-  it('v3 chrome manifest icons exist on disk', () => {
-    const manifest = JSON.parse(
-      fs.readFileSync(path.join(ROOT, 'public/img/stjarnadag-icons/manifest.json'), 'utf8')
-    );
-    for (const entry of manifest.icons) {
-      const filePath = path.join(ROOT, 'public/img/stjarnadag-icons', entry.path);
-      assert.ok(fs.existsSync(filePath), 'missing ' + entry.path);
-    }
   });
 
   it('v4 nav manifest ships 7 unique keys with active/inactive assets', () => {
@@ -90,7 +75,20 @@ describe('icon-system v4 nav + v3 chrome', () => {
     }
   });
 
-  it('IconSystem resolves v4 active/inactive nav URLs and keeps v3 for chrome', () => {
+  it('v4 hub and chrome assets exist for parent surfaces', () => {
+    const hubKeys = [
+      'kalender', 'historik', 'rapport', 'redigera', 'kopiera-aktivitet', 'pedagog',
+      'support', 'profil', 'info', 'barn', 'statistik', 'skattkammaren', 'trofe', 'dag',
+    ];
+    for (const key of hubKeys) {
+      const filePath = path.join(ROOT, 'public/img/stjarnadag-icons-v4/hub', key + '.svg');
+      assert.ok(fs.existsSync(filePath), 'missing hub ' + key);
+    }
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/img/stjarnadag-icons-v4/chrome/tipsa.svg')));
+    assert.ok(fs.existsSync(path.join(ROOT, 'public/img/stjarnadag-icons-v4/chrome/notiser.svg')));
+  });
+
+  it('IconSystem resolves v4 URLs only (nav, chrome, hub, quick actions)', () => {
     const IconSystem = loadIconSystem();
     assert.equal(
       IconSystem.url('hem'),
@@ -108,7 +106,19 @@ describe('icon-system v4 nav + v3 chrome', () => {
       IconSystem.url('notiser', { active: true }),
       '/img/stjarnadag-icons-v4/chrome/notiser-active.svg'
     );
-    assert.equal(IconSystem.url('tipsa'), '/img/stjarnadag-icons/parent/tipsa.svg');
+    assert.equal(
+      IconSystem.url('tipsa'),
+      '/img/stjarnadag-icons-v4/chrome/tipsa.svg'
+    );
+    assert.equal(
+      IconSystem.url('kalender'),
+      '/img/stjarnadag-icons-v4/hub/kalender.svg'
+    );
+    assert.equal(
+      IconSystem.url('beloning'),
+      '/img/stjarnadag-icons-v4/navigation-inactive/beloningar.svg'
+    );
+    assert.equal(IconSystem.url('unknown-key'), null);
     assert.equal(IconSystem.SIZES.nav, 28);
     const html = IconSystem.forItem({ icon: 'schema', active: true }, 28, 'app-icon app-icon--nav');
     assert.match(html, /navigation-active\/schema\.svg/);
@@ -122,6 +132,12 @@ describe('icon-system v4 nav + v3 chrome', () => {
     const tabs = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
     assert.match(tabs, /active:\s*active/);
     assert.match(tabs, /IconSystem\.forItem\(Object\.assign\(\{\}, tab, \{ active: active \}\),\s*28/);
+  });
+
+  it('mobile sidebar Tipsa uses header chrome icon', () => {
+    const mobileNav = fs.readFileSync(path.join(ROOT, 'public/js/mobile-nav.js'), 'utf8');
+    assert.match(mobileNav, /IconSystem\.header\('tipsa'\)/);
+    assert.doesNotMatch(mobileNav, /IconSystem\.nav\('tipsa'\)/);
   });
 
   it('quick actions v4 manifest ships four keys with dark assets', () => {
@@ -153,5 +169,12 @@ describe('icon-system v4 nav + v3 chrome', () => {
     assert.match(html, /app-icon--quick-action/);
     assert.match(html, /engangsaktivitet\.svg/);
     assert.match(html, /width="48"/);
+  });
+
+  it('child fallback resolves v4 child assets', () => {
+    const IconSystem = loadIconSystem();
+    const html = IconSystem.childFallback('today');
+    assert.match(html, /child\/min-dag\.svg/);
+    assert.equal(IconSystem.url('child-skattkammaren'), '/img/stjarnadag-icons-v4/child/skattkammaren.svg');
   });
 });

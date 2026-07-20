@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Barn">
+  <circle cx="16" cy="11.2" r="5.2" stroke="#B9B5AE" stroke-width="2.5"/>
+  <path d="M7.2 25.2c1.4-5.8 4.6-8.6 8.8-8.6s7.4 2.8 8.8 8.6"
+        stroke="#B9B5AE" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M11.8 10.2c.8 1.4 2.2 2.2 4.2 2.2"
+        stroke="#8FA9A5" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

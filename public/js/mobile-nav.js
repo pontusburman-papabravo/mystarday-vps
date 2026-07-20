@@ -293,7 +293,7 @@
       var sidebarShareBtn = document.createElement('button');
       sidebarShareBtn.className = 'sidebar-share-btn w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2';
       sidebarShareBtn.type = 'button';
-      sidebarShareBtn.innerHTML = (window.IconSystem ? IconSystem.nav('tipsa') : (window.ParentNavIcons ? ParentNavIcons.tipsa : '💡')) + ' Tipsa en familj!';
+      sidebarShareBtn.innerHTML = (window.IconSystem ? IconSystem.header('tipsa') : (window.ParentNavIcons ? ParentNavIcons.tipsa : '💡')) + ' Tipsa en familj!';
       // Insert as first child of the footer section
       sidebarFooter.insertBefore(sidebarShareBtn, sidebarFooter.firstChild);
     }

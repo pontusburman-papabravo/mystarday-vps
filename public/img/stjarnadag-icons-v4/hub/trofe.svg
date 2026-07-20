@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Trofé">
+  <path d="M10.2 8.8h11.6v5.4c0 3.8-2.6 6.8-5.8 6.8s-5.8-3-5.8-6.8V8.8Z"
+        stroke="#B9B5AE" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M8.2 10.2H6.2a2 2 0 0 0-2 2v1.2a2 2 0 0 0 2 2h2M23.8 10.2h2a2 2 0 0 1 2 2v1.2a2 2 0 0 1-2 2h-2"
+        stroke="#B9B5AE" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M12.8 24.8h6.4M16 20.8v4"
+        stroke="#8FA9A5" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

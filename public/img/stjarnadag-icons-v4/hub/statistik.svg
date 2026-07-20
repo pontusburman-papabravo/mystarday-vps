@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Statistik">
+  <path d="M7.2 24.8V18M12.8 24.8V12.8M18.4 24.8V16M24 24.8V9.2"
+        stroke="#B9B5AE" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M6.2 24.8h19.6"
+        stroke="#B9B5AE" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M20.8 11.2 24 9.2l-1.8 3.8"
+        stroke="#8FA9A5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
