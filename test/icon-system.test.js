@@ -100,7 +100,15 @@ describe('icon-system v4 nav + v3 chrome', () => {
       IconSystem.url('hem', { active: true }),
       '/img/stjarnadag-icons-v4/navigation-active/hem.svg'
     );
-    assert.equal(IconSystem.url('notiser'), '/img/stjarnadag-icons/parent/notiser.svg');
+    assert.equal(
+      IconSystem.url('notiser'),
+      '/img/stjarnadag-icons-v4/chrome/notiser.svg'
+    );
+    assert.equal(
+      IconSystem.url('notiser', { active: true }),
+      '/img/stjarnadag-icons-v4/chrome/notiser-active.svg'
+    );
+    assert.equal(IconSystem.url('tipsa'), '/img/stjarnadag-icons/parent/tipsa.svg');
     assert.equal(IconSystem.SIZES.nav, 28);
     const html = IconSystem.forItem({ icon: 'schema', active: true }, 28, 'app-icon app-icon--nav');
     assert.match(html, /navigation-active\/schema\.svg/);

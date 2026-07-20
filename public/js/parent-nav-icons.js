@@ -9,5 +9,8 @@
     settings: IconSystem.header('installningar'),
     tipsa: IconSystem.header('tipsa'),
     share: IconSystem.header('tipsa'),
+    renderNotiser: function (active) {
+      return IconSystem.header('notiser', undefined, active);
+    },
   };
 })();

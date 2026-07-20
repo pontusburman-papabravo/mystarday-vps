@@ -22,6 +22,11 @@
     installningar: true,
   };
 
+  /** Header chrome — Nordic Calm v4 (not v3 white-glow parent icons). */
+  const CHROME_V4_KEYS = {
+    notiser: true,
+  };
+
   /** Hem snabbåtgärder — Nordic Calm v4 (dark / dark-active / light SVG folders). */
   const QUICK_ACTION_V4 = {
     'registrera-i-efterhand': 'i-efterhand.svg',
@@ -115,7 +120,11 @@
   };
 
   function has(name) {
-    return isQuickActionV4(name) || !!(name && PATHS[name]);
+    return isQuickActionV4(name) || isChromeV4(name) || !!(name && PATHS[name]);
+  }
+
+  function isChromeV4(name) {
+    return !!(name && CHROME_V4_KEYS[name]);
   }
 
   function isQuickActionV4(name) {
@@ -128,6 +137,10 @@
 
   function url(name, opts) {
     opts = opts || {};
+    if (isChromeV4(name)) {
+      const file = opts.active ? name + '-active.svg' : name + '.svg';
+      return BASE_V4 + 'chrome/' + file;
+    }
     if (isQuickActionV4(name)) {
       const file = QUICK_ACTION_V4[name];
       const theme = opts.active ? 'dark-active' : (opts.theme || 'dark');
@@ -153,9 +166,11 @@
     const hidden = opts.decorative !== false ? ' aria-hidden="true"' : '';
     const stateClass = isNavV4(name)
       ? (opts.active ? ' app-icon--nav-active' : ' app-icon--nav-inactive')
-      : isQuickActionV4(name)
-        ? (opts.active ? ' app-icon--quick-active' : ' app-icon--quick-default')
-        : '';
+      : isChromeV4(name)
+        ? (opts.active ? ' app-icon--chrome-active' : ' app-icon--chrome-default')
+        : isQuickActionV4(name)
+          ? (opts.active ? ' app-icon--quick-active' : ' app-icon--quick-default')
+          : '';
     return (
       '<img src="' + src + '" class="' + cls + stateClass + '" width="' + size + '" height="' + size + '"' +
       ' alt="' + alt + '" decoding="async"' + hidden + '>'
@@ -171,11 +186,12 @@
     });
   }
 
-  function header(name, fallback) {
+  function header(name, fallback, active) {
     return render(name, {
       size: SIZES.header,
       className: 'parent-hub-icon-img app-icon app-icon--header',
       fallback: fallback,
+      active: !!active,
     });
   }
 
@@ -233,9 +249,11 @@
     BASE_QA_V4: BASE_QA_V4,
     PATHS: PATHS,
     NAV_V4_KEYS: NAV_V4_KEYS,
+    CHROME_V4_KEYS: CHROME_V4_KEYS,
     QUICK_ACTION_V4: QUICK_ACTION_V4,
     SIZES: SIZES,
     has: has,
+    isChromeV4: isChromeV4,
     isQuickActionV4: isQuickActionV4,
     isNavV4: isNavV4,
     url: url,
@@ -254,5 +272,8 @@
     settings: header('installningar'),
     tipsa: header('tipsa'),
     share: header('tipsa'),
+    renderNotiser: function (active) {
+      return header('notiser', undefined, active);
+    },
   };
 })();

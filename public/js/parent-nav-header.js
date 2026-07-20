@@ -13,12 +13,20 @@
   const ICON_BTN =
     'parent-hub-icon-btn min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/80 border border-lavender shadow-sm';
 
-  function iconMarkup(action) {
+  function iconMarkup(action, opts) {
+    opts = opts || {};
     if (window.IconSystem && IconSystem.has(action.icon)) {
+      if (action.icon === 'notiser' && IconSystem.isChromeV4 && IconSystem.isChromeV4('notiser')) {
+        return IconSystem.header('notiser', undefined, !!opts.notiserActive);
+      }
       return IconSystem.header(action.icon);
     }
     if (window.ParentNavIcons) {
-      if (action.icon === 'notiser' || action.id === 'notifications') return ParentNavIcons.notiser;
+      if (action.icon === 'notiser' || action.id === 'notifications') {
+        return ParentNavIcons.renderNotiser
+          ? ParentNavIcons.renderNotiser(!!opts.notiserActive)
+          : ParentNavIcons.notiser;
+      }
       if (action.icon === 'installningar' || action.icon === 'settings') return ParentNavIcons.settings;
       if (action.icon === 'tipsa' || action.icon === 'share') return ParentNavIcons.tipsa;
     }
@@ -35,6 +43,8 @@
         let badge = link.querySelector('.parent-nav-notif-badge');
         if (count <= 0) {
           if (badge) badge.hidden = true;
+          link.removeAttribute('data-has-unread');
+          link.innerHTML = iconMarkup({ icon: 'notiser', id: 'notifications' }, { notiserActive: false });
           return;
         }
         if (!badge) {
@@ -45,6 +55,8 @@
         }
         badge.textContent = count > 9 ? '9+' : String(count);
         badge.hidden = false;
+        link.setAttribute('data-has-unread', '1');
+        link.innerHTML = iconMarkup({ icon: 'notiser', id: 'notifications' }, { notiserActive: true });
       })
       .catch(function () {});
   }
@@ -135,7 +147,9 @@
       if (!sel) continue;
       const el = bar.querySelector(sel);
       if (!el) continue;
-      const markup = iconMarkup(action);
+      const markup = iconMarkup(action, {
+        notiserActive: action.id === 'notifications' && el.getAttribute('data-has-unread') === '1',
+      });
       if (markup && el.innerHTML !== markup) el.innerHTML = markup;
       if (action.id === 'notifications') fetchUnreadBadge(el);
     }
