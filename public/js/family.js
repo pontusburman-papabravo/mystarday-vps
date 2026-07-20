@@ -161,6 +161,8 @@
     if (window.ParentMagicShell) ParentMagicShell.init('family');
 
     function renderAll(data) {
+      if (!data) return;
+      familyData = data;
       const chestSection = document.getElementById('familyChestSection');
       const nameSection = document.getElementById('familyNameSection');
       if (chestSection) chestSection.classList.remove('hidden');
@@ -839,7 +841,7 @@
 
     function renderAdultCard(parent, children) {
       const isSelf = parent.id === user?.id;
-      const isOnlyAdult = (familyData.parents || []).length === 1;
+      const isOnlyAdult = (familyData?.parents || []).length === 1;
       const canDelete = !isOnlyAdult && !isSelf;
       const roleOptions = ROLES.map(r =>
         `<option value="${r.value}" ${parent.family_role === r.value ? 'selected' : ''}>${r.label}</option>`
@@ -866,11 +868,11 @@
           </div>
 
           <!-- Child visibility -->
-          ${(familyData.allChildren || []).length > 0 ? `
+          ${(familyData?.allChildren || []).length > 0 ? `
             <div class="mb-3">
               <label class="block text-xs text-text-soft mb-1">Ser dessa barn</label>
               <div class="space-y-1">
-                ${(familyData.allChildren || []).map(c => {
+                ${(familyData?.allChildren || []).map(c => {
                   const linked = (parent.linked_child_ids || []).includes(c.id);
                   return `<label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" class="pc-cb w-4 h-4 rounded border-lavender text-gold focus:ring-gold"

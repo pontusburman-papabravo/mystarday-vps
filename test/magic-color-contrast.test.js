@@ -24,10 +24,13 @@ describe('magic color contrast', () => {
     assert.match(css, /#childProfileTabBar \.child-profile-tab:not\(\.is-active\)/);
   });
 
-  it('readable v3 has no extra CSS glow on dark magic', () => {
-    const css = fs.readFileSync(path.join(ROOT, 'public/css/icon-system.css'), 'utf8');
-    assert.match(css, /High Contrast Icon System v3/);
-    assert.doesNotMatch(css, /filter:\s*drop-shadow/);
-    assert.doesNotMatch(css, /rgba\(255, 255, 255, 0\.94\)/);
+  it('nav icon CSS has no extra glow on dark magic', () => {
+    const iconCss = fs.readFileSync(path.join(ROOT, 'public/css/icon-system.css'), 'utf8');
+    const v4Css = fs.readFileSync(path.join(ROOT, 'public/css/stjarnadag-icons-v4.css'), 'utf8');
+    assert.match(iconCss, /nav v4 Nordic Calm/);
+    for (const css of [iconCss, v4Css]) {
+      assert.doesNotMatch(css, /filter:\s*drop-shadow/);
+      assert.doesNotMatch(css, /rgba\(255, 255, 255, 0\.94\)/);
+    }
   });
 });

@@ -30,6 +30,7 @@ describe('Native startup + family fast path', () => {
     assert.match(family, /applyWarmFamilyData/);
     assert.match(family, /__familyWarmData/);
     assert.match(family, /setFamilyLoading\(false\)/);
+    assert.match(family, /function renderAll\(data\) \{[\s\S]*familyData = data;/);
   });
 
   it('dashboard warms family API after auth', () => {

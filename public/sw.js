@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v635';
+const CACHE_NAME = 'stjarndag-v636';
+// stjarndag-v636: fix(family) warm-cache render before familyData assigned
 // stjarndag-v635: Nordic Calm UI Icons v4 — nav active/inactive (bottom nav)
 // stjarndag-v632: share message includes register URL inline (native share text-only)
 // stjarndag-v631: share links — clean /register URL, no ?ref= codes; fix duplicate native share URL
