@@ -217,7 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v639';
+const CACHE_NAME = 'stjarndag-v640';
+// stjarndag-v640: Quick Actions v4 — Hem snabbvalskort (Nordic Calm)
 // stjarndag-v639: revert Design Kit legacy inference — keep v4 nav only
 // stjarndag-v637: fix(family) ROLES TDZ on warm-cache fast path
 // stjarndag-v636: fix(family) warm-cache render before familyData assigned

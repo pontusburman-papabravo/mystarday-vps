@@ -1,0 +1,33 @@
+{
+  "name": "Stjärndag Quick Actions v4",
+  "version": "4.0.0",
+  "grid": "32x32",
+  "recommendedDisplaySize": "48–56px",
+  "icons": [
+    {
+      "key": "afterhand",
+      "label": "I efterhand",
+      "file": "i-efterhand.svg"
+    },
+    {
+      "key": "one_off",
+      "label": "Engångs-aktivitet",
+      "file": "engangsaktivitet.svg"
+    },
+    {
+      "key": "extra_stars",
+      "label": "Extra stjärnor",
+      "file": "extra-stjarnor.svg"
+    },
+    {
+      "key": "day_off",
+      "label": "Ledig dag",
+      "file": "ledig-dag.svg"
+    }
+  ],
+  "states": {
+    "dark": "warm gray + sage accent",
+    "dark-active": "ivory + muted gold accent",
+    "light": "sage + muted gold accent"
+  }
+}

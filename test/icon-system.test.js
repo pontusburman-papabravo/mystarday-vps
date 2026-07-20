@@ -115,4 +115,35 @@ describe('icon-system v4 nav + v3 chrome', () => {
     assert.match(tabs, /active:\s*active/);
     assert.match(tabs, /IconSystem\.forItem\(Object\.assign\(\{\}, tab, \{ active: active \}\),\s*28/);
   });
+
+  it('quick actions v4 manifest ships four keys with dark assets', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(ROOT, 'public/img/stjarnadag-quick-actions-v4/manifest.json'), 'utf8')
+    );
+    assert.equal(manifest.version, '4.0.0');
+    assert.equal(manifest.icons.length, 4);
+    for (const entry of manifest.icons) {
+      const darkPath = path.join(ROOT, 'public/img/stjarnadag-quick-actions-v4/svg/dark', entry.file);
+      const activePath = path.join(ROOT, 'public/img/stjarnadag-quick-actions-v4/svg/dark-active', entry.file);
+      assert.ok(fs.existsSync(darkPath), 'missing dark ' + entry.file);
+      assert.ok(fs.existsSync(activePath), 'missing dark-active ' + entry.file);
+    }
+  });
+
+  it('IconSystem resolves v4 quick-action URLs on dark Hem cards', () => {
+    const IconSystem = loadIconSystem();
+    assert.equal(
+      IconSystem.url('registrera-i-efterhand'),
+      '/img/stjarnadag-quick-actions-v4/svg/dark/i-efterhand.svg'
+    );
+    assert.equal(
+      IconSystem.url('ledig-dag', { active: true }),
+      '/img/stjarnadag-quick-actions-v4/svg/dark-active/ledig-dag.svg'
+    );
+    assert.equal(IconSystem.SIZES.quickAction, 48);
+    const html = IconSystem.quickAction('engangsaktivitet');
+    assert.match(html, /app-icon--quick-action/);
+    assert.match(html, /engangsaktivitet\.svg/);
+    assert.match(html, /width="48"/);
+  });
 });

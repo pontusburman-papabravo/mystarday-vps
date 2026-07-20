@@ -1,6 +1,7 @@
 /**
  * icon-system.js — Stjärndag Icon System
  * Nav (v4 Nordic Calm): public/img/stjarnadag-icons-v4/
+ * Hem quick actions (v4): public/img/stjarnadag-quick-actions-v4/
  * Parent / rewards / shared / child-fallback (v3): public/img/stjarnadag-icons/
  */
 (function () {
@@ -8,6 +9,7 @@
 
   const BASE_V3 = '/img/stjarnadag-icons/';
   const BASE_V4 = '/img/stjarnadag-icons-v4/';
+  const BASE_QA_V4 = '/img/stjarnadag-quick-actions-v4/';
 
   /** Bottom-nav destinations with unique v4 geometry + active/inactive assets. */
   const NAV_V4_KEYS = {
@@ -18,6 +20,14 @@
     aktiviteter: true,
     beloningar: true,
     installningar: true,
+  };
+
+  /** Hem snabbåtgärder — Nordic Calm v4 (dark / dark-active / light SVG folders). */
+  const QUICK_ACTION_V4 = {
+    'registrera-i-efterhand': 'i-efterhand.svg',
+    engangsaktivitet: 'engangsaktivitet.svg',
+    'extra-stjarnor': 'extra-stjarnor.svg',
+    'ledig-dag': 'ledig-dag.svg',
   };
 
   const PATHS = {
@@ -99,12 +109,17 @@
     nav: 28,
     header: 28,
     hub: 44,
+    quickAction: 48,
     hero: 48,
     childNav: 32,
   };
 
   function has(name) {
-    return !!(name && PATHS[name]);
+    return isQuickActionV4(name) || !!(name && PATHS[name]);
+  }
+
+  function isQuickActionV4(name) {
+    return !!(name && QUICK_ACTION_V4[name]);
   }
 
   function isNavV4(name) {
@@ -113,6 +128,11 @@
 
   function url(name, opts) {
     opts = opts || {};
+    if (isQuickActionV4(name)) {
+      const file = QUICK_ACTION_V4[name];
+      const theme = opts.active ? 'dark-active' : (opts.theme || 'dark');
+      return BASE_QA_V4 + 'svg/' + theme + '/' + file;
+    }
     if (!PATHS[name]) return null;
     if (isNavV4(name)) {
       const folder = opts.active ? 'navigation-active/' : 'navigation-inactive/';
@@ -133,7 +153,9 @@
     const hidden = opts.decorative !== false ? ' aria-hidden="true"' : '';
     const stateClass = isNavV4(name)
       ? (opts.active ? ' app-icon--nav-active' : ' app-icon--nav-inactive')
-      : '';
+      : isQuickActionV4(name)
+        ? (opts.active ? ' app-icon--quick-active' : ' app-icon--quick-default')
+        : '';
     return (
       '<img src="' + src + '" class="' + cls + stateClass + '" width="' + size + '" height="' + size + '"' +
       ' alt="' + alt + '" decoding="async"' + hidden + '>'
@@ -162,6 +184,15 @@
       size: SIZES.hub,
       className: 'app-icon app-icon--hub',
       fallback: fallback,
+    });
+  }
+
+  function quickAction(name, fallback, active) {
+    return render(name, {
+      size: SIZES.quickAction,
+      className: 'app-icon app-icon--quick-action',
+      fallback: fallback,
+      active: !!active,
     });
   }
 
@@ -199,16 +230,20 @@
     BASE: BASE_V3,
     BASE_V3: BASE_V3,
     BASE_V4: BASE_V4,
+    BASE_QA_V4: BASE_QA_V4,
     PATHS: PATHS,
     NAV_V4_KEYS: NAV_V4_KEYS,
+    QUICK_ACTION_V4: QUICK_ACTION_V4,
     SIZES: SIZES,
     has: has,
+    isQuickActionV4: isQuickActionV4,
     isNavV4: isNavV4,
     url: url,
     render: render,
     nav: nav,
     header: header,
     hub: hub,
+    quickAction: quickAction,
     hero: hero,
     forItem: forItem,
     childFallback: childFallback,

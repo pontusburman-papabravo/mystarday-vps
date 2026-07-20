@@ -205,6 +205,9 @@
   }
 
   function quickActionIcon(key, emojiFallback) {
+    if (window.IconSystem && IconSystem.isQuickActionV4 && IconSystem.isQuickActionV4(key)) {
+      return '<span class="parent-quick-tile-icon">' + IconSystem.quickAction(key, emojiFallback) + '</span>';
+    }
     if (window.IconSystem && IconSystem.has(key)) {
       return '<span class="parent-quick-tile-icon">' + IconSystem.hub(key) + '</span>';
     }
@@ -224,7 +227,7 @@
       quickActionIcon('extra-stjarnor', '⭐') +
       '<span class="parent-quick-tile-label">Extra stjärnor</span></button>' +
       '<button type="button" class="parent-quick-tile" data-action="ledig-dag">' +
-      quickActionIcon('kalender', '🏠') +
+      quickActionIcon('ledig-dag', '🏠') +
       '<span class="parent-quick-tile-label">Ledig dag</span></button>' +
       '</div>';
   }

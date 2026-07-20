@@ -30,13 +30,14 @@ describe('Hem 10/10 — priority ladder', () => {
     assert.match(hub, /button\[data-action\]/);
   });
 
-  it('hub quick actions use IconSystem assets', () => {
+  it('hub quick actions use IconSystem v4 quick-action assets', () => {
     const hub = read('public/js/dashboard-home-hub.js');
     assert.match(hub, /quickActionIcon/);
     assert.match(hub, /registrera-i-efterhand/);
     assert.match(hub, /engangsaktivitet/);
     assert.match(hub, /extra-stjarnor/);
-    assert.match(hub, /IconSystem\.hub/);
+    assert.match(hub, /ledig-dag/);
+    assert.match(hub, /IconSystem\.quickAction/);
   });
 
   it('hub removes action grid and encouragement copy', () => {
