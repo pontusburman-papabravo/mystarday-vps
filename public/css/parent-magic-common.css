@@ -377,16 +377,51 @@ body.parent-magic-view:not(.parent-theme-light) .section-card .text-text-soft {
 }
 
 /* Calendar day columns keep a light surface in dark magic — force readable dark text.
-   Daily-log activity cards use bg-white but are re-tinted dark via the rule above;
-   they must NOT be listed here or text becomes invisible (#1B2340 on dark bg). */
-body.parent-magic-view:not(.parent-theme-light) .day-col,
-body.parent-magic-view:not(.parent-theme-light) .day-col .act-name,
-body.parent-magic-view:not(.parent-theme-light) .day-col .section-label {
-  color: #1B2340 !important;
+   Global .text-navy / .text-text-soft overrides would make headers (Mån, 20 jul, 0/12 ⭐)
+   nearly invisible on white cards. Daily-log activity cards use bg-white but are re-tinted
+   dark via the rule above; they must NOT be listed here. */
+body.parent-magic-view:not(.parent-theme-light) .day-col {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #1b2340 !important;
 }
 
-body.parent-magic-view:not(.parent-theme-light) .day-col .section-label {
-  color: #5A6178 !important;
+body.parent-magic-view:not(.parent-theme-light) .day-col .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .day-col .font-heading,
+body.parent-magic-view:not(.parent-theme-light) .day-col .font-semibold,
+body.parent-magic-view:not(.parent-theme-light) .day-col .act-name {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .day-col .dark\:text-slate-400,
+body.parent-magic-view:not(.parent-theme-light) .day-col .section-label,
+body.parent-magic-view:not(.parent-theme-light) .day-col .empty-day {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .text-gold {
+  color: #f5a623 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .text-green-600 {
+  color: #16a34a !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-header {
+  border-bottom-color: #e5e7eb !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col.today .day-header {
+  background: #fff3d6 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .prog-bar {
+  background: #e5e7eb !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .act-item.completed-item .act-name {
+  color: #9ca3af !important;
 }
 
 /* Daily log — activity cards inherit dark magic panel bg; keep light text */
@@ -702,6 +737,49 @@ body.parent-magic-page-schedule main > .bg-sky {
   background: transparent !important;
   border: none !important;
   padding-top: 0 !important;
+}
+
+/* Kalender (schemaöversikt) — magic chrome + veckonav */
+body.parent-magic-view.parent-magic-page-calendar .parent-magic-hide-header {
+  display: none !important;
+}
+
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) #weekLabel {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) #weekSubLabel {
+  color: rgba(244, 244, 255, 0.65) !important;
+}
+
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .nav-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .nav-btn:hover {
+  background: rgba(255, 204, 51, 0.18) !important;
+  border-color: rgba(255, 204, 51, 0.45) !important;
+}
+
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .child-tab:not(.active) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .child-tab.active {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  border-color: transparent !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-theme-light.parent-magic-page-calendar #weekLabel,
+body.parent-magic-view.parent-theme-light.parent-magic-page-calendar #weekSubLabel,
+body.parent-magic-view.parent-theme-light.parent-magic-page-calendar .nav-btn,
+body.parent-magic-view.parent-theme-light.parent-magic-page-calendar .child-tab:not(.active) {
+  color: #1b2340 !important;
 }
 
 /* Skattkammaren — dark magic shell (placeholder + child chips) */

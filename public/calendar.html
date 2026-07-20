@@ -295,9 +295,11 @@
 
     <!-- Main content -->
     <main class="flex-1 p-4 md:p-8 overflow-x-hidden">
+      <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+      <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
 
-      <!-- Page title -->
-      <div class="mb-6">
+      <!-- Page title (hidden in magic — hero in #parentMagicPageMount) -->
+      <div class="mb-6 parent-magic-hide-header">
         <h2 class="text-2xl font-heading font-bold text-navy dark:text-white">📅 Kalender</h2>
         <p class="text-text-soft dark:text-slate-400 text-sm mt-1">Se ditt barns schema vecka för vecka</p>
       </div>
@@ -675,6 +677,7 @@
     init();
   </script>
 <script src="/js/feature-check.js?v=2.13.0"></script>
+<nav id="parentBottomNav" class="parent-bottom-nav" role="navigation" aria-label="Huvudnavigering"></nav>
 <script src="/js/mobile-nav.js?v=2.13.0"></script>
 <!-- Contextual help bubble -->
 <script src="/js/help-bubble.js?v=2.12.0"></script>
