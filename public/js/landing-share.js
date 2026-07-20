@@ -4,7 +4,9 @@
 (function () {
   'use strict';
 
-  const SITE_URL = (window.ReferralShare && window.ReferralShare.DEFAULT_URL) || 'https://mystarday.se/'; // pragma: allowlist secret
+  const REGISTER_URL =
+    (window.ReferralShare && (window.ReferralShare.REGISTER_URL || window.ReferralShare.DEFAULT_URL)) ||
+    'https://mystarday.se/register'; // pragma: allowlist secret
 
   function isMobileDevice() {
     return ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 768;
@@ -14,11 +16,12 @@
     if (window.ReferralShare && window.ReferralShare.buildPayload) {
       return window.ReferralShare.buildPayload();
     }
+    const copy =
+      'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL;
     return {
       url: REGISTER_URL,
-      text:
-      message: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL,
-      text: 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL,
+      message: copy,
+      text: copy,
     };
   }
 
