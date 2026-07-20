@@ -82,3 +82,31 @@
   align-items: center;
   gap: 0.5rem;
 }
+
+.library-magic-chrome-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.library-magic-chrome-icon--emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.library-magic-chrome-icon--schedules { background: rgba(239, 68, 68, 0.15); }
+.library-magic-chrome-icon--activities { background: rgba(59, 130, 246, 0.15); }
+.library-magic-chrome-icon--images { background: rgba(34, 197, 94, 0.15); }
+.library-magic-chrome-icon--rewards { background: rgba(255, 204, 51, 0.15); }
+.library-magic-chrome-icon--mine { background: rgba(168, 85, 247, 0.15); }
+
+.library-magic-chrome-icon .app-icon--library-chrome,
+.library-magic-menu-icon .app-icon--library-menu {
+  width: 28px;
+  height: 28px;
+}

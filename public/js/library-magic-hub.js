@@ -32,7 +32,7 @@
       tab: 'rewards',
       title: 'Belöningar',
       subtitle: 'Mål barnen strävar mot',
-      icon: 'trofe',
+      icon: 'beloningar',
       iconClass: 'rewards',
     },
     mine: {
@@ -210,11 +210,46 @@
     }
   }
 
-  function sectionIcon(iconKey) {
-    if (window.IconSystem && IconSystem.has(iconKey)) {
-      return IconSystem.hub(iconKey);
+  const SECTION_ICON_EMOJI = {
+    schema: '📅',
+    aktiviteter: '📋',
+    redigera: '🖼️',
+    beloningar: '🎁',
+    historik: '📚',
+  };
+
+  function notifyParentNavRefresh() {
+    if (window.ParentMagicShell && ParentMagicShell.refresh) {
+      ParentMagicShell.refresh();
+    } else if (window.NativeTabBar && NativeTabBar.remount) {
+      NativeTabBar.remount();
     }
-    return iconKey;
+  }
+
+  function menuSectionIcon(iconKey) {
+    if (window.IconSystem && IconSystem.has(iconKey)) {
+      return IconSystem.render(iconKey, {
+        size: 28,
+        className: 'app-icon app-icon--library-menu',
+      });
+    }
+    return SECTION_ICON_EMOJI[iconKey] || '⭐';
+  }
+
+  function chromeSectionIcon(iconKey, iconClass) {
+    const glyph = (window.IconSystem && IconSystem.has(iconKey))
+      ? IconSystem.render(iconKey, {
+        size: 28,
+        className: 'app-icon app-icon--library-chrome',
+      })
+      : (SECTION_ICON_EMOJI[iconKey] || '⭐');
+    const cls = 'library-magic-chrome-icon library-magic-chrome-icon--' + (iconClass || 'default');
+    const emojiCls = (window.IconSystem && IconSystem.has(iconKey)) ? '' : ' library-magic-chrome-icon--emoji';
+    return '<span class="' + cls + emojiCls + '" aria-hidden="true">' + glyph + '</span>';
+  }
+
+  function sectionIcon(iconKey) {
+    return menuSectionIcon(iconKey);
   }
 
   function menuCard(key) {
@@ -248,7 +283,7 @@
     chrome.innerHTML =
       '<div class="library-magic-chrome">' +
       '<button type="button" class="library-magic-back" data-library-action="back" aria-label="Tillbaka">←</button>' +
-      '<div class="library-magic-chrome-title"><h2 class="library-magic-chrome-heading">' + sectionIcon(s.icon) + '<span>' + escHtml(s.title) + '</span></h2><p>' + escHtml(s.subtitle) + '</p></div>' +
+      '<div class="library-magic-chrome-title"><h2 class="library-magic-chrome-heading">' + chromeSectionIcon(s.icon, s.iconClass) + '<span>' + escHtml(s.title) + '</span></h2><p>' + escHtml(s.subtitle) + '</p></div>' +
       actionHtml +
       '</div>';
 
@@ -348,6 +383,7 @@
 
     renderChrome(key);
     setMagicHash(targetHash);
+    notifyParentNavRefresh();
     afterSectionOpen(key, fromSearch);
   }
 
@@ -388,6 +424,7 @@
 
     renderHub();
     setMagicHash('magic-hub');
+    notifyParentNavRefresh();
   }
 
   function routeFromHash() {

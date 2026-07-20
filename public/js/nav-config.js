@@ -145,7 +145,21 @@
   }
 
   /** Active primary tab — same logic for bottom nav, magic shell, sidebar. */
+  function libraryHashNavOverride(pathname) {
+    if (normalizePath(pathname) !== '/library') return null;
+    if (typeof window === 'undefined' || !window.location) return null;
+    const hash = (window.location.hash || '').replace('#', '');
+    if (hash === 'magic-rewards') {
+      for (let i = 0; i < PRIMARY_NAV.length; i++) {
+        if (PRIMARY_NAV[i].id === 'rewards') return PRIMARY_NAV[i];
+      }
+    }
+    return null;
+  }
+
   function activeNavItem(pathname, nav) {
+    const hashOverride = libraryHashNavOverride(pathname);
+    if (hashOverride) return hashOverride;
     const list = nav || PRIMARY_NAV;
     const p = normalizePath(pathname);
     for (let i = 0; i < list.length; i++) {

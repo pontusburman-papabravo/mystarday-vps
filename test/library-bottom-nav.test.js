@@ -44,8 +44,16 @@ describe('library bottom nav isolation', () => {
     assert.match(src, /function updateActiveTabs\(\) \{\s*remount\(\);/);
   });
 
-  it('library magic hub refreshes parent shell after layout', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
-    assert.match(src, /ParentMagicShell\.refresh/);
+  it('library magic hub uses beloningar icon for rewards section chrome', () => {
+    const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
+    assert.match(hub, /icon: 'beloningar'/);
+    assert.match(hub, /chromeSectionIcon/);
+    assert.match(hub, /notifyParentNavRefresh/);
+  });
+
+  it('library rewards hash highlights Belöningar in bottom nav', () => {
+    const nav = fs.readFileSync(path.join(ROOT, 'public/js/nav-config.js'), 'utf8');
+    assert.match(nav, /libraryHashNavOverride/);
+    assert.match(nav, /magic-rewards/);
   });
 });
