@@ -56,4 +56,36 @@ describe('library bottom nav isolation', () => {
     assert.match(nav, /libraryHashNavOverride/);
     assert.match(nav, /magic-rewards/);
   });
+
+  it('library.html does not ship legacy sidebar or mobile-nav scrape', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/library.html'), 'utf8');
+    assert.match(html, /data-magic-page="library"/);
+    assert.doesNotMatch(html, /Veckoschema[\s\S]*sidebar-nav/);
+    assert.doesNotMatch(html, /mobile-nav\.js/);
+  });
+
+  it('calendar.html uses NavConfig shell without legacy mobile-nav', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/calendar.html'), 'utf8');
+    assert.match(html, /data-magic-page="calendar"/);
+    assert.match(html, /id="parentBottomNav"/);
+    assert.doesNotMatch(html, /mobile-nav\.js/);
+    assert.doesNotMatch(html, /Min panel/);
+  });
+
+  it('schedule.html uses NavConfig shell without legacy mobile-nav', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/schedule.html'), 'utf8');
+    assert.match(html, /data-magic-page="schedule"/);
+    assert.match(html, /id="parentBottomNav"/);
+    assert.doesNotMatch(html, /mobile-nav\.js/);
+    assert.doesNotMatch(html, /Veckoschema[\s\S]*sidebar-nav/);
+  });
+
+  it('mobile-nav skips parent magic shell paths (no legacy sidebar scrape)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/mobile-nav.js'), 'utf8');
+    assert.match(src, /isParentMagicShellPath/);
+    assert.match(src, /if \(isParentMagicShellPath\(\)\) return/);
+    assert.match(src, /'\/library'/);
+    assert.match(src, /'\/calendar'/);
+    assert.match(src, /'\/schedule'/);
+  });
 });

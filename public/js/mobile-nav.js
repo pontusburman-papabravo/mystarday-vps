@@ -11,6 +11,49 @@
 (function () {
   'use strict';
 
+  /** Parent shell pages use NavConfig + native-tab-bar — never scrape legacy sidebar HTML. */
+  const PARENT_MAGIC_PATHS = new Set([
+    '/dashboard',
+    '/daily-log',
+    '/planning',
+    '/schedule',
+    '/calendar',
+    '/activities',
+    '/assign-schedule',
+    '/for-dig',
+    '/rewards',
+    '/family',
+    '/settings',
+    '/library',
+    '/skattkammaren',
+    '/skattkammaren-parent',
+    '/child-settings',
+    '/notifications',
+    '/reports',
+    '/samarbete',
+    '/pedagog-note',
+    '/pedagog-oversikt',
+    '/upgrade',
+    '/print-schema',
+    '/family-week',
+  ]);
+
+  function normalizePath(pathname) {
+    let p = (pathname || '/').replace(/\/$/, '') || '/';
+    if (p.endsWith('.html')) p = p.slice(0, -5);
+    return p;
+  }
+
+  function isParentMagicShellPath() {
+    const p = normalizePath(window.location.pathname);
+    if (PARENT_MAGIC_PATHS.has(p)) return true;
+    if (p.indexOf('/family/child/') === 0) return true;
+    if (window.NavConfig && NavConfig.isParentShellPath && NavConfig.isParentShellPath(p)) return true;
+    return false;
+  }
+
+  if (isParentMagicShellPath()) return;
+
   // ── Find the sidebar nav ───────────────────────────────────────
   function findSidebarNav() {
     const el = document.getElementById('sidebar');
