@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 128" role="img" aria-label="gymnastiksal">
+<rect width="192" height="128" rx="20" fill="#18211F"/>
+<rect x="12" y="20" width="168" height="84" rx="18" fill="#274B4D" opacity=".12"/>
+<g transform="translate(18 34) scale(.72)"><path d="M12 44c8-20 14-28 20-32 8 7 14 17 20 32-12 10-28 10-40 0z" fill="#274B4D"/><circle cx="32" cy="34" r="6" fill="#F7F2E8"/></g><g transform="translate(64 34) scale(.72)"><path d="M12 44c8-20 14-28 20-32 8 7 14 17 20 32-12 10-28 10-40 0z" fill="#274B4D"/><circle cx="32" cy="34" r="6" fill="#F7F2E8"/></g><g transform="translate(110 34) scale(.72)"><path d="M32 9l7 14 16 2-12 11 3 16-14-8-14 8 3-16L9 25l16-2z" fill="#274B4D"/></g>
+<path d="M20 103h152" stroke="#274B4D" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+</svg>

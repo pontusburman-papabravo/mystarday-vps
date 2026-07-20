@@ -1,0 +1,39 @@
+{
+  "grid": {
+    "canvas": 64,
+    "safeArea": 48,
+    "baseUnit": 4
+  },
+  "radii": {
+    "small": 4,
+    "medium": 6,
+    "large": 8,
+    "pill": 999
+  },
+  "shadow": {
+    "opacity": 0.08,
+    "blur": 12,
+    "offsetX": 0,
+    "offsetY": 3
+  },
+  "motion": {
+    "durationFast": 500,
+    "durationDefault": 800,
+    "easing": [
+      0.4,
+      0,
+      0.2,
+      1
+    ]
+  },
+  "themes": {
+    "light": {
+      "background": "#FFFCF7",
+      "foreground": "#27322F"
+    },
+    "dark": {
+      "background": "#18211F",
+      "foreground": "#F8F3E9"
+    }
+  }
+}

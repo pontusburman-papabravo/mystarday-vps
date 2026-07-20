@@ -51,13 +51,13 @@ describe('bildstöd core — pictogram library', () => {
     const row = list.find((p) => p.key === 'wake_up');
     assert.ok(row);
     assert.equal(row.label, 'Vakna');
-    assert.match(row.url, /^\/resurser\/bilder\/wake_up\.png$/);
+    assert.match(row.url, /\/assets\/min-stjarndag-design-kit\/icons\/svg\/light\/vakna\.svg$/);
   });
 
   it('enrichPictogramFields adds pictogram_emoji when no custom photo', () => {
     const enriched = enrichPictogramFields({ icon_key: 'brush_teeth', icon: '📌' });
     assert.equal(enriched.pictogram_emoji, '🪥');
-    assert.match(enriched.pictogram_url, /brush_teeth/);
+    assert.match(enriched.pictogram_url, /borsta-tanderna\.svg$/);
     const withPhoto = enrichPictogramFields({ icon_key: 'brush_teeth', image_url: '/uploads/x.jpg' });
     assert.equal(withPhoto.pictogram_emoji, undefined);
   });
