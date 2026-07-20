@@ -12,7 +12,7 @@ const { getOrGenerateDailyLog, getLocalDateStr, getDayOfWeek } = require('../../
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
-const { enrichPictogramFieldsMany, enrichPictogramFields } = require('../../../config/pictogram-library');
+const { enrichPictogramFieldsMany } = require('../../../config/pictogram-library');
 const { FLAG_KEYS, isActivationFlagEnabled } = require('../../lib/activation-flags');
 const {
   countLifetimeCompletions,
@@ -617,15 +617,13 @@ childSelfRouter.get('/weekly-schedule', async (req, res) => {
     const byDow = {};
     for (const row of scheduleRows.rows) {
       if (!byDow[row.day_of_week]) byDow[row.day_of_week] = [];
-      byDow[row.day_of_week].push(Object.assign(
-        enrichPictogramFields({
-          name: row.name,
-          icon: row.icon || '',
-          icon_key: row.icon_key || null,
-          image_url: row.image_url || null,
-        }),
-        { sort_order: row.sort_order }
-      ));
+      byDow[row.day_of_week].push({
+        name: row.name,
+        icon: row.icon || '',
+        icon_key: row.icon_key || null,
+        image_url: row.image_url || null,
+        sort_order: row.sort_order,
+      });
     }
 
     const days = DOW_ORDER.map((dow) => ({

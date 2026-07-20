@@ -204,7 +204,7 @@ describe('child-pictogram-packs — client mirror', () => {
     assert.equal(picked.url, '/uploads/custom.webp');
   });
 
-  it('uses action pack asset when gate ON and no custom photo or design kit', () => {
+  it('uses action pack asset when gate ON and no custom photo', () => {
     const activityVisual = read('public/js/activity-visual.js');
     const win = loadClientPictogramPacks(true);
     win.ChildPictogramPacks.applyFromConfig({ pictogram_pack: 'action' }, { silent: true });
@@ -217,26 +217,6 @@ describe('child-pictogram-packs — client mirror', () => {
     vm.runInNewContext(activityVisual, sandbox, { filename: 'activity-visual.js' });
     const picked = win.ActivityVisual.pick({ icon_key: 'school', icon: '🏫' });
     assert.equal(picked.url, '/images/child/pictograms/action/school@2x.webp');
-  });
-
-  it('prefers design kit pictogram_url over barnets_samling pack', () => {
-    const activityVisual = read('public/js/activity-visual.js');
-    const win = loadClientPictogramPacks(true);
-    win.ChildPictogramPacks.applyFromConfig({ pictogram_pack: 'action' }, { silent: true });
-    const sandbox = {
-      window: win,
-      document: win.document,
-      CustomEvent: win.CustomEvent,
-      ChildPictogramPacks: win.ChildPictogramPacks,
-    };
-    vm.runInNewContext(activityVisual, sandbox, { filename: 'activity-visual.js' });
-    const picked = win.ActivityVisual.pick({
-      name: 'Borsta tänderna',
-      icon: '🪥',
-      pictogram_url: '/assets/min-stjarndag-design-kit/icons/svg/light/borsta-tanderna.svg',
-      pictogram_emoji: '🪥',
-    });
-    assert.match(picked.url, /borsta-tanderna\.svg$/);
   });
 
   it('preview does not change saved pack until commit', () => {
