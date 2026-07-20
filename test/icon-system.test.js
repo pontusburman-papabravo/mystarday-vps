@@ -171,6 +171,21 @@ describe('icon-system v4 only', () => {
     assert.match(html, /width="48"/);
   });
 
+  it('chrome notiser SVGs use dark strokes for white header tiles', () => {
+    const inactive = fs.readFileSync(
+      path.join(ROOT, 'public/img/stjarnadag-icons-v4/chrome/notiser.svg'),
+      'utf8'
+    );
+    const active = fs.readFileSync(
+      path.join(ROOT, 'public/img/stjarnadag-icons-v4/chrome/notiser-active.svg'),
+      'utf8'
+    );
+    assert.match(inactive, /#1B2340/);
+    assert.doesNotMatch(inactive, /#F7F2E8/);
+    assert.match(active, /#1B2340/);
+    assert.doesNotMatch(active, /#F7F2E8/);
+  });
+
   it('child fallback resolves v4 child assets', () => {
     const IconSystem = loadIconSystem();
     const html = IconSystem.childFallback('today');
