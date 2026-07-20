@@ -45,6 +45,14 @@
     let inflightFamily = null;
     let initInFlight = null;
 
+    const ROLES = [
+      { value: 'förälder', label: 'Förälder' },
+      { value: 'mamma', label: 'Mamma' },
+      { value: 'pappa', label: 'Pappa' },
+      { value: 'bonusförälder', label: 'Bonusförälder' },
+      { value: 'annan', label: 'Annan' },
+    ];
+
     function applyWarmFamilyData() {
       if (!familyCache && window.__familyWarmData) {
         familyCache = window.__familyWarmData;
@@ -157,8 +165,6 @@
     }
 
     initBirthdayPicker('drawerEditBirthday');
-    init();
-    if (window.ParentMagicShell) ParentMagicShell.init('family');
 
     function renderAll(data) {
       if (!data) return;
@@ -831,14 +837,6 @@
     }
 
     // ─── Adult card ─────────────────────────────────────
-    const ROLES = [
-      { value: 'förälder', label: 'Förälder' },
-      { value: 'mamma', label: 'Mamma' },
-      { value: 'pappa', label: 'Pappa' },
-      { value: 'bonusförälder', label: 'Bonusförälder' },
-      { value: 'annan', label: 'Annan' },
-    ];
-
     function renderAdultCard(parent, children) {
       const isSelf = parent.id === user?.id;
       const isOnlyAdult = (familyData?.parents || []).length === 1;
@@ -1260,6 +1258,9 @@
 if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('family', init);
 }
+
+init();
+if (window.ParentMagicShell) ParentMagicShell.init('family');
 
 window.FamilyPage = { prefetch: prefetchFamily };
 
