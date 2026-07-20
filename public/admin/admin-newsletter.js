@@ -287,29 +287,138 @@
       }
       const recipientIds = checks.map(cb => cb.value);
       const btn = document.getElementById('nlSendBtn');
+
       btn.disabled = true;
-      btn.innerHTML = '⏳ Skickar...';
+      btn.innerHTML = '⏳ Startar...';
+      showNlSendProgress(recipientIds.length);
+
+      let shouldPoll = false;
 
       try {
-        const data = await Auth.api(`/api/newsletter/newsletters/${newsletterId}/send`, {
+        const res = await fetch(`/api/newsletter/newsletters/${newsletterId}/send`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCsrfToken(),
+          },
           body: JSON.stringify({ recipientIds }),
         });
-        closeNewsletterModal();
-        if (data.sent > 0) {
-          alert(`✅ Nyhetsbrev skickat till ${data.sent} mottagare!`);
+        const data = await res.json().catch(() => ({}));
+
+        if (res.status === 202 || res.status === 409) {
+          shouldPoll = true;
+        } else if (!res.ok) {
+          closeNewsletterModal();
+          alert(data.error || 'Kunde inte starta e-postutskick.');
+          return;
+        } else if (typeof data.sent === 'number') {
+          closeNewsletterModal();
+          if (data.sent > 0) {
+            alert(`✅ Nyhetsbrev skickat till ${data.sent} mottagare!`);
+          } else {
+            alert(data.message || 'Inga e-postmeddelanden skickades.');
+          }
+          await loadNewsletterHistory();
+          return;
         } else {
-          // Show the backend's detailed message (now includes API errors vs missing subscribers)
-          alert(data.message || 'Inga e-postmeddelanden skickades.');
+          shouldPoll = true;
         }
-        await loadNewsletterHistory();
-      } catch (err) {
-        btn.disabled = false;
-        btn.innerHTML = `Skicka till <span id="nlSendCount">${checks.length}</span> mottagare`;
-        const detail = err.body?.detail || err.body?.message || err.message || 'Försök igen.';
-        alert(`Fel vid utskick: ${detail}`);
+      } catch (_) {
+        // Connection may drop while server keeps sending — poll for completion.
+        shouldPoll = true;
       }
+
+      if (!shouldPoll) return;
+
+      const result = await pollNlSendStatus(newsletterId, recipientIds.length);
+      closeNewsletterModal();
+
+      if (result.ok) {
+        if (result.sent > 0 && result.failed > 0) {
+          alert(`✅ Skickat till ${result.sent} mottagare (${result.failed} misslyckades).`);
+        } else if (result.sent > 0) {
+          alert(`✅ Nyhetsbrev skickat till ${result.sent} mottagare!`);
+        } else {
+          alert('Inga e-postmeddelanden skickades (inga aktiva prenumeranter).');
+        }
+      } else {
+        alert(`⚠️ ${result.error}`);
+      }
+
+      await loadNewsletterHistory();
+    };
+
+    function showNlSendProgress(expected) {
+      const list = document.getElementById('nlRecipientsList');
+      const headerBar = document.querySelector('#newsletterSendModal .border-b');
+      const footer = document.querySelector('#newsletterSendModal .border-t');
+      if (list) list.classList.add('hidden');
+      if (headerBar) headerBar.classList.add('hidden');
+
+      let progressEl = document.getElementById('nlSendProgress');
+      if (!progressEl) {
+        progressEl = document.createElement('div');
+        progressEl.id = 'nlSendProgress';
+        progressEl.className = 'px-6 py-8';
+        const modalBody = document.querySelector('#newsletterSendModal .max-h-\\[85vh\\]');
+        if (modalBody && footer) {
+          modalBody.insertBefore(progressEl, footer);
+        }
+      }
+
+      progressEl.innerHTML = `
+        <div class="text-center">
+          <div class="text-4xl mb-3">📧</div>
+          <p class="font-semibold text-navy mb-1">Skickar nyhetsbrev…</p>
+          <p id="nlSendProgressText" class="text-sm text-text-soft mb-4">0 av ${expected} mottagare — det kan ta 1–2 minuter.</p>
+          <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden mx-auto max-w-sm">
+            <div id="nlSendProgressBar" class="bg-gold h-2.5 rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+          <p class="text-xs text-text-soft mt-4">Stäng inte fliken medan utskicket pågår.</p>
+        </div>`;
+      progressEl.classList.remove('hidden');
+      if (footer) footer.classList.add('hidden');
+    }
+
+    function updateNlSendProgress(sent, expected) {
+      const text = document.getElementById('nlSendProgressText');
+      const bar = document.getElementById('nlSendProgressBar');
+      const safeExpected = expected > 0 ? expected : 1;
+      const pct = Math.min(100, Math.round((sent / safeExpected) * 100));
+      if (text) {
+        text.textContent = `${sent} av ${expected} mottagare — det kan ta 1–2 minuter.`;
+      }
+      if (bar) bar.style.width = `${pct}%`;
+    }
+
+    async function pollNlSendStatus(newsletterId, expected) {
+      const maxAttempts = 150;
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        try {
+          const res = await fetch(`/api/newsletter/newsletters/${newsletterId}/send-status`, {
+            credentials: 'include',
+          });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const progress = data.progress != null ? data.progress : (data.sent || 0);
+          updateNlSendProgress(progress, data.expected || expected);
+
+          if (data.status === 'done') {
+            return { ok: true, sent: data.sent || 0, failed: data.failed || 0 };
+          }
+          if (data.status === 'failed') {
+            return { ok: false, error: data.error || 'E-postutskick misslyckades.' };
+          }
+        } catch (_) {
+          // Keep polling through transient network errors.
+        }
+      }
+      return {
+        ok: false,
+        error: 'Utskick tog för lång tid. Kontrollera historiken innan du skickar igen.',
+      };
     };
 
     // ─── Subscriber table ──────────────────────────────────────

@@ -7,7 +7,10 @@ const express = require('express');
 const db = require('../lib/db');
 const { requireParent, requireAdmin } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
-const { sendStandaloneNewsletter } = require('../lib/newsletter-mailer');
+const {
+  startStandaloneNewsletterSend,
+  getStandaloneNewsletterSendStatus,
+} = require('../lib/standalone-newsletter-email-send');
 const { sendNewsletterSubscriptionConfirmation } = require('../lib/email');
 const { unsubscribeByToken } = require('../lib/newsletter-unsubscribe');
 const { renderUnsubscribePage, renderUnsubscribeErrorPage } = require('../lib/newsletter-unsubscribe-pages');
@@ -366,6 +369,7 @@ router.get('/newsletters', requireAdmin, async (req, res) => {
 // ─── ADMIN: POST /api/newsletter/newsletters/:id/send ─────
 // Send a standalone newsletter to selected recipients.
 // Body: { recipientIds: string[] }  (parent_id UUIDs)
+// Returns 202 immediately; send continues in background (poll send-status).
 // Gate 2D: nyhetsbrev feature must be available
 router.post('/newsletters/:id/send', requireAdmin, requireFeature('nyhetsbrev'), async (req, res) => {
   try {
@@ -376,47 +380,54 @@ router.post('/newsletters/:id/send', requireAdmin, requireFeature('nyhetsbrev'),
       return res.status(400).json({ error: 'recipientIds (array) krävs' });
     }
 
-    // Fetch the newsletter
+    const validIds = recipientIds.filter((rid) => /^[0-9a-f-]{36}$/i.test(rid));
+    if (validIds.length === 0) {
+      return res.status(400).json({ error: 'Inga giltiga mottagar-ID hittades' });
+    }
+
     const nlResult = await db.query('SELECT * FROM newsletters WHERE id = $1', [id]);
     if (nlResult.rows.length === 0) {
       return res.status(404).json({ error: 'Nyhetsbrev hittades inte' });
     }
     const newsletter = nlResult.rows[0];
 
-    console.log(`[NEWSLETTER] Send to ${recipientIds.length} recipients: ${JSON.stringify(recipientIds.slice(0,3))}...`);
-    // Send via mailer — hard timeout of 60s
-    const sendPromise = sendStandaloneNewsletter(newsletter, recipientIds);
-    const { sent, failed, apiError } = await Promise.race([
-      sendPromise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout: nyhetsbrevet tog för lång tid att skicka')), 60000)),
-    ]);
-    console.log(`[NEWSLETTER] Send result: sent=${sent}, failed=${failed}${apiError ? `, apiError=${apiError}` : ''}`);
-
-    // Update record with send stats
-    await db.query(
-      `UPDATE newsletters
-       SET status     = $1,
-           sent_at    = NOW(),
-           sent_count = $2,
-           failed_count = $3
-       WHERE id = $4`,
-      [failed > 0 && sent === 0 ? 'failed' : 'sent', sent, failed, id]
-    );
-
-    // Construct meaningful response message
-    if (sent === 0 && failed === 0) {
-      res.json({ sent, failed, message: 'Inga prenumeranter hittades i urvalet. Kontrollera att mottagarna fortfarande är prenumererade.' });
-    } else if (sent === 0 && failed > 0 && apiError) {
-      res.json({ sent, failed, message: `E-postleverantören kunde inte nås (fel: ${apiError}). Kontrollera att e-postnyckeln är korrekt inställd.`, error: apiError });
-    } else if (sent > 0 && failed > 0) {
-      res.json({ sent, failed, message: `Skickat till ${sent} prenumeranter, ${failed} misslyckades.` });
-    } else {
-      res.json({ sent, failed, message: `Skickat till ${sent} prenumeranter` });
+    console.log(`[NEWSLETTER] Start send to ${validIds.length} recipients: ${JSON.stringify(validIds.slice(0, 3))}...`);
+    const startResult = await startStandaloneNewsletterSend(newsletter, validIds);
+    if (startResult.alreadyRunning) {
+      const status = await getStandaloneNewsletterSendStatus(newsletter.id);
+      return res.status(409).json({
+        error: 'E-postutskick pågår redan',
+        ...status,
+      });
     }
+
+    res.status(202).json({
+      accepted: true,
+      status: 'sending',
+      expected: validIds.length,
+      progress: 0,
+      sent: 0,
+      failed: 0,
+      message: `E-postutskick startat för ${validIds.length} mottagare. Det kan ta 1–2 minuter.`,
+    });
   } catch (err) {
     console.error('[NEWSLETTER] Send newsletter error:', err.message, err.stack);
-    const detail = err.message || (typeof err === 'string' ? err : 'Okänt fel');
-    res.status(500).json({ error: 'Kunde inte skicka nyhetsbrev', detail });
+    res.status(500).json({ error: 'Kunde inte starta nyhetsbrevsutskick' });
+  }
+});
+
+// ─── ADMIN: GET /api/newsletter/newsletters/:id/send-status ─
+// Poll-friendly status while background send is running.
+router.get('/newsletters/:id/send-status', requireAdmin, async (req, res) => {
+  try {
+    const status = await getStandaloneNewsletterSendStatus(req.params.id);
+    if (status.status === 'not_found') {
+      return res.status(404).json({ error: 'Nyhetsbrev hittades inte' });
+    }
+    res.json(status);
+  } catch (err) {
+    console.error('[NEWSLETTER] Send status error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta utskicksstatus' });
   }
 });
 
