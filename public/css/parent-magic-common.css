@@ -386,6 +386,29 @@ body.parent-magic-view:not(.parent-theme-light) .day-col {
   color: #1b2340 !important;
 }
 
+body.parent-magic-view:not(.parent-theme-light) .day-col .dark\:text-white,
+body.parent-magic-view:not(.parent-theme-light) .day-col .dark\:text-slate-400,
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-name,
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-date,
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-star-progress {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-date,
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-star-progress.is-soft,
+body.parent-magic-view:not(.parent-theme-light) .day-col .section-label,
+body.parent-magic-view:not(.parent-theme-light) .day-col .empty-day {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-name.is-today {
+  color: #c88400 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .day-col .day-star-progress.is-complete {
+  color: #16a34a !important;
+}
+
 body.parent-magic-view:not(.parent-theme-light) .day-col .text-navy,
 body.parent-magic-view:not(.parent-theme-light) .day-col .font-heading,
 body.parent-magic-view:not(.parent-theme-light) .day-col .font-semibold,
@@ -781,6 +804,24 @@ body.parent-magic-view.parent-theme-light.parent-magic-page-calendar #weekSubLab
 body.parent-magic-view.parent-theme-light.parent-magic-page-calendar .nav-btn,
 body.parent-magic-view.parent-theme-light.parent-magic-page-calendar .child-tab:not(.active) {
   color: #1b2340 !important;
+}
+
+/* Magic shell — dark bottom tab bar on all parent pages (not only dashboard) */
+body.parent-magic-view:not(.parent-theme-light) .native-tab-bar,
+body.parent-magic-view:not(.parent-theme-light) .parent-bottom-nav {
+  background: rgba(12, 12, 36, 0.92) !important;
+  border-top: 1px solid rgba(255, 204, 51, 0.15) !important;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+body.parent-magic-view:not(.parent-theme-light) .native-tab-bar .tab-item {
+  color: rgba(244, 244, 255, 0.55) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .native-tab-bar .tab-item.active,
+body.parent-magic-view:not(.parent-theme-light) .parent-bottom-nav-btn.is-active {
+  color: #ffcc33 !important;
 }
 
 /* Skattkammaren — dark magic shell (placeholder + child chips) */

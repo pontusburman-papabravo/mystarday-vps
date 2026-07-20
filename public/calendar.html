@@ -59,6 +59,44 @@
       border-color: #D97706;
     }
 
+    /* Day cards = always light surface (even on magic/dark shell) */
+    .day-col .day-name,
+    .day-col .day-date,
+    .day-col .day-star-progress,
+    .day-col .act-name,
+    .day-col .section-label,
+    .day-col .empty-day {
+      color: #1b2340;
+    }
+    .day-col .day-date,
+    .day-col .day-star-progress.is-soft,
+    .day-col .section-label,
+    .day-col .empty-day {
+      color: #5a6178 !important;
+    }
+    .day-col .day-name.is-today {
+      color: #c88400 !important;
+    }
+    .day-col .day-star-progress.is-complete {
+      color: #16a34a !important;
+    }
+    html.dark .day-col .day-name,
+    html.dark .day-col .act-name {
+      color: #1b2340 !important;
+    }
+    html.dark .day-col .day-date,
+    html.dark .day-col .day-star-progress.is-soft,
+    html.dark .day-col .section-label,
+    html.dark .day-col .empty-day {
+      color: #5a6178 !important;
+    }
+    html.dark .day-col .day-name.is-today {
+      color: #c88400 !important;
+    }
+    html.dark .day-col .day-star-progress.is-complete {
+      color: #16a34a !important;
+    }
+
     /* Day header */
     .day-header {
       padding: 10px 12px 8px;
@@ -306,8 +344,8 @@
               </svg>
             </button>
             <div class="text-center">
-              <div id="weekLabel" class="font-semibold text-navy dark:text-white text-sm md:text-base whitespace-nowrap"></div>
-              <div id="weekSubLabel" class="text-xs text-text-soft dark:text-slate-400"></div>
+              <div id="weekLabel" class="font-semibold text-navy text-sm md:text-base whitespace-nowrap"></div>
+              <div id="weekSubLabel" class="text-xs text-text-soft"></div>
             </div>
             <button class="nav-btn" onclick="changeWeek(1)" title="Nästa vecka">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -493,17 +531,17 @@
         header.innerHTML = `
           <div class="flex items-center justify-between gap-1 mb-1">
             <div class="min-w-0">
-              <div class="font-heading font-bold text-sm leading-tight ${day.isToday ? 'text-gold' : 'text-navy dark:text-white'} flex items-center flex-wrap gap-1">
+              <div class="font-heading font-bold text-sm leading-tight day-name${day.isToday ? ' is-today' : ''} flex items-center flex-wrap gap-1">
                 ${day.dayName.slice(0, 3)}
                 ${day.isToday ? '<span class="inline-block w-2 h-2 bg-gold rounded-full align-middle"></span>' : ''}
                 ${specialBadge}
               </div>
-              <div class="text-xs text-text-soft dark:text-slate-400">${dayNumStr} ${monthStr}</div>
+              <div class="text-xs day-date">${dayNumStr} ${monthStr}</div>
             </div>
             <div class="text-right flex-shrink-0">
               ${day.isPaused ? `<span class="paused-badge">Pausad</span>` : ''}
               ${day.hasLog && !day.isPaused && day.totalCount > 0
-                ? `<div class="text-xs font-semibold ${day.completedCount === day.totalCount ? 'text-green-600' : 'text-text-soft dark:text-slate-400'}">${day.completedCount}/${day.totalCount} ⭐</div>`
+                ? `<div class="text-xs font-semibold day-star-progress${day.completedCount === day.totalCount ? ' is-complete' : ' is-soft'}">${day.completedCount}/${day.totalCount} ⭐</div>`
                 : ''}
             </div>
           </div>
