@@ -3,7 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>sv</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>sv</string>
+		<string>en</string>
+	</array>
 	<key>CFBundleDisplayName</key>
         <string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
 	<key>CFBundleExecutable</key>
@@ -46,9 +51,9 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Min Stjärndag uses the camera so you, as a parent, can take a new profile photo for your child in the app. The photo is saved to your family account and shown only to your family.</string> <!-- pragma: allowlist secret -->
+	<string>Min Stjärndag använder kameran så att du som förälder kan ta en ny profilbild till ditt barn i appen. Bilden sparas på familjekontot och visas bara för er familj.</string> <!-- pragma: allowlist secret -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Min Stjärndag needs access to your photos so you can choose an existing picture as your child's profile photo. For example, you can select a photo from your &quot;Summer vacation&quot; album and it will appear as your child's avatar in their daily schedule.</string> <!-- pragma: allowlist secret -->
+	<string>Min Stjärndag behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.</string> <!-- pragma: allowlist secret -->
 <!-- pragma: allowlist secret -->
 </dict>
 </plist>
