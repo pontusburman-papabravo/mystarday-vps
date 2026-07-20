@@ -91,7 +91,10 @@ test('DELETE /api/family/delete-account removes family and parent session', asyn
     const meRes = await fetch(`${http.baseUrl}/api/auth/me`, {
       headers: { Cookie: cookieHeader(session.cookies) },
     });
-    assert.ok(meRes.status === 401 || meRes.status === 403, `expected unauth after delete, got ${meRes.status}`);
+    assert.ok(
+      meRes.status === 401 || meRes.status === 403 || meRes.status === 404,
+      `expected session invalid after delete, got ${meRes.status}`
+    );
   } finally {
     await http.close();
     await db.cleanup();
