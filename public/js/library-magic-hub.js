@@ -158,6 +158,9 @@
       return;
     }
     routeFromHash();
+    if (window.ParentMagicShell && ParentMagicShell.refresh) {
+      ParentMagicShell.refresh();
+    }
   }
 
   function renderHub() {

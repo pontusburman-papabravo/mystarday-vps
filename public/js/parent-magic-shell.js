@@ -66,6 +66,7 @@
     if (isNativeTabBarActive()) {
       const hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
+      if (window.NativeTabBar && NativeTabBar.remount) NativeTabBar.remount();
       if (window.ParentMagicRouter) ParentMagicRouter.bind();
       return;
     }
@@ -78,6 +79,7 @@
       nav.setAttribute('aria-label', 'Huvudnavigering');
       document.body.appendChild(nav);
     }
+    nav.removeAttribute('hidden');
     const activeId = activeNavId();
     const items = getNavItems();
     nav.innerHTML = items.map(function (item) {
@@ -101,6 +103,14 @@
         const router = window.ParentMagicRouter;
         if (!router) return;
         if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
+        if (window.NavConfig && NavConfig.isLibraryPath && NavConfig.isLibraryPath(window.location.pathname)) {
+          const dest = NavConfig.normalizePath(href.split('#')[0].split('?')[0]);
+          if (dest !== '/library') {
+            e.preventDefault();
+            window.location.href = href;
+            return;
+          }
+        }
         if (router.isFullLoadPath && router.isFullLoadPath(href)) {
           e.preventDefault();
           window.location.href = href;

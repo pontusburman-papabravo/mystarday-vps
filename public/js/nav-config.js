@@ -174,6 +174,10 @@
     '/skattkammaren',
   ];
 
+  function isLibraryPath(pathname) {
+    return normalizePath(pathname) === '/library';
+  }
+
   function isParentShellPath(pathname) {
     const p = normalizePath(pathname);
     if (activeNavItem(p)) return true;
@@ -205,6 +209,7 @@
     AVATAR_ACTIONS: AVATAR_ACTIONS,
     activeNavItem: activeNavItem,
     normalizePath: normalizePath,
+    isLibraryPath: isLibraryPath,
     isParentShellPath: isParentShellPath,
     primaryNavForTabs: primaryNavForTabs,
     hasFeatureAccess: hasFeatureAccess,

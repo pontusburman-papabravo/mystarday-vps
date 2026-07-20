@@ -101,7 +101,13 @@
   }
 
   function isLibraryShellDocument() {
-    return global.document.body.classList.contains('parent-magic-library');
+    if (global.document.body.classList.contains('parent-magic-library')) return true;
+    return normalizePath(global.location.pathname) === '/library';
+  }
+
+  function hardNavigateFromLibrary(href) {
+    if (typeof global.closeAllLibraryModals === 'function') global.closeAllLibraryModals();
+    global.location.href = href;
   }
 
   function stripLibraryShellClasses() {
@@ -236,7 +242,7 @@
 
     // library.html is a full page shell — never soft-swap its body into other tabs
     if (isLibraryShellDocument()) {
-      global.location.href = href;
+      hardNavigateFromLibrary(href);
       return false;
     }
 
@@ -335,6 +341,14 @@
 
     const href = link.getAttribute('href');
     if (!href || href.charAt(0) !== '/') return;
+    if (isLibraryShellDocument()) {
+      const dest = normalizePath(href.split('#')[0].split('?')[0]);
+      if (dest !== '/library') {
+        e.preventDefault();
+        hardNavigateFromLibrary(href);
+      }
+      return;
+    }
     if (link.hasAttribute('data-full-load') || isFullLoadPath(href)) return;
     if (!isSoftNavPath(href)) return;
 

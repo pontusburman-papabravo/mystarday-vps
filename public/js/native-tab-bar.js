@@ -109,6 +109,14 @@
       if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
       const router = window.ParentMagicRouter;
       if (!router) return;
+      if (window.NavConfig && NavConfig.isLibraryPath && NavConfig.isLibraryPath(window.location.pathname)) {
+        const dest = NavConfig.normalizePath(href.split('#')[0].split('?')[0]);
+        if (dest !== '/library') {
+          e.preventDefault();
+          window.location.href = href;
+          return;
+        }
+      }
       if (router.isFullLoadPath && router.isFullLoadPath(href)) {
         e.preventDefault();
         window.location.href = href;
@@ -138,19 +146,7 @@
   }
 
   function updateActiveTabs() {
-    const nav = document.querySelector('.native-tab-bar');
-    if (!nav) return;
-    nav.querySelectorAll('a.tab-item').forEach(function (link) {
-      const href = link.getAttribute('href');
-      let tab = null;
-      for (let i = 0; i < activeTabs.length; i++) {
-        if (activeTabs[i].href === href) { tab = activeTabs[i]; break; }
-      }
-      const active = tab ? isActive(tab) : false;
-      link.classList.toggle('active', active);
-      if (active) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
-    });
+    remount();
   }
 
   function remount() {
