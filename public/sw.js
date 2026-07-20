@@ -217,8 +217,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-// stjarndag-v647: mobile-nav skips magic shells; library/calendar/schedule legacy nav removed
-const CACHE_NAME = 'stjarndag-v647';
+// stjarndag-v648: give extra stjärnor — number input contrast on magic shell
+const CACHE_NAME = 'stjarndag-v648';
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
 // stjarndag-v644: fix bottom nav leaving /library — hard nav + no stale HTML shell
 // stjarndag-v643: chrome notiser dark strokes on white header tile (fix vit-på-vit)

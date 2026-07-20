@@ -1044,17 +1044,17 @@
       <div class="mb-4">
         <label class="block text-sm font-semibold text-navy mb-1">Antal stjärnor</label>
         <div class="flex items-center gap-3">
-          <button type="button" onclick="document.getElementById('giveStarsCount').value = Math.max(1, parseInt(document.getElementById('giveStarsCount').value||'5')-1)" class="w-10 h-10 rounded-xl border-2 border-lavender hover:border-gold font-bold text-lg flex items-center justify-center">−</button>
+          <button type="button" onclick="document.getElementById('giveStarsCount').value = Math.max(1, parseInt(document.getElementById('giveStarsCount').value||'5')-1)" class="w-10 h-10 rounded-xl border-2 border-lavender hover:border-gold font-bold text-lg flex items-center justify-center text-navy bg-white">−</button>
           <input type="number" id="giveStarsCount" min="1" max="100" value="5"
-            class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center font-bold text-lg">
-          <button type="button" onclick="document.getElementById('giveStarsCount').value = Math.min(100, parseInt(document.getElementById('giveStarsCount').value||'5')+1)" class="w-10 h-10 rounded-xl border-2 border-lavender hover:border-gold font-bold text-lg flex items-center justify-center">+</button>
+            class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center font-bold text-lg text-navy bg-white">
+          <button type="button" onclick="document.getElementById('giveStarsCount').value = Math.min(100, parseInt(document.getElementById('giveStarsCount').value||'5')+1)" class="w-10 h-10 rounded-xl border-2 border-lavender hover:border-gold font-bold text-lg flex items-center justify-center text-navy bg-white">+</button>
         </div>
         <div class="flex gap-2 mt-2 flex-wrap">
-          <button type="button" onclick="document.getElementById('giveStarsCount').value='1'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold">1</button>
-          <button type="button" onclick="document.getElementById('giveStarsCount').value='5'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold">5</button>
-          <button type="button" onclick="document.getElementById('giveStarsCount').value='10'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold">10</button>
-          <button type="button" onclick="document.getElementById('giveStarsCount').value='25'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold">25</button>
-          <button type="button" onclick="document.getElementById('giveStarsCount').value='50'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold">50</button>
+          <button type="button" onclick="document.getElementById('giveStarsCount').value='1'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold text-navy">1</button>
+          <button type="button" onclick="document.getElementById('giveStarsCount').value='5'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold text-navy">5</button>
+          <button type="button" onclick="document.getElementById('giveStarsCount').value='10'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold text-navy">10</button>
+          <button type="button" onclick="document.getElementById('giveStarsCount').value='25'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold text-navy">25</button>
+          <button type="button" onclick="document.getElementById('giveStarsCount').value='50'" class="px-3 py-1 text-xs border-2 border-lavender hover:border-gold rounded-lg font-semibold text-navy">50</button>
         </div>
       </div>
       <div class="mb-5">

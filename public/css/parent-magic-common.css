@@ -537,6 +537,7 @@ body.parent-magic-view:not(.parent-theme-light) input[type="text"],
 body.parent-magic-view:not(.parent-theme-light) input[type="email"],
 body.parent-magic-view:not(.parent-theme-light) input[type="password"],
 body.parent-magic-view:not(.parent-theme-light) input[type="search"],
+body.parent-magic-view:not(.parent-theme-light) input[type="number"],
 body.parent-magic-view:not(.parent-theme-light) select,
 body.parent-magic-view:not(.parent-theme-light) textarea {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -1145,10 +1146,80 @@ body.parent-magic-view #deleteModal .text-navy {
 body.parent-magic-view #addAdultModal input,
 body.parent-magic-view #addAdultModal select,
 body.parent-magic-view #addChildModal input,
-body.parent-magic-view #inviteModal input {
+body.parent-magic-view #inviteModal input,
+body.parent-magic-view #manualStarModal input,
+body.parent-magic-view #manualStarModal textarea {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.14) !important;
   color: #fff !important;
+}
+
+/* Dashboard — Ge extra stjärnor / ledig dag (white panel, dark magic) */
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal label,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal h3,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsPickerModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsPickerModal h3,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal h3,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .font-semibold {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsPickerModal .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal input,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal button[type="button"],
+body.parent-magic-view:not(.parent-theme-light) #giveStarsPickerModal button[type="button"],
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal button[type="button"] {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal #giveStarsCount,
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal #giveStarsReason {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #giveStarsModal .bg-sky,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-sky,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-white,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-red-50 {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view.parent-theme-light #giveStarsModal > div,
+body.parent-magic-view.parent-theme-light #giveStarsPickerModal > div,
+body.parent-magic-view.parent-theme-light #ledigDagModal > div {
+  background: #ffffff !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-theme-light #giveStarsModal .text-navy,
+body.parent-magic-view.parent-theme-light #giveStarsModal label,
+body.parent-magic-view.parent-theme-light #giveStarsModal h3,
+body.parent-magic-view.parent-theme-light #giveStarsPickerModal .text-navy,
+body.parent-magic-view.parent-theme-light #giveStarsPickerModal h3,
+body.parent-magic-view.parent-theme-light #ledigDagModal .text-navy,
+body.parent-magic-view.parent-theme-light #ledigDagModal h3,
+body.parent-magic-view.parent-theme-light #ledigDagModal .font-semibold {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-theme-light #giveStarsModal #giveStarsCount,
+body.parent-magic-view.parent-theme-light #giveStarsModal #giveStarsReason,
+body.parent-magic-view.parent-theme-light #giveStarsModal button[type="button"]:not(.bg-gold):not(#giveStarsSubmitBtn),
+body.parent-magic-view.parent-theme-light #giveStarsPickerModal button[type="button"],
+body.parent-magic-view.parent-theme-light #ledigDagModal button[type="button"]:not(.bg-gold):not(.bg-green-500):not(.bg-coral) {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.16) !important;
+  color: #1b2340 !important;
 }
 
 /* Share popup — white card must stay readable (global dark input rule breaks recipient field) */
