@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 128" role="img" aria-label="hall">
+<rect width="192" height="128" rx="20" fill="#FFFCF7"/>
+<rect x="12" y="20" width="168" height="84" rx="18" fill="#C87362" opacity=".12"/>
+<g transform="translate(18 34) scale(.72)"><rect x="11" y="24" width="42" height="23" rx="8" fill="#C87362"/><path d="M19 24v-8h26v8" fill="none" stroke="#B86445" stroke-width="4"/><rect x="25" y="31" width="14" height="9" rx="3" fill="#F7F2E8"/></g><g transform="translate(64 34) scale(.72)"><path d="M14 18h36v32H14z" rx="7" fill="#C87362"/><path d="M20 24h24v20H20z" fill="#F7F2E8" opacity=".75"/></g><g transform="translate(110 34) scale(.72)"><circle cx="32" cy="32" r="18" fill="#F7F2E8" stroke="#D8C6A5" stroke-width="4"/><path d="M9 14v36M55 14v36" stroke="#C87362" stroke-width="4" stroke-linecap="round"/><path d="M7 14v10M11 14v10" stroke="#C87362" stroke-width="2"/></g>
+<path d="M20 103h152" stroke="#C87362" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+</svg>

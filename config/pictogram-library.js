@@ -1,8 +1,136 @@
 /**
- * Shared pictogram library (bildstöd v1) — emoji facade until illustrations land in public/resurser/bilder/.
+ * Shared pictogram library (bildstöd v1).
+ * Visuals: Nordic Calm Design Kit v1 (`public/assets/min-stjarndag-design-kit/`).
+ * Fallback: emoji when no kit mapping exists.
  */
 
 const PICTOGRAM_IMAGE_BASE = '/resurser/bilder';
+const DESIGN_KIT_ICON_BASE = '/assets/min-stjarndag-design-kit/icons/svg';
+const DESIGN_KIT_THEME_DEFAULT = 'light';
+
+/**
+ * icon_key → design-kit SVG basename (icons/svg/{theme}/{name}.svg).
+ * Only keys with a usable kit asset are listed; others stay emoji-only.
+ */
+const DESIGN_KIT_BY_KEY = {
+  // Morgon
+  wake_up: 'vakna',
+  toilet: 'toalett',
+  wash_hands: 'tval',
+  brush_teeth: 'borsta-tanderna',
+  dress: 'kla-pa-sig',
+  breakfast: 'frukost',
+  pack_bag: 'packa-vaska',
+  school: 'skola',
+  shoes: 'skor',
+  coat: 'jacka',
+  backpack: 'skolvaska',
+  bus: 'buss',
+  car: 'bil',
+  walk: 'promenad',
+  morning_routine: 'morgon',
+
+  // Kväll
+  dinner: 'middag',
+  shower: 'duscha',
+  pajamas: 'pyjamas',
+  read_book: 'lasa',
+  sleep: 'sova',
+  bath: 'badkar',
+  bedroom: 'sang',
+  evening_routine: 'kvall',
+  book: 'bok',
+  quiet: 'lugn',
+
+  // Skola
+  recess: 'rast',
+  pe: 'fotboll',
+  math: 'matematik',
+  swedish: 'sprak',
+  cafeteria: 'lunch',
+  library_room: 'bibliotek',
+  pencil: 'penna',
+  homework: 'laxa',
+  teacher: 'larare',
+  group: 'tillsammans',
+  listen: 'lyssna',
+  art: 'pyssel',
+  music: 'musik',
+  computer: 'dator',
+  playground: 'leka',
+
+  // Hygien
+  hair_brush: 'borsta-haret',
+  nails: 'klippa-naglar',
+  medicine: 'ta-medicin',
+  bathroom: 'toalett',
+  dentist: 'tandlakare',
+
+  // Övergångar
+  soon: 'senare',
+  five_minutes: 'timer',
+  now: 'nu',
+  done: 'fardig',
+  wait: 'vanta',
+  timer_5: 'timer',
+  timer_10: 'timer',
+  timer_15: 'timer',
+  timer_1: 'timer',
+
+  // TEACCH-inspirerat
+  first: 'checklista',
+  then: 'nasta',
+  finished: 'fardig',
+  pause: 'ta-paus',
+  work: 'uppgift',
+  rest: 'vila',
+  help: 'hjalp',
+  alone: 'ensam',
+  all_done: 'fardig',
+  think: 'fokus',
+
+  // Känslor
+  happy: 'glad',
+  angry: 'arg',
+  sad: 'ledsen',
+  tired: 'trott',
+  worried: 'orolig',
+  proud: 'stolt',
+  scared: 'nervos',
+  stressed: 'orolig',
+  calm: 'lugn',
+
+  // Platser
+  kitchen: 'spis',
+  inside: 'hemma',
+  outside: 'utflykt',
+  therapy: 'prata',
+  doctor: 'lakare',
+
+  // Mat & dryck
+  eat: 'tallrik',
+  drink: 'dricka-vatten',
+  lunch: 'lunch',
+  snack: 'mellanmal',
+
+  // Lek & fritid
+  toy: 'leka',
+  screen: 'surfplatta',
+  bike: 'cykel',
+  swing: 'leka',
+  sandbox: 'leka',
+  star: 'tacksam',
+  celebrate: 'glad',
+
+  // Familj & socialt
+  mom: 'familj',
+  dad: 'familj',
+  friend: 'vanskap',
+  grandma: 'familj',
+  grandpa: 'familj',
+  sibling: 'tillsammans',
+  pet: 'trygg',
+};
 
 const PICTOGRAMS = [
   // ── Morgon ──────────────────────────────────────────────
@@ -126,8 +254,19 @@ const PICTOGRAMS = [
 
 const VALID_KEYS = new Set(PICTOGRAMS.map((p) => p.key));
 
+function designKitIconName(key) {
+  return DESIGN_KIT_BY_KEY[key] || null;
+}
+
+function designKitIconPath(key, theme) {
+  const name = designKitIconName(key);
+  if (!name) return null;
+  const t = theme === 'dark' ? 'dark' : DESIGN_KIT_THEME_DEFAULT;
+  return `${DESIGN_KIT_ICON_BASE}/${t}/${name}.svg`;
+}
+
 function pictogramImagePath(key) {
-  return `${PICTOGRAM_IMAGE_BASE}/${key}.png`;
+  return designKitIconPath(key) || `${PICTOGRAM_IMAGE_BASE}/${key}.png`;
 }
 
 function getPictogram(key) {
@@ -152,6 +291,7 @@ function listPictogramsForApi() {
     category: p.category,
     emoji: p.emoji,
     url: p.imagePath || pictogramImagePath(p.key),
+    design_kit: designKitIconName(p.key) || undefined,
   }));
 }
 
@@ -173,9 +313,13 @@ function enrichPictogramFieldsMany(rows) {
 module.exports = {
   PICTOGRAMS,
   PICTOGRAM_IMAGE_BASE,
+  DESIGN_KIT_ICON_BASE,
+  DESIGN_KIT_BY_KEY,
   getPictogram,
   isValidPictogramKey,
   validatePictogramKey,
+  designKitIconName,
+  designKitIconPath,
   pictogramImagePath,
   listPictogramsForApi,
   enrichPictogramFields,

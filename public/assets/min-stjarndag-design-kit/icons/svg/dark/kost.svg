@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="kost">
+<rect width="64" height="64" rx="12" fill="#18211F"/>
+<g style="filter:drop-shadow(0 3px 6px rgba(23,33,30,.08))"><rect x="11" y="24" width="42" height="23" rx="8" fill="#7C9183"/><path d="M19 24v-8h26v8" fill="none" stroke="#B86445" stroke-width="4"/><rect x="25" y="31" width="14" height="9" rx="3" fill="#F7F2E8"/></g>
+</svg>

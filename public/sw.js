@@ -217,7 +217,7 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-const CACHE_NAME = 'stjarndag-v632';
+const CACHE_NAME = 'stjarndag-v634';
 // stjarndag-v632: share message includes register URL inline (native share text-only)
 // stjarndag-v631: share links — clean /register URL, no ?ref= codes; fix duplicate native share URL
 // stjarndag-v630: High Contrast Icon System v3 — near-white symbols, no CSS glow
@@ -436,6 +436,8 @@ const CACHE_NAME = 'stjarndag-v632';
 // stjarndag-v476: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v518: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v622: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v633: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v634: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

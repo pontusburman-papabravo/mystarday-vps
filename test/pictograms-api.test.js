@@ -38,7 +38,7 @@ test('GET /api/pictograms requires parent session', async (t) => {
     assert.ok(brush);
     assert.equal(brush.label, 'Borsta tänder');
     assert.equal(brush.emoji, '🪥');
-    assert.match(brush.url, /brush_teeth/);
+    assert.match(brush.url, /borsta-tanderna\.svg$/);
     assert.deepEqual(body.map((p) => p.key).sort(), listPictogramsForApi().map((p) => p.key).sort());
   } finally {
     await http.close();

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 128" role="img" aria-label="campingplats">
+<rect width="192" height="128" rx="20" fill="#FFFCF7"/>
+<rect x="12" y="20" width="168" height="84" rx="18" fill="#C87362" opacity=".12"/>
+<g transform="translate(18 34) scale(.72)"><rect x="14" y="10" width="36" height="44" rx="6" fill="#C87362"/><path d="M20 13v38" stroke="#274B4D" stroke-opacity=".25" stroke-width="3"/><path d="M43 44v12l-5-4-5 4V44" fill="#B86445"/></g><g transform="translate(64 34) scale(.72)"><path d="M12 44c8-20 14-28 20-32 8 7 14 17 20 32-12 10-28 10-40 0z" fill="#C87362"/><circle cx="32" cy="34" r="6" fill="#F7F2E8"/></g><g transform="translate(110 34) scale(.72)"><path d="M12 44c8-20 14-28 20-32 8 7 14 17 20 32-12 10-28 10-40 0z" fill="#C87362"/><circle cx="32" cy="34" r="6" fill="#F7F2E8"/></g>
+<path d="M20 103h152" stroke="#C87362" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+</svg>

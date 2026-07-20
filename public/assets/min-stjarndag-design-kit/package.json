@@ -1,0 +1,15 @@
+{
+  "name": "@nordic-calm/design-kit",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "icons",
+    "illustrations",
+    "animations",
+    "tokens",
+    "react-native",
+    "web",
+    "docs"
+  ],
+  "description": "Nordic Calm icon and illustration system (design kit v1)"
+}

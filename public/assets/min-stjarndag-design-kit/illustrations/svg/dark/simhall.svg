@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 128" role="img" aria-label="simhall">
+<rect width="192" height="128" rx="20" fill="#18211F"/>
+<rect x="12" y="20" width="168" height="84" rx="18" fill="#D8C6A5" opacity=".12"/>
+<g transform="translate(18 34) scale(.72)"><circle cx="32" cy="32" r="21" fill="#D8C6A5"/><path d="M20 34l8 8 17-20" fill="none" stroke="#F7F2E8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(64 34) scale(.72)"><path d="M40 12v30c0 6-5 10-11 10s-10-3-10-8 4-8 10-8c3 0 5 1 7 2V18z" fill="#D8C6A5"/><path d="M40 12l14 5v8l-14-5z" fill="#274B4D"/></g><g transform="translate(110 34) scale(.72)"><rect x="14" y="10" width="36" height="44" rx="6" fill="#D8C6A5"/><path d="M20 13v38" stroke="#274B4D" stroke-opacity=".25" stroke-width="3"/><path d="M43 44v12l-5-4-5 4V44" fill="#B86445"/></g>
+<path d="M20 103h152" stroke="#D8C6A5" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+</svg>

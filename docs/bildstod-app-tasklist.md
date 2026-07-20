@@ -85,7 +85,7 @@
 - [x] Skapa `config/pictogram-library.js` — extrahera/utöka från `config/seven-questions-pictograms.js`
 - [x] ≥80 nycklar: morgon, kväll, skola, hygien (+ abstract/emotion) — varje nyckel: `label` + minst `emoji` (96 nycklar levererade)
 - [x] Kategorier för sök/filter (samma struktur som plan §5.2 startset)
-- [ ] `public/resurser/bilder/` — PNG/SVG per nyckel när design levererat (fasad OK i Phase 1 — kvarstår, design ej levererad än)
+- [x] Design Kit v1 inkopplad — `public/assets/min-stjarndag-design-kit/` + mapping i `config/pictogram-library.js` (SVG light; PNG-fasad `/resurser/bilder/` ej längre primär)
 - [x] Enhetstest: varje nyckel har `label`, `emoji` eller `imagePath`
 
 **Designkapacitet:** ≥80 nycklar med bara `label` + `emoji` räcker för Phase 1-gate — custom illustration är inte blockerande. Riktvärde: första ~40 illustrationerna ≈ 3–5 designerdagar, kan köras parallellt med kod/R1 (se plan §6).

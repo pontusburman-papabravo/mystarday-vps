@@ -1,0 +1,2802 @@
+[
+  {
+    "name": "borsta-tanderna",
+    "category": "rutiner",
+    "light": "icons/svg/light/borsta-tanderna.svg",
+    "dark": "icons/svg/dark/borsta-tanderna.svg",
+    "label": "borsta-tanderna"
+  },
+  {
+    "name": "sova",
+    "category": "rutiner",
+    "light": "icons/svg/light/sova.svg",
+    "dark": "icons/svg/dark/sova.svg",
+    "label": "sova"
+  },
+  {
+    "name": "duscha",
+    "category": "rutiner",
+    "light": "icons/svg/light/duscha.svg",
+    "dark": "icons/svg/dark/duscha.svg",
+    "label": "duscha"
+  },
+  {
+    "name": "kla-pa-sig",
+    "category": "rutiner",
+    "light": "icons/svg/light/kla-pa-sig.svg",
+    "dark": "icons/svg/dark/kla-pa-sig.svg",
+    "label": "kla-pa-sig"
+  },
+  {
+    "name": "packa-vaska",
+    "category": "rutiner",
+    "light": "icons/svg/light/packa-vaska.svg",
+    "dark": "icons/svg/dark/packa-vaska.svg",
+    "label": "packa-vaska"
+  },
+  {
+    "name": "skor",
+    "category": "rutiner",
+    "light": "icons/svg/light/skor.svg",
+    "dark": "icons/svg/dark/skor.svg",
+    "label": "skor"
+  },
+  {
+    "name": "ga-ut",
+    "category": "rutiner",
+    "light": "icons/svg/light/ga-ut.svg",
+    "dark": "icons/svg/dark/ga-ut.svg",
+    "label": "ga-ut"
+  },
+  {
+    "name": "toalett",
+    "category": "rutiner",
+    "light": "icons/svg/light/toalett.svg",
+    "dark": "icons/svg/dark/toalett.svg",
+    "label": "toalett"
+  },
+  {
+    "name": "handduk",
+    "category": "rutiner",
+    "light": "icons/svg/light/handduk.svg",
+    "dark": "icons/svg/dark/handduk.svg",
+    "label": "handduk"
+  },
+  {
+    "name": "tvatta-ansiktet",
+    "category": "rutiner",
+    "light": "icons/svg/light/tvatta-ansiktet.svg",
+    "dark": "icons/svg/dark/tvatta-ansiktet.svg",
+    "label": "tvatta-ansiktet"
+  },
+  {
+    "name": "kamma-haret",
+    "category": "rutiner",
+    "light": "icons/svg/light/kamma-haret.svg",
+    "dark": "icons/svg/dark/kamma-haret.svg",
+    "label": "kamma-haret"
+  },
+  {
+    "name": "borsta-haret",
+    "category": "rutiner",
+    "light": "icons/svg/light/borsta-haret.svg",
+    "dark": "icons/svg/dark/borsta-haret.svg",
+    "label": "borsta-haret"
+  },
+  {
+    "name": "deodorant",
+    "category": "rutiner",
+    "light": "icons/svg/light/deodorant.svg",
+    "dark": "icons/svg/dark/deodorant.svg",
+    "label": "deodorant"
+  },
+  {
+    "name": "parfym",
+    "category": "rutiner",
+    "light": "icons/svg/light/parfym.svg",
+    "dark": "icons/svg/dark/parfym.svg",
+    "label": "parfym"
+  },
+  {
+    "name": "klippa-naglar",
+    "category": "rutiner",
+    "light": "icons/svg/light/klippa-naglar.svg",
+    "dark": "icons/svg/dark/klippa-naglar.svg",
+    "label": "klippa-naglar"
+  },
+  {
+    "name": "rakning",
+    "category": "rutiner",
+    "light": "icons/svg/light/rakning.svg",
+    "dark": "icons/svg/dark/rakning.svg",
+    "label": "rakning"
+  },
+  {
+    "name": "laggdags",
+    "category": "rutiner",
+    "light": "icons/svg/light/laggdags.svg",
+    "dark": "icons/svg/dark/laggdags.svg",
+    "label": "laggdags"
+  },
+  {
+    "name": "vakna",
+    "category": "rutiner",
+    "light": "icons/svg/light/vakna.svg",
+    "dark": "icons/svg/dark/vakna.svg",
+    "label": "vakna"
+  },
+  {
+    "name": "sang",
+    "category": "rutiner",
+    "light": "icons/svg/light/sang.svg",
+    "dark": "icons/svg/dark/sang.svg",
+    "label": "sang"
+  },
+  {
+    "name": "pyjamas",
+    "category": "rutiner",
+    "light": "icons/svg/light/pyjamas.svg",
+    "dark": "icons/svg/dark/pyjamas.svg",
+    "label": "pyjamas"
+  },
+  {
+    "name": "badda-sangen",
+    "category": "rutiner",
+    "light": "icons/svg/light/badda-sangen.svg",
+    "dark": "icons/svg/dark/badda-sangen.svg",
+    "label": "badda-sangen"
+  },
+  {
+    "name": "ta-medicin",
+    "category": "rutiner",
+    "light": "icons/svg/light/ta-medicin.svg",
+    "dark": "icons/svg/dark/ta-medicin.svg",
+    "label": "ta-medicin"
+  },
+  {
+    "name": "dricka-vatten",
+    "category": "rutiner",
+    "light": "icons/svg/light/dricka-vatten.svg",
+    "dark": "icons/svg/dark/dricka-vatten.svg",
+    "label": "dricka-vatten"
+  },
+  {
+    "name": "vila",
+    "category": "rutiner",
+    "light": "icons/svg/light/vila.svg",
+    "dark": "icons/svg/dark/vila.svg",
+    "label": "vila"
+  },
+  {
+    "name": "ta-paus",
+    "category": "rutiner",
+    "light": "icons/svg/light/ta-paus.svg",
+    "dark": "icons/svg/dark/ta-paus.svg",
+    "label": "ta-paus"
+  },
+  {
+    "name": "starta-dagen",
+    "category": "rutiner",
+    "light": "icons/svg/light/starta-dagen.svg",
+    "dark": "icons/svg/dark/starta-dagen.svg",
+    "label": "starta-dagen"
+  },
+  {
+    "name": "avsluta-dagen",
+    "category": "rutiner",
+    "light": "icons/svg/light/avsluta-dagen.svg",
+    "dark": "icons/svg/dark/avsluta-dagen.svg",
+    "label": "avsluta-dagen"
+  },
+  {
+    "name": "morgon",
+    "category": "rutiner",
+    "light": "icons/svg/light/morgon.svg",
+    "dark": "icons/svg/dark/morgon.svg",
+    "label": "morgon"
+  },
+  {
+    "name": "kvall",
+    "category": "rutiner",
+    "light": "icons/svg/light/kvall.svg",
+    "dark": "icons/svg/dark/kvall.svg",
+    "label": "kvall"
+  },
+  {
+    "name": "natt",
+    "category": "rutiner",
+    "light": "icons/svg/light/natt.svg",
+    "dark": "icons/svg/dark/natt.svg",
+    "label": "natt"
+  },
+  {
+    "name": "alarm",
+    "category": "rutiner",
+    "light": "icons/svg/light/alarm.svg",
+    "dark": "icons/svg/dark/alarm.svg",
+    "label": "alarm"
+  },
+  {
+    "name": "timer",
+    "category": "rutiner",
+    "light": "icons/svg/light/timer.svg",
+    "dark": "icons/svg/dark/timer.svg",
+    "label": "timer"
+  },
+  {
+    "name": "checklista",
+    "category": "rutiner",
+    "light": "icons/svg/light/checklista.svg",
+    "dark": "icons/svg/dark/checklista.svg",
+    "label": "checklista"
+  },
+  {
+    "name": "fardig",
+    "category": "rutiner",
+    "light": "icons/svg/light/fardig.svg",
+    "dark": "icons/svg/dark/fardig.svg",
+    "label": "fardig"
+  },
+  {
+    "name": "vanta",
+    "category": "rutiner",
+    "light": "icons/svg/light/vanta.svg",
+    "dark": "icons/svg/dark/vanta.svg",
+    "label": "vanta"
+  },
+  {
+    "name": "nasta",
+    "category": "rutiner",
+    "light": "icons/svg/light/nasta.svg",
+    "dark": "icons/svg/dark/nasta.svg",
+    "label": "nasta"
+  },
+  {
+    "name": "senare",
+    "category": "rutiner",
+    "light": "icons/svg/light/senare.svg",
+    "dark": "icons/svg/dark/senare.svg",
+    "label": "senare"
+  },
+  {
+    "name": "nu",
+    "category": "rutiner",
+    "light": "icons/svg/light/nu.svg",
+    "dark": "icons/svg/dark/nu.svg",
+    "label": "nu"
+  },
+  {
+    "name": "hemma",
+    "category": "rutiner",
+    "light": "icons/svg/light/hemma.svg",
+    "dark": "icons/svg/dark/hemma.svg",
+    "label": "hemma"
+  },
+  {
+    "name": "borta",
+    "category": "rutiner",
+    "light": "icons/svg/light/borta.svg",
+    "dark": "icons/svg/dark/borta.svg",
+    "label": "borta"
+  },
+  {
+    "name": "frukost",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/frukost.svg",
+    "dark": "icons/svg/dark/frukost.svg",
+    "label": "frukost"
+  },
+  {
+    "name": "lunch",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/lunch.svg",
+    "dark": "icons/svg/dark/lunch.svg",
+    "label": "lunch"
+  },
+  {
+    "name": "middag",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/middag.svg",
+    "dark": "icons/svg/dark/middag.svg",
+    "label": "middag"
+  },
+  {
+    "name": "mellanmal",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/mellanmal.svg",
+    "dark": "icons/svg/dark/mellanmal.svg",
+    "label": "mellanmal"
+  },
+  {
+    "name": "frukt",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/frukt.svg",
+    "dark": "icons/svg/dark/frukt.svg",
+    "label": "frukt"
+  },
+  {
+    "name": "gronsaker",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/gronsaker.svg",
+    "dark": "icons/svg/dark/gronsaker.svg",
+    "label": "gronsaker"
+  },
+  {
+    "name": "yoghurt",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/yoghurt.svg",
+    "dark": "icons/svg/dark/yoghurt.svg",
+    "label": "yoghurt"
+  },
+  {
+    "name": "mjolk",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/mjolk.svg",
+    "dark": "icons/svg/dark/mjolk.svg",
+    "label": "mjolk"
+  },
+  {
+    "name": "smorgas",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/smorgas.svg",
+    "dark": "icons/svg/dark/smorgas.svg",
+    "label": "smorgas"
+  },
+  {
+    "name": "brod",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/brod.svg",
+    "dark": "icons/svg/dark/brod.svg",
+    "label": "brod"
+  },
+  {
+    "name": "ost",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/ost.svg",
+    "dark": "icons/svg/dark/ost.svg",
+    "label": "ost"
+  },
+  {
+    "name": "agg",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/agg.svg",
+    "dark": "icons/svg/dark/agg.svg",
+    "label": "agg"
+  },
+  {
+    "name": "kott",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/kott.svg",
+    "dark": "icons/svg/dark/kott.svg",
+    "label": "kott"
+  },
+  {
+    "name": "fisk",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/fisk.svg",
+    "dark": "icons/svg/dark/fisk.svg",
+    "label": "fisk"
+  },
+  {
+    "name": "ris",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/ris.svg",
+    "dark": "icons/svg/dark/ris.svg",
+    "label": "ris"
+  },
+  {
+    "name": "nudlar",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/nudlar.svg",
+    "dark": "icons/svg/dark/nudlar.svg",
+    "label": "nudlar"
+  },
+  {
+    "name": "soppa",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/soppa.svg",
+    "dark": "icons/svg/dark/soppa.svg",
+    "label": "soppa"
+  },
+  {
+    "name": "vatten",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/vatten.svg",
+    "dark": "icons/svg/dark/vatten.svg",
+    "label": "vatten"
+  },
+  {
+    "name": "juice",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/juice.svg",
+    "dark": "icons/svg/dark/juice.svg",
+    "label": "juice"
+  },
+  {
+    "name": "mugg",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/mugg.svg",
+    "dark": "icons/svg/dark/mugg.svg",
+    "label": "mugg"
+  },
+  {
+    "name": "bestick",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/bestick.svg",
+    "dark": "icons/svg/dark/bestick.svg",
+    "label": "bestick"
+  },
+  {
+    "name": "tallrik",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/tallrik.svg",
+    "dark": "icons/svg/dark/tallrik.svg",
+    "label": "tallrik"
+  },
+  {
+    "name": "skal",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/skal.svg",
+    "dark": "icons/svg/dark/skal.svg",
+    "label": "skal"
+  },
+  {
+    "name": "flaska",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/flaska.svg",
+    "dark": "icons/svg/dark/flaska.svg",
+    "label": "flaska"
+  },
+  {
+    "name": "banan",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/banan.svg",
+    "dark": "icons/svg/dark/banan.svg",
+    "label": "banan"
+  },
+  {
+    "name": "apple",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/apple.svg",
+    "dark": "icons/svg/dark/apple.svg",
+    "label": "apple"
+  },
+  {
+    "name": "paron",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/paron.svg",
+    "dark": "icons/svg/dark/paron.svg",
+    "label": "paron"
+  },
+  {
+    "name": "apelsin",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/apelsin.svg",
+    "dark": "icons/svg/dark/apelsin.svg",
+    "label": "apelsin"
+  },
+  {
+    "name": "morot",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/morot.svg",
+    "dark": "icons/svg/dark/morot.svg",
+    "label": "morot"
+  },
+  {
+    "name": "broccoli",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/broccoli.svg",
+    "dark": "icons/svg/dark/broccoli.svg",
+    "label": "broccoli"
+  },
+  {
+    "name": "potatis",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/potatis.svg",
+    "dark": "icons/svg/dark/potatis.svg",
+    "label": "potatis"
+  },
+  {
+    "name": "pasta",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/pasta.svg",
+    "dark": "icons/svg/dark/pasta.svg",
+    "label": "pasta"
+  },
+  {
+    "name": "pizza",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/pizza.svg",
+    "dark": "icons/svg/dark/pizza.svg",
+    "label": "pizza"
+  },
+  {
+    "name": "pannkaka",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/pannkaka.svg",
+    "dark": "icons/svg/dark/pannkaka.svg",
+    "label": "pannkaka"
+  },
+  {
+    "name": "havregryn",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/havregryn.svg",
+    "dark": "icons/svg/dark/havregryn.svg",
+    "label": "havregryn"
+  },
+  {
+    "name": "te",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/te.svg",
+    "dark": "icons/svg/dark/te.svg",
+    "label": "te"
+  },
+  {
+    "name": "kaffe",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/kaffe.svg",
+    "dark": "icons/svg/dark/kaffe.svg",
+    "label": "kaffe"
+  },
+  {
+    "name": "varm-choklad",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/varm-choklad.svg",
+    "dark": "icons/svg/dark/varm-choklad.svg",
+    "label": "varm-choklad"
+  },
+  {
+    "name": "glass",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/glass.svg",
+    "dark": "icons/svg/dark/glass.svg",
+    "label": "glass"
+  },
+  {
+    "name": "kaka",
+    "category": "mat-dryck",
+    "light": "icons/svg/light/kaka.svg",
+    "dark": "icons/svg/dark/kaka.svg",
+    "label": "kaka"
+  },
+  {
+    "name": "skola",
+    "category": "skola",
+    "light": "icons/svg/light/skola.svg",
+    "dark": "icons/svg/dark/skola.svg",
+    "label": "skola"
+  },
+  {
+    "name": "skolvaska",
+    "category": "skola",
+    "light": "icons/svg/light/skolvaska.svg",
+    "dark": "icons/svg/dark/skolvaska.svg",
+    "label": "skolvaska"
+  },
+  {
+    "name": "laxa",
+    "category": "skola",
+    "light": "icons/svg/light/laxa.svg",
+    "dark": "icons/svg/dark/laxa.svg",
+    "label": "laxa"
+  },
+  {
+    "name": "lasa",
+    "category": "skola",
+    "light": "icons/svg/light/lasa.svg",
+    "dark": "icons/svg/dark/lasa.svg",
+    "label": "lasa"
+  },
+  {
+    "name": "skriva",
+    "category": "skola",
+    "light": "icons/svg/light/skriva.svg",
+    "dark": "icons/svg/dark/skriva.svg",
+    "label": "skriva"
+  },
+  {
+    "name": "bok",
+    "category": "skola",
+    "light": "icons/svg/light/bok.svg",
+    "dark": "icons/svg/dark/bok.svg",
+    "label": "bok"
+  },
+  {
+    "name": "anteckna",
+    "category": "skola",
+    "light": "icons/svg/light/anteckna.svg",
+    "dark": "icons/svg/dark/anteckna.svg",
+    "label": "anteckna"
+  },
+  {
+    "name": "dator",
+    "category": "skola",
+    "light": "icons/svg/light/dator.svg",
+    "dark": "icons/svg/dark/dator.svg",
+    "label": "dator"
+  },
+  {
+    "name": "surfplatta",
+    "category": "skola",
+    "light": "icons/svg/light/surfplatta.svg",
+    "dark": "icons/svg/dark/surfplatta.svg",
+    "label": "surfplatta"
+  },
+  {
+    "name": "telefon",
+    "category": "skola",
+    "light": "icons/svg/light/telefon.svg",
+    "dark": "icons/svg/dark/telefon.svg",
+    "label": "telefon"
+  },
+  {
+    "name": "rakna",
+    "category": "skola",
+    "light": "icons/svg/light/rakna.svg",
+    "dark": "icons/svg/dark/rakna.svg",
+    "label": "rakna"
+  },
+  {
+    "name": "uppgift",
+    "category": "skola",
+    "light": "icons/svg/light/uppgift.svg",
+    "dark": "icons/svg/dark/uppgift.svg",
+    "label": "uppgift"
+  },
+  {
+    "name": "schema",
+    "category": "skola",
+    "light": "icons/svg/light/schema.svg",
+    "dark": "icons/svg/dark/schema.svg",
+    "label": "schema"
+  },
+  {
+    "name": "kalender",
+    "category": "skola",
+    "light": "icons/svg/light/kalender.svg",
+    "dark": "icons/svg/dark/kalender.svg",
+    "label": "kalender"
+  },
+  {
+    "name": "tid",
+    "category": "skola",
+    "light": "icons/svg/light/tid.svg",
+    "dark": "icons/svg/dark/tid.svg",
+    "label": "tid"
+  },
+  {
+    "name": "fokus",
+    "category": "skola",
+    "light": "icons/svg/light/fokus.svg",
+    "dark": "icons/svg/dark/fokus.svg",
+    "label": "fokus"
+  },
+  {
+    "name": "planera",
+    "category": "skola",
+    "light": "icons/svg/light/planera.svg",
+    "dark": "icons/svg/dark/planera.svg",
+    "label": "planera"
+  },
+  {
+    "name": "bokhylla",
+    "category": "skola",
+    "light": "icons/svg/light/bokhylla.svg",
+    "dark": "icons/svg/dark/bokhylla.svg",
+    "label": "bokhylla"
+  },
+  {
+    "name": "skrivbord",
+    "category": "skola",
+    "light": "icons/svg/light/skrivbord.svg",
+    "dark": "icons/svg/dark/skrivbord.svg",
+    "label": "skrivbord"
+  },
+  {
+    "name": "stol",
+    "category": "skola",
+    "light": "icons/svg/light/stol.svg",
+    "dark": "icons/svg/dark/stol.svg",
+    "label": "stol"
+  },
+  {
+    "name": "penna",
+    "category": "skola",
+    "light": "icons/svg/light/penna.svg",
+    "dark": "icons/svg/dark/penna.svg",
+    "label": "penna"
+  },
+  {
+    "name": "sudd",
+    "category": "skola",
+    "light": "icons/svg/light/sudd.svg",
+    "dark": "icons/svg/dark/sudd.svg",
+    "label": "sudd"
+  },
+  {
+    "name": "linjal",
+    "category": "skola",
+    "light": "icons/svg/light/linjal.svg",
+    "dark": "icons/svg/dark/linjal.svg",
+    "label": "linjal"
+  },
+  {
+    "name": "sax",
+    "category": "skola",
+    "light": "icons/svg/light/sax.svg",
+    "dark": "icons/svg/dark/sax.svg",
+    "label": "sax"
+  },
+  {
+    "name": "lim",
+    "category": "skola",
+    "light": "icons/svg/light/lim.svg",
+    "dark": "icons/svg/dark/lim.svg",
+    "label": "lim"
+  },
+  {
+    "name": "hafte",
+    "category": "skola",
+    "light": "icons/svg/light/hafte.svg",
+    "dark": "icons/svg/dark/hafte.svg",
+    "label": "hafte"
+  },
+  {
+    "name": "mapp",
+    "category": "skola",
+    "light": "icons/svg/light/mapp.svg",
+    "dark": "icons/svg/dark/mapp.svg",
+    "label": "mapp"
+  },
+  {
+    "name": "prov",
+    "category": "skola",
+    "light": "icons/svg/light/prov.svg",
+    "dark": "icons/svg/dark/prov.svg",
+    "label": "prov"
+  },
+  {
+    "name": "lektion",
+    "category": "skola",
+    "light": "icons/svg/light/lektion.svg",
+    "dark": "icons/svg/dark/lektion.svg",
+    "label": "lektion"
+  },
+  {
+    "name": "rast",
+    "category": "skola",
+    "light": "icons/svg/light/rast.svg",
+    "dark": "icons/svg/dark/rast.svg",
+    "label": "rast"
+  },
+  {
+    "name": "klassrum",
+    "category": "skola",
+    "light": "icons/svg/light/klassrum.svg",
+    "dark": "icons/svg/dark/klassrum.svg",
+    "label": "klassrum"
+  },
+  {
+    "name": "larare",
+    "category": "skola",
+    "light": "icons/svg/light/larare.svg",
+    "dark": "icons/svg/dark/larare.svg",
+    "label": "larare"
+  },
+  {
+    "name": "elev",
+    "category": "skola",
+    "light": "icons/svg/light/elev.svg",
+    "dark": "icons/svg/dark/elev.svg",
+    "label": "elev"
+  },
+  {
+    "name": "bibliotek",
+    "category": "skola",
+    "light": "icons/svg/light/bibliotek.svg",
+    "dark": "icons/svg/dark/bibliotek.svg",
+    "label": "bibliotek"
+  },
+  {
+    "name": "whiteboard",
+    "category": "skola",
+    "light": "icons/svg/light/whiteboard.svg",
+    "dark": "icons/svg/dark/whiteboard.svg",
+    "label": "whiteboard"
+  },
+  {
+    "name": "mikroskop",
+    "category": "skola",
+    "light": "icons/svg/light/mikroskop.svg",
+    "dark": "icons/svg/dark/mikroskop.svg",
+    "label": "mikroskop"
+  },
+  {
+    "name": "glob",
+    "category": "skola",
+    "light": "icons/svg/light/glob.svg",
+    "dark": "icons/svg/dark/glob.svg",
+    "label": "glob"
+  },
+  {
+    "name": "karta",
+    "category": "skola",
+    "light": "icons/svg/light/karta.svg",
+    "dark": "icons/svg/dark/karta.svg",
+    "label": "karta"
+  },
+  {
+    "name": "sprak",
+    "category": "skola",
+    "light": "icons/svg/light/sprak.svg",
+    "dark": "icons/svg/dark/sprak.svg",
+    "label": "sprak"
+  },
+  {
+    "name": "matematik",
+    "category": "skola",
+    "light": "icons/svg/light/matematik.svg",
+    "dark": "icons/svg/dark/matematik.svg",
+    "label": "matematik"
+  },
+  {
+    "name": "leka",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/leka.svg",
+    "dark": "icons/svg/dark/leka.svg",
+    "label": "leka"
+  },
+  {
+    "name": "bygga",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/bygga.svg",
+    "dark": "icons/svg/dark/bygga.svg",
+    "label": "bygga"
+  },
+  {
+    "name": "spela-spel",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/spela-spel.svg",
+    "dark": "icons/svg/dark/spela-spel.svg",
+    "label": "spela-spel"
+  },
+  {
+    "name": "musik",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/musik.svg",
+    "dark": "icons/svg/dark/musik.svg",
+    "label": "musik"
+  },
+  {
+    "name": "lyssna",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/lyssna.svg",
+    "dark": "icons/svg/dark/lyssna.svg",
+    "label": "lyssna"
+  },
+  {
+    "name": "sjunga",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/sjunga.svg",
+    "dark": "icons/svg/dark/sjunga.svg",
+    "label": "sjunga"
+  },
+  {
+    "name": "instrument",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/instrument.svg",
+    "dark": "icons/svg/dark/instrument.svg",
+    "label": "instrument"
+  },
+  {
+    "name": "mala",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/mala.svg",
+    "dark": "icons/svg/dark/mala.svg",
+    "label": "mala"
+  },
+  {
+    "name": "pyssel",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/pyssel.svg",
+    "dark": "icons/svg/dark/pyssel.svg",
+    "label": "pyssel"
+  },
+  {
+    "name": "skapa",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/skapa.svg",
+    "dark": "icons/svg/dark/skapa.svg",
+    "label": "skapa"
+  },
+  {
+    "name": "dansa",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/dansa.svg",
+    "dark": "icons/svg/dark/dansa.svg",
+    "label": "dansa"
+  },
+  {
+    "name": "fotboll",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/fotboll.svg",
+    "dark": "icons/svg/dark/fotboll.svg",
+    "label": "fotboll"
+  },
+  {
+    "name": "basket",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/basket.svg",
+    "dark": "icons/svg/dark/basket.svg",
+    "label": "basket"
+  },
+  {
+    "name": "tennis",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/tennis.svg",
+    "dark": "icons/svg/dark/tennis.svg",
+    "label": "tennis"
+  },
+  {
+    "name": "spelkontroll",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/spelkontroll.svg",
+    "dark": "icons/svg/dark/spelkontroll.svg",
+    "label": "spelkontroll"
+  },
+  {
+    "name": "byggklossar",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/byggklossar.svg",
+    "dark": "icons/svg/dark/byggklossar.svg",
+    "label": "byggklossar"
+  },
+  {
+    "name": "pussel",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/pussel.svg",
+    "dark": "icons/svg/dark/pussel.svg",
+    "label": "pussel"
+  },
+  {
+    "name": "rita",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/rita.svg",
+    "dark": "icons/svg/dark/rita.svg",
+    "label": "rita"
+  },
+  {
+    "name": "dagbok",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/dagbok.svg",
+    "dark": "icons/svg/dark/dagbok.svg",
+    "label": "dagbok"
+  },
+  {
+    "name": "kamera",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/kamera.svg",
+    "dark": "icons/svg/dark/kamera.svg",
+    "label": "kamera"
+  },
+  {
+    "name": "foto",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/foto.svg",
+    "dark": "icons/svg/dark/foto.svg",
+    "label": "foto"
+  },
+  {
+    "name": "film",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/film.svg",
+    "dark": "icons/svg/dark/film.svg",
+    "label": "film"
+  },
+  {
+    "name": "dockteater",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/dockteater.svg",
+    "dark": "icons/svg/dark/dockteater.svg",
+    "label": "dockteater"
+  },
+  {
+    "name": "drake",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/drake.svg",
+    "dark": "icons/svg/dark/drake.svg",
+    "label": "drake"
+  },
+  {
+    "name": "boll",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/boll.svg",
+    "dark": "icons/svg/dark/boll.svg",
+    "label": "boll"
+  },
+  {
+    "name": "kritor",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/kritor.svg",
+    "dark": "icons/svg/dark/kritor.svg",
+    "label": "kritor"
+  },
+  {
+    "name": "pensel",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/pensel.svg",
+    "dark": "icons/svg/dark/pensel.svg",
+    "label": "pensel"
+  },
+  {
+    "name": "lera",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/lera.svg",
+    "dark": "icons/svg/dark/lera.svg",
+    "label": "lera"
+  },
+  {
+    "name": "origami",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/origami.svg",
+    "dark": "icons/svg/dark/origami.svg",
+    "label": "origami"
+  },
+  {
+    "name": "lego-liknande",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/lego-liknande.svg",
+    "dark": "icons/svg/dark/lego-liknande.svg",
+    "label": "lego-liknande"
+  },
+  {
+    "name": "bradspel",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/bradspel.svg",
+    "dark": "icons/svg/dark/bradspel.svg",
+    "label": "bradspel"
+  },
+  {
+    "name": "kortspel",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/kortspel.svg",
+    "dark": "icons/svg/dark/kortspel.svg",
+    "label": "kortspel"
+  },
+  {
+    "name": "schack",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/schack.svg",
+    "dark": "icons/svg/dark/schack.svg",
+    "label": "schack"
+  },
+  {
+    "name": "robot",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/robot.svg",
+    "dark": "icons/svg/dark/robot.svg",
+    "label": "robot"
+  },
+  {
+    "name": "raket",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/raket.svg",
+    "dark": "icons/svg/dark/raket.svg",
+    "label": "raket"
+  },
+  {
+    "name": "teleskop",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/teleskop.svg",
+    "dark": "icons/svg/dark/teleskop.svg",
+    "label": "teleskop"
+  },
+  {
+    "name": "trumma",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/trumma.svg",
+    "dark": "icons/svg/dark/trumma.svg",
+    "label": "trumma"
+  },
+  {
+    "name": "gitarr",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/gitarr.svg",
+    "dark": "icons/svg/dark/gitarr.svg",
+    "label": "gitarr"
+  },
+  {
+    "name": "piano",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/piano.svg",
+    "dark": "icons/svg/dark/piano.svg",
+    "label": "piano"
+  },
+  {
+    "name": "mikrofon",
+    "category": "lek-kreativitet",
+    "light": "icons/svg/light/mikrofon.svg",
+    "dark": "icons/svg/dark/mikrofon.svg",
+    "label": "mikrofon"
+  },
+  {
+    "name": "promenad",
+    "category": "halsa",
+    "light": "icons/svg/light/promenad.svg",
+    "dark": "icons/svg/dark/promenad.svg",
+    "label": "promenad"
+  },
+  {
+    "name": "cykla",
+    "category": "halsa",
+    "light": "icons/svg/light/cykla.svg",
+    "dark": "icons/svg/dark/cykla.svg",
+    "label": "cykla"
+  },
+  {
+    "name": "springa",
+    "category": "halsa",
+    "light": "icons/svg/light/springa.svg",
+    "dark": "icons/svg/dark/springa.svg",
+    "label": "springa"
+  },
+  {
+    "name": "simma",
+    "category": "halsa",
+    "light": "icons/svg/light/simma.svg",
+    "dark": "icons/svg/dark/simma.svg",
+    "label": "simma"
+  },
+  {
+    "name": "gym",
+    "category": "halsa",
+    "light": "icons/svg/light/gym.svg",
+    "dark": "icons/svg/dark/gym.svg",
+    "label": "gym"
+  },
+  {
+    "name": "yoga",
+    "category": "halsa",
+    "light": "icons/svg/light/yoga.svg",
+    "dark": "icons/svg/dark/yoga.svg",
+    "label": "yoga"
+  },
+  {
+    "name": "stretch",
+    "category": "halsa",
+    "light": "icons/svg/light/stretch.svg",
+    "dark": "icons/svg/dark/stretch.svg",
+    "label": "stretch"
+  },
+  {
+    "name": "trana",
+    "category": "halsa",
+    "light": "icons/svg/light/trana.svg",
+    "dark": "icons/svg/dark/trana.svg",
+    "label": "trana"
+  },
+  {
+    "name": "halsa-vila",
+    "category": "halsa",
+    "light": "icons/svg/light/halsa-vila.svg",
+    "dark": "icons/svg/dark/halsa-vila.svg",
+    "label": "vila"
+  },
+  {
+    "name": "meditation",
+    "category": "halsa",
+    "light": "icons/svg/light/meditation.svg",
+    "dark": "icons/svg/dark/meditation.svg",
+    "label": "meditation"
+  },
+  {
+    "name": "andas",
+    "category": "halsa",
+    "light": "icons/svg/light/andas.svg",
+    "dark": "icons/svg/dark/andas.svg",
+    "label": "andas"
+  },
+  {
+    "name": "puls",
+    "category": "halsa",
+    "light": "icons/svg/light/puls.svg",
+    "dark": "icons/svg/dark/puls.svg",
+    "label": "puls"
+  },
+  {
+    "name": "vikt",
+    "category": "halsa",
+    "light": "icons/svg/light/vikt.svg",
+    "dark": "icons/svg/dark/vikt.svg",
+    "label": "vikt"
+  },
+  {
+    "name": "stegraknare",
+    "category": "halsa",
+    "light": "icons/svg/light/stegraknare.svg",
+    "dark": "icons/svg/dark/stegraknare.svg",
+    "label": "stegraknare"
+  },
+  {
+    "name": "halsa-vatten",
+    "category": "halsa",
+    "light": "icons/svg/light/halsa-vatten.svg",
+    "dark": "icons/svg/dark/halsa-vatten.svg",
+    "label": "vatten"
+  },
+  {
+    "name": "kost",
+    "category": "halsa",
+    "light": "icons/svg/light/kost.svg",
+    "dark": "icons/svg/dark/kost.svg",
+    "label": "kost"
+  },
+  {
+    "name": "somn",
+    "category": "halsa",
+    "light": "icons/svg/light/somn.svg",
+    "dark": "icons/svg/dark/somn.svg",
+    "label": "somn"
+  },
+  {
+    "name": "massage",
+    "category": "halsa",
+    "light": "icons/svg/light/massage.svg",
+    "dark": "icons/svg/dark/massage.svg",
+    "label": "massage"
+  },
+  {
+    "name": "forsta-hjalpen",
+    "category": "halsa",
+    "light": "icons/svg/light/forsta-hjalpen.svg",
+    "dark": "icons/svg/dark/forsta-hjalpen.svg",
+    "label": "forsta-hjalpen"
+  },
+  {
+    "name": "medicin",
+    "category": "halsa",
+    "light": "icons/svg/light/medicin.svg",
+    "dark": "icons/svg/dark/medicin.svg",
+    "label": "medicin"
+  },
+  {
+    "name": "lakare",
+    "category": "halsa",
+    "light": "icons/svg/light/lakare.svg",
+    "dark": "icons/svg/dark/lakare.svg",
+    "label": "lakare"
+  },
+  {
+    "name": "tandlakare",
+    "category": "halsa",
+    "light": "icons/svg/light/tandlakare.svg",
+    "dark": "icons/svg/dark/tandlakare.svg",
+    "label": "tandlakare"
+  },
+  {
+    "name": "sjukhus",
+    "category": "halsa",
+    "light": "icons/svg/light/sjukhus.svg",
+    "dark": "icons/svg/dark/sjukhus.svg",
+    "label": "sjukhus"
+  },
+  {
+    "name": "termometer",
+    "category": "halsa",
+    "light": "icons/svg/light/termometer.svg",
+    "dark": "icons/svg/dark/termometer.svg",
+    "label": "termometer"
+  },
+  {
+    "name": "plaster",
+    "category": "halsa",
+    "light": "icons/svg/light/plaster.svg",
+    "dark": "icons/svg/dark/plaster.svg",
+    "label": "plaster"
+  },
+  {
+    "name": "bandage",
+    "category": "halsa",
+    "light": "icons/svg/light/bandage.svg",
+    "dark": "icons/svg/dark/bandage.svg",
+    "label": "bandage"
+  },
+  {
+    "name": "halsokontroll",
+    "category": "halsa",
+    "light": "icons/svg/light/halsokontroll.svg",
+    "dark": "icons/svg/dark/halsokontroll.svg",
+    "label": "halsokontroll"
+  },
+  {
+    "name": "solkram",
+    "category": "halsa",
+    "light": "icons/svg/light/solkram.svg",
+    "dark": "icons/svg/dark/solkram.svg",
+    "label": "solkram"
+  },
+  {
+    "name": "glasogon",
+    "category": "halsa",
+    "light": "icons/svg/light/glasogon.svg",
+    "dark": "icons/svg/dark/glasogon.svg",
+    "label": "glasogon"
+  },
+  {
+    "name": "horselskydd",
+    "category": "halsa",
+    "light": "icons/svg/light/horselskydd.svg",
+    "dark": "icons/svg/dark/horselskydd.svg",
+    "label": "horselskydd"
+  },
+  {
+    "name": "hjalm",
+    "category": "halsa",
+    "light": "icons/svg/light/hjalm.svg",
+    "dark": "icons/svg/dark/hjalm.svg",
+    "label": "hjalm"
+  },
+  {
+    "name": "reflex",
+    "category": "halsa",
+    "light": "icons/svg/light/reflex.svg",
+    "dark": "icons/svg/dark/reflex.svg",
+    "label": "reflex"
+  },
+  {
+    "name": "rullstol",
+    "category": "halsa",
+    "light": "icons/svg/light/rullstol.svg",
+    "dark": "icons/svg/dark/rullstol.svg",
+    "label": "rullstol"
+  },
+  {
+    "name": "krycka",
+    "category": "halsa",
+    "light": "icons/svg/light/krycka.svg",
+    "dark": "icons/svg/dark/krycka.svg",
+    "label": "krycka"
+  },
+  {
+    "name": "rehab",
+    "category": "halsa",
+    "light": "icons/svg/light/rehab.svg",
+    "dark": "icons/svg/dark/rehab.svg",
+    "label": "rehab"
+  },
+  {
+    "name": "balans",
+    "category": "halsa",
+    "light": "icons/svg/light/balans.svg",
+    "dark": "icons/svg/dark/balans.svg",
+    "label": "balans"
+  },
+  {
+    "name": "hoppa",
+    "category": "halsa",
+    "light": "icons/svg/light/hoppa.svg",
+    "dark": "icons/svg/dark/hoppa.svg",
+    "label": "hoppa"
+  },
+  {
+    "name": "klattra",
+    "category": "halsa",
+    "light": "icons/svg/light/klattra.svg",
+    "dark": "icons/svg/dark/klattra.svg",
+    "label": "klattra"
+  },
+  {
+    "name": "skidor",
+    "category": "halsa",
+    "light": "icons/svg/light/skidor.svg",
+    "dark": "icons/svg/dark/skidor.svg",
+    "label": "skidor"
+  },
+  {
+    "name": "skridskor",
+    "category": "halsa",
+    "light": "icons/svg/light/skridskor.svg",
+    "dark": "icons/svg/dark/skridskor.svg",
+    "label": "skridskor"
+  },
+  {
+    "name": "glad",
+    "category": "kanslor",
+    "light": "icons/svg/light/glad.svg",
+    "dark": "icons/svg/dark/glad.svg",
+    "label": "glad"
+  },
+  {
+    "name": "ledsen",
+    "category": "kanslor",
+    "light": "icons/svg/light/ledsen.svg",
+    "dark": "icons/svg/dark/ledsen.svg",
+    "label": "ledsen"
+  },
+  {
+    "name": "arg",
+    "category": "kanslor",
+    "light": "icons/svg/light/arg.svg",
+    "dark": "icons/svg/dark/arg.svg",
+    "label": "arg"
+  },
+  {
+    "name": "trott",
+    "category": "kanslor",
+    "light": "icons/svg/light/trott.svg",
+    "dark": "icons/svg/dark/trott.svg",
+    "label": "trott"
+  },
+  {
+    "name": "nervos",
+    "category": "kanslor",
+    "light": "icons/svg/light/nervos.svg",
+    "dark": "icons/svg/dark/nervos.svg",
+    "label": "nervos"
+  },
+  {
+    "name": "stolt",
+    "category": "kanslor",
+    "light": "icons/svg/light/stolt.svg",
+    "dark": "icons/svg/dark/stolt.svg",
+    "label": "stolt"
+  },
+  {
+    "name": "karlek",
+    "category": "kanslor",
+    "light": "icons/svg/light/karlek.svg",
+    "dark": "icons/svg/dark/karlek.svg",
+    "label": "karlek"
+  },
+  {
+    "name": "vanskap",
+    "category": "kanslor",
+    "light": "icons/svg/light/vanskap.svg",
+    "dark": "icons/svg/dark/vanskap.svg",
+    "label": "vanskap"
+  },
+  {
+    "name": "familj",
+    "category": "kanslor",
+    "light": "icons/svg/light/familj.svg",
+    "dark": "icons/svg/dark/familj.svg",
+    "label": "familj"
+  },
+  {
+    "name": "kram",
+    "category": "kanslor",
+    "light": "icons/svg/light/kram.svg",
+    "dark": "icons/svg/dark/kram.svg",
+    "label": "kram"
+  },
+  {
+    "name": "prata",
+    "category": "kanslor",
+    "light": "icons/svg/light/prata.svg",
+    "dark": "icons/svg/dark/prata.svg",
+    "label": "prata"
+  },
+  {
+    "name": "kanslor-lyssna",
+    "category": "kanslor",
+    "light": "icons/svg/light/kanslor-lyssna.svg",
+    "dark": "icons/svg/dark/kanslor-lyssna.svg",
+    "label": "lyssna"
+  },
+  {
+    "name": "hjalpa",
+    "category": "kanslor",
+    "light": "icons/svg/light/hjalpa.svg",
+    "dark": "icons/svg/dark/hjalpa.svg",
+    "label": "hjalpa"
+  },
+  {
+    "name": "respekt",
+    "category": "kanslor",
+    "light": "icons/svg/light/respekt.svg",
+    "dark": "icons/svg/dark/respekt.svg",
+    "label": "respekt"
+  },
+  {
+    "name": "empati",
+    "category": "kanslor",
+    "light": "icons/svg/light/empati.svg",
+    "dark": "icons/svg/dark/empati.svg",
+    "label": "empati"
+  },
+  {
+    "name": "mod",
+    "category": "kanslor",
+    "light": "icons/svg/light/mod.svg",
+    "dark": "icons/svg/dark/mod.svg",
+    "label": "mod"
+  },
+  {
+    "name": "tacksam",
+    "category": "kanslor",
+    "light": "icons/svg/light/tacksam.svg",
+    "dark": "icons/svg/dark/tacksam.svg",
+    "label": "tacksam"
+  },
+  {
+    "name": "forlat",
+    "category": "kanslor",
+    "light": "icons/svg/light/forlat.svg",
+    "dark": "icons/svg/dark/forlat.svg",
+    "label": "forlat"
+  },
+  {
+    "name": "stod",
+    "category": "kanslor",
+    "light": "icons/svg/light/stod.svg",
+    "dark": "icons/svg/dark/stod.svg",
+    "label": "stod"
+  },
+  {
+    "name": "gemenskap",
+    "category": "kanslor",
+    "light": "icons/svg/light/gemenskap.svg",
+    "dark": "icons/svg/dark/gemenskap.svg",
+    "label": "gemenskap"
+  },
+  {
+    "name": "orolig",
+    "category": "kanslor",
+    "light": "icons/svg/light/orolig.svg",
+    "dark": "icons/svg/dark/orolig.svg",
+    "label": "orolig"
+  },
+  {
+    "name": "lugn",
+    "category": "kanslor",
+    "light": "icons/svg/light/lugn.svg",
+    "dark": "icons/svg/dark/lugn.svg",
+    "label": "lugn"
+  },
+  {
+    "name": "forvanad",
+    "category": "kanslor",
+    "light": "icons/svg/light/forvanad.svg",
+    "dark": "icons/svg/dark/forvanad.svg",
+    "label": "forvanad"
+  },
+  {
+    "name": "besviken",
+    "category": "kanslor",
+    "light": "icons/svg/light/besviken.svg",
+    "dark": "icons/svg/dark/besviken.svg",
+    "label": "besviken"
+  },
+  {
+    "name": "ensam",
+    "category": "kanslor",
+    "light": "icons/svg/light/ensam.svg",
+    "dark": "icons/svg/dark/ensam.svg",
+    "label": "ensam"
+  },
+  {
+    "name": "trygg",
+    "category": "kanslor",
+    "light": "icons/svg/light/trygg.svg",
+    "dark": "icons/svg/dark/trygg.svg",
+    "label": "trygg"
+  },
+  {
+    "name": "hungrig",
+    "category": "kanslor",
+    "light": "icons/svg/light/hungrig.svg",
+    "dark": "icons/svg/dark/hungrig.svg",
+    "label": "hungrig"
+  },
+  {
+    "name": "torstig",
+    "category": "kanslor",
+    "light": "icons/svg/light/torstig.svg",
+    "dark": "icons/svg/dark/torstig.svg",
+    "label": "torstig"
+  },
+  {
+    "name": "frusen",
+    "category": "kanslor",
+    "light": "icons/svg/light/frusen.svg",
+    "dark": "icons/svg/dark/frusen.svg",
+    "label": "frusen"
+  },
+  {
+    "name": "varm",
+    "category": "kanslor",
+    "light": "icons/svg/light/varm.svg",
+    "dark": "icons/svg/dark/varm.svg",
+    "label": "varm"
+  },
+  {
+    "name": "ont",
+    "category": "kanslor",
+    "light": "icons/svg/light/ont.svg",
+    "dark": "icons/svg/dark/ont.svg",
+    "label": "ont"
+  },
+  {
+    "name": "paus-kort",
+    "category": "kanslor",
+    "light": "icons/svg/light/paus-kort.svg",
+    "dark": "icons/svg/dark/paus-kort.svg",
+    "label": "paus-kort"
+  },
+  {
+    "name": "jag-behover-hjalp",
+    "category": "kanslor",
+    "light": "icons/svg/light/jag-behover-hjalp.svg",
+    "dark": "icons/svg/dark/jag-behover-hjalp.svg",
+    "label": "jag-behover-hjalp"
+  },
+  {
+    "name": "ja",
+    "category": "kanslor",
+    "light": "icons/svg/light/ja.svg",
+    "dark": "icons/svg/dark/ja.svg",
+    "label": "ja"
+  },
+  {
+    "name": "nej",
+    "category": "kanslor",
+    "light": "icons/svg/light/nej.svg",
+    "dark": "icons/svg/dark/nej.svg",
+    "label": "nej"
+  },
+  {
+    "name": "kanske",
+    "category": "kanslor",
+    "light": "icons/svg/light/kanske.svg",
+    "dark": "icons/svg/dark/kanske.svg",
+    "label": "kanske"
+  },
+  {
+    "name": "valj",
+    "category": "kanslor",
+    "light": "icons/svg/light/valj.svg",
+    "dark": "icons/svg/dark/valj.svg",
+    "label": "valj"
+  },
+  {
+    "name": "min-tur",
+    "category": "kanslor",
+    "light": "icons/svg/light/min-tur.svg",
+    "dark": "icons/svg/dark/min-tur.svg",
+    "label": "min-tur"
+  },
+  {
+    "name": "din-tur",
+    "category": "kanslor",
+    "light": "icons/svg/light/din-tur.svg",
+    "dark": "icons/svg/dark/din-tur.svg",
+    "label": "din-tur"
+  },
+  {
+    "name": "tillsammans",
+    "category": "kanslor",
+    "light": "icons/svg/light/tillsammans.svg",
+    "dark": "icons/svg/dark/tillsammans.svg",
+    "label": "tillsammans"
+  },
+  {
+    "name": "hem",
+    "category": "hem",
+    "light": "icons/svg/light/hem.svg",
+    "dark": "icons/svg/dark/hem.svg",
+    "label": "hem"
+  },
+  {
+    "name": "stada",
+    "category": "hem",
+    "light": "icons/svg/light/stada.svg",
+    "dark": "icons/svg/dark/stada.svg",
+    "label": "stada"
+  },
+  {
+    "name": "dammsuga",
+    "category": "hem",
+    "light": "icons/svg/light/dammsuga.svg",
+    "dark": "icons/svg/dark/dammsuga.svg",
+    "label": "dammsuga"
+  },
+  {
+    "name": "tvatta",
+    "category": "hem",
+    "light": "icons/svg/light/tvatta.svg",
+    "dark": "icons/svg/dark/tvatta.svg",
+    "label": "tvatta"
+  },
+  {
+    "name": "torka-tvatt",
+    "category": "hem",
+    "light": "icons/svg/light/torka-tvatt.svg",
+    "dark": "icons/svg/dark/torka-tvatt.svg",
+    "label": "torka-tvatt"
+  },
+  {
+    "name": "diska",
+    "category": "hem",
+    "light": "icons/svg/light/diska.svg",
+    "dark": "icons/svg/dark/diska.svg",
+    "label": "diska"
+  },
+  {
+    "name": "diskmaskin",
+    "category": "hem",
+    "light": "icons/svg/light/diskmaskin.svg",
+    "dark": "icons/svg/dark/diskmaskin.svg",
+    "label": "diskmaskin"
+  },
+  {
+    "name": "kylskap",
+    "category": "hem",
+    "light": "icons/svg/light/kylskap.svg",
+    "dark": "icons/svg/dark/kylskap.svg",
+    "label": "kylskap"
+  },
+  {
+    "name": "frys",
+    "category": "hem",
+    "light": "icons/svg/light/frys.svg",
+    "dark": "icons/svg/dark/frys.svg",
+    "label": "frys"
+  },
+  {
+    "name": "spis",
+    "category": "hem",
+    "light": "icons/svg/light/spis.svg",
+    "dark": "icons/svg/dark/spis.svg",
+    "label": "spis"
+  },
+  {
+    "name": "ugn",
+    "category": "hem",
+    "light": "icons/svg/light/ugn.svg",
+    "dark": "icons/svg/dark/ugn.svg",
+    "label": "ugn"
+  },
+  {
+    "name": "mikro",
+    "category": "hem",
+    "light": "icons/svg/light/mikro.svg",
+    "dark": "icons/svg/dark/mikro.svg",
+    "label": "mikro"
+  },
+  {
+    "name": "kaffebryggare",
+    "category": "hem",
+    "light": "icons/svg/light/kaffebryggare.svg",
+    "dark": "icons/svg/dark/kaffebryggare.svg",
+    "label": "kaffebryggare"
+  },
+  {
+    "name": "vattenkokare",
+    "category": "hem",
+    "light": "icons/svg/light/vattenkokare.svg",
+    "dark": "icons/svg/dark/vattenkokare.svg",
+    "label": "vattenkokare"
+  },
+  {
+    "name": "matlada",
+    "category": "hem",
+    "light": "icons/svg/light/matlada.svg",
+    "dark": "icons/svg/dark/matlada.svg",
+    "label": "matlada"
+  },
+  {
+    "name": "bord",
+    "category": "hem",
+    "light": "icons/svg/light/bord.svg",
+    "dark": "icons/svg/dark/bord.svg",
+    "label": "bord"
+  },
+  {
+    "name": "lampa",
+    "category": "hem",
+    "light": "icons/svg/light/lampa.svg",
+    "dark": "icons/svg/dark/lampa.svg",
+    "label": "lampa"
+  },
+  {
+    "name": "vaxt",
+    "category": "hem",
+    "light": "icons/svg/light/vaxt.svg",
+    "dark": "icons/svg/dark/vaxt.svg",
+    "label": "vaxt"
+  },
+  {
+    "name": "dekoration",
+    "category": "hem",
+    "light": "icons/svg/light/dekoration.svg",
+    "dark": "icons/svg/dark/dekoration.svg",
+    "label": "dekoration"
+  },
+  {
+    "name": "sopor",
+    "category": "hem",
+    "light": "icons/svg/light/sopor.svg",
+    "dark": "icons/svg/dark/sopor.svg",
+    "label": "sopor"
+  },
+  {
+    "name": "soffa",
+    "category": "hem",
+    "light": "icons/svg/light/soffa.svg",
+    "dark": "icons/svg/dark/soffa.svg",
+    "label": "soffa"
+  },
+  {
+    "name": "matta",
+    "category": "hem",
+    "light": "icons/svg/light/matta.svg",
+    "dark": "icons/svg/dark/matta.svg",
+    "label": "matta"
+  },
+  {
+    "name": "gardin",
+    "category": "hem",
+    "light": "icons/svg/light/gardin.svg",
+    "dark": "icons/svg/dark/gardin.svg",
+    "label": "gardin"
+  },
+  {
+    "name": "fonster",
+    "category": "hem",
+    "light": "icons/svg/light/fonster.svg",
+    "dark": "icons/svg/dark/fonster.svg",
+    "label": "fonster"
+  },
+  {
+    "name": "dorr",
+    "category": "hem",
+    "light": "icons/svg/light/dorr.svg",
+    "dark": "icons/svg/dark/dorr.svg",
+    "label": "dorr"
+  },
+  {
+    "name": "nyckel",
+    "category": "hem",
+    "light": "icons/svg/light/nyckel.svg",
+    "dark": "icons/svg/dark/nyckel.svg",
+    "label": "nyckel"
+  },
+  {
+    "name": "garderob",
+    "category": "hem",
+    "light": "icons/svg/light/garderob.svg",
+    "dark": "icons/svg/dark/garderob.svg",
+    "label": "garderob"
+  },
+  {
+    "name": "hangare",
+    "category": "hem",
+    "light": "icons/svg/light/hangare.svg",
+    "dark": "icons/svg/dark/hangare.svg",
+    "label": "hangare"
+  },
+  {
+    "name": "spegel",
+    "category": "hem",
+    "light": "icons/svg/light/spegel.svg",
+    "dark": "icons/svg/dark/spegel.svg",
+    "label": "spegel"
+  },
+  {
+    "name": "badkar",
+    "category": "hem",
+    "light": "icons/svg/light/badkar.svg",
+    "dark": "icons/svg/dark/badkar.svg",
+    "label": "badkar"
+  },
+  {
+    "name": "handfat",
+    "category": "hem",
+    "light": "icons/svg/light/handfat.svg",
+    "dark": "icons/svg/dark/handfat.svg",
+    "label": "handfat"
+  },
+  {
+    "name": "tval",
+    "category": "hem",
+    "light": "icons/svg/light/tval.svg",
+    "dark": "icons/svg/dark/tval.svg",
+    "label": "tval"
+  },
+  {
+    "name": "schampo",
+    "category": "hem",
+    "light": "icons/svg/light/schampo.svg",
+    "dark": "icons/svg/dark/schampo.svg",
+    "label": "schampo"
+  },
+  {
+    "name": "balsam",
+    "category": "hem",
+    "light": "icons/svg/light/balsam.svg",
+    "dark": "icons/svg/dark/balsam.svg",
+    "label": "balsam"
+  },
+  {
+    "name": "toalettpapper",
+    "category": "hem",
+    "light": "icons/svg/light/toalettpapper.svg",
+    "dark": "icons/svg/dark/toalettpapper.svg",
+    "label": "toalettpapper"
+  },
+  {
+    "name": "pappersnasduk",
+    "category": "hem",
+    "light": "icons/svg/light/pappersnasduk.svg",
+    "dark": "icons/svg/dark/pappersnasduk.svg",
+    "label": "pappersnasduk"
+  },
+  {
+    "name": "sopborste",
+    "category": "hem",
+    "light": "icons/svg/light/sopborste.svg",
+    "dark": "icons/svg/dark/sopborste.svg",
+    "label": "sopborste"
+  },
+  {
+    "name": "skurhink",
+    "category": "hem",
+    "light": "icons/svg/light/skurhink.svg",
+    "dark": "icons/svg/dark/skurhink.svg",
+    "label": "skurhink"
+  },
+  {
+    "name": "tvattmaskin",
+    "category": "hem",
+    "light": "icons/svg/light/tvattmaskin.svg",
+    "dark": "icons/svg/dark/tvattmaskin.svg",
+    "label": "tvattmaskin"
+  },
+  {
+    "name": "torktumlare",
+    "category": "hem",
+    "light": "icons/svg/light/torktumlare.svg",
+    "dark": "icons/svg/dark/torktumlare.svg",
+    "label": "torktumlare"
+  },
+  {
+    "name": "bil",
+    "category": "transport",
+    "light": "icons/svg/light/bil.svg",
+    "dark": "icons/svg/dark/bil.svg",
+    "label": "bil"
+  },
+  {
+    "name": "buss",
+    "category": "transport",
+    "light": "icons/svg/light/buss.svg",
+    "dark": "icons/svg/dark/buss.svg",
+    "label": "buss"
+  },
+  {
+    "name": "tag",
+    "category": "transport",
+    "light": "icons/svg/light/tag.svg",
+    "dark": "icons/svg/dark/tag.svg",
+    "label": "tag"
+  },
+  {
+    "name": "tunnelbana",
+    "category": "transport",
+    "light": "icons/svg/light/tunnelbana.svg",
+    "dark": "icons/svg/dark/tunnelbana.svg",
+    "label": "tunnelbana"
+  },
+  {
+    "name": "taxi",
+    "category": "transport",
+    "light": "icons/svg/light/taxi.svg",
+    "dark": "icons/svg/dark/taxi.svg",
+    "label": "taxi"
+  },
+  {
+    "name": "cykel",
+    "category": "transport",
+    "light": "icons/svg/light/cykel.svg",
+    "dark": "icons/svg/dark/cykel.svg",
+    "label": "cykel"
+  },
+  {
+    "name": "moped",
+    "category": "transport",
+    "light": "icons/svg/light/moped.svg",
+    "dark": "icons/svg/dark/moped.svg",
+    "label": "moped"
+  },
+  {
+    "name": "flygplan",
+    "category": "transport",
+    "light": "icons/svg/light/flygplan.svg",
+    "dark": "icons/svg/dark/flygplan.svg",
+    "label": "flygplan"
+  },
+  {
+    "name": "bat",
+    "category": "transport",
+    "light": "icons/svg/light/bat.svg",
+    "dark": "icons/svg/dark/bat.svg",
+    "label": "bat"
+  },
+  {
+    "name": "korkort",
+    "category": "transport",
+    "light": "icons/svg/light/korkort.svg",
+    "dark": "icons/svg/dark/korkort.svg",
+    "label": "korkort"
+  },
+  {
+    "name": "resvaska",
+    "category": "transport",
+    "light": "icons/svg/light/resvaska.svg",
+    "dark": "icons/svg/dark/resvaska.svg",
+    "label": "resvaska"
+  },
+  {
+    "name": "pass",
+    "category": "transport",
+    "light": "icons/svg/light/pass.svg",
+    "dark": "icons/svg/dark/pass.svg",
+    "label": "pass"
+  },
+  {
+    "name": "transport-karta",
+    "category": "transport",
+    "light": "icons/svg/light/transport-karta.svg",
+    "dark": "icons/svg/dark/transport-karta.svg",
+    "label": "karta"
+  },
+  {
+    "name": "kompass",
+    "category": "transport",
+    "light": "icons/svg/light/kompass.svg",
+    "dark": "icons/svg/dark/kompass.svg",
+    "label": "kompass"
+  },
+  {
+    "name": "biljett",
+    "category": "transport",
+    "light": "icons/svg/light/biljett.svg",
+    "dark": "icons/svg/dark/biljett.svg",
+    "label": "biljett"
+  },
+  {
+    "name": "hotell",
+    "category": "transport",
+    "light": "icons/svg/light/hotell.svg",
+    "dark": "icons/svg/dark/hotell.svg",
+    "label": "hotell"
+  },
+  {
+    "name": "camping",
+    "category": "transport",
+    "light": "icons/svg/light/camping.svg",
+    "dark": "icons/svg/dark/camping.svg",
+    "label": "camping"
+  },
+  {
+    "name": "strand",
+    "category": "transport",
+    "light": "icons/svg/light/strand.svg",
+    "dark": "icons/svg/dark/strand.svg",
+    "label": "strand"
+  },
+  {
+    "name": "berg",
+    "category": "transport",
+    "light": "icons/svg/light/berg.svg",
+    "dark": "icons/svg/dark/berg.svg",
+    "label": "berg"
+  },
+  {
+    "name": "skog",
+    "category": "transport",
+    "light": "icons/svg/light/skog.svg",
+    "dark": "icons/svg/dark/skog.svg",
+    "label": "skog"
+  },
+  {
+    "name": "sparvagn",
+    "category": "transport",
+    "light": "icons/svg/light/sparvagn.svg",
+    "dark": "icons/svg/dark/sparvagn.svg",
+    "label": "sparvagn"
+  },
+  {
+    "name": "farja",
+    "category": "transport",
+    "light": "icons/svg/light/farja.svg",
+    "dark": "icons/svg/dark/farja.svg",
+    "label": "farja"
+  },
+  {
+    "name": "helikopter",
+    "category": "transport",
+    "light": "icons/svg/light/helikopter.svg",
+    "dark": "icons/svg/dark/helikopter.svg",
+    "label": "helikopter"
+  },
+  {
+    "name": "lastbil",
+    "category": "transport",
+    "light": "icons/svg/light/lastbil.svg",
+    "dark": "icons/svg/dark/lastbil.svg",
+    "label": "lastbil"
+  },
+  {
+    "name": "ambulans",
+    "category": "transport",
+    "light": "icons/svg/light/ambulans.svg",
+    "dark": "icons/svg/dark/ambulans.svg",
+    "label": "ambulans"
+  },
+  {
+    "name": "polisbil",
+    "category": "transport",
+    "light": "icons/svg/light/polisbil.svg",
+    "dark": "icons/svg/dark/polisbil.svg",
+    "label": "polisbil"
+  },
+  {
+    "name": "brandbil",
+    "category": "transport",
+    "light": "icons/svg/light/brandbil.svg",
+    "dark": "icons/svg/dark/brandbil.svg",
+    "label": "brandbil"
+  },
+  {
+    "name": "station",
+    "category": "transport",
+    "light": "icons/svg/light/station.svg",
+    "dark": "icons/svg/dark/station.svg",
+    "label": "station"
+  },
+  {
+    "name": "flygplats",
+    "category": "transport",
+    "light": "icons/svg/light/flygplats.svg",
+    "dark": "icons/svg/dark/flygplats.svg",
+    "label": "flygplats"
+  },
+  {
+    "name": "hamn",
+    "category": "transport",
+    "light": "icons/svg/light/hamn.svg",
+    "dark": "icons/svg/dark/hamn.svg",
+    "label": "hamn"
+  },
+  {
+    "name": "vag",
+    "category": "transport",
+    "light": "icons/svg/light/vag.svg",
+    "dark": "icons/svg/dark/vag.svg",
+    "label": "vag"
+  },
+  {
+    "name": "bro",
+    "category": "transport",
+    "light": "icons/svg/light/bro.svg",
+    "dark": "icons/svg/dark/bro.svg",
+    "label": "bro"
+  },
+  {
+    "name": "trafikljus",
+    "category": "transport",
+    "light": "icons/svg/light/trafikljus.svg",
+    "dark": "icons/svg/dark/trafikljus.svg",
+    "label": "trafikljus"
+  },
+  {
+    "name": "overgangsstalle",
+    "category": "transport",
+    "light": "icons/svg/light/overgangsstalle.svg",
+    "dark": "icons/svg/dark/overgangsstalle.svg",
+    "label": "overgangsstalle"
+  },
+  {
+    "name": "parkering",
+    "category": "transport",
+    "light": "icons/svg/light/parkering.svg",
+    "dark": "icons/svg/dark/parkering.svg",
+    "label": "parkering"
+  },
+  {
+    "name": "bensinstation",
+    "category": "transport",
+    "light": "icons/svg/light/bensinstation.svg",
+    "dark": "icons/svg/dark/bensinstation.svg",
+    "label": "bensinstation"
+  },
+  {
+    "name": "laddstation",
+    "category": "transport",
+    "light": "icons/svg/light/laddstation.svg",
+    "dark": "icons/svg/dark/laddstation.svg",
+    "label": "laddstation"
+  },
+  {
+    "name": "hemresa",
+    "category": "transport",
+    "light": "icons/svg/light/hemresa.svg",
+    "dark": "icons/svg/dark/hemresa.svg",
+    "label": "hemresa"
+  },
+  {
+    "name": "utflykt",
+    "category": "transport",
+    "light": "icons/svg/light/utflykt.svg",
+    "dark": "icons/svg/dark/utflykt.svg",
+    "label": "utflykt"
+  },
+  {
+    "name": "semester",
+    "category": "transport",
+    "light": "icons/svg/light/semester.svg",
+    "dark": "icons/svg/dark/semester.svg",
+    "label": "semester"
+  },
+  {
+    "name": "sol",
+    "category": "vader-tid",
+    "light": "icons/svg/light/sol.svg",
+    "dark": "icons/svg/dark/sol.svg",
+    "label": "sol"
+  },
+  {
+    "name": "moln",
+    "category": "vader-tid",
+    "light": "icons/svg/light/moln.svg",
+    "dark": "icons/svg/dark/moln.svg",
+    "label": "moln"
+  },
+  {
+    "name": "regn",
+    "category": "vader-tid",
+    "light": "icons/svg/light/regn.svg",
+    "dark": "icons/svg/dark/regn.svg",
+    "label": "regn"
+  },
+  {
+    "name": "sno",
+    "category": "vader-tid",
+    "light": "icons/svg/light/sno.svg",
+    "dark": "icons/svg/dark/sno.svg",
+    "label": "sno"
+  },
+  {
+    "name": "vind",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vind.svg",
+    "dark": "icons/svg/dark/vind.svg",
+    "label": "vind"
+  },
+  {
+    "name": "aska",
+    "category": "vader-tid",
+    "light": "icons/svg/light/aska.svg",
+    "dark": "icons/svg/dark/aska.svg",
+    "label": "aska"
+  },
+  {
+    "name": "regnbage",
+    "category": "vader-tid",
+    "light": "icons/svg/light/regnbage.svg",
+    "dark": "icons/svg/dark/regnbage.svg",
+    "label": "regnbage"
+  },
+  {
+    "name": "temperatur",
+    "category": "vader-tid",
+    "light": "icons/svg/light/temperatur.svg",
+    "dark": "icons/svg/dark/temperatur.svg",
+    "label": "temperatur"
+  },
+  {
+    "name": "vader-tid-termometer",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-termometer.svg",
+    "dark": "icons/svg/dark/vader-tid-termometer.svg",
+    "label": "termometer"
+  },
+  {
+    "name": "vader-tid-tid",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-tid.svg",
+    "dark": "icons/svg/dark/vader-tid-tid.svg",
+    "label": "tid"
+  },
+  {
+    "name": "klocka",
+    "category": "vader-tid",
+    "light": "icons/svg/light/klocka.svg",
+    "dark": "icons/svg/dark/klocka.svg",
+    "label": "klocka"
+  },
+  {
+    "name": "vader-tid-timer",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-timer.svg",
+    "dark": "icons/svg/dark/vader-tid-timer.svg",
+    "label": "timer"
+  },
+  {
+    "name": "dag",
+    "category": "vader-tid",
+    "light": "icons/svg/light/dag.svg",
+    "dark": "icons/svg/dark/dag.svg",
+    "label": "dag"
+  },
+  {
+    "name": "vader-tid-natt",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-natt.svg",
+    "dark": "icons/svg/dark/vader-tid-natt.svg",
+    "label": "natt"
+  },
+  {
+    "name": "vader-tid-kalender",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-kalender.svg",
+    "dark": "icons/svg/dark/vader-tid-kalender.svg",
+    "label": "kalender"
+  },
+  {
+    "name": "vecka",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vecka.svg",
+    "dark": "icons/svg/dark/vecka.svg",
+    "label": "vecka"
+  },
+  {
+    "name": "manad",
+    "category": "vader-tid",
+    "light": "icons/svg/light/manad.svg",
+    "dark": "icons/svg/dark/manad.svg",
+    "label": "manad"
+  },
+  {
+    "name": "ar",
+    "category": "vader-tid",
+    "light": "icons/svg/light/ar.svg",
+    "dark": "icons/svg/dark/ar.svg",
+    "label": "ar"
+  },
+  {
+    "name": "vader-tid-alarm",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-alarm.svg",
+    "dark": "icons/svg/dark/vader-tid-alarm.svg",
+    "label": "alarm"
+  },
+  {
+    "name": "stoppur",
+    "category": "vader-tid",
+    "light": "icons/svg/light/stoppur.svg",
+    "dark": "icons/svg/dark/stoppur.svg",
+    "label": "stoppur"
+  },
+  {
+    "name": "vader-tid-morgon",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-morgon.svg",
+    "dark": "icons/svg/dark/vader-tid-morgon.svg",
+    "label": "morgon"
+  },
+  {
+    "name": "formiddag",
+    "category": "vader-tid",
+    "light": "icons/svg/light/formiddag.svg",
+    "dark": "icons/svg/dark/formiddag.svg",
+    "label": "formiddag"
+  },
+  {
+    "name": "eftermiddag",
+    "category": "vader-tid",
+    "light": "icons/svg/light/eftermiddag.svg",
+    "dark": "icons/svg/dark/eftermiddag.svg",
+    "label": "eftermiddag"
+  },
+  {
+    "name": "vader-tid-kvall",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vader-tid-kvall.svg",
+    "dark": "icons/svg/dark/vader-tid-kvall.svg",
+    "label": "kvall"
+  },
+  {
+    "name": "midnatt",
+    "category": "vader-tid",
+    "light": "icons/svg/light/midnatt.svg",
+    "dark": "icons/svg/dark/midnatt.svg",
+    "label": "midnatt"
+  },
+  {
+    "name": "var",
+    "category": "vader-tid",
+    "light": "icons/svg/light/var.svg",
+    "dark": "icons/svg/dark/var.svg",
+    "label": "var"
+  },
+  {
+    "name": "sommar",
+    "category": "vader-tid",
+    "light": "icons/svg/light/sommar.svg",
+    "dark": "icons/svg/dark/sommar.svg",
+    "label": "sommar"
+  },
+  {
+    "name": "host",
+    "category": "vader-tid",
+    "light": "icons/svg/light/host.svg",
+    "dark": "icons/svg/dark/host.svg",
+    "label": "host"
+  },
+  {
+    "name": "vinter",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vinter.svg",
+    "dark": "icons/svg/dark/vinter.svg",
+    "label": "vinter"
+  },
+  {
+    "name": "dimma",
+    "category": "vader-tid",
+    "light": "icons/svg/light/dimma.svg",
+    "dark": "icons/svg/dark/dimma.svg",
+    "label": "dimma"
+  },
+  {
+    "name": "hagel",
+    "category": "vader-tid",
+    "light": "icons/svg/light/hagel.svg",
+    "dark": "icons/svg/dark/hagel.svg",
+    "label": "hagel"
+  },
+  {
+    "name": "storm",
+    "category": "vader-tid",
+    "light": "icons/svg/light/storm.svg",
+    "dark": "icons/svg/dark/storm.svg",
+    "label": "storm"
+  },
+  {
+    "name": "paraply",
+    "category": "vader-tid",
+    "light": "icons/svg/light/paraply.svg",
+    "dark": "icons/svg/dark/paraply.svg",
+    "label": "paraply"
+  },
+  {
+    "name": "solglasogon",
+    "category": "vader-tid",
+    "light": "icons/svg/light/solglasogon.svg",
+    "dark": "icons/svg/dark/solglasogon.svg",
+    "label": "solglasogon"
+  },
+  {
+    "name": "mossa",
+    "category": "vader-tid",
+    "light": "icons/svg/light/mossa.svg",
+    "dark": "icons/svg/dark/mossa.svg",
+    "label": "mossa"
+  },
+  {
+    "name": "vantar",
+    "category": "vader-tid",
+    "light": "icons/svg/light/vantar.svg",
+    "dark": "icons/svg/dark/vantar.svg",
+    "label": "vantar"
+  },
+  {
+    "name": "jacka",
+    "category": "vader-tid",
+    "light": "icons/svg/light/jacka.svg",
+    "dark": "icons/svg/dark/jacka.svg",
+    "label": "jacka"
+  },
+  {
+    "name": "shorts",
+    "category": "vader-tid",
+    "light": "icons/svg/light/shorts.svg",
+    "dark": "icons/svg/dark/shorts.svg",
+    "label": "shorts"
+  },
+  {
+    "name": "badklader",
+    "category": "vader-tid",
+    "light": "icons/svg/light/badklader.svg",
+    "dark": "icons/svg/dark/badklader.svg",
+    "label": "badklader"
+  },
+  {
+    "name": "prognos",
+    "category": "vader-tid",
+    "light": "icons/svg/light/prognos.svg",
+    "dark": "icons/svg/dark/prognos.svg",
+    "label": "prognos"
+  },
+  {
+    "name": "installningar",
+    "category": "ui",
+    "light": "icons/svg/light/installningar.svg",
+    "dark": "icons/svg/dark/installningar.svg",
+    "label": "installningar"
+  },
+  {
+    "name": "notis",
+    "category": "ui",
+    "light": "icons/svg/light/notis.svg",
+    "dark": "icons/svg/dark/notis.svg",
+    "label": "notis"
+  },
+  {
+    "name": "ljud",
+    "category": "ui",
+    "light": "icons/svg/light/ljud.svg",
+    "dark": "icons/svg/dark/ljud.svg",
+    "label": "ljud"
+  },
+  {
+    "name": "ui-mikrofon",
+    "category": "ui",
+    "light": "icons/svg/light/ui-mikrofon.svg",
+    "dark": "icons/svg/dark/ui-mikrofon.svg",
+    "label": "mikrofon"
+  },
+  {
+    "name": "video",
+    "category": "ui",
+    "light": "icons/svg/light/video.svg",
+    "dark": "icons/svg/dark/video.svg",
+    "label": "video"
+  },
+  {
+    "name": "dela",
+    "category": "ui",
+    "light": "icons/svg/light/dela.svg",
+    "dark": "icons/svg/dark/dela.svg",
+    "label": "dela"
+  },
+  {
+    "name": "spara",
+    "category": "ui",
+    "light": "icons/svg/light/spara.svg",
+    "dark": "icons/svg/dark/spara.svg",
+    "label": "spara"
+  },
+  {
+    "name": "favorit",
+    "category": "ui",
+    "light": "icons/svg/light/favorit.svg",
+    "dark": "icons/svg/dark/favorit.svg",
+    "label": "favorit"
+  },
+  {
+    "name": "sok",
+    "category": "ui",
+    "light": "icons/svg/light/sok.svg",
+    "dark": "icons/svg/dark/sok.svg",
+    "label": "sok"
+  },
+  {
+    "name": "ui-hem",
+    "category": "ui",
+    "light": "icons/svg/light/ui-hem.svg",
+    "dark": "icons/svg/dark/ui-hem.svg",
+    "label": "hem"
+  },
+  {
+    "name": "meny",
+    "category": "ui",
+    "light": "icons/svg/light/meny.svg",
+    "dark": "icons/svg/dark/meny.svg",
+    "label": "meny"
+  },
+  {
+    "name": "tillbaka",
+    "category": "ui",
+    "light": "icons/svg/light/tillbaka.svg",
+    "dark": "icons/svg/dark/tillbaka.svg",
+    "label": "tillbaka"
+  },
+  {
+    "name": "framat",
+    "category": "ui",
+    "light": "icons/svg/light/framat.svg",
+    "dark": "icons/svg/dark/framat.svg",
+    "label": "framat"
+  },
+  {
+    "name": "lagg-till",
+    "category": "ui",
+    "light": "icons/svg/light/lagg-till.svg",
+    "dark": "icons/svg/dark/lagg-till.svg",
+    "label": "lagg-till"
+  },
+  {
+    "name": "ta-bort",
+    "category": "ui",
+    "light": "icons/svg/light/ta-bort.svg",
+    "dark": "icons/svg/dark/ta-bort.svg",
+    "label": "ta-bort"
+  },
+  {
+    "name": "redigera",
+    "category": "ui",
+    "light": "icons/svg/light/redigera.svg",
+    "dark": "icons/svg/dark/redigera.svg",
+    "label": "redigera"
+  },
+  {
+    "name": "las",
+    "category": "ui",
+    "light": "icons/svg/light/las.svg",
+    "dark": "icons/svg/dark/las.svg",
+    "label": "las"
+  },
+  {
+    "name": "las-upp",
+    "category": "ui",
+    "light": "icons/svg/light/las-upp.svg",
+    "dark": "icons/svg/dark/las-upp.svg",
+    "label": "las-upp"
+  },
+  {
+    "name": "hjalp",
+    "category": "ui",
+    "light": "icons/svg/light/hjalp.svg",
+    "dark": "icons/svg/dark/hjalp.svg",
+    "label": "hjalp"
+  },
+  {
+    "name": "info",
+    "category": "ui",
+    "light": "icons/svg/light/info.svg",
+    "dark": "icons/svg/dark/info.svg",
+    "label": "info"
+  },
+  {
+    "name": "profil",
+    "category": "ui",
+    "light": "icons/svg/light/profil.svg",
+    "dark": "icons/svg/dark/profil.svg",
+    "label": "profil"
+  },
+  {
+    "name": "konto",
+    "category": "ui",
+    "light": "icons/svg/light/konto.svg",
+    "dark": "icons/svg/dark/konto.svg",
+    "label": "konto"
+  },
+  {
+    "name": "logga-ut",
+    "category": "ui",
+    "light": "icons/svg/light/logga-ut.svg",
+    "dark": "icons/svg/dark/logga-ut.svg",
+    "label": "logga-ut"
+  },
+  {
+    "name": "synka",
+    "category": "ui",
+    "light": "icons/svg/light/synka.svg",
+    "dark": "icons/svg/dark/synka.svg",
+    "label": "synka"
+  },
+  {
+    "name": "molnlagring",
+    "category": "ui",
+    "light": "icons/svg/light/molnlagring.svg",
+    "dark": "icons/svg/dark/molnlagring.svg",
+    "label": "molnlagring"
+  },
+  {
+    "name": "ladda-ner",
+    "category": "ui",
+    "light": "icons/svg/light/ladda-ner.svg",
+    "dark": "icons/svg/dark/ladda-ner.svg",
+    "label": "ladda-ner"
+  },
+  {
+    "name": "ladda-upp",
+    "category": "ui",
+    "light": "icons/svg/light/ladda-upp.svg",
+    "dark": "icons/svg/dark/ladda-upp.svg",
+    "label": "ladda-upp"
+  },
+  {
+    "name": "arkiv",
+    "category": "ui",
+    "light": "icons/svg/light/arkiv.svg",
+    "dark": "icons/svg/dark/arkiv.svg",
+    "label": "arkiv"
+  },
+  {
+    "name": "filter",
+    "category": "ui",
+    "light": "icons/svg/light/filter.svg",
+    "dark": "icons/svg/dark/filter.svg",
+    "label": "filter"
+  },
+  {
+    "name": "sortera",
+    "category": "ui",
+    "light": "icons/svg/light/sortera.svg",
+    "dark": "icons/svg/dark/sortera.svg",
+    "label": "sortera"
+  },
+  {
+    "name": "mer",
+    "category": "ui",
+    "light": "icons/svg/light/mer.svg",
+    "dark": "icons/svg/dark/mer.svg",
+    "label": "mer"
+  },
+  {
+    "name": "stang",
+    "category": "ui",
+    "light": "icons/svg/light/stang.svg",
+    "dark": "icons/svg/dark/stang.svg",
+    "label": "stang"
+  },
+  {
+    "name": "bekrafta",
+    "category": "ui",
+    "light": "icons/svg/light/bekrafta.svg",
+    "dark": "icons/svg/dark/bekrafta.svg",
+    "label": "bekrafta"
+  },
+  {
+    "name": "avbryt",
+    "category": "ui",
+    "light": "icons/svg/light/avbryt.svg",
+    "dark": "icons/svg/dark/avbryt.svg",
+    "label": "avbryt"
+  },
+  {
+    "name": "varning",
+    "category": "ui",
+    "light": "icons/svg/light/varning.svg",
+    "dark": "icons/svg/dark/varning.svg",
+    "label": "varning"
+  },
+  {
+    "name": "fel",
+    "category": "ui",
+    "light": "icons/svg/light/fel.svg",
+    "dark": "icons/svg/dark/fel.svg",
+    "label": "fel"
+  },
+  {
+    "name": "lyckades",
+    "category": "ui",
+    "light": "icons/svg/light/lyckades.svg",
+    "dark": "icons/svg/dark/lyckades.svg",
+    "label": "lyckades"
+  },
+  {
+    "name": "skanna",
+    "category": "ui",
+    "light": "icons/svg/light/skanna.svg",
+    "dark": "icons/svg/dark/skanna.svg",
+    "label": "skanna"
+  },
+  {
+    "name": "qr-kod",
+    "category": "ui",
+    "light": "icons/svg/light/qr-kod.svg",
+    "dark": "icons/svg/dark/qr-kod.svg",
+    "label": "qr-kod"
+  },
+  {
+    "name": "kod",
+    "category": "ui",
+    "light": "icons/svg/light/kod.svg",
+    "dark": "icons/svg/dark/kod.svg",
+    "label": "kod"
+  }
+]
