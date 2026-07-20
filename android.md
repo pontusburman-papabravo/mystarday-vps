@@ -378,6 +378,8 @@ Polsia: [`docs/polsia-sprint-koordinering.md`](docs/polsia-sprint-koordinering.m
 | Review-konto | `review@mystarday.se` |
 | IAP (senare) | RevenueCat → Play Billing — **inte** Stripe i app |
 
+**Testlänk till externa testare:** alltid `https://play.google.com/apps/testing/se.mystarday.app` — inte store-URL:en. Mall: [`docs/android-tester-invite.md`](docs/android-tester-invite.md). <!-- pragma: allowlist secret -->
+
 ---
 
 ## Miljövariabler (Android-relevanta)

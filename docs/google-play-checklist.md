@@ -218,7 +218,15 @@ Nuvarande SDK: `targetSdk 35`, `compileSdk 35` (se `android/variables.gradle`).
 2. Ladda upp `app-release.aab`
 3. Release notes (svenska): t.ex. *"Första interna testversion — inloggning, schema, belöningar, push."*
 4. Lägg till testare (e-postlista eller Google Group)
-5. Testare får länk att installera via Play Store
+5. **Skicka opt-in-testlänken** — inte den publika store-URL:en:
+
+| Använd | Undvik under test |
+|--------|-------------------|
+| `https://play.google.com/apps/testing/se.mystarday.app` | `https://play.google.com/store/apps/details?id=se.mystarday.app` | <!-- pragma: allowlist secret -->
+
+Store-länken (`/store/apps/details`) fungerar först när appen är i produktion, eller efter att testaren redan gått med via opt-in. Under testperioden ser mottagare ofta bara Play utan install-knapp — det är förväntat.
+
+Mejlmall + felsökning: [`android-tester-invite.md`](android-tester-invite.md).
 
 ### Review-konto för Google
 
