@@ -21,6 +21,8 @@
     child_view_example_click: true,
     landing_guide_card_click: true,
     landing_share_click: true,
+    app_store_click: true,
+    play_store_click: true,
   };
 
   function track(eventType, metadata) {
@@ -72,6 +74,8 @@
     bindCta('[data-track="child_view_example_click"]', 'child_view_example_click');
     bindCta('[data-track="landing_guide_card_click"]', 'landing_guide_card_click');
     bindCta('[data-track="landing_share_click"]', 'landing_share_click');
+    bindCta('[data-track="app_store_click"]', 'app_store_click');
+    bindCta('[data-track="play_store_click"]', 'play_store_click');
   }
 
   if (document.readyState === 'loading') {

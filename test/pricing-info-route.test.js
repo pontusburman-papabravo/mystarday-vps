@@ -21,6 +21,15 @@ test('landing route serves program catalog API', () => {
   assert.match(src, /getProgramCatalog/);
 });
 
+test('landing index injects Play Store URL placeholder', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(src, /injectStoreLinks/);
+  assert.match(html, /__PLAY_STORE_URL__/);
+  assert.match(html, /google-play-badge-sv\.svg/);
+  assert.match(html, /app-store-badge-sv\.svg/);
+});
+
 test('program catalog has five programs with total and pedagog last', () => {
   const catalog = require('../config/program-catalog');
   const data = catalog.getProgramCatalog();

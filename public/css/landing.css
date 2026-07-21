@@ -359,6 +359,48 @@ body.landing-menu-open {
   height: 44px;
 }
 
+/* Store badges (App Store + Google Play) */
+.store-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.store-badge-link {
+  display: inline-flex;
+  line-height: 0;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.store-badge-link:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.store-badge {
+  display: block;
+  width: auto;
+  height: 44px;
+}
+
+.store-badges--menu {
+  padding: 0.15rem 0.5rem 0.35rem;
+}
+
+.store-badges--footer {
+  margin-bottom: 0.65rem;
+}
+
+.store-badges--footer .store-badge {
+  opacity: 0.95;
+}
+
+.store-badges--footer .store-badge-link:hover .store-badge {
+  opacity: 1;
+}
+
 .landing-footer__app-store {
   display: inline-block;
   margin-bottom: 0.65rem;
@@ -728,16 +770,10 @@ body.landing-menu-open {
   margin: 0;
 }
 
-.hero-launch-card__store {
+.hero-launch-card__stores {
   display: inline-flex;
   flex-shrink: 0;
   line-height: 0;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.hero-launch-card__store:hover {
-  transform: translateY(-2px);
-  opacity: 0.92;
 }
 
 .app-store-badge {
@@ -746,7 +782,16 @@ body.landing-menu-open {
   height: 44px;
 }
 
+.hero-launch-card__stores .store-badge,
 .hero-launch-card__store .app-store-badge {
+  height: 44px;
+}
+
+.landing-hero__store-badges {
+  width: 100%;
+}
+
+.store-badges--hero-cta .store-badge {
   height: 44px;
 }
 
@@ -773,13 +818,34 @@ body.landing-menu-open {
     grid-template-rows: auto auto;
   }
 
-  .hero-launch-card__store {
+  .hero-launch-card__stores {
     grid-column: 1 / -1;
-    justify-self: start;
+    justify-content: flex-start;
+    width: 100%;
   }
 
-  .hero-launch-card__store .app-store-badge {
+  .hero-launch-card__stores .store-badge {
     height: 40px;
+  }
+
+  .landing-hero__store-badges {
+    order: -1;
+    justify-content: center;
+    padding: 0.15rem 0;
+    margin-bottom: 0.15rem;
+  }
+
+  .store-badges--hero-cta .store-badge {
+    height: 42px;
+  }
+
+  .store-badges--menu {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .store-badges--menu .store-badge {
+    height: 42px;
   }
 }
 
