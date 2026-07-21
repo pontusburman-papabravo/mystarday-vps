@@ -39,7 +39,8 @@ describe('iOS Swedish App Store localization', () => {
     assert.match(pbx, /sv\.lproj\/InfoPlist\.strings/);
     assert.doesNotMatch(pbx, /en\.lproj\/InfoPlist\.strings/);
     assert.match(pbx, /InfoPlist\.strings in Resources/);
-    assert.match(pbx, /CURRENT_PROJECT_VERSION = 24;/);
+    assert.match(pbx, /MARKETING_VERSION = 1\.2;/);
+    assert.match(pbx, /CURRENT_PROJECT_VERSION = 25;/);
   });
 
   it('cap sync patch script keeps Swedish-only localization durable', () => {
