@@ -20,7 +20,6 @@
 
 /* Begin PBXFileReference section */
 		A1B2C3D401F0A00100000001 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		A1B2C3D401F0A00100000002 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -143,7 +142,6 @@
 			developmentRegion = sv;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				sv,
 				Base,
 			);
@@ -227,7 +225,6 @@
 		A1B2C3D401F0A00100000003 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A1B2C3D401F0A00100000002 /* en */,
 				A1B2C3D401F0A00100000001 /* sv */,
 			);
 			name = InfoPlist.strings;

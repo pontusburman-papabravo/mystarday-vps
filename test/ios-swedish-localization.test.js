@@ -8,49 +8,49 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('iOS Swedish App Store localization', () => {
-  it('Info.plist declares Swedish development region and localizations', () => {
+  it('Info.plist declares Swedish-only development region and localizations', () => {
     const plist = fs.readFileSync(path.join(ROOT, 'ios/App/App/Info.plist'), 'utf8');
     assert.match(plist, /<key>CFBundleDevelopmentRegion<\/key>\s*<string>sv<\/string>/);
-    assert.match(plist, /<key>CFBundleLocalizations<\/key>\s*<array>[\s\S]*?<string>sv<\/string>[\s\S]*?<string>en<\/string>[\s\S]*?<\/array>/);
+    assert.match(
+      plist,
+      /<key>CFBundleLocalizations<\/key>\s*<array>\s*<string>sv<\/string>\s*<\/array>/
+    );
+    assert.doesNotMatch(plist, /<string>en<\/string>/);
     assert.match(plist, /använder kameran/);
   });
 
-  it('sv and en InfoPlist.strings exist with permission copy', () => {
+  it('sv InfoPlist.strings exists and en.lproj is absent', () => {
     const sv = fs.readFileSync(
       path.join(ROOT, 'ios/App/App/sv.lproj/InfoPlist.strings'),
       'utf8'
     );
-    const en = fs.readFileSync(
-      path.join(ROOT, 'ios/App/App/en.lproj/InfoPlist.strings'),
-      'utf8'
-    );
     assert.match(sv, /NSCameraUsageDescription/);
     assert.match(sv, /använder kameran/);
-    assert.match(en, /NSCameraUsageDescription/);
-    assert.match(en, /uses the camera/);
+    assert.equal(fs.existsSync(path.join(ROOT, 'ios/App/App/en.lproj')), false);
   });
 
-  it('Xcode project lists sv known region and ships InfoPlist.strings', () => {
+  it('Xcode project lists Swedish-only regions and ships InfoPlist.strings', () => {
     const pbx = fs.readFileSync(
       path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'),
       'utf8'
     );
     assert.match(pbx, /developmentRegion = sv;/);
-    assert.match(pbx, /knownRegions = \(\s*en,\s*sv,\s*Base,/);
+    assert.match(pbx, /knownRegions = \(\s*sv,\s*Base,/);
     assert.match(pbx, /sv\.lproj\/InfoPlist\.strings/);
-    assert.match(pbx, /en\.lproj\/InfoPlist\.strings/);
+    assert.doesNotMatch(pbx, /en\.lproj\/InfoPlist\.strings/);
     assert.match(pbx, /InfoPlist\.strings in Resources/);
     assert.match(pbx, /CURRENT_PROJECT_VERSION = 24;/);
   });
 
-  it('cap sync patch script keeps Swedish localization durable', () => {
+  it('cap sync patch script keeps Swedish-only localization durable', () => {
     const src = fs.readFileSync(
       path.join(ROOT, 'scripts/patch-ios-info-plist.mjs'),
       'utf8'
     );
     assert.match(src, /CFBundleDevelopmentRegion',\s*'sv'/);
-    assert.match(src, /CFBundleLocalizations/);
-    assert.match(src, /writeInfoPlistStrings\('sv'/);
-    assert.match(src, /writeInfoPlistStrings\('en'/);
+    assert.match(src, /CFBundleLocalizations',\s*\['sv'\]/);
+    assert.match(src, /writeSwedishInfoPlistStrings/);
+    assert.match(src, /removeEnglishLproj/);
+    assert.doesNotMatch(src, /writeInfoPlistStrings\('en'/);
   });
 });
