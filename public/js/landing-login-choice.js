@@ -1,12 +1,21 @@
 /**
- * landing-login-choice.js — Mobile web: app download vs web login choice.
- * Shows before /login and /child-login when visitor is on mobile browser.
+ * landing-login-choice.js — Mobile web: app download vs web entry choice.
+ * Shows before /login, /child-login and /register on mobile browser.
  */
 (function (global) {
   'use strict';
 
   const STORAGE_KEY = 'landing_login_entry_choice_v1';
   const APP_STORE_FALLBACK = 'https://apple.co/4v2ESuH';
+  const ENTRY_PATHS = ['/login', '/child-login', '/register'];
+
+  function isEntryPath(href) {
+    return ENTRY_PATHS.indexOf(href) !== -1;
+  }
+
+  function isRegisterPath(href) {
+    return href === '/register';
+  }
 
   function isNativeShell() {
     return (global.Platform && global.Platform.isNative && global.Platform.isNative()) ||
@@ -102,7 +111,14 @@
 
   function showModal(targetHref) {
     closeModal();
-    track('landing_login_choice_shown', { target: targetHref });
+    const isRegister = isRegisterPath(targetHref);
+    track('landing_login_choice_shown', { target: targetHref, intent: isRegister ? 'register' : 'login' });
+
+    const webTitle = isRegister ? 'Skapa konto på webben' : 'Logga in på webben';
+    const webSubtitle = isRegister ? 'Registrera dig i webbläsaren' : 'Fortsätt i webbläsaren';
+    const bodyText = isRegister
+      ? 'Du kan ladda ner appen eller skapa konto direkt i webbläsaren.'
+      : 'Du kan ladda ner appen eller logga in direkt i webbläsaren.';
 
     const overlay = document.createElement('div');
     overlay.id = 'landingLoginChoiceModal';
@@ -111,7 +127,7 @@
       '<div class="landing-login-choice-card" role="dialog" aria-modal="true" aria-labelledby="landingLoginChoiceTitle">' +
         '<button type="button" class="landing-login-choice-close" aria-label="Stäng">&times;</button>' +
         '<h2 id="landingLoginChoiceTitle" class="landing-login-choice-title">Hur vill du fortsätta?</h2>' +
-        '<p class="landing-login-choice-text">Du kan ladda ner appen eller logga in direkt i webbläsaren.</p>' +
+        '<p class="landing-login-choice-text">' + bodyText + '</p>' +
         '<div class="landing-login-choice-actions">' +
           '<button type="button" class="landing-login-choice-btn landing-login-choice-btn--app" data-choice="app">' +
             '<span class="landing-login-choice-btn__icon" aria-hidden="true">📲</span>' +
@@ -119,7 +135,7 @@
           '</button>' +
           '<button type="button" class="landing-login-choice-btn landing-login-choice-btn--web" data-choice="web">' +
             '<span class="landing-login-choice-btn__icon" aria-hidden="true">🌐</span>' +
-            '<span class="landing-login-choice-btn__text"><strong>Logga in på webben</strong><span>Fortsätt i webbläsaren</span></span>' +
+            '<span class="landing-login-choice-btn__text"><strong>' + webTitle + '</strong><span>' + webSubtitle + '</span></span>' +
           '</button>' +
         '</div>' +
         '<label class="landing-login-choice-skip">' +
@@ -147,17 +163,17 @@
     overlay.querySelector('[data-choice="web"]').addEventListener('click', function () {
       const skipAsk = overlay.querySelector('#landingLoginChoiceSkip').checked;
       if (skipAsk) savePref('web', true);
-      track('landing_login_choice_web', { skip_ask: skipAsk, target: targetHref });
+      track('landing_login_choice_web', { skip_ask: skipAsk, target: targetHref, intent: isRegister ? 'register' : 'login' });
       closeModal();
       navigateTo(targetHref);
     });
   }
 
-  function handleLoginLinkClick(e, link) {
+  function handleEntryLinkClick(e, link) {
     if (!isMobileWeb()) return;
 
     const href = link.getAttribute('href');
-    if (href !== '/login' && href !== '/child-login') return;
+    if (!isEntryPath(href)) return;
 
     const pref = readPref();
     if (pref) {
@@ -173,9 +189,9 @@
 
   function init() {
     document.addEventListener('click', function (e) {
-      const link = e.target.closest('a[href="/login"], a[href="/child-login"]');
+      const link = e.target.closest('a[href="/login"], a[href="/child-login"], a[href="/register"]');
       if (!link) return;
-      handleLoginLinkClick(e, link);
+      handleEntryLinkClick(e, link);
     });
   }
 

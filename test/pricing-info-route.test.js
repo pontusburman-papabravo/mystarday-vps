@@ -35,6 +35,7 @@ test('landing mobile login choice script is wired on index', () => {
   const js = fs.readFileSync(path.join(ROOT, 'public/js/landing-login-choice.js'), 'utf8');
   assert.match(html, /landing-login-choice\.js/);
   assert.match(js, /landing_login_entry_choice_v1/);
+  assert.match(js, /\/register/);
   assert.match(js, /Fråga inte igen/);
 });
 
