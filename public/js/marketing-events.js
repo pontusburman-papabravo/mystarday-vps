@@ -71,9 +71,33 @@
     return {};
   }
 
+  function isNativeApp() {
+    try {
+      if (window.Platform && typeof Platform.isNative === 'function') return !!Platform.isNative();
+      return !!(
+        window.Capacitor &&
+        typeof Capacitor.isNativePlatform === 'function' &&
+        Capacitor.isNativePlatform()
+      );
+    } catch (_) {
+      return false;
+    }
+  }
+
   function trackMetaSignup(method) {
-    if (!hasMarketingConsent() || typeof window.fbq !== 'function') return;
-    const payload = { content_name: method || 'email' };
+    if (!hasMarketingConsent()) return;
+    const signupMethod = method || 'email';
+
+    // Native: Meta App Events only (avoid Pixel + App Events double-count).
+    if (isNativeApp()) {
+      if (window.MetaAppEvents && typeof MetaAppEvents.trackRegistrationCompleted === 'function') {
+        MetaAppEvents.trackRegistrationCompleted({ method: signupMethod });
+      }
+      return;
+    }
+
+    if (typeof window.fbq !== 'function') return;
+    const payload = { content_name: signupMethod };
     const utm = getAttribution();
     if (utm.utm_source) payload.source = utm.utm_source;
     if (utm.utm_campaign) payload.campaign = utm.utm_campaign;

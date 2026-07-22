@@ -143,6 +143,9 @@
         },
       };
       if (window.MarketingEvents) MarketingEvents.configureGoogleAds();
+      if (window.MetaAppEvents && typeof MetaAppEvents.onConsentGranted === 'function') {
+        MetaAppEvents.onConsentGranted();
+      }
     } else {
       fbq('consent', 'revoke');
       window.Pixel = { pageView: function(){}, lead: function(){}, purchase: function(){} };

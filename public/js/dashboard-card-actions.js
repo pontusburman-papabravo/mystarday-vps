@@ -199,6 +199,10 @@ async function dashToggleActivity(itemId, childId, currentlyCompleted) {
       if (btn) { btn.classList.remove('checking'); btn.disabled = false; }
       return;
     }
+    if (action === 'complete' && window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
+      const body = await res.clone().json().catch(() => ({}));
+      MetaAppEvents.handleServerMilestones(body && body.meta_milestones);
+    }
     // Refresh dashboard cards to get updated state
     await loadDashboardCards();
     showToast(currentlyCompleted ? 'Avmarkerad!' : '✅ Klar!');

@@ -4,7 +4,7 @@
  * App ID: se.mystarday.app
  * App Name: Min Stjärndag
  *
- * The app loads https://mystarday.se in production (remote URL, no bundled copy).
+ * The app loads https://mystarday.se in production (remote URL, no bundled copy). // pragma: allowlist secret
  * In development (CAP_DEV=true), connects to http://localhost:3000.
  *
  * Plugins configured: SplashScreen, StatusBar, Keyboard, SignInWithApple, Camera.
@@ -31,6 +31,8 @@ const config: CapacitorConfig = {
       '@capacitor/app',
       '@capacitor/camera',
       '@capacitor/push-notifications',
+      'capacitor-facebook-events',
+      'capacitor-plugin-app-tracking-transparency',
     ],
   },
   android: {
@@ -41,6 +43,7 @@ const config: CapacitorConfig = {
       '@capacitor/camera',
       '@capacitor/push-notifications',
       '@codetrix-studio/capacitor-google-auth',
+      'capacitor-facebook-events',
     ],
   },
   plugins: {

@@ -289,12 +289,16 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     });
     const { maybeTrackChildLogin } = require('../../lib/first-star-mode-analytics');
     await maybeTrackChildLogin({ familyId: child.family_id, childId: child.id });
-    const { updateActivationState } = require('../../lib/activation-p0');
-    updateActivationState(child.family_id, 'child_access', {
-      metadata: { child_id: child.id, source: 'child_login' },
-    }).catch((err) => {
+    const { recordActivationMilestone } = require('../../lib/activation-p0');
+    let childAccessNewlyRecorded = false;
+    try {
+      const accessResult = await recordActivationMilestone(child.family_id, 'child_access', {
+        metadata: { child_id: child.id, source: 'child_login' },
+      });
+      childAccessNewlyRecorded = accessResult.newlyRecorded;
+    } catch (err) {
       console.error('[AUTH] activation child_access error:', err.message);
-    });
+    }
 
     const csrfToken = generateCsrfToken(res);
     const user = {
@@ -308,7 +312,14 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     };
     // expiresAt lets the frontend schedule proactive silent refresh
     const expiresAt = Date.now() + expiresInSecs * 1000;
-    return res.json({ csrfToken, user, expiresAt });
+    return res.json({
+      csrfToken,
+      user,
+      expiresAt,
+      meta_milestones: childAccessNewlyRecorded
+        ? { child_access_completed: true, flow: 'child_login' }
+        : {},
+    });
 
   } catch (err) {
     console.error('[AUTH] Child login error:', err);

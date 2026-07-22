@@ -299,7 +299,30 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       });
     }
 
-    res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
+    let firstStarNewlyRecorded = false;
+    if (justCompleted) {
+      const fid = req.user.familyId || await getChildFamilyId(req.user.id);
+      if (fid) {
+        try {
+          firstStarNewlyRecorded = await require('../../lib/activation-first-completion')
+            .maybeRecordFirstCompletion(fid, {
+              child_id: req.user.id,
+              source: 'child_complete',
+            });
+        } catch (err) {
+          console.error('[DAILY-LOG-CHILD] maybeRecordFirstCompletion failed:', err.message);
+        }
+      }
+    }
+
+    const completePayload = justCompleted
+      ? Object.assign({}, result.rows[0], {
+        meta_milestones: firstStarNewlyRecorded
+          ? { first_star_earned: true, flow: 'child_complete' }
+          : {},
+      })
+      : { id: req.params.itemId, completed: true, meta_milestones: {} };
+    res.json(completePayload);
     if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
       handleActivityCompleted(req.params.itemId, req.user.id, false).catch((err) => {
@@ -310,10 +333,6 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       if (!fid) return;
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
       if (!justCompleted) return;
-      require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
-        child_id: req.user.id,
-        source: 'child_complete',
-      });
       require('../../lib/journey/ingest').ingestMilestoneAsync({
         familyId: fid,
         milestone: 'child_first_completion',

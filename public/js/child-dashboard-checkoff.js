@@ -149,9 +149,16 @@
     }
 
     const apiPromise = Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, { method: 'PUT' })
-      .then(() => {
+      .then((data) => {
         if (queueId && window.OfflineQueue) {
           window.OfflineQueue.markSynced(queueId);
+        }
+        if (
+          action === 'complete' &&
+          window.MetaAppEvents &&
+          typeof MetaAppEvents.handleServerMilestones === 'function'
+        ) {
+          MetaAppEvents.handleServerMilestones(data && data.meta_milestones);
         }
       })
       .catch((err) => {

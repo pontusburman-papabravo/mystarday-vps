@@ -100,6 +100,26 @@ async function updateActivationState(familyId, milestone, options = {}) {
   return next;
 }
 
+/**
+ * Like updateActivationState but reports whether the milestone timestamp was newly written.
+ * Used by Meta App Events (and similar) to fire once on verified first write.
+ * @returns {Promise<{ state: object, newlyRecorded: boolean }>}
+ */
+async function recordActivationMilestone(familyId, milestone, options = {}) {
+  const at = options.at || new Date();
+  const before = await ensureActivationState(familyId, at);
+  const columnByMilestone = {
+    child_created: 'child_created_at',
+    schema_saved: 'schema_saved_at',
+    child_access: 'child_access_completed_at',
+    first_completion: 'first_completion_at',
+  };
+  const column = columnByMilestone[milestone];
+  const alreadySet = column ? Boolean(before[column]) : true;
+  const state = await updateActivationState(familyId, milestone, options);
+  return { state, newlyRecorded: column ? !alreadySet : false };
+}
+
 async function setActivationVariant(familyId, variant) {
   await ensureActivationState(familyId);
   return activationDb.patchState(familyId, { activation_variant: variant });
@@ -120,6 +140,7 @@ async function resolveDefaultActivationVariant(familyId) {
 module.exports = {
   ensureActivationState,
   updateActivationState,
+  recordActivationMilestone,
   setActivationVariant,
   resolveDefaultActivationVariant,
   isP0Activated,

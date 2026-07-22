@@ -93,6 +93,9 @@
       fbq('consent', 'grant');
       fbq('track', 'PageView');
       if (window.MarketingEvents) MarketingEvents.configureGoogleAds();
+      if (window.MetaAppEvents && typeof MetaAppEvents.onConsentGranted === 'function') {
+        MetaAppEvents.onConsentGranted();
+      }
     } else {
       fbq('consent', 'revoke');
     }

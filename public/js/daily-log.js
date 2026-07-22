@@ -775,6 +775,13 @@
         const res = await apiFetch(`/api/daily-log-items/${itemId}/${endpoint}`, { method: 'PUT' });
         if (!res.ok) throw new Error();
         const updated = await res.json();
+        if (
+          endpoint === 'complete' &&
+          window.MetaAppEvents &&
+          typeof MetaAppEvents.handleServerMilestones === 'function'
+        ) {
+          MetaAppEvents.handleServerMilestones(updated && updated.meta_milestones);
+        }
 
         // Update local state
         const idx = currentItems.findIndex(i => i.id === itemId);

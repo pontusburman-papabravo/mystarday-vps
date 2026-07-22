@@ -436,6 +436,9 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
     });
     const schedData = await schedRes.json();
     if (!schedRes.ok) throw new Error(schedData.error || 'Schemat kunde inte skapas');
+    if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
+      MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
+    }
 
     // Set child name in step 2 view selection
     document.getElementById('s2vChildName').textContent = childName;

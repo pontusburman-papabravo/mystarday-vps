@@ -218,7 +218,7 @@
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 // stjarndag-v649: calendar day-card text + magic dark tab bar on all parent pages
-const CACHE_NAME = 'stjarndag-v654';
+const CACHE_NAME = 'stjarndag-v655';
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
 // stjarndag-v644: fix bottom nav leaving /library — hard nav + no stale HTML shell
 // stjarndag-v643: chrome notiser dark strokes on white header tile (fix vit-på-vit)

@@ -441,20 +441,24 @@ router.post('/schedule', async (req, res) => {
         console.error('[ONBOARDING] Daily log sync after schedule change failed:', dlErr.message);
       }
 
-      const { updateActivationState } = require('../lib/activation-p0');
+      const { recordActivationMilestone } = require('../lib/activation-p0');
       const act1StarterPlan = Array.isArray(custom_items) && custom_items.length > 0;
-      await updateActivationState(req.user.familyId, 'schema_saved', {
-        metadata: {
-          template_group,
-          source: 'onboarding_schedule',
-          plan_edited_before_save: plan_edited_before_save === true,
-          activity_count: Number.isFinite(Number(activity_count))
-            ? Number(activity_count)
-            : (Array.isArray(custom_items) ? custom_items.length : undefined),
-        },
-      }).catch((err) => {
+      let schemaNewlyRecorded = false;
+      try {
+        const schemaResult = await recordActivationMilestone(req.user.familyId, 'schema_saved', {
+          metadata: {
+            template_group,
+            source: 'onboarding_schedule',
+            plan_edited_before_save: plan_edited_before_save === true,
+            activity_count: Number.isFinite(Number(activity_count))
+              ? Number(activity_count)
+              : (Array.isArray(custom_items) ? custom_items.length : undefined),
+          },
+        });
+        schemaNewlyRecorded = schemaResult.newlyRecorded;
+      } catch (err) {
         console.error('[ONBOARDING] activation schema_saved error:', err.message);
-      });
+      }
       if (act1StarterPlan) {
         const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
         await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
@@ -471,6 +475,9 @@ router.post('/schedule', async (req, res) => {
         schedules_created: schedulesCreated,
         template_group,
         weekdays_only: SCHOOL_GROUPS.has(template_group),
+        meta_milestones: schemaNewlyRecorded
+          ? { tutorial_completion: true, flow: act1StarterPlan ? 'wizard' : 'manual' }
+          : {},
       });
     } catch (err) {
       await client.query('ROLLBACK');

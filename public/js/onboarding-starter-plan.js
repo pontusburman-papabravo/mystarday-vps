@@ -384,6 +384,9 @@
       });
       const schedData = await schedRes.json();
       if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
+      if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
+        MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
+      }
 
       syncOnboardingCompleteInAuth();
 
@@ -636,6 +639,9 @@
       });
       const schedData = await schedRes.json();
       if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
+      if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
+        MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
+      }
 
       syncOnboardingCompleteInAuth();
 

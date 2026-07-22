@@ -51,7 +51,7 @@ describe('Onboarding handoff P0', () => {
   it('child-login sets child_session_started and child_access', () => {
     const src = read('src/routes/auth/child-login.js');
     assert.match(src, /child_session_started/);
-    assert.match(src, /updateActivationState\(child\.family_id, 'child_access'/);
+    assert.match(src, /recordActivationMilestone\(child\.family_id, 'child_access'/);
   });
 
   it('update-pin does not set child_access milestone', () => {

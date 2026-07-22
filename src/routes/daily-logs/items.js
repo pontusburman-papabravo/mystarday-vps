@@ -95,7 +95,30 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
       [req.params.itemId, logDate, req.user.id]
     );
     const justCompleted = result.rows.length > 0;
-    res.json(justCompleted ? result.rows[0] : { id: req.params.itemId, completed: true });
+    let firstStarNewlyRecorded = false;
+    if (justCompleted) {
+      try {
+        const fid = await getChildFamilyId(item.child_id);
+        if (fid) {
+          firstStarNewlyRecorded = await require('../../lib/activation-first-completion')
+            .maybeRecordFirstCompletion(fid, {
+              child_id: item.child_id,
+              source: 'parent_complete',
+            });
+        }
+      } catch (err) {
+        console.error('[DAILY-LOG-ITEM] maybeRecordFirstCompletion failed:', err.message);
+      }
+    }
+    res.json(
+      justCompleted
+        ? Object.assign({}, result.rows[0], {
+          meta_milestones: firstStarNewlyRecorded
+            ? { first_star_earned: true, flow: 'parent_complete' }
+            : {},
+        })
+        : { id: req.params.itemId, completed: true, meta_milestones: {} }
+    );
     if (justCompleted) {
       const { handleActivityCompleted } = require('../../lib/family-event-engine');
       handleActivityCompleted(req.params.itemId, item.child_id, false).catch((err) => {
@@ -106,12 +129,6 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
       if (!fid) return;
       require('../../lib/analytics-tracker').trackDailyLog(fid);
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: item.child_id, completed: true });
-      if (justCompleted) {
-        require('../../lib/activation-first-completion').maybeRecordFirstCompletion(fid, {
-          child_id: item.child_id,
-          source: 'parent_complete',
-        });
-      }
       if (!justCompleted) return;
       try {
         const [childRow, activityRow] = await Promise.all([

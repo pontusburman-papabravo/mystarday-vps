@@ -54,5 +54,24 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Min Stjärndag behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.</string> <!-- pragma: allowlist secret -->
 <!-- pragma: allowlist secret -->
+	<key>FacebookAppID</key>
+	<string>27941105858861495</string>
+	<key>FacebookDisplayName</key>
+	<string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<false/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Vi använder detta för att mäta annonser och förstå vilka kampanjer som hjälper familjer hitta appen. Ingen barndata skickas.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb27941105858861495</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

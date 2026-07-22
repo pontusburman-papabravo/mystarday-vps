@@ -171,7 +171,10 @@
       const mainIsDone = card && card.classList.contains('done');
 
       if (allDone && !mainIsDone) {
-        await Auth.api(`/api/me/daily-log-items/${itemId}/complete`, { method: 'PUT' });
+        const completeData = await Auth.api(`/api/me/daily-log-items/${itemId}/complete`, { method: 'PUT' });
+        if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
+          MetaAppEvents.handleServerMilestones(completeData && completeData.meta_milestones);
+        }
         if (window.Platform && window.Platform.haptics) window.Platform.haptics.medium();
         await loadDay(currentDate, false);
       } else if (!allDone && mainIsDone) {

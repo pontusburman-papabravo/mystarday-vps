@@ -441,6 +441,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/meta-app-events.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>'
   );
   if (injectDebug) {

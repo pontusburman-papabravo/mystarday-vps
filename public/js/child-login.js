@@ -919,6 +919,9 @@ async function submitLogin() {
     // Success — verify httpOnly cookie actually switched to child (parent cookie can shadow).
     Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
     if (window.DeviceMode) DeviceMode.enterChild();
+    if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
+      MetaAppEvents.handleServerMilestones(data.meta_milestones);
+    }
 
     const deviceFamilyId = getDeviceFamilyId();
     const loginFamilyId = data.user.familyId || null;
