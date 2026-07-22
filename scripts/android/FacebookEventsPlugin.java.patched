@@ -98,12 +98,7 @@ public class FacebookEventsPlugin extends Plugin {
         FacebookSdk.setAutoLogAppEventsEnabled(metaEventsAllowed);
         FacebookSdk.setAdvertiserIDCollectionEnabled(advertiserAllowed);
 
-        if (metaEventsAllowed) {
-            Application application = resolveApplication();
-            if (application != null) {
-                AppEventsLogger.activateApp(application);
-            }
-        } else {
+        if (!metaEventsAllowed) {
             FacebookSdk.setAutoLogAppEventsEnabled(false);
             FacebookSdk.setAdvertiserIDCollectionEnabled(false);
             AppEventsLogger.setFlushBehavior(AppEventsLogger.FlushBehavior.EXPLICIT_ONLY);
@@ -112,6 +107,9 @@ public class FacebookEventsPlugin extends Plugin {
                 facebookEvents.reset();
             }
         }
+        // When enabling: do NOT activateApp() here.
+        // Future handleOnStart / process start reads SharedPreferences and activates then.
+        // Never fabricate historical install / prior open events.
         call.resolve();
     }
 
@@ -170,9 +168,18 @@ public class FacebookEventsPlugin extends Plugin {
         }
     }
 
+    /** Fail-closed: missing prefs / missing key / any error → false. */
     private boolean isMarketingConsentPersisted() {
-        SharedPreferences prefs = getPrefs();
-        return prefs != null && prefs.getBoolean(KEY_MARKETING, false);
+        try {
+            SharedPreferences prefs = getPrefs();
+            if (prefs == null || !prefs.contains(KEY_MARKETING)) {
+                return false;
+            }
+            return prefs.getBoolean(KEY_MARKETING, false);
+        } catch (Exception err) {
+            Logger.warn(LOG_TAG, "Consent read failed — treating as false: " + err.getMessage());
+            return false;
+        }
     }
 
     @Nullable

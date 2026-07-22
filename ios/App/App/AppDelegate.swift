@@ -13,8 +13,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Keep Meta Dashboard "Automatically Log In-App Purchase Events" OFF.
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
 
-        let marketingConsent = UserDefaults.standard.bool(forKey: "msd_meta_marketing_consent")
-        let advertiserTracking = UserDefaults.standard.bool(forKey: "msd_meta_advertiser_tracking")
+        // Fail-closed: missing/corrupt keys → false. Native-persisted only (not JS localStorage).
+        let marketingConsent = UserDefaults.standard.object(forKey: "msd_meta_marketing_consent") as? Bool ?? false
+        let advertiserTracking = UserDefaults.standard.object(forKey: "msd_meta_advertiser_tracking") as? Bool ?? false
         Settings.shared.isAutoLogAppEventsEnabled = marketingConsent
         Settings.shared.isAdvertiserIDCollectionEnabled = marketingConsent && advertiserTracking
         Settings.shared.isAdvertiserTrackingEnabled = marketingConsent && advertiserTracking

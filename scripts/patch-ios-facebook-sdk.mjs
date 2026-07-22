@@ -169,8 +169,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Keep Meta Dashboard "Automatically Log In-App Purchase Events" OFF.
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
 
-        let marketingConsent = UserDefaults.standard.bool(forKey: "msd_meta_marketing_consent")
-        let advertiserTracking = UserDefaults.standard.bool(forKey: "msd_meta_advertiser_tracking")
+        // Fail-closed: missing/corrupt keys → false. Native-persisted only (not JS localStorage).
+        let marketingConsent = UserDefaults.standard.object(forKey: "msd_meta_marketing_consent") as? Bool ?? false
+        let advertiserTracking = UserDefaults.standard.object(forKey: "msd_meta_advertiser_tracking") as? Bool ?? false
         Settings.shared.isAutoLogAppEventsEnabled = marketingConsent
         Settings.shared.isAdvertiserIDCollectionEnabled = marketingConsent && advertiserTracking
         Settings.shared.isAdvertiserTrackingEnabled = marketingConsent && advertiserTracking
@@ -214,12 +215,33 @@ function patchAppDelegate() {
     throw new Error(`Not found: ${appDelegatePath}`);
   }
   const before = fs.readFileSync(appDelegatePath, 'utf8');
+  const alreadySafe =
+    before.includes('msd_meta_marketing_consent') &&
+    before.includes('if Settings.shared.isAutoLogAppEventsEnabled') &&
+    before.includes('object(forKey: "msd_meta_marketing_consent") as? Bool');
+  if (alreadySafe) {
+    console.log('AppDelegate.swift already privacy-safe for Meta App Events');
+    return;
+  }
   if (
     before.includes('msd_meta_marketing_consent') &&
     before.includes('if Settings.shared.isAutoLogAppEventsEnabled')
   ) {
-    console.log('AppDelegate.swift already privacy-safe for Meta App Events');
-    return;
+    // Upgrade legacy bool(forKey:) reads to fail-closed object(forKey:) as? Bool.
+    const upgraded = before
+      .replace(
+        /UserDefaults\.standard\.bool\(forKey: "msd_meta_marketing_consent"\)/g,
+        'UserDefaults.standard.object(forKey: "msd_meta_marketing_consent") as? Bool ?? false'
+      )
+      .replace(
+        /UserDefaults\.standard\.bool\(forKey: "msd_meta_advertiser_tracking"\)/g,
+        'UserDefaults.standard.object(forKey: "msd_meta_advertiser_tracking") as? Bool ?? false'
+      );
+    if (upgraded !== before) {
+      fs.writeFileSync(appDelegatePath, upgraded);
+      console.log('Upgraded AppDelegate.swift consent reads to fail-closed');
+      return;
+    }
   }
   fs.writeFileSync(appDelegatePath, PRIVACY_SAFE_APP_DELEGATE);
   console.log('Wrote privacy-safe AppDelegate.swift for Meta App Events');

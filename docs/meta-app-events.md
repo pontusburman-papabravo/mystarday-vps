@@ -55,7 +55,7 @@ On Android, marketing consent alone enables App Events (no ATT). Advertiser ID c
 2. `MetaAppEvents.onConsentGranted()`  
 3. iOS: read ATT (prompt only if `notDetermined` **after** marketing yes)  
 4. `configureConsent({ marketingConsent: true, advertiserTrackingAllowed })`  
-5. Native enables AutoLog; calls `activateApp()` for **future** opens only (no backfill)  
+5. Native enables AutoLog for **future** foreground/cold-start cycles only (`applicationDidBecomeActive` / `handleOnStart`) — **no backfill** of install or prior opens  
 6. Manual conversion events may fire when business milestones occur
 
 ### Marketing consent denied (first choice)
@@ -115,12 +115,32 @@ On Android, marketing consent alone enables App Events (no ATT). Advertiser ID c
 
 ```bash
 export META_CLIENT_TOKEN='…'
-npm run cap:sync:ios      # applies privacy plugin patch + Info.plist/AppDelegate
-npm run cap:sync:android  # applies privacy plugin patch + manifest
+npm run cap:sync:ios      # applies privacy plugin patch + verify + Info.plist/AppDelegate
+npm run cap:sync:android  # applies privacy plugin patch + verify + manifest
 ```
 
 Durable plugin sources: `scripts/ios/*.patched`, `scripts/android/*.patched`  
-Applied by: `scripts/patch-capacitor-facebook-events-privacy.mjs`
+Applied by: `scripts/patch-capacitor-facebook-events-privacy.mjs`  
+Verified by: `scripts/verify-capacitor-facebook-events-privacy.mjs` (fails if upstream plugin drifts)
+
+## App Store release checklist
+
+Native changes require **new iOS + Android builds**. Remote WebView deploy alone does not start Meta reporting.
+
+1. Merge PR #703  
+2. Set `META_CLIENT_TOKEN` in release environment (Meta App Dashboard → Settings → Advanced)  
+3. Build release binaries:
+   - iOS: archive → App Store Connect → store review  
+   - Android: release AAB → Google Play live track  
+4. Minimum smoke on **real devices** (release builds):
+   - App starts and login works  
+   - No Meta events before marketing consent  
+   - Accept consent → app still works; future opens may appear in Test Events  
+   - Revoke consent → app still works; new events stop  
+   - iOS: marketing yes + ATT denied → events without advertiser ID  
+5. Keep Meta Dashboard **Automatically Log In-App Purchase Events = OFF**
+
+Meta data appears only after users update to the new app version **and** grant marketing consent.
 
 ## How to test in Events Manager
 

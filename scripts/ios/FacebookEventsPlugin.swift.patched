@@ -15,13 +15,14 @@ public class FacebookEventsPlugin: CAPPlugin {
             call.reject("Missing enabled argument")
             return
         }
-        // Only allow ATE when marketing consent is already persisted.
-        let marketing = UserDefaults.standard.bool(forKey: FacebookEvents.marketingConsentKey)
+        // Only allow ATE when marketing consent is already persisted (fail-closed).
+        let marketing = facebookEvents.hasPersistedMarketingConsent()
         facebookEvents.setAdvertiserTrackingEnabled(enabled: marketing && enabled)
         call.resolve()
     }
 
     @objc func configureConsent(_ call: CAPPluginCall) {
+        // Fail-closed: missing/invalid → false
         let marketingConsent = call.getBool("marketingConsent") ?? false
         let advertiserTrackingAllowed = call.getBool("advertiserTrackingAllowed") ?? false
         facebookEvents.configureConsent(

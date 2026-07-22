@@ -30,7 +30,6 @@
   const loggedOnceThisSession = Object.create(null);
   let attRequested = false;
   let lastConfigureKey = '';
-  let activateAppCalledThisSession = false;
 
   function debugLog(message, detail) {
     try {
@@ -237,7 +236,6 @@
       delete loggedOnceThisSession[k];
     });
     lastConfigureKey = '';
-    activateAppCalledThisSession = false;
     try { localStorage.removeItem(CONSENT_STATE_KEY); } catch (_) { /* ignore */ }
   }
 
@@ -312,7 +310,6 @@
             advertiserTrackingAllowed: advertiserTrackingAllowed,
           });
           lastConfigureKey = configureKey;
-          if (marketing) activateAppCalledThisSession = true;
           debugLog('configureConsent applied', {
             marketingConsent: marketing,
             advertiserTrackingAllowed: advertiserTrackingAllowed,
@@ -449,6 +446,11 @@
     }
   }
 
+  /**
+   * After marketing consent: persist flags for future native sessions.
+   * Does NOT call activateApp() — native AppDelegate / handleOnStart activates
+   * only when consent was already persisted before that process/foreground cycle.
+   */
   function onConsentGranted() {
     syncTrackingSettings().catch(function () {});
   }
@@ -490,13 +492,11 @@
       resolveAttStatus: resolveAttStatus,
       applyNativeConsentConfig: applyNativeConsentConfig,
       clearLocalMetaQueues: clearLocalMetaQueues,
-      wasActivateAppCalledThisSession: function () { return activateAppCalledThisSession; },
       resetSessionDedupe: function () {
         Object.keys(loggedOnceThisSession).forEach(function (k) {
           delete loggedOnceThisSession[k];
         });
         lastConfigureKey = '';
-        activateAppCalledThisSession = false;
       },
     },
   };

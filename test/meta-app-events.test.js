@@ -106,14 +106,12 @@ describe('MetaAppEvents privacy gate', () => {
     assert.equal(cfg[cfg.length - 1].marketingConsent, false);
   });
 
-  it('2) app open path without consent does not enable AutoLog/activate', async () => {
+  it('2) app open path without consent does not enable AutoLog', async () => {
     const { MetaAppEvents, logged } = loadMeta({ force: true, consent: false });
     await MetaAppEvents.onConsentGranted();
     await new Promise((r) => setTimeout(r, 15));
-    // onConsentGranted with consent=false still configures native OFF
     const cfg = logged.filter((e) => e.type === 'configureConsent');
     assert.ok(cfg.every((c) => c.marketingConsent === false));
-    assert.equal(MetaAppEvents._internal.wasActivateAppCalledThisSession(), false);
   });
 
   it('3) ATT authorized without marketing consent sends nothing', async () => {
@@ -190,16 +188,22 @@ describe('MetaAppEvents privacy gate', () => {
     assert.equal(ctx.logged.filter((e) => e.event === 'first_star_earned').length, 0);
   });
 
-  it('8) activateApp path is not marked before consent', async () => {
-    const { MetaAppEvents } = loadMeta({ force: true, consent: false, platform: 'ios' });
+  it('8) granting consent does not backfill install/open in JS layer', async () => {
+    const { MetaAppEvents, logged } = loadMeta({ force: true, consent: false, platform: 'ios' });
     await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: true });
-    assert.equal(MetaAppEvents._internal.wasActivateAppCalledThisSession(), false);
+    const before = logged.filter((e) => e.type === 'configureConsent');
+    assert.equal(before[before.length - 1].marketingConsent, false);
 
-    // Grant consent → configureConsent(true) marks activate path
     const granted = loadMeta({ force: true, consent: true, platform: 'ios', attStatus: 'denied' });
     await granted.MetaAppEvents.onConsentGranted();
     await new Promise((r) => setTimeout(r, 20));
-    assert.equal(granted.MetaAppEvents._internal.wasActivateAppCalledThisSession(), true);
+    const cfg = granted.logged.filter((e) => e.type === 'configureConsent');
+    assert.ok(cfg.some((c) => c.marketingConsent === true));
+    // JS never calls activateApp — native handles on next foreground/cold start only.
+    assert.doesNotMatch(
+      fs.readFileSync(path.join(ROOT, 'public/js/meta-app-events.js'), 'utf8'),
+      /\.activateApp\(/
+    );
   });
 
   it('9) native defaults in repo are privacy-safe without JS', () => {
@@ -209,6 +213,7 @@ describe('MetaAppEvents privacy gate', () => {
 
     const delegate = fs.readFileSync(path.join(ROOT, 'ios/App/App/AppDelegate.swift'), 'utf8');
     assert.match(delegate, /msd_meta_marketing_consent/);
+    assert.match(delegate, /object\(forKey: "msd_meta_marketing_consent"\) as\? Bool \?\? false/);
     assert.match(delegate, /if Settings\.shared\.isAutoLogAppEventsEnabled \{\s*AppEvents\.shared\.activateApp\(\)/);
     // Must not call activateApp() outside the consent gate.
     const becomeActive = delegate.slice(
@@ -229,7 +234,13 @@ describe('MetaAppEvents privacy gate', () => {
       'utf8'
     );
     assert.match(pluginJava, /isMarketingConsentPersisted\(\)/);
+    assert.match(pluginJava, /prefs\.contains\(KEY_MARKETING\)/);
+    assert.doesNotMatch(pluginJava, /configureConsent[\s\S]{0,400}activateApp\(/);
     assert.doesNotMatch(pluginJava, /setAutoLogAppEventsEnabled\(true\);\s*\n\s*FacebookSdk\.setAdvertiserIDCollectionEnabled\(true\)/);
+
+    const iosSwift = fs.readFileSync(path.join(ROOT, 'scripts/ios/FacebookEvents.swift.patched'), 'utf8');
+    assert.match(iosSwift, /object\(forKey: FacebookEvents\.marketingConsentKey\) as\? Bool \?\? false/);
+    assert.doesNotMatch(iosSwift, /configureConsent[\s\S]{0,400}activateApp\(/);
   });
 
   it('10) app works without Client Token / Meta SDK plugin', async () => {
@@ -303,10 +314,20 @@ describe('Meta App Events wiring contracts', () => {
     assert.doesNotMatch(handoff, /trackChildAccessCompleted/);
   });
 
-  it('privacy plugin patch is wired into cap sync', () => {
+  it('privacy plugin patch is wired into cap sync and verify step', () => {
     const pkg = read('package.json');
     assert.match(pkg, /patch-capacitor-facebook-events-privacy\.mjs/);
+    assert.match(pkg, /verify-capacitor-facebook-events-privacy\.mjs/);
     assert.ok(fs.existsSync(path.join(ROOT, 'scripts/ios/FacebookEvents.swift.patched')));
     assert.ok(fs.existsSync(path.join(ROOT, 'scripts/android/FacebookEventsPlugin.java.patched')));
+  });
+
+  it('verify script passes on patched plugin', () => {
+    const { spawnSync } = require('node:child_process');
+    const r = spawnSync(process.execPath, ['scripts/verify-capacitor-facebook-events-privacy.mjs'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
+    assert.equal(r.status, 0, (r.stderr || r.stdout || '').trim());
   });
 });

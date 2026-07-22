@@ -25,10 +25,7 @@ import FBSDKCoreKit
         Settings.shared.isAdvertiserIDCollectionEnabled = advertiserAllowed
         Settings.shared.isAdvertiserTrackingEnabled = advertiserAllowed
 
-        if metaEventsAllowed {
-            // Future opens only — do not fabricate historical install/open events.
-            AppEvents.shared.activateApp()
-        } else {
+        if !metaEventsAllowed {
             // Stop sending; drop identity so queued attribution data is not reused.
             AppEvents.shared.flushBehavior = .explicitOnly
             AppEvents.shared.userID = nil
@@ -37,14 +34,22 @@ import FBSDKCoreKit
             Settings.shared.isAdvertiserIDCollectionEnabled = false
             Settings.shared.isAdvertiserTrackingEnabled = false
         }
+        // When enabling: do NOT call activateApp() here.
+        // Future applicationDidBecomeActive reads persisted consent and activates then.
+        // Never fabricate historical install / prior open events.
     }
 
+    /// Fail-closed: missing UserDefaults keys → false (Foundation default for bool(forKey:)).
     @objc public func applyPersistedConsent() {
-        let marketing = UserDefaults.standard.bool(forKey: FacebookEvents.marketingConsentKey)
-        let advertiser = UserDefaults.standard.bool(forKey: FacebookEvents.advertiserTrackingKey)
+        let marketing = UserDefaults.standard.object(forKey: FacebookEvents.marketingConsentKey) as? Bool ?? false
+        let advertiser = UserDefaults.standard.object(forKey: FacebookEvents.advertiserTrackingKey) as? Bool ?? false
         Settings.shared.isAutoLogAppEventsEnabled = marketing
         Settings.shared.isAdvertiserIDCollectionEnabled = marketing && advertiser
         Settings.shared.isAdvertiserTrackingEnabled = marketing && advertiser
+    }
+
+    @objc public func hasPersistedMarketingConsent() -> Bool {
+        return UserDefaults.standard.object(forKey: FacebookEvents.marketingConsentKey) as? Bool ?? false
     }
 
     private func convertNSDictionaryToFBParameters(_ dict: NSDictionary?) -> [AppEvents.ParameterName: Any] {
@@ -61,7 +66,7 @@ import FBSDKCoreKit
 
     @objc public func logEvent(event: String, params: NSDictionary?) {
         // Hard gate: never emit manual events without persisted marketing consent.
-        guard UserDefaults.standard.bool(forKey: FacebookEvents.marketingConsentKey) else {
+        guard hasPersistedMarketingConsent() else {
             return
         }
         let eventName = AppEvents.Name(event)
