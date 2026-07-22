@@ -1,0 +1,206 @@
+package com.dabchy.plugins.facebookevents;
+
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Logger;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+
+/**
+ * Privacy-safe Meta App Events bridge.
+ * Default: AutoLog + advertiser ID off. activateApp only after marketing consent.
+ */
+@CapacitorPlugin(name = "FacebookEvents")
+public class FacebookEventsPlugin extends Plugin {
+
+    private static final String LOG_TAG = "FacebookEventsPlugin";
+    static final String PREFS = "msd_meta_app_events";
+    static final String KEY_MARKETING = "marketing_consent";
+    static final String KEY_ADVERTISER = "advertiser_tracking";
+
+    private FacebookEvents facebookEvents;
+
+    @Override
+    public void load() {
+        facebookEvents = new FacebookEvents(this);
+        applyPersistedConsentWithoutActivate();
+    }
+
+    @Override
+    protected void handleOnStart() {
+        super.handleOnStart();
+        Application application = resolveApplication();
+        if (application == null) {
+            Logger.warn(LOG_TAG, "Unable to resolve application for Meta App Events.");
+            return;
+        }
+        applyPersistedConsentWithoutActivate();
+        if (isMarketingConsentPersisted()) {
+            ensureSdkInitializedPrivacySafe();
+            AppEventsLogger.activateApp(application);
+        }
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        super.handleOnDestroy();
+        if (facebookEvents != null) {
+            facebookEvents.reset();
+        }
+    }
+
+    @PluginMethod
+    public void setAdvertiserTrackingEnabled(PluginCall call) {
+        Boolean enabled = call.getBoolean("enabled");
+        if (enabled == null) {
+            call.reject("Missing enabled argument");
+            return;
+        }
+        // Android has no ATT; advertiser ID follows marketing consent only.
+        boolean marketing = isMarketingConsentPersisted();
+        ensureSdkInitializedPrivacySafe();
+        FacebookSdk.setAdvertiserIDCollectionEnabled(marketing && enabled);
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void configureConsent(PluginCall call) {
+        boolean marketingConsent = Boolean.TRUE.equals(call.getBoolean("marketingConsent", false));
+        boolean advertiserTrackingAllowed = Boolean.TRUE.equals(
+            call.getBoolean("advertiserTrackingAllowed", false)
+        );
+        boolean metaEventsAllowed = marketingConsent;
+        // On Android, advertiser ID collection follows marketing consent (no ATT).
+        boolean advertiserAllowed = marketingConsent;
+
+        SharedPreferences prefs = getPrefs();
+        if (prefs != null) {
+            // Android has no ATT — advertiser ID collection follows marketing consent.
+            // advertiserTrackingAllowed is accepted for API parity with iOS but unused here.
+            prefs.edit()
+                .putBoolean(KEY_MARKETING, metaEventsAllowed)
+                .putBoolean(KEY_ADVERTISER, advertiserAllowed)
+                .apply();
+        }
+        if (!advertiserTrackingAllowed && marketingConsent) {
+            Logger.debug(LOG_TAG, "configureConsent: Android ignores ATT flag; marketing gates App Events");
+        }
+
+        ensureSdkInitializedPrivacySafe();
+        FacebookSdk.setAutoLogAppEventsEnabled(metaEventsAllowed);
+        FacebookSdk.setAdvertiserIDCollectionEnabled(advertiserAllowed);
+
+        if (metaEventsAllowed) {
+            Application application = resolveApplication();
+            if (application != null) {
+                AppEventsLogger.activateApp(application);
+            }
+        } else {
+            FacebookSdk.setAutoLogAppEventsEnabled(false);
+            FacebookSdk.setAdvertiserIDCollectionEnabled(false);
+            AppEventsLogger.setFlushBehavior(AppEventsLogger.FlushBehavior.EXPLICIT_ONLY);
+            AppEventsLogger.clearUserData();
+            if (facebookEvents != null) {
+                facebookEvents.reset();
+            }
+        }
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void logEvent(PluginCall call) {
+        String event = call.getString("event");
+        if (event == null || event.trim().isEmpty()) {
+            call.reject("Missing event argument");
+            return;
+        }
+        if (!isMarketingConsentPersisted()) {
+            call.resolve();
+            return;
+        }
+
+        JSObject params = call.getObject("params", new JSObject());
+        ensureSdkInitializedPrivacySafe();
+
+        if (facebookEvents == null) {
+            facebookEvents = new FacebookEvents(this);
+        }
+
+        facebookEvents.logEvent(event, params);
+        call.resolve();
+    }
+
+    private void applyPersistedConsentWithoutActivate() {
+        ensureSdkInitializedPrivacySafe();
+        boolean marketing = isMarketingConsentPersisted();
+        FacebookSdk.setAutoLogAppEventsEnabled(marketing);
+        FacebookSdk.setAdvertiserIDCollectionEnabled(marketing);
+    }
+
+    private void ensureSdkInitializedPrivacySafe() {
+        Application application = resolveApplication();
+        if (application == null) {
+            Logger.warn(LOG_TAG, "Unable to initialize the Facebook SDK — no application.");
+            return;
+        }
+
+        Context appContext = application.getApplicationContext();
+        if (appContext == null) {
+            return;
+        }
+
+        synchronized (FacebookEventsPlugin.class) {
+            if (!FacebookSdk.isInitialized()) {
+                FacebookSdk.sdkInitialize(appContext);
+            }
+            // Never force-enable AutoLog here — consent gate owns that.
+            if (!isMarketingConsentPersisted()) {
+                FacebookSdk.setAutoLogAppEventsEnabled(false);
+                FacebookSdk.setAdvertiserIDCollectionEnabled(false);
+            }
+            FacebookSdk.setAutoInitEnabled(true);
+        }
+    }
+
+    private boolean isMarketingConsentPersisted() {
+        SharedPreferences prefs = getPrefs();
+        return prefs != null && prefs.getBoolean(KEY_MARKETING, false);
+    }
+
+    @Nullable
+    private SharedPreferences getPrefs() {
+        Context context = getContext();
+        if (context == null) {
+            AppCompatActivity activity = getActivity();
+            context = activity != null ? activity : null;
+        }
+        if (context == null) return null;
+        return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    }
+
+    @Nullable
+    private Application resolveApplication() {
+        AppCompatActivity activity = getActivity();
+        if (activity != null) {
+            return activity.getApplication();
+        }
+
+        Context context = getContext();
+        if (context != null) {
+            Context appContext = context.getApplicationContext();
+            if (appContext instanceof Application) {
+                return (Application) appContext;
+            }
+        }
+
+        return null;
+    }
+}
