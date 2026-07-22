@@ -1,0 +1,44 @@
+import Foundation
+import Capacitor
+
+@objc(FacebookEventsPlugin)
+public class FacebookEventsPlugin: CAPPlugin {
+    private let facebookEvents = FacebookEvents()
+
+    public override func load() {
+        // Privacy-safe defaults from Info.plist; re-apply persisted consent after restart.
+        facebookEvents.applyPersistedConsent()
+    }
+
+    @objc func setAdvertiserTrackingEnabled(_ call: CAPPluginCall) {
+        guard let enabled = call.getBool("enabled") else {
+            call.reject("Missing enabled argument")
+            return
+        }
+        // Only allow ATE when marketing consent is already persisted.
+        let marketing = UserDefaults.standard.bool(forKey: FacebookEvents.marketingConsentKey)
+        facebookEvents.setAdvertiserTrackingEnabled(enabled: marketing && enabled)
+        call.resolve()
+    }
+
+    @objc func configureConsent(_ call: CAPPluginCall) {
+        let marketingConsent = call.getBool("marketingConsent") ?? false
+        let advertiserTrackingAllowed = call.getBool("advertiserTrackingAllowed") ?? false
+        facebookEvents.configureConsent(
+            marketingConsent: marketingConsent,
+            advertiserTrackingAllowed: advertiserTrackingAllowed
+        )
+        call.resolve()
+    }
+
+    @objc func logEvent(_ call: CAPPluginCall) {
+        guard let event = call.getString("event") else {
+            call.reject("Missing event argument")
+            return
+        }
+
+        let params = call.getObject("params") ?? [:]
+        facebookEvents.logEvent(event: event, params: params as NSDictionary)
+        call.resolve()
+    }
+}

@@ -8,11 +8,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Meta App Events: auto-log install/activate only. Advertiser ID stays off until ATT/consent.
+        // Meta App Events — privacy-safe defaults (EU/GDPR).
+        // AutoLog + advertiser ID OFF until marketing consent is persisted and applied by the plugin.
         // Keep Meta Dashboard "Automatically Log In-App Purchase Events" OFF.
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
-        Settings.shared.isAutoLogAppEventsEnabled = true
-        Settings.shared.isAdvertiserIDCollectionEnabled = false
+
+        let marketingConsent = UserDefaults.standard.bool(forKey: "msd_meta_marketing_consent")
+        let advertiserTracking = UserDefaults.standard.bool(forKey: "msd_meta_advertiser_tracking")
+        Settings.shared.isAutoLogAppEventsEnabled = marketingConsent
+        Settings.shared.isAdvertiserIDCollectionEnabled = marketingConsent && advertiserTracking
+        Settings.shared.isAdvertiserTrackingEnabled = marketingConsent && advertiserTracking
         return true
     }
 
@@ -27,12 +32,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        // Called as the transition from the background to the active state; here you can undo many of the changes made on entering the background.
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        AppEvents.shared.activateApp()
+        // activateApp ONLY when marketing consent is already active — never on first start without consent.
+        if Settings.shared.isAutoLogAppEventsEnabled {
+            AppEvents.shared.activateApp()
+        }
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

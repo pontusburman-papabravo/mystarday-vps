@@ -1,0 +1,76 @@
+import Foundation
+import Capacitor
+import FBSDKCoreKit
+
+/// Privacy-safe Meta App Events helpers for this app.
+/// AutoLog / advertiser ID stay off until JS calls configureConsent after marketing consent.
+@objc public class FacebookEvents: NSObject {
+
+    public static let marketingConsentKey = "msd_meta_marketing_consent"
+    public static let advertiserTrackingKey = "msd_meta_advertiser_tracking"
+
+    @objc public func setAdvertiserTrackingEnabled(enabled: Bool) {
+        Settings.shared.isAdvertiserTrackingEnabled = enabled
+    }
+
+    /// Apply consent-derived Meta settings. Never enables tracking without marketingConsent.
+    @objc public func configureConsent(marketingConsent: Bool, advertiserTrackingAllowed: Bool) {
+        let metaEventsAllowed = marketingConsent
+        let advertiserAllowed = marketingConsent && advertiserTrackingAllowed
+
+        UserDefaults.standard.set(metaEventsAllowed, forKey: FacebookEvents.marketingConsentKey)
+        UserDefaults.standard.set(advertiserAllowed, forKey: FacebookEvents.advertiserTrackingKey)
+
+        Settings.shared.isAutoLogAppEventsEnabled = metaEventsAllowed
+        Settings.shared.isAdvertiserIDCollectionEnabled = advertiserAllowed
+        Settings.shared.isAdvertiserTrackingEnabled = advertiserAllowed
+
+        if metaEventsAllowed {
+            // Future opens only — do not fabricate historical install/open events.
+            AppEvents.shared.activateApp()
+        } else {
+            // Stop sending; drop identity so queued attribution data is not reused.
+            AppEvents.shared.flushBehavior = .explicitOnly
+            AppEvents.shared.userID = nil
+            AppEvents.shared.clearUserData()
+            Settings.shared.isAutoLogAppEventsEnabled = false
+            Settings.shared.isAdvertiserIDCollectionEnabled = false
+            Settings.shared.isAdvertiserTrackingEnabled = false
+        }
+    }
+
+    @objc public func applyPersistedConsent() {
+        let marketing = UserDefaults.standard.bool(forKey: FacebookEvents.marketingConsentKey)
+        let advertiser = UserDefaults.standard.bool(forKey: FacebookEvents.advertiserTrackingKey)
+        Settings.shared.isAutoLogAppEventsEnabled = marketing
+        Settings.shared.isAdvertiserIDCollectionEnabled = marketing && advertiser
+        Settings.shared.isAdvertiserTrackingEnabled = marketing && advertiser
+    }
+
+    private func convertNSDictionaryToFBParameters(_ dict: NSDictionary?) -> [AppEvents.ParameterName: Any] {
+        var parameters: [AppEvents.ParameterName: Any] = [:]
+        if let dict = dict {
+            for (key, value) in dict {
+                if let keyString = key as? String, let value = value as? String {
+                    parameters[AppEvents.ParameterName(keyString)] = value
+                }
+            }
+        }
+        return parameters
+    }
+
+    @objc public func logEvent(event: String, params: NSDictionary?) {
+        // Hard gate: never emit manual events without persisted marketing consent.
+        guard UserDefaults.standard.bool(forKey: FacebookEvents.marketingConsentKey) else {
+            return
+        }
+        let eventName = AppEvents.Name(event)
+
+        if let params = params, params.count > 0 {
+            let fbParameters = convertNSDictionaryToFBParameters(params)
+            AppEvents.shared.logEvent(eventName, parameters: fbParameters)
+        } else {
+            AppEvents.shared.logEvent(eventName)
+        }
+    }
+}

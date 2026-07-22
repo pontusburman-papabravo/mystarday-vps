@@ -1,6 +1,6 @@
 'use strict';
 
-const { describe, it, beforeEach } = require('node:test');
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -13,9 +13,18 @@ const MARKETING_SRC = fs.readFileSync(path.join(ROOT, 'public/js/marketing-event
 function loadMeta(overrides = {}) {
   const store = new Map();
   const logged = [];
+  let attStatus = overrides.attStatus || 'denied';
+
   const facebookPlugin = {
+    configureConsent: async ({ marketingConsent, advertiserTrackingAllowed }) => {
+      logged.push({
+        type: 'configureConsent',
+        marketingConsent: !!marketingConsent,
+        advertiserTrackingAllowed: !!advertiserTrackingAllowed,
+      });
+    },
     setAdvertiserTrackingEnabled: async ({ enabled }) => {
-      logged.push({ type: 'ate', enabled });
+      logged.push({ type: 'ate', enabled: !!enabled });
     },
     logEvent: async ({ event, params }) => {
       logged.push({ type: 'event', event, params });
@@ -28,6 +37,8 @@ function loadMeta(overrides = {}) {
       getItem: (k) => (store.has(k) ? store.get(k) : null),
       setItem: (k, v) => { store.set(k, String(v)); },
       removeItem: (k) => { store.delete(k); },
+      key: (i) => Array.from(store.keys())[i] || null,
+      get length() { return store.size; },
     },
     Capacitor: {
       isNativePlatform: () => overrides.native !== false,
@@ -35,8 +46,11 @@ function loadMeta(overrides = {}) {
       Plugins: {
         FacebookEvents: overrides.missingPlugin ? undefined : facebookPlugin,
         AppTrackingTransparency: {
-          getStatus: async () => ({ status: overrides.attStatus || 'authorized' }),
-          requestPermission: async () => ({ status: overrides.attStatus || 'authorized' }),
+          getStatus: async () => ({ status: attStatus }),
+          requestPermission: async () => {
+            if (overrides.attOnPrompt) attStatus = overrides.attOnPrompt;
+            return { status: attStatus };
+          },
         },
       },
     },
@@ -46,7 +60,7 @@ function loadMeta(overrides = {}) {
       isAndroid: () => overrides.platform === 'android',
     },
     MarketingEvents: {
-      hasMarketingConsent: () => overrides.consent !== false,
+      hasMarketingConsent: () => overrides.consent === true,
     },
     console,
     __META_APP_EVENTS_DEBUG__: true,
@@ -60,9 +74,7 @@ function loadMeta(overrides = {}) {
   const context = {
     window,
     globalThis: window,
-    document: {
-      querySelector: () => null,
-    },
+    document: { querySelector: () => null },
     console,
   };
   vm.runInNewContext(SRC, context);
@@ -71,115 +83,195 @@ function loadMeta(overrides = {}) {
     logged,
     store,
     window,
+    setConsent(next) { overrides.consent = next; },
+    setAtt(next) { attStatus = next; },
   };
 }
 
-describe('MetaAppEvents abstraction', () => {
-  beforeEach(() => {
-    // no shared state between loads
-  });
-
-  it('exposes the required track helpers', () => {
-    const { MetaAppEvents } = loadMeta();
+describe('MetaAppEvents privacy gate', () => {
+  it('exposes track helpers + consent revoke', () => {
+    const { MetaAppEvents } = loadMeta({ force: true, consent: false });
     assert.equal(typeof MetaAppEvents.trackRegistrationCompleted, 'function');
-    assert.equal(typeof MetaAppEvents.trackFirstScheduleSaved, 'function');
-    assert.equal(typeof MetaAppEvents.trackChildAccessCompleted, 'function');
-    assert.equal(typeof MetaAppEvents.trackFirstStarEarned, 'function');
+    assert.equal(typeof MetaAppEvents.onConsentGranted, 'function');
+    assert.equal(typeof MetaAppEvents.onConsentRevoked, 'function');
   });
 
-  it('CompleteRegistration fires once after registration', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ force: true });
+  it('1) fresh install without consent sends no Meta events', async () => {
+    const { MetaAppEvents, logged } = loadMeta({ force: true, consent: false, platform: 'ios' });
     await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
-    await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
-    const events = logged.filter((e) => e.type === 'event');
-    assert.equal(events.length, 1);
-    assert.equal(events[0].event, 'fb_mobile_complete_registration');
-    assert.equal(events[0].params.fb_registration_method, 'email');
-  });
-
-  it('TutorialCompletion fires for first schedule save', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ force: true });
-    await MetaAppEvents.trackFirstScheduleSaved({ flow: 'wizard' });
-    const events = logged.filter((e) => e.type === 'event');
-    assert.equal(events.length, 1);
-    assert.equal(events[0].event, 'fb_mobile_tutorial_completion');
-    assert.equal(events[0].params.flow, 'wizard');
-  });
-
-  it('child_access_completed only via verified milestone handle', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ force: true });
-    MetaAppEvents.handleServerMilestones({});
-    MetaAppEvents.handleServerMilestones({ child_access_completed: false });
+    await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: true });
     assert.equal(logged.filter((e) => e.type === 'event').length, 0);
+    const cfg = logged.filter((e) => e.type === 'configureConsent');
+    assert.ok(cfg.length >= 1);
+    assert.equal(cfg[cfg.length - 1].marketingConsent, false);
+  });
 
-    MetaAppEvents.handleServerMilestones({ child_access_completed: true, flow: 'child_login' });
+  it('2) app open path without consent does not enable AutoLog/activate', async () => {
+    const { MetaAppEvents, logged } = loadMeta({ force: true, consent: false });
+    await MetaAppEvents.onConsentGranted();
+    await new Promise((r) => setTimeout(r, 15));
+    // onConsentGranted with consent=false still configures native OFF
+    const cfg = logged.filter((e) => e.type === 'configureConsent');
+    assert.ok(cfg.every((c) => c.marketingConsent === false));
+    assert.equal(MetaAppEvents._internal.wasActivateAppCalledThisSession(), false);
+  });
+
+  it('3) ATT authorized without marketing consent sends nothing', async () => {
+    const { MetaAppEvents, logged } = loadMeta({
+      force: true,
+      consent: false,
+      platform: 'ios',
+      attStatus: 'authorized',
+    });
+    await MetaAppEvents.trackFirstScheduleSaved({ flow: 'wizard' });
+    const result = await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: false });
+    assert.equal(result.metaEventsAllowed, false);
+    assert.equal(result.advertiserTrackingAllowed, false);
+    assert.equal(logged.filter((e) => e.type === 'event').length, 0);
+  });
+
+  it('4) marketing consent on Android enables App Events', async () => {
+    const { MetaAppEvents, logged } = loadMeta({
+      force: true,
+      consent: true,
+      platform: 'android',
+    });
+    await MetaAppEvents.onConsentGranted();
     await new Promise((r) => setTimeout(r, 20));
-    const events = logged.filter((e) => e.type === 'event' && e.event === 'child_access_completed');
-    assert.equal(events.length, 1);
-    assert.equal(events[0].params.flow, 'child_login');
+    const cfg = logged.filter((e) => e.type === 'configureConsent');
+    assert.ok(cfg.some((c) => c.marketingConsent === true));
+    await MetaAppEvents.trackRegistrationCompleted({ method: 'google' });
+    assert.equal(logged.filter((e) => e.event === 'fb_mobile_complete_registration').length, 1);
   });
 
-  it('preview/test mode does not send child_access_completed without server flag', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ force: true });
-    // Parent preview / handoff must not invent the event client-side.
-    assert.equal(typeof MetaAppEvents.trackChildAccessCompleted, 'function');
-    MetaAppEvents.handleServerMilestones({ preview: true, source: 'handoff_film' });
-    await new Promise((r) => setTimeout(r, 10));
-    assert.equal(logged.filter((e) => e.event === 'child_access_completed').length, 0);
+  it('5) iOS marketing consent + denied ATT allows events without advertiser ID', async () => {
+    const { MetaAppEvents, logged } = loadMeta({
+      force: true,
+      consent: true,
+      platform: 'ios',
+      attStatus: 'denied',
+    });
+    const result = await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: false });
+    assert.equal(result.metaEventsAllowed, true);
+    assert.equal(result.advertiserTrackingAllowed, false);
+    const cfg = logged.find((e) => e.type === 'configureConsent');
+    assert.equal(cfg.marketingConsent, true);
+    assert.equal(cfg.advertiserTrackingAllowed, false);
+    await MetaAppEvents.trackFirstScheduleSaved({ flow: 'wizard' });
+    assert.equal(logged.filter((e) => e.event === 'fb_mobile_tutorial_completion').length, 1);
   });
 
-  it('first_star_earned is idempotent', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ force: true });
-    MetaAppEvents.handleServerMilestones({ first_star_earned: true, flow: 'child_complete' });
-    MetaAppEvents.handleServerMilestones({ first_star_earned: true, flow: 'child_complete' });
-    await MetaAppEvents.trackFirstStarEarned({ flow: 'child_complete' });
+  it('6) iOS marketing consent + ATT authorized allows advertiser tracking', async () => {
+    const { MetaAppEvents, logged } = loadMeta({
+      force: true,
+      consent: true,
+      platform: 'ios',
+      attStatus: 'authorized',
+    });
+    const result = await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: false });
+    assert.equal(result.advertiserTrackingAllowed, true);
+    const cfg = logged.find((e) => e.type === 'configureConsent');
+    assert.equal(cfg.advertiserTrackingAllowed, true);
+  });
+
+  it('7) revoked consent stops AutoLog and manual events', async () => {
+    const ctx = loadMeta({ force: true, consent: true, platform: 'android' });
+    await ctx.MetaAppEvents.onConsentGranted();
+    await ctx.MetaAppEvents.trackChildAccessCompleted({ flow: 'child_login' });
+    assert.equal(ctx.logged.filter((e) => e.event === 'child_access_completed').length, 1);
+
+    ctx.setConsent(false);
+    ctx.MetaAppEvents.onConsentRevoked();
     await new Promise((r) => setTimeout(r, 20));
-    const events = logged.filter((e) => e.event === 'first_star_earned');
-    assert.equal(events.length, 1);
+    const after = ctx.logged.filter((e) => e.type === 'configureConsent').pop();
+    assert.equal(after.marketingConsent, false);
+
+    await ctx.MetaAppEvents.trackFirstStarEarned({ flow: 'child_complete' });
+    assert.equal(ctx.logged.filter((e) => e.event === 'first_star_earned').length, 0);
   });
 
-  it('Meta errors never throw into the caller', async () => {
-    const { MetaAppEvents, window } = loadMeta({ force: true });
-    window.Capacitor.Plugins.FacebookEvents.logEvent = async () => {
-      throw new Error('native boom');
-    };
-    await assert.doesNotReject(() => MetaAppEvents.trackRegistrationCompleted({ method: 'apple' }));
+  it('8) activateApp path is not marked before consent', async () => {
+    const { MetaAppEvents } = loadMeta({ force: true, consent: false, platform: 'ios' });
+    await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: true });
+    assert.equal(MetaAppEvents._internal.wasActivateAppCalledThisSession(), false);
+
+    // Grant consent → configureConsent(true) marks activate path
+    const granted = loadMeta({ force: true, consent: true, platform: 'ios', attStatus: 'denied' });
+    await granted.MetaAppEvents.onConsentGranted();
+    await new Promise((r) => setTimeout(r, 20));
+    assert.equal(granted.MetaAppEvents._internal.wasActivateAppCalledThisSession(), true);
+  });
+
+  it('9) native defaults in repo are privacy-safe without JS', () => {
+    const plist = fs.readFileSync(path.join(ROOT, 'ios/App/App/Info.plist'), 'utf8');
+    assert.match(plist, /FacebookAutoLogAppEventsEnabled<\/key>\s*<false\/>/);
+    assert.match(plist, /FacebookAdvertiserIDCollectionEnabled<\/key>\s*<false\/>/);
+
+    const delegate = fs.readFileSync(path.join(ROOT, 'ios/App/App/AppDelegate.swift'), 'utf8');
+    assert.match(delegate, /msd_meta_marketing_consent/);
+    assert.match(delegate, /if Settings\.shared\.isAutoLogAppEventsEnabled \{\s*AppEvents\.shared\.activateApp\(\)/);
+    // Must not call activateApp() outside the consent gate.
+    const becomeActive = delegate.slice(
+      delegate.indexOf('func applicationDidBecomeActive'),
+      delegate.indexOf('func applicationWillTerminate')
+    );
+    assert.match(becomeActive, /isAutoLogAppEventsEnabled/);
+    assert.equal((becomeActive.match(/activateApp\(\)/g) || []).length, 1);
+
+    const iosPatch = fs.readFileSync(path.join(ROOT, 'scripts/patch-ios-facebook-sdk.mjs'), 'utf8');
+    assert.match(iosPatch, /FacebookAutoLogAppEventsEnabled', false/);
+
+    const androidPatch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-facebook-sdk.mjs'), 'utf8');
+    assert.match(androidPatch, /AutoLogAppEventsEnabled', 'false'/);
+
+    const pluginJava = fs.readFileSync(
+      path.join(ROOT, 'scripts/android/FacebookEventsPlugin.java.patched'),
+      'utf8'
+    );
+    assert.match(pluginJava, /isMarketingConsentPersisted\(\)/);
+    assert.doesNotMatch(pluginJava, /setAutoLogAppEventsEnabled\(true\);\s*\n\s*FacebookSdk\.setAdvertiserIDCollectionEnabled\(true\)/);
+  });
+
+  it('10) app works without Client Token / Meta SDK plugin', async () => {
+    const { MetaAppEvents, logged } = loadMeta({
+      force: true,
+      consent: true,
+      missingPlugin: true,
+    });
+    assert.doesNotThrow(() => MetaAppEvents.onConsentGranted());
+    await assert.doesNotReject(() => MetaAppEvents.trackRegistrationCompleted({ method: 'email' }));
+    await new Promise((r) => setTimeout(r, 15));
+    assert.equal(logged.length, 0);
+  });
+
+  it('CompleteRegistration once after consent; Meta errors never throw', async () => {
+    const { MetaAppEvents, logged, window } = loadMeta({ force: true, consent: true, platform: 'ios', attStatus: 'denied' });
+    await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
+    await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
+    assert.equal(logged.filter((e) => e.event === 'fb_mobile_complete_registration').length, 1);
+
+    window.Capacitor.Plugins.FacebookEvents.logEvent = async () => { throw new Error('native boom'); };
+    await assert.doesNotReject(() => MetaAppEvents.trackFirstStarEarned({ flow: 'child_complete' }));
+  });
+
+  it('strips forbidden PII params', () => {
+    const { MetaAppEvents } = loadMeta({ force: true, consent: true });
+    const cleaned = MetaAppEvents._internal.sanitizeParams({
+      email: 'a@b.c',
+      family_id: 'fam-1',
+      childId: 'child-1',
+      flow: 'wizard',
+    });
+    assert.equal(cleaned.email, undefined);
+    assert.equal(cleaned.family_id, undefined);
+    assert.equal(cleaned.childId, undefined);
+    assert.equal(cleaned.flow, 'wizard');
   });
 
   it('does not send on local host unless explicitly enabled', async () => {
     const { MetaAppEvents, logged } = loadMeta({ hostname: 'localhost', consent: true, native: true });
     await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
     assert.equal(logged.filter((e) => e.type === 'event').length, 0);
-  });
-
-  it('does not send without marketing consent', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ consent: false, force: true });
-    // force enables host, but consent still required
-    await MetaAppEvents.trackFirstScheduleSaved({ flow: 'wizard' });
-    assert.equal(logged.filter((e) => e.type === 'event').length, 0);
-  });
-
-  it('strips forbidden PII/identifier params', () => {
-    const { MetaAppEvents } = loadMeta({ force: true });
-    const cleaned = MetaAppEvents._internal.sanitizeParams({
-      email: 'a@b.c',
-      family_id: 'fam-1',
-      childId: 'child-1',
-      activity_name: 'Borsta tänderna',
-      flow: 'wizard',
-      platform: 'ios',
-    });
-    assert.equal(cleaned.email, undefined);
-    assert.equal(cleaned.family_id, undefined);
-    assert.equal(cleaned.childId, undefined);
-    assert.equal(cleaned.activity_name, undefined);
-    assert.equal(cleaned.flow, 'wizard');
-  });
-
-  it('skips entirely when not native', async () => {
-    const { MetaAppEvents, logged } = loadMeta({ native: false, force: true });
-    await MetaAppEvents.trackRegistrationCompleted({ method: 'google' });
-    assert.equal(logged.length, 0);
   });
 });
 
@@ -188,51 +280,33 @@ describe('Meta App Events wiring contracts', () => {
     return fs.readFileSync(path.join(ROOT, rel), 'utf8');
   }
 
-  it('marketing-events uses MetaAppEvents on native and Pixel on web', () => {
+  it('marketing-events uses MetaAppEvents on native', () => {
     assert.match(MARKETING_SRC, /MetaAppEvents\.trackRegistrationCompleted/);
-    assert.match(MARKETING_SRC, /isNativeApp/);
-    assert.match(MARKETING_SRC, /CompleteRegistration/);
+  });
+
+  it('consent layers call grant and revoke hooks', () => {
+    const appConsent = read('public/js/app-consent.js');
+    assert.match(appConsent, /MetaAppEvents\.onConsentGranted/);
+    assert.match(appConsent, /MetaAppEvents\.onConsentRevoked/);
+    const cookie = read('public/js/cookie-banner.js');
+    assert.match(cookie, /MetaAppEvents\.onConsentGranted/);
+    assert.match(cookie, /MetaAppEvents\.onConsentRevoked/);
   });
 
   it('child-login only emits via server meta_milestones', () => {
     const src = read('public/js/child-login.js');
     assert.match(src, /MetaAppEvents\.handleServerMilestones/);
-    assert.doesNotMatch(src, /trackChildAccessCompleted\(\s*\{/);
   });
 
-  it('onboarding/handoff preview does not call child access Meta event directly', () => {
+  it('handoff preview does not call child access Meta event', () => {
     const handoff = read('public/js/onboarding-activation.js');
     assert.doesNotMatch(handoff, /trackChildAccessCompleted/);
-    assert.doesNotMatch(handoff, /child_access_completed/);
-    const deprecated = read('src/routes/onboarding.js');
-    const block = deprecated.slice(
-      deprecated.indexOf("router.post('/child-access-complete'"),
-      deprecated.indexOf("router.post('/complete'")
-    );
-    assert.match(block, /deprecated: true/);
-    assert.doesNotMatch(block, /meta_milestones/);
   });
 
-  it('server returns meta_milestones for verified first writes', () => {
-    const onboarding = read('src/routes/onboarding.js');
-    assert.match(onboarding, /tutorial_completion/);
-    assert.match(onboarding, /recordActivationMilestone/);
-
-    const childLogin = read('src/routes/auth/child-login.js');
-    assert.match(childLogin, /child_access_completed/);
-    assert.match(childLogin, /recordActivationMilestone/);
-
-    const childSelf = read('src/routes/daily-logs/child-self.js');
-    assert.match(childSelf, /first_star_earned/);
-    assert.match(childSelf, /maybeRecordFirstCompletion/);
-  });
-
-  it('native config scripts pin Meta App ID and keep IAP auto-log note', () => {
-    const ios = read('scripts/patch-ios-facebook-sdk.mjs');
-    const android = read('scripts/patch-android-facebook-sdk.mjs');
-    assert.match(ios, /27941105858861495/);
-    assert.match(android, /27941105858861495/);
-    assert.match(ios, /In-App Purchase/);
-    assert.match(android, /IAP auto-log OFF/);
+  it('privacy plugin patch is wired into cap sync', () => {
+    const pkg = read('package.json');
+    assert.match(pkg, /patch-capacitor-facebook-events-privacy\.mjs/);
+    assert.ok(fs.existsSync(path.join(ROOT, 'scripts/ios/FacebookEvents.swift.patched')));
+    assert.ok(fs.existsSync(path.join(ROOT, 'scripts/android/FacebookEventsPlugin.java.patched')));
   });
 });

@@ -89,8 +89,9 @@ if (META_CLIENT_TOKEN || manifest.includes('facebook_client_token')) {
   );
 }
 manifest = ensureMetaData(manifest, 'com.facebook.sdk.AutoInitEnabled', 'true');
-// Install + app open via auto-log. Keep Meta Dashboard IAP auto-log OFF.
-manifest = ensureMetaData(manifest, 'com.facebook.sdk.AutoLogAppEventsEnabled', 'true');
+// Privacy-safe defaults: AutoLog OFF until marketing consent (configureConsent).
+// Keep Meta Dashboard IAP auto-log OFF.
+manifest = ensureMetaData(manifest, 'com.facebook.sdk.AutoLogAppEventsEnabled', 'false');
 manifest = ensureMetaData(manifest, 'com.facebook.sdk.AdvertiserIDCollectionEnabled', 'false');
 
 if (manifest !== manifestBefore) {

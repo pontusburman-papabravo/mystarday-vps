@@ -59,7 +59,7 @@
 	<key>FacebookDisplayName</key>
 	<string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
 	<key>FacebookAutoLogAppEventsEnabled</key>
-	<true/>
+	<false/>
 	<key>FacebookAdvertiserIDCollectionEnabled</key>
 	<false/>
 	<key>NSUserTrackingUsageDescription</key>

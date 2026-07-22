@@ -88,7 +88,7 @@
       gtag('event', 'page_view');
     }
 
-    // Meta Pixel
+    // Meta Pixel + native Meta App Events (consent-gated; no AutoLog before grant)
     if (adGranted) {
       fbq('consent', 'grant');
       fbq('track', 'PageView');
@@ -98,6 +98,9 @@
       }
     } else {
       fbq('consent', 'revoke');
+      if (window.MetaAppEvents && typeof MetaAppEvents.onConsentRevoked === 'function') {
+        MetaAppEvents.onConsentRevoked();
+      }
     }
 
     // Expose Pixel API

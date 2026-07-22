@@ -1,11 +1,14 @@
 /**
  * meta-app-events.js — central Meta App Events abstraction for native Capacitor.
  *
- * WHAT: log install/open (SDK auto), CompleteRegistration, TutorialCompletion,
- *       child_access_completed, first_star_earned — never PII.
- * WHAT NOT: Purchase/Subscribe/StartTrial; web Pixel; direct Facebook SDK calls elsewhere.
+ * Privacy policy (EU/GDPR — blocking):
+ *   No Meta App Events (including AutoLog install/open) until marketing consent.
+ *   ATT is separate from marketing consent.
  *
- * Gate: native + marketing consent + non-local host (or explicit debug enable).
+ *   metaEventsAllowed = marketingConsent === true
+ *   advertiserTrackingAllowed = marketingConsent && platform==='ios' && attStatus==='authorized'
+ *
+ * WHAT NOT: Purchase/Subscribe/StartTrial; web Pixel; direct Facebook SDK calls elsewhere.
  * Failures never throw into the app flow.
  */
 (function (global) {
@@ -14,6 +17,7 @@
   const META_APP_ID = '27941105858861495';
   const STORAGE_PREFIX = 'msd_meta_evt_once_';
   const DEBUG_FLAG_KEY = 'msd_meta_app_events_debug';
+  const CONSENT_STATE_KEY = 'msd_meta_marketing_consent_js';
 
   const FORBIDDEN_PARAM_KEYS = [
     'email', 'phone', 'name', 'child_name', 'parent_name', 'username',
@@ -25,7 +29,8 @@
 
   const loggedOnceThisSession = Object.create(null);
   let attRequested = false;
-  let autoLogEnabled = false;
+  let lastConfigureKey = '';
+  let activateAppCalledThisSession = false;
 
   function debugLog(message, detail) {
     try {
@@ -89,7 +94,6 @@
       if (!host) return false;
       if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local')) return false;
       if (host.indexOf('staging') !== -1 || host.indexOf('preview') !== -1) return false;
-      // Release native WebView loads the live remote URL; local CAP_DEV is blocked above.
       return true;
     } catch (_) {
       return false;
@@ -123,16 +127,20 @@
     return false;
   }
 
+  function metaEventsAllowed() {
+    return hasMarketingConsent() === true;
+  }
+
   function shouldSend() {
     if (!isNative()) {
       debugLog('skip: not native');
       return false;
     }
     if (!isLiveHost() && !isExplicitlyEnabled()) {
-      debugLog('skip: non-non-local host (set msd_meta_app_events_debug=1 to enable)');
+      debugLog('skip: non-live host (set msd_meta_app_events_debug=1 to enable)');
       return false;
     }
-    if (!hasMarketingConsent()) {
+    if (!metaEventsAllowed()) {
       debugLog('skip: no marketing consent');
       return false;
     }
@@ -170,7 +178,6 @@
         continue;
       }
       if (lower.indexOf('id') !== -1 && lower !== 'content_id' && lower !== 'fb_content_id') {
-        // Block opaque unique identifiers (family/child/user ids).
         debugLog('stripped identifier-like param key', key);
         continue;
       }
@@ -217,39 +224,132 @@
     } catch (_) { /* ignore */ }
   }
 
-  async function syncTrackingSettings() {
-    if (!shouldSend()) return;
-    const facebook = getFacebookPlugin();
-    if (!facebook) {
-      debugLog('FacebookEvents plugin unavailable');
-      return;
-    }
+  function clearLocalMetaQueues() {
+    try {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf(STORAGE_PREFIX) === 0) keys.push(k);
+      }
+      keys.forEach(function (k) { localStorage.removeItem(k); });
+    } catch (_) { /* ignore */ }
+    Object.keys(loggedOnceThisSession).forEach(function (k) {
+      delete loggedOnceThisSession[k];
+    });
+    lastConfigureKey = '';
+    activateAppCalledThisSession = false;
+    try { localStorage.removeItem(CONSENT_STATE_KEY); } catch (_) { /* ignore */ }
+  }
+
+  /**
+   * Resolve ATT status without prompting unless marketing consent is already granted
+   * and status is notDetermined (prompt only after marketing yes).
+   */
+  async function resolveAttStatus(options) {
+    const allowPrompt = !!(options && options.allowPrompt);
+    const platform = getPlatformName();
+    if (platform !== 'ios') return 'not_applicable';
+
+    const att = getAttPlugin();
+    if (!att || typeof att.getStatus !== 'function') return 'unavailable';
 
     try {
-      if (getPlatformName() === 'ios') {
-        const att = getAttPlugin();
-        let authorized = false;
-        if (att && typeof att.getStatus === 'function') {
-          if (!attRequested && typeof att.requestPermission === 'function') {
-            attRequested = true;
-            const req = await att.requestPermission();
-            authorized = req && req.status === 'authorized';
-          } else {
-            const status = await att.getStatus();
-            authorized = status && status.status === 'authorized';
-          }
-        }
-        if (typeof facebook.setAdvertiserTrackingEnabled === 'function') {
-          await facebook.setAdvertiserTrackingEnabled({ enabled: authorized });
-          debugLog('ATE set', { enabled: authorized });
+      let statusResult = await att.getStatus();
+      let status = statusResult && statusResult.status ? statusResult.status : 'notDetermined';
+      if (
+        allowPrompt &&
+        status === 'notDetermined' &&
+        typeof att.requestPermission === 'function' &&
+        !attRequested
+      ) {
+        attRequested = true;
+        statusResult = await att.requestPermission();
+        status = statusResult && statusResult.status ? statusResult.status : status;
+      }
+      return status;
+    } catch (err) {
+      debugLog('ATT resolve failed', err && err.message ? err.message : 'error');
+      return 'unavailable';
+    }
+  }
+
+  function computeAdvertiserTrackingAllowed(attStatus) {
+    return (
+      metaEventsAllowed() === true &&
+      getPlatformName() === 'ios' &&
+      attStatus === 'authorized'
+    );
+  }
+
+  /**
+   * Push consent-derived flags into the native FacebookEvents plugin.
+   * Native side enables AutoLog / activateApp only when marketingConsent is true.
+   */
+  async function applyNativeConsentConfig(options) {
+    const facebook = getFacebookPlugin();
+    if (!facebook) {
+      debugLog('FacebookEvents plugin unavailable — app continues without Meta');
+      return { applied: false, metaEventsAllowed: false, advertiserTrackingAllowed: false };
+    }
+
+    const marketing = metaEventsAllowed();
+    let attStatus = 'not_applicable';
+    if (marketing && getPlatformName() === 'ios') {
+      attStatus = await resolveAttStatus({ allowPrompt: !!(options && options.allowAttPrompt) });
+    } else if (getPlatformName() === 'ios') {
+      // Do not prompt ATT without marketing consent.
+      attStatus = await resolveAttStatus({ allowPrompt: false });
+    }
+
+    const advertiserTrackingAllowed = computeAdvertiserTrackingAllowed(attStatus);
+    const configureKey = String(marketing) + ':' + String(advertiserTrackingAllowed);
+
+    try {
+      if (typeof facebook.configureConsent === 'function') {
+        if (configureKey !== lastConfigureKey) {
+          await facebook.configureConsent({
+            marketingConsent: marketing,
+            advertiserTrackingAllowed: advertiserTrackingAllowed,
+          });
+          lastConfigureKey = configureKey;
+          if (marketing) activateAppCalledThisSession = true;
+          debugLog('configureConsent applied', {
+            marketingConsent: marketing,
+            advertiserTrackingAllowed: advertiserTrackingAllowed,
+            attStatus: attStatus,
+          });
         }
       } else if (typeof facebook.setAdvertiserTrackingEnabled === 'function') {
-        await facebook.setAdvertiserTrackingEnabled({ enabled: true });
+        // Legacy plugin fallback — still never claim consent without marketing.
+        await facebook.setAdvertiserTrackingEnabled({ enabled: advertiserTrackingAllowed });
+        debugLog('legacy setAdvertiserTrackingEnabled', { enabled: advertiserTrackingAllowed });
       }
-      autoLogEnabled = true;
+      try {
+        localStorage.setItem(CONSENT_STATE_KEY, marketing ? '1' : '0');
+      } catch (_) { /* ignore */ }
+      return {
+        applied: true,
+        metaEventsAllowed: marketing,
+        advertiserTrackingAllowed: advertiserTrackingAllowed,
+        attStatus: attStatus,
+      };
     } catch (err) {
-      debugLog('syncTrackingSettings failed', err && err.message ? err.message : 'error');
+      debugLog('applyNativeConsentConfig failed', err && err.message ? err.message : 'error');
+      return { applied: false, metaEventsAllowed: marketing, advertiserTrackingAllowed: false };
     }
+  }
+
+  async function syncTrackingSettings() {
+    if (!isNative()) return;
+    if (!metaEventsAllowed()) {
+      await applyNativeConsentConfig({ allowAttPrompt: false });
+      return;
+    }
+    if (!isLiveHost() && !isExplicitlyEnabled()) {
+      debugLog('skip native enable: non-live host');
+      return;
+    }
+    await applyNativeConsentConfig({ allowAttPrompt: true });
   }
 
   async function logRaw(eventName, params) {
@@ -261,6 +361,7 @@
     }
     try {
       await syncTrackingSettings();
+      if (!metaEventsAllowed()) return false;
       const safeParams = baseParams(params);
       await facebook.logEvent({ event: eventName, params: safeParams });
       debugLog('logged', { event: eventName, params: safeParams });
@@ -272,25 +373,23 @@
   }
 
   async function logOnce(eventName, params) {
+    if (!metaEventsAllowed()) {
+      debugLog('skip once-event without marketing consent', eventName);
+      return false;
+    }
     if (hasFiredOnce(eventName)) {
       debugLog('skip duplicate once-event', eventName);
       return false;
     }
-    // Reserve before await to avoid races from parallel success handlers.
     markFiredOnce(eventName);
     const ok = await logRaw(eventName, params);
     if (!ok) {
-      // Allow retry later if plugin/consent was not ready.
       try { localStorage.removeItem(onceKey(eventName)); } catch (_) { /* ignore */ }
       delete loggedOnceThisSession[eventName];
     }
     return ok;
   }
 
-  /**
-   * Standard Meta: CompleteRegistration (native App Event name).
-   * @param {{ method?: string }} [opts]
-   */
   function trackRegistrationCompleted(opts) {
     const method = opts && opts.method ? String(opts.method) : 'email';
     return logOnce('fb_mobile_complete_registration', {
@@ -300,10 +399,6 @@
     }).catch(function () { return false; });
   }
 
-  /**
-   * Standard Meta: TutorialCompletion — first schedule/routine saved.
-   * @param {{ flow?: string }} [opts]
-   */
   function trackFirstScheduleSaved(opts) {
     const flow = opts && opts.flow ? String(opts.flow) : 'wizard';
     return logOnce('fb_mobile_tutorial_completion', {
@@ -314,9 +409,6 @@
     }).catch(function () { return false; });
   }
 
-  /**
-   * Custom: verified child PIN login only (not parent preview).
-   */
   function trackChildAccessCompleted(opts) {
     const flow = opts && opts.flow ? String(opts.flow) : 'child_login';
     return logOnce('child_access_completed', {
@@ -325,9 +417,6 @@
     }).catch(function () { return false; });
   }
 
-  /**
-   * Custom: family's first earned star / first completion (idempotent).
-   */
   function trackFirstStarEarned(opts) {
     const flow = opts && opts.flow ? String(opts.flow) : 'child_complete';
     return logOnce('first_star_earned', {
@@ -336,13 +425,13 @@
     }).catch(function () { return false; });
   }
 
-  /**
-   * Apply server-authored milestone flags from API responses.
-   * @param {object|null|undefined} milestones
-   */
   function handleServerMilestones(milestones) {
     try {
       if (!milestones || typeof milestones !== 'object') return;
+      if (!metaEventsAllowed()) {
+        debugLog('skip server milestones — no marketing consent');
+        return;
+      }
       if (milestones.tutorial_completion) {
         trackFirstScheduleSaved({ flow: milestones.flow || 'wizard' });
       }
@@ -364,6 +453,18 @@
     syncTrackingSettings().catch(function () {});
   }
 
+  function onConsentRevoked() {
+    clearLocalMetaQueues();
+    applyNativeConsentConfig({ allowAttPrompt: false }).catch(function () {});
+  }
+
+  // If consent was revoked while page was open, keep native in sync on load.
+  try {
+    if (isNative() && !hasMarketingConsent()) {
+      applyNativeConsentConfig({ allowAttPrompt: false }).catch(function () {});
+    }
+  } catch (_) { /* ignore */ }
+
   global.MetaAppEvents = {
     META_APP_ID: META_APP_ID,
     trackRegistrationCompleted: trackRegistrationCompleted,
@@ -372,9 +473,11 @@
     trackFirstStarEarned: trackFirstStarEarned,
     handleServerMilestones: handleServerMilestones,
     onConsentGranted: onConsentGranted,
-    // Test/introspection helpers (no PII)
+    onConsentRevoked: onConsentRevoked,
     _internal: {
       shouldSend: shouldSend,
+      metaEventsAllowed: metaEventsAllowed,
+      hasMarketingConsent: hasMarketingConsent,
       sanitizeParams: sanitizeParams,
       hasFiredOnce: hasFiredOnce,
       markFiredOnce: markFiredOnce,
@@ -382,12 +485,18 @@
       FORBIDDEN_PARAM_KEYS: FORBIDDEN_PARAM_KEYS,
       isNative: isNative,
       isLiveHost: isLiveHost,
-      hasMarketingConsent: hasMarketingConsent,
       baseParams: baseParams,
+      computeAdvertiserTrackingAllowed: computeAdvertiserTrackingAllowed,
+      resolveAttStatus: resolveAttStatus,
+      applyNativeConsentConfig: applyNativeConsentConfig,
+      clearLocalMetaQueues: clearLocalMetaQueues,
+      wasActivateAppCalledThisSession: function () { return activateAppCalledThisSession; },
       resetSessionDedupe: function () {
         Object.keys(loggedOnceThisSession).forEach(function (k) {
           delete loggedOnceThisSession[k];
         });
+        lastConfigureKey = '';
+        activateAppCalledThisSession = false;
       },
     },
   };

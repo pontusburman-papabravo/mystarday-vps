@@ -1,0 +1,8 @@
+#import <Foundation/Foundation.h>
+#import <Capacitor/Capacitor.h>
+
+CAP_PLUGIN(FacebookEventsPlugin, "FacebookEvents",
+           CAP_PLUGIN_METHOD(setAdvertiserTrackingEnabled, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(configureConsent, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(logEvent, CAPPluginReturnPromise);
+)

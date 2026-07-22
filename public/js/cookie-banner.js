@@ -149,6 +149,9 @@
     } else {
       fbq('consent', 'revoke');
       window.Pixel = { pageView: function(){}, lead: function(){}, purchase: function(){} };
+      if (window.MetaAppEvents && typeof MetaAppEvents.onConsentRevoked === 'function') {
+        MetaAppEvents.onConsentRevoked();
+      }
     }
   }
 

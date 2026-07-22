@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 /**
  * Wire Meta App Events (Facebook SDK) into the iOS Capacitor shell.
- * Run after `npx cap sync ios`.
+ * Run after `npx cap sync ios` (and after patch-capacitor-facebook-events-privacy.mjs).
  *
- * Env:
- *   META_CLIENT_TOKEN or FACEBOOK_CLIENT_TOKEN — required for release builds
- *   META_APP_ID — defaults to 27941105858861495
- *   META_DISPLAY_NAME — optional; falls back to CFBundleDisplayName in Info.plist
+ * Privacy defaults (EU/GDPR):
+ *   FacebookAutoLogAppEventsEnabled = false
+ *   FacebookAdvertiserIDCollectionEnabled = false
+ *   activateApp() only when persisted marketing consent is true
  *
- * Defaults:
- *   FacebookAutoLogAppEventsEnabled = true  (install + app open only; NOT purchases)
- *   FacebookAdvertiserIDCollectionEnabled = false until ATT/marketing consent path
  * Automatic IAP purchase logging must stay OFF in Meta App Dashboard.
  */
 import fs from 'fs';
@@ -69,7 +66,7 @@ function upsertPlistKey(content, key, value) {
   const escaped = escapePlistString(value);
   const block = `\t<key>${key}</key>\n\t<string>${escaped}</string>`;
   const existing = new RegExp(
-    `\\t<key>${key}</key>\\s*\\n\\s*<string>[\\s\\S]*?</string>`
+    `\\t<key>${key}</key>\\s*\\n\\s*<string>[\\s\\S]*?</string>(?:\\s*<!-- pragma: allowlist secret -->)?`
   );
   if (existing.test(content)) {
     return content.replace(existing, block);
@@ -108,7 +105,6 @@ function ensureFacebookUrlScheme(content, appId) {
     `\t</array>`;
 
   if (content.includes('<key>CFBundleURLTypes</key>')) {
-    // Insert scheme into first CFBundleURLSchemes array if present.
     const schemesArray = /(<key>CFBundleURLSchemes<\/key>\s*<array>)/;
     if (schemesArray.test(content)) {
       return content.replace(
@@ -141,7 +137,7 @@ function patchInfoPlist() {
         'Set META_CLIENT_TOKEN before release builds (Meta App Dashboard → Settings → Advanced).'
     );
   }
-  content = upsertPlistBool(content, 'FacebookAutoLogAppEventsEnabled', true);
+  content = upsertPlistBool(content, 'FacebookAutoLogAppEventsEnabled', false);
   content = upsertPlistBool(content, 'FacebookAdvertiserIDCollectionEnabled', false);
   content = upsertPlistKey(
     content,
@@ -152,71 +148,81 @@ function patchInfoPlist() {
 
   if (content !== before) {
     fs.writeFileSync(infoPlistPath, content);
-    console.log('Patched Info.plist with Meta App Events keys');
+    console.log('Patched Info.plist with privacy-safe Meta App Events keys');
   } else {
     console.log('Info.plist Meta App Events keys already up to date');
   }
 }
 
-const APP_DELEGATE_MARKER = 'ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)';
+const PRIVACY_SAFE_APP_DELEGATE = `import UIKit
+import Capacitor
+import FBSDKCoreKit
+
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    var window: UIWindow?
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Meta App Events — privacy-safe defaults (EU/GDPR).
+        // AutoLog + advertiser ID OFF until marketing consent is persisted and applied by the plugin.
+        // Keep Meta Dashboard "Automatically Log In-App Purchase Events" OFF.
+        ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
+
+        let marketingConsent = UserDefaults.standard.bool(forKey: "msd_meta_marketing_consent")
+        let advertiserTracking = UserDefaults.standard.bool(forKey: "msd_meta_advertiser_tracking")
+        Settings.shared.isAutoLogAppEventsEnabled = marketingConsent
+        Settings.shared.isAdvertiserIDCollectionEnabled = marketingConsent && advertiserTracking
+        Settings.shared.isAdvertiserTrackingEnabled = marketingConsent && advertiserTracking
+        return true
+    }
+
+    func applicationWillResignActive(_ application: UIApplication) {
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+    }
+
+    func applicationWillEnterForeground(_ application: UIApplication) {
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // activateApp ONLY when marketing consent is already active — never on first start without consent.
+        if Settings.shared.isAutoLogAppEventsEnabled {
+            AppEvents.shared.activateApp()
+        }
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+    }
+
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        let facebookHandled = ApplicationDelegate.shared.application(app, open: url, options: options)
+        let capacitorHandled = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
+        return facebookHandled || capacitorHandled
+    }
+
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    }
+
+}
+`;
 
 function patchAppDelegate() {
   if (!fs.existsSync(appDelegatePath)) {
     throw new Error(`Not found: ${appDelegatePath}`);
   }
-  let content = fs.readFileSync(appDelegatePath, 'utf8');
-  const before = content;
-
-  if (!content.includes('import FBSDKCoreKit')) {
-    content = content.replace(
-      'import Capacitor\n',
-      'import Capacitor\nimport FBSDKCoreKit\n'
-    );
+  const before = fs.readFileSync(appDelegatePath, 'utf8');
+  if (
+    before.includes('msd_meta_marketing_consent') &&
+    before.includes('if Settings.shared.isAutoLogAppEventsEnabled')
+  ) {
+    console.log('AppDelegate.swift already privacy-safe for Meta App Events');
+    return;
   }
-
-  if (!content.includes(APP_DELEGATE_MARKER)) {
-    content = content.replace(
-      /func application\(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: \[UIApplication\.LaunchOptionsKey: Any\]\?\) -> Bool \{\n\s*\/\/ Override point for customization after application launch\.\n\s*return true\n\s*\}/,
-      `func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Meta App Events: auto-log install/activate only. Advertiser ID stays off until ATT/consent.
-        // Keep Meta Dashboard "Automatically Log In-App Purchase Events" OFF.
-        ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
-        Settings.shared.isAutoLogAppEventsEnabled = true
-        Settings.shared.isAdvertiserIDCollectionEnabled = false
-        return true
-    }`
-    );
-  }
-
-  if (!content.includes('AppEvents.shared.activateApp()')) {
-    content = content.replace(
-      /func applicationDidBecomeActive\(_ application: UIApplication\) \{\n([\s\S]*?)\n    \}/,
-      (match, body) => {
-        if (body.includes('AppEvents.shared.activateApp()')) return match;
-        return `func applicationDidBecomeActive(_ application: UIApplication) {
-${body}
-        AppEvents.shared.activateApp()
-    }`;
-      }
-    );
-  }
-
-  // Forward Facebook URL opens alongside Capacitor proxy.
-  if (!content.includes('ApplicationDelegate.shared.application(app, open: url')) {
-    content = content.replace(
-      'return ApplicationDelegateProxy.shared.application(app, open: url, options: options)',
-      `let facebookHandled = ApplicationDelegate.shared.application(app, open: url, options: options)
-        let capacitorHandled = ApplicationDelegateProxy.shared.application(app, open: url, options: options)
-        return facebookHandled || capacitorHandled`
-    );
-  }
-
-  if (content !== before) {
-    fs.writeFileSync(appDelegatePath, content);
-    console.log('Patched AppDelegate.swift for Meta App Events');
-  } else {
-    console.log('AppDelegate.swift Meta App Events wiring already present');
-  }
+  fs.writeFileSync(appDelegatePath, PRIVACY_SAFE_APP_DELEGATE);
+  console.log('Wrote privacy-safe AppDelegate.swift for Meta App Events');
 }
 
 ensurePodfilePods();
