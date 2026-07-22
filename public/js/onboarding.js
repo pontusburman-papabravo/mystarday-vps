@@ -318,7 +318,36 @@ function goToStep(n) {
 /** Resume ACT-1 funnel after schema save or child access (avoids auth redirect loop). */
 async function resumeAct1Onboarding(funnelStep) {
   const step = funnelStep || 'signup';
+  if (step === 'child_created') {
+    // Child exists without schema — return to Step 1 / slim so schedule can be saved.
+    if (typeof window.goToStep === 'function') goToStep(1);
+    return;
+  }
   if (step === 'schema_saved') {
+    let filmDone = false;
+    try {
+      if (window.OnboardingActivation && typeof OnboardingActivation.loadConfig === 'function') {
+        await OnboardingActivation.loadConfig();
+      }
+      const cfg = window.OnboardingActivation && typeof OnboardingActivation.getConfig === 'function'
+        ? OnboardingActivation.getConfig()
+        : null;
+      filmDone = Boolean(cfg && cfg.state && cfg.state.handoff_film_completed_at);
+    } catch (_) { /* fall through to handoff */ }
+    if (filmDone) {
+      try {
+        const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
+        if (res.ok) {
+          const user = Auth.getUser();
+          if (user) {
+            user.onboarding_completed = true;
+            Auth.setAuth(Auth.getToken(), user);
+          }
+        }
+      } catch (_) { /* ignore */ }
+      window.location.href = '/dashboard?next_step=child_handoff';
+      return;
+    }
     await enterChildHandoff('resume_schema_saved');
     return;
   }
@@ -405,31 +434,38 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
 
   try {
     const birthday = document.getElementById('childBirthday').value || null;
-    const res = await window.apiFetch('/api/onboarding/child', {
-      method: 'POST',
-      body: JSON.stringify({ name, emoji, birthday }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Något gick fel');
+    // If child already created this session (schedule failed earlier), only retry schedule.
+    if (!childId) {
+      const res = await window.apiFetch('/api/onboarding/child', {
+        method: 'POST',
+        body: JSON.stringify({ name, emoji, birthday }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Något gick fel');
 
-    childId = data.id;
-    if (selectedAvatarFile && window.AvatarUploadFlow && typeof AvatarUploadFlow.putAvatarFile === 'function') {
-      try {
-        await AvatarUploadFlow.putAvatarFile('/api/children/' + childId + '/avatar', selectedAvatarFile);
-      } catch (uploadErr) {
-        console.error('[onboarding] avatar upload failed:', uploadErr.message);
-        showToast('Barnet skapades men fotot kunde inte sparas. Du kan lägga till det under Familj.', true);
+      childId = data.id;
+      if (selectedAvatarFile && window.AvatarUploadFlow && typeof AvatarUploadFlow.putAvatarFile === 'function') {
+        try {
+          await AvatarUploadFlow.putAvatarFile('/api/children/' + childId + '/avatar', selectedAvatarFile);
+        } catch (uploadErr) {
+          console.error('[onboarding] avatar upload failed:', uploadErr.message);
+          showToast('Barnet skapades men fotot kunde inte sparas. Du kan lägga till det under Familj.', true);
+        }
+      }
+      if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function') {
+        OnboardingActivation.setChildId(childId);
+      }
+      childName = data.name;
+      childUsername = data.username;
+      childPin = data.pin;
+      childBirthdayValue = birthday;
+      if (data.resumed) {
+        showToast('Vi hittade barnet från förra försöket — fortsätter med schemat.');
       }
     }
-    if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function') {
-      OnboardingActivation.setChildId(childId);
-    }
-    childName = data.name;
-    childUsername = data.username;
-    childPin = data.pin;
-    childBirthdayValue = document.getElementById('childBirthday').value || null;
 
     // Now create the schedule immediately (we know the template group)
+    setLoading(btn, 'Skapar schemat…');
     const schedRes = await window.apiFetch('/api/onboarding/schedule', {
       method: 'POST',
       body: JSON.stringify({ child_id: childId, template_group: selectedDayPref }),
@@ -1204,6 +1240,7 @@ async function completeAddChild() {
 
 // Detect add-child mode from URL query string — must be declared before first use (line 922+)
 const IS_ADD_CHILD = new URLSearchParams(window.location.search).get('flow') === 'add-child';
+window.IS_ADD_CHILD = IS_ADD_CHILD;
 
 // In add-child mode, hide invite step UI and use completeAddChild
 if (IS_ADD_CHILD) {
@@ -1401,11 +1438,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tRes.ok) {
       templateGroups = await tRes.json();
     }
-  } catch { /* use fallback */ }
-  if (!templateGroups || templateGroups.length === 0) {
-    templateGroups = TEMPLATE_GROUP_FALLBACK;
+  } catch { /* leave empty — do not fake selectable templates */ }
+  const usableGroups = (templateGroups || []).filter((g) => g && g.activity_count > 0);
+  if (usableGroups.length === 0) {
+    templateGroups = [];
+    const grid = document.getElementById('templateGroupGrid');
+    if (grid) {
+      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">Schemamallar kunde inte laddas just nu. Dra ner för att uppdatera, eller prova igen om en stund.</p>';
+    }
+    const step1Btn = document.getElementById('step1Btn');
+    if (step1Btn) step1Btn.disabled = true;
+  } else {
+    templateGroups = usableGroups;
+    buildTemplateGroupGrid(templateGroups);
   }
-  buildTemplateGroupGrid(templateGroups);
 
   // Load rewards from admin library (for step 4)
   try {

@@ -388,6 +388,7 @@
         MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
       }
 
+      // Server marks onboarding_completed on schedule save; keep local auth in sync.
       syncOnboardingCompleteInAuth();
 
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
@@ -711,6 +712,19 @@
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
         detail: { id: data.primary_child_id },
       }));
+    }
+    // child_created: stay in ACT-1 so parent can finish schedule (same name resumes server-side).
+    if (funnelStep === 'child_created') {
+      if (flags.activation_signup_slim_v1) {
+        state.slim = true;
+        hideLegacyStep1();
+        ensureCard();
+        renderQuestion();
+        showStarterStep();
+      } else if (typeof window.resumeAct1Onboarding === 'function') {
+        await window.resumeAct1Onboarding(funnelStep);
+      }
+      return true;
     }
     if (typeof window.resumeAct1Onboarding === 'function') {
       await window.resumeAct1Onboarding(funnelStep);
