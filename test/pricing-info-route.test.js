@@ -30,6 +30,14 @@ test('landing index injects Play Store URL placeholder', () => {
   assert.match(html, /app-store-badge-sv\.svg/);
 });
 
+test('landing index injects inline store badge SVGs', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(src, /injectStoreBadgeSvgs/);
+  assert.match(html, /app-store-badge-sv\.svg/);
+  assert.match(html, /google-play-badge-sv\.svg/);
+});
+
 test('landing mobile login choice script is wired on index', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
   const js = fs.readFileSync(path.join(ROOT, 'public/js/landing-login-choice.js'), 'utf8');

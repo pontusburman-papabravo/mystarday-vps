@@ -34,6 +34,35 @@ function injectStoreLinks(html) {
   return html.replace(/__PLAY_STORE_URL__/g, playStoreUrl);
 }
 
+const STORE_BADGE_IMG_DIR = path.join(__dirname, '..', '..', 'public', 'img');
+const STORE_BADGE_IMG_RE = /<img src="\/img\/(app-store-badge-sv|google-play-badge-sv)\.svg" alt="" class="store-badge" width="140" height="47">/g;
+let cachedInlineStoreBadges = null;
+
+function toInlineStoreBadgeSvg(filename) {
+  const raw = fs.readFileSync(path.join(STORE_BADGE_IMG_DIR, filename), 'utf8');
+  return raw
+    .replace(/<\?xml[\s\S]*?\?>\s*/i, '')
+    .replace(/<svg\b/, '<svg class="store-badge" width="140" height="47" aria-hidden="true" focusable="false"')
+    .replace(/\srole="img"/, '')
+    .replace(/\saria-label="[^"]*"/, '');
+}
+
+function getInlineStoreBadges() {
+  if (!cachedInlineStoreBadges) {
+    cachedInlineStoreBadges = {
+      'app-store-badge-sv': toInlineStoreBadgeSvg('app-store-badge-sv.svg'),
+      'google-play-badge-sv': toInlineStoreBadgeSvg('google-play-badge-sv.svg'),
+    };
+  }
+  return cachedInlineStoreBadges;
+}
+
+/** Inline store badge SVGs — external /img/*.svg in <img> breaks on iOS Safari (SW v393). */
+function injectStoreBadgeSvgs(html) {
+  const badges = getInlineStoreBadges();
+  return html.replace(STORE_BADGE_IMG_RE, (_match, slug) => badges[slug] || _match);
+}
+
 // Shared script injection — adds window.__APP_MODE__ for registration mode
 function injectAppMode(html) {
   const injectedScript = `<script>window.__APP_MODE__ = {"mode":"registration","registration_enabled":true};</script>`;
@@ -109,6 +138,7 @@ router.get('/', async (req, res) => {
     html = html.replace('__POLSIA_SLUG__', slug);
     html = injectBrandPlaceholders(html);
     html = injectStoreLinks(html);
+    html = injectStoreBadgeSvgs(html);
     html = await injectLandingNews(html);
     html = injectAppMode(html);
     res.type('html').send(html);
