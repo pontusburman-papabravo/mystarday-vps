@@ -34,7 +34,7 @@ android/
 
 # Android upload keystore (backup locally — required for all future Play updates)
 assets/play-store/signing/*.keystore
-android/keystore.properties
+/android/keystore.properties
 assets/play-store/signing/*.jks
 
 # Polsia safety (auto-injected)
