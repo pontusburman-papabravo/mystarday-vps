@@ -42,7 +42,10 @@ function toInlineStoreBadgeSvg(filename) {
   const raw = fs.readFileSync(path.join(STORE_BADGE_IMG_DIR, filename), 'utf8');
   return raw
     .replace(/<\?xml[\s\S]*?\?>\s*/i, '')
-    .replace(/<svg\b/, '<svg class="store-badge" width="140" height="47" aria-hidden="true" focusable="false"')
+    .replace(
+      /<svg[^>]*>/,
+      '<svg class="store-badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 52" width="140" height="47" aria-hidden="true" focusable="false">'
+    )
     .replace(/\srole="img"/, '')
     .replace(/\saria-label="[^"]*"/, '');
 }
