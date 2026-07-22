@@ -30,6 +30,14 @@ test('landing index injects Play Store URL placeholder', () => {
   assert.match(html, /app-store-badge-sv\.svg/);
 });
 
+test('store badge SVG uses HTML entity for ä in Hämta', () => {
+  const app = fs.readFileSync(path.join(ROOT, 'public/img/app-store-badge-sv.svg'), 'utf8');
+  const play = fs.readFileSync(path.join(ROOT, 'public/img/google-play-badge-sv.svg'), 'utf8');
+  assert.match(app, /H&#228;mta i/);
+  assert.match(play, /H&#228;mta i/);
+  assert.doesNotMatch(app, /Hämta i/);
+});
+
 test('landing index injects inline store badge SVGs', () => {
   const src = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');

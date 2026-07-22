@@ -1,6 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
- * v653: Store-badges inline SVG via landing.js (fix trasiga bilder på iOS)
+ * v654: Store-badge ä → H&#228;mta (encoding) + ren inline SVG-tag
  * v393: App Store-badge inline SVG (fix trasig bild)
  * v392: Fix App Store-lansering — hero-kort istället för trasig banner
  * v390: App Store launch banner på startsidan
@@ -218,7 +218,7 @@
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 // stjarndag-v649: calendar day-card text + magic dark tab bar on all parent pages
-const CACHE_NAME = 'stjarndag-v653';
+const CACHE_NAME = 'stjarndag-v654';
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
 // stjarndag-v644: fix bottom nav leaving /library — hard nav + no stale HTML shell
 // stjarndag-v643: chrome notiser dark strokes on white header tile (fix vit-på-vit)
@@ -452,6 +452,7 @@ const CACHE_NAME = 'stjarndag-v653';
 // stjarndag-v635: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v652: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v653: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v654: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
