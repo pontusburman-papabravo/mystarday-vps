@@ -27,8 +27,9 @@ fix-*
 repair-*
 agent-*
 
-# Capacitor Android project (generated locally via npx cap sync / cap open)
-android/
+# Capacitor Android project (generated locally via npx cap sync / cap open).
+# Keep the leading slash so scripts/android/ privacy patches stay tracked.
+/android/
 
 # iOS: committed for Xcode Cloud (see ios/.gitignore for build artifacts)
 
