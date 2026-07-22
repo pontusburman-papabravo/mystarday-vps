@@ -95,14 +95,16 @@
       return window.__handoffFilmSeenForChild !== cid;
     }
 
+    const st = activationState();
+    // Never replay the film after it was completed (reinstall / resume loop).
+    if (st.handoff_film_completed_at) return false;
+    if (st.child_access_completed_at) return false;
+
     if (opts.afterSchemaSave) {
       return Boolean(cid);
     }
 
-    const st = activationState();
     if (!st.schema_saved_at) return false;
-    if (st.child_access_completed_at) return false;
-    if (st.handoff_film_completed_at) return false;
     return true;
   }
 

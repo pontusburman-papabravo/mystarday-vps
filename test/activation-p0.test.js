@@ -64,6 +64,17 @@ describe('activation-p0-core', () => {
 
     const schemaOnly = { ...afterChildOnly, child_access_completed_at: null };
     assert.equal(getActivationFunnelStep(schemaOnly), 'schema_saved');
+
+    const childOnly = {
+      signup_at: signupAt,
+      child_created_at: new Date('2026-06-01T10:30:00.000Z'),
+      schema_saved_at: null,
+      child_access_completed_at: null,
+      first_completion_at: null,
+      p0_activated_at: null,
+      p0_activated_within_48h: false,
+    };
+    assert.equal(getActivationFunnelStep(childOnly), 'child_created');
   });
 
   it('isP0Activated reads p0_activated_at', () => {

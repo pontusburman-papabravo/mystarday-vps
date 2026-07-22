@@ -27,6 +27,9 @@ const { getOrGenerateDailyLog, syncDailyLogWithSchedule } = require('../lib/dail
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
 const { avatarApiFields } = require('../lib/avatar-api');
 const { SECTION_ORDER_SQL, sectionOrderClause } = require('../lib/default-schedule-order');
+const {
+  findResumableChildWithoutSchema,
+} = require('../lib/onboarding-child-resume');
 
 const router = express.Router();
 router.use(requireParent);
@@ -94,6 +97,49 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
     }
 
     const childName = name.trim();
+
+    // Recoverable stuck state: child created, schedule never saved (retry / reinstall).
+    // Rotate PIN so the parent can continue after losing the one-time display.
+    const resumable = await findResumableChildWithoutSchema(db, req.user.familyId, childName);
+    if (resumable) {
+      let rawPin;
+      let pinFp;
+      let pinAttempts = 0;
+      while (pinAttempts < 20) {
+        rawPin = generatePin();
+        if (/^(\d)\1{3}$/.test(rawPin)) { pinAttempts++; continue; }
+        pinFp = pinFingerprint(rawPin);
+        const pinExists = await db.query(
+          'SELECT id FROM child WHERE pin_fingerprint = $1 AND LOWER(name) = LOWER($2) AND id != $3',
+          [pinFp, childName, resumable.id]
+        );
+        if (pinExists.rows.length === 0) break;
+        pinAttempts++;
+      }
+      const pinHash = await hashPassword(rawPin);
+      const emojiToKeep = (emoji && typeof emoji === 'string') ? emoji : (resumable.emoji || '🌟');
+      await db.query(
+        'UPDATE child SET pin = $1, pin_fingerprint = $2, emoji = COALESCE($3, emoji) WHERE id = $4',
+        [pinHash, pinFp, emojiToKeep, resumable.id]
+      );
+
+      require('../../db/analytics').track(req.user.familyId, 'onboarding_child_resumed', {
+        child_id: resumable.id,
+        reason: 'child_without_schema',
+      });
+
+      return res.status(200).json({
+        id: resumable.id,
+        name: resumable.name,
+        emoji: emojiToKeep,
+        birthday: resumable.birthday,
+        username: resumable.username,
+        pin: rawPin,
+        resumed: true,
+        code: 'RESUME_CHILD_WITHOUT_SCHEMA',
+        ...avatarApiFields(resumable, 'child'),
+      });
+    }
 
     const dupName = await checkChildNameInFamily(db, childName, req.user.familyId);
     if (!dupName.ok) {
@@ -459,12 +505,13 @@ router.post('/schedule', async (req, res) => {
       } catch (err) {
         console.error('[ONBOARDING] activation schema_saved error:', err.message);
       }
-      if (act1StarterPlan) {
-        const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
-        await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
-          console.error('[ONBOARDING] mark onboarding complete after ACT-1 schema:', err.message);
-        });
-      }
+      // Always mark signup complete once a schedule is saved. Leaving this gated on
+      // custom_items caused auth to force parents back to /onboarding after handoff
+      // film / reinstall (child already exists, cannot leave step 1).
+      const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
+      await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
+        console.error('[ONBOARDING] mark onboarding complete after schema:', err.message);
+      });
       require('../lib/journey/ingest').ingestMilestoneAsync({
         familyId,
         milestone: 'routine_ready',
@@ -753,22 +800,26 @@ router.get('/template-groups', async (req, res) => {
       .map(r => {
         const grpKey = SCHEDULE_TO_GROUP[r.schedule_name];
         if (!grpKey || !TEMPLATE_GROUP_META[grpKey]) return null;
+        const activityCount = parseInt(r.count, 10);
+        if (!activityCount) return null;
         return {
           key: grpKey,
           ...TEMPLATE_GROUP_META[grpKey],
-          activity_count: parseInt(r.count, 10),
+          activity_count: activityCount,
         };
       })
       .filter(Boolean);
 
-    // Add 'dag' group (maps to Förskola vardag) if not already present
+    // Add 'dag' group (maps to Förskola vardag) if not already present and usable
     if (!groups.find(g => g.key === 'dag') && TEMPLATE_GROUP_META['dag']) {
       const forskolaGroup = groups.find(g => g.key === 'forskola');
-      groups.push({
-        key: 'dag',
-        ...TEMPLATE_GROUP_META['dag'],
-        activity_count: forskolaGroup ? forskolaGroup.activity_count : 0,
-      });
+      if (forskolaGroup && forskolaGroup.activity_count > 0) {
+        groups.push({
+          key: 'dag',
+          ...TEMPLATE_GROUP_META['dag'],
+          activity_count: forskolaGroup.activity_count,
+        });
+      }
     }
 
     res.json(groups);

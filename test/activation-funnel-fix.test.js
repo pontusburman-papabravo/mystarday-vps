@@ -43,10 +43,10 @@ describe('activation funnel fixes', () => {
     assert.match(src, /trackOnboardingCompleted/);
   });
 
-  it('onboarding schedule route marks complete for ACT-1 starter plan', () => {
+  it('onboarding schedule route marks complete after any schema save', () => {
     const src = fs.readFileSync(path.join(__dirname, '../src/routes/onboarding.js'), 'utf8');
     assert.match(src, /markParentOnboardingComplete/);
-    assert.match(src, /act1StarterPlan/);
+    assert.match(src, /Always mark signup complete once a schedule is saved/);
   });
 
   it('resolveDefaultActivationVariant prefers template_plus_ai when ACT-1 live', () => {

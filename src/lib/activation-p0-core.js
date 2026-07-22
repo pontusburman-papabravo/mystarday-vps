@@ -55,6 +55,7 @@ function getActivationFunnelStep(state) {
   if (state.first_completion_at) return 'first_completion';
   if (state.child_access_completed_at) return 'child_access';
   if (state.schema_saved_at) return 'schema_saved';
+  if (state.child_created_at) return 'child_created';
   return 'signup';
 }
 
