@@ -1726,3 +1726,157 @@ body.landing-menu-open {
     padding: 2rem 2.25rem 2.25rem;
   }
 }
+
+/* ── Mobile login choice modal (app vs web) ───────────────── */
+.landing-login-choice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10400;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+  background: rgba(28, 35, 64, 0.48);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.landing-login-choice-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 1.35rem 1.25rem 1.15rem;
+  border-radius: 20px 20px 16px 16px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(28, 35, 64, 0.22);
+  animation: landingLoginChoiceIn 0.24s ease-out;
+}
+
+@keyframes landingLoginChoiceIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-login-choice-card { animation: none; }
+  .landing-login-choice-btn:hover { transform: none; }
+}
+
+.landing-login-choice-close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.landing-login-choice-close:hover {
+  background: var(--cream);
+  color: var(--navy);
+}
+
+.landing-login-choice-title {
+  margin: 0 2rem 0.45rem 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+}
+
+.landing-login-choice-text {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.landing-login-choice-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.landing-login-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 56px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(28, 35, 64, 0.1);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.landing-login-choice-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(28, 35, 64, 0.08);
+}
+
+.landing-login-choice-btn--app {
+  border-color: rgba(245, 166, 35, 0.35);
+  background: linear-gradient(135deg, #fff8e6, #fff3d6);
+}
+
+.landing-login-choice-btn--web {
+  background: var(--cream);
+}
+
+.landing-login-choice-btn__icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.landing-login-choice-btn__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.landing-login-choice-btn__text strong {
+  font-size: 0.95rem;
+  color: var(--navy);
+}
+
+.landing-login-choice-btn__text span {
+  font-size: 0.78rem;
+  color: var(--text-3);
+}
+
+.landing-login-choice-skip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  font-size: 0.86rem;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.landing-login-choice-skip input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--amber);
+}
+
+body.landing-login-choice-open {
+  overflow: hidden;
+}
+
+@media (min-width: 961px) {
+  .landing-login-choice-overlay { display: none; }
+}
+

@@ -30,6 +30,14 @@ test('landing index injects Play Store URL placeholder', () => {
   assert.match(html, /app-store-badge-sv\.svg/);
 });
 
+test('landing mobile login choice script is wired on index', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'public/js/landing-login-choice.js'), 'utf8');
+  assert.match(html, /landing-login-choice\.js/);
+  assert.match(js, /landing_login_entry_choice_v1/);
+  assert.match(js, /Fråga inte igen/);
+});
+
 test('program catalog has five programs with total and pedagog last', () => {
   const catalog = require('../config/program-catalog');
   const data = catalog.getProgramCatalog();
