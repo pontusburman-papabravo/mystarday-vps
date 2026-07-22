@@ -11,6 +11,7 @@ const { getFounderCount } = require('../../db/family-stats');
 const { getFounderStatus } = require('../lib/payment-policy');
 const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
+const { getPlayStoreUrl } = require('../../config/store-links');
 
 const router = express.Router();
 
@@ -26,6 +27,11 @@ function brandName() {
 function injectBrandPlaceholders(html) {
   const brand = brandName();
   return html.replace(/\[REDACTED\]/g, brand);
+}
+
+function injectStoreLinks(html) {
+  const playStoreUrl = getPlayStoreUrl();
+  return html.replace(/__PLAY_STORE_URL__/g, playStoreUrl);
 }
 
 // Shared script injection — adds window.__APP_MODE__ for registration mode
@@ -102,6 +108,7 @@ router.get('/', async (req, res) => {
     let html = fs.readFileSync(htmlPath, 'utf8');
     html = html.replace('__POLSIA_SLUG__', slug);
     html = injectBrandPlaceholders(html);
+    html = injectStoreLinks(html);
     html = await injectLandingNews(html);
     html = injectAppMode(html);
     res.type('html').send(html);
