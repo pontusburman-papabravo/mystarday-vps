@@ -1,6 +1,6 @@
 # en-GB onboarding localisation — PR inventory
 
-**Branch:** `cursor/i18n-en-gb-onboarding`  
+**Branch:** `cursor/i18n-en-gb-onboarding-clean`  
 **Depends on:** PR #709 i18n foundation (`family.preferred_locale`, `english_app`, client/server i18n)  
 **Scope:** Complete parent onboarding through redirect to Home — **not** Home/dashboard translation.
 
@@ -44,8 +44,8 @@ Progress is **server-driven** (`family_activation_state.funnel_step`, `parent.on
 | `public/js/onboarding-handoff-film.js` | Post-schema film |
 | `public/js/onboarding-first-star.js` | First-star overlay |
 | `public/js/activation-program-enroll-choice.js` | Post-onboarding enroll UI |
-| `config/i18n/onboarding-sv-SE.json` | Swedish onboarding strings (386 keys) |
-| `config/i18n/onboarding-en-GB.json` | English onboarding strings |
+| `config/i18n/onboarding-sv-SE.json` | Swedish onboarding strings (394 keys) |
+| `config/i18n/onboarding-en-GB.json` | English onboarding strings (394 keys) |
 | `src/lib/onboarding-locale.js` | Server error resolution |
 | `src/routes/onboarding.js` | Localized API errors + template meta |
 | `src/routes/activation-program.js` | Localized enroll-choice copy |
@@ -57,7 +57,7 @@ Domain prefix: `onboarding.*` (merged from `config/i18n/onboarding-{locale}.json
 
 Subdomains: `common`, `pageTitle`, `verifyEmail`, `child`, `activityGuide`, `viewType`, `scheduleReady`, `rewards`, `handoff`, `parentPin`, `invite`, `complete`, `weekend`, `starter`, `handoffFilm`, `firstStar`, `activation`, `loading`, `templateGroups`, `sections`, `errors`
 
-Plural pattern: `key.one` / `key.other` via `I18n.plural()` / `otp()`.
+Plural pattern: `key.one` / `key.other` via `I18n.plural()` / `onboardingPlural()`.
 
 ## Feature flags (unchanged logic)
 

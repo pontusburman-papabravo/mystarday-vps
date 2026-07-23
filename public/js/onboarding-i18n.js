@@ -1,6 +1,6 @@
 /**
  * Onboarding i18n bootstrap — init after /api/auth/me so family.preferred_locale wins.
- * Exposes window.ot() / window.otp() for onboarding modules.
+ * Exposes window.ot() / window.onboardingPlural() for onboarding modules.
  */
 (function onboardingI18nModule() {
   'use strict';
@@ -71,7 +71,7 @@
     return I18n.t(key, params);
   }
 
-  function otp(key, count, params) {
+  function onboardingPlural(key, count, params) {
     if (!window.I18n) return key;
     return I18n.plural(key, count, params);
   }
@@ -87,5 +87,5 @@
 
   window.initOnboardingI18n = initOnboardingI18n;
   window.ot = ot;
-  window.otp = otp;
+  window.onboardingPlural = onboardingPlural;
 })();

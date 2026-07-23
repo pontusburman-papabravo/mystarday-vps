@@ -147,8 +147,8 @@ function ot(key, params) {
   return window.ot ? window.ot(key, params) : key;
 }
 
-function otp(key, count, params) {
-  return window.otp ? window.otp(key, count, params) : key;
+function onboardingPlural(key, count, params) {
+  return window.onboardingPlural ? window.onboardingPlural(key, count, params) : key;
 }
 
 const EMOJIS = [
@@ -225,7 +225,7 @@ function buildTemplateGroupGrid(groups) {
     card.dataset.pref = g.key;
     const detailsId = `details-${g.key}`;
     const arrowId = `arrow-${g.key}`;
-    const activityLabel = otp('onboarding.templateGroups.activityCount', g.activity_count, { count: g.activity_count });
+    const activityLabel = onboardingPlural('onboarding.templateGroups.activityCount', g.activity_count, { count: g.activity_count });
     card.innerHTML = `
       <div class="text-3xl mb-1.5">${g.icon}</div>
       <div class="font-semibold text-navy text-sm">${escapeHtml(g.name)}</div>
@@ -327,7 +327,7 @@ function updateRewardSelectCount() {
   const el = document.getElementById('s4SelectCount');
   if (!el) return;
   el.textContent = count >= 1
-    ? otp('onboarding.rewards.selectCount', count, { count })
+    ? onboardingPlural('onboarding.rewards.selectCount', count, { count })
     : ot('onboarding.rewards.selectCount.zero');
 }
 
