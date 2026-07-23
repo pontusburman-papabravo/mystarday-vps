@@ -53,6 +53,18 @@ describe('child profile mobile fixes', () => {
     assert.match(src, /formatAge/);
   });
 
+  it('family.js guards birthday picker init', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
+    assert.match(src, /typeof initBirthdayPicker === 'function'/);
+  });
+
+  it('onboarding loads age-band helper before starter plan', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/onboarding.html'), 'utf8');
+    const ageIdx = html.indexOf('age-band-from-birthday.js');
+    const starterIdx = html.indexOf('onboarding-starter-plan.js');
+    assert.ok(ageIdx >= 0 && starterIdx > ageIdx);
+  });
+
   it('iPad top chrome uses safe-area and tablet width', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
     assert.match(css, /\.parent-top-chrome/);

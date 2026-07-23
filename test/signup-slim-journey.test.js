@@ -99,6 +99,8 @@ describe('signup-slim checkpoint', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/onboarding-starter-plan.js'), 'utf8');
     assert.match(src, /activation_signup_slim_v1/);
     assert.match(src, /SLIM_QUESTION_IDS/);
+    assert.match(src, /child_birthday/);
+    assert.match(src, /resolveAgeBand/);
     assert.match(src, /autoSaveSlimAndFinish/);
     assert.match(src, /onboarding\.starter\.slimSuccessTitle/);
     assert.match(src, /\/dashboard/);

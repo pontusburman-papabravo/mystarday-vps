@@ -164,7 +164,7 @@
         Math.round(size * 0.8) + 'px;line-height:1;">' + safe + '</span>';
     }
 
-    initBirthdayPicker('drawerEditBirthday');
+    if (typeof initBirthdayPicker === 'function') initBirthdayPicker('drawerEditBirthday');
 
     function renderAll(data) {
       if (!data) return;

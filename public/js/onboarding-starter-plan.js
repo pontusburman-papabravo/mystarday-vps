@@ -7,6 +7,7 @@
 
   const QUESTION_IDS = [
     'child_name',
+    'child_birthday',
     'age_band',
     'routine_type_ui',
     'main_challenge',
@@ -23,7 +24,7 @@
     length_ui: ['kort', 'normal', 'detaljerad'],
   };
 
-  const SLIM_QUESTION_IDS = ['child_name', 'age_band', 'routine_type_ui'];
+  const SLIM_QUESTION_IDS = ['child_name', 'child_birthday', 'routine_type_ui'];
 
   const state = {
     enabled: false,
@@ -55,6 +56,14 @@
           type: 'text',
           label: ot(base + '.label'),
           placeholder: ot(base + '.placeholder'),
+        };
+      }
+      if (id === 'child_birthday') {
+        return {
+          id,
+          type: 'birthday',
+          label: ot('onboarding.child.birthdayLabel'),
+          hint: ot('onboarding.starter.birthdayHint'),
         };
       }
       if (id === 'free_text') {
@@ -99,7 +108,26 @@
     if (state.slim) {
       return questions.filter(function (q) { return SLIM_QUESTION_IDS.indexOf(q.id) >= 0; });
     }
-    return questions;
+    return questions.filter(function (q) { return q.id !== 'child_birthday'; });
+  }
+
+  function resolveAgeBand() {
+    if (state.answers.age_band) return state.answers.age_band;
+    if (state.answers.child_birthday && typeof window.ageBandFromBirthday === 'function') {
+      return window.ageBandFromBirthday(state.answers.child_birthday);
+    }
+    return '6-8';
+  }
+
+  function readBirthdayAnswer() {
+    const yearEl = document.getElementById('spBirthdayYear');
+    const monthEl = document.getElementById('spBirthdayMonth');
+    const dayEl = document.getElementById('spBirthdayDay');
+    if (!yearEl || !monthEl || !dayEl) return '';
+    const y = yearEl.value;
+    const m = monthEl.value;
+    const d = dayEl.value;
+    return (y && m && d) ? y + '-' + m + '-' + d : '';
   }
 
   function trackQuestionAnswered(questionId) {
@@ -185,6 +213,15 @@
 
     if (q.type === 'text') {
       html.push('<input type="text" id="spAnswer" class="form-input mb-4" maxlength="80" placeholder="' + esc(q.placeholder || '') + '" value="' + esc(state.answers[q.id] || '') + '">');
+    } else if (q.type === 'birthday') {
+      html.push(
+        '<p class="text-xs text-text-soft mb-3">' + esc(q.hint || '') + '</p>',
+        '<div class="grid grid-cols-3 gap-2 mb-4">',
+        '<select id="spBirthdayYear" class="form-input py-3 min-h-[44px] text-base" aria-label="Födelseår"><option value="">År</option></select>',
+        '<select id="spBirthdayMonth" class="form-input py-3 min-h-[44px] text-base" aria-label="Födelsemånad"><option value="">Månad</option></select>',
+        '<select id="spBirthdayDay" class="form-input py-3 min-h-[44px] text-base" aria-label="Födelsedag"><option value="">Dag</option></select>',
+        '</div>'
+      );
     } else if (q.type === 'textarea') {
       html.push('<textarea id="spAnswer" class="form-input mb-4" rows="3" maxlength="200" placeholder="' + esc(q.placeholder || '') + '">' + esc(state.answers[q.id] || '') + '</textarea>');
     } else if (q.type === 'choice') {
@@ -221,6 +258,17 @@
 
     container.innerHTML = html.join('');
 
+    if (q.type === 'birthday' && typeof window.initBirthdayPicker === 'function') {
+      window.initBirthdayPicker('spBirthday');
+      if (state.answers.child_birthday && typeof window.setBirthdayValue === 'function') {
+        window.setBirthdayValue(state.answers.child_birthday, 'spBirthday');
+      }
+      const yearEl = document.getElementById('spBirthdayYear');
+      const monthEl = document.getElementById('spBirthdayMonth');
+      if (yearEl) yearEl.addEventListener('change', function () { window.updateBirthdayDays('spBirthday'); });
+      if (monthEl) monthEl.addEventListener('change', function () { window.updateBirthdayDays('spBirthday'); });
+    }
+
     container.querySelectorAll('.sp-choice').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.answers[q.id] = btn.getAttribute('data-value');
@@ -253,6 +301,11 @@
     if (!name) return;
     const input = document.getElementById('childName');
     if (input && !input.value.trim()) input.value = name;
+    if (state.answers.child_birthday && typeof window.setBirthdayValue === 'function') {
+      if (typeof window.initBirthdayPicker === 'function') window.initBirthdayPicker();
+      window.setBirthdayValue(state.answers.child_birthday);
+      if (typeof window.updateBirthdayHidden === 'function') window.updateBirthdayHidden();
+    }
   }
 
   function showLegacyStep1() {
@@ -290,6 +343,7 @@
   function readCurrentAnswer() {
     const questions = activeQuestions();
     const q = questions[state.qIndex];
+    if (q.type === 'birthday') return readBirthdayAnswer();
     if (q.type === 'choice') return state.answers[q.id];
     const input = document.getElementById('spAnswer');
     return input ? input.value.trim() : '';
@@ -332,7 +386,7 @@
       track('activation_onboarding_started', { source: 'signup_slim' });
 
       const suggestBody = {
-        age_band: state.answers.age_band,
+        age_band: resolveAgeBand(),
         routine_type_ui: state.answers.routine_type_ui,
         support_ui: 'lite',
         length_ui: 'normal',
@@ -369,7 +423,11 @@
 
       const childRes = await api('/api/onboarding/child', {
         method: 'POST',
-        body: JSON.stringify({ name: name, emoji: state.selectedEmoji }),
+        body: JSON.stringify({
+          name: name,
+          emoji: state.selectedEmoji,
+          birthday: state.answers.child_birthday || null,
+        }),
       });
       const childData = await childRes.json();
       if (!childRes.ok) throw new Error(childData.error || ot('onboarding.starter.childCreateFailed'));
@@ -398,7 +456,7 @@
           name: childData.name,
           username: childData.username,
           pin: childData.pin,
-          birthday: null,
+          birthday: state.answers.child_birthday || null,
         },
       }));
 
@@ -485,7 +543,7 @@
       child_name: state.answers.child_name || '',
       schedule_name: suggestData.scheduleName,
       base_items: state.previewItems,
-      age_band: state.answers.age_band,
+      age_band: resolveAgeBand(),
       routine_type_ui: state.answers.routine_type_ui,
       support_ui: state.answers.support_ui || 'lite',
       length_ui: state.answers.length_ui || desiredLength,
@@ -521,7 +579,7 @@
       track('activation_onboarding_started', { source: 'starter_plan_wizard' });
 
       const suggestBody = {
-        age_band: state.answers.age_band,
+        age_band: resolveAgeBand(),
         routine_type_ui: state.answers.routine_type_ui,
         support_ui: state.answers.support_ui,
         length_ui: state.answers.length_ui,
@@ -626,7 +684,11 @@
     try {
       const childRes = await api('/api/onboarding/child', {
         method: 'POST',
-        body: JSON.stringify({ name: name, emoji: state.selectedEmoji }),
+        body: JSON.stringify({
+          name: name,
+          emoji: state.selectedEmoji,
+          birthday: state.answers.child_birthday || null,
+        }),
       });
       const childData = await childRes.json();
       if (!childRes.ok) throw new Error(childData.error || ot('onboarding.starter.childCreateFailed'));
@@ -655,7 +717,7 @@
           name: childData.name,
           username: childData.username,
           pin: childData.pin,
-          birthday: null,
+          birthday: state.answers.child_birthday || null,
         },
       }));
 
