@@ -74,8 +74,18 @@ const browserGlobals = {
   reportError: 'readonly',
 };
 
+/** ESLint 9+: caughtErrorsIgnorePattern is separate from varsIgnorePattern. */
+const unusedVarsWarn = ['warn', {
+  argsIgnorePattern: '^_',
+  varsIgnorePattern: '^_',
+  caughtErrors: 'all',
+  caughtErrorsIgnorePattern: '^_',
+  destructuredArrayIgnorePattern: '^_',
+  ignoreRestSiblings: true,
+}];
+
 const sharedRules = {
-  'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+  'no-unused-vars': unusedVarsWarn,
   'no-var': 'error',
   'prefer-const': ['warn', { destructuring: 'all' }],
   'no-undef': 'error',
@@ -133,7 +143,7 @@ module.exports = [
       globals: browserGlobals,
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-unused-vars': unusedVarsWarn,
       'no-var': 'warn',
       'prefer-const': ['warn', { destructuring: 'all' }],
       'no-undef': 'off',
