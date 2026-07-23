@@ -270,7 +270,8 @@ describe('dashboard variant gating for English parents', () => {
   const matrix = [
     { label: 'sv-SE default family', locale: 'sv-SE', englishApp: true, parentHomeMagic: true, overview: true, expect: true },
     { label: 'sv-SE parent_home_magic OFF', locale: 'sv-SE', englishApp: true, parentHomeMagic: false, overview: true, expect: false },
-    { label: 'en-GB english_app OFF', locale: 'en-GB', englishApp: false, parentHomeMagic: false, overview: true, expect: false },
+    { label: 'en-GB english_app OFF', locale: 'en-GB', englishApp: false, parentHomeMagic: false, overview: true, expect: false, featuresLoaded: true },
+    { label: 'en-GB features not loaded yet', locale: 'en-GB', englishApp: false, parentHomeMagic: false, overview: true, expect: true, featuresLoaded: false },
     { label: 'en-GB english_app ON (rule B)', locale: 'en-GB', englishApp: true, parentHomeMagic: false, overview: true, expect: true },
     { label: 'en-GB english_app ON + magic flag ON', locale: 'en-GB', englishApp: true, parentHomeMagic: true, overview: true, expect: true },
     { label: 'schedule editor open', locale: 'en-GB', englishApp: true, parentHomeMagic: true, overview: false, expect: false },
@@ -281,9 +282,9 @@ describe('dashboard variant gating for English parents', () => {
     it(`shouldUse matrix: ${row.label} → ${row.expect}`, () => {
       const mockWindow = {
         I18n: { getCurrentLang: () => row.locale },
-        _stjarndagFeatures: {
+        _stjarndagFeatures: row.featuresLoaded === false ? undefined : {
           parent_home_magic: row.parentHomeMagic,
-          english_app: row.englishApp,
+          ...(row.englishApp ? { english_app: true } : {}),
         },
         AppViewMode: {
           isAllowed: () => true,

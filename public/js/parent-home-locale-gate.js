@@ -5,9 +5,12 @@
  * always use the localized magic hub. Never fall back to Swedish classic cards
  * because parent_home_magic is OFF or legacy flags disagree.
  *
+ * While /api/features is still in flight (or failed), en-GB families hold the
+ * magic hub so Swedish classic copy never flashes during slow init.
+ *
  * Unchanged:
  * - sv-SE families
- * - en-GB with english_app OFF
+ * - en-GB with english_app OFF (after features load)
  * - Android flat (same hub content, flat CSS via is-native-android)
  * - Schedule editor / child drill-down (isOverviewVisible false in hub)
  */
@@ -27,25 +30,33 @@
     if (window.I18n && typeof window.I18n.getCurrentLang === 'function') {
       _preferredLocale = window.I18n.getCurrentLang();
     }
-    if (window._stjarndagFeatures && window._stjarndagFeatures.english_app === true) {
-      _englishAppEnabled = true;
-    } else if (window._stjarndagFeatures && window._stjarndagFeatures.english_app === false) {
-      _englishAppEnabled = false;
+    if (window._stjarndagFeatures) {
+      _englishAppEnabled = window._stjarndagFeatures.english_app === true;
     }
   }
 
-  function isEnglishParentHomeExperience() {
+  function currentLocale() {
     syncFromGlobals();
-    const locale = _preferredLocale
+    return _preferredLocale
       || (window.I18n && window.I18n.getCurrentLang && window.I18n.getCurrentLang())
       || 'sv-SE';
-    const englishOn = _englishAppEnabled === true;
-    return locale === 'en-GB' && englishOn;
+  }
+
+  function featuresKnown() {
+    return window._stjarndagFeatures != null;
+  }
+
+  function isEnglishParentHomeExperience() {
+    if (currentLocale() !== 'en-GB') return false;
+    if (!featuresKnown()) return false;
+    return window._stjarndagFeatures.english_app === true || _englishAppEnabled === true;
   }
 
   /** Skip parent_home_magic=false and other classic-home fallbacks. */
   function forceMagicHub() {
-    return isEnglishParentHomeExperience();
+    if (currentLocale() !== 'en-GB') return false;
+    if (!featuresKnown()) return true;
+    return window._stjarndagFeatures.english_app === true || _englishAppEnabled === true;
   }
 
   document.addEventListener('parent-i18n-ready', function () {
@@ -57,5 +68,6 @@
     syncFromGlobals: syncFromGlobals,
     isEnglishParentHomeExperience: isEnglishParentHomeExperience,
     forceMagicHub: forceMagicHub,
+    featuresKnown: featuresKnown,
   };
 })();
