@@ -29,6 +29,8 @@
   <script src="/js/push-manager.js?v=2.14.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/locale-switcher.js?v=1"></script>
+  <script src="/js/auth-entry-i18n.js?v=1"></script>
   <script src="/js/member-avatar.js?v=1"></script>
   <script src="/js/avatar-image-crop.js?v=1"></script>
   <script src="/js/avatar-upload-flow.js?v=1"></script>
@@ -323,7 +325,12 @@
 
         <!-- Family Settings -->
         <section>
-          <h3 class="text-xl font-heading font-bold text-navy mb-4">Familjeinställningar</h3>
+          <h3 class="text-xl font-heading font-bold text-navy mb-4" data-i18n="settings.family.title">Familjeinställningar</h3>
+          <div class="mb-4 p-4 bg-sky rounded-xl">
+            <p class="text-sm font-semibold text-navy mb-2" data-i18n="language.label">Språk</p>
+            <p class="text-xs text-text-soft mb-3" data-i18n="settings.language.description">Välj språk för appen. Engelska kräver att funktionen är aktiverad för er familj.</p>
+            <div data-locale-switcher-mount></div>
+          </div>
           <form id="familyForm" class="space-y-4">
             <input type="hidden" id="parentName">
             <div>

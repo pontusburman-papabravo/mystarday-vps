@@ -1,0 +1,8 @@
+[
+  { "key": "forskola", "name": "Preschool", "sort_order": 0 },
+  { "key": "skola", "name": "School", "sort_order": 1 },
+  { "key": "morgon", "name": "Morning", "sort_order": 2 },
+  { "key": "dag", "name": "Day", "sort_order": 3 },
+  { "key": "kvall", "name": "Evening", "sort_order": 4 },
+  { "key": "helg", "name": "Weekend", "sort_order": 5 }
+]

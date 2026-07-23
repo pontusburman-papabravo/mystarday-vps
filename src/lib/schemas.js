@@ -74,8 +74,9 @@ const RegisterSchema = z.object({
   utm_content: z.string().max(255).optional(),
   utm_term: z.string().max(255).optional(),
   fbclid: z.string().max(255).optional(),
-  // language is optional
+  // language is optional (legacy) — preferred_locale is canonical
   language: z.string().max(10).optional(),
+  preferred_locale: z.enum(['sv-SE', 'en-GB']).optional(),
 });
 
 const LoginSchema = z.object({
@@ -90,6 +91,8 @@ const ChildLoginSchema = z.object({
 
 const ForgotPasswordSchema = z.object({
   email: email,
+  preferred_locale: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
+  language: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
 });
 
 const ResetPasswordSchema = z.object({
@@ -397,6 +400,7 @@ const UpdateFamilySchema = z.object({
   streak_start_day: z.coerce.number().int().min(0).max(6).optional(),
   sound_enabled: z.boolean().optional(),
   family_chest_enabled: z.boolean().optional(),
+  preferred_locale: z.enum(['sv-SE', 'en-GB']).optional(),
 }).partial();
 
 const UpdateFamilyMemberSchema = z.object({

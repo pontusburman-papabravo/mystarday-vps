@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "proud_moment": {
+      "description": "Stolt ögonblick — en prestation i taget, ingen trofévägg"
+    },
+    "remembered_gift": {
+      "description": "Belöning som varmt minne — inte butik"
+    },
+    "warm_echo": {
+      "description": "Mjukt framsteg utan press eller streak"
+    }
+  }
+}

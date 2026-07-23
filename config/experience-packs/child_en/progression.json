@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "progression_model": "first_success_sequence",
+      "nodes": [
+        {
+          "node_id": "routine_home_welcome_mat",
+          "order": 1,
+          "node_type": "build",
+          "name_sv": "Välkomstmatta",
+          "emotional_beat": "Första foten innanför — du hör hemma.",
+          "unlock_signal": "first_activity_complete",
+          "pack_config_key": "progression.routine_home.welcome_mat"
+        },
+        {
+          "node_id": "routine_home_first_light",
+          "order": 2,
+          "node_type": "animation",
+          "name_sv": "Morgonljus",
+          "emotional_beat": "Ett varmt ljus tänds när dagen börjar.",
+          "unlock_signal": "node_unlocked:routine_home_welcome_mat",
+          "pack_config_key": "progression.routine_home.first_light"
+        }
+      ]
+    }
+  ]
+}

@@ -47,8 +47,11 @@
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
   <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/locale-switcher.js?v=1"></script>
+  <script src="/js/auth-entry-i18n.js?v=1"></script>
 </head>
-<body class="font-body">
+<body class="font-body" data-i18n-title="auth.verify.pageTitle">
   <!-- Star Logo Home Link -->
   <a href="/" class="fixed top-6 left-6 z-10 hover:scale-110 transition-transform duration-200">
     <span class="text-4xl star-animation">⭐</span>
@@ -68,10 +71,10 @@
         <div class="mb-8 flex justify-center">
           <div class="w-16 h-16 border-4 border-gold-light border-t-gold rounded-full animate-spin"></div>
         </div>
-        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3" data-i18n="auth.verify.checkingTitle">
           Verifierar e-post
         </h1>
-        <p class="text-lg text-text-soft">
+        <p class="text-lg text-text-soft" data-i18n="auth.verify.checkingBody">
           Vänta medan vi bekräftar din e-postadress...
         </p>
       </div>

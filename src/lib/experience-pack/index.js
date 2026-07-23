@@ -7,6 +7,10 @@ function getPacksRoot() {
   return process.env.EXPERIENCE_PACKS_ROOT
     || path.join(__dirname, '../../../config/experience-packs');
 }
+const db = require('../db');
+const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
+const { isEnglishChildExperienceEnabled } = require('../i18n-flags');
+
 const DEFAULT_PACK_ID = 'child_se';
 
 const packCache = new Map();
@@ -77,8 +81,58 @@ function clearPackCache() {
   packCache.clear();
 }
 
-function resolvePackForChild(_childId, packId = DEFAULT_PACK_ID) {
+function resolvePackForChild(_childId, packId) {
+  const id = packId || DEFAULT_PACK_ID;
+  return loadPack(id);
+}
+
+/**
+ * Resolve experience pack from family locale.
+ * @param {string|null|undefined} familyLocale
+ * @returns {object}
+ */
+function resolvePackForFamily(familyLocale, opts = {}) {
+  const packId = experiencePackIdForLocale(resolveFamilyLocale(familyLocale), opts);
   return loadPack(packId);
+}
+
+/**
+ * Resolve experience pack id from child row (family.preferred_locale).
+ * @param {string|null|undefined} childId
+ * @param {import('pg').PoolClient|{query: Function}|null} [client]
+ * @returns {Promise<string>}
+ */
+async function resolvePackIdForChild(childId, client) {
+  if (!childId) return DEFAULT_PACK_ID;
+  const q = client && typeof client.query === 'function' ? client : db;
+  try {
+    const result = await q.query(
+      `SELECT f.preferred_locale, f.id AS family_id
+       FROM child c
+       JOIN family f ON f.id = c.family_id
+       WHERE c.id = $1`,
+      [childId]
+    );
+    const row = result.rows[0];
+    if (!row) return DEFAULT_PACK_ID;
+    const englishChild = await isEnglishChildExperienceEnabled(row.family_id);
+    const packId = experiencePackIdForLocale(resolveFamilyLocale(row.preferred_locale), {
+      englishChildExperienceEnabled: englishChild,
+    });
+    if (packId === 'child_en') {
+      try {
+        loadPack('child_en');
+        return 'child_en';
+      } catch (err) {
+        console.warn('[experience-pack] child_en unavailable, falling back to child_se:', err.message);
+        return DEFAULT_PACK_ID;
+      }
+    }
+    return packId;
+  } catch (err) {
+    console.warn('[experience-pack] resolvePackIdForChild failed, defaulting sv:', err.message);
+    return DEFAULT_PACK_ID;
+  }
 }
 
 function getAllProgressionNodes(pack) {
@@ -156,6 +210,9 @@ module.exports = {
   loadPack,
   clearPackCache,
   resolvePackForChild,
+  resolvePackForFamily,
+  resolvePackIdForChild,
+  experiencePackIdForLocale,
   getAllProgressionNodes,
   getRewardBySignal,
   getWorldDef,

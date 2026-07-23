@@ -11,11 +11,15 @@ const {
 } = require('./first-week');
 
 async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
+  const journeyRegistryDb = require('../../../db/journey-registry');
+  const familyLocale = await journeyRegistryDb.getFamilyLocale(familyId);
+
   const evaluatorOn = await isFlagEnabled(FLAG_KEYS.evaluatorEnabled);
   const phase = await familyMilestones.getJourneyPhase(familyId);
   const milestones = await familyMilestones.getMilestoneMap(familyId);
   const registry = await loadRegistry({
     useDb: await isFlagEnabled(FLAG_KEYS.registryV2),
+    locale: familyLocale,
   });
 
   const capabilities = {

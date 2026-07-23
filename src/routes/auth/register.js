@@ -17,6 +17,9 @@ const { sendWelcomeEmail } = require('../../lib/welcome-mailer');
 const { createNewsletterSubscription } = require('../../lib/newsletter-subscribe');
 const { validate } = require('../../middleware/validate');
 const { RegisterSchema } = require('../../lib/schemas');
+const { resolvePreAuthLocale } = require('../../lib/locale');
+const { loadDefaultContent } = require('../../lib/default-content');
+const { t } = require('../../lib/i18n');
 
 const router = express.Router();
 
@@ -45,7 +48,14 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       utm_content: utmContent,
       utm_term: utmTerm,
       fbclid,
+      preferred_locale: preferredLocaleRaw,
+      language,
     } = req.body;
+
+    const familyLocale = resolvePreAuthLocale({
+      explicit: preferredLocaleRaw || language,
+      acceptLanguage: req.headers['accept-language'],
+    });
 
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
@@ -96,10 +106,10 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Create family — subscription_status defaults to 'none' (CHECK constraint).
       // Trial access is tracked via trial_ends_at + family_subscriptions table.
       const familyResult = await client.query(
-        `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free)
-         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2)
+        `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale)
+         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3)
          RETURNING id`,
-        [finalFamilyName, isLifetimeFree]
+        [finalFamilyName, isLifetimeFree, familyLocale]
       );
       const familyId = familyResult.rows[0].id;
 
@@ -115,73 +125,30 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       );
       const parentId = parentResult.rows[0].id;
 
-      // Load admin-defined default templates (falls back to hardcoded if table doesn't exist yet).
-      // Include schema_type so each template is tagged for age-based filtering during child creation.
-      let defaultActivities;
-      try {
-        const tplResult = await client.query(
-          `SELECT name, icon, category_name, star_value, sort_order, schema_type
-           FROM default_activity_template ORDER BY schema_type ASC, category_name ASC, sort_order ASC`
-        );
-        defaultActivities = tplResult.rows.length > 0
-          ? tplResult.rows.map(r => ({ name: r.name, icon: r.icon, category: r.category_name, star_value: r.star_value, sort_order: r.sort_order, schema_type: r.schema_type || 'forskola' }))
-          : null;
-      } catch {
-        defaultActivities = null; // table doesn't exist yet
-      }
+      const defaultContent = loadDefaultContent(familyLocale);
+      const {
+        activities: defaultActivities,
+        templateCategories: TEMPLATE_CATEGORIES,
+        rewards: defaultRewardsList,
+      } = defaultContent;
+      const { resolveTimeGroup, resolveTimeOffset } = require('../../lib/default-content');
 
-      if (!defaultActivities) {
-        defaultActivities = [
-          // Förskola defaults (ages 2-5)
-          { name: 'Vakna',                   icon: '🛏️', category: 'Morgon',      star_value: 1, sort_order: 0, schema_type: 'forskola' },
-          { name: 'Klä på sig',              icon: '🌟', category: 'Morgon',      star_value: 1, sort_order: 1, schema_type: 'forskola' },
-          { name: 'Borsta tänderna',          icon: '🪥', category: 'Morgon',      star_value: 1, sort_order: 2, schema_type: 'forskola' },
-          { name: 'Äta frukost',             icon: '🍳', category: 'Morgon',      star_value: 1, sort_order: 3, schema_type: 'forskola' },
-          { name: 'Förskola/Skola',          icon: '🏫', category: 'Förmiddag',   star_value: 1, sort_order: 0, schema_type: 'forskola' },
-          { name: 'Leka ute',                icon: '🛝', category: 'Förmiddag',   star_value: 1, sort_order: 1, schema_type: 'forskola' },
-          { name: 'Pyssel',                  icon: '🎨', category: 'Förmiddag',   star_value: 1, sort_order: 2, schema_type: 'forskola' },
-          { name: 'Mellanmål',               icon: '🍎', category: 'Eftermiddag', star_value: 1, sort_order: 0, schema_type: 'forskola' },
-          { name: 'Leka',                    icon: '🧩', category: 'Eftermiddag', star_value: 1, sort_order: 1, schema_type: 'forskola' },
-          { name: 'Träning/Aktivitet',       icon: '🏃', category: 'Eftermiddag', star_value: 1, sort_order: 2, schema_type: 'forskola' },
-          { name: 'Middag',                  icon: '🍽️', category: 'Kväll',       star_value: 1, sort_order: 0, schema_type: 'forskola' },
-          { name: 'Borsta tänderna (kväll)',  icon: '🪥', category: 'Kväll',       star_value: 1, sort_order: 1, schema_type: 'forskola' },
-          { name: 'Pyjamas',                 icon: '🧸', category: 'Kväll',       star_value: 1, sort_order: 2, schema_type: 'forskola' },
-          { name: 'Godnattsaga',             icon: '📕', category: 'Kväll',       star_value: 1, sort_order: 3, schema_type: 'forskola' },
-          { name: 'Sova',                    icon: '😴', category: 'Kväll',       star_value: 1, sort_order: 4, schema_type: 'forskola' },
-          // Skola defaults (ages 6+)
-          { name: 'Vakna & klä på sig',      icon: '🌅', category: 'Morgon',      star_value: 1, sort_order: 0, schema_type: 'skola' },
-          { name: 'Frukost',                 icon: '🥣', category: 'Morgon',      star_value: 1, sort_order: 1, schema_type: 'skola' },
-          { name: 'Borsta tänderna',          icon: '🪥', category: 'Morgon',      star_value: 1, sort_order: 2, schema_type: 'skola' },
-          { name: 'Packa skolväska',          icon: '🎒', category: 'Morgon',      star_value: 1, sort_order: 3, schema_type: 'skola' },
-          { name: 'Skola',                   icon: '🏫', category: 'Förmiddag',   star_value: 2, sort_order: 0, schema_type: 'skola' },
-          { name: 'Rast & lek',              icon: '⚽', category: 'Förmiddag',   star_value: 1, sort_order: 1, schema_type: 'skola' },
-          { name: 'Mellanmål',               icon: '🍎', category: 'Eftermiddag', star_value: 1, sort_order: 0, schema_type: 'skola' },
-          { name: 'Läxor',                   icon: '📚', category: 'Eftermiddag', star_value: 2, sort_order: 1, schema_type: 'skola' },
-          { name: 'Fritidsaktivitet',         icon: '🏃', category: 'Eftermiddag', star_value: 2, sort_order: 2, schema_type: 'skola' },
-          { name: 'Middag',                  icon: '🍽️', category: 'Kväll',       star_value: 1, sort_order: 0, schema_type: 'skola' },
-          { name: 'Borsta tänderna (kväll)',  icon: '🪥', category: 'Kväll',       star_value: 1, sort_order: 1, schema_type: 'skola' },
-          { name: 'Läsa',                    icon: '📖', category: 'Kväll',       star_value: 1, sort_order: 2, schema_type: 'skola' },
-          { name: 'Sova',                    icon: '😴', category: 'Kväll',       star_value: 1, sort_order: 3, schema_type: 'skola' },
-        ];
+      // sv-SE: prefer admin global library when present (unchanged behaviour).
+      let groupedActivities = null;
+      if (familyLocale === 'sv-SE') {
+        try {
+          const grpResult = await client.query(
+            `SELECT name, icon, category_name, star_value, sort_order, sub_steps,
+                    COALESCE(template_group, schema_type) AS grp
+             FROM default_activity_template
+             WHERE COALESCE(template_group, schema_type) IS NOT NULL
+             ORDER BY grp, category_name, sort_order ASC`
+          );
+          groupedActivities = grpResult.rows.length > 0 ? grpResult.rows : null;
+        } catch {
+          groupedActivities = null;
+        }
       }
-
-      // Create SIX template categories: Förskola, Skola, Morgon, Dag, Kväll, Helg
-      // Each category corresponds to a standard template group that parents can customize.
-      const TEMPLATE_CATEGORIES = [
-        { key: 'forskola', name: 'Förskola', sort_order: 0 },
-        { key: 'skola',    name: 'Skola',    sort_order: 1 },
-        { key: 'morgon',   name: 'Morgon',   sort_order: 2 },
-        { key: 'dag',      name: 'Dag',      sort_order: 3 },
-        { key: 'kvall',    name: 'Kväll',    sort_order: 4 },
-        { key: 'helg',     name: 'Helg',     sort_order: 5 },
-      ];
-      // Time-of-day sort multipliers to preserve ordering within each category:
-      const TIME_CATEGORY_OFFSET = { 'Morgon': 0, 'Förmiddag': 100, 'Eftermiddag': 200, 'Kväll': 300 };
-      // Map category_name to time_group
-      const CATEGORY_TO_TIME_GROUP = {
-        'Morgon': 'morgon', 'Förmiddag': 'formiddag',
-        'Eftermiddag': 'eftermiddag', 'Kväll': 'kvall',
-      };
 
       // Create all 6 categories
       const categoryMap = {};
@@ -193,30 +160,13 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         categoryMap[cat.key] = catResult.rows[0].id;
       }
 
-      // Seed activities from default_activity_template using template_group.
-      // Migration 050 cleared template_group/schema_type to NULL — filter those out
-      // and fall back to hardcoded defaults if no grouped activities remain.
-      let groupedActivities;
-      try {
-        const grpResult = await client.query(
-          `SELECT name, icon, category_name, star_value, sort_order, sub_steps,
-                  COALESCE(template_group, schema_type) AS grp
-           FROM default_activity_template
-           WHERE COALESCE(template_group, schema_type) IS NOT NULL
-           ORDER BY grp, category_name, sort_order ASC`
-        );
-        groupedActivities = grpResult.rows.length > 0 ? grpResult.rows : null;
-      } catch {
-        groupedActivities = null;
-      }
-
+      // Seed activities: admin DB templates (sv-SE only) or locale default content.
       if (groupedActivities) {
         for (const act of groupedActivities) {
           const catId = categoryMap[act.grp];
-          if (!catId) continue; // skip unknown groups
-          const timeGroup = CATEGORY_TO_TIME_GROUP[act.category_name] || 'morgon';
-          const timeOffset = TIME_CATEGORY_OFFSET[act.category_name] ?? 400;
-          const combinedSort = timeOffset + (act.sort_order ?? 0);
+          if (!catId) continue;
+          const timeGroup = resolveTimeGroup(act.category_name);
+          const combinedSort = resolveTimeOffset(act.category_name) + (act.sort_order ?? 0);
           const tplResult = await client.query(
             'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8) RETURNING id',
             [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.grp, combinedSort]
@@ -235,13 +185,11 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
           }
         }
       } else {
-        // Fallback: seed from hardcoded defaults into forskola/skola categories only
         for (const act of defaultActivities) {
           const catId = categoryMap[act.schema_type];
           if (!catId) continue;
-          const timeGroup = CATEGORY_TO_TIME_GROUP[act.category] || 'morgon';
-          const timeOffset = TIME_CATEGORY_OFFSET[act.category] ?? 400;
-          const combinedSort = timeOffset + (act.sort_order ?? 0);
+          const timeGroup = resolveTimeGroup(act.category);
+          const combinedSort = resolveTimeOffset(act.category) + (act.sort_order ?? 0);
           await client.query(
             'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8)',
             [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.schema_type, combinedSort]
@@ -249,20 +197,33 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         }
       }
 
-      // Seed default rewards from admin-defined library (fail-open: no default rewards if table missing)
-      try {
-        const defaultRewards = await client.query(
-          'SELECT id, name, icon, star_cost FROM default_reward ORDER BY sort_order ASC, star_cost ASC'
-        );
-        for (const r of defaultRewards.rows) {
+      // Seed default rewards: admin library for sv-SE, locale file fallback for en-GB.
+      let rewardsSeeded = false;
+      if (familyLocale === 'sv-SE') {
+        try {
+          const defaultRewards = await client.query(
+            'SELECT id, name, icon, star_cost FROM default_reward ORDER BY sort_order ASC, star_cost ASC'
+          );
+          for (const r of defaultRewards.rows) {
+            await client.query(
+              `INSERT INTO reward (family_id, name, icon, star_cost, requires_approval, is_active, source_default_id, modified_by_family)
+               VALUES ($1, $2, $3, $4, false, true, $5, false)`,
+              [familyId, r.name, r.icon, r.star_cost, r.id]
+            );
+          }
+          rewardsSeeded = defaultRewards.rows.length > 0;
+        } catch {
+          /* table missing */
+        }
+      }
+      if (!rewardsSeeded && defaultRewardsList?.length) {
+        for (const r of defaultRewardsList) {
           await client.query(
-            `INSERT INTO reward (family_id, name, icon, star_cost, requires_approval, is_active, source_default_id, modified_by_family)
-             VALUES ($1, $2, $3, $4, false, true, $5, false)`,
-            [familyId, r.name, r.icon, r.star_cost, r.id]
+            `INSERT INTO reward (family_id, name, icon, star_cost, requires_approval, is_active, modified_by_family)
+             VALUES ($1, $2, $3, $4, false, true, false)`,
+            [familyId, r.name, r.icon, r.star_cost]
           );
         }
-      } catch {
-        // Table doesn't exist yet (pre-migration) — skip silently
       }
 
       // Standard schedules are NOT seeded as family templates.
@@ -356,7 +317,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // Send verification email (blocking so errors are surfaced immediately)
       try {
-        await sendVerificationEmail(normalizedEmail, verifyToken);
+        await sendVerificationEmail(normalizedEmail, verifyToken, familyLocale);
       } catch (err) {
         console.error('[AUTH] sendVerificationEmail FAILED for', normalizedEmail, ':', err.message);
         // Don't block HTTP response — user can still log in and request resend
@@ -376,11 +337,12 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       }
 
       res.status(201).json({
-        message: 'Konto skapat! Kontrollera din e-post för att verifiera ditt konto.',
+        message: t(familyLocale, 'auth.register.success'),
         parentId,
         family_name: finalFamilyName,
         is_family_name_auto_generated: isFamilyNameAutoGenerated,
         parent_name: trimmedName,
+        preferred_locale: familyLocale,
         ...(process.env.NODE_ENV !== 'production' && { verifyToken }),
       });
     } catch (err) {

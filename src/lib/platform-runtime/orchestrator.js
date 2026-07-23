@@ -1,7 +1,7 @@
 'use strict';
 
 const db = require('../db');
-const { resolvePackForChild } = require('../experience-pack');
+const { resolvePackForChild, resolvePackIdForChild } = require('../experience-pack');
 const progressionDb = require('../../../db/child-progression-node');
 
 function queryClient(client) {
@@ -96,7 +96,8 @@ async function handleActivityComplete({
     return { ok: true, duplicate: true, replay: true };
   }
 
-  const pack = resolvePackForChild(childId, packId);
+  const resolvedPackId = packId || await resolvePackIdForChild(childId, client);
+  const pack = resolvePackForChild(childId, resolvedPackId);
   const childContext = await gatherChildContext(childId, dailyLogItemId, client);
   const stats = await gatherChildStats(childId, client);
 
@@ -179,7 +180,8 @@ async function getParentFeedback(childId, dailyLogItemId, client) {
   const feedback = await progressionDb.getFeedbackForCompletion(childId, dailyLogItemId, q);
   if (feedback) return feedback;
 
-  const pack = resolvePackForChild(childId);
+  const packId = await resolvePackIdForChild(childId, q);
+  const pack = resolvePackForChild(childId, packId);
   const childContext = await gatherChildContext(childId, dailyLogItemId, q);
   const { resolveExperienceCopy } = require('../experience-pack');
 
@@ -200,7 +202,8 @@ async function getParentFeedback(childId, dailyLogItemId, client) {
 }
 
 async function getChildFeedback(childId, client) {
-  const pack = resolvePackForChild(childId);
+  const packId = await resolvePackIdForChild(childId, client);
+  const pack = resolvePackForChild(childId, packId);
   const { resolveExperienceCopy } = require('../experience-pack');
   const unlocked = await progressionDb.listUnlockedNodes(childId, client);
   const worldFeedback = worldRuntime.buildWorldFeedback(pack, unlocked.map((r) => ({

@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Morgonhuset",
+      "first_unlock_message": "Morgonhuset väntar på dig",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Morgonhuset känner att du kom.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Ett mjukt ljus tänds.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Dörren",
+          "always_active": true,
+          "ambient_message_sv": "Dörren skakar lite — som om någon väntar därute.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Utanför väntar trädgården…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Trädgården",
+      "first_unlock_message": "Trädgården väntar på dig",
+      "ambient_message_sv": "Gräset rör sig långsamt i brisen.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Stigen",
+          "emoji": "🌿",
+          "ambient_message_sv": "Stigen leder längre in i trädgården.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Stigen leder till ett varmt rum fullt av minnen…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Blomsterbädden",
+          "emoji": "🪴",
+          "ambient_message_sv": "Jorden känns mjuk och varm under fingrarna.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Himlen",
+          "emoji": "☁️",
+          "ambient_message_sv": "Molnen rör sig långsamt.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Minnesrummet",
+      "first_unlock_message": "Här finns det du varit stolt över.",
+      "ambient_message_sv": "Det känns varmt och tryggt här.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Fönstret",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Ljuset faller mjukt in."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Minnesväggen",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Här hänger det som betyder något för dig."
+        }
+      ]
+    }
+  ]
+}

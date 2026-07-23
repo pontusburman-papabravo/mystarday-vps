@@ -9,6 +9,12 @@ const securityHeadersMiddleware = require('./src/middleware/securityHeaders');
 const { globalLimiter, apiLimiter } = require('./src/middleware/rateLimiter');
 const { optionalAuth, restoreParentSession } = require('./src/middleware/auth');
 const { loadLocales, getLocale, getAvailableLanguages } = require('./src/lib/i18n');
+const {
+  normalizeLocale,
+  validateLocale,
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+} = require('./src/lib/locale');
 const checkMaintenanceMode = require('./src/middleware/maintenance');
 const { blockImpersonationWrites } = require('./src/middleware/impersonation');
 const { csrfProtect } = require('./src/middleware/csrf');
@@ -84,12 +90,33 @@ function createApp() {
   app.use(createDomainRedirect());
 
   app.get('/api/i18n/:lang', (req, res) => {
-    const locale = getLocale(req.params.lang);
-    res.json(locale);
+    const normalized = normalizeLocale(req.params.lang);
+    if (!normalized) {
+      return res.status(400).json({ error: 'Unsupported locale', supported: SUPPORTED_LOCALES });
+    }
+    res.json(getLocale(normalized));
   });
 
   app.get('/api/i18n', (req, res) => {
-    res.json({ languages: getAvailableLanguages(), default: 'sv' });
+    res.json({ languages: getAvailableLanguages(), default: DEFAULT_LOCALE });
+  });
+
+  app.get('/api/i18n/options', async (req, res) => {
+    try {
+      const { isEnglishAppEnabled } = require('./src/lib/i18n-flags');
+      const englishApp = await isEnglishAppEnabled(null);
+      res.json({
+        languages: getAvailableLanguages(),
+        default: DEFAULT_LOCALE,
+        english_app_enabled: englishApp,
+      });
+    } catch (err) {
+      res.json({
+        languages: getAvailableLanguages(),
+        default: DEFAULT_LOCALE,
+        english_app_enabled: false,
+      });
+    }
   });
 
   app.use('/api', (req, res, next) => {

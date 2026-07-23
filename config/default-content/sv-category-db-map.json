@@ -1,0 +1,14 @@
+{
+  "categoryToTimeGroup": {
+    "Morgon": "morgon",
+    "Förmiddag": "formiddag",
+    "Eftermiddag": "eftermiddag",
+    "Kväll": "kvall"
+  },
+  "timeCategoryOffset": {
+    "Morgon": 0,
+    "Förmiddag": 100,
+    "Eftermiddag": 200,
+    "Kväll": 300
+  }
+}

@@ -8,6 +8,8 @@
  */
 const config = require('./config');
 const { buildListUnsubscribeHeaders } = require('./list-unsubscribe-headers');
+const { t } = require('./i18n');
+const { validateLocale } = require('./locale');
 
 const FROM_ADDRESS = config.email.from;
 const FROM_HEADER = `${config.email.fromName} <${FROM_ADDRESS}>`;
@@ -122,20 +124,26 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
   }
 }
 
+function brandName() {
+  return config.email.fromName || 'Stjärndag';
+}
+
 /**
  * Send email verification link.
  */
-async function sendVerificationEmail(email, token) {
+async function sendVerificationEmail(email, token, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
+  const brand = brandName();
   const url = `${config.email.baseUrl}/verify-email?token=${token}`;
   return sendEmail({
     to: email,
-    subject: 'Verifiera din e-post — Min Stjärndag',
+    subject: t(lang, 'email.verify.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Välkommen till Min Stjärndag! ⭐</h2>
-        <p>Klicka på knappen nedan för att verifiera din e-postadress:</p>
-        <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">Verifiera e-post</a>
-        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">Länken är giltig i ${config.verification.tokenExpiryHours} timmar.</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.verify.title', { brand })}</h2>
+        <p>${t(lang, 'email.verify.body')}</p>
+        <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.verify.button')}</a>
+        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.verify.expiry', { hours: String(config.verification.tokenExpiryHours) })}</p>
       </div>
     `,
   });
@@ -144,18 +152,22 @@ async function sendVerificationEmail(email, token) {
 /**
  * Send password reset link.
  */
-async function sendPasswordResetEmail(email, token, recipientName) {
+async function sendPasswordResetEmail(email, token, recipientName, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
+  const brand = brandName();
   const url = `${config.email.baseUrl}/reset-password?token=${token}`;
-  const greeting = recipientName ? `Hej ${recipientName}` : 'Hej';
+  const greeting = recipientName
+    ? t(lang, 'email.resetPassword.greeting', { name: recipientName })
+    : t(lang, 'email.resetPassword.greetingGeneric');
   return sendEmail({
     to: email,
-    subject: 'Återställ lösenord — Min Stjärndag',
+    subject: t(lang, 'email.resetPassword.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Återställ ditt lösenord</h2>
-        <p>${greeting}, klicka här för att sätta ett nytt lösenord:</p>
-        <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">Återställ lösenord</a>
-        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">Länken är giltig i ${config.verification.resetTokenExpiryHours} timme. Ignorera detta mail om du inte begärde en återställning.</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.resetPassword.title')}</h2>
+        <p>${greeting}, ${t(lang, 'email.resetPassword.body')}</p>
+        <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.resetPassword.button')}</a>
+        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.resetPassword.expiry', { hours: String(config.verification.resetTokenExpiryHours) })}</p>
       </div>
     `,
   });
