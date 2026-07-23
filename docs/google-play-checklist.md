@@ -208,7 +208,7 @@ Uppdatera `android/app/build.gradle` med signing config (Android Studio: **Build
 3. `versionCode` / `versionName` i `android/app/build.gradle` (öka `versionCode` varje upload)
 4. Output: `app-release.aab`
 
-Nuvarande SDK: `targetSdk 35`, `compileSdk 35` (se `android/variables.gradle`).
+Nuvarande SDK: `targetSdk 36`, `compileSdk 36` (patchas från `assets/play-store/android-sdk.json` via `patch-android-target-sdk.mjs`).
 
 ---
 

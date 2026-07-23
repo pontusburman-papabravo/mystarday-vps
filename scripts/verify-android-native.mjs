@@ -114,4 +114,23 @@ function mainActivityPathFromNs(namespace) {
   return path.join(ROOT, 'android', 'app', 'src', 'main', 'java', ...namespace.split('.'), 'MainActivity.java');
 }
 
+if (fs.existsSync(path.join(ROOT, 'android', 'variables.gradle'))) {
+  const sdkCfg = JSON.parse(
+    fs.readFileSync(path.join(ROOT, 'assets', 'play-store', 'android-sdk.json'), 'utf8')
+  );
+  const vars = fs.readFileSync(path.join(ROOT, 'android', 'variables.gradle'), 'utf8');
+  const targetMatch = vars.match(/targetSdkVersion\s*=\s*(\d+)/);
+  const compileMatch = vars.match(/compileSdkVersion\s*=\s*(\d+)/);
+  if (!targetMatch || Number(targetMatch[1]) < sdkCfg.targetSdkVersion) {
+    fail(`targetSdkVersion must be >= ${sdkCfg.targetSdkVersion} — run patch-android-target-sdk.mjs`);
+  } else {
+    ok(`targetSdkVersion ${targetMatch[1]}`);
+  }
+  if (!compileMatch || Number(compileMatch[1]) < sdkCfg.compileSdkVersion) {
+    fail(`compileSdkVersion must be >= ${sdkCfg.compileSdkVersion}`);
+  } else {
+    ok(`compileSdkVersion ${compileMatch[1]}`);
+  }
+}
+
 process.exit(failed ? 1 : 0);
