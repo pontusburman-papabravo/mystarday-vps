@@ -1,5 +1,29 @@
 {
   "pageTitle": "Today — {{brand}}",
+  "shell": {
+    "headerTitle": "Today",
+    "pdfHint": "Create PDF for day, week or my days",
+    "printBtn": "📄 Create PDF ▾",
+    "printDay": "📄 Create PDF — day",
+    "printWeek": "📅 Create PDF — week",
+    "printMyDays": "🏠 Create PDF — my days",
+    "selectChildHeading": "Choose child",
+    "selectChildEmpty": "Choose a child above to see the log",
+    "loadingChildren": "Loading…",
+    "tipsTitle": "Tips: Track activities in Today",
+    "tips1": "Mark activities as done — your child sees them in real time",
+    "tips2": "Activities are checked off in the child view with one tap and earn stars straight away",
+    "tips3": "Scroll back with the date picker to see how your child has done",
+    "tips4": "Pause a day when routines are different — no stars are lost",
+    "rateActivity": "Rate activity",
+    "commentPlaceholder": "Comment (optional)…",
+    "cancel": "Cancel",
+    "save": "Save",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "printWeekDocTitle": "Weekly schedule — {{name}}",
+    "printMyDaysDocTitle": "My days"
+  },
   "childFallback": "Child",
   "noChildren": "No children added yet.",
   "loading": "Loading…",
@@ -14,7 +38,8 @@
     "adjustTime": "Could not adjust times",
     "selectChild": "Select a child first",
     "custodyDisabled": "Custody schedule is not enabled",
-    "loadWeek": "Could not load the week"
+    "loadWeek": "Could not load the week",
+    "saveRating": "Could not save rating"
   },
   "empty": {
     "noActivitiesToday": "No activities today!",
@@ -78,6 +103,7 @@
     "childMood": "Child's mood",
     "parentScore": "Parent rating",
     "noMoodCards": "No mood cards yet",
+    "saved": "⭐ Rating saved!",
     "labels": [
       "",
       "Hard 😓",

@@ -10,7 +10,7 @@ const { loadLocales, t, getLocale } = require('../src/lib/i18n');
 
 const FRAGMENTS_DIR = path.join(__dirname, '../config/i18n');
 const SWEDISH_RE = /[åäöÅÄÖ]/;
-const DOMAINS = ['home', 'today', 'journey', 'time'];
+const DOMAINS = ['home', 'today', 'journey', 'time', 'nav'];
 
 function flattenStrings(obj, prefix = '') {
   const out = [];
@@ -76,6 +76,8 @@ describe('home/today locale fragments', () => {
     assert.equal(en.home.greeting.morning, 'Good morning!');
     assert.ok(en.today?.nav?.todayBtn);
     assert.equal(en.today.nav.todayBtn, 'Today');
+    assert.ok(en.nav?.primary?.home);
+    assert.equal(en.nav.primary.home, 'Home');
   });
 });
 
@@ -507,4 +509,94 @@ describe('analytics event parity (sv vs en code paths)', () => {
       }
     });
   }
+});
+
+describe('Today HTML shell i18n', () => {
+  const html = fs.readFileSync(path.join(__dirname, '../public/daily-log.html'), 'utf8');
+
+  it('uses data-i18n-manual-init and early locale bootstrap (no separate EN HTML)', () => {
+    assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /data-i18n-title="today\.pageTitle"/);
+    assert.match(html, /earlyTodayI18n/);
+    assert.match(html, /sd_preferred_locale/);
+    assert.match(html, /I18n\.init\(lang\)/);
+    assert.doesNotMatch(html, /daily-log-en\.html/);
+  });
+
+  it('localises static shell copy via data-i18n attributes', () => {
+    assert.match(html, /data-i18n="today\.shell\.headerTitle"/);
+    assert.match(html, /data-i18n="today\.shell\.printBtn"/);
+    assert.match(html, /data-i18n="today\.shell\.tipsTitle"/);
+    assert.match(html, /data-i18n="today\.shell\.rateActivity"/);
+    assert.match(html, /data-i18n-placeholder="today\.shell\.commentPlaceholder"/);
+    assert.match(html, /data-i18n-aria-label="onboarding\.common\.closeAria"/);
+    assert.match(html, /data-i18n="nav\.dailyLog"/);
+  });
+
+  it('keeps Swedish fallback text in HTML for pre-JS render (sv-SE default)', () => {
+    assert.match(html, /<html lang="sv-SE">/);
+    assert.match(html, /Daglig logg/);
+  });
+});
+
+describe('Today runtime locale', () => {
+  const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+
+  it('uses pt() for rating saved toast (no hardcoded Swedish)', () => {
+    assert.match(dailyLog, /pt\('today\.rating\.saved'\)/);
+    assert.doesNotMatch(dailyLog, /Betyg sparat/);
+  });
+
+  it('formatTime delegates to LocaleDateTime when available', () => {
+    assert.match(dailyLog, /LocaleDateTime\.formatTime/);
+  });
+});
+
+describe('Home nav locale (nav-config)', () => {
+  const navConfig = fs.readFileSync(path.join(__dirname, '../public/js/nav-config.js'), 'utf8');
+  const nativeTab = fs.readFileSync(path.join(__dirname, '../public/js/native-tab-bar.js'), 'utf8');
+  const magicShell = fs.readFileSync(path.join(__dirname, '../public/js/parent-magic-shell.js'), 'utf8');
+
+  it('PRIMARY_NAV items expose labelKey for i18n', () => {
+    assert.match(navConfig, /labelKey: 'nav\.primary\.home'/);
+    assert.match(navConfig, /resolveLabel/);
+    assert.match(navConfig, /primaryNavForTabs/);
+  });
+
+  it('bottom nav remounts on locale change', () => {
+    assert.match(nativeTab, /locale-changed/);
+    assert.match(nativeTab, /parent-i18n-ready/);
+    assert.match(nativeTab, /primaryNavForTabs/);
+    assert.match(magicShell, /locale-changed/);
+    assert.match(magicShell, /nav\.mainAria/);
+  });
+
+  it('mobile-nav resolves labels via NavConfig.resolveLabel', () => {
+    const mobileNav = fs.readFileSync(path.join(__dirname, '../public/js/mobile-nav.js'), 'utf8');
+    assert.match(mobileNav, /NavConfig\.resolveLabel/);
+  });
+});
+
+describe('Home offline banner locale', () => {
+  const dashboardHtml = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
+  const dashboardJs = fs.readFileSync(path.join(__dirname, '../public/js/dashboard.js'), 'utf8');
+
+  it('offline banner uses data-i18n and pt() for last updated', () => {
+    assert.match(dashboardHtml, /data-i18n="home\.offline\.banner"/);
+    assert.match(dashboardJs, /home\.offline\.lastUpdated/);
+    assert.match(dashboardJs, /offlineTimeFmt/);
+  });
+});
+
+describe('LocaleDateTime formatTime', () => {
+  it('formats time in en-GB without Swedish locale default', () => {
+    const mockWindow = {
+      I18n: { getCurrentLang: () => 'en-GB' },
+      pt: (k) => k,
+    };
+    const LocaleDateTime = loadLocaleDateTime(mockWindow);
+    const formatted = LocaleDateTime.formatTime('2026-07-23T14:30:00');
+    assert.match(formatted, /14:30|2:30/);
+    assert.doesNotMatch(formatted, /[åäöÅÄÖ]/);
+  });
 });

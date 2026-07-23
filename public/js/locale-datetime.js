@@ -121,6 +121,13 @@
     return formatWithIntl(d, { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
+  function formatTime(dateOrStr) {
+    const d = typeof dateOrStr === 'string'
+      ? new Date(dateOrStr.includes('T') ? dateOrStr : dateOrStr + 'T12:00:00')
+      : dateOrStr;
+    return formatWithIntl(d, { hour: '2-digit', minute: '2-digit' });
+  }
+
   window.LocaleDateTime = {
     lang,
     getTodayStr,
@@ -137,6 +144,7 @@
     sectionLabel,
     sectionLabelWithEmoji,
     isoDateInLocale,
+    formatTime,
     formatWithIntl,
   };
 })();

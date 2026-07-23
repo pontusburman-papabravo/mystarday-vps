@@ -1,5 +1,29 @@
 {
   "pageTitle": "Daglig logg — {{brand}}",
+  "shell": {
+    "headerTitle": "Daglig logg",
+    "pdfHint": "Skapa PDF av dag, vecka eller mina dagar",
+    "printBtn": "📄 Skapa PDF ▾",
+    "printDay": "📄 Skapa PDF — dag",
+    "printWeek": "📅 Skapa PDF — vecka",
+    "printMyDays": "🏠 Skapa PDF — mina dagar",
+    "selectChildHeading": "Välj barn",
+    "selectChildEmpty": "Välj ett barn ovan för att se loggen",
+    "loadingChildren": "Laddar…",
+    "tipsTitle": "Tips: Följ aktiviteter i daglig logg",
+    "tips1": "Markera aktiviteter som klara — barnet ser dem i realtid i sin vy",
+    "tips2": "Aktiviteter bockas av i barnvyn med ett tryck och ger stjärnor direkt",
+    "tips3": "Bläddra bakåt med datumväljaren för att se hur barnet presterat",
+    "tips4": "Pausa en dag om rutinerna är annorlunda — inga stjärnor förloras",
+    "rateActivity": "Betygsätt aktivitet",
+    "commentPlaceholder": "Kommentar (valfritt)…",
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "moveUp": "Flytta upp",
+    "moveDown": "Flytta ner",
+    "printWeekDocTitle": "Veckoschema — {{name}}",
+    "printMyDaysDocTitle": "Mina dagar"
+  },
   "childFallback": "Barn",
   "noChildren": "Inga barn tillagda ännu.",
   "loading": "Laddar loggen…",
@@ -14,7 +38,8 @@
     "adjustTime": "Kunde inte justera tider",
     "selectChild": "Välj ett barn först",
     "custodyDisabled": "Boendeschema är inte aktiverat",
-    "loadWeek": "Kunde inte ladda veckan"
+    "loadWeek": "Kunde inte ladda veckan",
+    "saveRating": "Kunde inte spara betyg"
   },
   "empty": {
     "noActivitiesToday": "Inga aktiviteter idag!",
@@ -78,6 +103,7 @@
     "childMood": "Barnets känsla",
     "parentScore": "Förälderns betyg",
     "noMoodCards": "Inga känslokort ännu",
+    "saved": "⭐ Betyg sparat!",
     "labels": [
       "",
       "Svårt 😓",

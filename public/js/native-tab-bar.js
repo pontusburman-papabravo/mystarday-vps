@@ -93,7 +93,7 @@
     const nav = document.createElement('nav');
     nav.className = 'native-tab-bar';
     nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', 'Huvudnavigering');
+    nav.setAttribute('aria-label', (typeof window.pt === 'function') ? window.pt('nav.mainAria') : 'Huvudnavigering');
     nav.innerHTML = items;
     document.body.appendChild(nav);
     hideLegacyBottomNav();
@@ -206,6 +206,9 @@
   window.addEventListener('stjarndag-magic-navigated', function () {
     updateActiveTabs();
   });
+
+  document.addEventListener('locale-changed', remount);
+  document.addEventListener('parent-i18n-ready', remount);
 
   window.NativeTabBar = {
     remount: remount,

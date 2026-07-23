@@ -140,4 +140,6 @@
   } else {
     load();
   }
+  document.addEventListener('parent-i18n-ready', load);
+  document.addEventListener('locale-changed', load);
 })();

@@ -220,7 +220,11 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
+<<<<<<< HEAD
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
+=======
+// stjarndag-v667: en-GB Today shell + Home nav/offline locale (P-i18n-Home-Today-C)
+>>>>>>> 35ac99cf (feat(i18n): localize Today shell and Home nav for en-GB (P-i18n-Home-Today-C))
 const CACHE_NAME = 'stjarndag-v667';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

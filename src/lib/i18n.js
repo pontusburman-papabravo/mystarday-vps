@@ -28,7 +28,7 @@ function deepMergeObjects(target, source) {
 }
 
 function mergeLocaleFragments() {
-  const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time'];
+  const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time', 'nav'];
   for (const locale of SUPPORTED_LOCALES) {
     for (const domain of fragmentDomains) {
       const fragmentPath = path.join(i18nFragmentsDir, `${domain}-${locale}.json`);

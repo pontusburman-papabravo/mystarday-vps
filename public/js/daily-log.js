@@ -104,6 +104,7 @@
       }
 
       document.addEventListener('parent-i18n-ready', () => {
+        if (window.I18n && typeof I18n.apply === 'function') I18n.apply();
         if (currentChildId) loadLog();
         else loadChildren();
       });
@@ -565,7 +566,7 @@
           ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold" title="${escHtml(pt('today.rating.childMood'))}">🧒 ${escHtml(rating.child_emotion_key)}</span>`;
         } else if (rating.child_score) {
           ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold"
-            title="Barnets betyg${rating.child_comment ? ': ' + rating.child_comment : ''}"
+            title="${escHtml(pt('today.rating.childMood'))}${rating.child_comment ? ': ' + escHtml(rating.child_comment) : ''}"
             onclick="event.stopPropagation()">
             🧒 ${rating.child_score}/10
             ${rating.child_comment ? `<span class="text-text-soft font-normal ml-1">"${escHtml(rating.child_comment)}"</span>` : ''}
@@ -598,8 +599,8 @@
           <div class="drag-handle shrink-0 flex items-center justify-center w-6 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy opacity-0 group-hover:opacity-100 transition-opacity select-none dl-drag-desktop" title="${escHtml(pt('today.activity.dragReorder'))}">⠿</div>
           <!-- Mobile: ↑/↓ reorder buttons (hidden on desktop via CSS) -->
           <div class="dl-reorder-mobile shrink-0 flex flex-col gap-0.5">
-            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', -1)" aria-label="Flytta upp" title="Flytta upp">▲</button>
-            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', 1)" aria-label="Flytta ner" title="Flytta ner">▼</button>
+            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', -1)" aria-label="${escHtml(pt('today.shell.moveUp'))}" title="${escHtml(pt('today.shell.moveUp'))}">▲</button>
+            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', 1)" aria-label="${escHtml(pt('today.shell.moveDown'))}" title="${escHtml(pt('today.shell.moveDown'))}">▼</button>
           </div>
           <div class="print-checkbox"></div>
           <div class="text-3xl flex-shrink-0">${item.icon || '📌'}</div>
@@ -642,7 +643,11 @@
     function formatTime(isoStr) {
       if (!isoStr) return '';
       const d = new Date(isoStr);
-      return d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+      if (window.LocaleDateTime && typeof LocaleDateTime.formatTime === 'function') {
+        return LocaleDateTime.formatTime(d);
+      }
+      const locale = (window.I18n && I18n.getCurrentLang) ? I18n.getCurrentLang() : 'sv-SE';
+      return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
     }
 
     // ── Drag & Drop (SortableJS) ──────────────────────────
@@ -973,10 +978,10 @@
           body: JSON.stringify({ minutes }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Fel');
+        if (!res.ok) throw new Error(data.error || pt('today.errors.adjustTime'));
 
         if (data.updated === 0) {
-          showToast('Inga ej avbockade aktiviteter med tider att justera', 'error');
+          showToast(pt('today.bump.noItems'), 'error');
           return;
         }
 
@@ -1006,7 +1011,7 @@
 
         showToast(pt('today.bump.moved', { count: data.updated, suffix: data.updated === 1 ? pt('today.bump.movedOne') : pt('today.bump.movedMany'), minutes }));
       } catch (err) {
-        showToast(err.message || 'Kunde inte justera tider', 'error');
+        showToast(err.message || pt('today.errors.adjustTime'), 'error');
       }
     }
 
@@ -1018,7 +1023,7 @@
           body: JSON.stringify({ snapshot: bumpTimeSnapshot }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Fel');
+        if (!res.ok) throw new Error(data.error || pt('today.errors.undo'));
 
         // Clear snapshot
         bumpTimeSnapshot = null;
@@ -1209,7 +1214,7 @@
       // Open print window
       const printWin = window.open('', '_blank', 'width=1100,height=700');
       printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-        '<title>Veckoschema \u2014 ' + escHtml(childName) + '<\/title>' +
+        '<title>' + escHtml(pt('today.shell.printWeekDocTitle', { name: childName })) + '<\/title>' +
         '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">' +
         '<style>' + printStyles + '<\/style>' +
         '<\/head><body>' + weekHtml + '<\/body><\/html>');
@@ -1294,7 +1299,7 @@
         <div style="display:grid;grid-template-columns:repeat(${myDays.length},1fr);gap:5px;">${dayColumns}</div>`;
 
       const printWin = window.open('', '_blank', 'width=1100,height=700');
-      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Mina dagar</title><style>@page{size:A4 landscape;margin:8mm;}body{margin:0;font-family:Arial,sans-serif;}</style></head><body>' + weekHtml + '</body></html>');
+      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escHtml(pt('today.shell.printMyDaysDocTitle')) + '</title><style>@page{size:A4 landscape;margin:8mm;}body{margin:0;font-family:Arial,sans-serif;}</style></head><body>' + weekHtml + '</body></html>');
       printWin.document.close();
       printWin.focus();
       setTimeout(() => printWin.print(), 800);
@@ -1354,7 +1359,7 @@
           body: JSON.stringify({ score: ratingScore, comment: comment || null }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Fel');
+        if (!res.ok) throw new Error(data.error || pt('today.errors.undo'));
 
         // Update cached rating
         if (!itemRatings[ratingItemId]) itemRatings[ratingItemId] = {};
@@ -1370,9 +1375,9 @@
           card.outerHTML = renderActivityCard(item);
         }
 
-        showToast('⭐ Betyg sparat!');
+        showToast(pt('today.rating.saved'));
       } catch (err) {
-        showToast(err.message || 'Kunde inte spara betyg', 'error');
+        showToast(err.message || pt('today.errors.saveRating'), 'error');
       }
     }
   

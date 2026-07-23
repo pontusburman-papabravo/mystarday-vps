@@ -106,6 +106,10 @@
     "rewardGapOne": "🎁 Only 1 star until next reward",
     "rewardGapMany": "🎁 Only {{count}} stars until next reward"
   },
+  "offline": {
+    "banner": "Offline — your changes are saved",
+    "lastUpdated": "· Last updated {{time}}"
+  },
   "hubs": {
     "dailyLogTitle": "Daily log",
     "dailyLogSub": "Follow your children's day — log stars afterwards"

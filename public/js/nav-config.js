@@ -5,12 +5,13 @@
 (function () {
   'use strict';
 
-  /** Primärnav: not feature-gated (for_dig is basic_app — always visible). */
+  /** Primary nav: not feature-gated (for_dig is basic_app — always visible). */
   const PRIMARY_NAV = [
     {
       id: 'home',
       href: '/dashboard',
       label: 'Hem',
+      labelKey: 'nav.primary.home',
       icon: 'hem',
       paths: ['/dashboard', '/daily-log'],
     },
@@ -18,6 +19,7 @@
       id: 'planning',
       href: '/planning',
       label: 'Planering',
+      labelKey: 'nav.primary.planning',
       icon: 'schema',
       paths: [
         '/planning',
@@ -33,6 +35,7 @@
       id: 'rewards',
       href: '/rewards',
       label: 'Belöningar',
+      labelKey: 'nav.primary.rewards',
       icon: 'beloningar',
       paths: ['/rewards', '/skattkammaren-parent'],
     },
@@ -40,6 +43,7 @@
       id: 'for_you',
       href: '/for-dig',
       label: 'För dig',
+      labelKey: 'nav.primary.forYou',
       icon: 'for-dig',
       paths: ['/for-dig'],
     },
@@ -47,6 +51,7 @@
       id: 'family',
       href: '/family',
       label: 'Familj',
+      labelKey: 'nav.primary.family',
       icon: 'familj',
       paths: ['/family', '/family/child'],
     },
@@ -56,6 +61,7 @@
     id: 'settings',
     href: '/settings',
     label: 'Inställningar',
+    labelKey: 'nav.settings',
     icon: 'installningar',
     paths: ['/settings', '/upgrade', '/payment-success', '/child-settings'],
   };
@@ -203,11 +209,21 @@
     return false;
   }
 
+  function resolveLabel(item) {
+    if (!item) return '';
+    if (item.labelKey && typeof window.pt === 'function') {
+      const translated = window.pt(item.labelKey);
+      if (translated && translated !== item.labelKey) return translated;
+    }
+    return item.label || '';
+  }
+
   function primaryNavForTabs() {
     return PRIMARY_NAV.map(function (item) {
       return {
         href: item.href,
-        label: item.label,
+        label: resolveLabel(item),
+        labelKey: item.labelKey,
         icon: item.icon,
         paths: item.paths,
         id: item.id,
@@ -225,6 +241,7 @@
     normalizePath: normalizePath,
     isLibraryPath: isLibraryPath,
     isParentShellPath: isParentShellPath,
+    resolveLabel: resolveLabel,
     primaryNavForTabs: primaryNavForTabs,
     hasFeatureAccess: hasFeatureAccess,
     visibleAtPlacement: visibleAtPlacement,

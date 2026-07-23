@@ -106,6 +106,10 @@
     "rewardGapOne": "🎁 Bara 1 stjärna kvar till nästa belöning",
     "rewardGapMany": "🎁 Bara {{count}} stjärnor kvar till nästa belöning"
   },
+  "offline": {
+    "banner": "Offline — dina ändringar sparas",
+    "lastUpdated": "· Senast uppdaterat {{time}}"
+  },
   "hubs": {
     "dailyLogTitle": "Daglig logg",
     "dailyLogSub": "Följ barnens dag — fyll i stjärnor i efterhand"

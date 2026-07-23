@@ -42,6 +42,9 @@
     "yearPlaceholder": "År",
     "monthPlaceholder": "Månad",
     "dayPlaceholder": "Dag",
+    "birthYearAria": "Födelseår",
+    "birthMonthAria": "Födelsemånad",
+    "birthDayAria": "Födelsedag",
     "months": [
       "Januari", "Februari", "Mars", "April", "Maj", "Juni",
       "Juli", "Augusti", "September", "Oktober", "November", "December"
