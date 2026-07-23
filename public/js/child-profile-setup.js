@@ -104,6 +104,47 @@
     return '<span class="text-5xl" id="profileSetupEmoji">' + esc(child.emoji || '⭐') + '</span>';
   }
 
+  const PROFILE_EMOJIS = ['👧', '👦', '🧒', '👶', '🌟', '🦄', '🐱', '🐶', '🐻', '🦊', '🌈', '🎀'];
+
+  function profileIdentityHtml(child) {
+    const currentEmoji = child.emoji || '⭐';
+    const emojiBtns = PROFILE_EMOJIS.map(function (em) {
+      const selected = em === currentEmoji;
+      return '<button type="button" class="profile-setup-emoji-opt text-2xl p-2 rounded-lg border-2 min-h-[44px] min-w-[44px] transition-colors ' +
+        (selected ? 'border-gold bg-gold-light' : 'border-transparent hover:border-gold') +
+        '" data-emoji="' + em + '" aria-label="Välj emoji ' + em + '" aria-pressed="' + (selected ? 'true' : 'false') + '">' + em + '</button>';
+    }).join('');
+    return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+      '<p class="font-semibold text-navy mb-1">Namn &amp; emoji</p>' +
+      '<p class="text-xs text-text-soft mb-3">Så här visas barnet i familjen och vid inloggning.</p>' +
+      '<form id="profileSetupIdentityForm" class="space-y-4">' +
+      '<div>' +
+      '<label for="profileSetupName" class="block text-sm font-medium text-text-soft mb-1">Barnets namn</label>' +
+      '<input id="profileSetupName" type="text" required maxlength="100" autocomplete="off" ' +
+      'value="' + esc(child.name || '') + '" ' +
+      'class="w-full px-4 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" ' +
+      'placeholder="T.ex. Emma" />' +
+      '</div>' +
+      '<div>' +
+      '<p class="block text-sm font-medium text-text-soft mb-1" id="profileSetupEmojiLabel">Emoji</p>' +
+      '<div class="flex flex-wrap gap-2" role="group" aria-labelledby="profileSetupEmojiLabel">' + emojiBtns + '</div>' +
+      '<input type="hidden" id="profileSetupEmoji" value="' + esc(currentEmoji) + '" />' +
+      '</div>' +
+      '<button type="submit" id="profileSetupIdentitySave" ' +
+      'class="w-full py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold text-sm min-h-[44px] transition-colors">' +
+      'Spara namn</button>' +
+      '</form></div>';
+  }
+
+  function updateProfileHeader(child) {
+    const mount = document.getElementById('childProfileMount');
+    if (!mount || !child) return;
+    const title = mount.querySelector('h1');
+    if (title) title.textContent = child.name || '';
+    const emojiEl = mount.querySelector('.flex.items-center.gap-3.mb-4 > .text-4xl');
+    if (emojiEl) emojiEl.textContent = child.emoji || '⭐';
+  }
+
   function setupHtml(child, viewConfig) {
     const vm = viewConfig || {};
     const avatar = avatarPreviewHtml(child);
@@ -228,13 +269,72 @@
     }
   }
 
+  function wireIdentityForm(child) {
+    const form = document.getElementById('profileSetupIdentityForm');
+    const nameInput = document.getElementById('profileSetupName');
+    const emojiInput = document.getElementById('profileSetupEmoji');
+    const saveBtn = document.getElementById('profileSetupIdentitySave');
+    if (!form || !nameInput || !emojiInput) return;
+
+    document.querySelectorAll('.profile-setup-emoji-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const emoji = btn.getAttribute('data-emoji') || '⭐';
+        emojiInput.value = emoji;
+        document.querySelectorAll('.profile-setup-emoji-opt').forEach(function (b) {
+          const on = b.getAttribute('data-emoji') === emoji;
+          b.classList.toggle('border-gold', on);
+          b.classList.toggle('bg-gold-light', on);
+          b.classList.toggle('border-transparent', !on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      });
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      if (!name) {
+        showToast('Namn krävs', true);
+        nameInput.focus();
+        return;
+      }
+      const emoji = (emojiInput.value || '').trim() || child.emoji || '⭐';
+      if (saveBtn) saveBtn.disabled = true;
+      try {
+        const res = await window.apiFetch('/api/children/' + encodeURIComponent(child.id), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, emoji: emoji }),
+        });
+        if (!res.ok) {
+          showToast(await formatApiError(res, 'Kunde inte spara namn'), true);
+          return;
+        }
+        const updated = await res.json();
+        child.name = updated.name || name;
+        child.emoji = updated.emoji || emoji;
+        updateProfileHeader(child);
+        if (child.username && typeof Auth !== 'undefined' && Auth.persistKnownChildrenFromSession) {
+          Auth.persistKnownChildrenFromSession([child], Auth.getFamilyId && Auth.getFamilyId());
+        }
+        showToast('Namn sparat');
+      } catch (err) {
+        showToast((err && err.message) || 'Kunde inte spara namn', true);
+      } finally {
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    });
+  }
+
   async function wireSetup(child, viewConfig, pinSetupHtml, onPinWire) {
     if (_wiring) return;
     _wiring = true;
     const mount = document.getElementById('childProfileSetupBody');
     if (!mount) { _wiring = false; return; }
-    mount.innerHTML = pinSetupHtml + setupHtml(child, viewConfig);
+    // Name/emoji first — parents look here to rename a child (was lost when drawer → barnprofil).
+    mount.innerHTML = profileIdentityHtml(child) + (pinSetupHtml || '') + setupHtml(child, viewConfig);
     if (onPinWire) onPinWire();
+    wireIdentityForm(child);
 
     const rewardsMount = document.getElementById('profileSetupRewards');
     if (rewardsMount) loadRewardsList(child.id, rewardsMount);

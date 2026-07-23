@@ -75,6 +75,16 @@ describe('Familj hub 10/10', () => {
     assert.doesNotMatch(src, /\/child-settings\?child=/);
   });
 
+  it('child-profile-setup lets parent rename child (name + emoji)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
+    assert.match(src, /profileSetupIdentityForm/);
+    assert.match(src, /profileSetupName/);
+    assert.match(src, /Barnets namn/);
+    assert.match(src, /Spara namn/);
+    assert.match(src, /wireIdentityForm/);
+    assert.match(src, /method:\s*'PUT'/);
+  });
+
   it('child-settings redirects to barnprofil setup tab', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(routes, /\/child-settings[\s\S]*\/family\/child\/\$\{encodeURIComponent\(childId\)\}\?tab=setup/);
