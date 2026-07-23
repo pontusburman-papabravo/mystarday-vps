@@ -96,6 +96,17 @@ function patchBuildGradle() {
 function main() {
   fs.mkdirSync(path.dirname(OUT_AAB), { recursive: true });
 
+  const googleServicesJson = path.join(ROOT, 'android', 'app', 'google-services.json');
+  if (!fs.existsSync(googleServicesJson)) {
+    console.error(
+      '\n❌ android/app/google-services.json saknas — AAB-bygget avbryts.\n' +
+        '   Firebase Console → Android-app (samma paket som Capacitor appId) → ladda ner google-services.json\n' +
+        '   Kopiera till android/app/google-services.json och kör om.\n' +
+        '   Utan denna fil kraschar push (FirebaseApp not initialized).\n'
+    );
+    process.exit(1);
+  }
+
   run('NODE_ENV=development npm install --include=dev --legacy-peer-deps');
   ensureKeystore();
   writeKeystoreProperties();
