@@ -125,9 +125,10 @@ function checkPrivacyDefaults() {
     } else {
       ok('AppDelegate fail-closed consent gate');
     }
+    // Match method declarations only — Capacitor boilerplate comments mention applicationWillTerminate earlier.
     const becomeActive = delegate.slice(
-      delegate.indexOf('applicationDidBecomeActive'),
-      delegate.indexOf('applicationWillTerminate')
+      delegate.indexOf('func applicationDidBecomeActive'),
+      delegate.indexOf('func applicationWillTerminate')
     );
     if (!becomeActive.includes('isAutoLogAppEventsEnabled')) {
       fail('AppDelegate activateApp not gated by isAutoLogAppEventsEnabled');
