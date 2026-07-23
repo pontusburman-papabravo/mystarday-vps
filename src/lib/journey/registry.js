@@ -18,7 +18,7 @@ function loadJsonFallback(locale = 'sv-SE') {
   }
 }
 
-/** Full en-GB fallback when DB registry empty — mirrors migration 1810000000003. */
+/** Full en-GB fallback when DB registry empty — mirrors config/journey-en-GB-translations.js (migrations 0003+0004). */
 function translateRegistryFallback(svRegistry) {
   const en = JSON.parse(JSON.stringify(svRegistry));
   for (const phase of Object.values(en.phases || {})) {

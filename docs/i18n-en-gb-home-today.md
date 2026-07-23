@@ -47,6 +47,22 @@ Coach chrome (labels, tips fallback) is in `journey.*` fragments. **Journey push
 
 **Not translated:** user-authored activity names, instructions, child names.
 
+## Journey registry runtime sources
+
+| Layer | Role |
+|-------|------|
+| `journey_experience_registry` (DB) | **Authority** for logged-in families when `family_journey_registry_v2` is on |
+| `config/journey-en-GB-translations.js` | Shared copy source for migration `1810000000004` and JSON fallback |
+| `config/journey-experience-registry.json` | `experience_key`, phase, tone, destinations (locale-agnostic structure) |
+| `src/lib/journey/registry.js` `loadJsonFallback()` | Safety net when DB empty — must not replace a missing deploy migration |
+
+**Migrations (immutable history):**
+
+- `1810000000003` (PR #709, deployed) — initial sv-SE normalisation + en-GB seed
+- `1810000000004` (PR #711) — re-upserts all 20 en-GB rows (incl. `coach_expand`) for DBs that ran 0003 before full coverage
+
+Config keys and DB rows must stay aligned — `test/journey-registry-en-gb-migration.test.js` + `test/i18n-home-today.test.js` enforce 20/20.
+
 ## Feature flags
 
 | Flag | Role |
