@@ -1,6 +1,6 @@
 # en-GB onboarding localisation — PR inventory
 
-**Branch:** `cursor/i18n-en-gb-onboarding-clean`  
+**Branch:** `cursor/i18n-en-gb-onboarding-final`  
 **Depends on:** PR #709 i18n foundation (`family.preferred_locale`, `english_app`, client/server i18n)  
 **Scope:** Complete parent onboarding through redirect to Home — **not** Home/dashboard translation.
 
