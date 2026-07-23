@@ -73,6 +73,16 @@ describe('family locale', () => {
     assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
     assert.equal(experiencePackIdForLocale('sv-SE'), 'child_se');
   });
+
+  it('loads child_en experience pack with en-GB locale', () => {
+    const { loadPack, clearPackCache } = require('../src/lib/experience-pack');
+    clearPackCache();
+    const pack = loadPack('child_en');
+    assert.equal(pack.manifest.pack_id, 'child_en');
+    assert.equal(pack.manifest.locale, 'en-GB');
+    assert.ok(pack.copy.experiences.parent_ack_completion);
+    clearPackCache();
+  });
 });
 
 describe('i18n bundles', () => {

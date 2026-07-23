@@ -20,6 +20,8 @@
   "auth": {
     "login": {
       "title": "Log in",
+      "pageTitle": "Log in — My Starday",
+      "tagline": "We shine together",
       "subtitle": "Welcome back to My Starday",
       "email": "Email address",
       "emailPlaceholder": "you@email.com",
@@ -34,20 +36,47 @@
     },
     "register": {
       "title": "Create account",
+      "pageTitle": "Create account | My Starday",
+      "pageHeading": "Create a parent account",
+      "pageLead": "Try My Starday free. A visual schedule with picture support and star rewards that helps your child understand the day, follow routines, and grow more independent.",
+      "pageLeadSecondary": "For families who want clearer routines, calmer transitions, and less nagging in everyday life.",
       "subtitle": "Get started with My Starday",
+      "nameLabel": "Your name",
+      "namePlaceholder": "e.g. Anna",
+      "familyNameLabel": "Family name",
+      "familyNamePlaceholder": "e.g. The Smith family",
+      "familyNameAuto": "Auto-generated from your name",
+      "familyNameGenerated": "Auto-generated — change if you wish",
+      "familyNameEdited": "Edited",
       "email": "Email address",
       "emailPlaceholder": "you@email.com",
+      "emailHelp": "We will send a verification link here",
       "password": "Password",
       "passwordPlaceholder": "At least 8 characters",
+      "passwordHelp": "Must be at least 8 characters long",
       "confirmPassword": "Confirm password",
-      "confirmPasswordPlaceholder": "Enter your password again",
+      "confirmPasswordPlaceholder": "Repeat password",
       "submit": "Create account",
       "hasAccount": "Already have an account?",
-      "loginLink": "Log in",
+      "loginLink": "Log in here",
+      "childLoginLink": "Are you a child? Log in here",
+      "tagline": "A calm day, one star at a time",
+      "orDivider": "or",
+      "validatingInvite": "Validating invite...",
+      "inviteInvalid": "Invalid or expired invite link. Contact the person who invited you.",
+      "inviteValidateFailed": "Could not validate the invite link. Please try again.",
+      "familyNameSuffix": "{{name}}'s family",
+      "termsRequired": "You must accept the terms of use and privacy policy",
       "success": "Account created! Check your email to verify your account."
     },
     "childLogin": {
       "title": "Hello! 👋",
+      "pageTitle": "Child Login — My Starday",
+      "whoAreYou": "Who are you?",
+      "selectProfile": "Pick your profile and enter your PIN.",
+      "back": "Back",
+      "addChild": "Add a child",
+      "notMe": "I cannot find myself",
       "subtitle": "Type your username and PIN",
       "username": "Username",
       "usernamePlaceholder": "Your username",
@@ -55,10 +84,14 @@
       "pinPlaceholder": "4 digits",
       "submit": "Log in",
       "parentLogin": "Are you a parent?",
-      "parentLoginLink": "Log in here"
+      "parentLoginLink": "Log in here",
+      "forgotPassword": "Forgotten password?"
     },
     "verify": {
       "title": "Verify your email",
+      "pageTitle": "Verify email — My Starday",
+      "checkingTitle": "Verifying email",
+      "checkingBody": "Please wait while we confirm your email address...",
       "checking": "Checking...",
       "success": "Your email has been verified! You can now log in.",
       "error": "The verification link is invalid or has expired.",
@@ -66,6 +99,9 @@
     },
     "forgotPassword": {
       "title": "Forgotten password",
+      "pageTitle": "Forgotten password — My Starday",
+      "heading": "Forgotten password?",
+      "lead": "No problem! We will send you a link to reset your password.",
       "subtitle": "Enter your email address and we'll send you a reset link",
       "email": "Email address",
       "emailPlaceholder": "you@email.com",
@@ -75,7 +111,8 @@
     },
     "resetPassword": {
       "title": "Reset password",
-      "subtitle": "Choose a new password",
+      "pageTitle": "Reset password — My Starday",
+      "subtitle": "Reset your password",
       "password": "New password",
       "passwordPlaceholder": "At least 8 characters",
       "confirmPassword": "Confirm password",
@@ -86,6 +123,7 @@
       "loginLink": "Go to log in"
     },
     "errors": {
+      "nameRequired": "Please enter your name",
       "emailRequired": "Email address is required",
       "emailInvalid": "Invalid email address",
       "passwordRequired": "Password is required",
@@ -144,6 +182,9 @@
       "streakStartDay": "Streak start day",
       "soundEnabled": "Sound on",
       "save": "Save family settings"
+    },
+    "language": {
+      "description": "Choose the app language. English requires the feature to be enabled for your family."
     },
     "invite": {
       "title": "Invite a parent",

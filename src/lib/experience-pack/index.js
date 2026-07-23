@@ -7,6 +7,7 @@ function getPacksRoot() {
   return process.env.EXPERIENCE_PACKS_ROOT
     || path.join(__dirname, '../../../config/experience-packs');
 }
+const db = require('../db');
 const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
 
 const DEFAULT_PACK_ID = 'child_se';
@@ -94,6 +95,31 @@ function resolvePackForFamily(familyLocale) {
   return loadPack(packId);
 }
 
+/**
+ * Resolve experience pack id from child row (family.preferred_locale).
+ * @param {string|null|undefined} childId
+ * @param {import('pg').PoolClient|{query: Function}|null} [client]
+ * @returns {Promise<string>}
+ */
+async function resolvePackIdForChild(childId, client) {
+  if (!childId) return DEFAULT_PACK_ID;
+  const q = client && typeof client.query === 'function' ? client : db;
+  try {
+    const result = await q.query(
+      `SELECT f.preferred_locale
+       FROM child c
+       JOIN family f ON f.id = c.family_id
+       WHERE c.id = $1`,
+      [childId]
+    );
+    const familyLocale = result.rows[0]?.preferred_locale;
+    return experiencePackIdForLocale(resolveFamilyLocale(familyLocale));
+  } catch (err) {
+    console.warn('[experience-pack] resolvePackIdForChild failed, defaulting sv:', err.message);
+    return DEFAULT_PACK_ID;
+  }
+}
+
 function getAllProgressionNodes(pack) {
   const nodes = [];
   for (const world of pack.progression.worlds || []) {
@@ -170,6 +196,7 @@ module.exports = {
   clearPackCache,
   resolvePackForChild,
   resolvePackForFamily,
+  resolvePackIdForChild,
   experiencePackIdForLocale,
   getAllProgressionNodes,
   getRewardBySignal,

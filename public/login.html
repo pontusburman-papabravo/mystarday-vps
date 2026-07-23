@@ -24,6 +24,8 @@
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.20.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/locale-switcher.js?v=1"></script>
+  <script src="/js/auth-entry-i18n.js?v=1"></script>
   <script src="/js/app-entry-analytics.js?v=284"></script>
   <script src="/js/app-entry.js?v=285"></script>
   <script src="/js/login-magic.js?v=156"></script>
@@ -50,7 +52,7 @@
 </head>
 
 <!-- ── "Magisk natt" background ─────────────────────────────────────────────── -->
-<body class="login-magic-bg safe-area-top safe-area-bottom safe-area-left safe-area-right" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+<body class="login-magic-bg safe-area-top safe-area-bottom safe-area-left safe-area-right" style="font-family: 'Plus Jakarta Sans', sans-serif;" data-i18n-title="auth.login.pageTitle">
 
   <!-- Stars -->
   <div id="stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
@@ -71,7 +73,7 @@
         >
         <div>
           <h1>Min Stjärndag</h1><!-- pragma: allowlist secret -->
-          <p>Tillsammans lyser vi</p>
+          <p data-i18n="auth.login.tagline">Tillsammans lyser vi</p>
         </div>
       </div>
 
@@ -326,10 +328,12 @@
           <div class="magic-divider" style="margin:18px 0;"><span>eller</span></div>
         </div>
 
+        <div class="mt-4 flex justify-center" data-locale-switcher-mount></div>
+
         <!-- Email/password form — always shown unless Apple-only on iOS -->
         <form id="loginForm" class="magic-form-fields" style="width:100%;" novalidate>
           <div>
-            <label for="email">E-postadress</label>
+            <label for="email" data-i18n="auth.login.email">E-postadress</label>
             <input
               type="email"
               id="email"
@@ -338,10 +342,11 @@
               required
               autocomplete="email"
               class="magic-input"
+              data-i18n-placeholder="auth.login.emailPlaceholder"
             />
           </div>
           <div>
-            <label for="password">Lösenord</label>
+            <label for="password" data-i18n="auth.login.password">Lösenord</label>
             <input
               type="password"
               id="password"
@@ -350,32 +355,33 @@
               required
               autocomplete="current-password"
               class="magic-input"
+              data-i18n-placeholder="auth.login.passwordPlaceholder"
             />
           </div>
 
           <!-- Error -->
           <div id="loginError" class="magic-error-box" style="display:none;"></div>
 
-          <button type="submit" id="submitBtn" class="magic-submit-btn touch-btn">
+          <button type="submit" id="submitBtn" class="magic-submit-btn touch-btn" data-i18n="auth.login.submit">
             Logga in
           </button>
         </form>
 
         <!-- Links below form -->
         <div class="magic-footer-link" style="width:100%;margin-top:0;">
-          <a href="/forgot-password" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.8rem;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:1px;">
+          <a href="/forgot-password" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.8rem;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:1px;" data-i18n="auth.login.forgotPassword">
             Glömt lösenordet?
           </a>
         </div>
 
         <!-- Registration link -->
         <div id="registerLinkSection" class="magic-footer-link" style="display:none;margin-top:4px;">
-          Har du inget konto?
-          <a href="/register" id="entryLoginSignupLink">Skapa konto</a>
+          <span data-i18n="auth.login.noAccount">Har du inget konto?</span>
+          <a href="/register" id="entryLoginSignupLink" data-i18n="auth.login.createAccount">Skapa konto</a>
         </div>
 
         <div class="magic-footer-link" style="width:100%;margin-top:12px;">
-          <a href="/child-login" id="childLoginFooterLink" class="touch-btn" style="display:inline-block;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.9rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:2px;">
+          <a href="/child-login" id="childLoginFooterLink" class="touch-btn" style="display:inline-block;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.9rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:2px;" data-i18n="auth.login.childLoginLink">
             Är du barn? Logga in här
           </a>
         </div>

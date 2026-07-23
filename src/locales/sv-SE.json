@@ -20,6 +20,8 @@
   "auth": {
     "login": {
       "title": "Logga in",
+      "pageTitle": "Inloggning — Stjärndag",
+      "tagline": "Tillsammans lyser vi",
       "subtitle": "Välkommen tillbaka till Stjärndag",
       "email": "E-postadress",
       "emailPlaceholder": "din@epost.se",
@@ -34,20 +36,47 @@
     },
     "register": {
       "title": "Skapa konto",
+      "pageTitle": "Skapa konto | Stjärndag",
+      "pageHeading": "Skapa ett föräldrakonto",
+      "pageLead": "Testa Stjärndag gratis. Ett visuellt schema med bildstöd och stjärnbelöningar som hjälper ditt barn att förstå dagen, följa rutiner och bli mer självständigt i vardagen.",
+      "pageLeadSecondary": "För familjer som vill ha tydligare rutiner, lugnare övergångar och mindre tjat i vardagen.",
       "subtitle": "Kom igång med Stjärndag",
+      "nameLabel": "Ditt namn",
+      "namePlaceholder": "T.ex. Anna",
+      "familyNameLabel": "Familjenamn",
+      "familyNamePlaceholder": "T.ex. Familjen Svensson",
+      "familyNameAuto": "Auto-genereras från ditt namn",
+      "familyNameGenerated": "Auto-genererat — ändra om du vill",
+      "familyNameEdited": "Redigerat",
       "email": "E-postadress",
       "emailPlaceholder": "din@epost.se",
+      "emailHelp": "Vi skickar en verifieringslänk hit",
       "password": "Lösenord",
       "passwordPlaceholder": "Minst 8 tecken",
+      "passwordHelp": "Måste vara minst 8 tecken långt",
       "confirmPassword": "Bekräfta lösenord",
-      "confirmPasswordPlaceholder": "Skriv lösenordet igen",
+      "confirmPasswordPlaceholder": "Upprepa lösenord",
       "submit": "Skapa konto",
       "hasAccount": "Har du redan ett konto?",
-      "loginLink": "Logga in",
+      "loginLink": "Logga in här",
+      "childLoginLink": "Är du barn? Logga in här",
+      "tagline": "En lugn dag, en stjärna i taget",
+      "orDivider": "eller",
+      "validatingInvite": "Validerar inbjudan...",
+      "inviteInvalid": "Ogiltig eller utgången inbjudningslänk. Kontakta den som bjöd in dig.",
+      "inviteValidateFailed": "Kunde inte validera inbjudningslänken. Försök igen.",
+      "familyNameSuffix": "{{name}}s familj",
+      "termsRequired": "Du måste godkänna användarvillkoren och integritetspolicyn",
       "success": "Konto skapat! Kontrollera din e-post för att verifiera ditt konto."
     },
     "childLogin": {
       "title": "Hej! 👋",
+      "pageTitle": "Barninloggning — Stjärndag",
+      "whoAreYou": "Vem är du?",
+      "selectProfile": "Välj din profil och skriv din PIN-kod.",
+      "back": "Tillbaka",
+      "addChild": "Lägg till ett barn",
+      "notMe": "Jag hittar inte mig själv",
       "subtitle": "Skriv ditt användarnamn och din PIN",
       "username": "Användarnamn",
       "usernamePlaceholder": "Ditt användarnamn",
@@ -55,10 +84,14 @@
       "pinPlaceholder": "4 siffror",
       "submit": "Logga in",
       "parentLogin": "Är du förälder?",
-      "parentLoginLink": "Logga in här"
+      "parentLoginLink": "Logga in här",
+      "forgotPassword": "Glömt lösenord?"
     },
     "verify": {
       "title": "Verifiera din e-post",
+      "pageTitle": "Verifiera e-post — Stjärndag",
+      "checkingTitle": "Verifierar e-post",
+      "checkingBody": "Vänta medan vi bekräftar din e-postadress...",
       "checking": "Kontrollerar...",
       "success": "Din e-post har verifierats! Du kan nu logga in.",
       "error": "Verifieringslänken är ogiltig eller har gått ut.",
@@ -66,6 +99,9 @@
     },
     "forgotPassword": {
       "title": "Glömt lösenord",
+      "pageTitle": "Glömt lösenord — Stjärndag",
+      "heading": "Glömt lösenord?",
+      "lead": "Inga problem! Vi skickar en länk för att återställa ditt lösenord.",
       "subtitle": "Ange din e-postadress så skickar vi en återställningslänk",
       "email": "E-postadress",
       "emailPlaceholder": "din@epost.se",
@@ -75,7 +111,8 @@
     },
     "resetPassword": {
       "title": "Återställ lösenord",
-      "subtitle": "Välj ett nytt lösenord",
+      "pageTitle": "Återställ lösenord — Stjärndag",
+      "subtitle": "Återställ ditt lösenord",
       "password": "Nytt lösenord",
       "passwordPlaceholder": "Minst 8 tecken",
       "confirmPassword": "Bekräfta lösenord",
@@ -86,7 +123,8 @@
       "loginLink": "Gå till inloggning"
     },
     "errors": {
-      "emailRequired": "E-postadress krävs",
+      "nameRequired": "Vänligen ange ditt namn",
+      "emailRequired": "Vänligen ange din e-postadress",
       "emailInvalid": "Ogiltig e-postadress",
       "passwordRequired": "Lösenord krävs",
       "passwordTooShort": "Lösenordet måste vara minst 8 tecken",
@@ -144,6 +182,9 @@
       "streakStartDay": "Streak-startdag",
       "soundEnabled": "Ljud på",
       "save": "Spara familjeinställningar"
+    },
+    "language": {
+      "description": "Välj språk för appen. Engelska kräver att funktionen är aktiverad för er familj."
     },
     "invite": {
       "title": "Bjud in förälder",
