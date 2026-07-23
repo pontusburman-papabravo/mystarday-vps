@@ -409,6 +409,42 @@ body.parent-magic-view:not(.parent-theme-light) .day-col .day-star-progress.is-c
   color: #16a34a !important;
 }
 
+/* Dashboard child cards keep a white surface in dark magic — force readable dark text.
+   Android platform-native.css can force #childCardsGrid visible; global .text-navy /
+   .text-text-soft overrides would make name/stats nearly invisible on white cards. */
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card {
+  background: #ffffff !important;
+  border-color: #ede7f6 !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card h4,
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card h4 a {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .dash-stat-secondary {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .dash-stat-primary {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .dash-status-row {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .dash-status-row strong {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .dash-child-card .dash-expand-chevron {
+  color: #9ca3af !important;
+}
+
 body.parent-magic-view:not(.parent-theme-light) .day-col .text-navy,
 body.parent-magic-view:not(.parent-theme-light) .day-col .font-heading,
 body.parent-magic-view:not(.parent-theme-light) .day-col .font-semibold,

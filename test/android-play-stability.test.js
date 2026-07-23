@@ -329,6 +329,18 @@ describe('Android Play stability guards', () => {
     assert.match(css, /body\.parent-magic-dashboard/);
   });
 
+  it('Android childCardsGrid override is scoped to non-magic dashboard', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/platform-native.css'), 'utf8');
+    assert.match(css, /body:not\(\.parent-magic-dashboard\)\s+#childCardsGrid/);
+    assert.doesNotMatch(css, /html\.is-native-android\s+#childCardsGrid\s*\{[^}]*display:\s*flex/);
+  });
+
+  it('dash-child-card contrast fix exists for magic dark on white cards', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.match(css, /\.dash-child-card/);
+    assert.match(css, /dash-child-card[\s\S]*\.text-navy/);
+  });
+
   it('patch-android-version.mjs is idempotent when build.gradle already matches', () => {
     const src = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-version.mjs'), 'utf8');
     assert.match(src, /already at versionCode/);
