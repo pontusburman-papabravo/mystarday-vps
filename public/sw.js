@@ -218,8 +218,8 @@
 
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
-// stjarndag-v663: en-GB Home, Journey coach chrome, Today/daily log
-const CACHE_NAME = 'stjarndag-v663';
+// stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
+const CACHE_NAME = 'stjarndag-v664';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav

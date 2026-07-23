@@ -42,6 +42,8 @@
     if (!isOverviewVisible()) return false;
     if (window.AppViewMode && !AppViewMode.isAllowed()) return false;
     if (window.AppViewMode && !AppViewMode.isMagic()) return false;
+    // P-i18n-Home-B: en-GB + english_app ON always uses localized magic hub.
+    if (window.ParentHomeLocaleGate && ParentHomeLocaleGate.forceMagicHub()) return true;
     if (window._stjarndagFeatures && window._stjarndagFeatures.parent_home_magic === false) return false;
     return true;
   }

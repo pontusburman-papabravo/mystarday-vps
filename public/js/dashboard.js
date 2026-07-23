@@ -135,8 +135,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   logDashboardStability('dashboard_auth_ok', { type: user.type });
+  if (window.ParentHomeLocaleGate) {
+    ParentHomeLocaleGate.setContext({ preferredLocale: user?.preferred_locale });
+  }
   if (typeof window.initParentAppI18n === 'function') {
     await initParentAppI18n(user?.preferred_locale);
+  }
+  if (window.ParentHomeLocaleGate) {
+    ParentHomeLocaleGate.syncFromGlobals();
   }
   if (window.ParentMagicPageHub && typeof ParentMagicPageHub.applyHubCopy === 'function') {
     ParentMagicPageHub.applyHubCopy();
@@ -187,6 +193,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const resp = await fetch('/api/features', { credentials: 'include' });
       if (!resp.ok) return;
       const features = await resp.json();
+      const accessible = {};
+      for (let i = 0; i < features.length; i++) {
+        accessible[features[i].slug] = true;
+      }
+      window._stjarndagFeatures = accessible;
+      if (window.ParentHomeLocaleGate) {
+        ParentHomeLocaleGate.setContext({ englishAppEnabled: accessible.english_app === true });
+        if (window.DashboardHomeHub && typeof DashboardHomeHub.render === 'function' && dashboardStats) {
+          DashboardHomeHub.render(dashboardStats);
+        }
+      }
       const slugs = features.map(f => f.slug);
       if (!slugs.includes('klinisk_rapportering')) {
         const rapporterLink = document.querySelector('a[href="/reports"].sidebar-nav');

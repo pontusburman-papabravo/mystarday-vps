@@ -170,7 +170,7 @@ describe('Journey Home experience en-GB coverage', () => {
     const all = listHomeExperiences();
     const missing = all.filter(({ experienceKey }) => !EN_TRANSLATIONS[experienceKey]);
     assert.equal(missing.length, 0, missing.map((x) => x.experienceKey).join(', '));
-    assert.ok(all.length >= 18, `expected Home-relevant experiences, got ${all.length}`);
+    assert.ok(all.length === 20, `expected 20 registry experiences, got ${all.length}`);
   });
 
   it('en-GB translations have non-empty headline and cta', () => {
@@ -201,9 +201,48 @@ describe('Journey Home experience en-GB coverage', () => {
   });
 });
 
+function loadParentHomeLocaleGate(mockWindow) {
+  const code = fs.readFileSync(path.join(__dirname, '../public/js/parent-home-locale-gate.js'), 'utf8');
+  const sandbox = {
+    window: mockWindow,
+    document: { addEventListener: () => {} },
+  };
+  vm.runInNewContext(code, sandbox);
+  return mockWindow.ParentHomeLocaleGate;
+}
+
+function evaluateShouldUse(mockWindow, domState) {
+  const editor = { classList: { contains: (c) => c === 'hidden' ? !domState.editorVisible : false } };
+  const list = { classList: { contains: (c) => c === 'hidden' ? domState.listHidden === true : false } };
+  const isOverviewVisible = () => {
+    if (editor && !editor.classList.contains('hidden')) return false;
+    if (list && list.classList.contains('hidden')) return false;
+    return true;
+  };
+  if (!isOverviewVisible()) return false;
+  if (mockWindow.AppViewMode && !mockWindow.AppViewMode.isAllowed()) return false;
+  if (mockWindow.AppViewMode && !mockWindow.AppViewMode.isMagic()) return false;
+  if (mockWindow.ParentHomeLocaleGate && mockWindow.ParentHomeLocaleGate.forceMagicHub()) return true;
+  if (mockWindow._stjarndagFeatures && mockWindow._stjarndagFeatures.parent_home_magic === false) return false;
+  return true;
+}
+
+function createAnalyticsRecorder() {
+  const events = [];
+  return {
+    events,
+    analytics: {
+      track: (...args) => {
+        events.push(args);
+      },
+    },
+  };
+}
+
 describe('dashboard variant gating for English parents', () => {
   const appView = fs.readFileSync(path.join(__dirname, '../public/js/app-view-mode.js'), 'utf8');
   const hub = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-home-hub.js'), 'utf8');
+  const gate = fs.readFileSync(path.join(__dirname, '../public/js/parent-home-locale-gate.js'), 'utf8');
   const magicCss = fs.readFileSync(path.join(__dirname, '../public/css/parent-magic-common.css'), 'utf8');
 
   it('parents are forced to magic view (no classic toggle)', () => {
@@ -222,9 +261,60 @@ describe('dashboard variant gating for English parents', () => {
     assert.doesNotMatch(hub, /I efterhand/);
   });
 
-  it('shouldUse gates hub on parent_home_magic feature only (not locale)', () => {
-    assert.match(hub, /parent_home_magic === false/);
-    assert.doesNotMatch(hub, /preferred_locale|english_app/);
+  it('documents P-i18n-Home-B in locale gate module', () => {
+    assert.match(gate, /P-i18n-Home-B/);
+    assert.match(gate, /forceMagicHub/);
+    assert.match(hub, /ParentHomeLocaleGate\.forceMagicHub/);
+  });
+
+  const matrix = [
+    { label: 'sv-SE default family', locale: 'sv-SE', englishApp: true, parentHomeMagic: true, overview: true, expect: true },
+    { label: 'sv-SE parent_home_magic OFF', locale: 'sv-SE', englishApp: true, parentHomeMagic: false, overview: true, expect: false },
+    { label: 'en-GB english_app OFF', locale: 'en-GB', englishApp: false, parentHomeMagic: false, overview: true, expect: false },
+    { label: 'en-GB english_app ON (rule B)', locale: 'en-GB', englishApp: true, parentHomeMagic: false, overview: true, expect: true },
+    { label: 'en-GB english_app ON + magic flag ON', locale: 'en-GB', englishApp: true, parentHomeMagic: true, overview: true, expect: true },
+    { label: 'schedule editor open', locale: 'en-GB', englishApp: true, parentHomeMagic: true, overview: false, expect: false },
+    { label: 'Android flat en-GB', locale: 'en-GB', englishApp: true, parentHomeMagic: false, overview: true, expect: true },
+  ];
+
+  for (const row of matrix) {
+    it(`shouldUse matrix: ${row.label} → ${row.expect}`, () => {
+      const mockWindow = {
+        I18n: { getCurrentLang: () => row.locale },
+        _stjarndagFeatures: {
+          parent_home_magic: row.parentHomeMagic,
+          english_app: row.englishApp,
+        },
+        AppViewMode: {
+          isAllowed: () => true,
+          isMagic: () => true,
+        },
+        pt: (k) => k,
+      };
+      loadParentHomeLocaleGate(mockWindow);
+      mockWindow.ParentHomeLocaleGate.setContext({
+        preferredLocale: row.locale,
+        englishAppEnabled: row.englishApp,
+      });
+      const result = evaluateShouldUse(mockWindow, {
+        editorVisible: !row.overview,
+        listHidden: false,
+      });
+      assert.equal(result, row.expect, row.label);
+    });
+  }
+
+  it('no supported en-GB + english_app ON config yields classic Swedish hub path', () => {
+    const mockWindow = {
+      I18n: { getCurrentLang: () => 'en-GB' },
+      _stjarndagFeatures: { parent_home_magic: false, english_app: true },
+      AppViewMode: { isAllowed: () => true, isMagic: () => true },
+      pt: (k) => k,
+    };
+    loadParentHomeLocaleGate(mockWindow);
+    mockWindow.ParentHomeLocaleGate.setContext({ preferredLocale: 'en-GB', englishAppEnabled: true });
+    assert.equal(evaluateShouldUse(mockWindow, { editorVisible: false, listHidden: false }), true);
+    assert.equal(mockWindow.ParentHomeLocaleGate.forceMagicHub(), true);
   });
 });
 
@@ -256,7 +346,11 @@ describe('LocaleDateTime timezone semantics', () => {
   function mockWindow(lang) {
     return {
       I18n: { getCurrentLang: () => lang },
-      pt: (key) => ({ 'time.todayPrefix': 'Today', 'time.yesterdayPrefix': 'Yesterday', 'time.tomorrowPrefix': 'Tomorrow' }[key] || key),
+      pt: (key) => ({
+        'time.todayPrefix': lang === 'en-GB' ? 'Today' : 'Idag',
+        'time.yesterdayPrefix': lang === 'en-GB' ? 'Yesterday' : 'Igår',
+        'time.tomorrowPrefix': lang === 'en-GB' ? 'Tomorrow' : 'Imorgon',
+      }[key] || key),
     };
   }
 
@@ -286,6 +380,62 @@ describe('LocaleDateTime timezone semantics', () => {
     assert.equal(labels.length, 7);
     assert.match(labels[0], /Mon/i);
   });
+
+  for (const iso of ['2026-07-23T00:00:00', '2026-07-23T00:01:00', '2026-07-23T23:59:00']) {
+    it(`calendar day stable at ${iso.slice(11)} for en-GB and sv-SE`, () => {
+      const dateStr = iso.slice(0, 10);
+      const LDTen = loadLocaleDateTime(mockWindow('en-GB'));
+      const LDTsv = loadLocaleDateTime(mockWindow('sv-SE'));
+      assert.equal(LDTen.parseLocalNoon(dateStr).getDate(), LDTsv.parseLocalNoon(dateStr).getDate());
+      assert.equal(LDTen.formatDateHeader(dateStr, dateStr).includes('—'), true);
+      assert.equal(LDTsv.formatDateHeader(dateStr, dateStr).includes('—'), true);
+    });
+  }
+
+  it('yesterday and tomorrow boundaries use same activity calendar day', () => {
+    const LDT = loadLocaleDateTime(mockWindow('en-GB'));
+    const today = '2026-07-23';
+    const yesterday = LDT.formatDateHeader('2026-07-22', today);
+    const tomorrow = LDT.formatDateHeader('2026-07-24', today);
+    assert.match(yesterday, /^Yesterday — /);
+    assert.match(tomorrow, /^Tomorrow — /);
+    assert.equal(LDT.parseLocalNoon('2026-07-22').getDate(), 22);
+    assert.equal(LDT.parseLocalNoon('2026-07-24').getDate(), 24);
+  });
+
+  it('DST spring forward (2026-03-29) keeps calendar day in both locales', () => {
+    const iso = '2026-03-29';
+    const LDTen = loadLocaleDateTime(mockWindow('en-GB'));
+    const LDTsv = loadLocaleDateTime(mockWindow('sv-SE'));
+    assert.equal(LDTen.parseLocalNoon(iso).getDate(), 29);
+    assert.equal(LDTsv.parseLocalNoon(iso).getDate(), 29);
+    assert.notEqual(LDTen.formatDateHeader(iso, iso), LDTsv.formatDateHeader(iso, iso));
+  });
+
+  it('DST fall back (2026-10-25) keeps calendar day in both locales', () => {
+    const iso = '2026-10-25';
+    const LDTen = loadLocaleDateTime(mockWindow('en-GB'));
+    const LDTsv = loadLocaleDateTime(mockWindow('sv-SE'));
+    assert.equal(LDTen.parseLocalNoon(iso).getDate(), 25);
+    assert.equal(LDTsv.parseLocalNoon(iso).getDate(), 25);
+  });
+
+  it('formatDateHeader result is deterministic regardless of process TZ', () => {
+    const tzVars = ['TZ', 'LC_ALL'];
+    const saved = {};
+    for (const v of tzVars) saved[v] = process.env[v];
+    const results = [];
+    for (const tz of ['UTC', 'Europe/Stockholm', 'America/Los_Angeles']) {
+      process.env.TZ = tz;
+      const LDT = loadLocaleDateTime(mockWindow('en-GB'));
+      results.push(LDT.formatDateHeader('2026-07-23', '2026-07-23'));
+    }
+    for (const v of tzVars) {
+      if (saved[v] === undefined) delete process.env[v];
+      else process.env[v] = saved[v];
+    }
+    assert.equal(new Set(results).size, 1);
+  });
 });
 
 describe('readiness API backward compatibility', () => {
@@ -300,6 +450,42 @@ describe('readiness API backward compatibility', () => {
     assert.match(core, /priority:/);
     assert.match(core, /res\.json\(\{ items \}\)/);
     assert.doesNotMatch(core, /title_sv|title_en/);
+  });
+});
+
+describe('analytics behavior parity (sv-SE vs en-GB)', () => {
+  it('readiness_action_click: same event name and shape for sv-SE and en-GB', () => {
+    const item = { type: 'pending_invite', child_id: 'c1' };
+    const sv = createAnalyticsRecorder();
+    const en = createAnalyticsRecorder();
+    sv.analytics.track(null, 'readiness_action_click', { type: item.type, child_id: item.child_id });
+    en.analytics.track(null, 'readiness_action_click', { type: item.type, child_id: item.child_id });
+    assert.deepEqual(en.events, sv.events);
+    assert.equal(sv.events[0][1], 'readiness_action_click');
+  });
+
+  it('journey_coach_cta_click: same event name and shape for sv-SE and en-GB', () => {
+    const sv = createAnalyticsRecorder();
+    const en = createAnalyticsRecorder();
+    sv.analytics.track(null, 'journey_coach_cta_click', { experience: 'handoff_to_child' });
+    en.analytics.track(null, 'journey_coach_cta_click', { experience: 'handoff_to_child' });
+    assert.deepEqual(en.events, sv.events);
+    assert.equal(sv.events[0][1], 'journey_coach_cta_click');
+  });
+
+  it('daily-log analytics: fixed event set does not branch on locale', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    const names = [...dailyLog.matchAll(/\.track\(\s*['"]([^'"]+)['"]/g)].map((m) => m[1]);
+    assert.deepEqual([...new Set(names)].sort(), ['custody_view_filtered', 'print_schema_exported']);
+    const trackBlocks = dailyLog.match(/analytics\.track\([^)]+\)[^;]*/g) || [];
+    for (const block of trackBlocks) {
+      assert.doesNotMatch(block, /getCurrentLang|preferred_locale|english_app/);
+    }
+  });
+
+  it('Home hub render path does not emit analytics on locale init', () => {
+    const hub = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-home-hub.js'), 'utf8');
+    assert.doesNotMatch(hub, /analytics\.track/);
   });
 });
 

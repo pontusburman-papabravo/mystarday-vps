@@ -74,12 +74,24 @@ Coach chrome (labels, tips fallback) is in `journey.*` fragments. **Journey push
 | Variant | How reached | Visible for en-GB parent | Swedish system copy risk | Mitigation |
 |---------|-------------|--------------------------|--------------------------|------------|
 | **Magic hub** (default) | `AppViewMode` forces `magic` for parents; `DashboardHomeHub.shouldUse()` true on overview | Yes — primary Home | **None** — all chrome via `pt()` / `home.*` | Default path after onboarding |
-| **Magic shell, hub hidden** | `shouldUse()` false (schedule editor open, `parent_home_magic` OFF) | Rare — editor/flag only | Classic child cards may show Swedish | `parent_home_magic` is `live` in seed; English path uses magic overview |
+| **Magic shell, hub hidden** | `shouldUse()` false (`parent_home_magic` OFF, legacy flags) | Rare for sv-SE only | Classic child cards show Swedish | `parent_home_magic` is `live` in seed |
+| **en-GB + english_app ON** | `ParentHomeLocaleGate.forceMagicHub()` (rule P-i18n-Home-B) | Yes — always magic hub | **None** — bypasses `parent_home_magic=false` | `parent-home-locale-gate.js` + tests |
 | **Legacy sidebar** | HTML in `dashboard.html` | **No** — `body.parent-magic-view` hides `#sidebar` via CSS | N/A (not visible) | CSS gate in `parent-magic-common.css` |
 | **Android flat** | `is-native-android` — same magic hub, flat CSS (no 3D) | Yes | **None** — same `pt()` strings | `platform-native.css` |
 | **Classic toggle** | Removed — `app-view-mode.js` documents magic-only parents | **Not reachable** | N/A | Code + tests |
 
-**Conclusion:** English families with `english_app` ON see magic hub with localized copy. Legacy sidebar strings exist in HTML but are CSS-hidden for all parents in magic view.
+**Conclusion:** English families with `english_app` ON always see the localized magic hub (rule P-i18n-Home-B). Legacy sidebar strings exist in HTML but are CSS-hidden for all parents in magic view.
+
+### Product rule P-i18n-Home-B (explicit English gating)
+
+When **both** are true:
+
+- `family.preferred_locale = en-GB`
+- `english_app` feature ON for the family
+
+…the dashboard **always** selects the localized magic hub (`DashboardHomeHub.shouldUse()` returns true on overview), even if `parent_home_magic` is OFF or other legacy per-family flags would hide the hub.
+
+**Not affected:** sv-SE families, en-GB with `english_app` OFF, schedule editor drill-down, Android flat CSS mode, analytics events.
 
 ## Audit baseline explanation
 

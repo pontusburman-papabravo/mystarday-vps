@@ -55,6 +55,7 @@ const STRICT_FILES = [
   'public/js/daily-log.js',
   'public/js/journey-coach.js',
   'public/js/home-readiness.js',
+  'public/js/parent-home-locale-gate.js',
   'config/i18n/home-en-GB.json',
   'config/i18n/today-en-GB.json',
   'config/i18n/journey-en-GB.json',
