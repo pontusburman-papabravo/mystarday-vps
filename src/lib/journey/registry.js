@@ -3,6 +3,7 @@
 const path = require('path');
 const fs = require('fs');
 const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
+const EN_TRANSLATIONS = require('../../../config/journey-en-GB-translations');
 
 function loadJsonFallback(locale = 'sv-SE') {
   try {
@@ -17,17 +18,16 @@ function loadJsonFallback(locale = 'sv-SE') {
   }
 }
 
-/** Minimal en-GB fallback when DB registry empty — key experiences only. */
+/** Full en-GB fallback when DB registry empty — mirrors migration 1810000000003. */
 function translateRegistryFallback(svRegistry) {
   const en = JSON.parse(JSON.stringify(svRegistry));
-  const map = {
-    'Låt barnet testa sin rutin': 'Let your child try their routine',
-    'Första stjärnan är klar!': 'First star done!',
-    'God morgon': 'Good morning',
-  };
   for (const phase of Object.values(en.phases || {})) {
-    for (const exp of Object.values(phase)) {
-      if (map[exp.headline]) exp.headline = map[exp.headline];
+    for (const [experienceKey, exp] of Object.entries(phase)) {
+      const tr = EN_TRANSLATIONS[experienceKey];
+      if (!tr) continue;
+      exp.headline = tr[0];
+      exp.body = tr[1] != null ? tr[1] : exp.body;
+      exp.cta = tr[2];
     }
   }
   return en;

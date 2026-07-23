@@ -150,3 +150,174 @@ describe('user-authored activity names unchanged', () => {
     assert.doesNotMatch(dailyLog, /pt\([^)]*item\.name/);
   });
 });
+
+describe('Journey Home experience en-GB coverage', () => {
+  const REGISTRY_SEED = require('../config/journey-experience-registry.json');
+  const EN_TRANSLATIONS = require('../config/journey-en-GB-translations');
+  const { loadRegistry } = require('../src/lib/journey/registry');
+
+  function listHomeExperiences() {
+    const keys = [];
+    for (const [phase, experiences] of Object.entries(REGISTRY_SEED.phases || {})) {
+      for (const experienceKey of Object.keys(experiences)) {
+        keys.push({ phase, experienceKey });
+      }
+    }
+    return keys;
+  }
+
+  it('every registry experience_key has en-GB translation', () => {
+    const all = listHomeExperiences();
+    const missing = all.filter(({ experienceKey }) => !EN_TRANSLATIONS[experienceKey]);
+    assert.equal(missing.length, 0, missing.map((x) => x.experienceKey).join(', '));
+    assert.ok(all.length >= 18, `expected Home-relevant experiences, got ${all.length}`);
+  });
+
+  it('en-GB translations have non-empty headline and cta', () => {
+    for (const [key, tr] of Object.entries(EN_TRANSLATIONS)) {
+      assert.ok(tr[0] && tr[0].trim(), `${key} headline empty`);
+      assert.ok(tr[2] && tr[2].trim(), `${key} cta empty`);
+    }
+  });
+
+  it('loadRegistry(en-GB) returns English headlines (JSON fallback)', async () => {
+    const registry = await loadRegistry({ useDb: false, locale: 'en-GB' });
+    const exp = registry.phases.FIRST_USE.handoff_to_child;
+    assert.equal(exp.headline, 'Let your child try their routine');
+    assert.doesNotMatch(exp.headline, SWEDISH_RE);
+    assert.equal(exp.cta, 'Try child mode now');
+  });
+
+  it('experience_key set unchanged between sv-SE and en-GB registries', async () => {
+    const sv = await loadRegistry({ useDb: false, locale: 'sv-SE' });
+    const en = await loadRegistry({ useDb: false, locale: 'en-GB' });
+    assert.deepEqual(Object.keys(sv.phases).sort(), Object.keys(en.phases).sort());
+    for (const phase of Object.keys(sv.phases)) {
+      assert.deepEqual(
+        Object.keys(sv.phases[phase]).sort(),
+        Object.keys(en.phases[phase]).sort()
+      );
+    }
+  });
+});
+
+describe('dashboard variant gating for English parents', () => {
+  const appView = fs.readFileSync(path.join(__dirname, '../public/js/app-view-mode.js'), 'utf8');
+  const hub = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-home-hub.js'), 'utf8');
+  const magicCss = fs.readFileSync(path.join(__dirname, '../public/css/parent-magic-common.css'), 'utf8');
+
+  it('parents are forced to magic view (no classic toggle)', () => {
+    assert.match(appView, /Parents are magic-only/);
+    assert.match(appView, /_mode = 'magic'/);
+  });
+
+  it('magic CSS hides legacy sidebar when parent-magic-view is active', () => {
+    assert.match(magicCss, /body\.parent-magic-view nav#sidebar/);
+  });
+
+  it('magic hub uses pt() for all visible chrome strings', () => {
+    assert.match(hub, /pt\('home\.greeting/);
+    assert.match(hub, /pt\('home\.sub'\)/);
+    assert.match(hub, /pt\('home\.quickActions/);
+    assert.doesNotMatch(hub, /I efterhand/);
+  });
+
+  it('shouldUse gates hub on parent_home_magic feature only (not locale)', () => {
+    assert.match(hub, /parent_home_magic === false/);
+    assert.doesNotMatch(hub, /preferred_locale|english_app/);
+  });
+});
+
+describe('parent-app-i18n adapter', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../public/js/parent-app-i18n.js'), 'utf8');
+  const i18n = fs.readFileSync(path.join(__dirname, '../public/js/i18n.js'), 'utf8');
+
+  it('delegates to I18n.init and I18n.t without separate bundle cache', () => {
+    assert.match(src, /await I18n\.init\(preferredLocale\)/);
+    assert.match(src, /return I18n\.t\(key, params\)/);
+    assert.doesNotMatch(src, /localStorage\.setItem/);
+    assert.doesNotMatch(src, /fetch\(/);
+    assert.doesNotMatch(src, /innerHTML/);
+  });
+
+  it('passes explicit preferred_locale to I18n.init (wins over sessionStorage)', () => {
+    assert.match(i18n, /explicitLang/);
+    assert.match(src, /initParentAppI18n\(preferredLocale\)/);
+  });
+
+  it('exposes thin globals pt, parentPlural, ptGet', () => {
+    assert.match(src, /window\.pt = pt/);
+    assert.match(src, /window\.parentPlural = parentPlural/);
+    assert.match(src, /window\.ptGet = ptGet/);
+  });
+});
+
+describe('LocaleDateTime timezone semantics', () => {
+  function mockWindow(lang) {
+    return {
+      I18n: { getCurrentLang: () => lang },
+      pt: (key) => ({ 'time.todayPrefix': 'Today', 'time.yesterdayPrefix': 'Yesterday', 'time.tomorrowPrefix': 'Tomorrow' }[key] || key),
+    };
+  }
+
+  it('same ISO date formats as same calendar day in en-GB and sv-SE', () => {
+    const LDTen = loadLocaleDateTime(mockWindow('en-GB'));
+    const LDTsv = loadLocaleDateTime(mockWindow('sv-SE'));
+    const iso = '2026-07-23';
+    const enDay = LDTen.parseLocalNoon(iso).getDate();
+    const svDay = LDTsv.parseLocalNoon(iso).getDate();
+    assert.equal(enDay, svDay);
+    assert.equal(enDay, 23);
+  });
+
+  it('formatDateHeader uses today prefix for same calendar day', () => {
+    const LDT = loadLocaleDateTime(mockWindow('en-GB'));
+    const today = '2026-07-23';
+    const header = LDT.formatDateHeader(today, today);
+    assert.match(header, /^Today — /);
+  });
+
+  it('weekDayLabelsMondayFirst returns 7 labels independent of host locale', () => {
+    const orig = process.env.LC_ALL;
+    process.env.LC_ALL = 'sv_SE.UTF-8';
+    const LDT = loadLocaleDateTime(mockWindow('en-GB'));
+    const labels = LDT.weekDayLabelsMondayFirst();
+    process.env.LC_ALL = orig;
+    assert.equal(labels.length, 7);
+    assert.match(labels[0], /Mon/i);
+  });
+});
+
+describe('readiness API backward compatibility', () => {
+  it('response item shape keys unchanged in route handler', () => {
+    const core = fs.readFileSync(path.join(__dirname, '../src/routes/family/core.js'), 'utf8');
+    assert.match(core, /items\.push\(\{[\s\S]*type:/);
+    assert.match(core, /child_id:/);
+    assert.match(core, /child_name:/);
+    assert.match(core, /title:/);
+    assert.match(core, /sub:/);
+    assert.match(core, /href:/);
+    assert.match(core, /priority:/);
+    assert.match(core, /res\.json\(\{ items \}\)/);
+    assert.doesNotMatch(core, /title_sv|title_en/);
+  });
+});
+
+describe('analytics event parity (sv vs en code paths)', () => {
+  const files = [
+    'public/js/home-readiness.js',
+    'public/js/journey-coach.js',
+    'public/js/daily-log.js',
+    'public/js/dashboard-home-hub.js',
+  ];
+
+  for (const rel of files) {
+    it(`${rel} analytics.track calls do not branch on locale`, () => {
+      const src = fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
+      const trackBlocks = src.match(/analytics\.track\([^)]+\)[^;]*/g) || [];
+      for (const block of trackBlocks) {
+        assert.doesNotMatch(block, /preferred_locale|getCurrentLang|english_app/);
+      }
+    });
+  }
+});
