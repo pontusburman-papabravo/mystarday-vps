@@ -7,6 +7,10 @@
 //               (library-standard.js), sub-steps (library-substeps.js),
 //               treasury view (library-treasury.js).
 
+function lpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 // ─── Overflow menu (mobile ⋯ per-row action menu) ─────────
 function closeOverflowMenus() {
   document.querySelectorAll('.overflow-menu-popup.open').forEach(m => m.classList.remove('open'));
@@ -137,6 +141,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const user = await window.authGuard();
   if (!user) return;
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n(user.preferred_locale);
+  }
 
   let magicReady = false;
 
@@ -166,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (window.LibraryImages) await LibraryImages.init();
       } catch (err) {
         console.error('[LIBRARY] Data load error:', err);
-        showToast('Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.', true);
+        showToast(lpt('library.errors.loadAll'), true);
       }
     })();
 
@@ -189,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (_) {
       switchTab('schema');
     }
-    showToast('Biblioteket kunde inte laddas. Försök ladda om sidan.', true);
+    showToast(lpt('library.errors.loadPage'), true);
   }
 });
 
@@ -249,10 +256,10 @@ async function loadCategories() {
       renderActivities();
       return;
     }
-    showLibraryLoadError('schemaTabsContainer', 'Kunde inte ladda kategorier. Försök ladda om sidan.');
+    showLibraryLoadError('schemaTabsContainer', lpt('library.errors.loadCategories'));
   } catch (err) {
     console.error('[LIBRARY] loadCategories failed:', err);
-    showLibraryLoadError('schemaTabsContainer', 'Kunde inte ladda kategorier. Försök ladda om sidan.');
+    showLibraryLoadError('schemaTabsContainer', lpt('library.errors.loadCategories'));
   }
 }
 
@@ -335,10 +342,10 @@ async function loadActivities() {
       renderActivities();
       return;
     }
-    showLibraryLoadError('activitiesContainer', 'Kunde inte ladda aktiviteter. Försök ladda om sidan.');
+    showLibraryLoadError('activitiesContainer', lpt('library.errors.loadActivities'));
   } catch (err) {
     console.error('[LIBRARY] loadActivities failed:', err);
-    showLibraryLoadError('activitiesContainer', 'Kunde inte ladda aktiviteter. Försök ladda om sidan.');
+    showLibraryLoadError('activitiesContainer', lpt('library.errors.loadActivities'));
   }
 }
 
@@ -1400,10 +1407,10 @@ async function loadRewards() {
       renderRewards();
       return;
     }
-    showLibraryLoadError('rewardsContainer', 'Kunde inte ladda belöningar. Försök ladda om sidan.');
+    showLibraryLoadError('rewardsContainer', lpt('library.errors.loadRewards'));
   } catch (err) {
     console.error('[LIBRARY] loadRewards failed:', err);
-    showLibraryLoadError('rewardsContainer', 'Kunde inte ladda belöningar. Försök ladda om sidan.');
+    showLibraryLoadError('rewardsContainer', lpt('library.errors.loadRewards'));
   }
 }
 

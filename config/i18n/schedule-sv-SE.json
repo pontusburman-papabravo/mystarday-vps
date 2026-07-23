@@ -1,0 +1,67 @@
+{
+  "pageTitle": "Schema — {{brand}}",
+  "mode": {
+    "aria": "Schemavy",
+    "single": "Mitt barn",
+    "family": "Alla barn"
+  },
+  "summary": {
+    "none": "Inget schema ännu — börja planera veckan",
+    "fullWeek": "Schema för hela veckan ✅"
+  },
+  "errors": {
+    "loadPage": "Något gick fel vid laddning. Ladda om sidan.",
+    "loadSchedule": "Något gick fel vid laddning av schemat. Ladda om sidan.",
+    "network": "Nätverksfel",
+    "generic": "Fel uppstod",
+    "pickEmoji": "Välj en emoji",
+    "sessionExpired": "Din session har löpt ut. Du loggas in igen…",
+    "parentPermission": "föräldrabehörighet"
+  },
+  "empty": {
+    "noChildrenTitle": "Inga barn tillagda ännu",
+    "goToDashboard": "Gå till Min panel",
+    "noScheduleTitle": "{{name}} har inget veckoschema ännu",
+    "noScheduleBody": "Skapa ett schema för att börja planera dagen",
+    "noScheduleDayTitle": "Inget schema för {{day}}{{date}}",
+    "noScheduleDayBody": "Skapa ett schema för att börja planera {{name}}s dag",
+    "createForDay": "+ Skapa schema för {{day}}"
+  },
+  "custody": {
+    "otherParent": "Barnet är hos den andra föräldern {{date}}",
+    "myDaysFilter": "\"Mina dagar\" är på — avmarkera filtret ovan för att se {{variant}}-schemat."
+  },
+  "paused": {
+    "title": "{{name}} är pausad idag",
+    "hint": "Dagens aktiviteter är pausade. <a href=\"/family\" class=\"underline hover:text-amber-800\">Ändra i inställningar →</a>"
+  },
+  "childFallback": "Barnet",
+  "actions": {
+    "add": "Lägg till",
+    "rewards": "Belöningar",
+    "rewardsFor": "Belöningar — {{name}}",
+    "addSchedule": "Lägg till schema",
+    "addScheduleFor": "Lägg till schema för {{day}}",
+    "dragReorder": "Dra för att ändra ordning",
+    "oneOff": "Engångsaktivitet",
+    "editActivity": "Klicka för att redigera",
+    "toggleSubsteps": "Visa/dölj delsteg",
+    "substepsCount": "{{count}} delsteg",
+    "removeFromSchedule": "Ta bort från schema",
+    "dragCopyHint": "Dra aktivitet till en dag-flik för att kopiera",
+    "deleteDayConfirm": "Ta bort hela schemat för {{day}}?"
+  },
+  "copy": {
+    "fromLabel": "Kopiera schemat från <strong>{{day}}</strong> till:",
+    "selectDay": "Välj minst en dag",
+    "selectChild": "Välj ett barn",
+    "noOtherChildren": "Inga andra barn",
+    "copiedDays": "Schema kopierat till {{count}} dag(ar)",
+    "copiedWeek": "Veckoschemat har kopierats",
+    "deleted": "Schemat har tagits bort",
+    "nothingToCopy": "Inget schema att kopiera"
+  },
+  "addChild": {
+    "success": "{{name}} har lagts till! PIN: {{pin}}"
+  }
+}

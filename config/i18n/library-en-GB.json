@@ -1,0 +1,62 @@
+{
+  "pageTitle": "Library — {{brand}}",
+  "hub": {
+    "title": "Library",
+    "searchPlaceholder": "Search the library…",
+    "subtitle": "Schedules, activities and rewards for your family",
+    "backToPlanning": "← Back to Planning",
+    "sections": {
+      "standard": { "title": "Standard schedules", "subtitle": "Ready-made templates to copy" },
+      "activities": { "title": "Activities", "subtitle": "Your activities — emoji or your own photo" },
+      "images": { "title": "Image archive", "subtitle": "Your photos — toothbrush, bed, school" },
+      "rewards": { "title": "Rewards", "subtitle": "Goals children work towards" },
+      "mine": { "title": "My library", "subtitle": "Your own schedules and templates" }
+    }
+  },
+  "errors": {
+    "loadAll": "Could not load all library content. Try reloading the page.",
+    "loadPage": "The library could not be loaded. Try reloading the page.",
+    "loadCategories": "Could not load categories. Try reloading the page.",
+    "loadActivities": "Could not load activities. Try reloading the page.",
+    "loadRewards": "Could not load rewards. Try reloading the page.",
+    "updateReward": "Could not update reward",
+    "copyReward": "Could not copy the reward",
+    "deleteReward": "Could not delete the reward"
+  },
+  "empty": {
+    "noCategories": "No categories yet",
+    "libraryTitle": "The library is empty",
+    "libraryBody": "Collect your activities here. Create an activity such as \"Brush teeth\" and use it in every child's schedule.",
+    "createFirstActivity": "+ Create your first activity",
+    "categoryBody": "Add activities to build your schedule.",
+    "addActivity": "+ Add activity",
+    "rewardsTitle": "The rewards library is empty",
+    "rewardsBody": "Add rewards that children can earn stars towards.",
+    "addReward": "+ Add reward",
+    "noChildren": "No children in the family yet.",
+    "noSubsteps": "No steps yet. Add below.",
+    "noSearchActivity": "No activity found for \"{{query}}\"",
+    "createActivityHint": "Create a new activity with this name",
+    "noSearchReward": "No reward found for \"{{query}}\"",
+    "createRewardHint": "Create a new reward with this name",
+    "yourRewards": "Your rewards"
+  },
+  "searching": "Searching…",
+  "saved": {
+    "reward": "Reward saved",
+    "rewardDeleted": "Reward deleted",
+    "rewardCopied": "\"{{name}}\" copied to your rewards library!"
+  },
+  "modal": {
+    "editReward": "Edit reward",
+    "newReward": "New reward",
+    "approvalBadge": "Approve"
+  },
+  "validation": {
+    "timerRange": "Timer must be between 5 seconds and 60 minutes (whole number).",
+    "pickImage": "Choose an image from the image archive (or upload a new one)."
+  },
+  "substeps": {
+    "add": "+ Add step"
+  }
+}

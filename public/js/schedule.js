@@ -3,6 +3,10 @@
  * Does not own: authentication (auth.js), API routing, database.
  */
 
+function spt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 // ── Overflow menu (mobile ⋯ per-row action menu) ──────────
 function closeOverflowMenus() {
   document.querySelectorAll('.overflow-menu-popup.open').forEach(m => m.classList.remove('open'));
@@ -166,6 +170,9 @@ async function bootSchedulePage() {
   try {
     const user = await window.authGuard();
     if (!user) return;
+    if (typeof window.initParentAppI18n === 'function') {
+      await initParentAppI18n(user.preferred_locale);
+    }
 
     if (!_schedulePageBound) {
       _schedulePageBound = true;
@@ -208,7 +215,7 @@ async function bootSchedulePage() {
         e.preventDefault();
         const msg = document.getElementById('addChildMsg');
         const btn = document.getElementById('addChildSubmit');
-        if (!selectedChildEmoji) { msg.textContent = 'Välj en emoji'; msg.className = 'text-sm text-red-500'; return; }
+        if (!selectedChildEmoji) { msg.textContent = spt('schedule.errors.pickEmoji'); msg.className = 'text-sm text-red-500'; return; }
         btn.disabled = true; btn.textContent = 'Skapar...'; msg.textContent = '';
         try {
           const res = await window.apiFetch('/api/children', {
@@ -218,17 +225,17 @@ async function bootSchedulePage() {
           const data = await res.json();
           if (!res.ok) {
             if (data.error && data.error.includes('föräldrabehörighet')) {
-              msg.textContent = 'Din session har löpt ut. Du loggas in igen…';
+              msg.textContent = spt('schedule.errors.sessionExpired');
               msg.className = 'text-sm text-red-500';
               setTimeout(() => { Auth.clearAuth(); window.location.href = '/login'; }, 2000);
               return;
             }
-            msg.textContent = data.error || 'Nätverksfel'; msg.className = 'text-sm text-red-500';
+            msg.textContent = data.error || spt('schedule.errors.network'); msg.className = 'text-sm text-red-500';
           } else {
             if (data.wizard && data.id) {
               window.location.href = `/child-wizard?id=${data.id}&pin=${encodeURIComponent(data.pin)}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
             } else {
-              showToast(`${data.name} har lagts till! PIN: ${data.pin}`);
+              showToast(spt('schedule.addChild.success', { name: data.name, pin: data.pin }));
               document.getElementById('addChildModal').classList.add('hidden');
               document.getElementById('addChildForm').reset();
               selectedChildEmoji = '';
@@ -236,8 +243,8 @@ async function bootSchedulePage() {
               await loadChildren();
             }
           }
-        } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
-        btn.disabled = false; btn.textContent = 'Lägg till';
+        } catch (err) { msg.textContent = err.message || spt('schedule.errors.network'); msg.className = 'text-sm text-red-500'; }
+        btn.disabled = false; btn.textContent = spt('schedule.actions.add');
       });
 
       initTouchDndBridge();
@@ -279,7 +286,7 @@ async function bootSchedulePage() {
   } catch (err) {
     console.error('[SCHEDULE] Init error:', err);
     const container = document.getElementById('childCardsContainer');
-    if (container) container.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</div>';
+    if (container) container.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">' + spt('schedule.errors.loadPage') + '</div>';
   }
 }
 
@@ -300,10 +307,10 @@ function capScheduleChildName(name) {
 }
 
 function buildScheduleChildSubtitle(ad, totalActivities) {
-  if (ad === 0) return 'Inget schema ännu — börja planera veckan';
+  if (ad === 0) return spt('schedule.summary.none');
   if (ad >= 7) {
     if (totalActivities > 0) return `${totalActivities} planerade aktiviteter · alla dagar klara ✅`;
-    return 'Schema för hela veckan ✅';
+    return spt('schedule.summary.fullWeek');
   }
   if (totalActivities > 0) return `${totalActivities} planerade aktiviteter denna vecka`;
   return `${ad} av 7 dagar planerade`;
@@ -337,7 +344,7 @@ async function renderChildrenOverview() {
   const container = document.getElementById('childCardsContainer');
   if (!container) return;
   if (children.length === 0) {
-    container.innerHTML = `<div class="text-center py-16"><p class="text-5xl mb-4">👨‍👩‍👧</p><p class="font-semibold text-navy mb-1">Inga barn tillagda ännu</p><a href="/dashboard" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold inline-block mt-3">Gå till Min panel</a></div>`;
+    container.innerHTML = `<div class="text-center py-16"><p class="text-5xl mb-4">👨‍👩‍👧</p><p class="font-semibold text-navy mb-1">${spt('schedule.empty.noChildrenTitle')}</p><a href="/dashboard" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold inline-block mt-3">${spt('schedule.empty.goToDashboard')}</a></div>`;
     return;
   }
   // Fetch schedules for each child
@@ -407,7 +414,7 @@ async function renderChildrenOverview() {
       </div>
       ${hasDays ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">${daySummaryHtml}</div>` : ''}
       <div class="flex items-center justify-between gap-2 flex-wrap">
-        <button onclick="event.stopPropagation(); window.location.href='/family?child=${child.id}&tab=rewards'" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">🏆 Belöningar</button>
+        <button onclick="event.stopPropagation(); window.location.href='/family?child=${child.id}&tab=rewards'" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">🏆 ${spt('schedule.actions.rewards')}</button>
         <button onclick="selectChild('${child.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm">✏️ Redigera schema →</button>
       </div>
     </div>`;
@@ -447,7 +454,7 @@ async function selectChild(id) {
     const editorRewardsBtn = document.getElementById('editorRewardsBtn');
     if (editorRewardsBtn) {
       editorRewardsBtn.classList.remove('hidden');
-      editorRewardsBtn.textContent = `🏆 Belöningar${child ? ' — ' + child.name : ''}`;
+      editorRewardsBtn.textContent = `🏆 ${spt('schedule.actions.rewards')}${child ? ' — ' + child.name : ''}`;
     }
     // Update mode toggle button to show selected child's name
     const singleBtn = document.getElementById('btnModeSingle');
@@ -467,7 +474,7 @@ async function selectChild(id) {
   } catch (err) {
     console.error('[SCHEDULE] selectChild error:', err);
     document.getElementById('scheduleContent').innerHTML =
-      '<div class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning av schemat. Ladda om sidan.</div>';
+      '<div class="text-center py-8 text-red-500 font-semibold">' + spt('schedule.errors.loadSchedule') + '</div>';
   }
 }
 
@@ -533,9 +540,9 @@ function renderDayTabs() {
         <span class="font-normal text-[10px] opacity-75">${dateLabel}</span>
         ${todayDot}
       </button>
-      <button onclick="openInsertDayModal(${d})" title="Lägg till schema"
+      <button onclick="openInsertDayModal(${d})" title="${spt('schedule.actions.addSchedule')}"
         class="w-6 h-6 rounded-full bg-white border border-lavender hover:border-gold hover:bg-gold-light text-text-soft hover:text-gold flex items-center justify-center transition-colors insert-day-btn text-sm font-bold leading-none"
-        aria-label="Lägg till schema för ${DAYS_SHORT[d]}">+</button>
+        aria-label="${spt('schedule.actions.addScheduleFor', { day: DAYS_SHORT[d] })}">+</button>
     </div>`;
   }).join('');
 
@@ -651,8 +658,8 @@ async function loadScheduleForDay() {
     document.getElementById('scheduleContent').innerHTML = `
       <div class="text-center py-16">
         <p class="text-5xl mb-4">🏠</p>
-        <p class="font-semibold text-navy mb-2">Barnet är hos den andra föräldern ${dl ? '(' + dl + ')' : ''}</p>
-        <p class="text-sm text-text-soft">"Mina dagar" är på — avmarkera filtret ovan för att se ${variant}-schemat.</p>
+        <p class="font-semibold text-navy mb-2">${spt('schedule.custody.otherParent', { date: dl ? '(' + dl + ')' : '' })}</p>
+        <p class="text-sm text-text-soft">${spt('schedule.custody.myDaysFilter', { variant })}</p>
       </div>`;
     return;
   }
@@ -668,8 +675,8 @@ async function loadScheduleForDay() {
     document.getElementById('scheduleContent').innerHTML = `
       <div class="text-center py-16">
         <p class="text-5xl mb-4">📅</p>
-        <p class="font-semibold text-navy mb-2">${childName} har inget veckoschema ännu</p>
-        <p class="text-sm text-text-soft mb-6">Skapa ett schema för att börja planera dagen</p>
+        <p class="font-semibold text-navy mb-2">${spt('schedule.empty.noScheduleTitle', { name: childName })}</p>
+        <p class="text-sm text-text-soft mb-6">${spt('schedule.empty.noScheduleBody')}</p>
         <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ Skapa schema</button>
       </div>`;
     return;
@@ -707,7 +714,7 @@ async function checkIfDayPaused() {
       const child = children.find(c => c.id === currentChildId);
       const banner = document.createElement('div');
       banner.className = 'bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 flex items-center gap-3';
-      banner.innerHTML = `<span class="text-2xl">⏸️</span><div><p class="font-semibold text-amber-800 text-sm">${child ? escHtml(child.name) : 'Barnet'} är pausad idag</p><p class="text-xs text-amber-600">Dagens aktiviteter är pausade. <a href="/family" class="underline hover:text-amber-800">Ändra i inställningar →</a></p></div>`;
+      banner.innerHTML = `<span class="text-2xl">⏸️</span><div><p class="font-semibold text-amber-800 text-sm">${spt('schedule.paused.title', { name: child ? escHtml(child.name) : spt('schedule.childFallback') })}</p><p class="text-xs text-amber-600">${spt('schedule.paused.hint')}</p></div>`;
       const content = document.getElementById('scheduleContent');
       if (content) content.prepend(banner);
     }
@@ -719,9 +726,9 @@ function renderEmptyDay() {
   const dl = getDayDateLabel();
   document.getElementById('scheduleContent').innerHTML = `
     <div class="text-center py-16"><p class="text-5xl mb-4">📅</p>
-      <p class="font-semibold text-navy mb-1">Inget schema för ${DAYS[currentDay]}${dl ? ` (${dl})` : ''}</p>
-      <p class="text-text-soft text-sm mb-6">Skapa ett schema för att börja planera ${child?escHtml(child.name)+'s':''} dag</p>
-      <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ Skapa schema för ${DAYS[currentDay]}</button>
+      <p class="font-semibold text-navy mb-1">${spt('schedule.empty.noScheduleDayTitle', { day: DAYS[currentDay], date: dl ? ` (${dl})` : '' })}</p>
+      <p class="text-text-soft text-sm mb-6">${spt('schedule.empty.noScheduleDayBody', { name: child ? escHtml(child.name) : '' })}</p>
+      <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ ${spt('schedule.empty.createForDay', { day: DAYS[currentDay] })}</button>
     </div>`;
 }
 
@@ -742,7 +749,7 @@ function renderSchedule() {
       <div>
         <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child?escHtml(child.name):''}</h3>
         <p class="text-sm text-text-soft">${scheduleItems.length} aktivitet${scheduleItems.length!==1?'er':''}
-          <span class="text-xs text-purple-400 ml-1">💡 Dra aktivitet till en dag-flik för att kopiera</span>
+          <span class="text-xs text-purple-400 ml-1">💡 ${spt('schedule.actions.dragCopyHint')}</span>
         </p>
       </div>
       <div class="flex gap-2 flex-wrap">
@@ -765,15 +772,15 @@ function renderItem(item) {
   const canEditTpl = !isOnce || !!onceTplId;
   const onceClass = isOnce ? ' once-task-item' : '';
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
-  const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="Dra för att ändra ordning">⠿</button>';
-  const oncePin = isOnce ? '<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>' : '';
+  const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="' + spt('schedule.actions.dragReorder') + '">⠿</button>';
+  const oncePin = isOnce ? '<span title="' + spt('schedule.actions.oneOff') + '" class="text-[10px] flex-shrink-0">📌</span>' : '';
   const moveBtns = isOnce ? '' : `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="Flytta upp" aria-label="Flytta upp">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="Flytta ner" aria-label="Flytta ner">▼</button>`;
   const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="Redigera tid">🕐</button>`;
   const tplIcon = canEditTpl
     ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="Redigera aktivitet">${item.activity_icon || '📌'}</button>`
     : `<span class="text-xl flex-shrink-0">${item.activity_icon || '📌'}</span>`;
   const nameBtn = canEditTpl
-    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="font-semibold text-sm text-navy truncate hover:text-gold transition-colors block w-full text-left" title="Klicka för att redigera">${escHtml(item.activity_name_display || item.activity_name)}</button>`
+    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="font-semibold text-sm text-navy truncate hover:text-gold transition-colors block w-full text-left" title="${spt('schedule.actions.editActivity')}">${escHtml(item.activity_name_display || item.activity_name)}</button>`
     : `<span class="font-semibold text-sm text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</span>`;
   const timeStr = item.start_time ? fmtTime(item.start_time) + (item.end_time ? '–' + fmtTime(item.end_time) : '') : '';
   const steps = Array.isArray(item.sub_steps) ? item.sub_steps : [];
@@ -804,11 +811,11 @@ function renderItem(item) {
           ${nameBtn}
           ${timeStr ? `<div class="text-xs text-text-soft">${timeStr}</div>` : ''}
         </div>
-        ${hasSubSteps && (onceTplId || item.activity_template_id) ? `<button onclick="toggleScheduleSubSteps('${onceTplId || item.activity_template_id}', this)" class="text-[10px] bg-lavender text-navy px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 flex items-center gap-0.5 hover:bg-purple-200 transition-colors" title="Visa/dölj delsteg"><span>${subCount} delsteg</span><span class="chevron-icon ml-0.5">▸</span></button>` : ''}
+        ${hasSubSteps && (onceTplId || item.activity_template_id) ? `<button onclick="toggleScheduleSubSteps('${onceTplId || item.activity_template_id}', this)" class="text-[10px] bg-lavender text-navy px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 flex items-center gap-0.5 hover:bg-purple-200 transition-colors" title="${spt('schedule.actions.toggleSubsteps')}"><span>${spt('schedule.actions.substepsCount', { count: subCount })}</span><span class="chevron-icon ml-0.5">▸</span></button>` : ''}
         <div class="icon-btns-desktop flex gap-1 flex-shrink-0">
           ${editBtn}
           <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')"
-            class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="Ta bort från schema">✕</button>
+            class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="${spt('schedule.actions.removeFromSchedule')}">✕</button>
         </div>
         <!-- Mobile: ⋯ overflow menu — outside .icon-btns-desktop so it doesn't wrap to new line on narrow screens -->
         <div class="overflow-menu-wrap flex-shrink-0" style="margin-left:4px">
@@ -874,46 +881,46 @@ function renderScheduleSubSteps(templateId, steps) {
 
 // ── Delete schedule ───────────────────────────────────────
 function confirmDeleteSchedule(){
-  openConfirmModal(`Ta bort hela schemat för ${DAYS[currentDay]}?`,async()=>{
+  openConfirmModal(spt('schedule.actions.deleteDayConfirm', { day: DAYS[currentDay] }),async()=>{
     const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/${currentScheduleId}`,{method:'DELETE'});
-    if(res.ok){showToast('Schemat har tagits bort');currentScheduleId=null;scheduleItems=[];renderEmptyDay();}
-    else{const d=await res.json();showToast(d.error||'Fel uppstod',true);}
+    if(res.ok){showToast(spt('schedule.copy.deleted'));currentScheduleId=null;scheduleItems=[];renderEmptyDay();}
+    else{const d=await res.json();showToast(d.error||spt('schedule.errors.generic'),true);}
   });
 }
 
 // ── Copy day/child ────────────────────────────────────────
 function openCopyDayModal(){
-  if(!currentScheduleId){showToast('Inget schema att kopiera',true);return;}
+  if(!currentScheduleId){showToast(spt('schedule.copy.nothingToCopy'),true);return;}
   copyDaySelections=[];
-  document.getElementById('copyFromLabel').innerHTML=`Kopiera schemat från <strong>${DAYS[currentDay]}</strong> till:`;
+  document.getElementById('copyFromLabel').innerHTML=spt('schedule.copy.fromLabel', { day: DAYS[currentDay] });
   document.getElementById('copyDayPicker').innerHTML=[1,2,3,4,5,6,0].filter(d=>d!==currentDay).map(d=>`<button type="button" onclick="toggleCopyDay(${d},this)" class="px-4 py-3 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-navy text-navy" data-day="${d}">${DAYS[d]}</button>`).join('');
   document.getElementById('copyDayModal').classList.remove('hidden');
 }
 function toggleCopyDay(d,btn){const idx=copyDaySelections.indexOf(d);if(idx===-1){copyDaySelections.push(d);btn.classList.add('bg-navy','text-white','border-navy');}else{copyDaySelections.splice(idx,1);btn.classList.remove('bg-navy','text-white','border-navy');}}
 function closeCopyDayModal(){document.getElementById('copyDayModal').classList.add('hidden');}
 async function submitCopyDay(){
-  if(!copyDaySelections.length){showToast('Välj minst en dag',true);return;}
+  if(!copyDaySelections.length){showToast(spt('schedule.copy.selectDay'),true);return;}
   const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`,{method:'POST',body:JSON.stringify({from_day:currentDay,to_days:copyDaySelections})});
   const data=await res.json();
-  if(res.ok){closeCopyDayModal();showToast(`Schema kopierat till ${data.copied_to_days.length} dag(ar)`);}
-  else showToast(data.error||'Fel uppstod',true);
+  if(res.ok){closeCopyDayModal();showToast(spt('schedule.copy.copiedDays', { count: data.copied_to_days.length }));}
+  else showToast(data.error||spt('schedule.errors.generic'),true);
 }
 function openCopyChildModal(){
   if(!currentChildId)return;
   copyTargetChildId=null;
   const others=children.filter(c=>c.id!==currentChildId);
-  if(!others.length){showToast('Inga andra barn',true);return;}
+  if(!others.length){showToast(spt('schedule.copy.noOtherChildren'),true);return;}
   document.getElementById('copyChildPicker').innerHTML=others.map(c=>`<button type="button" onclick="selectCopyChild('${c.id}',this)" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-lavender hover:border-gold transition-colors text-left" data-cid="${c.id}"><span class="text-2xl">${c.emoji||'👤'}</span><span class="font-semibold text-navy">${escHtml(c.name)}</span></button>`).join('');
   document.getElementById('copyChildModal').classList.remove('hidden');
 }
 function selectCopyChild(id,btn){copyTargetChildId=id;document.querySelectorAll('#copyChildPicker button').forEach(b=>{b.classList.toggle('border-gold',b.dataset.cid===id);b.classList.toggle('bg-sky',b.dataset.cid===id);});}
 function closeCopyChildModal(){document.getElementById('copyChildModal').classList.add('hidden');}
 async function submitCopyChild(){
-  if(!copyTargetChildId){showToast('Välj ett barn',true);return;}
+  if(!copyTargetChildId){showToast(spt('schedule.copy.selectChild'),true);return;}
   const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-to-child`,{method:'POST',body:JSON.stringify({target_child_id:copyTargetChildId})});
   const data=await res.json();
-  if(res.ok){closeCopyChildModal();showToast('Veckoschemat har kopierats');}
-  else showToast(data.error||'Fel uppstod',true);
+  if(res.ok){closeCopyChildModal();showToast(spt('schedule.copy.copiedWeek'));}
+  else showToast(data.error||spt('schedule.errors.generic'),true);
 }
 
 // ── Insert Day (+ button per day tab) ────────────────────

@@ -1,0 +1,34 @@
+{
+  "pageTitle": "Planning — {{brand}}",
+  "shell": {
+    "title": "Planning",
+    "lead": "Build content or plan your children's week — choose below.",
+    "logout": "Log out"
+  },
+  "sections": {
+    "planWeek": "Plan the week",
+    "buildContent": "Build content",
+    "other": "Other"
+  },
+  "links": {
+    "library": { "title": "Library", "sub": "Create activities and rewards" },
+    "imageArchive": { "title": "Image archive", "sub": "Your photos — toothbrush, bed, school" },
+    "weekSchedule": { "title": "Weekly schedule", "sub": "Edit your child's week" },
+    "calendar": { "title": "Calendar", "sub": "See the month and special days" },
+    "custody": { "title": "Custody schedule", "sub": "Shared care between households" },
+    "dailyLog": { "title": "Today", "sub": "View and adjust previous days" },
+    "printSchema": { "title": "Create PDF — schedule", "sub": "Print a schedule" },
+    "assignSchedule": { "title": "Assign schedule", "sub": "Copy a schedule to a child" },
+    "reports": { "title": "Reports", "sub": "Progress and sharing" },
+    "samarbete": { "title": "Educator collaboration", "sub": "Work with an educator" },
+    "barnStod": { "title": "Extra support", "sub": "Visual support and TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Get started",
+    "bodyBeforeLibrary": "Start in the ",
+    "libraryLink": "Library",
+    "bodyMiddle": " if you want to create activities. Go to ",
+    "forYouLink": "For you",
+    "bodyAfter": " if you want a ready-made recommendation."
+  }
+}

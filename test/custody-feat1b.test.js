@@ -69,7 +69,7 @@ describe('FEAT-1B boendeschema', () => {
     const printPage = fs.readFileSync(path.join(ROOT, 'public/print-schema.html'), 'utf8');
     const printJs = fs.readFileSync(path.join(ROOT, 'public/js/print-schema.js'), 'utf8');
     const core = fs.readFileSync(path.join(ROOT, 'public/js/print-schema-core.js'), 'utf8');
-    assert.match(planning, /Skapa PDF/);
+    assert.match(planning, /planning\.links\.printSchema/);
     assert.match(planning, /\/print-schema/);
     assert.match(schedule, /schedulePrintLink/);
     assert.match(printPage, /1 vecka/);

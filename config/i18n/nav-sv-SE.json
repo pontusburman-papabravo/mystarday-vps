@@ -18,5 +18,29 @@
   "reports": "Rapporter",
   "library": "Bibliotek",
   "treasureChest": "Skattkammaren",
-  "familySettings": "Familjen & inställningar"
+  "familySettings": "Familjen & inställningar",
+  "capability": {
+    "subscription": "Prenumeration",
+    "reports": "Rapporter",
+    "samarbete": "Pedagogsamarbete",
+    "barnStod": "Extra stöd"
+  },
+  "header": {
+    "notifications": "Notiser",
+    "settings": "Inställningar",
+    "share": "Tipsa",
+    "shareTitle": "Tipsa en familj om appen!",
+    "shareAria": "Tipsa"
+  },
+  "avatar": {
+    "switchPedagog": "Byt till pedagogvy",
+    "subscription": "Prenumeration",
+    "settings": "Inställningar",
+    "logout": "Logga ut"
+  },
+  "mobile": {
+    "openMenu": "Öppna meny",
+    "darkModeTitle": "Mörkt läge",
+    "darkModeAria": "Växla mörkt läge"
+  }
 }

@@ -67,9 +67,9 @@
   };
 
   const HEADER_ACTIONS = [
-    { id: 'notifications', href: '/notifications', icon: 'notiser', label: 'Notiser' },
-    { id: 'settings', href: '/settings', icon: 'installningar', label: 'Inställningar' },
-    { id: 'tipsa', action: 'tipsa', icon: 'tipsa', label: 'Tipsa' },
+    { id: 'notifications', href: '/notifications', icon: 'notiser', label: 'Notiser', labelKey: 'nav.header.notifications' },
+    { id: 'settings', href: '/settings', icon: 'installningar', label: 'Inställningar', labelKey: 'nav.header.settings' },
+    { id: 'tipsa', action: 'tipsa', icon: 'tipsa', label: 'Tipsa', labelKey: 'nav.header.share' },
   ];
 
   /** Capability placements — feature-gated deep links (vuxenmeny v2 Sprint 6). */
@@ -77,6 +77,7 @@
     {
       id: 'subscription',
       label: 'Prenumeration',
+      labelKey: 'nav.capability.subscription',
       feature: null,
       domain: 'billing',
       href: '/settings#prenumeration',
@@ -85,6 +86,7 @@
     {
       id: 'reports',
       label: 'Rapporter',
+      labelKey: 'nav.capability.reports',
       feature: 'reporting',
       domain: 'child_progress',
       href: '/reports',
@@ -93,6 +95,7 @@
     {
       id: 'samarbete',
       label: 'Pedagogsamarbete',
+      labelKey: 'nav.capability.samarbete',
       feature: 'pedagog',
       domain: 'family',
       href: '/samarbete',
@@ -101,6 +104,7 @@
     {
       id: 'barn_stod',
       label: 'Extra stöd',
+      labelKey: 'nav.capability.barnStod',
       feature: 'teacch',
       domain: 'child_progress',
       href: '/barn-stod',
@@ -112,17 +116,19 @@
     {
       id: 'switch_pedagog',
       label: 'Byt till pedagogvy',
+      labelKey: 'nav.avatar.switchPedagog',
       feature: 'pedagog',
       role: 'dual_or_educator',
     },
     {
       id: 'subscription',
       label: 'Prenumeration',
+      labelKey: 'nav.avatar.subscription',
       href: '/settings#prenumeration',
       placement: 'avatar_action',
     },
-    { id: 'settings', href: '/settings', label: 'Inställningar' },
-    { id: 'logout', action: 'logout', label: 'Logga ut' },
+    { id: 'settings', href: '/settings', label: 'Inställningar', labelKey: 'nav.avatar.settings' },
+    { id: 'logout', action: 'logout', label: 'Logga ut', labelKey: 'nav.avatar.logout' },
   ];
 
   function hasFeatureAccess(access, featureSlug) {

@@ -32,8 +32,8 @@ describe('Native startup + family fast path', () => {
     assert.match(family, /setFamilyLoading\(false\)/);
     assert.match(family, /function renderAll\(data\) \{[\s\S]*familyData = data;/);
     const rolesIdx = family.indexOf('const ROLES = [');
-    const initCallIdx = family.lastIndexOf('\ninit();');
-    assert.ok(rolesIdx >= 0 && initCallIdx > rolesIdx, 'ROLES must be defined before init() runs');
+    const initCallIdx = family.indexOf('familyI18nBoot');
+    assert.ok(rolesIdx >= 0 && initCallIdx > rolesIdx, 'ROLES must be defined before familyI18nBoot runs');
   });
 
   it('dashboard warms family API after auth', () => {

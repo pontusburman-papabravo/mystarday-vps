@@ -82,7 +82,7 @@ describe('family image library', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
     assert.match(hub, /goBackFromSection/);
-    assert.match(hub, /Till planering/);
+    assert.match(hub, /library\.hub\.backToPlanning/);
     assert.match(router, /isLibraryShellDocument/);
   });
 

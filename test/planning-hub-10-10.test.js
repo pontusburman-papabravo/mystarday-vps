@@ -9,15 +9,15 @@ const ROOT = path.join(__dirname, '..');
 const HUB = path.join(ROOT, 'public/js/planning-hub.js');
 
 describe('Planering hub 10/10', () => {
-  it('uses vision copy-regel underrader', () => {
+  it('uses vision copy-regel underrader via locale keys', () => {
     const src = fs.readFileSync(HUB, 'utf8');
-    assert.match(src, /title: 'Bibliotek', sub: 'Skapa aktiviteter och belöningar'/);
-    assert.match(src, /title: 'Kalender', sub: 'Se månad och specialdagar'/);
-    assert.match(src, /title: 'Veckoschema', sub: 'Redigera barnets vecka'/);
-    assert.match(src, /title: 'Boendeschema'/);
-    assert.match(src, /sub: 'Växelvis boende mellan hushåll'/);
-    assert.match(src, /title: 'Daglig logg', sub: 'Se och justera tidigare dagar'/);
-    assert.match(src, /title: 'Tilldela schema', sub: 'Kopiera schema till barn'/);
+    assert.match(src, /planning\.links\.library\.title/);
+    assert.match(src, /planning\.links\.calendar\.sub/);
+    assert.match(src, /planning\.links\.weekSchedule\.sub/);
+    assert.match(src, /planning\.links\.custody\.title/);
+    assert.match(src, /planning\.links\.custody\.sub/);
+    assert.match(src, /planning\.links\.dailyLog\.sub/);
+    assert.match(src, /planning\.links\.assignSchedule\.sub/);
   });
 
   it('prioritizes Veckoschema and Kalender before Övrigt', () => {
@@ -25,15 +25,15 @@ describe('Planering hub 10/10', () => {
     const planIdx = src.indexOf('const PLAN_LINKS');
     const otherIdx = src.indexOf('const OTHER_LINKS');
     assert.ok(planIdx >= 0 && otherIdx > planIdx);
-    assert.match(src, /sectionHtml\('Planera vardagen'/);
-    assert.match(src, /sectionHtml\('Bygg innehåll'/);
-    const planSectionIdx = src.indexOf("sectionHtml('Planera vardagen'");
-    const buildSectionIdx = src.indexOf("sectionHtml('Bygg innehåll'");
+    assert.match(src, /planning\.sections\.planWeek/);
+    assert.match(src, /planning\.sections\.buildContent/);
+    const planSectionIdx = src.indexOf("planning.sections.planWeek");
+    const buildSectionIdx = src.indexOf("planning.sections.buildContent");
     assert.ok(planSectionIdx > 0 && buildSectionIdx > planSectionIdx);
-    assert.match(src, /sectionHtml\('Övrigt'/);
-    const veckoIdx = src.indexOf("title: 'Veckoschema'");
+    assert.match(src, /planning\.sections\.other/);
+    const veckoIdx = src.indexOf("planning.links.weekSchedule.title");
     const boendeIdx = src.indexOf('CUSTODY_LINK');
-    const dagligIdx = src.indexOf("title: 'Daglig logg'");
+    const dagligIdx = src.indexOf("planning.links.dailyLog.title");
     assert.ok(veckoIdx < dagligIdx);
     assert.ok(boendeIdx < dagligIdx || boendeIdx > otherIdx);
   });
@@ -47,7 +47,7 @@ describe('Planering hub 10/10', () => {
 
   it('shows Kom igång tom-state for families without schedule today', () => {
     const src = fs.readFileSync(HUB, 'utf8');
-    assert.match(src, /Kom igång/);
+    assert.match(src, /planning\.gettingStarted\.title/);
     assert.match(src, /fetchNeedsGettingStarted/);
     assert.match(src, /href="\/for-dig"/);
     assert.match(src, /showGettingStarted/);

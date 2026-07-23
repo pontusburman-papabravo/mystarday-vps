@@ -1,0 +1,34 @@
+{
+  "pageTitle": "Planering — {{brand}}",
+  "shell": {
+    "title": "Planering",
+    "lead": "Bygg innehåll eller planera barnens vecka — välj nedan.",
+    "logout": "Logga ut"
+  },
+  "sections": {
+    "planWeek": "Planera vardagen",
+    "buildContent": "Bygg innehåll",
+    "other": "Övrigt"
+  },
+  "links": {
+    "library": { "title": "Bibliotek", "sub": "Skapa aktiviteter och belöningar" },
+    "imageArchive": { "title": "Bildarkiv", "sub": "Egna foton — tandborste, säng, skola" },
+    "weekSchedule": { "title": "Veckoschema", "sub": "Redigera barnets vecka" },
+    "calendar": { "title": "Kalender", "sub": "Se månad och specialdagar" },
+    "custody": { "title": "Boendeschema", "sub": "Växelvis boende mellan hushåll" },
+    "dailyLog": { "title": "Daglig logg", "sub": "Se och justera tidigare dagar" },
+    "printSchema": { "title": "Skapa PDF — schema", "sub": "Skriv ut schema" },
+    "assignSchedule": { "title": "Tilldela schema", "sub": "Kopiera schema till barn" },
+    "reports": { "title": "Rapporter", "sub": "Utveckling och delning" },
+    "samarbete": { "title": "Pedagogsamarbete", "sub": "Samarbeta med pedagog" },
+    "barnStod": { "title": "Extra stöd", "sub": "Visuellt stöd och TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Kom igång",
+    "bodyBeforeLibrary": "Börja i ",
+    "libraryLink": "Biblioteket",
+    "bodyMiddle": " om du vill skapa aktiviteter. Gå till ",
+    "forYouLink": "För dig",
+    "bodyAfter": " om du vill få en färdig rekommendation."
+  }
+}

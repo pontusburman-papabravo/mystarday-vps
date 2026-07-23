@@ -1,0 +1,117 @@
+{
+  "pageTitle": "Family — {{brand}}",
+  "shell": {
+    "title": "Family",
+    "loading": "Loading…",
+    "settingsLink": "Settings",
+    "childrenHeading": "Children",
+    "addChild": "+ Add child",
+    "noChildren": "No children added yet",
+    "noChildrenHint": "Add your first child to get started.",
+    "inviteParent": "+ Invite co-parent",
+    "noAdults": "No adults added yet",
+    "noAdultsHint": "Invite another adult to your family.",
+    "pendingInvites": "Pending invites",
+    "waiting": "Waiting…",
+    "withdrawInvite": "Withdraw",
+    "parentsHeading": "Adults",
+    "scanQr": "Scan QR",
+    "logout": "Log out"
+  },
+  "roles": {
+    "parent": "Parent",
+    "mamma": "Mum",
+    "pappa": "Dad",
+    "bonusParent": "Bonus parent",
+    "other": "Other"
+  },
+  "summary": {
+    "childrenOne": "1 child",
+    "childrenMany": "{{count}} children",
+    "oneParent": "1 parent",
+    "parentsMany": "{{count}} parents"
+  },
+  "child": {
+    "ageUnknown": "Age unknown",
+    "dragReorder": "Drag to change order",
+    "monthsMany": "{{count}} months",
+    "yearsOne": "{{count}} year",
+    "yearsMany": "{{count}} years"
+  },
+  "errors": {
+    "loadFamily": "Could not load family information:",
+    "sessionExpired": "Your session has expired. Signing you in again…",
+    "addChild": "Could not add child:",
+    "approveRedemption": "Could not approve",
+    "approveGoal": "Could not approve",
+    "setGoal": "Could not set goal",
+    "giveStars": "Could not give stars",
+    "withdrawInvite": "Could not withdraw:",
+    "selectChild": "Select at least one child",
+    "deny": "Could not deny",
+    "saveOrder": "Could not save order",
+    "applySchedule": "Could not apply:",
+    "save": "Could not save:",
+    "updateVisibility": "Could not update visibility:",
+    "loadPackages": "Could not load schedule packages.",
+    "upload": "Upload failed",
+    "noGoalSet": "No goal set"
+  },
+  "toasts": {
+    "redemptionApproved": "✓ Redemption approved!",
+    "redemptionDenied": "Redemption denied.",
+    "goalChangeApproved": "✓ Goal change approved!",
+    "goalChangeDenied": "Goal change denied.",
+    "goalSet": "🎯 Goal set!",
+    "starsGiven": "⭐ {{count}} stars given!",
+    "nnlEnabled": "NOW / NEXT / LATER enabled",
+    "nnlDisabled": "Free check-off — child chooses",
+    "pinLength": "PIN must be exactly 4 digits",
+    "inviteWithdrawn": "Invite withdrawn",
+    "scheduleApplied": "\"{{name}}\" applied to {{child}}! ✓"
+  },
+  "drawer": {
+    "select": "Select",
+    "loadingPackages": "Loading schedule packages…",
+    "loadingGoals": "Loading…",
+    "loadingRewards": "Loading rewards…",
+    "loadingHistory": "Loading…",
+    "noPackages": "No schedule packages available yet.",
+    "applyConfirm": "Apply \"{{schedule}}\" to {{name}}? This replaces the child's current weekly schedule (Mon–Fri).",
+    "pendingGoalChange": "⏳ Goal change pending",
+    "activeGoal": "Active goal",
+    "noGoal": "No goal",
+    "chooseReward": "– Choose reward –",
+    "noRewardsYet": "No rewards in the library yet.",
+    "goToLibrary": "Go to Library",
+    "noRedemptions": "No redeemed rewards yet.",
+    "wantsRedeem": "wants to redeem {{reward}}",
+    "starsCost": "⭐ {{count}} stars",
+    "wantsGoalChange": "wants to change goal to {{reward}}",
+    "goalChangeRequest": "Goal change request"
+  },
+  "giveStars": {
+    "reasonRequired": "Reason required!",
+    "minStars": "Enter at least 1 star",
+    "submit": "Give stars ⭐",
+    "sending": "Sending…",
+    "uploading": "Uploading image…",
+    "uploadSuccess": "✓ Image uploaded!",
+    "uploadFailed": "Image failed:",
+    "cancel": "Cancel"
+  },
+  "schedule": {
+    "activitiesMany": "{{count}} activities",
+    "activitiesOne": "1 activity",
+    "sectionsDefault": "Morning, Day, Evening"
+  },
+  "delete": {
+    "childMessage": "All activities, schedules and reward history for this child will be deleted permanently.",
+    "memberMessage": "This person will be removed from your family. They can still log in with their account.",
+    "removeFromFamily": "Remove from family"
+  },
+  "pedagog": {
+    "title": "Educators",
+    "collaboration": "Educator collaboration"
+  }
+}

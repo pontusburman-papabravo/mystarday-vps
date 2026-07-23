@@ -18,5 +18,29 @@
   "reports": "Reports",
   "library": "Library",
   "treasureChest": "Treasure Chest",
-  "familySettings": "Family & settings"
+  "familySettings": "Family & settings",
+  "capability": {
+    "subscription": "Subscription",
+    "reports": "Reports",
+    "samarbete": "Educator collaboration",
+    "barnStod": "Extra support"
+  },
+  "header": {
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "share": "Share",
+    "shareTitle": "Tell a family about the app!",
+    "shareAria": "Share"
+  },
+  "avatar": {
+    "switchPedagog": "Switch to educator view",
+    "subscription": "Subscription",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "mobile": {
+    "openMenu": "Open menu",
+    "darkModeTitle": "Dark mode",
+    "darkModeAria": "Toggle dark mode"
+  }
 }

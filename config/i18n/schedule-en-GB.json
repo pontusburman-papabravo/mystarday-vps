@@ -1,0 +1,67 @@
+{
+  "pageTitle": "Schedule — {{brand}}",
+  "mode": {
+    "aria": "Schedule view",
+    "single": "My child",
+    "family": "All children"
+  },
+  "summary": {
+    "none": "No schedule yet — start planning the week",
+    "fullWeek": "Schedule for the full week ✅"
+  },
+  "errors": {
+    "loadPage": "Something went wrong while loading. Reload the page.",
+    "loadSchedule": "Something went wrong while loading the schedule. Reload the page.",
+    "network": "Network error",
+    "generic": "Something went wrong",
+    "pickEmoji": "Choose an emoji",
+    "sessionExpired": "Your session has expired. Signing you in again…",
+    "parentPermission": "Parent permission required"
+  },
+  "empty": {
+    "noChildrenTitle": "No children added yet",
+    "goToDashboard": "Go to Home",
+    "noScheduleTitle": "{{name}} has no weekly schedule yet",
+    "noScheduleBody": "Create a schedule to start planning the day",
+    "noScheduleDayTitle": "No schedule for {{day}}{{date}}",
+    "noScheduleDayBody": "Create a schedule to start planning {{name}}'s day",
+    "createForDay": "+ Create schedule for {{day}}"
+  },
+  "custody": {
+    "otherParent": "Child is with the other parent {{date}}",
+    "myDaysFilter": "\"My days\" is on — clear the filter above to see the {{variant}} schedule."
+  },
+  "paused": {
+    "title": "{{name}} is paused today",
+    "hint": "Today's activities are paused. <a href=\"/family\" class=\"underline hover:text-amber-800\">Change in settings →</a>"
+  },
+  "childFallback": "Child",
+  "actions": {
+    "add": "Add",
+    "rewards": "Rewards",
+    "rewardsFor": "Rewards — {{name}}",
+    "addSchedule": "Add schedule",
+    "addScheduleFor": "Add schedule for {{day}}",
+    "dragReorder": "Drag to change order",
+    "oneOff": "One-off activity",
+    "editActivity": "Click to edit",
+    "toggleSubsteps": "Show/hide steps",
+    "substepsCount": "{{count}} steps",
+    "removeFromSchedule": "Remove from schedule",
+    "dragCopyHint": "Drag activity to a day tab to copy",
+    "deleteDayConfirm": "Delete the whole schedule for {{day}}?"
+  },
+  "copy": {
+    "fromLabel": "Copy the schedule from <strong>{{day}}</strong> to:",
+    "selectDay": "Select at least one day",
+    "selectChild": "Select a child",
+    "noOtherChildren": "No other children",
+    "copiedDays": "Schedule copied to {{count}} day(s)",
+    "copiedWeek": "Weekly schedule copied",
+    "deleted": "Schedule deleted",
+    "nothingToCopy": "No schedule to copy"
+  },
+  "addChild": {
+    "success": "{{name}} has been added! PIN: {{pin}}"
+  }
+}

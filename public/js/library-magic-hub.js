@@ -6,43 +6,53 @@
 (function () {
   'use strict';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   const SECTIONS = {
     standard: {
       tab: 'standard',
-      title: 'Standardscheman',
-      subtitle: 'Färdiga mallar att kopiera',
+      titleKey: 'library.hub.sections.standard.title',
+      subtitleKey: 'library.hub.sections.standard.subtitle',
       icon: 'schema',
       iconClass: 'schedules',
     },
     activities: {
       tab: 'activities',
-      title: 'Aktiviteter',
-      subtitle: 'Dina aktiviteter — emoji eller eget foto',
+      titleKey: 'library.hub.sections.activities.title',
+      subtitleKey: 'library.hub.sections.activities.subtitle',
       icon: 'aktiviteter',
       iconClass: 'activities',
     },
     bilder: {
       tab: 'activities',
-      title: 'Bildarkiv',
-      subtitle: 'Egna foton — tandborste, säng, skola',
+      titleKey: 'library.hub.sections.images.title',
+      subtitleKey: 'library.hub.sections.images.subtitle',
       icon: 'redigera',
       iconClass: 'images',
     },
     rewards: {
       tab: 'rewards',
-      title: 'Belöningar',
-      subtitle: 'Mål barnen strävar mot',
+      titleKey: 'library.hub.sections.rewards.title',
+      subtitleKey: 'library.hub.sections.rewards.subtitle',
       icon: 'beloningar',
       iconClass: 'rewards',
     },
     mine: {
       tab: 'schema',
-      title: 'Mina bibliotek',
-      subtitle: 'Egna scheman och mallor',
+      titleKey: 'library.hub.sections.mine.title',
+      subtitleKey: 'library.hub.sections.mine.subtitle',
       icon: 'historik',
       iconClass: 'mine',
     },
   };
+
+  function sectionLabel(s, field) {
+    const key = field === 'title' ? s.titleKey : s.subtitleKey;
+    if (key) return pt(key);
+    return field === 'title' ? (s.title || '') : (s.subtitle || '');
+  }
 
   let _section = null;
   let _hubSearch = '';
@@ -170,12 +180,12 @@
     mount.innerHTML =
       '<div class="library-magic-hub magic-3d-scene">' +
       (isFromPlanning()
-        ? '<button type="button" class="library-magic-planning-back" data-library-planning-back="1">← Till planering</button>'
+        ? '<button type="button" class="library-magic-planning-back" data-library-planning-back="1">' + escHtml(pt('library.hub.backToPlanning')) + '</button>'
         : '') +
       '<div class="library-magic-hub-head">' +
-      '<div><h1>📚 Biblioteket</h1><p>Scheman, aktiviteter och belöningar för er familj</p></div>' +
+      '<div><h1>📚 ' + escHtml(pt('library.hub.title')) + '</h1><p>' + escHtml(pt('library.hub.subtitle')) + '</p></div>' +
       '<div class="library-magic-mascot" aria-hidden="true">⭐</div></div>' +
-      '<input type="search" class="library-magic-search" id="libraryMagicSearch" placeholder="Sök i biblioteket…" value="' + escHtml(_hubSearch) + '">' +
+      '<input type="search" class="library-magic-search" id="libraryMagicSearch" placeholder="' + escHtml(pt('library.hub.searchPlaceholder')) + '" value="' + escHtml(_hubSearch) + '">' +
       '<div class="library-magic-menu">' +
       menuCard('standard') +
       menuCard('activities') +
@@ -256,7 +266,7 @@
     const s = SECTIONS[key];
     return '<button type="button" class="library-magic-menu-card magic-3d-card" data-library-section="' + key + '">' +
       '<span class="library-magic-menu-icon ' + s.iconClass + '" aria-hidden="true">' + sectionIcon(s.icon) + '</span>' +
-      '<span class="library-magic-menu-text"><strong>' + escHtml(s.title) + '</strong><span>' + escHtml(s.subtitle) + '</span></span>' +
+      '<span class="library-magic-menu-text"><strong>' + escHtml(sectionLabel(s, 'title')) + '</strong><span>' + escHtml(sectionLabel(s, 'subtitle')) + '</span></span>' +
       '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';
   }
 
@@ -283,7 +293,7 @@
     chrome.innerHTML =
       '<div class="library-magic-chrome">' +
       '<button type="button" class="library-magic-back" data-library-action="back" aria-label="Tillbaka">←</button>' +
-      '<div class="library-magic-chrome-title"><h2 class="library-magic-chrome-heading">' + chromeSectionIcon(s.icon, s.iconClass) + '<span>' + escHtml(s.title) + '</span></h2><p>' + escHtml(s.subtitle) + '</p></div>' +
+      '<div class="library-magic-chrome-title"><h2 class="library-magic-chrome-heading">' + chromeSectionIcon(s.icon, s.iconClass) + '<span>' + escHtml(sectionLabel(s, 'title')) + '</span></h2><p>' + escHtml(sectionLabel(s, 'subtitle')) + '</p></div>' +
       actionHtml +
       '</div>';
 
