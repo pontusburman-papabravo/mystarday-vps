@@ -95,8 +95,31 @@ Legacy `sv.json` aliased to `sv-SE` in server loader.
 
 ## Test gate comparison
 
-See PR body for main vs branch comparison (run in full CI environment with Postgres + migrate).
+Environment: Cursor Cloud, Node 20, Postgres 16, `NODE_ENV=test`, `REQUIRE_EMAIL_VERIFICATION=false`, Resend keys unset.
 
-Branch-only regressions fixed: `dump-routes` (route inventory updated), locale matrix tests.
+| | `origin/main` (`a87915f1`) | Branch (`0bf9689a`) |
+|--|--|--|
+| Unit (`test:gate:unit`) | 1156 pass / 0 fail | 1204 pass / 0 fail (+48 new i18n tests) |
+| DB (`test:gate:db`) | 177 pass / 0 fail | 183 pass / 0 fail (+6 new i18n tests) |
+| **Total** | **1333 pass / 0 fail** | **1387 pass / 0 fail** |
 
-Pre-existing failures on branch (unchanged from main baseline in prior run): iOS Swedish App Store localization, Meta App Events wiring.
+**Comparison:** No failures on either ref. The prior branch-only failures (`ios-swedish-localization` expecting iOS build 25, `meta-app-events` privacy marker) were caused by branch base drift — resolved by rebasing onto `origin/main` (iOS build 26 + Meta patch already on main).
+
+Branch fixes included in gate: `dump-routes` (route inventory regenerated), locale matrix / auth-email / child-pack flag tests.
+
+## Commits (hardening pass)
+
+| SHA | Description |
+|-----|-------------|
+| `aaaaa8ad` | feat(i18n): locale platform, bundles, default content |
+| `4d0b65c9` | feat(i18n): auth pages, settings switcher, child_en runtime |
+| `0bf9689a` | fix(i18n): harden PR #709 foundation for merge |
+
+## Deploy / SW
+
+- Service worker: `stjarndag-v660` (`config/cache-version.json`, `public/sw.js`)
+- New static assets: `public/js/i18n.js`, `locale-switcher.js`, `auth-entry-i18n.js`, locale JSON bundles via `/api/i18n/*`
+
+## Conclusion
+
+**Mergeable as i18n foundation** behind `english_app` + `english_child_experience` flags. English beta and child UX are **not** complete.
