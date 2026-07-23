@@ -9,6 +9,7 @@ function getPacksRoot() {
 }
 const db = require('../db');
 const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
+const { isEnglishChildExperienceEnabled } = require('../i18n-flags');
 
 const DEFAULT_PACK_ID = 'child_se';
 
@@ -90,8 +91,8 @@ function resolvePackForChild(_childId, packId) {
  * @param {string|null|undefined} familyLocale
  * @returns {object}
  */
-function resolvePackForFamily(familyLocale) {
-  const packId = experiencePackIdForLocale(resolveFamilyLocale(familyLocale));
+function resolvePackForFamily(familyLocale, opts = {}) {
+  const packId = experiencePackIdForLocale(resolveFamilyLocale(familyLocale), opts);
   return loadPack(packId);
 }
 
@@ -106,14 +107,28 @@ async function resolvePackIdForChild(childId, client) {
   const q = client && typeof client.query === 'function' ? client : db;
   try {
     const result = await q.query(
-      `SELECT f.preferred_locale
+      `SELECT f.preferred_locale, f.id AS family_id
        FROM child c
        JOIN family f ON f.id = c.family_id
        WHERE c.id = $1`,
       [childId]
     );
-    const familyLocale = result.rows[0]?.preferred_locale;
-    return experiencePackIdForLocale(resolveFamilyLocale(familyLocale));
+    const row = result.rows[0];
+    if (!row) return DEFAULT_PACK_ID;
+    const englishChild = await isEnglishChildExperienceEnabled(row.family_id);
+    const packId = experiencePackIdForLocale(resolveFamilyLocale(row.preferred_locale), {
+      englishChildExperienceEnabled: englishChild,
+    });
+    if (packId === 'child_en') {
+      try {
+        loadPack('child_en');
+        return 'child_en';
+      } catch (err) {
+        console.warn('[experience-pack] child_en unavailable, falling back to child_se:', err.message);
+        return DEFAULT_PACK_ID;
+      }
+    }
+    return packId;
   } catch (err) {
     console.warn('[experience-pack] resolvePackIdForChild failed, defaulting sv:', err.message);
     return DEFAULT_PACK_ID;

@@ -27,19 +27,9 @@ const TIME_CATEGORY_OFFSET = Object.freeze({
 });
 
 /** Swedish time-slot names from default_activity_template (admin DB). */
-const SV_CATEGORY_TO_TIME_GROUP = Object.freeze({
-  Morgon: 'morgon',
-  Förmiddag: 'formiddag',
-  Eftermiddag: 'eftermiddag',
-  Kväll: 'kvall',
-});
-
-const SV_TIME_CATEGORY_OFFSET = Object.freeze({
-  Morgon: 0,
-  Förmiddag: 100,
-  Eftermiddag: 200,
-  Kväll: 300,
-});
+const svDbMap = require('../../../config/default-content/sv-category-db-map.json');
+const SV_CATEGORY_TO_TIME_GROUP = Object.freeze(svDbMap.categoryToTimeGroup);
+const SV_TIME_CATEGORY_OFFSET = Object.freeze(svDbMap.timeCategoryOffset);
 
 /**
  * Resolve time_group for an activity category label (English or Swedish).

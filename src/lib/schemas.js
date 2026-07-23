@@ -91,6 +91,8 @@ const ChildLoginSchema = z.object({
 
 const ForgotPasswordSchema = z.object({
   email: email,
+  preferred_locale: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
+  language: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
 });
 
 const ResetPasswordSchema = z.object({

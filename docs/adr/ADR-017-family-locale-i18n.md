@@ -108,7 +108,8 @@ Pre-auth: `sessionStorage` key `sd_preferred_locale`. Post-login: `/api/auth/me`
 
 ## Consequences
 
-- New migrations: `1810100000000`–`1810100000002`
+- New migrations: `1810000000001`–`1810000000003` (after `1810000000000_family_avatar_private_storage`)
+- `english_child_experience` gates `child_en` separately from `english_app`
 - `test/i18n-locale.test.js` + registration integration tests
 - `scripts/audit-hardcoded-swedish.mjs` for P0/P1 regression
 - SW cache bump when static JS changes

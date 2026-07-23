@@ -16,7 +16,7 @@ const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
 const { isSupportedLocale, validateLocale } = require('../../lib/locale');
-const { hasAccess } = require('../../../db/features');
+const { isEnglishAppEnabled, isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 
@@ -170,7 +170,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       if (!isSupportedLocale(preferred_locale)) {
         return res.status(400).json({ error: 'INVALID_LOCALE' });
       }
-      const englishOk = await hasAccess(req.user.familyId, 'english_app');
+      const englishOk = await isEnglishAppEnabled(req.user.familyId);
       if (preferred_locale === 'en-GB' && !englishOk) {
         return res.status(403).json({ error: 'ENGLISH_APP_DISABLED' });
       }
@@ -264,7 +264,8 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
 // ─── GET /api/family/locale-options ─────────────────────
 router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
   try {
-    const englishApp = await hasAccess(req.user.familyId, 'english_app');
+    const englishApp = await isEnglishAppEnabled(req.user.familyId);
+    const englishChild = await isEnglishChildExperienceEnabled(req.user.familyId);
     const familyRow = await db.query(
       `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
       [req.user.familyId]
@@ -272,6 +273,7 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
     res.json({
       preferred_locale: familyRow.rows[0]?.preferred_locale || 'sv-SE',
       english_app_enabled: englishApp,
+      english_child_experience_enabled: englishChild,
       supported_locales: ['sv-SE', 'en-GB'],
     });
   } catch (err) {

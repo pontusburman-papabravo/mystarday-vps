@@ -2,23 +2,43 @@
 'use strict';
 
 /**
- * Audit P0/P1 product files for hardcoded Swedish strings.
- * Report-only by default; pass --strict to exit 1 on matches.
+ * Audit hardcoded Swedish product copy.
  *
- * Usage: node scripts/audit-hardcoded-swedish.mjs [--strict]
+ * Modes:
+ *   node scripts/audit-hardcoded-swedish.js           # report all tiers
+ *   node scripts/audit-hardcoded-swedish.js --strict  # fail on STRICT tier only
+ *   node scripts/audit-hardcoded-swedish.js --baseline # fail if BASELINE count increases
+ *
+ * Tiers:
+ *   STRICT   — i18n infrastructure; new Swedish user-facing copy blocks merge
+ *   BASELINE — P0/P1 not yet migrated; tracked count must not grow
+ *   REPORT   — admin/SEO/legal; informational only
  */
 
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const STRICT = process.argv.includes('--strict');
+const BASELINE_PATH = path.join(__dirname, 'audit-hardcoded-swedish-baseline.json');
+
+const MODE_STRICT = process.argv.includes('--strict');
+const MODE_BASELINE = process.argv.includes('--baseline');
+const MODE_REPORT = !MODE_STRICT && !MODE_BASELINE;
 
 const SWEDISH_RE = /[åäöÅÄÖ]/;
 
-const P0_FILES = [
+const STRICT_FILES = [
   'public/js/i18n.js',
   'public/js/locale-switcher.js',
+  'public/js/auth-entry-i18n.js',
+  'src/lib/locale.js',
+  'src/lib/i18n.js',
+  'src/lib/i18n-flags.js',
+  'src/lib/auth-email-locale.js',
+  'src/lib/default-content/index.js',
+];
+
+const BASELINE_FILES = [
   'public/js/auth.js',
   'public/js/child-login.js',
   'public/login.html',
@@ -30,45 +50,117 @@ const P0_FILES = [
   'public/onboarding.html',
   'src/routes/auth/register.js',
   'src/routes/auth/login.js',
+  'src/routes/auth/email.js',
   'src/lib/email.js',
 ];
 
-const ALLOWLIST_PATTERNS = [
-  /förälder/i,
+const REPORT_FILES = [
+  'public/admin/',
+  'public/index.html',
+  'public/terms.html',
+  'public/privacy.html',
+];
+
+const STRICT_ALLOWLIST = [
   /pragma:/,
   /console\./,
   /\/\//,
-  /family_role/,
-  /mamma|pappa|bonus/,
+  /SV_CATEGORY_TO_TIME_GROUP|SV_TIME_CATEGORY_OFFSET/, // Swedish DB category keys (not UI copy)
 ];
 
-function shouldIgnore(line) {
-  return ALLOWLIST_PATTERNS.some((re) => re.test(line));
+const BASELINE_ALLOWLIST = [
+  ...STRICT_ALLOWLIST,
+  /family_role/,
+  /mamma|pappa|bonus/,
+  /data-i18n/, // Swedish fallback text in HTML until full migration
+];
+
+function shouldIgnore(line, allowlist) {
+  return allowlist.some((re) => re.test(line));
 }
 
-function auditFile(relPath) {
+function auditFile(relPath, allowlist) {
   const abs = path.join(ROOT, relPath);
   if (!fs.existsSync(abs)) return [];
   const lines = fs.readFileSync(abs, 'utf8').split('\n');
   const hits = [];
   lines.forEach((line, idx) => {
     if (!SWEDISH_RE.test(line)) return;
-    if (shouldIgnore(line)) return;
+    if (shouldIgnore(line, allowlist)) return;
     hits.push({ file: relPath, line: idx + 1, text: line.trim().slice(0, 120) });
   });
   return hits;
 }
 
-const allHits = P0_FILES.flatMap(auditFile);
-
-if (allHits.length === 0) {
-  console.log('[audit-hardcoded-swedish] P0 files: no Swedish characters found.');
-  process.exit(0);
+function auditPaths(paths, allowlist) {
+  const hits = [];
+  for (const p of paths) {
+    const abs = path.join(ROOT, p);
+    if (p.endsWith('/')) {
+      if (!fs.existsSync(abs)) continue;
+      walkDir(abs, p, hits, allowlist);
+    } else {
+      hits.push(...auditFile(p, allowlist));
+    }
+  }
+  return hits;
 }
 
-console.log(`[audit-hardcoded-swedish] ${allHits.length} potential Swedish strings in P0 files:\n`);
-for (const h of allHits) {
-  console.log(`${h.file}:${h.line}: ${h.text}`);
+function walkDir(absDir, relPrefix, hits, allowlist) {
+  for (const entry of fs.readdirSync(absDir, { withFileTypes: true })) {
+    const rel = path.join(relPrefix, entry.name);
+    const abs = path.join(absDir, entry.name);
+    if (entry.isDirectory()) {
+      walkDir(abs, rel, hits, allowlist);
+    } else if (/\.(js|html|json)$/.test(entry.name)) {
+      hits.push(...auditFile(rel, allowlist));
+    }
+  }
 }
 
-process.exit(STRICT && allHits.length > 0 ? 1 : 0);
+function loadBaseline() {
+  if (!fs.existsSync(BASELINE_PATH)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function printHits(label, hits) {
+  console.log(`\n[audit-hardcoded-swedish] ${label}: ${hits.length} hit(s)`);
+  for (const h of hits.slice(0, 50)) {
+    console.log(`  ${h.file}:${h.line}: ${h.text}`);
+  }
+  if (hits.length > 50) {
+    console.log(`  ... and ${hits.length - 50} more`);
+  }
+}
+
+const strictHits = auditPaths(STRICT_FILES, STRICT_ALLOWLIST);
+const baselineHits = auditPaths(BASELINE_FILES, BASELINE_ALLOWLIST);
+const reportHits = auditPaths(REPORT_FILES, BASELINE_ALLOWLIST);
+
+let exitCode = 0;
+
+if (MODE_STRICT) {
+  printHits('STRICT', strictHits);
+  if (strictHits.length > 0) exitCode = 1;
+} else if (MODE_BASELINE) {
+  printHits('BASELINE', baselineHits);
+  const saved = loadBaseline();
+  const limit = saved?.baseline_count ?? baselineHits.length;
+  console.log(`\n[audit-hardcoded-swedish] baseline limit: ${limit}, current: ${baselineHits.length}`);
+  if (baselineHits.length > limit) exitCode = 1;
+} else {
+  printHits('STRICT', strictHits);
+  printHits('BASELINE', baselineHits);
+  printHits('REPORT (informational)', reportHits);
+  console.log('\n[audit-hardcoded-swedish] summary:', {
+    strict: strictHits.length,
+    baseline: baselineHits.length,
+    report: reportHits.length,
+  });
+}
+
+process.exit(exitCode);

@@ -5,10 +5,8 @@
  * Existing families backfilled to sv-SE.
  */
 
-const SUPPORTED = ['sv-SE', 'en-GB'];
-
 module.exports = {
-  name: '1810100000000_family_preferred_locale',
+  name: '1810000000001_family_preferred_locale',
 
   up: async (client) => {
     await client.query(`

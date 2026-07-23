@@ -86,9 +86,19 @@ Email send           →     family.preferred_locale (never client)
 
 | Fil | Innehåll |
 |-----|----------|
-| `1810100000000_family_preferred_locale.js` | Kolumn + backfill + CHECK |
-| `1810100000001_english_app_flag.js` | Feature flag |
-| `1810100000002_journey_registry_locale_en_gb.js` | sv→sv-SE + en-GB seed |
+| `1810000000001_family_preferred_locale.js` | Kolumn + backfill + CHECK |
+| `1810000000002_english_i18n_feature_flags.js` | `features`: `english_app`, `english_child_experience` (dev, OFF) |
+| `1810000000003_journey_registry_locale_en_gb.js` | sv→sv-SE + en-GB seed |
+
+Sekvens: direkt efter `1810000000000_family_avatar_private_storage.js`.
+
+## 6b. child_en-skydd
+
+`english_child_experience` (per familj via `family_features`) krävs utöver `english_app` för att runtime ska välja `child_en`. Annars `child_se` även för `en-GB`.
+
+## 6c. Auth-mejl locale
+
+Se `src/lib/auth-email-locale.js` och `docs/i18n-foundation-hardening.md`.
 
 ---
 
@@ -100,7 +110,10 @@ Email send           →     family.preferred_locale (never client)
 | Locale-struktur sv/en paritet | `test/i18n-locale.test.js` |
 | Default content loader | `test/i18n-locale.test.js` |
 | Registrering en-GB | `test/i18n-registration-integration.test.js` |
-| Audit P0 svenska | `scripts/audit-hardcoded-swedish.mjs` |
+| Audit P0 svenska | `npm run audit:i18n` / `audit:i18n:strict` / `audit:i18n:baseline` |
+| Pack gating | `test/i18n-child-pack-flags.test.js` |
+| Auth email locale | `test/i18n-auth-email.test.js` |
+| Hardening matrix | `test/i18n-foundation-hardening.test.js` |
 
 Kör: `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate`
 
@@ -155,14 +168,17 @@ Kör: `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate`
 ## 10. Feature flag — instruktion
 
 ```sql
--- Aktivera engelska för en QA-familj
-INSERT INTO family_features (family_id, feature_slug, enabled_at)
-VALUES ('<family-uuid>', 'english_app', NOW())
+-- Per QA family (recommended)
+INSERT INTO family_features (family_id, feature_slug)
+VALUES ('<family-uuid>', 'english_app')
 ON CONFLICT DO NOTHING;
 
--- Eller globalt (dev)
-UPDATE feature_flag SET enabled = true WHERE key = 'english_app';
+INSERT INTO family_features (family_id, feature_slug)
+VALUES ('<family-uuid>', 'english_child_experience')
+ON CONFLICT DO NOTHING;
 ```
+
+Global `feature_flag` används **inte** för `english_app` — se `features` + `family_features`.
 
 ---
 

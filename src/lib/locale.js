@@ -134,12 +134,17 @@ function journeyLocaleCandidates(familyLocale) {
 
 /**
  * Map family locale to experience pack id.
+ * en-GB selects child_en only when english_child_experience is enabled for the family.
  * @param {string} familyLocale
+ * @param {{ englishChildExperienceEnabled?: boolean }} [opts]
  * @returns {string}
  */
-function experiencePackIdForLocale(familyLocale) {
+function experiencePackIdForLocale(familyLocale, opts = {}) {
   const canonical = resolveFamilyLocale(familyLocale);
-  return canonical === 'en-GB' ? 'child_en' : 'child_se';
+  if (canonical === 'en-GB' && opts.englishChildExperienceEnabled === true) {
+    return 'child_en';
+  }
+  return 'child_se';
 }
 
 /**

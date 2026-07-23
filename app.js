@@ -103,8 +103,8 @@ function createApp() {
 
   app.get('/api/i18n/options', async (req, res) => {
     try {
-      const { hasAccess } = require('./db/features');
-      const englishApp = await hasAccess(null, 'english_app');
+      const { isEnglishAppEnabled } = require('./src/lib/i18n-flags');
+      const englishApp = await isEnglishAppEnabled(null);
       res.json({
         languages: getAvailableLanguages(),
         default: DEFAULT_LOCALE,

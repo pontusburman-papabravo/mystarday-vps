@@ -30,7 +30,7 @@ const EN_TRANSLATIONS = {
 };
 
 module.exports = {
-  name: '1810100000002_journey_registry_locale_en_gb',
+  name: '1810000000003_journey_registry_locale_en_gb',
 
   up: async (client) => {
     await client.query(`
