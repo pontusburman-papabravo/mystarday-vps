@@ -300,7 +300,7 @@ html.is-native-android main > .parent-nav-header-actions:not(.parent-top-chrome 
   border-bottom: 1px solid rgba(27, 35, 64, 0.08);
 }
 
-/* Classic dashboard: child cards must never stay hidden on Android safe mode */
-html.is-native-android #childCardsGrid {
+/* Classic dashboard only — when magic Hem hub is active, legacy cards stay hidden */
+html.is-native-android body:not(.parent-magic-dashboard) #childCardsGrid {
   display: flex !important;
 }
