@@ -1,0 +1,126 @@
+{
+  "pageTitle": "Today — {{brand}}",
+  "childFallback": "Child",
+  "noChildren": "No children added yet.",
+  "loading": "Loading…",
+  "retry": "Try again",
+  "errors": {
+    "loadChildren": "Could not load children",
+    "loadLog": "Could not load the log. Try again.",
+    "saveOrder": "Could not save order",
+    "updateActivity": "Could not update activity",
+    "undo": "Could not undo",
+    "changeStatus": "Could not change status",
+    "adjustTime": "Could not adjust times",
+    "selectChild": "Select a child first",
+    "custodyDisabled": "Custody schedule is not enabled",
+    "loadWeek": "Could not load the week"
+  },
+  "empty": {
+    "noActivitiesToday": "No activities today!",
+    "noScheduleDay": "No routine on this day",
+    "addToWeekSchedule": "Add activities to the weekly schedule to create logs automatically.",
+    "noScheduleSelected": "No routine for the selected day.",
+    "thisDay": "this day",
+    "today": "today",
+    "noChildrenTitle": "No children added",
+    "addFirstChild": "Add your first child in Home to get started!",
+    "goToDashboard": "Go to Home",
+    "goToWeekSchedule": "📅 Go to weekly schedule"
+  },
+  "nav": {
+    "prevWeek": "Previous week",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "nextWeek": "Next week",
+    "pickDate": "Pick date",
+    "todayBtn": "Today",
+    "undoBump": "Undo last time adjustment"
+  },
+  "activity": {
+    "markDone": "Mark as done",
+    "undoMark": "Undo mark",
+    "rate": "⭐ Rate",
+    "setRating": "Set rating",
+    "changeRating": "Change rating",
+    "dragReorder": "Drag to reorder",
+    "completeAllInSection": "Complete all in {{section}}",
+    "completeAllBtn": "✅ Mark all done",
+    "defaultName": "Activity",
+    "undoneToast": "↩️ Mark undone"
+  },
+  "pause": {
+    "confirmPause": "Pause this day? Activities will not count negatively.",
+    "confirmUnpause": "Reactivate this day?",
+    "pausedToast": "😴 Day paused",
+    "unpausedToast": "✅ Day reactivated",
+    "dayTitle": "Day off",
+    "banner": "This day is paused (e.g. sick day or holiday). Activities do not count negatively.",
+    "reactivate": "✅ Reactivate day",
+    "pauseBtn": "😴 Pause this day (sick day / day off)"
+  },
+  "bump": {
+    "noItems": "No unchecked activities with times to adjust",
+    "moved": "⏩ Moved {{count}} activit{{suffix}} forward by {{minutes}} min",
+    "movedOne": "y",
+    "movedMany": "ies",
+    "undoToast": "↩️ Time adjustment undone",
+    "title": "Move all upcoming forward",
+    "adjustHint": "Adjusts times on unchecked activities",
+    "minutesTitle": "Move forward {{minutes}} min",
+    "undoBtn": "↩ Undo"
+  },
+  "retrofill": {
+    "title": "Backfilling routine",
+    "description": "You are filling in a routine afterwards. Mark activities as done — they are saved with the correct date."
+  },
+  "rating": {
+    "childMood": "Child's mood",
+    "parentScore": "Parent rating",
+    "noMoodCards": "No mood cards yet",
+    "labels": [
+      "",
+      "Hard 😓",
+      "Okay 😐",
+      "Good 😊",
+      "Great 😄",
+      "Fantastic! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygiene",
+    "mat": "Food",
+    "skola": "School",
+    "lek": "Play",
+    "rorelse": "Movement",
+    "vila": "Rest",
+    "social": "Social"
+  },
+  "legend": {
+    "colorCoding": "Colour coding:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 All activities done!",
+    "completedOf": "{{completed}} of {{total}} activities done"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Checked off: {{name}}",
+    "undo": "Undo"
+  },
+  "emotions": {
+    "title": "💛 Moods today",
+    "noCards": "No mood cards yet",
+    "sliderResponses": "Slider: {{count}} response{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "s",
+    "sliderAvg": " (avg {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Preparing week overview...",
+    "preparingCustody": "Preparing my days…",
+    "noMyDays": "None of your days this week",
+    "weekScheduleTitle": "{{name}} — Weekly schedule",
+    "myDaysTitle": "{{name}} — My days"
+  }
+}

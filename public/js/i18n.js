@@ -155,6 +155,20 @@ const I18n = {
   getCurrentLang() {
     return this.lang;
   },
+
+  /**
+   * Raw lookup — strings, arrays, or nested objects (for coach tips, etc.).
+   * @param {string} key
+   * @returns {unknown}
+   */
+  get(key) {
+    const keys = key.split('.');
+    let value = this.locale;
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value;
+  },
 };
 
 window.I18n = I18n;

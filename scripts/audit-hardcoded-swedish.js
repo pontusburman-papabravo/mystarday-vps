@@ -48,6 +48,18 @@ const STRICT_FILES = [
   'src/lib/default-content/index.js',
   'src/routes/onboarding.js',
   'config/i18n/onboarding-en-GB.json',
+  'public/js/parent-app-i18n.js',
+  'public/js/locale-datetime.js',
+  'public/js/dashboard-home-hub.js',
+  'public/js/dashboard-daily-summary.js',
+  'public/js/daily-log.js',
+  'public/js/journey-coach.js',
+  'public/js/home-readiness.js',
+  'public/js/parent-home-locale-gate.js',
+  'config/i18n/home-en-GB.json',
+  'config/i18n/today-en-GB.json',
+  'config/i18n/journey-en-GB.json',
+  'config/i18n/time-en-GB.json',
 ];
 
 const BASELINE_FILES = [
@@ -79,7 +91,7 @@ const STRICT_ALLOWLIST = [
   /SV_CATEGORY_TO_TIME_GROUP|SV_TIME_CATEGORY_OFFSET/, // Swedish DB category keys (not UI copy)
   /data-i18n/, // Swedish fallback text in HTML until JS applies locale
   /"months":\s*\[/, // Swedish month names in sv-SE locale JSON only
-  /GROUP_TO_SCHEDULE|scheduleName|default_schedule\.name/, // Swedish DB schedule template names (not UI)
+  /keywords: \[/, // Swedish activity-name matching keywords (not UI copy)
   /<!--/, // HTML comments (not user-visible)
   /Förskola vardag|Kvällsrutin|Morgon vardag|sectionToCategoryName/, // DB template / category keys in onboarding routes
   /\.replace\(\/\[/, // diacritic strip helper in onboarding routes

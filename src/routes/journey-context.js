@@ -10,6 +10,8 @@ const { buildContextForFamily } = require('../lib/journey/context-builder');
 const { loadRegistry } = require('../lib/journey/registry');
 const { FLAG_KEYS, isFlagEnabled, getFlagState } = require('../lib/journey/flags');
 const { listUnseenCompletions, mapCompletionRow } = require('../lib/activation-program-aha');
+const db = require('../lib/db');
+const { resolveFamilyLocale } = require('../lib/locale');
 
 const router = express.Router();
 router.use(scopeRouterToPath('/journey-context', '/journey-debug'));
@@ -99,8 +101,17 @@ router.post('/journey-context/events', async (req, res) => {
 
 router.get('/journey-context/registry', async (req, res) => {
   try {
+    let locale = 'sv-SE';
+    if (req.user.familyId) {
+      const localeRes = await db.query(
+        `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
+        [req.user.familyId]
+      );
+      locale = resolveFamilyLocale(localeRes.rows[0]?.preferred_locale);
+    }
     const registry = await loadRegistry({
       useDb: await isFlagEnabled(FLAG_KEYS.registryV2),
+      locale,
     });
     if (registry?.version) {
       res.set('X-Journey-Registry-Version', registry.version);

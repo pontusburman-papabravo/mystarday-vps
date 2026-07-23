@@ -1,0 +1,24 @@
+{
+  "coach": {
+    "showTips": "Show tips",
+    "close": "Close",
+    "milestone": "Milestone",
+    "nextStep": "Next step",
+    "tip": "Tip",
+    "weekReflection": "Week reflection",
+    "weekTogether": "A week together",
+    "weekLabel": "One week",
+    "sjDay3Headline": "Time for {{name}} to try",
+    "tips": {
+      "coach_consistency": [
+        "Keep the routine short and clear — your child builds the habit step by step.",
+        "Celebrate every tick-off, even the small ones.",
+        "Let your child log in on their own each morning."
+      ],
+      "coach_evening": [
+        "Add 2–3 calm activities before bedtime.",
+        "The same order every evening makes falling asleep easier."
+      ]
+    }
+  }
+}

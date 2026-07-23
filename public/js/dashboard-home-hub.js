@@ -5,7 +5,16 @@
 (function () {
   'use strict';
 
-  const DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
+
+  function dayLabels() {
+    if (window.LocaleDateTime && typeof LocaleDateTime.weekDayLabelsMondayFirst === 'function') {
+      return LocaleDateTime.weekDayLabelsMondayFirst();
+    }
+    return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  }
 
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -33,6 +42,8 @@
     if (!isOverviewVisible()) return false;
     if (window.AppViewMode && !AppViewMode.isAllowed()) return false;
     if (window.AppViewMode && !AppViewMode.isMagic()) return false;
+    // P-i18n-Home-B: en-GB + english_app ON always uses localized magic hub.
+    if (window.ParentHomeLocaleGate && ParentHomeLocaleGate.forceMagicHub()) return true;
     if (window._stjarndagFeatures && window._stjarndagFeatures.parent_home_magic === false) return false;
     return true;
   }
@@ -50,22 +61,22 @@
       return window.DashboardDailySummary.timeGreeting();
     }
     const h = new Date().getHours();
-    if (h >= 5 && h < 11) return 'God morgon!';
-    if (h >= 11 && h < 17) return 'Hej!';
-    if (h >= 17 && h < 22) return 'God kväll!';
-    return 'Hej!';
+    if (h >= 5 && h < 11) return pt('home.greeting.morning');
+    if (h >= 11 && h < 17) return pt('home.greeting.afternoon');
+    if (h >= 17 && h < 22) return pt('home.greeting.evening');
+    return pt('home.greeting.default');
   }
 
   function getChildStatus(c) {
-    if (c.today_is_paused) return { text: 'Ledig idag', icon: '🏠' };
+    if (c.today_is_paused) return { text: pt('home.status.paused'), icon: '🏠' };
     const items = c.today_items || [];
     const total = c.today_total || 0;
     const done = c.today_completed || 0;
-    if (total > 0 && done === total) return { text: 'Allt klart!', icon: '✅' };
-    if (total === 0) return { text: 'Inget schema', icon: '📋' };
+    if (total > 0 && done === total) return { text: pt('home.status.allDone'), icon: '✅' };
+    if (total === 0) return { text: pt('home.status.noSchedule'), icon: '📋' };
     const next = items.find(function (item) { return !item.completed; });
     if (next) return { text: next.name, icon: next.icon || '📋' };
-    return { text: done + '/' + total + ' klara', icon: '⭐' };
+    return { text: pt('home.status.progressDone', { done: done, total: total }), icon: '⭐' };
   }
 
   function progressLabel(c) {
@@ -77,7 +88,7 @@
   }
 
   /**
-   * Hem visar läge — daglig logg/barnprofil äger avcheckning (B-08).
+   * Home read-only mode — daily log / child profile owns check-off (B-08).
    * Barn med aktiviteter idag → dagens daglig logg; annars barnprofil.
    */
   function childRowHref(c) {
@@ -110,21 +121,21 @@
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + mondayOffset + i);
-      var dateStr = d.toLocaleDateString('sv-SE');
+      var dateStr = d.toISOString().slice(0, 10);
       var totalCompleted = 0;
       children.forEach(function (c) {
         const hist = c.history || [];
         const row = hist.find(function (h) { return h.date === dateStr; });
         if (row) totalCompleted += row.completed || 0;
-        else if (dateStr === today.toLocaleDateString('sv-SE')) {
+        else if (dateStr === today.toISOString().slice(0, 10)) {
           totalCompleted += c.today_completed || 0;
         }
       });
       series.push({
-        label: DAY_LABELS[i],
+        label: dayLabels()[i],
         value: totalCompleted,
-        isToday: dateStr === today.toLocaleDateString('sv-SE'),
-        isFuture: d > today && dateStr !== today.toLocaleDateString('sv-SE'),
+        isToday: dateStr === today.toISOString().slice(0, 10),
+        isFuture: d > today && dateStr !== today.toISOString().slice(0, 10),
       });
     }
     return series;
@@ -177,7 +188,7 @@
 
   function renderReadyRow(children, focusId) {
     if (!children.length) {
-      return '<p class="parent-ready-empty">Lägg till barn under Familj för att se status här.</p>';
+      return '<p class="parent-ready-empty">' + escHtml(pt('home.status.emptyChildren')) + '</p>';
     }
     return children.map(function (c) {
       const status = getChildStatus(c);
@@ -185,7 +196,7 @@
       const active = c.id === focusId ? ' is-active' : '';
       const href = childRowHref(c);
       const name = capName(c.name);
-      return '<a href="' + escHtml(href) + '" class="' + magic3dClass('parent-ready-child') + active + ' no-underline" data-child-id="' + escHtml(c.id) + '" aria-label="' + escHtml(name) + ' — visa dagens aktiviteter">' +
+      return '<a href="' + escHtml(href) + '" class="' + magic3dClass('parent-ready-child') + active + ' no-underline" data-child-id="' + escHtml(c.id) + '" aria-label="' + escHtml(pt('home.status.viewActivitiesAria', { name: name })) + '">' +
         (active ? '<span class="parent-ready-badge" aria-hidden="true">⭐</span>' : '') +
         '<div class="parent-ready-avatar">' + renderAvatar(c, 44) + '</div>' +
         '<div class="parent-ready-name">' + escHtml(name) + '</div>' +
@@ -216,19 +227,19 @@
 
   function renderQuickActions(children) {
     const logHref = escHtml(retroactiveLogHref(children));
-    return '<div class="parent-quick-grid" role="group" aria-label="Snabbåtgärder">' +
+    return '<div class="parent-quick-grid" role="group" aria-label="' + escHtml(pt('home.quickActions.aria')) + '">' +
       '<a href="' + logHref + '" class="parent-quick-tile parent-quick-tile-link no-underline">' +
       quickActionIcon('registrera-i-efterhand', '📝') +
-      '<span class="parent-quick-tile-label">I efterhand</span></a>' +
+      '<span class="parent-quick-tile-label">' + escHtml(pt('home.quickActions.retroactive')) + '</span></a>' +
       '<button type="button" class="parent-quick-tile" data-action="once-task">' +
       quickActionIcon('engangsaktivitet', '📋') +
-      '<span class="parent-quick-tile-label">Engångs-<wbr>aktivitet</span></button>' +
+      '<span class="parent-quick-tile-label">' + escHtml(pt('home.quickActions.onceTask')) + '</span></button>' +
       '<button type="button" class="parent-quick-tile" data-action="give-stars">' +
       quickActionIcon('extra-stjarnor', '⭐') +
-      '<span class="parent-quick-tile-label">Extra stjärnor</span></button>' +
+      '<span class="parent-quick-tile-label">' + escHtml(pt('home.quickActions.extraStars')) + '</span></button>' +
       '<button type="button" class="parent-quick-tile" data-action="ledig-dag">' +
       quickActionIcon('ledig-dag', '🏠') +
-      '<span class="parent-quick-tile-label">Ledig dag</span></button>' +
+      '<span class="parent-quick-tile-label">' + escHtml(pt('home.quickActions.dayOff')) + '</span></button>' +
       '</div>';
   }
 
@@ -286,13 +297,13 @@
       '<div id="parentHubDailySummaryMount" class="parent-hub-daily-summary" aria-live="polite"></div>' +
       '<div class="parent-hub-greeting-block">' +
       '<h1 class="parent-hub-greeting">' + escHtml(timeGreeting()) + '</h1>' +
-      '<p class="parent-hub-sub">Så här ser dagen ut.</p>' +
+      '<p class="parent-hub-sub">' + escHtml(pt('home.sub')) + '</p>' +
       '</div>' +
       renderQuickActions(children) +
       '<div id="parentHubReadinessSlot" class="parent-hub-readiness-slot" aria-live="polite"></div>' +
       '<section class="parent-ready-section parent-glass-card">' +
       '<div class="parent-ready-head">' +
-      '<h2>Redo för nästa aktivitet' + (children.length > 1 ? ' <span class="parent-ready-count">(' + children.length + ' barn)</span>' : '') + '</h2>' +
+      '<h2>' + escHtml(pt('home.ready.title')) + (children.length > 1 ? ' <span class="parent-ready-count">' + escHtml(pt('home.ready.childrenCount', { count: children.length })) + '</span>' : '') + '</h2>' +
       '</div>' +
       '<div class="parent-ready-scroll">' + renderReadyRow(children, focusId) + '</div>' +
       '</section>' +
@@ -300,16 +311,16 @@
       '<section class="parent-glass-card parent-handoff-card parent-handoff-large">' +
       '<div class="parent-handoff-lock" aria-hidden="true">🔒</div>' +
       '<div class="parent-handoff-copy">' +
-      '<p class="parent-handoff-title">Dags för barnet att logga in?</p>' +
-      '<p class="parent-handoff-sub">Byt till barnets vy med PIN-kod.</p>' +
+      '<p class="parent-handoff-title">' + escHtml(pt('home.handoff.title')) + '</p>' +
+      '<p class="parent-handoff-sub">' + escHtml(pt('home.handoff.sub')) + '</p>' +
       '</div>' +
       '<div class="parent-handoff-actions">' +
-      '<button type="button" class="parent-handoff-primary" data-action="child-login">👶 Barnet loggar in</button>' +
-      '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">Logga ut</button>' +
+      '<button type="button" class="parent-handoff-primary" data-action="child-login">' + escHtml(pt('home.handoff.childLogin')) + '</button>' +
+      '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">' + escHtml(pt('home.handoff.parentLogout')) + '</button>' +
       '</div></section>' +
       '<section class="parent-glass-card parent-week-section">' +
       '<div class="parent-ready-head">' +
-      '<h3>Veckans berättelse</h3>' +
+      '<h3>' + escHtml(pt('home.weekStory.title')) + '</h3>' +
       '</div>' +
       renderWeekChart(weekSeries) +
       '</section>' +
