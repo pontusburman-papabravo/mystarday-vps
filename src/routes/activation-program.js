@@ -40,6 +40,8 @@ const {
 } = require('../lib/activation-program-aha');
 const analyticsTracker = require('../lib/analytics-tracker');
 const { FLAG_KEYS, isFlagEnabled } = require('../lib/journey/flags');
+const { t } = require('../lib/i18n');
+const { getFamilyLocale, sendOnboardingError } = require('../lib/onboarding-locale');
 
 const router = express.Router();
 router.use(requireParent);
@@ -204,33 +206,32 @@ async function buildProgramResponse(program, timezone, parentId, familyId, markB
   };
 }
 
-const ENROLL_CHOICE_COPY = {
-  intro_title: 'Hur vill ni börja?',
-  intro_body: 'Ni har satt upp barnets schema — bra start. Många familjer upptäcker att den största utmaningen inte är att komma igång, utan att hålla i rutinen de första dagarna när vardagen tar vid. Välj det som passar er:',
-  card_guided_title: 'Håll i rutinen första veckan',
-  card_guided_body: 'Många familjer uppskattar lite stöd efter att schemat är klart. Inte för att något är fel, utan för att nya vanor tar tid att sätta sig.',
-  card_guided_benefits: [
-    'Korta dagliga påminnelser som hjälper er hålla igång',
-    'Se när barnet klarar uppgifter utan extra tjat',
-    'Barnets schema är redan klart — vi hjälper er få rutinen att fungera',
-    'Avsluta när ni vill',
-  ],
-  card_guided_cta: 'Ja, hjälp oss första veckan',
-  card_direct_title: 'Kör igång direkt',
-  card_direct_body: 'Ni känner er redo att köra på själva. Allt finns på plats och ni kan börja direkt.',
-  card_direct_benefits: [
-    'Direkt till dashboarden',
-    'Samma schema, stjärnor och belöningar',
-    'Använd appen i er egen takt',
-  ],
-  card_direct_cta: 'Vi kör själva',
-  footnote: 'Oavsett vilket ni väljer kan ni använda appen fullt ut. Guidad start ger bara lite extra stöd under den första veckan.',
-};
+/**
+ * @param {string} lang
+ * @returns {object}
+ */
+function getEnrollChoiceCopy(lang) {
+  const prefix = 'onboarding.activation';
+  return {
+    intro_title: t(lang, `${prefix}.introTitle`),
+    intro_body: t(lang, `${prefix}.introBody`),
+    card_guided_title: t(lang, `${prefix}.guidedTitle`),
+    card_guided_body: t(lang, `${prefix}.guidedBody`),
+    card_guided_benefits: [0, 1, 2, 3].map((i) => t(lang, `${prefix}.guidedBenefits.${i}`)),
+    card_guided_cta: t(lang, `${prefix}.guidedCta`),
+    card_direct_title: t(lang, `${prefix}.directTitle`),
+    card_direct_body: t(lang, `${prefix}.directBody`),
+    card_direct_benefits: [0, 1, 2].map((i) => t(lang, `${prefix}.directBenefits.${i}`)),
+    card_direct_cta: t(lang, `${prefix}.directCta`),
+    footnote: t(lang, `${prefix}.footnote`),
+  };
+}
 
 /**
  * GET /api/me/activation-program/enroll-choice
  */
 router.get('/enroll-choice', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     if (!(await isFlagEnabled(FLAG_KEYS.activationNewEnrollments))) {
       return res.json({ show: false, sunset: true });
@@ -257,11 +258,11 @@ router.get('/enroll-choice', async (req, res) => {
     res.json({
       show,
       enroll_source: enrollSource,
-      copy: ENROLL_CHOICE_COPY,
+      copy: getEnrollChoiceCopy(lang),
     });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] enroll-choice GET error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    return sendOnboardingError(res, 500, lang, 'GENERIC');
   }
 });
 
@@ -270,6 +271,7 @@ router.get('/enroll-choice', async (req, res) => {
  * Body: { choice: 'guided'|'direct', enroll_source, invite_token? }
  */
 router.post('/enroll-choice', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     if (!(await isFlagEnabled(FLAG_KEYS.activationNewEnrollments))) {
       return res.status(410).json({
@@ -288,7 +290,7 @@ router.post('/enroll-choice', async (req, res) => {
     const inviteToken = req.body?.invite_token || null;
 
     if (!choice || !enrollSource) {
-      return res.status(400).json({ error: 'Ogiltigt val' });
+      return sendOnboardingError(res, 400, lang, 'INVALID_CHOICE');
     }
 
     let allowed = false;
@@ -302,7 +304,7 @@ router.post('/enroll-choice', async (req, res) => {
     }
 
     if (!allowed) {
-      return res.status(404).json({ error: 'Val-skärmen är inte tillgänglig' });
+      return sendOnboardingError(res, 404, lang, 'ENROLL_CHOICE_UNAVAILABLE');
     }
 
     programAnalytics.trackEnrollChoice(familyId, {
@@ -333,7 +335,7 @@ router.post('/enroll-choice', async (req, res) => {
     res.json({ ok: true, enrolled });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] enroll-choice POST error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    return sendOnboardingError(res, 500, lang, 'GENERIC');
   }
 });
 

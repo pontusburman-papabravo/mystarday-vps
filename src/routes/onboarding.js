@@ -30,6 +30,13 @@ const { SECTION_ORDER_SQL, sectionOrderClause } = require('../lib/default-schedu
 const {
   findResumableChildWithoutSchema,
 } = require('../lib/onboarding-child-resume');
+const {
+  getFamilyLocale,
+  sendOnboardingError,
+  ERROR_KEYS,
+} = require('../lib/onboarding-locale');
+const { t } = require('../lib/i18n');
+const { getStarterPlanDisplayName } = require('../../config/starter-plan-meta');
 
 const router = express.Router();
 router.use(requireParent);
@@ -52,35 +59,52 @@ function generatePin() {
 }
 
 // ─── Template group metadata (for dynamic wizard) ───────
-const TEMPLATE_GROUP_META = {
-  forskola: { name: 'Förskola', icon: '🏫', description: 'Hel dag — barn 2–5 år' },
-  skola:    { name: 'Skola',    icon: '📚', description: 'Hel dag — barn 6+ år' },
-  morgon:   { name: 'Morgon',   icon: '☀️', description: 'Morgonrutin' },
-  dag:      { name: 'Dag',      icon: '🌤️', description: 'Dag-aktiviteter' },
-  kvall:    { name: 'Kväll',    icon: '🌙', description: 'Kvällsrutin' },
-  helg:     { name: 'Helg',     icon: '🎉', description: 'Helgrutin' },
+const TEMPLATE_GROUP_ICONS = {
+  forskola: '🏫',
+  skola: '📚',
+  morgon: '☀️',
+  dag: '🌤️',
+  kvall: '🌙',
+  helg: '🎉',
 };
-const VALID_TEMPLATE_GROUPS = Object.keys(TEMPLATE_GROUP_META);
+
+/**
+ * @param {string} lang
+ * @returns {Record<string, { name: string, icon: string, description: string }>}
+ */
+function getTemplateGroupMeta(lang) {
+  /** @type {Record<string, { name: string, icon: string, description: string }>} */
+  const meta = {};
+  for (const key of Object.keys(TEMPLATE_GROUP_ICONS)) {
+    meta[key] = {
+      name: t(lang, `onboarding.templateGroups.${key}.name`),
+      icon: TEMPLATE_GROUP_ICONS[key],
+      description: t(lang, `onboarding.templateGroups.${key}.description`),
+    };
+  }
+  return meta;
+}
+
+const VALID_TEMPLATE_GROUPS = Object.keys(TEMPLATE_GROUP_ICONS);
 
 // ─── POST /api/onboarding/child ──────────────────────────
 // Creates a child with just name + emoji. Auto-generates PIN.
 // Does NOT auto-create weekly schedules (onboarding step 2 handles that).
 // Gates: child_creation_wizard feature. Admin bypass via requireFeature.
 router.post('/child', requireParent, requireFeature('child_creation_wizard'), validate(OnboardingChildSchema), async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { name, emoji, birthday } = req.body;
 
     if (req.body.avatar_url !== undefined) {
-      return res.status(400).json({
-        error: 'Profilbild laddas upp via PUT /api/children/:id/avatar efter att barnet skapats',
-      });
+      return sendOnboardingError(res, 400, lang, 'AVATAR_UPLOAD_PATH');
     }
 
     if (!name || typeof name !== 'string' || name.trim().length < 1) {
-      return res.status(400).json({ error: 'Barnets namn krävs' });
+      return sendOnboardingError(res, 400, lang, 'CHILD_NAME_REQUIRED');
     }
     if (!emoji || typeof emoji !== 'string') {
-      return res.status(400).json({ error: 'Välj en emoji för barnet' });
+      return sendOnboardingError(res, 400, lang, 'EMOJI_REQUIRED');
     }
 
     // Validate birthday format if provided
@@ -88,10 +112,10 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
     if (birthday && typeof birthday === 'string' && birthday.trim() !== '') {
       const birthDate = new Date(birthday);
       if (isNaN(birthDate.getTime())) {
-        return res.status(400).json({ error: 'Ogiltigt datum för födelsedag' });
+        return sendOnboardingError(res, 400, lang, 'INVALID_BIRTHDAY');
       }
       if (birthDate > new Date()) {
-        return res.status(400).json({ error: 'Födelsedagen kan inte vara i framtiden' });
+        return sendOnboardingError(res, 400, lang, 'BIRTHDAY_FUTURE');
       }
       childBirthday = birthday.trim();
     }
@@ -266,7 +290,7 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
     }
   } catch (err) {
     console.error('[ONBOARDING] child error:', err);
-    res.status(500).json({ error: 'Något gick fel när barnet skapades.' });
+    return sendOnboardingError(res, 500, lang, 'CHILD_CREATE_FAILED');
   }
 });
 
@@ -281,18 +305,19 @@ const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 // Seeds weekly_schedule from admin-maintained default_schedule tables.
 // School/preschool groups → weekdays only. Other groups → all 7 days.
 router.post('/schedule', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { child_id, template_group, custom_items, plan_edited_before_save, activity_count } = req.body;
 
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
+    if (!child_id) return sendOnboardingError(res, 400, lang, 'CHILD_ID_REQUIRED');
     if (!template_group || !VALID_TEMPLATE_GROUPS.includes(template_group)) {
-      return res.status(400).json({ error: 'Ogiltigt val. Välj ett giltigt schema.' });
+      return sendOnboardingError(res, 400, lang, 'INVALID_TEMPLATE');
     }
 
     // Verify parent has access to this child
     const childAccess = await authz.getChildAccess(req.user.id, child_id);
     if (!childAccess) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendOnboardingError(res, 403, lang, 'NO_CHILD_ACCESS');
     }
     const familyId = childAccess.family_id;
 
@@ -313,7 +338,7 @@ router.post('/schedule', async (req, res) => {
       [defaultScheduleName]
     );
     if (defaultSchedRow.rows.length === 0) {
-      return res.status(400).json({ error: 'Inga aktiviteter hittades för valt schema.' });
+      return sendOnboardingError(res, 400, lang, 'NO_ACTIVITIES');
     }
     const defaultSchedId = defaultSchedRow.rows[0].id;
 
@@ -326,7 +351,7 @@ router.post('/schedule', async (req, res) => {
       [defaultSchedId]
     );
     if (defaultItems.rows.length === 0) {
-      return res.status(400).json({ error: 'Inga aktiviteter hittades för valt schema.' });
+      return sendOnboardingError(res, 400, lang, 'NO_ACTIVITIES');
     }
 
     let seedItems = defaultItems.rows;
@@ -534,7 +559,7 @@ router.post('/schedule', async (req, res) => {
     }
   } catch (err) {
     console.error('[ONBOARDING] schedule error:', err);
-    res.status(500).json({ error: 'Något gick fel när schemat skapades.' });
+    return sendOnboardingError(res, 500, lang, 'SCHEDULE_CREATE_FAILED');
   }
 });
 
@@ -543,14 +568,15 @@ router.post('/schedule', async (req, res) => {
 // Applies the "Helg" default schedule to Saturday (6) and Sunday (0).
 // Called when parent opts in to adding a weekend schedule during onboarding.
 router.post('/weekend-schedule', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { child_id } = req.body;
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
+    if (!child_id) return sendOnboardingError(res, 400, lang, 'CHILD_ID_REQUIRED');
 
     // Verify parent has access to this child
     const childAccess = await authz.getChildAccess(req.user.id, child_id);
     if (!childAccess) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendOnboardingError(res, 403, lang, 'NO_CHILD_ACCESS');
     }
     const familyId = childAccess.family_id;
 
@@ -559,7 +585,7 @@ router.post('/weekend-schedule', async (req, res) => {
       `SELECT id FROM default_schedule WHERE name = 'Helg' LIMIT 1`
     );
     if (helgRow.rows.length === 0) {
-      return res.status(400).json({ error: 'Helgschemat hittades inte i biblioteket.' });
+      return sendOnboardingError(res, 400, lang, 'WEEKEND_NOT_FOUND');
     }
     const helgSchedId = helgRow.rows[0].id;
 
@@ -572,7 +598,7 @@ router.post('/weekend-schedule', async (req, res) => {
       [helgSchedId]
     );
     if (helgItems.rows.length === 0) {
-      return res.status(400).json({ error: 'Helgschemat har inga aktiviteter.' });
+      return sendOnboardingError(res, 400, lang, 'WEEKEND_EMPTY');
     }
 
     const client = await db.getClient();
@@ -721,22 +747,23 @@ router.post('/weekend-schedule', async (req, res) => {
     }
   } catch (err) {
     console.error('[ONBOARDING] weekend-schedule error:', err);
-    res.status(500).json({ error: 'Något gick fel när helgschemat skapades.' });
+    return sendOnboardingError(res, 500, lang, 'WEEKEND_CREATE_FAILED');
   }
 });
 
 // ─── POST /api/onboarding/reward ─────────────────────────
 // Body: { name, icon, star_cost }
 router.post('/reward', validate(OnboardingRewardSchema), async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { name, icon, star_cost } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length < 1) {
-      return res.status(400).json({ error: 'Belöningens namn krävs' });
+      return sendOnboardingError(res, 400, lang, 'REWARD_NAME_REQUIRED');
     }
     const cost = parseInt(star_cost, 10);
     if (isNaN(cost) || cost < 1) {
-      return res.status(400).json({ error: 'Stjärnkostnad måste vara minst 1' });
+      return sendOnboardingError(res, 400, lang, 'REWARD_COST_MIN');
     }
 
     const result = await db.query(
@@ -754,13 +781,14 @@ router.post('/reward', validate(OnboardingRewardSchema), async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[ONBOARDING] reward error:', err);
-    res.status(500).json({ error: 'Något gick fel när belöningen skapades.' });
+    return sendOnboardingError(res, 500, lang, 'REWARD_CREATE_FAILED');
   }
 });
 
 // ─── GET /api/onboarding/rewards-preview ─────────────────
 // Returns the admin's default rewards for the wizard reward-selection step.
 router.get('/rewards-preview', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const result = await db.query(
       `SELECT id, name, icon, star_cost
@@ -770,7 +798,7 @@ router.get('/rewards-preview', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[ONBOARDING] rewards-preview error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta belöningar.' });
+    return sendOnboardingError(res, 500, lang, 'REWARDS_FETCH_FAILED');
   }
 });
 
@@ -787,7 +815,9 @@ const SCHEDULE_TO_GROUP = {
 };
 
 router.get('/template-groups', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
+    const templateGroupMeta = getTemplateGroupMeta(lang);
     const result = await db.query(
       `SELECT ds.name AS schedule_name, COUNT(dsi.id) AS count
        FROM default_schedule ds
@@ -799,24 +829,24 @@ router.get('/template-groups', async (req, res) => {
     const groups = result.rows
       .map(r => {
         const grpKey = SCHEDULE_TO_GROUP[r.schedule_name];
-        if (!grpKey || !TEMPLATE_GROUP_META[grpKey]) return null;
+        if (!grpKey || !templateGroupMeta[grpKey]) return null;
         const activityCount = parseInt(r.count, 10);
         if (!activityCount) return null;
         return {
           key: grpKey,
-          ...TEMPLATE_GROUP_META[grpKey],
+          ...templateGroupMeta[grpKey],
           activity_count: activityCount,
         };
       })
       .filter(Boolean);
 
     // Add 'dag' group (maps to Förskola vardag) if not already present and usable
-    if (!groups.find(g => g.key === 'dag') && TEMPLATE_GROUP_META['dag']) {
+    if (!groups.find(g => g.key === 'dag') && templateGroupMeta['dag']) {
       const forskolaGroup = groups.find(g => g.key === 'forskola');
       if (forskolaGroup && forskolaGroup.activity_count > 0) {
         groups.push({
           key: 'dag',
-          ...TEMPLATE_GROUP_META['dag'],
+          ...templateGroupMeta['dag'],
           activity_count: forskolaGroup.activity_count,
         });
       }
@@ -825,7 +855,7 @@ router.get('/template-groups', async (req, res) => {
     res.json(groups);
   } catch (err) {
     console.error('[ONBOARDING] template-groups error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta schemagrupper.' });
+    return sendOnboardingError(res, 500, lang, 'TEMPLATE_GROUPS_FAILED');
   }
 });
 
@@ -834,11 +864,12 @@ router.get('/template-groups', async (req, res) => {
 // Query: ?template=morning|evening|fullday&age=5  (legacy)
 //    OR: ?group=forskola|skola|morgon|dag|kvall|helg  (new)
 router.get('/schedule-preview', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { group } = req.query;
 
     if (!group || !VALID_TEMPLATE_GROUPS.includes(group)) {
-      return res.status(400).json({ error: 'Ogiltigt val. Ange ?group=forskola|skola|helg|morgon|kvall|dag' });
+      return sendOnboardingError(res, 400, lang, 'INVALID_TEMPLATE');
     }
 
     // Map template_group to default_schedule name (same as schedule creation endpoint)
@@ -865,7 +896,7 @@ router.get('/schedule-preview', async (req, res) => {
     res.json({ activities: result.rows, schemaType: group, template: group });
   } catch (err) {
     console.error('[ONBOARDING] schedule-preview error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta schema.' });
+    return sendOnboardingError(res, 500, lang, 'SCHEDULE_PREVIEW_FAILED');
   }
 });
 
@@ -875,15 +906,16 @@ router.get('/schedule-preview', async (req, res) => {
 // view_type: 'day' | 'timeline' (onboarding UI names)
 // Mapped to DB values: 'day_sections' | 'now_next_later'
 router.post('/child-view', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { child_id, view_type } = req.body;
     const validViewTypes = ['day', 'timeline', 'day_sections', 'now_next_later'];
     // Map onboarding UI names to canonical DB values
     const dbValueMap = { day: 'day_sections', timeline: 'now_next_later', day_sections: 'day_sections', now_next_later: 'now_next_later' };
 
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
+    if (!child_id) return sendOnboardingError(res, 400, lang, 'CHILD_ID_REQUIRED');
     if (!view_type || !validViewTypes.includes(view_type)) {
-      return res.status(400).json({ error: 'Ogiltig view_type. Välj dag eller tidslinje.' });
+      return sendOnboardingError(res, 400, lang, 'INVALID_VIEW_TYPE');
     }
 
     const dbViewType = dbValueMap[view_type] || 'now_next_later';
@@ -891,7 +923,7 @@ router.post('/child-view', async (req, res) => {
     // Verify child belongs to this parent's family
     const check = await authz.getChildAccess(req.user.id, child_id);
     if (!check) {
-      return res.status(403).json({ error: 'Inte tillåtet' });
+      return sendOnboardingError(res, 403, lang, 'NOT_ALLOWED');
     }
 
     await db.query(
@@ -902,7 +934,7 @@ router.post('/child-view', async (req, res) => {
     res.json({ success: true, view_type });
   } catch (err) {
     console.error('[ONBOARDING] child-view error:', err);
-    res.status(500).json({ error: 'Kunde inte spara vy-val.' });
+    return sendOnboardingError(res, 500, lang, 'VIEW_SAVE_FAILED');
   }
 });
 
@@ -927,16 +959,17 @@ const ACTIVITY_GUIDE_PRESETS = {
 // ─── POST /api/onboarding/child-activity-guide ───────────
 // Parent picks how the child completes daily activities (onboarding defaults).
 router.post('/child-activity-guide', validate(OnboardingActivityGuideSchema), async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { child_id, mode } = req.body;
     const preset = ACTIVITY_GUIDE_PRESETS[mode];
     if (!preset) {
-      return res.status(400).json({ error: 'Ogiltigt val.' });
+      return sendOnboardingError(res, 400, lang, 'INVALID_CHOICE');
     }
 
     const check = await authz.getChildAccess(req.user.id, child_id);
     if (!check) {
-      return res.status(403).json({ error: 'Inte tillåtet' });
+      return sendOnboardingError(res, 403, lang, 'NOT_ALLOWED');
     }
 
     await db.query(
@@ -956,7 +989,7 @@ router.post('/child-activity-guide', validate(OnboardingActivityGuideSchema), as
     res.json({ success: true, mode });
   } catch (err) {
     console.error('[ONBOARDING] child-activity-guide error:', err);
-    res.status(500).json({ error: 'Kunde inte spara aktivitetsval.' });
+    return sendOnboardingError(res, 500, lang, 'ACTIVITY_GUIDE_SAVE_FAILED');
   }
 });
 
@@ -964,23 +997,24 @@ router.post('/child-activity-guide', validate(OnboardingActivityGuideSchema), as
 // Allows parent to set a custom PIN for their child during onboarding.
 // Body: { child_id, pin }
 router.post('/update-pin', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { child_id, pin } = req.body;
 
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
+    if (!child_id) return sendOnboardingError(res, 400, lang, 'CHILD_ID_REQUIRED');
     if (!pin || typeof pin !== 'string' || !/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN-koden måste vara exakt 4 siffror' });
+      return sendOnboardingError(res, 400, lang, 'PIN_MUST_BE_4');
     }
 
     // Reject weak PINs (all same digit)
     if (/^(\d)\1{3}$/.test(pin)) {
-      return res.status(400).json({ error: 'Välj en starkare PIN-kod' });
+      return sendOnboardingError(res, 400, lang, 'PIN_TOO_WEAK');
     }
 
     // Verify parent has access to this child
     const childAccess = await authz.getChildAccess(req.user.id, child_id);
     if (!childAccess) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendOnboardingError(res, 403, lang, 'NO_CHILD_ACCESS');
     }
 
     const childName = childAccess.name;
@@ -992,7 +1026,7 @@ router.post('/update-pin', async (req, res) => {
       [pinFp, childName, child_id]
     );
     if (pinExists.rows.length > 0) {
-      return res.status(409).json({ error: 'Denna PIN-kod är redan upptagen för ett barn med samma namn' });
+      return sendOnboardingError(res, 409, lang, 'PIN_TAKEN');
     }
 
     // Hash and save
@@ -1008,13 +1042,14 @@ router.post('/update-pin', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] update-pin error:', err);
-    res.status(500).json({ error: 'Kunde inte uppdatera PIN-koden.' });
+    return sendOnboardingError(res, 500, lang, 'PIN_UPDATE_FAILED');
   }
 });
 
 // ─── GET /api/onboarding/handoff-context ─────────────────
 // Read-only resume context for ?resume=child-handoff (PR 3). No PIN — hashed server-side.
 router.get('/handoff-context', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const activationDb = require('../../db/family-activation-state');
     const state = await activationDb.getByFamilyId(req.user.familyId);
@@ -1046,7 +1081,7 @@ router.get('/handoff-context', async (req, res) => {
     });
   } catch (err) {
     console.error('[ONBOARDING] handoff-context error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta handoff-kontext' });
+    return sendOnboardingError(res, 500, lang, 'HANDOFF_CONTEXT_FAILED');
   }
 });
 
@@ -1065,23 +1100,25 @@ router.post('/child-access-complete', async (req, res) => {
 // Marks the parent's onboarding as done (auth/routing only).
 // DO NOT USE onboarding_completed FOR PRODUCT LOGIC — use journey_phase / milestones
 router.post('/complete', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
     await markParentOnboardingComplete(req.user.id, req.user.familyId);
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] complete error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return sendOnboardingError(res, 500, lang, 'GENERIC');
   }
 });
 
 // ─── ACT-1 starter plan (PR 3 — template-first, no AI) ───
 
 router.post('/starter-plan/suggest', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
     if (!await isActivationFlagEnabled(FLAG_KEYS.onboarding, req.user.familyId)) {
-      return res.status(403).json({ error: 'Aktiveringsflödet är inte aktiverat för er familj' });
+      return sendOnboardingError(res, 403, lang, 'ACTIVATION_NOT_ENABLED');
     }
     const { parseStarterPlanAnswers, slugToTemplateGroup } = require('../lib/starter-plan/slug-to-template-group');
     const { selectStarterTemplate } = require('../lib/starter-plan/select-template');
@@ -1107,19 +1144,26 @@ router.post('/starter-plan/suggest', async (req, res) => {
       variant,
     });
 
-    res.json({ ...plan, template_group, used_ai: aiEnabled, variant });
+    res.json({
+      ...plan,
+      displayName: getStarterPlanDisplayName(lang, plan.slug),
+      template_group,
+      used_ai: aiEnabled,
+      variant,
+    });
   } catch (err) {
     console.error('[ONBOARDING] starter-plan/suggest error:', err);
-    res.status(500).json({ error: 'Kunde inte välja mall' });
+    return sendOnboardingError(res, 500, lang, 'STARTER_SUGGEST_FAILED');
   }
 });
 
 router.get('/starter-plan/preview', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const scheduleName = req.query.scheduleName;
     const desiredLength = req.query.desiredLength || 'normal';
     if (!scheduleName || typeof scheduleName !== 'string') {
-      return res.status(400).json({ error: 'scheduleName krävs' });
+      return sendOnboardingError(res, 400, lang, 'SCHEDULE_NAME_REQUIRED');
     }
 
     const sched = await db.query(
@@ -1127,7 +1171,7 @@ router.get('/starter-plan/preview', async (req, res) => {
       [scheduleName]
     );
     if (sched.rows.length === 0) {
-      return res.status(404).json({ error: 'Mall hittades inte' });
+      return sendOnboardingError(res, 404, lang, 'TEMPLATE_NOT_FOUND');
     }
 
     const items = await db.query(
@@ -1155,11 +1199,12 @@ router.get('/starter-plan/preview', async (req, res) => {
     });
   } catch (err) {
     console.error('[ONBOARDING] starter-plan/preview error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta förhandsgranskning' });
+    return sendOnboardingError(res, 500, lang, 'STARTER_PREVIEW_FAILED');
   }
 });
 
 router.post('/starter-plan/personalize', async (req, res) => {
+  const lang = await getFamilyLocale(req.user.familyId);
   try {
     const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
     const { parseStarterPlanAnswers } = require('../lib/starter-plan/slug-to-template-group');
@@ -1168,7 +1213,7 @@ router.post('/starter-plan/personalize', async (req, res) => {
     const analytics = require('../../db/analytics');
 
     if (!await isActivationFlagEnabled(FLAG_KEYS.onboarding, req.user.familyId)) {
-      return res.status(403).json({ error: 'Aktiveringsflödet är inte aktiverat för er familj' });
+      return sendOnboardingError(res, 403, lang, 'ACTIVATION_NOT_ENABLED');
     }
 
     const { child_name, schedule_name, base_items } = req.body;
@@ -1222,7 +1267,7 @@ router.post('/starter-plan/personalize', async (req, res) => {
     });
   } catch (err) {
     console.error('[ONBOARDING] starter-plan/personalize error:', err);
-    res.status(500).json({ error: 'Kunde inte anpassa schemat' });
+    return sendOnboardingError(res, 500, lang, 'STARTER_PERSONALIZE_FAILED');
   }
 });
 

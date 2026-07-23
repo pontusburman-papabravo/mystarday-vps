@@ -5,12 +5,14 @@
  * No DB table in v1 (D6).
  */
 
+const { t } = require('../src/lib/i18n');
+
 /** @typedef {'morning'|'evening'|'after_school'|'homework'|'getting_ready'} RoutineType */
 
 /**
  * @typedef {Object} StarterPlanPackage
  * @property {string} slug
- * @property {string} scheduleName
+ * @property {string} scheduleName — default_schedule.name (DB lookup key, Swedish)
  * @property {RoutineType} routineType
  * @property {number} ageMin
  * @property {number} ageMax
@@ -103,8 +105,31 @@ const ACTIVITY_LIMITS = {
   detailed: { default: 6, max: 7 },
 };
 
+/**
+ * Localized display names for starter packages (scheduleName stays DB key).
+ * @param {string} lang
+ * @returns {Array<StarterPlanPackage & { displayName: string }>}
+ */
+function getStarterPlanMeta(lang) {
+  return STARTER_PLAN_PACKAGES.map((pkg) => ({
+    ...pkg,
+    displayName: t(lang, `onboarding.starter.packages.${pkg.slug}.name`),
+  }));
+}
+
+/**
+ * @param {string} lang
+ * @param {string} slug
+ * @returns {string}
+ */
+function getStarterPlanDisplayName(lang, slug) {
+  return t(lang, `onboarding.starter.packages.${slug}.name`);
+}
+
 module.exports = {
   STARTER_PLAN_PACKAGES,
   AGE_BAND_RANGES,
   ACTIVITY_LIMITS,
+  getStarterPlanMeta,
+  getStarterPlanDisplayName,
 };
