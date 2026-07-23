@@ -1,0 +1,520 @@
+{
+  "common": {
+    "brand": "My Starday",
+    "stepLabel": "Step {{current}} of {{total}}",
+    "back": "← Back",
+    "next": "Next step →",
+    "continue": "Continue →",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "genericError": "Something went wrong. Please try again.",
+    "networkError": "Network error. Please try again.",
+    "closeAria": "Close",
+    "childFallback": "Your child",
+    "addChildDone": "Done! →",
+    "goForward": "Continue →",
+    "finishing": "Finishing…",
+    "recommended": "Recommended",
+    "optional": "Optional"
+  },
+  "pageTitle": {
+    "welcome": "Welcome — My Starday",
+    "ogTitle": "My Starday — Get started in 2 minutes",
+    "ogDescription": "Set up your child's schedule and rewards straight away"
+  },
+  "verifyEmail": {
+    "title": "Verify your email address",
+    "body": "We sent an email to {{email}}. Click the link in the email to activate your account.",
+    "resend": "Send again",
+    "resendSending": "Sending…",
+    "resendSuccess": "✓ Sent!",
+    "resendSent": "Sent",
+    "resendError": "Something went wrong. Please try again."
+  },
+  "child": {
+    "title": "Tell us about your child",
+    "lead": "Choose a name, emoji, birthday and a schedule that fits your everyday routine.",
+    "nameLabel": "Child's name",
+    "namePlaceholder": "e.g. Ella",
+    "birthdayLabel": "Birthday",
+    "birthdayOptionalHint": "(optional — helps us suggest the right schedule)",
+    "yearPlaceholder": "Year",
+    "monthPlaceholder": "Month",
+    "dayPlaceholder": "Day",
+    "months": [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ],
+    "emojiLabel": "Choose an emoji",
+    "customEmojiPlaceholder": "Or type your own emoji…",
+    "emojiAriaLabel": "Choose emoji {{emoji}}",
+    "avatarLabel": "Optional: profile photo",
+    "avatarHint": "Choose a photo from your library or take a new one.",
+    "avatarDefaultBtn": "✨ Default image",
+    "avatarPickBtn": "📷 Choose photo",
+    "avatarLoading": "Loading…",
+    "avatarPreparing": "Preparing…",
+    "avatarUploadFailed": "Could not upload the photo. Please try again.",
+    "avatarReadFailed": "Could not read the image",
+    "avatarAlt": "Child profile photo",
+    "scheduleLabel": "Choose a schedule",
+    "templatesLoading": "Loading schedules…",
+    "templatesLoadFailed": "Schedule templates could not be loaded right now. Pull to refresh, or try again in a moment.",
+    "nextBtn": "Next step →",
+    "creatingChild": "Creating child…",
+    "creatingSchedule": "Creating schedule…",
+    "nameRequired": "Enter your child's name",
+    "emojiRequired": "Choose an emoji for your child",
+    "scheduleRequired": "Choose a schedule",
+    "childResumedToast": "We found your child from last time — continuing with the schedule.",
+    "avatarSaveFailedToast": "Child created, but the photo could not be saved. You can add it under Family.",
+    "scheduleCreateFailed": "The schedule could not be created"
+  },
+  "activityGuide": {
+    "title": "How should the app help {{childName}} with today's activities?",
+    "lead": "You can change this any time in your child's settings.",
+    "stepLabel": "Step {{current}} of {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Free order",
+        "description": "Your child can tick things off in any order."
+      },
+      "one_at_a_time": {
+        "title": "One thing at a time",
+        "description": "The app helps your child focus on the next step."
+      },
+      "time_and_order": {
+        "title": "Clear time and order",
+        "description": "The app helps with the next step and a timer you set for each activity."
+      }
+    },
+    "continueBtn": "Continue →",
+    "saving": "Saving…",
+    "selectError": "Choose an option",
+    "saveError": "Could not save your choice"
+  },
+  "viewType": {
+    "title": "Which view should {{childName}} see?",
+    "lead": "Choose how the schedule appears when your child logs in. You can change this any time in settings.",
+    "dayViewTitle": "Day view",
+    "dayViewSubtitle": "Morning · Late morning · Afternoon · Evening",
+    "timelineViewTitle": "Now/Next/Later view",
+    "timelineViewSubtitle": "Shows only what is happening right now",
+    "timelineNow": "NOW",
+    "timelineNext": "NEXT",
+    "timelineThen": "LATER",
+    "mock": {
+      "wakeStretch": "Wake up & stretch",
+      "brushTeeth": "Brush teeth",
+      "packBag": "Pack bag",
+      "preschool": "Go to nursery",
+      "freePlay": "Free play",
+      "dinner": "Dinner",
+      "bedtimeStory": "Bedtime story",
+      "preschoolShort": "Nursery",
+      "play": "Play"
+    },
+    "dayViewHint": "You can also choose Day view if your child prefers colour-coded parts of the day.",
+    "skipHint": "Skipping? Day view is selected automatically.",
+    "saving": "Saving view choice…"
+  },
+  "scheduleReady": {
+    "title": "Schedule ready!",
+    "subtitle": "We have prepared a starter schedule for {{childName}}.",
+    "subtitleWithTemplate": "We have prepared the {{templateName}} schedule for {{childName}}. It includes the key steps to succeed on their own.",
+    "templateFallback": "Schedule",
+    "daysWeek": "7 days / week",
+    "daysMonFri": "Mon–Fri",
+    "daysMonFriWeekend": "Mon–Fri + weekend",
+    "socialProofTitle": "Did you know?",
+    "socialProofBody": "Visual support often reduces everyday stress by up to 30% — and children with clear routines fall asleep faster and wake up happier.",
+    "continueBtn": "Perfect, let's go! →"
+  },
+  "rewards": {
+    "title": "How stars work",
+    "checkOff": "Tick off",
+    "star": "Star",
+    "treasureChest": "Treasure Chest",
+    "intro": "We have filled in fun rewards. Choose the ones {{childName}} can work towards!",
+    "introWithCount": "We have filled in {{count}} fun rewards. Choose the ones {{childName}} can work towards!",
+    "selectCount": {
+      "zero": "Choose at least 1 reward (0 selected)",
+      "one": "{{count}} reward selected ✓",
+      "other": "{{count}} rewards selected ✓"
+    },
+    "minOneError": "Choose at least one reward to continue",
+    "saveBtn": "Save rewards →",
+    "saving": "Saving rewards…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Extra story",
+      "chooseDessert": "Choose dessert",
+      "movieNight": "Film night",
+      "chooseDinner": "Choose dinner",
+      "outing": "Day out",
+      "bakeTogether": "Bake together",
+      "familyGameNight": "Family games night",
+      "lateBedtime": "Stay up late",
+      "cinemaTrip": "Cinema trip"
+    }
+  },
+  "handoff": {
+    "title": "How you log in",
+    "lead": "{{childName}} logs in with name and PIN — no passwords.",
+    "childLoginLabel": "Child login",
+    "usernameFallback": "username",
+    "pinLabel": "PIN",
+    "pinNote": "Note the PIN — you can change it in settings.",
+    "pinResumeHint": "Use your child's PIN. If you have forgotten it, you can set a new one with the button below.",
+    "chooseCustomPin": "✏️ Choose your own PIN",
+    "savePin": "Save PIN",
+    "savingPin": "Saving…",
+    "pinMustBe4": "The PIN must be 4 digits",
+    "pinTooWeak": "Choose a stronger PIN (not 1111, 2222, etc.)",
+    "pinSaveFailed": "Could not save PIN",
+    "copyInfo": "📋 Copy details",
+    "copied": "✓ Copied!",
+    "copyManual": "Copy manually:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nUsername: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Send to email",
+    "emailSubject": "{{brand}} — Login for {{childName}}",
+    "emailBody": "Hello!\n\nHere are the login details for {{brand}} for {{childName}}:\n\nUsername: {{username}}\nPIN: {{pin}}\n\nOpen the app: {{appUrl}}/child-login\n\nKind regards,\n{{brand}}",
+    "emailFallbackAlert": "Login for {{childName}}:\nUsername: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Install as an app",
+    "installBody": "Add {{brand}} to your home screen — works like a real app, works offline, no app stores.",
+    "installInstructions": "iPhone: Share → Add to Home Screen · Android: ⋮ → Install app",
+    "parentTipTitle": "A tip for you as a parent",
+    "parentTipLead": "Sit down together tonight. Show the Treasure Chest",
+    "parentTipEmphasis": "first",
+    "parentTipTail": "to spark curiosity — then explain that the app is {{childName}}'s own map for the day!",
+    "testChildLogin": "👶 Try Child Login now",
+    "continueAsParent": "Continue as parent →",
+    "skipConfirmTitle": "Skip child login?",
+    "skipConfirmBody": "Your child needs the PIN to log in on their own. Without trying it now, the morning routine may feel harder — we will send a reminder in 24 hours if your child has not tried yet.",
+    "skipConfirmPrimary": "👶 Try Child Login",
+    "skipConfirmSecondary": "Skip anyway"
+  },
+  "parentPin": {
+    "setLater": "Set Parent PIN later",
+    "title": "Set Parent PIN",
+    "description": "A 4-digit PIN only you know protects the parent area — for example when children add a sibling or you log in as a parent on your child's device.",
+    "choosePin": "Choose your PIN",
+    "confirmPin": "Confirm PIN",
+    "changeLater": "You can change your PIN later under Family & settings.",
+    "pinRequiredOrEmpty": "Enter a 4-digit PIN or leave the fields empty",
+    "pinMismatch": "The PINs do not match",
+    "saveFailed": "Could not save PIN"
+  },
+  "invite": {
+    "inviteLater": "Invite co-parent later",
+    "title": "Invite another adult",
+    "namePlaceholder": "Name (e.g. Erik)",
+    "emailPlaceholder": "Email address",
+    "whichChildren": "Which children should this person see?",
+    "sendBtn": "📧 Send invite",
+    "sending": "Sending…",
+    "sent": "✓ Sent",
+    "skip": "Skip →",
+    "emailRequired": "Enter an email address",
+    "invalidEmail": "Invalid email address",
+    "success": "Invite sent to {{email}}! ✓",
+    "sendFailed": "Something went wrong"
+  },
+  "complete": {
+    "title": "Almost done!",
+    "lead": "Let your child try the app — you can invite other adults and set a Parent PIN after the first tick-off.",
+    "tips": {
+      "editScheduleTitle": "Edit the schedule",
+      "editScheduleBody": "Go to Home → tap your child's card → adjust activities to fit your everyday routine.",
+      "checkRewardsTitle": "Check the rewards",
+      "checkRewardsBody": "In the child view — tap the star — your child sees how many stars each reward needs.",
+      "addChildrenTitle": "Add more children",
+      "addChildrenBody": "Each child gets their own schedule and stars. Add another via + on Home."
+    },
+    "letChildStart": "👶 Let your child begin",
+    "letChildStartPlain": "Let your child begin",
+    "completeFailed": "Could not complete onboarding",
+    "completeFailedShort": "Could not complete",
+    "welcomeFooter": "Welcome to {{brand}} — we are glad you are here! 🌟"
+  },
+  "weekend": {
+    "title": "Add a weekend schedule?",
+    "body": "The weekday schedule is ready for Mon–Fri. Would you like a relaxed weekend schedule for Saturday and Sunday?",
+    "scheduleLabel": "Weekend schedule",
+    "satSun": "Sat + Sun",
+    "preview": {
+      "sleepIn": "Sleep in",
+      "breakfast": "Breakfast in peace",
+      "freePlay": "Free play",
+      "outing": "Day out / park",
+      "familyActivity": "Family activity",
+      "dinner": "Dinner"
+    },
+    "yesBtn": "✅ Yes, add weekend schedule",
+    "yesLoading": "Adding…",
+    "noBtn": "No thanks, I will fill it in later",
+    "addFailed": "Could not add weekend schedule"
+  },
+  "starter": {
+    "stepLabel": "Create schedule {{current}} of {{total}}",
+    "slimTitle": "Your routine is almost ready",
+    "fullTitle": "Create your first schedule",
+    "slimIntro": "Three quick questions — then your routine is ready.",
+    "fullIntro": "Answer a few questions — takes under a minute.",
+    "powerPathLead": "Want to pick or build your own?",
+    "chooseTemplate": "📋 Choose a ready-made schedule",
+    "fullWizard": "✏️ Build and customise yourself (7 questions)",
+    "answerRequired": "Choose or fill in an answer",
+    "showSchedule": "Show schedule →",
+    "buttons": {
+      "next": "Next →"
+    },
+    "createRoutine": "Create routine →",
+    "creatingRoutine": "Creating routine…",
+    "personalizing": "Customising schedule…",
+    "loading": "Loading…",
+    "useSchedule": "Use this schedule →",
+    "saving": "Saving…",
+    "changeAnswers": "← Change answers",
+    "removeStep": "Remove",
+    "previewHint": "You can remove steps — add more in settings later.",
+    "previewForChild": "For {{childName}} · {{count}} activities",
+    "previewAiTail": " · ✨ AI-customised",
+    "defaultPlanTitle": "Your schedule",
+    "slimSuccessTitle": "Your routine is ready",
+    "slimSuccessTonight": "You can try this tonight.",
+    "goHome": "Go to Home →",
+    "openingHome": "Opening Home…",
+    "customizeFirst": "Customise schedule first",
+    "openingSchedule": "Opening schedule…",
+    "nameRequired": "Enter your child's name",
+    "templateFailed": "Could not choose template",
+    "previewFailed": "Could not load schedule",
+    "childCreateFailed": "Could not create child",
+    "scheduleSaveFailed": "Could not save schedule",
+    "personalizeFailed": "Could not customise schedule",
+    "completeFailed": "Could not complete",
+    "packages": {
+      "morning-short": { "name": "Short morning" },
+      "evening-routine": { "name": "Evening routine" },
+      "preschool-day": { "name": "Nursery weekday" },
+      "school-day": { "name": "School weekday" },
+      "weekend": { "name": "Weekend" },
+      "getting-ready": { "name": "Short morning" }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Child's name",
+        "placeholder": "e.g. Ella"
+      },
+      "age_band": {
+        "label": "How old is your child?",
+        "options": {
+          "3-5": "3–5 years",
+          "6-8": "6–8 years",
+          "9-12": "9–12 years",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Which routine do you want to start with?",
+        "options": {
+          "morgon": "☀️ Morning",
+          "kvall": "🌙 Evening",
+          "efter-skola": "🏫 After school",
+          "laxor": "📚 Homework",
+          "gora-sig-klar": "🎒 Getting ready"
+        }
+      },
+      "main_challenge": {
+        "label": "What is hardest right now?",
+        "options": {
+          "getting_started": "Getting started",
+          "focus": "Staying focused",
+          "conflicts": "Conflicts",
+          "forgetting": "Forgetting steps",
+          "transitions": "Transitions"
+        }
+      },
+      "support_ui": {
+        "label": "Does your child need extra clear support?",
+        "options": {
+          "ja": "Yes",
+          "lite": "A little",
+          "nej": "No"
+        }
+      },
+      "length_ui": {
+        "label": "How many steps do you want to start with?",
+        "options": {
+          "kort": "Short (3–4)",
+          "normal": "Normal (5)",
+          "detaljerad": "Detailed (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Anything important we should know? (optional)",
+        "placeholder": "e.g. brushing teeth is the hardest part"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Routine ready",
+      "handoff": "Open child mode together",
+      "child": "Your child sees what happens now",
+      "done": "Done!",
+      "star": "First star ⭐"
+    },
+    "mock": {
+      "parentView": "Parent view",
+      "dailyRoutine": "Today's routine",
+      "dress": "Get dressed",
+      "brushTeeth": "Brush teeth",
+      "packBag": "Pack bag",
+      "tryChildMode": "👶 Try child mode",
+      "now": "Now",
+      "markDone": "Mark done ✓",
+      "wellDone": "Well done!"
+    },
+    "ctaReady": "Ready to try?",
+    "ctaTryNow": "Try child mode now",
+    "ctaLater": "Do it later",
+    "loginTitle": "Log in as your child",
+    "loginLead": "{{childName}} logs in with name and PIN.",
+    "usernameLabel": "Username",
+    "pinLabel": "PIN",
+    "loginHint": "Sit down together — same or different device both work.",
+    "copyLogin": "📋 Copy login details",
+    "copied": "✓ Copied!",
+    "openChildMode": "Open child mode",
+    "copyText": "{{childName}}\nUsername: {{username}}\nPIN: {{pin}}"
+  },
+  "firstStar": {
+    "title": "Give the first star",
+    "lead": "Three quick steps — then you are really up and running.",
+    "steps": {
+      "login": "Let your child log in with their PIN",
+      "complete": "Mark an activity as done in the child view",
+      "celebrate": "Celebrate the star together!"
+    },
+    "openChildLogin": "👶 Open Child Login",
+    "continueAsParent": "Continue as parent"
+  },
+  "activation": {
+    "finalStepLabel": "Final step",
+    "introTitle": "How would you like to begin?",
+    "introBody": "You have set up your child's schedule — a good start. Many families find the biggest challenge is not getting going, but keeping the routine in the first few days when everyday life takes over. Choose what suits you:",
+    "guidedBadge": "Recommended",
+    "guidedTitle": "Keep the routine going for the first week",
+    "guidedBody": "Many families appreciate a little support after the schedule is ready. Not because anything is wrong, but because new habits take time to settle.",
+    "guidedBenefits": [
+      "Short daily reminders to help you keep going",
+      "See when your child completes tasks without extra nagging",
+      "Your child's schedule is already set — we help the routine work",
+      "Stop whenever you want"
+    ],
+    "guidedCta": "Yes, help us for the first week",
+    "directTitle": "Get going straight away",
+    "directBody": "You feel ready to go on your own. Everything is in place and you can start right away.",
+    "directBenefits": [
+      "Straight to Home",
+      "Same schedule, stars and rewards",
+      "Use the app at your own pace"
+    ],
+    "directCta": "We will manage on our own",
+    "footnote": "Whichever you choose, you can use the app fully. Guided start simply gives a little extra support during the first week.",
+    "saveFailed": "Could not save your choice"
+  },
+  "loading": {
+    "buildingSchedule": "Building your schedule…",
+    "takesSeconds": "Only takes a few seconds!"
+  },
+  "templateGroups": {
+    "showActivities": "Show activities",
+    "loadingActivities": "Loading...",
+    "activityCount": {
+      "one": "{{count}} activity",
+      "other": "{{count}} activities"
+    },
+    "forskola": {
+      "name": "Nursery",
+      "description": "Full day — children aged 2–5"
+    },
+    "skola": {
+      "name": "School",
+      "description": "Full day — children aged 6+"
+    },
+    "morgon": {
+      "name": "Morning",
+      "description": "Morning routine"
+    },
+    "dag": {
+      "name": "Day",
+      "description": "Daytime activities"
+    },
+    "kvall": {
+      "name": "Evening",
+      "description": "Evening routine"
+    },
+    "helg": {
+      "name": "Weekend",
+      "description": "Weekend routine"
+    },
+    "previewFallback": {
+      "forskola": ["Wake up", "Get dressed", "Breakfast", "Nursery", "Play", "Dinner", "Bedtime story"],
+      "skola": ["Wake up", "Breakfast", "Pack bag", "School", "Homework", "Dinner", "Reading"],
+      "morgon": ["Wake up", "Get dressed", "Brush teeth", "Breakfast", "Pack bag"],
+      "dag": ["Nursery / School", "Play outside", "Snack", "After-school activity", "Homework / crafts"],
+      "kvall": ["Dinner", "Brush teeth", "Pyjamas", "Bedtime story", "Sleep"],
+      "helg": ["Sleep in", "Breakfast", "Free play", "Day out", "Family activity", "Dinner"]
+    }
+  },
+  "sections": {
+    "morning": "Morning",
+    "lateMorning": "Late morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening"
+  },
+  "errors": {
+    "avatarUploadPath": "Profile photo is uploaded via PUT /api/children/:id/avatar after the child is created",
+    "childNameRequired": "Child name is required",
+    "emojiRequired": "Choose an emoji for your child",
+    "invalidBirthday": "Invalid birthday date",
+    "birthdayFuture": "Birthday cannot be in the future",
+    "invalidTemplate": "Invalid choice. Choose a valid schedule.",
+    "noActivities": "No activities found for the selected schedule.",
+    "childIdRequired": "child_id is required",
+    "noChildAccess": "You do not have access to this child",
+    "weekendNotFound": "Weekend schedule was not found in the library.",
+    "weekendEmpty": "The weekend schedule has no activities.",
+    "rewardNameRequired": "Reward name is required",
+    "rewardCostMin": "Star cost must be at least 1",
+    "rewardsFetchFailed": "Could not fetch rewards.",
+    "childCreateFailed": "Something went wrong when creating the child.",
+    "scheduleCreateFailed": "Something went wrong when creating the schedule.",
+    "weekendCreateFailed": "Something went wrong when creating the weekend schedule.",
+    "rewardCreateFailed": "Something went wrong when creating the reward.",
+    "generic": "Something went wrong.",
+    "invalidViewType": "Invalid view_type. Choose day or timeline.",
+    "notAllowed": "Not allowed",
+    "invalidChoice": "Invalid choice.",
+    "activityGuideSaveFailed": "Could not save activity choice.",
+    "pinMustBe4": "PIN must be exactly 4 digits",
+    "pinTooWeak": "Choose a stronger PIN",
+    "pinTaken": "This PIN is already taken for a child with the same name",
+    "pinUpdateFailed": "Could not update PIN.",
+    "handoffContextFailed": "Could not fetch handoff context",
+    "templateGroupsFailed": "Could not fetch schedule groups.",
+    "schedulePreviewFailed": "Could not fetch schedule.",
+    "viewSaveFailed": "Could not save view choice.",
+    "activationNotEnabled": "Activation flow is not enabled for your family",
+    "starterSuggestFailed": "Could not choose template",
+    "starterPreviewFailed": "Could not fetch preview",
+    "starterPersonalizeFailed": "Could not customise schedule",
+    "scheduleNameRequired": "scheduleName is required",
+    "templateNotFound": "Template not found",
+    "enrollChoiceUnavailable": "Choice screen is not available"
+  }
+}

@@ -11,8 +11,35 @@ const {
 
 const locales = {};
 const localesDir = path.join(__dirname, '..', 'locales');
+const i18nFragmentsDir = path.join(__dirname, '..', '..', 'config', 'i18n');
 
 const isDevOrTest = () => process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'; // pragma: allowlist secret
+
+function deepMergeObjects(target, source) {
+  const out = { ...target };
+  for (const [k, v] of Object.entries(source)) {
+    if (v && typeof v === 'object' && !Array.isArray(v) && out[k] && typeof out[k] === 'object') {
+      out[k] = deepMergeObjects(out[k], v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
+function mergeLocaleFragments() {
+  for (const locale of SUPPORTED_LOCALES) {
+    const fragmentPath = path.join(i18nFragmentsDir, `onboarding-${locale}.json`);
+    if (!fs.existsSync(fragmentPath)) continue;
+    try {
+      const fragment = JSON.parse(fs.readFileSync(fragmentPath, 'utf8'));
+      if (!locales[locale]) locales[locale] = {};
+      locales[locale].onboarding = deepMergeObjects(locales[locale].onboarding || {}, fragment);
+    } catch (err) {
+      console.error(`[i18n] Failed to parse fragment ${fragmentPath}:`, err.message);
+    }
+  }
+}
 
 /**
  * Load locale JSON files from src/locales/.
@@ -40,6 +67,8 @@ function loadLocales() {
   if (locales['sv-SE'] && !locales.sv) locales.sv = locales['sv-SE'];
   if (locales['en-GB'] && !locales.en) locales.en = locales['en-GB'];
   if (locales.sv && !locales['sv-SE']) locales['sv-SE'] = locales.sv;
+
+  mergeLocaleFragments();
 
   console.log(`[i18n] Loaded locales: ${Object.keys(locales).join(', ')}`);
 }
@@ -101,6 +130,19 @@ function t(lang, key, params = {}) {
   }
 
   return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? ''));
+}
+
+/**
+ * Plural helper — keys at baseKey.one / baseKey.other
+ * @param {string} lang
+ * @param {string} baseKey
+ * @param {number} count
+ * @param {Record<string, string|number>} [params]
+ * @returns {string}
+ */
+function plural(lang, baseKey, count, params = {}) {
+  const suffix = Number(count) === 1 ? 'one' : 'other';
+  return t(lang, `${baseKey}.${suffix}`, { ...params, count });
 }
 
 /**
@@ -178,6 +220,7 @@ function flattenKeys(obj, prefix = '') {
 module.exports = {
   loadLocales,
   t,
+  plural,
   getLocale,
   getAvailableLanguages,
   resolveBundleKey,

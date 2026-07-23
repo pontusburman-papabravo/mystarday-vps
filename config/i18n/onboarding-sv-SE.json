@@ -1,0 +1,520 @@
+{
+  "common": {
+    "brand": "Stjärndag",
+    "stepLabel": "Steg {{current}} av {{total}}",
+    "back": "← Tillbaka",
+    "next": "Nästa steg →",
+    "continue": "Fortsätt →",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "loading": "Laddar…",
+    "genericError": "Något gick fel. Försök igen.",
+    "networkError": "Nätverksfel. Försök igen.",
+    "closeAria": "Stäng",
+    "childFallback": "Barnet",
+    "addChildDone": "Klar! →",
+    "goForward": "Gå vidare →",
+    "finishing": "Slutför…",
+    "recommended": "Rekommenderas",
+    "optional": "Valfritt"
+  },
+  "pageTitle": {
+    "welcome": "Välkommen — Stjärndag",
+    "ogTitle": "Stjärndag — Kom igång på 2 minuter",
+    "ogDescription": "Sätt upp barnets schema och belöningar direkt"
+  },
+  "verifyEmail": {
+    "title": "Verifiera din e-postadress",
+    "body": "Vi skickade ett mejl till {{email}}. Klicka på länken i mejlet för att aktivera ditt konto.",
+    "resend": "Skicka igen",
+    "resendSending": "Skickar…",
+    "resendSuccess": "✓ Skickat!",
+    "resendSent": "Skickat",
+    "resendError": "Något gick fel. Försök igen."
+  },
+  "child": {
+    "title": "Berätta om ditt barn",
+    "lead": "Välj namn, emoji, födelsedag och ett schema som passar er vardag.",
+    "nameLabel": "Barnets namn",
+    "namePlaceholder": "T.ex. Ella",
+    "birthdayLabel": "Födelsedag",
+    "birthdayOptionalHint": "(valfri — hjälper oss välja rätt schema)",
+    "yearPlaceholder": "År",
+    "monthPlaceholder": "Månad",
+    "dayPlaceholder": "Dag",
+    "months": [
+      "Januari", "Februari", "Mars", "April", "Maj", "Juni",
+      "Juli", "Augusti", "September", "Oktober", "November", "December"
+    ],
+    "emojiLabel": "Välj en emoji",
+    "customEmojiPlaceholder": "Eller skriv din egen emoji…",
+    "emojiAriaLabel": "Välj emoji {{emoji}}",
+    "avatarLabel": "Valfritt: profilbild",
+    "avatarHint": "Välj en bild från fotobiblioteket eller ta ett nytt foto.",
+    "avatarDefaultBtn": "✨ Standardbild",
+    "avatarPickBtn": "📷 Välj foto",
+    "avatarLoading": "Laddar…",
+    "avatarPreparing": "Förbereder…",
+    "avatarUploadFailed": "Kunde inte ladda upp fotot. Försök igen.",
+    "avatarReadFailed": "Kunde inte läsa bilden",
+    "avatarAlt": "Barnets profilbild",
+    "scheduleLabel": "Välj ett schema",
+    "templatesLoading": "Laddar scheman…",
+    "templatesLoadFailed": "Schemamallar kunde inte laddas just nu. Dra ner för att uppdatera, eller prova igen om en stund.",
+    "nextBtn": "Nästa steg →",
+    "creatingChild": "Skapar barnet…",
+    "creatingSchedule": "Skapar schemat…",
+    "nameRequired": "Ange barnets namn",
+    "emojiRequired": "Välj en emoji för barnet",
+    "scheduleRequired": "Välj ett schema",
+    "childResumedToast": "Vi hittade barnet från förra försöket — fortsätter med schemat.",
+    "avatarSaveFailedToast": "Barnet skapades men fotot kunde inte sparas. Du kan lägga till det under Familj.",
+    "scheduleCreateFailed": "Schemat kunde inte skapas"
+  },
+  "activityGuide": {
+    "title": "Hur vill du att appen hjälper {{childName}} med dagens aktiviteter?",
+    "lead": "Du kan ändra detta när som helst i barnets inställningar.",
+    "stepLabel": "Steg {{current}} av {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Fri ordning",
+        "description": "Barnet kan bocka av i valfri ordning."
+      },
+      "one_at_a_time": {
+        "title": "En sak i taget",
+        "description": "Appen hjälper barnet att fokusera på nästa steg."
+      },
+      "time_and_order": {
+        "title": "Tydlig tid och ordning",
+        "description": "Appen hjälper med både nästa steg och timglas där du sätter tid per aktivitet."
+      }
+    },
+    "continueBtn": "Fortsätt →",
+    "saving": "Sparar…",
+    "selectError": "Välj ett alternativ",
+    "saveError": "Kunde inte spara valet"
+  },
+  "viewType": {
+    "title": "Vilken vy vill du att {{childName}} ska se?",
+    "lead": "Välj hur schemat visas när barnet loggar in. Du kan ändra det när som helst i inställningarna.",
+    "dayViewTitle": "Dagsvy",
+    "dayViewSubtitle": "Morgon · Förmiddag · Eftermiddag · Kväll",
+    "timelineViewTitle": "Nu/Nästa/Senare-vy",
+    "timelineViewSubtitle": "Visar bara vad som händer just nu",
+    "timelineNow": "NU",
+    "timelineNext": "NÄSTA",
+    "timelineThen": "SEDAN",
+    "mock": {
+      "wakeStretch": "Vakna & sträcka på sig",
+      "brushTeeth": "Borsta tänderna",
+      "packBag": "Packa väskan",
+      "preschool": "Gå till förskolan",
+      "freePlay": "Leka fritt",
+      "dinner": "Middag",
+      "bedtimeStory": "Godnattsaga",
+      "preschoolShort": "Förskola",
+      "play": "Lek"
+    },
+    "dayViewHint": "Du kan även välja Dagsvy om ditt barn föredrar färgkodade dagdelssektioner.",
+    "skipHint": "Hoppar du över? Dagsvy väljs automatiskt.",
+    "saving": "Sparar vy-val…"
+  },
+  "scheduleReady": {
+    "title": "Schemat är klart!",
+    "subtitle": "Vi har förberett ett startschema för {{childName}}.",
+    "subtitleWithTemplate": "Vi har förberett schemat {{templateName}} för {{childName}}. Det innehåller de viktigaste stegen för att lyckas helt själv.",
+    "templateFallback": "Schema",
+    "daysWeek": "7 dagar / vecka",
+    "daysMonFri": "mån–fre",
+    "daysMonFriWeekend": "mån–fre + helg",
+    "socialProofTitle": "Visste du?",
+    "socialProofBody": "Visuellt stöd minskar ofta vardagsstressen med upp till 30% — och barn med tydliga rutiner somnar snabbare och vaknar gladare.",
+    "continueBtn": "Perfekt, kör vidare! →"
+  },
+  "rewards": {
+    "title": "Så fungerar stjärnor",
+    "checkOff": "Bocka av",
+    "star": "Stjärna",
+    "treasureChest": "Skattkammaren",
+    "intro": "Vi har fyllt på med roliga belöningar. Välj de som {{childName}} ska få kämpa för!",
+    "introWithCount": "Vi har fyllt på med {{count}} roliga belöningar. Välj de som {{childName}} ska få kämpa för!",
+    "selectCount": {
+      "zero": "Välj minst 1 belöning (0 valda)",
+      "one": "{{count}} belöning vald ✓",
+      "other": "{{count}} belöningar valda ✓"
+    },
+    "minOneError": "Välj minst en belöning för att fortsätta",
+    "saveBtn": "Spara belöningar →",
+    "saving": "Sparar belöningar…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Extra saga",
+      "chooseDessert": "Välja efterrätt",
+      "movieNight": "Filmkväll",
+      "chooseDinner": "Välj middag",
+      "outing": "Utflykt",
+      "bakeTogether": "Baka ihop",
+      "familyGameNight": "Familjens spelkväll",
+      "lateBedtime": "Sent uppehåll",
+      "cinemaTrip": "Biobesök"
+    }
+  },
+  "handoff": {
+    "title": "Så loggar ni in",
+    "lead": "{{childName}} loggar in med namn och PIN — inga lösenord.",
+    "childLoginLabel": "Barnets inloggning",
+    "usernameFallback": "användarnamn",
+    "pinLabel": "PIN-kod",
+    "pinNote": "Notera PIN-koden — du kan ändra den i inställningar.",
+    "pinResumeHint": "Använd barnets PIN. Har du glömt den kan du sätta en ny med knappen nedan.",
+    "chooseCustomPin": "✏️ Välj egen PIN-kod",
+    "savePin": "Spara PIN",
+    "savingPin": "Sparar…",
+    "pinMustBe4": "PIN-koden måste vara 4 siffror",
+    "pinTooWeak": "Välj en starkare PIN-kod (inte 1111, 2222 etc.)",
+    "pinSaveFailed": "Kunde inte spara PIN",
+    "copyInfo": "📋 Kopiera info",
+    "copied": "✓ Kopierat!",
+    "copyManual": "Kopiera manuellt:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nAnvändarnamn: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Skicka till mejl",
+    "emailSubject": "{{brand}} — Inloggning för {{childName}}",
+    "emailBody": "Hej!\n\nHär är inloggningsuppgifterna till {{brand}} för {{childName}}:\n\nAnvändarnamn: {{username}}\nPIN-kod: {{pin}}\n\nÖppna appen: {{appUrl}}/child-login\n\nMed vänliga hälsningar,\n{{brand}}",
+    "emailFallbackAlert": "Inloggning för {{childName}}:\nAnvändarnamn: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Installera som app",
+    "installBody": "Lägg till {{brand}} på hemskärmen — fungerar som en riktig app, fungerar offline, inga appbutiker.",
+    "installInstructions": "iPhone: Dela → Lägg till på hemskärmen · Android: ⋮ → Installera app",
+    "parentTipTitle": "Tips till dig som förälder",
+    "parentTipLead": "Sätt er tillsammans ikväll. Visa skattkammaren",
+    "parentTipEmphasis": "först",
+    "parentTipTail": "för att väcka nyfikenhet — förklara sedan att appen är {{childName}}s egen karta för dagen!",
+    "testChildLogin": "👶 Testa barninloggning nu",
+    "continueAsParent": "Fortsätt som förälder →",
+    "skipConfirmTitle": "Hoppa över barninloggning?",
+    "skipConfirmBody": "Barnet behöver PIN-koden för att logga in själv. Utan test nu kan morgonrutinen kännas krångligare — vi skickar en påminnelse om 24 timmar om barnet inte testat än.",
+    "skipConfirmPrimary": "👶 Testa barninloggning",
+    "skipConfirmSecondary": "Hoppa över ändå"
+  },
+  "parentPin": {
+    "setLater": "Sätt föräldralås senare",
+    "title": "Sätt föräldralås",
+    "description": "En 4-siffrig PIN som bara du känner till skyddar vuxenläget — t.ex. när barn ska lägga till syskon eller du loggar in som vuxen på barnets enhet.",
+    "choosePin": "Välj din PIN-kod",
+    "confirmPin": "Bekräfta PIN-kod",
+    "changeLater": "Du kan ändra din PIN senare under Familjen & inställningar.",
+    "pinRequiredOrEmpty": "Ange en 4-siffrig PIN-kod eller lämna fälten tomma",
+    "pinMismatch": "PIN-koderna matchar inte",
+    "saveFailed": "Kunde inte spara PIN-koden"
+  },
+  "invite": {
+    "inviteLater": "Bjud in medförälder senare",
+    "title": "Bjud in en annan vuxen",
+    "namePlaceholder": "Namn (t.ex. Erik)",
+    "emailPlaceholder": "E-postadress",
+    "whichChildren": "Vilka barn ska denna person se?",
+    "sendBtn": "📧 Skicka inbjudan",
+    "sending": "Skickar…",
+    "sent": "✓ Skickad",
+    "skip": "Hoppa över →",
+    "emailRequired": "Ange en e-postadress",
+    "invalidEmail": "Ogiltig e-postadress",
+    "success": "Inbjudan skickad till {{email}}! ✓",
+    "sendFailed": "Något gick fel"
+  },
+  "complete": {
+    "title": "Nästan klart!",
+    "lead": "Låt barnet testa appen — du kan bjuda in andra vuxna och sätta föräldralås efter första avbockningen.",
+    "tips": {
+      "editScheduleTitle": "Redigera schemat",
+      "editScheduleBody": "Gå till Översikt → klicka på barnets kort → anpassa aktiviteterna till er vardag.",
+      "checkRewardsTitle": "Kolla belöningarna",
+      "checkRewardsBody": "I barnvyn — tryck på stjärnan — ser barnet hur många stjärnor som krävs för belöningarna.",
+      "addChildrenTitle": "Lägg till fler barn",
+      "addChildrenBody": "Varje barn får sitt eget schema och sina egna stjärnor. Lägg till via + i dashboarden."
+    },
+    "letChildStart": "👶 Låt barnet börja",
+    "letChildStartPlain": "Låt barnet börja",
+    "completeFailed": "Kunde inte slutföra onboardingen",
+    "completeFailedShort": "Kunde inte slutföra",
+    "welcomeFooter": "Välkommen till {{brand}} — vi är glada att du är här! 🌟"
+  },
+  "weekend": {
+    "title": "Vill du lägga till helgschema?",
+    "body": "Vardagsschemat är klart för mån–fre. Vill du lägga till ett avslappnat helgschema för lördag och söndag?",
+    "scheduleLabel": "Helgschema",
+    "satSun": "lör + sön",
+    "preview": {
+      "sleepIn": "Sova ut",
+      "breakfast": "Frukost i lugn & ro",
+      "freePlay": "Leka fritt",
+      "outing": "Utflykt / Park",
+      "familyActivity": "Familjaktivitet",
+      "dinner": "Middag"
+    },
+    "yesBtn": "✅ Ja, lägg till helgschema",
+    "yesLoading": "Lägger till…",
+    "noBtn": "Nej tack, jag fyller i själv senare",
+    "addFailed": "Kunde inte lägga till helgschema"
+  },
+  "starter": {
+    "stepLabel": "Skapa schema {{current}} av {{total}}",
+    "slimTitle": "Er rutin är snart klar",
+    "fullTitle": "Skapa ert första schema",
+    "slimIntro": "Tre snabba frågor — sedan är rutinen klar.",
+    "fullIntro": "Svarar på några frågor — tar under en minut.",
+    "powerPathLead": "Vill du välja eller bygga själv?",
+    "chooseTemplate": "📋 Välj färdigt schema",
+    "fullWizard": "✏️ Bygg och anpassa själv (7 frågor)",
+    "answerRequired": "Välj eller fyll i ett svar",
+    "showSchedule": "Visa schema →",
+    "buttons": {
+      "next": "Nästa →"
+    },
+    "createRoutine": "Skapa rutin →",
+    "creatingRoutine": "Skapar rutin…",
+    "personalizing": "Anpassar schema…",
+    "loading": "Laddar…",
+    "useSchedule": "Använd detta schema →",
+    "saving": "Sparar…",
+    "changeAnswers": "← Ändra svar",
+    "removeStep": "Ta bort",
+    "previewHint": "Du kan ta bort steg — lägg till fler i inställningar senare.",
+    "previewForChild": "För {{childName}} · {{count}} aktiviteter",
+    "previewAiTail": " · ✨ AI-anpassat",
+    "defaultPlanTitle": "Ert schema",
+    "slimSuccessTitle": "Er rutin är redo",
+    "slimSuccessTonight": "Ni kan testa detta ikväll.",
+    "goHome": "Gå till Hem →",
+    "openingHome": "Öppnar Hem…",
+    "customizeFirst": "Anpassa schema först",
+    "openingSchedule": "Öppnar schema…",
+    "nameRequired": "Ange barnets namn",
+    "templateFailed": "Kunde inte välja mall",
+    "previewFailed": "Kunde inte ladda schema",
+    "childCreateFailed": "Kunde inte skapa barn",
+    "scheduleSaveFailed": "Kunde inte spara schema",
+    "personalizeFailed": "Kunde inte anpassa schema",
+    "completeFailed": "Kunde inte slutföra",
+    "packages": {
+      "morning-short": { "name": "Kort morgon" },
+      "evening-routine": { "name": "Kvällsrutin" },
+      "preschool-day": { "name": "Förskola vardag" },
+      "school-day": { "name": "Skola vardag" },
+      "weekend": { "name": "Helg" },
+      "getting-ready": { "name": "Kort morgon" }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Barnets namn",
+        "placeholder": "t.ex. Ella"
+      },
+      "age_band": {
+        "label": "Hur gammalt är barnet?",
+        "options": {
+          "3-5": "3–5 år",
+          "6-8": "6–8 år",
+          "9-12": "9–12 år",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Vilken rutin vill ni börja med?",
+        "options": {
+          "morgon": "☀️ Morgon",
+          "kvall": "🌙 Kväll",
+          "efter-skola": "🏫 Efter skolan",
+          "laxor": "📚 Läxor",
+          "gora-sig-klar": "🎒 Göra sig klar"
+        }
+      },
+      "main_challenge": {
+        "label": "Vad är svårast just nu?",
+        "options": {
+          "getting_started": "Komma igång",
+          "focus": "Hålla fokus",
+          "conflicts": "Konflikter",
+          "forgetting": "Glömmer steg",
+          "transitions": "Övergångar"
+        }
+      },
+      "support_ui": {
+        "label": "Behöver barnet extra tydligt stöd?",
+        "options": {
+          "ja": "Ja",
+          "lite": "Lite",
+          "nej": "Nej"
+        }
+      },
+      "length_ui": {
+        "label": "Hur många steg vill ni börja med?",
+        "options": {
+          "kort": "Kort (3–4)",
+          "normal": "Normal (5)",
+          "detaljerad": "Detaljerad (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Något viktigt vi ska ta hänsyn till? (valfritt)",
+        "placeholder": "t.ex. tandborstning är det svåraste"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutinen är klar",
+      "handoff": "Öppna barnläget tillsammans",
+      "child": "Barnet ser vad som händer nu",
+      "done": "Klart!",
+      "star": "Första stjärnan ⭐"
+    },
+    "mock": {
+      "parentView": "Föräldravyn",
+      "dailyRoutine": "Dagens rutin",
+      "dress": "Klä på sig",
+      "brushTeeth": "Borsta tänderna",
+      "packBag": "Packa väskan",
+      "tryChildMode": "👶 Testa barnläget",
+      "now": "Nu",
+      "markDone": "Markera klar ✓",
+      "wellDone": "Bra jobbat!"
+    },
+    "ctaReady": "Redo att testa?",
+    "ctaTryNow": "Testa barnläget nu",
+    "ctaLater": "Gör det senare",
+    "loginTitle": "Logga in som barnet",
+    "loginLead": "{{childName}} loggar in med namn och PIN.",
+    "usernameLabel": "Användarnamn",
+    "pinLabel": "PIN-kod",
+    "loginHint": "Sätt er tillsammans — samma eller annan enhet fungerar.",
+    "copyLogin": "📋 Kopiera inloggning",
+    "copied": "✓ Kopierat!",
+    "openChildMode": "Öppna barnläget",
+    "copyText": "{{childName}}\nAnvändarnamn: {{username}}\nPIN: {{pin}}"
+  },
+  "firstStar": {
+    "title": "Ge första stjärnan",
+    "lead": "Tre snabba steg — sedan är ni igång på riktigt.",
+    "steps": {
+      "login": "Låt barnet logga in med PIN-koden",
+      "complete": "Markera en aktivitet som klar i barnvyn",
+      "celebrate": "Fira stjärnan tillsammans!"
+    },
+    "openChildLogin": "👶 Öppna barninloggning",
+    "continueAsParent": "Fortsätt som förälder"
+  },
+  "activation": {
+    "finalStepLabel": "Sista steget",
+    "introTitle": "Hur vill ni börja?",
+    "introBody": "Ni har satt upp barnets schema — bra start. Många familjer upptäcker att den största utmaningen inte är att komma igång, utan att hålla i rutinen de första dagarna när vardagen tar vid. Välj det som passar er:",
+    "guidedBadge": "Rekommenderas",
+    "guidedTitle": "Håll i rutinen första veckan",
+    "guidedBody": "Många familjer uppskattar lite stöd efter att schemat är klart. Inte för att något är fel, utan för att nya vanor tar tid att sätta sig.",
+    "guidedBenefits": [
+      "Korta dagliga påminnelser som hjälper er hålla igång",
+      "Se när barnet klarar uppgifter utan extra tjat",
+      "Barnets schema är redan klart — vi hjälper er få rutinen att fungera",
+      "Avsluta när ni vill"
+    ],
+    "guidedCta": "Ja, hjälp oss första veckan",
+    "directTitle": "Kör igång direkt",
+    "directBody": "Ni känner er redo att köra på själva. Allt finns på plats och ni kan börja direkt.",
+    "directBenefits": [
+      "Direkt till dashboarden",
+      "Samma schema, stjärnor och belöningar",
+      "Använd appen i er egen takt"
+    ],
+    "directCta": "Vi kör själva",
+    "footnote": "Oavsett vilket ni väljer kan ni använda appen fullt ut. Guidad start ger bara lite extra stöd under den första veckan.",
+    "saveFailed": "Kunde inte spara valet"
+  },
+  "loading": {
+    "buildingSchedule": "Bygger ditt schema…",
+    "takesSeconds": "Tar bara några sekunder!"
+  },
+  "templateGroups": {
+    "showActivities": "Visa aktiviteter",
+    "loadingActivities": "Laddar...",
+    "activityCount": {
+      "one": "{{count}} aktivitet",
+      "other": "{{count}} aktiviteter"
+    },
+    "forskola": {
+      "name": "Förskola",
+      "description": "Hel dag — barn 2–5 år"
+    },
+    "skola": {
+      "name": "Skola",
+      "description": "Hel dag — barn 6+ år"
+    },
+    "morgon": {
+      "name": "Morgon",
+      "description": "Morgonrutin"
+    },
+    "dag": {
+      "name": "Dag",
+      "description": "Dag-aktiviteter"
+    },
+    "kvall": {
+      "name": "Kväll",
+      "description": "Kvällsrutin"
+    },
+    "helg": {
+      "name": "Helg",
+      "description": "Helgrutin"
+    },
+    "previewFallback": {
+      "forskola": ["Vakna", "Klä på sig", "Frukost", "Förskola", "Leka", "Middag", "Godnattsaga"],
+      "skola": ["Vakna", "Frukost", "Packa väska", "Skola", "Läxor", "Middag", "Läsa"],
+      "morgon": ["Vakna", "Klä på sig", "Tänderna", "Frukost", "Packa väska"],
+      "dag": ["Förskola / Skola", "Leka ute", "Mellanmål", "Fritidsaktivitet", "Läxor / Pyssel"],
+      "kvall": ["Middag", "Tänderna", "Pyjamas", "Godnattsaga", "Sova"],
+      "helg": ["Sova ut", "Frukost", "Leka fritt", "Utflykt", "Familjaktivitet", "Middag"]
+    }
+  },
+  "sections": {
+    "morning": "Morgon",
+    "lateMorning": "Förmiddag",
+    "afternoon": "Eftermiddag",
+    "evening": "Kväll"
+  },
+  "errors": {
+    "avatarUploadPath": "Profilbild laddas upp via PUT /api/children/:id/avatar efter att barnet skapats",
+    "childNameRequired": "Barnets namn krävs",
+    "emojiRequired": "Välj en emoji för barnet",
+    "invalidBirthday": "Ogiltigt datum för födelsedag",
+    "birthdayFuture": "Födelsedagen kan inte vara i framtiden",
+    "invalidTemplate": "Ogiltigt val. Välj ett giltigt schema.",
+    "noActivities": "Inga aktiviteter hittades för valt schema.",
+    "childIdRequired": "child_id krävs",
+    "noChildAccess": "Du har inte åtkomst till detta barn",
+    "weekendNotFound": "Helgschemat hittades inte i biblioteket.",
+    "weekendEmpty": "Helgschemat har inga aktiviteter.",
+    "rewardNameRequired": "Belöningens namn krävs",
+    "rewardCostMin": "Stjärnkostnad måste vara minst 1",
+    "rewardsFetchFailed": "Kunde inte hämta belöningar.",
+    "childCreateFailed": "Något gick fel när barnet skapades.",
+    "scheduleCreateFailed": "Något gick fel när schemat skapades.",
+    "weekendCreateFailed": "Något gick fel när helgschemat skapades.",
+    "rewardCreateFailed": "Något gick fel när belöningen skapades.",
+    "generic": "Något gick fel.",
+    "invalidViewType": "Ogiltig view_type. Välj dag eller tidslinje.",
+    "notAllowed": "Inte tillåtet",
+    "invalidChoice": "Ogiltigt val.",
+    "activityGuideSaveFailed": "Kunde inte spara aktivitetsval.",
+    "pinMustBe4": "PIN-koden måste vara exakt 4 siffror",
+    "pinTooWeak": "Välj en starkare PIN-kod",
+    "pinTaken": "Denna PIN-kod är redan upptagen för ett barn med samma namn",
+    "pinUpdateFailed": "Kunde inte uppdatera PIN-koden.",
+    "handoffContextFailed": "Kunde inte hämta handoff-kontext",
+    "templateGroupsFailed": "Kunde inte hämta schemagrupper.",
+    "schedulePreviewFailed": "Kunde inte hämta schema.",
+    "viewSaveFailed": "Kunde inte spara vy-val.",
+    "activationNotEnabled": "Aktiveringsflödet är inte aktiverat för er familj",
+    "starterSuggestFailed": "Kunde inte välja mall",
+    "starterPreviewFailed": "Kunde inte hämta förhandsgranskning",
+    "starterPersonalizeFailed": "Kunde inte anpassa schemat",
+    "scheduleNameRequired": "scheduleName krävs",
+    "templateNotFound": "Mall hittades inte",
+    "enrollChoiceUnavailable": "Val-skärmen är inte tillgänglig"
+  }
+}
