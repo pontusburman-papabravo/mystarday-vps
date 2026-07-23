@@ -324,10 +324,15 @@ describe('Meta App Events wiring contracts', () => {
 
   it('verify script passes on patched plugin', () => {
     const { spawnSync } = require('node:child_process');
-    const r = spawnSync(process.execPath, ['scripts/verify-capacitor-facebook-events-privacy.mjs'], {
-      cwd: ROOT,
-      encoding: 'utf8',
-    });
+    // --apply first: CI npm ci installs upstream plugin without our privacy patch.
+    const r = spawnSync(
+      process.execPath,
+      ['scripts/verify-capacitor-facebook-events-privacy.mjs', '--apply'],
+      {
+        cwd: ROOT,
+        encoding: 'utf8',
+      }
+    );
     assert.equal(r.status, 0, (r.stderr || r.stdout || '').trim());
   });
 });
