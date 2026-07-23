@@ -9,10 +9,6 @@
     return window.pt ? window.pt(key, params) : key;
   }
 
-  function parentPlural(key, count, params) {
-    return window.parentPlural ? window.parentPlural(key, count, params) : key;
-  }
-
   function capName(name) {
     if (!name) return '';
     return name.charAt(0).toUpperCase() + name.slice(1);
