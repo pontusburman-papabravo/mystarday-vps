@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v659: Barnprofil Inställningar — byt namn & emoji (saknades efter drawer→profil)
  * v654: Store-badge ä → H&#228;mta (encoding) + ren inline SVG-tag
  * v393: App Store-badge inline SVG (fix trasig bild)
  * v392: Fix App Store-lansering — hero-kort istället för trasig banner
@@ -218,7 +219,7 @@
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 // stjarndag-v658: Android Hem — hide legacy child cards in magic mode + white-card contrast
-const CACHE_NAME = 'stjarndag-v658';
+const CACHE_NAME = 'stjarndag-v659';
 // stjarndag-v649: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
 // stjarndag-v644: fix bottom nav leaving /library — hard nav + no stale HTML shell

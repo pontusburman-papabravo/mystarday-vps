@@ -46,6 +46,12 @@ describe('meny v2.3 — B8 barnprofil setup inline', () => {
     assert.match(src, /profile-reward-toggle/);
   });
 
+  it('child-profile-setup has rename form on Inställningar', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
+    assert.match(src, /profileSetupIdentityForm/);
+    assert.match(src, /profileSetupName/);
+  });
+
   it('family-child loads child-profile-setup', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/family-child.html'), 'utf8');
     assert.match(html, /child-profile-setup\.js/);
