@@ -51,8 +51,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Lint public client JS
+      - name: Lint public client JS (budget ratchet)
         run: npm run lint:public
+        # Budget: config/lint-public-budget.json — lower with npm run lint:public:sync-budget
 
       - name: Migrate
         run: npm run migrate

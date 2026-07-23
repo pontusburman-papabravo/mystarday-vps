@@ -42,6 +42,7 @@ assets/play-store/signing/*.jks
 .claude/
 .claude.json*
 .tmp/
+.tmp-lint-public.json
 projects/
 *.jsonl
 artifacts/

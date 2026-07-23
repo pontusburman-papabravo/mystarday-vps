@@ -12,13 +12,16 @@ alwaysApply: true
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate
+npm run lint:public
 ```
 
 Unset email API keys for tests per root `AGENTS.md` (env unset email key vars).
 
+`lint:public` uses committed budget `config/lint-public-budget.json`. After cleaning warnings: `npm run lint:public:sync-budget` (ratchet down only). Do not raise without `--force-raise` + PR note. Also run `npm run css:build` and commit if you bump SW/`CACHE_NAME`.
+
 ## Layers
 
-0. Lint + CSS check  
+0. Lint (`lint` + `lint:public`) + CSS check (`css:build` matches committed)  
 1. **test:gate** (CI required)  
 2. Full `npm test` optional pre-release  
 3. Mobile smoke when native-affecting  

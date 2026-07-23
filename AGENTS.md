@@ -66,7 +66,7 @@ All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, W
 
 ### Run / lint / test
 - Run dev server: `NODE_ENV=development REQUIRE_EMAIL_VERIFICATION=false npm run dev` (= `node server.js`, listens on `PORT` or 3000). Health check: `GET /health`. There is no hot-reload/watcher — restart the process after server-side changes. For manual UI testing, also add `EMAIL_ENABLED=false` so registrations don't trigger real Resend emails.
-- Lint: `npm run lint` (the `src/` + `server.js` Node lint) is clean — 0 errors, ~78 warnings. Note `npm run lint:public` (separate CI step over `public/js`+`public/admin`) currently exceeds its `--max-warnings 2500` budget (~2900 pre-existing warnings) and fails; that is accumulated client-JS tech debt, not an environment issue.
+- Lint: `npm run lint` (the `src/` + `server.js` Node lint) is clean — 0 errors, ~90 warnings. `npm run lint:public` (CI gate over `public/js`+`public/admin`) uses a committed warning budget in `config/lint-public-budget.json` via `scripts/lint-public.mjs`. After cleaning warnings, ratchet down with `npm run lint:public:sync-budget`. Do not raise the budget without `--force-raise` and a PR note.
 - Test: run the curated CI gate with `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate` (this is all CI runs). To avoid any real outbound email, **unset `RESEND_API_KEY`** for the run (`env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY …`); `@example.com` recipients are auto-suppressed regardless. Full `npm test` (~1026 tests) is deterministic when `DATABASE_URL` points at a real Postgres — DB integration files serialize via a PostgreSQL advisory lock in `test/helpers/db-test-lock.js`.
 
 ### Known caveats
