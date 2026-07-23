@@ -142,7 +142,7 @@
     const title = mount.querySelector('h1');
     if (title) title.textContent = child.name || '';
     const emojiEl = mount.querySelector('.flex.items-center.gap-3.mb-4 > .text-4xl');
-    if (emojiEl && !child.has_avatar) emojiEl.textContent = child.emoji || '⭐';
+    if (emojiEl) emojiEl.textContent = child.emoji || '⭐';
   }
 
   function setupHtml(child, viewConfig) {
