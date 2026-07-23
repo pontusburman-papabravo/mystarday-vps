@@ -1,4 +1,27 @@
 
+
+    function pt(key, params) {
+      return window.pt ? window.pt(key, params) : key;
+    }
+
+    function getStarLabels() {
+      const labels = window.ptGet ? ptGet('today.rating.labels') : null;
+      if (Array.isArray(labels) && labels.length >= 6) return labels;
+      return ['', 'Hard 😓', 'Okay 😐', 'Good 😊', 'Great 😄', 'Fantastic! 🌟'];
+    }
+
+    function getCategoryRules() {
+      return [
+        { cls: 'cc-hygien',  label: pt('today.categories.hygien'),  color: '#60A5FA', keywords: ['tänder','borsta','tvätta','duscha','dusch','bad','badrum','toalett','blöja','klä','kläder','hygien','hår','kamm','nagel'] },
+        { cls: 'cc-mat',     label: pt('today.categories.mat'),     color: '#FBBF24', keywords: ['frukost','lunch','middag','mellanmål','mat','äta','dricka','frukt','snack','kvällsmat'] },
+        { cls: 'cc-skola',   label: pt('today.categories.skola'),   color: '#A78BFA', keywords: ['skola','förskola','läxor','läxa','läsa','räkna','aktivitet','inlämning','lektion','pedagog','lärare'] },
+        { cls: 'cc-lek',     label: pt('today.categories.lek'),     color: '#34D399', keywords: ['lek','leka','spel','spela','pussel','rita','måla','musik','sjunga','bygga','lego','docklek','utomhus'] },
+        { cls: 'cc-rorelse', label: pt('today.categories.rorelse'), color: '#F87171', keywords: ['träna','träning','sport','gym','simning','simma','cykel','cykla','promenad','gå','springa','dans','dansa','yoga','fotboll','idrott'] },
+        { cls: 'cc-vila',    label: pt('today.categories.vila'),    color: '#94A3B8', keywords: ['sova','sovstund','vila','tupplur','natt','pyjamas','läggdags','kvällsrutin'] },
+        { cls: 'cc-social',  label: pt('today.categories.social'),  color: '#FB923C', keywords: ['kompi','kompis','besök','samling','träffa','möte','telefon','video','ring'] },
+      ];
+    }
+
     // ── State ─────────────────────────────────────────────
     let currentChildId = null;
     let currentDateStr = getTodayStr();
@@ -23,24 +46,13 @@
     // ── Rating state ──────────────────────────────────────
     let ratingItemId = null;
     let ratingScore = 0;
-    const STAR_LABELS = ['', 'Svårt 😓', 'Okej 😐', 'Bra 😊', 'Jättebra 😄', 'Fantastiskt! 🌟'];
+    function starLabel(n) { return getStarLabels()[n] || ""; }
 
     // ── Color coding ──────────────────────────────────────
-    // Maps activity name keywords → CSS class and display name
-    const COLOR_RULES = [
-      { cls: 'cc-hygien',  label: 'Hygien',  color: '#60A5FA', keywords: ['tänder','borsta','tvätta','duscha','dusch','bad','badrum','toalett','blöja','klä','kläder','hygien','hår','kamm','nagel'] },
-      { cls: 'cc-mat',     label: 'Mat',     color: '#FBBF24', keywords: ['frukost','lunch','middag','mellanmål','mat','äta','dricka','frukt','snack','kvällsmat'] },
-      { cls: 'cc-skola',   label: 'Skola',   color: '#A78BFA', keywords: ['skola','förskola','läxor','läxa','läsa','räkna','aktivitet','inlämning','lektion','pedagog','lärare'] },
-      { cls: 'cc-lek',     label: 'Lek',     color: '#34D399', keywords: ['lek','leka','spel','spela','pussel','rita','måla','musik','sjunga','bygga','lego','docklek','utomhus'] },
-      { cls: 'cc-rorelse', label: 'Rörelse', color: '#F87171', keywords: ['träna','träning','sport','gym','simning','simma','cykel','cykla','promenad','gå','springa','dans','dansa','yoga','fotboll','idrott'] },
-      { cls: 'cc-vila',    label: 'Vila',    color: '#94A3B8', keywords: ['sova','sovstund','vila','tupplur','natt','pyjamas','läggdags','kvällsrutin'] },
-      { cls: 'cc-social',  label: 'Social',  color: '#FB923C', keywords: ['kompi','kompis','besök','samling','träffa','möte','telefon','video','ring'] },
-    ];
-
     function getActivityColorClass(name) {
       if (!name) return '';
       const lower = name.toLowerCase();
-      for (const rule of COLOR_RULES) {
+      for (const rule of getCategoryRules()) {
         if (rule.keywords.some(kw => lower.includes(kw))) return rule.cls;
       }
       return '';
@@ -75,22 +87,26 @@
     }
 
     function formatDateDisplay(dateStr) {
-      const safeDate = normalizeIsoDate(dateStr);
-      const d = new Date(safeDate + 'T12:00:00');
-      const today = getTodayStr();
-      const yesterday = offsetDate(today, -1);
-      const tomorrow = offsetDate(today, 1);
-
-      if (dateStr === today) return 'Idag — ' + d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-      if (dateStr === yesterday) return 'Igår — ' + d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-      if (dateStr === tomorrow) return 'Imorgon — ' + d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-      return d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      if (window.LocaleDateTime && typeof LocaleDateTime.formatDateHeader === 'function') {
+        return LocaleDateTime.formatDateHeader(normalizeIsoDate(dateStr), getTodayStr());
+      }
+      return normalizeIsoDate(dateStr);
     }
 
     // ── Auth & Init ───────────────────────────────────────
 
     document.addEventListener('DOMContentLoaded', async () => {
       if (!Auth.requireAuth()) return;
+
+      const user = Auth.getUser();
+      if (typeof window.initParentAppI18n === 'function') {
+        await initParentAppI18n(user?.preferred_locale);
+      }
+
+      document.addEventListener('parent-i18n-ready', () => {
+        if (currentChildId) loadLog();
+        else loadChildren();
+      });
 
       document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
       // logoutBtn2 removed — logout only in sidebar/hamburger menu now
@@ -153,7 +169,7 @@
       try {
         const res = await apiFetch('/api/children');
         if (!res.ok) {
-          let msg = 'Kunde inte ladda barn';
+          let msg = pt('today.errors.loadChildren');
           try {
             const err = await res.json();
             if (err?.error) msg = err.error;
@@ -166,13 +182,13 @@
 
         const tabs = document.getElementById('childTabs');
         if (!children.length) {
-          tabs.innerHTML = '<p class="text-text-soft text-sm">Inga barn tillagda ännu.</p>';
+          tabs.innerHTML = '<p class="text-text-soft text-sm">' + escHtml(pt('today.noChildren')) + '</p>';
           document.getElementById('logContent').innerHTML = `
             <div class="text-center py-16 bg-sky rounded-2xl">
               <p class="text-6xl mb-4">👨‍👩‍👧</p>
-              <p class="font-heading font-bold text-navy text-xl mb-2">Inga barn tillagda</p>
-              <p class="text-text-soft text-sm mb-6">Lägg till ditt första barn i Min panel för att komma igång!</p>
-              <a href="/dashboard" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">Gå till Min panel</a>
+              <p class="font-heading font-bold text-navy text-xl mb-2">${escHtml(pt('today.empty.noChildrenTitle'))}</p>
+              <p class="text-text-soft text-sm mb-6">${escHtml(pt('today.empty.addFirstChild'))}</p>
+              <a href="/dashboard" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">${escHtml(pt('today.empty.goToDashboard'))}</a>
             </div>`;
           return;
         }
@@ -194,7 +210,7 @@
         selectChild(targetChild);
       } catch (err) {
         console.error('[daily-log] loadChildren error:', err);
-        showToast('Kunde inte ladda barn', 'error');
+        showToast(pt('today.errors.loadChildren'), 'error');
       }
     }
 
@@ -227,7 +243,7 @@
         currentDateStr = dateParam;
         const res = await apiFetch(`/api/children/${currentChildId}/daily-log?date=${encodeURIComponent(dateParam)}`);
         if (!res.ok) {
-          let msg = 'Kunde inte ladda loggen';
+          let msg = pt('today.errors.loadLog');
           try {
             const err = await res.json();
             if (err?.error) msg = err.error;
@@ -272,7 +288,7 @@
       document.getElementById('logContent').innerHTML = `
         <div class="text-center py-16 text-text-soft">
           <p class="text-4xl mb-3 animate-pulse">⏳</p>
-          <p class="font-semibold">Laddar loggen…</p>
+          <p class="font-semibold">${escHtml(pt('today.loading'))}</p>
         </div>`;
     }
 
@@ -281,9 +297,9 @@
       document.getElementById('logContent').innerHTML = `
         <div class="text-center py-16 text-text-soft">
           <p class="text-4xl mb-3">❌</p>
-          <p class="font-semibold">Kunde inte ladda loggen. Försök igen.</p>
+          <p class="font-semibold">${escHtml(pt('today.errors.loadLog'))}</p>
           ${detail}
-          <button type="button" id="retryLoadLogBtn" class="mt-4 px-6 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">Försök igen</button>
+          <button type="button" id="retryLoadLogBtn" class="mt-4 px-6 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">${escHtml(pt('today.retry'))}</button>
         </div>`;
       const retry = document.getElementById('retryLoadLogBtn');
       if (retry) retry.addEventListener('click', loadLog);
@@ -298,7 +314,12 @@
 
       const sectionOrder = ['morgon', 'dag', 'kvall', 'natt'];
       const sectionEmojis = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
-      const sectionLabels = { morgon: 'Morgon', dag: 'Dag', kvall: 'Kväll', natt: 'Natt' };
+      const sectionLabels = {
+        morgon: pt('sections.morgon'),
+        dag: pt('sections.dag'),
+        kvall: pt('sections.kvall'),
+        natt: pt('sections.natt'),
+      };
 
       // Build sections from items
       const grouped = {};
@@ -313,16 +334,16 @@
           <button
             onclick="navigateDate(-7)"
             class="nav-btn rounded-xl bg-lavender hover:bg-sky text-navy transition-colors text-xs font-bold"
-            title="Föregående vecka"
-            aria-label="Föregående vecka"
+            title="${escHtml(pt('today.nav.prevWeek'))}"
+            aria-label="${escHtml(pt('today.nav.prevWeek'))}"
             style="min-width:44px;min-height:44px;padding:0 10px">
             ‹‹
           </button>
           <button
             onclick="navigateDate(-1)"
             class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors"
-            title="Föregående dag"
-            aria-label="Föregående dag"
+            title="${escHtml(pt('today.nav.prevDay'))}"
+            aria-label="${escHtml(pt('today.nav.prevDay'))}"
             style="min-width:44px;min-height:44px;padding:0 8px">
             ◀
           </button>
@@ -332,16 +353,16 @@
           <button
             onclick="navigateDate(1)"
             class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors"
-            title="Nästa dag"
-            aria-label="Nästa dag"
+            title="${escHtml(pt('today.nav.nextDay'))}"
+            aria-label="${escHtml(pt('today.nav.nextDay'))}"
             style="min-width:44px;min-height:44px;padding:0 8px">
             ▶
           </button>
           <button
             onclick="navigateDate(7)"
             class="nav-btn rounded-xl bg-lavender hover:bg-sky text-navy transition-colors text-xs font-bold"
-            title="Nästa vecka"
-            aria-label="Nästa vecka"
+            title="${escHtml(pt('today.nav.nextWeek'))}"
+            aria-label="${escHtml(pt('today.nav.nextWeek'))}"
             style="min-width:44px;min-height:44px;padding:0 10px">
             ››
           </button>
@@ -351,17 +372,17 @@
             value="${currentDateStr}"
             class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors text-xs px-2 border-0 outline-none cursor-pointer"
             onchange="navigateToDate(this.value)"
-            title="Välj datum"
+            title="${escHtml(pt('today.nav.pickDate'))}"
             style="max-width:44px;min-width:44px;padding:0 4px;color:transparent"
-            aria-label="Välj datum">
-          ${isToday ? '' : `<button onclick="navigateToDate('${getTodayStr()}')" class="nav-btn rounded-xl bg-gold text-navy font-semibold text-xs px-3 transition-colors hover:bg-yellow-300" style="min-width:auto">Idag</button>`}
+            aria-label="${escHtml(pt('today.nav.pickDate'))}">
+          ${isToday ? '' : `<button onclick="navigateToDate('${getTodayStr()}')" class="nav-btn rounded-xl bg-gold text-navy font-semibold text-xs px-3 transition-colors hover:bg-yellow-300" style="min-width:auto">${escHtml(pt('today.nav.todayBtn'))}</button>`}
         </div>`;
 
       // ── Progress bar ─────────────────────────────────────
       const progressHtml = total > 0 ? `
         <div class="bg-white dark:bg-navy-soft rounded-2xl p-4 shadow-sm border border-lavender">
           <div class="flex justify-between items-center mb-2">
-            <span class="font-semibold text-navy">${completed === total && total > 0 ? '🎉 Alla aktiviteter klara!' : `${completed} av ${total} aktiviteter klara`}</span>
+            <span class="font-semibold text-navy">${completed === total && total > 0 ? escHtml(pt('today.progress.allDone')) : escHtml(pt('today.progress.completedOf', { completed, total }))}</span>
             <span class="text-text-soft text-sm font-semibold">${pct}%</span>
           </div>
           <div class="w-full bg-lavender rounded-full h-3">
@@ -376,8 +397,8 @@
         <div class="bg-gold-light border border-gold rounded-2xl px-4 py-3 flex items-start gap-3">
           <span class="text-xl flex-shrink-0 mt-0.5">📝</span>
           <div>
-            <div class="font-semibold text-navy text-sm">Bakåtfyllning av schema</div>
-            <div class="text-xs text-text-soft mt-0.5">Du fyller i ett schema i efterhand. Markera aktiviteter som klara — de sparas med rätt datum.</div>
+            <div class="font-semibold text-navy text-sm">${escHtml(pt('today.retrofill.title'))}</div>
+            <div class="text-xs text-text-soft mt-0.5">${escHtml(pt('today.retrofill.description'))}</div>
           </div>
         </div>` : '';
 
@@ -387,15 +408,15 @@
           <div class="flex items-center gap-3">
             <span class="text-3xl">😴</span>
             <div>
-              <div class="font-heading font-bold text-navy">Pausad dag</div>
-              <div class="text-text-soft text-sm">Den här dagen är pausad (t.ex. sjukdag eller ledighet). Aktiviteterna räknas inte negativt.</div>
+              <div class="font-heading font-bold text-navy">${escHtml(pt('today.pause.dayTitle'))}</div>
+              <div class="text-text-soft text-sm">${escHtml(pt('today.pause.banner'))}</div>
             </div>
           </div>
           <button
             onclick="togglePause(false)"
             class="mt-3 w-full px-4 py-2 bg-white border-2 border-gold rounded-xl font-semibold text-navy hover:bg-gold-light transition-colors"
             style="min-height:44px">
-            ✅ Återaktivera dagen
+            ${escHtml(pt('today.pause.reactivate'))}
           </button>
         </div>` : '';
 
@@ -407,8 +428,8 @@
             <div class="flex items-center gap-2">
               <span class="text-lg">⏩</span>
               <div>
-                <div class="font-semibold text-navy text-sm">Skjut fram alla kommande</div>
-                <div class="text-xs text-text-soft">Justerar tider på ej avbockade aktiviteter</div>
+                <div class="font-semibold text-navy text-sm">${escHtml(pt('today.bump.title'))}</div>
+                <div class="text-xs text-text-soft">${escHtml(pt('today.bump.adjustHint'))}</div>
               </div>
             </div>
             <div class="bump-bar">
@@ -416,7 +437,7 @@
                 <button
                   onclick="bumpTime(${m})"
                   class="bump-btn bg-sky text-navy hover:bg-lavender"
-                  title="Skjut fram ${m} min">
+                  title="${escHtml(pt('today.bump.minutesTitle', { minutes: m }))}">
                   +${m} min
                 </button>`).join('')}
               <button
@@ -424,8 +445,8 @@
                 onclick="undoBumpTime()"
                 class="bump-btn bg-lavender text-text-soft hover:bg-coral ${bumpTimeSnapshot ? '' : 'opacity-40 cursor-not-allowed'}"
                 ${bumpTimeSnapshot ? '' : 'disabled'}
-                title="Ångra senaste tidsjustering">
-                ↩ Ångra
+                title="${escHtml(pt('today.nav.undoBump'))}">
+                ${escHtml(pt('today.bump.undoBtn'))}
               </button>
             </div>
           </div>
@@ -434,8 +455,8 @@
       // ── Color legend (color_coding toggle) ────────────────
       const colorLegendHtml = currentChildColorCoding ? `
         <div class="flex items-center gap-2 flex-wrap text-xs text-text-soft">
-          <span class="font-semibold text-navy">Färgkodning:</span>
-          ${COLOR_RULES.map(r => `
+          <span class="font-semibold text-navy">${escHtml(pt('today.legend.colorCoding'))}</span>
+          ${getCategoryRules().map(r => `
             <span class="flex items-center gap-1 px-2 py-0.5 rounded-full" style="background:${r.color}22;border-left:3px solid ${r.color}">
               ${r.label}
             </span>`).join('')}
@@ -449,9 +470,9 @@
         sectionsHtml = `
           <div class="text-center py-14 bg-sky rounded-2xl">
             <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
-            <p class="font-heading font-bold text-navy text-xl mb-2">Inga aktiviteter ${isToday ? 'idag' : 'den här dagen'}!</p>
-            <p class="text-text-soft text-sm mt-1 mb-6">${isToday ? 'Lägg till aktiviteter i veckoschemat för att skapa loggar automatiskt.' : 'Inget schema för den valda dagen.'}</p>
-            <a href="/schedule" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">📅 Gå till veckoschema</a>
+            <p class="font-heading font-bold text-navy text-xl mb-2">${escHtml(isToday ? pt('today.empty.noActivitiesToday') : pt('today.empty.noScheduleDay') + '!')}</p>
+            <p class="text-text-soft text-sm mt-1 mb-6">${escHtml(isToday ? pt('today.empty.addToWeekSchedule') : pt('today.empty.noScheduleSelected'))}</p>
+            <a href="/schedule" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">${escHtml(pt('today.empty.goToWeekSchedule'))}</a>
           </div>`;
       } else {
         for (const sec of sectionOrder) {
@@ -474,8 +495,8 @@
                     onclick="completeAllInSection('${sec}')"
                     class="shrink-0 ml-2 px-3 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-xs font-semibold border border-green-200 transition-colors"
                     style="min-height:36px"
-                    title="Slutför alla i ${sectionLabels[sec]}">
-                    ✅ Alla klara
+                    title="${escHtml(pt('today.activity.completeAllInSection', { section: sectionLabels[sec] }))}">
+                    ${escHtml(pt('today.activity.completeAllBtn'))}
                   </button>` : ''}
               </div>
               <div class="space-y-2 sortable-section" id="sec-${sec}">
@@ -492,7 +513,7 @@
             onclick="togglePause(true)"
             class="w-full px-4 py-3 border-2 border-dashed border-lavender text-text-soft rounded-xl font-semibold hover:border-gold hover:text-navy transition-colors text-sm"
             style="min-height:44px">
-            😴 Pausa denna dag (sjukdag / ledighet)
+            ${escHtml(pt('today.pause.pauseBtn'))}
           </button>
         </div>` : '';
 
@@ -521,7 +542,7 @@
       const pn = document.getElementById('printChildName');
       const pd = document.getElementById('printDate');
       if (pe) pe.innerHTML = child ? renderChildAvatar(child, 40) : '';
-      if (pn) pn.textContent = child ? child.name : 'Barn';
+      if (pn) pn.textContent = child ? child.name : pt('today.childFallback');
       if (pd) pd.textContent = formatDateDisplay(currentDateStr);
 
       // Initialize drag and drop after rendering
@@ -541,7 +562,7 @@
     let ratingHtml = '';
       if (rating && (rating.child_score || rating.child_emotion_key || rating.parent_score)) {
         if (rating.child_emotion_key) {
-          ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold" title="Barnets känsla">🧒 ${escHtml(rating.child_emotion_key)}</span>`;
+          ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold" title="${escHtml(pt('today.rating.childMood'))}">🧒 ${escHtml(rating.child_emotion_key)}</span>`;
         } else if (rating.child_score) {
           ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold"
             title="Barnets betyg${rating.child_comment ? ': ' + rating.child_comment : ''}"
@@ -551,7 +572,7 @@
           </span>`;
         }
         if (rating.parent_score) {
-          ratingHtml += `<span class="text-xs bg-mint text-navy px-1.5 py-0.5 rounded" title="Förälderns betyg" onclick="event.stopPropagation()">
+          ratingHtml += `<span class="text-xs bg-mint text-navy px-1.5 py-0.5 rounded" title="${escHtml(pt('today.rating.parentScore'))}" onclick="event.stopPropagation()">
             👨‍👩‍👧 ${'⭐'.repeat(rating.parent_score)}
             ${rating.parent_comment ? `<span class="text-text-soft font-normal ml-1">"${escHtml(rating.parent_comment)}"</span>` : ''}
           </span>`;
@@ -564,8 +585,8 @@
         <button
           class="flex-shrink-0 px-2 py-1 text-xs rounded-lg border ${rating && rating.parent_score ? 'bg-mint border-teal-200 text-teal-700' : 'bg-sky border-lavender text-text-soft hover:border-gold hover:text-gold'} transition-colors"
           onclick="event.stopPropagation(); openParentRating('${item.id}', '${escHtml(item.name)}')"
-          title="${rating && rating.parent_score ? 'Ändra betyg' : 'Sätt betyg'}">
-          ${rating && rating.parent_score ? '⭐' + rating.parent_score : '⭐ Betygsätt'}
+          title="${escHtml(rating && rating.parent_score ? pt('today.activity.changeRating') : pt('today.activity.setRating'))}">
+          ${rating && rating.parent_score ? '⭐' + rating.parent_score : escHtml(pt('today.activity.rate'))}
         </button>` : '';
 
       return `
@@ -574,7 +595,7 @@
           id="card-${item.id}"
           data-item-id="${item.id}">
           <!-- Desktop: drag handle (hidden on mobile, drag-handle class enables SortableJS) -->
-          <div class="drag-handle shrink-0 flex items-center justify-center w-6 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy opacity-0 group-hover:opacity-100 transition-opacity select-none dl-drag-desktop" title="Dra för att ändra ordning">⠿</div>
+          <div class="drag-handle shrink-0 flex items-center justify-center w-6 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy opacity-0 group-hover:opacity-100 transition-opacity select-none dl-drag-desktop" title="${escHtml(pt('today.activity.dragReorder'))}">⠿</div>
           <!-- Mobile: ↑/↓ reorder buttons (hidden on desktop via CSS) -->
           <div class="dl-reorder-mobile shrink-0 flex flex-col gap-0.5">
             <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', -1)" aria-label="Flytta upp" title="Flytta upp">▲</button>
@@ -596,8 +617,8 @@
             <button
               class="check-btn ${checkClass} flex-shrink-0"
               onclick="toggleItem('${item.id}', ${!item.completed})"
-              title="${item.completed ? 'Ångra markering' : 'Markera som klar'}"
-              aria-label="${item.completed ? 'Ångra markering' : 'Markera som klar'}">
+              title="${escHtml(item.completed ? pt('today.activity.undoMark') : pt('today.activity.markDone'))}"
+              aria-label="${escHtml(item.completed ? pt('today.activity.undoMark') : pt('today.activity.markDone'))}">
               ${item.completed ? '✓' : ''}
             </button>
           </div>
@@ -654,7 +675,7 @@
                 body: JSON.stringify({ ordered_item_ids: ordered_ids }),
               });
             } catch (err) {
-              showToast('Kunde inte spara ordningen', 'error');
+              showToast(pt('today.errors.saveOrder'), 'error');
             }
           },
         });
@@ -686,7 +707,7 @@
           body: JSON.stringify({ ordered_item_ids: ordered_ids }),
         });
       } catch (err) {
-        showToast('Kunde inte spara ordningen', 'error');
+        showToast(pt('today.errors.saveOrder'), 'error');
       }
     }
     // ── Mood summary (parent Idag / daily-log — not Hem dashboard) ──
@@ -724,12 +745,12 @@
         `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-lavender text-navy text-xs font-semibold">${escHtml(e.emoji)} ${escHtml(e.label)} ×${e.count}</span>`
       ).join('');
       const scoreLine = scoreCount
-        ? `<span class="text-xs text-text-soft">Slider: ${scoreCount} svar${data.scores.avg != null ? ` (snitt ${data.scores.avg})` : ''}</span>`
+        ? `<span class="text-xs text-text-soft">${escHtml(pt('today.emotions.sliderResponses', { count: scoreCount, suffix: scoreCount === 1 ? pt('today.emotions.sliderSuffixOne') : pt('today.emotions.sliderSuffixMany') }))}${data.scores.avg != null ? escHtml(pt('today.emotions.sliderAvg', { avg: data.scores.avg })) : ''}</span>`
         : '';
       block.className = 'bg-white dark:bg-navy-soft rounded-2xl p-4 shadow-sm border border-lavender';
       block.innerHTML = `
-        <div class="text-xs font-bold text-text-soft uppercase tracking-wider mb-2">💛 Känslor idag</div>
-        <div class="flex flex-wrap gap-2">${chips || '<span class="text-xs text-text-soft">Inga känslokort ännu</span>'}</div>
+        <div class="text-xs font-bold text-text-soft uppercase tracking-wider mb-2">${escHtml(pt('today.emotions.title'))}</div>
+        <div class="flex flex-wrap gap-2">${chips || '<span class="text-xs text-text-soft">' + escHtml(pt('today.emotions.noCards')) + '</span>'}</div>
         ${scoreLine ? `<div class="mt-2">${scoreLine}</div>` : ''}`;
     }
 
@@ -805,16 +826,16 @@
         if (newState) {
           const item = currentItems.find(i => i.id === itemId);
           clearUndoCompleteTimer();
-          undoCompleteState = { itemId, itemName: item ? item.name : 'Aktivitet' };
+          undoCompleteState = { itemId, itemName: item ? item.name : pt('today.activity.defaultName') };
           undoCompleteTimer = setTimeout(() => {
             clearUndoCompleteTimer();
           }, 3000);
-          showUndoSnackbar(item ? item.name : 'Aktivitet');
+          showUndoSnackbar(item ? item.name : pt('today.activity.defaultName'));
         } else {
-          showToast('↩️ Markering ångrad');
+          showToast(pt('today.activity.undoneToast'));
         }
       } catch {
-        showToast('Kunde inte uppdatera aktiviteten', 'error');
+        showToast(pt('today.errors.updateActivity'), 'error');
       }
     }
 
@@ -835,12 +856,12 @@
       snackbar.id = 'undo-complete-snackbar';
       snackbar.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-navy text-white px-5 py-3 rounded-xl shadow-xl font-semibold text-sm flex items-center gap-3 max-w-xs';
       snackbar.innerHTML = `
-        <span>✅ Avbockad: <strong>${escHtml(itemName)}</strong></span>
+        <span>✅ <strong>${escHtml(itemName)}</strong></span>
         <button
           onclick="undoLastComplete()"
           class="shrink-0 px-3 py-1 bg-gold text-navy rounded-lg font-bold text-xs hover:bg-yellow-400 transition-colors"
           style="min-height:32px">
-          Ångra
+          ${escHtml(pt('today.snackbar.undo'))}
         </button>`;
 
       document.body.appendChild(snackbar);
@@ -867,9 +888,9 @@
           if (item) card.outerHTML = renderActivityCard(item);
         }
         updateProgressBar();
-        showToast('↩️ Markering ångrad');
+        showToast(pt('today.activity.undoneToast'));
       } catch {
-        showToast('Kunde inte ångra', 'error');
+        showToast(pt('today.errors.undo'), 'error');
       }
     }
     window.undoLastComplete = undoLastComplete;
@@ -886,8 +907,8 @@
       const label = document.querySelector('.progress-bar-fill')?.closest('.bg-white')?.querySelector('.font-semibold');
       if (label) {
         label.textContent = completed === total && total > 0
-          ? '🎉 Alla aktiviteter klara!'
-          : `${completed} av ${total} aktiviteter klara`;
+          ? pt('today.progress.allDone')
+          : pt('today.progress.completedOf', { completed, total });
       }
 
       const pctLabel = document.querySelector('.progress-bar-fill')?.closest('.bg-white')?.querySelector('.text-text-soft');
@@ -899,8 +920,8 @@
     async function togglePause(pause) {
       if (!currentLog) return;
       const confirm = window.confirm(pause
-        ? 'Vill du pausa den här dagen? Aktiviteterna räknas inte negativt.'
-        : 'Vill du återaktivera den här dagen?');
+        ? pt('today.pause.confirmPause')
+        : pt('today.pause.confirmUnpause'));
       if (!confirm) return;
 
       try {
@@ -909,7 +930,7 @@
         if (!res.ok) throw new Error();
         const updated = await res.json();
         currentLog = { ...currentLog, ...updated };
-        showToast(pause ? '😴 Dagen har pausats' : '✅ Dagen har återaktiverats');
+        showToast(pause ? pt('today.pause.pausedToast') : pt('today.pause.unpausedToast'));
 
         // Update pause banner in-place
         const pauseOverlay = document.getElementById('pauseOverlay');
@@ -920,15 +941,15 @@
             <div class="flex items-center gap-3">
               <span class="text-3xl">😴</span>
               <div>
-                <div class="font-heading font-bold text-navy">Pausad dag</div>
-                <div class="text-text-soft text-sm">Den här dagen är pausad (t.ex. sjukdag eller ledighet). Aktiviteterna räknas inte negativt.</div>
+                <div class="font-heading font-bold text-navy">${escHtml(pt('today.pause.dayTitle'))}</div>
+                <div class="text-text-soft text-sm">${escHtml(pt('today.pause.banner'))}</div>
               </div>
             </div>
             <button
               onclick="togglePause(false)"
               class="mt-3 w-full px-4 py-2 bg-white border-2 border-gold rounded-xl font-semibold text-navy hover:bg-gold-light transition-colors"
               style="min-height:44px">
-              ✅ Återaktivera dagen
+              ${escHtml(pt('today.pause.reactivate'))}
             </button>`;
           if (bumpBar) bumpBar.classList.add('hidden');
           if (pauseActionsBtn) pauseActionsBtn.classList.add('hidden');
@@ -938,7 +959,7 @@
           if (pauseActionsBtn) pauseActionsBtn.classList.remove('hidden');
         }
       } catch {
-        showToast('Kunde inte ändra status', 'error');
+        showToast(pt('today.errors.changeStatus'), 'error');
       }
     }
 
@@ -983,7 +1004,7 @@
           undoBtn.classList.remove('opacity-40', 'cursor-not-allowed');
         }
 
-        showToast(`⏩ Skjöt fram ${data.updated} aktivitet${data.updated === 1 ? '' : 'er'} med ${minutes} min`);
+        showToast(pt('today.bump.moved', { count: data.updated, suffix: data.updated === 1 ? pt('today.bump.movedOne') : pt('today.bump.movedMany'), minutes }));
       } catch (err) {
         showToast(err.message || 'Kunde inte justera tider', 'error');
       }
@@ -1023,9 +1044,9 @@
           undoBtn.classList.add('opacity-40', 'cursor-not-allowed');
         }
 
-        showToast('↩️ Tidsjustering ångrad');
+        showToast(pt('today.bump.undoToast'));
       } catch (err) {
-        showToast(err.message || 'Kunde inte ångra', 'error');
+        showToast(err.message || pt('today.errors.undo'), 'error');
       }
     }
 
@@ -1062,7 +1083,7 @@
     });
 
     function goPrintSchemaPdf(scope) {
-      if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+      if (!currentChildId) { showToast(pt('today.errors.selectChild'), 'error'); return; }
       let url = '/print-schema?childId=' + encodeURIComponent(currentChildId);
       if (scope === 'my') url += '&scope=my';
       trackPrintExport(scope === 'my' ? 'my_days' : 'week');
@@ -1075,9 +1096,9 @@
     }
 
     async function printWeek() {
-      if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+      if (!currentChildId) { showToast(pt('today.errors.selectChild'), 'error'); return; }
       const child = children.find(c => c.id === currentChildId);
-      const childName = child ? child.name : 'Barn';
+      const childName = child ? child.name : pt('today.childFallback');
       const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
 
       // Calculate Monday of current week
@@ -1087,17 +1108,26 @@
       const monday = new Date(current);
       monday.setDate(current.getDate() + mondayOffset);
 
-      const DAY_NAMES_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
-      const DAY_NAMES_FULL  = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-      const SECTION_LABELS  = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌆 Kväll', natt: '🌙 Natt' };
+      const DAY_NAMES_SHORT = (window.LocaleDateTime && LocaleDateTime.weekDayLabelsSundayFirst)
+        ? LocaleDateTime.weekDayLabelsSundayFirst()
+        : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const DAY_NAMES_FULL = DAY_NAMES_SHORT.map((_, i) => {
+        const d = new Date('2024-01-07T12:00:00');
+        d.setDate(d.getDate() + i);
+        return (window.LocaleDateTime && LocaleDateTime.weekdayLong)
+          ? LocaleDateTime.weekdayLong(d) : DAY_NAMES_SHORT[i];
+      });
       const SECTION_ORDER   = ['morgon', 'dag', 'kvall', 'natt'];
+      const sectionLabelEmoji = (sec) => (window.LocaleDateTime && LocaleDateTime.sectionLabelWithEmoji)
+        ? LocaleDateTime.sectionLabelWithEmoji(sec)
+        : sec;
 
       // Fetch all 7 days
       const dayPromises = [];
       for (let i = 0; i < 7; i++) {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        const dateStr = d.toLocaleDateString('sv-SE');
+        const dateStr = d.toISOString().slice(0, 10);
         dayPromises.push(
           apiFetch(`/api/children/${currentChildId}/daily-log?date=${dateStr}`)
             .then(r => r.json())
@@ -1106,14 +1136,14 @@
         );
       }
 
-      showToast('Förbereder veckoöversikt...');
+      showToast(pt('today.weekOverview.preparing'));
       const days = await Promise.all(dayPromises);
 
       // Build compact A4-landscape week grid
-      const mondayStr = monday.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' });
+      const mondayStr = (window.LocaleDateTime && LocaleDateTime.monthDayYear) ? LocaleDateTime.monthDayYear(monday) : monday.toISOString().slice(0,10);
       const sundayDate = new Date(monday);
       sundayDate.setDate(monday.getDate() + 6);
-      const sundayStr = sundayDate.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' });
+      const sundayStr = (window.LocaleDateTime && LocaleDateTime.monthDay) ? LocaleDateTime.monthDay(sundayDate) : sundayDate.toISOString().slice(0,10);
 
       // One column per day
       const dayColumns = days.map(day => {
@@ -1140,7 +1170,7 @@
           }
           for (const sec of SECTION_ORDER) {
             if (!grouped[sec]) continue;
-            colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;text-transform:uppercase;letter-spacing:0.3px;">${SECTION_LABELS[sec]}</div>`;
+            colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;text-transform:uppercase;letter-spacing:0.3px;">${sectionLabelEmoji(sec)}</div>`;
             for (const item of grouped[sec]) {
               const check = item.completed ? '☑' : '☐';
               const timeStr = item.start_time ? `<span style="color:#888;"> ${item.start_time}</span>` : '';
@@ -1169,7 +1199,7 @@
         <div class="week-header">
           <span style="font-size:1.6em;">${childAvatarHtml}</span>
           <div>
-            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;color:#1B2340;">${escHtml(childName)} — Veckoschema</h1>
+            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;color:#1B2340;">${escHtml(pt('today.weekOverview.weekScheduleTitle', { name: childName }))}</h1>
             <p style="color:#5A6178;margin:2px 0 0;font-size:9px;">${mondayStr} – ${sundayStr}</p>
           </div>
         </div>
@@ -1190,23 +1220,23 @@
     }
 
     async function printMyDaysWeek() {
-      if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
-      if (!custodyPrintEnabled) { showToast('Boendeschema är inte aktiverat', 'error'); return; }
+      if (!currentChildId) { showToast(pt('today.errors.selectChild'), 'error'); return; }
+      if (!custodyPrintEnabled) { showToast(pt('today.errors.custodyDisabled'), 'error'); return; }
 
       const child = children.find(c => c.id === currentChildId);
-      const childName = child ? child.name : 'Barn';
+      const childName = child ? child.name : pt('today.childFallback');
       const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
 
-      showToast('Förbereder mina dagar…');
+      showToast(pt('today.weekOverview.preparingCustody'));
       const calRes = await apiFetch(
         `/api/children/${currentChildId}/calendar-week?weekOffset=0&myDays=1`
       );
-      if (!calRes.ok) { showToast('Kunde inte ladda veckan', 'error'); return; }
+      if (!calRes.ok) { showToast(pt('today.errors.loadWeek'), 'error'); return; }
       const cal = await calRes.json();
 
       const myDays = (cal.days || []).filter((d) => d.activities && d.activities.length > 0);
       if (!myDays.length) {
-        showToast('Inga av dina dagar denna vecka', 'error');
+        showToast(pt('today.weekOverview.noMyDays'), 'error');
         return;
       }
 
@@ -1214,9 +1244,15 @@
         window.analytics.track('custody_view_filtered', { source: 'print_my_days', days: myDays.length });
       }
 
-      const DAY_NAMES_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-      const SECTION_LABELS = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌆 Kväll', natt: '🌙 Natt' };
+      const DAY_NAMES_FULL = (window.LocaleDateTime && LocaleDateTime.weekDayLabelsSundayFirst)
+        ? LocaleDateTime.weekDayLabelsSundayFirst().map((_, i) => {
+          const d = new Date('2024-01-07T12:00:00');
+          d.setDate(d.getDate() + i);
+          return LocaleDateTime.weekdayLong(d);
+        }) : [];
       const SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
+      const sectionLabelEmoji = (sec) => (window.LocaleDateTime && LocaleDateTime.sectionLabelWithEmoji)
+        ? LocaleDateTime.sectionLabelWithEmoji(sec) : sec;
 
       const dayColumns = myDays.map((day) => {
         const d = new Date(day.date + 'T12:00:00');
@@ -1235,7 +1271,7 @@
         }
         for (const sec of SECTION_ORDER) {
           if (!grouped[sec]) continue;
-          colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;">${SECTION_LABELS[sec]}</div>`;
+          colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;">${sectionLabelEmoji(sec)}</div>`;
           for (const item of grouped[sec]) {
             const check = item.completed ? '☑' : '☐';
             colHtml += `<div style="font-size:7.5px;padding:1.5px 0;border-bottom:1px solid #f0f0f0;">
@@ -1251,7 +1287,7 @@
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;border-bottom:2px solid #1B2340;padding-bottom:6px;">
           <span style="font-size:1.6em;">${childAvatarHtml}</span>
           <div>
-            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;">${escHtml(childName)} — Mina dagar</h1>
+            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;">${escHtml(pt('today.weekOverview.myDaysTitle', { name: childName }))}</h1>
             <p style="font-size:9px;color:#5A6178;margin:2px 0 0;">${escHtml(cal.weekStart)} – ${escHtml(cal.weekEnd)}</p>
           </div>
         </div>
@@ -1270,7 +1306,7 @@
     function openParentRating(itemId, itemName) {
       ratingItemId = itemId;
       ratingScore = 0;
-      document.getElementById('parentRatingName').textContent = itemName || 'Aktivitet';
+      document.getElementById('parentRatingName').textContent = itemName || pt('today.activity.defaultName');
       document.getElementById('parentRatingComment').value = '';
       document.getElementById('parentRatingSubmit').disabled = true;
       document.getElementById('parentRatingLabel').textContent = '';
@@ -1281,7 +1317,7 @@
         ratingScore = existing.parent_score;
         document.getElementById('parentRatingComment').value = existing.parent_comment || '';
         document.getElementById('parentRatingSubmit').disabled = false;
-        document.getElementById('parentRatingLabel').textContent = STAR_LABELS[ratingScore] || '';
+        document.getElementById('parentRatingLabel').textContent = starLabel(ratingScore);
       }
 
       // Reset star buttons
@@ -1300,7 +1336,7 @@
         const s = parseInt(b.dataset.star);
         b.style.filter = s <= n ? 'none' : 'grayscale(0.7)';
       });
-      document.getElementById('parentRatingLabel').textContent = STAR_LABELS[n] || '';
+      document.getElementById('parentRatingLabel').textContent = starLabel(n);
       document.getElementById('parentRatingSubmit').disabled = false;
     }
 

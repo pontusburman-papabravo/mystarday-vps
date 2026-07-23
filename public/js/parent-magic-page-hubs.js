@@ -404,6 +404,19 @@
     }
   }
 
+  function applyHubCopy() {
+    if (!window.pt) return;
+    PAGE_HEROES['daily-log'] = {
+      icon: 'historik',
+      title: pt('home.hubs.dailyLogTitle'),
+      sub: pt('home.hubs.dailyLogSub'),
+    };
+  }
+
+  function pt(key) {
+    return window.pt ? window.pt(key) : key;
+  }
+
   window.ParentMagicPageHub = {
     refresh: refresh,
     updateForDigHero: updateForDigHero,
@@ -417,6 +430,7 @@
     showSettingsGroup: showSettingsGroup,
     returnToSettingsMenu: returnToSettingsMenu,
     clearSettingsHash: clearSettingsHash,
+    applyHubCopy: applyHubCopy,
   };
 
   bindThemePickerDelegation();

@@ -1,0 +1,126 @@
+{
+  "pageTitle": "Daglig logg — {{brand}}",
+  "childFallback": "Barn",
+  "noChildren": "Inga barn tillagda ännu.",
+  "loading": "Laddar loggen…",
+  "retry": "Försök igen",
+  "errors": {
+    "loadChildren": "Kunde inte ladda barn",
+    "loadLog": "Kunde inte ladda loggen. Försök igen.",
+    "saveOrder": "Kunde inte spara ordningen",
+    "updateActivity": "Kunde inte uppdatera aktiviteten",
+    "undo": "Kunde inte ångra",
+    "changeStatus": "Kunde inte ändra status",
+    "adjustTime": "Kunde inte justera tider",
+    "selectChild": "Välj ett barn först",
+    "custodyDisabled": "Boendeschema är inte aktiverat",
+    "loadWeek": "Kunde inte ladda veckan"
+  },
+  "empty": {
+    "noActivitiesToday": "Inga aktiviteter idag!",
+    "noScheduleDay": "Inget schema den här dagen",
+    "addToWeekSchedule": "Lägg till aktiviteter i veckoschemat för att skapa loggar automatiskt.",
+    "noScheduleSelected": "Inget schema för den valda dagen.",
+    "thisDay": "den här dagen",
+    "today": "idag",
+    "noChildrenTitle": "Inga barn tillagda",
+    "addFirstChild": "Lägg till ditt första barn i Hem för att komma igång!",
+    "goToDashboard": "Gå till Hem",
+    "goToWeekSchedule": "📅 Gå till veckoschema"
+  },
+  "nav": {
+    "prevWeek": "Föregående vecka",
+    "prevDay": "Föregående dag",
+    "nextDay": "Nästa dag",
+    "nextWeek": "Nästa vecka",
+    "pickDate": "Välj datum",
+    "todayBtn": "Idag",
+    "undoBump": "Ångra senaste tidsjustering"
+  },
+  "activity": {
+    "markDone": "Markera som klar",
+    "undoMark": "Ångra markering",
+    "rate": "⭐ Betygsätt",
+    "setRating": "Sätt betyg",
+    "changeRating": "Ändra betyg",
+    "dragReorder": "Dra för att ändra ordning",
+    "completeAllInSection": "Slutför alla i {{section}}",
+    "completeAllBtn": "✅ Alla klara",
+    "defaultName": "Aktivitet",
+    "undoneToast": "↩️ Markering ångrad"
+  },
+  "pause": {
+    "confirmPause": "Vill du pausa den här dagen? Aktiviteterna räknas inte negativt.",
+    "confirmUnpause": "Vill du återaktivera den här dagen?",
+    "pausedToast": "😴 Dagen har pausats",
+    "unpausedToast": "✅ Dagen har återaktiverats",
+    "dayTitle": "Pausad dag",
+    "banner": "Den här dagen är pausad (t.ex. sjukdag eller ledighet). Aktiviteterna räknas inte negativt.",
+    "reactivate": "✅ Återaktivera dagen",
+    "pauseBtn": "😴 Pausa denna dag (sjukdag / ledighet)"
+  },
+  "bump": {
+    "noItems": "Inga ej avbockade aktiviteter med tider att justera",
+    "moved": "⏩ Skjöt fram {{count}} aktivitet{{suffix}} med {{minutes}} min",
+    "movedOne": "",
+    "movedMany": "er",
+    "undoToast": "↩️ Tidsjustering ångrad",
+    "title": "Skjut fram alla kommande",
+    "adjustHint": "Justerar tider på ej avbockade aktiviteter",
+    "minutesTitle": "Skjut fram {{minutes}} min",
+    "undoBtn": "↩ Ångra"
+  },
+  "retrofill": {
+    "title": "Bakåtfyllning av schema",
+    "description": "Du fyller i ett schema i efterhand. Markera aktiviteter som klara — de sparas med rätt datum."
+  },
+  "rating": {
+    "childMood": "Barnets känsla",
+    "parentScore": "Förälderns betyg",
+    "noMoodCards": "Inga känslokort ännu",
+    "labels": [
+      "",
+      "Svårt 😓",
+      "Okej 😐",
+      "Bra 😊",
+      "Jättebra 😄",
+      "Fantastiskt! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygien",
+    "mat": "Mat",
+    "skola": "Skola",
+    "lek": "Lek",
+    "rorelse": "Rörelse",
+    "vila": "Vila",
+    "social": "Social"
+  },
+  "legend": {
+    "colorCoding": "Färgkodning:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Alla aktiviteter klara!",
+    "completedOf": "{{completed}} av {{total}} aktiviteter klara"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Avbockad: {{name}}",
+    "undo": "Ångra"
+  },
+  "emotions": {
+    "title": "💛 Känslor idag",
+    "noCards": "Inga känslokort ännu",
+    "sliderResponses": "Slider: {{count}} svar{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "",
+    "sliderAvg": " (snitt {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Förbereder veckoöversikt...",
+    "preparingCustody": "Förbereder mina dagar…",
+    "noMyDays": "Inga av dina dagar denna vecka",
+    "weekScheduleTitle": "{{name}} — Veckoschema",
+    "myDaysTitle": "{{name}} — Mina dagar"
+  }
+}

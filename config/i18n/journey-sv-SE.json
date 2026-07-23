@@ -1,0 +1,24 @@
+{
+  "coach": {
+    "showTips": "Visa tips",
+    "close": "Stäng",
+    "milestone": "Milstolpe",
+    "nextStep": "Nästa steg",
+    "tip": "Tips",
+    "weekReflection": "Veckoreflektion",
+    "weekTogether": "En vecka tillsammans",
+    "weekLabel": "En vecka",
+    "sjDay3Headline": "Dags att låta {{name}} prova",
+    "tips": {
+      "coach_consistency": [
+        "Håll schemat kort och tydligt — barnet bygger vanan steg för steg.",
+        "Fira varje avprickad aktivitet, även de små.",
+        "Låt barnet logga in själv varje morgon."
+      ],
+      "coach_evening": [
+        "Lägg till 2–3 lugna aktiviteter före läggdags.",
+        "Samma ordning varje kväll gör det lättare att somna."
+      ]
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "pageTitle": "Hem — {{brand}}",
+  "greeting": {
+    "morning": "God morgon!",
+    "afternoon": "Hej!",
+    "evening": "God kväll!",
+    "default": "Hej!"
+  },
+  "sub": "Så här ser dagen ut.",
+  "status": {
+    "paused": "Ledig idag",
+    "allDone": "Allt klart!",
+    "noSchedule": "Inget schema",
+    "progressDone": "{{done}}/{{total}} klara",
+    "emptyChildren": "Lägg till barn under Familj för att se status här.",
+    "viewActivitiesAria": "{{name}} — visa dagens aktiviteter"
+  },
+  "ready": {
+    "title": "Redo för nästa aktivitet",
+    "childrenCount": "({{count}} barn)"
+  },
+  "quickActions": {
+    "aria": "Snabbåtgärder",
+    "retroactive": "I efterhand",
+    "onceTask": "Engångs-aktivitet",
+    "extraStars": "Extra stjärnor",
+    "dayOff": "Ledig dag"
+  },
+  "handoff": {
+    "title": "Dags för barnet att logga in?",
+    "sub": "Byt till barnets vy med PIN-kod.",
+    "childLogin": "👶 Barnet loggar in",
+    "parentLogout": "Logga ut"
+  },
+  "weekStory": {
+    "title": "Veckans berättelse"
+  },
+  "nav": {
+    "today": "Today",
+    "dailyLog": "Daglig logg",
+    "fillRetroactive": "📝 Fyll i i efterhand"
+  },
+  "readiness": {
+    "heading": "Kräver åtgärd",
+    "warningsOnly": "Bara varningar",
+    "items": {
+      "pendingInviteTitleOne": "1 väntande medförälder-inbjudan",
+      "pendingInviteTitleMany": "{{count}} väntande medförälder-inbjudningar",
+      "pendingInviteSub": "Hantera under Familj",
+      "pendingApprovalTitle": "{{name}} — {{count}} väntande förfrågan",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} väntande förfrågningar",
+      "pendingApprovalSub": "Godkänn i Belöningar",
+      "incompleteDaysTitleOne": "{{name}} — 1 ofullständig dag",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} ofullständiga dagar",
+      "incompleteDaysSub": "Fyll i i efterhand",
+      "missingPinTitle": "{{name}} saknar PIN",
+      "missingPinSub": "Sätt PIN i barnprofilen",
+      "pausedDayTitle": "{{name}} — pausad idag",
+      "pausedDaySub": "Öppna Today",
+      "noScheduleTitle": "{{name}} — inget schema idag",
+      "noScheduleSub": "Öppna veckoschema"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} vill lösa in en belöning",
+    "pendingRewardSubOne": "En förfrågan väntar på dig",
+    "pendingRewardSubMany": "{{count}} förfrågningar väntar på dig",
+    "showRequest": "Visa förfrågan",
+    "closeToReward": "{{name}} är bara {{gap}} från nästa belöning",
+    "starOne": "1 stjärna",
+    "starMany": "{{count}} stjärnor",
+    "seeRewards": "Se belöningar",
+    "starsTodayHeadline": "Barnen har tjänat {{count}} idag",
+    "starsTodaySubOne": "{{name}} har tjänat dem idag",
+    "starsTodaySubMany": "Barnen har tjänat dem idag",
+    "tasksDoneHeadline": "{{name}} har redan klarat {{count}} idag",
+    "taskOne": "1 uppgift",
+    "taskMany": "{{count}} uppgifter",
+    "tasksRemaining": "{{count}} kvar av dagens schema",
+    "allActivitiesDone": "Alla aktiviteter klara — bra jobbat!",
+    "seeSchedule": "Se schema",
+    "nextActivityHeadline": "{{name}} är redo för {{activity}}",
+    "nextActivitySub": "Nästa aktivitet i rutinen",
+    "openToday": "Öppna Today",
+    "calmDayHeadline": "Lugn dag — inget schema just nu",
+    "calmDaySub": "Perfekt tillfälle att lägga till aktiviteter eller ge extra stjärnor",
+    "defaultChild": "Barnet",
+    "pageTitleStars": "🌟 Dagens stjärnor",
+    "pageTitleWelcome": "👋 Välkommen tillbaka",
+    "pageTitleProgress": "🌟 Familjens framsteg idag",
+    "greetingFallback": "{{greeting}} Så går det idag",
+    "followChild": "Följ {{name}}s framsteg här",
+    "followChildren": "Följ barnens framsteg här"
+  },
+  "childStats": {
+    "paused": "⏸ Pausad idag",
+    "allDone": "🌟 Alla klara idag!",
+    "tasksDoneOne": "🔥 1 uppgift klar idag",
+    "tasksDoneMany": "🔥 {{count}} uppgifter klara idag",
+    "noSchedule": "Inget schema idag",
+    "todayProgress": "Idag <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> totalt",
+    "starsTodayOne": "+1 stjärna idag",
+    "starsTodayMany": "+{{count}} stjärnor idag",
+    "remaining": "{{count}} kvar · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Bara 1 stjärna kvar till nästa belöning",
+    "rewardGapMany": "🎁 Bara {{count}} stjärnor kvar till nästa belöning"
+  },
+  "hubs": {
+    "dailyLogTitle": "Daglig logg",
+    "dailyLogSub": "Följ barnens dag — fyll i stjärnor i efterhand"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "pageTitle": "Home — {{brand}}",
+  "greeting": {
+    "morning": "Good morning!",
+    "afternoon": "Hello!",
+    "evening": "Good evening!",
+    "default": "Hello!"
+  },
+  "sub": "Here is how the day looks.",
+  "status": {
+    "paused": "Day off today",
+    "allDone": "All done!",
+    "noSchedule": "No routine",
+    "progressDone": "{{done}}/{{total}} done",
+    "emptyChildren": "Add a child under Family to see status here.",
+    "viewActivitiesAria": "{{name}} — view today's activities"
+  },
+  "ready": {
+    "title": "Ready for the next activity",
+    "childrenCount": "({{count}} children)"
+  },
+  "quickActions": {
+    "aria": "Quick actions",
+    "retroactive": "Log later",
+    "onceTask": "One-off activity",
+    "extraStars": "Extra stars",
+    "dayOff": "Day off"
+  },
+  "handoff": {
+    "title": "Time for your child to log in?",
+    "sub": "Switch to child view with PIN.",
+    "childLogin": "👶 Child logs in",
+    "parentLogout": "Log out"
+  },
+  "weekStory": {
+    "title": "This week's story"
+  },
+  "nav": {
+    "today": "Today",
+    "dailyLog": "Daily log",
+    "fillRetroactive": "📝 Log later"
+  },
+  "readiness": {
+    "heading": "Needs attention",
+    "warningsOnly": "Warnings only",
+    "items": {
+      "pendingInviteTitleOne": "1 pending co-parent invite",
+      "pendingInviteTitleMany": "{{count}} pending co-parent invites",
+      "pendingInviteSub": "Manage in Family",
+      "pendingApprovalTitle": "{{name}} — {{count}} pending request",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} pending requests",
+      "pendingApprovalSub": "Approve in Rewards",
+      "incompleteDaysTitleOne": "{{name}} — 1 incomplete day",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} incomplete days",
+      "incompleteDaysSub": "Fill in afterwards",
+      "missingPinTitle": "{{name}} has no PIN",
+      "missingPinSub": "Set PIN in child profile",
+      "pausedDayTitle": "{{name}} — day off today",
+      "pausedDaySub": "Open Today",
+      "noScheduleTitle": "{{name}} — no routine today",
+      "noScheduleSub": "Open weekly schedule"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} wants to redeem a reward",
+    "pendingRewardSubOne": "One request is waiting for you",
+    "pendingRewardSubMany": "{{count}} requests are waiting for you",
+    "showRequest": "View request",
+    "closeToReward": "{{name}} is only {{gap}} away from the next reward",
+    "starOne": "1 star",
+    "starMany": "{{count}} stars",
+    "seeRewards": "See rewards",
+    "starsTodayHeadline": "The children earned {{count}} today",
+    "starsTodaySubOne": "{{name}} earned them today",
+    "starsTodaySubMany": "The children earned them today",
+    "tasksDoneHeadline": "{{name}} already completed {{count}} today",
+    "taskOne": "1 task",
+    "taskMany": "{{count}} tasks",
+    "tasksRemaining": "{{count}} left in today's routine",
+    "allActivitiesDone": "All activities done — great job!",
+    "seeSchedule": "See schedule",
+    "nextActivityHeadline": "{{name}} is ready for {{activity}}",
+    "nextActivitySub": "Next activity in the routine",
+    "openToday": "Open Today",
+    "calmDayHeadline": "Calm day — no routine right now",
+    "calmDaySub": "A good moment to add activities or give extra stars",
+    "defaultChild": "Your child",
+    "pageTitleStars": "🌟 Today's stars",
+    "pageTitleWelcome": "👋 Welcome back",
+    "pageTitleProgress": "🌟 Family progress today",
+    "greetingFallback": "{{greeting}} Here's how today looks",
+    "followChild": "Follow {{name}}'s progress here",
+    "followChildren": "Follow your children's progress here"
+  },
+  "childStats": {
+    "paused": "⏸ Day off today",
+    "allDone": "🌟 All done today!",
+    "tasksDoneOne": "🔥 1 task done today",
+    "tasksDoneMany": "🔥 {{count}} tasks done today",
+    "noSchedule": "No routine today",
+    "todayProgress": "Today <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> total",
+    "starsTodayOne": "+1 star today",
+    "starsTodayMany": "+{{count}} stars today",
+    "remaining": "{{count}} left · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Only 1 star until next reward",
+    "rewardGapMany": "🎁 Only {{count}} stars until next reward"
+  },
+  "hubs": {
+    "dailyLogTitle": "Daily log",
+    "dailyLogSub": "Follow your children's day — log stars afterwards"
+  }
+}

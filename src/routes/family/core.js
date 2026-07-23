@@ -15,8 +15,9 @@ const { getChildrenForParent } = require('../../../db/parent-access');
 const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
-const { isSupportedLocale, validateLocale } = require('../../lib/locale');
+const { isSupportedLocale, validateLocale, resolveFamilyLocale } = require('../../lib/locale');
 const { isEnglishAppEnabled, isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
+const { t } = require('../../lib/i18n');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 
@@ -614,6 +615,14 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
 router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
   try {
     const parentId = req.user.id;
+    let lang = 'sv-SE';
+    if (req.user.familyId) {
+      const localeRes = await db.query(
+        `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
+        [req.user.familyId]
+      );
+      lang = resolveFamilyLocale(localeRes.rows[0]?.preferred_locale);
+    }
     const childrenResult = await db.query(
       `SELECT c.id, c.name, c.emoji, (c.pin IS NOT NULL AND c.pin <> '') AS has_pin
        FROM child c
@@ -708,8 +717,10 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
         type: 'pending_invite',
         child_id: null,
         child_name: null,
-        title: pendingInviteCount + ' väntande medförälder-inbjudan',
-        sub: 'Hantera under Familj',
+        title: pendingInviteCount === 1
+          ? t(lang, 'home.readiness.items.pendingInviteTitleOne')
+          : t(lang, 'home.readiness.items.pendingInviteTitleMany', { count: pendingInviteCount }),
+        sub: t(lang, 'home.readiness.items.pendingInviteSub'),
         href: '/family',
         priority: 0,
       });
@@ -722,8 +733,10 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           type: 'pending_approval',
           child_id: c.id,
           child_name: c.name,
-          title: c.name + ' — ' + pending + ' väntande förfrågan',
-          sub: 'Godkänn i Belöningar',
+          title: pending === 1
+            ? t(lang, 'home.readiness.items.pendingApprovalTitle', { name: c.name, count: pending })
+            : t(lang, 'home.readiness.items.pendingApprovalTitleMany', { name: c.name, count: pending }),
+          sub: t(lang, 'home.readiness.items.pendingApprovalSub'),
           href: '/rewards',
           priority: 0,
         });
@@ -734,8 +747,10 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           type: 'incomplete_past_days',
           child_id: c.id,
           child_name: c.name,
-          title: c.name + ' — ' + incompleteDays + ' ofullständig' + (incompleteDays === 1 ? ' dag' : 'a dagar'),
-          sub: 'Fyll i i efterhand',
+          title: incompleteDays === 1
+            ? t(lang, 'home.readiness.items.incompleteDaysTitleOne', { name: c.name })
+            : t(lang, 'home.readiness.items.incompleteDaysTitleMany', { name: c.name, count: incompleteDays }),
+          sub: t(lang, 'home.readiness.items.incompleteDaysSub'),
           href: '/daily-log?childId=' + encodeURIComponent(c.id),
           priority: 1,
         });
@@ -745,8 +760,8 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           type: 'missing_pin',
           child_id: c.id,
           child_name: c.name,
-          title: c.name + ' saknar PIN',
-          sub: 'Sätt PIN i barnprofilen',
+          title: t(lang, 'home.readiness.items.missingPinTitle', { name: c.name }),
+          sub: t(lang, 'home.readiness.items.missingPinSub'),
           href: '/family/child/' + encodeURIComponent(c.id) + '?tab=setup',
           priority: 2,
         });
@@ -756,8 +771,8 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           type: 'paused_day',
           child_id: c.id,
           child_name: c.name,
-          title: c.name + ' — pausad idag',
-          sub: 'Öppna daglig logg',
+          title: t(lang, 'home.readiness.items.pausedDayTitle', { name: c.name }),
+          sub: t(lang, 'home.readiness.items.pausedDaySub'),
           href: '/daily-log?childId=' + encodeURIComponent(c.id),
           priority: 3,
         });
@@ -767,8 +782,8 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           type: 'no_schedule_today',
           child_id: c.id,
           child_name: c.name,
-          title: c.name + ' — inget schema idag',
-          sub: 'Öppna veckoschema',
+          title: t(lang, 'home.readiness.items.noScheduleTitle', { name: c.name }),
+          sub: t(lang, 'home.readiness.items.noScheduleSub'),
           href: '/schedule?child=' + encodeURIComponent(c.id),
           priority: 4,
         });

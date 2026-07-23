@@ -1,5 +1,5 @@
 /**
- * home-readiness.js — Hem undantag (godkännanden, inbjudningar) — vuxenmeny v2.2 / Hem 10/10.
+ * home-readiness.js — Home exceptions (approvals, invites) — parent menu v2.2 / Home 10/10.
  */
 (function () {
   'use strict';
@@ -9,6 +9,10 @@
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  }
+
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
   }
 
   function isMagicHome() {
@@ -94,15 +98,15 @@
       const filterOn = warningsOnlyEnabled();
       let html = '';
       if (magic) {
-        html = '<h2 class="parent-readiness-heading text-lg font-heading font-bold mb-2">Kräver åtgärd</h2>' +
+        html = '<h2 class="parent-readiness-heading text-lg font-heading font-bold mb-2">' + esc(pt('home.readiness.heading')) + '</h2>' +
           items.map(function (item) { return renderCard(item, true); }).join('');
       } else {
         html =
           '<div class="flex items-center justify-between mb-3 gap-2">' +
-          '<h2 class="text-lg font-heading font-bold text-navy">Kräver åtgärd</h2>' +
+          '<h2 class="text-lg font-heading font-bold text-navy">' + esc(pt('home.readiness.heading')) + '</h2>' +
           '<label class="flex items-center gap-2 text-xs text-text-soft whitespace-nowrap cursor-pointer">' +
           '<input type="checkbox" id="homeReadinessFilter" class="rounded border-lavender"' + (filterOn ? ' checked' : '') + ' />' +
-          'Bara varningar</label></div>' +
+          esc(pt('home.readiness.warningsOnly')) + '</label></div>' +
           items.map(function (item) { return renderCard(item, false); }).join('');
       }
       mount.innerHTML = html;

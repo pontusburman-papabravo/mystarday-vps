@@ -135,6 +135,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   logDashboardStability('dashboard_auth_ok', { type: user.type });
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n(user?.preferred_locale);
+  }
+  if (window.ParentMagicPageHub && typeof ParentMagicPageHub.applyHubCopy === 'function') {
+    ParentMagicPageHub.applyHubCopy();
+  }
   if (window.ParentMagicRouter && ParentMagicRouter.warmFamilyFetch) {
     ParentMagicRouter.warmFamilyFetch();
   }

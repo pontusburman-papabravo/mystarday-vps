@@ -28,15 +28,18 @@ function deepMergeObjects(target, source) {
 }
 
 function mergeLocaleFragments() {
+  const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time'];
   for (const locale of SUPPORTED_LOCALES) {
-    const fragmentPath = path.join(i18nFragmentsDir, `onboarding-${locale}.json`);
-    if (!fs.existsSync(fragmentPath)) continue;
-    try {
-      const fragment = JSON.parse(fs.readFileSync(fragmentPath, 'utf8'));
-      if (!locales[locale]) locales[locale] = {};
-      locales[locale].onboarding = deepMergeObjects(locales[locale].onboarding || {}, fragment);
-    } catch (err) {
-      console.error(`[i18n] Failed to parse fragment ${fragmentPath}:`, err.message);
+    for (const domain of fragmentDomains) {
+      const fragmentPath = path.join(i18nFragmentsDir, `${domain}-${locale}.json`);
+      if (!fs.existsSync(fragmentPath)) continue;
+      try {
+        const fragment = JSON.parse(fs.readFileSync(fragmentPath, 'utf8'));
+        if (!locales[locale]) locales[locale] = {};
+        locales[locale][domain] = deepMergeObjects(locales[locale][domain] || {}, fragment);
+      } catch (err) {
+        console.error(`[i18n] Failed to parse fragment ${fragmentPath}:`, err.message);
+      }
     }
   }
 }

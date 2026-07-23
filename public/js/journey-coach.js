@@ -6,20 +6,16 @@
 
   const MOUNT_ID = 'journeyCoachMount';
 
-  /** Inline tips for "Visa tips" experiences */
-  const COACH_TIPS = {
-    coach_consistency: [
-      'Håll schemat kort och tydligt — barnet bygger vanan steg för steg.',
-      'Fira varje avprickad aktivitet, även de små.',
-      'Låt barnet logga in själv varje morgon.',
-    ],
-    coach_evening: [
-      'Lägg till 2–3 lugna aktiviteter före läggdags.',
-      'Samma ordning varje kväll gör det lättare att somna.',
-    ],
-  };
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
 
-  /** Navigate CTAs (Utforska / Fortsätt) */
+  function coachTips(expKey) {
+    const tips = window.ptGet ? ptGet('journey.coach.tips.' + expKey) : null;
+    return Array.isArray(tips) ? tips : [];
+  }
+
+  /** Navigate CTAs (Explore / Continue) */
   const COACH_ROUTES = {
     coach_evening: '/planning',
     coach_expand: '/for-dig',
@@ -46,7 +42,7 @@
     if (!name) return exp;
     const out = { ...exp };
     if (expKey === 'sj_day3_child_try') {
-      out.headline = 'Dags att låta ' + name + ' prova';
+      out.headline = pt('journey.coach.sjDay3Headline', { name });
     }
     return out;
   }
@@ -77,7 +73,7 @@
   }
 
   function tipsHtml(expKey) {
-    const tips = COACH_TIPS[expKey];
+    const tips = coachTips(expKey);
     if (!tips || !tips.length) return '';
     const items = tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
     return '<ul class="journey-coach-tips hidden mt-3 text-sm text-navy space-y-2 list-disc list-inside bg-white/60 rounded-xl p-3">' + items + '</ul>';
@@ -94,7 +90,7 @@
     if (!panel) return;
     const open = panel.classList.toggle('hidden');
     if (btn) {
-      btn.textContent = open ? (btn.getAttribute('data-cta-default') || 'Visa tips') : 'Stäng';
+      btn.textContent = open ? (btn.getAttribute('data-cta-default') || pt('journey.coach.showTips')) : pt('journey.coach.close');
       btn.setAttribute('aria-expanded', open ? 'false' : 'true');
     }
   }
@@ -137,7 +133,7 @@
       return;
     }
 
-    if (COACH_TIPS[expKey]) {
+    if (coachTips(expKey).length) {
       toggleTips(card, btn);
       return;
     }
@@ -204,9 +200,9 @@
     if (isReflection) {
       const story = context.signup_journey?.reflection_story || exp.body || '';
       mount.innerHTML =
-        '<div class="journey-coach-card rounded-2xl border-2 border-gold/40 bg-gold-light p-4 mb-4" role="region" aria-label="Veckoreflektion">' +
-        '<p class="text-xs font-bold uppercase tracking-wide text-gold-dark mb-1">En vecka</p>' +
-        '<p class="font-heading font-bold text-navy text-base mb-2">' + esc(exp.headline || 'En vecka tillsammans') + '</p>' +
+        '<div class="journey-coach-card rounded-2xl border-2 border-gold/40 bg-gold-light p-4 mb-4" role="region" aria-label="' + esc(pt('journey.coach.weekReflection')) + '">' +
+        '<p class="text-xs font-bold uppercase tracking-wide text-gold-dark mb-1">' + esc(pt('journey.coach.weekLabel')) + '</p>' +
+        '<p class="font-heading font-bold text-navy text-base mb-2">' + esc(exp.headline || pt('journey.coach.weekTogether')) + '</p>' +
         '<p class="text-sm text-navy whitespace-pre-line mb-3">' + esc(story) + '</p>' +
         (exp.cta ? '<button type="button" class="journey-coach-cta w-full py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(exp.cta) + '</button>' : '') +
         '</div>';
@@ -216,7 +212,7 @@
 
     const borderClass = isCelebration ? 'border-gold bg-gold-light' : 'border-indigo-200 bg-indigo-50';
     const labelClass = isCelebration ? 'text-gold-dark' : 'text-indigo-700';
-    const label = isCelebration ? 'Milstolpe' : (isSignupJourney ? 'Tips' : 'Nästa steg');
+    const label = isCelebration ? pt('journey.coach.milestone') : (isSignupJourney ? pt('journey.coach.tip') : pt('journey.coach.nextStep'));
 
     mount.innerHTML =
       '<div class="journey-coach-card rounded-2xl border-2 ' + borderClass + ' p-4 mb-4" role="region" aria-label="' + esc(label) + '">' +
@@ -255,5 +251,5 @@
     init();
   }
 
-  window.JourneyCoach = { pollCoach, renderCoach, onCoachCta, COACH_TIPS, COACH_ROUTES };
+  window.JourneyCoach = { pollCoach, renderCoach, onCoachCta, coachTips, COACH_ROUTES };
 })();
