@@ -70,13 +70,23 @@ async function renderSpecialDaysCalendar() {
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h3 class="text-lg font-heading font-bold text-navy">${childName} — Specialdagar</h3>
-          <p class="text-xs text-text-soft mt-0.5">Klicka på ett datum för att skapa eller redigera ett unikt schema för den dagen</p>
+          <p class="text-xs text-text-soft mt-0.5">Byt till lovschema för en hel period, eller klicka på ett datum för en enskild dag</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+          <button type="button" onclick="openSchedulePeriodModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap">📅 Lovperiod</button>
           <button onclick="sdNavMonth(-1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">‹</button>
           <span class="font-heading font-bold text-navy min-w-[140px] text-center">${MONTH_NAMES[sdCalMonth]} ${sdCalYear}</span>
           <button onclick="sdNavMonth(1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">›</button>
         </div>
+      </div>
+
+      <!-- Lovperiod CTA -->
+      <div class="mb-4 p-4 bg-sky/60 border-2 border-lavender rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-navy">Skolschema + lov under en period</p>
+          <p class="text-xs text-text-soft mt-0.5">Välj t.ex. Lov-schema från start till slutdatum. Veckoschemat gäller som vanligt utanför perioden.</p>
+        </div>
+        <button type="button" onclick="openSchedulePeriodModal()" class="px-4 py-2.5 bg-navy hover:bg-navy-soft text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap self-start sm:self-auto">Lägg till lovperiod</button>
       </div>
 
       <!-- Legend -->

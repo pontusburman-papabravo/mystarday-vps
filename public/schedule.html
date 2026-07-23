@@ -27,7 +27,8 @@
   <script src="/js/schedule.js?v=2.27.0"></script>
   <script src="/js/schedule-dnd.js?v=1"></script>
   <script src="/js/schedule-family-grid.js?v=1"></script>
-  <script src="/js/schedule-special-days.js?v=1"></script>
+  <script src="/js/schedule-special-days.js?v=2"></script>
+  <script src="/js/schedule-period.js?v=1"></script>
   <script src="/js/schedule-template-mode.js?v=1"></script>
   <script src="/js/schedule-insert-fill.js?v=1"></script>
   <script src="/js/schedule-views.js?v=1.3.0"></script>
@@ -1023,6 +1024,44 @@
         <button onclick="closeSpecialDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Stäng</button>
         <button onclick="sdDeleteSpecialDay()" id="sdDeleteBtn" class="hidden px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 rounded-xl font-semibold text-sm transition-colors">🗑 Ta bort specialdag</button>
         <button onclick="sdSave()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Spara</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lovperiod / schema för datumintervall -->
+  <div id="schedulePeriodModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-4">
+      <div class="flex justify-between items-center mb-1">
+        <h3 class="text-xl font-heading font-bold text-navy">Lovperiod</h3>
+        <button type="button" onclick="closeSchedulePeriodModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+      </div>
+      <p class="text-sm text-text-soft mb-4">Byt till ett annat schema mellan två datum. Skol- eller veckoschemat gäller igen utanför perioden.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div>
+          <label for="schedulePeriodStart" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
+          <input type="date" id="schedulePeriodStart" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
+        </div>
+        <div>
+          <label for="schedulePeriodEnd" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
+          <input type="date" id="schedulePeriodEnd" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="schedulePeriodSchema" class="block text-xs font-semibold text-navy mb-1">Schema under perioden</label>
+        <select id="schedulePeriodSchema" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
+          <option value="">— Välj schema —</option>
+        </select>
+        <p class="text-xs text-text-soft mt-1.5">Tips: välj <strong>Lov</strong> för sportlov, höstlov eller annan ledighet.</p>
+      </div>
+
+      <div id="schedulePeriodError" class="text-red-500 text-sm hidden mb-3"></div>
+
+      <div class="flex flex-col gap-2">
+        <button type="button" id="schedulePeriodApplyBtn" onclick="applySchedulePeriod()" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Spara lovperiod</button>
+        <button type="button" id="schedulePeriodRemoveBtn" onclick="removeSchedulePeriod()" class="w-full px-4 py-3 border-2 border-lavender hover:border-navy text-navy rounded-xl font-semibold text-sm transition-colors">Återställ till veckoschema</button>
+        <button type="button" onclick="closeSchedulePeriodModal()" class="w-full px-4 py-3 text-text-soft text-sm font-semibold">Avbryt</button>
       </div>
     </div>
   </div>

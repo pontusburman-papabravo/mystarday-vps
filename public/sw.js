@@ -221,7 +221,7 @@
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
-const CACHE_NAME = 'stjarndag-v666';
+const CACHE_NAME = 'stjarndag-v667';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
@@ -459,6 +459,7 @@ const CACHE_NAME = 'stjarndag-v666';
 // stjarndag-v653: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v654: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v659: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v667: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
