@@ -1,5 +1,5 @@
 {
-  "baseline_count": 390,
+  "baseline_count": 289,
   "updated_at": "2026-07-23",
-  "note": "Auth pages wired with data-i18n Swedish fallbacks"
+  "note": "Onboarding migrated to strict tier; baseline reduced after removing onboarding.html"
 }

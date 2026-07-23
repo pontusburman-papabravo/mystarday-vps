@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta property="og:title" content="Min Stjärndag — Kom igång på 2 minuter">
-  <meta property="og:description" content="Sätt upp barnets schema och belöningar direkt">
+  <meta property="og:title" content="My Starday — Get started in 2 minutes">
+  <meta property="og:description" content="Set up your child's schedule and rewards">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://mystarday.se/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <title>Välkommen — Min Stjärndag</title>
-  <!-- Updated 2026-05-07: Vy-val steg + view_type + 6-stegs wizard -->
+  <title>Welcome — My Starday</title>
+  <!-- Updated 2026-05-07: view-type step + view_type + 6-step wizard -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="/css/onboarding-handoff-film.css?v=1.4.3">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/onboarding-i18n.js?v=1"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="/js/birthday-picker.js?v=2.12.0"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -29,7 +31,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <meta name="apple-mobile-web-app-title" content="My Starday">
   <style>
     /* Step transitions */
     .step-card { display: none; }
@@ -230,7 +232,7 @@
     }
   </style>
 </head>
-<body class="bg-white font-body text-navy min-h-screen">
+<body class="bg-white font-body text-navy min-h-screen" data-i18n-manual-init="true" data-i18n-title="onboarding.pageTitle.welcome">
 
   <!-- Header -->
   <div class="bg-sky border-b border-lavender px-4 py-3 sticky top-0 z-10">
@@ -240,7 +242,7 @@
         <div class="w-9 h-9 bg-gold rounded-full flex items-center justify-center shadow-sm">
           <span class="text-lg">⭐</span>
         </div>
-        <span class="font-heading font-bold text-navy text-base">Min Stjärndag</span>
+        <span class="font-heading font-bold text-navy text-base" data-i18n="onboarding.common.brand">My Starday</span>
       </div>
 
       <!-- Step label -->
@@ -263,15 +265,15 @@
     <div class="max-w-lg md:max-w-xl mx-auto flex items-start gap-3">
       <span class="text-xl flex-shrink-0 mt-0.5">📧</span>
       <div class="flex-1">
-        <p class="font-semibold text-navy text-sm">Verifiera din e-postadress</p>
-        <p class="text-text-soft text-xs mt-0.5">Vi skickade ett mejl till <span id="bannerEmailAddr"></span>. Klicka på länken i mejlet för att aktivera ditt konto.</p>
+        <p class="font-semibold text-navy text-sm" data-i18n="onboarding.verifyEmail.title">Verify your email address</p>
+        <p class="text-text-soft text-xs mt-0.5" data-i18n="onboarding.verifyEmail.body">We sent an email to <span id="bannerEmailAddr"></span>. Click the link in the email to activate your account.</p>
         <div class="flex items-center gap-2 mt-2">
-          <button id="resendBtn" onclick="resendVerificationEmail()" class="text-xs text-gold-dark font-semibold hover:text-gold-dark underline underline-offset-2">Skicka igen</button>
-          <span id="resendSuccess" class="hidden text-xs font-semibold text-green-600">✓ Skickat!</span>
+          <button id="resendBtn" onclick="resendVerificationEmail()" class="text-xs text-gold-dark font-semibold hover:text-gold-dark underline underline-offset-2" data-i18n="onboarding.verifyEmail.resend">Send again</button>
+          <span id="resendSuccess" class="hidden text-xs font-semibold text-green-600" data-i18n="onboarding.verifyEmail.resendSuccess">✓ Sent!</span>
           <span id="resendError" class="hidden text-xs font-semibold text-red-500"></span>
         </div>
       </div>
-      <button onclick="dismissEmailBanner()" class="flex-shrink-0 text-text-soft hover:text-navy transition-colors ml-1" aria-label="Stäng">
+      <button onclick="dismissEmailBanner()" class="flex-shrink-0 text-text-soft hover:text-navy transition-colors ml-1" data-i18n-aria-label="onboarding.common.closeAria" aria-label="Close">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
@@ -283,34 +285,34 @@
   <div class="max-w-lg md:max-w-xl mx-auto px-4 py-6 pb-12 md:px-8">
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 1 — Berätta om ditt barn
+         Step 1 — child profile
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card active" id="step1">
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">👶</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">Berätta om ditt barn</h1>
-        <p class="text-text-soft text-sm">Välj namn, emoji, födelsedag och ett schema som passar er vardag.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" data-i18n="onboarding.child.title">Tell us about your child</h1>
+        <p class="text-text-soft text-sm" data-i18n="onboarding.child.lead">Choose a name, emoji, birthday and a schedule that fits your routine.</p>
       </div>
 
       <div class="space-y-5">
         <!-- Name -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Barnets namn</label>
-          <input type="text" id="childName" placeholder="T.ex. Ella" maxlength="50" class="form-input" />
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="onboarding.child.nameLabel">Child's name</label>
+          <input type="text" id="childName" placeholder="e.g. Ella" maxlength="50" class="form-input" data-i18n-placeholder="onboarding.child.namePlaceholder" />
         </div>
 
         <!-- Birthday -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Födelsedag <span class="text-text-soft font-normal">(valfri — hjälper oss välja rätt schema)</span></label>
+          <label class="block text-sm font-semibold text-navy mb-2"><span data-i18n="onboarding.child.birthdayLabel">Birthday</span> <span class="text-text-soft font-normal" data-i18n="onboarding.child.birthdayOptionalHint">(optional — helps us suggest the right schedule)</span></label>
           <div class="grid grid-cols-3 gap-2">
             <select id="childBirthdayYear" class="form-input py-3" onchange="updateBirthdayDays();updateBirthdayHidden()">
-              <option value="">År</option>
+              <option value="" data-i18n="onboarding.child.yearPlaceholder">År</option>
             </select>
             <select id="childBirthdayMonth" class="form-input py-3" onchange="updateBirthdayDays();updateBirthdayHidden()">
-              <option value="">Månad</option>
+              <option value="" data-i18n="onboarding.child.monthPlaceholder">Månad</option>
             </select>
             <select id="childBirthdayDay" class="form-input py-3" onchange="updateBirthdayHidden()">
-              <option value="">Dag</option>
+              <option value="" data-i18n="onboarding.child.dayPlaceholder">Dag</option>
             </select>
           </div>
           <input type="hidden" id="childBirthday" />
@@ -318,39 +320,41 @@
 
         <!-- Emoji picker (web / non-iOS native) -->
         <div id="emojiSection">
-          <label class="block text-sm font-semibold text-navy mb-2">Välj en emoji</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="onboarding.child.emojiLabel">Välj en emoji</label>
           <div class="grid grid-cols-8 gap-1.5 mb-3" id="emojiGrid"></div>
           <input type="text" id="customEmoji" placeholder="Eller skriv din egen emoji…" maxlength="4"
-            class="form-input text-sm py-2.5" />
+            class="form-input text-sm py-2.5" data-i18n-placeholder="onboarding.child.customEmojiPlaceholder" />
         </div>
 
         <!-- iOS native avatar picker — optional, shown below emoji on iOS/iPad -->
         <div id="avatarPickerSection" class="hidden mt-4 pt-4 border-t border-lavender">
-          <label class="block text-sm font-semibold text-navy mb-3">Valfritt: profilbild</label>
+          <label class="block text-sm font-semibold text-navy mb-3" data-i18n="onboarding.child.avatarLabel">Valfritt: profilbild</label>
           <div class="flex flex-col items-center gap-4">
             <img id="avatarPreview" src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/bac2e263-dc2f-4046-8870-cc4f4dd6f3a0.jpg"
               class="w-24 h-24 rounded-full object-cover bg-gold-light border-2 border-gold"
               alt="Barnets profilbild" />
             <div class="flex gap-3">
               <button id="useDefaultAvatarBtn" type="button"
-                class="hidden px-5 py-2.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl text-sm transition-colors font-heading">
+                class="hidden px-5 py-2.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl text-sm transition-colors font-heading"
+                data-i18n="onboarding.child.avatarDefaultBtn">
                 ✨ Standardbild
               </button>
               <button id="pickPhotoBtn" type="button"
-                class="px-5 py-2.5 bg-gold hover:bg-gold-dark text-white font-semibold rounded-xl text-sm transition-colors font-heading">
-                📷 Välj foto
+                class="px-5 py-2.5 bg-gold hover:bg-gold-dark text-white font-semibold rounded-xl text-sm transition-colors font-heading"
+                data-i18n="onboarding.child.avatarPickBtn">
+                📷 Choose photo
               </button>
             </div>
-            <p class="text-xs text-text-soft text-center">Välj en bild från fotobiblioteket eller ta ett nytt foto.</p>
+            <p class="text-xs text-text-soft text-center" data-i18n="onboarding.child.avatarHint">Välj en bild från fotobiblioteket eller ta ett nytt foto.</p>
           </div>
         </div>
 
         <!-- Schema selection (loaded dynamically from admin library) -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Välj ett schema</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="onboarding.child.scheduleLabel">Välj ett schema</label>
           <div class="grid grid-cols-2 gap-3" id="templateGroupGrid">
             <!-- Populated by JS from /api/onboarding/template-groups -->
-            <div class="text-center py-6 col-span-2 text-text-soft text-sm">Laddar scheman…</div>
+            <div class="text-center py-6 col-span-2 text-text-soft text-sm" data-i18n="onboarding.child.templatesLoading">Laddar scheman…</div>
           </div>
         </div>
 
@@ -358,57 +362,56 @@
         <div id="step1Error" class="hidden error-box"></div>
 
         <div class="mt-2">
-          <button id="step1Btn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-            Nästa steg →
+          <button id="step1Btn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.child.nextBtn">
+            Next step →
           </button>
         </div>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 1b — Hur ska barnet bocka av?
+         Step 1b — activity guide
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="stepActivityGuide">
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">✅</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">
-          Hur vill du att appen hjälper <span id="activityGuideChildName" class="text-gold">barnet</span> med dagens aktiviteter?
-        </h1>
-        <p class="text-text-soft text-sm">Du kan ändra detta när som helst i barnets inställningar.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" id="activityGuideTitle"></h1>
+        <p class="text-text-soft text-sm" data-i18n="onboarding.activityGuide.lead">Du kan ändra detta när som helst i barnets inställningar.</p>
       </div>
 
       <div class="grid grid-cols-1 gap-3 mb-5">
         <button type="button" class="view-type-card activity-guide-card text-left w-full" data-mode="free_order" onclick="selectActivityGuide('free_order')">
-          <div class="font-heading font-bold text-navy text-base mb-1">Fri ordning</div>
-          <p class="text-text-soft text-sm">Barnet kan bocka av i valfri ordning.</p>
+          <div class="font-heading font-bold text-navy text-base mb-1" data-i18n="onboarding.activityGuide.options.free_order.title">Fri ordning</div>
+          <p class="text-text-soft text-sm" data-i18n="onboarding.activityGuide.options.free_order.description">Barnet kan bocka av i valfri ordning.</p>
         </button>
 
         <button type="button" class="view-type-card activity-guide-card text-left w-full" data-mode="one_at_a_time" onclick="selectActivityGuide('one_at_a_time')">
-          <div class="font-heading font-bold text-navy text-base mb-1">En sak i taget</div>
-          <p class="text-text-soft text-sm">Appen hjälper barnet att fokusera på nästa steg.</p>
+          <div class="font-heading font-bold text-navy text-base mb-1" data-i18n="onboarding.activityGuide.options.one_at_a_time.title">En sak i taget</div>
+          <p class="text-text-soft text-sm" data-i18n="onboarding.activityGuide.options.one_at_a_time.description">Appen hjälper barnet att fokusera på nästa steg.</p>
         </button>
 
         <button type="button" class="view-type-card activity-guide-card text-left w-full" data-mode="time_and_order" onclick="selectActivityGuide('time_and_order')">
-          <div class="font-heading font-bold text-navy text-base mb-1">Tydlig tid och ordning</div>
-          <p class="text-text-soft text-sm">Appen hjälper med både nästa steg och timglas där du sätter tid per aktivitet.</p>
+          <div class="font-heading font-bold text-navy text-base mb-1" data-i18n="onboarding.activityGuide.options.time_and_order.title">Tydlig tid och ordning</div>
+          <p class="text-text-soft text-sm" data-i18n="onboarding.activityGuide.options.time_and_order.description">Appen hjälper med både nästa steg och timglas där du sätter tid per aktivitet.</p>
         </button>
       </div>
 
       <div id="stepActivityGuideError" class="hidden error-box mb-4"></div>
 
-      <button type="button" id="stepActivityGuideBtn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-        Fortsätt →
+      <button type="button" id="stepActivityGuideBtn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.activityGuide.continueBtn">
+        Continue →
       </button>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 2 — Välj barnets vy (NY!)
+         Step 2 — child view
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="step2">
+      <span id="s2vChildName" class="hidden" aria-hidden="true"></span>
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">📱</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">Vilken vy vill du att <span id="s2vChildName" class="text-gold">barnet</span> ska se?</h1>
-        <p class="text-text-soft text-sm">Välj hur schemat visas när barnet loggar in. Du kan ändra det när som helst i inställningarna.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" id="viewTypeTitle"></h1>
+        <p class="text-text-soft text-sm" data-i18n="onboarding.viewType.lead">Välj hur schemat visas när barnet loggar in. Du kan ändra det när som helst i inställningarna.</p>
       </div>
 
       <div class="grid grid-cols-1 gap-4 mb-5">
@@ -419,8 +422,8 @@
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:#FFF3D6">🌅</div>
             <div>
-              <div class="font-heading font-bold text-navy text-base">Dagsvy</div>
-              <div class="text-text-soft text-xs">Morgon · Förmiddag · Eftermiddag · Kväll</div>
+              <div class="font-heading font-bold text-navy text-base" data-i18n="onboarding.viewType.dayViewTitle">Dagsvy</div>
+              <div class="text-text-soft text-xs" data-i18n="onboarding.viewType.dayViewSubtitle">Morgon · Förmiddag · Eftermiddag · Kväll</div>
             </div>
           </div>
 
@@ -428,23 +431,23 @@
           <div class="rounded-xl overflow-hidden border border-lavender" style="background:#F8F9FE">
             <div class="px-3 pt-3 pb-2">
               <div class="dagsvy-section" style="background:#F5A623">
-                🌅 Morgon
-                <div class="dagsvy-activity">🛏️ Vakna &amp; sträcka på sig</div>
-                <div class="dagsvy-activity">🪥 Borsta tänderna</div>
+                🌅 <span data-i18n="onboarding.sections.morning">Morgon</span>
+                <div class="dagsvy-activity">🛏️ <span data-i18n="onboarding.viewType.mock.wakeStretch">Vakna &amp; sträcka på sig</span></div>
+                <div class="dagsvy-activity">🪥 <span data-i18n="onboarding.viewType.mock.brushTeeth">Borsta tänderna</span></div>
               </div>
               <div class="dagsvy-section" style="background:#F97316">
-                🌤️ Förmiddag
-                <div class="dagsvy-activity">🎒 Packa väskan</div>
-                <div class="dagsvy-activity">🏫 Gå till förskolan</div>
+                🌤️ <span data-i18n="onboarding.sections.lateMorning">Förmiddag</span>
+                <div class="dagsvy-activity">🎒 <span data-i18n="onboarding.viewType.mock.packBag">Packa väskan</span></div>
+                <div class="dagsvy-activity">🏫 <span data-i18n="onboarding.viewType.mock.preschool">Gå till förskolan</span></div>
               </div>
               <div class="dagsvy-section" style="background:#3B82F6">
-                ☀️ Eftermiddag
-                <div class="dagsvy-activity">🧩 Leka fritt</div>
+                ☀️ <span data-i18n="onboarding.sections.afternoon">Eftermiddag</span>
+                <div class="dagsvy-activity">🧩 <span data-i18n="onboarding.viewType.mock.freePlay">Leka fritt</span></div>
               </div>
               <div class="dagsvy-section mt-1" style="background:#8B5CF6">
-                🌙 Kväll
-                <div class="dagsvy-activity">🍽️ Middag</div>
-                <div class="dagsvy-activity">📕 Godnattsaga</div>
+                🌙 <span data-i18n="onboarding.sections.evening">Kväll</span>
+                <div class="dagsvy-activity">🍽️ <span data-i18n="onboarding.viewType.mock.dinner">Middag</span></div>
+                <div class="dagsvy-activity">📕 <span data-i18n="onboarding.viewType.mock.bedtimeStory">Godnattsaga</span></div>
               </div>
             </div>
           </div>
@@ -456,65 +459,66 @@
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:#EDE7F6">⏱️</div>
             <div>
-              <div class="font-heading font-bold text-navy text-base">Nu/Nästa/Senare-vy</div>
-              <div class="text-text-soft text-xs">Visar bara vad som händer just nu</div>
+              <div class="font-heading font-bold text-navy text-base" data-i18n="onboarding.viewType.timelineViewTitle">Nu/Nästa/Senare-vy</div>
+              <div class="text-text-soft text-xs" data-i18n="onboarding.viewType.timelineViewSubtitle">Visar bara vad som händer just nu</div>
             </div>
           </div>
 
           <!-- Timeline mockup -->
           <div class="rounded-xl overflow-hidden border border-lavender p-3" style="background:#F8F9FE">
-            <div class="timeline-label" style="color:#F5A623">⚡ NU</div>
+            <div class="timeline-label" style="color:#F5A623">⚡ <span data-i18n="onboarding.viewType.timelineNow">NU</span></div>
             <div class="timeline-activity now-act">
               <span class="text-base">🪥</span>
-              <span class="font-semibold text-xs">Borsta tänderna</span>
+              <span class="font-semibold text-xs" data-i18n="onboarding.viewType.mock.brushTeeth">Borsta tänderna</span>
             </div>
-            <div class="timeline-label" style="color:#3B82F6">➡️ NÄSTA</div>
+            <div class="timeline-label" style="color:#3B82F6">➡️ <span data-i18n="onboarding.viewType.timelineNext">NÄSTA</span></div>
             <div class="timeline-activity">
               <span class="text-base">🎒</span>
-              <span class="text-xs">Packa väskan</span>
+              <span class="text-xs" data-i18n="onboarding.viewType.mock.packBag">Packa väskan</span>
             </div>
-            <div class="timeline-label" style="color:#9CA3AF">🕐 SEDAN</div>
+            <div class="timeline-label" style="color:#9CA3AF">🕐 <span data-i18n="onboarding.viewType.timelineThen">SEDAN</span></div>
             <div class="timeline-activity">
               <span class="text-base">🏫</span>
-              <span class="text-xs">Förskola</span>
+              <span class="text-xs" data-i18n="onboarding.viewType.mock.preschoolShort">Förskola</span>
             </div>
             <div class="timeline-activity">
               <span class="text-base">🧩</span>
-              <span class="text-xs">Lek</span>
+              <span class="text-xs" data-i18n="onboarding.viewType.mock.play">Lek</span>
             </div>
           </div>
-          <p class="text-text-soft text-xs mt-3 text-center">Du kan även välja Dagsvy om ditt barn föredrar färgkodade dagdelssektioner.</p>
+          <p class="text-text-soft text-xs mt-3 text-center" data-i18n="onboarding.viewType.dayViewHint">Du kan även välja Dagsvy om ditt barn föredrar färgkodade dagdelssektioner.</p>
         </div>
       </div>
 
       <div id="step2vError" class="hidden error-box mb-4"></div>
 
       <div class="flex gap-3">
-        <button onclick="goToStep(1)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0">
+        <button onclick="goToStep(1)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0" data-i18n="onboarding.common.back">
           ← Tillbaka
         </button>
-        <button id="step2vBtn" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-          Nästa steg →
+        <button id="step2vBtn" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.common.next">
+          Next step →
         </button>
       </div>
-      <p class="text-center text-xs text-text-soft mt-3">Hoppar du över? Dagsvy väljs automatiskt.</p>
+      <p class="text-center text-xs text-text-soft mt-3" data-i18n="onboarding.viewType.skipHint">Hoppar du över? Dagsvy väljs automatiskt.</p>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 3 — Schemat är klart! (f.d. steg 2)
+         Step 3 — schedule ready
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="step3">
+      <span id="s3ChildName" class="hidden" aria-hidden="true"></span>
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">🌟</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">Schemat är klart!</h1>
-        <p id="s3Subtitle" class="text-text-soft text-sm">Vi har förberett ett startschema för <strong id="s3ChildName" class="text-navy">barnet</strong>.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" data-i18n="onboarding.scheduleReady.title">Schemat är klart!</h1>
+        <p id="s3Subtitle" class="text-text-soft text-sm"></p>
       </div>
 
       <!-- Schedule preview -->
       <div class="bg-sky border border-lavender rounded-2xl p-4 mb-5">
         <div class="flex items-center gap-2 mb-3">
           <span id="s3TemplateIcon" class="text-xl">📅</span>
-          <span class="font-semibold text-navy text-sm" id="s3TemplateLabel">Schema</span>
+          <span class="font-semibold text-navy text-sm" id="s3TemplateLabel" data-i18n="onboarding.scheduleReady.templateFallback">Schema</span>
           <span class="ml-auto text-xs text-text-soft" id="s3DaysLabel">7 dagar / vecka</span>
         </div>
         <div id="s3SchedulePreview" class="space-y-1.5">
@@ -526,42 +530,43 @@
       <div class="social-proof mb-5 flex gap-3 items-start">
         <span class="text-2xl flex-shrink-0">💡</span>
         <div>
-          <p class="font-semibold text-navy text-sm mb-0.5">Visste du?</p>
-          <p class="text-text-soft text-xs leading-relaxed">Visuellt stöd minskar ofta vardagsstressen med upp till 30% — och barn med tydliga rutiner somnar snabbare och vaknar gladare.</p>
+          <p class="font-semibold text-navy text-sm mb-0.5" data-i18n="onboarding.scheduleReady.socialProofTitle">Visste du?</p>
+          <p class="text-text-soft text-xs leading-relaxed" data-i18n="onboarding.scheduleReady.socialProofBody">Visuellt stöd minskar ofta vardagsstressen med upp till 30% — och barn med tydliga rutiner somnar snabbare och vaknar gladare.</p>
         </div>
       </div>
 
       <div id="step3Error" class="hidden error-box mb-4"></div>
 
       <div class="flex gap-3">
-        <button onclick="goToStep(2)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0">
+        <button onclick="goToStep(2)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0" data-i18n="onboarding.common.back">
           ← Tillbaka
         </button>
-        <button id="step3Btn" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-          Perfekt, kör vidare! →
+        <button id="step3Btn" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.scheduleReady.continueBtn">
+          Perfect, continue! →
         </button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 4 — Välj de 3 första belöningarna (f.d. steg 3)
+         Step 4 — rewards
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="step4">
+      <span id="s4ChildName" class="hidden" aria-hidden="true"></span>
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">⭐</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">Så fungerar stjärnor</h1>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" data-i18n="onboarding.rewards.title">Så fungerar stjärnor</h1>
         <div class="bg-lavender rounded-xl p-4 text-left">
           <div class="flex gap-2 items-center mb-1.5">
             <span class="text-lg">☑️</span>
-            <span class="text-sm font-semibold text-navy">Bocka av</span>
+            <span class="text-sm font-semibold text-navy" data-i18n="onboarding.rewards.checkOff">Bocka av</span>
             <span class="text-text-soft text-sm">→</span>
             <span class="text-lg">⭐</span>
-            <span class="text-sm font-semibold text-navy">Stjärna</span>
+            <span class="text-sm font-semibold text-navy" data-i18n="onboarding.rewards.star">Stjärna</span>
             <span class="text-text-soft text-sm">→</span>
             <span class="text-lg">🏆</span>
-            <span class="text-sm font-semibold text-navy">Skattkammaren</span>
+            <span class="text-sm font-semibold text-navy" data-i18n="onboarding.rewards.treasureChest">Skattkammaren</span>
           </div>
-          <p class="text-xs text-text-soft">Vi har fyllt på med roliga belöningar. Välj de som <strong id="s4ChildName" class="text-navy">barnet</strong> ska få kämpa för!</p>
+          <p class="text-xs text-text-soft" id="s4RewardsIntro"></p>
         </div>
       </div>
 
@@ -570,42 +575,44 @@
         <!-- Populated by JS -->
       </div>
 
-      <p id="s4SelectCount" class="text-center text-xs text-text-soft mb-4">Välj minst 1 belöning (0 valda)</p>
+      <p id="s4SelectCount" class="text-center text-xs text-text-soft mb-4" data-i18n="onboarding.rewards.selectCount.zero">Välj minst 1 belöning (0 valda)</p>
 
       <div id="step4Error" class="hidden error-box mb-4"></div>
 
       <div class="flex gap-3">
-        <button onclick="goToStep(3)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0">
+        <button onclick="goToStep(3)" class="px-5 py-3.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading flex-shrink-0" data-i18n="onboarding.common.back">
           ← Tillbaka
         </button>
-        <button id="step4Btn" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-          Spara belöningar →
+        <button id="step4Btn" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.rewards.saveBtn">
+          Save rewards →
         </button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 5 — Så loggar ni in (f.d. steg 4)
+         Step 5 — child login
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="step5">
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">🔑</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">Så loggar ni in</h1>
-        <p class="text-text-soft text-sm"><strong id="s5ChildName" class="text-navy">Barnet</strong> loggar in med namn och PIN — inga lösenord.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" data-i18n="onboarding.handoff.title">How you log in</h1>
+        <p class="text-text-soft text-sm" id="s5HandoffLead"></p>
+        <span id="s5ChildName" class="hidden" aria-hidden="true"></span>
+        <span id="s5ChildNameCoach" class="hidden" aria-hidden="true"></span>
       </div>
 
       <!-- PIN display & edit -->
       <div class="bg-sky border border-lavender rounded-2xl p-5 mb-5 text-center">
-        <p class="text-sm text-text-soft mb-1">Barnets inloggning</p>
-        <p class="font-heading font-bold text-navy text-lg mb-3" id="s5Username">användarnamn</p>
+        <p class="text-sm text-text-soft mb-1" data-i18n="onboarding.handoff.childLoginLabel">Barnets inloggning</p>
+        <p class="font-heading font-bold text-navy text-lg mb-3" id="s5Username" data-i18n="onboarding.handoff.usernameFallback">username</p>
 
-        <p class="text-xs text-text-soft uppercase tracking-widest font-semibold mb-2">PIN-kod</p>
+        <p class="text-xs text-text-soft uppercase tracking-widest font-semibold mb-2" data-i18n="onboarding.handoff.pinLabel">PIN</p>
 
         <!-- Auto-generated PIN (shown first) -->
         <div id="pinDisplay">
           <div class="pin-box" id="s5Pin">0000</div>
-          <button onclick="showPinEdit()" class="mt-3 text-sm text-gold font-semibold hover:text-gold-dark transition-colors">
-            ✏️ Välj egen PIN-kod
+          <button onclick="showPinEdit()" class="mt-3 text-sm text-gold font-semibold hover:text-gold-dark transition-colors" data-i18n="onboarding.handoff.chooseCustomPin">
+            ✏️ Choose your own PIN
           </button>
         </div>
 
@@ -619,26 +626,26 @@
           </div>
           <div id="pinEditError" class="hidden error-box text-xs mb-2"></div>
           <div class="flex gap-2 justify-center mt-3">
-            <button id="savePinBtn" onclick="saveCustomPin()" class="px-4 py-2 bg-gold hover:bg-gold-dark text-white rounded-lg font-semibold text-sm transition-colors">
+            <button id="savePinBtn" onclick="saveCustomPin()" class="px-4 py-2 bg-gold hover:bg-gold-dark text-white rounded-lg font-semibold text-sm transition-colors" data-i18n="onboarding.handoff.savePin">
               Spara PIN
             </button>
-            <button onclick="cancelPinEdit()" class="px-4 py-2 bg-lavender hover:bg-purple-200 text-navy rounded-lg font-semibold text-sm transition-colors">
+            <button onclick="cancelPinEdit()" class="px-4 py-2 bg-lavender hover:bg-purple-200 text-navy rounded-lg font-semibold text-sm transition-colors" data-i18n="onboarding.common.cancel">
               Avbryt
             </button>
           </div>
         </div>
 
-        <p class="text-xs text-text-soft mt-3">Notera PIN-koden — du kan ändra den i inställningar.</p>
-        <p id="s5PinResumeHint" class="hidden text-xs text-text-soft mt-2 leading-relaxed">
-          Använd barnets PIN. Har du glömt den kan du sätta en ny med knappen nedan.
+        <p class="text-xs text-text-soft mt-3" data-i18n="onboarding.handoff.pinNote">Notera PIN-koden — du kan ändra den i inställningar.</p>
+        <p id="s5PinResumeHint" class="hidden text-xs text-text-soft mt-2 leading-relaxed" data-i18n="onboarding.handoff.pinResumeHint">
+          Use your child's PIN. If you forgot it, set a new one with the button below.
         </p>
 
         <!-- Save options -->
         <div class="flex flex-wrap gap-3 mt-4 justify-center">
-          <button id="copyPinBtn" onclick="copyLoginInfo()" class="px-4 py-2.5 bg-lavender hover:bg-purple-200 text-navy rounded-lg font-semibold text-sm transition-colors">
+          <button id="copyPinBtn" onclick="copyLoginInfo()" class="px-4 py-2.5 bg-lavender hover:bg-purple-200 text-navy rounded-lg font-semibold text-sm transition-colors" data-i18n="onboarding.handoff.copyInfo">
             📋 Kopiera info
           </button>
-          <button onclick="emailLoginInfo()" class="px-4 py-2.5 bg-mint hover:bg-green-200 text-navy rounded-lg font-semibold text-sm transition-colors">
+          <button onclick="emailLoginInfo()" class="px-4 py-2.5 bg-mint hover:bg-green-200 text-navy rounded-lg font-semibold text-sm transition-colors" data-i18n="onboarding.handoff.emailLogin">
             📧 Skicka till mejl
           </button>
         </div>
@@ -649,9 +656,9 @@
         <div class="flex gap-3 items-start">
           <span class="text-2xl flex-shrink-0">📲</span>
           <div>
-            <p class="font-semibold text-sm mb-1">Installera som app</p>
-            <p class="text-xs text-white/70 leading-relaxed">Lägg till Min Stjärndag på hemskärmen — fungerar som en riktig app, fungerar offline, inga appbutiker.</p>
-            <p class="text-xs text-white/50 mt-1.5">iPhone: Dela → Lägg till på hemskärmen &nbsp;·&nbsp; Android: ⋮ → Installera app</p>
+            <p class="font-semibold text-sm mb-1" data-i18n="onboarding.handoff.installTitle">Install as an app</p>
+            <p class="text-xs text-white/70 leading-relaxed" data-i18n="onboarding.handoff.installBody">Add My Starday to your home screen — works like a real app, works offline, no app stores.</p>
+            <p class="text-xs text-white/50 mt-1.5" data-i18n="onboarding.handoff.installInstructions">iPhone: Share → Add to Home Screen &nbsp;·&nbsp; Android: ⋮ → Install app</p>
           </div>
         </div>
       </div>
@@ -661,57 +668,57 @@
         <div class="flex gap-3 items-start">
           <span class="text-xl flex-shrink-0">🌟</span>
           <div>
-            <p class="font-semibold text-navy text-sm mb-1">Tips till dig som förälder</p>
-            <p class="text-text-soft text-xs leading-relaxed">Sätt er tillsammans ikväll. Visa skattkammaren <em>först</em> för att väcka nyfikenhet — förklara sedan att appen är <strong id="s5ChildNameCoach" class="text-navy">barnets</strong> egen karta för dagen!</p>
+            <p class="font-semibold text-navy text-sm mb-1" data-i18n="onboarding.handoff.parentTipTitle">Tips till dig som förälder</p>
+            <p class="text-text-soft text-xs leading-relaxed" id="s5ParentCoachTip"></p>
           </div>
         </div>
       </div>
 
       <div class="flex flex-col gap-3">
         <button type="button" id="step5ChildLoginBtn"
-          class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
+          class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.handoff.testChildLogin">
           👶 Testa barninloggning nu
         </button>
         <button type="button" id="step5ContinueParentBtn"
-          class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2 transition-colors">
-          Fortsätt som förälder →
+          class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2 transition-colors" data-i18n="onboarding.handoff.continueAsParent">
+          Continue as parent →
         </button>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
-         STEG 6 — Bjud in & kör igång! (f.d. steg 5)
+         Step 6 — complete
     ══════════════════════════════════════════════════════════ -->
     <div class="step-card" id="step6">
       <div class="text-center mb-6 relative overflow-visible" id="celebrationArea">
         <div class="text-5xl mb-3">🎉</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-2">Nästan klart!</h1>
-        <p class="text-text-soft text-sm">Låt barnet testa appen — du kan bjuda in andra vuxna och sätta föräldralås <strong>efter</strong> första avbockningen.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-2" data-i18n="onboarding.complete.title">Nästan klart!</h1>
+        <p class="text-text-soft text-sm" data-i18n="onboarding.complete.lead">Let your child try the app — you can invite other adults and set a Parent PIN <strong>after</strong> the first tick-off.</p>
       </div>
 
       <div id="onboardingLaterOptions" class="text-center text-xs text-text-soft space-y-2 mb-5">
-        <button type="button" id="showParentPinLink" class="underline hover:text-navy">Sätt föräldralås senare</button>
-        <button type="button" id="showInviteLink" class="underline hover:text-navy block mx-auto">Bjud in medförälder senare</button>
+        <button type="button" id="showParentPinLink" class="underline hover:text-navy" data-i18n="onboarding.parentPin.setLater">Sätt föräldralås senare</button>
+        <button type="button" id="showInviteLink" class="underline hover:text-navy block mx-auto" data-i18n="onboarding.invite.inviteLater">Bjud in medförälder senare</button>
       </div>
 
       <!-- Föräldralås (vuxen-PIN) — döljs tills förälder väljer att sätta -->
       <div id="onboardingParentPinBlock" class="hidden bg-gold-light border border-gold rounded-2xl p-4 mb-5">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xl">🔒</span>
-          <span class="font-semibold text-navy text-sm">Sätt föräldralås</span>
-          <span class="ml-auto text-xs text-text-soft bg-white px-2 py-0.5 rounded-full border border-gold">Rekommenderas</span>
+          <span class="font-semibold text-navy text-sm" data-i18n="onboarding.parentPin.title">Sätt föräldralås</span>
+          <span class="ml-auto text-xs text-text-soft bg-white px-2 py-0.5 rounded-full border border-gold" data-i18n="onboarding.common.recommended">Rekommenderas</span>
         </div>
-        <p class="text-xs text-text-soft mb-3 leading-relaxed">
-          En 4-siffrig PIN som bara du känner till skyddar vuxenläget — t.ex. när barn ska lägga till syskon eller du loggar in som vuxen på barnets enhet.
+        <p class="text-xs text-text-soft mb-3 leading-relaxed" data-i18n="onboarding.parentPin.description">
+          A 4-digit PIN only you know protects parent mode — for example when a child adds a sibling or you log in as a parent on their device.
         </p>
-        <p class="text-sm font-semibold text-navy mb-2">Välj din PIN-kod</p>
+        <p class="text-sm font-semibold text-navy mb-2" data-i18n="onboarding.parentPin.choosePin">Välj din PIN-kod</p>
         <div class="pin-input-group mb-3">
           <input type="tel" maxlength="1" class="pin-digit" id="ppObD1" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
           <input type="tel" maxlength="1" class="pin-digit" id="ppObD2" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
           <input type="tel" maxlength="1" class="pin-digit" id="ppObD3" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
           <input type="tel" maxlength="1" class="pin-digit" id="ppObD4" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
         </div>
-        <p class="text-sm font-semibold text-navy mb-2">Bekräfta PIN-kod</p>
+        <p class="text-sm font-semibold text-navy mb-2" data-i18n="onboarding.parentPin.confirmPin">Bekräfta PIN-kod</p>
         <div class="pin-input-group mb-2">
           <input type="tel" maxlength="1" class="pin-digit" id="ppObC1" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
           <input type="tel" maxlength="1" class="pin-digit" id="ppObC2" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
@@ -719,30 +726,30 @@
           <input type="tel" maxlength="1" class="pin-digit" id="ppObC4" inputmode="numeric" pattern="[0-9]" autocomplete="off" />
         </div>
         <div id="onboardingParentPinError" class="hidden error-box text-xs mb-2"></div>
-        <p class="text-xs text-text-soft">Du kan ändra din PIN senare under Familjen &amp; inställningar.</p>
+        <p class="text-xs text-text-soft" data-i18n="onboarding.parentPin.changeLater">Du kan ändra din PIN senare under Familjen &amp; inställningar.</p>
       </div>
 
       <!-- Invite another adult (visas på begäran) -->
       <div id="onboardingInviteBlock" class="hidden bg-sky border border-lavender rounded-2xl p-4 mb-5">
         <div class="flex items-center gap-2 mb-3">
           <span class="text-xl">👨‍👩‍👧</span>
-          <span class="font-semibold text-navy text-sm">Bjud in en annan vuxen</span>
-          <span class="ml-auto text-xs text-text-soft bg-white px-2 py-0.5 rounded-full border border-lavender">Valfritt</span>
+          <span class="font-semibold text-navy text-sm" data-i18n="onboarding.invite.title">Bjud in en annan vuxen</span>
+          <span class="ml-auto text-xs text-text-soft bg-white px-2 py-0.5 rounded-full border border-lavender" data-i18n="onboarding.common.optional">Valfritt</span>
         </div>
 
         <div id="inviteForm" class="space-y-3">
           <div>
-            <input type="text" id="inviteName" placeholder="Namn (t.ex. Erik)" maxlength="60"
+            <input type="text" id="inviteName" placeholder="Namn (t.ex. Erik)" maxlength="60" data-i18n-placeholder="onboarding.invite.namePlaceholder"
               class="form-input text-sm" />
           </div>
           <div>
-            <input type="email" id="inviteEmail" placeholder="E-postadress" maxlength="120"
+            <input type="email" id="inviteEmail" placeholder="E-postadress" maxlength="120" data-i18n-placeholder="onboarding.invite.emailPlaceholder"
               class="form-input text-sm" />
           </div>
 
           <!-- Child access checkboxes — populated by JS -->
           <div id="inviteChildAccess" class="hidden">
-            <p class="text-xs font-semibold text-navy mb-2">Vilka barn ska denna person se?</p>
+            <p class="text-xs font-semibold text-navy mb-2" data-i18n="onboarding.invite.whichChildren">Vilka barn ska denna person se?</p>
             <div id="inviteChildList" class="space-y-1.5"></div>
           </div>
 
@@ -751,12 +758,12 @@
 
           <div class="flex flex-col sm:flex-row gap-2">
             <button id="inviteBtn" onclick="sendInvite()"
-              class="flex-1 bg-navy hover:bg-navy-soft text-white font-semibold py-2.5 rounded-xl transition-colors text-sm font-heading">
+              class="flex-1 bg-navy hover:bg-navy-soft text-white font-semibold py-2.5 rounded-xl transition-colors text-sm font-heading" data-i18n="onboarding.invite.sendBtn">
               📧 Skicka inbjudan
             </button>
             <button onclick="skipInvite()"
-              class="flex-shrink-0 px-4 py-2.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading">
-              Hoppa över →
+              class="flex-shrink-0 px-4 py-2.5 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors text-sm font-heading" data-i18n="onboarding.invite.skip">
+              Skip →
             </button>
           </div>
         </div>
@@ -767,22 +774,22 @@
         <div class="tip-item">
           <div class="w-10 h-10 bg-gold-light border border-gold rounded-xl flex-shrink-0 flex items-center justify-center font-heading font-bold text-gold text-lg">1</div>
           <div>
-            <p class="font-semibold text-navy text-sm">Redigera schemat</p>
-            <p class="text-text-soft text-xs leading-relaxed">Gå till Översikt → klicka på barnets kort → anpassa aktiviteterna till er vardag.</p>
+            <p class="font-semibold text-navy text-sm" data-i18n="onboarding.complete.tips.editScheduleTitle">Redigera schemat</p>
+            <p class="text-text-soft text-xs leading-relaxed" data-i18n="onboarding.complete.tips.editScheduleBody">Gå till Översikt → klicka på barnets kort → anpassa aktiviteterna till er vardag.</p>
           </div>
         </div>
         <div class="tip-item">
           <div class="w-10 h-10 bg-sky border border-lavender rounded-xl flex-shrink-0 flex items-center justify-center font-heading font-bold text-navy text-lg">2</div>
           <div>
-            <p class="font-semibold text-navy text-sm">Kolla belöningarna</p>
-            <p class="text-text-soft text-xs leading-relaxed">I barnvyn — tryck på stjärnan — ser barnet hur många stjärnor som krävs för belöningarna.</p>
+            <p class="font-semibold text-navy text-sm" data-i18n="onboarding.complete.tips.checkRewardsTitle">Kolla belöningarna</p>
+            <p class="text-text-soft text-xs leading-relaxed" data-i18n="onboarding.complete.tips.checkRewardsBody">I barnvyn — tryck på stjärnan — ser barnet hur många stjärnor som krävs för belöningarna.</p>
           </div>
         </div>
         <div class="tip-item">
           <div class="w-10 h-10 bg-mint border border-green-200 rounded-xl flex-shrink-0 flex items-center justify-center font-heading font-bold text-green-600 text-lg">3</div>
           <div>
-            <p class="font-semibold text-navy text-sm">Lägg till fler barn</p>
-            <p class="text-text-soft text-xs leading-relaxed">Varje barn får sitt eget schema och sina egna stjärnor. Lägg till via + i dashboarden.</p>
+            <p class="font-semibold text-navy text-sm" data-i18n="onboarding.complete.tips.addChildrenTitle">Add more children</p>
+            <p class="text-text-soft text-xs leading-relaxed" data-i18n="onboarding.complete.tips.addChildrenBody">Each child gets their own schedule and stars. Add via + on the dashboard.</p>
           </div>
         </div>
       </div>
@@ -791,14 +798,12 @@
       <div id="step6Error" class="hidden error-box mb-4"></div>
 
       <div class="mt-6" style="position: relative; z-index: 1;">
-        <button id="step6Btn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-4 rounded-xl transition-colors text-base font-heading shadow-md shadow-yellow-200">
-          👶 Låt barnet börja
+        <button id="step6Btn" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-4 rounded-xl transition-colors text-base font-heading shadow-md shadow-yellow-200" data-i18n="onboarding.complete.letChildStart">
+          👶 Let your child start
         </button>
       </div>
 
-      <p class="text-center text-xs text-text-soft mt-4 pb-4">
-        Välkommen till Min Stjärndag — vi är glada att du är här! 🌟
-      </p>
+        <p class="text-center text-xs text-text-soft mt-4 pb-4" data-i18n="onboarding.complete.welcomeFooter" data-i18n-params="brand">Welcome to My Starday — we are glad you are here! 🌟</p>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
@@ -811,8 +816,8 @@
     ══════════════════════════════════════════════════════════ -->
     <div id="loadingStep" class="hidden text-center py-16">
       <div class="spin-star text-5xl mb-4">⭐</div>
-      <p class="font-heading text-xl font-bold text-navy">Bygger ditt schema…</p>
-      <p class="text-text-soft mt-2 text-sm">Tar bara några sekunder!</p>
+      <p class="font-heading text-xl font-bold text-navy" data-i18n="onboarding.loading.buildingSchedule">Bygger ditt schema…</p>
+      <p class="text-text-soft mt-2 text-sm" data-i18n="onboarding.loading.takesSeconds">Tar bara några sekunder!</p>
     </div>
 
   </div><!-- /max-w-lg -->
@@ -822,35 +827,35 @@
     <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg mx-auto p-6 animate-slide-up">
       <div class="text-center mb-5">
         <div class="text-4xl mb-3">🎉</div>
-        <h2 class="text-xl font-heading font-bold text-navy mb-2">Vill du lägga till helgschema?</h2>
-        <p class="text-text-soft text-sm">Vardagsschemat är klart för mån–fre. Vill du lägga till ett avslappnat helgschema för lördag och söndag?</p>
+        <h2 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="onboarding.weekend.title">Add a weekend schedule?</h2>
+        <p class="text-text-soft text-sm" data-i18n="onboarding.weekend.body">The weekday schedule is set for Mon–Fri. Add a relaxed weekend schedule for Saturday and Sunday?</p>
       </div>
 
       <!-- Helg preview -->
       <div class="bg-sky border border-lavender rounded-xl p-3 mb-5">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-lg">🎉</span>
-          <span class="font-semibold text-navy text-sm">Helgschema</span>
-          <span class="ml-auto text-xs text-text-soft">lör + sön</span>
+          <span class="font-semibold text-navy text-sm" data-i18n="onboarding.weekend.scheduleLabel">Helgschema</span>
+          <span class="ml-auto text-xs text-text-soft" data-i18n="onboarding.weekend.satSun">lör + sön</span>
         </div>
         <div class="space-y-1" id="weekendPreviewItems">
-          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">😴 Sova ut</div>
-          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🥞 Frukost i lugn & ro</div>
-          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🧩 Leka fritt</div>
-          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🌳 Utflykt / Park</div>
-          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">❤️ Familjaktivitet</div>
-          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🍽️ Middag</div>
+          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">😴 <span data-i18n="onboarding.weekend.preview.sleepIn">Sova ut</span></div>
+          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🥞 <span data-i18n="onboarding.weekend.preview.breakfast">Frukost i lugn & ro</span></div>
+          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🧩 <span data-i18n="onboarding.weekend.preview.freePlay">Leka fritt</span></div>
+          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🌳 <span data-i18n="onboarding.weekend.preview.outing">Utflykt / Park</span></div>
+          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">❤️ <span data-i18n="onboarding.weekend.preview.familyActivity">Familjaktivitet</span></div>
+          <div class="text-xs text-navy bg-white rounded-lg px-2.5 py-1.5 border border-lavender">🍽️ <span data-i18n="onboarding.weekend.preview.dinner">Middag</span></div>
         </div>
       </div>
 
       <div id="weekendModalError" class="hidden error-box mb-3"></div>
 
       <div class="flex flex-col gap-2.5">
-        <button id="weekendYesBtn" onclick="applyWeekendSchedule()" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading">
-          ✅ Ja, lägg till helgschema
+        <button id="weekendYesBtn" onclick="applyWeekendSchedule()" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl transition-colors text-base font-heading" data-i18n="onboarding.weekend.yesBtn">
+          ✅ Yes, add weekend schedule
         </button>
-        <button id="weekendNoBtn" onclick="skipWeekendSchedule()" class="w-full bg-lavender hover:bg-purple-200 text-navy font-semibold py-3 rounded-xl transition-colors text-sm font-heading">
-          Nej tack, jag fyller i själv senare
+        <button id="weekendNoBtn" onclick="skipWeekendSchedule()" class="w-full bg-lavender hover:bg-purple-200 text-navy font-semibold py-3 rounded-xl transition-colors text-sm font-heading" data-i18n="onboarding.weekend.noBtn">
+          No thanks, I will fill it in later
         </button>
       </div>
     </div>

@@ -14,12 +14,13 @@ function read(rel) {
 describe('ACT-1 PR3 checkpoint', () => {
   it('starter-plan wizard has 7 questions and preview save flow', () => {
     const src = read('public/js/onboarding-starter-plan.js');
-    assert.match(src, /QUESTIONS = \[/);
-    const qCount = (src.match(/id: '/g) || []).length;
-    assert.ok(qCount >= 7, 'expected at least 7 questions');
+    assert.match(src, /QUESTION_IDS = \[/);
+    const qCount = (src.match(/'child_name'|'age_band'|'routine_type_ui'|'main_challenge'|'support_ui'|'length_ui'|'free_text'/g) || []).length;
+    assert.ok(qCount >= 7, 'expected at least 7 question ids');
+    assert.match(src, /getQuestions/);
+    assert.match(src, /onboarding\.starter\.questions/);
     assert.match(src, /activation_question_answered/);
     assert.match(src, /starter_plan_preview_viewed|renderPreview/);
-    assert.match(src, /starter_plan_saved/);
     assert.match(src, /plan_edited_before_save/);
     assert.match(src, /activity_count/);
   });

@@ -111,6 +111,17 @@ const I18n = {
   },
 
   /**
+   * Plural helper — keys at baseKey.one / baseKey.other
+   * @param {string} baseKey dot path without .one/.other
+   * @param {number} count
+   * @param {Record<string, string|number>} [params]
+   */
+  plural(baseKey, count, params = {}) {
+    const suffix = Number(count) === 1 ? 'one' : 'other';
+    return this.t(`${baseKey}.${suffix}`, { ...params, count });
+  },
+
+  /**
    * Apply translations to DOM elements with data-i18n* attributes.
    */
   apply(root = document) {
@@ -149,5 +160,6 @@ const I18n = {
 window.I18n = I18n;
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (document.body?.dataset?.i18nManualInit === 'true') return;
   I18n.init().catch((err) => console.warn('[i18n] init failed:', err));
 });

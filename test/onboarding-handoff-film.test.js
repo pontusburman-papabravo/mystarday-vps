@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const { loadLocales, t } = require('../src/lib/i18n');
+
 const ROOT = path.join(__dirname, '..');
 
 function read(rel) {
@@ -12,6 +14,8 @@ function read(rel) {
 }
 
 describe('Onboarding handoff film', () => {
+  loadLocales();
+
   it('onboarding.html loads film CSS and JS after activation', () => {
     const html = read('public/onboarding.html');
     assert.match(html, /onboarding-handoff-film\.css/);
@@ -20,14 +24,31 @@ describe('Onboarding handoff film', () => {
     assert.ok(actIdx >= 0 && filmIdx > actIdx);
   });
 
-  it('film module uses text only (no voiceover, no music)', () => {
+  it('film module uses locale keys (no hardcoded Swedish copy)', () => {
     const src = read('public/js/onboarding-handoff-film.js');
-    assert.match(src, /SCENES/);
-    assert.match(src, /Testa barnläget nu/);
-    assert.match(src, /Gör det senare/);
+    assert.match(src, /SCENE_IDS/);
+    assert.match(src, /onboarding\.handoffFilm\.ctaTryNow/);
+    assert.match(src, /onboarding\.handoffFilm\.ctaLater/);
+    assert.match(src, /onboarding\.handoffFilm\.scenes\./);
+    assert.doesNotMatch(src, /Testa barnläget nu/);
+    assert.doesNotMatch(src, /Gör det senare/);
     assert.doesNotMatch(src, /speechSynthesis/);
     assert.doesNotMatch(src, /startMusic/);
     assert.doesNotMatch(src, /AudioContext/);
+  });
+
+  it('handoff film CTA copy is localized for sv-SE and en-GB', () => {
+    const svTry = t('sv-SE', 'onboarding.handoffFilm.ctaTryNow');
+    const svLater = t('sv-SE', 'onboarding.handoffFilm.ctaLater');
+    const enTry = t('en-GB', 'onboarding.handoffFilm.ctaTryNow');
+    const enLater = t('en-GB', 'onboarding.handoffFilm.ctaLater');
+
+    assert.match(svTry, /barnläget/i);
+    assert.match(svLater, /senare/i);
+    assert.match(enTry, /child mode/i);
+    assert.match(enLater, /later/i);
+    assert.notEqual(svTry, enTry);
+    assert.notEqual(svLater, enLater);
   });
 
   it('film enabled by activation state, not slim fast path', () => {
@@ -114,5 +135,11 @@ describe('Onboarding handoff film', () => {
     assert.match(src, /activeSession\.timerId/);
     assert.match(src, /scheduleSceneTimeout/);
     assert.match(src, /activeSession\.overlay !== overlay/);
+  });
+
+  it('film shown once per session (no duplicate complete events)', () => {
+    const src = read('public/js/onboarding-handoff-film.js');
+    assert.match(src, /shownThisSession/);
+    assert.match(src, /onboarding_handoff_film_complete/);
   });
 });

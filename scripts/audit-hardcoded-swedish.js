@@ -31,11 +31,23 @@ const STRICT_FILES = [
   'public/js/i18n.js',
   'public/js/locale-switcher.js',
   'public/js/auth-entry-i18n.js',
+  'public/js/onboarding-i18n.js',
+  'public/js/onboarding.js',
+  'public/js/onboarding-starter-plan.js',
+  'public/js/onboarding-handoff-film.js',
+  'public/js/onboarding-activity-guide.js',
+  'public/js/onboarding-activation.js',
+  'public/js/onboarding-first-star.js',
+  'public/js/activation-program-enroll-choice.js',
+  'public/onboarding.html',
   'src/lib/locale.js',
   'src/lib/i18n.js',
   'src/lib/i18n-flags.js',
   'src/lib/auth-email-locale.js',
+  'src/lib/onboarding-locale.js',
   'src/lib/default-content/index.js',
+  'src/routes/onboarding.js',
+  'config/i18n/onboarding-en-GB.json',
 ];
 
 const BASELINE_FILES = [
@@ -47,7 +59,6 @@ const BASELINE_FILES = [
   'public/forgot-password.html',
   'public/reset-password.html',
   'public/verify-email.html',
-  'public/onboarding.html',
   'src/routes/auth/register.js',
   'src/routes/auth/login.js',
   'src/routes/auth/email.js',
@@ -66,6 +77,12 @@ const STRICT_ALLOWLIST = [
   /console\./,
   /\/\//,
   /SV_CATEGORY_TO_TIME_GROUP|SV_TIME_CATEGORY_OFFSET/, // Swedish DB category keys (not UI copy)
+  /data-i18n/, // Swedish fallback text in HTML until JS applies locale
+  /"months":\s*\[/, // Swedish month names in sv-SE locale JSON only
+  /GROUP_TO_SCHEDULE|scheduleName|default_schedule\.name/, // Swedish DB schedule template names (not UI)
+  /<!--/, // HTML comments (not user-visible)
+  /Förskola vardag|Kvällsrutin|Morgon vardag|sectionToCategoryName/, // DB template / category keys in onboarding routes
+  /\.replace\(\/\[/, // diacritic strip helper in onboarding routes
 ];
 
 const BASELINE_ALLOWLIST = [
