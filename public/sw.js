@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v665: App Store 1.3 — barnprofil födelsedag + iPad touch targets (Guideline 4 / 2.1a)
  * v659: Barnprofil Inställningar — byt namn & emoji (saknades efter drawer→profil)
  * v654: Store-badge ä → H&#228;mta (encoding) + ren inline SVG-tag
  * v393: App Store-badge inline SVG (fix trasig bild)
@@ -219,7 +220,7 @@
 /* Wave 2: Offline reading — schema + belöningar vises offline i barnvy */
 /* v415: PWA precache barnmeny v2 — child-worlds.js, child-worlds-nav.js, child-layer-router.js */
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
-const CACHE_NAME = 'stjarndag-v664';
+const CACHE_NAME = 'stjarndag-v665';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav

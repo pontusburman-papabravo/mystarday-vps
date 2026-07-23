@@ -80,6 +80,23 @@
     }
   }
 
+  function formatAge(birthday) {
+    if (!birthday) return null;
+    const bday = new Date(birthday);
+    if (Number.isNaN(bday.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - bday.getFullYear();
+    const m = today.getMonth() - bday.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
+    if (age < 0) return null;
+    return age + ' år';
+  }
+
+  function profileSubtitle(child) {
+    const ageText = formatAge(child && child.birthday);
+    return ageText ? ('Barnprofil · ' + ageText) : 'Barnprofil';
+  }
+
   function pinSetupHtml() {
     return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4" id="profilePinBlock">' +
       '<p class="font-semibold text-navy mb-2">PIN-kod (4 siffror)</p>' +
@@ -245,7 +262,7 @@
       '<div class="flex items-center gap-3 mb-4">' +
       '<span class="text-4xl">' + esc(child.emoji || '⭐') + '</span>' +
       '<div><h1 class="text-2xl font-heading font-bold text-navy">' + esc(child.name) + '</h1>' +
-      '<p class="text-sm text-text-soft">Barnprofil</p></div></div>' +
+      '<p class="text-sm text-text-soft child-profile-subtitle">' + esc(profileSubtitle(child)) + '</p></div></div>' +
       '<div id="childProfileTabBar" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6 sticky top-0 z-20 -mx-4 px-4 py-2 bg-sky/95 backdrop-blur-sm border-b border-lavender/40">' + tabsHtml + '</div>' +
       '<div id="childProfileTabBody">' + tabContent(tab) + '</div>';
 

@@ -1,12 +1,36 @@
 /**
- * child-profile-setup.js — B8 inline setup on barnprofil Inställningar tab (v2.3).
+ * child-profile-setup.js — B8 inline setup on barnprofil Inställningar tab (v2.4).
  */
 (function () {
   'use strict';
 
   const DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  const BIRTHDAY_PREFIX = 'profileBd';
 
   let _wiring = false;
+
+  function calcAge(birthday) {
+    if (!birthday) return null;
+    const bday = new Date(birthday);
+    if (Number.isNaN(bday.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - bday.getFullYear();
+    const m = today.getMonth() - bday.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
+    if (age < 0) return null;
+    return age + ' år';
+  }
+
+  function readBirthdayValue() {
+    const year = document.getElementById(BIRTHDAY_PREFIX + 'Year');
+    const month = document.getElementById(BIRTHDAY_PREFIX + 'Month');
+    const day = document.getElementById(BIRTHDAY_PREFIX + 'Day');
+    if (!year || !month || !day) return null;
+    const y = year.value;
+    const m = month.value;
+    const d = day.value;
+    return (y && m && d) ? y + '-' + m + '-' + d : null;
+  }
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -130,9 +154,23 @@
       '<div class="flex flex-wrap gap-2" role="group" aria-labelledby="profileSetupEmojiLabel">' + emojiBtns + '</div>' +
       '<input type="hidden" id="profileSetupEmoji" value="' + esc(currentEmoji) + '" />' +
       '</div>' +
+      '<div>' +
+      '<label class="block text-sm font-medium text-text-soft mb-1" for="' + BIRTHDAY_PREFIX + 'Year">Födelsedag</label>' +
+      '<p class="text-xs text-text-soft mb-2">Hjälper oss föreslå rätt schema och visa ålder.</p>' +
+      '<div class="grid grid-cols-3 gap-2">' +
+      '<select id="' + BIRTHDAY_PREFIX + 'Year" onchange="updateBirthdayDays(\'' + BIRTHDAY_PREFIX + '\')" ' +
+      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="Födelseår">' +
+      '<option value="">År</option></select>' +
+      '<select id="' + BIRTHDAY_PREFIX + 'Month" onchange="updateBirthdayDays(\'' + BIRTHDAY_PREFIX + '\')" ' +
+      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="Födelsemånad">' +
+      '<option value="">Månad</option></select>' +
+      '<select id="' + BIRTHDAY_PREFIX + 'Day" ' +
+      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="Födelsedag">' +
+      '<option value="">Dag</option></select>' +
+      '</div></div>' +
       '<button type="submit" id="profileSetupIdentitySave" ' +
       'class="w-full py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold text-sm min-h-[44px] transition-colors">' +
-      'Spara namn</button>' +
+      'Spara profil</button>' +
       '</form></div>';
   }
 
@@ -141,8 +179,21 @@
     if (!mount || !child) return;
     const title = mount.querySelector('h1');
     if (title) title.textContent = child.name || '';
+    const subtitle = mount.querySelector('.child-profile-subtitle');
+    if (subtitle) {
+      const ageText = calcAge(child.birthday);
+      subtitle.textContent = ageText ? ('Barnprofil · ' + ageText) : 'Barnprofil';
+    }
     const emojiEl = mount.querySelector('.flex.items-center.gap-3.mb-4 > .text-4xl');
     if (emojiEl) emojiEl.textContent = child.emoji || '⭐';
+  }
+
+  function wireBirthdayPicker(child) {
+    if (typeof window.initBirthdayPicker !== 'function') return;
+    window.initBirthdayPicker(BIRTHDAY_PREFIX);
+    if (typeof window.setBirthdayValue === 'function') {
+      window.setBirthdayValue(child.birthday, BIRTHDAY_PREFIX);
+    }
   }
 
   function setupHtml(child, viewConfig) {
@@ -299,27 +350,32 @@
         return;
       }
       const emoji = (emojiInput.value || '').trim() || child.emoji || '⭐';
+      const birthday = readBirthdayValue();
       if (saveBtn) saveBtn.disabled = true;
       try {
+        const body = { name: name, emoji: emoji };
+        if (birthday) body.birthday = birthday;
         const res = await window.apiFetch('/api/children/' + encodeURIComponent(child.id), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, emoji: emoji }),
+          body: JSON.stringify(body),
         });
         if (!res.ok) {
-          showToast(await formatApiError(res, 'Kunde inte spara namn'), true);
+          showToast(await formatApiError(res, 'Kunde inte spara profil'), true);
           return;
         }
         const updated = await res.json();
         child.name = updated.name || name;
         child.emoji = updated.emoji || emoji;
+        if (updated.birthday) child.birthday = updated.birthday;
+        else if (birthday) child.birthday = birthday;
         updateProfileHeader(child);
         if (child.username && typeof Auth !== 'undefined' && Auth.persistKnownChildrenFromSession) {
           Auth.persistKnownChildrenFromSession([child], Auth.getFamilyId && Auth.getFamilyId());
         }
-        showToast('Namn sparat');
+        showToast('Profil sparad');
       } catch (err) {
-        showToast((err && err.message) || 'Kunde inte spara namn', true);
+        showToast((err && err.message) || 'Kunde inte spara profil', true);
       } finally {
         if (saveBtn) saveBtn.disabled = false;
       }
@@ -334,6 +390,7 @@
     // Name/emoji first — parents look here to rename a child (was lost when drawer → barnprofil).
     mount.innerHTML = profileIdentityHtml(child) + (pinSetupHtml || '') + setupHtml(child, viewConfig);
     if (onPinWire) onPinWire();
+    wireBirthdayPicker(child);
     wireIdentityForm(child);
 
     const rewardsMount = document.getElementById('profileSetupRewards');

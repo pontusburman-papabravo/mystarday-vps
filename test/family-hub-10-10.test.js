@@ -80,7 +80,7 @@ describe('Familj hub 10/10', () => {
     assert.match(src, /profileSetupIdentityForm/);
     assert.match(src, /profileSetupName/);
     assert.match(src, /Barnets namn/);
-    assert.match(src, /Spara namn/);
+    assert.match(src, /Spara profil/);
     assert.match(src, /wireIdentityForm/);
     assert.match(src, /method:\s*'PUT'/);
   });

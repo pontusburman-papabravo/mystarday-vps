@@ -19,7 +19,7 @@ describe('child profile mobile fixes', () => {
 
   it('child profile setup does not force library source', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
-    assert.match(src, /Platform\.camera\.pick\(\{ quality: 'medium' \}\)/);
+    assert.match(src, /AvatarUploadFlow\.pickCropAndUpload/);
     assert.doesNotMatch(src, /source: 'library'/);
   });
 
@@ -34,6 +34,23 @@ describe('child profile mobile fixes', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/family-child.html'), 'utf8');
     assert.match(html, /overflow-x: clip/);
     assert.match(html, /#childProfileSetupBody/);
+  });
+
+  it('child profile setup includes birthday picker on Inställningar', () => {
+    const setup = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/family-child.html'), 'utf8');
+    assert.match(setup, /Födelsedag/);
+    assert.match(setup, /BIRTHDAY_PREFIX/);
+    assert.match(setup, /initBirthdayPicker\(BIRTHDAY_PREFIX\)/);
+    assert.match(setup, /body\.birthday = birthday/);
+    assert.match(html, /birthday-picker\.js/);
+    assert.match(html, /profile-birthday-select/);
+  });
+
+  it('child profile header shows age when birthday is set', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile.js'), 'utf8');
+    assert.match(src, /child-profile-subtitle/);
+    assert.match(src, /formatAge/);
   });
 
   it('iPad top chrome uses safe-area and tablet width', () => {
