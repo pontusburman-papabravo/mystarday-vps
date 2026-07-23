@@ -230,6 +230,7 @@ router.get('/me', requireAuth, async (req, res) => {
                 COALESCE(p.account_type, 'family') as account_type,
                 COALESCE(p.preferred_view_mode, 'parent') as preferred_view_mode,
                 f.is_lifetime_free,
+                COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale,
                 p.password_hash IS NOT NULL AS has_password,
                 p.apple_user_id IS NOT NULL AS has_apple_linked,
                 p.google_user_id IS NOT NULL AS has_google_linked,
@@ -290,6 +291,7 @@ router.get('/me', requireAuth, async (req, res) => {
       return res.json({
         ...parentPublic,
         family_id: parent.family_id,
+        preferred_locale: parent.preferred_locale || 'sv-SE',
         is_admin: parent.is_admin,
         verified: parent.verified,
         created_at: parent.created_at,

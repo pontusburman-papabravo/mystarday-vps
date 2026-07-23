@@ -1,0 +1,26 @@
+{
+  "pack_id": "child_en",
+  "version": "1.0.0",
+  "audience_band": "child",
+  "locale": "en-GB",
+  "reading_level": "grade_1_2",
+  "fiction_manifest": "pcb_seven_worlds_v1",
+  "ui_skin": "child_warm_diorama",
+  "pacing": {
+    "celebration_max_ms": 2000,
+    "surprise_max_per_session": 1
+  },
+  "feature_flags": {
+    "streak_visible_child": false
+  },
+  "includes": {
+    "progression": "progression.json",
+    "rewards": "rewards.json",
+    "copy": "copy.json",
+    "worlds": "worlds.json",
+    "scenes": "scenes.json",
+    "living_objects": "living-objects.json",
+    "ambient_objects": "ambient-objects.json",
+    "exhibits": "exhibits.json"
+  }
+}

@@ -7,6 +7,8 @@ function getPacksRoot() {
   return process.env.EXPERIENCE_PACKS_ROOT
     || path.join(__dirname, '../../../config/experience-packs');
 }
+const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
+
 const DEFAULT_PACK_ID = 'child_se';
 
 const packCache = new Map();
@@ -77,7 +79,18 @@ function clearPackCache() {
   packCache.clear();
 }
 
-function resolvePackForChild(_childId, packId = DEFAULT_PACK_ID) {
+function resolvePackForChild(_childId, packId) {
+  const id = packId || DEFAULT_PACK_ID;
+  return loadPack(id);
+}
+
+/**
+ * Resolve experience pack from family locale.
+ * @param {string|null|undefined} familyLocale
+ * @returns {object}
+ */
+function resolvePackForFamily(familyLocale) {
+  const packId = experiencePackIdForLocale(resolveFamilyLocale(familyLocale));
   return loadPack(packId);
 }
 
@@ -156,6 +169,8 @@ module.exports = {
   loadPack,
   clearPackCache,
   resolvePackForChild,
+  resolvePackForFamily,
+  experiencePackIdForLocale,
   getAllProgressionNodes,
   getRewardBySignal,
   getWorldDef,

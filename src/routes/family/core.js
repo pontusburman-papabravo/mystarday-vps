@@ -15,6 +15,8 @@ const { getChildrenForParent } = require('../../../db/parent-access');
 const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
+const { isSupportedLocale, validateLocale } = require('../../lib/locale');
+const { hasAccess } = require('../../../db/features');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 
@@ -28,7 +30,8 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       `SELECT id, name, timezone, time_display_mode, morning_start, morning_end,
               day_start, day_end, evening_start, evening_end,
               night_start, night_end, streak_start_day, sound_enabled,
-              family_chest_enabled, created_at
+              family_chest_enabled, created_at,
+              COALESCE(preferred_locale, 'sv-SE') AS preferred_locale
        FROM family WHERE id = $1`,
       [req.user.familyId]
     );
@@ -156,11 +159,24 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       streak_start_day,
       sound_enabled,
       family_chest_enabled,
+      preferred_locale,
     } = req.body;
 
     const updates = [];
     const values = [];
     let idx = 1;
+
+    if (preferred_locale !== undefined) {
+      if (!isSupportedLocale(preferred_locale)) {
+        return res.status(400).json({ error: 'INVALID_LOCALE' });
+      }
+      const englishOk = await hasAccess(req.user.familyId, 'english_app');
+      if (preferred_locale === 'en-GB' && !englishOk) {
+        return res.status(403).json({ error: 'ENGLISH_APP_DISABLED' });
+      }
+      updates.push(`preferred_locale = $${idx++}`);
+      values.push(validateLocale(preferred_locale));
+    }
 
     // Family name
     if (name !== undefined) {
@@ -231,7 +247,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
        RETURNING id, name, timezone, time_display_mode, morning_start, morning_end,
                  day_start, day_end, evening_start, evening_end,
                  night_start, night_end, streak_start_day, sound_enabled,
-                 family_chest_enabled`,
+                 family_chest_enabled, preferred_locale`,
       values
     );
 
@@ -241,6 +257,25 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     });
   } catch (err) {
     console.error('[FAMILY] Settings error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── GET /api/family/locale-options ─────────────────────
+router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
+  try {
+    const englishApp = await hasAccess(req.user.familyId, 'english_app');
+    const familyRow = await db.query(
+      `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
+      [req.user.familyId]
+    );
+    res.json({
+      preferred_locale: familyRow.rows[0]?.preferred_locale || 'sv-SE',
+      english_app_enabled: englishApp,
+      supported_locales: ['sv-SE', 'en-GB'],
+    });
+  } catch (err) {
+    console.error('[FAMILY] locale-options error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

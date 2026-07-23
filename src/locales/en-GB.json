@@ -1,0 +1,349 @@
+{
+  "app": {
+    "name": "My Starday",
+    "tagline": "A calm day, one star at a time"
+  },
+  "language": {
+    "label": "Language",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Change language"
+  },
+  "nav": {
+    "login": "Log in",
+    "register": "Create account",
+    "childLogin": "Child Login",
+    "dashboard": "Overview",
+    "logout": "Log out",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "subtitle": "Welcome back to My Starday",
+      "email": "Email address",
+      "emailPlaceholder": "you@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "submit": "Log in",
+      "forgotPassword": "Forgotten password?",
+      "noAccount": "No account?",
+      "createAccount": "Create an account",
+      "childLogin": "Are you a child?",
+      "childLoginLink": "Log in here"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Get started with My Starday",
+      "email": "Email address",
+      "emailPlaceholder": "you@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Enter your password again",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "success": "Account created! Check your email to verify your account."
+    },
+    "childLogin": {
+      "title": "Hello! 👋",
+      "subtitle": "Type your username and PIN",
+      "username": "Username",
+      "usernamePlaceholder": "Your username",
+      "pin": "PIN",
+      "pinPlaceholder": "4 digits",
+      "submit": "Log in",
+      "parentLogin": "Are you a parent?",
+      "parentLoginLink": "Log in here"
+    },
+    "verify": {
+      "title": "Verify your email",
+      "checking": "Checking...",
+      "success": "Your email has been verified! You can now log in.",
+      "error": "The verification link is invalid or has expired.",
+      "loginLink": "Go to log in"
+    },
+    "forgotPassword": {
+      "title": "Forgotten password",
+      "subtitle": "Enter your email address and we'll send you a reset link",
+      "email": "Email address",
+      "emailPlaceholder": "you@email.com",
+      "submit": "Send reset link",
+      "sent": "If that email address is in our system, we've sent a reset link.",
+      "backToLogin": "Back to log in"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Choose a new password",
+      "password": "New password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Enter your password again",
+      "submit": "Save new password",
+      "success": "Your password has been changed! You can now log in.",
+      "error": "The reset link is invalid or has expired.",
+      "loginLink": "Go to log in"
+    },
+    "errors": {
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Invalid email address",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "usernameRequired": "Username is required",
+      "pinRequired": "PIN is required",
+      "pinInvalid": "PIN must be 4 digits",
+      "invalidCredentials": "Incorrect email or password",
+      "accountLocked": "Your account is temporarily locked. Try again in 15 minutes.",
+      "emailNotVerified": "You need to verify your email address first",
+      "emailExists": "An account with that email address already exists",
+      "tooManyAttempts": "Too many attempts. Please wait a moment and try again.",
+      "serverError": "Something went wrong. Please try again later."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "todaySchedule": "Today's schedule",
+    "children": "Children",
+    "addChild": "Add child",
+    "settings": "Settings",
+    "noChildren": "You haven't added any children yet. Start by adding your first child!",
+    "stars": "Stars",
+    "streak": "Streak"
+  },
+  "childDashboard": {
+    "welcome": "Hi {{name}}! ⭐",
+    "today": "Today",
+    "now": "Now",
+    "next": "Next",
+    "later": "Later",
+    "done": "Done!",
+    "stars": "My stars",
+    "rewards": "Rewards"
+  },
+  "sections": {
+    "morgon": "Morning",
+    "dag": "Day",
+    "kvall": "Evening",
+    "natt": "Night"
+  },
+  "settings": {
+    "title": "Settings",
+    "family": {
+      "title": "Family settings",
+      "timeDisplayMode": "Time display mode",
+      "morningStart": "Morning start",
+      "morningEnd": "Morning end",
+      "dayStart": "Day start",
+      "dayEnd": "Day end",
+      "eveningStart": "Evening start",
+      "eveningEnd": "Evening end",
+      "nightStart": "Night start",
+      "nightEnd": "Night end",
+      "streakStartDay": "Streak start day",
+      "soundEnabled": "Sound on",
+      "save": "Save family settings"
+    },
+    "invite": {
+      "title": "Invite a parent",
+      "description": "Invite another parent to view and manage the children's schedules. The invitation is valid for 7 days.",
+      "email": "Email address",
+      "emailPlaceholder": "parent@email.com",
+      "selectChildren": "Choose which children the invited parent can access:",
+      "submit": "Send invitation",
+      "pending": "Pending invitations:"
+    },
+    "password": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Change password",
+      "mismatch": "Passwords do not match"
+    },
+    "notifications": {
+      "title": "Notification settings",
+      "weeklySummary": "Weekly summary (Sunday 21:00)",
+      "rewardRedemption": "Reward redemption",
+      "emailEnabled": "All emails globally",
+      "save": "Save notification settings"
+    },
+    "theme": {
+      "title": "Appearance",
+      "darkMode": "Dark mode",
+      "darkModeDescription": "Enable dark theme for more comfortable use in low light",
+      "colorBlind": "Colour blindness theme",
+      "colorBlindDescription": "Adjusts colours for different types of colour blindness",
+      "colorBlindNone": "None (default)",
+      "colorBlindProtanopia": "Protanopia (red-blind)",
+      "colorBlindDeuteranopia": "Deuteranopia (green-blind)",
+      "colorBlindTritanopia": "Tritanopia (blue-blind)"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "networkError": "Network error"
+  },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Organise your activities into categories",
+    "addCategory": "Add category",
+    "editCategory": "Edit category",
+    "categoryName": "Category name",
+    "categoryNamePlaceholder": "e.g. Hygiene",
+    "noCategories": "No categories yet",
+    "defaultBadge": "Default",
+    "deleteConfirm": "Are you sure you want to delete this category?",
+    "hasActivities": "This category has activities linked to it. Remove the activities first.",
+    "saved": "Category saved",
+    "deleted": "Category deleted"
+  },
+  "activities": {
+    "title": "Activities",
+    "subtitle": "Create and manage activity templates for your family",
+    "addActivity": "Add activity",
+    "editActivity": "Edit activity",
+    "activityName": "Activity name",
+    "activityNamePlaceholder": "e.g. Brush teeth",
+    "icon": "Icon",
+    "category": "Category",
+    "noCategory": "No category",
+    "starValue": "Star value",
+    "starValueHelp": "How many stars the child earns",
+    "favorite": "Mark as favourite",
+    "favoriteHelp": "Favourites appear first in the schedule",
+    "noActivities": "No activities yet. Create your first activity!",
+    "filterAll": "All",
+    "favoritesFirst": "Favourites shown first",
+    "saved": "Activity saved",
+    "deleted": "Activity deleted",
+    "deleteConfirm": "Are you sure you want to delete this activity?",
+    "usedInSchedule": "This activity is used in a schedule. Remove it from there first."
+  },
+  "schedule": {
+    "title": "Weekly schedule",
+    "subtitle": "Build schedules for each child and each day",
+    "selectChild": "Select child",
+    "selectDay": "Select day",
+    "noChild": "Select a child above to view the schedule",
+    "noScheduleForDay": "No schedule for this day",
+    "createSchedule": "Create schedule for this day",
+    "addActivity": "Add activity",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "section": "Section",
+    "copyDay": "Copy day",
+    "copyDayTitle": "Copy schedule to other days",
+    "copyFromDay": "Copy from",
+    "copyToDays": "Copy to (select one or more)",
+    "copyToChild": "Copy to another child",
+    "copyToChildTitle": "Copy the full weekly schedule to",
+    "copyConfirm": "Copy",
+    "copied": "Schedule copied!",
+    "deleteSchedule": "Delete day",
+    "deleteConfirm": "Are you sure? All activities for this day will be removed.",
+    "deleted": "Schedule deleted",
+    "activityAdded": "Activity added",
+    "activityRemoved": "Activity removed",
+    "reordered": "Order updated",
+    "days": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "daysShort": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "sections": {
+      "morgon": "Morning",
+      "dag": "Day",
+      "kvall": "Evening",
+      "natt": "Night"
+    }
+  },
+  "dailyLog": {
+    "title": "Daily log",
+    "subtitle": "Activities for the day",
+    "today": "Today",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "selectDate": "Select date",
+    "selectChild": "Select child",
+    "noChild": "Select a child above to view the log",
+    "noSchedule": "No schedule for this day",
+    "noScheduleHint": "Add a weekly schedule to create automatic daily logs.",
+    "loading": "Loading log...",
+    "paused": "Paused day",
+    "pausedHint": "This day is paused (e.g. sick day or time off).",
+    "pauseDay": "Pause day",
+    "unpauseDay": "Unpause day",
+    "pauseConfirm": "Pause this day? Activities won't count against you.",
+    "dayPaused": "Day paused",
+    "dayUnpaused": "Day unpaused",
+    "markDone": "Mark as done",
+    "markUndone": "Undo",
+    "completed": "Done",
+    "notCompleted": "Not done",
+    "completedAt": "Marked done at",
+    "stars": "stars",
+    "star": "star",
+    "progress": "{{completed}} of {{total}} activities done",
+    "allDone": "All activities done! 🎉",
+    "emptySection": "No activities in this section",
+    "history": "History",
+    "historyRange": "Select date range",
+    "historyFrom": "From",
+    "historyTo": "To",
+    "historyFetch": "Fetch history",
+    "historyEmpty": "No logs found for the selected range",
+    "sections": {
+      "morgon": "Morning",
+      "dag": "Day",
+      "kvall": "Evening",
+      "natt": "Night"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Verify your email — {{brand}}",
+      "title": "Welcome to {{brand}}! ⭐",
+      "body": "Tap the button below to verify your email address:",
+      "button": "Verify email",
+      "expiry": "This link is valid for {{hours}} hours."
+    },
+    "resetPassword": {
+      "subject": "Reset password — {{brand}}",
+      "title": "Reset your password",
+      "greeting": "Hi {{name}}",
+      "greetingGeneric": "Hi",
+      "body": "tap here to set a new password:",
+      "button": "Reset password",
+      "expiry": "This link is valid for {{hours}} hour. Ignore this email if you did not request a reset."
+    }
+  }
+}

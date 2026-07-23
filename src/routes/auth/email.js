@@ -13,6 +13,7 @@ const db = require('../../lib/db');
 const config = require('../../lib/config');
 const { forgotPasswordLimiter, resendVerificationLimiter } = require('../../middleware/rateLimiter');
 const { sendVerificationEmail, sendPasswordResetEmail, registerContact } = require('../../lib/email');
+const { resolveFamilyLocale } = require('../../lib/locale');
 const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
 const { validate } = require('../../middleware/validate');
 const {
@@ -126,7 +127,13 @@ router.post('/resend-verification', resendVerificationLimiter, validate(ResendVe
     await registerContact(normalizedEmail, parent.name || '', 'signup').catch(function (err) {
       console.error('[AUTH] resend registerContact failed for', normalizedEmail, ':', err.message);
     });
-    await sendVerificationEmail(normalizedEmail, verifyToken);
+    const localeRow = await db.query(
+      `SELECT COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+       FROM parent p JOIN family f ON f.id = p.family_id WHERE p.id = $1`,
+      [parent.id]
+    );
+    const familyLocale = resolveFamilyLocale(localeRow.rows[0]?.preferred_locale);
+    await sendVerificationEmail(normalizedEmail, verifyToken, familyLocale);
 
     res.json({ message: successMessage });
   } catch (err) {
@@ -178,7 +185,14 @@ router.post('/forgot-password', forgotPasswordLimiter, validate(ForgotPasswordSc
     );
     console.log('[AUTH] forgot-password: token created, expires at', expiresAt.toISOString());
 
-    const emailResult = await sendPasswordResetEmail(normalizedEmail, resetToken, parent.name);
+    const localeRow = await db.query(
+      `SELECT COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+       FROM parent p JOIN family f ON f.id = p.family_id WHERE p.id = $1`,
+      [parent.id]
+    );
+    const familyLocale = resolveFamilyLocale(localeRow.rows[0]?.preferred_locale);
+
+    const emailResult = await sendPasswordResetEmail(normalizedEmail, resetToken, parent.name, familyLocale);
     if (!emailResult || !emailResult.success) {
       console.error('[AUTH] Password reset email delivery FAILED:', JSON.stringify(emailResult));
     } else {

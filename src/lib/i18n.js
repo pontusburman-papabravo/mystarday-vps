@@ -1,50 +1,185 @@
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
+const {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  normalizeLocale,
+  validateLocale,
+} = require('./locale');
 
 const locales = {};
 const localesDir = path.join(__dirname, '..', 'locales');
 
+const isDevOrTest = () => process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'; // pragma: allowlist secret
+
 /**
- * Load all locale files from src/locales/.
+ * Load locale JSON files from src/locales/.
+ * Files named sv-SE.json, en-GB.json; legacy sv.json aliases to sv-SE.
  */
 function loadLocales() {
-  const files = fs.readdirSync(localesDir).filter(f => f.endsWith('.json'));
-  for (const file of files) {
-    const lang = file.replace('.json', '');
-    locales[lang] = JSON.parse(fs.readFileSync(path.join(localesDir, file), 'utf8'));
+  for (const key of Object.keys(locales)) delete locales[key];
+
+  if (!fs.existsSync(localesDir)) {
+    console.warn('[i18n] Locales directory missing:', localesDir);
+    return;
   }
+
+  const files = fs.readdirSync(localesDir).filter((f) => f.endsWith('.json'));
+  for (const file of files) {
+    const fileKey = file.replace('.json', '');
+    try {
+      locales[fileKey] = JSON.parse(fs.readFileSync(path.join(localesDir, file), 'utf8'));
+    } catch (err) {
+      console.error(`[i18n] Failed to parse ${file}:`, err.message);
+    }
+  }
+
+  // Legacy aliases: sv → sv-SE content, en → en-GB content
+  if (locales['sv-SE'] && !locales.sv) locales.sv = locales['sv-SE'];
+  if (locales['en-GB'] && !locales.en) locales.en = locales['en-GB'];
+  if (locales.sv && !locales['sv-SE']) locales['sv-SE'] = locales.sv;
+
   console.log(`[i18n] Loaded locales: ${Object.keys(locales).join(', ')}`);
 }
 
 /**
- * Get translation for a key in a specific language.
- * Supports nested keys with dot notation: "auth.login.title"
+ * Resolve locale key used in loaded bundles.
+ * @param {string|null|undefined} lang
+ * @returns {string}
  */
-function t(lang, key, params = {}) {
-  const locale = locales[lang] || locales['sv'] || {};
+function resolveBundleKey(lang) {
+  const normalized = normalizeLocale(lang);
+  if (normalized && locales[normalized]) return normalized;
+  if (normalized === 'sv-SE' && locales.sv) return 'sv';
+  if (normalized === 'en-GB' && locales.en) return 'en';
+  if (locales[DEFAULT_LOCALE]) return DEFAULT_LOCALE;
+  if (locales.sv) return 'sv';
+  return DEFAULT_LOCALE;
+}
+
+/**
+ * Walk nested object by dot-notation key.
+ * @param {object} root
+ * @param {string} key
+ * @returns {unknown}
+ */
+function lookup(root, key) {
   const keys = key.split('.');
-  let value = locale;
+  let value = root;
   for (const k of keys) {
     value = value?.[k];
   }
-  if (typeof value !== 'string') return key;
-
-  // Simple template replacement: {{name}} → params.name
-  return value.replace(/\{\{(\w+)\}\}/g, (_, k) => params[k] ?? '');
+  return value;
 }
 
 /**
- * Get all translations for a language (for frontend).
+ * Get translation for a key. Falls back to sv-SE when key missing; warns in dev/test.
+ * @param {string} lang
+ * @param {string} key
+ * @param {Record<string, string|number>} [params]
+ * @returns {string}
+ */
+function t(lang, key, params = {}) {
+  const bundleKey = resolveBundleKey(lang);
+  const fallbackKey = resolveBundleKey(DEFAULT_LOCALE);
+
+  let value = lookup(locales[bundleKey], key);
+  if (typeof value !== 'string') {
+    value = lookup(locales[fallbackKey], key);
+    if (typeof value === 'string' && bundleKey !== fallbackKey && isDevOrTest()) {
+      console.warn(`[i18n] Missing key "${key}" for ${bundleKey}, fell back to ${fallbackKey}`);
+    }
+  }
+
+  if (typeof value !== 'string') {
+    if (isDevOrTest()) {
+      console.warn(`[i18n] Missing key "${key}" (lang=${bundleKey})`);
+    }
+    return key;
+  }
+
+  return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? ''));
+}
+
+/**
+ * Get all translations for a language (for frontend API).
+ * @param {string} lang
+ * @returns {object}
  */
 function getLocale(lang) {
-  return locales[lang] || locales['sv'] || {};
+  const canonical = validateLocale(lang, { fallback: DEFAULT_LOCALE });
+  const bundleKey = resolveBundleKey(canonical);
+  const fallbackKey = resolveBundleKey(DEFAULT_LOCALE);
+  const primary = locales[bundleKey] || {};
+  const fallback = locales[fallbackKey] || {};
+
+  if (bundleKey === fallbackKey) return { ...primary };
+
+  return deepMergeFallback(fallback, primary);
 }
 
 /**
- * Get list of available languages.
+ * Shallow-deep merge: primary wins; fill missing leaves from fallback.
+ * @param {object} fallback
+ * @param {object} primary
+ * @returns {object}
  */
-function getAvailableLanguages() {
-  return Object.keys(locales);
+function deepMergeFallback(fallback, primary) {
+  const out = { ...fallback };
+  for (const [k, v] of Object.entries(primary)) {
+    if (v && typeof v === 'object' && !Array.isArray(v) && fallback[k] && typeof fallback[k] === 'object') {
+      out[k] = deepMergeFallback(fallback[k], v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
 }
 
-module.exports = { loadLocales, t, getLocale, getAvailableLanguages };
+/**
+ * @returns {string[]}
+ */
+function getAvailableLanguages() {
+  return [...SUPPORTED_LOCALES];
+}
+
+/**
+ * Compare key structure between locale files (for tests).
+ * @returns {{ missingInEn: string[], missingInSv: string[] }}
+ */
+function compareLocaleStructures() {
+  const sv = locales['sv-SE'] || locales.sv || {};
+  const en = locales['en-GB'] || locales.en || {};
+  const svKeys = flattenKeys(sv);
+  const enKeys = flattenKeys(en);
+  const svSet = new Set(svKeys);
+  const enSet = new Set(enKeys);
+  return {
+    missingInEn: svKeys.filter((k) => !enSet.has(k)),
+    missingInSv: enKeys.filter((k) => !svSet.has(k)),
+  };
+}
+
+function flattenKeys(obj, prefix = '') {
+  const keys = [];
+  for (const [k, v] of Object.entries(obj)) {
+    const pathKey = prefix ? `${prefix}.${k}` : k;
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      keys.push(...flattenKeys(v, pathKey));
+    } else {
+      keys.push(pathKey);
+    }
+  }
+  return keys;
+}
+
+module.exports = {
+  loadLocales,
+  t,
+  getLocale,
+  getAvailableLanguages,
+  resolveBundleKey,
+  compareLocaleStructures,
+};
