@@ -10,6 +10,10 @@
   let handoffWired = false;
   let onboardingStartedTracked = false;
 
+  function ot(key, params) {
+    return window.ot ? window.ot(key, params) : key;
+  }
+
   function api(path, opts) {
     if (!window.apiFetch) return Promise.reject(new Error('no api'));
     return window.apiFetch(path, opts);
@@ -87,13 +91,13 @@
     overlay.setAttribute('aria-labelledby', 'handoffSkipTitle');
     overlay.innerHTML = [
       '<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">',
-      '  <h2 id="handoffSkipTitle" class="text-lg font-heading font-bold text-navy mb-2">Hoppa över barninloggning?</h2>',
+      '  <h2 id="handoffSkipTitle" class="text-lg font-heading font-bold text-navy mb-2">' + (window.escapeHtml ? window.escapeHtml(ot('onboarding.handoff.skipConfirmTitle')) : ot('onboarding.handoff.skipConfirmTitle')) + '</h2>',
       '  <p class="text-sm text-text-soft mb-4 leading-relaxed">',
-      '    Barnet behöver PIN-koden för att logga in själv. Utan test nu kan morgonrutinen kännas krångligare — vi skickar en påminnelse om 24 timmar om barnet inte testat än.',
+      '    ' + (window.escapeHtml ? window.escapeHtml(ot('onboarding.handoff.skipConfirmBody')) : ot('onboarding.handoff.skipConfirmBody')),
       '  </p>',
       '  <div class="flex flex-col gap-2">',
-      '    <button type="button" id="handoffSkipConfirmLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl">👶 Testa barninloggning</button>',
-      '    <button type="button" id="handoffSkipConfirmSkip" class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2">Hoppa över ändå</button>',
+      '    <button type="button" id="handoffSkipConfirmLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl">' + (window.escapeHtml ? window.escapeHtml(ot('onboarding.handoff.skipConfirmPrimary')) : ot('onboarding.handoff.skipConfirmPrimary')) + '</button>',
+      '    <button type="button" id="handoffSkipConfirmSkip" class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2">' + (window.escapeHtml ? window.escapeHtml(ot('onboarding.handoff.skipConfirmSecondary')) : ot('onboarding.handoff.skipConfirmSecondary')) + '</button>',
       '  </div>',
       '</div>',
     ].join('');

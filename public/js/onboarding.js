@@ -46,38 +46,110 @@ const TOTAL_STEPS = 6;
 // Template groups loaded dynamically from admin library
 let templateGroups = [];
 
-// Fallback template group metadata (if API fails)
-const TEMPLATE_GROUP_FALLBACK = [
-  { key: 'forskola', name: 'Förskola', icon: '🏫', description: 'Hel dag — barn 2–5 år', activity_count: 15 },
-  { key: 'skola',    name: 'Skola',    icon: '📚', description: 'Hel dag — barn 6+ år', activity_count: 13 },
-  { key: 'morgon',   name: 'Morgon',   icon: '☀️', description: 'Morgonrutin', activity_count: 5 },
-  { key: 'dag',      name: 'Dag',      icon: '🌤️', description: 'Dag-aktiviteter', activity_count: 5 },
-  { key: 'kvall',    name: 'Kväll',    icon: '🌙', description: 'Kvällsrutin', activity_count: 5 },
-  { key: 'helg',     name: 'Helg',     icon: '🎉', description: 'Helgrutin', activity_count: 10 },
+// Fallback template group metadata (if API fails) — names/descriptions via i18n at runtime
+const TEMPLATE_GROUP_META = [
+  { key: 'forskola', icon: '🏫', activity_count: 15 },
+  { key: 'skola',    icon: '📚', activity_count: 13 },
+  { key: 'morgon',   icon: '☀️', activity_count: 5 },
+  { key: 'dag',      icon: '🌤️', activity_count: 5 },
+  { key: 'kvall',    icon: '🌙', activity_count: 5 },
+  { key: 'helg',     icon: '🎉', activity_count: 10 },
 ];
 
-// Fallback items for schedule preview (used if API preview fails)
-const PREVIEW_FALLBACK = {
-  forskola: ['🛏️ Vakna', '👕 Klä på sig', '🍳 Frukost', '🏫 Förskola', '🧩 Leka', '🍽️ Middag', '📕 Godnattsaga'],
-  skola:    ['🛏️ Vakna', '🍳 Frukost', '🎒 Packa väska', '🏫 Skola', '📚 Läxor', '🍽️ Middag', '📕 Läsa'],
-  morgon:   ['🛏️ Vakna', '👕 Klä på sig', '🪥 Tänderna', '🍳 Frukost', '🎒 Packa väska'],
-  dag:      ['🏫 Förskola / Skola', '🛝 Leka ute', '🍎 Mellanmål', '🏃 Fritidsaktivitet', '📚 Läxor / Pyssel'],
-  kvall:    ['🍽️ Middag', '🪥 Tänderna', '🧸 Pyjamas', '📕 Godnattsaga', '😴 Sova'],
-  helg:     ['😴 Sova ut', '🥞 Frukost', '🧩 Leka fritt', '🌳 Utflykt', '❤️ Familjaktivitet', '🍽️ Middag'],
+const KNOWN_TEMPLATE_KEYS = TEMPLATE_GROUP_META.map((g) => g.key);
+
+function getTemplateGroupFallback() {
+  return TEMPLATE_GROUP_META.map((g) => ({
+    ...g,
+    name: ot('onboarding.templateGroups.' + g.key + '.name'),
+    description: ot('onboarding.templateGroups.' + g.key + '.description'),
+  }));
+}
+
+function localizeTemplateGroup(group) {
+  if (!group?.key || !KNOWN_TEMPLATE_KEYS.includes(group.key)) return group;
+  return {
+    ...group,
+    name: ot('onboarding.templateGroups.' + group.key + '.name'),
+    description: ot('onboarding.templateGroups.' + group.key + '.description'),
+  };
+}
+
+const PREVIEW_FALLBACK_EMOJIS = {
+  forskola: ['🛏️', '👕', '🍳', '🏫', '🧩', '🍽️', '📕'],
+  skola:    ['🛏️', '🍳', '🎒', '🏫', '📚', '🍽️', '📕'],
+  morgon:   ['🛏️', '👕', '🪥', '🍳', '🎒'],
+  dag:      ['🏫', '🛝', '🍎', '🏃', '📚'],
+  kvall:    ['🍽️', '🪥', '🧸', '📕', '😴'],
+  helg:     ['😴', '🥞', '🧩', '🌳', '❤️', '🍽️'],
 };
 
-// Fallback rewards if API fails
-const REWARD_PRESETS_FALLBACK = [
-  { name: 'Extra saga',       icon: '📚', star_cost: 50  },
-  { name: 'Välja efterrätt',  icon: '🍦', star_cost: 50  },
-  { name: 'Filmkväll',        icon: '🎬', star_cost: 100 },
-  { name: 'Välj middag',      icon: '🍝', star_cost: 100 },
-  { name: 'Utflykt',          icon: '🌲', star_cost: 150 },
-  { name: 'Baka ihop',        icon: '🧁', star_cost: 125 },
-  { name: 'Familjens spelkväll', icon: '🎲', star_cost: 150 },
-  { name: 'Sent uppehåll',    icon: '🌙', star_cost: 75  },
-  { name: 'Biobesök',         icon: '🎬', star_cost: 250 },
+function getPreviewFallbackNames(groupKey) {
+  const names = window.I18n?.locale?.onboarding?.templateGroups?.previewFallback?.[groupKey];
+  return Array.isArray(names) ? names : [];
+}
+
+function getPreviewFallbackItems(groupKey) {
+  const emojis = PREVIEW_FALLBACK_EMOJIS[groupKey] || PREVIEW_FALLBACK_EMOJIS.forskola;
+  const names = getPreviewFallbackNames(groupKey);
+  return names.map((name, i) => ({
+    icon: emojis[i] || '📋',
+    name,
+  }));
+}
+
+const REWARD_FALLBACK_META = [
+  { key: 'extraStory',       icon: '📚', star_cost: 50  },
+  { key: 'chooseDessert',    icon: '🍦', star_cost: 50  },
+  { key: 'movieNight',       icon: '🎬', star_cost: 100 },
+  { key: 'chooseDinner',     icon: '🍝', star_cost: 100 },
+  { key: 'outing',           icon: '🌲', star_cost: 150 },
+  { key: 'bakeTogether',     icon: '🧁', star_cost: 125 },
+  { key: 'familyGameNight',  icon: '🎲', star_cost: 150 },
+  { key: 'lateBedtime',      icon: '🌙', star_cost: 75  },
+  { key: 'cinemaTrip',       icon: '🎬', star_cost: 250 },
 ];
+
+const REWARD_SIG_TO_KEY = {
+  '📚:50': 'extraStory',
+  '🍦:50': 'chooseDessert',
+  '🎬:100': 'movieNight',
+  '🍝:100': 'chooseDinner',
+  '🌲:150': 'outing',
+  '🧁:125': 'bakeTogether',
+  '🎲:150': 'familyGameNight',
+  '🌙:75': 'lateBedtime',
+  '🎬:250': 'cinemaTrip',
+};
+
+function rewardPresetKey(reward) {
+  if (!reward) return null;
+  return REWARD_SIG_TO_KEY[`${reward.icon}:${reward.star_cost}`] || null;
+}
+
+function localizeReward(reward) {
+  const key = rewardPresetKey(reward);
+  if (key) {
+    return { ...reward, name: ot('onboarding.rewards.fallback.' + key) };
+  }
+  return reward;
+}
+
+function getRewardPresetsFallback() {
+  return REWARD_FALLBACK_META.map((r) => ({
+    name: ot('onboarding.rewards.fallback.' + r.key),
+    icon: r.icon,
+    star_cost: r.star_cost,
+  }));
+}
+
+function ot(key, params) {
+  return window.ot ? window.ot(key, params) : key;
+}
+
+function otp(key, count, params) {
+  return window.otp ? window.otp(key, count, params) : key;
+}
 
 const EMOJIS = [
   '🦁','🐯','🦊','🐻','🐼','🐸','🐙','🦄',
@@ -127,7 +199,7 @@ function buildEmojiGrid() {
     btn.className = 'emoji-btn text-2xl p-1.5 text-center';
     btn.textContent = emoji;
     btn.type = 'button';
-    btn.setAttribute('aria-label', 'Välj emoji ' + emoji);
+    btn.setAttribute('aria-label', ot('onboarding.child.emojiAriaLabel', { emoji }));
     btn.addEventListener('click', function () { selectEmojiButton(btn, emoji); });
     grid.appendChild(btn);
   });
@@ -147,28 +219,30 @@ function buildTemplateGroupGrid(groups) {
   const grid = document.getElementById('templateGroupGrid');
   grid.innerHTML = '';
   groups.forEach(group => {
+    const g = localizeTemplateGroup(group);
     const card = document.createElement('div');
     card.className = 'day-pref-card p-3 text-center';
-    card.dataset.pref = group.key;
-    const detailsId = `details-${group.key}`;
-    const arrowId = `arrow-${group.key}`;
+    card.dataset.pref = g.key;
+    const detailsId = `details-${g.key}`;
+    const arrowId = `arrow-${g.key}`;
+    const activityLabel = otp('onboarding.templateGroups.activityCount', g.activity_count, { count: g.activity_count });
     card.innerHTML = `
-      <div class="text-3xl mb-1.5">${group.icon}</div>
-      <div class="font-semibold text-navy text-sm">${group.name}</div>
-      <div class="text-text-soft text-xs mt-0.5">${group.description}</div>
-      <div class="text-gold text-xs mt-1 font-medium">${group.activity_count} aktiviteter</div>
-      <button class="template-toggle-btn" onclick="event.stopPropagation(); toggleTemplateDetails('${group.key}')">
-        Visa aktiviteter <span class="arrow" id="${arrowId}">▼</span>
+      <div class="text-3xl mb-1.5">${g.icon}</div>
+      <div class="font-semibold text-navy text-sm">${escapeHtml(g.name)}</div>
+      <div class="text-text-soft text-xs mt-0.5">${escapeHtml(g.description)}</div>
+      <div class="text-gold text-xs mt-1 font-medium">${escapeHtml(activityLabel)}</div>
+      <button class="template-toggle-btn" onclick="event.stopPropagation(); toggleTemplateDetails('${g.key}')">
+        ${escapeHtml(ot('onboarding.templateGroups.showActivities'))} <span class="arrow" id="${arrowId}">▼</span>
       </button>
       <div class="template-details" id="${detailsId}">
-        <div class="text-xs text-text-soft py-1">Laddar...</div>
+        <div class="text-xs text-text-soft py-1">${escapeHtml(ot('onboarding.templateGroups.loadingActivities'))}</div>
       </div>
     `;
     card.addEventListener('click', (e) => {
       if (e.target.closest('.template-toggle-btn')) return;
       document.querySelectorAll('.day-pref-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
-      selectedDayPref = group.key;
+      selectedDayPref = g.key;
     });
     grid.appendChild(card);
   });
@@ -207,11 +281,7 @@ window.toggleTemplateDetails = async function(groupKey) {
     } catch { /* use fallback */ }
 
     if (!templateDetailsCache[groupKey] || templateDetailsCache[groupKey].length === 0) {
-      const fb = PREVIEW_FALLBACK[groupKey] || [];
-      templateDetailsCache[groupKey] = fb.map(item => {
-        const parts = item.split(' ');
-        return { icon: parts[0], name: parts.slice(1).join(' ') };
-      });
+      templateDetailsCache[groupKey] = getPreviewFallbackItems(groupKey);
     }
   }
 
@@ -252,15 +322,28 @@ function renderStarRating(cost) {
   return html;
 }
 
+function updateRewardSelectCount() {
+  const count = selectedRewards.length;
+  const el = document.getElementById('s4SelectCount');
+  if (!el) return;
+  el.textContent = count >= 1
+    ? otp('onboarding.rewards.selectCount', count, { count })
+    : ot('onboarding.rewards.selectCount.zero');
+}
+
 function buildRewardGrid(rewards) {
   const grid = document.getElementById('rewardGrid');
   grid.innerHTML = '';
-  // Update copy with actual count
+  const localizedRewards = rewards.map(localizeReward);
   const introPara = document.querySelector('#step4 .bg-lavender p.text-xs');
   if (introPara) {
-    introPara.innerHTML = `Vi har fyllt på med <strong class="text-navy">${rewards.length}</strong> roliga belöningar. Välj de som <strong id="s4ChildName" class="text-navy">${escapeHtml(childName) || 'barnet'}</strong> ska få kämpa för!`;
+    const childLabel = childName || ot('onboarding.common.childFallback');
+    introPara.textContent = ot('onboarding.rewards.introWithCount', {
+      count: localizedRewards.length,
+      childName: childLabel,
+    });
   }
-  rewards.forEach((reward) => {
+  localizedRewards.forEach((reward) => {
     const card = document.createElement('div');
     card.className = 'reward-card';
     card.dataset.name = reward.name;
@@ -270,11 +353,12 @@ function buildRewardGrid(rewards) {
       <div class="text-3xl mb-1">${escapeHtml(reward.icon)}</div>
       <div class="font-semibold text-navy text-xs leading-snug mb-0.5">${escapeHtml(reward.name)}</div>
       ${renderStarRating(reward.star_cost)}
-      <div class="text-gold font-bold text-xs mt-0.5">${Number(reward.star_cost)} ⭐</div>
+      <div class="text-gold font-bold text-xs mt-0.5">${escapeHtml(ot('onboarding.rewards.starCost', { count: Number(reward.star_cost) }))}</div>
     `;
     card.addEventListener('click', () => toggleReward(card, reward));
     grid.appendChild(card);
   });
+  updateRewardSelectCount();
 }
 
 function toggleReward(card, reward) {
@@ -288,10 +372,62 @@ function toggleReward(card, reward) {
     selectedRewards.push({ name: reward.name, icon: reward.icon, star_cost: reward.star_cost });
     card.classList.add('selected');
   }
-  const count = selectedRewards.length;
-  document.getElementById('s4SelectCount').textContent = count >= 1
-    ? `${count} belöning${count > 1 ? 'ar' : ''} vald${count > 1 ? 'a' : ''} ✓`
-    : 'Välj minst 1 belöning (0 valda)';
+  updateRewardSelectCount();
+}
+
+function updateStepLabel() {
+  const label = document.getElementById('stepLabel');
+  if (label) {
+    label.textContent = ot('onboarding.common.stepLabel', { current: currentStep, total: TOTAL_STEPS });
+  }
+}
+
+function refreshOnboardingDynamicUI() {
+  updateStepLabel();
+  const childLabel = childName || ot('onboarding.common.childFallback');
+  const agTitle = document.getElementById('activityGuideTitle');
+  if (agTitle) agTitle.textContent = ot('onboarding.activityGuide.title', { childName: childLabel });
+  const viewTitle = document.getElementById('viewTypeTitle');
+  if (viewTitle) viewTitle.textContent = ot('onboarding.viewType.title', { childName: childLabel });
+  const s3Sub = document.getElementById('s3Subtitle');
+  if (s3Sub) s3Sub.textContent = ot('onboarding.scheduleReady.subtitle', { childName: childLabel });
+  const s4Intro = document.getElementById('s4RewardsIntro');
+  if (s4Intro) s4Intro.textContent = ot('onboarding.rewards.intro', { childName: childLabel });
+  const s5Lead = document.getElementById('s5HandoffLead');
+  if (s5Lead) s5Lead.textContent = ot('onboarding.handoff.lead', { childName: childLabel });
+  const s5Coach = document.getElementById('s5ParentCoachTip');
+  if (s5Coach) {
+    s5Coach.textContent = [
+      ot('onboarding.handoff.parentTipLead'),
+      ot('onboarding.handoff.parentTipEmphasis'),
+      ot('onboarding.handoff.parentTipTail', { childName: childLabel }),
+    ].join(' ');
+  }
+  if (templateGroups.length > 0) {
+    const selected = selectedDayPref;
+    buildTemplateGroupGrid(templateGroups);
+    if (selected) {
+      selectedDayPref = selected;
+      const card = document.querySelector('.day-pref-card[data-pref="' + selected + '"]');
+      if (card) card.classList.add('selected');
+    }
+  }
+  if (availableRewards.length > 0) {
+    buildRewardGrid(availableRewards);
+    selectedRewards.forEach((reward) => {
+      const card = document.querySelector('.reward-card[data-name="' + CSS.escape(reward.name) + '"]');
+      if (card) card.classList.add('selected');
+    });
+    updateRewardSelectCount();
+  }
+  if (IS_ADD_CHILD) {
+    const step6Btn = document.getElementById('step6Btn');
+    if (step6Btn) step6Btn.textContent = ot('onboarding.common.addChildDone');
+  }
+  if (journeyHandoffMode) {
+    const btn = document.getElementById('step6Btn');
+    if (btn) btn.textContent = ot('onboarding.complete.letChildStartPlain');
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -301,9 +437,7 @@ function goToStep(n) {
   document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
   document.getElementById(`step${n}`).classList.add('active');
   currentStep = n;
-
-  // Progress bar (6 steps)
-  document.getElementById('stepLabel').textContent = `Steg ${n} av ${TOTAL_STEPS}`;
+  updateStepLabel();
   [1,2,3,4,5,6].forEach(i => {
     const pb = document.getElementById(`pb${i}`);
     pb.classList.remove('active','done');
@@ -420,17 +554,17 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
   const errorEl = document.getElementById('step1Error');
   errorEl.classList.add('hidden');
 
-  if (!name) { showError(errorEl, 'Ange barnets namn'); return; }
+  if (!name) { showError(errorEl, ot('onboarding.child.nameRequired')); return; }
   const hasAvatar = Platform && Platform.isNative() && selectedAvatarFile;
   if (!emoji && !hasAvatar) {
     // iOS/iPad: emoji rutnät ska vara synligt; fallback till 🌟 om inget valts
     if (Platform && Platform.isIOS()) emoji = ensureDefaultEmoji();
-    if (!emoji && !hasAvatar) { showError(errorEl, 'Välj en emoji för barnet'); return; }
+    if (!emoji && !hasAvatar) { showError(errorEl, ot('onboarding.child.emojiRequired')); return; }
   }
-  if (!selectedDayPref) { showError(errorEl, 'Välj ett schema'); return; }
+  if (!selectedDayPref) { showError(errorEl, ot('onboarding.child.scheduleRequired')); return; }
 
   const btn = document.getElementById('step1Btn');
-  setLoading(btn, 'Skapar barnet…');
+  setLoading(btn, ot('onboarding.child.creatingChild'));
 
   try {
     const birthday = document.getElementById('childBirthday').value || null;
@@ -441,7 +575,7 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
         body: JSON.stringify({ name, emoji, birthday }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Något gick fel');
+      if (!res.ok) throw new Error(data.error || ot('onboarding.common.genericError'));
 
       childId = data.id;
       if (selectedAvatarFile && window.AvatarUploadFlow && typeof AvatarUploadFlow.putAvatarFile === 'function') {
@@ -449,7 +583,7 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
           await AvatarUploadFlow.putAvatarFile('/api/children/' + childId + '/avatar', selectedAvatarFile);
         } catch (uploadErr) {
           console.error('[onboarding] avatar upload failed:', uploadErr.message);
-          showToast('Barnet skapades men fotot kunde inte sparas. Du kan lägga till det under Familj.', true);
+          showToast(ot('onboarding.child.avatarSaveFailedToast'), true);
         }
       }
       if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function') {
@@ -460,18 +594,18 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
       childPin = data.pin;
       childBirthdayValue = birthday;
       if (data.resumed) {
-        showToast('Vi hittade barnet från förra försöket — fortsätter med schemat.');
+        showToast(ot('onboarding.child.childResumedToast'));
       }
     }
 
     // Now create the schedule immediately (we know the template group)
-    setLoading(btn, 'Skapar schemat…');
+    setLoading(btn, ot('onboarding.child.creatingSchedule'));
     const schedRes = await window.apiFetch('/api/onboarding/schedule', {
       method: 'POST',
       body: JSON.stringify({ child_id: childId, template_group: selectedDayPref }),
     });
     const schedData = await schedRes.json();
-    if (!schedRes.ok) throw new Error(schedData.error || 'Schemat kunde inte skapas');
+    if (!schedRes.ok) throw new Error(schedData.error || ot('onboarding.child.scheduleCreateFailed'));
     if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
       MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
     }
@@ -486,9 +620,9 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
       await finalizeSchemaAndGoHandoff();
     }
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
   } finally {
-    setLoading(btn, 'Nästa steg →', false);
+    setLoading(btn, ot('onboarding.common.next'), false);
   }
 });
 
@@ -510,7 +644,7 @@ window.applyWeekendSchedule = async function() {
   errorEl.classList.add('hidden');
   yesBtn.disabled = true;
   noBtn.disabled = true;
-  yesBtn.textContent = 'Lägger till…';
+  yesBtn.textContent = ot('onboarding.weekend.yesLoading');
 
   try {
     const res = await window.apiFetch('/api/onboarding/weekend-schedule', {
@@ -518,16 +652,16 @@ window.applyWeekendSchedule = async function() {
       body: JSON.stringify({ child_id: childId }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Kunde inte lägga till helgschema');
+    if (!res.ok) throw new Error(data.error || ot('onboarding.weekend.addFailed'));
 
     weekendScheduleAdded = true;
     hideWeekendModal();
     await finalizeSchemaAndGoHandoff();
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
     yesBtn.disabled = false;
     noBtn.disabled = false;
-    yesBtn.textContent = '✅ Ja, lägg till helgschema';
+    yesBtn.textContent = ot('onboarding.weekend.yesBtn');
   }
 };
 
@@ -544,7 +678,7 @@ document.getElementById('step2vBtn').addEventListener('click', async () => {
   const errorEl = document.getElementById('step2vError');
   errorEl.classList.add('hidden');
   const btn = document.getElementById('step2vBtn');
-  setLoading(btn, 'Sparar vy-val…');
+  setLoading(btn, ot('onboarding.viewType.saving'));
 
   try {
     // Save view_type to DB (non-blocking on failure — we fall back to default)
@@ -568,15 +702,16 @@ document.getElementById('step2vBtn').addEventListener('click', async () => {
     await populateStep3();
     goToStep(3);
   } finally {
-    setLoading(btn, 'Nästa steg →', false);
+    setLoading(btn, ot('onboarding.common.next'), false);
   }
 });
 
 async function populateStep3() {
-  // Find the selected group's metadata
-  const groupMeta = templateGroups.find(g => g.key === selectedDayPref)
-    || TEMPLATE_GROUP_FALLBACK.find(g => g.key === selectedDayPref)
-    || { icon: '📅', name: 'Schema', description: '' };
+  const groupMeta = localizeTemplateGroup(
+    templateGroups.find(g => g.key === selectedDayPref)
+    || getTemplateGroupFallback().find(g => g.key === selectedDayPref)
+    || { icon: '📅', name: ot('onboarding.scheduleReady.templateFallback'), description: '' }
+  );
 
   document.getElementById('s3ChildName').textContent = childName;
   document.getElementById('s3TemplateIcon').textContent = groupMeta.icon;
@@ -587,18 +722,20 @@ async function populateStep3() {
   const daysLabel = document.getElementById('s3DaysLabel');
   if (daysLabel) {
     if (isSchoolTemplate && weekendScheduleAdded) {
-      daysLabel.textContent = 'mån–fre + helg';
+      daysLabel.textContent = ot('onboarding.scheduleReady.daysMonFriWeekend');
     } else if (isSchoolTemplate) {
-      daysLabel.textContent = 'mån–fre';
+      daysLabel.textContent = ot('onboarding.scheduleReady.daysMonFri');
     } else {
-      daysLabel.textContent = '7 dagar / vecka';
+      daysLabel.textContent = ot('onboarding.scheduleReady.daysWeek');
     }
   }
 
-  // Update the subtitle copy
   const subtitleEl = document.getElementById('s3Subtitle');
   if (subtitleEl) {
-    subtitleEl.innerHTML = `Vi har förberett schemat <strong class="text-navy">${escapeHtml(groupMeta.name)}</strong> för <strong class="text-navy">${escapeHtml(childName)}</strong>. Det innehåller de viktigaste stegen för att lyckas helt själv.`;
+    subtitleEl.textContent = ot('onboarding.scheduleReady.subtitleWithTemplate', {
+      templateName: groupMeta.name,
+      childName: childName,
+    });
   }
 
   // Also update step 5 (login info)
@@ -639,10 +776,10 @@ async function populateStep3() {
   } catch { /* fall through to fallback */ }
 
   // Fallback: show static items
-  const fallbackItems = PREVIEW_FALLBACK[selectedDayPref] || PREVIEW_FALLBACK['forskola'];
+  const fallbackItems = getPreviewFallbackItems(selectedDayPref);
   preview.innerHTML = fallbackItems.map(item => `
     <div class="flex items-center gap-2 py-1.5 px-3 bg-white border border-lavender rounded-xl text-sm font-medium text-navy">
-      ${item}
+      ${escapeHtml(item.icon)} ${escapeHtml(item.name)}
     </div>
   `).join('');
 }
@@ -663,12 +800,12 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
   errorEl.classList.add('hidden');
 
   if (selectedRewards.length < 1) {
-    showError(errorEl, 'Välj minst en belöning för att fortsätta');
+    showError(errorEl, ot('onboarding.rewards.minOneError'));
     return;
   }
 
   const btn = document.getElementById('step4Btn');
-  setLoading(btn, 'Sparar belöningar…');
+  setLoading(btn, ot('onboarding.rewards.saving'));
 
   try {
     // Create all selected rewards (parallel)
@@ -680,9 +817,9 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
     ));
     await enterChildHandoff('legacy_rewards');
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
   } finally {
-    setLoading(btn, 'Spara belöningar →', false);
+    setLoading(btn, ot('onboarding.rewards.saveBtn'), false);
   }
 });
 
@@ -690,14 +827,22 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
 // STEP 5 — Login info helpers
 // ────────────────────────────────────────────────────────────────────────────
 async function copyLoginInfo() {
-  const text = `Min Stjärndag — ${childName}\nAnvändarnamn: ${childUsername}\nPIN: ${childPin}\nApp: https://mystarday.se/child-login`;
+  const brand = ot('onboarding.common.brand');
+  const appUrl = window.location.origin;
+  const text = ot('onboarding.handoff.copyLoginText', {
+    brand,
+    childName,
+    username: childUsername,
+    pin: childPin,
+    appUrl,
+  });
   try {
     await navigator.clipboard.writeText(text);
     const btn = document.getElementById('copyPinBtn');
-    btn.textContent = '✓ Kopierat!';
-    setTimeout(() => { btn.textContent = '📋 Kopiera info'; }, 2000);
+    btn.textContent = ot('onboarding.handoff.copied');
+    setTimeout(() => { btn.textContent = ot('onboarding.handoff.copyInfo'); }, 2000);
   } catch {
-    alert('Kopiera manuellt:\n\n' + text);
+    alert(ot('onboarding.handoff.copyManual', { text }));
   }
 }
 
@@ -705,13 +850,25 @@ async function emailLoginInfo() {
   try {
     const me = await (await window.apiFetch('/api/auth/me')).json();
     const email = me.email || '';
-    const subject = encodeURIComponent(`Min Stjärndag — Inloggning för ${childName}`);
+    const brand = ot('onboarding.common.brand');
+    const appUrl = window.location.origin;
+    const subject = encodeURIComponent(ot('onboarding.handoff.emailSubject', { brand, childName }));
     const body = encodeURIComponent(
-      `Hej!\n\nHär är inloggningsuppgifterna till Min Stjärndag för ${childName}:\n\nAnvändarnamn: ${childUsername}\nPIN-kod: ${childPin}\n\nÖppna appen: https://mystarday.se/child-login\n\nMed vänliga hälsningar,\nMin Stjärndag`
+      ot('onboarding.handoff.emailBody', {
+        brand,
+        childName,
+        username: childUsername,
+        pin: childPin,
+        appUrl,
+      })
     );
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   } catch {
-    alert(`Inloggning för ${childName}:\nAnvändarnamn: ${childUsername}\nPIN: ${childPin}`);
+    alert(ot('onboarding.handoff.emailFallbackAlert', {
+      childName,
+      username: childUsername,
+      pin: childPin,
+    }));
   }
 }
 
@@ -746,18 +903,18 @@ window.saveCustomPin = async function() {
   errorEl.classList.add('hidden');
 
   if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-    showError(errorEl, 'PIN-koden måste vara 4 siffror');
+    showError(errorEl, ot('onboarding.handoff.pinMustBe4'));
     return;
   }
   // Check weak patterns
   if (/^(\d)\1{3}$/.test(newPin)) {
-    showError(errorEl, 'Välj en starkare PIN-kod (inte 1111, 2222 etc.)');
+    showError(errorEl, ot('onboarding.handoff.pinTooWeak'));
     return;
   }
 
   const btn = document.getElementById('savePinBtn');
   btn.disabled = true;
-  btn.textContent = 'Sparar…';
+  btn.textContent = ot('onboarding.handoff.savingPin');
 
   try {
     const res = await window.apiFetch('/api/onboarding/update-pin', {
@@ -765,7 +922,7 @@ window.saveCustomPin = async function() {
       body: JSON.stringify({ child_id: childId, pin: newPin }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Kunde inte spara PIN');
+    if (!res.ok) throw new Error(data.error || ot('onboarding.handoff.pinSaveFailed'));
 
     childPin = newPin;
     document.getElementById('s5Pin').textContent = newPin;
@@ -774,10 +931,10 @@ window.saveCustomPin = async function() {
       OnboardingActivation.notifyPinSet('onboarding_custom');
     }
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel');
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Spara PIN';
+    btn.textContent = ot('onboarding.handoff.savePin');
   }
 };
 
@@ -861,14 +1018,14 @@ async function saveOnboardingParentPinIfProvided() {
 
   if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
     if (errorEl) {
-      errorEl.textContent = 'Ange en 4-siffrig PIN-kod eller lämna fälten tomma';
+      errorEl.textContent = ot('onboarding.parentPin.pinRequiredOrEmpty');
       errorEl.classList.remove('hidden');
     }
     return false;
   }
   if (pin !== confirm) {
     if (errorEl) {
-      errorEl.textContent = 'PIN-koderna matchar inte';
+      errorEl.textContent = ot('onboarding.parentPin.pinMismatch');
       errorEl.classList.remove('hidden');
     }
     return false;
@@ -882,7 +1039,7 @@ async function saveOnboardingParentPinIfProvided() {
     if (!res.ok) {
       const data = await res.json().catch(function () { return {}; });
       if (errorEl) {
-        errorEl.textContent = data.error || 'Kunde inte spara PIN-koden';
+        errorEl.textContent = data.error || ot('onboarding.parentPin.saveFailed');
         errorEl.classList.remove('hidden');
       }
       return false;
@@ -890,7 +1047,7 @@ async function saveOnboardingParentPinIfProvided() {
     return true;
   } catch (err) {
     if (errorEl) {
-      errorEl.textContent = err.message || 'Kunde inte spara PIN-koden';
+      errorEl.textContent = err.message || ot('onboarding.parentPin.saveFailed');
       errorEl.classList.remove('hidden');
     }
     return false;
@@ -905,20 +1062,20 @@ async function initJourneyOnboardingCta() {
     journeyHandoffMode = await JourneyContextClient.isJourneyApiEnabled();
     if (journeyHandoffMode) {
       const btn = document.getElementById('step6Btn');
-      if (btn) btn.textContent = 'Låt barnet börja';
+      if (btn) btn.textContent = ot('onboarding.complete.letChildStartPlain');
     }
   } catch (_) { /* legacy CTA */ }
 }
 
 async function finishOnboardingWithJourneyHandoff(btn, errorEl) {
   if (!(await saveOnboardingParentPinIfProvided())) {
-    setLoading(btn, 'Låt barnet börja', false);
+    setLoading(btn, ot('onboarding.complete.letChildStartPlain'), false);
     return;
   }
   launchStars();
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error('Kunde inte slutföra onboardingen');
+    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailed'));
     const user = Auth.getUser();
     if (user) {
       user.onboarding_completed = true;
@@ -937,8 +1094,8 @@ async function finishOnboardingWithJourneyHandoff(btn, errorEl) {
       }
     }, 900);
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
-    setLoading(btn, 'Låt barnet börja', false);
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    setLoading(btn, ot('onboarding.complete.letChildStartPlain'), false);
   }
 }
 document.getElementById('step6Btn').addEventListener('click', async () => {
@@ -953,15 +1110,15 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
   }
 
   if (journeyHandoffMode) {
-    setLoading(btn, 'Slutför…');
+    setLoading(btn, ot('onboarding.common.finishing'));
     await finishOnboardingWithJourneyHandoff(btn, errorEl);
     return;
   }
 
-  setLoading(btn, 'Slutför…');
+  setLoading(btn, ot('onboarding.common.finishing'));
 
   if (!(await saveOnboardingParentPinIfProvided())) {
-    setLoading(btn, '👶 Låt barnet börja', false);
+    setLoading(btn, ot('onboarding.complete.letChildStart'), false);
     return;
   }
 
@@ -970,7 +1127,7 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
 
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error('Kunde inte slutföra onboardingen');
+    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailed'));
 
     // Update local auth state
     const user = Auth.getUser();
@@ -985,15 +1142,15 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
         onDone: () => { redirectToChildHandoffAfterComplete(); },
       });
       if (showedChoice) {
-        setLoading(btn, '👶 Låt barnet börja', false);
+        setLoading(btn, ot('onboarding.complete.letChildStart'), false);
         return;
       }
     }
 
     await redirectToChildHandoffAfterComplete();
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
-    setLoading(btn, '👶 Låt barnet börja', false);
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    setLoading(btn, ot('onboarding.complete.letChildStart'), false);
   }
 });
 
@@ -1068,7 +1225,7 @@ window.resendVerificationEmail = async function() {
   const errorEl = document.getElementById('resendError');
 
   resendBtn.disabled = true;
-  resendBtn.textContent = 'Skickar…';
+  resendBtn.textContent = ot('onboarding.verifyEmail.resendSending');
   successEl.classList.add('hidden');
   errorEl.classList.add('hidden');
 
@@ -1083,22 +1240,22 @@ window.resendVerificationEmail = async function() {
     const data = await res.json();
 
     if (!res.ok) {
-      errorEl.textContent = data?.error || 'Något gick fel. Försök igen.';
+      errorEl.textContent = data?.error || ot('onboarding.verifyEmail.resendError');
       errorEl.classList.remove('hidden');
     } else {
-      successEl.textContent = '✓ Skickat!';
+      successEl.textContent = ot('onboarding.verifyEmail.resendSuccess');
       successEl.classList.remove('hidden');
-      resendBtn.textContent = 'Skickat';
+      resendBtn.textContent = ot('onboarding.verifyEmail.resendSent');
     }
   } catch {
-    errorEl.textContent = 'Nätverksfel. Försök igen.';
+    errorEl.textContent = ot('onboarding.common.networkError');
     errorEl.classList.remove('hidden');
   } finally {
     resendBtn.disabled = false;
     if (!successEl.classList.contains('hidden')) {
-      resendBtn.textContent = 'Skickat';
+      resendBtn.textContent = ot('onboarding.verifyEmail.resendSent');
     } else {
-      resendBtn.textContent = 'Skicka igen';
+      resendBtn.textContent = ot('onboarding.verifyEmail.resend');
     }
   }
 };
@@ -1139,15 +1296,15 @@ window.sendInvite = async function() {
   errorEl.classList.add('hidden');
   successEl.classList.add('hidden');
 
-  if (!email) { errorEl.textContent = 'Ange en e-postadress'; errorEl.classList.remove('hidden'); return; }
-  if (!email.includes('@')) { errorEl.textContent = 'Ogiltig e-postadress'; errorEl.classList.remove('hidden'); return; }
+  if (!email) { errorEl.textContent = ot('onboarding.invite.emailRequired'); errorEl.classList.remove('hidden'); return; }
+  if (!email.includes('@')) { errorEl.textContent = ot('onboarding.invite.invalidEmail'); errorEl.classList.remove('hidden'); return; }
 
   // Collect selected child IDs
   const checkedBoxes = document.querySelectorAll('.invite-child-check:checked');
   const childIds = Array.from(checkedBoxes).map(cb => cb.value);
 
   btn.disabled = true;
-  btn.textContent = 'Skickar…';
+  btn.textContent = ot('onboarding.invite.sending');
 
   try {
     const res = await window.apiFetch('/api/family/invite', {
@@ -1156,24 +1313,24 @@ window.sendInvite = async function() {
     });
     const data = await res.json();
     if (!res.ok) {
-      errorEl.textContent = data.error || 'Något gick fel';
+      errorEl.textContent = data.error || ot('onboarding.invite.sendFailed');
       errorEl.classList.remove('hidden');
     } else {
-      successEl.textContent = `Inbjudan skickad till ${email}! ✓`;
+      successEl.textContent = ot('onboarding.invite.success', { email });
       successEl.classList.remove('hidden');
       document.getElementById('inviteName').value = '';
       document.getElementById('inviteEmail').value = '';
       // Disable form after success
-      btn.textContent = '✓ Skickad';
+      btn.textContent = ot('onboarding.invite.sent');
       btn.className = btn.className.replace('bg-navy hover:bg-navy-soft', 'bg-green-500 cursor-default');
       return; // keep btn disabled
     }
   } catch {
-    errorEl.textContent = 'Nätverksfel. Försök igen.';
+    errorEl.textContent = ot('onboarding.common.networkError');
     errorEl.classList.remove('hidden');
   }
   btn.disabled = false;
-  btn.textContent = '📧 Skicka inbjudan';
+  btn.textContent = ot('onboarding.invite.sendBtn');
 };
 
 window.skipInvite = async function() {
@@ -1185,7 +1342,7 @@ window.skipInvite = async function() {
 
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error('Kunde inte slutföra onboardingen');
+    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailed'));
 
     const user = Auth.getUser();
     if (user) {
@@ -1195,7 +1352,7 @@ window.skipInvite = async function() {
 
     await redirectToChildHandoffAfterComplete();
   } catch (err) {
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
   }
 };
 
@@ -1204,18 +1361,18 @@ window.skipInvite = async function() {
 // ────────────────────────────────────────────────────────────────────────────
 async function completeAddChild() {
   const btn = document.getElementById('step6Btn');
-  setLoading(btn, 'Slutför…');
+  setLoading(btn, ot('onboarding.common.finishing'));
 
   try {
     if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.isEnabled === 'function' &&
         OnboardingHandoffFilm.isEnabled()) {
-      setLoading(btn, 'Klar! →', false);
+      setLoading(btn, ot('onboarding.common.addChildDone'), false);
       await enterChildHandoff('add_child_step6');
       return;
     }
 
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error('Kunde inte slutföra');
+    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailedShort'));
 
     // Update local auth
     const user = Auth.getUser();
@@ -1229,8 +1386,8 @@ async function completeAddChild() {
     setTimeout(() => { window.location.href = '/child-login'; }, 1200);
   } catch (err) {
     const errorEl = document.getElementById('step6Error');
-    showError(errorEl, err.message || 'Något gick fel. Försök igen.');
-    setLoading(btn, 'Gå vidare →', false);
+    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    setLoading(btn, ot('onboarding.common.goForward'), false);
   }
 }
 
@@ -1247,7 +1404,7 @@ if (IS_ADD_CHILD) {
   const inviteSection = document.getElementById('inviteSection');
   if (inviteSection) inviteSection.classList.add('hidden');
   const step6Btn = document.getElementById('step6Btn');
-  if (step6Btn) step6Btn.textContent = 'Klar! →';
+  if (step6Btn) step6Btn.textContent = ot('onboarding.common.addChildDone');
   const parentPinBlock = document.getElementById('onboardingParentPinBlock');
   if (parentPinBlock) parentPinBlock.classList.add('hidden');
 }
@@ -1289,7 +1446,7 @@ function initIOSAvatarPicker() {
   // "Choose photo" — opens camera/photo library
   chooseBtn.addEventListener('click', async () => {
     chooseBtn.disabled = true;
-    chooseBtn.textContent = 'Laddar…';
+    chooseBtn.textContent = ot('onboarding.child.avatarLoading');
     try {
       const result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
       if (!result) {
@@ -1299,11 +1456,11 @@ function initIOSAvatarPicker() {
         showToast(result.error, true);
         return;
       }
-      chooseBtn.textContent = 'Förbereder…';
+      chooseBtn.textContent = ot('onboarding.child.avatarPreparing');
       const file = Platform.camera.toAvatarFile
         ? await Platform.camera.toAvatarFile(result)
         : null;
-      if (!file) throw new Error('Kunde inte läsa bilden');
+      if (!file) throw new Error(ot('onboarding.child.avatarReadFailed'));
       selectedAvatarFile = file;
       preview.src = URL.createObjectURL(file);
       preview.classList.add('ring-2', 'ring-gold');
@@ -1311,10 +1468,10 @@ function initIOSAvatarPicker() {
       useDefaultBtn.classList.remove('hidden');
     } catch (err) {
       console.error('[onboarding] avatar upload failed:', err.message);
-      showToast('Kunde inte ladda upp fotot. Försök igen.', true);
+      showToast(ot('onboarding.child.avatarUploadFailed'), true);
     } finally {
       chooseBtn.disabled = false;
-      chooseBtn.textContent = 'Välj foto';
+      chooseBtn.textContent = ot('onboarding.child.avatarPickBtn');
     }
   });
 }
@@ -1388,6 +1545,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  if (typeof window.initOnboardingI18n === 'function') {
+    await initOnboardingI18n(me?.preferred_locale);
+  }
+  document.addEventListener('onboarding-i18n-ready', refreshOnboardingDynamicUI);
+
   let handoffResumeHandled = false;
   if (resumeHandoff && window.OnboardingHandoffResume &&
       typeof OnboardingHandoffResume.handleResume === 'function') {
@@ -1444,7 +1606,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     templateGroups = [];
     const grid = document.getElementById('templateGroupGrid');
     if (grid) {
-      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">Schemamallar kunde inte laddas just nu. Dra ner för att uppdatera, eller prova igen om en stund.</p>';
+      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">' + escapeHtml(ot('onboarding.child.templatesLoadFailed')) + '</p>';
     }
     const step1Btn = document.getElementById('step1Btn');
     if (step1Btn) step1Btn.disabled = true;
@@ -1461,7 +1623,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch { /* use fallback */ }
   if (!availableRewards || availableRewards.length === 0) {
-    availableRewards = REWARD_PRESETS_FALLBACK;
+    availableRewards = getRewardPresetsFallback();
   }
   buildRewardGrid(availableRewards);
 

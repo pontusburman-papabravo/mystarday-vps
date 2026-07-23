@@ -1,6 +1,6 @@
 /**
  * onboarding-activity-guide.js — Parent picks how the child completes activities.
- * Sets child defaults (editable later in child settings). Not "NPF-läge".
+ * Sets child defaults (editable later in child settings).
  */
 (function () {
   'use strict';
@@ -25,6 +25,10 @@
 
   let selectedMode = null;
 
+  function ot(key, params) {
+    return window.ot ? window.ot(key, params) : key;
+  }
+
   function presetForMode(mode) {
     return PRESETS[mode] || null;
   }
@@ -37,6 +41,17 @@
     });
     const err = document.getElementById('stepActivityGuideError');
     if (err) err.classList.add('hidden');
+  }
+
+  function refreshActivityGuideUI() {
+    const label = document.getElementById('stepLabel');
+    if (label) {
+      label.textContent = ot('onboarding.activityGuide.stepLabel', { current: 2, total: 3 });
+    }
+    const btn = document.getElementById('stepActivityGuideBtn');
+    if (btn && !btn.disabled) {
+      btn.textContent = ot('onboarding.activityGuide.continueBtn');
+    }
   }
 
   function goToActivityGuideStep() {
@@ -52,8 +67,7 @@
       nameEl.textContent = childName;
     }
 
-    const label = document.getElementById('stepLabel');
-    if (label) label.textContent = 'Steg 2 av 3';
+    refreshActivityGuideUI();
 
     [1, 2, 3, 4, 5, 6].forEach(function (i) {
       const pb = document.getElementById('pb' + i);
@@ -72,7 +86,7 @@
 
     if (!selectedMode) {
       if (errorEl) {
-        errorEl.textContent = 'Välj ett alternativ';
+        errorEl.textContent = ot('onboarding.activityGuide.selectError');
         errorEl.classList.remove('hidden');
       }
       return;
@@ -85,7 +99,7 @@
     const btn = document.getElementById('stepActivityGuideBtn');
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Sparar…';
+      btn.textContent = ot('onboarding.activityGuide.saving');
     }
 
     try {
@@ -94,7 +108,7 @@
         body: JSON.stringify({ child_id: childId, mode: selectedMode }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Kunde inte spara valet');
+      if (!res.ok) throw new Error(data.error || ot('onboarding.activityGuide.saveError'));
 
       if (typeof populateStep5LoginInfo === 'function') populateStep5LoginInfo();
       if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
@@ -104,7 +118,7 @@
       } else if (typeof goToStep === 'function') {
         goToStep(5);
         const label = document.getElementById('stepLabel');
-        if (label) label.textContent = 'Steg 3 av 3';
+        if (label) label.textContent = ot('onboarding.activityGuide.stepLabel', { current: 3, total: 3 });
         const pb2 = document.getElementById('pb2');
         const pb5 = document.getElementById('pb5');
         if (pb2) { pb2.classList.remove('active'); pb2.classList.add('done'); }
@@ -112,13 +126,13 @@
       }
     } catch (err) {
       if (errorEl) {
-        errorEl.textContent = err.message || 'Något gick fel. Försök igen.';
+        errorEl.textContent = err.message || ot('onboarding.common.genericError');
         errorEl.classList.remove('hidden');
       }
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.textContent = 'Fortsätt →';
+        btn.textContent = ot('onboarding.activityGuide.continueBtn');
       }
     }
   }
@@ -131,6 +145,7 @@
         selectActivityGuide(card.getAttribute('data-mode'));
       });
     });
+    document.addEventListener('onboarding-i18n-ready', refreshActivityGuideUI);
   }
 
   if (document.readyState === 'loading') {

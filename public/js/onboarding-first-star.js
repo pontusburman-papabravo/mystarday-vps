@@ -5,6 +5,14 @@
 (function () {
   'use strict';
 
+  function ot(key, params) {
+    return window.ot ? window.ot(key, params) : key;
+  }
+
+  function esc(s) {
+    return window.escapeHtml ? window.escapeHtml(s) : String(s || '');
+  }
+
   function act() {
     return window.OnboardingActivation || null;
   }
@@ -61,15 +69,15 @@
     overlay.innerHTML = [
       '<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">',
       '  <div class="text-center mb-4"><div class="text-4xl mb-2" aria-hidden="true">⭐</div>',
-      '  <h2 id="firstStarGuideTitle" class="text-xl font-heading font-bold text-navy mb-2">Ge första stjärnan</h2>',
-      '  <p class="text-sm text-text-soft mb-4">Tre snabba steg — sedan är ni igång på riktigt.</p></div>',
+      '  <h2 id="firstStarGuideTitle" class="text-xl font-heading font-bold text-navy mb-2">' + esc(ot('onboarding.firstStar.title')) + '</h2>',
+      '  <p class="text-sm text-text-soft mb-4">' + esc(ot('onboarding.firstStar.lead')) + '</p></div>',
       '  <ol class="text-sm text-navy space-y-2 mb-5 list-decimal list-inside">',
-      '    <li>Låt barnet logga in med PIN-koden</li>',
-      '    <li>Markera en aktivitet som klar i barnvyn</li>',
-      '    <li>Fira stjärnan tillsammans!</li>',
+      '    <li>' + esc(ot('onboarding.firstStar.steps.login')) + '</li>',
+      '    <li>' + esc(ot('onboarding.firstStar.steps.complete')) + '</li>',
+      '    <li>' + esc(ot('onboarding.firstStar.steps.celebrate')) + '</li>',
       '  </ol>',
-      '  <button type="button" id="fsgChildLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl min-h-[44px]">👶 Öppna barninloggning</button>',
-      '  <button type="button" id="fsgContinueParent" class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2 mt-2 min-h-[44px]">Fortsätt som förälder</button>',
+      '  <button type="button" id="fsgChildLogin" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3 rounded-xl min-h-[44px]">' + esc(ot('onboarding.firstStar.openChildLogin')) + '</button>',
+      '  <button type="button" id="fsgContinueParent" class="w-full text-sm font-semibold text-text-soft hover:text-navy py-2 mt-2 min-h-[44px]">' + esc(ot('onboarding.firstStar.continueAsParent')) + '</button>',
       '</div>',
     ].join('');
     document.body.appendChild(overlay);
@@ -101,7 +109,6 @@
     window.skipInvite.__firstStarPatched = true;
   }
 
-  /** Capture-phase hook so step6Btn also shows first star guide (not only skipInvite). */
   function patchStep6Btn() {
     const btn = document.getElementById('step6Btn');
     if (!btn || btn.dataset.firstStarPatched) return;

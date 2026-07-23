@@ -1,63 +1,27 @@
 /**
  * onboarding-starter-plan.js — ACT-1 PR3 template-first + slim signup (ADR).
- * Flags: activation_signup_slim_v1 (3 frågor → Hem) | activation_onboarding_v1 (full wizard)
+ * ACT-1 PR3 template-first + slim signup (ADR).
  */
 (function () {
   'use strict';
 
-  const QUESTIONS = [
-    { id: 'child_name', type: 'text', label: 'Barnets namn', placeholder: 't.ex. Ella' },
-    {
-      id: 'age_band', type: 'choice', label: 'Hur gammalt är barnet?',
-      options: [
-        { value: '3-5', label: '3–5 år' },
-        { value: '6-8', label: '6–8 år' },
-        { value: '9-12', label: '9–12 år' },
-        { value: '13+', label: '13+' },
-      ],
-    },
-    {
-      id: 'routine_type_ui', type: 'choice', label: 'Vilken rutin vill ni börja med?',
-      options: [
-        { value: 'morgon', label: '☀️ Morgon' },
-        { value: 'kvall', label: '🌙 Kväll' },
-        { value: 'efter-skola', label: '🏫 Efter skolan' },
-        { value: 'laxor', label: '📚 Läxor' },
-        { value: 'gora-sig-klar', label: '🎒 Göra sig klar' },
-      ],
-    },
-    {
-      id: 'main_challenge', type: 'choice', label: 'Vad är svårast just nu?',
-      options: [
-        { value: 'getting_started', label: 'Komma igång' },
-        { value: 'focus', label: 'Hålla fokus' },
-        { value: 'conflicts', label: 'Konflikter' },
-        { value: 'forgetting', label: 'Glömmer steg' },
-        { value: 'transitions', label: 'Övergångar' },
-      ],
-    },
-    {
-      id: 'support_ui', type: 'choice', label: 'Behöver barnet extra tydligt stöd?',
-      options: [
-        { value: 'ja', label: 'Ja' },
-        { value: 'lite', label: 'Lite' },
-        { value: 'nej', label: 'Nej' },
-      ],
-    },
-    {
-      id: 'length_ui', type: 'choice', label: 'Hur många steg vill ni börja med?',
-      options: [
-        { value: 'kort', label: 'Kort (3–4)' },
-        { value: 'normal', label: 'Normal (5)' },
-        { value: 'detaljerad', label: 'Detaljerad (6–7)' },
-      ],
-    },
-    {
-      id: 'free_text', type: 'textarea', label: 'Något viktigt vi ska ta hänsyn till? (valfritt)',
-      placeholder: 't.ex. tandborstning är det svåraste',
-      optional: true,
-    },
+  const QUESTION_IDS = [
+    'child_name',
+    'age_band',
+    'routine_type_ui',
+    'main_challenge',
+    'support_ui',
+    'length_ui',
+    'free_text',
   ];
+
+  const CHOICE_OPTION_KEYS = {
+    age_band: ['3-5', '6-8', '9-12', '13+'],
+    routine_type_ui: ['morgon', 'kvall', 'efter-skola', 'laxor', 'gora-sig-klar'],
+    main_challenge: ['getting_started', 'focus', 'conflicts', 'forgetting', 'transitions'],
+    support_ui: ['ja', 'lite', 'nej'],
+    length_ui: ['kort', 'normal', 'detaljerad'],
+  };
 
   const SLIM_QUESTION_IDS = ['child_name', 'age_band', 'routine_type_ui'];
 
@@ -77,6 +41,37 @@
     usedAi: false,
     selectedEmoji: '🌟',
   };
+
+  function ot(key, params) {
+    return window.ot ? window.ot(key, params) : key;
+  }
+
+  function getQuestions() {
+    return QUESTION_IDS.map(function (id) {
+      const base = 'onboarding.starter.questions.' + id;
+      if (id === 'child_name') {
+        return {
+          id,
+          type: 'text',
+          label: ot(base + '.label'),
+          placeholder: ot(base + '.placeholder'),
+        };
+      }
+      if (id === 'free_text') {
+        return {
+          id,
+          type: 'textarea',
+          label: ot(base + '.label'),
+          placeholder: ot(base + '.placeholder'),
+          optional: true,
+        };
+      }
+      const options = (CHOICE_OPTION_KEYS[id] || []).map(function (value) {
+        return { value, label: ot(base + '.options.' + value) };
+      });
+      return { id, type: 'choice', label: ot(base + '.label'), options };
+    });
+  }
 
   function api(path, opts) {
     return window.apiFetch(path, opts);
@@ -100,10 +95,11 @@
   }
 
   function activeQuestions() {
+    const questions = getQuestions();
     if (state.slim) {
-      return QUESTIONS.filter(function (q) { return SLIM_QUESTION_IDS.indexOf(q.id) >= 0; });
+      return questions.filter(function (q) { return SLIM_QUESTION_IDS.indexOf(q.id) >= 0; });
     }
-    return QUESTIONS;
+    return questions;
   }
 
   function trackQuestionAnswered(questionId) {
@@ -156,7 +152,12 @@
     card.classList.add('active');
     const label = document.getElementById('stepLabel');
     const questions = activeQuestions();
-    if (label) label.textContent = 'Skapa schema ' + (state.qIndex + 1) + ' av ' + questions.length;
+    if (label) {
+      label.textContent = ot('onboarding.starter.stepLabel', {
+        current: state.qIndex + 1,
+        total: questions.length,
+      });
+    }
   }
 
   function renderQuestion() {
@@ -171,13 +172,13 @@
     if (!q) return;
 
     const intro = state.slim
-      ? 'Tre snabba frågor — sedan är rutinen klar.'
-      : 'Svarar på några frågor — tar under en minut.';
+      ? ot('onboarding.starter.slimIntro')
+      : ot('onboarding.starter.fullIntro');
     const html = [
       '<div class="text-center mb-6">',
       '  <div class="text-5xl mb-3">✨</div>',
-      '  <h1 class="text-2xl font-heading font-bold text-navy mb-2">' + (state.slim ? 'Er rutin är snart klar' : 'Skapa ert första schema') + '</h1>',
-      '  <p class="text-text-soft text-sm">' + intro + '</p>',
+      '  <h1 class="text-2xl font-heading font-bold text-navy mb-2">' + esc(state.slim ? ot('onboarding.starter.slimTitle') : ot('onboarding.starter.fullTitle')) + '</h1>',
+      '  <p class="text-text-soft text-sm">' + esc(intro) + '</p>',
       '</div>',
       '<label class="block font-semibold text-navy mb-2">' + esc(q.label) + '</label>',
     ];
@@ -197,21 +198,22 @@
 
     html.push('<div class="flex gap-3">');
     if (state.qIndex > 0) {
-      html.push('<button type="button" id="spBack" class="px-5 py-3.5 bg-lavender text-navy font-semibold rounded-xl text-sm">← Tillbaka</button>');
+      html.push('<button type="button" id="spBack" class="px-5 py-3.5 bg-lavender text-navy font-semibold rounded-xl text-sm">' + esc(ot('onboarding.common.back')) + '</button>');
     }
-    html.push('<button type="button" id="spNext" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl">' +
-      (state.qIndex === questions.length - 1
-        ? (state.slim ? 'Skapa rutin →' : 'Visa schema →')
-        : 'Nästa →') + '</button>');
+    const isLast = state.qIndex === questions.length - 1;
+    const nextLabel = isLast
+      ? (state.slim ? ot('onboarding.starter.createRoutine') : ot('onboarding.starter.showSchedule'))
+      : ot('onboarding.starter.buttons.next');
+    html.push('<button type="button" id="spNext" class="flex-1 bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl">' + esc(nextLabel) + '</button>');
     html.push('</div>');
 
     if (state.slim) {
       html.push(
         '<div class="mt-6 pt-5 border-t border-lavender/70">',
-        '  <p class="text-xs text-text-soft text-center mb-3">Vill du välja eller bygga själv?</p>',
+        '  <p class="text-xs text-text-soft text-center mb-3">' + esc(ot('onboarding.starter.powerPathLead')) + '</p>',
         '  <div class="flex flex-col gap-2">',
-        '    <button type="button" id="spChooseTemplate" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">📋 Välj färdigt schema</button>',
-        '    <button type="button" id="spFullWizard" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">✏️ Bygg och anpassa själv (7 frågor)</button>',
+        '    <button type="button" id="spChooseTemplate" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">' + esc(ot('onboarding.starter.chooseTemplate')) + '</button>',
+        '    <button type="button" id="spFullWizard" class="w-full px-4 py-3 rounded-xl border-2 border-lavender text-navy text-sm font-semibold text-left">' + esc(ot('onboarding.starter.fullWizard')) + '</button>',
         '  </div>',
         '</div>'
       );
@@ -299,7 +301,7 @@
     const q = questions[state.qIndex];
     const val = readCurrentAnswer();
     if (!val && !q.optional) {
-      showError('Välj eller fyll i ett svar');
+      showError(ot('onboarding.starter.answerRequired'));
       return;
     }
     if (val) {
@@ -324,7 +326,7 @@
 
   async function autoSaveSlimAndFinish() {
     const btn = document.getElementById('spNext');
-    if (btn) { btn.disabled = true; btn.textContent = 'Skapar rutin…'; }
+    if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.creatingRoutine'); }
 
     try {
       track('activation_onboarding_started', { source: 'signup_slim' });
@@ -343,14 +345,14 @@
         body: JSON.stringify(suggestBody),
       });
       const suggestData = await suggestRes.json();
-      if (!suggestRes.ok) throw new Error(suggestData.error || 'Kunde inte välja mall');
+      if (!suggestRes.ok) throw new Error(suggestData.error || ot('onboarding.starter.templateFailed'));
 
       const previewRes = await api(
         '/api/onboarding/starter-plan/preview?scheduleName=' + encodeURIComponent(suggestData.scheduleName) +
         '&desiredLength=normal'
       );
       const previewData = await previewRes.json();
-      if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
+      if (!previewRes.ok) throw new Error(previewData.error || ot('onboarding.starter.previewFailed'));
 
       state.plan = suggestData;
       state.previewItems = previewData.items || [];
@@ -358,19 +360,19 @@
       state.usedAi = false;
 
       if (state.flags.activation_ai_starter_plan) {
-        if (btn) btn.textContent = 'Anpassar schema…';
+        if (btn) btn.textContent = ot('onboarding.starter.personalizing');
         await maybePersonalizeWithAi(suggestData, 'normal');
       }
 
       const name = (state.answers.child_name || '').trim();
-      if (!name) throw new Error('Ange barnets namn');
+      if (!name) throw new Error(ot('onboarding.starter.nameRequired'));
 
       const childRes = await api('/api/onboarding/child', {
         method: 'POST',
         body: JSON.stringify({ name: name, emoji: state.selectedEmoji }),
       });
       const childData = await childRes.json();
-      if (!childRes.ok) throw new Error(childData.error || 'Kunde inte skapa barn');
+      if (!childRes.ok) throw new Error(childData.error || ot('onboarding.starter.childCreateFailed'));
 
       const schedRes = await api('/api/onboarding/schedule', {
         method: 'POST',
@@ -383,12 +385,11 @@
         }),
       });
       const schedData = await schedRes.json();
-      if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
+      if (!schedRes.ok) throw new Error(schedData.error || ot('onboarding.starter.scheduleSaveFailed'));
       if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
         MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
       }
 
-      // Server marks onboarding_completed on schedule save; keep local auth in sync.
       syncOnboardingCompleteInAuth();
 
       window.dispatchEvent(new CustomEvent('onboarding:child-created', {
@@ -414,14 +415,14 @@
 
       showSlimSuccessAndGoHome();
     } catch (err) {
-      showError(err.message || 'Något gick fel');
-      if (btn) { btn.disabled = false; btn.textContent = 'Skapa rutin →'; }
+      showError(err.message || ot('onboarding.common.genericError'));
+      if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.createRoutine'); }
     }
   }
 
   async function completeSignupAndRedirect(targetHref) {
     const res = await api('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error('Kunde inte slutföra');
+    if (!res.ok) throw new Error(ot('onboarding.starter.completeFailed'));
     if (window.Auth) {
       const user = Auth.getUser();
       if (user) {
@@ -438,32 +439,32 @@
     if (container) container.classList.add('hidden');
     if (preview) {
       preview.classList.remove('hidden');
-      const childName = state.answers.child_name || 'Barnet';
+      const childName = state.answers.child_name || ot('onboarding.common.childFallback');
       preview.innerHTML = [
         '<div class="text-center py-6">',
         '  <div class="text-5xl mb-3" aria-hidden="true">✨</div>',
-        '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">Er rutin är redo</h2>',
-        '  <p class="text-text-soft text-sm mb-1">För ' + esc(childName) + ' · ' + state.previewItems.length + ' aktiviteter</p>',
-        '  <p class="text-navy text-sm font-medium mt-4">Ni kan testa detta ikväll.</p>',
-        '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">Gå till Hem →</button>',
-        '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-navy py-3 mt-2 min-h-[44px]">Anpassa schema först</button>',
+        '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">' + esc(ot('onboarding.starter.slimSuccessTitle')) + '</h2>',
+        '  <p class="text-text-soft text-sm mb-1">' + esc(ot('onboarding.starter.previewForChild', { childName: childName, count: state.previewItems.length })) + '</p>',
+        '  <p class="text-navy text-sm font-medium mt-4">' + esc(ot('onboarding.starter.slimSuccessTonight')) + '</p>',
+        '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">' + esc(ot('onboarding.starter.goHome')) + '</button>',
+        '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-navy py-3 mt-2 min-h-[44px]">' + esc(ot('onboarding.starter.customizeFirst')) + '</button>',
         '</div>',
       ].join('');
 
       document.getElementById('slimGoHome').addEventListener('click', function () {
         const btn = document.getElementById('slimGoHome');
-        if (btn) { btn.disabled = true; btn.textContent = 'Öppnar Hem…'; }
+        if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.openingHome'); }
         completeSignupAndRedirect('/dashboard').catch(function (err) {
-          showError(err.message || 'Kunde inte slutföra');
-          if (btn) { btn.disabled = false; btn.textContent = 'Gå till Hem →'; }
+          showError(err.message || ot('onboarding.starter.completeFailed'));
+          if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.goHome'); }
         });
       });
       document.getElementById('slimCustomize').addEventListener('click', function () {
         const btn = document.getElementById('slimCustomize');
-        if (btn) { btn.disabled = true; btn.textContent = 'Öppnar schema…'; }
+        if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.openingSchedule'); }
         completeSignupAndRedirect('/schedule').catch(function (err) {
-          showError(err.message || 'Kunde inte slutföra');
-          if (btn) { btn.disabled = false; btn.textContent = 'Anpassa schema först'; }
+          showError(err.message || ot('onboarding.starter.completeFailed'));
+          if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.customizeFirst'); }
         });
       });
     }
@@ -475,7 +476,7 @@
       '&desiredLength=' + encodeURIComponent(desiredLength)
     );
     const previewData = await previewRes.json();
-    if (!previewRes.ok) throw new Error(previewData.error || 'Kunde inte ladda schema');
+    if (!previewRes.ok) throw new Error(previewData.error || ot('onboarding.starter.previewFailed'));
     return previewData.items || [];
   }
 
@@ -504,7 +505,7 @@
       body: JSON.stringify(personalizeBody),
     });
     const persData = await persRes.json();
-    if (!persRes.ok) throw new Error(persData.error || 'Kunde inte anpassa schema');
+    if (!persRes.ok) throw new Error(persData.error || ot('onboarding.starter.personalizeFailed'));
     state.previewItems = persData.items || state.previewItems;
     state.planTitle = persData.plan_title || suggestData.scheduleName;
     state.introText = persData.intro_text || '';
@@ -514,7 +515,7 @@
 
   async function loadPreview() {
     const btn = document.getElementById('spNext');
-    if (btn) { btn.disabled = true; btn.textContent = 'Laddar…'; }
+    if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.loading'); }
 
     try {
       track('activation_onboarding_started', { source: 'starter_plan_wizard' });
@@ -533,7 +534,7 @@
         body: JSON.stringify(suggestBody),
       });
       const suggestData = await suggestRes.json();
-      if (!suggestRes.ok) throw new Error(suggestData.error || 'Kunde inte välja mall');
+      if (!suggestRes.ok) throw new Error(suggestData.error || ot('onboarding.starter.templateFailed'));
       state.plan = suggestData;
 
       const lengthMap = { kort: 'short', normal: 'normal', detaljerad: 'detailed' };
@@ -542,14 +543,14 @@
       state.previewItems = await fetchPreviewItems(suggestData.scheduleName, desiredLength);
 
       if (state.flags.activation_ai_starter_plan) {
-        if (btn) btn.textContent = 'Anpassar schema…';
+        if (btn) btn.textContent = ot('onboarding.starter.personalizing');
       }
       await maybePersonalizeWithAi(suggestData, desiredLength);
 
       renderPreview();
     } catch (err) {
-      showError(err.message || 'Något gick fel');
-      if (btn) { btn.disabled = false; btn.textContent = 'Visa schema →'; }
+      showError(err.message || ot('onboarding.common.genericError'));
+      if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.showSchedule'); }
     }
   }
 
@@ -560,14 +561,17 @@
     container.classList.add('hidden');
     preview.classList.remove('hidden');
 
-    const childName = state.answers.child_name || 'Barnet';
-    const title = state.planTitle || (state.plan && state.plan.scheduleName) || 'Ert schema';
+    const childName = state.answers.child_name || ot('onboarding.common.childFallback');
+    const title = state.planTitle || (state.plan && state.plan.scheduleName) || ot('onboarding.starter.defaultPlanTitle');
+    const previewMeta = ot('onboarding.starter.previewForChild', {
+      childName: childName,
+      count: state.previewItems.length,
+    }) + (state.usedAi ? ot('onboarding.starter.previewAiTail') : '');
     const html = [
       '<div class="text-center mb-4">',
       '  <div class="text-4xl mb-2">📋</div>',
       '  <h2 class="text-xl font-heading font-bold text-navy">' + esc(title) + '</h2>',
-      '  <p class="text-text-soft text-sm">För ' + esc(childName) + ' · ' + state.previewItems.length + ' aktiviteter' +
-        (state.usedAi ? ' · ✨ AI-anpassat' : '') + '</p>',
+      '  <p class="text-text-soft text-sm">' + esc(previewMeta) + '</p>',
       '</div>',
     ];
     if (state.introText) {
@@ -579,13 +583,13 @@
       html.push('<li class="flex items-center gap-2 bg-sky rounded-xl px-3 py-2" data-idx="' + idx + '">' +
         '<span class="text-xl">' + esc(item.icon || '⭐') + '</span>' +
         '<span class="flex-1 text-sm font-medium text-navy">' + esc(item.name) + '</span>' +
-        '<button type="button" class="sp-remove text-text-soft text-xs" data-idx="' + idx + '">Ta bort</button></li>');
+        '<button type="button" class="sp-remove text-text-soft text-xs" data-idx="' + idx + '">' + esc(ot('onboarding.starter.removeStep')) + '</button></li>');
     });
 
     html.push('</ul>');
-    html.push('<p class="text-xs text-text-soft mb-4">Du kan ta bort steg — lägg till fler i inställningar senare.</p>');
-    html.push('<button type="button" id="spSavePlan" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mb-3">Använd detta schema →</button>');
-    html.push('<button type="button" id="spBackToQuestions" class="w-full text-text-soft text-sm font-semibold">← Ändra svar</button>');
+    html.push('<p class="text-xs text-text-soft mb-4">' + esc(ot('onboarding.starter.previewHint')) + '</p>');
+    html.push('<button type="button" id="spSavePlan" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mb-3">' + esc(ot('onboarding.starter.useSchedule')) + '</button>');
+    html.push('<button type="button" id="spBackToQuestions" class="w-full text-text-soft text-sm font-semibold">' + esc(ot('onboarding.starter.changeAnswers')) + '</button>');
 
     preview.innerHTML = html.join('');
 
@@ -610,12 +614,12 @@
   async function savePlan() {
     hideError();
     const btn = document.getElementById('spSavePlan');
-    if (btn) { btn.disabled = true; btn.textContent = 'Sparar…'; }
+    if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.saving'); }
 
     const name = (state.answers.child_name || '').trim();
     if (!name) {
-      showError('Ange barnets namn');
-      if (btn) { btn.disabled = false; btn.textContent = 'Använd detta schema →'; }
+      showError(ot('onboarding.starter.nameRequired'));
+      if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.useSchedule'); }
       return;
     }
 
@@ -625,7 +629,7 @@
         body: JSON.stringify({ name: name, emoji: state.selectedEmoji }),
       });
       const childData = await childRes.json();
-      if (!childRes.ok) throw new Error(childData.error || 'Kunde inte skapa barn');
+      if (!childRes.ok) throw new Error(childData.error || ot('onboarding.starter.childCreateFailed'));
 
       const schedRes = await api('/api/onboarding/schedule', {
         method: 'POST',
@@ -633,13 +637,12 @@
           child_id: childData.id,
           template_group: state.plan.template_group,
           custom_items: state.previewItems,
-          // starter_plan_saved — server-side via schedule POST → activation schema_saved
           plan_edited_before_save: state.planEdited,
           activity_count: state.previewItems.length,
         }),
       });
       const schedData = await schedRes.json();
-      if (!schedRes.ok) throw new Error(schedData.error || 'Kunde inte spara schema');
+      if (!schedRes.ok) throw new Error(schedData.error || ot('onboarding.starter.scheduleSaveFailed'));
       if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
         MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
       }
@@ -669,8 +672,8 @@
         window.goToStep(5);
       }
     } catch (err) {
-      showError(err.message || 'Något gick fel');
-      if (btn) { btn.disabled = false; btn.textContent = 'Använd detta schema →'; }
+      showError(err.message || ot('onboarding.common.genericError'));
+      if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.useSchedule'); }
     }
   }
 
@@ -683,7 +686,6 @@
     return state.enabled === true;
   }
 
-  /** True only for the default 3-question fast path (Journey handles coach; no signup handoff). */
   function isSlimFastPath() {
     if (state.signupPath === 'slim') return true;
     if (state.signupPath === 'full_wizard' || state.signupPath === 'legacy_template') return false;
@@ -695,6 +697,18 @@
   }
 
   let initResult = 'inactive';
+
+  function refreshStarterPlanUI() {
+    const card = document.getElementById('stepStarterPlan');
+    if (!card || !state.enabled || card.classList.contains('hidden')) return;
+    const preview = document.getElementById('starterPlanPreview');
+    if (preview && !preview.classList.contains('hidden') && state.previewItems.length) {
+      renderPreview();
+    } else if (document.getElementById('starterPlanQuestions') && !document.getElementById('starterPlanQuestions').classList.contains('hidden')) {
+      renderQuestion();
+      showStarterStep();
+    }
+  }
 
   async function tryResumeAct1(data, isAddChild) {
     const funnelStep = data.funnel_step || 'signup';
@@ -713,7 +727,6 @@
         detail: { id: data.primary_child_id },
       }));
     }
-    // child_created: stay in ACT-1 so parent can finish schedule (same name resumes server-side).
     if (funnelStep === 'child_created') {
       if (flags.activation_signup_slim_v1) {
         state.slim = true;
@@ -782,6 +795,8 @@
       return initResult;
     }
   }
+
+  document.addEventListener('onboarding-i18n-ready', refreshStarterPlanUI);
 
   window.OnboardingStarterPlan = {
     init: init,

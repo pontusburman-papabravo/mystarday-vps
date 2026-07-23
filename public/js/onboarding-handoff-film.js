@@ -5,16 +5,28 @@
 (function () {
   'use strict';
 
-  const SCENES = [
-    { id: 'routine', caption: 'Rutinen är klar', durationMs: 3000 },
-    { id: 'handoff', caption: 'Öppna barnläget tillsammans', durationMs: 4000 },
-    { id: 'child', caption: 'Barnet ser vad som händer nu', durationMs: 4000 },
-    { id: 'done', caption: 'Klart!', durationMs: 4000 },
-    { id: 'star', caption: 'Första stjärnan ⭐', durationMs: 4000 },
-  ];
+  const SCENE_IDS = ['routine', 'handoff', 'child', 'done', 'star'];
+  const SCENE_DURATIONS = {
+    routine: 3000,
+    handoff: 4000,
+    child: 4000,
+    done: 4000,
+    star: 4000,
+  };
 
-  const TOTAL_MS = SCENES.reduce(function (sum, s) { return sum + s.durationMs; }, 0);
-  const TICK_MS = 200;
+  function ot(key, params) {
+    return window.ot ? window.ot(key, params) : key;
+  }
+
+  function getScenes() {
+    return SCENE_IDS.map(function (id) {
+      return {
+        id,
+        caption: ot('onboarding.handoffFilm.scenes.' + id),
+        durationMs: SCENE_DURATIONS[id],
+      };
+    });
+  }
 
   let shownThisSession = false;
   /** @type {{ timerId?: ReturnType<typeof setInterval>, timeoutIds: number[], overlay?: HTMLElement, isPreview?: boolean } | null} */
@@ -96,7 +108,6 @@
     }
 
     const st = activationState();
-    // Never replay the film after it was completed (reinstall / resume loop).
     if (st.handoff_film_completed_at) return false;
     if (st.child_access_completed_at) return false;
 
@@ -132,11 +143,11 @@
   }
 
   function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return window.escapeHtml ? window.escapeHtml(s) : String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function brandLabel() {
-    return ['Min', ['Stj', String.fromCharCode(228), 'rndag'].join('')].join(' ');
+    return ot('onboarding.common.brand');
   }
 
   function prefersReducedMotion() {
@@ -151,24 +162,24 @@
     if (sceneId === 'routine') {
       return [
         '<div class="ohf-mock">',
-        '  <div class="ohf-parent-chip">👤 Föräldravyn</div>',
-        '  <div class="ohf-mock-header">Dagens rutin</div>',
-        '  <div class="ohf-activity-row" data-ohf-row="0"><span class="ohf-emoji">👕</span> Klä på sig <span class="ohf-check">✓</span></div>',
-        '  <div class="ohf-activity-row" data-ohf-row="1"><span class="ohf-emoji">🪥</span> Borsta tänderna <span class="ohf-check">✓</span></div>',
-        '  <div class="ohf-activity-row" data-ohf-row="2"><span class="ohf-emoji">🎒</span> Packa väskan <span class="ohf-check">✓</span></div>',
+        '  <div class="ohf-parent-chip">👤 ' + esc(ot('onboarding.handoffFilm.mock.parentView')) + '</div>',
+        '  <div class="ohf-mock-header">' + esc(ot('onboarding.handoffFilm.mock.dailyRoutine')) + '</div>',
+        '  <div class="ohf-activity-row" data-ohf-row="0"><span class="ohf-emoji">👕</span> ' + esc(ot('onboarding.handoffFilm.mock.dress')) + ' <span class="ohf-check">✓</span></div>',
+        '  <div class="ohf-activity-row" data-ohf-row="1"><span class="ohf-emoji">🪥</span> ' + esc(ot('onboarding.handoffFilm.mock.brushTeeth')) + ' <span class="ohf-check">✓</span></div>',
+        '  <div class="ohf-activity-row" data-ohf-row="2"><span class="ohf-emoji">🎒</span> ' + esc(ot('onboarding.handoffFilm.mock.packBag')) + ' <span class="ohf-check">✓</span></div>',
         '</div>',
       ].join('');
     }
     if (sceneId === 'handoff') {
-      return '<div class="ohf-btn-mock" id="ohfHandoffBtn">👶 Testa barnläget</div>';
+      return '<div class="ohf-btn-mock" id="ohfHandoffBtn">' + esc(ot('onboarding.handoffFilm.mock.tryChildMode')) + '</div>';
     }
     if (sceneId === 'child') {
       return [
         '<div class="ohf-mock ohf-child-card">',
-        '  <div class="ohf-child-label">Nu</div>',
+        '  <div class="ohf-child-label">' + esc(ot('onboarding.handoffFilm.mock.now')) + '</div>',
         '  <div class="ohf-child-emoji">🪥</div>',
-        '  <div class="ohf-child-title">Borsta tänderna</div>',
-        '  <div class="ohf-child-action" id="ohfChildTap">Markera klar ✓</div>',
+        '  <div class="ohf-child-title">' + esc(ot('onboarding.handoffFilm.mock.brushTeeth')) + '</div>',
+        '  <div class="ohf-child-action" id="ohfChildTap">' + esc(ot('onboarding.handoffFilm.mock.markDone')) + '</div>',
         '</div>',
       ].join('');
     }
@@ -176,7 +187,7 @@
       return [
         '<div class="ohf-mock ohf-child-card ohf-done-card">',
         '  <div class="ohf-done-emoji">✅</div>',
-        '  <div class="ohf-done-text">Bra jobbat!</div>',
+        '  <div class="ohf-done-text">' + esc(ot('onboarding.handoffFilm.mock.wellDone')) + '</div>',
         '</div>',
       ].join('');
     }
@@ -223,7 +234,7 @@
     const userEl = document.getElementById('s5Username');
     const pinEl = document.getElementById('s5Pin');
     return {
-      name: nameEl ? nameEl.textContent.trim() : 'Barnet',
+      name: nameEl ? nameEl.textContent.trim() : ot('onboarding.common.childFallback'),
       username: userEl ? userEl.textContent.trim() : '',
       pin: pinEl ? pinEl.textContent.trim() : '',
     };
@@ -254,17 +265,17 @@
     trackEvent('onboarding_handoff_opened', { source: 'film_cta_try' });
 
     ctaPanel.innerHTML = [
-      '<h2 class="ohf-cta-title">Logga in som barnet</h2>',
-      '<p class="ohf-handoff-lead"><strong>' + esc(info.name) + '</strong> loggar in med namn och PIN.</p>',
+      '<h2 class="ohf-cta-title">' + esc(ot('onboarding.handoffFilm.loginTitle')) + '</h2>',
+      '<p class="ohf-handoff-lead">' + esc(ot('onboarding.handoffFilm.loginLead', { childName: info.name })) + '</p>',
       '<div class="ohf-handoff-credentials">',
-      '  <p class="ohf-handoff-row"><span class="ohf-handoff-label">Användarnamn</span>',
+      '  <p class="ohf-handoff-row"><span class="ohf-handoff-label">' + esc(ot('onboarding.handoffFilm.usernameLabel')) + '</span>',
       '  <strong class="ohf-handoff-value" id="ohfHandoffUsername">' + esc(info.username) + '</strong></p>',
-      '  <p class="ohf-handoff-row"><span class="ohf-handoff-label">PIN-kod</span>',
+      '  <p class="ohf-handoff-row"><span class="ohf-handoff-label">' + esc(ot('onboarding.handoffFilm.pinLabel')) + '</span>',
       '  <strong class="ohf-handoff-pin" id="ohfHandoffPin">' + esc(info.pin) + '</strong></p>',
       '</div>',
-      '<p class="ohf-handoff-hint">Sätt er tillsammans — samma eller annan enhet fungerar.</p>',
-      '<button type="button" class="ohf-cta-secondary ohf-copy-btn" id="ohfCopyLoginBtn">📋 Kopiera inloggning</button>',
-      '<button type="button" class="ohf-cta-primary" id="ohfOpenChildBtn">Öppna barnläget</button>',
+      '<p class="ohf-handoff-hint">' + esc(ot('onboarding.handoffFilm.loginHint')) + '</p>',
+      '<button type="button" class="ohf-cta-secondary ohf-copy-btn" id="ohfCopyLoginBtn">' + esc(ot('onboarding.handoffFilm.copyLogin')) + '</button>',
+      '<button type="button" class="ohf-cta-primary" id="ohfOpenChildBtn">' + esc(ot('onboarding.handoffFilm.openChildMode')) + '</button>',
     ].join('');
 
     ctaPanel.classList.add('is-visible');
@@ -274,10 +285,14 @@
     if (copyBtn) {
       copyBtn.addEventListener('click', function () {
         const login = getHandoffLoginInfo();
-        const text = login.name + '\nAnvändarnamn: ' + login.username + '\nPIN: ' + login.pin;
+        const text = ot('onboarding.handoffFilm.copyText', {
+          childName: login.name,
+          username: login.username,
+          pin: login.pin,
+        });
         const done = function () {
-          copyBtn.textContent = '✓ Kopierat!';
-          setTimeout(function () { copyBtn.textContent = '📋 Kopiera inloggning'; }, 2000);
+          copyBtn.textContent = ot('onboarding.handoffFilm.copied');
+          setTimeout(function () { copyBtn.textContent = ot('onboarding.handoffFilm.copyLogin'); }, 2000);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(done).catch(function () { alert(text); });
@@ -298,6 +313,8 @@
    */
   function showHandoffFilm(opts) {
     opts = opts || {};
+    const SCENES = getScenes();
+    const TOTAL_MS = SCENES.reduce(function (sum, s) { return sum + s.durationMs; }, 0);
     const isPreview = Boolean(opts.preview);
     if (!isPreview && (shownThisSession || !isFilmEnabled())) {
       if (opts.onFallback) opts.onFallback();
@@ -340,9 +357,9 @@
       '  <p class="ohf-caption" id="ohfCaption">' + esc(SCENES[0].caption) + '</p>',
       '  <div class="ohf-progress" aria-hidden="true">' + dotsHtml + '</div>',
       '  <div class="ohf-cta-panel' + (reduced ? ' is-visible' : '') + '" id="ohfCtaPanel">',
-      '    <h2 class="ohf-cta-title">Redo att testa?</h2>',
-      '    <button type="button" class="ohf-cta-primary" id="ohfTryChildBtn">Testa barnläget nu</button>',
-      '    <button type="button" class="ohf-cta-secondary" id="ohfLaterBtn">Gör det senare</button>',
+      '    <h2 class="ohf-cta-title">' + esc(ot('onboarding.handoffFilm.ctaReady')) + '</h2>',
+      '    <button type="button" class="ohf-cta-primary" id="ohfTryChildBtn">' + esc(ot('onboarding.handoffFilm.ctaTryNow')) + '</button>',
+      '    <button type="button" class="ohf-cta-secondary" id="ohfLaterBtn">' + esc(ot('onboarding.handoffFilm.ctaLater')) + '</button>',
       '  </div>',
       '</div>',
     ].join('');
@@ -431,7 +448,7 @@
         clearInterval(timer);
         return;
       }
-      elapsed += TICK_MS;
+      elapsed += 200;
       const scene = SCENES[idx];
       if (elapsed >= scene.durationMs) {
         elapsed = 0;
@@ -445,17 +462,12 @@
         }
         activateScene(idx);
       }
-    }, TICK_MS);
+    }, 200);
     activeSession.timerId = timer;
 
     return Promise.resolve('film');
   }
 
-  /**
-   * Intercept handoff step — show film instead of step 5 when enabled.
-   * @param {function} [fallback] called when film disabled (typically goToStep(5))
-   * @param {{ afterSchemaSave?: boolean }} [opts]
-   */
   function maybeShowInsteadOfHandoffStep(fallback, opts) {
     if (!isFilmEnabled(opts)) {
       if (typeof fallback === 'function') fallback();
@@ -465,7 +477,6 @@
     showHandoffFilm();
   }
 
-  /** Called after schema save (+ optional activity guide) — film or legacy step 5. */
   async function goToHandoffAfterSchema(entryPoint) {
     window.__onboardingHandoffEntry = entryPoint || 'schema_saved';
     const oa = act();
