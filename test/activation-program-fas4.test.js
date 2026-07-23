@@ -74,8 +74,8 @@ describe('Fas 4 — routes and assets', () => {
     );
     assert.ok(src.includes("router.get('/enroll-choice'"));
     assert.ok(src.includes("router.post('/enroll-choice'"));
-    assert.ok(src.includes('Ja, hjälp oss första veckan'));
-    assert.ok(src.includes('Vi kör själva'));
+    assert.ok(src.includes('getEnrollChoiceCopy'));
+    assert.ok(src.includes('getFamilyLocale'));
   });
 
   it('public invite click route redirects to activation-enroll', () => {

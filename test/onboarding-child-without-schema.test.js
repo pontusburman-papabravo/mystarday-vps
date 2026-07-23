@@ -34,10 +34,10 @@ describe('onboarding child_without_schema — static contracts', () => {
 
   it('does not fake template cards when library empty', () => {
     const src = read('public/js/onboarding.js');
-    assert.match(src, /Schemamallar kunde inte laddas/);
+    assert.match(src, /onboarding\.child\.templatesLoadFailed/);
     assert.doesNotMatch(
       src.slice(src.indexOf('Load template groups'), src.indexOf('Load rewards')),
-      /TEMPLATE_GROUP_FALLBACK/
+      /getTemplateGroupFallback\(\)/
     );
   });
 

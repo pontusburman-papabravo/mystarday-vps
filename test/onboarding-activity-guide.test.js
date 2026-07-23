@@ -12,14 +12,13 @@ function read(rel) {
 }
 
 describe('onboarding activity guide — parent defaults', () => {
-  it('onboarding.html has activity guide step with three Swedish options', () => {
+  it('onboarding.html has activity guide step with three localized options', () => {
     const html = read('public/onboarding.html');
     assert.match(html, /stepActivityGuide/);
-    assert.match(html, /Hur vill du att appen hjälper/);
-    assert.match(html, /Fri ordning/);
-    assert.match(html, /En sak i taget/);
-    assert.match(html, /Tydlig tid och ordning/);
-    assert.match(html, /barnets inställningar/);
+    assert.match(html, /onboarding\.activityGuide\.options\.free_order\.title/);
+    assert.match(html, /onboarding\.activityGuide\.options\.one_at_a_time\.title/);
+    assert.match(html, /onboarding\.activityGuide\.options\.time_and_order\.title/);
+    assert.match(html, /onboarding\.activityGuide\.lead/);
     assert.doesNotMatch(html, /NPF-läge/i);
   });
 

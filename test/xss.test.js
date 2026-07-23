@@ -86,13 +86,18 @@ test('onboarding.js escapes childName and groupMeta.name before innerHTML', () =
   const src = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'onboarding.js'), 'utf8');
   assert.match(
     src,
-    /introPara\.innerHTML[\s\S]*escapeHtml\(childName\)/,
-    'step 4 reward intro must escape childName',
+    /introPara\.textContent = ot\('onboarding\.rewards\.introWithCount'/,
+    'step 4 reward intro must use textContent + ot()',
   );
   assert.match(
     src,
-    /subtitleEl\.innerHTML[\s\S]*escapeHtml\(groupMeta\.name\)[\s\S]*escapeHtml\(childName\)/,
-    'step 3 subtitle must escape groupMeta.name and childName',
+    /subtitleEl\.textContent = ot\('onboarding\.scheduleReady\.subtitleWithTemplate'/,
+    'step 3 subtitle must use textContent + ot() with templateName and childName params',
+  );
+  assert.doesNotMatch(
+    src,
+    /subtitleEl\.innerHTML[\s\S]*\$\{childName\}/,
+    'step 3 subtitle must not interpolate childName into innerHTML',
   );
 });
 

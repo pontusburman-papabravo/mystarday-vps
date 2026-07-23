@@ -100,10 +100,10 @@ describe('signup-slim checkpoint', () => {
     assert.match(src, /activation_signup_slim_v1/);
     assert.match(src, /SLIM_QUESTION_IDS/);
     assert.match(src, /autoSaveSlimAndFinish/);
-    assert.match(src, /Er rutin är redo/);
+    assert.match(src, /onboarding\.starter\.slimSuccessTitle/);
     assert.match(src, /\/dashboard/);
     assert.match(src, /signup_power_path_selected/);
-    assert.match(src, /Välj färdigt schema/);
+    assert.match(src, /onboarding\.starter\.powerPathLead/);
     assert.match(src, /isSlimFastPath/);
   });
 
