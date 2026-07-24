@@ -148,28 +148,6 @@
     el.classList.remove('hidden');
   }
 
-  function renderFamilyHero() {
-    const summary = document.getElementById('familySummary');
-    const sub = summary && summary.textContent ? summary.textContent : 'Er familj på ett ställe';
-    const childN = document.querySelectorAll('#childrenGrid > *').length;
-    const adultN = document.querySelectorAll('#adultsGrid > *').length;
-    return '<div class="magic-page-shell magic-3d-scene">' +
-      '<div class="magic-page-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('familj') + '</div>' +
-      '<div><h1>Familjen</h1><p>' + escHtml(sub) + '</p></div>' +
-      '</div>' +
-      '<div class="magic-page-stats">' +
-      '<div class="magic-page-stat-card magic-3d-card"><strong>' + childN + '</strong><span>Barn</span></div>' +
-      '<div class="magic-page-stat-card magic-3d-card"><strong>' + adultN + '</strong><span>Vuxna</span></div>' +
-      '</div>' +
-      '<div class="magic-hub-links grid gap-3 mt-3 max-w-lg">' +
-      '<a href="#custodyScheduleSection" class="flex items-center gap-3 p-4 bg-white/80 rounded-2xl border-2 border-lavender no-underline text-navy">' +
-      '<span class="text-2xl" aria-hidden="true">' + pageIcon('familj', 32) + '</span>' +
-      '<span><strong class="block">Boendeschema</strong>' +
-      '<span class="text-text-soft text-sm">Växelvis boende — vecka A/B</span></span></a>' +
-      '</div></div>';
-  }
-
   function renderSettingsMenu() {
     return '<div class="magic-page-shell magic-3d-scene magic-page-hero-wrap">' +
       '<div class="magic-page-hero">' +

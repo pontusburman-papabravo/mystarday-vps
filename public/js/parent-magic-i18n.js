@@ -6,7 +6,7 @@
   'use strict';
 
   function earlyApply() {
-    var lang = null;
+    let lang = null;
     try {
       lang = sessionStorage.getItem('sd_preferred_locale');
     } catch (_) { /* ignore */ }
@@ -18,7 +18,7 @@
 
   async function initFromAuth() {
     if (typeof window.initParentAppI18n !== 'function') return;
-    var user = null;
+    let user = null;
     if (typeof window.authGuard === 'function') {
       user = await window.authGuard();
     } else if (window.Auth && typeof Auth.getCurrentUser === 'function') {
