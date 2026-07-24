@@ -165,10 +165,12 @@ Run with the QA test account documented in `docs/qa-test-account.md` (`preferred
 
 ## Manual QA status
 
-**2026-07-24 — QA UNDERKÄND (cloud agent).**
+**2026-07-24 — QA BLOCKERAD (fysisk mobil-QA ej genomförd).**
 
-Physical iOS/Android devices were **not available** in the cloud agent environment. Emulated mobile-viewport testing on prod (QA account per docs/qa-test-account.md) and local PR #713 HEAD (81c39654). PR #713 not merged; nav-en-GB.json missing on VPS despite SW v667.
+Physical iOS/Android devices were **not available** in the cloud agent environment. Prod testing is **not valid** for PR #713 sign-off (prod runs `main`, not #713).
 
-Full report: `artifacts/i18n-pr713-mobile-qa/QA-RAPPORT-PR713.md`
+Nav fix (native-tab-bar stale labels): see `docs/i18n-pr713-mobile-qa-report.md`. Staging: `docs/i18n-pr713-staging-qa.md`.
 
-**Required before merge:** Human physical QA on all four platforms against a deploy of PR #713 HEAD, with both sv-SE control and en-GB + `english_app=ON` families per checklist above.
+Full report: `docs/i18n-pr713-mobile-qa-report.md`
+
+**Required before merge:** Human physical QA on all four platforms against staging/preview of PR #713 HEAD, with both sv-SE control and en-GB + `english_app=ON` families per checklist above.

@@ -567,8 +567,40 @@ describe('Home nav locale (nav-config)', () => {
     assert.match(nativeTab, /locale-changed/);
     assert.match(nativeTab, /parent-i18n-ready/);
     assert.match(nativeTab, /primaryNavForTabs/);
+    assert.match(nativeTab, /syncActiveTabs/);
     assert.match(magicShell, /locale-changed/);
     assert.match(magicShell, /nav\.mainAria/);
+  });
+
+  it('native tab bar refreshes labels before remount (no parse-time cache)', () => {
+    assert.doesNotMatch(nativeTab, /let activeTabs = NavConfig\.primaryNavForTabs\(\)/);
+    assert.match(nativeTab, /function syncActiveTabs/);
+    assert.match(nativeTab, /syncActiveTabs\(\);\s*\n\s*remount\(\)/);
+  });
+
+  it('resolveLabel returns en-GB nav labels when pt() resolves keys', () => {
+    loadLocales();
+    const en = getLocale('en-GB');
+    assert.equal(en.nav.primary.home, 'Home');
+    assert.equal(en.nav.primary.planning, 'Planning');
+    assert.equal(en.nav.primary.rewards, 'Rewards');
+    assert.equal(en.nav.primary.forYou, 'For you');
+    assert.equal(en.nav.primary.family, 'Family');
+    const sv = getLocale('sv-SE');
+    assert.equal(sv.nav.primary.planning, 'Planering');
+    assert.notEqual(sv.nav.primary.planning, 'Planning');
+  });
+
+  it('API bundle includes nav.primary for both locales', () => {
+    loadLocales();
+    for (const loc of ['sv-SE', 'en-GB']) {
+      const bundle = getLocale(loc);
+      assert.ok(bundle.nav?.primary?.home, `${loc} nav.primary.home`);
+      assert.ok(bundle.nav?.primary?.planning, `${loc} nav.primary.planning`);
+      assert.ok(bundle.nav?.primary?.rewards, `${loc} nav.primary.rewards`);
+      assert.ok(bundle.nav?.primary?.forYou, `${loc} nav.primary.forYou`);
+      assert.ok(bundle.nav?.primary?.family, `${loc} nav.primary.family`);
+    }
   });
 
   it('mobile-nav resolves labels via NavConfig.resolveLabel', () => {
