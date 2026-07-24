@@ -165,4 +165,10 @@ Run with the QA test account documented in `docs/qa-test-account.md` (`preferred
 
 ## Manual QA status
 
-**Not run on physical iOS/Android devices in this agent session.** Desktop/API verification via `test:gate` and locale unit tests. Recommend mobile-width smoke using the QA test account documented in `docs/qa-test-account.md` before release.
+**2026-07-24 — QA UNDERKÄND (cloud agent).**
+
+Physical iOS/Android devices were **not available** in the cloud agent environment. Emulated mobile-viewport testing on prod (QA account per docs/qa-test-account.md) and local PR #713 HEAD (81c39654). PR #713 not merged; nav-en-GB.json missing on VPS despite SW v667.
+
+Full report: `artifacts/i18n-pr713-mobile-qa/QA-RAPPORT-PR713.md`
+
+**Required before merge:** Human physical QA on all four platforms against a deploy of PR #713 HEAD, with both sv-SE control and en-GB + `english_app=ON` families per checklist above.
