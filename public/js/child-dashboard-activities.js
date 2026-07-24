@@ -6,6 +6,14 @@
 (function () {
   'use strict';
 
+function cda(key, params, fallback) {
+  if (typeof window.cpt === 'function') {
+    var value = cpt(key, params);
+    if (value && value !== 'child.' + key) return value;
+  }
+  return typeof fallback === 'function' ? fallback(params || {}) : fallback;
+}
+
 function activityCanToggle(isToday, isDone, timeStatus) {
   if (!isToday || isDone) return false;
   if (typeof requireSequentialCompletion !== 'undefined' && !requireSequentialCompletion) return true;
@@ -143,8 +151,8 @@ function renderActivities(data, trueStarBalance) {
       container.innerHTML = `
       <div class="text-center py-16 bg-white rounded-2xl mt-2">
         <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
-        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? 'Inga aktiviteter idag!' : 'Inget schema den här dagen'}</p>
-        <p class="text-text-soft text-sm">${isToday ? 'Njut av din lediga dag ⭐' : 'Välj en annan dag för att se schemat'}</p>
+        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? cda('today.noActivitiesToday', null, 'Inga aktiviteter idag!') : cda('today.noScheduleThisDay', null, 'Inget schema den här dagen')}</p>
+        <p class="text-text-soft text-sm">${isToday ? cda('today.enjoyFreeDay', null, 'Njut av din lediga dag') + ' ⭐' : cda('today.pickAnotherDay', null, 'Välj en annan dag för att se schemat')}</p>
       </div>`;
       return;
     } else {
@@ -233,8 +241,8 @@ function renderActivities(data, trueStarBalance) {
       container.innerHTML = `
       <div class="text-center py-16 bg-white rounded-2xl mt-2">
         <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
-        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? 'Inga aktiviteter idag!' : 'Inget schema den här dagen'}</p>
-        <p class="text-text-soft text-sm">${isToday ? 'Njut av din lediga dag ⭐' : 'Välj en annan dag för att se schemat'}</p>
+        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? cda('today.noActivitiesToday', null, 'Inga aktiviteter idag!') : cda('today.noScheduleThisDay', null, 'Inget schema den här dagen')}</p>
+        <p class="text-text-soft text-sm">${isToday ? cda('today.enjoyFreeDay', null, 'Njut av din lediga dag') + ' ⭐' : cda('today.pickAnotherDay', null, 'Välj en annan dag för att se schemat')}</p>
       </div>`;
     }
     return;
@@ -422,10 +430,12 @@ function renderActivities(data, trueStarBalance) {
     const msg = messages[Math.floor(Math.random() * messages.length)];
     html += `<div class="text-center py-10 bg-gradient-to-br from-gold-light to-mint rounded-2xl mt-4 celeb-slide" id="celebCard">
       <div class="text-7xl mb-4 celeb-emoji">${mainEmoji}</div>
-      <h3 class="text-2xl font-heading font-bold text-navy mb-2">Alla klara!</h3>
+      <h3 class="text-2xl font-heading font-bold text-navy mb-2">${cda('today.allDoneTitle', null, 'Alla klara!')}</h3>
       <p class="text-text-soft text-base mb-3">${msg}</p>
       <div class="inline-flex items-center gap-2 bg-white/70 rounded-full px-5 py-2 font-heading font-bold text-navy">
-        ⭐ ${completed} aktiviteter klara idag!
+        ⭐ ${completed > 1
+          ? cda('today.activitiesDoneToday', { count: completed }, completed + ' aktiviteter klara idag!')
+          : cda('today.oneActivityDoneToday', null, '1 aktivitet klar idag!')}
       </div>
     </div>`;
     setTimeout(() => launchConfetti(), 200);
@@ -586,7 +596,11 @@ function renderNLCard(item, view, canToggle) {
   const timeStr = item.start_time || '';
   const isPast = view === 'past';
   const chipClass = isPast ? 'chip-redan' : view === 'next' ? 'chip-next' : 'chip-later';
-  const chipLabel = isPast ? 'Redan' : view === 'next' ? 'Nästa' : 'Senare';
+  const chipLabel = isPast
+    ? cda('today.chipPast', null, 'Redan')
+    : view === 'next'
+      ? cda('today.zoneNext', null, 'Nästa')
+      : cda('today.zoneLater', null, 'Senare');
   const cardClass = view === 'next' ? 'next-card' : view === 'past' ? 'past-card' : 'later-card';
   const clickAttr = canToggle && !isDone ? `onclick="toggleItem('${item.id}', ${isDone})"` : '';
 

@@ -102,7 +102,7 @@
     nav.innerHTML = html;
     nav.setAttribute('data-nav-ready', 'true');
     nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', 'Barnnavigering');
+    nav.setAttribute('aria-label', typeof window.cpt === 'function' ? cpt('nav.ariaLabel') : 'Barnnavigering');
     nav.style.display = '';
     nav.removeAttribute('aria-hidden');
     document.body.classList.add('child-has-bottom-nav');

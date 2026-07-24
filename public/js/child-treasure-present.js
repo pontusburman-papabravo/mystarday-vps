@@ -91,16 +91,17 @@
 
   function renderHero(skatt, starBalance) {
     const count = Number(starBalance) || 0;
-    const label = count === 1
-      ? 'Du har 1 stjärna att använda'
-      : 'Du har ' + count + ' stjärnor att använda';
+    const label = typeof window.childPlural === 'function'
+      ? childPlural('treasure.starsToUse', count, { count: count })
+      : (count === 1 ? 'Du har 1 stjärna att använda' : 'Du har ' + count + ' stjärnor att använda');
+    const title = typeof window.cpt === 'function' ? cpt('treasure.title') : 'Skattkammaren';
     const goal = skatt.goal;
     let goalHtml = '';
 
     if (!goal || !goal.reward_id) {
       goalHtml =
         '<div class="btp-hero-goal btp-hero-goal--empty">' +
-          '<p class="btp-hero-goal-lead">Här kan du välja vad du vill spara till</p>' +
+          '<p class="btp-hero-goal-lead">' + (typeof window.cpt === 'function' ? cpt('treasure.chooseGoal') : 'Här kan du välja vad du vill spara till') + '</p>' +
         '</div>';
     } else {
       const remaining = Math.max(0, (goal.star_cost || 0) - count);
@@ -119,9 +120,9 @@
     }
 
     return (
-      '<header class="btp-hero" aria-label="Skattkammaren">' +
+      '<header class="btp-hero" aria-label="' + esc(title) + '">' +
         '<p class="btp-kicker" aria-hidden="true">🎁</p>' +
-        '<h1 class="btp-hero-title">Skattkammaren</h1>' +
+        '<h1 class="btp-hero-title">' + esc(title) + '</h1>' +
         '<div class="btp-hero-stars" aria-label="' + esc(label) + '">' +
           '<span class="btp-balance-emoji" aria-hidden="true">⭐</span>' +
           '<span class="btp-balance-count">' + count + '</span>' +

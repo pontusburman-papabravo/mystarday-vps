@@ -73,6 +73,11 @@ function calcAge(birthday) {
 }
 
 function getSectionLabel(section) {
+  const emoji = { morgon: '🟡', dag: '🟠', kvall: '🔵', natt: '🌑' };
+  const keyMap = { morgon: 'sections.morgon', dag: 'sections.dag', kvall: 'sections.kvall', natt: 'sections.natt' };
+  if (typeof window.cpt === 'function' && keyMap[section]) {
+    return (emoji[section] || '') + ' ' + cpt(keyMap[section]);
+  }
   const labels = { morgon: '🟡 Morgon', dag: '🟠 Dag', kvall: '🔵 Kväll', natt: '🌑 Natt' };
   return labels[section] || section;
 }
@@ -604,6 +609,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = '/child-login';
       return;
     }
+    if (window.initChildAppI18n) {
+      await initChildAppI18n({
+        preferredLocale: me.preferred_locale,
+        englishChildEnabled: me.english_child_experience_enabled,
+      });
+    }
+    document.addEventListener('child-i18n-ready', function () {
+      if (window.ChildWorldsNav && typeof ChildWorldsNav.renderBottomNav === 'function') {
+        ChildWorldsNav.renderBottomNav();
+      }
+      if (window.ChildTodayFocus && typeof ChildTodayFocus.renameTab === 'function') {
+        ChildTodayFocus.renameTab();
+      }
+    });
     if (window.DeviceMode) DeviceMode.enterChild();
     Auth.setAuth(null, me);
     // Cache child profile for offline access

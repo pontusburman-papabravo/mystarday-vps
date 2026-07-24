@@ -38,13 +38,13 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     const { username, pin } = req.body;
 
     if (!username || !username.trim()) {
-      return res.status(400).json({ error: 'Namn krävs' });
+      return res.status(400).json({ error: 'Namn krävs', code: 'CHILD_NAME_REQUIRED' });
     }
     if (!pin) {
-      return res.status(400).json({ error: 'PIN-kod krävs' });
+      return res.status(400).json({ error: 'PIN-kod krävs', code: 'CHILD_PIN_REQUIRED' });
     }
     if (!/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN-koden måste vara 4 siffror' });
+      return res.status(400).json({ error: 'PIN-koden måste vara 4 siffror', code: 'CHILD_PIN_INVALID_FORMAT' });
     }
 
     const normalizedInput = username.toLowerCase().trim();
@@ -79,7 +79,11 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
             'INSERT INTO login_attempt (identifier, ip_address, success) VALUES ($1, $2, false)',
             [normalizedInput, clientIp]
           );
-          return res.status(401).json({ error: 'Felaktigt namn eller PIN-kod', attempts_remaining: null });
+          return res.status(401).json({
+            error: 'Felaktigt namn eller PIN-kod',
+            code: 'CHILD_PIN_INVALID',
+            attempts_remaining: null,
+          });
         }
       }
     }
@@ -90,7 +94,11 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
         'INSERT INTO login_attempt (identifier, ip_address, success) VALUES ($1, $2, false)',
         [normalizedInput, clientIp]
       );
-      return res.status(401).json({ error: 'Felaktigt namn eller PIN-kod', attempts_remaining: null });
+      return res.status(401).json({
+        error: 'Felaktigt namn eller PIN-kod',
+        code: 'CHILD_PIN_INVALID',
+        attempts_remaining: null,
+      });
     }
 
     // ── Check existing lockout (DB-based, child_id scoped) ──────────────
@@ -107,9 +115,11 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
         .status(429)
         .json({
           error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+          code: 'CHILD_PIN_LOCKED',
           locked: true,
           retry_after: lockoutStatus.retry_after_seconds,
           locked_until: lockoutStatus.locked_until,
+          lockout_minutes: minutes,
         });
     }
 
@@ -188,9 +198,11 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
           .status(429)
           .json({
             error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+            code: 'CHILD_PIN_LOCKED',
             locked: true,
             retry_after: minutes * 60,
             locked_until: updated.locked_until,
+            lockout_minutes: minutes,
           });
       }
 
@@ -206,6 +218,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
 
       return res.status(401).json({
         error: warningMessage,
+        code: 'CHILD_PIN_INVALID',
         attempts_remaining: attemptsRemaining,
         attempt_count: attemptCount,
         max_attempts: pinLockout.MAX_ATTEMPTS,
@@ -323,7 +336,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
 
   } catch (err) {
     console.error('[AUTH] Child login error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.', code: 'CHILD_SERVER_ERROR' });
   }
 });
 module.exports = router;

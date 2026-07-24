@@ -21,6 +21,52 @@ let MAX_ATTEMPTS = 5;
 let lockoutEndTime = null;
 let countdownInterval = null;
 
+function tx(key, params) {
+  if (typeof window.cpt === 'function' && window.I18n) {
+    var fullKey = 'child.' + key;
+    var value = I18n.t(fullKey, params || {});
+    if (value && value !== fullKey) return value;
+  }
+  return '';
+}
+
+function localizeLoginError(data) {
+  if (typeof window.childLoginErrorFromResponse === 'function') {
+    return childLoginErrorFromResponse(data || {});
+  }
+  return (data && data.error) || tx('errors.serverError');
+}
+
+async function bootstrapChildLoginI18n() {
+  if (typeof window.initChildAppI18n !== 'function') return;
+  try {
+    var res = await fetch('/api/auth/login-picker-children', { credentials: 'same-origin' });
+    var ctx = res.ok ? await res.json() : {};
+    await initChildAppI18n({
+      preferredLocale: ctx.child_ui_locale || ctx.preferred_locale,
+      englishChildEnabled: ctx.english_child_experience_enabled,
+    });
+  } catch (_) {
+    await initChildAppI18n({});
+  }
+}
+
+function applyChildLoginStaticCopy() {
+  updateProfileStepCopy(lastMergedChildren.length || 1);
+  var lockMsg = document.querySelector('.cl-lockout-msg');
+  if (lockMsg) lockMsg.textContent = tx('login.lockoutWait');
+  var pinSub = document.querySelector('.cl-pin-sub');
+  if (pinSub) pinSub.textContent = tx('login.pinSub');
+  var successMsg = document.querySelector('.cl-success-msg');
+  if (successMsg) successMsg.textContent = tx('login.welcome');
+  var pinDots = document.getElementById('clPinDots');
+  if (pinDots) pinDots.setAttribute('aria-label', tx('login.pinDotsAria'));
+  var keypad = document.getElementById('clKeypad');
+  if (keypad) keypad.setAttribute('aria-label', tx('login.keypadAria'));
+  var manualInput = document.getElementById('clManualNameInput');
+  if (manualInput) manualInput.placeholder = tx('login.namePlaceholder');
+}
+
 // ── Avatar rendering helper (same as dom-utils.js) ──────────────────────────
 function renderClChildAvatar(child, size) {
   if (typeof window.renderChildAvatar === 'function') {
@@ -74,11 +120,11 @@ function updateProfileStepCopy(childCount) {
   const sub = document.getElementById('clSelectSub');
   if (!title || !sub) return;
   if (childCount > 1) {
-    title.textContent = 'Vem är du?';
-    sub.textContent = 'Välj din profil och skriv din PIN-kod.';
+    title.textContent = tx('login.whoAreYou');
+    sub.textContent = tx('login.selectProfile');
   } else {
-    title.textContent = 'Välj vem du är';
-    sub.textContent = 'Välj din profil och skriv din PIN-kod.';
+    title.textContent = tx('login.whoAreYouSingle');
+    sub.textContent = tx('login.selectProfile');
   }
   const notMeRow = document.getElementById('clNotMeRow');
   if (notMeRow) notMeRow.classList.toggle('hidden', childCount === 0);
@@ -121,8 +167,8 @@ window.showNotMeProfile = function () {
   if (notMeRow) notMeRow.classList.add('hidden');
   const title = document.getElementById('clSelectTitle');
   const sub = document.getElementById('clSelectSub');
-  if (title) title.textContent = 'Logga in som barn';
-  if (sub) sub.textContent = 'Skriv ditt namn och din hemliga PIN-kod.';
+  if (title) title.textContent = tx('login.loginAsChild');
+  if (sub) sub.textContent = tx('login.namePinLead');
   showExistingChildForm();
   try { sessionStorage.setItem('child_login_mode', 'name_pin'); } catch (_) { /* ignore */ }
   trackChildEntry('child_profile_not_found_clicked');
@@ -339,7 +385,7 @@ window.selectChild = function(username, opts) {
   document.getElementById('clStepPin').classList.add('active');
 
   // Update greeting + avatar
-  document.getElementById('clPinGreeting').textContent = 'Hej ' + child.name + '!';
+  document.getElementById('clPinGreeting').textContent = tx('login.pinGreeting', { name: child.name });
   document.getElementById('clPinAvatar').innerHTML = renderClChildAvatar(child, 100);
 
   // Clear PIN
@@ -818,9 +864,9 @@ function showLockout(retryAfterSeconds, lockedUntilIso) {
     const secs = rem % 60;
     const sub = document.getElementById('clLockoutSub');
     if (sub) {
-      sub.textContent = rem > 60
-        ? `Försök igen om ${mins} minut${mins !== 1 ? 'er' : ''}`
-        : `Bara ${secs} sekunder kvar!`;
+      sub.textContent = typeof window.childLockoutCountdownText === 'function'
+        ? childLockoutCountdownText(rem)
+        : '';
     }
     if (rem <= 0) {
       clearCountdown();
@@ -908,7 +954,7 @@ async function submitLogin() {
         renderAttemptDots(data.attempts_remaining, data.max_attempts);
       }
       const icon = data.attempts_remaining === 1 ? '😬' : data.attempts_remaining === 0 ? '🔒' : '⚠️';
-      showError(data.error || 'Något gick fel', icon);
+      showError(localizeLoginError(data));
       trackChildEntry('child_login_failed', { reason: data.error || 'invalid_credentials' });
       pinDigits = [];
       renderPinDots();
@@ -1117,13 +1163,13 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
           document.body.removeChild(overlay);
           onSuccess();
         } else {
-          msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+          msgEl.textContent = tx('errors.parentPinInvalid');
           entered = '';
           updateDots();
           buildKeypad();
         }
       }).catch(function () {
-        msgEl.textContent = 'Något gick fel — försök igen';
+        msgEl.textContent = tx('errors.serverError');
         entered = '';
         updateDots();
         buildKeypad();
@@ -1164,7 +1210,7 @@ window.handleManualName = function(e) {
   // Show PIN step
   document.getElementById('clStepProfiles').classList.remove('active');
   document.getElementById('clStepPin').classList.add('active');
-  document.getElementById('clPinGreeting').textContent = 'Hej ' + name + '!';
+  document.getElementById('clPinGreeting').textContent = tx('login.pinGreeting', { name: name });
   document.getElementById('clPinAvatar').innerHTML = '<span>⭐</span>';
   pinDigits = [];
   renderPinDots();
@@ -1197,7 +1243,14 @@ function escapeJs(str) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await bootstrapChildLoginI18n();
+  document.addEventListener('child-i18n-ready', function () {
+    if (window.I18n) I18n.apply();
+    applyChildLoginStaticCopy();
+  });
+  applyChildLoginStaticCopy();
+
   // Fresh load — clear name_pin flag so picker mode is reported correctly on revisit.
   try { sessionStorage.removeItem('child_login_mode'); } catch (_) { /* ignore */ }
 

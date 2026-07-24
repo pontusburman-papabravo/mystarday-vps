@@ -38,9 +38,9 @@
 
     // Check each milestone threshold
     const milestones = [
-      { pct: 25, message: 'Bra jobbat! Första steget! 🌟', emoji: '🌟', delay: 100 },
-      { pct: 50, message: 'Halvvägs! Du är fantastisk! 🎉', emoji: '🎉', delay: 100 },
-      { pct: 75, message: ' Nästan där! Bra fortsatt! 🔥', emoji: '🔥', delay: 100 },
+      { pct: 25, message: (typeof window.cpt === 'function' ? cpt('celebration.milestone25') : 'Bra jobbat! Första steget! 🌟'), emoji: '🌟', delay: 100 },
+      { pct: 50, message: (typeof window.cpt === 'function' ? cpt('celebration.milestone50') : 'Halvvägs! Du är fantastisk! 🎉'), emoji: '🎉', delay: 100 },
+      { pct: 75, message: (typeof window.cpt === 'function' ? cpt('celebration.milestone75') : 'Nästan klart! 🚀'), emoji: '🚀', delay: 100 },
     ];
 
     for (const m of milestones) {
