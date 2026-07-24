@@ -74,13 +74,13 @@ describe('barnets_samling nav — #588', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
     assert.match(src, /ChildSamlingPresent/);
     assert.match(src, /bsp-hero-panel/);
-    assert.match(src, /Stjärnmedaljer/);
-    assert.match(src, /Trofévägg/);
-    assert.match(src, /Dagar i rad/);
-    assert.match(src, /Mina minneskort/);
-    assert.match(src, /Min belöningshylla/);
-    assert.match(src, /Diplom/);
-    assert.match(src, /Min årsbok/);
+    assert.match(src, /samling\.medals/);
+    assert.match(src, /samling\.trophyWall/);
+    assert.match(src, /samling\.streakTitle/);
+    assert.match(src, /samling\.memoryCards/);
+    assert.match(src, /samling\.rewardShelf/);
+    assert.match(src, /samling\.diplomas/);
+    assert.match(src, /samling\.yearbook/);
     assert.doesNotMatch(src, /ChildCollections/);
     assert.doesNotMatch(src, /star_cost/);
   });
@@ -88,8 +88,8 @@ describe('barnets_samling nav — #588', () => {
   it('child-samling-present B2 uses lifetime_stars not spendable saldo (#616)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
     assert.match(src, /lifetime_stars/);
-    assert.match(src, /Totalt har du tjänat/);
-    assert.match(src, /De här stjärnorna visar allt du har klarat/);
+    assert.match(src, /samling\.starGlassMany/);
+    assert.match(src, /samling\.glassLeadFilled/);
     assert.match(src, /STAR_MEDALS/);
     assert.doesNotMatch(src, /starBalance/);
     assert.doesNotMatch(src, /\/api\/me\/rewards/);
@@ -112,7 +112,7 @@ describe('barnets_samling nav — #588', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-present.js'), 'utf8');
     assert.match(src, /stats\.streak/);
     assert.match(src, /bsp-streak-chain/);
-    assert.match(src, /Här växer din kedja när du är aktiv/);
+    assert.match(src, /samling\.streakEmptyLead/);
     assert.match(src, /STREAK_GOLD_DAYS/);
     assert.doesNotMatch(src, /bruten/i);
     assert.doesNotMatch(src, /förlor/i);

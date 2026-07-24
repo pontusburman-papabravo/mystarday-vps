@@ -69,8 +69,8 @@ describe('child-theme-picker — UI and config', () => {
   it('picker uses dedicated visual-theme endpoint', () => {
     const src = read('public/js/child-theme-picker.js');
     assert.match(src, /\/visual-theme/);
-    assert.match(src, /Använd tema/);
-    assert.match(src, /Avbryt/);
+    assert.match(src, /settings\.themePickerUse/);
+    assert.match(src, /common\.cancel/);
     assert.doesNotMatch(src, /house_config/);
   });
 

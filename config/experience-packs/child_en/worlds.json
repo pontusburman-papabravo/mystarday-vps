@@ -3,80 +3,80 @@
   "worlds": [
     {
       "world_slug": "routine_home",
-      "display_name_sv": "Morgonhuset",
-      "first_unlock_message": "Morgonhuset väntar på dig",
+      "display_name_sv": "Morning House",
+      "first_unlock_message": "Morning House is waiting for you",
       "unlock_feedback": {
         "routine_home_welcome_mat": {
-          "child_message": "Morgonhuset känner att du kom.",
+          "child_message": "Morning House knows you are here.",
           "visual_token": "welcome_mat_glow"
         },
         "routine_home_first_light": {
-          "child_message": "Ett mjukt ljus tänds.",
+          "child_message": "A soft light turns on.",
           "visual_token": "morning_light_warm"
         }
       },
       "ambient_props": [
         {
           "prop_id": "door",
-          "label_sv": "Dörren",
+          "label_sv": "The door",
           "always_active": true,
-          "ambient_message_sv": "Dörren skakar lite — som om någon väntar därute.",
+          "ambient_message_sv": "The door shakes a little — like someone is waiting outside.",
           "gate_to_world": "garden",
-          "gate_message_sv": "Utanför väntar trädgården…",
+          "gate_message_sv": "Outside, the garden is waiting…",
           "gate_feature_slug": "garden_playable"
         }
       ]
     },
     {
       "world_slug": "garden",
-      "display_name_sv": "Trädgården",
-      "first_unlock_message": "Trädgården väntar på dig",
-      "ambient_message_sv": "Gräset rör sig långsamt i brisen.",
+      "display_name_sv": "The Garden",
+      "first_unlock_message": "The garden is waiting for you",
+      "ambient_message_sv": "The grass moves slowly in the breeze.",
       "ambient_scenery": [
         {
           "scenery_id": "garden_path",
-          "label_sv": "Stigen",
+          "label_sv": "The path",
           "emoji": "🌿",
-          "ambient_message_sv": "Stigen leder längre in i trädgården.",
+          "ambient_message_sv": "The path leads deeper into the garden.",
           "hotspot_class": "gd-hotspot--path",
           "gate_to_world": "memory_hall",
-          "gate_message_sv": "Stigen leder till ett varmt rum fullt av minnen…",
+          "gate_message_sv": "The path leads to a warm room full of memories…",
           "gate_feature_slug": "memory_hall_playable"
         },
         {
           "scenery_id": "garden_bed",
-          "label_sv": "Blomsterbädden",
+          "label_sv": "Flower bed",
           "emoji": "🪴",
-          "ambient_message_sv": "Jorden känns mjuk och varm under fingrarna.",
+          "ambient_message_sv": "The soil feels soft and warm.",
           "hotspot_class": "gd-hotspot--bed",
           "living_slot_id": "bed_1"
         },
         {
           "scenery_id": "garden_sky",
-          "label_sv": "Himlen",
+          "label_sv": "The sky",
           "emoji": "☁️",
-          "ambient_message_sv": "Molnen rör sig långsamt.",
+          "ambient_message_sv": "Clouds move slowly.",
           "hotspot_class": "gd-hotspot--sky"
         }
       ]
     },
     {
       "world_slug": "memory_hall",
-      "display_name_sv": "Minnesrummet",
-      "first_unlock_message": "Här finns det du varit stolt över.",
-      "ambient_message_sv": "Det känns varmt och tryggt här.",
+      "display_name_sv": "Memory Room",
+      "first_unlock_message": "Here is what you have been proud of.",
+      "ambient_message_sv": "It feels warm and safe here.",
       "ambient_scenery": [
         {
           "scenery_id": "memory_hall_window",
-          "label_sv": "Fönstret",
+          "label_sv": "The window",
           "hotspot_class": "mu-hotspot--window",
-          "ambient_message_sv": "Ljuset faller mjukt in."
+          "ambient_message_sv": "Light falls in softly."
         },
         {
           "scenery_id": "memory_hall_wall",
-          "label_sv": "Minnesväggen",
+          "label_sv": "Memory wall",
           "hotspot_class": "mu-hotspot--wall",
-          "ambient_message_sv": "Här hänger det som betyder något för dig."
+          "ambient_message_sv": "Here hangs what matters to you."
         }
       ]
     }

@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
 const ROOT = path.join(__dirname, '..');
 const REWARDS_SRC = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-rewards.js'), 'utf8');
@@ -22,6 +23,7 @@ function loadSkattState() {
     Auth: { api: async function () { return {}; } },
     rewardsLoaded: false,
   };
+  installChildI18nVm(context, 'sv-SE');
   vm.runInNewContext(REWARDS_SRC, context);
   return {
     resolveSkattState: context.window.resolveSkattState,

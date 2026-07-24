@@ -65,11 +65,11 @@ describe('barnets_samling Min samling copy — #619', () => {
     /ChildCollections/,
   ];
 
-  const REQUIRED = [
-    'Titta vad du har samlat',
-    'Här kommer dina medaljer att synas',
-    'Här växer din kedja när du är aktiv',
-    'Ditt stjärnglas fylls när du samlar stjärnor',
+  const REQUIRED_KEYS = [
+    'samling.subtitle',
+    'samling.wallEmptyLead',
+    'samling.streakEmptyLead',
+    'samling.starGlassEmpty',
   ];
 
   it('child-samling-present avoids shame/shop copy', () => {
@@ -77,14 +77,14 @@ describe('barnets_samling Min samling copy — #619', () => {
     FORBIDDEN.forEach(function (pattern) {
       assert.doesNotMatch(src, pattern, 'forbidden pattern: ' + pattern);
     });
-    REQUIRED.forEach(function (phrase) {
-      assert.ok(src.includes(phrase), 'missing required phrase: ' + phrase);
+    REQUIRED_KEYS.forEach(function (key) {
+      assert.match(src, new RegExp("t\\('" + key.replace('.', '\\.') + "'\\)"), 'missing locale key: ' + key);
     });
   });
 
   it('child-samling-view fallback copy is neutral', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-samling-view.js'), 'utf8');
-    assert.match(src, /Ett ögonblick/);
+    assert.match(src, /samling\.loading/);
     assert.doesNotMatch(src, /du har inga/i);
     assert.doesNotMatch(src, /ChildCollections/);
   });

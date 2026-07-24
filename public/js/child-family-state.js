@@ -29,7 +29,9 @@
         hasAvatar: !!p.has_avatar,
         kind: 'parent',
         familyRole: p.family_role || null,
-        roleLabel: p.roleLabel || 'Hjälper mig hemma',
+        roleLabel: p.roleLabel || (typeof window.childT === 'function'
+          ? childT('family.roles.home_helper')
+          : 'Hjälper mig hemma'),
         away: !!p.away,
         awayLabel: p.awayLabel || p.away_label || '',
       });
@@ -57,7 +59,9 @@
         avatarUrl: p.avatar_src || p.avatarUrl || '',
         hasAvatar: !!p.has_avatar,
         kind: 'pedagog',
-        roleLabel: p.roleLabel || 'Hjälper mig i skolan',
+        roleLabel: p.roleLabel || (typeof window.childT === 'function'
+          ? childT('family.roles.school_helper')
+          : 'Hjälper mig i skolan'),
         away: !!p.away,
         awayLabel: p.awayLabel || p.away_label || '',
       });

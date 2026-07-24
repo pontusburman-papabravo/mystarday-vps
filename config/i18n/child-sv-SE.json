@@ -47,6 +47,10 @@
     "myCollection": "Min samling",
     "treasureChest": "Skattkammaren",
     "mySpace": "Mitt",
+    "backToCollection": "Tillbaka till Min samling",
+    "backToWorld": "Tillbaka till Min värld",
+    "worldHubSubcopySamling": "Vad vill du göra här?",
+    "worldHubSubcopyLegacy": "Vad vill du göra i din värld?",
     "parent": "Förälder",
     "parentAria": "Förälder — kräver PIN",
     "switchChild": "Byt barn",
@@ -334,7 +338,32 @@
     "shelfEmptyHint": "Hylla växer fram när du sparat ihop till något.",
     "shelfLead": "Belöningar jag har sparat ihop till.",
     "yearbookEmptyLead": "Här kommer månadsuppslag när du samlat minnen under året.",
-    "yearbookLead": "Bläddra mellan månaderna — ett uppslag i taget."
+    "yearbookLead": "Bläddra mellan månaderna — ett uppslag i taget.",
+    "memoryCards": "Mina minneskort",
+    "memoryEmptyLead": "Här kommer minnen från belöningar du har sparat ihop till.",
+    "memoryEmptyHint": "När du löser in något i 🎁 Skattkammaren dyker det upp här.",
+    "memoryLead": "Saker jag har sparat ihop till.",
+    "memoryCardDefault": "Minneskort",
+    "memorySavedTag": "Sparad som minne",
+    "memoryNote": "Det här klarade du.",
+    "shelfAria": "Belöningshylla med {{count}} föremål",
+    "previewOverview": "Överblick",
+    "previewTrophies": "{{count}} troféer",
+    "previewMemories": "{{count}} minnen",
+    "previewStreakDays": "{{count}} dagar",
+    "streakTitle": "Dagar i rad",
+    "streakEmptyLead": "Här växer din kedja när du är aktiv.",
+    "streakHint": "Varje dag du gör något i ☀️ Idag kan lägga till en länk.",
+    "streakOne": "Du har varit aktiv 1 dag i rad",
+    "streakMany": "Du har varit aktiv {{count}} dagar i rad",
+    "streakGold": "Din kedja lyser guld.",
+    "diplomas": "Diplom",
+    "diplomaEmptyLead": "Här kommer diplom när du samlat fina minnen.",
+    "diplomaEmptyHint": "Utmärkelser för saker du har klarat — inget att stressa över.",
+    "diplomaLead": "Utmärkelser för saker du har klarat.",
+    "trophyDefault": "Trofé",
+    "trophyCountAria": "{{count}} troféer",
+    "yearbookAria": "Årsbok {{year}}"
   },
   "family": {
     "helpers": "De som hjälper mig",
@@ -370,7 +399,9 @@
       "shared": "Förälder",
       "pedagog": "Pedagog",
       "sibling": "Syskon",
-      "other": "Familjemedlem"
+      "other": "Familjemedlem",
+      "home_helper": "Hjälper mig hemma",
+      "school_helper": "Hjälper mig i skolan"
     }
   },
   "settings": {
@@ -404,6 +435,9 @@
     "cardSizeLead": "Välj hur stora aktivitetsbilderna ska vara på ☀️ Idag. Texten finns kvar under bilden.",
     "cardSizeSave": "Spara kortstorlek",
     "cardSizeSaveFailed": "Kortstorleken kunde inte sparas. Försök igen.",
-    "cardSizePickAria": "Välj kortstorlek"
+    "cardSizePickAria": "Välj kortstorlek",
+    "cardSizeStandard": "Vanliga kort",
+    "cardSizeLarge": "Stora bilder",
+    "themeEntryKicker": "Mitt tema"
   }
 }

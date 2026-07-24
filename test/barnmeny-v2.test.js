@@ -14,7 +14,7 @@ describe('barnmeny v2 — Sprint 0 config', () => {
     assert.match(src, /LEGACY_WORLDS/);
     assert.match(src, /SAMLING_WORLDS/);
     assert.match(src, /activeChildNavItem/);
-    assert.match(src, /Mina personer/);
+    assert.match(src, /nav\.myPeople/);
     assert.doesNotMatch(src, /id: 'more'/);
   });
 

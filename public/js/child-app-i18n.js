@@ -78,7 +78,12 @@
 
   function childPlural(key, count, params) {
     if (!window.I18n) return key;
-    return I18n.plural('child.' + key, count, params || {});
+    const nested = I18n.plural('child.' + key, count, params || {});
+    if (nested && nested !== 'child.' + key + '.one' && nested !== 'child.' + key + '.other') {
+      return nested;
+    }
+    const suffix = Number(count) === 1 ? 'one' : 'other';
+    return I18n.t('child.' + key + '_' + suffix, Object.assign({ count: count }, params || {}));
   }
 
   function childLoginErrorFromResponse(data) {

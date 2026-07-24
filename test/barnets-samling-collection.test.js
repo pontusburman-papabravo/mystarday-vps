@@ -11,6 +11,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
 const ROOT = path.join(__dirname, '..');
 const PRESENT_PATH = path.join(ROOT, 'public/js/child-samling-present.js');
@@ -52,6 +53,7 @@ function read(file) {
       },
     },
   };
+  installChildI18nVm(context, 'sv-SE');
   vm.runInNewContext(read(PRESENT_PATH), context);
   return context.window.ChildSamlingPresent;
 }
@@ -158,6 +160,7 @@ describe('#620 Fas B — Min samling render (gate ON presentation)', () => {
       window: { escHtml: function (s) { return String(s == null ? '' : s); } },
       document: root,
     };
+    installChildI18nVm(context, 'sv-SE');
     vm.runInNewContext(read(PRESENT_PATH), context);
     context.window.ChildSamlingPresent.bindInteractions(root);
     cardClick({ stopPropagation: function () {} });

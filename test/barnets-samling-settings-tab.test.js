@@ -38,7 +38,7 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.match(src, /id: 'dark_mode'/);
     assert.match(src, /id: 'logout'/);
     assert.match(src, /data-child-action="/);
-    assert.match(src, /Vill du logga ut\?/);
+    assert.match(src, /settings\.logoutConfirm/);
     assert.match(src, /data-parent-action="/);
     assert.match(src, /id: 'switch_child'/);
     assert.match(src, /ParentalGate\.requireParentMode/);

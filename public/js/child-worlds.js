@@ -127,12 +127,20 @@
   }
 
   /** Barn-UI: legacy hub-flik (gate av) vs samling (gate på). */
+  function navCopy(key, fallback) {
+    return (typeof window.cpt === 'function') ? cpt(key) : fallback;
+  }
+
   function worldTabLabel() {
-    return _barnetsSamling ? 'Min samling' : 'Min värld';
+    return _barnetsSamling
+      ? navCopy('nav.myCollection', 'Min samling')
+      : navCopy('nav.myWorld', 'Min värld');
   }
 
   function worldBackLabel() {
-    return _barnetsSamling ? 'Tillbaka till Min samling' : 'Tillbaka till Min värld';
+    return _barnetsSamling
+      ? navCopy('nav.backToCollection', 'Tillbaka till Min samling')
+      : navCopy('nav.backToWorld', 'Tillbaka till Min värld');
   }
 
   function worldBackShort() {
@@ -141,8 +149,8 @@
 
   function worldHubSubcopy() {
     return _barnetsSamling
-      ? 'Vad vill du göra här?'
-      : 'Vad vill du göra i din värld?';
+      ? navCopy('nav.worldHubSubcopySamling', 'Vad vill du göra här?')
+      : navCopy('nav.worldHubSubcopyLegacy', 'Vad vill du göra i din värld?');
   }
 
   function analyticsNavMode() {

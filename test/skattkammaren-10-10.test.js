@@ -40,9 +40,9 @@ describe('Skattkammaren barn 10/10', () => {
   it('uses hero with star count and goal progress (Olle-test)', () => {
     const src = fs.readFileSync(REWARDS, 'utf8');
     assert.match(src, /skatt-hero-v10/);
-    assert.match(src, /stjärnor samlade/);
+    assert.match(src, /rewards\.starsCollected/);
     assert.match(src, /skatt-hero-progress-fill/);
-    assert.match(src, /Stjärnburken/);
+    assert.match(src, /rewards\.starJar/);
   });
 
   it('has exclusive resolveSkattState as single truth source', () => {
@@ -56,7 +56,7 @@ describe('Skattkammaren barn 10/10', () => {
   it('has at most one primary CTA pattern', () => {
     const src = fs.readFileSync(REWARDS, 'utf8');
     assert.match(src, /skatt-primary-cta/);
-    assert.match(src, /Fråga om att lösa in/);
+    assert.match(src, /rewards\.askToRedeem/);
     assert.doesNotMatch(src, /Du har råd nu!/);
     assert.doesNotMatch(src, /skatt-reward-grid/);
   });
@@ -65,7 +65,7 @@ describe('Skattkammaren barn 10/10', () => {
     const src = fs.readFileSync(REWARDS, 'utf8');
     assert.match(src, /skatt-reward-list/);
     assert.match(src, /skatt-reward-row/);
-    assert.match(src, />Klar!</);
+    assert.match(src, /rewards\.statusReady/);
     assert.match(src, /sortRewardsForList/);
   });
 
@@ -78,7 +78,7 @@ describe('Skattkammaren barn 10/10', () => {
   it('keeps kind denied copy', () => {
     const src = fs.readFileSync(REWARDS, 'utf8');
     assert.match(src, /deniedRecent/);
-    assert.match(src, /Inte den här gången/);
+    assert.match(src, /rewards\.notThisTime/);
   });
 
   it('SW bumped for Skattkammaren 10/10', () => {

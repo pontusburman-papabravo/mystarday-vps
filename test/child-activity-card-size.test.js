@@ -126,7 +126,7 @@ describe('child-activity-card-size — UI wiring', () => {
   it('picker uses dedicated activity-card-size endpoint', () => {
     const src = read('public/js/child-activity-card-size-picker.js');
     assert.match(src, /\/activity-card-size/);
-    assert.match(src, /Spara kortstorlek/);
+    assert.match(src, /settings\.cardSizeSave/);
     assert.match(src, /revertToSaved/);
   });
 });

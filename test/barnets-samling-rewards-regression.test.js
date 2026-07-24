@@ -11,6 +11,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
 const ROOT = path.join(__dirname, '..');
 const REWARDS_PATH = path.join(ROOT, 'public/js/child-dashboard-rewards.js');
@@ -68,6 +69,7 @@ function loadRewardsRuntime(presentOpts) {
   };
   context.window.escHtml = context.escHtml;
   context.window.me = context.me;
+  installChildI18nVm(context, 'sv-SE');
   vm.runInNewContext(read(REWARDS_PATH), context);
   if (presentOpts.loadPresent !== false) {
     vm.runInNewContext(read(PRESENT_PATH), context);
@@ -310,6 +312,7 @@ describe('#592 reward flow regression — requestRedeem side effects', () => {
       showToast: function () {},
       document: { getElementById: function () { return null; } },
     };
+    installChildI18nVm(context, 'sv-SE');
     vm.runInNewContext(read(REWARDS_PATH), context);
     try {
       await context.window.requestRedeem(GOAL_ID);

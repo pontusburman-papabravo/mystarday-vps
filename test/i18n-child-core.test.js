@@ -62,9 +62,11 @@ describe('i18n child core', () => {
     assert.match(src, /cpt\('nav\.ariaLabel'\)/);
   });
 
-  it('child celebrations use localized milestone copy', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard-celebrations.js'), 'utf8');
-    assert.match(src, /cpt\('celebration\.milestone25'\)/);
-    assert.match(src, /cpt\('celebration\.milestone50'\)/);
+  it('child samling locale keys exist in both bundles', () => {
+    const i18n = require('../src/lib/i18n');
+    i18n.loadLocales();
+    assert.equal(i18n.t('sv-SE', 'child.samling.title'), 'Min samling');
+    assert.equal(i18n.t('en-GB', 'child.samling.title'), 'My collection');
+    assert.match(i18n.t('en-GB', 'child.treasure.starsToUse_other'), /stars to use/);
   });
 });

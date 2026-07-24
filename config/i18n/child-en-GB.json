@@ -47,6 +47,10 @@
     "myCollection": "My collection",
     "treasureChest": "Treasure Chest",
     "mySpace": "My space",
+    "backToCollection": "Back to My collection",
+    "backToWorld": "Back to My world",
+    "worldHubSubcopySamling": "What do you want to do here?",
+    "worldHubSubcopyLegacy": "What do you want to do in your world?",
     "parent": "Grown-up",
     "parentAria": "Grown-up — PIN required",
     "switchChild": "Switch child",
@@ -334,7 +338,32 @@
     "shelfEmptyHint": "The shelf grows when you save up for something.",
     "shelfLead": "Rewards I have saved up for.",
     "yearbookEmptyLead": "Monthly spreads will appear here when you collect memories during the year.",
-    "yearbookLead": "Flip between the months — one spread at a time."
+    "yearbookLead": "Flip between the months — one spread at a time.",
+    "memoryCards": "My memory cards",
+    "memoryEmptyLead": "Memories from rewards you saved up for will show up here.",
+    "memoryEmptyHint": "When you redeem something in 🎁 Treasure Chest, it appears here.",
+    "memoryLead": "Things I saved up for.",
+    "memoryCardDefault": "Memory card",
+    "memorySavedTag": "Saved as a memory",
+    "memoryNote": "You did this.",
+    "shelfAria": "Reward shelf with {{count}} items",
+    "previewOverview": "Overview",
+    "previewTrophies": "{{count}} trophies",
+    "previewMemories": "{{count}} memories",
+    "previewStreakDays": "{{count}} days",
+    "streakTitle": "Days in a row",
+    "streakEmptyLead": "Your chain grows here when you are active.",
+    "streakHint": "Each day you do something in ☀️ Today can add another link.",
+    "streakOne": "You have been active 1 day in a row",
+    "streakMany": "You have been active {{count}} days in a row",
+    "streakGold": "Your chain shines gold.",
+    "diplomas": "Diplomas",
+    "diplomaEmptyLead": "Diplomas will appear here when you collect lovely memories.",
+    "diplomaEmptyHint": "Awards for things you completed — nothing to stress about.",
+    "diplomaLead": "Awards for things you completed.",
+    "trophyDefault": "Trophy",
+    "trophyCountAria": "{{count}} trophies",
+    "yearbookAria": "Yearbook {{year}}"
   },
   "family": {
     "helpers": "People who help me",
@@ -370,7 +399,9 @@
       "shared": "Grown-up",
       "pedagog": "Educator",
       "sibling": "Sibling",
-      "other": "Family member"
+      "other": "Family member",
+      "home_helper": "Helps me at home",
+      "school_helper": "Helps me at school"
     }
   },
   "settings": {
@@ -404,6 +435,9 @@
     "cardSizeLead": "Choose how big activity pictures are on ☀️ Today. Text stays below the image.",
     "cardSizeSave": "Save card size",
     "cardSizeSaveFailed": "Could not save card size. Try again.",
-    "cardSizePickAria": "Choose card size"
+    "cardSizePickAria": "Choose card size",
+    "cardSizeStandard": "Regular cards",
+    "cardSizeLarge": "Big pictures",
+    "themeEntryKicker": "My theme"
   }
 }
