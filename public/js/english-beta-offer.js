@@ -84,7 +84,7 @@
 
   async function handleAction(action, overlay) {
     try {
-      const res = await Auth.api('/api/family/english-beta-offer', {
+      await Auth.api('/api/family/english-beta-offer', {
         method: 'POST',
         body: JSON.stringify({ action }),
       });

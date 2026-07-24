@@ -105,6 +105,18 @@ function marketClosedCode(countryCode) {
   return 'MARKET_OTHER_CLOSED';
 }
 
+const MARKET_CLOSED_MESSAGES = Object.freeze({
+  MARKET_SE_CLOSED: 'Registrering från Sverige är tillfälligt stängd.',
+  MARKET_EU_CLOSED: 'My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.',
+  MARKET_UK_CLOSED: 'My Starday is not available in the United Kingdom yet.',
+  MARKET_US_CLOSED: 'My Starday is not available in the United States yet.',
+  MARKET_OTHER_CLOSED: 'My Starday is not available in your country yet.',
+});
+
+function marketClosedMessage(code) {
+  return MARKET_CLOSED_MESSAGES[code] || MARKET_CLOSED_MESSAGES.MARKET_OTHER_CLOSED;
+}
+
 function resolveRegistrationCountry({
   countryCodeRaw,
   localeExplicitlyChosen = false,
@@ -134,5 +146,6 @@ module.exports = {
   gateKeyForCountry,
   isMarketOpenForRegistration,
   marketClosedCode,
+  marketClosedMessage,
   resolveRegistrationCountry,
 };
