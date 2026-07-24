@@ -402,6 +402,17 @@
       "other": "Familjemedlem",
       "home_helper": "Hjälper mig hemma",
       "school_helper": "Hjälper mig i skolan"
+    },
+    "state": {
+      "warmTogether": "Vi gjorde något tillsammans ✨",
+      "allStillHere": "Alla finns kvar här",
+      "stillHere": "Finns kvar här",
+      "nameStillHere": "{{name}} finns kvar här",
+      "rightNow": "Just nu: {{note}}",
+      "weBelong": "Vi hör ihop",
+      "someoneHere": "Du har någon här",
+      "growingCircle": "Här visas de som hjälper dig",
+      "otherParent": "hos den andra föräldern just nu"
     }
   },
   "settings": {

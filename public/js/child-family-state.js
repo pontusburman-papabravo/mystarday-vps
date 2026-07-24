@@ -15,6 +15,14 @@
   /** Align with Skattkammaren completed flash (G-04). */
   const WARM_MOMENT_MS = 2000;
 
+  function familyCopy(key, fallback, params) {
+    if (typeof window.childT === 'function') {
+      return childT('family.' + key, params || {});
+    }
+    if (typeof fallback === 'function') return fallback(params || {});
+    return fallback;
+  }
+
   function flattenPersons(persons) {
     if (!persons) return [];
     const list = [];
@@ -46,7 +54,7 @@
         avatarUrl: s.avatar_src || s.avatarUrl || '',
         hasAvatar: !!s.has_avatar,
         kind: 'sibling',
-        roleLabel: s.roleLabel || 'Syskon',
+        roleLabel: s.roleLabel || familyCopy('roles.sibling', 'Syskon'),
         away: false,
         awayLabel: '',
       });
@@ -79,19 +87,19 @@
     if (!label) return '';
     const s = String(label).trim();
     if (/borta|saknas|frånvarande|lämnad|övergiven|ensam/i.test(s)) {
-      return 'hos den andra föräldern just nu';
+      return familyCopy('state.otherParent', 'hos den andra föräldern just nu');
     }
     return s;
   }
 
   function awayCardNote(person) {
     const soft = softenAwayLabel(person.awayLabel);
-    if (!soft) return 'Finns kvar här';
-    return 'Just nu: ' + soft;
+    if (!soft) return familyCopy('state.stillHere', 'Finns kvar här');
+    return familyCopy('state.rightNow', 'Just nu: ' + soft, { note: soft });
   }
 
   function awayHeroStatus() {
-    return 'Alla finns kvar här';
+    return familyCopy('state.allStillHere', 'Alla finns kvar här');
   }
 
   function latestWarmStory(story, now) {
@@ -113,7 +121,7 @@
   function togetherLineFromData(data, persons) {
     const story = data && data.story;
     if (story && story.length && story[0].text) return story[0].text;
-    if (persons.length > 1) return 'Vi hör ihop';
+    if (persons.length > 1) return familyCopy('state.weBelong', 'Vi hör ihop');
     return '';
   }
 
@@ -147,7 +155,7 @@
     if (warmStory) {
       return Object.assign({}, base, {
         state: FAMILY_STATES.WARM_MOMENT,
-        statusLine: 'Vi gjorde något tillsammans ✨',
+        statusLine: familyCopy('state.warmTogether', 'Vi gjorde något tillsammans ✨'),
         warmText: warmStory.text,
         togetherLine: warmStory.text,
       });
@@ -159,8 +167,8 @@
         state: FAMILY_STATES.AWAY,
         statusLine: awayHeroStatus(),
         togetherLine: firstName(awayPerson.name)
-          ? firstName(awayPerson.name) + ' finns kvar här'
-          : 'Finns kvar här',
+          ? familyCopy('state.nameStillHere', firstName(awayPerson.name) + ' finns kvar här', { name: firstName(awayPerson.name) })
+          : familyCopy('state.stillHere', 'Finns kvar här'),
         highlightPersonKey: awayPerson.key,
         awayNote: note,
       });
@@ -169,13 +177,13 @@
     if (personCount > 0) {
       return Object.assign({}, base, {
         state: FAMILY_STATES.TOGETHER,
-        statusLine: personCount === 1 ? 'Du har någon här' : '',
+        statusLine: personCount === 1 ? familyCopy('state.someoneHere', 'Du har någon här') : '',
       });
     }
 
     return Object.assign({}, base, {
       state: FAMILY_STATES.GROWING_CIRCLE,
-      statusLine: 'Här visas de som hjälper dig',
+      statusLine: familyCopy('state.growingCircle', 'Här visas de som hjälper dig'),
     });
   }
 

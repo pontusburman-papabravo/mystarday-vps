@@ -402,6 +402,17 @@
       "other": "Family member",
       "home_helper": "Helps me at home",
       "school_helper": "Helps me at school"
+    },
+    "state": {
+      "warmTogether": "We did something together ✨",
+      "allStillHere": "Everyone is still here",
+      "stillHere": "Still here",
+      "nameStillHere": "{{name}} is still here",
+      "rightNow": "Right now: {{note}}",
+      "weBelong": "We belong together",
+      "someoneHere": "You have someone here",
+      "growingCircle": "People who help you show up here",
+      "otherParent": "with the other parent right now"
     }
   },
   "settings": {
