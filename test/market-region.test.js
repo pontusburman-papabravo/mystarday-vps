@@ -6,7 +6,9 @@ const {
   deriveMarketRegion,
   resolveRegistrationCountry,
   isKnownRegistrationCountryCode,
+  gateKeyForCountry,
   MARKET_REGIONS,
+  GATE_KEYS,
 } = require('../src/lib/market-region');
 
 describe('market-region derivation', () => {
@@ -28,6 +30,29 @@ describe('market-region derivation', () => {
 
   it('ZZ maps to OTHER', () => {
     assert.equal(deriveMarketRegion('ZZ'), MARKET_REGIONS.OTHER);
+  });
+
+  it('lowercase normalizes to uppercase region', () => {
+    assert.equal(deriveMarketRegion('se'), MARKET_REGIONS.EU);
+    assert.equal(deriveMarketRegion('gb'), MARKET_REGIONS.UK);
+  });
+
+  it('bogus code maps to OTHER', () => {
+    assert.equal(deriveMarketRegion('XX'), MARKET_REGIONS.OTHER);
+  });
+});
+
+describe('gateKeyForCountry', () => {
+  it('SE uses market_se_open', () => {
+    assert.equal(gateKeyForCountry('SE'), GATE_KEYS.SE);
+  });
+
+  it('DE uses market_eu_open', () => {
+    assert.equal(gateKeyForCountry('DE'), GATE_KEYS.EU);
+  });
+
+  it('GB uses market_uk_open', () => {
+    assert.equal(gateKeyForCountry('GB'), GATE_KEYS.UK);
   });
 });
 

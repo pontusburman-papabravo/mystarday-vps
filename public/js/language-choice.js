@@ -60,6 +60,7 @@
         <p class="language-choice__beta-note" data-i18n="language.choice.betaNote" hidden>
           Den engelska versionen är i beta. Viss text kan fortfarande visas på svenska.
         </p>
+        <p class="language-choice__child-note" data-i18n="language.choice.childNote" hidden></p>
         <p class="language-choice__error" data-language-choice-error hidden role="alert"></p>
       </section>`;
   }
@@ -87,6 +88,7 @@
         color: #6B3FA0; background: #EDE7F6; padding: 0.1rem 0.4rem; border-radius: 999px;
       }
       .language-choice__beta-note { font-size: 0.75rem; color: #6B3FA0; margin-top: 0.65rem; }
+      .language-choice__child-note { font-size: 0.75rem; color: #5A6178; margin-top: 0.5rem; line-height: 1.45; }
       .language-choice__error { font-size: 0.8125rem; color: #ef4444; margin-top: 0.5rem; }
     `;
     document.head.appendChild(style);
@@ -102,6 +104,7 @@
     I18n.apply(container);
 
     const betaNote = container.querySelector('.language-choice__beta-note');
+    const childNote = container.querySelector('.language-choice__child-note');
     const errorEl = container.querySelector('[data-language-choice-error]');
     let selected = isConfirmed() ? I18n.getCurrentLang() : null;
 
@@ -109,6 +112,7 @@
       const btn = container.querySelector(`[data-locale-choice="${selected}"]`);
       if (btn) btn.classList.add('language-choice__btn--selected');
       if (selected === 'en-GB' && betaNote) betaNote.hidden = false;
+      if (selected === 'en-GB' && childNote) childNote.hidden = false;
     }
 
     if (!sessionStorage.getItem(VIEWED_SESSION_KEY)) {
@@ -128,6 +132,7 @@
         await I18n.load(locale);
         I18n.apply(document);
         if (betaNote) betaNote.hidden = locale !== 'en-GB';
+        if (childNote) childNote.hidden = locale !== 'en-GB';
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {
           locale,

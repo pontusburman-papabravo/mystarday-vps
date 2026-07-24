@@ -52,6 +52,7 @@
       <div class="english-beta-offer__panel">
         <h2 class="english-beta-offer__title" data-i18n="language.offer.title">My Starday finns nu på engelska</h2>
         <p class="english-beta-offer__body" data-i18n="language.offer.body"></p>
+        <p class="english-beta-offer__child-note" data-i18n="language.choice.childNote" style="font-size:0.8125rem;color:#5A6178;margin-bottom:0.75rem;line-height:1.45"></p>
         <p class="english-beta-offer__question" data-i18n="language.offer.question"></p>
         <div class="english-beta-offer__actions">
           <button type="button" class="english-beta-offer__btn english-beta-offer__btn--secondary" data-offer-action="decline">

@@ -17,7 +17,9 @@
       "betaNote": "Den engelska versionen är i beta. Viss text kan fortfarande visas på svenska.",
       "betaNoteEn": "The English version is in beta. Some text may still appear in Swedish.",
       "confirm": "Fortsätt",
-      "required": "Välj ett språk för att fortsätta"
+      "required": "Välj ett språk för att fortsätta",
+      "childNote": "Föräldradelen finns på engelska som beta. Barnets vy är fortfarande på svenska medan vi färdigställer översättningen.",
+      "childNoteEn": "The parent experience is available in English beta. The child experience is still in Swedish while we complete the translation."
     },
     "offer": {
       "title": "My Starday finns nu på engelska",
@@ -47,7 +49,11 @@
       "description": "Vi använder detta för rätt villkor och integritetsinformation. Det är inte samma sak som språkval.",
       "label": "Land",
       "hint": "",
-      "required": "Välj land för att fortsätta"
+      "required": "Välj land för att fortsätta",
+      "closedEu": "My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.",
+      "closedUk": "My Starday är inte tillgängligt i Storbritannien ännu.",
+      "closedUs": "My Starday är inte tillgängligt i USA ännu.",
+      "closedOther": "My Starday är inte tillgängligt i ditt land ännu."
     }
   },
   "nav": {

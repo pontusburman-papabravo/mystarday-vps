@@ -92,6 +92,7 @@ function registerRoutes(app) {
   // Landing page API (before public router to catch /api/landing/*)
   app.use(require('./landing'));
   app.use('/api', require('./public'));
+  app.use('/api/market', require('./market'));
   app.use('/api/feedback', require('./feedback'));
   app.use('/api/consent', require('./consent'));
   app.use('/api/reminders', require('./reminders'));

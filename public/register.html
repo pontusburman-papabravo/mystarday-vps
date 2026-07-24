@@ -2,6 +2,13 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
+  <script>
+    (function registerPageLangBootstrap() {
+      if (location.pathname === '/en/register' || location.pathname.startsWith('/en/register/')) {
+        document.documentElement.lang = 'en-GB';
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Skapa konto | Min Stjärndag</title> <!-- pragma: allowlist secret -->
   <meta name="description" content="Skapa ett föräldrakonto på Min Stjärndag och kom igång gratis med visuellt bildstöd, tydligare rutiner och stjärnbelöningar för ditt barn."> <!-- pragma: allowlist secret -->

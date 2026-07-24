@@ -570,8 +570,47 @@ test('registration from US blocked when market_us_open is OFF', async (t) => {
     });
     assert.equal(res.status, 403);
     const body = await res.json();
-    assert.equal(body.code, 'MARKET_NOT_OPEN');
+    assert.equal(body.code, 'MARKET_US_CLOSED');
     assert.equal(body.market_region, 'US');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('registration from DE blocked when market_eu_open is OFF', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  const pg = require('../src/lib/db');
+
+  try {
+    await pg.query(`
+      INSERT INTO feature_flag (key, enabled, description)
+      VALUES ('market_eu_open', false, 'test')
+      ON CONFLICT (key) DO UPDATE SET enabled = false
+    `);
+
+    const email = uniqueEmail();
+    const res = await fetch(`${http.baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'DE Parent',
+        email,
+        password: 'testpass123',
+        preferred_locale: 'sv-SE',
+        country_code: 'DE',
+      }),
+    });
+    assert.equal(res.status, 403);
+    const body = await res.json();
+    assert.equal(body.code, 'MARKET_EU_CLOSED');
   } finally {
     await http.close();
     await db.cleanup();

@@ -153,6 +153,9 @@
         const familyLabel = familyName ? esc(familyName) : `Familj ${esc(shortId)}`;
         const locale = family.preferred_locale || 'sv-SE';
         const localeBadge = `<span class="inline-block px-2 py-0.5 bg-lavender text-purple-800 text-xs rounded-full font-semibold" title="${esc(family.locale_selection_source || '')}">${esc(locale)}</span>`;
+        const countryCode = family.country_code || 'SE';
+        const marketRegion = family.market_region || 'EU';
+        const countryBadge = `<span class="inline-block px-2 py-0.5 bg-sky text-navy text-xs rounded-full font-semibold" title="${esc(family.country_selection_source || '')}">${esc(countryCode)}/${esc(marketRegion)}</span>`;
         const betaBadge = family.english_beta_offer_state === 'accepted_english_beta' || locale === 'en-GB'
           ? ' <span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full font-semibold">EN beta</span>'
           : '';
@@ -162,7 +165,7 @@
             <div class="flex items-center gap-3">
               <span class="text-lg">&#128104;&#8205;&#128105;&#8205;&#128103;</span>
               <div>
-                <h4 class="font-heading font-bold text-navy">${familyLabel} ${localeBadge}${betaBadge}</h4>
+                <h4 class="font-heading font-bold text-navy">${familyLabel} ${localeBadge} ${countryBadge}${betaBadge}</h4>
                 <p class="text-text-soft text-xs">${(family.parents || []).length} föräldrar, ${(family.children || []).length} barn · ID: ${esc(shortId)}${family.locale_selected_at ? ' · språk: ' + esc(new Date(family.locale_selected_at).toLocaleDateString('sv-SE')) : ''}</p>
               </div>
             </div>

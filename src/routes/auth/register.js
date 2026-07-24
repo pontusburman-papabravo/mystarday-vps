@@ -27,6 +27,7 @@ const {
   isMarketOpenForRegistration,
   isKnownRegistrationCountryCode,
   normalizeCountryCode,
+  marketClosedCode,
 } = require('../../lib/market-region');
 
 const router = express.Router();
@@ -86,13 +87,22 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
     const marketOpen = await isMarketOpenForRegistration(countryResolved.country_code);
     if (!marketOpen) {
+      const code = marketClosedCode(countryResolved.country_code);
       const region = countryResolved.market_region;
-      const msg = region === 'UK'
-        ? 'Registrering från Storbritannien är inte öppen ännu.'
-        : region === 'US'
-          ? 'Registrering från USA är inte öppen ännu.'
-          : 'Registrering är inte tillgänglig i det här landet ännu.';
-      return res.status(403).json({ error: msg, code: 'MARKET_NOT_OPEN', market_region: region });
+      const country = countryResolved.country_code;
+      const messages = {
+        MARKET_SE_CLOSED: 'Registrering från Sverige är tillfälligt stängd.',
+        MARKET_EU_CLOSED: 'My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.',
+        MARKET_UK_CLOSED: 'My Starday is not available in the United Kingdom yet.',
+        MARKET_US_CLOSED: 'My Starday is not available in the United States yet.',
+        MARKET_OTHER_CLOSED: 'My Starday is not available in your country yet.',
+      };
+      return res.status(403).json({
+        error: messages[code] || messages.MARKET_OTHER_CLOSED,
+        code,
+        market_region: region,
+        country_code: country,
+      });
     }
 
     if (!email || !password) {

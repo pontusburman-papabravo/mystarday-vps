@@ -16,8 +16,22 @@ const MARKET_REGIONS = Object.freeze({
   OTHER: 'OTHER',
 });
 
-const UK_FLAG_KEY = 'market_uk_open';
-const US_FLAG_KEY = 'market_us_open';
+const GATE_KEYS = Object.freeze({
+  SE: 'market_se_open',
+  EU: 'market_eu_open',
+  UK: 'market_uk_open',
+  US: 'market_us_open',
+  OTHER: 'market_other_open',
+});
+
+/** Default when feature_flag row is missing (fail-safe: only Sweden open). */
+const GATE_DEFAULTS = Object.freeze({
+  market_se_open: true,
+  market_eu_open: false,
+  market_uk_open: false,
+  market_us_open: false,
+  market_other_open: false,
+});
 
 const KNOWN_COUNTRY_CODES = new Set([
   ...EU_EEA_ISO_CODES,
@@ -47,34 +61,48 @@ function isKnownRegistrationCountryCode(countryCode) {
   return code != null && KNOWN_COUNTRY_CODES.has(code);
 }
 
+function gateKeyForCountry(countryCode) {
+  const code = normalizeCountryCode(countryCode) || 'SE';
+  if (code === 'SE') return GATE_KEYS.SE;
+  const region = deriveMarketRegion(code);
+  if (region === MARKET_REGIONS.EU) return GATE_KEYS.EU;
+  if (region === MARKET_REGIONS.UK) return GATE_KEYS.UK;
+  if (region === MARKET_REGIONS.US) return GATE_KEYS.US;
+  return GATE_KEYS.OTHER;
+}
+
 async function readMarketGateFlag(key) {
+  const defaultEnabled = GATE_DEFAULTS[key] === true;
   try {
     const result = await db.query(
       'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
       [key]
     );
-    if (!result.rows.length) return false;
+    if (!result.rows.length) return defaultEnabled;
     return result.rows[0].enabled === true;
   } catch (err) {
     console.error('[market-region] flag read failed:', key, err.message);
-    return false;
+    return defaultEnabled;
   }
 }
 
 /**
- * Whether new registration is allowed for this country/market.
- * UK and US are closed until respective readiness gates are ON.
+ * Whether new registration is allowed for this country.
+ * Gates are per market segment; Sweden is the only default-open market.
  */
 async function isMarketOpenForRegistration(countryCode) {
+  const key = gateKeyForCountry(countryCode);
+  return readMarketGateFlag(key);
+}
+
+function marketClosedCode(countryCode) {
   const code = normalizeCountryCode(countryCode) || 'SE';
   const region = deriveMarketRegion(code);
-  if (region === MARKET_REGIONS.UK) {
-    return readMarketGateFlag(UK_FLAG_KEY);
-  }
-  if (region === MARKET_REGIONS.US) {
-    return readMarketGateFlag(US_FLAG_KEY);
-  }
-  return true;
+  if (region === MARKET_REGIONS.UK) return 'MARKET_UK_CLOSED';
+  if (region === MARKET_REGIONS.US) return 'MARKET_US_CLOSED';
+  if (code === 'SE') return 'MARKET_SE_CLOSED';
+  if (region === MARKET_REGIONS.EU) return 'MARKET_EU_CLOSED';
+  return 'MARKET_OTHER_CLOSED';
 }
 
 function resolveRegistrationCountry({
@@ -98,11 +126,13 @@ function resolveRegistrationCountry({
 
 module.exports = {
   MARKET_REGIONS,
-  UK_FLAG_KEY,
-  US_FLAG_KEY,
+  GATE_KEYS,
+  GATE_DEFAULTS,
   normalizeCountryCode,
   deriveMarketRegion,
   isKnownRegistrationCountryCode,
+  gateKeyForCountry,
   isMarketOpenForRegistration,
+  marketClosedCode,
   resolveRegistrationCountry,
 };

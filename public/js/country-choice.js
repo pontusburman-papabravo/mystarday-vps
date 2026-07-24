@@ -99,25 +99,48 @@
     document.head.appendChild(style);
   }
 
+  let gateMap = { SE: true, EU: false, UK: false, US: false, OTHER: false };
+
+  async function loadGates() {
+    try {
+      const res = await fetch('/api/market/registration-gates');
+      if (!res.ok) return;
+      const data = await res.json();
+      gateMap = {
+        SE: data.market_se_open !== false,
+        EU: data.market_eu_open === true,
+        UK: data.market_uk_open === true,
+        US: data.market_us_open === true,
+        OTHER: data.market_other_open === true,
+      };
+    } catch (_) { /* keep defaults */ }
+  }
+
+  function isCountryOpen(code) {
+    if (code === 'SE') return gateMap.SE;
+    if (code === 'GB') return gateMap.UK;
+    if (code === 'US') return gateMap.US;
+    if (code === 'ZZ') return gateMap.OTHER;
+    if (code && code !== 'SE') return gateMap.EU;
+    return false;
+  }
+
   function closedMarketMessage(code) {
-    const locale = (window.I18n && I18n.getCurrentLang()) || 'sv-SE';
-    if (code === 'GB') {
-      return locale === 'en-GB'
-        ? 'Registration from the United Kingdom is not open yet. You can still use English in Sweden during our beta.'
-        : 'Registrering från Storbritannien är inte öppen ännu. Du kan fortfarande använda engelska i Sverige under betan.';
+    if (!code || isCountryOpen(code)) return '';
+    if (window.I18n) {
+      if (code === 'GB') return I18n.t('market.choice.closedUk');
+      if (code === 'US') return I18n.t('market.choice.closedUs');
+      if (code === 'ZZ') return I18n.t('market.choice.closedOther');
+      if (code !== 'SE') return I18n.t('market.choice.closedEu');
     }
-    if (code === 'US') {
-      return locale === 'en-GB'
-        ? 'Registration from the United States is not open yet.'
-        : 'Registrering från USA är inte öppen ännu.';
-    }
-    return '';
+    return 'My Starday is not available in your country yet.';
   }
 
   async function mount(container) {
     if (!container || container.dataset.countryChoiceMounted) return;
     injectStyles();
     if (window.I18n) await I18n.init();
+    await loadGates();
     const suggest = sessionStorage.getItem(STORAGE_KEY) || suggestedCountry();
     container.dataset.countryChoiceMounted = '1';
     container.innerHTML = buildHtml(suggest);
@@ -149,7 +172,7 @@
         return;
       }
       const closed = closedMarketMessage(code);
-      if (closed) {
+      if (closed || !isCountryOpen(code)) {
         selected = null;
         sessionStorage.removeItem(CONFIRMED_KEY);
         if (errorEl) {
@@ -172,7 +195,7 @@
     return {
       getSelected: () => selected,
       requireSelection: () => {
-        if (selected && !closedMarketMessage(selected)) return true;
+        if (selected && !closedMarketMessage(selected) && isCountryOpen(selected)) return true;
         if (errorEl) {
           errorEl.textContent = (window.I18n && I18n.t('market.choice.required')) || 'Välj land för att fortsätta';
           errorEl.hidden = false;
