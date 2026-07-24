@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string> <!-- pragma: allowlist secret -->
+    <string name="title_activity_main">[REDACTED]</string> <!-- pragma: allowlist secret -->
+    <string name="native_offline_title">Ingen anslutning</string>
+    <string name="native_offline_body">Kontrollera internet och försök igen.</string>
+    <string name="camera_permission_rationale">[REDACTED] använder kameran så att du kan ta en profilbild till ditt barn.</string> <!-- pragma: allowlist secret -->
+    <string name="photos_permission_rationale">[REDACTED] behöver tillgång till dina foton så att du kan välja en profilbild till ditt barn.</string> <!-- pragma: allowlist secret -->
+    <string name="notification_channel_routine_name">Rutinpåminnelser</string>
+    <string name="notification_channel_routine_desc">Påminnelser om familjens schema</string>
+</resources>

@@ -464,6 +464,7 @@ function injectPlatformHtml(body, reqPath, req) {
     (androidSafe ? '' : '<script src="/js/crash-reporter.js?v=' + RELEASE_TAG + '" defer><\/script>\n') +
     '<script src="/js/deep-link-router.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parental-gate.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/native-locale-contract.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/icon-system.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/nav-config.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     (androidSafe ? '' : '<script src="/js/referral-share.js?v=' + RELEASE_TAG + '"><\/script>\n') +

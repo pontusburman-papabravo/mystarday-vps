@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string> <!-- pragma: allowlist secret -->
+    <string name="title_activity_main">[REDACTED]</string> <!-- pragma: allowlist secret -->
+    <string name="native_offline_title">No connection</string>
+    <string name="native_offline_body">Check your internet connection and try again.</string>
+    <string name="camera_permission_rationale">[REDACTED] uses the camera so you can take a profile photo for your child.</string> <!-- pragma: allowlist secret -->
+    <string name="photos_permission_rationale">[REDACTED] needs access to your photos so you can choose a profile picture for your child.</string> <!-- pragma: allowlist secret -->
+    <string name="notification_channel_routine_name">Routine reminders</string>
+    <string name="notification_channel_routine_desc">Reminders about your family schedule</string>
+</resources>
