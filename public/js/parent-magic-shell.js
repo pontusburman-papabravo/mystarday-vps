@@ -18,10 +18,17 @@
   }
 
   function getNavItems() {
+    if (window.NavConfig && NavConfig.primaryNavForTabs) {
+      return NavConfig.primaryNavForTabs();
+    }
     if (window.NavConfig && NavConfig.PRIMARY_NAV) {
       return NavConfig.PRIMARY_NAV;
     }
     return [];
+  }
+
+  function navAriaLabel() {
+    return (typeof window.pt === 'function') ? window.pt('nav.mainAria') : 'Huvudnavigering';
   }
 
   function isMagic() {
@@ -76,7 +83,7 @@
       nav.id = 'parentBottomNav';
       nav.className = 'parent-bottom-nav';
       nav.setAttribute('role', 'navigation');
-      nav.setAttribute('aria-label', 'Huvudnavigering');
+      nav.setAttribute('aria-label', navAriaLabel());
       document.body.appendChild(nav);
     }
     nav.removeAttribute('hidden');
@@ -202,6 +209,8 @@
   }
 
   window.addEventListener('stjarndag-parent-nav-layout', refresh);
+  document.addEventListener('locale-changed', refresh);
+  document.addEventListener('parent-i18n-ready', refresh);
   if (MOBILE_NAV_MQ) {
     const onMqChange = function () { refresh(); };
     if (typeof MOBILE_NAV_MQ.addEventListener === 'function') {

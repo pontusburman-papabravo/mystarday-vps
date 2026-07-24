@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv-SE">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -296,19 +296,19 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors">Översikt</a></li>
-        <li><a href="/daily-log" class="block px-4 py-2 rounded-lg bg-gold text-navy font-semibold">Daglig logg</a></li>
-        <li><a href="/schedule" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/reports" data-feature="klinisk_rapportering" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
-        <li><a href="/library" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors">Bibliotek</a></li>
-        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors">Familjen &amp; inställningar</a></li>
+        <li><a href="/dashboard" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.overview">Översikt</a></li>
+        <li><a href="/daily-log" class="block px-4 py-2 rounded-lg bg-gold text-navy font-semibold" data-i18n="nav.dailyLog">Daglig logg</a></li>
+        <li><a href="/schedule" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.weekSchedule">Veckoschema</a></li>
+        <li><a href="/reports" data-feature="klinisk_rapportering" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.reports">📊 Rapporter</a></li>
+        <li><a href="/library" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.library">Bibliotek</a></li>
+        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;" data-i18n="nav.treasureChest">🏆 Skattkammaren</a></li>
+        <li><a href="/family" class="block px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.familySettings">Familjen &amp; inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
-          <span>🌙</span> Mörkt läge
+          <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -319,21 +319,21 @@
 
       <!-- Header -->
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center parent-magic-legacy-hide">
-        <h2 class="text-xl font-heading font-bold text-navy">Daglig logg</h2>
-        <p class="text-xs text-text-soft hidden sm:block mr-2">Skapa PDF av dag, vecka eller mina dagar</p>
+        <h2 class="text-xl font-heading font-bold text-navy" data-i18n="today.shell.headerTitle">Daglig logg</h2>
+        <p class="text-xs text-text-soft hidden sm:block mr-2" data-i18n="today.shell.pdfHint">Skapa PDF av dag, vecka eller mina dagar</p>
         <div class="flex items-center gap-2">
           <div class="relative" id="printDropdown">
-            <button onclick="togglePrintMenu()" id="printBtn" class="px-4 py-2 bg-white border-2 border-gold text-navy font-semibold rounded-xl hover:bg-gold-light transition-colors text-sm flex items-center gap-2">
+            <button onclick="togglePrintMenu()" id="printBtn" class="px-4 py-2 bg-white border-2 border-gold text-navy font-semibold rounded-xl hover:bg-gold-light transition-colors text-sm flex items-center gap-2" data-i18n="today.shell.printBtn">
               📄 Skapa PDF ▾
             </button>
             <div id="printMenu" class="hidden absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-lavender overflow-hidden z-30 min-w-[180px]">
-              <button onclick="printDay(); closePrintMenu()" class="w-full px-4 py-3 text-left text-sm font-semibold text-navy hover:bg-gold-light transition-colors flex items-center gap-2">
+              <button onclick="printDay(); closePrintMenu()" class="w-full px-4 py-3 text-left text-sm font-semibold text-navy hover:bg-gold-light transition-colors flex items-center gap-2" data-i18n="today.shell.printDay">
                 📄 Skapa PDF — dag
               </button>
-              <button onclick="goPrintSchemaPdf(); closePrintMenu()" class="w-full px-4 py-3 text-left text-sm font-semibold text-navy hover:bg-gold-light transition-colors flex items-center gap-2 border-t border-lavender">
+              <button onclick="goPrintSchemaPdf(); closePrintMenu()" class="w-full px-4 py-3 text-left text-sm font-semibold text-navy hover:bg-gold-light transition-colors flex items-center gap-2 border-t border-lavender" data-i18n="today.shell.printWeek">
                 📅 Skapa PDF — vecka
               </button>
-              <button id="printMyDaysBtn" onclick="goPrintSchemaPdf('my'); closePrintMenu()" class="hidden w-full px-4 py-3 text-left text-sm font-semibold text-navy hover:bg-gold-light transition-colors flex items-center gap-2 border-t border-lavender">
+              <button id="printMyDaysBtn" onclick="goPrintSchemaPdf('my'); closePrintMenu()" class="hidden w-full px-4 py-3 text-left text-sm font-semibold text-navy hover:bg-gold-light transition-colors flex items-center gap-2 border-t border-lavender" data-i18n="today.shell.printMyDays">
                 🏠 Skapa PDF — mina dagar
               </button>
             </div>
@@ -349,9 +349,9 @@
 
         <!-- Child selector -->
         <div>
-          <h3 class="text-sm font-semibold text-text-soft uppercase tracking-wide mb-3">Välj barn</h3>
+          <h3 class="text-sm font-semibold text-text-soft uppercase tracking-wide mb-3" data-i18n="today.shell.selectChildHeading">Välj barn</h3>
           <div id="childTabs" class="flex gap-2 flex-wrap">
-            <div class="text-text-soft text-sm">Laddar…</div>
+            <div class="text-text-soft text-sm" data-i18n="today.shell.loadingChildren">Laddar…</div>
           </div>
         </div>
 
@@ -359,7 +359,7 @@
         <div id="logContent">
           <div class="text-center py-16 text-text-soft">
             <p class="text-4xl mb-3">📋</p>
-            <p class="font-semibold">Välj ett barn ovan för att se loggen</p>
+            <p class="font-semibold" data-i18n="today.shell.selectChildEmpty">Välj ett barn ovan för att se loggen</p>
           </div>
         </div>
 
@@ -367,13 +367,13 @@
         <div class="bg-sky border border-lavender rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-lg">💡</span>
-            <span class="font-semibold text-navy text-sm">Tips: Följ aktiviteter i daglig logg</span>
+            <span class="font-semibold text-navy text-sm" data-i18n="today.shell.tipsTitle">Tips: Följ aktiviteter i daglig logg</span>
           </div>
           <ul class="text-xs text-text-soft space-y-1.5">
-            <li>• Markera aktiviteter som klara — barnet ser dem i realtid i sin vy</li>
-            <li>• Aktiviteter bockas av i barnvyn med ett tryck och ger stjärnor direkt</li>
-            <li>• Bläddra bakåt med datumväljaren för att se hur barnet presterat</li>
-            <li>• Pausa en dag om rutinerna är annorlunda — inga stjärnor förloras</li>
+            <li data-i18n="today.shell.tips1">• Markera aktiviteter som klara — barnet ser dem i realtid i sin vy</li>
+            <li data-i18n="today.shell.tips2">• Aktiviteter bockas av i barnvyn med ett tryck och ger stjärnor direkt</li>
+            <li data-i18n="today.shell.tips3">• Bläddra bakåt med datumväljaren för att se hur barnet presterat</li>
+            <li data-i18n="today.shell.tips4">• Pausa en dag om rutinerna är annorlunda — inga stjärnor förloras</li>
           </ul>
         </div>
 
@@ -382,14 +382,21 @@
   </div>
 
   <script src="/js/dom-utils.js?v=2.13.0"></script>
+  <script>
+  (function earlyTodayI18n() {
+    var lang = sessionStorage.getItem('sd_preferred_locale');
+    if (!lang || !window.I18n) return;
+    I18n.init(lang).then(function () { I18n.apply(); }).catch(function () {});
+  })();
+  </script>
   <script src="/js/daily-log.js?v=2.16.2"></script>
 
   <!-- Parent Rating Modal -->
   <div id="parentRatingModal" class="hidden fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-heading font-bold text-navy">Betygsätt aktivitet</h3>
-        <button onclick="closeParentRating()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+        <h3 class="text-lg font-heading font-bold text-navy" data-i18n="today.shell.rateActivity">Betygsätt aktivitet</h3>
+        <button onclick="closeParentRating()" class="text-text-soft hover:text-navy text-2xl" data-i18n-aria-label="onboarding.common.closeAria" aria-label="Stäng">&times;</button>
       </div>
       <p class="text-sm text-text-soft mb-4" id="parentRatingName"></p>
 
@@ -403,12 +410,12 @@
       </div>
       <p class="text-center text-sm font-semibold text-gold mb-4 min-h-[1.4em]" id="parentRatingLabel"></p>
 
-      <textarea id="parentRatingComment" placeholder="Kommentar (valfritt)..." rows="2"
+      <textarea id="parentRatingComment" data-i18n-placeholder="today.shell.commentPlaceholder" placeholder="Kommentar (valfritt)..." rows="2"
         class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm focus:border-gold outline-none transition-colors resize-none mb-4"></textarea>
 
       <div class="flex gap-3">
-        <button onclick="closeParentRating()" class="flex-1 py-3 bg-lavender hover:bg-sky text-navy rounded-xl font-semibold text-sm transition-colors">Avbryt</button>
-        <button onclick="submitParentRating()" id="parentRatingSubmit" class="flex-1 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold text-sm transition-colors" disabled>Spara</button>
+        <button onclick="closeParentRating()" class="flex-1 py-3 bg-lavender hover:bg-sky text-navy rounded-xl font-semibold text-sm transition-colors" data-i18n="today.shell.cancel">Avbryt</button>
+        <button onclick="submitParentRating()" id="parentRatingSubmit" class="flex-1 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold text-sm transition-colors" disabled data-i18n="today.shell.save">Spara</button>
       </div>
     </div>
   </div>

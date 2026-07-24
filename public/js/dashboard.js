@@ -221,14 +221,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Offline banner (parent view) ────────────────────────────────────────
   let _lastOnlineAt = null;
 
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
+
+  function offlineTimeFmt() {
+    const locale = (window.I18n && I18n.getCurrentLang) ? I18n.getCurrentLang() : 'sv-SE';
+    return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
+  }
+
   function showParentOfflineBanner() {
     const banner = document.getElementById('parentOfflineBanner');
     if (!banner) return;
     banner.classList.remove('hidden');
     const timeEl = document.getElementById('parentOfflineTime');
     if (timeEl && _lastOnlineAt) {
-      const fmt = new Intl.DateTimeFormat('sv-SE', { hour: '2-digit', minute: '2-digit' });
-      timeEl.textContent = '· Senast uppdaterat ' + fmt.format(new Date(_lastOnlineAt));
+      timeEl.textContent = pt('home.offline.lastUpdated', { time: offlineTimeFmt().format(new Date(_lastOnlineAt)) });
     }
   }
 
@@ -241,8 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     _lastOnlineAt = Date.now();
     const timeEl = document.getElementById('parentOfflineTime');
     if (timeEl) {
-      const fmt = new Intl.DateTimeFormat('sv-SE', { hour: '2-digit', minute: '2-digit' });
-      timeEl.textContent = '· Senast uppdaterat ' + fmt.format(new Date(_lastOnlineAt));
+      timeEl.textContent = pt('home.offline.lastUpdated', { time: offlineTimeFmt().format(new Date(_lastOnlineAt)) });
     }
   }
 

@@ -20,8 +20,8 @@
   }
   if (!window.NavConfig) return;
 
-  let activeTabs = NavConfig.primaryNavForTabs();
-  let tabsReady = true;
+  let activeTabs = [];
+  let tabsReady = false;
   let mountPending = false;
   const MOBILE_NAV_MQ = typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(max-width: 767px)')
@@ -47,7 +47,14 @@
     if (legacy) legacy.style.display = 'none';
   }
 
+  function syncActiveTabs() {
+    if (!window.NavConfig || !NavConfig.primaryNavForTabs) return;
+    activeTabs = NavConfig.primaryNavForTabs();
+    tabsReady = true;
+  }
+
   function buildNavHtml() {
+    syncActiveTabs();
     let items = '';
     for (let j = 0; j < activeTabs.length; j++) {
       const tab = activeTabs[j];
@@ -69,6 +76,7 @@
   }
 
   function mount() {
+    syncActiveTabs();
     if (!tabsReady) return false;
     if (!isMobileViewport()) return false;
     if (!hasParentShell()) return false;
@@ -93,7 +101,7 @@
     const nav = document.createElement('nav');
     nav.className = 'native-tab-bar';
     nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', 'Huvudnavigering');
+    nav.setAttribute('aria-label', (typeof window.pt === 'function') ? window.pt('nav.mainAria') : 'Huvudnavigering');
     nav.innerHTML = items;
     document.body.appendChild(nav);
     hideLegacyBottomNav();
@@ -160,6 +168,7 @@
   }
 
   function bootMount() {
+    syncActiveTabs();
     tryMount();
     return Promise.resolve();
   }
@@ -193,9 +202,7 @@
   });
 
   window.addEventListener('stjarndag-package-access-loaded', function () {
-    if (!window.NavConfig) return;
-    activeTabs = NavConfig.primaryNavForTabs();
-    tabsReady = true;
+    syncActiveTabs();
     remount();
   });
 
@@ -205,6 +212,15 @@
 
   window.addEventListener('stjarndag-magic-navigated', function () {
     updateActiveTabs();
+  });
+
+  document.addEventListener('locale-changed', function () {
+    syncActiveTabs();
+    remount();
+  });
+  document.addEventListener('parent-i18n-ready', function () {
+    syncActiveTabs();
+    remount();
   });
 
   window.NativeTabBar = {

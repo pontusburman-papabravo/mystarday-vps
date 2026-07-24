@@ -42,6 +42,9 @@
     "yearPlaceholder": "Year",
     "monthPlaceholder": "Month",
     "dayPlaceholder": "Day",
+    "birthYearAria": "Birth year",
+    "birthMonthAria": "Birth month",
+    "birthDayAria": "Birth day",
     "months": [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"

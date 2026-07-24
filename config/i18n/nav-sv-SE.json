@@ -1,0 +1,22 @@
+{
+  "primary": {
+    "home": "Hem",
+    "planning": "Planering",
+    "rewards": "Belöningar",
+    "forYou": "För dig",
+    "family": "Familj"
+  },
+  "settings": "Inställningar",
+  "mainAria": "Huvudnavigering",
+  "notifications": "Notiser",
+  "share": "Tipsa",
+  "logout": "Logga ut",
+  "darkMode": "Mörkt läge",
+  "overview": "Översikt",
+  "dailyLog": "Daglig logg",
+  "weekSchedule": "Veckoschema",
+  "reports": "Rapporter",
+  "library": "Bibliotek",
+  "treasureChest": "Skattkammaren",
+  "familySettings": "Familjen & inställningar"
+}

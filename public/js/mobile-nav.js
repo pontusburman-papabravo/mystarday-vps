@@ -161,9 +161,12 @@
     const out = [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      const resolved = NavConfig.resolveLabel
+        ? NavConfig.resolveLabel(item)
+        : item.label;
       out.push({
         href: item.href,
-        label: navLabelHtml(item),
+        label: navLabelHtml({ icon: item.icon, label: resolved }),
         active: pathMatches(item.href, currentPath) ||
           (item.paths && item.paths.some(function (p) { return p === currentPath; })),
       });

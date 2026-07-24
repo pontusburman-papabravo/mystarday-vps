@@ -217,9 +217,9 @@
       html.push(
         '<p class="text-xs text-text-soft mb-3">' + esc(q.hint || '') + '</p>',
         '<div class="grid grid-cols-3 gap-2 mb-4">',
-        '<select id="spBirthdayYear" class="form-input py-3 min-h-[44px] text-base" aria-label="Födelseår"><option value="">År</option></select>',
-        '<select id="spBirthdayMonth" class="form-input py-3 min-h-[44px] text-base" aria-label="Födelsemånad"><option value="">Månad</option></select>',
-        '<select id="spBirthdayDay" class="form-input py-3 min-h-[44px] text-base" aria-label="Födelsedag"><option value="">Dag</option></select>',
+        '<select id="spBirthdayYear" class="form-input py-3 min-h-[44px] text-base" aria-label="' + esc(ot('onboarding.child.birthYearAria')) + '"><option value="">' + esc(ot('onboarding.child.yearPlaceholder')) + '</option></select>',
+        '<select id="spBirthdayMonth" class="form-input py-3 min-h-[44px] text-base" aria-label="' + esc(ot('onboarding.child.birthMonthAria')) + '"><option value="">' + esc(ot('onboarding.child.monthPlaceholder')) + '</option></select>',
+        '<select id="spBirthdayDay" class="form-input py-3 min-h-[44px] text-base" aria-label="' + esc(ot('onboarding.child.birthDayAria')) + '"><option value="">' + esc(ot('onboarding.child.dayPlaceholder')) + '</option></select>',
         '</div>'
       );
     } else if (q.type === 'textarea') {
