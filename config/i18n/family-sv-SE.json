@@ -1,0 +1,117 @@
+{
+  "pageTitle": "Familj — {{brand}}",
+  "shell": {
+    "title": "Familj",
+    "loading": "Laddar…",
+    "settingsLink": "Inställningar",
+    "childrenHeading": "Barn",
+    "addChild": "➕ Lägg till barn",
+    "noChildren": "Inga barn tillagda än",
+    "noChildrenHint": "Lägg till ditt första barn för att komma igång.",
+    "inviteParent": "+ Bjud in förälder",
+    "noAdults": "Inga vuxna tillagda än",
+    "noAdultsHint": "Bjud in en annan vuxen till familjen.",
+    "pendingInvites": "Väntande inbjudningar",
+    "waiting": "Väntar...",
+    "withdrawInvite": "Återkalla",
+    "parentsHeading": "Vuxna",
+    "scanQr": "Skanna QR",
+    "logout": "Logga ut"
+  },
+  "roles": {
+    "parent": "Förälder",
+    "mamma": "Mamma",
+    "pappa": "Pappa",
+    "bonusParent": "Bonusförälder",
+    "other": "Annan"
+  },
+  "summary": {
+    "childrenOne": "1 barn",
+    "childrenMany": "{{count}} barn",
+    "oneParent": "1 förälder",
+    "parentsMany": "{{count}} föräldrar"
+  },
+  "child": {
+    "ageUnknown": "Ålder okänd",
+    "dragReorder": "Dra för att ändra ordning",
+    "monthsMany": "{{count}} månader",
+    "yearsOne": "{{count}} år",
+    "yearsMany": "{{count}} år"
+  },
+  "errors": {
+    "loadFamily": "Kunde inte ladda familjeinformation:",
+    "sessionExpired": "Din session har löpt ut. Du loggas in igen…",
+    "addChild": "Kunde inte lägga till barn:",
+    "approveRedemption": "Kunde inte godkänna",
+    "approveGoal": "Kunde inte godkänna",
+    "setGoal": "Kunde inte sätta mål",
+    "giveStars": "Kunde inte ge stjärnor",
+    "withdrawInvite": "Kunde inte återkalla:",
+    "selectChild": "Minst ett barn måste väljas",
+    "deny": "Kunde inte neka",
+    "saveOrder": "Kunde inte spara ordningen",
+    "applySchedule": "Kunde inte applicera:",
+    "save": "Kunde inte spara:",
+    "updateVisibility": "Kunde inte uppdatera synlighet:",
+    "loadPackages": "Kunde inte ladda schemapaket.",
+    "upload": "Uppladdning misslyckades",
+    "noGoalSet": "Inget mål satt"
+  },
+  "toasts": {
+    "redemptionApproved": "✓ Inlösning godkänd!",
+    "redemptionDenied": "Inlösning nekad.",
+    "goalChangeApproved": "✓ Målbyte godkänt!",
+    "goalChangeDenied": "Målbyte nekat.",
+    "goalSet": "🎯 Mål satt!",
+    "starsGiven": "⭐ {{count}} stjärnor givna!",
+    "nnlEnabled": "NU / NÄSTA / SEDAN aktiverat",
+    "nnlDisabled": "Fri avbockning — barnet väljer själv",
+    "pinLength": "PIN-koden måste vara exakt 4 siffror",
+    "inviteWithdrawn": "Inbjudan återkallad",
+    "scheduleApplied": "\"{{name}}\" applicerat på {{child}}! ✓"
+  },
+  "drawer": {
+    "select": "Välj",
+    "loadingPackages": "Laddar schemapaket...",
+    "loadingGoals": "Laddar...",
+    "loadingRewards": "Laddar belöningar...",
+    "loadingHistory": "Laddar...",
+    "noPackages": "Inga schemapaket tillgängliga ännu.",
+    "applyConfirm": "Applicera \"{{schedule}}\" på {{name}}? Detta ersätter barnets nuvarande veckoschema (mån–fre).",
+    "pendingGoalChange": "⏳ Bytebegäran väntar",
+    "activeGoal": "Aktivt mål",
+    "noGoal": "Inget mål",
+    "chooseReward": "– Välj belöning –",
+    "noRewardsYet": "Inga belöningar i biblioteket ännu.",
+    "goToLibrary": "Gå till Bibliotek",
+    "noRedemptions": "Inga inlösta belöningar ännu.",
+    "wantsRedeem": "vill lösa in {{reward}}",
+    "starsCost": "⭐ {{count}} stjärnor",
+    "wantsGoalChange": "vill byta mål till {{reward}}",
+    "goalChangeRequest": "Målbytebegäran"
+  },
+  "giveStars": {
+    "reasonRequired": "Anledning krävs!",
+    "minStars": "Ange minst 1 stjärna",
+    "submit": "Ge stjärnor ⭐",
+    "sending": "Skickar...",
+    "uploading": "Laddar upp bild...",
+    "uploadSuccess": "✓ Bild uppladdad!",
+    "uploadFailed": "Bild misslyckades:",
+    "cancel": "Avbryt"
+  },
+  "schedule": {
+    "activitiesMany": "{{count}} aktiviteter",
+    "activitiesOne": "1 aktivitet",
+    "sectionsDefault": "Morgon, Dag, Kväll"
+  },
+  "delete": {
+    "childMessage": "Alla aktiviteter, scheman och belöningshistorik för detta barn kommer att raderas permanent.",
+    "memberMessage": "Denna person kommer att tas bort från din familj. De kan fortfarande logga in med sitt konto.",
+    "removeFromFamily": "Ta bort från familj"
+  },
+  "pedagog": {
+    "title": "Pedagoger",
+    "collaboration": "Pedagogsamarbete"
+  }
+}

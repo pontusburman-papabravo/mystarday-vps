@@ -5,33 +5,57 @@
 (function () {
   'use strict';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function link(titleKey, subKey, href, icon) {
+    return {
+      href: href,
+      icon: icon,
+      title: pt(titleKey),
+      sub: pt(subKey),
+      titleKey: titleKey,
+      subKey: subKey,
+    };
+  }
+
+  function resolveLink(l) {
+    return {
+      href: l.href,
+      icon: l.icon,
+      title: l.titleKey ? pt(l.titleKey) : l.title,
+      sub: l.subKey ? pt(l.subKey) : l.sub,
+    };
+  }
+
   const CONTENT_LINKS = [
-    { href: '/library', icon: 'aktiviteter', title: 'Bibliotek', sub: 'Skapa aktiviteter och belöningar' },
-    { href: '/library#magic-bilder', icon: 'redigera', title: 'Bildarkiv', sub: 'Egna foton — tandborste, säng, skola' },
+    link('planning.links.library.title', 'planning.links.library.sub', '/library', 'aktiviteter'),
+    link('planning.links.imageArchive.title', 'planning.links.imageArchive.sub', '/library#magic-bilder', 'redigera'),
   ];
 
   const PLAN_LINKS = [
-    { href: '/schedule', icon: 'schema', title: 'Veckoschema', sub: 'Redigera barnets vecka' },
-    { href: '/calendar', icon: 'kalender', title: 'Kalender', sub: 'Se månad och specialdagar' },
+    link('planning.links.weekSchedule.title', 'planning.links.weekSchedule.sub', '/schedule', 'schema'),
+    link('planning.links.calendar.title', 'planning.links.calendar.sub', '/calendar', 'kalender'),
   ];
 
-  const CUSTODY_LINK = {
-    href: '/family#custodyScheduleSection',
-    icon: 'familj',
-    title: 'Boendeschema',
-    sub: 'Växelvis boende mellan hushåll',
-  };
+  const CUSTODY_LINK = link(
+    'planning.links.custody.title',
+    'planning.links.custody.sub',
+    '/family#custodyScheduleSection',
+    'familj'
+  );
 
   const OTHER_LINKS = [
-    { href: '/daily-log', icon: 'historik', title: 'Daglig logg', sub: 'Se och justera tidigare dagar' },
-    { href: '/print-schema', icon: 'rapport', title: 'Skapa PDF — schema', sub: 'Skriv ut schema' },
-    { href: '/assign-schedule', icon: 'kopiera-aktivitet', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
+    link('planning.links.dailyLog.title', 'planning.links.dailyLog.sub', '/daily-log', 'historik'),
+    link('planning.links.printSchema.title', 'planning.links.printSchema.sub', '/print-schema', 'rapport'),
+    link('planning.links.assignSchedule.title', 'planning.links.assignSchedule.sub', '/assign-schedule', 'kopiera-aktivitet'),
   ];
 
   const CAPABILITY_LINKS = {
-    reports: { href: '/reports', icon: 'rapport', title: 'Rapporter', sub: 'Utveckling och delning' },
-    samarbete: { href: '/samarbete', icon: 'pedagog', title: 'Pedagogsamarbete', sub: 'Samarbeta med pedagog' },
-    barn_stod: { href: '/barn-stod', icon: 'support', title: 'Extra stöd', sub: 'Visuellt stöd och TEACCH' },
+    reports: link('planning.links.reports.title', 'planning.links.reports.sub', '/reports', 'rapport'),
+    samarbete: link('planning.links.samarbete.title', 'planning.links.samarbete.sub', '/samarbete', 'pedagog'),
+    barn_stod: link('planning.links.barnStod.title', 'planning.links.barnStod.sub', '/barn-stod', 'support'),
   };
 
   function escHtml(str) {
@@ -56,18 +80,19 @@
   }
 
   function linkHtml(l) {
+    const item = resolveLink(l);
     return (
       '<a href="' +
-      escHtml(l.href) +
+      escHtml(item.href) +
       '" class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[72px]" data-hub-link="' +
-      escHtml(l.title) +
+      escHtml(item.title) +
       '" data-full-load="1">' +
-      hubIcon(l) +
+      hubIcon(item) +
       '<span><span class="font-heading font-bold text-navy block">' +
-      escHtml(l.title) +
+      escHtml(item.title) +
       '</span>' +
       '<span class="text-sm text-text-soft">' +
-      escHtml(l.sub) +
+      escHtml(item.sub) +
       '</span></span></a>'
     );
   }
@@ -83,13 +108,18 @@
   }
 
   function gettingStartedHtml() {
+    const library = escHtml(pt('planning.gettingStarted.libraryLink'));
+    const forYou = escHtml(pt('planning.gettingStarted.forYouLink'));
     return (
       '<section class="magic-hub-section mb-1" data-planning-getting-started="1">' +
       '<div class="p-3 bg-white rounded-2xl border border-gold/40">' +
-      '<p class="font-heading font-bold text-navy text-sm mb-1">Kom igång</p>' +
+      '<p class="font-heading font-bold text-navy text-sm mb-1">' + escHtml(pt('planning.gettingStarted.title')) + '</p>' +
       '<p class="text-sm text-text-soft leading-snug">' +
-      'Börja i <a href="/library" class="text-gold font-semibold underline" data-hub-link="Kom igång Bibliotek" data-full-load="1">Biblioteket</a> om du vill skapa aktiviteter. ' +
-      'Gå till <a href="/for-dig" class="text-gold font-semibold underline" data-hub-link="Kom igång För dig" data-full-load="1">För dig</a> om du vill få en färdig rekommendation.' +
+      escHtml(pt('planning.gettingStarted.bodyBeforeLibrary')) +
+      '<a href="/library" class="text-gold font-semibold underline" data-hub-link="' + library + '" data-full-load="1">' + library + '</a>' +
+      escHtml(pt('planning.gettingStarted.bodyMiddle')) +
+      '<a href="/for-dig" class="text-gold font-semibold underline" data-hub-link="' + forYou + '" data-full-load="1">' + forYou + '</a>' +
+      escHtml(pt('planning.gettingStarted.bodyAfter')) +
       '</p></div></section>'
     );
   }
@@ -185,9 +215,9 @@
     const sections = await getSections();
     let html = '<div class="magic-hub-sections max-w-lg space-y-5">';
     if (sections.showGettingStarted) html += gettingStartedHtml();
-    html += sectionHtml('Planera vardagen', sections.plan);
-    html += sectionHtml('Bygg innehåll', sections.content);
-    if (sections.other.length) html += sectionHtml('Övrigt', sections.other);
+    html += sectionHtml(pt('planning.sections.planWeek'), sections.plan);
+    html += sectionHtml(pt('planning.sections.buildContent'), sections.content);
+    if (sections.other.length) html += sectionHtml(pt('planning.sections.other'), sections.other);
     html += '</div>';
     mount.innerHTML = html;
     bindHubClicks(mount);
@@ -211,6 +241,9 @@
   window.addEventListener('stjarndag-magic-navigated', function (e) {
     if (e.detail && e.detail.pageId === 'planning') render();
   });
+
+  document.addEventListener('parent-i18n-ready', render);
+  document.addEventListener('locale-changed', render);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', render);

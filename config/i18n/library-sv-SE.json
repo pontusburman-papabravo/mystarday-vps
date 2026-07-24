@@ -1,0 +1,83 @@
+{
+  "pageTitle": "Bibliotek — {{brand}}",
+  "hub": {
+    "title": "Biblioteket",
+    "searchPlaceholder": "Sök i biblioteket…",
+    "subtitle": "Scheman, aktiviteter och belöningar för er familj",
+    "backToPlanning": "← Till planering",
+    "sections": {
+      "standard": { "title": "Standardscheman", "subtitle": "Färdiga mallar att kopiera" },
+      "activities": { "title": "Aktiviteter", "subtitle": "Dina aktiviteter — emoji eller eget foto" },
+      "images": { "title": "Bildarkiv", "subtitle": "Egna foton — tandborste, säng, skola" },
+      "rewards": { "title": "Belöningar", "subtitle": "Mål barnen strävar mot" },
+      "mine": { "title": "Mina bibliotek", "subtitle": "Egna scheman och mallor" }
+    }
+  },
+  "errors": {
+    "loadAll": "Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.",
+    "loadPage": "Biblioteket kunde inte laddas. Försök ladda om sidan.",
+    "loadCategories": "Kunde inte ladda kategorier. Försök ladda om sidan.",
+    "loadActivities": "Kunde inte ladda aktiviteter. Försök ladda om sidan.",
+    "loadRewards": "Kunde inte ladda belöningar. Försök ladda om sidan.",
+    "updateReward": "Kunde inte uppdatera belöning",
+    "copyReward": "Kunde inte kopiera belöningen",
+    "deleteReward": "Kunde inte ta bort belöningen",
+    "saveOrder": "Kunde inte spara ordningen",
+    "updateFavorite": "Kunde inte uppdatera favorit",
+    "deleteCategory": "Kunde inte ta bort kategorin",
+    "deleteActivity": "Kunde inte ta bort aktiviteten",
+    "copyActivity": "Kunde inte kopiera aktiviteten",
+    "generic": "Fel uppstod"
+  },
+  "empty": {
+    "noCategories": "Inga kategorier ännu",
+    "libraryTitle": "Biblioteket är tomt",
+    "libraryBody": "Här samlar du dina aktiviteter. Skapa en aktivitet som t.ex. \"Borsta tänderna\" och använd den i alla barns scheman.",
+    "createFirstActivity": "+ Skapa din första aktivitet",
+    "categoryBody": "Lägg till aktiviteter för att bygga upp ditt schema.",
+    "addActivity": "+ Lägg till aktivitet",
+    "rewardsTitle": "Belöningsbiblioteket är tomt",
+    "rewardsBody": "Lägg till belöningar som barnen kan tjäna ihop stjärnor till.",
+    "addReward": "+ Lägg till belöning",
+    "noChildren": "Inga barn i familjen ännu.",
+    "noSubsteps": "Inga delsteg ännu. Lägg till nedan.",
+    "noSearchActivity": "Ingen aktivitet hittades för \"{{query}}\"",
+    "createActivityHint": "Skapa en ny aktivitet med det här namnet",
+    "noSearchReward": "Ingen belöning hittades för \"{{query}}\"",
+    "createRewardHint": "Skapa en ny belöning med det här namnet",
+    "yourRewards": "Dina belöningar"
+  },
+  "searching": "Söker…",
+  "actions": {
+    "save": "Spara",
+    "saving": "Sparar…",
+    "activitiesTab": "Aktiviteter"
+  },
+  "saved": {
+    "category": "Kategorin har sparats",
+    "categoryDeleted": "Kategorin har tagits bort",
+    "activity": "Aktiviteten har sparats",
+    "activityPartial": "Aktiviteten sparades men {{count}} delsteg misslyckades",
+    "activityDeleted": "Aktiviteten har tagits bort",
+    "activityCopied": "\"{{name}}\" kopierad till ditt bibliotek!",
+    "reward": "Belöningen har sparats",
+    "rewardDeleted": "Belöningen har tagits bort",
+    "rewardCopied": "\"{{name}}\" kopierad till ditt belöningsbibliotek!"
+  },
+  "modal": {
+    "editCategory": "Redigera kategori",
+    "newCategory": "Ny kategori",
+    "editActivity": "Redigera aktivitet",
+    "newActivity": "Ny aktivitet",
+    "editReward": "Redigera belöning",
+    "newReward": "Ny belöning",
+    "approvalBadge": "Godkänn"
+  },
+  "validation": {
+    "timerRange": "Timer måste vara mellan 5 sekunder och 60 minuter (heltal).",
+    "pickImage": "Välj en bild från bildarkivet (eller ladda upp en ny)."
+  },
+  "substeps": {
+    "add": "+ Lägg till delsteg"
+  }
+}

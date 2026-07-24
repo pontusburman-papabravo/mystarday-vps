@@ -1,4 +1,28 @@
 
+    function fpt(key, params) {
+      return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+    }
+
+    function roleLabel(value) {
+      const map = {
+        'förälder': 'family.roles.parent',
+        'mamma': 'family.roles.mamma',
+        'pappa': 'family.roles.pappa',
+        'bonusförälder': 'family.roles.bonusParent',
+        'annan': 'family.roles.other',
+      };
+      return map[value] ? fpt(map[value]) : value;
+    }
+
+    function sectionLabel(section) {
+      const map = {
+        morgon: 'sections.morgon',
+        dag: 'sections.dag',
+        kvall: 'sections.kvall',
+      };
+      return map[section] ? fpt(map[section]) : section;
+    }
+
     // initBirthdayPicker and updateBirthdayDays are now in /js/birthday-picker.js
     function updateBirthdayHidden(prefix) {
       const y = document.getElementById(prefix + 'Year').value;
@@ -46,12 +70,15 @@
     let initInFlight = null;
 
     const ROLES = [
-      { value: 'förälder', label: 'Förälder' },
-      { value: 'mamma', label: 'Mamma' },
-      { value: 'pappa', label: 'Pappa' },
-      { value: 'bonusförälder', label: 'Bonusförälder' },
-      { value: 'annan', label: 'Annan' },
+      { value: 'förälder', labelKey: 'family.roles.parent' },
+      { value: 'mamma', labelKey: 'family.roles.mamma' },
+      { value: 'pappa', labelKey: 'family.roles.pappa' },
+      { value: 'bonusförälder', labelKey: 'family.roles.bonusParent' },
+      { value: 'annan', labelKey: 'family.roles.other' },
     ];
+    function roleOptionLabel(role) {
+      return role.labelKey ? fpt(role.labelKey) : role.label || role.value;
+    }
 
     function applyWarmFamilyData() {
       if (!familyCache && window.__familyWarmData) {
@@ -65,7 +92,7 @@
       if (skeleton) skeleton.classList.toggle('hidden', !loading);
       if (dataSections) dataSections.classList.toggle('hidden', loading);
       const summary = document.getElementById('familyHubSummary');
-      if (summary && loading && !familyCache) summary.textContent = 'Laddar…';
+      if (summary && loading && !familyCache) summary.textContent = fpt('family.shell.loading');
     }
 
     function fetchFamily() {
@@ -140,7 +167,7 @@
             return;
           }
         } catch (err) {
-          showToast('Kunde inte ladda familjeinformation: ' + err.message, true);
+          showToast(fpt('family.errors.loadFamily') + ' ' + err.message, true);
         } finally {
           setFamilyLoading(false);
           initInFlight = null;
@@ -183,8 +210,16 @@
 
       const parents = data.parents || [];
       const summaryParts = [];
-      if (children.length) summaryParts.push(children.length === 1 ? '1 barn' : children.length + ' barn');
-      if (parents.length) summaryParts.push(parents.length === 1 ? '1 förälder' : parents.length + ' föräldrar');
+      if (children.length) {
+        summaryParts.push(children.length === 1
+          ? fpt('family.summary.childrenOne')
+          : fpt('family.summary.childrenMany', { count: children.length }));
+      }
+      if (parents.length) {
+        summaryParts.push(parents.length === 1
+          ? fpt('family.summary.oneParent')
+          : fpt('family.summary.parentsMany', { count: parents.length }));
+      }
       const summaryText = summaryParts.join(' · ');
       ['familySummary', 'familyHubSummary'].forEach(function (id) {
         const el = document.getElementById(id);
@@ -221,9 +256,9 @@
           <div class="flex items-center justify-between bg-lavender dark:bg-navy-soft rounded-xl px-4 py-3">
             <div>
               <span class="font-medium text-navy dark:text-white">${escapeHtml(inv.email)}</span>
-              <span class="ml-2 text-xs text-text-soft italic">Väntar...</span>
+              <span class="ml-2 text-xs text-text-soft italic">${fpt('family.shell.waiting')}</span>
             </div>
-            <button onclick="withdrawInvite('${escapeHtml(inv.id)}')" class="text-xs text-red-500 hover:text-red-600 font-semibold">Återkalla</button>
+            <button onclick="withdrawInvite('${escapeHtml(inv.id)}')" class="text-xs text-red-500 hover:text-red-600 font-semibold">${fpt('family.shell.withdrawInvite')}</button>
           </div>
         `).join('');
       } else {
@@ -240,12 +275,12 @@
 
     // ─── Child card (compact clickable summary) ──────────
     function renderChildCard(child) {
-      const ageText = child.birthday ? calculateAge(child.birthday) : 'Ålder okänd';
+      const ageText = child.birthday ? calculateAge(child.birthday) : fpt('family.child.ageUnknown');
       const href = '/family/child/' + encodeURIComponent(child.id);
       return `
         <div class="child-card-wrap relative fade-in" data-child-id="${child.id}">
           <span class="drag-handle text-gray-300 text-lg select-none cursor-grab absolute top-3 right-3 z-10"
-                title="Dra för att ändra ordning"
+                title="${fpt('family.child.dragReorder')}"
                 onclick="event.preventDefault(); event.stopPropagation()">⠿</span>
           <a href="${href}" class="family-child-card flex items-center gap-3 p-4 bg-sky dark:bg-navy-soft rounded-2xl card-hover no-underline min-h-[72px]">
             ${childAvatarHtml(child, 48)}
@@ -301,17 +336,20 @@
           for (const sched of standardSchedules) {
             const itemCount = sched.items ? sched.items.length : 0;
             const sections = sched.items ? [...new Set(sched.items.map(i => i.section))].filter(Boolean) : [];
-            const sectionLabels = sections.map(s => s === 'morgon' ? 'Morgon' : s === 'dag' ? 'Dag' : s === 'kvall' ? 'Kväll' : s).join(', ');
+            const sectionLabels = sections.map(sectionLabel).join(', ');
+            const activityLabel = itemCount === 1
+              ? fpt('family.schedule.activitiesOne')
+              : fpt('family.schedule.activitiesMany', { count: itemCount });
             html += `
               <div class="bg-white dark:bg-navy rounded-xl px-4 py-3 border border-gray-100 dark:border-navy-soft">
                 <div class="flex items-center justify-between">
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-navy dark:text-white">${escHtml(sched.name)}</p>
-                    <p class="text-xs text-text-soft mt-0.5">${itemCount} aktiviteter · ${sectionLabels || 'Morgon, Dag, Kväll'}</p>
+                    <p class="text-xs text-text-soft mt-0.5">${activityLabel} · ${sectionLabels || fpt('family.schedule.sectionsDefault')}</p>
                   </div>
                   <button onclick="applySchedulePackage('standard', '${sched.id}', '${escHtml(sched.name)}', '${childId}')"
                     class="flex-shrink-0 px-4 py-2 bg-gold hover:bg-yellow-500 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ml-3">
-                    Välj
+                    ${fpt('family.drawer.select')}
                   </button>
                 </div>
               </div>`;
@@ -330,11 +368,11 @@
                 <div class="flex items-center justify-between">
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-navy dark:text-white">${escHtml(tpl.name)}</p>
-                    <p class="text-xs text-text-soft mt-0.5">${tpl.item_count || 0} aktiviteter</p>
+                    <p class="text-xs text-text-soft mt-0.5">${fpt('family.schedule.activitiesMany', { count: tpl.item_count || 0 })}</p>
                   </div>
                   <button onclick="applySchedulePackage('family', '${tpl.id}', '${escHtml(tpl.name)}', '${childId}')"
                     class="flex-shrink-0 px-4 py-2 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ml-3">
-                    Välj
+                    ${fpt('family.drawer.select')}
                   </button>
                 </div>
               </div>`;
@@ -343,12 +381,12 @@
         }
 
         if (!html) {
-          html = '<p class="text-sm text-text-soft italic">Inga schemapaket tillgängliga ännu.</p>';
+          html = '<p class="text-sm text-text-soft italic">' + fpt('family.drawer.noPackages') + '</p>';
         }
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda schemapaket.</p>';
+        container.innerHTML = '<p class="text-sm text-red-500">' + fpt('family.errors.loadPackages') + '</p>';
       }
     }
 
@@ -356,7 +394,7 @@
     async function applySchedulePackage(type, scheduleId, scheduleName, childId) {
       const child = familyChildren.find(c => c.id === childId);
       const name = child?.name || 'barnet';
-      if (!confirm(`Applicera "${scheduleName}" på ${name}? Detta ersätter barnets nuvarande veckoschema (mån–fre).`)) return;
+      if (!confirm(fpt('family.drawer.applyConfirm', { schedule: scheduleName, name }))) return;
       try {
         if (type === 'standard') {
           // Use standard-library copy endpoint (applies to weekdays by default)
@@ -371,9 +409,9 @@
             body: JSON.stringify({ child_id: childId, days: [1, 2, 3, 4, 5], overwrite: true }),
           });
         }
-        showToast(`"${scheduleName}" applicerat på ${name}! ✓`);
+        showToast(fpt('family.toasts.scheduleApplied', { name: scheduleName, child: name }));
       } catch (err) {
-        showToast('Kunde inte applicera: ' + err.message, true);
+        showToast(fpt('family.errors.applySchedule') + ' ' + err.message, true);
       }
     }
 
@@ -444,17 +482,17 @@
           </div>
         </div>
         ${childGoal.pending_change_request ? '<p class="text-xs text-gold mt-1">⏳ Bytebegäran väntar</p>' : ''}`;
-        if (goalBadgeEl) goalBadgeEl.textContent = 'Aktivt mål';
+        if (goalBadgeEl) goalBadgeEl.textContent = fpt('family.drawer.activeGoal');
       } else {
-        goalInfoEl.innerHTML = '<p class="text-xs text-text-soft italic">Inget mål satt</p>';
-        if (goalBadgeEl) goalBadgeEl.textContent = 'Inget mål';
+        goalInfoEl.innerHTML = '<p class="text-xs text-text-soft italic">' + fpt('family.errors.noGoalSet') + '</p>';
+        if (goalBadgeEl) goalBadgeEl.textContent = fpt('family.drawer.noGoal');
       }
 
       // ── Populate goal select ──────────────────────────
       const rewards = rewardsData.rewards || [];
       const goalSelect = document.getElementById('goalRewardSelect');
       if (goalSelect) {
-        goalSelect.innerHTML = '<option value="">– Välj belöning –</option>' +
+        goalSelect.innerHTML = '<option value="">' + fpt('family.drawer.chooseReward') + '</option>' +
           rewards.filter(r => r.is_active).map(r =>
             `<option value="${r.id}" ${childGoal && childGoal.reward_id === r.id ? 'selected' : ''}>${r.icon || '🎁'} ${escHtml(r.name)} — ${r.star_cost} ⭐</option>`
           ).join('');
@@ -463,7 +501,7 @@
       // ── Reward visibility ─────────────────────────────
       const rewardsContainer = document.getElementById('rewardsList');
       if (rewards.length === 0) {
-        rewardsContainer.innerHTML = '<p class="text-sm text-text-soft italic">Inga belöningar i biblioteket ännu. <a href="/library" class="text-gold underline">Gå till Bibliotek</a> för att lägga till belöningar.</p>';
+        rewardsContainer.innerHTML = '<p class="text-sm text-text-soft italic">' + fpt('family.drawer.noRewardsYet') + ' <a href="/library" class="text-gold underline">' + fpt('family.drawer.goToLibrary') + '</a></p>';
       } else {
         rewardsContainer.innerHTML = rewards.map(reward => {
           const isVisible = reward.visible_to_children === null ||
@@ -497,7 +535,7 @@
       const childHistory = allHistory.filter(h => h.child_id === childId);
       const histEl = document.getElementById('redemptionHistoryList');
       if (childHistory.length === 0) {
-        histEl.innerHTML = '<p class="text-xs text-text-soft italic">Inga inlösta belöningar ännu.</p>';
+        histEl.innerHTML = '<p class="text-xs text-text-soft italic">' + fpt('family.drawer.noRedemptions') + '</p>';
       } else {
         histEl.innerHTML = childHistory.slice(0, 10).map(h => {
           const d = new Date(h.created_at);
@@ -526,25 +564,25 @@
     async function approveRedemption(id) {
       try {
         await Auth.api('/api/rewards/redemptions/' + id + '/approve', { method: 'PUT' });
-        showToast('✓ Inlösning godkänd!');
+        showToast(fpt('family.toasts.redemptionApproved'));
         const child = familyChildren.find(c => c.id === drawerChildId);
         loadRewards(drawerChildId, child);
         // Trigger confetti badge update on parent dashboard
         loadPendingBadge();
       } catch (err) {
-        showToast(err.message || 'Kunde inte godkänna', true);
+        showToast(err.message || fpt('family.errors.approveRedemption'), true);
       }
     }
 
     async function denyRedemption(id) {
       try {
         await Auth.api('/api/rewards/redemptions/' + id + '/deny', { method: 'PUT' });
-        showToast('Inlösning nekad.');
+        showToast(fpt('family.toasts.redemptionDenied'));
         const child = familyChildren.find(c => c.id === drawerChildId);
         loadRewards(drawerChildId, child);
         loadPendingBadge();
       } catch (err) {
-        showToast(err.message || 'Kunde inte neka', true);
+        showToast(err.message || fpt('family.errors.deny'), true);
       }
     }
 
@@ -552,22 +590,22 @@
     async function approveGoalChange(id) {
       try {
         await Auth.api('/api/rewards/goal-change-requests/' + id + '/approve', { method: 'PUT' });
-        showToast('✓ Målbyte godkänt!');
+        showToast(fpt('family.toasts.goalChangeApproved'));
         const child = familyChildren.find(c => c.id === drawerChildId);
         loadRewards(drawerChildId, child);
       } catch (err) {
-        showToast(err.message || 'Kunde inte godkänna', true);
+        showToast(err.message || fpt('family.errors.approveRedemption'), true);
       }
     }
 
     async function denyGoalChange(id) {
       try {
         await Auth.api('/api/rewards/goal-change-requests/' + id + '/deny', { method: 'PUT' });
-        showToast('Målbyte nekat.');
+        showToast(fpt('family.toasts.goalChangeDenied'));
         const child = familyChildren.find(c => c.id === drawerChildId);
         loadRewards(drawerChildId, child);
       } catch (err) {
-        showToast(err.message || 'Kunde inte neka', true);
+        showToast(err.message || fpt('family.errors.deny'), true);
       }
     }
 
@@ -580,11 +618,11 @@
           method: 'PUT',
           body: JSON.stringify({ reward_id: rewardId }),
         });
-        showToast('🎯 Mål satt!');
+        showToast(fpt('family.toasts.goalSet'));
         const child = familyChildren.find(c => c.id === drawerChildId);
         loadRewards(drawerChildId, child);
       } catch (err) {
-        showToast(err.message || 'Kunde inte sätta mål', true);
+        showToast(err.message || fpt('family.errors.setGoal'), true);
       }
     }
 
@@ -618,7 +656,7 @@
       const preview = document.getElementById('manualStarImagePreview');
       const urlInput = document.getElementById('manualStarImageUrl');
       const msgEl = document.getElementById('manualStarMsg');
-      msgEl.textContent = 'Laddar upp bild...';
+      msgEl.textContent = fpt('family.giveStars.uploading');
       try {
         const fd = new FormData();
         fd.append('image', file);
@@ -634,14 +672,14 @@
           credentials: 'include',
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Uppladdning misslyckades');
+        if (!res.ok) throw new Error(data.error || fpt('family.errors.upload'));
         urlInput.value = data.url;
         preview.src = data.url;
         preview.classList.remove('hidden');
-        msgEl.textContent = '✓ Bild uppladdad!';
+        msgEl.textContent = fpt('family.giveStars.uploadSuccess');
         msgEl.className = 'text-xs text-green-600';
       } catch (err) {
-        msgEl.textContent = 'Bild misslyckades: ' + err.message;
+        msgEl.textContent = fpt('family.giveStars.uploadFailed') + ' ' + err.message;
         msgEl.className = 'text-xs text-red-500';
       }
     }
@@ -653,33 +691,33 @@
       const image_url = document.getElementById('manualStarImageUrl').value || null;
       const msgEl = document.getElementById('manualStarMsg');
       if (!reason) {
-        msgEl.textContent = 'Anledning krävs!';
+        msgEl.textContent = fpt('family.giveStars.reasonRequired');
         msgEl.className = 'text-xs text-red-500';
         return;
       }
       if (!star_count || star_count < 1) {
-        msgEl.textContent = 'Ange minst 1 stjärna';
+        msgEl.textContent = fpt('family.giveStars.minStars');
         msgEl.className = 'text-xs text-red-500';
         return;
       }
       const btn = document.getElementById('manualStarSubmitBtn');
       btn.disabled = true;
-      btn.textContent = 'Skickar...';
+      btn.textContent = fpt('family.giveStars.sending');
       try {
         await Auth.api('/api/rewards/manual-stars', {
           method: 'POST',
           body: JSON.stringify({ child_id: _manualStarChildId, star_count, reason, image_url }),
         });
-        showToast(`⭐ ${star_count} stjärnor givna!`);
+        showToast(fpt('family.toasts.starsGiven', { count: star_count }));
         closeManualStarModal();
         const child = familyChildren.find(c => c.id === _manualStarChildId);
         loadRewards(_manualStarChildId, child);
       } catch (err) {
-        msgEl.textContent = err.message || 'Kunde inte ge stjärnor';
+        msgEl.textContent = err.message || fpt('family.errors.giveStars');
         msgEl.className = 'text-xs text-red-500';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Ge stjärnor ⭐';
+        btn.textContent = fpt('family.giveStars.submit');
       }
     }
 
@@ -729,7 +767,7 @@
           body: JSON.stringify({ visible_to_children: newVisible }),
         });
       } catch (err) {
-        showToast('Kunde inte uppdatera synlighet: ' + err.message, true);
+        showToast(fpt('family.errors.updateVisibility') + ' ' + err.message, true);
         // Revert toggle visually
         const child = familyChildren.find(c => c.id === childId);
         loadRewards(childId, child);
@@ -754,7 +792,7 @@
           card.outerHTML = renderChildCard(updatedChild);
         }
       } catch (err) {
-        showToast('Kunde inte spara: ' + err.message, true);
+        showToast(fpt('family.errors.save') + ' ' + err.message, true);
       }
     }
 
@@ -773,9 +811,9 @@
           child.show_now_next = enabled;
           child.require_sequential_completion = enabled;
         }
-        showToast(enabled ? 'NU / NÄSTA / SEDAN aktiverat' : 'Fri avbockning — barnet väljer själv');
+        showToast(enabled ? fpt('family.toasts.nnlEnabled') : fpt('family.toasts.nnlDisabled'));
       } catch (err) {
-        showToast('Kunde inte spara: ' + err.message, true);
+        showToast(fpt('family.errors.save') + ' ' + err.message, true);
         const cb = document.getElementById('setting-show_now_next');
         if (cb) cb.checked = !enabled;
       }
@@ -808,7 +846,7 @@
 
         if (pin) {
           if (!/^\d{4}$/.test(pin)) {
-            showToast('PIN-koden måste vara exakt 4 siffror', true);
+            showToast(fpt('family.toasts.pinLength'), true);
             return;
           }
           await Auth.api('/api/children/' + childId + '/pin', {
@@ -821,7 +859,7 @@
         closeChildDrawer();
         init();
       } catch (err) {
-        showToast('Kunde inte spara: ' + err.message, true);
+        showToast(fpt('family.errors.save') + ' ' + err.message, true);
       }
     }
 
@@ -831,7 +869,7 @@
       pendingDeleteType = 'child';
       pendingDeleteId = drawerChildId;
       document.getElementById('deleteTargetName').textContent = child.name;
-      document.getElementById('deleteTargetMessage').textContent = 'Alla aktiviteter, scheman och belöningshistorik för detta barn kommer att raderas permanent.';
+      document.getElementById('deleteTargetMessage').textContent = fpt('family.delete.childMessage');
       document.getElementById('confirmDeleteBtn').onclick = executeDelete;
       document.getElementById('deleteModal').classList.remove('hidden');
     }
@@ -842,7 +880,7 @@
       const isOnlyAdult = (familyData?.parents || []).length === 1;
       const canDelete = !isOnlyAdult && !isSelf;
       const roleOptions = ROLES.map(r =>
-        `<option value="${r.value}" ${parent.family_role === r.value ? 'selected' : ''}>${r.label}</option>`
+        `<option value="${r.value}" ${parent.family_role === r.value ? 'selected' : ''}>${roleOptionLabel(r)}</option>`
       ).join('');
 
       return `
@@ -909,7 +947,7 @@
         msg.classList.remove('hidden');
         setTimeout(() => msg.classList.add('hidden'), 2000);
       } catch (err) {
-        showToast('Kunde inte spara: ' + err.message, true);
+        showToast(fpt('family.errors.save') + ' ' + err.message, true);
       }
     }
 
@@ -917,7 +955,7 @@
       const checkboxes = document.querySelectorAll(`.pc-cb[data-parent-id="${parentId}"]`);
       const childIds = [...checkboxes].filter(cb => cb.checked).map(cb => cb.dataset.childId);
       if (childIds.length === 0) {
-        showToast('Minst ett barn måste väljas', true);
+        showToast(fpt('family.errors.selectChild'), true);
         checkboxes[0].checked = true;
         return;
       }
@@ -984,7 +1022,7 @@
       const msg = document.getElementById('addAdultMsg');
       const btn = document.getElementById('addAdultSubmitBtn');
       btn.disabled = true;
-      btn.textContent = 'Skickar...';
+      btn.textContent = fpt('family.giveStars.sending');
       try {
         const check = await Auth.api('/api/family/check-member', {
           method: 'POST',
@@ -1042,10 +1080,10 @@
     async function withdrawInvite(inviteId) {
       try {
         await Auth.api(`/api/family/invite/${inviteId}`, { method: 'DELETE' });
-        showToast('Inbjudan återkallad');
+        showToast(fpt('family.toasts.inviteWithdrawn'));
         init();
       } catch (err) {
-        showToast('Kunde inte återkalla: ' + err.message, true);
+        showToast(fpt('family.errors.withdrawInvite') + ' ' + err.message, true);
       }
     }
 
@@ -1057,7 +1095,7 @@
       pendingDeleteType = 'child';
       pendingDeleteId = id;
       document.getElementById('deleteTargetName').textContent = name;
-      document.getElementById('deleteTargetMessage').textContent = 'Alla aktiviteter, scheman och belöningshistorik för detta barn kommer att raderas permanent.';
+      document.getElementById('deleteTargetMessage').textContent = fpt('family.delete.childMessage');
       document.getElementById('confirmDeleteBtn').onclick = executeDelete;
       document.getElementById('deleteModal').classList.remove('hidden');
     }
@@ -1066,7 +1104,7 @@
       pendingDeleteType = 'member';
       pendingDeleteId = id;
       document.getElementById('deleteTargetName').textContent = name;
-      document.getElementById('deleteTargetMessage').textContent = 'Denna person kommer att tas bort från din familj. De kan fortfarande logga in med sitt konto.';
+      document.getElementById('deleteTargetMessage').textContent = fpt('family.delete.memberMessage');
       document.getElementById('confirmDeleteBtn').onclick = executeDelete;
       document.getElementById('deleteModal').classList.remove('hidden');
     }
@@ -1134,11 +1172,11 @@
         // Shared-device guard: if the server says we lack parent auth,
         // the session was likely corrupted by a child login on the same device.
         if (err.message && err.message.includes('föräldrabehörighet')) {
-          showToast('Din session har löpt ut. Du loggas in igen…', true, 3000);
+          showToast(fpt('family.errors.sessionExpired'), true, 3000);
           setTimeout(() => { Auth.clearAuth(); window.location.href = '/login'; }, 2000);
           return;
         }
-        showToast('Kunde inte lägga till barn: ' + err.message, true);
+        showToast(fpt('family.errors.addChild') + ' ' + err.message, true);
       }
     }
 
@@ -1203,7 +1241,7 @@
             familyChildren = prevChildren;
             renderAll({ ...familyData, children: prevChildren });
             initFamilyDnD();
-            showToast('Kunde inte spara ordningen', true);
+            showToast(fpt('family.errors.saveOrder'), true);
           }
         },
       });
@@ -1226,9 +1264,11 @@
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) years--;
       if (years < 1) {
         const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
-        return months + ' månader';
+        return fpt('family.child.monthsMany', { count: months });
       }
-      return years + ' år';
+      return years === 1
+        ? fpt('family.child.yearsOne', { count: years })
+        : fpt('family.child.yearsMany', { count: years });
     }
 
     // ─── Keyboard: Escape closes drawer ──────────────────
@@ -1259,8 +1299,17 @@ if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('family', init);
 }
 
-init();
-if (window.ParentMagicShell) ParentMagicShell.init('family');
+(async function familyI18nBoot() {
+  if (typeof window.authGuard === 'function') {
+    const user = await window.authGuard();
+    if (!user) return;
+    if (typeof window.initParentAppI18n === 'function') {
+      await window.initParentAppI18n(user.preferred_locale);
+    }
+  }
+  init();
+  if (window.ParentMagicShell) ParentMagicShell.init('family');
+})();
 
 window.FamilyPage = { prefetch: prefetchFamily };
 

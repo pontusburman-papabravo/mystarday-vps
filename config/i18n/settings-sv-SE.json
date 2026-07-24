@@ -1,0 +1,33 @@
+{
+  "pageTitle": "Inställningar — {{brand}}",
+  "title": "Inställningar",
+  "shellLead": "Profil, familj och app — grupperat som i mockupen",
+  "familySettings": "Familjeinställningar",
+  "groups": {
+    "profile": { "title": "Profil & konto", "sub": "Inloggning, PIN och konto" },
+    "family": { "title": "Familj", "sub": "Lägg till vuxen, namn och pedagoger" },
+    "appearance": { "title": "Utseende", "sub": "Mörkt eller ljust tema" },
+    "app": { "title": "App", "sub": "Notiser, push och integritet" }
+  },
+  "appearance": {
+    "dark": "Mörkt",
+    "light": "Ljust",
+    "backToSettings": "← Tillbaka till inställningar"
+  },
+  "heroes": {
+    "planning": { "title": "Planering", "sub": "Bygg innehåll eller planera barnens vecka." },
+    "rewards": { "title": "Belöningar", "sub": "Stjärnor, belöningar och familjekista." },
+    "calendar": { "title": "Kalender", "sub": "Månadsvy över alla barn" },
+    "activities": { "title": "Aktiviteter", "sub": "Hantera barnens aktiviteter" },
+    "assignSchedule": { "title": "Tilldela schema", "sub": "Kopiera schema till barn" },
+    "dailyLog": { "title": "Daglig logg", "sub": "Följ barnens dag — fyll i stjärnor i efterhand" },
+    "treasureChest": { "title": "Skattkammaren", "sub": "Belöningar och stjärnor" },
+    "childSettings": { "title": "Barninställningar", "sub": "Vy, PIN och anpassning" },
+    "familyChild": { "title": "Barnets inställningar", "sub": "Schema, vy, PIN och anpassning" },
+    "notifications": { "title": "Notiser", "sub": "Påminnelser och meddelanden" },
+    "schedule": { "title": "Veckoschema", "sub": "Planera och anpassa barnens dagar" },
+    "library": { "title": "Biblioteket", "sub": "Scheman, aktiviteter och belöningar för er familj" },
+    "family": { "title": "Familj", "sub": "Barn, vuxna och pedagoger" }
+  },
+  "backToPlanning": "← Till planering"
+}

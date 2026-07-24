@@ -4,25 +4,38 @@
 (function () {
   'use strict';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   const SETTINGS_GROUPS = [
-    { id: 'profile', icon: 'profil', iconClass: 'profile', title: 'Profil & konto', sub: 'Inloggning, PIN och konto' },
-    { id: 'family', icon: 'familj', iconClass: 'family', title: 'Familj', sub: 'Lägg till vuxen, namn och pedagoger' },
-    { id: 'appearance', icon: 'info', iconClass: 'app', title: 'Utseende', sub: 'Mörkt eller ljust tema' },
-    { id: 'app', icon: 'notiser', iconClass: 'app', title: 'App', sub: 'Notiser, push och integritet' },
+    { id: 'profile', icon: 'profil', iconClass: 'profile', titleKey: 'settings.groups.profile.title', subKey: 'settings.groups.profile.sub' },
+    { id: 'family', icon: 'familj', iconClass: 'family', titleKey: 'settings.groups.family.title', subKey: 'settings.groups.family.sub' },
+    { id: 'appearance', icon: 'info', iconClass: 'app', titleKey: 'settings.groups.appearance.title', subKey: 'settings.groups.appearance.sub' },
+    { id: 'app', icon: 'notiser', iconClass: 'app', titleKey: 'settings.groups.app.title', subKey: 'settings.groups.app.sub' },
   ];
 
   const PAGE_HEROES = {
-    planning: { icon: 'schema', title: 'Planering', sub: 'Bygg innehåll eller planera barnens vecka.' },
-    rewards: { icon: 'beloningar', title: 'Belöningar', sub: 'Stjärnor, belöningar och familjekista.' },
-    calendar: { icon: 'kalender', title: 'Kalender', sub: 'Månadsvy över alla barn' },
-    activities: { icon: 'aktiviteter', title: 'Aktiviteter', sub: 'Hantera barnens aktiviteter' },
-    'assign-schedule': { icon: 'kopiera-aktivitet', title: 'Tilldela schema', sub: 'Kopiera schema till barn' },
-    'daily-log': { icon: 'historik', title: 'Daglig logg', sub: 'Följ barnens dag — fyll i stjärnor i efterhand' },
-    skattkammaren: { icon: 'skattkammaren', title: 'Skattkammaren', sub: 'Belöningar och stjärnor' },
-    'child-settings': { icon: 'barn', title: 'Barninställningar', sub: 'Vy, PIN och anpassning' },
-    'family-child': { icon: 'installningar', title: 'Barnets inställningar', sub: 'Schema, vy, PIN och anpassning' },
-    notifications: { icon: 'notiser', title: 'Notiser', sub: 'Påminnelser och meddelanden' },
+    planning: { icon: 'schema', titleKey: 'settings.heroes.planning.title', subKey: 'settings.heroes.planning.sub' },
+    rewards: { icon: 'beloningar', titleKey: 'settings.heroes.rewards.title', subKey: 'settings.heroes.rewards.sub' },
+    calendar: { icon: 'kalender', titleKey: 'settings.heroes.calendar.title', subKey: 'settings.heroes.calendar.sub' },
+    activities: { icon: 'aktiviteter', titleKey: 'settings.heroes.activities.title', subKey: 'settings.heroes.activities.sub' },
+    'assign-schedule': { icon: 'kopiera-aktivitet', titleKey: 'settings.heroes.assignSchedule.title', subKey: 'settings.heroes.assignSchedule.sub' },
+    'daily-log': { icon: 'historik', titleKey: 'home.hubs.dailyLogTitle', subKey: 'home.hubs.dailyLogSub' },
+    skattkammaren: { icon: 'skattkammaren', titleKey: 'settings.heroes.treasureChest.title', subKey: 'settings.heroes.treasureChest.sub' },
+    'child-settings': { icon: 'barn', titleKey: 'settings.heroes.childSettings.title', subKey: 'settings.heroes.childSettings.sub' },
+    'family-child': { icon: 'installningar', titleKey: 'settings.heroes.familyChild.title', subKey: 'settings.heroes.familyChild.sub' },
+    notifications: { icon: 'notiser', titleKey: 'settings.heroes.notifications.title', subKey: 'settings.heroes.notifications.sub' },
+    library: { icon: 'aktiviteter', titleKey: 'settings.heroes.library.title', subKey: 'settings.heroes.library.sub' },
   };
+
+  function heroCopy(cfg) {
+    if (!cfg) return { title: '', sub: '' };
+    return {
+      title: cfg.titleKey ? pt(cfg.titleKey) : (cfg.title || ''),
+      sub: cfg.subKey ? pt(cfg.subKey) : (cfg.sub || ''),
+    };
+  }
 
   let _activeSettingsGroup = null;
 
@@ -40,7 +53,7 @@
 
   function planningBackButton() {
     if (window.PlanningBackNav && PlanningBackNav.isFromPlanning()) {
-      return '<button type="button" class="library-magic-planning-back planning-magic-back" data-planning-back="1">← Till planering</button>';
+      return '<button type="button" class="library-magic-planning-back planning-magic-back" data-planning-back="1">' + escHtml(pt('settings.backToPlanning')) + '</button>';
     }
     return '';
   }
@@ -57,9 +70,9 @@
   }
 
   function renderScheduleModeBar() {
-    return '<div class="schedule-mode-toggle schedule-magic-mode-bar" role="group" aria-label="Schemavy">' +
-      '<button type="button" class="schedule-mode-btn active" data-schedule-mode="single">👤 Mitt barn</button>' +
-      '<button type="button" class="schedule-mode-btn" data-schedule-mode="family">👨‍👩‍👧 Alla barn</button>' +
+    return '<div class="schedule-mode-toggle schedule-magic-mode-bar" role="group" aria-label="' + escHtml(pt('schedule.mode.aria')) + '">' +
+      '<button type="button" class="schedule-mode-btn active" data-schedule-mode="single">👤 ' + escHtml(pt('schedule.mode.single')) + '</button>' +
+      '<button type="button" class="schedule-mode-btn" data-schedule-mode="family">👨‍👩‍👧 ' + escHtml(pt('schedule.mode.family')) + '</button>' +
       '</div>';
   }
 
@@ -89,11 +102,12 @@
   }
 
   function renderGenericHero(cfg) {
+    const copy = heroCopy(cfg);
     return '<div class="magic-page-shell magic-3d-scene">' +
       planningBackButton() +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon(cfg.icon) + '</div>' +
-      '<div><h1>' + escHtml(cfg.title) + '</h1><p>' + escHtml(cfg.sub) + '</p></div>' +
+      '<div><h1>' + escHtml(copy.title) + '</h1><p>' + escHtml(copy.sub) + '</p></div>' +
       '</div></div>';
   }
 
@@ -106,7 +120,7 @@
       planningBackButton() +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('schema') + '</div>' +
-      '<div><h1>Veckoschema</h1><p>Planera och anpassa barnens dagar</p></div>' +
+      '<div><h1>' + escHtml(pt('settings.heroes.schedule.title')) + '</h1><p>' + escHtml(pt('settings.heroes.schedule.sub')) + '</p></div>' +
       '</div>' +
       renderScheduleModeBar() +
       '<div class="magic-page-stats">' +
@@ -134,40 +148,18 @@
     el.classList.remove('hidden');
   }
 
-  function renderFamilyHero() {
-    const summary = document.getElementById('familySummary');
-    const sub = summary && summary.textContent ? summary.textContent : 'Er familj på ett ställe';
-    const childN = document.querySelectorAll('#childrenGrid > *').length;
-    const adultN = document.querySelectorAll('#adultsGrid > *').length;
-    return '<div class="magic-page-shell magic-3d-scene">' +
-      '<div class="magic-page-hero">' +
-      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('familj') + '</div>' +
-      '<div><h1>Familjen</h1><p>' + escHtml(sub) + '</p></div>' +
-      '</div>' +
-      '<div class="magic-page-stats">' +
-      '<div class="magic-page-stat-card magic-3d-card"><strong>' + childN + '</strong><span>Barn</span></div>' +
-      '<div class="magic-page-stat-card magic-3d-card"><strong>' + adultN + '</strong><span>Vuxna</span></div>' +
-      '</div>' +
-      '<div class="magic-hub-links grid gap-3 mt-3 max-w-lg">' +
-      '<a href="#custodyScheduleSection" class="flex items-center gap-3 p-4 bg-white/80 rounded-2xl border-2 border-lavender no-underline text-navy">' +
-      '<span class="text-2xl" aria-hidden="true">' + pageIcon('familj', 32) + '</span>' +
-      '<span><strong class="block">Boendeschema</strong>' +
-      '<span class="text-text-soft text-sm">Växelvis boende — vecka A/B</span></span></a>' +
-      '</div></div>';
-  }
-
   function renderSettingsMenu() {
     return '<div class="magic-page-shell magic-3d-scene magic-page-hero-wrap">' +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('installningar') + '</div>' +
-      '<div><h1>Inställningar</h1><p>Profil, familj och app — grupperat som i mockupen</p></div>' +
+      '<div><h1>' + escHtml(pt('settings.title')) + '</h1><p>' + escHtml(pt('settings.shellLead')) + '</p></div>' +
       '</div></div>' +
       '<div class="magic-settings-menu">' +
       SETTINGS_GROUPS.map(function (g) {
         return '<button type="button" class="magic-settings-group-card magic-3d-card" data-settings-group="' + g.id + '">' +
           '<span class="magic-settings-group-icon ' + g.iconClass + '" aria-hidden="true">' + pageIcon(g.icon, 28) + '</span>' +
-          '<span class="magic-settings-group-text"><strong>' + escHtml(g.title) + '</strong>' +
-          '<span>' + escHtml(g.sub) + '</span></span>' +
+          '<span class="magic-settings-group-text"><strong>' + escHtml(pt(g.titleKey)) + '</strong>' +
+          '<span>' + escHtml(pt(g.subKey)) + '</span></span>' +
           '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';
       }).join('') +
       '</div>';
@@ -175,7 +167,7 @@
 
   function renderSettingsBackBar() {
     return '<div class="magic-settings-back-bar">' +
-      '<button type="button" class="magic-settings-back" data-settings-back="1" aria-label="Tillbaka till inställningar">← Inställningar</button>' +
+      '<button type="button" class="magic-settings-back" data-settings-back="1" aria-label="' + escHtml(pt('settings.appearance.backToSettings')) + '">' + escHtml(pt('settings.appearance.backToSettings')) + '</button>' +
       '</div>';
   }
 
@@ -237,8 +229,8 @@
         '<span class="magic-theme-swatch ' + swatch + '" aria-hidden="true"></span>' + escHtml(label) + '</button>';
     }
     return '<div class="magic-theme-picker" id="magicThemePicker">' +
-      opt('dark', 'Mörkt', 'dark') +
-      opt('light', 'Ljust', 'light') +
+      opt('dark', pt('settings.appearance.dark'), 'dark') +
+      opt('light', pt('settings.appearance.light'), 'light') +
       '</div>';
   }
 
@@ -408,14 +400,25 @@
     if (!window.pt) return;
     PAGE_HEROES['daily-log'] = {
       icon: 'historik',
-      title: pt('home.hubs.dailyLogTitle'),
-      sub: pt('home.hubs.dailyLogSub'),
+      titleKey: 'home.hubs.dailyLogTitle',
+      subKey: 'home.hubs.dailyLogSub',
     };
   }
 
-  function pt(key) {
-    return window.pt ? window.pt(key) : key;
-  }
+  document.addEventListener('parent-i18n-ready', function () {
+    applyHubCopy();
+    if (window.ParentMagicShell && ParentMagicShell.isMagic()) {
+      const page = document.body.getAttribute('data-magic-page');
+      if (page) refresh(page, true);
+    }
+  });
+  document.addEventListener('locale-changed', function () {
+    applyHubCopy();
+    if (window.ParentMagicShell && ParentMagicShell.isMagic()) {
+      const page = document.body.getAttribute('data-magic-page');
+      if (page) refresh(page, true);
+    }
+  });
 
   window.ParentMagicPageHub = {
     refresh: refresh,

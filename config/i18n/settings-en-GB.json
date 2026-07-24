@@ -1,0 +1,33 @@
+{
+  "pageTitle": "Settings — {{brand}}",
+  "title": "Settings",
+  "shellLead": "Profile, family and app — grouped for easy access",
+  "familySettings": "Family settings",
+  "groups": {
+    "profile": { "title": "Profile & account", "sub": "Login, PIN and account" },
+    "family": { "title": "Family", "sub": "Add adult, names and educators" },
+    "appearance": { "title": "Appearance", "sub": "Dark or light theme" },
+    "app": { "title": "App", "sub": "Notifications, push and privacy" }
+  },
+  "appearance": {
+    "dark": "Dark",
+    "light": "Light",
+    "backToSettings": "← Back to settings"
+  },
+  "heroes": {
+    "planning": { "title": "Planning", "sub": "Build content or plan your children's week." },
+    "rewards": { "title": "Rewards", "sub": "Stars, rewards and family chest." },
+    "calendar": { "title": "Calendar", "sub": "Month view for all children" },
+    "activities": { "title": "Activities", "sub": "Manage your children's activities" },
+    "assignSchedule": { "title": "Assign schedule", "sub": "Copy schedule to child" },
+    "dailyLog": { "title": "Today", "sub": "Follow your child's day — fill in stars afterwards" },
+    "treasureChest": { "title": "Treasure Chest", "sub": "Rewards and stars" },
+    "childSettings": { "title": "Child settings", "sub": "View, PIN and customisation" },
+    "familyChild": { "title": "Child settings", "sub": "Schedule, view, PIN and customisation" },
+    "notifications": { "title": "Notifications", "sub": "Reminders and messages" },
+    "schedule": { "title": "Weekly schedule", "sub": "Plan and adapt your children's days" },
+    "library": { "title": "Library", "sub": "Schedules, activities and rewards for your family" },
+    "family": { "title": "Family", "sub": "Children, adults and educators" }
+  },
+  "backToPlanning": "← Back to Planning"
+}

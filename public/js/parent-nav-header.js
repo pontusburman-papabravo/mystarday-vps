@@ -62,14 +62,17 @@
   }
 
   function buildActionElement(action) {
+    const label = (window.NavConfig && typeof window.NavConfig.resolveLabel === 'function')
+      ? window.NavConfig.resolveLabel(action)
+      : (action.label || '');
     if (action.action === 'tipsa' || action.action === 'share') {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = ICON_BTN;
-      btn.setAttribute('aria-label', action.label || 'Tipsa en familj');
+      btn.setAttribute('aria-label', label || 'Tipsa en familj');
       btn.setAttribute('data-parent-nav-tipsa', '1');
       btn.setAttribute('data-parent-nav-share', '1');
-      btn.title = action.label || 'Tipsa';
+      btn.title = label || 'Tipsa';
       btn.innerHTML = iconMarkup(action);
       btn.addEventListener('click', function (e) {
         e.preventDefault();
@@ -85,8 +88,8 @@
     const link = document.createElement('a');
     link.href = action.href || '/settings';
     link.className = ICON_BTN;
-    link.setAttribute('aria-label', action.label || '');
-    link.title = action.label || '';
+    link.setAttribute('aria-label', label);
+    link.title = label;
 
     if (action.id === 'notifications') {
       link.setAttribute('data-parent-nav-notifications', '1');
