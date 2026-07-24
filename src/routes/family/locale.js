@@ -20,6 +20,7 @@ const {
 } = require('../../lib/locale-selection');
 const { isEnglishAppEnabled } = require('../../lib/i18n-flags');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
+const { isEnglishLanguageOfferEnabled } = require('../../lib/locale-offer-flag');
 
 const router = express.Router();
 
@@ -48,7 +49,11 @@ router.get('/locale-context', requireNotPedagogOnly, async (req, res) => {
     if (!row) return res.status(404).json({ error: 'FAMILY_NOT_FOUND' });
 
     const englishApp = await isEnglishAppEnabled(req.user.familyId);
+    const offerEnabled = await isEnglishLanguageOfferEnabled();
     const context = buildLocaleContextRow(row);
+    if (!offerEnabled) {
+      context.show_english_beta_offer = false;
+    }
     res.json({
       ...context,
       english_app_enabled: englishApp,
@@ -71,6 +76,18 @@ router.post('/english-beta-offer', requireNotPedagogOnly, validate(EnglishBetaOf
     if (!row) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'FAMILY_NOT_FOUND' });
+    }
+
+    const offerEnabled = await isEnglishLanguageOfferEnabled();
+    if (!offerEnabled && action !== 'decline') {
+      await client.query('ROLLBACK');
+      const current = buildLocaleContextRow(row);
+      current.show_english_beta_offer = false;
+      return res.json({
+        ...current,
+        english_app_enabled: await isEnglishAppEnabled(req.user.familyId),
+        message: 'OFFER_DISABLED',
+      });
     }
 
     if (!shouldShowEnglishBetaOffer(row) && action !== 'decline') {

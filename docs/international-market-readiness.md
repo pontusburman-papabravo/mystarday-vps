@@ -27,8 +27,8 @@ Child language follows family locale in v1. Child English UX additionally requir
 
 ## Legal review required before international launch
 
-- Privacy policy (EN drafts marked in `/en/privacy`)
-- Terms of service (EN drafts marked in `/en/terms`)
+- Privacy policy — EN working draft at `/en/privacy` (status tracked here and in `docs/i18n-public-web-coverage.md`; no public warning banner on page)
+- Terms of service — EN working draft at `/en/terms` (same status tracking)
 - Cookie policy / consent flows
 - Child data / parental consent wording
 - Marketing claims on `/en` landing

@@ -19,19 +19,59 @@ const TYPE_LABELS = {
 };
 
 function sanitizeMetadata(raw) {
-  if (!raw || typeof raw !== 'object') return {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const safe = {};
   const allowed = [
-    'locale', 'route', 'page', 'i18n_key', 'visible_text', 'platform',
+    'locale', 'route', 'page', 'i18n_key', 'visible_text', 'suggestion', 'platform',
     'app_version', 'sw_version', 'build_sha', 'user_agent', 'english_app',
     'english_child_experience', 'timestamp',
   ];
+  const maxLengths = {
+    route: 200,
+    page: 200,
+    i18n_key: 200,
+    visible_text: 500,
+    suggestion: 500,
+    platform: 64,
+    app_version: 64,
+    sw_version: 64,
+    build_sha: 64,
+    user_agent: 500,
+    locale: 16,
+    english_app: 8,
+    english_child_experience: 8,
+    timestamp: 64,
+  };
   for (const key of allowed) {
-    if (raw[key] != null && typeof raw[key] !== 'object') {
-      safe[key] = String(raw[key]).slice(0, 500);
-    }
+    if (raw[key] == null || typeof raw[key] === 'object') continue;
+    const max = maxLengths[key] || 500;
+    safe[key] = String(raw[key]).slice(0, max);
   }
   return safe;
+}
+
+function buildFeedbackMetadata(clientMetadata, familyLocale, englishApp, englishChild, familyId) {
+  if (clientMetadata && JSON.stringify(clientMetadata).length > 2048) {
+    const err = new Error('METADATA_TOO_LARGE');
+    err.code = 'METADATA_TOO_LARGE';
+    throw err;
+  }
+  const sanitized = sanitizeMetadata(clientMetadata);
+  const metadata = {
+    ...sanitized,
+    locale: familyLocale,
+    family_id: familyId,
+    english_app: englishApp ? 'true' : 'false',
+    english_child_experience: englishChild ? 'true' : 'false',
+    timestamp: new Date().toISOString(),
+  };
+  const json = JSON.stringify(metadata);
+  if (json.length > 4096) {
+    const err = new Error('METADATA_TOO_LARGE');
+    err.code = 'METADATA_TOO_LARGE';
+    throw err;
+  }
+  return metadata;
 }
 
 // ─── POST /api/feedback ──────────────────────────────────
@@ -60,14 +100,13 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
     const englishApp = await isEnglishAppEnabled(req.user.familyId);
     const englishChild = await isEnglishChildExperienceEnabled(req.user.familyId);
 
-    const metadata = {
-      ...sanitizeMetadata(clientMetadata),
-      locale: familyLocale,
-      family_id: req.user.familyId,
-      english_app: englishApp ? 'true' : 'false',
-      english_child_experience: englishChild ? 'true' : 'false',
-      timestamp: new Date().toISOString(),
-    };
+    const metadata = buildFeedbackMetadata(
+      clientMetadata,
+      familyLocale,
+      englishApp,
+      englishChild,
+      req.user.familyId
+    );
 
     const result = await db.query(
       `INSERT INTO contact_message (name, email, message, message_type, family_id, metadata)
@@ -113,6 +152,9 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
 
     res.status(201).json({ message: 'Tack för din feedback! Vi läser allt som kommer in.' });
   } catch (err) {
+    if (err.code === 'METADATA_TOO_LARGE') {
+      return res.status(400).json({ error: 'Metadata för stor' });
+    }
     console.error('[FEEDBACK] Error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
@@ -138,3 +180,5 @@ router.get('/', requireParent, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.sanitizeMetadata = sanitizeMetadata;
+module.exports.buildFeedbackMetadata = buildFeedbackMetadata;

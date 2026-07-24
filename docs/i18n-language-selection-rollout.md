@@ -44,14 +44,30 @@ Whitelisted in `src/routes/analytics.js`: `language_choice_viewed`, `language_se
 | Flag | Role |
 |------|------|
 | `english_app` | Parent/auth en-GB surfaces for existing families; auto-granted on active en-GB choice |
-| `english_child_experience` | Separate gate for `child_en` pack (Child Core track) |
+| `english_child_experience` | Separate gate for `child_en` pack (Child Core track) — **default OFF** |
 | `engelsk_landingssida` | Public `/en` marketing landing only |
+| `english_language_offer` | Global kill switch (`feature_flag`) for existing-family offer only; registration choice unaffected |
+
+## Child fallback (en-GB without Child Core)
+
+When `preferred_locale = en-GB` and `english_app = ON` but `english_child_experience = OFF`:
+
+- Parent/auth surfaces use en-GB where covered.
+- **Child dashboard stays `child_se`** (Swedish child UX) via `experiencePackIdForLocale()` — no silent mixed-language child UI.
+- Child login is **not** blocked; parents see Swedish child experience until Child Core ships.
 
 ## Rollback
 
-1. Disable broken en-GB areas via feature flags (do not revert user locale silently).
-2. Offer “Switch back to Swedish” in beta banner.
-3. Do not roll back migration `1810000000005`.
+1. Disable broken en-GB areas via `english_app` per family or globally (do not revert user locale silently).
+2. Pause existing-family offer via `english_language_offer = false` in admin feature flags.
+3. Offer “Switch back to Swedish” in beta banner.
+4. Do not roll back migration `1810000000005` in normal deploy flow.
+
+## Merge order (with PR #713 / #715)
+
+1. **#713** — Home/Today/nav i18n → merge → deploy → smoke
+2. **#715** — Planning/Library/Family i18n (rebase on main) → merge → deploy → smoke
+3. **#717** — This foundation (rebase on main after #713+#715; resolve SW/cache conflicts to monotonic higher version)
 
 ## Physical QA
 
