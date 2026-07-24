@@ -65,41 +65,42 @@ Expected sv-SE: `planning=Planering` (not `Planning`).
 
 ---
 
-## Option B — VPS staging path (separate from the public live deploy)
+## Option B — VPS staging (deployad 2026-07-24)
 
-The public live deploy (default app port) must **not** receive PR #713 until merge.
+| Fält | Värde |
+|------|-------|
+| Path | `/home/deploy/pr713-staging` |
+| Port | `3001` (prod oförändrad på `3000`) |
+| SHA | `8f0bce14` (app i18n identisk med `d6b3df0e`) |
+| SW | `stjarndag-v668` |
+| Deploy-skript | `scripts/deploy-pr713-staging.sh` |
+| Logg | `/home/deploy/pr713-staging/staging.log` |
 
-### Manual staging deploy (project owner / ops)
-
-```bash
-# On VPS as deploy user — separate directory, separate port
-export STAGING_PATH=/var/www/pr713-staging
-export STAGING_PORT=3001
-export BRANCH=cursor/i18n-today-home-shell-b8ba
-
-git clone --branch "$BRANCH" <repo-url> "$STAGING_PATH"  # or fetch in existing clone
-cd "$STAGING_PATH"
-git checkout "$BRANCH"
-npm install --legacy-peer-deps --include=dev
-npm run migrate
-PORT=$STAGING_PORT node server.js
-```
-
-Use host runtime env vars from the secret store (same as normal deploy, but separate `DATABASE_URL` if possible).
-
-Expose via nginx staging subdomain or SSH tunnel:
+Redeploy:
 
 ```bash
-ssh -L 3001:127.0.0.1:3001 deploy@<vps-host>
+VPS_APP_PATH=/var/www/<live-app> TARGET_SHA=8f0bce14 ./scripts/deploy-pr713-staging.sh
 ```
 
-Health: `curl http://127.0.0.1:3001/health`
+(Kör på VPS via SSH, eller pipe script: `./scripts/vps-ssh.sh 'VPS_APP_PATH=... bash -s' < scripts/deploy-pr713-staging.sh`)
 
-### Staging QA families on VPS DB
+### Fysisk enhetsåtkomst (ingen publik port)
 
-Use a **separate database** or dedicated test families — do not modify the shared App Store review account without approval (see `docs/qa-test-account.md`).
+Port `3001` är inte öppen externt. Använd SSH-tunnel från dator på samma Wi‑Fi som telefonen:
 
-Run `scripts/setup-pr713-qa-accounts.mjs` against the staging `DATABASE_URL`.
+```bash
+ssh -L 0.0.0.0:3001:127.0.0.1:3001 deploy@<vps-host>
+```
+
+Öppna på telefon: `http://<datorns-lan-ip>:3001`
+
+QA-lösenord (hämtas via SSH, committas aldrig):
+
+```bash
+ssh deploy@<vps-host> 'cat /home/deploy/pr713-staging/.qa-password'
+```
+
+Barn-PIN standard: `7137`.
 
 ---
 

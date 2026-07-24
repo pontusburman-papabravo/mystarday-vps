@@ -1,10 +1,10 @@
 # Fysisk mobil-QA — PR #713 (P-i18n-Home-Today-C)
 
-**Datum:** 2026-07-24 (uppdaterad efter nav-fix)  
-**Build under test:** PR #713 branch `cursor/i18n-today-home-shell-b8ba`  
+**Datum:** 2026-07-24 (uppdaterad efter staging-deploy)  
+**Branch:** `cursor/i18n-today-home-shell-b8ba`  
+**App-SHA (staging):** `8f0bce14` (i18n/nav-fix; identisk appkod som `d6b3df0e` + staging-skript)  
 **Nav-fix commit:** `2959ce42`  
-**Förväntad SW:** `stjarndag-v668` (efter nav-fix; tidigare `v667`)  
-**Testmiljö cloud agent:** Emulerad mobilviewport — **inga fysiska enheter**
+**SW/cache:** `stjarndag-v668`
 
 ---
 
@@ -12,99 +12,125 @@
 
 # QA BLOCKERAD — fysisk mobil-QA ej genomförd
 
-PR #713 **får inte mergas** förrän fysisk mobil-QA är godkänd på staging/preview enligt `docs/i18n-pr713-staging-qa.md`.
+PR #713 **får inte mergas** förrän fysisk mobil-QA är godkänd på staging enligt `docs/i18n-pr713-staging-qa.md`.
 
-**Inte** "QA UNDERKÄND" — testmatrisen kunde inte bedömas fullt ut.
+Chrome-emulering, Puppeteer och desktop-viewport **räknas inte** som fysisk mobil-QA.
 
 ---
 
-## Klassificering av observationer
+## Stagingmiljö (deployad)
 
-### 1. Ej testat (obligatoriskt kvarstår)
+| Fält | Värde |
+|------|-------|
+| VPS path | `/home/deploy/pr713-staging` |
+| Process | `node server.js` (deploy-användare, **ej** systemd prod-tjänst) |
+| Port | `3001` (prod kvar på `3000`) |
+| Health | `{"status":"healthy","version":"2.3.1"}` @ `127.0.0.1:3001/health` |
+| Deploy-SHA | `8f0bce14` (app i18n = `d6b3df0e`; staging-skript i `8f0bce14`–`d2fc6eeb`) |
+| SW | `stjarndag-v668` |
+| Publik URL | **Ej exponerad** — port 3001 blockeras externt; se åtkomst nedan |
 
-| Område | Orsak |
-|--------|-------|
-| iOS Safari, iOS WebView, Android Chrome, Android WebView | Ingen fysisk hårdvara i cloud agent |
-| Kallstart / varmstart / native appomstart | Kräver fysisk enhet |
-| Slutför/ångra aktivitet, ratingmodal, offline/sync | Kräver fysisk QA på staging med schema |
-| Session restore efter force-quit | Kräver fysisk enhet |
+### Åtkomst för fysisk QA (mänsklig testare)
 
-### 2. Ej relevant — prod användes felaktigt för #713-bedömning
+1. På Mac/Linux med SSH till VPS:
+   ```bash
+   ssh -L 0.0.0.0:3001:127.0.0.1:3001 deploy@188.66.60.93
+   ```
+2. Telefon på **samma Wi‑Fi** som datorn: öppna `http://<datorns-lan-ip>:3001`
+3. Hämta QA-lösenord via SSH (committas **aldrig**):
+   ```bash
+   ssh deploy@188.66.60.93 'cat /home/deploy/pr713-staging/.qa-password'
+   ```
+4. Barn-PIN: standard `7137` (override med `QA_CHILD_PIN` vid omseed)
 
-| Observation | Förklaring |
-|-------------|------------|
-| Prod visar svensk Home/Today för review-konto | Förväntat — prod kör `main` @ `e73bfe8c`, inte PR #713 |
-| `nav-en-GB.json` saknas på VPS | Förväntat — #713 ej mergad/deployad |
-| Prod kan inte signera av #713 en-GB | Prod ≠ PR #713 build |
+**Alternativ (kräver sudo/nginx):** staging-subdomän via projektägare — se `docs/i18n-pr713-staging-qa.md`.
 
-### 3. Misstänkt verklig defekt i PR-builden (åtgärdad)
+---
 
-| Problem | Rotorsak | Fix |
-|---------|----------|-----|
-| en-GB-familj visade svensk bottom nav (Hem, Planering, …) | `native-tab-bar.js` cachade `activeTabs = NavConfig.primaryNavForTabs()` vid **script parse** (före `I18n.init`). `parent-i18n-ready` anropade `remount()` men uppdaterade inte `activeTabs`. | `syncActiveTabs()` anropas före mount/remount och på `parent-i18n-ready` / `locale-changed`. |
+## QA-konton (verifierade i DB)
 
-**Verifiering:** `parent-magic-shell.js` anropar redan `primaryNavForTabs()` vid varje render — race gällde främst `native-tab-bar` på mobilviewport.
+| Familj | E-post | `preferred_locale` | `english_app` | Barn |
+|--------|--------|-------------------|---------------|------|
+| Svensk kontroll | `qa-pr713-sv@example.com` | `sv-SE` | OFF | QA Barn (`qabarn`) |
+| Engelsk test | `qa-pr713-en@example.com` | `en-GB` | ON | QA Child (`qachild`) |
 
-**Testfamilj-risk:** Tidigare QA använde konton utan barn/schema — Journey-coach och vissa Home-ytor kan fortfarande visa svensk DB-copy även med korrekt nav. Fysisk QA ska använda familjer med aktiviteter (se staging-doc).
+Båda har `onboarding_completed=true`, `parent_child`-länk, aktiviteter (inkl. delsteg) och dagens veckoschema.
 
-### 4. Prodobservation utanför #713-scope
+Lösenord: VPS-fil `.qa-password` (se ovan). **Skriv aldrig lösenord i denna rapport.**
 
-| Observation | Utredning | Status |
-|-------------|-----------|--------|
-| Prod visade `Planning` bland svenska nav-labels | Prod `nav-config.js` @ `e73bfe8c` har **ingen** `labelKey` — hårdkodad `label: 'Planering'`. Ingen `nav-sv-SE.json` på main. | **Ej reproducerbar** som main-regression i nuvarande kod. Troligen stale SW/cache från partiella artefakter, eller emuleringsmisstolkning. **Monitorera** efter staging-deploy. |
+---
+
+## API-verifiering (staging @ port 3001)
+
+| Endpoint | Resultat |
+|----------|----------|
+| `/api/i18n/sv-SE` | `home=Hem`, `planning=Planering`, `rewards=Belöningar`, `forYou=För dig`, `family=Familj` |
+| `/api/i18n/en-GB` | `home=Home`, `planning=Planning`, `rewards=Rewards`, `forYou=For you`, `family=Family` |
+| `/api/i18n/xx-YY` | `400` (korrekt) |
+| MIME `application/json` | Ja |
+| `nav-en-GB.json` / `nav-sv-SE.json` i artefakt | Ja |
+| `/sw.js` | `200`, `application/javascript`, cache `stjarndag-v668` |
+| Auth `/api/auth/me` en-GB | `preferred_locale=en-GB`, `children` populated |
 
 ---
 
 ## Testmatris per plattform
 
-| Plattform | OS/appversion | sv-SE | en-GB | Resultat |
-|-----------|---------------|-------|-------|----------|
-| iOS Safari | Ej testad | — | — | **EJ UTFÖRD** |
-| iOS Capacitor WebView | Ej testad | — | — | **EJ UTFÖRD** |
-| Android Chrome | Ej testad | — | — | **EJ UTFÖRD** |
-| Android Capacitor WebView | Ej testad | — | — | **EJ UTFÖRD** |
-| Chrome DevTools (prod, emulerad) | Linux VM | Delvis | N/A | Prod ≠ #713 |
-| Puppeteer (lokal PR #713) | Linux VM | Delvis | Ofullständig före fix | Se §3 |
+| Plattform | Enhet/OS | sv-SE | en-GB | Resultat |
+|-----------|----------|-------|-------|----------|
+| iOS Safari | — | — | — | **EJ UTFÖRD** (ingen fysisk enhet) |
+| iOS Capacitor WebView | — | — | — | **EJ UTFÖRD** |
+| Android Chrome | — | — | — | **EJ UTFÖRD** |
+| Android Capacitor WebView | — | — | — | **EJ UTFÖRD** |
+| Desktop Chrome (emulerad viewport) | Cloud agent VM | Ej signerbar | Ej signerbar | **Ogiltig** för mergebeslut |
+
+### Observationer från ogiltig emulering (ej mergegrund)
+
+| Observation | Förklaring |
+|-------------|------------|
+| Nyregistrering fastnar i onboarding | Gäller **inte** QA-kontona (`onboarding_completed=true`). Emulering använde fel testväg. |
+| API-login med `qa-pr713-*` | Fungerar på staging. |
 
 ---
 
-## Locale-resurser (PR #713 build)
+## Klassificering
 
-| Resurs | Status |
-|--------|--------|
-| `config/i18n/nav-en-GB.json` | Finns i branch |
-| `config/i18n/nav-sv-SE.json` | Finns i branch |
-| `/api/i18n/en-GB` → `nav.primary.*` | Verifierat efter server-omstart |
-| `/api/i18n/sv-SE` → `nav.primary.planning` = `Planering` | Verifierat i tester |
+### 1. Ej testat (obligatoriskt kvarstår)
 
----
+Alla punkter i fysisk testmatris: start/session, bottom nav, Home, Today, completion, undo, tom dag, rating, offline/reconnect, visuell QA — **båda locales, alla fyra plattformar**.
 
-## Staging / preview
+### 2. Ej relevant — prod
 
-Se **`docs/i18n-pr713-staging-qa.md`** för:
+Prod (`main` @ `e73bfe8c`, port 3000) ska **inte** användas för #713-sign-off.
 
-- Lokal preview med `scripts/setup-pr713-qa-accounts.mjs`
-- VPS staging-sökväg (separat från prod)
-- QA-kontokonfiguration (sv-SE + en-GB + `english_app`)
-- Fysisk QA-checklista
+### 3. PR-defekt (åtgärdad före staging)
 
-**Prod ska inte användas** för #713-sign-off.
+en-GB bottom nav visade svenska labels → `native-tab-bar.js` stale `activeTabs` före `I18n.init` → fix `syncActiveTabs()` @ `2959ce42`.
+
+### 4. Prodobservation (utanför #713)
+
+Svensk `Planning` på prod — ej reproducerbar på `main`-kod; monitorera efter merge.
 
 ---
 
 ## Mergebeslut
 
-| Beslut | Tillåtet |
-|--------|----------|
-| Merge PR #713 | **Nej** — fysisk QA saknas |
-| Tekniskt redo för staging QA | **Ja** (efter nav-fix + SW v668) |
+| Beslut | Status |
+|--------|--------|
+| Merge PR #713 | **Nej** |
+| Staging redo för fysisk QA | **Ja** |
 | Deploy till prod | **Nej** |
 
 ---
 
-## Kvarvarande fysisk QA-matris
+## Instruktioner till mänsklig testare
 
-Alla punkter i användarens testmatris (start/session, Home, Today, completion, undo, tom schema, offline, ratingmodal, visuell QA) — **både sv-SE och en-GB** — på alla fyra plattformar mot staging/preview.
+1. SSH-tunnel enligt tabellen ovan.
+2. Logga in som `qa-pr713-sv@example.com` → verifiera nav: Hem, Planering, Belöningar, För dig, Familj.
+3. Logga ut, logga in som `qa-pr713-en@example.com` → Home, Planning, Rewards, For you, Family.
+4. Kör full matris i `docs/i18n-en-gb-home-today.md` på alla fyra plattformar.
+5. Bekräfta SW `stjarndag-v668` i DevTools → Application.
+6. Uppdatera denna rapport med plattform/resultat/skärmdumpar.
 
 ---
 
@@ -112,6 +138,6 @@ Alla punkter i användarens testmatris (start/session, Home, Today, completion, 
 
 | Fil | Beskrivning |
 |-----|-------------|
-| `docs/i18n-pr713-staging-qa.md` | Staging + QA-konto |
-| `scripts/setup-pr713-qa-accounts.mjs` | SQL-seed sv/en familjer |
-| `manual-prod-*.png` (artifacts/) | Prod-emulering (ej #713) |
+| `docs/i18n-pr713-staging-qa.md` | Staging-deploy + åtkomst |
+| `scripts/deploy-pr713-staging.sh` | VPS deploy (port 3001) |
+| `scripts/setup-pr713-qa-accounts.mjs` | QA-familjer |
