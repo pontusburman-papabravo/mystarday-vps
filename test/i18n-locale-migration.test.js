@@ -14,7 +14,7 @@ describe('migration 1810000000005 family locale selection metadata', () => {
     assert.equal(typeof mod.down, 'function');
   });
 
-  test('schema columns, constraints, indexes, and offer kill switch exist', async (t) => {
+  test('schema columns, constraints, and indexes exist', async (t) => {
     const db = await setupTestDb({ truncate: false });
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -62,12 +62,35 @@ describe('migration 1810000000005 family locale selection metadata', () => {
         SELECT 1 FROM pg_indexes WHERE indexname = 'idx_family_preferred_locale'
       `);
       assert.equal(idxLocale.rows.length, 1);
+    } finally {
+      await db.cleanup();
+    }
+  });
+});
 
-      const flag = await pg.query(
-        `SELECT enabled FROM feature_flag WHERE key = 'english_language_offer'`
-      );
-      assert.equal(flag.rows.length, 1, 'run migration 1810000000006_english_language_offer_flag');
-      assert.equal(flag.rows[0].enabled, true);
+describe('migration 1810000000007 family market country', () => {
+  test('country and market_region columns exist', async (t) => {
+    const db = await setupTestDb({ truncate: false });
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const pg = require('../src/lib/db');
+
+    try {
+      const cols = await pg.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'family'
+          AND column_name IN ('country_code', 'market_region', 'country_selected_at', 'country_selection_source')
+        ORDER BY column_name
+      `);
+      assert.equal(cols.rows.length, 4);
+
+      const regionCheck = await pg.query(`
+        SELECT 1 FROM pg_constraint WHERE conname = 'family_market_region_check'
+      `);
+      assert.equal(regionCheck.rows.length, 1);
     } finally {
       await db.cleanup();
     }

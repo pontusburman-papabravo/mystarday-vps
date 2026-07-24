@@ -41,6 +41,15 @@
       "suggestion": "How should it read? (optional)"
     }
   },
+  "market": {
+    "choice": {
+      "title": "Where does your family live?",
+      "description": "We use this for the right terms and privacy information. This is separate from your language choice.",
+      "label": "Country",
+      "hint": "",
+      "required": "Choose a country to continue"
+    }
+  },
   "nav": {
     "login": "Log in",
     "register": "Create account",

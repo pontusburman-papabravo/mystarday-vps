@@ -77,6 +77,7 @@ const RegisterSchema = z.object({
   // language is optional (legacy) — preferred_locale is canonical
   language: z.string().max(10).optional(),
   preferred_locale: z.enum(['sv-SE', 'en-GB']).optional(),
+  country_code: z.string().length(2).optional(),
 });
 
 const LoginSchema = z.object({

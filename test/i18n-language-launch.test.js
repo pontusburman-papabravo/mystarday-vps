@@ -498,6 +498,86 @@ test('english_language_offer kill switch hides offer', async (t) => {
   }
 });
 
+test('registration stores independent locale and country (en-GB + SE)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  const pg = require('../src/lib/db');
+
+  try {
+    const email = uniqueEmail();
+    const res = await fetch(`${http.baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'English Sweden',
+        email,
+        password: 'testpass123',
+        preferred_locale: 'en-GB',
+        country_code: 'SE',
+      }),
+    });
+    assert.equal(res.status, 201, await res.text());
+
+    const fam = await pg.query(
+      `SELECT preferred_locale, country_code, market_region
+       FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].preferred_locale, 'en-GB');
+    assert.equal(fam.rows[0].country_code, 'SE');
+    assert.equal(fam.rows[0].market_region, 'EU');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('registration from US blocked when market_us_open is OFF', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  const pg = require('../src/lib/db');
+
+  try {
+    await pg.query(`
+      INSERT INTO feature_flag (key, enabled, description)
+      VALUES ('market_us_open', false, 'test')
+      ON CONFLICT (key) DO UPDATE SET enabled = false
+    `);
+
+    const email = uniqueEmail();
+    const res = await fetch(`${http.baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'US Parent',
+        email,
+        password: 'testpass123',
+        preferred_locale: 'en-GB',
+        country_code: 'US',
+      }),
+    });
+    assert.equal(res.status, 403);
+    const body = await res.json();
+    assert.equal(body.code, 'MARKET_NOT_OPEN');
+    assert.equal(body.market_region, 'US');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('audit:i18n:strict has zero hits', () => {
   const { execSync } = require('child_process');
   const out = execSync('npm run audit:i18n:strict', {

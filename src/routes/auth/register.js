@@ -22,6 +22,12 @@ const { loadDefaultContent } = require('../../lib/default-content');
 const { t } = require('../../lib/i18n');
 const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
+const {
+  resolveRegistrationCountry,
+  isMarketOpenForRegistration,
+  isKnownRegistrationCountryCode,
+  normalizeCountryCode,
+} = require('../../lib/market-region');
 
 const router = express.Router();
 
@@ -52,6 +58,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       fbclid,
       preferred_locale: preferredLocaleRaw,
       language,
+      country_code: countryCodeRaw,
     } = req.body;
 
     const localeExplicitlyChosen = Boolean(preferredLocaleRaw || language);
@@ -67,6 +74,26 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     const englishBetaOfferState = localeExplicitlyChosen
       ? OFFER_STATES.REGISTRATION_DECIDED
       : OFFER_STATES.NOT_SHOWN;
+
+    const countryResolved = resolveRegistrationCountry({
+      countryCodeRaw,
+      localeExplicitlyChosen: localeExplicitlyChosen || Boolean(countryCodeRaw),
+    });
+
+    if (countryCodeRaw && !isKnownRegistrationCountryCode(normalizeCountryCode(countryCodeRaw))) {
+      return res.status(400).json({ error: 'Ogiltigt land' });
+    }
+
+    const marketOpen = await isMarketOpenForRegistration(countryResolved.country_code);
+    if (!marketOpen) {
+      const region = countryResolved.market_region;
+      const msg = region === 'UK'
+        ? 'Registrering från Storbritannien är inte öppen ännu.'
+        : region === 'US'
+          ? 'Registrering från USA är inte öppen ännu.'
+          : 'Registrering är inte tillgänglig i det här landet ännu.';
+      return res.status(403).json({ error: msg, code: 'MARKET_NOT_OPEN', market_region: region });
+    }
 
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
@@ -119,11 +146,21 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       const familyResult = await client.query(
         `INSERT INTO family (
            name, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale,
-           locale_selected_at, locale_selection_source, english_beta_offer_state
+           locale_selected_at, locale_selection_source, english_beta_offer_state,
+           country_code, market_region, country_selected_at, country_selection_source
          )
-         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3, NOW(), $4, $5)
+         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3, NOW(), $4, $5, $6, $7, NOW(), $8)
          RETURNING id`,
-        [finalFamilyName, isLifetimeFree, familyLocale, localeSelectionSource, englishBetaOfferState]
+        [
+          finalFamilyName,
+          isLifetimeFree,
+          familyLocale,
+          localeSelectionSource,
+          englishBetaOfferState,
+          countryResolved.country_code,
+          countryResolved.market_region,
+          countryResolved.country_selection_source,
+        ]
       );
       const familyId = familyResult.rows[0].id;
 

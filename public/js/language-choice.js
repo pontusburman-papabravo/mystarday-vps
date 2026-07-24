@@ -153,6 +153,8 @@
   }
 
   function gateRegisterForm() {
+    // Registration uses combined language + country gate in country-choice.js.
+    if (document.body.dataset.countryChoiceGate === 'register') return;
     const formCard = document.getElementById('formCard');
     const mount = document.querySelector('[data-language-choice-mount]');
     if (!formCard || !mount) return;
