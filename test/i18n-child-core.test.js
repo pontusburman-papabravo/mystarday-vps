@@ -69,4 +69,20 @@ describe('i18n child core', () => {
     assert.equal(i18n.t('en-GB', 'child.samling.title'), 'My collection');
     assert.match(i18n.t('en-GB', 'child.treasure.starsToUse_other'), /stars to use/);
   });
+
+  it('child_en pack has zero Swedish leakage (audit)', () => {
+    const { execSync } = require('child_process');
+    const report = JSON.parse(
+      execSync('node scripts/audit-child-pack-parity.mjs --json', { encoding: 'utf8' })
+    );
+    assert.equal(report.totals.swedish_strings_total, 0);
+    assert.equal(report.totals.schema_diff_files, 0);
+  });
+
+  it('experience pack selects child_en only when english_child_experience ON', () => {
+    const { experiencePackIdForLocale } = require('../src/lib/locale');
+    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_se');
+    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }), 'child_en');
+    assert.equal(experiencePackIdForLocale('sv-SE', { englishChildExperienceEnabled: true }), 'child_se');
+  });
 });

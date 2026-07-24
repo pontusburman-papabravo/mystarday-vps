@@ -23,6 +23,8 @@
 | My Space / settings | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Parent gate / PIN | ☐ | ☐ | ☐ | ☐ | ☐ |
 | All five tabs + nav labels | ☐ | ☐ | ☐ | ☐ | ☐ |
+| World / scene (playable hub) | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Scene hints + unlock messages | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Offline completion | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Reconnect / no duplicate stars | ☐ | ☐ | ☐ | ☐ | ☐ |
 | Accessibility (VoiceOver/TalkBack spot check) | ☐ | ☐ | ☐ | ☐ | ☐ |
@@ -35,6 +37,6 @@
 
 ## Known gaps / backlog
 
-- Peripheral worlds/scenes not on normal tab navigation.
-- Server-generated push/email copy (separate PR).
+- Server-generated push/email copy (separate PR: P-i18n-Server-Communications).
 - Physical QA cells above are unchecked until device runs are logged.
+- English Child flag must stay OFF for live families until pack completion is verified on device.

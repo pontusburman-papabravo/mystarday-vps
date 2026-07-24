@@ -4,7 +4,7 @@
     {
       "reward_id": "first_step_acknowledgment",
       "trigger_signal": "first_activity_complete",
-      "parent_message_template": "Idag tog {{child_name}} sitt första steg.",
+      "parent_message_template": "Today {{child_name}} took a first step.",
       "celebration_theme": "warm_glow",
       "celebration_max_ms": 2000,
       "pack_config_key": "rewards.first_step_acknowledgment"

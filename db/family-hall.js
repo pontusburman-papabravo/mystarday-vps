@@ -2,6 +2,8 @@
 
 const db = require('../src/lib/db');
 const { formatStoryEvent } = require('../src/lib/family-story-format');
+const { resolveChildUiLocale } = require('../src/lib/child-ui-locale');
+const { isEnglishChildExperienceEnabled } = require('../src/lib/i18n-flags');
 const { mapChildForFamilyApi, mapParentForFamilyApi } = require('../src/lib/avatar-api');
 const {
   childRoleLabelForParent,
@@ -37,12 +39,14 @@ async function getFamilyHall(familyId, options) {
       [familyId]
     ),
     db.query(
-      'SELECT id, name, family_chest_enabled FROM family WHERE id = $1',
+      'SELECT id, name, family_chest_enabled, preferred_locale FROM family WHERE id = $1',
       [familyId]
     ),
   ]);
 
   const chestEnabled = familyRes.rows[0]?.family_chest_enabled !== false;
+  const englishChild = await isEnglishChildExperienceEnabled(familyId);
+  const storyLocale = resolveChildUiLocale(familyRes.rows[0]?.preferred_locale, englishChild);
 
   let persons = null;
   if (options.includePersons) {
@@ -112,7 +116,7 @@ async function getFamilyHall(familyId, options) {
     chestEnabled,
     chest: chestEnabled ? (chestRes.rows[0]?.total_stars ?? 0) : null,
     chestUpdatedAt: chestEnabled ? (chestRes.rows[0]?.updated_at ?? null) : null,
-    story: eventsRes.rows.map(formatStoryEvent),
+    story: eventsRes.rows.map((row) => formatStoryEvent(row, { locale: storyLocale })),
     persons,
   };
 }

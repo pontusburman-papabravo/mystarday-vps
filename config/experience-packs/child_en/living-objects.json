@@ -3,45 +3,45 @@
   "worlds": [
     {
       "world_slug": "garden",
-      "display_name_sv": "Trädgården",
+      "display_name_sv": "The garden",
       "slots": [
         {
           "slot_id": "bed_1",
-          "label_sv": "Blomsterbädden",
+          "label_sv": "The flower bed",
           "default_archetype_id": "sunflower"
         }
       ],
       "archetypes": [
         {
           "archetype_id": "sunflower",
-          "display_name_sv": "Solrosen",
+          "display_name_sv": "The sunflower",
           "initial_state": "empty",
           "states": [
             {
               "state_key": "empty",
-              "label_sv": "Tom jord",
+              "label_sv": "Empty soil",
               "visual_token": "garden_bed_empty"
             },
             {
               "state_key": "planted",
-              "label_sv": "Fröet är planterat",
+              "label_sv": "The seed is planted",
               "visual_token": "sunflower_seed"
             },
             {
               "state_key": "watered",
-              "label_sv": "Du vattnade fröet",
+              "label_sv": "You watered the seed",
               "visual_token": "sunflower_seed",
               "timer_ms": 30000,
               "timer_next_state": "blooming"
             },
             {
               "state_key": "blooming",
-              "label_sv": "Solrosen blommar!",
+              "label_sv": "The sunflower is blooming!",
               "visual_token": "sunflower_bloom"
             },
             {
               "state_key": "harvested",
-              "label_sv": "Dagens blomma",
+              "label_sv": "Today's flower",
               "visual_token": "sunflower_harvested"
             }
           ],
@@ -50,19 +50,19 @@
               "verb": "plant",
               "from_state": "empty",
               "to_state": "planted",
-              "child_message_sv": "Du planterade ett frö!"
+              "child_message_sv": "You planted a seed!"
             },
             {
               "verb": "water",
               "from_state": "planted",
               "to_state": "watered",
-              "child_message_sv": "Du vattnade fröet — nu växer det!"
+              "child_message_sv": "You watered the seed — now it is growing!"
             },
             {
               "verb": "harvest",
               "from_state": "blooming",
               "to_state": "harvested",
-              "child_message_sv": "Du skördade solrosen!"
+              "child_message_sv": "You picked the sunflower!"
             }
           ]
         }
