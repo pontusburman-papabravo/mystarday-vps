@@ -95,7 +95,25 @@ async function upsertAccount(acc) {
 
 async function ensureFamilyContent(familyId, locale) {
   const childCount = await pg.query('SELECT COUNT(*)::int AS n FROM child WHERE family_id = $1', [familyId]);
-  if (childCount.rows[0].n > 0) return { seeded: false };
+  if (childCount.rows[0].n > 0) {
+    const existingChild = await pg.query(
+      'SELECT id, name, username FROM child WHERE family_id = $1 ORDER BY created_at ASC LIMIT 1',
+      [familyId]
+    );
+    const parentRes = await pg.query('SELECT id FROM parent WHERE family_id = $1 ORDER BY created_at ASC LIMIT 1', [familyId]);
+    if (parentRes.rows[0] && existingChild.rows[0]) {
+      await pg.query(
+        `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary') ON CONFLICT DO NOTHING`,
+        [parentRes.rows[0].id, existingChild.rows[0].id]
+      );
+    }
+    return {
+      seeded: false,
+      childId: existingChild.rows[0]?.id,
+      childName: existingChild.rows[0]?.name,
+      childUsername: existingChild.rows[0]?.username,
+    };
+  }
 
   const pinHash = await hashPassword(QA_CHILD_PIN);
   const childName = locale === 'en-GB' ? 'QA Child' : 'QA Barn';
@@ -105,6 +123,18 @@ async function ensureFamilyContent(familyId, locale) {
     [familyId, childName, pinHash, locale === 'en-GB' ? 'qachild' : 'qabarn']
   );
   const childId = childRes.rows[0].id;
+
+  const parentRes = await pg.query('SELECT id FROM parent WHERE family_id = $1 ORDER BY created_at ASC LIMIT 1', [familyId]);
+  if (parentRes.rows[0]) {
+    await pg.query(
+      `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary') ON CONFLICT DO NOTHING`,
+      [parentRes.rows[0].id, childId]
+    );
+    await pg.query(
+      `INSERT INTO notification_preference (parent_id) VALUES ($1) ON CONFLICT DO NOTHING`,
+      [parentRes.rows[0].id]
+    );
+  }
 
   const defaultContent = loadDefaultContent(locale);
   const { activities: defaultActivities, templateCategories } = defaultContent;
