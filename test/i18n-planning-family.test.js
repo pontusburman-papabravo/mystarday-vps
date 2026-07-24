@@ -136,10 +136,11 @@ describe('runtime localization hooks', () => {
 });
 
 describe('user-authored data unchanged', () => {
-  it('library.js does not wrap activity.name in pt', () => {
+  it('library.js does not wrap activity.name in pt for display', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/library.js'), 'utf8');
-    assert.doesNotMatch(js, /pt\([^)]*\.name/);
-    assert.doesNotMatch(js, /lpt\([^)]*\.name/);
+    assert.doesNotMatch(js, /lpt\([^)]*item\.name/);
+    assert.doesNotMatch(js, /pt\([^)]*item\.name/);
+    assert.match(js, /escHtml\([^)]*\.name\)/);
   });
 
   it('family schedule apply keeps schedule name in toast params', () => {

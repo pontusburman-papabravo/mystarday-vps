@@ -76,12 +76,15 @@ Shared bootstrap: `public/js/parent-app-i18n.js`, `public/js/parent-magic-i18n.j
 
 ## Known backlog (post-phase)
 
-- `/for-dig` hub full localization
-- `settings.html` classic sections (deep form labels)
-- `library.js` activity modal / category CRUD remaining strings
-- `schedule.js` advanced tools (special days detail, template mode edge cases)
-- `family.html` drawer/modal static copy (give stars form labels)
-- Child experience pack (`P-i18n-Child-Core-C`)
+| Area | Status | Notes |
+|------|--------|-------|
+| `/for-dig` hub | Out of scope | Documented backlog |
+| `settings.html` deep forms | Out of scope P0/P1 | Locale row exists; deep PIN/notification forms later |
+| `library.js` category delete confirm | Partial | Delete-category confirm dialog still Swedish |
+| `library.js` overflow/favourite aria | Partial | Secondary chrome strings |
+| `schedule.js` special-day advanced | Out of scope P0/P1 | Core create/edit/save localized |
+| `family.html` give-stars modal static | Out of scope P0/P1 | Runtime toasts localized; static form labels backlog |
+| Child experience | Separate phase | `P-i18n-Child-Core-C` behind `english_child_experience` |
 
 ## Recommended next phase
 

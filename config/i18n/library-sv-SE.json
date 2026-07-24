@@ -21,7 +21,13 @@
     "loadRewards": "Kunde inte ladda belöningar. Försök ladda om sidan.",
     "updateReward": "Kunde inte uppdatera belöning",
     "copyReward": "Kunde inte kopiera belöningen",
-    "deleteReward": "Kunde inte ta bort belöningen"
+    "deleteReward": "Kunde inte ta bort belöningen",
+    "saveOrder": "Kunde inte spara ordningen",
+    "updateFavorite": "Kunde inte uppdatera favorit",
+    "deleteCategory": "Kunde inte ta bort kategorin",
+    "deleteActivity": "Kunde inte ta bort aktiviteten",
+    "copyActivity": "Kunde inte kopiera aktiviteten",
+    "generic": "Fel uppstod"
   },
   "empty": {
     "noCategories": "Inga kategorier ännu",
@@ -42,12 +48,27 @@
     "yourRewards": "Dina belöningar"
   },
   "searching": "Söker…",
+  "actions": {
+    "save": "Spara",
+    "saving": "Sparar…",
+    "activitiesTab": "Aktiviteter"
+  },
   "saved": {
+    "category": "Kategorin har sparats",
+    "categoryDeleted": "Kategorin har tagits bort",
+    "activity": "Aktiviteten har sparats",
+    "activityPartial": "Aktiviteten sparades men {{count}} delsteg misslyckades",
+    "activityDeleted": "Aktiviteten har tagits bort",
+    "activityCopied": "\"{{name}}\" kopierad till ditt bibliotek!",
     "reward": "Belöningen har sparats",
     "rewardDeleted": "Belöningen har tagits bort",
     "rewardCopied": "\"{{name}}\" kopierad till ditt belöningsbibliotek!"
   },
   "modal": {
+    "editCategory": "Redigera kategori",
+    "newCategory": "Ny kategori",
+    "editActivity": "Redigera aktivitet",
+    "newActivity": "Ny aktivitet",
     "editReward": "Redigera belöning",
     "newReward": "Ny belöning",
     "approvalBadge": "Godkänn"

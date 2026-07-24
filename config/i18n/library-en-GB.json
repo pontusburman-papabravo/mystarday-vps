@@ -21,7 +21,13 @@
     "loadRewards": "Could not load rewards. Try reloading the page.",
     "updateReward": "Could not update reward",
     "copyReward": "Could not copy the reward",
-    "deleteReward": "Could not delete the reward"
+    "deleteReward": "Could not delete the reward",
+    "saveOrder": "Could not save order",
+    "updateFavorite": "Could not update favourite",
+    "deleteCategory": "Could not delete category",
+    "deleteActivity": "Could not delete activity",
+    "copyActivity": "Could not copy activity",
+    "generic": "Something went wrong"
   },
   "empty": {
     "noCategories": "No categories yet",
@@ -42,12 +48,27 @@
     "yourRewards": "Your rewards"
   },
   "searching": "Searching…",
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "activitiesTab": "Activities"
+  },
   "saved": {
+    "category": "Category saved",
+    "categoryDeleted": "Category deleted",
+    "activity": "Activity saved",
+    "activityPartial": "Activity saved but {{count}} steps failed",
+    "activityDeleted": "Activity deleted",
+    "activityCopied": "\"{{name}}\" copied to your library!",
     "reward": "Reward saved",
     "rewardDeleted": "Reward deleted",
     "rewardCopied": "\"{{name}}\" copied to your rewards library!"
   },
   "modal": {
+    "editCategory": "Edit category",
+    "newCategory": "New category",
+    "editActivity": "Edit activity",
+    "newActivity": "New activity",
     "editReward": "Edit reward",
     "newReward": "New reward",
     "approvalBadge": "Approve"

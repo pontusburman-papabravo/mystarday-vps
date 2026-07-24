@@ -274,7 +274,7 @@ function buildCategoryOptions() {
 function renderSchemaTabs() {
   const container = document.getElementById('schemaTabsContainer');
   if (categories.length === 0) {
-    container.innerHTML = '<span class="text-sm text-text-soft py-2">Inga kategorier ännu</span>';
+    container.innerHTML = '<span class="text-sm text-text-soft py-2">' + lpt('library.empty.noCategories') + '</span>';
     activeSchemaTab = null;
     return;
   }
@@ -328,7 +328,7 @@ function updateSchemaTabTitle() {
   if (cat) {
     titleEl.textContent = cat.name;
   } else {
-    titleEl.textContent = 'Aktiviteter';
+    titleEl.textContent = lpt('library.actions.activitiesTab');
   }
 }
 
@@ -357,10 +357,10 @@ function renderActivities() {
     container.innerHTML = `
       <div class="text-center py-12 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-4xl mb-3">🌟</p>
-        <p class="font-heading font-bold text-navy text-lg mb-1">Biblioteket är tomt</p>
-        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">Här samlar du dina aktiviteter. Skapa en aktivitet som t.ex. "Borsta tänderna" och använd den i alla barns scheman.</p>
+        <p class="font-heading font-bold text-navy text-lg mb-1">${lpt('library.empty.libraryTitle')}</p>
+        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">${lpt('library.empty.libraryBody')}</p>
         <button onclick="openActivityModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">
-          + Skapa din första aktivitet
+          ${lpt('library.empty.createFirstActivity')}
         </button>
       </div>
     `;
@@ -379,9 +379,9 @@ function renderActivities() {
       <div class="text-center py-10 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-3xl mb-2">📋</p>
         <p class="font-heading font-bold text-navy mb-1">Inga aktiviteter i ${catLabel}</p>
-        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">Lägg till aktiviteter för att bygga upp ditt schema.</p>
+        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">${lpt('library.empty.categoryBody')}</p>
         <button onclick="openActivityModalInCategory('${activeSchemaTab || ''}')" class="px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
-          + Lägg till aktivitet
+          ${lpt('library.empty.addActivity')}
         </button>
       </div>
     `;
@@ -513,8 +513,8 @@ function initActivityDnD() {
           const res = await window.apiFetch('/api/activities/reorder', {
             method: 'PUT', body: JSON.stringify({ order }),
           });
-          if (!res.ok) showToast('Kunde inte spara ordningen', true);
-        } catch { showToast('Kunde inte spara ordningen', true); }
+          if (!res.ok) showToast(lpt('library.errors.saveOrder'), true);
+        } catch { showToast(lpt('library.errors.saveOrder'), true); }
       },
     });
     _activitySortables.push(s);
@@ -629,7 +629,7 @@ async function toggleActivityFavoriteInline(id, currentlyFavorite) {
       }),
     }).catch(() => {});
   } else {
-    showToast('Kunde inte uppdatera favorit', true);
+    showToast(lpt('library.errors.updateFavorite'), true);
   }
 }
 
@@ -670,7 +670,7 @@ function setApproval(val) {
 function openCategoryModal(cat) {
   document.getElementById('categoryId').value = cat ? cat.id : '';
   document.getElementById('categoryName').value = cat ? cat.name : '';
-  document.getElementById('categoryModalTitle').textContent = cat ? 'Redigera kategori' : 'Ny kategori';
+  document.getElementById('categoryModalTitle').textContent = cat ? lpt('library.modal.editCategory') : lpt('library.modal.newCategory');
   document.getElementById('categoryError').classList.add('hidden');
   document.getElementById('categoryModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('categoryName').focus(), 100);
@@ -687,20 +687,20 @@ async function submitCategory(e) {
   const btn = document.getElementById('categorySubmitBtn');
   const errEl = document.getElementById('categoryError');
   errEl.classList.add('hidden');
-  btn.disabled = true; btn.textContent = 'Sparar…';
+  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
   const url = id ? `/api/categories/${id}` : '/api/categories';
   const method = id ? 'PUT' : 'POST';
   const res = await window.apiFetch(url, { method, body: JSON.stringify({ name }) });
   const data = await res.json();
   if (res.ok) {
-    closeCategoryModal(); showToast('Kategorin har sparats');
+    closeCategoryModal(); showToast(lpt('library.saved.category'));
     // If new category, switch to it
     if (!id && data.id) activeSchemaTab = data.id;
     await loadCategories(); await loadActivities();
   } else {
-    errEl.textContent = data.error || 'Fel uppstod'; errEl.classList.remove('hidden');
+    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
   }
-  btn.disabled = false; btn.textContent = 'Spara';
+  btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
 
 function deleteCategory(id, name) {
@@ -712,11 +712,11 @@ function deleteCategory(id, name) {
     const res = await window.apiFetch(`/api/categories/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
-      showToast('Kategorin har tagits bort');
+      showToast(lpt('library.saved.categoryDeleted'));
       if (activeSchemaTab === id) activeSchemaTab = null;
       await loadCategories(); await loadActivities();
     }
-    else showToast(data.error || 'Kunde inte ta bort kategorin', true);
+    else showToast(data.error || lpt('library.errors.deleteCategory'), true);
   });
 }
 
@@ -746,7 +746,7 @@ async function deleteCategoryWithConfirm(id, name) {
     const res = await window.apiFetch(`/api/categories/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
-      showToast('Kategorin har tagits bort');
+      showToast(lpt('library.saved.categoryDeleted'));
       if (activeSchemaTab === id) activeSchemaTab = null;
       await loadCategories();
       await loadActivities();
@@ -766,7 +766,7 @@ function renderLibActSubsteps() {
   if (!list) return;
   const visible = _libActSubsteps.filter(s => !s._deleted);
   if (visible.length === 0) {
-    list.innerHTML = '<p class="text-xs text-text-soft italic">Inga delsteg ännu. Lägg till nedan.</p>';
+    list.innerHTML = '<p class="text-xs text-text-soft italic">' + lpt('library.empty.noSubsteps') + '</p>';
     return;
   }
   list.innerHTML = visible.map((s, vi) => {
@@ -1012,7 +1012,7 @@ async function openActivityModal(act) {
   selectStar(act ? act.star_value : 1);
   setFavorite(act ? act.is_favorite : false);
   document.getElementById('activityFeedbackFor').value = (act && act.feedback_for) ? act.feedback_for : 'both';
-  document.getElementById('activityModalTitle').textContent = act ? 'Redigera aktivitet' : 'Ny aktivitet';
+  document.getElementById('activityModalTitle').textContent = act ? lpt('library.modal.editActivity') : lpt('library.modal.newActivity');
   document.getElementById('activityError').classList.add('hidden');
   const currentIcon = act && act.icon ? act.icon : null;
   document.querySelectorAll('#iconPicker button').forEach(btn => {
@@ -1084,7 +1084,7 @@ async function submitActivity(e) {
   errEl.classList.add('hidden');
 
   if (duration_seconds === undefined) {
-    errEl.textContent = 'Timer måste vara mellan 5 sekunder och 60 minuter (heltal).';
+    errEl.textContent = lpt('library.validation.timerRange');
     errEl.classList.remove('hidden');
     return;
   }
@@ -1092,12 +1092,12 @@ async function submitActivity(e) {
   const isPhoto = window.LibraryImages && LibraryImages.isPhotoMode();
   const image_url = isPhoto && LibraryImages ? LibraryImages.getSelectedUrl() : null;
   if (isPhoto && !image_url) {
-    errEl.textContent = 'Välj en bild från bildarkivet (eller ladda upp en ny).';
+    errEl.textContent = lpt('library.validation.pickImage');
     errEl.classList.remove('hidden');
     return;
   }
 
-  btn.disabled = true; btn.textContent = 'Sparar…';
+  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
   const url = id ? `/api/activities/${id}` : '/api/activities';
   const method = id ? 'PUT' : 'POST';
   const body = {
@@ -1118,24 +1118,24 @@ async function submitActivity(e) {
     const failedSteps = await syncLibActSubsteps(activityId);
     closeActivityModal();
     if (failedSteps > 0)
-      showToast(`Aktiviteten sparades men ${failedSteps} delsteg misslyckades`, true);
+      showToast(lpt('library.saved.activityPartial', { count: failedSteps }), true);
     else
-      showToast('Aktiviteten har sparats');
+      showToast(lpt('library.saved.activity'));
     // Invalidate substep cache so the panel re-fetches on next open
     if (activityId) delete subStepsCache[activityId];
     await loadActivities();
   } else {
-    errEl.textContent = data.error || 'Fel uppstod'; errEl.classList.remove('hidden');
+    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
   }
-  btn.disabled = false; btn.textContent = 'Spara';
+  btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
 
 function deleteActivity(id, name) {
   openConfirmModal(`Ta bort aktiviteten "${name}"?`, async () => {
     const res = await window.apiFetch(`/api/activities/${id}`, { method: 'DELETE' });
     const data = await res.json();
-    if (res.ok) { showToast('Aktiviteten har tagits bort'); await loadActivities(); }
-    else showToast(data.error || 'Kunde inte ta bort aktiviteten', true);
+    if (res.ok) { showToast(lpt('library.saved.activityDeleted')); await loadActivities(); }
+    else showToast(data.error || lpt('library.errors.deleteActivity'), true);
   });
 }
 
@@ -1172,7 +1172,7 @@ async function onActivitySearch(query) {
 
   containerEl.classList.add('hidden');
   resultsEl.classList.remove('hidden');
-  resultsEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">Söker…</div>';
+  resultsEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">' + lpt('library.searching') + '</div>';
 
   // Ensure standard library is loaded for search
   await ensureStandardActivitiesLoaded();
@@ -1192,8 +1192,8 @@ async function onActivitySearch(query) {
     resultsEl.innerHTML = `
       <div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-3xl mb-2">🔍</p>
-        <p class="font-semibold text-navy mb-1">Ingen aktivitet hittades för "${escHtml(query)}"</p>
-        <p class="text-sm text-text-soft mb-4">Skapa en ny aktivitet med det här namnet</p>
+        <p class="font-semibold text-navy mb-1">${lpt('library.empty.noSearchActivity', { query })}</p>
+        <p class="text-sm text-text-soft mb-4">${lpt('library.empty.createActivityHint')}</p>
         <button onclick="openActivityModalWithName(${JSON.stringify(query)})"
           class="px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
           + Skapa "${escHtml(query)}"
@@ -1262,13 +1262,13 @@ async function copyStandardActivityToLibrary(stdActivity) {
   const res = await window.apiFetch('/api/activities', { method: 'POST', body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) {
-    showToast(`"${stdActivity.name}" kopierad till ditt bibliotek!`);
+    showToast(lpt('library.saved.activityCopied', { name: stdActivity.name }));
     await loadActivities();
     // Clear search to show the updated library
     const searchInput = document.getElementById('activitySearchInput');
     if (searchInput) { searchInput.value = ''; onActivitySearch(''); }
   } else {
-    showToast(data.error || 'Kunde inte kopiera aktiviteten', true);
+    showToast(data.error || lpt('library.errors.copyActivity'), true);
   }
 }
 
@@ -1300,7 +1300,7 @@ async function onRewardSearch(query) {
 
   containerEl.classList.add('hidden');
   resultsEl.classList.remove('hidden');
-  resultsEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">Söker…</div>';
+  resultsEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">' + lpt('library.searching') + '</div>';
 
   await ensureStandardRewardsLoaded();
 
@@ -1317,8 +1317,8 @@ async function onRewardSearch(query) {
     resultsEl.innerHTML = `
       <div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-3xl mb-2">🔍</p>
-        <p class="font-semibold text-navy mb-1">Ingen belöning hittades för "${escHtml(query)}"</p>
-        <p class="text-sm text-text-soft mb-4">Skapa en ny belöning med det här namnet</p>
+        <p class="font-semibold text-navy mb-1">${lpt('library.empty.noSearchReward', { query })}</p>
+        <p class="text-sm text-text-soft mb-4">${lpt('library.empty.createRewardHint')}</p>
         <button onclick="openRewardModalWithName(${JSON.stringify(query)})"
           class="px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
           + Skapa "${escHtml(query)}"
@@ -1331,7 +1331,7 @@ async function onRewardSearch(query) {
   let html = '';
 
   if (ownMatches.length > 0) {
-    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 px-1">🏆 Dina belöningar</div>`;
+    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 px-1">🏆 ${lpt('library.empty.yourRewards')}</div>`;
     html += ownMatches.map(r => `
       <div class="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 border border-lavender hover:border-gold transition-colors gap-2">
         <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -1383,7 +1383,7 @@ async function copyStandardRewardToLibrary(stdReward) {
   const res = await window.apiFetch('/api/rewards', { method: 'POST', body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) {
-    showToast(`"${stdReward.name}" kopierad till ditt belöningsbibliotek!`);
+    showToast(lpt('library.saved.rewardCopied', { name: stdReward.name }));
     await loadRewards();
     // Update standard flat cache state to reflect new own reward
     _rewardSearchStandardLoaded = false;
@@ -1391,7 +1391,7 @@ async function copyStandardRewardToLibrary(stdReward) {
     const searchInput = document.getElementById('rewardSearchInput');
     if (searchInput) { searchInput.value = ''; onRewardSearch(''); }
   } else {
-    showToast(data.error || 'Kunde inte kopiera belöningen', true);
+    showToast(data.error || lpt('library.errors.copyReward'), true);
   }
 }
 
@@ -1421,10 +1421,10 @@ function renderRewards() {
     container.innerHTML = `
       <div class="text-center py-12 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-4xl mb-3">🏆</p>
-        <p class="font-heading font-bold text-navy text-lg mb-1">Belöningsbiblioteket är tomt</p>
-        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">Lägg till belöningar som barnen kan tjäna ihop stjärnor till.</p>
+        <p class="font-heading font-bold text-navy text-lg mb-1">${lpt('library.empty.rewardsTitle')}</p>
+        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">${lpt('library.empty.rewardsBody')}</p>
         <button onclick="openRewardModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">
-          + Lägg till belöning
+          ${lpt('library.empty.addReward')}
         </button>
       </div>
     `;
@@ -1454,7 +1454,7 @@ function renderRewardItem(r) {
           <div class="flex items-center gap-2 flex-wrap">
             <span class="font-semibold text-sm text-navy">${escHtml(r.name)}</span>
             <span class="text-xs bg-gold-light text-navy px-2 py-0.5 rounded-full font-semibold">${r.star_cost} ⭐</span>
-            ${r.requires_approval ? '<span class="text-xs bg-lavender text-navy px-2 py-0.5 rounded-full">Godkänn</span>' : ''}
+            ${r.requires_approval ? '<span class="text-xs bg-lavender text-navy px-2 py-0.5 rounded-full">' + lpt('library.modal.approvalBadge') + '</span>' : ''}
             ${!isActive ? '<span class="text-xs bg-gray-100 text-text-soft px-2 py-0.5 rounded-full">Inaktiv</span>' : ''}
           </div>
           <div class="text-xs text-text-soft mt-0.5">${visLabel}</div>
@@ -1525,7 +1525,7 @@ async function toggleRewardFavorite(id, currentlyFavorite) {
       }),
     }).catch(() => {});
   } else {
-    showToast('Kunde inte uppdatera favorit', true);
+    showToast(lpt('library.errors.updateFavorite'), true);
   }
 }
 
@@ -1537,7 +1537,7 @@ async function toggleRewardActive(id, currentlyActive) {
     body: JSON.stringify({ ...reward, is_active: !currentlyActive }),
   });
   if (res.ok) { await loadRewards(); }
-  else showToast('Kunde inte uppdatera belöning', true);
+  else showToast(lpt('library.errors.updateReward'), true);
 }
 
 // ─── Reward modal ─────────────────────────────────────────
@@ -1549,7 +1549,7 @@ function openRewardModal(r) {
   document.getElementById('rewardIconDisplay').textContent = icon;
   document.getElementById('rewardStarCost').value = r ? r.star_cost : 10;
   setApproval(r ? (r.requires_approval !== false) : true);
-  document.getElementById('rewardModalTitle').textContent = r ? 'Redigera belöning' : 'Ny belöning';
+  document.getElementById('rewardModalTitle').textContent = r ? lpt('library.modal.editReward') : lpt('library.modal.newReward');
   document.getElementById('rewardError').classList.add('hidden');
   document.querySelectorAll('#rewardIconPicker button').forEach(btn => {
     btn.classList.toggle('border-gold', btn.textContent === icon);
@@ -1558,7 +1558,7 @@ function openRewardModal(r) {
   const visContainer = document.getElementById('rewardVisibilityContainer');
   const currentVisible = r && r.visible_to_children ? r.visible_to_children : [];
   if (rewardChildren.length === 0) {
-    visContainer.innerHTML = '<p class="text-sm text-text-soft">Inga barn i familjen ännu.</p>';
+    visContainer.innerHTML = '<p class="text-sm text-text-soft">' + lpt('library.empty.noChildren') + '</p>';
   } else {
     visContainer.innerHTML = rewardChildren.map(child => `
       <label class="flex items-center gap-3 cursor-pointer">
@@ -1591,7 +1591,7 @@ async function submitReward(e) {
   const btn = document.getElementById('rewardSubmitBtn');
   const errEl = document.getElementById('rewardError');
   errEl.classList.add('hidden');
-  btn.disabled = true; btn.textContent = 'Sparar…';
+  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
   const url = id ? `/api/rewards/${id}` : '/api/rewards';
   const method = id ? 'PUT' : 'POST';
   const res = await window.apiFetch(url, {
@@ -1600,20 +1600,20 @@ async function submitReward(e) {
   });
   const data = await res.json();
   if (res.ok) {
-    closeRewardModal(); showToast('Belöningen har sparats');
+    closeRewardModal(); showToast(lpt('library.saved.reward'));
     await loadRewards();
   } else {
-    errEl.textContent = data.error || 'Fel uppstod'; errEl.classList.remove('hidden');
+    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
   }
-  btn.disabled = false; btn.textContent = 'Spara';
+  btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
 
 function deleteReward(id, name) {
   openConfirmModal(`Ta bort belöningen "${name}"?`, async () => {
     const res = await window.apiFetch(`/api/rewards/${id}`, { method: 'DELETE' });
     const data = await res.json();
-    if (res.ok) { showToast('Belöningen har tagits bort'); await loadRewards(); }
-    else showToast(data.error || 'Kunde inte ta bort belöningen', true);
+    if (res.ok) { showToast(lpt('library.saved.rewardDeleted')); await loadRewards(); }
+    else showToast(data.error || lpt('library.errors.deleteReward'), true);
   });
 }
 
