@@ -9,13 +9,18 @@
 (function () {
 // ── Rewards & Goals ────────────────────────────────────
 
+function t(key, params) {
+  return (typeof window.childT === 'function' ? childT(key, params)
+    : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+}
+
 let _currentGoalData = null; // cache for goal-picker
 let _currentRewardsData = null;
 let _loadRewardsInflight = null;
 
 function showRewardsLoadError(loader, message) {
   if (!loader) return;
-  const text = message || 'Kunde inte ladda belöningar.';
+  const text = message || t('rewards.loadFailed');
   const safe = typeof escHtml === 'function' ? escHtml(text) : text;
   loader.style.display = '';
   loader.innerHTML =
@@ -23,7 +28,7 @@ function showRewardsLoadError(loader, message) {
     '<p class="text-4xl mb-3">😕</p>' +
     '<p class="text-text-soft mb-4">' + safe + '</p>' +
     '<button type="button" class="px-6 py-3 bg-gold text-navy font-semibold rounded-xl min-h-[44px]" ' +
-    'onclick="window.rewardsLoaded=false;loadRewards({force:true})">🔄 Försök igen</button>' +
+    'onclick="window.rewardsLoaded=false;loadRewards({force:true})">🔄 ' + t('common.retry') + '</button>' +
     '</div>';
 }
 
@@ -68,7 +73,7 @@ async function loadRewardsInner(options) {
       });
     } else if (loader) {
       loader.style.display = '';
-      loader.innerHTML = '<p class="text-5xl mb-3" style="display:inline-block;animation:skattSpin 1.5s linear infinite">⭐</p><p class="text-text-soft font-semibold mt-3">Öppnar Skattkammaren...</p>';
+      loader.innerHTML = '<p class="text-5xl mb-3" style="display:inline-block;animation:skattSpin 1.5s linear infinite">⭐</p><p class="text-text-soft font-semibold mt-3">' + t('rewards.openTreasure') + '</p>';
     }
     if (view) view.style.display = 'none';
   }
@@ -121,9 +126,9 @@ async function loadRewardsInner(options) {
       window.rewardsLoaded = true;
       _currentRewardsData = cached;
       renderSkattkammaren(cached, _currentGoalData, { grants: [] });
-      showOfflineBanner('📶 Offline — visar sparat data');
+      showOfflineBanner('📶 ' + t('rewards.offlineBanner'));
     } else {
-      if (loader) loader.innerHTML = '<div class="text-center py-12"><p class="text-4xl mb-3">📶</p><p class="text-text-soft">Ingen uppkoppling. Koppla upp för att se belöningar.</p></div>';
+      if (loader) loader.innerHTML = '<div class="text-center py-12"><p class="text-4xl mb-3">📶</p><p class="text-text-soft">' + t('offline.noConnection') + '. ' + t('offline.connectForRewards') + '</p></div>';
     }
     return;
   }
@@ -161,7 +166,7 @@ async function loadRewardsInner(options) {
     } catch (renderErr) {
       console.error('[loadRewards] renderSkattkammaren failed:', renderErr);
       window.rewardsLoaded = false;
-      if (showBlockingLoader) showRewardsLoadError(loader, 'Kunde inte visa belöningarna. Försök igen.');
+      if (showBlockingLoader) showRewardsLoadError(loader, t('rewards.showFailed'));
     }
   } catch (err) {
     console.error('[loadRewards] API failed:', err);
@@ -175,7 +180,7 @@ async function loadRewardsInner(options) {
       _currentRewardsData = cached;
       try {
         renderSkattkammaren(cached, _currentGoalData, { grants: [] });
-        showOfflineBanner('📶 Offline — visar sparat data');
+        showOfflineBanner('📶 ' + t('rewards.offlineBanner'));
       } catch (renderErr) {
         console.error('[loadRewards] cached render failed:', renderErr);
         window.rewardsLoaded = false;
@@ -276,9 +281,13 @@ function resolveSkattState(rewardsData, goalData, options) {
     })
     .sort(function (a, b) { return skattRedemptionTime(b) - skattRedemptionTime(a); });
 
-  let progressLabel = 'Välj vad du sparar till';
+  let progressLabel = t('rewards.chooseSavingFor');
   if (hasGoal) {
-    progressLabel = starBalance + ' av ' + goal.star_cost + ' till ' + goal.reward_name;
+    progressLabel = t('rewards.progressToward', {
+      balance: starBalance,
+      cost: goal.star_cost,
+      name: goal.reward_name,
+    });
   }
 
   const base = {
@@ -360,14 +369,14 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     .filter(function (r) { return r.status === 'approved' || r.status === 'auto'; })
     .reduce(function (acc, r) { return acc + (r.star_cost || 0); }, 0);
   const childLabel = (me && me.name) ? escHtml(me.name) : 'Du';
-  const heroTitle = minimalUiActive ? '🤝 Be om hjälp' : 'Stjärnburken';
+  const heroTitle = minimalUiActive ? '🤝 ' + t('rewards.askForHelp') : t('rewards.starJar');
 
   // 1. Stjärnburken — hero (Olle-test: stjärnor + mål)
   html += '<div class="skatt-banner skatt-hero-v10">' +
     '<div class="skatt-hero-v10-inner">' +
     '<p class="skatt-hero-label">' + childLabel + ' · ' + heroTitle + '</p>' +
     '<div class="skatt-hero-count">' + starBalance + '</div>' +
-    '<p class="skatt-hero-sublabel">stjärnor samlade</p>' +
+    '<p class="skatt-hero-sublabel">' + t('rewards.starsCollected') + '</p>' +
     '<div class="skatt-hero-progress-track">' +
     '<div class="skatt-hero-progress-fill" id="skattGoalBar" style="width:' + skatt.progressPct + '%"></div>' +
     '</div>' +
@@ -378,10 +387,10 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     (window.ChildDashboardWarmth
       ? window.ChildDashboardWarmth.renderEconomyHintHtml(starBalance, totalEarned)
       : (totalEarned > starBalance
-        ? '<p class="skatt-hero-economy">Totalt tjänat: ⭐ ' + totalEarned + '</p>'
+        ? '<p class="skatt-hero-economy">' + t('rewards.totalEarned', { count: totalEarned }) + '</p>'
         : '')) +
     (skatt.showGoalChangeLink
-      ? '<button type="button" class="skatt-hero-link" onclick="openGoalPicker()">🔄 Byt mål</button>'
+      ? '<button type="button" class="skatt-hero-link" onclick="openGoalPicker()">🔄 ' + t('rewards.changeGoal') + '</button>'
       : '') +
   '</div></div>';
 
@@ -389,37 +398,37 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
   if (skatt.primaryAction && skatt.primaryAction.type === 'redeem') {
     html += '<div class="skatt-primary-wrap">' +
       '<button type="button" onclick="requestRedeem(\'' + skatt.primaryAction.rewardId + '\')" class="skatt-primary-cta skatt-redeem-btn">' +
-      '📨 Fråga om att lösa in' +
+      '📨 ' + t('rewards.askToRedeem') +
       '</button></div>';
   } else if (skatt.primaryAction && skatt.primaryAction.type === 'pick_goal') {
     html += '<div class="skatt-primary-wrap">' +
       '<button type="button" onclick="openGoalPicker()" class="skatt-primary-cta skatt-redeem-btn">' +
-      '✨ Välj mitt mål' +
+      '✨ ' + t('rewards.pickGoal') +
       '</button></div>';
   } else if (skatt.collectHint) {
-    html += '<div class="skatt-collect-hint">Samla ' + skatt.collectHint.starsToGo + ' ⭐ till! 💪</div>';
+    html += '<div class="skatt-collect-hint">' + t('rewards.collectHint', { count: skatt.collectHint.starsToGo }) + '</div>';
   }
 
   if (skatt.pendingChangeReq) {
     html += '<div class="skatt-status-card skatt-status-pending">' +
-      '<span>⏳</span><div><strong>Byter mål</strong><p>Väntar på svar från förälder</p></div></div>';
+      '<span>⏳</span><div><strong>' + t('rewards.changingGoal') + '</strong><p>' + t('rewards.waitingParent') + '</p></div></div>';
   }
 
   // 3. Belöningslista med progress (mockup)
   html += '<div class="skatt-section skatt-rewards-list-section">' +
     '<div class="skatt-section-header">' +
     '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);">🎁</div>' +
-    '<span class="skatt-section-title" style="color:#6c5ce7;">Belöningar</span>' +
+    '<span class="skatt-section-title" style="color:#6c5ce7;">' + t('rewards.rewardsSection') + '</span>' +
     (rewards.length > 0
-      ? '<span class="skatt-section-count">' + rewards.length + ' st</span>'
+      ? '<span class="skatt-section-count">' + t('rewards.countItems', { count: rewards.length }) + '</span>'
       : '') +
     '</div><div class="skatt-section-body">';
 
   if (rewards.length === 0) {
     html += '<div class="skatt-empty-rewards">' +
       '<div style="font-size:3rem;margin-bottom:10px;opacity:0.5;">🎁</div>' +
-      '<p class="skatt-empty-title">Inga belöningar ännu!</p>' +
-      '<p class="skatt-empty-sub">Be din förälder lägga till belöningar 🌟</p>' +
+      '<p class="skatt-empty-title">' + t('rewards.emptyTitle') + '</p>' +
+      '<p class="skatt-empty-sub">' + t('rewards.emptySub') + '</p>' +
       '</div>';
   } else {
     html += '<div class="skatt-reward-list">';
@@ -432,7 +441,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
         ? ' onclick="requestRedeem(\'' + r.id + '\')" role="button" tabindex="0"'
         : '';
       let tag = '';
-      if (st.ready) tag = '<span class="skatt-reward-tag ready">Klar!</span>';
+      if (st.ready) tag = '<span class="skatt-reward-tag ready">' + t('rewards.statusReady') + '</span>';
       else if (st.hasPending) tag = '<span class="skatt-reward-tag pending">⏳</span>';
       else if (st.isCurrentGoal) tag = '<span class="skatt-reward-tag goal">🎯</span>';
       else if (st.isRedeemed) tag = '<span class="skatt-reward-tag earned">✅</span>';
@@ -444,7 +453,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
         '<div class="skatt-reward-row-name">' + escHtml(r.name) + '</div>' +
         '<div class="skatt-reward-row-bar"><div class="skatt-reward-row-fill ' + color + '" style="width:' + st.pct + '%"></div></div>' +
         '<div class="skatt-reward-row-labels">' +
-        '<span>' + starBalance + ' av ' + r.star_cost + ' stjärnor</span>' +
+        '<span>' + t('rewards.starsOf', { balance: starBalance, cost: r.star_cost }) + '</span>' +
         '<span class="skatt-reward-row-cost">⭐ ' + r.star_cost + '</span>' +
         '</div></div></div>';
     });
@@ -462,14 +471,14 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       html += '<div class="skatt-status-card skatt-status-completed">' +
         '<span>' + (cr.reward_icon || '🎉') + '</span>' +
         '<div><strong>' + escHtml(cr.reward_name) + '</strong>' +
-        '<p>🎉 Belöningen är din!</p></div></div>';
+        '<p>🎉 ' + t('rewards.rewardYours') + '</p></div></div>';
     }
     if (skatt.pending.length > 0) {
       for (const r of skatt.pending) {
         html += '<div class="skatt-status-card skatt-status-pending">' +
           '<span>' + (r.reward_icon || '🎁') + '</span>' +
           '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
-          '<p>⏳ Föräldern godkänner snart</p></div></div>';
+          '<p>⏳ ' + t('rewards.parentApproving') + '</p></div></div>';
       }
     }
     if (deniedRecent.length > 0) {
@@ -477,7 +486,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
         html += '<div class="skatt-status-card skatt-status-denied">' +
           '<span>' + (r.reward_icon || '🎁') + '</span>' +
           '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
-          '<p>Inte den här gången — fråga igen senare 💛</p></div></div>';
+          '<p>' + t('rewards.notThisTime') + '</p></div></div>';
       }
     }
     html += '</div></div>';
@@ -488,8 +497,8 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     html += '<div class="skatt-section">' +
       '<div class="skatt-section-header">' +
       '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#fdcb6e,#e17055);">🏆</div>' +
-      '<span class="skatt-section-title" style="color:#c0392b;">Troféhyllan</span>' +
-      '<span class="skatt-section-count">' + trophies.length + ' st</span>' +
+      '<span class="skatt-section-title" style="color:#c0392b;">' + t('rewards.trophyShelf') + '</span>' +
+      '<span class="skatt-section-count">' + t('rewards.countItems', { count: trophies.length }) + '</span>' +
       '</div><div class="skatt-section-body"><div class="skatt-trophy-grid">';
 
     trophies.slice(0, 9).forEach(function (r, i) {
@@ -505,7 +514,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     if (trophies.length > 9) {
       html += '<div class="skatt-trophy-item skatt-trophy-more">' +
         '<span class="skatt-trophy-emoji">+' + (trophies.length - 9) + '</span>' +
-        '<span class="skatt-trophy-name">fler trofeer</span></div>';
+        '<span class="skatt-trophy-name">' + t('rewards.moreTrophies') + '</span></div>';
     }
     html += '</div></div></div>';
   }
@@ -515,7 +524,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     html += '<div class="skatt-section">' +
       '<div class="skatt-section-header">' +
       '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#00b894,#55efc4);">✨</div>' +
-      '<span class="skatt-section-title" style="color:#00864e;">Bonus-stjärnor</span>' +
+      '<span class="skatt-section-title" style="color:#00864e;">' + t('rewards.bonusStars') + '</span>' +
       '</div><div class="skatt-section-body">';
 
     for (const g of grants.slice(0, 8)) {
@@ -530,7 +539,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
         '<span class="skatt-grant-stars">+' + g.star_count + ' ⭐</span>' +
         '<span class="skatt-grant-date">' + dateStr + '</span></div>' +
         '<div class="skatt-grant-reason">' + escHtml(g.reason) + '</div>' +
-        '<div class="skatt-grant-parent">— ' + escHtml(g.parent_name || 'Förälder') + '</div>' +
+        '<div class="skatt-grant-parent">— ' + escHtml(g.parent_name || t('common.parent')) + '</div>' +
         '</div></div>';
     }
     html += '</div></div>';
@@ -545,14 +554,14 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     html += '<div class="skatt-section" style="margin-bottom:24px;">' +
       '<div class="skatt-section-header">' +
       '<div class="skatt-section-icon" style="background:linear-gradient(135deg,#74b9ff,#0984e3);">📖</div>' +
-      '<span class="skatt-section-title" style="color:#0652c5;">Historikboken</span>' +
+      '<span class="skatt-section-title" style="color:#0652c5;">' + t('rewards.historyBook') + '</span>' +
       '</div><div class="skatt-section-body" style="padding-bottom:8px;">';
 
     for (const r of historyWins.slice(0, 10)) {
       html += window.ChildDashboardWarmth
         ? window.ChildDashboardWarmth.renderHistoryStoryHtml(r)
-        : '<div class="skatt-history-story"><div class="skatt-history-story-text">Du låste upp ' +
-          escHtml(r.reward_name) + ' ' + (r.reward_icon || '🎁') + ' 🎉</div></div>';
+        : '<div class="skatt-history-story"><div class="skatt-history-story-text">' +
+          t('rewards.unlocked', { name: escHtml(r.reward_name) }) + ' ' + (r.reward_icon || '🎁') + ' 🎉</div></div>';
     }
     html += '</div></div>';
   }
@@ -562,7 +571,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
     starBalance,
     trophies,
     economyHtml: totalEarned > starBalance
-      ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:12px;font-family:'Plus Jakarta Sans',sans-serif;">Totalt tjänat: ⭐ ${totalEarned}</div>`
+      ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:12px;font-family:'Plus Jakarta Sans',sans-serif;">${t('rewards.totalEarned', { count: totalEarned })}</div>`
       : '',
     childName: me && me.name,
     childEmoji: me && me.emoji,
@@ -636,9 +645,9 @@ async function requestRedeem(rewardId) {
   if (isOffline) {
     if (window.OfflineQueue && me?.id) {
       OfflineQueue.queueRedeem(me.id, rewardId).catch(() => {});
-      showToast('📶 Sparas — skickas när nätverket är tillbaka', false);
+      showToast('📶 ' + t('offline.savedWillSend'), false);
     } else {
-      showToast('Kräver internet för att lösa in.', true);
+      showToast(t('offline.needsInternet'), true);
     }
     return;
   }
@@ -649,15 +658,15 @@ async function requestRedeem(rewardId) {
     if (window.Platform && window.Platform.haptics) {
       window.Platform.haptics.medium();
     }
-    showToast('📨 Inlösningsförfrågan skickad till föräldern!');
+    showToast('📨 ' + t('rewards.redeemSent'));
     await loadRewards();
   } catch (err) {
     const netErr = err && (err.message === 'Failed to fetch' || err.message === 'NetworkError when attempting to fetch resource.');
     if (netErr && window.OfflineQueue && me?.id) {
       OfflineQueue.queueRedeem(me.id, rewardId).catch(() => {});
-      showToast('📶 Sparas — skickas när nätverket är tillbaka', false);
+      showToast('📶 ' + t('offline.savedWillSend'), false);
     } else {
-      showToast(err.message || 'Kunde inte lösa in.', true);
+      showToast(err.message || t('rewards.couldNotRedeem'), true);
     }
   }
 }
@@ -675,16 +684,16 @@ function openGoalPicker() {
   if (!modal || !list) return;
 
   if (rewards.length === 0) {
-    list.innerHTML = '<p class="text-text-soft text-center py-6">Inga belöningar tillgängliga ännu.</p>';
+    list.innerHTML = '<p class="text-text-soft text-center py-6">' + t('rewards.noRewardsAvailable') + '</p>';
   } else {
     list.innerHTML = rewards.map(r => `
       <button onclick="setGoal('${r.id}', ${hasGoal})" class="w-full flex items-center gap-3 bg-white hover:bg-gold-light rounded-xl p-3 text-left transition-colors border border-lavender mb-2 min-h-[56px]">
         <span class="text-3xl">${r.icon || '🎁'}</span>
         <div class="flex-1 min-w-0">
           <p class="font-heading font-bold text-sm text-navy truncate">${escHtml(r.name)}</p>
-          <p class="text-xs text-text-soft">⭐ ${r.star_cost} stjärnor</p>
+          <p class="text-xs text-text-soft">⭐ ${r.star_cost} ${t('rewards.starsCollected')}</p>
         </div>
-        ${(goal && goal.reward_id === r.id) ? '<span class="text-xs bg-gold text-white px-2 py-0.5 rounded-full">Nuvarande</span>' : ''}
+        ${(goal && goal.reward_id === r.id) ? '<span class="text-xs bg-gold text-white px-2 py-0.5 rounded-full">' + t('rewards.currentGoal') + '</span>' : ''}
       </button>
     `).join('');
   }
@@ -705,7 +714,7 @@ async function setGoal(rewardId, isChange) {
         method: 'POST',
         body: JSON.stringify({ to_reward_id: rewardId }),
       });
-      showToast('📨 Bytebegäran skickad till föräldern!');
+      showToast('📨 ' + t('rewards.goalChangeSent'));
     } else {
       // Set directly (no existing goal)
       const data = await Auth.api('/api/me/goal', {
@@ -718,7 +727,7 @@ async function setGoal(rewardId, isChange) {
     window.rewardsLoaded = false;
     await loadRewards();
   } catch (err) {
-    showToast(err.message || 'Kunde inte sätta mål.', true);
+    showToast(err.message || t('rewards.couldNotSetGoal'), true);
   }
 }
 

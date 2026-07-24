@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
 let _offlineBanner = null;
 const _offlineTimer = null;
 
@@ -35,8 +40,8 @@ function showOfflineEmptyState(container) {
   container.innerHTML = `
     <div class="text-center py-12 bg-white rounded-2xl mt-2">
       <p class="text-4xl mb-3">📶</p>
-      <p class="text-text-soft font-semibold">Ingen uppkoppling</p>
-      <p class="text-text-soft text-sm mt-1">Koppla upp för att se schemat</p>
+      <p class="text-text-soft font-semibold">${t('offline.noConnection')}</p>
+      <p class="text-text-soft text-sm mt-1">${t('offline.connectForSchedule')}</p>
     </div>`;
 }
 
@@ -45,8 +50,8 @@ function showOfflineErrorState(container, dateStr) {
   container.innerHTML = `
     <div class="text-center py-12 bg-white rounded-2xl mt-2">
       <p class="text-4xl mb-3">😕</p>
-      <p class="text-text-soft">Kunde inte ladda schemat.</p>
-      <button onclick="loadDay('${dateStr}')" class="mt-4 px-6 py-2 bg-gold text-white rounded-xl font-semibold">Försök igen</button>
+      <p class="text-text-soft">${t('offline.couldNotLoadSchedule')}</p>
+      <button onclick="loadDay('${dateStr}')" class="mt-4 px-6 py-2 bg-gold text-white rounded-xl font-semibold">${t('common.retry')}</button>
     </div>`;
 }
 

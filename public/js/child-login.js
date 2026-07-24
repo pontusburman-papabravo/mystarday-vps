@@ -500,11 +500,11 @@ function showAddChildChoiceOverlay() {
   overlay.innerHTML = [
     '<div class="cl-modal-card" role="dialog" aria-labelledby="clAddChildTitle">',
       '<div style="font-size:2rem;margin-bottom:8px;">👶</div>',
-      '<h3 id="clAddChildTitle" class="cl-modal-title">Lägg till ett barn</h3>',
-      '<p class="cl-modal-sub">Syskon som redan finns i familjen: ange namn + PIN. Nytt barn kräver vuxen.</p>',
-      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddNewBtn">Nytt barn</button>',
-      '<button type="button" class="cl-modal-btn cl-modal-btn-secondary" id="clAddExistingBtn">Befintligt barn</button>',
-      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildCancel">Avbryt</button>',
+      '<h3 id="clAddChildTitle" class="cl-modal-title">' + tx('modals.addChildTitle') + '</h3>',
+      '<p class="cl-modal-sub">' + tx('modals.addChildSub') + '</p>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddNewBtn">' + tx('modals.newChild') + '</button>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-secondary" id="clAddExistingBtn">' + tx('modals.existingChild') + '</button>',
+      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildCancel">' + tx('common.cancel') + '</button>',
     '</div>',
   ].join('');
 
@@ -534,8 +534,8 @@ function showExistingChildForm() {
     const hint = noSession.querySelector('p');
     if (hint) {
       hint.textContent = loadKnownChildren().length > 0
-        ? 'Skriv syskonets namn — sedan ange hens PIN'
-        : 'Skriv barnets namn för att logga in';
+        ? tx('login.siblingNameHint')
+        : tx('login.nameHint');
     }
     const input = document.getElementById('clManualNameInput');
     if (input) setTimeout(function () { input.focus(); }, 80);
@@ -609,8 +609,8 @@ function showAddChildNeedsParentOverlay(reason) {
   if (existing) existing.remove();
 
   const message = reason === 'new_child'
-    ? 'För att skapa ett nytt barn i familjen behöver en vuxen logga in.'
-    : 'Enheten är inte kopplad till en familj ännu. En vuxen måste logga in först.';
+    ? tx('login.addChildNeedsParent')
+    : tx('login.noFamilyYet');
 
   const overlay = document.createElement('div');
   overlay.id = 'cl-add-child-needs-parent';
@@ -618,10 +618,10 @@ function showAddChildNeedsParentOverlay(reason) {
   overlay.innerHTML = [
     '<div class="cl-modal-card" role="dialog">',
       '<div style="font-size:2rem;margin-bottom:8px;">👤</div>',
-      '<h3 class="cl-modal-title">Vuxen behövs</h3>',
+      '<h3 class="cl-modal-title">' + tx('modals.adultNeededTitle') + '</h3>',
       '<p class="cl-modal-sub">' + message + '</p>',
-      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddChildGoParentBtn">Logga in som vuxen</button>',
-      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildNeedsParentCancel">Avbryt</button>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddChildGoParentBtn">' + tx('login.loginAsAdult') + '</button>',
+      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildNeedsParentCancel">' + tx('common.cancel') + '</button>',
     '</div>',
   ].join('');
   document.body.appendChild(overlay);
@@ -731,7 +731,7 @@ async function runAddChildWithParentGate(onAuthorized) {
   showParentPinGateOverlay(async function () {
     await activateParentSessionAfterPinVerify(window._ppinGateVerifyResult);
     onAuthorized();
-  }, function () {}, { hint: 'Ange din PIN-kod för att fortsätta' });
+  }, function () {}, { hint: tx('login.parentGateHint') });
 }
 
 window.openAddChild = async function () {
@@ -803,7 +803,7 @@ function buildKeypad() {
       (k === 'clear' ? ' clear' : '') +
       (k === '⌫' ? ' backspace' : '') +
       '"' +
-      ' aria-label="' + (action ? (action === 'CLEAR' ? 'Rensa PIN' : 'Radera') : k) + '"' +
+      ' aria-label="' + (action ? (action === 'CLEAR' ? tx('login.keypadClear') : tx('login.keypadBackspace')) : k) + '"' +
       ' data-action="' + (action || k) + '"' +
       ' type="button">' + (extra || k) + '</button>';
   }).join('');
@@ -973,7 +973,7 @@ async function submitLogin() {
     const loginFamilyId = data.user.familyId || null;
     if (deviceFamilyId && loginFamilyId && deviceFamilyId !== loginFamilyId) {
       hideLoading();
-      showError('Det barnet tillhör en annan familj.', '⚠️');
+      showError(tx('login.wrongFamily'), '⚠️');
       Auth.clearAuth();
       pinDigits = [];
       renderPinDots();
@@ -986,10 +986,7 @@ async function submitLogin() {
         const me = await verifyRes.json();
         if (me.type !== 'child' || me.id !== data.user.id) {
           hideLoading();
-          showError(
-            'Inloggningen sparades inte i webbläsaren. Logga ut som vuxen (Jag är vuxen) och försök igen.',
-            '⚠️'
-          );
+          showError(tx('login.sessionNotSaved'), '⚠️');
           Auth.clearAuth();
           pinDigits = [];
           renderPinDots();
@@ -1017,7 +1014,7 @@ async function submitLogin() {
 
   } catch (err) {
     hideLoading();
-    showError('Något gick fel. Försök igen.');
+    showError(tx('errors.serverError'));
     trackChildEntry('child_login_failed', { reason: 'network' });
     pinDigits = [];
     renderPinDots();
@@ -1048,7 +1045,7 @@ window.handleParentSwitch = function () {
           window.location.href = '/dashboard';
         }, function () {
           // cancelled — stay on child login screen
-        }, { hint: 'Ange en vuxens PIN-kod för att fortsätta' });
+        }, { hint: tx('parentGate.adultPinHint') });
       } else {
         if (window.DeviceMode) DeviceMode.enterParent();
         window.location.href = '/dashboard';
@@ -1064,7 +1061,7 @@ window.handleParentSwitch = function () {
 // ── Parent PIN gate overlay (same pattern as auth.js + login-magic.js) ───────
 // Shown for add-child PIN gate and "Jag är vuxen" from child session.
 function showParentPinGateOverlay(onSuccess, onCancel, opts) {
-  const hint = (opts && opts.hint) || 'Ange din PIN-kod för att fortsätta';
+  const hint = (opts && opts.hint) || tx('parentGate.hint');
   const old = document.getElementById('ppin-gate-overlay');
   if (old) document.body.removeChild(old);
   window._ppinGateToken = null;
@@ -1085,7 +1082,7 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
 
   card.innerHTML = [
     '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
-    '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Föräldralås</h3>',
+    '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">' + tx('parentGate.title') + '</h3>',
     '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">' + hint + '</p>',
     '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
@@ -1093,9 +1090,9 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
     '</div>',
-    '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="PIN-tavla"></div>',
+    '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="' + tx('parentGate.keypadAria') + '"></div>',
     '<div id="ppgo-err" style="font-size:0.8rem;color:#ef4444;min-height:1.2em;margin-bottom:8px;"></div>',
-    '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">Avbryt</button>',
+    '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">' + tx('parentGate.cancel') + '</button>',
   ].join('');
 
   overlay.appendChild(card);

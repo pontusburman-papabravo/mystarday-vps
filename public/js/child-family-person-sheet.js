@@ -4,6 +4,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   let _openKey = null;
   let _personsByKey = {};
 
@@ -21,13 +26,27 @@
     return d.innerHTML;
   }
 
-  function warmGreeting(roleLabel) {
-    if (roleLabel === 'Pappa') return 'Min pappa';
-    if (roleLabel === 'Mamma') return 'Min mamma';
-    if (roleLabel === 'Syskon') return 'Mitt syskon';
-    if (roleLabel === 'Mormor' || roleLabel === 'Farmor') return 'Min ' + roleLabel.toLowerCase();
-    if (roleLabel === 'Morfar' || roleLabel === 'Farfar') return 'Min ' + roleLabel.toLowerCase();
-    return 'Hjälper mig varje dag';
+  function roleDisplayLabel(person) {
+    if (person.familyRole && typeof window.childRoleLabel === 'function') {
+      return childRoleLabel(person.familyRole);
+    }
+    if (person.kind === 'pedagog' && typeof window.childRoleLabel === 'function') {
+      return childRoleLabel('pedagog');
+    }
+    if (person.kind === 'sibling' && typeof window.childRoleLabel === 'function') {
+      return childRoleLabel('sibling');
+    }
+    return person.roleLabel || '';
+  }
+
+  function warmGreeting(person) {
+    const role = person.familyRole || person.kind;
+    if (role === 'pappa' || person.roleLabel === 'Pappa') return t('family.greetingPappa');
+    if (role === 'mamma' || person.roleLabel === 'Mamma') return t('family.greetingMamma');
+    if (role === 'sibling' || person.kind === 'sibling' || person.roleLabel === 'Syskon') {
+      return t('family.greetingSibling');
+    }
+    return t('family.greetingDefault');
   }
 
   function avatarHtml(person, size) {
@@ -74,7 +93,7 @@
       sheet.innerHTML =
         '<div class="cfh-person-sheet-scrim" data-cfh-sheet-close></div>' +
         '<div class="cfh-person-sheet-panel" role="document">' +
-          '<button type="button" class="cfh-person-sheet-close" data-cfh-sheet-close aria-label="Stäng">✕</button>' +
+          '<button type="button" class="cfh-person-sheet-close" data-cfh-sheet-close aria-label="' + esc(t('family.closeAria')) + '">✕</button>' +
           '<div id="cfhPersonSheetBody"></div>' +
         '</div>';
       document.body.appendChild(sheet);
@@ -90,21 +109,22 @@
     if (!body) return;
 
     const awayNote = person.cardNote || '';
-    const greeting = warmGreeting(person.roleLabel);
+    const roleLabel = roleDisplayLabel(person);
+    const greeting = warmGreeting(person);
     body.innerHTML =
       '<div class="cfh-person-sheet-card">' +
         '<p class="cfh-person-sheet-kicker">' + esc(greeting) + '</p>' +
         '<div class="cfh-person-sheet-avatar">' + avatarHtml(person, 128) + '</div>' +
         '<h2 class="cfh-person-sheet-name">' + esc(person.name) + '</h2>' +
-        '<p class="cfh-person-sheet-role">' + esc(person.roleLabel) + '</p>' +
+        '<p class="cfh-person-sheet-role">' + esc(roleLabel) + '</p>' +
         (awayNote
           ? '<p class="cfh-person-sheet-away">' + esc(awayNote) + '</p>'
-          : '<p class="cfh-person-sheet-warm">Finns här för dig ❤️</p>') +
+          : '<p class="cfh-person-sheet-warm">' + esc(t('family.sheetWarm')) + '</p>') +
       '</div>';
 
     sheet.classList.remove('hidden');
     sheet.setAttribute('aria-hidden', 'false');
-    sheet.setAttribute('aria-label', person.name + ', ' + person.roleLabel);
+    sheet.setAttribute('aria-label', person.name + ', ' + roleLabel);
     document.body.classList.add('cfh-person-sheet-open');
     _openKey = person.key;
 

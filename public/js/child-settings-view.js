@@ -4,13 +4,18 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const CHILD_ACTIONS = [
-    { id: 'dark_mode', label: 'Mörkt läge', hint: 'Ljus eller mörk bakgrund' },
-    { id: 'logout', label: 'Logga ut', hint: 'Lämna din session på den här enheten' },
+    { id: 'dark_mode', labelKey: 'settings.darkMode', hintKey: 'settings.darkModeHint' },
+    { id: 'logout', labelKey: 'settings.logout', hintKey: 'settings.logoutHint' },
   ];
 
   const PARENT_ACTIONS = [
-    { id: 'switch_child', label: 'Byt barn', hint: 'Kräver förälders PIN' },
+    { id: 'switch_child', labelKey: 'settings.switchChild', hintKey: 'settings.switchChildHint' },
   ];
 
   let _rendered = false;
@@ -30,19 +35,21 @@
 
   function darkModeStatusLabel() {
     if (window.Theme && typeof Theme.isDark === 'function') {
-      return Theme.isDark() ? 'På' : 'Av';
+      return Theme.isDark() ? t('common.on') : t('common.off');
     }
-    return document.documentElement.classList.contains('dark') ? 'På' : 'Av';
+    return document.documentElement.classList.contains('dark') ? t('common.on') : t('common.off');
   }
 
   function childActionsHtml() {
     return CHILD_ACTIONS.map(function (action) {
       const value = action.id === 'dark_mode' ? darkModeStatusLabel() : '';
+      const label = t(action.labelKey);
+      const hint = t(action.hintKey);
       return (
         '<button type="button" class="csv-action-btn csv-action-btn-child" data-child-action="' + esc(action.id) + '">' +
           '<span class="csv-action-copy">' +
-            '<span class="csv-action-label">' + esc(action.label) + '</span>' +
-            (action.hint ? '<span class="csv-action-hint">' + esc(action.hint) + '</span>' : '') +
+            '<span class="csv-action-label">' + esc(label) + '</span>' +
+            (hint ? '<span class="csv-action-hint">' + esc(hint) + '</span>' : '') +
           '</span>' +
           (value
             ? '<span class="csv-action-value">' + esc(value) + '</span>'
@@ -54,11 +61,13 @@
 
   function parentActionsHtml() {
     return PARENT_ACTIONS.map(function (action) {
+      const label = t(action.labelKey);
+      const hint = t(action.hintKey);
       return (
         '<button type="button" class="csv-action-btn csv-action-btn-parent" data-parent-action="' + esc(action.id) + '">' +
           '<span class="csv-action-copy">' +
-            '<span class="csv-action-label">' + esc(action.label) + '</span>' +
-            (action.hint ? '<span class="csv-action-hint">' + esc(action.hint) + '</span>' : '') +
+            '<span class="csv-action-label">' + esc(label) + '</span>' +
+            (hint ? '<span class="csv-action-hint">' + esc(hint) + '</span>' : '') +
           '</span>' +
           '<span class="csv-action-chevron" aria-hidden="true">›</span>' +
         '</button>'
@@ -78,22 +87,22 @@
       '<div class="csv-page">' +
         '<header class="csv-header">' +
           headerKickerHtml() +
-          '<h1 class="csv-title">Mitt</h1>' +
-          '<p class="csv-lead">Gör appen mer din — eller be en vuxen om hjälp med det som gäller hela familjen.</p>' +
+          '<h1 class="csv-title">' + esc(t('settings.title')) + '</h1>' +
+          '<p class="csv-lead">' + esc(t('settings.lead')) + '</p>' +
         '</header>' +
         (customization
           ? '<section class="csv-section" aria-labelledby="csvLookHeading">' +
-              '<h2 id="csvLookHeading" class="csv-section-title">Utseende</h2>' +
+              '<h2 id="csvLookHeading" class="csv-section-title">' + esc(t('settings.sectionLook')) + '</h2>' +
               '<div class="csv-customization">' + customization + '</div>' +
             '</section>'
           : '') +
         '<section class="csv-section" aria-labelledby="csvMineHeading">' +
-          '<h2 id="csvMineHeading" class="csv-section-title">Mina val</h2>' +
+          '<h2 id="csvMineHeading" class="csv-section-title">' + esc(t('settings.sectionMine')) + '</h2>' +
           '<div class="csv-actions">' + childActionsHtml() + '</div>' +
         '</section>' +
         '<section class="csv-section csv-section-parent" aria-labelledby="csvParentHeading">' +
-          '<h2 id="csvParentHeading" class="csv-section-title">För en vuxen</h2>' +
-          '<p class="csv-section-hint">Kräver förälders PIN</p>' +
+          '<h2 id="csvParentHeading" class="csv-section-title">' + esc(t('settings.forAdult')) + '</h2>' +
+          '<p class="csv-section-hint">' + esc(t('settings.adultPinHint')) + '</p>' +
           '<div class="csv-actions">' + parentActionsHtml() + '</div>' +
         '</section>' +
       '</div>';
@@ -114,7 +123,7 @@
       return;
     }
     if (actionId === 'logout') {
-      if (!window.confirm('Vill du logga ut?')) return;
+      if (!window.confirm(t('settings.logoutConfirm'))) return;
       if (typeof window.childLogout === 'function') {
         window.childLogout();
       }

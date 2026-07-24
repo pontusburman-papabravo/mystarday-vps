@@ -4,6 +4,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const STAR_GRID_MAX_CELLS = 24;
 
   let _goalData = null;
@@ -57,7 +62,7 @@
     const cells = buildStarGridCells(filled, target);
     let html = '<div class="skatt-star-grid-wrap">';
     html += '<div class="skatt-star-grid" role="img" aria-label="' +
-      progress.totalFilled + ' av ' + progress.totalTarget + ' stjärnor mot målet">';
+      t('rewards.starGridAria', { filled: progress.totalFilled, target: progress.totalTarget }) + '">';
     cells.forEach(function (cell) {
       html += '<span class="skatt-star-cell' + (cell.filled ? ' is-filled' : '') + '" aria-hidden="true">' +
         (cell.filled ? '⭐' : '☆') + '</span>';
@@ -67,8 +72,9 @@
       html += '<div class="skatt-star-grid-goal" aria-hidden="true">' + goalIcon + '</div>';
     }
     if (progress.truncated) {
-      html += '<p class="skatt-star-grid-more">+' + (progress.totalTarget - progress.target) +
-        ' stjärnor kvar — siffrorna ovan visar hela vägen</p>';
+      html += '<p class="skatt-star-grid-more">' + t('rewards.starGridMore', {
+        count: progress.totalTarget - progress.target,
+      }) + '</p>';
     }
     html += '</div>';
     return html;
@@ -78,9 +84,12 @@
     if (!_rewardsData || !_rewardsData.redemptions) return '';
     const pending = _rewardsData.redemptions.filter(function (r) { return r.status === 'pending'; });
     if (!pending.length) return '';
+    const pendingText = pending.length === 1
+      ? t('rewards.pendingApprovalOne')
+      : t('rewards.pendingApprovalMany', { count: pending.length });
     return '<div id="childPendingRedemptionMount" class="mx-4 mb-4 p-4 bg-purple-50 border border-purple-200 rounded-2xl" role="status">' +
-      '<p class="font-heading font-bold text-navy mb-1">⏳ Väntar på godkännande</p>' +
-      '<p class="text-sm text-text-soft">' + pending.length + ' belöning' + (pending.length === 1 ? '' : 'ar') + ' väntar på en vuxen.</p></div>';
+      '<p class="font-heading font-bold text-navy mb-1">⏳ ' + t('rewards.pendingApprovalTitle') + '</p>' +
+      '<p class="text-sm text-text-soft">' + pendingText + '</p></div>';
   }
 
   function isBarnetsSamlingPresentation() {
@@ -160,11 +169,11 @@
     const goalIcon = goal.reward_icon || goal.icon || '🎁';
     const gridHtml = starGridHtml(current, target, goalIcon);
     return '<div id="childGoalProgressMount" class="mx-4 mb-4 p-4 bg-white border border-lavender rounded-2xl" aria-live="polite">' +
-      '<p class="text-xs text-text-soft mb-1">Mål</p>' +
+      '<p class="text-xs text-text-soft mb-1">' + t('treasure.goalLabel') + '</p>' +
       '<p class="font-bold text-navy mb-2">' + goalIcon + ' ' + goalLabel + '</p>' +
       gridHtml +
       '<div class="h-2 bg-lavender rounded-full overflow-hidden mt-3"><div class="h-full bg-gold transition-all" style="width:' + pct + '%"></div></div>' +
-      '<p class="text-sm font-semibold text-navy mt-2">' + current + ' av ' + target + ' stjärnor</p></div>';
+      '<p class="text-sm font-semibold text-navy mt-2">' + t('treasure.starsProgress', { balance: current, cost: target }) + '</p></div>';
   }
 
   function mountGoalProgress() {

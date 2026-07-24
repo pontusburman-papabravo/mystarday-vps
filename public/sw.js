@@ -224,7 +224,7 @@
 // stjarndag-v668: fix native-tab-bar stale nav labels on locale-init (P-i18n-Home-Today-C)
 // stjarndag-v667: en-GB Today shell + Home nav/offline locale (P-i18n-Home-Today-C)
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
-const CACHE_NAME = 'stjarndag-v673';
+const CACHE_NAME = 'stjarndag-v674';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
@@ -539,6 +539,7 @@ const STATIC_ASSETS = [
   '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/child-app-i18n.js',
+  '/js/child-ui-text.js',
   '/js/child-dashboard.js',
   '/js/child-first-star-mode.js',
   '/css/child-first-star-mode.css',

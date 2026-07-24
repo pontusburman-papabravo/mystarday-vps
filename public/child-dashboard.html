@@ -63,6 +63,7 @@
   <script src="/js/auth.js?v=2.21.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/child-app-i18n.js?v=1"></script>
+  <script src="/js/child-ui-text.js?v=1"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="/js/birthday-picker.js?v=2.12.0"></script>
   <style>
@@ -2108,7 +2109,7 @@
     <div class="pop-in bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <div class="text-center mb-3">
         <div class="text-4xl mb-1" id="ratingActivityIcon">⭐</div>
-        <h3 class="text-lg font-heading font-bold text-navy">Hur gick det?</h3>
+        <h3 class="text-lg font-heading font-bold text-navy" data-i18n="child.checkoff.howDidItGo">Hur gick det?</h3>
         <p class="text-sm text-text-soft" id="ratingActivityName">Aktivitet</p>
       </div>
 
@@ -2143,8 +2144,8 @@
       <!-- Drag slider -->
       <div class="px-2 mb-4">
         <div class="flex justify-between text-xs text-text-soft mb-1 px-1">
-          <span>😢 Svårt</span>
-          <span>🌟 Fantastiskt</span>
+          <span data-i18n="child.checkoff.sliderHard">😢 Svårt</span>
+          <span data-i18n="child.checkoff.sliderGreat">🌟 Fantastiskt</span>
         </div>
         <input type="range" min="1" max="10" value="5" step="1"
           class="mood-slider w-full"
@@ -2156,17 +2157,17 @@
 
       <!-- Emotion cards (cards mode — never shown together with slider) -->
       <div id="ratingCardsBlock" class="hidden mb-4">
-        <p class="text-sm text-text-soft text-center mb-3">Hur känns det?</p>
+        <p class="text-sm text-text-soft text-center mb-3" data-i18n="child.checkoff.howDidItFeel">Hur känns det?</p>
         <div id="ratingCardsGrid"></div>
       </div>
 
       <!-- Optional comment -->
-      <textarea id="ratingComment" placeholder="Vill du berätta något? 💬 (valfritt)" rows="2"
+      <textarea id="ratingComment" data-i18n-placeholder="child.checkoff.commentPlaceholder" placeholder="Vill du berätta något? 💬 (valfritt)" rows="2"
         class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm focus:border-gold outline-none transition-colors resize-none mb-4"></textarea>
 
       <div class="flex gap-3">
-        <button onclick="dismissRating()" class="flex-1 py-3 bg-lavender hover:bg-sky text-navy rounded-xl font-semibold transition-colors text-sm">Hoppa över</button>
-        <button onclick="submitRating()" id="ratingSubmitBtn" class="flex-1 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors text-sm">Spara ⭐</button>
+        <button onclick="dismissRating()" class="flex-1 py-3 bg-lavender hover:bg-sky text-navy rounded-xl font-semibold transition-colors text-sm" data-i18n="child.checkoff.skipRating">Hoppa över</button>
+        <button onclick="submitRating()" id="ratingSubmitBtn" class="flex-1 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors text-sm" data-i18n="child.checkoff.saveRating">Spara ⭐</button>
       </div>
     </div>
   </div>

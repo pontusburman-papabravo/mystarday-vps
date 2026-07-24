@@ -667,6 +667,16 @@ const Auth = {
    * Verifies PIN, stores gateToken on window._ppinGateToken, then calls onSuccess.
    */
   _showParentPinGateOverlay: function (onSuccess, onCancel) {
+    function pgT(key, params) {
+      if (typeof window.childT === 'function') return childT(key, params);
+      return '';
+    }
+    function pgFallback(key, params, fallback) {
+      var localized = pgT(key, params);
+      if (localized) return localized;
+      return fallback;
+    }
+
     const old = document.getElementById('ppin-gate-overlay');
     if (old) document.body.removeChild(old);
     window._ppinGateToken = null;
@@ -687,17 +697,21 @@ const Auth = {
 
     card.innerHTML = [
       '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
-      '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Föräldralås</h3>',
-      '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">Ange din PIN-kod för att fortsätta</p>',
+      '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">' +
+        pgFallback('parentGate.title', null, 'Föräldralås') + '</h3>',
+      '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">' +
+        pgFallback('parentGate.hint', null, 'Ange din PIN-kod för att fortsätta') + '</p>',
       '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
       '</div>',
-      '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="PIN-tavla"></div>',
+      '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="' +
+        pgFallback('parentGate.keypadAria', null, 'PIN-tavla') + '"></div>',
       '<div id="ppgo-err" style="font-size:0.8rem;color:#ef4444;min-height:1.2em;margin-bottom:8px;"></div>',
-      '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">Avbryt</button>',
+      '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">' +
+        pgFallback('parentGate.cancel', null, 'Avbryt') + '</button>',
     ].join('');
 
     overlay.appendChild(card);
@@ -759,13 +773,13 @@ const Auth = {
           document.body.removeChild(overlay);
           onSuccess();
         } else {
-          msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+          msgEl.textContent = pgFallback('errors.parentPinInvalid', null, 'Felaktig PIN-kod — försök igen');
           entered = '';
           updateDots();
           buildKeypad();
         }
       }).catch(function () {
-        msgEl.textContent = 'Något gick fel — försök igen';
+        msgEl.textContent = pgFallback('errors.serverError', null, 'Något gick fel — försök igen');
         entered = '';
         updateDots();
         buildKeypad();

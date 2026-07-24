@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
   const PROGRESS_STAR_MAX = 16;
 
@@ -60,23 +65,23 @@
    */
   function rewardPresentStatus(st) {
     if (st.isRedeemed) {
-      return { key: 'done', label: 'Genomförd', className: 'btp-status-done' };
+      return { key: 'done', label: t('rewards.statusDone'), className: 'btp-status-done' };
     }
     if (st.hasPending) {
-      return { key: 'waiting', label: 'Väntar på vuxen', className: 'btp-status-waiting' };
+      return { key: 'waiting', label: t('rewards.statusWaiting'), className: 'btp-status-waiting' };
     }
     if (st.ready) {
-      return { key: 'redeem', label: 'Kan lösas in', className: 'btp-status-redeem' };
+      return { key: 'redeem', label: t('rewards.statusRedeem'), className: 'btp-status-redeem' };
     }
-    return { key: 'saving', label: 'Sparar', className: 'btp-status-saving' };
+    return { key: 'saving', label: t('rewards.statusSaving'), className: 'btp-status-saving' };
   }
 
   function renderGoalMeter(starBalance, starCost, pct, remaining) {
-    const progressText = esc(String(starBalance || 0)) + ' av ' + esc(String(starCost)) + ' stjärnor';
+    const progressText = t('treasure.starsProgress', { balance: starBalance || 0, cost: starCost });
     const clamped = Math.max(0, Math.min(100, pct || 0));
     const left = remaining > 0
-      ? '<p class="btp-goal-remaining">Bara ' + remaining + ' kvar</p>'
-      : '<p class="btp-goal-remaining btp-goal-remaining--ready">Du kan lösa in den här nu.</p>';
+      ? '<p class="btp-goal-remaining">' + t('treasure.starsLeft', { count: remaining }) + '</p>'
+      : '<p class="btp-goal-remaining btp-goal-remaining--ready">' + t('treasure.readyToRedeem') + '</p>';
     return (
       '<div class="btp-hero-meter" role="progressbar" aria-valuenow="' + clamped +
         '" aria-valuemin="0" aria-valuemax="100" aria-label="' + progressText + '">' +
@@ -93,15 +98,15 @@
     const count = Number(starBalance) || 0;
     const label = typeof window.childPlural === 'function'
       ? childPlural('treasure.starsToUse', count, { count: count })
-      : (count === 1 ? 'Du har 1 stjärna att använda' : 'Du har ' + count + ' stjärnor att använda');
-    const title = typeof window.cpt === 'function' ? cpt('treasure.title') : 'Skattkammaren';
+      : t('treasure.starsToUse_other', { count: count });
+    const title = t('treasure.title');
     const goal = skatt.goal;
     let goalHtml = '';
 
     if (!goal || !goal.reward_id) {
       goalHtml =
         '<div class="btp-hero-goal btp-hero-goal--empty">' +
-          '<p class="btp-hero-goal-lead">' + (typeof window.cpt === 'function' ? cpt('treasure.chooseGoal') : 'Här kan du välja vad du vill spara till') + '</p>' +
+          '<p class="btp-hero-goal-lead">' + t('treasure.chooseGoal') + '</p>' +
         '</div>';
     } else {
       const remaining = Math.max(0, (goal.star_cost || 0) - count);
@@ -109,12 +114,12 @@
       const pct = skatt.progressPct || 0;
       goalHtml =
         '<div class="btp-hero-goal">' +
-          '<p class="btp-plaque-label">Mål</p>' +
-          '<p class="btp-plaque-sub">Du sparar till</p>' +
+          '<p class="btp-plaque-label">' + t('treasure.goalLabel') + '</p>' +
+          '<p class="btp-plaque-sub">' + t('treasure.savingToward') + '</p>' +
           '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>' +
           renderGoalMeter(count, goal.star_cost, pct, remaining);
       if (skatt.showGoalChangeLink) {
-        goalHtml += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 Byt belöning</button>';
+        goalHtml += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 ' + t('rewards.changeGoal') + '</button>';
       }
       goalHtml += '</div>';
     }
@@ -139,7 +144,7 @@
         '<div class="btp-primary">' +
           '<button type="button" class="btp-cta" onclick="requestRedeem(\'' +
             esc(skatt.primaryAction.rewardId) + '\')">' +
-            '📨 Fråga om att lösa in' +
+            '📨 ' + t('rewards.askToRedeem') +
           '</button>' +
         '</div>'
       );
@@ -148,7 +153,7 @@
       return (
         '<div class="btp-primary">' +
           '<button type="button" class="btp-cta btp-cta--soft" onclick="openGoalPicker()">' +
-            '✨ Välj en belöning att spara till' +
+            '✨ ' + t('rewards.pickRewardToSave') +
           '</button>' +
         '</div>'
       );
@@ -163,12 +168,12 @@
     if (skatt.pending && skatt.pending.length) {
       const count = skatt.pending.length;
       const text = count === 1
-        ? '1 belöning väntar på en vuxen.'
-        : count + ' belöningar väntar på en vuxen.';
+        ? t('rewards.pendingApprovalOne')
+        : t('rewards.pendingApprovalMany', { count: count });
       html +=
         '<div class="btp-status-note btp-status-note--waiting" role="status">' +
           '<span class="btp-status-note-icon" aria-hidden="true">⏳</span>' +
-          '<div><strong>Väntar på godkännande</strong><p>' + esc(text) + '</p></div>' +
+          '<div><strong>' + t('rewards.pendingApprovalTitle') + '</strong><p>' + esc(text) + '</p></div>' +
         '</div>';
     }
 
@@ -176,7 +181,7 @@
       html +=
         '<div class="btp-status-note btp-status-note--waiting" role="status">' +
           '<span class="btp-status-note-icon" aria-hidden="true">⏳</span>' +
-          '<div><strong>Byter belöning</strong><p>Väntar på svar från vuxen</p></div>' +
+          '<div><strong>' + t('rewards.changingReward') + '</strong><p>' + t('rewards.changingRewardHint') + '</p></div>' +
         '</div>';
     }
 
@@ -185,8 +190,8 @@
       html +=
         '<div class="btp-status-note btp-status-note--approved" role="status">' +
           '<span class="btp-status-note-icon" aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
-          '<div><strong>Godkänd</strong>' +
-          '<p>' + esc(cr.reward_name) + ' — njut av belöningen 🌟</p></div>' +
+          '<div><strong>' + t('rewards.approvedTitle') + '</strong>' +
+          '<p>' + esc(t('rewards.approvedEnjoy', { name: cr.reward_name })) + '</p></div>' +
         '</div>';
     }
 
@@ -196,12 +201,12 @@
           '<div class="btp-status-note btp-status-note--gentle" role="status">' +
             '<span class="btp-status-note-icon" aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
             '<div><strong>' + esc(r.reward_name) + '</strong>' +
-            '<p>Inte den här gången — du kan försöka igen senare 💛</p></div>' +
+            '<p>' + t('rewards.deniedTryAgain') + '</p></div>' +
           '</div>';
       });
     }
 
-    return html ? '<section class="btp-status-strip" aria-label="Status">' + html + '</section>' : '';
+    return html ? '<section class="btp-status-strip" aria-label="' + esc(t('rewards.rewardsSection')) + '">' + html + '</section>' : '';
   }
 
   function renderRewardCard(r, st, idx, starBalance) {
@@ -216,7 +221,7 @@
     let cta = '';
     if (st.ready && !st.isRedeemed && !st.hasPending) {
       cta = '<button type="button" class="btp-card-cta" onclick="event.stopPropagation();requestRedeem(\'' +
-        r.id + '\')">Lös in</button>';
+        r.id + '\')">' + t('rewards.redeemButton') + '</button>';
     }
 
     return (
@@ -231,7 +236,7 @@
             '<div class="btp-card-fill btp-card-fill--' + color + '" style="width:' + st.pct + '%"></div>' +
           '</div>' +
           '<p class="btp-card-meta">' +
-            '<span>' + starBalance + ' av ' + r.star_cost + ' stjärnor</span>' +
+            '<span>' + t('rewards.starsOf', { balance: starBalance, cost: r.star_cost }) + '</span>' +
             '<span class="btp-card-cost">⭐ ' + r.star_cost + '</span>' +
           '</p>' +
           cta +
@@ -246,12 +251,12 @@
     if (!rewards || rewards.length === 0) {
       if (activeGoalId) return '';
       return (
-        '<section class="btp-rewards" aria-label="Belöningar">' +
-          '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
+        '<section class="btp-rewards" aria-label="' + esc(t('rewards.rewardsSection')) + '">' +
+          '<h2 class="btp-section-title">' + t('rewards.rewardsToSave') + '</h2>' +
           '<div class="btp-empty">' +
             '<p class="btp-empty-emoji" aria-hidden="true">🎁</p>' +
-            '<p class="btp-empty-title">Här kan du välja vad du vill spara till</p>' +
-            '<p class="btp-empty-sub">Be en vuxen lägga till belöningar åt dig.</p>' +
+            '<p class="btp-empty-title">' + t('rewards.emptyChooseGoal') + '</p>' +
+            '<p class="btp-empty-sub">' + t('rewards.emptyAskAdultRewards') + '</p>' +
           '</div>' +
         '</section>'
       );
@@ -264,12 +269,12 @@
     if (!listRewards.length) {
       if (!activeGoalId) {
         return (
-          '<section class="btp-rewards" aria-label="Belöningar">' +
-            '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
+          '<section class="btp-rewards" aria-label="' + esc(t('rewards.rewardsSection')) + '">' +
+            '<h2 class="btp-section-title">' + t('rewards.rewardsToSave') + '</h2>' +
             '<div class="btp-empty">' +
               '<p class="btp-empty-emoji" aria-hidden="true">🎁</p>' +
-              '<p class="btp-empty-title">Här kan du välja vad du vill spara till</p>' +
-              '<p class="btp-empty-sub">Be en vuxen lägga till belöningar åt dig.</p>' +
+              '<p class="btp-empty-title">' + t('rewards.emptyChooseGoal') + '</p>' +
+              '<p class="btp-empty-sub">' + t('rewards.emptyAskAdultRewards') + '</p>' +
             '</div>' +
           '</section>'
         );
@@ -290,8 +295,8 @@
     });
 
     return (
-      '<section class="btp-rewards" aria-label="Belöningar">' +
-        '<h2 class="btp-section-title">Belöningar att spara till</h2>' +
+      '<section class="btp-rewards" aria-label="' + esc(t('rewards.rewardsSection')) + '">' +
+        '<h2 class="btp-section-title">' + t('rewards.rewardsToSave') + '</h2>' +
         '<div class="btp-card-list">' + cards + '</div>' +
       '</section>'
     );
@@ -306,7 +311,7 @@
         '<span class="btp-history-icon" aria-hidden="true">' + esc(r.reward_icon || '🎁') + '</span>' +
         '<div>' +
           '<p class="btp-history-name">' + esc(r.reward_name) + '</p>' +
-          '<p class="btp-history-when">Genomförd · ' + esc(dateStr) + esc(cost) + '</p>' +
+          '<p class="btp-history-when">' + esc(t('rewards.historyDone')) + ' · ' + esc(dateStr) + esc(cost) + '</p>' +
         '</div>' +
       '</div>'
     );
@@ -319,15 +324,11 @@
 
     if (!items.length) {
       return (
-        '<section class="btp-history btp-history--empty" aria-label="Inlösta belöningar">' +
-          '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
+        '<section class="btp-history btp-history--empty" aria-label="' + esc(t('rewards.historyTitle')) + '">' +
+          '<h2 class="btp-section-title">' + t('rewards.historyTitle') + '</h2>' +
           '<div class="btp-history-empty">' +
-            '<p class="btp-history-empty-lead">' +
-              esc('Här kommer belöningar du sparat ihop till att synas.') +
-            '</p>' +
-            '<p class="btp-history-empty-hint">' +
-              esc('När du löser in något dyker det upp här som ett minne.') +
-            '</p>' +
+            '<p class="btp-history-empty-lead">' + esc(t('rewards.historyEmptyLead')) + '</p>' +
+            '<p class="btp-history-empty-hint">' + esc(t('rewards.historyEmptyHint')) + '</p>' +
           '</div>' +
         '</section>'
       );
@@ -339,8 +340,8 @@
     });
 
     return (
-      '<section class="btp-history" aria-label="Inlösta belöningar">' +
-        '<h2 class="btp-section-title">Belöningar jag sparat ihop till</h2>' +
+      '<section class="btp-history" aria-label="' + esc(t('rewards.historyTitle')) + '">' +
+        '<h2 class="btp-section-title">' + t('rewards.historyTitle') + '</h2>' +
         '<div class="btp-history-list">' + cards + '</div>' +
       '</section>'
     );
@@ -357,13 +358,13 @@
           '<span class="btp-grant-stars">+' + g.star_count + ' ⭐</span>' +
           '<div class="btp-grant-body">' +
             '<p class="btp-grant-reason">' + esc(g.reason) + '</p>' +
-            '<p class="btp-grant-meta">' + esc(g.parent_name || 'Vuxen') + ' · ' + esc(dateStr) + '</p>' +
+            '<p class="btp-grant-meta">' + esc(g.parent_name || t('common.parent')) + ' · ' + esc(dateStr) + '</p>' +
           '</div>' +
         '</div>';
     });
     return (
-      '<section class="btp-grants" aria-label="Bonusstjärnor">' +
-        '<h2 class="btp-section-title">Extra stjärnor</h2>' +
+      '<section class="btp-grants" aria-label="' + esc(t('rewards.extraStars')) + '">' +
+        '<h2 class="btp-section-title">' + t('rewards.extraStars') + '</h2>' +
         rows +
       '</section>'
     );
