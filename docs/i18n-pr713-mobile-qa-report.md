@@ -2,7 +2,7 @@
 
 **Datum:** 2026-07-24 (uppdaterad efter nav-fix)  
 **Build under test:** PR #713 branch `cursor/i18n-today-home-shell-b8ba`  
-**Nav-fix commit:** (set after push)  
+**Nav-fix commit:** `2959ce42`  
 **Förväntad SW:** `stjarndag-v668` (efter nav-fix; tidigare `v667`)  
 **Testmiljö cloud agent:** Emulerad mobilviewport — **inga fysiska enheter**
 
