@@ -672,7 +672,7 @@ const Auth = {
       return '';
     }
     function pgFallback(key, params, fallback) {
-      var localized = pgT(key, params);
+      const localized = pgT(key, params);
       if (localized) return localized;
       return fallback;
     }

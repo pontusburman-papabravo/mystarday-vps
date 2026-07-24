@@ -23,8 +23,8 @@ let countdownInterval = null;
 
 function tx(key, params) {
   if (typeof window.cpt === 'function' && window.I18n) {
-    var fullKey = 'child.' + key;
-    var value = I18n.t(fullKey, params || {});
+    const fullKey = 'child.' + key;
+    const value = I18n.t(fullKey, params || {});
     if (value && value !== fullKey) return value;
   }
   return '';
@@ -40,8 +40,8 @@ function localizeLoginError(data) {
 async function bootstrapChildLoginI18n() {
   if (typeof window.initChildAppI18n !== 'function') return;
   try {
-    var res = await fetch('/api/auth/login-picker-children', { credentials: 'same-origin' });
-    var ctx = res.ok ? await res.json() : {};
+    const res = await fetch('/api/auth/login-picker-children', { credentials: 'same-origin' });
+    const ctx = res.ok ? await res.json() : {};
     await initChildAppI18n({
       preferredLocale: ctx.child_ui_locale || ctx.preferred_locale,
       englishChildEnabled: ctx.english_child_experience_enabled,
@@ -53,17 +53,17 @@ async function bootstrapChildLoginI18n() {
 
 function applyChildLoginStaticCopy() {
   updateProfileStepCopy(lastMergedChildren.length || 1);
-  var lockMsg = document.querySelector('.cl-lockout-msg');
+  const lockMsg = document.querySelector('.cl-lockout-msg');
   if (lockMsg) lockMsg.textContent = tx('login.lockoutWait');
-  var pinSub = document.querySelector('.cl-pin-sub');
+  const pinSub = document.querySelector('.cl-pin-sub');
   if (pinSub) pinSub.textContent = tx('login.pinSub');
-  var successMsg = document.querySelector('.cl-success-msg');
+  const successMsg = document.querySelector('.cl-success-msg');
   if (successMsg) successMsg.textContent = tx('login.welcome');
-  var pinDots = document.getElementById('clPinDots');
+  const pinDots = document.getElementById('clPinDots');
   if (pinDots) pinDots.setAttribute('aria-label', tx('login.pinDotsAria'));
-  var keypad = document.getElementById('clKeypad');
+  const keypad = document.getElementById('clKeypad');
   if (keypad) keypad.setAttribute('aria-label', tx('login.keypadAria'));
-  var manualInput = document.getElementById('clManualNameInput');
+  const manualInput = document.getElementById('clManualNameInput');
   if (manualInput) manualInput.placeholder = tx('login.namePlaceholder');
 }
 

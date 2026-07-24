@@ -18,8 +18,8 @@
   /** Read label_sv / label_en (or *\_sv fields) from experience-pack objects. */
   function childPackField(obj, baseKey) {
     if (!obj) return '';
-    var isEn = typeof window.getChildUiLocale === 'function' && getChildUiLocale() === 'en-GB';
-    var enKey = baseKey.replace(/_sv$/, '_en');
+    const isEn = typeof window.getChildUiLocale === 'function' && getChildUiLocale() === 'en-GB';
+    let enKey = baseKey.replace(/_sv$/, '_en');
     if (!/_sv$/.test(baseKey)) {
       enKey = baseKey + '_en';
     }
@@ -34,13 +34,13 @@
   }
 
   function childScoreLabel(score) {
-    var n = Number(score);
+    const n = Number(score);
     if (!n || n < 1 || n > 10) return '';
     return childT('checkoff.score.' + n);
   }
 
   function childCelebrationAllDoneMsg(index) {
-    var i = ((Number(index) || 0) % 7) + 1;
+    const i = ((Number(index) || 0) % 7) + 1;
     return childT('celebration.allDoneMsg' + i);
   }
 

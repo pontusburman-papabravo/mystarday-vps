@@ -8,7 +8,7 @@
 
 function cda(key, params, fallback) {
   if (typeof window.cpt === 'function') {
-    var value = cpt(key, params);
+    const value = cpt(key, params);
     if (value && value !== 'child.' + key) return value;
   }
   return typeof fallback === 'function' ? fallback(params || {}) : fallback;
