@@ -488,9 +488,14 @@ const ContactSchema = z.object({
 // ─── Feedback ────────────────────────────────────────────
 
 const FeedbackSchema = z.object({
-  type: z.enum(['bug', 'feedback']),
+  type: z.enum(['bug', 'feedback', 'language']),
   title: z.string().min(3).max(100),
   message: z.string().min(10).max(2000),
+  metadata: z.record(z.unknown()).optional(),
+});
+
+const EnglishBetaOfferSchema = z.object({
+  action: z.enum(['accept_english', 'decline', 'remind_later']),
 });
 
 // ─── Push notifications ───────────────────────────────────
@@ -626,6 +631,7 @@ module.exports = {
   ContactSchema,
   // Feedback
   FeedbackSchema,
+  EnglishBetaOfferSchema,
   // Push
   PushSubscribeSchema,
   PushPreferencesSchema,

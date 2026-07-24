@@ -150,6 +150,19 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'engine_authority_conflict',
   // Family Journey coach (journey-coach.js)
   'journey_coach_cta_click',
+  // i18n language launch (P-i18n-Language-Launch-Foundation)
+  'language_choice_viewed',
+  'language_selected',
+  'existing_family_language_offer_viewed',
+  'existing_family_language_offer_accepted',
+  'existing_family_language_offer_declined',
+  'existing_family_language_offer_remind_later',
+  'language_changed',
+  'english_beta_banner_viewed',
+  'language_issue_report_opened',
+  'language_issue_report_submitted',
+  'i18n_missing_key',
+  'i18n_fallback_visible',
 ]);
 
 /**

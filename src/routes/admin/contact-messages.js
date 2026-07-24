@@ -6,7 +6,7 @@ const contactMessages = require('../../../db/contact-messages');
 
 const router = express.Router();
 
-const VALID_TYPES = ['bug', 'feedback', 'contact'];
+const VALID_TYPES = ['bug', 'feedback', 'contact', 'language'];
 const VALID_INBOX = ['unread', 'active', 'answered', 'archived'];
 
 router.get('/contact-messages', async (req, res, next) => {

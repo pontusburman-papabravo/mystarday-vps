@@ -20,6 +20,8 @@ const { RegisterSchema } = require('../../lib/schemas');
 const { resolvePreAuthLocale } = require('../../lib/locale');
 const { loadDefaultContent } = require('../../lib/default-content');
 const { t } = require('../../lib/i18n');
+const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection');
+const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
 
 const router = express.Router();
 
@@ -52,10 +54,19 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       language,
     } = req.body;
 
-    const familyLocale = resolvePreAuthLocale({
-      explicit: preferredLocaleRaw || language,
-      acceptLanguage: req.headers['accept-language'],
-    });
+    const localeExplicitlyChosen = Boolean(preferredLocaleRaw || language);
+    const familyLocale = localeExplicitlyChosen
+      ? resolvePreAuthLocale({
+          explicit: preferredLocaleRaw || language,
+          acceptLanguage: req.headers['accept-language'],
+        })
+      : resolvePreAuthLocale({ explicit: 'sv-SE' });
+    const localeSelectionSource = localeExplicitlyChosen
+      ? SELECTION_SOURCES.REGISTRATION
+      : SELECTION_SOURCES.LEGACY_DEFAULT;
+    const englishBetaOfferState = localeExplicitlyChosen
+      ? OFFER_STATES.REGISTRATION_DECIDED
+      : OFFER_STATES.NOT_SHOWN;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
@@ -106,12 +117,19 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Create family — subscription_status defaults to 'none' (CHECK constraint).
       // Trial access is tracked via trial_ends_at + family_subscriptions table.
       const familyResult = await client.query(
-        `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale)
-         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3)
+        `INSERT INTO family (
+           name, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale,
+           locale_selected_at, locale_selection_source, english_beta_offer_state
+         )
+         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3, NOW(), $4, $5)
          RETURNING id`,
-        [finalFamilyName, isLifetimeFree, familyLocale]
+        [finalFamilyName, isLifetimeFree, familyLocale, localeSelectionSource, englishBetaOfferState]
       );
       const familyId = familyResult.rows[0].id;
+
+      if (familyLocale === 'en-GB') {
+        await enableEnglishAppForFamily(familyId, { client });
+      }
 
       console.log(`[AUTH] Family #${familyCount + 1} created — lifetime_free: ${isLifetimeFree} (limit ${founderLimit})`);
 

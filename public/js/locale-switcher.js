@@ -1,9 +1,15 @@
 /**
  * Simple language switcher — registration, login, settings.
- * English option requires english_app feature flag when family exists.
+ * English option shows Beta label; settings persist via family API.
  */
 (function localeSwitcherModule() {
   const SWITCHER_CLASS = 'locale-switcher';
+
+  function track(eventType, metadata) {
+    if (typeof window.analytics !== 'undefined' && analytics.track) {
+      analytics.track(null, eventType, metadata || {});
+    }
+  }
 
   function buildSwitcherHtml() {
     return `
@@ -11,8 +17,9 @@
         <label for="localeSelect" class="sr-only">${escapeAttr(I18n.t('language.label'))}</label>
         <select id="localeSelect" class="locale-switcher__select" data-locale-switcher>
           <option value="sv-SE">${escapeHtml(I18n.t('language.sv-SE'))}</option>
-          <option value="en-GB" data-locale-en>${escapeHtml(I18n.t('language.en-GB'))}</option>
+          <option value="en-GB" data-locale-en>${escapeHtml(I18n.t('language.en-GB-beta') || I18n.t('language.en-GB'))}</option>
         </select>
+        <p class="locale-switcher__beta-hint text-xs text-text-soft mt-2 hidden" data-locale-beta-hint data-i18n="settings.language.betaNote"></p>
       </div>`;
   }
 
@@ -47,6 +54,12 @@
     return true;
   }
 
+  function updateBetaHint(select, container) {
+    const hint = container.querySelector('[data-locale-beta-hint]');
+    if (!hint) return;
+    hint.classList.toggle('hidden', select.value !== 'en-GB');
+  }
+
   async function mount(container) {
     if (!container || container.dataset.localeSwitcherMounted) return;
     await I18n.init();
@@ -66,8 +79,11 @@
     if (select.value === 'en-GB' && !englishOk) {
       select.value = 'sv-SE';
     }
+    updateBetaHint(select, container);
+    I18n.apply(container);
 
     select.addEventListener('change', async () => {
+      const previous = I18n.getCurrentLang();
       const next = select.value;
       if (next === 'en-GB' && !englishOk) {
         select.value = 'sv-SE';
@@ -75,6 +91,8 @@
       }
       sessionStorage.setItem(I18n.STORAGE_KEY, next);
       await I18n.load(next);
+      updateBetaHint(select, container);
+      I18n.apply(container);
 
       if (window.Auth && typeof Auth.api === 'function') {
         try {
@@ -84,6 +102,11 @@
               method: 'PUT',
               body: JSON.stringify({ preferred_locale: next }),
             });
+            track('language_changed', {
+              locale: next,
+              previous_locale: previous,
+              selection_source: 'settings',
+            });
           }
         } catch (err) {
           console.warn('[locale-switcher] Could not persist locale:', err.message);
@@ -91,6 +114,7 @@
       }
 
       document.dispatchEvent(new CustomEvent('locale-changed', { detail: { locale: next } }));
+      document.dispatchEvent(new CustomEvent('parent-i18n-ready', { detail: { locale: next } }));
     });
   }
 

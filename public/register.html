@@ -25,7 +25,8 @@
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
-  <script src="/js/locale-switcher.js?v=1"></script>
+  <script src="/js/language-choice.js?v=1"></script>
+  <script src="/js/locale-switcher.js?v=2"></script>
   <script src="/js/auth-entry-i18n.js?v=1"></script>
   <!-- PWA / Favicon -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -45,7 +46,7 @@
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
   <script src="/js/cookie-banner.js?v=2.13.2"></script>
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-i18n-title="auth.register.pageTitle">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-i18n-title="auth.register.pageTitle" data-language-choice-gate="register">
   <div class="min-h-screen flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
       <!-- Header with Logo -->
@@ -59,7 +60,8 @@
         <h1 class="text-2xl font-heading font-bold text-navy mt-4" data-i18n="auth.register.pageHeading">Skapa ett föräldrakonto</h1>
         <p class="text-text-soft mt-3 text-sm leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLead">Testa Min Stjärndag gratis. Ett visuellt schema med bildstöd och stjärnbelöningar som hjälper ditt barn att förstå dagen, följa rutiner och bli mer självständigt i vardagen.</p> <!-- pragma: allowlist secret -->
         <p class="text-text-soft mt-2 text-xs leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLeadSecondary">För familjer som vill ha tydligare rutiner, lugnare övergångar och mindre tjat i vardagen.</p>
-        <div class="mt-4 flex justify-center" data-locale-switcher-mount></div>
+        <div class="mt-4 flex justify-center" data-language-choice-mount></div>
+        <div class="mt-2 flex justify-center hidden" data-locale-switcher-mount aria-hidden="true"></div>
       </div>
 
       <!-- Form Card -->
@@ -400,6 +402,13 @@
         // Client-side validation
         if (!document.getElementById('termsAccepted').checked) {
           showError('registerError', t('auth.register.termsRequired'));
+          return;
+        }
+
+        if (window.LanguageChoice && !LanguageChoice.isConfirmed()) {
+          showError('registerError', t('language.choice.required'));
+          const choiceMount = document.querySelector('[data-language-choice-mount]');
+          if (choiceMount) choiceMount.scrollIntoView({ behavior: 'smooth', block: 'center' });
           return;
         }
 

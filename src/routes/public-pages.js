@@ -31,6 +31,21 @@ router.get('/en', async (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'en.html'));
 });
 
+const { PUBLIC_WEB_ROUTES, EN_ONLY_STATIC } = require('../../config/public-web-routes');
+
+for (const route of PUBLIC_WEB_ROUTES) {
+  if (route.en === '/en') continue;
+  router.get(route.en, (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public', route.fileEn));
+  });
+}
+
+for (const route of EN_ONLY_STATIC) {
+  router.get(route.path, (req, res) => {
+    res.sendFile(path.join(__dirname, '../../public', route.file));
+  });
+}
+
 // Public landing page for pedagogue/therapist audience
 // Gate 2F: redirect to / if professionell_landingssida feature is OFF
 router.get('/pedagoger-och-terapeuter', async (req, res) => {

@@ -17,6 +17,8 @@ const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
 const { isSupportedLocale, validateLocale, resolveFamilyLocale } = require('../../lib/locale');
 const { isEnglishAppEnabled, isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
+const { SELECTION_SOURCES } = require('../../lib/locale-selection');
+const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
 const { t } = require('../../lib/i18n');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
@@ -171,12 +173,30 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       if (!isSupportedLocale(preferred_locale)) {
         return res.status(400).json({ error: 'INVALID_LOCALE' });
       }
-      const englishOk = await isEnglishAppEnabled(req.user.familyId);
-      if (preferred_locale === 'en-GB' && !englishOk) {
-        return res.status(403).json({ error: 'ENGLISH_APP_DISABLED' });
+      const canonicalNext = validateLocale(preferred_locale);
+      const currentRow = await db.query(
+        `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
+        [req.user.familyId]
+      );
+      const currentLocale = validateLocale(currentRow.rows[0]?.preferred_locale);
+
+      if (canonicalNext === 'en-GB') {
+        const englishOk = await isEnglishAppEnabled(req.user.familyId);
+        if (!englishOk) {
+          await enableEnglishAppForFamily(req.user.familyId);
+        }
       }
+
+      if (canonicalNext !== currentLocale) {
+        updates.push(`previous_locale = $${idx++}`);
+        values.push(currentLocale);
+        updates.push(`locale_selected_at = NOW()`);
+        updates.push(`locale_selection_source = $${idx++}`);
+        values.push(SELECTION_SOURCES.SETTINGS);
+      }
+
       updates.push(`preferred_locale = $${idx++}`);
-      values.push(validateLocale(preferred_locale));
+      values.push(canonicalNext);
     }
 
     // Family name
@@ -268,11 +288,19 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
     const englishApp = await isEnglishAppEnabled(req.user.familyId);
     const englishChild = await isEnglishChildExperienceEnabled(req.user.familyId);
     const familyRow = await db.query(
-      `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
+      `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale,
+              locale_selected_at,
+              locale_selection_source,
+              english_beta_offer_state
+       FROM family WHERE id = $1`,
       [req.user.familyId]
     );
+    const row = familyRow.rows[0] || {};
     res.json({
-      preferred_locale: familyRow.rows[0]?.preferred_locale || 'sv-SE',
+      preferred_locale: row.preferred_locale || 'sv-SE',
+      locale_selected_at: row.locale_selected_at || null,
+      locale_selection_source: row.locale_selection_source || null,
+      english_beta_offer_state: row.english_beta_offer_state || 'not_shown',
       english_app_enabled: englishApp,
       english_child_experience_enabled: englishChild,
       supported_locales: ['sv-SE', 'en-GB'],

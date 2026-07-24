@@ -65,14 +65,18 @@
           <button id="globalFeedbackClose" class="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1 rounded-lg transition-colors text-xl" style="line-height:1;">&times;</button>
         </div>
         <form id="globalFeedbackForm" class="space-y-4" style="display:flex;flex-direction:column;gap:16px;">
-          <div style="display:flex;gap:12px;">
-            <label style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;transition:border-color 0.2s;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="bug" checked style="accent-color:#F5A623;">
               <span class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🐛 Problem</span>
             </label>
-            <label style="flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;transition:border-color 0.2s;">
+            <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="feedback" style="accent-color:#F5A623;">
               <span class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">💡 Förslag</span>
+            </label>
+            <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
+              <input type="radio" name="globalFeedbackType" value="language" style="accent-color:#F5A623;">
+              <span class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🌐 Språk</span>
             </label>
           </div>
           <input type="text" id="globalFeedbackTitle" placeholder="Rubrik" required maxlength="100"
@@ -96,6 +100,25 @@
       </div>
     `;
     document.body.appendChild(modal);
+  }
+
+  function buildFeedbackMetadata() {
+    const locale = (window.I18n && I18n.getCurrentLang) ? I18n.getCurrentLang() : 'sv-SE';
+    return {
+      locale,
+      route: location.pathname,
+      platform: (window.Platform && Platform.isNative && Platform.isNative()) ? 'native' : 'web',
+      app_version: document.querySelector('meta[name="app-version"]')?.content || '',
+      sw_version: (window.__SW_CACHE_NAME || ''),
+      user_agent: navigator.userAgent.slice(0, 200),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  function trackLanguageReport(eventType) {
+    if (typeof window.analytics !== 'undefined' && analytics.track) {
+      analytics.track(null, eventType, { locale: I18n?.getCurrentLang?.() || 'sv-SE', route: location.pathname });
+    }
   }
 
   function bindEvents() {
@@ -144,8 +167,14 @@
       try {
         const data = await Auth.api('/api/feedback', {
           method: 'POST',
-          body: JSON.stringify({ type: type, title: title, message: message })
+          body: JSON.stringify({
+            type: type,
+            title: title,
+            message: message,
+            metadata: buildFeedbackMetadata(),
+          }),
         });
+        if (type === 'language') trackLanguageReport('language_issue_report_submitted');
         msgEl.textContent = data.message || 'Tack för din feedback!';
         msgEl.style.color = '#16a34a';
         setTimeout(function() { closeModal(); }, 2000);
@@ -159,7 +188,7 @@
     });
   }
 
-  function openModal() {
+  function openModal(presetType) {
     const modal = document.getElementById('globalFeedbackModal');
     if (!modal) return;
     modal.classList.remove('hidden');
@@ -167,10 +196,10 @@
     document.getElementById('globalFeedbackMsg').style.color = '';
     document.getElementById('globalFeedbackTitle').value = '';
     document.getElementById('globalFeedbackMessage').value = '';
-    // Reset radio to bug
-    const bugRadio = document.querySelector('input[name="globalFeedbackType"][value="bug"]');
-    if (bugRadio) bugRadio.checked = true;
-    // Focus the title field
+    const type = presetType || 'bug';
+    const radio = document.querySelector(`input[name="globalFeedbackType"][value="${type}"]`);
+    if (radio) radio.checked = true;
+    if (type === 'language') trackLanguageReport('language_issue_report_opened');
     setTimeout(function() {
       document.getElementById('globalFeedbackTitle').focus();
     }, 100);
@@ -182,7 +211,8 @@
   }
 
   // Expose for any inline onclick handlers that might still exist
-  window.openFeedbackModal = function() { openModal(); };
+  window.openFeedbackModal = function(presetType) { openModal(presetType); };
+  window.openLanguageFeedbackModal = function() { openModal('language'); };
   window.closeFeedbackModal = function() { closeModal(); };
 
   // Init when DOM is ready

@@ -7,7 +7,39 @@
     "label": "Language",
     "sv-SE": "Svenska",
     "en-GB": "English",
-    "switchAria": "Change language"
+    "en-GB-beta": "English (Beta)",
+    "switchAria": "Change language",
+    "choice": {
+      "title": "Choose your language",
+      "titleEn": "Choose your language",
+      "description": "You can change the language later in Settings.",
+      "descriptionEn": "You can change the language later in Settings.",
+      "betaNote": "The English version is in beta. Some text may still appear in Swedish.",
+      "betaNoteEn": "The English version is in beta. Some text may still appear in Swedish.",
+      "confirm": "Continue",
+      "required": "Choose a language to continue"
+    },
+    "offer": {
+      "title": "My Starday is now available in English",
+      "body": "We are testing an English version of the app. It is still in beta, so some text may appear in Swedish and you may find translation or layout issues.",
+      "question": "Would you like to stay in Swedish or try English?",
+      "staySwedish": "Stay in Swedish",
+      "tryEnglish": "Try English beta",
+      "remindLater": "Remind me later"
+    },
+    "betaBanner": {
+      "title": "English beta",
+      "body": "The English version is still being developed. Some text may appear in Swedish, and you may find translation or display issues.",
+      "report": "Report a language issue",
+      "switchBack": "Switch back to Swedish"
+    },
+    "feedback": {
+      "typeLabel": "Language or translation issue",
+      "typeLabelEn": "Language or translation issue",
+      "titlePlaceholder": "What looks wrong?",
+      "visibleText": "What text did you see?",
+      "suggestion": "How should it read? (optional)"
+    }
   },
   "nav": {
     "login": "Log in",
@@ -184,7 +216,9 @@
       "save": "Save family settings"
     },
     "language": {
-      "description": "Choose the app language. English requires the feature to be enabled for your family."
+      "description": "Choose the app language. English is in beta and may include incomplete translations.",
+      "betaNote": "English is in beta",
+      "switchBack": "Switch back to Swedish"
     },
     "invite": {
       "title": "Invite a parent",

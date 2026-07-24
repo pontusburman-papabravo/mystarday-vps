@@ -60,6 +60,8 @@ router.get('/families-grouped', async (req, res) => {
 
     const familyResult = await db.query(`
       SELECT f.id, f.name as family_name, f.created_at, f.archived_at,
+        COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale,
+        f.locale_selected_at, f.locale_selection_source, f.english_beta_offer_state,
         COALESCE(json_agg(DISTINCT jsonb_build_object(
           'id', p.id, 'email', p.email, 'name', p.name,
           'verified', p.verified, 'is_admin', p.is_admin,
