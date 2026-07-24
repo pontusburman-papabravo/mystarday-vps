@@ -20,6 +20,16 @@ const { RegisterSchema } = require('../../lib/schemas');
 const { resolvePreAuthLocale } = require('../../lib/locale');
 const { loadDefaultContent } = require('../../lib/default-content');
 const { t } = require('../../lib/i18n');
+const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection');
+const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
+const {
+  resolveRegistrationCountry,
+  isMarketOpenForRegistration,
+  isKnownRegistrationCountryCode,
+  normalizeCountryCode,
+  marketClosedCode,
+  marketClosedMessage,
+} = require('../../lib/market-region');
 
 const router = express.Router();
 
@@ -50,12 +60,44 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       fbclid,
       preferred_locale: preferredLocaleRaw,
       language,
+      country_code: countryCodeRaw,
     } = req.body;
 
-    const familyLocale = resolvePreAuthLocale({
-      explicit: preferredLocaleRaw || language,
-      acceptLanguage: req.headers['accept-language'],
+    const localeExplicitlyChosen = Boolean(preferredLocaleRaw || language);
+    const familyLocale = localeExplicitlyChosen
+      ? resolvePreAuthLocale({
+          explicit: preferredLocaleRaw || language,
+          acceptLanguage: req.headers['accept-language'],
+        })
+      : resolvePreAuthLocale({ explicit: 'sv-SE' });
+    const localeSelectionSource = localeExplicitlyChosen
+      ? SELECTION_SOURCES.REGISTRATION
+      : SELECTION_SOURCES.LEGACY_DEFAULT;
+    const englishBetaOfferState = localeExplicitlyChosen
+      ? OFFER_STATES.REGISTRATION_DECIDED
+      : OFFER_STATES.NOT_SHOWN;
+
+    const countryResolved = resolveRegistrationCountry({
+      countryCodeRaw,
+      localeExplicitlyChosen: localeExplicitlyChosen || Boolean(countryCodeRaw),
     });
+
+    if (countryCodeRaw && !isKnownRegistrationCountryCode(normalizeCountryCode(countryCodeRaw))) {
+      return res.status(400).json({ error: 'Ogiltigt land' });
+    }
+
+    const marketOpen = await isMarketOpenForRegistration(countryResolved.country_code);
+    if (!marketOpen) {
+      const code = marketClosedCode(countryResolved.country_code);
+      const region = countryResolved.market_region;
+      const country = countryResolved.country_code;
+      return res.status(403).json({
+        error: marketClosedMessage(code),
+        code,
+        market_region: region,
+        country_code: country,
+      });
+    }
 
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
@@ -106,12 +148,29 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Create family — subscription_status defaults to 'none' (CHECK constraint).
       // Trial access is tracked via trial_ends_at + family_subscriptions table.
       const familyResult = await client.query(
-        `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale)
-         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3)
+        `INSERT INTO family (
+           name, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale,
+           locale_selected_at, locale_selection_source, english_beta_offer_state,
+           country_code, market_region, country_selected_at, country_selection_source
+         )
+         VALUES ($1, 'none', NOW() + INTERVAL '14 days', $2, $3, NOW(), $4, $5, $6, $7, NOW(), $8)
          RETURNING id`,
-        [finalFamilyName, isLifetimeFree, familyLocale]
+        [
+          finalFamilyName,
+          isLifetimeFree,
+          familyLocale,
+          localeSelectionSource,
+          englishBetaOfferState,
+          countryResolved.country_code,
+          countryResolved.market_region,
+          countryResolved.country_selection_source,
+        ]
       );
       const familyId = familyResult.rows[0].id;
+
+      if (familyLocale === 'en-GB') {
+        await enableEnglishAppForFamily(familyId, { client });
+      }
 
       console.log(`[AUTH] Family #${familyCount + 1} created — lifetime_free: ${isLifetimeFree} (limit ${founderLimit})`);
 

@@ -55,6 +55,7 @@ const journeyRolloutRouter = require('./admin/journey-rollout');
 const journeyDailyAnalysisRouter = require('./admin/journey-daily-analysis');
 const journeyMetricsRouter = require('./admin/journey-metrics');
 const journeyRegistryRouter = require('./admin/journey-registry');
+const localeAnalyticsRouter = require('./admin/locale-analytics');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -84,6 +85,7 @@ router.use(journeyRolloutRouter);
 router.use(journeyDailyAnalysisRouter);
 router.use(journeyMetricsRouter);
 router.use(journeyRegistryRouter);
+router.use(localeAnalyticsRouter);
 router.use(activationProgramRouter);
 router.use(forDigRouter);
 router.use('/welcome-email', welcomeEmailRouter);

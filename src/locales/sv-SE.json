@@ -7,7 +7,54 @@
     "label": "Språk",
     "sv-SE": "Svenska",
     "en-GB": "English",
-    "switchAria": "Byt språk"
+    "en-GB-beta": "English (Beta)",
+    "switchAria": "Byt språk",
+    "choice": {
+      "title": "Välj språk",
+      "titleEn": "Choose your language",
+      "description": "Du kan ändra språk senare i Inställningar.",
+      "descriptionEn": "You can change the language later in Settings.",
+      "betaNote": "Den engelska versionen är i beta. Viss text kan fortfarande visas på svenska.",
+      "betaNoteEn": "The English version is in beta. Some text may still appear in Swedish.",
+      "confirm": "Fortsätt",
+      "required": "Välj ett språk för att fortsätta",
+      "childNote": "Föräldradelen finns på engelska som beta. Barnets vy är fortfarande på svenska medan vi färdigställer översättningen.",
+      "childNoteEn": "The parent experience is available in English beta. The child experience is still in Swedish while we complete the translation."
+    },
+    "offer": {
+      "title": "My Starday finns nu på engelska",
+      "body": "Vi testar just nu en engelsk version av appen. Den är fortfarande i beta, så vissa texter kan vara på svenska och det kan finnas översättnings- eller layoutfel.",
+      "question": "Vill du fortsätta på svenska eller prova engelska?",
+      "staySwedish": "Fortsätt på svenska",
+      "tryEnglish": "Prova engelska beta",
+      "remindLater": "Påminn mig senare"
+    },
+    "betaBanner": {
+      "title": "English beta",
+      "body": "Den engelska versionen utvecklas fortfarande. Viss text kan visas på svenska och du kan hitta översättnings- eller visningsfel.",
+      "report": "Rapportera språkfel",
+      "switchBack": "Byt tillbaka till svenska"
+    },
+    "feedback": {
+      "typeLabel": "Språk- eller översättningsfel",
+      "typeLabelEn": "Language or translation issue",
+      "titlePlaceholder": "Vad ser fel ut?",
+      "visibleText": "Vilken text såg du?",
+      "suggestion": "Hur borde det stå? (frivilligt)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Var bor familjen?",
+      "description": "Vi använder detta för rätt villkor och integritetsinformation. Det är inte samma sak som språkval.",
+      "label": "Land",
+      "hint": "",
+      "required": "Välj land för att fortsätta",
+      "closedEu": "My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.",
+      "closedUk": "My Starday är inte tillgängligt i Storbritannien ännu.",
+      "closedUs": "My Starday är inte tillgängligt i USA ännu.",
+      "closedOther": "My Starday är inte tillgängligt i ditt land ännu."
+    }
   },
   "nav": {
     "login": "Logga in",
@@ -184,7 +231,9 @@
       "save": "Spara familjeinställningar"
     },
     "language": {
-      "description": "Välj språk för appen. Engelska kräver att funktionen är aktiverad för er familj."
+      "description": "Välj språk för appen. Engelska är i beta och kan innehålla ofullständiga översättningar.",
+      "betaNote": "English is in beta",
+      "switchBack": "Byt tillbaka till svenska"
     },
     "invite": {
       "title": "Bjud in förälder",

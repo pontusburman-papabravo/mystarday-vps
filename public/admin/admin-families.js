@@ -151,14 +151,22 @@
 
         const familyName = family.family_name || '';
         const familyLabel = familyName ? esc(familyName) : `Familj ${esc(shortId)}`;
+        const locale = family.preferred_locale || 'sv-SE';
+        const localeBadge = `<span class="inline-block px-2 py-0.5 bg-lavender text-purple-800 text-xs rounded-full font-semibold" title="${esc(family.locale_selection_source || '')}">${esc(locale)}</span>`;
+        const countryCode = family.country_code || 'SE';
+        const marketRegion = family.market_region || 'EU';
+        const countryBadge = `<span class="inline-block px-2 py-0.5 bg-sky text-navy text-xs rounded-full font-semibold" title="${esc(family.country_selection_source || '')}">${esc(countryCode)}/${esc(marketRegion)}</span>`;
+        const betaBadge = family.english_beta_offer_state === 'accepted_english_beta' || locale === 'en-GB'
+          ? ' <span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded-full font-semibold">EN beta</span>'
+          : '';
 
         return `<div class="bg-white rounded-2xl border-2 border-lavender overflow-hidden">
           <button onclick="toggleFamilyCard(this)" class="w-full flex items-center justify-between px-4 md:px-6 py-4 bg-sky hover:bg-lavender/50 transition-colors text-left">
             <div class="flex items-center gap-3">
               <span class="text-lg">&#128104;&#8205;&#128105;&#8205;&#128103;</span>
               <div>
-                <h4 class="font-heading font-bold text-navy">${familyLabel}</h4>
-                <p class="text-text-soft text-xs">${(family.parents || []).length} föräldrar, ${(family.children || []).length} barn · ID: ${esc(shortId)}</p>
+                <h4 class="font-heading font-bold text-navy">${familyLabel} ${localeBadge} ${countryBadge}${betaBadge}</h4>
+                <p class="text-text-soft text-xs">${(family.parents || []).length} föräldrar, ${(family.children || []).length} barn · ID: ${esc(shortId)}${family.locale_selected_at ? ' · språk: ' + esc(new Date(family.locale_selected_at).toLocaleDateString('sv-SE')) : ''}</p>
               </div>
             </div>
             <svg class="family-chevron w-5 h-5 text-navy transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transform:rotate(-90deg);">
