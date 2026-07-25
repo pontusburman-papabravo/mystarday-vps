@@ -78,5 +78,28 @@
     "familyHint": "Tap a child to plan the week",
     "addChild": "Add a child",
     "allChildrenHint": "All children — tap a day to edit"
+  },
+  "calendar": {
+    "pageTitle": "Calendar — {{brand}}",
+    "legacyTitle": "Calendar",
+    "legacySub": "See your child's schedule week by week",
+    "loading": "Loading calendar…",
+    "errorGeneric": "Something went wrong. Try again.",
+    "retry": "Try again",
+    "today": "Today",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "nextWeek": "Next week",
+    "weeksAgo": "{{count}} weeks ago",
+    "weeksFromNow": "In {{count}} weeks",
+    "noChildren": "No children found. Add a child under Family.",
+    "loadChildrenError": "Could not load children. Check your connection.",
+    "loadError": "Could not load calendar. Try again.",
+    "specialDay": "Special day",
+    "paused": "Paused",
+    "pausedDay": "😴 Day off / sick",
+    "emptyDay": "No schedule",
+    "prevWeek": "Previous week",
+    "nextWeekNav": "Next week"
   }
 }

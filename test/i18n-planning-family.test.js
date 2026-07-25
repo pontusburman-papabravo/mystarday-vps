@@ -59,6 +59,8 @@ describe('planning/family locale fragments', () => {
     assert.equal(en.family.shell.title, 'Family');
     assert.equal(en.schedule.actions.add, 'Add');
     assert.equal(en.settings.title, 'Settings');
+    assert.equal(en.schedule.calendar.today, 'Today');
+    assert.equal(t('en-GB', 'settings.heroes.calendar.title'), 'Calendar');
   });
 });
 

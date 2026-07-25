@@ -11,6 +11,10 @@ describe('calendar magic contrast (schemaöversikt)', () => {
     assert.match(html, /id="parentMagicPageMount"/);
     assert.match(html, /parent-magic-hide-header/);
     assert.match(html, /id="parentBottomNav"/);
+    assert.match(html, /parent-app-i18n\.js/);
+    assert.match(html, /parent-magic-i18n\.js/);
+    assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /display_name \|\| act\.name/);
   });
 
   it('day-col light cards keep dark text in magic dark theme', () => {
