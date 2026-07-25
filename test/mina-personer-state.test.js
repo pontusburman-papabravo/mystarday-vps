@@ -8,9 +8,11 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const STATE_SRC = fs.readFileSync(path.join(ROOT, 'public/js/child-family-state.js'), 'utf8');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
-function loadFamilyState() {
+function loadFamilyState(locale) {
   const context = { window: {}, console };
+  installChildI18nVm(context, locale || 'sv-SE');
   vm.runInNewContext(STATE_SRC, context);
   return {
     resolveFamilyState: context.window.resolveFamilyState,
@@ -113,5 +115,22 @@ describe('resolveFamilyState — exclusive state machine', () => {
       story: [{ text: 'Vi fixade middag', createdAt: '2026-07-01T11:59:59.000Z' }],
     }), { now: NOW });
     assert.equal(state.state, FAMILY_STATES.WARM_MOMENT);
+  });
+
+  it('en-GB — away state uses English system copy', () => {
+    const { resolveFamilyState: resolveEn, FAMILY_STATES: STATES } = loadFamilyState('en-GB');
+    const state = resolveEn(personsData({
+      persons: {
+        parents: [
+          { name: 'Mum', emoji: '👩' },
+          { name: 'Dad', emoji: '👨', away: true, awayLabel: 'At mum\'s this week' },
+        ],
+        siblings: [],
+      },
+    }), { now: NOW });
+    assert.equal(state.state, STATES.AWAY);
+    assert.equal(state.statusLine, 'Everyone is still here');
+    assert.match(state.togetherLine, /Dad is still here/);
+    assert.match(state.awayNote, /Right now: At mum's this week/);
   });
 });

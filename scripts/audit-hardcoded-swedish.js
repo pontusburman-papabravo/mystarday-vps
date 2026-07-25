@@ -60,6 +60,9 @@ const STRICT_FILES = [
   'config/i18n/today-en-GB.json',
   'config/i18n/journey-en-GB.json',
   'config/i18n/time-en-GB.json',
+  'public/js/child-app-i18n.js',
+  'src/lib/child-ui-locale.js',
+  'config/i18n/child-en-GB.json',
 ];
 
 const BASELINE_FILES = [

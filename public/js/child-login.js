@@ -21,6 +21,52 @@ let MAX_ATTEMPTS = 5;
 let lockoutEndTime = null;
 let countdownInterval = null;
 
+function tx(key, params) {
+  if (typeof window.cpt === 'function' && window.I18n) {
+    const fullKey = 'child.' + key;
+    const value = I18n.t(fullKey, params || {});
+    if (value && value !== fullKey) return value;
+  }
+  return '';
+}
+
+function localizeLoginError(data) {
+  if (typeof window.childLoginErrorFromResponse === 'function') {
+    return childLoginErrorFromResponse(data || {});
+  }
+  return (data && data.error) || tx('errors.serverError');
+}
+
+async function bootstrapChildLoginI18n() {
+  if (typeof window.initChildAppI18n !== 'function') return;
+  try {
+    const res = await fetch('/api/auth/login-picker-children', { credentials: 'same-origin' });
+    const ctx = res.ok ? await res.json() : {};
+    await initChildAppI18n({
+      preferredLocale: ctx.child_ui_locale || ctx.preferred_locale,
+      englishChildEnabled: ctx.english_child_experience_enabled,
+    });
+  } catch (_) {
+    await initChildAppI18n({});
+  }
+}
+
+function applyChildLoginStaticCopy() {
+  updateProfileStepCopy(lastMergedChildren.length || 1);
+  const lockMsg = document.querySelector('.cl-lockout-msg');
+  if (lockMsg) lockMsg.textContent = tx('login.lockoutWait');
+  const pinSub = document.querySelector('.cl-pin-sub');
+  if (pinSub) pinSub.textContent = tx('login.pinSub');
+  const successMsg = document.querySelector('.cl-success-msg');
+  if (successMsg) successMsg.textContent = tx('login.welcome');
+  const pinDots = document.getElementById('clPinDots');
+  if (pinDots) pinDots.setAttribute('aria-label', tx('login.pinDotsAria'));
+  const keypad = document.getElementById('clKeypad');
+  if (keypad) keypad.setAttribute('aria-label', tx('login.keypadAria'));
+  const manualInput = document.getElementById('clManualNameInput');
+  if (manualInput) manualInput.placeholder = tx('login.namePlaceholder');
+}
+
 // ── Avatar rendering helper (same as dom-utils.js) ──────────────────────────
 function renderClChildAvatar(child, size) {
   if (typeof window.renderChildAvatar === 'function') {
@@ -74,11 +120,11 @@ function updateProfileStepCopy(childCount) {
   const sub = document.getElementById('clSelectSub');
   if (!title || !sub) return;
   if (childCount > 1) {
-    title.textContent = 'Vem är du?';
-    sub.textContent = 'Välj din profil och skriv din PIN-kod.';
+    title.textContent = tx('login.whoAreYou');
+    sub.textContent = tx('login.selectProfile');
   } else {
-    title.textContent = 'Välj vem du är';
-    sub.textContent = 'Välj din profil och skriv din PIN-kod.';
+    title.textContent = tx('login.whoAreYouSingle');
+    sub.textContent = tx('login.selectProfile');
   }
   const notMeRow = document.getElementById('clNotMeRow');
   if (notMeRow) notMeRow.classList.toggle('hidden', childCount === 0);
@@ -121,8 +167,8 @@ window.showNotMeProfile = function () {
   if (notMeRow) notMeRow.classList.add('hidden');
   const title = document.getElementById('clSelectTitle');
   const sub = document.getElementById('clSelectSub');
-  if (title) title.textContent = 'Logga in som barn';
-  if (sub) sub.textContent = 'Skriv ditt namn och din hemliga PIN-kod.';
+  if (title) title.textContent = tx('login.loginAsChild');
+  if (sub) sub.textContent = tx('login.namePinLead');
   showExistingChildForm();
   try { sessionStorage.setItem('child_login_mode', 'name_pin'); } catch (_) { /* ignore */ }
   trackChildEntry('child_profile_not_found_clicked');
@@ -339,7 +385,7 @@ window.selectChild = function(username, opts) {
   document.getElementById('clStepPin').classList.add('active');
 
   // Update greeting + avatar
-  document.getElementById('clPinGreeting').textContent = 'Hej ' + child.name + '!';
+  document.getElementById('clPinGreeting').textContent = tx('login.pinGreeting', { name: child.name });
   document.getElementById('clPinAvatar').innerHTML = renderClChildAvatar(child, 100);
 
   // Clear PIN
@@ -454,11 +500,11 @@ function showAddChildChoiceOverlay() {
   overlay.innerHTML = [
     '<div class="cl-modal-card" role="dialog" aria-labelledby="clAddChildTitle">',
       '<div style="font-size:2rem;margin-bottom:8px;">👶</div>',
-      '<h3 id="clAddChildTitle" class="cl-modal-title">Lägg till ett barn</h3>',
-      '<p class="cl-modal-sub">Syskon som redan finns i familjen: ange namn + PIN. Nytt barn kräver vuxen.</p>',
-      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddNewBtn">Nytt barn</button>',
-      '<button type="button" class="cl-modal-btn cl-modal-btn-secondary" id="clAddExistingBtn">Befintligt barn</button>',
-      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildCancel">Avbryt</button>',
+      '<h3 id="clAddChildTitle" class="cl-modal-title">' + tx('modals.addChildTitle') + '</h3>',
+      '<p class="cl-modal-sub">' + tx('modals.addChildSub') + '</p>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddNewBtn">' + tx('modals.newChild') + '</button>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-secondary" id="clAddExistingBtn">' + tx('modals.existingChild') + '</button>',
+      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildCancel">' + tx('common.cancel') + '</button>',
     '</div>',
   ].join('');
 
@@ -488,8 +534,8 @@ function showExistingChildForm() {
     const hint = noSession.querySelector('p');
     if (hint) {
       hint.textContent = loadKnownChildren().length > 0
-        ? 'Skriv syskonets namn — sedan ange hens PIN'
-        : 'Skriv barnets namn för att logga in';
+        ? tx('login.siblingNameHint')
+        : tx('login.nameHint');
     }
     const input = document.getElementById('clManualNameInput');
     if (input) setTimeout(function () { input.focus(); }, 80);
@@ -563,8 +609,8 @@ function showAddChildNeedsParentOverlay(reason) {
   if (existing) existing.remove();
 
   const message = reason === 'new_child'
-    ? 'För att skapa ett nytt barn i familjen behöver en vuxen logga in.'
-    : 'Enheten är inte kopplad till en familj ännu. En vuxen måste logga in först.';
+    ? tx('login.addChildNeedsParent')
+    : tx('login.noFamilyYet');
 
   const overlay = document.createElement('div');
   overlay.id = 'cl-add-child-needs-parent';
@@ -572,10 +618,10 @@ function showAddChildNeedsParentOverlay(reason) {
   overlay.innerHTML = [
     '<div class="cl-modal-card" role="dialog">',
       '<div style="font-size:2rem;margin-bottom:8px;">👤</div>',
-      '<h3 class="cl-modal-title">Vuxen behövs</h3>',
+      '<h3 class="cl-modal-title">' + tx('modals.adultNeededTitle') + '</h3>',
       '<p class="cl-modal-sub">' + message + '</p>',
-      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddChildGoParentBtn">Logga in som vuxen</button>',
-      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildNeedsParentCancel">Avbryt</button>',
+      '<button type="button" class="cl-modal-btn cl-modal-btn-primary" id="clAddChildGoParentBtn">' + tx('login.loginAsAdult') + '</button>',
+      '<button type="button" class="cl-modal-btn-cancel" id="clAddChildNeedsParentCancel">' + tx('common.cancel') + '</button>',
     '</div>',
   ].join('');
   document.body.appendChild(overlay);
@@ -685,7 +731,7 @@ async function runAddChildWithParentGate(onAuthorized) {
   showParentPinGateOverlay(async function () {
     await activateParentSessionAfterPinVerify(window._ppinGateVerifyResult);
     onAuthorized();
-  }, function () {}, { hint: 'Ange din PIN-kod för att fortsätta' });
+  }, function () {}, { hint: tx('login.parentGateHint') });
 }
 
 window.openAddChild = async function () {
@@ -757,7 +803,7 @@ function buildKeypad() {
       (k === 'clear' ? ' clear' : '') +
       (k === '⌫' ? ' backspace' : '') +
       '"' +
-      ' aria-label="' + (action ? (action === 'CLEAR' ? 'Rensa PIN' : 'Radera') : k) + '"' +
+      ' aria-label="' + (action ? (action === 'CLEAR' ? tx('login.keypadClear') : tx('login.keypadBackspace')) : k) + '"' +
       ' data-action="' + (action || k) + '"' +
       ' type="button">' + (extra || k) + '</button>';
   }).join('');
@@ -818,9 +864,9 @@ function showLockout(retryAfterSeconds, lockedUntilIso) {
     const secs = rem % 60;
     const sub = document.getElementById('clLockoutSub');
     if (sub) {
-      sub.textContent = rem > 60
-        ? `Försök igen om ${mins} minut${mins !== 1 ? 'er' : ''}`
-        : `Bara ${secs} sekunder kvar!`;
+      sub.textContent = typeof window.childLockoutCountdownText === 'function'
+        ? childLockoutCountdownText(rem)
+        : '';
     }
     if (rem <= 0) {
       clearCountdown();
@@ -908,7 +954,7 @@ async function submitLogin() {
         renderAttemptDots(data.attempts_remaining, data.max_attempts);
       }
       const icon = data.attempts_remaining === 1 ? '😬' : data.attempts_remaining === 0 ? '🔒' : '⚠️';
-      showError(data.error || 'Något gick fel', icon);
+      showError(localizeLoginError(data));
       trackChildEntry('child_login_failed', { reason: data.error || 'invalid_credentials' });
       pinDigits = [];
       renderPinDots();
@@ -927,7 +973,7 @@ async function submitLogin() {
     const loginFamilyId = data.user.familyId || null;
     if (deviceFamilyId && loginFamilyId && deviceFamilyId !== loginFamilyId) {
       hideLoading();
-      showError('Det barnet tillhör en annan familj.', '⚠️');
+      showError(tx('login.wrongFamily'), '⚠️');
       Auth.clearAuth();
       pinDigits = [];
       renderPinDots();
@@ -940,10 +986,7 @@ async function submitLogin() {
         const me = await verifyRes.json();
         if (me.type !== 'child' || me.id !== data.user.id) {
           hideLoading();
-          showError(
-            'Inloggningen sparades inte i webbläsaren. Logga ut som vuxen (Jag är vuxen) och försök igen.',
-            '⚠️'
-          );
+          showError(tx('login.sessionNotSaved'), '⚠️');
           Auth.clearAuth();
           pinDigits = [];
           renderPinDots();
@@ -971,7 +1014,7 @@ async function submitLogin() {
 
   } catch (err) {
     hideLoading();
-    showError('Något gick fel. Försök igen.');
+    showError(tx('errors.serverError'));
     trackChildEntry('child_login_failed', { reason: 'network' });
     pinDigits = [];
     renderPinDots();
@@ -1002,7 +1045,7 @@ window.handleParentSwitch = function () {
           window.location.href = '/dashboard';
         }, function () {
           // cancelled — stay on child login screen
-        }, { hint: 'Ange en vuxens PIN-kod för att fortsätta' });
+        }, { hint: tx('parentGate.adultPinHint') });
       } else {
         if (window.DeviceMode) DeviceMode.enterParent();
         window.location.href = '/dashboard';
@@ -1018,7 +1061,7 @@ window.handleParentSwitch = function () {
 // ── Parent PIN gate overlay (same pattern as auth.js + login-magic.js) ───────
 // Shown for add-child PIN gate and "Jag är vuxen" from child session.
 function showParentPinGateOverlay(onSuccess, onCancel, opts) {
-  const hint = (opts && opts.hint) || 'Ange din PIN-kod för att fortsätta';
+  const hint = (opts && opts.hint) || tx('parentGate.hint');
   const old = document.getElementById('ppin-gate-overlay');
   if (old) document.body.removeChild(old);
   window._ppinGateToken = null;
@@ -1039,7 +1082,7 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
 
   card.innerHTML = [
     '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
-    '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Föräldralås</h3>',
+    '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">' + tx('parentGate.title') + '</h3>',
     '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">' + hint + '</p>',
     '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
@@ -1047,9 +1090,9 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
       '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
     '</div>',
-    '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="PIN-tavla"></div>',
+    '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="' + tx('parentGate.keypadAria') + '"></div>',
     '<div id="ppgo-err" style="font-size:0.8rem;color:#ef4444;min-height:1.2em;margin-bottom:8px;"></div>',
-    '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">Avbryt</button>',
+    '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">' + tx('parentGate.cancel') + '</button>',
   ].join('');
 
   overlay.appendChild(card);
@@ -1117,13 +1160,13 @@ function showParentPinGateOverlay(onSuccess, onCancel, opts) {
           document.body.removeChild(overlay);
           onSuccess();
         } else {
-          msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+          msgEl.textContent = tx('errors.parentPinInvalid');
           entered = '';
           updateDots();
           buildKeypad();
         }
       }).catch(function () {
-        msgEl.textContent = 'Något gick fel — försök igen';
+        msgEl.textContent = tx('errors.serverError');
         entered = '';
         updateDots();
         buildKeypad();
@@ -1164,7 +1207,7 @@ window.handleManualName = function(e) {
   // Show PIN step
   document.getElementById('clStepProfiles').classList.remove('active');
   document.getElementById('clStepPin').classList.add('active');
-  document.getElementById('clPinGreeting').textContent = 'Hej ' + name + '!';
+  document.getElementById('clPinGreeting').textContent = tx('login.pinGreeting', { name: name });
   document.getElementById('clPinAvatar').innerHTML = '<span>⭐</span>';
   pinDigits = [];
   renderPinDots();
@@ -1197,7 +1240,14 @@ function escapeJs(str) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await bootstrapChildLoginI18n();
+  document.addEventListener('child-i18n-ready', function () {
+    if (window.I18n) I18n.apply();
+    applyChildLoginStaticCopy();
+  });
+  applyChildLoginStaticCopy();
+
   // Fresh load — clear name_pin flag so picker mode is reported correctly on revisit.
   try { sessionStorage.removeItem('child_login_mode'); } catch (_) { /* ignore */ }
 

@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -147,17 +148,17 @@ describe('barnets_samling treasure presentation — gate ON (Fas C slice)', () =
     assert.match(fn, /return;/);
   });
 
-  it('child-treasure-present uses warm Swedish copy, no shop words', () => {
+  it('child-treasure-present uses warm locale-driven copy, no shop words', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-treasure-present.js'), 'utf8');
-    assert.match(src, /stjärnor att använda/);
-    assert.match(src, /Du sparar till/);
+    assert.match(src, /treasure\.starsToUse/);
+    assert.match(src, /treasure\.savingToward/);
     assert.match(src, /btp-plaque-label/);
-    assert.match(src, /Du kan lösa in den här nu/);
-    assert.match(src, /Här kommer belöningar du sparat ihop till att synas/);
-    assert.match(src, /Väntar på vuxen/);
-    assert.match(src, /Kan lösas in/);
-    assert.match(src, /Genomförd/);
-    assert.match(src, /Belöningar jag sparat ihop till/);
+    assert.match(src, /treasure\.readyToRedeem/);
+    assert.match(src, /rewards\.historyEmptyLead/);
+    assert.match(src, /rewards\.statusWaiting/);
+    assert.match(src, /rewards\.statusRedeem/);
+    assert.match(src, /rewards\.statusDone/);
+    assert.match(src, /rewards\.historyTitle/);
     assert.match(src, /resolveSkattState/);
     assert.doesNotMatch(src, /\bshop\b/i);
     assert.doesNotMatch(src, /\bköp\b/i);
@@ -181,6 +182,7 @@ describe('barnets_samling treasure presentation — gate ON (Fas C slice)', () =
       rewardsLoaded: false,
       matchMedia: function () { return { matches: true }; },
     };
+    installChildI18nVm(ctx, 'sv-SE');
     vm.runInNewContext(rewardsSrc, ctx);
     vm.runInNewContext(presentSrc, ctx);
 

@@ -18,6 +18,14 @@
   let _childName = '';
   let _lastState = null;
 
+  function ctf(key, params, fallback) {
+    if (typeof window.cpt === 'function') {
+      const value = cpt(key, params);
+      if (value && value !== 'child.' + key) return value;
+    }
+    return typeof fallback === 'function' ? fallback(params || {}) : fallback;
+  }
+
   function firstName(name) {
     if (!name) return 'du';
     return String(name).trim().split(/\s+/)[0];
@@ -81,7 +89,7 @@
     const base = {
       completed: completed,
       total: total,
-      progressLabel: completed + ' av ' + total + ' klara',
+      progressLabel: ctf('today.progressDone', { completed: completed, total: total }, completed + ' av ' + total + ' klara'),
       nowItem: null,
       nextItem: null,
       primaryAction: null,
@@ -95,16 +103,16 @@
     if (total === 0) {
       return Object.assign({}, base, {
         state: IDAG_STATES.NO_TASKS,
-        progressLabel: 'Inga uppdrag idag',
-        nextStepLabel: 'Njut av din lediga dag',
+        progressLabel: ctf('today.noMissionsToday', null, 'Inga uppdrag idag'),
+        nextStepLabel: ctf('today.enjoyFreeDay', null, 'Njut av din lediga dag'),
       });
     }
 
     if (!hasOpenWork) {
       return Object.assign({}, base, {
         state: IDAG_STATES.ALL_DONE,
-        progressLabel: completed + ' av ' + total + ' klara',
-        nextStepLabel: 'Alla klara idag!',
+        progressLabel: ctf('today.progressDone', { completed: completed, total: total }, completed + ' av ' + total + ' klara'),
+        nextStepLabel: ctf('today.allDoneToday', null, 'Alla klara idag!'),
       });
     }
 
@@ -115,9 +123,9 @@
 
     let nextStepLabel = '';
     if (nextItem) {
-      nextStepLabel = 'Senare: ' + nextItem.name;
+      nextStepLabel = ctf('today.laterPrefix', { name: nextItem.name }, 'Senare: ' + nextItem.name);
     } else if (nowItem) {
-      nextStepLabel = 'Bocka av för att gå vidare';
+      nextStepLabel = ctf('today.checkOffToContinue', null, 'Bocka av för att gå vidare');
     }
 
     return Object.assign({}, base, {
@@ -142,14 +150,14 @@
     if (isToday) {
       return '<div class="ctf-schedule-empty">' +
         emptyIllusHtml() +
-        '<p class="ctf-schedule-empty-title">Inga aktiviteter idag!</p>' +
-        '<p class="ctf-schedule-empty-sub">Njut av din lediga dag</p>' +
+        '<p class="ctf-schedule-empty-title">' + ctf('today.noActivitiesToday', null, 'Inga aktiviteter idag!') + '</p>' +
+        '<p class="ctf-schedule-empty-sub">' + ctf('today.enjoyFreeDay', null, 'Njut av din lediga dag') + '</p>' +
       '</div>';
     }
     return '<div class="ctf-schedule-empty">' +
       '<p class="text-4xl mb-3" aria-hidden="true">📅</p>' +
-      '<p class="ctf-schedule-empty-title">Inget schema den här dagen</p>' +
-      '<p class="ctf-schedule-empty-sub">Välj en annan dag för att se schemat</p>' +
+      '<p class="ctf-schedule-empty-title">' + ctf('today.noScheduleThisDay', null, 'Inget schema den här dagen') + '</p>' +
+      '<p class="ctf-schedule-empty-sub">' + ctf('today.pickAnotherDay', null, 'Välj en annan dag för att se schemat') + '</p>' +
     '</div>';
   }
 
@@ -173,7 +181,9 @@
     overlay.className = 'ctf-celebration-overlay' +
       (prefersReducedMotion() ? ' ctf-celebration--reduced' : '');
     overlay.innerHTML =
-      '<button type="button" class="ctf-celebration-skip" aria-label="Hoppa över firande">Hoppa över</button>' +
+      '<button type="button" class="ctf-celebration-skip" aria-label="' + ctf('today.skipCelebration', null, 'Hoppa över firande') + '">' +
+        ctf('today.skipCelebration', null, 'Hoppa över') +
+      '</button>' +
       '<div class="ctf-celebration-frame" role="presentation">' +
         '<img src="' + DECAL_CELEBRATION + '" alt="" decoding="async" width="320" height="320" />' +
       '</div>';
@@ -200,17 +210,17 @@
     const warmth = window.ChildTodayWarmth;
     const samlingWarmth = warmth && warmth.isSamlingGateOn && warmth.isSamlingGateOn();
 
-    let headline = 'Dagens uppdrag';
+    let headline = ctf('today.dailyMission', null, 'Dagens uppdrag');
     if (state.state === IDAG_STATES.ACTIVE && nowName) {
-      headline = 'Nu: ' + nowName;
+      headline = ctf('today.nowPrefix', { name: nowName }, 'Nu: ' + nowName);
     } else if (state.state === IDAG_STATES.ALL_DONE) {
-      headline = 'Bra jobbat!';
+      headline = ctf('celebration.greatWork', null, 'Bra jobbat!');
     }
 
     const illus = state.state === IDAG_STATES.NO_TASKS ? emptyIllusHtml() : '';
     const greeting = samlingFun && fun.greetingLine
       ? fun.greetingLine(_childName)
-      : 'Hej ' + firstName(_childName) + ' 👋';
+      : ctf('today.greeting', { name: firstName(_childName) }, 'Hej ' + firstName(_childName) + ' 👋');
     const progressTrail = samlingFun && fun.renderProgressTrail && state.total > 0
       ? fun.renderProgressTrail(state.completed, state.total)
       : '';
@@ -268,10 +278,11 @@
   }
 
   function renameTab() {
+    const label = ctf('nav.today', null, 'Idag');
     const tab = document.getElementById('tabSchedule');
-    if (tab) tab.textContent = '☀️ Idag';
+    if (tab) tab.textContent = '☀️ ' + label;
     const tabLegacy = document.getElementById('tabScheduleLegacy');
-    if (tabLegacy) tabLegacy.textContent = '☀️ Idag';
+    if (tabLegacy) tabLegacy.textContent = '☀️ ' + label;
   }
 
   function init(childName) {
@@ -310,6 +321,7 @@
     init: init,
     updateFromDailyLog: updateFromDailyLog,
     onTabChange: onTabChange,
+    renameTab: renameTab,
     renderScheduleEmpty: renderScheduleEmpty,
     resolveIdagState: resolveIdagState,
     IDAG_STATES: IDAG_STATES,

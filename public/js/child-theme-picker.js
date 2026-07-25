@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const BACKDROP_ID = 'childThemePickerBackdrop';
   const PANEL_ID = 'childThemePickerPanel';
   let _shellReady = false;
@@ -55,18 +60,18 @@
     panel.setAttribute('aria-labelledby', 'childThemePickerTitle');
     panel.innerHTML =
       '<header class="ctp-header">' +
-        '<h2 id="childThemePickerTitle" class="ctp-title">Mitt tema</h2>' +
-        '<button type="button" class="ctp-close" id="childThemePickerClose" aria-label="Stäng">×</button>' +
+        '<h2 id="childThemePickerTitle" class="ctp-title">' + t('settings.themePickerTitle') + '</h2>' +
+        '<button type="button" class="ctp-close" id="childThemePickerClose" aria-label="' + t('common.close') + '">×</button>' +
       '</header>' +
-      '<p class="ctp-lead">Välj ett tema som passar dig. Tryck <strong>Använd tema</strong> när du är nöjd.</p>' +
+      '<p class="ctp-lead">' + t('settings.themePickerLead') + '</p>' +
       '<div class="ctp-grid-wrap">' +
-        '<div class="ctp-grid" id="childThemePickerGrid" role="radiogroup" aria-label="Välj tema"></div>' +
+        '<div class="ctp-grid" id="childThemePickerGrid" role="radiogroup" aria-label="' + t('settings.theme') + '"></div>' +
       '</div>' +
       '<footer class="ctp-footer">' +
         '<p class="ctp-status" id="childThemePickerStatus" aria-live="polite"></p>' +
         '<div class="ctp-actions">' +
-          '<button type="button" class="ctp-btn ctp-btn--ghost" id="childThemePickerCancel">Avbryt</button>' +
-          '<button type="button" class="ctp-btn ctp-btn--primary" id="childThemePickerSave">Använd tema</button>' +
+          '<button type="button" class="ctp-btn ctp-btn--ghost" id="childThemePickerCancel">' + t('common.cancel') + '</button>' +
+          '<button type="button" class="ctp-btn ctp-btn--primary" id="childThemePickerSave">' + t('settings.themePickerUse') + '</button>' +
         '</div>' +
       '</footer>';
 
@@ -192,16 +197,16 @@
       status.textContent = state.error;
       status.classList.add('is-error');
     } else if (state.saving) {
-      status.textContent = 'Sparar tema…';
+      status.textContent = t('settings.themePickerSaving');
     } else if (state.previewThemeId === state.savedThemeId) {
-      status.textContent = 'Det här temat använder du redan.';
+      status.textContent = t('settings.themePickerAlready');
     } else {
       const theme = window.ChildTheme.getTheme(state.previewThemeId);
-      status.textContent = 'Förhandsvisar ' + (theme.label || state.previewThemeId) + '.';
+      status.textContent = t('settings.themePickerPreview', { name: theme.label || state.previewThemeId });
     }
 
     saveBtn.disabled = state.saving;
-    saveBtn.textContent = state.saving ? 'Sparar…' : 'Använd tema';
+    saveBtn.textContent = state.saving ? t('settings.themePickerSaving') : t('settings.themePickerUse');
   }
 
   function applyPreview(themeId) {
@@ -301,7 +306,7 @@
       updateThemeEntryLabel();
       closePanel();
     }).catch(function () {
-      state.error = 'Temat kunde inte sparas. Försök igen.';
+      state.error = t('settings.themePickerSaveFailed');
       ChildTheme.revertToSaved(state.childSnapshot, { silent: true });
       state.previewThemeId = state.savedThemeId;
       renderGrid();

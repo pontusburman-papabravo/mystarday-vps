@@ -8,8 +8,8 @@
   const DEFAULT_SIZE = 'standard';
 
   const SIZES = {
-    standard: { id: 'standard', label: 'Vanliga kort' },
-    large: { id: 'large', label: 'Stora bilder' },
+    standard: { id: 'standard', labelKey: 'settings.cardSizeStandard' },
+    large: { id: 'large', labelKey: 'settings.cardSizeLarge' },
   };
 
   const SIZE_IDS = ['standard', 'large'];
@@ -37,8 +37,21 @@
     return SIZE_IDS.includes(normalized) ? normalized : DEFAULT_SIZE;
   }
 
+  function sizeLabel(size) {
+    if (size.labelKey && typeof window.childT === 'function') {
+      return childT(size.labelKey);
+    }
+    if (size.labelKey && typeof window.cpt === 'function') {
+      return cpt(size.labelKey);
+    }
+    return size.label || size.id;
+  }
+
   function listSizes() {
-    return SIZE_IDS.map(function (id) { return SIZES[id]; });
+    return SIZE_IDS.map(function (id) {
+      const size = SIZES[id];
+      return { id: size.id, label: sizeLabel(size) };
+    });
   }
 
   function getActiveSizeId() {

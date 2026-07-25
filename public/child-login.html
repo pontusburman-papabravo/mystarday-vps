@@ -21,6 +21,8 @@
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/locale-switcher.js?v=1"></script>
   <script src="/js/auth-entry-i18n.js?v=1"></script>
+  <script src="/js/child-app-i18n.js?v=1"></script>
+  <script src="/js/child-ui-text.js?v=1"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/app-entry-analytics.js?v=284"></script>
 
@@ -30,7 +32,7 @@
 </head>
 
 <!-- ── Magisk natt background ─────────────────────────────────────────────── -->
-<body class="child-login-magic-bg safe-area-top safe-area-bottom safe-area-left safe-area-right" data-i18n-title="auth.childLogin.pageTitle">
+<body class="child-login-magic-bg safe-area-top safe-area-bottom safe-area-left safe-area-right" data-i18n-title="child.login.pageTitle">
 
   <!-- Animated stars -->
   <div id="clStarsContainer" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;"></div>
@@ -83,22 +85,22 @@
       <!-- Empty state (parent logged in but no children) -->
       <div id="clEmptyState" class="cl-empty-state hidden">
         <div style="font-size:3rem;">🌟</div>
-        <p>Inga barn registrerade ännu.</p>
+        <p data-i18n="child.login.emptyNoChildren">Inga barn registrerade ännu.</p>
         <button class="cl-back-btn" style="border-color:rgba(251,191,36,0.4);color:rgba(251,191,36,0.9);" onclick="openAddChild()">
-          + Lägg till ett barn
+          + <span data-i18n="child.login.addChild">Lägg till ett barn</span>
         </button>
       </div>
 
       <!-- No session state: manual name input for befintligt barn -->
       <div id="clNoSessionState" class="cl-empty-state hidden">
         <div style="font-size:3rem;">⭐</div>
-        <p style="margin-bottom:12px;">Skriv barnets namn för att logga in</p>
+        <p style="margin-bottom:12px;" data-i18n="child.login.nameHint">Skriv barnets namn för att logga in</p>
         <form id="clManualNameForm" onsubmit="handleManualName(event)" style="width:100%;max-width:260px;margin:0 auto;">
-          <input id="clManualNameInput" type="text" placeholder="Ditt namn"
+          <input id="clManualNameInput" type="text" data-i18n-placeholder="child.login.namePlaceholder" placeholder="Ditt namn"
             autocomplete="off" autocapitalize="words" spellcheck="false"
             style="width:100%;padding:14px 16px;border-radius:16px;border:2px solid rgba(251,191,36,0.4);background:rgba(255,255,255,0.12);color:#fff;font-family:Outfit,sans-serif;font-size:1.05rem;text-align:center;outline:none;margin-bottom:10px;"
           />
-          <button type="submit" class="cl-back-btn" style="width:100%;border-color:rgba(251,191,36,0.5);color:rgba(251,191,36,0.95);font-weight:600;padding:12px 16px;">
+          <button type="submit" class="cl-back-btn" style="width:100%;border-color:rgba(251,191,36,0.5);color:rgba(251,191,36,0.95);font-weight:600;padding:12px 16px;" data-i18n="child.login.continue">
             Fortsätt →
           </button>
         </form>
@@ -114,11 +116,11 @@
     <section id="clStepPin" class="cl-step">
 
       <!-- Back buttons -->
-      <button id="clPinBackProfiles" class="cl-back-btn" onclick="clBackToProfiles()" aria-label="Byt barn" style="align-self:flex-start;margin-bottom:8px;">
-        ← Byt barn
+      <button id="clPinBackProfiles" class="cl-back-btn" onclick="clBackToProfiles()" data-i18n-aria-label="child.login.switchChild" style="align-self:flex-start;margin-bottom:8px;">
+        ← <span data-i18n="child.login.switchChild">Byt barn</span>
       </button>
-      <button id="clPinBackLogin" class="cl-back-btn hidden" onclick="handleChildLoginBack()" aria-label="Tillbaka" style="align-self:flex-start;margin-bottom:8px;">
-        ← Tillbaka
+      <button id="clPinBackLogin" class="cl-back-btn hidden" onclick="handleChildLoginBack()" data-i18n-aria-label="child.login.back" style="align-self:flex-start;margin-bottom:8px;">
+        ← <span data-i18n="child.login.back">Tillbaka</span>
       </button>
 
       <!-- Avatar ring -->
@@ -130,7 +132,7 @@
 
       <!-- Greeting + instruction -->
       <h1 class="cl-pin-greeting" id="clPinGreeting">Hej!</h1>
-      <p class="cl-pin-sub">Ange din kod</p>
+      <p class="cl-pin-sub" data-i18n="child.login.pinSub">Ange din kod</p>
 
       <!-- Hidden numeric input — opens correct keyboard if focused -->
       <input
@@ -147,12 +149,12 @@
 
       <!-- Attempt dots -->
       <div id="clAttemptRow" class="hidden" style="margin-bottom:8px;">
-        <div style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:4px;">Försök kvar</div>
+        <div style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:4px;" data-i18n="child.login.attemptsLeft">Försök kvar</div>
         <div id="clAttemptBar" class="cl-attempt-bar"></div>
       </div>
 
       <!-- PIN dots -->
-      <div class="cl-pin-dots" id="clPinDots" aria-label="PIN-kod"></div>
+      <div class="cl-pin-dots" id="clPinDots" data-i18n-aria-label="child.login.pinDotsAria"></div>
 
       <!-- Error -->
       <div id="clErrorBox" class="cl-error-box"></div>
@@ -165,26 +167,25 @@
       <!-- Lockout -->
       <div id="clLockoutPanel" class="cl-lockout-panel">
         <div class="hourglass-spin">⏳</div>
-        <div class="cl-lockout-msg">Vänta en liten stund</div>
-        <div id="clLockoutSub" class="cl-lockout-sub">Du kan försöka igen snart</div>
+        <div class="cl-lockout-msg" data-i18n="child.login.lockoutWait">Vänta en liten stund</div>
+        <div id="clLockoutSub" class="cl-lockout-sub" data-i18n="child.login.lockoutSoon">Du kan försöka igen snart</div>
       </div>
 
       <!-- Success -->
       <div id="clSuccessBox" class="cl-success-box">
         <div style="font-size:2rem;">🎉</div>
-        <div class="cl-success-msg">Välkommen!</div>
-        <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;">Tar dig till din instrumentpanel…</div>
+        <div class="cl-success-msg" data-i18n="child.login.welcome">Välkommen!</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;" data-i18n="child.login.redirecting">Tar dig till din instrumentpanel…</div>
       </div>
 
       <!-- Keypad -->
-      <div class="cl-keypad" id="clKeypad" role="group" aria-label="Siffertavla">
+      <div class="cl-keypad" id="clKeypad" role="group" data-i18n-aria-label="child.login.keypadAria">
         <!-- Built by child-login.js -->
       </div>
 
       <!-- Forgot PIN -->
       <div class="cl-forgot-pin">
-        Glömt din pinkod?<br>
-        <span style="font-size:0.75rem;opacity:0.7;">Fråga mamma eller pappa</span>
+        <span data-i18n="child.modals.forgotPin">Fråga mamma eller pappa om du glömt koden</span>
       </div>
 
     </section>
@@ -195,8 +196,8 @@
 
   <!-- Help link footer -->
   <div class="cl-help-link" style="position:relative;z-index:1;">
-    Behöver du hjälp?
-    <a href="/forgot-password" style="color:rgba(255,255,255,0.55);text-decoration:underline;font-size:0.78rem;">
+    <span data-i18n="child.login.needHelp">Behöver du hjälp?</span>
+    <a href="/forgot-password" style="color:rgba(255,255,255,0.55);text-decoration:underline;font-size:0.78rem;" data-i18n="child.login.contactParent">
       Kontakta en förälder
     </a>
   </div>

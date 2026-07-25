@@ -5,17 +5,20 @@
 (function () {
   'use strict';
 
-  const SCORE_LABELS = ['', 'Jättesvårt 😢', 'Svårt 😞', 'Lite svårt 😕', 'Okej 😐', 'Ganska bra 🙂', 'Bra 😊', 'Jättebra 😄', 'Superbra 😁', 'Nästan perfekt 🤩', 'Fantastiskt! 🌟'];
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
 
   const EMOTION_CARDS = [
-    { key: 'happy', label: 'Glad', emoji: '😊' },
-    { key: 'angry', label: 'Arg', emoji: '😠' },
-    { key: 'sad', label: 'Ledsen', emoji: '😢' },
-    { key: 'tired', label: 'Trött', emoji: '😴' },
-    { key: 'worried', label: 'Orolig', emoji: '😟' },
-    { key: 'proud', label: 'Stolt', emoji: '😌' },
-    { key: 'scared', label: 'Rädd', emoji: '😨' },
-    { key: 'stressed', label: 'Stressad', emoji: '😰' },
+    { key: 'happy', emoji: '😊' },
+    { key: 'angry', emoji: '😠' },
+    { key: 'sad', emoji: '😢' },
+    { key: 'tired', emoji: '😴' },
+    { key: 'worried', emoji: '😟' },
+    { key: 'proud', emoji: '😌' },
+    { key: 'scared', emoji: '😨' },
+    { key: 'stressed', emoji: '😰' },
   ];
 
   const _checkOffQueue = [];
@@ -56,7 +59,7 @@
     if (!sectionEl) return;
     const cards = sectionEl.querySelectorAll('.activity-card:not(.done)');
     if (cards.length === 0) {
-      showToast('✅ Alla aktiviteter i sektionen är klara!');
+      showToast('✅ ' + t('checkoff.sectionAllDone'));
       return;
     }
     const firstUndone = cards[0];
@@ -105,7 +108,7 @@
     const card = document.getElementById('card-' + itemId);
     const feedbackFor = card ? (card.dataset.feedbackFor || 'both') : 'both';
     const icon = card ? (card.dataset.itemIcon || '⭐') : '⭐';
-    const name = card ? (card.dataset.itemName || 'Aktivitet') : 'Aktivitet';
+    const name = card ? (card.dataset.itemName || t('checkoff.defaultActivity')) : t('checkoff.defaultActivity');
 
     if (!isCurrentlyDone) {
       if (window.ChildActivityTimer) ChildActivityTimer.clearForItem(itemId);
@@ -168,7 +171,7 @@
         if (isOffline && window.OfflineQueue) {
           queueId = window.OfflineQueue.enqueue(itemId, action);
           if (!isCurrentlyDone) {
-            showToast('📶 Sparas när nätverket är tillbaka', false);
+            showToast('📶 ' + t('checkoff.savedOffline'), false);
           }
         } else {
           console.error('Toggle error:', err);
@@ -176,7 +179,7 @@
             window.Platform.haptics.error();
           }
           coalescedLoadDay().catch(() => {});
-          showToast('Kunde inte uppdatera. Försök igen.', true);
+          showToast(t('checkoff.updateFailed'), true);
         }
       });
 
@@ -234,7 +237,10 @@
     const scoreDisplay = document.getElementById('scoreDisplay');
     const scoreLabel = document.getElementById('scoreLabel');
     if (scoreDisplay) scoreDisplay.textContent = score;
-    if (scoreLabel) scoreLabel.textContent = SCORE_LABELS[score] || '';
+    if (scoreLabel) {
+      scoreLabel.textContent = (typeof window.childScoreLabel === 'function')
+        ? childScoreLabel(score) : t('checkoff.score.' + score);
+    }
 
     const scoreColors = ['', '#EF4444', '#F97316', '#F97316', '#EAB308', '#EAB308', '#22C55E', '#22C55E', '#10B981', '#10B981', '#F5A623'];
     if (scoreDisplay) scoreDisplay.style.color = scoreColors[score] || '#F5A623';
@@ -300,7 +306,7 @@
     const payload = { comment: comment || null };
     if (useCards) {
       if (!ratingEmotionKey) {
-        showToast('Välj en känsla först', true);
+        showToast(t('checkoff.pickEmotionFirst'), true);
         return;
       }
       payload.emotion_key = ratingEmotionKey;
@@ -309,7 +315,7 @@
     }
 
     const btn = document.getElementById('ratingSubmitBtn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Sparar…'; }
+    if (btn) { btn.disabled = true; btn.textContent = t('today.saving'); }
     try {
       await Auth.api(`/api/me/daily-log-items/${ratingItemId}/rate`, {
         method: 'POST',
@@ -320,18 +326,18 @@
         : { child_score: payload.score, child_comment: comment };
       dismissRating();
       await loadDay(currentDate, false);
-      showToast('⭐ Betyg sparat!');
+      showToast('⭐ ' + t('checkoff.ratingSaved'));
     } catch (err) {
       console.error('Rating error:', err);
       if (!navigator.onLine && window.OfflineQueue) {
         window.OfflineQueue.queueChildRate(ratingItemId, payload);
         dismissRating();
-        showToast('📶 Känsla sparas när nätverket är tillbaka', false);
+        showToast('📶 ' + t('checkoff.emotionSavedOffline'), false);
       } else {
         dismissRating();
       }
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Spara ⭐'; }
+      if (btn) { btn.disabled = false; btn.textContent = t('checkoff.saveRating') + ' ⭐'; }
     }
   }
 
@@ -339,12 +345,16 @@
     const grid = document.getElementById('ratingCardsGrid');
     if (!grid || grid.dataset.built === '1') return;
     grid.dataset.built = '1';
-    grid.innerHTML = EMOTION_CARDS.map((c) => `
+    grid.innerHTML = EMOTION_CARDS.map((c) => {
+      const label = (typeof window.childEmotionLabel === 'function')
+        ? childEmotionLabel(c.key) : t('checkoff.emotions.' + c.key);
+      return `
       <button type="button" class="emotion-card-btn" data-emotion-key="${c.key}"
-        onclick="selectEmotionCard('${c.key}')" aria-label="${c.label}">
+        onclick="selectEmotionCard('${c.key}')" aria-label="${label}">
         <span class="text-2xl" aria-hidden="true">${c.emoji}</span>
-        <span class="text-xs font-semibold text-navy">${c.label}</span>
-      </button>`).join('');
+        <span class="text-xs font-semibold text-navy">${label}</span>
+      </button>`;
+    }).join('');
   }
 
   document.addEventListener('DOMContentLoaded', initEmotionCardsGrid);
@@ -352,7 +362,7 @@
   window.addEventListener('offlineQueue:allSynced', (e) => {
     const count = e.detail && e.detail.count || 0;
     if (count > 0) {
-      showToast('✅ Allt uppdaterat ✓', false);
+      showToast('✅ ' + t('offline.allSynced'), false);
       if (typeof loadDay === 'function' && currentDate) {
         loadDay(currentDate, false).catch(() => {});
       }

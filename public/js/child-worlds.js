@@ -127,12 +127,20 @@
   }
 
   /** Barn-UI: legacy hub-flik (gate av) vs samling (gate på). */
+  function navCopy(key, fallback) {
+    return (typeof window.cpt === 'function') ? cpt(key) : fallback;
+  }
+
   function worldTabLabel() {
-    return _barnetsSamling ? 'Min samling' : 'Min värld';
+    return _barnetsSamling
+      ? navCopy('nav.myCollection', 'Min samling')
+      : navCopy('nav.myWorld', 'Min värld');
   }
 
   function worldBackLabel() {
-    return _barnetsSamling ? 'Tillbaka till Min samling' : 'Tillbaka till Min värld';
+    return _barnetsSamling
+      ? navCopy('nav.backToCollection', 'Tillbaka till Min samling')
+      : navCopy('nav.backToWorld', 'Tillbaka till Min värld');
   }
 
   function worldBackShort() {
@@ -141,8 +149,8 @@
 
   function worldHubSubcopy() {
     return _barnetsSamling
-      ? 'Vad vill du göra här?'
-      : 'Vad vill du göra i din värld?';
+      ? navCopy('nav.worldHubSubcopySamling', 'Vad vill du göra här?')
+      : navCopy('nav.worldHubSubcopyLegacy', 'Vad vill du göra i din värld?');
   }
 
   function analyticsNavMode() {
@@ -461,12 +469,28 @@
     if (!world) return '';
     const ctx = context || {};
     const labels = world.labels || {};
+    const NAV_I18N = {
+      today: { young: 'nav.todayYoung', default: 'nav.today', personal: 'nav.todayPersonal' },
+      world: { default: 'nav.myWorld' },
+      collection: { default: 'nav.myCollection' },
+      treasure: { default: 'nav.treasureChest' },
+      family: { default: 'nav.myPeople' },
+      settings: { default: 'nav.mySpace' },
+    };
     let raw;
-    if (ctx.ageBand === 'young' && labels.young) raw = labels.young;
-    else if (ctx.childName && labels.personal) {
-      raw = labels.personal.replace('{name}', ctx.childName);
-    } else {
-      raw = labels.default || world.id;
+    const i18nKeys = NAV_I18N[world.id];
+    if (i18nKeys && typeof window.cpt === 'function') {
+      if (ctx.ageBand === 'young' && i18nKeys.young) raw = cpt(i18nKeys.young);
+      else if (ctx.childName && i18nKeys.personal) raw = cpt(i18nKeys.personal, { name: ctx.childName });
+      else if (i18nKeys.default) raw = cpt(i18nKeys.default);
+    }
+    if (!raw) {
+      if (ctx.ageBand === 'young' && labels.young) raw = labels.young;
+      else if (ctx.childName && labels.personal) {
+        raw = labels.personal.replace('{name}', ctx.childName);
+      } else {
+        raw = labels.default || world.id;
+      }
     }
     if (typeof window.escHtml === 'function') return window.escHtml(raw);
     if (typeof window.escapeHtml === 'function') return window.escapeHtml(raw);

@@ -10,6 +10,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
 const ROOT = path.join(__dirname, '..');
 const REWARDS_PATH = path.join(ROOT, 'public/js/child-dashboard-rewards.js');
@@ -72,6 +73,7 @@ function loadTreasureRuntime() {
     rewardsLoaded: false,
   };
   context.window.escHtml = context.escHtml;
+  installChildI18nVm(context, 'sv-SE');
   vm.runInNewContext(read(REWARDS_PATH), context);
   vm.runInNewContext(read(PRESENT_PATH), context);
   for (const key of ['resolveSkattState', 'skattRewardState', 'sortRewardsForList', 'SKATT_STATES']) {
@@ -214,8 +216,8 @@ describe('#585 Fas C — Skattkammaren v1 render (gate ON)', () => {
     FORBIDDEN.forEach(function (pattern) {
       assert.doesNotMatch(src, pattern, 'forbidden: ' + pattern);
     });
-    assert.match(src, /stjärnor att använda/);
-    assert.match(src, /Belöningar jag sparat ihop till/);
+    assert.match(src, /treasure\.starsToUse/);
+    assert.match(src, /rewards\.historyTitle/);
   });
 });
 

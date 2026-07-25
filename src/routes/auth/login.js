@@ -15,6 +15,8 @@ const { getParentRoles, getChildrenForParent, syncAccountType } = require('../..
 const { mapChildForFamilyApi, mapParentForFamilyApi, avatarApiFields } = require('../../lib/avatar-api');
 const { recordLoginEvent } = require('../../lib/login-event');
 const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../../lib/magic-view-access');
+const { isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
+const { resolveChildUiLocale } = require('../../lib/child-ui-locale');
 const { requireAuth } = require('../../middleware/auth');
 const { generateCsrfToken } = require('../../middleware/csrf');
 const {
@@ -321,8 +323,12 @@ router.get('/me', requireAuth, async (req, res) => {
 
     if (req.user.type === 'child') {
       const childResult = await db.query(
-        `SELECT id, name, emoji, avatar_storage_key, avatar_updated_at, family_id, username, view_mode, timezone, birthday, created_at
-         FROM child WHERE id = $1`,
+        `SELECT c.id, c.name, c.emoji, c.avatar_storage_key, c.avatar_updated_at, c.family_id,
+                c.username, c.view_mode, c.timezone, c.birthday, c.created_at,
+                COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+         FROM child c
+         JOIN family f ON f.id = c.family_id
+         WHERE c.id = $1`,
         [req.user.id]
       );
       if (childResult.rows.length === 0) {
@@ -331,6 +337,8 @@ router.get('/me', requireAuth, async (req, res) => {
 
       const child = childResult.rows[0];
       const magicViewEnabled = await familyHasMagicViewAccess(child.family_id);
+      const englishChild = await isEnglishChildExperienceEnabled(child.family_id);
+      const childUiLocale = resolveChildUiLocale(child.preferred_locale, englishChild);
 
       return res.json({
         ...mapChildForFamilyApi(child),
@@ -342,6 +350,9 @@ router.get('/me', requireAuth, async (req, res) => {
         created_at: child.created_at,
         type: 'child',
         magic_view_enabled: magicViewEnabled,
+        preferred_locale: child.preferred_locale,
+        english_child_experience_enabled: englishChild,
+        child_ui_locale: childUiLocale,
       });
     }
 
@@ -364,8 +375,11 @@ router.get('/login-picker-children', async (req, res) => {
     }
 
     const parentResult = await db.query(
-      `SELECT id, email, family_id, is_admin, onboarding_completed
-       FROM parent WHERE id = $1`,
+      `SELECT p.id, p.email, p.family_id, p.is_admin, p.onboarding_completed,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+       FROM parent p
+       JOIN family f ON f.id = p.family_id
+       WHERE p.id = $1`,
       [parentId]
     );
     const parentRow = parentResult.rows[0];
@@ -374,8 +388,13 @@ router.get('/login-picker-children', async (req, res) => {
     }
 
     const children = await getChildrenForParent(parentId, { allowedRoles: ['primary', 'shared'] });
+    const englishChild = await isEnglishChildExperienceEnabled(parentRow.family_id);
+    const childUiLocale = resolveChildUiLocale(parentRow.preferred_locale, englishChild);
     res.json({
       hasSession: true,
+      preferred_locale: parentRow.preferred_locale,
+      english_child_experience_enabled: englishChild,
+      child_ui_locale: childUiLocale,
       children: children.map((c) => ({
         username: c.username,
         name: c.name,

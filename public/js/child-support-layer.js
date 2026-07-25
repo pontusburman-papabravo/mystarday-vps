@@ -22,10 +22,10 @@
           '<div class="child-support-step p-3 bg-white rounded-xl border border-lavender mb-2" data-step-index="' +
           idx +
           '">' +
-          '<p class="text-xs text-text-soft mb-1">Steg ' +
-          (idx + 1) +
-          ' av ' +
-          substeps.length +
+          '<p class="text-xs text-text-soft mb-1">' +
+          (typeof window.cpt === 'function'
+            ? cpt('steps.progress', { current: idx + 1, total: substeps.length })
+            : 'Steg ' + (idx + 1) + ' av ' + substeps.length) +
           '</p>' +
           '<p class="font-semibold text-navy">' +
           esc(step.label || step.title || '') +

@@ -6,6 +6,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   let _childSortables = [];
   const _expandLoading = {}; // itemId -> true while a fetch is in-flight
 
@@ -52,7 +57,7 @@
             });
             await loadDay(currentDate, false);
           } catch (err) {
-            showToast('Kunde inte spara ordningen', true);
+            showToast(t('today.saveFailed'), true);
             await loadDay(currentDate, false);
           }
         },
@@ -90,7 +95,7 @@
           subStepCache[itemId] = data.sub_steps || [];
         } catch (err) {
           console.error('Sub-steps load error:', err);
-          showToast('Kunde inte ladda delstegen — försök igen', true);
+          showToast(t('today.saveFailed'), true);
           btn.innerHTML = `📋 Delsteg <span class="chevron">▾</span>`;
           btn.classList.remove('loading');
           _expandLoading[itemId] = false;
@@ -188,7 +193,7 @@
         if (step) { step.completed = isCurrentlyDone; }
       }
       renderSubStepList(itemId);
-      showToast('Kunde inte uppdatera delsteget', true);
+      showToast(t('today.saveFailed'), true);
     }
   }
 

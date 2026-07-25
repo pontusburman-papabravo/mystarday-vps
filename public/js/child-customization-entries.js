@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
     const d = document.createElement('div');
@@ -38,13 +43,14 @@
       return '';
     }
     const sizeId = ChildActivityCardSize.getActiveSizeId ? ChildActivityCardSize.getActiveSizeId() : 'standard';
-    const size = ChildActivityCardSize.SIZES[sizeId] || ChildActivityCardSize.SIZES.standard;
+    const sizes = ChildActivityCardSize.listSizes ? ChildActivityCardSize.listSizes() : [];
+    const size = sizes.find(function (s) { return s.id === sizeId; }) || sizes[0] || { label: '' };
     return (
-      '<section class="bsp-cardsize-entry" aria-label="Kortstorlek">' +
+      '<section class="bsp-cardsize-entry" aria-label="' + esc(t('settings.cardSize')) + '">' +
         '<button type="button" class="bsp-cardsize-entry-btn" id="bspOpenCardSizePicker">' +
           '<span class="bsp-cardsize-entry-preview" aria-hidden="true"></span>' +
           '<span class="bsp-cardsize-entry-copy">' +
-            '<span class="bsp-cardsize-entry-kicker">Kortstorlek</span>' +
+            '<span class="bsp-cardsize-entry-kicker">' + esc(t('settings.cardSize')) + '</span>' +
             '<span class="bsp-cardsize-entry-label">' + esc(size.label) + '</span>' +
           '</span>' +
           '<span class="bsp-cardsize-entry-chevron" aria-hidden="true">›</span>' +
@@ -60,11 +66,11 @@
     const theme = ChildTheme.getTheme(ChildTheme.getActiveThemeId());
     const bg = theme.assets && theme.assets.background ? theme.assets.background : '';
     return (
-      '<section class="bsp-theme-entry" aria-label="Mitt tema">' +
+      '<section class="bsp-theme-entry" aria-label="' + esc(t('settings.themeEntryKicker')) + '">' +
         '<button type="button" class="bsp-theme-entry-btn" id="bspOpenThemePicker">' +
           '<span class="bsp-theme-entry-preview" style="background-image:url(\'' + bg + '\')" aria-hidden="true"></span>' +
           '<span class="bsp-theme-entry-copy">' +
-            '<span class="bsp-theme-entry-kicker">Mitt tema</span>' +
+            '<span class="bsp-theme-entry-kicker">' + esc(t('settings.themeEntryKicker')) + '</span>' +
             '<span class="bsp-theme-entry-label">' + esc(theme.label) + '</span>' +
           '</span>' +
           '<span class="bsp-theme-entry-chevron" aria-hidden="true">›</span>' +

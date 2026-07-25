@@ -9,6 +9,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { installChildI18nVm } = require('./helpers/child-i18n-vm');
 
 const ROOT = path.join(__dirname, '..');
 const MEMORY_PATH = path.join(ROOT, 'public/js/child-samling-memory.js');
@@ -59,6 +60,7 @@ function loadPresent() {
       },
     },
   };
+  installChildI18nVm(context, 'sv-SE');
   vm.runInNewContext(read(PRESENT_PATH), context);
   return context.window.ChildSamlingPresent;
 }

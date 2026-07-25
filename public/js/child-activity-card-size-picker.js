@@ -4,6 +4,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const BACKDROP_ID = 'childCardSizePickerBackdrop';
   const PANEL_ID = 'childCardSizePickerPanel';
   let _shellReady = false;
@@ -74,16 +79,16 @@
     panel.setAttribute('aria-labelledby', 'childCardSizePickerTitle');
     panel.innerHTML =
       '<header class="ccsz-header">' +
-        '<h2 id="childCardSizePickerTitle" class="ccsz-title">Kortstorlek</h2>' +
-        '<button type="button" class="ccsz-close" id="childCardSizePickerClose" aria-label="Stäng">×</button>' +
+        '<h2 id="childCardSizePickerTitle" class="ccsz-title">' + t('settings.cardSizeTitle') + '</h2>' +
+        '<button type="button" class="ccsz-close" id="childCardSizePickerClose" aria-label="' + t('common.close') + '">×</button>' +
       '</header>' +
-      '<p class="ccsz-lead">Välj hur stora aktivitetsbilderna ska vara på ☀️ Idag. Texten finns kvar under bilden.</p>' +
-      '<div class="ccsz-options" id="childCardSizePickerOptions" role="radiogroup" aria-label="Välj kortstorlek"></div>' +
+      '<p class="ccsz-lead">' + t('settings.cardSizeLead') + '</p>' +
+      '<div class="ccsz-options" id="childCardSizePickerOptions" role="radiogroup" aria-label="' + t('settings.cardSizePickAria') + '"></div>' +
       '<footer class="ccsz-footer">' +
         '<p class="ccsz-status" id="childCardSizePickerStatus" aria-live="polite"></p>' +
         '<div class="ccsz-actions">' +
-          '<button type="button" class="ccsz-btn ccsz-btn--ghost" id="childCardSizePickerCancel">Avbryt</button>' +
-          '<button type="button" class="ccsz-btn ccsz-btn--primary" id="childCardSizePickerSave">Spara kortstorlek</button>' +
+          '<button type="button" class="ccsz-btn ccsz-btn--ghost" id="childCardSizePickerCancel">' + t('common.cancel') + '</button>' +
+          '<button type="button" class="ccsz-btn ccsz-btn--primary" id="childCardSizePickerSave">' + t('settings.cardSizeSave') + '</button>' +
         '</div>' +
       '</footer>';
 
@@ -205,7 +210,7 @@
     if (status) status.textContent = state.error || '';
     if (saveBtn) {
       saveBtn.disabled = state.saving;
-      saveBtn.textContent = state.saving ? 'Sparar…' : 'Spara kortstorlek';
+      saveBtn.textContent = state.saving ? t('today.saving') : t('settings.cardSizeSave');
     }
   }
 
@@ -287,7 +292,7 @@
       }));
       closePanel();
     }).catch(function () {
-      state.error = 'Kortstorleken kunde inte sparas. Försök igen.';
+      state.error = t('settings.cardSizeSaveFailed');
       ChildActivityCardSize.revertToSaved({ silent: true });
       state.previewSizeId = state.savedSizeId;
       refreshVisibleActivities();

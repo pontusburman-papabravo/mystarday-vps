@@ -40,8 +40,8 @@ describe('Mina personer barn 10/10', () => {
   it('hall render uses state — Mina personer copy, no Familjehallen hero', () => {
     const src = fs.readFileSync(HALL, 'utf8');
     assert.match(src, /resolveFamilyState/);
-    assert.match(src, /Mina personer/);
-    assert.match(src, /De som hjälper mig/);
+    assert.match(src, /family\.title/);
+    assert.match(src, /family\.helpers/);
     assert.match(src, /cfh-persons-primary/);
     assert.match(src, /cfh-secondary-sections/);
     assert.doesNotMatch(src, /Familjehallen/);
@@ -59,7 +59,7 @@ describe('Mina personer barn 10/10', () => {
 
   it('person cards use warm role labels not admin roles', () => {
     const stateSrc = fs.readFileSync(STATE, 'utf8');
-    assert.match(stateSrc, /Hjälper mig hemma/);
+    assert.match(stateSrc, /family\.roles\.home_helper/);
     const hallSrc = fs.readFileSync(HALL, 'utf8');
     assert.doesNotMatch(hallSrc, />Vuxen</);
   });

@@ -224,7 +224,7 @@
 // stjarndag-v668: fix native-tab-bar stale nav labels on locale-init (P-i18n-Home-Today-C)
 // stjarndag-v667: en-GB Today shell + Home nav/offline locale (P-i18n-Home-Today-C)
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
-const CACHE_NAME = 'stjarndag-v672';
+const CACHE_NAME = 'stjarndag-v675';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
@@ -465,6 +465,7 @@ const CACHE_NAME = 'stjarndag-v672';
 // stjarndag-v667: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v671: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v672: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v675: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -538,6 +539,8 @@ const STATIC_ASSETS = [
   '/child-dashboard.html',
   '/css/child-login-magic.css',
   '/js/child-login.js',
+  '/js/child-app-i18n.js',
+  '/js/child-ui-text.js',
   '/js/child-dashboard.js',
   '/js/child-first-star-mode.js',
   '/css/child-first-star-mode.css',

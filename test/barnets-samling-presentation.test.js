@@ -46,7 +46,7 @@ describe('barnets samling — presentation polish', () => {
 
   it('Mitt tema entry lives in customization module (settings tab)', () => {
     const src = read('public/js/child-customization-entries.js');
-    assert.match(src, /Mitt tema/);
+    assert.match(src, /settings\.themeEntryKicker/);
     assert.match(src, /bspOpenThemePicker/);
   });
 
@@ -65,7 +65,7 @@ describe('barnets samling — presentation polish', () => {
     const hall = read('public/js/child-family-hall.js');
     assert.match(hall, /cfh-hero-panel/);
     assert.match(hall, /renderWarmBanner/);
-    assert.match(hall, /De som hjälper mig/);
+    assert.match(hall, /family\.helpers/);
     assert.doesNotMatch(hall, /cfh-status/);
     const state = read('public/js/child-family-state.js');
     assert.doesNotMatch(state, /De som hjälper dig/);
@@ -75,8 +75,9 @@ describe('barnets samling — presentation polish', () => {
     const hall = read('public/js/child-family-hall.js');
     assert.match(hall, /cfh-story-timeline/);
     assert.match(hall, /cfh-story-chip/);
-    assert.match(hall, /prestationslista/);
     assert.match(hall, /project_completed/);
+    const svChild = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/i18n/child-sv-SE.json'), 'utf8'));
+    assert.match(svChild.family.storyHint, /prestationslista/);
   });
 
   it('Idag checkoff keeps NU-card checkbox on separate row; activity cards use flex', () => {

@@ -5,16 +5,25 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const GLASS_SCALE_MAX = 1000;
   const STAR_MEDALS = [
-    { threshold: 1, label: '1', title: 'Första stjärnan' },
-    { threshold: 25, label: '25', title: '25 stjärnor' },
-    { threshold: 50, label: '50', title: '50 stjärnor' },
-    { threshold: 100, label: '100', title: '100 stjärnor' },
-    { threshold: 250, label: '250', title: '250 stjärnor' },
-    { threshold: 500, label: '500', title: '500 stjärnor' },
-    { threshold: 1000, label: '1000', title: '1000 stjärnor' },
+    { threshold: 1, label: '1', titleKey: 'firstStar' },
+    { threshold: 25, label: '25', titleKey: 'medal25' },
+    { threshold: 50, label: '50', titleKey: 'medal50' },
+    { threshold: 100, label: '100', titleKey: 'medal100' },
+    { threshold: 250, label: '250', titleKey: 'medal250' },
+    { threshold: 500, label: '500', titleKey: 'medal500' },
+    { threshold: 1000, label: '1000', titleKey: 'medal1000' },
   ];
+
+  function medalTitle(medal) {
+    return t('samling.' + medal.titleKey);
+  }
 
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -35,30 +44,27 @@
   }
 
   function totalStarsLabel(total) {
-    if (total === 0) return 'Ditt stjärnglas fylls när du samlar stjärnor';
-    if (total === 1) return 'Totalt har du tjänat 1 stjärna';
-    return 'Totalt har du tjänat ' + total + ' stjärnor';
+    if (total === 0) return t('samling.starGlassEmpty');
+    if (total === 1) return t('samling.starGlassOne');
+    return t('samling.starGlassMany', { count: total });
   }
 
   function glassLeadCopy(total) {
-    if (total === 0) {
-      return 'Här samlas alla stjärnor du tjänar — de visar vad du klarat och minskar aldrig.';
-    }
-    return 'De här stjärnorna visar allt du har klarat — de minskar aldrig när du löser in belöningar.';
+    return total === 0 ? t('samling.glassLeadEmpty') : t('samling.glassLeadFilled');
   }
 
   function renderHeroPanel(universe) {
     const total = lifetimeStars(universe);
     const fillPct = glassFillPct(total);
     const jarAria = total === 0
-      ? 'Stjärnglas som väntar på dina stjärnor'
-      : 'Stjärnglas fyllt till ' + fillPct + ' procent';
+      ? t('samling.jarAriaEmpty')
+      : t('samling.jarAriaFilled', { percent: fillPct });
 
     return (
-      '<section class="bsp-hero-panel" aria-label="Min samling">' +
+      '<section class="bsp-hero-panel" aria-label="' + esc(t('samling.title')) + '">' +
         '<p class="bsp-kicker" aria-hidden="true">🏆</p>' +
-        '<h2 class="bsp-title">Min samling</h2>' +
-        '<p class="bsp-subtitle">Titta vad du har samlat</p>' +
+        '<h2 class="bsp-title">' + esc(t('samling.title')) + '</h2>' +
+        '<p class="bsp-subtitle">' + esc(t('samling.subtitle')) + '</p>' +
         '<div class="bsp-hero-glass-row">' +
           '<div class="bsp-glass-jar bsp-glass-jar--hero' + (total === 0 ? ' bsp-glass-jar--empty' : '') +
             '" role="img" aria-label="' + esc(jarAria) + '">' +
@@ -77,10 +83,11 @@
   function renderMedalLadder(total) {
     const items = STAR_MEDALS.map(function (medal) {
       const unlocked = total >= medal.threshold;
+      const title = medalTitle(medal);
       return (
         '<li class="bsp-medal' + (unlocked ? ' is-unlocked' : ' is-locked') + '"' +
-          ' title="' + esc(medal.title) + '"' +
-          ' aria-label="' + esc(medal.title) + '">' +
+          ' title="' + esc(title) + '"' +
+          ' aria-label="' + esc(title) + '">' +
           '<span class="bsp-medal-disc" aria-hidden="true">🏅</span>' +
           '<span class="bsp-medal-label">' + esc(medal.label) + '</span>' +
         '</li>'
@@ -88,8 +95,8 @@
     }).join('');
 
     return (
-      '<div class="bsp-medal-ladder" aria-label="Stjärnmedaljer">' +
-        '<p class="bsp-medal-kicker">Stjärnmedaljer</p>' +
+      '<div class="bsp-medal-ladder" aria-label="' + esc(t('samling.medals')) + '">' +
+        '<p class="bsp-medal-kicker">' + esc(t('samling.medals')) + '</p>' +
         '<ul class="bsp-medal-row">' + items + '</ul>' +
       '</div>'
     );
@@ -100,14 +107,14 @@
     const memories = getRewardMemories(extras);
     const streak = currentStreak(universe);
     const chips = [
-      '<span class="bsp-preview-chip">🏅 ' + achievements.length + ' troféer</span>',
-      '<span class="bsp-preview-chip">🃏 ' + memories.length + ' minnen</span>',
+      '<span class="bsp-preview-chip">🏅 ' + t('samling.previewTrophies', { count: achievements.length }) + '</span>',
+      '<span class="bsp-preview-chip">🃏 ' + t('samling.previewMemories', { count: memories.length }) + '</span>',
     ];
     if (streak > 0) {
-      chips.push('<span class="bsp-preview-chip">🔥 ' + streak + ' dagar</span>');
+      chips.push('<span class="bsp-preview-chip">🔥 ' + t('samling.previewStreakDays', { count: streak }) + '</span>');
     }
     return (
-      '<nav class="bsp-preview-strip" aria-label="Överblick">' +
+      '<nav class="bsp-preview-strip" aria-label="' + esc(t('samling.previewOverview')) + '">' +
         chips.join('') +
       '</nav>'
     );
@@ -116,21 +123,26 @@
   function renderMedalSection(universe) {
     const total = lifetimeStars(universe);
     return (
-      '<section class="bsp-section bsp-medals" aria-label="Stjärnmedaljer">' +
+      '<section class="bsp-section bsp-medals" aria-label="' + esc(t('samling.medals')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">✨</span>' +
-          '<h3 class="bsp-section-title">Stjärnmedaljer</h3>' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.medals')) + '</h3>' +
         '</div>' +
         renderMedalLadder(total) +
       '</section>'
     );
   }
 
+  function childDateLocale() {
+    return (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale() === 'en-GB')
+      ? 'en-GB' : 'sv-SE';
+  }
+
   function formatMemoryDate(iso) {
     if (!iso) return '';
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' });
+    return d.toLocaleDateString(childDateLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   function getRewardMemories(extras) {
@@ -143,17 +155,17 @@
   function renderMemoryCardsSection(memories) {
     if (!memories.length) {
       return (
-        '<section class="bsp-section bsp-memories" aria-label="Mina minneskort">' +
+        '<section class="bsp-section bsp-memories" aria-label="' + esc(t('samling.memoryCards')) + '">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">🃏</span>' +
-            '<h3 class="bsp-section-title">Mina minneskort</h3>' +
+            '<h3 class="bsp-section-title">' + esc(t('samling.memoryCards')) + '</h3>' +
           '</div>' +
           '<div class="bsp-memories-empty">' +
             '<p class="bsp-section-lead">' +
-              esc('Här kommer minnen från belöningar du har sparat ihop till.') +
+              esc(t('samling.memoryEmptyLead')) +
             '</p>' +
             '<p class="bsp-memories-hint">' +
-              esc('När du löser in något i 🎁 Skattkammaren dyker det upp här.') +
+              esc(t('samling.memoryEmptyHint')) +
             '</p>' +
           '</div>' +
         '</section>'
@@ -165,23 +177,23 @@
       const cost = m.stars_saved ? ' · ⭐ ' + m.stars_saved : '';
       return (
         '<article class="bsp-memory-card" style="--bsp-memory-delay:' + (i * 40) + 'ms"' +
-          ' aria-label="' + esc((m.reward_name || 'Minneskort') + (dateLabel ? ', ' + dateLabel : '')) + '">' +
+          ' aria-label="' + esc((m.reward_name || t('samling.memoryCardDefault')) + (dateLabel ? ', ' + dateLabel : '')) + '">' +
           '<span class="bsp-memory-icon" aria-hidden="true">' + esc(m.reward_icon || '🎁') + '</span>' +
           '<h4 class="bsp-memory-name">' + esc(m.reward_name || '') + '</h4>' +
           (dateLabel ? '<p class="bsp-memory-date">' + esc(dateLabel) + esc(cost) + '</p>' : '') +
-          '<p class="bsp-memory-tag">Sparad som minne</p>' +
-          '<p class="bsp-memory-note">Det här klarade du.</p>' +
+          '<p class="bsp-memory-tag">' + esc(t('samling.memorySavedTag')) + '</p>' +
+          '<p class="bsp-memory-note">' + esc(t('samling.memoryNote')) + '</p>' +
         '</article>'
       );
     }).join('');
 
     return (
-      '<section class="bsp-section bsp-memories" aria-label="Mina minneskort">' +
+      '<section class="bsp-section bsp-memories" aria-label="' + esc(t('samling.memoryCards')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">🃏</span>' +
-          '<h3 class="bsp-section-title">Mina minneskort</h3>' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.memoryCards')) + '</h3>' +
         '</div>' +
-        '<p class="bsp-section-lead">' + esc('Saker jag har sparat ihop till.') + '</p>' +
+        '<p class="bsp-section-lead">' + esc(t('samling.memoryLead')) + '</p>' +
         '<div class="bsp-memory-grid">' + cards + '</div>' +
       '</section>'
     );
@@ -190,18 +202,14 @@
   function renderRewardShelfSection(memories) {
     if (!memories.length) {
       return (
-        '<section class="bsp-section bsp-shelf" aria-label="Min belöningshylla">' +
+        '<section class="bsp-section bsp-shelf" aria-label="' + esc(t('samling.rewardShelf')) + '">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">📚</span>' +
-            '<h3 class="bsp-section-title">Min belöningshylla</h3>' +
+            '<h3 class="bsp-section-title">' + esc(t('samling.rewardShelf')) + '</h3>' +
           '</div>' +
           '<div class="bsp-shelf-empty">' +
-            '<p class="bsp-section-lead">' +
-              esc('Här står belöningar du har klarat och fått.') +
-            '</p>' +
-            '<p class="bsp-shelf-hint">' +
-              esc('Hylla växer fram när du sparat ihop till något.') +
-            '</p>' +
+            '<p class="bsp-section-lead">' + esc(t('samling.shelfEmptyLead')) + '</p>' +
+            '<p class="bsp-shelf-hint">' + esc(t('samling.shelfEmptyHint')) + '</p>' +
           '</div>' +
         '</section>'
       );
@@ -217,13 +225,13 @@
     }).join('');
 
     return (
-      '<section class="bsp-section bsp-shelf" aria-label="Min belöningshylla">' +
+      '<section class="bsp-section bsp-shelf" aria-label="' + esc(t('samling.rewardShelf')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">📚</span>' +
-          '<h3 class="bsp-section-title">Min belöningshylla</h3>' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.rewardShelf')) + '</h3>' +
         '</div>' +
-        '<p class="bsp-section-lead">' + esc('Belöningar jag har sparat ihop till.') + '</p>' +
-        '<div class="bsp-shelf-stage" role="img" aria-label="Belöningshylla med ' + memories.length + ' föremål">' +
+        '<p class="bsp-section-lead">' + esc(t('samling.shelfLead')) + '</p>' +
+        '<div class="bsp-shelf-stage" role="img" aria-label="' + esc(t('samling.shelfAria', { count: memories.length })) + '">' +
           '<div class="bsp-shelf-board"></div>' +
           '<div class="bsp-shelf-items">' + items + '</div>' +
         '</div>' +
@@ -238,17 +246,17 @@
 
     if (!earned.length) {
       return (
-        '<section class="bsp-section bsp-diplomas" aria-label="Diplom">' +
+        '<section class="bsp-section bsp-diplomas" aria-label="' + esc(t('samling.diplomas')) + '">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">📜</span>' +
-            '<h3 class="bsp-section-title">Diplom</h3>' +
+            '<h3 class="bsp-section-title">' + esc(t('samling.diplomas')) + '</h3>' +
           '</div>' +
           '<div class="bsp-diplomas-empty">' +
             '<p class="bsp-section-lead">' +
-              esc('Här kommer diplom när du samlat fina minnen.') +
+              esc(t('samling.diplomaEmptyLead')) +
             '</p>' +
             '<p class="bsp-diplomas-hint">' +
-              esc('Utmärkelser för saker du har klarat — inget att stressa över.') +
+              esc(t('samling.diplomaEmptyHint')) +
             '</p>' +
           '</div>' +
         '</section>'
@@ -267,12 +275,12 @@
     }).join('');
 
     return (
-      '<section class="bsp-section bsp-diplomas" aria-label="Diplom">' +
+      '<section class="bsp-section bsp-diplomas" aria-label="' + esc(t('samling.diplomas')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">📜</span>' +
-          '<h3 class="bsp-section-title">Diplom</h3>' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.diplomas')) + '</h3>' +
         '</div>' +
-        '<p class="bsp-section-lead">' + esc('Utmärkelser för saker du har klarat.') + '</p>' +
+        '<p class="bsp-section-lead">' + esc(t('samling.diplomaLead')) + '</p>' +
         '<div class="bsp-diploma-grid">' + cards + '</div>' +
       '</section>'
     );
@@ -295,7 +303,7 @@
     if (!iso) return '';
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    return d.toLocaleDateString(childDateLocale(), { day: 'numeric', month: 'short' });
   }
 
   function renderWallSection(universe) {
@@ -303,19 +311,15 @@
 
     if (!achievements.length) {
       return (
-        '<section class="bsp-section bsp-wall" id="bsp-wall" aria-label="Trofévägg">' +
+        '<section class="bsp-section bsp-wall" id="bsp-wall" aria-label="' + esc(t('samling.trophyWall')) + '">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">🏅</span>' +
-            '<h3 class="bsp-section-title">Trofévägg</h3>' +
+            '<h3 class="bsp-section-title">' + esc(t('samling.trophyWall')) + '</h3>' +
           '</div>' +
           '<div class="bsp-wall-empty">' +
             '<span class="bsp-wall-empty-icon" aria-hidden="true">🏅</span>' +
-            '<p class="bsp-wall-empty-lead">' +
-              esc('Här kommer dina medaljer att synas när du samlar fler stjärnor.') +
-            '</p>' +
-            '<p class="bsp-wall-empty-hint">' +
-              esc('Fortsätt med det du gör i ☀️ Idag — det du klarar dyker upp här.') +
-            '</p>' +
+            '<p class="bsp-wall-empty-lead">' + esc(t('samling.wallEmptyLead')) + '</p>' +
+            '<p class="bsp-wall-empty-hint">' + esc(t('samling.wallEmptyHint')) + '</p>' +
           '</div>' +
         '</section>'
       );
@@ -327,7 +331,7 @@
       return (
         '<button type="button" class="bsp-trophy-card" style="--bsp-trophy-delay:' + (i * 50) + 'ms"' +
           ' aria-expanded="false"' +
-          ' aria-label="' + esc((a.name || 'Trofé') + (dateLabel ? ', ' + dateLabel : '')) + '">' +
+          ' aria-label="' + esc((a.name || t('samling.trophyDefault')) + (dateLabel ? ', ' + dateLabel : '')) + '">' +
           '<span class="bsp-trophy-emoji" aria-hidden="true">' + esc(a.emoji || '🏆') + '</span>' +
           '<span class="bsp-trophy-name">' + esc(a.name || '') + '</span>' +
           (dateLabel ? '<span class="bsp-trophy-date">' + esc(dateLabel) + '</span>' : '') +
@@ -337,17 +341,15 @@
     }).join('');
 
     return (
-      '<section class="bsp-section bsp-wall" aria-label="Trofévägg">' +
+      '<section class="bsp-section bsp-wall" aria-label="' + esc(t('samling.trophyWall')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">🏅</span>' +
-          '<h3 class="bsp-section-title">Trofévägg</h3>' +
-          '<span class="bsp-wall-count" aria-label="' + esc(achievements.length + ' trofeer') + '">' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.trophyWall')) + '</h3>' +
+          '<span class="bsp-wall-count" aria-label="' + esc(t('samling.trophyCountAria', { count: achievements.length })) + '">' +
             esc(String(achievements.length)) +
           '</span>' +
         '</div>' +
-        '<p class="bsp-section-lead">' +
-          esc('Trofeer från saker du har klarat på riktigt.') +
-        '</p>' +
+        '<p class="bsp-section-lead">' + esc(t('samling.wallLead')) + '</p>' +
         '<div class="bsp-trophy-wall">' +
           '<div class="bsp-trophy-grid">' + cards + '</div>' +
         '</div>' +
@@ -395,8 +397,8 @@
   }
 
   function streakHeadline(days) {
-    if (days === 1) return 'Du har varit aktiv 1 dag i rad';
-    return 'Du har varit aktiv ' + days + ' dagar i rad';
+    if (days === 1) return t('samling.streakOne');
+    return t('samling.streakMany', { count: days });
   }
 
   function renderStreakChain(days) {
@@ -417,20 +419,20 @@
 
     if (days <= 0) {
       return (
-        '<section class="bsp-section bsp-streak" aria-label="Dagar i rad">' +
+        '<section class="bsp-section bsp-streak" aria-label="' + esc(t('samling.streakTitle')) + '">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">🔥</span>' +
-            '<h3 class="bsp-section-title">Dagar i rad</h3>' +
+            '<h3 class="bsp-section-title">' + esc(t('samling.streakTitle')) + '</h3>' +
           '</div>' +
           '<div class="bsp-streak-empty">' +
             '<div class="bsp-streak-chain bsp-streak-chain--seed" aria-hidden="true">' +
               '<span class="bsp-streak-link bsp-streak-link--dim">🔥</span>' +
             '</div>' +
             '<p class="bsp-section-lead">' +
-              esc('Här växer din kedja när du är aktiv.') +
+              esc(t('samling.streakEmptyLead')) +
             '</p>' +
             '<p class="bsp-streak-hint">' +
-              esc('Varje dag du gör något i ☀️ Idag kan lägga till en länk.') +
+              esc(t('samling.streakHint')) +
             '</p>' +
           '</div>' +
         '</section>'
@@ -438,14 +440,14 @@
     }
 
     const goldNote = isGold
-      ? '<p class="bsp-streak-gold-note">' + esc('Din kedja lyser guld.') + '</p>'
+      ? '<p class="bsp-streak-gold-note">' + esc(t('samling.streakGold')) + '</p>'
       : '';
 
     return (
-      '<section class="bsp-section bsp-streak' + (isGold ? ' bsp-streak--gold' : '') + '" aria-label="Dagar i rad">' +
+      '<section class="bsp-section bsp-streak' + (isGold ? ' bsp-streak--gold' : '') + '" aria-label="' + esc(t('samling.streakTitle')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">🔥</span>' +
-          '<h3 class="bsp-section-title">Dagar i rad</h3>' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.streakTitle')) + '</h3>' +
         '</div>' +
         '<p class="bsp-streak-headline" aria-live="polite">' + esc(streakHeadline(days)) + '</p>' +
         '<div class="bsp-streak-chain" role="img" aria-label="' + esc(streakHeadline(days)) + '">' +
@@ -467,18 +469,14 @@
 
     if (!hasActivity) {
       return (
-        '<section class="bsp-section bsp-yearbook" aria-label="Min årsbok">' +
+        '<section class="bsp-section bsp-yearbook" aria-label="' + esc(t('samling.yearbook')) + '">' +
           '<div class="bsp-section-head">' +
             '<span class="bsp-section-icon" aria-hidden="true">📖</span>' +
-            '<h3 class="bsp-section-title">Min årsbok</h3>' +
+            '<h3 class="bsp-section-title">' + esc(t('samling.yearbook')) + '</h3>' +
           '</div>' +
           '<div class="bsp-yearbook-empty">' +
-            '<p class="bsp-section-lead">' +
-              esc('Här kommer månadsuppslag när du samlat minnen under året.') +
-            '</p>' +
-            '<p class="bsp-yearbook-hint">' +
-              esc('Bläddra mellan månader — ett uppslag i taget.') +
-            '</p>' +
+            '<p class="bsp-section-lead">' + esc(t('samling.yearbookEmptyLead')) + '</p>' +
+            '<p class="bsp-yearbook-hint">' + esc(t('samling.yearbookLead')) + '</p>' +
           '</div>' +
         '</section>'
       );
@@ -501,14 +499,14 @@
     }).join('');
 
     return (
-      '<section class="bsp-section bsp-yearbook" aria-label="Min årsbok">' +
+      '<section class="bsp-section bsp-yearbook" aria-label="' + esc(t('samling.yearbook')) + '">' +
         '<div class="bsp-section-head">' +
           '<span class="bsp-section-icon" aria-hidden="true">📖</span>' +
-          '<h3 class="bsp-section-title">Min årsbok</h3>' +
+          '<h3 class="bsp-section-title">' + esc(t('samling.yearbook')) + '</h3>' +
           '<span class="bsp-yearbook-year">' + esc(String(year)) + '</span>' +
         '</div>' +
-        '<p class="bsp-section-lead">' + esc('Bläddra mellan månaderna — ett uppslag i taget.') + '</p>' +
-        '<div class="bsp-yearbook-book" role="group" aria-label="Årsbok ' + esc(String(year)) + '">' +
+        '<p class="bsp-section-lead">' + esc(t('samling.yearbookLead')) + '</p>' +
+        '<div class="bsp-yearbook-book" role="group" aria-label="' + esc(t('samling.yearbookAria', { year: year })) + '">' +
           pages +
         '</div>' +
       '</section>'

@@ -9,13 +9,13 @@
   ],
   "slot_types": {
     "proud_moment": {
-      "description": "Stolt ögonblick — en prestation i taget, ingen trofévägg"
+      "description": "A proud moment — one step at a time, not a trophy wall"
     },
     "remembered_gift": {
-      "description": "Belöning som varmt minne — inte butik"
+      "description": "A reward as a warm memory — not a shop"
     },
     "warm_echo": {
-      "description": "Mjukt framsteg utan press eller streak"
+      "description": "Gentle progress without pressure or streaks"
     }
   }
 }
