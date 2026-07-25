@@ -282,17 +282,17 @@
 
     let actionHtml = '';
     if (sectionKey === 'activities' && typeof window.openActivityModal === 'function') {
-      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-activity">+ Ny</button>';
+      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-activity">' + escHtml(pt('library.hub.addNew')) + '</button>';
     } else if (sectionKey === 'rewards' && typeof window.openRewardModal === 'function') {
-      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-reward">+ Ny</button>';
+      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-reward">' + escHtml(pt('library.hub.addNew')) + '</button>';
     } else if (sectionKey === 'mine' && typeof window.openCreateTemplateModal === 'function') {
-      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-template">+ Schema</button>';
+      actionHtml = '<button type="button" class="library-magic-chrome-action" data-library-action="new-template">' + escHtml(pt('library.hub.addSchedule')) + '</button>';
     }
 
     chrome.classList.remove('hidden');
     chrome.innerHTML =
       '<div class="library-magic-chrome">' +
-      '<button type="button" class="library-magic-back" data-library-action="back" aria-label="Tillbaka">←</button>' +
+      '<button type="button" class="library-magic-back" data-library-action="back" aria-label="' + escHtml(pt('library.hub.back')) + '">←</button>' +
       '<div class="library-magic-chrome-title"><h2 class="library-magic-chrome-heading">' + chromeSectionIcon(s.icon, s.iconClass) + '<span>' + escHtml(sectionLabel(s, 'title')) + '</span></h2><p>' + escHtml(sectionLabel(s, 'subtitle')) + '</p></div>' +
       actionHtml +
       '</div>';

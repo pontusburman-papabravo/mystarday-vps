@@ -157,6 +157,8 @@ describe('runtime localization hooks', () => {
   it('library-magic-hub uses pt() for hub chrome', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/library-magic-hub.js'), 'utf8');
     assert.match(js, /library\.hub\.title/);
+    assert.match(js, /library\.hub\.addNew/);
+    assert.doesNotMatch(js, /\+ Ny/);
     assert.match(js, /subtitleKey/);
   });
 
