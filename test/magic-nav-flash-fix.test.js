@@ -29,7 +29,15 @@ describe('magic nav flash fix', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
     assert.match(src, /updateActiveTabs/);
     assert.match(src, /stjarndag-magic-navigated/);
+    assert.match(src, /navLabelsReady/);
+    assert.match(src, /parent-i18n-ready/);
     assert.doesNotMatch(src, /function remount\(\) \{\s*unmount\(\)/);
+  });
+
+  it('parent-magic-i18n notifies nav after early session locale apply', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-i18n.js'), 'utf8');
+    assert.match(src, /notifyParentI18nReady/);
+    assert.match(src, /earlyApply[\s\S]*parent-i18n-ready/);
   });
 
   it('SW bumped to v293', () => {

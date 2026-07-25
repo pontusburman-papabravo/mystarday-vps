@@ -167,6 +167,21 @@
     tryMount();
   }
 
+  function navLabelsReady() {
+    if (typeof window.pt !== 'function') return false;
+    const sample = window.pt('nav.primary.home');
+    return sample && sample !== 'nav.primary.home';
+  }
+
+  function scheduleBootMount() {
+    if (navLabelsReady()) {
+      bootMount();
+      return;
+    }
+    document.addEventListener('parent-i18n-ready', bootMount, { once: true });
+    setTimeout(bootMount, 3500);
+  }
+
   function bootMount() {
     syncActiveTabs();
     tryMount();
@@ -174,9 +189,9 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootMount);
+    document.addEventListener('DOMContentLoaded', scheduleBootMount);
   } else {
-    bootMount();
+    scheduleBootMount();
   }
 
   function handleViewportChange() {

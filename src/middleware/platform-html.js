@@ -132,6 +132,8 @@ function ensureMagicShellAssets(body, reqPath) {
   }
 
   const scriptsToEnsure = [
+    { needle: 'parent-app-i18n.js', tag: '<script src="/js/parent-app-i18n.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
+    { needle: 'parent-magic-i18n.js', tag: '<script src="/js/parent-magic-i18n.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'icon-system.js', tag: '<script src="/js/icon-system.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'nav-config.js', tag: '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'parent-magic-auto.js', tag: '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
