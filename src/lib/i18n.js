@@ -28,6 +28,10 @@ function deepMergeObjects(target, source) {
 }
 
 function mergeLocaleFragments() {
+  /** Map fragment filename domain → client namespace (dot-notation prefix). */
+  const FRAGMENT_NAMESPACE = {
+    'for-dig': 'forDig',
+  };
   const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time', 'nav', 'planning', 'library', 'family', 'schedule', 'settings', 'child', 'for-dig'];
   for (const locale of SUPPORTED_LOCALES) {
     for (const domain of fragmentDomains) {
@@ -35,8 +39,9 @@ function mergeLocaleFragments() {
       if (!fs.existsSync(fragmentPath)) continue;
       try {
         const fragment = JSON.parse(fs.readFileSync(fragmentPath, 'utf8'));
+        const namespace = FRAGMENT_NAMESPACE[domain] || domain;
         if (!locales[locale]) locales[locale] = {};
-        locales[locale][domain] = deepMergeObjects(locales[locale][domain] || {}, fragment);
+        locales[locale][namespace] = deepMergeObjects(locales[locale][namespace] || {}, fragment);
       } catch (err) {
         console.error(`[i18n] Failed to parse fragment ${fragmentPath}:`, err.message);
       }

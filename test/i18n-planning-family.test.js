@@ -116,6 +116,14 @@ describe('static shells', () => {
     assert.match(html, /parent-app-i18n\.js/);
     assert.match(html, /parent-magic-i18n\.js/);
   });
+
+  it('for-dig fragment merges under forDig namespace (not for-dig)', () => {
+    loadLocales();
+    assert.equal(t('en-GB', 'forDig.sections.recommendTitle', { name: 'Anna' }), 'Good next steps for Anna');
+    assert.equal(t('en-GB', 'forDig.cta.addRewards'), 'Add rewards');
+    assert.equal(t('en-GB', 'forDig.badges.activated'), 'Activated ✓');
+    assert.equal(t('en-GB', 'for-dig.sections.recommendTitle', { name: 'Anna' }), 'for-dig.sections.recommendTitle');
+  });
 });
 
 describe('runtime localization hooks', () => {
