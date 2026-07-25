@@ -12,6 +12,9 @@
     "searchPlaceholder": "Sök i biblioteket…",
     "subtitle": "Scheman, aktiviteter och belöningar för er familj",
     "backToPlanning": "← Till planering",
+    "addNew": "+ Ny",
+    "addSchedule": "+ Schema",
+    "back": "Tillbaka",
     "sections": {
       "standard": { "title": "Standardscheman", "subtitle": "Färdiga mallar att kopiera" },
       "activities": { "title": "Aktiviteter", "subtitle": "Dina aktiviteter — emoji eller eget foto" },

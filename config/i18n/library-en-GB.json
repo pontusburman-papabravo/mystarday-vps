@@ -12,6 +12,9 @@
     "searchPlaceholder": "Search the library…",
     "subtitle": "Schedules, activities and rewards for your family",
     "backToPlanning": "← Back to Planning",
+    "addNew": "+ New",
+    "addSchedule": "+ Schedule",
+    "back": "Back",
     "sections": {
       "standard": { "title": "Standard schedules", "subtitle": "Ready-made templates to copy" },
       "activities": { "title": "Activities", "subtitle": "Your activities — emoji or your own photo" },
