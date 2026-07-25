@@ -113,5 +113,29 @@
   "pedagog": {
     "title": "Educators",
     "collaboration": "Educator collaboration"
+  },
+  "museum": {
+    "title": "Family museum",
+    "lead": "Everything you've achieved together — memories that grow.",
+    "stats": {
+      "activities": "activities",
+      "rewards": "rewards",
+      "stars": "stars",
+      "trophies": "trophies"
+    },
+    "topRewards": "Most redeemed rewards"
+  },
+  "chest": {
+    "title": "⭐ Family chest",
+    "body": "Show shared stars collected when children complete tasks. Your family story is saved even when the chest is off."
+  },
+  "custody": {
+    "title": "🏠 Living schedule",
+    "intro": "Label and colour per home. Choose a pattern per child — every other week, every other weekend, or custom.",
+    "setupIntro": "Living schedule helps you track which home your child is at — with home names and colours, not week A/B.",
+    "setupCta": "Get started with living schedule",
+    "parentHome": "Parent ↔ home",
+    "homeName": "Home name",
+    "colorFor": "Colour for {{name}}"
   }
 }

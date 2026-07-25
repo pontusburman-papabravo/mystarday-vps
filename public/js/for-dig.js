@@ -4,13 +4,19 @@
 (function () {
   'use strict';
 
-  const INTENT_OPTIONS = [
-    { value: 'mindre_tjat', label: 'Mindre tjat' },
-    { value: 'tydligare_rutiner', label: 'Tydligare rutiner' },
-    { value: 'sjalvstandighet', label: 'Självständighet' },
-    { value: 'mindre_stress', label: 'Mindre stress' },
-    { value: 'annat', label: 'Annat' },
-  ];
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function intentOptions() {
+    return [
+      { value: 'mindre_tjat', label: pt('forDig.intent.mindre_tjat') },
+      { value: 'tydligare_rutiner', label: pt('forDig.intent.tydligare_rutiner') },
+      { value: 'sjalvstandighet', label: pt('forDig.intent.sjalvstandighet') },
+      { value: 'mindre_stress', label: pt('forDig.intent.mindre_stress') },
+      { value: 'annat', label: pt('forDig.intent.annat') },
+    ];
+  }
 
   let goals = [];
   let children = [];
@@ -78,19 +84,19 @@
     const installed = installedChildren(goal.slug);
     if (installed.length === 0) return '';
     if (installed.length === 1) {
-      return `<span class="for-dig-badge for-dig-badge--child">För ${esc(installed[0].name)}</span>`;
+      return `<span class="for-dig-badge for-dig-badge--child">${esc(pt('forDig.badges.forChild', { name: installed[0].name }))}</span>`;
     }
     if (installed.length === children.length && children.length > 1) {
-      return '<span class="for-dig-badge for-dig-badge--child">Alla barn</span>';
+      return '<span class="for-dig-badge for-dig-badge--child">' + esc(pt('forDig.badges.allChildren')) + '</span>';
     }
-    return `<span class="for-dig-badge for-dig-badge--child">${installed.length} barn</span>`;
+    return `<span class="for-dig-badge for-dig-badge--child">${esc(pt('forDig.badges.childrenCount', { count: installed.length }))}</span>`;
   }
 
   function goalStarsLine(goal) {
-    if (!goal.starsHint || goal.starsHint.includes('tempo')) {
-      return 'Belöningar och stjärnor som passar barnets tempo.';
+    if (!goal.starsHint || goal.starsHint.includes('tempo') || goal.starsHint.toLowerCase().includes('pace')) {
+      return pt('forDig.goal.starsHintDefault');
     }
-    return `Barn brukar tjäna ${esc(goal.starsHint)}.`;
+    return pt('forDig.goal.starsHintEarn', { hint: goal.starsHint });
   }
 
   function recommendationHighlights(goal) {
@@ -142,7 +148,7 @@
     const visible = showAllFavorites ? items : items.slice(0, FAVORITES_VISIBLE_MAX);
     mount.innerHTML = `
       <div class="for-dig-favorites">
-        <p class="font-semibold text-navy text-sm mb-3">Mina favoriter</p>
+        <p class="font-semibold text-navy text-sm mb-3">${esc(pt('forDig.sections.favorites'))}</p>
         <div class="space-y-0">
           ${visible.map((item) => `
             <div class="for-dig-favorites-item">
@@ -152,7 +158,7 @@
           `).join('')}
         </div>
         ${items.length > FAVORITES_VISIBLE_MAX && !showAllFavorites
-          ? `<button type="button" class="text-sm text-gold underline mt-3" data-action="show-all-favorites">Visa alla favoriter (${items.length})</button>`
+          ? `<button type="button" class="text-sm text-gold underline mt-3" data-action="show-all-favorites">${esc(pt('forDig.sections.showAllFavorites', { count: items.length }))}</button>`
           : ''}
       </div>`;
   }
@@ -160,16 +166,16 @@
   function renderFavoriteAction(item) {
     if (item.type === 'goal') {
       const goal = goals.find((g) => g.slug === item.slug);
-      const label = goal ? goalCtaLabel(goal) : 'Aktivera';
+      const label = goal ? goalCtaLabel(goal) : pt('forDig.cta.activate');
       return `<button type="button" class="text-xs font-semibold text-gold whitespace-nowrap" data-action="activate" data-slug="${esc(item.slug)}">${esc(label)}</button>`;
     }
     if (item.type === 'schedule') {
-      return `<a href="/schedule?view=template&amp;template=${esc(item.id)}" class="text-xs font-semibold text-gold whitespace-nowrap">Öppna schema</a>`;
+      return `<a href="/schedule?view=template&amp;template=${esc(item.id)}" class="text-xs font-semibold text-gold whitespace-nowrap">${esc(pt('forDig.cta.openSchedule'))}</a>`;
     }
     if (item.type === 'reward') {
-      return `<a href="/skattkammaren" class="text-xs font-semibold text-gold whitespace-nowrap">Skattkammaren</a>`;
+      return `<a href="/skattkammaren" class="text-xs font-semibold text-gold whitespace-nowrap">${esc(pt('forDig.cta.treasureChest'))}</a>`;
     }
-    return `<a href="/library" class="text-xs font-semibold text-gold whitespace-nowrap">Bibliotek</a>`;
+    return `<a href="/library" class="text-xs font-semibold text-gold whitespace-nowrap">${esc(pt('forDig.cta.library'))}</a>`;
   }
 
   function renderMostInstalled() {
@@ -183,10 +189,10 @@
 
     mount.innerHTML = `
       <div class="for-dig-most-installed">
-        <p class="font-semibold text-navy text-sm mb-2">Mest installerade just nu</p>
+        <p class="font-semibold text-navy text-sm mb-2">${esc(pt('forDig.sections.mostInstalled'))}</p>
         <ol class="text-sm space-y-1">
           ${popular.map((p, i) => `
-            <li>${p.rank || i + 1}. ${esc(p.icon)} ${esc(p.title)} <span class="text-text-soft">— ${p.install_count} familjer</span></li>
+            <li>${p.rank || i + 1}. ${esc(p.icon)} ${esc(p.title)} <span class="text-text-soft">— ${esc(pt('forDig.sections.families', { count: p.install_count }))}</span></li>
           `).join('')}
         </ol>
       </div>`;
@@ -241,15 +247,15 @@
   function goalCtaLabel(goal) {
     if (goal.confirmCtaLabel) return goal.confirmCtaLabel;
     if (goal.scheduleName) {
-      return `Lägg in ${scheduleLabel(goal).toLowerCase()}`;
+      return pt('forDig.cta.addSchedule', { name: scheduleLabel(goal).toLowerCase() });
     }
     if (goal.activityNames && goal.activityNames.length > 0) {
-      return 'Lägg till aktiviteterna';
+      return pt('forDig.cta.addActivities');
     }
     if (goal.rewardNames && goal.rewardNames.length > 0) {
-      return 'Lägg till belöningarna';
+      return pt('forDig.cta.addRewards');
     }
-    return goal.activateLabel || 'Aktivera';
+    return goal.activateLabel || pt('forDig.cta.activate');
   }
 
   function decisionSignalIcon(signal) {
@@ -263,15 +269,16 @@
     if (!details) return '';
 
     const meta = [];
-    if (details.days_label) meta.push(`Dagar: ${details.days_label}`);
-    if (details.section_label) meta.push(`Sektion: ${details.section_label}`);
+    if (details.days_label) meta.push(pt('forDig.decision.days', { label: details.days_label }));
+    if (details.section_label) meta.push(pt('forDig.decision.section', { label: details.section_label }));
     if (plan.child_names && plan.child_names.length > 0) {
-      meta.push(`Gäller: ${plan.child_names.join(', ')}`);
+      meta.push(pt('forDig.decision.appliesTo', { names: plan.child_names.join(', ') }));
     }
 
     const items = details.items || [];
-    const itemType = details.type === 'rewards' ? 'belöning' : 'aktivitet';
-    const starWord = details.type === 'rewards' ? 'stjärnor' : 'stjärnor';
+    const itemType = details.type === 'rewards' ? pt('forDig.decision.rewardSingular') : pt('forDig.decision.activitySingular');
+    const itemTypePlural = details.type === 'rewards' ? pt('forDig.decision.rewardPlural') : pt('forDig.decision.activityPlural');
+    const starWord = pt('forDig.decision.activityPlural');
 
     return `
       <div class="for-dig-details-panel mb-4">
@@ -287,13 +294,13 @@
           </ul>
         ` : ''}
         ${goal && (goal.scheduleName || (goal.activityNames && goal.activityNames.length > 0))
-          ? `<p class="text-xs text-text-soft mt-2">Justera stjärnor under <strong>Anpassa</strong>.</p>`
+          ? `<p class="text-xs text-text-soft mt-2">${pt('forDig.decision.adjustStars')}</p>`
           : ''}
         ${details.type === 'rewards'
-          ? '<p class="text-xs text-text-soft mt-2">Belöningarna läggs till i Skattkammaren.</p>'
+          ? '<p class="text-xs text-text-soft mt-2">' + esc(pt('forDig.decision.rewardsAdded')) + '</p>'
           : ''}
         ${items.length === 0 && details.item_count > 0
-          ? `<p class="text-xs text-text-soft">${details.item_count} ${itemType}${details.item_count === 1 ? '' : 'er'} ingår.</p>`
+          ? `<p class="text-xs text-text-soft">${details.item_count} ${details.item_count === 1 ? itemType : itemTypePlural} ${pt('forDig.decision.included')}</p>`
           : ''}
       </div>`;
   }
@@ -302,7 +309,7 @@
     if (loading || !plan) {
       return `
         <div class="for-dig-decision for-dig-decision--loading" style="${goalAccentStyle(goal)}">
-          <p class="text-sm text-text-soft text-center py-6">Förbereder…</p>
+          <p class="text-sm text-text-soft text-center py-6">${esc(pt('forDig.decision.preparing'))}</p>
         </div>`;
     }
 
@@ -312,19 +319,19 @@
         <h3 class="for-dig-decision__headline font-heading font-bold text-navy text-lg leading-tight mb-2">${esc(plan.headline || goalHeadline(goal))}</h3>
         <p class="for-dig-decision__promise text-sm text-navy mb-3">✓ ${esc(plan.promise)}</p>
         ${decisions.length > 0 ? `
-          <p class="for-dig-decision__label text-xs font-semibold text-text-soft uppercase tracking-wide mb-2">Det här händer</p>
+          <p class="for-dig-decision__label text-xs font-semibold text-text-soft uppercase tracking-wide mb-2">${esc(pt('forDig.decision.whatHappens'))}</p>
           <ul class="for-dig-decision__points mb-3">
             ${decisions.map((d) => `
               <li class="for-dig-decision__point">${decisionSignalIcon(d.signal)} ${esc(d.text)}</li>
             `).join('')}
           </ul>
         ` : ''}
-        <button type="button" class="for-dig-details-toggle text-sm text-gold font-semibold mb-3" data-action="toggle-details">${showDetails ? 'Dölj detaljer' : 'Visa detaljer'}</button>
+        <button type="button" class="for-dig-details-toggle text-sm text-gold font-semibold mb-3" data-action="toggle-details">${showDetails ? esc(pt('forDig.cta.hideDetails')) : esc(pt('forDig.cta.showDetails'))}</button>
         ${showDetails ? renderPlanDetails(plan, goal) : ''}
         <div class="for-dig-activate-actions">
           <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">${esc(plan.cta_label || goalCtaLabel(goal))}</button>
-          <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">Anpassa</button>
-          <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
+          <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">${esc(pt('forDig.cta.customize'))}</button>
+          <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">${esc(pt('forDig.cta.cancel'))}</button>
         </div>
       </div>`;
   }
@@ -345,9 +352,9 @@
     if (children.length > 0 && withBirthday.length === 0) {
       mount.innerHTML = `
         <div class="for-dig-recommend mb-2">
-          <p class="for-dig-section-title">Personliga tips</p>
-          <p class="text-sm text-text-soft mb-2">Lägg till barnets födelsedag under Familj så kan vi föreslå rätt mål.</p>
-          <a href="/family" class="text-sm text-gold font-semibold no-underline">Gå till Familjen →</a>
+          <p class="for-dig-section-title">${esc(pt('forDig.sections.personalTips'))}</p>
+          <p class="text-sm text-text-soft mb-2">${esc(pt('forDig.sections.birthdayHint'))}</p>
+          <a href="/family" class="text-sm text-gold font-semibold no-underline">${esc(pt('forDig.sections.goToFamily'))}</a>
         </div>`;
       return;
     }
@@ -370,7 +377,7 @@
       if (relevant.length === 0) continue;
       html += `
         <div class="for-dig-recommend mb-3">
-          <p class="for-dig-section-title">Bra nästa steg för ${esc(child.name)}</p>
+          <p class="for-dig-section-title">${esc(pt('forDig.sections.recommendTitle', { name: child.name }))}</p>
           <div class="space-y-2">
             ${relevant.map((g) => {
               const done = isInstalled(g.slug, child.id);
@@ -381,7 +388,7 @@
                   <span class="for-dig-recommend-highlight">${esc(g.tagline || '')}</span>
                 </span>
                 ${done
-                  ? '<span class="for-dig-recommend-done">Aktiverad ✓</span>'
+                  ? '<span class="for-dig-recommend-done">' + esc(pt('forDig.badges.activated')) + '</span>'
                   : `<button type="button" class="for-dig-recommend-activate" data-action="activate" data-slug="${esc(g.slug)}" data-child-id="${esc(child.id)}">${esc(goalCtaLabel(g))}</button>`}
               </div>`;
             }).join('')}
@@ -417,12 +424,12 @@
             <h3 class="font-heading font-bold text-navy text-lg">
               ${esc(goalHeadline(goal))}
               ${installedBadgeHtml(goal)}
-              ${isPop ? '<span class="for-dig-badge for-dig-popular-badge">Populärt</span>' : ''}
+              ${isPop ? '<span class="for-dig-badge for-dig-popular-badge">' + esc(pt('forDig.badges.popular')) + '</span>' : ''}
             </h3>
             <p class="text-sm text-text-soft mt-0.5">${esc(goal.tagline)}</p>
-            <p class="text-xs text-text-soft mt-1">För barn ${goal.ageMin}–${goal.ageMax} år</p>
+            <p class="text-xs text-text-soft mt-1">${esc(pt('forDig.goal.ageRange', { min: goal.ageMin, max: goal.ageMax }))}</p>
           </div>
-          <button type="button" class="for-dig-fav-star${isFav ? ' is-on' : ''}" data-action="toggle-favorite" data-slug="${esc(goal.slug)}" aria-label="${isFav ? 'Ta bort favorit' : 'Spara som favorit'}">${isFav ? '★' : '☆'}</button>
+          <button type="button" class="for-dig-fav-star${isFav ? ' is-on' : ''}" data-action="toggle-favorite" data-slug="${esc(goal.slug)}" aria-label="${isFav ? esc(pt('forDig.goal.removeFavorite')) : esc(pt('forDig.goal.saveFavorite'))}">${isFav ? '★' : '☆'}</button>
         </div>
 
         ${expanded ? renderGoalDetail(goal) : ''}
@@ -430,9 +437,9 @@
         <div class="mt-4 flex flex-col gap-2">
           <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate" data-slug="${esc(goal.slug)}">${esc(goalCtaLabel(goal))}</button>
           ${!expanded && (goal.outcomes || []).length > 0
-            ? `<button type="button" class="text-sm text-gold font-semibold" data-action="expand" data-slug="${esc(goal.slug)}">Visa mer</button>`
+            ? `<button type="button" class="text-sm text-gold font-semibold" data-action="expand" data-slug="${esc(goal.slug)}">${esc(pt('forDig.goal.showMore'))}</button>`
             : ''}
-          <button type="button" class="for-dig-suggestion-link" data-action="suggest" data-slug="${esc(goal.slug)}">💡 Föreslå förbättring</button>
+          <button type="button" class="for-dig-suggestion-link" data-action="suggest" data-slug="${esc(goal.slug)}">${esc(pt('forDig.goal.suggestImprovement'))}</button>
         </div>
       </article>`;
   }
@@ -440,7 +447,7 @@
   function renderGoalDetail(goal) {
     return `
       <div class="for-dig-detail">
-        <p class="text-sm font-semibold text-navy mb-2">Hjälper barnet att:</p>
+        <p class="text-sm font-semibold text-navy mb-2">${esc(pt('forDig.goal.helpsChild'))}</p>
         <ul class="text-sm text-text-soft space-y-1 mb-3">
           ${(goal.outcomes || []).map((o) => `<li>✓ ${esc(o)}</li>`).join('')}
         </ul>
@@ -466,12 +473,12 @@
 
     mount.innerHTML = `
       <div class="for-dig-section">
-        <h2 class="for-dig-section-title">Utvecklingsmål</h2>
-        <p class="for-dig-section-sub">Välj ett problem — vi sätter upp rutinen åt dig.</p>
+        <h2 class="for-dig-section-title">${esc(pt('forDig.goal.catalogTitle'))}</h2>
+        <p class="for-dig-section-sub">${esc(pt('forDig.goal.catalogSub'))}</p>
       </div>
       ${cards.join('')}
       ${!showAllGoals && total > 1
-        ? `<button type="button" class="for-dig-show-all-goals" data-action="show-all-goals">Visa alla ${total} mål</button>`
+        ? `<button type="button" class="for-dig-show-all-goals" data-action="show-all-goals">${esc(pt('forDig.cta.showAllGoals', { count: total }))}</button>`
         : ''}
     `;
   }
@@ -798,11 +805,11 @@
       <h3 class="font-heading font-bold text-navy text-lg mb-2">Klart!</h3>
       <p class="text-sm text-text-soft mb-3">${esc(data.message || '')}</p>
       <p class="text-sm text-text-soft mb-4">${esc(hint)}</p>
-      <a href="/child-login" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">Öppna barnvy</a>
+      <a href="/child-login" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">${esc(pt('forDig.cta.openChildView'))}</a>
       <div class="border-t border-lavender pt-4 mt-2">
         <p class="text-sm text-text-soft mb-3">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med?</p>
         <div id="forDigIntentOptions">
-          ${INTENT_OPTIONS.map((o) => `
+          ${intentOptions().map((o) => `
             <button type="button" class="for-dig-intent-option" data-reason="${o.value}">${esc(o.label)}</button>
           `).join('')}
         </div>
@@ -1081,8 +1088,8 @@
     if (!user || gen !== _forDigInitGen) return;
 
     const greetingEl = document.getElementById('forDigGreeting');
-    const greeting = `Hej ${parentFirstName()} 👋`;
-    const focus = 'Vad vill du fokusera på just nu?';
+    const greeting = pt('forDig.greeting', { name: parentFirstName() });
+    const focus = pt('forDig.focus');
     if (greetingEl) {
       greetingEl.textContent = greeting;
     }
@@ -1150,5 +1157,33 @@
 
   window.addEventListener('stjarndag-magic-navigated', function (e) {
     if (e.detail && e.detail.pageId === 'for-dig') init();
+  });
+
+  document.addEventListener('parent-i18n-ready', function () {
+    if (!document.getElementById('forDigGoals')) return;
+    renderRecommendations();
+    renderGoals();
+    renderFavorites();
+    renderPopular();
+    const greetingEl = document.getElementById('forDigGreeting');
+    if (greetingEl) {
+      greetingEl.textContent = pt('forDig.greeting', { name: parentFirstName() });
+    }
+    if (window.ParentMagicPageHub && ParentMagicPageHub.updateForDigHero) {
+      ParentMagicPageHub.updateForDigHero({
+        greeting: pt('forDig.greeting', { name: parentFirstName() }),
+        focus: pt('forDig.focus'),
+      });
+    }
+    const libraryLink = document.getElementById('forDigLibraryLink');
+    if (libraryLink) libraryLink.textContent = pt('forDig.libraryLink');
+  });
+
+  document.addEventListener('for-dig-rerender', function () {
+    if (!document.getElementById('forDigGoals') || goals.length === 0) return;
+    renderRecommendations();
+    renderGoals();
+    renderFavorites();
+    renderPopular();
   });
 })();

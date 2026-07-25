@@ -35,6 +35,10 @@
     if (window.LibraryMagicHub && typeof LibraryMagicHub.render === 'function') {
       LibraryMagicHub.render();
     }
+    if (window.RewardsHub && typeof RewardsHub.render === 'function') {
+      RewardsHub.render();
+    }
+    document.dispatchEvent(new CustomEvent('for-dig-rerender'));
   }
 
   function boot() {

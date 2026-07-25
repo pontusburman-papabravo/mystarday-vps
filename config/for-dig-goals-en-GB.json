@@ -1,0 +1,80 @@
+{
+  "trygga-kvallar": {
+    "title": "Peaceful evenings",
+    "headline": "Calmer bedtimes",
+    "tagline": "Less stress at bedtime.",
+    "activateLabel": "Activate evening routine",
+    "starsHint": "15–25 stars per week",
+    "outcomes": [
+      "Wind down",
+      "Remember to brush teeth",
+      "Follow the bedtime routine",
+      "Feel proud of their stars"
+    ]
+  },
+  "bra-morgnar": {
+    "title": "Good mornings",
+    "headline": "Get going without morning nagging",
+    "tagline": "Get going without nagging.",
+    "activateLabel": "Activate morning routine",
+    "starsHint": "10–20 stars per week",
+    "outcomes": [
+      "Wake up on time",
+      "Complete the morning routine",
+      "Leave without arguments",
+      "Start the day with pride"
+    ]
+  },
+  "sjalvstandighet": {
+    "title": "Independence",
+    "headline": "Help your child dress themselves",
+    "tagline": "Help your child do more on their own.",
+    "activateLabel": "Activate independence activities",
+    "starsHint": "10–20 stars per week",
+    "outcomes": [
+      "Manage more steps independently",
+      "Feel proud",
+      "Need fewer reminders",
+      "Build lasting habits"
+    ]
+  },
+  "skolansvar": {
+    "title": "School responsibility",
+    "headline": "Get the whole school day flowing",
+    "tagline": "Homework, bags and responsibility.",
+    "activateLabel": "Activate school routine",
+    "starsHint": "15–25 stars per week",
+    "outcomes": [
+      "Remember homework",
+      "Pack their bag themselves",
+      "Take responsibility for school things",
+      "Feel prepared"
+    ]
+  },
+  "samarbete-hemma": {
+    "title": "Helping at home",
+    "headline": "Get help with clearing and chores",
+    "tagline": "Help out and take responsibility.",
+    "activateLabel": "Activate home activities",
+    "starsHint": "10–15 stars per week",
+    "outcomes": [
+      "Help at home",
+      "Take responsibility for small tasks",
+      "Feel included",
+      "Get praise for their effort"
+    ]
+  },
+  "motivation": {
+    "title": "Motivation",
+    "headline": "Keep motivation up with rewards",
+    "tagline": "Rewards that keep motivation going.",
+    "activateLabel": "Activate rewards",
+    "starsHint": "Adjust to your child's pace",
+    "outcomes": [
+      "Look forward to rewards",
+      "Understand stars → goals",
+      "Stay motivated over time",
+      "Celebrate small wins"
+    ]
+  }
+}

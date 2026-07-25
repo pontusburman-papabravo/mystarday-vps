@@ -1,0 +1,73 @@
+{
+  "greeting": "Hi {{name}} 👋",
+  "focus": "What do you want to focus on right now?",
+  "loading": "Loading…",
+  "libraryLink": "Want to build your own? Full library →",
+  "sections": {
+    "recommendTitle": "Good next steps for {{name}}",
+    "personalTips": "Personal tips",
+    "birthdayHint": "Add your child's birthday under Family so we can suggest the right goals.",
+    "goToFamily": "Go to Family →",
+    "favorites": "My favourites",
+    "showAllFavorites": "Show all favourites ({{count}})",
+    "mostInstalled": "Most installed right now",
+    "families": "{{count}} families"
+  },
+  "badges": {
+    "forChild": "For {{name}}",
+    "allChildren": "All children",
+    "childrenCount": "{{count}} children",
+    "activated": "Activated ✓",
+    "popular": "Popular"
+  },
+  "cta": {
+    "activate": "Activate",
+    "addSchedule": "Add {{name}}",
+    "addActivities": "Add activities",
+    "addRewards": "Add rewards",
+    "openSchedule": "Open schedule",
+    "treasureChest": "Treasure chest",
+    "library": "Library",
+    "showAllGoals": "Show all {{count}} goals",
+    "openChildView": "Open child view",
+    "customize": "Customise",
+    "cancel": "Cancel",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details"
+  },
+  "decision": {
+    "preparing": "Preparing…",
+    "whatHappens": "What happens",
+    "adjustStars": "Adjust stars under <strong>Customise</strong>.",
+    "rewardsAdded": "Rewards are added to the treasure chest.",
+    "itemSingular": "item",
+    "itemPlural": "items",
+    "rewardSingular": "reward",
+    "rewardPlural": "rewards",
+    "activitySingular": "activity",
+    "activityPlural": "activities",
+    "included": "included.",
+    "days": "Days: {{label}}",
+    "section": "Section: {{label}}",
+    "appliesTo": "Applies to: {{names}}"
+  },
+  "goal": {
+    "ageRange": "For children {{min}}–{{max}} years",
+    "starsHintDefault": "Rewards and stars that fit your child's pace.",
+    "starsHintEarn": "Children usually earn {{hint}}.",
+    "saveFavorite": "Save as favourite",
+    "removeFavorite": "Remove favourite",
+    "catalogTitle": "Development goals",
+    "catalogSub": "Pick a challenge — we'll set up the routine for you.",
+    "helpsChild": "Helps your child to:",
+    "showMore": "Show more",
+    "suggestImprovement": "💡 Suggest improvement"
+  },
+  "intent": {
+    "mindre_tjat": "Less nagging",
+    "tydligare_rutiner": "Clearer routines",
+    "sjalvstandighet": "Independence",
+    "mindre_stress": "Less stress",
+    "annat": "Other"
+  }
+}

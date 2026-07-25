@@ -1442,8 +1442,8 @@ function renderRewardItem(r) {
   const isActive = r.is_active !== false;
   const isFavorite = r.is_favorite === true;
   const visLabel = !r.visible_to_children || r.visible_to_children.length === 0
-    ? 'Alla barn'
-    : `${r.visible_to_children.length} barn`;
+    ? lpt('library.rewards.allChildren')
+    : lpt('library.rewards.childrenCount', { count: r.visible_to_children.length });
   return `
     <div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in ${!isActive ? 'opacity-50' : ''}" data-id="${r.id}">
       <div class="flex items-center gap-3 min-w-0 flex-1">

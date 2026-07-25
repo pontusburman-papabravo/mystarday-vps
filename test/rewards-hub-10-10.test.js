@@ -23,7 +23,7 @@ describe('Belöningar hub 10/10', () => {
   it('links manage to library#rewards not skattkammaren', () => {
     const src = fs.readFileSync(HUB, 'utf8');
     assert.match(src, /href: '\/library#rewards'/);
-    assert.match(src, /Hantera belöningar/);
+    assert.match(src, /library\.rewardsHub\.manageLink\.title/);
     assert.doesNotMatch(src, /\/skattkammaren/);
   });
 
@@ -32,8 +32,8 @@ describe('Belöningar hub 10/10', () => {
     assert.match(src, /\/api\/family\/dashboard-stats/);
     assert.match(src, /proximityCopy/);
     assert.match(src, /nearest_reward/);
-    assert.match(src, /Stjärnor & kista/);
-    assert.match(src, /Överblick per barn/);
+    assert.match(src, /library\.rewardsHub\.sections\.starsChest/);
+    assert.match(src, /library\.rewardsHub\.starsSub/);
     assert.match(src, /ingen syskonjämförelse/);
   });
 
@@ -60,7 +60,7 @@ describe('Belöningar hub 10/10', () => {
     const src = fs.readFileSync(HUB, 'utf8');
     assert.match(src, /capabilitiesForPlacement/);
     assert.match(src, /rewards_hub/);
-    assert.match(src, /sectionHtml\('Övrigt'/);
+    assert.match(src, /library\.rewardsHub\.sections\.other/);
   });
 
   it('SW bumped for Belöningar 10/10', () => {

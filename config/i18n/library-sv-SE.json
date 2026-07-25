@@ -79,5 +79,41 @@
   },
   "substeps": {
     "add": "+ Lägg till delsteg"
+  },
+  "rewards": {
+    "searchPlaceholder": "🔍 Sök belöning…",
+    "allChildren": "Alla barn",
+    "childrenCount": "{{count}} barn",
+    "inactive": "Inaktiv"
+  },
+  "rewardsHub": {
+    "sections": {
+      "manage": "Hantera",
+      "starsChest": "Stjärnor & kista",
+      "other": "Övrigt"
+    },
+    "manageLink": {
+      "title": "Hantera belöningar",
+      "sub": "Skapa och redigera i biblioteket"
+    },
+    "starsSub": "Överblick per barn",
+    "proximity": {
+      "readyFor": "Redo för {{reward}}",
+      "leftUntil": "{{gap}} kvar till {{reward}}",
+      "fallbackReward": "belöning"
+    },
+    "emptyChildrenBefore": "Lägg till barn under ",
+    "emptyChildrenLink": "Familj",
+    "emptyChildrenAfter": " för att se stjärnor här.",
+    "progressHintBefore": "Utveckling över tid finns under ",
+    "progressHintFamily": "Familj",
+    "progressHintMiddle": " → barnprofil → ",
+    "progressHintProgress": "Framsteg",
+    "progressHintAfter": ".",
+    "childDefault": "Barn",
+    "reports": {
+      "title": "Rapporter",
+      "sub": "Utveckling och delning"
+    }
   }
 }

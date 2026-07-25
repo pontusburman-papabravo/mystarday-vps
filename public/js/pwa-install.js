@@ -44,14 +44,9 @@
     return (typeof window.pt === 'function') ? window.pt(key, params) : key;
   }
 
-  // Installation is needed when not yet in standalone mode and not dismissed.
-  // NEVER prompt to "add to homescreen" from inside the native app shell
-  // (App Store Guideline 4.2 — must feel 100% native).
+  // Native iOS/Android apps are the primary install path — no web "add to home screen" prompts.
   function isNeeded() {
-    if (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) {
-      return false;
-    }
-    return !isStandalone() && localStorage.getItem(DISMISS_KEY) !== '1';
+    return false;
   }
 
   // ─── Android install prompt ──────────────────────────────
