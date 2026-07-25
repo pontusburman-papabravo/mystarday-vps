@@ -135,6 +135,33 @@
       "skip": "Skip"
     }
   },
+  "dashboardTour": {
+    "skip": "Skip",
+    "next": "Next →",
+    "start": "🎉 Let's go!",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to the dashboard!",
+        "body": "Here you can see each child's daily progress. Tap a child card to view and edit their schedule."
+      },
+      "stars": {
+        "title": "Stars & treasure chest",
+        "body": "Every completed activity earns 1 star. Your child collects stars and redeems them for rewards in the treasure chest."
+      },
+      "schedule": {
+        "title": "Weekly schedule & activities",
+        "body": "Under Planning in the menu you'll find the activity library and can add your own rewards."
+      },
+      "family": {
+        "title": "Add more children or adults",
+        "body": "Tap \"+ Add child\" to add a sibling. Under Family you can invite another adult."
+      },
+      "help": {
+        "title": "Need help?",
+        "body": "Tap the ❓ button at the bottom right any time for FAQ and tips. Good luck with your Starday!"
+      }
+    }
+  },
   "pwa": {
     "title": "Install the app for push notifications",
     "iosLead": "On iPhone/iPad the app must be on your Home Screen for push notifications.",

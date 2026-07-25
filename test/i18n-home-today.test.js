@@ -618,6 +618,24 @@ describe('Home offline banner locale', () => {
     assert.match(dashboardJs, /home\.offline\.lastUpdated/);
     assert.match(dashboardJs, /offlineTimeFmt/);
   });
+
+  it('dashboard tour uses home.dashboardTour locale keys', () => {
+    const tour = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-tour.js'), 'utf8');
+    assert.match(tour, /home\.dashboardTour\.steps\.welcome\.title/);
+    assert.match(tour, /parent-i18n-ready/);
+    assert.doesNotMatch(tour, /Välkommen till dashboarden/);
+  });
+});
+
+describe('daily-log child selection boot', () => {
+  it('guards logoutBtn and uses delegated child tab clicks', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    assert.match(dailyLog, /bootDailyLogPage/);
+    assert.match(dailyLog, /if \(logoutBtn\)/);
+    assert.match(dailyLog, /normalizeChildId/);
+    assert.match(dailyLog, /childTabsMount\.addEventListener\('click'/);
+    assert.doesNotMatch(dailyLog, /onclick="selectChild/);
+  });
 });
 
 describe('LocaleDateTime formatTime', () => {

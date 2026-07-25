@@ -95,37 +95,72 @@
 
     // ── Auth & Init ───────────────────────────────────────
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      if (!Auth.requireAuth()) return;
+    let _dailyLogPageBound = false;
 
-      const user = Auth.getUser();
-      if (typeof window.initParentAppI18n === 'function') {
-        await initParentAppI18n(user?.preferred_locale);
+    function normalizeChildId(id) {
+      return id == null ? '' : String(id);
+    }
+
+    async function bootDailyLogPage() {
+      if (!document.getElementById('logContent')) return;
+
+      try {
+        let user = null;
+        if (typeof window.authGuard === 'function') {
+          user = await window.authGuard();
+        } else if (window.Auth && Auth.requireAuth()) {
+          user = Auth.getUser();
+        }
+        if (!user) return;
+
+        if (typeof window.initParentAppI18n === 'function') {
+          await initParentAppI18n(user.preferred_locale);
+        }
+
+        if (!_dailyLogPageBound) {
+          _dailyLogPageBound = true;
+          const logoutBtn = document.getElementById('logoutBtn');
+          if (logoutBtn) logoutBtn.addEventListener('click', () => Auth.logout());
+
+          const childTabsMount = document.getElementById('childTabs');
+          if (childTabsMount && !childTabsMount.dataset.bound) {
+            childTabsMount.dataset.bound = '1';
+            childTabsMount.addEventListener('click', (e) => {
+              const btn = e.target.closest('.child-tab');
+              if (btn && btn.dataset.id) selectChild(btn.dataset.id);
+            });
+          }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramDate = urlParams.get('date');
+        if (paramDate && /^\d{4}-\d{2}-\d{2}$/.test(paramDate)) {
+          currentDateStr = paramDate;
+        }
+
+        if (urlParams.get('print') === '1') {
+          const cid = urlParams.get('childId');
+          window.location.replace('/print-schema' + (cid ? '?childId=' + encodeURIComponent(cid) : ''));
+          return;
+        }
+
+        await loadChildren();
+        await loadCustodyPrintOption();
+      } catch (err) {
+        console.error('[daily-log] boot error:', err);
       }
+    }
 
-      document.addEventListener('parent-i18n-ready', () => {
-        if (window.I18n && typeof I18n.apply === 'function') I18n.apply();
-        if (currentChildId) loadLog();
-        else loadChildren();
-      });
+    document.addEventListener('DOMContentLoaded', bootDailyLogPage);
 
-      document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
-      // logoutBtn2 removed — logout only in sidebar/hamburger menu now
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const paramDate = urlParams.get('date');
-      if (paramDate && /^\d{4}-\d{2}-\d{2}$/.test(paramDate)) {
-        currentDateStr = paramDate;
+    document.addEventListener('parent-i18n-ready', () => {
+      if (!document.getElementById('logContent')) return;
+      if (window.I18n && typeof I18n.apply === 'function') I18n.apply();
+      if (currentChildId) {
+        void loadLog();
+      } else if (!children.length) {
+        void bootDailyLogPage();
       }
-
-      if (urlParams.get('print') === '1') {
-        const cid = urlParams.get('childId');
-        window.location.replace('/print-schema' + (cid ? '?childId=' + encodeURIComponent(cid) : ''));
-        return;
-      }
-
-      await loadChildren();
-      await loadCustodyPrintOption();
     });
 
     function openPrintMenuHint() {
@@ -196,18 +231,18 @@
 
         tabs.innerHTML = children.map(c => `
           <button
+            type="button"
             class="child-tab px-5 py-2 rounded-full font-semibold border-2 transition-colors"
             style="min-height:44px"
-            data-id="${c.id}"
-            onclick="selectChild('${c.id}')">
+            data-id="${c.id}">
             ${renderChildAvatar(c, 24)} ${escHtml(c.name)}
           </button>
         `).join('');
 
-        // Auto-select child from URL param, or first child
         const urlParams = new URLSearchParams(window.location.search);
         const paramChildId = urlParams.get('childId');
-        const targetChild = paramChildId && children.find(c => c.id === paramChildId) ? paramChildId : children[0].id;
+        const match = paramChildId && children.find((c) => normalizeChildId(c.id) === normalizeChildId(paramChildId));
+        const targetChild = match ? normalizeChildId(match.id) : normalizeChildId(children[0].id);
         selectChild(targetChild);
       } catch (err) {
         console.error('[daily-log] loadChildren error:', err);
@@ -216,21 +251,18 @@
     }
 
     function selectChild(childId) {
-      currentChildId = childId;
-      // Update tab styles
+      currentChildId = normalizeChildId(childId);
       document.querySelectorAll('.child-tab').forEach(btn => {
-        const active = btn.dataset.id === childId;
+        const active = normalizeChildId(btn.dataset.id) === currentChildId;
         btn.className = `child-tab px-5 py-2 rounded-full font-semibold border-2 transition-colors ${
           active ? 'bg-gold border-gold text-navy' : 'bg-white border-lavender text-navy hover:border-gold'
         }`;
       });
-      // Read per-child feature flags
-      const child = children.find(c => c.id == childId);
+      const child = children.find(c => normalizeChildId(c.id) === currentChildId);
       currentChildTimeAdjustment = child ? child.time_adjustment !== false : true;
       currentChildColorCoding    = child ? child.color_coding    !== false : true;
-      // Clear any leftover undo snapshot when switching child/day
       bumpTimeSnapshot = null;
-      loadLog();
+      void loadLog();
     }
 
     // ── Log loading ───────────────────────────────────────

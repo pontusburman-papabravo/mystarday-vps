@@ -135,6 +135,33 @@
       "skip": "Hoppa över"
     }
   },
+  "dashboardTour": {
+    "skip": "Hoppa över",
+    "next": "Nästa →",
+    "start": "🎉 Starta!",
+    "steps": {
+      "welcome": {
+        "title": "Välkommen till dashboarden!",
+        "body": "Här ser du alla dina barns dagliga progress. Klicka på ett barnkort för att se och redigera dess schema."
+      },
+      "stars": {
+        "title": "Stjärnor & Skattkammaren",
+        "body": "Varje avklarad aktivitet ger 1 stjärna. Barnet samlar stjärnor och löser in dem mot belöningar i Skattkammaren."
+      },
+      "schedule": {
+        "title": "Veckoschema & Aktiviteter",
+        "body": "Under \"Aktiviteter & Belöningar\" i menyn hittar du aktivitetsbiblioteket och kan lägga till egna belöningar."
+      },
+      "family": {
+        "title": "Lägg till fler barn eller vuxna",
+        "body": "Klicka på \"+ Lägg till barn\" för att lägga till ett syskon. Under \"Familjen & inställningar\" kan du bjuda in en annan vuxen."
+      },
+      "help": {
+        "title": "Behöver du hjälp?",
+        "body": "Klicka på ❓-knappen längst ner till höger när som helst för FAQ och tips. Lycka till med Stjärndagen!"
+      }
+    }
+  },
   "pwa": {
     "title": "Installera appen för push-notiser",
     "iosLead": "På iPhone/iPad krävs att appen är installerad på hemskärmen för push-notiser.",
