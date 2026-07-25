@@ -12,6 +12,8 @@ describe('magic shell assets on all parent pages', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/middleware/platform-html.js'), 'utf8');
     assert.match(src, /ensureMagicShellAssets/);
     assert.match(src, /parent-magic-auto\.js/);
+    assert.match(src, /parent-magic-i18n\.js/);
+    assert.match(src, /parent-app-i18n\.js/);
     assert.match(src, /app-view-toggle\.css/);
   });
 

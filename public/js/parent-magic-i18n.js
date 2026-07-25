@@ -5,6 +5,13 @@
 (function () {
   'use strict';
 
+  function notifyParentI18nReady() {
+    if (!window.I18n || typeof I18n.getCurrentLang !== 'function') return;
+    document.dispatchEvent(new CustomEvent('parent-i18n-ready', {
+      detail: { lang: I18n.getCurrentLang() },
+    }));
+  }
+
   function earlyApply() {
     let lang = null;
     try {
@@ -13,6 +20,7 @@
     if (!window.I18n || !lang) return Promise.resolve();
     return I18n.init(lang).then(function () {
       if (typeof I18n.apply === 'function') I18n.apply();
+      notifyParentI18nReady();
     }).catch(function () {});
   }
 
