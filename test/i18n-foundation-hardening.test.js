@@ -148,3 +148,17 @@ describe('migration file ordering', () => {
     );
   });
 });
+
+describe('locale-switcher UI', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const ROOT = path.join(__dirname, '..');
+
+  it('uses segmented buttons instead of native select', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/locale-switcher.js'), 'utf8');
+    assert.match(src, /locale-switcher__track/);
+    assert.match(src, /data-locale-value/);
+    assert.match(src, /locale-switcher--dark/);
+    assert.doesNotMatch(src, /<select/);
+  });
+});
