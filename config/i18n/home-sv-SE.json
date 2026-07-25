@@ -35,6 +35,12 @@
   "weekStory": {
     "title": "Veckans berättelse"
   },
+  "starHistory": {
+    "title": "Veckans framsteg",
+    "subtitle": "Senaste 8 veckorna",
+    "thisWeek": "{{count}} ⭐ denna vecka",
+    "weekTooltip": "V{{week}}: {{count}} stjärnor"
+  },
   "nav": {
     "today": "Today",
     "dailyLog": "Daglig logg",
@@ -113,5 +119,30 @@
   "hubs": {
     "dailyLogTitle": "Daglig logg",
     "dailyLogSub": "Följ barnens dag — fyll i stjärnor i efterhand"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Hur har det gått med {{goal}}?",
+      "sub": "För {{name}} — aktiverat för över en vecka sedan",
+      "great": "Stor förbättring",
+      "better": "Lite bättre",
+      "same": "Ingen skillnad",
+      "worse": "Fungerar inte",
+      "followUpBetter": "Vad blev bättre?",
+      "followUpWorse": "Vad saknas?",
+      "optional": "(valfritt)",
+      "send": "Skicka",
+      "skip": "Hoppa över"
+    }
+  },
+  "pwa": {
+    "title": "Installera appen för push-notiser",
+    "iosLead": "På iPhone/iPad krävs att appen är installerad på hemskärmen för push-notiser.",
+    "iosStep1": "Tryck på Dela-knappen längst ner i Safari",
+    "iosStep2": "Välj \"Lägg till på hemskärmen\"",
+    "iosStep3": "Öppna appen från hemskärmen och tillåt notiser",
+    "androidLead": "Installera appen för att få påminnelser i mobilen.",
+    "androidInstall": "Installera appen",
+    "dismissAria": "Stäng"
   }
 }

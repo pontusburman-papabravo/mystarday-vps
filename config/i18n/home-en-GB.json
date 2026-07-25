@@ -35,6 +35,12 @@
   "weekStory": {
     "title": "This week's story"
   },
+  "starHistory": {
+    "title": "Weekly progress",
+    "subtitle": "Last 8 weeks",
+    "thisWeek": "{{count}} ⭐ this week",
+    "weekTooltip": "W{{week}}: {{count}} stars"
+  },
   "nav": {
     "today": "Today",
     "dailyLog": "Daily log",
@@ -113,5 +119,30 @@
   "hubs": {
     "dailyLogTitle": "Daily log",
     "dailyLogSub": "Follow your children's day — log stars afterwards"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "How has {{goal}} been going?",
+      "sub": "For {{name}} — active for over a week",
+      "great": "Big improvement",
+      "better": "A bit better",
+      "same": "No difference",
+      "worse": "Not working",
+      "followUpBetter": "What got better?",
+      "followUpWorse": "What's missing?",
+      "optional": "(optional)",
+      "send": "Send",
+      "skip": "Skip"
+    }
+  },
+  "pwa": {
+    "title": "Install the app for push notifications",
+    "iosLead": "On iPhone/iPad the app must be on your Home Screen for push notifications.",
+    "iosStep1": "Tap the Share button at the bottom of Safari",
+    "iosStep2": "Choose \"Add to Home Screen\"",
+    "iosStep3": "Open the app from your Home Screen and allow notifications",
+    "androidLead": "Install the app to get reminders on your phone.",
+    "androidInstall": "Install app",
+    "dismissAria": "Close"
   }
 }

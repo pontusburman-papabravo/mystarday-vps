@@ -40,6 +40,10 @@
   // localStorage key for dismissed state
   const DISMISS_KEY = 'pwa_guide_dismissed';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   // Installation is needed when not yet in standalone mode and not dismissed.
   // NEVER prompt to "add to homescreen" from inside the native app shell
   // (App Store Guideline 4.2 — must feel 100% native).
@@ -79,26 +83,26 @@
   function iOSGuideHTML() {
     return [
       '<div data-pwa-guide class="rounded-2xl p-4 mb-4 relative" style="background:#FFF3CD;border:2px solid #F5A623;">',
-      '  <button onclick="window.PWAInstall._dismiss(this)" aria-label="Stäng" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-sm" style="color:#5A4A1A;opacity:0.6;">✕</button>',
+      '  <button onclick="window.PWAInstall._dismiss(this)" aria-label="' + pt('home.pwa.dismissAria') + '" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-sm" style="color:#5A4A1A;opacity:0.6;">✕</button>',
       '  <div class="flex items-start gap-3">',
       '    <span style="font-size:1.5rem;line-height:1;">📲</span>',
       '    <div class="flex-1">',
-      '      <p class="font-bold text-sm mb-1" style="color:#1B2340;">Installera appen för push-notiser</p>',
+      '      <p class="font-bold text-sm mb-1" style="color:#1B2340;">' + pt('home.pwa.title') + '</p>',
       '      <p class="text-xs mb-3" style="color:#5A4A1A;">',
-      '        På iPhone/iPad krävs att appen är installerad på hemskärmen för push-notiser.',
+      '        ' + pt('home.pwa.iosLead') + '',
       '      </p>',
       '      <ol class="space-y-2">',
       '        <li class="flex items-center gap-2 text-xs" style="color:#1B2340;">',
       '          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold text-white flex items-center justify-center text-xs font-bold" style="background:#F5A623;color:#fff;display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border-radius:9999px;font-weight:700;">1</span>',
-      '          <span>Tryck på Dela-knappen ' + SHARE_SVG + ' längst ner i Safari</span>',
+      '          <span>' + pt('home.pwa.iosStep1') + ' ' + SHARE_SVG + '</span>',
       '        </li>',
       '        <li class="flex items-center gap-2 text-xs" style="color:#1B2340;">',
       '          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold text-white flex items-center justify-center text-xs font-bold" style="background:#F5A623;color:#fff;display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border-radius:9999px;font-weight:700;">2</span>',
-      '          <span>Välj <strong>"Lägg till på hemskärmen"</strong> ' + PLUS_SVG + '</span>',
+      '          <span>' + pt('home.pwa.iosStep2') + ' ' + PLUS_SVG + '</span>',
       '        </li>',
       '        <li class="flex items-center gap-2 text-xs" style="color:#1B2340;">',
       '          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gold text-white flex items-center justify-center text-xs font-bold" style="background:#F5A623;color:#fff;display:inline-flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;border-radius:9999px;font-weight:700;">3</span>',
-      '          <span>Öppna appen från hemskärmen och aktivera push-notiser</span>',
+      '          <span>' + pt('home.pwa.iosStep3') + '</span>',
       '        </li>',
       '      </ol>',
       '      <div class="mt-3 flex items-center gap-2" style="opacity:0.7;font-size:0.65rem;color:#5A4A1A;">',

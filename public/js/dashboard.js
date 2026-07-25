@@ -909,3 +909,11 @@ async function shareChildSchedule(childId) {
   const el=document.getElementById(id);
   if(el)el.addEventListener('click',e=>{if(e.target===e.currentTarget)el.classList.add('hidden');});
 });
+
+document.addEventListener('parent-i18n-ready', () => {
+  if (window.I18n) {
+    const section = document.getElementById('starHistorySection');
+    if (section) I18n.apply(section);
+  }
+  if (typeof window.renderStarHistory === 'function') window.renderStarHistory();
+});

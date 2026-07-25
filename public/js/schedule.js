@@ -77,6 +77,8 @@ document.addEventListener('touchstart', e => {
 const {
   DAYS,
   DAYS_SHORT,
+  dayName,
+  dayShort,
   SECTIONS,
   fmtTime,
   sectionTimeLabel,
@@ -297,6 +299,18 @@ if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('schedule', bootSchedulePage);
 }
 
+document.addEventListener('parent-i18n-ready', () => {
+  if (window.I18n) I18n.apply(document);
+  if (typeof loadChildren === 'function' && children && children.length) {
+    if (typeof renderChildrenOverview === 'function') renderChildrenOverview();
+    if (scheduleMode === 'family' && typeof fwRenderGrid === 'function') fwRenderGrid();
+    if (currentChildId) {
+      if (typeof renderChildTabs === 'function') renderChildTabs();
+      if (typeof loadScheduleForDay === 'function') loadScheduleForDay();
+    }
+  }
+});
+
 // showToast is now in /js/toast.js
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js
 function escHtml(s) { return escapeHtml(s); }
@@ -309,11 +323,11 @@ function capScheduleChildName(name) {
 function buildScheduleChildSubtitle(ad, totalActivities) {
   if (ad === 0) return spt('schedule.summary.none');
   if (ad >= 7) {
-    if (totalActivities > 0) return `${totalActivities} planerade aktiviteter · alla dagar klara ✅`;
+    if (totalActivities > 0) return spt('schedule.summary.activitiesFullWeek', { count: totalActivities });
     return spt('schedule.summary.fullWeek');
   }
-  if (totalActivities > 0) return `${totalActivities} planerade aktiviteter denna vecka`;
-  return `${ad} av 7 dagar planerade`;
+  if (totalActivities > 0) return spt('schedule.summary.activitiesThisWeek', { count: totalActivities });
+  return spt('schedule.summary.daysPlanned', { count: ad });
 }
 
 function updateSchedulePageTitle(child) {
@@ -397,7 +411,7 @@ async function renderChildrenOverview() {
       return `<div class="border border-gray-100 rounded-xl p-2.5 bg-gray-50/50">
         <div class="flex items-center gap-1.5 mb-1">
           <span class="inline-block w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
-          <span class="text-xs font-bold text-navy">${DAYS[d]}</span>
+          <span class="text-xs font-bold text-navy">${dayName(d)}</span>
           <span class="text-[10px] text-text-soft ml-auto">${actLabel}</span>
         </div>
         ${actList}${moreHtml}
@@ -536,13 +550,13 @@ function renderDayTabs() {
         class="day-tab px-2 md:px-4 py-1.5 rounded-xl border-2 font-semibold text-xs md:text-sm day-btn flex flex-col items-center leading-tight
         ${currentDay===d?'bg-gold text-white border-gold':'border-lavender text-navy hover:border-navy'}"
         data-day="${d}">
-        <span>${DAYS_SHORT[d]}</span>
+        <span>${dayShort(d)}</span>
         <span class="font-normal text-[10px] opacity-75">${dateLabel}</span>
         ${todayDot}
       </button>
       <button onclick="openInsertDayModal(${d})" title="${spt('schedule.actions.addSchedule')}"
         class="w-6 h-6 rounded-full bg-white border border-lavender hover:border-gold hover:bg-gold-light text-text-soft hover:text-gold flex items-center justify-center transition-colors insert-day-btn text-sm font-bold leading-none"
-        aria-label="${spt('schedule.actions.addScheduleFor', { day: DAYS_SHORT[d] })}">+</button>
+        aria-label="${spt('schedule.actions.addScheduleFor', { day: dayShort(d) })}">+</button>
     </div>`;
   }).join('');
 
@@ -726,9 +740,9 @@ function renderEmptyDay() {
   const dl = getDayDateLabel();
   document.getElementById('scheduleContent').innerHTML = `
     <div class="text-center py-16"><p class="text-5xl mb-4">📅</p>
-      <p class="font-semibold text-navy mb-1">${spt('schedule.empty.noScheduleDayTitle', { day: DAYS[currentDay], date: dl ? ` (${dl})` : '' })}</p>
+      <p class="font-semibold text-navy mb-1">${spt('schedule.empty.noScheduleDayTitle', { day: dayName(currentDay), date: dl ? ` (${dl})` : '' })}</p>
       <p class="text-text-soft text-sm mb-6">${spt('schedule.empty.noScheduleDayBody', { name: child ? escHtml(child.name) : '' })}</p>
-      <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ ${spt('schedule.empty.createForDay', { day: DAYS[currentDay] })}</button>
+      <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ ${spt('schedule.empty.createForDay', { day: dayName(currentDay) })}</button>
     </div>`;
 }
 
@@ -747,7 +761,7 @@ function renderSchedule() {
   document.getElementById('scheduleContent').innerHTML = `
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
-        <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child?escHtml(child.name):''}</h3>
+        <h3 class="text-lg font-heading font-bold text-navy">${dayName(currentDay)}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child?escHtml(child.name):''}</h3>
         <p class="text-sm text-text-soft">${scheduleItems.length} aktivitet${scheduleItems.length!==1?'er':''}
           <span class="text-xs text-purple-400 ml-1">💡 ${spt('schedule.actions.dragCopyHint')}</span>
         </p>
@@ -881,7 +895,7 @@ function renderScheduleSubSteps(templateId, steps) {
 
 // ── Delete schedule ───────────────────────────────────────
 function confirmDeleteSchedule(){
-  openConfirmModal(spt('schedule.actions.deleteDayConfirm', { day: DAYS[currentDay] }),async()=>{
+  openConfirmModal(spt('schedule.actions.deleteDayConfirm', { day: dayName(currentDay) }),async()=>{
     const res=await window.apiFetch(`/api/children/${currentChildId}/schedules/${currentScheduleId}`,{method:'DELETE'});
     if(res.ok){showToast(spt('schedule.copy.deleted'));currentScheduleId=null;scheduleItems=[];renderEmptyDay();}
     else{const d=await res.json();showToast(d.error||spt('schedule.errors.generic'),true);}
@@ -892,8 +906,8 @@ function confirmDeleteSchedule(){
 function openCopyDayModal(){
   if(!currentScheduleId){showToast(spt('schedule.copy.nothingToCopy'),true);return;}
   copyDaySelections=[];
-  document.getElementById('copyFromLabel').innerHTML=spt('schedule.copy.fromLabel', { day: DAYS[currentDay] });
-  document.getElementById('copyDayPicker').innerHTML=[1,2,3,4,5,6,0].filter(d=>d!==currentDay).map(d=>`<button type="button" onclick="toggleCopyDay(${d},this)" class="px-4 py-3 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-navy text-navy" data-day="${d}">${DAYS[d]}</button>`).join('');
+  document.getElementById('copyFromLabel').innerHTML=spt('schedule.copy.fromLabel', { day: dayName(currentDay) });
+  document.getElementById('copyDayPicker').innerHTML=[1,2,3,4,5,6,0].filter(d=>d!==currentDay).map(d=>`<button type="button" onclick="toggleCopyDay(${d},this)" class="px-4 py-3 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-navy text-navy" data-day="${d}">${dayName(d)}</button>`).join('');
   document.getElementById('copyDayModal').classList.remove('hidden');
 }
 function toggleCopyDay(d,btn){const idx=copyDaySelections.indexOf(d);if(idx===-1){copyDaySelections.push(d);btn.classList.add('bg-navy','text-white','border-navy');}else{copyDaySelections.splice(idx,1);btn.classList.remove('bg-navy','text-white','border-navy');}}

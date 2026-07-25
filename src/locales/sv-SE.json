@@ -33,7 +33,8 @@
       "title": "English beta",
       "body": "Den engelska versionen utvecklas fortfarande. Viss text kan visas på svenska och du kan hitta översättnings- eller visningsfel.",
       "report": "Rapportera språkfel",
-      "switchBack": "Byt tillbaka till svenska"
+      "switchBack": "Byt tillbaka till svenska",
+      "dismissAria": "Stäng"
     },
     "feedback": {
       "typeLabel": "Språk- eller översättningsfel",

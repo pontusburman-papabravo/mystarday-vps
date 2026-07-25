@@ -5,12 +5,19 @@
   'use strict';
 
   const BANNER_ID = 'forDigOutcomeBanner';
-  const OUTCOMES = [
-    { score: 4, emoji: '😊', label: 'Stor förbättring' },
-    { score: 3, emoji: '🙂', label: 'Lite bättre' },
-    { score: 2, emoji: '😐', label: 'Ingen skillnad' },
-    { score: 1, emoji: '🙁', label: 'Fungerar inte' },
-  ];
+
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function outcomes() {
+    return [
+      { score: 4, emoji: '😊', label: pt('home.forDig.outcome.great') },
+      { score: 3, emoji: '🙂', label: pt('home.forDig.outcome.better') },
+      { score: 2, emoji: '😐', label: pt('home.forDig.outcome.same') },
+      { score: 1, emoji: '🙁', label: pt('home.forDig.outcome.worse') },
+    ];
+  }
 
   function esc(str) {
     return String(str || '')
@@ -54,12 +61,12 @@
 
   function showFollowUp(item, score, banner) {
     const isPositive = score >= 3;
-    const prompt = isPositive ? 'Vad blev bättre?' : 'Vad saknas?';
+    const prompt = isPositive ? pt('home.forDig.outcome.followUpBetter') : pt('home.forDig.outcome.followUpWorse');
     banner.innerHTML = `
-      <p class="text-sm font-medium text-navy mb-2">${prompt} (valfritt)</p>
+      <p class="text-sm font-medium text-navy mb-2">${prompt} ${pt('home.forDig.outcome.optional')}</p>
       <textarea id="forDigOutcomeText" rows="2" maxlength="500" class="w-full text-sm rounded-lg border border-amber-200 p-2 mb-2"></textarea>
-      <button type="button" id="forDigOutcomeFollowSubmit" class="w-full py-2 rounded-lg bg-amber-500 text-white font-semibold text-sm">Skicka</button>
-      <button type="button" id="forDigOutcomeFollowSkip" class="w-full mt-2 text-xs text-text-soft underline">Hoppa över</button>
+      <button type="button" id="forDigOutcomeFollowSubmit" class="w-full py-2 rounded-lg bg-amber-500 text-white font-semibold text-sm">${pt('home.forDig.outcome.send')}</button>
+      <button type="button" id="forDigOutcomeFollowSkip" class="w-full mt-2 text-xs text-text-soft underline">${pt('home.forDig.outcome.skip')}</button>
     `;
     banner.querySelector('#forDigOutcomeFollowSkip').addEventListener('click', () => banner.classList.add('hidden'));
     banner.querySelector('#forDigOutcomeFollowSubmit').addEventListener('click', async () => {
@@ -73,14 +80,15 @@
 
   function render(item) {
     const banner = ensureBanner();
+    banner.dataset.itemJson = JSON.stringify(item);
     banner.classList.remove('hidden');
     banner.innerHTML = `
-      <p class="font-heading font-bold text-navy">Hur har det gått med ${esc(item.goal_title)}?</p>
-      <p class="text-xs text-text-soft mt-1">För ${esc(item.child_name)} — aktiverat för över en vecka sedan</p>
+      <p class="font-heading font-bold text-navy">${esc(pt('home.forDig.outcome.title', { goal: item.goal_title }))}</p>
+      <p class="text-xs text-text-soft mt-1">${esc(pt('home.forDig.outcome.sub', { name: item.child_name }))}</p>
       <div class="flex flex-wrap gap-2 mt-3" id="forDigOutcomeButtons">
-        ${OUTCOMES.map((o) => `
+        ${outcomes().map((o) => `
           <button type="button" data-score="${o.score}" class="flex-1 min-w-[120px] py-2 px-2 rounded-lg border-2 border-amber-300 bg-white text-sm font-medium hover:bg-amber-100">
-            ${o.emoji} ${o.label}
+            ${o.emoji} ${esc(o.label)}
           </button>
         `).join('')}
       </div>
@@ -104,7 +112,6 @@
       const user = Auth.getUser();
       if (!user || user.type !== 'parent') return;
     }
-    // Check if the for_dig feature is accessible before calling its API
     try {
       const features = window.fetchStjarndagFeatures
         ? await window.fetchStjarndagFeatures()
@@ -127,4 +134,10 @@
   } else {
     init();
   }
+  document.addEventListener('parent-i18n-ready', () => {
+    const el = document.getElementById(BANNER_ID);
+    if (el && !el.classList.contains('hidden') && el.dataset.itemJson) {
+      try { render(JSON.parse(el.dataset.itemJson)); } catch (_) { /* ignore */ }
+    }
+  });
 })();

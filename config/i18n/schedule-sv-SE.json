@@ -7,7 +7,10 @@
   },
   "summary": {
     "none": "Inget schema ännu — börja planera veckan",
-    "fullWeek": "Schema för hela veckan ✅"
+    "fullWeek": "Schema för hela veckan ✅",
+    "activitiesFullWeek": "{{count}} planerade aktiviteter · alla dagar klara ✅",
+    "activitiesThisWeek": "{{count}} planerade aktiviteter denna vecka",
+    "daysPlanned": "{{count}} av 7 dagar planerade"
   },
   "errors": {
     "loadPage": "Något gick fel vid laddning. Ladda om sidan.",
@@ -63,5 +66,17 @@
   },
   "addChild": {
     "success": "{{name}} har lagts till! PIN: {{pin}}"
+  },
+  "familyGrid": {
+    "weekLabel": "Vecka {{week}}, {{year}}",
+    "childColumn": "Barn",
+    "showAll": "Visa alla ({{count}})",
+    "showAllTitle": "Visa alla {{count}} aktiviteter",
+    "noChildrenTitle": "Inga barn tillagda",
+    "noChildrenHint": "Lägg till barn genom att byta till \"Mitt barn\"-läget.",
+    "familyTitle": "Familjens schema",
+    "familyHint": "Klicka på ett barn för att planera veckan",
+    "addChild": "Lägg till ett barn",
+    "allChildrenHint": "Alla barn — klicka på en dag för att redigera"
   }
 }

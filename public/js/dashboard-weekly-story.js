@@ -66,6 +66,10 @@
     };
   }
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   function render(data) {
     const storyEl = document.getElementById('starHistoryStory');
     if (!storyEl) return;
@@ -85,7 +89,7 @@
     storyEl.innerHTML =
       '<div class="dash-week-story-inner">' +
         '<div class="dash-week-main">' +
-          '<span class="dash-week-total">' + story.thisWeekTotal + ' ⭐ denna vecka</span>' +
+          '<span class="dash-week-total">' + pt('home.starHistory.thisWeek', { count: story.thisWeekTotal }) + '</span>' +
         '</div>' +
         (story.diffHtml ? '<div class="dash-week-meta">' + story.diffHtml + '</div>' : '') +
         bestHtml +
