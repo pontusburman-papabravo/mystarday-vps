@@ -78,5 +78,28 @@
     "familyHint": "Klicka på ett barn för att planera veckan",
     "addChild": "Lägg till ett barn",
     "allChildrenHint": "Alla barn — klicka på en dag för att redigera"
+  },
+  "calendar": {
+    "pageTitle": "Kalender — {{brand}}",
+    "legacyTitle": "Kalender",
+    "legacySub": "Se ditt barns schema vecka för vecka",
+    "loading": "Laddar kalender…",
+    "errorGeneric": "Något gick fel. Försök igen.",
+    "retry": "Försök igen",
+    "today": "Idag",
+    "thisWeek": "Denna vecka",
+    "lastWeek": "Förra veckan",
+    "nextWeek": "Nästa vecka",
+    "weeksAgo": "{{count}} veckor sedan",
+    "weeksFromNow": "Om {{count}} veckor",
+    "noChildren": "Inga barn hittades. Lägg till ett barn under Familj-sidan.",
+    "loadChildrenError": "Kunde inte ladda barn. Kontrollera din anslutning.",
+    "loadError": "Kunde inte ladda kalender. Försök igen.",
+    "specialDay": "Specialdag",
+    "paused": "Pausad",
+    "pausedDay": "😴 Ledig / sjuk",
+    "emptyDay": "Inget schema",
+    "prevWeek": "Föregående vecka",
+    "nextWeekNav": "Nästa vecka"
   }
 }

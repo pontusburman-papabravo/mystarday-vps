@@ -13,6 +13,9 @@ const { requireParent } = require('../middleware/auth');
 const { getLocalDateStr, getDayOfWeek } = require('../lib/daily-log-generator');
 const { addDaysIso, getWeekMondayIso } = require('../lib/date-utils');
 const { legacyWeekVariant } = require('../lib/custody-context-api');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { localizeActivityItems } = require('../lib/family-content-display');
+const { normalizeLocale } = require('../lib/locale');
 const {
   loadCustodyContext,
   resolveCustodyDateSync,
@@ -25,6 +28,15 @@ const router = express.Router({ mergeParams: true });
 router.use(requireParent);
 
 const DAY_NAMES_SV = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+
+function localizedDayName(locale, dateStr, dow) {
+  const loc = normalizeLocale(locale) || 'sv-SE';
+  try {
+    return new Intl.DateTimeFormat(loc, { weekday: 'long' }).format(new Date(`${dateStr}T12:00:00`));
+  } catch (_) {
+    return DAY_NAMES_SV[dow] || '';
+  }
+}
 
 /**
  * @deprecated Phase 4 UI — legacy calendar day shape until schedule UI migrates
@@ -339,6 +351,12 @@ router.get('/calendar-week', async (req, res) => {
         custody,
       };
     });
+
+    const locale = await getFamilyPreferredLocale(child.family_id);
+    for (const day of days) {
+      day.activities = await localizeActivityItems(day.activities, locale);
+      day.dayName = localizedDayName(locale, day.date, day.dayOfWeek);
+    }
 
     const weekBanner = custodyActive
       ? (() => {
