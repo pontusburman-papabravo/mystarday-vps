@@ -65,6 +65,21 @@ test('for-dig API: goals, favorites toggle, popular, suggestion feedback', async
     const goalsRes = await authFetch(http.baseUrl, session, '/api/for-dig/goals');
     assert.equal(goalsRes.res.status, 200, goalsRes.text);
     assert.equal(goalsRes.json.goals.length, FOR_DIG_GOALS.length);
+    const svMotivation = goalsRes.json.goals.find((g) => g.slug === 'motivation');
+    assert.match(svMotivation.headline, /motivationen/i);
+
+    const meRes = await authFetch(http.baseUrl, session, '/api/auth/me');
+    assert.equal(meRes.res.status, 200, meRes.text);
+    await db.query(
+      `UPDATE family SET preferred_locale = 'en-GB' WHERE id = $1`,
+      [meRes.json.family_id]
+    );
+
+    const enGoalsRes = await authFetch(http.baseUrl, session, '/api/for-dig/goals');
+    assert.equal(enGoalsRes.res.status, 200, enGoalsRes.text);
+    const enMotivation = enGoalsRes.json.goals.find((g) => g.slug === 'motivation');
+    assert.match(enMotivation.headline, /motivation/i);
+    assert.notEqual(svMotivation.headline, enMotivation.headline);
 
     const slug = FOR_DIG_GOALS[0].slug;
 

@@ -1,4 +1,5 @@
 {
+  "pageTitle": "For you",
   "greeting": "Hi {{name}} 👋",
   "focus": "What do you want to focus on right now?",
   "loading": "Loading…",

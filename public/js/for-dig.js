@@ -1087,6 +1087,10 @@
     const user = await ensureParentAuth();
     if (!user || gen !== _forDigInitGen) return;
 
+    if (typeof window.initParentAppI18n === 'function') {
+      await initParentAppI18n(user.preferred_locale);
+    }
+
     const greetingEl = document.getElementById('forDigGreeting');
     const greeting = pt('forDig.greeting', { name: parentFirstName() });
     const focus = pt('forDig.focus');
@@ -1159,8 +1163,11 @@
     if (e.detail && e.detail.pageId === 'for-dig') init();
   });
 
-  document.addEventListener('parent-i18n-ready', function () {
+  document.addEventListener('parent-i18n-ready', async function () {
     if (!document.getElementById('forDigGoals')) return;
+    try {
+      await loadGoals();
+    } catch (_) { /* keep prior goals */ }
     renderRecommendations();
     renderGoals();
     renderFavorites();
@@ -1179,8 +1186,12 @@
     if (libraryLink) libraryLink.textContent = pt('forDig.libraryLink');
   });
 
-  document.addEventListener('for-dig-rerender', function () {
-    if (!document.getElementById('forDigGoals') || goals.length === 0) return;
+  document.addEventListener('for-dig-rerender', async function () {
+    if (!document.getElementById('forDigGoals')) return;
+    try {
+      await loadGoals();
+    } catch (_) { /* keep prior goals */ }
+    if (goals.length === 0) return;
     renderRecommendations();
     renderGoals();
     renderFavorites();

@@ -222,13 +222,19 @@
     void render();
   });
 
+  function shouldDeferInitialRender() {
+    return document.body && document.body.dataset.i18nManualInit === 'true';
+  }
+
   document.addEventListener('parent-i18n-ready', function () {
     render();
   });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
-  } else {
-    render();
+  if (!shouldDeferInitialRender()) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', render);
+    } else {
+      render();
+    }
   }
 })();

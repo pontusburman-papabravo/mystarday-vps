@@ -1,5 +1,12 @@
 {
   "pageTitle": "Library — {{brand}}",
+  "rewardsPage": {
+    "pageTitle": "Rewards — {{brand}}",
+    "shell": {
+      "title": "🎁 Rewards",
+      "lead": "What's waiting, being managed, and collected."
+    }
+  },
   "hub": {
     "title": "Library",
     "searchPlaceholder": "Search the library…",

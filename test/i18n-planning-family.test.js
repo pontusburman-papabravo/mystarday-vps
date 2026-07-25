@@ -100,9 +100,43 @@ describe('static shells', () => {
     assert.match(html, /data-i18n-manual-init="true"/);
     assert.match(html, /data-i18n-title="library\.pageTitle"/);
   });
+
+  it('rewards.html has i18n bootstrap and shell keys', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/rewards.html'), 'utf8');
+    assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /data-i18n="library\.rewardsPage\.shell\.title"/);
+    assert.match(html, /parent-app-i18n\.js/);
+    assert.match(html, /parent-magic-i18n\.js/);
+  });
+
+  it('for-dig.html has i18n bootstrap and shell keys', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/for-dig.html'), 'utf8');
+    assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /data-i18n="forDig\.focus"/);
+    assert.match(html, /parent-app-i18n\.js/);
+    assert.match(html, /parent-magic-i18n\.js/);
+  });
 });
 
 describe('runtime localization hooks', () => {
+  it('rewards-hub defers initial render when manual i18n init is set', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/rewards-hub.js'), 'utf8');
+    assert.match(js, /shouldDeferInitialRender/);
+    assert.match(js, /i18nManualInit/);
+  });
+
+  it('for-dig.js initializes parent i18n before loading goals', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/for-dig.js'), 'utf8');
+    assert.match(js, /initParentAppI18n\(user\.preferred_locale\)/);
+    assert.match(js, /await loadGoals\(\)/);
+  });
+
+  it('for-dig goals route reads family preferred_locale from database', () => {
+    const route = fs.readFileSync(path.join(__dirname, '../src/routes/for-dig.js'), 'utf8');
+    assert.match(route, /preferred_locale FROM family/);
+    assert.doesNotMatch(route, /req\.user\.preferred_locale/);
+  });
+
   it('planning-hub uses pt() for section labels', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/planning-hub.js'), 'utf8');
     assert.match(js, /function pt\(/);

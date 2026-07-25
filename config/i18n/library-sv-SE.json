@@ -1,5 +1,12 @@
 {
   "pageTitle": "Bibliotek — {{brand}}",
+  "rewardsPage": {
+    "pageTitle": "Belöningar — {{brand}}",
+    "shell": {
+      "title": "🎁 Belöningar",
+      "lead": "Vad väntar, hanteras och samlats."
+    }
+  },
   "hub": {
     "title": "Biblioteket",
     "searchPlaceholder": "Sök i biblioteket…",

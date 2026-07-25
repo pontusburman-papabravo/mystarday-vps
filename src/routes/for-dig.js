@@ -7,6 +7,8 @@
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
+const db = require('../lib/db');
+const { validateLocale } = require('../lib/locale');
 const analytics = require('../../db/analytics');
 const feedbackDb = require('../../db/for-dig-goal-feedback');
 const favoritesDb = require('../../db/for-dig-favorites');
@@ -32,9 +34,18 @@ function trackEvent(familyId, eventType, metadata) {
   analytics.track(familyId, eventType, metadata).catch(() => {});
 }
 
-router.get('/goals', (req, res) => {
-  const locale = req.user.preferredLocale || req.user.preferred_locale || 'sv-SE';
-  res.json({ goals: getGoalsForLocale(locale) });
+router.get('/goals', async (req, res) => {
+  try {
+    const localeResult = await db.query(
+      `SELECT COALESCE(preferred_locale, 'sv-SE') AS preferred_locale FROM family WHERE id = $1`,
+      [req.user.familyId]
+    );
+    const locale = validateLocale(localeResult.rows[0]?.preferred_locale);
+    res.json({ goals: getGoalsForLocale(locale) });
+  } catch (err) {
+    console.error('[FOR-DIG] goals error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta mål' });
+  }
 });
 
 router.get('/installs', async (req, res) => {
