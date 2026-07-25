@@ -112,6 +112,8 @@ function ensureMagicShellAssets(body, reqPath) {
   body = bumpMagicAssetVersions(body, reqPath);
 
   const cssToEnsure = [
+    { needle: 'icon-system.css', tag: '<link rel="stylesheet" href="/css/icon-system.css?v=' + MAGIC_VERSION + '">' },
+    { needle: 'stjarnadag-icons-v4.css', tag: '<link rel="stylesheet" href="/css/stjarnadag-icons-v4.css?v=' + MAGIC_VERSION + '">' },
     { needle: 'parent-bottom-nav.css', tag: '<link rel="stylesheet" href="/css/parent-bottom-nav.css?v=' + MAGIC_VERSION + '">' },
     { needle: 'parent-magic-3d.css', tag: '<link rel="stylesheet" href="/css/parent-magic-3d.css?v=' + MAGIC_VERSION + '">' },
     { needle: 'parent-magic-common.css', tag: '<link rel="stylesheet" href="/css/parent-magic-common.css?v=' + MAGIC_VERSION + '">' },
@@ -130,6 +132,8 @@ function ensureMagicShellAssets(body, reqPath) {
   }
 
   const scriptsToEnsure = [
+    { needle: 'icon-system.js', tag: '<script src="/js/icon-system.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
+    { needle: 'nav-config.js', tag: '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'parent-magic-auto.js', tag: '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'parent-magic-bootstrap.js', tag: '<script src="/js/parent-magic-bootstrap.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
   ];
