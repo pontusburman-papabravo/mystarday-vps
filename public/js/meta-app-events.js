@@ -3,7 +3,8 @@
  *
  * Privacy policy (EU/GDPR — blocking):
  *   No Meta App Events (including AutoLog install/open) until marketing consent.
- *   ATT is separate from marketing consent.
+ *   ATT is separate from marketing consent — the system ATT dialog is shown on iOS
+ *   fresh install (native AppDelegate + JS fallback) before any tracking data.
  *
  *   metaEventsAllowed = marketingConsent === true
  *   advertiserTrackingAllowed = marketingConsent && platform==='ios' && attStatus==='authorized'
@@ -29,6 +30,8 @@
 
   const loggedOnceThisSession = Object.create(null);
   let attRequested = false;
+  let attStartupScheduled = false;
+  let cachedAttStatus = null;
   let lastConfigureKey = '';
 
   function debugLog(message, detail) {
@@ -130,6 +133,12 @@
     return hasMarketingConsent() === true;
   }
 
+  function isAttBlockingMeta() {
+    if (getPlatformName() !== 'ios') return false;
+    if (cachedAttStatus === null) return true;
+    return cachedAttStatus === 'notDetermined';
+  }
+
   function shouldSend() {
     if (!isNative()) {
       debugLog('skip: not native');
@@ -137,6 +146,10 @@
     }
     if (!isLiveHost() && !isExplicitlyEnabled()) {
       debugLog('skip: non-live host (set msd_meta_app_events_debug=1 to enable)');
+      return false;
+    }
+    if (isAttBlockingMeta()) {
+      debugLog('skip: ATT not resolved');
       return false;
     }
     if (!metaEventsAllowed()) {
@@ -240,8 +253,8 @@
   }
 
   /**
-   * Resolve ATT status without prompting unless marketing consent is already granted
-   * and status is notDetermined (prompt only after marketing yes).
+   * Resolve ATT status. Prompt only when allowPrompt is true and status is notDetermined.
+   * ATT prompt is independent of marketing consent (Apple Guideline 2.1).
    */
   async function resolveAttStatus(options) {
     const allowPrompt = !!(options && options.allowPrompt);
@@ -254,6 +267,8 @@
     try {
       let statusResult = await att.getStatus();
       let status = statusResult && statusResult.status ? statusResult.status : 'notDetermined';
+      cachedAttStatus = status;
+      debugLog('att_status', { status: status, allowPrompt: allowPrompt });
       if (
         allowPrompt &&
         status === 'notDetermined' &&
@@ -261,8 +276,11 @@
         !attRequested
       ) {
         attRequested = true;
+        debugLog('att_request_attempted', {});
         statusResult = await att.requestPermission();
         status = statusResult && statusResult.status ? statusResult.status : status;
+        cachedAttStatus = status;
+        debugLog('att_request_completed', { status: status });
       }
       return status;
     } catch (err) {
@@ -292,28 +310,30 @@
 
     const marketing = metaEventsAllowed();
     let attStatus = 'not_applicable';
-    if (marketing && getPlatformName() === 'ios') {
-      attStatus = await resolveAttStatus({ allowPrompt: !!(options && options.allowAttPrompt) });
-    } else if (getPlatformName() === 'ios') {
-      // Do not prompt ATT without marketing consent.
-      attStatus = await resolveAttStatus({ allowPrompt: false });
+    if (getPlatformName() === 'ios') {
+      attStatus = await resolveAttStatus({
+        allowPrompt: !!(options && options.allowAttPrompt),
+      });
     }
 
+    const attBlocksMeta = getPlatformName() === 'ios' && attStatus === 'notDetermined';
+    const effectiveMarketing = marketing && !attBlocksMeta;
     const advertiserTrackingAllowed = computeAdvertiserTrackingAllowed(attStatus);
-    const configureKey = String(marketing) + ':' + String(advertiserTrackingAllowed);
+    const configureKey = String(effectiveMarketing) + ':' + String(advertiserTrackingAllowed);
 
     try {
       if (typeof facebook.configureConsent === 'function') {
         if (configureKey !== lastConfigureKey) {
           await facebook.configureConsent({
-            marketingConsent: marketing,
+            marketingConsent: effectiveMarketing,
             advertiserTrackingAllowed: advertiserTrackingAllowed,
           });
           lastConfigureKey = configureKey;
           debugLog('configureConsent applied', {
-            marketingConsent: marketing,
+            marketingConsent: effectiveMarketing,
             advertiserTrackingAllowed: advertiserTrackingAllowed,
             attStatus: attStatus,
+            attBlocksMeta: attBlocksMeta,
           });
         }
       } else if (typeof facebook.setAdvertiserTrackingEnabled === 'function') {
@@ -326,7 +346,7 @@
       } catch (_) { /* ignore */ }
       return {
         applied: true,
-        metaEventsAllowed: marketing,
+        metaEventsAllowed: effectiveMarketing,
         advertiserTrackingAllowed: advertiserTrackingAllowed,
         attStatus: attStatus,
       };
@@ -447,6 +467,32 @@
   }
 
   /**
+   * iOS startup: ensure ATT is requested while the app is active on fresh install.
+   * Native AppDelegate also schedules this; JS is a fallback if status stays notDetermined.
+   */
+  function scheduleAttStartupIfNeeded() {
+    if (attStartupScheduled) return;
+    if (!isNative() || getPlatformName() !== 'ios') return;
+    attStartupScheduled = true;
+
+    function run() {
+      resolveAttStatus({ allowPrompt: true })
+        .then(function () {
+          return applyNativeConsentConfig({ allowAttPrompt: false });
+        })
+        .catch(function () {});
+    }
+
+    if (typeof document !== 'undefined' && document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(run, 500);
+      });
+    } else {
+      setTimeout(run, 500);
+    }
+  }
+
+  /**
    * After marketing consent: persist flags for future native sessions.
    * Does NOT call activateApp() — native AppDelegate / handleOnStart activates
    * only when consent was already persisted before that process/foreground cycle.
@@ -465,6 +511,7 @@
     if (isNative() && !hasMarketingConsent()) {
       applyNativeConsentConfig({ allowAttPrompt: false }).catch(function () {});
     }
+    scheduleAttStartupIfNeeded();
   } catch (_) { /* ignore */ }
 
   global.MetaAppEvents = {
@@ -491,12 +538,18 @@
       computeAdvertiserTrackingAllowed: computeAdvertiserTrackingAllowed,
       resolveAttStatus: resolveAttStatus,
       applyNativeConsentConfig: applyNativeConsentConfig,
+      scheduleAttStartupIfNeeded: scheduleAttStartupIfNeeded,
       clearLocalMetaQueues: clearLocalMetaQueues,
       resetSessionDedupe: function () {
         Object.keys(loggedOnceThisSession).forEach(function (k) {
           delete loggedOnceThisSession[k];
         });
         lastConfigureKey = '';
+      },
+      resetAttForTests: function () {
+        attRequested = false;
+        attStartupScheduled = false;
+        cachedAttStatus = null;
       },
     },
   };

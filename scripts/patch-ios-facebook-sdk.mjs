@@ -142,7 +142,7 @@ function patchInfoPlist() {
   content = upsertPlistKey(
     content,
     'NSUserTrackingUsageDescription',
-    'Vi använder detta för att mäta annonser och förstå vilka kampanjer som hjälper familjer hitta appen. Ingen barndata skickas.'
+    'Din tillåtelse hjälper oss att mäta vilka annonser som leder till att Min Stjärndag installeras och används.' // pragma: allowlist secret
   );
   content = ensureFacebookUrlScheme(content, META_APP_ID);
 
@@ -164,17 +164,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Meta App Events — privacy-safe defaults (EU/GDPR).
-        // AutoLog + advertiser ID OFF until marketing consent is persisted and applied by the plugin.
-        // Keep Meta Dashboard "Automatically Log In-App Purchase Events" OFF.
+        AttTrackingCoordinator.shared.applyStartupPrivacyDefaults()
         ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
-
-        // Fail-closed: missing/corrupt keys → false. Native-persisted only (not JS localStorage).
-        let marketingConsent = UserDefaults.standard.object(forKey: "msd_meta_marketing_consent") as? Bool ?? false
-        let advertiserTracking = UserDefaults.standard.object(forKey: "msd_meta_advertiser_tracking") as? Bool ?? false
-        Settings.shared.isAutoLogAppEventsEnabled = marketingConsent
-        Settings.shared.isAdvertiserIDCollectionEnabled = marketingConsent && advertiserTracking
-        Settings.shared.isAdvertiserTrackingEnabled = marketingConsent && advertiserTracking
+        AttTrackingCoordinator.shared.applyMetaSettingsForCurrentAttStatus()
         return true
     }
 
@@ -182,13 +174,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
+        AttTrackingCoordinator.shared.applicationDidEnterBackground()
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // activateApp ONLY when marketing consent is already active — never on first start without consent.
+        AttTrackingCoordinator.shared.schedulePromptIfNeeded(application: application, window: window)
         if Settings.shared.isAutoLogAppEventsEnabled {
             AppEvents.shared.activateApp()
         }
@@ -216,9 +209,8 @@ function patchAppDelegate() {
   }
   const before = fs.readFileSync(appDelegatePath, 'utf8');
   const alreadySafe =
-    before.includes('msd_meta_marketing_consent') &&
-    before.includes('if Settings.shared.isAutoLogAppEventsEnabled') &&
-    before.includes('object(forKey: "msd_meta_marketing_consent") as? Bool');
+    before.includes('AttTrackingCoordinator.shared') &&
+    before.includes('if Settings.shared.isAutoLogAppEventsEnabled');
   if (alreadySafe) {
     console.log('AppDelegate.swift already privacy-safe for Meta App Events');
     return;

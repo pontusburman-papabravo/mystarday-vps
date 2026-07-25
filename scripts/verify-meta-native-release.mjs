@@ -118,12 +118,24 @@ function checkPrivacyDefaults() {
     fail('AndroidManifest.xml missing — run cap:sync:android');
   }
 
-  if (fs.existsSync(APP_DELEGATE)) {
+    if (fs.existsSync(APP_DELEGATE)) {
     const delegate = fs.readFileSync(APP_DELEGATE, 'utf8');
-    if (!delegate.includes('object(forKey: "msd_meta_marketing_consent") as? Bool')) {
-      fail('AppDelegate missing fail-closed marketing consent read');
+    const coordinatorPath = path.join(ROOT, 'ios', 'App', 'App', 'AttTrackingCoordinator.swift');
+    if (!delegate.includes('AttTrackingCoordinator.shared')) {
+      fail('AppDelegate missing AttTrackingCoordinator integration');
     } else {
-      ok('AppDelegate fail-closed consent gate');
+      ok('AppDelegate uses AttTrackingCoordinator');
+    }
+    if (!fs.existsSync(coordinatorPath)) {
+      fail('AttTrackingCoordinator.swift missing from iOS target');
+    } else {
+      ok('AttTrackingCoordinator.swift present');
+    }
+    const plistContent = fs.readFileSync(IOS_PLIST, 'utf8');
+    if (!plistContent.includes('NSUserTrackingUsageDescription')) {
+      fail('Info.plist missing NSUserTrackingUsageDescription');
+    } else {
+      ok('NSUserTrackingUsageDescription present in Info.plist');
     }
     // Match method declarations only — Capacitor boilerplate comments mention applicationWillTerminate earlier.
     const becomeActive = delegate.slice(
