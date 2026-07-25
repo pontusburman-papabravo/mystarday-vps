@@ -450,7 +450,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
         tag +
         '<div class="skatt-reward-row-icon">' + (r.icon || '🎁') + '</div>' +
         '<div class="skatt-reward-row-body">' +
-        '<div class="skatt-reward-row-name">' + escHtml(r.name) + '</div>' +
+        '<div class="skatt-reward-row-name">' + escHtml(r.display_name || r.name) + '</div>' +
         '<div class="skatt-reward-row-bar"><div class="skatt-reward-row-fill ' + color + '" style="width:' + st.pct + '%"></div></div>' +
         '<div class="skatt-reward-row-labels">' +
         '<span>' + t('rewards.starsOf', { balance: starBalance, cost: r.star_cost }) + '</span>' +
@@ -690,7 +690,7 @@ function openGoalPicker() {
       <button onclick="setGoal('${r.id}', ${hasGoal})" class="w-full flex items-center gap-3 bg-white hover:bg-gold-light rounded-xl p-3 text-left transition-colors border border-lavender mb-2 min-h-[56px]">
         <span class="text-3xl">${r.icon || '🎁'}</span>
         <div class="flex-1 min-w-0">
-          <p class="font-heading font-bold text-sm text-navy truncate">${escHtml(r.name)}</p>
+          <p class="font-heading font-bold text-sm text-navy truncate">${escHtml(r.display_name || r.name)}</p>
           <p class="text-xs text-text-soft">⭐ ${r.star_cost} ${t('rewards.starsCollected')}</p>
         </div>
         ${(goal && goal.reward_id === r.id) ? '<span class="text-xs bg-gold text-white px-2 py-0.5 rounded-full">' + t('rewards.currentGoal') + '</span>' : ''}

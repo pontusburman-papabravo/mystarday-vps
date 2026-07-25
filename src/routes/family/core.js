@@ -22,6 +22,8 @@ const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
 const { t } = require('../../lib/i18n');
 const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-generator');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
+const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+const { localizeActivityRow, localizeRewardRow } = require('../../lib/family-content-display');
 
 const router = express.Router();
 
@@ -334,6 +336,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
     }
 
     const childIds = children.map(c => c.id);
+    const familyLocale = await getFamilyPreferredLocale(req.user.familyId);
 
     // Per-child "today" date in each child's own timezone (fallback to Europe/Stockholm)
     const childTodayMap = {};
@@ -575,7 +578,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
           status = 'NÄSTA';
           nextaAssigned = true;
         }
-        return {
+        return localizeActivityRow({
           id: item.id,
           name: item.name,
           icon: item.icon,
@@ -587,11 +590,14 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
           is_once_task: item.is_once_task || false,
           for_dig_goal: item.for_dig_goal || null,
           status,
-        };
+        }, familyLocale);
       });
 
       // Nearest reward: first reward whose cost > balance (not yet earned), else first reward
       const nearestReward = allRewards.find(r => r.star_cost > balance) || allRewards[0] || null;
+      const nearestRewardOut = nearestReward
+        ? localizeRewardRow(nearestReward, familyLocale)
+        : null;
 
       return {
         id: c.id,
@@ -606,11 +612,12 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         star_balance: balance,
         stars_today: todayEarnedMap[c.id] || 0,
         today_items: annotatedItems,
-        nearest_reward: nearestReward ? {
-          id: nearestReward.id,
-          name: nearestReward.name,
-          icon: nearestReward.icon,
-          star_cost: nearestReward.star_cost,
+        nearest_reward: nearestRewardOut ? {
+          id: nearestRewardOut.id,
+          name: nearestRewardOut.name,
+          display_name: nearestRewardOut.display_name,
+          icon: nearestRewardOut.icon,
+          star_cost: nearestRewardOut.star_cost,
         } : null,
         pending_redemptions: pendingMap[c.id] || 0,
         pending_goal_changes: pendingGoalMap[c.id] || 0,

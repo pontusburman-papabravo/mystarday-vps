@@ -77,7 +77,7 @@
       return {
         emoji: '🌟',
         headline: pt('home.summary.closeToReward', { name: crName, gap: starGapLabel(closeReward.gap) }),
-        sub: (closeReward.child.nearest_reward.icon || '🎁') + ' ' + closeReward.child.nearest_reward.name,
+        sub: (closeReward.child.nearest_reward.icon || '🎁') + ' ' + (closeReward.child.nearest_reward.display_name || closeReward.child.nearest_reward.name),
         action: { label: pt('home.summary.seeRewards'), href: '/library#rewards' },
         tone: 'gold',
       };
@@ -128,8 +128,8 @@
     if (readyChild) {
       return {
         emoji: '👋',
-        headline: pt('home.summary.nextActivityHeadline', { name: capName(readyChild.child.name), activity: readyChild.item.name }),
-        sub: (readyChild.item.icon || '') + ' ' + readyChild.item.name,
+        headline: pt('home.summary.nextActivityHeadline', { name: capName(readyChild.child.name), activity: readyChild.item.display_name || readyChild.item.name }),
+        sub: (readyChild.item.icon || '') + ' ' + (readyChild.item.display_name || readyChild.item.name),
         action: { label: pt('home.summary.openToday'), href: '/daily-log?childId=' + readyChild.child.id },
         tone: 'progress',
       };

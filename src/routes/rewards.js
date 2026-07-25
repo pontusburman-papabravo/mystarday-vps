@@ -13,6 +13,8 @@ const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { requireNotPedagogOnly, getChildAccess, requireChildAccess } = require('../middleware/authz');
 const { sendEmail } = require('../lib/email');
 const { notifyParentsRewardRequest } = require('../lib/push');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { localizeRewardItems } = require('../lib/family-content-display');
 const { validate, validateParams } = require('../middleware/validate');
 const {
   CreateRewardSchema,
@@ -100,7 +102,8 @@ parentRouter.get('/child-view/:childId', requireChildAccess('childId'), async (r
     // All active rewards visible to this child — DISTINCT ON prevents duplicate rows
     // if same reward somehow ended up with multiple rows (e.g. copy-flux on child creation)
     const rewards = await db.query(
-      `SELECT DISTINCT ON (r.id) r.id, r.name, r.icon, r.star_cost, r.requires_approval
+      `SELECT DISTINCT ON (r.id) r.id, r.name, r.icon, r.star_cost, r.requires_approval,
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM reward r
        WHERE r.family_id = $1 AND r.is_active = true
          AND (r.visible_to_children IS NULL OR $2 = ANY(r.visible_to_children))
@@ -113,17 +116,20 @@ parentRouter.get('/child-view/:childId', requireChildAccess('childId'), async (r
     const redemptions = await db.query(
       `SELECT rr.id, rr.reward_id, rr.status, rr.created_at,
               r.name AS reward_name, r.icon AS reward_icon,
-              COALESCE(rr.star_cost, r.star_cost) AS star_cost
+              COALESCE(rr.star_cost, r.star_cost) AS star_cost,
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM reward_redemption rr JOIN reward r ON r.id = rr.reward_id
        WHERE rr.child_id = $1 ORDER BY rr.created_at DESC LIMIT 50`,
       [childId]
     );
 
+    const locale = await getFamilyPreferredLocale(familyId);
+
     res.json({
       child: { id: child.id, name: child.name, emoji: child.emoji },
-      rewards: rewards.rows,
+      rewards: localizeRewardItems(rewards.rows, locale),
       starBalance: balance,
-      redemptions: redemptions.rows,
+      redemptions: localizeRewardItems(redemptions.rows, locale),
     });
   } catch (err) {
     console.error('[REWARDS] Child-view error:', err);
@@ -142,11 +148,16 @@ parentRouter.get('/', async (req, res) => {
       [req.user.id]
     );
     const result = await db.query(
-      `SELECT id, name, icon, star_cost, requires_approval, is_active, is_favorite, sort_order, visible_to_children
+      `SELECT id, name, icon, star_cost, requires_approval, is_active, is_favorite, sort_order, visible_to_children,
+              source_default_id, COALESCE(modified_by_family, false) AS modified_by_family
        FROM reward WHERE family_id = $1 ORDER BY sort_order ASC, star_cost ASC`,
       [req.user.familyId]
     );
-    res.json({ rewards: result.rows, children: childrenResult.rows });
+    const locale = await getFamilyPreferredLocale(req.user.familyId);
+    res.json({
+      rewards: localizeRewardItems(result.rows, locale),
+      children: childrenResult.rows,
+    });
   } catch (err) {
     console.error('[REWARDS] List error:', err);
     res.status(500).json({ error: 'Något gick fel.' });
@@ -526,6 +537,7 @@ childRouter.get('/rewards', async (req, res) => {
     // Exclude rewards that have already been redeemed by another child (redeemed_at set, not by this child)
     const rewards = await db.query(
       `SELECT r.id, r.name, r.icon, r.star_cost, r.requires_approval,
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family,
               CASE WHEN rr_redeemed.id IS NOT NULL AND rr_redeemed.child_id != $1 THEN true ELSE false END AS already_redeemed_by_other
        FROM reward r
        LEFT JOIN reward_redemption rr_redeemed ON rr_redeemed.reward_id = r.id AND rr_redeemed.redeemed_at IS NOT NULL AND rr_redeemed.child_id != $1
@@ -540,12 +552,18 @@ childRouter.get('/rewards', async (req, res) => {
     const redemptions = await db.query(
       `SELECT rr.id, rr.reward_id, rr.status, rr.created_at,
               r.name AS reward_name, r.icon AS reward_icon,
-              COALESCE(rr.star_cost, r.star_cost) AS star_cost
+              COALESCE(rr.star_cost, r.star_cost) AS star_cost,
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM reward_redemption rr JOIN reward r ON r.id = rr.reward_id
        WHERE rr.child_id = $1 ORDER BY rr.created_at DESC LIMIT 50`,
       [childId]
     );
-    res.json({ rewards: visibleRewards, starBalance: balance, redemptions: redemptions.rows });
+    const locale = await getFamilyPreferredLocale(familyId);
+    res.json({
+      rewards: localizeRewardItems(visibleRewards, locale),
+      starBalance: balance,
+      redemptions: localizeRewardItems(redemptions.rows, locale),
+    });
   } catch (err) {
     console.error('[REWARDS] Child list error:', err);
     res.status(500).json({ error: 'Något gick fel.' });

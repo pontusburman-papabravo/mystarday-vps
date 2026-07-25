@@ -145,11 +145,12 @@ describe('analytics regression (static event names)', () => {
   });
 });
 
-describe('user-authored activity names unchanged', () => {
-  it('daily-log renders item.name via escHtml without translation wrapper', () => {
+describe('family content display names (en-GB beta)', () => {
+  it('daily-log renders display_name fallback via itemLabel helper', () => {
     const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
-    assert.match(dailyLog, /escHtml\(item\.name\)/);
-    assert.doesNotMatch(dailyLog, /pt\([^)]*item\.name/);
+    assert.match(dailyLog, /function itemLabel\(item\)/);
+    assert.match(dailyLog, /item\.display_name \|\| item\.name/);
+    assert.match(dailyLog, /escHtml\(itemLabel\(item\)\)/);
   });
 });
 

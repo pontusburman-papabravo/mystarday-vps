@@ -16,6 +16,8 @@ const {
   groupItemsBySection,
   attachSchoolVariantToItems,
 } = require('./helpers');
+const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+const { localizeActivityItems } = require('../../lib/family-content-display');
 
 const childRouter = express.Router();
 childRouter.use(requireParent);
@@ -32,9 +34,11 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
 
     const { log, items, generated } = await getOrGenerateDailyLog(req.params.childId, dateStr);
 
+    const locale = await getFamilyPreferredLocale(child.family_id);
     const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(items, child.birthday);
+    const localizedItems = localizeActivityItems(itemsWithVariant, locale);
 
-    const sections = groupItemsBySection(itemsWithVariant);
+    const sections = groupItemsBySection(localizedItems);
 
     const sectionTimes = await getSectionTimes(req.params.childId);
 
@@ -42,12 +46,12 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
       log,
       child_birthday: child.birthday,
       age_variant: schoolVariant,
-      items: itemsWithVariant,
+      items: localizedItems,
       sections,
       section_times: sectionTimes,
       generated,
-      total: itemsWithVariant.length,
-      completed: itemsWithVariant.filter(i => i.completed).length,
+      total: localizedItems.length,
+      completed: localizedItems.filter(i => i.completed).length,
     });
   } catch (err) {
     console.error('[DAILY-LOG] Get error:', err);

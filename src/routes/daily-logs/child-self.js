@@ -25,6 +25,8 @@ const {
   parseLogDate,
   getChildOwnedLogItem,
 } = require('./helpers');
+const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+const { localizeActivityItems } = require('../../lib/family-content-display');
 
 const childSelfRouter = express.Router();
 childSelfRouter.use(scopeRouterToPath('/daily-log', '/daily-log-items', '/view-type', '/weekly-schedule'));
@@ -210,6 +212,14 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       filteredSections[item.section].push(item);
     }
 
+    const locale = await getFamilyPreferredLocale(familyId);
+    const localizedItems = localizeActivityItems(filteredItems, locale);
+    const localizedSections = {};
+    for (const item of localizedItems) {
+      if (!localizedSections[item.section]) localizedSections[item.section] = [];
+      localizedSections[item.section].push(item);
+    }
+
     const responsePayload = {
       log,
       allow_child_reorder: allowChildReorder,
@@ -224,8 +234,8 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       hide_clock: hideClock,
       color_coding: colorCoding,
       view_type: viewType,
-      items: filteredItems,
-      sections: filteredSections,
+      items: localizedItems,
+      sections: localizedSections,
       section_times: sectionTimes,
       generated,
       total,

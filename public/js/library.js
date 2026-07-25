@@ -451,7 +451,7 @@ function renderActivityItem(a) {
           <span class="text-xl flex-shrink-0">${window.ActivityVisual ? ActivityVisual.thumb(a) : (a.icon || '📌')}</span>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="font-semibold text-sm text-navy" style="word-break:break-word">${escHtml(a.name)}</span>
+              <span class="font-semibold text-sm text-navy" style="word-break:break-word">${escHtml(a.display_name || a.name)}</span>
               ${a.for_dig_goal && window.ForDigGoalBadge ? ForDigGoalBadge.render(a.for_dig_goal) : ''}
               ${a.is_favorite ? '<span class="text-gold text-sm flex-shrink-0">★</span>' : ''}
               ${countBadge}
@@ -1452,7 +1452,7 @@ function renderRewardItem(r) {
         <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-semibold text-sm text-navy">${escHtml(r.name)}</span>
+            <span class="font-semibold text-sm text-navy">${escHtml(r.display_name || r.name)}</span>
             <span class="text-xs bg-gold-light text-navy px-2 py-0.5 rounded-full font-semibold">${r.star_cost} ⭐</span>
             ${r.requires_approval ? '<span class="text-xs bg-lavender text-navy px-2 py-0.5 rounded-full">' + lpt('library.modal.approvalBadge') + '</span>' : ''}
             ${!isActive ? '<span class="text-xs bg-gray-100 text-text-soft px-2 py-0.5 rounded-full">Inaktiv</span>' : ''}

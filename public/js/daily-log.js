@@ -101,6 +101,11 @@
       return id == null ? '' : String(id);
     }
 
+    function itemLabel(item) {
+      if (!item) return '';
+      return item.display_name || item.name || '';
+    }
+
     async function bootDailyLogPage() {
       if (!document.getElementById('logContent')) return;
 
@@ -618,7 +623,7 @@
       const rateBtn = (item.completed && parentCanRate) ? `
         <button
           class="flex-shrink-0 px-2 py-1 text-xs rounded-lg border ${rating && rating.parent_score ? 'bg-mint border-teal-200 text-teal-700' : 'bg-sky border-lavender text-text-soft hover:border-gold hover:text-gold'} transition-colors"
-          onclick="event.stopPropagation(); openParentRating('${item.id}', '${escHtml(item.name)}')"
+          onclick="event.stopPropagation(); openParentRating('${item.id}', '${escHtml(itemLabel(item))}')"
           title="${escHtml(rating && rating.parent_score ? pt('today.activity.changeRating') : pt('today.activity.setRating'))}">
           ${rating && rating.parent_score ? '⭐' + rating.parent_score : escHtml(pt('today.activity.rate'))}
         </button>` : '';
@@ -638,7 +643,7 @@
           <div class="print-checkbox"></div>
           <div class="text-3xl flex-shrink-0">${item.icon || '📌'}</div>
           <div class="flex-1 min-w-0">
-            <div class="activity-name font-semibold text-navy truncate">${escHtml(item.name)}</div>
+            <div class="activity-name font-semibold text-navy truncate">${escHtml(itemLabel(item))}</div>
             <div class="flex items-center gap-2 mt-0.5 flex-wrap">
               ${timeHtml}
               ${starHtml}
@@ -864,11 +869,11 @@
         if (newState) {
           const item = currentItems.find(i => i.id === itemId);
           clearUndoCompleteTimer();
-          undoCompleteState = { itemId, itemName: item ? item.name : pt('today.activity.defaultName') };
+          undoCompleteState = { itemId, itemName: item ? itemLabel(item) : pt('today.activity.defaultName') };
           undoCompleteTimer = setTimeout(() => {
             clearUndoCompleteTimer();
           }, 3000);
-          showUndoSnackbar(item ? item.name : pt('today.activity.defaultName'));
+          showUndoSnackbar(item ? itemLabel(item) : pt('today.activity.defaultName'));
         } else {
           showToast(pt('today.activity.undoneToast'));
         }
@@ -1215,7 +1220,7 @@
               colHtml += `<div style="display:flex;align-items:baseline;gap:2px;padding:1.5px 0;font-size:7.5px;line-height:1.3;border-bottom:1px solid #f0f0f0;">
                 <span style="flex-shrink:0;">${check}</span>
                 <span style="flex-shrink:0;">${item.icon || ''}</span>
-                <span style="flex:1;word-break:break-word;">${escHtml(item.name)}${timeStr}</span>
+                <span style="flex:1;word-break:break-word;">${escHtml(itemLabel(item))}${timeStr}</span>
               </div>`;
             }
           }
@@ -1313,7 +1318,7 @@
           for (const item of grouped[sec]) {
             const check = item.completed ? '☑' : '☐';
             colHtml += `<div style="font-size:7.5px;padding:1.5px 0;border-bottom:1px solid #f0f0f0;">
-              ${check} ${item.icon || ''} ${escHtml(item.name)}
+              ${check} ${item.icon || ''} ${escHtml(itemLabel(item))}
             </div>`;
           }
         }
