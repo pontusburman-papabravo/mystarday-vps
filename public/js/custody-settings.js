@@ -5,6 +5,10 @@
 (function () {
   'use strict';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   let _config = null;
 
   const PATTERN_WEEKS = 'alternate_weeks';
@@ -582,8 +586,8 @@
 
     if (homes.length < 2) {
       body.innerHTML =
-        '<p class="text-sm text-text-soft mb-3">Boendeschema hjälper dig hålla reda på vilket hem barnet är på — med hemnamn och färger, inte vecka A/B.</p>' +
-        '<button type="button" id="custodySetupBtn" class="px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm min-h-[44px]">Kom igång med boendeschema</button>';
+        '<p class="text-sm text-text-soft mb-3">' + escapeHtml(pt('family.custody.setupIntro')) + '</p>' +
+        '<button type="button" id="custodySetupBtn" class="px-4 py-2 bg-gold text-white rounded-lg font-semibold text-sm min-h-[44px]">' + escapeHtml(pt('family.custody.setupCta')) + '</button>';
       el('custodySetupBtn').addEventListener('click', runSetup);
       return;
     }
@@ -607,7 +611,7 @@
     }).join('');
 
     body.innerHTML =
-      '<p class="text-sm text-text-soft">Etikett och färg per hem. Välj mönster per barn — varannan vecka, varannan helg eller eget mönster.</p>' +
+      '<p class="text-sm text-text-soft">' + escapeHtml(pt('family.custody.intro')) + '</p>' +
       '<div class="space-y-3 mt-3" id="custodyHomesEditor">' +
       homes.map(function (h) {
         const colorLabel = 'Färg för ' + (h.label || 'hem');

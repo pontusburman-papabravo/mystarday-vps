@@ -1,0 +1,73 @@
+{
+  "greeting": "Hej {{name}} 👋",
+  "focus": "Vad vill du fokusera på just nu?",
+  "loading": "Laddar…",
+  "libraryLink": "Vill du bygga själv? Hela biblioteket →",
+  "sections": {
+    "recommendTitle": "Bra nästa steg för {{name}}",
+    "personalTips": "Personliga tips",
+    "birthdayHint": "Lägg till barnets födelsedag under Familj så kan vi föreslå rätt mål.",
+    "goToFamily": "Gå till Familjen →",
+    "favorites": "Mina favoriter",
+    "showAllFavorites": "Visa alla favoriter ({{count}})",
+    "mostInstalled": "Mest installerade just nu",
+    "families": "{{count}} familjer"
+  },
+  "badges": {
+    "forChild": "För {{name}}",
+    "allChildren": "Alla barn",
+    "childrenCount": "{{count}} barn",
+    "activated": "Aktiverad ✓",
+    "popular": "Populärt"
+  },
+  "cta": {
+    "activate": "Aktivera",
+    "addSchedule": "Lägg in {{name}}",
+    "addActivities": "Lägg till aktiviteterna",
+    "addRewards": "Lägg till belöningarna",
+    "openSchedule": "Öppna schema",
+    "treasureChest": "Skattkammaren",
+    "library": "Bibliotek",
+    "showAllGoals": "Visa alla {{count}} mål",
+    "openChildView": "Öppna barnvy",
+    "customize": "Anpassa",
+    "cancel": "Avbryt",
+    "showDetails": "Visa detaljer",
+    "hideDetails": "Dölj detaljer"
+  },
+  "decision": {
+    "preparing": "Förbereder…",
+    "whatHappens": "Det här händer",
+    "adjustStars": "Justera stjärnor under <strong>Anpassa</strong>.",
+    "rewardsAdded": "Belöningarna läggs till i Skattkammaren.",
+    "itemSingular": "post",
+    "itemPlural": "poster",
+    "rewardSingular": "belöning",
+    "rewardPlural": "belöningar",
+    "activitySingular": "aktivitet",
+    "activityPlural": "aktiviteter",
+    "included": "ingår.",
+    "days": "Dagar: {{label}}",
+    "section": "Sektion: {{label}}",
+    "appliesTo": "Gäller: {{names}}"
+  },
+  "goal": {
+    "ageRange": "För barn {{min}}–{{max}} år",
+    "starsHintDefault": "Belöningar och stjärnor som passar barnets tempo.",
+    "starsHintEarn": "Barn brukar tjäna {{hint}}.",
+    "saveFavorite": "Spara som favorit",
+    "removeFavorite": "Ta bort favorit",
+    "catalogTitle": "Utvecklingsmål",
+    "catalogSub": "Välj ett problem — vi sätter upp rutinen åt dig.",
+    "helpsChild": "Hjälper barnet att:",
+    "showMore": "Visa mer",
+    "suggestImprovement": "💡 Föreslå förbättring"
+  },
+  "intent": {
+    "mindre_tjat": "Mindre tjat",
+    "tydligare_rutiner": "Tydligare rutiner",
+    "sjalvstandighet": "Självständighet",
+    "mindre_stress": "Mindre stress",
+    "annat": "Annat"
+  }
+}

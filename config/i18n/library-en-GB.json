@@ -79,5 +79,41 @@
   },
   "substeps": {
     "add": "+ Add step"
+  },
+  "rewards": {
+    "searchPlaceholder": "🔍 Search reward…",
+    "allChildren": "All children",
+    "childrenCount": "{{count}} children",
+    "inactive": "Inactive"
+  },
+  "rewardsHub": {
+    "sections": {
+      "manage": "Manage",
+      "starsChest": "Stars & chest",
+      "other": "Other"
+    },
+    "manageLink": {
+      "title": "Manage rewards",
+      "sub": "Create and edit in the library"
+    },
+    "starsSub": "Overview per child",
+    "proximity": {
+      "readyFor": "Ready for {{reward}}",
+      "leftUntil": "{{gap}} left until {{reward}}",
+      "fallbackReward": "reward"
+    },
+    "emptyChildrenBefore": "Add children under ",
+    "emptyChildrenLink": "Family",
+    "emptyChildrenAfter": " to see stars here.",
+    "progressHintBefore": "Progress over time is under ",
+    "progressHintFamily": "Family",
+    "progressHintMiddle": " → child profile → ",
+    "progressHintProgress": "Progress",
+    "progressHintAfter": ".",
+    "childDefault": "Child",
+    "reports": {
+      "title": "Reports",
+      "sub": "Progress and sharing"
+    }
   }
 }

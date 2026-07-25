@@ -21,6 +21,7 @@ const {
   FOR_DIG_GOALS,
   VALID_INTENT_REASONS,
   getGoalBySlug,
+  getGoalsForLocale,
 } = require('../lib/for-dig-config');
 
 const router = express.Router();
@@ -32,7 +33,8 @@ function trackEvent(familyId, eventType, metadata) {
 }
 
 router.get('/goals', (req, res) => {
-  res.json({ goals: FOR_DIG_GOALS });
+  const locale = req.user.preferredLocale || req.user.preferred_locale || 'sv-SE';
+  res.json({ goals: getGoalsForLocale(locale) });
 });
 
 router.get('/installs', async (req, res) => {

@@ -1,9 +1,9 @@
 'use strict';
 
-/**
- * Canonical För dig goal definitions (server + tests).
- * Browser copy: public/js/for-dig-config.js — keep in sync.
- */
+const fs = require('fs');
+const path = require('path');
+
+const GOAL_I18N_PATH = path.join(__dirname, '..', '..', 'config', 'for-dig-goals-en-GB.json');
 
 const FOR_DIG_GOALS = [
   {
@@ -195,9 +195,34 @@ function getGoalBySlug(slug) {
   return FOR_DIG_GOALS.find((g) => g.slug === slug) || null;
 }
 
+let _goalI18nEnGb = null;
+
+function loadGoalI18nEnGb() {
+  if (_goalI18nEnGb) return _goalI18nEnGb;
+  try {
+    _goalI18nEnGb = JSON.parse(fs.readFileSync(GOAL_I18N_PATH, 'utf8'));
+  } catch (_) {
+    _goalI18nEnGb = {};
+  }
+  return _goalI18nEnGb;
+}
+
+function localizeGoal(goal, locale) {
+  if (!goal || locale !== 'en-GB') return goal;
+  const overlay = loadGoalI18nEnGb()[goal.slug];
+  if (!overlay) return goal;
+  return { ...goal, ...overlay };
+}
+
+function getGoalsForLocale(locale) {
+  return FOR_DIG_GOALS.map((goal) => localizeGoal(goal, locale));
+}
+
 module.exports = {
   FOR_DIG_GOALS,
   INTENT_LABELS,
   VALID_INTENT_REASONS,
   getGoalBySlug,
+  getGoalsForLocale,
+  localizeGoal,
 };

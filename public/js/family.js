@@ -1290,11 +1290,6 @@
     const todayLabel = document.getElementById('todayLabel');
     if (todayLabel) todayLabel.textContent = today.charAt(0).toUpperCase() + today.slice(1);
 
-    // ─── PWA install guide ────────────────────────────────
-    if (window.PWAInstall) {
-      PWAInstall.render(document.getElementById('familyPwaInstallGuide'));
-    }
-
 if (window.ParentMagicPageBoot) {
   ParentMagicPageBoot.register('family', init);
 }

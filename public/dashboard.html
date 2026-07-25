@@ -725,13 +725,6 @@
             <div id="starHistoryContent" class="bg-white border-2 border-lavender rounded-2xl p-4 overflow-x-auto"></div>
           </div>
 
-          <!-- PWA install guide banner (dismissible, hides when already standalone) -->
-          <div id="dashboardPwaInstallWrap" class="mt-6" style="display:none;">
-            <div id="dashboardPwaInstallGuide"></div>
-            <div class="text-right mt-1">
-              <button onclick="dismissDashPwaGuide()" class="text-xs text-text-soft hover:text-navy underline">Stäng</button>
-            </div>
-          </div>
 
           <!-- Tips section -->
           <div class="mt-6 bg-sky border border-lavender rounded-2xl p-4 parent-magic-legacy-hide">
@@ -1473,25 +1466,6 @@
 
   <!-- Dagens nyhet in-app banner logic -->
 
-  <script>
-    // PWA install guide on dashboard — dismissed per-session
-    (async function () {
-      var DISMISS_KEY = 'pwa_guide_dismissed';
-      var wrap = document.getElementById('dashboardPwaInstallWrap');
-      var container = document.getElementById('dashboardPwaInstallGuide');
-      if (!wrap || !container) return;
-      if (sessionStorage.getItem(DISMISS_KEY)) return;
-      if (!window.PWAInstall) return;
-      var rendered = await PWAInstall.render(container);
-      if (rendered) wrap.style.display = '';
-    })();
-
-    function dismissDashPwaGuide() {
-      sessionStorage.setItem('pwa_guide_dismissed', '1');
-      var wrap = document.getElementById('dashboardPwaInstallWrap');
-      if (wrap) wrap.style.display = 'none';
-    }
-  </script>
   <script>
     // Survey popup — fires after page loads, deferred so auth cookie is available
     if (typeof initSurveyPopup === 'function') {

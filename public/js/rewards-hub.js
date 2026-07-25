@@ -5,12 +5,18 @@
 (function () {
   'use strict';
 
-  const MANAGE_LINK = {
-    href: '/library#rewards',
-    icon: 'beloning',
-    title: 'Hantera belöningar',
-    sub: 'Skapa och redigera i biblioteket',
-  };
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function manageLink() {
+    return {
+      href: '/library#rewards',
+      icon: 'beloning',
+      title: pt('library.rewardsHub.manageLink.title'),
+      sub: pt('library.rewardsHub.manageLink.sub'),
+    };
+  }
 
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
@@ -70,23 +76,24 @@
       return stars + ' ⭐';
     }
     const gap = nearest.star_cost - stars;
-    const rewardLabel = (nearest.icon || '🎁') + ' ' + (nearest.name || 'belöning');
+    const rewardLabel = (nearest.icon || '🎁') + ' ' + (nearest.name || pt('library.rewardsHub.proximity.fallbackReward'));
     if (gap <= 0) {
-      return stars + ' ⭐ · Redo för ' + rewardLabel;
+      return stars + ' ⭐ · ' + pt('library.rewardsHub.proximity.readyFor', { reward: rewardLabel });
     }
     const gapLabel = gap === 1 ? '1 ⭐' : gap + ' ⭐';
-    return stars + ' ⭐ · ' + gapLabel + ' kvar till ' + rewardLabel;
+    return stars + ' ⭐ · ' + pt('library.rewardsHub.proximity.leftUntil', { gap: gapLabel, reward: rewardLabel });
   }
 
   function childRowHtml(child) {
     const href = '/family/child/' + encodeURIComponent(child.id) + '?tab=rewards';
     const emoji = child.emoji || '⭐';
+    const childName = child.name || pt('library.rewardsHub.childDefault');
     return (
       '<a href="' + escHtml(href) + '" class="rewards-child-row flex items-center gap-3 p-3 bg-white rounded-2xl border border-lavender hover:border-gold transition-colors min-h-[56px] no-underline" data-hub-link="' +
-      escHtml(child.name || 'Barn') + ' stjärnor">' +
+      escHtml(childName) + ' stjärnor">' +
       '<span class="text-2xl flex-shrink-0" aria-hidden="true">' + escHtml(emoji) + '</span>' +
       '<span class="flex-1 min-w-0">' +
-      '<span class="font-heading font-bold text-navy block truncate">' + escHtml(child.name || 'Barn') + '</span>' +
+      '<span class="font-heading font-bold text-navy block truncate">' + escHtml(childName) + '</span>' +
       '<span class="text-sm text-text-soft leading-snug">' + escHtml(proximityCopy(child)) + '</span>' +
       '</span>' +
       '<span class="text-text-soft flex-shrink-0" aria-hidden="true">→</span></a>'
@@ -95,13 +102,28 @@
 
   function starsSectionInner(children) {
     if (!children.length) {
+      const familyLink = escHtml(pt('library.rewardsHub.emptyChildrenLink'));
       return (
         '<p class="text-sm text-text-soft px-1 leading-snug">' +
-        'Lägg till barn under <a href="/family" class="text-gold font-semibold underline" data-hub-link="Familj">Familj</a> för att se stjärnor här.' +
+        escHtml(pt('library.rewardsHub.emptyChildrenBefore')) +
+        '<a href="/family" class="text-gold font-semibold underline" data-hub-link="' + familyLink + '">' + familyLink + '</a>' +
+        escHtml(pt('library.rewardsHub.emptyChildrenAfter')) +
         '</p>'
       );
     }
     return '<div class="magic-hub-links grid gap-2">' + children.map(childRowHtml).join('') + '</div>';
+  }
+
+  function progressHintHtml() {
+    const family = escHtml(pt('library.rewardsHub.progressHintFamily'));
+    const progress = escHtml(pt('library.rewardsHub.progressHintProgress'));
+    return (
+      escHtml(pt('library.rewardsHub.progressHintBefore')) +
+      '<a href="/family" class="text-gold font-semibold underline" data-hub-link="' + family + ' Framsteg">' + family + '</a>' +
+      escHtml(pt('library.rewardsHub.progressHintMiddle')) +
+      '<a href="/family" class="text-gold font-semibold underline" data-hub-link="' + family + ' ' + progress + '">' + progress + '</a>' +
+      escHtml(pt('library.rewardsHub.progressHintAfter'))
+    );
   }
 
   async function fetchChildStars() {
@@ -128,8 +150,8 @@
       return linkHtml({
         href: '/reports',
         icon: 'statistik',
-        title: 'Rapporter',
-        sub: 'Utveckling och delning',
+        title: pt('library.rewardsHub.reports.title'),
+        sub: pt('library.rewardsHub.reports.sub'),
       });
     } catch (_) {
       return '';
@@ -158,20 +180,20 @@
 
     const children = await fetchChildStars();
     const reports = await reportsLinkHtml();
+    const manage = manageLink();
 
     let html = '<div class="magic-hub-sections max-w-lg space-y-5">';
-    html += sectionHtml('Hantera', '<div class="magic-hub-links grid gap-3">' + linkHtml(MANAGE_LINK) + '</div>');
+    html += sectionHtml(pt('library.rewardsHub.sections.manage'), '<div class="magic-hub-links grid gap-3">' + linkHtml(manage) + '</div>');
     html +=
       sectionHtml(
-        'Stjärnor & kista',
-        '<p class="text-sm text-text-soft mb-2 px-0.5">Överblick per barn</p>' + starsSectionInner(children)
+        pt('library.rewardsHub.sections.starsChest'),
+        '<p class="text-sm text-text-soft mb-2 px-0.5">' + escHtml(pt('library.rewardsHub.starsSub')) + '</p>' + starsSectionInner(children)
       );
     if (reports) {
-      html += sectionHtml('Övrigt', '<div class="magic-hub-links grid gap-3">' + reports + '</div>');
+      html += sectionHtml(pt('library.rewardsHub.sections.other'), '<div class="magic-hub-links grid gap-3">' + reports + '</div>');
     }
     html +=
-      '<p class="text-sm text-text-soft px-1 leading-snug">Utveckling över tid finns under ' +
-      '<a href="/family" class="text-gold font-semibold underline" data-hub-link="Familj Framsteg">Familj → barnprofil → Framsteg</a>.</p>';
+      '<p class="text-sm text-text-soft px-1 leading-snug">' + progressHintHtml() + '</p>';
     html += '</div>';
 
     mount.innerHTML = html;
@@ -198,6 +220,10 @@
 
   document.addEventListener('pending-approvals-changed', function () {
     void render();
+  });
+
+  document.addEventListener('parent-i18n-ready', function () {
+    render();
   });
 
   if (document.readyState === 'loading') {

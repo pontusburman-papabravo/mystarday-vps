@@ -187,7 +187,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Feature-gate: hide UI elements for features the family doesn't have access to.
   // klinisk_rapportering → hide "Rapporter" sidebar link and sharing banner.
-  // offline_pwa → hide PWA install guide (dashboardPwaInstallWrap).
   (async () => {
     try {
       const resp = await fetch('/api/features', { credentials: 'include' });
@@ -210,10 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (rapporterLink) rapporterLink.closest('li')?.remove();
         const banner = document.getElementById('activeSharingBanner');
         if (banner) banner.remove();
-      }
-      if (!slugs.includes('offline_pwa')) {
-        const pwaWrap = document.getElementById('dashboardPwaInstallWrap');
-        if (pwaWrap) pwaWrap.remove();
       }
     } catch (_) { /* non-critical — allow page to load */ }
   })();

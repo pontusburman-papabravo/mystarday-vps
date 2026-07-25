@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { FOR_DIG_GOALS, getGoalBySlug, VALID_INTENT_REASONS } = require('../src/lib/for-dig-config');
+const { FOR_DIG_GOALS, getGoalBySlug, getGoalsForLocale, VALID_INTENT_REASONS } = require('../src/lib/for-dig-config');
 
 test('for-dig config has 6 unique goals', () => {
   assert.equal(FOR_DIG_GOALS.length, 6);
@@ -54,4 +54,17 @@ test('each goal has outcome headline for parents', () => {
   for (const goal of FOR_DIG_GOALS) {
     assert.ok(goal.headline && goal.headline.length > 5, goal.slug);
   }
+});
+
+test('getGoalsForLocale returns Swedish by default and English overlays for en-GB', () => {
+  const sv = getGoalsForLocale('sv-SE');
+  const en = getGoalsForLocale('en-GB');
+  assert.equal(sv.length, 6);
+  assert.equal(en.length, 6);
+  const svMotivation = sv.find((g) => g.slug === 'motivation');
+  const enMotivation = en.find((g) => g.slug === 'motivation');
+  assert.match(svMotivation.headline, /motivationen/i);
+  assert.match(enMotivation.headline, /motivation/i);
+  assert.notEqual(svMotivation.headline, enMotivation.headline);
+  assert.equal(svMotivation.activityNames, enMotivation.activityNames);
 });

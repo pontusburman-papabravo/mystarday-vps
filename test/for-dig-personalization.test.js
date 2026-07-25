@@ -14,9 +14,9 @@ describe('För dig Sprint 3–5 personalization contracts', () => {
     assert.match(src, /goalsForDisplay\(\)/);
   });
 
-  it('recommendations use Bra nästa steg copy and sort helper', () => {
+  it('recommendations use localized copy and sort helper', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
-    assert.match(src, /Bra nästa steg för \$\{/);
+    assert.match(src, /forDig\.sections\.recommendTitle/);
     assert.match(src, /sortRecommendationsForChild/);
   });
 
@@ -24,7 +24,7 @@ describe('För dig Sprint 3–5 personalization contracts', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
     assert.match(src, /showAllGoals/);
     assert.match(src, /heroGoalForDisplay/);
-    assert.match(src, /Visa alla \$\{total\} mål/);
+    assert.match(src, /forDig\.cta\.showAllGoals/);
     assert.match(src, /data-action="show-all-goals"/);
   });
 
@@ -35,9 +35,9 @@ describe('För dig Sprint 3–5 personalization contracts', () => {
     assert.match(src, /intentRecorded/);
   });
 
-  it('post-activation uses single Öppna barnvy CTA', () => {
+  it('post-activation uses single localized child view CTA', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
-    assert.match(src, /Öppna barnvy/);
+    assert.match(src, /forDig\.cta\.openChildView/);
     assert.match(src, /href="\/child-login"/);
   });
 

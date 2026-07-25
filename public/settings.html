@@ -169,9 +169,6 @@
           <h3 class="text-xl font-heading font-bold text-navy mb-2">Push-notiser</h3>
           <p class="text-sm text-text-soft mb-4">Få notiser direkt i telefonen — även när appen är stängd.</p>
 
-          <!-- PWA install guide: platform-adaptive, hidden when already standalone -->
-          <div id="pwaInstallGuide"></div>
-
           <!-- Unsupported warning (non-iOS, non-PWA, no service worker) -->
           <div id="pushUnsupported" class="hidden bg-gray-50 border border-gray-200 rounded-xl p-3 mb-4">
             <p class="text-sm text-gray-600">Din webbläsare stöder inte push-notiser.</p>
@@ -1058,14 +1055,6 @@
         document.getElementById('pushUnsupported').classList.remove('hidden');
         mainToggle.disabled = true;
         return;
-      }
-
-      // On native app: hide PWA install guide entirely
-      if (isNativeApp) {
-        const guide = document.getElementById('pwaInstallGuide');
-        if (guide) guide.classList.add('hidden');
-      } else if (window.PWAInstall) {
-        await PWAInstall.render(document.getElementById('pwaInstallGuide'));
       }
 
       if (!isNativeApp && (!Push || (!Push.isSupported() && !(Push.isIOS && Push.isIOS())))) {

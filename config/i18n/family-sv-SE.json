@@ -113,5 +113,29 @@
   "pedagog": {
     "title": "Pedagoger",
     "collaboration": "Pedagogsamarbete"
+  },
+  "museum": {
+    "title": "Familjemuseum",
+    "lead": "Allt ni uppnått tillsammans — minnen som växer.",
+    "stats": {
+      "activities": "aktiviteter",
+      "rewards": "belöningar",
+      "stars": "stjärnor",
+      "trophies": "trofeer"
+    },
+    "topRewards": "Mest inlösta belöningar"
+  },
+  "chest": {
+    "title": "⭐ Familjekista",
+    "body": "Visa gemensamma stjärnor som samlas när barnen klarar uppdrag. Familjeberättelsen sparas även om kistan är av."
+  },
+  "custody": {
+    "title": "🏠 Boendeschema",
+    "intro": "Etikett och färg per hem. Välj mönster per barn — varannan vecka, varannan helg eller eget mönster.",
+    "setupIntro": "Boendeschema hjälper dig hålla reda på vilket hem barnet är på — med hemnamn och färger, inte vecka A/B.",
+    "setupCta": "Kom igång med boendeschema",
+    "parentHome": "Förälder ↔ hem",
+    "homeName": "Namn på hem",
+    "colorFor": "Färg för {{name}}"
   }
 }
