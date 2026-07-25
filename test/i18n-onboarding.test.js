@@ -182,6 +182,44 @@ describe('onboarding canonical locale resolution', () => {
     assert.equal(sessionStorage.getItem('sd_preferred_locale'), 'en-GB');
   });
 
+  it('I18n.init reloads when explicit en-GB follows early sv-SE init', async () => {
+    const storage = { sd_preferred_locale: 'sv-SE' };
+    const sessionStorage = {
+      getItem: (k) => storage[k] ?? null,
+      setItem: (k, v) => { storage[k] = v; },
+    };
+    const mockBundles = {
+      'sv-SE': { home: { sub: 'Så här ser dagen ut.' } },
+      'en-GB': { home: { sub: 'Here is how the day looks.' } },
+    };
+    const sandbox = {
+      window: {},
+      document: {
+        documentElement: { lang: '' },
+        body: { dataset: {} },
+        querySelectorAll: () => [],
+        querySelector: () => null,
+        addEventListener: () => {},
+      },
+      sessionStorage,
+      navigator: { languages: ['sv-SE'] },
+      fetch: async (url) => ({
+        ok: true,
+        json: async () => mockBundles[url.split('/').pop()] || mockBundles['sv-SE'],
+      }),
+      console: { warn: () => {} },
+    };
+    sandbox.window = sandbox;
+    const i18nSrc = fs.readFileSync(path.join(__dirname, '../public/js/i18n.js'), 'utf8');
+    vm.runInNewContext(i18nSrc, sandbox, { filename: 'i18n.js' });
+
+    await sandbox.I18n.init();
+    assert.equal(sandbox.I18n.getCurrentLang(), 'sv-SE');
+    await sandbox.I18n.init('en-GB');
+    assert.equal(sandbox.I18n.getCurrentLang(), 'en-GB');
+    assert.equal(sandbox.I18n.t('home.sub'), 'Here is how the day looks.');
+  });
+
   it('initOnboardingI18n passes family preferred_locale to I18n.init', () => {
     const adapter = fs.readFileSync(path.join(__dirname, '../public/js/onboarding-i18n.js'), 'utf8');
     assert.match(adapter, /await I18n\.init\(preferredLocale\)/);

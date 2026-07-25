@@ -375,7 +375,7 @@
         <div id="familyGridView" class="hidden">
           <!-- Week navigation for family grid -->
           <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <p class="text-sm text-text-soft">Alla barn — klicka på en dag för att redigera</p>
+            <p class="text-sm text-text-soft" data-i18n="schedule.familyGrid.allChildrenHint">Alla barn — klicka på en dag för att redigera</p>
             <div class="flex items-center gap-2">
               <button onclick="fwChangeWeek(-1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">‹</button>
               <span id="fwWeekLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center">Laddar…</span>
@@ -401,11 +401,11 @@
         <div id="childrenListView">
           <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h3 id="scheduleChildrenTitle" class="text-lg font-heading font-bold text-navy mb-1">Familjens schema</h3>
-              <p class="text-sm text-text-soft">Klicka på ett barn för att planera veckan</p>
+              <h3 id="scheduleChildrenTitle" class="text-lg font-heading font-bold text-navy mb-1" data-i18n="schedule.familyGrid.familyTitle">Familjens schema</h3>
+              <p class="text-sm text-text-soft" data-i18n="schedule.familyGrid.familyHint">Klicka på ett barn för att planera veckan</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors">➕ Lägg till ett barn</button>
+              <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors" data-i18n="schedule.familyGrid.addChild">➕ Lägg till ett barn</button>
             </div>
           </div>
           <div id="childCardsContainer" class="space-y-4"><div class="text-text-soft text-sm py-8 text-center">Laddar…</div></div>

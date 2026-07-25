@@ -7,7 +7,10 @@
   },
   "summary": {
     "none": "No schedule yet — start planning the week",
-    "fullWeek": "Schedule for the full week ✅"
+    "fullWeek": "Schedule for the full week ✅",
+    "activitiesFullWeek": "{{count}} planned activities · all days done ✅",
+    "activitiesThisWeek": "{{count}} planned activities this week",
+    "daysPlanned": "{{count}} of 7 days planned"
   },
   "errors": {
     "loadPage": "Something went wrong while loading. Reload the page.",
@@ -63,5 +66,17 @@
   },
   "addChild": {
     "success": "{{name}} has been added! PIN: {{pin}}"
+  },
+  "familyGrid": {
+    "weekLabel": "Week {{week}}, {{year}}",
+    "childColumn": "Child",
+    "showAll": "Show all ({{count}})",
+    "showAllTitle": "Show all {{count}} activities",
+    "noChildrenTitle": "No children added",
+    "noChildrenHint": "Add children by switching to \"My child\" mode.",
+    "familyTitle": "Family schedule",
+    "familyHint": "Tap a child to plan the week",
+    "addChild": "Add a child",
+    "allChildrenHint": "All children — tap a day to edit"
   }
 }

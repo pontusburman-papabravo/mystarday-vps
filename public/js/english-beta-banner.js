@@ -5,6 +5,7 @@
   'use strict';
 
   const BANNER_VIEWED_KEY = 'sd_english_beta_banner_viewed';
+  const BANNER_DISMISS_KEY = 'sd_english_beta_banner_dismissed_session';
 
   function track(eventType, metadata) {
     if (typeof window.analytics !== 'undefined' && analytics.track) {
@@ -26,7 +27,17 @@
         display: none;
       }
       .english-beta-banner.is-visible { display: block; }
-      .english-beta-banner__title { font-weight: 700; margin-bottom: 0.15rem; }
+      .english-beta-banner__header {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;
+      }
+      .english-beta-banner__title { font-weight: 700; margin-bottom: 0.15rem; flex: 1; }
+      .english-beta-banner__close {
+        background: transparent; border: none; color: #f4f4ff; opacity: 0.85;
+        cursor: pointer; min-width: 44px; min-height: 44px; margin: -0.35rem -0.35rem 0 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; line-height: 1; border-radius: 999px;
+      }
+      .english-beta-banner__close:hover { opacity: 1; background: rgba(255,255,255,0.08); }
       .english-beta-banner__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.45rem; }
       .english-beta-banner__link {
         background: transparent; border: none; color: #F5A623; font-weight: 600;
@@ -45,7 +56,10 @@
     el.className = 'english-beta-banner';
     el.setAttribute('aria-live', 'polite');
     el.innerHTML = `
-      <div class="english-beta-banner__title" data-i18n="language.betaBanner.title">English beta</div>
+      <div class="english-beta-banner__header">
+        <div class="english-beta-banner__title" data-i18n="language.betaBanner.title">English beta</div>
+        <button type="button" class="english-beta-banner__close" data-beta-banner-dismiss data-i18n-aria-label="language.betaBanner.dismissAria">✕</button>
+      </div>
       <p data-i18n="language.betaBanner.body"></p>
       <div class="english-beta-banner__actions">
         <button type="button" class="english-beta-banner__link" data-beta-banner-report data-i18n="language.betaBanner.report">
@@ -82,7 +96,17 @@
     }
   }
 
+  function dismissBanner(banner) {
+    sessionStorage.setItem(BANNER_DISMISS_KEY, '1');
+    banner.classList.remove('is-visible');
+    track('english_beta_banner_dismissed', { locale: 'en-GB', route: location.pathname });
+  }
+
   async function syncVisibility(banner) {
+    if (sessionStorage.getItem(BANNER_DISMISS_KEY) === '1') {
+      banner.classList.remove('is-visible');
+      return;
+    }
     let locale = I18n.getCurrentLang ? I18n.getCurrentLang() : 'sv-SE';
     if (window.Auth && Auth.isLoggedIn && Auth.isLoggedIn()) {
       try {
@@ -119,6 +143,7 @@
     document.body.appendChild(banner);
     I18n.apply(banner);
 
+    banner.querySelector('[data-beta-banner-dismiss]')?.addEventListener('click', () => dismissBanner(banner));
     banner.querySelector('[data-beta-banner-report]')?.addEventListener('click', openLanguageFeedback);
     banner.querySelector('[data-beta-banner-switch]')?.addEventListener('click', switchToSwedish);
 

@@ -15,10 +15,19 @@ const I18n = {
    * @param {string} [explicitLang]
    */
   async init(explicitLang) {
+    const requested = this._normalize(explicitLang);
+
+    // Explicit family locale must win even if an earlier init() already loaded sv-SE.
+    if (requested && this.lang !== requested) {
+      await this.load(requested);
+      this._ready = Promise.resolve();
+      return;
+    }
+
     if (this._ready) return this._ready;
 
     this._ready = (async () => {
-      let lang = this._normalize(explicitLang)
+      let lang = requested
         || this._normalize(sessionStorage.getItem(this.STORAGE_KEY));
 
       if (!lang && window.Auth && typeof Auth.getUser === 'function') {

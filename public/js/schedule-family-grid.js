@@ -10,6 +10,18 @@
   const FW_DAYS_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
   const FW_DAYS_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
 
+  function spt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function fwDayShort(dow) {
+    return window.ScheduleCore?.dayShort ? window.ScheduleCore.dayShort(dow) : FW_DAYS_SHORT[dow];
+  }
+
+  function fwDayFull(dow) {
+    return window.ScheduleCore?.dayName ? window.ScheduleCore.dayName(dow) : FW_DAYS_FULL[dow];
+  }
+
   function setScheduleMode(mode) {
     scheduleMode = mode;
     document.getElementById('btnModeSingle').classList.toggle('active', mode === 'single');
@@ -69,7 +81,10 @@
   function fwUpdateWeekLabel() {
     const ws = fwGetWeekStart(fwWeekOffset);
     const wn = fwGetWeekNumber(ws);
-    document.getElementById('fwWeekLabel').textContent = `Vecka ${wn}, ${ws.getFullYear()}`;
+    document.getElementById('fwWeekLabel').textContent = spt('schedule.familyGrid.weekLabel', {
+      week: wn,
+      year: ws.getFullYear(),
+    });
   }
 
   function fwGetDatesForWeek(offset) {
@@ -87,7 +102,7 @@
   async function fwLoadAll() {
     if (!children || children.length === 0) {
       document.getElementById('fwGridContainer').innerHTML =
-        '<div class="text-center py-20"><p class="text-5xl mb-4">👨‍👩‍👧</p><p class="font-heading font-bold text-navy text-xl mb-2">Inga barn tillagda</p><p class="text-sm text-text-soft">Lägg till barn genom att byta till &quot;Mitt barn&quot;-läget.</p></div>';
+        '<div class="text-center py-20"><p class="text-5xl mb-4">👨‍👩‍👧</p><p class="font-heading font-bold text-navy text-xl mb-2">' + spt('schedule.familyGrid.noChildrenTitle') + '</p><p class="text-sm text-text-soft">' + spt('schedule.familyGrid.noChildrenHint') + '</p></div>';
       return;
     }
     document.getElementById('fwGridContainer').innerHTML =
@@ -136,7 +151,7 @@
       const dateLabel = date ? `${date.getDate()}/${date.getMonth() + 1}` : '';
       const isToday = dow === todayDow && fwWeekOffset === 0;
       return `<th class="fw-day-header${isToday ? ' fw-today-hdr' : ''}">
-      <div>${FW_DAYS_SHORT[dow]}</div>
+      <div>${fwDayShort(dow)}</div>
       <div style="font-size:10px; font-weight:500; opacity:0.65; margin-top:1px;">${dateLabel}</div>
       ${isToday ? '<div style="width:6px;height:6px;border-radius:50%;background:#3B82F6;margin:3px auto 0;"></div>' : ''}
     </th>`;
@@ -162,13 +177,13 @@
             <span class="fw-name">${escHtml(item.activity_name_display || item.activity_name || '')}</span>
           </div>`;
           }).join('');
-          if (rest > 0) cellContent += `<div class="fw-more" title="Visa alla ${rest} aktiviteter">Visa alla (${rest})</div>`;
+          if (rest > 0) cellContent += `<div class="fw-more" title="${spt('schedule.familyGrid.showAllTitle', { count: rest })}">${spt('schedule.familyGrid.showAll', { count: rest })}</div>`;
         } else {
           cellContent = `<div class="fw-empty-ind">—</div>`;
         }
 
         const cellClass = `fw-day-cell${hasAct ? ' fw-has-act' : ' fw-empty'}${isToday ? ' fw-today' : ''}`;
-        return `<td class="${cellClass}" onclick="fwGoToEdit('${child.id}', ${dow})" title="${FW_DAYS_FULL[dow]} — ${escHtml(child.name)}">
+        return `<td class="${cellClass}" onclick="fwGoToEdit('${child.id}', ${dow})" title="${fwDayFull(dow)} — ${escHtml(child.name)}">
         ${cellContent}
       </td>`;
       }).join('');
@@ -189,7 +204,7 @@
       <table class="fw-grid">
         <thead>
           <tr>
-            <th class="fw-corner fw-child-col">Barn</th>
+            <th class="fw-corner fw-child-col">${spt('schedule.familyGrid.childColumn')}</th>
             ${headerCells}
           </tr>
         </thead>

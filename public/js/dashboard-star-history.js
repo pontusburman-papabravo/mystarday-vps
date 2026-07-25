@@ -8,6 +8,10 @@
   // ── Star history chart (weekly stars, 8 weeks) ────────────
   let starHistoryData = null;
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   async function loadStarHistory() {
     try {
       const res = await window.apiFetch('/api/family/star-history');
@@ -27,6 +31,11 @@
     const section = document.getElementById('starHistorySection');
     const content = document.getElementById('starHistoryContent');
     if (!section || !content) return;
+
+    const titleEl = section.querySelector('[data-i18n="home.starHistory.title"]');
+    const subtitleEl = section.querySelector('[data-i18n="home.starHistory.subtitle"]');
+    if (titleEl) titleEl.textContent = '⭐ ' + pt('home.starHistory.title');
+    if (subtitleEl) subtitleEl.textContent = pt('home.starHistory.subtitle');
 
     section.classList.remove('hidden');
 
@@ -58,7 +67,7 @@
 
           const weekTotal = ch.reduce((sum, c) => sum + (w.child_totals[c.id] || 0), 0);
           const isEmpty = weekTotal === 0;
-          return `<div class="week-day-col" style="min-width:60px;" title="V${w.week_label}: ${weekTotal} stjärnor">
+          return `<div class="week-day-col" style="min-width:60px;" title="${pt('home.starHistory.weekTooltip', { week: w.week_label, count: weekTotal })}">
             <div class="text-[10px] font-bold text-center mb-1 ${isEmpty ? 'text-text-soft' : 'text-gold'}">${weekTotal}⭐</div>
             <div class="flex gap-1 justify-center mb-1">${bars}</div>
             <div class="text-[10px] font-bold text-center ${w.is_current ? 'text-gold' : 'text-text-soft'}">${w.week_label}</div>
