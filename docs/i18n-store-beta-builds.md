@@ -31,8 +31,10 @@ Files: `ios/App/App.xcodeproj/project.pbxproj`, `assets/play-store/android-versi
 
 | Platform | Status | Notes |
 |----------|--------|-------|
-| iOS TestFlight | **BLOCKED** in cloud agent | Requires macOS + Xcode on local Mac |
-| Android Internal Testing | **BLOCKED** in cloud agent | Requires Android SDK; `android/` generated at sync |
+| iOS TestFlight | **READY TO BUILD** on Mac | main `9305f43e` — build 29 includes ATT fix + native l10n |
+| Android Internal Testing | **READY TO BUILD** on Mac | versionCode 9 |
+
+**Mac runbook:** `docs/i18n-beta-mac-session-runbook.md`
 
 ### iOS commands (local Mac)
 

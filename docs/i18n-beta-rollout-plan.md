@@ -67,9 +67,11 @@ Do **not** log: child names, PINs, activity names, reward names, free text.
 
 | Item | Status |
 |------|--------|
-| Device smoke | **BLOCKED** — no physical devices in cloud agent |
+| PR #722 merge | **DONE** (`9305f43e`) |
+| ATT fix in build 29 | **DONE** (via #720 merge) |
+| Device smoke | **BLOCKED** — Mac afternoon session |
 | Test family activation | **BLOCKED** — awaiting device smoke |
-| Native builds | **BLOCKED** — no Xcode/Android SDK in cloud agent |
+| Native builds uploaded | **BLOCKED** — Mac afternoon session |
 | Cohort 2+ | **Not started** |
 
 ## Next phase
