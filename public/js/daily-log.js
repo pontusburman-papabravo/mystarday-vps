@@ -339,7 +339,8 @@
     }
 
     function renderLog(data) {
-      const { log, items = [], section_times } = data;
+      const { log: rawLog, items = [], section_times } = data;
+      const log = rawLog || { is_paused: false };
       const total = items.length;
       const completed = items.filter(i => i.completed).length;
       const pct = total > 0 ? Math.round((completed / total) * 100) : 0;

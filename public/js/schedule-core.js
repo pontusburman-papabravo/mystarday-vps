@@ -76,10 +76,10 @@
         <div class="flex items-center gap-2"><span class="text-xl">${sec.emoji}</span>
           <div><h4 class="font-heading font-bold text-navy">${sectionName(sec.key, sec.label)}</h4>${tl ? `<p class="text-xs text-text-soft">${tl}</p>` : ''}</div>
         </div>
-        <button onclick="openAddModal('${sec.key}')" class="action-btn px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">+ Aktivitet</button>
+        <button onclick="openAddModal('${sec.key}')" class="action-btn px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">+ ${localizedString('schedule.addActivity', 'Aktivitet')}</button>
       </div>
       <div class="space-y-2 items-list" id="items-${sec.key}">
-        ${items.length === 0 ? '<p class="text-sm text-text-soft text-center py-3">Inga aktiviteter</p>' : items.map(i => renderItemFn(i)).join('')}
+        ${items.length === 0 ? `<p class="text-sm text-text-soft text-center py-3">${localizedString('schedule.emptySection', 'Inga aktiviteter')}</p>` : items.map(i => renderItemFn(i)).join('')}
       </div>
     </div>`;
     }).join('');
@@ -91,6 +91,7 @@
     dayName,
     dayShort,
     sectionName,
+    label: localizedString,
     SECTIONS,
     updateBirthdayHidden,
     fmtTime,

@@ -14,6 +14,17 @@ document.addEventListener('click', e => {
   if (itemId && typeof removeItem === 'function') removeItem(itemId);
 });
 
+function scheduleLabel(key, fallback) {
+  if (window.ScheduleCore && typeof ScheduleCore.label === 'function') {
+    return ScheduleCore.label(key, fallback);
+  }
+  if (typeof window.pt === 'function') {
+    const translated = window.pt(key);
+    if (translated && translated !== key) return translated;
+  }
+  return fallback;
+}
+
 // ── List View ─────────────────────────────────────────────
 function renderListView() {
   if (!currentScheduleId) { renderEmptyDay(); return; }
@@ -30,7 +41,7 @@ function renderListView() {
   });
 
   const itemsHtml = sorted.length === 0
-    ? '<p class="text-sm text-text-soft text-center py-8">Inga aktiviteter</p>'
+    ? `<p class="text-sm text-text-soft text-center py-8">${scheduleLabel('schedule.emptySection', 'Inga aktiviteter')}</p>`
     : sorted.map((item, idx) => {
         const secEmoji = { morgon:'🌅', dag:'☀️', kvall:'🌆', natt:'🌙' };
         const isOnce = !!item.is_once_task;
@@ -66,7 +77,7 @@ function renderListView() {
         <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child ? escHtml(child.name) : ''} <span class="text-text-soft font-normal text-base">📝 Listläge</span></h3>
         <p class="text-sm text-text-soft">${sorted.length} aktivitet${sorted.length !== 1 ? 'er' : ''} i schemaordning</p>
       </div>
-      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ Aktivitet</button>
+      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ ${scheduleLabel('schedule.addActivity', 'Aktivitet')}</button>
     </div>
     <div class="space-y-2">${itemsHtml}</div>`;
 }
@@ -180,7 +191,7 @@ function renderTimeline() {
         <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${tlDateLabel ? ` <span class="text-text-soft font-normal text-base">${tlDateLabel}</span>` : ''} — ${child?escHtml(child.name):''} ⏱ Tidsvy</h3>
         <p class="text-xs text-text-soft">Dra aktiviteter upp/ner för att ändra starttid. 06:00–22:00.</p>
       </div>
-      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ Aktivitet</button>
+      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ ${scheduleLabel('schedule.addActivity', 'Aktivitet')}</button>
     </div>
     <div class="border-2 border-lavender rounded-2xl overflow-hidden bg-white" id="timelineWrap" style="max-height:65vh;overflow-y:auto">
       ${slotsHtml}${unschHtml}

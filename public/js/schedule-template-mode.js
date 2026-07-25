@@ -74,8 +74,11 @@ function renderTemplate() {
       .filter(i => i.section === sec.key)
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
     const itemsHtml = items.length === 0
-      ? `<p class="text-sm text-text-soft text-center py-3">Inga aktiviteter</p>`
+      ? `<p class="text-sm text-text-soft text-center py-3">${(window.ScheduleCore && ScheduleCore.label ? ScheduleCore.label('schedule.emptySection', 'Inga aktiviteter') : 'Inga aktiviteter')}</p>`
       : items.map(i => renderTemplateScheduleItem(i)).join('');
+    const addLabel = (window.ScheduleCore && ScheduleCore.label)
+      ? ScheduleCore.label('schedule.addActivity', 'Aktivitet')
+      : 'Aktivitet';
     return `<div class="section-card border-2 ${sec.color} rounded-2xl p-4 mb-4" data-section="${sec.key}">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
@@ -85,7 +88,7 @@ function renderTemplate() {
         </div>
         <button onclick="openAddTemplateItemModal('${sec.key}')"
           class="px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">
-          + Aktivitet
+          + ${addLabel}
         </button>
       </div>
       <div class="space-y-2" id="template-items-${sec.key}">${itemsHtml}</div>

@@ -24,7 +24,16 @@ describe('parent magic platform inject', () => {
     const out = injectParentMagicHtml(wired, '/calendar');
     assert.match(out, /parent-magic-common\.css/);
     assert.match(out, /parent-magic-shell\.js/);
+    assert.match(out, /nav-config\.js/);
+    assert.match(out, /icon-system\.js/);
     assert.doesNotMatch(out, /parent-magic-router\.js/);
+  });
+
+  it('ensures nav scripts on daily-log when shell already embedded', () => {
+    const wired = minimalHtml.replace('</body>', '<script src="/js/parent-magic-shell.js"><\/script></body>');
+    const out = injectParentMagicHtml(wired, '/daily-log');
+    assert.match(out, /nav-config\.js/);
+    assert.match(out, /icon-system\.js/);
   });
 
   it('injectPlatformHtml still adds platform scripts', () => {
