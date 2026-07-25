@@ -539,7 +539,7 @@ function renderNowCard(item, canToggle) {
       <div class="now-activity">
         <div class="now-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="now-details">
-          <div class="now-title ${isDone ? 'line-through text-text-soft' : ''}">${forDigGoalBadgeHtml(item)} ${escHtml(item.name)}</div>
+          <div class="now-title ${isDone ? 'line-through text-text-soft' : ''}">${forDigGoalBadgeHtml(item)} ${escHtml(item.display_name || item.name)}</div>
           <div class="flex items-center gap-2 mt-0.5">
             ${timeStr && !hideClock ? `<span class="now-time"><span>🕐</span> ${timeStr}</span>` : ''}
             ${item.star_value > 0 ? `<span class="inline-flex items-center gap-0.5 text-sm font-bold" style="color:#F5A623;">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}
@@ -584,7 +584,7 @@ function renderDoneHistoryCard(item) {
       </div>
       <div class="nl-emoji" style="background:#E0F5EC;">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
       <div class="nl-info">
-        <div class="nl-title" style="text-decoration:line-through; color:#6B7280;">${escHtml(item.name)}</div>
+        <div class="nl-title" style="text-decoration:line-through; color:#6B7280;">${escHtml(item.display_name || item.name)}</div>
         ${timeStr && !hideClock ? `<div class="nl-time"><span>🕐</span> ${timeStr}</div>` : ''}
       </div>
     </div>`;
@@ -617,7 +617,7 @@ function renderNLCard(item, view, canToggle) {
       ${isPast ? `<div class="nl-chip chip-redan">Redan</div>` : ''}
       <div class="nl-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
       <div class="nl-info">
-        <div class="nl-title ${isDone ? 'line-through' : ''}">${escHtml(item.name)}</div>
+        <div class="nl-title ${isDone ? 'line-through' : ''}">${escHtml(item.display_name || item.name)}</div>
         ${timeStr && !hideClock ? `<div class="nl-time"><span>🕐</span> ${timeStr}</div>` : ''}
       </div>
       ${isDone
@@ -689,7 +689,7 @@ function renderActivityCard(item, isToday, timeStatus) {
         </div>` : ''}
         <div class="text-3xl flex-shrink-0">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>
         <div class="flex-1 min-w-0">
-          <h4 class="font-heading font-bold text-base ${isDone ? 'line-through text-text-soft' : 'text-navy'} truncate">${forDigGoalBadgeHtml(item)} ${escHtml(item.name)}</h4>
+          <h4 class="font-heading font-bold text-base ${isDone ? 'line-through text-text-soft' : 'text-navy'} truncate">${forDigGoalBadgeHtml(item)} ${escHtml(item.display_name || item.name)}</h4>
           <div class="flex items-center flex-wrap gap-1 mt-0.5">
             ${timeStr && !hideClock ? `<span class="text-xs text-text-soft">${timeStr}</span>` : ''}
             ${item.star_value > 0 ? `<span class="inline-flex items-center gap-0.5 text-xs font-bold" style="color:#F5A623;">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}

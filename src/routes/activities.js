@@ -8,6 +8,8 @@ const { requireParent } = require('../middleware/auth');
 const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
 const { validate, validateParams } = require('../middleware/validate');
 const { attachGoalMetaToMany } = require('../lib/for-dig-goal-meta');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { localizeActivityItems } = require('../lib/family-content-display');
 const { normalizeDurationSeconds } = require('../lib/activity-timer');
 const {
   validatePictogramKey,
@@ -46,7 +48,12 @@ router.get('/', async (req, res) => {
        ORDER BY c.sort_order ASC NULLS LAST, at.sort_order ASC NULLS LAST, at.name ASC`,
       [req.user.familyId]
     );
-    res.json(attachGoalMetaToMany(enrichPictogramFieldsMany(result.rows)));
+    const locale = await getFamilyPreferredLocale(req.user.familyId);
+    const rows = localizeActivityItems(
+      attachGoalMetaToMany(enrichPictogramFieldsMany(result.rows)),
+      locale
+    );
+    res.json(rows);
   } catch (err) {
     console.error('[ACTIVITIES] List error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

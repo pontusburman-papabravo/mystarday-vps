@@ -76,7 +76,7 @@
       return stars + ' ⭐';
     }
     const gap = nearest.star_cost - stars;
-    const rewardLabel = (nearest.icon || '🎁') + ' ' + (nearest.name || pt('library.rewardsHub.proximity.fallbackReward'));
+    const rewardLabel = (nearest.icon || '🎁') + ' ' + (nearest.display_name || nearest.name || pt('library.rewardsHub.proximity.fallbackReward'));
     if (gap <= 0) {
       return stars + ' ⭐ · ' + pt('library.rewardsHub.proximity.readyFor', { reward: rewardLabel });
     }

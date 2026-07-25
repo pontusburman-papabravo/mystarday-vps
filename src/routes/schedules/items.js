@@ -9,6 +9,8 @@ const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
 const authz = require('../../middleware/authz');
 const { getOrGenerateDailyLog, getSchoolVariant, syncDailyLogWithSchedule, getLocalDateStr, getDayOfWeek } = require('../../lib/daily-log-generator');
+const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+const { localizeActivityItems } = require('../../lib/family-content-display');
 const { addDaysIso } = require('../../lib/date-utils');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
@@ -173,7 +175,7 @@ router.get('/', async (req, res) => {
 
     const familyResult = await db.query(
       `SELECT f.morning_start, f.morning_end, f.day_start, f.day_end, f.evening_start, f.evening_end,
-              f.night_start, f.night_end, c.birthday
+              f.night_start, f.night_end, c.birthday, COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
        FROM family f
        JOIN child c ON c.family_id = f.id
        WHERE c.id = $1`,
@@ -182,6 +184,7 @@ router.get('/', async (req, res) => {
 
     const familyData = familyResult.rows[0] || {};
     const birthday = familyData.birthday;
+    const locale = familyData.preferred_locale || 'sv-SE';
     const schoolVariant = getSchoolVariant(birthday);
 
     const ageAwareItems = items.rows.map(item => {
@@ -235,6 +238,8 @@ router.get('/', async (req, res) => {
         }
       }
     }
+
+    finalItems = localizeActivityItems(finalItems, locale);
 
     res.json({
       schedule_id: req.params.scheduleId,
