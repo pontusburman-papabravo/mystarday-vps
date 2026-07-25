@@ -7,6 +7,9 @@
 
 const { sendEmail } = require('./email');
 const db = require('./db');
+const config = require('./config');
+const { t } = require('./i18n');
+const { resolveCommunicationLocale } = require('./communication-locale');
 
 const APP_URL = process.env.APP_URL || 'https://mystarday.se';
 
@@ -18,7 +21,7 @@ const APP_URL = process.env.APP_URL || 'https://mystarday.se';
  * @param {object} vars         — { foralderns_namn: string, barnets_namn?: string }
  * @returns {Promise<{ success: boolean, error?: string }>}
  */
-async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnets_namn } = {}) {
+async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnets_namn, locale } = {}) {
   try {
     // Read from welcome_email_template (id=1, is_active=true).
     // NOTE: email_templates table is NOT used for welcome emails — admin edits
@@ -71,7 +74,12 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
       ? `${APP_URL}/api/newsletter/unsubscribe?token=${unsubResult.rows[0].unsubscribe_token}`
       : `${APP_URL}/dashboard`;
 
-    const html = buildEmailHtml({ subject, bodyHtml, unsubscribeUrl });
+    const html = buildEmailHtml({
+      subject,
+      bodyHtml,
+      unsubscribeUrl,
+      locale: resolveCommunicationLocale(locale),
+    });
 
     const result = await sendEmail({ to: parentEmail, subject, html, unsubscribeUrl: unsubscribeUrl.includes('unsubscribe') ? unsubscribeUrl : undefined });
     if (!result.success) {
@@ -104,9 +112,11 @@ function formatBodyToHtml(text) {
     .join('');
 }
 
-function buildEmailHtml({ subject, bodyHtml, unsubscribeUrl }) {
+function buildEmailHtml({ subject, bodyHtml, unsubscribeUrl, locale = 'sv-SE' }) {
+  const brand = config.email.fromName || 'Stjärndag';
+  const lang = resolveCommunicationLocale(locale);
   return `<!DOCTYPE html>
-<html lang="sv">
+<html lang="${lang === 'en-GB' ? 'en-GB' : 'sv-SE'}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -117,37 +127,32 @@ function buildEmailHtml({ subject, bodyHtml, unsubscribeUrl }) {
     <tr>
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-          <!-- Header -->
           <tr>
             <td style="background-color:#F5A623;background-image:linear-gradient(135deg,#F5A623 0%,#e8952a 100%);padding:32px 40px;">
-              <h1 style="margin:0;color:#ffffff;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.9;">Min Stjärndag</h1>
-              <h2 style="margin:12px 0 0 0;color:#ffffff;font-size:24px;font-weight:700;line-height:1.3;">Välkommen! 🌟</h2>
+              <h1 style="margin:0;color:#ffffff;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.9;">${escapeHtml(brand)}</h1>
+              <h2 style="margin:12px 0 0 0;color:#ffffff;font-size:24px;font-weight:700;line-height:1.3;">${escapeHtml(t(lang, 'email.welcomeShell.headerTitle'))}</h2>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
             <td style="padding:40px 40px 32px 40px;color:#374151;font-size:16px;line-height:1.7;">
               ${bodyHtml}
             </td>
           </tr>
-          <!-- CTA -->
           <tr>
             <td style="padding:0 40px 40px 40px;">
               <a href="${escapeHtml(APP_URL)}/dashboard" style="display:inline-block;background:#F5A623;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;">
-                Öppna Min Stjärndag ⭐
+                ${escapeHtml(t(lang, 'email.welcomeShell.cta', { brand }))}
               </a>
             </td>
           </tr>
-          <!-- Divider -->
           <tr>
             <td style="border-top:1px solid #e5e7eb;"></td>
           </tr>
-          <!-- Footer -->
           <tr>
             <td style="padding:24px 40px;color:#9ca3af;font-size:13px;line-height:1.6;">
-              <p style="margin:0 0 8px 0;">Du får detta mail för att du nyligen registrerade dig på Min Stjärndag.</p>
+              <p style="margin:0 0 8px 0;">${escapeHtml(t(lang, 'email.welcomeShell.footerIntro', { brand }))}</p>
               <p style="margin:0;">
-                <a href="${escapeHtml(unsubscribeUrl)}" style="color:#9ca3af;text-decoration:underline;">Avprenumerera</a>
+                <a href="${escapeHtml(unsubscribeUrl)}" style="color:#9ca3af;text-decoration:underline;">${escapeHtml(t(lang, 'email.welcomeShell.unsubscribe'))}</a>
               </p>
             </td>
           </tr>

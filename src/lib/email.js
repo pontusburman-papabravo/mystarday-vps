@@ -199,64 +199,72 @@ async function sendInviteEmail(email, token, { inviteeName, inviterName, familyN
   });
 }
 
-async function sendChildLockoutNotification(parentEmail, childName) {
-  return sendPinWarningEmail(parentEmail, childName);
+async function sendChildLockoutNotification(parentEmail, childName, locale = 'sv-SE') {
+  return sendPinWarningEmail(parentEmail, childName, locale);
 }
 
-async function sendPinWarningEmail(parentEmail, childName) {
+async function sendPinWarningEmail(parentEmail, childName, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
+  const brand = brandName();
   const baseUrl = config.email.baseUrl;
   return sendEmail({
     to: parentEmail,
-    subject: `⚠️ ${childName} försöker logga in`,
+    subject: t(lang, 'email.pinWarning.subject', { childName }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Inloggningsförsök på Min Stjärndag</h2>
-        <p>${childName} har skrivit fel PIN-kod 3 gånger på Min Stjärndag.</p>
-        <p>Du kan hjälpa till med rätt kod eller återställa PIN:en i appen.</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.pinWarning.title', { brand })}</h2>
+        <p>${t(lang, 'email.pinWarning.body', { childName, brand })}</p>
+        <p>${t(lang, 'email.pinWarning.help')}</p>
         <div style="text-align: center; margin: 24px 0;">
-          <a href="${baseUrl}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">Öppna Min Stjärndag</a>
+          <a href="${baseUrl}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.pinWarning.button', { brand })}</a>
         </div>
-        <p style="color: #5A6178; font-size: 14px;">Om detta inte var ditt barn kan du logga in och ändra PIN-koden under barnets inställningar.</p>
+        <p style="color: #5A6178; font-size: 14px;">${t(lang, 'email.pinWarning.footer')}</p>
       </div>
     `,
   });
 }
 
-async function sendAccountDeletionRequestedEmail(email, firstName) {
+async function sendAccountDeletionRequestedEmail(email, firstName, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
+  const brand = brandName();
   const baseUrl = config.email.baseUrl;
+  const supportEmail = FROM_ADDRESS;
   return sendEmail({
     to: email,
-    subject: 'Ditt konto hos Min Stjärndag har markerats för radering',
+    subject: t(lang, 'email.accountDeletionRequested.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Hej ${firstName}!</h2>
-        <p>Vi har tagit emot en begäran om att radera ditt konto och all tillhörande data.</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.accountDeletionRequested.greeting', { name: firstName })}</h2>
+        <p>${t(lang, 'email.accountDeletionRequested.intro')}</p>
         <div style="background: #FFF3D6; border-left: 4px solid #F5A623; border-radius: 8px; padding: 1rem 1.2rem; margin: 1.5rem 0;">
-          <p style="color: #1B2340; font-weight: 600; margin: 0;">⏳ Dina data raderas permanent om 30 dagar.</p>
+          <p style="color: #1B2340; font-weight: 600; margin: 0;">${t(lang, 'email.accountDeletionRequested.graceTitle')}</p>
         </div>
-        <p>Under denna period kan du logga in och <strong>ångra raderingen</strong> om du ändrar dig.</p>
-        <p>Om du ångrar dig — logga in på <a href="${baseUrl}" style="color: #F5A623; font-weight: 600;">Min Stjärndag</a> så ser du ett alternativ att avbryta.</p>
-        <p style="color: #5A6178; font-size: 14px; margin-top: 2rem;">Om detta var ett misstag kan du ignorera detta mejl. Dina data kommer att raderas om 30 dagar om du inte avbryter.</p>
-        <p style="color: #5A6178; font-size: 14px;">Om du har frågor, kontakta oss på <a href="mailto:info@mystarday.se" style="color: #F5A623;">info@mystarday.se</a></p>
+        <p>${t(lang, 'email.accountDeletionRequested.undo')}</p>
+        <p>${t(lang, 'email.accountDeletionRequested.loginHint', { brand: `<a href="${baseUrl}" style="color: #F5A623; font-weight: 600;">${brand}</a>` })}</p>
+        <p style="color: #5A6178; font-size: 14px; margin-top: 2rem;">${t(lang, 'email.accountDeletionRequested.footer')}</p>
+        <p style="color: #5A6178; font-size: 14px;">${t(lang, 'email.accountDeletionRequested.contact', { supportEmail: `<a href="mailto:${supportEmail}" style="color: #F5A623;">${supportEmail}</a>` })}</p>
       </div>
     `,
   });
 }
 
-async function sendAccountDeletedEmail(email, firstName) {
+async function sendAccountDeletedEmail(email, firstName, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
+  const brand = brandName();
+  const brandUrl = config.email.baseUrl;
   return sendEmail({
     to: email,
-    subject: 'Ditt konto hos Min Stjärndag har raderats',
+    subject: t(lang, 'email.accountDeleted.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Hej ${firstName}</h2>
-        <p>Ditt konto och all tillhörande data har nu raderats permanent från Min Stjärndag.</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.accountDeleted.greeting', { name: firstName })}</h2>
+        <p>${t(lang, 'email.accountDeleted.intro', { brand })}</p>
         <div style="background: #E0F5EC; border-left: 4px solid #22C55E; border-radius: 8px; padding: 1rem 1.2rem; margin: 1.5rem 0;">
-          <p style="color: #1B2340; font-weight: 600; margin: 0;">Alla familjer, barn, scheman, aktiviteter och stjärnor har tagits bort.</p>
+          <p style="color: #1B2340; font-weight: 600; margin: 0;">${t(lang, 'email.accountDeleted.dataRemoved')}</p>
         </div>
-        <p>Vi hoppas att Min Stjärndag har varit till hjälp under tiden.</p>
+        <p>${t(lang, 'email.accountDeleted.thanks', { brand })}</p>
         <p style="font-size: 14px; color: #5A6178; margin-top: 20px;">
-          Om du vill skapa ett nytt konto är du välkommen tillbaka när som helst på <a href="https://mystarday.se" style="color: #F5A623; font-weight: 600;">mystarday.se</a>
+          ${t(lang, 'email.accountDeleted.return', { brandUrl: `<a href="${brandUrl}" style="color: #F5A623; font-weight: 600;">${brandUrl.replace(/^https?:\/\//, '')}</a>` })}
         </p>
       </div>
     `,
@@ -374,27 +382,26 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
   });
 }
 
-async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl }) {
-  const firstName = (parentName || '').split(' ')[0] || 'Förälder';
+async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 'sv-SE' }) {
+  const lang = validateLocale(locale);
+  const firstName = (parentName || '').split(' ')[0] || (lang === 'en-GB' ? 'there' : 'Förälder');
   const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/onboarding`;
   return sendEmail({
     to,
-    subject: 'Låt barnet testa första steget ⭐',
+    subject: t(lang, 'email.childHandoff.subject'),
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
-        <h2 style="color:#1B2340;">Hej ${firstName}!</h2>
+        <h2 style="color:#1B2340;">${t(lang, 'email.childHandoff.greeting', { name: firstName })}</h2>
         <p style="color:#5A6178;line-height:1.6;">
-          Schemat är klart. Nästa steg är att låta barnet logga in med PIN —
-          det tar under en minut.
+          ${t(lang, 'email.childHandoff.body')}
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${url}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Fortsätt till barninloggning
+            ${t(lang, 'email.childHandoff.button')}
           </a>
         </div>
-        <p style="color:#9CA3AF;font-size:13px;">Min Stjärndag — mystarday.se</p>
       </div>
     `,
   });

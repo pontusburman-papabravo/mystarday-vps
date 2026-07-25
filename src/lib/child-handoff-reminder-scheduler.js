@@ -9,6 +9,7 @@
 const db = require('./db');
 const config = require('./config');
 const { sendChildHandoffReminderEmail } = require('./email');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const { CHILD_HANDOFF_REMINDER_LOCK_ID } = require('./scheduler-constants');
@@ -17,9 +18,10 @@ const { withAdvisoryLock } = require('./scheduler-lock');
 const CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
 const HANDOFF_REMINDER_CANDIDATE_SQL = `
-  SELECT s.family_id, p.email, p.name AS parent_name
+  SELECT s.family_id, p.email, p.name AS parent_name, f.preferred_locale
   FROM family_activation_state s
   JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+  JOIN family f ON f.id = s.family_id
   LEFT JOIN notification_preference np ON np.parent_id = p.id
   WHERE s.schema_saved_at IS NOT NULL
     AND s.child_access_completed_at IS NULL
@@ -85,6 +87,7 @@ async function runChildHandoffReminderJob() {
           to: row.email,
           parentName: row.parent_name,
           ctaUrl: resolveHandoffReminderCtaUrl(),
+          locale: resolveCommunicationLocale(row.preferred_locale),
         });
 
         require('../../db/analytics').track(row.family_id, 'child_handoff_reminder_sent', {

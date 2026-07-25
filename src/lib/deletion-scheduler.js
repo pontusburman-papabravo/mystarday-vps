@@ -12,6 +12,7 @@
 
 const db = require('./db');
 const { sendAccountDeletedEmail } = require('./email');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const { DELETION_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
 
@@ -72,6 +73,12 @@ async function executeCascadeDelete({ id: parentId, email, family_id, deletion_r
   try {
     await client.query('BEGIN');
 
+    const familyLocaleResult = await client.query(
+      'SELECT preferred_locale FROM family WHERE id = $1',
+      [family_id]
+    );
+    const communicationLocale = resolveCommunicationLocale(familyLocaleResult.rows[0]?.preferred_locale);
+
     // First check if this is the last active parent in the family
     const otherParents = await client.query(
       `SELECT id FROM parent
@@ -109,7 +116,7 @@ async function executeCascadeDelete({ id: parentId, email, family_id, deletion_r
 
     // Send deletion confirmation email (non-blocking)
     const firstName = email.split('@')[0].split('.')[0]; // rough extraction
-    sendAccountDeletedEmail(email, firstName).catch(err => {
+    sendAccountDeletedEmail(email, firstName, communicationLocale).catch(err => {
       console.warn(`[DELETION-SCHEDULER] Failed to send deletion email to parent ${parentId}:`, err.message);
     });
 

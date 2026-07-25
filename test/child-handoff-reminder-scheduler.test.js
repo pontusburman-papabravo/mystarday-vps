@@ -102,18 +102,18 @@ describe('child handoff reminder scheduler (PR 2)', () => {
   });
 
   it('email copy is neutral (no skip wording)', () => {
-    const email = fs.readFileSync(path.join(ROOT, 'src/lib/email.js'), 'utf8');
-    const block = email.slice(
-      email.indexOf('async function sendChildHandoffReminderEmail'),
-      email.indexOf('async function sendActivationNudgeEmail')
-    );
-    assert.match(block, /Låt barnet testa första steget/);
-    assert.match(block, /Fortsätt till barninloggning/);
-    assert.match(block, /Schemat är klart/);
-    assert.match(block, /barnet logga in med PIN/i);
-    assert.doesNotMatch(block, /Öppna barnläget/);
-    assert.doesNotMatch(block, /hoppa över/i);
-    assert.doesNotMatch(block, /inte gjort klart/i);
+    const { loadLocales, t } = require('../src/lib/i18n');
+    loadLocales();
+    const subject = t('sv-SE', 'email.childHandoff.subject');
+    const body = t('sv-SE', 'email.childHandoff.body');
+    const button = t('sv-SE', 'email.childHandoff.button');
+    assert.match(subject, /Låt barnet testa första steget/);
+    assert.match(button, /Fortsätt till barninloggning/);
+    assert.match(body, /Schemat är klart/);
+    assert.match(body, /barnet logga in med PIN/i);
+    assert.doesNotMatch(body, /Öppna barnläget/);
+    assert.doesNotMatch(body, /hoppa över/i);
+    assert.doesNotMatch(body, /inte gjort klart/i);
   });
 
   it('uses Journey communication gate with handoff reminder intent', () => {

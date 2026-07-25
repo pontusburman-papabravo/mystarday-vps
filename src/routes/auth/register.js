@@ -390,6 +390,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         sendWelcomeEmail(normalizedEmail, parentId, {
           foralderns_namn: trimmedName,
           barnets_namn: '',
+          locale: familyLocale,
         }).catch(err => {
           console.error('[AUTH] Welcome email send failed:', err.message);
         });

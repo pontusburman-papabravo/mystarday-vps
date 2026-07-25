@@ -4,6 +4,8 @@ const express = require('express');
 const archiver = require('archiver');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
+const { resolveCommunicationLocale } = require('../../lib/communication-locale');
+const { t } = require('../../lib/i18n');
 
 const router = express.Router();
 
@@ -13,8 +15,8 @@ const exportRateLimit = new Map();
 const EXPORT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 // ─── Helper: convert array of objects to CSV string ─────
-function toCsv(rows) {
-  if (!rows || rows.length === 0) return 'Ingen data\n';
+function toCsv(rows, locale = 'sv-SE') {
+  if (!rows || rows.length === 0) return `${t(locale, 'api.export.noData')}\n`;
   const headers = Object.keys(rows[0]);
   const escape = (v) => {
     if (v == null) return '';
@@ -38,13 +40,19 @@ function toCsv(rows) {
 router.get('/export-data', requireParent, async (req, res) => {
   const parentId = req.user.id;
 
+  const localeRow = await db.query(
+    `SELECT f.preferred_locale FROM parent p JOIN family f ON f.id = p.family_id WHERE p.id = $1`,
+    [parentId]
+  );
+  const locale = resolveCommunicationLocale(localeRow.rows[0]?.preferred_locale);
+
   // Rate limit check
   const lastExport = exportRateLimit.get(parentId);
   if (lastExport && Date.now() - lastExport < EXPORT_COOLDOWN_MS) {
     const nextAllowed = new Date(lastExport + EXPORT_COOLDOWN_MS);
     const hoursLeft = Math.ceil((nextAllowed - Date.now()) / (1000 * 60 * 60));
     return res.status(429).json({
-      error: `Du kan bara exportera din data en gång per 24 timmar. Försök igen om ${hoursLeft} timmar.`,
+      error: t(locale, 'api.export.rateLimit', { hours: String(hoursLeft) }),
       next_allowed_at: nextAllowed.toISOString(),
     });
   }
@@ -53,13 +61,13 @@ router.get('/export-data', requireParent, async (req, res) => {
     // Fetch parent + family info
     const parentRow = await db.query(
       `SELECT p.id, p.name, p.email, p.created_at, p.family_id,
-              f.name AS family_name, f.timezone
+              f.name AS family_name, f.timezone, f.preferred_locale
        FROM parent p JOIN family f ON f.id = p.family_id
        WHERE p.id = $1`,
       [parentId]
     );
     if (parentRow.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return res.status(404).json({ error: t(locale, 'api.export.notFound') });
     }
     const { family_id } = parentRow.rows[0];
 
@@ -182,16 +190,16 @@ router.get('/export-data', requireParent, async (req, res) => {
       familjenamn: r.family_name,
       tidszon: r.timezone,
       registrerad: r.created_at,
-    }))), { name: '01_profil.csv' });
+    })), locale), { name: '01_profil.csv' });
 
-    archive.append(toCsv(childrenRes.rows), { name: '02_barn.csv' });
-    archive.append(toCsv(weeklyItemsRes.rows), { name: '03_scheman.csv' });
-    archive.append(toCsv(rewardsRes.rows), { name: '04_beloningar.csv' });
-    archive.append(toCsv(redemptionsRes.rows), { name: '05_inlosningar.csv' });
-    archive.append(toCsv(dailyLogsRes.rows), { name: '06_dagliga_loggar.csv' });
-    archive.append(toCsv(dailyLogItemsRes.rows), { name: '07_aktiviteter.csv' });
-    archive.append(toCsv(ratingsRes.rows), { name: '08_betygssattning.csv' });
-    archive.append(toCsv(manualStarsRes.rows), { name: '09_manuella_stjarnor.csv' });
+    archive.append(toCsv(childrenRes.rows, locale), { name: '02_barn.csv' });
+    archive.append(toCsv(weeklyItemsRes.rows, locale), { name: '03_scheman.csv' });
+    archive.append(toCsv(rewardsRes.rows, locale), { name: '04_beloningar.csv' });
+    archive.append(toCsv(redemptionsRes.rows, locale), { name: '05_inlosningar.csv' });
+    archive.append(toCsv(dailyLogsRes.rows, locale), { name: '06_dagliga_loggar.csv' });
+    archive.append(toCsv(dailyLogItemsRes.rows, locale), { name: '07_aktiviteter.csv' });
+    archive.append(toCsv(ratingsRes.rows, locale), { name: '08_betygssattning.csv' });
+    archive.append(toCsv(manualStarsRes.rows, locale), { name: '09_manuella_stjarnor.csv' });
 
     await archive.finalize();
   } catch (err) {

@@ -6,6 +6,8 @@ const { hashPassword, comparePassword } = require('../../lib/hash');
 const { requireParent } = require('../../middleware/auth');
 const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
 const { sendAccountDeletionRequestedEmail } = require('../../lib/email');
+const { resolveCommunicationLocale } = require('../../lib/communication-locale');
+const { t } = require('../../lib/i18n');
 
 const router = express.Router();
 
@@ -23,9 +25,13 @@ router.post('/delete', requireParent, async (req, res) => {
     }
 
     if (existing.rows[0].pending_deletion) {
-      // Already pending — return success without re-triggering
+      const familyLocale = await db.query(
+        'SELECT preferred_locale FROM family WHERE id = $1',
+        [req.user.familyId || req.user.family_id]
+      );
+      const locale = resolveCommunicationLocale(familyLocale.rows[0]?.preferred_locale);
       return res.json({
-        message: 'Kontot är redan markerat för radering.',
+        message: t(locale, 'api.account.alreadyPending'),
         pending_deletion: true,
         deletion_requested_at: existing.rows[0].deletion_requested_at,
       });
@@ -40,19 +46,21 @@ router.post('/delete', requireParent, async (req, res) => {
 
     // Get email for notification
     const parentResult = await db.query(
-      `SELECT email, family_id FROM parent WHERE id = $1`,
+      `SELECT p.email, f.preferred_locale FROM parent p
+       JOIN family f ON f.id = p.family_id
+       WHERE p.id = $1`,
       [req.user.id]
     );
-    const { email } = parentResult.rows[0];
+    const { email, preferred_locale: preferredLocale } = parentResult.rows[0];
+    const locale = resolveCommunicationLocale(preferredLocale);
     const firstName = email.split('@')[0].split('.')[0];
 
-    // Send confirmation email
-    sendAccountDeletionRequestedEmail(email, firstName).catch(err => {
+    sendAccountDeletionRequestedEmail(email, firstName, locale).catch(err => {
       console.warn('[ACCOUNT] Failed to send deletion email:', err.message);
     });
 
     res.json({
-      message: 'Kontot har markerats för radering. Du har 30 dagar att ångra dig.',
+      message: t(locale, 'api.account.deletionPending'),
       pending_deletion: true,
       deletion_requested_at: now.toISOString(),
       days_remaining: 30,

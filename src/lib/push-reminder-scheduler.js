@@ -16,6 +16,8 @@
 
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
+const { t } = require('./i18n');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const { PUSH_REMINDER_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { getDayOfWeek, getLocalDateStr } = require('./daily-log-generator');
 const { shouldSendScheduleReminder } = require('./push-reminder-timing');
@@ -146,13 +148,14 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
 
   // Get parents with schedule_reminder enabled
   const parentsResult = await db.query(
-    `SELECT p.id AS parent_id, p.push_preferences
+    `SELECT p.id AS parent_id, p.push_preferences, f.preferred_locale
      FROM parent p
+     JOIN family f ON f.id = p.family_id
      WHERE p.push_preferences::jsonb ? 'schedule_reminder'
         OR NOT p.push_preferences::jsonb ? 'enabled'`
   );
 
-  for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
+  for (const { parent_id, push_preferences: rawPrefs, preferred_locale: preferredLocale } of parentsResult.rows) {
     const prefs = (() => {
       const r = rawPrefs || {};
       return {
@@ -213,20 +216,24 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
         if (!shouldSendScheduleReminder(itemTimeMin, currentTimeMin, leadMin)) continue;
 
         const minsUntil = itemTimeMin - currentTimeMin;
-        const titlePrefix = `Dags för "${item.activity_name}"`;
+        const locale = resolveCommunicationLocale(preferredLocale);
+        const titlePrefix = t(locale, 'push.scheduleReminder.title', {
+          activityName: item.activity_name,
+          minutes: String(minsUntil),
+        });
         const dupCheck = await db.query(
           `SELECT 1 FROM notification_log
            WHERE parent_id = $1 AND type = 'schedule_reminder'
-             AND title LIKE $2
+             AND title = $2
              AND created_at > NOW() - INTERVAL '2 hours'
            LIMIT 1`,
-          [parent_id, `${titlePrefix}%`]
+          [parent_id, titlePrefix]
         );
         if (dupCheck.rows.length > 0) continue;
 
         await sendPushNotification(parent_id, {
-          title: `${titlePrefix} om ${minsUntil} minuter! ⭐`,
-          body: `Påminnelse för ${child.name}`,
+          title: titlePrefix,
+          body: t(locale, 'push.scheduleReminder.body', { childName: child.name }),
           type: 'schedule_reminder',
           url: '/child/today',
         });
