@@ -7,6 +7,7 @@
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>sv</string>
+		<string>en-GB</string>
 	</array>
 	<key>CFBundleDisplayName</key>
         <string>Min Stjärndag</string> <!-- pragma: allowlist secret -->

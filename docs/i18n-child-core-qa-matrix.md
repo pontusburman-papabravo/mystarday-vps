@@ -5,7 +5,7 @@
 ## Preconditions
 
 - Family locale en-GB with english_app and english_child_experience enabled (per-family; default OFF globally).
-- QA account: see `docs/qa-test-account.md` (parent review account, child Anna).
+- QA account: see docs/qa-test-account.md (parent review account, child Anna). <!-- pragma: allowlist secret -->
 
 ## Matrix
 
