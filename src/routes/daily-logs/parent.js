@@ -36,7 +36,7 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
 
     const locale = await getFamilyPreferredLocale(child.family_id);
     const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(items, child.birthday);
-    const localizedItems = localizeActivityItems(itemsWithVariant, locale);
+    const localizedItems = await localizeActivityItems(itemsWithVariant, locale);
 
     const sections = groupItemsBySection(localizedItems);
 

@@ -239,7 +239,7 @@ router.get('/', async (req, res) => {
       }
     }
 
-    finalItems = localizeActivityItems(finalItems, locale);
+    finalItems = await localizeActivityItems(finalItems, locale);
 
     res.json({
       schedule_id: req.params.scheduleId,

@@ -556,7 +556,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       // Table may not exist yet on old instances
     }
 
-    const childStats = children.map(c => {
+    const childStats = await Promise.all(children.map(async (c) => {
       const earned = earnedMap[c.id] || 0;
       const manual = manualMap[c.id] || 0;
       const spent = spentMap[c.id] || 0;
@@ -567,7 +567,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       const rawItems = today.log_id ? (todayItemsMap[today.log_id] || []) : [];
       let nuAssigned = false;
       let nextaAssigned = false;
-      const annotatedItems = rawItems.map(item => {
+      const annotatedItems = await Promise.all(rawItems.map(async (item) => {
         let status = 'SEDAN';
         if (item.completed) {
           status = 'DONE';
@@ -591,12 +591,12 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
           for_dig_goal: item.for_dig_goal || null,
           status,
         }, familyLocale);
-      });
+      }));
 
       // Nearest reward: first reward whose cost > balance (not yet earned), else first reward
       const nearestReward = allRewards.find(r => r.star_cost > balance) || allRewards[0] || null;
       const nearestRewardOut = nearestReward
-        ? localizeRewardRow(nearestReward, familyLocale)
+        ? await localizeRewardRow(nearestReward, familyLocale)
         : null;
 
       return {
@@ -623,7 +623,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         pending_goal_changes: pendingGoalMap[c.id] || 0,
         history: historyByChild[c.id] || [],
       };
-    });
+    }));
 
     // Medförälder CTA: count parents in this family (excluding the current user's role)
     const parentCountResult = await db.query(
