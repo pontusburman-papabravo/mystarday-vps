@@ -434,6 +434,71 @@
       "body": "tap here to set a new password:",
       "button": "Reset password",
       "expiry": "This link is valid for {{hours}} hour. Ignore this email if you did not request a reset."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} is trying to log in",
+      "title": "Sign-in attempt on {{brand}}",
+      "body": "{{childName}} entered the wrong PIN 3 times on {{brand}}.",
+      "help": "You can help with the correct code or reset the PIN in the app.",
+      "button": "Open {{brand}}",
+      "footer": "If this was not your child, sign in and change the PIN under the child's settings."
+    },
+    "accountDeletionRequested": {
+      "subject": "Your {{brand}} account has been marked for deletion",
+      "greeting": "Hi {{name}}!",
+      "intro": "We have received a request to delete your account and all associated data.",
+      "graceTitle": "⏳ Your data will be permanently deleted in 30 days.",
+      "undo": "During this period you can sign in and <strong>cancel the deletion</strong> if you change your mind.",
+      "loginHint": "If you change your mind — sign in to {{brand}} and you will see an option to cancel.",
+      "footer": "If this was a mistake you can ignore this email. Your data will be deleted in 30 days unless you cancel.",
+      "contact": "If you have questions, contact us at {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Your {{brand}} account has been deleted",
+      "greeting": "Hi {{name}}",
+      "intro": "Your account and all associated data have now been permanently deleted from {{brand}}.",
+      "dataRemoved": "All families, children, schedules, activities and stars have been removed.",
+      "thanks": "We hope {{brand}} was helpful while you used it.",
+      "return": "If you want to create a new account you are welcome back any time at {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Let your child try the first step ⭐",
+      "greeting": "Hi {{name}}!",
+      "body": "The schedule is ready. Next, let your child sign in with their PIN — it takes under a minute.",
+      "button": "Continue to child sign-in"
+    },
+    "welcomeShell": {
+      "headerTitle": "Welcome! 🌟",
+      "cta": "Open {{brand}} ⭐",
+      "footerIntro": "You are receiving this email because you recently signed up for {{brand}}.",
+      "unsubscribe": "Unsubscribe"
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Time for \"{{activityName}}\" in {{minutes}} minutes! ⭐",
+      "body": "Reminder for {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Keep the routine going 💫",
+      "day3Body": "It has been a few days — open the schedule and give today's stars.",
+      "day7Title": "A week since you were in",
+      "day7Body": "Your child's schedule is waiting. A quick check-in is enough.",
+      "day14Title": "We miss you in the app",
+      "day14Body": "Two weeks without activity — jump in and keep the routine alive."
+    }
+  },
+  "api": {
+    "feedbackAck": "Thank you for your feedback! We read everything that comes in.",
+    "contactAck": "Thank you! We have received your message.",
+    "export": {
+      "noData": "No data",
+      "rateLimit": "You can only export your data once every 24 hours. Try again in {{hours}} hours.",
+      "notFound": "User not found"
+    },
+    "account": {
+      "deletionPending": "Your account has been marked for deletion. You have 30 days to change your mind.",
+      "alreadyPending": "Your account is already marked for deletion."
     }
   }
 }

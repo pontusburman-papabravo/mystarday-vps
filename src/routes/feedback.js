@@ -9,6 +9,8 @@ const { validate } = require('../middleware/validate');
 const { FeedbackSchema } = require('../lib/schemas');
 const { validateLocale } = require('../lib/locale');
 const { isEnglishAppEnabled, isEnglishChildExperienceEnabled } = require('../lib/i18n-flags');
+const { resolveCommunicationLocale } = require('../lib/communication-locale');
+const { t } = require('../lib/i18n');
 
 const router = express.Router();
 
@@ -150,7 +152,9 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
       `,
     });
 
-    res.status(201).json({ message: 'Tack för din feedback! Vi läser allt som kommer in.' });
+    res.status(201).json({
+      message: t(resolveCommunicationLocale(familyLocale), 'api.feedbackAck'),
+    });
   } catch (err) {
     if (err.code === 'METADATA_TOO_LARGE') {
       return res.status(400).json({ error: 'Metadata för stor' });

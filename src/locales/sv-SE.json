@@ -434,6 +434,71 @@
       "body": "klicka här för att sätta ett nytt lösenord:",
       "button": "Återställ lösenord",
       "expiry": "Länken är giltig i {{hours}} timme. Ignorera detta mail om du inte begärde en återställning."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} försöker logga in",
+      "title": "Inloggningsförsök på {{brand}}",
+      "body": "{{childName}} har skrivit fel PIN-kod 3 gånger på {{brand}}.",
+      "help": "Du kan hjälpa till med rätt kod eller återställa PIN:en i appen.",
+      "button": "Öppna {{brand}}",
+      "footer": "Om detta inte var ditt barn kan du logga in och ändra PIN-koden under barnets inställningar."
+    },
+    "accountDeletionRequested": {
+      "subject": "Ditt konto hos {{brand}} har markerats för radering",
+      "greeting": "Hej {{name}}!",
+      "intro": "Vi har tagit emot en begäran om att radera ditt konto och all tillhörande data.",
+      "graceTitle": "⏳ Dina data raderas permanent om 30 dagar.",
+      "undo": "Under denna period kan du logga in och <strong>ångra raderingen</strong> om du ändrar dig.",
+      "loginHint": "Om du ångrar dig — logga in på {{brand}} så ser du ett alternativ att avbryta.",
+      "footer": "Om detta var ett misstag kan du ignorera detta mejl. Dina data kommer att raderas om 30 dagar om du inte avbryter.",
+      "contact": "Om du har frågor, kontakta oss på {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Ditt konto hos {{brand}} har raderats",
+      "greeting": "Hej {{name}}",
+      "intro": "Ditt konto och all tillhörande data har nu raderats permanent från {{brand}}.",
+      "dataRemoved": "Alla familjer, barn, scheman, aktiviteter och stjärnor har tagits bort.",
+      "thanks": "Vi hoppas att {{brand}} har varit till hjälp under tiden.",
+      "return": "Om du vill skapa ett nytt konto är du välkommen tillbaka när som helst på {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Låt barnet testa första steget ⭐",
+      "greeting": "Hej {{name}}!",
+      "body": "Schemat är klart. Nästa steg är att låta barnet logga in med PIN — det tar under en minut.",
+      "button": "Fortsätt till barninloggning"
+    },
+    "welcomeShell": {
+      "headerTitle": "Välkommen! 🌟",
+      "cta": "Öppna {{brand}} ⭐",
+      "footerIntro": "Du får detta mail för att du nyligen registrerade dig på {{brand}}.",
+      "unsubscribe": "Avprenumerera"
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Dags för \"{{activityName}}\" om {{minutes}} minuter! ⭐",
+      "body": "Påminnelse för {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Fortsätt rutinen 💫",
+      "day3Body": "Det var några dagar sedan — öppna schemat och ge dagens stjärnor.",
+      "day7Title": "En vecka sedan ni var inne",
+      "day7Body": "Barnets schema väntar. En snabb check-in räcker.",
+      "day14Title": "Vi saknar er i appen",
+      "day14Body": "Två veckor utan aktivitet — hoppa in och håll rutinen levande."
+    }
+  },
+  "api": {
+    "feedbackAck": "Tack för din feedback! Vi läser allt som kommer in.",
+    "contactAck": "Tack! Vi har tagit emot ditt meddelande.",
+    "export": {
+      "noData": "Ingen data",
+      "rateLimit": "Du kan bara exportera din data en gång per 24 timmar. Försök igen om {{hours}} timmar.",
+      "notFound": "Användare hittades inte"
+    },
+    "account": {
+      "deletionPending": "Kontot har markerats för radering. Du har 30 dagar att ångra dig.",
+      "alreadyPending": "Kontot är redan markerat för radering."
     }
   }
 }

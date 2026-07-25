@@ -16,23 +16,24 @@ const {
   evaluateRetentionPush,
 } = require('./journey/retention-push');
 const analytics = require('../../db/analytics');
+const { t } = require('./i18n');
+const { resolveCommunicationLocale } = require('./communication-locale');
 
 const PUSH_HOUR_STOCKHOLM = 9;
 
-const COPY = {
-  3: {
-    title: 'Fortsätt rutinen 💫',
-    body: 'Det var några dagar sedan — öppna schemat och ge dagens stjärnor.',
-  },
-  7: {
-    title: 'En vecka sedan ni var inne',
-    body: 'Barnets schema väntar. En snabb check-in räcker.',
-  },
-  14: {
-    title: 'Vi saknar er i appen',
-    body: 'Två veckor utan aktivitet — hoppa in och håll rutinen levande.',
-  },
-};
+function retentionPushCopy(locale, day) {
+  const lang = resolveCommunicationLocale(locale);
+  const keyMap = {
+    3: ['day3Title', 'day3Body'],
+    7: ['day7Title', 'day7Body'],
+    14: ['day14Title', 'day14Body'],
+  };
+  const [titleKey, bodyKey] = keyMap[day] || keyMap[3];
+  return {
+    title: t(lang, `push.retentionReengagement.${titleKey}`),
+    body: t(lang, `push.retentionReengagement.${bodyKey}`),
+  };
+}
 
 async function isFlagEnabled() {
   const { rows } = await db.query(
@@ -62,10 +63,15 @@ async function runJob() {
   let sent = 0;
   for (const day of RETENTION_PUSH_MILESTONES) {
     const parents = await findEligibleRecipients(day);
-    const copy = COPY[day];
     for (const row of parents) {
       const gate = await evaluateRetentionPush(row.family_id, { milestoneDay: day });
       if (!gate.allowed) continue;
+
+      const familyLocale = await db.query(
+        'SELECT preferred_locale FROM family WHERE id = $1',
+        [row.family_id]
+      );
+      const copy = retentionPushCopy(familyLocale.rows[0]?.preferred_locale, day);
 
       const result = await sendPushNotification(row.parent_id, {
         title: copy.title,

@@ -158,8 +158,10 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
           const cooldownActive = await pinLockout.isEmailCooldownActive(child.id);
           if (!cooldownActive) {
             const parentResult = await db.query(
-              `SELECT p.email FROM parent_child pc
+              `SELECT p.email, f.preferred_locale
+               FROM parent_child pc
                JOIN parent p ON p.id = pc.parent_id
+               JOIN family f ON f.id = p.family_id
                WHERE pc.child_id = $1
                ORDER BY pc.role = 'primary' DESC
                LIMIT 1`,
@@ -167,7 +169,9 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
             );
             if (parentResult.rows[0]?.email) {
               if (process.env.EMAIL_ENABLED !== 'false') {
-                sendPinWarningEmail(parentResult.rows[0].email, child.name).catch(() => {});
+                const { resolveCommunicationLocale } = require('../../lib/communication-locale');
+                const locale = resolveCommunicationLocale(parentResult.rows[0].preferred_locale);
+                sendPinWarningEmail(parentResult.rows[0].email, child.name, locale).catch(() => {});
               }
               await pinLockout.recordNotification(child.id, child.family_id, 'email');
               pinLockout.auditLog(child.id, child.family_id, 'parent_notified', clientIp, { channel: 'email' }).catch(() => {});
