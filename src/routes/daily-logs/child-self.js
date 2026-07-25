@@ -213,7 +213,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     }
 
     const locale = await getFamilyPreferredLocale(familyId);
-    const localizedItems = localizeActivityItems(filteredItems, locale);
+    const localizedItems = await localizeActivityItems(filteredItems, locale);
     const localizedSections = {};
     for (const item of localizedItems) {
       if (!localizedSections[item.section]) localizedSections[item.section] = [];

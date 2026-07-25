@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
       [req.user.familyId]
     );
     const locale = await getFamilyPreferredLocale(req.user.familyId);
-    const rows = localizeActivityItems(
+    const rows = await localizeActivityItems(
       attachGoalMetaToMany(enrichPictogramFieldsMany(result.rows)),
       locale
     );

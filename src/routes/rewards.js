@@ -127,9 +127,9 @@ parentRouter.get('/child-view/:childId', requireChildAccess('childId'), async (r
 
     res.json({
       child: { id: child.id, name: child.name, emoji: child.emoji },
-      rewards: localizeRewardItems(rewards.rows, locale),
+      rewards: await localizeRewardItems(rewards.rows, locale),
       starBalance: balance,
-      redemptions: localizeRewardItems(redemptions.rows, locale),
+      redemptions: await localizeRewardItems(redemptions.rows, locale),
     });
   } catch (err) {
     console.error('[REWARDS] Child-view error:', err);
@@ -155,7 +155,7 @@ parentRouter.get('/', async (req, res) => {
     );
     const locale = await getFamilyPreferredLocale(req.user.familyId);
     res.json({
-      rewards: localizeRewardItems(result.rows, locale),
+      rewards: await localizeRewardItems(result.rows, locale),
       children: childrenResult.rows,
     });
   } catch (err) {
@@ -560,9 +560,9 @@ childRouter.get('/rewards', async (req, res) => {
     );
     const locale = await getFamilyPreferredLocale(familyId);
     res.json({
-      rewards: localizeRewardItems(visibleRewards, locale),
+      rewards: await localizeRewardItems(visibleRewards, locale),
       starBalance: balance,
-      redemptions: localizeRewardItems(redemptions.rows, locale),
+      redemptions: await localizeRewardItems(redemptions.rows, locale),
     });
   } catch (err) {
     console.error('[REWARDS] Child list error:', err);
