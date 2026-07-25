@@ -473,6 +473,7 @@ const CACHE_NAME = 'stjarndag-v683';
 // stjarndag-v680: dashboard tour i18n + daily-log child selection boot fix
 // stjarndag-v681: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v682: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v683: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
