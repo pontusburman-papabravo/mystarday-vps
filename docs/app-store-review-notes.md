@@ -1,7 +1,24 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-06-24 | iOS build 23
+> Last updated: 2026-07-25 | iOS build 29 (English Beta native l10n)
+
+---
+
+## Build 29 — English Beta native localisation (2026-07-25)
+
+**Scope:** Native shell strings for sv-SE and en-GB (camera, photos, notifications, app display name). Web Child Core English remains behind per-family `english_child_experience` flag (default OFF).
+
+**Market:** Sweden only. English is a product-language beta, not a new storefront.
+
+**Test account:** see `docs/app-store-demo-konto.md` — parent review account, child Anna. <!-- pragma: allowlist secret -->
+
+**Paste into App Review Information → Notes:**
+```
+Build 29 adds Swedish and English (UK) native permission strings and localised app name.
+English child UI is beta and opt-in per family — default experience remains Swedish.
+Only Sweden is available as a market. Test with the review account in the demo doc.
+```
 
 ---
 

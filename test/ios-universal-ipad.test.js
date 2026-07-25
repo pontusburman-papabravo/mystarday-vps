@@ -34,13 +34,13 @@ describe('iOS universal iPad support', () => {
     assert.match(css, /#dashTourCard/);
   });
 
-  it('iOS marketing version is 1.3 build 28', () => {
+  it('iOS marketing version is 1.3 build 29', () => {
     const pbx = fs.readFileSync(
       path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'),
       'utf8'
     );
     assert.match(pbx, /MARKETING_VERSION = 1\.3;/);
-    assert.match(pbx, /CURRENT_PROJECT_VERSION = 28;/);
+    assert.match(pbx, /CURRENT_PROJECT_VERSION = 29;/);
   });
 
   it('native tab bar uses viewport width only (not pointer coarse)', () => {
