@@ -136,6 +136,6 @@ module.exports = {
   stopRetentionReengagementScheduler,
   runJob,
   findEligibleParents,
-  COPY,
+  retentionPushCopy,
   MILESTONES: RETENTION_PUSH_MILESTONES,
 };

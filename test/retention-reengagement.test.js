@@ -53,14 +53,16 @@ describe('RET-3 retention re-engagement push', () => {
     assert.match(src, /retention_reengagement_v1/);
   });
 
-  it('scheduler has copy for days 3, 7, 14', () => {
+  it('scheduler has locale-aware copy for days 3, 7, 14', () => {
     const src = fs.readFileSync(
       path.join(ROOT, 'src/lib/retention-reengagement-scheduler.js'),
       'utf8'
     );
-    assert.match(src, /3:\s*\{/);
-    assert.match(src, /7:\s*\{/);
-    assert.match(src, /14:\s*\{/);
+    assert.match(src, /retentionPushCopy/);
+    assert.match(src, /day3Title/);
+    assert.match(src, /day7Body/);
+    assert.match(src, /day14Title/);
+    assert.match(src, /resolveCommunicationLocale/);
   });
 
   it('server mounts scheduler', () => {
