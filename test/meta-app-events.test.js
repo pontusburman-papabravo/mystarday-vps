@@ -128,6 +128,38 @@ describe('MetaAppEvents privacy gate', () => {
     assert.equal(logged.filter((e) => e.type === 'event').length, 0);
   });
 
+  it('3b) iOS blocks Meta events while ATT is notDetermined even with marketing consent', async () => {
+    const { MetaAppEvents, logged } = loadMeta({
+      force: true,
+      consent: true,
+      platform: 'ios',
+      attStatus: 'notDetermined',
+    });
+    await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
+    assert.equal(logged.filter((e) => e.type === 'event').length, 0);
+    const result = await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: false });
+    assert.equal(result.metaEventsAllowed, false);
+    assert.equal(result.advertiserTrackingAllowed, false);
+  });
+
+  it('3c) iOS ATT prompt attempted via JS when status is notDetermined', async () => {
+    let promptCalled = false;
+    const { MetaAppEvents } = loadMeta({
+      force: true,
+      consent: false,
+      platform: 'ios',
+      attStatus: 'notDetermined',
+    });
+    MetaAppEvents._internal.resetAttForTests();
+    const original = MetaAppEvents._internal.resolveAttStatus;
+    MetaAppEvents._internal.resolveAttStatus = async function (options) {
+      if (options && options.allowPrompt) promptCalled = true;
+      return original.call(this, options);
+    };
+    await MetaAppEvents._internal.resolveAttStatus({ allowPrompt: true });
+    assert.equal(promptCalled, true);
+  });
+
   it('4) marketing consent on Android enables App Events', async () => {
     const { MetaAppEvents, logged } = loadMeta({
       force: true,
@@ -212,9 +244,11 @@ describe('MetaAppEvents privacy gate', () => {
     assert.match(plist, /FacebookAdvertiserIDCollectionEnabled<\/key>\s*<false\/>/);
 
     const delegate = fs.readFileSync(path.join(ROOT, 'ios/App/App/AppDelegate.swift'), 'utf8');
-    assert.match(delegate, /msd_meta_marketing_consent/);
-    assert.match(delegate, /object\(forKey: "msd_meta_marketing_consent"\) as\? Bool \?\? false/);
-    assert.match(delegate, /if Settings\.shared\.isAutoLogAppEventsEnabled \{\s*AppEvents\.shared\.activateApp\(\)/);
+    const coordinator = fs.readFileSync(path.join(ROOT, 'ios/App/App/AttTrackingCoordinator.swift'), 'utf8');
+    assert.match(delegate, /AttTrackingCoordinator\.shared\.schedulePromptIfNeeded/);
+    assert.match(delegate, /AttTrackingCoordinator\.shared\.applyStartupPrivacyDefaults/);
+    assert.match(coordinator, /msd_meta_marketing_consent/);
+    assert.match(coordinator, /applyMetaSettingsForCurrentAttStatus/);
     // Must not call activateApp() outside the consent gate.
     const becomeActive = delegate.slice(
       delegate.indexOf('func applicationDidBecomeActive'),
@@ -257,6 +291,7 @@ describe('MetaAppEvents privacy gate', () => {
 
   it('CompleteRegistration once after consent; Meta errors never throw', async () => {
     const { MetaAppEvents, logged, window } = loadMeta({ force: true, consent: true, platform: 'ios', attStatus: 'denied' });
+    await MetaAppEvents._internal.resolveAttStatus({ allowPrompt: false });
     await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
     await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
     assert.equal(logged.filter((e) => e.event === 'fb_mobile_complete_registration').length, 1);

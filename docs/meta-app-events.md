@@ -46,14 +46,15 @@ On Android, marketing consent alone enables App Events (no ATT). Advertiser ID c
 
 1. Native reads plist/manifest → AutoLog = false, AdvertiserID = false  
 2. AppDelegate / Android plugin **does not** call `activateApp()`  
-3. WebView loads; `meta-app-events.js` sees no marketing consent → no configureConsent(true), no events  
-4. Result: **zero** Meta App Event network traffic
+3. **iOS:** system ATT dialog is shown on fresh install (AppDelegate + JS fallback) while the app is active — independent of marketing consent  
+4. WebView loads; `meta-app-events.js` sees no marketing consent → no configureConsent(true), no events  
+5. Result: **zero** Meta App Event network traffic
 
 ### Marketing consent accepted
 
 1. Cookie banner / AppConsent grants `ad_storage` / marketing  
 2. `MetaAppEvents.onConsentGranted()`  
-3. iOS: read ATT (prompt only if `notDetermined` **after** marketing yes)  
+3. iOS: read ATT status (prompt only if still `notDetermined` — usually already resolved at startup)  
 4. `configureConsent({ marketingConsent: true, advertiserTrackingAllowed })`  
 5. Native enables AutoLog for **future** foreground/cold-start cycles only (`applicationDidBecomeActive` / `handleOnStart`) — **no backfill** of install or prior opens  
 6. Manual conversion events may fire when business milestones occur
@@ -76,7 +77,7 @@ On Android, marketing consent alone enables App Events (no ATT). Advertiser ID c
 ### ATT accepted (iOS) — only relevant after marketing consent
 
 1. Marketing consent already true  
-2. ATT → `authorized`  
+2. ATT → `authorized` (may have been granted at first app launch)  
 3. `advertiserTrackingAllowed = true` → Advertiser ID collection + ATE on  
 4. App Events already allowed by marketing consent
 
@@ -89,7 +90,7 @@ On Android, marketing consent alone enables App Events (no ATT). Advertiser ID c
 ### ATT authorized but marketing consent false
 
 1. **No** Meta events  
-2. ATT prompt is not requested by this module without marketing consent
+2. ATT may still be requested at first launch (Apple requirement); Meta stays off until marketing consent
 
 ## Events (after consent only)
 
