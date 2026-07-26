@@ -194,9 +194,17 @@ router.get('/sv/tack', async (req, res) => {
   }
 });
 
-// Legacy waitlist thank-you — redirect to English landing (waitlist removed)
-router.get('/en/thank-you', (req, res) => {
-  res.redirect(301, '/en');
+// English waitlist thank-you + pain-point survey
+router.get('/en/thank-you', async (req, res) => {
+  const htmlPath = path.join(__dirname, '..', '..', 'public', 'en', 'thank-you.html');
+  if (!fs.existsSync(htmlPath)) {
+    return res.redirect(302, '/en');
+  }
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectBrandPlaceholders(html);
+  html = injectSiteUrl(html);
+  html = injectSocialLinks(html);
+  res.type('html').send(html);
 });
 
 // ─── GET /api/landing/stats — landing page counter data ───
