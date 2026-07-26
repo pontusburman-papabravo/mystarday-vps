@@ -1,0 +1,70 @@
+name: E2E i18n English journey
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'test/e2e/**'
+      - 'scripts/run-e2e-i18n.js'
+      - 'public/js/auth-entry-*.js'
+      - 'public/js/login-locale.js'
+      - 'src/routes/auth/**'
+      - 'src/locales/**'
+      - 'config/i18n/**'
+      - '.github/workflows/e2e-i18n.yml'
+  pull_request:
+    paths:
+      - 'test/e2e/**'
+      - 'scripts/run-e2e-i18n.js'
+      - 'public/js/auth-entry-*.js'
+      - 'public/js/login-locale.js'
+      - 'src/routes/auth/**'
+      - 'src/locales/**'
+      - 'config/i18n/**'
+      - '.github/workflows/e2e-i18n.yml'
+
+jobs:
+  e2e-i18n:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: stjarndag_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/stjarndag_test
+      REQUIRE_EMAIL_VERIFICATION: 'false'
+      EMAIL_ENABLED: 'false'
+      JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
+      NODE_ENV: test
+      TEST_SKIP_MIGRATE: '1'
+      E2E_VIEWPORTS: desktop,mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --include=dev
+
+      - name: Migrate
+        run: npm run migrate
+
+      - name: E2E i18n English journey
+        run: npm run test:e2e:i18n
