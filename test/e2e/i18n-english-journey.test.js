@@ -15,6 +15,7 @@ const {
   acceptCookies,
   selectLoginLocale,
   getParentShellChromeText,
+  getParentHomeHubText,
   getVisibleChromeText,
   parentLogout,
   fillParentLogin,
@@ -79,8 +80,8 @@ describe('i18n English journey E2E', () => {
       const browser = await launchBrowser();
       try {
         const seed = await seedEnglishJourneyFamily(ctx.baseUrl, ctx.query, {
-          registerLocale: 'sv-SE',
-          dbLocale: 'sv-SE',
+          registerLocale: 'en-GB',
+          dbLocale: 'en-GB',
         });
         const page = await newPage(browser, viewport);
 
@@ -93,6 +94,19 @@ describe('i18n English journey E2E', () => {
           await page.goto(`${ctx.baseUrl}${hub.path}`, { waitUntil: 'domcontentloaded' });
           await sleep(2000);
           await assertNoSwedishChrome(page, seed.allowlist, `${viewport}/${hub.label}`);
+          if (hub.path === '/dashboard') {
+            const homeText = await getParentHomeHubText(page);
+            const homeCopy = detectSwedishSystemCopy(homeText, {
+              allowlist: seed.allowlist,
+              context: `${viewport}/home hub`,
+            });
+            assert.equal(
+              homeCopy.ok,
+              true,
+              `${viewport}/home hub: Swedish system copy detected: ${homeCopy.hits.map((h) => h.match).join(', ')}`
+            );
+            assert.match(homeText, /Next step|Good (morning|afternoon|evening)|Hello/i);
+          }
           const bodyText = await page.evaluate(() => document.body.innerText);
           assert.match(bodyText, hub.expectText, `${hub.label} should show English heading/nav`);
         }

@@ -7,16 +7,16 @@
 
   var STORAGE_PREFIX = 'engine_coach_change_seen_';
 
-  /**
-   * Bump release_id when user-visible coach behavior changes in prod.
-   * @type {{ release_id: string, user_visible_intent: string, what_changed: string, why_it_matters: string }}
-   */
-  var ACTIVE_RELEASE = {
-    release_id: 'coach_primary_v1',
-    user_visible_intent: 'Vi visar nu ett tydligt förslag till nästa steg här på Hem.',
-    what_changed: 'Ett kort med "Nästa steg" har lagts till högst upp.',
-    why_it_matters: 'Ni behöver inte leta bland påminnelser — ett förslag i taget.',
-  };
+  /** Bump release_id when user-visible coach behavior changes in prod. */
+  var ACTIVE_RELEASE_ID = 'coach_primary_v1';
+
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
+
+  function releaseKey(suffix) {
+    return 'journey.coachChange.releases.' + ACTIVE_RELEASE_ID + '.' + suffix;
+  }
 
   function storageKey(releaseId) {
     return STORAGE_PREFIX + releaseId;
@@ -37,17 +37,22 @@
   }
 
   function getNotice() {
-    if (!ACTIVE_RELEASE || !ACTIVE_RELEASE.release_id) return null;
-    if (hasSeen(ACTIVE_RELEASE.release_id)) return null;
-    return ACTIVE_RELEASE;
+    if (!ACTIVE_RELEASE_ID) return null;
+    if (hasSeen(ACTIVE_RELEASE_ID)) return null;
+    return {
+      release_id: ACTIVE_RELEASE_ID,
+      user_visible_intent: pt(releaseKey('userVisibleIntent')),
+      what_changed: pt(releaseKey('whatChanged')),
+      why_it_matters: pt(releaseKey('whyItMatters')),
+    };
   }
 
   function acknowledge(releaseId) {
-    markSeen(releaseId || ACTIVE_RELEASE.release_id);
+    markSeen(releaseId || ACTIVE_RELEASE_ID);
   }
 
   window.EngineCoachChange = {
-    ACTIVE_RELEASE: ACTIVE_RELEASE,
+    ACTIVE_RELEASE_ID: ACTIVE_RELEASE_ID,
     getNotice: getNotice,
     acknowledge: acknowledge,
     hasSeen: hasSeen,

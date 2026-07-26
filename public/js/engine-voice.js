@@ -4,54 +4,39 @@
 (function () {
   'use strict';
 
-  var VOICE = {
-    SHOW_CHILD: {
-      headline: 'Låt barnet testa sin rutin',
-      body: 'Öppna barnläget tillsammans — barnet ser direkt vad som ska göras.',
-      cta: 'Testa barnläget nu',
-      route: '/child-login',
-      tone: 'coach',
-    },
-    ADD_EVENING: {
-      headline: 'Lägg till kvällsrutinen',
-      body: 'Gör läggningen lika tydlig som morgonen.',
-      cta: 'Lägg till kväll',
-      route: '/planning',
-      tone: 'coach',
-    },
-    INVITE_CO_PARENT: {
-      headline: 'Bjud in den andra föräldern',
-      body: 'Dela rutinen så ni kan följa upp tillsammans.',
-      cta: 'Bjud in',
-      route: '/family',
-      tone: 'calm',
-    },
-    SIMPLIFY_ROUTINE: {
-      headline: 'Börja med ett litet steg',
-      body: 'Er rutin finns kvar — ta en aktivitet i taget idag.',
-      cta: 'Öppna schema',
-      route: '/schedule',
-      tone: 'calm',
-    },
-    CUSTOMIZE_ROUTINE: {
-      headline: 'Anpassa rutinen',
-      body: 'Nu kan ni göra schemat till er eget.',
-      cta: 'Anpassa',
-      route: '/onboarding',
-      tone: 'calm',
-    },
-    TRIGGER_CELEBRATION: {
-      headline: 'Fira framsteget',
-      body: 'Ni har tagit ett viktigt steg — ta en stund tillsammans.',
-      cta: 'Visa barnet',
-      route: '/child-login',
-      tone: 'celebration',
-    },
+  var ROUTES = {
+    SHOW_CHILD: '/child-login',
+    ADD_EVENING: '/planning',
+    INVITE_CO_PARENT: '/family',
+    SIMPLIFY_ROUTINE: '/schedule',
+    CUSTOMIZE_ROUTINE: '/onboarding',
+    TRIGGER_CELEBRATION: '/child-login',
   };
 
-  function get(policyName) {
-    return VOICE[policyName] || VOICE.SHOW_CHILD;
+  var TONES = {
+    SHOW_CHILD: 'coach',
+    ADD_EVENING: 'coach',
+    INVITE_CO_PARENT: 'calm',
+    SIMPLIFY_ROUTINE: 'calm',
+    CUSTOMIZE_ROUTINE: 'calm',
+    TRIGGER_CELEBRATION: 'celebration',
+  };
+
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
   }
 
-  window.EngineVoice = { get: get, VOICE: VOICE };
+  function get(policyName) {
+    var name = ROUTES[policyName] ? policyName : 'SHOW_CHILD';
+    var base = 'journey.engineVoice.' + name;
+    return {
+      headline: pt(base + '.headline'),
+      body: pt(base + '.body'),
+      cta: pt(base + '.cta'),
+      route: ROUTES[name],
+      tone: TONES[name],
+    };
+  }
+
+  window.EngineVoice = { get: get };
 })();

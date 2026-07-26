@@ -7,6 +7,10 @@
 
   const MODAL_ID = 'journeyParentAckModal';
 
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
+
   function getModal() {
     return document.getElementById(MODAL_ID);
   }
@@ -49,7 +53,7 @@
     if (headline) {
       headline.textContent = hasPack
         ? (pack.headline || pack.parent_message)
-        : (exp.headline || 'Barnet klarade en aktivitet!');
+        : (exp.headline || pt('journey.ack.defaultHeadline'));
     }
 
     if (body) {
@@ -68,13 +72,13 @@
         detail.classList.add('hidden');
       } else {
         detail.classList.remove('hidden');
-        if (child) child.textContent = item.child_name || 'Barnet';
-        if (activity) activity.textContent = item.activity_name || 'en aktivitet';
+        if (child) child.textContent = item.child_name || pt('journey.ack.defaultChild');
+        if (activity) activity.textContent = item.activity_name || pt('journey.ack.defaultActivity');
       }
     }
 
     if (btn) {
-      btn.textContent = (hasPack && pack.cta) ? pack.cta : (exp.cta || 'Det ser jag');
+      btn.textContent = (hasPack && pack.cta) ? pack.cta : (exp.cta || pt('journey.ack.defaultCta'));
       btn.dataset.dailyLogItemId = item.daily_log_item_id;
     }
 

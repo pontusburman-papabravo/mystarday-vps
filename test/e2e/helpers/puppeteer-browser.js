@@ -118,6 +118,44 @@ async function getParentShellChromeText(page) {
   });
 }
 
+/** Magic Home hub body: coach, readiness, CTAs, journey modals — not shell chrome. */
+async function getParentHomeHubText(page) {
+  return page.evaluate(() => {
+    const roots = [
+      '#parentHomeHubMount',
+      '#parentHubCoachSlot',
+      '#engineCoachMount',
+      '#journeyCoachMount',
+      '#homeReadinessMount',
+      '#journeyFirstWeekMount',
+      '#parentHubReadinessSlot',
+      '#parentHubDailySummaryMount',
+      '#journeyParentAckModal',
+      '.engine-coach-card',
+      '.engine-coach-change-notice',
+      '.journey-coach-card',
+      '.journey-fw-card',
+      '.parent-quick-grid',
+      '.parent-handoff-card',
+      '.parent-readiness-card',
+    ];
+    const chunks = [];
+    const seen = new Set();
+    for (const sel of roots) {
+      document.querySelectorAll(sel).forEach((el) => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        if (el.classList.contains('hidden')) return;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return;
+        const t = (el.innerText || el.textContent || '').trim();
+        if (t) chunks.push(t);
+      });
+    }
+    return chunks.join('\n');
+  });
+}
+
 async function clearSessionCookies(page) {
   const client = await page.createCDPSession();
   await client.send('Network.clearBrowserCookies');
@@ -198,6 +236,7 @@ module.exports = {
   selectLoginLocale,
   getVisibleChromeText,
   getParentShellChromeText,
+  getParentHomeHubText,
   clearSessionCookies,
   parentLogout,
   fillParentLogin,
