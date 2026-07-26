@@ -6,6 +6,10 @@
 (function () {
   'use strict';
 
+function spt(key, params) {
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+}
+
   const { DAYS } = window.ScheduleCore;
 
   function escHtml(s) {
@@ -43,7 +47,7 @@ async function ensureSchedStdLoaded() {
 // Copy a standard library activity to own templates, then add to schedule
 async function copyAndAddStdActivity(stdAct) {
   const listEl = document.getElementById('templateList');
-  listEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">Kopierar aktiviteten…</div>';
+  listEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">' + spt('schedule.templates.copying') + '</div>';
   const body = {
     name: stdAct.name,
     icon: stdAct.icon || null,
@@ -55,12 +59,12 @@ async function copyAndAddStdActivity(stdAct) {
   const res = await window.apiFetch('/api/activities', { method: 'POST', body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) {
-    showToast(`"${stdAct.name}" kopierad till ditt bibliotek`);
+    showToast(spt('schedule.templates.copiedToLibrary', { name: stdAct.name }));
     // Reload templates and select the new one
     await loadTemplates();
     selectTemplate(data.id);
   } else {
-    showToast(data.error || 'Kunde inte kopiera aktiviteten', true);
+    showToast(data.error || spt('schedule.templates.couldNotCopy'), true);
     renderTemplateList(document.getElementById('templateSearch').value);
   }
 }
@@ -125,8 +129,8 @@ function renderTemplateList(q) {
     // Use single-quote escaping to avoid JSON.stringify breaking the HTML onclick attribute
     const qSafe = (q||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     list.innerHTML=`<div class="text-center py-4">
-      <p class="text-text-soft text-sm mb-3">Inga aktiviteter hittades${q?' för "'+qEsc+'"':''}.</p>
-      <button type="button" onclick="openCreateActivityModal('${qSafe}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">✨ Skapa ny aktivitet</button>
+      <p class="text-text-soft text-sm mb-3">${q ? spt('schedule.templates.noneFoundQuery', { query: qEsc }) : spt('schedule.templates.noneFound')}.</p>
+      <button type="button" onclick="openCreateActivityModal('${qSafe}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">✨ ${spt('schedule.templates.createNew')}</button>
     </div>`;
     return;
   }
@@ -135,7 +139,7 @@ function renderTemplateList(q) {
   const sc=Object.entries(grouped).sort((a,b)=>a[1].sort-b[1].sort);
   let html='';
   for (const [cn,g] of sc) { html+=`<div class="text-xs font-semibold text-text-soft uppercase tracking-wide px-2 pt-3 pb-1">${escHtml(cn)}</div>`+g.items.map(t=>renderTemplateItem(t)).join(''); }
-  if (unc.length>0) { if(sc.length>0) html+=`<div class="text-xs font-semibold text-text-soft uppercase tracking-wide px-2 pt-3 pb-1">Övriga</div>`; html+=unc.map(t=>renderTemplateItem(t)).join(''); }
+  if (unc.length>0) { if(sc.length>0) html+=`<div class="text-xs font-semibold text-text-soft uppercase tracking-wide px-2 pt-3 pb-1">${spt('schedule.templates.otherCategory')}</div>`; html+=unc.map(t=>renderTemplateItem(t)).join(''); }
   // Add standard library section if matches
   if (stdMatches.length > 0) {
     html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide px-2 pt-3 pb-1">📚 Standardbibliotek</div>`;
@@ -147,7 +151,7 @@ function renderTemplateList(q) {
       </div>`).join('');
   }
   // Always show "Skapa ny" at the bottom (matches dashboard.js behavior)
-  html += `<div class="border-t border-lavender mt-2 pt-2 text-center"><button type="button" onclick="openCreateActivityModal('')" class="text-sm text-gold font-semibold hover:underline">✨ Skapa ny aktivitet</button></div>`;
+  html += `<div class="border-t border-lavender mt-2 pt-2 text-center"><button type="button" onclick="openCreateActivityModal('')" class="text-sm text-gold font-semibold hover:underline">✨ ${spt('schedule.templates.createNew')}</button></div>`;
   list.innerHTML = html;
 }
 function renderTemplateItem(t) {
@@ -201,7 +205,7 @@ function toggleSection(sec) {
 async function submitAddActivity() {
   // Template editing mode: add item directly to template schedule (no recurrence)
   if (templateMode && currentTemplateId) {
-    if (!selectedTemplateId) { document.getElementById('addActivityError').textContent='Välj en aktivitet först'; document.getElementById('addActivityError').classList.remove('hidden'); return; }
+    if (!selectedTemplateId) { document.getElementById('addActivityError').textContent=spt('schedule.validation.pickActivityFirst'); document.getElementById('addActivityError').classList.remove('hidden'); return; }
     const addBtn = document.getElementById('addActivityBtn');
     addBtn.disabled = true; addBtn.textContent = 'Sparar…';
     try {
@@ -213,7 +217,7 @@ async function submitAddActivity() {
         // Reload template to get updated items
         const tplRes = await window.apiFetch(`/api/schedule-templates/${currentTemplateId}`);
         if (tplRes.ok) { const data = await tplRes.json(); templateItems = data.items || []; }
-        showToast('Aktivitet tillagd i schemamallen');
+        showToast(spt('schedule.toasts.addedToTemplate'));
         closeAddModal();
         window.renderTemplate();
       } else {
@@ -222,25 +226,25 @@ async function submitAddActivity() {
         document.getElementById('addActivityError').classList.remove('hidden');
       }
     } finally {
-      addBtn.disabled = false; addBtn.textContent = 'Lägg till';
+      addBtn.disabled = false; addBtn.textContent = spt('schedule.modals.addActivity.addBtn');
     }
     return;
   }
 
   // Normal child schedule mode
-  if (!selectedTemplateId) { document.getElementById('addActivityError').textContent='Välj en aktivitet'; document.getElementById('addActivityError').classList.remove('hidden'); return; }
+  if (!selectedTemplateId) { document.getElementById('addActivityError').textContent=spt('schedule.validation.pickActivity'); document.getElementById('addActivityError').classList.remove('hidden'); return; }
   // Time validation: end_time must not be before start_time
   const addStart = document.getElementById('addStartTime').value;
   const addEnd = document.getElementById('addEndTime').value;
   if (addStart && addEnd && addEnd < addStart) {
-    document.getElementById('addActivityError').textContent='Sluttid kan inte vara före starttid';
+    document.getElementById('addActivityError').textContent=spt('schedule.validation.endBeforeStart');
     document.getElementById('addActivityError').classList.remove('hidden');
     return;
   }
   // Store pending data and show recurrence choice BEFORE creating anything
   const tpl = allTemplates.find(t=>t.id===selectedTemplateId);
   _pendingRecurrenceTemplateId = selectedTemplateId;
-  _pendingRecurrenceTemplateName = tpl ? tpl.name : 'Aktiviteten';
+  _pendingRecurrenceTemplateName = tpl ? tpl.name : spt('schedule.validation.pickActivity');
   _pendingRecurrenceSection = addSectionOverride;
   _pendingRecurrenceSections = [...addSectionsMulti]; // multi-slot
   _pendingRecurrenceStart = addStart || null;
@@ -273,7 +277,7 @@ function toDateStr(d) {
   return d.toLocaleDateString('sv-SE'); // YYYY-MM-DD
 }
 
-const REC_DAYS_LABELS = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+const REC_DAYS_LABELS = [0, 1, 2, 3, 4, 5, 6].map((d) => (window.ScheduleCore && ScheduleCore.dayShort ? ScheduleCore.dayShort(d) : spt('schedule.daysShort.' + d)));
 // Track selected days for multi-day recurrence (DOW values)
 let _recurrenceDaySelections = [];
 
@@ -381,7 +385,7 @@ function closeRecurrenceModal() {
 
 async function confirmRecurrenceMultiDay() {
   if (_recurrenceDaySelections.length === 0) {
-    showToast('Välj minst en dag', true);
+    showToast(spt('schedule.validation.pickDay'), true);
     return;
   }
   const confirmBtn = document.getElementById('recurrenceMultiDayConfirmBtn');
@@ -430,14 +434,14 @@ async function confirmRecurrenceMultiDay() {
     }
 
     document.getElementById('recurrenceModal').classList.add('hidden');
-    if (errorOccurred) showToast('Aktiviteten lades till på några dagar (fel på andra)', true);
+    if (errorOccurred) showToast(spt('schedule.toasts.addedPartial'), true);
     else {
       const dayNames = _recurrenceDaySelections.map(d => REC_DAYS_LABELS[d]).join(', ');
-      showToast(`Aktiviteten tillagd varje vecka: ${dayNames} ✅`);
+      showToast(spt('schedule.toasts.addedWeekly', { days: dayNames }) + ' ✅');
     }
     await loadScheduleForDay();
   } catch (e) {
-    document.getElementById('recurrenceError').textContent = 'Nätverksfel. Försök igen.';
+    document.getElementById('recurrenceError').textContent = spt('schedule.validation.networkError');
     document.getElementById('recurrenceError').classList.remove('hidden');
   } finally {
     confirmBtn.disabled = false;
@@ -495,16 +499,16 @@ async function confirmRecurrence(choice) {
     const ok = await addOnceToDay();
     if (ok) {
       document.getElementById('recurrenceModal').classList.add('hidden');
-      showToast(`Aktiviteten har lagts till för ${formatDateSv(d)} ✅`);
+      showToast(spt('schedule.toasts.addedForDateFormatted', { date: formatDateSv(d) }));
       await loadScheduleForDay();
     } else {
-      document.getElementById('recurrenceError').textContent = 'Kunde inte lägga till aktiviteten. Försök igen.';
+      document.getElementById('recurrenceError').textContent = spt('schedule.validation.addFailed');
       document.getElementById('recurrenceError').classList.remove('hidden');
       onceBtn.disabled = false;
       if (weeklyBtn) weeklyBtn.disabled = false;
     }
   } catch (e) {
-    document.getElementById('recurrenceError').textContent = 'Nätverksfel. Försök igen.';
+    document.getElementById('recurrenceError').textContent = spt('schedule.validation.networkError');
     document.getElementById('recurrenceError').classList.remove('hidden');
     onceBtn.disabled = false;
     if (weeklyBtn) weeklyBtn.disabled = false;
@@ -678,7 +682,7 @@ async function submitCreateActivity() {
 
     const name = document.getElementById('newActName').value.trim();
     if (!name) {
-      document.getElementById('createActivityError').textContent = 'Namn krävs';
+      document.getElementById('createActivityError').textContent = spt('schedule.validation.nameRequired');
       document.getElementById('createActivityError').classList.remove('hidden');
       return;
     }
@@ -717,9 +721,9 @@ async function submitCreateActivity() {
     closeAddModal();
 
     if (failedSteps > 0) {
-      showToast(`Aktiviteten skapades men ${failedSteps} delsteg misslyckades`, true);
+      showToast(spt('schedule.toasts.substepsFailed', { count: failedSteps }), true);
     } else {
-      showToast(`"${name}" skapad och tillagd i ditt bibliotek!`);
+      showToast(spt('schedule.toasts.createdAndAdded', { name }));
     }
 
     // Reload templates and select the new one (then open recurrence)
@@ -735,7 +739,7 @@ async function submitCreateActivity() {
   } catch (e) {
     const modalSpinner = document.getElementById('createActivitySpinner');
     if (modalSpinner) modalSpinner.classList.add('hidden');
-    showToast('Nätverksfel. Försök igen.', true);
+    showToast(spt('schedule.validation.networkError'), true);
   } finally {
     if (submitBtn) submitBtn.disabled = false;
   }
@@ -749,7 +753,7 @@ async function openEditTemplateModal(templateId) {
   if (!templateId) return;
   // Find template in allTemplates
   const tpl = allTemplates.find(t => t.id === templateId);
-  if (!tpl) { showToast('Aktiviteten hittades inte', true); return; }
+  if (!tpl) { showToast(spt('schedule.toasts.activityNotFound'), true); return; }
 
   try {
     document.getElementById('editTplId').value = templateId;
@@ -776,10 +780,10 @@ async function openEditTemplateModal(templateId) {
     if (typeof renderEditTplSubsteps === 'function') renderEditTplSubsteps();
 
     const modal = document.getElementById('editTemplateModal');
-    if (!modal) { showToast('Kunde inte öppna redigeraren — sidan behöver laddas om', true); return; }
+    if (!modal) { showToast(spt('schedule.toasts.editOpenFailedReload'), true); return; }
     modal.classList.remove('hidden');
   } catch (e) {
-    showToast('Kunde inte öppna redigeraren', true);
+    showToast(spt('schedule.toasts.editOpenFailed'), true);
     console.error('openEditTemplateModal:', e);
   }
   setTimeout(() => document.getElementById('editTplName').focus(), 100);
@@ -824,7 +828,7 @@ async function submitEditTemplate() {
   const templateId = document.getElementById('editTplId').value;
   const name = document.getElementById('editTplName').value.trim();
   if (!name) {
-    document.getElementById('editTemplateError').textContent = 'Namn krävs';
+    document.getElementById('editTemplateError').textContent = spt('schedule.validation.nameRequired');
     document.getElementById('editTemplateError').classList.remove('hidden');
     return;
   }
@@ -856,7 +860,7 @@ async function submitEditTemplate() {
   }
 
   closeEditTemplateModal();
-  showToast(`"${name}" uppdaterad — ändringen gäller alla barn och dagar ✅`);
+  showToast(spt('schedule.toasts.activityUpdated', { name }) + ' ✅');
   // Reload templates + schedule
   // Sub-steps are inline now — no cache to invalidate
   await loadTemplates();
@@ -931,22 +935,22 @@ async function submitEditItem(){
   const editEnd=document.getElementById('editEndTime').value;
   // Time validation: end_time must not be before start_time
   if(editStart && editEnd && editEnd < editStart){
-    showToast('Sluttid kan inte vara före starttid',true);
+    showToast(spt('schedule.validation.endBeforeStart'), true);
     return;
   }
   const res=await window.apiFetch(`/api/schedules/${currentScheduleId}/items/${itemId}`,{method:'PUT',body:JSON.stringify({start_time:editStart||null,end_time:editEnd||null,section:editSectionVal})});
-  if(res.ok){closeEditItemModal();showToast('Sparad');await loadScheduleForDay();}
-  else{const d=await res.json();showToast(d.error||'Fel uppstod',true);}
+  if(res.ok){closeEditItemModal();showToast(spt('schedule.toasts.saved'));await loadScheduleForDay();}
+  else{const d=await res.json();showToast(d.error||spt('schedule.validation.generic'),true);}
 }
 function removeItem(itemId){
   // Use == (not ===) — itemId is a string from onclick, scheduleItems[].id is a number from API
   const item = scheduleItems.find(i=>i.id==itemId);
   // Once-task: show simple direct-confirm modal, call DELETE /api/daily-log-items/:id
   if (item?.is_once_task) {
-    openConfirmModal(`Ta bort engångsaktiviteten "${item.activity_name}"?`, async () => {
+    openConfirmModal(spt('schedule.confirm.removeOnceTask', { name: item.activity_name }), async () => {
       const res = await window.apiFetch(`/api/daily-log-items/${itemId}`, { method: 'DELETE' });
-      if (res.ok) { showToast('Engångsaktiviteten borttagen'); await loadScheduleForDay(); }
-      else { const d = await res.json(); showToast(d.error || 'Fel uppstod', true); }
+      if (res.ok) { showToast(spt('schedule.toasts.onceRemoved')); await loadScheduleForDay(); }
+      else { const d = await res.json(); showToast(d.error || spt('schedule.validation.generic'), true); }
     });
     return;
   }
@@ -954,18 +958,18 @@ function removeItem(itemId){
   const modal = document.getElementById('recurrenceModal');
   const titleEl = modal.querySelector('h3');
   const iconEl = modal.querySelector('.text-3xl');
-  if (titleEl) titleEl.textContent = 'Ta bort aktivitet';
+  if (titleEl) titleEl.textContent = spt('schedule.modals.recurrence.deleteTitle');
   if (iconEl) iconEl.textContent = '🗑️';
   document.getElementById('recurrenceActivityName').textContent = item ? `"${item.activity_name || 'aktiviteten'}"` : '';
   document.getElementById('recurrenceOnceLbl').textContent = '📌 Bara denna dag';
-  document.getElementById('recurrenceOnceDesc').textContent = 'Aktiviteten försvinner bara från dagens schema';
+  document.getElementById('recurrenceOnceDesc').textContent = spt('schedule.modals.recurrence.onceDescRemove');
   document.getElementById('recurrenceWeeklyLbl').textContent = `🗑️ Bara alla ${DAYS[currentDay]}ar`;
-  document.getElementById('recurrenceWeeklyDesc').textContent = `Tar bort aktiviteten från varje ${DAYS[currentDay].toLowerCase()} i veckoschemat`;
+  document.getElementById('recurrenceWeeklyDesc').textContent = spt('schedule.modals.recurrence.weeklyDescRemove', { day: DAYS[currentDay].toLowerCase() });
   const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
   if (allDaysBtn) {
     allDaysBtn.classList.remove('hidden');
-    document.getElementById('recurrenceAllDaysLbl').textContent = '🗓️ Alla dagar i veckan';
-    document.getElementById('recurrenceAllDaysDesc').textContent = 'Tar bort aktiviteten från måndag till söndag';
+    document.getElementById('recurrenceAllDaysLbl').textContent = '🗓️ ' + spt('schedule.modals.recurrence.allDaysLbl');
+    document.getElementById('recurrenceAllDaysDesc').textContent = spt('schedule.modals.recurrence.allDaysDesc');
   }
   document.getElementById('recurrenceStep1').classList.remove('hidden');
   document.getElementById('recurrenceStep2').classList.add('hidden');
@@ -991,11 +995,11 @@ async function deleteOnce(itemId) {
       if (res.ok) {
         document.getElementById('recurrenceModal').classList.add('hidden');
         resetRecurrenceModalTexts();
-        showToast('Engångsaktiviteten borttagen');
+        showToast(spt('schedule.toasts.onceRemoved'));
         await loadScheduleForDay();
       } else {
         const d = await res.json();
-        showToast(d.error || 'Fel uppstod', true);
+        showToast(d.error || spt('schedule.validation.generic'), true);
         bindRecurrenceDeleteHandlers(itemId);
       }
       return;
@@ -1009,15 +1013,15 @@ async function deleteOnce(itemId) {
     if (res.ok) {
       document.getElementById('recurrenceModal').classList.add('hidden');
       resetRecurrenceModalTexts();
-      showToast('Aktiviteten borttagen för idag');
+      showToast(spt('schedule.toasts.activityRemovedToday'));
       await loadScheduleForDay();
     } else {
       const d = await res.json();
-      showToast(d.error || 'Fel uppstod', true);
+      showToast(d.error || spt('schedule.validation.generic'), true);
       bindRecurrenceDeleteHandlers(itemId);
     }
   } catch (_) {
-    showToast('Nätverksfel. Försök igen.', true);
+    showToast(spt('schedule.validation.networkError'), true);
     bindRecurrenceDeleteHandlers(itemId);
   }
 }
@@ -1037,15 +1041,15 @@ async function deleteAll(itemId) {
     if (res.ok) {
       document.getElementById('recurrenceModal').classList.add('hidden');
       resetRecurrenceModalTexts();
-      showToast('Aktiviteten har tagits bort');
+      showToast(spt('schedule.toasts.activityRemoved'));
       await loadScheduleForDay();
     } else {
       const d = await res.json();
-      showToast(d.error || 'Fel uppstod', true);
+      showToast(d.error || spt('schedule.validation.generic'), true);
       bindRecurrenceDeleteHandlers(itemId);
     }
   } catch (_) {
-    showToast('Nätverksfel. Försök igen.', true);
+    showToast(spt('schedule.validation.networkError'), true);
     bindRecurrenceDeleteHandlers(itemId);
   }
 }
@@ -1065,15 +1069,15 @@ async function deleteAllDays(itemId) {
     if (res.ok) {
       document.getElementById('recurrenceModal').classList.add('hidden');
       resetRecurrenceModalTexts();
-      showToast('Aktiviteten borttagen från alla dagar');
+      showToast(spt('schedule.toasts.activityRemovedAllDays'));
       await loadScheduleForDay();
     } else {
       const d = await res.json();
-      showToast(d.error || 'Fel uppstod', true);
+      showToast(d.error || spt('schedule.validation.generic'), true);
       bindRecurrenceDeleteHandlers(itemId);
     }
   } catch (_) {
-    showToast('Nätverksfel. Försök igen.', true);
+    showToast(spt('schedule.validation.networkError'), true);
     bindRecurrenceDeleteHandlers(itemId);
   }
 }
@@ -1083,12 +1087,12 @@ function resetRecurrenceModalTexts() {
   const modal = document.getElementById('recurrenceModal');
   const titleEl = modal.querySelector('h3');
   const iconEl = modal.querySelector('.text-3xl');
-  if (titleEl) titleEl.textContent = 'En gång eller flera gånger?';
+  if (titleEl) titleEl.textContent = spt('schedule.modals.recurrence.title');
   if (iconEl) iconEl.textContent = '🗓️';
-  document.getElementById('recurrenceOnceLbl').textContent = '📌 Bara denna gång';
-  document.getElementById('recurrenceOnceDesc').textContent = 'Visas bara en gång, den valda dagen';
-  document.getElementById('recurrenceWeeklyLbl').textContent = '🔁 Flera gånger';
-  document.getElementById('recurrenceWeeklyDesc').textContent = 'Läggs till varje vald veckodag';
+  document.getElementById('recurrenceOnceLbl').textContent = '📌 ' + spt('schedule.modals.recurrence.onceLbl');
+  document.getElementById('recurrenceOnceDesc').textContent = spt('schedule.modals.recurrence.onceDescAdd');
+  document.getElementById('recurrenceWeeklyLbl').textContent = '🔁 ' + spt('schedule.modals.recurrence.weeklyLbl');
+  document.getElementById('recurrenceWeeklyDesc').textContent = spt('schedule.modals.recurrence.weeklyDesc');
   const allDaysBtn = document.getElementById('recurrenceAllDaysBtn');
   if (allDaysBtn) allDaysBtn.classList.add('hidden');
   // Restore original onclick handlers

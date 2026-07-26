@@ -16,6 +16,7 @@ const {
   selectLoginLocale,
   getParentShellChromeText,
   getParentHomeHubText,
+  getParentPlanningScheduleText,
   getVisibleChromeText,
   parentLogout,
   fillParentLogin,
@@ -28,6 +29,7 @@ const PARENT_HUBS = [
   { path: '/dashboard', label: 'Home', expectText: /Home|Welcome|Good (morning|afternoon|evening)/i },
   { path: '/daily-log', label: 'Today', expectText: /Today/i },
   { path: '/planning', label: 'Planning', expectText: /Planning/i },
+  { path: '/schedule', label: 'Schedule', expectText: /Schedule|Weekly|planning|Library/i },
   { path: '/rewards', label: 'Rewards', expectText: /Rewards/i },
   { path: '/family', label: 'Family', expectText: /Family/i },
   { path: '/settings', label: 'Settings', expectText: /Settings/i },
@@ -106,6 +108,21 @@ describe('i18n English journey E2E', () => {
               `${viewport}/home hub: Swedish system copy detected: ${homeCopy.hits.map((h) => h.match).join(', ')}`
             );
             assert.match(homeText, /Next step|Good (morning|afternoon|evening)|Hello/i);
+          }
+          if (hub.path === '/planning' || hub.path === '/schedule') {
+            const surfaceText = await getParentPlanningScheduleText(page);
+            const surfaceCopy = detectSwedishSystemCopy(surfaceText, {
+              allowlist: seed.allowlist,
+              context: `${viewport}/${hub.label} body`,
+            });
+            assert.equal(
+              surfaceCopy.ok,
+              true,
+              `${viewport}/${hub.label} body: Swedish system copy: ${surfaceCopy.hits.map((h) => h.match).join(', ')}`
+            );
+            if (hub.path === '/planning') {
+              assert.match(surfaceText || (await page.evaluate(() => document.body.innerText)), /Plan the week|Library|Weekly schedule/i);
+            }
           }
           const bodyText = await page.evaluate(() => document.body.innerText);
           assert.match(bodyText, hub.expectText, `${hub.label} should show English heading/nav`);

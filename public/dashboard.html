@@ -544,6 +544,7 @@
   <script src="/js/dashboard-approvals.js?v=2"></script>
   <script src="/js/dashboard-views.js?v=1"></script>
   <script src="/js/pictogram-registry.js?v=1"></script>
+  <script src="/js/schedule-i18n.js?v=1"></script>
   <script src="/js/dashboard-activity-modal.js?v=3"></script>
   <script src="/js/dashboard-dnd.js?v=1"></script>
   <script src="/js/dashboard-special-days.js?v=1"></script>
@@ -783,7 +784,7 @@
   <div id="addActivityModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Lägg till aktivitet</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.addActivity.title">Lägg till aktivitet</h3>
         <button onclick="closeAddModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <div class="mb-4">
@@ -829,8 +830,8 @@
         <p class="text-xs font-semibold text-purple-600 mb-2">Gäller barn:</p>
       </div>
       <div class="flex gap-3">
-        <button onclick="closeAddModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitAddActivity()" id="addActivityBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Lägg till</button>
+        <button onclick="closeAddModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitAddActivity()" id="addActivityBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="schedule.modals.addActivity.addBtn">Lägg till</button>
       </div>
     </div>
   </div>
@@ -1032,7 +1033,7 @@
   <div id="giveStarsModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-5">
-        <h3 class="text-xl font-heading font-bold text-navy">⭐ Ge extra stjärnor</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.giveStars.title">⭐ Ge extra stjärnor</h3>
         <button onclick="document.getElementById('giveStarsModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <input type="hidden" id="giveStarsChildId">
@@ -1040,7 +1041,7 @@
         <span class="text-2xl" id="giveStarsChildName"></span>
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-1">Antal stjärnor</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.modals.giveStars.starsLabel">Antal stjärnor</label>
         <div class="flex items-center gap-3">
           <button type="button" onclick="document.getElementById('giveStarsCount').value = Math.max(1, parseInt(document.getElementById('giveStarsCount').value||'5')-1)" class="w-10 h-10 rounded-xl border-2 border-lavender hover:border-gold font-bold text-lg flex items-center justify-center text-navy bg-white">−</button>
           <input type="number" id="giveStarsCount" min="1" max="100" value="5"
@@ -1056,16 +1057,17 @@
         </div>
       </div>
       <div class="mb-5">
-        <label class="block text-sm font-semibold text-navy mb-1">Anledning *</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.modals.giveStars.reasonLabel">Anledning *</label>
         <input type="text" id="giveStarsReason" placeholder="T.ex. Hjälpte till med disken"
+          data-i18n-placeholder="schedule.modals.giveStars.reasonPlaceholder"
           class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm">
       </div>
       <div id="giveStarsError" class="hidden text-red-500 text-sm mb-3"></div>
       <div class="flex gap-3">
         <button type="button" onclick="document.getElementById('giveStarsModal').classList.add('hidden')"
-          class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
+          class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
         <button type="button" id="giveStarsSubmitBtn" onclick="submitGiveStars()"
-          class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Ge stjärnor</button>
+          class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.modals.giveStars.submit">Ge stjärnor</button>
       </div>
     </div>
   </div>

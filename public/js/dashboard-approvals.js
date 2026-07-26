@@ -5,6 +5,10 @@
  * showToast, escHtml, apiFetch). Handlers exposed on window for inline onclick.
  */
 (function () {
+
+function spt(key, params) {
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+}
 function openGiveStarsModal(childId, childName, childEmoji) {
   document.getElementById('giveStarsChildId').value = childId;
   document.getElementById('giveStarsChildName').textContent = `${childEmoji} ${childName}`;
@@ -22,19 +26,19 @@ async function submitGiveStars() {
 
   errEl.classList.add('hidden');
   if (isNaN(starCount) || starCount < 1 || starCount > 100) {
-    errEl.textContent = 'Ange 1–100 stjärnor';
+    errEl.textContent = spt('schedule.modals.giveStars.countRange');
     errEl.classList.remove('hidden');
     return;
   }
   if (!reason) {
-    errEl.textContent = 'Anledning krävs';
+    errEl.textContent = spt('schedule.modals.giveStars.reasonRequired');
     errEl.classList.remove('hidden');
     return;
   }
 
   const btn = document.getElementById('giveStarsSubmitBtn');
   btn.disabled = true;
-  btn.textContent = 'Sparar…';
+  btn.textContent = spt('schedule.modals.giveStars.saving');
 
   try {
     const res = await window.apiFetch('/api/rewards/manual-stars', {
@@ -43,21 +47,21 @@ async function submitGiveStars() {
     });
     const data = await res.json();
     if (!res.ok) {
-      errEl.textContent = data.error || 'Fel';
+      errEl.textContent = data.error || spt('schedule.validation.generic');
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Ge stjärnor';
+      btn.textContent = spt('schedule.modals.giveStars.submit');
       return;
     }
     document.getElementById('giveStarsModal').classList.add('hidden');
-    showToast(`⭐ ${starCount} stjärnor givna!`);
+    showToast(`⭐ ${spt('schedule.modals.giveStars.success', { count: starCount })}`);
     await loadDashboardCards();
     await loadStarHistory();
   } catch (err) {
-    errEl.textContent = 'Nätverksfel';
+    errEl.textContent = spt('schedule.errors.network');
     errEl.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Ge stjärnor';
+    btn.textContent = spt('schedule.modals.giveStars.submit');
   }
 }
 

@@ -7,6 +7,10 @@
  * Handlers exposed on window for inline onclick + schedule.js callers.
  */
 (function () {
+
+function spt(key, params) {
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+}
 // ── Template Editing Mode ──────────────────────────────────
 // When ?view=template&template=<id> is in the URL, the user is editing a family schedule template.
 // Templates are family-level (child_id IS NULL) and have no day-of-week — they're reusable by any child.
@@ -32,7 +36,7 @@ async function loadTemplate(templateId) {
     if (editorRewardsBtn) editorRewardsBtn.classList.add('hidden');
 
     document.getElementById('scheduleContent').innerHTML =
-      '<div class="text-center py-16"><span style="display:inline-block;font-size:2rem;animation:spin 1s linear infinite;">📋</span><p class="mt-2 text-text-soft font-semibold">Laddar schemamall…</p></div>';
+      '<div class="text-center py-16"><span style="display:inline-block;font-size:2rem;animation:spin 1s linear infinite;">📋</span><p class="mt-2 text-text-soft font-semibold">${spt('schedule.template.loading')}</p></div>';
 
     const res = await window.apiFetch(`/api/schedule-templates/${templateId}`);
     if (!res.ok) {
@@ -40,15 +44,15 @@ async function loadTemplate(templateId) {
       document.getElementById('scheduleContent').innerHTML = `
         <div class="text-center py-16">
           <p class="text-5xl mb-4">❌</p>
-          <p class="font-semibold text-navy mb-1">Schemamallen hittades inte</p>
-          <p class="text-text-soft text-sm">${escHtml(err.error || 'Okänt fel')}</p>
-          <a href="/library" class="mt-6 inline-block px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Tillbaka till biblioteket</a>
+          <p class="font-semibold text-navy mb-1">${spt('schedule.template.notFound')}</p>
+          <p class="text-text-soft text-sm">${escHtml(err.error || spt('schedule.validation.generic'))}</p>
+          <a href="/library" class="mt-6 inline-block px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">${spt('schedule.template.backToLibrary')}</a>
         </div>`;
       return;
     }
 
     const data = await res.json();
-    templateName = data.name || 'Schemamall';
+    templateName = data.name || spt('schedule.template.defaultName');
     templateItems = data.items || [];
 
     // Also load activities so the add-modal has a searchable list
@@ -60,9 +64,9 @@ async function loadTemplate(templateId) {
     document.getElementById('scheduleContent').innerHTML = `
       <div class="text-center py-16">
         <p class="text-5xl mb-4">❌</p>
-        <p class="font-semibold text-navy mb-1">Kunde inte ladda schemamallen</p>
+        <p class="font-semibold text-navy mb-1">${spt('schedule.template.loadFailed')}</p>
         <p class="text-text-soft text-sm mb-4">${escHtml(err.message)}</p>
-        <a href="/library" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold inline-block">Tillbaka till biblioteket</a>
+        <a href="/library" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold inline-block">${spt('schedule.template.backToLibrary')}</a>
       </div>`;
   }
 }
@@ -74,17 +78,17 @@ function renderTemplate() {
       .filter(i => i.section === sec.key)
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
     const itemsHtml = items.length === 0
-      ? `<p class="text-sm text-text-soft text-center py-3">${(window.ScheduleCore && ScheduleCore.label ? ScheduleCore.label('schedule.emptySection', 'Inga aktiviteter') : 'Inga aktiviteter')}</p>`
+      ? `<p class="text-sm text-text-soft text-center py-3">${(window.ScheduleCore && ScheduleCore.label ? ScheduleCore.label('schedule.emptySection') : spt('schedule.emptySection'))}</p>`
       : items.map(i => renderTemplateScheduleItem(i)).join('');
     const addLabel = (window.ScheduleCore && ScheduleCore.label)
-      ? ScheduleCore.label('schedule.addActivity', 'Aktivitet')
-      : 'Aktivitet';
+      ? ScheduleCore.label('schedule.addActivity')
+      : spt('schedule.addActivity');
     return `<div class="section-card border-2 ${sec.color} rounded-2xl p-4 mb-4" data-section="${sec.key}">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-xl">${sec.emoji}</span>
-          <h4 class="font-heading font-bold text-navy">${sec.label}</h4>
-          <span class="text-xs text-text-soft">${items.length} aktivitet${items.length !== 1 ? 'er' : ''}</span>
+          <h4 class="font-heading font-bold text-navy">${(window.ScheduleCore && ScheduleCore.sectionName ? ScheduleCore.sectionName(sec.key) : spt('schedule.sections.' + sec.key))}</h4>
+          <span class="text-xs text-text-soft">${window.ScheduleI18n ? ScheduleI18n.activityCount(items.length) : spt('schedule.activityCount.other', { count: items.length })}</span>
         </div>
         <button onclick="openAddTemplateItemModal('${sec.key}')"
           class="px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">
@@ -98,23 +102,22 @@ function renderTemplate() {
   document.getElementById('scheduleContent').innerHTML = `
     <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
       <div>
-        <h2 class="text-2xl font-heading font-bold text-navy">Mall: ${escHtml(templateName)}</h2>
-        <p class="text-sm text-text-soft mt-0.5">Egna schemamallen — redigera och spara</p>
+        <h2 class="text-2xl font-heading font-bold text-navy">${spt('schedule.template.title', { name: escHtml(templateName) })}</h2>
+        <p class="text-sm text-text-soft mt-0.5">${spt('schedule.template.subtitle')}</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="/library" class="px-4 py-2 border-2 border-lavender hover:border-navy rounded-xl font-semibold text-sm transition-colors">← Biblioteket</a>
+        <a href="/library" class="px-4 py-2 border-2 border-lavender hover:border-navy rounded-xl font-semibold text-sm transition-colors">← ${spt('schedule.template.backToLibrary')}</a>
       </div>
     </div>
     <div class="mb-4 p-3 bg-sky/60 border-2 border-lavender rounded-xl">
       <p class="text-sm text-text-soft">
-        ✏️ Du redigerar schemamallen. <strong>${templateItems.length} aktiviteter</strong>.
-        Klicka på "Applicera på barn" för att koppla schemat till ett barns veckodagar.
+        ${spt('schedule.template.hint', { count: templateItems.length })}
       </p>
     </div>
     ${sections}
     <div class="mt-6 text-center">
       <a href="/library" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors inline-block">
-        ✓ Klart — tillbaka till biblioteket
+        ✓ ${spt('schedule.template.doneBack')}
       </a>
     </div>`;
 }
@@ -136,20 +139,20 @@ function renderTemplateScheduleItem(item) {
 
 async function deleteTemplateItem(itemId) {
   if (!currentTemplateId) return;
-  const confirmed = confirm('Ta bort denna aktivitet från schemamallen?');
+  const confirmed = confirm(spt('schedule.template.deleteConfirm'));
   if (!confirmed) return;
   try {
     const res = await window.apiFetch(`/api/schedule-templates/${currentTemplateId}/items/${itemId}`, { method: 'DELETE' });
     if (res.ok) {
       templateItems = templateItems.filter(i => i.id !== itemId);
       renderTemplate();
-      showToast('Aktivitet borttagen');
+      showToast(spt('schedule.template.activityRemoved'));
     } else {
       const err = await res.json();
-      showToast(err.error || 'Kunde inte ta bort aktiviteten', true);
+      showToast(err.error || spt('schedule.template.couldNotRemove'), true);
     }
   } catch {
-    showToast('Något gick fel', true);
+    showToast(spt('schedule.validation.generic'), true);
   }
 }
 
@@ -182,7 +185,7 @@ function renderTemplateSearchResults(query) {
   if (!list) return;
   let items = allTemplates;
   if (query) items = items.filter(t => t.name && t.name.toLowerCase().includes(query.toLowerCase()));
-  if (items.length === 0) { list.innerHTML = '<p class="text-sm text-text-soft text-center py-4">Inga aktiviteter hittades</p>'; return; }
+  if (items.length === 0) { list.innerHTML = '<p class="text-sm text-text-soft text-center py-4">' + spt('schedule.templates.noneFound') + '</p>'; return; }
   list.innerHTML = items.map(t => `
     <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-lavender cursor-pointer transition-colors template-item ${selectedTemplateId===t.id?'bg-gold-light border-2 border-gold':'border border-transparent'}"
       onclick="selectTemplateItem('${t.id}')" data-id="${t.id}">
@@ -217,12 +220,12 @@ async function openTemplateModal() {
   // Fetch categories for the family
   try {
     const res = await window.apiFetch('/api/categories');
-    if (!res.ok) { showToast('Kunde inte ladda kategorier', true); return; }
+    if (!res.ok) { showToast(spt('schedule.template.couldNotLoadCategories'), true); return; }
     const categories = await res.json();
     const listEl = document.getElementById('templateCategoryList');
 
     if (categories.length === 0) {
-      listEl.innerHTML = '<p class="text-sm text-text-soft text-center py-2">Inga kategorier skapade ännu</p>';
+      listEl.innerHTML = '<p class="text-sm text-text-soft text-center py-2">' + spt('schedule.template.noCategories') + '</p>';
     } else {
       // Fetch template counts per category
       const tplRes = await window.apiFetch('/api/activities');
@@ -239,7 +242,7 @@ async function openTemplateModal() {
           <span class="text-2xl">${emoji}</span>
           <div>
             <div class="font-bold">${escHtml(cat.name)}</div>
-            <div class="text-xs text-text-soft">${count} aktivitet${count !== 1 ? 'er' : ''}</div>
+            <div class="text-xs text-text-soft">${window.ScheduleI18n ? ScheduleI18n.activityCount(count) : spt('schedule.activityCount.other', { count })}</div>
           </div>
           <span class="ml-auto text-text-soft">→</span>
         </button>`;
@@ -249,7 +252,7 @@ async function openTemplateModal() {
     document.getElementById('chooseTemplateModal').classList.remove('hidden');
   } catch (err) {
     console.error('Error opening template modal:', err);
-    showToast('Kunde inte ladda aktiviteter', true);
+    showToast(spt('schedule.loadActivitiesError'), true);
   }
 }
 
@@ -266,7 +269,7 @@ async function createScheduleWithTemplate(categoryId) {
   const data = await res.json();
   if (res.ok) { currentScheduleId = data.id; await loadScheduleForDay(); }
   else if (res.status === 409 && data.id) { currentScheduleId = data.id; await loadScheduleForDay(); }
-  else showToast(data.error || 'Fel uppstod', true);
+  else showToast(data.error || spt('schedule.validation.generic'), true);
 }
 
   // Exposed on window for inline onclick + cross-file callers

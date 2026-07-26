@@ -6,24 +6,22 @@
   const DAYS = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
   const DAYS_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
 
-  function localizedString(key, fallback) {
-    if (typeof window.pt === 'function') {
-      const translated = window.pt(key);
-      if (translated && translated !== key) return translated;
-    }
-    return fallback;
+  function localizedString(key, params) {
+    if (window.ScheduleI18n) return ScheduleI18n.t(key, params);
+    if (typeof window.pt === 'function') return window.pt(key, params);
+    return key;
   }
 
   function dayName(index) {
-    return localizedString(`schedule.days.${index}`, DAYS[index]);
+    return localizedString(`schedule.days.${index}`);
   }
 
   function dayShort(index) {
-    return localizedString(`schedule.daysShort.${index}`, DAYS_SHORT[index]);
+    return localizedString(`schedule.daysShort.${index}`);
   }
 
-  function sectionName(key, fallback) {
-    return localizedString(`schedule.sections.${key}`, fallback);
+  function sectionName(key) {
+    return localizedString(`schedule.sections.${key}`);
   }
   const SECTIONS = [
     { key: 'morgon', label: 'Morgon', emoji: '🌅', color: 'bg-yellow-50 border-yellow-200' },
@@ -74,12 +72,12 @@
       return `<div class="section-card border-2 ${sec.color} rounded-2xl p-4 mb-4" data-section="${sec.key}">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2"><span class="text-xl">${sec.emoji}</span>
-          <div><h4 class="font-heading font-bold text-navy">${sectionName(sec.key, sec.label)}</h4>${tl ? `<p class="text-xs text-text-soft">${tl}</p>` : ''}</div>
+          <div><h4 class="font-heading font-bold text-navy">${sectionName(sec.key)}</h4>${tl ? `<p class="text-xs text-text-soft">${tl}</p>` : ''}</div>
         </div>
-        <button onclick="openAddModal('${sec.key}')" class="action-btn px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">+ ${localizedString('schedule.addActivity', 'Aktivitet')}</button>
+        <button onclick="openAddModal('${sec.key}')" class="action-btn px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">+ ${localizedString('schedule.addActivity')}</button>
       </div>
       <div class="space-y-2 items-list" id="items-${sec.key}">
-        ${items.length === 0 ? `<p class="text-sm text-text-soft text-center py-3">${localizedString('schedule.emptySection', 'Inga aktiviteter')}</p>` : items.map(i => renderItemFn(i)).join('')}
+        ${items.length === 0 ? `<p class="text-sm text-text-soft text-center py-3">${localizedString('schedule.emptySection')}</p>` : items.map(i => renderItemFn(i)).join('')}
       </div>
     </div>`;
     }).join('');
