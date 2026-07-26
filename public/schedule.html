@@ -531,10 +531,10 @@
       </div>
       <!-- Emoji picker -->
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Emoji</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.emojiLabel">Emoji</label>
         <div class="flex gap-2 items-center mb-2">
           <span id="newActEmojiPreview" class="text-3xl w-10 h-10 flex items-center justify-center border-2 border-lavender rounded-xl">📌</span>
-          <input type="text" id="newActEmojiInput" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewNewActEmoji()">
+          <input type="text" id="newActEmojiInput" data-i18n-placeholder="schedule.chrome.emojiPlaceholder" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewNewActEmoji()">
         </div>
         <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" id="newActEmojiGrid"></div>
         <div class="mt-2">
@@ -561,7 +561,7 @@
       </div>
       <!-- Substeps -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
+        <label class="block text-sm font-semibold text-navy mb-1"><span data-i18n="schedule.chrome.substepsLabel">Delsteg</span> <span class="font-normal text-text-soft text-xs" data-i18n="schedule.chrome.substepsOptional">(valfritt)</span></label>
         <div id="newActSubstepList" class="space-y-1 mb-2"></div>
         <div class="flex gap-2">
           <input type="text" id="newActSubstepInput" data-i18n-placeholder="schedule.chrome.substepsAddPlaceholder" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewActSubstep();}">
@@ -586,21 +586,21 @@
       <input type="hidden" id="editTplId">
       <!-- Name -->
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Namn *</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.nameLabel">Namn *</label>
         <input type="text" id="editTplName" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
       </div>
       <!-- Emoji -->
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Emoji</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.emojiLabel">Emoji</label>
         <div class="flex gap-2 items-center mb-2">
           <span id="editTplEmojiPreview" class="text-3xl w-10 h-10 flex items-center justify-center border-2 border-lavender rounded-xl">📌</span>
-          <input type="text" id="editTplEmojiInput" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewEditTplEmoji()">
+          <input type="text" id="editTplEmojiInput" data-i18n-placeholder="schedule.chrome.emojiPlaceholder" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewEditTplEmoji()">
         </div>
         <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" id="editTplEmojiGrid"></div>
       </div>
       <!-- Substeps -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-1">Delsteg</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.substepsLabel">Delsteg</label>
         <div id="editTplSubstepList" class="space-y-1 mb-2"></div>
         <div class="flex gap-2">
           <input type="text" id="editTplSubstepInput" data-i18n-placeholder="schedule.chrome.substepsAddPlaceholder" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditTplSubstep();}">
@@ -610,8 +610,8 @@
       </div>
       <div id="editTemplateError" class="text-red-500 text-sm hidden mb-3"></div>
       <div class="flex gap-2 sm:gap-3 flex-nowrap">
-        <button onclick="closeEditTemplateModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button onclick="submitEditTemplate()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm">Spara</button>
+        <button onclick="closeEditTemplateModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitEditTemplate()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm" data-i18n="schedule.chrome.save">Spara</button>
       </div>
     </div>
   </div>
