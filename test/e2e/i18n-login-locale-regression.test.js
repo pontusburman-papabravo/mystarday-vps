@@ -14,6 +14,9 @@ const {
   selectLoginLocale,
   fillParentLogin,
   submitParentLogin,
+  enterChildPin,
+  parentLogout,
+  getVisibleChromeText,
 } = require('./helpers/puppeteer-browser');
 
 function sleep(ms) {
@@ -155,7 +158,7 @@ describe('login locale regression (browser + API)', () => {
 });
 
 describe('english_child_experience flag behavior', () => {
-  it('child login stays Swedish child pack when flag is OFF', async (t) => {
+  it('child dashboard stays Swedish when english_child_experience is OFF', async (t) => {
     const ctx = await createE2eContext();
     if (ctx.skip) {
       t.skip(ctx.reason);
@@ -177,17 +180,32 @@ describe('english_child_experience flag behavior', () => {
       await clearFamilyEnglishChildFlag(ctx.query, seed.familyId);
 
       const page = await newPage(browser, 'mobile');
+      await page.goto(`${ctx.baseUrl}/login`, { waitUntil: 'domcontentloaded' });
+      await acceptCookies(page);
+      await selectLoginLocale(page, 'en-GB');
+      await fillParentLogin(page, seed.email, seed.password);
+      await submitParentLogin(page);
+      await sleep(1500);
+
+      await parentLogout(page);
       await page.goto(`${ctx.baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
       await acceptCookies(page);
+      await sleep(2000);
+      await page.waitForSelector(`[data-username="${seed.childUsername}"]`, { timeout: 30000 });
+      await page.evaluate((username) => {
+        const card = document.querySelector(`[data-username="${username}"]`);
+        if (card) card.click();
+      }, seed.childUsername);
       await page.waitForFunction(() => {
-        const fb = document.getElementById('auth-entry-fallback');
-        const ready = window.authEntryI18nBootstrapped || document.querySelector('.cl-child-card, #clProfilePicker, #clNameForm');
-        return ready && !(fb && !fb.hidden);
-      }, { timeout: 20000 });
-      await sleep(1000);
-      const heading = await page.evaluate(() => document.body.innerText.slice(0, 500));
-      assert.match(heading, /Vem är du|Välj vem du är/i);
-      assert.doesNotMatch(heading, /Who are you/i);
+        const greeting = document.getElementById('clPinGreeting');
+        return greeting && (greeting.textContent || '').length > 0;
+      }, { timeout: 15000 });
+      await enterChildPin(page, seed.childPin);
+      await sleep(2500);
+
+      const childText = await getVisibleChromeText(page);
+      assert.match(childText, /Idag|Skattkammaren|Hej/i);
+      assert.doesNotMatch(childText, /\bToday\b|\bTreasure Chamber\b/i);
     } finally {
       await browser.close();
       await ctx.close();
