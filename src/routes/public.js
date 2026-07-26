@@ -6,6 +6,7 @@ const { sendEmail, isTestMailbox } = require('../lib/email');
 const { maskEmail } = require('../lib/log-redact');
 const { createProfessionalInterest } = require('../../db/professional-interest');
 const { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped } = require('../../db/waitlist');
+const { WAITLIST_COUNTRIES, WAITLIST_COUNTRY_CODES } = require('../../config/market-countries');
 const { subscribePublic, VALID_COMPONENTS } = require('../../db/public-newsletter');
 const { getAllPreviewPackages } = require('../../config/preview-data');
 const shareLink = require('../../db/professional-share-link');
@@ -336,12 +337,22 @@ router.post('/waitlist', waitlistLimiter, async (req, res) => {
   }
 });
 
+// ─── GET /api/waitlist/countries ─────────────────────────────
+// Country list for optional Q3 on thank-you survey (EU launch).
+router.get('/waitlist/countries', (_req, res) => {
+  const countries = WAITLIST_COUNTRIES.map((entry) => ({
+    code: entry.code,
+    label: entry.labels['en-GB'] || entry.labels['sv-SE'] || entry.code,
+  }));
+  res.json({ countries });
+});
+
 // ─── POST /api/waitlist/survey ──────────────────────────────
 // Thank-you page pain-point survey. Stores answers linked to email.
 // 10 per IP per hour (shared with signup limit).
 router.post('/waitlist/survey', waitlistLimiter, async (req, res) => {
   try {
-    const { email, pain_points, pain_points_other, current_method } = req.body;
+    const { email, pain_points, pain_points_other, current_method, country_code } = req.body;
 
     if (!email || typeof email !== 'string' || !email.includes('@') || !email.includes('.')) {
       return res.status(400).json({ error: 'Email is required.' });
@@ -360,11 +371,21 @@ router.post('/waitlist/survey', waitlistLimiter, async (req, res) => {
     const validMethods = ['paper', 'other_apps', 'verbal', 'nothing'];
     const normalizedMethod = validMethods.includes(current_method) ? current_method : null;
 
+    let normalizedCountry = null;
+    if (country_code !== undefined && country_code !== null && country_code !== '') {
+      const code = String(country_code).trim().toUpperCase();
+      if (!WAITLIST_COUNTRY_CODES.has(code)) {
+        return res.status(400).json({ error: 'Please select a valid country.' });
+      }
+      normalizedCountry = code;
+    }
+
     const updated = await updateWaitlistSurvey(
       email.trim(),
       filteredPainPoints,
       pain_points_other ? String(pain_points_other).trim().substring(0, 500) : null,
-      normalizedMethod
+      normalizedMethod,
+      normalizedCountry
     );
 
     if (!updated) {

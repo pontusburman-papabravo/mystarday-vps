@@ -50,6 +50,7 @@ function renderWaitlistStats(stats) {
 
   renderQ1Bars(stats.q1 || [], stats.completed || 0);
   renderQ2Bars(stats.q2 || [], stats.completed || 0);
+  renderQ3Bars(stats.q3 || [], stats.completed || 0);
 }
 
 function renderQ1Bars(q1Data, completed) {
@@ -130,12 +131,37 @@ function renderQ2Bars(q2Data, completed) {
     .join('');
 }
 
+function renderQ3Bars(q3Data, completed) {
+  const container = document.getElementById('wlQ3Bars');
+  if (!container) return;
+  if (!q3Data.length) {
+    container.innerHTML = '<p class="text-text-soft text-sm italic">Inga svar ännu.</p>';
+    return;
+  }
+  const maxCount = Math.max(...q3Data.map((r) => parseInt(r.count, 10)), 1);
+  container.innerHTML = q3Data
+    .map((r) => {
+      const pct = completed > 0 ? Math.round((parseInt(r.count, 10) / completed) * 100) : 0;
+      const barPct = maxCount > 0 ? (parseInt(r.count, 10) / maxCount) * 100 : 0;
+      const label = countryToLabel(r.value) || r.value;
+      return `
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-text-soft w-36 shrink-0 truncate">${esc(label)}</span>
+          <div class="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+            <div class="h-full rounded-full transition-all" style="width:${barPct}%;background:#0EA5E9;"></div>
+          </div>
+          <span class="text-xs font-semibold text-navy w-20 shrink-0">${r.count} <span class="text-text-soft font-normal">(${pct}%)</span></span>
+        </div>`;
+    })
+    .join('');
+}
+
 // ─── Table renderer ──────────────────────────────────────────────────
 function renderWaitlistTable(entries) {
   const tbody = document.getElementById('waitlistTableBody');
   if (!tbody) return;
   if (!entries.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-text-soft py-8"><p class="font-semibold text-navy mb-1">Inga waitlist-anmälningar ännu</p><p class="text-sm">Nya anmälningar från engelska landningen kommer att visas här.</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-text-soft py-8"><p class="font-semibold text-navy mb-1">Inga waitlist-anmälningar ännu</p><p class="text-sm">Nya anmälningar från engelska landningen kommer att visas här.</p></td></tr>';
     return;
   }
   tbody.innerHTML = entries
@@ -152,6 +178,7 @@ function renderWaitlistTable(entries) {
           : '—';
 
       const q2Display = e.survey_completed_at ? (e.current_method ? pp2ToLabel(e.current_method) : '—') : '—';
+      const q3Display = e.survey_completed_at ? (e.country_code ? countryToLabel(e.country_code) : '—') : '—';
 
       const statusDisplay = statusBadge(e.survey_status);
       return `<tr class="border-b border-lavender/50 hover:bg-sky/50 transition-colors">
@@ -161,6 +188,7 @@ function renderWaitlistTable(entries) {
         <td class="px-4 py-3 text-text-soft text-sm">${date}</td>
         <td class="px-4 py-3 text-sm text-text-soft max-w-40 truncate" title="${esc(q1Display)}">${q1Display || '—'}</td>
         <td class="px-4 py-3 text-sm text-text-soft">${q2Display || '—'}</td>
+        <td class="px-4 py-3 text-sm text-text-soft">${esc(q3Display)}</td>
         <td class="px-4 py-3">${statusDisplay}</td>
         <td class="px-4 py-3">
           <button onclick="showWaitlistDeleteModal(${e.id})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition-colors border border-red-200" style="min-height:32px;min-width:44px;">
@@ -174,7 +202,7 @@ function renderWaitlistTable(entries) {
 
 function renderWaitlistTableError(msg) {
   const tbody = document.getElementById('waitlistTableBody');
-  if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500 py-8">${esc(msg)}</td></tr>`;
+  if (tbody) tbody.innerHTML = `<tr><td colspan="9" class="text-center text-red-500 py-8">${esc(msg)}</td></tr>`;
 }
 
 function renderWaitlistPagination(total, limit, offset) {
@@ -262,6 +290,21 @@ function pp2ToLabel(value) {
   return map[value] || value;
 }
 
+function countryToLabel(code) {
+  const map = {
+    SE: 'Sverige',
+    GB: 'Storbritannien',
+    ZZ: 'Annat land',
+    AT: 'Österrike', BE: 'Belgien', BG: 'Bulgarien', HR: 'Kroatien', CY: 'Cypern',
+    CZ: 'Tjeckien', DK: 'Danmark', EE: 'Estland', FI: 'Finland', FR: 'Frankrike',
+    DE: 'Tyskland', GR: 'Grekland', HU: 'Ungern', IS: 'Island', IE: 'Irland',
+    IT: 'Italien', LV: 'Lettland', LI: 'Liechtenstein', LT: 'Litauen', LU: 'Luxemburg',
+    MT: 'Malta', NL: 'Nederländerna', NO: 'Norge', PL: 'Polen', PT: 'Portugal',
+    RO: 'Rumänien', SK: 'Slovakien', SI: 'Slovenien', ES: 'Spanien', CH: 'Schweiz',
+  };
+  return map[code] || code;
+}
+
 // ─── Search ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.getElementById('waitlistSearch');
@@ -295,7 +338,7 @@ async function exportWaitlistCsv() {
     const data = await Auth.api(`/api/admin/waitlist?${params}`);
     const entries = data.entries || [];
 
-    const headers = ['#', 'Name', 'Email', 'Signed up', 'Q1: Pain Points', 'Q1: Other text', 'Q2: Current Method', 'Survey Status', 'Completed At'];
+    const headers = ['#', 'Name', 'Email', 'Signed up', 'Q1: Pain Points', 'Q1: Other text', 'Q2: Current Method', 'Q3: Country', 'Survey Status', 'Completed At'];
     const rows = entries.map((e, i) => [
       i + 1,
       e.name || '',
@@ -304,6 +347,7 @@ async function exportWaitlistCsv() {
       (e.pain_points || []).map(ppToLabel).join('; '),
       e.pain_points_other || '',
       e.current_method ? pp2ToLabel(e.current_method) : '',
+      e.country_code ? countryToLabel(e.country_code) : '',
       e.survey_status || 'pending',
       e.survey_completed_at || '',
     ]);

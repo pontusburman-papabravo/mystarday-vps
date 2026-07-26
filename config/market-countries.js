@@ -61,6 +61,16 @@ const REGISTRATION_COUNTRIES = [
   OTHER_COUNTRY,
 ];
 
+/** English waitlist survey — EU/EEA + UK + other (no US; EU launch focus). */
+const WAITLIST_COUNTRIES = [
+  SWEDEN,
+  ...EU_EEA_COUNTRIES.filter((c) => c.code !== 'SE'),
+  UNITED_KINGDOM,
+  OTHER_COUNTRY,
+];
+
+const WAITLIST_COUNTRY_CODES = new Set(WAITLIST_COUNTRIES.map((c) => c.code));
+
 module.exports = {
   SWEDEN,
   UNITED_KINGDOM,
@@ -69,4 +79,6 @@ module.exports = {
   EU_EEA_COUNTRIES,
   EU_EEA_ISO_CODES,
   REGISTRATION_COUNTRIES,
+  WAITLIST_COUNTRIES,
+  WAITLIST_COUNTRY_CODES,
 };
