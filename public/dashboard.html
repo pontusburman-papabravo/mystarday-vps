@@ -788,7 +788,7 @@
         <button onclick="closeAddModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <div class="mb-4">
-        <input type="text" id="templateSearch" placeholder="Sök aktivitet…" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors mb-3" oninput="filterTemplates()">
+        <input type="text" id="templateSearch" data-i18n-placeholder="schedule.modals.addActivity.searchPlaceholder" placeholder="Sök aktivitet…" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors mb-3" oninput="filterTemplates()">
         <div id="templateList" class="space-y-1 max-h-52 overflow-y-auto"></div>
       </div>
       <div id="selectedTemplateInfo" class="hidden bg-sky rounded-xl p-3 mb-4 flex items-center gap-3">
@@ -797,23 +797,23 @@
         <button onclick="clearSelectedTemplate()" class="ml-auto text-text-soft hover:text-navy text-lg">✕</button>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-2">
-        <div><label class="block text-sm font-semibold text-navy mb-1">Starttid</label><input type="time" id="addStartTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
-        <div><label class="block text-sm font-semibold text-navy mb-1">Sluttid</label><input type="time" id="addEndTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
+        <div><label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.startTimePlaceholder">Starttid</label><input type="time" id="addStartTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
+        <div><label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.endTimePlaceholder">Sluttid</label><input type="time" id="addEndTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
       </div>
-      <p id="timeTipMsg" class="text-xs text-text-soft mb-3">💡 Tips: Lägg till en tid så placeras aktiviteten rätt i NU / NÄSTA / SEDAN-vyn</p>
+      <p id="timeTipMsg" class="text-xs text-text-soft mb-3" data-i18n="schedule.chrome.timePlacementTip">💡 Tips: Lägg till en tid så placeras aktiviteten rätt i NU / NÄSTA / SEDAN-vyn</p>
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-2">Sektion</label>
+        <label class="block text-sm font-semibold text-navy mb-2" data-i18n="schedule.chrome.sectionLabel">Sektion</label>
         <div class="flex gap-2 flex-wrap">
-          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="pickSection('morgon')">🌅 Morgon</button>
-          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="pickSection('dag')">☀️ Dag</button>
-          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="pickSection('kvall')">🌆 Kväll</button>
-          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="pickSection('natt')">🌙 Natt</button>
+          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="pickSection('morgon')">🌅 <span data-i18n="schedule.sections.morgon">Morgon</span></button>
+          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="pickSection('dag')">☀️ <span data-i18n="schedule.sections.dag">Dag</span></button>
+          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="pickSection('kvall')">🌆 <span data-i18n="schedule.sections.kvall">Kväll</span></button>
+          <button type="button" class="section-pick-btn px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="pickSection('natt')">🌙 <span data-i18n="schedule.sections.natt">Natt</span></button>
         </div>
         <input type="hidden" id="addSection" value="dag">
       </div>
       <div id="addActivityOnceWrap" class="hidden mb-4 space-y-3 p-3 bg-sky rounded-xl border-2 border-sky">
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Datum *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.dateRequiredLabel">Datum *</label>
           <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-sky bg-white">
             <span class="text-xl flex-shrink-0">📅</span>
             <input type="date" id="addActivityOnceDate"
@@ -821,13 +821,13 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Gäller *</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="schedule.modals.addActivity.appliesTo">Gäller *</label>
           <div id="addActivityOnceChildList" class="space-y-2"></div>
         </div>
       </div>
       <div id="addActivityError" class="text-red-500 text-sm hidden mb-3"></div>
       <div id="addActivityChildrenWrap" class="hidden mb-3 p-3 bg-purple-50 rounded-xl border border-purple-200">
-        <p class="text-xs font-semibold text-purple-600 mb-2">Gäller barn:</p>
+        <p class="text-xs font-semibold text-purple-600 mb-2" data-i18n="schedule.chrome.appliesToChildren">Gäller barn:</p>
       </div>
       <div class="flex gap-3">
         <button onclick="closeAddModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>

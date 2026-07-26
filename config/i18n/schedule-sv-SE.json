@@ -460,7 +460,10 @@
     "yesDelete": "Ja, ta bort",
     "close": "Stäng",
     "statChildren": "Barn",
-    "statDays": "Dagar"
+    "statDays": "Dagar",
+    "timePlacementTip": "💡 Tips: Lägg till en tid så placeras aktiviteten rätt i NU / NÄSTA / SEDAN-vyn",
+    "dateRequiredLabel": "Datum *",
+    "appliesToChildren": "Gäller barn:"
   },
   "months": {
     "0": "Januari",

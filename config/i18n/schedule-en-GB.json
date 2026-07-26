@@ -460,7 +460,10 @@
     "yesDelete": "Yes, delete",
     "close": "Close",
     "statChildren": "Children",
-    "statDays": "Days"
+    "statDays": "Days",
+    "timePlacementTip": "💡 Tip: add a time and the activity lands in the right place in the NOW / NEXT / LATER view",
+    "dateRequiredLabel": "Date *",
+    "appliesToChildren": "Applies to:"
   },
   "months": {
     "0": "January",
