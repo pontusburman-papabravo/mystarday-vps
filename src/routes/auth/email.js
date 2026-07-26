@@ -13,8 +13,8 @@ const db = require('../../lib/db');
 const config = require('../../lib/config');
 const { forgotPasswordLimiter, resendVerificationLimiter } = require('../../middleware/rateLimiter');
 const { sendVerificationEmail, sendPasswordResetEmail, registerContact } = require('../../lib/email');
-const { resolveFamilyLocale } = require('../../lib/locale');
 const { resolvePasswordResetEmailLocale, resolveVerificationEmailLocale } = require('../../lib/auth-email-locale');
+const { resolveAuthApiLocale, authApiMessage } = require('../../lib/auth-api-messages');
 const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
 const { validate } = require('../../middleware/validate');
 const {
@@ -28,10 +28,11 @@ const router = express.Router();
 
 // ─── POST /api/auth/verify-email ──────────────────────────
 router.post('/verify-email', validate(VerifyEmailSchema), async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     const { token } = req.body;
     if (!token) {
-      return res.status(400).json({ error: 'Verifieringstoken krävs' });
+      return res.status(400).json({ error: authApiMessage(lang, 'errors.verificationTokenRequired') });
     }
 
     const result = await db.query(
@@ -41,7 +42,7 @@ router.post('/verify-email', validate(VerifyEmailSchema), async (req, res) => {
 
     const verification = result.rows[0];
     if (!verification || new Date(verification.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Ogiltig eller utgången verifieringslänk' });
+      return res.status(400).json({ error: authApiMessage(lang, 'errors.invalidVerificationLink') });
     }
 
     await db.query('UPDATE parent SET verified = true WHERE id = $1', [verification.parent_id]);
@@ -54,26 +55,27 @@ router.post('/verify-email', validate(VerifyEmailSchema), async (req, res) => {
       })
       .catch(() => {});
 
-    res.json({ message: 'E-postadressen har verifierats! Du kan nu logga in.' });
+    res.json({ message: authApiMessage(lang, 'success.emailVerified') });
   } catch (err) {
     console.error('[AUTH] Verify error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    res.status(500).json({ error: authApiMessage(lang, 'errors.serverError') });
   }
 });
 
 // ─── POST /api/auth/resend-verification ───────────────────
 // Rate limited: max 3 per hour per email. Generates a fresh token each time.
 router.post('/resend-verification', resendVerificationLimiter, validate(ResendVerificationSchema), async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({ error: 'E-postadress krävs' });
+      return res.status(400).json({ error: authApiMessage(lang, 'errors.emailRequired') });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
 
     // Always return success to avoid leaking account existence
-    const successMessage = 'Om kontot finns skickas en ny verifieringslänk';
+    const successMessage = authApiMessage(lang, 'success.resendVerification');
 
     const parentResult = await db.query(
       'SELECT id, name, verified FROM parent WHERE LOWER(email) = $1',
@@ -104,7 +106,7 @@ router.post('/resend-verification', resendVerificationLimiter, validate(ResendVe
         const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
         if (new Date(last_resent_at) > hourAgo && resend_count >= 3) {
           return res.status(429).json({
-            error: 'Du har redan begärt flera verifieringslänkar. Försök igen om en timme.',
+            error: authApiMessage(lang, 'errors.resendVerificationRateLimit'),
           });
         }
       }
@@ -139,24 +141,25 @@ router.post('/resend-verification', resendVerificationLimiter, validate(ResendVe
     res.json({ message: successMessage });
   } catch (err) {
     console.error('[AUTH] Resend verification error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    res.status(500).json({ error: authApiMessage(lang, 'errors.serverError') });
   }
 });
 
 // ─── POST /api/auth/forgot-password ───────────────────────
 router.post('/forgot-password', forgotPasswordLimiter, validate(ForgotPasswordSchema), async (req, res) => {
   console.log('[AUTH] POST /forgot-password — request received');
+  const lang = resolveAuthApiLocale(req);
   try {
     const { email } = req.body;
     if (!email) {
       console.log('[AUTH] forgot-password: missing email in body');
-      return res.status(400).json({ error: 'E-postadress krävs' });
+      return res.status(400).json({ error: authApiMessage(lang, 'errors.emailRequired') });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
     console.log('[AUTH] forgot-password: looking up account');
     // Security: always return the same message regardless of whether email exists
-    const successMessage = 'Om e-postadressen finns skickar vi en länk';
+    const successMessage = authApiMessage(lang, 'success.forgotPassword');
 
     const result = await db.query(
       'SELECT id, name FROM parent WHERE LOWER(email) = $1',
@@ -210,20 +213,21 @@ router.post('/forgot-password', forgotPasswordLimiter, validate(ForgotPasswordSc
     });
   } catch (err) {
     console.error('[AUTH] Forgot password error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    res.status(500).json({ error: authApiMessage(lang, 'errors.serverError') });
   }
 });
 
 // ─── POST /api/auth/reset-password ────────────────────────
 router.post('/reset-password', validate(ResetPasswordSchema), async (req, res) => {
   console.log('[AUTH] POST /reset-password — request received');
+  const lang = resolveAuthApiLocale(req);
   try {
     const { token, password } = req.body;
     if (!token || !password) {
-      return res.status(400).json({ error: 'Token och lösenord krävs' });
+      return res.status(400).json({ error: authApiMessage(lang, 'errors.tokenAndPasswordRequired') });
     }
     if (password.length < 8) {
-      return res.status(400).json({ error: 'Lösenordet måste vara minst 8 tecken' });
+      return res.status(400).json({ error: authApiMessage(lang, 'errors.passwordTooShort') });
     }
 
     const result = await db.query(
@@ -234,7 +238,10 @@ router.post('/reset-password', validate(ResetPasswordSchema), async (req, res) =
     const reset = result.rows[0];
     if (!reset || reset.used || new Date(reset.expires_at) < new Date()) {
       console.log('[AUTH] reset-password: invalid/expired/used token');
-      return res.status(400).json({ error: 'Ogiltig eller utgången återställningslänk. Begär en ny återställningslänk.' });
+      return res.status(400).json({
+        code: 'INVALID_RESET_LINK',
+        error: authApiMessage(lang, 'errors.invalidResetLink'),
+      });
     }
 
     const passwordHash = await hashPassword(password);
@@ -257,10 +264,10 @@ router.post('/reset-password', validate(ResetPasswordSchema), async (req, res) =
     // Without this, a compromised refresh token remains valid for up to 30 days.
     await revokeAllRefreshTokens({ userId: reset.parent_id, userType: 'parent' });
 
-    res.json({ message: 'Lösenordet har ändrats! Du kan nu logga in.' });
+    res.json({ message: authApiMessage(lang, 'resetPassword.success') });
   } catch (err) {
     console.error('[AUTH] Reset password error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    res.status(500).json({ error: authApiMessage(lang, 'errors.serverError') });
   }
 });
 module.exports = router;

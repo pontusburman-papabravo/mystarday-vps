@@ -1,5 +1,5 @@
 /**
- * child-login.js — Stjärnutforskare child login (Phase 1)
+ * child-login.js — Star Explorer child login (Phase 1)
  * Owns: keypad, PIN dots, child selection list, localStorage known_children,
  *       /api/auth/me merge, POST /api/auth/child-login, lockout UI.
  * Does NOT own: auth.js (Auth.setAuth, Auth.getUser).
@@ -12,7 +12,7 @@ let pinDigits = [];          // max 4 digits
 let selectedChild = null;   // { username, name, emoji, has_avatar, avatar_src, familyId, lastLoginAt }
 /** True when exactly one child — skip profile picker and go straight to PIN. */
 let directPinMode = false;
-/** Senast renderad barnlista (API + known_children) — selectChild måste använda denna. */
+/** Last rendered child list (API + known_children) — selectChild must use this. */
 let lastMergedChildren = [];
 /** True when login-picker-children found a parent session (cookie or JWT). */
 let lastPickerHasSession = false;
@@ -659,7 +659,7 @@ async function ensureChildSessionEndedForParentAction() {
   } catch { /* ignore */ }
 }
 
-/** Active parent JWT (e-post/lösenord) — not only sparad barnväljare-session. */
+/** Active parent JWT (email/password) — not only saved child-picker session. */
 async function resolveActiveParentSession() {
   if (Auth.isLoggedIn() && Auth.getUser()?.type === 'parent') return true;
   try {

@@ -7,6 +7,12 @@
   let _googlePendingEmail = null;
   let _googlePendingIdToken = null;
 
+  function t(key, params) {
+    if (window.authT) return authT(key, params);
+    if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+    return key;
+  }
+
   function afterAuthSuccess(data) {
     if (!data || !data.user) return;
     Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
@@ -65,7 +71,7 @@
     const password = passwordEl ? passwordEl.value : '';
     if (!password) {
       if (errEl) {
-        errEl.textContent = 'Ange ditt lösenord.';
+        errEl.textContent = t('auth.login.linking.enterPassword');
         errEl.style.display = 'block';
       }
       return;
@@ -73,7 +79,7 @@
 
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Länkar…';
+      btn.textContent = t('auth.login.linking.submitting');
     }
 
     try {
@@ -90,7 +96,7 @@
       const loginData = await loginRes.json().catch(function () { return {}; });
       if (!loginRes.ok) {
         if (errEl) {
-          errEl.textContent = loginData.error || 'Fel lösenord.';
+          errEl.textContent = loginData.error || t('auth.login.linking.wrongPassword');
           errEl.style.display = 'block';
         }
         return;
@@ -108,7 +114,7 @@
       const linkData = await linkRes.json().catch(function () { return {}; });
       if (!linkRes.ok) {
         if (errEl) {
-          errEl.textContent = linkData.error || 'Länkning misslyckades.';
+          errEl.textContent = linkData.error || t('auth.login.linking.failed');
           errEl.style.display = 'block';
         }
         return;
@@ -124,13 +130,13 @@
       }
     } catch {
       if (errEl) {
-        errEl.textContent = 'Länkning misslyckades.';
+        errEl.textContent = t('auth.login.linking.failed');
         errEl.style.display = 'block';
       }
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.textContent = 'Länka';
+        btn.textContent = t('auth.login.linking.submit');
       }
     }
   }
@@ -147,7 +153,7 @@
     if (labelEl) {
       if (loading) {
         if (!labelEl.dataset.origLabel) labelEl.dataset.origLabel = labelEl.textContent;
-        labelEl.textContent = loadingText || 'Google…';
+        labelEl.textContent = loadingText || t('auth.login.googleLoading');
       } else {
         labelEl.textContent = labelEl.dataset.origLabel || labelEl.textContent;
       }
@@ -155,7 +161,7 @@
     }
     if (loading) {
       if (!btn.dataset.origLabel) btn.dataset.origLabel = btn.textContent;
-      btn.textContent = loadingText || 'Google…';
+      btn.textContent = loadingText || t('auth.login.googleLoading');
     } else {
       btn.textContent = btn.dataset.origLabel || btn.textContent;
     }
@@ -208,24 +214,21 @@
           _googlePendingIdToken = result.idToken;
           showGoogleLinkingPrompt();
         } else {
-          showErr(
-            errEl,
-            'Ett konto med denna e-postadress finns redan. Logga in och länka Google under Inställningar, eller använd lösenordsinloggning.'
-          );
+          showErr(errEl, t('auth.login.google.emailConflictSettings'));
         }
       } else {
         if (window.AppEntry && typeof AppEntry.trackAuthFailed === 'function') {
           AppEntry.trackAuthFailed('google', data.error || 'login_failed');
         }
-        showErr(errEl, data.error || 'Google-inloggning misslyckades.');
+        showErr(errEl, data.error || t('auth.login.google.loginFailed'));
       }
     } catch (e) {
-      const msg = e && e.message ? e.message : 'Google Sign In misslyckades.';
+      const msg = e && e.message ? e.message : '';
       if (msg === 'Avbruten') return;
       if (window.AppEntry && typeof AppEntry.trackAuthFailed === 'function') {
-        AppEntry.trackAuthFailed('google', msg);
+        AppEntry.trackAuthFailed('google', msg || 'exception');
       }
-      showErr(errEl, msg);
+      showErr(errEl, msg || t('auth.login.google.signInFailed'));
     } finally {
       setGoogleBtnLoading(btn, false);
     }

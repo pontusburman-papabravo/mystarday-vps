@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta property="og:title" content="Min Stjärndag — Förenkla vardagen för hela familjen">
-    <meta property="og:description" content="Skapa och följ dagliga scheman, aktiviteter och belöningar">
+    <meta property="og:title" content="My Starday">
+    <meta property="og:description" content="Visual schedules, activities and rewards for families">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://mystarday.se/og-image.png">
+    <meta property="og:image" content="[REDACTED]/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Verifiera e-post — Min Stjärndag</title>
+    <meta name="twitter:image" content="[REDACTED]/og-image.png">
+  <title>My Starday</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,16 +44,28 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
-  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
+  <meta name="apple-mobile-web-app-title" content="[REDACTED]">
+  <!-- Cookie banner -->
   <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/auth-entry-failsafe.js?v=1"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/locale-switcher.js?v=3"></script>
   <script src="/js/auth-entry-i18n.js?v=1"></script>
 </head>
 <body class="font-body" data-i18n-title="auth.verify.pageTitle">
+  <noscript>
+    <p class="auth-entry-noscript"><strong>JavaScript required</strong> — enable JavaScript to use sign-in. / <strong>JavaScript krävs</strong> — aktivera JavaScript för att logga in.</p>
+  </noscript>
+  <div id="auth-entry-fallback" hidden class="auth-entry-fallback" role="alert" aria-live="assertive">
+    <div>
+      <p><strong>Page did not load fully</strong></p>
+      <p>Refresh the page or <a href="javascript:location.reload()">try again</a>.</p>
+      <p lang="sv"><strong>Sidan laddades inte helt</strong> — uppdatera sidan eller försök igen.</p>
+    </div>
+  </div>
+
   <!-- Star Logo Home Link -->
-  <a href="/" class="fixed top-6 left-6 z-10 hover:scale-110 transition-transform duration-200">
+  <a href="/" class="fixed top-6 left-6 z-10 hover:scale-110 transition-transform duration-200" data-i18n-aria-label="common.back">
     <span class="text-4xl star-animation">⭐</span>
   </a>
 
@@ -66,17 +78,15 @@
 
   <div class="min-h-screen flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
+      <div class="mb-6 flex justify-center" data-locale-switcher-mount></div>
+
       <!-- Loading State -->
       <div id="loadingState" class="text-center">
         <div class="mb-8 flex justify-center">
           <div class="w-16 h-16 border-4 border-gold-light border-t-gold rounded-full animate-spin"></div>
         </div>
-        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3" data-i18n="auth.verify.checkingTitle">
-          Verifierar e-post
-        </h1>
-        <p class="text-lg text-text-soft" data-i18n="auth.verify.checkingBody">
-          Vänta medan vi bekräftar din e-postadress...
-        </p>
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3" data-i18n="auth.verify.checkingTitle"></h1>
+        <p class="text-lg text-text-soft" data-i18n="auth.verify.checkingBody"></p>
       </div>
 
       <!-- Success State -->
@@ -84,19 +94,18 @@
         <div class="mb-8 flex justify-center">
           <span class="text-8xl animate-bounce" style="animation-delay: 0s">✅</span>
         </div>
-        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
-          E-post verifierad!
-        </h1>
-        <p class="text-lg text-text-soft mb-4">
-          Din e-postadress har verifierats. Välkommen till Min Stjärndag! 🎉
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3" data-i18n="auth.verify.successTitle"></h1>
+        <p id="welcomeMessage" class="text-lg text-text-soft mb-4"></p>
+        <p class="text-sm text-text-soft mb-6">
+          <span data-i18n="auth.verify.redirectCountdownPrefix"></span>
+          <span id="countdown">3</span>
+          <span data-i18n="auth.verify.redirectCountdownSuffix"></span>
         </p>
-        <p class="text-sm text-text-soft mb-6">Du skickas vidare om <span id="countdown">3</span> sekunder...</p>
         <a
           href="/login"
           class="inline-block px-8 py-3 bg-gradient-to-r from-gold to-yellow-400 hover:from-gold/90 hover:to-yellow-400/90 text-navy font-heading font-bold text-lg rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-        >
-          Gå till inloggning
-        </a>
+          data-i18n="auth.verify.loginLink"
+        ></a>
       </div>
 
       <!-- Error State -->
@@ -104,30 +113,26 @@
         <div class="mb-8 flex justify-center">
           <span class="text-8xl">⚠️</span>
         </div>
-        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
-          Verifieringen misslyckades
-        </h1>
-        <p id="errorMessage" class="text-lg text-text-soft mb-4">
-          Verifieringslänken är ogiltig eller har gått ut.
-        </p>
+        <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3" data-i18n="auth.verify.errorTitle"></h1>
+        <p id="errorMessage" class="text-lg text-text-soft mb-4"></p>
 
         <!-- Resend form -->
         <div id="resendSection" class="bg-sky rounded-xl p-6 mb-6">
-          <p class="text-sm text-text-soft mb-3">Ange din e-postadress för att få en ny verifieringslänk:</p>
+          <p class="text-sm text-text-soft mb-3" data-i18n="auth.verify.resendPrompt"></p>
           <div class="flex gap-2">
             <input
               type="email"
               id="resendEmail"
               placeholder="din@epost.se"
+              data-i18n-placeholder="auth.forgotPassword.emailPlaceholder"
               class="flex-1 px-4 py-3 rounded-lg border-2 border-lavender focus:border-gold focus:outline-none bg-white text-navy placeholder-text-soft text-sm"
             />
             <button
               id="resendBtn"
               onclick="resendVerification()"
               class="px-4 py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-lg transition-colors text-sm whitespace-nowrap"
-            >
-              Skicka ny länk
-            </button>
+              data-i18n="auth.verify.resendBtn"
+            ></button>
           </div>
           <p id="resendMessage" class="hidden text-sm mt-3 text-navy font-medium"></p>
         </div>
@@ -137,37 +142,52 @@
           <a
             href="/login"
             class="block px-8 py-3 bg-gradient-to-r from-gold to-yellow-400 hover:from-gold/90 hover:to-yellow-400/90 text-navy font-heading font-bold text-lg rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            Gå till inloggning
-          </a>
+            data-i18n="auth.verify.loginLink"
+          ></a>
         </div>
       </div>
 
       <!-- Footer -->
       <div class="mt-12 text-center">
         <p class="text-sm text-text-soft">
-          Behöver du hjälp? Kolla din skräppost eller <a href="mailto:info@mystarday.se" class="text-gold font-semibold hover:underline">kontakta oss</a>
+          <span data-i18n="auth.verify.needHelpPrefix"></span>
+          <a href="javascript:void(0)" onclick="var t=document.getElementById('sbTrigger');if(t)t.click();" class="text-gold font-semibold hover:underline" data-i18n="auth.verify.contactUs"></a>
         </p>
       </div>
     </div>
   </div>
 
-  <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
 
   <script>
+    function t(key, params) {
+      return (window.authT || ((k) => k))(key, params);
+    }
+
+    function brandName() {
+      if (typeof window.authBrandName === 'function') return authBrandName();
+      if (window.I18n) return I18n.t('app.name');
+      return '';
+    }
+
+    function applyWelcomeMessage() {
+      const el = document.getElementById('welcomeMessage');
+      if (el) el.textContent = t('auth.verify.welcomeMessage', { brand: brandName() });
+    }
+
     async function verifyEmail() {
-      // Get token from URL query params
+      if (window.I18n) await I18n.init();
+      applyWelcomeMessage();
+
       const params = new URLSearchParams(window.location.search);
       const token = params.get('token');
 
       if (!token) {
-        showErrorState('Ingen verifieringstoken hittades i länken.');
+        showErrorState(t('auth.verify.noToken'));
         return;
       }
 
       try {
-        // Use window.apiFetch (raw Response) with the correct /api/ prefix
         const res = await window.apiFetch('/api/auth/verify-email', {
           method: 'POST',
           body: JSON.stringify({ token }),
@@ -175,13 +195,13 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          showErrorState(err.error || 'Verifieringen misslyckades. Länken kan ha gått ut.');
+          showErrorState(err.error || t('auth.verify.verifyFailed'));
           return;
         }
 
         showSuccessState();
       } catch (error) {
-        showErrorState('Något gick fel. Försök igen.');
+        showErrorState(t('auth.verify.genericError'));
         console.error('Verification error:', error);
       }
     }
@@ -190,8 +210,8 @@
       document.getElementById('loadingState').classList.add('hidden');
       document.getElementById('errorState').classList.add('hidden');
       document.getElementById('successState').classList.remove('hidden');
+      applyWelcomeMessage();
 
-      // Auto-redirect to login after 3s countdown
       let sec = 3;
       const cdEl = document.getElementById('countdown');
       const iv = setInterval(() => {
@@ -201,11 +221,11 @@
       }, 1000);
     }
 
-    function showErrorState(message = 'Verifieringen misslyckades. Länken kan ha gått ut.') {
+    function showErrorState(message) {
       document.getElementById('loadingState').classList.add('hidden');
       document.getElementById('successState').classList.add('hidden');
       document.getElementById('errorState').classList.remove('hidden');
-      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorMessage').textContent = message || t('auth.verify.verifyFailed');
     }
 
     async function resendVerification() {
@@ -215,14 +235,14 @@
       const email = emailInput.value.trim();
 
       if (!email || !email.includes('@')) {
-        msgEl.textContent = 'Ange en giltig e-postadress.';
+        msgEl.textContent = t('auth.verify.resendEmailInvalid');
         msgEl.className = 'text-sm mt-3 text-red-600 font-medium';
         msgEl.classList.remove('hidden');
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = 'Skickar...';
+      btn.textContent = t('auth.verify.resendSending');
       msgEl.classList.add('hidden');
 
       try {
@@ -236,24 +256,27 @@
         const data = await res.json().catch(() => ({}));
 
         if (res.status === 429) {
-          msgEl.textContent = data.error || 'Du har redan begärt flera länkrar. Försök igen om en timme.';
+          msgEl.textContent = data.error || t('auth.verify.resendRateLimit');
           msgEl.className = 'text-sm mt-3 text-red-600 font-medium';
         } else {
-          msgEl.textContent = '✅ Om kontot finns har vi skickat en ny verifieringslänk. Kolla din inkorg och skräppost!';
+          msgEl.textContent = t('auth.verify.resendSuccess');
           msgEl.className = 'text-sm mt-3 text-green-700 font-medium';
         }
         msgEl.classList.remove('hidden');
       } catch {
-        msgEl.textContent = 'Något gick fel. Försök igen.';
+        msgEl.textContent = t('auth.verify.genericError');
         msgEl.className = 'text-sm mt-3 text-red-600 font-medium';
         msgEl.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Skicka ny länk';
+        btn.textContent = t('auth.verify.resendBtn');
       }
     }
 
-    // Verify email on page load
+    document.addEventListener('locale-changed', () => {
+      applyWelcomeMessage();
+    });
+
     window.addEventListener('DOMContentLoaded', verifyEmail);
   </script>
   <!-- Support bubble for logged-out users -->
