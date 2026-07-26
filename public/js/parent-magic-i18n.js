@@ -46,6 +46,9 @@
     if (window.RewardsHub && typeof RewardsHub.render === 'function') {
       RewardsHub.render();
     }
+    if (typeof window.FamilyPage !== 'undefined' && typeof window.FamilyPage.rerenderI18n === 'function') {
+      window.FamilyPage.rerenderI18n();
+    }
     document.dispatchEvent(new CustomEvent('for-dig-rerender'));
   }
 

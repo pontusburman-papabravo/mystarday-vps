@@ -141,11 +141,20 @@
         });
     }
 
+    function rerenderFamilyI18n() {
+      if (!familyData) return;
+      renderAll(familyData);
+      if (window.FamilyMuseum) FamilyMuseum.mount('familyMuseumMount');
+    }
+
     // ─── Init ────────────────────────────────────────────
     async function init() {
       if (initInFlight) return initInFlight;
       initInFlight = (async function () {
         try {
+          if (window.I18n && typeof I18n.init === 'function') {
+            await I18n.init();
+          }
           applyWarmFamilyData();
           if (familyCache) {
             renderAll(familyCache);
@@ -1306,9 +1315,12 @@ if (window.ParentMagicPageBoot) {
   if (window.ParentMagicShell) ParentMagicShell.init('family');
 })();
 
-window.FamilyPage = { prefetch: prefetchFamily };
+window.FamilyPage = { prefetch: prefetchFamily, rerenderI18n: rerenderFamilyI18n };
 
 window.addEventListener('stjarndag-magic-navigated', function (e) {
   if (!e.detail || e.detail.pageId !== 'family') return;
   init();
 });
+
+document.addEventListener('parent-i18n-ready', rerenderFamilyI18n);
+document.addEventListener('locale-changed', rerenderFamilyI18n);
