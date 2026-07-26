@@ -57,6 +57,7 @@
     "audit:i18n": "node scripts/audit-hardcoded-swedish.js",
     "audit:i18n:strict": "node scripts/audit-hardcoded-swedish.js --strict",
     "audit:i18n:baseline": "node scripts/audit-hardcoded-swedish.js --baseline",
+    "test:e2e:i18n": "node scripts/run-e2e-i18n.js",
     "test:benchmark": "node scripts/test-benchmark.js",
     "journey-rollout:status": "node scripts/journey-rollout-advance.js",
     "journey-rollout:advance": "node scripts/journey-rollout-advance.js",
