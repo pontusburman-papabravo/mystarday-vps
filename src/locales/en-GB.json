@@ -67,6 +67,10 @@
     "admin": "Admin"
   },
   "auth": {
+    "meta": {
+      "ogTitle": "My Starday — Simplify everyday life for the whole family",
+      "ogDescription": "Create and follow daily schedules, activities and rewards"
+    },
     "login": {
       "title": "Log in",
       "pageTitle": "Log in — My Starday",
@@ -75,13 +79,126 @@
       "email": "Email address",
       "emailPlaceholder": "you@email.com",
       "password": "Password",
-      "passwordPlaceholder": "Your password",
-      "submit": "Log in",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
       "forgotPassword": "Forgotten password?",
-      "noAccount": "No account?",
-      "createAccount": "Create an account",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account",
       "childLogin": "Are you a child?",
-      "childLoginLink": "Log in here"
+      "childLoginLink": "Are you a child? Sign in here",
+      "loginAsAdult": "Sign in as a parent",
+      "orDivider": "or",
+      "continueWithApple": "Continue with Apple",
+      "continueWithGoogle": "Continue with Google",
+      "apple_caption": "Available on iOS only",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Please enter both email and password",
+      "genericError": "Something went wrong. Please try again.",
+      "mascotAlt": "Star mascot",
+      "addChildBannerTitle": "👶 Sign in as a parent to add a child",
+      "addChildBannerBody": "«I'm a child» is not enough here — a parent or educator is required.",
+      "backToChildPicker": "← Back to child picker",
+      "linking": {
+        "emailExists": "An account with this email address already exists.",
+        "promptApple": "Would you like to link your Apple account to the existing account?",
+        "promptGoogle": "Would you like to link your Google account to the existing account?",
+        "yes": "Yes, link",
+        "cancel": "Cancel",
+        "modalTitleApple": "Link Apple account",
+        "modalTitleGoogle": "Link Google account",
+        "modalIntroApple": "Enter your password to sign in and then link your Apple account.",
+        "modalIntroGoogle": "Enter your password to sign in and then link your Google account.",
+        "emailLabel": "Email",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Your password",
+        "submit": "Link",
+        "submitting": "Linking…",
+        "enterPassword": "Enter your password.",
+        "wrongPassword": "Incorrect password.",
+        "failed": "Linking failed."
+      },
+      "apple": {
+        "unavailable": "Apple sign-in is not available right now. Try again or sign in with email.",
+        "notEnabled": "Apple sign-in is not enabled. Update the app to the latest version.",
+        "cancelled": "Apple sign-in was cancelled.",
+        "incomplete": "Apple sign-in did not complete. Try again or sign in with email and password.",
+        "rateLimited": "Too many attempts. Wait a moment and try again.",
+        "genericError": "Something went wrong with Apple sign-in. Try again or sign in with email and password.",
+        "failed": "Apple sign-in failed. Try again or sign in with email and password.",
+        "signInFailed": "Apple Sign In failed."
+      },
+      "google": {
+        "emailConflictSettings": "An account with this email address already exists. Sign in and link Google in Settings, or use password sign-in.",
+        "loginFailed": "Google sign-in failed.",
+        "signInFailed": "Google Sign In failed."
+      },
+      "verify": {
+        "title": "Verify your email address",
+        "body": "You must verify your email address to continue using My Starday. Check your inbox (and spam folder) for an email from us.",
+        "emailLabel": "Email address:",
+        "resendBtn": "Send new verification link",
+        "resendSending": "Sending…",
+        "resendSuccess": "✅ New verification link sent! Check your inbox and spam folder.",
+        "resendError": "Something went wrong. Please try again.",
+        "spamHint": "Also check your spam folder. The link is valid for 24 hours."
+      }
+    },
+    "entry": {
+      "back": "Back",
+      "backWithArrow": "← Back",
+      "welcome": {
+        "ariaLabel": "Welcome",
+        "headline": "A calmer everyday life with clear steps, schedules and stars",
+        "lead": "My Starday helps children and families with daily routines through visual schedules, clear sub-steps and rewards that make it easier to get through the day more independently.",
+        "chipVisualSchedules": "Visual schedules",
+        "chipStarsRewards": "Stars & rewards",
+        "chipMultipleUsers": "Multiple children and adults",
+        "startBtn": "Get started",
+        "existingBtn": "I already have an account",
+        "howItWorksBtn": "How the app works"
+      },
+      "role": {
+        "title": "Who will use the app now?",
+        "kidAria": "I'm a child",
+        "kidLabel": "I'm a child",
+        "kidSub": "I want to see my schedule",
+        "kidAlt": "Child",
+        "parentAria": "I'm an adult",
+        "parentLabel": "I'm an adult",
+        "parentSub": "I want to sign in or get started",
+        "parentAlt": "Family"
+      },
+      "adultStart": {
+        "ariaLabel": "Adult start",
+        "title": "Welcome! How would you like to continue?",
+        "existingLabel": "I already have an account",
+        "existingSub": "Sign in with Apple, Google or email",
+        "newLabel": "I'm new here",
+        "newSub": "See how the app works and create a free account"
+      },
+      "signupIntro": {
+        "ariaLabel": "Get started",
+        "title": "Get started with My Starday",
+        "sub": "Create a free account and build your child's first schedule with clear steps, stars and goals.",
+        "point1": "Visual schedules your child understands",
+        "point2": "Stars and rewards that motivate",
+        "point3": "Multiple children and adults in the same family",
+        "createBtn": "Create a free account",
+        "existingBtn": "I already have an account",
+        "founderNote": "Basic is currently included for free."
+      },
+      "howItWorks": {
+        "title": "How the app works",
+        "step1Title": "1. The child sees their schedule step by step",
+        "step1Body": "Visual routines make everyday life clear and predictable.",
+        "step2Title": "2. The child earns stars when activities are done",
+        "step2Body": "Small wins build motivation and independence.",
+        "step3Title": "3. Adults follow progress and build routines together",
+        "step3Body": "Multiple children and adults can share the same family in the app.",
+        "close": "Close"
+      }
     },
     "register": {
       "title": "Create account",
@@ -116,11 +233,29 @@
       "inviteValidateFailed": "Could not validate the invite link. Please try again.",
       "familyNameSuffix": "{{name}}'s family",
       "termsRequired": "You must accept the terms of use and privacy policy",
-      "success": "Account created! Check your email to verify your account."
+      "success": "Account created! Check your email to verify your account.",
+      "termsPrefix": "I have read and accept the",
+      "termsLink": "Terms of use",
+      "termsAnd": "and",
+      "privacyLink": "Privacy policy",
+      "termsSuffix": ".",
+      "successTitle": "Account created! 🎉",
+      "successVerifyLine1": "We have sent a verification link to your email address.",
+      "successVerifyLine2": "Check your inbox (and spam folder).",
+      "successGracePeriod": "You can log in right away and have 24 hours to verify your email.",
+      "successLoginBtn": "Sign in",
+      "inviteErrorDefault": "Invalid invitation link.",
+      "appleEmailExists": "An account with this email address already exists. Sign in with Apple instead, or use email and password."
+    },
+    "parentGate": {
+      "title": "Parent lock",
+      "hint": "Enter your PIN to continue",
+      "keypadAria": "PIN keypad",
+      "cancel": "Cancel"
     },
     "childLogin": {
       "title": "Hello! 👋",
-      "pageTitle": "Child Login — My Starday",
+      "pageTitle": "Star Explorer — My Starday",
       "whoAreYou": "Who are you?",
       "selectProfile": "Pick your profile and enter your PIN.",
       "back": "Back",
@@ -134,7 +269,23 @@
       "submit": "Log in",
       "parentLogin": "Are you a parent?",
       "parentLoginLink": "Log in here",
-      "forgotPassword": "Forgotten password?"
+      "forgotPassword": "Forgotten password?",
+      "emptyNoChildren": "No children registered yet.",
+      "nameHint": "Type your name to log in",
+      "namePlaceholder": "Your name",
+      "continue": "Continue →",
+      "switchChild": "Switch child",
+      "pinSub": "Enter your code",
+      "attemptsLeft": "Tries left",
+      "pinDotsAria": "PIN code",
+      "lockoutWait": "Wait a moment",
+      "lockoutSoon": "You can try again soon",
+      "welcome": "Welcome!",
+      "redirecting": "Taking you to your dashboard…",
+      "keypadAria": "Number pad",
+      "forgotPin": "Ask a parent if you forgot your code",
+      "needHelp": "Need help?",
+      "contactParent": "Contact a parent"
     },
     "verify": {
       "title": "Verify your email",
@@ -143,7 +294,23 @@
       "checkingBody": "Please wait while we confirm your email address...",
       "checking": "Checking...",
       "success": "Your email has been verified! You can now log in.",
+      "successTitle": "Email verified!",
+      "welcomeMessage": "Your email address has been verified. Welcome to {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Redirecting in",
+      "redirectCountdownSuffix": "seconds...",
       "error": "The verification link is invalid or has expired.",
+      "errorTitle": "Verification failed",
+      "verifyFailed": "Verification failed. The link may have expired.",
+      "noToken": "No verification token was found in the link.",
+      "genericError": "Something went wrong. Please try again.",
+      "resendPrompt": "Enter your email address to get a new verification link:",
+      "resendBtn": "Send new link",
+      "resendSending": "Sending...",
+      "resendRateLimit": "You have already requested several links. Try again in an hour.",
+      "resendSuccess": "✅ If the account exists, we have sent a new verification link. Check your inbox and spam folder!",
+      "resendEmailInvalid": "Enter a valid email address.",
+      "needHelpPrefix": "Need help? Check your spam folder or",
+      "contactUs": "contact us",
       "loginLink": "Go to log in"
     },
     "forgotPassword": {
@@ -154,9 +321,20 @@
       "subtitle": "Enter your email address and we'll send you a reset link",
       "email": "Email address",
       "emailPlaceholder": "you@email.com",
+      "emailHint": "We will send a secure link to reset your password",
       "submit": "Send reset link",
       "sent": "If that email address is in our system, we've sent a reset link.",
-      "backToLogin": "Back to log in"
+      "successTitle": "Check your email!",
+      "successBody": "We have sent a link to reset your password. Check your inbox and spam folder.",
+      "orDivider": "or",
+      "rememberPassword": "Remember your password?",
+      "backToLogin": "Back to log in",
+      "helpTitle": "Didn't get an email?",
+      "helpItem1": "Check your junk or spam folder",
+      "helpItem2": "Make sure you entered the correct email address",
+      "helpItem3": "Try again in a few minutes",
+      "helpItem4Suffix": "if you need help",
+      "contactSupport": "Contact support"
     },
     "resetPassword": {
       "title": "Reset password",
@@ -164,12 +342,56 @@
       "subtitle": "Reset your password",
       "password": "New password",
       "passwordPlaceholder": "At least 8 characters",
+      "passwordHelp": "Must be at least 8 characters long",
       "confirmPassword": "Confirm password",
-      "confirmPasswordPlaceholder": "Enter your password again",
-      "submit": "Save new password",
+      "confirmPasswordPlaceholder": "Repeat password",
+      "submit": "Reset password",
       "success": "Your password has been changed! You can now log in.",
+      "successRedirect": "Your password has been reset! Redirecting you to log in...",
       "error": "The reset link is invalid or has expired.",
+      "invalidLink": "Invalid reset link.",
+      "requestNewLink": "Request a new reset link",
+      "requestNewLinkShort": "Request a new link",
+      "resetFailed": "Your password could not be reset",
+      "rememberPassword": "Remember your password?",
+      "goToLoginInline": "Go to log in",
       "loginLink": "Go to log in"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "Email and password are required",
+        "emailRequired": "Email address is required",
+        "accountBlocked": "Your account has been blocked. Contact the administrator.",
+        "emailVerificationRequired": "You must verify your email address to continue",
+        "verificationTokenRequired": "Verification token is required",
+        "invalidVerificationLink": "Invalid or expired verification link",
+        "resendVerificationRateLimit": "You have already requested several verification links. Try again in an hour.",
+        "tokenAndPasswordRequired": "Token and password are required",
+        "invalidResetLink": "Invalid or expired reset link. Request a new reset link.",
+        "parentOnlyViewMode": "Only parents can update view mode",
+        "parentOnlyUiViewMode": "Only parents can update UI view mode",
+        "parentOnlyTheme": "Only parents can update theme",
+        "preferencesSaveFailed": "Could not save settings",
+        "uiViewModeSaveFailed": "Could not save view mode",
+        "themeSaveFailed": "Could not save theme",
+        "userNotFound": "User not found",
+        "unknownUserType": "Unknown user type",
+        "registrationClosed": "Registration is currently closed",
+        "invalidCountry": "Invalid country",
+        "familyNameRequired": "Name is required to create a family account",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Registration from Sweden is temporarily closed.",
+          "MARKET_EU_CLOSED": "My Starday is not available in your country yet. We will notify you when we open more EU countries.",
+          "MARKET_UK_CLOSED": "My Starday is not available in the United Kingdom yet.",
+          "MARKET_US_CLOSED": "My Starday is not available in the United States yet.",
+          "MARKET_OTHER_CLOSED": "My Starday is not available in your country yet."
+        }
+      },
+      "success": {
+        "emailVerified": "Your email address has been verified! You can now log in.",
+        "resendVerification": "If the account exists, a new verification link will be sent",
+        "forgotPassword": "If the email address exists, we will send a link"
+      }
     },
     "errors": {
       "nameRequired": "Please enter your name",
@@ -186,7 +408,8 @@
       "emailNotVerified": "You need to verify your email address first",
       "emailExists": "An account with that email address already exists",
       "tooManyAttempts": "Too many attempts. Please wait a moment and try again.",
-      "serverError": "Something went wrong. Please try again later."
+      "serverError": "Something went wrong. Please try again later.",
+      "parentPinInvalid": "Wrong PIN — try again"
     }
   },
   "dashboard": {

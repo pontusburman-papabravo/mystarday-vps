@@ -5,6 +5,7 @@
  * Flag: activation_nudge_v1 (default OFF). Respects EMAIL_ENABLED.
  */
 
+const { LEGACY_GENERIC_PARENT_ROLE_SQL } = require('./family-role-legacy');
 const db = require('./db');
 const config = require('./config');
 const { sendActivationNudgeEmail } = require('./email');
@@ -18,7 +19,7 @@ const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 const NUDGE_CANDIDATE_SQL = `
   SELECT s.family_id, p.email, p.name AS parent_name
   FROM family_activation_state s
-  JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+  JOIN parent p ON p.family_id = s.family_id AND ${LEGACY_GENERIC_PARENT_ROLE_SQL}
   LEFT JOIN notification_preference np ON np.parent_id = p.id
   WHERE s.p0_activated_within_48h = false
     AND s.p0_activated_at IS NULL

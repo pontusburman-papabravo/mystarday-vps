@@ -30,6 +30,7 @@ const familySubscriptions = require('../../../db/family-subscriptions');
 const { validate } = require('../../middleware/validate');
 const { LoginSchema } = require('../../lib/schemas');
 const { applyLoginLocaleChoice } = require('../../lib/apply-login-locale');
+const { resolveAuthApiLocale, authApiMessage } = require('../../lib/auth-api-messages');
 
 const router = express.Router();
 
@@ -37,10 +38,12 @@ const { parseDuration, clearAllSessionCookies } = require('./session');
 
 // ─── POST /api/auth/login ─────────────────────────────────
 router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     const { email, password, preferred_locale: preferredLocaleRaw, language } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ error: 'E-post och lösenord krävs' });
+      const msg = authApiMessage(lang, 'errors.emailAndPasswordRequired');
+      return res.status(400).json({ code: 'EMAIL_PASSWORD_REQUIRED', error: msg, message: msg });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -57,11 +60,13 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
 
     const parent = result.rows[0];
     if (!parent || !(await comparePassword(password, parent.password_hash))) {
-      return res.status(401).json({ error: 'Felaktig e-post eller lösenord' });
+      const msg = authApiMessage(lang, 'errors.invalidCredentials');
+      return res.status(401).json({ code: 'INVALID_CREDENTIALS', error: msg, message: msg });
     }
 
     if (parent.locked) {
-      return res.status(403).json({ error: 'Ditt konto har spärrats. Kontakta administratören.' });
+      const msg = authApiMessage(lang, 'errors.accountBlocked');
+      return res.status(403).json({ code: 'ACCOUNT_BLOCKED', error: msg, message: msg });
     }
 
     // Email verification with 24h grace period.
@@ -74,9 +79,11 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
       const now = new Date();
 
       if (now > graceDeadline) {
+        const msg = authApiMessage(lang, 'errors.emailVerificationRequired');
         return res.status(403).json({
-          error: 'Du måste verifiera din e-postadress för att fortsätta',
           code: 'EMAIL_VERIFICATION_REQUIRED',
+          error: msg,
+          message: msg,
           email: normalizedEmail,
         });
       }
@@ -146,16 +153,19 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
     res.json({ csrfToken, user, expiresAt });
   } catch (err) {
     console.error('[AUTH] Login error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    const msg = authApiMessage(lang, 'errors.serverError');
+    res.status(500).json({ code: 'SERVER_ERROR', error: msg, message: msg });
   }
 });
 
 // ─── POST /api/auth/me/preferences ───────────────────────
 // Update parent's preferred_view_mode. Only parents with active pedagog children can switch to 'pedagog'.
 router.post('/me/preferences', requireAuth, async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     if (req.user.type !== 'parent') {
-      return res.status(400).json({ error: 'Endast föräldrar kan uppdatera visningsläge' });
+      const msg = authApiMessage(lang, 'errors.parentOnlyViewMode');
+      return res.status(400).json({ code: 'PARENT_ONLY', error: msg, message: msg });
     }
     const { preferredViewMode } = req.body || {};
     if (!preferredViewMode || !['parent', 'pedagog'].includes(preferredViewMode)) {
@@ -174,7 +184,8 @@ router.post('/me/preferences', requireAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[AUTH] me/preferences error:', err);
-    res.status(500).json({ error: 'Kunde inte spara inställningar' });
+    const msg = authApiMessage(lang, 'errors.preferencesSaveFailed');
+    res.status(500).json({ code: 'SERVER_ERROR', error: msg, message: msg });
   }
 });
 
@@ -182,9 +193,11 @@ router.post('/me/preferences', requireAuth, async (req, res) => {
 // Persist the parent's UI view mode ('classic' | 'magic') so the chosen
 // menu/design follows the account across devices (was localStorage-only).
 router.post('/me/view-mode', requireAuth, async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     if (req.user.type !== 'parent') {
-      return res.status(400).json({ error: 'Endast föräldrar kan uppdatera vyläge' });
+      const msg = authApiMessage(lang, 'errors.parentOnlyUiViewMode');
+      return res.status(400).json({ code: 'PARENT_ONLY', error: msg, message: msg });
     }
     const { uiViewMode } = req.body || {};
     if (!uiViewMode || !['classic', 'magic'].includes(uiViewMode)) {
@@ -197,7 +210,8 @@ router.post('/me/view-mode', requireAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[AUTH] me/view-mode error:', err);
-    res.status(500).json({ error: 'Kunde inte spara vyläge' });
+    const msg = authApiMessage(lang, 'errors.uiViewModeSaveFailed');
+    res.status(500).json({ code: 'SERVER_ERROR', error: msg, message: msg });
   }
 });
 
@@ -205,9 +219,11 @@ router.post('/me/view-mode', requireAuth, async (req, res) => {
 // Persist the parent's background theme ('dark' | 'light') so the choice
 // follows the account across devices.
 router.post('/me/theme', requireAuth, async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     if (req.user.type !== 'parent') {
-      return res.status(400).json({ error: 'Endast föräldrar kan uppdatera tema' });
+      const msg = authApiMessage(lang, 'errors.parentOnlyTheme');
+      return res.status(400).json({ code: 'PARENT_ONLY', error: msg, message: msg });
     }
     const { theme } = req.body || {};
     if (!theme || !['dark', 'light'].includes(theme)) {
@@ -225,12 +241,14 @@ router.post('/me/theme', requireAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[AUTH] me/theme error:', err);
-    res.status(500).json({ error: 'Kunde inte spara tema' });
+    const msg = authApiMessage(lang, 'errors.themeSaveFailed');
+    res.status(500).json({ code: 'SERVER_ERROR', error: msg, message: msg });
   }
 });
 
 // ─── GET /api/auth/me ─────────────────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     if (req.user.type === 'parent') {
       const parentResult = await db.query(
@@ -251,7 +269,8 @@ router.get('/me', requireAuth, async (req, res) => {
         [req.user.id]
       );
       if (parentResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Användare hittades inte' });
+        const msg = authApiMessage(lang, 'errors.userNotFound');
+        return res.status(404).json({ code: 'USER_NOT_FOUND', error: msg, message: msg });
       }
 
       const parent = parentResult.rows[0];
@@ -340,7 +359,8 @@ router.get('/me', requireAuth, async (req, res) => {
         [req.user.id]
       );
       if (childResult.rows.length === 0) {
-        return res.status(404).json({ error: 'Användare hittades inte' });
+        const msg = authApiMessage(lang, 'errors.userNotFound');
+        return res.status(404).json({ code: 'USER_NOT_FOUND', error: msg, message: msg });
       }
 
       const child = childResult.rows[0];
@@ -364,17 +384,20 @@ router.get('/me', requireAuth, async (req, res) => {
       });
     }
 
-    res.status(400).json({ error: 'Okänd användartyp' });
+    const msg = authApiMessage(lang, 'errors.unknownUserType');
+    res.status(400).json({ code: 'UNKNOWN_USER_TYPE', error: msg, message: msg });
   } catch (err) {
     console.error('[AUTH] Me error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    const msg = authApiMessage(lang, 'errors.serverError');
+    res.status(500).json({ code: 'SERVER_ERROR', error: msg, message: msg });
   }
 });
 
 // ─── GET /api/auth/login-picker-children ───────────────────
-// Barnväljare: barn i familjen (namn + avatar) utan att aktivera vuxensession i klienten.
+// Child picker: family children (name + avatar) without activating parent session in the client.
 // Response: { hasSession, children[], parent? } — parent enables add-child onboarding without full re-login.
 router.get('/login-picker-children', async (req, res) => {
+  const lang = resolveAuthApiLocale(req);
   try {
     const { resolveParentIdForLoginPicker } = require('../../middleware/auth');
     const parentId = resolveParentIdForLoginPicker(req);
@@ -421,7 +444,8 @@ router.get('/login-picker-children', async (req, res) => {
     });
   } catch (err) {
     console.error('[AUTH] login-picker-children error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    const msg = authApiMessage(lang, 'errors.serverError');
+    res.status(500).json({ code: 'SERVER_ERROR', error: msg, message: msg });
   }
 });
 
@@ -429,7 +453,7 @@ router.get('/login-picker-children', async (req, res) => {
 // Revoke the refresh token and clear cookies.
 // When a child logs out, if a parent session was saved (via stjarndag_parent_session),
 // restore it so the parent remains logged in.
-// Body { switchChild: true } — end child session only; keep parent session cookie for barnväljare.
+// Body { switchChild: true } — end child session only; keep parent session cookie for child picker.
 
 router.post('/logout', async (req, res) => {
   try {
@@ -443,7 +467,7 @@ router.post('/logout', async (req, res) => {
     }
     clearAllSessionCookies(res);
 
-    // ── Byt barn: end child JWT only; keep stjarndag_parent_session for barnväljare ──
+    // Switch child: end child JWT only; keep stjarndag_parent_session for child picker
     if (switchChild && decoded?.type === 'child') {
       return res.json({ message: 'Utloggad', switchChild: true });
     }

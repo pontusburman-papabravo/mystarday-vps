@@ -6,6 +6,7 @@
  * Flag: activation_child_handoff_v1 (per-family cohort via activation-flags).
  */
 
+const { LEGACY_GENERIC_PARENT_ROLE_SQL } = require('./family-role-legacy');
 const db = require('./db');
 const config = require('./config');
 const { sendChildHandoffReminderEmail } = require('./email');
@@ -20,7 +21,7 @@ const CHECK_INTERVAL_MS = 60 * 60 * 1000;
 const HANDOFF_REMINDER_CANDIDATE_SQL = `
   SELECT s.family_id, p.email, p.name AS parent_name, f.preferred_locale
   FROM family_activation_state s
-  JOIN parent p ON p.family_id = s.family_id AND p.family_role = 'förälder'
+  JOIN parent p ON p.family_id = s.family_id AND ${LEGACY_GENERIC_PARENT_ROLE_SQL}
   JOIN family f ON f.id = s.family_id
   LEFT JOIN notification_preference np ON np.parent_id = p.id
   WHERE s.schema_saved_at IS NOT NULL

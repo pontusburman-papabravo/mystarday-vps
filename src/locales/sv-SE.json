@@ -67,6 +67,10 @@
     "admin": "Admin"
   },
   "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Förenkla vardagen för hela familjen",
+      "ogDescription": "Skapa och följ dagliga scheman, aktiviteter och belöningar"
+    },
     "login": {
       "title": "Logga in",
       "pageTitle": "Inloggning — Stjärndag",
@@ -75,13 +79,126 @@
       "email": "E-postadress",
       "emailPlaceholder": "din@epost.se",
       "password": "Lösenord",
-      "passwordPlaceholder": "Ditt lösenord",
+      "passwordPlaceholder": "••••••••",
       "submit": "Logga in",
-      "forgotPassword": "Glömt lösenord?",
-      "noAccount": "Inget konto?",
-      "createAccount": "Skapa ett konto",
+      "submitting": "Loggar in…",
+      "forgotPassword": "Glömt lösenordet?",
+      "noAccount": "Har du inget konto?",
+      "createAccount": "Skapa konto",
       "childLogin": "Är du ett barn?",
-      "childLoginLink": "Logga in här"
+      "childLoginLink": "Är du barn? Logga in här",
+      "loginAsAdult": "Logga in som vuxen",
+      "orDivider": "eller",
+      "continueWithApple": "Fortsätt med Apple",
+      "continueWithGoogle": "Logga in med Google",
+      "apple_caption": "Endast tillgängligt på iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Vänligen fyll i både e-post och lösenord",
+      "genericError": "Något gick fel. Vänligen försök igen.",
+      "mascotAlt": "Stjärnmascot",
+      "addChildBannerTitle": "👶 Logga in som vuxen för att lägga till ett barn",
+      "addChildBannerBody": "«Jag är barn» räcker inte här — det krävs en förälder eller pedagog.",
+      "backToChildPicker": "← Tillbarnväljaren",
+      "linking": {
+        "emailExists": "Ett konto med denna e-postadress finns redan.",
+        "promptApple": "Vill du länka ditt Apple-konto till det befintliga kontot?",
+        "promptGoogle": "Vill du länka ditt Google-konto till det befintliga kontot?",
+        "yes": "Ja, länka",
+        "cancel": "Avbryt",
+        "modalTitleApple": "Länka Apple-konto",
+        "modalTitleGoogle": "Länka Google-konto",
+        "modalIntroApple": "Ange lösenordet för att logga in och därefter länka ditt Apple-konto.",
+        "modalIntroGoogle": "Ange lösenordet för att logga in och därefter länka ditt Google-konto.",
+        "emailLabel": "E-post",
+        "passwordLabel": "Lösenord",
+        "passwordPlaceholder": "Ditt lösenord",
+        "submit": "Länka",
+        "submitting": "Länkar…",
+        "enterPassword": "Ange ditt lösenord.",
+        "wrongPassword": "Fel lösenord.",
+        "failed": "Länkning misslyckades."
+      },
+      "apple": {
+        "unavailable": "Apple-inloggning är inte tillgänglig just nu. Försök igen eller logga in med e-post.",
+        "notEnabled": "Apple-inloggning är inte aktiverad. Uppdatera appen till senaste versionen.",
+        "cancelled": "Apple-inloggningen avbröts.",
+        "incomplete": "Apple-inloggningen slutfördes inte. Försök igen eller logga in med e-post och lösenord.",
+        "rateLimited": "För många försök. Vänta en stund och försök igen.",
+        "genericError": "Något gick fel med Apple-inloggningen. Försök igen eller logga in med e-post och lösenord.",
+        "failed": "Apple-inloggning misslyckades. Försök igen eller logga in med e-post och lösenord.",
+        "signInFailed": "Apple Sign In misslyckades."
+      },
+      "google": {
+        "emailConflictSettings": "Ett konto med denna e-postadress finns redan. Logga in och länka Google under Inställningar, eller använd lösenordsinloggning.",
+        "loginFailed": "Google-inloggning misslyckades.",
+        "signInFailed": "Google Sign In misslyckades."
+      },
+      "verify": {
+        "title": "Verifiera din e-postadress",
+        "body": "Du måste verifiera din e-postadress för att fortsätta använda {{brand}}. Kolla din inkorg (och skräppostmappen) efter ett mejl från oss.",
+        "emailLabel": "E-postadress:",
+        "resendBtn": "Skicka ny verifieringslänk",
+        "resendSending": "Skickar…",
+        "resendSuccess": "✅ Ny verifieringslänk skickad! Kolla din inkorg och skräppost.",
+        "resendError": "Något gick fel. Försök igen.",
+        "spamHint": "Kolla även skräppostmappen. Länken är giltig i 24 timmar."
+      }
+    },
+    "entry": {
+      "back": "Tillbaka",
+      "backWithArrow": "← Tillbaka",
+      "welcome": {
+        "ariaLabel": "Välkommen",
+        "headline": "En lugnare vardag med tydliga steg, scheman och stjärnor",
+        "lead": "{{brand}} hjälper barn och familjer med vardagsrutiner genom visuella scheman, tydliga delsteg och belöningar som gör det lättare att klara dagen mer självständigt.",
+        "chipVisualSchedules": "Visuella scheman",
+        "chipStarsRewards": "Stjärnor & belöningar",
+        "chipMultipleUsers": "Flera barn och vuxna",
+        "startBtn": "Kom igång",
+        "existingBtn": "Jag har redan konto",
+        "howItWorksBtn": "Så fungerar appen"
+      },
+      "role": {
+        "title": "Vem ska använda appen nu?",
+        "kidAria": "Jag är barn",
+        "kidLabel": "Jag är barn",
+        "kidSub": "Jag vill se mitt schema",
+        "kidAlt": "Barn",
+        "parentAria": "Jag är vuxen",
+        "parentLabel": "Jag är vuxen",
+        "parentSub": "Jag vill logga in eller komma igång",
+        "parentAlt": "Familj"
+      },
+      "adultStart": {
+        "ariaLabel": "Vuxenstart",
+        "title": "Välkommen! Hur vill du fortsätta?",
+        "existingLabel": "Jag har redan konto",
+        "existingSub": "Logga in med Apple, Google eller e-post",
+        "newLabel": "Jag är ny här",
+        "newSub": "Se hur appen fungerar och skapa konto kostnadsfritt"
+      },
+      "signupIntro": {
+        "ariaLabel": "Kom igång",
+        "title": "Kom igång med {{brand}}",
+        "sub": "Skapa ett kostnadsfritt konto och bygg barnets första schema med tydliga steg, stjärnor och mål.",
+        "point1": "Visuella scheman som barnet förstår",
+        "point2": "Stjärnor och belöningar som motiverar",
+        "point3": "Flera barn och vuxna i samma familj",
+        "createBtn": "Skapa konto kostnadsfritt",
+        "existingBtn": "Jag har redan konto",
+        "founderNote": "Just nu ingår Basic kostnadsfritt."
+      },
+      "howItWorks": {
+        "title": "Så fungerar appen",
+        "step1Title": "1. Barnet ser sitt schema steg för steg",
+        "step1Body": "Visuella rutiner gör vardagen tydlig och förutsägbar.",
+        "step2Title": "2. Barnet tjänar stjärnor när aktiviteter blir klara",
+        "step2Body": "Små vinster bygger motivation och självständighet.",
+        "step3Title": "3. Vuxna följer framsteg och bygger rutiner tillsammans",
+        "step3Body": "Flera barn och vuxna kan dela samma familj i appen.",
+        "close": "Stäng"
+      }
     },
     "register": {
       "title": "Skapa konto",
@@ -116,11 +233,29 @@
       "inviteValidateFailed": "Kunde inte validera inbjudningslänken. Försök igen.",
       "familyNameSuffix": "{{name}}s familj",
       "termsRequired": "Du måste godkänna användarvillkoren och integritetspolicyn",
-      "success": "Konto skapat! Kontrollera din e-post för att verifiera ditt konto."
+      "success": "Konto skapat! Kontrollera din e-post för att verifiera ditt konto.",
+      "termsPrefix": "Jag har läst och godkänner",
+      "termsLink": "Användarvillkor",
+      "termsAnd": "och",
+      "privacyLink": "Integritetspolicy",
+      "termsSuffix": ".",
+      "successTitle": "Konto skapat! 🎉",
+      "successVerifyLine1": "Vi har skickat en verifieringslänk till din e-postadress.",
+      "successVerifyLine2": "Kolla din inkorg (och skräppostmappen).",
+      "successGracePeriod": "Du kan logga in direkt och har 24 timmar på dig att verifiera din e-post.",
+      "successLoginBtn": "Logga in",
+      "inviteErrorDefault": "Ogiltig inbjudningslänk.",
+      "appleEmailExists": "Ett konto med denna e-postadress finns redan. Logga in med Apple istället, eller använd lösenordsinloggning."
+    },
+    "parentGate": {
+      "title": "Föräldralås",
+      "hint": "Ange din PIN-kod för att fortsätta",
+      "keypadAria": "PIN-tavla",
+      "cancel": "Avbryt"
     },
     "childLogin": {
       "title": "Hej! 👋",
-      "pageTitle": "Barninloggning — Stjärndag",
+      "pageTitle": "Stjärnutforskare — Stjärndag",
       "whoAreYou": "Vem är du?",
       "selectProfile": "Välj din profil och skriv din PIN-kod.",
       "back": "Tillbaka",
@@ -134,7 +269,23 @@
       "submit": "Logga in",
       "parentLogin": "Är du förälder?",
       "parentLoginLink": "Logga in här",
-      "forgotPassword": "Glömt lösenord?"
+      "forgotPassword": "Glömt lösenord?",
+      "emptyNoChildren": "Inga barn registrerade ännu.",
+      "nameHint": "Skriv barnets namn för att logga in",
+      "namePlaceholder": "Ditt namn",
+      "continue": "Fortsätt →",
+      "switchChild": "Byt barn",
+      "pinSub": "Ange din kod",
+      "attemptsLeft": "Försök kvar",
+      "pinDotsAria": "PIN-kod",
+      "lockoutWait": "Vänta en liten stund",
+      "lockoutSoon": "Du kan försöka igen snart",
+      "welcome": "Välkommen!",
+      "redirecting": "Tar dig till din instrumentpanel…",
+      "keypadAria": "Siffertavla",
+      "forgotPin": "Fråga mamma eller pappa om du glömt koden",
+      "needHelp": "Behöver du hjälp?",
+      "contactParent": "Kontakta en förälder"
     },
     "verify": {
       "title": "Verifiera din e-post",
@@ -143,7 +294,23 @@
       "checkingBody": "Vänta medan vi bekräftar din e-postadress...",
       "checking": "Kontrollerar...",
       "success": "Din e-post har verifierats! Du kan nu logga in.",
+      "successTitle": "E-post verifierad!",
+      "welcomeMessage": "Din e-postadress har verifierats. Välkommen till {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Du skickas vidare om",
+      "redirectCountdownSuffix": "sekunder...",
       "error": "Verifieringslänken är ogiltig eller har gått ut.",
+      "errorTitle": "Verifieringen misslyckades",
+      "verifyFailed": "Verifieringen misslyckades. Länken kan ha gått ut.",
+      "noToken": "Ingen verifieringstoken hittades i länken.",
+      "genericError": "Något gick fel. Försök igen.",
+      "resendPrompt": "Ange din e-postadress för att få en ny verifieringslänk:",
+      "resendBtn": "Skicka ny länk",
+      "resendSending": "Skickar...",
+      "resendRateLimit": "Du har redan begärt flera länkar. Försök igen om en timme.",
+      "resendSuccess": "✅ Om kontot finns har vi skickat en ny verifieringslänk. Kolla din inkorg och skräppost!",
+      "resendEmailInvalid": "Ange en giltig e-postadress.",
+      "needHelpPrefix": "Behöver du hjälp? Kolla din skräppost eller",
+      "contactUs": "kontakta oss",
       "loginLink": "Gå till inloggning"
     },
     "forgotPassword": {
@@ -154,9 +321,20 @@
       "subtitle": "Ange din e-postadress så skickar vi en återställningslänk",
       "email": "E-postadress",
       "emailPlaceholder": "din@epost.se",
+      "emailHint": "Vi skickar en säker länk för att återställa ditt lösenord",
       "submit": "Skicka återställningslänk",
       "sent": "Om e-postadressen finns i vårt system har vi skickat en återställningslänk.",
-      "backToLogin": "Tillbaka till inloggning"
+      "successTitle": "Kolla din e-post!",
+      "successBody": "Vi har skickat en länk för att återställa ditt lösenord. Kontrollera din inkorg och skräppost.",
+      "orDivider": "eller",
+      "rememberPassword": "Kommer du ihåg ditt lösenord?",
+      "backToLogin": "Tillbaka till inloggning",
+      "helpTitle": "Fick du inget mail?",
+      "helpItem1": "Kolla din skräppost eller spam-mapp",
+      "helpItem2": "Kontrollera att du angav rätt e-postadress",
+      "helpItem3": "Försök igen om några minuter",
+      "helpItem4Suffix": "om du behöver hjälp",
+      "contactSupport": "Kontakta support"
     },
     "resetPassword": {
       "title": "Återställ lösenord",
@@ -164,12 +342,56 @@
       "subtitle": "Återställ ditt lösenord",
       "password": "Nytt lösenord",
       "passwordPlaceholder": "Minst 8 tecken",
+      "passwordHelp": "Måste vara minst 8 tecken långt",
       "confirmPassword": "Bekräfta lösenord",
-      "confirmPasswordPlaceholder": "Skriv lösenordet igen",
-      "submit": "Spara nytt lösenord",
+      "confirmPasswordPlaceholder": "Upprepa lösenord",
+      "submit": "Återställ lösenord",
       "success": "Lösenordet har ändrats! Du kan nu logga in.",
+      "successRedirect": "Lösenordet har återställts! Du omdirigeras till inloggning...",
       "error": "Återställningslänken är ogiltig eller har gått ut.",
+      "invalidLink": "Ogiltig återställningslänk.",
+      "requestNewLink": "Begär en ny återställningslänk",
+      "requestNewLinkShort": "Begär en ny länk",
+      "resetFailed": "Lösenordet kunde inte återställas",
+      "rememberPassword": "Minns du ditt lösenord?",
+      "goToLoginInline": "Gå till inloggning",
       "loginLink": "Gå till inloggning"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "E-post och lösenord krävs",
+        "emailRequired": "E-postadress krävs",
+        "accountBlocked": "Ditt konto har spärrats. Kontakta administratören.",
+        "emailVerificationRequired": "Du måste verifiera din e-postadress för att fortsätta",
+        "verificationTokenRequired": "Verifieringstoken krävs",
+        "invalidVerificationLink": "Ogiltig eller utgången verifieringslänk",
+        "resendVerificationRateLimit": "Du har redan begärt flera verifieringslänkar. Försök igen om en timme.",
+        "tokenAndPasswordRequired": "Token och lösenord krävs",
+        "invalidResetLink": "Ogiltig eller utgången återställningslänk. Begär en ny återställningslänk.",
+        "parentOnlyViewMode": "Endast föräldrar kan uppdatera visningsläge",
+        "parentOnlyUiViewMode": "Endast föräldrar kan uppdatera vyläge",
+        "parentOnlyTheme": "Endast föräldrar kan uppdatera tema",
+        "preferencesSaveFailed": "Kunde inte spara inställningar",
+        "uiViewModeSaveFailed": "Kunde inte spara vyläge",
+        "themeSaveFailed": "Kunde inte spara tema",
+        "userNotFound": "Användare hittades inte",
+        "unknownUserType": "Okänd användartyp",
+        "registrationClosed": "Registrering är för närvarande stängd",
+        "invalidCountry": "Ogiltigt land",
+        "familyNameRequired": "Namn krävs för att skapa ett familjkonto",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Registrering från Sverige är tillfälligt stängd.",
+          "MARKET_EU_CLOSED": "My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.",
+          "MARKET_UK_CLOSED": "My Starday is not available in the United Kingdom yet.",
+          "MARKET_US_CLOSED": "My Starday is not available in the United States yet.",
+          "MARKET_OTHER_CLOSED": "My Starday is not available in your country yet."
+        }
+      },
+      "success": {
+        "emailVerified": "E-postadressen har verifierats! Du kan nu logga in.",
+        "resendVerification": "Om kontot finns skickas en ny verifieringslänk",
+        "forgotPassword": "Om e-postadressen finns skickar vi en länk"
+      }
     },
     "errors": {
       "nameRequired": "Vänligen ange ditt namn",
@@ -186,7 +408,8 @@
       "emailNotVerified": "Du behöver verifiera din e-postadress först",
       "emailExists": "Det finns redan ett konto med den e-postadressen",
       "tooManyAttempts": "För många försök. Vänta en stund och försök igen.",
-      "serverError": "Något gick fel. Försök igen senare."
+      "serverError": "Något gick fel. Försök igen senare.",
+      "parentPinInvalid": "Felaktig PIN-kod — försök igen"
     }
   },
   "dashboard": {

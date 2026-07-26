@@ -1,5 +1,5 @@
 /**
- * Min Stjärndag auth helpers.
+ * App auth helpers.
  * Handles token storage, silent refresh, API calls, and redirects.
  *
  * Auth flow:
@@ -181,7 +181,7 @@ const Auth = {
     return !!this.getUser();
   },
 
-  /** Redirect target when session is lost — child pages go to barnväljare, not /login. */
+  /** Redirect target when session is lost — child pages go to child picker, not /login. */
   _sessionLostRedirect() {
     const user = this.getUser();
     const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
@@ -194,7 +194,7 @@ const Auth = {
   },
 
   /**
-   * Barnväljare: familjens barn + om föräldersession finns (cookie).
+   * Child picker: family children + whether a parent session exists (cookie).
    * Supports legacy array responses for backwards compatibility.
    */
   async fetchLoginPickerContext() {
@@ -220,7 +220,7 @@ const Auth = {
   },
 
   /**
-   * Hydrate localStorage parent user from barnväljare (stjarndag_parent_session / parent JWT).
+   * Hydrate localStorage parent user from child picker (stjarndag_parent_session / parent JWT).
    * Used for flow=add-child onboarding when Auth was cleared (e.g. after "Byt barn").
    */
   async hydrateUserFromLoginPicker() {
@@ -384,7 +384,7 @@ const Auth = {
 
     if (!res.ok) {
       // Surface detailed backend message; fallback to status text if body is empty
-      const msg = data?.error || (data?.message) || res.statusText || 'Något gick fel';
+      const msg = data?.error || (data?.message) || res.statusText || Auth._localizedServerError();
       throw Object.assign(new Error(msg), { status: res.status, body: data });
     }
     return data;
@@ -450,7 +450,7 @@ const Auth = {
   },
 
   /**
-   * End child session and open barnväljare (keeps known_children + parent session cookie).
+   * End child session and open child picker (keeps known_children + parent session cookie).
    */
   async switchChildMember() {
     if (this._refreshPromise) {
@@ -588,7 +588,7 @@ const Auth = {
   },
 
   /**
-   * Merge family children into stjarndag_known_children (device barnväljare cache).
+   * Merge family children into stjarndag_known_children (device child-picker cache).
    * Preserves lastLoginAt for entries that already logged in on this device.
    */
   persistKnownChildrenFromSession(children, familyId) {
@@ -622,7 +622,7 @@ const Auth = {
     } catch { /* ignore */ }
   },
 
-  /** Before vuxen logout: save barnlistan so barnväljare works without session. */
+  /** Before parent logout: save child list so child picker works without session. */
   async snapshotKnownChildrenBeforeLogout() {
     try {
       const user = this.getUser();
@@ -662,19 +662,30 @@ const Auth = {
     } catch {}
   },
 
+  _localizedServerError() {
+    if (window.I18n) {
+      const text = I18n.t('auth.errors.serverError');
+      if (text && text !== 'auth.errors.serverError') return text;
+    }
+    return '';
+  },
+
   /**
    * Show the parent PIN gate overlay after child logout.
    * Verifies PIN, stores gateToken on window._ppinGateToken, then calls onSuccess.
    */
   _showParentPinGateOverlay: function (onSuccess, onCancel) {
     function pgT(key, params) {
-      if (typeof window.childT === 'function') return childT(key, params);
+      if (typeof window.childT === 'function') {
+        const fromChild = childT(key, params);
+        if (fromChild) return fromChild;
+      }
+      if (window.I18n) {
+        const authKey = 'auth.' + key;
+        const localized = I18n.t(authKey, params);
+        if (localized && localized !== authKey) return localized;
+      }
       return '';
-    }
-    function pgFallback(key, params, fallback) {
-      const localized = pgT(key, params);
-      if (localized) return localized;
-      return fallback;
     }
 
     const old = document.getElementById('ppin-gate-overlay');
@@ -698,9 +709,9 @@ const Auth = {
     card.innerHTML = [
       '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
       '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">' +
-        pgFallback('parentGate.title', null, 'Föräldralås') + '</h3>',
+        pgT('parentGate.title') + '</h3>',
       '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">' +
-        pgFallback('parentGate.hint', null, 'Ange din PIN-kod för att fortsätta') + '</p>',
+        pgT('parentGate.hint') + '</p>',
       '<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
@@ -708,10 +719,10 @@ const Auth = {
         '<div class="ppgo-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;"></div>',
       '</div>',
       '<div id="ppgo-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="' +
-        pgFallback('parentGate.keypadAria', null, 'PIN-tavla') + '"></div>',
+        pgT('parentGate.keypadAria') + '"></div>',
       '<div id="ppgo-err" style="font-size:0.8rem;color:#ef4444;min-height:1.2em;margin-bottom:8px;"></div>',
       '<button id="ppgo-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">' +
-        pgFallback('parentGate.cancel', null, 'Avbryt') + '</button>',
+        pgT('parentGate.cancel') + '</button>',
     ].join('');
 
     overlay.appendChild(card);
@@ -773,13 +784,13 @@ const Auth = {
           document.body.removeChild(overlay);
           onSuccess();
         } else {
-          msgEl.textContent = pgFallback('errors.parentPinInvalid', null, 'Felaktig PIN-kod — försök igen');
+          msgEl.textContent = pgT('errors.parentPinInvalid');
           entered = '';
           updateDots();
           buildKeypad();
         }
       }).catch(function () {
-        msgEl.textContent = pgFallback('errors.serverError', null, 'Något gick fel — försök igen');
+        msgEl.textContent = pgT('errors.serverError');
         entered = '';
         updateDots();
         buildKeypad();

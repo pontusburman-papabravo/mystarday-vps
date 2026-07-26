@@ -10,10 +10,10 @@
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Skapa konto | Min Stjärndag</title> <!-- pragma: allowlist secret -->
-  <meta name="description" content="Skapa ett föräldrakonto på Min Stjärndag och kom igång gratis med visuellt bildstöd, tydligare rutiner och stjärnbelöningar för ditt barn."> <!-- pragma: allowlist secret -->
-    <meta property="og:title" content="Skapa konto – Min Stjärndag"> <!-- pragma: allowlist secret -->
-    <meta property="og:description" content="Testa Min Stjärndag gratis. Ett visuellt schema med bildstöd och stjärnbelöningar som hjälper barn och familjer att skapa tydligare rutiner i vardagen."> <!-- pragma: allowlist secret -->
+  <title>Create account | My Starday</title>
+  <meta name="description" content="">
+        <meta property="og:title" content="">
+        <meta property="og:description" content="">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://mystarday.se/og-image.png"> <!-- pragma: allowlist secret -->
     <meta property="og:image:width" content="1200">
@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="/css/login-magic.css?v=138">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/auth-entry-failsafe.js?v=1"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/language-choice.js?v=1"></script>
   <script src="/js/market-countries-data.js?v=1"></script>
@@ -46,16 +47,26 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Min Stjärndag"> <!-- pragma: allowlist secret -->
+    <meta name="apple-mobile-web-app-title" content="My Starday">
   <!-- Meta App Events abstraction (native) + marketing (GA4/Pixel web) -->
   <script src="/js/meta-app-events.js?v=1.0.0"></script>
   <script src="/js/marketing-events.js?v=2.13.5"></script>
   <script src="/js/utm-capture.js?v=1.0.0"></script>
   <script src="/js/referral-capture.js?v=1.0.0"></script>
-  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
+  <!-- Cookie banner -->
   <script src="/js/cookie-banner.js?v=2.13.2"></script>
 </head>
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-i18n-title="auth.register.pageTitle" data-language-choice-gate="register" data-country-choice-gate="register">
+  <noscript>
+    <p class="auth-entry-noscript"><strong>JavaScript required</strong> — enable JavaScript to use sign-in. / <strong>JavaScript krävs</strong> — aktivera JavaScript för att logga in.</p>
+  </noscript>
+  <div id="auth-entry-fallback" hidden class="auth-entry-fallback" role="alert" aria-live="assertive">
+    <div>
+      <p><strong>Page did not load fully</strong></p>
+      <p>Refresh the page or <a href="javascript:location.reload()">try again</a>.</p>
+    </div>
+  </div>
+
   <div class="min-h-screen flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
       <!-- Header with Logo -->
@@ -66,9 +77,9 @@
           </div>
           <span class="text-3xl font-heading font-bold text-navy">Min Stjärndag</span> <!-- pragma: allowlist secret -->
         </a>
-        <h1 class="text-2xl font-heading font-bold text-navy mt-4" data-i18n="auth.register.pageHeading">Skapa ett föräldrakonto</h1>
-        <p class="text-text-soft mt-3 text-sm leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLead">Testa Min Stjärndag gratis. Ett visuellt schema med bildstöd och stjärnbelöningar som hjälper ditt barn att förstå dagen, följa rutiner och bli mer självständigt i vardagen.</p> <!-- pragma: allowlist secret -->
-        <p class="text-text-soft mt-2 text-xs leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLeadSecondary">För familjer som vill ha tydligare rutiner, lugnare övergångar och mindre tjat i vardagen.</p>
+        <h1 class="text-2xl font-heading font-bold text-navy mt-4" data-i18n="auth.register.pageHeading"></h1>
+        <p class="text-text-soft mt-3 text-sm leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLead"></p> <!-- pragma: allowlist secret -->
+        <p class="text-text-soft mt-2 text-xs leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLeadSecondary"></p>
         <div class="mt-4 flex justify-center" data-language-choice-mount></div>
         <div class="mt-2 flex justify-center" data-country-choice-mount></div>
         <div class="mt-2 flex justify-center hidden" data-locale-switcher-mount aria-hidden="true"></div>
@@ -119,16 +130,16 @@
         <!-- Loading state (shown while validating invite) -->
         <div id="loadingState" class="text-center py-8">
           <p class="text-4xl mb-3">⏳</p>
-          <p class="text-text-soft" data-i18n="auth.register.validatingInvite">Validerar inbjudan...</p>
+          <p class="text-text-soft" data-i18n="auth.register.validatingInvite"></p>
         </div>
 
         <!-- Error state (shown for invalid invite) -->
         <div id="errorState" class="hidden space-y-4">
           <div class="bg-coral border-l-4 border-red-500 p-4 rounded">
-            <p class="text-sm text-navy font-medium" id="inviteErrorText">Ogiltig inbjudningslänk.</p>
+            <p class="text-sm text-navy font-medium" id="inviteErrorText"></p>
           </div>
           <div class="text-center">
-            <a href="/login" class="text-gold font-semibold hover:underline">Tillbaka till inloggning</a>
+            <a href="/login" class="text-gold font-semibold hover:underline" data-i18n="auth.forgotPassword.backToLogin"></a>
           </div>
         </div>
 
@@ -136,14 +147,12 @@
         <form id="registerForm" class="hidden space-y-6">
           <!-- Name Field -->
           <div>
-            <label for="name" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.nameLabel">
-              Ditt namn
-            </label>
+            <label for="name" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.nameLabel"></label>
             <input
               type="text"
               id="name"
               name="name"
-              placeholder="T.ex. Anna"
+              placeholder=""
               required
               data-i18n-placeholder="auth.register.namePlaceholder"
               class="w-full px-4 py-3 rounded-lg border-2 border-lavender focus:border-gold focus:outline-none bg-white text-navy placeholder-text-soft transition-colors"
@@ -152,65 +161,57 @@
 
           <!-- Email Field -->
           <div>
-            <label for="email" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.email">
-              E-postadress
-            </label>
+            <label for="email" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.email"></label>
             <input
               type="email"
               id="email"
               name="email"
-              placeholder="din@epost.se"
+              placeholder=""
               required
               data-i18n-placeholder="auth.register.emailPlaceholder"
               class="w-full px-4 py-3 rounded-lg border-2 border-lavender focus:border-gold focus:outline-none bg-white text-navy placeholder-text-soft transition-colors"
             />
-            <p class="text-xs text-text-soft mt-1" data-i18n="auth.register.emailHelp">Vi skickar en verifieringslänk hit</p>
+            <p class="text-xs text-text-soft mt-1" data-i18n="auth.register.emailHelp"></p>
           </div>
 
           <!-- Family Name Field (auto-generated, editable) -->
           <div>
-            <label for="familyName" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.familyNameLabel">
-              Familjenamn
-            </label>
+            <label for="familyName" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.familyNameLabel"></label>
             <input
               type="text"
               id="familyName"
               name="familyName"
-              placeholder="T.ex. Familjen Svensson"
+              placeholder=""
               data-i18n-placeholder="auth.register.familyNamePlaceholder"
               class="w-full px-4 py-3 rounded-lg border-2 border-lavender focus:border-gold focus:outline-none bg-white text-navy placeholder-text-soft transition-colors"
             />
-            <p id="familyNameHint" class="text-xs text-text-soft mt-1" data-i18n="auth.register.familyNameAuto">Auto-genereras från ditt namn</p>
+            <p id="familyNameHint" class="text-xs text-text-soft mt-1" data-i18n="auth.register.familyNameAuto"></p>
           </div>
 
           <!-- Password Field -->
           <div>
-            <label for="password" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.password">
-              Lösenord
-            </label>
+            <label for="password" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.password"></label>
             <input
               type="password"
               id="password"
               name="password"
-              placeholder="Minst 8 tecken"
+              placeholder=""
               required
               minlength="8"
               data-i18n-placeholder="auth.register.passwordPlaceholder"
               class="w-full px-4 py-3 rounded-lg border-2 border-lavender focus:border-gold focus:outline-none bg-white text-navy placeholder-text-soft transition-colors"
             />
-            <p class="text-xs text-text-soft mt-1" data-i18n="auth.register.passwordHelp">Måste vara minst 8 tecken långt</p>
+            <p class="text-xs text-text-soft mt-1" data-i18n="auth.register.passwordHelp"></p>
           </div>
 
           <!-- Confirm Password Field -->
           <div>
-            <label for="confirmPassword" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.confirmPassword">
-              Bekräfta lösenord
-            </label>
+            <label for="confirmPassword" class="block text-sm font-semibold text-navy mb-2" data-i18n="auth.register.confirmPassword"></label>
             <input
               type="password"
               id="confirmPassword"
               name="confirmPassword"
-              placeholder="Upprepa lösenord"
+              placeholder=""
               required
               data-i18n-placeholder="auth.register.confirmPasswordPlaceholder"
               class="w-full px-4 py-3 rounded-lg border-2 border-lavender focus:border-gold focus:outline-none bg-white text-navy placeholder-text-soft transition-colors"
@@ -228,10 +229,10 @@
               <input type="checkbox" id="termsAccepted" required
                 class="mt-1 w-5 h-5 rounded border-2 border-lavender focus:border-gold focus:outline-none accent-[#F5A623] flex-shrink-0" />
               <span class="text-xs text-navy leading-relaxed">
-                Jag har läst och godkänner
-                <a href="/terms" target="_blank" rel="noopener" class="text-gold font-semibold hover:underline">Användarvillkor</a>
-                och
-                <a href="/privacy" target="_blank" rel="noopener" class="text-gold font-semibold hover:underline">Integritetspolicy</a>.
+                <span data-i18n="auth.register.termsPrefix"></span>
+                <a href="/terms" target="_blank" rel="noopener" class="text-gold font-semibold hover:underline" data-i18n="auth.register.termsLink"></a>
+                <span data-i18n="auth.register.termsAnd"></span>
+                <a href="/privacy" target="_blank" rel="noopener" class="text-gold font-semibold hover:underline" data-i18n="auth.register.privacyLink"></a><span data-i18n="auth.register.termsSuffix"></span>
               </span>
             </label>
           </div>
@@ -242,27 +243,19 @@
             id="submitBtn"
             class="w-full bg-gold hover:bg-yellow-500 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
             data-i18n="auth.register.submit"
-          >
-            Skapa konto
-          </button>
+          ></button>
         </form>
 
         <!-- Success Message (hidden by default) -->
         <div id="registerSuccess" class="hidden space-y-4">
           <div class="bg-mint border-l-4 border-green-500 p-4 rounded">
-            <p class="text-sm text-navy font-medium">Konto skapat! 🎉</p>
-            <p class="text-sm text-navy mt-2">
-              Vi har skickat en verifieringslänk till din e-postadress.
-              Kolla din inkorg (och skräppostmappen).
-            </p>
-            <p class="text-sm text-text-soft mt-2">
-              Du kan logga in direkt och har 24 timmar på dig att verifiera din e-post.
-            </p>
+            <p class="text-sm text-navy font-medium" data-i18n="auth.register.successTitle"></p>
+            <p class="text-sm text-navy mt-2" data-i18n="auth.register.successVerifyLine1"></p>
+            <p class="text-sm text-navy mt-2" data-i18n="auth.register.successVerifyLine2"></p>
+            <p class="text-sm text-text-soft mt-2" data-i18n="auth.register.successGracePeriod"></p>
           </div>
           <div class="text-center pt-4">
-            <a href="/login" class="inline-block px-8 py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-lg transition-colors">
-              Logga in
-            </a>
+            <a href="/login" class="inline-block px-8 py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-lg transition-colors" data-i18n="auth.register.successLoginBtn"></a>
           </div>
         </div>
 
@@ -270,24 +263,18 @@
         <div id="loginLink" class="hidden text-center mt-6">
           <p class="text-text-soft text-sm" data-i18n="auth.register.hasAccount">
             Har du redan ett konto?
-            <a href="/login" class="text-gold font-semibold hover:underline" data-i18n="auth.register.loginLink">
-              Logga in här
-            </a>
+            <a href="/login" class="text-gold font-semibold hover:underline" data-i18n="auth.register.loginLink"></a>
           </p>
         </div>
 
         <div id="childLoginLink" class="hidden text-center mt-4">
-          <a href="/child-login" class="text-navy font-semibold text-sm hover:underline" data-i18n="auth.register.childLoginLink">
-            Är du barn? Logga in här
-          </a>
+          <a href="/child-login" class="text-navy font-semibold text-sm hover:underline" data-i18n="auth.register.childLoginLink"></a>
         </div>
       </div>
 
       <!-- Tagline -->
       <div class="text-center mt-8">
-        <p class="text-text-soft text-sm" data-i18n="auth.register.tagline">
-          En lugn dag, en stjärna i taget
-        </p>
+        <p class="text-text-soft text-sm" data-i18n="auth.register.tagline"></p>
       </div>
     </div>
   </div>
@@ -505,7 +492,7 @@
     async function handleAppleRegister() {
       var diag = window.AppleSignInDiagnostics;
       if (!window.Platform) {
-        showError('appleRegisterError', 'Apple-registrering är inte tillgänglig just nu.');
+        showError('appleRegisterError', t('auth.login.apple.unavailable'));
         return;
       }
       document.getElementById('appleRegisterError').classList.add('hidden');
@@ -514,17 +501,17 @@
       const btn = document.getElementById('appleRegisterBtn');
       const orig = btn.textContent;
       btn.disabled = true;
-      btn.textContent = 'Apple...';
+      btn.textContent = t('auth.login.appleLoading');
 
       try {
         const result = await window.Platform.appleSignIn.signIn();
         if (diag) diag.log('register_step_2', { hasIdToken: !!(result && result.idToken) });
         if (!result) {
-          showError('appleRegisterError', 'Apple-registreringen avbröts.');
+          showError('appleRegisterError', t('auth.login.apple.cancelled'));
           return;
         }
         if (!result.idToken) {
-          showError('appleRegisterError', 'Apple-registreringen slutfördes inte. Försök igen.');
+          showError('appleRegisterError', t('auth.login.apple.incomplete'));
           return;
         }
 
@@ -541,22 +528,20 @@
           if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           setTimeout(() => Auth.redirectToDashboard(), 300);
         } else if (res.status === 201 && data.user) {
-          // New account created via Apple
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
           if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
           setTimeout(() => window.location.href = '/onboarding', 300);
         } else if (res.status === 409 && (data.error === 'APPLE_EMAIL_EXISTS' || data.error === 'email_conflict')) {
-          showError('appleRegisterError', 'Ett konto med denna e-postadress finns redan. ' +
-            'Logga in med Apple istället, eller använd lösenordsinloggning.');
+          showError('appleRegisterError', t('auth.register.appleEmailExists'));
         } else {
-          showError('appleRegisterError', data.error || 'Något gick fel med Apple-registreringen.');
+          showError('appleRegisterError', data.error || t('auth.login.apple.genericError'));
         }
       } catch (err) {
         var appleMsg = (err && err.message) || '';
         if (appleMsg === 'APPLE_SIGN_IN_FAILED') {
-          showError('appleRegisterError', 'Apple-inloggning misslyckades. Försök igen eller registrera med e-post.');
+          showError('appleRegisterError', t('auth.login.apple.failed'));
         } else {
-          showError('appleRegisterError', appleMsg || 'Apple Sign In misslyckades.');
+          showError('appleRegisterError', appleMsg || t('auth.login.apple.signInFailed'));
         }
       } finally {
         btn.disabled = false;

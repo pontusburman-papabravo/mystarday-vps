@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta property="og:title" content="Min Stjärndag — Förenkla vardagen för hela familjen">
-    <meta property="og:description" content="Skapa och följ dagliga scheman, aktiviteter och belöningar">
+    <meta property="og:title" content="My Starday — Simplify everyday life for the whole family">
+    <meta property="og:description" content="Create and follow daily schedules, activities and rewards">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://mystarday.se/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Inloggning - Min Stjärndag</title>
+  <title>Log in — My Starday</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="/css/app-entry.css?v=284">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.20.0"></script>
+  <script src="/js/auth-entry-failsafe.js?v=1"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/login-locale.js?v=2"></script>
   <script src="/js/locale-switcher.js?v=3"></script>
@@ -46,14 +47,23 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
-  <script src="/js/meta-app-events.js?v=1.0.0"></script>
+  <meta name="apple-mobile-web-app-title" content="My Starday"><script src="/js/meta-app-events.js?v=1.0.0"></script>
   <script src="/js/marketing-events.js?v=2.13.5"></script>
   <script src="/js/cookie-banner.js?v=2.13.2"></script>
 </head>
 
 <!-- ── "Magisk natt" background ─────────────────────────────────────────────── -->
 <body class="login-magic-bg safe-area-top safe-area-bottom safe-area-left safe-area-right" style="font-family: 'Plus Jakarta Sans', sans-serif;" data-i18n-title="auth.login.pageTitle">
+  <noscript>
+    <p class="auth-entry-noscript"><strong>JavaScript required</strong> — enable JavaScript to use sign-in. / <strong>JavaScript krävs</strong> — aktivera JavaScript för att logga in.</p>
+  </noscript>
+  <div id="auth-entry-fallback" hidden class="auth-entry-fallback" role="alert" aria-live="assertive">
+    <div>
+      <p><strong>Page did not load fully</strong></p>
+      <p>Refresh the page or <a href="javascript:location.reload()">try again</a>.</p>
+    </div>
+  </div>
+
 
   <!-- Stars -->
   <div id="stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
@@ -69,82 +79,80 @@
       <div id="login-global-logo" class="login-magic-logo" style="margin-bottom:32px;">
         <img
           src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/6ca97eeb-88f6-46ad-88b1-23ad62b3bcea.jpg"
-          alt="Stjärnmascot"
-          class="logo-mascot"
+                    class="logo-mascot"
+          data-i18n-alt="auth.login.mascotAlt"
         >
         <div>
           <h1>Min Stjärndag</h1><!-- pragma: allowlist secret -->
-          <p data-i18n="auth.login.tagline">Tillsammans lyser vi</p>
+          <p data-i18n="auth.login.tagline"></p>
         </div>
       </div>
 
-      <!-- ── Skärm 1: ENTRY_WELCOME (native + PWA standalone) -->
-      <section id="entry-welcome" class="app-entry-screen" data-screen="ENTRY_WELCOME" style="display:none;" aria-label="Välkommen">
+      <!-- ── Skrm 1: ENTRY_WELCOME (native + PWA standalone) -->
+      <section id="entry-welcome" class="app-entry-screen" data-screen="ENTRY_WELCOME" style="display:none;" data-i18n-aria-label="auth.entry.welcome.ariaLabel" aria-label="Välkommen">
         <div class="login-magic-logo" style="margin-bottom:24px;">
           <img
             src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/6ca97eeb-88f6-46ad-88b1-23ad62b3bcea.jpg"
-            alt="Stjärnmascot"
-            class="logo-mascot"
+                        class="logo-mascot"
+            data-i18n-alt="auth.login.mascotAlt"
           >
           <div>
             <h1>Min Stjärndag</h1><!-- pragma: allowlist secret -->
-            <p>Tillsammans lyser vi</p>
+            <p data-i18n="auth.login.tagline"></p>
           </div>
         </div>
 
         <div class="entry-welcome-body">
-          <h2 class="entry-welcome-headline">En lugnare vardag med tydliga steg, scheman och stjärnor</h2>
-          <p class="entry-welcome-lead">
+          <h2 class="entry-welcome-headline" data-i18n="auth.entry.welcome.headline"></h2>
+          <p class="entry-welcome-lead" data-i18n="auth.entry.welcome.lead">
             Min Stjärndag hjälper barn och familjer med vardagsrutiner genom visuella scheman, tydliga delsteg och belöningar som gör det lättare att klara dagen mer självständigt.<!-- pragma: allowlist secret -->
           </p>
           <div class="entry-highlight-row" aria-hidden="false">
-            <span class="entry-highlight-chip">Visuella scheman</span>
-            <span class="entry-highlight-chip">Stjärnor &amp; belöningar</span>
-            <span class="entry-highlight-chip">Flera barn och vuxna</span>
+            <span class="entry-highlight-chip" data-i18n="auth.entry.welcome.chipVisualSchedules"></span>
+            <span class="entry-highlight-chip" data-i18n="auth.entry.welcome.chipStarsRewards"></span>
+            <span class="entry-highlight-chip" data-i18n="auth.entry.welcome.chipMultipleUsers"></span>
           </div>
         </div>
 
         <div class="entry-cta-stack">
-          <button type="button" id="entryWelcomeStartBtn" class="magic-submit-btn touch-btn">Kom igång</button>
-          <button type="button" id="entryWelcomeExistingBtn" class="ghost-btn touch-btn">Jag har redan konto</button>
-          <button type="button" id="entryHowItWorksBtn" class="entry-tertiary-link">Så fungerar appen</button>
+          <button type="button" id="entryWelcomeStartBtn" class="magic-submit-btn touch-btn" data-i18n="auth.entry.welcome.startBtn"></button>
+          <button type="button" id="entryWelcomeExistingBtn" class="ghost-btn touch-btn" data-i18n="auth.entry.welcome.existingBtn"></button>
+          <button type="button" id="entryHowItWorksBtn" class="entry-tertiary-link" data-i18n="auth.entry.welcome.howItWorksBtn"></button>
         </div>
       </section>
 
-      <!-- ── Skärm 2: ENTRY_ROLE_PICK -->
+      <!-- ── Skrm 2: ENTRY_ROLE_PICK -->
       <div id="role-selection" class="app-entry-screen" style="display:none;flex-direction:column;align-items:center;gap:0;" data-installed-only>
 
-        <button type="button" id="entryRoleBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" aria-label="Tillbaka">
-          ← Tillbaka
-        </button>
+        <button type="button" id="entryRoleBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" data-i18n-aria-label="auth.entry.back" data-i18n="auth.entry.backWithArrow"></button>
 
         <div class="entry-role-heading">
-          <h2 id="entryRoleTitle" class="entry-screen-title">Vem ska använda appen nu?</h2>
+          <h2 id="entryRoleTitle" class="entry-screen-title" data-i18n="auth.entry.role.title"></h2>
         </div>
 
         <div class="role-cards" style="width:100%;">
           <!-- Kid card -->
-          <a href="/child-login" id="kid-role-card" class="role-card kid-card" aria-label="Jag är barn">
+          <a href="/child-login" id="kid-role-card" class="role-card kid-card" data-i18n-aria-label="auth.entry.role.kidAria" aria-label="Jag är barn">
             <img
               src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/e263d5b1-6cfc-4ba1-b50f-01a360484281.jpg"
-              alt="Barn"
-              class="card-icon"
+                            class="card-icon"
               style="width:60px;height:60px;"
+              data-i18n-alt="auth.entry.role.kidAlt"
             >
-            <span class="card-label">Jag är barn</span>
-            <span class="card-sub">Jag vill se mitt schema</span>
+            <span class="card-label" data-i18n="auth.entry.role.kidLabel"></span>
+            <span class="card-sub" data-i18n="auth.entry.role.kidSub"></span>
           </a>
 
           <!-- Parent card -->
-          <button type="button" id="parent-role-card" class="role-card parent-card" style="background:rgba(251,191,36,0.18);border-color:rgba(251,191,36,0.35);" aria-label="Jag är vuxen">
+          <button type="button" id="parent-role-card" class="role-card parent-card" style="background:rgba(251,191,36,0.18);border-color:rgba(251,191,36,0.35);" data-i18n-aria-label="auth.entry.role.parentAria" aria-label="Jag är vuxen">
             <img
               src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_87240/96526ace-9334-45b7-9592-a7cbb6cf0ef4.jpg"
-              alt="Familj"
-              class="card-icon"
+                            class="card-icon"
               style="width:60px;height:60px;"
+              data-i18n-alt="auth.entry.role.parentAlt"
             >
-            <span class="card-label">Jag är vuxen</span>
-            <span class="card-sub">Jag vill logga in eller komma igång</span>
+            <span class="card-label" data-i18n="auth.entry.role.parentLabel"></span>
+            <span class="card-sub" data-i18n="auth.entry.role.parentSub"></span>
           </button>
         </div>
 
@@ -152,61 +160,51 @@
       <!-- end role-selection -->
 
       <!-- ── Skärm 4A: ENTRY_ADULT_START -->
-      <section id="entry-adult-start" class="app-entry-screen" data-screen="ENTRY_ADULT_START" style="display:none;" aria-label="Vuxenstart">
-        <button type="button" id="entryAdultStartBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" aria-label="Tillbaka">
-          ← Tillbaka
-        </button>
-        <h2 class="entry-screen-title">Välkommen! Hur vill du fortsätta?</h2>
+      <section id="entry-adult-start" class="app-entry-screen" data-screen="ENTRY_ADULT_START" style="display:none;" data-i18n-aria-label="auth.entry.adultStart.ariaLabel" aria-label="Vuxenstart">
+        <button type="button" id="entryAdultStartBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" data-i18n-aria-label="auth.entry.back" data-i18n="auth.entry.backWithArrow"></button>
+        <h2 class="entry-screen-title" data-i18n="auth.entry.adultStart.title"></h2>
         <div class="entry-choice-list">
           <button type="button" id="entryAdultStartExistingBtn" class="entry-choice-btn">
-            <span class="entry-choice-label">Jag har redan konto</span>
-            <span class="entry-choice-sub">Logga in med Apple, Google eller e-post</span>
+            <span class="entry-choice-label" data-i18n="auth.entry.adultStart.existingLabel"></span>
+            <span class="entry-choice-sub" data-i18n="auth.entry.adultStart.existingSub"></span>
           </button>
           <button type="button" id="entryAdultStartNewBtn" class="entry-choice-btn">
-            <span class="entry-choice-label">Jag är ny här</span>
-            <span class="entry-choice-sub">Se hur appen fungerar och skapa konto kostnadsfritt</span>
+            <span class="entry-choice-label" data-i18n="auth.entry.adultStart.newLabel"></span>
+            <span class="entry-choice-sub" data-i18n="auth.entry.adultStart.newSub"></span>
           </button>
         </div>
       </section>
 
-      <!-- ── Skärm 5: ENTRY_ADULT_SIGNUP_INTRO -->
-      <section id="entry-signup-intro" class="app-entry-screen" data-screen="ENTRY_ADULT_SIGNUP_INTRO" style="display:none;" aria-label="Kom igång">
-        <button type="button" id="entrySignupBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" aria-label="Tillbaka">
-          ← Tillbaka
-        </button>
-        <h2 class="entry-screen-title">Kom igång med Min Stjärndag</h2><!-- pragma: allowlist secret -->
-        <p class="entry-screen-sub">Skapa ett kostnadsfritt konto och bygg barnets första schema med tydliga steg, stjärnor och mål.</p>
+      <!-- ── Skrm 5: ENTRY_ADULT_SIGNUP_INTRO -->
+      <section id="entry-signup-intro" class="app-entry-screen" data-screen="ENTRY_ADULT_SIGNUP_INTRO" style="display:none;" data-i18n-aria-label="auth.entry.signupIntro.ariaLabel" aria-label="Kom igång">
+        <button type="button" id="entrySignupBackBtn" class="magic-back-btn" style="align-self:flex-start;margin-bottom:12px;" data-i18n-aria-label="auth.entry.back" data-i18n="auth.entry.backWithArrow"></button>
+        <h2 class="entry-screen-title" data-i18n="auth.entry.signupIntro.title"></h2><!-- pragma: allowlist secret -->
+        <p class="entry-screen-sub" data-i18n="auth.entry.signupIntro.sub"></p>
         <ul class="entry-signup-points">
-          <li>Visuella scheman som barnet förstår</li>
-          <li>Stjärnor och belöningar som motiverar</li>
-          <li>Flera barn och vuxna i samma familj</li>
+          <li data-i18n="auth.entry.signupIntro.point1"></li>
+          <li data-i18n="auth.entry.signupIntro.point2"></li>
+          <li data-i18n="auth.entry.signupIntro.point3"></li>
         </ul>
         <div class="entry-cta-stack">
-          <button type="button" id="entrySignupCreateBtn" class="magic-submit-btn touch-btn">Skapa konto kostnadsfritt</button>
-          <button type="button" id="entrySignupExistingBtn" class="ghost-btn touch-btn">Jag har redan konto</button>
+          <button type="button" id="entrySignupCreateBtn" class="magic-submit-btn touch-btn" data-i18n="auth.entry.signupIntro.createBtn"></button>
+          <button type="button" id="entrySignupExistingBtn" class="ghost-btn touch-btn" data-i18n="auth.entry.signupIntro.existingBtn"></button>
         </div>
-        <p class="entry-founder-note">Just nu ingår Basic kostnadsfritt.</p>
+        <p class="entry-founder-note" data-i18n="auth.entry.signupIntro.founderNote"></p>
       </section>
 
       <!-- ── Skärm 4B: ENTRY_ADULT_LOGIN -->
       <div id="parent-login-section" class="app-entry-screen" style="display:none;flex-direction:column;align-items:center;gap:0;width:100%;">
 
         <div id="addChildLoginBanner" class="hidden" style="width:100%;margin-bottom:16px;padding:12px 16px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.35);border-radius:14px;text-align:center;">
-          <p style="color:#fff;font-size:0.9rem;font-weight:600;margin:0;line-height:1.5;">
-            👶 Logga in som vuxen för att lägga till ett barn
-          </p>
-          <p style="color:rgba(255,255,255,0.65);font-size:0.78rem;margin:8px 0 0;line-height:1.4;">
-            «Jag är barn» räcker inte här — det krävs en förälder eller pedagog.
-          </p>
+          <p style="color:#fff;font-size:0.9rem;font-weight:600;margin:0;line-height:1.5;" data-i18n="auth.login.addChildBannerTitle"></p>
+          <p style="color:rgba(255,255,255,0.65);font-size:0.78rem;margin:8px 0 0;line-height:1.4;" data-i18n="auth.login.addChildBannerBody"></p>
         </div>
 
         <!-- Back button (fullflow: AppEntry.goBack; web fallback: reveal role cards) -->
-        <button type="button" id="parentLoginBackBtn" class="magic-back-btn" aria-label="Tillbaka"
-          onclick="(window.AppEntry &amp;&amp; AppEntry.isFullEntryFlow()) ? AppEntry.goBack() : LoginMagic.backToRoleSelection()">
-          ← Tillbaka
-        </button>
+        <button type="button" id="parentLoginBackBtn" class="magic-back-btn" data-i18n-aria-label="auth.entry.back"
+          onclick="(window.AppEntry &amp;&amp; AppEntry.isFullEntryFlow()) ? AppEntry.goBack() : LoginMagic.backToRoleSelection()" data-i18n="auth.entry.backWithArrow"></button>
 
-        <h2 class="entry-screen-title" style="margin-bottom:16px;width:100%;">Logga in som vuxen</h2>
+        <h2 class="entry-screen-title" style="margin-bottom:16px;width:100%;" data-i18n="auth.login.loginAsAdult"></h2>
 
         <!-- Apple Sign In — iOS/native only -->
         <div id="appleLoginSection" class="hidden" style="width:100%;margin-bottom:0;">
@@ -219,24 +217,20 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
             </svg>
-            Fortsätt med Apple
+            <span data-i18n="auth.login.continueWithApple"></span>
           </button>
-          <p class="ios-caption" data-i18n="auth.login.apple_caption">Endast tillgängligt på iOS</p>
+          <p class="ios-caption" data-i18n="auth.login.apple_caption"></p>
 
           <!-- Apple error -->
           <div id="appleLoginError" class="magic-error-box" style="display:none;margin-top:12px;"></div>
 
           <!-- Apple linking prompt -->
           <div id="appleLinkingPrompt" class="hidden" style="margin-top:14px;background:rgba(255,255,255,0.1);border:2px solid rgba(251,191,36,0.4);border-radius:14px;padding:16px;text-align:center;backdrop-filter:blur(12px);">
-            <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;">Ett konto med denna e-postadress finns redan.</p>
-            <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;">Vill du länka ditt Apple-konto till det befintliga kontot?</p>
+            <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;" data-i18n="auth.login.linking.emailExists"></p>
+            <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;" data-i18n="auth.login.linking.promptApple"></p>
             <div style="display:flex;gap:10px;">
-              <button type="button" onclick="openAppleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;">
-                Ja, länka
-              </button>
-              <button type="button" onclick="dismissAppleLinking()" class="ghost-btn" style="flex:1;">
-                Avbryt
-              </button>
+              <button type="button" onclick="openAppleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;" data-i18n="auth.login.linking.yes"></button>
+              <button type="button" onclick="dismissAppleLinking()" class="ghost-btn" style="flex:1;" data-i18n="auth.login.linking.cancel"></button>
             </div>
           </div>
 
@@ -245,31 +239,27 @@
             <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border:1px solid rgba(251,191,36,0.3);border-radius:18px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
               <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:2.2rem;margin-bottom:8px;">&#127874;</div>
-                <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:4px;">Länka Apple-konto</h3>
-                <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;">Ange lösenordet för att logga in och därefter länka ditt Apple-konto.</p>
+                <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:4px;" data-i18n="auth.login.linking.modalTitleApple"></h3>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;" data-i18n="auth.login.linking.modalIntroApple"></p>
               </div>
               <div style="margin-bottom:16px;">
-                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">E-post</label>
+                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;" data-i18n="auth.login.linking.emailLabel"></label>
                 <input type="email" id="appleLinkEmail" readonly style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.9rem;box-sizing:border-box;">
               </div>
               <div style="margin-bottom:20px;">
-                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Lösenord</label>
-                <input type="password" id="appleLinkPassword" placeholder="Ditt lösenord" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;font-size:0.9rem;box-sizing:border-box;">
+                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;" data-i18n="auth.login.linking.passwordLabel"></label>
+                <input type="password" id="appleLinkPassword" placeholder="" data-i18n-placeholder="auth.login.linking.passwordPlaceholder" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;font-size:0.9rem;box-sizing:border-box;">
               </div>
               <div id="appleLinkModalError" class="magic-error-box" style="display:none;margin-bottom:12px;"></div>
               <div style="display:flex;gap:10px;">
-                <button type="button" id="appleLinkSubmitBtn" onclick="submitAppleLink()" style="flex:1;padding:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1d1d1f;font-weight:700;font-size:0.95rem;border:none;border-radius:10px;cursor:pointer;">
-                  Länka
-                </button>
-                <button type="button" onclick="closeAppleLinkModal()" style="flex:1;padding:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;">
-                  Avbryt
-                </button>
+                <button type="button" id="appleLinkSubmitBtn" onclick="submitAppleLink()" style="flex:1;padding:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1d1d1f;font-weight:700;font-size:0.95rem;border:none;border-radius:10px;cursor:pointer;" data-i18n="auth.login.linking.submit"></button>
+                <button type="button" onclick="closeAppleLinkModal()" style="flex:1;padding:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;" data-i18n="auth.login.linking.cancel"></button>
               </div>
             </div>
           </div>
 
           <div class="magic-divider" style="margin:18px 0;">
-            <span>eller</span>
+            <span data-i18n="auth.login.orDivider"></span>
           </div>
         </div>
 
@@ -282,20 +272,16 @@
               <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.85-6.1c-2.18 1.46-4.97 2.3-8.04 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
             </svg>
-            <span class="google-btn-magic__label">Logga in med Google</span>
+            <span class="google-btn-magic__label" data-i18n="auth.login.continueWithGoogle"></span>
           </button>
           <div id="googleLoginError" class="magic-error-box" style="display:none;margin-top:12px;"></div>
 
           <div id="googleLinkingPrompt" class="hidden" style="margin-top:14px;background:rgba(255,255,255,0.1);border:2px solid rgba(251,191,36,0.4);border-radius:14px;padding:16px;text-align:center;backdrop-filter:blur(12px);">
-            <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;">Ett konto med denna e-postadress finns redan.</p>
-            <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;">Vill du länka ditt Google-konto till det befintliga kontot?</p>
+            <p style="color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:6px;" data-i18n="auth.login.linking.emailExists"></p>
+            <p style="color:rgba(255,255,255,0.65);font-size:0.8rem;margin-bottom:12px;" data-i18n="auth.login.linking.promptGoogle"></p>
             <div style="display:flex;gap:10px;">
-              <button type="button" onclick="openGoogleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;">
-                Ja, länka
-              </button>
-              <button type="button" onclick="dismissGoogleLinking()" class="ghost-btn" style="flex:1;">
-                Avbryt
-              </button>
+              <button type="button" onclick="openGoogleLinkModal()" class="ghost-btn" style="flex:1;background:linear-gradient(135deg, #fbbf24, #f59e0b);color:#1d1d1f;border:none;" data-i18n="auth.login.linking.yes"></button>
+              <button type="button" onclick="dismissGoogleLinking()" class="ghost-btn" style="flex:1;" data-i18n="auth.login.linking.cancel"></button>
             </div>
           </div>
 
@@ -303,30 +289,26 @@
             <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border:1px solid rgba(251,191,36,0.3);border-radius:18px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
               <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:2.2rem;margin-bottom:8px;">G</div>
-                <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:4px;">Länka Google-konto</h3>
-                <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;">Ange lösenordet för att logga in och därefter länka ditt Google-konto.</p>
+                <h3 style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:4px;" data-i18n="auth.login.linking.modalTitleGoogle"></h3>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;" data-i18n="auth.login.linking.modalIntroGoogle"></p>
               </div>
               <div style="margin-bottom:16px;">
-                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">E-post</label>
+                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;" data-i18n="auth.login.linking.emailLabel"></label>
                 <input type="email" id="googleLinkEmail" readonly style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-size:0.9rem;box-sizing:border-box;">
               </div>
               <div style="margin-bottom:20px;">
-                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Lösenord</label>
-                <input type="password" id="googleLinkPassword" placeholder="Ditt lösenord" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;font-size:0.9rem;box-sizing:border-box;">
+                <label style="display:block;color:rgba(255,255,255,0.7);font-size:0.75rem;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;" data-i18n="auth.login.linking.passwordLabel"></label>
+                <input type="password" id="googleLinkPassword" placeholder="" data-i18n-placeholder="auth.login.linking.passwordPlaceholder" style="width:100%;padding:10px 14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#fff;font-size:0.9rem;box-sizing:border-box;">
               </div>
               <div id="googleLinkModalError" class="magic-error-box" style="display:none;margin-bottom:12px;"></div>
               <div style="display:flex;gap:10px;">
-                <button type="button" id="googleLinkSubmitBtn" onclick="submitGoogleLink()" style="flex:1;padding:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1d1d1f;font-weight:700;font-size:0.95rem;border:none;border-radius:10px;cursor:pointer;">
-                  Länka
-                </button>
-                <button type="button" onclick="closeGoogleLinkModal()" style="flex:1;padding:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;">
-                  Avbryt
-                </button>
+                <button type="button" id="googleLinkSubmitBtn" onclick="submitGoogleLink()" style="flex:1;padding:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1d1d1f;font-weight:700;font-size:0.95rem;border:none;border-radius:10px;cursor:pointer;" data-i18n="auth.login.linking.submit"></button>
+                <button type="button" onclick="closeGoogleLinkModal()" style="flex:1;padding:12px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-weight:600;font-size:0.95rem;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;" data-i18n="auth.login.linking.cancel"></button>
               </div>
             </div>
           </div>
 
-          <div class="magic-divider" style="margin:18px 0;"><span>eller</span></div>
+          <div class="magic-divider" style="margin:18px 0;"><span data-i18n="auth.login.orDivider"></span></div>
         </div>
 
         <div class="my-5 flex justify-center" data-locale-switcher-mount></div>
@@ -334,12 +316,12 @@
         <!-- Email/password form — always shown unless Apple-only on iOS -->
         <form id="loginForm" class="magic-form-fields" style="width:100%;" novalidate>
           <div>
-            <label for="email" data-i18n="auth.login.email">E-postadress</label>
+            <label for="email" data-i18n="auth.login.email"></label>
             <input
               type="email"
               id="email"
               name="email"
-              placeholder="din@epost.se"
+              placeholder=""
               required
               autocomplete="email"
               class="magic-input"
@@ -347,7 +329,7 @@
             />
           </div>
           <div>
-            <label for="password" data-i18n="auth.login.password">Lösenord</label>
+            <label for="password" data-i18n="auth.login.password"></label>
             <input
               type="password"
               id="password"
@@ -363,28 +345,22 @@
           <!-- Error -->
           <div id="loginError" class="magic-error-box" style="display:none;"></div>
 
-          <button type="submit" id="submitBtn" class="magic-submit-btn touch-btn" data-i18n="auth.login.submit">
-            Logga in
-          </button>
+          <button type="submit" id="submitBtn" class="magic-submit-btn touch-btn" data-i18n="auth.login.submit"></button>
         </form>
 
         <!-- Links below form -->
         <div class="magic-footer-link" style="width:100%;margin-top:0;">
-          <a href="/forgot-password" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.8rem;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:1px;" data-i18n="auth.login.forgotPassword">
-            Glömt lösenordet?
-          </a>
+          <a href="/forgot-password" style="color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.8rem;border-bottom:1px solid rgba(255,255,255,0.25);padding-bottom:1px;" data-i18n="auth.login.forgotPassword"></a>
         </div>
 
         <!-- Registration link -->
         <div id="registerLinkSection" class="magic-footer-link" style="display:none;margin-top:4px;">
-          <span data-i18n="auth.login.noAccount">Har du inget konto?</span>
-          <a href="/register" id="entryLoginSignupLink" data-i18n="auth.login.createAccount">Skapa konto</a>
+          <span data-i18n="auth.login.noAccount"></span>
+          <a href="/register" id="entryLoginSignupLink" data-i18n="auth.login.createAccount"></a>
         </div>
 
         <div class="magic-footer-link" style="width:100%;margin-top:12px;">
-          <a href="/child-login" id="childLoginFooterLink" class="touch-btn" style="display:inline-block;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.9rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:2px;" data-i18n="auth.login.childLoginLink">
-            Är du barn? Logga in här
-          </a>
+          <a href="/child-login" id="childLoginFooterLink" class="touch-btn" style="display:inline-block;color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.9rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.35);padding-bottom:2px;" data-i18n="auth.login.childLoginLink"></a>
         </div>
 
       </div>
@@ -393,20 +369,20 @@
       <!-- How it works modal -->
       <div id="entry-how-it-works-modal" class="entry-how-modal hidden" role="dialog" aria-modal="true" aria-labelledby="entryHowTitle">
         <div class="entry-how-sheet">
-          <h2 id="entryHowTitle">Så fungerar appen</h2>
+          <h2 id="entryHowTitle" data-i18n="auth.entry.howItWorks.title"></h2>
           <div class="entry-how-card">
-            <strong>1. Barnet ser sitt schema steg för steg</strong>
-            <p>Visuella rutiner gör vardagen tydlig och förutsägbar.</p>
+            <strong data-i18n="auth.entry.howItWorks.step1Title"></strong>
+            <p data-i18n="auth.entry.howItWorks.step1Body"></p>
           </div>
           <div class="entry-how-card">
-            <strong>2. Barnet tjänar stjärnor när aktiviteter blir klara</strong>
-            <p>Små vinster bygger motivation och självständighet.</p>
+            <strong data-i18n="auth.entry.howItWorks.step2Title"></strong>
+            <p data-i18n="auth.entry.howItWorks.step2Body"></p>
           </div>
           <div class="entry-how-card">
-            <strong>3. Vuxna följer framsteg och bygger rutiner tillsammans</strong>
-            <p>Flera barn och vuxna kan dela samma familj i appen.</p>
+            <strong data-i18n="auth.entry.howItWorks.step3Title"></strong>
+            <p data-i18n="auth.entry.howItWorks.step3Body"></p>
           </div>
-          <button type="button" id="entryHowItWorksClose" class="magic-submit-btn touch-btn" style="margin-top:6px;">Stäng</button>
+          <button type="button" id="entryHowItWorksClose" class="magic-submit-btn touch-btn" style="margin-top:6px;" data-i18n="auth.entry.howItWorks.close"></button>
         </div>
       </div>
 
@@ -418,6 +394,16 @@
 
   <!-- ── INLINE AUTH SCRIPT ───────────────────────────────────────────────── -->
   <script>
+    function t(key, params) {
+      return (window.authT || ((k) => k))(key, params);
+    }
+
+    function brandName() {
+      if (window.authBrandName) return authBrandName();
+      if (window.I18n && I18n.t) return I18n.t('app.name');
+      return 'My Starday';
+    }
+
     // Platform detection: installed app = Capacitor native OR PWA with display-mode: standalone
     function isInstalledApp() {
       return (
@@ -532,7 +518,7 @@
         var backBtn = parentSectionEarly && parentSectionEarly.querySelector('.magic-back-btn');
         if (backBtn) {
           backBtn.id = 'addChildBackBtn';
-          backBtn.textContent = '← Tillbarnväljaren';
+          backBtn.textContent = t('auth.login.backToChildPicker');
           backBtn.onclick = function () { window.location.href = '/child-login'; };
         }
       }
@@ -559,12 +545,12 @@
         e.preventDefault();
 
         if (!email.value || !password.value) {
-          showErrorInline('loginError', 'Vänligen fyll i både e-post och lösenord');
+          showErrorInline('loginError', t('auth.login.fillEmailPassword'));
           return;
         }
 
         hideErrorInline('loginError');
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Loggar in…'; }
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t('auth.login.submitting'); }
 
         try {
           const res = await window.apiFetch('/api/auth/login', {
@@ -592,13 +578,13 @@
             showVerificationRequired(data.email || email.value);
           } else {
             if (window.AppEntry) AppEntry.trackAuthFailed('email', data.error || 'login_failed');
-            showErrorInline('loginError', data.error || 'Något gick fel. Vänligen försök igen.');
+            showErrorInline('loginError', data.error || t('auth.login.genericError'));
           }
         } catch (error) {
           if (window.AppEntry) AppEntry.trackAuthFailed('email', error.message || 'network');
-          showErrorInline('loginError', error.message || 'Något gick fel. Vänligen försök igen.');
+          showErrorInline('loginError', error.message || t('auth.login.genericError'));
         } finally {
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Logga in'; }
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = t('auth.login.submit'); }
         }
       });
     });
@@ -620,26 +606,25 @@
       const section = document.getElementById('parent-login-section');
       if (!section) return;
       section.innerHTML = `
-        <button onclick="(window.AppEntry && AppEntry.goBack) ? AppEntry.goBack() : LoginMagic.backToRoleSelection()" class="magic-back-btn">← Tillbaka</button>
+        <button onclick="(window.AppEntry && AppEntry.goBack) ? AppEntry.goBack() : LoginMagic.backToRoleSelection()" class="magic-back-btn">${t('auth.entry.backWithArrow')}</button>
         <div style="text-align:center;">
           <div style="font-size:3.5rem;margin-bottom:16px;">📧</div>
           <h2 style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:12px;">
-            Verifiera din e-postadress
+            ${t('auth.login.verify.title')}
           </h2>
           <p style="color:rgba(255,255,255,0.65);font-size:0.9rem;margin-bottom:20px;line-height:1.6;">
-            Du måste verifiera din e-postadress för att fortsätta använda Min Stjärndag.
-            Kolla din inkorg (och skräppostmappen) efter ett mejl från oss.
+            ${t('auth.login.verify.body')}
           </p>
           <div style="background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">
-            <p style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:4px;">E-postadress:</p>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:4px;">${t('auth.login.verify.emailLabel')}</p>
             <p style="font-weight:600;color:#fff;">${userEmail}</p>
           </div>
           <button id="resendVerifyBtn" onclick="resendFromLogin('${userEmail}')"
             class="magic-submit-btn" style="margin-bottom:12px;">
-            Skicka ny verifieringslänk
+            ${t('auth.login.verify.resendBtn')}
           </button>
           <p id="resendLoginMessage" style="display:none;font-size:0.85rem;margin-bottom:12px;"></p>
-          <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Kolla även skräppostmappen. Länken är giltig i 24 timmar.</p>
+          <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);">${t('auth.login.verify.spamHint')}</p>
         </div>
       `;
     }
@@ -648,7 +633,7 @@
       const btn = document.getElementById('resendVerifyBtn');
       const msgEl = document.getElementById('resendLoginMessage');
       btn.disabled = true;
-      btn.textContent = 'Skickar…';
+      btn.textContent = t('auth.login.verify.resendSending');
 
       try {
         const res = await fetch('/api/auth/resend-verification', {
@@ -660,19 +645,19 @@
         const data = await res.json().catch(() => ({}));
         msgEl.style.display = '';
         if (res.status === 429) {
-          msgEl.textContent = data.error || 'Du har redan begärt flera länkrar. Försök igen om en timme.';
+          msgEl.textContent = data.error || t('auth.verify.resendRateLimit');
           msgEl.style.color = '#fca5a5';
         } else {
-          msgEl.textContent = '✅ Ny verifieringslänk skickad! Kolla din inkorg och skräppost.';
+          msgEl.textContent = t('auth.login.verify.resendSuccess');
           msgEl.style.color = '#86efac';
         }
       } catch {
         msgEl.style.display = '';
-        msgEl.textContent = 'Något gick fel. Försök igen.';
+        msgEl.textContent = t('auth.login.verify.resendError');
         msgEl.style.color = '#fca5a5';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Skicka ny verifieringslänk';
+        btn.textContent = t('auth.login.verify.resendBtn');
       }
     }
 
@@ -693,7 +678,7 @@
       });
 
       if (!window.Platform) {
-        diag.showError('Apple-inloggning är inte tillgänglig just nu. Försök igen eller logga in med e-post.');
+        diag.showError(t('auth.login.apple.unavailable'));
         return;
       }
 
@@ -703,7 +688,7 @@
 
       if (Platform.isIOS() && !Platform.appleSignIn.isAvailable()) {
         diag.log('step_1b_plugin_unavailable');
-        diag.showError('Apple-inloggning är inte aktiverad. Uppdatera appen till senaste versionen.');
+        diag.showError(t('auth.login.apple.notEnabled'));
         return;
       }
 
@@ -711,7 +696,7 @@
       var orig = btn ? btn.textContent : '';
       if (btn) {
         btn.disabled = true;
-        btn.textContent = 'Apple…';
+        btn.textContent = t('auth.login.appleLoading');
       }
 
       try {
@@ -723,11 +708,11 @@
         });
 
         if (!result) {
-          diag.showError('Apple-inloggningen avbröts.');
+          diag.showError(t('auth.login.apple.cancelled'));
           return;
         }
         if (!result.idToken) {
-          diag.showError('Apple-inloggningen slutfördes inte. Försök igen eller logga in med e-post och lösenord.');
+          diag.showError(t('auth.login.apple.incomplete'));
           return;
         }
 
@@ -778,19 +763,19 @@
           diag.showLinkingPrompt();
         } else if (res.status === 429) {
           if (window.AppEntry) AppEntry.trackAuthFailed('apple', 'rate_limited');
-          diag.showError(data.error || 'För många försök. Vänta en stund och försök igen.');
+          diag.showError(data.error || t('auth.login.apple.rateLimited'));
         } else {
           if (window.AppEntry) AppEntry.trackAuthFailed('apple', data.error || 'login_failed');
-          diag.showError(data.error || 'Något gick fel med Apple-inloggningen. Försök igen eller logga in med e-post och lösenord.');
+          diag.showError(data.error || t('auth.login.apple.genericError'));
         }
       } catch (err) {
         var appleMsg = (err && err.message) || '';
         diag.log('step_error', { message: appleMsg });
         if (window.AppEntry) AppEntry.trackAuthFailed('apple', appleMsg || 'exception');
         if (appleMsg === 'APPLE_SIGN_IN_FAILED') {
-          diag.showError('Apple-inloggning misslyckades. Försök igen eller logga in med e-post och lösenord.');
+          diag.showError(t('auth.login.apple.failed'));
         } else {
-          diag.showError(appleMsg || 'Apple Sign In misslyckades.');
+          diag.showError(appleMsg || t('auth.login.apple.signInFailed'));
         }
       } finally {
         if (btn) {
@@ -822,14 +807,14 @@
       if (!_applePendingEmail || !_applePendingIdToken) return;
       const password = document.getElementById('appleLinkPassword').value;
       if (!password) {
-        document.getElementById('appleLinkModalError').textContent = 'Ange ditt lösenord.';
+        document.getElementById('appleLinkModalError').textContent = t('auth.login.linking.enterPassword');
         document.getElementById('appleLinkModalError').style.display = 'block';
         return;
       }
 
       const btn = document.getElementById('appleLinkSubmitBtn');
       btn.disabled = true;
-      btn.textContent = 'Länkar…';
+      btn.textContent = t('auth.login.linking.submitting');
 
       try {
         const loginRes = await fetch('/api/auth/login', {
@@ -844,7 +829,7 @@
         });
         const loginData = await loginRes.json().catch(() => ({}));
         if (!loginRes.ok) {
-          document.getElementById('appleLinkModalError').textContent = loginData.error || 'Fel lösenord.';
+          document.getElementById('appleLinkModalError').textContent = loginData.error || t('auth.login.linking.wrongPassword');
           document.getElementById('appleLinkModalError').style.display = 'block';
           return;
         }
@@ -860,7 +845,7 @@
         });
         const linkData = await linkRes.json().catch(() => ({}));
         if (!linkRes.ok) {
-          document.getElementById('appleLinkModalError').textContent = linkData.error || 'Länkning misslyckades.';
+          document.getElementById('appleLinkModalError').textContent = linkData.error || t('auth.login.linking.failed');
           document.getElementById('appleLinkModalError').style.display = 'block';
           return;
         }
@@ -870,11 +855,11 @@
         dismissAppleLinking();
         redirectAfterParentLogin();
       } catch {
-        document.getElementById('appleLinkModalError').textContent = 'Länkning misslyckades.';
+        document.getElementById('appleLinkModalError').textContent = t('auth.login.linking.failed');
         document.getElementById('appleLinkModalError').style.display = 'block';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Länka';
+        btn.textContent = t('auth.login.linking.submit');
       }
     }
 

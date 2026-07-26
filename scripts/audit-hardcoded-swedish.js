@@ -30,7 +30,13 @@ const SWEDISH_RE = /[åäöÅÄÖ]/;
 const STRICT_FILES = [
   'public/js/i18n.js',
   'public/js/locale-switcher.js',
+  'public/js/auth-entry-failsafe.js',
   'public/js/auth-entry-i18n.js',
+  'public/js/auth.js',
+  'public/js/child-login.js',
+  'public/js/login-locale.js',
+  'public/js/google-auth-ui.js',
+  'public/js/auth-login-platform.js',
   'public/js/onboarding-i18n.js',
   'public/js/onboarding.js',
   'public/js/onboarding-starter-plan.js',
@@ -63,21 +69,19 @@ const STRICT_FILES = [
   'public/js/child-app-i18n.js',
   'src/lib/child-ui-locale.js',
   'config/i18n/child-en-GB.json',
-];
-
-const BASELINE_FILES = [
-  'public/js/auth.js',
-  'public/js/child-login.js',
   'public/login.html',
   'public/register.html',
   'public/child-login.html',
   'public/forgot-password.html',
   'public/reset-password.html',
   'public/verify-email.html',
+  'src/lib/auth-api-messages.js',
   'src/routes/auth/register.js',
   'src/routes/auth/login.js',
   'src/routes/auth/email.js',
-  'src/lib/email.js',
+];
+
+const BASELINE_FILES = [
 ];
 
 const REPORT_FILES = [
@@ -96,6 +100,7 @@ const STRICT_ALLOWLIST = [
   /"months":\s*\[/, // Swedish month names in sv-SE locale JSON only
   /keywords: \[/, // Swedish activity-name matching keywords (not UI copy)
   /<!--/, // HTML comments (not user-visible)
+  /auth-entry-noscript|auth-entry-fallback/, // Emergency no-JS / bootstrap-failure copy (static, bilingual)
   /Förskola vardag|Kvällsrutin|Morgon vardag|sectionToCategoryName/, // DB template / category keys in onboarding routes
   /\.replace\(\/\[/, // diacritic strip helper in onboarding routes
 ];
