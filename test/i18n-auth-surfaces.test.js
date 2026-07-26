@@ -37,7 +37,7 @@ function read(rel) {
 }
 
 function swedishHits(rel, extraAllow = []) {
-  const allow = [/pragma:/, /console\./, /\/\//, /data-i18n/, /<!--/, ...extraAllow];
+  const allow = [/pragma:/, /console\./, /\/\//, /data-i18n/, /<!--/, /auth-entry-noscript|auth-entry-fallback/, ...extraAllow];
   const hits = [];
   read(rel).split('\n').forEach((line, idx) => {
     if (!SWEDISH_RE.test(line)) return;
@@ -93,6 +93,7 @@ describe('auth i18n — static surfaces', () => {
       'src/routes/auth/register.js',
       'src/routes/auth/email.js',
       'src/lib/auth-api-messages.js',
+      'public/js/auth-entry-failsafe.js',
     ];
     for (const file of files) {
       const hits = swedishHits(file);
@@ -191,7 +192,10 @@ describe('auth i18n — API integration', () => {
 
       const badEn = await fetch(`${http.baseUrl}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept-Language': 'en-GB',
+        },
         body: JSON.stringify({
           email,
           password: 'wrong-password',

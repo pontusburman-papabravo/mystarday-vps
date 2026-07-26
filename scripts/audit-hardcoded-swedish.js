@@ -100,6 +100,7 @@ const STRICT_ALLOWLIST = [
   /"months":\s*\[/, // Swedish month names in sv-SE locale JSON only
   /keywords: \[/, // Swedish activity-name matching keywords (not UI copy)
   /<!--/, // HTML comments (not user-visible)
+  /auth-entry-noscript|auth-entry-fallback/, // Emergency no-JS / bootstrap-failure copy (static, bilingual)
   /Förskola vardag|Kvällsrutin|Morgon vardag|sectionToCategoryName/, // DB template / category keys in onboarding routes
   /\.replace\(\/\[/, // diacritic strip helper in onboarding routes
 ];

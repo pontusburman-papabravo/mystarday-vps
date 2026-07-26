@@ -33,6 +33,15 @@ Post-migration inventory for auth surfaces moved from **BASELINE** to **STRICT**
 
 **Out of scope (removed from baseline, not migrated):** `src/lib/email.js` — invite, win-back, newsletter templates (non-auth transactional).
 
+**Registration `family_role`:** new parents get `NULL` (not the legacy Swedish sentinel). Historical rows with `förälder` are matched via `src/lib/family-role-legacy.js` in activation schedulers only.
+
+## No-JS / bootstrap failure
+
+1. `auth-entry-failsafe.js` (inline in `<head>` before `i18n.js`) adds `auth-entry-pending` and a **5s** failsafe that reveals the page and shows `#auth-entry-fallback` if `auth-entry-i18n.js` never boots.
+2. `auth-entry-i18n.js` clears the failsafe on success/failure and applies locale copy within **4s**.
+3. `<noscript>` banner on all auth pages (bilingual static emergency copy).
+4. `#auth-entry-fallback` overlay with refresh link if bootstrap scripts fail to load.
+
 ## Swedish flash prevention
 
 Auth entry pages use `public/js/auth-entry-i18n.js`:
