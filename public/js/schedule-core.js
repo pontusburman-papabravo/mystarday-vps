@@ -73,6 +73,11 @@
     return map[key] || '';
   }
 
+  function intlLang() {
+    if (window.I18n && typeof I18n.getCurrentLang === 'function') return I18n.getCurrentLang();
+    return 'sv-SE';
+  }
+
   function getDayDateLabel() {
     const weekStart = getWeekStart(weekOffset);
     for (let i = 0; i < 7; i++) {
@@ -80,7 +85,7 @@
       if (dow === currentDay) {
         const d = new Date(weekStart);
         d.setDate(weekStart.getDate() + i);
-        return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+        return d.toLocaleDateString(intlLang(), { day: 'numeric', month: 'short' });
       }
     }
     return '';

@@ -270,14 +270,17 @@ function getCurrentDayDate() {
 }
 
 function formatDateSv(d) {
-  return d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const lang = (window.I18n && typeof I18n.getCurrentLang === 'function') ? I18n.getCurrentLang() : 'sv-SE';
+  return d.toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 function toDateStr(d) {
-  return d.toLocaleDateString('sv-SE'); // YYYY-MM-DD
+  return d.toLocaleDateString('sv-SE'); // YYYY-MM-DD (technical format for API payloads — do not localize)
 }
 
-const REC_DAYS_LABELS = [0, 1, 2, 3, 4, 5, 6].map((d) => (window.ScheduleCore && ScheduleCore.dayShort ? ScheduleCore.dayShort(d) : spt('schedule.daysShort.' + d)));
+function recDayLabel(dow) {
+  return (window.ScheduleCore && ScheduleCore.dayShort) ? ScheduleCore.dayShort(dow) : spt('schedule.daysShort.' + dow);
+}
 // Track selected days for multi-day recurrence (DOW values)
 let _recurrenceDaySelections = [];
 
@@ -355,7 +358,7 @@ function showRecurrenceDayPicker() {
     return `<button type="button" onclick="toggleRecurrenceDay(${dow}, this)"
       data-dow="${dow}"
       class="py-2 px-1 rounded-xl border-2 text-xs font-bold transition-colors ${isSelected ? 'bg-navy text-white border-navy' : 'border-lavender text-navy hover:border-navy'}"
-    >${REC_DAYS_LABELS[dow]}</button>`;
+    >${recDayLabel(dow)}</button>`;
   }).join('');
   document.getElementById('recurrenceStep1').classList.add('hidden');
   document.getElementById('recurrenceStep2').classList.remove('hidden');
@@ -436,7 +439,7 @@ async function confirmRecurrenceMultiDay() {
     document.getElementById('recurrenceModal').classList.add('hidden');
     if (errorOccurred) showToast(spt('schedule.toasts.addedPartial'), true);
     else {
-      const dayNames = _recurrenceDaySelections.map(d => REC_DAYS_LABELS[d]).join(', ');
+      const dayNames = _recurrenceDaySelections.map(d => recDayLabel(d)).join(', ');
       showToast(spt('schedule.toasts.addedWeekly', { days: dayNames }) + ' ✅');
     }
     await loadScheduleForDay();
