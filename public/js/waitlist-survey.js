@@ -34,6 +34,35 @@
     if (successView) successView.style.display = 'block';
   }
 
+  function getSelectedCountryCode() {
+    const select = document.getElementById('countryCode');
+    if (!select) return null;
+    const value = select.value;
+    if (!value || value === 'prefer_not_to_say') return null;
+    return value;
+  }
+
+  async function loadCountryOptions() {
+    const select = document.getElementById('countryCode');
+    if (!select) return;
+    try {
+      const resp = await fetch('/api/waitlist/countries');
+      const data = await resp.json().catch(function () { return {}; });
+      if (!resp.ok || !Array.isArray(data.countries)) return;
+      const preferOption = select.querySelector('option[value="prefer_not_to_say"]');
+      data.countries.forEach(function (country) {
+        const opt = document.createElement('option');
+        opt.value = country.code;
+        opt.textContent = country.label;
+        if (preferOption) {
+          select.insertBefore(opt, preferOption);
+        } else {
+          select.appendChild(opt);
+        }
+      });
+    } catch (_err) { /* optional field — keep defaults */ }
+  }
+
   async function submitSurvey() {
     hideError();
     const email = localStorage.getItem(STORAGE_KEY);
@@ -66,6 +95,15 @@
       painPointsOther = otherText && otherText.value.trim() ? otherText.value.trim() : null;
     }
 
+    const countryCode = getSelectedCountryCode();
+    const payload = {
+      email: email,
+      pain_points: painPoints,
+      pain_points_other: painPointsOther,
+      current_method: currentMethod,
+    };
+    if (countryCode) payload.country_code = countryCode;
+
     const btn = document.getElementById('submitBtn');
     if (btn) {
       btn.disabled = true;
@@ -76,12 +114,7 @@
       const resp = await fetch('/api/waitlist/survey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          pain_points: painPoints,
-          pain_points_other: painPointsOther,
-          current_method: currentMethod,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await resp.json().catch(function () { return {}; });
       if (resp.ok && data.ok) {
@@ -127,6 +160,8 @@
   if (skipBtn) {
     skipBtn.addEventListener('click', skipSurvey);
   }
+
+  loadCountryOptions();
 
   window.waitlistSurvey = {
     toggleOtherInput: toggleOtherInput,

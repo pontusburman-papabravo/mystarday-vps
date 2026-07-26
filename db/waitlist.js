@@ -35,13 +35,14 @@ async function addWaitlistEntry(name, email, utmSource = null, ipAddress = null)
  * @param {string|null} currentMethod - selected method
  * @returns {Promise<boolean>} - true if updated, false if not found
  */
-async function updateWaitlistSurvey(email, painPoints, painPointsOther, currentMethod) {
+async function updateWaitlistSurvey(email, painPoints, painPointsOther, currentMethod, countryCode = null) {
   const sql = `
     UPDATE waitlist
     SET
       pain_points = $2,
       pain_points_other = $3,
       current_method = $4,
+      country_code = $5,
       survey_completed_at = NOW()
     WHERE email = $1
     RETURNING id
@@ -51,6 +52,7 @@ async function updateWaitlistSurvey(email, painPoints, painPointsOther, currentM
     painPoints || [],
     painPointsOther || null,
     currentMethod || null,
+    countryCode || null,
   ]);
   return result.rowCount > 0;
 }
@@ -78,7 +80,7 @@ async function listWaitlistEntries({ limit = 50, offset = 0, search = null } = {
   let countSql = 'SELECT COUNT(*) as total FROM waitlist';
   let dataSql = `
     SELECT id, name, email, created_at,
-           pain_points, pain_points_other, current_method,
+           pain_points, pain_points_other, current_method, country_code,
            survey_completed_at, survey_skipped_at,
            CASE
              WHEN survey_completed_at IS NOT NULL THEN 'completed'
@@ -106,10 +108,10 @@ async function listWaitlistEntries({ limit = 50, offset = 0, search = null } = {
 
 /**
  * Get waitlist statistics for admin panel.
- * @returns {{ total: number, completed: number, skipped: number, pending: number, q1: object[], q2: object[] }}
+ * @returns {{ total: number, completed: number, skipped: number, pending: number, q1: object[], q2: object[], q3: object[] }}
  */
 async function getWaitlistStats() {
-  const [totalsResult, q1Result, q2Result] = await Promise.all([
+  const [totalsResult, q1Result, q2Result, q3Result] = await Promise.all([
     query(`
       SELECT
         COUNT(*) as total,
@@ -132,6 +134,14 @@ async function getWaitlistStats() {
       GROUP BY current_method
       ORDER BY count DESC
     `),
+    query(`
+      SELECT country_code as value, COUNT(*) as count
+      FROM waitlist
+      WHERE survey_completed_at IS NOT NULL AND country_code IS NOT NULL
+      GROUP BY country_code
+      ORDER BY count DESC
+      LIMIT 20
+    `),
   ]);
   return {
     total: parseInt(totalsResult.rows[0].total, 10),
@@ -140,6 +150,7 @@ async function getWaitlistStats() {
     pending: parseInt(totalsResult.rows[0].pending, 10),
     q1: q1Result.rows,
     q2: q2Result.rows,
+    q3: q3Result.rows,
   };
 }
 
