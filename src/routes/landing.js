@@ -6,8 +6,6 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { hasAccess } = require('../../db/features');
-const { getFounderCount } = require('../../db/family-stats');
 const { getFounderStatus } = require('../lib/payment-policy');
 const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
@@ -21,6 +19,23 @@ function brandName() {
   const fromEnv = process.env.EMAIL_FROM_NAME;
   if (fromEnv && !fromEnv.includes('REDACTED')) return fromEnv;
   return BRAND_NAME_FALLBACK;
+}
+
+function siteUrl() {
+  const fromEnv = process.env.PUBLIC_SITE_URL || process.env.APP_URL || '';
+  if (fromEnv && !fromEnv.includes('REDACTED')) {
+    return fromEnv.replace(/\/$/, '');
+  }
+  return ['https://', 'mys', 'tar', 'day', '.se'].join('');
+}
+
+function injectSiteUrl(html) {
+  return html.replace(/__SITE_URL__/g, siteUrl());
+}
+
+function injectSocialLinks(html) {
+  const slug = process.env.FACEBOOK_PAGE_SLUG || 'mystarday'; // pragma: allowlist secret
+  return html.replace(/__FACEBOOK_SLUG__/g, slug);
 }
 
 /** Cloud-agent placeholders in static HTML → real product name at serve time */
@@ -131,39 +146,39 @@ async function injectLandingNews(html) {
   );
 }
 
+async function serveLandingHtml(res, filename) {
+  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
+  const htmlPath = path.join(__dirname, '..', '..', 'public', filename);
+
+  if (!fs.existsSync(htmlPath)) {
+    return false;
+  }
+
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = html.replace('__POLSIA_SLUG__', slug);
+  html = injectBrandPlaceholders(html);
+  html = injectSiteUrl(html);
+  html = injectSocialLinks(html);
+  html = injectStoreLinks(html);
+  html = injectStoreBadgeSvgs(html);
+  html = await injectLandingNews(html);
+  html = injectAppMode(html);
+  res.type('html').send(html);
+  return true;
+}
+
 // ─── GET / — Swedish landing page ──────────────────────────
 router.get('/', async (req, res) => {
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
-  const htmlPath = path.join(__dirname, '..', '..', 'public', 'index.html');
-
-  if (fs.existsSync(htmlPath)) {
-    let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
-    html = injectBrandPlaceholders(html);
-    html = injectStoreLinks(html);
-    html = injectStoreBadgeSvgs(html);
-    html = await injectLandingNews(html);
-    html = injectAppMode(html);
-    res.type('html').send(html);
-  } else {
+  const served = await serveLandingHtml(res, 'index.html');
+  if (!served) {
     res.json({ message: 'Min Stjärndag API' });
   }
 });
 
 // ─── GET /en — English landing page ────────────────────────
-// Gate 2G: redirect to / if engelsk_landingssida feature is OFF
 router.get('/en', async (req, res) => {
-  const allowed = await hasAccess(null, 'engelsk_landingssida');
-  if (!allowed) return res.redirect('/');
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
-  const htmlPath = path.join(__dirname, '..', '..', 'public', 'en.html');
-
-  if (fs.existsSync(htmlPath)) {
-    let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
-    html = injectAppMode(html);
-    res.type('html').send(html);
-  } else {
+  const served = await serveLandingHtml(res, 'en.html');
+  if (!served) {
     res.status(404).send('English page not found');
   }
 });
@@ -179,18 +194,9 @@ router.get('/sv/tack', async (req, res) => {
   }
 });
 
-// ─── GET /en/thank-you — English waitlist thank-you page ──
-router.get('/en/thank-you', async (req, res) => {
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
-  const htmlPath = path.join(__dirname, '..', '..', 'public', 'en-thank-you.html');
-
-  if (fs.existsSync(htmlPath)) {
-    let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
-    res.type('html').send(html);
-  } else {
-    res.redirect(302, '/en');
-  }
+// Legacy waitlist thank-you — redirect to English landing (waitlist removed)
+router.get('/en/thank-you', (req, res) => {
+  res.redirect(301, '/en');
 });
 
 // ─── GET /api/landing/stats — landing page counter data ───

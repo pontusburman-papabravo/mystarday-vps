@@ -55,7 +55,7 @@ test('injectPlatformHtml applies noindex on dashboard', () => {
 
 test('index.html has absolute canonical and no hidden SEO text', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/"/);
+  assert.match(html, /rel="canonical" href="__SITE_URL__\/"/);
   assert.doesNotMatch(html, /font-size:0;color:transparent/);
   assert.doesNotMatch(html, /Hidden SEO/);
 });
@@ -73,6 +73,7 @@ test('sitemap reflects index strategy', () => {
   assert.match(xml, /\/pricing-info<\/loc>/);
   assert.match(xml, /\/faq<\/loc>/);
   assert.match(xml, /\/kontakt<\/loc>/);
+  assert.match(xml, /\/en<\/loc>/);
   assert.doesNotMatch(xml, /\/login<\/loc>/);
   assert.doesNotMatch(xml, /\/child-login<\/loc>/);
   assert.match(xml, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);

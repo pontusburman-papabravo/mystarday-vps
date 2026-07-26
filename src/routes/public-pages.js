@@ -24,13 +24,6 @@ router.get('/terms', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'terms.html'));
 });
 
-// English landing page — Gate 2G: redirect to / if engelsk_landingssida feature is OFF
-router.get('/en', async (req, res) => {
-  const allowed = await hasAccess(null, 'engelsk_landingssida');
-  if (!allowed) return res.redirect('/');
-  res.sendFile(path.join(__dirname, '../../public', 'en.html'));
-});
-
 const { PUBLIC_WEB_ROUTES, EN_ONLY_STATIC } = require('../../config/public-web-routes');
 
 for (const route of PUBLIC_WEB_ROUTES) {

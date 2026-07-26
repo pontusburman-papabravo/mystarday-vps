@@ -191,6 +191,34 @@ body.platform-web.landing-magic-bg {
   border-radius: 8px;
 }
 
+.landing-nav__lang--text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.65rem;
+  border: 1px solid rgba(28, 35, 64, 0.12);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--navy);
+  background: var(--white);
+  white-space: nowrap;
+}
+
+.landing-nav__lang--text:hover {
+  background: var(--amber-lt);
+  border-color: rgba(245, 166, 35, 0.35);
+}
+
+.landing-nav__lang-flag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.landing-nav__lang-label {
+  line-height: 1;
+}
+
 .landing-nav__lang:hover { background: var(--amber-lt); }
 
 .landing-nav__tipsa {
