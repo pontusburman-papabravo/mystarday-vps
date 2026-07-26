@@ -20,5 +20,55 @@
         "Samma ordning varje kväll gör det lättare att somna."
       ]
     }
+  },
+  "coachChange": {
+    "badgeNew": "Nytt",
+    "dismissAria": "Stäng förklaring",
+    "continueFallback": "Fortsätt",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Vi visar nu ett tydligt förslag till nästa steg här på Hem.",
+        "whatChanged": "Ett kort med \"Nästa steg\" har lagts till högst upp.",
+        "whyItMatters": "Ni behöver inte leta bland påminnelser — ett förslag i taget."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Låt barnet testa sin rutin",
+      "body": "Öppna barnläget tillsammans — barnet ser direkt vad som ska göras.",
+      "cta": "Testa barnläget nu"
+    },
+    "ADD_EVENING": {
+      "headline": "Lägg till kvällsrutinen",
+      "body": "Gör läggningen lika tydlig som morgonen.",
+      "cta": "Lägg till kväll"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Bjud in den andra föräldern",
+      "body": "Dela rutinen så ni kan följa upp tillsammans.",
+      "cta": "Bjud in"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Börja med ett litet steg",
+      "body": "Er rutin finns kvar — ta en aktivitet i taget idag.",
+      "cta": "Öppna schema"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Anpassa rutinen",
+      "body": "Nu kan ni göra schemat till er eget.",
+      "cta": "Anpassa"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Fira framsteget",
+      "body": "Ni har tagit ett viktigt steg — ta en stund tillsammans.",
+      "cta": "Visa barnet"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Barnet klarade en aktivitet!",
+    "defaultChild": "Barnet",
+    "defaultActivity": "en aktivitet",
+    "defaultCta": "Det ser jag"
   }
 }

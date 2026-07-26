@@ -7,6 +7,10 @@
 
   const MOUNT_ID = 'journeyFirstWeekMount';
   const POLL_MS = 60000;
+
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
   const FW_ROUTES = {
     fw_day1_morning: '/child-login',
     fw_day1_evening: '/dashboard',
@@ -103,11 +107,11 @@
       .map(function (p) { return '<p class="text-sm text-navy/80 leading-relaxed mb-2">' + esc(p) + '</p>'; })
       .join('');
     mount.innerHTML =
-      '<div class="journey-fw-card rounded-2xl border-2 border-amber-200 bg-amber-50 p-5" role="dialog" aria-label="Veckoreflektion">' +
-      '<p class="font-heading font-bold text-navy text-lg mb-3">' + esc(exp.headline || 'En vecka tillsammans') + '</p>' +
+      '<div class="journey-fw-card rounded-2xl border-2 border-amber-200 bg-amber-50 p-5" role="dialog" aria-label="' + esc(pt('journey.coach.weekReflection')) + '">' +
+      '<p class="font-heading font-bold text-navy text-lg mb-3">' + esc(exp.headline || pt('journey.coach.weekTogether')) + '</p>' +
       paragraphs +
       '<button type="button" class="journey-fw-cta w-full py-3 mt-3 rounded-xl bg-gold text-white font-semibold text-sm">' +
-      esc(exp.cta || 'Stäng') + '</button></div>';
+      esc(exp.cta || pt('journey.coach.close')) + '</button></div>';
     const card = mount.querySelector('.journey-fw-card');
     const btn = mount.querySelector('.journey-fw-cta');
     if (btn) btn.addEventListener('click', completeReflection);
@@ -123,7 +127,7 @@
     mount.innerHTML =
       '<div class="journey-fw-card rounded-2xl border-2 border-sky-200 bg-sky-50 p-4" role="region">' +
       '<div class="flex justify-between items-start gap-2 mb-1">' +
-      '<button type="button" class="journey-fw-dismiss text-sky-600 text-xs font-medium shrink-0 ml-auto" aria-label="Stäng">✕</button>' +
+      '<button type="button" class="journey-fw-dismiss text-sky-600 text-xs font-medium shrink-0 ml-auto" aria-label="' + esc(pt('journey.coach.close')) + '">✕</button>' +
       '</div>' +
       '<p class="font-heading font-bold text-navy text-base mb-1">' + esc(exp.headline || '') + '</p>' +
       '<p class="text-sm text-navy/80 leading-relaxed mb-3">' + esc(exp.body || '') + '</p>' +

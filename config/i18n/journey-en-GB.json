@@ -20,5 +20,55 @@
         "The same order every evening makes falling asleep easier."
       ]
     }
+  },
+  "coachChange": {
+    "badgeNew": "New",
+    "dismissAria": "Close explanation",
+    "continueFallback": "Continue",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "We now show a clear suggestion for your next step here on Home.",
+        "whatChanged": "A \"Next step\" card has been added at the top.",
+        "whyItMatters": "You don't need to hunt through reminders — one suggestion at a time."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Let your child try their routine",
+      "body": "Open child mode together — they see right away what to do.",
+      "cta": "Try child mode now"
+    },
+    "ADD_EVENING": {
+      "headline": "Add the evening routine",
+      "body": "Make bedtime as clear as the morning.",
+      "cta": "Add evening"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Invite the other parent",
+      "body": "Share the routine so you can follow up together.",
+      "cta": "Invite"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Start with one small step",
+      "body": "Your routine is still there — take one activity at a time today.",
+      "cta": "Open schedule"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Customise your routine",
+      "body": "Now you can make the schedule your own.",
+      "cta": "Customise"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Celebrate the progress",
+      "body": "You've taken an important step — take a moment together.",
+      "cta": "Show your child"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Your child completed an activity!",
+    "defaultChild": "Your child",
+    "defaultActivity": "an activity",
+    "defaultCta": "Got it"
   }
 }

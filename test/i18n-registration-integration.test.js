@@ -93,3 +93,46 @@ test('defaults to sv-SE when locale omitted at registration', async (t) => {
     await db.cleanup();
   }
 });
+
+test('en-GB registration seeds English default activities', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const email = uniqueEmail();
+    const res = await fetch(`${http.baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Test Parent',
+        email,
+        password: 'testpass123',
+        preferred_locale: 'en-GB',
+      }),
+    });
+    assert.equal(res.status, 201, await res.text());
+
+    const pg = require('../src/lib/db');
+    const acts = await pg.query(
+      `SELECT at.name FROM activity_template at
+       JOIN parent p ON p.family_id = at.family_id
+       WHERE p.email = $1
+       ORDER BY at.sort_order ASC
+       LIMIT 10`,
+      [email.toLowerCase()]
+    );
+    assert.ok(acts.rows.length > 0);
+    const names = acts.rows.map((r) => r.name);
+    assert.ok(names.some((n) => /Wake up|Brush teeth/i.test(n)), names.join(', '));
+    assert.ok(!names.some((n) => /Vakna|Borsta tänder/i.test(n)), names.join(', '));
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});

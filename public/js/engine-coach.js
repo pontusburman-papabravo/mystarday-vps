@@ -6,6 +6,10 @@
 
   var MOUNT_ID = 'engineCoachMount';
 
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
+
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -24,13 +28,13 @@
       '<div class="engine-coach-change-notice mb-3 p-3 rounded-xl bg-white/80 border border-indigo-200 text-sm" ' +
       'role="status" data-engine-change-id="' + rid + '">' +
       '<div class="flex items-start gap-2">' +
-      '<span class="flex-shrink-0 text-xs font-bold uppercase tracking-wide text-indigo-600 mt-0.5">Nytt</span>' +
+      '<span class="flex-shrink-0 text-xs font-bold uppercase tracking-wide text-indigo-600 mt-0.5">' + esc(pt('journey.coachChange.badgeNew')) + '</span>' +
       '<div class="flex-1 min-w-0">' +
       '<p class="text-navy font-medium leading-snug">' + esc(notice.user_visible_intent) + '</p>' +
       '<p class="text-text-soft text-xs mt-1 leading-snug">' + esc(notice.why_it_matters) + '</p>' +
       '</div>' +
       '<button type="button" class="engine-coach-change-dismiss flex-shrink-0 text-text-soft hover:text-navy text-lg leading-none w-8 h-8" ' +
-      'aria-label="Stäng förklaring">×</button>' +
+      'aria-label="' + esc(pt('journey.coachChange.dismissAria')) + '">×</button>' +
       '</div></div>'
     );
   }
@@ -88,7 +92,7 @@
       return false;
     }
 
-    var copy = window.EngineVoice ? EngineVoice.get(engine.policy.name) : { headline: '', body: '', cta: 'Fortsätt', tone: 'coach' };
+    var copy = window.EngineVoice ? EngineVoice.get(engine.policy.name) : { headline: '', body: '', cta: pt('journey.coachChange.continueFallback'), tone: 'coach' };
     var theme = (engine.policy.uiTokens && engine.policy.uiTokens.theme) || copy.tone;
     var border = toneClass(theme === 'CELEBRATION' ? 'celebration' : theme === 'CALM' ? 'calm' : 'coach');
 
@@ -97,9 +101,9 @@
     mount.setAttribute('data-engine-policy', engine.policy.name);
     var changeNotice = window.EngineCoachChange ? EngineCoachChange.getNotice() : null;
     mount.innerHTML =
-      '<div class="engine-coach-card rounded-2xl border-2 p-4 mb-4 ' + border + '" role="region" aria-label="Nästa steg">' +
+      '<div class="engine-coach-card rounded-2xl border-2 p-4 mb-4 ' + border + '" role="region" aria-label="' + esc(pt('journey.coach.nextStep')) + '">' +
       buildChangeNoticeHtml(changeNotice) +
-      '<p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Nästa steg</p>' +
+      '<p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">' + esc(pt('journey.coach.nextStep')) + '</p>' +
       '<p class="font-heading font-bold text-navy text-base mb-1">' + esc(copy.headline) + '</p>' +
       '<p class="text-sm text-text-soft mb-3">' + esc(copy.body) + '</p>' +
       '<button type="button" class="engine-coach-cta w-full py-3 rounded-xl bg-gold hover:bg-yellow-500 text-white font-semibold text-sm transition-colors">' +

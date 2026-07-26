@@ -118,6 +118,33 @@ async function getParentShellChromeText(page) {
   });
 }
 
+/** Magic Home hub body: coach, readiness, greeting block — not legacy schedule editor. */
+async function getParentHomeHubText(page) {
+  return page.evaluate(() => {
+    const roots = [
+      '#parentHomeHubMount',
+      '#parentHubCoachSlot',
+      '#engineCoachMount',
+      '#journeyCoachMount',
+      '#homeReadinessMount',
+      '#journeyFirstWeekMount',
+      '#parentHubReadinessSlot',
+      '#parentHubDailySummaryMount',
+    ];
+    const chunks = [];
+    for (const sel of roots) {
+      document.querySelectorAll(sel).forEach((el) => {
+        if (el.classList.contains('hidden')) return;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return;
+        const t = (el.innerText || el.textContent || '').trim();
+        if (t) chunks.push(t);
+      });
+    }
+    return chunks.join('\n');
+  });
+}
+
 async function clearSessionCookies(page) {
   const client = await page.createCDPSession();
   await client.send('Network.clearBrowserCookies');
@@ -198,6 +225,7 @@ module.exports = {
   selectLoginLocale,
   getVisibleChromeText,
   getParentShellChromeText,
+  getParentHomeHubText,
   clearSessionCookies,
   parentLogout,
   fillParentLogin,

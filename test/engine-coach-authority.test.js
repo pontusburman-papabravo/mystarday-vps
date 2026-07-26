@@ -52,10 +52,12 @@ describe('Engine coach authority (PR1)', () => {
 describe('Engine coach change contract (prod)', () => {
   it('engine-coach-change defines release_id and user-facing fields', () => {
     const src = read('public/js/engine-coach-change.js');
-    assert.match(src, /release_id/);
+    assert.match(src, /ACTIVE_RELEASE_ID/);
+    assert.match(src, /coach_primary_v1/);
     assert.match(src, /user_visible_intent/);
     assert.match(src, /what_changed/);
     assert.match(src, /why_it_matters/);
+    assert.match(src, /journey\.coachChange\.releases/);
     assert.doesNotMatch(src, /Engine uppdatering/i);
   });
 
@@ -70,7 +72,8 @@ describe('Engine coach change contract (prod)', () => {
     const src = read('public/js/engine-coach.js');
     assert.match(src, /EngineCoachChange/);
     assert.match(src, /engine-coach-change-notice/);
-    assert.match(src, /Nästa steg/);
+    assert.match(src, /journey\.coach\.nextStep/);
+    assert.doesNotMatch(src, /Nästa steg/);
     assert.doesNotMatch(src, /homeReadinessMount/);
   });
 
