@@ -34,6 +34,12 @@
   function markConfirmed(locale) {
     sessionStorage.setItem(CONFIRMED_KEY, '1');
     sessionStorage.setItem(I18n.STORAGE_KEY, locale);
+    try {
+      sessionStorage.setItem(
+        (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice',
+        '1'
+      );
+    } catch (_) { /* ignore */ }
   }
 
   function buildHtml(suggest) {

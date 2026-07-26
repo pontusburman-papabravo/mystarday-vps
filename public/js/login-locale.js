@@ -1,10 +1,14 @@
 /**
- * login-locale.js — Persist pre-auth language switcher choice through login.
+ * login-locale.js — Persist explicit pre-auth language switcher choice through login.
+ * Only sends preferred_locale when the user actively clicked the switcher — not when
+ * I18n auto-detected locale from the browser (sessionStorage display hint).
  */
 (function loginLocaleModule() {
   'use strict';
 
   const STORAGE_KEY = (window.I18n && I18n.STORAGE_KEY) || 'sd_preferred_locale';
+  /** Set to '1' only when user clicks locale switcher (or registration language gate). */
+  const EXPLICIT_KEY = 'sd_locale_explicit_choice';
 
   function normalizeLocale(raw) {
     if (!raw) return null;
@@ -17,7 +21,16 @@
     return null;
   }
 
+  function hasExplicitChoice() {
+    try {
+      return sessionStorage.getItem(EXPLICIT_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
   function getPreAuthLocaleChoice() {
+    if (!hasExplicitChoice()) return null;
     try {
       return normalizeLocale(sessionStorage.getItem(STORAGE_KEY));
     } catch (_) {
@@ -32,7 +45,9 @@
   }
 
   window.LoginLocale = {
-    getPreAuthLocaleChoice: getPreAuthLocaleChoice,
-    withLoginLocale: withLoginLocale,
+    EXPLICIT_KEY,
+    hasExplicitChoice,
+    getPreAuthLocaleChoice,
+    withLoginLocale,
   };
 })();
