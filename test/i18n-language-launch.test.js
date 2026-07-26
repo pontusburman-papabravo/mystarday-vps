@@ -115,6 +115,59 @@ test('registration with explicit locale sets registration_decided state', async 
   }
 });
 
+test('login with explicit sv-SE overrides stale en-GB family locale', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  const pg = require('../src/lib/db');
+  const { SELECTION_SOURCES } = require('../src/lib/locale-selection');
+
+  try {
+    const email = uniqueEmail();
+    const registerRes = await fetch(`${http.baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Locale Login Parent',
+        email,
+        password: 'testpass123',
+        preferred_locale: 'en-GB',
+      }),
+    });
+    assert.equal(registerRes.status, 201, await registerRes.text());
+
+    const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password: 'testpass123',
+        preferred_locale: 'sv-SE',
+      }),
+    });
+    const loginText = await loginRes.text();
+    assert.equal(loginRes.status, 200, loginText);
+    const loginBody = JSON.parse(loginText);
+    assert.equal(loginBody.user.preferred_locale, 'sv-SE');
+
+    const fam = await pg.query(
+      `SELECT f.preferred_locale, f.locale_selection_source
+       FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].preferred_locale, 'sv-SE');
+    assert.equal(fam.rows[0].locale_selection_source, SELECTION_SOURCES.LOGIN);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('english beta offer API declines without switching locale', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {

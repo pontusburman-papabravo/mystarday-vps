@@ -81,7 +81,11 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email: _googlePendingEmail, password: password }),
+        body: JSON.stringify(
+          (window.LoginLocale && LoginLocale.withLoginLocale)
+            ? LoginLocale.withLoginLocale({ email: _googlePendingEmail, password: password })
+            : { email: _googlePendingEmail, password: password }
+        ),
       });
       const loginData = await loginRes.json().catch(function () { return {}; });
       if (!loginRes.ok) {
@@ -182,7 +186,11 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ idToken: result.idToken }),
+        body: JSON.stringify(
+          (window.LoginLocale && LoginLocale.withLoginLocale)
+            ? LoginLocale.withLoginLocale({ idToken: result.idToken })
+            : { idToken: result.idToken }
+        ),
       });
       const data = await res.json().catch(function () { return {}; });
 
