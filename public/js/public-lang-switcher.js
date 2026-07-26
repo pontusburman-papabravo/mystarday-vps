@@ -1,29 +1,18 @@
 /**
  * Public marketing language switcher (sv ↔ en paths).
+ * Routes loaded from generated public-lang-routes.js
  */
 (function publicLangSwitcherModule() {
   'use strict';
 
-  const ROUTES = {
+  const FALLBACK_ROUTES = {
     '/': '/en',
     '/en': '/',
-    '/faq': '/en/faq',
-    '/en/faq': '/faq',
-    '/kontakt': '/en/contact',
-    '/en/contact': '/kontakt',
-    '/privacy': '/en/privacy',
-    '/en/privacy': '/privacy',
-    '/terms': '/en/terms',
-    '/en/terms': '/terms',
-    '/pricing-info': '/en/pricing',
-    '/en/pricing': '/pricing-info',
-    '/register': '/en/register',
-    '/en/register': '/register',
-    '/login': '/en/login',
-    '/en/login': '/login',
-    '/forgot-password': '/en/forgot-password',
-    '/en/forgot-password': '/forgot-password',
   };
+
+  function routes() {
+    return window.PUBLIC_LANG_ROUTES || FALLBACK_ROUTES;
+  }
 
   function currentPath() {
     const p = location.pathname.replace(/\/$/, '') || '/';
@@ -32,7 +21,8 @@
 
   function alternatePath() {
     const p = currentPath();
-    return ROUTES[p] || (p.startsWith('/en') ? '/' : '/en');
+    const map = routes();
+    return map[p] || (p.startsWith('/en') ? '/' : '/en');
   }
 
   function isEnglish() {
@@ -45,23 +35,18 @@
     const wrap = document.createElement('div');
     wrap.setAttribute('data-public-lang-switcher', '1');
     wrap.style.cssText = 'display:flex;gap:0.5rem;align-items:center;font-size:0.8125rem;font-weight:600;';
+    const map = routes();
     const sv = document.createElement('a');
-    sv.href = alternatePath().startsWith('/en') ? '/' : (ROUTES[currentPath()] ? ROUTES[currentPath()].replace(/\/en.*/, '/') : '/');
+    sv.href = isEnglish() ? (map[currentPath()] || '/') : currentPath();
     sv.textContent = 'Svenska';
     sv.style.cssText = isEnglish() ? 'color:#8A92AA;text-decoration:none;' : 'color:#1C2340;text-decoration:none;';
     const en = document.createElement('a');
-    en.href = isEnglish() ? alternatePath() : (ROUTES[currentPath()] || '/en');
+    en.href = isEnglish() ? currentPath() : (map[currentPath()] || '/en');
     en.textContent = 'English';
     en.style.cssText = isEnglish() ? 'color:#1C2340;text-decoration:none;' : 'color:#8A92AA;text-decoration:none;';
-    if (!isEnglish()) {
-      wrap.appendChild(sv);
-      wrap.appendChild(document.createTextNode(' · '));
-      wrap.appendChild(en);
-    } else {
-      wrap.appendChild(sv);
-      wrap.appendChild(document.createTextNode(' · '));
-      wrap.appendChild(en);
-    }
+    wrap.appendChild(sv);
+    wrap.appendChild(document.createTextNode(' · '));
+    wrap.appendChild(en);
     if (nav.tagName === 'NAV') {
       nav.appendChild(wrap);
     } else {
@@ -70,6 +55,18 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', inject);
-  window.PublicLangSwitcher = { alternatePath, isEnglish };
+  function loadRoutesThenInject() {
+    if (window.PUBLIC_LANG_ROUTES) {
+      inject();
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = '/js/public-lang-routes.js?v=1';
+    s.onload = inject;
+    s.onerror = inject;
+    document.head.appendChild(s);
+  }
+
+  document.addEventListener('DOMContentLoaded', loadRoutesThenInject);
+  window.PublicLangSwitcher = { alternatePath, isEnglish, routes };
 })();

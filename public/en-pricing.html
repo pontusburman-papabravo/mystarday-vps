@@ -1,24 +1,99 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="canonical" href="[REDACTED]/en/pricing">
-  <link rel="alternate" hreflang="sv-SE" href="[REDACTED]/pricing-info">
-  <link rel="alternate" hreflang="en-GB" href="[REDACTED]/en/pricing">
-  <title>Pricing — My Starday</title>
-  <meta name="description" content="My Starday pricing and founder access for early families.">
-  <link rel="stylesheet" href="/css/landing.css?v=1">
+  <title>My Starday – tillgång, program och kommande betalning</title> <!-- pragma: allowlist secret -->
+  <meta name="description" content="Läs vad som ingår i My Starday idag, hur du kommer igång och hur framtida betalning i appen kommer att fungera via Apple App Store och Google Play."> <!-- pragma: allowlist secret -->
+  <link rel="canonical" href="__SITE_URL__/en/pricing">
+  <link rel="alternate" hreflang="sv" href="__SITE_URL__/pricing-info">
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en/pricing">
+  <link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
+  <meta property="og:title" content="My Starday – tillgång och information"> <!-- pragma: allowlist secret -->
+  <meta property="og:description" content="Vad som ingår i My Starday idag, hur du kommer igång gratis och hur framtida betalning fungerar i appen."> <!-- pragma: allowlist secret -->
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="__SITE_URL__/og-image.png"> <!-- pragma: allowlist secret -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+  <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <script src="/js/public-lang-switcher.js?v=1"></script>
+  <style>
+    .access-section { background: #f8fafc; border-radius: 1rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+    .access-section h2 { font-family: Outfit, sans-serif; font-size: 1.1rem; font-weight: 700; color: #1B2340; margin-bottom: 0.5rem; }
+    .access-section p, .access-section li { color: #5A6178; font-size: 0.95rem; line-height: 1.65; }
+    .access-section ul { margin: 0.5rem 0 0 1.1rem; }
+    .access-links a { color: #D4891A; font-weight: 600; text-decoration: none; }
+    .access-links a:hover { text-decoration: underline; }
+  </style>
+  <script src="/js/public-lang-switcher.js?v=2"></script>
 </head>
-<body>
-  <nav><a href="/en" class="logo"><span>⭐</span> My Starday</a></nav>
-  <main style="max-width:720px;margin:0 auto;padding:6rem 1.5rem 4rem;">
-    <h1>Pricing</h1>
-    <p>Early families may receive lifetime free access as founding members. New accounts start with a trial period.</p>
-    <p>In-app purchases on iOS/Android follow Apple/Google store pricing in your region.</p>
-    <p><a href="/en/register">Create a free account</a></p>
-  </main>
+<body class="font-body text-navy px-4 py-8 pb-16 bg-white">
+  <div class="max-w-2xl mx-auto">
+    <a href="/" id="backLink" class="inline-flex items-center gap-2 text-text-soft hover:text-navy text-sm mb-6 no-underline">
+      ← Back to home
+    </a>
+
+    <header class="text-center mb-10">
+      <div class="w-16 h-16 bg-gold rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg" style="background:#F5A623;">⭐</div>
+      <h1 class="font-heading font-bold text-2xl md:text-3xl leading-tight mb-3">Så fungerar tillgången till My Starday just nu</h1> <!-- pragma: allowlist secret -->
+      <p class="text-text-soft text-base leading-relaxed max-w-xl mx-auto">
+        Här kan du läsa vad som ingår i My Starday idag, hur du kommer igång och hur framtida betalning i appen kommer att fungera när lanseringen är klar. <!-- pragma: allowlist secret -->
+      </p>
+    </header>
+
+    <section class="access-section" aria-labelledby="access-included">
+      <h2 id="access-included">Vad ingår i My Starday?</h2> <!-- pragma: allowlist secret -->
+      <ul>
+        <li>Visuellt schema och digitalt bildstöd för barnets dag</li>
+        <li>Stjärnbelöningar via <a href="/en/treasury">The Treasure Chamber</a></li>
+        <li>Rutiner och vardagsmoment med tydliga steg</li>
+        <li>Stöd för flera barn och samarbete mellan vuxna</li>
+        <li>Delning och samarbete med pedagoger där det är relevant</li>
+      </ul>
+      <p class="mt-3 access-links">Läs mer om <a href="/en/treasury">belöningssystemet</a> eller <a href="/en/educators-and-therapists">användning för pedagoger och terapeuter</a>.</p>
+    </section>
+
+    <section class="access-section" aria-labelledby="access-cost">
+      <h2 id="access-cost">Vad kostar det just nu?</h2>
+      <p>
+        My Starday kostar inget just nu medan appen är i ett tidigt skede och vi inväntar full distribution. <!-- pragma: allowlist secret -->
+        De första familjerna som registrerar sig kan komma igång gratis som grundarmedlemmar.
+        Vi vill vara försiktiga med att aktivera betalning innan Apple-granskningen är klar.
+      </p>
+    </section>
+
+    <section class="access-section" aria-labelledby="access-future">
+      <h2 id="access-future">Hur kommer betalning fungera senare?</h2>
+      <p>
+        När betalning aktiveras kommer köp och abonnemang att hanteras direkt i appen via Apple App Store och Google Play.
+        Exakta priser och villkor presenteras där när lanseringen är klar — inte som webbköp på den här sidan.
+      </p>
+    </section>
+
+    <section class="access-section" aria-labelledby="access-extra-stod">
+      <h2 id="access-extra-stod">Extra stöd — kommer snart</h2>
+      <p>
+        Paketet <strong>Extra stöd</strong> (De sju frågorna i barnets NU-kort, visuell timer och övergångsstöd) är under utveckling och
+        <strong>går inte att köpa ännu</strong>. Vi testar med utvalda familjer innan allmän lansering.
+        TEACCH-inspirerade utskrivbara kort planeras i ett separat <a class="inline" href="/en/resources">gratis resursbibliotek</a> — inte som en digital arbetstavla i appen.
+      </p>
+    </section>
+
+    <section class="access-section" aria-labelledby="access-start">
+      <h2 id="access-start">Hur kommer jag igång idag?</h2>
+      <p>Skapa ett föräldrakonto, följ guiden och börja bygga schema och belöningar för ditt barn.</p>
+    </section>
+
+    <div class="text-center mt-8">
+      <a href="/register" class="inline-block w-full max-w-md py-4 px-6 bg-gold hover:bg-yellow-500 text-navy font-bold text-lg rounded-xl shadow-lg no-underline mb-3" style="background:#F5A623;">
+        Skapa konto gratis
+      </a>
+      <a href="/login" class="block text-text-soft hover:text-navy text-sm no-underline">
+        Har du redan konto? Logga in
+      </a>
+    </div>
+  </div>
 </body>
 </html>
