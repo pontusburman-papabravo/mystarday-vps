@@ -16,8 +16,10 @@
     if (window.ReferralShare && window.ReferralShare.buildPayload) {
       return window.ReferralShare.buildPayload();
     }
-    const copy =
-      'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL;
+    const isEn = document.documentElement.lang === 'en';
+    const copy = isEn
+      ? 'Hi! Check out this app for kids\' routines and stars. Create a free account here: ' + REGISTER_URL
+      : 'Hej! Kolla in appen för barns rutiner och stjärnor. Skapa konto gratis här: ' + REGISTER_URL;
     return {
       url: REGISTER_URL,
       message: copy,

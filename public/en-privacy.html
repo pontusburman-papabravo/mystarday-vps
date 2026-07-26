@@ -1,23 +1,187 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="canonical" href="[REDACTED]/en/privacy">
-  <link rel="alternate" hreflang="sv-SE" href="[REDACTED]/privacy">
-  <link rel="alternate" hreflang="en-GB" href="[REDACTED]/en/privacy">
-  <title>Privacy policy — My Starday</title>
-  <meta name="description" content="My Starday privacy policy (working English translation).">
+  <link rel="alternate" hreflang="sv" href="__SITE_URL__/privacy">
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en/privacy">
+  <link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta property="og:title" content="My Starday — Förenkla vardagen för hela familjen">
+    <meta property="og:description" content="Skapa och följ dagliga scheman, aktiviteter och belöningar">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="__SITE_URL__/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="__SITE_URL__/og-image.png">
+    <title>Privacy policy — My Starday</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #F5A623; --gold-light: #FFF3D6; --navy: #1B2340; --navy-soft: #2A3458;
+            --text: #1B2340; --text-soft: #5A6178; --white: #FFFFFF; --bg: #FAFBFF;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+        nav { padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(250,251,255,0.95); border-bottom: 1px solid rgba(27,35,64,0.08); }
+        .logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .logo-star { width: 32px; height: 32px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; }
+        .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--navy); }
+        .back-link { font-size: 0.9rem; color: var(--navy); text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; background: var(--gold-light); }
+        .back-link:hover { background: var(--gold); color: white; }
+
+        .content { max-width: 740px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+        .content h1 { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem; }
+        .updated { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 3rem; }
+
+        h2 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin: 2.5rem 0 0.8rem; }
+        p { color: var(--text-soft); margin-bottom: 1rem; font-size: 0.98rem; }
+        ul { color: var(--text-soft); font-size: 0.98rem; padding-left: 1.5rem; margin-bottom: 1rem; }
+        ul li { margin-bottom: 0.4rem; }
+        a { color: var(--gold); font-weight: 600; }
+        a:hover { text-decoration: underline; }
+
+        .highlight-box { background: var(--gold-light); border-radius: 16px; padding: 1.5rem; margin: 2rem 0; border-left: 4px solid var(--gold); }
+        .highlight-box p { color: var(--navy); margin: 0; font-weight: 500; }
+
+        footer { padding: 2rem; text-align: center; font-size: 0.82rem; color: var(--text-soft); background: var(--gold-light); }
+        footer a { color: var(--navy); text-decoration: none; font-weight: 500; }
+    </style>
+  <!-- PWA / Favicon -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <script src="/js/public-lang-switcher.js?v=1"></script>
-  <style>body{font-family:system-ui,sans-serif;max-width:720px;margin:0 auto;padding:5rem 1.25rem 3rem;line-height:1.6;color:#1B2340}
-  .legal-banner{background:#FFF3D6;border-left:4px solid #F5A623;padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.875rem}</style>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="My Starday">
+  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
+  <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/public-lang-switcher.js?v=2"></script>
 </head>
 <body>
-  <nav><a href="/en">← My Starday</a></nav>
-  <h1>Privacy policy</h1>
-  <p>My Starday processes personal data to provide the family routine service. Parents control child profiles. We do not sell personal data.</p>
-  <p>For the authoritative Swedish version, see <a href="/privacy">Integritetspolicy (svenska)</a>.</p>
-  <p>Contact: <a href="mailto:info@[REDACTED].se">info@[REDACTED].se</a></p> <!-- pragma: allowlist secret -->
+    <nav>
+        <a href="/" class="logo">
+            <div class="logo-star">&#9733;</div>
+            <span class="logo-text">My Starday</span>
+        </a>
+        <a href="/" class="back-link">&#8592; Tillbaka</a>
+    </nav>
+
+    <div class="content">
+        <h1>Privacy policy för My Starday</h1>
+        <p class="updated">Senast uppdaterad: juni 2026</p>
+
+        <div class="highlight-box">
+            <p>Vi värnar om din integritet. My Starday samlar in så lite data som möjligt — bara det som behövs för att appen ska fungera. Vi säljer inte din information och använder den inte för riktad annonsmarknadsföring. Delning med någon utanför tjänsten sker bara om du själv aktivt väljer det (se avsnittet om rapport för samtal nedan) eller när det krävs för drift via våra underleverantörer (personuppgiftsbiträden).</p>
+        </div>
+
+        <p><strong>Personuppgiftsansvarig:</strong> Papa Bravo AB, med e-post <a href="/en/contact">contact form</a>, är personuppgiftsansvarig för behandlingen av dina personuppgifter.</p>
+
+        <h2>Vad vi samlar in</h2>
+        <p>Vi behandlar din data med stöd av avtal som rättslig grund (det vill säga för att vi ska kunna tillhandahålla appen och de funktioner du registrerar dig för). Vi samlar in följande information om föräldrar och familjer:</p>
+        <ul>
+            <li><strong>E-postadress</strong> — för inloggning och kontokommunikation</li>
+            <li><strong>För- och efternamn</strong> — för att personalisera upplevelsen och hantera ditt konto</li>
+            <li><strong>Aktivitetsloggar</strong> — vilka aktiviteter som slutförts och när</li>
+            <li><strong>Stjärnhistorik</strong> — intjänade och inlösta stjärnor</li>
+            <li><strong>Schema och aktiviteter</strong> — de scheman, rutiner och uppgifter du skapar</li>
+        </ul>
+        <p><strong>Viktigt om barnens integritet:</strong> Barn identifieras enbart med förnamn (eller smeknamn) och en vald emoji. Inga efternamn, personnummer eller kontaktuppgifter för barn samlas in eller lagras.</p>
+
+        <h2>Vad vi INTE samlar in</h2>
+        <ul>
+            <li>Inga efternamn på barn</li>
+            <li>Inga personnummer (varken för vuxna eller barn)</li>
+            <li>Ingen information om barnets hälsa, diagnos eller funktionsnedsättning</li>
+            <li>Ingen betalningsinformation (vi hanterar inte betalningar direkt)</li>
+            <li>Ingen platsdata</li>
+        </ul>
+
+        <h2>Hur vi använder din data</h2>
+        <p>All data används uteslutande för att tillhandahålla och förbättra tjänsten:</p>
+        <ul>
+            <li>Visa ditt barn dess dagliga schema</li>
+            <li>Spara framsteg och stjärnhistorik</li>
+            <li>Skicka verifieringsmejl och kontorelaterade notiser</li>
+            <li>Besvara kontaktmeddelanden du skickar oss</li>
+        </ul>
+
+        <h2>Delning med tredje part</h2>
+        <p>Vi delar <strong>inte</strong> din information med tredje part i marknadsföringssyfte. Vi använder följande underleverantörer (personuppgiftsbiträden) för att driva tjänsten. De behandlar uppgifter endast enligt våra instruktioner och i enlighet med GDPR:</p>
+        <ul>
+            <li><strong>Neon (databas)</strong> — lagring av kontodata, scheman, aktiviteter och familjeinformation</li>
+            <li><strong>Egen serverdrift (VPS inom EU/EES)</strong> — drift av webbapp och API</li>
+            <li><strong>Resend (e-post)</strong> — transaktionsmejl (t.ex. kontoverifiering, lösenordsåterställning, välkomstmejl och viktiga kontomeddelanden)</li>
+            <li><strong>Cloudflare R2 (fillagring)</strong> — lagring av uppladdade profilbilder när funktionen används</li>
+            <li><strong>Apple &amp; Google (inloggning och notiser)</strong> — hantering av Apple Sign In, Google Sign-In samt push-notiser via APNs (iOS) och FCM (Android) när du använder dessa funktioner</li>
+        </ul>
+
+        <h2>Rapport för samtal</h2>
+        <p>Om du som vårdnadshavare skapar en tidsbegränsad länk till en sammanställning av utvald aktivitets- och belöningsstatistik för ett barn, kan du dela den med t.ex. pedagog eller terapeut. Det sker <strong>endast på ditt initiativ</strong>. Du väljer själv vad som ingår och kan när som helst återkalla länken så att den slutar fungera. Mottagaren behöver inte ha konto i My Starday.</p>
+        <p>Om du väljer att lösenordsskydda länken bör koden hanteras varsamt. Skicka inte koden och länken i samma meddelande (t.ex. i samma SMS eller mejl) för att minimera risken vid obehörig åtkomst.</p>
+
+        <h2>Tredjepartsinloggning (Apple och Google)</h2>
+        <p>Om du väljer att logga in via externa tjänster hanterar vi följande:</p>
+        <ul>
+            <li><strong>Sign in with Apple:</strong> Vi hanterar ditt namn och din e-postadress. Om du väljer &quot;Dölj min e-postadress&quot; lagrar vi den unika relay-adress som Apple skapar för att skicka kontokommunikation.</li>
+            <li><strong>Google Sign-In:</strong> Vi tar emot och lagrar den e-postadress samt det namn som är kopplat till ditt Google-konto för att skapa din profil.</li>
+        </ul>
+        <p>Respektive plattforms (Apples och Googles) egna integritetspolicys gäller för deras egen hantering av dina uppgifter.</p>
+
+        <h2>Push-notiser och enhetstokens</h2>
+        <p>Om du aktiverar push-notiser på din enhet lagrar vi en unik enhetstoken (APNs för iOS eller FCM för Android) med stöd av ditt samtycke, för att kunna leverera notiser till rätt enhet. Token lagras kopplat till ditt konto.</p>
+        <p>Tokens rensas automatiskt när du loggar ut eller om plattformen rapporterar att token är ogiltig (t.ex. vid enhetsbyte eller avinstallation). Vi lagrar aldrig din enhetsidentifierare utan en aktiv push-prenumeration. Vill du inaktivera push-notiser gör du det under <strong>Inställningar → Push-notiser</strong> i appen, eller via enhetens systeminställningar.</p>
+
+        <h2>Hur länge vi sparar din data</h2>
+        <p>Vi sparar din data så länge ditt konto är aktivt. Om du väljer att radera ditt konto raderas all data permanent och omedelbart (se nedan).</p>
+
+        <h2>Radera ditt konto</h2>
+        <p>Du raderar ditt konto direkt i appen under <strong>Inställningar → Radera konto</strong>. Du bekräftar raderingen med ditt lösenord (eller verifiering via tredjepartsinloggning).</p>
+        <p><strong>⚠️ Observera:</strong> All data raderas omedelbart och permanent — det går inte att ångra.</p>
+        <p>Följande tas bort och ingen data kvarstår efter radering:</p>
+        <ul>
+            <li>Föräldrakontot (inklusive namn och e-postadress)</li>
+            <li>Alla barnprofiler kopplade till familjen</li>
+            <li>Alla veckoscheman, rutiner och aktiviteter</li>
+            <li>Alla dagliga loggar och aktivitetsdata</li>
+            <li>Alla betyg och kommentarer</li>
+            <li>Alla belöningar och inlösningar</li>
+            <li>Alla inbjudningar till familjen</li>
+        </ul>
+
+        <h2>Lagring och säkerhet</h2>
+        <p>Data lagras inom EU/EES. Vi använder krypterade förbindelser (HTTPS) och industristandardiserade säkerhetsrutiner. Lösenord lagras aldrig i klartext — vi använder bcrypt-hashing.</p>
+
+        <h2>Cookies</h2>
+        <p>Vi använder enbart nödvändiga tekniska cookies för att hålla dig inloggad och för att spara dina inställningar (exempelvis mörkt läge) i webbgränssnitt eller webbvyer. Inga spårningscookies eller tredjepartscookies används.</p>
+
+        <h2>Dina rättigheter (GDPR)</h2>
+        <p>Du har följande rättigheter enligt GDPR:</p>
+        <ul>
+            <li><strong>Rätt att radera ditt konto</strong> — du kan när som helst radera ditt konto och all data direkt i appen</li>
+            <li><strong>Rätt att begära registerutdrag</strong> — vill du veta vilken data vi har om dig, kontakta oss via e-post</li>
+            <li>Rätt att begära rättelse av felaktiga uppgifter</li>
+            <li>Rätt att invända mot behandling eller begära begränsning</li>
+            <li>Rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY) om du anser att vi behandlar dina personuppgifter i strid med GDPR</li>
+        </ul>
+
+        <h2>Kontakt</h2>
+        <p>Har du frågor om hur vi hanterar din data? Contact us:</p>
+        <p><a href="/en/contact">contact form</a></p>
+    </div>
+
+    <footer>
+        <p>My Starday &mdash; <a href="/">Startsidan</a> &bull; <a href="/en/terms">Terms of service</a> &bull; <a href="/en/privacy">Privacy policy</a> &bull; <a href="/en/contact">contact form</a></p>
+    </footer>
+  <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
+  <script src="/js/sw-register.js?v=2.12.0"></script>
 </body>
 </html>

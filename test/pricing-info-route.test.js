@@ -25,7 +25,9 @@ test('landing index injects Play Store URL placeholder', () => {
   const src = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
   assert.match(src, /injectStoreLinks/);
+  assert.match(src, /injectSiteUrl/);
   assert.match(html, /__PLAY_STORE_URL__/);
+  assert.match(html, /__SITE_URL__/);
   assert.match(html, /google-play-badge-sv\.svg/);
   assert.match(html, /app-store-badge-sv\.svg/);
 });
@@ -107,6 +109,25 @@ test('landing page links to pricing-info and skattkammaren demo', () => {
   assert.match(html, /href="\/child-login"/);
   assert.match(html, /landing-login-entry/);
   assert.match(html, /Logga in som barn/);
+  assert.match(html, /landing-nav__lang-label">English</);
+});
+
+test('English landing mirrors Swedish layout without waitlist', () => {
+  const en = fs.readFileSync(path.join(ROOT, 'public/en.html'), 'utf8');
+  const landingJs = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
+  assert.match(en, /<html lang="en">/);
+  assert.match(en, /rel="canonical" href="__SITE_URL__\/en"/);
+  assert.match(en, /hreflang="x-default"/);
+  assert.match(en, /landing\.css/);
+  assert.match(en, /My Starday/);
+  assert.match(en, /landing-nav__lang-label">Svenska</);
+  assert.match(en, /href="\/en\/register"/);
+  assert.match(en, /href="\/en\/faq"/);
+  assert.doesNotMatch(en, /waitlist/i);
+  assert.doesNotMatch(en, /Secure your free spot/i);
+  assert.match(landingJs, /serveLandingHtml\(res, 'en\.html'\)/);
+  assert.match(landingJs, /injectStoreLinks/);
+  assert.doesNotMatch(landingJs, /engelsk_landingssida/);
 });
 
 test('guest preview scripts and marketing back navigation', () => {

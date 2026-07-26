@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Belöningssystem och stjärnschema för barn | The Treasure Chamber i My Starday</title> <!-- pragma: allowlist secret -->
+    <meta name="description" content="The Treasure Chamber i My Starday hjälper barn att bygga motivation, följa rutiner och arbeta mot tydliga mål med stjärnor, belöningar och positiv förstärkning."> <!-- pragma: allowlist secret -->
+    <link rel="canonical" href="__SITE_URL__/en/treasury">
+  <link rel="alternate" hreflang="sv" href="__SITE_URL__/skattkammaren">
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en/treasury">
+  <link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold:     #F5A623;
+            --gold-lt:  #FFF3D6;
+            --gold-dk:  #D4891A;
+            --navy:     #1C2340;
+            --navy-2:   #2A3355;
+            --cream:    #FDFAF4;
+            --cream-2:  #F5F0E6;
+            --green:    #1DB97B;
+            --green-lt: #D3F9EA;
+            --purple:   #7C3AED;
+            --purple-lt:#EDE7F6;
+            --pink:     #F472B6;
+            --pink-lt:  #FCE7F3;
+            --white:    #FFFFFF;
+            --text:     #1C2340;
+            --text-2:   #5A6178;
+            --text-3:   #9AA0B8;
+            --border:   rgba(28,35,64,0.09);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            overflow-x: clip;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* ===== HEADER ===== */
+        .page-header {
+            background: linear-gradient(160deg, #1C2340 0%, #2A3355 100%);
+            padding: 3rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 60% 0%, rgba(245,166,35,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .page-header::after {
+            content: '✨';
+            position: absolute; font-size: 8rem;
+            top: -30px; right: -20px; opacity: 0.06;
+            pointer-events: none; user-select: none;
+        }
+
+        .header-back {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            color: rgba(255,255,255,0.5); font-size: 0.83rem; font-weight: 600;
+            text-decoration: none; margin-bottom: 1.5rem;
+            transition: color 0.18s;
+        }
+        .header-back:hover { color: rgba(255,255,255,0.9); }
+
+        .header-chest {
+            font-size: 5rem; line-height: 1;
+            margin-bottom: 0.6rem;
+            display: block;
+            animation: float 3.5s ease-in-out infinite;
+            filter: drop-shadow(0 6px 20px rgba(245,166,35,0.4));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header-title {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+        .header-subtitle {
+            font-size: 1rem; color: rgba(255,255,255,0.55);
+            line-height: 1.6;
+        }
+
+        /* ===== STAR COUNT BANNER ===== */
+        .star-count-banner {
+            background: linear-gradient(135deg, var(--gold), #F5C842);
+            margin: -2rem 2rem 0;
+            border-radius: 20px;
+            padding: 1.4rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(245,166,35,0.4);
+            position: relative; z-index: 10;
+        }
+        .star-count-label {
+            font-size: 0.8rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: rgba(28,35,64,0.6);
+        }
+        .star-count-num {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem; font-weight: 800;
+            color: var(--navy); line-height: 1;
+        }
+        .star-count-sub { font-size: 0.78rem; color: rgba(28,35,64,0.55); margin-top: 0.1rem; }
+        .star-count-icon { font-size: 2.8rem; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+        /* ===== PROGRESS SECTION ===== */
+        .progress-section { margin-bottom: 2.5rem; }
+
+        .section-heading {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem; font-weight: 700;
+            color: var(--navy); margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .goal-card {
+            background: var(--white);
+            border-radius: 20px; padding: 1.8rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(28,35,64,0.05);
+            margin-bottom: 1rem;
+        }
+        .goal-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .goal-card-name {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-weight: 700; font-size: 1rem; color: var(--navy);
+        }
+        .goal-card-icon {
+            font-size: 1.5rem;
+            width: 44px; height: 44px;
+            background: var(--gold-lt);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .goal-card-stars {
+            font-size: 0.82rem; font-weight: 700;
+            color: var(--gold-dk);
+            background: var(--gold-lt);
+            padding: 0.3rem 0.8rem; border-radius: 50px;
+        }
+        .progress-bar-outer {
+            height: 14px; background: var(--cream-2);
+            border-radius: 50px; overflow: hidden; margin-bottom: 0.5rem;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            border-radius: 50px;
+            background: linear-gradient(90deg, var(--gold), #F5C842);
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+        }
+        .progress-bar-inner::after {
+            content: '';
+            position: absolute; right: 0; top: 0; bottom: 0;
+            width: 8px; border-radius: 0 50px 50px 0;
+            background: rgba(255,255,255,0.4);
+        }
+        .progress-bar-inner.green { background: linear-gradient(90deg, var(--green), #34D399); }
+        .progress-bar-inner.purple { background: linear-gradient(90deg, var(--purple), #A78BFA); }
+        .progress-labels {
+            display: flex; justify-content: space-between;
+            font-size: 0.78rem; color: var(--text-3); font-weight: 600;
+        }
+
+        /* ===== TROPHIES ===== */
+        .trophies-section { margin-bottom: 2.5rem; }
+
+        .trophy-shelf {
+            background: var(--white);
+            border-radius: 20px; padding: 1.8rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(28,35,64,0.05);
+        }
+        .trophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem; margin-bottom: 1rem;
+        }
+        .trophy-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 0.4rem; text-align: center;
+            padding: 1rem 0.6rem;
+            background: var(--cream);
+            border-radius: 14px;
+            border: 2px solid transparent;
+            transition: transform 0.2s ease, border-color 0.2s;
+            cursor: default;
+        }
+        .trophy-item:hover { transform: translateY(-4px) scale(1.04); border-color: var(--gold); }
+        .trophy-item.locked { opacity: 0.35; filter: grayscale(1); cursor: not-allowed; }
+        .trophy-item.locked:hover { transform: none; border-color: transparent; }
+        .trophy-emoji {
+            font-size: 2.2rem; line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(28,35,64,0.12));
+        }
+        .trophy-label {
+            font-size: 0.72rem; font-weight: 600; color: var(--text-2);
+            line-height: 1.3;
+        }
+        .trophy-date {
+            font-size: 0.65rem; color: var(--text-3); font-weight: 500;
+        }
+        .trophy-shelf-note {
+            font-size: 0.8rem; color: var(--text-3); text-align: center;
+            font-style: italic; margin-top: 0.5rem;
+        }
+
+        /* ===== RECENT STARS ===== */
+        .recent-section { margin-bottom: 2.5rem; }
+
+        .activity-list {
+            display: flex; flex-direction: column; gap: 0.7rem;
+        }
+        .activity-item {
+            background: var(--white);
+            border-radius: 16px; padding: 1rem 1.4rem;
+            display: flex; align-items: center; gap: 1rem;
+            border: 1px solid var(--border);
+            transition: transform 0.18s ease;
+        }
+        .activity-item:hover { transform: translateX(4px); }
+        .activity-icon {
+            font-size: 1.6rem; flex-shrink: 0;
+            width: 44px; height: 44px;
+            background: var(--cream-2); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .activity-text { flex: 1; }
+        .activity-name { font-weight: 600; font-size: 0.95rem; color: var(--navy); }
+        .activity-time { font-size: 0.78rem; color: var(--text-3); margin-top: 0.1rem; }
+        .activity-stars {
+            font-size: 0.85rem; font-weight: 700;
+            color: var(--gold-dk); background: var(--gold-lt);
+            padding: 0.28rem 0.7rem; border-radius: 50px; flex-shrink: 0;
+        }
+
+        /* ===== DEMO NOTICE ===== */
+        .demo-notice {
+            background: linear-gradient(135deg, var(--purple-lt), #F3EDFF);
+            border: 1px solid rgba(124,58,237,0.15);
+            border-radius: 16px; padding: 1.4rem 1.8rem;
+            display: flex; align-items: flex-start; gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .demo-notice-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .demo-notice-text { font-size: 0.88rem; color: var(--navy); line-height: 1.65; }
+        .demo-notice-text strong { color: var(--purple); }
+        .demo-notice-text a { color: var(--purple); font-weight: 600; text-decoration: none; border-bottom: 1px dotted rgba(124,58,237,0.4); }
+        .demo-notice-text a:hover { border-bottom-style: solid; }
+
+        /* ===== CTA SECTION ===== */
+        .cta-section {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            background: var(--white);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 40px rgba(28,35,64,0.06);
+        }
+        .cta-emoji { font-size: 3rem; display: block; margin-bottom: 0.8rem; }
+        .cta-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--navy); margin-bottom: 0.5rem;
+        }
+        .cta-body { font-size: 0.94rem; color: var(--text-2); line-height: 1.7; margin-bottom: 1.5rem; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.9rem 2.2rem;
+            background: linear-gradient(135deg, var(--gold), #F5C842);
+            color: var(--navy); font-weight: 800; font-size: 1rem;
+            text-decoration: none; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(245,166,35,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.01em;
+        }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,166,35,0.55); }
+
+        /* ===== CHECKBOX DEMO ===== */
+        .check-demo {
+            display: flex; flex-wrap: wrap; gap: 0.8rem;
+            margin: 1.2rem 0;
+        }
+        .check-item {
+            display: flex; align-items: center; gap: 0.6rem;
+            background: var(--cream-2); border-radius: 12px;
+            padding: 0.7rem 1rem; cursor: pointer;
+            transition: background 0.18s, transform 0.15s;
+            user-select: none; border: 2px solid transparent;
+        }
+        .check-item:hover { background: var(--gold-lt); border-color: rgba(245,166,35,0.3); }
+        .check-item.done { background: var(--green-lt); border-color: rgba(29,185,123,0.25); }
+        .check-box {
+            width: 22px; height: 22px;
+            border: 2.5px solid var(--text-3);
+            border-radius: 6px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; color: white;
+            background: transparent; transition: all 0.2s ease;
+        }
+        .check-item.done .check-box {
+            background: var(--green); border-color: var(--green);
+        }
+        .check-label {
+            font-size: 0.9rem; font-weight: 600; color: var(--navy);
+            line-height: 1.2;
+        }
+        .check-item.done .check-label {
+            color: var(--green); text-decoration: line-through;
+            text-decoration-color: rgba(29,185,123,0.5);
+        }
+        .check-stars {
+            font-size: 0.75rem; font-weight: 700;
+            color: var(--gold-dk);
+            background: var(--gold-lt);
+            padding: 0.18rem 0.55rem; border-radius: 20px;
+            margin-left: auto; white-space: nowrap;
+        }
+        .check-item.done .check-stars { background: var(--green-lt); color: var(--green); }
+
+        /* ===== CONFETTI PARTICLE ===== */
+        @keyframes confetti-fall {
+            0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+            100% { opacity: 0; transform: translateY(80px) rotate(720deg) scale(0.3); }
+        }
+        .confetti-particle {
+            position: fixed; pointer-events: none; z-index: 9999;
+            font-size: 1.2rem;
+            animation: confetti-fall 1.2s ease forwards;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 680px) {
+            .star-count-banner { margin: -1.5rem 1rem 0; padding: 1.1rem 1.4rem; }
+            .star-count-num { font-size: 2rem; }
+            .main { padding: 2rem 1rem 4rem; }
+            .trophy-grid { grid-template-columns: repeat(3, 1fr); }
+            .check-demo { flex-direction: column; }
+        }
+    </style>
+  <script src="/js/public-lang-switcher.js?v=2"></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="page-header">
+    <a href="/" class="header-back">← Back to home</a>
+    <span class="header-chest">🏆</span>
+    <h1 class="header-title">The Treasure Chamber – ett belöningssystem som stärker motivation och rutiner</h1>
+    <p class="header-subtitle">Med stjärnor, tydliga mål och visuella belöningar hjälper The Treasure Chamber barn att hålla motivationen uppe, träna självständighet och lyckas med vardagens rutiner steg för steg.</p>
+</div>
+
+<!-- Star count banner (static demo — not a logged-in session) -->
+<div class="star-count-banner">
+    <div>
+        <div class="star-count-label">Exempel — stjärnor</div>
+        <div class="star-count-num">⭐ 24</div>
+        <div class="star-count-sub">12 mer till nästa belöning i demo-exemplet</div>
+    </div>
+    <div class="star-count-icon">🎁</div>
+</div>
+
+
+<!-- ===== SEO CONTENT ===== -->
+<section class="seo-content" style="max-width:720px;margin:0 auto 2rem;padding:0 1.5rem;">
+    <div style="background:var(--white);border-radius:20px;padding:1.6rem 1.8rem;border:1px solid var(--border);margin-bottom:1rem;">
+        <h2 style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--navy);margin-bottom:0.6rem;">Vad är The Treasure Chamber?</h2>
+        <p style="font-size:0.92rem;color:var(--text-2);line-height:1.7;">The Treasure Chamber är My Stardays belöningssystem. Barnet tjänar stjärnor när rutiner och aktiviteter blir av — stjärnorna sparas och kan lösas in mot belöningar ni bestämt tillsammans.</p> <!-- pragma: allowlist secret -->
+    </div>
+    <div style="background:var(--white);border-radius:20px;padding:1.6rem 1.8rem;border:1px solid var(--border);margin-bottom:1rem;">
+        <h2 style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--navy);margin-bottom:0.6rem;">Hur fungerar det i praktiken?</h2>
+        <p style="font-size:0.92rem;color:var(--text-2);line-height:1.7;">Barnet ser sitt schema, bockar av uppgifter och samlar stjärnor mot tydliga mål. Belöningarna blir konkreta och förutsägbara — motivationen förstärks över tid i stället för att bygga på tjat.</p>
+    </div>
+    <div style="background:var(--white);border-radius:20px;padding:1.6rem 1.8rem;border:1px solid var(--border);margin-bottom:1rem;">
+        <h2 style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--navy);margin-bottom:0.6rem;">När hjälper ett belöningssystem?</h2>
+        <p style="font-size:0.92rem;color:var(--text-2);line-height:1.7;">Särskilt vid morgonrutiner, tandborstning, läggning, övergångar mellan aktiviteter och när barnet ska träna självständighet i vardagen.</p>
+    </div>
+    <div style="background:var(--white);border-radius:20px;padding:1.6rem 1.8rem;border:1px solid var(--border);margin-bottom:1rem;">
+        <h2 style="font-family:'Fraunces',serif;font-size:1.2rem;color:var(--navy);margin-bottom:0.6rem;">Schema + bildstöd + motivation</h2>
+        <p style="font-size:0.92rem;color:var(--text-2);line-height:1.7;">The Treasure Chamber hänger ihop med det visuella schemat: barnet ser <em>vad</em> som ska hända, förstår <em>hur</em> med bildstöd och får motivation att följa med via stjärnor. Läs mer på <a href="/" style="color:var(--gold-dk);font-weight:600;">startsidan</a> eller om <a href="/en/pricing" style="color:var(--gold-dk);font-weight:600;">tillgång och vad som ingår</a>.</p>
+    </div>
+</section>
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main">
+
+    <!-- Demo notice -->
+    <div class="demo-notice">
+        <div class="demo-notice-icon">💡</div>
+        <div class="demo-notice-text">
+            Det här är en <strong>förhandsvisning</strong> av The Treasure Chamber. Logga in för att se ditt barns riktiga stjärnor, troféer och mål.
+            <br><a href="/child-login">🌟 Barnets inloggning</a> &nbsp;·&nbsp; <a href="/login">👩‍👧 Förälderns inloggning</a>
+        </div>
+    </div>
+
+    <!-- Progress towards next goal -->
+    <div class="progress-section">
+        <h2 class="section-heading">🎯 Nästa belöning</h2>
+        <div class="goal-card">
+            <div class="goal-card-header">
+                <div class="goal-card-name">
+                    <div class="goal-card-icon">🎮</div>
+                    <div>
+                        <div>Extra spelkvart</div>
+                        <div style="font-size:0.78rem;font-weight:500;color:var(--text-3);margin-top:0.1rem;">Bestämt av mamma &amp; pappa</div>
+                    </div>
+                </div>
+                <div class="goal-card-stars">24 / 36 ⭐</div>
+            </div>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner" style="width:67%;"></div>
+            </div>
+            <div class="progress-labels">
+                <span>24 stjärnor samlade</span>
+                <span>12 kvar!</span>
+            </div>
+        </div>
+        <div class="goal-card">
+            <div class="goal-card-header">
+                <div class="goal-card-name">
+                    <div class="goal-card-icon" style="background:var(--purple-lt);">🎪</div>
+                    <div>
+                        <div>Utflykt till lekplatsen</div>
+                        <div style="font-size:0.78rem;font-weight:500;color:var(--text-3);margin-top:0.1rem;">Långsiktigt mål</div>
+                    </div>
+                </div>
+                <div class="goal-card-stars" style="background:var(--purple-lt);color:var(--purple);">24 / 80 ⭐</div>
+            </div>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner purple" style="width:30%;"></div>
+            </div>
+            <div class="progress-labels">
+                <span>24 stjärnor samlade</span>
+                <span>56 kvar!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive checkbox demo -->
+    <div class="progress-section">
+        <h2 class="section-heading">✅ Testa att bocka av en aktivitet</h2>
+        <div style="background:var(--white);border-radius:20px;padding:1.6rem;border:1px solid var(--border);box-shadow:0 4px 20px rgba(28,35,64,0.05);">
+            <p style="font-size:0.88rem;color:var(--text-2);margin-bottom:1rem;">Tryck på en aktivitet nedan — precis som barnet gör i appen!</p>
+            <div class="check-demo" id="checkDemo">
+                <div class="check-item" onclick="toggleCheck(this)">
+                    <div class="check-box"></div>
+                    <span class="check-label">🥣 Frukost</span>
+                    <span class="check-stars">+1 ⭐</span>
+                </div>
+                <div class="check-item done" onclick="toggleCheck(this)">
+                    <div class="check-box">✓</div>
+                    <span class="check-label">🦷 Borsta tänderna</span>
+                    <span class="check-stars">+1 ⭐</span>
+                </div>
+                <div class="check-item" onclick="toggleCheck(this)">
+                    <div class="check-box"></div>
+                    <span class="check-label">🧥 Klä på sig</span>
+                    <span class="check-stars">+1 ⭐</span>
+                </div>
+                <div class="check-item" onclick="toggleCheck(this)">
+                    <div class="check-box"></div>
+                    <span class="check-label">🎒 Packa väskan</span>
+                    <span class="check-stars">+2 ⭐</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trophy shelf -->
+    <div class="trophies-section">
+        <h2 class="section-heading">🏅 Troféhyllan</h2>
+        <div class="trophy-shelf">
+            <div class="trophy-grid">
+                <div class="trophy-item">
+                    <div class="trophy-emoji">🌟</div>
+                    <div class="trophy-label">Första stjärnan</div>
+                    <div class="trophy-date">3 jan</div>
+                </div>
+                <div class="trophy-item">
+                    <div class="trophy-emoji">🔥</div>
+                    <div class="trophy-label">7 dagar i rad</div>
+                    <div class="trophy-date">12 jan</div>
+                </div>
+                <div class="trophy-item">
+                    <div class="trophy-emoji">🦷</div>
+                    <div class="trophy-label">Tänderna-mästare</div>
+                    <div class="trophy-date">15 jan</div>
+                </div>
+                <div class="trophy-item">
+                    <div class="trophy-emoji">🌅</div>
+                    <div class="trophy-label">Morgonhjälte</div>
+                    <div class="trophy-date">20 jan</div>
+                </div>
+                <div class="trophy-item">
+                    <div class="trophy-emoji">💪</div>
+                    <div class="trophy-label">10 aktiviteter</div>
+                    <div class="trophy-date">25 jan</div>
+                </div>
+                <div class="trophy-item locked">
+                    <div class="trophy-emoji">🏆</div>
+                    <div class="trophy-label">30 dagar i rad</div>
+                    <div class="trophy-date">Låst</div>
+                </div>
+                <div class="trophy-item locked">
+                    <div class="trophy-emoji">🦁</div>
+                    <div class="trophy-label">Lejonhjärta</div>
+                    <div class="trophy-date">Låst</div>
+                </div>
+                <div class="trophy-item locked">
+                    <div class="trophy-emoji">🚀</div>
+                    <div class="trophy-label">Raket-veckan</div>
+                    <div class="trophy-date">Låst</div>
+                </div>
+            </div>
+            <p class="trophy-shelf-note">3 troféer olåsta · 5 troféer kvar att samla</p>
+        </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="recent-section">
+        <h2 class="section-heading">📋 Senaste aktiviteter</h2>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon">🦷</div>
+                <div class="activity-text">
+                    <div class="activity-name">Borsta tänderna</div>
+                    <div class="activity-time">Idag, 07:32</div>
+                </div>
+                <div class="activity-stars">+1 ⭐</div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🥣</div>
+                <div class="activity-text">
+                    <div class="activity-name">Frukost</div>
+                    <div class="activity-time">Idag, 07:10</div>
+                </div>
+                <div class="activity-stars">+1 ⭐</div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🎒</div>
+                <div class="activity-text">
+                    <div class="activity-name">Packa skolväskan</div>
+                    <div class="activity-time">Igår, 20:45</div>
+                </div>
+                <div class="activity-stars">+2 ⭐</div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🛁</div>
+                <div class="activity-text">
+                    <div class="activity-name">Kvällsbad</div>
+                    <div class="activity-time">Igår, 19:15</div>
+                </div>
+                <div class="activity-stars">+2 ⭐</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA block -->
+    <div class="cta-section">
+        <span class="cta-emoji">🚀</span>
+        <div class="cta-title">Kom igång med din riktiga Skattkammare</div>
+        <p class="cta-body">Testa My Starday gratis och börja samla stjärnor på riktigt.</p> <!-- pragma: allowlist secret -->
+        <a href="/register" class="cta-btn">⭐ Skapa konto gratis</a>
+        <div style="margin-top:1rem;font-size:0.82rem;color:var(--text-3);">
+            Redan inloggad? <a href="/child-login" style="color:var(--purple);font-weight:600;">Barnets ingång →</a>
+        </div>
+    </div>
+
+</main>
+
+<script>
+// Interactive checkbox with confetti
+function toggleCheck(el) {
+    var isDone = el.classList.contains('done');
+    var box = el.querySelector('.check-box');
+
+    if (!isDone) {
+        el.classList.add('done');
+        box.textContent = '✓';
+        // Confetti burst
+        spawnConfetti(el);
+        // Tiny scale pulse
+        el.style.transform = 'scale(1.06)';
+        setTimeout(function() { el.style.transform = ''; }, 200);
+    } else {
+        el.classList.remove('done');
+        box.textContent = '';
+    }
+}
+
+function spawnConfetti(el) {
+    var rect = el.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var emojis = ['⭐', '🌟', '✨', '🎉', '💛', '🏆'];
+    for (var i = 0; i < 7; i++) {
+        (function(i) {
+            setTimeout(function() {
+                var p = document.createElement('div');
+                p.className = 'confetti-particle';
+                p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left  = (cx + (Math.random() - 0.5) * 80) + 'px';
+                p.style.top   = (cy + (Math.random() - 0.5) * 40) + 'px';
+                p.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
+                document.body.appendChild(p);
+                setTimeout(function() { p.remove(); }, 1300);
+            }, i * 60);
+        })(i);
+    }
+}
+</script>
+
+<!-- Contextual help bubble -->
+<script src="/js/help-bubble.js?v=2.12.0"></script>
+
+  <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
+  <script src="/js/sw-register.js?v=2.12.0"></script>
+</body>
+</html>

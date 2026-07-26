@@ -18,7 +18,8 @@
 
     if (statsBanner && typeof count === 'number' && count > 0) {
       const base = statsBanner.getAttribute('data-base') || 'Används redan av familjer i Sverige';
-      statsBanner.textContent = base + ' · ' + count + ' familjer har gått med';
+      const joinedSuffix = document.documentElement.lang === 'en' ? ' families have joined' : ' familjer har gått med';
+      statsBanner.textContent = base + ' · ' + count + joinedSuffix;
     }
   }
 

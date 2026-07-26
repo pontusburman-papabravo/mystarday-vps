@@ -1,1627 +1,818 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>My Starday — Visual Daily Schedule for Kids with ADHD & Autism | Free for Early Families</title>
-    <meta name="description" content="Visual daily schedule for kids with ADHD, autism, or anyone who thrives on structure. Stars, rewards, and independence — free for the first 100 families.">
-    <meta property="og:title" content="My Starday — The Treasure Chamber, where motivation lives">
-    <meta property="og:description" content="Visual schedules, clear steps, and a reward structure that actually works — without the nagging.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mystarday.se/en">
-    <meta property="og:image" content="https://mystarday.se/og-image.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="My Starday — The Treasure Chamber, where motivation lives">
-    <meta name="twitter:description" content="Visual daily schedules for kids. Stars, rewards, and independence — without the nagging.">
-    <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-    <!-- hreflang -->
-    <link rel="alternate" hreflang="sv" href="https://mystarday.se/">
-    <link rel="alternate" hreflang="en" href="https://mystarday.se/en">
-    <link rel="alternate" hreflang="x-default" href="https://mystarday.se/en">
-    <!-- Canonical -->
-    <link rel="canonical" href="https://mystarday.se/en">
-    <!-- Fonts: Fraunces for display, Plus Jakarta Sans for body -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --amber:    #F5A623;
-            --amber-dk: #D4891A;
-            --amber-lt: #FFF3D6;
-            --amber-mid:#FDE9B0;
-            --navy:     #1C2340;
-            --navy-2:   #2A3355;
-            --cream:    #FDFAF4;
-            --cream-2:  #F7F3EA;
-            --sand:     #EDE8DC;
-            --text:     #1C2340;
-            --text-2:   #5A6178;
-            --text-3:   #8A92AA;
-            --white:    #FFFFFF;
-            --purple:   #6B3FA0;
-            --purple-lt:#EDE7F6;
-            --green:    #1DB97B;
-            --green-lt: #DFFAED;
-            --border:   rgba(28,35,64,0.09);
-            --radius-lg:20px;
-            --radius-xl:28px;
-        }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text);
-            background: var(--cream);
-            overflow-x: clip;
-            line-height: 1.65;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Fraunces', serif;
-            letter-spacing: -0.02em;
-        }
-
-        /* ===== NAV ===== */
-        nav {
-            position: fixed;
-            top: 0; width: 100%;
-            padding: 1.1rem 2rem;
-            display: flex; align-items: center; justify-content: space-between;
-            z-index: 200;
-            background: rgba(253,250,244,0.9);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            display: flex; align-items: center; gap: 0.6rem;
-            text-decoration: none; flex-shrink: 0;
-        }
-        .logo-star {
-            width: 36px; height: 36px;
-            background: var(--amber);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 12px rgba(245,166,35,0.38);
-        }
-        .logo-text {
-            font-family: 'Fraunces', serif;
-            font-weight: 700; font-size: 1.25rem;
-            color: var(--navy);
-        }
-
-        .nav-links { display: flex; align-items: center; gap: 0.3rem; flex-wrap: nowrap; }
-        .nav-link {
-            font-size: 0.88rem; font-weight: 500;
-            color: var(--navy); text-decoration: none;
-            padding: 0.45rem 0.9rem; border-radius: 10px;
-            transition: background 0.18s;
-            white-space: nowrap;
-        }
-        .nav-link:hover { background: var(--amber-lt); }
-        .nav-cta {
-            font-size: 0.85rem; font-weight: 700;
-            color: white; text-decoration: none;
-            background: var(--amber); padding: 0.5rem 1.2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(245,166,35,0.3);
-            transition: transform 0.18s, box-shadow 0.18s;
-            margin-left: 0.5rem; white-space: nowrap;
-        }
-        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(245,166,35,0.45); }
-
-        /* Language switcher */
-        .lang-switcher {
-            display: flex; align-items: center; gap: 0.3rem;
-            font-size: 0.85rem; font-weight: 600;
-            padding: 0.4rem 0.8rem; border-radius: 10px;
-            background: var(--cream-2); border: 1px solid var(--border);
-            color: var(--text-2); cursor: pointer; text-decoration: none;
-            transition: background 0.18s, border-color 0.18s;
-        }
-        .lang-switcher:hover { background: var(--amber-lt); border-color: rgba(245,166,35,0.3); }
-        /* Flag centered between logo and hamburger (mobile only) */
-        .lang-switcher--centered {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            padding: 0;
-            background: var(--cream-2);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-2);
-            font-size: 1.1rem;
-            text-decoration: none;
-            flex-shrink: 0;
-            transition: background 0.18s;
-        }
-        .lang-switcher--centered:hover { background: var(--amber-lt); }
-
-        /* Hamburger */
-        .nav-hamburger {
-            display: none; background: none; border: none; cursor: pointer;
-            padding: 0.4rem; flex-direction: column; gap: 5px; z-index: 201;
-        }
-        .nav-hamburger span {
-            display: block; width: 24px; height: 2px;
-            background: var(--navy); border-radius: 2px;
-            transition: transform 0.28s ease, opacity 0.28s ease;
-        }
-        .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-        .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-        .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-        .mobile-menu {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(253,250,244,0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 199; flex-direction: column;
-            padding: 0 1.2rem 1rem;
-            box-shadow: 0 8px 32px rgba(28,35,64,0.1);
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 18px;
-            transform: translateY(-100%); opacity: 0;
-            pointer-events: none;
-            transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease;
-            display: flex;
-        }
-        .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-        .mobile-menu .mobile-menu-links {
-            display: flex; flex-direction: column; gap: 0.2rem; padding-top: 4.2rem;
-        }
-        .mobile-menu a {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1.05rem; font-weight: 600;
-            color: var(--navy); text-decoration: none;
-            padding: 0.75rem 1rem; border-radius: 12px;
-            transition: background 0.18s; display: block;
-        }
-        .mobile-menu a:hover, .mobile-menu a:active { background: var(--amber-lt); }
-        .mobile-menu .mobile-cta {
-            background: var(--amber); color: white;
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.4); margin-top: 0.4rem;
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 8rem 2rem 5rem;
-            background: var(--cream);
-            position: relative; overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute; top: -180px; right: -150px;
-            width: 700px; height: 700px;
-            background: radial-gradient(circle, rgba(245,166,35,0.09) 0%, transparent 68%);
-            border-radius: 50%; pointer-events: none;
-        }
-        .hero::after {
-            content: '';
-            position: absolute; bottom: -60px; left: -140px;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(237,232,220,0.7) 0%, transparent 70%);
-            border-radius: 50%; pointer-events: none;
-        }
-
-        .hero-inner {
-            max-width: 1100px; margin: 0 auto; width: 100%;
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 4rem; align-items: center;
-            position: relative; z-index: 2;
-        }
-
-        .hero-text { }
-
-        .hero-eyebrow {
-            display: inline-flex; align-items: center; gap: 0.45rem;
-            padding: 0.42rem 1rem;
-            background: var(--amber-lt);
-            border: 1px solid rgba(245,166,35,0.3);
-            border-radius: 50px;
-            font-size: 0.82rem; font-weight: 700;
-            color: var(--amber-dk);
-            margin-bottom: 1.4rem;
-            letter-spacing: 0.03em; text-transform: uppercase;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.4rem, 4.5vw, 3.8rem);
-            font-weight: 800; line-height: 1.08;
-            color: var(--navy);
-            margin-bottom: 1.4rem;
-        }
-        .hero h1 em {
-            font-style: italic; color: var(--amber-dk);
-        }
-
-        .hero-ingress {
-            font-size: clamp(1rem, 1.8vw, 1.1rem);
-            color: var(--text-2); max-width: 480px;
-            line-height: 1.8; margin-bottom: 1.2rem;
-        }
-
-        .hero-urgency {
-            font-size: 0.88rem; font-weight: 600;
-            color: var(--amber-dk);
-            background: var(--amber-lt);
-            border: 1px solid rgba(245,166,35,0.3);
-            border-radius: 12px;
-            padding: 0.55rem 1.1rem;
-            display: inline-block;
-            margin-bottom: 1.8rem;
-        }
-
-        .hero-ctas {
-            display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center;
-            margin-bottom: 2.2rem;
-        }
-        .btn-primary {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            padding: 0.8rem 1.8rem;
-            background: var(--amber); color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem; font-weight: 700;
-            text-decoration: none; border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer; border: none;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,166,35,0.5); }
-        .btn-secondary {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.8rem 1.4rem;
-            background: var(--white); color: var(--navy);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.95rem; font-weight: 600;
-            text-decoration: none; border-radius: 12px;
-            border: 1.5px solid var(--border);
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .btn-secondary:hover { border-color: var(--amber); background: var(--amber-lt); }
-
-        .hero-meta {
-            font-size: 0.85rem; color: var(--text-3);
-            display: flex; align-items: center; gap: 0.4rem;
-        }
-        .hero-meta strong { color: var(--text-2); }
-
-        /* ===== TESTIMONIALS ===== */
-        .hero-testimonials {
-            margin-top: 1.6rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.65rem;
-        }
-        .hero-testimonials .testimonial-item {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 0.85rem 1rem;
-            box-shadow: 0 2px 12px rgba(28,35,64,0.06);
-            font-size: 0.88rem;
-            color: var(--text-2);
-            line-height: 1.65;
-            font-style: italic;
-        }
-        .hero-testimonials .testimonial-item::before { content: '❝ '; }
-
-        /* ===== HERO ILLUSTRATION ===== */
-        .hero-visual {
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-        }
-        .hero-illustration {
-            width: 100%; max-width: 460px;
-            background: var(--white);
-            border-radius: 28px;
-            padding: 2.2rem 1.8rem;
-            box-shadow: 0 20px 60px rgba(28,35,64,0.1), 0 4px 16px rgba(28,35,64,0.05);
-            border: 1px solid var(--border);
-            position: relative;
-        }
-        .illus-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 1.6rem;
-        }
-        .illus-logo {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-family: 'Fraunces', serif;
-            font-weight: 700; font-size: 0.95rem; color: var(--navy);
-        }
-        .illus-logo-dot {
-            width: 28px; height: 28px; background: var(--amber);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem;
-            box-shadow: 0 2px 8px rgba(245,166,35,0.4);
-        }
-        .illus-stars {
-            display: flex; align-items: center; gap: 0.3rem;
-            background: var(--amber-lt);
-            padding: 0.3rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.82rem; font-weight: 700; color: var(--amber-dk);
-        }
-        .illus-greeting {
-            font-size: 0.9rem; color: var(--text-2); margin-bottom: 1.4rem;
-        }
-        .illus-greeting strong { color: var(--navy); font-weight: 700; }
-        .illus-schedule {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem;
-            margin-bottom: 1.4rem;
-        }
-        .illus-card {
-            background: var(--cream-2);
-            border-radius: 14px; padding: 0.9rem 0.6rem;
-            text-align: center;
-            border: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-        .illus-card.active {
-            background: linear-gradient(135deg, #FFF8E6, var(--amber-lt));
-            border-color: var(--amber);
-        }
-        .illus-card-label {
-            font-size: 0.6rem; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            color: var(--text-3); margin-bottom: 0.4rem;
-        }
-        .illus-card-label.now { color: var(--amber-dk); }
-        .illus-card-icon { font-size: 1.7rem; margin-bottom: 0.3rem; line-height: 1; }
-        .illus-card-name {
-            font-family: 'Fraunces', serif;
-            font-size: 0.72rem; font-weight: 700; color: var(--navy);
-        }
-        .illus-card-badge {
-            display: inline-flex; align-items: center; gap: 0.2rem;
-            background: var(--amber); color: white;
-            font-size: 0.58rem; font-weight: 700;
-            padding: 0.18rem 0.5rem; border-radius: 20px;
-            margin-top: 0.3rem;
-        }
-        .illus-progress {
-            background: var(--cream-2); border-radius: 12px; padding: 0.9rem 1rem;
-        }
-        .illus-progress-label {
-            display: flex; justify-content: space-between;
-            font-size: 0.75rem; font-weight: 600; color: var(--text-2);
-            margin-bottom: 0.5rem;
-        }
-        .illus-progress-bar {
-            height: 8px; background: var(--sand);
-            border-radius: 10px; overflow: hidden;
-        }
-        .illus-progress-fill {
-            height: 100%; background: linear-gradient(90deg, var(--amber), #F5C842);
-            border-radius: 10px; width: 68%;
-            transition: width 1.5s ease;
-        }
-
-        /* ===== SECTIONS SHARED ===== */
-        .section { padding: 6rem 2rem; }
-        .section-inner { max-width: 1100px; margin: 0 auto; }
-        .section-header { text-align: center; margin-bottom: 3.5rem; }
-        .section-label {
-            display: inline-block;
-            font-size: 0.75rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.14em;
-            color: var(--amber-dk); margin-bottom: 0.8rem;
-        }
-        .section-title {
-            font-size: clamp(1.9rem, 3.8vw, 2.8rem);
-            font-weight: 800; color: var(--navy); line-height: 1.15;
-        }
-        .section-title em { font-style: italic; color: var(--amber-dk); }
-        .section-subtitle {
-            font-size: 1.05rem; color: var(--text-2); margin-top: 0.8rem;
-            max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.7;
-        }
-
-        /* ===== PROBLEM SECTION ===== */
-        #problem { background: var(--cream-2); }
-        .problem-body { max-width: 760px; margin: 0 auto; }
-        .problem-lead {
-            font-size: clamp(1.1rem, 2vw, 1.25rem);
-            font-family: 'Fraunces', serif;
-            font-style: italic;
-            color: var(--navy); line-height: 1.7;
-            text-align: center; margin-bottom: 2.4rem;
-            padding: 1.8rem 2.4rem;
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            border-left: 4px solid var(--amber);
-            box-shadow: 0 4px 24px rgba(28,35,64,0.05);
-        }
-        .problem-pain {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-            margin-top: 2.5rem;
-        }
-        .pain-card {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 1.4rem 1.5rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 12px rgba(28,35,64,0.04);
-        }
-        .pain-card-icon { font-size: 1.6rem; margin-bottom: 0.6rem; }
-        .pain-card h4 {
-            font-family: 'Fraunces', serif;
-            font-size: 1rem; font-weight: 700;
-            color: var(--navy); margin-bottom: 0.4rem;
-        }
-        .pain-card p { font-size: 0.88rem; color: var(--text-2); line-height: 1.65; }
-
-        /* ===== SOLUTION SECTION ===== */
-        #features { background: var(--cream); }
-        .solution-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-        }
-        .solution-card {
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: 2rem 1.8rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(28,35,64,0.04);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            position: relative; overflow: hidden;
-        }
-        .solution-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, var(--amber), #F5C842);
-            opacity: 0; transition: opacity 0.2s;
-        }
-        .solution-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(28,35,64,0.09); }
-        .solution-card:hover::before { opacity: 1; }
-        .solution-icon {
-            width: 52px; height: 52px;
-            background: var(--amber-lt);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 1.2rem;
-        }
-        .solution-card h3 {
-            font-size: 1.08rem; font-weight: 700;
-            color: var(--navy); margin-bottom: 0.6rem;
-        }
-        .solution-card p {
-            font-size: 0.94rem; color: var(--text-2); line-height: 1.7;
-        }
-
-        /* ===== TREASURE CHAMBER SECTION ===== */
-        #treasure-chamber { background: var(--white); }
-        .treasure-layout {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 5rem; align-items: center;
-            max-width: 1100px; margin: 0 auto;
-        }
-        .treasure-content h2 {
-            font-size: clamp(1.6rem, 3vw, 2.4rem);
-            font-weight: 800; color: var(--navy); line-height: 1.2;
-            margin-bottom: 1.2rem;
-        }
-        .treasure-content > p {
-            font-size: 1rem; color: var(--text-2); line-height: 1.8;
-            margin-bottom: 2rem;
-        }
-        .treasure-steps { list-style: none; padding: 0; margin: 0 0 2rem; }
-        .treasure-steps li {
-            display: flex; align-items: flex-start; gap: 1rem;
-            margin-bottom: 1.2rem;
-        }
-        .treasure-steps li .step-num {
-            flex-shrink: 0; width: 36px; height: 36px;
-            background: var(--amber); color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.9rem;
-            box-shadow: 0 2px 8px rgba(245,166,35,0.35);
-        }
-        .treasure-steps li .step-text strong {
-            display: block; color: var(--navy); font-size: 0.95rem; margin-bottom: 0.2rem;
-        }
-        .treasure-steps li .step-text span {
-            font-size: 0.88rem; color: var(--text-2); line-height: 1.55;
-        }
-        .treasure-illustration {
-            text-align: center;
-            background: linear-gradient(135deg, #FFF8E6, var(--amber-lt));
-            border-radius: 24px;
-            padding: 2.5rem 2rem;
-            border: 1px solid rgba(245,166,35,0.2);
-        }
-        .treasure-illustration .chamber-emoji { font-size: 4rem; margin-bottom: 1rem; }
-        .treasure-illustration h3 {
-            font-family: 'Fraunces', serif; font-size: 1.4rem;
-            font-weight: 700; color: var(--navy); margin-bottom: 0.6rem;
-        }
-        .treasure-illustration p { font-size: 0.92rem; color: var(--text-2); }
-        .treasure-rewards {
-            display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap;
-            margin-top: 1.4rem;
-        }
-        .reward-chip {
-            display: inline-flex; align-items: center; gap: 0.3rem;
-            background: var(--white); border: 1px solid var(--border);
-            border-radius: 50px; padding: 0.3rem 0.9rem;
-            font-size: 0.8rem; font-weight: 600; color: var(--navy);
-            box-shadow: 0 2px 8px rgba(28,35,64,0.06);
-        }
-
-        /* ===== HOW IT WORKS ===== */
-        #how-it-works { background: var(--cream-2); }
-        .steps-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
-        }
-        .step-card {
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: 2rem 1.5rem;
-            text-align: center;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 16px rgba(28,35,64,0.04);
-            position: relative;
-        }
-        .step-num-badge {
-            position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
-            width: 32px; height: 32px; background: var(--amber);
-            color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 0.85rem;
-            box-shadow: 0 3px 10px rgba(245,166,35,0.4);
-        }
-        .step-icon { font-size: 2.4rem; margin-bottom: 1rem; margin-top: 0.5rem; }
-        .step-card h3 {
-            font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem;
-        }
-        .step-card p { font-size: 0.88rem; color: var(--text-2); line-height: 1.65; }
-
-        /* ===== SCREENSHOTS SECTION ===== */
-        #screenshots { background: var(--white); }
-        .screenshots-intro {
-            text-align: center;
-            font-size: 1rem; color: var(--text-2); line-height: 1.75;
-            max-width: 680px; margin: 0 auto 3.5rem;
-        }
-        .screenshots-subheader { text-align: center; margin-bottom: 2.5rem; }
-        .screenshots-subheader h3 {
-            font-family: 'Fraunces', serif;
-            font-size: 1.4rem; font-weight: 600; color: var(--navy); margin-bottom: 0.5rem;
-        }
-        .screenshots-subheader p {
-            font-size: 0.92rem; color: var(--text-2); line-height: 1.65;
-            max-width: 520px; margin: 0 auto;
-        }
-        .screenshots-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem; margin-bottom: 4rem;
-        }
-        .screenshot-card { display: flex; flex-direction: column; }
-        .screenshot-phone {
-            position: relative;
-            background: var(--navy);
-            border-radius: 36px;
-            padding: 10px;
-            box-shadow: 0 8px 32px rgba(28,35,64,0.12);
-            margin-bottom: 0.85rem;
-        }
-        .screenshot-phone img {
-            width: 100%; display: block; border-radius: 28px;
-        }
-        .screenshot-caption {
-            text-align: center;
-            font-size: 0.85rem; color: var(--text-2); line-height: 1.55;
-        }
-
-        /* ===== TARGET / FAQ ===== */
-        #target { background: var(--cream-2); }
-        .target-layout {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
-        }
-        .target-body {
-            font-size: 1rem; color: var(--text-2); line-height: 1.8;
-        }
-        .target-tags {
-            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.4rem;
-        }
-        .target-tag {
-            display: inline-flex;
-            padding: 0.38rem 0.9rem;
-            border-radius: 50px;
-            font-size: 0.8rem; font-weight: 600;
-            background: var(--amber-lt); color: var(--amber-dk);
-            border: 1px solid rgba(245,166,35,0.25);
-        }
-        .target-tag.purple {
-            background: var(--purple-lt); color: var(--purple);
-            border-color: rgba(107,63,160,0.2);
-        }
-
-        .faq-list { display: flex; flex-direction: column; gap: 0.8rem; }
-        .faq-item { }
-        .faq-question {
-            width: 100%; display: flex; align-items: center; justify-content: space-between;
-            gap: 1rem;
-            background: var(--white); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 1.1rem 1.4rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.96rem; font-weight: 600; color: var(--navy);
-            cursor: pointer; text-align: left;
-            transition: background 0.18s, border-color 0.18s;
-        }
-        .faq-question:hover { background: var(--amber-lt); border-color: rgba(245,166,35,0.3); }
-        .faq-icon {
-            font-size: 1.3rem; font-weight: 300; color: var(--amber);
-            flex-shrink: 0; transition: transform 0.25s ease;
-            line-height: 1;
-        }
-        .faq-answer {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
-        }
-        .faq-item.open .faq-answer { max-height: 400px; }
-        .faq-item.open .faq-question { border-color: rgba(245,166,35,0.3); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-        .faq-item.open .faq-icon { transform: rotate(45deg); }
-        .faq-answer-inner {
-            padding: 1rem 1.4rem 1.2rem;
-            background: var(--white);
-            border: 1px solid rgba(245,166,35,0.2);
-            border-top: none;
-            border-bottom-left-radius: var(--radius-lg);
-            border-bottom-right-radius: var(--radius-lg);
-            font-size: 0.93rem; color: var(--text-2); line-height: 1.75;
-        }
-
-        /* ===== WAITLIST FORM ===== */
-        #waitlist { background: var(--cream); }
-        .waitlist-card {
-            max-width: 560px; margin: 0 auto;
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: 2.8rem 2.4rem;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 36px rgba(28,35,64,0.06);
-            text-align: center;
-        }
-        .waitlist-card .section-label { margin-bottom: 0.6rem; }
-        .waitlist-card h2 {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            font-weight: 800; color: var(--navy);
-            margin-bottom: 0.6rem;
-        }
-        .waitlist-card .section-subtitle {
-            font-size: 0.98rem; color: var(--text-2);
-            margin: 0 auto 2rem;
-            max-width: 420px;
-        }
-        .waitlist-form { display: flex; flex-direction: column; gap: 0.9rem; }
-        .waitlist-form input {
-            width: 100%; padding: 0.8rem 1rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.98rem; color: var(--text);
-            background: var(--cream-2);
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            text-align: left;
-        }
-        .waitlist-form input:focus {
-            border-color: var(--amber);
-            box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
-        }
-        .waitlist-submit-btn {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            width: 100%; justify-content: center;
-            padding: 0.9rem 2rem;
-            background: var(--amber); color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1.05rem; font-weight: 700;
-            border: none; border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(245,166,35,0.35);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .waitlist-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,166,35,0.5); }
-        .waitlist-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .waitlist-form .form-error {
-            background: #FEF2F2; color: #B91C1C;
-            font-size: 0.88rem; font-weight: 500;
-            padding: 0.65rem 1rem; border-radius: 10px;
-            display: none; text-align: left;
-        }
-        .waitlist-success {
-            text-align: center; padding: 1.5rem 0;
-        }
-        .waitlist-success-icon { font-size: 2.8rem; margin-bottom: 0.8rem; }
-        .waitlist-success h3 {
-            font-size: 1.2rem; color: var(--navy); margin-bottom: 0.5rem;
-        }
-        .waitlist-success p {
-            font-size: 0.95rem; color: var(--text-2); line-height: 1.7;
-        }
-
-        /* ===== SHARE SECTION ===== */
-        #share { background: var(--white); padding: 4rem 2rem; }
-        .share-inner {
-            max-width: 680px; margin: 0 auto; text-align: center;
-        }
-        .share-inner h2 {
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            font-weight: 800; color: var(--navy); margin-bottom: 0.8rem;
-        }
-        .share-inner p {
-            font-size: 0.95rem; color: var(--text-2); margin-bottom: 2rem;
-            line-height: 1.7;
-        }
-        .share-buttons {
-            display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;
-        }
-        .share-btn {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.65rem 1.3rem;
-            background: var(--cream-2); color: var(--navy);
-            border: 1.5px solid var(--border);
-            border-radius: 10px; font-size: 0.88rem; font-weight: 600;
-            text-decoration: none; cursor: pointer;
-            transition: background 0.18s, border-color 0.18s;
-        }
-        .share-btn:hover { background: var(--amber-lt); border-color: var(--amber); }
-        .share-btn.facebook { color: #1877F2; border-color: rgba(24,119,242,0.3); }
-        .share-btn.facebook:hover { background: rgba(24,119,242,0.08); border-color: #1877F2; }
-        .share-btn.whatsapp { color: #25D366; border-color: rgba(37,211,102,0.3); }
-        .share-btn.whatsapp:hover { background: rgba(37,211,102,0.08); border-color: #25D366; }
-        .share-btn.twitter { color: #000000; }
-        .share-btn.linkedin { color: #0A66C2; border-color: rgba(10,102,194,0.3); }
-        .share-btn.linkedin:hover { background: rgba(10,102,194,0.08); border-color: #0A66C2; }
-        .share-btn.copy { }
-        .share-btn.copied { background: var(--green-lt); border-color: var(--green); color: var(--green); }
-
-        /* ===== FOOTER CTA ===== */
-        .footer-cta-section {
-            background: var(--navy);
-            padding: 5rem 2rem;
-            text-align: center;
-        }
-        .footer-cta-section h2 {
-            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-            color: var(--white); margin-bottom: 1rem;
-        }
-        .footer-cta-section p {
-            color: rgba(255,255,255,0.65);
-            font-size: 1rem; margin-bottom: 2rem;
-        }
-        .btn-cta-scroll {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            padding: 0.95rem 2.2rem;
-            background: var(--amber); color: white;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 1rem; font-weight: 700;
-            text-decoration: none; border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(245,166,35,0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer; border: none;
-        }
-        .btn-cta-scroll:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,166,35,0.55); }
-
-        /* ===== FOOTER ===== */
-        footer {
-            background: var(--navy);
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding: 2.5rem 2rem;
-            text-align: center;
-        }
-        .footer-links {
-            display: flex; align-items: center; justify-content: center; gap: 1.5rem;
-            margin-bottom: 0.8rem; flex-wrap: wrap;
-        }
-        .footer-links a {
-            font-size: 0.85rem; color: rgba(255,255,255,0.45);
-            text-decoration: none; transition: color 0.18s;
-        }
-        .footer-links a:hover { color: rgba(255,255,255,0.8); }
-        .footer-copy {
-            font-size: 0.82rem; color: rgba(255,255,255,0.3);
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 900px) {
-            .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
-            .hero-visual { order: -1; }
-            .solution-grid { grid-template-columns: repeat(2, 1fr); }
-            .steps-grid { grid-template-columns: repeat(2, 1fr); }
-            .treasure-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-            .target-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-            .problem-pain { grid-template-columns: 1fr; }
-            .screenshots-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 640px) {
-            .nav-links { display: none; }
-            .nav-hamburger { display: flex; }
-            .lang-switcher--centered { display: flex; }
-            .hero { padding: 7rem 1.5rem 4rem; }
-            .hero-ctas { flex-direction: column; }
-            .solution-grid { grid-template-columns: 1fr; }
-            .steps-grid { grid-template-columns: 1fr; }
-            .screenshots-grid { grid-template-columns: 1fr; }
-            .section { padding: 4rem 1.5rem; }
-            .waitlist-card { padding: 2rem 1.5rem; }
-        }
-    </style>
-
-    <!-- Schema.org JSON-LD -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "My Starday",
-        "url": "https://mystarday.se/en",
-        "description": "Visual daily schedule app for children with ADHD and autism. Stars, rewards, and independence — without the nagging.",
-        "applicationCategory": "EducationApplication",
-        "operatingSystem": "Web",
-        "offers": {
-            "@type": "Offer",
-            "price": 0,
-            "priceCurrency": "USD",
-            "description": "First year free for the first 100 families"
-        }
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "My Starday",
-        "url": "https://mystarday.se",
-        "logo": "https://mystarday.se/og-image.png",
-        "sameAs": [
-            "https://facebook.com/mystarday"
-        ]
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            {
-                "@type": "Question",
-                "name": "Who is behind My Starday?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "A Swedish family who built it because they needed it themselves. Designed by parents, for families who want calmer mornings and evenings."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Is my family's data private?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. My Starday is fully GDPR compliant. No ads, no third-party tracking, no data sold. Parents control all data."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "When does the English version launch?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Soon. Join the waitlist and be among the first 100 families to get the first year completely free."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "What does 'first year free' mean?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "The first 100 families to sign up pay nothing for 12 months after the English version launches. No strings attached."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Can I try it now?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes! The Swedish version is already live at mystarday.se — fully functional, no credit card required. The English version is coming."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Who is My Starday designed for?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Any family with children aged 4–12. Especially families with children who have ADHD, autism, or anyone who thrives on visual structure and routine."
-                }
-            }
-        ]
-    }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="canonical" href="__SITE_URL__/en">
+  <title>My Starday — Visual Schedule App for Kids | The Treasure Chamber</title>
+  <meta name="description" content="My Starday — visual schedule app for kids. Clear picture support, daily structure, and star rewards. A helpful tool for ADHD and autism. Free for founding families. Try it today.">
+  <meta property="og:title" content="My Starday — Visual schedules and stars without the nagging">
+  <meta property="og:description" content="Visual schedules, clear steps, and stars that help kids get through the day. Free for founding families.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="__SITE_URL__/en">
+  <meta property="og:image" content="__SITE_URL__/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" hreflang="sv" href="__SITE_URL__/">
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en">
+  <link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/login-magic.css?v=137">
+  <link rel="stylesheet" href="/css/landing.css?v=13">
+  <link rel="stylesheet" href="/css/icon-system.css?v=1">
+  <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
+  <link rel="stylesheet" href="/css/seo-article.css?v=2">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
+  <script src="/js/platform.js?v=2026-05-28-ios"></script>
+  <script src="/js/cookie-banner.js?v=2.13.2"></script>
+  <script src="/js/utm-capture.js?v=1.0.0"></script>
+  <script src="/js/meta-app-events.js?v=1.0.0"></script>
+  <script src="/js/marketing-events.js?v=2.13.5"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "My Starday",
+    "url": "__SITE_URL__/en",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "iOS, Web (PWA)",
+    "offers": { "@type": "Offer", "price": 0, "priceCurrency": "SEK" },
+    "description": "Visual daily schedule for kids with star rewards that make routines calm and motivating.",
+    "inLanguage": "en"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "How much does My Starday cost?", "acceptedAnswer": { "@type": "Answer", "text": "The first 225 families get Basic free as founding members. No payment is required in the current version." }},
+      { "@type": "Question", "name": "Is this right for kids with ADHD or autism?", "acceptedAnswer": { "@type": "Answer", "text": "My Starday is not built around a diagnosis, but it often works well for children who need clear structure, visual support, predictability, or more motivation in daily life." }},
+      { "@type": "Question", "name": "What happens to the stars if we miss a day?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing negative. The focus is on motivation and progress — not punishment or guilt." }},
+      { "@type": "Question", "name": "Can several adults use the app together?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — the idea is that several adults around the child can coordinate and see the same structure." }},
+      { "@type": "Question", "name": "Does my child need to be able to read?", "acceptedAnswer": { "@type": "Answer", "text": "No — the child should be able to understand as much as possible visually, step by step." }},
+      { "@type": "Question", "name": "Do I need to download the app?", "acceptedAnswer": { "@type": "Answer", "text": "The app is in the App Store for iPhone and Google Play for Android. You can also use it in the browser and add it to your home screen as a PWA." }}
+    ]
+  }
+  </script>
 </head>
-<body>
+<body class="platform-web landing-page">
 
-<!-- ===== NAV ===== -->
-<nav>
-    <a href="https://mystarday.se" class="logo">
-        <div class="logo-star">⭐</div>
-        <span class="logo-text">My Starday</span>
-    </a>
-    <div class="nav-links">
-        <a href="#problem" class="nav-link">The Problem</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#target" class="nav-link">About</a>
-        <a href="#faq" class="nav-link">FAQ</a>
-        <a href="https://mystarday.se/pedagoger-och-terapeuter" class="nav-link">For Professionals</a>
-        <a href="https://mystarday.se" class="nav-cta">🏆 Try Free</a>
+<div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
+<div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
+
+<!-- Dagens nyhet banner -->
+<div id="dagensNyhetBanner" style="display:none;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border-bottom:2px solid #F5A623;padding:0.6rem 1.5rem;position:fixed;left:0;right:0;z-index:195;top:0;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <div style="flex:1;min-width:0;">
+      <span id="dagensNyhetTitle" style="font-family:'Fraunces',serif;font-weight:700;color:#1C2340;font-size:0.95rem;margin-right:0.5rem;"></span>
+      <span id="dagensNyhetBody" style="color:#5A6178;font-size:0.88rem;"></span>
     </div>
-    <!-- Flag centered between logo and hamburger (SVG, sharp, 44×44px touch target) -->
-    <a href="https://mystarday.se" class="lang-switcher lang-switcher--centered" title="Svenska" aria-label="Byt till svenska">
-        <svg width="24" height="24" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-            <rect width="60" height="60" fill="#1C2340"/>
-            <rect x="0" y="22" width="60" height="16" fill="#F5A623"/>
-            <rect x="22" y="0" width="16" height="60" fill="#F5A623"/>
-        </svg>
-    </a>
-    <button class="nav-hamburger" id="navHamburger" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
+    <span id="dagensNyhetDate" style="color:#8A92AA;font-size:0.78rem;flex-shrink:0;"></span>
+    <button id="dagensNyhetClose" type="button" style="background:none;border:none;cursor:pointer;color:#8A92AA;font-size:1.2rem;" title="Close" aria-label="Close">✕</button>
+  </div>
+</div>
+<div id="dagensNyhetSpacer" style="height:0;"></div>
+
+<nav class="landing-nav" aria-label="Main navigation">
+  <a href="/en" class="landing-nav__logo">
+    <span class="landing-nav__star" aria-hidden="true">⭐</span>
+    <span class="landing-nav__name">My Starday</span>
+  </a>
+  <div class="landing-nav__links">
+    <a href="#sa-fungerar-det" class="landing-nav__link">How it works</a>
+    <a href="#for-vilka" class="landing-nav__link">For families who need structure</a>
+    <a href="#skattkammaren" class="landing-nav__link">Treasure Chamber</a>
+    <a href="/en/educators-and-therapists" class="landing-nav__link">For educators &amp; therapists</a>
+    <a href="#faq" class="landing-nav__link">FAQ</a>
+  </div>
+  <div class="landing-nav__actions">
+    <button type="button" class="landing-nav__tipsa" data-landing-share data-track="landing_share_click" aria-label="Tell a family" title="Tell a family about the app">
+      <span class="landing-nav__tipsa-icon" aria-hidden="true"></span>
+      <span class="landing-nav__tipsa-label">Share</span>
     </button>
+    <a href="/child-login" class="landing-nav__child-login" data-track="nav_child_login_click" title="Child login">🌟 Child</a>
+    <a href="/en/login" class="landing-nav__login" data-track="nav_login_click">Log in</a>
+    <a href="/en/register" class="btn-primary" data-track="nav_signup_click">Create free account</a>
+    <a href="/" class="landing-nav__lang landing-nav__lang--text" title="Swedish version" aria-label="Svenska"><span class="landing-nav__lang-flag" aria-hidden="true">🇸🇪</span><span class="landing-nav__lang-label">Svenska</span></a>
+    <button type="button" class="landing-nav__hamburger" id="navHamburger" aria-label="Open menu and log in" aria-expanded="false">
+      <span class="landing-nav__hamburger-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="landing-nav__hamburger-label" aria-hidden="true">
+        <span class="landing-nav__hamburger-title">Menu</span>
+        <span class="landing-nav__hamburger-sub">Log in</span>
+      </span>
+    </button>
+  </div>
 </nav>
 
-<!-- Mobile menu -->
-<div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobile menu">
-    <div class="mobile-menu-links">
-        <a href="#problem" onclick="closeMobileMenu()">The Problem</a>
-        <a href="#features" onclick="closeMobileMenu()">Features</a>
-        <a href="#target" onclick="closeMobileMenu()">About</a>
-        <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
-        <a href="https://mystarday.se/pedagoger-och-terapeuter" onclick="closeMobileMenu()">For Professionals</a>
-        <a href="https://mystarday.se" onclick="closeMobileMenu()" aria-label="Byt till svenska">
-            <svg width="20" height="20" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                <rect width="60" height="60" fill="#1a2e4a"/>
-                <rect x="0" y="22" width="60" height="16" fill="#F6B40E"/>
-                <rect x="22" y="0" width="16" height="60" fill="#F6B40E"/>
-            </svg>
-        </a>
-        <a href="https://mystarday.se" class="mobile-cta" onclick="closeMobileMenu()">🏆 Try Free</a>
+<div class="landing-mobile-menu" id="mobileMenu" role="dialog" aria-label="Menu and login">
+  <div class="landing-login-entry landing-login-entry--menu">
+    <p class="landing-login-entry__label">Already have an account?</p>
+    <div class="landing-login-entry__buttons">
+      <a href="/en/login" class="landing-login-entry__btn landing-login-entry__btn--parent" data-track="nav_login_click">
+        <span class="landing-login-entry__icon" aria-hidden="true">👨‍👩‍👧</span>
+        <span class="landing-login-entry__text"><strong>Log in as parent</strong><span>Email and password</span></span>
+      </a>
+      <a href="/child-login" class="landing-login-entry__btn landing-login-entry__btn--child" data-track="nav_child_login_click">
+        <span class="landing-login-entry__icon" aria-hidden="true">🌟</span>
+        <span class="landing-login-entry__text"><strong>Log in as child</strong><span>Name and PIN code</span></span>
+      </a>
     </div>
+  </div>
+  <p class="landing-mobile-menu__section">Explore</p>
+  <a href="#sa-fungerar-det">How it works</a>
+  <a href="#for-vilka">For families who need structure</a>
+  <a href="#skattkammaren">Treasure Chamber</a>
+  <a href="/en/educators-and-therapists">For educators &amp; therapists</a>
+  <a href="#faq">FAQ</a>
+  <a href="#" class="landing-mobile-menu__tipsa" data-landing-share data-track="landing_share_click">Tell a family</a>
+  <p class="landing-mobile-menu__section">Download the app</p>
+  <div class="store-badges store-badges--menu">
+    <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Download on the App Store">
+      <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+    </a>
+    <a href="__PLAY_STORE_URL__" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="play_store_click" aria-label="Get it on Google Play">
+      <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+    </a>
+  </div>
+  <p class="landing-mobile-menu__section">New here?</p>
+  <a href="/en/register" class="btn-primary" style="text-align:center;margin-top:0.25rem;" data-track="nav_signup_click">Create free account</a>
+  <a href="/">🇸🇪 Svenska</a>
 </div>
 
-<!-- ===== HERO ===== -->
-<section class="hero">
-    <div class="hero-inner">
-        <div class="hero-text">
-            <div class="hero-eyebrow">✨ From Sweden, for families worldwide</div>
-            <h1>My Starday — The <em>Treasure Chamber</em>, where motivation lives</h1>
-            <p class="hero-ingress">
-                My Starday is the app for families who want to make everyday life easier. Visual schedules, clear steps, and a reward structure that actually works — without the nagging.
-            </p>
-            <p class="hero-ingress" style="margin-bottom: 0;">Join the movement for a calmer home.</p>
-            <div class="hero-urgency">🎁 The first 100 families get their first year completely free when we launch the English version.</div>
-            <div class="hero-ctas">
-                <a href="#waitlist" class="btn-primary">🎯 Secure my free spot now</a>
-                <a href="https://mystarday.se" class="btn-secondary">Try it now in Swedish →</a>
-            </div>
-            <!-- Testimonials after CTA buttons -->
-            <div class="hero-testimonials" aria-label="What parents say">
-                <div class="testimonial-item">I'm a bit in shock about how well the app has worked for our child... struggling with autistic burnout... Yesterday they completed all the tasks on the schedule and we didn't even have to remind them!</div>
-                <div class="testimonial-item">We downloaded the app and already on the first day it has been incredibly positive for our child with autistic burnout!</div>
-                <div class="testimonial-item">The app has been super popular today and even teeth brushing in the morning got done. It NEVER usually gets done otherwise!</div>
-            </div>
-            <p class="hero-meta">
-                <strong>Already used by 70+ families</strong> and 85+ children daily in Sweden 🇸🇪
-            </p>
+<button type="button" class="landing-tipsa-fixed" data-landing-share data-track="landing_share_click" aria-label="Tell a family">
+  <span class="landing-tipsa-fixed__icon" aria-hidden="true"></span>
+  <span class="landing-tipsa-fixed__label">Share</span>
+</button>
+
+<!-- Admin landing news (server-injected) -->
+<div id="landingNewsSection" style="display:none;padding-top:5rem;">
+  <div id="landingNewsGrid" style="display:flex;flex-direction:column;gap:0.8rem;"></div>
+</div>
+
+<!-- Legacy anchor aliases -->
+<span id="losning" class="anchor-alias" aria-hidden="true"></span>
+<span id="program" class="anchor-alias" aria-hidden="true"></span>
+<span id="malgrupp" class="anchor-alias" aria-hidden="true"></span>
+<span id="kontakt" class="anchor-alias" aria-hidden="true"></span>
+<span id="problemet" class="anchor-alias" aria-hidden="true"></span>
+
+<!-- 1. HERO -->
+<section class="landing-hero landing-section--dark" id="toppen">
+  <div class="landing-hero__grid">
+    <div class="landing-hero__copy">
+      <div class="hero-launch-card" id="app-store" aria-label="App launch">
+        <img src="/apple-touch-icon.png" alt="App icon" class="hero-launch-card__icon" width="72" height="72">
+        <div class="hero-launch-card__text">
+          <span class="hero-launch-card__tag">New launch</span>
+          <strong class="hero-launch-card__title">We are finally live! 🎉🚀</strong>
+          <span class="hero-launch-card__hook">Ready. Set. Go.</span>
+          <p class="hero-launch-card__body">Clear schedules and stars that build motivation — and less nagging at home. Available on the App Store and Google Play.</p>
         </div>
-        <div class="hero-visual">
-            <div class="hero-illustration">
-                <div class="illus-header">
-                    <div class="illus-logo">
-                        <div class="illus-logo-dot">⭐</div>
-                        My Starday
-                    </div>
-                    <div class="illus-stars">⭐ 24 stars</div>
-                </div>
-                <p class="illus-greeting">Good morning, <strong>Lina!</strong> Here's your day ✨</p>
-                <div class="illus-schedule">
-                    <div class="illus-card">
-                        <div class="illus-card-label">Morning</div>
-                        <div class="illus-card-icon">🌅</div>
-                        <div class="illus-card-name">Wake up routine</div>
-                    </div>
-                    <div class="illus-card active">
-                        <div class="illus-card-label now">Now</div>
-                        <div class="illus-card-icon">🦷</div>
-                        <div class="illus-card-name">Brush teeth</div>
-                        <span class="illus-card-badge">⭐ 2 stars</span>
-                    </div>
-                    <div class="illus-card">
-                        <div class="illus-card-label">Afternoon</div>
-                        <div class="illus-card-icon">📚</div>
-                        <div class="illus-card-name">Homework</div>
-                    </div>
-                </div>
-                <div class="illus-progress">
-                    <div class="illus-progress-label">
-                        <span>Today's progress</span>
-                        <span>2 of 3 done</span>
-                    </div>
-                    <div class="illus-progress-bar">
-                        <div class="illus-progress-fill" style="width: 68%"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="store-badges store-badges--hero-card hero-launch-card__stores">
+          <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Download on the App Store">
+            <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+          </a>
+          <a href="__PLAY_STORE_URL__" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="play_store_click" aria-label="Get it on Google Play">
+            <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+          </a>
         </div>
+      </div>
+      <h1>Visual schedules and stars that help kids get through the day — without the nagging</h1>
+      <p class="landing-hero__sub">My Starday helps children understand what is happening now, what comes next, and why it is worth trying. You build the routines; your child follows their schedule step by step in their own view and earns stars for the Treasure Chamber when activities are completed.</p>
+      <div class="landing-hero__ctas">
+        <div class="store-badges store-badges--hero-cta landing-hero__store-badges" aria-label="Download the app">
+          <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Download on the App Store">
+            <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+          </a>
+          <a href="__PLAY_STORE_URL__" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="play_store_click" aria-label="Get it on Google Play">
+            <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+          </a>
+        </div>
+        <a href="/en/register" class="btn-primary" data-track="hero_signup_click">Create free account</a>
+        <a href="#sa-fungerar-det" class="btn-secondary btn-secondary--ghost" data-track="hero_how_it_works_click">See how it works</a>
+      </div>
+      <div class="landing-login-entry landing-login-entry--hero" aria-label="Login for existing users">
+        <p class="landing-login-entry__label">Already have an account?</p>
+        <div class="landing-login-entry__buttons">
+          <a href="/en/login" class="landing-login-entry__btn landing-login-entry__btn--parent" data-track="hero_parent_login_click">
+            <span class="landing-login-entry__icon" aria-hidden="true">👨‍👩‍👧</span>
+            <span class="landing-login-entry__text"><strong>Log in as parent</strong><span>Email and password</span></span>
+          </a>
+          <a href="/child-login" class="landing-login-entry__btn landing-login-entry__btn--child" data-track="hero_child_login_click">
+            <span class="landing-login-entry__icon" aria-hidden="true">🌟</span>
+            <span class="landing-login-entry__text"><strong>Log in as child</strong><span>Name and PIN code</span></span>
+          </a>
+        </div>
+      </div>
+      <div class="landing-hero__trust">
+        <span class="trust-chip">Free for the first <span id="founderLimitText">225</span> families</span>
+        <span class="trust-chip">Child's own view with PIN</span>
+        <span class="trust-chip">Available on App Store and Google Play</span>
+        <span class="trust-chip">Works as an app on your phone</span>
+      </div>
+      <p class="landing-hero__micro">No payment required · Unlimited children for founding members</p>
     </div>
+    <div class="landing-hero__visual">
+      <div class="hero-mockup" aria-label="Example of the child's view">
+        <div class="hero-mockup__badge">Example</div>
+        <div class="hero-mockup__header">
+          <div class="hero-mockup__logo"><span>⭐</span> My Starday</div>
+          <div class="hero-mockup__stars">⭐ 12 stjärnor</div>
+        </div>
+        <p class="hero-mockup__greeting">Good morning, <strong>Lova!</strong> Today's schedule is ready.</p>
+        <div class="hero-schedule">
+          <div class="hero-schedule__card is-active">
+            <span class="hero-schedule__label">NOW</span>
+            <span class="hero-schedule__icon">🥣</span>
+            <span class="hero-schedule__name">Breakfast</span>
+            <span class="hero-schedule__badge">⭐ +1</span>
+          </div>
+          <div class="hero-schedule__card">
+            <span class="hero-schedule__label">NEXT</span>
+            <span class="hero-schedule__icon">🧥</span>
+            <span class="hero-schedule__name">Get dressed</span>
+          </div>
+          <div class="hero-schedule__card">
+            <span class="hero-schedule__label">LATER</span>
+            <span class="hero-schedule__icon">🎒</span>
+            <span class="hero-schedule__name">School</span>
+          </div>
+        </div>
+        <div class="hero-mockup__progress">
+          <div class="hero-mockup__progress-label"><span>Morning routine</span><span>68%</span></div>
+          <div class="hero-mockup__bar"><div class="hero-mockup__bar-fill" style="width:68%"></div></div>
+        </div>
+        <div class="hero-mockup__treasure">
+          <span>🏆 Treasure Chamber</span>
+          <span>12 until next reward</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== PROBLEM: Stop repeating yourself ===== -->
-<section class="section" id="problem">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-label">The Challenge</div>
-            <h2 class="section-title">Stop <em>repeating</em> yourself</h2>
-            <p class="section-subtitle">Every day feels like the same negotiation. My Starday changes that.</p>
-        </div>
-        <div class="problem-body">
-            <p class="problem-lead">
-                "You've asked your child to put on their shoes four times this morning. The fifth time, you're not asking anymore — you're raising your voice. Nobody starts their day like this."
-            </p>
-            <p style="text-align:center;font-size:0.95rem;color:var(--text-2);margin-bottom:1rem;">
-                Morning chaos. Bedtime battles. "I don't want to!" — every single evening.<br>Sound familiar? You are not alone.
-            </p>
-            <div class="problem-pain">
-                <div class="pain-card">
-                    <div class="pain-card-icon">😫</div>
-                    <h4>The Nagging Loop</h4>
-                    <p>Repeating the same instructions every morning and evening drains your energy before the day even starts.</p>
-                </div>
-                <div class="pain-card">
-                    <div class="pain-card-icon">💔</div>
-                    <h4>The Guilt Trip</h4>
-                    <p>You hate being "the bad guy." Your child feels pushed, you feel frustrated, and the morning ends in tension instead of connection.</p>
-                </div>
-                <div class="pain-card">
-                    <div class="pain-card-icon">🎯</div>
-                    <h4>Structure Falls Apart</h4>
-                    <p>Without a visual system, even simple routines collapse. Every family member handles it differently — making things worse.</p>
-                </div>
-                <div class="pain-card">
-                    <div class="pain-card-icon">✨</div>
-                    <h4>The Reward Problem</h4>
-                    <p>Sticker charts lose their magic. Rewards feel random. Your child needs something that actually motivates them.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Summer greeting from the team -->
+<section class="landing-section--light landing-sommar" id="summer-greeting" aria-labelledby="summer-greeting-title">
+  <div class="landing-inner">
+    <article class="landing-sommar__card">
+      <figure class="landing-sommar__figure">
+        <img
+          src="/images/marketing-seo/glad-sommar-2026.png"
+          alt="Happy summer from the team behind My Starday — family at a summer table overlooking the archipelago"
+          width="1200"
+          height="675"
+          loading="eager"
+          decoding="async"
+        >
+      </figure>
+      <div class="landing-sommar__body">
+        <p class="landing-sommar__lead">Hi!</p>
+        <p>Summer is here, and we want to send a warm hello to everyone using <span>My</span> <span>Starday</span>.</p>
+        <p>This app did not start as a big product idea. It started at home, in our own daily life — as parents together with our children.</p>
+        <p>In all those small moments that many people may not see from the outside.</p>
+        <ul class="landing-sommar__moments" aria-label="Everyday moments">
+          <li>Mornings.</li>
+          <li>Transitions.</li>
+          <li>Reminders.</li>
+          <li>Trying to find a way that works a little better.</li>
+        </ul>
+        <p><span>My</span> <span>Starday</span> is built with heart, to make daily life a little clearer and a little more possible. For the child who needs to see what is happening now, what comes next, and what is done. And for the parent who sometimes just needs a bit more support to hold the day together.</p>
+        <p class="landing-sommar__thanks-label">So from us: thank you.</p>
+        <ul class="landing-sommar__thanks">
+          <li>Thank you for using the app.</li>
+          <li>Thank you for testing, coming back, reporting bugs, and sending wishes.</li>
+          <li>Thank you for helping us make <span>My</span> <span>Starday</span> better, step by step.</li>
+        </ul>
+        <p>Please keep telling us if something breaks, if you miss something, or if you have an idea that would make the app even more helpful in daily life. What you send matters, and helps us build something that actually works for real families.</p>
+        <p>We wish you a wonderful summer — with ice cream, swim bags in the hallway, late evenings, slightly messier routines, and hopefully a few small star moments along the way.</p>
+        <p class="landing-sommar__closing" id="summer-greeting-title">Happy summer from the team behind <span>My</span> <span>Starday</span> <span aria-hidden="true">⭐</span></p>
+        <p class="landing-sommar__signoff">Warm regards,<br><strong>Pontus and family</strong><br><span>My</span> <span>Starday</span></p>
+      </div>
+    </article>
+  </div>
 </section>
 
-<!-- ===== SOLUTION: Built for real families ===== -->
-<section class="section" id="features">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-label">The Solution</div>
-            <h2 class="section-title">Built for families who need <em>structure</em></h2>
-            <p class="section-subtitle">My Starday was designed with ADHD, autism, and every child who thrives on routine in mind.</p>
-        </div>
-        <div class="solution-grid">
-            <div class="solution-card">
-                <div class="solution-icon">🗓️</div>
-                <h3>Visual daily schedule</h3>
-                <p>A clear picture of the whole day — morning, school, afternoon, bedtime. Each step broken into manageable pieces.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">⭐</div>
-                <h3>Star reward system</h3>
-                <p>Every completed activity earns stars. Accumulate them toward real rewards from the Treasure Chamber.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">🔐</div>
-                <h3>Child-friendly login</h3>
-                <p>Your child logs in with their name and a personal PIN — no passwords needed. Designed for ages 4–12.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">👀</div>
-                <h3>Real-time parent view</h3>
-                <p>See what your child has done, how many stars they've earned, and what's next on their schedule.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">🎨</div>
-                <h3>Fully customizable</h3>
-                <p>Create activities, set times, add sub-steps, choose rewards. Or start from ready-made templates in minutes.</p>
-            </div>
-            <div class="solution-card">
-                <div class="solution-icon">🔒</div>
-                <h3>Private &amp; safe</h3>
-                <p>No ads, no social features, no tracking. No data sold. GDPR compliant. Your family's data stays yours.</p>
-            </div>
-        </div>
+<!-- 2. PROBLEM -->
+<section class="landing-section--light" id="problem">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Daily life</span>
+      <h2 class="section-title">Does it feel like you are the family's living reminder?</h2>
+      <p class="section-intro">Many children want to — but cannot pull it together on their own. When morning routines fall apart and daily life gets stuck in reminders, both kids and adults get tired.</p>
     </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card__icon">🌅</div>
+        <h3>Mornings get stuck</h3>
+        <p>Morning routines that fall apart at brushing teeth, getting dressed, breakfast, and leaving the house.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🔁</div>
+        <h3>You say the same thing over and over</h3>
+        <p>You remind them five times, but your child still does not move on to the next step.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">📉</div>
+        <h3>Rewards lose their effect</h3>
+        <p>Reward systems work for two days — then everything fizzles out or creates more negotiation than motivation.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🧵</div>
+        <h3>The child wants to, but loses the thread</h3>
+        <p>It is not about unwillingness. Many children need a clearer picture of what is happening now, what comes next, and when something is actually done.</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;color:var(--text-2);max-width:560px;margin-left:auto;margin-right:auto;">My Starday is built for exactly that: making daily life clearer, calmer, and more motivating — for your child and for you.</p>
+    <p style="text-align:center;margin-top:1.25rem;">
+      <a href="#sa-fungerar-det" class="btn-ghost-link" data-track="problem_how_it_works_click">See how it works →</a>
+    </p>
+  </div>
 </section>
 
-<!-- ===== TREASURE CHAMBER ===== -->
-<section class="section" id="treasure-chamber">
-    <div class="section-inner">
-        <div class="treasure-layout">
-            <div class="treasure-content">
-                <div class="section-label">The Reward System</div>
-                <h2>The Treasure Chamber</h2>
-                <p>The Treasure Chamber is where your child collects stars and unlocks rewards. It's the heart of My Starday — the reason kids actually want to check off their tasks.</p>
-                <ul class="treasure-steps">
-                    <li>
-                        <span class="step-num">1</span>
-                        <span class="step-text"><strong>Your child completes a task</strong><span>From brushing teeth to reading for 20 minutes — every activity checked off earns stars.</span></span>
-                    </li>
-                    <li>
-                        <span class="step-num">2</span>
-                        <span class="step-text"><strong>Stars accumulate in real time</strong><span>Watch the star counter climb. Progress feels exciting, not like a chore.</span></span>
-                    </li>
-                    <li>
-                        <span class="step-num">3</span>
-                        <span class="step-text"><strong>Redeem from the Treasure Chamber</strong><span>Choose a reward: movie night, extra screen time, a sleepover, an ice cream trip — you set the prices.</span></span>
-                    </li>
-                </ul>
-                <a href="#waitlist" class="btn-primary" style="display:inline-flex;">Join the waitlist →</a>
-            </div>
-            <div class="treasure-illustration">
-                <div class="chamber-emoji">🏆</div>
-                <h3>The Treasure Chamber</h3>
-                <p>Where stars become real rewards</p>
-                <div class="treasure-rewards">
-                    <span class="reward-chip">🍦 Ice cream — 30 stars</span>
-                    <span class="reward-chip">🎬 Movie night — 50 stars</span>
-                    <span class="reward-chip">🛏️ Sleepover — 80 stars</span>
-                    <span class="reward-chip">🎮 Extra screen time — 20 stars</span>
-                    <span class="reward-chip">🎁 Surprise bag — 40 stars</span>
-                </div>
-            </div>
-        </div>
+<!-- 3. SÅ FUNGERAR DET -->
+<section class="landing-section--white" id="sa-fungerar-det">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">How it works</span>
+      <h2 class="section-title">How My Starday works</h2>
+      <p class="section-intro">Three simple parts that help your child understand the day — and make it easier for you to stop nagging.</p>
     </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-card__num">1</div>
+        <h3>You build your child's routine</h3>
+        <p>Add activities in the right order, adapt for morning, evening, or weekday, and create routines that fit your child.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-card__num">2</div>
+        <h3>Your child sees what happens next</h3>
+        <p>Your child follows their schedule in their own view — one step at a time, what is done, what comes next, and how much is left.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-card__num">3</div>
+        <h3>Completed steps earn stars for the Treasure Chamber</h3>
+        <p>When activities are completed, your child collects stars and works toward rewards you choose together. Progress becomes visible and motivation lasts longer.</p>
+      </div>
+    </div>
+    <div class="step-panels">
+      <div class="step-panel">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e01fcef3-4b20-4b10-b0d7-1265440d66a8.png" alt="Parent view — create schedule" loading="lazy" width="200" height="430">
+        <p class="step-panel__caption">Parent view: Create schedule</p>
+      </div>
+      <div class="step-panel">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/28ba72a2-78b5-4276-949d-26346771b3d3.png" alt="Child view — Now, Next, Later" loading="lazy" width="200" height="430">
+        <p class="step-panel__caption">Child view: Now / Next / Later</p>
+      </div>
+      <div class="step-panel">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e65d70c4-fb07-4692-b145-ad29fba683c1.png" alt="Treasure Chamber — stars and rewards" loading="lazy" width="200" height="430">
+        <p class="step-panel__caption">24 ⭐ – 12 until next reward</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== HOW IT WORKS ===== -->
-<section class="section" id="how-it-works">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-label">Getting Started</div>
-            <h2 class="section-title">How it <em>works</em></h2>
-            <p class="section-subtitle">Up and running in minutes. Your child starts earning stars today.</p>
+<!-- 4. BARNETS EGEN VY -->
+<section class="landing-section--light" id="barnvy">
+  <div class="landing-inner">
+    <div class="feature-split">
+      <div class="feature-split__visual feature-split__visual--stack">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/c25fd9c1-c2f3-4e88-835f-642f00e56c00.png" alt="Barninloggning med namn och PIN" loading="lazy" width="280" height="600">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/b3a27bac-ebd0-4d80-8bf0-2ac73f36e3a7.png" alt="Välkomstskärm för barn" loading="lazy" width="280" height="600">
+      </div>
+      <div>
+        <span class="section-eyebrow">Child's view</span>
+        <h2 class="section-title">Built so your child can use it independently</h2>
+        <p class="section-intro">My Starday is not just a tool for adults. Your child gets their own view with their schedule, stars, and Treasure Chamber — simple enough to use on their own, yet clear enough to help in the moment.</p>
+        <ul class="feature-list">
+          <li>
+            <span class="feature-list__icon">🔐</span>
+            <div><strong>Own login with PIN</strong><span>Your child logs in to their own view with name and PIN code.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">👣</span>
+            <div><strong>One step at a time</strong><span>Your child sees what is happening now, what comes next, and what is done.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">📊</span>
+            <div><strong>Clear progress</strong><span>Progress, stars, and the next reward make it easier to understand why it is worth continuing.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">🤝</span>
+            <div><strong>Less adult micromanaging in the moment</strong><span>When the schedule is clear in your child's hands, you become less of a go-between for every activity.</span></div>
+          </li>
+        </ul>
+        <div class="landing-login-entry landing-login-entry--compact" style="margin-top:1.5rem;">
+          <a href="/child-login" class="landing-login-entry__btn landing-login-entry__btn--child" data-track="barnvy_child_login_click">
+            <span class="landing-login-entry__icon" aria-hidden="true">🌟</span>
+            <span class="landing-login-entry__text"><strong>Child logs in here</strong><span>Name and PIN code</span></span>
+          </a>
         </div>
-        <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-num-badge">1</div>
-                <div class="step-icon">👨‍👩‍👧</div>
-                <h3>Create a family account</h3>
-                <p>Add your children and build their first schedule in minutes. Start from scratch or use templates.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num-badge">2</div>
-                <div class="step-icon">📋</div>
-                <h3>Build their daily schedule</h3>
-                <p>Morning, school, afternoon, bedtime — all visual, all clear. Add sub-steps for extra guidance.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num-badge">3</div>
-                <div class="step-icon">✅</div>
-                <h3>Child checks off activities</h3>
-                <p>Your child logs in with their PIN, sees their tasks, and checks them off independently.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num-badge">4</div>
-                <div class="step-icon">🎁</div>
-                <h3>Earn stars → unlock rewards</h3>
-                <p>Stars accumulate. When the goal is reached, rewards are redeemed. Motivation that actually works.</p>
-            </div>
-        </div>
+        <a href="#barnvy" class="btn-ghost-link" data-track="child_view_example_click">See an example of the child view ↑</a>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- ===== SCREENSHOTS: HOW CHILDREN EXPERIENCE IT ===== -->
-<section class="section" id="screenshots">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-label">See It In Action</div>
-            <h2 class="section-title">How children experience the app</h2>
-            <p class="section-subtitle">Child-friendly, visual, and designed to make them feel proud.</p>
+<!-- 5. SKATTKAMMAREN -->
+<section class="landing-section--white" id="skattkammaren">
+  <div class="landing-inner">
+    <div class="feature-split">
+      <div>
+        <span class="section-eyebrow">Reward system</span>
+        <h2 class="section-title">The Treasure Chamber — motivation your child can see</h2>
+        <p class="section-intro">For many children, it is not enough to "just know" something is good. They need to see that they are moving forward. The Treasure Chamber makes progress visible and helps your child work toward rewards you choose together.</p>
+        <ul class="feature-list">
+          <li>
+            <span class="feature-list__icon">⭐</span>
+            <div><strong>Stars make progress visible</strong><span>When activities are completed, your child earns stars. That makes daily life more concrete.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">🎁</span>
+            <div><strong>You choose the rewards together</strong><span>Small, everyday rewards — extra reading time, a game break, movie night, or something bigger to save toward.</span></div>
+          </li>
+          <li>
+            <span class="feature-list__icon">💚</span>
+            <div><strong>No punishment when the day is not perfect</strong><span>Missed activities do not reset your child. The focus is on motivation over time — not guilt or punishment.</span></div>
+          </li>
+        </ul>
+        <div class="treasure-chips">
+          <span class="treasure-chip">🍦 Ice cream after 30 stars</span>
+          <span class="treasure-chip">🎬 Movie night after 50 stars</span>
+          <span class="treasure-chip">🛝 Playground trip after 80 stars</span>
         </div>
-
-        <div class="screenshots-subheader">
-            <h3>Child view</h3>
-            <p>Designed for children aged 4–12. PIN login, emoji support, simple navigation.</p>
-        </div>
-        <div class="screenshots-grid">
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/c25fd9c1-c2f3-4e88-835f-642f00e56c00.png" alt="Child-friendly PIN login with visual support in My Starday — designed for children with ADHD and autism" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">The child logs in with their name and a secret PIN code</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/b3a27bac-ebd0-4d80-8bf0-2ac73f36e3a7.png" alt="Welcome screen after login in My Starday — positive reinforcement for children" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">'Welcome!' — the child is greeted with positive reinforcement at login</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/b2c8b942-968d-407c-9223-05e30234cf3d.png" alt="Daily emotion logging with emoji scale in My Starday — the child rates their activity" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">'How did waking up go?' — a simple emotion check-in</p>
-            </div>
-        </div>
-        <div class="screenshots-grid" style="margin-top:0;">
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/28ba72a2-78b5-4276-949d-26346771b3d3.png" alt="Visual daily schedule with activity steps in My Starday — structured support for children" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Today's schedule with clear steps and sub-steps</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e65d70c4-fb07-4692-b145-ad29fba683c1.png" alt="The Treasure Chamber reward system in My Starday — children trade stars for rewards" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">The Treasure Chamber — where stars become real rewards</p>
-            </div>
-        </div>
-
-        <div class="screenshots-subheader" style="margin-top:3rem;">
-            <h3>Parent view</h3>
-            <p>Full control, real-time insight, zero complexity.</p>
-        </div>
-        <div class="screenshots-grid">
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/e01fcef3-4b20-4b10-b0d7-1265440d66a8.png" alt="Daily overview — track your child's progress in real time in My Starday" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Daily overview — track your child's progress in real time</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Color-coded schedule — see the full day at a glance in My Starday" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Color-coded schedule — see the full day at a glance</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/297b0f38-78eb-4877-9aab-9e1d51e31487.png" alt="Weekly view — plan ahead with a clear overview in My Starday" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Weekly view — plan ahead with a clear overview</p>
-            </div>
-            <div class="screenshot-card">
-                <div class="screenshot-phone">
-                    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/898d7083-3556-426f-a981-0e277a4f3fb5.png" alt="Template library — start with ready-made routines in My Starday" loading="lazy" width="300" height="650">
-                </div>
-                <p class="screenshot-caption">Template library — start with ready-made routines</p>
-            </div>
-        </div>
+        <a href="/en/treasury?demo=1" class="btn-primary" data-track="treasure_demo_click">See the Treasure Chamber demo</a>
+      </div>
+      <div class="treasure-demo-card">
+        <div class="treasure-demo-card__emoji">🏆</div>
+        <h3>Treasure Chamber</h3>
+        <p class="treasure-demo-card__sub">Where stars become real rewards</p>
+        <div class="treasure-demo-card__count">⭐ 24</div>
+        <p class="treasure-demo-card__sub">12 stars until next reward</p>
+        <div class="treasure-demo-card__bar"><div class="treasure-demo-card__bar-fill"></div></div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- ===== TARGET + FAQ ===== -->
-<section class="section" id="target">
-    <div class="section-inner">
-        <div class="target-layout">
-            <div>
-                <div class="section-label">Who It's For</div>
-                <h2 style="font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;color:var(--navy);margin-bottom:1rem;line-height:1.2;">
-                    Built for families who need <em>structure</em>
-                </h2>
-                <p class="target-body">
-                    My Starday was born from real parenting challenges. If your child has ADHD, autism, or simply thrives on routine and visual cues — this app was made for you. If you're just looking for a calmer morning routine and fewer bedtime battles, it works for that too.
-                </p>
-                <div class="target-tags">
-                    <span class="target-tag purple">ADHD</span>
-                    <span class="target-tag purple">Autism / ASD</span>
-                    <span class="target-tag purple">Neurodiverse</span>
-                    <span class="target-tag">Visual learners</span>
-                    <span class="target-tag">Routine-dependent kids</span>
-                    <span class="target-tag">Every family</span>
-                </div>
-                <p style="font-size:0.88rem;color:var(--text-3);margin-top:1.5rem;">
-                    The Swedish version has been used by 70+ families and 85+ children daily.
-                </p>
-            </div>
-            <div id="faq">
-                <div class="section-label" style="margin-bottom:1.5rem;">FAQ</div>
-                <div class="faq-list">
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            Who is behind My Starday?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                A Swedish family who built it because they needed it themselves. Designed by parents, for families who want calmer mornings and evenings. No venture capital, no growth hackers — just real families solving real problems.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            Is my family's data private?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Yes. My Starday is fully GDPR compliant. No ads, no third-party tracking, no data sold to advertisers. Parents control all data — your child's information never leaves your family account.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            When does the English version launch?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Soon. Join the waitlist and be among the first 100 families to get the first year completely free. We'll email you as soon as it's ready.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            What does 'first year free' mean?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                The first 100 families to sign up pay nothing for 12 months after the English version launches. No credit card, no catch. After 12 months, you'll have the option to continue at a small monthly fee.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            Can I try it now?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Yes! The Swedish version is already live at <a href="https://mystarday.se" style="color:var(--amber-dk);font-weight:600;">mystarday.se</a> — fully functional, no credit card required. The English version is coming soon.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" aria-expanded="false">
-                            Does it work on phone and tablet?
-                            <span class="faq-icon">+</span>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-inner">
-                                Yes! My Starday works on any modern web browser — iPhone, Android, iPad, desktop. Your child can log in on any device.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- TVÅSPÅR — app vs gratis resurser -->
+<section class="landing-section--light" id="bildstod-tva-spar">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Visual support in two ways</span>
+      <h2 class="section-title">Living schedule in the app — or free printable PDF</h2>
+      <p class="section-intro">My Starday is an interactive visual-support app for daily life. We are also building a free resource library with printable templates — for families who want to start on paper or complement the app.</p>
     </div>
+    <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+      <div class="card">
+        <div class="card__icon">📱</div>
+        <h3>Living schedule in the app</h3>
+        <p>Interactive — your child checks off tasks, collects stars, and follows Now/Next/Later. Requires an account, updates when life changes, and goes with you on your phone.</p>
+      </div>
+      <div class="card">
+        <div class="card__icon">🖨️</div>
+        <h3>Free printable PDF</h3>
+        <p>Morning and evening schedules, picture cards, and TEACCH-inspired templates to print at home. Static — perfect as a first step or complement to a wall board.</p>
+        <p><a href="/en/resources" class="inline" data-track="two_track_resurser_click">Explore the resource library</a></p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1.75rem;color:var(--text-2);max-width:560px;margin-left:auto;margin-right:auto;">Stop reprinting new schedules every week — let the app keep the routine alive while your child uses it every day.</p>
+    <p style="text-align:center;margin-top:1rem;">
+      <a href="/en/register" class="btn-primary" data-track="two_track_signup_click">Try the app free</a>
+    </p>
+  </div>
 </section>
 
-<!-- ===== WAITLIST FORM ===== -->
-<section class="section" id="waitlist">
-    <div class="section-inner">
-        <div class="waitlist-card">
-            <div class="section-label">Join the Waitlist</div>
-            <h2>🎯 Secure your free spot</h2>
-            <p class="section-subtitle">The first 100 families get their first year completely free when we launch the English version. No credit card, no catch.</p>
-            <form class="waitlist-form" id="waitlistForm">
-                <div class="form-error" id="formError" style="display:none;"></div>
-                <input type="text" id="waitlistName" placeholder="Your name" required autocomplete="name">
-                <input type="email" id="waitlistEmail" placeholder="Your email address" required autocomplete="email">
-                <button type="submit" class="waitlist-submit-btn" id="waitlistSubmitBtn">
-                    Secure my free spot
-                </button>
-            </form>
-        </div>
+<!-- GUIDER -->
+<section class="landing-section--white" id="guider">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Learn more</span>
+      <h2 class="section-title">Read our guides</h2>
+      <p class="section-intro">Practical articles about visual schedules, routines, and rewards — written for stressful mornings on your phone. They cover both the <strong>living schedule in the app</strong> and when a <strong>free printable PDF</strong> may be enough.</p>
     </div>
+    <div class="seo-guide-grid landing-guides-grid">
+      <a href="/en/visual-schedule-app" class="seo-guide-card" data-track="landing_guide_card_click" data-guide-slug="visual-schedule-app">
+        <div class="seo-guide-card__emoji">📖</div>
+        <div class="seo-guide-card__title">Visual schedule for kids</div>
+        <p class="seo-guide-card__desc">Complete guide to visual support and schedule apps.</p>
+      </a>
+      <a href="/en/reward-system-children" class="seo-guide-card" data-track="landing_guide_card_click" data-guide-slug="reward-system-children">
+        <div class="seo-guide-card__emoji">⭐</div>
+        <div class="seo-guide-card__title">Reward system</div>
+        <p class="seo-guide-card__desc">Motivate without bribes.</p>
+      </a>
+      <a href="/en/morning-routine-children" class="seo-guide-card" data-track="landing_guide_card_click" data-guide-slug="morning-routine-children">
+        <div class="seo-guide-card__emoji">🌅</div>
+        <div class="seo-guide-card__title">Morning routine</div>
+        <p class="seo-guide-card__desc">Calmer mornings with a visual schedule.</p>
+      </a>
+      <a href="/en/routines-neurodiverse-children" class="seo-guide-card" data-track="landing_guide_card_click" data-guide-slug="routines-neurodiverse-children">
+        <div class="seo-guide-card__emoji">🧩</div>
+        <div class="seo-guide-card__title">Routines and neurodiversity</div>
+        <p class="seo-guide-card__desc">ADHD &amp; autism — clarity brings calm.</p>
+      </a>
+      <a href="/en/weekly-schedule-visual-support" class="seo-guide-card" data-track="landing_guide_card_click" data-guide-slug="weekly-schedule-visual-support">
+        <div class="seo-guide-card__emoji">📅</div>
+        <div class="seo-guide-card__title">Weekly schedule</div>
+        <p class="seo-guide-card__desc">Plan the whole week visually.</p>
+      </a>
+    </div>
+    <p class="landing-guides-more"><a href="/en/visual-schedule-app" data-track="landing_guide_card_click" data-guide-slug="visual-schedule-app-hub">Visit the knowledge hub →</a></p>
+  </div>
 </section>
 
-<!-- ===== SHARE SECTION ===== -->
-<section id="share">
-    <div class="share-inner">
-        <h2>🌟 Know a family who needs this?</h2>
-        <p>Share My Starday with friends, family, or anyone who could use a calmer morning routine.</p>
-        <div class="share-buttons">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=https://mystarday.se/en&quote=Check%20out%20My%20Starday%20%E2%80%94%20a%20visual%20schedule%20app%20for%20kids!%20%F0%9F%8C%9F%20https://mystarday.se/en" target="_blank" rel="noopener noreferrer" class="share-btn facebook" id="shareFacebook">
-                📘 Facebook
-            </a>
-            <a href="https://wa.me/?text=Check%20out%20My%20Starday%20%E2%80%94%20a%20visual%20schedule%20app%20for%20kids%20with%20ADHD%20%26%20autism!%20%F0%9F%8C%9F%20https://mystarday.se/en" target="_blank" rel="noopener noreferrer" class="share-btn whatsapp">
-                💬 WhatsApp
-            </a>
-            <a href="https://twitter.com/intent/tweet?text=Check%20out%20My%20Starday%20%E2%80%94%20visual%20daily%20schedule%20for%20kids%20with%20ADHD%20%26%20autism.%20Stars%2C%20rewards%2C%20and%20independence.%20%F0%9F%8C%9F%20https://mystarday.se/en" target="_blank" rel="noopener noreferrer" class="share-btn twitter" id="shareTwitter">
-                ✖ X (Twitter)
-            </a>
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://mystarday.se/en&title=My%20Starday%20%E2%80%94%20Visual%20Schedule%20for%20Kids&summary=Visual%20daily%20schedule%20for%20kids%20with%20ADHD%20and%20autism.%20Stars%2C%20rewards%2C%20and%20independence.%20Free%20for%20the%20first%20100%20families." target="_blank" rel="noopener noreferrer" class="share-btn linkedin">
-                💼 LinkedIn
-            </a>
-            <button type="button" class="share-btn copy" id="shareCopyBtn">
-                📋 Copy link
-            </button>
-        </div>
+<!-- 6. TESTIMONIALS -->
+<section class="landing-section--light" id="testimonials">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <p class="stats-banner" id="founderStatsBanner" data-base="Already used by families in Sweden">Already used by families in Sweden</p>
+      <h2 class="section-title">"We did not even need to remind them."</h2>
+      <p class="section-intro">What families already using My Starday say about daily life.</p>
     </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-card__tag">Less nagging</p>
+        <blockquote>I am a bit shocked at how well the app has worked for our child… Yesterday they completed every task on the schedule and we did not even need to remind them!</blockquote>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-card__tag">Positive from day one</p>
+        <blockquote>We downloaded the app and on the very first day it was incredibly positive for our child with autistic burnout.</blockquote>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-card__tag">More things get done</p>
+        <blockquote>The app was a huge hit today and even morning tooth brushing got done. That NEVER happens otherwise!</blockquote>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== FOOTER CTA ===== -->
-<section class="footer-cta-section">
-    <h2>Ready for a calmer home?</h2>
-    <p>Join 70+ Swedish families already using My Starday every day.</p>
-    <button class="btn-cta-scroll" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">
-        🎯 Join the waitlist — free for first 100 families
-    </button>
+<!-- 7. FÖR VILKA -->
+<section class="landing-section--white" id="for-vilka">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Who it is for</span>
+      <h2 class="section-title">For families who need a bit more structure in daily life</h2>
+      <p class="section-intro">My Starday works especially well for children who thrive on clear steps, visual support, routines, and positive reinforcement — including children with ADHD, autism, or a need for visual schedules and structured pedagogy.</p>
+    </div>
+    <div class="cards-grid">
+      <div class="card"><div class="card__icon">🎯</div><h3>ADHD / hard to get started</h3><p>When your child wants to but struggles to start, stay focused, or move to the next step.</p></div>
+      <div class="card"><div class="card__icon">🧩</div><h3>Autism / need for predictability</h3><p>When transitions, routine changes, or uncertainty create stress.</p></div>
+      <div class="card"><div class="card__icon">🖼️</div><h3>Visual support and structured teaching</h3><p>When your child understands visual steps better than repeated verbal reminders.</p></div>
+      <div class="card"><div class="card__icon">🌅</div><h3>Morning and evening routines</h3><p>When daily life gets stuck on the same steps again and again.</p></div>
+      <div class="card"><div class="card__icon">👨‍👩‍👧</div><h3>Several adults around the child</h3><p>When you need to share responsibility, see the same schedule, and work in the same direction.</p></div>
+      <div class="card"><div class="card__icon">✨</div><h3>Children who need more motivation over time</h3><p>When ordinary reward systems do not last or become too hard to follow up on.</p></div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;color:var(--text-2);max-width:640px;margin-left:auto;margin-right:auto;">That does not mean things have to be hard for the app to fit. My Starday is for families who want daily life to be clearer, calmer, and more independent — wherever you start.</p>
+  </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
-<footer>
-    <div class="footer-links">
-        <a href="https://mystarday.se">My Starday</a>
-        <a href="https://mystarday.se/pedagoger-och-terapeuter">For Professionals</a>
-        <a href="https://mystarday.se/register">Create Account</a>
-        <a href="https://mystarday.se/faq">FAQ</a>
-        <a href="https://mystarday.se/en" hreflang="en">English</a>
-        <a href="https://mystarday.se" hreflang="sv">Svenska</a>
+<!-- 8. TRYGGHET -->
+<section class="landing-section--light" id="trygghet">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">Safety & privacy</span>
+      <h2 class="section-title">Safe for kids. Simple for adults.</h2>
     </div>
-    <p class="footer-copy">© 2026 My Starday. All rights reserved. 🇸🇪 Made in Sweden.</p>
+    <div class="cards-grid">
+      <div class="card"><div class="card__icon">🚫</div><h3>No ads</h3><p>Your child is not met with ads, social feeds, or distracting content.</p></div>
+      <div class="card"><div class="card__icon">🔒</div><h3>Only what is needed</h3><p>We do not collect more information than needed for schedules, stars, and family features to work.</p></div>
+      <div class="card"><div class="card__icon">🔗</div><h3>Your family controls sharing</h3><p>Share your child's progress with an educator or other adult on your terms — time-limited link and optional PIN.</p></div>
+      <div class="card"><div class="card__icon">🏠</div><h3>Built for real daily life</h3><p>Made for families who need structure, calm, and motivation — not more screen time or admin.</p></div>
+    </div>
+    <p style="text-align:center;margin-top:2rem;font-size:0.88rem;color:var(--text-2);">
+      <a href="/en/privacy" class="btn-ghost-link">Privacy policy</a>
+      &nbsp;·&nbsp;
+      <a href="/en/terms" class="btn-ghost-link">Terms of use</a>
+      &nbsp;·&nbsp;
+      <a href="/en/educators-and-therapists" class="btn-ghost-link">Learn more for educators</a>
+    </p>
+  </div>
+</section>
+
+<!-- 9. FÖRÄLDRAVY -->
+<section class="landing-section--white" id="foraldravy">
+  <div class="landing-inner">
+    <div class="feature-split">
+      <div>
+        <span class="section-eyebrow">Parent's view</span>
+        <h2 class="section-title">Everything you need to build routines that last</h2>
+        <p class="section-intro">As the adult, you build the schedule, follow your child's progress, and adapt daily life to what actually works at home.</p>
+        <ul class="feature-list">
+          <li><span class="feature-list__icon">👨‍👩‍👧‍👦</span><div><strong>Multiple children and different needs</strong><span>Create routines for one or more children and adapt them individually.</span></div></li>
+          <li><span class="feature-list__icon">📅</span><div><strong>Weekly and daily schedules</strong><span>Plan recurring routines, mornings, evenings, and specific days.</span></div></li>
+          <li><span class="feature-list__icon">📲</span><div><strong>Push notifications and remote check-ins</strong><span>Get support even when you are not next to your child — perfect when several adults help out.</span></div></li>
+          <li><span class="feature-list__icon">📋</span><div><strong>Ready-made templates</strong><span>Get started faster with example routines you can adapt for your child.</span></div></li>
+          <li><span class="feature-list__icon">🤝</span><div><strong>Share with an educator or other adult</strong><span>Show progress and routines when needed — without giving away the whole account.</span></div></li>
+        </ul>
+        <p style="font-size:0.85rem;color:var(--text-3);">Basic is included free for founding members. <a href="/en/pricing" class="btn-ghost-link">Read about plans and upcoming packages →</a></p>
+      </div>
+      <div class="feature-split__visual feature-split__visual--stack">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Parent's daily schedule" loading="lazy" width="280" height="600">
+        <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/297b0f38-78eb-4877-9aab-9e1d51e31487.png" alt="Weekly schedule" loading="lazy" width="280" height="600">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. GRUNDARPROGRAM -->
+<section class="landing-section--light" id="grundarprogram">
+  <div class="landing-inner">
+    <div class="founder-block">
+      <span class="section-eyebrow">Founding member program</span>
+      <h2>Become a founding member — get Basic free forever</h2>
+      <p class="founder-block__intro">De första <span id="founderLimitText2">225</span> families get lifetime access to Basic at no cost. No payment is required in the current version.</p>
+      <ul class="founder-block__list">
+        <li>Unlimited children</li>
+        <li>Child's own view with PIN</li>
+        <li>Weekly and daily schedules</li>
+        <li>Stars and the Treasure Chamber</li>
+        <li>Push notifications</li>
+        <li>Family invite</li>
+      </ul>
+      <a href="/en/register" class="btn-primary" data-track="founder_signup_click">Create free account</a>
+      <p class="founder-block__note">Later we will release more add-ons for families who want reporting, <strong>Extra Support</strong> (transition support and the Seven Questions in the app), or educator collaboration — packages are coming soon and cannot be purchased yet. Founding membership keeps Basic free. <a href="/en/pricing" class="btn-ghost-link">Read about plans and upcoming packages →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 11. FAQ -->
+<section class="landing-section--white" id="faq">
+  <div class="landing-inner">
+    <div class="section-header section-header--center">
+      <span class="section-eyebrow">FAQ</span>
+      <h2 class="section-title">Everything you need to know to get started</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item" data-faq="kostnad">
+        <button type="button" class="faq-question" aria-expanded="false">How much does My Starday cost?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">The first 225 families get Basic free as founding members. No payment is required in the current version.</div></div>
+      </div>
+      <div class="faq-item" data-faq="adhd-autism">
+        <button type="button" class="faq-question" aria-expanded="false">Is this right for kids with ADHD or autism?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">My Starday is not built around a diagnosis, but it often works well for children who need clear structure, visual support, predictability, or more motivation in daily life.</div></div>
+      </div>
+      <div class="faq-item" data-faq="missad-dag">
+        <button type="button" class="faq-question" aria-expanded="false">What happens to the stars if we miss a day?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Nothing negative. The focus is on motivation and progress — not punishment or guilt.</div></div>
+      </div>
+      <div class="faq-item" data-faq="flera-vuxna">
+        <button type="button" class="faq-question" aria-expanded="false">Can several adults use the app together?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes — several adults around the child should be able to coordinate and see the same structure.</div></div>
+      </div>
+      <div class="faq-item" data-faq="lasning">
+        <button type="button" class="faq-question" aria-expanded="false">Does my child need to be able to read?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">No — your child should be able to understand as much as possible visually, step by step.</div></div>
+      </div>
+      <div class="faq-item" data-faq="ladda-ner">
+        <button type="button" class="faq-question" aria-expanded="false">Do I need to download the app?<span class="faq-icon">+</span></button>
+        <div class="faq-answer"><div class="faq-answer-inner">The app is in the <a href="https://apple.co/4v2ESuH" target="_blank" rel="noopener noreferrer">App Store</a> for iPhone and on <a href="__PLAY_STORE_URL__" target="_blank" rel="noopener noreferrer">Google Play</a> for Android. You can also use it in the browser and add it to your home screen as a PWA. On iPhone in Safari: Share → Add to Home Screen.</div></div>
+      </div>
+    </div>
+    <p class="faq-more"><a href="/en/faq" class="btn-ghost-link">See all questions and answers →</a></p>
+  </div>
+</section>
+
+<!-- 12. FINAL CTA -->
+<section class="final-cta landing-section--dark" id="kom-igang">
+  <h2>Ready for a calmer daily life?</h2>
+  <p>Create a free account and build your child's first schedule in minutes. The first 225 families get Basic at no cost as founding members.</p>
+  <a href="/en/register" class="btn-primary" data-track="final_signup_click">Create free account</a>
+  <div class="final-cta__login-row">
+    <a href="/en/login" class="final-cta__login" data-track="nav_login_click">Log in as parent</a>
+    <span class="final-cta__login-sep" aria-hidden="true">·</span>
+    <a href="/child-login" class="final-cta__login" data-track="nav_child_login_click">Log in as child</a>
+  </div>
+</section>
+
+<!-- 13. FOOTER -->
+<footer class="landing-footer">
+  <div class="landing-footer__cta">
+    <h3>Create free account</h3>
+    <p id="founderFooterSpots">Founding program: Basic free for the first <span id="founderFooterLimit">225</span> families</p>
+    <a href="/en/register" class="btn-primary" data-track="footer_signup_click">Create free account</a>
+  </div>
+  <div class="landing-footer__grid">
+    <div class="landing-footer__brand">
+      <a href="/en" class="landing-nav__logo" style="margin-bottom:0.5rem;">
+        <span class="landing-nav__star">⭐</span>
+        <span class="landing-nav__name" style="color:#fff;">My Starday</span>
+      </a>
+      <p>Visual schedules and stars for a calmer daily life — without the nagging.</p>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Product</h4>
+      <a href="#sa-fungerar-det">How it works</a>
+      <a href="/en/treasury?demo=1">Treasure Chamber</a>
+      <a href="/en/pricing">Plans &amp; packages</a>
+      <a href="/en/educators-and-therapists">For educators &amp; therapists</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Help</h4>
+      <a href="/en/faq">FAQ</a>
+      <a href="/en/contact">Contact us</a>
+      <a href="/en/login">Log in as parent</a>
+      <a href="/child-login">Log in as child</a>
+      <a href="/en/forgot-password">Forgot password</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Guides</h4>
+      <a href="/en/visual-schedule-app">Visual schedule app</a>
+      <a href="/en/morning-routine-children">Morning routine for children</a>
+      <a href="/en/reward-system-children">Reward system for children</a>
+      <a href="/en/routines-neurodiverse-children">Routines for neurodiverse children</a>
+      <a href="/en/alternative-visual-schedule-board">Alternative visual schedule board</a>
+      <a href="/en/weekly-schedule-visual-support">Weekly schedule with visual support</a>
+      <a href="/en/resources">Free printable resources</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Safety & privacy</h4>
+      <a href="/en/privacy">Privacy policy</a>
+      <a href="/en/terms">Terms of use</a>
+      <button type="button" class="landing-footer__cookie-link" onclick="if(window.CookieBanner)CookieBanner.open();">Cookie settings</button>
+    </div>
+    <div class="landing-footer__col">
+      <h4>Download the app</h4>
+      <div class="store-badges store-badges--footer">
+        <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Download on the App Store">
+          <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+        </a>
+        <a href="__PLAY_STORE_URL__" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="play_store_click" aria-label="Get it on Google Play">
+          <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+        </a>
+      </div>
+      <a href="https://apple.co/4v2ESuH" target="_blank" rel="noopener noreferrer" data-track="app_store_click">Download for iPhone</a>
+      <a href="__PLAY_STORE_URL__" target="_blank" rel="noopener noreferrer" data-track="play_store_click">Download for Android</a>
+    </div>
+    <div class="landing-footer__col">
+      <h4>About</h4>
+      <a href="/en">About My Starday</a>
+      <a href="/">Svenska / My Starday</a>
+      <a href="https://facebook.com/__FACEBOOK_SLUG__" target="_blank" rel="noopener noreferrer">Facebook</a>
+    </div>
+  </div>
+  <p class="landing-footer__copy">© 2026 My Starday / Papa Bravo AB</p>
 </footer>
 
-<!-- ===== SCRIPTS ===== -->
 <script>
-    // ─── Mobile menu ─────────────────────────────────────────
-    const hamburger = document.getElementById('navHamburger');
-    const mobileMenu = document.getElementById('mobileMenu');
-    hamburger.addEventListener('click', () => {
-        const open = mobileMenu.classList.toggle('open');
-        hamburger.classList.toggle('open', open);
-        hamburger.setAttribute('aria-expanded', open);
-    });
-    function closeMobileMenu() {
-        mobileMenu.classList.remove('open');
-        hamburger.classList.remove('open');
-        hamburger.setAttribute('aria-expanded', 'false');
+(function() {
+  var LEGACY = {
+    losning: 'sa-fungerar-det',
+    program: 'grundarprogram',
+    malgrupp: 'for-vilka',
+    problemet: 'problem'
+  };
+  var hash = window.location.hash.replace('#', '');
+  if (hash === 'kontakt' || hash === 'contact') {
+    window.location.replace('/en/contact');
+    return;
+  }
+  if (hash && LEGACY[hash]) {
+    var el = document.getElementById(LEGACY[hash]);
+    if (el) setTimeout(function() { el.scrollIntoView({ behavior: 'smooth' }); }, 100);
+  }
+})();
+(function() {
+  var banner = document.getElementById('dagensNyhetBanner');
+  var spacer = document.getElementById('dagensNyhetSpacer');
+  var nav = document.querySelector('.landing-nav');
+  function adjustLayout() {
+    var h = banner && banner.style.display !== 'none' ? banner.offsetHeight : 0;
+    if (spacer) spacer.style.height = h + 'px';
+    if (nav) nav.style.top = h + 'px';
+    if (banner && banner.style.display !== 'none') banner.style.top = '0';
+    if (typeof window.syncLandingMobileMenuLayout === 'function') window.syncLandingMobileMenuLayout();
+  }
+  fetch('/api/dagens-nyhet/active').then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
+    if (!data || !data.title) return;
+    document.getElementById('dagensNyhetTitle').textContent = data.title;
+    document.getElementById('dagensNyhetBody').textContent = data.body || '';
+    var dateEl = document.getElementById('dagensNyhetDate');
+    if (dateEl && data.created_at) {
+      dateEl.textContent = new Date(data.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     }
-
-    // ─── FAQ accordion ───────────────────────────────────────
-    document.querySelectorAll('.faq-question').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const item = btn.closest('.faq-item');
-            const isOpen = item.classList.contains('open');
-            // Close all
-            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-            document.querySelectorAll('.faq-question').forEach(b => b.setAttribute('aria-expanded', 'false'));
-            if (!isOpen) {
-                item.classList.add('open');
-                btn.setAttribute('aria-expanded', 'true');
-            }
-        });
-    });
-
-    // ─── Waitlist form ────────────────────────────────────────
-    const waitlistForm = document.getElementById('waitlistForm');
-    const waitlistSubmitBtn = document.getElementById('waitlistSubmitBtn');
-    const formError = document.getElementById('formError');
-
-    waitlistForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        formError.style.display = 'none';
-        waitlistSubmitBtn.disabled = true;
-        waitlistSubmitBtn.textContent = 'Joining...';
-
-        const name = document.getElementById('waitlistName').value.trim();
-        const email = document.getElementById('waitlistEmail').value.trim();
-
-        if (!name || !email) {
-            formError.textContent = 'Please fill in all fields.';
-            formError.style.display = 'block';
-            waitlistSubmitBtn.disabled = false;
-            waitlistSubmitBtn.textContent = 'Secure my free spot';
-            return;
-        }
-
-        const emailRegex = /^[^\u0040@\u0020]+@[^\u0040@\u0020]+\u002E[a-z]{2,}$/i;
-        if (!emailRegex.test(email)) {
-            formError.textContent = 'Please enter a valid email address.';
-            formError.style.display = 'block';
-            waitlistSubmitBtn.disabled = false;
-            waitlistSubmitBtn.textContent = 'Secure my free spot';
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/waitlist', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email })
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                formError.textContent = data.error || 'Something went wrong. Please try again.';
-                formError.style.display = 'block';
-                waitlistSubmitBtn.disabled = false;
-                waitlistSubmitBtn.textContent = 'Secure my free spot';
-            } else {
-                // Track event before redirect
-                if (typeof gtag !== 'undefined') gtag('event', 'waitlist_signup', { event_category: 'conversion' });
-                // Store email for thank-you page survey
-                localStorage.setItem('__mystarday_waitlist_email', email);
-                // Redirect to thank-you page
-                window.location.href = '/en/thank-you';
-            }
-        } catch (err) {
-            formError.textContent = 'Connection error. Please try again.';
-            formError.style.display = 'block';
-            waitlistSubmitBtn.disabled = false;
-            waitlistSubmitBtn.textContent = 'Secure my free spot';
-        }
-    });
-
-    // ─── Copy link ───────────────────────────────────────────
-    const shareCopyBtn = document.getElementById('shareCopyBtn');
-    shareCopyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText('https://mystarday.se/en').then(() => {
-            shareCopyBtn.textContent = '✓ Copied!';
-            shareCopyBtn.classList.add('copied');
-            setTimeout(() => {
-                shareCopyBtn.textContent = '📋 Copy link';
-                shareCopyBtn.classList.remove('copied');
-            }, 2000);
-        });
-    });
-
-    // ─── Language auto-detection ─────────────────────────────
-    (function() {
-        const stored = localStorage.getItem('lang_pref');
-        if (!stored) {
-            const lang = navigator.language || navigator.userLanguage || '';
-            if (lang && !lang.toLowerCase().startsWith('sv')) {
-                // Auto-redirect to /en (already here, skip)
-            }
-        }
-    })();
-
-    // ─── Google Analytics ───────────────────────────────────
-    const slug = '__POLSIA_SLUG__';
-    if (slug && slug !== '') {
-        (function() {
-            var gtagScript = document.createElement('script');
-            gtagScript.async = true;
-            gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + slug;
-            document.head.appendChild(gtagScript);
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            window.gtag = gtag;
-            gtag('js', new Date());
-            gtag('config', slug, { page_path: '/en' });
-        })();
-    }
-
-    // ─── GA scroll events ────────────────────────────────────
-    const trackedSections = new Set();
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !trackedSections.has(entry.target.id)) {
-                trackedSections.add(entry.target.id);
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'scroll_depth', {
-                        event_category: 'engagement',
-                        event_label: entry.target.id
-                    });
-                }
-            }
-        });
-    }, { threshold: 0.3 });
-
-    ['hero', 'problem', 'features', 'treasure-chamber', 'how-it-works', 'screenshots', 'target', 'waitlist', 'share'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) observer.observe(el);
-    });
+    banner.style.display = 'block';
+    adjustLayout();
+  }).catch(function() {});
+  document.getElementById('dagensNyhetClose').addEventListener('click', function() {
+    banner.style.display = 'none';
+    adjustLayout();
+  });
+  window.addEventListener('resize', adjustLayout);
+})();
 </script>
+<!-- ===== SCRIPTS ===== -->
+<script src="/js/landing-nav.js?v=1"></script>
+<script src="/js/icon-system.js?v=1"></script>
+<script src="/js/landing-share.js?v=1"></script>
+<script src="/js/landing-faq.js?v=1"></script>
+<script src="/js/landing-events.js?v=1"></script>
+<script src="/js/landing-founder.js?v=3"></script>
+<script src="/js/landing-login-choice.js?v=2"></script>
+<script src="/js/landing-magic-bg.js?v=1"></script>
+<script src="/js/sw-register.js?v=2.13.0"></script>
 </body>
 </html>

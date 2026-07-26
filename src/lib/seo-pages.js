@@ -6,6 +6,7 @@
 const { R1_INDEXABLE_PATHS } = require('../../config/resurser-r1');
 const { R2_INDEXABLE_PATHS } = require('../../config/resurser-r2');
 const { R3_INDEXABLE_PATHS } = require('../../config/resurser-r3');
+const { allEnglishIndexablePaths } = require('../../config/en-public-mirror');
 
 const SITE_URL = (process.env.PUBLIC_SITE_URL || '[REDACTED]').replace(/\/$/, '');
 
@@ -20,15 +21,8 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/privacy',
   '/terms',
   '/en',
-  '/en/faq',
-  '/en/contact',
-  '/en/privacy',
-  '/en/terms',
-  '/en/pricing',
-  '/en/register',
-  '/en/login',
-  '/en/forgot-password',
   '/en/how-it-works',
+  ...allEnglishIndexablePaths(),
   '/morgonrutin-barn',
   '/beloningssystem-barn',
   '/rutiner-npf-barn',
