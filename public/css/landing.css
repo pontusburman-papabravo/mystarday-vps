@@ -447,6 +447,59 @@ body.landing-menu-open {
   height: 44px;
 }
 
+.store-locale-note {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.store-locale-note strong {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.store-locale-note a {
+  color: var(--amber-dk);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.store-locale-note--hero,
+.store-locale-note--hero-card {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.store-locale-note--hero strong,
+.store-locale-note--hero-card strong {
+  color: #fff;
+}
+
+.store-locale-note--hero a,
+.store-locale-note--hero-card a {
+  color: #FFD27A;
+}
+
+.store-locale-note--footer {
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 0.75rem;
+}
+
+.store-locale-note--footer strong {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.store-locale-note--footer a {
+  color: #FFD27A;
+}
+
+.store-locale-note--menu {
+  margin: 0 0 0.65rem;
+  padding: 0 0.15rem;
+}
+
 .store-badges--menu {
   padding: 0.15rem 0.5rem 0.35rem;
 }
