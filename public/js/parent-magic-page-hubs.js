@@ -124,8 +124,8 @@
       '</div>' +
       renderScheduleModeBar() +
       '<div class="magic-page-stats">' +
-      '<div class="magic-page-stat-card magic-3d-card"><strong>' + childCount + '</strong><span>Barn</span></div>' +
-      '<div class="magic-page-stat-card magic-3d-card"><strong>7</strong><span>Dagar</span></div>' +
+      '<div class="magic-page-stat-card magic-3d-card"><strong>' + childCount + '</strong><span>' + escHtml(pt('schedule.chrome.statChildren')) + '</span></div>' +
+      '<div class="magic-page-stat-card magic-3d-card"><strong>7</strong><span>' + escHtml(pt('schedule.chrome.statDays')) + '</span></div>' +
       '</div></div>';
   }
 

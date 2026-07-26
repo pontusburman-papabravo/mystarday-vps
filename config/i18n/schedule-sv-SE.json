@@ -458,7 +458,9 @@
     "confirmDelete": "Ta bort",
     "yesReplace": "Ja, ersätt",
     "yesDelete": "Ja, ta bort",
-    "close": "Stäng"
+    "close": "Stäng",
+    "statChildren": "Barn",
+    "statDays": "Dagar"
   },
   "months": {
     "0": "Januari",

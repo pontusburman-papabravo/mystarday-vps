@@ -458,7 +458,9 @@
     "confirmDelete": "Remove",
     "yesReplace": "Yes, replace",
     "yesDelete": "Yes, delete",
-    "close": "Close"
+    "close": "Close",
+    "statChildren": "Children",
+    "statDays": "Days"
   },
   "months": {
     "0": "January",
