@@ -29,6 +29,7 @@ const parentPinDb = require('../../../db/parent-pin');
 const familySubscriptions = require('../../../db/family-subscriptions');
 const { validate } = require('../../middleware/validate');
 const { LoginSchema } = require('../../lib/schemas');
+const { applyLoginLocaleChoice } = require('../../lib/apply-login-locale');
 
 const router = express.Router();
 
@@ -37,7 +38,7 @@ const { parseDuration, clearAllSessionCookies } = require('./session');
 // ─── POST /api/auth/login ─────────────────────────────────
 router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, preferred_locale: preferredLocaleRaw, language } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: 'E-post och lösenord krävs' });
     }
@@ -123,6 +124,12 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
     // Issue fresh CSRF token for the new session
     const csrfToken = generateCsrfToken(res);
 
+    const preferred_locale = await applyLoginLocaleChoice({
+      familyId: parent.family_id,
+      explicitLocale: preferredLocaleRaw,
+      language,
+    });
+
     const user = {
       id: parent.id,
       email: parent.email,
@@ -130,6 +137,7 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
       isAdmin: parent.is_admin,
       type: 'parent',
       onboarding_completed: parent.onboarding_completed,
+      preferred_locale,
     };
 
     // expiresAt lets the frontend schedule proactive silent refresh

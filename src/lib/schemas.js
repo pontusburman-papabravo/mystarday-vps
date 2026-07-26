@@ -83,6 +83,8 @@ const RegisterSchema = z.object({
 const LoginSchema = z.object({
   email: email,
   password: z.string().min(1, 'Lösenord krävs').max(128),
+  preferred_locale: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
+  language: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
 });
 
 const ChildLoginSchema = z.object({

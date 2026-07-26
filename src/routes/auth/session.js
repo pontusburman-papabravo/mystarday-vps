@@ -16,6 +16,7 @@ const {
   clearRefreshCookie,
 } = require('../../lib/refresh-tokens');
 const { generateCsrfToken } = require('../../middleware/csrf');
+const { applyLoginLocaleChoice } = require('../../lib/apply-login-locale');
 
 /**
  * Parse a jwt-style duration string ("15m", "8h") into seconds.
@@ -72,6 +73,12 @@ async function completeLogin(req, res, parent, userType, meta = {}) {
 
   const csrfToken = generateCsrfToken(res);
 
+  const preferred_locale = await applyLoginLocaleChoice({
+    familyId: parent.family_id,
+    explicitLocale: req.body?.preferred_locale,
+    language: req.body?.language,
+  });
+
   const user = {
     id: parent.id,
     email: parent.email || null,
@@ -79,6 +86,7 @@ async function completeLogin(req, res, parent, userType, meta = {}) {
     isAdmin: parent.is_admin || false,
     type: userType,
     onboarding_completed: parent.onboarding_completed, // auth/routing only — DO NOT USE FOR PRODUCT LOGIC
+    preferred_locale,
   };
 
   const expiresAt = Date.now() + expiresInSecs * 1000;

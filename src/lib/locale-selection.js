@@ -17,6 +17,7 @@ const OFFER_STATES = Object.freeze({
 
 const SELECTION_SOURCES = Object.freeze({
   REGISTRATION: 'registration',
+  LOGIN: 'login',
   SETTINGS: 'settings',
   EXISTING_USER_OFFER: 'existing_user_offer',
   ADMIN: 'admin',
