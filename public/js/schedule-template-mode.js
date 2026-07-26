@@ -36,7 +36,7 @@ async function loadTemplate(templateId) {
     if (editorRewardsBtn) editorRewardsBtn.classList.add('hidden');
 
     document.getElementById('scheduleContent').innerHTML =
-      '<div class="text-center py-16"><span style="display:inline-block;font-size:2rem;animation:spin 1s linear infinite;">📋</span><p class="mt-2 text-text-soft font-semibold">${spt('schedule.template.loading')}</p></div>';
+      `<div class="text-center py-16"><span style="display:inline-block;font-size:2rem;animation:spin 1s linear infinite;">📋</span><p class="mt-2 text-text-soft font-semibold">${spt('schedule.template.loading')}</p></div>`;
 
     const res = await window.apiFetch(`/api/schedule-templates/${templateId}`);
     if (!res.ok) {

@@ -32,7 +32,11 @@
   },
   "custody": {
     "otherParent": "Barnet är hos den andra föräldern {{date}}",
-    "myDaysFilter": "\"Mina dagar\" är på — avmarkera filtret ovan för att se {{variant}}-schemat."
+    "myDaysFilter": "\"Mina dagar\" är på — avmarkera filtret ovan för att se {{variant}}-schemat.",
+    "editLabel": "Redigera schema:",
+    "editFor": "Redigera schema för {{label}}",
+    "weekBanner": "Denna vecka: hos {{label}}",
+    "myDays": "Mina dagar"
   },
   "paused": {
     "title": "{{name}} är pausad idag",
@@ -210,7 +214,8 @@
       "reasonRequired": "Anledning krävs",
       "starsLabel": "Antal stjärnor",
       "reasonLabel": "Anledning *",
-      "success": "{{count}} stjärnor givna!"
+      "success": "{{count}} stjärnor givna!",
+      "successOne": "1 stjärna given!"
     }
   },
   "validation": {
@@ -324,7 +329,11 @@
     "addHolidayPeriod": "Lägg till lovperiod",
     "periodCardTitle": "Skolschema + lov under en period",
     "legendToday": "Idag",
-    "legendWeekdayTemplate": "Veckodagsmall används"
+    "legendWeekdayTemplate": "Veckodagsmall används",
+    "modalFallbackTitle": "Specialdag",
+    "noteLabel": "Anteckning (valfritt)",
+    "notePlaceholder": "T.ex. Utflyktsdag, Ledig, Sjuk…",
+    "deleteBtn": "🗑 Ta bort specialdag"
   },
   "period": {
     "pickSchedule": "— Välj schema —",
@@ -371,7 +380,9 @@
     "newTemplateTitle": "Nytt schema",
     "newTemplateBody": "Ge schemat ett namn. Du kan sedan lägga till aktiviteter från schemats aktivitetslista.",
     "newTemplatePlaceholder": "T.ex. Skoldag, Helg, Fotbollsdag…",
-    "createTemplateBtn": "Skapa schema"
+    "createTemplateBtn": "Skapa schema",
+    "replaceTitle": "Ersätt befintligt schema?",
+    "deleteTemplateTitle": "Ta bort schemat?"
   },
   "chrome": {
     "weeklyPlanningTitle": "📅 Veckoplanering",
@@ -441,7 +452,13 @@
     "dayDragCopyTitle": "Kopiera",
     "dayDragCopyDesc": "Källdagens aktiviteter läggs till på måldagen (ersätter befintliga)",
     "dayDragSwapTitle": "Byta plats",
-    "dayDragSwapDesc": "De två dagarnas aktiviteter byter plats med varandra"
+    "dayDragSwapDesc": "De två dagarnas aktiviteter byter plats med varandra",
+    "darkMode": "Mörkt läge",
+    "emojiRequiredLabel": "Emoji *",
+    "confirmDelete": "Ta bort",
+    "yesReplace": "Ja, ersätt",
+    "yesDelete": "Ja, ta bort",
+    "close": "Stäng"
   },
   "months": {
     "0": "Januari",
@@ -459,6 +476,47 @@
   },
   "fillWeek": {
     "title": "Fyll vecka",
-    "chooseGroup": "Välj aktivitetsgrupp"
+    "chooseGroup": "Välj aktivitetsgrupp",
+    "body": "Välj ett schema och markera vilka dagar det ska klistras in på.",
+    "step1": "1. Välj schema",
+    "step2": "2. Välj dagar",
+    "changeSchedule": "← Ändra schema",
+    "schoolWarning": "⚠️ Skolscheman kan inte läggas in på helger (lör/sön).",
+    "replaceTitle": "Ersätt befintliga scheman?",
+    "fillBtn": "Fyll in"
+  },
+  "daysPlural": {
+    "0": "alla söndagar",
+    "1": "alla måndagar",
+    "2": "alla tisdagar",
+    "3": "alla onsdagar",
+    "4": "alla torsdagar",
+    "5": "alla fredagar",
+    "6": "alla lördagar",
+    "all": "alla dagar"
+  },
+  "dnd": {
+    "reorderTitle": "Ändra ordning",
+    "reorderBody": "Ska ändringen gälla bara idag eller {{plural}}?",
+    "reorderTodayBtn": "📅 Ändra bara idag",
+    "reorderAllBtn": "🔁 Ändra {{plural}}",
+    "savedAll": "Ordning sparad för {{plural}} ✅",
+    "savedToday": "Ordning sparad bara för idag ✅",
+    "saveOrderFailed": "Fel vid sparning av ordning",
+    "noDate": "Kunde inte bestämma datum",
+    "fetchTodayFailed": "Kunde inte hämta dagens schema",
+    "nothingToSort": "Inga aktiviteter att sortera",
+    "saveFailed": "Sparning misslyckades",
+    "saveError": "Fel vid sparning",
+    "alreadyOnDay": "Finns redan på {{day}}",
+    "copiedToDay": "📋 Kopierat till {{day}}",
+    "dayCopiedTo": "📋 {{src}} kopierat till {{dst}}",
+    "daysSwapped": "🔄 {{a}} och {{b}} bytte plats",
+    "dayDndDesc": "Vad vill du göra med {{day}}s schema?"
+  },
+  "calNav": {
+    "monthTitle": "{{name}} — Månadsöversikt",
+    "monthHint": "Gröna prickar = dagar med schemalagda aktiviteter. Klicka på en dag för att se schemat.",
+    "monthEmpty": "Inga aktiviteter inlagda i veckoschemat ännu."
   }
 }

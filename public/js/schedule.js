@@ -305,10 +305,13 @@ document.addEventListener('parent-i18n-ready', () => {
     if (typeof renderChildrenOverview === 'function') renderChildrenOverview();
     if (scheduleMode === 'family' && typeof fwRenderGrid === 'function') fwRenderGrid();
     if (currentChildId) {
+      // I18n.apply resets the h2 to the generic title — restore the child-specific one
+      updateSchedulePageTitle(children.find(c => c.id === currentChildId));
       if (typeof renderChildTabs === 'function') renderChildTabs();
       if (typeof loadScheduleForDay === 'function') loadScheduleForDay();
     }
   }
+  if (window.ScheduleCalNav && typeof ScheduleCalNav.updateCalNavLabel === 'function') ScheduleCalNav.updateCalNavLabel();
 });
 
 // showToast is now in /js/toast.js

@@ -79,6 +79,22 @@ const STRICT_FILES = [
   'src/routes/auth/register.js',
   'src/routes/auth/login.js',
   'src/routes/auth/email.js',
+  'config/i18n/schedule-en-GB.json',
+  'public/js/schedule-i18n.js',
+  'public/js/schedule-core.js',
+  'public/js/schedule.js',
+  'public/js/schedule-views.js',
+  'public/js/schedule-activity-modals.js',
+  'public/js/schedule-special-days.js',
+  'public/js/schedule-period.js',
+  'public/js/schedule-insert-fill.js',
+  'public/js/schedule-template-mode.js',
+  'public/js/schedule-dnd.js',
+  'public/js/schedule-cal-nav.js',
+  'public/js/schedule-custody.js',
+  'public/js/schedule-family-grid.js',
+  'public/js/dashboard-activity-modal.js',
+  'public/schedule.html',
 ];
 
 const BASELINE_FILES = [
@@ -103,6 +119,14 @@ const STRICT_ALLOWLIST = [
   /auth-entry-noscript|auth-entry-fallback/, // Emergency no-JS / bootstrap-failure copy (static, bilingual)
   /Förskola vardag|Kvällsrutin|Morgon vardag|sectionToCategoryName/, // DB template / category keys in onboarding routes
   /\.replace\(\/\[/, // diacritic strip helper in onboarding routes
+  /_FALLBACK|FW_DAYS_/, // Swedish day/section fallback arrays used only when i18n is unavailable
+  /vacationNames|föräldrabehörighet/, // DB-name / server-error matching keywords, not UI copy
+  /cat\.name\.includes|'skola','förskola'/, // DB category-name matching in schedule modules
+  /copyFromLabel/, // static fallback overwritten via spt() before the modal is shown
+  /<meta|Stjärndag/, // head metadata (SEO scope) + brand proper noun
+  /^\s*\*/, // JSDoc block comment lines
+  /\/\*/, // CSS/JS block comments
+  /option value="(morgon|dag|kvall|natt)"/, // section options localized at modal open (schedule-special-days.js)
 ];
 
 const BASELINE_ALLOWLIST = [

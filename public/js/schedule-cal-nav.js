@@ -6,6 +6,15 @@
 (function () {
   let hostHooks = {};
 
+  function spt(key, params) {
+    return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+  }
+
+  function intlLang() {
+    if (window.I18n && typeof I18n.getCurrentLang === 'function') return I18n.getCurrentLang();
+    return 'sv-SE';
+  }
+
   function registerHost(hooks) {
     hostHooks = hooks || {};
   }
@@ -40,17 +49,17 @@
     if (calView === 'week') {
       const ws = getWeekStart(weekOffset);
       const wn = getWeekNumber(ws);
-      label.textContent = `Vecka ${wn}, ${ws.getFullYear()}`;
+      label.textContent = spt('schedule.familyGrid.weekLabel', { week: wn, year: ws.getFullYear() });
     } else if (calView === 'day') {
       const d = getDayFromOffset(dayOffset);
       const today = new Date(); today.setHours(0, 0, 0, 0); d.setHours(0, 0, 0, 0);
       const isToday = d.getTime() === today.getTime();
-      const dayName = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'short' });
-      label.textContent = isToday ? `Idag — ${d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}` : dayName;
+      const dayName = d.toLocaleDateString(intlLang(), { weekday: 'long', day: 'numeric', month: 'short' });
+      label.textContent = isToday ? `${spt('schedule.chrome.calToday')} — ${d.toLocaleDateString(intlLang(), { day: 'numeric', month: 'short' })}` : dayName;
     } else if (calView === 'month') {
       const now = new Date();
       const d = new Date(now.getFullYear(), now.getMonth() + weekOffset, 1);
-      const monthName = d.toLocaleDateString('sv-SE', { month: 'long', year: 'numeric' });
+      const monthName = d.toLocaleDateString(intlLang(), { month: 'long', year: 'numeric' });
       label.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
     }
   }
@@ -157,7 +166,7 @@
     const month = displayDate.getMonth();
     const DAYS_SHORT = window.ScheduleCore.DAYS_SHORT;
 
-    document.getElementById('scheduleContent').innerHTML = '<div class="text-center py-10 text-text-soft">Laddar…</div>';
+    document.getElementById('scheduleContent').innerHTML = '<div class="text-center py-10 text-text-soft">' + spt('schedule.loading') + '</div>';
 
     const res = await window.apiFetch(`/api/children/${currentChildId}/schedules`);
     const schedules = res.ok ? await res.json() : [];
@@ -168,7 +177,7 @@
 
     const firstDay = new Date(year, month, 1);
     const todayStr = new Date().toISOString().slice(0, 10);
-    const headerDays = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+    const headerDays = [1, 2, 3, 4, 5, 6, 0].map(d => DAYS_SHORT[d]);
 
     const startDow = firstDay.getDay();
     const offset = (startDow + 6) % 7;
@@ -209,9 +218,9 @@
 
     document.getElementById('scheduleContent').innerHTML = `
     <div class="mb-4">
-      <h3 class="text-lg font-heading font-bold text-navy mb-1">${childName} — Månadsöversikt</h3>
-      <p class="text-xs text-text-soft mb-3">Gröna prickar = dagar med schemalagda aktiviteter. Klicka på en dag för att se schemat.</p>
-      ${dayLabels.length > 0 ? `<div class="flex flex-wrap gap-1 mb-3">${dayLabels.join('')}</div>` : '<p class="text-xs text-text-soft mb-3">Inga aktiviteter inlagda i veckoschemat ännu.</p>'}
+      <h3 class="text-lg font-heading font-bold text-navy mb-1">${spt('schedule.calNav.monthTitle', { name: childName })}</h3>
+      <p class="text-xs text-text-soft mb-3">${spt('schedule.calNav.monthHint')}</p>
+      ${dayLabels.length > 0 ? `<div class="flex flex-wrap gap-1 mb-3">${dayLabels.join('')}</div>` : `<p class="text-xs text-text-soft mb-3">${spt('schedule.calNav.monthEmpty')}</p>`}
       <div class="cal-scroll-wrap">
         <div class="border-2 border-lavender rounded-2xl overflow-hidden">
           <div class="grid grid-cols-7 bg-navy">

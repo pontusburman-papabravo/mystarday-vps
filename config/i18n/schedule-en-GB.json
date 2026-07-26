@@ -32,7 +32,11 @@
   },
   "custody": {
     "otherParent": "Child is with the other parent {{date}}",
-    "myDaysFilter": "\"My days\" is on — clear the filter above to see the {{variant}} schedule."
+    "myDaysFilter": "\"My days\" is on — clear the filter above to see the {{variant}} schedule.",
+    "editLabel": "Edit schedule:",
+    "editFor": "Edit schedule for {{label}}",
+    "weekBanner": "This week: with {{label}}",
+    "myDays": "My days"
   },
   "paused": {
     "title": "{{name}} is paused today",
@@ -210,7 +214,8 @@
       "reasonRequired": "Reason required",
       "starsLabel": "Number of stars",
       "reasonLabel": "Reason *",
-      "success": "{{count}} stars given!"
+      "success": "{{count}} stars given!",
+      "successOne": "1 star given!"
     }
   },
   "validation": {
@@ -324,7 +329,11 @@
     "addHolidayPeriod": "Add holiday period",
     "periodCardTitle": "School schedule + holidays for a period",
     "legendToday": "Today",
-    "legendWeekdayTemplate": "Weekday template used"
+    "legendWeekdayTemplate": "Weekday template used",
+    "modalFallbackTitle": "Special day",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "E.g. Field trip, Day off, Sick…",
+    "deleteBtn": "🗑 Remove special day"
   },
   "period": {
     "pickSchedule": "— Choose schedule —",
@@ -371,7 +380,9 @@
     "newTemplateTitle": "New schedule",
     "newTemplateBody": "Give the schedule a name. You can then add activities from the schedule activity list.",
     "newTemplatePlaceholder": "E.g. School day, Weekend, Football day…",
-    "createTemplateBtn": "Create schedule"
+    "createTemplateBtn": "Create schedule",
+    "replaceTitle": "Replace existing schedule?",
+    "deleteTemplateTitle": "Delete the schedule?"
   },
   "chrome": {
     "weeklyPlanningTitle": "📅 Weekly planning",
@@ -441,7 +452,13 @@
     "dayDragCopyTitle": "Copy",
     "dayDragCopyDesc": "Source day activities are added to the target day (replaces existing)",
     "dayDragSwapTitle": "Swap",
-    "dayDragSwapDesc": "The two days' activities swap places"
+    "dayDragSwapDesc": "The two days' activities swap places",
+    "darkMode": "Dark mode",
+    "emojiRequiredLabel": "Emoji *",
+    "confirmDelete": "Remove",
+    "yesReplace": "Yes, replace",
+    "yesDelete": "Yes, delete",
+    "close": "Close"
   },
   "months": {
     "0": "January",
@@ -459,6 +476,47 @@
   },
   "fillWeek": {
     "title": "Fill week",
-    "chooseGroup": "Choose activity group"
+    "chooseGroup": "Choose activity group",
+    "body": "Choose a schedule and mark the days to paste it on.",
+    "step1": "1. Choose schedule",
+    "step2": "2. Choose days",
+    "changeSchedule": "← Change schedule",
+    "schoolWarning": "⚠️ School schedules cannot be placed on weekends (Sat/Sun).",
+    "replaceTitle": "Replace existing schedules?",
+    "fillBtn": "Fill in"
+  },
+  "daysPlural": {
+    "0": "every Sunday",
+    "1": "every Monday",
+    "2": "every Tuesday",
+    "3": "every Wednesday",
+    "4": "every Thursday",
+    "5": "every Friday",
+    "6": "every Saturday",
+    "all": "all days"
+  },
+  "dnd": {
+    "reorderTitle": "Change order",
+    "reorderBody": "Apply the change just today, or {{plural}}?",
+    "reorderTodayBtn": "📅 Change today only",
+    "reorderAllBtn": "🔁 Change {{plural}}",
+    "savedAll": "Order saved for {{plural}} ✅",
+    "savedToday": "Order saved for today only ✅",
+    "saveOrderFailed": "Could not save the order",
+    "noDate": "Could not determine the date",
+    "fetchTodayFailed": "Could not load today's schedule",
+    "nothingToSort": "No activities to reorder",
+    "saveFailed": "Save failed",
+    "saveError": "Could not save",
+    "alreadyOnDay": "Already on {{day}}",
+    "copiedToDay": "📋 Copied to {{day}}",
+    "dayCopiedTo": "📋 {{src}} copied to {{dst}}",
+    "daysSwapped": "🔄 {{a}} and {{b}} swapped places",
+    "dayDndDesc": "What do you want to do with the {{day}} schedule?"
+  },
+  "calNav": {
+    "monthTitle": "{{name}} — Month overview",
+    "monthHint": "Green dots = days with scheduled activities. Tap a day to see the schedule.",
+    "monthEmpty": "No activities in the weekly schedule yet."
   }
 }

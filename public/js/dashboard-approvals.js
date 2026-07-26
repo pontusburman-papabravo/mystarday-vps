@@ -54,7 +54,7 @@ async function submitGiveStars() {
       return;
     }
     document.getElementById('giveStarsModal').classList.add('hidden');
-    showToast(`⭐ ${spt('schedule.modals.giveStars.success', { count: starCount })}`);
+    showToast(`⭐ ${starCount === 1 ? spt('schedule.modals.giveStars.successOne') : spt('schedule.modals.giveStars.success', { count: starCount })}`);
     await loadDashboardCards();
     await loadStarHistory();
   } catch (err) {

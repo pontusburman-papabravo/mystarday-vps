@@ -1,8 +1,8 @@
 /**
  * Schedule page special-days (Fas 8 F3a).
  * Special-day calendar + edit modal for the /schedule page, extracted from schedule.js.
- * Group-exclusive state (sdCalYear/Month, sdSpecialDays, sdEditDate, sdScheduleId, sdItems,
- * MONTH_NAMES) moves here; reads globals (currentChildId, children, allTemplates, fmtTime via
+ * Group-exclusive state (sdCalYear/Month, sdSpecialDays, sdEditDate, sdScheduleId,
+ * sdItems) moves here; reads globals (currentChildId, children, allTemplates, fmtTime via
  * ScheduleCore, escHtml, showToast, apiFetch). Handlers exposed on window for onclick + setViewMode.
  */
 (function () {
@@ -17,7 +17,9 @@ let sdEditDate = null; // 'YYYY-MM-DD' currently being edited
 let sdScheduleId = null; // UUID of the special_day_schedule being edited
 let sdItems = []; // items in the current special day being edited
 
-const MONTH_NAMES = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+function sdIntlLang() {
+  return (window.I18n && typeof I18n.getCurrentLang === 'function') ? I18n.getCurrentLang() : 'sv-SE';
+}
 
 async function loadSpecialDays(childId) {
   // Load all special days for this child (future 6 months + past 3 months)
@@ -135,7 +137,7 @@ async function renderSpecialDaysCalendar() {
         <div class="space-y-2">
           ${sdSpecialDays.map(sd => {
             const d = new Date(sd.date.slice(0, 10) + 'T12:00:00Z');
-            const label = d.toLocaleDateString('sv-SE', { weekday:'long', day:'numeric', month:'long' });
+            const label = d.toLocaleDateString(sdIntlLang(), { weekday:'long', day:'numeric', month:'long' });
             return `<div class="flex items-center justify-between p-3 bg-amber-50 border-2 border-amber-200 rounded-xl">
               <div>
                 <span class="text-sm font-semibold text-navy">🌟 ${escHtml(label)}</span>
@@ -168,7 +170,7 @@ async function sdOpenDay(dateStr) {
 
   // Format display date
   const d = new Date(dateStr + 'T12:00:00Z');
-  const label = d.toLocaleDateString('sv-SE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const label = d.toLocaleDateString(sdIntlLang(), { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   document.getElementById('specialDayDateLabel').textContent = label;
 
   // Check if special day already exists
@@ -204,6 +206,13 @@ async function sdOpenDay(dateStr) {
   const sel = document.getElementById('sdAddTemplateSelect');
   sel.innerHTML = '<option value="">' + spt('schedule.specialDays.pickActivity') + '</option>' +
     allTemplates.map(t => `<option value="${t.id}">${escHtml(t.icon||'')} ${escHtml(t.name)} (${t.star_value}⭐)</option>`).join('');
+
+  // Localize section options (emoji + current-locale section name)
+  const sdSecEmoji = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
+  document.querySelectorAll('#sdAddSection option').forEach(opt => {
+    const label = (window.ScheduleCore && ScheduleCore.sectionName) ? ScheduleCore.sectionName(opt.value) : spt('schedule.sections.' + opt.value);
+    opt.textContent = `${sdSecEmoji[opt.value] || ''} ${label}`;
+  });
 
   renderSdItems();
   document.getElementById('specialDayError').classList.add('hidden');
@@ -312,7 +321,7 @@ async function sdAddItem() {
     sdItems.push(item);
     renderSdItems();
     document.getElementById('sdAddTemplateSelect').value = '';
-    showToast('Aktivitet tillagd');
+    showToast(spt('schedule.toasts.added'));
   } else {
     const e = await res.json();
     showToast(e.error || spt('schedule.validation.generic'), true);

@@ -123,6 +123,16 @@ describe('i18n English journey E2E', () => {
             if (hub.path === '/planning') {
               assert.match(surfaceText || (await page.evaluate(() => document.body.innerText)), /Plan the week|Library|Weekly schedule/i);
             }
+            if (hub.path === '/schedule') {
+              // btnModeSingle shows the child's name once a child is auto-selected,
+              // so assert the stable chrome: family toggle + page title in English.
+              const modeSingle = await page.$eval('#btnModeSingle', (el) => el.textContent.trim()).catch(() => '');
+              const modeFamily = await page.$eval('#btnModeFamily', (el) => el.textContent.trim()).catch(() => '');
+              assert.doesNotMatch(modeSingle, /Mitt barn/, 'schedule mode toggle (single) must not stay Swedish');
+              assert.match(modeFamily, /All children/i, 'schedule mode toggle (family) should be English');
+              const pageTitle = await page.$eval('#schedulePageTitle', (el) => el.textContent.trim()).catch(() => '');
+              assert.match(pageTitle, /Weekly planning|schedule/i, 'schedule page title should be English');
+            }
           }
           const bodyText = await page.evaluate(() => document.body.innerText);
           assert.match(bodyText, hub.expectText, `${hub.label} should show English heading/nav`);

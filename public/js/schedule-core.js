@@ -3,8 +3,9 @@
  * Exposed as window.ScheduleCore; key symbols also on window for HTML onclick + schedule-views.js.
  */
 (function () {
-  const DAYS = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-  const DAYS_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+  const DAYS_FALLBACK = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+  const DAYS_SHORT_FALLBACK = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+  const SECTION_LABEL_FALLBACK = { morgon: 'Morgon', dag: 'Dag', kvall: 'Kväll', natt: 'Natt' };
 
   function localizedString(key, params) {
     if (window.ScheduleI18n) return ScheduleI18n.t(key, params);
@@ -12,22 +13,42 @@
     return key;
   }
 
+  function localizedOr(key, fallback) {
+    const val = localizedString(key);
+    return val === key ? fallback : val;
+  }
+
   function dayName(index) {
-    return localizedString(`schedule.days.${index}`);
+    return localizedOr(`schedule.days.${index}`, DAYS_FALLBACK[index]);
   }
 
   function dayShort(index) {
-    return localizedString(`schedule.daysShort.${index}`);
+    return localizedOr(`schedule.daysShort.${index}`, DAYS_SHORT_FALLBACK[index]);
   }
 
   function sectionName(key) {
-    return localizedString(`schedule.sections.${key}`);
+    return localizedOr(`schedule.sections.${key}`, SECTION_LABEL_FALLBACK[key] || key);
   }
+
+  // Locale-aware index access: DAYS[3] returns the current-locale day name.
+  // Proxy keeps every existing `DAYS[d]` call site working after locale switch.
+  function localizedDayArray(lookupFn) {
+    return new Proxy([], {
+      get(target, prop) {
+        const i = Number(prop);
+        if (Number.isInteger(i) && i >= 0 && i <= 6) return lookupFn(i);
+        return target[prop];
+      },
+    });
+  }
+  const DAYS = localizedDayArray(dayName);
+  const DAYS_SHORT = localizedDayArray(dayShort);
+
   const SECTIONS = [
-    { key: 'morgon', label: 'Morgon', emoji: '🌅', color: 'bg-yellow-50 border-yellow-200' },
-    { key: 'dag', label: 'Dag', emoji: '☀️', color: 'bg-sky border-blue-200' },
-    { key: 'kvall', label: 'Kväll', emoji: '🌆', color: 'bg-orange-50 border-orange-200' },
-    { key: 'natt', label: 'Natt', emoji: '🌙', color: 'bg-indigo-50 border-indigo-200' },
+    { key: 'morgon', emoji: '🌅', color: 'bg-yellow-50 border-yellow-200', get label() { return sectionName(this.key); } },
+    { key: 'dag', emoji: '☀️', color: 'bg-sky border-blue-200', get label() { return sectionName(this.key); } },
+    { key: 'kvall', emoji: '🌆', color: 'bg-orange-50 border-orange-200', get label() { return sectionName(this.key); } },
+    { key: 'natt', emoji: '🌙', color: 'bg-indigo-50 border-indigo-200', get label() { return sectionName(this.key); } },
   ];
 
   // initBirthdayPicker and updateBirthdayDays are in /js/birthday-picker.js

@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
-const { loadLocales, t } = require('../src/lib/i18n');
+const { loadLocales, t, compareLocaleStructures } = require('../src/lib/i18n');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -65,5 +65,35 @@ describe('schedule/planning i18n surfaces', () => {
     const html = read('public/dashboard.html');
     assert.match(html, /schedule-i18n\.js/);
     assert.match(html, /data-i18n="schedule\.modals\.giveStars\.title"/);
+  });
+
+  it('schedule fragment keys have full sv-SE / en-GB parity', () => {
+    const { missingInEn, missingInSv } = compareLocaleStructures();
+    const scheduleMissingEn = missingInEn.filter((k) => k.startsWith('schedule.'));
+    const scheduleMissingSv = missingInSv.filter((k) => k.startsWith('schedule.'));
+    assert.deepEqual(scheduleMissingEn, [], 'keys missing in schedule-en-GB.json');
+    assert.deepEqual(scheduleMissingSv, [], 'keys missing in schedule-sv-SE.json');
+  });
+
+  it('schedule surfaces are covered by the STRICT hardcoded-Swedish audit tier', () => {
+    const audit = read('scripts/audit-hardcoded-swedish.js');
+    for (const file of [
+      'config/i18n/schedule-en-GB.json',
+      'public/js/schedule-i18n.js',
+      'public/js/schedule.js',
+      'public/js/schedule-dnd.js',
+      'public/js/schedule-cal-nav.js',
+      'public/schedule.html',
+    ]) {
+      assert.ok(audit.includes(`'${file}'`), `${file} should be in STRICT_FILES`);
+    }
+  });
+
+  it('day plurals are locale keys, not Swedish string concatenation', () => {
+    const dnd = read('public/js/schedule-dnd.js');
+    assert.doesNotMatch(dnd, /\+ 'ar'/);
+    assert.match(dnd, /schedule\.daysPlural\./);
+    assert.equal(t('en-GB', 'schedule.daysPlural.1'), 'every Monday');
+    assert.equal(t('sv-SE', 'schedule.daysPlural.1'), 'alla måndagar');
   });
 });
