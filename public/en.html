@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="canonical" href="__SITE_URL__/en">
   <title>My Starday — Visual Schedule App for Kids | The Treasure Chamber</title>
-  <meta name="description" content="My Starday — visual schedule app for kids. Clear picture support, daily structure, and star rewards. A helpful tool for ADHD and autism. Try it for free today.">
+  <meta name="description" content="My Starday — visual schedule app for kids. Clear picture support, daily structure, and star rewards. Join the waitlist for the English version.">
   <meta property="og:title" content="My Starday — Visual schedules and stars without the nagging">
-  <meta property="og:description" content="Visual schedules, clear steps, and stars that help kids get through the day. Try it for free.">
+  <meta property="og:description" content="Visual schedules, clear steps, and stars that help kids get through the day. Join the waitlist for the English version.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="__SITE_URL__/en">
   <meta property="og:image" content="__SITE_URL__/og-image.png">
@@ -97,7 +97,7 @@
     <a href="/" class="landing-nav__lang landing-nav__lang--flag" title="Swedish version" aria-label="Svenska"><span class="landing-nav__lang-flag" aria-hidden="true">🇸🇪</span><span class="landing-nav__lang-label">Svenska</span></a>
     <a href="/child-login" class="landing-nav__child-login" data-track="nav_child_login_click" title="Child login">🌟 Child</a>
     <a href="/en/login" class="landing-nav__login" data-track="nav_login_click">Log in</a>
-    <a href="/en/register" class="btn-primary" data-track="nav_signup_click">Create free account</a>
+    <a href="#waitlist" class="btn-primary" data-track="nav_signup_click">Join waitlist</a>
     <button type="button" class="landing-nav__hamburger" id="navHamburger" aria-label="Open menu and log in" aria-expanded="false">
       <span class="landing-nav__hamburger-bars" aria-hidden="true"><span></span><span></span><span></span></span>
       <span class="landing-nav__hamburger-label" aria-hidden="true">
@@ -138,8 +138,8 @@
       <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
     </a>
   </div>
-  <p class="landing-mobile-menu__section">New here?</p>
-  <a href="/en/register" class="btn-primary" style="text-align:center;margin-top:0.25rem;" data-track="nav_signup_click">Create free account</a>
+  <p class="landing-mobile-menu__section">Interested?</p>
+  <a href="#waitlist" class="btn-primary" style="text-align:center;margin-top:0.25rem;" data-track="nav_signup_click">Join waitlist</a>
   <a href="/">🇸🇪 Svenska</a>
 </div>
 
@@ -192,7 +192,7 @@
             <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
           </a>
         </div>
-        <a href="/en/register" class="btn-primary" data-track="hero_signup_click">Create free account</a>
+        <a href="#waitlist" class="btn-primary" data-track="hero_signup_click">Join waitlist</a>
         <a href="#sa-fungerar-det" class="btn-secondary btn-secondary--ghost" data-track="hero_how_it_works_click">See how it works</a>
       </div>
       <div class="landing-login-entry landing-login-entry--hero" aria-label="Login for existing users">
@@ -480,7 +480,7 @@
     </div>
     <p style="text-align:center;margin-top:1.75rem;color:var(--text-2);max-width:560px;margin-left:auto;margin-right:auto;">Stop reprinting new schedules every week — let the app keep the routine alive while your child uses it every day.</p>
     <p style="text-align:center;margin-top:1rem;">
-      <a href="/en/register" class="btn-primary" data-track="two_track_signup_click">Try the app free</a>
+      <a href="#waitlist" class="btn-primary" data-track="two_track_signup_click">Join waitlist</a>
     </p>
   </div>
 </section>
@@ -617,13 +617,13 @@
   </div>
 </section>
 
-<!-- 10. PRICING AND ACCESS -->
-<section class="landing-section--light" id="pris-och-tillgang">
+<!-- 10. WAITLIST / INTEREST -->
+<section class="landing-section--light" id="waitlist">
   <div class="landing-inner">
-    <div class="founder-block">
-      <span class="section-eyebrow">Get started</span>
-      <h2>Basic is included at no cost right now</h2>
-      <p class="founder-block__intro">Create an account and get access to Basic at no cost. No payment is required in the current version.</p>
+    <div class="founder-block waitlist-block">
+      <span class="section-eyebrow">Express interest</span>
+      <h2>Join the waitlist</h2>
+      <p class="founder-block__intro">Leave your name and email and we will notify you when My Starday is ready for your family in English. No payment required to sign up.</p>
       <ul class="founder-block__list">
         <li>Unlimited children</li>
         <li>Child's own view with PIN</li>
@@ -632,7 +632,12 @@
         <li>Push notifications</li>
         <li>Family invite</li>
       </ul>
-      <a href="/en/register" class="btn-primary" data-track="founder_signup_click">Create free account</a>
+      <form class="waitlist-form" id="waitlistForm" novalidate>
+        <p class="waitlist-form__error" id="waitlistFormError" style="display:none;" role="alert"></p>
+        <input type="text" id="waitlistName" class="waitlist-form__input" name="name" placeholder="Your name" required autocomplete="name">
+        <input type="email" id="waitlistEmail" class="waitlist-form__input" name="email" placeholder="Your email address" required autocomplete="email">
+        <button type="submit" class="btn-primary waitlist-form__submit" id="waitlistSubmitBtn" data-track="waitlist_signup_click">Join waitlist</button>
+      </form>
       <p class="founder-block__note">Later we will release more add-ons for families who want reporting, <strong>Extra Support</strong> (transition support and the Seven Questions in the app), or educator collaboration — packages are coming soon and cannot be purchased yet. <a href="/en/pricing" class="btn-ghost-link">Read about plans and upcoming packages →</a></p>
     </div>
   </div>
@@ -678,8 +683,8 @@
 <!-- 12. FINAL CTA -->
 <section class="final-cta landing-section--dark" id="kom-igang">
   <h2>Ready for a calmer daily life?</h2>
-  <p>Create a free account and build your child's first schedule in minutes.</p>
-  <a href="/en/register" class="btn-primary" data-track="final_signup_click">Create free account</a>
+  <p>Join the waitlist and we will let you know when you can get started in English.</p>
+  <a href="#waitlist" class="btn-primary" data-track="final_signup_click">Join waitlist</a>
   <div class="final-cta__login-row">
     <a href="/en/login" class="final-cta__login" data-track="nav_login_click">Log in as parent</a>
     <span class="final-cta__login-sep" aria-hidden="true">·</span>
@@ -690,9 +695,9 @@
 <!-- 13. FOOTER -->
 <footer class="landing-footer">
   <div class="landing-footer__cta">
-    <h3>Create free account</h3>
-    <p>Basic is included at no cost right now.</p>
-    <a href="/en/register" class="btn-primary" data-track="footer_signup_click">Create free account</a>
+    <h3>Join the waitlist</h3>
+    <p>Express interest and we will email you when the English version is ready.</p>
+    <a href="#waitlist" class="btn-primary" data-track="footer_signup_click">Join waitlist</a>
   </div>
   <div class="landing-footer__grid">
     <div class="landing-footer__brand">
@@ -760,7 +765,7 @@
 (function() {
   var LEGACY = {
     losning: 'sa-fungerar-det',
-    program: 'pris-och-tillgang',
+    program: 'waitlist',
     malgrupp: 'for-vilka',
     problemet: 'problem'
   };
@@ -812,6 +817,7 @@
 <script src="/js/landing-founder.js?v=3"></script>
 <script src="/js/landing-login-choice.js?v=2"></script>
 <script src="/js/landing-magic-bg.js?v=1"></script>
+<script src="/js/landing-waitlist.js?v=1"></script>
 <script src="/js/sw-register.js?v=2.13.0"></script>
 </body>
 </html>
