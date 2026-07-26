@@ -5,12 +5,24 @@
  * showToast, escHtml, apiFetch). Handlers exposed on window for inline onclick.
  */
 (function () {
+function pt(key, params) {
+  return window.pt ? window.pt(key, params) : key;
+}
+
 function openGiveStarsModal(childId, childName, childEmoji) {
   document.getElementById('giveStarsChildId').value = childId;
   document.getElementById('giveStarsChildName').textContent = `${childEmoji} ${childName}`;
   document.getElementById('giveStarsCount').value = '5';
   document.getElementById('giveStarsReason').value = '';
   document.getElementById('giveStarsError').classList.add('hidden');
+  const submitBtn = document.getElementById('giveStarsSubmitBtn');
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = pt('home.giveStars.submit');
+  }
+  if (window.I18n && typeof I18n.apply === 'function') {
+    I18n.apply(document.getElementById('giveStarsModal'));
+  }
   document.getElementById('giveStarsModal').classList.remove('hidden');
 }
 
@@ -22,19 +34,19 @@ async function submitGiveStars() {
 
   errEl.classList.add('hidden');
   if (isNaN(starCount) || starCount < 1 || starCount > 100) {
-    errEl.textContent = 'Ange 1–100 stjärnor';
+    errEl.textContent = pt('home.giveStars.starsRangeError');
     errEl.classList.remove('hidden');
     return;
   }
   if (!reason) {
-    errEl.textContent = 'Anledning krävs';
+    errEl.textContent = pt('home.giveStars.reasonRequired');
     errEl.classList.remove('hidden');
     return;
   }
 
   const btn = document.getElementById('giveStarsSubmitBtn');
   btn.disabled = true;
-  btn.textContent = 'Sparar…';
+  btn.textContent = pt('home.giveStars.saving');
 
   try {
     const res = await window.apiFetch('/api/rewards/manual-stars', {
@@ -43,21 +55,21 @@ async function submitGiveStars() {
     });
     const data = await res.json();
     if (!res.ok) {
-      errEl.textContent = data.error || 'Fel';
+      errEl.textContent = data.error || pt('home.giveStars.errorGeneric');
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Ge stjärnor';
+      btn.textContent = pt('home.giveStars.submit');
       return;
     }
     document.getElementById('giveStarsModal').classList.add('hidden');
-    showToast(`⭐ ${starCount} stjärnor givna!`);
+    showToast(pt('home.giveStars.success', { count: starCount }));
     await loadDashboardCards();
     await loadStarHistory();
   } catch (err) {
-    errEl.textContent = 'Nätverksfel';
+    errEl.textContent = pt('home.giveStars.networkError');
     errEl.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Ge stjärnor';
+    btn.textContent = pt('home.giveStars.submit');
   }
 }
 

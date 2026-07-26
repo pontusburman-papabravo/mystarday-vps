@@ -26,6 +26,21 @@
     "extraStars": "Extra stars",
     "dayOff": "Day off"
   },
+  "giveStars": {
+    "title": "⭐ Give extra stars",
+    "starCount": "Number of stars",
+    "reasonLabel": "Reason *",
+    "reasonPlaceholder": "e.g. Helped with the dishes",
+    "cancel": "Cancel",
+    "submit": "Give stars",
+    "saving": "Saving…",
+    "pickerPrompt": "Choose which child to give stars to:",
+    "starsRangeError": "Enter 1–100 stars",
+    "reasonRequired": "Reason required",
+    "success": "⭐ {{count}} stars given!",
+    "networkError": "Network error",
+    "errorGeneric": "Something went wrong"
+  },
   "handoff": {
     "title": "Time for your child to log in?",
     "sub": "Switch to child view with PIN.",

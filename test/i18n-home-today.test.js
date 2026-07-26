@@ -610,6 +610,46 @@ describe('Home nav locale (nav-config)', () => {
   });
 });
 
+describe('give extra stars modal locale', () => {
+  const dashboardHtml = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
+  const approvals = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-approvals.js'), 'utf8');
+  const cardActions = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-card-actions.js'), 'utf8');
+
+  it('modal shell uses data-i18n keys for all visible copy', () => {
+    assert.match(dashboardHtml, /id="giveStarsModal"[\s\S]*data-i18n="home\.giveStars\.title"/);
+    assert.match(dashboardHtml, /data-i18n="home\.giveStars\.starCount"/);
+    assert.match(dashboardHtml, /data-i18n="home\.giveStars\.reasonLabel"/);
+    assert.match(dashboardHtml, /data-i18n-placeholder="home\.giveStars\.reasonPlaceholder"/);
+    assert.match(dashboardHtml, /data-i18n="home\.giveStars\.cancel"/);
+    assert.match(dashboardHtml, /id="giveStarsSubmitBtn"[\s\S]*data-i18n="home\.giveStars\.submit"/);
+    assert.match(dashboardHtml, /id="giveStarsPickerModal"[\s\S]*data-i18n="home\.giveStars\.pickerPrompt"/);
+  });
+
+  it('dashboard-approvals uses pt() for dynamic give-stars strings', () => {
+    const giveStarsBlock = approvals.slice(0, approvals.indexOf('// ── Request Panel'));
+    assert.match(giveStarsBlock, /pt\('home\.giveStars\.submit'\)/);
+    assert.match(giveStarsBlock, /pt\('home\.giveStars\.starsRangeError'\)/);
+    assert.match(giveStarsBlock, /pt\('home\.giveStars\.reasonRequired'\)/);
+    assert.match(giveStarsBlock, /pt\('home\.giveStars\.success'/);
+    assert.match(giveStarsBlock, /I18n\.apply\(document\.getElementById\('giveStarsModal'\)\)/);
+    assert.doesNotMatch(giveStarsBlock, /Ge stjärnor/);
+    assert.doesNotMatch(giveStarsBlock, /Nätverksfel/);
+  });
+
+  it('picker modal reapplies i18n on open', () => {
+    assert.match(cardActions, /I18n\.apply\(document\.getElementById\('giveStarsPickerModal'\)\)/);
+  });
+
+  it('home.giveStars en-GB bundle has English copy', () => {
+    loadLocales();
+    const en = getLocale('en-GB');
+    assert.equal(en.home.giveStars.title, '⭐ Give extra stars');
+    assert.equal(en.home.giveStars.submit, 'Give stars');
+    assert.match(en.home.giveStars.reasonPlaceholder, /dishes/i);
+    assert.doesNotMatch(en.home.giveStars.title, SWEDISH_RE);
+  });
+});
+
 describe('Home offline banner locale', () => {
   const dashboardHtml = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
   const dashboardJs = fs.readFileSync(path.join(__dirname, '../public/js/dashboard.js'), 'utf8');

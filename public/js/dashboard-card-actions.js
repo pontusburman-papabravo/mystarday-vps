@@ -124,6 +124,9 @@ function openGiveStarsQuick() {
       <span class="font-semibold text-navy">${escHtml(c.name)}</span>
     </button>`).join('');
   document.getElementById('giveStarsPickerModal').classList.remove('hidden');
+  if (window.I18n && typeof I18n.apply === 'function') {
+    I18n.apply(document.getElementById('giveStarsPickerModal'));
+  }
 }
 
 // ── Ledig dag quick button (header) ───────────────────────

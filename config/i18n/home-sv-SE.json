@@ -26,6 +26,21 @@
     "extraStars": "Extra stjärnor",
     "dayOff": "Ledig dag"
   },
+  "giveStars": {
+    "title": "⭐ Ge extra stjärnor",
+    "starCount": "Antal stjärnor",
+    "reasonLabel": "Anledning *",
+    "reasonPlaceholder": "T.ex. Hjälpte till med disken",
+    "cancel": "Avbryt",
+    "submit": "Ge stjärnor",
+    "saving": "Sparar…",
+    "pickerPrompt": "Välj vilket barn du vill ge stjärnor till:",
+    "starsRangeError": "Ange 1–100 stjärnor",
+    "reasonRequired": "Anledning krävs",
+    "success": "⭐ {{count}} stjärnor givna!",
+    "networkError": "Nätverksfel",
+    "errorGeneric": "Något gick fel"
+  },
   "handoff": {
     "title": "Dags för barnet att logga in?",
     "sub": "Byt till barnets vy med PIN-kod.",

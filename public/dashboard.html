@@ -688,7 +688,7 @@
           <div class="mb-5 flex items-center justify-end flex-wrap gap-3 parent-magic-legacy-hide">
             <div class="flex items-center gap-2 flex-wrap quick-actions-bar">
               <a href="/daily-log" class="px-3 py-2 text-sm bg-white hover:bg-gold-light text-navy border-2 border-gold rounded-lg font-semibold transition-colors flex items-center gap-1 no-underline">📝 Fyll i i efterhand</a>
-              <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
+              <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1" data-i18n="home.giveStars.title">⭐ Ge extra stjärnor</button>
               <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
               <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">🏠 Ledig dag</button>
             </div>
@@ -1032,15 +1032,15 @@
   <div id="giveStarsModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-5">
-        <h3 class="text-xl font-heading font-bold text-navy">⭐ Ge extra stjärnor</h3>
-        <button onclick="document.getElementById('giveStarsModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="home.giveStars.title">⭐ Ge extra stjärnor</h3>
+        <button onclick="document.getElementById('giveStarsModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl" data-i18n-aria-label="onboarding.common.closeAria" aria-label="Stäng">&times;</button>
       </div>
       <input type="hidden" id="giveStarsChildId">
       <div class="flex items-center gap-2 mb-4 p-3 bg-sky rounded-xl">
         <span class="text-2xl" id="giveStarsChildName"></span>
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-1">Antal stjärnor</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="home.giveStars.starCount">Antal stjärnor</label>
         <div class="flex items-center gap-3">
           <button type="button" onclick="document.getElementById('giveStarsCount').value = Math.max(1, parseInt(document.getElementById('giveStarsCount').value||'5')-1)" class="w-10 h-10 rounded-xl border-2 border-lavender hover:border-gold font-bold text-lg flex items-center justify-center text-navy bg-white">−</button>
           <input type="number" id="giveStarsCount" min="1" max="100" value="5"
@@ -1056,16 +1056,16 @@
         </div>
       </div>
       <div class="mb-5">
-        <label class="block text-sm font-semibold text-navy mb-1">Anledning *</label>
-        <input type="text" id="giveStarsReason" placeholder="T.ex. Hjälpte till med disken"
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="home.giveStars.reasonLabel">Anledning *</label>
+        <input type="text" id="giveStarsReason" data-i18n-placeholder="home.giveStars.reasonPlaceholder" placeholder="T.ex. Hjälpte till med disken"
           class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm">
       </div>
       <div id="giveStarsError" class="hidden text-red-500 text-sm mb-3"></div>
       <div class="flex gap-3">
         <button type="button" onclick="document.getElementById('giveStarsModal').classList.add('hidden')"
-          class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
+          class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="home.giveStars.cancel">Avbryt</button>
         <button type="button" id="giveStarsSubmitBtn" onclick="submitGiveStars()"
-          class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Ge stjärnor</button>
+          class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="home.giveStars.submit">Ge stjärnor</button>
       </div>
     </div>
   </div>
@@ -1074,10 +1074,10 @@
   <div id="giveStarsPickerModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">⭐ Ge extra stjärnor</h3>
-        <button onclick="document.getElementById('giveStarsPickerModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="home.giveStars.title">⭐ Ge extra stjärnor</h3>
+        <button onclick="document.getElementById('giveStarsPickerModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl" data-i18n-aria-label="onboarding.common.closeAria" aria-label="Stäng">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Välj vilket barn du vill ge stjärnor till:</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="home.giveStars.pickerPrompt">Välj vilket barn du vill ge stjärnor till:</p>
       <div id="giveStarsPickerList" class="flex flex-col gap-2"></div>
     </div>
   </div>
