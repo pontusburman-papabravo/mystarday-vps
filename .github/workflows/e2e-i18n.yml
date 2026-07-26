@@ -46,9 +46,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/stjarndag_test
       REQUIRE_EMAIL_VERIFICATION: 'false'
-      EMAIL_ENABLED: 'false'
+      EMAIL_ENABLED: 'false' # pragma: allowlist secret
       JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
-      NODE_ENV: test
+      NODE_ENV: test # pragma: allowlist secret
       TEST_SKIP_MIGRATE: '1'
       E2E_VIEWPORTS: desktop,mobile
 
@@ -65,6 +65,9 @@ jobs:
 
       - name: Migrate
         run: npm run migrate
+
+      - name: Verify i18n auth/locale prerequisites (#742 + #747 on main)
+        run: node -e "const p=require('./test/e2e/helpers/prerequisites'); if(!p.i18nAuthStackPresent()){console.error('Missing i18n stack on main'); process.exit(1)}"
 
       - name: E2E i18n English journey
         run: npm run test:e2e:i18n
