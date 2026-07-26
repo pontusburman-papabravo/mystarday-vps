@@ -33,8 +33,26 @@ describe('Home journey coach i18n', () => {
       assert.doesNotMatch(src, /Stäng förklaring/);
       assert.doesNotMatch(src, /Barnet klarade en aktivitet/);
       assert.doesNotMatch(src, /Låt barnet testa sin rutin/);
+      assert.doesNotMatch(src, /pt\([^)]+,\s*['"][^'"]*[åäöÅÄÖ]/);
     });
   }
+
+  it('local pt() wrappers delegate to window.pt / I18n.t — no Swedish string fallbacks', () => {
+    const src = read('public/js/parent-app-i18n.js');
+    assert.match(src, /function pt\(key, params\)/);
+    assert.match(src, /return I18n\.t\(key, params\)/);
+    assert.doesNotMatch(src, /return key \|\|/);
+  });
+
+  it('journey-coach renders registry headline/body/cta (locale from API)', () => {
+    const coach = read('public/js/journey-coach.js');
+    const route = read('src/routes/journey-context.js');
+    assert.match(coach, /exp\.headline/);
+    assert.match(coach, /exp\.body/);
+    assert.match(coach, /exp\.cta/);
+    assert.match(route, /resolveFamilyLocale/);
+    assert.match(route, /loadRegistry\(\{[^}]*locale/);
+  });
 
   it('engine-voice maps all engine policies via journey.engineVoice.*', () => {
     const policies = [
