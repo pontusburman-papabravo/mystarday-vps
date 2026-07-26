@@ -101,6 +101,25 @@ describe('static shells', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/library.html'), 'utf8');
     assert.match(html, /data-i18n-manual-init="true"/);
     assert.match(html, /data-i18n-title="library\.pageTitle"/);
+    assert.match(html, /data-i18n="library\.imageArchive\.title"/);
+    assert.match(html, /data-i18n="library\.imageArchive\.uploadBtn"/);
+    assert.match(html, /data-i18n-placeholder="library\.imageArchive\.namePlaceholder"/);
+  });
+
+  it('library image archive uses lpt() for runtime copy', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/library-images.js'), 'utf8');
+    assert.match(js, /lpt\('library\.imageArchive\.uploadBtn'\)/);
+    assert.match(js, /lpt\('library\.imageArchive\.added'\)/);
+    assert.match(js, /locale-changed/);
+    assert.doesNotMatch(js, /Ladda upp bild/);
+  });
+
+  it('library imageArchive en-GB has English upload copy', () => {
+    loadLocales();
+    const en = getLocale('en-GB');
+    assert.equal(en.library.imageArchive.uploadBtn, '📷 Upload image');
+    assert.match(en.library.imageArchive.namePlaceholder, /Toothbrush/i);
+    assert.doesNotMatch(en.library.imageArchive.uploadBtn, /[åäöÅÄÖ]/);
   });
 
   it('rewards.html has i18n bootstrap and shell keys', () => {

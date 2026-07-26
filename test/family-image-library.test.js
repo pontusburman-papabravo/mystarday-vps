@@ -44,6 +44,7 @@ describe('family image library', () => {
     assert.match(html, /familyImageArchive/);
     assert.match(html, /library-images\.js/);
     assert.match(html, /activity-visual\.js/);
+    assert.match(html, /data-i18n="library\.imageArchive\.uploadBtn"/);
   });
 
   it('library magic hub exports switchTab on window', () => {

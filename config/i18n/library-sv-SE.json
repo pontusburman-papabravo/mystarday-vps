@@ -23,6 +23,33 @@
       "mine": { "title": "Mina bibliotek", "subtitle": "Egna scheman och mallor" }
     }
   },
+  "imageArchive": {
+    "title": "📷 Bildarkiv",
+    "lead": "Fota motivet — du beskär innan det sparas. Återanvänd i aktiviteter.",
+    "namePlaceholder": "Namn (valfritt), t.ex. Tandborste",
+    "uploadBtn": "📷 Ladda upp bild",
+    "uploading": "Laddar upp…",
+    "loading": "Laddar bildarkiv…",
+    "empty": "Inga bilder ännu — ladda upp t.ex. tandborste, säng eller skolbyggnad.",
+    "defaultLabel": "Bild",
+    "deleteTitle": "Ta bort",
+    "deleteConfirm": "Ta bort bilden från bildarkivet? Aktiviteter som använder den får emoji (⭐) istället.",
+    "deleteFailed": "Kunde inte ta bort bilden",
+    "deleted": "Bilden borttagen",
+    "pickerEmpty": "Ladda upp bilder i bildarkivet nedan, eller välj en fil här.",
+    "pickTitle": "Välj bild",
+    "added": "Bild tillagd i bildarkivet",
+    "uploaded": "Bild uppladdad",
+    "uploadFailed": "Uppladdning misslyckades",
+    "uploadFailedServer": "Uppladdning misslyckades (servern svarade inte korrekt)",
+    "noFile": "Ingen fil vald",
+    "saveFailed": "Kunde inte spara i bildarkivet",
+    "opening": "Öppnar…",
+    "recropBtn": "✂️ Beskär om",
+    "openCropFailed": "Kunde inte öppna beskärningen",
+    "updated": "Bilden uppdaterad",
+    "saveCropFailed": "Kunde inte spara beskärningen"
+  },
   "errors": {
     "loadAll": "Kunde inte ladda allt biblioteksinnehåll. Försök ladda om sidan.",
     "loadPage": "Biblioteket kunde inte laddas. Försök ladda om sidan.",

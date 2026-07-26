@@ -23,6 +23,33 @@
       "mine": { "title": "My library", "subtitle": "Your own schedules and templates" }
     }
   },
+  "imageArchive": {
+    "title": "📷 Image archive",
+    "lead": "Photograph the subject — you crop before saving. Reuse in activities.",
+    "namePlaceholder": "Name (optional), e.g. Toothbrush",
+    "uploadBtn": "📷 Upload image",
+    "uploading": "Uploading…",
+    "loading": "Loading image archive…",
+    "empty": "No images yet — upload e.g. toothbrush, bed or school building.",
+    "defaultLabel": "Image",
+    "deleteTitle": "Remove",
+    "deleteConfirm": "Remove the image from the archive? Activities using it will get an emoji (⭐) instead.",
+    "deleteFailed": "Could not remove the image",
+    "deleted": "Image removed",
+    "pickerEmpty": "Upload images in the image archive below, or choose a file here.",
+    "pickTitle": "Choose image",
+    "added": "Image added to the archive",
+    "uploaded": "Image uploaded",
+    "uploadFailed": "Upload failed",
+    "uploadFailedServer": "Upload failed (server did not respond correctly)",
+    "noFile": "No file selected",
+    "saveFailed": "Could not save to the image archive",
+    "opening": "Opening…",
+    "recropBtn": "✂️ Recrop",
+    "openCropFailed": "Could not open cropping",
+    "updated": "Image updated",
+    "saveCropFailed": "Could not save crop"
+  },
   "errors": {
     "loadAll": "Could not load all library content. Try reloading the page.",
     "loadPage": "The library could not be loaded. Try reloading the page.",

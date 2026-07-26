@@ -8,6 +8,31 @@
   const pickerCallback = null;
   let _visualMode = 'emoji';
 
+  function lpt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function uploadBtnLabel() {
+    return lpt('library.imageArchive.uploadBtn');
+  }
+
+  function recropBtnLabel() {
+    return lpt('library.imageArchive.recropBtn');
+  }
+
+  function syncArchiveChrome() {
+    const btn = document.getElementById('familyImageUploadBtn');
+    if (btn && !btn.disabled) btn.textContent = uploadBtnLabel();
+    const recropBtn = document.getElementById('activityImageRecropBtn');
+    if (recropBtn && !recropBtn.disabled && !recropBtn.classList.contains('hidden')) {
+      recropBtn.textContent = recropBtnLabel();
+    }
+    if (window.I18n && typeof I18n.apply === 'function') {
+      const archive = document.getElementById('familyImageArchive');
+      if (archive) I18n.apply(archive);
+    }
+  }
+
   function isPhotoMode() {
     return _visualMode === 'photo';
   }
@@ -87,7 +112,7 @@
   }
 
   async function uploadFile(file) {
-    if (!file) throw new Error('Ingen fil vald');
+    if (!file) throw new Error(lpt('library.imageArchive.noFile'));
     file = await compressUploadFile(file);
     const fd = new FormData();
     fd.append('image', file, file.name || 'photo.jpg');
@@ -104,10 +129,10 @@
     try {
       data = await res.json();
     } catch (_) {
-      throw new Error('Uppladdning misslyckades (servern svarade inte korrekt)');
+      throw new Error(lpt('library.imageArchive.uploadFailedServer'));
     }
-    if (!res.ok) throw new Error(data.error || 'Uppladdning misslyckades');
-    if (!data.url) throw new Error('Servern returnerade ingen bild-URL');
+    if (!res.ok) throw new Error(data.error || lpt('library.imageArchive.uploadFailed'));
+    if (!data.url) throw new Error(lpt('library.imageArchive.uploadFailed'));
     return data.url;
   }
 
@@ -123,17 +148,18 @@
     const grid = document.getElementById('familyImageGrid');
     if (!grid) return;
     if (!images.length) {
-      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4 text-center">Inga bilder ännu — ladda upp t.ex. tandborste, säng eller skolbyggnad.</p>';
+      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4 text-center">' + esc(lpt('library.imageArchive.empty')) + '</p>';
       return;
     }
     grid.innerHTML = images.map(function (img) {
-      const label = img.label ? esc(img.label) : 'Bild';
+      const label = img.label ? esc(img.label) : esc(lpt('library.imageArchive.defaultLabel'));
+      const deleteTitle = esc(lpt('library.imageArchive.deleteTitle'));
       return (
         '<div class="family-image-card" data-image-id="' + img.id + '">' +
           '<img src="' + esc(img.image_url) + '" alt="' + label + '" class="family-image-card__img" loading="lazy">' +
           '<div class="family-image-card__meta">' +
             '<span class="family-image-card__label">' + label + '</span>' +
-            '<button type="button" class="family-image-card__delete" data-delete-id="' + img.id + '" title="Ta bort">✕</button>' +
+            '<button type="button" class="family-image-card__delete" data-delete-id="' + img.id + '" title="' + deleteTitle + '">✕</button>' +
           '</div>' +
         '</div>'
       );
@@ -154,7 +180,7 @@
     });
     if (!res.ok) {
       const err = await res.json().catch(function () { return {}; });
-      throw new Error(err.error || 'Kunde inte spara i bildarkivet');
+      throw new Error(err.error || lpt('library.imageArchive.saveFailed'));
     }
     const row = await res.json();
     images.push(row);
@@ -164,10 +190,10 @@
   }
 
   async function deleteImage(id) {
-    if (!confirm('Ta bort bilden från bildarkivet? Aktiviteter som använder den får emoji (⭐) istället.')) return;
+    if (!confirm(lpt('library.imageArchive.deleteConfirm'))) return;
     const res = await apiFetch('/api/family/images/' + id, { method: 'DELETE' });
     if (!res.ok) {
-      showToast('Kunde inte ta bort bilden', true);
+      showToast(lpt('library.imageArchive.deleteFailed'), true);
       return;
     }
     images = images.filter(function (i) { return i.id !== id; });
@@ -176,19 +202,20 @@
     if (typeof window.loadActivities === 'function') {
       await window.loadActivities();
     }
-    showToast('Bilden borttagen');
+    showToast(lpt('library.imageArchive.deleted'));
   }
 
   function renderPickerGrid() {
     const grid = document.getElementById('activityImagePickerGrid');
     if (!grid) return;
     if (!images.length) {
-      grid.innerHTML = '<p class="text-xs text-text-soft col-span-full">Ladda upp bilder i bildarkivet nedan, eller välj en fil här.</p>';
+      grid.innerHTML = '<p class="text-xs text-text-soft col-span-full">' + esc(lpt('library.imageArchive.pickerEmpty')) + '</p>';
       return;
     }
     grid.innerHTML = images.map(function (img) {
+      const pickTitle = esc(img.label || lpt('library.imageArchive.pickTitle'));
       return (
-        '<button type="button" class="activity-image-pick" data-pick-url="' + esc(img.image_url) + '" title="' + esc(img.label || 'Välj bild') + '">' +
+        '<button type="button" class="activity-image-pick" data-pick-url="' + esc(img.image_url) + '" title="' + pickTitle + '">' +
           '<img src="' + esc(img.image_url) + '" alt="" loading="lazy">' +
         '</button>'
       );
@@ -213,7 +240,10 @@
         preview.removeAttribute('src');
       }
     }
-    if (recropBtn) recropBtn.classList.toggle('hidden', !url);
+    if (recropBtn) {
+      recropBtn.classList.toggle('hidden', !url);
+      if (url && !recropBtn.disabled) recropBtn.textContent = recropBtnLabel();
+    }
   }
 
   function selectActivityImage(url) {
@@ -238,18 +268,18 @@
     const recropBtn = document.getElementById('activityImageRecropBtn');
     if (recropBtn) {
       recropBtn.disabled = true;
-      recropBtn.textContent = 'Öppnar…';
+      recropBtn.textContent = lpt('library.imageArchive.opening');
     }
     let cropped;
     try {
       cropped = await LibraryImageCrop.openFromUrl(current);
     } catch (err) {
-      showToast(err.message || 'Kunde inte öppna beskärningen', true);
+      showToast(err.message || lpt('library.imageArchive.openCropFailed'), true);
       cropped = null;
     } finally {
       if (recropBtn) {
         recropBtn.disabled = false;
-        recropBtn.textContent = '✂️ Beskär om';
+        recropBtn.textContent = recropBtnLabel();
       }
     }
     if (!cropped) return;
@@ -261,16 +291,16 @@
       });
       if (!res.ok) {
         const err = await res.json().catch(function () { return {}; });
-        throw new Error(err.error || 'Kunde inte spara i bildarkivet');
+        throw new Error(err.error || lpt('library.imageArchive.saveFailed'));
       }
       const row = await res.json();
       images.push(row);
       renderGrid();
       renderPickerGrid();
       selectActivityImage(row.image_url);
-      showToast('Bilden uppdaterad');
+      showToast(lpt('library.imageArchive.updated'));
     } catch (err) {
-      showToast(err.message || 'Kunde inte spara beskärningen', true);
+      showToast(err.message || lpt('library.imageArchive.saveCropFailed'), true);
     }
   }
 
@@ -310,17 +340,17 @@
     const labelEl = document.getElementById('familyImageLabel');
     const label = labelEl && labelEl.value ? labelEl.value.trim() : '';
     const btn = document.getElementById('familyImageUploadBtn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Laddar upp…'; }
+    if (btn) { btn.disabled = true; btn.textContent = lpt('library.imageArchive.uploading'); }
     try {
       file = await cropBeforeUpload(file);
       if (!file) return;
       await addImage(file, label);
       if (labelEl) labelEl.value = '';
-      showToast('Bild tillagd i bildarkivet');
+      showToast(lpt('library.imageArchive.added'));
     } catch (err) {
-      showToast(err.message || 'Uppladdning misslyckades', true);
+      showToast(err.message || lpt('library.imageArchive.uploadFailed'), true);
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = '📷 Ladda upp bild'; }
+      if (btn) { btn.disabled = false; btn.textContent = uploadBtnLabel(); }
       input.value = '';
     }
   }
@@ -334,12 +364,18 @@
       const row = await addImage(file, '');
       selectActivityImage(row.image_url);
       setVisualMode('photo');
-      showToast('Bild uppladdad');
+      showToast(lpt('library.imageArchive.uploaded'));
     } catch (err) {
-      showToast(err.message || 'Uppladdning misslyckades', true);
+      showToast(err.message || lpt('library.imageArchive.uploadFailed'), true);
     } finally {
       input.value = '';
     }
+  }
+
+  function onLocaleChange() {
+    syncArchiveChrome();
+    renderGrid();
+    renderPickerGrid();
   }
 
   async function init() {
@@ -348,6 +384,7 @@
     }
     await loadImages();
     renderGrid();
+    syncArchiveChrome();
 
     const uploadInput = document.getElementById('familyImageFile');
     if (uploadInput) {
@@ -371,6 +408,9 @@
     const photoBtn = document.getElementById('activityVisualPhotoBtn');
     if (emojiBtn) emojiBtn.addEventListener('click', function () { setVisualMode('emoji'); clearActivityImage(); });
     if (photoBtn) photoBtn.addEventListener('click', function () { setVisualMode('photo'); });
+
+    document.addEventListener('parent-i18n-ready', onLocaleChange);
+    document.addEventListener('locale-changed', onLocaleChange);
   }
 
   window.LibraryImages = {
