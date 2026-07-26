@@ -64,7 +64,7 @@ describe('garden LOE API — vertical gameplay slice (DB)', () => {
       assert.equal(plantDenied.error, 'plant_locked');
 
       const log = await db.query(
-        `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+        `INSERT INTO daily_log (child_id, date) VALUES ($1, (now() AT TIME ZONE 'Europe/Stockholm')::date) RETURNING id`,
         [childId]
       );
       await db.query(

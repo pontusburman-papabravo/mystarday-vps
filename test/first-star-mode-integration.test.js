@@ -52,7 +52,7 @@ test('flag OFF — daily-log response unchanged (no first_star_mode field)', asy
     );
 
     const log = await db.query(
-      `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+      `INSERT INTO daily_log (child_id, date) VALUES ($1, (now() AT TIME ZONE 'Europe/Stockholm')::date) RETURNING id`,
       [childId]
     );
     await db.query(
@@ -116,7 +116,7 @@ test('flag ON + 0 completions — first_star_mode=true and single NU item', asyn
     );
 
     const log = await db.query(
-      `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+      `INSERT INTO daily_log (child_id, date) VALUES ($1, (now() AT TIME ZONE 'Europe/Stockholm')::date) RETURNING id`,
       [childId]
     );
     await db.query(
@@ -182,7 +182,7 @@ test('flag ON + lifetime completion — first_star_mode=false and full item list
     );
 
     const log = await db.query(
-      `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+      `INSERT INTO daily_log (child_id, date) VALUES ($1, (now() AT TIME ZONE 'Europe/Stockholm')::date) RETURNING id`,
       [childId]
     );
     await db.query(
@@ -245,7 +245,7 @@ test('flag ON — first-star analytics funnel events with dedup', async (t) => {
     );
 
     const log = await db.query(
-      `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+      `INSERT INTO daily_log (child_id, date) VALUES ($1, (now() AT TIME ZONE 'Europe/Stockholm')::date) RETURNING id`,
       [childId]
     );
     const itemRes = await db.query(
