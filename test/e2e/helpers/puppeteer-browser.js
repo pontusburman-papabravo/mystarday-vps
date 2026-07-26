@@ -156,6 +156,37 @@ async function getParentHomeHubText(page) {
   });
 }
 
+/** Planning hub + schedule editor visible body (not shell chrome only). */
+async function getParentPlanningScheduleText(page) {
+  return page.evaluate(() => {
+    const roots = [
+      '#planningHubMount',
+      '#scheduleContent',
+      '#childrenListView',
+      '#scheduleEditorView',
+      '#addActivityModal',
+      '#giveStarsModal',
+      '#recurrenceModal',
+      '.planning-hub',
+      '.planning-section',
+    ];
+    const chunks = [];
+    const seen = new Set();
+    for (const sel of roots) {
+      document.querySelectorAll(sel).forEach((el) => {
+        if (seen.has(el)) return;
+        seen.add(el);
+        if (el.classList.contains('hidden')) return;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return;
+        const t = (el.innerText || el.textContent || '').trim();
+        if (t) chunks.push(t);
+      });
+    }
+    return chunks.join('\n');
+  });
+}
+
 async function clearSessionCookies(page) {
   const client = await page.createCDPSession();
   await client.send('Network.clearBrowserCookies');
@@ -208,7 +239,7 @@ async function submitParentLogin(page) {
     }
   });
   await page.waitForFunction(
-    () => /\/(dashboard|onboarding|family|planning|daily-log)/.test(window.location.pathname),
+    () => /\/(dashboard|onboarding|family|planning|daily-log|schedule)/.test(window.location.pathname),
     { timeout: 90000 }
   );
 }
@@ -237,6 +268,7 @@ module.exports = {
   getVisibleChromeText,
   getParentShellChromeText,
   getParentHomeHubText,
+  getParentPlanningScheduleText,
   clearSessionCookies,
   parentLogout,
   fillParentLogin,

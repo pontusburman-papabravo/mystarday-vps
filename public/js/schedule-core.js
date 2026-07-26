@@ -3,33 +3,52 @@
  * Exposed as window.ScheduleCore; key symbols also on window for HTML onclick + schedule-views.js.
  */
 (function () {
-  const DAYS = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-  const DAYS_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+  const DAYS_FALLBACK = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+  const DAYS_SHORT_FALLBACK = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+  const SECTION_LABEL_FALLBACK = { morgon: 'Morgon', dag: 'Dag', kvall: 'Kväll', natt: 'Natt' };
 
-  function localizedString(key, fallback) {
-    if (typeof window.pt === 'function') {
-      const translated = window.pt(key);
-      if (translated && translated !== key) return translated;
-    }
-    return fallback;
+  function localizedString(key, params) {
+    if (window.ScheduleI18n) return ScheduleI18n.t(key, params);
+    if (typeof window.pt === 'function') return window.pt(key, params);
+    return key;
+  }
+
+  function localizedOr(key, fallback) {
+    const val = localizedString(key);
+    return val === key ? fallback : val;
   }
 
   function dayName(index) {
-    return localizedString(`schedule.days.${index}`, DAYS[index]);
+    return localizedOr(`schedule.days.${index}`, DAYS_FALLBACK[index]);
   }
 
   function dayShort(index) {
-    return localizedString(`schedule.daysShort.${index}`, DAYS_SHORT[index]);
+    return localizedOr(`schedule.daysShort.${index}`, DAYS_SHORT_FALLBACK[index]);
   }
 
-  function sectionName(key, fallback) {
-    return localizedString(`schedule.sections.${key}`, fallback);
+  function sectionName(key) {
+    return localizedOr(`schedule.sections.${key}`, SECTION_LABEL_FALLBACK[key] || key);
   }
+
+  // Locale-aware index access: DAYS[3] returns the current-locale day name.
+  // Proxy keeps every existing `DAYS[d]` call site working after locale switch.
+  function localizedDayArray(lookupFn) {
+    return new Proxy([], {
+      get(target, prop) {
+        const i = Number(prop);
+        if (Number.isInteger(i) && i >= 0 && i <= 6) return lookupFn(i);
+        return target[prop];
+      },
+    });
+  }
+  const DAYS = localizedDayArray(dayName);
+  const DAYS_SHORT = localizedDayArray(dayShort);
+
   const SECTIONS = [
-    { key: 'morgon', label: 'Morgon', emoji: '🌅', color: 'bg-yellow-50 border-yellow-200' },
-    { key: 'dag', label: 'Dag', emoji: '☀️', color: 'bg-sky border-blue-200' },
-    { key: 'kvall', label: 'Kväll', emoji: '🌆', color: 'bg-orange-50 border-orange-200' },
-    { key: 'natt', label: 'Natt', emoji: '🌙', color: 'bg-indigo-50 border-indigo-200' },
+    { key: 'morgon', emoji: '🌅', color: 'bg-yellow-50 border-yellow-200', get label() { return sectionName(this.key); } },
+    { key: 'dag', emoji: '☀️', color: 'bg-sky border-blue-200', get label() { return sectionName(this.key); } },
+    { key: 'kvall', emoji: '🌆', color: 'bg-orange-50 border-orange-200', get label() { return sectionName(this.key); } },
+    { key: 'natt', emoji: '🌙', color: 'bg-indigo-50 border-indigo-200', get label() { return sectionName(this.key); } },
   ];
 
   // initBirthdayPicker and updateBirthdayDays are in /js/birthday-picker.js
@@ -74,12 +93,12 @@
       return `<div class="section-card border-2 ${sec.color} rounded-2xl p-4 mb-4" data-section="${sec.key}">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2"><span class="text-xl">${sec.emoji}</span>
-          <div><h4 class="font-heading font-bold text-navy">${sectionName(sec.key, sec.label)}</h4>${tl ? `<p class="text-xs text-text-soft">${tl}</p>` : ''}</div>
+          <div><h4 class="font-heading font-bold text-navy">${sectionName(sec.key)}</h4>${tl ? `<p class="text-xs text-text-soft">${tl}</p>` : ''}</div>
         </div>
-        <button onclick="openAddModal('${sec.key}')" class="action-btn px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">+ ${localizedString('schedule.addActivity', 'Aktivitet')}</button>
+        <button onclick="openAddModal('${sec.key}')" class="action-btn px-3 py-2 bg-white hover:bg-lavender rounded-xl text-sm font-semibold transition-colors border border-lavender">+ ${localizedString('schedule.addActivity')}</button>
       </div>
       <div class="space-y-2 items-list" id="items-${sec.key}">
-        ${items.length === 0 ? `<p class="text-sm text-text-soft text-center py-3">${localizedString('schedule.emptySection', 'Inga aktiviteter')}</p>` : items.map(i => renderItemFn(i)).join('')}
+        ${items.length === 0 ? `<p class="text-sm text-text-soft text-center py-3">${localizedString('schedule.emptySection')}</p>` : items.map(i => renderItemFn(i)).join('')}
       </div>
     </div>`;
     }).join('');

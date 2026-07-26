@@ -16,6 +16,7 @@ const {
   selectLoginLocale,
   getParentShellChromeText,
   getParentHomeHubText,
+  getParentPlanningScheduleText,
   getVisibleChromeText,
   parentLogout,
   fillParentLogin,
@@ -28,6 +29,7 @@ const PARENT_HUBS = [
   { path: '/dashboard', label: 'Home', expectText: /Home|Welcome|Good (morning|afternoon|evening)/i },
   { path: '/daily-log', label: 'Today', expectText: /Today/i },
   { path: '/planning', label: 'Planning', expectText: /Planning/i },
+  { path: '/schedule', label: 'Schedule', expectText: /Schedule|Weekly|planning|Library/i },
   { path: '/rewards', label: 'Rewards', expectText: /Rewards/i },
   { path: '/family', label: 'Family', expectText: /Family/i },
   { path: '/settings', label: 'Settings', expectText: /Settings/i },
@@ -106,6 +108,31 @@ describe('i18n English journey E2E', () => {
               `${viewport}/home hub: Swedish system copy detected: ${homeCopy.hits.map((h) => h.match).join(', ')}`
             );
             assert.match(homeText, /Next step|Good (morning|afternoon|evening)|Hello/i);
+          }
+          if (hub.path === '/planning' || hub.path === '/schedule') {
+            const surfaceText = await getParentPlanningScheduleText(page);
+            const surfaceCopy = detectSwedishSystemCopy(surfaceText, {
+              allowlist: seed.allowlist,
+              context: `${viewport}/${hub.label} body`,
+            });
+            assert.equal(
+              surfaceCopy.ok,
+              true,
+              `${viewport}/${hub.label} body: Swedish system copy: ${surfaceCopy.hits.map((h) => h.match).join(', ')}`
+            );
+            if (hub.path === '/planning') {
+              assert.match(surfaceText || (await page.evaluate(() => document.body.innerText)), /Plan the week|Library|Weekly schedule/i);
+            }
+            if (hub.path === '/schedule') {
+              // btnModeSingle shows the child's name once a child is auto-selected,
+              // so assert the stable chrome: family toggle + page title in English.
+              const modeSingle = await page.$eval('#btnModeSingle', (el) => el.textContent.trim()).catch(() => '');
+              const modeFamily = await page.$eval('#btnModeFamily', (el) => el.textContent.trim()).catch(() => '');
+              assert.doesNotMatch(modeSingle, /Mitt barn/, 'schedule mode toggle (single) must not stay Swedish');
+              assert.match(modeFamily, /All children/i, 'schedule mode toggle (family) should be English');
+              const pageTitle = await page.$eval('#schedulePageTitle', (el) => el.textContent.trim()).catch(() => '');
+              assert.match(pageTitle, /Weekly planning|schedule/i, 'schedule page title should be English');
+            }
           }
           const bodyText = await page.evaluate(() => document.body.innerText);
           assert.match(bodyText, hub.expectText, `${hub.label} should show English heading/nav`);

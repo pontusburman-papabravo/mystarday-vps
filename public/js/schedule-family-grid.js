@@ -106,7 +106,7 @@
       return;
     }
     document.getElementById('fwGridContainer').innerHTML =
-      '<div class="text-center py-12 text-text-soft"><span class="animate-spin text-xl">⏳</span> <span class="font-semibold">Laddar schema…</span></div>';
+      '<div class="text-center py-12 text-text-soft"><span class="animate-spin text-xl">⏳</span> <span class="font-semibold">' + spt('schedule.chrome.loadingSchedule') + '</span></div>';
     await fwLoadScheduleData();
     fwRenderGrid();
   }

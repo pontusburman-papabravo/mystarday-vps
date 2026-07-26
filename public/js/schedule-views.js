@@ -5,6 +5,10 @@
  * Shared schedule constants/helpers: schedule-core.js → ScheduleCore (re-exported in schedule.js)
  */
 
+function spt(key, params) {
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+}
+
 // ── Delegated delete handler (Sortable.js forceFallback blocks inline onclick on mobile) ──
 document.addEventListener('click', e => {
   const btn = e.target.closest('.action-btn-remove');
@@ -14,15 +18,8 @@ document.addEventListener('click', e => {
   if (itemId && typeof removeItem === 'function') removeItem(itemId);
 });
 
-function scheduleLabel(key, fallback) {
-  if (window.ScheduleCore && typeof ScheduleCore.label === 'function') {
-    return ScheduleCore.label(key, fallback);
-  }
-  if (typeof window.pt === 'function') {
-    const translated = window.pt(key);
-    if (translated && translated !== key) return translated;
-  }
-  return fallback;
+function scheduleLabel(key, params) {
+  return spt(key, params);
 }
 
 // ── List View ─────────────────────────────────────────────
@@ -41,31 +38,31 @@ function renderListView() {
   });
 
   const itemsHtml = sorted.length === 0
-    ? `<p class="text-sm text-text-soft text-center py-8">${scheduleLabel('schedule.emptySection', 'Inga aktiviteter')}</p>`
+    ? `<p class="text-sm text-text-soft text-center py-8">${scheduleLabel('schedule.emptySection')}</p>`
     : sorted.map((item, idx) => {
         const secEmoji = { morgon:'🌅', dag:'☀️', kvall:'🌆', natt:'🌙' };
         const isOnce = !!item.is_once_task;
         return `<div class="activity-item flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-gray-100 shadow-sm${isOnce ? ' border-dashed border-gold/40' : ''}"
           data-id="${item.id}" data-section="${item.section}">
           <span class="text-gray-300 text-xs font-bold flex-shrink-0 w-5 text-right">${idx + 1}</span>
-          ${isOnce ? '<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>' : ''}
+          ${isOnce ? `<span title="${spt('schedule.actions.oneOff')}" class="text-[10px] flex-shrink-0">📌</span>` : ''}
           <span class="text-lg flex-shrink-0">${item.activity_icon || '📌'}</span>
           <div class="flex-1 min-w-0">
             <div class="font-semibold text-sm text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</div>
-            <div class="text-xs text-text-soft">${secEmoji[item.section] || ''} ${item.section === 'morgon' ? 'Morgon' : item.section === 'dag' ? 'Dag' : item.section === 'kvall' ? 'Kväll' : 'Natt'}${item.start_time ? ' · ' + fmtTime(item.start_time) : ''}</div>
+            <div class="text-xs text-text-soft">${secEmoji[item.section] || ''} ${(window.ScheduleCore && ScheduleCore.sectionName ? ScheduleCore.sectionName(item.section) : spt('schedule.sections.' + item.section))}${item.start_time ? ' · ' + fmtTime(item.start_time) : ''}</div>
           </div>
           ${item.star_value > 0 ? `<span class="text-xs text-gold font-bold flex-shrink-0">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}
           <div class="icon-btns-desktop flex gap-1 flex-shrink-0">
-            ${!isOnce ? `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="Redigera">✏️</button>` : ''}
-            <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')" class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="Ta bort">✕</button>
+            ${!isOnce ? `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="${spt('schedule.editor.edit')}">✏️</button>` : ''}
+            <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')" class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="${spt('schedule.editor.remove')}">✕</button>
           </div>
           <!-- Mobile: ⋯ overflow menu — BUG-17/BUG-19/BUG-24: openEditTemplateModal koppling -->
           <div class="overflow-menu-wrap flex-shrink-0" style="margin-left:4px">
-            <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-l-${item.id}')" aria-label="Fler alternativ">⋯</button>
+            <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-l-${item.id}')" aria-label="${spt('schedule.editor.moreOptions')}">⋯</button>
             <div id="omenu-l-${item.id}" class="overflow-menu-popup">
-              ${!isOnce ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${item.activity_template_id}')">✏️ Redigera</button>` : ''}
-              ${!isOnce ? `<button onclick="closeOverflowMenus();openEditItem('${item.id}')">🕐 Redigera tid</button>` : ''}
-              <button class="danger" onclick="closeOverflowMenus();removeItem('${item.id}')">✕ Ta bort</button>
+              ${!isOnce ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${item.activity_template_id}')">✏️ ${spt('schedule.editor.edit')}</button>` : ''}
+              ${!isOnce ? `<button onclick="closeOverflowMenus();openEditItem('${item.id}')">🕐 ${spt('schedule.editor.editTime')}</button>` : ''}
+              <button class="danger" onclick="closeOverflowMenus();removeItem('${item.id}')">✕ ${spt('schedule.editor.remove')}</button>
             </div>
           </div>
         </div>`;
@@ -74,10 +71,10 @@ function renderListView() {
   document.getElementById('scheduleContent').innerHTML = `
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
-        <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child ? escHtml(child.name) : ''} <span class="text-text-soft font-normal text-base">📝 Listläge</span></h3>
-        <p class="text-sm text-text-soft">${sorted.length} aktivitet${sorted.length !== 1 ? 'er' : ''} i schemaordning</p>
+        <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child ? escHtml(child.name) : ''} <span class="text-text-soft font-normal text-base">📝 ${spt('schedule.views.listMode')}</span></h3>
+        <p class="text-sm text-text-soft">${spt('schedule.views.listCount', { count: sorted.length })}</p>
       </div>
-      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ ${scheduleLabel('schedule.addActivity', 'Aktivitet')}</button>
+      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ ${scheduleLabel('schedule.addActivity')}</button>
     </div>
     <div class="space-y-2">${itemsHtml}</div>`;
 }
@@ -86,7 +83,7 @@ function renderListView() {
 let copyWeeksSelections = [];
 
 function openCopyWeeksModal() {
-  if (!currentScheduleId) { showToast('Inget schema att kopiera', true); return; }
+  if (!currentScheduleId) { showToast(spt('schedule.views.nothingToCopy'), true); return; }
   copyWeeksSelections = [];
   const picker = document.getElementById('copyWeeksPicker');
   picker.innerHTML = [1,2,3,4].map(w => {
@@ -94,8 +91,8 @@ function openCopyWeeksModal() {
     const wn = getWeekNumber(ws);
     return `<button type="button" onclick="toggleCopyWeek(${w},this)"
       class="px-4 py-3 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-navy text-navy text-center" data-week="${w}">
-      <div>+${w} vecka${w > 1 ? 'r' : ''}</div>
-      <div class="text-xs font-normal text-text-soft">Vecka ${wn}</div>
+      <div>${w > 1 ? spt('schedule.views.copyWeekOffsetPlural', { count: w }) : spt('schedule.views.copyWeekOffset', { count: w })}</div>
+      <div class="text-xs font-normal text-text-soft">${spt('schedule.views.copyWeekNumber', { week: wn })}</div>
     </button>`;
   }).join('');
   document.getElementById('copyWeeksError').classList.add('hidden');
@@ -120,7 +117,7 @@ function closeCopyWeeksModal() {
 
 async function submitCopyWeeks() {
   if (!copyWeeksSelections.length) {
-    document.getElementById('copyWeeksError').textContent = 'Välj minst en vecka';
+    document.getElementById('copyWeeksError').textContent = spt('schedule.validation.pickWeek');
     document.getElementById('copyWeeksError').classList.remove('hidden');
     return;
   }
@@ -132,9 +129,9 @@ async function submitCopyWeeks() {
   const data = await res.json();
   if (res.ok) {
     closeCopyWeeksModal();
-    showToast(`📆 ${DAYS[currentDay]} kopierat till ${data.copied_count} vecka${data.copied_count !== 1 ? 'r' : ''}!`);
+    showToast(spt('schedule.toasts.copiedWeeks', { day: DAYS[currentDay], count: data.copied_count }));
   } else {
-    showToast(data.error || 'Fel uppstod', true);
+    showToast(data.error || spt('schedule.validation.generic'), true);
   }
 }
 
@@ -168,13 +165,13 @@ function renderTimeline() {
       ${items.map(item=>`<div class="timeline-activity" data-id="${item.id}" draggable="true">
         <span class="text-sm flex-shrink-0">${item.activity_icon||'📌'}</span>
         <span class="font-semibold text-navy truncate flex-1 text-xs">${escHtml(item.activity_name_display||item.activity_name)}</span>
-        <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0" title="Ta bort">✕</button>
+        <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0" title="${spt('schedule.editor.remove')}">✕</button>
       </div>`).join('')}
     </div>`;
   }).join('');
 
   const unschHtml = unscheduled.length>0 ? `
-    <div class="tl-unscheduled-label">Utan tid</div>
+    <div class="tl-unscheduled-label">${spt('schedule.views.unscheduled')}</div>
     ${unscheduled.map(item=>`<div class="time-slot" data-slot="-1" data-time="">
       <span class="time-slot-label text-gray-300 text-xs">–</span>
       <div class="timeline-activity" data-id="${item.id}" draggable="true">
@@ -188,10 +185,10 @@ function renderTimeline() {
   document.getElementById('scheduleContent').innerHTML = `
     <div class="flex items-center justify-between gap-3 mb-4">
       <div>
-        <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${tlDateLabel ? ` <span class="text-text-soft font-normal text-base">${tlDateLabel}</span>` : ''} — ${child?escHtml(child.name):''} ⏱ Tidsvy</h3>
-        <p class="text-xs text-text-soft">Dra aktiviteter upp/ner för att ändra starttid. 06:00–22:00.</p>
+        <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${tlDateLabel ? ` <span class="text-text-soft font-normal text-base">${tlDateLabel}</span>` : ''} — ${child?escHtml(child.name):''} ⏱ ${spt('schedule.views.timelineMode')}</h3>
+        <p class="text-xs text-text-soft">${spt('schedule.views.dragHint')}</p>
       </div>
-      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ ${scheduleLabel('schedule.addActivity', 'Aktivitet')}</button>
+      <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ ${scheduleLabel('schedule.addActivity')}</button>
     </div>
     <div class="border-2 border-lavender rounded-2xl overflow-hidden bg-white" id="timelineWrap" style="max-height:65vh;overflow-y:auto">
       ${slotsHtml}${unschHtml}
@@ -234,9 +231,9 @@ function initTimelineDnd() {
       if (res.ok) {
         const item = scheduleItems.find(i=>i.id==tlSrcId);
         if (item) item.start_time = newTime;
-        showToast(`⏱ Tid: ${newTime||'utan tid'}`);
+        showToast(spt('schedule.toasts.timeChanged', { time: newTime || spt('schedule.views.timeNoTime') }));
         renderTimeline();
-      } else showToast('Fel vid tidsändring', true);
+      } else showToast(spt('schedule.toasts.timeChangeError'), true);
     });
   });
 }
@@ -269,7 +266,7 @@ async function loadAllChildrenSchedules() {
 
 function renderSbsView() {
   const panelItems = (items, schedId, childId) => {
-    if (!items || items.length === 0) return `<p class="text-sm text-text-soft text-center py-6">Inget schema för ${DAYS[currentDay]}</p>`;
+    if (!items || items.length === 0) return `<p class="text-sm text-text-soft text-center py-6">${spt('schedule.views.noScheduleForDay', { day: DAYS[currentDay] })}</p>`;
     return SECTIONS.map(sec => {
       const si = items.filter(i => i.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
       if (!si.length) return '';
@@ -279,7 +276,7 @@ function renderSbsView() {
           data-schedule-id="${schedId || ''}" data-child-id="${childId}"
           draggable="${item.is_once_task ? 'false' : 'true'}">
           <span class="text-sm flex-shrink-0">${item.activity_icon || '📌'}</span>
-          ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+          ${item.is_once_task ? `<span title="${spt('schedule.actions.oneOff')}" class="text-[10px]">📌</span>` : ''}
           <div class="flex-1 min-w-0"><div class="font-semibold text-xs text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</div>${item.start_time ? `<div class="text-xs text-text-soft">${fmtTime(item.start_time)}</div>` : ''}</div>
         </div>`).join('')}
       </div>`;
@@ -299,8 +296,8 @@ function renderSbsView() {
   }).join('');
 
   document.getElementById('scheduleContent').innerHTML = `
-    <div class="mb-3"><h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]} — Jämför barn</h3>
-      <p class="text-xs text-text-soft">📋 Dra en aktivitet från ett barn till det andra för att kopiera den</p>
+    <div class="mb-3"><h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]} — ${spt('schedule.views.sbsTitle')}</h3>
+      <p class="text-xs text-text-soft">📋 ${spt('schedule.views.sbsDragHint')}</p>
     </div>
     <div class="sbs-container">${panels}</div>`;
 
@@ -334,8 +331,8 @@ function initSbsDnd() {
       e.preventDefault(); e.stopPropagation();
       panel.classList.remove('sbs-drop-active');
       if (dndType !== 'sbs' || !sbsSrcItemId) return;
-      if (!panelChildId || sbsSrcChildId === panelChildId) { showToast('Aktiviteten är redan hos detta barn'); return; }
-      if (!sbsSrcScheduleId) { showToast('Källschema saknas', true); return; }
+      if (!panelChildId || sbsSrcChildId === panelChildId) { showToast(spt('schedule.views.alreadyAtChild')); return; }
+      if (!sbsSrcScheduleId) { showToast(spt('schedule.views.sourceMissing'), true); return; }
       const res = await window.apiFetch(`/api/children/${sbsSrcChildId}/schedules/copy-item-to-child`, {
         method: 'POST',
         body: JSON.stringify({ item_id: sbsSrcItemId, from_schedule_id: sbsSrcScheduleId, to_child_id: panelChildId, to_day: currentDay }),
@@ -345,7 +342,7 @@ function initSbsDnd() {
         const dstChild = children.find(c => c.id === panelChildId);
         showToast(data.skipped ? `Finns redan hos ${dstChild ? dstChild.name : 'barnet'}` : `📋 Kopierat till ${dstChild ? dstChild.name : 'barnet'}`);
         await loadAllChildrenSchedules(); renderSbsView();
-      } else showToast(data.error || 'Fel uppstod', true);
+      } else showToast(data.error || spt('schedule.validation.generic'), true);
     });
   });
 }

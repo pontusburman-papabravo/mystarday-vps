@@ -12,13 +12,13 @@ describe('schedule lovperiod UI', () => {
     assert.match(html, /id="schedulePeriodModal"/);
     assert.match(html, /id="schedulePeriodStart"/);
     assert.match(html, /id="schedulePeriodEnd"/);
-    assert.match(html, /Lovperiod/);
+    assert.match(html, /data-i18n="schedule\.period\.modalTitle"/);
   });
 
   it('special-days view promotes lovperiod entry point', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-special-days.js'), 'utf8');
     assert.match(src, /openSchedulePeriodModal/);
-    assert.match(src, /Lägg till lovperiod/);
+    assert.match(src, /schedule\.specialDays\.addHolidayPeriod/);
   });
 
   it('schedule-period.js calls apply-date-range with standard or family source', () => {

@@ -4,6 +4,10 @@
  * via POST /api/children/:childId/schedules/apply-date-range.
  */
 (function () {
+
+function spt(key, params) {
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+}
   let periodSchemasLoaded = false;
   let standardSchedules = [];
   let familyTemplates = [];
@@ -54,24 +58,24 @@
     const stdVacation = standardSchedules.filter((s) => isVacation(s.name));
     const stdOther = standardSchedules.filter((s) => !isVacation(s.name));
 
-    let html = '<option value="">— Välj schema —</option>';
+    let html = '<option value="">' + spt('schedule.period.pickSchedule') + '</option>';
 
     if (stdVacation.length) {
-      html += '<optgroup label="Lov &amp; ledighet">';
+      html += '<optgroup label="' + escHtml(spt('schedule.period.vacationGroup')) + '">';
       for (const s of stdVacation) {
         html += `<option value="std:${s.id}">${escHtml(s.icon || '🏠')} ${escHtml(s.name)}</option>`;
       }
       html += '</optgroup>';
     }
     if (stdOther.length) {
-      html += '<optgroup label="Färdiga scheman">';
+      html += '<optgroup label="' + spt('schedule.period.readyMade') + '">';
       for (const s of stdOther) {
         html += `<option value="std:${s.id}">${escHtml(s.icon || '📋')} ${escHtml(s.name)}</option>`;
       }
       html += '</optgroup>';
     }
     if (familyTemplates.length) {
-      html += '<optgroup label="Mina scheman">';
+      html += '<optgroup label="' + escHtml(spt('schedule.period.mySchedules')) + '">';
       for (const t of familyTemplates) {
         html += `<option value="fam:${t.id}">${escHtml(t.icon || '📋')} ${escHtml(t.name)}</option>`;
       }
@@ -86,7 +90,7 @@
 
   async function openSchedulePeriodModal() {
     if (!currentChildId) {
-      showToast('Välj ett barn först', true);
+      showToast(spt('schedule.insert.pickChild'), true);
       return;
     }
 
@@ -135,17 +139,17 @@
     if (errEl) errEl.classList.add('hidden');
 
     if (!start || !end) {
-      if (errEl) { errEl.textContent = 'Ange start- och slutdatum'; errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = spt('schedule.period.pickDates'); errEl.classList.remove('hidden'); }
       return;
     }
     if (end < start) {
-      if (errEl) { errEl.textContent = 'Slutdatum måste vara på eller efter startdatum'; errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = spt('schedule.period.endBeforeStart'); errEl.classList.remove('hidden'); }
       return;
     }
 
     const source = parseSchemaSelection(schemaValue);
     if (!source) {
-      if (errEl) { errEl.textContent = 'Välj vilket schema som ska gälla under perioden'; errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = spt('schedule.period.pickSchema'); errEl.classList.remove('hidden'); }
       return;
     }
 
@@ -163,7 +167,7 @@
     if (hasExisting) {
       const label = getSelectedSchemaLabel();
       const ok = confirm(
-        `Det finns redan anpassade dagar mellan ${start} och ${end}. Vill du ersätta dem med "${label}"? Veckoschemat gäller igen när du tar bort perioden.`
+        spt('schedule.period.overwriteConfirm', { start, end, label })
       );
       if (!ok) return;
     }
@@ -184,19 +188,19 @@
         { method: 'POST', body: JSON.stringify(body) }
       );
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Kunde inte spara perioden');
+      if (!res.ok) throw new Error(data.error || spt('schedule.period.saveFailed'));
 
-      showToast(data.message || `Lovschema sparat ${start} – ${end}`);
+      showToast(data.message || spt('schedule.period.savedToast', { start, end }));
       closeSchedulePeriodModal();
 
       if (typeof window.loadSpecialDays === 'function') await window.loadSpecialDays(currentChildId);
       if (typeof window.renderSpecialDaysCalendar === 'function') await window.renderSpecialDaysCalendar();
     } catch (err) {
       if (errEl) {
-        errEl.textContent = err.message || 'Något gick fel';
+        errEl.textContent = err.message || spt('schedule.validation.generic');
         errEl.classList.remove('hidden');
       } else {
-        showToast(err.message || 'Något gick fel', true);
+        showToast(err.message || spt('schedule.validation.generic'), true);
       }
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Spara lovperiod'; }
@@ -213,16 +217,16 @@
     if (errEl) errEl.classList.add('hidden');
 
     if (!start || !end) {
-      if (errEl) { errEl.textContent = 'Ange start- och slutdatum'; errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = spt('schedule.period.pickDates'); errEl.classList.remove('hidden'); }
       return;
     }
     if (end < start) {
-      if (errEl) { errEl.textContent = 'Slutdatum måste vara på eller efter startdatum'; errEl.classList.remove('hidden'); }
+      if (errEl) { errEl.textContent = spt('schedule.period.endBeforeStart'); errEl.classList.remove('hidden'); }
       return;
     }
 
     const ok = confirm(
-      `Ta bort specialscheman mellan ${start} och ${end}? Barnet får tillbaka vanliga veckodagsmallar för dessa dagar.`
+      spt('schedule.period.deleteConfirm', { start, end })
     );
     if (!ok) return;
 
@@ -233,7 +237,7 @@
       const listRes = await window.apiFetch(
         `/api/children/${currentChildId}/special-days?from=${encodeURIComponent(start)}&to=${encodeURIComponent(end)}`
       );
-      if (!listRes.ok) throw new Error('Kunde inte läsa specialdagar');
+      if (!listRes.ok) throw new Error(spt('schedule.period.couldNotRead'));
       const days = await listRes.json();
 
       for (const day of days) {
@@ -242,15 +246,15 @@
         await window.apiFetch(`/api/children/${currentChildId}/special-days/${dateStr}`, { method: 'DELETE' });
       }
 
-      showToast(days.length ? 'Period borttagen — veckoschemat gäller igen' : 'Inga specialdagar fanns i perioden');
+      showToast(days.length ? spt('schedule.period.deleted') : spt('schedule.period.deletedNone'));
       closeSchedulePeriodModal();
 
       if (typeof window.loadSpecialDays === 'function') await window.loadSpecialDays(currentChildId);
       if (typeof window.renderSpecialDaysCalendar === 'function') await window.renderSpecialDaysCalendar();
     } catch (err) {
-      showToast(err.message || 'Något gick fel', true);
+      showToast(err.message || spt('schedule.validation.generic'), true);
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Återställ till veckoschema'; }
+      if (btn) { btn.disabled = false; btn.textContent = spt('schedule.period.resetBtn'); }
     }
   }
 

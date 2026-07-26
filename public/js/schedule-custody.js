@@ -25,6 +25,10 @@
     }
   }
 
+  function spt(key, params) {
+    return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+  }
+
   function esc(s) {
     return typeof window.escHtml === 'function' ? window.escHtml(s) : String(s || '');
   }
@@ -80,7 +84,7 @@
     mount.classList.remove('hidden');
     const wb = state.weekData.custody && state.weekData.custody.weekBanner;
     const bannerHtml = wb && wb.label
-      ? '<div class="rounded-xl border-2 px-4 py-2.5 mb-3 text-sm font-semibold text-navy" role="status" style="border-color:' + esc(wb.color) + ';background:' + esc(wb.color) + '18">Denna vecka: hos ' + esc(wb.label) + '</div>'
+      ? '<div class="rounded-xl border-2 px-4 py-2.5 mb-3 text-sm font-semibold text-navy" role="status" style="border-color:' + esc(wb.color) + ';background:' + esc(wb.color) + '18">' + spt('schedule.custody.weekBanner', { label: esc(wb.label) }) + '</div>'
       : '';
 
     const labelA = esc(state.variantLabels.a);
@@ -88,11 +92,11 @@
 
     mount.innerHTML = bannerHtml + [
       '<div class="flex flex-wrap items-center gap-2 mb-2">',
-      '<span class="text-xs text-text-soft font-medium">Redigera schema:</span>',
-      '<button type="button" data-custody-var="a" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors" aria-label="Redigera schema för ' + labelA + '">' + labelA + '</button>',
-      '<button type="button" data-custody-var="b" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors" aria-label="Redigera schema för ' + labelB + '">' + labelB + '</button>',
+      '<span class="text-xs text-text-soft font-medium">' + spt('schedule.custody.editLabel') + '</span>',
+      '<button type="button" data-custody-var="a" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors" aria-label="' + spt('schedule.custody.editFor', { label: labelA }) + '">' + labelA + '</button>',
+      '<button type="button" data-custody-var="b" class="custody-var-btn px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-colors" aria-label="' + spt('schedule.custody.editFor', { label: labelB }) + '">' + labelB + '</button>',
       '<label class="ml-auto flex items-center gap-2 text-xs font-semibold text-navy cursor-pointer">',
-      '<input type="checkbox" id="custodyMyDaysChk" class="rounded" /> Mina dagar',
+      '<input type="checkbox" id="custodyMyDaysChk" class="rounded" /> ' + spt('schedule.custody.myDays'),
       '</label>',
       '</div>',
     ].join('');

@@ -4,7 +4,7 @@
  */
 
 function spt(key, params) {
-  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
 }
 
 // ── Overflow menu (mobile ⋯ per-row action menu) ──────────
@@ -305,10 +305,13 @@ document.addEventListener('parent-i18n-ready', () => {
     if (typeof renderChildrenOverview === 'function') renderChildrenOverview();
     if (scheduleMode === 'family' && typeof fwRenderGrid === 'function') fwRenderGrid();
     if (currentChildId) {
+      // I18n.apply resets the h2 to the generic title — restore the child-specific one
+      updateSchedulePageTitle(children.find(c => c.id === currentChildId));
       if (typeof renderChildTabs === 'function') renderChildTabs();
       if (typeof loadScheduleForDay === 'function') loadScheduleForDay();
     }
   }
+  if (window.ScheduleCalNav && typeof ScheduleCalNav.updateCalNavLabel === 'function') ScheduleCalNav.updateCalNavLabel();
 });
 
 // showToast is now in /js/toast.js
@@ -334,8 +337,8 @@ function updateSchedulePageTitle(child) {
   const el = document.getElementById('schedulePageTitle');
   if (!el) return;
   el.textContent = child
-    ? `📅 ${capScheduleChildName(child.name)}s schema`
-    : '📅 Veckoplanering';
+    ? `📅 ${spt('schedule.pageTitle.childSchedule', { name: capScheduleChildName(child.name) })}`
+    : `📅 ${spt('schedule.pageTitle.weeklyPlanning')}`;
 }
 
 async function loadChildren() {
@@ -346,7 +349,7 @@ async function loadChildren() {
     renderChildrenOverview().catch(err => {
       console.error('[SCHEDULE] renderChildrenOverview error:', err);
       const c = document.getElementById('childCardsContainer');
-      if (c) c.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Kunde inte ladda schema. Ladda om sidan.</div>';
+      if (c) c.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">' + spt('schedule.loadError') + '</div>';
     });
     if (window.ParentMagicPageHub && ParentMagicPageHub.refreshScheduleHero) {
       ParentMagicPageHub.refreshScheduleHero();
@@ -406,8 +409,8 @@ async function renderChildrenOverview() {
           <span class="text-xs text-navy truncate">${escHtml(i.activity_name_display || i.activity_name)}</span>
         </div>`
       ).join('');
-      const moreHtml = items.length > 6 ? `<div class="text-[10px] text-lavender hover:text-gold ml-5 cursor-pointer transition-colors" title="Visa alla ${items.length - 6} aktiviteter">Visa alla (${items.length - 6})</div>` : '';
-      const actLabel = items.length === 1 ? '1 aktivitet' : `${items.length} aktiviteter`;
+      const moreHtml = items.length > 6 ? `<div class="text-[10px] text-lavender hover:text-gold ml-5 cursor-pointer transition-colors" title="${spt('schedule.editor.showAllTitle', { count: items.length - 6 })}">${spt('schedule.editor.showAll', { count: items.length - 6 })}</div>` : '';
+      const actLabel = (window.ScheduleI18n ? ScheduleI18n.activityCount(items.length) : spt('schedule.activityCount.other', { count: items.length }));
       return `<div class="border border-gray-100 rounded-xl p-2.5 bg-gray-50/50">
         <div class="flex items-center gap-1.5 mb-1">
           <span class="inline-block w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></span>
@@ -429,7 +432,7 @@ async function renderChildrenOverview() {
       ${hasDays ? `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">${daySummaryHtml}</div>` : ''}
       <div class="flex items-center justify-between gap-2 flex-wrap">
         <button onclick="event.stopPropagation(); window.location.href='/family?child=${child.id}&tab=rewards'" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">🏆 ${spt('schedule.actions.rewards')}</button>
-        <button onclick="selectChild('${child.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm">✏️ Redigera schema →</button>
+        <button onclick="selectChild('${child.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm">✏️ ${spt('schedule.editor.editSchedule')} →</button>
       </div>
     </div>`;
   }).join('');
@@ -508,7 +511,7 @@ function backToChildrenList() {
   if (editorRewardsBtn) editorRewardsBtn.classList.add('hidden');
   // Reset mode toggle button to generic label
   const singleBtn = document.getElementById('btnModeSingle');
-  if (singleBtn) singleBtn.textContent = '👤 Mitt barn';
+  if (singleBtn) singleBtn.textContent = spt('schedule.chrome.modeSingle');
   updateSchedulePageTitle(null);
 }
 
@@ -665,7 +668,7 @@ async function setViewMode(mode) {
 // ── Load schedule ─────────────────────────────────────────
 async function loadScheduleForDay() {
   if (!currentChildId) return;
-  document.getElementById('scheduleContent').innerHTML = '<div class="text-center py-10 text-text-soft">Laddar…</div>';
+  document.getElementById('scheduleContent').innerHTML = '<div class="text-center py-10 text-text-soft">' + spt('schedule.loading') + '</div>';
   if (window.ScheduleCustody && ScheduleCustody.isDayHidden(currentDay)) {
     const dl = getDayDateLabel();
     const variant = ScheduleCustody.getEditVariantLabel();
@@ -679,7 +682,7 @@ async function loadScheduleForDay() {
   }
   const q = window.ScheduleCustody ? ScheduleCustody.scheduleQuery() : '';
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules${q}`);
-  if (!res.ok) { document.getElementById('scheduleContent').innerHTML = '<p class="text-red-500">Fel vid laddning</p>'; return; }
+  if (!res.ok) { document.getElementById('scheduleContent').innerHTML = '<p class="text-red-500">' + spt('schedule.loadError') + '</p>'; return; }
   const schedules = await res.json();
   // Check if schedules array is empty and child might be paused
   if (schedules.length === 0) {
@@ -691,7 +694,7 @@ async function loadScheduleForDay() {
         <p class="text-5xl mb-4">📅</p>
         <p class="font-semibold text-navy mb-2">${spt('schedule.empty.noScheduleTitle', { name: childName })}</p>
         <p class="text-sm text-text-soft mb-6">${spt('schedule.empty.noScheduleBody')}</p>
-        <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ Skapa schema</button>
+        <button onclick="openTemplateModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">+ ${spt('schedule.editor.createSchedule')}</button>
       </div>`;
     return;
   }
@@ -700,7 +703,7 @@ async function loadScheduleForDay() {
   currentScheduleId = ds.id;
   const dateStr = getCurrentDayDateStr();
   const ir = await window.apiFetch(`/api/schedules/${currentScheduleId}/items${dateStr ? '?date=' + encodeURIComponent(dateStr) : ''}`);
-  if (!ir.ok) { document.getElementById('scheduleContent').innerHTML = '<p class="text-red-500">Fel vid laddning av aktiviteter</p>'; return; }
+  if (!ir.ok) { document.getElementById('scheduleContent').innerHTML = '<p class="text-red-500">' + spt('schedule.loadActivitiesError') + '</p>'; return; }
   const data = await ir.json();
   scheduleItems = data.items || []; sectionTimes = data.section_times || {};
   if (currentViewMode === 'timeline') renderTimeline();
@@ -762,15 +765,15 @@ function renderSchedule() {
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
         <h3 class="text-lg font-heading font-bold text-navy">${dayName(currentDay)}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child?escHtml(child.name):''}</h3>
-        <p class="text-sm text-text-soft">${scheduleItems.length} aktivitet${scheduleItems.length!==1?'er':''}
+        <p class="text-sm text-text-soft">${window.ScheduleI18n ? ScheduleI18n.activityCount(scheduleItems.length) : spt('schedule.activityCount.other', { count: scheduleItems.length })}
           <span class="text-xs text-purple-400 ml-1">💡 ${spt('schedule.actions.dragCopyHint')}</span>
         </p>
       </div>
       <div class="flex gap-2 flex-wrap">
-        <button onclick="openCopyDayModal()" class="px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 Kopiera dag</button>
-        <button onclick="openCopyWeeksModal()" class="px-4 py-2 bg-sky hover:bg-blue-100 text-navy rounded-xl text-sm font-semibold">📆 Kopiera till veckor</button>
-        <button onclick="openCopyChildModal()" class="px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold">👶 Kopiera till barn</button>
-        <button onclick="confirmDeleteSchedule()" class="px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ Ta bort dag</button>
+        <button onclick="openCopyDayModal()" class="px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 ${spt('schedule.editor.copyDay')}</button>
+        <button onclick="openCopyWeeksModal()" class="px-4 py-2 bg-sky hover:bg-blue-100 text-navy rounded-xl text-sm font-semibold">📆 ${spt('schedule.editor.copyToWeeks')}</button>
+        <button onclick="openCopyChildModal()" class="px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold">👶 ${spt('schedule.editor.copyToChild')}</button>
+        <button onclick="confirmDeleteSchedule()" class="px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ ${spt('schedule.editor.deleteDay')}</button>
       </div>
     </div>${sHtml}`;
   initDragDrop();
@@ -788,10 +791,10 @@ function renderItem(item) {
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
   const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="' + spt('schedule.actions.dragReorder') + '">⠿</button>';
   const oncePin = isOnce ? '<span title="' + spt('schedule.actions.oneOff') + '" class="text-[10px] flex-shrink-0">📌</span>' : '';
-  const moveBtns = isOnce ? '' : `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="Flytta upp" aria-label="Flytta upp">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="Flytta ner" aria-label="Flytta ner">▼</button>`;
-  const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="Redigera tid">🕐</button>`;
+  const moveBtns = isOnce ? '' : `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="${spt('schedule.editor.moveUp')}" aria-label="${spt('schedule.editor.moveUp')}">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="${spt('schedule.editor.moveDown')}" aria-label="${spt('schedule.editor.moveDown')}">▼</button>`;
+  const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="${spt('schedule.editor.editTime')}">🕐</button>`;
   const tplIcon = canEditTpl
-    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="Redigera aktivitet">${item.activity_icon || '📌'}</button>`
+    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="${spt('schedule.editor.editActivity')}">${item.activity_icon || '📌'}</button>`
     : `<span class="text-xl flex-shrink-0">${item.activity_icon || '📌'}</span>`;
   const nameBtn = canEditTpl
     ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="font-semibold text-sm text-navy truncate hover:text-gold transition-colors block w-full text-left" title="${spt('schedule.actions.editActivity')}">${escHtml(item.activity_name_display || item.activity_name)}</button>`
@@ -809,7 +812,7 @@ function renderItem(item) {
     <div class="substep-list-schedule hidden mt-2 pl-2 border-l-2 border-lavender" id="sched-substeps-${onceTplId || item.activity_template_id}">
       <div class="text-[10px] text-text-soft font-semibold mb-1 flex items-center gap-1">
         <span class="inline-block w-1.5 h-1.5 rounded-full bg-lavender"></span>
-        ${subCount} delsteg
+        ${spt('schedule.actions.substepsCount', { count: subCount })}
       </div>
       <div class="space-y-1">${stepsListHtml}</div>
     </div>` : '';
@@ -835,9 +838,9 @@ function renderItem(item) {
         <div class="overflow-menu-wrap flex-shrink-0" style="margin-left:4px">
           <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-s-${item.id}')" aria-label="Fler alternativ">⋯</button>
           <div id="omenu-s-${item.id}" class="overflow-menu-popup">
-            ${canEditTpl ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${onceTplId || item.activity_template_id}')">✏️ Redigera</button>` : ''}
-            ${!isOnce ? `<button onclick="closeOverflowMenus();openEditItem('${item.id}')">🕐 Redigera tid</button>` : ''}
-            <button class="danger" onclick="closeOverflowMenus();removeItem('${item.id}')">✕ Ta bort</button>
+            ${canEditTpl ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${onceTplId || item.activity_template_id}')">✏️ ${spt('schedule.editor.edit')}</button>` : ''}
+            ${!isOnce ? `<button onclick="closeOverflowMenus();openEditItem('${item.id}')">🕐 ${spt('schedule.editor.editTime')}</button>` : ''}
+            <button class="danger" onclick="closeOverflowMenus();removeItem('${item.id}')">✕ ${spt('schedule.editor.remove')}</button>
           </div>
         </div>
       </div>
@@ -875,7 +878,7 @@ function renderScheduleSubSteps(templateId, steps) {
   const container = document.getElementById(`sched-substep-items-${templateId}`);
   if (!container) return;
   if (steps.length === 0) {
-    container.innerHTML = '<div class="text-xs text-text-soft italic">Inga delsteg</div>';
+    container.innerHTML = '<div class="text-xs text-text-soft italic">' + spt('schedule.views.noSubsteps') + '</div>';
     return;
   }
   container.innerHTML = steps.map(s => `

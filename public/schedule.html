@@ -20,6 +20,7 @@
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
     <script src="/js/schedule-core.js?v=1"></script>
+  <script src="/js/schedule-i18n.js?v=1"></script>
   <script src="/js/schedule-cal-nav.js?v=1"></script>
   <script src="/js/pictogram-registry.js?v=1"></script>
   <script src="/js/schedule-activity-modals.js?v=2"></script>
@@ -314,7 +315,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="schedule">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="schedule" data-i18n-manual-init="true" data-i18n-title="schedule.documentTitle">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
@@ -325,9 +326,9 @@
       <ul class="space-y-2"></ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
-          <span>🌙</span> Mörkt läge
+          <span>🌙</span> <span data-i18n="schedule.chrome.darkMode">Mörkt läge</span>
         </button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -338,24 +339,24 @@
       <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-legacy-hide">
         <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
           <div class="flex items-center gap-3 flex-wrap">
-            <h2 id="schedulePageTitle" class="text-xl font-heading font-bold text-navy">📅 Veckoplanering</h2>
-            <div class="schedule-mode-toggle">
-              <button id="btnModeSingle" onclick="setScheduleMode('single')" class="schedule-mode-btn active">👤 Mitt barn</button>
-              <button id="btnModeFamily" onclick="setScheduleMode('family')" class="schedule-mode-btn">👨‍👩‍👧 Alla barn</button>
+            <h2 id="schedulePageTitle" class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.weeklyPlanningTitle">📅 Veckoplanering</h2>
+            <div class="schedule-mode-toggle" data-i18n-aria-label="schedule.mode.aria">
+              <button id="btnModeSingle" onclick="setScheduleMode('single')" class="schedule-mode-btn active" data-i18n="schedule.chrome.modeSingle">👤 Mitt barn</button>
+              <button id="btnModeFamily" onclick="setScheduleMode('family')" class="schedule-mode-btn" data-i18n="schedule.chrome.modeFamily">👨‍👩‍👧 Alla barn</button>
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">← Välj barn</button>
-            <button id="editorRewardsBtn" onclick="openRewardsForCurrentChild()" class="hidden px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors">🏆 Belöningar</button>
+            <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors" data-i18n="schedule.chrome.backToChildren">← Välj barn</button>
+            <button id="editorRewardsBtn" onclick="openRewardsForCurrentChild()" class="hidden px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors" data-i18n="schedule.actions.rewards">🏆 Belöningar</button>
           </div>
         </div>
         <!-- Dag / Vecka / Månad toggle + week navigation -->
         <div id="calNavBar" class="hidden flex flex-wrap items-center gap-2">
           <!-- View type toggle -->
           <div class="flex rounded-xl border-2 border-lavender overflow-hidden">
-            <button id="btnViewDay" onclick="setCalView('day')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender">Dag</button>
-            <button id="btnViewWeek" onclick="setCalView('week')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-navy text-white">Vecka</button>
-            <button id="btnViewMonth" onclick="setCalView('month')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender">Månad</button>
+            <button id="btnViewDay" onclick="setCalView('day')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender" data-i18n="schedule.chrome.calDay">Dag</button>
+            <button id="btnViewWeek" onclick="setCalView('week')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-navy text-white" data-i18n="schedule.chrome.calWeek">Vecka</button>
+            <button id="btnViewMonth" onclick="setCalView('month')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender" data-i18n="schedule.chrome.calMonth">Månad</button>
           </div>
           <!-- Week/day navigation -->
           <div class="flex items-center gap-1 ml-1">
@@ -363,7 +364,7 @@
             <span id="calNavLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center px-1"></span>
             <button id="calNavNext" onclick="calNavNext()" class="w-8 h-8 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors text-sm">›</button>
           </div>
-          <button onclick="calNavToday()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors">Idag</button>
+          <button onclick="calNavToday()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors" data-i18n="schedule.chrome.calToday">Idag</button>
         </div>
       </div>
 
@@ -378,22 +379,22 @@
             <p class="text-sm text-text-soft" data-i18n="schedule.familyGrid.allChildrenHint">Alla barn — klicka på en dag för att redigera</p>
             <div class="flex items-center gap-2">
               <button onclick="fwChangeWeek(-1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">‹</button>
-              <span id="fwWeekLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center">Laddar…</span>
+              <span id="fwWeekLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center" data-i18n="schedule.loading">Laddar…</span>
               <button onclick="fwChangeWeek(1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">›</button>
-              <button onclick="fwGoToCurrentWeek()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors">Idag</button>
+              <button onclick="fwGoToCurrentWeek()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors" data-i18n="schedule.chrome.calToday">Idag</button>
             </div>
           </div>
           <div id="fwGridContainer">
-            <div class="text-center py-12 text-text-soft"><span class="animate-spin text-xl">⏳</span> <span class="font-semibold">Laddar schema…</span></div>
+            <div class="text-center py-12 text-text-soft"><span class="animate-spin text-xl">⏳</span> <span class="font-semibold" data-i18n="schedule.chrome.loadingSchedule">Laddar schema…</span></div>
           </div>
           <!-- Legend -->
           <div id="fwLegend" class="hidden mt-4 flex flex-wrap items-center gap-3 text-xs text-text-soft">
-            <span class="font-semibold">Sektioner:</span>
-            <span class="flex items-center gap-1"><span class="fw-section-dot morgon"></span> Morgon</span>
-            <span class="flex items-center gap-1"><span class="fw-section-dot dag"></span> Dag</span>
-            <span class="flex items-center gap-1"><span class="fw-section-dot kvall"></span> Kväll</span>
-            <span class="flex items-center gap-1"><span class="fw-section-dot natt"></span> Natt</span>
-            <span class="ml-auto text-[11px] opacity-70">Klicka på en cell för att redigera schemat</span>
+            <span class="font-semibold" data-i18n="schedule.chrome.fwSections">Sektioner:</span>
+            <span class="flex items-center gap-1"><span class="fw-section-dot morgon"></span> <span data-i18n="schedule.sections.morgon">Morgon</span></span>
+            <span class="flex items-center gap-1"><span class="fw-section-dot dag"></span> <span data-i18n="schedule.sections.dag">Dag</span></span>
+            <span class="flex items-center gap-1"><span class="fw-section-dot kvall"></span> <span data-i18n="schedule.sections.kvall">Kväll</span></span>
+            <span class="flex items-center gap-1"><span class="fw-section-dot natt"></span> <span data-i18n="schedule.sections.natt">Natt</span></span>
+            <span class="ml-auto text-[11px] opacity-70" data-i18n="schedule.chrome.fwCellHint">Klicka på en cell för att redigera schemat</span>
           </div>
         </div>
 
@@ -408,18 +409,18 @@
               <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors" data-i18n="schedule.familyGrid.addChild">➕ Lägg till ett barn</button>
             </div>
           </div>
-          <div id="childCardsContainer" class="space-y-4"><div class="text-text-soft text-sm py-8 text-center">Laddar…</div></div>
+          <div id="childCardsContainer" class="space-y-4"><div class="text-text-soft text-sm py-8 text-center" data-i18n="schedule.chrome.loadingEllipsis">Laddar…</div></div>
 
           <!-- Tips section -->
           <details class="warm-tips mt-6">
-            <summary class="warm-tips-summary">💡 Tips för schemat</summary>
+            <summary class="warm-tips-summary" data-i18n="schedule.chrome.tipsSummary">💡 Tips för schemat</summary>
             <div class="warm-tips-body">
             <ul class="space-y-1.5">
-              <li>• Klicka på ett barn nedan för att öppna veckan</li>
-              <li>• Välj dag och lägg till aktiviteter från biblioteket</li>
-              <li>• Aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
-              <li>• Kopiera hela dagar eller veckor med knapparna i schemat</li>
-              <li>• Skapa schema som PDF: öppna barnet → <strong>📄 Skapa PDF</strong> eller gå till Daglig logg</li>
+              <li data-i18n="schedule.chrome.tips1">• Klicka på ett barn nedan för att öppna veckan</li>
+              <li data-i18n="schedule.chrome.tips2">• Välj dag och lägg till aktiviteter från biblioteket</li>
+              <li data-i18n="schedule.chrome.tips3">• Aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
+              <li data-i18n="schedule.chrome.tips4">• Kopiera hela dagar eller veckor med knapparna i schemat</li>
+              <li data-i18n-html="schedule.chrome.tips5">• Skapa schema som PDF: öppna barnet → <strong>📄 Skapa PDF</strong> eller gå till Daglig logg</li>
             </ul>
             </div>
           </details>
@@ -432,31 +433,31 @@
 
           <!-- View mode bar (schema/tidsvy/jämför/specialdagar — secondary views) -->
           <div id="viewModeBar" class="hidden flex flex-wrap items-center gap-2 mb-3">
-            <button id="btnNormalView" onclick="setViewMode('normal')" class="view-btn active">📋 Schema</button>
-            <button id="btnListView" onclick="setViewMode('list')" class="view-btn">📝 Listläge</button>
-            <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn">⏱ Tidsvy</button>
-            <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn">👥 Jämför barn</button>
-            <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn">🌟 Specialdagar</button>
-            <span class="drag-copy-hint">← Dra aktivitet till dag-flik för att kopiera</span>
-            <button onclick="openFillWeekModal()" id="fillWeekBtn" class="hidden ml-auto px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-heading font-bold transition-colors flex items-center gap-1.5">📆 Fyll vecka</button>
-            <a id="schedulePrintLink" href="/print-schema" class="hidden ml-2 px-3 py-1.5 bg-white border-2 border-lavender text-navy rounded-xl text-sm font-semibold hover:border-gold transition-colors flex items-center gap-1.5 no-underline" title="Skapa PDF — välj period">📄 Skapa PDF</a>
+            <button id="btnNormalView" onclick="setViewMode('normal')" class="view-btn active" data-i18n="schedule.chrome.viewNormal">📋 Schema</button>
+            <button id="btnListView" onclick="setViewMode('list')" class="view-btn" data-i18n="schedule.chrome.viewList">📝 Listläge</button>
+            <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn" data-i18n="schedule.chrome.viewTimeline">⏱ Tidsvy</button>
+            <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn" data-i18n="schedule.chrome.viewSbs">👥 Jämför barn</button>
+            <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn" data-i18n="schedule.chrome.viewSpecialDays">🌟 Specialdagar</button>
+            <span class="drag-copy-hint" data-i18n="schedule.actions.dragCopyHint">← Dra aktivitet till dag-flik för att kopiera</span>
+            <button onclick="openFillWeekModal()" id="fillWeekBtn" class="hidden ml-auto px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-heading font-bold transition-colors flex items-center gap-1.5" data-i18n="schedule.chrome.fillWeek">📆 Fyll vecka</button>
+            <a id="schedulePrintLink" href="/print-schema" class="hidden ml-2 px-3 py-1.5 bg-white border-2 border-lavender text-navy rounded-xl text-sm font-semibold hover:border-gold transition-colors flex items-center gap-1.5 no-underline" data-i18n-title="schedule.chrome.createPdfTitle" title="Skapa PDF — välj period" data-i18n="schedule.chrome.createPdf">📄 Skapa PDF</a>
           </div>
 
           <!-- Day selector -->
           <div id="daySelectorWrap" class="hidden">
-            <p class="text-xs text-text-soft mb-2">Välj dag — <em>dra dag-flik till annan dag för att kopiera/byta</em></p>
+            <p class="text-xs text-text-soft mb-2" data-i18n-html="schedule.chrome.daySelectorHint">Välj dag — <em>dra dag-flik till annan dag för att kopiera/byta</em></p>
             <div class="flex gap-1 overflow-x-auto pb-1" id="dayTabs"></div>
           </div>
 
           <!-- SBS child picker -->
           <div id="sbsChildSelector" class="hidden mb-4 p-4 bg-lavender rounded-2xl">
-            <p class="text-sm font-semibold text-navy mb-2">Välj barn att jämföra med:</p>
+            <p class="text-sm font-semibold text-navy mb-2" data-i18n="schedule.chrome.sbsPickerHint">Välj barn att jämföra med:</p>
             <div id="sbsChildOptions" class="flex gap-2 flex-wrap"></div>
           </div>
 
           <!-- Content -->
           <div id="scheduleContent">
-            <div class="text-center py-16 text-text-soft"><p class="text-4xl mb-3">📅</p><p class="font-semibold">Välj ett barn ovan</p></div>
+            <div class="text-center py-16 text-text-soft"><p class="text-4xl mb-3">📅</p><p class="font-semibold" data-i18n="schedule.chrome.pickChildAbove">Välj ett barn ovan</p></div>
           </div>
         </div>
 
@@ -468,11 +469,11 @@
   <div id="addActivityModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Lägg till aktivitet</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.addActivity.title">Lägg till aktivitet</h3>
         <button onclick="closeAddModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <div class="mb-4">
-        <input type="text" id="templateSearch" placeholder="Sök aktivitet…" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors mb-3" oninput="filterTemplates()">
+        <input type="text" id="templateSearch" data-i18n-placeholder="schedule.modals.addActivity.searchPlaceholder" placeholder="Sök aktivitet…" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors mb-3" oninput="filterTemplates()">
         <div id="templateList" class="space-y-1 max-h-52 overflow-y-auto"></div>
       </div>
       <div id="selectedTemplateInfo" class="hidden bg-sky rounded-xl p-3 mb-4 flex items-center gap-3">
@@ -484,34 +485,34 @@
         <button type="button" onclick="toggleAddTimeSection()" id="addTimeSectionToggle"
           class="flex items-center gap-2 text-sm font-semibold text-navy hover:text-gold transition-colors">
           <span id="addTimeChevron" class="text-text-soft text-xs">▸</span>
-          TID
+          <span data-i18n="schedule.chrome.timeSection">TID</span>
           <span id="addTimeSummary" class="font-normal text-text-soft text-xs hidden"></span>
         </button>
         <div id="addTimeFields" class="hidden mt-2 space-y-2">
           <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-mint bg-mint/50">
             <span class="text-xl flex-shrink-0">🕐</span>
-            <input type="time" id="addStartTime" placeholder="Starttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateAddTimeSummary()">
+            <input type="time" id="addStartTime" data-i18n-placeholder="schedule.chrome.startTimePlaceholder" placeholder="Starttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateAddTimeSummary()">
           </div>
           <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-coral bg-coral/50">
             <span class="text-xl flex-shrink-0">🕑</span>
-            <input type="time" id="addEndTime" placeholder="Sluttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateAddTimeSummary()">
+            <input type="time" id="addEndTime" data-i18n-placeholder="schedule.chrome.endTimePlaceholder" placeholder="Sluttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateAddTimeSummary()">
           </div>
         </div>
       </div>
       <div class="mb-5">
-        <label class="block text-sm font-semibold text-navy mb-2">Tidslucka <span class="font-normal text-text-soft text-xs">(välj en eller flera)</span></label>
+        <label class="block text-sm font-semibold text-navy mb-2"><span data-i18n="schedule.chrome.timeSlotLabel">Tidslucka</span> <span class="font-normal text-text-soft text-xs" data-i18n="schedule.chrome.timeSlotOptional">(välj en eller flera)</span></label>
         <div class="flex gap-2 flex-wrap">
-          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="toggleSection('morgon')">🌅 Morgon</button>
-          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="toggleSection('dag')">☀️ Dag</button>
-          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="toggleSection('kvall')">🌆 Kväll</button>
-          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="toggleSection('natt')">🌙 Natt</button>
+          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="toggleSection('morgon')">🌅 <span data-i18n="schedule.sections.morgon">Morgon</span></button>
+          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="toggleSection('dag')">☀️ <span data-i18n="schedule.sections.dag">Dag</span></button>
+          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="toggleSection('kvall')">🌆 <span data-i18n="schedule.sections.kvall">Kväll</span></button>
+          <button type="button" class="section-pick-btn px-3 sm:px-4 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="toggleSection('natt')">🌙 <span data-i18n="schedule.sections.natt">Natt</span></button>
         </div>
         <input type="hidden" id="addSection" value="dag">
       </div>
       <div id="addActivityError" class="text-red-500 text-sm hidden mb-3"></div>
       <div class="flex gap-2 sm:gap-3 flex-nowrap">
-        <button onclick="closeAddModal()" class="flex-1 min-w-0 px-3 sm:px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm sm:text-base">Avbryt</button>
-        <button onclick="submitAddActivity()" id="addActivityBtn" class="flex-1 min-w-0 px-3 sm:px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm sm:text-base">Lägg till</button>
+        <button onclick="closeAddModal()" class="flex-1 min-w-0 px-3 sm:px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm sm:text-base" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitAddActivity()" id="addActivityBtn" class="flex-1 min-w-0 px-3 sm:px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm sm:text-base" data-i18n="schedule.modals.addActivity.addBtn">Lägg till</button>
       </div>
     </div>
   </div>
@@ -520,13 +521,13 @@
   <div id="createActivityModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-[55] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Skapa ny aktivitet</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.createActivity.title">Skapa ny aktivitet</h3>
         <button onclick="closeCreateActivityModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <!-- Name -->
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Namn *</label>
-        <input type="text" id="newActName" placeholder="T.ex. Borsta tänderna" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.nameLabel">Namn *</label>
+        <input type="text" id="newActName" data-i18n-placeholder="schedule.chrome.nameExamplePlaceholder" placeholder="T.ex. Borsta tänderna" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
       </div>
       <!-- Emoji picker -->
       <div class="mb-3">
@@ -537,18 +538,18 @@
         </div>
         <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" id="newActEmojiGrid"></div>
         <div class="mt-2">
-          <button type="button" id="newActPictogramToggle" class="text-sm font-semibold text-purple-700 hover:text-purple-900" aria-expanded="false" onclick="toggleNewActPictogramPanel()">🖼️ Välj bildstöd <span class="font-normal text-text-soft">(valfritt)</span></button>
+          <button type="button" id="newActPictogramToggle" class="text-sm font-semibold text-purple-700 hover:text-purple-900" aria-expanded="false" onclick="toggleNewActPictogramPanel()"><span data-i18n="schedule.chrome.pictogramToggle">🖼️ Välj bildstöd</span> <span class="font-normal text-text-soft" data-i18n="schedule.chrome.pictogramOptional">(valfritt)</span></button>
           <div id="newActPictogramPanel" class="hidden mt-2 p-3 bg-purple-50 rounded-xl border border-purple-100">
-            <input type="search" id="newActPictogramSearch" placeholder="Sök bild…" class="w-full mb-2 px-3 py-2 rounded-lg border border-lavender text-sm" oninput="filterNewActPictograms(this.value)">
+            <input type="search" id="newActPictogramSearch" data-i18n-placeholder="schedule.chrome.pictogramSearchPlaceholder" placeholder="Sök bild…" class="w-full mb-2 px-3 py-2 rounded-lg border border-lavender text-sm" oninput="filterNewActPictograms(this.value)">
             <div id="newActPictogramGrid" class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto"></div>
-            <button type="button" class="mt-2 text-xs text-text-soft hover:text-navy" onclick="clearNewActPictogram()">Ta bort bildstöd</button>
+            <button type="button" class="mt-2 text-xs text-text-soft hover:text-navy" onclick="clearNewActPictogram()" data-i18n="schedule.chrome.pictogramClear">Ta bort bildstöd</button>
           </div>
           <input type="hidden" id="newActIconKeyInput" value="">
         </div>
       </div>
       <!-- Star value -->
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Stjärnvärde</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.starValueLabel">Stjärnvärde</label>
         <div class="flex gap-2">
           <button type="button" class="star-val-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-gold" data-val="1" onclick="pickStarVal(1)">⭐ 1</button>
           <button type="button" class="star-val-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-gold" data-val="2" onclick="pickStarVal(2)">⭐ 2</button>
@@ -563,14 +564,14 @@
         <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
         <div id="newActSubstepList" class="space-y-1 mb-2"></div>
         <div class="flex gap-2">
-          <input type="text" id="newActSubstepInput" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewActSubstep();}">
+          <input type="text" id="newActSubstepInput" data-i18n-placeholder="schedule.chrome.substepsAddPlaceholder" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewActSubstep();}">
           <button type="button" onclick="addNewActSubstep()" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold transition-colors">+</button>
         </div>
       </div>
       <div id="createActivityError" class="text-red-500 text-sm hidden mb-3"></div>
       <div class="flex gap-2 sm:gap-3 flex-nowrap">
-        <button onclick="closeCreateActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button onclick="submitCreateActivity()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm">Skapa &amp; lägg till</button>
+        <button onclick="closeCreateActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitCreateActivity()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm" data-i18n="schedule.modals.createActivity.createAndAdd">Skapa &amp; lägg till</button>
       </div>
     </div>
   </div>
@@ -579,7 +580,7 @@
   <div id="editTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Redigera aktivitet</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.editor.editActivity">Redigera aktivitet</h3>
         <button onclick="closeEditTemplateModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <input type="hidden" id="editTplId">
@@ -602,10 +603,10 @@
         <label class="block text-sm font-semibold text-navy mb-1">Delsteg</label>
         <div id="editTplSubstepList" class="space-y-1 mb-2"></div>
         <div class="flex gap-2">
-          <input type="text" id="editTplSubstepInput" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditTplSubstep();}">
+          <input type="text" id="editTplSubstepInput" data-i18n-placeholder="schedule.chrome.substepsAddPlaceholder" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditTplSubstep();}">
           <button type="button" onclick="addEditTplSubstep()" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold transition-colors">+</button>
         </div>
-        <p class="text-xs text-text-soft mt-1">Ändringar gäller ALLA dagar och barn som använder denna aktivitet.</p>
+        <p class="text-xs text-text-soft mt-1" data-i18n="schedule.chrome.substepsGlobalHint">Ändringar gäller ALLA dagar och barn som använder denna aktivitet.</p>
       </div>
       <div id="editTemplateError" class="text-red-500 text-sm hidden mb-3"></div>
       <div class="flex gap-2 sm:gap-3 flex-nowrap">
@@ -620,7 +621,7 @@
     <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl max-h-[calc(100vh-2rem)] flex flex-col my-auto">
       <div class="text-center mb-5 flex-shrink-0">
         <div class="text-3xl mb-2">🗓️</div>
-        <h3 class="text-lg font-heading font-bold text-navy mb-1">Hur ofta ska aktiviteten visas?</h3>
+        <h3 class="text-lg font-heading font-bold text-navy mb-1" data-i18n="schedule.modals.recurrence.scheduleTitle">Hur ofta ska aktiviteten visas?</h3>
         <p id="recurrenceActivityName" class="text-sm text-text-soft"></p>
       </div>
       <!-- Step 1: choose mode -->
@@ -629,38 +630,38 @@
           class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-lavender hover:border-gold hover:bg-sky transition-colors text-left">
           <span class="text-2xl flex-shrink-0">📌</span>
           <div class="min-w-0">
-            <div class="font-semibold text-navy text-sm" id="recurrenceOnceLbl">Bara denna gång</div>
-            <div class="text-xs text-text-soft" id="recurrenceOnceDesc">Visas bara en gång, den valda dagen</div>
+            <div class="font-semibold text-navy text-sm" id="recurrenceOnceLbl" data-i18n="schedule.modals.recurrence.onceLbl">Bara denna gång</div>
+            <div class="text-xs text-text-soft" id="recurrenceOnceDesc" data-i18n="schedule.modals.recurrence.onceDescAdd">Visas bara en gång, den valda dagen</div>
           </div>
         </button>
         <button type="button" id="recurrenceWeeklyBtn"
           class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-lavender hover:border-gold hover:bg-sky transition-colors text-left">
           <span class="text-2xl flex-shrink-0">🔁</span>
           <div class="min-w-0">
-            <div class="font-semibold text-navy text-sm" id="recurrenceWeeklyLbl">Vilka dagar?</div>
-            <div class="text-xs text-text-soft" id="recurrenceWeeklyDesc">Välj vilka veckodagar aktiviteten ska visas varje vecka</div>
+            <div class="font-semibold text-navy text-sm" id="recurrenceWeeklyLbl" data-i18n="schedule.modals.recurrence.weeklyLbl">Vilka dagar?</div>
+            <div class="text-xs text-text-soft" id="recurrenceWeeklyDesc" data-i18n="schedule.modals.recurrence.weeklyDesc">Välj vilka veckodagar aktiviteten ska visas varje vecka</div>
           </div>
         </button>
         <button type="button" id="recurrenceAllDaysBtn"
           class="hidden w-full flex items-center gap-3 p-4 rounded-xl border-2 border-lavender hover:border-gold hover:bg-sky transition-colors text-left">
           <span class="text-2xl flex-shrink-0">🗓️</span>
           <div class="min-w-0">
-            <div class="font-semibold text-navy text-sm" id="recurrenceAllDaysLbl">Alla dagar i veckan</div>
-            <div class="text-xs text-text-soft" id="recurrenceAllDaysDesc">Tar bort aktiviteten från måndag till söndag</div>
+            <div class="font-semibold text-navy text-sm" id="recurrenceAllDaysLbl" data-i18n="schedule.modals.recurrence.allDaysLbl">Alla dagar i veckan</div>
+            <div class="text-xs text-text-soft" id="recurrenceAllDaysDesc" data-i18n="schedule.modals.recurrence.allDaysDesc">Tar bort aktiviteten från måndag till söndag</div>
           </div>
         </button>
       </div>
       <!-- Step 2: day picker (hidden initially) -->
       <div id="recurrenceStep2" class="hidden mb-4 flex-grow overflow-y-auto">
-        <p class="text-sm text-text-soft mb-3">Välj veckodagar:</p>
+        <p class="text-sm text-text-soft mb-3" data-i18n="schedule.modals.recurrence.pickDays">Välj veckodagar:</p>
         <div id="recurrenceDayPicker" class="grid grid-cols-4 gap-2 mb-4"></div>
         <div class="flex gap-3">
-          <button onclick="backToRecurrenceStep1()" class="flex-1 px-3 py-2.5 border-2 border-lavender rounded-xl font-semibold text-sm text-navy">← Tillbaka</button>
-          <button onclick="confirmRecurrenceMultiDay()" id="recurrenceMultiDayConfirmBtn" class="flex-1 px-3 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">Lägg till ✓</button>
+          <button onclick="backToRecurrenceStep1()" class="flex-1 px-3 py-2.5 border-2 border-lavender rounded-xl font-semibold text-sm text-navy" data-i18n="schedule.modals.recurrence.back">← Tillbaka</button>
+          <button onclick="confirmRecurrenceMultiDay()" id="recurrenceMultiDayConfirmBtn" class="flex-1 px-3 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm" data-i18n="schedule.modals.recurrence.addConfirm">Lägg till ✓</button>
         </div>
       </div>
       <div id="recurrenceError" class="text-red-500 text-sm hidden mb-3 text-center flex-shrink-0"></div>
-      <button onclick="closeRecurrenceModal()" class="w-full text-center text-sm text-text-soft hover:text-navy transition-colors py-2 flex-shrink-0">Avbryt</button>
+      <button onclick="closeRecurrenceModal()" class="w-full text-center text-sm text-text-soft hover:text-navy transition-colors py-2 flex-shrink-0" data-i18n="schedule.modals.common.cancel">Avbryt</button>
     </div>
   </div>
 
@@ -668,7 +669,7 @@
   <div id="editItemModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Redigera tid</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.editor.editTime">Redigera tid</h3>
         <button onclick="closeEditItemModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <input type="hidden" id="editItemId">
@@ -676,33 +677,33 @@
         <button type="button" onclick="toggleEditTimeSection()" id="editTimeSectionToggle"
           class="flex items-center gap-2 text-sm font-semibold text-navy hover:text-gold transition-colors">
           <span id="editTimeChevron" class="text-text-soft text-xs">▸</span>
-          TID
+          <span data-i18n="schedule.chrome.timeSection">TID</span>
           <span id="editTimeSummary" class="font-normal text-text-soft text-xs hidden"></span>
         </button>
         <div id="editTimeFields" class="hidden mt-2 space-y-2">
           <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-mint bg-mint/50">
             <span class="text-xl flex-shrink-0">🕐</span>
-            <input type="time" id="editStartTime" placeholder="Starttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateEditTimeSummary()">
+            <input type="time" id="editStartTime" data-i18n-placeholder="schedule.chrome.startTimePlaceholder" placeholder="Starttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateEditTimeSummary()">
           </div>
           <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-coral bg-coral/50">
             <span class="text-xl flex-shrink-0">🕑</span>
-            <input type="time" id="editEndTime" placeholder="Sluttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateEditTimeSummary()">
+            <input type="time" id="editEndTime" data-i18n-placeholder="schedule.chrome.endTimePlaceholder" placeholder="Sluttid" class="flex-1 bg-transparent outline-none font-semibold text-navy placeholder-text-soft text-sm" oninput="updateEditTimeSummary()">
           </div>
         </div>
       </div>
       <div class="mb-5">
-        <label class="block text-sm font-semibold text-navy mb-2">Sektion</label>
+        <label class="block text-sm font-semibold text-navy mb-2" data-i18n="schedule.chrome.sectionLabel">Sektion</label>
         <div class="flex gap-2 flex-wrap">
-          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="setEditSection('morgon')">🌅 Morgon</button>
-          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="setEditSection('dag')">☀️ Dag</button>
-          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="setEditSection('kvall')">🌆 Kväll</button>
-          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="setEditSection('natt')">🌙 Natt</button>
+          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="setEditSection('morgon')">🌅 <span data-i18n="schedule.sections.morgon">Morgon</span></button>
+          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="setEditSection('dag')">☀️ <span data-i18n="schedule.sections.dag">Dag</span></button>
+          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="setEditSection('kvall')">🌆 <span data-i18n="schedule.sections.kvall">Kväll</span></button>
+          <button type="button" class="edit-sec-btn px-2 sm:px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="setEditSection('natt')">🌙 <span data-i18n="schedule.sections.natt">Natt</span></button>
         </div>
         <input type="hidden" id="editSection" value="dag">
       </div>
       <div class="flex gap-2 sm:gap-3 flex-nowrap">
-        <button onclick="closeEditItemModal()" class="flex-1 min-w-0 px-3 sm:px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm sm:text-base">Avbryt</button>
-        <button onclick="submitEditItem()" class="flex-1 min-w-0 px-3 sm:px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm sm:text-base">Spara</button>
+        <button onclick="closeEditItemModal()" class="flex-1 min-w-0 px-3 sm:px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm sm:text-base" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitEditItem()" class="flex-1 min-w-0 px-3 sm:px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm sm:text-base" data-i18n="schedule.chrome.save">Spara</button>
       </div>
     </div>
   </div>
@@ -711,14 +712,14 @@
   <div id="copyDayModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Kopiera dag</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyDayTitle">Kopiera dag</h3>
         <button onclick="closeCopyDayModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <p id="copyFromLabel" class="text-sm text-text-soft mb-3">Kopiera schemat från <strong></strong> till:</p>
       <div id="copyDayPicker" class="grid grid-cols-2 gap-2 mb-5"></div>
       <div class="flex gap-3">
-        <button onclick="closeCopyDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitCopyDay()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Kopiera</button>
+        <button onclick="closeCopyDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitCopyDay()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold" data-i18n="schedule.copy.copyBtn">Kopiera</button>
       </div>
     </div>
   </div>
@@ -727,14 +728,14 @@
   <div id="copyChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Kopiera till annat barn</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyChildTitle">Kopiera till annat barn</h3>
         <button onclick="closeCopyChildModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-3">Hela veckoschemat kopieras och skriver över befintliga scheman för det valda barnet.</p>
+      <p class="text-sm text-text-soft mb-3" data-i18n="schedule.copy.copyChildBody">Hela veckoschemat kopieras och skriver över befintliga scheman för det valda barnet.</p>
       <div id="copyChildPicker" class="space-y-2 mb-5"></div>
       <div class="flex gap-3">
-        <button onclick="closeCopyChildModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitCopyChild()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Kopiera</button>
+        <button onclick="closeCopyChildModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitCopyChild()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold" data-i18n="schedule.copy.copyBtn">Kopiera</button>
       </div>
     </div>
   </div>
@@ -743,15 +744,15 @@
   <div id="copyWeeksModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Kopiera till veckor</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyWeeksTitle">Kopiera till veckor</h3>
         <button onclick="closeCopyWeeksModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Välj hur många kommande veckor schemat ska kopieras till. Nuvarande vecka = Vecka 0.</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.copy.copyWeeksBody">Välj hur många kommande veckor schemat ska kopieras till. Nuvarande vecka = Vecka 0.</p>
       <div id="copyWeeksPicker" class="grid grid-cols-2 gap-2 mb-5"></div>
       <div id="copyWeeksError" class="text-red-500 text-sm hidden mb-3"></div>
       <div class="flex gap-3">
-        <button onclick="closeCopyWeeksModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitCopyWeeks()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Kopiera</button>
+        <button onclick="closeCopyWeeksModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitCopyWeeks()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold" data-i18n="schedule.copy.copyBtn">Kopiera</button>
       </div>
     </div>
   </div>
@@ -760,18 +761,18 @@
   <div id="chooseTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Välj aktivitetsgrupp</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.fillWeekTitle">Välj aktivitetsgrupp</h3>
         <button onclick="closeTemplateModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Välj en kategori att fylla schemat med. Aktiviteterna placeras automatiskt i rätt tidsgrupp.</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.chrome.fillWeekBody">Välj en kategori att fylla schemat med. Aktiviteterna placeras automatiskt i rätt tidsgrupp.</p>
       <div id="templateCategoryList" class="space-y-2 mb-4"></div>
       <div class="border-t border-lavender pt-3">
-        <button onclick="createScheduleWithTemplate(null)" class="w-full px-4 py-3 border-2 border-dashed border-lavender rounded-xl font-semibold text-text-soft hover:border-gold hover:text-navy transition-colors flex items-center justify-center gap-2">
-          <span>📝</span> Tomt schema
+        <button onclick="createScheduleWithTemplate(null)" class="w-full px-4 py-3 border-2 border-dashed border-lavender rounded-xl font-semibold text-text-soft hover:border-gold hover:text-navy transition-colors flex items-center justify-center gap-2" data-i18n="schedule.insert.emptyTemplate">
+          📝 Tomt schema
         </button>
       </div>
       <div class="mt-3">
-        <button onclick="closeTemplateModal()" class="w-full px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
+        <button onclick="closeTemplateModal()" class="w-full px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
       </div>
     </div>
   </div>
@@ -787,13 +788,13 @@
       <div class="flex flex-col gap-3">
         <button id="dayDndCopyBtn" class="px-4 py-3 bg-sky hover:bg-blue-100 text-navy rounded-xl font-semibold flex items-center gap-3 text-left">
           <span class="text-2xl">📋</span>
-          <div><div class="font-bold">Kopiera</div><div class="text-xs text-text-soft">Källdagens aktiviteter läggs till på måldagen (ersätter befintliga)</div></div>
+          <div><div class="font-bold" data-i18n="schedule.chrome.dayDragCopyTitle">Kopiera</div><div class="text-xs text-text-soft" data-i18n="schedule.chrome.dayDragCopyDesc">Källdagens aktiviteter läggs till på måldagen (ersätter befintliga)</div></div>
         </button>
         <button id="dayDndSwapBtn" class="px-4 py-3 bg-mint hover:bg-green-100 text-navy rounded-xl font-semibold flex items-center gap-3 text-left">
           <span class="text-2xl">🔄</span>
-          <div><div class="font-bold">Byta plats</div><div class="text-xs text-text-soft">De två dagarnas aktiviteter byter plats med varandra</div></div>
+          <div><div class="font-bold" data-i18n="schedule.chrome.dayDragSwapTitle">Byta plats</div><div class="text-xs text-text-soft" data-i18n="schedule.chrome.dayDragSwapDesc">De två dagarnas aktiviteter byter plats med varandra</div></div>
         </button>
-        <button onclick="closeDayDndModal()" class="px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
+        <button onclick="closeDayDndModal()" class="px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
       </div>
     </div>
   </div>
@@ -801,11 +802,11 @@
   <!-- Confirm modal -->
   <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-      <h3 class="text-lg font-heading font-bold text-navy mb-3">Bekräfta</h3>
+      <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="schedule.chrome.confirmTitle">Bekräfta</h3>
       <p id="confirmMsg" class="text-text-soft mb-6"></p>
       <div class="flex gap-3">
-        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold">Ta bort</button>
+        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold" data-i18n="schedule.chrome.confirmDelete">Ta bort</button>
       </div>
     </div>
   </div>
@@ -814,13 +815,13 @@
   <div id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-heading font-bold text-navy">Lägg till barn</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.addChildTitle">Lägg till barn</h3>
         <button onclick="document.getElementById('addChildModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <form id="addChildForm" class="space-y-4">
-        <div><label class="block text-sm font-semibold text-navy mb-1">Förnamn *</label><input type="text" id="childName" required class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" placeholder="T.ex. Anna"></div>
+        <div><label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.firstNameLabel">Förnamn *</label><input type="text" id="childName" required class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" data-i18n-placeholder="schedule.chrome.firstNamePlaceholder" placeholder="T.ex. Anna"></div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Emoji *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.emojiRequiredLabel">Emoji *</label>
           <div class="flex gap-2 flex-wrap" id="emojiPicker">
             <button type="button" class="emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👧">👧</button>
             <button type="button" class="emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👦">👦</button>
@@ -834,26 +835,26 @@
           <input type="hidden" id="childEmoji" required>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Födelsedatum *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.birthdayLabel">Födelsedatum *</label>
           <div class="grid grid-cols-3 gap-2">
             <select id="childBirthdayYear" required class="px-3 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm" onchange="updateBirthdayHidden('childBirthday')">
-              <option value="">År</option>
+              <option value="" data-i18n="schedule.chrome.yearPlaceholder">År</option>
             </select>
             <select id="childBirthdayMonth" required class="px-3 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm" onchange="updateBirthdayDays('childBirthday');updateBirthdayHidden('childBirthday')">
-              <option value="">Månad</option>
+              <option value="" data-i18n="schedule.chrome.monthPlaceholder">Månad</option>
             </select>
             <select id="childBirthdayDay" required class="px-3 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm" onchange="updateBirthdayHidden('childBirthday')">
-              <option value="">Dag</option>
+              <option value="" data-i18n="schedule.chrome.dayPlaceholder">Dag</option>
             </select>
           </div>
           <input type="hidden" id="childBirthday">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">PIN-kod <span class="text-text-soft font-normal">(4 siffror, valfritt)</span></label>
-          <input type="text" id="childPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" placeholder="T.ex. 4721">
-          <p class="text-xs text-text-soft mt-1">Lämna tomt för slumpmässig kod.</p>
+          <label class="block text-sm font-semibold text-navy mb-1"><span data-i18n="schedule.chrome.pinLabel">PIN-kod</span> <span class="text-text-soft font-normal" data-i18n="schedule.chrome.pinOptional">(4 siffror, valfritt)</span></label>
+          <input type="text" id="childPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" data-i18n-placeholder="schedule.chrome.pinPlaceholder" placeholder="T.ex. 4721">
+          <p class="text-xs text-text-soft mt-1" data-i18n="schedule.chrome.pinRandomHint">Lämna tomt för slumpmässig kod.</p>
         </div>
-        <button type="submit" id="addChildSubmit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">Lägg till</button>
+        <button type="submit" id="addChildSubmit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors" data-i18n="schedule.actions.add">Lägg till</button>
         <div id="addChildMsg" class="text-sm min-h-[1.4em]"></div>
       </form>
     </div>
@@ -863,20 +864,20 @@
   <div id="insertDayModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-heading font-bold text-navy">Infoga schema</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.insert.title">Infoga schema</h3>
         <button onclick="closeInsertDayModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <p id="insertDaySubtitle" class="text-sm text-text-soft mb-4"></p>
       <div id="insertDaySchemaList" class="space-y-2 mb-4 max-h-64 overflow-y-auto"></div>
       <div class="border-t border-lavender pt-3 mb-3 space-y-2">
-        <button onclick="openNewScheduleTemplateModal()" class="w-full px-4 py-3 border-2 border-dashed border-gold rounded-xl font-semibold text-gold hover:bg-gold-light transition-colors flex items-center gap-2 text-sm">
-          <span>✨</span> Nytt schema
+        <button onclick="openNewScheduleTemplateModal()" class="w-full px-4 py-3 border-2 border-dashed border-gold rounded-xl font-semibold text-gold hover:bg-gold-light transition-colors flex items-center gap-2 text-sm" data-i18n="schedule.insert.newTemplate">
+          ✨ Nytt schema
         </button>
-        <button onclick="doInsertDay(null)" class="w-full px-4 py-3 border-2 border-dashed border-lavender rounded-xl font-semibold text-text-soft hover:border-gold hover:text-navy transition-colors flex items-center gap-2 text-sm">
-          <span>📝</span> Tomt schema
+        <button onclick="doInsertDay(null)" class="w-full px-4 py-3 border-2 border-dashed border-lavender rounded-xl font-semibold text-text-soft hover:border-gold hover:text-navy transition-colors flex items-center gap-2 text-sm" data-i18n="schedule.insert.emptyTemplate">
+          📝 Tomt schema
         </button>
       </div>
-      <button onclick="closeInsertDayModal()" class="w-full px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
+      <button onclick="closeInsertDayModal()" class="w-full px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
     </div>
   </div>
 
@@ -884,17 +885,17 @@
   <div id="newScheduleTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Nytt schema</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.insert.newTemplateTitle">Nytt schema</h3>
         <button onclick="closeNewScheduleTemplateModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Ge schemat ett namn. Du kan sedan lägga till aktiviteter från schemats aktivitetslista.</p>
-      <input type="text" id="newScheduleTemplateName" placeholder="T.ex. Skoldag, Helg, Fotbollsdag…" maxlength="100"
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.insert.newTemplateBody">Ge schemat ett namn. Du kan sedan lägga till aktiviteter från schemats aktivitetslista.</p>
+      <input type="text" id="newScheduleTemplateName" data-i18n-placeholder="schedule.insert.newTemplatePlaceholder" placeholder="T.ex. Skoldag, Helg, Fotbollsdag…" maxlength="100"
         class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors mb-3"
         onkeydown="if(event.key==='Enter')submitNewScheduleTemplate()">
       <div id="newScheduleTemplateError" class="text-red-500 text-sm hidden mb-3"></div>
       <div class="flex gap-3">
-        <button onclick="closeNewScheduleTemplateModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button onclick="submitNewScheduleTemplate()" id="newScheduleTemplateBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">Skapa schema</button>
+        <button onclick="closeNewScheduleTemplateModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitNewScheduleTemplate()" id="newScheduleTemplateBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm" data-i18n="schedule.insert.createTemplateBtn">Skapa schema</button>
       </div>
     </div>
   </div>
@@ -903,11 +904,11 @@
   <div id="deleteScheduleTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="text-3xl mb-3">🗑️</div>
-      <h3 class="text-lg font-heading font-bold text-navy mb-2">Ta bort schemat?</h3>
+      <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.insert.deleteTemplateTitle">Ta bort schemat?</h3>
       <p id="deleteScheduleTemplateMsg" class="text-sm text-text-soft mb-5"></p>
       <div class="flex gap-3">
-        <button onclick="document.getElementById('deleteScheduleTemplateModal').classList.add('hidden')" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button id="deleteScheduleTemplateOk" class="flex-1 px-4 py-3 bg-coral hover:bg-red-200 text-navy rounded-xl font-semibold text-sm">Ja, ta bort</button>
+        <button onclick="document.getElementById('deleteScheduleTemplateModal').classList.add('hidden')" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button id="deleteScheduleTemplateOk" class="flex-1 px-4 py-3 bg-coral hover:bg-red-200 text-navy rounded-xl font-semibold text-sm" data-i18n="schedule.chrome.yesDelete">Ja, ta bort</button>
       </div>
     </div>
   </div>
@@ -916,11 +917,11 @@
   <div id="insertDayConfirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="text-3xl mb-3">⚠️</div>
-      <h3 class="text-lg font-heading font-bold text-navy mb-2">Ersätt befintligt schema?</h3>
+      <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.insert.replaceTitle">Ersätt befintligt schema?</h3>
       <p id="insertDayConfirmMsg" class="text-sm text-text-soft mb-5"></p>
       <div class="flex gap-3">
-        <button onclick="document.getElementById('insertDayConfirmModal').classList.add('hidden')" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button id="insertDayConfirmOk" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">Ja, ersätt</button>
+        <button onclick="document.getElementById('insertDayConfirmModal').classList.add('hidden')" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button id="insertDayConfirmOk" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm" data-i18n="schedule.chrome.yesReplace">Ja, ersätt</button>
       </div>
     </div>
   </div>
@@ -929,19 +930,19 @@
   <div id="fillWeekModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-heading font-bold text-navy">Fyll vecka</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.fillWeek.title">Fyll vecka</h3>
         <button onclick="closeFillWeekModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Välj ett schema och markera vilka dagar det ska klistras in på.</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.fillWeek.body">Välj ett schema och markera vilka dagar det ska klistras in på.</p>
 
       <!-- Step 1: choose schema -->
       <div id="fillWeekStep1">
-        <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">1. Välj schema</p>
+        <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2" data-i18n="schedule.fillWeek.step1">1. Välj schema</p>
         <div id="fillWeekSchemaList" class="space-y-2 mb-3 max-h-48 overflow-y-auto"></div>
         <div class="border-t border-lavender pt-2">
-          <button onclick="fillWeekSelectSchema(null,'Tomt schema')" id="fillWeekBlankBtn"
-            class="w-full px-3 py-2.5 border-2 border-dashed border-lavender rounded-xl font-semibold text-text-soft hover:border-gold hover:text-navy transition-colors flex items-center gap-2 text-sm">
-            <span>📝</span> Tomt schema
+          <button onclick="fillWeekSelectSchema(null,null)" id="fillWeekBlankBtn"
+            class="w-full px-3 py-2.5 border-2 border-dashed border-lavender rounded-xl font-semibold text-text-soft hover:border-gold hover:text-navy transition-colors flex items-center gap-2 text-sm" data-i18n="schedule.insert.emptyTemplate">
+            📝 Tomt schema
           </button>
         </div>
       </div>
@@ -949,17 +950,15 @@
       <!-- Step 2: choose days -->
       <div id="fillWeekStep2" class="hidden">
         <div class="flex items-center gap-2 mb-3">
-          <button onclick="fillWeekBackToStep1()" class="text-text-soft hover:text-navy text-sm font-semibold">← Ändra schema</button>
+          <button onclick="fillWeekBackToStep1()" class="text-text-soft hover:text-navy text-sm font-semibold" data-i18n="schedule.fillWeek.changeSchedule">← Ändra schema</button>
           <span id="fillWeekSelectedLabel" class="text-sm font-semibold text-gold"></span>
         </div>
-        <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">2. Välj dagar</p>
+        <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2" data-i18n="schedule.fillWeek.step2">2. Välj dagar</p>
         <div id="fillWeekDayPicker" class="grid grid-cols-4 gap-2 mb-4"></div>
-        <div id="fillWeekWeekendWarning" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
-          ⚠️ Skolscheman kan inte läggas in på helger (lör/sön).
-        </div>
+        <div id="fillWeekWeekendWarning" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3" data-i18n="schedule.fillWeek.schoolWarning">⚠️ Skolscheman kan inte läggas in på helger (lör/sön).</div>
         <div class="flex gap-3">
-          <button onclick="closeFillWeekModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-          <button onclick="submitFillWeek()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">Fyll in</button>
+          <button onclick="closeFillWeekModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+          <button onclick="submitFillWeek()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm" data-i18n="schedule.fillWeek.fillBtn">Fyll in</button>
         </div>
       </div>
     </div>
@@ -969,11 +968,11 @@
   <div id="fillWeekConfirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="text-3xl mb-3">⚠️</div>
-      <h3 class="text-lg font-heading font-bold text-navy mb-2">Ersätt befintliga scheman?</h3>
+      <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.fillWeek.replaceTitle">Ersätt befintliga scheman?</h3>
       <p id="fillWeekConfirmMsg" class="text-sm text-text-soft mb-5"></p>
       <div class="flex gap-3">
-        <button onclick="document.getElementById('fillWeekConfirmModal').classList.add('hidden')" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button id="fillWeekConfirmOk" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm">Ja, ersätt</button>
+        <button onclick="document.getElementById('fillWeekConfirmModal').classList.add('hidden')" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button id="fillWeekConfirmOk" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm" data-i18n="schedule.chrome.yesReplace">Ja, ersätt</button>
       </div>
     </div>
   </div>
@@ -982,30 +981,30 @@
   <div id="specialDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
-        <h3 class="text-xl font-heading font-bold text-navy" id="specialDayModalTitle">Specialdag</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" id="specialDayModalTitle" data-i18n="schedule.specialDays.modalFallbackTitle">Specialdag</h3>
         <button onclick="closeSpecialDayModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <p id="specialDayDateLabel" class="text-sm text-text-soft mb-4"></p>
 
       <!-- Note field -->
       <div class="mb-4">
-        <label class="block text-xs font-semibold text-navy mb-1">Anteckning (valfritt)</label>
-        <input type="text" id="specialDayNote" placeholder="T.ex. Utflyktsdag, Ledig, Sjuk…" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
+        <label class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.specialDays.noteLabel">Anteckning (valfritt)</label>
+        <input type="text" id="specialDayNote" data-i18n-placeholder="schedule.specialDays.notePlaceholder" placeholder="T.ex. Utflyktsdag, Ledig, Sjuk…" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
       </div>
 
       
       <!-- Items list -->
       <div id="sdItemsList" class="space-y-2 mb-4 min-h-[60px]">
-        <div class="text-text-soft text-sm text-center py-4">Inga aktiviteter — lägg till nedan</div>
+        <div class="text-text-soft text-sm text-center py-4" data-i18n="schedule.specialDays.noActivities">Inga aktiviteter — lägg till nedan</div>
       </div>
 
       <!-- Add activity row -->
       <div class="border-t border-lavender pt-4 mb-4">
-        <p class="text-xs font-semibold text-navy mb-2">Lägg till aktivitet</p>
+        <p class="text-xs font-semibold text-navy mb-2" data-i18n="schedule.modals.addActivity.title">Lägg till aktivitet</p>
         <div class="flex gap-2 flex-wrap items-end">
           <div class="flex-1 min-w-0">
             <select id="sdAddTemplateSelect" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
-              <option value="">-- Välj aktivitet --</option>
+              <option value="" data-i18n="schedule.specialDays.pickActivity">-- Välj aktivitet --</option>
             </select>
           </div>
           <div>
@@ -1016,16 +1015,16 @@
               <option value="natt">🌙 Natt</option>
             </select>
           </div>
-          <button onclick="sdAddItem()" class="px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap">+ Lägg till</button>
+          <button onclick="sdAddItem()" class="px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap" data-i18n="schedule.actions.add">+ Lägg till</button>
         </div>
       </div>
 
       <div id="specialDayError" class="text-red-500 text-sm hidden mb-3"></div>
 
       <div class="flex gap-3 flex-wrap">
-        <button onclick="closeSpecialDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Stäng</button>
-        <button onclick="sdDeleteSpecialDay()" id="sdDeleteBtn" class="hidden px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 rounded-xl font-semibold text-sm transition-colors">🗑 Ta bort specialdag</button>
-        <button onclick="sdSave()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Spara</button>
+        <button onclick="closeSpecialDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.chrome.close">Stäng</button>
+        <button onclick="sdDeleteSpecialDay()" id="sdDeleteBtn" class="hidden px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.specialDays.deleteBtn">🗑 Ta bort specialdag</button>
+        <button onclick="sdSave()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.chrome.save">Spara</button>
       </div>
     </div>
   </div>
@@ -1034,36 +1033,36 @@
   <div id="schedulePeriodModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
-        <h3 class="text-xl font-heading font-bold text-navy">Lovperiod</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.period.modalTitle">Lovperiod</h3>
         <button type="button" onclick="closeSchedulePeriodModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Byt till ett annat schema mellan två datum. Skol- eller veckoschemat gäller igen utanför perioden.</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.period.modalBody">Byt till ett annat schema mellan två datum. Skol- eller veckoschemat gäller igen utanför perioden.</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div>
-          <label for="schedulePeriodStart" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
+          <label for="schedulePeriodStart" class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.period.startLabel">Startdatum</label>
           <input type="date" id="schedulePeriodStart" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
         </div>
         <div>
-          <label for="schedulePeriodEnd" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
+          <label for="schedulePeriodEnd" class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.period.endLabel">Slutdatum</label>
           <input type="date" id="schedulePeriodEnd" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
         </div>
       </div>
 
       <div class="mb-4">
-        <label for="schedulePeriodSchema" class="block text-xs font-semibold text-navy mb-1">Schema under perioden</label>
+        <label for="schedulePeriodSchema" class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.period.schemaLabel">Schema under perioden</label>
         <select id="schedulePeriodSchema" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
-          <option value="">— Välj schema —</option>
+          <option value="" data-i18n="schedule.period.pickSchedule">— Välj schema —</option>
         </select>
-        <p class="text-xs text-text-soft mt-1.5">Tips: välj <strong>Lov</strong> för sportlov, höstlov eller annan ledighet.</p>
+        <p class="text-xs text-text-soft mt-1.5" data-i18n-html="schedule.period.schemaTip">Tips: välj <strong>Lov</strong> för sportlov, höstlov eller annan ledighet.</p>
       </div>
 
       <div id="schedulePeriodError" class="text-red-500 text-sm hidden mb-3"></div>
 
       <div class="flex flex-col gap-2">
-        <button type="button" id="schedulePeriodApplyBtn" onclick="applySchedulePeriod()" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Spara lovperiod</button>
-        <button type="button" id="schedulePeriodRemoveBtn" onclick="removeSchedulePeriod()" class="w-full px-4 py-3 border-2 border-lavender hover:border-navy text-navy rounded-xl font-semibold text-sm transition-colors">Återställ till veckoschema</button>
-        <button type="button" onclick="closeSchedulePeriodModal()" class="w-full px-4 py-3 text-text-soft text-sm font-semibold">Avbryt</button>
+        <button type="button" id="schedulePeriodApplyBtn" onclick="applySchedulePeriod()" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.period.saveBtn">Spara lovperiod</button>
+        <button type="button" id="schedulePeriodRemoveBtn" onclick="removeSchedulePeriod()" class="w-full px-4 py-3 border-2 border-lavender hover:border-navy text-navy rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.period.resetBtn">Återställ till veckoschema</button>
+        <button type="button" onclick="closeSchedulePeriodModal()" class="w-full px-4 py-3 text-text-soft text-sm font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
       </div>
     </div>
   </div>

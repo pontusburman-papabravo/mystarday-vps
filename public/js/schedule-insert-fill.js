@@ -7,6 +7,10 @@
  * Handlers exposed on window for inline onclick + schedule.js callers.
  */
 (function () {
+
+function spt(key, params) {
+  return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+}
 // ── Insert Day (+ button per day tab) ────────────────────
 let insertDayTarget = null; // dow 0-6
 let familyScheduleTemplates = []; // cached family-level templates
@@ -33,7 +37,7 @@ function renderInsertDaySchemaList() {
   const hasStandardSchedules = standardLibrarySchedules.length > 0;
 
   if (!hasFamilyTemplates && !hasStandardSchedules) {
-    list.innerHTML = '<p class="text-sm text-text-soft text-center py-4">Inga scheman sparade ännu — skapa ett nytt!</p>';
+    list.innerHTML = '<p class="text-sm text-text-soft text-center py-4">' + spt('schedule.insert.noSavedSchedules') + '</p>';
     return;
   }
 
@@ -79,9 +83,9 @@ function renderInsertDaySchemaList() {
 }
 
 async function openInsertDayModal(dow) {
-  if (!currentChildId) { showToast('Välj ett barn först', true); return; }
+  if (!currentChildId) { showToast(spt('schedule.insert.pickChild'), true); return; }
   insertDayTarget = dow;
-  document.getElementById('insertDaySubtitle').textContent = `Välj schema att infoga på ${DAYS[dow]}.`;
+  document.getElementById('insertDaySubtitle').textContent = spt('schedule.insert.subtitle', { day: DAYS[dow] });
   // Always reload fresh list
   await loadFamilyScheduleTemplates();
   renderInsertDaySchemaList();
@@ -103,7 +107,7 @@ async function doInsertDayFromTemplate(templateId, forceOverwrite = false) {
 
   if (existing && !forceOverwrite) {
     document.getElementById('insertDayConfirmMsg').textContent =
-      `${DAYS[insertDayTarget]} har redan ett schema med ${existing.item_count || 0} aktiviteter. Ersätter du det försvinner alla aktiviteter som finns där.`;
+      spt('schedule.insert.overwriteWarning', { day: DAYS[insertDayTarget], count: existing.item_count || 0 });
     document.getElementById('insertDayConfirmOk').onclick = () => {
       document.getElementById('insertDayConfirmModal').classList.add('hidden');
       doInsertDayFromTemplate(templateId, true);
@@ -129,12 +133,12 @@ async function doInsertDayFromTemplate(templateId, forceOverwrite = false) {
     const data = await res.json();
     if (!res.ok) { showToast(data.error || 'Fel uppstod', true); return; }
 
-    showToast(`Schema infogat på ${DAYS[insertDayTarget]}! ✓`);
+    showToast(spt('schedule.insert.inserted', { day: DAYS[insertDayTarget] }) + ' ✓');
 
     // Reload if this is the current day
     if (insertDayTarget === currentDay) await loadScheduleForDay();
   } catch (e) {
-    showToast('Något gick fel', true);
+    showToast(spt('schedule.validation.generic'), true);
   }
 }
 
@@ -149,7 +153,7 @@ async function doInsertDayFromStandardSchedule(scheduleId, scheduleName, forceOv
 
   if (existing && !forceOverwrite) {
     document.getElementById('insertDayConfirmMsg').textContent =
-      `${DAYS[insertDayTarget]} har redan ett schema med ${existing.item_count || 0} aktiviteter. Ersätter du det försvinner alla aktiviteter som finns där.`;
+      spt('schedule.insert.overwriteWarning', { day: DAYS[insertDayTarget], count: existing.item_count || 0 });
     document.getElementById('insertDayConfirmOk').onclick = () => {
       document.getElementById('insertDayConfirmModal').classList.add('hidden');
       doInsertDayFromStandardSchedule(scheduleId, scheduleName, true);
@@ -167,12 +171,12 @@ async function doInsertDayFromStandardSchedule(scheduleId, scheduleName, forceOv
     const data = await res.json();
     if (!res.ok) { showToast(data.error || 'Fel uppstod', true); return; }
 
-    showToast(data.message || `"${scheduleName}" infogat på ${DAYS[insertDayTarget]}! ✓`);
+    showToast(data.message || spt('schedule.insert.insertedNamed', { name: scheduleName, day: DAYS[insertDayTarget] }) + ' ✓');
 
     // Reload schedule view
     await loadScheduleForDay();
   } catch (e) {
-    showToast('Något gick fel', true);
+    showToast(spt('schedule.validation.generic'), true);
   }
 }
 
@@ -187,7 +191,7 @@ async function doInsertDay(categoryId, forceOverwrite = false) {
 
   if (existing && !forceOverwrite) {
     document.getElementById('insertDayConfirmMsg').textContent =
-      `${DAYS[insertDayTarget]} har redan ett schema med ${existing.item_count || 0} aktiviteter. Ersätter du det försvinner alla aktiviteter som finns där.`;
+      spt('schedule.insert.overwriteWarning', { day: DAYS[insertDayTarget], count: existing.item_count || 0 });
     document.getElementById('insertDayConfirmOk').onclick = () => {
       document.getElementById('insertDayConfirmModal').classList.add('hidden');
       doInsertDayExecute(categoryId, existing.id);
@@ -217,7 +221,7 @@ async function doInsertDayExecute(categoryId, existingScheduleId) {
     const data = await res.json();
     if (!res.ok && res.status !== 409) { showToast(data.error || 'Fel uppstod', true); return; }
 
-    showToast(`Tomt schema infogat på ${DAYS[insertDayTarget]}! ✓`);
+    showToast(spt('schedule.insert.emptyInserted', { day: DAYS[insertDayTarget] }) + ' ✓');
 
     // Reload if this is the current day
     if (insertDayTarget === currentDay) {
@@ -225,7 +229,7 @@ async function doInsertDayExecute(categoryId, existingScheduleId) {
       if (currentScheduleId) await loadScheduleForDay();
     }
   } catch (e) {
-    showToast('Något gick fel', true);
+    showToast(spt('schedule.validation.generic'), true);
   }
 }
 
@@ -248,7 +252,7 @@ async function submitNewScheduleTemplate() {
   const errEl = document.getElementById('newScheduleTemplateError');
   const btn = document.getElementById('newScheduleTemplateBtn');
   errEl.classList.add('hidden');
-  if (!name) { errEl.textContent = 'Ange ett namn för schemat'; errEl.classList.remove('hidden'); return; }
+  if (!name) { errEl.textContent = spt('schedule.insert.nameRequired'); errEl.classList.remove('hidden'); return; }
   btn.disabled = true; btn.textContent = 'Skapar…';
 
   try {
@@ -265,11 +269,11 @@ async function submitNewScheduleTemplate() {
       document.getElementById('insertDayModal').classList.remove('hidden');
       showToast(`Schemat "${name}" har skapats ✓`);
     } else {
-      errEl.textContent = data.error || 'Fel uppstod'; errEl.classList.remove('hidden');
+      errEl.textContent = data.error || spt('schedule.errors.generic'); errEl.classList.remove('hidden');
       btn.disabled = false; btn.textContent = 'Skapa schema';
     }
   } catch {
-    errEl.textContent = 'Något gick fel'; errEl.classList.remove('hidden');
+    errEl.textContent = spt('schedule.validation.generic'); errEl.classList.remove('hidden');
     btn.disabled = false; btn.textContent = 'Skapa schema';
   }
 }
@@ -280,7 +284,7 @@ let _deleteScheduleTemplateId = null;
 function confirmDeleteScheduleTemplate(id, name) {
   _deleteScheduleTemplateId = id;
   document.getElementById('deleteScheduleTemplateMsg').textContent =
-    `Schemat "${name}" tas bort permanent. Aktiviteter som är tillagda i barns scheman påverkas inte.`;
+    spt('schedule.insert.deleteConfirm', { name });
   document.getElementById('deleteScheduleTemplateOk').onclick = executeDeleteScheduleTemplate;
   document.getElementById('deleteScheduleTemplateModal').classList.remove('hidden');
 }
@@ -303,7 +307,7 @@ async function executeDeleteScheduleTemplate() {
       showToast(data.error || 'Kunde inte ta bort schemat', true);
     }
   } catch {
-    showToast('Något gick fel', true);
+    showToast(spt('schedule.validation.generic'), true);
   }
 }
 
@@ -339,7 +343,7 @@ async function loadAllCategories() {
 }
 
 async function openFillWeekModal() {
-  if (!currentChildId) { showToast('Välj ett barn först', true); return; }
+  if (!currentChildId) { showToast(spt('schedule.insert.pickChild'), true); return; }
   fillWeekSelectedCatId = null;
   fillWeekSelectedCatName = null;
   fillWeekDaySelections = [];
@@ -349,7 +353,7 @@ async function openFillWeekModal() {
   // Render schema list in step 1
   const list = document.getElementById('fillWeekSchemaList');
   if (allCategories.length === 0) {
-    list.innerHTML = '<p class="text-sm text-text-soft text-center py-4">Inga scheman i biblioteket ännu.</p>';
+    list.innerHTML = '<p class="text-sm text-text-soft text-center py-4">' + spt('schedule.insert.noLibrarySchedules') + '</p>';
   } else {
     list.innerHTML = allCategories.map(cat => `
       <button onclick="fillWeekSelectSchema('${cat.id}','${escHtml(cat.name).replace(/'/g,"\\'")}')"
@@ -389,7 +393,7 @@ function fillWeekSelectSchema(catId, catName) {
   // Go to step 2
   document.getElementById('fillWeekStep1').classList.add('hidden');
   document.getElementById('fillWeekStep2').classList.remove('hidden');
-  document.getElementById('fillWeekSelectedLabel').textContent = catName || 'Tomt schema';
+  document.getElementById('fillWeekSelectedLabel').textContent = catName || spt('schedule.insert.blankScheduleLabel');
 
   // Detect school schema for weekend warning
   const isSchool = catName && ['skola','förskola'].some(k => catName.toLowerCase().includes(k));
@@ -429,7 +433,7 @@ function toggleFillWeekDay(d, btn) {
 }
 
 async function submitFillWeek(overwrite = false) {
-  if (!fillWeekDaySelections.length) { showToast('Välj minst en dag', true); return; }
+  if (!fillWeekDaySelections.length) { showToast(spt('schedule.validation.pickDay'), true); return; }
   if (!currentChildId) return;
 
   const body = {
@@ -453,7 +457,7 @@ async function submitFillWeek(overwrite = false) {
   if (res.status === 409 && data.days_with_existing) {
     const dayNames = data.days_with_existing.map(d => DAYS[d]).join(', ');
     document.getElementById('fillWeekConfirmMsg').textContent =
-      `${dayNames} har redan scheman. Ersätt dem med det nya schemat?`;
+      spt('schedule.insert.replaceDaysConfirm', { days: dayNames });
     document.getElementById('fillWeekConfirmOk').onclick = async () => {
       document.getElementById('fillWeekConfirmModal').classList.add('hidden');
       await submitFillWeek(true);
@@ -464,7 +468,7 @@ async function submitFillWeek(overwrite = false) {
 
   if (res.ok) {
     closeFillWeekModal();
-    showToast(`Schema infogat på ${data.filled_days.length} dag(ar)! ✓`);
+    showToast(spt('schedule.insert.filledDays', { count: data.filled_days.length }) + ' ✓');
     if (data.filled_days.includes(currentDay)) await loadScheduleForDay();
   } else {
     showToast(data.error || 'Fel uppstod', true);
@@ -492,7 +496,7 @@ async function fillWeekBlank(days, overwrite) {
     });
     if (res.ok || res.status === 409) count++;
   }
-  showToast(`Tomt schema skapat för ${count} dag(ar)! ✓`);
+  showToast(spt('schedule.insert.emptyCreated', { count }) + ' ✓');
   if (days.includes(currentDay)) await loadScheduleForDay();
 }
 
