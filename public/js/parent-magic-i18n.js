@@ -34,6 +34,7 @@
     }
     if (!user) return;
     await initParentAppI18n(user.preferred_locale);
+    notifyParentI18nReady();
     if (window.ParentMagicPageHub && typeof ParentMagicPageHub.applyHubCopy === 'function') {
       ParentMagicPageHub.applyHubCopy();
     }

@@ -174,12 +174,15 @@
   }
 
   function scheduleBootMount() {
-    if (navLabelsReady()) {
-      bootMount();
-      return;
-    }
-    document.addEventListener('parent-i18n-ready', bootMount, { once: true });
-    setTimeout(bootMount, 3500);
+    bootMount();
+    document.addEventListener('parent-i18n-ready', function onNavLocaleReady() {
+      syncActiveTabs();
+      remount();
+    });
+    setTimeout(function () {
+      syncActiveTabs();
+      remount();
+    }, 3500);
   }
 
   function bootMount() {

@@ -25,19 +25,20 @@ describe('magic nav flash fix', () => {
     assert.doesNotMatch(src, /curMain\.innerHTML = newMain\.innerHTML/);
   });
 
-  it('native tab bar remount without unmount', () => {
+  it('native tab bar mounts immediately and remounts on locale', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');
     assert.match(src, /updateActiveTabs/);
     assert.match(src, /stjarndag-magic-navigated/);
-    assert.match(src, /navLabelsReady/);
     assert.match(src, /parent-i18n-ready/);
+    assert.match(src, /scheduleBootMount[\s\S]*bootMount\(\)/);
     assert.doesNotMatch(src, /function remount\(\) \{\s*unmount\(\)/);
   });
 
-  it('parent-magic-i18n notifies nav after early session locale apply', () => {
+  it('parent-magic-i18n notifies nav after auth locale apply', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-i18n.js'), 'utf8');
     assert.match(src, /notifyParentI18nReady/);
     assert.match(src, /earlyApply[\s\S]*parent-i18n-ready/);
+    assert.match(src, /initFromAuth[\s\S]*notifyParentI18nReady/);
   });
 
   it('SW bumped to v293', () => {

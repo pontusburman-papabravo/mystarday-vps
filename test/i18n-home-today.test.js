@@ -515,12 +515,12 @@ describe('analytics event parity (sv vs en code paths)', () => {
 describe('Today HTML shell i18n', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/daily-log.html'), 'utf8');
 
-  it('uses data-i18n-manual-init and early locale bootstrap (no separate EN HTML)', () => {
+  it('uses data-i18n-manual-init and parent magic i18n (no separate EN HTML)', () => {
     assert.match(html, /data-i18n-manual-init="true"/);
     assert.match(html, /data-i18n-title="today\.pageTitle"/);
-    assert.match(html, /earlyTodayI18n/);
-    assert.match(html, /sd_preferred_locale/);
-    assert.match(html, /I18n\.init\(lang\)/);
+    assert.match(html, /parent-magic-i18n\.js/);
+    assert.match(html, /parent-tab-bar\.css/);
+    assert.match(html, /parent-magic-router\.js/);
     assert.doesNotMatch(html, /daily-log-en\.html/);
   });
 
@@ -636,6 +636,13 @@ describe('daily-log child selection boot', () => {
     assert.match(dailyLog, /normalizeChildId/);
     assert.match(dailyLog, /childTabsMount\.addEventListener\('click'/);
     assert.doesNotMatch(dailyLog, /onclick="selectChild/);
+  });
+
+  it('recovers when placeholder remains after child select', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    assert.match(dailyLog, /isLogPlaceholder/);
+    assert.match(dailyLog, /syncDailyLogView/);
+    assert.match(dailyLog, /requestParentNavRemount/);
   });
 });
 

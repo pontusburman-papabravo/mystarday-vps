@@ -1,5 +1,7 @@
 
 
+    const apiFetch = window.apiFetch;
+
     function pt(key, params) {
       return window.pt ? window.pt(key, params) : key;
     }
@@ -96,6 +98,7 @@
     // ── Auth & Init ───────────────────────────────────────
 
     let _dailyLogPageBound = false;
+    let _bootInFlight = null;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
@@ -106,9 +109,43 @@
       return item.display_name || item.name || '';
     }
 
+    function isLogPlaceholder() {
+      const el = document.getElementById('logContent');
+      if (!el) return false;
+      return Boolean(el.querySelector('[data-i18n="today.shell.selectChildEmpty"]'));
+    }
+
+    function requestParentNavRemount() {
+      if (window.NativeTabBar && typeof NativeTabBar.remount === 'function') {
+        NativeTabBar.remount();
+      } else if (window.ParentMagicShell && typeof ParentMagicShell.refresh === 'function') {
+        ParentMagicShell.refresh();
+      }
+    }
+
+    async function syncDailyLogView() {
+      if (!document.getElementById('logContent')) return;
+      if (children.length && currentChildId && isLogPlaceholder()) {
+        await loadLog();
+        return;
+      }
+      if (children.length && !currentChildId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramChildId = urlParams.get('childId');
+        const match = paramChildId && children.find((c) => normalizeChildId(c.id) === normalizeChildId(paramChildId));
+        selectChild(match ? normalizeChildId(match.id) : normalizeChildId(children[0].id));
+        return;
+      }
+      if (!children.length && !_bootInFlight) {
+        await bootDailyLogPage();
+      }
+    }
+
     async function bootDailyLogPage() {
       if (!document.getElementById('logContent')) return;
+      if (_bootInFlight) return _bootInFlight;
 
+      _bootInFlight = (async () => {
       try {
         let user = null;
         if (typeof window.authGuard === 'function') {
@@ -151,8 +188,16 @@
 
         await loadChildren();
         await loadCustodyPrintOption();
+        requestParentNavRemount();
       } catch (err) {
         console.error('[daily-log] boot error:', err);
+      }
+      })();
+
+      try {
+        await _bootInFlight;
+      } finally {
+        _bootInFlight = null;
       }
     }
 
@@ -161,11 +206,8 @@
     document.addEventListener('parent-i18n-ready', () => {
       if (!document.getElementById('logContent')) return;
       if (window.I18n && typeof I18n.apply === 'function') I18n.apply();
-      if (currentChildId) {
-        void loadLog();
-      } else if (!children.length) {
-        void bootDailyLogPage();
-      }
+      void syncDailyLogView();
+      requestParentNavRemount();
     });
 
     function openPrintMenuHint() {
@@ -249,6 +291,9 @@
         const match = paramChildId && children.find((c) => normalizeChildId(c.id) === normalizeChildId(paramChildId));
         const targetChild = match ? normalizeChildId(match.id) : normalizeChildId(children[0].id);
         selectChild(targetChild);
+        if (isLogPlaceholder()) {
+          await loadLog();
+        }
       } catch (err) {
         console.error('[daily-log] loadChildren error:', err);
         showToast(pt('today.errors.loadChildren'), 'error');
@@ -1104,12 +1149,6 @@
     }
 
     // showToast is now in /js/toast.js
-
-    // Use the global window.apiFetch (defined in auth.js) which handles
-    // CSRF tokens, auth headers, and token refresh automatically.
-    // A previous local apiFetch was missing CSRF headers, causing 403 errors
-    // on all PUT/POST requests from this page.
-    const apiFetch = window.apiFetch;
 
     // ── Print functions ──────────────────────────────────
 
