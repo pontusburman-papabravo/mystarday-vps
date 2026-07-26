@@ -125,10 +125,12 @@ let _pendingRecurrenceEnd = null;
 let dndType = null; // 'within-day' | 'activity-to-day' | 'day-tab' | 'timeline' | 'sbs'
 let dndSrcDay = null;
 let currentViewMode = 'normal';
-const sbsChildId = null;
-const sbsItems = [];
-const sbsScheduleId = null;
-const sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
+/* eslint-disable prefer-const -- assigned from schedule-views.js (sbs view) */
+let sbsChildId = null;
+let sbsItems = [];
+let sbsScheduleId = null;
+let sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
+/* eslint-enable prefer-const */
 let allTemplates = [];
 
 // ── Template editing mode ──────────────────────────────
