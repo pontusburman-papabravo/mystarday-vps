@@ -210,6 +210,40 @@ body.platform-web.landing-magic-bg {
   border-color: rgba(245, 166, 35, 0.35);
 }
 
+.landing-nav__lang--flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.42rem;
+  border: 1px solid rgba(28, 35, 64, 0.12);
+  border-radius: 999px;
+  background: var(--white);
+  flex-shrink: 0;
+}
+
+.landing-nav__lang--flag:hover {
+  background: var(--amber-lt);
+  border-color: rgba(245, 166, 35, 0.35);
+}
+
+.landing-nav__lang--flag .landing-nav__lang-flag {
+  font-size: 1.15rem;
+}
+
+.landing-nav__lang--flag .landing-nav__lang-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .landing-nav__lang-flag {
   font-size: 1rem;
   line-height: 1;
@@ -1581,7 +1615,6 @@ body.landing-menu-open {
 @media (max-width: 960px) {
   .landing-nav__links,
   .landing-nav__actions .btn-primary,
-  .landing-nav__actions .landing-nav__lang,
   .landing-nav__actions .landing-nav__login,
   .landing-nav__actions .landing-nav__child-login { display: none; }
 
@@ -1591,6 +1624,13 @@ body.landing-menu-open {
     min-width: 44px;
     min-height: 44px;
     justify-content: center;
+  }
+
+  .landing-nav__actions .landing-nav__lang--flag {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.4rem 0.5rem;
   }
 
   .landing-nav__tipsa-label { display: none; }
