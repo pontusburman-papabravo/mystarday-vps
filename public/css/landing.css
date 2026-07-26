@@ -799,6 +799,12 @@ body.landing-menu-open {
   margin-bottom: 1.4rem;
 }
 
+.landing-hero__ctas .store-locale-note--hero {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
 .landing-hero__trust {
   display: flex;
   flex-wrap: wrap;
@@ -883,6 +889,18 @@ body.landing-menu-open {
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
   margin: 0;
+}
+
+.hero-launch-card__body strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+}
+
+.hero-launch-card__body a {
+  color: #FFD27A;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .hero-launch-card__stores {
