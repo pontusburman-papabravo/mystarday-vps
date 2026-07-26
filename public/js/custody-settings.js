@@ -788,5 +788,12 @@
     load();
   }
 
+  document.addEventListener('parent-i18n-ready', function () {
+    if (_config) render();
+  });
+  document.addEventListener('locale-changed', function () {
+    if (_config) render();
+  });
+
   window.CustodySettings = { init: init, reload: load };
 })();

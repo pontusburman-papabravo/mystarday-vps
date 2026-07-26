@@ -169,6 +169,13 @@ describe('runtime localization hooks', () => {
     assert.doesNotMatch(js, /fpt\([^)]*child\.name/);
   });
 
+  it('family.js re-renders on parent-i18n-ready after dynamic render', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/family.js'), 'utf8');
+    assert.match(js, /parent-i18n-ready/);
+    assert.match(js, /rerenderFamilyI18n/);
+    assert.match(js, /await I18n\.init\(\)/);
+  });
+
   it('schedule.js uses spt() helper', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/schedule.js'), 'utf8');
     assert.match(js, /function spt\(/);
