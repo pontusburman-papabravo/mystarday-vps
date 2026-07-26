@@ -26,6 +26,21 @@
     "extraStars": "Extra stars",
     "dayOff": "Day off"
   },
+  "dayOffModal": {
+    "title": "🏠 Day off",
+    "subtitle": "Pauses the child's schedule for the whole day",
+    "footnote": "The child doesn't need to check off activities on a day off",
+    "pausedToday": "⏸ Day off today",
+    "activeSchedule": "🟢 Active schedule",
+    "markDayOff": "🏠 Mark as day off",
+    "resumeSchedule": "▶ Resume schedule",
+    "noLogTitle": "No schedule generated for today",
+    "noChildren": "No children found",
+    "successPaused": "🏠 Marked as day off!",
+    "successResumed": "Schedule resumed!",
+    "networkError": "Network error",
+    "errorGeneric": "Something went wrong"
+  },
   "handoff": {
     "title": "Time for your child to log in?",
     "sub": "Switch to child view with PIN.",

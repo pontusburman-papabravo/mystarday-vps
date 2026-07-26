@@ -1207,7 +1207,10 @@ body.parent-magic-view #addAdultModal > div,
 body.parent-magic-view #addChildModal > div,
 body.parent-magic-view #inviteModal > div,
 body.parent-magic-view #deleteModal > div,
-body.parent-magic-view #manualStarModal > div {
+body.parent-magic-view #manualStarModal > div,
+body.parent-magic-view #giveStarsModal > div,
+body.parent-magic-view #giveStarsPickerModal > div,
+body.parent-magic-view #ledigDagModal > div {
   background: #141432 !important;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f4f4ff;
@@ -1264,11 +1267,21 @@ body.parent-magic-view:not(.parent-theme-light) #giveStarsModal #giveStarsReason
 }
 
 body.parent-magic-view:not(.parent-theme-light) #giveStarsModal .bg-sky,
-body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-sky,
-body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-white,
-body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-red-50 {
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .bg-sky,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .bg-white,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .bg-red-50 {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .ledig-dag-state,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .text-text-soft {
+  color: rgba(244, 244, 255, 0.78) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .ledig-dag-row-paused {
+  color: #fecaca !important;
+  border-color: rgba(248, 113, 113, 0.35) !important;
 }
 
 body.parent-magic-view.parent-theme-light #giveStarsModal > div,

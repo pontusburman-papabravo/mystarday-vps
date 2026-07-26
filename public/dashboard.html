@@ -690,7 +690,7 @@
               <a href="/daily-log" class="px-3 py-2 text-sm bg-white hover:bg-gold-light text-navy border-2 border-gold rounded-lg font-semibold transition-colors flex items-center gap-1 no-underline">📝 Fyll i i efterhand</a>
               <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
               <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
-              <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">🏠 Ledig dag</button>
+              <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1" data-i18n="home.dayOffModal.title">🏠 Ledig dag</button>
             </div>
           </div>
 
@@ -1087,13 +1087,13 @@
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <div>
-          <h3 class="text-xl font-heading font-bold text-navy">🏠 Ledig dag</h3>
-          <p class="text-xs text-text-soft mt-0.5">Pausar barnets schema för hela dagen</p>
+          <h3 class="text-xl font-heading font-bold text-navy" data-i18n="home.dayOffModal.title">🏠 Ledig dag</h3>
+          <p class="text-xs text-text-soft mt-0.5" data-i18n="home.dayOffModal.subtitle">Pausar barnets schema för hela dagen</p>
         </div>
-        <button onclick="document.getElementById('ledigDagModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+        <button onclick="document.getElementById('ledigDagModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl" data-i18n-aria-label="onboarding.common.closeAria" aria-label="Stäng">&times;</button>
       </div>
       <div id="ledigDagList" class="flex flex-col gap-2"></div>
-      <p class="text-xs text-text-soft mt-4 text-center">Barnet behöver inte bocka av aktiviteter en ledig dag</p>
+      <p class="text-xs text-text-soft mt-4 text-center" data-i18n="home.dayOffModal.footnote">Barnet behöver inte bocka av aktiviteter en ledig dag</p>
     </div>
   </div>
 

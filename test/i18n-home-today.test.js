@@ -610,6 +610,45 @@ describe('Home nav locale (nav-config)', () => {
   });
 });
 
+describe('day off modal locale and contrast', () => {
+  const dashboardHtml = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
+  const cardActions = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-card-actions.js'), 'utf8');
+  const magicCss = fs.readFileSync(path.join(__dirname, '../public/css/parent-magic-common.css'), 'utf8');
+
+  it('modal shell uses data-i18n keys for all visible copy', () => {
+    assert.match(dashboardHtml, /id="ledigDagModal"[\s\S]*data-i18n="home\.dayOffModal\.title"/);
+    assert.match(dashboardHtml, /data-i18n="home\.dayOffModal\.subtitle"/);
+    assert.match(dashboardHtml, /data-i18n="home\.dayOffModal\.footnote"/);
+  });
+
+  it('dashboard-card-actions uses pt() for day-off strings', () => {
+    const dayOffBlock = cardActions.slice(
+      cardActions.indexOf('async function openLedigDagModal'),
+      cardActions.indexOf('// ── Parent checkoff')
+    );
+    assert.match(dayOffBlock, /pt\('home\.dayOffModal\.markDayOff'\)/);
+    assert.match(dayOffBlock, /pt\('home\.dayOffModal\.resumeSchedule'\)/);
+    assert.match(dayOffBlock, /pt\('home\.dayOffModal\.successPaused'\)/);
+    assert.match(dayOffBlock, /I18n\.apply\(modal\)/);
+    assert.doesNotMatch(dayOffBlock, /Markera som ledig/);
+    assert.doesNotMatch(dayOffBlock, /Ledig idag/);
+  });
+
+  it('dark magic shell gives ledig dag modal a solid readable panel', () => {
+    assert.match(magicCss, /#ledigDagModal > div[\s\S]*background: #141432 !important/);
+    assert.match(magicCss, /#ledigDagModal #ledigDagList \.bg-white/);
+    assert.doesNotMatch(magicCss, /#ledigDagModal \.bg-white/);
+  });
+
+  it('home.dayOffModal en-GB bundle has English copy', () => {
+    loadLocales();
+    const en = getLocale('en-GB');
+    assert.equal(en.home.dayOffModal.title, '🏠 Day off');
+    assert.equal(en.home.dayOffModal.markDayOff, '🏠 Mark as day off');
+    assert.doesNotMatch(en.home.dayOffModal.subtitle, SWEDISH_RE);
+  });
+});
+
 describe('Home offline banner locale', () => {
   const dashboardHtml = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
   const dashboardJs = fs.readFileSync(path.join(__dirname, '../public/js/dashboard.js'), 'utf8');

@@ -26,4 +26,9 @@ describe('give extra stars modal contrast', () => {
     assert.match(css, /parent-theme-light #giveStarsModal #giveStarsCount/);
     assert.match(css, /color: #1b2340 !important/);
   });
+
+  it('dark magic shell gives ledig dag modal a solid panel background', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
+    assert.match(css, /#ledigDagModal > div[\s\S]*#141432/);
+  });
 });

@@ -26,6 +26,21 @@
     "extraStars": "Extra stjärnor",
     "dayOff": "Ledig dag"
   },
+  "dayOffModal": {
+    "title": "🏠 Ledig dag",
+    "subtitle": "Pausar barnets schema för hela dagen",
+    "footnote": "Barnet behöver inte bocka av aktiviteter en ledig dag",
+    "pausedToday": "⏸ Ledig idag",
+    "activeSchedule": "🟢 Aktivt schema",
+    "markDayOff": "🏠 Markera som ledig",
+    "resumeSchedule": "▶ Återuppta schema",
+    "noLogTitle": "Inget schema genererat för idag",
+    "noChildren": "Inga barn hittade",
+    "successPaused": "🏠 Markerat som ledig dag!",
+    "successResumed": "Schema återupptaget!",
+    "networkError": "Nätverksfel",
+    "errorGeneric": "Något gick fel"
+  },
   "handoff": {
     "title": "Dags för barnet att logga in?",
     "sub": "Byt till barnets vy med PIN-kod.",

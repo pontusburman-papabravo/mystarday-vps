@@ -6,6 +6,10 @@
  * dashboardStats, children). Handlers exposed on window for inline onclick.
  */
 (function () {
+function pt(key, params) {
+  return window.pt ? window.pt(key, params) : key;
+}
+
 async function toggleInlineRedemption(childId, childName) {
   const panel = document.getElementById(`inline-redemption-${childId}`);
   if (!panel) return;
@@ -130,21 +134,22 @@ function openGiveStarsQuick() {
 // Shows each child with their current pause state; click to toggle.
 async function openLedigDagModal() {
   const ch = dashboardStats?.children || children || [];
-  if (ch.length === 0) { showToast('Inga barn hittade', true); return; }
+  if (ch.length === 0) { showToast(pt('home.dayOffModal.noChildren'), true); return; }
 
   const list = document.getElementById('ledigDagList');
   list.innerHTML = ch.map(c => {
     const isPaused = c.today_is_paused || false;
     const logId = c.today_log_id || '';
-    const stateLabel = isPaused ? '⏸ Ledig idag' : '🟢 Aktivt schema';
+    const stateLabel = isPaused ? pt('home.dayOffModal.pausedToday') : pt('home.dayOffModal.activeSchedule');
     const stateCls = isPaused
-      ? 'border-red-200 bg-red-50 text-red-700'
-      : 'border-lavender bg-white text-navy';
-    const btnLabel = isPaused ? '▶ Återuppta schema' : '🏠 Markera som ledig';
+      ? 'border-red-200 bg-red-50 text-red-700 ledig-dag-row-paused'
+      : 'border-lavender bg-white text-navy ledig-dag-row-active';
+    const btnLabel = isPaused ? pt('home.dayOffModal.resumeSchedule') : pt('home.dayOffModal.markDayOff');
     const btnCls = isPaused
       ? 'bg-green-500 hover:bg-green-600 text-white'
       : 'bg-coral hover:bg-red-200 text-red-800 border-red-200';
-    const disabled = !logId ? 'disabled title="Inget schema genererat för idag"' : '';
+    const noLogTitle = escHtml(pt('home.dayOffModal.noLogTitle'));
+    const disabled = !logId ? `disabled title="${noLogTitle}"` : '';
     return `
       <div class="p-3 rounded-xl border-2 ${stateCls}">
         <div class="flex items-center justify-between gap-2">
@@ -152,7 +157,7 @@ async function openLedigDagModal() {
             <span class="text-2xl">${c.emoji || '⭐'}</span>
             <div>
               <div class="font-semibold text-sm">${escHtml(c.name)}</div>
-              <div class="text-xs opacity-70">${stateLabel}</div>
+              <div class="text-xs text-text-soft ledig-dag-state">${stateLabel}</div>
             </div>
           </div>
           <button ${disabled}
@@ -164,21 +169,24 @@ async function openLedigDagModal() {
       </div>`;
   }).join('');
 
-  document.getElementById('ledigDagModal').classList.remove('hidden');
+  const modal = document.getElementById('ledigDagModal');
+  if (window.I18n && typeof I18n.apply === 'function') {
+    I18n.apply(modal);
+  }
+  modal.classList.remove('hidden');
 }
 
 async function ledigDagToggle(childId, logId, currentlyPaused) {
-  if (!logId) { showToast('Inget schema genererat för idag', true); return; }
+  if (!logId) { showToast(pt('home.dayOffModal.noLogTitle'), true); return; }
   const action = currentlyPaused ? 'unpause' : 'pause';
   try {
     const res = await window.apiFetch(`/api/daily-logs/${logId}/${action}`, { method: 'PUT' });
-    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-    showToast(currentlyPaused ? 'Schema återupptaget!' : '🏠 Markerat som ledig dag!');
+    if (!res.ok) { const e = await res.json(); showToast(e.error || pt('home.dayOffModal.errorGeneric'), true); return; }
+    showToast(currentlyPaused ? pt('home.dayOffModal.successResumed') : pt('home.dayOffModal.successPaused'));
     await loadDashboardCards();
-    // Refresh the modal with updated state
     document.getElementById('ledigDagModal').classList.add('hidden');
   } catch (err) {
-    showToast('Nätverksfel', true);
+    showToast(pt('home.dayOffModal.networkError'), true);
   }
 }
 
