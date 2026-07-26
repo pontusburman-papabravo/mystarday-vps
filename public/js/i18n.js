@@ -157,7 +157,8 @@ const I18n = {
     root.querySelectorAll('[data-i18n-html]').forEach((el) => {
       const key = el.getAttribute('data-i18n-html');
       const text = this.t(key);
-      if (text !== key) el.textContent = text;
+      // Trusted static locale JSON only — never user input
+      if (text !== key) el.innerHTML = text;
     });
   },
 
