@@ -48,6 +48,17 @@
     return childT('family.roles.' + role) || role;
   }
 
+  function getChildDateLocale() {
+    return (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale() === 'en-GB')
+      ? 'en-GB' : 'sv-SE';
+  }
+
+  function formatChildShortDate(isoOrDate) {
+    const d = isoOrDate instanceof Date ? isoOrDate : new Date(isoOrDate);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(getChildDateLocale(), { day: 'numeric', month: 'short' });
+  }
+
   window.childT = childT;
   window.childPluralKey = childPluralKey;
   window.childPackField = childPackField;
@@ -55,4 +66,6 @@
   window.childScoreLabel = childScoreLabel;
   window.childCelebrationAllDoneMsg = childCelebrationAllDoneMsg;
   window.childRoleLabel = childRoleLabel;
+  window.getChildDateLocale = getChildDateLocale;
+  window.formatChildShortDate = formatChildShortDate;
 })();

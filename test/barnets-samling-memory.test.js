@@ -34,8 +34,9 @@ function read(file) {
   return fs.readFileSync(file, 'utf8');
 }
 
-function loadMemory() {
+function loadMemory(locale) {
   const context = { window: {} };
+  installChildI18nVm(context, locale || 'sv-SE');
   vm.runInNewContext(read(MEMORY_PATH), context);
   return context.window.ChildSamlingMemory;
 }
@@ -44,7 +45,6 @@ function loadPresent() {
   const context = {
     window: {
       escHtml: function (s) { return String(s == null ? '' : s); },
-      ChildSamlingMemory: loadMemory(),
     },
     document: {
       createElement: function () {
@@ -61,6 +61,8 @@ function loadPresent() {
     },
   };
   installChildI18nVm(context, 'sv-SE');
+  vm.runInNewContext(read(MEMORY_PATH), context);
+  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-yearbook.js')), context);
   vm.runInNewContext(read(PRESENT_PATH), context);
   return context.window.ChildSamlingPresent;
 }
