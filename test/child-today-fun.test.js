@@ -15,6 +15,13 @@ function read(rel) {
 function loadChildTodayFun(gateOn) {
   const script = read('public/js/child-today-fun.js');
   const win = {
+    cpt: function (key, params) {
+      if (key === 'todayFun.progressLabel' && params) {
+        return params.done + ' av ' + params.all + ' klara';
+      }
+      return '';
+    },
+    childT: function (key, params) { return win.cpt(key, params); },
     ChildWorlds: gateOn ? { isBarnetsSamlingEnabled: function () { return true; } } : {},
     document: {
       documentElement: {
@@ -24,7 +31,7 @@ function loadChildTodayFun(gateOn) {
       },
     },
   };
-  vm.runInNewContext(script, { window: win, document: win.document }, { filename: 'child-today-fun.js' });
+  vm.runInNewContext(script, { window: win, document: win.document, cpt: win.cpt, childT: win.childT }, { filename: 'child-today-fun.js' });
   return win;
 }
 

@@ -1,9 +1,13 @@
 /**
  * child-today-fun.js — Playful Idag polish (barnets_samling gate ON).
- * Greeting, star progress trail, current dagdel highlight helpers.
  */
 (function () {
   'use strict';
+
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
 
   const MAX_TRAIL_STARS = 12;
 
@@ -18,17 +22,21 @@
   }
 
   function firstName(name) {
-    if (!name) return 'du';
+    if (!name) return t('todayFun.you');
     return String(name).trim().split(/\s+/)[0];
   }
 
   function greetingLine(childName) {
     const who = firstName(childName);
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 10) return 'God morgon ' + who + ' 🌅';
-    if (hour >= 10 && hour < 17) return 'Hej ' + who + ' 👋';
-    if (hour >= 17 && hour < 22) return 'God kväll ' + who + ' 🌙';
-    return 'Hej stjärnkompis ' + who + ' ✨';
+    if (hour >= 5 && hour < 10) return t('todayFun.goodMorning', { name: who });
+    if (hour >= 10 && hour < 17) return t('todayFun.hello', { name: who });
+    if (hour >= 17 && hour < 22) return t('todayFun.goodEvening', { name: who });
+    return t('todayFun.helloStarFriend', { name: who });
+  }
+
+  function progressLabel(done, all) {
+    return t('todayFun.progressLabel', { done: done, all: all });
   }
 
   function renderProgressTrail(completed, total) {
@@ -36,14 +44,17 @@
     const all = Math.max(0, total || 0);
     if (all <= 0) return '';
 
+    const label = progressLabel(done, all);
+    const aria = t('todayFun.progressAria', { done: done, all: all });
+
     if (all > MAX_TRAIL_STARS) {
       const pct = Math.round((done / all) * 100);
       return (
-        '<div class="ctf-progress-trail ctf-progress-trail--bar" role="img" aria-label="' + done + ' av ' + all + ' klara">' +
+        '<div class="ctf-progress-trail ctf-progress-trail--bar" role="img" aria-label="' + aria + '">' +
           '<div class="ctf-progress-trail__track">' +
             '<div class="ctf-progress-trail__fill" style="width:' + pct + '%"></div>' +
           '</div>' +
-          '<span class="ctf-progress-trail__label">' + done + ' av ' + all + ' klara</span>' +
+          '<span class="ctf-progress-trail__label">' + label + '</span>' +
         '</div>'
       );
     }
@@ -56,9 +67,9 @@
       '</span>';
     }
     return (
-      '<div class="ctf-progress-trail" role="img" aria-label="' + done + ' av ' + all + ' klara">' +
+      '<div class="ctf-progress-trail" role="img" aria-label="' + aria + '">' +
         '<div class="ctf-progress-trail__stars">' + stars + '</div>' +
-        '<span class="ctf-progress-trail__label">' + done + ' av ' + all + ' klara</span>' +
+        '<span class="ctf-progress-trail__label">' + label + '</span>' +
       '</div>'
     );
   }

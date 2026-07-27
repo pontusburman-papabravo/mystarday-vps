@@ -16,9 +16,9 @@ describe('barnets_samling nav — #588', () => {
     assert.match(src, /configureFromFeatures/);
     assert.match(src, /id: 'collection'/);
     assert.match(src, /id: 'treasure'/);
-    assert.match(src, /Min samling/);
-    assert.match(src, /Skattkammaren/);
-    assert.match(src, /Mina personer/);
+    assert.match(src, /My collection/);
+    assert.match(src, /Treasure Chest/);
+    assert.match(src, /My people/);
   });
 
   it('samling worlds expose five tabs with correct routes', () => {

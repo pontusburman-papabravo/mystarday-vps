@@ -15,7 +15,7 @@ describe('barnets_samling Skattkammaren route — #591', () => {
     const block = src.slice(src.indexOf('SAMLING_WORLDS'), src.indexOf('LEGACY_HASH'));
     assert.match(block, /id: 'treasure'/);
     assert.match(block, /\/child\/treasure/);
-    assert.match(block, /Skattkammaren/);
+    assert.match(block, /Treasure Chest/);
   });
 
   it('child-treasure-view delegates to loadRewards with skipHub when gate on', () => {
@@ -134,7 +134,7 @@ describe('barnets_samling Skattkammaren route — #591', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
     const block = src.slice(src.indexOf('LEGACY_WORLDS'), src.indexOf('SAMLING_WORLDS'));
     assert.match(block, /\/child\/world/);
-    assert.match(block, /Min värld/);
+    assert.match(block, /My world/);
     assert.match(src, /remountWorldHubLegacy/);
   });
 });

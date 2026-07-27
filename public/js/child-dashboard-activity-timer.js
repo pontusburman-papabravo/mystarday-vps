@@ -9,6 +9,35 @@
   let _wired = false;
   const _lastStartTap = Object.create(null);
 
+  function t(key, params) {
+    return (typeof global.childT === 'function' ? childT(key, params)
+      : (typeof global.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
+  function pluralSuffix(count) {
+    const locale = typeof global.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
+    if (locale === 'en-GB') return count === 1 ? '' : 's';
+    return count === 1 ? '' : 'er';
+  }
+
+  function ariaRemainingLabel(seconds) {
+    const s = Math.max(0, Math.ceil(seconds));
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    if (m > 0 && r > 0) {
+      return t('activityTimer.ariaMinutesAndSeconds', {
+        minutes: m,
+        seconds: r,
+        minutePlural: pluralSuffix(m),
+        secondPlural: pluralSuffix(r),
+      });
+    }
+    if (m > 0) {
+      return m === 1 ? t('activityTimer.ariaOneMinute') : t('activityTimer.ariaMinutes', { count: m });
+    }
+    return r === 1 ? t('activityTimer.ariaOneSecond') : t('activityTimer.ariaSeconds', { count: r });
+  }
+
   function itemHasTimer(item) {
     return typeof activityTimersEnabled !== 'undefined'
       && activityTimersEnabled
@@ -16,15 +45,6 @@
       && !item.completed
       && item.duration_seconds != null
       && item.duration_seconds >= 5;
-  }
-
-  function ariaRemainingLabel(seconds) {
-    const s = Math.max(0, Math.ceil(seconds));
-    const m = Math.floor(s / 60);
-    const r = s % 60;
-    if (m > 0 && r > 0) return 'Timer. ' + m + ' minut' + (m === 1 ? '' : 'er') + ' och ' + r + ' sekund' + (r === 1 ? '' : 'er') + ' kvar.';
-    if (m > 0) return 'Timer. ' + m + ' minut' + (m === 1 ? '' : 'er') + ' kvar.';
-    return 'Timer. ' + r + ' sekund' + (r === 1 ? '' : 'er') + ' kvar.';
   }
 
   function ringSvg(itemId, progressPct, color, reducedMotion) {
@@ -59,16 +79,16 @@
     const progress = status === 'idle' ? 100 : ActivityTimerSession.ringProgress(remaining, duration);
     const color = status === 'idle' ? '#22C55E' : ActivityTimerSession.ringColor(remaining, duration);
     const reducedMotion = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const ariaLabel = status === 'finished' ? 'Timer. Färdig.' : ariaRemainingLabel(remaining);
+    const ariaLabel = status === 'finished' ? t('activityTimer.ariaFinished') : ariaRemainingLabel(remaining);
 
     let controls = '';
     if (status === 'idle') {
       controls =
-        '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + item.id + '">Starta timer</button>';
+        '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + item.id + '">' + t('activityTimer.start') + '</button>';
     } else if (status === 'finished') {
       controls =
-        '<p class="activity-timer-done-label">Färdig!</p>' +
-        '<button type="button" class="activity-timer-restart text-sm text-text-soft underline mt-1" data-item-id="' + item.id + '">↻ Starta igen</button>';
+        '<p class="activity-timer-done-label">' + t('activityTimer.done') + '</p>' +
+        '<button type="button" class="activity-timer-restart text-sm text-text-soft underline mt-1" data-item-id="' + item.id + '">' + t('activityTimer.restart') + '</button>';
     }
 
     return (
@@ -127,7 +147,7 @@
 
     if (digits) digits.textContent = display;
     if (aria) {
-      aria.textContent = status === 'finished' ? 'Timer. Färdig.' : ariaRemainingLabel(remaining);
+      aria.textContent = status === 'finished' ? t('activityTimer.ariaFinished') : ariaRemainingLabel(remaining);
     }
     if (ring) {
       const progress = status === 'idle' ? 100 : ActivityTimerSession.ringProgress(remaining, durationSeconds);
@@ -148,13 +168,13 @@
       if (!wrap.querySelector('.activity-timer-done-label')) {
         const done = document.createElement('p');
         done.className = 'activity-timer-done-label';
-        done.textContent = 'Färdig!';
+        done.textContent = t('activityTimer.done');
         wrap.appendChild(done);
         const restart = document.createElement('button');
         restart.type = 'button';
         restart.className = 'activity-timer-restart text-sm text-text-soft underline mt-1';
         restart.dataset.itemId = itemId;
-        restart.textContent = '↻ Starta igen';
+        restart.textContent = t('activityTimer.restart');
         wrap.appendChild(restart);
         const startBtn = wrap.querySelector('.activity-timer-start');
         if (startBtn) startBtn.remove();

@@ -15,7 +15,7 @@
       icon: '☀️',
       href: '/child/today',
       tabKey: 'schedule',
-      labels: { young: 'Uppdrag', default: 'Idag', personal: '{name}s dag' },
+      labels: { young: 'Mission', default: 'Today', personal: "{name}'s day" },
       paths: ['/child/today', '/child-dashboard'],
     },
     {
@@ -23,7 +23,7 @@
       icon: '🏰',
       href: '/child/world',
       tabKey: 'rewards',
-      labels: { default: 'Min värld' },
+      labels: { default: 'My world' },
       paths: ['/child/world'],
     },
     {
@@ -31,7 +31,7 @@
       icon: '❤️',
       href: '/child/family',
       tabKey: 'family',
-      labels: { default: 'Mina personer' },
+      labels: { default: 'My people' },
       paths: ['/child/family'],
     },
   ];
@@ -42,7 +42,7 @@
       icon: '☀️',
       href: '/child/today',
       tabKey: 'schedule',
-      labels: { young: 'Uppdrag', default: 'Idag', personal: '{name}s dag' },
+      labels: { young: 'Mission', default: 'Today', personal: "{name}'s day" },
       paths: ['/child/today', '/child-dashboard'],
     },
     {
@@ -50,7 +50,7 @@
       icon: '🏆',
       href: '/child/collection',
       tabKey: 'collection',
-      labels: { default: 'Min samling' },
+      labels: { default: 'My collection' },
       paths: ['/child/collection'],
     },
     {
@@ -58,7 +58,7 @@
       icon: '🎁',
       href: '/child/treasure',
       tabKey: 'rewards',
-      labels: { default: 'Skattkammaren' },
+      labels: { default: 'Treasure Chest' },
       paths: ['/child/treasure'],
     },
     {
@@ -66,7 +66,7 @@
       icon: '❤️',
       href: '/child/family',
       tabKey: 'family',
-      labels: { default: 'Mina personer' },
+      labels: { default: 'My people' },
       paths: ['/child/family'],
     },
     {
@@ -74,7 +74,7 @@
       icon: '⭐',
       href: '/child/settings',
       tabKey: 'settings',
-      labels: { default: 'Mitt' },
+      labels: { default: 'My space' },
       paths: ['/child/settings'],
     },
   ];
@@ -127,20 +127,20 @@
   }
 
   /** Barn-UI: legacy hub-flik (gate av) vs samling (gate på). */
-  function navCopy(key, fallback) {
-    return (typeof window.cpt === 'function') ? cpt(key) : fallback;
+  function navCopy(key) {
+    return (typeof window.cpt === 'function') ? cpt(key) : '';
   }
 
   function worldTabLabel() {
     return _barnetsSamling
-      ? navCopy('nav.myCollection', 'Min samling')
-      : navCopy('nav.myWorld', 'Min värld');
+      ? navCopy('nav.myCollection')
+      : navCopy('nav.myWorld');
   }
 
   function worldBackLabel() {
     return _barnetsSamling
-      ? navCopy('nav.backToCollection', 'Tillbaka till Min samling')
-      : navCopy('nav.backToWorld', 'Tillbaka till Min värld');
+      ? navCopy('nav.backToCollection')
+      : navCopy('nav.backToWorld');
   }
 
   function worldBackShort() {
@@ -149,8 +149,8 @@
 
   function worldHubSubcopy() {
     return _barnetsSamling
-      ? navCopy('nav.worldHubSubcopySamling', 'Vad vill du göra här?')
-      : navCopy('nav.worldHubSubcopyLegacy', 'Vad vill du göra i din värld?');
+      ? navCopy('nav.worldHubSubcopySamling')
+      : navCopy('nav.worldHubSubcopyLegacy');
   }
 
   function analyticsNavMode() {

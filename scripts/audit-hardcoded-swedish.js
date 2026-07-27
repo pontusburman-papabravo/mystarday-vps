@@ -74,6 +74,29 @@ const STRICT_FILES = [
   'public/js/child-collections.js',
   'public/js/child-treasure-present.js',
   'public/js/child-ui-text.js',
+  'public/js/child-settings-view.js',
+  'public/js/child-theme-picker.js',
+  'public/js/child-theme.js',
+  'public/js/child-system-menu.js',
+  'public/js/child-star-feedback.js',
+  'public/js/child-week-overview.js',
+  'public/js/child-dashboard-warmth.js',
+  'public/js/child-first-star-mode.js',
+  'public/js/child-achievements.js',
+  'public/js/child-today-focus.js',
+  'public/js/child-today-warmth.js',
+  'public/js/child-today-coach.js',
+  'public/js/child-today-fun.js',
+  'public/js/child-today-tasks.js',
+  'public/js/child-dashboard-celebrations.js',
+  'public/js/child-dashboard-activities.js',
+  'public/js/child-dashboard-day-nav.js',
+  'public/js/child-dashboard-load-day.js',
+  'public/js/child-dashboard-substeps.js',
+  'public/js/child-dashboard-photo-cards.js',
+  'public/js/child-dashboard-activity-timer.js',
+  'public/js/child-support-layer.js',
+  'public/js/child-worlds.js',
   'public/login.html',
   'public/register.html',
   'public/child-login.html',
@@ -131,7 +154,10 @@ const STRICT_ALLOWLIST = [
   /<meta|Stjärndag/, // head metadata (SEO scope) + brand proper noun
   /^\s*\*/, // JSDoc block comment lines
   /\/\*/, // CSS/JS block comments
+  /roomHint:|direction:/, // child-theme internal metadata (not shown in picker UI)
   /option value="(morgon|dag|kvall|natt)"/, // section options localized at modal open (schedule-special-days.js)
+  /\/saga|bok|läsa|bibliotek|park|utflykt|lekplats|äventyr|stjärn|bonus|film|tv|skärm|bio/, // reward-name keyword matchers (warmth narratives)
+  /inställningar:|installningar:/, // SAMLING_HASH route aliases (not visible labels)
 ];
 
 const BASELINE_ALLOWLIST = [

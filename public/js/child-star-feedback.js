@@ -4,6 +4,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   let _lastGrantId = null;
 
   function showOverlay(starCount, reason) {
@@ -18,7 +23,7 @@
       '<div class="child-star-feedback-card">' +
       '<div class="child-star-feedback-burst" aria-hidden="true">✨</div>' +
       '<p class="child-star-feedback-count">+' + (starCount || 1) + ' ⭐</p>' +
-      '<p class="child-star-feedback-reason">' + (typeof window.escHtml === 'function' ? window.escHtml(reason || 'Bonus-stjärnor!') : String(reason || 'Bonus-stjärnor!').replace(/&/g, '&amp;').replace(/</g, '&lt;')) + '</p>' +
+      '<p class="child-star-feedback-reason">' + (typeof window.escHtml === 'function' ? window.escHtml(reason || t('starFeedback.bonusDefault')) : String(reason || t('starFeedback.bonusDefault')).replace(/&/g, '&amp;').replace(/</g, '&lt;')) + '</p>' +
       '</div>';
 
     document.body.appendChild(overlay);

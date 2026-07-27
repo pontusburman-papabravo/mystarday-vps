@@ -5,10 +5,9 @@
 (function () {
   'use strict';
 
-  const COPY = {
-    title: 'Ditt första uppdrag',
-    hint: 'Tryck i ringen när du är klar!',
-  };
+  function t(key, params) {
+    return (typeof window.cpt === 'function' ? cpt(key, params) : '');
+  }
 
   let active = false;
   let savedBottomNavDisplay = '';
@@ -36,8 +35,8 @@
   function renderChrome() {
     const mount = ensureMount();
     mount.innerHTML =
-      '<h2 class="first-star-title">' + COPY.title + '</h2>' +
-      '<p class="first-star-hint">' + COPY.hint + '</p>';
+      '<h2 class="first-star-title">' + t('firstStar.title') + '</h2>' +
+      '<p class="first-star-hint">' + t('firstStar.hint') + '</p>';
     mount.classList.remove('hidden');
   }
 
@@ -131,6 +130,5 @@
     enter: enter,
     exit: exit,
     applyFromDailyLog: applyFromDailyLog,
-    COPY: COPY,
   };
 })();

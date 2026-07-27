@@ -14,8 +14,8 @@ function read(rel) {
 describe('First Star chrome (PR 2)', () => {
   it('child-first-star-mode.js exposes copy and API-driven applyFromDailyLog', () => {
     const src = read('public/js/child-first-star-mode.js');
-    assert.match(src, /Ditt första uppdrag/);
-    assert.match(src, /Tryck i ringen när du är klar!/);
+    assert.match(src, /firstStar\.title/);
+    assert.match(src, /firstStar\.hint/);
     assert.match(src, /applyFromDailyLog/);
     assert.match(src, /first_star_mode === true/);
     assert.match(src, /first-star-mode/);

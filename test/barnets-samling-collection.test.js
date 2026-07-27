@@ -181,11 +181,11 @@ describe('#620 Fas B — gate wiring and legacy isolation', () => {
     const src = read(WORLDS_PATH);
     const legacy = src.slice(src.indexOf('LEGACY_WORLDS'), src.indexOf('SAMLING_WORLDS'));
     const samling = src.slice(src.indexOf('SAMLING_WORLDS'), src.indexOf('LEGACY_HASH'));
-    assert.match(legacy, /Min värld/);
+    assert.match(legacy, /My world/);
     assert.match(legacy, /id: 'world'/);
     assert.doesNotMatch(legacy, /id: 'collection'/);
     assert.match(samling, /id: 'collection'/);
-    assert.match(samling, /Min samling/);
+    assert.match(samling, /My collection/);
     assert.match(src, /return _barnetsSamling \? SAMLING_WORLDS : LEGACY_WORLDS/);
   });
 

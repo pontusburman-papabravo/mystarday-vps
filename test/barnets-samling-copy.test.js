@@ -12,14 +12,14 @@ describe('barnets_samling copy — #589', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
     const samlingBlock = src.slice(src.indexOf('SAMLING_WORLDS'), src.indexOf('LEGACY_HASH'));
     assert.doesNotMatch(samlingBlock, /Min värld/);
-    assert.match(samlingBlock, /Min samling/);
-    assert.match(samlingBlock, /Skattkammaren/);
+    assert.match(samlingBlock, /My collection/);
+    assert.match(samlingBlock, /Treasure Chest/);
   });
 
-  it('LEGACY_WORLDS keeps Min värld when gate off', () => {
+  it('LEGACY_WORLDS keeps English fallback when gate off', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds.js'), 'utf8');
     const legacyBlock = src.slice(src.indexOf('LEGACY_WORLDS'), src.indexOf('SAMLING_WORLDS'));
-    assert.match(legacyBlock, /Min värld/);
+    assert.match(legacyBlock, /My world/);
   });
 
   it('child-worlds exposes gate-aware copy helpers', () => {

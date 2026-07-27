@@ -96,7 +96,7 @@
         } catch (err) {
           console.error('Sub-steps load error:', err);
           showToast(t('today.saveFailed'), true);
-          btn.innerHTML = `📋 Delsteg <span class="chevron">▾</span>`;
+          btn.innerHTML = `📋 ${t('steps.substepsLabel')} <span class="chevron">▾</span>`;
           btn.classList.remove('loading');
           _expandLoading[itemId] = false;
           return;
@@ -108,12 +108,16 @@
       subStepExpanded[itemId] = true;
       container.classList.add('expanded');
       btn.classList.add('open');
-      btn.innerHTML = `📋 Delsteg <span class="chevron">▾</span>`;
+      btn.innerHTML = `📋 ${t('steps.substepsLabel')} <span class="chevron">▾</span>`;
     } else {
       subStepExpanded[itemId] = false;
       container.classList.remove('expanded');
       btn.classList.remove('open');
     }
+  }
+
+  function substepsProgress(done, total, allDone) {
+    return (allDone ? '✅' : '📋') + ' ' + t('steps.substepsDone', { done: done, total: total });
   }
 
   function renderSubStepListHtml(itemId, steps) {
@@ -124,7 +128,7 @@
     let html = `<div style="padding: 6px 8px 2px 8px;">`;
     if (total > 0) {
       html += `<div class="substep-progress ${allDone ? 'all-done' : ''}" style="display:inline-block;margin-bottom:6px;">
-      ${allDone ? '✅' : '📋'} ${done}/${total} klara
+      ${substepsProgress(done, total, allDone)}
     </div>`;
     }
     for (const step of steps) {

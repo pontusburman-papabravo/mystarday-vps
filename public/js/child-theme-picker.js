@@ -158,14 +158,14 @@
           '" data-theme-id="' + esc(theme.id) + '"' +
           ' role="radio"' +
           ' aria-checked="' + (isSelected ? 'true' : 'false') + '"' +
-          ' aria-label="' + esc(theme.label) + (isSaved ? ', sparat tema' : '') + '">' +
+          ' aria-label="' + esc(theme.label) + (isSaved ? t('settings.themeSavedAriaSuffix') : '') + '">' +
           '<span class="ctp-theme-preview ctp-theme-preview--' + esc(theme.id) + '">' +
             '<img class="ctp-theme-preview-img" src="' + esc(theme.assets.background) + '" alt="" loading="lazy" decoding="async" width="320" height="200">' +
             '<span class="ctp-theme-preview-fallback" aria-hidden="true"></span>' +
             '<span class="ctp-theme-overlay" aria-hidden="true"></span>' +
             '<span class="ctp-theme-meta">' +
               '<span class="ctp-theme-label">' + esc(theme.label) + '</span>' +
-              (isSaved ? '<span class="ctp-theme-badge">Valt</span>' : '') +
+              (isSaved ? '<span class="ctp-theme-badge">' + t('settings.themeSelectedBadge') + '</span>' : '') +
               (isSelected ? '<span class="ctp-theme-check" aria-hidden="true">✓</span>' : '') +
             '</span>' +
           '</span>' +

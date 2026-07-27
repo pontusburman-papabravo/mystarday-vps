@@ -14,7 +14,21 @@ function read(rel) {
 
 function loadWarmth(gateOn) {
   const script = read('public/js/child-today-warmth.js');
+  const sv = {
+    'todayWarmth.narrativeKvall': 'Nu är kvällsrutinen igång 🌙',
+    'todayWarmth.freeDay': 'Ledig dag — njut 🌿',
+    'todayWarmth.allDoneToday': 'Allt klart för idag — bra jobbat ✨',
+    'todayWarmth.narrativeFormiddag': 'Vi tar dagen i lagom takt ☀️',
+    'todayWarmth.sectionDone': '{{section}} klar',
+    'sections.morgon': 'Morgon',
+  };
   const win = {
+    cpt: function (key, params) {
+      let val = sv[key] || '';
+      if (params && params.section) val = val.replace('{{section}}', params.section);
+      return val;
+    },
+    childT: function (key, params) { return win.cpt(key, params); },
     ChildWorlds: gateOn ? { isBarnetsSamlingEnabled: function () { return true; } } : {},
     ChildTheme: { getActiveThemeId: function () { return 'sports'; } },
     ChildTodayFun: {
@@ -33,7 +47,7 @@ function loadWarmth(gateOn) {
     },
     matchMedia: function () { return { matches: false }; },
   };
-  vm.runInNewContext(script, { window: win, document: win.document }, { filename: 'child-today-warmth.js' });
+  vm.runInNewContext(script, { window: win, document: win.document, cpt: win.cpt, childT: win.childT }, { filename: 'child-today-warmth.js' });
   return win;
 }
 

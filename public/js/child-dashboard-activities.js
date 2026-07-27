@@ -6,12 +6,20 @@
 (function () {
   'use strict';
 
-function cda(key, params, fallback) {
+function cda(key, params) {
   if (typeof window.cpt === 'function') {
     const value = cpt(key, params);
     if (value && value !== 'child.' + key) return value;
   }
-  return typeof fallback === 'function' ? fallback(params || {}) : fallback;
+  return '';
+}
+
+function sectionLabel(key) {
+  return cda('sections.' + key) || key;
+}
+
+function substepsBtnLabel() {
+  return '📋 ' + cda('steps.substepsLabel');
 }
 
 function activityCanToggle(isToday, isDone, timeStatus) {
@@ -28,11 +36,11 @@ function forDigGoalBadgeHtml(item) {
 }
 
 const DAG_DEL_CONFIG = {
-  morgon:      { label: 'Morgon',      emoji: '🌅', bg: '#FFFBEA', border: '#FCD34D', headerBg: '#FEF9C3', headerText: '#92400E' },
-  formiddag:   { label: 'Förmiddag',   emoji: '☀️',  bg: '#FFF7ED', border: '#FDBA74', headerBg: '#FFEDD5', headerText: '#9A3412' },
-  eftermiddag: { label: 'Eftermiddag', emoji: '🌤️',  bg: '#EFF6FF', border: '#93C5FD', headerBg: '#DBEAFE', headerText: '#1E40AF' },
-  kvall:       { label: 'Kväll',       emoji: '🌙', bg: '#FAF5FF', border: '#C084FC', headerBg: '#EDE9FE', headerText: '#6B21A8' },
-  natt:        { label: 'Natt',        emoji: '🌑', bg: '#EFF6FF', border: '#60A5FA', headerBg: '#1E3A5F', headerText: '#BFDBFE' },
+  morgon:      { emoji: '🌅', bg: '#FFFBEA', border: '#FCD34D', headerBg: '#FEF9C3', headerText: '#92400E' },
+  formiddag:   { emoji: '☀️',  bg: '#FFF7ED', border: '#FDBA74', headerBg: '#FFEDD5', headerText: '#9A3412' },
+  eftermiddag: { emoji: '🌤️',  bg: '#EFF6FF', border: '#93C5FD', headerBg: '#DBEAFE', headerText: '#1E40AF' },
+  kvall:       { emoji: '🌙', bg: '#FAF5FF', border: '#C084FC', headerBg: '#EDE9FE', headerText: '#6B21A8' },
+  natt:        { emoji: '🌑', bg: '#EFF6FF', border: '#60A5FA', headerBg: '#1E3A5F', headerText: '#BFDBFE' },
 };
 
 // Color coding: keyword→CSS class mapping
@@ -151,8 +159,8 @@ function renderActivities(data, trueStarBalance) {
       container.innerHTML = `
       <div class="text-center py-16 bg-white rounded-2xl mt-2">
         <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
-        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? cda('today.noActivitiesToday', null, '') : cda('today.noScheduleThisDay', null, '')}</p>
-        <p class="text-text-soft text-sm">${isToday ? cda('today.enjoyFreeDay', null, '') + ' ⭐' : cda('today.pickAnotherDay', null, '')}</p>
+        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? cda('today.noActivitiesToday') : cda('today.noScheduleThisDay')}</p>
+        <p class="text-text-soft text-sm">${isToday ? cda('today.enjoyFreeDay') + ' ⭐' : cda('today.pickAnotherDay')}</p>
       </div>`;
       return;
     } else {
@@ -185,7 +193,7 @@ function renderActivities(data, trueStarBalance) {
   } else {
     // Legacy dashboard chrome (hidden in today-focus-mode)
     if (document.getElementById('progressLabel')) {
-      document.getElementById('progressLabel').textContent = `${completed} av ${total} klara`;
+      document.getElementById('progressLabel').textContent = cda('today.progressDone', { completed, total });
     }
     if (document.getElementById('starCount')) {
       document.getElementById('starCount').textContent = `${todayStars} / ${totalStarCount} ⭐`;
@@ -241,8 +249,8 @@ function renderActivities(data, trueStarBalance) {
       container.innerHTML = `
       <div class="text-center py-16 bg-white rounded-2xl mt-2">
         <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
-        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? cda('today.noActivitiesToday', null, '') : cda('today.noScheduleThisDay', null, '')}</p>
-        <p class="text-text-soft text-sm">${isToday ? cda('today.enjoyFreeDay', null, '') + ' ⭐' : cda('today.pickAnotherDay', null, '')}</p>
+        <p class="text-xl font-heading font-bold text-navy mb-2">${isToday ? cda('today.noActivitiesToday') : cda('today.noScheduleThisDay')}</p>
+        <p class="text-text-soft text-sm">${isToday ? cda('today.enjoyFreeDay') + ' ⭐' : cda('today.pickAnotherDay')}</p>
       </div>`;
     }
     return;
@@ -312,7 +320,7 @@ function renderActivities(data, trueStarBalance) {
       const currentCls = isCurrent ? ' dagdel-section--current' : '';
       const completeCls = isComplete ? ' dagdel-section--complete' : '';
       const nowBadge = isCurrent
-        ? '<span class="dagdel-now-badge" aria-hidden="true">Nu</span>'
+        ? '<span class="dagdel-now-badge" aria-hidden="true">' + cda('todayWarmth.nowBadge') + '</span>'
         : '';
       const completeFoot = isComplete
         ? '<div class="dagdel-complete-foot">' + ChildTodayWarmth.sectionCompleteLabel(group.key) + '</div>'
@@ -320,9 +328,9 @@ function renderActivities(data, trueStarBalance) {
       html += `<div class="dagdel-section${currentCls}${completeCls}" data-section="${group.key}" style="background:${cfg.bg};border:2px solid ${cfg.border};">
         <div class="dagdel-header" style="background:${cfg.headerBg};">
           <span class="dagdel-emoji">${cfg.emoji}</span>
-          <span class="dagdel-label" style="color:${cfg.headerText};">${cfg.label}</span>
+          <span class="dagdel-label" style="color:${cfg.headerText};">${sectionLabel(group.key)}</span>
           ${nowBadge}
-          <span class="dagdel-count" data-progress="${progress}" onclick="toggleNextInSection('${group.key}', event)" title="Bocka av nästa aktivitet">${doneCount}/${totalCount}</span>
+          <span class="dagdel-count" data-progress="${progress}" onclick="toggleNextInSection('${group.key}', event)" title="${cda('scheduleChrome.checkOffNextTitle')}">${doneCount}/${totalCount}</span>
         </div>
         <div class="dagdel-body">
           <div class="sortable-section space-y-3" data-sortable-section="${group.key}">`;
@@ -558,9 +566,9 @@ function renderNowCard(item, canToggle) {
         <div style="position:relative;display:inline-block;">
           <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !_substepIntroSeen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
                   onclick="expandSubSteps(event, '${item.id}')">
-            📋 Delsteg <span class="chevron">▾</span>
+            ${substepsBtnLabel()} <span class="chevron">▾</span>
           </button>
-          ${!isExpanded && !_substepIntroSeen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">Tryck för att se stegen! 👆</div>` : ''}
+          ${!isExpanded && !_substepIntroSeen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
         </div>
         <div class="substep-container ${isExpanded ? 'expanded' : ''}" id="substeps-${item.id}">
           ${isExpanded && cachedSteps ? renderSubStepListHtml(item.id, cachedSteps) : ''}
@@ -598,10 +606,10 @@ function renderNLCard(item, view, canToggle) {
   const isPast = view === 'past';
   const chipClass = isPast ? 'chip-redan' : view === 'next' ? 'chip-next' : 'chip-later';
   const chipLabel = isPast
-    ? cda('today.chipPast', null, 'Redan')
+    ? cda('today.chipPast')
     : view === 'next'
-      ? cda('today.zoneNext', null, '')
-      : cda('today.zoneLater', null, 'Senare');
+      ? cda('today.zoneNext')
+      : cda('today.zoneLater');
   const cardClass = view === 'next' ? 'next-card' : view === 'past' ? 'past-card' : 'later-card';
   const clickAttr = canToggle && !isDone ? `onclick="toggleItem('${item.id}', ${isDone})"` : '';
 
@@ -642,20 +650,20 @@ function renderActivityCard(item, isToday, timeStatus) {
   const isNextOrLater = timeStatus === 'next' || timeStatus === 'later';
   let ratingHtml = '';
   if (rating && rating.child_score) {
-    ratingHtml = `<span class="text-xs ml-1 font-semibold" title="Ditt betyg" style="color:#F5A623">${rating.child_score}/10</span>`;
+    ratingHtml = `<span class="text-xs ml-1 font-semibold" title="${cda('today.ratingYour')}" style="color:#F5A623">${rating.child_score}/10</span>`;
     if (rating.parent_score) {
-      ratingHtml += `<span class="text-xs text-text-soft ml-1" title="Förälderns betyg">👨‍👩‍👧 ${'⭐'.repeat(rating.parent_score)}</span>`;
+      ratingHtml += `<span class="text-xs text-text-soft ml-1" title="${cda('today.ratingParent')}">👨‍👩‍👧 ${'⭐'.repeat(rating.parent_score)}</span>`;
     }
   } else if (rating && rating.parent_score) {
-    ratingHtml = `<span class="text-xs ml-1 text-text-soft" title="Förälderns betyg">👨‍👩‍👧 ${'⭐'.repeat(rating.parent_score)}</span>`;
+    ratingHtml = `<span class="text-xs ml-1 text-text-soft" title="${cda('today.ratingParent')}">👨‍👩‍👧 ${'⭐'.repeat(rating.parent_score)}</span>`;
   }
 
   // NU/NÄSTA/SEDAN badge (only for today's view when feature is enabled)
   let badgeHtml = '';
   if (isNext) {
-    badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EDE9FF] text-[#6B50F5] mb-1">▶ Nästa</span>';
+    badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#EDE9FF] text-[#6B50F5] mb-1">▶ ' + cda('scheduleChrome.nextBadge') + '</span>';
   } else if (isLater && !isDone) {
-    badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669] mb-1">Senare</span>';
+    badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669] mb-1">' + cda('today.zoneLater') + '</span>';
   }
 
   const hasSubSteps = (item.sub_step_count || 0) > 0;
@@ -677,7 +685,7 @@ function renderActivityCard(item, isToday, timeStatus) {
          ${canToggle ? `onclick="toggleItem('${item.id}', ${isDone})"` : ''}>
       ${badgeHtml ? `<div class="mb-1">${badgeHtml}</div>` : ''}
       <div class="flex items-center gap-3">
-        ${allowChildReorder ? `<div class="drag-handle shrink-0 flex items-center justify-center w-11 h-11 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy active:text-navy transition-colors select-none touch-none" title="Dra för att ändra ordning" aria-label="Dra för att ändra ordning">
+        ${allowChildReorder ? `<div class="drag-handle shrink-0 flex items-center justify-center w-11 h-11 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy active:text-navy transition-colors select-none touch-none" title="${cda('scheduleChrome.dragReorderTitle')}" aria-label="${cda('scheduleChrome.dragReorderAria')}">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <circle cx="7" cy="4" r="1.5"/><circle cx="13" cy="4" r="1.5"/>
             <circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/>
@@ -703,9 +711,9 @@ function renderActivityCard(item, isToday, timeStatus) {
         <div style="position:relative;display:inline-block;">
           <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !_substepIntroSeen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
                   onclick="expandSubSteps(event, '${item.id}')">
-            📋 Delsteg <span class="chevron">▾</span>
+            ${substepsBtnLabel()} <span class="chevron">▾</span>
           </button>
-          ${!isExpanded && !_substepIntroSeen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">Tryck för att se stegen! 👆</div>` : ''}
+          ${!isExpanded && !_substepIntroSeen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
         </div>
         <div class="substep-container ${isExpanded ? 'expanded' : ''}" id="substeps-${item.id}">
           ${isExpanded && cachedSteps ? renderSubStepListHtml(item.id, cachedSteps) : ''}
