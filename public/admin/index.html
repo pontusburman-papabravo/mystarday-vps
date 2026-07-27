@@ -43,16 +43,16 @@
       /* Wrap action buttons */
       .action-btns { flex-wrap: wrap; }
       /* Contact messages: hide duplicate section heading on mobile */
-      #messagesSection > .flex.items-center.gap-3 { display: none; }
+      #arendenSection > .flex.items-center.gap-3 { display: none; }
       /* Familjer: hide duplicate section heading (pageTitle already shows label) */
       #familiesSection > .flex.flex-col.sm\\:flex-row > h3:first-child { display: none; }
-      #messagesSection > .flex.items-center.gap-3 h3 { display: none; }
+      #arendenSection > .flex.items-center.gap-3 h3 { display: none; }
       /* Contact messages: fix card overflow on mobile */
       #messagesContainer .flex.gap-2.items-center { flex-wrap: wrap; }
       /* Contact messages: reduce card padding on mobile for more space */
       #messagesContainer .p-6 { padding: 1rem; }
       /* Ensure messages are scrollable on mobile */
-      #messagesSection { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2rem; }
+      #arendenSection { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2rem; }
     }
     /* DnD styles */
     .sortable-ghost { opacity: 0.3; }
@@ -81,7 +81,7 @@
     .admin-nav-children .nav-item { font-size: 0.875rem; }
     /* Section pages: pageTitle already shows label — hide duplicate in-section h3 */
     #familiesSection > .flex.flex-col.sm\\:flex-row > h3:first-child,
-    #messagesSection > .flex.items-center.gap-3 > h3:first-child { display: none; }
+    #arendenSection > .flex.items-center.gap-3 > h3:first-child { display: none; }
     .nav-item.admin-nav-parent-active {
       background: rgba(245, 166, 35, 0.25);
       color: #fff;
@@ -254,15 +254,16 @@
           <div id="auditLogEntries"></div>
         </div>
 
-        <!-- CONTACT MESSAGES -->
-        <div id="messagesSection" class="mb-8 hidden">
+        <!-- SUPPORT CASES (Ärenden) -->
+        <div id="arendenSection" class="mb-8 hidden">
           <div class="flex items-center gap-3 mb-4">
-            <h3 class="text-2xl font-heading font-bold text-navy">Meddelanden</h3>
+            <h3 class="text-2xl font-heading font-bold text-navy">Ärenden</h3>
             <span id="sectionUnreadBadge" class="bg-gold text-navy text-sm font-bold rounded-full px-3 py-1 hidden" style="min-width: 28px; text-align: center;"></span>
           </div>
+          <p class="text-text-soft text-sm mb-4">Supportärenden från användare — svara, klassificera rotorsak och arkivera för uppföljning.</p>
           <div id="messagesInboxTabs" class="flex flex-wrap gap-2 border-b border-sky pb-3 mb-4"></div>
           <div class="mb-4 flex flex-col sm:flex-row gap-3">
-            <input type="text" id="messagesSearch" placeholder="Sök meddelanden..." class="flex-1 sm:flex-none sm:w-64 px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
+            <input type="text" id="messagesSearch" placeholder="Sök ärenden..." class="flex-1 sm:flex-none sm:w-64 px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             <select id="messagesTypeFilter" onchange="typeof loadMessagesInbox==='function'?loadMessagesInbox():loadMessages()" class="px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white text-navy font-semibold">
               <option value="">Alla typer</option>
               <option value="bug">Buggrapport</option>
@@ -2084,7 +2085,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <div id="adminCommandPalette" class="hidden fixed inset-0 z-[100] bg-black/40 flex items-start justify-center pt-24 px-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg border-2 border-lavender overflow-hidden">
-      <input id="adminCommandInput" type="text" placeholder="Sök sektioner, familjer, meddelanden… (Esc stäng)" class="w-full px-4 py-3 border-b border-lavender outline-none text-navy font-semibold">
+      <input id="adminCommandInput" type="text" placeholder="Sök sektioner, familjer, ärenden… (Esc stäng)" class="w-full px-4 py-3 border-b border-lavender outline-none text-navy font-semibold">
       <div id="adminCommandResults" class="max-h-80 overflow-y-auto p-2"></div>
     </div>
   </div>
@@ -2096,9 +2097,9 @@ Använd dubbla radbrytningar för nya stycken.
   </div>
 
   <script src="/admin/admin-history-warning.js?v=1.0.0"></script>
-  <script src="/admin/admin-nav.js?v=1.3.0"></script>
-  <script src="/admin/admin-core.js?v=2.4.0"></script>
-  <script src="/admin/admin-start.js?v=1.4.0"></script>
+  <script src="/admin/admin-nav.js?v=1.4.0"></script>
+  <script src="/admin/admin-core.js?v=2.4.1"></script>
+  <script src="/admin/admin-start.js?v=1.4.1"></script>
   <script src="/admin/admin-journey-daily-analysis.js?v=1.1.0"></script>
   <script src="/admin/admin-produktanalys-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-landning-shell.js?v=1.0.0"></script>
@@ -2107,7 +2108,7 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-paket-workspace.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
   <script src="/admin/admin-families.js?v=2.3.0"></script>
-  <script src="/admin/admin-messages-inbox.js?v=1.2.0"></script>
+  <script src="/admin/admin-messages-inbox.js?v=1.2.1"></script>
   <script src="/admin/admin-growth-pipeline.js?v=1.0.0"></script>
   <script src="/admin/admin-family-hub.js?v=1.0.0"></script>
   <script src="/admin/admin-command-palette.js?v=1.0.0"></script>

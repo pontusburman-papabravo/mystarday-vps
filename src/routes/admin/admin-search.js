@@ -49,7 +49,7 @@ router.get('/search', async (req, res, next) => {
     const sections = [
       { label: 'Start', route: '#start', keywords: ['start', 'hem', 'översikt'] },
       { label: 'Familjer', route: '#familjer', keywords: ['familj', 'familjer'] },
-      { label: 'Meddelanden', route: '#meddelanden', keywords: ['meddelande', 'kontakt', 'inbox'] },
+      { label: 'Ärenden', route: '#arenden', keywords: ['ärende', 'meddelande', 'kontakt', 'inbox', 'support', 'bugg'] },
       { label: 'Tillväxt pipeline', route: '#tillvaxt-pipeline', keywords: ['pipeline', 'tillväxt', 'lead'] },
       { label: 'Extra stöd', route: '#extra-stod', keywords: ['paket', 'teacch', 'extra'] },
       { label: 'Produktanalys', route: '#produktanalys', keywords: ['analys', 'analytics'] },

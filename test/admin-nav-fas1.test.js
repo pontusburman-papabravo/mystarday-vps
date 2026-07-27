@@ -38,7 +38,8 @@ describe('Fas 1 — route registry', () => {
   const aliasCases = [
     ['overview', 'start', 'overview'],
     ['families', 'familjer', 'families'],
-    ['messages', 'meddelanden', 'messages'],
+    ['messages', 'arenden', 'arenden'],
+    ['meddelanden', 'arenden', 'arenden'],
     ['analytics', 'produktanalys', 'analytics'],
     ['intresseanmalningar', 'pedagogintresse', 'intresseanmalningar'],
     ['landning', 'landningssidor', 'landning'],
@@ -111,7 +112,7 @@ describe('Fas 1 — DOM section targets exist in index.html', () => {
   const sections = sectionIdsFromHtml();
 
   const routes = [
-    'start', 'familjer', 'meddelanden', 'pedagogintresse', 'waitlist',
+    'start', 'familjer', 'arenden', 'pedagogintresse', 'waitlist',
     'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
     'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
     'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
@@ -158,7 +159,7 @@ function renderNavHtml() {
 
 /** Canonical routes from A-admin-nav-spec.md §4 (hash router). */
 const SPEC_CANONICAL_ROUTES = [
-  'start', 'familjer', 'meddelanden', 'pedagogintresse', 'waitlist',
+  'start', 'familjer', 'arenden', 'pedagogintresse', 'waitlist',
   'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
   'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
   'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
