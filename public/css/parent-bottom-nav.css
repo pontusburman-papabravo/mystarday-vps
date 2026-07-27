@@ -19,6 +19,13 @@
   border-top: 1px solid rgba(255, 204, 51, 0.15);
 }
 
+/* While a full-screen modal overlay is open, hide the nav so it neither
+   covers the modal's lower content nor lets users navigate away mid-modal.
+   Progressive enhancement: browsers without :has() keep today's behavior. */
+body:has(> .fixed.inset-0:not(.hidden)) .parent-bottom-nav {
+  visibility: hidden;
+}
+
 body.parent-magic-dashboard .parent-bottom-nav,
 body.parent-magic-view .parent-bottom-nav,
 body.parent-magic-library .parent-bottom-nav {

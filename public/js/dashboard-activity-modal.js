@@ -8,6 +8,10 @@
 function spt(key, params) {
   return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
 }
+
+function damIntlLang() {
+  return (window.I18n && typeof I18n.getCurrentLang === 'function') ? I18n.getCurrentLang() : 'sv-SE';
+}
   const _scheduleCore = window.ScheduleCore || {};
   const { DAYS, SECTIONS } = _scheduleCore;
   if (!window.ScheduleCore) {
@@ -269,7 +273,7 @@ async function submitAddActivity() {
       });
       if (res.ok) {
         const d = new Date(date + 'T12:00:00');
-        const dateFmt = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+        const dateFmt = d.toLocaleDateString(damIntlLang(), { weekday: 'long', day: 'numeric', month: 'long' });
         closeAddModal();
         showToast(spt('schedule.toasts.addedForDate', { icon: tpl?.icon || '', name: tpl?.name, date: dateFmt }));
         await refreshAfterOnceTaskChange();
@@ -723,7 +727,7 @@ async function submitOnceTaskDirect(tplId, tpl) {
     });
     if (res.ok) {
       const d = new Date(ctx.date + 'T12:00:00');
-      const dateFmt = d.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+      const dateFmt = d.toLocaleDateString(damIntlLang(), { weekday: 'long', day: 'numeric', month: 'long' });
       _newActSubsteps = [];
       closeCreateActivityModal();
       closeAddModal();
