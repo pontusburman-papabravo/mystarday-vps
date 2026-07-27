@@ -7,10 +7,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('landing mobile layout', () => {
-  it('home tab paths exclude public landing /', () => {
+  it('home tab paths exclude public landing / and daily-log sub-page', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/nav-config.js'), 'utf8');
-    assert.match(src, /paths: \['\/dashboard', '\/daily-log'\]/);
-    assert.doesNotMatch(src, /paths: \['\/dashboard', '\/daily-log', '\/'\]/);
+    assert.match(src, /paths: \['\/dashboard'\]/);
+    assert.match(src, /PARENT_SHELL_PATHS[\s\S]*'\/daily-log'/);
+    assert.doesNotMatch(src, /paths: \['\/dashboard', '\/daily-log'\]/);
   });
 
   it('native-tab-bar skips public landing page', () => {

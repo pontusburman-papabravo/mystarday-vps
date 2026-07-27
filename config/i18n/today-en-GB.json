@@ -2,6 +2,7 @@
   "pageTitle": "Today — {{brand}}",
   "shell": {
     "headerTitle": "Today",
+    "backToHome": "← Back to Home",
     "pdfHint": "Create PDF for day, week or my days",
     "printBtn": "📄 Create PDF ▾",
     "printDay": "📄 Create PDF — day",

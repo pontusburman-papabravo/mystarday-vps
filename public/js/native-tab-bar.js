@@ -114,6 +114,7 @@
       }
       const href = link.getAttribute('href');
       if (!href || href.charAt(0) !== '/') return;
+      if (window.NavConfig && NavConfig.navigateHomeFromDailyLog(href, e)) return;
       if (typeof window.closeAllLibraryModals === 'function') closeAllLibraryModals();
       const router = window.ParentMagicRouter;
       if (!router) return;

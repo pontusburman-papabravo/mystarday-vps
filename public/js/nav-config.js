@@ -13,7 +13,7 @@
       label: 'Hem',
       labelKey: 'nav.primary.home',
       icon: 'hem',
-      paths: ['/dashboard', '/daily-log'],
+      paths: ['/dashboard'],
     },
     {
       id: 'planning',
@@ -156,6 +156,16 @@
     return p;
   }
 
+  /** Hem tab must leave /daily-log for /dashboard — not a no-op while Hem looks active. */
+  function navigateHomeFromDailyLog(href, event) {
+    const dest = normalizePath((href || '').split('#')[0].split('?')[0]);
+    if (dest !== '/dashboard') return false;
+    if (normalizePath(window.location.pathname) !== '/daily-log') return false;
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+    window.location.href = '/dashboard';
+    return true;
+  }
+
   /** Active primary tab — same logic for bottom nav, magic shell, sidebar. */
   function libraryHashNavOverride(pathname) {
     if (normalizePath(pathname) !== '/library') return null;
@@ -180,7 +190,6 @@
       for (let j = 0; j < tab.paths.length; j++) {
         const tp = tab.paths[j];
         if (p === tp) return tab;
-        if (tp === '/dashboard' && p.indexOf('/daily') === 0) return tab;
         if (tp === '/family/child' && p.indexOf('/family/child/') === 0) return tab;
         if (tp !== '/' && p.indexOf(tp + '/') === 0) return tab;
       }
@@ -190,6 +199,7 @@
 
   /** Capability / deep-link pages that keep parent shell but are not primary tabs. */
   const PARENT_SHELL_PATHS = [
+    '/daily-log',
     '/reports',
     '/samarbete',
     '/pedagog-note',
@@ -245,6 +255,7 @@
     AVATAR_ACTIONS: AVATAR_ACTIONS,
     activeNavItem: activeNavItem,
     normalizePath: normalizePath,
+    navigateHomeFromDailyLog: navigateHomeFromDailyLog,
     isLibraryPath: isLibraryPath,
     isParentShellPath: isParentShellPath,
     resolveLabel: resolveLabel,
