@@ -27,7 +27,7 @@
       items: [
         { key: 'start', navId: 'start', label: 'Start', targetSection: 'overview', aliases: ['overview'], capability: 'proxy-data' },
         { key: 'familjer', navId: 'familjer', label: 'Familjer', targetSection: 'families', aliases: ['families'], capability: 'stable' },
-        { key: 'meddelanden', navId: 'meddelanden', label: 'Meddelanden', targetSection: 'messages', aliases: ['messages'], capability: 'stable', badgeId: 'messagesBadge', navClass: 'flex items-center justify-between gap-2' },
+        { key: 'arenden', navId: 'arenden', label: 'Ärenden', targetSection: 'arenden', aliases: ['meddelanden', 'messages'], capability: 'stable', badgeId: 'messagesBadge', navClass: 'flex items-center justify-between gap-2' },
       ],
     },
     {

@@ -1,5 +1,5 @@
 /**
- * Meddelanden inbox — Fas 3B (status tabs, family link).
+ * Ärenden inbox — support cases (status tabs, family link, resolution).
  */
 (function () {
   const STATUS_LABELS = {
@@ -195,7 +195,7 @@
     if (!container) return;
 
     if (!messages.length) {
-      container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga meddelanden i denna vy</div>';
+      container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga ärenden i denna vy</div>';
       return;
     }
 
@@ -383,7 +383,7 @@
     } catch (e) {
       console.error('[INBOX]', e);
       const detail = e?.message ? ': ' + e.message : '';
-      container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda meddelanden' + detail + '</div>';
+      container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda ärenden' + detail + '</div>';
     }
   }
 

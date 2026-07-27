@@ -35,12 +35,12 @@
           </div>
         </div>
         <div class="mb-4">
-          <p class="text-xs font-bold uppercase text-text-soft mb-2">Senaste meddelanden</p>
-          ${(data.messages || []).slice(0, 5).map((m) => `<p class="text-sm mb-1"><span class="font-semibold">${esc(m.status)}</span> — ${esc((m.message_type || '').slice(0, 40))}</p>`).join('') || '<p class="text-sm text-text-soft">Inga kopplade meddelanden</p>'}
+          <p class="text-xs font-bold uppercase text-text-soft mb-2">Senaste ärenden</p>
+          ${(data.messages || []).slice(0, 5).map((m) => `<p class="text-sm mb-1"><span class="font-semibold">${esc(m.status)}</span> — ${esc((m.message_type || '').slice(0, 40))}</p>`).join('') || '<p class="text-sm text-text-soft">Inga kopplade ärenden</p>'}
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" onclick="closeFamilyHub()" class="px-4 py-2 bg-lavender rounded-xl text-sm font-bold">Stäng</button>
-          <a href="#meddelanden" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-sky rounded-xl text-sm font-bold">Meddelanden</a>
+          <a href="#arenden" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-sky rounded-xl text-sm font-bold">Ärenden</a>
           <a href="#paketintresse" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-gold rounded-xl text-sm font-bold">Paketintresse</a>
         </div>`;
     } catch (e) {

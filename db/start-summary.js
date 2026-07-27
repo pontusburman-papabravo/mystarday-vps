@@ -188,7 +188,7 @@ async function fetchActivityFeed(limit = 8) {
         COALESCE(cm.name, cm.email, 'Meddelande'),
         cm.message_type,
         cm.created_at,
-        '#meddelanden'
+        '#arenden'
       FROM contact_message cm
 
       UNION ALL
@@ -234,7 +234,7 @@ async function fetchActivityFeed(limit = 8) {
 
 const QUICK_ACTIONS = [
   { label: 'Familjer', route: '#familjer' },
-  { label: 'Meddelanden', route: '#meddelanden' },
+  { label: 'Ärenden', route: '#arenden' },
   { label: 'Paketintresse', route: '#paketintresse' },
   { label: 'Pedagogintresse', route: '#pedagogintresse' },
   { label: 'Produktanalys', route: '#produktanalys' },

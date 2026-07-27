@@ -200,14 +200,14 @@
             </div>
           </li>`;
         }).join('')}</ul>`
-      : '<p class="text-text-soft text-sm">Inga meddelanden att följa upp just nu.</p>';
+      : '<p class="text-text-soft text-sm">Inga ärenden att följa upp just nu.</p>';
 
     const html = `
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h3 class="text-lg font-heading font-bold text-navy">Meddelanden att följa upp</h3>
+        <h3 class="text-lg font-heading font-bold text-navy">Ärenden att följa upp</h3>
         <div class="flex gap-2">
-          <a href="#meddelanden" onclick="return adminNavClick(event)" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-gold text-navy">Öppna Meddelanden</a>
-          <a href="#meddelanden?followup=1" onclick="return adminNavClick(event)" class="px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-navy hover:border-gold">Visa att följa upp</a>
+          <a href="#arenden" onclick="return adminNavClick(event)" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-gold text-navy">Öppna Ärenden</a>
+          <a href="#arenden?followup=1" onclick="return adminNavClick(event)" class="px-3 py-1.5 rounded-lg text-sm font-semibold border-2 border-lavender text-navy hover:border-gold">Visa att följa upp</a>
         </div>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -230,7 +230,7 @@
       'startMessagesBlock',
       'error',
       `<div class="bg-coral/30 border border-coral rounded-2xl p-4">
-        <p class="text-navy font-semibold mb-2">Kunde inte ladda meddelanden.</p>
+        <p class="text-navy font-semibold mb-2">Kunde inte ladda ärenden.</p>
         <button type="button" onclick="loadStartSummary()" class="text-sm font-bold text-gold hover:underline">Försök igen</button>
       </div>`
     );

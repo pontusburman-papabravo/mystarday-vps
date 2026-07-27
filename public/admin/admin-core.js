@@ -67,7 +67,7 @@
         syncPaketWorkspace(route);
       }
       if (name === 'families' && typeof loadFamilies === 'function') loadFamilies();
-      if (name === 'messages' && typeof loadMessagesInbox === 'function') {
+      if (name === 'arenden' && typeof loadMessagesInbox === 'function') {
         const hash = window.location.hash || '';
         window._messagesFollowupFilter = hash.includes('followup=1');
         if (hash.includes('inbox=unread') && typeof initMessagesInbox === 'function') initMessagesInbox();
@@ -151,7 +151,7 @@
       const queryPart = raw.includes('?') ? raw.slice(raw.indexOf('?')) : '';
       const route = resolveRoute(hash);
       let canonical = '#' + route.canonicalKey;
-      if (queryPart && (route.canonicalKey === 'meddelanden' || route.canonicalKey === 'start')) {
+      if (queryPart && (route.canonicalKey === 'arenden' || route.canonicalKey === 'start')) {
         canonical += queryPart;
       }
       const current = window.location.hash || '';
