@@ -32,6 +32,7 @@ const LOCALE_SELECT = `
          previous_locale,
          english_beta_offer_state,
          english_beta_offer_remind_at,
+         legacy_language_notice_dismissed_at,
          created_at
   FROM family
   WHERE id = $1
@@ -165,6 +166,24 @@ router.post('/english-beta-offer', requireNotPedagogOnly, validate(EnglishBetaOf
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   } finally {
     client.release();
+  }
+});
+
+// ─── POST /api/family/legacy-language-notice/dismiss ─────
+// One-time dismissal of the "existing activities stay in their original
+// language" notice for families that switched sv → en-GB.
+router.post('/legacy-language-notice/dismiss', requireNotPedagogOnly, async (req, res) => {
+  try {
+    await db.query(
+      `UPDATE family
+       SET legacy_language_notice_dismissed_at = COALESCE(legacy_language_notice_dismissed_at, NOW())
+       WHERE id = $1`,
+      [req.user.familyId]
+    );
+    res.json({ dismissed: true });
+  } catch (err) {
+    console.error('[FAMILY] legacy-language-notice dismiss error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
 

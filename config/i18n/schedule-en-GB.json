@@ -205,11 +205,11 @@
       "deleteTitle": "Remove activity"
     },
     "giveStars": {
-      "title": "Give extra stars",
+      "title": "Give bonus stars",
       "submit": "Give stars",
       "saving": "Saving…",
       "reasonPlaceholder": "E.g. Helped with the dishes",
-      "pickerTitle": "Give extra stars",
+      "pickerTitle": "Give bonus stars",
       "countRange": "Enter 1–100 stars",
       "reasonRequired": "Reason required",
       "starsLabel": "Number of stars",
@@ -408,7 +408,7 @@
     "viewTimeline": "⏱ Timeline",
     "viewSbs": "👥 Compare children",
     "viewSpecialDays": "🌟 Special days",
-    "fillWeek": "📆 Fill week",
+    "fillWeek": "📆 Populate week",
     "createPdf": "📄 Create PDF",
     "createPdfTitle": "Create PDF — choose period",
     "daySelectorHint": "Choose day — <em>drag a day tab to another day to copy/swap</em>",
@@ -480,7 +480,7 @@
     "11": "December"
   },
   "fillWeek": {
-    "title": "Fill week",
+    "title": "Populate week",
     "chooseGroup": "Choose activity group",
     "body": "Choose a schedule and mark the days to paste it on.",
     "step1": "1. Choose schedule",

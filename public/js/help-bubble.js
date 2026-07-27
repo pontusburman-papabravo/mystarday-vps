@@ -433,12 +433,14 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Trigger button — mobile: stack above native tab bar when present */
+    /* Trigger button — mobile: stack above native tab bar when present.
+       z-index stays BELOW modal overlays (Tailwind z-50) so the bubble never
+       covers modal CTAs or validation errors. */
     #hbBtn {
       position: fixed;
       bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px);
       right: max(16px, env(safe-area-inset-right, 0px));
-      z-index: 10001;
+      z-index: 40;
       width: 44px;
       height: 44px;
       background: #1B2340;
@@ -465,7 +467,7 @@
       #hbBtn {
         bottom: 24px;
         right: 80px;  /* offset right of support bubble at right:24px */
-        z-index: 900;
+        z-index: 40;
       }
     }
 
@@ -473,7 +475,7 @@
     @media (max-width: 767px) {
       body:not(.has-native-tab-bar) #hbBtn {
         bottom: 80px;
-        z-index: 900;
+        z-index: 40;
       }
     }
 

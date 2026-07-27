@@ -436,6 +436,7 @@
 | DELETE | `/api/family/invite/:inviteId` | src/routes/family.js | — |
 | GET | `/api/family/invite/:token` | src/routes/family.js | — |
 | POST | `/api/family/invite/accept-new` | src/routes/family.js | — |
+| POST | `/api/family/legacy-language-notice/dismiss` | src/routes/family.js | — |
 | GET | `/api/family/locale-context` | src/routes/family.js | — |
 | GET | `/api/family/locale-options` | src/routes/family.js | — |
 | DELETE | `/api/family/members/:id` | src/routes/family.js | — |
