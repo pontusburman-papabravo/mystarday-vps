@@ -16,6 +16,7 @@ const router = express.Router();
 
 const VALID_TYPES = ['bug', 'feedback', 'contact', 'language'];
 const VALID_INBOX = ['unread', 'active', 'answered', 'archived'];
+const { isValidRootCause } = require('../../../config/support-taxonomy');
 
 router.get('/contact-messages', async (req, res, next) => {
   try {
@@ -25,7 +26,18 @@ router.get('/contact-messages', async (req, res, next) => {
       : undefined;
     const inbox = VALID_INBOX.includes(req.query.inbox) ? req.query.inbox : undefined;
     const followup = req.query.followup === '1' || req.query.followup === 'true';
-    const rows = await contactMessages.listMessages({ type, status, inbox, followup });
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : undefined;
+    const rootCause = isValidRootCause(req.query.root_cause) ? req.query.root_cause : undefined;
+    const limit = req.query.limit ? Math.min(Number(req.query.limit) || 100, 500) : 200;
+    const rows = await contactMessages.listMessages({
+      type,
+      status,
+      inbox,
+      followup,
+      q: q || undefined,
+      rootCause,
+      limit,
+    });
     res.json(rows);
   } catch (err) {
     next(err);
@@ -73,6 +85,16 @@ router.get('/contact-messages/:id/events', async (req, res, next) => {
   try {
     const events = await messageEvents.listEventsForMessage(req.params.id);
     res.json(events);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/contact-messages/:id', async (req, res, next) => {
+  try {
+    const row = await contactMessages.getMessageDetail(req.params.id);
+    if (!row) return res.status(404).json({ error: 'Ärendet hittades inte' });
+    res.json(row);
   } catch (err) {
     next(err);
   }
