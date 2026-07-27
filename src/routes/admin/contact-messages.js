@@ -3,6 +3,9 @@
  */
 const express = require('express');
 const contactMessages = require('../../../db/contact-messages');
+const { sendEmail } = require('../../lib/email');
+const { buildReplySubject, buildReplyBodies } = require('../../lib/contact-message-reply');
+const config = require('../../lib/config');
 
 const router = express.Router();
 
@@ -92,6 +95,67 @@ router.put('/contact-messages/:id/note', async (req, res, next) => {
     const row = await contactMessages.saveMessageNote(req.params.id, note, req.user.id);
     if (!row) return res.status(404).json({ error: 'Meddelandet hittades inte' });
     res.json({ message: 'Anteckning sparad', ...row });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/contact-messages/:id/reply', async (req, res, next) => {
+  try {
+    const { body } = req.body || {};
+    const replyBody = typeof body === 'string' ? body.trim() : '';
+    if (replyBody.length < 10) {
+      return res.status(400).json({ error: 'Svaret måste vara minst 10 tecken' });
+    }
+    if (replyBody.length > 5000) {
+      return res.status(400).json({ error: 'Svaret får vara högst 5000 tecken' });
+    }
+
+    const message = await contactMessages.getMessageById(req.params.id);
+    if (!message) return res.status(404).json({ error: 'Meddelandet hittades inte' });
+
+    const recipientEmail = String(message.email || '').trim().toLowerCase();
+    if (!recipientEmail || !recipientEmail.includes('@')) {
+      return res.status(400).json({ error: 'Meddelandet saknar giltig e-postadress att svara till' });
+    }
+
+    const subject = buildReplySubject(message.message_type);
+    const { text, html } = buildReplyBodies({
+      recipientName: message.name,
+      originalMessage: message.message,
+      replyBody,
+    });
+
+    const emailResult = await sendEmail({
+      to: recipientEmail,
+      subject,
+      body: text,
+      html,
+      from: `${config.email.fromName} <${config.email.from}>`,
+      tags: [{ name: 'category', value: 'support_reply' }],
+    });
+
+    if (!emailResult.success) {
+      return res.status(502).json({
+        error: emailResult.error || 'Kunde inte skicka e-post',
+      });
+    }
+
+    const row = await contactMessages.recordMessageReply(message.id, {
+      replyBody,
+      adminId: req.user.id,
+      emailId: emailResult.emailId || null,
+    });
+
+    console.log(
+      `[ADMIN] Contact reply sent for message ${message.id} by admin ${req.user.id} to ${recipientEmail}`
+    );
+
+    res.json({
+      message: 'Svar skickat',
+      emailId: emailResult.emailId || null,
+      ...row,
+    });
   } catch (err) {
     next(err);
   }

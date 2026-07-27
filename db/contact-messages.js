@@ -149,6 +149,43 @@ async function linkMessageFamily(id, familyId) {
   return rows[0] || null;
 }
 
+async function getMessageById(id) {
+  const { rows } = await db.query(
+    `SELECT id, name, email, message, message_type, status, internal_note
+     FROM contact_message
+     WHERE id = $1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+async function recordMessageReply(id, { replyBody, adminId, emailId }) {
+  const stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  const noteBlock = [
+    `--- Svar ${stamp} ---`,
+    String(replyBody || '').trim(),
+    emailId ? `(Resend: ${emailId})` : null,
+  ].filter(Boolean).join('\n');
+
+  const { rows } = await db.query(
+    `UPDATE contact_message SET
+       status = 'answered',
+       is_read = true,
+       answered_at = COALESCE(answered_at, NOW()),
+       assigned_to = COALESCE(assigned_to, $1),
+       internal_note = CASE
+         WHEN internal_note IS NULL OR internal_note = '' THEN $2
+         ELSE internal_note || E'\n\n' || $2
+       END,
+       noted_at = NOW(),
+       noted_by = $1
+     WHERE id = $3
+     RETURNING *`,
+    [adminId, noteBlock, id]
+  );
+  return rows[0] || null;
+}
+
 async function deleteMessage(id) {
   const { rows } = await db.query(
     'DELETE FROM contact_message WHERE id = $1 RETURNING id',
@@ -182,6 +219,8 @@ module.exports = {
   setMessageRead,
   saveMessageNote,
   linkMessageFamily,
+  getMessageById,
+  recordMessageReply,
   deleteMessage,
   getLatestFollowUpMessages,
 };
