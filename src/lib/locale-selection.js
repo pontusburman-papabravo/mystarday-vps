@@ -78,8 +78,17 @@ function remindLaterTimestamp(now = new Date()) {
  * notice is relevant. Pure DB signal — no free-text heuristics:
  * the family is on en-GB, previously used a Swedish locale (so its seeded/user
  * content was created under sv), and has not dismissed the notice.
+ *
+ * Two switch signals:
+ * 1. previous_locale LIKE 'sv%' — written by every locale-switch path since
+ *    the selection-metadata migration.
+ * 2. previous_locale IS NULL AND english_beta_offer_state =
+ *    'accepted_english_beta' — early beta families backfilled by migration
+ *    1810000000005 before previous_locale was tracked; only pre-metadata
+ *    Swedish-seeded families can be in this state (offer-accept and
+ *    registration both write their own metadata).
  * @param {object} familyRow — needs preferred_locale, previous_locale,
- *   legacy_language_notice_dismissed_at
+ *   english_beta_offer_state, legacy_language_notice_dismissed_at
  * @returns {boolean}
  */
 function shouldShowLegacyLanguageNotice(familyRow) {
@@ -87,7 +96,9 @@ function shouldShowLegacyLanguageNotice(familyRow) {
   if (validateLocale(familyRow.preferred_locale) !== 'en-GB') return false;
   if (familyRow.legacy_language_notice_dismissed_at) return false;
   const previous = String(familyRow.previous_locale || '');
-  return previous.toLowerCase().startsWith('sv');
+  if (previous.toLowerCase().startsWith('sv')) return true;
+  return !previous
+    && familyRow.english_beta_offer_state === OFFER_STATES.ACCEPTED_ENGLISH;
 }
 
 function buildLocaleContextRow(row) {
