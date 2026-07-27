@@ -4,6 +4,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const COACH_MOUNT_ID = 'childCoachMount';
   const SESSION_KEY = 'childTodayCoachDismissed';
 
@@ -58,15 +63,15 @@
     } catch (_) {}
 
     const nextBlock = nextTitle
-      ? '<p class="text-sm font-semibold text-navy mt-2">Nästa: ' + esc(nextTitle) + '</p>'
-      : '<p class="text-sm text-navy/80 mt-2">Du är klar med allt för nu — bra jobbat!</p>';
+      ? '<p class="text-sm font-semibold text-navy mt-2">' + esc(t('todayCoach.nextPrefix', { name: nextTitle })) + '</p>'
+      : '<p class="text-sm text-navy/80 mt-2">' + esc(t('todayCoach.allDoneForNow')) + '</p>';
 
     mount.innerHTML =
       '<div class="mb-4 p-4 bg-mint border border-green-200 rounded-2xl relative pr-12" data-coach-placement="' +
       esc(placement || 'today_coach_post_activity') +
       '">' +
-      '<button type="button" class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full text-navy/50 hover:text-navy hover:bg-white/60 text-lg leading-none" aria-label="Stäng meddelande" data-coach-dismiss>&times;</button>' +
-      '<p class="font-heading font-bold text-navy mb-1">Bra jobbat!</p>' +
+      '<button type="button" class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full text-navy/50 hover:text-navy hover:bg-white/60 text-lg leading-none" aria-label="' + esc(t('todayCoach.closeAria')) + '" data-coach-dismiss>&times;</button>' +
+      '<p class="font-heading font-bold text-navy mb-1">' + esc(t('todayCoach.greatJob')) + '</p>' +
       '<p class="text-sm text-navy">' + esc(message) + '</p>' +
       nextBlock +
       '</div>';
@@ -79,9 +84,7 @@
 
   function onActivityComplete(meta) {
     const placement = (meta && meta.placement) || 'today_coach_post_activity';
-    const base =
-      (meta && meta.message) ||
-      'Du klarade uppdraget — fortsätt så här!';
+    const base = (meta && meta.message) || t('todayCoach.defaultMessage');
     const nextTitle = peekNextActivity();
     showCoach(base, placement, nextTitle);
   }

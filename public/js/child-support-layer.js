@@ -25,7 +25,7 @@
           '<p class="text-xs text-text-soft mb-1">' +
           (typeof window.cpt === 'function'
             ? cpt('steps.progress', { current: idx + 1, total: substeps.length })
-            : 'Steg ' + (idx + 1) + ' av ' + substeps.length) +
+            : '') +
           '</p>' +
           '<p class="font-semibold text-navy">' +
           esc(step.label || step.title || '') +
@@ -48,6 +48,13 @@
     });
   }
 
+  function substepsProgress(done, total, allDone) {
+    const label = (typeof window.cpt === 'function'
+      ? cpt('steps.substepsDone', { done: done, total: total })
+      : done + '/' + total);
+    return (allDone ? '✅' : '📋') + ' ' + label;
+  }
+
   function renderInteractiveSubsteps(container, itemId, steps) {
     if (!container || !steps) return;
     const done = steps.filter(function (s) { return s.completed; }).length;
@@ -56,7 +63,7 @@
     let html = '<div style="padding: 6px 8px 2px 8px;">';
     if (total > 0) {
       html += '<div class="substep-progress ' + (allDone ? 'all-done' : '') + '" style="display:inline-block;margin-bottom:6px;">' +
-        (allDone ? '✅' : '📋') + ' ' + done + '/' + total + ' klara</div>';
+        substepsProgress(done, total, allDone) + '</div>';
     }
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];

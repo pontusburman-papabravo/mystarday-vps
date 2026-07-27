@@ -5,8 +5,31 @@
 (function () {
   'use strict';
 
-  const DAY_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
-  const MONTH_NAMES = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
+  function dateLocale() {
+    return typeof window.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
+  }
+
+  function formatIsoDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function shortWeekday(dow) {
+    const ref = new Date(2024, 0, 7 + dow);
+    return ref.toLocaleDateString(dateLocale(), { weekday: 'short' }).replace(/\.$/, '');
+  }
+
+  function shortMonth(monthIndex) {
+    const ref = new Date(2024, monthIndex, 15);
+    return ref.toLocaleDateString(dateLocale(), { month: 'short' }).replace(/\.$/, '');
+  }
 
 function renderDayTabs() {
   const container = document.getElementById('dayTabs');
@@ -19,31 +42,32 @@ function renderDayTabs() {
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + mondayOffset + i + (weekOffset * 7));
-    const dateStr = d.toLocaleDateString('sv-SE');
+    const dateStr = formatIsoDate(d);
     const isToday = dateStr === todayStr;
     const dow = d.getDay();
     days.push({ dateStr, dow, isToday, dayNum: d.getDate(), month: d.getMonth() });
   }
 
-  // Update week label
   const weekLabel = document.getElementById('weekLabel');
   if (weekLabel) {
     const first = days[0];
     const last = days[6];
     if (weekOffset === 0) {
-      weekLabel.textContent = 'Denna vecka';
+      weekLabel.textContent = t('scheduleChrome.weekThis');
     } else {
-      // Get ISO week number of Monday
       const monday = new Date(today);
       monday.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
       const startOfYear = new Date(monday.getFullYear(), 0, 1);
       const dayOfYear = Math.floor((monday - startOfYear) / 86400000);
       const weekNum = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
-      weekLabel.textContent = `Vecka ${weekNum} · ${first.dayNum} ${MONTH_NAMES[first.month]} – ${last.dayNum} ${MONTH_NAMES[last.month]}`;
+      weekLabel.textContent = t('scheduleChrome.weekNum', {
+        num: weekNum,
+        from: first.dayNum + ' ' + shortMonth(first.month),
+        to: last.dayNum + ' ' + shortMonth(last.month),
+      });
     }
   }
 
-  // Show/hide Idag button
   updateTodayBtn();
 
   container.innerHTML = days.map(d => `
@@ -51,22 +75,21 @@ function renderDayTabs() {
       class="day-tab flex-shrink-0 px-3 py-2 rounded-lg text-xs font-semibold text-center min-w-[44px] ${d.dateStr === currentDate ? 'active' : 'bg-sky text-navy hover:bg-lavender'}"
       onclick="loadDay('${d.dateStr}')"
     >
-      <div>${DAY_SHORT[d.dow]}</div>
+      <div>${shortWeekday(d.dow)}</div>
       <div class="text-base font-bold">${d.dayNum}</div>
-      ${d.isToday ? '<div class="text-[9px] opacity-75">idag</div>' : ''}
+      ${d.isToday ? '<div class="text-[9px] opacity-75">' + t('scheduleChrome.todayTab') + '</div>' : ''}
     </button>
   `).join('');
 }
 
 function navigateWeek(direction) {
   weekOffset += direction;
-  // Select Monday of the new week
   const today = new Date();
   const todayDow = today.getDay();
   const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;
   const monday = new Date(today);
   monday.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
-  const newDate = monday.toLocaleDateString('sv-SE');
+  const newDate = formatIsoDate(monday);
   updateTodayBtn();
   loadDay(newDate);
 }

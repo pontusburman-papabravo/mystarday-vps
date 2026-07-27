@@ -14,7 +14,7 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.match(block, /id: 'settings'/);
     assert.match(block, /\/child\/settings/);
     assert.match(block, /tabKey: 'settings'/);
-    assert.match(block, /Mitt/);
+    assert.match(block, /My space/);
   });
 
   it('SAMLING_HASH maps settings aliases', () => {

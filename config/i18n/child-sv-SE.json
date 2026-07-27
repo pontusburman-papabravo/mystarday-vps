@@ -87,7 +87,10 @@
     "offline": "Du är offline",
     "syncing": "Synkar…",
     "retry": "Försök igen",
-    "skipCelebration": "Hoppa över firande"
+    "skipCelebration": "Hoppa över firande",
+    "doneSection": "Klart",
+    "ratingYour": "Ditt betyg",
+    "ratingParent": "Förälderns betyg"
   },
   "sections": {
     "morgon": "Morgon",
@@ -114,7 +117,9 @@
     "progress": "Steg {{current}} av {{total}}",
     "nextStep": "Nästa steg",
     "prevStep": "Föregående steg",
-    "allDone": "Allt klart!"
+    "allDone": "Allt klart!",
+    "substepsDone": "{{done}}/{{total}} klara",
+    "substepsLabel": "Delsteg"
   },
   "celebration": {
     "milestone25": "Bra jobbat! Första steget! 🌟",
@@ -197,6 +202,7 @@
   "offline": {
     "noConnection": "Ingen uppkoppling",
     "connectForSchedule": "Koppla upp för att se schemat",
+    "scheduleCached": "Offline — visar sparat schema",
     "couldNotLoadSchedule": "Kunde inte ladda schemat.",
     "savedWillSend": "Sparas — skickas när nätverket är tillbaka",
     "needsInternet": "Kräver internet",
@@ -277,6 +283,8 @@
     "statusRedeem": "Kan lösas in",
     "statusSaving": "Sparar",
     "redeemConfirm": "Fråga om att lösa in",
+    "goalPickerTitle": "Välj ditt mål",
+    "goalPickerHint": "Om du redan har ett mål skickas en förfrågan till föräldern",
     "pickRewardToSave": "Välj en belöning att spara till",
     "notEnoughStars": "Inte tillräckligt med stjärnor",
     "collectHint": "Samla {{count}} ⭐ till! 💪",
@@ -363,7 +371,28 @@
     "diplomaLead": "Utmärkelser för saker du har klarat.",
     "trophyDefault": "Trofé",
     "trophyCountAria": "{{count}} troféer",
-    "yearbookAria": "Årsbok {{year}}"
+    "yearbookAria": "Årsbok {{year}}",
+    "opening": "Öppnar din samling…",
+    "yearbookSpreadGrowing": "Här växer ditt uppslag",
+    "yearbookSpreadActive": "Du var aktiv den här månaden",
+    "yearbookSpreadSelfCare": "Du tog hand om dig",
+    "yearbookDays_one": "1 dag",
+    "yearbookDays_other": "{{count}} dagar",
+    "diplomaTryggStartTitle": "Trygg start",
+    "diplomaTryggStartSubtitle": "Du fick ditt första trofé",
+    "diplomaFirstRewardTitle": "Jag klarade det",
+    "diplomaFirstRewardSubtitle": "Du sparade ihop till en belöning",
+    "diplomaStar25Title": "Stjärnsamlare",
+    "diplomaStar25Subtitle": "25 stjärnor totalt",
+    "diplomaStar100Title": "Superstjärna",
+    "diplomaStar100Subtitle": "100 stjärnor totalt",
+    "diplomaStreak7Title": "Rutinhjälte",
+    "diplomaStreak7Subtitle": "7 dagar i rad",
+    "collectionsTitle": "Min samling",
+    "collectionsEmptyHint": "Samla stjärnor och prestationer för att fylla din samling!",
+    "rarityCommon": "Vanlig",
+    "rarityRare": "Sällsynt",
+    "rarityLegendary": "Legendarisk"
   },
   "family": {
     "helpers": "De som hjälper mig",
@@ -449,6 +478,136 @@
     "cardSizePickAria": "Välj kortstorlek",
     "cardSizeStandard": "Vanliga kort",
     "cardSizeLarge": "Stora bilder",
-    "themeEntryKicker": "Mitt tema"
+    "themeEntryKicker": "Mitt tema",
+    "themeSelectedBadge": "Valt",
+    "themeSavedAriaSuffix": ", sparat tema"
+  },
+  "firstStar": {
+    "title": "Ditt första uppdrag",
+    "hint": "Tryck i ringen när du är klar!"
+  },
+  "warmth": {
+    "economyHint": "Dina sparade stjärnor — de går åt när du låser upp en belöning 🎁",
+    "totalEarned": "Totalt har du tjänat ⭐ {{count}}",
+    "goalTeaserPick": "Välj ett mål i Skattkammaren",
+    "goalTeaserTap": "Tryck här för att välja",
+    "goalTeaserAffordable": "Du har råd! Tryck för att fråga 🎉",
+    "goalTeaserStarsLeft": "Bara {{count}} stjärnor kvar ⭐",
+    "todayStars_one": "1 stjärna",
+    "todayStars_other": "{{count}} stjärnor",
+    "rewardDefault": "belöning",
+    "narrativeFilm": "Du fick välja film {{icon}} 🍿",
+    "narrativeStory": "Du låste upp extra saga {{icon}} ⭐",
+    "narrativeOuting": "Du åkte på {{name}} {{icon}} 🎉",
+    "narrativeTreat": "Du fick njuta av {{name}} {{icon}}😋",
+    "narrativePlay": "Du fick leka extra {{icon}} 🎮",
+    "narrativeBonus": "Du fick extra stjärnor {{icon}} ✨",
+    "narrativeDefault": "Du låste upp {{name}} {{icon}} 🎉"
+  },
+  "achievements": {
+    "title": "Troférummet",
+    "empty": "Klara aktiviteter och samla stjärnor — dina trofeer hamnar här!",
+    "lead": "Riktiga prestationer — inte bara poäng!",
+    "countShort": "{{count}}"
+  },
+  "scheduleChrome": {
+    "noGoal": "Inget mål valt",
+    "visitTreasureForGoal": "Gå till Skattkammaren för att välja mål",
+    "viewToggleDay": "Dagsvy",
+    "viewToggleNowNext": "Nu/Nästa/Senare",
+    "viewToggleTitle": "Växla vy",
+    "loadingSchedule": "Laddar ditt schema...",
+    "goalTeaserAria": "Öppna Skattkammaren och se ditt mål",
+    "goalTeaserLabel": "Mitt mål",
+    "goalTeaserPickInTreasure": "Välj ett mål i Skattkammaren",
+    "goalTeaserTapChoose": "Tryck här för att välja",
+    "todayStarsLabel": "Dagens stjärnor",
+    "switchChild": "Byt barn",
+    "logout": "Logga ut",
+    "darkMode": "Mörkt läge",
+    "print": "Skriv ut",
+    "progressToday": "Dagens framsteg",
+    "otherDays": "Andra dagar",
+    "goToday": "Idag",
+    "wholeWeek": "Hela veckan",
+    "prevWeek": "Föregående vecka",
+    "nextWeek": "Nästa vecka",
+    "weekThis": "Denna vecka",
+    "weekNum": "Vecka {{num}} · {{from}} – {{to}}",
+    "todayTab": "idag",
+    "parentRatingTitle": "Förälderns betyg",
+    "nextBadge": "Nästa",
+    "dragReorderTitle": "Dra för att ändra ordning",
+    "dragReorderAria": "Dra för att ändra ordning",
+    "substepIntro": "Tryck för att se stegen! 👆",
+    "checkOffNextTitle": "Bocka av nästa aktivitet"
+  },
+  "starFeedback": {
+    "bonusDefault": "Bonus-stjärnor!"
+  },
+  "weekOverview": {
+    "title": "Hela veckan",
+    "ariaLabel": "Hela veckan",
+    "close": "Stäng",
+    "loading": "Laddar veckan…",
+    "empty": "Inget schema ännu den här veckan.",
+    "noActivities": "Inga aktiviteter",
+    "todayBadge": "Idag",
+    "loadFailed": "Kunde inte ladda veckan. Försök igen senare."
+  },
+  "themes": {
+    "adventure": "Äventyr",
+    "space": "Rymd",
+    "dinosaurs": "Dinosaurier",
+    "vehicles": "Fordon",
+    "animals": "Vilda djur",
+    "ocean": "Havet",
+    "sports": "Sport",
+    "builders": "Bygg & skapa",
+    "music": "Musik & rytm",
+    "arcade": "Spelhall"
+  },
+  "todayCoach": {
+    "greatJob": "Bra jobbat!",
+    "closeAria": "Stäng meddelande",
+    "nextPrefix": "Nästa: {{name}}",
+    "allDoneForNow": "Du är klar med allt för nu — bra jobbat!",
+    "defaultMessage": "Du klarade uppdraget — fortsätt så här!"
+  },
+  "todayWarmth": {
+    "narrativeMorgon": "Idag hjälper vi kroppen att vakna 🌞",
+    "narrativeFormiddag": "Vi tar dagen i lagom takt ☀️",
+    "narrativeEftermiddag": "Vi fortsätter lugnt framåt 🌤️",
+    "narrativeKvall": "Nu är kvällsrutinen igång 🌙",
+    "narrativeNatt": "Dags att varva ner 🌑",
+    "freeDay": "Ledig dag — njut 🌿",
+    "allDoneToday": "Allt klart för idag — bra jobbat ✨",
+    "sectionDone": "{{section}} klar",
+    "nowBadge": "Nu"
+  },
+  "todayTasks": {
+    "rewardAria": "Belöning vid avklaring",
+    "moreWaiting": "{{count}} fler uppdrag väntar — klara dessa först!",
+    "treasureCta": "Skattkammaren"
+  },
+  "todayFun": {
+    "goodMorning": "God morgon {{name}} 🌅",
+    "hello": "Hej {{name}} 👋",
+    "goodEvening": "God kväll {{name}} 🌙",
+    "helloStarFriend": "Hej stjärnkompis {{name}} ✨",
+    "progressAria": "{{done}} av {{all}} klara",
+    "progressLabel": "{{done}} av {{all}} klara",
+    "you": "du"
+  },
+  "activityTimer": {
+    "start": "Starta timer",
+    "done": "Färdig!",
+    "restart": "↻ Starta igen",
+    "ariaFinished": "Timer. Färdig.",
+    "ariaOneMinute": "Timer. 1 minut kvar.",
+    "ariaMinutes": "Timer. {{count}} minuter kvar.",
+    "ariaOneSecond": "Timer. 1 sekund kvar.",
+    "ariaSeconds": "Timer. {{count}} sekunder kvar.",
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} minut{{minutePlural}} och {{seconds}} sekund{{secondPlural}} kvar."
   }
 }

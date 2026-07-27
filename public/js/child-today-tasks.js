@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const MAX_VISIBLE = 5;
 
   function isFirstStarMode() {
@@ -35,7 +40,7 @@
 
       const teaser = document.createElement('span');
       teaser.className = 'ctf-reward-teaser';
-      teaser.setAttribute('aria-label', 'Belöning vid avklaring');
+      teaser.setAttribute('aria-label', t('todayTasks.rewardAria'));
       teaser.textContent = '+' + starMap[id] + ' ⭐';
 
       const anchor = card.querySelector('.now-details .flex') ||
@@ -52,11 +57,8 @@
   }
 
   function hideDoneHistory() {
-    document.querySelectorAll('#scheduleView .nl-section-label').forEach(function (label) {
-      if ((label.textContent || '').indexOf('Klart') >= 0) {
-        const block = label.closest('.mb-4');
-        if (block) block.classList.add('ctf-hidden');
-      }
+    document.querySelectorAll('#scheduleView .nnl-done-history').forEach(function (block) {
+      block.classList.add('ctf-hidden');
     });
     document.querySelectorAll('#scheduleView .nl-card.done, #scheduleView .activity-card.done').forEach(function (card) {
       card.classList.add('ctf-hidden');
@@ -156,7 +158,7 @@
       const scheduleView = document.getElementById('scheduleView');
       if (scheduleView) scheduleView.appendChild(hint);
     }
-    hint.textContent = '+' + count + ' fler uppdrag väntar — klara dessa först!';
+    hint.textContent = t('todayTasks.moreWaiting', { count: count });
     hint.classList.remove('ctf-hidden');
   }
 
@@ -175,7 +177,7 @@
       bottom = document.createElement('div');
       bottom.id = 'ctfSkattBottom';
       bottom.className = 'ctf-skatt-bottom';
-      bottom.innerHTML = '<button type="button" class="ctf-skatt-btn" id="ctfSkattBtnBottom">💎 Skattkammaren</button>';
+      bottom.innerHTML = '<button type="button" class="ctf-skatt-btn" id="ctfSkattBtnBottom">💎 ' + t('todayTasks.treasureCta') + '</button>';
       const scheduleView = document.getElementById('scheduleView');
       if (scheduleView && scheduleView.parentNode) {
         scheduleView.parentNode.insertBefore(bottom, scheduleView.nextSibling);

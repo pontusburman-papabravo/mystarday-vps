@@ -1,9 +1,6 @@
 // child-dashboard.js — Barnvy host (state, tabs, chrome, init)
 // Split modules: activities (F3d), substeps (F3f), checkoff (F3e), load-day (F3g), offline/day-nav/timers/rewards/celebrations
 
-const DAY_NAMES = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-const DAY_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
-const MONTH_NAMES = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 // forDigGoalBadgeHtml — /js/child-dashboard-activities.js (Fas 8 F3d)
 
 
@@ -11,22 +8,22 @@ let currentDate = null;
 let todayStr = null;
 let me = null;
 const itemRatings = {}; // itemId -> { child_score, child_comment, parent_score, parent_comment }
-const weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
-const allowChildReorder = false; // toggled by parent in child profile settings
-const showNowNext = false; // parent opt-in — NU/NÄSTA/SEDAN badges + layout
-const requireSequentialCompletion = false; // parent opt-in — one activity at a time
+let weekOffset = 0; // 0 = current week, -1 = last week, +1 = next week
+let allowChildReorder = false; // toggled by parent in child profile settings
+let showNowNext = false; // parent opt-in — NU/NÄSTA/SEDAN badges + layout
+let requireSequentialCompletion = false; // parent opt-in — one activity at a time
 let viewType = 'now_next_later'; // 'day_sections' | 'now_next_later' (server may override for existing children)
 let viewTypeLocalOverride = false; // true when child toggled view locally (prevents server value from overwriting)
 let showMoodRating = true; // toggled by parent — shows mood slider after check-off
-const moodInputMode = 'slider'; // cards | slider | off — parent setting
+let moodInputMode = 'slider'; // cards | slider | off — parent setting
 let transitionSupportEnabled = false; // Extra stöd feature gate
-const transitionLeadMinutes = [5, 1]; // parent-configured lead times (minutes)
-const dopaminAnimation = true; // toggled by parent — star burst on check-off
-const minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
-const visualTimer = true; // toggled by parent — Time Timer in now-card
-const activityTimersEnabled = false; // master — aktivitetstimer (timglas)
-const hideClock = false; // toggled by parent — hides digital time labels on cards
-const colorCoding = true; // toggled by parent — color-codes cards by activity type
+let transitionLeadMinutes = [5, 1]; // parent-configured lead times (minutes)
+let dopaminAnimation = true; // toggled by parent — star burst on check-off
+let minimalUiActive = false; // distraktionsfritt läge — hides print/dark/logout, replaces Skattkammaren text
+let visualTimer = true; // toggled by parent — Time Timer in now-card
+let activityTimersEnabled = false; // master — aktivitetstimer (timglas)
+let hideClock = false; // toggled by parent — hides digital time labels on cards
+let colorCoding = true; // toggled by parent — color-codes cards by activity type
 
 // DAG_DEL_CONFIG, COLOR_RULES_CHILD, getChildColorClass — /js/child-dashboard-activities.js (Fas 8 F3d)
 
@@ -34,7 +31,7 @@ const colorCoding = true; // toggled by parent — color-codes cards by activity
 
 
 // ── Sub-step state ─────────────────────────────────────────
-const subStepCache = {};    // itemId -> array of { id, name, icon, sort_order, completed }
+let subStepCache = {};    // itemId -> array of { id, name, icon, sort_order, completed }
 const subStepExpanded = {}; // itemId -> bool (expanded state)
 // Track whether child has seen the substep intro tooltip (persisted in localStorage)
 const _substepIntroSeen = localStorage.getItem('substepIntroSeen') === '1';
@@ -56,10 +53,8 @@ window.resolveChildScheduleDate = resolveChildScheduleDate;
 
 function formatDateDisplay(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
-  const dow = d.getDay();
-  const day = d.getDate();
-  const mon = MONTH_NAMES[d.getMonth()];
-  return `${DAY_NAMES[dow]} ${day} ${mon}`;
+  const loc = typeof window.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
+  return d.toLocaleDateString(loc, { weekday: 'long', day: 'numeric', month: 'short' });
 }
 
 function calcAge(birthday) {
@@ -78,8 +73,7 @@ function getSectionLabel(section) {
   if (typeof window.cpt === 'function' && keyMap[section]) {
     return (emoji[section] || '') + ' ' + cpt(keyMap[section]);
   }
-  const labels = { morgon: '🟡 Morgon', dag: '🟠 Dag', kvall: '🔵 Kväll', natt: '🌑 Natt' };
-  return labels[section] || section;
+  return section;
 }
 
 // Section accent colors for day_sections view
@@ -362,8 +356,8 @@ function updateGoalBar(goalData) {
   // Always visible — show "no goal" state if no active goal
   if (!goalData || !goalData.goal || !goalData.goal.reward_id) {
     if (bar) bar.style.width = '0%';
-    if (label) label.textContent = 'Inget mål valt';
-    if (nameEl) nameEl.textContent = 'Gå till Skattkammaren för att välja mål';
+    if (label) label.textContent = (typeof window.cpt === 'function' ? cpt('scheduleChrome.noGoal') : '');
+    if (nameEl) nameEl.textContent = (typeof window.cpt === 'function' ? cpt('scheduleChrome.visitTreasureForGoal') : '');
     if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateGoalTeaser(null);
     return;
   }
@@ -374,7 +368,9 @@ function updateGoalBar(goalData) {
   const icon = goalData.goal.reward_icon || '🎯';
 
   if (bar) bar.style.width = `${pct}%`;
-  if (label) label.textContent = `⭐ ${balance} av ${starCost}`;
+  if (label && typeof window.cpt === 'function') {
+    label.textContent = cpt('rewards.starsOf', { balance: balance, cost: starCost });
+  }
   if (nameEl) nameEl.textContent = `${icon} ${name}`;
   if (window.ChildDashboardWarmth) window.ChildDashboardWarmth.updateGoalTeaser(goalData);
 }
@@ -428,7 +424,7 @@ function renderNowNextLaterZones(opts) {
 
   if (doneItems.length > 0 && typeof renderDone === 'function') {
     html += `<div class="nnl-done-history mb-4">
-      <div class="nl-section-label" style="color:#22C55E;">✅ Klart</div>
+      <div class="nl-section-label" style="color:#22C55E;">✅ ${typeof window.cpt === 'function' ? cpt('today.doneSection') : ''}</div>
       <div class="space-y-2">`;
     for (const item of doneItems) {
       html += renderDone(item);
@@ -486,10 +482,10 @@ function updateViewToggleButton() {
   if (!icon) return;
   if (viewType === 'now_next_later') {
     icon.textContent = '⚡';
-    if (label) label.textContent = 'Nu/Nästa/Senare';
+    if (label && typeof window.cpt === 'function') label.textContent = cpt('scheduleChrome.viewToggleNowNext');
   } else {
     icon.textContent = '🌅';
-    if (label) label.textContent = 'Dagsvy';
+    if (label && typeof window.cpt === 'function') label.textContent = cpt('scheduleChrome.viewToggleDay');
   }
 }
 

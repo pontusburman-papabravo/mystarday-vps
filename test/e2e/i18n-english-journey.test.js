@@ -18,6 +18,7 @@ const {
   getParentHomeHubText,
   getParentPlanningScheduleText,
   getVisibleChromeText,
+  getVisibleTextInSelectors,
   parentLogout,
   fillParentLogin,
   submitParentLogin,
@@ -165,8 +166,29 @@ describe('i18n English journey E2E', () => {
           return greeting && (greeting.textContent || '').length > 0;
         }, { timeout: 15000 });
         await enterChildPin(page, seed.childPin);
-        await sleep(2500);
-        const childText = await getVisibleChromeText(page);
+        await page.waitForFunction(() => {
+          return /\/child(\/today|-dashboard)/.test(window.location.pathname)
+            && typeof window.getChildUiLocale === 'function'
+            && getChildUiLocale() === 'en-GB';
+        }, { timeout: 45000 });
+        await page.waitForFunction(() => {
+          const nav = document.getElementById('childBottomNav');
+          if (!nav || !window.ChildWorlds || !ChildWorlds.V2_ENABLED) return true;
+          return nav.getAttribute('data-nav-ready') === 'true';
+        }, { timeout: 45000 });
+        await page.waitForFunction(() => {
+          const sv = document.getElementById('scheduleView');
+          if (!sv || sv.classList.contains('hidden')) return false;
+          const text = (sv.textContent || '').trim();
+          if (!text) return false;
+          if (/Laddar/i.test(text) && !/Loading/i.test(text)) return false;
+          return true;
+        }, { timeout: 45000 });
+        const childText = await getVisibleTextInSelectors(page, [
+          '#scheduleView',
+          '#todayFocusMount',
+          '#childBottomNav',
+        ]);
         const childCopy = detectSwedishSystemCopy(childText, {
           allowlist: seed.allowlist,
           context: `${viewport}/child dashboard`,

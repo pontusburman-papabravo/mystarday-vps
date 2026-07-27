@@ -10,8 +10,33 @@ const ROOT = path.join(__dirname, '..');
 const FOCUS_SRC = fs.readFileSync(path.join(ROOT, 'public/js/child-today-focus.js'), 'utf8');
 
 function loadIdagState() {
-  const context = { window: {}, document: { getElementById: function () { return null; } }, console };
-  vm.runInNewContext(FOCUS_SRC, context);
+  const context = {
+    window: {
+      cpt: function (key, params) {
+        const map = {
+          'today.enjoyFreeDay': 'Njut av ledig dagen',
+          'today.allDoneToday': 'Allt klart idag!',
+          'today.checkOffToContinue': 'Bocka av för att fortsätta',
+        };
+        if (key === 'today.laterPrefix' && params && params.name) {
+          return 'Senare: ' + params.name;
+        }
+        if (key === 'today.progressDone' && params) {
+          return params.completed + ' av ' + params.total + ' klara';
+        }
+        return map[key] || '';
+      },
+    },
+    document: { getElementById: function () { return null; } },
+    console,
+  };
+  context.window.ctf = context.window.cpt;
+  vm.runInNewContext(FOCUS_SRC, {
+    window: context.window,
+    document: context.document,
+    cpt: context.window.cpt,
+    console,
+  });
   return {
     resolveIdagState: context.window.resolveIdagState,
     IDAG_STATES: context.window.IDAG_STATES,
@@ -47,7 +72,7 @@ describe('resolveIdagState — exclusive state machine', () => {
     }, { isToday: true });
     assert.equal(state.state, IDAG_STATES.ALL_DONE);
     assert.equal(state.primaryAction, null);
-    assert.match(state.nextStepLabel, /klara/i);
+    assert.match(state.nextStepLabel, /klart|done/i);
   });
 
   it('Active — primary complete on now item', () => {

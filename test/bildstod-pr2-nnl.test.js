@@ -13,18 +13,14 @@ function read(rel) {
 
 describe('bildstöd PR 2 — Senare copy (child UI)', () => {
   const childUiFiles = [
-    'public/js/child-dashboard.js',
     'public/js/child-dashboard-activities.js',
     'public/js/child-dashboard-photo-cards.js',
-    'public/js/child-today-focus.js',
-    'public/js/child-settings.js',
-    'public/js/help-bubble.js',
   ];
 
   for (const file of childUiFiles) {
-    it(`${file} uses Senare (not Sedan) in child-facing NU/Nästa labels`, () => {
+    it(`${file} uses i18n zoneLater (not hardcoded Sedan)`, () => {
       const src = read(file);
-      assert.match(src, /Senare/);
+      assert.match(src, /today\.zoneLater|scheduleChrome\.nextBadge/);
       assert.doesNotMatch(src, /Nu\/Nästa\/Sedan/);
       if (file.includes('child-dashboard-activities') || file.includes('photo-cards')) {
         assert.doesNotMatch(src, /['"]Sedan['"]/);
@@ -48,7 +44,7 @@ describe('bildstöd PR 2 — Senare copy (child UI)', () => {
     const src = read('public/js/child-week-overview.js');
     assert.match(src, /\(function \(\)/);
     assert.match(src, /\/api\/me\/weekly-schedule/);
-    assert.match(src, /Hela veckan/);
+    assert.match(src, /weekOverview\.title/);
     assert.doesNotMatch(src, /method:\s*['"]POST/);
   });
 });

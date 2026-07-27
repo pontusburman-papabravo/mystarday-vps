@@ -24,18 +24,12 @@ function read(file) {
   return fs.readFileSync(file, 'utf8');
 }
 
-  function loadChildSamlingPresent() {
-  const memoryCtx = { window: {} };
-  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), memoryCtx);
-  const yearbookCtx = { window: {} };
-  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-yearbook.js')), yearbookCtx);
+function loadChildSamlingPresent() {
   const context = {
     window: {
       escHtml: function (s) {
         return String(s == null ? '' : s);
       },
-      ChildSamlingMemory: memoryCtx.window.ChildSamlingMemory,
-      ChildSamlingYearbook: yearbookCtx.window.ChildSamlingYearbook,
     },
     document: {
       createElement: function () {
@@ -54,6 +48,8 @@ function read(file) {
     },
   };
   installChildI18nVm(context, 'sv-SE');
+  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), context);
+  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-yearbook.js')), context);
   vm.runInNewContext(read(PRESENT_PATH), context);
   return context.window.ChildSamlingPresent;
 }
@@ -185,11 +181,11 @@ describe('#620 Fas B — gate wiring and legacy isolation', () => {
     const src = read(WORLDS_PATH);
     const legacy = src.slice(src.indexOf('LEGACY_WORLDS'), src.indexOf('SAMLING_WORLDS'));
     const samling = src.slice(src.indexOf('SAMLING_WORLDS'), src.indexOf('LEGACY_HASH'));
-    assert.match(legacy, /Min värld/);
+    assert.match(legacy, /My world/);
     assert.match(legacy, /id: 'world'/);
     assert.doesNotMatch(legacy, /id: 'collection'/);
     assert.match(samling, /id: 'collection'/);
-    assert.match(samling, /Min samling/);
+    assert.match(samling, /My collection/);
     assert.match(src, /return _barnetsSamling \? SAMLING_WORLDS : LEGACY_WORLDS/);
   });
 

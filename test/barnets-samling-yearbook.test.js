@@ -21,22 +21,17 @@ function read(file) {
   return fs.readFileSync(file, 'utf8');
 }
 
-function loadYearbook() {
+function loadYearbook(locale) {
   const context = { window: {} };
+  installChildI18nVm(context, locale || 'sv-SE');
   vm.runInNewContext(read(YEARBOOK_PATH), context);
   return context.window.ChildSamlingYearbook;
 }
 
 function loadPresent() {
-  const memoryCtx = { window: {} };
-  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), memoryCtx);
-  const yearbookCtx = { window: {} };
-  vm.runInNewContext(read(YEARBOOK_PATH), yearbookCtx);
   const context = {
     window: {
       escHtml: function (s) { return String(s == null ? '' : s); },
-      ChildSamlingMemory: memoryCtx.window.ChildSamlingMemory,
-      ChildSamlingYearbook: yearbookCtx.window.ChildSamlingYearbook,
     },
     document: {
       createElement: function () {
@@ -53,6 +48,8 @@ function loadPresent() {
     },
   };
   installChildI18nVm(context, 'sv-SE');
+  vm.runInNewContext(read(path.join(ROOT, 'public/js/child-samling-memory.js')), context);
+  vm.runInNewContext(read(YEARBOOK_PATH), context);
   vm.runInNewContext(read(PRESENT_PATH), context);
   return context.window.ChildSamlingPresent;
 }

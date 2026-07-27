@@ -37,8 +37,30 @@ async function clearFamilyEnglishChildFlag(query, familyId) {
   );
 }
 
+/**
+ * E2E DB truncates public tables after migrations — re-seed live barnets_samling row.
+ * Live status makes the gate available to all families (no family_features row needed).
+ */
+async function ensureBarnetsSamlingLive(query) {
+  await query(
+    `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
+     VALUES (
+       'barnets_samling',
+       'Barnets samling',
+       'Child collection nav + Min samling',
+       'live',
+       '{barn,belöningar}',
+       'high',
+       6,
+       24
+     )
+     ON CONFLICT (slug) DO UPDATE SET status = 'live', updated_at = NOW()`
+  );
+}
+
 module.exports = {
   ensureEnglishFeatureRows,
+  ensureBarnetsSamlingLive,
   setFamilyEnglishFlags,
   clearFamilyEnglishChildFlag,
 };

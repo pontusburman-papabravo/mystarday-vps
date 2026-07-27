@@ -14,6 +14,12 @@ function t(key, params) {
     : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
 }
 
+function formatShortDate(d) {
+  if (typeof window.formatChildShortDate === 'function') return formatChildShortDate(d);
+  const loc = typeof window.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
+  return d.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
+}
+
 let _currentGoalData = null; // cache for goal-picker
 let _currentRewardsData = null;
 let _loadRewardsInflight = null;
@@ -503,7 +509,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
 
     trophies.slice(0, 9).forEach(function (r, i) {
       const d = new Date(r.created_at);
-      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      const dateStr = formatShortDate(d);
       html += '<div class="skatt-trophy-item" style="animation-delay:' + (i * 60) + 'ms;" title="' +
         escHtml(r.reward_name) + ' · ' + dateStr + '">' +
         '<span class="skatt-trophy-emoji">' + (r.reward_icon || '🎁') + '</span>' +
@@ -529,7 +535,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
 
     for (const g of grants.slice(0, 8)) {
       const d = new Date(g.created_at);
-      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      const dateStr = formatShortDate(d);
       html += '<div class="skatt-grant-card">' +
         (g.image_url
           ? '<img src="' + escHtml(g.image_url) + '" alt="" class="skatt-grant-img">'

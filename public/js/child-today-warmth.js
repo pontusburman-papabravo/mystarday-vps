@@ -1,35 +1,41 @@
 /**
- * child-today-warmth.js — Värme & igenkänning på Idag (barnets_samling).
- * Temadekal, dagens berättelse, lugn sektionsfeedback, subtil check-pop.
- * Inte spel: ingen XP, inget konfettiregn, inga explosioner.
+ * child-today-warmth.js — Warmth & recognition on Today (barnets_samling).
  */
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const THEME_DECALS = {
-    adventure: { emoji: '🧭', label: 'Äventyr' },
-    space: { emoji: '🚀', label: 'Rymd' },
-    dinosaurs: { emoji: '🦖', label: 'Dinosaurier' },
-    vehicles: { emoji: '🚗', label: 'Fordon' },
-    animals: { emoji: '🦊', label: 'Vilda djur' },
-    ocean: { emoji: '🐬', label: 'Havet' },
-    sports: { emoji: '⚽', label: 'Sport' },
-    builders: { emoji: '🧱', label: 'Bygg & skapa' },
-    music: { emoji: '🎵', label: 'Musik & rytm' },
-    arcade: { emoji: '🎮', label: 'Spelhall' },
+    adventure: { emoji: '🧭' },
+    space: { emoji: '🚀' },
+    dinosaurs: { emoji: '🦖' },
+    vehicles: { emoji: '🚗' },
+    animals: { emoji: '🦊' },
+    ocean: { emoji: '🐬' },
+    sports: { emoji: '⚽' },
+    builders: { emoji: '🧱' },
+    music: { emoji: '🎵' },
+    arcade: { emoji: '🎮' },
   };
 
-  const DAG_NARRATIVES = {
-    morgon: 'Idag hjälper vi kroppen att vakna 🌞',
-    formiddag: 'Vi tar dagen i lagom takt ☀️',
-    eftermiddag: 'Vi fortsätter lugnt framåt 🌤️',
-    kvall: 'Nu är kvällsrutinen igång 🌙',
-    natt: 'Dags att varva ner 🌑',
+  const DAG_NARRATIVE_KEYS = {
+    morgon: 'todayWarmth.narrativeMorgon',
+    formiddag: 'todayWarmth.narrativeFormiddag',
+    eftermiddag: 'todayWarmth.narrativeEftermiddag',
+    kvall: 'todayWarmth.narrativeKvall',
+    natt: 'todayWarmth.narrativeNatt',
   };
 
-  const STATE_NARRATIVES = {
-    no_tasks: 'Ledig dag — njut 🌿',
-    all_done: 'Allt klart för idag — bra jobbat ✨',
+  const SECTION_LABEL_KEYS = {
+    morgon: 'sections.morgon',
+    formiddag: 'sections.formiddag',
+    eftermiddag: 'sections.eftermiddag',
+    kvall: 'sections.kvall',
+    natt: 'sections.natt',
   };
 
   function isSamlingGateOn() {
@@ -54,26 +60,29 @@
     return root || 'adventure';
   }
 
+  function themeLabel(themeId) {
+    if (window.ChildTheme && ChildTheme.getTheme) {
+      const theme = ChildTheme.getTheme(themeId);
+      if (theme && theme.label) return theme.label;
+    }
+    return t('themes.' + themeId);
+  }
+
   function dayNarrative(state) {
     if (!state) return '';
-    if (state.state === 'no_tasks') return STATE_NARRATIVES.no_tasks;
-    if (state.state === 'all_done') return STATE_NARRATIVES.all_done;
+    if (state.state === 'no_tasks') return t('todayWarmth.freeDay');
+    if (state.state === 'all_done') return t('todayWarmth.allDoneToday');
     const key = window.ChildTodayFun && window.ChildTodayFun.currentDagdelKey
       ? window.ChildTodayFun.currentDagdelKey()
       : null;
-    return (key && DAG_NARRATIVES[key]) || DAG_NARRATIVES.formiddag;
+    return (key && DAG_NARRATIVE_KEYS[key] ? t(DAG_NARRATIVE_KEYS[key]) : t('todayWarmth.narrativeFormiddag'));
   }
 
   function sectionCompleteLabel(sectionKey) {
-    const labels = {
-      morgon: 'Morgon',
-      formiddag: 'Förmiddag',
-      eftermiddag: 'Eftermiddag',
-      kvall: 'Kväll',
-      natt: 'Natt',
-    };
-    const name = labels[sectionKey] || sectionKey;
-    return '✓ ' + name + ' klar';
+    const sectionName = SECTION_LABEL_KEYS[sectionKey]
+      ? t(SECTION_LABEL_KEYS[sectionKey])
+      : sectionKey;
+    return '✓ ' + t('todayWarmth.sectionDone', { section: sectionName });
   }
 
   function mountThemeDecal(themeId) {
@@ -96,7 +105,7 @@
     const decal = THEME_DECALS[id] || THEME_DECALS.adventure;
     el.textContent = decal.emoji;
     el.setAttribute('data-theme', id);
-    el.title = decal.label;
+    el.title = themeLabel(id);
   }
 
   function removeThemeDecal() {

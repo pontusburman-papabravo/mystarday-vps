@@ -87,7 +87,10 @@
     "offline": "You are offline",
     "syncing": "Syncing…",
     "retry": "Try again",
-    "skipCelebration": "Skip celebration"
+    "skipCelebration": "Skip celebration",
+    "doneSection": "Done",
+    "ratingYour": "Your rating",
+    "ratingParent": "Grown-up rating"
   },
   "sections": {
     "morgon": "Morning",
@@ -114,7 +117,9 @@
     "progress": "Step {{current}} of {{total}}",
     "nextStep": "Next step",
     "prevStep": "Previous step",
-    "allDone": "All done!"
+    "allDone": "All done!",
+    "substepsDone": "{{done}}/{{total}} done",
+    "substepsLabel": "Sub-steps"
   },
   "celebration": {
     "milestone25": "Great work! First step! 🌟",
@@ -197,6 +202,7 @@
   "offline": {
     "noConnection": "No connection",
     "connectForSchedule": "Go online to see your schedule",
+    "scheduleCached": "Offline — showing saved schedule",
     "couldNotLoadSchedule": "Could not load your schedule.",
     "savedWillSend": "Saved — will send when you are back online",
     "needsInternet": "Needs internet",
@@ -277,6 +283,8 @@
     "statusRedeem": "Ready to redeem",
     "statusSaving": "Saving",
     "redeemConfirm": "Ask to redeem",
+    "goalPickerTitle": "Pick your goal",
+    "goalPickerHint": "If you already have a goal, a request goes to your grown-up",
     "pickRewardToSave": "Pick a reward to save for",
     "notEnoughStars": "Not enough stars",
     "collectHint": "Collect {{count}} more ⭐!",
@@ -363,7 +371,28 @@
     "diplomaLead": "Awards for things you completed.",
     "trophyDefault": "Trophy",
     "trophyCountAria": "{{count}} trophies",
-    "yearbookAria": "Yearbook {{year}}"
+    "yearbookAria": "Yearbook {{year}}",
+    "opening": "Opening your collection…",
+    "yearbookSpreadGrowing": "Your spread grows here",
+    "yearbookSpreadActive": "You were active this month",
+    "yearbookSpreadSelfCare": "You took care of yourself",
+    "yearbookDays_one": "1 day",
+    "yearbookDays_other": "{{count}} days",
+    "diplomaTryggStartTitle": "Safe start",
+    "diplomaTryggStartSubtitle": "You got your first trophy",
+    "diplomaFirstRewardTitle": "I did it",
+    "diplomaFirstRewardSubtitle": "You saved up for a reward",
+    "diplomaStar25Title": "Star collector",
+    "diplomaStar25Subtitle": "25 stars in total",
+    "diplomaStar100Title": "Superstar",
+    "diplomaStar100Subtitle": "100 stars in total",
+    "diplomaStreak7Title": "Routine hero",
+    "diplomaStreak7Subtitle": "7 days in a row",
+    "collectionsTitle": "My collection",
+    "collectionsEmptyHint": "Collect stars and achievements to fill your collection!",
+    "rarityCommon": "Common",
+    "rarityRare": "Rare",
+    "rarityLegendary": "Legendary"
   },
   "family": {
     "helpers": "People who help me",
@@ -449,6 +478,136 @@
     "cardSizePickAria": "Choose card size",
     "cardSizeStandard": "Regular cards",
     "cardSizeLarge": "Big pictures",
-    "themeEntryKicker": "My theme"
+    "themeEntryKicker": "My theme",
+    "themeSelectedBadge": "Selected",
+    "themeSavedAriaSuffix": ", saved theme"
+  },
+  "firstStar": {
+    "title": "Your first mission",
+    "hint": "Tap in the ring when you are done!"
+  },
+  "warmth": {
+    "economyHint": "Your saved stars — they are spent when you unlock a reward 🎁",
+    "totalEarned": "Total earned: ⭐ {{count}}",
+    "goalTeaserPick": "Pick a goal in Treasure Chest",
+    "goalTeaserTap": "Tap here to choose",
+    "goalTeaserAffordable": "You can afford it! Tap to ask 🎉",
+    "goalTeaserStarsLeft": "Only {{count}} stars left ⭐",
+    "todayStars_one": "1 star",
+    "todayStars_other": "{{count}} stars",
+    "rewardDefault": "reward",
+    "narrativeFilm": "You got to pick a movie {{icon}} 🍿",
+    "narrativeStory": "You unlocked an extra story {{icon}} ⭐",
+    "narrativeOuting": "You went on {{name}} {{icon}} 🎉",
+    "narrativeTreat": "You enjoyed {{name}} {{icon}}😋",
+    "narrativePlay": "You got extra play time {{icon}} 🎮",
+    "narrativeBonus": "You got bonus stars {{icon}} ✨",
+    "narrativeDefault": "You unlocked {{name}} {{icon}} 🎉"
+  },
+  "achievements": {
+    "title": "Trophy room",
+    "empty": "Complete activities and collect stars — your trophies show up here!",
+    "lead": "Real achievements — not just points!",
+    "countShort": "{{count}}"
+  },
+  "scheduleChrome": {
+    "noGoal": "No goal picked",
+    "visitTreasureForGoal": "Go to Treasure Chest to pick a goal",
+    "viewToggleDay": "Day view",
+    "viewToggleNowNext": "Now/Next/Later",
+    "viewToggleTitle": "Switch view",
+    "loadingSchedule": "Loading your schedule…",
+    "goalTeaserAria": "Open Treasure Chest and see your goal",
+    "goalTeaserLabel": "My goal",
+    "goalTeaserPickInTreasure": "Pick a goal in Treasure Chest",
+    "goalTeaserTapChoose": "Tap here to choose",
+    "todayStarsLabel": "Today's stars",
+    "switchChild": "Switch child",
+    "logout": "Log out",
+    "darkMode": "Dark mode",
+    "print": "Print",
+    "progressToday": "Today's progress",
+    "otherDays": "Other days",
+    "goToday": "Today",
+    "wholeWeek": "Whole week",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "weekThis": "This week",
+    "weekNum": "Week {{num}} · {{from}} – {{to}}",
+    "todayTab": "today",
+    "parentRatingTitle": "Grown-up rating",
+    "nextBadge": "Next",
+    "dragReorderTitle": "Drag to change order",
+    "dragReorderAria": "Drag to change order",
+    "substepIntro": "Tap to see the steps! 👆",
+    "checkOffNextTitle": "Check off next activity"
+  },
+  "starFeedback": {
+    "bonusDefault": "Bonus stars!"
+  },
+  "weekOverview": {
+    "title": "Whole week",
+    "ariaLabel": "Whole week",
+    "close": "Close",
+    "loading": "Loading week…",
+    "empty": "No schedule yet this week.",
+    "noActivities": "No activities",
+    "todayBadge": "Today",
+    "loadFailed": "Could not load the week. Try again later."
+  },
+  "themes": {
+    "adventure": "Adventure",
+    "space": "Space",
+    "dinosaurs": "Dinosaurs",
+    "vehicles": "Vehicles",
+    "animals": "Wild animals",
+    "ocean": "Ocean",
+    "sports": "Sports",
+    "builders": "Build & create",
+    "music": "Music & rhythm",
+    "arcade": "Arcade"
+  },
+  "todayCoach": {
+    "greatJob": "Great job!",
+    "closeAria": "Close message",
+    "nextPrefix": "Next: {{name}}",
+    "allDoneForNow": "You're done for now — well done!",
+    "defaultMessage": "You finished the mission — keep it up!"
+  },
+  "todayWarmth": {
+    "narrativeMorgon": "Today we help your body wake up 🌞",
+    "narrativeFormiddag": "We take the day at a steady pace ☀️",
+    "narrativeEftermiddag": "We keep moving calmly forward 🌤️",
+    "narrativeKvall": "Evening routine is underway 🌙",
+    "narrativeNatt": "Time to wind down 🌑",
+    "freeDay": "Free day — enjoy 🌿",
+    "allDoneToday": "All done for today — well done ✨",
+    "sectionDone": "{{section}} done",
+    "nowBadge": "Now"
+  },
+  "todayTasks": {
+    "rewardAria": "Reward when completed",
+    "moreWaiting": "{{count}} more missions waiting — finish these first!",
+    "treasureCta": "Treasure Chest"
+  },
+  "todayFun": {
+    "goodMorning": "Good morning {{name}} 🌅",
+    "hello": "Hi {{name}} 👋",
+    "goodEvening": "Good evening {{name}} 🌙",
+    "helloStarFriend": "Hi star buddy {{name}} ✨",
+    "progressAria": "{{done}} of {{all}} done",
+    "progressLabel": "{{done}} of {{all}} done",
+    "you": "you"
+  },
+  "activityTimer": {
+    "start": "Start timer",
+    "done": "Done!",
+    "restart": "↻ Start again",
+    "ariaFinished": "Timer. Finished.",
+    "ariaOneMinute": "Timer. 1 minute left.",
+    "ariaMinutes": "Timer. {{count}} minutes left.",
+    "ariaOneSecond": "Timer. 1 second left.",
+    "ariaSeconds": "Timer. {{count}} seconds left.",
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} minute{{minutePlural}} and {{seconds}} second{{secondPlural}} left."
   }
 }

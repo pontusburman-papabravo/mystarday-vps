@@ -134,6 +134,7 @@
   }
 
   function childDateLocale() {
+    if (typeof window.getChildDateLocale === 'function') return getChildDateLocale();
     return (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale() === 'en-GB')
       ? 'en-GB' : 'sv-SE';
   }

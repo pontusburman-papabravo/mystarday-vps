@@ -4,6 +4,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   function esc(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
     return String(str || '')
@@ -12,25 +17,35 @@
       .replace(/>/g, '&gt;');
   }
 
+  function formatShortDate(d) {
+    if (typeof window.formatChildShortDate === 'function') return formatChildShortDate(d);
+    const loc = typeof window.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
+    return d.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
+  }
+
   /** Narrative line for Historikboken (wins only). */
   function buildHistoryNarrative(r) {
     const icon = r.reward_icon || '🎁';
-    const name = r.reward_name || 'belöning';
+    const name = r.reward_name || t('warmth.rewardDefault');
     const lower = name.toLowerCase();
 
-    if (/film|tv|skärm|bio/.test(lower)) return 'Du fick välja film ' + icon + ' 🍿';
-    if (/saga|bok|läsa|bibliotek/.test(lower)) return 'Du låste upp extra saga ' + icon + ' ⭐';
-    if (/park|utflykt|lekplats|äventyr/.test(lower)) return 'Du åkte på ' + name.toLowerCase() + ' ' + icon + ' 🎉';
-    if (/godis|glass|fika|mums/.test(lower)) return 'Du fick njuta av ' + name.toLowerCase() + ' ' + icon + '😋';
-    if (/spel|lek/.test(lower)) return 'Du fick leka extra ' + icon + ' 🎮';
-    if (/stjärn|bonus/.test(lower)) return 'Du fick extra stjärnor ' + icon + ' ✨';
-    return 'Du låste upp ' + name + ' ' + icon + ' 🎉';
+    if (/film|tv|skärm|bio/.test(lower)) return t('warmth.narrativeFilm', { icon: icon });
+    if (/saga|bok|läsa|bibliotek/.test(lower)) return t('warmth.narrativeStory', { icon: icon });
+    if (/park|utflykt|lekplats|äventyr/.test(lower)) {
+      return t('warmth.narrativeOuting', { name: name.toLowerCase(), icon: icon });
+    }
+    if (/godis|glass|fika|mums/.test(lower)) {
+      return t('warmth.narrativeTreat', { name: name.toLowerCase(), icon: icon });
+    }
+    if (/spel|lek/.test(lower)) return t('warmth.narrativePlay', { icon: icon });
+    if (/stjärn|bonus/.test(lower)) return t('warmth.narrativeBonus', { icon: icon });
+    return t('warmth.narrativeDefault', { name: name, icon: icon });
   }
 
   /** HTML for one history story card. */
   function renderHistoryStoryHtml(r) {
     const d = new Date(r.created_at);
-    const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    const dateStr = formatShortDate(d);
     return (
       '<div class="skatt-history-story">' +
         '<span style="font-size:1.6rem;line-height:1;">' + esc(r.reward_icon || '🎁') + '</span>' +
@@ -44,9 +59,10 @@
 
   /** Economy explainer under star balance in Skattkammaren banner. */
   function renderEconomyHintHtml(starBalance, totalEarned) {
-    let parts = '<p class="skatt-economy-hint">Dina sparade stjärnor — de går åt när du låser upp en belöning 🎁</p>';
+    let parts = '<p class="skatt-economy-hint">' + esc(t('warmth.economyHint')) + '</p>';
     if (totalEarned > starBalance) {
-      parts += '<p class="skatt-economy-hint" style="margin-top:4px;">Totalt har du tjänat ⭐ ' + totalEarned + '</p>';
+      parts += '<p class="skatt-economy-hint" style="margin-top:4px;">' +
+        esc(t('warmth.totalEarned', { count: totalEarned })) + '</p>';
     }
     return parts;
   }
@@ -62,8 +78,8 @@
 
     if (!goalData || !goalData.goal || !goalData.goal.reward_id) {
       if (iconEl) iconEl.textContent = '🎯';
-      if (nameEl) nameEl.textContent = 'Välj ett mål i Skattkammaren';
-      if (subEl) subEl.textContent = 'Tryck här för att välja';
+      if (nameEl) nameEl.textContent = t('warmth.goalTeaserPick');
+      if (subEl) subEl.textContent = t('warmth.goalTeaserTap');
       return;
     }
 
@@ -77,19 +93,24 @@
     if (nameEl) nameEl.textContent = name;
     if (subEl) {
       subEl.textContent = toGo === 0
-        ? 'Du har råd! Tryck för att fråga 🎉'
-        : 'Bara ' + toGo + ' stjärnor kvar ⭐';
+        ? t('warmth.goalTeaserAffordable')
+        : t('warmth.goalTeaserStarsLeft', { count: toGo });
     }
   }
 
   /** Sync today's earned stars row. */
   function updateTodayStars(earned) {
     const el = document.getElementById('todayStarsEarned');
-    if (el) el.textContent = earned === 1 ? '1 stjärna' : earned + ' stjärnor';
+    if (!el) return;
+    const n = Number(earned) || 0;
+    if (typeof window.childPlural === 'function') {
+      el.textContent = childPlural('warmth.todayStars', n, { count: n });
+    } else {
+      el.textContent = n === 1 ? t('warmth.todayStars_one') : t('warmth.todayStars_other', { count: n });
+    }
   }
 
   function init() {
-    // Week nav starts collapsed — details element handles this
     const details = document.getElementById('weekNavDetails');
     if (details) details.removeAttribute('open');
   }

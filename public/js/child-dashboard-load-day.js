@@ -6,6 +6,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   let _pendingLoadDay = null;
 
   async function loadRatingsForItems(itemIds) {
@@ -46,7 +51,7 @@
       if (skeletonTimer) skeletonTimer.stop();
       if (cached) {
         renderActivities(cached, null);
-        showOfflineBanner('📶 Offline — visar sparat schema');
+        showOfflineBanner(t('offline.scheduleCached'));
       } else {
         showOfflineEmptyState(container);
       }
@@ -62,7 +67,7 @@
         container.innerHTML = `
         <div class="text-center py-16">
           <p class="text-4xl mb-3 animate-pulse">⏳</p>
-          <p class="text-text-soft">Laddar ditt schema...</p>
+          <p class="text-text-soft">${t('scheduleChrome.loadingSchedule')}</p>
         </div>`;
       }
     }
@@ -143,7 +148,7 @@
         : Promise.resolve(null));
       if (cached) {
         renderActivities(cached, null);
-        showOfflineBanner('📶 Offline — visar sparat schema');
+        showOfflineBanner(t('offline.scheduleCached'));
       } else if (window.Skeleton) {
         window.Skeleton.showChildScheduleError(container, dateStr);
       } else {

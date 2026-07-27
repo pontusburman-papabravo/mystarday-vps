@@ -64,30 +64,70 @@ async function selectLoginLocale(page, locale) {
 
 async function getVisibleChromeText(page) {
   return page.evaluate(() => {
-    const skip = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG']);
-    const chunks = [];
-    const walk = (node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const t = (node.textContent || '').trim();
-        if (t) chunks.push(t);
-        return;
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) return;
-      if (skip.has(node.tagName)) return;
-      const el = node;
-      if (el.hidden || el.getAttribute('aria-hidden') === 'true') return;
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden') return;
-      if (el.matches('input, textarea')) {
-        const ph = el.getAttribute('placeholder');
-        if (ph) chunks.push(ph);
-        return;
-      }
-      for (const child of el.childNodes) walk(child);
+    const collectVisibleTextFromRoot = (root) => {
+      const skip = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG']);
+      const chunks = [];
+      const walk = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const t = (node.textContent || '').trim();
+          if (t) chunks.push(t);
+          return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        if (skip.has(node.tagName)) return;
+        const el = node;
+        if (el.hidden || el.getAttribute('aria-hidden') === 'true') return;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return;
+        if (el.matches('input, textarea')) {
+          const ph = el.getAttribute('placeholder');
+          if (ph) chunks.push(ph);
+          return;
+        }
+        for (const child of el.childNodes) walk(child);
+      };
+      walk(root);
+      return chunks.join('\n');
     };
-    walk(document.body);
-    return chunks.join('\n');
+    return collectVisibleTextFromRoot(document.body);
   });
+}
+
+/** Visible text within one or more selectors (e.g. `#collectionView`). */
+async function getVisibleTextInSelectors(page, selectors) {
+  return page.evaluate((sels) => {
+    const collectVisibleTextFromRoot = (root) => {
+      const skip = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG']);
+      const chunks = [];
+      const walk = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const t = (node.textContent || '').trim();
+          if (t) chunks.push(t);
+          return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        if (skip.has(node.tagName)) return;
+        const el = node;
+        if (el.hidden || el.getAttribute('aria-hidden') === 'true') return;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return;
+        if (el.matches('input, textarea')) {
+          const ph = el.getAttribute('placeholder');
+          if (ph) chunks.push(ph);
+          return;
+        }
+        for (const child of el.childNodes) walk(child);
+      };
+      walk(root);
+      return chunks.join('\n');
+    };
+    const parts = [];
+    for (const sel of sels) {
+      const el = document.querySelector(sel);
+      if (el) parts.push(collectVisibleTextFromRoot(el));
+    }
+    return parts.join('\n');
+  }, selectors);
 }
 
 /** Parent shell chrome: bottom nav, header, primary headings — not activity grids. */
@@ -258,6 +298,51 @@ async function enterChildPin(page, pin) {
   );
 }
 
+/**
+ * Child picker + PIN while parent session cookie is still active.
+ * Handles single-child auto-jump to PIN without racing profile card removal.
+ */
+async function loginChildFromParentSession(page, baseUrl, seed) {
+  await page.goto(`${baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
+  await acceptCookies(page);
+
+  await page.waitForFunction((username) => {
+    const pinStep = document.getElementById('clStepPin');
+    if (pinStep && pinStep.classList.contains('active')) return true;
+    const card = document.querySelector(`[data-username="${username}"]`);
+    return card && card.offsetParent !== null;
+  }, { timeout: 30000 }, seed.childUsername);
+
+  const pinActive = await page.evaluate(() => {
+    const pinStep = document.getElementById('clStepPin');
+    return pinStep && pinStep.classList.contains('active');
+  });
+
+  if (!pinActive) {
+    await page.waitForSelector(`[data-username="${seed.childUsername}"]`, { visible: true, timeout: 15000 });
+    await page.evaluate((username) => {
+      const card = document.querySelector(`[data-username="${username}"]`);
+      if (card) card.click();
+    }, seed.childUsername);
+    await page.waitForFunction(() => {
+      const pinStep = document.getElementById('clStepPin');
+      return pinStep && pinStep.classList.contains('active');
+    }, { timeout: 15000 });
+  }
+
+  await enterChildPin(page, seed.childPin);
+}
+
+async function loginParentEnglish(page, baseUrl, seed, { explicitLocale = true } = {}) {
+  await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded' });
+  await acceptCookies(page);
+  if (explicitLocale) {
+    await selectLoginLocale(page, 'en-GB');
+  }
+  await fillParentLogin(page, seed.email, seed.password);
+  await submitParentLogin(page);
+}
+
 module.exports = {
   VIEWPORTS,
   launchBrowser,
@@ -266,6 +351,7 @@ module.exports = {
   waitForAuthEntryReady,
   selectLoginLocale,
   getVisibleChromeText,
+  getVisibleTextInSelectors,
   getParentShellChromeText,
   getParentHomeHubText,
   getParentPlanningScheduleText,
@@ -273,5 +359,7 @@ module.exports = {
   parentLogout,
   fillParentLogin,
   submitParentLogin,
+  loginParentEnglish,
+  loginChildFromParentSession,
   enterChildPin,
 };

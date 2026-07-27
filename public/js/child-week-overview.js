@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   const PANEL_ID = 'childWeekOverviewPanel';
   const BACKDROP_ID = 'childWeekOverviewBackdrop';
 
@@ -161,11 +166,11 @@
     panel.id = PANEL_ID;
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-modal', 'true');
-    panel.setAttribute('aria-label', 'Hela veckan');
+    panel.setAttribute('aria-label', t('weekOverview.ariaLabel'));
     panel.innerHTML =
       '<div class="cwo-header">' +
-        '<h2 class="cwo-title">📅 Hela veckan</h2>' +
-        '<button type="button" class="cwo-close" aria-label="Stäng">×</button>' +
+        '<h2 class="cwo-title">📅 ' + esc(t('weekOverview.title')) + '</h2>' +
+        '<button type="button" class="cwo-close" aria-label="' + esc(t('weekOverview.close')) + '">×</button>' +
       '</div>' +
       '<div class="cwo-body" id="childWeekOverviewBody"></div>';
 
@@ -180,14 +185,16 @@
 
   function renderDays(days) {
     if (!days || !days.length) {
-      return '<p class="cwo-empty">Inget schema ännu den här veckan.</p>';
+      return '<p class="cwo-empty">' + esc(t('weekOverview.empty')) + '</p>';
     }
     return days.map(function (day) {
       const todayClass = day.isToday ? ' cwo-day--today' : '';
-      const todayBadge = day.isToday ? '<span class="cwo-today-badge">Idag</span>' : '';
+      const todayBadge = day.isToday
+        ? '<span class="cwo-today-badge">' + esc(t('weekOverview.todayBadge')) + '</span>'
+        : '';
       let iconsHtml = '';
       if (!day.activities || day.activities.length === 0) {
-        iconsHtml = '<p class="cwo-empty">Inga aktiviteter</p>';
+        iconsHtml = '<p class="cwo-empty">' + esc(t('weekOverview.noActivities')) + '</p>';
       } else {
         iconsHtml = '<div class="cwo-icons">' + day.activities.map(function (act) {
           return '<span class="cwo-icon" title="' + esc(act.name) + '">' + activityIcon(act) + '</span>';
@@ -210,7 +217,7 @@
     const body = document.getElementById('childWeekOverviewBody');
     if (!panel || !backdrop || !body) return;
 
-    body.innerHTML = '<p class="cwo-loading">Laddar veckan…</p>';
+    body.innerHTML = '<p class="cwo-loading">' + esc(t('weekOverview.loading')) + '</p>';
     panel.classList.add('cwo-open');
     backdrop.classList.add('cwo-open');
 
@@ -218,7 +225,7 @@
       ? function (url) { return Auth.api(url); }
       : function (url) {
         return fetch(url, { credentials: 'include' }).then(function (r) {
-          if (!r.ok) throw new Error('Kunde inte ladda veckan');
+          if (!r.ok) throw new Error(t('weekOverview.loadFailed'));
           return r.json();
         });
       };
@@ -228,7 +235,7 @@
         body.innerHTML = renderDays(data && data.days);
       })
       .catch(function () {
-        body.innerHTML = '<p class="cwo-error">Kunde inte ladda veckan. Försök igen senare.</p>';
+        body.innerHTML = '<p class="cwo-error">' + esc(t('weekOverview.loadFailed')) + '</p>';
       });
   }
 

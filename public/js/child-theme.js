@@ -46,7 +46,7 @@
 
   const CHILD_THEMES = {
     adventure: {
-      label: 'Äventyr',
+      label: 'Adventure',
       className: 'theme-adventure',
       roomHint: 'utforskarrum',
       direction: 'kartor, stigar, märken, gömda platser',
@@ -55,7 +55,7 @@
       assets: themeAssets('adventure'),
     },
     space: {
-      label: 'Rymd',
+      label: 'Space',
       className: 'theme-space',
       roomHint: 'stjärnarkiv',
       direction: 'planeter, raketspår, kontrollpanel',
@@ -64,7 +64,7 @@
       assets: themeAssets('space'),
     },
     dinosaurs: {
-      label: 'Dinosaurier',
+      label: 'Dinosaurs',
       className: 'theme-dinosaurs',
       roomHint: 'dino-museum',
       direction: 'fossil, fotspår, djungel, utgrävning',
@@ -73,7 +73,7 @@
       assets: themeAssets('dinosaurs'),
     },
     vehicles: {
-      label: 'Fordon',
+      label: 'Vehicles',
       className: 'theme-vehicles',
       roomHint: 'banrum',
       direction: 'banor, hjul, ramper, vägmarkeringar',
@@ -82,7 +82,7 @@
       assets: themeAssets('vehicles'),
     },
     animals: {
-      label: 'Vilda djur',
+      label: 'Wild animals',
       className: 'theme-animals',
       roomHint: 'safari-samling',
       direction: 'spår, habitat, safari, natur',
@@ -91,7 +91,7 @@
       assets: themeAssets('animals'),
     },
     ocean: {
-      label: 'Havet',
+      label: 'Ocean',
       className: 'theme-ocean',
       roomHint: 'undervattensarkiv',
       direction: 'undervattensvärld, vågor, ubåt, koraller',
@@ -100,7 +100,7 @@
       assets: themeAssets('ocean'),
     },
     sports: {
-      label: 'Sport',
+      label: 'Sports',
       className: 'theme-sports',
       roomHint: 'resultattavla',
       direction: 'planer, mål, koner, resultattavla',
@@ -109,7 +109,7 @@
       assets: themeAssets('sports'),
     },
     builders: {
-      label: 'Bygg & skapa',
+      label: 'Build & create',
       className: 'theme-builders',
       roomHint: 'verkstadsrum',
       direction: 'klossar, kugghjul, ritningar, verktyg',
@@ -118,7 +118,7 @@
       assets: themeAssets('builders'),
     },
     music: {
-      label: 'Musik & rytm',
+      label: 'Music & rhythm',
       className: 'theme-music',
       roomHint: 'scenrum',
       direction: 'instrument, beats, ljudvågor, scen',
@@ -127,7 +127,7 @@
       assets: themeAssets('music'),
     },
     arcade: {
-      label: 'Spelhall',
+      label: 'Arcade',
       className: 'theme-arcade',
       roomHint: 'nivåarkiv',
       direction: 'banor, nivåer, pixelformer, power-ups',
@@ -175,7 +175,13 @@
 
   function getTheme(themeId) {
     const id = normalizeThemeId(themeId);
-    return CHILD_THEMES[id] || CHILD_THEMES[DEFAULT_THEME];
+    const base = CHILD_THEMES[id] || CHILD_THEMES[DEFAULT_THEME];
+    let label = base.label;
+    if (typeof window.cpt === 'function') {
+      const localized = cpt('themes.' + id);
+      if (localized && localized !== 'child.themes.' + id) label = localized;
+    }
+    return Object.assign({}, base, { label: label });
   }
 
   function getActiveThemeId() {

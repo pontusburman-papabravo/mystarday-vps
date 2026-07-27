@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   function hasPhoto(item) {
     return !!(window.ActivityVisual && ActivityVisual.pick(item).url);
   }
@@ -38,7 +43,7 @@
             '📋 Delsteg <span class="chevron">▾</span>' +
           '</button>' +
           (!isExpanded && !intro
-            ? '<div class="intro-tooltip" id="intro-tooltip-' + item.id + '">Tryck för att se stegen! 👆</div>'
+            ? '<div class="intro-tooltip" id="intro-tooltip-' + item.id + '">' + t('scheduleChrome.substepIntro') + '</div>'
             : '') +
         '</div>' +
         '<div class="substep-container ' + (isExpanded ? 'expanded' : '') + '" id="substeps-' + item.id + '">' +
@@ -63,7 +68,7 @@
   function starRewardHtml(item) {
     if (!item || !item.star_value || item.star_value < 1) return '';
     return (
-      '<span class="photo-activity-card__reward" aria-label="Belöning vid avklaring">+' +
+      '<span class="photo-activity-card__reward" aria-label="' + t('todayTasks.rewardAria') + '">+' +
       item.star_value + ' ⭐</span>'
     );
   }
@@ -164,7 +169,7 @@
 
     let badgeHtml = '';
     if (isNext) {
-      badgeHtml = '<span class="nl-chip chip-next">Nästa</span>';
+      badgeHtml = '<span class="nl-chip chip-next">' + t('scheduleChrome.nextBadge') + '</span>';
     } else if (isLater && !isDone) {
       badgeHtml = '<span class="nl-chip chip-later">Senare</span>';
     }
@@ -178,7 +183,7 @@
     }
 
     const dragHtml = (typeof allowChildReorder !== 'undefined' && allowChildReorder)
-      ? '<div class="drag-handle shrink-0 flex items-center justify-center w-10 h-10 cursor-grab" title="Dra för att ändra ordning" onclick="event.stopPropagation()">' +
+      ? '<div class="drag-handle shrink-0 flex items-center justify-center w-10 h-10 cursor-grab" title="' + t('scheduleChrome.dragReorderTitle') + '" onclick="event.stopPropagation()">' +
           '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">' +
             '<circle cx="7" cy="4" r="1.5"/><circle cx="13" cy="4" r="1.5"/>' +
             '<circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/>' +

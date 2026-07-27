@@ -10,6 +10,12 @@
       : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
   }
 
+  function formatShortDate(d) {
+    if (typeof window.formatChildShortDate === 'function') return formatChildShortDate(d);
+    const loc = typeof window.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
+    return d.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
+  }
+
   const PROGRESS_COLORS = ['gold', 'purple', 'green', 'coral', 'blue'];
   const PROGRESS_STAR_MAX = 16;
 
@@ -304,7 +310,7 @@
 
   function renderHistoryCard(r) {
     const d = new Date(r.created_at);
-    const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+    const dateStr = formatShortDate(d);
     const cost = r.star_cost ? ' · ⭐ ' + r.star_cost : '';
     return (
       '<div class="btp-history-card">' +
@@ -352,7 +358,7 @@
     let rows = '';
     grants.slice(0, 8).forEach(function (g) {
       const d = new Date(g.created_at);
-      const dateStr = d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      const dateStr = formatShortDate(d);
       rows +=
         '<div class="btp-grant">' +
           '<span class="btp-grant-stars">+' + g.star_count + ' ⭐</span>' +
