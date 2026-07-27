@@ -67,7 +67,7 @@ describe('auth i18n — static surfaces', () => {
     assert.match(entry, /authEntryI18nBootstrapped/);
     assert.match(failsafe, /auth-entry-pending/);
     assert.match(failsafe, /authEntryI18nBootstrapped/);
-    assert.match(failsafe, /localeReady/);
+    assert.match(failsafe, /__dismissAuthEntryFallback/);
   });
 
   test('post-logout auth guards avoid login reload loop', () => {
