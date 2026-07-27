@@ -54,6 +54,7 @@ describe('auth i18n — static surfaces', () => {
       assert.match(html, /auth-entry-failsafe\.js/, `${file} missing auth-entry-failsafe.js`);
       assert.match(html, /auth-entry-i18n\.js/, `${file} missing auth-entry-i18n.js`);
       assert.match(html, /auth-entry-fallback/, `${file} missing auth-entry-fallback`);
+      assert.match(html, /data-i18n-manual-init="true"/, `${file} missing data-i18n-manual-init`);
       assert.match(html, /<noscript>/, `${file} missing noscript fallback`);
       assert.match(html, /i18n\.js/, `${file} missing i18n.js`);
       if (file !== 'public/login.html') {
@@ -66,6 +67,15 @@ describe('auth i18n — static surfaces', () => {
     assert.match(entry, /authEntryI18nBootstrapped/);
     assert.match(failsafe, /auth-entry-pending/);
     assert.match(failsafe, /authEntryI18nBootstrapped/);
+    assert.match(failsafe, /localeReady/);
+  });
+
+  test('post-logout auth guards avoid login reload loop', () => {
+    const authJs = read('public/js/auth.js');
+    const i18nJs = read('public/js/i18n.js');
+    assert.match(authJs, /if \(path === target\) return;/);
+    assert.match(authJs, /if \(!Auth\.isLoggedIn\(\)\) return;/);
+    assert.match(i18nJs, /Auth\.isLoggedIn\(\)/);
   });
 
   test('auth HTML has no hardcoded Swedish placeholders', () => {
