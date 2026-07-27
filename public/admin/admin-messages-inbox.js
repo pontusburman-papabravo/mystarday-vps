@@ -20,6 +20,19 @@
 
   let activeInbox = 'unread';
   let lastLoadedMessages = [];
+  let supportTaxonomy = { rootCauses: {}, resolutionTypes: {} };
+  let supportAnalytics = null;
+  const eventCache = new Map();
+
+  const EVENT_LABELS = {
+    status_changed: 'Status ändrad',
+    reply_sent: 'Svar skickat',
+    note_saved: 'Anteckning sparad',
+    resolution_set: 'Klassificering sparad',
+    archived: 'Arkiverat',
+    auto_archived: 'Auto-arkiverat',
+    family_linked: 'Familj kopplad',
+  };
 
   function esc(str) {
     const d = document.createElement('div');
@@ -95,6 +108,88 @@
     return `<p class="text-xs text-text-soft mt-1">Familj: <button type="button" onclick="openFamilyHub('${fam.familyId}')" class="font-semibold text-gold hover:underline">${esc(label)}</button>${fam.type === 'email_match' ? ' (e-postmatch)' : ''}</p>`;
   }
 
+  function optionList(map, selected) {
+    return Object.entries(map || {}).map(([value, label]) => (
+      `<option value="${esc(value)}"${selected === value ? ' selected' : ''}>${esc(label)}</option>`
+    )).join('');
+  }
+
+  function resolutionBadge(m) {
+    const parts = [];
+    if (m.root_cause && supportTaxonomy.rootCauses[m.root_cause]) {
+      parts.push(supportTaxonomy.rootCauses[m.root_cause]);
+    }
+    if (m.resolution_type && supportTaxonomy.resolutionTypes[m.resolution_type]) {
+      parts.push(supportTaxonomy.resolutionTypes[m.resolution_type]);
+    }
+    if (!parts.length) return '';
+    return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-mint text-navy">${esc(parts.join(' · '))}</span>`;
+  }
+
+  function renderResolutionBlock(m) {
+    if (m.status === 'archived') {
+      const summary = m.resolution_summary ? `<p class="text-sm text-navy whitespace-pre-wrap mt-2">${esc(m.resolution_summary)}</p>` : '';
+      const fixRef = m.fix_reference ? `<p class="text-xs text-text-soft mt-1">Fix: ${esc(m.fix_reference)}</p>` : '';
+      return `<div class="mb-3 p-3 rounded-xl border border-lavender bg-lavender/20">
+        <p class="text-xs font-bold text-navy mb-1">Avslutat ärende</p>
+        ${resolutionBadge(m)}
+        ${summary}
+        ${fixRef}
+        ${m.archived_at ? `<p class="text-xs text-text-soft mt-2">Arkiverat ${esc(new Date(m.archived_at).toLocaleString('sv-SE'))}</p>` : ''}
+      </div>`;
+    }
+
+    return `<div class="mb-3 p-3 rounded-xl border border-lavender bg-white">
+      <p class="text-xs font-bold text-navy mb-2">Klassificera för uppföljning</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+        <select id="root-cause-${m.id}" class="px-3 py-2 rounded-lg border border-lavender text-sm">
+          <option value="">Rotorsak…</option>
+          ${optionList(supportTaxonomy.rootCauses, m.root_cause || '')}
+        </select>
+        <select id="resolution-type-${m.id}" class="px-3 py-2 rounded-lg border border-lavender text-sm">
+          <option value="">Lösningstyp…</option>
+          ${optionList(supportTaxonomy.resolutionTypes, m.resolution_type || '')}
+        </select>
+      </div>
+      <textarea id="resolution-summary-${m.id}" rows="2" placeholder="Vad gjordes? (internt)" class="w-full px-3 py-2 rounded-lg border border-lavender text-sm mb-2">${esc(m.resolution_summary || '')}</textarea>
+      <input type="text" id="fix-reference-${m.id}" value="${esc(m.fix_reference || '')}" placeholder="PR / commit / deploy (valfritt)" class="w-full px-3 py-2 rounded-lg border border-lavender text-sm mb-2">
+      <div class="flex flex-wrap gap-2">
+        <button type="button" onclick="saveMessageResolution('${m.id}')" class="px-3 py-1.5 bg-mint text-xs font-bold rounded">Spara klassificering</button>
+        <button type="button" onclick="archiveMessageWithResolution('${m.id}', '${m.message_type || ''}')" class="px-3 py-1.5 bg-lavender text-xs font-bold rounded">Stäng &amp; arkivera</button>
+      </div>
+    </div>`;
+  }
+
+  function renderEventHistoryBlock(m) {
+    return `<details class="mb-3" ontoggle="if(this.open) loadMessageEvents('${m.id}')">
+      <summary class="text-xs font-bold text-navy cursor-pointer">Historik</summary>
+      <div id="events-${m.id}" class="mt-2 text-xs text-text-soft">Laddar vid behov…</div>
+    </details>`;
+  }
+
+  async function renderSupportStats() {
+    const el = document.getElementById('messagesSupportStats');
+    if (!el) return;
+    if (!supportAnalytics) {
+      el.innerHTML = '';
+      return;
+    }
+    const t = supportAnalytics.totals || {};
+    const topCauses = (supportAnalytics.byRootCause || []).slice(0, 3);
+    const causeHtml = topCauses.length
+      ? topCauses.map((row) => {
+        const label = supportTaxonomy.rootCauses[row.root_cause] || row.root_cause;
+        return `<li>${esc(label)}: ${row.total} (${row.open_count} öppna)</li>`;
+      }).join('')
+      : '<li>Inga klassade buggar ännu</li>';
+
+    el.innerHTML = `
+      <div class="bg-sky rounded-xl p-4"><p class="text-xs text-text-soft">Öppna ärenden</p><p class="text-2xl font-bold text-navy">${t.open_count || 0}</p></div>
+      <div class="bg-gold/20 rounded-xl p-4"><p class="text-xs text-text-soft">Öppna buggar</p><p class="text-2xl font-bold text-navy">${t.open_bugs_count || 0}</p></div>
+      <div class="bg-lavender rounded-xl p-4"><p class="text-xs text-text-soft">Saknar klassificering</p><p class="text-2xl font-bold text-navy">${t.missing_resolution_count || 0}</p></div>
+      <div class="bg-mint/30 rounded-xl p-4"><p class="text-xs font-bold text-navy mb-1">Topp rotorsaker (buggar)</p><ul class="text-xs text-navy space-y-1">${causeHtml}</ul></div>`;
+  }
+
   function renderMessagesList(messages) {
     const container = document.getElementById('messagesContainer');
     if (!container) return;
@@ -113,13 +208,13 @@
               <div class="flex flex-wrap items-center gap-2">
                 <span class="font-bold text-navy">${esc(m.name || m.email || 'Okänd')}</span>
                 ${statusBadge(m.status)}
+                ${resolutionBadge(m)}
               </div>
               <p class="text-xs text-text-soft">${esc(m.email || '')} · ${date}</p>
               ${familyBlock(m)}
             </div>
             <div class="flex flex-wrap gap-1">
               ${m.status !== 'answered' ? `<button type="button" onclick="setMessageStatus('${m.id}','answered')" class="px-2 py-1 text-xs font-bold bg-gold rounded">Besvarad</button>` : ''}
-              ${m.status !== 'archived' ? `<button type="button" onclick="setMessageStatus('${m.id}','archived')" class="px-2 py-1 text-xs font-bold bg-lavender rounded">Arkivera</button>` : ''}
               ${m.status === 'new' ? `<button type="button" onclick="toggleRead('${m.id}', true)" class="px-2 py-1 text-xs font-bold bg-sky rounded">Markera läst</button>` : ''}
             </div>
           </div>
@@ -131,6 +226,8 @@
             <textarea id="reply-${m.id}" rows="5" placeholder="Skriv ditt svar här…" class="w-full px-3 py-2 rounded-xl border border-lavender text-sm mb-2"></textarea>
             <button type="button" onclick="sendMessageReply('${m.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy text-sm font-bold rounded-xl">Skicka svar</button>
           </div>` : '<p class="text-xs text-coral mb-3">Kan inte svara — meddelandet saknar e-postadress.</p>'}
+          ${renderResolutionBlock(m)}
+          ${renderEventHistoryBlock(m)}
           <div class="flex gap-2">
             <input type="text" id="note-${m.id}" value="${esc(extractManualNote(m.internal_note))}" placeholder="Intern anteckning..." class="flex-1 px-3 py-1.5 rounded-lg border border-lavender text-sm">
             <button type="button" onclick="saveNote('${m.id}')" class="px-3 py-1.5 bg-mint text-xs font-bold rounded">Spara</button>
@@ -153,6 +250,104 @@
       return name.includes(q) || email.includes(q) || message.includes(q);
     });
     renderMessagesList(filtered);
+  }
+
+  async function loadSupportAnalytics() {
+    try {
+      supportAnalytics = await Auth.api('/api/admin/contact-messages/analytics');
+      await renderSupportStats();
+    } catch (e) {
+      console.error('[INBOX] analytics', e);
+    }
+  }
+
+  async function loadTaxonomy() {
+    try {
+      const data = await Auth.api('/api/admin/contact-messages/taxonomy');
+      supportTaxonomy = {
+        rootCauses: data.rootCauses || {},
+        resolutionTypes: data.resolutionTypes || {},
+      };
+    } catch (e) {
+      console.error('[INBOX] taxonomy', e);
+    }
+  }
+
+  function readResolutionForm(id) {
+    return {
+      root_cause: document.getElementById('root-cause-' + id)?.value || '',
+      resolution_type: document.getElementById('resolution-type-' + id)?.value || '',
+      resolution_summary: document.getElementById('resolution-summary-' + id)?.value?.trim() || '',
+      fix_reference: document.getElementById('fix-reference-' + id)?.value?.trim() || '',
+    };
+  }
+
+  async function saveMessageResolution(id) {
+    const body = readResolutionForm(id);
+    if (!body.resolution_type) {
+      alert('Välj en lösningstyp.');
+      return;
+    }
+    try {
+      await Auth.api('/api/admin/contact-messages/' + id + '/resolution', {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      });
+      eventCache.delete(String(id));
+      await Promise.all([loadMessagesInbox(), loadSupportAnalytics()]);
+    } catch (e) {
+      alert(e?.message || 'Kunde inte spara klassificering');
+    }
+  }
+
+  async function archiveMessageWithResolution(id, messageType) {
+    const body = readResolutionForm(id);
+    if (!body.resolution_type) {
+      alert('Välj en lösningstyp innan arkivering.');
+      return;
+    }
+    if (messageType === 'bug' && !body.root_cause) {
+      alert('Buggrapporter kräver rotorsak innan arkivering.');
+      return;
+    }
+    if (!confirm('Stäng och arkivera ärendet?')) return;
+
+    try {
+      await Auth.api('/api/admin/contact-messages/' + id + '/archive', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      eventCache.delete(String(id));
+      await Promise.all([loadMessagesInbox(), loadSupportAnalytics()]);
+      if (typeof loadStartSummary === 'function') loadStartSummary();
+    } catch (e) {
+      alert(e?.message || 'Kunde inte arkivera ärendet');
+    }
+  }
+
+  async function loadMessageEvents(id) {
+    const container = document.getElementById('events-' + id);
+    if (!container || eventCache.has(String(id))) {
+      if (container && eventCache.has(String(id))) {
+        container.innerHTML = eventCache.get(String(id));
+      }
+      return;
+    }
+    try {
+      const events = await Auth.api('/api/admin/contact-messages/' + id + '/events');
+      const html = Array.isArray(events) && events.length
+        ? events.map((ev) => {
+          const when = new Date(ev.created_at).toLocaleString('sv-SE');
+          const label = EVENT_LABELS[ev.event_type] || ev.event_type;
+          const who = ev.admin_name ? ` · ${ev.admin_name}` : '';
+          return `<div class="py-1 border-b border-lavender/40">${esc(when)} · ${esc(label)}${esc(who)}</div>`;
+        }).join('')
+        : '<div>Ingen historik ännu</div>';
+      eventCache.set(String(id), html);
+      container.innerHTML = html;
+    } catch (e) {
+      container.innerHTML = '<div class="text-coral">Kunde inte ladda historik</div>';
+    }
   }
 
   async function loadMessagesInbox() {
@@ -237,6 +432,8 @@
 
   function initMessagesInbox() {
     renderInboxTabs();
+    loadTaxonomy();
+    loadSupportAnalytics();
     const hash = window.location.hash || '';
     if (hash.includes('inbox=unread')) activeInbox = 'unread';
     if (hash.includes('followup=1')) window._messagesFollowupFilter = true;
@@ -247,6 +444,9 @@
   window.setMessageStatus = setMessageStatus;
   window.sendMessageReply = sendMessageReply;
   window.linkMessageFamily = linkMessageFamily;
+  window.saveMessageResolution = saveMessageResolution;
+  window.archiveMessageWithResolution = archiveMessageWithResolution;
+  window.loadMessageEvents = loadMessageEvents;
   window.initMessagesInbox = initMessagesInbox;
 
   document.addEventListener('DOMContentLoaded', initMessagesInbox);

@@ -1,7 +1,13 @@
 /**
- * contact_message queries — Fas 3A inbox model.
+ * contact_message queries — Fas 3A inbox model + support ops (resolution, archive).
  */
 const db = require('../src/lib/db');
+const events = require('./contact-message-events');
+const {
+  isValidRootCause,
+  isValidResolutionType,
+  AUTO_ARCHIVE_DAYS,
+} = require('../config/support-taxonomy');
 
 const MESSAGE_STATUSES = ['new', 'read', 'in_progress', 'answered', 'archived'];
 const INBOX_TABS = {
@@ -55,6 +61,8 @@ async function listMessages({ type, status, inbox, followup, limit = 100 } = {})
        cm.id, cm.name, cm.email, cm.message, cm.message_type,
        cm.is_read, cm.internal_note, cm.noted_at, cm.noted_by, cm.created_at,
        cm.status, cm.answered_at, cm.assigned_to, cm.family_id,
+       cm.root_cause, cm.resolution_type, cm.resolution_summary, cm.fix_reference,
+       cm.resolved_at, cm.resolved_by, cm.archived_at, cm.archived_by,
        f.name AS family_name,
        inf.id AS inferred_family_id,
        inf.name AS inferred_family_name
@@ -97,19 +105,27 @@ async function updateMessageStatus(id, status, adminId) {
   }
 
   const isRead = status !== 'new';
-  const answeredAt = status === 'answered' ? new Date() : null;
 
   const { rows } = await db.query(
     `UPDATE contact_message SET
        status = $1,
        is_read = $2,
        answered_at = CASE WHEN $1 = 'answered' THEN COALESCE(answered_at, NOW()) ELSE answered_at END,
-       assigned_to = COALESCE(assigned_to, $3)
+       assigned_to = COALESCE(assigned_to, $3),
+       archived_at = CASE WHEN $1 = 'archived' THEN COALESCE(archived_at, NOW()) ELSE archived_at END,
+       archived_by = CASE WHEN $1 = 'archived' THEN COALESCE(archived_by, $3) ELSE archived_by END
      WHERE id = $4
      RETURNING *`,
     [status, isRead, adminId, id]
   );
-  return rows[0] || null;
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'status_changed', {
+      adminId,
+      payload: { status },
+    });
+  }
+  return row;
 }
 
 async function setMessageRead(id, isRead, adminId) {
@@ -138,15 +154,29 @@ async function saveMessageNote(id, note, adminId) {
      RETURNING *`,
     [note || null, adminId, id]
   );
-  return rows[0] || null;
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'note_saved', {
+      adminId,
+      payload: { has_note: Boolean(note && String(note).trim()) },
+    });
+  }
+  return row;
 }
 
-async function linkMessageFamily(id, familyId) {
+async function linkMessageFamily(id, familyId, adminId = null) {
   const { rows } = await db.query(
     `UPDATE contact_message SET family_id = $1 WHERE id = $2 RETURNING *`,
     [familyId || null, id]
   );
-  return rows[0] || null;
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'family_linked', {
+      adminId,
+      payload: { family_id: familyId || null },
+    });
+  }
+  return row;
 }
 
 async function getMessageById(id) {
@@ -183,7 +213,14 @@ async function recordMessageReply(id, { replyBody, adminId, emailId }) {
      RETURNING *`,
     [adminId, noteBlock, id]
   );
-  return rows[0] || null;
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'reply_sent', {
+      adminId,
+      payload: { email_id: emailId || null },
+    });
+  }
+  return row;
 }
 
 async function deleteMessage(id) {
@@ -192,6 +229,209 @@ async function deleteMessage(id) {
     [id]
   );
   return rows[0] || null;
+}
+
+function normalizeResolutionInput(input = {}) {
+  const rootCause = input.root_cause || input.rootCause || null;
+  const resolutionType = input.resolution_type || input.resolutionType || null;
+  const resolutionSummary = typeof input.resolution_summary === 'string'
+    ? input.resolution_summary.trim()
+    : typeof input.resolutionSummary === 'string'
+      ? input.resolutionSummary.trim()
+      : null;
+  const fixReference = typeof input.fix_reference === 'string'
+    ? input.fix_reference.trim().slice(0, 255)
+    : typeof input.fixReference === 'string'
+      ? input.fixReference.trim().slice(0, 255)
+      : null;
+
+  if (rootCause && !isValidRootCause(rootCause)) {
+    throw Object.assign(new Error('Ogiltig rotorsak'), { statusCode: 400 });
+  }
+  if (resolutionType && !isValidResolutionType(resolutionType)) {
+    throw Object.assign(new Error('Ogiltig lösningstyp'), { statusCode: 400 });
+  }
+  if (resolutionSummary && resolutionSummary.length > 2000) {
+    throw Object.assign(new Error('Lösningsbeskrivning får vara högst 2000 tecken'), { statusCode: 400 });
+  }
+
+  return {
+    rootCause: rootCause || null,
+    resolutionType: resolutionType || null,
+    resolutionSummary: resolutionSummary || null,
+    fixReference: fixReference || null,
+  };
+}
+
+async function saveResolution(id, input, adminId) {
+  const {
+    rootCause,
+    resolutionType,
+    resolutionSummary,
+    fixReference,
+  } = normalizeResolutionInput(input);
+
+  if (!resolutionType) {
+    throw Object.assign(new Error('Lösningstyp krävs'), { statusCode: 400 });
+  }
+
+  const { rows } = await db.query(
+    `UPDATE contact_message SET
+       root_cause = COALESCE($1, root_cause),
+       resolution_type = $2,
+       resolution_summary = COALESCE($3, resolution_summary),
+       fix_reference = COALESCE($4, fix_reference),
+       resolved_at = NOW(),
+       resolved_by = $5
+     WHERE id = $6
+     RETURNING *`,
+    [rootCause, resolutionType, resolutionSummary, fixReference, adminId, id]
+  );
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'resolution_set', {
+      adminId,
+      payload: {
+        root_cause: row.root_cause,
+        resolution_type: row.resolution_type,
+        fix_reference: row.fix_reference || null,
+      },
+    });
+  }
+  return row;
+}
+
+async function archiveMessage(id, { adminId = null, auto = false, resolution = null } = {}) {
+  let resolutionFields = null;
+  if (resolution) {
+    resolutionFields = normalizeResolutionInput(resolution);
+  }
+
+  const params = [id, adminId];
+  let resolutionSql = '';
+  if (resolutionFields) {
+    params.push(
+      resolutionFields.rootCause,
+      resolutionFields.resolutionType,
+      resolutionFields.resolutionSummary,
+      resolutionFields.fixReference
+    );
+    resolutionSql = `,
+      root_cause = COALESCE($3, root_cause),
+      resolution_type = COALESCE($4, resolution_type),
+      resolution_summary = COALESCE($5, resolution_summary),
+      fix_reference = COALESCE($6, fix_reference),
+      resolved_at = COALESCE(resolved_at, NOW()),
+      resolved_by = COALESCE(resolved_by, $2)`;
+  }
+
+  const { rows } = await db.query(
+    `UPDATE contact_message SET
+       status = 'archived',
+       is_read = true,
+       archived_at = COALESCE(archived_at, NOW()),
+       archived_by = COALESCE(archived_by, $2)
+       ${resolutionSql}
+     WHERE id = $1
+       AND status != 'archived'
+     RETURNING *`,
+    params
+  );
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, auto ? 'auto_archived' : 'archived', {
+      adminId,
+      payload: {
+        auto,
+        root_cause: row.root_cause,
+        resolution_type: row.resolution_type,
+      },
+    });
+  }
+  return row;
+}
+
+async function getSupportAnalytics() {
+  const { rows: totalsRows } = await db.query(`
+    SELECT
+      COUNT(*) FILTER (WHERE status IN ('new', 'read', 'in_progress'))::int AS open_count,
+      COUNT(*) FILTER (WHERE status = 'answered')::int AS answered_unarchived_count,
+      COUNT(*) FILTER (WHERE status = 'archived')::int AS archived_count,
+      COUNT(*) FILTER (
+        WHERE message_type = 'bug' AND status IN ('new', 'read', 'in_progress', 'answered')
+      )::int AS open_bugs_count,
+      COUNT(*) FILTER (
+        WHERE status IN ('answered', 'archived') AND resolution_type IS NULL
+      )::int AS missing_resolution_count,
+      COUNT(*) FILTER (
+        WHERE message_type = 'bug'
+          AND status IN ('answered', 'archived')
+          AND root_cause IS NULL
+      )::int AS bugs_missing_root_cause_count
+    FROM contact_message
+  `);
+
+  const { rows: byRootCause } = await db.query(`
+    SELECT
+      COALESCE(root_cause, 'unknown') AS root_cause,
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status IN ('new', 'read', 'in_progress', 'answered'))::int AS open_count
+    FROM contact_message
+    WHERE message_type = 'bug'
+    GROUP BY COALESCE(root_cause, 'unknown')
+    ORDER BY total DESC, root_cause ASC
+    LIMIT 20
+  `);
+
+  const { rows: byResolution } = await db.query(`
+    SELECT
+      resolution_type,
+      COUNT(*)::int AS total
+    FROM contact_message
+    WHERE resolution_type IS NOT NULL
+    GROUP BY resolution_type
+    ORDER BY total DESC
+    LIMIT 20
+  `);
+
+  const { rows: recentResolved } = await db.query(`
+    SELECT
+      id, message_type, root_cause, resolution_type, resolution_summary,
+      fix_reference, resolved_at, archived_at, status
+    FROM contact_message
+    WHERE resolved_at IS NOT NULL
+    ORDER BY resolved_at DESC
+    LIMIT 8
+  `);
+
+  return {
+    totals: totalsRows[0] || {},
+    byRootCause,
+    byResolution,
+    recentResolved,
+  };
+}
+
+async function autoArchiveStaleAnsweredMessages() {
+  const { rows } = await db.query(
+    `SELECT id
+     FROM contact_message
+     WHERE status = 'answered'
+       AND archived_at IS NULL
+       AND answered_at IS NOT NULL
+       AND answered_at < NOW() - ($1::int * INTERVAL '1 day')
+     ORDER BY answered_at ASC
+     LIMIT 200`,
+    [AUTO_ARCHIVE_DAYS]
+  );
+
+  let archived = 0;
+  for (const row of rows) {
+    const updated = await archiveMessage(row.id, { adminId: null, auto: true });
+    if (updated) archived += 1;
+  }
+
+  return { archived, candidates: rows.length };
 }
 
 async function getLatestFollowUpMessages(limit = 5) {
@@ -221,6 +461,10 @@ module.exports = {
   linkMessageFamily,
   getMessageById,
   recordMessageReply,
+  saveResolution,
+  archiveMessage,
+  getSupportAnalytics,
+  autoArchiveStaleAnsweredMessages,
   deleteMessage,
   getLatestFollowUpMessages,
 };
