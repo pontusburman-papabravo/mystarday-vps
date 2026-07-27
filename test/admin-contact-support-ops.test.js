@@ -32,6 +32,7 @@ describe('admin contact message support ops', () => {
     assert.match(src, /async function saveResolution/);
     assert.match(src, /async function archiveMessage/);
     assert.match(src, /async function getSupportAnalytics/);
+    assert.match(src, /bugsOverTime/);
     assert.match(src, /async function autoArchiveStaleAnsweredMessages/);
     assert.match(src, /contact-message-events/);
   });
@@ -57,5 +58,14 @@ describe('admin contact message support ops', () => {
     assert.match(src, /messagesSupportStats/);
     assert.match(src, /loadMessageEvents/);
     assert.match(src, /Klassificera för uppföljning/);
+    assert.match(src, /renderArendenCharts/);
+  });
+
+  it('arenden charts module renders bug trend and area charts', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/admin/admin-arenden-charts.js'), 'utf8');
+    assert.match(src, /renderArendenCharts/);
+    assert.match(src, /arendenBugTrendChart/);
+    assert.match(src, /arendenBugAreaChart/);
+    assert.match(src, /indexAxis: 'y'/);
   });
 });

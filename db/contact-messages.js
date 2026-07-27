@@ -375,12 +375,47 @@ async function getSupportAnalytics() {
     SELECT
       COALESCE(root_cause, 'unknown') AS root_cause,
       COUNT(*)::int AS total,
-      COUNT(*) FILTER (WHERE status IN ('new', 'read', 'in_progress', 'answered'))::int AS open_count
+      COUNT(*) FILTER (WHERE status IN ('new', 'read', 'in_progress', 'answered'))::int AS open_count,
+      COUNT(*) FILTER (WHERE status = 'archived' OR resolved_at IS NOT NULL)::int AS handled_count
     FROM contact_message
     WHERE message_type = 'bug'
     GROUP BY COALESCE(root_cause, 'unknown')
     ORDER BY total DESC, root_cause ASC
     LIMIT 20
+  `);
+
+  const { rows: bugsOverTime } = await db.query(`
+    WITH weeks AS (
+      SELECT generate_series(
+        date_trunc('week', (NOW() AT TIME ZONE 'Europe/Stockholm') - INTERVAL '11 weeks')::date,
+        date_trunc('week', (NOW() AT TIME ZONE 'Europe/Stockholm'))::date,
+        INTERVAL '1 week'
+      )::date AS week_start
+    )
+    SELECT
+      w.week_start,
+      COUNT(cm.id)::int AS total,
+      COUNT(cm.id) FILTER (
+        WHERE cm.status IN ('new', 'read', 'in_progress', 'answered')
+      )::int AS open_count,
+      COUNT(cm.id) FILTER (WHERE cm.root_cause IS NOT NULL)::int AS classified_count
+    FROM weeks w
+    LEFT JOIN contact_message cm
+      ON cm.message_type = 'bug'
+     AND date_trunc('week', cm.created_at AT TIME ZONE 'Europe/Stockholm')::date = w.week_start
+    GROUP BY w.week_start
+    ORDER BY w.week_start ASC
+  `);
+
+  const { rows: bugsByType } = await db.query(`
+    SELECT
+      message_type,
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status IN ('new', 'read', 'in_progress', 'answered'))::int AS open_count
+    FROM contact_message
+    WHERE message_type IN ('bug', 'feedback', 'contact', 'language')
+    GROUP BY message_type
+    ORDER BY total DESC
   `);
 
   const { rows: byResolution } = await db.query(`
@@ -407,6 +442,8 @@ async function getSupportAnalytics() {
   return {
     totals: totalsRows[0] || {},
     byRootCause,
+    bugsOverTime,
+    bugsByType,
     byResolution,
     recentResolved,
   };
