@@ -122,6 +122,18 @@ test('legacy-language notice — relevant only after sv → en switch, once unti
     })).json();
     assert.equal(enCtx.show_legacy_language_notice, false);
 
+    // ── Early beta family (backfilled, previous_locale never tracked): shown ──
+    await pg.query(
+      `UPDATE family SET previous_locale = NULL, english_beta_offer_state = 'accepted_english_beta',
+         legacy_language_notice_dismissed_at = NULL
+       WHERE id = (SELECT family_id FROM parent WHERE LOWER(email) = $1)`,
+      [en.email.toLowerCase()]
+    );
+    const earlyCtx = await (await fetch(`${http.baseUrl}/api/family/locale-context`, {
+      headers: { Cookie: en.cookies },
+    })).json();
+    assert.equal(earlyCtx.show_legacy_language_notice, true, 'backfilled early beta family should see the notice');
+
     // New English families seed English activities
     const enActs = await pg.query(
       `SELECT at.name FROM activity_template at

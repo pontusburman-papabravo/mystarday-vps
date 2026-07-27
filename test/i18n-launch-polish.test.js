@@ -23,7 +23,22 @@ describe('legacy-language notice relevance (pure DB signal)', () => {
     }), true);
   });
 
+  it('relevant: early beta family (backfilled accepted state, no previous_locale)', () => {
+    assert.equal(shouldShowLegacyLanguageNotice({
+      preferred_locale: 'en-GB',
+      previous_locale: null,
+      english_beta_offer_state: 'accepted_english_beta',
+      legacy_language_notice_dismissed_at: null,
+    }), true);
+  });
+
   it('not relevant: new English family (no previous locale)', () => {
+    assert.equal(shouldShowLegacyLanguageNotice({
+      preferred_locale: 'en-GB',
+      previous_locale: null,
+      english_beta_offer_state: 'registration_decided',
+      legacy_language_notice_dismissed_at: null,
+    }), false);
     assert.equal(shouldShowLegacyLanguageNotice({
       preferred_locale: 'en-GB',
       previous_locale: null,

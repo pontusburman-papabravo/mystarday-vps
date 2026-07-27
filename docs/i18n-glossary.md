@@ -33,8 +33,13 @@ on Home:
 
 ```
 family.preferred_locale = 'en-GB'
-AND family.previous_locale LIKE 'sv%'   -- set by all three locale-switch paths
 AND family.legacy_language_notice_dismissed_at IS NULL
+AND (
+  family.previous_locale LIKE 'sv%'          -- tracked switches
+  OR (family.previous_locale IS NULL
+      AND family.english_beta_offer_state = 'accepted_english_beta')
+      -- early beta families backfilled before previous_locale existed
+)
 ```
 
 `previous_locale` is written by the settings PUT (`src/routes/family/core.js`),
