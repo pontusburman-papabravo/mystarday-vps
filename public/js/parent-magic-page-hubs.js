@@ -69,6 +69,35 @@
     });
   }
 
+  function dailyLogHomeButton() {
+    return '<a href="/dashboard" class="library-magic-planning-back planning-magic-back" data-daily-log-home="1">' +
+      escHtml(pt('today.shell.backToHome')) + '</a>';
+  }
+
+  function bindDailyLogHome(root) {
+    if (!root) return;
+    const link = root.querySelector('[data-daily-log-home]');
+    if (!link || link.dataset.bound) return;
+    link.dataset.bound = '1';
+    link.addEventListener('click', function (e) {
+      if (window.NavConfig && NavConfig.navigateHomeFromDailyLog('/dashboard', e)) return;
+      e.preventDefault();
+      window.location.href = '/dashboard';
+    });
+  }
+
+  function renderDailyLogHero() {
+    const cfg = PAGE_HEROES['daily-log'] || { icon: 'historik', titleKey: 'home.hubs.dailyLogTitle', subKey: 'home.hubs.dailyLogSub' };
+    const copy = heroCopy(cfg);
+    return '<div class="magic-page-shell magic-3d-scene">' +
+      planningBackButton() +
+      dailyLogHomeButton() +
+      '<div class="magic-page-hero">' +
+      '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon(cfg.icon) + '</div>' +
+      '<div><h1>' + escHtml(copy.title) + '</h1><p>' + escHtml(copy.sub) + '</p></div>' +
+      '</div></div>';
+  }
+
   function renderScheduleModeBar() {
     return '<div class="schedule-mode-toggle schedule-magic-mode-bar" role="group" aria-label="' + escHtml(pt('schedule.mode.aria')) + '">' +
       '<button type="button" class="schedule-mode-btn active" data-schedule-mode="single">👤 ' + escHtml(pt('schedule.mode.single')) + '</button>' +
@@ -387,6 +416,10 @@
     } else if (page === 'rewards') {
       el.innerHTML = '';
       el.classList.add('hidden');
+    } else if (page === 'daily-log') {
+      el.innerHTML = renderDailyLogHero();
+      bindPlanningBack(el);
+      bindDailyLogHome(el);
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);

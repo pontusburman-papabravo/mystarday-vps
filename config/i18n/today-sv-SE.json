@@ -2,6 +2,7 @@
   "pageTitle": "Daglig logg — {{brand}}",
   "shell": {
     "headerTitle": "Daglig logg",
+    "backToHome": "← Till Hem",
     "pdfHint": "Skapa PDF av dag, vecka eller mina dagar",
     "printBtn": "📄 Skapa PDF ▾",
     "printDay": "📄 Skapa PDF — dag",
