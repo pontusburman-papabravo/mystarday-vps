@@ -18,7 +18,8 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      z-index: 9999;
+      /* Below modal overlays (z-50) so the bubble never covers modal CTAs */
+      z-index: 40;
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
 

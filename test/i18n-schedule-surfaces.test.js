@@ -46,7 +46,7 @@ describe('schedule/planning i18n surfaces', () => {
   it('schedule en-GB exposes modal and validation keys', () => {
     assert.equal(t('en-GB', 'schedule.documentTitle', { brand: 'My Starday' }), 'Schedule — My Starday');
     assert.equal(t('en-GB', 'schedule.chrome.viewNormal'), '📋 Schedule');
-    assert.equal(t('en-GB', 'schedule.modals.giveStars.title'), 'Give extra stars');
+    assert.equal(t('en-GB', 'schedule.modals.giveStars.title'), 'Give bonus stars');
     assert.equal(t('en-GB', 'schedule.validation.pickActivity'), 'Choose an activity');
     assert.equal(t('en-GB', 'schedule.days.1'), 'Monday');
     assert.equal(t('en-GB', 'schedule.sections.morgon'), 'Morning');

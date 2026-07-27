@@ -30,13 +30,12 @@
       "tryEnglish": "Prova engelska beta",
       "remindLater": "Påminn mig senare"
     },
-    "betaBanner": {
-      "title": "English beta",
-      "body": "Den engelska versionen utvecklas fortfarande. Viss text kan visas på svenska och du kan hitta översättnings- eller visningsfel.",
-      "report": "Rapportera språkfel",
-      "switchBack": "Byt tillbaka till svenska",
-      "dismissAria": "Stäng"
+    "legacyNotice": {
+      "body": "Befintliga aktiviteter behåller sitt nuvarande språk. Nya aktiviteter skapas på svenska.",
+      "dismiss": "Okej",
+      "dismissAria": "Stäng språknotisen"
     },
+    "reportIssue": "Rapportera språkfel",
     "feedback": {
       "typeLabel": "Språk- eller översättningsfel",
       "typeLabelEn": "Language or translation issue",

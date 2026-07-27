@@ -23,7 +23,7 @@
     "aria": "Quick actions",
     "retroactive": "Log later",
     "onceTask": "One-off activity",
-    "extraStars": "Extra stars",
+    "extraStars": "Bonus stars",
     "dayOff": "Day off"
   },
   "handoff": {
@@ -89,7 +89,7 @@
     "nextActivitySub": "Next activity in the routine",
     "openToday": "Open Today",
     "calmDayHeadline": "Calm day — no routine right now",
-    "calmDaySub": "A good moment to add activities or give extra stars",
+    "calmDaySub": "A good moment to add activities or give bonus stars",
     "defaultChild": "Your child",
     "pageTitleStars": "🌟 Today's stars",
     "pageTitleWelcome": "👋 Welcome back",

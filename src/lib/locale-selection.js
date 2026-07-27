@@ -73,6 +73,23 @@ function remindLaterTimestamp(now = new Date()) {
   return d;
 }
 
+/**
+ * Whether the one-time "existing activities stay in their original language"
+ * notice is relevant. Pure DB signal — no free-text heuristics:
+ * the family is on en-GB, previously used a Swedish locale (so its seeded/user
+ * content was created under sv), and has not dismissed the notice.
+ * @param {object} familyRow — needs preferred_locale, previous_locale,
+ *   legacy_language_notice_dismissed_at
+ * @returns {boolean}
+ */
+function shouldShowLegacyLanguageNotice(familyRow) {
+  if (!familyRow) return false;
+  if (validateLocale(familyRow.preferred_locale) !== 'en-GB') return false;
+  if (familyRow.legacy_language_notice_dismissed_at) return false;
+  const previous = String(familyRow.previous_locale || '');
+  return previous.toLowerCase().startsWith('sv');
+}
+
 function buildLocaleContextRow(row) {
   if (!row) return null;
   return {
@@ -84,6 +101,7 @@ function buildLocaleContextRow(row) {
     english_beta_offer_remind_at: row.english_beta_offer_remind_at || null,
     show_english_beta_offer: shouldShowEnglishBetaOffer(row),
     english_is_beta: validateLocale(row.preferred_locale) === 'en-GB',
+    show_legacy_language_notice: shouldShowLegacyLanguageNotice(row),
   };
 }
 
@@ -96,6 +114,7 @@ module.exports = {
   isValidOfferState,
   isValidSelectionSource,
   shouldShowEnglishBetaOffer,
+  shouldShowLegacyLanguageNotice,
   remindLaterTimestamp,
   buildLocaleContextRow,
 };
