@@ -8,13 +8,21 @@
     return typeof window.speechSynthesis !== 'undefined';
   }
 
+  /** SpeechSynthesisUtterance.lang — follows child UI locale, not hardcoded sv-SE. */
+  function resolveReadAloudLang() {
+    if (typeof global.getChildUiLocale === 'function' && global.getChildUiLocale() === 'en-GB') {
+      return 'en-GB';
+    }
+    return 'sv-SE';
+  }
+
   function speakNow(itemId) {
     if (!isAvailable()) return;
     const card = document.getElementById('card-' + itemId);
     if (!card) return;
     const texts = Array.from(card.querySelectorAll('.teacch-q-text')).map((el) => el.textContent);
     const utter = new SpeechSynthesisUtterance(texts.join('. '));
-    utter.lang = 'sv-SE';
+    utter.lang = resolveReadAloudLang();
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
     try {
@@ -27,5 +35,5 @@
     } catch (_) {}
   }
 
-  global.ChildReadAloud = { isAvailable, speakNow };
+  global.ChildReadAloud = { isAvailable, speakNow, resolveReadAloudLang };
 })(window);
