@@ -190,7 +190,9 @@ const Auth = {
       path === '/child-dashboard' ||
       path.indexOf('/child/') === 0 ||
       path === '/child-login';
-    window.location.href = childContext ? '/child-login' : '/login';
+    const target = childContext ? '/child-login' : '/login';
+    if (path === target) return;
+    window.location.replace(target);
   },
 
   /**
@@ -509,9 +511,9 @@ const Auth = {
       (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) ||
       (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
     ) {
-      window.location.href = '/login';
+      window.location.replace('/login');
     } else {
-      window.location.href = '/';
+      window.location.replace('/');
     }
   },
 
@@ -812,6 +814,7 @@ window.Auth = Auth;
 // Re-schedule refresh on page load (skip on Android — defer until after dashboard auth).
 (function () {
   if (document.documentElement.classList.contains('is-native-android')) return;
+  if (!Auth.isLoggedIn()) return;
   const expMs = Auth._getExpiryMs();
   if (expMs) {
     if (Date.now() < expMs) {

@@ -121,7 +121,10 @@
       return;
     }
     ensureLocaleGate();
-    await I18n.init();
+    const localeAlreadyLoaded = Object.keys(I18n.locale || {}).length > 0;
+    if (!localeAlreadyLoaded) {
+      await I18n.init();
+    }
     applyAll();
     revealContent();
     if (window.LocaleSwitcher) {
@@ -196,12 +199,21 @@
     document.head.appendChild(style);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    bootstrap().catch((err) => {
-      console.warn('[auth-entry-i18n] bootstrap failed:', err);
-      revealContent();
-    });
-  });
+  function scheduleBootstrap() {
+    const run = () => {
+      bootstrap().catch((err) => {
+        console.warn('[auth-entry-i18n] bootstrap failed:', err);
+        revealContent();
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  }
+
+  scheduleBootstrap();
 
   window.authT = authT;
   window.authBrandName = brandName;

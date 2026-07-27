@@ -35,7 +35,13 @@ const I18n = {
         if (user?.preferred_locale) lang = this._normalize(user.preferred_locale);
       }
 
-      if (!lang && window.Auth && typeof Auth.api === 'function') {
+      if (
+        !lang &&
+        window.Auth &&
+        typeof Auth.api === 'function' &&
+        typeof Auth.isLoggedIn === 'function' &&
+        Auth.isLoggedIn()
+      ) {
         try {
           const me = await Auth.api('/api/auth/me');
           if (me?.preferred_locale) lang = this._normalize(me.preferred_locale);
