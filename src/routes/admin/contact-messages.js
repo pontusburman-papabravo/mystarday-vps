@@ -3,8 +3,13 @@
  */
 const express = require('express');
 const contactMessages = require('../../../db/contact-messages');
+const messageEvents = require('../../../db/contact-message-events');
 const { sendEmail } = require('../../lib/email');
 const { buildReplySubject, buildReplyBodies } = require('../../lib/contact-message-reply');
+const {
+  ROOT_CAUSES,
+  RESOLUTION_TYPES,
+} = require('../../../config/support-taxonomy');
 const config = require('../../lib/config');
 
 const router = express.Router();
@@ -48,6 +53,31 @@ router.get('/contact-messages/counts', async (req, res, next) => {
   }
 });
 
+router.get('/contact-messages/taxonomy', async (req, res) => {
+  res.json({
+    rootCauses: ROOT_CAUSES,
+    resolutionTypes: RESOLUTION_TYPES,
+  });
+});
+
+router.get('/contact-messages/analytics', async (req, res, next) => {
+  try {
+    const analytics = await contactMessages.getSupportAnalytics();
+    res.json(analytics);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/contact-messages/:id/events', async (req, res, next) => {
+  try {
+    const events = await messageEvents.listEventsForMessage(req.params.id);
+    res.json(events);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.patch('/contact-messages/:id/status', async (req, res, next) => {
   try {
     const { status } = req.body || {};
@@ -67,10 +97,45 @@ router.patch('/contact-messages/:id/status', async (req, res, next) => {
 router.patch('/contact-messages/:id/family', async (req, res, next) => {
   try {
     const { family_id: familyId } = req.body || {};
-    const row = await contactMessages.linkMessageFamily(req.params.id, familyId || null);
+    const row = await contactMessages.linkMessageFamily(
+      req.params.id,
+      familyId || null,
+      req.user.id
+    );
     if (!row) return res.status(404).json({ error: 'Meddelandet hittades inte' });
     res.json({ message: 'Familjkoppling uppdaterad', ...row });
   } catch (err) {
+    next(err);
+  }
+});
+
+router.patch('/contact-messages/:id/resolution', async (req, res, next) => {
+  try {
+    const row = await contactMessages.saveResolution(
+      req.params.id,
+      req.body || {},
+      req.user.id
+    );
+    if (!row) return res.status(404).json({ error: 'Meddelandet hittades inte' });
+    res.json({ message: 'Klassificering sparad', ...row });
+  } catch (err) {
+    if (err.statusCode === 400) return res.status(400).json({ error: err.message });
+    next(err);
+  }
+});
+
+router.post('/contact-messages/:id/archive', async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    const row = await contactMessages.archiveMessage(req.params.id, {
+      adminId: req.user.id,
+      auto: false,
+      resolution: body,
+    });
+    if (!row) return res.status(404).json({ error: 'Meddelandet hittades inte' });
+    res.json({ message: 'Ärendet arkiverat', ...row });
+  } catch (err) {
+    if (err.statusCode === 400) return res.status(400).json({ error: err.message });
     next(err);
   }
 });

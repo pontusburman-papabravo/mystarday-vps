@@ -225,7 +225,7 @@
 // stjarndag-v667: en-GB Today shell + Home nav/offline locale (P-i18n-Home-Today-C)
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
 // stjarndag-v710: admin inbox — reply to contact messages from Meddelanden
-const CACHE_NAME = 'stjarndag-v710';
+const CACHE_NAME = 'stjarndag-v711';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
