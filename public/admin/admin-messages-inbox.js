@@ -256,6 +256,9 @@
     try {
       supportAnalytics = await Auth.api('/api/admin/contact-messages/analytics');
       await renderSupportStats();
+      if (typeof renderArendenCharts === 'function') {
+        renderArendenCharts(supportAnalytics, supportTaxonomy);
+      }
     } catch (e) {
       console.error('[INBOX] analytics', e);
     }

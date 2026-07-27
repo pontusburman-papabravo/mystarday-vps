@@ -272,6 +272,24 @@
             </select>
           </div>
           <div id="messagesSupportStats" class="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+          <div id="arendenChartsPanel" class="mb-6">
+            <h4 class="text-sm font-heading font-bold text-navy mb-3">Bugganalys</h4>
+            <p id="arendenChartsEmpty" class="hidden text-center text-text-soft text-sm py-4 bg-sky rounded-xl mb-4">Ingen bugdata ännu. Klassificera rotorsak på buggrapporter för att se var i systemet det fallerar.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+                <p class="text-xs font-bold text-navy mb-2">Buggrapporter över tid (12 veckor)</p>
+                <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="arendenBugTrendChart" aria-label="Linjediagram buggrapporter per vecka"></canvas></div>
+              </div>
+              <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+                <p class="text-xs font-bold text-navy mb-2">Fördelning per systemområde</p>
+                <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="arendenBugAreaShareChart" aria-label="Cirkeldiagram buggar per rotorsak"></canvas></div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border-2 border-lavender p-4">
+              <p class="text-xs font-bold text-navy mb-2">Var i systemet det fallerar — öppna vs hanterade</p>
+              <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="arendenBugAreaChart" aria-label="Stapeldiagram buggar per rotorsak"></canvas></div>
+            </div>
+          </div>
           <div id="messagesContainer" class="space-y-4">
             <div class="text-center text-text-soft py-8">Laddar...</div>
           </div>
@@ -2108,7 +2126,8 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-paket-workspace.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
   <script src="/admin/admin-families.js?v=2.3.0"></script>
-  <script src="/admin/admin-messages-inbox.js?v=1.2.1"></script>
+  <script src="/admin/admin-arenden-charts.js?v=1.0.0"></script>
+  <script src="/admin/admin-messages-inbox.js?v=1.3.0"></script>
   <script src="/admin/admin-growth-pipeline.js?v=1.0.0"></script>
   <script src="/admin/admin-family-hub.js?v=1.0.0"></script>
   <script src="/admin/admin-command-palette.js?v=1.0.0"></script>
