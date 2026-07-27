@@ -95,6 +95,7 @@ const STRICT_FILES = [
   'public/js/child-dashboard-substeps.js',
   'public/js/child-dashboard-photo-cards.js',
   'public/js/child-dashboard-activity-timer.js',
+  'public/js/child-read-aloud.js',
   'public/js/child-support-layer.js',
   'public/js/child-worlds.js',
   'public/login.html',
