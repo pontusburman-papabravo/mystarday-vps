@@ -50,7 +50,36 @@
     return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-sky text-navy">${esc(STATUS_LABELS[status] || status)}</span>`;
   }
 
-  function familyBlock(m) {
+  function extractManualNote(note) {
+    if (!note) return '';
+    const idx = String(note).indexOf('\n--- Svar ');
+    if (idx === -1) return String(note).trim();
+    return String(note).slice(0, idx).trim();
+  }
+    if (!note) return [];
+    const chunks = String(note).split(/\n--- Svar /).slice(1);
+    return chunks.map((chunk) => {
+      const lines = chunk.split('\n');
+      const header = lines[0] || '';
+      const body = lines.slice(1).join('\n').replace(/\n\(Resend:.*\)$/s, '').trim();
+      return { header: header.replace(/---$/, '').trim(), body };
+    });
+  }
+
+  function renderReplyHistory(note) {
+    const replies = extractReplyHistory(note);
+    if (!replies.length) return '';
+    return replies.map((reply) => (
+      `<div class="mt-3 p-3 rounded-xl border border-mint bg-mint/20">
+        <p class="text-xs font-bold text-navy mb-1">Skickat svar · ${esc(reply.header)}</p>
+        <p class="text-sm text-navy whitespace-pre-wrap">${esc(reply.body)}</p>
+      </div>`
+    )).join('');
+  }
+
+  function canReplyToMessage(m) {
+    return Boolean(m.email && String(m.email).includes('@'));
+  }
     const fam = m.linkedFamily || {};
     if (fam.type === 'none') {
       return `<div class="mt-2 flex gap-2 items-center">
@@ -91,9 +120,15 @@
             </div>
           </div>
           <p class="text-sm text-navy bg-sky rounded-lg p-3 mb-3">${esc(m.message)}</p>
-          ${m.internal_note ? `<p class="text-xs text-text-soft mb-2">Anteckning: ${esc(m.internal_note)}</p>` : ''}
+          ${renderReplyHistory(m.internal_note)}
+          ${m.internal_note && !extractReplyHistory(m.internal_note).length ? `<p class="text-xs text-text-soft mb-2">Anteckning: ${esc(m.internal_note)}</p>` : ''}
+          ${canReplyToMessage(m) ? `<div class="mb-3 p-3 rounded-xl border border-gold/40 bg-gold/5">
+            <label class="block text-xs font-bold text-navy mb-2" for="reply-${m.id}">Svara användaren via e-post</label>
+            <textarea id="reply-${m.id}" rows="5" placeholder="Skriv ditt svar här…" class="w-full px-3 py-2 rounded-xl border border-lavender text-sm mb-2"></textarea>
+            <button type="button" onclick="sendMessageReply('${m.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy text-sm font-bold rounded-xl">Skicka svar</button>
+          </div>` : '<p class="text-xs text-coral mb-3">Kan inte svara — meddelandet saknar e-postadress.</p>'}
           <div class="flex gap-2">
-            <input type="text" id="note-${m.id}" value="${esc(m.internal_note || '')}" placeholder="Intern anteckning..." class="flex-1 px-3 py-1.5 rounded-lg border border-lavender text-sm">
+            <input type="text" id="note-${m.id}" value="${esc(extractManualNote(m.internal_note))}" placeholder="Intern anteckning..." class="flex-1 px-3 py-1.5 rounded-lg border border-lavender text-sm">
             <button type="button" onclick="saveNote('${m.id}')" class="px-3 py-1.5 bg-mint text-xs font-bold rounded">Spara</button>
             <button type="button" onclick="deleteMessage('${m.id}')" class="px-3 py-1.5 bg-coral text-xs font-bold rounded">Ta bort</button>
           </div>
@@ -162,6 +197,29 @@
     if (typeof loadStartSummary === 'function') loadStartSummary();
   }
 
+  async function sendMessageReply(id) {
+    const textarea = document.getElementById('reply-' + id);
+    const body = textarea?.value?.trim() || '';
+    if (body.length < 10) {
+      alert('Svaret måste vara minst 10 tecken.');
+      return;
+    }
+    if (!confirm('Skicka svar till användaren via e-post?')) return;
+
+    try {
+      const result = await Auth.api('/api/admin/contact-messages/' + id + '/reply', {
+        method: 'POST',
+        body: JSON.stringify({ body }),
+      });
+      if (textarea) textarea.value = '';
+      alert(result.message || 'Svar skickat');
+      loadMessagesInbox();
+      if (typeof loadStartSummary === 'function') loadStartSummary();
+    } catch (e) {
+      alert(e?.message || 'Kunde inte skicka svar');
+    }
+  }
+
   async function linkMessageFamily(id) {
     const input = document.getElementById('link-family-' + id);
     const familyId = input?.value?.trim();
@@ -183,6 +241,7 @@
   window.loadMessagesInbox = loadMessagesInbox;
   window.filterMessagesInbox = filterMessagesInbox;
   window.setMessageStatus = setMessageStatus;
+  window.sendMessageReply = sendMessageReply;
   window.linkMessageFamily = linkMessageFamily;
   window.initMessagesInbox = initMessagesInbox;
 
