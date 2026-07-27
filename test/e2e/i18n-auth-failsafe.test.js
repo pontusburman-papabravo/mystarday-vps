@@ -30,7 +30,7 @@ async function openLoginWithBlockedScripts(page, baseUrl, blockPatterns) {
 }
 
 describe('auth entry failsafe (browser)', () => {
-  it('shows readable fallback when auth-entry-i18n never boots', async (t) => {
+  it('reveals login when auth-entry-i18n never boots (no blocking overlay)', async (t) => {
     const ctx = await createE2eContext();
     if (ctx.skip) {
       t.skip(ctx.reason);
@@ -45,14 +45,18 @@ describe('auth entry failsafe (browser)', () => {
     try {
       const page = await newPage(browser, 'desktop');
       await openLoginWithBlockedScripts(page, ctx.baseUrl, ['/js/auth-entry-i18n.js']);
-      await page.waitForFunction(() => {
-        const fb = document.getElementById('auth-entry-fallback');
-        return fb && !fb.hidden;
-      }, { timeout: 12000 });
-      const fallbackText = await page.$eval('#auth-entry-fallback', (el) => el.innerText);
-      assert.match(fallbackText, /Page did not load fully|Refresh/i);
-      const pending = await page.evaluate(() => document.documentElement.classList.contains('auth-entry-pending'));
-      assert.equal(pending, false, 'page should not stay auth-entry-pending forever');
+      await sleep(6000);
+      const state = await page.evaluate(() => ({
+        bootstrapped: window.authEntryI18nBootstrapped === true,
+        fallbackVisible: (() => {
+          const fb = document.getElementById('auth-entry-fallback');
+          return fb && !fb.hidden;
+        })(),
+        pending: document.documentElement.classList.contains('auth-entry-pending'),
+      }));
+      assert.equal(state.pending, false, 'page should not stay auth-entry-pending forever');
+      assert.equal(state.fallbackVisible, false, 'failsafe must not block login with overlay');
+      assert.equal(state.bootstrapped, true, 'failsafe should mark bootstrap complete');
     } finally {
       await browser.close();
       await ctx.close();
