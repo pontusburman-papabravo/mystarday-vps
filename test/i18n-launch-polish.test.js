@@ -150,9 +150,31 @@ describe('mobile overlay polish', () => {
 
   it('bottom nav + native tab bar hide while a modal overlay is open', () => {
     const css = read('public/css/parent-bottom-nav.css');
+    assert.match(css, /body\.modal-open \.parent-bottom-nav/);
     assert.match(css, /body:has\(> \.fixed\.inset-0:not\(\.hidden\)\) \.parent-bottom-nav/);
     const tabBar = read('public/css/parent-tab-bar.css');
+    assert.match(tabBar, /body\.modal-open \.native-tab-bar/);
     assert.match(tabBar, /body:has\(> \.fixed\.inset-0:not\(\.hidden\)\) \.native-tab-bar/);
+    // Deterministic body.modal-open toggling (WebViews without :has())
+    const observer = read('public/js/modal-open-observer.js');
+    assert.match(observer, /modal-open/);
+    assert.match(read('public/dashboard.html'), /modal-open-observer\.js/);
+    assert.match(read('public/schedule.html'), /modal-open-observer\.js/);
+  });
+
+  it('only one language message on Home — beta banner removed, beta status lives in Settings', () => {
+    assert.equal(fs.existsSync(path.join(ROOT, 'public/js/english-beta-banner.js')), false);
+    for (const file of ['public/dashboard.html', 'public/daily-log.html', 'public/settings.html']) {
+      assert.doesNotMatch(read(file), /english-beta-banner/, `${file} must not load the beta banner`);
+    }
+    // Beta status + report entry point stay discreet next to the language choice
+    const settings = read('public/settings.html');
+    assert.match(settings, /data-locale-switcher-mount/);
+    assert.match(settings, /language\.reportIssue/);
+    loadLocales();
+    assert.equal(t('en-GB', 'language.reportIssue'), 'Report a language issue');
+    assert.equal(t('sv-SE', 'language.reportIssue'), 'Rapportera språkfel');
+    assert.match(t('en-GB', 'language.choice.betaNote'), /beta/i);
   });
 });
 

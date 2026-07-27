@@ -84,6 +84,10 @@ describe('i18n launch polish E2E', () => {
         assert.match(noticeText, /Existing activities stay in their original language/);
         assert.match(noticeText, /New activities use English/);
 
+        // Only one language message at a time — the beta banner is gone from Home
+        const betaBanner = await page.$('.english-beta-banner');
+        assert.equal(betaBanner, null, 'English beta banner must not render alongside the legacy notice');
+
         // Swedish user data untouched by the switch
         const svNamesAfter = await ctx.query(
           `SELECT at.name FROM activity_template at
@@ -118,6 +122,7 @@ describe('i18n launch polish E2E', () => {
           const overlay = await page.evaluate(() => {
             const hb = document.getElementById('hbBtn');
             const hbZ = hb ? Number(getComputedStyle(hb).zIndex) : null;
+            const modalOpenClass = document.body.classList.contains('modal-open');
             const navEls = ['.parent-bottom-nav', '.native-tab-bar']
               .map((sel) => document.querySelector(sel))
               .filter(Boolean)
@@ -132,9 +137,10 @@ describe('i18n launch polish E2E', () => {
               const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
               ctaHit = el ? (el.closest('#addActivityModal') !== null) : null;
             }
-            return { hbZ, navHidden, ctaHit };
+            return { hbZ, navHidden, ctaHit, modalOpenClass };
           });
           if (overlay.hbZ !== null) assert.ok(overlay.hbZ < 50, `hbBtn z-index ${overlay.hbZ} must be < 50`);
+          assert.equal(overlay.modalOpenClass, true, 'body.modal-open should be set while a modal is open');
           if (overlay.navHidden !== null) assert.equal(overlay.navHidden, true, 'bottom navs should hide behind open modal');
           if (overlay.ctaHit !== null) assert.equal(overlay.ctaHit, true, 'modal CTA must be tappable (not covered)');
         }

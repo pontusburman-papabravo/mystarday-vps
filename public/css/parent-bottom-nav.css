@@ -21,7 +21,9 @@
 
 /* While a full-screen modal overlay is open, hide the nav so it neither
    covers the modal's lower content nor lets users navigate away mid-modal.
-   Progressive enhancement: browsers without :has() keep today's behavior. */
+   body.modal-open is set deterministically by modal-open-observer.js;
+   the :has() rule covers pages without the observer. */
+body.modal-open .parent-bottom-nav,
 body:has(> .fixed.inset-0:not(.hidden)) .parent-bottom-nav {
   visibility: hidden;
 }

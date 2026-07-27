@@ -30,18 +30,12 @@
       "tryEnglish": "Try English beta",
       "remindLater": "Remind me later"
     },
-    "betaBanner": {
-      "title": "English beta",
-      "body": "The English version is still being developed. Some text may appear in Swedish, and you may find translation or display issues.",
-      "report": "Report a language issue",
-      "switchBack": "Switch back to Swedish",
-      "dismissAria": "Close"
-    },
     "legacyNotice": {
       "body": "Existing activities stay in their original language. New activities use English.",
       "dismiss": "Got it",
       "dismissAria": "Dismiss language notice"
     },
+    "reportIssue": "Report a language issue",
     "feedback": {
       "typeLabel": "Language or translation issue",
       "typeLabelEn": "Language or translation issue",
