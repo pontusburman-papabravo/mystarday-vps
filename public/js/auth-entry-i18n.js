@@ -19,6 +19,11 @@
     document.documentElement.classList.remove(LOCALE_GATE_CLASS);
     const loader = document.getElementById('auth-entry-locale-loader');
     if (loader) loader.remove();
+    const fb = document.getElementById('auth-entry-fallback');
+    if (fb) {
+      fb.hidden = true;
+      fb.style.setProperty('display', 'none', 'important');
+    }
   }
 
   function ensureLocaleGate() {
@@ -123,7 +128,12 @@
     ensureLocaleGate();
     const localeAlreadyLoaded = Object.keys(I18n.locale || {}).length > 0;
     if (!localeAlreadyLoaded) {
-      await I18n.init();
+      await Promise.race([
+        I18n.init(),
+        new Promise(function authEntryI18nInitTimeout(_, reject) {
+          window.setTimeout(function () { reject(new Error('i18n init timeout')); }, 8000);
+        }),
+      ]);
     }
     applyAll();
     revealContent();
@@ -171,21 +181,9 @@
         .auth-entry-locale-loader::after { animation: none; opacity: 0.6; }
       }
       .auth-entry-fallback {
-        position: fixed;
-        inset: 0;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-        background: rgba(27, 35, 64, 0.92);
-        color: #fff;
-        text-align: center;
-        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-        font-size: 0.95rem;
-        line-height: 1.5;
+        display: none !important;
+        pointer-events: none !important;
       }
-      .auth-entry-fallback a { color: #F5A623; font-weight: 600; }
       .auth-entry-noscript {
         margin: 0;
         padding: 1rem;

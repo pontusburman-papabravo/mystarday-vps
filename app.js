@@ -154,6 +154,19 @@ function createApp() {
 
   registerRoutes(app);
 
+  app.use((req, res, next) => {
+    if (
+      /^\/js\/auth-entry-(failsafe|i18n)\.js$/.test(req.path) ||
+      req.path === '/login' ||
+      req.path === '/login.html'
+    ) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+    }
+    next();
+  });
+
   app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
   const { getLocalUploadDir } = require('./src/lib/object-storage');
