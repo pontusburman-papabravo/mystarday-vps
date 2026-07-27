@@ -5,6 +5,13 @@
 
 /* ── Mobile tab bar (PWA + native) ─────────────────────────────────────── */
 @media (max-width: 767px) {
+  /* Hide while a full-screen modal overlay is open — the tab bar sits above
+     modal z-indexes and would otherwise cover modal content and stay tappable.
+     Progressive enhancement: browsers without :has() keep today's behavior. */
+  body:has(> .fixed.inset-0:not(.hidden)) .native-tab-bar {
+    visibility: hidden;
+  }
+
   body.has-native-tab-bar .native-tab-bar {
     position: fixed;
     bottom: 0;

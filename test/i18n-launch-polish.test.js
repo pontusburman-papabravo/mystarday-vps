@@ -148,9 +148,11 @@ describe('mobile overlay polish', () => {
     assert.ok(rootZ && Number(rootZ[1]) < 50, '#supportBubbleRoot z-index must be < 50');
   });
 
-  it('bottom nav hides while a modal overlay is open', () => {
+  it('bottom nav + native tab bar hide while a modal overlay is open', () => {
     const css = read('public/css/parent-bottom-nav.css');
     assert.match(css, /body:has\(> \.fixed\.inset-0:not\(\.hidden\)\) \.parent-bottom-nav/);
+    const tabBar = read('public/css/parent-tab-bar.css');
+    assert.match(tabBar, /body:has\(> \.fixed\.inset-0:not\(\.hidden\)\) \.native-tab-bar/);
   });
 });
 

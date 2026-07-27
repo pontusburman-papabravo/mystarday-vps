@@ -118,8 +118,13 @@ describe('i18n launch polish E2E', () => {
           const overlay = await page.evaluate(() => {
             const hb = document.getElementById('hbBtn');
             const hbZ = hb ? Number(getComputedStyle(hb).zIndex) : null;
-            const nav = document.querySelector('.parent-bottom-nav');
-            const navHidden = nav ? getComputedStyle(nav).visibility === 'hidden' : null;
+            const navEls = ['.parent-bottom-nav', '.native-tab-bar']
+              .map((sel) => document.querySelector(sel))
+              .filter(Boolean)
+              .filter((el) => getComputedStyle(el).display !== 'none');
+            const navHidden = navEls.length === 0
+              ? null
+              : navEls.every((el) => getComputedStyle(el).visibility === 'hidden');
             const btn = document.getElementById('addActivityBtn');
             let ctaHit = null;
             if (btn) {
@@ -130,7 +135,7 @@ describe('i18n launch polish E2E', () => {
             return { hbZ, navHidden, ctaHit };
           });
           if (overlay.hbZ !== null) assert.ok(overlay.hbZ < 50, `hbBtn z-index ${overlay.hbZ} must be < 50`);
-          if (overlay.navHidden !== null) assert.equal(overlay.navHidden, true, 'bottom nav should hide behind open modal');
+          if (overlay.navHidden !== null) assert.equal(overlay.navHidden, true, 'bottom navs should hide behind open modal');
           if (overlay.ctaHit !== null) assert.equal(overlay.ctaHit, true, 'modal CTA must be tappable (not covered)');
         }
         await page.evaluate(() => window.closeAddModal && window.closeAddModal());
