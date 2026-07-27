@@ -497,11 +497,8 @@ const CACHE_NAME = 'stjarndag-v711';
 // stjarndag-v706: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v707: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v708: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
-<<<<<<< HEAD
-=======
 // stjarndag-v709: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v710: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
->>>>>>> origin/main
 // stjarndag-v711: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
