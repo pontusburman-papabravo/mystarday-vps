@@ -33,7 +33,15 @@ function mapRow(row) {
   };
 }
 
-async function listMessages({ type, status, inbox, followup, limit = 100 } = {}) {
+async function listMessages({
+  type,
+  status,
+  inbox,
+  followup,
+  q,
+  rootCause,
+  limit = 100,
+} = {}) {
   const conditions = ['1=1'];
   const params = [];
   let idx = 1;
@@ -53,8 +61,38 @@ async function listMessages({ type, status, inbox, followup, limit = 100 } = {})
   if (followup) {
     conditions.push(needsFollowUpSql('cm'));
   }
+  if (rootCause) {
+    conditions.push(`COALESCE(cm.root_cause, 'unknown') = $${idx++}`);
+    params.push(rootCause);
+  }
+  if (q && String(q).trim()) {
+    const term = String(q).trim();
+    const like = `%${term}%`;
+    if (/^\d+$/.test(term)) {
+      conditions.push(`(
+        cm.id = $${idx}::int
+        OR cm.name ILIKE $${idx + 1}
+        OR cm.email ILIKE $${idx + 1}
+        OR cm.message ILIKE $${idx + 1}
+        OR COALESCE(cm.internal_note, '') ILIKE $${idx + 1}
+        OR COALESCE(cm.resolution_summary, '') ILIKE $${idx + 1}
+      )`);
+      params.push(Number(term), like);
+      idx += 2;
+    } else {
+      conditions.push(`(
+        cm.name ILIKE $${idx}
+        OR cm.email ILIKE $${idx}
+        OR cm.message ILIKE $${idx}
+        OR COALESCE(cm.internal_note, '') ILIKE $${idx}
+        OR COALESCE(cm.resolution_summary, '') ILIKE $${idx}
+      )`);
+      params.push(like);
+      idx += 1;
+    }
+  }
 
-  params.push(Math.min(Math.max(limit, 1), 200));
+  params.push(Math.min(Math.max(limit, 1), 500));
 
   const { rows } = await db.query(
     `SELECT
@@ -177,6 +215,37 @@ async function linkMessageFamily(id, familyId, adminId = null) {
     });
   }
   return row;
+}
+
+const MESSAGE_DETAIL_SELECT = `
+  cm.id, cm.name, cm.email, cm.message, cm.message_type,
+  cm.is_read, cm.internal_note, cm.noted_at, cm.noted_by, cm.created_at,
+  cm.status, cm.answered_at, cm.assigned_to, cm.family_id,
+  cm.root_cause, cm.resolution_type, cm.resolution_summary, cm.fix_reference,
+  cm.resolved_at, cm.resolved_by, cm.archived_at, cm.archived_by,
+  f.name AS family_name,
+  inf.id AS inferred_family_id,
+  inf.name AS inferred_family_name
+`;
+
+async function getMessageDetail(id) {
+  const { rows } = await db.query(
+    `SELECT ${MESSAGE_DETAIL_SELECT}
+     FROM contact_message cm
+     LEFT JOIN family f ON f.id = cm.family_id
+     LEFT JOIN LATERAL (
+       SELECT p.family_id AS id, fam.name
+       FROM parent p
+       JOIN family fam ON fam.id = p.family_id AND fam.archived_at IS NULL
+       WHERE cm.family_id IS NULL
+         AND cm.email IS NOT NULL
+         AND LOWER(TRIM(p.email)) = LOWER(TRIM(cm.email))
+       LIMIT 1
+     ) inf ON true
+     WHERE cm.id = $1`,
+    [id]
+  );
+  return mapRow(rows[0] || null);
 }
 
 async function getMessageById(id) {
@@ -496,6 +565,7 @@ module.exports = {
   setMessageRead,
   saveMessageNote,
   linkMessageFamily,
+  getMessageDetail,
   getMessageById,
   recordMessageReply,
   saveResolution,

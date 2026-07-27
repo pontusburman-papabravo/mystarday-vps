@@ -33,6 +33,8 @@ describe('admin contact message support ops', () => {
     assert.match(src, /async function archiveMessage/);
     assert.match(src, /async function getSupportAnalytics/);
     assert.match(src, /bugsOverTime/);
+    assert.match(src, /getMessageDetail/);
+    assert.match(src, /ILIKE/);
     assert.match(src, /async function autoArchiveStaleAnsweredMessages/);
     assert.match(src, /contact-message-events/);
   });
@@ -44,6 +46,8 @@ describe('admin contact message support ops', () => {
     assert.match(src, /\/contact-messages\/:id\/resolution/);
     assert.match(src, /\/contact-messages\/:id\/archive/);
     assert.match(src, /\/contact-messages\/:id\/events/);
+    assert.match(src, /router\.get\('\/contact-messages\/:id'/);
+    assert.match(src, /req\.query\.q/);
   });
 
   it('midnight scheduler auto-archives stale answered messages', () => {
@@ -58,6 +62,10 @@ describe('admin contact message support ops', () => {
     assert.match(src, /messagesSupportStats/);
     assert.match(src, /loadMessageEvents/);
     assert.match(src, /Klassificera för uppföljning/);
+    assert.match(src, /selectArendeTicket/);
+    assert.match(src, /arendenListPanel/);
+    assert.match(src, /arendenDetailPanel/);
+    assert.match(src, /renderTicketTable/);
     assert.match(src, /renderArendenCharts/);
   });
 

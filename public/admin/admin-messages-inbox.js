@@ -18,8 +18,17 @@
     { key: 'all', label: 'Alla' },
   ];
 
-  let activeInbox = 'unread';
+  const TYPE_LABELS = {
+    bug: 'Bug',
+    feedback: 'Feedback',
+    contact: 'Kontakt',
+    language: 'Språk',
+  };
+
+  let activeInbox = 'all';
   let lastLoadedMessages = [];
+  let selectedTicketId = null;
+  let searchDebounceTimer = null;
   let supportTaxonomy = { rootCauses: {}, resolutionTypes: {} };
   let supportAnalytics = null;
   const eventCache = new Map();
@@ -190,66 +199,169 @@
       <div class="bg-mint/30 rounded-xl p-4"><p class="text-xs font-bold text-navy mb-1">Topp rotorsaker (buggar)</p><ul class="text-xs text-navy space-y-1">${causeHtml}</ul></div>`;
   }
 
-  function renderMessagesList(messages) {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return;
+  function messagePreview(text, max = 72) {
+    const raw = String(text || '').replace(/\s+/g, ' ').trim();
+    if (raw.length <= max) return raw;
+    return raw.slice(0, max - 1) + '…';
+  }
+
+  function typeLabel(type) {
+    return TYPE_LABELS[type] || type || '—';
+  }
+
+  function renderTicketTable(messages) {
+    const panel = document.getElementById('arendenListPanel');
+    const meta = document.getElementById('arendenListMeta');
+    if (!panel) return;
+
+    if (meta) {
+      const q = document.getElementById('messagesSearch')?.value?.trim();
+      meta.textContent = q
+        ? `Visar ${messages.length} träff${messages.length === 1 ? '' : 'ar'}`
+        : `${messages.length} ärenden i vald vy`;
+    }
 
     if (!messages.length) {
-      container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga ärenden i denna vy</div>';
+      panel.innerHTML = '<div class="text-center text-text-soft py-8 px-4">Inga ärenden matchar sökningen</div>';
       return;
     }
 
-    container.innerHTML = messages.map((m) => {
-      const date = new Date(m.created_at).toLocaleString('sv-SE');
-      const isUnread = m.status === 'new';
-      return `<div class="bg-white rounded-2xl border-2 ${isUnread ? 'border-red-300' : 'border-lavender'} p-6">
-          <div class="flex flex-wrap justify-between gap-2 mb-2">
-            <div>
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="font-bold text-navy">${esc(m.name || m.email || 'Okänd')}</span>
-                ${statusBadge(m.status)}
-                ${resolutionBadge(m)}
-              </div>
-              <p class="text-xs text-text-soft">${esc(m.email || '')} · ${date}</p>
-              ${familyBlock(m)}
-            </div>
-            <div class="flex flex-wrap gap-1">
-              ${m.status !== 'answered' ? `<button type="button" onclick="setMessageStatus('${m.id}','answered')" class="px-2 py-1 text-xs font-bold bg-gold rounded">Besvarad</button>` : ''}
-              ${m.status === 'new' ? `<button type="button" onclick="toggleRead('${m.id}', true)" class="px-2 py-1 text-xs font-bold bg-sky rounded">Markera läst</button>` : ''}
-            </div>
-          </div>
-          <p class="text-sm text-navy bg-sky rounded-lg p-3 mb-3">${esc(m.message)}</p>
-          ${renderReplyHistory(m.internal_note)}
-          ${m.internal_note && !extractReplyHistory(m.internal_note).length ? `<p class="text-xs text-text-soft mb-2">Anteckning: ${esc(m.internal_note)}</p>` : ''}
-          ${canReplyToMessage(m) ? `<div class="mb-3 p-3 rounded-xl border border-gold/40 bg-gold/5">
-            <label class="block text-xs font-bold text-navy mb-2" for="reply-${m.id}">Svara användaren via e-post</label>
-            <textarea id="reply-${m.id}" rows="5" placeholder="Skriv ditt svar här…" class="w-full px-3 py-2 rounded-xl border border-lavender text-sm mb-2"></textarea>
-            <button type="button" onclick="sendMessageReply('${m.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy text-sm font-bold rounded-xl">Skicka svar</button>
-          </div>` : '<p class="text-xs text-coral mb-3">Kan inte svara — meddelandet saknar e-postadress.</p>'}
-          ${renderResolutionBlock(m)}
-          ${renderEventHistoryBlock(m)}
-          <div class="flex gap-2">
-            <input type="text" id="note-${m.id}" value="${esc(extractManualNote(m.internal_note))}" placeholder="Intern anteckning..." class="flex-1 px-3 py-1.5 rounded-lg border border-lavender text-sm">
-            <button type="button" onclick="saveNote('${m.id}')" class="px-3 py-1.5 bg-mint text-xs font-bold rounded">Spara</button>
-            <button type="button" onclick="deleteMessage('${m.id}')" class="px-3 py-1.5 bg-coral text-xs font-bold rounded">Ta bort</button>
-          </div>
-        </div>`;
-    }).join('');
+    panel.innerHTML = `<table class="w-full text-sm">
+      <thead class="sticky top-0 bg-lavender/80 backdrop-blur text-xs uppercase text-navy">
+        <tr>
+          <th class="text-left px-3 py-2 font-bold">#</th>
+          <th class="text-left px-3 py-2 font-bold">Rapporterare</th>
+          <th class="text-left px-3 py-2 hidden sm:table-cell font-bold">Typ</th>
+          <th class="text-left px-3 py-2 font-bold">Status</th>
+          <th class="text-left px-3 py-2 hidden md:table-cell font-bold">Datum</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${messages.map((m) => {
+          const isSelected = String(selectedTicketId) === String(m.id);
+          const isUnread = m.status === 'new';
+          const rowCls = isSelected
+            ? 'bg-gold/25 border-l-4 border-gold'
+            : isUnread
+              ? 'bg-red-50/80 hover:bg-sky/40'
+              : 'hover:bg-sky/30';
+          const date = new Date(m.created_at).toLocaleDateString('sv-SE', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+          });
+          return `<tr class="border-b border-lavender/50 cursor-pointer ${rowCls}" onclick="selectArendeTicket('${m.id}')">
+            <td class="px-3 py-2.5 font-mono text-xs text-text-soft">#${m.id}</td>
+            <td class="px-3 py-2.5">
+              <div class="font-semibold text-navy">${esc(m.name || 'Okänd')}</div>
+              <div class="text-xs text-text-soft truncate max-w-[10rem] sm:max-w-[14rem]">${esc(m.email || '')}</div>
+              <div class="text-xs text-text-soft mt-0.5 sm:hidden">${esc(messagePreview(m.message, 40))}</div>
+            </td>
+            <td class="px-3 py-2.5 hidden sm:table-cell text-xs">${esc(typeLabel(m.message_type))}</td>
+            <td class="px-3 py-2.5">${statusBadge(m.status)}</td>
+            <td class="px-3 py-2.5 hidden md:table-cell text-xs text-text-soft whitespace-nowrap">${date}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  function renderTicketDetail(m) {
+    const panel = document.getElementById('arendenDetailPanel');
+    if (!panel || !m) return;
+
+    const date = new Date(m.created_at).toLocaleString('sv-SE');
+    panel.innerHTML = `<div>
+      <div class="flex flex-wrap justify-between gap-3 mb-4 pb-4 border-b border-lavender">
+        <div>
+          <p class="text-xs font-mono text-text-soft mb-1">Ärende #${m.id}</p>
+          <h4 class="text-xl font-bold text-navy">${esc(m.name || m.email || 'Okänd')}</h4>
+          <p class="text-sm text-text-soft">${esc(m.email || '')}</p>
+          <p class="text-xs text-text-soft mt-1">${esc(typeLabel(m.message_type))} · ${date}</p>
+          ${familyBlock(m)}
+        </div>
+        <div class="flex flex-wrap gap-1 items-start">
+          ${statusBadge(m.status)}
+          ${resolutionBadge(m)}
+          ${m.status !== 'answered' ? `<button type="button" onclick="setMessageStatus('${m.id}','answered')" class="px-2 py-1 text-xs font-bold bg-gold rounded">Besvarad</button>` : ''}
+          ${m.status === 'new' ? `<button type="button" onclick="toggleRead('${m.id}', true)" class="px-2 py-1 text-xs font-bold bg-sky rounded">Markera läst</button>` : ''}
+        </div>
+      </div>
+      <div class="mb-4">
+        <p class="text-xs font-bold text-navy mb-2">Meddelande</p>
+        <p class="text-sm text-navy bg-sky rounded-lg p-3 whitespace-pre-wrap">${esc(m.message)}</p>
+      </div>
+      ${renderReplyHistory(m.internal_note)}
+      ${m.internal_note && !extractReplyHistory(m.internal_note).length ? `<p class="text-xs text-text-soft mb-2">Anteckning: ${esc(m.internal_note)}</p>` : ''}
+      ${canReplyToMessage(m) ? `<div class="mb-3 p-3 rounded-xl border border-gold/40 bg-gold/5">
+        <label class="block text-xs font-bold text-navy mb-2" for="reply-${m.id}">Svara användaren via e-post</label>
+        <textarea id="reply-${m.id}" rows="5" placeholder="Skriv ditt svar här…" class="w-full px-3 py-2 rounded-xl border border-lavender text-sm mb-2"></textarea>
+        <button type="button" onclick="sendMessageReply('${m.id}')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy text-sm font-bold rounded-xl">Skicka svar</button>
+      </div>` : '<p class="text-xs text-coral mb-3">Kan inte svara — meddelandet saknar e-postadress.</p>'}
+      ${renderResolutionBlock(m)}
+      ${renderEventHistoryBlock(m)}
+      <div class="flex gap-2 mt-4">
+        <input type="text" id="note-${m.id}" value="${esc(extractManualNote(m.internal_note))}" placeholder="Intern anteckning..." class="flex-1 px-3 py-1.5 rounded-lg border border-lavender text-sm">
+        <button type="button" onclick="saveNote('${m.id}')" class="px-3 py-1.5 bg-mint text-xs font-bold rounded">Spara</button>
+        <button type="button" onclick="deleteMessage('${m.id}')" class="px-3 py-1.5 bg-coral text-xs font-bold rounded">Ta bort</button>
+      </div>
+    </div>`;
+  }
+
+  function renderEmptyDetail(message) {
+    const panel = document.getElementById('arendenDetailPanel');
+    if (!panel) return;
+    panel.innerHTML = `<div class="text-center text-text-soft py-12">
+      <p class="font-semibold text-navy mb-1">Välj ett ärende</p>
+      <p class="text-sm">${esc(message || 'Klicka på en rad i listan eller sök på namn, e-post eller ärendenummer.')}</p>
+    </div>`;
+  }
+
+  async function selectArendeTicket(id) {
+    selectedTicketId = id;
+    renderTicketTable(lastLoadedMessages);
+
+    const cached = lastLoadedMessages.find((m) => String(m.id) === String(id));
+    if (cached) renderTicketDetail(cached);
+
+    try {
+      const detail = await Auth.api('/api/admin/contact-messages/' + id);
+      const idx = lastLoadedMessages.findIndex((m) => String(m.id) === String(id));
+      if (idx >= 0) lastLoadedMessages[idx] = detail;
+      renderTicketDetail(detail);
+    } catch (e) {
+      if (!cached) renderEmptyDetail('Kunde inte ladda ärendet.');
+    }
+
+    if (window.history && window.history.replaceState) {
+      const base = (window.location.hash || '#arenden').split('?')[0];
+      window.history.replaceState(null, '', base + '?ticket=' + encodeURIComponent(id));
+    }
+  }
+
+  function renderMessagesList(messages) {
+    renderTicketTable(messages);
+    if (selectedTicketId) {
+      const current = messages.find((m) => String(m.id) === String(selectedTicketId));
+      if (current) renderTicketDetail(current);
+      else renderEmptyDetail('Ärendet finns inte i aktuell vy — prova en annan filter.');
+    }
   }
 
   function filterMessagesInbox(query) {
-    const q = (query || '').toLowerCase().trim();
-    if (!q) {
-      renderMessagesList(lastLoadedMessages);
-      return;
-    }
-    const filtered = lastLoadedMessages.filter((m) => {
-      const name = (m.name || '').toLowerCase();
-      const email = (m.email || '').toLowerCase();
-      const message = (m.message || '').toLowerCase();
-      return name.includes(q) || email.includes(q) || message.includes(q);
-    });
-    renderMessagesList(filtered);
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+      loadMessagesInbox();
+    }, 280);
+  }
+
+  function populateRootCauseFilter() {
+    const el = document.getElementById('messagesRootCauseFilter');
+    if (!el) return;
+    const current = el.value;
+    el.innerHTML = '<option value="">Alla rotorsaker</option>'
+      + Object.entries(supportTaxonomy.rootCauses || {}).map(([value, label]) => (
+        `<option value="${esc(value)}">${esc(label)}</option>`
+      )).join('');
+    if (current) el.value = current;
   }
 
   async function loadSupportAnalytics() {
@@ -271,6 +383,7 @@
         rootCauses: data.rootCauses || {},
         resolutionTypes: data.resolutionTypes || {},
       };
+      populateRootCauseFilter();
     } catch (e) {
       console.error('[INBOX] taxonomy', e);
     }
@@ -354,16 +467,23 @@
   }
 
   async function loadMessagesInbox() {
-    const container = document.getElementById('messagesContainer');
-    if (!container) return;
-    container.innerHTML = '<div class="text-center text-text-soft py-8">Laddar...</div>';
+    const listPanel = document.getElementById('arendenListPanel');
+    if (!listPanel) return;
+    listPanel.innerHTML = '<div class="text-center text-text-soft py-8">Laddar…</div>';
 
     try {
       const typeFilter = document.getElementById('messagesTypeFilter')?.value || '';
+      const statusFilter = document.getElementById('messagesStatusFilter')?.value || '';
+      const rootCauseFilter = document.getElementById('messagesRootCauseFilter')?.value || '';
+      const searchVal = document.getElementById('messagesSearch')?.value?.trim() || '';
       const params = new URLSearchParams();
       if (typeFilter) params.set('type', typeFilter);
-      if (window._messagesFollowupFilter) params.set('followup', '1');
+      if (statusFilter) params.set('status', statusFilter);
+      else if (window._messagesFollowupFilter) params.set('followup', '1');
       else if (activeInbox !== 'all') params.set('inbox', activeInbox);
+      if (rootCauseFilter) params.set('root_cause', rootCauseFilter);
+      if (searchVal) params.set('q', searchVal);
+      params.set('limit', '200');
 
       const messages = await Auth.api('/api/admin/contact-messages?' + params.toString());
       if (!Array.isArray(messages)) {
@@ -380,13 +500,20 @@
       }
       if (typeof updateMessagesBadge === 'function') updateMessagesBadge(unreadCount);
 
-      const searchVal = document.getElementById('messagesSearch')?.value?.trim() || '';
-      if (searchVal) filterMessagesInbox(searchVal);
-      else renderMessagesList(messages);
+      renderMessagesList(messages);
+
+      const hash = window.location.hash || '';
+      const ticketMatch = hash.match(/[?&]ticket=(\d+)/);
+      if (ticketMatch && !selectedTicketId) {
+        await selectArendeTicket(ticketMatch[1]);
+      } else if (selectedTicketId) {
+        const still = messages.find((m) => String(m.id) === String(selectedTicketId));
+        if (still) renderTicketDetail(still);
+      }
     } catch (e) {
       console.error('[INBOX]', e);
       const detail = e?.message ? ': ' + e.message : '';
-      container.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda ärenden' + detail + '</div>';
+      listPanel.innerHTML = '<div class="text-center text-red-500 py-8">Kunde inte ladda ärenden' + detail + '</div>';
     }
   }
 
@@ -433,17 +560,36 @@
     loadMessagesInbox();
   }
 
+  function bindArendenFilters() {
+    const search = document.getElementById('messagesSearch');
+    if (search && !search.dataset.arendenBound) {
+      search.dataset.arendenBound = '1';
+      search.addEventListener('input', () => filterMessagesInbox());
+    }
+    ['messagesTypeFilter', 'messagesStatusFilter', 'messagesRootCauseFilter'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el && !el.dataset.arendenBound) {
+        el.dataset.arendenBound = '1';
+        el.addEventListener('change', () => loadMessagesInbox());
+      }
+    });
+  }
+
   function initMessagesInbox() {
     renderInboxTabs();
+    bindArendenFilters();
     loadTaxonomy();
     loadSupportAnalytics();
     const hash = window.location.hash || '';
     if (hash.includes('inbox=unread')) activeInbox = 'unread';
     if (hash.includes('followup=1')) window._messagesFollowupFilter = true;
+    const ticketMatch = hash.match(/[?&]ticket=(\d+)/);
+    if (ticketMatch) selectedTicketId = ticketMatch[1];
   }
 
   window.loadMessagesInbox = loadMessagesInbox;
   window.filterMessagesInbox = filterMessagesInbox;
+  window.selectArendeTicket = selectArendeTicket;
   window.setMessageStatus = setMessageStatus;
   window.sendMessageReply = sendMessageReply;
   window.linkMessageFamily = linkMessageFamily;
