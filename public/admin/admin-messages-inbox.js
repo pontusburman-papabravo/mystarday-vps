@@ -56,6 +56,8 @@
     if (idx === -1) return String(note).trim();
     return String(note).slice(0, idx).trim();
   }
+
+  function extractReplyHistory(note) {
     if (!note) return [];
     const chunks = String(note).split(/\n--- Svar /).slice(1);
     return chunks.map((chunk) => {
@@ -80,6 +82,8 @@
   function canReplyToMessage(m) {
     return Boolean(m.email && String(m.email).includes('@'));
   }
+
+  function familyBlock(m) {
     const fam = m.linkedFamily || {};
     if (fam.type === 'none') {
       return `<div class="mt-2 flex gap-2 items-center">
