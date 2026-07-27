@@ -28,20 +28,27 @@ describe('legacy-language notice relevance (pure DB signal)', () => {
       preferred_locale: 'en-GB',
       previous_locale: null,
       english_beta_offer_state: 'accepted_english_beta',
+      locale_selection_source: 'existing_user_offer',
       legacy_language_notice_dismissed_at: null,
     }), true);
   });
 
-  it('not relevant: new English family (no previous locale)', () => {
+  it('relevant: pre-i18n family switched outside tracked paths (legacy_default)', () => {
+    assert.equal(shouldShowLegacyLanguageNotice({
+      preferred_locale: 'en-GB',
+      previous_locale: null,
+      english_beta_offer_state: 'not_shown',
+      locale_selection_source: 'legacy_default',
+      legacy_language_notice_dismissed_at: null,
+    }), true);
+  });
+
+  it('not relevant: new English family (registration metadata)', () => {
     assert.equal(shouldShowLegacyLanguageNotice({
       preferred_locale: 'en-GB',
       previous_locale: null,
       english_beta_offer_state: 'registration_decided',
-      legacy_language_notice_dismissed_at: null,
-    }), false);
-    assert.equal(shouldShowLegacyLanguageNotice({
-      preferred_locale: 'en-GB',
-      previous_locale: null,
+      locale_selection_source: 'registration',
       legacy_language_notice_dismissed_at: null,
     }), false);
   });

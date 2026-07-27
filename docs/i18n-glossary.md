@@ -39,6 +39,10 @@ AND (
   OR (family.previous_locale IS NULL
       AND family.english_beta_offer_state = 'accepted_english_beta')
       -- early beta families backfilled before previous_locale existed
+  OR (family.previous_locale IS NULL
+      AND COALESCE(family.locale_selection_source, 'legacy_default') = 'legacy_default')
+      -- pre-i18n families switched outside tracked paths; en-GB registration
+      -- always writes source='registration', so this is always Swedish-seeded
 )
 ```
 
