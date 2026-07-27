@@ -37,6 +37,11 @@
       "switchBack": "Switch back to Swedish",
       "dismissAria": "Close"
     },
+    "legacyNotice": {
+      "body": "Existing activities stay in their original language. New activities use English.",
+      "dismiss": "Got it",
+      "dismissAria": "Dismiss language notice"
+    },
     "feedback": {
       "typeLabel": "Language or translation issue",
       "typeLabelEn": "Language or translation issue",
