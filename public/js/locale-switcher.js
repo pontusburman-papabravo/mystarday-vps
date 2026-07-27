@@ -240,6 +240,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    if (document.body?.dataset?.i18nManualInit === 'true') return;
     autoMount();
   });
 
