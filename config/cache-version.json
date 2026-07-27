@@ -1,4 +1,8 @@
 {
+<<<<<<< HEAD
   "cacheName": "stjarndag-v714",
+=======
+  "cacheName": "stjarndag-v713",
+>>>>>>> origin/cursor/i18n-child-samling-rewards-fbe1
   "tailwindBuild": "1"
 }

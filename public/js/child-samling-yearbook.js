@@ -5,10 +5,21 @@
 (function () {
   'use strict';
 
-  const MONTH_NAMES = [
-    '', 'Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
-    'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December',
-  ];
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
+  function childDateLocale() {
+    if (typeof window.getChildDateLocale === 'function') return window.getChildDateLocale();
+    return (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale() === 'en-GB')
+      ? 'en-GB' : 'sv-SE';
+  }
+
+  function capitalizeMonth(label) {
+    if (!label) return '';
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
 
   function monthSpreads(yearStory) {
     const story = yearStory || {};
@@ -40,23 +51,29 @@
 
   function spreadPhrase(activeDays, stars) {
     if (activeDays <= 0 && stars <= 0) {
-      return 'Här växer ditt uppslag';
+      return t('samling.yearbookSpreadGrowing');
     }
     if (activeDays >= 4) {
-      return 'Du var aktiv den här månaden';
+      return t('samling.yearbookSpreadActive');
     }
-    return 'Du tog hand om dig';
+    return t('samling.yearbookSpreadSelfCare');
   }
 
   function daysLabel(activeDays) {
     const d = Math.max(0, Math.floor(Number(activeDays) || 0));
     if (d === 0) return '';
-    if (d === 1) return '1 dag';
-    return d + ' dagar';
+    if (typeof window.childPlural === 'function') {
+      return window.childPlural('samling.yearbookDays', d, { count: d });
+    }
+    const suffix = d === 1 ? 'one' : 'other';
+    return t('samling.yearbookDays_' + suffix, { count: d });
   }
 
   function monthTitle(month) {
-    return MONTH_NAMES[month] || '';
+    const m = Number(month);
+    if (!m || m < 1 || m > 12) return '';
+    const d = new Date(2000, m - 1, 1);
+    return capitalizeMonth(d.toLocaleDateString(childDateLocale(), { month: 'long' }));
   }
 
   window.ChildSamlingYearbook = {
@@ -65,6 +82,5 @@
     spreadPhrase: spreadPhrase,
     daysLabel: daysLabel,
     monthTitle: monthTitle,
-    MONTH_NAMES: MONTH_NAMES,
   };
 })();

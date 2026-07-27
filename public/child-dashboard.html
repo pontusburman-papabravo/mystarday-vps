@@ -2062,7 +2062,7 @@
   <div id="collectionView" class="hidden pb-20" data-layer="collection">
     <div id="collectionViewLoading" class="p-6 text-center py-16">
       <p class="text-5xl mb-3" style="display:inline-block;animation:skattSpin 1.5s linear infinite" aria-hidden="true">🏆</p>
-      <p class="text-text-soft font-semibold mt-3">Öppnar din samling…</p>
+      <p class="text-text-soft font-semibold mt-3" data-i18n="child.samling.opening">Öppnar din samling…</p>
     </div>
     <div id="collectionViewMount"></div>
   </div>
@@ -2083,7 +2083,7 @@
     <!-- Loading state -->
     <div id="skattkammarLoading" class="p-6 text-center py-16">
       <p class="text-5xl mb-3 animate-spin" style="display:inline-block">⭐</p>
-      <p class="text-text-soft font-semibold mt-3">Öppnar Skattkammaren...</p>
+      <p class="text-text-soft font-semibold mt-3" data-i18n="child.rewards.openTreasure">Öppnar Skattkammaren...</p>
     </div>
     <!-- Main content (filled by JS) -->
     <div id="skattkammarView" class="px-4 pt-4 max-w-lg mx-auto" style="display:none"></div>
@@ -2093,13 +2093,13 @@
   <div id="goalPickerModal" class="hidden fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-4">
     <div class="pop-in bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl max-h-[85vh] flex flex-col">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-heading font-bold text-navy">🎯 Välj ditt mål</h3>
+        <h3 class="text-lg font-heading font-bold text-navy" data-i18n="child.rewards.goalPickerTitle">🎯 Välj ditt mål</h3>
         <button onclick="closeGoalPicker()" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-soft hover:text-navy text-xl rounded-lg">✕</button>
       </div>
       <div id="goalPickerList" class="overflow-y-auto flex-1">
-        <p class="text-text-soft text-center py-6">Laddar...</p>
+        <p class="text-text-soft text-center py-6" data-i18n="child.common.loading">Laddar...</p>
       </div>
-      <p class="text-xs text-text-soft text-center mt-3">Om du redan har ett mål skickas en förfrågan till föräldern</p>
+      <p class="text-xs text-text-soft text-center mt-3" data-i18n="child.rewards.goalPickerHint">Om du redan har ett mål skickas en förfrågan till föräldern</p>
     </div>
   </div>
 

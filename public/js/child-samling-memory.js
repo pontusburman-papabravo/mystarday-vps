@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
+
   function lifetimeStars(universe) {
     const raw = universe && universe.stats && universe.stats.lifetime_stars;
     const n = Number(raw);
@@ -49,8 +54,8 @@
     {
       id: 'trygg_start',
       emoji: '🌱',
-      title: 'Trygg start',
-      subtitle: 'Du fick ditt första trofé',
+      titleKey: 'diplomaTryggStartTitle',
+      subtitleKey: 'diplomaTryggStartSubtitle',
       isEarned: function (universe) {
         return achievementCount(universe) >= 1;
       },
@@ -58,8 +63,8 @@
     {
       id: 'first_reward',
       emoji: '🎁',
-      title: 'Jag klarade det',
-      subtitle: 'Du sparade ihop till en belöning',
+      titleKey: 'diplomaFirstRewardTitle',
+      subtitleKey: 'diplomaFirstRewardSubtitle',
       isEarned: function (universe, memories) {
         return memories.length >= 1;
       },
@@ -67,8 +72,8 @@
     {
       id: 'star_25',
       emoji: '⭐',
-      title: 'Stjärnsamlare',
-      subtitle: '25 stjärnor totalt',
+      titleKey: 'diplomaStar25Title',
+      subtitleKey: 'diplomaStar25Subtitle',
       isEarned: function (universe) {
         return lifetimeStars(universe) >= 25;
       },
@@ -76,8 +81,8 @@
     {
       id: 'star_100',
       emoji: '🌟',
-      title: 'Superstjärna',
-      subtitle: '100 stjärnor totalt',
+      titleKey: 'diplomaStar100Title',
+      subtitleKey: 'diplomaStar100Subtitle',
       isEarned: function (universe) {
         return lifetimeStars(universe) >= 100;
       },
@@ -85,17 +90,28 @@
     {
       id: 'streak_7',
       emoji: '🔥',
-      title: 'Rutinhjälte',
-      subtitle: '7 dagar i rad',
+      titleKey: 'diplomaStreak7Title',
+      subtitleKey: 'diplomaStreak7Subtitle',
       isEarned: function (universe) {
         return currentStreak(universe) >= 7;
       },
     },
   ];
 
+  function localizeDiploma(def) {
+    return {
+      id: def.id,
+      emoji: def.emoji,
+      title: t('samling.' + def.titleKey),
+      subtitle: t('samling.' + def.subtitleKey),
+    };
+  }
+
   function earnedDiplomas(universe, memories) {
     return DIPLOMA_DEFS.filter(function (d) {
       return d.isEarned(universe, memories);
+    }).map(function (d) {
+      return Object.assign(localizeDiploma(d), { id: d.id, emoji: d.emoji });
     });
   }
 
