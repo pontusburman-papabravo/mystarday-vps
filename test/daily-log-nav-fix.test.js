@@ -36,4 +36,11 @@ describe('daily-log navigation fix (support: stuck on log page)', () => {
     assert.match(tabs, /navigateHomeFromDailyLog/);
     assert.match(shell, /navigateHomeFromDailyLog/);
   });
+
+  it('daily-log does not re-boot on parent-i18n-ready before children load', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/daily-log.js'), 'utf8');
+    assert.doesNotMatch(src, /else if \(!children\.length\)/);
+    assert.match(src, /ParentMagicPageBoot\.register\('daily-log'/);
+    assert.match(src, /_loadLogSeq/);
+  });
 });

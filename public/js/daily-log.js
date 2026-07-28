@@ -96,6 +96,8 @@
     // ── Auth & Init ───────────────────────────────────────
 
     let _dailyLogPageBound = false;
+    let _dailyLogBootPromise = null;
+    let _loadLogSeq = 0;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
@@ -108,7 +110,15 @@
 
     async function bootDailyLogPage() {
       if (!document.getElementById('logContent')) return;
+      if (_dailyLogBootPromise) return _dailyLogBootPromise;
 
+      _dailyLogBootPromise = bootDailyLogPageInner().finally(function () {
+        _dailyLogBootPromise = null;
+      });
+      return _dailyLogBootPromise;
+    }
+
+    async function bootDailyLogPageInner() {
       try {
         let user = null;
         if (typeof window.authGuard === 'function') {
@@ -156,17 +166,22 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', bootDailyLogPage);
-
     document.addEventListener('parent-i18n-ready', () => {
       if (!document.getElementById('logContent')) return;
       if (window.I18n && typeof I18n.apply === 'function') I18n.apply();
       if (currentChildId) {
         void loadLog();
-      } else if (!children.length) {
-        void bootDailyLogPage();
       }
     });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootDailyLogPage);
+    } else {
+      bootDailyLogPage();
+    }
+    if (window.ParentMagicPageBoot) {
+      ParentMagicPageBoot.register('daily-log', bootDailyLogPage);
+    }
 
     function openPrintMenuHint() {
       const menu = document.getElementById('printMenu');
@@ -274,12 +289,15 @@
 
     async function loadLog() {
       if (!currentChildId) return;
+      const seq = ++_loadLogSeq;
+      const childId = currentChildId;
+      const dateParam = normalizeIsoDate(currentDateStr);
       renderLogLoading();
 
       try {
-        const dateParam = normalizeIsoDate(currentDateStr);
         currentDateStr = dateParam;
-        const res = await apiFetch(`/api/children/${currentChildId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        const res = await apiFetch(`/api/children/${childId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        if (seq !== _loadLogSeq || childId !== currentChildId) return;
         if (!res.ok) {
           let msg = pt('today.errors.loadLog');
           try {
@@ -354,10 +372,10 @@
       const sectionOrder = ['morgon', 'dag', 'kvall', 'natt'];
       const sectionEmojis = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
       const sectionLabels = {
-        morgon: pt('sections.morgon'),
-        dag: pt('sections.dag'),
-        kvall: pt('sections.kvall'),
-        natt: pt('sections.natt'),
+        morgon: pt('schedule.sections.morgon'),
+        dag: pt('schedule.sections.dag'),
+        kvall: pt('schedule.sections.kvall'),
+        natt: pt('schedule.sections.natt'),
       };
 
       // Build sections from items
