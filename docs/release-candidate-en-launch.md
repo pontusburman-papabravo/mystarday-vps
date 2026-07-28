@@ -1,9 +1,25 @@
 # English Launch — Release Candidate
 
-**Status:** RC-1 in progress  
+**Status:** RC-1 in progress · **English i18n program: COMPLETE** (2026-07-28)  
 **Last updated:** 2026-07-28  
 **Audience:** Product, QA, release engineering  
 **Related:** [`docs/i18n-glossary.md`](i18n-glossary.md), [`docs/qa-test-account.md`](qa-test-account.md), [`docs/e2e-i18n-english-journey.md`](e2e-i18n-english-journey.md)
+
+---
+
+## English i18n program — complete
+
+**English i18n Program: Complete** — merged through **#770** (PDF/print) on 2026-07-28.
+
+From this point, work is **only** one of:
+
+| Type | Examples |
+|------|----------|
+| 🐞 **Release bug** | Small scoped fix from RC smoke (incl. leftover Swedish in a modal) |
+| 🔧 **Release engineering** | RC checklist, store assets, flags, monitoring |
+| 🚀 **New feature** | After English launch — not during RC freeze |
+
+Not “i18n PR #15”. New user-facing strings still require sv-SE + en-GB locale keys.
 
 ---
 
@@ -138,26 +154,21 @@ These must stay green on `main` during RC. No merge to release branch without th
 
 ---
 
-## Open PR triage (2026-07-28)
+## Open PR triage (2026-07-28) — resolved
 
-GitHub currently shows **6 open draft PRs** (not 13). Older cloud-agent branches may exist without PRs — treat them as **stale** unless revived for a release bug.
+All draft i18n backlog PRs were **closed** after #770 / #771 merged to keep RC focus. Stale implementation branches should be deleted.
 
-| PR | Title | Recommendation |
-|----|-------|----------------|
-| **#770** | Schedule PDF / print i18n | **Merge** — final planned i18n vertical; CI green |
-| **#743** | Daily log nav / empty state bug | **RC-1 bug** — evaluate on `main`; merge if still reproduces; not i18n programme |
-| **#744** | Give extra stars modal i18n | **Review vs `main`** — modal may already use `schedule.modals.giveStars`; close if duplicate |
-| **#745** | Day off modal i18n | **Review vs `main`** — close if already covered by home pack |
-| **#746** | Image archive upload UI i18n | **Review vs `main`** — merge only if gap remains; else close |
-| **#716** | Child Core inventory docs (blocked) | **Close** — superseded by merged child-core PRs (#718, #763, #764, #767) |
+| PR | Action taken |
+|----|----------------|
+| **#770** | ✅ Merged — schedule PDF / print |
+| **#771** | ✅ Merged — this RC doc + i18n freeze |
+| **#716** | ❌ Closed — superseded by #718, #763, #764, #767 |
+| **#744** | ❌ Closed — give-stars already on `main` via `schedule.modals.giveStars` |
+| **#745** | ❌ Closed — RC smoke: day-off modal if Swedish remains |
+| **#746** | ❌ Closed — RC smoke: library upload UI if Swedish remains |
+| **#743** | ❌ Closed — RC smoke: daily-log nav/empty state if bug persists |
 
-### Recommended sequence
-
-1. Merge **#770** → mark i18n programme complete on `main`.
-2. Rebase or close **#744–#746** after diff against `main` (avoid double locale keys).
-3. Triage **#743** as release engineering, not i18n.
-4. Close **#716** with link to merged child work.
-5. Delete stale `cursor/i18n-*` branches that have no open PR and are fully merged.
+Standard close comment on each PR: *Superseded by merged work on main during the English launch program…*
 
 ---
 
