@@ -31,6 +31,10 @@
     );
   }
 
+  function activityTitle(item) {
+    return item.display_name || item.name || '';
+  }
+
   function renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) {
     if (!subStepCount) return '';
     const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
@@ -84,7 +88,7 @@
       );
     }
     if (canToggle) {
-      return '<button type="button" class="photo-activity-card__check" ' + checkAttr + ' aria-label="Markera klar"></button>';
+      return '<button type="button" class="photo-activity-card__check" ' + checkAttr + ' aria-label="' + esc(t('today.checkOffToContinue')) + '"></button>';
     }
     return '';
   }
@@ -104,7 +108,7 @@
     const subBadge = subStepCount
       ? '<span class="substep-progress ' + (subDone === subStepCount ? 'all-done' : '') + '" id="substep-badge-' + item.id + '">' + subDone + '/' + subStepCount + '</span>'
       : '';
-    const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(item.name) : '';
+    const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(activityTitle(item)) : '';
 
     const showTimer = typeof visualTimer !== 'undefined' && visualTimer && !isDone && item.start_time && item.end_time;
     const timerHtml = showTimer
@@ -125,15 +129,15 @@
       '<div class="activity-card photo-activity-card photo-activity-card--now ' + (isDone ? 'done' : '') + ' ' + colorCls + '" id="card-' + item.id + '"' +
            ' data-feedback-for="' + esc(item.feedback_for || 'both') + '"' +
            ' data-item-icon="' + esc(item.icon || '⭐') + '"' +
-           ' data-item-name="' + esc(item.name) + '"' +
+           ' data-item-name="' + esc(activityTitle(item)) + '"' +
            ' data-item-id="' + item.id + '"' +
            ' data-sub-step-count="' + subStepCount + '">' +
         '<div class="photo-activity-card__badge-wrap">' +
-          '<div class="now-badge"><div class="pulse-dot"></div> NU</div>' +
+          '<div class="now-badge"><div class="pulse-dot"></div> ' + esc(t('today.zoneNow')) + '</div>' +
         '</div>' +
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
-          '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(activityTitle(item)) + '</div>' +
           starRewardHtml(item) +
           activityTimerHtml +
           timerHtml +
@@ -164,14 +168,14 @@
     const subBadge = subStepCount
       ? '<span class="substep-progress ' + (subDone === subStepCount ? 'all-done' : '') + '" id="substep-badge-' + item.id + '">' + subDone + '/' + subStepCount + '</span>'
       : '';
-    const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(item.name) : '';
+    const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(activityTitle(item)) : '';
     const feedbackFor = item.feedback_for || 'both';
 
     let badgeHtml = '';
     if (isNext) {
       badgeHtml = '<span class="nl-chip chip-next">' + t('scheduleChrome.nextBadge') + '</span>';
     } else if (isLater && !isDone) {
-      badgeHtml = '<span class="nl-chip chip-later">Senare</span>';
+      badgeHtml = '<span class="nl-chip chip-later">' + esc(t('today.zoneLater')) + '</span>';
     }
 
     let ratingHtml = '';
@@ -209,7 +213,7 @@
            ' id="card-' + item.id + '"' +
            ' data-feedback-for="' + esc(feedbackFor) + '"' +
            ' data-item-icon="' + esc(item.icon || '⭐') + '"' +
-           ' data-item-name="' + esc(item.name) + '"' +
+           ' data-item-name="' + esc(activityTitle(item)) + '"' +
            ' data-item-id="' + item.id + '"' +
            ' data-sub-step-count="' + subStepCount + '"' +
            outerClick + '>' +
@@ -217,7 +221,7 @@
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           dragHtml +
-          '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(item.name) + '</div>' +
+          '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(activityTitle(item)) + '</div>' +
           starRewardHtml(item) +
           cardCheck +
         '</div>' +
@@ -234,7 +238,7 @@
            ' data-item-id="' + item.id + '" style="pointer-events:none;opacity:0.65;">' +
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
-          '<div class="photo-activity-card__title" style="text-decoration:line-through;color:#6B7280;">' + esc(item.name) + '</div>' +
+          '<div class="photo-activity-card__title" style="text-decoration:line-through;color:#6B7280;">' + esc(activityTitle(item)) + '</div>' +
           '<div class="photo-activity-card__check photo-activity-card__check--done">' +
             '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
               '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>' +
