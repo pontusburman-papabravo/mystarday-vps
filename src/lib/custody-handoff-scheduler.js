@@ -7,6 +7,8 @@
 
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
+const { t } = require('./i18n');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const { CUSTODY_HANDOFF_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
 const custodyDb = require('../../db/custody');
@@ -59,9 +61,11 @@ async function runCustodyHandoffJob(now = new Date()) {
 
   const outcome = await withAdvisoryLock(LOCK_ID, async () => {
   const patterns = await db.query(
-    `SELECT cp.*, c.name AS child_name, c.family_id, c.emoji
+    `SELECT cp.*, c.name AS child_name, c.family_id, c.emoji,
+            COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
      FROM custody_pattern cp
-     JOIN child c ON c.id = cp.child_id`
+     JOIN child c ON c.id = cp.child_id
+     JOIN family f ON f.id = c.family_id`
   );
 
   let sent = 0;
@@ -96,7 +100,8 @@ async function runCustodyHandoffJob(now = new Date()) {
     }
 
     for (const parent of parents.rows) {
-      const titlePrefix = `Byte imorgon — ${row.child_name}`;
+      const locale = resolveCommunicationLocale(row.preferred_locale);
+      const titlePrefix = t(locale, 'push.custodyHandoff.titlePrefix', { childName: row.child_name });
       const dup = await db.query(
         `SELECT 1 FROM notification_log
          WHERE parent_id = $1 AND type = 'custody_handoff_reminder'
@@ -107,11 +112,15 @@ async function runCustodyHandoffJob(now = new Date()) {
       );
       if (dup.rows.length) continue;
 
+      const title = t(locale, 'push.custodyHandoff.titleAtHome', {
+        titlePrefix,
+        homeLabel: nextHome.label,
+      });
       await sendPushNotification(parent.id, {
-        title: `${titlePrefix} hos ${nextHome.label}`,
+        title,
         body: row.pack_luggage_reminder !== false
-          ? '🎒 Packa väska finns i morgondagens schema.'
-          : 'Kom ihåg att förbereda för veckobyte.',
+          ? t(locale, 'push.custodyHandoff.bodyPack')
+          : t(locale, 'push.custodyHandoff.bodyPrepare'),
         type: 'custody_handoff_reminder',
         url: '/daily-log',
       });

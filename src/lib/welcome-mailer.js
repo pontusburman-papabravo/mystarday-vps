@@ -39,8 +39,11 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
     let subject = template.subject;
     let body = template.body;
 
-    subject = subject.replace(/{{foralderns_namn}}/g, foralderns_namn || 'Förälder');
-    body = body.replace(/{{foralderns_namn}}/g, foralderns_namn || 'Förälder');
+    const lang = resolveCommunicationLocale(locale);
+    const genericParent = t(lang, 'email.common.genericParent');
+
+    subject = subject.replace(/{{foralderns_namn}}/g, foralderns_namn || genericParent);
+    body = body.replace(/{{foralderns_namn}}/g, foralderns_namn || genericParent);
 
     // Resolve child's name: provided by caller > looked up from DB > fallback
     let resolved_barnets_namn = barnets_namn || null;
@@ -56,7 +59,7 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
          LIMIT 1`,
         [parentId]
       );
-      resolved_barnets_namn = childResult.rows[0]?.name || 'barnet';
+      resolved_barnets_namn = childResult.rows[0]?.name || t(lang, 'email.common.genericChild');
     }
 
     subject = subject.replace(/{{barnets_namn}}/g, resolved_barnets_namn);
@@ -183,13 +186,15 @@ function escapeHtml(str) {
  * @param {object} vars — { foralderns_namn: string }
  * @returns {Promise<{ success: boolean, error?: string }>}
  */
-async function sendTrialWelcomeEmail(parentEmail, parentId, { foralderns_namn } = {}) {
+async function sendTrialWelcomeEmail(parentEmail, parentId, { foralderns_namn, locale } = {}) {
   try {
-    const greeting = foralderns_namn || 'Hej';
+    const lang = resolveCommunicationLocale(locale);
+    const brand = config.email.fromName || 'Stjärndag';
+    const greeting = foralderns_namn || t(lang, 'email.common.greeting');
     const upgradeUrl = `${APP_URL}/upgrade`;
 
-    const subject = 'Välkommen till My Starday – din gratis period har börjat!';
-    const html = buildTrialEmailHtml({ greeting, upgradeUrl, subject });
+    const subject = t(lang, 'email.trialWelcome.subject', { brand });
+    const html = buildTrialEmailHtml({ greeting, upgradeUrl, subject, locale: lang, brand });
 
     const result = await sendEmail({ to: parentEmail, subject, html });
     if (!result.success) throw new Error(result.error || 'Email send failed');
@@ -201,9 +206,11 @@ async function sendTrialWelcomeEmail(parentEmail, parentId, { foralderns_namn } 
   }
 }
 
-function buildTrialEmailHtml({ greeting, upgradeUrl, subject }) {
+function buildTrialEmailHtml({ greeting, upgradeUrl, subject, locale = 'sv-SE', brand }) {
+  const lang = resolveCommunicationLocale(locale);
+  const resolvedBrand = brand || config.email.fromName || 'Stjärndag';
   return `<!DOCTYPE html>
-<html lang="sv">
+<html lang="${lang === 'en-GB' ? 'en-GB' : 'sv-SE'}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -214,46 +221,41 @@ function buildTrialEmailHtml({ greeting, upgradeUrl, subject }) {
     <tr>
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-          <!-- Header -->
           <tr>
             <td style="background-color:#F5A623;background-image:linear-gradient(135deg,#F5A623 0%,#e8952a 100%);padding:32px 40px;">
-              <h1 style="margin:0;color:#ffffff;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.9;">Min Stjärndag</h1>
-              <h2 style="margin:12px 0 0 0;color:#ffffff;font-size:24px;font-weight:700;line-height:1.3;">Din gratis period har börjat! ⭐</h2>
+              <h1 style="margin:0;color:#ffffff;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.9;">${escapeHtml(t(lang, 'email.trialWelcome.headerBrand', { brand: resolvedBrand }))}</h1>
+              <h2 style="margin:12px 0 0 0;color:#ffffff;font-size:24px;font-weight:700;line-height:1.3;">${escapeHtml(t(lang, 'email.trialWelcome.headerTitle'))}</h2>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
             <td style="padding:40px 40px 32px 40px;color:#374151;font-size:16px;line-height:1.7;">
               <p style="margin:0 0 20px 0;">${escapeHtml(greeting)},</p>
-              <p style="margin:0 0 24px 0;">Välkommen! Du har nu <strong>14 dagar gratis</strong> att prova alla funktioner i Min Stjärndag — inget kreditkort behövs.</p>
-              <p style="margin:0 0 32px 0;">Så här fungerar det:</p>
+              <p style="margin:0 0 24px 0;">${t(lang, 'email.trialWelcome.intro', { brand: resolvedBrand })}</p>
+              <p style="margin:0 0 32px 0;">${escapeHtml(t(lang, 'email.trialWelcome.howTitle'))}</p>
               <ul style="margin:0 0 32px 0;padding:0 0 0 20px;line-height:2;">
-                <li>Skapa scheman och aktiviteter för ditt barn</li>
-                <li>Låt barnet samla stjärnor varje dag</li>
-                <li>Sätt upp belöningar i Skattkammaren</li>
+                <li>${escapeHtml(t(lang, 'email.trialWelcome.how1'))}</li>
+                <li>${escapeHtml(t(lang, 'email.trialWelcome.how2'))}</li>
+                <li>${escapeHtml(t(lang, 'email.trialWelcome.how3'))}</li>
               </ul>
-              <p style="margin:0 0 32px 0;">Efter 14 dagar kostar det <strong>59 kr/månad</strong> — du kan uppgradera när som helst.</p>
+              <p style="margin:0 0 32px 0;">${t(lang, 'email.trialWelcome.pricing')}</p>
             </td>
           </tr>
-          <!-- CTA -->
           <tr>
             <td style="padding:0 40px 40px 40px;text-align:center;">
               <a href="${escapeHtml(upgradeUrl)}" style="display:inline-block;background:#F5A623;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:16px;">
-                Prova Premium ⭐
+                ${escapeHtml(t(lang, 'email.trialWelcome.cta'))}
               </a>
-              <p style="margin:16px 0 0 0;color:#9ca3af;font-size:13px;">Ingen bindningstid — avbryt när som helst</p>
+              <p style="margin:16px 0 0 0;color:#9ca3af;font-size:13px;">${escapeHtml(t(lang, 'email.trialWelcome.ctaHint'))}</p>
             </td>
           </tr>
-          <!-- Divider -->
           <tr>
             <td style="border-top:1px solid #e5e7eb;"></td>
           </tr>
-          <!-- Footer -->
           <tr>
             <td style="padding:24px 40px;color:#9ca3af;font-size:13px;line-height:1.6;">
-              <p style="margin:0 0 8px 0;">Du får detta mail för att du nyligen registrerade dig på Min Stjärndag.</p>
+              <p style="margin:0 0 8px 0;">${escapeHtml(t(lang, 'email.trialWelcome.footerIntro', { brand: resolvedBrand }))}</p>
               <p style="margin:0;">
-                <a href="${escapeHtml(APP_URL)}/dashboard" style="color:#9ca3af;text-decoration:underline;">Öppna appen</a>
+                <a href="${escapeHtml(APP_URL)}/dashboard" style="color:#9ca3af;text-decoration:underline;">${escapeHtml(t(lang, 'email.trialWelcome.openApp'))}</a>
               </p>
             </td>
           </tr>

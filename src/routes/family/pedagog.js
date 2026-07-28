@@ -43,9 +43,15 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
 
     // Send invite email
     const inviterResult = await db.query('SELECT name FROM parent WHERE id = $1', [req.user.id]);
-    const familyResult = await db.query('SELECT name FROM family WHERE id = $1', [req.user.familyId]);
+    const familyResult = await db.query(
+      'SELECT name, COALESCE(preferred_locale, \'sv-SE\') AS preferred_locale FROM family WHERE id = $1',
+      [req.user.familyId]
+    );
     const inviterName = inviterResult.rows[0]?.name || 'En förälder';
     const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
+    const locale = require('../../lib/communication-locale').resolveCommunicationLocale(
+      familyResult.rows[0]?.preferred_locale
+    );
 
     const emailResult = await require('../../lib/email').sendPedagogInviteEmail({
       to: email,
@@ -53,6 +59,7 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
       inviterName,
       familyName,
       inviteToken: invite.token,
+      locale,
     });
 
     if (!emailResult.success) {

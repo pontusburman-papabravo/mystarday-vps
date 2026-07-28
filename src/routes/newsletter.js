@@ -9,6 +9,7 @@ const { requireParent, requireAdmin } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const { sendStandaloneNewsletter } = require('../lib/newsletter-mailer');
 const { sendNewsletterSubscriptionConfirmation } = require('../lib/email');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { unsubscribeByToken } = require('../lib/newsletter-unsubscribe');
 const { renderUnsubscribePage, renderUnsubscribeErrorPage } = require('../lib/newsletter-unsubscribe-pages');
 const { PARENT_HAS_EMAIL, IS_ACTIVE_SUBSCRIBER } = require('../lib/newsletter-subscribe');
@@ -95,7 +96,8 @@ router.put('/subscription', requireParent, async (req, res) => {
         'SELECT COALESCE(name, \'\') AS name FROM parent WHERE id = $1',
         [req.user.id]
       );
-      sendNewsletterSubscriptionConfirmation(email, parentName.rows[0]?.name || '')
+      const locale = await getFamilyPreferredLocale(req.user.familyId);
+      sendNewsletterSubscriptionConfirmation(email, parentName.rows[0]?.name || '', locale)
         .catch(function (err) {
           console.error('[NEWSLETTER] Subscription confirmation email failed:', err.message);
         });

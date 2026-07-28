@@ -11,6 +11,10 @@
 
 const db = require('./db');
 const { sendEmail } = require('./email');
+const config = require('./config');
+const { t } = require('./i18n');
+const { validateLocale } = require('./locale');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const { buildNotificationEmailFooterHtml } = require('./email-notification-footer');
 const { buildOptOutUrl } = require('./notification-email-opt-out');
 const { WEEKLY_SUMMARY_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
@@ -99,61 +103,77 @@ async function aggregateChildWeek(childId, startDate, endDate) {
   };
 }
 
+function brandName() {
+  return config.email.fromName || 'Stjärndag';
+}
+
 /**
- * Format a mood score (1–10) as a Swedish description with emoji.
+ * Format a mood score (1–10) as a localized description with emoji.
  */
-function formatMood(score) {
+function formatMood(score, locale = 'sv-SE') {
   if (score === null) return null;
-  if (score >= 8) return `Väldigt glad 😄 (${score}/10)`;
-  if (score >= 6) return `Glad 🙂 (${score}/10)`;
-  if (score >= 4) return `Neutral 😐 (${score}/10)`;
-  return `Ledsen 😔 (${score}/10)`;
+  const lang = validateLocale(locale);
+  const scoreStr = String(score);
+  if (score >= 8) return t(lang, 'email.weeklySummary.moodVeryHappy', { score: scoreStr });
+  if (score >= 6) return t(lang, 'email.weeklySummary.moodHappy', { score: scoreStr });
+  if (score >= 4) return t(lang, 'email.weeklySummary.moodNeutral', { score: scoreStr });
+  return t(lang, 'email.weeklySummary.moodSad', { score: scoreStr });
 }
 
 /**
  * Pick the single most "braggable" highlight across all children this week.
- * Returns a short Swedish sentence the parent will want to share, or null.
  */
-function buildWeekHighlight(children) {
+function buildWeekHighlight(children, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
   let best = null;
   for (const { child, stats } of children) {
-    const name = (child.name || '').trim() || 'Ditt barn';
+    const name = (child.name || '').trim() || t(lang, 'email.weeklySummary.genericChildName');
     if (stats.starsEarned > 0 && (!best || stats.starsEarned > best.stars)) {
       best = {
         stars: stats.starsEarned,
-        text: `${child.emoji || '⭐'} ${name} samlade ${stats.starsEarned} stjärnor den här veckan!`,
+        childEmoji: child.emoji || '⭐',
+        childName: name,
       };
     }
   }
-  return best ? best.text : null;
+  if (!best) return null;
+  return t(lang, 'email.weeklySummary.highlight', {
+    childEmoji: best.childEmoji,
+    childName: best.childName,
+    stars: String(best.stars),
+  });
 }
 
 /**
  * Encouragement copy matched to actual week activity — avoid praising zero progress.
  */
-function buildEncouragementMessage(children) {
+function buildEncouragementMessage(children, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
   const totalCompleted = children.reduce((sum, c) => sum + c.stats.routinesCompleted, 0);
   const totalStars = children.reduce((sum, c) => sum + c.stats.starsEarned, 0);
 
   if (totalStars === 0 && totalCompleted === 0) {
-    return 'En ny vecka börjar snart — prova att bocka av en rutin tillsammans, det tar bara en stund.';
+    return t(lang, 'email.weeklySummary.encourageNoActivity');
   }
   if (totalCompleted > 0) {
-    return '🌟 Fortsätt det fantastiska arbetet! Varje avklarad rutin bygger vanor för livet.';
+    return t(lang, 'email.weeklySummary.encourageProgress');
   }
-  return '🌟 Små steg räknas — prova att bocka av en rutin tillsammans den här veckan.';
+  return t(lang, 'email.weeklySummary.encourageSmallSteps');
 }
 
 /**
  * Build HTML email body for the weekly summary.
  */
-function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } = {}) {
-  const firstName = (parentName || '').split(' ')[0] || 'Förälder';
-  const highlight = buildWeekHighlight(children);
-  const shareUrl = 'https://mystarday.se/?utm_source=weekly_summary&utm_medium=email&utm_campaign=share';
+function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl, locale = 'sv-SE' } = {}) {
+  const lang = validateLocale(locale);
+  const brand = brandName();
+  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const highlight = buildWeekHighlight(children, lang);
+  const baseUrl = config.email.baseUrl.replace(/\/$/, '');
+  const shareUrl = `${baseUrl}/?utm_source=weekly_summary&utm_medium=email&utm_campaign=share`;
   const shareText = highlight
-    ? `${highlight} Vi använder Min Stjärndag för barnens rutiner – kolla in den:`
-    : 'Vi använder Min Stjärndag för barnens dagliga rutiner – kolla in den:';
+    ? t(lang, 'email.weeklySummary.shareTextWithHighlight', { highlight, brand })
+    : t(lang, 'email.weeklySummary.shareTextGeneric', { brand });
   const waShareHref = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
 
   const highlightBanner = highlight
@@ -165,9 +185,9 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } =
 
   const shareBlock = `
       <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #E8ECF4;">
-        <p style="margin:0 0 12px;color:#5A6178;font-size:14px;">Känner du någon förälder som skulle gilla det här?</p>
-        <a href="${waShareHref}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">Dela på WhatsApp</a>
-        <a href="${shareUrl}" style="display:inline-block;background:#1B2340;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">Tipsa en vän</a>
+        <p style="margin:0 0 12px;color:#5A6178;font-size:14px;">${t(lang, 'email.weeklySummary.sharePrompt')}</p>
+        <a href="${waShareHref}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">${t(lang, 'email.weeklySummary.shareWhatsApp')}</a>
+        <a href="${shareUrl}" style="display:inline-block;background:#1B2340;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">${t(lang, 'email.weeklySummary.shareFriend')}</a>
       </div>`;
 
   const childSections = children.map(({ child, stats }) => {
@@ -176,7 +196,7 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } =
       : 0;
 
     const moodLine = stats.avgMood !== null && stats.moodCount >= 2
-      ? `<tr><td style="padding:4px 0;color:#5A6178;">Humör (snitt)</td><td style="padding:4px 0;text-align:right;font-weight:600;color:#1B2340;">${formatMood(stats.avgMood)}</td></tr>`
+      ? `<tr><td style="padding:4px 0;color:#5A6178;">${t(lang, 'email.weeklySummary.moodAverage')}</td><td style="padding:4px 0;text-align:right;font-weight:600;color:#1B2340;">${formatMood(stats.avgMood, lang)}</td></tr>`
       : '';
 
     return `
@@ -184,12 +204,12 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } =
         <h3 style="margin:0 0 12px;color:#1B2340;font-size:18px;">${child.emoji || '⭐'} ${child.name}</h3>
         <table style="width:100%;border-collapse:collapse;">
           <tr>
-            <td style="padding:4px 0;color:#5A6178;">Intjänade stjärnor</td>
+            <td style="padding:4px 0;color:#5A6178;">${t(lang, 'email.weeklySummary.starsEarned')}</td>
             <td style="padding:4px 0;text-align:right;font-weight:600;color:#F5A623;">⭐ ${stats.starsEarned}</td>
           </tr>
           <tr>
-            <td style="padding:4px 0;color:#5A6178;">Avklarade rutiner</td>
-            <td style="padding:4px 0;text-align:right;font-weight:600;color:#1B2340;">${stats.routinesCompleted} av ${stats.routinesTotal} (${completionPct}%)</td>
+            <td style="padding:4px 0;color:#5A6178;">${t(lang, 'email.weeklySummary.routinesCompleted')}</td>
+            <td style="padding:4px 0;text-align:right;font-weight:600;color:#1B2340;">${t(lang, 'email.weeklySummary.routinesOf', { completed: String(stats.routinesCompleted), total: String(stats.routinesTotal), pct: String(completionPct) })}</td>
           </tr>
           ${moodLine}
         </table>
@@ -202,8 +222,8 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } =
 
   return `
     <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
-      <h2 style="color:#1B2340;margin-bottom:4px;">Hej ${firstName}! 👋</h2>
-      <p style="color:#5A6178;margin-top:0;">Här är veckans sammanfattning för <strong>${weekLabel}</strong>.</p>
+      <h2 style="color:#1B2340;margin-bottom:4px;">${t(lang, 'email.weeklySummary.greeting', { name: firstName })}</h2>
+      <p style="color:#5A6178;margin-top:0;">${t(lang, 'email.weeklySummary.intro', { weekLabel })}</p>
 
       ${highlightBanner}
 
@@ -211,15 +231,16 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl } =
 
       <div style="background:#FFF3D6;border-left:4px solid #F5A623;border-radius:8px;padding:14px 16px;margin-top:8px;">
         <p style="margin:0;color:#1B2340;font-size:14px;">
-          ${buildEncouragementMessage(children)}
+          ${buildEncouragementMessage(children, lang)}
         </p>
       </div>
 
       ${shareBlock}
 
       ${buildNotificationEmailFooterHtml({
+        locale: lang,
         optOutUrl,
-        optOutLabel: 'Stäng av veckosammanfattning',
+        optOutLabel: t(lang, 'email.notificationFooter.optOutWeeklySummary'),
       })}
     </div>
   `;
@@ -279,8 +300,10 @@ async function runWeeklySummaryJob() {
 
     const parentsResult = await db.query(
       `SELECT p.id AS parent_id, p.email, p.name AS parent_name, p.family_id,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale,
               np.email_opt_out_token
        FROM parent p
+       JOIN family f ON f.id = p.family_id
        JOIN notification_preference np ON np.parent_id = p.id
        WHERE np.weekly_summary = true AND np.email_enabled = true
          AND p.verified = true`,
@@ -324,10 +347,11 @@ async function runWeeklySummaryJob() {
         const optOutUrl = parent.email_opt_out_token
           ? buildOptOutUrl(parent.email_opt_out_token, 'weekly_summary')
           : null;
-        const html = buildWeeklySummaryHtml(parent.parent_name, weekLabel, childData, { optOutUrl });
+        const locale = resolveCommunicationLocale(parent.preferred_locale);
+        const html = buildWeeklySummaryHtml(parent.parent_name, weekLabel, childData, { optOutUrl, locale });
         await sendEmail({
           to: parent.email,
-          subject: `Veckans sammanfattning ⭐ — ${weekLabel}`,
+          subject: t(locale, 'email.weeklySummary.subject', { weekLabel }),
           html,
           apiKeyProfile: 'weekly',
           tags: [{ name: 'type', value: 'weekly_summary' }],

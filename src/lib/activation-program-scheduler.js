@@ -80,7 +80,10 @@ async function parentCanReceivePush(parentId) {
 
 async function sendPushForProgram(program, effectiveDay) {
   const timezone = program.family_timezone || 'Europe/Stockholm';
-  const payload = getPushContent(effectiveDay, { childName: program.child_name });
+  const payload = getPushContent(effectiveDay, {
+    childName: program.child_name,
+    locale: program.preferred_locale,
+  });
   if (!payload) return { sent: 0 };
 
   const canPush = await parentCanReceivePush(program.parent_id);

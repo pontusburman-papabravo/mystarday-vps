@@ -126,6 +126,19 @@ const STRICT_FILES = [
   'public/js/schedule-family-grid.js',
   'public/js/dashboard-activity-modal.js',
   'public/schedule.html',
+  'src/lib/communication-locale.js',
+  'src/lib/email.js',
+  'src/lib/email-notification-footer.js',
+  'src/lib/weekly-summary-scheduler.js',
+  'src/lib/activation-program-content.js',
+  'src/lib/push-reminder-scheduler.js',
+  'src/lib/push.js',
+  'src/lib/custody-handoff-scheduler.js',
+  'src/lib/win-back-sender.js',
+  'src/lib/activation-nudge-scheduler.js',
+  'src/lib/activation-program-email-scheduler.js',
+  'src/lib/activation-program-scheduler.js',
+  'src/lib/welcome-mailer.js',
 ];
 
 const BASELINE_FILES = [
@@ -139,7 +152,7 @@ const REPORT_FILES = [
 ];
 
 const STRICT_ALLOWLIST = [
-  /pragma:/,
+  /Packa väska/, // custody once-task DB label (not push/email copy)
   /console\./,
   /\/\//,
   /SV_CATEGORY_TO_TIME_GROUP|SV_TIME_CATEGORY_OFFSET/, // Swedish DB category keys (not UI copy)

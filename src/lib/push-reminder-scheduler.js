@@ -248,15 +248,17 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
  */
 async function sendInactivityNudges() {
   const parentsResult = await db.query(
-    `SELECT DISTINCT p.id AS parent_id, p.push_preferences
+    `SELECT DISTINCT p.id AS parent_id, p.push_preferences,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
      FROM parent p
+     JOIN family f ON f.id = p.family_id
      WHERE p.push_preferences::jsonb ? 'inactivity_nudge'
         OR NOT p.push_preferences::jsonb ? 'enabled'`
   );
 
   const todayStr = getLocalDateStr(new Date(), 'Europe/Stockholm');
 
-  for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
+  for (const { parent_id, push_preferences: rawPrefs, preferred_locale: preferredLocale } of parentsResult.rows) {
     const prefs = {
       enabled: (rawPrefs || {}).enabled !== false,
       inactivity_nudge: (rawPrefs || {}).inactivity_nudge !== false,
@@ -287,9 +289,10 @@ async function sendInactivityNudges() {
       );
 
       if (logResult.rows.length === 0) {
+        const locale = resolveCommunicationLocale(preferredLocale);
         await sendPushNotification(parent_id, {
-          title: `${child.name} har inte loggat in idag`,
-          body: 'Kolla schemat och hjälp till att fylla i dagen!',
+          title: t(locale, 'push.inactivityNudge.title', { childName: child.name }),
+          body: t(locale, 'push.inactivityNudge.body'),
           type: 'inactivity_nudge',
           url: '/dashboard',
         });
@@ -305,13 +308,15 @@ async function sendInactivityNudges() {
  */
 async function sendStarMilestoneNotifications() {
   const parentsResult = await db.query(
-    `SELECT p.id AS parent_id, p.push_preferences
+    `SELECT p.id AS parent_id, p.push_preferences,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
      FROM parent p
+     JOIN family f ON f.id = p.family_id
      WHERE p.push_preferences::jsonb ? 'star_milestone'
         OR NOT p.push_preferences::jsonb ? 'enabled'`
   );
 
-  for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
+  for (const { parent_id, push_preferences: rawPrefs, preferred_locale: preferredLocale } of parentsResult.rows) {
     const prefs = {
       enabled: (rawPrefs || {}).enabled !== false,
       star_milestone: (rawPrefs || {}).star_milestone !== false,
@@ -355,11 +360,12 @@ async function sendStarMilestoneNotifications() {
           );
           if (dupCheck.rows.length > 0) continue;
 
+          const locale = resolveCommunicationLocale(preferredLocale);
           await sendPushNotification(parent_id, {
-            title: `${child.name} har samlat ${milestone} stjärnor! 🌟`,
+            title: t(locale, 'push.starMilestone.title', { childName: child.name, milestone: String(milestone) }),
             body: milestone === 100
-              ? 'Helt fantastiskt! Nu väntar nya utmaningar!'
-              : `${child.emoji || '⭐'} Grattis till ${child.name}!`,
+              ? t(locale, 'push.starMilestone.body100')
+              : t(locale, 'push.starMilestone.bodyCongrats', { emoji: child.emoji || '⭐', childName: child.name }),
             type: 'star_milestone',
             url: '/dashboard',
             metadata: { child_id: child.id, milestone },
@@ -376,8 +382,10 @@ async function sendStarMilestoneNotifications() {
  */
 async function sendBackfillReminders() {
   const parentsResult = await db.query(
-    `SELECT DISTINCT p.id AS parent_id, p.push_preferences
+    `SELECT DISTINCT p.id AS parent_id, p.push_preferences,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
      FROM parent p
+     JOIN family f ON f.id = p.family_id
      WHERE p.push_preferences::jsonb ? 'backfill_reminder'
         OR NOT p.push_preferences::jsonb ? 'enabled'`
   );
@@ -386,7 +394,7 @@ async function sendBackfillReminders() {
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = getLocalDateStr(yesterday, 'Europe/Stockholm');
 
-  for (const { parent_id, push_preferences: rawPrefs } of parentsResult.rows) {
+  for (const { parent_id, push_preferences: rawPrefs, preferred_locale: preferredLocale } of parentsResult.rows) {
     const prefs = {
       enabled: (rawPrefs || {}).enabled !== false,
       backfill_reminder: (rawPrefs || {}).backfill_reminder !== false,
@@ -417,9 +425,10 @@ async function sendBackfillReminders() {
       );
 
       if (logResult.rows.length === 0) {
+        const locale = resolveCommunicationLocale(preferredLocale);
         await sendPushNotification(parent_id, {
-          title: `Gårdagens schema för ${child.name} saknas`,
-          body: 'Fyll i gårdagen så är allt uppdaterat!',
+          title: t(locale, 'push.backfillReminder.title', { childName: child.name }),
+          body: t(locale, 'push.backfillReminder.body'),
           type: 'backfill_reminder',
           url: '/daily-log',
         });
@@ -434,27 +443,31 @@ async function sendBackfillReminders() {
  */
 async function sendCustodyMorningReminders(dateStr) {
   const patterns = await db.query(
-    `SELECT cp.child_id, c.name AS child_name, c.family_id
+    `SELECT cp.child_id, c.name AS child_name, c.family_id,
+            COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
      FROM custody_pattern cp
-     JOIN child c ON c.id = cp.child_id`
+     JOIN child c ON c.id = cp.child_id
+     JOIN family f ON f.id = c.family_id`
   );
 
   for (const row of patterns.rows) {
     const notifyParents = await getNotifyParentIdsForChildDate(row.child_id, dateStr);
     for (const parentId of notifyParents) {
+      const locale = resolveCommunicationLocale(row.preferred_locale);
+      const morningTitle = t(locale, 'push.custodyMorning.title', { childName: row.child_name });
       const dup = await db.query(
         `SELECT 1 FROM notification_log
          WHERE parent_id = $1 AND type = 'custody_morning_reminder'
            AND created_at::date = $2::date
-           AND title LIKE $3
+           AND title = $3
          LIMIT 1`,
-        [parentId, dateStr, `Idag: ${row.child_name}%`]
+        [parentId, dateStr, morningTitle]
       );
       if (dup.rows.length) continue;
 
       await sendPushNotification(parentId, {
-        title: `Idag: ${row.child_name} hos dig`,
-        body: 'Schemat för dagen väntar i appen.',
+        title: morningTitle,
+        body: t(locale, 'push.custodyMorning.body'),
         type: 'custody_morning_reminder',
         url: '/dashboard',
       });

@@ -31,6 +31,8 @@ const {
   showReflection,
 } = require('../lib/activation-program');
 const { getDayContent } = require('../lib/activation-program-content');
+const { resolveCommunicationLocale } = require('../lib/communication-locale');
+const { t } = require('../lib/i18n');
 const programAnalytics = require('../lib/activation-program-analytics');
 const {
   listUnseenCompletions,
@@ -40,7 +42,6 @@ const {
 } = require('../lib/activation-program-aha');
 const analyticsTracker = require('../lib/analytics-tracker');
 const { FLAG_KEYS, isFlagEnabled } = require('../lib/journey/flags');
-const { t } = require('../lib/i18n');
 const { getFamilyLocale, sendOnboardingError } = require('../lib/onboarding-locale');
 
 const router = express.Router();
@@ -132,9 +133,15 @@ async function buildProgramResponse(program, timezone, parentId, familyId, markB
   const effectiveDay = getEffectiveProgramDay(program, timezone);
   let dayStatus = rolloverDayStatus(program.day_status || {}, effectiveDay);
 
+  const localeResult = await db.query(
+    'SELECT COALESCE(preferred_locale, \'sv-SE\') AS preferred_locale FROM family WHERE id = $1',
+    [familyId]
+  );
+  const locale = resolveCommunicationLocale(localeResult.rows[0]?.preferred_locale);
+
   const previewCtx = await getFirstChildPreview(familyId);
-  const childName = previewCtx?.child_name || 'barnet';
-  let content = getDayContent(effectiveDay, { childName });
+  const childName = previewCtx?.child_name || t(locale, 'email.common.genericChild');
+  let content = getDayContent(effectiveDay, { childName, locale });
 
   const hasChildCompletion = await parentSeenCompletion.hasChildCompletionSince(
     familyId,
@@ -156,7 +163,7 @@ async function buildProgramResponse(program, timezone, parentId, familyId, markB
   const inReflectionWindow = showReflection(program, timezone);
   if (inReflectionWindow) {
     content = {
-      ...getDayContent(7, { childName }),
+      ...getDayContent(7, { childName, locale }),
       show_reflection: true,
     };
   }

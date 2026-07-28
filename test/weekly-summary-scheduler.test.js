@@ -10,6 +10,9 @@ const {
 } = require('../src/lib/weekly-summary-scheduler');
 const { buildNotificationEmailFooterHtml } = require('../src/lib/email-notification-footer');
 const { buildOptOutUrl } = require('../src/lib/notification-email-opt-out');
+const { loadLocales } = require('../src/lib/i18n');
+
+loadLocales();
 
 describe('weekly summary scheduler', () => {
   it('uses a dedicated DB client for advisory locks', () => {
@@ -75,7 +78,7 @@ describe('buildEncouragementMessage', () => {
   const child = { child: { name: 'Anna' }, stats: { routinesCompleted: 0, starsEarned: 0 } };
 
   it('does not praise zero progress', () => {
-    const msg = buildEncouragementMessage([child]);
+    const msg = buildEncouragementMessage([child], 'sv-SE');
     assert.match(msg, /ny vecka/i);
     assert.doesNotMatch(msg, /fantastiska/i);
   });
@@ -83,14 +86,21 @@ describe('buildEncouragementMessage', () => {
   it('celebrates real completions', () => {
     const msg = buildEncouragementMessage([
       { child: { name: 'Anna' }, stats: { routinesCompleted: 3, starsEarned: 5 } },
-    ]);
+    ], 'sv-SE');
     assert.match(msg, /fantastiska/i);
+  });
+
+  it('en-GB encouragement differs from sv-SE', () => {
+    const sv = buildEncouragementMessage([child], 'sv-SE');
+    const en = buildEncouragementMessage([child], 'en-GB');
+    assert.notEqual(sv, en);
   });
 });
 
 describe('notification email footer', () => {
   it('links to web settings and opt-out', () => {
     const html = buildNotificationEmailFooterHtml({
+      locale: 'sv-SE',
       optOutUrl: 'https://example.test/api/account/notifications/opt-out?token=abc',
       optOutLabel: 'Stäng av veckosammanfattning',
     });
@@ -98,6 +108,11 @@ describe('notification email footer', () => {
     assert.match(html, /Stäng av veckosammanfattning/);
     assert.doesNotMatch(html, /i appen/i);
     assert.match(html, /Inställningar → Notiser/);
+  });
+
+  it('en-GB footer uses English labels', () => {
+    const html = buildNotificationEmailFooterHtml({ locale: 'en-GB' });
+    assert.match(html, /Settings → Notifications/);
   });
 
   it('buildOptOutUrl encodes channel', () => {

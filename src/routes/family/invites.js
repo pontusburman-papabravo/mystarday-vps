@@ -13,6 +13,7 @@ const { validate } = require('../../middleware/validate');
 const { inviteLimiter } = require('../../middleware/rateLimiter');
 const { createNewsletterSubscription } = require('../../lib/newsletter-subscribe');
 const { sendInviteEmail } = require('../../lib/email');
+const { resolveCommunicationLocale } = require('../../lib/communication-locale');
 const { CheckFamilyMemberSchema, InviteMemberSchema } = require('../../lib/schemas');
 const {
   checkAdultInviteEligibility,
@@ -76,11 +77,12 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
       [req.user.id]
     );
     const familyResult = await db.query(
-      'SELECT name FROM family WHERE id = $1',
+      'SELECT name, COALESCE(preferred_locale, \'sv-SE\') AS preferred_locale FROM family WHERE id = $1',
       [req.user.familyId]
     );
     const inviterName = inviterResult.rows[0]?.name || req.user.email;
     const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
+    const locale = resolveCommunicationLocale(familyResult.rows[0]?.preferred_locale);
 
     // Create invite with crypto token (64 hex chars)
     const token = crypto.randomBytes(32).toString('hex');
@@ -93,7 +95,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     );
 
     // Send invite email
-    const emailResult = await sendInviteEmail(normalizedEmail, token, { inviteeName, inviterName, familyName });
+    const emailResult = await sendInviteEmail(normalizedEmail, token, { inviteeName, inviterName, familyName, locale });
     if (!emailResult.success) {
       return res.status(502).json({ error: 'Kunde inte skicka inbjudan via e-post. Försök igen.' });
     }

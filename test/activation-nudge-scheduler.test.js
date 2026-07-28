@@ -114,10 +114,11 @@ describe('activation nudge scheduler (PR 5)', () => {
     assert.match(mig, /enabled = EXCLUDED.enabled|enabled = true/);
   });
 
-  it('nudge email copy is slim-aware', () => {
+  it('nudge email uses localized activation copy', () => {
     const email = fs.readFileSync(path.join(ROOT, 'src/lib/email.js'), 'utf8');
-    assert.match(email, /Öppna Hem/);
-    assert.match(email, /testa rutinen/i);
+    assert.match(email, /email\.activationNudge\.subject/);
+    assert.match(email, /email\.activationNudge\.body1/);
+    assert.match(email, /locale = 'sv-SE'/);
   });
 });
 

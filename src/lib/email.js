@@ -176,24 +176,30 @@ async function sendPasswordResetEmail(email, token, recipientName, locale = 'sv-
 /**
  * Send family invite link to new member.
  */
-async function sendInviteEmail(email, token, { inviteeName, inviterName, familyName } = {}) {
+async function sendInviteEmail(email, token, { inviteeName, inviterName, familyName, locale = 'sv-SE' } = {}) {
+  const lang = validateLocale(locale);
+  const brand = brandName();
   const url = `${config.email.baseUrl}/accept-invite?token=${token}`;
-  const greeting = inviteeName ? `Hej ${inviteeName}` : 'Hej';
-  const inviterText = inviterName || 'Någon';
-  const familyText = familyName ? `familjen "${familyName}"` : 'en familj';
+  const greeting = inviteeName
+    ? t(lang, 'email.common.greetingNamed', { name: inviteeName })
+    : t(lang, 'email.common.greeting');
+  const inviterText = inviterName || t(lang, 'email.common.genericInviter');
+  const familyLabel = familyName
+    ? t(lang, 'email.common.familyNamed', { familyName })
+    : t(lang, 'email.common.aFamily');
   return sendEmail({
     to: email,
-    subject: `Du är inbjuden till ${familyText} på Min Stjärndag ⭐`,
+    subject: t(lang, 'email.invite.subject', { familyLabel, brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Du har blivit inbjuden! ⭐</h2>
-        <p>${greeting}, ${inviterText} har bjudit in dig till ${familyText} på Min Stjärndag.</p>
-        <p>Min Stjärndag är ett visuellt dagsschema som hjälper barn att förstå sin dag, bocka av aktiviteter och samla stjärnor.</p>
-        <p>Klicka här för att skapa ditt lösenord och aktivera ditt konto:</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.invite.title')}</h2>
+        <p>${t(lang, 'email.invite.body', { greeting, inviterName: inviterText, familyLabel, brand })}</p>
+        <p>${t(lang, 'email.invite.intro', { brand })}</p>
+        <p>${t(lang, 'email.invite.ctaIntro')}</p>
         <div style="text-align: center; margin: 24px 0;">
-          <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">Aktivera konto</a>
+          <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">${t(lang, 'email.invite.button')}</a>
         </div>
-        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">Inbjudan gäller i 7 dagar. Ignorera detta mail om du inte förväntade dig denna inbjudan.</p>
+        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.invite.footer')}</p>
       </div>
     `,
   });
@@ -271,112 +277,135 @@ async function sendAccountDeletedEmail(email, firstName, locale = 'sv-SE') {
   });
 }
 
-async function sendWinBackEmail({ to, parentName, childName, ctaUrl }) {
-  const firstName = (parentName || '').split(' ')[0] || 'Förälder';
+async function sendWinBackEmail({ to, parentName, childName, ctaUrl, locale = 'sv-SE' }) {
+  const lang = validateLocale(locale);
+  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const child = childName || t(lang, 'email.common.genericChild');
+  const settingsLink = t(lang, 'email.common.settingsNotificationsHtml');
   return sendEmail({
     to,
-    subject: 'Kom igång igen på en minut ⭐',
+    subject: t(lang, 'email.winBack.subject'),
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
-        <h2 style="color:#1B2340;">Hej ${firstName}! 👋</h2>
+        <h2 style="color:#1B2340;">${t(lang, 'email.winBack.greeting', { name: firstName })}</h2>
         <p style="color:#5A6178;line-height:1.6;">
-          ${childName}s schema finns kvar — öppna dagens aktiviteter och bocka av tillsammans.
+          ${t(lang, 'email.winBack.body1', { childName: child })}
         </p>
         <p style="color:#5A6178;line-height:1.6;">
-          Det tar bara en minut att komma igång igen.
+          ${t(lang, 'email.winBack.body2')}
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${ctaUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Öppna schemat →
+            ${t(lang, 'email.winBack.button')}
           </a>
         </div>
         <p style="color:#5A6178;font-size:14px;margin-top:16px;">
-          Du kan stänga av dessa mejl under <strong>Inställningar → Aviseringar</strong> i appen.
+          ${t(lang, 'email.winBack.settingsHint', { settingsLink })}
         </p>
       </div>
     `,
   });
 }
 
-async function sendPedagogInviteEmail({ to, inviteeName, inviterName, familyName, inviteToken }) {
+async function sendPedagogInviteEmail({
+  to,
+  inviteeName,
+  inviterName,
+  familyName,
+  inviteToken,
+  locale = 'sv-SE',
+}) {
+  const lang = validateLocale(locale);
+  const brand = brandName();
   const baseUrl = config.email.baseUrl;
   const url = `${baseUrl}/pedagog-invite?token=${inviteToken}`;
-  const greeting = inviteeName ? `Hej ${inviteeName}` : 'Hej';
-  const inviterText = inviterName || 'En förälder';
-  const familyText = familyName || 'Min Stjärndag';
+  const greeting = inviteeName
+    ? t(lang, 'email.pedagogInvite.greetingNamed', { name: inviteeName })
+    : t(lang, 'email.pedagogInvite.greeting');
+  const inviterText = inviterName || t(lang, 'email.common.genericPedagogInviter');
+  const familyText = familyName || brand;
 
   return sendEmail({
     to,
-    subject: `Du bjuds in som pedagog i ${familyText} ⭐`,
+    subject: t(lang, 'email.pedagogInvite.subject', { familyName: familyText }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1B2340;">
-        <h2 style="color: #1B2340;">Välkommen som pedagog! ⭐</h2>
-        <p>${greeting},</p>
-        <p><strong>${inviterText}</strong> har bjudit in dig som pedagog i ${familyText} på Min Stjärndag.</p>
-        <p>Som pedagog får du tillgång till att dokumentera observationer och följa barnets schema.</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.pedagogInvite.title')}</h2>
+        <p>${greeting}</p>
+        <p>${t(lang, 'email.pedagogInvite.body', { inviterName: inviterText, familyName: familyText, brand })}</p>
+        <p>${t(lang, 'email.pedagogInvite.intro')}</p>
         <div style="text-align: center; margin: 28px 0;">
           <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
-            Acceptera inbjudan →
+            ${t(lang, 'email.pedagogInvite.button')}
           </a>
         </div>
         <p style="color: #5A6178; font-size: 14px;">
-          Inbjudan gäller i 7 dagar. Om du inte förväntade dig detta mail kan du ignorera det.
+          ${t(lang, 'email.pedagogInvite.footer')}
         </p>
       </div>
     `,
   });
 }
 
-async function sendActivationProgramInviteEmail({ to, parentName, childName, ctaUrl }) {
-  const firstName = (parentName || '').split(' ')[0] || 'du';
-  const child = childName || 'barnet';
+async function sendActivationProgramInviteEmail({
+  to,
+  parentName,
+  childName,
+  ctaUrl,
+  locale = 'sv-SE',
+}) {
+  const lang = validateLocale(locale);
+  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericYou');
+  const child = childName || t(lang, 'email.common.genericChild');
   return sendEmail({
     to,
-    subject: `En mjuk start för ${child}s rutiner?`,
+    subject: t(lang, 'email.activationProgramInvite.subject', { childName: child }),
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
-        <h2 style="color:#1B2340;">Hej ${firstName}!</h2>
+        <h2 style="color:#1B2340;">${t(lang, 'email.activationProgramInvite.greeting', { name: firstName })}</h2>
         <p style="color:#5A6178;">
-          Ni har skapat konto och satt upp ${child}s schema — bra gjort.
+          ${t(lang, 'email.activationProgramInvite.body1', { childName: child })}
         </p>
         <p style="color:#5A6178;">
-          Många familjer berättar att det som kan vara svårast inte är att komma igång,
-          utan att <strong>hålla i rutinen</strong> när vardagen tar vid.
+          ${t(lang, 'email.activationProgramInvite.body2')}
         </p>
         <p style="color:#5A6178;">
-          Nu kan ni prova vårt <strong>7-dagars kom-igång-program</strong>: korta dagliga steg
-          som hjälper er som förälder hålla momentum. Barnets schema ändras inte.
+          ${t(lang, 'email.activationProgramInvite.body3')}
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${ctaUrl}"
              style="display:inline-block;background:#4F46E5;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Ja, hjälp oss första veckan
+            ${t(lang, 'email.activationProgramInvite.button')}
           </a>
         </div>
         <p style="color:#5A6178;font-size:14px;">
-          Vill ni inte ha guiden fungerar appen som vanligt — allt ni redan satt upp finns kvar.
+          ${t(lang, 'email.activationProgramInvite.footer')}
         </p>
       </div>
     `,
   });
 }
 
-async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
-  const greeting = recipientName ? `Hej ${recipientName}` : 'Hej';
+async function sendNewsletterSubscriptionConfirmation(email, recipientName, locale = 'sv-SE') {
+  const lang = validateLocale(locale);
+  const brand = brandName();
+  const greeting = recipientName
+    ? t(lang, 'email.newsletterConfirm.greetingNamed', { name: recipientName })
+    : t(lang, 'email.newsletterConfirm.greeting');
   const settingsUrl = `${config.email.baseUrl}/settings`;
   return sendEmail({
     to: email,
-    subject: 'Du prenumererar på nyhetsbrev från Min Stjärndag',
+    subject: t(lang, 'email.newsletterConfirm.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">Tack för din prenumeration! ⭐</h2>
-        <p>${greeting},</p>
-        <p>Du prenumererar nu på nyhetsbrev från Min Stjärndag med tips, nyheter och uppdateringar om appen.</p>
-        <p>Du kan när som helst avsluta prenumerationen under <a href="${settingsUrl}">Inställningar</a> i appen, eller via länken längst ner i varje nyhetsbrev.</p>
-        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">Med vänliga hälsningar,<br>Min Stjärndag</p>
+        <h2 style="color: #1B2340;">${t(lang, 'email.newsletterConfirm.title')}</h2>
+        <p>${greeting}</p>
+        <p>${t(lang, 'email.newsletterConfirm.body', { brand })}</p>
+        <p>${t(lang, 'email.newsletterConfirm.settings', { settingsUrl })}</p>
+        <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.newsletterConfirm.signoff', { brand })}</p>
       </div>
     `,
   });
@@ -384,7 +413,7 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName) {
 
 async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 'sv-SE' }) {
   const lang = validateLocale(locale);
-  const firstName = (parentName || '').split(' ')[0] || (lang === 'en-GB' ? 'there' : 'Förälder');
+  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
   const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/onboarding`;
   return sendEmail({
     to,
@@ -407,30 +436,65 @@ async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 
   });
 }
 
-async function sendActivationNudgeEmail({ to, parentName, ctaUrl }) {
-  const firstName = (parentName || '').split(' ')[0] || 'Förälder';
+async function sendActivationNudgeEmail({ to, parentName, ctaUrl, locale = 'sv-SE' }) {
+  const lang = validateLocale(locale);
+  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
   const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/dashboard`;
   return sendEmail({
     to,
-    subject: 'Er rutin väntar — testa tillsammans ikväll ⭐',
+    subject: t(lang, 'email.activationNudge.subject'),
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
-        <h2 style="color:#1B2340;">Hej ${firstName}!</h2>
+        <h2 style="color:#1B2340;">${t(lang, 'email.activationNudge.greeting', { name: firstName })}</h2>
         <p style="color:#5A6178;line-height:1.6;">
-          Ni har redan ett schema. Det som återstår är att
-          <strong>testa rutinen tillsammans</strong> — låt barnet logga in och samla den första stjärnan.
+          ${t(lang, 'email.activationNudge.body1')}
         </p>
         <p style="color:#5A6178;line-height:1.6;">
-          Det tar ungefär två minuter. Ingen stress.
+          ${t(lang, 'email.activationNudge.body2')}
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${url}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            Öppna Hem →
+            ${t(lang, 'email.activationNudge.button')}
           </a>
         </div>
-        <p style="color:#9CA3AF;font-size:13px;">[REDACTED] — [REDACTED].se</p>
+      </div>
+    `,
+  });
+}
+
+async function sendRewardRedemptionEmail({
+  to,
+  parentName,
+  childName,
+  childEmoji,
+  rewardName,
+  rewardIcon,
+  starCost,
+  locale = 'sv-SE',
+}) {
+  const lang = validateLocale(locale);
+  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const settingsLink = t(lang, 'email.common.settingsNotificationsHtml');
+  const emoji = childEmoji || '⭐';
+  const icon = rewardIcon || '🎁';
+  return sendEmail({
+    to,
+    subject: t(lang, 'email.rewardRedemption.subject', { childName, rewardName }),
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#1B2340;">
+        <h2 style="color:#1B2340;margin-bottom:4px;">${t(lang, 'email.rewardRedemption.title')}</h2>
+        <p>${t(lang, 'email.rewardRedemption.greeting', { name: firstName })}</p>
+        <div style="border:1px solid #E8ECF4;border-radius:12px;padding:20px;margin:16px 0;">
+          <p style="margin:0;font-size:18px;">${t(lang, 'email.rewardRedemption.wantsToRedeem', { childEmoji: emoji, childName })}</p>
+          <p style="margin:12px 0 0;font-size:22px;font-weight:700;color:#F5A623;">${icon} ${rewardName}</p>
+          <p style="margin:4px 0 0;color:#5A6178;">${t(lang, 'email.rewardRedemption.cost', { starCost: String(starCost) })}</p>
+        </div>
+        <p>${t(lang, 'email.rewardRedemption.approveHint')}</p>
+        <p style="margin-top:24px;font-size:14px;color:#5A6178;">
+          ${t(lang, 'email.rewardRedemption.settingsHint', { settingsLink })}
+        </p>
       </div>
     `,
   });
@@ -454,4 +518,5 @@ module.exports = {
   sendActivationProgramInviteEmail,
   sendPedagogInviteEmail,
   sendNewsletterSubscriptionConfirmation,
+  sendRewardRedemptionEmail,
 };

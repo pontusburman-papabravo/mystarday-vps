@@ -696,6 +696,165 @@
       "cta": "Open {{brand}} ⭐",
       "footerIntro": "You are receiving this email because you recently signed up for {{brand}}.",
       "unsubscribe": "Unsubscribe"
+    },
+    "common": {
+      "genericParent": "Parent",
+      "genericInviter": "Someone",
+      "genericPedagogInviter": "A parent",
+      "genericChild": "your child",
+      "genericYou": "you",
+      "greetingNamed": "Hi {{name}}",
+      "greeting": "Hi",
+      "familyNamed": "the \"{{familyName}}\" family",
+      "aFamily": "a family",
+      "settingsNotifications": "Settings → Notifications",
+      "settingsNotificationsHtml": "Settings → <strong>Notifications</strong>"
+    },
+    "invite": {
+      "subject": "You are invited to {{familyLabel}} on {{brand}} ⭐",
+      "title": "You have been invited! ⭐",
+      "body": "{{greeting}}, {{inviterName}} has invited you to {{familyLabel}} on {{brand}}.",
+      "intro": "{{brand}} is a visual daily schedule that helps children understand their day, check off activities and collect stars.",
+      "ctaIntro": "Tap here to create your password and activate your account:",
+      "button": "Activate account",
+      "footer": "This invite is valid for 7 days. Ignore this email if you were not expecting an invitation."
+    },
+    "pedagogInvite": {
+      "subject": "You are invited as an educator in {{familyName}} ⭐",
+      "title": "Welcome as an educator! ⭐",
+      "greetingNamed": "Hi {{name}},",
+      "greeting": "Hi,",
+      "body": "{{inviterName}} has invited you as an educator in {{familyName}} on {{brand}}.",
+      "intro": "As an educator you can document observations and follow the child's schedule.",
+      "button": "Accept invitation →",
+      "footer": "This invite is valid for 7 days. If you were not expecting this email you can ignore it."
+    },
+    "winBack": {
+      "subject": "Get back on track in a minute ⭐",
+      "greeting": "Hi {{name}}! 👋",
+      "body1": "{{childName}}'s schedule is still there — open today's activities and check them off together.",
+      "body2": "It only takes a minute to get going again.",
+      "button": "Open schedule →",
+      "settingsHint": "You can turn off these emails under {{settingsLink}} in the app.",
+      "settingsLinkText": "Settings → Notifications"
+    },
+    "activationProgramInvite": {
+      "subject": "A gentle start for {{childName}}'s routines?",
+      "greeting": "Hi {{name}}!",
+      "body1": "You have created an account and set up {{childName}}'s schedule — well done.",
+      "body2": "Many families say the hardest part is not getting started but <strong>keeping the routine</strong> when everyday life takes over.",
+      "body3": "You can now try our <strong>7-day getting-started programme</strong>: short daily steps that help you as a parent keep momentum. Your child's schedule stays the same.",
+      "button": "Yes, help us through the first week",
+      "footer": "If you do not want the guide the app works as usual — everything you set up is still there."
+    },
+    "activationNudge": {
+      "subject": "Your routine is waiting — try it together tonight ⭐",
+      "greeting": "Hi {{name}}!",
+      "body1": "You already have a schedule. What's left is to <strong>try the routine together</strong> — let your child sign in and collect the first star.",
+      "body2": "It takes about two minutes. No pressure.",
+      "button": "Open Home →"
+    },
+    "newsletterConfirm": {
+      "subject": "You are subscribed to newsletters from {{brand}}",
+      "title": "Thanks for subscribing! ⭐",
+      "greetingNamed": "Hi {{name}},",
+      "greeting": "Hi,",
+      "body": "You are now subscribed to newsletters from {{brand}} with tips, news and app updates.",
+      "settings": "You can unsubscribe any time under <a href=\"{{settingsUrl}}\">Settings</a> in the app, or via the link at the bottom of each newsletter.",
+      "signoff": "Kind regards,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} wants to redeem \"{{rewardName}}\" ⭐",
+      "title": "Reward waiting for approval! 🎁",
+      "greeting": "Hi {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> wants to redeem:",
+      "cost": "Cost: {{starCost}} stars",
+      "approveHint": "Sign in to the app to approve or decline the redemption.",
+      "settingsHint": "You can turn off these notifications under {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "subject": "Welcome to {{brand}} – your free trial has started!",
+      "headerBrand": "{{brand}}",
+      "headerTitle": "Your free trial has started! ⭐",
+      "intro": "Welcome! You now have <strong>14 days free</strong> to try all features in {{brand}} — no credit card needed.",
+      "howTitle": "How it works:",
+      "how1": "Create schedules and activities for your child",
+      "how2": "Let your child collect stars every day",
+      "how3": "Set up rewards in the treasure chamber",
+      "pricing": "After 14 days it costs <strong>£5.99/month</strong> — you can upgrade any time.",
+      "cta": "Try Premium ⭐",
+      "ctaHint": "No commitment — cancel any time",
+      "footerIntro": "You are receiving this email because you recently signed up for {{brand}}.",
+      "openApp": "Open the app"
+    },
+    "weeklySummary": {
+      "subject": "Weekly summary ⭐ — {{weekLabel}}",
+      "greeting": "Hi {{name}}! 👋",
+      "intro": "Here is the weekly summary for <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} collected {{stars}} stars this week!",
+      "sharePrompt": "Know another parent who would like this?",
+      "shareWhatsApp": "Share on WhatsApp",
+      "shareFriend": "Tell a friend",
+      "shareTextWithHighlight": "{{highlight}} We use {{brand}} for our children's routines – check it out:",
+      "shareTextGeneric": "We use {{brand}} for our children's daily routines – check it out:",
+      "starsEarned": "Stars earned",
+      "routinesCompleted": "Routines completed",
+      "routinesOf": "{{completed}} of {{total}} ({{pct}}%)",
+      "moodAverage": "Mood (average)",
+      "moodVeryHappy": "Very happy 😄 ({{score}}/10)",
+      "moodHappy": "Happy 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutral 😐 ({{score}}/10)",
+      "moodSad": "Sad 😔 ({{score}}/10)",
+      "encourageNoActivity": "A new week is coming — try checking off one routine together, it only takes a moment.",
+      "encourageProgress": "🌟 Keep up the great work! Every completed routine builds habits for life.",
+      "encourageSmallSteps": "🌟 Small steps count — try checking off one routine together this week.",
+      "genericChildName": "Your child"
+    },
+    "notificationFooter": {
+      "settingsLink": "Settings → Notifications",
+      "optOutDefault": "Turn off this notification",
+      "optOutWeeklySummary": "Turn off weekly summary"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Day 1 — look together",
+        "body": "This is how {{childName}} sees their schedule — take a look together.",
+        "ctaLabel": "Show child experience"
+      },
+      "2": {
+        "title": "Day 2 — morning check",
+        "body": "Open the dashboard at some point today — it only takes 30 seconds.",
+        "ctaLabel": "Open schedule"
+      },
+      "3": {
+        "title": "Day 3 — celebrate a star",
+        "body": "Has {{childName}} earned a star? Celebrate together!",
+        "ctaLabel": "See today's schedule",
+        "supportiveFallback": "The first week is about getting started — it is enough to peek in and see the schedule is ready."
+      },
+      "4": {
+        "title": "Day 4 — your app",
+        "body": "Something feels off? Swap an activity if needed.",
+        "ctaLabel": "Edit schedule"
+      },
+      "5": {
+        "title": "Day 5 — reward",
+        "body": "Check the treasure chamber — what does {{childName}} dream of?",
+        "ctaLabel": "Open treasure chamber"
+      },
+      "6": {
+        "title": "Day 6 — share responsibility",
+        "body": "Want to share responsibility with someone?",
+        "ctaLabel": "Invite someone",
+        "soloLabel": "I'm doing this solo!"
+      },
+      "7": {
+        "title": "One week! 🎉",
+        "body": "Congratulations! How was the week?",
+        "ctaLabel": "Answer the question"
+      }
     }
   },
   "push": {
@@ -710,6 +869,53 @@
       "day7Body": "Your child's schedule is waiting. A quick check-in is enough.",
       "day14Title": "We miss you in the app",
       "day14Body": "Two weeks without activity — jump in and keep the routine alive."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} has not signed in today",
+      "body": "Check the schedule and help fill in the day!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} has collected {{milestone}} stars! 🌟",
+      "bodyCongrats": "{{emoji}} Congratulations to {{childName}}!",
+      "body100": "Absolutely amazing! New challenges await!"
+    },
+    "backfillReminder": {
+      "title": "Yesterday's schedule for {{childName}} is missing",
+      "body": "Fill in yesterday so everything is up to date!"
+    },
+    "custodyMorning": {
+      "title": "Today: {{childName}} is with you",
+      "body": "The schedule for the day is waiting in the app."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Handover tomorrow — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} at {{homeLabel}}",
+      "bodyPack": "🎒 Pack bag is in tomorrow's schedule.",
+      "bodyPrepare": "Remember to prepare for the weekly handover."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "completed {{activityName}}!",
+      "bodyBatch": "completed {{count}} activities!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} stars for {{childName}}!",
+      "body": "{{parentName}} gave {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "star",
+    "starLabelMany": "stars",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} wants to redeem a reward!",
+      "body": "{{childName}} is asking for: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Good morning! Check {{childName}}'s schedule — takes 30 sec 🌅",
+      "day3Body": "Has {{childName}} earned a star today? Celebrate together ⭐",
+      "day4Body": "Something feels off? Swap an activity ✏️",
+      "day5Body": "Check the treasure chamber — what does {{childName}} dream of? 🎁",
+      "day6Body": "Want to share responsibility with someone? 👥",
+      "day7Body": "Congratulations! How was the week?"
     }
   },
   "api": {

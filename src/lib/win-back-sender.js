@@ -13,6 +13,7 @@ const winBackLog = require('../../db/win-back-email-log');
 const { sendWinBackEmail } = require('./email');
 const { trackWinBackEmailSent } = require('./analytics-tracker');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const config = require('./config');
 
 const AUTO_APPROVE_FLAG_KEY = 'win_back_auto_approve';
@@ -58,11 +59,17 @@ async function approveAndSend(id) {
   }
 
   const dashboardUrl = `${config.email.baseUrl}/dashboard?utm_source=winback&utm_medium=email`;
+  const localeResult = await db.query(
+    'SELECT COALESCE(preferred_locale, \'sv-SE\') AS preferred_locale FROM family WHERE id = $1',
+    [record.family_id]
+  );
+  const locale = resolveCommunicationLocale(localeResult.rows[0]?.preferred_locale);
   const result = await sendWinBackEmail({
     to: record.parent_email,
     parentName: record.parent_name,
     childName: record.child_name,
     ctaUrl: dashboardUrl,
+    locale,
   });
 
   if (result.success) {
@@ -73,8 +80,8 @@ async function approveAndSend(id) {
     return { ok: true, status: 'sent' };
   }
 
-  await winBackLog.markFailed(id, result.error || 'Okänt fel');
-  return { ok: false, status: 'failed', error: result.error || 'Okänt fel' };
+  await winBackLog.markFailed(id, result.error || 'Unknown error');
+  return { ok: false, status: 'failed', error: result.error || 'Unknown error' };
 }
 
 module.exports = {
