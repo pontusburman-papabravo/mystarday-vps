@@ -126,6 +126,10 @@ const STRICT_FILES = [
   'public/js/schedule-family-grid.js',
   'public/js/dashboard-activity-modal.js',
   'public/schedule.html',
+  'config/i18n/print-schema-en-GB.json',
+  'public/js/print-schema-core.js',
+  'public/js/print-schema.js',
+  'public/print-schema.html',
   'src/lib/communication-locale.js',
   'src/lib/email.js',
   'src/lib/email-html.js',
@@ -166,6 +170,8 @@ const STRICT_ALLOWLIST = [
   /Förskola vardag|Kvällsrutin|Morgon vardag|sectionToCategoryName/, // DB template / category keys in onboarding routes
   /\.replace\(\/\[/, // diacritic strip helper in onboarding routes
   /_FALLBACK|FW_DAYS_/, // Swedish day/section fallback arrays used only when i18n is unavailable
+  /label: '1 vecka'|label: '2 veckor'|label: '1 månad'/, // print-schema-core PERIODS_FALLBACK offline labels
+  /printSchema\.layout\.loadingPrint/, // tKey Swedish fallback when pt missing
   /vacationNames|föräldrabehörighet/, // DB-name / server-error matching keywords, not UI copy
   /cat\.name\.includes|'skola','förskola'/, // DB category-name matching in schedule modules
   /copyFromLabel/, // static fallback overwritten via spt() before the modal is shown

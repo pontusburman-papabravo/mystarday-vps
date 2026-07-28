@@ -11,6 +11,16 @@
   let weekOffset = 0;
   let custodyEnabled = false;
 
+  function t(key, params) {
+    if (typeof window.pt === 'function') return window.pt(key, params);
+    return key;
+  }
+
+  function tGet(key) {
+    if (window.I18n && typeof I18n.get === 'function') return I18n.get(key);
+    return undefined;
+  }
+
   function showToast(msg, type) {
     if (typeof window.showToast === 'function') window.showToast(msg, type);
   }
@@ -38,22 +48,49 @@
     document.getElementById('pdfSaveHelpDesktop').classList.toggle('hidden', mobile);
   }
 
+  function renderHelpSteps(listId, stepsKey, params) {
+    const ol = document.getElementById(listId);
+    const steps = tGet(stepsKey);
+    if (!ol || !Array.isArray(steps)) {
+      ol.innerHTML = '';
+      return;
+    }
+    ol.innerHTML = steps.map(function (html) {
+      let out = html;
+      if (params) {
+        Object.keys(params).forEach(function (k) {
+          out = out.replace(new RegExp('\\{\\{' + k + '\\}\\}', 'g'), params[k]);
+        });
+      }
+      return '<li>' + out + '</li>';
+    }).join('');
+  }
+
   function openPdfHelpModal(mode, filename) {
     document.getElementById('pdfHelpStepsShare').classList.add('hidden');
     document.getElementById('pdfHelpStepsPreview').classList.add('hidden');
     document.getElementById('pdfHelpStepsDesktop').classList.add('hidden');
 
+    const fileParen = filename
+      ? t('printSchema.pdfHelp.filenameParen', { name: filename })
+      : '';
+
     if (mode === 'share') {
-      document.getElementById('pdfHelpIntro').textContent =
-        'Delningsmenyn är öppen. Välj Spara i Filer för att spara PDF:en.';
+      document.getElementById('pdfHelpIntro').textContent = t('printSchema.pdfHelp.introShare');
+      renderHelpSteps('pdfHelpStepsShare', 'printSchema.pdfHelp.shareSteps');
       document.getElementById('pdfHelpStepsShare').classList.remove('hidden');
     } else if (mode === 'preview') {
-      document.getElementById('pdfHelpIntro').textContent =
-        'PDF:en öppnades i webbläsaren' + (filename ? ' (' + filename + ').' : '.');
+      document.getElementById('pdfHelpIntro').textContent = t('printSchema.pdfHelp.introPreview', { filename: fileParen });
+      renderHelpSteps('pdfHelpStepsPreview', 'printSchema.pdfHelp.previewSteps');
       document.getElementById('pdfHelpStepsPreview').classList.remove('hidden');
     } else {
-      document.getElementById('pdfHelpIntro').textContent =
-        'PDF:en laddades ner' + (filename ? ' som ' + filename + '.' : '.');
+      const prefix = scope === 'my'
+        ? t('printSchema.filename.prefixMyDays')
+        : t('printSchema.filename.prefixSchedule');
+      document.getElementById('pdfHelpIntro').textContent = t('printSchema.pdfHelp.introDesktop', {
+        filename: filename ? t('printSchema.pdfHelp.filenameSuffix', { name: filename }) : '',
+      });
+      renderHelpSteps('pdfHelpStepsDesktop', 'printSchema.pdfHelp.desktopSteps', { prefix: prefix });
       document.getElementById('pdfHelpStepsDesktop').classList.remove('hidden');
     }
 
@@ -68,7 +105,7 @@
     const core = window.PrintSchemaCore;
     let monday = core.mondayOf(new Date());
     monday = core.addDays(monday, weekOffset * 7);
-    const period = core.PERIODS[periodKey];
+    const period = core.getPeriods()[periodKey];
     const end = core.addDays(monday, period.days - 1);
     document.getElementById('weekLabel').textContent = core.fmtRangeLabel(monday, end);
   }
@@ -104,13 +141,16 @@
   async function loadChildren() {
     const res = await apiFetch('/api/children');
     if (!res.ok) {
-      showToast('Kunde inte ladda barn', 'error');
+      showToast(t('printSchema.toasts.loadChildrenError'), 'error');
       return;
     }
     children = await res.json();
     const tabs = document.getElementById('childTabs');
     if (!children.length) {
-      tabs.innerHTML = '<p class="text-text-soft text-sm">Inga barn tillagda ännu. <a href="/dashboard" class="text-gold font-semibold">Gå till Min panel</a></p>';
+      tabs.innerHTML = '<p class="text-text-soft text-sm">' +
+        escapeHtml(t('printSchema.empty.noChildren')) +
+        ' <a href="/dashboard" class="text-gold font-semibold">' +
+        escapeHtml(t('printSchema.empty.goDashboard')) + '</a></p>';
       document.getElementById('printBtn').disabled = true;
       document.getElementById('previewBtn').disabled = true;
       return;
@@ -144,9 +184,9 @@
   }
 
   async function runPreview() {
-    if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+    if (!currentChildId) { showToast(t('printSchema.toasts.selectChild'), 'error'); return; }
     try {
-      showToast('Laddar förhandsgranskning…');
+      showToast(t('printSchema.toasts.loadingPreview'));
       const doc = await buildDoc('preview');
       const mount = document.getElementById('previewMount');
       const wrap = document.getElementById('previewWrap');
@@ -155,24 +195,27 @@
       mount.scrollTop = 0;
     } catch (err) {
       if (err && err.message === 'no_my_days') {
-        showToast('Inga av dina dagar i vald period', 'error');
+        showToast(t('printSchema.toasts.noMyDays'), 'error');
       } else {
-        showToast('Kunde inte ladda schemat', 'error');
+        showToast(t('printSchema.toasts.loadScheduleError'), 'error');
       }
     }
   }
 
   async function runCreatePdf() {
-    if (!currentChildId) { showToast('Välj ett barn först', 'error'); return; }
+    if (!currentChildId) { showToast(t('printSchema.toasts.selectChild'), 'error'); return; }
     const btn = document.getElementById('printBtn');
     if (btn) btn.disabled = true;
     try {
-      showToast('Skapar PDF…');
+      showToast(t('printSchema.toasts.creatingPdf'));
       const child = children.find(function (c) { return c.id === currentChildId; });
       const doc = await buildDoc('print');
-      const result = await window.PrintSchemaCore.downloadPdf(doc, { childName: child ? child.name : 'barn' });
+      const result = await window.PrintSchemaCore.downloadPdf(doc, {
+        childName: child ? child.name : t('printSchema.filename.fallbackSlug'),
+        myDaysOnly: scope === 'my',
+      });
       if (result && result.method === 'cancelled') {
-        showToast('PDF-sparning avbruten');
+        showToast(t('printSchema.toasts.pdfCancelled'));
         return;
       }
       const delivery = result && result.method ? result.method : 'pdf_download';
@@ -188,26 +231,26 @@
       }
       if (delivery === 'share') {
         if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast('Välj Spara i Filer i delningsmenyn', 8000);
+          window.showSuccessToast(t('printSchema.toasts.shareHint'), 8000);
         }
       } else if (isMobileDevice()) {
         if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast('PDF klar — spara den i Filer', 5000);
+          window.showSuccessToast(t('printSchema.toasts.mobileSavedHint'), 5000);
         }
         openPdfHelpModal('preview', result && result.filename);
       } else {
         if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast('PDF sparad i Nedladdningar');
+          window.showSuccessToast(t('printSchema.toasts.desktopSavedHint'));
         }
         openPdfHelpModal('desktop', result && result.filename);
       }
     } catch (err) {
       if (err && err.message === 'no_my_days') {
-        showToast('Inga av dina dagar i vald period', 'error');
+        showToast(t('printSchema.toasts.noMyDays'), 'error');
       } else if (err && err.message === 'pdf_libs_missing') {
-        showToast('PDF-verktyg saknas — ladda om sidan och försök igen', 'error');
+        showToast(t('printSchema.toasts.pdfLibsMissing'), 'error');
       } else {
-        showToast('Kunde inte skapa PDF:en', 'error');
+        showToast(t('printSchema.toasts.createPdfError'), 'error');
       }
     } finally {
       if (btn) btn.disabled = false;
@@ -223,9 +266,7 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', async function () {
-    if (!Auth.requireAuth()) return;
-
+  function wireControls() {
     document.getElementById('periodBtns').addEventListener('click', function (e) {
       const btn = e.target.closest('[data-period]');
       if (!btn) return;
@@ -261,11 +302,31 @@
     document.getElementById('pdfHelpModal').addEventListener('click', function (e) {
       if (e.target.id === 'pdfHelpModal') closePdfHelpModal();
     });
+  }
 
+  async function bootAfterI18n() {
     setupPdfSaveHelp();
     await loadChildren();
     await loadCustody();
     applyUrlParams();
     updateWeekLabel();
+  }
+
+  document.addEventListener('DOMContentLoaded', async function () {
+    if (!Auth.requireAuth()) return;
+    wireControls();
+
+    if (typeof window.initParentAppI18n === 'function') {
+      const user = window.Auth && typeof Auth.getCurrentUser === 'function'
+        ? await Auth.getCurrentUser()
+        : null;
+      await initParentAppI18n(user && user.preferred_locale);
+    }
+
+    document.addEventListener('locale-changed', function () {
+      updateWeekLabel();
+    });
+
+    await bootAfterI18n();
   });
 })();
