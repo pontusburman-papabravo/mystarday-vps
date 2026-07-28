@@ -457,6 +457,8 @@
     "switchChildHint": "Needs parent PIN",
     "theme": "Theme",
     "imageStyle": "Picture style",
+    "pictogramPackSimple": "Clear pictures",
+    "pictogramPackAction": "Active pictures",
     "cardSize": "Card size",
     "sound": "Sound",
     "saved": "Saved!",
@@ -508,7 +510,41 @@
     "title": "Trophy room",
     "empty": "Complete activities and collect stars — your trophies show up here!",
     "lead": "Real achievements — not just points!",
-    "countShort": "{{count}}"
+    "countShort": "{{count}}",
+    "trophies": {
+      "first_star": {
+        "name": "First star",
+        "description": "You earned your very first star!"
+      },
+      "first_week": {
+        "name": "First week",
+        "description": "Seven days in a row with activity!"
+      },
+      "first_redemption": {
+        "name": "First reward",
+        "description": "You redeemed your first reward!"
+      },
+      "star_collector": {
+        "name": "Star collector",
+        "description": "You have earned 50 stars in total!"
+      },
+      "star_master": {
+        "name": "Star master",
+        "description": "You have earned 100 stars in total!"
+      },
+      "activity_hero": {
+        "name": "Activity hero",
+        "description": "50 activities completed!"
+      },
+      "reward_fan": {
+        "name": "Reward fan",
+        "description": "Five rewards redeemed!"
+      },
+      "streak_starter": {
+        "name": "Streak starter",
+        "description": "Three days in a row!"
+      }
+    }
   },
   "scheduleChrome": {
     "noGoal": "No goal picked",

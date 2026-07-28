@@ -33,9 +33,12 @@
     const shelves = achievements.map(function (a, i) {
       const d = new Date(a.unlocked_at);
       const ds = formatShortDate(d);
+      const trophyName = window.ChildAchievementI18n
+        ? ChildAchievementI18n.resolveName(a)
+        : (a.name || '');
       return '<div class="skatt-trophy-item cu-ach-item" style="animation-delay:' + (i * 60) + 'ms;">' +
         '<span class="skatt-trophy-emoji">' + (a.emoji || '🏆') + '</span>' +
-        '<span class="skatt-trophy-name">' + esc(a.name || '') + '</span>' +
+        '<span class="skatt-trophy-name">' + esc(trophyName) + '</span>' +
         '<span style="font-size:0.6rem;color:#9AA0B8;">' + ds + '</span></div>';
     }).join('');
 

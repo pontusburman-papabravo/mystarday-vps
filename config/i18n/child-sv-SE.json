@@ -457,6 +457,8 @@
     "switchChildHint": "Kräver förälders PIN",
     "theme": "Tema",
     "imageStyle": "Bildstil",
+    "pictogramPackSimple": "Tydliga bilder",
+    "pictogramPackAction": "Aktiva bilder",
     "cardSize": "Kortstorlek",
     "sound": "Ljud",
     "saved": "Sparat!",
@@ -508,7 +510,41 @@
     "title": "Troférummet",
     "empty": "Klara aktiviteter och samla stjärnor — dina trofeer hamnar här!",
     "lead": "Riktiga prestationer — inte bara poäng!",
-    "countShort": "{{count}}"
+    "countShort": "{{count}}",
+    "trophies": {
+      "first_star": {
+        "name": "Första stjärnan",
+        "description": "Du tjänade din allra första stjärna!"
+      },
+      "first_week": {
+        "name": "Första veckan",
+        "description": "Sju dagar i rad med aktivitet!"
+      },
+      "first_redemption": {
+        "name": "Första belöningen",
+        "description": "Du löste in din första belöning!"
+      },
+      "star_collector": {
+        "name": "Stjärnsamlare",
+        "description": "Du har tjänat 50 stjärnor totalt!"
+      },
+      "star_master": {
+        "name": "Stjärnmästare",
+        "description": "Du har tjänat 100 stjärnor totalt!"
+      },
+      "activity_hero": {
+        "name": "Aktivitetshjälte",
+        "description": "50 aktiviteter klara!"
+      },
+      "reward_fan": {
+        "name": "Belöningsfantast",
+        "description": "Fem belöningar inlösta!"
+      },
+      "streak_starter": {
+        "name": "Streak-start",
+        "description": "Tre dagar i rad!"
+      }
+    }
   },
   "scheduleChrome": {
     "noGoal": "Inget mål valt",

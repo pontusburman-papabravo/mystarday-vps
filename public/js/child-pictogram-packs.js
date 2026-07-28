@@ -8,8 +8,8 @@
   const DEFAULT_PACK = 'simple';
 
   const PACKS = {
-    simple: { id: 'simple', label: 'Tydliga bilder', preview: '/images/child/pictograms/preview-simple.webp' },
-    action: { id: 'action', label: 'Aktiva bilder', preview: '/images/child/pictograms/preview-action.webp' },
+    simple: { id: 'simple', labelKey: 'settings.pictogramPackSimple', preview: '/images/child/pictograms/preview-simple.webp' },
+    action: { id: 'action', labelKey: 'settings.pictogramPackAction', preview: '/images/child/pictograms/preview-action.webp' },
   };
 
   const PACK_IDS = ['simple', 'action'];
@@ -232,8 +232,23 @@
     return ACTIVITY_EMOJI[activityKey] || null;
   }
 
+  function packLabel(pack) {
+    if (pack.labelKey && typeof window.cpt === 'function') {
+      const localized = cpt(pack.labelKey);
+      if (localized && localized !== 'child.' + pack.labelKey) return localized;
+    }
+    if (pack.labelKey && typeof window.childT === 'function') {
+      const localized = childT(pack.labelKey);
+      if (localized) return localized;
+    }
+    return pack.id;
+  }
+
   function listPacks() {
-    return PACK_IDS.map(function (id) { return PACKS[id]; });
+    return PACK_IDS.map(function (id) {
+      const pack = PACKS[id];
+      return { id: pack.id, label: packLabel(pack), preview: pack.preview };
+    });
   }
 
   function getActivePackId() {
@@ -299,6 +314,7 @@
     DEFAULT_PACK: DEFAULT_PACK,
     PACKS: PACKS,
     listPacks: listPacks,
+    packLabel: packLabel,
     resolvePack: resolvePack,
     resolveActivityAsset: resolveActivityAsset,
     normalizeActivityKey: normalizeActivityKey,
