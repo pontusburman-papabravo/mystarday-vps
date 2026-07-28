@@ -33,6 +33,8 @@ const {
   ChildSetGoalSchema,
   UUIDParam,
 } = require('../lib/schemas');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { localizeRewardRow, localizeRewardItems } = require('../lib/family-content-display');
 
 // ─── SSE helper: look up family_id for a child ───────────
 async function getChildFamilyId(childId) {
@@ -461,6 +463,8 @@ childRouter.get('/goal', async (req, res) => {
   try {
     const childId = req.user.id;
     const balance = await getFullStarBalance(childId);
+    const familyId = await getChildFamilyId(childId);
+    const locale = await getFamilyPreferredLocale(familyId);
 
     const goalResult = await db.query(
       `SELECT crg.id, crg.status, crg.created_at,
@@ -482,7 +486,17 @@ childRouter.get('/goal', async (req, res) => {
       [childId]
     );
 
-    const goal = goalResult.rows[0] || null;
+    let goal = goalResult.rows[0] || null;
+    if (goal) {
+      goal = await localizeRewardRow(goal, locale);
+    }
+
+    let pendingChangeRequest = pendingChangeResult.rows[0] || null;
+    if (pendingChangeRequest) {
+      const [localized] = await localizeRewardItems([pendingChangeRequest], locale);
+      pendingChangeRequest = localized;
+    }
+
     let progress = 0;
     if (goal && goal.star_cost > 0) {
       progress = Math.min(100, Math.round((balance / goal.star_cost) * 100));
@@ -492,7 +506,7 @@ childRouter.get('/goal', async (req, res) => {
       goal,
       star_balance: balance,
       progress_pct: progress,
-      pending_change_request: pendingChangeResult.rows[0] || null,
+      pending_change_request: pendingChangeRequest,
     });
   } catch (err) {
     console.error('[GOALS] Child goal get error:', err);

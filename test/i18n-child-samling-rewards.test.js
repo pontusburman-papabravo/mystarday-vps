@@ -125,6 +125,17 @@ describe('i18n child samling + rewards surfaces', () => {
     assert.doesNotMatch(rewards, /toLocaleDateString\(\s*'sv-SE'/);
   });
 
+  it('treasure and rewards modules use localized reward display names', () => {
+    const treasure = read('public/js/child-treasure-present.js');
+    const rewards = read('public/js/child-dashboard-rewards.js');
+    assert.match(rewards, /function rewardDisplayName/);
+    assert.match(rewards, /window\.rewardDisplayName/);
+    assert.match(treasure, /rewardLabel/);
+    assert.match(treasure, /rewardDisplayName/);
+    assert.doesNotMatch(treasure, /esc\(r\.name\)/);
+    assert.doesNotMatch(treasure, /esc\(goal\.reward_name\)/);
+  });
+
   it('child-dashboard collection and treasure loading use data-i18n', () => {
     const html = read('public/child-dashboard.html');
     assert.match(html, /data-i18n="child\.samling\.opening"/);

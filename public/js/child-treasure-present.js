@@ -82,6 +82,12 @@
     return { key: 'saving', label: t('rewards.statusSaving'), className: 'btp-status-saving' };
   }
 
+  function rewardLabel(item) {
+    if (typeof window.rewardDisplayName === 'function') return window.rewardDisplayName(item);
+    if (!item) return '';
+    return item.display_name || item.reward_name_display || item.reward_name || item.name || '';
+  }
+
   function renderGoalMeter(starBalance, starCost, pct, remaining) {
     const progressText = t('treasure.starsProgress', { balance: starBalance || 0, cost: starCost });
     const clamped = Math.max(0, Math.min(100, pct || 0));
@@ -122,7 +128,7 @@
         '<div class="btp-hero-goal">' +
           '<p class="btp-plaque-label">' + t('treasure.goalLabel') + '</p>' +
           '<p class="btp-plaque-sub">' + t('treasure.savingToward') + '</p>' +
-          '<h2 class="btp-goal-title">' + icon + ' ' + esc(goal.reward_name) + '</h2>' +
+          '<h2 class="btp-goal-title">' + icon + ' ' + esc(rewardLabel(goal)) + '</h2>' +
           renderGoalMeter(count, goal.star_cost, pct, remaining);
       if (skatt.showGoalChangeLink) {
         goalHtml += '<button type="button" class="btp-link" onclick="openGoalPicker()">🔄 ' + t('rewards.changeGoal') + '</button>';
@@ -197,7 +203,7 @@
         '<div class="btp-status-note btp-status-note--approved" role="status">' +
           '<span class="btp-status-note-icon" aria-hidden="true">' + (cr.reward_icon || '🎉') + '</span>' +
           '<div><strong>' + t('rewards.approvedTitle') + '</strong>' +
-          '<p>' + esc(t('rewards.approvedEnjoy', { name: cr.reward_name })) + '</p></div>' +
+          '<p>' + esc(t('rewards.approvedEnjoy', { name: rewardLabel(cr) })) + '</p></div>' +
         '</div>';
     }
 
@@ -206,7 +212,7 @@
         html +=
           '<div class="btp-status-note btp-status-note--gentle" role="status">' +
             '<span class="btp-status-note-icon" aria-hidden="true">' + (r.reward_icon || '🎁') + '</span>' +
-            '<div><strong>' + esc(r.reward_name) + '</strong>' +
+            '<div><strong>' + esc(rewardLabel(r)) + '</strong>' +
             '<p>' + t('rewards.deniedTryAgain') + '</p></div>' +
           '</div>';
       });
@@ -231,11 +237,11 @@
     }
 
     return (
-      '<article class="' + rowClass + '"' + tap + ' aria-label="' + esc(r.name) + '">' +
+      '<article class="' + rowClass + '"' + tap + ' aria-label="' + esc(rewardLabel(r)) + '">' +
         '<div class="btp-card-icon" aria-hidden="true">' + (r.icon || '🎁') + '</div>' +
         '<div class="btp-card-body">' +
           '<div class="btp-card-top">' +
-            '<h3 class="btp-card-name">' + esc(r.name) + '</h3>' +
+            '<h3 class="btp-card-name">' + esc(rewardLabel(r)) + '</h3>' +
             '<span class="btp-card-status">' + esc(status.label) + '</span>' +
           '</div>' +
           '<div class="btp-card-bar" aria-hidden="true">' +
@@ -316,7 +322,7 @@
       '<div class="btp-history-card">' +
         '<span class="btp-history-icon" aria-hidden="true">' + esc(r.reward_icon || '🎁') + '</span>' +
         '<div>' +
-          '<p class="btp-history-name">' + esc(r.reward_name) + '</p>' +
+          '<p class="btp-history-name">' + esc(rewardLabel(r)) + '</p>' +
           '<p class="btp-history-when">' + esc(t('rewards.historyDone')) + ' · ' + esc(dateStr) + esc(cost) + '</p>' +
         '</div>' +
       '</div>'

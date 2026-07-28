@@ -91,6 +91,7 @@ function collectRewardTexts(items) {
     if (!item) continue;
     if (item.name) texts.push(item.name);
     if (item.reward_name) texts.push(item.reward_name);
+    if (item.to_reward_name) texts.push(item.to_reward_name);
   }
   return texts;
 }
@@ -144,12 +145,27 @@ function applyActivityTranslation(item, translate, locale) {
 function applyRewardTranslation(item, translate, locale) {
   if (!item || !isEnglishFamilyLocale(locale)) return item;
   const storedName = item.name || item.reward_name;
-  if (!storedName) return item;
-  const displayName = translate(storedName);
-  if (displayName === storedName) return item;
-  const out = { ...item, display_name: displayName };
-  if (item.reward_name) out.reward_name_display = displayName;
-  return out;
+  const out = { ...item };
+  let changed = false;
+
+  if (storedName) {
+    const displayName = translate(storedName);
+    if (displayName !== storedName) {
+      out.display_name = displayName;
+      if (item.reward_name) out.reward_name_display = displayName;
+      changed = true;
+    }
+  }
+
+  if (item.to_reward_name) {
+    const toDisplay = translate(item.to_reward_name);
+    if (toDisplay !== item.to_reward_name) {
+      out.to_reward_name_display = toDisplay;
+      changed = true;
+    }
+  }
+
+  return changed ? out : item;
 }
 
 /**

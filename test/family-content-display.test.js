@@ -32,6 +32,8 @@ describe('family-content-display', () => {
   it('translates standard rewards for en-GB', async () => {
     assert.equal(await resolveRewardDisplayName('en-GB', 'Extra skärmtid'), 'Extra screen time');
     assert.equal(await resolveRewardDisplayName('en-GB', 'Välja middag'), 'Choose dinner');
+    assert.equal(await resolveRewardDisplayName('en-GB', 'Restaurangbesök'), 'Restaurant visit');
+    assert.equal(await resolveRewardDisplayName('en-GB', 'Pyssel-projekt tillsammans'), 'Craft project together');
   });
 
   it('translates customized reward names via static map when available', async () => {
@@ -52,6 +54,21 @@ describe('family-content-display', () => {
     const items = [{ id: '1', name: 'Extra skärmtid', star_cost: 5, icon: '📱' }];
     const out = await localizeRewardItems(items, 'en-GB');
     assert.equal(out[0].display_name, 'Extra screen time');
+  });
+
+  it('localizeRewardItems localizes goal rows with reward_name only', async () => {
+    const items = [{ reward_id: '1', reward_name: 'Restaurangbesök', reward_icon: '🍕', star_cost: 350 }];
+    const out = await localizeRewardItems(items, 'en-GB');
+    assert.equal(out[0].reward_name, 'Restaurangbesök');
+    assert.equal(out[0].display_name, 'Restaurant visit');
+    assert.equal(out[0].reward_name_display, 'Restaurant visit');
+  });
+
+  it('localizeRewardItems localizes pending goal change to_reward_name', async () => {
+    const items = [{ to_reward_name: 'Pyssel-projekt tillsammans', to_reward_icon: '🎨', to_star_cost: 100 }];
+    const out = await localizeRewardItems(items, 'en-GB');
+    assert.equal(out[0].to_reward_name, 'Pyssel-projekt tillsammans');
+    assert.equal(out[0].to_reward_name_display, 'Craft project together');
   });
 
   it('maps registration default-content pairs by composite key', async () => {
