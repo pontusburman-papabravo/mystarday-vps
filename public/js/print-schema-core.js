@@ -4,15 +4,79 @@
 (function (root) {
   'use strict';
 
-  const DAY_NAMES_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
-  const SECTION_LABELS = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
+  const SECTION_EMOJI = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
   const SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
 
-  const PERIODS = {
+  const PERIODS_FALLBACK = {
     '1w': { days: 7, weeks: 1, label: '1 vecka' },
     '2w': { days: 14, weeks: 2, label: '2 veckor' },
     '1m': { days: 28, weeks: 4, label: '1 månad' },
   };
+
+  const DAY_NAMES_FALLBACK = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+
+  function tKey(key, fallback) {
+    if (typeof root.pt !== 'function') return fallback;
+    const val = root.pt(key);
+    return val && val !== key ? val : fallback;
+  }
+
+  function getPeriods() {
+    return {
+      '1w': { days: 7, weeks: 1, label: tKey('printSchema.period.1w', PERIODS_FALLBACK['1w'].label) },
+      '2w': { days: 14, weeks: 2, label: tKey('printSchema.period.2w', PERIODS_FALLBACK['2w'].label) },
+      '1m': { days: 28, weeks: 4, label: tKey('printSchema.period.1m', PERIODS_FALLBACK['1m'].label) },
+    };
+  }
+
+  function stockholmTodayIso() {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Stockholm',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+  }
+
+  function weekdayLong(dateObj) {
+    if (root.LocaleDateTime && typeof root.LocaleDateTime.weekdayLong === 'function') {
+      return root.LocaleDateTime.weekdayLong(dateObj);
+    }
+    return DAY_NAMES_FALLBACK[dateObj.getDay()];
+  }
+
+  function formatDaySubline(dateObj) {
+    if (root.LocaleDateTime && typeof root.LocaleDateTime.formatWithIntl === 'function') {
+      return root.LocaleDateTime.formatWithIntl(dateObj, { day: 'numeric', month: 'short' });
+    }
+    return dateObj.getDate() + '/' + (dateObj.getMonth() + 1);
+  }
+
+  function fmtRangeLabel(start, end) {
+    if (root.LocaleDateTime && typeof root.LocaleDateTime.formatWithIntl === 'function') {
+      const fmt = root.LocaleDateTime.formatWithIntl;
+      const opts = { day: 'numeric', month: 'short' };
+      const y = { day: 'numeric', month: 'short', year: 'numeric' };
+      if (start.getFullYear() === end.getFullYear()) {
+        return fmt(start, opts) + ' – ' + fmt(end, y);
+      }
+      return fmt(start, y) + ' – ' + fmt(end, y);
+    }
+    const svOpts = { day: 'numeric', month: 'short' };
+    const svY = { day: 'numeric', month: 'short', year: 'numeric' };
+    if (start.getFullYear() === end.getFullYear()) {
+      return start.toLocaleDateString('sv-SE', svOpts) + ' – ' + end.toLocaleDateString('sv-SE', svY);
+    }
+    return start.toLocaleDateString('sv-SE', svY) + ' – ' + end.toLocaleDateString('sv-SE', svY);
+  }
+
+  function fmtSvDate(d) {
+    if (root.LocaleDateTime && typeof root.LocaleDateTime.isoDateInLocale === 'function') {
+      const iso = d.toISOString().slice(0, 10);
+      return root.LocaleDateTime.isoDateInLocale(iso);
+    }
+    return d.toLocaleDateString('sv-SE');
+  }
 
   function esc(str) {
     return typeof root.escapeHtml === 'function' ? root.escapeHtml(str) : String(str || '');
@@ -36,17 +100,11 @@
     return d;
   }
 
-  function fmtSvDate(d) {
-    return d.toLocaleDateString('sv-SE');
-  }
-
-  function fmtRangeLabel(start, end) {
-    const opts = { day: 'numeric', month: 'short' };
-    const y = { day: 'numeric', month: 'short', year: 'numeric' };
-    if (start.getFullYear() === end.getFullYear()) {
-      return start.toLocaleDateString('sv-SE', opts) + ' – ' + end.toLocaleDateString('sv-SE', y);
+  function htmlLang() {
+    if (root.I18n && typeof root.I18n.getCurrentLang === 'function') {
+      return root.I18n.getCurrentLang() === 'en-GB' ? 'en-GB' : 'sv-SE';
     }
-    return start.toLocaleDateString('sv-SE', y) + ' – ' + end.toLocaleDateString('sv-SE', y);
+    return 'sv-SE';
   }
 
   async function fetchWeeks(childId, weekOffsetStart, numWeeks, myDaysOnly, apiFetch) {
@@ -130,11 +188,11 @@
     };
   }
 
-  function buildDayCell(day, sc, myDaysOnly) {
+  function buildDayCell(day, sc) {
     const d = day.dateObj;
-    const dayFull = DAY_NAMES_FULL[d.getDay()];
-    const dayNum = d.getDate();
-    const monthNum = d.getMonth() + 1;
+    const dayFull = weekdayLong(d);
+    const daySub = formatDaySubline(d);
+    const emptyCell = tKey('printSchema.layout.emptyCell', '–');
     const borderColor = (day.custody && day.custody.color) || '#1B2340';
     const muted = day.skipContent;
     const headBg = muted ? '#E5E7EB' : borderColor;
@@ -142,13 +200,13 @@
 
     let html = '<div class="day-cell' + (muted ? ' day-muted' : '') + '" style="border-color:' + esc(borderColor) + ';">' +
       '<div class="day-head" style="background:' + headBg + ';color:' + headColor + ';font-size:' + sc.header + 'px;padding:' + sc.pad + 'px ' + (sc.pad + 2) + 'px;">' +
-      esc(dayFull) + '<br><span style="font-size:' + (sc.header - 1) + 'px;opacity:0.85;">' + dayNum + '/' + monthNum + '</span></div>' +
+      esc(dayFull) + '<br><span style="font-size:' + (sc.header - 1) + 'px;opacity:0.85;">' + esc(daySub) + '</span></div>' +
       '<div class="day-body" style="padding:' + sc.pad + 'px;font-size:' + sc.cell + 'px;">';
 
     if (muted) {
-      html += '<div style="color:#aaa;font-style:italic;font-size:' + sc.cell + 'px;">–</div>';
+      html += '<div style="color:#aaa;font-style:italic;font-size:' + sc.cell + 'px;">' + esc(emptyCell) + '</div>';
     } else if (!day.activities.length) {
-      html += '<div style="color:#aaa;font-style:italic;">–</div>';
+      html += '<div style="color:#aaa;font-style:italic;">' + esc(emptyCell) + '</div>';
     } else {
       const grouped = {};
       for (let i = 0; i < day.activities.length; i++) {
@@ -160,7 +218,7 @@
       for (let s = 0; s < SECTION_ORDER.length; s++) {
         const key = SECTION_ORDER[s];
         if (!grouped[key]) continue;
-        html += '<div class="sec-label" style="font-size:' + sc.sec + 'px;">' + SECTION_LABELS[key] + '</div>';
+        html += '<div class="sec-label" style="font-size:' + sc.sec + 'px;">' + SECTION_EMOJI[key] + '</div>';
         for (let k = 0; k < grouped[key].length; k++) {
           const act = grouped[key][k];
           const check = act.completed ? '☑' : '☐';
@@ -179,20 +237,23 @@
     const child = opts.child;
     const days = opts.days;
     const periodKey = opts.periodKey || '1w';
-    const period = PERIODS[periodKey] || PERIODS['1w'];
+    const periods = getPeriods();
+    const period = periods[periodKey] || periods['1w'];
     const myDaysOnly = Boolean(opts.myDaysOnly);
     const mode = opts.mode === 'preview' ? 'preview' : 'print';
     const maxActs = maxActivitiesInDays(days);
     const sc = scaleForPeriod(periodKey, maxActs, mode);
     const rows = period.weeks;
-    const titleSuffix = myDaysOnly ? 'Mina dagar' : 'Schema';
+    const titleSuffix = myDaysOnly
+      ? tKey('printSchema.layout.titleMyDays', 'Mina dagar')
+      : tKey('printSchema.layout.titleSchedule', 'Schema');
     const rangeStart = days[0] ? days[0].dateObj : new Date();
     const rangeEnd = days[days.length - 1] ? days[days.length - 1].dateObj : rangeStart;
     const rowSizing = 'auto';
 
     let cells = '';
     for (let i = 0; i < days.length; i++) {
-      cells += buildDayCell(days[i], sc, myDaysOnly);
+      cells += buildDayCell(days[i], sc);
     }
 
     const styles = [
@@ -226,14 +287,21 @@
       '<p>' + esc(period.label) + ' · ' + esc(fmtRangeLabel(rangeStart, rangeEnd)) + '</p></div></div>' +
       '<div class="grid">' + cells + '</div></div>';
 
-    return { styles: styles, body: body, title: titleSuffix + ' — ' + (child.name || 'Barn'), mode: mode };
+    const childFallback = tKey('printSchema.layout.childFallback', 'Barn');
+    return {
+      styles: styles,
+      body: body,
+      title: titleSuffix + ' — ' + (child.name || childFallback),
+      mode: mode,
+      myDaysOnly: myDaysOnly,
+    };
   }
 
   function writePrintDocument(win, doc) {
     if (!win || win.closed) return false;
     win.document.open();
     win.document.write(
-      '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
+      '<!DOCTYPE html><html lang="' + htmlLang() + '"><head><meta charset="UTF-8">' +
       '<title>' + esc(doc.title) + '</title>' +
       '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">' +
       '<style>' + doc.styles + '</style></head><body>' + doc.body + '</body></html>'
@@ -242,22 +310,34 @@
     return true;
   }
 
-  const LOADING_HTML =
-    '<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">' +
-    '<title>Förbereder utskrift…</title>' +
-    '<style>body{margin:0;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1B2340;}</style>' +
-    '</head><body><p>Förbereder utskrift…</p></body></html>';
+  function buildLoadingHtml() {
+    const lang = htmlLang();
+    const title = tKey('printSchema.layout.loadingPrint', 'Förbereder utskrift…');
+    return '<!DOCTYPE html><html lang="' + lang + '"><head><meta charset="UTF-8">' +
+      '<title>' + esc(title) + '</title>' +
+      '<style>body{margin:0;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#1B2340;}</style>' +
+      '</head><body><p>' + esc(title) + '</p></body></html>';
+  }
 
   function writeLoadingDocument(win) {
     if (!win || win.closed) return false;
     win.document.open();
-    win.document.write(LOADING_HTML);
+    win.document.write(buildLoadingHtml());
     win.document.close();
     return true;
   }
 
   function safePdfFilename(name) {
-    return String(name || 'schema').replace(/[^a-zA-Z0-9\u00C0-\u017E _-]/g, '').trim() || 'schema';
+    const cleaned = String(name || '').trim().replace(/[^a-zA-Z0-9\u00C0-\u017E _-]/g, '').trim();
+    const slug = cleaned.replace(/\s+/g, '-').toLowerCase();
+    return slug || tKey('printSchema.filename.fallbackSlug', 'barn');
+  }
+
+  function buildPdfFilename(childName, myDaysOnly) {
+    const prefix = myDaysOnly
+      ? tKey('printSchema.filename.prefixMyDays', 'min-stjarndag-mina-dagar')
+      : tKey('printSchema.filename.prefixSchedule', 'min-stjarndag-veckoschema');
+    return prefix + '-' + safePdfFilename(childName) + '-' + stockholmTodayIso() + '.pdf';
   }
 
   async function downloadPdf(doc, opts) {
@@ -315,8 +395,7 @@
     const offsetY = (pageHeight - renderH) / 2;
     pdf.addImage(imgData, 'PNG', offsetX, offsetY, renderW, renderH);
 
-    const dateStr = new Date().toISOString().slice(0, 10);
-    const filename = 'schema-' + safePdfFilename(opts.childName || doc.title) + '-' + dateStr + '.pdf';
+    const filename = buildPdfFilename(opts.childName || doc.title, Boolean(opts.myDaysOnly || doc.myDaysOnly));
     const blob = pdf.output('blob');
 
     if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
@@ -353,7 +432,7 @@
   function createPrintIframe() {
     const iframe = document.createElement('iframe');
     iframe.setAttribute('aria-hidden', 'true');
-    iframe.setAttribute('title', 'Utskrift');
+    iframe.setAttribute('title', tKey('printSchema.layout.iframeTitle', 'Utskrift'));
     iframe.style.cssText = 'position:fixed;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden;';
     iframe.setAttribute('data-print-schema-frame', '1');
     document.body.appendChild(iframe);
@@ -433,7 +512,7 @@
   async function loadAndBuild(child, options) {
     const apiFetch = options.apiFetch || root.apiFetch;
     const periodKey = options.periodKey || '1w';
-    const period = PERIODS[periodKey] || PERIODS['1w'];
+    const period = getPeriods()[periodKey] || getPeriods()['1w'];
     const weekOffset = options.weekOffset || 0;
     const myDaysOnly = Boolean(options.myDaysOnly);
 
@@ -455,11 +534,14 @@
   }
 
   root.PrintSchemaCore = {
-    PERIODS: PERIODS,
+    getPeriods: getPeriods,
     mondayOf: mondayOf,
     addDays: addDays,
     fmtSvDate: fmtSvDate,
     fmtRangeLabel: fmtRangeLabel,
+    buildPdfFilename: buildPdfFilename,
+    safePdfFilename: safePdfFilename,
+    stockholmTodayIso: stockholmTodayIso,
     fetchWeeks: fetchWeeks,
     flattenWeekDays: flattenWeekDays,
     buildPrintHtml: buildPrintHtml,

@@ -81,7 +81,7 @@ describe('FEAT-1B boendeschema', () => {
     assert.match(printJs, /print_schema_exported/);
     assert.match(printJs, /runCreatePdf/);
     assert.match(printJs, /openPdfHelpModal/);
-    assert.match(core, /PERIODS/);
+    assert.match(core, /getPeriods/);
     assert.match(core, /A4 landscape/);
     assert.match(core, /downloadPdf/);
     assert.match(core, /navigator\.canShare/);

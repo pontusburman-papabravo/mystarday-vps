@@ -1,0 +1,95 @@
+{
+  "pageTitle": "Skapa PDF — schema — {{brand}}",
+  "backLink": "← Tillbaka till planering",
+  "heading": "📄 Skapa PDF — schema",
+  "intro": "Välj barn och period. Förhandsgranskningen visar hela schemat — PDF:en skalas automatiskt för att rymmas på ett A4-ark i liggande format.",
+  "pdfSave": {
+    "title": "Var sparas PDF:en?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Efter <em>Skapa PDF</em> öppnas en delningsmeny — välj <strong>Spara i Filer</strong> och välj mapp (t.ex. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Dator:</strong> PDF:en hamnar i mappen <strong>Nedladdningar</strong> (ofta längst ned till vänster i webbläsaren)."
+  },
+  "sections": {
+    "child": "Barn",
+    "period": "Period",
+    "scope": "Vad ska ingå i PDF:en?",
+    "startWeek": "Startvecka"
+  },
+  "period": {
+    "1w": "1 vecka",
+    "2w": "2 veckor",
+    "1m": "1 månad"
+  },
+  "scope": {
+    "all": "Hela schemat",
+    "my": "Bara mina dagar"
+  },
+  "weekNav": {
+    "prevAria": "Föregående vecka",
+    "nextAria": "Nästa vecka",
+    "today": "Denna vecka"
+  },
+  "actions": {
+    "preview": "Förhandsgranska",
+    "createPdf": "Skapa PDF"
+  },
+  "preview": {
+    "heading": "Förhandsgranskning",
+    "hint": "Scrolla nedåt om en dag har många aktiviteter."
+  },
+  "pdfHelp": {
+    "title": "Så sparar du PDF:en",
+    "closeAria": "Stäng",
+    "ok": "Okej, jag förstår",
+    "introShare": "Delningsmenyn är öppen. Välj Spara i Filer för att spara PDF:en.",
+    "introPreview": "PDF:en öppnades i webbläsaren{{filename}}.",
+    "introDesktop": "PDF:en laddades ner{{filename}}.",
+    "filenameSuffix": " som {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "I delningsmenyn som öppnades: bläddra och tryck <strong>Spara i Filer</strong>.",
+      "Välj mapp (t.ex. <strong>iCloud Drive</strong> eller <strong>På min iPhone</strong>).",
+      "Tryck <strong>Spara</strong> uppe till höger.",
+      "Hitta filen senare i appen <strong>Filer</strong>."
+    ],
+    "previewSteps": [
+      "PDF:en öppnades i en ny vy — tryck <strong>Dela</strong> (↑) uppe till höger.",
+      "Välj <strong>Spara i Filer</strong>.",
+      "Välj mapp och tryck <strong>Spara</strong>."
+    ],
+    "desktopSteps": [
+      "Öppna mappen <strong>Nedladdningar</strong> på datorn.",
+      "Leta efter filen som börjar med <strong>{{prefix}}</strong> och dagens datum."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Schema",
+    "titleMyDays": "Mina dagar",
+    "emptyCell": "–",
+    "childFallback": "Barn",
+    "loadingPrint": "Förbereder utskrift…",
+    "iframeTitle": "Utskrift"
+  },
+  "filename": {
+    "prefixSchedule": "min-stjarndag-veckoschema",
+    "prefixMyDays": "min-stjarndag-mina-dagar",
+    "fallbackSlug": "barn"
+  },
+  "toasts": {
+    "loadChildrenError": "Kunde inte ladda barn",
+    "selectChild": "Välj ett barn först",
+    "loadingPreview": "Laddar förhandsgranskning…",
+    "noMyDays": "Inga av dina dagar i vald period",
+    "loadScheduleError": "Kunde inte ladda schemat",
+    "creatingPdf": "Skapar PDF…",
+    "pdfCancelled": "PDF-sparning avbruten",
+    "shareHint": "Välj Spara i Filer i delningsmenyn",
+    "mobileSavedHint": "PDF klar — spara den i Filer",
+    "desktopSavedHint": "PDF sparad i Nedladdningar",
+    "pdfLibsMissing": "PDF-verktyg saknas — ladda om sidan och försök igen",
+    "createPdfError": "Kunde inte skapa PDF:en"
+  },
+  "empty": {
+    "noChildren": "Inga barn tillagda ännu.",
+    "goDashboard": "Gå till Min panel"
+  }
+}

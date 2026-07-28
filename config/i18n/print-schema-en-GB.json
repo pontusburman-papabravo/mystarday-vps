@@ -1,0 +1,95 @@
+{
+  "pageTitle": "Create PDF — schedule — {{brand}}",
+  "backLink": "← Back to Planning",
+  "heading": "📄 Create PDF — schedule",
+  "intro": "Choose a child and period. The preview shows the full schedule — the PDF scales automatically to fit one A4 sheet in landscape.",
+  "pdfSave": {
+    "title": "Where is the PDF saved?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> After <em>Create PDF</em>, a share sheet opens — choose <strong>Save to Files</strong> and pick a folder (e.g. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Computer:</strong> The PDF goes to your <strong>Downloads</strong> folder (often bottom-left in the browser)."
+  },
+  "sections": {
+    "child": "Child",
+    "period": "Period",
+    "scope": "What should the PDF include?",
+    "startWeek": "Start week"
+  },
+  "period": {
+    "1w": "1 week",
+    "2w": "2 weeks",
+    "1m": "1 month"
+  },
+  "scope": {
+    "all": "Full schedule",
+    "my": "My days only"
+  },
+  "weekNav": {
+    "prevAria": "Previous week",
+    "nextAria": "Next week",
+    "today": "This week"
+  },
+  "actions": {
+    "preview": "Preview",
+    "createPdf": "Create PDF"
+  },
+  "preview": {
+    "heading": "Preview",
+    "hint": "Scroll down if a day has many activities."
+  },
+  "pdfHelp": {
+    "title": "How to save the PDF",
+    "closeAria": "Close",
+    "ok": "OK, got it",
+    "introShare": "The share sheet is open. Choose Save to Files to save the PDF.",
+    "introPreview": "The PDF opened in the browser{{filename}}.",
+    "introDesktop": "The PDF was downloaded{{filename}}.",
+    "filenameSuffix": " as {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "In the share sheet: scroll and tap <strong>Save to Files</strong>.",
+      "Pick a folder (e.g. <strong>iCloud Drive</strong> or <strong>On My iPhone</strong>).",
+      "Tap <strong>Save</strong> in the top right.",
+      "Find the file later in the <strong>Files</strong> app."
+    ],
+    "previewSteps": [
+      "The PDF opened in a new view — tap <strong>Share</strong> (↑) in the top right.",
+      "Choose <strong>Save to Files</strong>.",
+      "Pick a folder and tap <strong>Save</strong>."
+    ],
+    "desktopSteps": [
+      "Open the <strong>Downloads</strong> folder on your computer.",
+      "Look for a file starting with <strong>{{prefix}}</strong> and today's date."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Schedule",
+    "titleMyDays": "My days",
+    "emptyCell": "–",
+    "childFallback": "Child",
+    "loadingPrint": "Preparing print…",
+    "iframeTitle": "Print"
+  },
+  "filename": {
+    "prefixSchedule": "my-starday-weekly-schedule",
+    "prefixMyDays": "my-starday-my-days",
+    "fallbackSlug": "child"
+  },
+  "toasts": {
+    "loadChildrenError": "Could not load children",
+    "selectChild": "Select a child first",
+    "loadingPreview": "Loading preview…",
+    "noMyDays": "No days for you in the selected period",
+    "loadScheduleError": "Could not load the schedule",
+    "creatingPdf": "Creating PDF…",
+    "pdfCancelled": "PDF save cancelled",
+    "shareHint": "Choose Save to Files in the share sheet",
+    "mobileSavedHint": "PDF ready — save it to Files",
+    "desktopSavedHint": "PDF saved to Downloads",
+    "pdfLibsMissing": "PDF tools missing — reload the page and try again",
+    "createPdfError": "Could not create the PDF"
+  },
+  "empty": {
+    "noChildren": "No children added yet.",
+    "goDashboard": "Go to Home"
+  }
+}

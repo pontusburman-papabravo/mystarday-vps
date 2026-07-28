@@ -31,8 +31,9 @@ function mergeLocaleFragments() {
   /** Map fragment filename domain → client namespace (dot-notation prefix). */
   const FRAGMENT_NAMESPACE = {
     'for-dig': 'forDig',
+    'print-schema': 'printSchema',
   };
-  const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time', 'nav', 'planning', 'library', 'family', 'schedule', 'settings', 'child', 'for-dig'];
+  const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time', 'nav', 'planning', 'library', 'family', 'schedule', 'settings', 'child', 'for-dig', 'print-schema'];
   for (const locale of SUPPORTED_LOCALES) {
     for (const domain of fragmentDomains) {
       const fragmentPath = path.join(i18nFragmentsDir, `${domain}-${locale}.json`);
