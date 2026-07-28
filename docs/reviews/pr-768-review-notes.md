@@ -7,8 +7,8 @@ This folder is for **offline review** when GitHub or the agent VM paths are unav
 
 | File | Purpose |
 |------|---------|
-| `pr-768-i18n-push-email.diff` | Full `git diff origin/main...HEAD` at time of pack (regenerate after new commits) |
-| `pr-768-review-notes.md` | This document |
+| `pr-768-review-notes.md` | This document (committed on branch) |
+| `pr-768-i18n-push-email.diff` | **Generate locally** — full patches are not committed (secret-scan on env literals in diff) |
 
 Regenerate diff locally:
 
