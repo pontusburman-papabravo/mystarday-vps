@@ -328,13 +328,18 @@
 
     const cards = achievements.map(function (a, i) {
       const dateLabel = formatTrophyDate(a.unlocked_at);
-      const desc = a.description || '';
+      const trophyName = window.ChildAchievementI18n
+        ? ChildAchievementI18n.resolveName(a)
+        : (a.name || t('samling.trophyDefault'));
+      const desc = window.ChildAchievementI18n
+        ? ChildAchievementI18n.resolveDescription(a)
+        : (a.description || '');
       return (
         '<button type="button" class="bsp-trophy-card" style="--bsp-trophy-delay:' + (i * 50) + 'ms"' +
           ' aria-expanded="false"' +
-          ' aria-label="' + esc((a.name || t('samling.trophyDefault')) + (dateLabel ? ', ' + dateLabel : '')) + '">' +
+          ' aria-label="' + esc(trophyName + (dateLabel ? ', ' + dateLabel : '')) + '">' +
           '<span class="bsp-trophy-emoji" aria-hidden="true">' + esc(a.emoji || '🏆') + '</span>' +
-          '<span class="bsp-trophy-name">' + esc(a.name || '') + '</span>' +
+          '<span class="bsp-trophy-name">' + esc(trophyName) + '</span>' +
           (dateLabel ? '<span class="bsp-trophy-date">' + esc(dateLabel) + '</span>' : '') +
           (desc ? '<span class="bsp-trophy-desc">' + esc(desc) + '</span>' : '') +
         '</button>'

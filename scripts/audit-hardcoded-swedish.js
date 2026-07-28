@@ -83,6 +83,8 @@ const STRICT_FILES = [
   'public/js/child-dashboard-warmth.js',
   'public/js/child-first-star-mode.js',
   'public/js/child-achievements.js',
+  'public/js/child-achievement-i18n.js',
+  'public/js/child-customization-entries.js',
   'public/js/child-today-focus.js',
   'public/js/child-today-warmth.js',
   'public/js/child-today-coach.js',

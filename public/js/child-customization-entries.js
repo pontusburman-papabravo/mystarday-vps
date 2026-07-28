@@ -23,14 +23,17 @@
     }
     const packId = ChildPictogramPacks.getActivePackId ? ChildPictogramPacks.getActivePackId() : 'simple';
     const pack = ChildPictogramPacks.PACKS[packId] || ChildPictogramPacks.PACKS.simple;
+    const packLabel = ChildPictogramPacks.packLabel
+      ? ChildPictogramPacks.packLabel(pack)
+      : (pack.labelKey && typeof window.cpt === 'function' ? cpt(pack.labelKey) : pack.id);
     const preview = pack.preview || '';
     return (
-      '<section class="bsp-pictogram-entry" aria-label="Bildstil">' +
+      '<section class="bsp-pictogram-entry" aria-label="' + esc(t('settings.imageStyle')) + '">' +
         '<button type="button" class="bsp-pictogram-entry-btn" id="bspOpenPictogramPicker">' +
           '<span class="bsp-pictogram-entry-preview" style="background-image:url(\'' + preview + '\')" aria-hidden="true"></span>' +
           '<span class="bsp-pictogram-entry-copy">' +
-            '<span class="bsp-pictogram-entry-kicker">Bildstil</span>' +
-            '<span class="bsp-pictogram-entry-label">' + esc(pack.label) + '</span>' +
+            '<span class="bsp-pictogram-entry-kicker">' + esc(t('settings.imageStyle')) + '</span>' +
+            '<span class="bsp-pictogram-entry-label">' + esc(packLabel) + '</span>' +
           '</span>' +
           '<span class="bsp-pictogram-entry-chevron" aria-hidden="true">›</span>' +
         '</button>' +

@@ -40,7 +40,7 @@
         '<div style="position:relative;display:inline-block;">' +
           '<button class="expand-btn ' + (isExpanded ? 'open' : '') + ' ' + (!isExpanded && !intro ? 'intro-hint' : '') + '" id="expand-btn-' + item.id + '"' +
                   ' onclick="expandSubSteps(event, \'' + item.id + '\')">' +
-            '📋 Delsteg <span class="chevron">▾</span>' +
+            '📋 ' + esc(t('steps.substepsLabel')) + ' <span class="chevron">▾</span>' +
           '</button>' +
           (!isExpanded && !intro
             ? '<div class="intro-tooltip" id="intro-tooltip-' + item.id + '">' + t('scheduleChrome.substepIntro') + '</div>'

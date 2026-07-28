@@ -21,7 +21,7 @@ const path = require('path');
 const { i18nAuthStackPresent, REQUIRED_PATHS } = require('../test/e2e/helpers/prerequisites');
 
 const ROOT = path.join(__dirname, '..');
-const EXPECTED_PASS = 19;
+const EXPECTED_PASS = 20;
 
 const testFiles = [
   'test/e2e/i18n-english-journey.test.js',
@@ -30,6 +30,7 @@ const testFiles = [
   'test/e2e/i18n-launch-polish.test.js',
   'test/e2e/i18n-child-samling-rewards.test.js',
   'test/e2e/i18n-child-settings-reload.test.js',
+  'test/e2e/i18n-child-ui-leaks.test.js',
 ];
 
 if (!i18nAuthStackPresent()) {

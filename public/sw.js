@@ -226,7 +226,7 @@
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
 // stjarndag-v710: admin inbox — reply to contact messages from Meddelanden
 // stjarndag-v716: remaining English child experience (settings, schedule chrome, today warmth)
-const CACHE_NAME = 'stjarndag-v716';
+const CACHE_NAME = 'stjarndag-v717';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
@@ -596,6 +596,7 @@ const STATIC_ASSETS = [
   '/js/child-worlds.js',
   '/js/child-theme.js',
   '/js/child-theme-picker.js',
+  '/js/child-achievement-i18n.js',
   '/js/child-pictogram-packs.js',
   '/js/child-pictogram-picker.js',
   '/js/child-activity-card-size.js',
