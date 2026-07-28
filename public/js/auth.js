@@ -523,6 +523,10 @@ const Auth = {
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
+    if (childFlow) {
+      await this._persistChildLoginHandoffContext();
+    }
+
     // Unregister native push token BEFORE hitting the logout API so the
     // correct user is associated with the token at time of deletion.
     // Fire-and-forget — logout must not stall on this.
@@ -531,9 +535,7 @@ const Auth = {
     }
 
     // Keep barnväljare usable after vuxen logout — snapshot family children to device.
-    if (!childFlow) {
-      await this.snapshotKnownChildrenBeforeLogout();
-    }
+    await this.snapshotKnownChildrenBeforeLogout();
 
     // Retry once on CSRF mismatch — cookie clearing is the critical path.
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -587,6 +589,28 @@ const Auth = {
       }
     }
     this._redirectAfterLogoutClear(childFlow);
+  },
+
+  /** Persist family locale for child-login after parent handoff (cookies cleared on logout). */
+  async _persistChildLoginHandoffContext() {
+    const storageKey = (window.I18n && I18n.STORAGE_KEY) || 'sd_preferred_locale';
+    try {
+      let me = this.getUser();
+      if (!me || me.type !== 'parent') {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (res.ok) me = await res.json();
+      }
+      if (!me || me.type !== 'parent') return;
+      if (me.preferred_locale) {
+        sessionStorage.setItem(storageKey, me.preferred_locale);
+      }
+      if (typeof me.english_child_experience_enabled === 'boolean') {
+        sessionStorage.setItem(
+          'sd_english_child_experience',
+          me.english_child_experience_enabled ? '1' : '0'
+        );
+      }
+    } catch { /* ignore */ }
   },
 
   /**

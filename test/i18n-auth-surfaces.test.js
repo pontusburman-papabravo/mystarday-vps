@@ -130,6 +130,17 @@ describe('auth i18n — static surfaces', () => {
     assert.match(html, /authBrandName/);
     assert.doesNotMatch(html, /Välkommen till/);
   });
+
+  test('child-login handoff preserves locale when parent session ends', () => {
+    const authJs = read('public/js/auth.js');
+    const childLoginJs = read('public/js/child-login.js');
+    const childAppI18n = read('public/js/child-app-i18n.js');
+    assert.match(authJs, /_persistChildLoginHandoffContext/);
+    assert.match(authJs, /sd_english_child_experience/);
+    assert.match(childLoginJs, /sd_english_child_experience/);
+    assert.match(childLoginJs, /I18n\.STORAGE_KEY/);
+    assert.match(childAppI18n, /sd_english_child_experience/);
+  });
 });
 
 describe('auth i18n — locale bundles', () => {
