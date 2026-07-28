@@ -201,7 +201,7 @@ These must stay green on `main` during RC. No merge to release branch without th
 
 ## Open PR triage (2026-07-28) — resolved
 
-All draft i18n backlog PRs were **closed** after #770 / #771 merged to keep RC focus. Stale implementation branches should be deleted.
+All draft i18n backlog PRs were **closed** after #770 / #771 merged to keep RC focus. Merged agent branches were bulk-deleted (see below).
 
 | PR | Action taken |
 |----|----------------|
@@ -215,9 +215,20 @@ All draft i18n backlog PRs were **closed** after #770 / #771 merged to keep RC f
 
 Standard close comment on each PR: *Superseded by merged work on main during the English launch program…*
 
-### Branch cleanup (2026-07-28)
+### Branch cleanup (2026-07-28) — done
 
-Delete **merged** `cursor/i18n-*` and closed i18n implementation branches on GitHub. Keep only branches with **active RC work** (e.g. open release-bug PRs). After cleanup, `git fetch --prune` locally.
+| Metric | Count |
+|--------|-------|
+| Open PRs | **0** |
+| Merged `cursor/*` branches deleted from `origin` | **452** |
+| Remaining `origin/cursor/*` (unmerged WIP; no open PR) | **176** |
+| Merged `cursor/*` still on `origin` | **0** |
+
+All **merged** `cursor/*` branches were bulk-deleted from GitHub. The 176 leftovers are **unmerged** agent branches with no open PR — safe to ignore until someone revives work, or delete manually after confirming nothing valuable remains.
+
+**Open PRs:** none. i18n backlog (#716, #743–#746) closed with superseded comments.
+
+Locally after cleanup: `git fetch --prune`. Keep only branches tied to **active release-bug PRs**.
 
 ---
 
