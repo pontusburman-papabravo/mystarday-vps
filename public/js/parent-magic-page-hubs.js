@@ -18,7 +18,7 @@
   const PAGE_HEROES = {
     planning: { icon: 'schema', titleKey: 'settings.heroes.planning.title', subKey: 'settings.heroes.planning.sub' },
     rewards: { icon: 'beloningar', titleKey: 'settings.heroes.rewards.title', subKey: 'settings.heroes.rewards.sub' },
-    calendar: { icon: 'kalender', titleKey: 'settings.heroes.calendar.title', subKey: 'settings.heroes.calendar.sub' },
+    calendar: { icon: 'kalender', titleKey: 'settings.heroes.calendar.title', subKey: 'schedule.calendar.legacySub' },
     activities: { icon: 'aktiviteter', titleKey: 'settings.heroes.activities.title', subKey: 'settings.heroes.activities.sub' },
     'assign-schedule': { icon: 'kopiera-aktivitet', titleKey: 'settings.heroes.assignSchedule.title', subKey: 'settings.heroes.assignSchedule.sub' },
     'daily-log': { icon: 'historik', titleKey: 'home.hubs.dailyLogTitle', subKey: 'home.hubs.dailyLogSub' },

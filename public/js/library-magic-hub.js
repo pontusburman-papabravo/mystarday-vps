@@ -492,6 +492,18 @@
     if (isMagic()) routeFromHash();
   });
 
+  document.addEventListener('parent-i18n-ready', function () {
+    if (!isMagic()) return;
+    if (_section) {
+      renderChrome(_section);
+      if (_section === 'standard' && window.LibraryMagicSchedules) {
+        LibraryMagicSchedules.refresh();
+      }
+    } else if (document.body.classList.contains('library-magic-on-hub')) {
+      renderHub();
+    }
+  });
+
   window.LibraryMagicHub = {
     init: init,
     showHub: showHub,

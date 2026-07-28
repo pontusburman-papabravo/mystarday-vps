@@ -381,6 +381,7 @@
     let selectedChildId = null;
     let weekOffset = 0;
     let currentData = null;
+    let _calendarBooted = false;
 
     // ─── Init ─────────────────────────────────────────────────
     async function init() {
@@ -714,21 +715,26 @@
     });
 
     function bootCalendar() {
+      if (_calendarBooted) return;
+      _calendarBooted = true;
       init();
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () {
-        document.addEventListener('parent-i18n-ready', bootCalendar, { once: true });
-      });
+      document.addEventListener('DOMContentLoaded', bootCalendar);
     } else {
-      document.addEventListener('parent-i18n-ready', bootCalendar, { once: true });
+      bootCalendar();
+    }
+    document.addEventListener('parent-i18n-ready', bootCalendar, { once: true });
+    if (window.ParentMagicPageBoot) {
+      ParentMagicPageBoot.register('calendar', bootCalendar);
     }
   </script>
 <script src="/js/feature-check.js?v=2.13.0"></script>
 <script src="/js/nav-config.js?v=1"></script>
 <script src="/js/icon-system.js?v=1"></script>
 <script src="/js/app-view-mode.js?v=4"></script>
+<script src="/js/parent-magic-page-boot.js?v=1"></script>
 <script src="/js/parent-magic-page-hubs.js?v=2"></script>
 <script src="/js/parent-magic-shell.js?v=2"></script>
 <script src="/js/parent-magic-auto.js?v=12"></script>

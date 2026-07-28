@@ -125,5 +125,39 @@
       "title": "Rapporter",
       "sub": "Utveckling och delning"
     }
+  },
+  "standard": {
+    "segments": {
+      "schedules": "📅 Scheman",
+      "activities": "📋 Aktiviteter",
+      "rewards": "🏆 Belöningar"
+    },
+    "filters": {
+      "all": "Alla",
+      "preschool": "Förskola",
+      "school": "Skola",
+      "weekend": "Helg",
+      "break": "Lov",
+      "evening": "Kväll"
+    },
+    "activitiesHint": "Kopiera standardaktiviteter — inklusive delsteg — till ert bibliotek. <strong>Egna foton</strong> lägger du till under Mina bibliotek → Aktiviteter eller Bildarkiv (standardmallar använder emoji).",
+    "rewardsHint": "Välj och kopiera standardbelöningar till er familj.",
+    "noSchedulesMatch": "Inga scheman matchar filtret.",
+    "noSchedules": "Inga standardscheman tillgängliga.",
+    "noActivities": "Inga standardaktiviteter tillgängliga.",
+    "noRewards": "Inga standardbelöningar tillgängliga.",
+    "activitiesCount": "{{count}} aktiviteter",
+    "substepsCount": "{{count}} delsteg",
+    "copySchedule": "📥 Kopiera schema",
+    "copyToChild": "📥 Kopiera till barn",
+    "copy": "📥 Kopiera",
+    "copyAll": "📥 Kopiera alla ({{count}} st)",
+    "copied": "✓ Kopierad",
+    "back": "← Tillbaka",
+    "loadError": "Kunde inte ladda standardbiblioteket",
+    "genericError": "Något gick fel",
+    "copying": "Kopierar…",
+    "copyFailed": "Kunde inte kopiera",
+    "copyFailedRewards": "Kunde inte kopiera belöningarna"
   }
 }

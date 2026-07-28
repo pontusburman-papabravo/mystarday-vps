@@ -7,6 +7,7 @@ const {
   resolveRewardDisplayName,
   localizeActivityItems,
   localizeRewardItems,
+  localizeStandardSchedules,
 } = require('../src/lib/family-content-display');
 
 describe('family-content-display', () => {
@@ -63,5 +64,19 @@ describe('family-content-display', () => {
       star_value: 1,
     };
     assert.equal(await resolveActivityDisplayName('en-GB', 'Vakna', row), 'Wake up');
+  });
+
+  it('localizeStandardSchedules adds display_name for en-GB', async () => {
+    const schedules = [{
+      id: '1',
+      name: 'Förskola vardag',
+      description: 'Typisk dag med förskola: morgonrutin -> förskola -> eftermiddag -> kväll',
+      items: [{ name: 'Sova ut', section: 'morgon' }],
+    }];
+    const out = await localizeStandardSchedules(schedules, 'en-GB');
+    assert.equal(out[0].name, 'Förskola vardag');
+    assert.equal(out[0].display_name, 'Nursery weekday');
+    assert.match(out[0].display_description, /Typical nursery day/i);
+    assert.equal(out[0].items[0].display_name, 'Sleep in');
   });
 });

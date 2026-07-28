@@ -95,6 +95,24 @@ function collectRewardTexts(items) {
   return texts;
 }
 
+function collectScheduleTexts(schedules) {
+  const texts = [];
+  for (const schedule of schedules || []) {
+    if (!schedule) continue;
+    if (schedule.name) texts.push(schedule.name);
+    if (schedule.description) texts.push(schedule.description);
+    for (const item of schedule.items || []) {
+      if (item?.name) texts.push(item.name);
+      if (Array.isArray(item.sub_steps)) {
+        for (const step of item.sub_steps) {
+          if (step?.name) texts.push(step.name);
+        }
+      }
+    }
+  }
+  return texts;
+}
+
 function applyActivityTranslation(item, translate, locale) {
   if (!item || !isEnglishFamilyLocale(locale)) return item;
   const storedName = item.activity_name || item.name;
@@ -180,6 +198,35 @@ async function localizeRewardItems(items, locale, sourceLocale = 'sv-SE') {
   return items.map((item) => applyRewardTranslation(item, translate, locale));
 }
 
+/**
+ * Localize admin standard schedules (name, description, items) for en-GB families.
+ * @param {Array<object>} schedules
+ * @param {string|null|undefined} locale
+ * @param {string} [sourceLocale]
+ * @returns {Promise<Array<object>>}
+ */
+async function localizeStandardSchedules(schedules, locale, sourceLocale = 'sv-SE') {
+  if (!Array.isArray(schedules) || !isEnglishFamilyLocale(locale)) return schedules;
+  const translate = await buildContentTranslator(collectScheduleTexts(schedules), locale, sourceLocale);
+  return schedules.map((schedule) => {
+    const out = { ...schedule };
+    if (schedule.name) {
+      const displayName = translate(schedule.name);
+      if (displayName !== schedule.name) out.display_name = displayName;
+    }
+    if (schedule.description) {
+      const displayDescription = translate(schedule.description);
+      if (displayDescription !== schedule.description) out.display_description = displayDescription;
+    }
+    if (Array.isArray(schedule.items)) {
+      out.items = schedule.items.map((item) =>
+        applyActivityTranslation({ ...item, activity_name: item.name }, translate, locale)
+      );
+    }
+    return out;
+  });
+}
+
 module.exports = {
   resolveActivityDisplayName,
   resolveRewardDisplayName,
@@ -188,4 +235,5 @@ module.exports = {
   localizeRewardRow,
   localizeActivityItems,
   localizeRewardItems,
+  localizeStandardSchedules,
 };

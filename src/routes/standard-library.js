@@ -12,6 +12,12 @@ const { requireFeature } = require('../middleware/feature-gate');
 const { syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
 const { insertFamilyActivityFromDefault } = require('../lib/standard-library-copy');
+const { getFamilyLocale } = require('../lib/onboarding-locale');
+const {
+  localizeActivityItems,
+  localizeRewardItems,
+  localizeStandardSchedules,
+} = require('../lib/family-content-display');
 
 const router = express.Router();
 router.use(requireParent);
@@ -45,7 +51,8 @@ router.get('/', async (req, res) => {
       already_copied: existingNames.has(a.name.toLowerCase()),
     }));
 
-    res.json(activities);
+    const locale = await getFamilyLocale(req.user.familyId);
+    res.json(await localizeActivityItems(activities, locale));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] List error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -254,7 +261,8 @@ router.get('/rewards', async (req, res) => {
       already_copied: copiedIds.has(r.id),
     }));
 
-    res.json(rewards);
+    const locale = await getFamilyLocale(req.user.familyId);
+    res.json(await localizeRewardItems(rewards, locale));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Rewards list error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -403,7 +411,9 @@ router.get('/schedules', async (req, res) => {
       }
     }
 
-    res.json(Array.from(scheduleMap.values()));
+    const schedules = Array.from(scheduleMap.values());
+    const locale = await getFamilyLocale(req.user.familyId);
+    res.json(await localizeStandardSchedules(schedules, locale));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Schedules list error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
