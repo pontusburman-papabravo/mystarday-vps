@@ -16,6 +16,7 @@ const {
 const { isEligibleForActivationEmail } = require('./activation-program-eligibility');
 const programAnalytics = require('./activation-program-analytics');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
+const { resolveCommunicationLocale } = require('./communication-locale');
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -26,8 +27,10 @@ async function fetchEligibleParents() {
             p.email,
             p.name AS parent_name,
             p.family_id,
-            c.name AS child_name
+            c.name AS child_name,
+            COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
      FROM parent p
+     JOIN family f ON f.id = p.family_id
      JOIN child c ON c.family_id = p.family_id
      JOIN notification_preference np ON np.parent_id = p.id
      WHERE p.verified = true
@@ -71,6 +74,7 @@ async function sendInviteToParent(row) {
     parentName: row.parent_name,
     childName: row.child_name,
     ctaUrl,
+    locale: resolveCommunicationLocale(row.preferred_locale),
   });
 
   await emailInviteDb.markSent(invite.id);

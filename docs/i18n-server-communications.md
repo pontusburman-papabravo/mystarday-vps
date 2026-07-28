@@ -18,40 +18,45 @@ Locale-aware server-generated messages for **sv-SE** and **en-GB**.
 | Scheduled reminders (handoff, push, weekly) | Current `family.preferred_locale` at send time |
 | Legal confirmations | Locale snapshot at trigger (deletion request) |
 
-## P0 coverage (this PR)
+## Coverage (this PR)
 
 | Channel | Message | Status |
 |---------|---------|--------|
-| Email | Verification | Already localized |
-| Email | Password reset | Already localized |
-| Email | Welcome shell (header/CTA/footer) | Localized; admin body unchanged |
-| Email | Account deletion requested | Localized |
-| Email | Account deleted | Localized |
-| Email | PIN warning | Localized |
-| Email | Child handoff reminder | Localized |
-| Push | Schedule reminder | Localized |
-| Push | Journey retention d3/d7/d14 | Localized |
-| API | Feedback ack | Localized |
-| API | Export empty/rate-limit/not-found | Localized |
+| Email | Verification, reset, welcome shell, deletion, PIN, child handoff | Localized |
+| Email | Co-parent / pedagog invites | Localized |
+| Email | Win-back, activation nudge, activation program invite | Localized |
+| Email | Newsletter subscription confirm | Localized |
+| Email | Reward redemption | Localized |
+| Email | Weekly summary body | Localized |
+| Email | Trial welcome (if sent) | Localized |
+| Push | Schedule reminder, retention d3/d7/d14 | Localized |
+| Push | Activation program days 2–7 | Localized |
+| Push | Inactivity, star milestone, backfill, custody morning/eve | Localized |
+| Push | Activity complete, star grant, reward request | Localized |
+| API | Activation program day banner copy | Localized via family locale |
 
-## P1 backlog
+Admin-editable welcome body (`welcome_email_template`) and manual admin newsletters remain unchanged.
 
-- Co-parent / pedagog invites
-- Reward redemption email
-- Weekly summary email body
-- Inactivity / custody / star-milestone push
-- Newsletter confirmation
-- Contact form user ack email (today JSON only for contact)
+## HTML escaping (transactional email)
 
-## P2 backlog
+User/DB display values (`childName`, `firstName`, `familyName`, `rewardName`, etc.) are escaped via `src/lib/escape-html.js` + `src/lib/email-html.js` before interpolation into HTML bodies. Trusted server-built link fragments (settings/deletion mailto anchors) are passed as intentional HTML — not double-escaped.
 
-- Win-back, activation nudges, dagens nyhet broadcast
-- Admin-only emails
-- `email_templates` table alignment with runtime sends
+## Push dedupe keys
+
+Custody morning/evening and schedule reminders dedupe on `notification_log.metadata` (`child_id`, `schedule_date`, `schedule_item_id`) — **not** localized `title`. Locale or copy changes cannot create duplicate sends for the same event.
+
+Star milestones already dedupe on `metadata.child_id` + `metadata.milestone`.
+
+## Out of scope
+
+- PDF generation
+- Manual admin newsletter compose (non-system-generated)
+- Admin / SEO / legal static pages
+- `dagens_nyhet` broadcast copy (admin-authored)
 
 ## Tests
 
-`test/i18n-server-communications.test.js` — locale resolver, template parity, helper signatures.
+`test/i18n-server-communications.test.js` — locale resolver, template parity, helper signatures, suppressed test-mailbox sends.
 
 ## Next phase
 

@@ -3,61 +3,52 @@
  * MVP: onboarding_7d only (invariant #15).
  */
 
+const config = require('./config');
+const { t } = require('./i18n');
+const { validateLocale } = require('./locale');
+
+const DAY_META = {
+  1: { cta_type: 'open_child_view', show_preview: true },
+  2: { cta_type: 'open_schedule', cta_url: '/dashboard' },
+  3: { cta_type: 'open_schedule', cta_url: '/dashboard' },
+  4: { cta_type: 'open_schedule', cta_url: '/schedule' },
+  5: { cta_type: 'open_rewards', cta_url: '/library-treasury' },
+  6: { cta_type: 'invite_coparent', cta_url: '/family' },
+  7: { cta_type: 'submit_reflection' },
+};
+
+function brandName() {
+  return config.email.fromName || 'Stjärndag';
+}
+
+function resolveChildName(locale, ctx) {
+  return ctx.childName || t(locale, 'email.common.genericChild');
+}
+
 function getDayContent(effectiveDay, ctx = {}) {
-  const childName = ctx.childName || 'barnet';
-  const days = {
-    1: {
-      title: 'Dag 1 — kika tillsammans',
-      body: `Så här ser ${childName} sitt schema — kika tillsammans.`,
-      cta_label: 'Visa barnupplevelsen',
-      cta_type: 'open_child_view',
-      show_preview: true,
-    },
-    2: {
-      title: 'Dag 2 — morgonkollen',
-      body: 'Öppna dashboarden någon gång idag — det tar bara 30 sekunder.',
-      cta_label: 'Öppna schemat',
-      cta_type: 'open_schedule',
-      cta_url: '/dashboard',
-    },
-    3: {
-      title: 'Dag 3 — fira en stjärna',
-      body: `Har ${childName} fått en stjärna? Fira tillsammans!`,
-      cta_label: 'Se dagens schema',
-      cta_type: 'open_schedule',
-      cta_url: '/dashboard',
-      supportive_fallback: 'Första veckan handlar om att komma igång — det räcker att du kikar in och ser att schemat ligger redo.',
-    },
-    4: {
-      title: 'Dag 4 — er app',
-      body: 'Något som känns fel? Byt ut en aktivitet vid behov.',
-      cta_label: 'Redigera schema',
-      cta_type: 'open_schedule',
-      cta_url: '/schedule',
-    },
-    5: {
-      title: 'Dag 5 — belöning',
-      body: `Kolla Skattkammaren — vad drömmer ${childName} om?`,
-      cta_label: 'Öppna Skattkammaren',
-      cta_type: 'open_rewards',
-      cta_url: '/library-treasury',
-    },
-    6: {
-      title: 'Dag 6 — dela ansvaret',
-      body: 'Vill du dela ansvaret med någon?',
-      cta_label: 'Bjud in någon',
-      cta_type: 'invite_coparent',
-      cta_url: '/family',
-      solo_label: 'Jag kör solo!',
-    },
-    7: {
-      title: 'En vecka! 🎉',
-      body: 'Grattis! Hur har veckan varit?',
-      cta_label: 'Svara på frågan',
-      cta_type: 'submit_reflection',
-    },
+  const locale = validateLocale(ctx.locale || 'sv-SE');
+  const childName = resolveChildName(locale, ctx);
+  const day = effectiveDay >= 1 && effectiveDay <= 7 ? effectiveDay : 7;
+  const prefix = `activationProgram.days.${day}`;
+  const meta = DAY_META[day] || DAY_META[7];
+
+  const content = {
+    title: t(locale, `${prefix}.title`),
+    body: t(locale, `${prefix}.body`, { childName }),
+    cta_label: t(locale, `${prefix}.ctaLabel`),
+    cta_type: meta.cta_type,
   };
-  return days[effectiveDay] || days[7];
+
+  if (meta.cta_url) content.cta_url = meta.cta_url;
+  if (meta.show_preview) content.show_preview = true;
+  if (day === 3) {
+    content.supportive_fallback = t(locale, `${prefix}.supportiveFallback`);
+  }
+  if (day === 6) {
+    content.solo_label = t(locale, `${prefix}.soloLabel`);
+  }
+
+  return content;
 }
 
 /**
@@ -67,23 +58,18 @@ function getDayContent(effectiveDay, ctx = {}) {
 function getPushContent(effectiveDay, ctx = {}) {
   if (effectiveDay < 2 || effectiveDay > 7) return null;
 
-  const childName = ctx.childName || 'barnet';
-  const dayContent = getDayContent(effectiveDay, ctx);
-  const bodies = {
-    2: `God morgon! Kolla ${childName}s schema — tar 30 sek 🌅`,
-    3: `Har ${childName} fått en stjärna idag? Fira tillsammans ⭐`,
-    4: 'Något som känns fel? Byt ut en aktivitet ✏️',
-    5: `Kolla Skattkammaren — vad drömmer ${childName} om? 🎁`,
-    6: 'Vill du dela ansvaret med någon? 👥',
-    7: 'Grattis! Hur har veckan varit?',
-  };
+  const locale = validateLocale(ctx.locale || 'sv-SE');
+  const childName = resolveChildName(locale, ctx);
+  const dayContent = getDayContent(effectiveDay, { ...ctx, locale });
+  const brand = brandName();
+  const body = t(locale, `push.activationProgram.day${effectiveDay}Body`, { childName });
 
   const baseUrl = dayContent.cta_url || '/dashboard';
   const separator = baseUrl.includes('?') ? '&' : '?';
 
   return {
-    title: 'Min Stjärndag',
-    body: bodies[effectiveDay],
+    title: t(locale, 'push.activationProgram.title', { brand }),
+    body,
     url: `${baseUrl}${separator}ap_push=${effectiveDay}`,
   };
 }

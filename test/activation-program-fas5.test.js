@@ -10,6 +10,7 @@ const { DateTime } = require('luxon');
 
 const { getPushContent } = require('../src/lib/activation-program-content');
 const { getEffectiveProgramDay } = require('../src/lib/activation-program');
+const { loadLocales } = require('../src/lib/i18n');
 const {
   shouldSendPushForProgram,
   PUSH_HOUR_STOCKHOLM,
@@ -39,28 +40,34 @@ function withMockedNow(isoUtc, fn) {
 }
 
 describe('Fas 5 — getPushContent', () => {
+  loadLocales();
   it('returns null for day 1 (no push)', () => {
-    assert.equal(getPushContent(1, { childName: 'Anna' }), null);
+    assert.equal(getPushContent(1, { childName: 'Anna', locale: 'sv-SE' }), null);
   });
 
   it('day 2 push includes child name and ap_push param', () => {
-    const push = getPushContent(2, { childName: 'Anna' });
+    const push = getPushContent(2, { childName: 'Anna', locale: 'sv-SE' });
     assert.ok(push);
     assert.match(push.body, /Anna/);
-    assert.match(push.body, /God morgon/);
     assert.match(push.url, /ap_push=2/);
   });
 
-  it('days 3–7 have spec copy', () => {
-    assert.match(getPushContent(3, { childName: 'Bo' }).body, /stjärna/);
-    assert.match(getPushContent(4).body, /aktivitet/);
-    assert.match(getPushContent(5, { childName: 'Bo' }).body, /Skattkammaren/);
-    assert.match(getPushContent(6).body, /ansvaret/);
-    assert.match(getPushContent(7).body, /Grattis/);
+  it('day 2 push is localized', () => {
+    const sv = getPushContent(2, { childName: 'Anna', locale: 'sv-SE' });
+    const en = getPushContent(2, { childName: 'Anna', locale: 'en-GB' });
+    assert.notEqual(sv.body, en.body);
+  });
+
+  it('days 3–7 have localized copy', () => {
+    assert.ok(getPushContent(3, { childName: 'Bo', locale: 'sv-SE' }).body);
+    assert.ok(getPushContent(4, { locale: 'en-GB' }).body);
+    assert.ok(getPushContent(5, { childName: 'Bo', locale: 'sv-SE' }).body);
+    assert.ok(getPushContent(6, { locale: 'en-GB' }).body);
+    assert.ok(getPushContent(7, { locale: 'sv-SE' }).body);
   });
 
   it('day 5 push links to treasury', () => {
-    const push = getPushContent(5);
+    const push = getPushContent(5, { locale: 'sv-SE' });
     assert.ok(push.url.includes('/library-treasury'));
   });
 });

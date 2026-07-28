@@ -192,6 +192,7 @@ async function listActiveTreatmentPrograms(client = db) {
   const result = await client.query(
     `SELECT pap.*,
             COALESCE(f.timezone, 'Europe/Stockholm') AS family_timezone,
+            COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale,
             (
               SELECT c.name FROM child c
               WHERE c.family_id = pap.family_id

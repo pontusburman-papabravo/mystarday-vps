@@ -7,15 +7,21 @@
 
 const db = require('./db');
 const { sendPushNotification } = require('./push-notifications');
+const { t } = require('./i18n');
+const { validateLocale } = require('./locale');
+const { resolveCommunicationLocale } = require('./communication-locale');
 
 /**
- * Get all parents in a family with their push_preferences.
+ * Get all parents in a family with their push_preferences and locale.
  */
 async function getFamilyParents(familyId) {
   try {
     const result = await db.query(
-      `SELECT p.id, p.push_preferences, p.admin_push_enabled
-       FROM parent p WHERE p.family_id = $1`,
+      `SELECT p.id, p.push_preferences, p.admin_push_enabled,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+       FROM parent p
+       JOIN family f ON f.id = p.family_id
+       WHERE p.family_id = $1`,
       [familyId]
     );
     return result.rows;
@@ -36,6 +42,10 @@ function isPushEnabledForChild(parent, childId) {
   return perChild[String(childId)] !== false;
 }
 
+function parentLocale(parent) {
+  return resolveCommunicationLocale(parent.preferred_locale);
+}
+
 // ── Activity-completion debounce ─────────────────────────────────────────────
 // In-memory map: `${familyId}:${childId}` → { timer, count, childName, activities[] }
 // If a child completes 3+ activities within 2 minutes, coalesce into one summary push.
@@ -52,29 +62,37 @@ function _flushCompletionBatch(key, familyId, childId, excludeParentId) {
   let title, body;
 
   if (activities.length >= BATCH_THRESHOLD) {
-    title = `⭐ ${childName}`;
-    body = `har klargjort ${activities.length} aktiviteter!`;
-  } else {
-    // Single (or two) completions — send one push per activity
-    for (const activityName of activities) {
-      _sendParentsPush(familyId, childId, excludeParentId, `⭐ ${childName}`, `har klargjort ${activityName}!`);
-    }
+    _sendParentsPush(
+      familyId,
+      childId,
+      excludeParentId,
+      (lang) => t(lang, 'push.activityComplete.title', { childName }),
+      (lang) => t(lang, 'push.activityComplete.bodyBatch', { count: String(activities.length) })
+    );
     return;
   }
 
-  _sendParentsPush(familyId, childId, excludeParentId, title, body);
+  for (const activityName of activities) {
+    _sendParentsPush(
+      familyId,
+      childId,
+      excludeParentId,
+      (lang) => t(lang, 'push.activityComplete.title', { childName }),
+      (lang) => t(lang, 'push.activityComplete.bodySingle', { activityName })
+    );
+  }
 }
 
-async function _sendParentsPush(familyId, childId, excludeParentId, title, body) {
+async function _sendParentsPush(familyId, childId, excludeParentId, titleFn, bodyFn) {
   try {
     const parents = await getFamilyParents(familyId);
     for (const parent of parents) {
-      // Skip the acting parent (no self-notifications when parent marks for child)
       if (excludeParentId && parent.id === excludeParentId) continue;
       if (!isPushEnabledForChild(parent, childId)) continue;
+      const lang = parentLocale(parent);
       sendPushNotification(parent.id, {
-        title,
-        body,
+        title: titleFn(lang),
+        body: bodyFn(lang),
         icon: '/icon-192.png',
         url: '/dashboard',
       }).catch(() => {});
@@ -86,14 +104,6 @@ async function _sendParentsPush(familyId, childId, excludeParentId, title, body)
 
 /**
  * Notify parents when a child (or parent on behalf of child) completes an activity.
- *
- * @param {string} familyId
- * @param {string} childId
- * @param {string} childName
- * @param {string} activityName
- * @param {string|null} excludeParentId - Parent ID to exclude (self-notification guard).
- *   Pass null when a child is completing their own activity (notify all parents).
- *   Pass the parent's ID when a parent marks an activity done (skip that parent).
  */
 async function notifyParentsChildCompleted(familyId, childId, childName, activityName, excludeParentId = null) {
   try {
@@ -101,18 +111,15 @@ async function notifyParentsChildCompleted(familyId, childId, childName, activit
     const existing = _pendingCompletions.get(key);
 
     if (existing) {
-      // Accumulate into the running batch; reset the flush timer
       clearTimeout(existing.timer);
       existing.activities.push(activityName);
       existing.timer = setTimeout(() => _flushCompletionBatch(key, familyId, childId, excludeParentId), DEBOUNCE_MS);
 
-      // If we just hit the batch threshold, flush immediately
       if (existing.activities.length === BATCH_THRESHOLD) {
         clearTimeout(existing.timer);
         _flushCompletionBatch(key, familyId, childId, excludeParentId);
       }
     } else {
-      // First completion — start a debounce window
       const timer = setTimeout(() => _flushCompletionBatch(key, familyId, childId, excludeParentId), DEBOUNCE_MS);
       _pendingCompletions.set(key, {
         timer,
@@ -134,11 +141,19 @@ async function notifyChildStarGranted(childId, childName, starCount, parentName)
     if (!result.rows[0]) return;
     const familyId = result.rows[0].family_id;
     const parents = await getFamilyParents(familyId);
+    const starLabelKey = starCount > 1 ? 'push.starLabelMany' : 'push.starLabelOne';
     for (const parent of parents) {
       if (!isPushEnabled(parent)) continue;
+      const lang = parentLocale(parent);
+      const starLabel = t(lang, starLabelKey);
       sendPushNotification(parent.id, {
-        title: `🌟 ${starCount} stjärnor till ${childName}!`,
-        body: `${parentName} gav ${childName} ${starCount} stjärna${starCount > 1 ? 'r' : ''}!`,
+        title: t(lang, 'push.starGranted.title', { starCount: String(starCount), childName }),
+        body: t(lang, 'push.starGranted.body', {
+          parentName,
+          childName,
+          starCount: String(starCount),
+          starLabel,
+        }),
         icon: '/icon-192.png',
         url: '/dashboard',
       }).catch(() => {});
@@ -156,9 +171,10 @@ async function notifyParentsRewardRequest(familyId, childId, childName, rewardNa
     const parents = await getFamilyParents(familyId);
     for (const parent of parents) {
       if (!isPushEnabledForChild(parent, childId)) continue;
+      const lang = parentLocale(parent);
       sendPushNotification(parent.id, {
-        title: `🎁 ${childName} vill lösa in en belöning!`,
-        body: `${childName} ber om: ${rewardName}`,
+        title: t(lang, 'push.rewardRequest.title', { childName }),
+        body: t(lang, 'push.rewardRequest.body', { childName, rewardName }),
         icon: '/icon-192.png',
         url: '/dashboard',
       }).catch(() => {});

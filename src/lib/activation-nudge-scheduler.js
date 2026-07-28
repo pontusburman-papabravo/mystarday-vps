@@ -11,14 +11,17 @@ const config = require('./config');
 const { sendActivationNudgeEmail } = require('./email');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
+const { resolveCommunicationLocale } = require('./communication-locale');
 const { ACTIVATION_NUDGE_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 
 const NUDGE_CANDIDATE_SQL = `
-  SELECT s.family_id, p.email, p.name AS parent_name
+  SELECT s.family_id, p.email, p.name AS parent_name,
+         COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
   FROM family_activation_state s
+  JOIN family f ON f.id = s.family_id
   JOIN parent p ON p.family_id = s.family_id AND ${LEGACY_GENERIC_PARENT_ROLE_SQL}
   LEFT JOIN notification_preference np ON np.parent_id = p.id
   WHERE s.p0_activated_within_48h = false
@@ -85,6 +88,7 @@ async function runActivationNudgeJob() {
           to: row.email,
           parentName: row.parent_name,
           ctaUrl: resolveNudgeCtaUrl(),
+          locale: resolveCommunicationLocale(row.preferred_locale),
         });
 
         require('../../db/analytics').track(row.family_id, 'activation_nudge_sent', {

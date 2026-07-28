@@ -11,7 +11,7 @@ const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { requireNotPedagogOnly, getChildAccess, requireChildAccess } = require('../middleware/authz');
-const { sendEmail } = require('../lib/email');
+const { sendRewardRedemptionEmail } = require('../lib/email');
 const { notifyParentsRewardRequest } = require('../lib/push');
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { localizeRewardItems } = require('../lib/family-content-display');
@@ -725,12 +725,13 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
  */
 async function notifyParentsOfRedemption(childId, reward) {
   const childResult = await db.query(
-    `SELECT c.name AS child_name, c.emoji AS child_emoji
+    `SELECT c.name AS child_name, c.emoji AS child_emoji, c.family_id
      FROM child c WHERE c.id = $1`,
     [childId]
   );
   if (childResult.rows.length === 0) return;
-  const { child_name, child_emoji } = childResult.rows[0];
+  const { child_name, child_emoji, family_id } = childResult.rows[0];
+  const locale = await getFamilyPreferredLocale(family_id);
 
   const parentsResult = await db.query(
     `SELECT p.id, p.email, p.name AS parent_name
@@ -745,26 +746,15 @@ async function notifyParentsOfRedemption(childId, reward) {
   );
 
   for (const parent of parentsResult.rows) {
-    const firstName = (parent.parent_name || '').split(' ')[0] || 'Förälder';
-    const html = `
-      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#1B2340;">
-        <h2 style="color:#1B2340;margin-bottom:4px;">Belöning väntar på godkännande! 🎁</h2>
-        <p>Hej ${firstName}!</p>
-        <div style="border:1px solid #E8ECF4;border-radius:12px;padding:20px;margin:16px 0;">
-          <p style="margin:0;font-size:18px;">${child_emoji || '⭐'} <strong>${child_name}</strong> vill lösa in:</p>
-          <p style="margin:12px 0 0;font-size:22px;font-weight:700;color:#F5A623;">${reward.icon || '🎁'} ${reward.name}</p>
-          <p style="margin:4px 0 0;color:#5A6178;">Kostnad: ${reward.star_cost} stjärnor</p>
-        </div>
-        <p>Logga in i appen för att godkänna eller neka inlösen.</p>
-        <p style="margin-top:24px;font-size:14px;color:#5A6178;">
-          Du kan stänga av dessa aviseringar under <strong>Inställningar → Aviseringar</strong>.
-        </p>
-      </div>
-    `;
-    await sendEmail({
+    await sendRewardRedemptionEmail({
       to: parent.email,
-      subject: `${child_name} vill lösa in "${reward.name}" ⭐`,
-      html,
+      parentName: parent.parent_name,
+      childName: child_name,
+      childEmoji: child_emoji,
+      rewardName: reward.name,
+      rewardIcon: reward.icon,
+      starCost: reward.star_cost,
+      locale,
     });
     console.log(`[REWARDS] Redemption notification sent to parent ${parent.id} for child ${child_name}`);
   }

@@ -696,6 +696,166 @@
       "cta": "Öppna {{brand}} ⭐",
       "footerIntro": "Du får detta mail för att du nyligen registrerade dig på {{brand}}.",
       "unsubscribe": "Avprenumerera"
+    },
+    "common": {
+      "genericParent": "Förälder",
+      "genericInviter": "Någon",
+      "genericPedagogInviter": "En förälder",
+      "genericChild": "barnet",
+      "genericReward": "belöningen",
+      "genericYou": "du",
+      "greetingNamed": "Hej {{name}}",
+      "greeting": "Hej",
+      "familyNamed": "familjen \"{{familyName}}\"",
+      "aFamily": "en familj",
+      "settingsNotifications": "Inställningar → Aviseringar",
+      "settingsNotificationsHtml": "Inställningar → <strong>Aviseringar</strong>"
+    },
+    "invite": {
+      "subject": "Du är inbjuden till {{familyLabel}} på {{brand}} ⭐",
+      "title": "Du har blivit inbjuden! ⭐",
+      "body": "{{greeting}}, {{inviterName}} har bjudit in dig till {{familyLabel}} på {{brand}}.",
+      "intro": "{{brand}} är ett visuellt dagsschema som hjälper barn att förstå sin dag, bocka av aktiviteter och samla stjärnor.",
+      "ctaIntro": "Klicka här för att skapa ditt lösenord och aktivera ditt konto:",
+      "button": "Aktivera konto",
+      "footer": "Inbjudan gäller i 7 dagar. Ignorera detta mail om du inte förväntade dig denna inbjudan."
+    },
+    "pedagogInvite": {
+      "subject": "Du bjuds in som pedagog i {{familyName}} ⭐",
+      "title": "Välkommen som pedagog! ⭐",
+      "greetingNamed": "Hej {{name}},",
+      "greeting": "Hej,",
+      "body": "{{inviterName}} har bjudit in dig som pedagog i {{familyName}} på {{brand}}.",
+      "intro": "Som pedagog får du tillgång till att dokumentera observationer och följa barnets schema.",
+      "button": "Acceptera inbjudan →",
+      "footer": "Inbjudan gäller i 7 dagar. Om du inte förväntade dig detta mail kan du ignorera det."
+    },
+    "winBack": {
+      "subject": "Kom igång igen på en minut ⭐",
+      "greeting": "Hej {{name}}! 👋",
+      "body1": "{{childName}}s schema finns kvar — öppna dagens aktiviteter och bocka av tillsammans.",
+      "body2": "Det tar bara en minut att komma igång igen.",
+      "button": "Öppna schemat →",
+      "settingsHint": "Du kan stänga av dessa mejl under {{settingsLink}} i appen.",
+      "settingsLinkText": "Inställningar → Aviseringar"
+    },
+    "activationProgramInvite": {
+      "subject": "En mjuk start för {{childName}}s rutiner?",
+      "greeting": "Hej {{name}}!",
+      "body1": "Ni har skapat konto och satt upp {{childName}}s schema — bra gjort.",
+      "body2": "Många familjer berättar att det som kan vara svårast inte är att komma igång, utan att <strong>hålla i rutinen</strong> när vardagen tar vid.",
+      "body3": "Nu kan ni prova vårt <strong>7-dagars kom-igång-program</strong>: korta dagliga steg som hjälper er som förälder hålla momentum. Barnets schema ändras inte.",
+      "button": "Ja, hjälp oss första veckan",
+      "footer": "Vill ni inte ha guiden fungerar appen som vanligt — allt ni redan satt upp finns kvar."
+    },
+    "activationNudge": {
+      "subject": "Er rutin väntar — testa tillsammans ikväll ⭐",
+      "greeting": "Hej {{name}}!",
+      "body1": "Ni har redan ett schema. Det som återstår är att <strong>testa rutinen tillsammans</strong> — låt barnet logga in och samla den första stjärnan.",
+      "body2": "Det tar ungefär två minuter. Ingen stress.",
+      "button": "Öppna Hem →"
+    },
+    "newsletterConfirm": {
+      "subject": "Du prenumererar på nyhetsbrev från {{brand}}",
+      "title": "Tack för din prenumeration! ⭐",
+      "greetingNamed": "Hej {{name}},",
+      "greeting": "Hej,",
+      "body": "Du prenumererar nu på nyhetsbrev från {{brand}} med tips, nyheter och uppdateringar om appen.",
+      "settings": "Du kan när som helst avsluta prenumerationen under <a href=\"{{settingsUrl}}\">Inställningar</a> i appen, eller via länken längst ner i varje nyhetsbrev.",
+      "signoff": "Med vänliga hälsningar,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} vill lösa in \"{{rewardName}}\" ⭐",
+      "title": "Belöning väntar på godkännande! 🎁",
+      "greeting": "Hej {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> vill lösa in:",
+      "cost": "Kostnad: {{starCost}} stjärnor",
+      "approveHint": "Logga in i appen för att godkänna eller neka inlösen.",
+      "settingsHint": "Du kan stänga av dessa aviseringar under {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "subject": "Välkommen till {{brand}} – din gratis period har börjat!",
+      "headerBrand": "{{brand}}",
+      "headerTitle": "Din gratis period har börjat! ⭐",
+      "intro": "Välkommen! Du har nu <strong>14 dagar gratis</strong> att prova alla funktioner i {{brand}} — inget kreditkort behövs.",
+      "howTitle": "Så här fungerar det:",
+      "how1": "Skapa scheman och aktiviteter för ditt barn",
+      "how2": "Låt barnet samla stjärnor varje dag",
+      "how3": "Sätt upp belöningar i Skattkammaren",
+      "pricing": "Efter 14 dagar kostar det <strong>59 kr/månad</strong> — du kan uppgradera när som helst.",
+      "cta": "Prova Premium ⭐",
+      "ctaHint": "Ingen bindningstid — avbryt när som helst",
+      "footerIntro": "Du får detta mail för att du nyligen registrerade dig på {{brand}}.",
+      "openApp": "Öppna appen"
+    },
+    "weeklySummary": {
+      "subject": "Veckans sammanfattning ⭐ — {{weekLabel}}",
+      "greeting": "Hej {{name}}! 👋",
+      "intro": "Här är veckans sammanfattning för <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} samlade {{stars}} stjärnor den här veckan!",
+      "sharePrompt": "Känner du någon förälder som skulle gilla det här?",
+      "shareWhatsApp": "Dela på WhatsApp",
+      "shareFriend": "Tipsa en vän",
+      "shareTextWithHighlight": "{{highlight}} Vi använder {{brand}} för barnens rutiner – kolla in den:",
+      "shareTextGeneric": "Vi använder {{brand}} för barnens dagliga rutiner – kolla in den:",
+      "starsEarned": "Intjänade stjärnor",
+      "routinesCompleted": "Avklarade rutiner",
+      "routinesOf": "{{completed}} av {{total}} ({{pct}}%)",
+      "moodAverage": "Humör (snitt)",
+      "moodVeryHappy": "Väldigt glad 😄 ({{score}}/10)",
+      "moodHappy": "Glad 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutral 😐 ({{score}}/10)",
+      "moodSad": "Ledsen 😔 ({{score}}/10)",
+      "encourageNoActivity": "En ny vecka börjar snart — prova att bocka av en rutin tillsammans, det tar bara en stund.",
+      "encourageProgress": "🌟 Fortsätt det fantastiska arbetet! Varje avklarad rutin bygger vanor för livet.",
+      "encourageSmallSteps": "🌟 Små steg räknas — prova att bocka av en rutin tillsammans den här veckan.",
+      "genericChildName": "Ditt barn"
+    },
+    "notificationFooter": {
+      "settingsLink": "Inställningar → Notiser",
+      "optOutDefault": "Stäng av den här aviseringen",
+      "optOutWeeklySummary": "Stäng av veckosammanfattning"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Dag 1 — kika tillsammans",
+        "body": "Så här ser {{childName}} sitt schema — kika tillsammans.",
+        "ctaLabel": "Visa barnupplevelsen"
+      },
+      "2": {
+        "title": "Dag 2 — morgonkollen",
+        "body": "Öppna dashboarden någon gång idag — det tar bara 30 sekunder.",
+        "ctaLabel": "Öppna schemat"
+      },
+      "3": {
+        "title": "Dag 3 — fira en stjärna",
+        "body": "Har {{childName}} fått en stjärna? Fira tillsammans!",
+        "ctaLabel": "Se dagens schema",
+        "supportiveFallback": "Första veckan handlar om att komma igång — det räcker att du kikar in och ser att schemat ligger redo."
+      },
+      "4": {
+        "title": "Dag 4 — er app",
+        "body": "Något som känns fel? Byt ut en aktivitet vid behov.",
+        "ctaLabel": "Redigera schema"
+      },
+      "5": {
+        "title": "Dag 5 — belöning",
+        "body": "Kolla Skattkammaren — vad drömmer {{childName}} om?",
+        "ctaLabel": "Öppna Skattkammaren"
+      },
+      "6": {
+        "title": "Dag 6 — dela ansvaret",
+        "body": "Vill du dela ansvaret med någon?",
+        "ctaLabel": "Bjud in någon",
+        "soloLabel": "Jag kör solo!"
+      },
+      "7": {
+        "title": "En vecka! 🎉",
+        "body": "Grattis! Hur har veckan varit?",
+        "ctaLabel": "Svara på frågan"
+      }
     }
   },
   "push": {
@@ -710,6 +870,53 @@
       "day7Body": "Barnets schema väntar. En snabb check-in räcker.",
       "day14Title": "Vi saknar er i appen",
       "day14Body": "Två veckor utan aktivitet — hoppa in och håll rutinen levande."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} har inte loggat in idag",
+      "body": "Kolla schemat och hjälp till att fylla i dagen!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} har samlat {{milestone}} stjärnor! 🌟",
+      "bodyCongrats": "{{emoji}} Grattis till {{childName}}!",
+      "body100": "Helt fantastiskt! Nu väntar nya utmaningar!"
+    },
+    "backfillReminder": {
+      "title": "Gårdagens schema för {{childName}} saknas",
+      "body": "Fyll i gårdagen så är allt uppdaterat!"
+    },
+    "custodyMorning": {
+      "title": "Idag: {{childName}} hos dig",
+      "body": "Schemat för dagen väntar i appen."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Byte imorgon — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} hos {{homeLabel}}",
+      "bodyPack": "🎒 Packa väska finns i morgondagens schema.",
+      "bodyPrepare": "Kom ihåg att förbereda för veckobyte."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "har klargjort {{activityName}}!",
+      "bodyBatch": "har klargjort {{count}} aktiviteter!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} stjärnor till {{childName}}!",
+      "body": "{{parentName}} gav {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "stjärna",
+    "starLabelMany": "stjärnor",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} vill lösa in en belöning!",
+      "body": "{{childName}} ber om: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "God morgon! Kolla {{childName}}s schema — tar 30 sek 🌅",
+      "day3Body": "Har {{childName}} fått en stjärna idag? Fira tillsammans ⭐",
+      "day4Body": "Något som känns fel? Byt ut en aktivitet ✏️",
+      "day5Body": "Kolla Skattkammaren — vad drömmer {{childName}} om? 🎁",
+      "day6Body": "Vill du dela ansvaret med någon? 👥",
+      "day7Body": "Grattis! Hur har veckan varit?"
     }
   },
   "api": {
