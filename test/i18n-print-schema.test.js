@@ -219,6 +219,37 @@ describe('i18n print-schema', () => {
     assert.match(en, /^my-starday-weekly-schedule-/);
   });
 
+  it('buildPdfFilename keeps Latin diacritics and falls back for non-Latin scripts', () => {
+    const { core } = loadCoreWithLocale('en-GB', EN_PT);
+    const asa = core.buildPdfFilename('Åsa', false);
+    assert.match(asa, /^my-starday-weekly-schedule-åsa-\d{4}-\d{2}-\d{2}\.pdf$/);
+    const elodie = core.buildPdfFilename('Élodie', false);
+    assert.match(elodie, /^my-starday-weekly-schedule-élodie-\d{4}-\d{2}-\d{2}\.pdf$/);
+    const jose = core.buildPdfFilename('José', false);
+    assert.match(jose, /^my-starday-weekly-schedule-josé-\d{4}-\d{2}-\d{2}\.pdf$/);
+    const cjk = core.buildPdfFilename('李', false);
+    assert.match(cjk, /^my-starday-weekly-schedule-child-\d{4}-\d{2}-\d{2}\.pdf$/);
+    assert.doesNotMatch(cjk, /[^\x00-\x7F]/);
+  });
+
+  it('PDF HTML preserves emoji, Swedish letters, punctuation, and long words for rasterization', () => {
+    const { buildTestDoc } = loadCoreWithLocale('en-GB', EN_PT);
+    const childName = 'Åsa Élodie';
+    const activity = 'Brush teeth — don\'t forget! (extra-long English activity label)';
+    const doc = buildTestDoc(childName, [
+      { name: activity, section: 'morgon', icon: '🪥', completed: false },
+      { name: 'Fika ☕', section: 'dag', icon: '⭐' },
+    ]);
+    assert.ok(doc.body.includes('🪥'));
+    assert.ok(doc.body.includes('☕'));
+    assert.ok(doc.body.includes('Åsa Élodie'));
+    assert.ok(doc.body.includes('—'));
+    assert.match(doc.body, /don(?:&#39;|')t forget!/);
+    assert.ok(doc.body.includes('extra-long English activity label'));
+    assert.match(doc.styles, /word-break:\s*break-word/);
+    assert.doesNotMatch(doc.body, /&amp;#|&lt;img/);
+  });
+
   it('empty schedule still renders localized chrome', () => {
     const { buildTestDoc } = loadCoreWithLocale('en-GB', EN_PT);
     const doc = buildTestDoc('Ella', []);

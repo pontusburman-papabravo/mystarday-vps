@@ -19,6 +19,7 @@ const {
   acceptCookies,
   fillParentLogin,
   submitParentLogin,
+  parentLogout,
   VIEWPORTS,
 } = require('./helpers/puppeteer-browser');
 
@@ -88,6 +89,22 @@ describe('i18n print-schema E2E', () => {
       });
       assert.match(filename, /^my-starday-weekly-schedule-alex-\d{4}-\d{2}-\d{2}\.pdf$/);
 
+      const intlFilenames = await page.evaluate(() => {
+        const core = window.PrintSchemaCore;
+        return {
+          asa: core.buildPdfFilename('Åsa', false),
+          elodie: core.buildPdfFilename('Élodie', false),
+          jose: core.buildPdfFilename('José', false),
+          cjk: core.buildPdfFilename('李', false),
+        };
+      });
+      assert.match(intlFilenames.asa, /^my-starday-weekly-schedule-åsa-/);
+      assert.match(intlFilenames.elodie, /^my-starday-weekly-schedule-élodie-/);
+      assert.match(intlFilenames.jose, /^my-starday-weekly-schedule-josé-/);
+      assert.match(intlFilenames.cjk, /^my-starday-weekly-schedule-child-/);
+
+      await parentLogout(page);
+
       const svSeed = await seedEnglishJourneyFamily(ctx.baseUrl, ctx.query, {
         registerLocale: 'sv-SE',
         dbLocale: 'sv-SE',
@@ -95,6 +112,7 @@ describe('i18n print-schema E2E', () => {
       });
 
       await page.goto(`${ctx.baseUrl}/login`, { waitUntil: 'domcontentloaded' });
+      await acceptCookies(page);
       await fillParentLogin(page, svSeed.email, svSeed.password);
       await submitParentLogin(page);
       await page.waitForFunction(() => location.pathname !== '/login', { timeout: 30000 });
