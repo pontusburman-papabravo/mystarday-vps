@@ -163,8 +163,13 @@
     }
 
     sessionStorage.setItem(I18n.STORAGE_KEY, next);
+    try { localStorage.setItem(I18n.STORAGE_KEY, next); } catch (_) { /* ignore */ }
     try {
       sessionStorage.setItem(
+        (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice',
+        '1'
+      );
+      localStorage.setItem(
         (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice',
         '1'
       );

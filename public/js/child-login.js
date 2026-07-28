@@ -53,8 +53,10 @@ async function bootstrapChildLoginI18n() {
   }
   if (!preferredLocale && window.I18n) {
     try {
-      preferredLocale = sessionStorage.getItem(I18n.STORAGE_KEY);
-      const flagRaw = sessionStorage.getItem('sd_english_child_experience');
+      preferredLocale = sessionStorage.getItem(I18n.STORAGE_KEY)
+        || localStorage.getItem(I18n.STORAGE_KEY);
+      const flagRaw = sessionStorage.getItem('sd_english_child_experience')
+        || localStorage.getItem('sd_english_child_experience');
       if (flagRaw === '1') englishChildEnabled = true;
       if (flagRaw === '0') englishChildEnabled = false;
     } catch (_) { /* ignore */ }

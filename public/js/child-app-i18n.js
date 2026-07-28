@@ -52,8 +52,10 @@
     }
     if (!preferred && window.I18n) {
       try {
-        preferred = sessionStorage.getItem(I18n.STORAGE_KEY);
-        const flagRaw = sessionStorage.getItem('sd_english_child_experience');
+        preferred = sessionStorage.getItem(I18n.STORAGE_KEY)
+          || localStorage.getItem(I18n.STORAGE_KEY);
+        const flagRaw = sessionStorage.getItem('sd_english_child_experience')
+          || localStorage.getItem('sd_english_child_experience');
         if (flagRaw === '1') englishChild = true;
         if (flagRaw === '0') englishChild = false;
       } catch (_) { /* ignore */ }

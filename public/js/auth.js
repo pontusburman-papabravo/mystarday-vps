@@ -523,9 +523,7 @@ const Auth = {
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
-    if (childFlow) {
-      await this._persistChildLoginHandoffContext();
-    }
+    await this._persistAuthEntryLocaleContext();
 
     // Unregister native push token BEFORE hitting the logout API so the
     // correct user is associated with the token at time of deletion.
@@ -591,26 +589,43 @@ const Auth = {
     this._redirectAfterLogoutClear(childFlow);
   },
 
-  /** Persist family locale for child-login after parent handoff (cookies cleared on logout). */
-  async _persistChildLoginHandoffContext() {
+  /** Persist family locale for auth entry (login/register/child-login) after session ends. */
+  async _persistAuthEntryLocaleContext() {
     const storageKey = (window.I18n && I18n.STORAGE_KEY) || 'sd_preferred_locale';
+    const explicitKey = (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice';
     try {
       let me = this.getUser();
       if (!me || me.type !== 'parent') {
         const res = await fetch('/api/auth/me', { credentials: 'include' });
         if (res.ok) me = await res.json();
       }
-      if (!me || me.type !== 'parent') return;
-      if (me.preferred_locale) {
-        sessionStorage.setItem(storageKey, me.preferred_locale);
+      if (me && me.type === 'parent') {
+        if (me.preferred_locale) {
+          sessionStorage.setItem(storageKey, me.preferred_locale);
+          try { localStorage.setItem(storageKey, me.preferred_locale); } catch { /* ignore */ }
+          sessionStorage.setItem(explicitKey, '1');
+          try { localStorage.setItem(explicitKey, '1'); } catch { /* ignore */ }
+        }
+        if (typeof me.english_child_experience_enabled === 'boolean') {
+          const flag = me.english_child_experience_enabled ? '1' : '0';
+          sessionStorage.setItem('sd_english_child_experience', flag);
+          try { localStorage.setItem('sd_english_child_experience', flag); } catch { /* ignore */ }
+        }
+        return;
       }
-      if (typeof me.english_child_experience_enabled === 'boolean') {
-        sessionStorage.setItem(
-          'sd_english_child_experience',
-          me.english_child_experience_enabled ? '1' : '0'
-        );
+      const current = window.I18n && typeof I18n.getCurrentLang === 'function'
+        ? I18n.getCurrentLang()
+        : null;
+      if (current) {
+        sessionStorage.setItem(storageKey, current);
+        try { localStorage.setItem(storageKey, current); } catch { /* ignore */ }
       }
     } catch { /* ignore */ }
+  },
+
+  /** @deprecated alias — use _persistAuthEntryLocaleContext */
+  async _persistChildLoginHandoffContext() {
+    return this._persistAuthEntryLocaleContext();
   },
 
   /**
