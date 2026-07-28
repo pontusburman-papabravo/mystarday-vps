@@ -128,6 +128,8 @@ const STRICT_FILES = [
   'public/schedule.html',
   'src/lib/communication-locale.js',
   'src/lib/email.js',
+  'src/lib/email-html.js',
+  'src/lib/escape-html.js',
   'src/lib/email-notification-footer.js',
   'src/lib/weekly-summary-scheduler.js',
   'src/lib/activation-program-content.js',

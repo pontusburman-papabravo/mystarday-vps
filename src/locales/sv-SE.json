@@ -702,6 +702,7 @@
       "genericInviter": "Någon",
       "genericPedagogInviter": "En förälder",
       "genericChild": "barnet",
+      "genericReward": "belöningen",
       "genericYou": "du",
       "greetingNamed": "Hej {{name}}",
       "greeting": "Hej",

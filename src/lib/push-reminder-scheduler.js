@@ -224,10 +224,12 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
         const dupCheck = await db.query(
           `SELECT 1 FROM notification_log
            WHERE parent_id = $1 AND type = 'schedule_reminder'
-             AND title = $2
+             AND metadata->>'child_id' = $2
+             AND metadata->>'schedule_item_id' = $3
+             AND metadata->>'schedule_date' = $4
              AND created_at > NOW() - INTERVAL '2 hours'
            LIMIT 1`,
-          [parent_id, titlePrefix]
+          [parent_id, child.id, String(item.id), dateStr]
         );
         if (dupCheck.rows.length > 0) continue;
 
@@ -236,6 +238,12 @@ async function sendScheduleReminders(year, month, day, currentTimeMin) {
           body: t(locale, 'push.scheduleReminder.body', { childName: child.name }),
           type: 'schedule_reminder',
           url: '/child/today',
+          metadata: {
+            child_id: child.id,
+            schedule_item_id: String(item.id),
+            schedule_date: dateStr,
+            dedupe_key: `schedule_reminder:${child.id}:${item.id}:${dateStr}`,
+          },
         });
         console.log(`[PUSH-REMINDER] Schedule reminder sent to parent ${parent_id} for child ${child.name}: ${item.activity_name}`);
       }
@@ -459,9 +467,9 @@ async function sendCustodyMorningReminders(dateStr) {
         `SELECT 1 FROM notification_log
          WHERE parent_id = $1 AND type = 'custody_morning_reminder'
            AND created_at::date = $2::date
-           AND title = $3
+           AND metadata->>'child_id' = $3
          LIMIT 1`,
-        [parentId, dateStr, morningTitle]
+        [parentId, dateStr, row.child_id]
       );
       if (dup.rows.length) continue;
 
@@ -470,6 +478,11 @@ async function sendCustodyMorningReminders(dateStr) {
         body: t(locale, 'push.custodyMorning.body'),
         type: 'custody_morning_reminder',
         url: '/dashboard',
+        metadata: {
+          child_id: row.child_id,
+          schedule_date: dateStr,
+          dedupe_key: `custody_morning:${row.child_id}:${dateStr}`,
+        },
       });
     }
   }

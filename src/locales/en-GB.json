@@ -702,6 +702,7 @@
       "genericInviter": "Someone",
       "genericPedagogInviter": "A parent",
       "genericChild": "your child",
+      "genericReward": "the reward",
       "genericYou": "you",
       "greetingNamed": "Hi {{name}}",
       "greeting": "Hi",

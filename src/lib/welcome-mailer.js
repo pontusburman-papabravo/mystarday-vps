@@ -10,6 +10,7 @@ const db = require('./db');
 const config = require('./config');
 const { t } = require('./i18n');
 const { resolveCommunicationLocale } = require('./communication-locale');
+const { escapeHtml, escapeUserDisplay } = require('./email-html');
 
 const APP_URL = process.env.APP_URL || 'https://mystarday.se';
 
@@ -41,9 +42,10 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
 
     const lang = resolveCommunicationLocale(locale);
     const genericParent = t(lang, 'email.common.genericParent');
+    const safeParent = escapeUserDisplay(foralderns_namn) || genericParent;
 
-    subject = subject.replace(/{{foralderns_namn}}/g, foralderns_namn || genericParent);
-    body = body.replace(/{{foralderns_namn}}/g, foralderns_namn || genericParent);
+    subject = subject.replace(/{{foralderns_namn}}/g, safeParent);
+    body = body.replace(/{{foralderns_namn}}/g, safeParent);
 
     // Resolve child's name: provided by caller > looked up from DB > fallback
     let resolved_barnets_namn = barnets_namn || null;
@@ -62,8 +64,9 @@ async function sendWelcomeEmail(parentEmail, parentId, { foralderns_namn, barnet
       resolved_barnets_namn = childResult.rows[0]?.name || t(lang, 'email.common.genericChild');
     }
 
-    subject = subject.replace(/{{barnets_namn}}/g, resolved_barnets_namn);
-    body = body.replace(/{{barnets_namn}}/g, resolved_barnets_namn);
+    const safeChild = escapeUserDisplay(resolved_barnets_namn) || t(lang, 'email.common.genericChild');
+    subject = subject.replace(/{{barnets_namn}}/g, safeChild);
+    body = body.replace(/{{barnets_namn}}/g, safeChild);
 
     // Format body to HTML
     const bodyHtml = formatBodyToHtml(body);
@@ -167,15 +170,6 @@ function buildEmailHtml({ subject, bodyHtml, unsubscribeUrl, locale = 'sv-SE' })
 </html>`;
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 /**
  * Send the trial-specific welcome email to new parents.
  * Sent immediately after registration alongside the regular welcome email.
@@ -190,7 +184,7 @@ async function sendTrialWelcomeEmail(parentEmail, parentId, { foralderns_namn, l
   try {
     const lang = resolveCommunicationLocale(locale);
     const brand = config.email.fromName || 'Stjärndag';
-    const greeting = foralderns_namn || t(lang, 'email.common.greeting');
+    const greeting = escapeUserDisplay(foralderns_namn) || t(lang, 'email.common.greeting');
     const upgradeUrl = `${APP_URL}/upgrade`;
 
     const subject = t(lang, 'email.trialWelcome.subject', { brand });

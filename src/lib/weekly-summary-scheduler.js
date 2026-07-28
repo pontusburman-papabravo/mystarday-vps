@@ -16,6 +16,7 @@ const { t } = require('./i18n');
 const { validateLocale } = require('./locale');
 const { resolveCommunicationLocale } = require('./communication-locale');
 const { buildNotificationEmailFooterHtml } = require('./email-notification-footer');
+const { escapeHtml, escapeUserDisplay, escapeFirstName } = require('./email-html');
 const { buildOptOutUrl } = require('./notification-email-opt-out');
 const { WEEKLY_SUMMARY_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const {
@@ -127,7 +128,8 @@ function buildWeekHighlight(children, locale = 'sv-SE') {
   const lang = validateLocale(locale);
   let best = null;
   for (const { child, stats } of children) {
-    const name = (child.name || '').trim() || t(lang, 'email.weeklySummary.genericChildName');
+    const rawName = (child.name || '').trim();
+    const name = escapeUserDisplay(rawName) || t(lang, 'email.weeklySummary.genericChildName');
     if (stats.starsEarned > 0 && (!best || stats.starsEarned > best.stars)) {
       best = {
         stars: stats.starsEarned,
@@ -167,10 +169,11 @@ function buildEncouragementMessage(children, locale = 'sv-SE') {
 function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl, locale = 'sv-SE' } = {}) {
   const lang = validateLocale(locale);
   const brand = brandName();
-  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericParent');
   const highlight = buildWeekHighlight(children, lang);
   const baseUrl = config.email.baseUrl.replace(/\/$/, '');
   const shareUrl = `${baseUrl}/?utm_source=weekly_summary&utm_medium=email&utm_campaign=share`;
+  const safeWeekLabel = escapeHtml(weekLabel);
   const shareText = highlight
     ? t(lang, 'email.weeklySummary.shareTextWithHighlight', { highlight, brand })
     : t(lang, 'email.weeklySummary.shareTextGeneric', { brand });
@@ -187,7 +190,7 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl, lo
       <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #E8ECF4;">
         <p style="margin:0 0 12px;color:#5A6178;font-size:14px;">${t(lang, 'email.weeklySummary.sharePrompt')}</p>
         <a href="${waShareHref}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">${t(lang, 'email.weeklySummary.shareWhatsApp')}</a>
-        <a href="${shareUrl}" style="display:inline-block;background:#1B2340;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">${t(lang, 'email.weeklySummary.shareFriend')}</a>
+        <a href="${escapeHtml(shareUrl)}" style="display:inline-block;background:#1B2340;color:#fff;text-decoration:none;font-weight:600;padding:11px 20px;border-radius:999px;font-size:14px;margin:0 4px 8px;">${t(lang, 'email.weeklySummary.shareFriend')}</a>
       </div>`;
 
   const childSections = children.map(({ child, stats }) => {
@@ -201,7 +204,7 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl, lo
 
     return `
       <div style="border:1px solid #E8ECF4;border-radius:12px;padding:20px;margin-bottom:16px;">
-        <h3 style="margin:0 0 12px;color:#1B2340;font-size:18px;">${child.emoji || '⭐'} ${child.name}</h3>
+        <h3 style="margin:0 0 12px;color:#1B2340;font-size:18px;">${escapeHtml(child.emoji || '⭐')} ${escapeUserDisplay(child.name) || t(lang, 'email.weeklySummary.genericChildName')}</h3>
         <table style="width:100%;border-collapse:collapse;">
           <tr>
             <td style="padding:4px 0;color:#5A6178;">${t(lang, 'email.weeklySummary.starsEarned')}</td>
@@ -223,7 +226,7 @@ function buildWeeklySummaryHtml(parentName, weekLabel, children, { optOutUrl, lo
   return `
     <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
       <h2 style="color:#1B2340;margin-bottom:4px;">${t(lang, 'email.weeklySummary.greeting', { name: firstName })}</h2>
-      <p style="color:#5A6178;margin-top:0;">${t(lang, 'email.weeklySummary.intro', { weekLabel })}</p>
+      <p style="color:#5A6178;margin-top:0;">${t(lang, 'email.weeklySummary.intro', { weekLabel: safeWeekLabel })}</p>
 
       ${highlightBanner}
 

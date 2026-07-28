@@ -8,6 +8,7 @@
  */
 const config = require('./config');
 const { buildListUnsubscribeHeaders } = require('./list-unsubscribe-headers');
+const { escapeHtml, escapeUserDisplay, escapeFirstName } = require('./email-html');
 const { t } = require('./i18n');
 const { validateLocale } = require('./locale');
 
@@ -142,7 +143,7 @@ async function sendVerificationEmail(email, token, locale = 'sv-SE') {
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #1B2340;">${t(lang, 'email.verify.title', { brand })}</h2>
         <p>${t(lang, 'email.verify.body')}</p>
-        <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.verify.button')}</a>
+        <a href="${escapeHtml(url)}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.verify.button')}</a>
         <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.verify.expiry', { hours: String(config.verification.tokenExpiryHours) })}</p>
       </div>
     `,
@@ -156,8 +157,9 @@ async function sendPasswordResetEmail(email, token, recipientName, locale = 'sv-
   const lang = validateLocale(locale);
   const brand = brandName();
   const url = `${config.email.baseUrl}/reset-password?token=${token}`;
-  const greeting = recipientName
-    ? t(lang, 'email.resetPassword.greeting', { name: recipientName })
+  const safeName = escapeUserDisplay(recipientName);
+  const greeting = safeName
+    ? t(lang, 'email.resetPassword.greeting', { name: safeName })
     : t(lang, 'email.resetPassword.greetingGeneric');
   return sendEmail({
     to: email,
@@ -166,7 +168,7 @@ async function sendPasswordResetEmail(email, token, recipientName, locale = 'sv-
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #1B2340;">${t(lang, 'email.resetPassword.title')}</h2>
         <p>${greeting}, ${t(lang, 'email.resetPassword.body')}</p>
-        <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.resetPassword.button')}</a>
+        <a href="${escapeHtml(url)}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.resetPassword.button')}</a>
         <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.resetPassword.expiry', { hours: String(config.verification.resetTokenExpiryHours) })}</p>
       </div>
     `,
@@ -180,12 +182,15 @@ async function sendInviteEmail(email, token, { inviteeName, inviterName, familyN
   const lang = validateLocale(locale);
   const brand = brandName();
   const url = `${config.email.baseUrl}/accept-invite?token=${token}`;
-  const greeting = inviteeName
-    ? t(lang, 'email.common.greetingNamed', { name: inviteeName })
+  const safeInvitee = escapeUserDisplay(inviteeName);
+  const safeInviter = escapeUserDisplay(inviterName);
+  const safeFamily = escapeUserDisplay(familyName);
+  const greeting = safeInvitee
+    ? t(lang, 'email.common.greetingNamed', { name: safeInvitee })
     : t(lang, 'email.common.greeting');
-  const inviterText = inviterName || t(lang, 'email.common.genericInviter');
-  const familyLabel = familyName
-    ? t(lang, 'email.common.familyNamed', { familyName })
+  const inviterText = safeInviter || t(lang, 'email.common.genericInviter');
+  const familyLabel = safeFamily
+    ? t(lang, 'email.common.familyNamed', { familyName: safeFamily })
     : t(lang, 'email.common.aFamily');
   return sendEmail({
     to: email,
@@ -197,7 +202,7 @@ async function sendInviteEmail(email, token, { inviteeName, inviterName, familyN
         <p>${t(lang, 'email.invite.intro', { brand })}</p>
         <p>${t(lang, 'email.invite.ctaIntro')}</p>
         <div style="text-align: center; margin: 24px 0;">
-          <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">${t(lang, 'email.invite.button')}</a>
+          <a href="${escapeHtml(url)}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">${t(lang, 'email.invite.button')}</a>
         </div>
         <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.invite.footer')}</p>
       </div>
@@ -213,16 +218,17 @@ async function sendPinWarningEmail(parentEmail, childName, locale = 'sv-SE') {
   const lang = validateLocale(locale);
   const brand = brandName();
   const baseUrl = config.email.baseUrl;
+  const safeChildName = escapeUserDisplay(childName) || t(lang, 'email.common.genericChild');
   return sendEmail({
     to: parentEmail,
-    subject: t(lang, 'email.pinWarning.subject', { childName }),
+    subject: t(lang, 'email.pinWarning.subject', { childName: safeChildName }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #1B2340;">${t(lang, 'email.pinWarning.title', { brand })}</h2>
-        <p>${t(lang, 'email.pinWarning.body', { childName, brand })}</p>
+        <p>${t(lang, 'email.pinWarning.body', { childName: safeChildName, brand })}</p>
         <p>${t(lang, 'email.pinWarning.help')}</p>
         <div style="text-align: center; margin: 24px 0;">
-          <a href="${baseUrl}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.pinWarning.button', { brand })}</a>
+          <a href="${escapeHtml(baseUrl)}" style="display: inline-block; background: #F5A623; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t(lang, 'email.pinWarning.button', { brand })}</a>
         </div>
         <p style="color: #5A6178; font-size: 14px;">${t(lang, 'email.pinWarning.footer')}</p>
       </div>
@@ -235,20 +241,23 @@ async function sendAccountDeletionRequestedEmail(email, firstName, locale = 'sv-
   const brand = brandName();
   const baseUrl = config.email.baseUrl;
   const supportEmail = FROM_ADDRESS;
+  const safeFirstName = escapeUserDisplay(firstName) || t(lang, 'email.common.genericYou');
+  const brandLink = `<a href="${escapeHtml(baseUrl)}" style="color: #F5A623; font-weight: 600;">${escapeHtml(brand)}</a>`;
+  const supportLink = `<a href="mailto:${escapeHtml(supportEmail)}" style="color: #F5A623;">${escapeHtml(supportEmail)}</a>`;
   return sendEmail({
     to: email,
     subject: t(lang, 'email.accountDeletionRequested.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">${t(lang, 'email.accountDeletionRequested.greeting', { name: firstName })}</h2>
+        <h2 style="color: #1B2340;">${t(lang, 'email.accountDeletionRequested.greeting', { name: safeFirstName })}</h2>
         <p>${t(lang, 'email.accountDeletionRequested.intro')}</p>
         <div style="background: #FFF3D6; border-left: 4px solid #F5A623; border-radius: 8px; padding: 1rem 1.2rem; margin: 1.5rem 0;">
           <p style="color: #1B2340; font-weight: 600; margin: 0;">${t(lang, 'email.accountDeletionRequested.graceTitle')}</p>
         </div>
         <p>${t(lang, 'email.accountDeletionRequested.undo')}</p>
-        <p>${t(lang, 'email.accountDeletionRequested.loginHint', { brand: `<a href="${baseUrl}" style="color: #F5A623; font-weight: 600;">${brand}</a>` })}</p>
+        <p>${t(lang, 'email.accountDeletionRequested.loginHint', { brand: brandLink })}</p>
         <p style="color: #5A6178; font-size: 14px; margin-top: 2rem;">${t(lang, 'email.accountDeletionRequested.footer')}</p>
-        <p style="color: #5A6178; font-size: 14px;">${t(lang, 'email.accountDeletionRequested.contact', { supportEmail: `<a href="mailto:${supportEmail}" style="color: #F5A623;">${supportEmail}</a>` })}</p>
+        <p style="color: #5A6178; font-size: 14px;">${t(lang, 'email.accountDeletionRequested.contact', { supportEmail: supportLink })}</p>
       </div>
     `,
   });
@@ -258,19 +267,22 @@ async function sendAccountDeletedEmail(email, firstName, locale = 'sv-SE') {
   const lang = validateLocale(locale);
   const brand = brandName();
   const brandUrl = config.email.baseUrl;
+  const safeFirstName = escapeUserDisplay(firstName) || t(lang, 'email.common.genericYou');
+  const brandHost = brandUrl.replace(/^https?:\/\//, '');
+  const returnLink = `<a href="${escapeHtml(brandUrl)}" style="color: #F5A623; font-weight: 600;">${escapeHtml(brandHost)}</a>`;
   return sendEmail({
     to: email,
     subject: t(lang, 'email.accountDeleted.subject', { brand }),
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1B2340;">${t(lang, 'email.accountDeleted.greeting', { name: firstName })}</h2>
+        <h2 style="color: #1B2340;">${t(lang, 'email.accountDeleted.greeting', { name: safeFirstName })}</h2>
         <p>${t(lang, 'email.accountDeleted.intro', { brand })}</p>
         <div style="background: #E0F5EC; border-left: 4px solid #22C55E; border-radius: 8px; padding: 1rem 1.2rem; margin: 1.5rem 0;">
           <p style="color: #1B2340; font-weight: 600; margin: 0;">${t(lang, 'email.accountDeleted.dataRemoved')}</p>
         </div>
         <p>${t(lang, 'email.accountDeleted.thanks', { brand })}</p>
         <p style="font-size: 14px; color: #5A6178; margin-top: 20px;">
-          ${t(lang, 'email.accountDeleted.return', { brandUrl: `<a href="${brandUrl}" style="color: #F5A623; font-weight: 600;">${brandUrl.replace(/^https?:\/\//, '')}</a>` })}
+          ${t(lang, 'email.accountDeleted.return', { brandUrl: returnLink })}
         </p>
       </div>
     `,
@@ -279,9 +291,10 @@ async function sendAccountDeletedEmail(email, firstName, locale = 'sv-SE') {
 
 async function sendWinBackEmail({ to, parentName, childName, ctaUrl, locale = 'sv-SE' }) {
   const lang = validateLocale(locale);
-  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
-  const child = childName || t(lang, 'email.common.genericChild');
+  const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericParent');
+  const child = escapeUserDisplay(childName) || t(lang, 'email.common.genericChild');
   const settingsLink = t(lang, 'email.common.settingsNotificationsHtml');
+  const safeCtaUrl = escapeHtml(ctaUrl || config.email.baseUrl);
   return sendEmail({
     to,
     subject: t(lang, 'email.winBack.subject'),
@@ -295,7 +308,7 @@ async function sendWinBackEmail({ to, parentName, childName, ctaUrl, locale = 's
           ${t(lang, 'email.winBack.body2')}
         </p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${ctaUrl}"
+          <a href="${safeCtaUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
             ${t(lang, 'email.winBack.button')}
@@ -321,11 +334,14 @@ async function sendPedagogInviteEmail({
   const brand = brandName();
   const baseUrl = config.email.baseUrl;
   const url = `${baseUrl}/pedagog-invite?token=${inviteToken}`;
-  const greeting = inviteeName
-    ? t(lang, 'email.pedagogInvite.greetingNamed', { name: inviteeName })
+  const safeInvitee = escapeUserDisplay(inviteeName);
+  const safeInviter = escapeUserDisplay(inviterName);
+  const safeFamily = escapeUserDisplay(familyName);
+  const greeting = safeInvitee
+    ? t(lang, 'email.pedagogInvite.greetingNamed', { name: safeInvitee })
     : t(lang, 'email.pedagogInvite.greeting');
-  const inviterText = inviterName || t(lang, 'email.common.genericPedagogInviter');
-  const familyText = familyName || brand;
+  const inviterText = safeInviter || t(lang, 'email.common.genericPedagogInviter');
+  const familyText = safeFamily || escapeHtml(brand);
 
   return sendEmail({
     to,
@@ -337,7 +353,7 @@ async function sendPedagogInviteEmail({
         <p>${t(lang, 'email.pedagogInvite.body', { inviterName: inviterText, familyName: familyText, brand })}</p>
         <p>${t(lang, 'email.pedagogInvite.intro')}</p>
         <div style="text-align: center; margin: 28px 0;">
-          <a href="${url}" style="display: inline-block; background: #F5A623; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
+          <a href="${escapeHtml(url)}" style="display: inline-block; background: #F5A623; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
             ${t(lang, 'email.pedagogInvite.button')}
           </a>
         </div>
@@ -357,8 +373,9 @@ async function sendActivationProgramInviteEmail({
   locale = 'sv-SE',
 }) {
   const lang = validateLocale(locale);
-  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericYou');
-  const child = childName || t(lang, 'email.common.genericChild');
+  const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericYou');
+  const child = escapeUserDisplay(childName) || t(lang, 'email.common.genericChild');
+  const safeCtaUrl = escapeHtml(ctaUrl || config.email.baseUrl);
   return sendEmail({
     to,
     subject: t(lang, 'email.activationProgramInvite.subject', { childName: child }),
@@ -375,7 +392,7 @@ async function sendActivationProgramInviteEmail({
           ${t(lang, 'email.activationProgramInvite.body3')}
         </p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${ctaUrl}"
+          <a href="${safeCtaUrl}"
              style="display:inline-block;background:#4F46E5;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
             ${t(lang, 'email.activationProgramInvite.button')}
@@ -392,8 +409,9 @@ async function sendActivationProgramInviteEmail({
 async function sendNewsletterSubscriptionConfirmation(email, recipientName, locale = 'sv-SE') {
   const lang = validateLocale(locale);
   const brand = brandName();
-  const greeting = recipientName
-    ? t(lang, 'email.newsletterConfirm.greetingNamed', { name: recipientName })
+  const safeName = escapeUserDisplay(recipientName);
+  const greeting = safeName
+    ? t(lang, 'email.newsletterConfirm.greetingNamed', { name: safeName })
     : t(lang, 'email.newsletterConfirm.greeting');
   const settingsUrl = `${config.email.baseUrl}/settings`;
   return sendEmail({
@@ -404,7 +422,7 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName, loca
         <h2 style="color: #1B2340;">${t(lang, 'email.newsletterConfirm.title')}</h2>
         <p>${greeting}</p>
         <p>${t(lang, 'email.newsletterConfirm.body', { brand })}</p>
-        <p>${t(lang, 'email.newsletterConfirm.settings', { settingsUrl })}</p>
+        <p>${t(lang, 'email.newsletterConfirm.settings', { settingsUrl: escapeHtml(settingsUrl) })}</p>
         <p style="color: #5A6178; font-size: 14px; margin-top: 24px;">${t(lang, 'email.newsletterConfirm.signoff', { brand })}</p>
       </div>
     `,
@@ -413,8 +431,9 @@ async function sendNewsletterSubscriptionConfirmation(email, recipientName, loca
 
 async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 'sv-SE' }) {
   const lang = validateLocale(locale);
-  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericParent');
   const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/onboarding`;
+  const safeUrl = escapeHtml(url);
   return sendEmail({
     to,
     subject: t(lang, 'email.childHandoff.subject'),
@@ -425,7 +444,7 @@ async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 
           ${t(lang, 'email.childHandoff.body')}
         </p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${url}"
+          <a href="${safeUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
             ${t(lang, 'email.childHandoff.button')}
@@ -438,8 +457,9 @@ async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 
 
 async function sendActivationNudgeEmail({ to, parentName, ctaUrl, locale = 'sv-SE' }) {
   const lang = validateLocale(locale);
-  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericParent');
   const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/dashboard`;
+  const safeUrl = escapeHtml(url);
   return sendEmail({
     to,
     subject: t(lang, 'email.activationNudge.subject'),
@@ -453,7 +473,7 @@ async function sendActivationNudgeEmail({ to, parentName, ctaUrl, locale = 'sv-S
           ${t(lang, 'email.activationNudge.body2')}
         </p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${url}"
+          <a href="${safeUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
             ${t(lang, 'email.activationNudge.button')}
@@ -475,20 +495,22 @@ async function sendRewardRedemptionEmail({
   locale = 'sv-SE',
 }) {
   const lang = validateLocale(locale);
-  const firstName = (parentName || '').split(' ')[0] || t(lang, 'email.common.genericParent');
+  const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericParent');
   const settingsLink = t(lang, 'email.common.settingsNotificationsHtml');
-  const emoji = childEmoji || '⭐';
-  const icon = rewardIcon || '🎁';
+  const safeChildName = escapeUserDisplay(childName) || t(lang, 'email.common.genericChild');
+  const safeRewardName = escapeUserDisplay(rewardName) || t(lang, 'email.common.genericReward');
+  const emoji = escapeHtml(childEmoji || '⭐');
+  const icon = escapeHtml(rewardIcon || '🎁');
   return sendEmail({
     to,
-    subject: t(lang, 'email.rewardRedemption.subject', { childName, rewardName }),
+    subject: t(lang, 'email.rewardRedemption.subject', { childName: safeChildName, rewardName: safeRewardName }),
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;color:#1B2340;">
         <h2 style="color:#1B2340;margin-bottom:4px;">${t(lang, 'email.rewardRedemption.title')}</h2>
         <p>${t(lang, 'email.rewardRedemption.greeting', { name: firstName })}</p>
         <div style="border:1px solid #E8ECF4;border-radius:12px;padding:20px;margin:16px 0;">
-          <p style="margin:0;font-size:18px;">${t(lang, 'email.rewardRedemption.wantsToRedeem', { childEmoji: emoji, childName })}</p>
-          <p style="margin:12px 0 0;font-size:22px;font-weight:700;color:#F5A623;">${icon} ${rewardName}</p>
+          <p style="margin:0;font-size:18px;">${t(lang, 'email.rewardRedemption.wantsToRedeem', { childEmoji: emoji, childName: safeChildName })}</p>
+          <p style="margin:12px 0 0;font-size:22px;font-weight:700;color:#F5A623;">${icon} ${safeRewardName}</p>
           <p style="margin:4px 0 0;color:#5A6178;">${t(lang, 'email.rewardRedemption.cost', { starCost: String(starCost) })}</p>
         </div>
         <p>${t(lang, 'email.rewardRedemption.approveHint')}</p>

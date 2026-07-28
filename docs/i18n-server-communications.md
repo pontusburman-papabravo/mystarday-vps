@@ -37,6 +37,16 @@ Locale-aware server-generated messages for **sv-SE** and **en-GB**.
 
 Admin-editable welcome body (`welcome_email_template`) and manual admin newsletters remain unchanged.
 
+## HTML escaping (transactional email)
+
+User/DB display values (`childName`, `firstName`, `familyName`, `rewardName`, etc.) are escaped via `src/lib/escape-html.js` + `src/lib/email-html.js` before interpolation into HTML bodies. Trusted server-built link fragments (settings/deletion mailto anchors) are passed as intentional HTML — not double-escaped.
+
+## Push dedupe keys
+
+Custody morning/evening and schedule reminders dedupe on `notification_log.metadata` (`child_id`, `schedule_date`, `schedule_item_id`) — **not** localized `title`. Locale or copy changes cannot create duplicate sends for the same event.
+
+Star milestones already dedupe on `metadata.child_id` + `metadata.milestone`.
+
 ## Out of scope
 
 - PDF generation
