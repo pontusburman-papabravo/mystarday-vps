@@ -2,8 +2,53 @@
 
 **Status:** RC-1 in progress · **English i18n program: COMPLETE** (2026-07-28)  
 **Last updated:** 2026-07-28  
+**Last updated:** 2026-07-28  
 **Audience:** Product, QA, release engineering  
 **Related:** [`docs/i18n-glossary.md`](i18n-glossary.md), [`docs/qa-test-account.md`](qa-test-account.md), [`docs/e2e-i18n-english-journey.md`](e2e-i18n-english-journey.md)
+
+---
+
+## RC-1 — Recommended order
+
+Run RC-1 **methodically** from this doc. No new broad PRs — each finding becomes a **small release bug** with repro, scope, and smoke test.
+
+| Step | Focus |
+|------|--------|
+| 1 | **iPhone** physical QA (SE, 13, 15 Pro) |
+| 2 | **Android** physical QA (Pixel, Samsung mid-range) |
+| 3 | **Known risk areas** (checkboxes below) |
+| 4 | Offline / cache / upgrade from older build |
+| 5 | English demo family (`npm run seed:english-demo`) |
+| 6 | Store screenshots + metadata |
+| 7 | Launch flags, monitoring, rollback plan |
+
+**Discipline:** No new features until RC-1 is green.
+
+### Release bug template (when a checkbox fails)
+
+Open a **small PR** — not a reopened i18n epic. Include:
+
+1. **Repro** — device, locale, path (e.g. Home → Ledig dag)
+2. **Expected** vs **actual**
+3. **Scope** — files/surfaces touched (max one modal or one flow)
+4. **Smoke** — unit, E2E, or manual step added to prevent regression
+5. **POS** — cite glossary term if copy change ([`docs/i18n-glossary.md`](i18n-glossary.md))
+
+---
+
+## RC-1 — Known risk areas (post-i18n backlog)
+
+These were **closed implementation PRs**; verify on current `main` during RC smoke. If broken → release bug (see template above).
+
+| # | Area | How to verify (en-GB family) | Pass |
+|---|------|------------------------------|------|
+| R1 | **Day-off modal** | Home → `Ledig dag` / day-off → modal title, body, buttons English; dark theme readable | [ ] |
+| R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [ ] |
+| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav visible; select child → log loads (not stuck on empty placeholder) | [ ] |
+
+**R1 repro hint:** `openLedigDagModal()` / `#ledigDagModal` — strings may still be hardcoded Swedish on `main`.  
+**R2 repro hint:** Upload flow toasts (“Laddar upp…”, delete confirm) in `public/js/library-images.js`.  
+**R3 repro hint:** After child pick, `#logContent` should load; bottom tab bar present on magic/PWA paths.
 
 ---
 
@@ -169,6 +214,10 @@ All draft i18n backlog PRs were **closed** after #770 / #771 merged to keep RC f
 | **#743** | ❌ Closed — RC smoke: daily-log nav/empty state if bug persists |
 
 Standard close comment on each PR: *Superseded by merged work on main during the English launch program…*
+
+### Branch cleanup (2026-07-28)
+
+Delete **merged** `cursor/i18n-*` and closed i18n implementation branches on GitHub. Keep only branches with **active RC work** (e.g. open release-bug PRs). After cleanup, `git fetch --prune` locally.
 
 ---
 
