@@ -39,9 +39,11 @@
     if (previous && diff !== 0) {
       const sign = diff > 0 ? '+' : '';
       const diffClass = diff > 0 ? 'text-emerald-700' : 'text-text-soft';
-      diffHtml = '<span class="dash-week-diff ' + diffClass + '">' + sign + diff + ' jämfört med förra veckan</span>';
+      diffHtml = '<span class="dash-week-diff ' + diffClass + '">' +
+        escHtml(pt('home.starHistory.diffUp', { diff: sign + diff })) + '</span>';
     } else if (previous && diff === 0 && thisWeekTotal > 0) {
-      diffHtml = '<span class="dash-week-diff text-text-soft">Samma som förra veckan</span>';
+      diffHtml = '<span class="dash-week-diff text-text-soft">' +
+        escHtml(pt('home.starHistory.diffSame')) + '</span>';
     }
 
     // Best week per child (for single-child families or highlight top performer)
@@ -82,7 +84,7 @@
     }
 
     const bestHtml = story.bestChild
-      ? '<p class="dash-week-best">🎉 ' + escHtml(story.bestChild.name) + 's bästa vecka hittills!</p>'
+      ? '<p class="dash-week-best">' + escHtml(pt('home.starHistory.bestWeek', { name: story.bestChild.name })) + '</p>'
       : '';
 
     storyEl.classList.remove('hidden');

@@ -534,6 +534,12 @@ describe('Today HTML shell i18n', () => {
     assert.match(html, /data-i18n="nav\.dailyLog"/);
   });
 
+  it('loads daily-log.js after parent-magic-bootstrap for PageBoot registration', () => {
+    const bootstrapIdx = html.indexOf('parent-magic-bootstrap.js');
+    const dailyLogIdx = html.indexOf('daily-log.js');
+    assert.ok(bootstrapIdx >= 0 && dailyLogIdx > bootstrapIdx);
+  });
+
   it('keeps Swedish fallback text in HTML for pre-JS render (sv-SE default)', () => {
     assert.match(html, /<html lang="sv-SE">/);
     assert.match(html, /Daglig logg/);
@@ -641,8 +647,10 @@ describe('daily-log child selection boot', () => {
   it('schedules boot when DOM is already ready and registers ParentMagicPageBoot', () => {
     const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
     assert.match(dailyLog, /scheduleBootDailyLogPage/);
+    assert.match(dailyLog, /registerDailyLogPageBoot/);
     assert.match(dailyLog, /ParentMagicPageBoot\.register\('daily-log'/);
     assert.match(dailyLog, /document\.readyState === 'loading'/);
+    assert.match(dailyLog, /const apiFetch = window\.apiFetch/);
   });
 
   it('retries children fetch after silent refresh on 401 (Android session)', () => {
@@ -719,6 +727,18 @@ describe('home quick actions (retroactive + ledig dag modal)', () => {
     assert.match(magicCss, /#starHistoryContent/);
     assert.match(magicCss, /#starHistoryContent \.text-navy/);
     assert.match(magicCss, /#starHistoryStory \.dash-week-story-inner/);
+  });
+
+  it('weekly story diff uses i18n keys (no hardcoded Swedish)', () => {
+    const story = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-weekly-story.js'), 'utf8');
+    const en = fs.readFileSync(path.join(__dirname, '../config/i18n/home-en-GB.json'), 'utf8');
+    const sv = fs.readFileSync(path.join(__dirname, '../config/i18n/home-sv-SE.json'), 'utf8');
+    assert.match(story, /home\.starHistory\.diffUp/);
+    assert.match(story, /home\.starHistory\.diffSame/);
+    assert.match(story, /home\.starHistory\.bestWeek/);
+    assert.doesNotMatch(story, /jämfört med förra veckan/);
+    assert.match(en, /"diffUp": "\+{{diff}} compared to last week"/);
+    assert.match(sv, /"diffUp": "\+{{diff}} jämfört med förra veckan"/);
   });
 });
 

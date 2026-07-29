@@ -32,6 +32,7 @@
 })();
 
 const SILENT_REFRESH_TIMEOUT_MS = 12000;
+const AUTH_ME_TIMEOUT_MS = 12000;
 
 /** Native WebView: cookie auth + skip refresh round-trips (Android Play + iOS parity). */
 function isNativeClient() {
@@ -1023,7 +1024,13 @@ window.authGuard = async function() {
     let res;
     if (isNativeClient()) {
       stabilityLog('auth_me_fetch_start');
-      res = await fetch('/api/auth/me', { credentials: 'include' });
+      const controller = new AbortController();
+      const abortTimer = window.setTimeout(function () { controller.abort(); }, AUTH_ME_TIMEOUT_MS);
+      try {
+        res = await fetch('/api/auth/me', { credentials: 'include', signal: controller.signal });
+      } finally {
+        window.clearTimeout(abortTimer);
+      }
       stabilityLog('auth_me_fetch_done', { status: res.status, ok: res.ok });
     } else {
       res = await window.apiFetch('/api/auth/me');
@@ -1045,10 +1052,16 @@ window.authGuard = async function() {
     }
     const user = await res.json();
     stabilityLog('auth_me_json_ok', { type: user && user.type });
+    if (user && user.type === 'parent') {
+      const csrf = Auth.getCsrfToken();
+      const expMs = Auth._getExpiryMs();
+      Auth.setAuth(null, user, csrf, expMs);
+    }
     if (redirectIncompleteOnboarding(user)) return null;
     return user;
   } catch (err) {
-    stabilityLog('auth_me_error', { message: err && err.message });
+    const isTimeout = err && (err.name === 'AbortError' || err.name === 'TimeoutError');
+    stabilityLog(isTimeout ? 'auth_me_timeout' : 'auth_me_error', { message: err && err.message });
     if (diag && diag.traceLoginBounce) {
       diag.traceLoginBounce('auth_me_error', { message: err && err.message, path: window.location.pathname });
     }

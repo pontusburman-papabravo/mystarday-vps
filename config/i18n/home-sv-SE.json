@@ -39,7 +39,10 @@
     "title": "Veckans framsteg",
     "subtitle": "Senaste 8 veckorna",
     "thisWeek": "{{count}} ⭐ denna vecka",
-    "weekTooltip": "V{{week}}: {{count}} stjärnor"
+    "weekTooltip": "V{{week}}: {{count}} stjärnor",
+    "diffUp": "+{{diff}} jämfört med förra veckan",
+    "diffSame": "Samma som förra veckan",
+    "bestWeek": "🎉 {{name}}s bästa vecka hittills!"
   },
   "nav": {
     "today": "Idag",

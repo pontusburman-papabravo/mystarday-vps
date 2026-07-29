@@ -95,6 +95,8 @@
 
     // ── Auth & Init ───────────────────────────────────────
 
+    const apiFetch = window.apiFetch;
+
     let _dailyLogPageBound = false;
     let _bootInFlight = null;
     let _loadLogSeq = 0;
@@ -248,10 +250,16 @@
       }
     }
 
-    scheduleBootDailyLogPage();
+    function registerDailyLogPageBoot() {
+      if (window.ParentMagicPageBoot && ParentMagicPageBoot.register) {
+        ParentMagicPageBoot.register('daily-log', bootDailyLogPage);
+      }
+    }
 
-    if (window.ParentMagicPageBoot && ParentMagicPageBoot.register) {
-      ParentMagicPageBoot.register('daily-log', bootDailyLogPage);
+    scheduleBootDailyLogPage();
+    registerDailyLogPageBoot();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerDailyLogPageBoot, { once: true });
     }
 
     document.addEventListener('parent-i18n-ready', () => {
@@ -1241,12 +1249,6 @@
     }
 
     // showToast is now in /js/toast.js
-
-    // Use the global window.apiFetch (defined in auth.js) which handles
-    // CSRF tokens, auth headers, and token refresh automatically.
-    // A previous local apiFetch was missing CSRF headers, causing 403 errors
-    // on all PUT/POST requests from this page.
-    const apiFetch = window.apiFetch;
 
     // ── Print functions ──────────────────────────────────
 

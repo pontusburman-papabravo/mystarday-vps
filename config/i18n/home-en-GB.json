@@ -39,7 +39,10 @@
     "title": "Weekly progress",
     "subtitle": "Last 8 weeks",
     "thisWeek": "{{count}} ⭐ this week",
-    "weekTooltip": "W{{week}}: {{count}} stars"
+    "weekTooltip": "W{{week}}: {{count}} stars",
+    "diffUp": "+{{diff}} compared to last week",
+    "diffSame": "Same as last week",
+    "bestWeek": "🎉 {{name}}'s best week yet!"
   },
   "nav": {
     "today": "Today",
