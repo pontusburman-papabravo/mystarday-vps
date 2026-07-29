@@ -1306,6 +1306,110 @@ body.parent-magic-view.parent-theme-light #ledigDagModal button[type="button"]:n
   color: #1b2340 !important;
 }
 
+/* Dashboard — add / create activity modals (engångsaktivitet, lägg till) */
+body.parent-magic-view #addActivityModal > div,
+body.parent-magic-view #createActivityModal > div,
+body.parent-magic-view #recurrenceModal > div,
+body.parent-magic-view #editItemModal > div {
+  background: #141432 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f4f4ff;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal label,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal h3,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal h4,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal label,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal h3,
+body.parent-magic-view:not(.parent-theme-light) #recurrenceModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #recurrenceModal h3,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal label,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal h3 {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) #recurrenceModal .text-text-soft,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal .text-text-soft {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal input,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal select,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal textarea,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal input,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal select,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal textarea,
+body.parent-magic-view:not(.parent-theme-light) #recurrenceModal input,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal input,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal select,
+body.parent-magic-view:not(.parent-theme-light) #editItemModal textarea {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #f4f4ff !important;
+  color-scheme: dark;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal input[type="time"],
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal input[type="date"],
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal input[type="time"],
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal input[type="date"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #templateList button,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #templateList .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #addActivityOnceChildList .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #addActivityOnceChildList label {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal .section-pick-btn:not(.bg-navy),
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal button[type="button"]:not(.bg-gold):not(.bg-navy),
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal button[type="button"]:not(.bg-gold),
+body.parent-magic-view:not(.parent-theme-light) #recurrenceModal button[type="button"]:not(.bg-gold) {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal .bg-sky,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #selectedTemplateInfo,
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #addActivityOnceWrap,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal .bg-sky,
+body.parent-magic-view:not(.parent-theme-light) #createActivityModal .bg-purple-50 {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #addActivityModal #addActivityOnceWrap .bg-white {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-view.parent-theme-light #addActivityModal > div,
+body.parent-magic-view.parent-theme-light #createActivityModal > div,
+body.parent-magic-view.parent-theme-light #recurrenceModal > div,
+body.parent-magic-view.parent-theme-light #editItemModal > div {
+  background: #ffffff !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view.parent-theme-light #addActivityModal input[type="time"],
+body.parent-magic-view.parent-theme-light #addActivityModal input[type="date"],
+body.parent-magic-view.parent-theme-light #createActivityModal input[type="time"],
+body.parent-magic-view.parent-theme-light #createActivityModal input[type="date"],
+body.parent-magic-view.parent-theme-light #editItemModal input[type="time"],
+body.parent-magic-view.parent-theme-light #editItemModal input[type="date"] {
+  background: #ffffff !important;
+  border-color: rgba(20, 16, 45, 0.16) !important;
+  color: #1b2340 !important;
+  color-scheme: light;
+}
+
 /* Share popup — white card must stay readable (global dark input rule breaks recipient field) */
 body.parent-magic-view .share-popup-card .share-popup-field-label,
 body.parent-magic-view .share-popup-card .share-popup-header strong {
@@ -1389,10 +1493,6 @@ body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal .text-navy,
 body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal label,
 body.parent-magic-view:not(.parent-theme-light) #scheduleCopyModal h3 {
   color: #1B2340 !important;
-}
-  display: flex !important;
-  margin: 0 16px 12px;
-  max-width: 360px;
 }
 
 body.parent-magic-view .planning-magic-back {
