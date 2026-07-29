@@ -714,6 +714,12 @@ describe('home quick actions (retroactive + ledig dag modal)', () => {
     assert.match(cardActions, /closeGiveStarsPickerModal/);
     assert.match(dashMagicCss, /dashboard-modal-open/);
   });
+
+  it('star history chart uses light surface and dark text on magic dark', () => {
+    assert.match(magicCss, /#starHistoryContent/);
+    assert.match(magicCss, /#starHistoryContent \.text-navy/);
+    assert.match(magicCss, /#starHistoryStory \.dash-week-story-inner/);
+  });
 });
 
 describe('LocaleDateTime formatTime', () => {

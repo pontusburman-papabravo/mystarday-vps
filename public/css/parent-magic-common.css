@@ -1410,6 +1410,69 @@ body.parent-magic-view.parent-theme-light #editItemModal input[type="date"] {
   color-scheme: light;
 }
 
+/* Hem — Veckans framsteg (star history chart): light chart surface + dark text on magic dark */
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent,
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent.bg-white {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent .text-navy,
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent .font-semibold,
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent .font-bold {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent .text-text-soft {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent .text-gold {
+  color: #b45309 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryContent .text-emerald-700 {
+  color: #047857 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .dash-week-story-inner {
+  background: linear-gradient(135deg, #fff8e7, #ffffff) !important;
+  border-color: #f5d78e !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .dash-week-total {
+  color: #b45309 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .dash-week-diff,
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .dash-week-best,
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .text-text-soft {
+  color: #5a6178 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .dash-week-best {
+  color: #047857 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #starHistoryStory .text-emerald-700 {
+  color: #047857 !important;
+}
+
+/* Magic hub — week line chart labels (parent-week-section at bottom of Hem) */
+body.parent-magic-view:not(.parent-theme-light) .parent-week-section h3 {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .parent-week-section .parent-week-labels,
+body.parent-magic-view:not(.parent-theme-light) .parent-week-section .parent-week-labels span:not(.is-today) {
+  color: rgba(244, 244, 255, 0.72) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .parent-week-section .parent-week-labels .is-today {
+  color: #ffcc33 !important;
+}
+
 /* Share popup — white card must stay readable (global dark input rule breaks recipient field) */
 body.parent-magic-view .share-popup-card .share-popup-field-label,
 body.parent-magic-view .share-popup-card .share-popup-header strong {
