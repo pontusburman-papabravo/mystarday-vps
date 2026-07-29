@@ -1,7 +1,7 @@
 # RC-1 i18n release requirements
 
 **PR:** #775 (`cursor/planning-calendar-library-i18n-fbe1`)  
-**Status:** Merge after full manual journey passes (see R4).
+**Status:** Merge after R4-E locale torture test + journeys A–D pass.
 
 ---
 
@@ -16,10 +16,30 @@
 
 **Never:** `translations[name] || name` without origin verification.
 
-### Prod audit (pre-merge spot-check)
+### Prod audit results (2026-07-29)
+
+**Distribution**
+
+| `source` | Count | Notes |
+|----------|-------|-------|
+| `NULL` | 6 688 | Legacy registration / library copy era |
+| `admin` | 32 | Recent explicit seeds |
+| `user` | 0 | Appears after #775 deploy |
+
+**NULL content review (not just counts)**
+
+- Top NULL names (`Borsta tänderna`, `Middag`, `Vakna`, …) appear in **100–330 families** → standard registration seeds.
+- Heuristic (name in ≤5 families): **558 NULL rows** likely user-created (`aaa`, `Äta frukost (Adrian)`, …).
+- **~6 130 NULL rows** share names with >5 families → treat as system seeds (RC-1 OK).
+- Collision on NULL: **1** `MIDDAG` + **1** `FRUKOST` in low-frequency bucket — possible user word picks; post-launch backfill candidate.
+- **326** NULL `Middag` rows are **system** dinner activities (seeded name), not the R4 user-create test (`source=user`).
+
+**RC-1 decision:** `NULL` → legacy system is correct for ~91% of NULL rows. ~558 user-like NULL rows accepted as post-launch debt.
+
+**Post-launch (not #775):** backfill `source='user'` where `source IS NULL` and name frequency ≤5 (or manual review).
 
 ```sql
--- Distribution — expect mostly admin/user; NULL = legacy seeds (still localized)
+-- Distribution
 SELECT COALESCE(source, '(null)') AS source, COUNT(*) FROM activity_template GROUP BY 1 ORDER BY 2 DESC;
 
 -- Rewards customized by families — must not localize
@@ -31,9 +51,11 @@ FROM activity_template
 WHERE LOWER(name) IN ('middag', 'bad', 'frukost')
   AND source IS DISTINCT FROM 'user'
 LIMIT 20;
-```
 
-Legacy rows with `source IS NULL` are treated as system-seeded (registration era). New code paths set `source='admin'` explicitly. Optional future backfill: only after per-family review.
+-- Post-launch: likely user NULL rows
+WITH nf AS (SELECT name, COUNT(*) freq FROM activity_template WHERE source IS NULL GROUP BY name)
+SELECT COUNT(*) FROM activity_template a JOIN nf ON nf.name=a.name AND nf.freq <= 5 WHERE a.source IS NULL;
+```
 
 ---
 
@@ -93,11 +115,37 @@ After journey A or B:
 ### Manual journey D — user data guard
 
 1. English family
-2. Create activity named **Middag** (user-created)
+2. Create activity named **Middag** (user-created — must have `source=user` after save)
 3. Verify it stays **Middag** everywhere (not "Dinner")
 4. Edit a system reward icon only → verify `modified_by_family` stops English rename
 
-### Manual stress test (race / cache)
+### R4-E — Locale torture test (merge gate)
+
+Single end-to-end stress path that exercises Calendar/Today races, locale switch mid-navigation, reload, logout, and child handoff. **Run once on real phone before merge.**
+
+| Step | Action |
+|------|--------|
+| 1 | Start logged in on **English** |
+| 2 | Open **Calendar** |
+| 3 | Settings (or in-page switcher if available) → switch to **Swedish** |
+| 4 | **Immediately** go to **Today** (do not wait for idle) |
+| 5 | Switch back to **English** |
+| 6 | Open **Library** |
+| 7 | **Reload** |
+| 8 | **Logout** |
+| 9 | **Login** (same family) |
+| 10 | **Child handoff** |
+| 11 | **Child Today** |
+
+**Pass criteria**
+
+- No blank Calendar / Today / Library / child views
+- No half-Swedish / half-English chrome on any step
+- No stale fetch overwriting the new locale (watch for flash of wrong language after step 4–5)
+- Child view follows family locale + `english_child_experience` rule
+- User-created activity **Middag** still shows **Middag** (not "Dinner") on parent Today and child Today
+
+### Manual stress test (Settings-only, lighter)
 
 On Settings, rapidly:
 
@@ -109,13 +157,24 @@ Repeat 3–4 times. No half-Swedish/half-English chrome, no blank Calendar/Today
 
 ---
 
+## Merge classification
+
+| Field | Value |
+|-------|-------|
+| Type | RC release bug |
+| Priority | **High** |
+| Status | **Merge after final manual verification** (R4-E torture test + journeys A–D) |
+| Not | Open development / feature work |
+
+---
+
 ## Merge sign-off
 
 | Check | Owner |
 |-------|-------|
-| R1 audit query reviewed on staging/prod sample | Release |
-| R4 journeys A–D passed on real phone (iOS + Android WebView) | QA |
-| R4 stress test passed | QA |
+| R1 prod NULL audit reviewed (see results above) | Release |
+| R4 journeys A–D + **R4-E torture test** on real phone (iOS + Android WebView) | QA |
+| R4 Settings-only stress test (optional, lighter) | QA |
 | `test:gate` + `test:e2e:i18n` green on branch | CI |
 
-**Do not merge #775 until R4 manual journeys pass.**
+**Do not merge #775 until R4-E torture test and manual journeys pass.**
