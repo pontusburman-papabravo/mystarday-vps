@@ -102,4 +102,11 @@ describe('Fas 8 PR-S3 schedule-activity-modals.js', () => {
     assert.match(html, /onclick="confirmRecurrenceMultiDay\(\)"/);
     assert.match(html, /oninput="filterTemplates\(\)"/);
   });
+
+  it('parent-magic-common styles addActivityModal time/date inputs for dark magic', () => {
+    const css = read('public/css/parent-magic-common.css');
+    assert.match(css, /#addActivityModal input\[type="time"]/);
+    assert.match(css, /#addActivityModal #templateList \.text-navy/);
+    assert.match(css, /color-scheme: dark/);
+  });
 });
