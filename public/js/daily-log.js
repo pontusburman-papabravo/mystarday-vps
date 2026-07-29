@@ -96,9 +96,46 @@
     // ── Auth & Init ───────────────────────────────────────
 
     let _dailyLogPageBound = false;
+    let _bootInFlight = null;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
+    }
+
+    function isAndroidNative() {
+      return document.documentElement.classList.contains('is-native-android');
+    }
+
+    function logAndroidStability(step, detail) {
+      if (!isAndroidNative() || typeof window.androidStabilityLog !== 'function') return;
+      window.androidStabilityLog(step, detail);
+    }
+
+    async function fetchChildrenList() {
+      let res = await apiFetch('/api/children');
+      if (!res.ok && res.status === 401 && window.Auth && typeof Auth.silentRefresh === 'function') {
+        logAndroidStability('daily_log_children_401_refresh', { status: res.status });
+        await Auth.silentRefresh();
+        res = await apiFetch('/api/children');
+      }
+      return res;
+    }
+
+    function renderChildTabsLoading() {
+      const tabs = document.getElementById('childTabs');
+      if (!tabs) return;
+      tabs.innerHTML = '<div class="text-text-soft text-sm">' + escHtml(pt('today.shell.loadingChildren')) + '</div>';
+    }
+
+    function renderChildTabsError(message, retryFn) {
+      const tabs = document.getElementById('childTabs');
+      if (!tabs) return;
+      tabs.innerHTML =
+        '<p class="text-sm text-red-500">' + escHtml(message) + '</p>' +
+        '<button type="button" id="childTabsRetryBtn" class="mt-2 px-4 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">' +
+        escHtml(pt('today.retry')) + '</button>';
+      const btn = document.getElementById('childTabsRetryBtn');
+      if (btn) btn.addEventListener('click', () => { void retryFn(); });
     }
 
     function itemLabel(item) {
@@ -108,55 +145,92 @@
 
     async function bootDailyLogPage() {
       if (!document.getElementById('logContent')) return;
+      if (_bootInFlight) return _bootInFlight;
+
+      _bootInFlight = (async () => {
+        try {
+          logAndroidStability('daily_log_boot_start', { path: window.location.pathname });
+
+          let user = null;
+          if (typeof window.authGuard === 'function') {
+            user = await window.authGuard();
+          } else if (window.Auth && Auth.requireAuth()) {
+            user = Auth.getUser();
+          }
+          if (!user) {
+            logAndroidStability('daily_log_boot_no_user', null);
+            return;
+          }
+
+          if (typeof window.initParentAppI18n === 'function') {
+            await initParentAppI18n(user.preferred_locale);
+          }
+
+          if (!_dailyLogPageBound) {
+            _dailyLogPageBound = true;
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.addEventListener('click', () => Auth.logout());
+
+            const childTabsMount = document.getElementById('childTabs');
+            if (childTabsMount && !childTabsMount.dataset.bound) {
+              childTabsMount.dataset.bound = '1';
+              const onChildTabPick = (e) => {
+                const btn = e.target.closest('.child-tab');
+                if (btn && btn.dataset.id) selectChild(btn.dataset.id);
+              };
+              if (isAndroidNative()) {
+                childTabsMount.addEventListener('pointerup', (e) => {
+                  if (e.pointerType === 'mouse' && e.button !== 0) return;
+                  onChildTabPick(e);
+                });
+              } else {
+                childTabsMount.addEventListener('click', onChildTabPick);
+              }
+            }
+          }
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const paramDate = urlParams.get('date');
+          if (paramDate && /^\d{4}-\d{2}-\d{2}$/.test(paramDate)) {
+            currentDateStr = paramDate;
+          }
+
+          if (urlParams.get('print') === '1') {
+            const cid = urlParams.get('childId');
+            window.location.replace('/print-schema' + (cid ? '?childId=' + encodeURIComponent(cid) : ''));
+            return;
+          }
+
+          await loadChildren();
+          await loadCustodyPrintOption();
+          logAndroidStability('daily_log_boot_done', { childCount: children.length, currentChildId: currentChildId });
+        } catch (err) {
+          console.error('[daily-log] boot error:', err);
+          logAndroidStability('daily_log_boot_error', { message: err && err.message });
+          renderChildTabsError(pt('today.errors.loadChildren'), loadChildren);
+        }
+      })();
 
       try {
-        let user = null;
-        if (typeof window.authGuard === 'function') {
-          user = await window.authGuard();
-        } else if (window.Auth && Auth.requireAuth()) {
-          user = Auth.getUser();
-        }
-        if (!user) return;
-
-        if (typeof window.initParentAppI18n === 'function') {
-          await initParentAppI18n(user.preferred_locale);
-        }
-
-        if (!_dailyLogPageBound) {
-          _dailyLogPageBound = true;
-          const logoutBtn = document.getElementById('logoutBtn');
-          if (logoutBtn) logoutBtn.addEventListener('click', () => Auth.logout());
-
-          const childTabsMount = document.getElementById('childTabs');
-          if (childTabsMount && !childTabsMount.dataset.bound) {
-            childTabsMount.dataset.bound = '1';
-            childTabsMount.addEventListener('click', (e) => {
-              const btn = e.target.closest('.child-tab');
-              if (btn && btn.dataset.id) selectChild(btn.dataset.id);
-            });
-          }
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const paramDate = urlParams.get('date');
-        if (paramDate && /^\d{4}-\d{2}-\d{2}$/.test(paramDate)) {
-          currentDateStr = paramDate;
-        }
-
-        if (urlParams.get('print') === '1') {
-          const cid = urlParams.get('childId');
-          window.location.replace('/print-schema' + (cid ? '?childId=' + encodeURIComponent(cid) : ''));
-          return;
-        }
-
-        await loadChildren();
-        await loadCustodyPrintOption();
-      } catch (err) {
-        console.error('[daily-log] boot error:', err);
+        await _bootInFlight;
+      } finally {
+        _bootInFlight = null;
       }
     }
 
-    document.addEventListener('DOMContentLoaded', bootDailyLogPage);
+    function scheduleBootDailyLogPage() {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => { void bootDailyLogPage(); }, { once: true });
+      } else {
+        void bootDailyLogPage();
+      }
+    }
+
+    scheduleBootDailyLogPage();
+
+    if (window.ParentMagicPageBoot && ParentMagicPageBoot.register) {
+      ParentMagicPageBoot.register('daily-log', bootDailyLogPage);
+    }
 
     document.addEventListener('parent-i18n-ready', () => {
       if (!document.getElementById('logContent')) return;
@@ -166,6 +240,22 @@
       } else if (!children.length) {
         void bootDailyLogPage();
       }
+    });
+
+    window.addEventListener('pageshow', () => {
+      if (!document.getElementById('logContent')) return;
+      if (currentChildId) {
+        void loadLog();
+      } else if (!children.length) {
+        void bootDailyLogPage();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!document.getElementById('logContent')) return;
+      if (currentChildId || children.length) return;
+      void bootDailyLogPage();
     });
 
     function openPrintMenuHint() {
@@ -207,16 +297,20 @@
     }
 
     async function loadChildren() {
+      renderChildTabsLoading();
       try {
-        const res = await apiFetch('/api/children');
+        const res = await fetchChildrenList();
         if (!res.ok) {
           let msg = pt('today.errors.loadChildren');
           try {
             const err = await res.json();
             if (err?.error) msg = err.error;
           } catch {}
-          showToast(msg + ' (status ' + res.status + ')', 'error');
+          const detail = msg + ' (status ' + res.status + ')';
+          showToast(detail, 'error');
           console.warn('[daily-log] loadChildren failed — status', res.status, 'url', res.url);
+          logAndroidStability('daily_log_children_failed', { status: res.status });
+          renderChildTabsError(detail, loadChildren);
           return;
         }
         children = await res.json();
@@ -238,7 +332,7 @@
           <button
             type="button"
             class="child-tab px-5 py-2 rounded-full font-semibold border-2 transition-colors"
-            style="min-height:44px"
+            style="min-height:44px;touch-action:manipulation"
             data-id="${c.id}">
             ${renderChildAvatar(c, 24)} ${escHtml(c.name)}
           </button>
@@ -251,7 +345,10 @@
         selectChild(targetChild);
       } catch (err) {
         console.error('[daily-log] loadChildren error:', err);
+        const detail = err && err.message ? String(err.message) : pt('today.errors.loadChildren');
         showToast(pt('today.errors.loadChildren'), 'error');
+        logAndroidStability('daily_log_children_error', { message: detail });
+        renderChildTabsError(pt('today.errors.loadChildren'), loadChildren);
       }
     }
 
