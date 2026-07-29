@@ -402,7 +402,7 @@ function renderDashboardCards() {
           <div class="mb-3 p-3 bg-gray-50 rounded-xl" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between mb-2">
               <div class="text-[10px] font-bold text-text-soft uppercase tracking-wide">📊 Senaste 7 dagarna</div>
-              <a href="/daily-log?childId=${c.id}" class="text-[10px] font-semibold text-gold hover:text-amber-600 transition-colors" onclick="event.stopPropagation()">${typeof window.pt === 'function' ? window.pt('home.readiness.items.incompleteDaysSub') : 'Fyll i i efterhand'} →</a>
+              <a href="/daily-log?childId=${c.id}${c.latest_incomplete_date ? '&date=' + encodeURIComponent(c.latest_incomplete_date) : ''}" class="text-[10px] font-semibold text-gold hover:text-amber-600 transition-colors" onclick="event.stopPropagation()">${typeof window.pt === 'function' ? window.pt('home.readiness.items.incompleteDaysSub') : 'Fyll i i efterhand'} →</a>
             </div>
             <div class="mini-week-chart">${miniChartBars}</div>
           </div>

@@ -684,6 +684,38 @@ describe('daily-log child selection boot', () => {
   });
 });
 
+describe('home quick actions (retroactive + ledig dag modal)', () => {
+  const hub = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-home-hub.js'), 'utf8');
+  const cardActions = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-card-actions.js'), 'utf8');
+  const cards = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-cards.js'), 'utf8');
+  const core = fs.readFileSync(path.join(__dirname, '../src/routes/family/core.js'), 'utf8');
+  const magicCss = fs.readFileSync(path.join(__dirname, '../public/css/parent-magic-common.css'), 'utf8');
+  const dashMagicCss = fs.readFileSync(path.join(__dirname, '../public/css/dashboard-magic.css'), 'utf8');
+
+  it('retroactive quick action links to past date with latest_incomplete_date when available', () => {
+    assert.match(hub, /function retroactiveLogHref/);
+    assert.match(hub, /latest_incomplete_date/);
+    assert.match(hub, /params\.set\('date', date\)/);
+    assert.match(hub, /offsetIsoDate\(-1\)/);
+  });
+
+  it('readiness and dashboard cards pass incomplete date to daily-log', () => {
+    assert.match(core, /latest_incomplete_date/);
+    assert.match(core, /encodeURIComponent\(incDate\)/);
+    assert.match(cards, /latest_incomplete_date/);
+    assert.match(cards, /encodeURIComponent\(c\.latest_incomplete_date\)/);
+  });
+
+  it('ledig dag modal uses solid panel and scroll lock', () => {
+    assert.match(magicCss, /#ledigDagModal > div/);
+    assert.match(magicCss, /#ledigDagModal > \.bg-white\.rounded-2xl/);
+    assert.match(cardActions, /setDashboardModalOpen/);
+    assert.match(cardActions, /closeLedigDagModal/);
+    assert.match(cardActions, /closeGiveStarsPickerModal/);
+    assert.match(dashMagicCss, /dashboard-modal-open/);
+  });
+});
+
 describe('LocaleDateTime formatTime', () => {
   it('formats time in en-GB without Swedish locale default', () => {
     const mockWindow = {

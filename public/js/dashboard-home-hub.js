@@ -207,12 +207,31 @@
     }).join('');
   }
 
+  function offsetIsoDate(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+
   function retroactiveLogHref(children) {
-    const today = new Date().toISOString().slice(0, 10);
+    let date = offsetIsoDate(-1);
+    let childId = null;
     if (children.length === 1) {
-      return '/daily-log?childId=' + encodeURIComponent(children[0].id) + '&date=' + encodeURIComponent(today);
+      childId = children[0].id;
+      if (children[0].latest_incomplete_date) date = children[0].latest_incomplete_date;
+    } else {
+      const withIncomplete = children.filter(function (c) {
+        return (c.incomplete_past_days || 0) > 0;
+      });
+      if (withIncomplete.length === 1) {
+        childId = withIncomplete[0].id;
+        if (withIncomplete[0].latest_incomplete_date) date = withIncomplete[0].latest_incomplete_date;
+      }
     }
-    return '/daily-log';
+    const params = new URLSearchParams();
+    if (childId) params.set('childId', String(childId));
+    params.set('date', date);
+    return '/daily-log?' + params.toString();
   }
 
   function quickActionIcon(key, emojiFallback) {

@@ -6,6 +6,34 @@
  * dashboardStats, children). Handlers exposed on window for inline onclick.
  */
 (function () {
+  function setDashboardModalOpen(open) {
+    document.body.classList.toggle('dashboard-modal-open', open);
+  }
+
+  function bindDashboardModalBackdrop(modalId, closeFn) {
+    const el = document.getElementById(modalId);
+    if (!el || el.dataset.backdropBound === '1') return;
+    el.dataset.backdropBound = '1';
+    el.addEventListener('click', function (e) {
+      if (e.target === el) closeFn();
+    });
+  }
+
+  function closeLedigDagModal() {
+    const el = document.getElementById('ledigDagModal');
+    if (el) el.classList.add('hidden');
+    setDashboardModalOpen(false);
+  }
+
+  function closeGiveStarsPickerModal() {
+    const el = document.getElementById('giveStarsPickerModal');
+    if (el) el.classList.add('hidden');
+    setDashboardModalOpen(false);
+  }
+
+  bindDashboardModalBackdrop('ledigDagModal', closeLedigDagModal);
+  bindDashboardModalBackdrop('giveStarsPickerModal', closeGiveStarsPickerModal);
+
 async function toggleInlineRedemption(childId, childName) {
   const panel = document.getElementById(`inline-redemption-${childId}`);
   if (!panel) return;
@@ -118,12 +146,13 @@ function openGiveStarsQuick() {
   // Render picker list
   const list = document.getElementById('giveStarsPickerList');
   list.innerHTML = ch.map(c => `
-    <button onclick="document.getElementById('giveStarsPickerModal').classList.add('hidden'); openGiveStarsModal('${c.id}', '${escHtml(c.name)}', '${c.emoji || '⭐'}')"
+    <button onclick="closeGiveStarsPickerModal(); openGiveStarsModal('${c.id}', '${escHtml(c.name)}', '${c.emoji || '⭐'}')"
       class="flex items-center gap-3 p-3 rounded-xl border-2 border-lavender hover:border-gold hover:bg-gold-light text-left transition-all w-full">
       <span class="text-2xl">${c.emoji || '⭐'}</span>
       <span class="font-semibold text-navy">${escHtml(c.name)}</span>
     </button>`).join('');
   document.getElementById('giveStarsPickerModal').classList.remove('hidden');
+  setDashboardModalOpen(true);
 }
 
 // ── Ledig dag quick button (header) ───────────────────────
@@ -165,6 +194,7 @@ async function openLedigDagModal() {
   }).join('');
 
   document.getElementById('ledigDagModal').classList.remove('hidden');
+  setDashboardModalOpen(true);
 }
 
 async function ledigDagToggle(childId, logId, currentlyPaused) {
@@ -175,8 +205,7 @@ async function ledigDagToggle(childId, logId, currentlyPaused) {
     if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
     showToast(currentlyPaused ? 'Schema återupptaget!' : '🏠 Markerat som ledig dag!');
     await loadDashboardCards();
-    // Refresh the modal with updated state
-    document.getElementById('ledigDagModal').classList.add('hidden');
+    closeLedigDagModal();
   } catch (err) {
     showToast('Nätverksfel', true);
   }
@@ -221,6 +250,8 @@ async function dashToggleActivity(itemId, childId, currentlyCompleted) {
   window.togglePauseDay = togglePauseDay;
   window.openGiveStarsQuick = openGiveStarsQuick;
   window.openLedigDagModal = openLedigDagModal;
+  window.closeLedigDagModal = closeLedigDagModal;
+  window.closeGiveStarsPickerModal = closeGiveStarsPickerModal;
   window.ledigDagToggle = ledigDagToggle;
   window.dashToggleActivity = dashToggleActivity;
 })();
