@@ -165,7 +165,7 @@
       ? _goalData.stars_toward_goal
       : (_goalData.star_balance != null ? _goalData.star_balance : (_goalData.current_stars || 0));
     const target = goal.star_cost || _goalData.target_stars || '?';
-    const goalLabel = goal.reward_name || goal.name || '';
+    const goalLabel = goal.reward_name_display || goal.display_name || goal.reward_name || goal.name || '';
     const goalIcon = goal.reward_icon || goal.icon || '🎁';
     const gridHtml = starGridHtml(current, target, goalIcon);
     return '<div id="childGoalProgressMount" class="mx-4 mb-4 p-4 bg-white border border-lavender rounded-2xl" aria-live="polite">' +

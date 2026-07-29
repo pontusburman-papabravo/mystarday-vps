@@ -53,6 +53,13 @@ describe('i18n child UI leaks — static wiring', () => {
     const src = read('public/js/child-dashboard-photo-cards.js');
     assert.match(src, /t\('steps\.substepsLabel'\)/);
     assert.doesNotMatch(src, /Delsteg/);
+    assert.match(src, /activityTitle\(item\)/);
+    assert.match(src, /display_name/);
+  });
+
+  it('photo activity cards do not clip expanded sub-steps', () => {
+    const html = read('public/child-dashboard.html');
+    assert.match(html, /\.photo-activity-card\s*\{[^}]*overflow:\s*visible/s);
   });
 
   it('child-dashboard loads achievement i18n helper before trophy views', () => {

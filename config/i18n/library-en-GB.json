@@ -125,5 +125,39 @@
       "title": "Reports",
       "sub": "Progress and sharing"
     }
+  },
+  "standard": {
+    "segments": {
+      "schedules": "📅 Schedules",
+      "activities": "📋 Activities",
+      "rewards": "🏆 Rewards"
+    },
+    "filters": {
+      "all": "All",
+      "preschool": "Preschool",
+      "school": "School",
+      "weekend": "Weekend",
+      "break": "Break",
+      "evening": "Evening"
+    },
+    "activitiesHint": "Copy standard activities — including steps — to your library. <strong>Your own photos</strong> are added under My library → Activities or Image archive (standard templates use emoji).",
+    "rewardsHint": "Select and copy standard rewards to your family.",
+    "noSchedulesMatch": "No schedules match the filter.",
+    "noSchedules": "No standard schedules available.",
+    "noActivities": "No standard activities available.",
+    "noRewards": "No standard rewards available.",
+    "activitiesCount": "{{count}} activities",
+    "substepsCount": "{{count}} steps",
+    "copySchedule": "📥 Copy schedule",
+    "copyToChild": "📥 Copy to child",
+    "copy": "📥 Copy",
+    "copyAll": "📥 Copy all ({{count}})",
+    "copied": "✓ Copied",
+    "back": "← Back",
+    "loadError": "Could not load the standard library",
+    "genericError": "Something went wrong",
+    "copying": "Copying…",
+    "copyFailed": "Could not copy",
+    "copyFailedRewards": "Could not copy rewards"
   }
 }

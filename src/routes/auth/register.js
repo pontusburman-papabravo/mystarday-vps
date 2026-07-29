@@ -228,7 +228,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
           const timeGroup = resolveTimeGroup(act.category_name);
           const combinedSort = resolveTimeOffset(act.category_name) + (act.sort_order ?? 0);
           const tplResult = await client.query(
-            'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8) RETURNING id',
+            'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, \'admin\') RETURNING id',
             [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.grp, combinedSort]
           );
 
@@ -251,7 +251,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
           const timeGroup = resolveTimeGroup(act.category);
           const combinedSort = resolveTimeOffset(act.category) + (act.sort_order ?? 0);
           await client.query(
-            'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8)',
+            'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, \'admin\')',
             [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.schema_type, combinedSort]
           );
         }

@@ -542,7 +542,7 @@ function renderNowCard(item, canToggle) {
          data-item-name="${escHtml(item.name)}"
          data-item-id="${item.id}"
          data-sub-step-count="${subStepCount}">
-      <div class="now-badge"><div class="pulse-dot"></div> NU</div>
+      <div class="now-badge"><div class="pulse-dot"></div> ${cda('today.zoneNow')}</div>
       ${transitionHtml}
       <div class="now-activity">
         <div class="now-emoji">${window.ActivityVisual ? ActivityVisual.inline(item) : (item.icon || '⭐')}</div>

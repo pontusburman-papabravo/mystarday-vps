@@ -5,7 +5,30 @@
 // Does NOT own: activity/reward search UI in own-library tabs (library.js),
 //               schema children/copy dialogs (library-schema.js).
 
-// ─── Standard Library ─────────────────────────────────────
+function libPt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
+function stdActivityLabel(a) {
+  return a.display_name || a.name || '';
+}
+
+function stdScheduleLabel(s) {
+  return s.display_name || s.name || '';
+}
+
+function stdScheduleDescription(s) {
+  return s.display_description || s.description || '';
+}
+
+const STD_SECTION_EMOJI = { morgon: '🌅', dag: '☀️', kvall: '🌙' };
+
+function stdSectionLabel(sec) {
+  const emoji = STD_SECTION_EMOJI[sec] || '';
+  const label = libPt('schedule.sections.' + sec);
+  if (!label || label === 'schedule.sections.' + sec) return sec;
+  return emoji ? emoji + ' ' + label : label;
+}
 let _standardLoaded = false;
 let standardActivities = [];
 let standardDefaultRewards = [];
@@ -21,7 +44,7 @@ async function loadStandardLibrary() {
       window.apiFetch('/api/standard-library/rewards'),
       window.apiFetch('/api/standard-library/schedules'),
     ]);
-    if (!templatesRes.ok) { container.innerHTML = '<p class="text-red-500 col-span-full text-center py-8">Kunde inte ladda standardbiblioteket</p>'; return; }
+    if (!templatesRes.ok) { container.innerHTML = '<p class="text-red-500 col-span-full text-center py-8">' + escHtml(libPt('library.standard.loadError')) + '</p>'; return; }
     standardActivities = await templatesRes.json();
     if (rewardsRes.ok) {
       standardDefaultRewards = await rewardsRes.json();
@@ -36,7 +59,7 @@ async function loadStandardLibrary() {
     switchStdSubTab('schedules');  // Default sub-tab
     if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
   } catch {
-    container.innerHTML = '<p class="text-red-500 col-span-full text-center py-8">Något gick fel</p>';
+    container.innerHTML = '<p class="text-red-500 col-span-full text-center py-8">' + escHtml(libPt('library.standard.genericError')) + '</p>';
   }
 }
 
@@ -44,11 +67,11 @@ function renderStdSchedulesInStdTab() {
   const container = document.getElementById('stdSchedulesContainer');
   if (!container) return;
   if (standardSchedules.length === 0) {
-    container.innerHTML = '<p class="text-text-soft text-center py-6 col-span-full">Inga standardscheman tillgängliga.</p>';
+    container.innerHTML = '<p class="text-text-soft text-center py-6 col-span-full">' + escHtml(libPt('library.standard.noSchedules')) + '</p>';
     return;
   }
 
-  const sectionLabels = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌙 Kväll' };
+  const sectionLabels = { morgon: stdSectionLabel('morgon'), dag: stdSectionLabel('dag'), kvall: stdSectionLabel('kvall') };
 
   container.innerHTML = standardSchedules.map(s => {
     const bySection = {};
@@ -73,11 +96,11 @@ function renderStdSchedulesInStdTab() {
           <div class="flex items-center gap-2">
             <span class="text-2xl">${s.icon || '📋'}</span>
             <div>
-              <h4 class="font-heading font-bold text-navy">${escHtml(s.name)}</h4>
-              <p class="text-xs text-text-soft">${escHtml(s.description || '')}</p>
+              <h4 class="font-heading font-bold text-navy">${escHtml(stdScheduleLabel(s))}</h4>
+              <p class="text-xs text-text-soft">${escHtml(stdScheduleDescription(s))}</p>
             </div>
           </div>
-          <div class="text-xs text-text-soft mt-1">${(s.items || []).length} aktiviteter</div>
+          <div class="text-xs text-text-soft mt-1">${libPt('library.standard.activitiesCount', { count: (s.items || []).length })}</div>
         </div>
         <div class="px-4 py-3 max-h-72 overflow-y-auto">
           ${sectionsHtml}
@@ -85,7 +108,7 @@ function renderStdSchedulesInStdTab() {
         <div class="px-4 py-3 border-t border-lavender bg-sky/30 space-y-2">
           <button onclick="openScheduleCopyDialog('${s.id}', '${escHtml(s.name)}')"
             class="w-full px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
-            📥 Kopiera till barn
+            ${escHtml(libPt('library.standard.copyToChild'))}
           </button>
           ${_libIsAdmin ? `<a href="/admin#lib-schedules" target="_blank"
             class="block w-full px-4 py-2 bg-navy/10 hover:bg-navy/20 text-navy rounded-xl font-semibold text-xs transition-colors text-center">
@@ -100,7 +123,7 @@ function renderStdSchedulesInStdTab() {
 function renderStandardLibrary() {
   const container = document.getElementById('standardLibraryContainer');
   if (!standardActivities || standardActivities.length === 0) {
-    container.innerHTML = '<p class="text-text-soft col-span-full text-center py-8">Inga standardaktiviteter tillgängliga.</p>';
+    container.innerHTML = '<p class="text-text-soft col-span-full text-center py-8">' + escHtml(libPt('library.standard.noActivities')) + '</p>';
     return;
   }
 
@@ -116,7 +139,7 @@ function renderStandardLibrary() {
       <div class="col-span-full mb-2">
         <button id="copy-all-std-btn" onclick="copyAllStandardActivities()"
           class="px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors shadow-sm">
-          📥 Kopiera alla (${notCopied.length} st)
+          ${escHtml(libPt('library.standard.copyAll', { count: notCopied.length }))}
         </button>
       </div>
     `;
@@ -126,16 +149,16 @@ function renderStandardLibrary() {
   html += '<div class="col-span-full space-y-1">';
   html += standardActivities.map(a => {
     const subStepsBadge = (a.sub_steps && a.sub_steps.length > 0)
-      ? `<span class="text-xs text-text-soft">(${a.sub_steps.length} delsteg)</span>`
+      ? `<span class="text-xs text-text-soft">(${libPt('library.standard.substepsCount', { count: a.sub_steps.length })})</span>`
       : '';
 
     if (a.already_copied) {
       return `
         <div class="flex items-center gap-2 bg-mint/30 rounded-xl px-3 py-2 border border-green-100">
           <span class="text-lg">${a.icon || '📌'}</span>
-          <span class="flex-1 text-sm font-medium text-navy">${escHtml(a.name)} ${subStepsBadge}</span>
+          <span class="flex-1 text-sm font-medium text-navy">${escHtml(stdActivityLabel(a))} ${subStepsBadge}</span>
           <span class="text-xs text-text-soft">${'⭐'.repeat(a.star_value)}</span>
-          <span class="text-xs text-green-600 font-semibold whitespace-nowrap">✓ Kopierad</span>
+          <span class="text-xs text-green-600 font-semibold whitespace-nowrap">✓ ${escHtml(libPt('library.standard.copied'))}</span>
         </div>
       `;
     }
@@ -143,11 +166,11 @@ function renderStandardLibrary() {
     return `
       <div class="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-gray-100 hover:border-gold transition-colors">
         <span class="text-lg">${a.icon || '📌'}</span>
-        <span class="flex-1 text-sm font-medium text-navy">${escHtml(a.name)} ${subStepsBadge}</span>
+        <span class="flex-1 text-sm font-medium text-navy">${escHtml(stdActivityLabel(a))} ${subStepsBadge}</span>
         <span class="text-xs text-text-soft">${'⭐'.repeat(a.star_value)}</span>
         <button onclick="copyStandardActivity('${a.id}', this)"
           class="px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-xs transition-colors whitespace-nowrap">
-          📥 Kopiera
+          ${escHtml(libPt('library.standard.copy'))}
         </button>
       </div>
     `;
@@ -169,12 +192,12 @@ async function copyStandardActivity(activityId, btn) {
       showToast(data.message || 'Aktiviteten har kopierats!');
       await Promise.all([loadStandardLibrary(), loadActivities()]);
     } else {
-      showToast(data.error || 'Kunde inte kopiera', true);
+      showToast(data.error || libPt('library.standard.copyFailed'), true);
       btn.disabled = false;
       btn.textContent = origText;
     }
   } catch {
-    showToast('Något gick fel vid kopiering', true);
+    showToast(libPt('library.standard.genericError'), true);
     btn.disabled = false;
     btn.textContent = origText;
   }
@@ -184,7 +207,7 @@ async function copyAllStandardActivities() {
   const btn = document.getElementById('copy-all-std-btn');
   if (!btn) return;
   btn.disabled = true;
-  btn.textContent = 'Kopierar…';
+  btn.textContent = libPt('library.standard.copying');
   const ids = standardActivities.filter(a => !a.already_copied).map(a => a.id);
   try {
     const res = await window.apiFetch('/api/standard-library/activities/copy-batch', {
@@ -197,12 +220,12 @@ async function copyAllStandardActivities() {
       showToast(data.message || 'Aktiviteterna har kopierats!');
       await Promise.all([loadStandardLibrary(), loadActivities()]);
     } else {
-      showToast(data.error || 'Kunde inte kopiera', true);
+      showToast(data.error || libPt('library.standard.copyFailed'), true);
       btn.disabled = false;
-      btn.textContent = `📥 Kopiera alla (${ids.length} st)`;
+      btn.textContent = libPt('library.standard.copyAll', { count: ids.length });
     }
   } catch {
-    showToast('Något gick fel vid kopiering', true);
+    showToast(libPt('library.standard.genericError'), true);
     btn.disabled = false;
     btn.textContent = `📥 Kopiera alla (${ids.length} st)`;
   }
@@ -212,7 +235,7 @@ function renderStandardRewards() {
   const container = document.getElementById('standardRewardsContainer');
   if (!container) return;
   if (standardDefaultRewards.length === 0) {
-    container.innerHTML = '<p class="text-text-soft text-center py-6">Inga standardbelöningar tillgängliga.</p>';
+    container.innerHTML = '<p class="text-text-soft text-center py-6">' + escHtml(libPt('library.standard.noRewards')) + '</p>';
     return;
   }
   container.innerHTML = standardDefaultRewards.map(r => {
@@ -229,7 +252,7 @@ function renderStandardRewards() {
               <div class="text-xs text-text-soft mt-0.5">${r.star_cost} ⭐</div>
             </div>
           </div>
-          <span class="flex items-center gap-1 text-xs text-green-600 font-semibold whitespace-nowrap flex-shrink-0"><span>✓</span> Kopierad</span>
+          <span class="flex items-center gap-1 text-xs text-green-600 font-semibold whitespace-nowrap flex-shrink-0"><span>✓</span> ${escHtml(libPt('library.standard.copied'))}</span>
         </div>
       `;
     }
@@ -286,7 +309,7 @@ async function copySelectedRewards() {
   if (ids.length === 0) return;
   const btn = document.getElementById('copySelectedRewardsBtn');
   btn.disabled = true;
-  btn.textContent = 'Kopierar…';
+  btn.textContent = libPt('library.standard.copying');
   try {
     const res = await window.apiFetch('/api/standard-library/rewards/copy-batch', {
       method: 'POST',
@@ -302,10 +325,10 @@ async function copySelectedRewards() {
       renderStandardRewards();
       await loadRewards();
     } else {
-      showToast(data.error || 'Kunde inte kopiera belöningarna', true);
+      showToast(data.error || libPt('library.standard.copyFailedRewards'), true);
     }
   } catch {
-    showToast('Något gick fel vid kopiering', true);
+    showToast(libPt('library.standard.genericError'), true);
   } finally {
     btn.disabled = false;
     updateCopySelectedBtn();
@@ -316,7 +339,7 @@ async function copyDefaultReward(rewardId) {
   const btn = document.getElementById(`copy-reward-btn-${rewardId}`);
   if (!btn) return;
   btn.disabled = true;
-  btn.textContent = 'Kopierar…';
+  btn.textContent = libPt('library.standard.copying');
   try {
     const res = await window.apiFetch(`/api/standard-library/rewards/${rewardId}/copy`, { method: 'POST' });
     const data = await res.json();
@@ -328,12 +351,12 @@ async function copyDefaultReward(rewardId) {
       renderStandardRewards();
       await loadRewards();
     } else {
-      showToast(data.error || 'Kunde inte kopiera belöningen', true);
+      showToast(data.error || libPt('library.standard.copyFailed'), true);
       btn.disabled = false;
-      btn.textContent = '📥 Kopiera';
+      btn.textContent = libPt('library.standard.copy');
     }
   } catch {
-    showToast('Något gick fel vid kopiering', true);
+    showToast(libPt('library.standard.genericError'), true);
     btn.disabled = false;
     btn.textContent = '📥 Kopiera';
   }

@@ -39,16 +39,32 @@ function localizeLoginError(data) {
 
 async function bootstrapChildLoginI18n() {
   if (typeof window.initChildAppI18n !== 'function') return;
+  let preferredLocale = null;
+  let englishChildEnabled = false;
   try {
     const res = await fetch('/api/auth/login-picker-children', { credentials: 'same-origin' });
     const ctx = res.ok ? await res.json() : {};
-    await initChildAppI18n({
-      preferredLocale: ctx.child_ui_locale || ctx.preferred_locale,
-      englishChildEnabled: ctx.english_child_experience_enabled,
-    });
+    preferredLocale = ctx.child_ui_locale || ctx.preferred_locale || null;
+    if (typeof ctx.english_child_experience_enabled === 'boolean') {
+      englishChildEnabled = ctx.english_child_experience_enabled;
+    }
   } catch (_) {
-    await initChildAppI18n({});
+    /* offline / logged out */
   }
+  if (!preferredLocale && window.I18n) {
+    try {
+      preferredLocale = sessionStorage.getItem(I18n.STORAGE_KEY)
+        || localStorage.getItem(I18n.STORAGE_KEY);
+      const flagRaw = sessionStorage.getItem('sd_english_child_experience')
+        || localStorage.getItem('sd_english_child_experience');
+      if (flagRaw === '1') englishChildEnabled = true;
+      if (flagRaw === '0') englishChildEnabled = false;
+    } catch (_) { /* ignore */ }
+  }
+  await initChildAppI18n({
+    preferredLocale,
+    englishChildEnabled,
+  });
 }
 
 function applyChildLoginStaticCopy() {
@@ -65,6 +81,17 @@ function applyChildLoginStaticCopy() {
   if (keypad) keypad.setAttribute('aria-label', tx('login.keypadAria'));
   const manualInput = document.getElementById('clManualNameInput');
   if (manualInput) manualInput.placeholder = tx('login.namePlaceholder');
+  const noSession = document.getElementById('clNoSessionState');
+  if (noSession && !noSession.classList.contains('hidden')) {
+    const hint = noSession.querySelector('p');
+    if (hint) {
+      hint.textContent = loadKnownChildren().length > 0
+        ? tx('login.siblingNameHint')
+        : tx('login.nameHint');
+    }
+  }
+  const continueBtn = noSession && noSession.querySelector('button[type="submit"]');
+  if (continueBtn) continueBtn.textContent = tx('login.continue');
 }
 
 // ── Avatar rendering helper (same as dom-utils.js) ──────────────────────────
@@ -245,6 +272,7 @@ function renderChildList(initOpts) {
         if (empty) empty.classList.add('hidden');
         if (addRow) addRow.classList.remove('hidden');
         noSession.classList.remove('hidden');
+        applyChildLoginStaticCopy();
       } else {
         if (noSession) noSession.classList.add('hidden');
         if (empty) empty.classList.remove('hidden');

@@ -33,6 +33,8 @@ const {
   ChildSetGoalSchema,
   UUIDParam,
 } = require('../lib/schemas');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { localizeRewardRow, localizeRewardItems } = require('../lib/family-content-display');
 
 // ─── SSE helper: look up family_id for a child ───────────
 async function getChildFamilyId(childId) {
@@ -461,10 +463,13 @@ childRouter.get('/goal', async (req, res) => {
   try {
     const childId = req.user.id;
     const balance = await getFullStarBalance(childId);
+    const familyId = await getChildFamilyId(childId);
+    const locale = await getFamilyPreferredLocale(familyId);
 
     const goalResult = await db.query(
       `SELECT crg.id, crg.status, crg.created_at,
-              r.id AS reward_id, r.name AS reward_name, r.icon AS reward_icon, r.star_cost
+              r.id AS reward_id, r.name AS reward_name, r.icon AS reward_icon, r.star_cost,
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM child_reward_goal crg
        LEFT JOIN reward r ON r.id = crg.reward_id
        WHERE crg.child_id = $1 AND crg.status = 'active'
@@ -474,7 +479,8 @@ childRouter.get('/goal', async (req, res) => {
 
     const pendingChangeResult = await db.query(
       `SELECT crgcr.id, crgcr.status, crgcr.created_at,
-              rt.name AS to_reward_name, rt.icon AS to_reward_icon, rt.star_cost AS to_star_cost
+              rt.name AS to_reward_name, rt.icon AS to_reward_icon, rt.star_cost AS to_star_cost,
+              rt.source_default_id, COALESCE(rt.modified_by_family, false) AS modified_by_family
        FROM child_reward_goal_change_request crgcr
        JOIN reward rt ON rt.id = crgcr.to_reward_id
        WHERE crgcr.child_id = $1 AND crgcr.status = 'pending'
@@ -482,7 +488,17 @@ childRouter.get('/goal', async (req, res) => {
       [childId]
     );
 
-    const goal = goalResult.rows[0] || null;
+    let goal = goalResult.rows[0] || null;
+    if (goal) {
+      goal = await localizeRewardRow(goal, locale);
+    }
+
+    let pendingChangeRequest = pendingChangeResult.rows[0] || null;
+    if (pendingChangeRequest) {
+      const [localized] = await localizeRewardItems([pendingChangeRequest], locale);
+      pendingChangeRequest = localized;
+    }
+
     let progress = 0;
     if (goal && goal.star_cost > 0) {
       progress = Math.min(100, Math.round((balance / goal.star_cost) * 100));
@@ -492,7 +508,7 @@ childRouter.get('/goal', async (req, res) => {
       goal,
       star_balance: balance,
       progress_pct: progress,
-      pending_change_request: pendingChangeResult.rows[0] || null,
+      pending_change_request: pendingChangeRequest,
     });
   } catch (err) {
     console.error('[GOALS] Child goal get error:', err);

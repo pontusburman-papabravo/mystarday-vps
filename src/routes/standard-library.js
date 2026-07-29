@@ -12,6 +12,15 @@ const { requireFeature } = require('../middleware/feature-gate');
 const { syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
 const { insertFamilyActivityFromDefault } = require('../lib/standard-library-copy');
+const { getFamilyLocale } = require('../lib/onboarding-locale');
+const {
+  CONTENT_SCOPE,
+  localizeActivityItems,
+  localizeRewardItems,
+  localizeStandardSchedules,
+} = require('../lib/family-content-display');
+
+const STANDARD_LIBRARY_SCOPE = { contentScope: CONTENT_SCOPE.STANDARD_LIBRARY };
 
 const router = express.Router();
 router.use(requireParent);
@@ -45,7 +54,8 @@ router.get('/', async (req, res) => {
       already_copied: existingNames.has(a.name.toLowerCase()),
     }));
 
-    res.json(activities);
+    const locale = await getFamilyLocale(req.user.familyId);
+    res.json(await localizeActivityItems(activities, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] List error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -254,7 +264,8 @@ router.get('/rewards', async (req, res) => {
       already_copied: copiedIds.has(r.id),
     }));
 
-    res.json(rewards);
+    const locale = await getFamilyLocale(req.user.familyId);
+    res.json(await localizeRewardItems(rewards, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Rewards list error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -403,7 +414,9 @@ router.get('/schedules', async (req, res) => {
       }
     }
 
-    res.json(Array.from(scheduleMap.values()));
+    const schedules = Array.from(scheduleMap.values());
+    const locale = await getFamilyLocale(req.user.familyId);
+    res.json(await localizeStandardSchedules(schedules, locale));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Schedules list error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -462,8 +475,8 @@ router.post('/schedules/:id/copy', async (req, res) => {
           activityTemplateMap[item.name] = existing.rows[0].id;
         } else {
           const newTemplate = await client.query(
-            `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-             VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
+            `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, source)
+             VALUES ($1, $2, $3, $4, false, $5, 'admin') RETURNING id`,
             [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
           );
           const templateId = newTemplate.rows[0].id;

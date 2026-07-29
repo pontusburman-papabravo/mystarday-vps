@@ -317,10 +317,17 @@
     wireControls();
 
     if (typeof window.initParentAppI18n === 'function') {
-      const user = window.Auth && typeof Auth.getCurrentUser === 'function'
-        ? await Auth.getCurrentUser()
-        : null;
-      await initParentAppI18n(user && user.preferred_locale);
+      let preferredLocale = null;
+      if (window.Auth && typeof Auth.getUser === 'function') {
+        preferredLocale = Auth.getUser()?.preferred_locale || null;
+      }
+      if (!preferredLocale && window.Auth && typeof Auth.api === 'function') {
+        try {
+          const me = await Auth.api('/api/auth/me');
+          preferredLocale = me?.preferred_locale || null;
+        } catch (_) { /* ignore */ }
+      }
+      await initParentAppI18n(preferredLocale);
     }
 
     document.addEventListener('locale-changed', function () {

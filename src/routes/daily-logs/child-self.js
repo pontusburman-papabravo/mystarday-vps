@@ -26,7 +26,7 @@ const {
   getChildOwnedLogItem,
 } = require('./helpers');
 const { getFamilyPreferredLocale } = require('../../lib/family-locale');
-const { localizeActivityItems } = require('../../lib/family-content-display');
+const { localizeActivityItems, resolveActivityDisplayName } = require('../../lib/family-content-display');
 
 const childSelfRouter = express.Router();
 childSelfRouter.use(scopeRouterToPath('/daily-log', '/daily-log-items', '/view-type', '/weekly-schedule'));
@@ -103,6 +103,29 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     // Attach sub_step_count to each sorted item
     for (const item of sortedItems) {
       item.sub_step_count = subStepCountMap[item.activity_template_id] || 0;
+    }
+
+    // ── Enrich items with activity_template source (locale gating) ─────
+    const templateMetaMap = {};
+    if (templateIds.length > 0) {
+      const metaResult = await db.query(
+        `SELECT id, source, schema_type, icon, star_value, sort_order
+         FROM activity_template WHERE id = ANY($1::uuid[])`,
+        [templateIds]
+      );
+      for (const row of metaResult.rows) {
+        templateMetaMap[row.id] = row;
+      }
+    }
+    for (const item of sortedItems) {
+      const tpl = templateMetaMap[item.activity_template_id];
+      if (tpl) {
+        item.source = tpl.source;
+        item.schema_type = tpl.schema_type;
+        if (!item.icon) item.icon = tpl.icon;
+        if (item.star_value == null) item.star_value = tpl.star_value;
+        if (item.sort_order == null) item.sort_order = tpl.sort_order;
+      }
     }
 
     // ── Enrich items with seven_questions from activity templates (teacch) ──
@@ -539,7 +562,23 @@ childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
       [req.params.itemId, item.activity_template_id]
     );
 
-    res.json({ sub_steps: stepsResult.rows });
+    const familyId = await getChildFamilyId(req.user.id);
+    const locale = await getFamilyPreferredLocale(familyId);
+    const tplResult = await db.query(
+      `SELECT source, icon, schema_type, star_value, sort_order
+       FROM activity_template WHERE id = $1`,
+      [item.activity_template_id]
+    );
+    const tplMeta = tplResult.rows[0] || null;
+    const sub_steps = await Promise.all(
+      stepsResult.rows.map(async (step) => {
+        const displayName = await resolveActivityDisplayName(locale, step.name, tplMeta);
+        if (displayName === step.name) return step;
+        return { ...step, display_name: displayName };
+      })
+    );
+
+    res.json({ sub_steps });
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Sub-steps get error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

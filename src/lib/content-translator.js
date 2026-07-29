@@ -27,7 +27,11 @@ function rememberInMemory(key, value) {
 
 function staticLookup(text, targetLocale) {
   if (targetLocale !== 'en-GB' || !text) return null;
-  return maps.activities[text] || maps.rewards[text] || null;
+  return maps.activities[text]
+    || maps.rewards[text]
+    || maps.schedules?.[text]
+    || maps.scheduleDescriptions?.[text]
+    || null;
 }
 
 function looksAlreadyEnglish(text) {

@@ -10,6 +10,15 @@ const I18n = {
 
   STORAGE_KEY: 'sd_preferred_locale',
 
+  _readStoredLocale() {
+    try {
+      return sessionStorage.getItem(this.STORAGE_KEY)
+        || localStorage.getItem(this.STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  },
+
   /**
    * Initialise locale: explicit > sessionStorage > /api/auth/me > Accept-Language > sv-SE
    * @param {string} [explicitLang]
@@ -28,7 +37,7 @@ const I18n = {
 
     this._ready = (async () => {
       let lang = requested
-        || this._normalize(sessionStorage.getItem(this.STORAGE_KEY));
+        || this._normalize(this._readStoredLocale());
 
       if (!lang && window.Auth && typeof Auth.getUser === 'function') {
         const user = Auth.getUser();
@@ -94,6 +103,7 @@ const I18n = {
         this.lang = canonical;
       }
       sessionStorage.setItem(this.STORAGE_KEY, this.lang);
+      try { localStorage.setItem(this.STORAGE_KEY, this.lang); } catch { /* ignore */ }
       this._setHtmlLang();
       this.apply();
     } catch (err) {

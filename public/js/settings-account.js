@@ -19,6 +19,10 @@ function showGoogleAuthUI() {
   return !!(window.Platform && window.Platform.isGoogleSignInAvailable && Platform.isGoogleSignInAvailable());
 }
 
+function pt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 // ── Render the "Konto & inloggning" section ─────────────────────────────────
 async function initAccountSection() {
   const sectionId = 'accountSection';
@@ -37,7 +41,7 @@ async function initAccountSection() {
 
     // ── Build inner HTML ────────────────────────────────────────────────────
     let html = `
-      <h3 class="text-xl font-heading font-bold text-navy mb-4">Konto & inloggning</h3>
+      <h3 class="text-xl font-heading font-bold text-navy mb-4">${pt('settings.account.title')}</h3>
     `;
 
     // ── Apple status: iOS + linked ───────────────────────────────────────────
@@ -45,7 +49,7 @@ async function initAccountSection() {
       html += `
         <div class="mb-4 flex items-center gap-3 p-3 bg-mint border border-green-200 rounded-xl">
           <span class="text-green-600 text-lg">✓</span>
-          <span class="text-sm font-semibold text-navy">Apple-konto kopplat</span>
+          <span class="text-sm font-semibold text-navy">${pt('settings.account.appleLinked')}</span>
         </div>
       `;
     }
@@ -54,7 +58,7 @@ async function initAccountSection() {
       html += `
         <div class="mb-4 flex items-center gap-3 p-3 bg-mint border border-green-200 rounded-xl">
           <span class="text-green-600 text-lg">✓</span>
-          <span class="text-sm font-semibold text-navy">Google-konto kopplat</span>
+          <span class="text-sm font-semibold text-navy">${pt('settings.account.googleLinked')}</span>
         </div>
       `;
     }
@@ -65,14 +69,14 @@ async function initAccountSection() {
       if (hasAppleLinked && !showAppleAuthUI()) {
         html += `
           <div class="mb-4 p-3 bg-sky border border-lavender rounded-xl">
-            <p class="text-sm text-navy">Du kopplade Apple-kontot på en iPhone. För att logga in här, lägg till ett lösenord nedan.</p>
+            <p class="text-sm text-navy">${pt('settings.account.appleLinkedOnIosHint')}</p>
           </div>
         `;
       }
       if (hasGoogleLinked && !showGoogleAuthUI()) {
         html += `
           <div class="mb-4 p-3 bg-sky border border-lavender rounded-xl">
-            <p class="text-sm text-navy">Du kopplade Google-kontot på en annan enhet. För att logga in här, lägg till ett lösenord nedan.</p>
+            <p class="text-sm text-navy">${pt('settings.account.googleLinkedElsewhereHint')}</p>
           </div>
         `;
       }
@@ -80,22 +84,22 @@ async function initAccountSection() {
       html += `
         <form id="addPasswordForm" class="space-y-4">
           <div>
-            <label class="block text-sm font-semibold text-navy mb-1">Nytt lösenord</label>
+            <label class="block text-sm font-semibold text-navy mb-1">${pt('settings.account.newPassword')}</label>
             <input type="password" id="addNewPw" required minlength="8"
-              placeholder="Minst 8 tecken"
+              placeholder="${pt('settings.account.minCharsPlaceholder')}"
               class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
           </div>
           <div>
-            <label class="block text-sm font-semibold text-navy mb-1">Bekräfta lösenord</label>
+            <label class="block text-sm font-semibold text-navy mb-1">${pt('settings.account.confirmPassword')}</label>
             <input type="password" id="addConfirmPw" required minlength="8"
-              placeholder="Skriv lösenordet igen"
+              placeholder="${pt('settings.account.repeatPasswordPlaceholder')}"
               class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
           </div>
           <button type="submit" id="addPasswordBtn"
             class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-            Spara lösenord
+            ${pt('settings.account.savePassword')}
           </button>
-          <p class="text-xs text-text-soft text-center">För inloggning utan Apple</p>
+          <p class="text-xs text-text-soft text-center">${pt('settings.account.passwordForNonApple')}</p>
           <div id="addPwMsg" class="text-sm min-h-[1.4em]"></div>
         </form>
       `;
@@ -107,26 +111,26 @@ async function initAccountSection() {
     if (hasPassword) {
       html += `
         <div id="changePasswordBlock">
-          <p class="text-sm text-text-soft mb-3">Byt lösenord för att behålla tillgång till kontot.</p>
+          <p class="text-sm text-text-soft mb-3">${pt('settings.account.changePasswordHint')}</p>
           <form id="changePasswordForm" class="space-y-4">
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Nuvarande lösenord</label>
+              <label class="block text-sm font-semibold text-navy mb-1">${pt('settings.account.currentPassword')}</label>
               <input type="password" id="changeCurrentPw" required
                 class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Nytt lösenord</label>
+              <label class="block text-sm font-semibold text-navy mb-1">${pt('settings.account.newPassword')}</label>
               <input type="password" id="changeNewPw" required minlength="8"
                 class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Bekräfta nytt lösenord</label>
+              <label class="block text-sm font-semibold text-navy mb-1">${pt('settings.account.confirmNewPassword')}</label>
               <input type="password" id="changeConfirmPw" required minlength="8"
                 class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             </div>
             <button type="submit"
               class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-              Byt lösenord
+              ${pt('settings.account.changePassword')}
             </button>
             <div id="changePwMsg" class="text-sm min-h-[1.4em]"></div>
           </form>
@@ -140,7 +144,7 @@ async function initAccountSection() {
           <div class="mt-4 pt-4 border-t border-lavender">
             <button type="button" id="linkAppleBtn"
               class="w-full px-4 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors flex items-center justify-center gap-2">
-              <span>🍎</span> Koppla Apple-konto
+              <span>🍎</span> ${pt('settings.account.linkApple')}
             </button>
           </div>
         `;
@@ -151,7 +155,7 @@ async function initAccountSection() {
           <div class="mt-4 pt-4 border-t border-lavender">
             <button type="button" id="unlinkAppleBtn"
               class="w-full px-4 py-3 border-2 border-red-300 hover:border-red-400 text-red-600 rounded-xl font-heading font-bold transition-colors">
-              Koppla bort Apple-konto
+              ${pt('settings.account.unlinkApple')}
             </button>
             <p id="unlinkAppleMsg" class="text-xs text-text-soft text-center mt-1"></p>
           </div>
@@ -163,7 +167,7 @@ async function initAccountSection() {
           <div class="mt-4 pt-4 border-t border-lavender">
             <button type="button" id="linkGoogleBtn"
               class="w-full px-4 py-3 bg-white hover:bg-gray-50 text-navy border-2 border-lavender rounded-xl font-heading font-bold transition-colors flex items-center justify-center gap-2">
-              <span>G</span> Koppla Google-konto
+              <span>G</span> ${pt('settings.account.linkGoogle')}
             </button>
           </div>
         `;
@@ -173,7 +177,7 @@ async function initAccountSection() {
           <div class="mt-4 pt-4 border-t border-lavender">
             <button type="button" id="unlinkGoogleBtn"
               class="w-full px-4 py-3 border-2 border-red-300 hover:border-red-400 text-red-600 rounded-xl font-heading font-bold transition-colors">
-              Koppla bort Google-konto
+              ${pt('settings.account.unlinkGoogle')}
             </button>
             <p id="unlinkGoogleMsg" class="text-xs text-text-soft text-center mt-1"></p>
           </div>
@@ -184,23 +188,23 @@ async function initAccountSection() {
       if (hasPassword) {
         html += `
           <div class="mt-4 pt-4 border-t border-lavender">
-            <h4 class="text-sm font-semibold text-navy mb-2">Byt e-postadress</h4>
+            <h4 class="text-sm font-semibold text-navy mb-2">${pt('settings.account.changeEmail')}</h4>
             <form id="changeEmailForm" class="space-y-3">
               <div>
-                <label class="block text-xs font-semibold text-navy mb-1">Ny e-postadress</label>
+                <label class="block text-xs font-semibold text-navy mb-1">${pt('settings.account.newEmail')}</label>
                 <input type="email" id="newEmail" required
                   placeholder="ny@example.com"
                   class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-navy mb-1">Ditt lösenord</label>
+                <label class="block text-xs font-semibold text-navy mb-1">${pt('settings.account.yourPassword')}</label>
                 <input type="password" id="emailChangePw" required
-                  placeholder="Bekräfta med lösenord"
+                  placeholder="${pt('settings.account.confirmWithPassword')}"
                   class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm">
               </div>
               <button type="submit" id="changeEmailBtn"
                 class="w-full px-4 py-2.5 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors text-sm">
-                Skicka bekräftelselänk
+                ${pt('settings.account.sendConfirmLink')}
               </button>
               <div id="changeEmailMsg" class="text-sm min-h-[1.4em]"></div>
             </form>
@@ -229,73 +233,34 @@ async function initAccountSection() {
         const btn = document.getElementById('addPasswordBtn');
 
         if (newPw !== confirmPw) {
-          msg.textContent = 'Lösenorden matchar inte';
+          msg.textContent = pt('settings.account.passwordsMismatch');
           msg.className = 'text-sm text-red-500';
           return;
         }
         if (newPw.length < 8) {
-          msg.textContent = 'Lösenordet måste vara minst 8 tecken';
+          msg.textContent = pt('settings.account.passwordMinLength');
           msg.className = 'text-sm text-red-500';
           return;
         }
 
         btn.disabled = true;
-        btn.textContent = 'Sparar…';
+        btn.textContent = pt('settings.account.saving');
         msg.textContent = '';
         msg.className = 'text-sm min-h-[1.4em]';
 
         try {
-          const result = await Auth.api('/api/account/set-password', {
+          await Auth.api('/api/account/set-password', {
             method: 'POST',
             body: JSON.stringify({ password: newPw }),
           });
 
-          // Success: update UI to "change password" mode
-          const sectionEl = document.getElementById(sectionId);
-          const auth = result.accountAuth || {};
-          const { hasPassword: hp } = auth;
-
-          if (sectionEl) {
-            // Replace section content with the hasPassword version
-            sectionEl.innerHTML = `
-              <h3 class="text-xl font-heading font-bold text-navy mb-4">Konto & inloggning</h3>
-              <div id="changePasswordBlock">
-                <div class="mb-3 p-3 bg-mint border border-green-200 rounded-xl">
-                  <p class="text-sm text-green-700 font-semibold">✓ Lösenordet är nu aktivt</p>
-                </div>
-                <p class="text-sm text-text-soft mb-3">Byt lösenord för att behålla tillgång till kontot.</p>
-                <form id="changePasswordForm" class="space-y-4">
-                  <div>
-                    <label class="block text-sm font-semibold text-navy mb-1">Nuvarande lösenord</label>
-                    <input type="password" id="changeCurrentPw" required
-                      class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold text-navy mb-1">Nytt lösenord</label>
-                    <input type="password" id="changeNewPw" required minlength="8"
-                      class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-                  </div>
-                  <div>
-                    <label class="block text-sm font-semibold text-navy mb-1">Bekräfta nytt lösenord</label>
-                    <input type="password" id="changeConfirmPw" required minlength="8"
-                      class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-                  </div>
-                  <button type="submit"
-                    class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-                    Byt lösenord
-                  </button>
-                  <div id="changePwMsg" class="text-sm min-h-[1.4em]"></div>
-                </form>
-              </div>
-            `;
-            // Wire up change form after inject
-            initChangePasswordForm();
-          }
+          // Success: refresh section with password UI
+          await initAccountSection();
         } catch (err) {
-          msg.textContent = err.message || 'Något gick fel. Försök igen.';
+          msg.textContent = err.message || pt('settings.account.somethingWrong');
           msg.className = 'text-sm text-red-500';
           btn.disabled = false;
-          btn.textContent = 'Spara lösenord';
+          btn.textContent = pt('settings.account.savePassword');
         }
       });
     }
@@ -308,7 +273,7 @@ async function initAccountSection() {
     if (linkAppleBtn) {
       linkAppleBtn.addEventListener('click', async () => {
         if (!window.Platform || !window.Platform.appleSignIn) {
-          alert('Apple-inloggning är inte tillgänglig på denna enhet.');
+          alert(pt('settings.account.appleSignInUnavailable'));
           return;
         }
         try {
@@ -318,7 +283,7 @@ async function initAccountSection() {
             return;
           }
           linkAppleBtn.disabled = true;
-          linkAppleBtn.textContent = 'Länkar…';
+          linkAppleBtn.textContent = pt('settings.account.linking');
           await Auth.api('/api/account/link-apple', {
             method: 'POST',
             body: JSON.stringify({ idToken: idToken }),
@@ -328,12 +293,12 @@ async function initAccountSection() {
         } catch (err) {
           const msg = err.message || '';
           if (msg.includes('409') || msg.toLowerCase().includes('already')) {
-            alert('Detta Apple-konto är redan kopplat till ett annat konto.');
+            alert(pt('settings.account.appleAlreadyLinked'));
           } else {
-            alert('Kunde inte länka Apple: ' + (err.message || 'Försök igen.'));
+            alert(pt('settings.account.couldNotLinkApple') + ' ' + (err.message || pt('settings.account.tryAgain')));
           }
           linkAppleBtn.disabled = false;
-          linkAppleBtn.textContent = '🍎 Koppla Apple-konto';
+          linkAppleBtn.textContent = pt('settings.account.linkAppleBtn');
         }
       });
     }
@@ -342,11 +307,11 @@ async function initAccountSection() {
     const unlinkAppleBtn = document.getElementById('unlinkAppleBtn');
     if (unlinkAppleBtn) {
       unlinkAppleBtn.addEventListener('click', async () => {
-        const pw = prompt('Ange ditt lösenord för att koppla bort Apple:');
+        const pw = prompt(pt('settings.account.unlinkApplePrompt'));
         if (!pw) return;
         const msg = document.getElementById('unlinkAppleMsg');
         unlinkAppleBtn.disabled = true;
-        unlinkAppleBtn.textContent = 'Tar bort…';
+        unlinkAppleBtn.textContent = pt('settings.account.removing');
         try {
           await Auth.api('/api/account/unlink-apple', {
             method: 'DELETE',
@@ -354,10 +319,10 @@ async function initAccountSection() {
           });
           initAccountSection();
         } catch (err) {
-          msg.textContent = err.message || 'Kunde inte koppla bort';
+          msg.textContent = err.message || pt('settings.account.couldNotUnlink');
           msg.className = 'text-xs text-red-500 text-center mt-1';
           unlinkAppleBtn.disabled = false;
-          unlinkAppleBtn.textContent = 'Koppla bort Apple-konto';
+          unlinkAppleBtn.textContent = pt('settings.account.unlinkApple');
         }
       });
     }
@@ -366,14 +331,14 @@ async function initAccountSection() {
     if (linkGoogleBtn) {
       linkGoogleBtn.addEventListener('click', async () => {
         if (!window.Platform || !window.Platform.googleSignIn) {
-          alert('Google-inloggning är inte tillgänglig på denna enhet.');
+          alert(pt('settings.account.googleSignInUnavailable'));
           return;
         }
         try {
           const result = await Platform.googleSignIn.signIn();
           if (!result || !result.idToken) return;
           linkGoogleBtn.disabled = true;
-          linkGoogleBtn.textContent = 'Länkar…';
+          linkGoogleBtn.textContent = pt('settings.account.linking');
           await Auth.api('/api/account/link-google', {
             method: 'POST',
             body: JSON.stringify({ idToken: result.idToken }),
@@ -382,12 +347,12 @@ async function initAccountSection() {
         } catch (err) {
           const msg = err.message || '';
           if (msg.includes('409') || msg.toLowerCase().includes('already')) {
-            alert('Detta Google-konto är redan kopplat till ett annat konto.');
+            alert(pt('settings.account.googleAlreadyLinked'));
           } else {
-            alert('Kunde inte länka Google: ' + (err.message || 'Försök igen.'));
+            alert(pt('settings.account.couldNotLinkGoogle') + ' ' + (err.message || pt('settings.account.tryAgain')));
           }
           linkGoogleBtn.disabled = false;
-          linkGoogleBtn.textContent = 'G Koppla Google-konto';
+          linkGoogleBtn.textContent = pt('settings.account.linkGoogleBtn');
         }
       });
     }
@@ -395,11 +360,11 @@ async function initAccountSection() {
     const unlinkGoogleBtn = document.getElementById('unlinkGoogleBtn');
     if (unlinkGoogleBtn) {
       unlinkGoogleBtn.addEventListener('click', async () => {
-        const pw = prompt('Ange ditt lösenord för att koppla bort Google:');
+        const pw = prompt(pt('settings.account.unlinkGooglePrompt'));
         if (!pw) return;
         const msg = document.getElementById('unlinkGoogleMsg');
         unlinkGoogleBtn.disabled = true;
-        unlinkGoogleBtn.textContent = 'Tar bort…';
+        unlinkGoogleBtn.textContent = pt('settings.account.removing');
         try {
           await Auth.api('/api/account/unlink-google', {
             method: 'DELETE',
@@ -407,10 +372,10 @@ async function initAccountSection() {
           });
           initAccountSection();
         } catch (err) {
-          msg.textContent = err.message || 'Kunde inte koppla bort';
+          msg.textContent = err.message || pt('settings.account.couldNotUnlink');
           msg.className = 'text-xs text-red-500 text-center mt-1';
           unlinkGoogleBtn.disabled = false;
-          unlinkGoogleBtn.textContent = 'Koppla bort Google-konto';
+          unlinkGoogleBtn.textContent = pt('settings.account.unlinkGoogle');
         }
       });
     }
@@ -425,12 +390,12 @@ async function initAccountSection() {
         const msg = document.getElementById('changeEmailMsg');
         const btn = document.getElementById('changeEmailBtn');
         if (!newEmail.includes('@')) {
-          msg.textContent = 'Ange en giltig e-postadress';
+          msg.textContent = pt('settings.account.invalidEmail');
           msg.className = 'text-sm text-red-500';
           return;
         }
         btn.disabled = true;
-        btn.textContent = 'Sänder…';
+        btn.textContent = pt('settings.account.sending');
         msg.textContent = '';
         msg.className = 'text-sm min-h-[1.4em]';
         try {
@@ -438,14 +403,14 @@ async function initAccountSection() {
             method: 'POST',
             body: JSON.stringify({ newEmail, password: emailChangePw }),
           });
-          msg.textContent = res.message || `Länk skickad till ${newEmail}`;
+          msg.textContent = res.message || pt('settings.account.linkSentTo', { email: newEmail });
           msg.className = 'text-sm text-green-600';
           changeEmailForm.reset();
         } catch (err) {
-          msg.textContent = err.message || 'Något gick fel';
+          msg.textContent = err.message || pt('settings.account.somethingWrongShort');
           msg.className = 'text-sm text-red-500';
           btn.disabled = false;
-          btn.textContent = 'Skicka bekräftelselänk';
+          btn.textContent = pt('settings.account.sendConfirmLink');
         }
       });
     }
@@ -468,12 +433,12 @@ function initChangePasswordForm() {
     const msg = document.getElementById('changePwMsg');
 
     if (newPw !== confirmPw) {
-      msg.textContent = 'Lösenorden matchar inte';
+      msg.textContent = pt('settings.account.passwordsMismatch');
       msg.className = 'text-sm text-red-500';
       return;
     }
 
-    msg.textContent = 'Sparar…';
+    msg.textContent = pt('settings.account.saving');
     msg.className = 'text-sm text-text-soft';
 
     try {
@@ -482,11 +447,11 @@ function initChangePasswordForm() {
         body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
       });
 
-      msg.textContent = result.message || 'Lösenordet har ändrats!';
+      msg.textContent = result.message || pt('settings.account.passwordChanged');
       msg.className = 'text-sm text-green-600';
       form.reset();
     } catch (err) {
-      msg.textContent = err.message || 'Något gick fel';
+      msg.textContent = err.message || pt('settings.account.somethingWrongShort');
       msg.className = 'text-sm text-red-500';
     }
   });
@@ -502,12 +467,12 @@ async function initParentPinSection() {
     const hasPin = statusRes.has_pin;
 
     const html = `
-      <h3 class="text-xl font-heading font-bold text-navy mb-1">PIN-kod</h3>
-      <p class="text-sm text-text-soft mb-1 font-semibold">Säkerhet</p>
+      <h3 class="text-xl font-heading font-bold text-navy mb-1">${pt('settings.parentPin.title')}</h3>
+      <p class="text-sm text-text-soft mb-1 font-semibold">${pt('settings.parentPin.security')}</p>
       <p class="text-sm text-text-soft mb-4">
         ${hasPin
-          ? 'Din personliga PIN-kod skyddar föräldraläget — barn kan inte lämna barnläget utan din PIN.'
-          : 'Sätt din egen 4-siffriga PIN — barn kan inte lämna barnläget utan din PIN.'}
+          ? pt('settings.parentPin.hasPinDescription')
+          : pt('settings.parentPin.noPinDescription')}
       </p>
       <div id="parentPinFormWrap">
         ${hasPin ? buildParentPinChangeForm() : buildParentPinSetForm()}
@@ -526,7 +491,7 @@ async function initParentPinSection() {
 function buildParentPinSetForm() {
   return `
     <div id="ppSetChooseStep">
-      <p class="text-sm text-navy mb-3">Välj en 4-siffrig PIN-kod</p>
+      <p class="text-sm text-navy mb-3">${pt('settings.parentPin.choosePin')}</p>
       <div class="mb-3 text-center">
         <div id="ppSetDots" class="flex justify-center gap-3">
           <div class="w-4 h-4 rounded-full bg-lavender"></div>
@@ -536,10 +501,10 @@ function buildParentPinSetForm() {
         </div>
       </div>
       <div id="ppSetMsg" class="text-sm text-red-500 text-center mb-2"></div>
-      <div id="ppSetKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2" role="group" aria-label="Siffertavla"></div>
+      <div id="ppSetKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2" role="group" aria-label="${pt('settings.parentPin.keypadAria')}"></div>
     </div>
     <div id="ppSetConfirmStep" class="hidden">
-      <p class="text-sm text-navy mb-3">Bekräfta PIN-koden</p>
+      <p class="text-sm text-navy mb-3">${pt('settings.parentPin.confirmPin')}</p>
       <div class="mb-3 text-center">
         <div id="ppConfirmDots" class="flex justify-center gap-3">
           <div class="w-4 h-4 rounded-full bg-lavender"></div>
@@ -548,8 +513,8 @@ function buildParentPinSetForm() {
           <div class="w-4 h-4 rounded-full bg-lavender"></div>
         </div>
       </div>
-      <div id="ppConfirmKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Bekräfta PIN-tavla"></div>
-      <button type="button" id="ppSetBackBtn" class="text-xs text-text-soft underline block mx-auto">← Byt PIN-kod</button>
+      <div id="ppConfirmKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="${pt('settings.parentPin.confirmKeypadAria')}"></div>
+      <button type="button" id="ppSetBackBtn" class="text-xs text-text-soft underline block mx-auto">${pt('settings.parentPin.changePinBack')}</button>
     </div>
     <div id="ppSetResultMsg" class="text-sm text-center mt-2"></div>
   `;
@@ -559,7 +524,7 @@ function buildParentPinChangeForm() {
   return `
     <div id="parentPinChangeWrap">
       <div id="ppChangeStep1">
-        <p class="text-sm text-navy mb-3">Ange nuvarande PIN-kod</p>
+        <p class="text-sm text-navy mb-3">${pt('settings.parentPin.enterCurrentPin')}</p>
         <div class="mb-3 text-center">
           <div id="ppCurrentDots" class="flex justify-center gap-3">
             <div class="w-4 h-4 rounded-full bg-lavender"></div>
@@ -568,16 +533,16 @@ function buildParentPinChangeForm() {
             <div class="w-4 h-4 rounded-full bg-lavender"></div>
           </div>
         </div>
-        <div id="ppChangeKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="PIN-tavla"></div>
+        <div id="ppChangeKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="${pt('settings.parentPin.pinKeypadAria')}"></div>
         <button type="button" id="ppForgotPinBtn" class="text-xs text-text-soft underline mx-auto block mb-2">
-          Glömt PIN-koden?
+          ${pt('settings.parentPin.forgotPin')}
         </button>
         <div id="ppChangeStep1Msg" class="text-sm text-red-500 text-center"></div>
       </div>
 
       <div id="ppChangeStep2" class="hidden">
         <div id="ppNewChooseStep">
-          <p class="text-sm text-navy mb-3">Välj ny PIN-kod</p>
+          <p class="text-sm text-navy mb-3">${pt('settings.parentPin.chooseNewPin')}</p>
           <div class="mb-3 text-center">
             <div id="ppNewDots" class="flex justify-center gap-3">
               <div class="w-4 h-4 rounded-full bg-lavender"></div>
@@ -586,10 +551,10 @@ function buildParentPinChangeForm() {
               <div class="w-4 h-4 rounded-full bg-lavender"></div>
             </div>
           </div>
-          <div id="ppNewKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Ny PIN-tavla"></div>
+          <div id="ppNewKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="${pt('settings.parentPin.newPinKeypadAria')}"></div>
         </div>
         <div id="ppNewConfirmStep" class="hidden">
-          <p class="text-sm text-navy mb-3">Bekräfta ny PIN-kod</p>
+          <p class="text-sm text-navy mb-3">${pt('settings.parentPin.confirmNewPin')}</p>
           <div class="mb-3 text-center">
             <div id="ppNewConfirmDots" class="flex justify-center gap-3">
               <div class="w-4 h-4 rounded-full bg-lavender"></div>
@@ -598,19 +563,19 @@ function buildParentPinChangeForm() {
               <div class="w-4 h-4 rounded-full bg-lavender"></div>
             </div>
           </div>
-          <div id="ppNewConfirmKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="Bekräfta ny PIN-tavla"></div>
-          <button type="button" id="ppNewBackBtn" class="text-xs text-text-soft underline block mx-auto">← Byt PIN-kod</button>
+          <div id="ppNewConfirmKeypad" class="pp-pin-keypad grid grid-cols-3 gap-2 mb-3" role="group" aria-label="${pt('settings.parentPin.confirmNewPinKeypadAria')}"></div>
+          <button type="button" id="ppNewBackBtn" class="text-xs text-text-soft underline block mx-auto">${pt('settings.parentPin.changePinBack')}</button>
         </div>
         <div id="ppChangeResultMsg" class="text-sm text-center"></div>
       </div>
 
       <div id="ppForgotPinForm" class="hidden space-y-3">
-        <p class="text-sm text-text-soft">Ange ditt lösenord för att sätta en ny PIN-kod.</p>
-        <input type="password" id="ppForgotPw" placeholder="Ditt lösenord"
+        <p class="text-sm text-text-soft">${pt('settings.parentPin.forgotIntro')}</p>
+        <input type="password" id="ppForgotPw" placeholder="${pt('settings.parentPin.yourPassword')}"
           class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
         <button type="button" id="ppForgotVerifyBtn"
           class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-          Verifiera
+          ${pt('settings.parentPin.verify')}
         </button>
         <div id="ppForgotMsg" class="text-sm text-red-500 text-center"></div>
       </div>
@@ -669,7 +634,7 @@ async function handleSetPinConfirmComplete(confirmPin) {
   if (confirmPin !== _ppSetPendingPin) {
     const msg = document.getElementById('ppSetResultMsg');
     if (msg) {
-      msg.textContent = 'PIN-koderna matchar inte — försök igen';
+      msg.textContent = pt('settings.parentPin.pinsMismatch');
       msg.className = 'text-sm text-red-500 text-center mt-2';
     }
     showSetPinChooseStep();
@@ -743,14 +708,14 @@ async function saveParentPin(pin) {
       body: JSON.stringify({ pin, confirmPin: pin }),
     });
     if (msg) {
-      msg.textContent = '✓ PIN-koden är nu aktiv';
+      msg.textContent = pt('settings.parentPin.pinNowActive');
       msg.className = 'text-sm text-green-600 text-center';
     }
     // Reload section to reflect new state
     setTimeout(initParentPinSection, 1500);
   } catch (err) {
     const m = document.getElementById('ppSetResultMsg') || document.getElementById('parentPinMsg');
-    if (m) { m.textContent = err.message || 'Något gick fel'; m.className = 'text-sm text-red-500 text-center'; }
+    if (m) { m.textContent = err.message || pt('settings.account.somethingWrongShort'); m.className = 'text-sm text-red-500 text-center'; }
   }
 }
 
@@ -773,7 +738,7 @@ async function handleCurrentPinEntry(pin) {
   } catch (err) {
     const msg = document.getElementById('ppChangeStep1Msg');
     if (msg) {
-      msg.textContent = 'Felaktig PIN-kod — försök igen';
+      msg.textContent = pt('settings.parentPin.wrongPin');
       initParentPinNumpad('ppChangeKeypad', 'ppCurrentDots', handleCurrentPinEntry);
     }
   }
@@ -793,7 +758,7 @@ async function handleNewPinConfirmEntry(confirmPin) {
   if (confirmPin !== pin) {
     const msg = document.getElementById('ppChangeResultMsg');
     if (msg) {
-      msg.textContent = 'PIN-koderna matchar inte — försök igen';
+      msg.textContent = pt('settings.parentPin.pinsMismatch');
       msg.className = 'text-sm text-red-500 text-center';
     }
     _ppChangeNewPin = null;
@@ -810,11 +775,11 @@ async function handleNewPinConfirmEntry(confirmPin) {
         method: 'POST',
         body: JSON.stringify({ pin, confirmPin: pin, password: _ppForgotVerifiedPassword }),
       });
-      if (msg) { msg.textContent = '✓ PIN-koden har ändrats!'; msg.className = 'text-sm text-green-600 text-center'; }
+      if (msg) { msg.textContent = pt('settings.parentPin.pinChanged'); msg.className = 'text-sm text-green-600 text-center'; }
       _ppForgotVerifiedPassword = null;
       setTimeout(initParentPinSection, 1500);
     } catch (err) {
-      if (msg) { msg.textContent = err.message || 'Kunde inte ändra PIN-kod'; msg.className = 'text-sm text-red-500 text-center'; }
+      if (msg) { msg.textContent = err.message || pt('settings.parentPin.couldNotChangePin'); msg.className = 'text-sm text-red-500 text-center'; }
       _ppChangeNewPin = null;
       _ppForgotVerifiedPassword = null;
       showNewPinChooseStep();
@@ -826,7 +791,7 @@ async function handleNewPinConfirmEntry(confirmPin) {
   const currentPin = _ppVerifiedCurrentPin;
   if (!currentPin) {
     if (msg) {
-      msg.textContent = 'Sessionen har gått ut — ange nuvarande PIN igen';
+      msg.textContent = pt('settings.parentPin.sessionExpired');
       msg.className = 'text-sm text-red-500 text-center';
     }
     _ppChangeNewPin = null;
@@ -842,13 +807,13 @@ async function handleNewPinConfirmEntry(confirmPin) {
       body: JSON.stringify({ pin, confirmPin: pin, currentPin }),
     });
     if (msg) {
-      msg.textContent = '✓ PIN-koden har ändrats!';
+      msg.textContent = pt('settings.parentPin.pinChanged');
       msg.className = 'text-sm text-green-600 text-center';
     }
     _ppVerifiedCurrentPin = null;
     setTimeout(initParentPinSection, 1500);
   } catch (err) {
-    if (msg) { msg.textContent = err.message || 'Kunde inte ändra PIN-kod'; msg.className = 'text-sm text-red-500 text-center'; }
+    if (msg) { msg.textContent = err.message || pt('settings.parentPin.couldNotChangePin'); msg.className = 'text-sm text-red-500 text-center'; }
     _ppChangeNewPin = null;
     showNewPinChooseStep();
   }
@@ -862,7 +827,7 @@ function showForgotPinForm() {
 async function handleForgotPinVerify() {
   const pw = document.getElementById('ppForgotPw').value;
   const msg = document.getElementById('ppForgotMsg');
-  if (!pw) { msg.textContent = 'Ange ditt lösenord'; return; }
+  if (!pw) { msg.textContent = pt('settings.parentPin.enterPassword'); return; }
 
   try {
     await Auth.api('/api/family/set-pin', {
@@ -870,7 +835,7 @@ async function handleForgotPinVerify() {
       body: JSON.stringify({ pin: '0000', confirmPin: '0000', password: pw }),
     });
   } catch (err) {
-    msg.textContent = err.message || 'Felaktigt lösenord';
+    msg.textContent = err.message || pt('settings.parentPin.wrongPassword');
     return;
   }
 
@@ -883,12 +848,14 @@ async function handleForgotPinVerify() {
 
 // Store the verified password for the forgot-PIN flow (used by saveParentPin)
 let _ppForgotVerifiedPassword = null;
-document.addEventListener('DOMContentLoaded', () => {
-  // Defer to ensure Auth is available and /api/auth/me is called by settings.html
+function bootSettingsAccount() {
   if (document.getElementById('accountSection')) {
     setTimeout(initAccountSection, 0);
   }
   if (document.getElementById('parentPinSection')) {
     setTimeout(initParentPinSection, 0);
   }
-});
+}
+document.addEventListener('DOMContentLoaded', bootSettingsAccount);
+document.addEventListener('parent-i18n-ready', bootSettingsAccount);
+document.addEventListener('locale-changed', bootSettingsAccount);

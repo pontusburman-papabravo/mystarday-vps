@@ -114,11 +114,40 @@
     "Senare läggdags": "Later bedtime",
     "Välja film": "Choose a film",
     "Utflykt": "Day out",
-    "Lekpark": "Playground trip"
+    "Lekpark": "Playground trip",
+    "Restaurangbesök": "Restaurant visit",
+    "Pyssel-projekt tillsammans": "Craft project together",
+    "Bio": "Cinema trip",
+    "Simma": "Swimming",
+    "Senare kväll": "Later bedtime",
+    "Välja aktivitet": "Choose an activity",
+    "Välja lek": "Choose a game",
+    "Välja film/serie": "Choose a film or show",
+    "Extra godis": "Extra treat",
+    "Familjeutflykt": "Family day out",
+    "Pizza": "Pizza",
+    "Present": "Gift"
   },
   "rewardByKey": {
     "📱|5": "Extra screen time",
     "🍕|10": "Choose dinner",
-    "🎁|20": "Small gift"
+    "🎁|20": "Small gift",
+    "🍕|350": "Restaurant visit",
+    "🎨|100": "Craft project together"
+  },
+  "schedules": {
+    "Förskola vardag": "Nursery weekday",
+    "Skola vardag": "School weekday",
+    "Helg": "Weekend",
+    "Morgonrutin": "Morning routine",
+    "Kvällsrutin": "Evening routine"
+  },
+  "scheduleDescriptions": {
+    "Typisk dag med förskola: morgonrutin → förskola → eftermiddag → kväll": "Typical nursery day: morning routine → nursery → afternoon → evening",
+    "Typisk dag med förskola: morgonrutin -> förskola -> eftermiddag -> kväll": "Typical nursery day: morning routine → nursery → afternoon → evening",
+    "Typisk skoldag: morgonrutin → skola → läxor/fritid → kväll": "Typical school day: morning routine → school → homework/leisure → evening",
+    "Typisk skoldag: morgonrutin -> skola -> läxor/fritid -> kväll": "Typical school day: morning routine → school → homework/leisure → evening",
+    "Avslappnad helgdag: sova ut → frilek → familjeaktivitet → kväll": "Relaxed weekend: sleep in → free play → family activity → evening",
+    "Avslappnad helgdag: sova ut -> frilek -> familjeaktivitet -> kväll": "Relaxed weekend: sleep in → free play → family activity → evening"
   }
 }

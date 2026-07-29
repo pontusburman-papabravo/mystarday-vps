@@ -97,6 +97,7 @@
 
     let _dailyLogPageBound = false;
     let _bootInFlight = null;
+    let _loadLogSeq = 0;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
@@ -371,12 +372,15 @@
 
     async function loadLog() {
       if (!currentChildId) return;
+      const seq = ++_loadLogSeq;
+      const childId = currentChildId;
+      const dateParam = normalizeIsoDate(currentDateStr);
       renderLogLoading();
 
       try {
-        const dateParam = normalizeIsoDate(currentDateStr);
         currentDateStr = dateParam;
-        const res = await apiFetch(`/api/children/${currentChildId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        const res = await apiFetch(`/api/children/${childId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        if (seq !== _loadLogSeq || childId !== currentChildId) return;
         if (!res.ok) {
           let msg = pt('today.errors.loadLog');
           try {
@@ -386,6 +390,7 @@
           throw new Error(msg + ' (status ' + res.status + ')');
         }
         const data = await res.json();
+        if (seq !== _loadLogSeq || childId !== currentChildId) return;
 
         currentLog = data.log;
         currentItems = data.items || [];

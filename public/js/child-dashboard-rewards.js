@@ -20,6 +20,13 @@ function formatShortDate(d) {
   return d.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
 }
 
+function rewardDisplayName(item) {
+  if (!item) return '';
+  return item.display_name || item.reward_name_display || item.to_reward_name_display
+    || item.reward_name || item.to_reward_name || item.name || '';
+}
+window.rewardDisplayName = rewardDisplayName;
+
 let _currentGoalData = null; // cache for goal-picker
 let _currentRewardsData = null;
 let _loadRewardsInflight = null;
@@ -292,7 +299,7 @@ function resolveSkattState(rewardsData, goalData, options) {
     progressLabel = t('rewards.progressToward', {
       balance: starBalance,
       cost: goal.star_cost,
-      name: goal.reward_name,
+      name: rewardDisplayName(goal),
     });
   }
 
@@ -456,7 +463,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
         tag +
         '<div class="skatt-reward-row-icon">' + (r.icon || '🎁') + '</div>' +
         '<div class="skatt-reward-row-body">' +
-        '<div class="skatt-reward-row-name">' + escHtml(r.display_name || r.name) + '</div>' +
+        '<div class="skatt-reward-row-name">' + escHtml(rewardDisplayName(r)) + '</div>' +
         '<div class="skatt-reward-row-bar"><div class="skatt-reward-row-fill ' + color + '" style="width:' + st.pct + '%"></div></div>' +
         '<div class="skatt-reward-row-labels">' +
         '<span>' + t('rewards.starsOf', { balance: starBalance, cost: r.star_cost }) + '</span>' +
@@ -476,14 +483,14 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       const cr = skatt.completedReward;
       html += '<div class="skatt-status-card skatt-status-completed">' +
         '<span>' + (cr.reward_icon || '🎉') + '</span>' +
-        '<div><strong>' + escHtml(cr.reward_name) + '</strong>' +
+        '<div><strong>' + escHtml(rewardDisplayName(cr)) + '</strong>' +
         '<p>🎉 ' + t('rewards.rewardYours') + '</p></div></div>';
     }
     if (skatt.pending.length > 0) {
       for (const r of skatt.pending) {
         html += '<div class="skatt-status-card skatt-status-pending">' +
           '<span>' + (r.reward_icon || '🎁') + '</span>' +
-          '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
+          '<div><strong>' + escHtml(rewardDisplayName(r)) + '</strong>' +
           '<p>⏳ ' + t('rewards.parentApproving') + '</p></div></div>';
       }
     }
@@ -491,7 +498,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       for (const r of deniedRecent) {
         html += '<div class="skatt-status-card skatt-status-denied">' +
           '<span>' + (r.reward_icon || '🎁') + '</span>' +
-          '<div><strong>' + escHtml(r.reward_name) + '</strong>' +
+          '<div><strong>' + escHtml(rewardDisplayName(r)) + '</strong>' +
           '<p>' + t('rewards.notThisTime') + '</p></div></div>';
       }
     }
@@ -511,9 +518,9 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       const d = new Date(r.created_at);
       const dateStr = formatShortDate(d);
       html += '<div class="skatt-trophy-item" style="animation-delay:' + (i * 60) + 'ms;" title="' +
-        escHtml(r.reward_name) + ' · ' + dateStr + '">' +
+        escHtml(rewardDisplayName(r)) + ' · ' + dateStr + '">' +
         '<span class="skatt-trophy-emoji">' + (r.reward_icon || '🎁') + '</span>' +
-        '<span class="skatt-trophy-name">' + escHtml(r.reward_name) + '</span>' +
+        '<span class="skatt-trophy-name">' + escHtml(rewardDisplayName(r)) + '</span>' +
         '<span class="skatt-trophy-badge">✅</span></div>';
     });
 
@@ -567,7 +574,7 @@ function renderSkattkammaren(rewardsData, goalData, manualData) {
       html += window.ChildDashboardWarmth
         ? window.ChildDashboardWarmth.renderHistoryStoryHtml(r)
         : '<div class="skatt-history-story"><div class="skatt-history-story-text">' +
-          t('rewards.unlocked', { name: escHtml(r.reward_name) }) + ' ' + (r.reward_icon || '🎁') + ' 🎉</div></div>';
+          t('rewards.unlocked', { name: escHtml(rewardDisplayName(r)) }) + ' ' + (r.reward_icon || '🎁') + ' 🎉</div></div>';
     }
     html += '</div></div>';
   }
@@ -696,7 +703,7 @@ function openGoalPicker() {
       <button onclick="setGoal('${r.id}', ${hasGoal})" class="w-full flex items-center gap-3 bg-white hover:bg-gold-light rounded-xl p-3 text-left transition-colors border border-lavender mb-2 min-h-[56px]">
         <span class="text-3xl">${r.icon || '🎁'}</span>
         <div class="flex-1 min-w-0">
-          <p class="font-heading font-bold text-sm text-navy truncate">${escHtml(r.display_name || r.name)}</p>
+          <p class="font-heading font-bold text-sm text-navy truncate">${escHtml(rewardDisplayName(r))}</p>
           <p class="text-xs text-text-soft">⭐ ${r.star_cost} ${t('rewards.starsCollected')}</p>
         </div>
         ${(goal && goal.reward_id === r.id) ? '<span class="text-xs bg-gold text-white px-2 py-0.5 rounded-full">' + t('rewards.currentGoal') + '</span>' : ''}

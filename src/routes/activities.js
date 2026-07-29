@@ -39,6 +39,7 @@ router.get('/', async (req, res) => {
     const result = await db.query(
       `SELECT at.id, at.name, at.icon, at.icon_key, at.image_url, at.category_id, at.star_value, at.is_favorite,
               at.feedback_for, at.sort_order, at.schema_type, at.for_dig_goal_slug, at.duration_seconds,
+              at.source,
               COALESCE(at.seven_questions, '{}'::jsonb) AS seven_questions,
               COALESCE(at.time_group, 'morgon') AS time_group,
               c.name AS category_name, c.sort_order AS category_sort_order
@@ -150,9 +151,9 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     }
 
     const result = await db.query(
-      `INSERT INTO activity_template (family_id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order, duration_seconds)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order, duration_seconds`,
+      `INSERT INTO activity_template (family_id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order, duration_seconds, source)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'user')
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, sort_order, duration_seconds, source`,
       [req.user.familyId, name.trim(), icon || null, icon_key || null, image_url || null, category_id || null, stars, is_favorite ? true : false, feedbackFor, validTimeGroup, schema_type || null, computedSortOrder, normalizedDuration]
     );
     res.status(201).json(enrichPictogramFieldsMany(result.rows)[0]);
@@ -272,10 +273,13 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
 
     if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
 
+    // Family customization — stop auto-localization (mirrors reward.modified_by_family).
+    updates.push(`source = 'user'`);
+
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE activity_template SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds`,
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds, source`,
       values
     );
 

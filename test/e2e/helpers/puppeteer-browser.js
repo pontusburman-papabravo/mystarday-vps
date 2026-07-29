@@ -49,6 +49,10 @@ async function selectLoginLocale(page, locale) {
   await page.evaluate((loc) => {
     sessionStorage.setItem('sd_preferred_locale', loc);
     sessionStorage.setItem('sd_locale_explicit_choice', '1');
+    try {
+      localStorage.setItem('sd_preferred_locale', loc);
+      localStorage.setItem('sd_locale_explicit_choice', '1');
+    } catch (_) { /* ignore */ }
   }, locale);
   await page.click(selector);
   await page.waitForFunction((loc) => {
@@ -227,6 +231,23 @@ async function getParentPlanningScheduleText(page) {
   });
 }
 
+async function selectSettingsLocale(page, locale) {
+  const selector = `[data-locale-value="${locale}"]`;
+  await page.waitForSelector(selector, { visible: true, timeout: 20000 });
+  await page.evaluate((loc) => {
+    const btn = document.querySelector(`[data-locale-value="${loc}"]`);
+    if (btn) btn.click();
+  }, locale);
+  await page.waitForFunction((loc) => {
+    if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang() === loc) {
+      return true;
+    }
+    const btn = document.querySelector(`[data-locale-value="${loc}"]`);
+    return btn && btn.getAttribute('aria-pressed') === 'true';
+  }, { timeout: 20000 }, locale);
+  await new Promise((r) => setTimeout(r, 600));
+}
+
 async function clearSessionCookies(page) {
   const client = await page.createCDPSession();
   await client.send('Network.clearBrowserCookies');
@@ -350,6 +371,7 @@ module.exports = {
   acceptCookies,
   waitForAuthEntryReady,
   selectLoginLocale,
+  selectSettingsLocale,
   getVisibleChromeText,
   getVisibleTextInSelectors,
   getParentShellChromeText,

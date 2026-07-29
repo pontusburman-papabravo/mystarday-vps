@@ -5,19 +5,23 @@
 (function () {
   'use strict';
 
-  const FILTERS = [
-    { id: 'all', label: 'Alla' },
-    { id: 'forskola', label: 'Förskola', test: /förskola/i },
-    { id: 'skola', label: 'Skola', test: /skola/i, exclude: /förskola/i },
-    { id: 'helg', label: 'Helg', test: /helg|lördag|söndag|weekend/i, exclude: /jullov|sommarlov/i },
-    { id: 'lov', label: 'Lov', test: /lov|sportlov|höstlov|påsklov/i, exclude: /förskola/i },
-    { id: 'kvall', label: 'Kväll', test: /kväll|kvall|night/i },
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  const FILTER_DEFS = [
+    { id: 'all', labelKey: 'library.standard.filters.all' },
+    { id: 'forskola', labelKey: 'library.standard.filters.preschool', test: /förskola|preschool|nursery/i },
+    { id: 'skola', labelKey: 'library.standard.filters.school', test: /skola|school/i, exclude: /förskola|preschool|nursery/i },
+    { id: 'helg', labelKey: 'library.standard.filters.weekend', test: /helg|lördag|söndag|weekend/i, exclude: /jullov|sommarlov/i },
+    { id: 'lov', labelKey: 'library.standard.filters.break', test: /lov|sportlov|höstlov|påsklov/i, exclude: /förskola|preschool|nursery/i },
+    { id: 'kvall', labelKey: 'library.standard.filters.evening', test: /kväll|kvall|night|evening/i },
   ];
 
-  const STD_SEGMENTS = [
-    { id: 'schedules', label: '📅 Scheman' },
-    { id: 'activities', label: '📋 Aktiviteter' },
-    { id: 'rewards', label: '🏆 Belöningar' },
+  const STD_SEGMENT_DEFS = [
+    { id: 'schedules', labelKey: 'library.standard.segments.schedules' },
+    { id: 'activities', labelKey: 'library.standard.segments.activities' },
+    { id: 'rewards', labelKey: 'library.standard.segments.rewards' },
   ];
 
   let _filter = 'all';
@@ -31,6 +35,18 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function scheduleLabel(s) {
+    return s.display_name || s.name || '';
+  }
+
+  function scheduleDescription(s) {
+    return s.display_description || s.description || '';
+  }
+
+  function itemLabel(item) {
+    return item.display_name || item.name || '';
   }
 
   function isActive() {
@@ -51,7 +67,7 @@
 
   function matchesFilter(s) {
     if (_filter === 'all') return true;
-    const def = FILTERS.find(function (f) { return f.id === _filter; });
+    const def = FILTER_DEFS.find(function (f) { return f.id === _filter; });
     if (!def || !def.test) return true;
     const text = scheduleText(s);
     if (def.exclude && def.exclude.test(text)) return false;
@@ -59,9 +75,9 @@
   }
 
   function inferTags(s) {
-    return FILTERS.filter(function (f) {
+    return FILTER_DEFS.filter(function (f) {
       return f.id !== 'all' && matchesFilterForTag(s, f);
-    }).map(function (f) { return f.label; });
+    }).map(function (f) { return pt(f.labelKey); });
   }
 
   function matchesFilterForTag(s, def) {
@@ -87,35 +103,36 @@
     const subHtml = hasSubSteps
       ? '<div id="' + itemUid + '-subs" class="substeps-panel library-magic-substeps ml-7 mt-1 mb-1 pl-3 border-l-2 border-lavender">'
         + subSteps.map(function (ss) {
+          const stepLabel = ss.display_name || ss.name || '';
           return '<div class="flex items-center gap-1.5 text-xs py-0.5 text-text-soft">'
-            + '<span>' + (ss.icon || '▸') + '</span><span>' + escHtml(ss.name) + '</span></div>';
+            + '<span>' + (ss.icon || '▸') + '</span><span>' + escHtml(stepLabel) + '</span></div>';
         }).join('')
         + '</div>'
       : '';
     return '<div><div class="library-magic-timeline-row' + (hasSubSteps ? ' is-expandable' : '') + '"'
       + (hasSubSteps ? ' data-std-subs="' + itemUid + '-subs"' : '') + '>'
       + '<span class="library-magic-timeline-icon">' + (item.icon || '📌') + '</span>'
-      + '<span class="library-magic-timeline-name">' + escHtml(item.name) + '</span>'
-      + (hasSubSteps ? '<span class="library-magic-substep-badge">' + subSteps.length + ' delsteg ▾</span>' : '')
+      + '<span class="library-magic-timeline-name">' + escHtml(itemLabel(item)) + '</span>'
+      + (hasSubSteps ? '<span class="library-magic-substep-badge">' + pt('library.standard.substepsCount', { count: subSteps.length }) + ' ▾</span>' : '')
       + '<span class="library-magic-timeline-stars">' + '⭐'.repeat(item.star_value || 1) + '</span>'
       + '</div>' + subHtml + '</div>';
   }
 
   function renderSegmentBar() {
     return '<div class="library-magic-segments" role="tablist">'
-      + STD_SEGMENTS.map(function (seg) {
+      + STD_SEGMENT_DEFS.map(function (seg) {
         return '<button type="button" class="library-magic-segment' + (_stdSegment === seg.id ? ' is-active' : '') + '"'
           + ' data-std-segment="' + seg.id + '" role="tab" aria-selected="' + (_stdSegment === seg.id) + '">'
-          + escHtml(seg.label) + '</button>';
+          + escHtml(pt(seg.labelKey)) + '</button>';
       }).join('')
       + '</div>';
   }
 
   function renderFilterChips() {
     return '<div class="library-magic-filters" role="tablist">'
-      + FILTERS.map(function (f) {
+      + FILTER_DEFS.map(function (f) {
         return '<button type="button" class="library-magic-filter' + (_filter === f.id ? ' is-active' : '') + '"'
-          + ' data-schedule-filter="' + f.id + '">' + escHtml(f.label) + '</button>';
+          + ' data-schedule-filter="' + f.id + '">' + escHtml(pt(f.labelKey)) + '</button>';
       }).join('')
       + '</div>';
   }
@@ -132,10 +149,10 @@
       return '<button type="button" class="library-magic-schedule-card" data-schedule-id="' + s.id + '">'
         + '<span class="library-magic-schedule-card-icon">' + (s.icon || '📋') + '</span>'
         + '<span class="library-magic-schedule-card-body">'
-        + '<strong>' + escHtml(s.name) + '</strong>'
-        + '<span>' + escHtml(s.description || '') + '</span>'
+        + '<strong>' + escHtml(scheduleLabel(s)) + '</strong>'
+        + '<span>' + escHtml(scheduleDescription(s)) + '</span>'
         + tagHtml
-        + '<span class="library-magic-schedule-meta">' + (s.items || []).length + ' aktiviteter</span>'
+        + '<span class="library-magic-schedule-meta">' + pt('library.standard.activitiesCount', { count: (s.items || []).length }) + '</span>'
         + '</span>'
         + '<span class="library-magic-menu-arrow" aria-hidden="true">›</span>'
         + '</button>';
@@ -146,14 +163,14 @@
       + renderFilterChips()
       + (list.length
         ? '<div class="library-magic-schedule-list">' + cards + '</div>'
-        : '<p class="library-magic-empty">Inga scheman matchar filtret.</p>')
+        : '<p class="library-magic-empty">' + escHtml(pt('library.standard.noSchedulesMatch')) + '</p>')
       + '</div>'
       + '<div class="library-magic-std-pane hidden" data-std-pane="activities">'
-      + '<p class="library-magic-std-hint">Kopiera standardaktiviteter — inklusive delsteg — till ert bibliotek. <strong>Egna foton</strong> lägger du till under Mina bibliotek → Aktiviteter eller Bildarkiv (standardmallar använder emoji).</p>'
+      + '<p class="library-magic-std-hint">' + pt('library.standard.activitiesHint') + '</p>'
       + '<div id="libraryMagicStdActivitiesMount"></div>'
       + '</div>'
       + '<div class="library-magic-std-pane hidden" data-std-pane="rewards">'
-      + '<p class="library-magic-std-hint">Välj och kopiera standardbelöningar till er familj.</p>'
+      + '<p class="library-magic-std-hint">' + escHtml(pt('library.standard.rewardsHint')) + '</p>'
       + '<div id="libraryMagicStdRewardsMount"></div>'
       + '</div>';
   }
@@ -187,13 +204,13 @@
     return '<div class="library-magic-detail">'
       + '<div class="library-magic-detail-head">'
       + '<span class="library-magic-detail-icon">' + (schedule.icon || '📋') + '</span>'
-      + '<div><h3>' + escHtml(schedule.name) + '</h3>'
-      + '<p>' + escHtml(schedule.description || '') + '</p>'
+      + '<div><h3>' + escHtml(scheduleLabel(schedule)) + '</h3>'
+      + '<p>' + escHtml(scheduleDescription(schedule)) + '</p>'
       + tagHtml + '</div></div>'
-      + '<div class="library-magic-timeline">' + (timeline || '<p class="library-magic-empty">Inga aktiviteter i schemat.</p>') + '</div>'
+      + '<div class="library-magic-timeline">' + (timeline || '<p class="library-magic-empty">' + escHtml(pt('schedule.emptySection')) + '</p>') + '</div>'
       + '<div class="library-magic-detail-actions">'
-      + '<button type="button" class="library-magic-btn-secondary" data-schedule-action="preview-back">← Tillbaka</button>'
-      + '<button type="button" class="library-magic-btn-primary" data-schedule-action="copy" data-schedule-id="' + schedule.id + '" data-schedule-name="' + escHtml(schedule.name) + '">📥 Kopiera schema</button>'
+      + '<button type="button" class="library-magic-btn-secondary" data-schedule-action="preview-back">' + escHtml(pt('library.standard.back')) + '</button>'
+      + '<button type="button" class="library-magic-btn-primary" data-schedule-action="copy" data-schedule-id="' + schedule.id + '" data-schedule-name="' + escHtml(schedule.name) + '">' + escHtml(pt('library.standard.copySchedule')) + '</button>'
       + '</div></div>';
   }
 

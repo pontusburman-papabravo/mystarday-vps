@@ -23,7 +23,8 @@
 
   function hasExplicitChoice() {
     try {
-      return sessionStorage.getItem(EXPLICIT_KEY) === '1';
+      return sessionStorage.getItem(EXPLICIT_KEY) === '1'
+        || localStorage.getItem(EXPLICIT_KEY) === '1';
     } catch (_) {
       return false;
     }
@@ -32,7 +33,9 @@
   function getPreAuthLocaleChoice() {
     if (!hasExplicitChoice()) return null;
     try {
-      return normalizeLocale(sessionStorage.getItem(STORAGE_KEY));
+      return normalizeLocale(
+        sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY)
+      );
     } catch (_) {
       return null;
     }

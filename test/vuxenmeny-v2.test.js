@@ -114,10 +114,10 @@ describe('vuxenmeny v2 — Sprint 4 settings & avatar', () => {
     assert.match(src, /\/payment-success.*\/settings#prenumeration/s);
   });
 
-  it('settings-account uses PIN-kod not föräldralås in parent section', () => {
+  it('settings-account parent PIN section uses settings.parentPin i18n keys', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/settings-account.js'), 'utf8');
     const pinBlock = src.slice(src.indexOf('initParentPinSection'), src.indexOf('function buildParentPinSetForm'));
-    assert.match(pinBlock, /PIN-kod/);
+    assert.match(pinBlock, /settings\.parentPin\.title/);
     assert.doesNotMatch(pinBlock, /Föräldralås/);
   });
 });

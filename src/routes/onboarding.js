@@ -437,8 +437,8 @@ router.post('/schedule', async (req, res) => {
           }
         } else {
           const inserted = await client.query(
-            `INSERT INTO activity_template (family_id, category_id, name, icon, star_value, sort_order)
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+            `INSERT INTO activity_template (family_id, category_id, name, icon, star_value, sort_order, source)
+             VALUES ($1, $2, $3, $4, $5, $6, 'admin') RETURNING id`,
             [familyId, catId, item.name, item.icon, item.star_value, item.sort_order]
           );
           const newTemplateId = inserted.rows[0].id;
@@ -664,8 +664,8 @@ router.post('/weekend-schedule', async (req, res) => {
           }
         } else {
           const inserted = await client.query(
-            `INSERT INTO activity_template (family_id, category_id, name, icon, star_value, sort_order)
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+            `INSERT INTO activity_template (family_id, category_id, name, icon, star_value, sort_order, source)
+             VALUES ($1, $2, $3, $4, $5, $6, 'admin') RETURNING id`,
             [familyId, catId, item.name, item.icon, item.star_value, item.sort_order]
           );
           const newTemplateId = inserted.rows[0].id;

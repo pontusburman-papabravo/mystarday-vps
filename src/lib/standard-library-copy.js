@@ -27,8 +27,8 @@ async function shouldCopySevenQuestions(familyId, act) {
  */
 async function insertFamilyActivityFromDefault(client, familyId, act, sortOrder) {
   const sevenQuestions = await shouldCopySevenQuestions(familyId, act);
-  const cols = ['family_id', 'name', 'icon', 'star_value', 'is_favorite', 'sort_order'];
-  const vals = [familyId, act.name, act.icon, act.star_value, false, sortOrder];
+  const cols = ['family_id', 'name', 'icon', 'star_value', 'is_favorite', 'sort_order', 'source'];
+  const vals = [familyId, act.name, act.icon, act.star_value, false, sortOrder, 'admin'];
   if (sevenQuestions) {
     cols.push('seven_questions');
     vals.push(JSON.stringify(sevenQuestions));

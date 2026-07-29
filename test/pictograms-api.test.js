@@ -108,6 +108,7 @@ test('POST /api/activities validates icon_key and round-trips save', async (t) =
     assert.equal(photoRes.status, 200);
     assert.equal(withPhoto.image_url, 'https://mystarday.se/uploads/family/test.jpg');
     assert.equal(withPhoto.pictogram_emoji, undefined);
+    assert.equal(withPhoto.source, 'user');
   } finally {
     await http.close();
     await db.cleanup();

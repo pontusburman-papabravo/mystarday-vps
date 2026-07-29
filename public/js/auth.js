@@ -523,6 +523,8 @@ const Auth = {
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
+    await this._persistAuthEntryLocaleContext();
+
     // Unregister native push token BEFORE hitting the logout API so the
     // correct user is associated with the token at time of deletion.
     // Fire-and-forget — logout must not stall on this.
@@ -531,9 +533,7 @@ const Auth = {
     }
 
     // Keep barnväljare usable after vuxen logout — snapshot family children to device.
-    if (!childFlow) {
-      await this.snapshotKnownChildrenBeforeLogout();
-    }
+    await this.snapshotKnownChildrenBeforeLogout();
 
     // Retry once on CSRF mismatch — cookie clearing is the critical path.
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -587,6 +587,53 @@ const Auth = {
       }
     }
     this._redirectAfterLogoutClear(childFlow);
+  },
+
+  /** Persist family locale for auth entry (login/register/child-login) after session ends. */
+  async _persistAuthEntryLocaleContext() {
+    const storageKey = (window.I18n && I18n.STORAGE_KEY) || 'sd_preferred_locale';
+    try {
+      // Always fetch fresh — Settings locale switch updates DB but stjarndag_user cache can lag.
+      let me = null;
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (res.ok) me = await res.json();
+      } catch { /* ignore */ }
+      if (!me) me = this.getUser();
+
+      if (me && me.type === 'parent') {
+        let locale = me.preferred_locale;
+        if (window.I18n && typeof I18n.getCurrentLang === 'function') {
+          const active = I18n.getCurrentLang();
+          if (active) locale = active;
+        }
+        if (locale) {
+          sessionStorage.setItem(storageKey, locale);
+          try { localStorage.setItem(storageKey, locale); } catch { /* ignore */ }
+          // Do not set sd_locale_explicit_choice here — that flag means the user
+          // clicked the switcher on this login/register page. Logout only seeds the
+          // login UI language; it must not override the next account's family locale.
+        }
+        if (typeof me.english_child_experience_enabled === 'boolean') {
+          const flag = me.english_child_experience_enabled ? '1' : '0';
+          sessionStorage.setItem('sd_english_child_experience', flag);
+          try { localStorage.setItem('sd_english_child_experience', flag); } catch { /* ignore */ }
+        }
+        return;
+      }
+      const current = window.I18n && typeof I18n.getCurrentLang === 'function'
+        ? I18n.getCurrentLang()
+        : null;
+      if (current) {
+        sessionStorage.setItem(storageKey, current);
+        try { localStorage.setItem(storageKey, current); } catch { /* ignore */ }
+      }
+    } catch { /* ignore */ }
+  },
+
+  /** @deprecated alias — use _persistAuthEntryLocaleContext */
+  async _persistChildLoginHandoffContext() {
+    return this._persistAuthEntryLocaleContext();
   },
 
   /**
