@@ -132,6 +132,7 @@
         </div>
 
         <div class="entry-cta-stack">
+          <div class="my-4 flex justify-center w-full" data-locale-switcher-mount data-locale-switcher-theme="dark"></div>
           <button type="button" id="entryWelcomeStartBtn" class="magic-submit-btn touch-btn" data-i18n="auth.entry.welcome.startBtn"></button>
           <button type="button" id="entryWelcomeExistingBtn" class="ghost-btn touch-btn" data-i18n="auth.entry.welcome.existingBtn"></button>
           <button type="button" id="entryHowItWorksBtn" class="entry-tertiary-link" data-i18n="auth.entry.welcome.howItWorksBtn"></button>
@@ -146,6 +147,8 @@
         <div class="entry-role-heading">
           <h2 id="entryRoleTitle" class="entry-screen-title" data-i18n="auth.entry.role.title"></h2>
         </div>
+
+        <div class="my-4 flex justify-center w-full" data-locale-switcher-mount data-locale-switcher-theme="dark"></div>
 
         <div class="role-cards" style="width:100%;">
           <!-- Kid card -->
@@ -494,14 +497,16 @@
               return;
             }
             if (window.DeviceMode) DeviceMode.enterParent();
-            // Android WebView: avoid auto-bounce to dashboard (GPU crash loop).
-            // User stays on login and taps Förälder to continue explicitly.
-            var androidStayOnLogin = document.documentElement.classList.contains('is-native-android') && !loginNextUrl;
-            if (!androidStayOnLogin) {
+            // Native app: stay on login so user can pick language + role (iOS + Android).
+            var isNativeApp = document.documentElement.classList.contains('is-native-android')
+              || document.documentElement.classList.contains('platform-ios')
+              || (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative());
+            var nativeStayOnLogin = isNativeApp && !loginNextUrl;
+            if (!nativeStayOnLogin) {
               window.location.href = loginNextUrl || '/dashboard';
               return;
             }
-            // Android logged-in: fall through — AppEntry.init must run or UI stays blank (logo only).
+            // Native logged-in: fall through — AppEntry.init must run or UI stays blank (logo only).
           } else {
             Auth.clearAuth();
           }

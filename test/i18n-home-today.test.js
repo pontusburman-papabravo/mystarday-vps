@@ -651,6 +651,20 @@ describe('daily-log child selection boot', () => {
     assert.match(dailyLog, /silentRefresh/);
     assert.match(dailyLog, /renderChildTabsError/);
   });
+
+  it('loads children in parallel with i18n and does not block on initParentAppI18n', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    assert.match(dailyLog, /Promise\.all\(\[loadChildren\(\), i18nTask\]\)/);
+    assert.match(dailyLog, /CHILDREN_FETCH_TIMEOUT_MS/);
+    assert.match(dailyLog, /today\.errors\.signInRequired/);
+    assert.doesNotMatch(dailyLog, /await initParentAppI18n\(user\.preferred_locale\);\s*\n\s*if \(!_dailyLogPageBound\)/);
+  });
+
+  it('parent-magic-i18n skips duplicate auth boot on manual-init pages', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/parent-magic-i18n.js'), 'utf8');
+    assert.match(src, /i18nManualInit/);
+    assert.match(src, /pageHandlesOwnI18nBoot/);
+  });
 });
 
 describe('LocaleDateTime formatTime', () => {

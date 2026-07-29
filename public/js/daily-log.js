@@ -98,6 +98,7 @@
     let _dailyLogPageBound = false;
     let _bootInFlight = null;
     let _loadLogSeq = 0;
+    const CHILDREN_FETCH_TIMEOUT_MS = 15000;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
@@ -112,14 +113,27 @@
       window.androidStabilityLog(step, detail);
     }
 
+    function childrenFetchTimeoutError() {
+      return new Error(pt('today.errors.loadChildren') + ' (timeout)');
+    }
+
     async function fetchChildrenList() {
-      let res = await apiFetch('/api/children');
-      if (!res.ok && res.status === 401 && window.Auth && typeof Auth.silentRefresh === 'function') {
-        logAndroidStability('daily_log_children_401_refresh', { status: res.status });
-        await Auth.silentRefresh();
-        res = await apiFetch('/api/children');
-      }
-      return res;
+      const doFetch = async () => {
+        let res = await apiFetch('/api/children');
+        if (!res.ok && res.status === 401 && window.Auth && typeof Auth.silentRefresh === 'function') {
+          logAndroidStability('daily_log_children_401_refresh', { status: res.status });
+          await Auth.silentRefresh();
+          res = await apiFetch('/api/children');
+        }
+        return res;
+      };
+
+      return Promise.race([
+        doFetch(),
+        new Promise((_, reject) => {
+          window.setTimeout(() => reject(childrenFetchTimeoutError()), CHILDREN_FETCH_TIMEOUT_MS);
+        }),
+      ]);
     }
 
     function renderChildTabsLoading() {
@@ -160,12 +174,18 @@
           }
           if (!user) {
             logAndroidStability('daily_log_boot_no_user', null);
+            const signInMsg = pt('today.errors.signInRequired');
+            renderChildTabsError(signInMsg, () => {
+              window.location.href = '/login?next=' + encodeURIComponent('/daily-log');
+            });
             return;
           }
 
-          if (typeof window.initParentAppI18n === 'function') {
-            await initParentAppI18n(user.preferred_locale);
-          }
+          const i18nTask = typeof window.initParentAppI18n === 'function'
+            ? initParentAppI18n(user.preferred_locale).catch((err) => {
+                console.warn('[daily-log] initParentAppI18n failed:', err);
+              })
+            : Promise.resolve();
 
           if (!_dailyLogPageBound) {
             _dailyLogPageBound = true;
@@ -202,7 +222,7 @@
             return;
           }
 
-          await loadChildren();
+          await Promise.all([loadChildren(), i18nTask]);
           await loadCustodyPrintOption();
           logAndroidStability('daily_log_boot_done', { childCount: children.length, currentChildId: currentChildId });
         } catch (err) {

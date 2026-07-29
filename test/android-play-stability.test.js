@@ -125,9 +125,10 @@ describe('Android Play stability guards', () => {
     assert.match(patch, /setWebContentsDebuggingEnabled\(true\)/);
   });
 
-  it('login skips auto-redirect to dashboard on Android native (GPU crash loop)', () => {
+  it('login skips auto-redirect to dashboard on native app (language + role pick)', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
-    assert.match(html, /androidStayOnLogin/);
+    assert.match(html, /nativeStayOnLogin/);
+    assert.match(html, /isNativeApp/);
     assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
   });
 

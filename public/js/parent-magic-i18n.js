@@ -24,7 +24,13 @@
     }).catch(function () {});
   }
 
+  function pageHandlesOwnI18nBoot() {
+    const body = document.body;
+    return body && body.dataset && body.dataset.i18nManualInit === 'true';
+  }
+
   async function initFromAuth() {
+    if (pageHandlesOwnI18nBoot()) return;
     if (typeof window.initParentAppI18n !== 'function') return;
     let user = null;
     if (typeof window.authGuard === 'function') {
