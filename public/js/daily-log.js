@@ -1,24 +1,24 @@
 
 
-    function pt(key, params) {
-      return window.pt ? window.pt(key, params) : key;
+    function dlPt(key, params) {
+      return (typeof window.pt === 'function') ? window.pt(key, params) : key;
     }
 
     function getStarLabels() {
-      const labels = window.ptGet ? ptGet('today.rating.labels') : null;
+      const labels = typeof window.ptGet === 'function' ? window.ptGet('today.rating.labels') : null;
       if (Array.isArray(labels) && labels.length >= 6) return labels;
       return ['', 'Hard 😓', 'Okay 😐', 'Good 😊', 'Great 😄', 'Fantastic! 🌟'];
     }
 
     function getCategoryRules() {
       return [
-        { cls: 'cc-hygien',  label: pt('today.categories.hygien'),  color: '#60A5FA', keywords: ['tänder','borsta','tvätta','duscha','dusch','bad','badrum','toalett','blöja','klä','kläder','hygien','hår','kamm','nagel'] },
-        { cls: 'cc-mat',     label: pt('today.categories.mat'),     color: '#FBBF24', keywords: ['frukost','lunch','middag','mellanmål','mat','äta','dricka','frukt','snack','kvällsmat'] },
-        { cls: 'cc-skola',   label: pt('today.categories.skola'),   color: '#A78BFA', keywords: ['skola','förskola','läxor','läxa','läsa','räkna','aktivitet','inlämning','lektion','pedagog','lärare'] },
-        { cls: 'cc-lek',     label: pt('today.categories.lek'),     color: '#34D399', keywords: ['lek','leka','spel','spela','pussel','rita','måla','musik','sjunga','bygga','lego','docklek','utomhus'] },
-        { cls: 'cc-rorelse', label: pt('today.categories.rorelse'), color: '#F87171', keywords: ['träna','träning','sport','gym','simning','simma','cykel','cykla','promenad','gå','springa','dans','dansa','yoga','fotboll','idrott'] },
-        { cls: 'cc-vila',    label: pt('today.categories.vila'),    color: '#94A3B8', keywords: ['sova','sovstund','vila','tupplur','natt','pyjamas','läggdags','kvällsrutin'] },
-        { cls: 'cc-social',  label: pt('today.categories.social'),  color: '#FB923C', keywords: ['kompi','kompis','besök','samling','träffa','möte','telefon','video','ring'] },
+        { cls: 'cc-hygien',  label: dlPt('today.categories.hygien'),  color: '#60A5FA', keywords: ['tänder','borsta','tvätta','duscha','dusch','bad','badrum','toalett','blöja','klä','kläder','hygien','hår','kamm','nagel'] },
+        { cls: 'cc-mat',     label: dlPt('today.categories.mat'),     color: '#FBBF24', keywords: ['frukost','lunch','middag','mellanmål','mat','äta','dricka','frukt','snack','kvällsmat'] },
+        { cls: 'cc-skola',   label: dlPt('today.categories.skola'),   color: '#A78BFA', keywords: ['skola','förskola','läxor','läxa','läsa','räkna','aktivitet','inlämning','lektion','pedagog','lärare'] },
+        { cls: 'cc-lek',     label: dlPt('today.categories.lek'),     color: '#34D399', keywords: ['lek','leka','spel','spela','pussel','rita','måla','musik','sjunga','bygga','lego','docklek','utomhus'] },
+        { cls: 'cc-rorelse', label: dlPt('today.categories.rorelse'), color: '#F87171', keywords: ['träna','träning','sport','gym','simning','simma','cykel','cykla','promenad','gå','springa','dans','dansa','yoga','fotboll','idrott'] },
+        { cls: 'cc-vila',    label: dlPt('today.categories.vila'),    color: '#94A3B8', keywords: ['sova','sovstund','vila','tupplur','natt','pyjamas','läggdags','kvällsrutin'] },
+        { cls: 'cc-social',  label: dlPt('today.categories.social'),  color: '#FB923C', keywords: ['kompi','kompis','besök','samling','träffa','möte','telefon','video','ring'] },
       ];
     }
 
@@ -120,7 +120,7 @@
     }
 
     function childrenFetchTimeoutError() {
-      return new Error(pt('today.errors.loadChildren') + ' (timeout)');
+      return new Error(dlPt('today.errors.loadChildren') + ' (timeout)');
     }
 
     async function resolveBootUser() {
@@ -181,7 +181,7 @@
     function renderChildTabsLoading() {
       const tabs = document.getElementById('childTabs');
       if (!tabs) return;
-      tabs.innerHTML = '<div class="text-text-soft text-sm">' + escHtml(pt('today.shell.loadingChildren')) + '</div>';
+      tabs.innerHTML = '<div class="text-text-soft text-sm">' + escHtml(dlPt('today.shell.loadingChildren')) + '</div>';
     }
 
     function renderChildTabsError(message, retryFn) {
@@ -190,7 +190,7 @@
       tabs.innerHTML =
         '<p class="text-sm text-red-500">' + escHtml(message) + '</p>' +
         '<button type="button" id="childTabsRetryBtn" class="mt-2 px-4 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">' +
-        escHtml(pt('today.retry')) + '</button>';
+        escHtml(dlPt('today.retry')) + '</button>';
       const btn = document.getElementById('childTabsRetryBtn');
       if (btn) btn.addEventListener('click', () => { void retryFn(); });
     }
@@ -216,7 +216,7 @@
           const user = await resolveBootUser();
           if (!user) {
             logAndroidStability('daily_log_boot_no_user', null);
-            const signInMsg = pt('today.errors.signInRequired');
+            const signInMsg = dlPt('today.errors.signInRequired');
             renderChildTabsError(signInMsg, () => {
               window.location.href = '/login?next=' + encodeURIComponent('/daily-log');
             });
@@ -270,7 +270,7 @@
         } catch (err) {
           console.error('[daily-log] boot error:', err);
           logAndroidStability('daily_log_boot_error', { message: err && err.message });
-          renderChildTabsError(pt('today.errors.loadChildren'), loadChildren);
+          renderChildTabsError(dlPt('today.errors.loadChildren'), loadChildren);
         }
       })();
 
@@ -359,7 +359,7 @@
       try {
         const res = await fetchChildrenList();
         if (!res.ok) {
-          let msg = pt('today.errors.loadChildren');
+          let msg = dlPt('today.errors.loadChildren');
           try {
             const err = await res.json();
             if (err?.error) msg = err.error;
@@ -375,13 +375,13 @@
 
         const tabs = document.getElementById('childTabs');
         if (!children.length) {
-          tabs.innerHTML = '<p class="text-text-soft text-sm">' + escHtml(pt('today.noChildren')) + '</p>';
+          tabs.innerHTML = '<p class="text-text-soft text-sm">' + escHtml(dlPt('today.noChildren')) + '</p>';
           document.getElementById('logContent').innerHTML = `
             <div class="text-center py-16 bg-sky rounded-2xl">
               <p class="text-6xl mb-4">👨‍👩‍👧</p>
-              <p class="font-heading font-bold text-navy text-xl mb-2">${escHtml(pt('today.empty.noChildrenTitle'))}</p>
-              <p class="text-text-soft text-sm mb-6">${escHtml(pt('today.empty.addFirstChild'))}</p>
-              <a href="/dashboard" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">${escHtml(pt('today.empty.goToDashboard'))}</a>
+              <p class="font-heading font-bold text-navy text-xl mb-2">${escHtml(dlPt('today.empty.noChildrenTitle'))}</p>
+              <p class="text-text-soft text-sm mb-6">${escHtml(dlPt('today.empty.addFirstChild'))}</p>
+              <a href="/dashboard" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">${escHtml(dlPt('today.empty.goToDashboard'))}</a>
             </div>`;
           return;
         }
@@ -403,10 +403,10 @@
         selectChild(targetChild);
       } catch (err) {
         console.error('[daily-log] loadChildren error:', err);
-        const detail = err && err.message ? String(err.message) : pt('today.errors.loadChildren');
-        showToast(pt('today.errors.loadChildren'), 'error');
+        const detail = err && err.message ? String(err.message) : dlPt('today.errors.loadChildren');
+        showToast(dlPt('today.errors.loadChildren'), 'error');
         logAndroidStability('daily_log_children_error', { message: detail });
-        renderChildTabsError(pt('today.errors.loadChildren'), loadChildren);
+        renderChildTabsError(dlPt('today.errors.loadChildren'), loadChildren);
       }
     }
 
@@ -448,7 +448,7 @@
       return Promise.race([
         apiFetch(url),
         new Promise((_, reject) => {
-          window.setTimeout(() => reject(new Error(pt('today.errors.loadLog') + ' (timeout)')), LOG_FETCH_TIMEOUT_MS);
+          window.setTimeout(() => reject(new Error(dlPt('today.errors.loadLog') + ' (timeout)')), LOG_FETCH_TIMEOUT_MS);
         }),
       ]);
     }
@@ -465,7 +465,7 @@
         const res = await fetchDailyLog(childId, dateParam);
         if (seq !== _loadLogSeq || childId !== currentChildId) return;
         if (!res.ok) {
-          let msg = pt('today.errors.loadLog');
+          let msg = dlPt('today.errors.loadLog');
           try {
             const err = await res.json();
             if (err?.error) msg = err.error;
@@ -499,7 +499,7 @@
       document.getElementById('logContent').innerHTML = `
         <div class="text-center py-16 text-text-soft">
           <p class="text-4xl mb-3 animate-pulse">⏳</p>
-          <p class="font-semibold">${escHtml(pt('today.loading'))}</p>
+          <p class="font-semibold">${escHtml(dlPt('today.loading'))}</p>
         </div>`;
     }
 
@@ -508,9 +508,9 @@
       document.getElementById('logContent').innerHTML = `
         <div class="text-center py-16 text-text-soft">
           <p class="text-4xl mb-3">❌</p>
-          <p class="font-semibold">${escHtml(pt('today.errors.loadLog'))}</p>
+          <p class="font-semibold">${escHtml(dlPt('today.errors.loadLog'))}</p>
           ${detail}
-          <button type="button" id="retryLoadLogBtn" class="mt-4 px-6 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">${escHtml(pt('today.retry'))}</button>
+          <button type="button" id="retryLoadLogBtn" class="mt-4 px-6 py-2 bg-sky rounded-xl font-semibold text-navy hover:bg-lavender transition-colors" style="min-height:44px">${escHtml(dlPt('today.retry'))}</button>
         </div>`;
       const retry = document.getElementById('retryLoadLogBtn');
       if (retry) retry.addEventListener('click', loadLog);
@@ -527,10 +527,10 @@
       const sectionOrder = ['morgon', 'dag', 'kvall', 'natt'];
       const sectionEmojis = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
       const sectionLabels = {
-        morgon: pt('sections.morgon'),
-        dag: pt('sections.dag'),
-        kvall: pt('sections.kvall'),
-        natt: pt('sections.natt'),
+        morgon: dlPt('sections.morgon'),
+        dag: dlPt('sections.dag'),
+        kvall: dlPt('sections.kvall'),
+        natt: dlPt('sections.natt'),
       };
 
       // Build sections from items
@@ -546,16 +546,16 @@
           <button
             onclick="navigateDate(-7)"
             class="nav-btn rounded-xl bg-lavender hover:bg-sky text-navy transition-colors text-xs font-bold"
-            title="${escHtml(pt('today.nav.prevWeek'))}"
-            aria-label="${escHtml(pt('today.nav.prevWeek'))}"
+            title="${escHtml(dlPt('today.nav.prevWeek'))}"
+            aria-label="${escHtml(dlPt('today.nav.prevWeek'))}"
             style="min-width:44px;min-height:44px;padding:0 10px">
             ‹‹
           </button>
           <button
             onclick="navigateDate(-1)"
             class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors"
-            title="${escHtml(pt('today.nav.prevDay'))}"
-            aria-label="${escHtml(pt('today.nav.prevDay'))}"
+            title="${escHtml(dlPt('today.nav.prevDay'))}"
+            aria-label="${escHtml(dlPt('today.nav.prevDay'))}"
             style="min-width:44px;min-height:44px;padding:0 8px">
             ◀
           </button>
@@ -565,16 +565,16 @@
           <button
             onclick="navigateDate(1)"
             class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors"
-            title="${escHtml(pt('today.nav.nextDay'))}"
-            aria-label="${escHtml(pt('today.nav.nextDay'))}"
+            title="${escHtml(dlPt('today.nav.nextDay'))}"
+            aria-label="${escHtml(dlPt('today.nav.nextDay'))}"
             style="min-width:44px;min-height:44px;padding:0 8px">
             ▶
           </button>
           <button
             onclick="navigateDate(7)"
             class="nav-btn rounded-xl bg-lavender hover:bg-sky text-navy transition-colors text-xs font-bold"
-            title="${escHtml(pt('today.nav.nextWeek'))}"
-            aria-label="${escHtml(pt('today.nav.nextWeek'))}"
+            title="${escHtml(dlPt('today.nav.nextWeek'))}"
+            aria-label="${escHtml(dlPt('today.nav.nextWeek'))}"
             style="min-width:44px;min-height:44px;padding:0 10px">
             ››
           </button>
@@ -584,17 +584,17 @@
             value="${currentDateStr}"
             class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors text-xs px-2 border-0 outline-none cursor-pointer"
             onchange="navigateToDate(this.value)"
-            title="${escHtml(pt('today.nav.pickDate'))}"
+            title="${escHtml(dlPt('today.nav.pickDate'))}"
             style="max-width:44px;min-width:44px;padding:0 4px;color:transparent"
-            aria-label="${escHtml(pt('today.nav.pickDate'))}">
-          ${isToday ? '' : `<button onclick="navigateToDate('${getTodayStr()}')" class="nav-btn rounded-xl bg-gold text-navy font-semibold text-xs px-3 transition-colors hover:bg-yellow-300" style="min-width:auto">${escHtml(pt('today.nav.todayBtn'))}</button>`}
+            aria-label="${escHtml(dlPt('today.nav.pickDate'))}">
+          ${isToday ? '' : `<button onclick="navigateToDate('${getTodayStr()}')" class="nav-btn rounded-xl bg-gold text-navy font-semibold text-xs px-3 transition-colors hover:bg-yellow-300" style="min-width:auto">${escHtml(dlPt('today.nav.todayBtn'))}</button>`}
         </div>`;
 
       // ── Progress bar ─────────────────────────────────────
       const progressHtml = total > 0 ? `
         <div class="bg-white dark:bg-navy-soft rounded-2xl p-4 shadow-sm border border-lavender">
           <div class="flex justify-between items-center mb-2">
-            <span class="font-semibold text-navy">${completed === total && total > 0 ? escHtml(pt('today.progress.allDone')) : escHtml(pt('today.progress.completedOf', { completed, total }))}</span>
+            <span class="font-semibold text-navy">${completed === total && total > 0 ? escHtml(dlPt('today.progress.allDone')) : escHtml(dlPt('today.progress.completedOf', { completed, total }))}</span>
             <span class="text-text-soft text-sm font-semibold">${pct}%</span>
           </div>
           <div class="w-full bg-lavender rounded-full h-3">
@@ -609,8 +609,8 @@
         <div class="bg-gold-light border border-gold rounded-2xl px-4 py-3 flex items-start gap-3">
           <span class="text-xl flex-shrink-0 mt-0.5">📝</span>
           <div>
-            <div class="font-semibold text-navy text-sm">${escHtml(pt('today.retrofill.title'))}</div>
-            <div class="text-xs text-text-soft mt-0.5">${escHtml(pt('today.retrofill.description'))}</div>
+            <div class="font-semibold text-navy text-sm">${escHtml(dlPt('today.retrofill.title'))}</div>
+            <div class="text-xs text-text-soft mt-0.5">${escHtml(dlPt('today.retrofill.description'))}</div>
           </div>
         </div>` : '';
 
@@ -620,15 +620,15 @@
           <div class="flex items-center gap-3">
             <span class="text-3xl">😴</span>
             <div>
-              <div class="font-heading font-bold text-navy">${escHtml(pt('today.pause.dayTitle'))}</div>
-              <div class="text-text-soft text-sm">${escHtml(pt('today.pause.banner'))}</div>
+              <div class="font-heading font-bold text-navy">${escHtml(dlPt('today.pause.dayTitle'))}</div>
+              <div class="text-text-soft text-sm">${escHtml(dlPt('today.pause.banner'))}</div>
             </div>
           </div>
           <button
             onclick="togglePause(false)"
             class="mt-3 w-full px-4 py-2 bg-white border-2 border-gold rounded-xl font-semibold text-navy hover:bg-gold-light transition-colors"
             style="min-height:44px">
-            ${escHtml(pt('today.pause.reactivate'))}
+            ${escHtml(dlPt('today.pause.reactivate'))}
           </button>
         </div>` : '';
 
@@ -640,8 +640,8 @@
             <div class="flex items-center gap-2">
               <span class="text-lg">⏩</span>
               <div>
-                <div class="font-semibold text-navy text-sm">${escHtml(pt('today.bump.title'))}</div>
-                <div class="text-xs text-text-soft">${escHtml(pt('today.bump.adjustHint'))}</div>
+                <div class="font-semibold text-navy text-sm">${escHtml(dlPt('today.bump.title'))}</div>
+                <div class="text-xs text-text-soft">${escHtml(dlPt('today.bump.adjustHint'))}</div>
               </div>
             </div>
             <div class="bump-bar">
@@ -649,7 +649,7 @@
                 <button
                   onclick="bumpTime(${m})"
                   class="bump-btn bg-sky text-navy hover:bg-lavender"
-                  title="${escHtml(pt('today.bump.minutesTitle', { minutes: m }))}">
+                  title="${escHtml(dlPt('today.bump.minutesTitle', { minutes: m }))}">
                   +${m} min
                 </button>`).join('')}
               <button
@@ -657,8 +657,8 @@
                 onclick="undoBumpTime()"
                 class="bump-btn bg-lavender text-text-soft hover:bg-coral ${bumpTimeSnapshot ? '' : 'opacity-40 cursor-not-allowed'}"
                 ${bumpTimeSnapshot ? '' : 'disabled'}
-                title="${escHtml(pt('today.nav.undoBump'))}">
-                ${escHtml(pt('today.bump.undoBtn'))}
+                title="${escHtml(dlPt('today.nav.undoBump'))}">
+                ${escHtml(dlPt('today.bump.undoBtn'))}
               </button>
             </div>
           </div>
@@ -667,7 +667,7 @@
       // ── Color legend (color_coding toggle) ────────────────
       const colorLegendHtml = currentChildColorCoding ? `
         <div class="flex items-center gap-2 flex-wrap text-xs text-text-soft">
-          <span class="font-semibold text-navy">${escHtml(pt('today.legend.colorCoding'))}</span>
+          <span class="font-semibold text-navy">${escHtml(dlPt('today.legend.colorCoding'))}</span>
           ${getCategoryRules().map(r => `
             <span class="flex items-center gap-1 px-2 py-0.5 rounded-full" style="background:${r.color}22;border-left:3px solid ${r.color}">
               ${r.label}
@@ -682,9 +682,9 @@
         sectionsHtml = `
           <div class="text-center py-14 bg-sky rounded-2xl">
             <p class="text-6xl mb-4">${isToday ? '🌟' : '📅'}</p>
-            <p class="font-heading font-bold text-navy text-xl mb-2">${escHtml(isToday ? pt('today.empty.noActivitiesToday') : pt('today.empty.noScheduleDay') + '!')}</p>
-            <p class="text-text-soft text-sm mt-1 mb-6">${escHtml(isToday ? pt('today.empty.addToWeekSchedule') : pt('today.empty.noScheduleSelected'))}</p>
-            <a href="/schedule" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">${escHtml(pt('today.empty.goToWeekSchedule'))}</a>
+            <p class="font-heading font-bold text-navy text-xl mb-2">${escHtml(isToday ? dlPt('today.empty.noActivitiesToday') : dlPt('today.empty.noScheduleDay') + '!')}</p>
+            <p class="text-text-soft text-sm mt-1 mb-6">${escHtml(isToday ? dlPt('today.empty.addToWeekSchedule') : dlPt('today.empty.noScheduleSelected'))}</p>
+            <a href="/schedule" class="inline-block px-6 py-3 bg-gold text-white font-heading font-bold rounded-xl hover:bg-yellow-500 transition-colors">${escHtml(dlPt('today.empty.goToWeekSchedule'))}</a>
           </div>`;
       } else {
         for (const sec of sectionOrder) {
@@ -707,8 +707,8 @@
                     onclick="completeAllInSection('${sec}')"
                     class="shrink-0 ml-2 px-3 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-xs font-semibold border border-green-200 transition-colors"
                     style="min-height:36px"
-                    title="${escHtml(pt('today.activity.completeAllInSection', { section: sectionLabels[sec] }))}">
-                    ${escHtml(pt('today.activity.completeAllBtn'))}
+                    title="${escHtml(dlPt('today.activity.completeAllInSection', { section: sectionLabels[sec] }))}">
+                    ${escHtml(dlPt('today.activity.completeAllBtn'))}
                   </button>` : ''}
               </div>
               <div class="space-y-2 sortable-section" id="sec-${sec}">
@@ -725,7 +725,7 @@
             onclick="togglePause(true)"
             class="w-full px-4 py-3 border-2 border-dashed border-lavender text-text-soft rounded-xl font-semibold hover:border-gold hover:text-navy transition-colors text-sm"
             style="min-height:44px">
-            ${escHtml(pt('today.pause.pauseBtn'))}
+            ${escHtml(dlPt('today.pause.pauseBtn'))}
           </button>
         </div>` : '';
 
@@ -754,7 +754,7 @@
       const pn = document.getElementById('printChildName');
       const pd = document.getElementById('printDate');
       if (pe) pe.innerHTML = child ? renderChildAvatar(child, 40) : '';
-      if (pn) pn.textContent = child ? child.name : pt('today.childFallback');
+      if (pn) pn.textContent = child ? child.name : dlPt('today.childFallback');
       if (pd) pd.textContent = formatDateDisplay(currentDateStr);
 
       // Initialize drag and drop after rendering
@@ -774,17 +774,17 @@
     let ratingHtml = '';
       if (rating && (rating.child_score || rating.child_emotion_key || rating.parent_score)) {
         if (rating.child_emotion_key) {
-          ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold" title="${escHtml(pt('today.rating.childMood'))}">🧒 ${escHtml(rating.child_emotion_key)}</span>`;
+          ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold" title="${escHtml(dlPt('today.rating.childMood'))}">🧒 ${escHtml(rating.child_emotion_key)}</span>`;
         } else if (rating.child_score) {
           ratingHtml += `<span class="text-xs bg-gold-light text-navy px-1.5 py-0.5 rounded font-semibold"
-            title="${escHtml(pt('today.rating.childMood'))}${rating.child_comment ? ': ' + escHtml(rating.child_comment) : ''}"
+            title="${escHtml(dlPt('today.rating.childMood'))}${rating.child_comment ? ': ' + escHtml(rating.child_comment) : ''}"
             onclick="event.stopPropagation()">
             🧒 ${rating.child_score}/10
             ${rating.child_comment ? `<span class="text-text-soft font-normal ml-1">"${escHtml(rating.child_comment)}"</span>` : ''}
           </span>`;
         }
         if (rating.parent_score) {
-          ratingHtml += `<span class="text-xs bg-mint text-navy px-1.5 py-0.5 rounded" title="${escHtml(pt('today.rating.parentScore'))}" onclick="event.stopPropagation()">
+          ratingHtml += `<span class="text-xs bg-mint text-navy px-1.5 py-0.5 rounded" title="${escHtml(dlPt('today.rating.parentScore'))}" onclick="event.stopPropagation()">
             👨‍👩‍👧 ${'⭐'.repeat(rating.parent_score)}
             ${rating.parent_comment ? `<span class="text-text-soft font-normal ml-1">"${escHtml(rating.parent_comment)}"</span>` : ''}
           </span>`;
@@ -797,8 +797,8 @@
         <button
           class="flex-shrink-0 px-2 py-1 text-xs rounded-lg border ${rating && rating.parent_score ? 'bg-mint border-teal-200 text-teal-700' : 'bg-sky border-lavender text-text-soft hover:border-gold hover:text-gold'} transition-colors"
           onclick="event.stopPropagation(); openParentRating('${item.id}', '${escHtml(itemLabel(item))}')"
-          title="${escHtml(rating && rating.parent_score ? pt('today.activity.changeRating') : pt('today.activity.setRating'))}">
-          ${rating && rating.parent_score ? '⭐' + rating.parent_score : escHtml(pt('today.activity.rate'))}
+          title="${escHtml(rating && rating.parent_score ? dlPt('today.activity.changeRating') : dlPt('today.activity.setRating'))}">
+          ${rating && rating.parent_score ? '⭐' + rating.parent_score : escHtml(dlPt('today.activity.rate'))}
         </button>` : '';
 
       return `
@@ -807,11 +807,11 @@
           id="card-${item.id}"
           data-item-id="${item.id}">
           <!-- Desktop: drag handle (hidden on mobile, drag-handle class enables SortableJS) -->
-          <div class="drag-handle shrink-0 flex items-center justify-center w-6 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy opacity-0 group-hover:opacity-100 transition-opacity select-none dl-drag-desktop" title="${escHtml(pt('today.activity.dragReorder'))}">⠿</div>
+          <div class="drag-handle shrink-0 flex items-center justify-center w-6 cursor-grab active:cursor-grabbing text-text-soft hover:text-navy opacity-0 group-hover:opacity-100 transition-opacity select-none dl-drag-desktop" title="${escHtml(dlPt('today.activity.dragReorder'))}">⠿</div>
           <!-- Mobile: ↑/↓ reorder buttons (hidden on desktop via CSS) -->
           <div class="dl-reorder-mobile shrink-0 flex flex-col gap-0.5">
-            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', -1)" aria-label="${escHtml(pt('today.shell.moveUp'))}" title="${escHtml(pt('today.shell.moveUp'))}">▲</button>
-            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', 1)" aria-label="${escHtml(pt('today.shell.moveDown'))}" title="${escHtml(pt('today.shell.moveDown'))}">▼</button>
+            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', -1)" aria-label="${escHtml(dlPt('today.shell.moveUp'))}" title="${escHtml(dlPt('today.shell.moveUp'))}">▲</button>
+            <button class="dl-move-btn" onclick="moveItemInSection('${item.id}', 1)" aria-label="${escHtml(dlPt('today.shell.moveDown'))}" title="${escHtml(dlPt('today.shell.moveDown'))}">▼</button>
           </div>
           <div class="print-checkbox"></div>
           <div class="text-3xl flex-shrink-0">${item.icon || '📌'}</div>
@@ -829,8 +829,8 @@
             <button
               class="check-btn ${checkClass} flex-shrink-0"
               onclick="toggleItem('${item.id}', ${!item.completed})"
-              title="${escHtml(item.completed ? pt('today.activity.undoMark') : pt('today.activity.markDone'))}"
-              aria-label="${escHtml(item.completed ? pt('today.activity.undoMark') : pt('today.activity.markDone'))}">
+              title="${escHtml(item.completed ? dlPt('today.activity.undoMark') : dlPt('today.activity.markDone'))}"
+              aria-label="${escHtml(item.completed ? dlPt('today.activity.undoMark') : dlPt('today.activity.markDone'))}">
               ${item.completed ? '✓' : ''}
             </button>
           </div>
@@ -891,7 +891,7 @@
                 body: JSON.stringify({ ordered_item_ids: ordered_ids }),
               });
             } catch (err) {
-              showToast(pt('today.errors.saveOrder'), 'error');
+              showToast(dlPt('today.errors.saveOrder'), 'error');
             }
           },
         });
@@ -923,7 +923,7 @@
           body: JSON.stringify({ ordered_item_ids: ordered_ids }),
         });
       } catch (err) {
-        showToast(pt('today.errors.saveOrder'), 'error');
+        showToast(dlPt('today.errors.saveOrder'), 'error');
       }
     }
     // ── Mood summary (parent Idag / daily-log — not Hem dashboard) ──
@@ -961,12 +961,12 @@
         `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-lavender text-navy text-xs font-semibold">${escHtml(e.emoji)} ${escHtml(e.label)} ×${e.count}</span>`
       ).join('');
       const scoreLine = scoreCount
-        ? `<span class="text-xs text-text-soft">${escHtml(pt('today.emotions.sliderResponses', { count: scoreCount, suffix: scoreCount === 1 ? pt('today.emotions.sliderSuffixOne') : pt('today.emotions.sliderSuffixMany') }))}${data.scores.avg != null ? escHtml(pt('today.emotions.sliderAvg', { avg: data.scores.avg })) : ''}</span>`
+        ? `<span class="text-xs text-text-soft">${escHtml(dlPt('today.emotions.sliderResponses', { count: scoreCount, suffix: scoreCount === 1 ? dlPt('today.emotions.sliderSuffixOne') : dlPt('today.emotions.sliderSuffixMany') }))}${data.scores.avg != null ? escHtml(dlPt('today.emotions.sliderAvg', { avg: data.scores.avg })) : ''}</span>`
         : '';
       block.className = 'bg-white dark:bg-navy-soft rounded-2xl p-4 shadow-sm border border-lavender';
       block.innerHTML = `
-        <div class="text-xs font-bold text-text-soft uppercase tracking-wider mb-2">${escHtml(pt('today.emotions.title'))}</div>
-        <div class="flex flex-wrap gap-2">${chips || '<span class="text-xs text-text-soft">' + escHtml(pt('today.emotions.noCards')) + '</span>'}</div>
+        <div class="text-xs font-bold text-text-soft uppercase tracking-wider mb-2">${escHtml(dlPt('today.emotions.title'))}</div>
+        <div class="flex flex-wrap gap-2">${chips || '<span class="text-xs text-text-soft">' + escHtml(dlPt('today.emotions.noCards')) + '</span>'}</div>
         ${scoreLine ? `<div class="mt-2">${scoreLine}</div>` : ''}`;
     }
 
@@ -1042,16 +1042,16 @@
         if (newState) {
           const item = currentItems.find(i => i.id === itemId);
           clearUndoCompleteTimer();
-          undoCompleteState = { itemId, itemName: item ? itemLabel(item) : pt('today.activity.defaultName') };
+          undoCompleteState = { itemId, itemName: item ? itemLabel(item) : dlPt('today.activity.defaultName') };
           undoCompleteTimer = setTimeout(() => {
             clearUndoCompleteTimer();
           }, 3000);
-          showUndoSnackbar(item ? itemLabel(item) : pt('today.activity.defaultName'));
+          showUndoSnackbar(item ? itemLabel(item) : dlPt('today.activity.defaultName'));
         } else {
-          showToast(pt('today.activity.undoneToast'));
+          showToast(dlPt('today.activity.undoneToast'));
         }
       } catch {
-        showToast(pt('today.errors.updateActivity'), 'error');
+        showToast(dlPt('today.errors.updateActivity'), 'error');
       }
     }
 
@@ -1077,7 +1077,7 @@
           onclick="undoLastComplete()"
           class="shrink-0 px-3 py-1 bg-gold text-navy rounded-lg font-bold text-xs hover:bg-yellow-400 transition-colors"
           style="min-height:32px">
-          ${escHtml(pt('today.snackbar.undo'))}
+          ${escHtml(dlPt('today.snackbar.undo'))}
         </button>`;
 
       document.body.appendChild(snackbar);
@@ -1104,9 +1104,9 @@
           if (item) card.outerHTML = renderActivityCard(item);
         }
         updateProgressBar();
-        showToast(pt('today.activity.undoneToast'));
+        showToast(dlPt('today.activity.undoneToast'));
       } catch {
-        showToast(pt('today.errors.undo'), 'error');
+        showToast(dlPt('today.errors.undo'), 'error');
       }
     }
     window.undoLastComplete = undoLastComplete;
@@ -1123,8 +1123,8 @@
       const label = document.querySelector('.progress-bar-fill')?.closest('.bg-white')?.querySelector('.font-semibold');
       if (label) {
         label.textContent = completed === total && total > 0
-          ? pt('today.progress.allDone')
-          : pt('today.progress.completedOf', { completed, total });
+          ? dlPt('today.progress.allDone')
+          : dlPt('today.progress.completedOf', { completed, total });
       }
 
       const pctLabel = document.querySelector('.progress-bar-fill')?.closest('.bg-white')?.querySelector('.text-text-soft');
@@ -1136,8 +1136,8 @@
     async function togglePause(pause) {
       if (!currentLog) return;
       const confirm = window.confirm(pause
-        ? pt('today.pause.confirmPause')
-        : pt('today.pause.confirmUnpause'));
+        ? dlPt('today.pause.confirmPause')
+        : dlPt('today.pause.confirmUnpause'));
       if (!confirm) return;
 
       try {
@@ -1146,7 +1146,7 @@
         if (!res.ok) throw new Error();
         const updated = await res.json();
         currentLog = { ...currentLog, ...updated };
-        showToast(pause ? pt('today.pause.pausedToast') : pt('today.pause.unpausedToast'));
+        showToast(pause ? dlPt('today.pause.pausedToast') : dlPt('today.pause.unpausedToast'));
 
         // Update pause banner in-place
         const pauseOverlay = document.getElementById('pauseOverlay');
@@ -1157,15 +1157,15 @@
             <div class="flex items-center gap-3">
               <span class="text-3xl">😴</span>
               <div>
-                <div class="font-heading font-bold text-navy">${escHtml(pt('today.pause.dayTitle'))}</div>
-                <div class="text-text-soft text-sm">${escHtml(pt('today.pause.banner'))}</div>
+                <div class="font-heading font-bold text-navy">${escHtml(dlPt('today.pause.dayTitle'))}</div>
+                <div class="text-text-soft text-sm">${escHtml(dlPt('today.pause.banner'))}</div>
               </div>
             </div>
             <button
               onclick="togglePause(false)"
               class="mt-3 w-full px-4 py-2 bg-white border-2 border-gold rounded-xl font-semibold text-navy hover:bg-gold-light transition-colors"
               style="min-height:44px">
-              ${escHtml(pt('today.pause.reactivate'))}
+              ${escHtml(dlPt('today.pause.reactivate'))}
             </button>`;
           if (bumpBar) bumpBar.classList.add('hidden');
           if (pauseActionsBtn) pauseActionsBtn.classList.add('hidden');
@@ -1175,7 +1175,7 @@
           if (pauseActionsBtn) pauseActionsBtn.classList.remove('hidden');
         }
       } catch {
-        showToast(pt('today.errors.changeStatus'), 'error');
+        showToast(dlPt('today.errors.changeStatus'), 'error');
       }
     }
 
@@ -1189,10 +1189,10 @@
           body: JSON.stringify({ minutes }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || pt('today.errors.adjustTime'));
+        if (!res.ok) throw new Error(data.error || dlPt('today.errors.adjustTime'));
 
         if (data.updated === 0) {
-          showToast(pt('today.bump.noItems'), 'error');
+          showToast(dlPt('today.bump.noItems'), 'error');
           return;
         }
 
@@ -1220,9 +1220,9 @@
           undoBtn.classList.remove('opacity-40', 'cursor-not-allowed');
         }
 
-        showToast(pt('today.bump.moved', { count: data.updated, suffix: data.updated === 1 ? pt('today.bump.movedOne') : pt('today.bump.movedMany'), minutes }));
+        showToast(dlPt('today.bump.moved', { count: data.updated, suffix: data.updated === 1 ? dlPt('today.bump.movedOne') : dlPt('today.bump.movedMany'), minutes }));
       } catch (err) {
-        showToast(err.message || pt('today.errors.adjustTime'), 'error');
+        showToast(err.message || dlPt('today.errors.adjustTime'), 'error');
       }
     }
 
@@ -1234,7 +1234,7 @@
           body: JSON.stringify({ snapshot: bumpTimeSnapshot }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || pt('today.errors.undo'));
+        if (!res.ok) throw new Error(data.error || dlPt('today.errors.undo'));
 
         // Clear snapshot
         bumpTimeSnapshot = null;
@@ -1260,9 +1260,9 @@
           undoBtn.classList.add('opacity-40', 'cursor-not-allowed');
         }
 
-        showToast(pt('today.bump.undoToast'));
+        showToast(dlPt('today.bump.undoToast'));
       } catch (err) {
-        showToast(err.message || pt('today.errors.undo'), 'error');
+        showToast(err.message || dlPt('today.errors.undo'), 'error');
       }
     }
 
@@ -1293,7 +1293,7 @@
     });
 
     function goPrintSchemaPdf(scope) {
-      if (!currentChildId) { showToast(pt('today.errors.selectChild'), 'error'); return; }
+      if (!currentChildId) { showToast(dlPt('today.errors.selectChild'), 'error'); return; }
       let url = '/print-schema?childId=' + encodeURIComponent(currentChildId);
       if (scope === 'my') url += '&scope=my';
       trackPrintExport(scope === 'my' ? 'my_days' : 'week');
@@ -1306,9 +1306,9 @@
     }
 
     async function printWeek() {
-      if (!currentChildId) { showToast(pt('today.errors.selectChild'), 'error'); return; }
+      if (!currentChildId) { showToast(dlPt('today.errors.selectChild'), 'error'); return; }
       const child = children.find(c => c.id === currentChildId);
-      const childName = child ? child.name : pt('today.childFallback');
+      const childName = child ? child.name : dlPt('today.childFallback');
       const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
 
       // Calculate Monday of current week
@@ -1346,7 +1346,7 @@
         );
       }
 
-      showToast(pt('today.weekOverview.preparing'));
+      showToast(dlPt('today.weekOverview.preparing'));
       const days = await Promise.all(dayPromises);
 
       // Build compact A4-landscape week grid
@@ -1409,7 +1409,7 @@
         <div class="week-header">
           <span style="font-size:1.6em;">${childAvatarHtml}</span>
           <div>
-            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;color:#1B2340;">${escHtml(pt('today.weekOverview.weekScheduleTitle', { name: childName }))}</h1>
+            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;color:#1B2340;">${escHtml(dlPt('today.weekOverview.weekScheduleTitle', { name: childName }))}</h1>
             <p style="color:#5A6178;margin:2px 0 0;font-size:9px;">${mondayStr} – ${sundayStr}</p>
           </div>
         </div>
@@ -1419,7 +1419,7 @@
       // Open print window
       const printWin = window.open('', '_blank', 'width=1100,height=700');
       printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-        '<title>' + escHtml(pt('today.shell.printWeekDocTitle', { name: childName })) + '<\/title>' +
+        '<title>' + escHtml(dlPt('today.shell.printWeekDocTitle', { name: childName })) + '<\/title>' +
         '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">' +
         '<style>' + printStyles + '<\/style>' +
         '<\/head><body>' + weekHtml + '<\/body><\/html>');
@@ -1430,23 +1430,23 @@
     }
 
     async function printMyDaysWeek() {
-      if (!currentChildId) { showToast(pt('today.errors.selectChild'), 'error'); return; }
-      if (!custodyPrintEnabled) { showToast(pt('today.errors.custodyDisabled'), 'error'); return; }
+      if (!currentChildId) { showToast(dlPt('today.errors.selectChild'), 'error'); return; }
+      if (!custodyPrintEnabled) { showToast(dlPt('today.errors.custodyDisabled'), 'error'); return; }
 
       const child = children.find(c => c.id === currentChildId);
-      const childName = child ? child.name : pt('today.childFallback');
+      const childName = child ? child.name : dlPt('today.childFallback');
       const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
 
-      showToast(pt('today.weekOverview.preparingCustody'));
+      showToast(dlPt('today.weekOverview.preparingCustody'));
       const calRes = await apiFetch(
         `/api/children/${currentChildId}/calendar-week?weekOffset=0&myDays=1`
       );
-      if (!calRes.ok) { showToast(pt('today.errors.loadWeek'), 'error'); return; }
+      if (!calRes.ok) { showToast(dlPt('today.errors.loadWeek'), 'error'); return; }
       const cal = await calRes.json();
 
       const myDays = (cal.days || []).filter((d) => d.activities && d.activities.length > 0);
       if (!myDays.length) {
-        showToast(pt('today.weekOverview.noMyDays'), 'error');
+        showToast(dlPt('today.weekOverview.noMyDays'), 'error');
         return;
       }
 
@@ -1497,14 +1497,14 @@
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;border-bottom:2px solid #1B2340;padding-bottom:6px;">
           <span style="font-size:1.6em;">${childAvatarHtml}</span>
           <div>
-            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;">${escHtml(pt('today.weekOverview.myDaysTitle', { name: childName }))}</h1>
+            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;">${escHtml(dlPt('today.weekOverview.myDaysTitle', { name: childName }))}</h1>
             <p style="font-size:9px;color:#5A6178;margin:2px 0 0;">${escHtml(cal.weekStart)} – ${escHtml(cal.weekEnd)}</p>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(${myDays.length},1fr);gap:5px;">${dayColumns}</div>`;
 
       const printWin = window.open('', '_blank', 'width=1100,height=700');
-      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escHtml(pt('today.shell.printMyDaysDocTitle')) + '</title><style>@page{size:A4 landscape;margin:8mm;}body{margin:0;font-family:Arial,sans-serif;}</style></head><body>' + weekHtml + '</body></html>');
+      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escHtml(dlPt('today.shell.printMyDaysDocTitle')) + '</title><style>@page{size:A4 landscape;margin:8mm;}body{margin:0;font-family:Arial,sans-serif;}</style></head><body>' + weekHtml + '</body></html>');
       printWin.document.close();
       printWin.focus();
       setTimeout(() => printWin.print(), 800);
@@ -1516,7 +1516,7 @@
     function openParentRating(itemId, itemName) {
       ratingItemId = itemId;
       ratingScore = 0;
-      document.getElementById('parentRatingName').textContent = itemName || pt('today.activity.defaultName');
+      document.getElementById('parentRatingName').textContent = itemName || dlPt('today.activity.defaultName');
       document.getElementById('parentRatingComment').value = '';
       document.getElementById('parentRatingSubmit').disabled = true;
       document.getElementById('parentRatingLabel').textContent = '';
@@ -1564,7 +1564,7 @@
           body: JSON.stringify({ score: ratingScore, comment: comment || null }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || pt('today.errors.undo'));
+        if (!res.ok) throw new Error(data.error || dlPt('today.errors.undo'));
 
         // Update cached rating
         if (!itemRatings[ratingItemId]) itemRatings[ratingItemId] = {};
@@ -1580,9 +1580,9 @@
           card.outerHTML = renderActivityCard(item);
         }
 
-        showToast(pt('today.rating.saved'));
+        showToast(dlPt('today.rating.saved'));
       } catch (err) {
-        showToast(err.message || pt('today.errors.saveRating'), 'error');
+        showToast(err.message || dlPt('today.errors.saveRating'), 'error');
       }
     }
   
