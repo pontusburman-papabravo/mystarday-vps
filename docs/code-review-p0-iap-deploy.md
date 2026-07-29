@@ -212,9 +212,25 @@ Standard när osett: `both` om båda secrets finns, annars den konfigurerade met
 
 ### Go till staging (efter merge av PR #781)
 
+**Startkonfiguration:** `REVENUECAT_WEBHOOK_AUTH_MODE=static`  
+Byt endast till `both` när en faktisk RevenueCat-leverans visar både `Authorization` och `X-RevenueCat-Webhook-Signature`.
+
+Minimikontroll efter merge:
+
+```bash
+npm run migrate
+
+curl -s http://127.0.0.1:3000/health | jq .
+# git_sha ska matcha CI-godkänd och deployad SHA
+
+npm run reconcile:revenuecat -- --dry-run <test-family-uuid>
+```
+
+Checklista:
+
 - [ ] PR #781 mergad
 - [ ] Migration `1810000000013` körd och verifierad (`\d iap_webhook_log` visar audit-kolumner)
-- [ ] `REVENUECAT_WEBHOOK_AUTH_MODE` explicit satt (matchar vad RevenueCat faktiskt skickar)
+- [ ] `REVENUECAT_WEBHOOK_AUTH_MODE=static` satt (byt till `both` endast efter verifierad dubbel-header från RevenueCat)
 - [ ] `curl /health` visar `git_sha` som matchar deployad revision
 - [ ] `npm run reconcile:revenuecat -- --dry-run <family-uuid>` fungerar mot känd testfamilj
 - [ ] `REVENUECAT_SECRET_API_KEY` finns i `.env` men skrivs **aldrig** i logg eller deploy-output
@@ -234,6 +250,8 @@ Alla staging-kriterier ovan, plus:
 - [ ] Rollback verifierad i kontrollerat stagingtest
 
 **Nästa prioritet efter produktion:** rewards-concurrency som separat P1-PR — utan engelska, UI eller ytterligare RevenueCat-förändringar.
+
+Ingen ytterligare P0-utveckling före staging-signoff, utom rena korrigeringar av fel upptäckta under verifieringen.
 
 ---
 
