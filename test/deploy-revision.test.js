@@ -14,7 +14,10 @@ test('vps-deploy-revision.sh requires DEPLOY_SHA and validates format', () => {
   assert.match(script, /\^\[0-9a-f\]\{40\}\$/);
   assert.match(script, /set -Eeuo pipefail/);
   assert.match(script, /npm ci --legacy-peer-deps/);
-  assert.match(script, /git cat-file -e/);
+  assert.match(script, /git fetch --depth 1 origin "\$TARGET_SHA"/);
+  assert.match(script, /git checkout --detach "\$TARGET_SHA"/);
+  assert.doesNotMatch(script, /git fetch origin main/);
+  assert.doesNotMatch(script, /git reset --hard origin\/main/);
   assert.match(script, /git rev-parse HEAD/);
   assert.doesNotMatch(script, /npm install/);
 });

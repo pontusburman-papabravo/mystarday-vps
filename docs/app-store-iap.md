@@ -173,7 +173,7 @@ Payload-fält läses från `payload.event` (inte `event.data.attributes`): `id`,
 | `BILLING_ISSUE` | `grace_period` | Apple försöker betala igen |
 | `(övriga)` | *(ingen statusändring)* | `200 OK`, loggas som skipped |
 
-Idempotens: `event.id` lagras i `iap_webhook_log.revenuecat_event_id` (UNIQUE). Duplicerade leveranser returnerar `200` utan ny effekt.
+Idempotens: `event.id` lagras i `iap_webhook_log.revenuecat_event_id` (**PRIMARY KEY** = UNIQUE constraint). Duplicerade leveranser returnerar `200` med `{ duplicate: true }`.
 
 ### Lookup-logik
 

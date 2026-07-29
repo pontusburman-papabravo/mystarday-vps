@@ -60,7 +60,14 @@ async function handleIapWebhook(req, res) {
     }
 
     if (result.skipped) {
-      console.log(`[iap-webhook] Skipped event ${event.id}: ${result.reason}`);
+      if (result.reason === 'family_not_found') {
+        console.warn(
+          `[iap-webhook] WARN Unknown app_user_id — event=${event.id || 'unknown'} ` +
+          `type=${event.type} app_user_id=${appUserId} product_id=${event.product_id || 'n/a'}`
+        );
+      } else {
+        console.log(`[iap-webhook] Skipped event ${event.id}: ${result.reason}`);
+      }
       return res.status(200).json({
         received: true,
         skipped: result.reason,
@@ -71,7 +78,7 @@ async function handleIapWebhook(req, res) {
     console.log(
       `[iap-webhook] Family ${result.familyId} subscription_status → ${result.subscriptionStatus}`
     );
-    return res.status(200).json({ received: true });
+    return res.status(200).json({ received: true, processed: true });
   } catch (err) {
     if (err.code === 'INVALID_EVENT' || err.code === 'MISSING_IDENTITY') {
       return res.status(400).json({ error: err.message });

@@ -3,6 +3,8 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const { setupTestDb, injectMockDb } = require('./helpers/setup.js');
 const { listenApp } = require('./helpers/http.js');
 const {
@@ -18,6 +20,24 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 
 const WEBHOOK_AUTH = 'Bearer revenuecat-static-webhook-secret';
 const SIGNING_SECRET = 'revenuecat-hmac-signing-secret';
+
+test('express.raw is scoped to webhook POST routes only (not global)', () => {
+  const appSrc = fs.readFileSync(path.join(__dirname, '../app.js'), 'utf8');
+  assert.doesNotMatch(appSrc, /app\.use\(\s*express\.raw/);
+  assert.match(appSrc, /app\.post\(\s*\n?\s*'\/api\/iap\/webhook'/);
+  assert.match(appSrc, /express\.raw\(\{ type: 'application\/json' \}\)/);
+  const rawIdx = appSrc.indexOf("express.raw({ type: 'application/json' })");
+  const jsonIdx = appSrc.indexOf('app.use(express.json())');
+  assert.ok(rawIdx > -1 && jsonIdx > rawIdx, 'express.raw mounts before express.json');
+});
+
+test('iap_webhook_log migration enforces UNIQUE via PRIMARY KEY on revenuecat_event_id', () => {
+  const mig = fs.readFileSync(
+    path.join(__dirname, '../migrations/1810000000012_iap_webhook_log.js'),
+    'utf8'
+  );
+  assert.match(mig, /revenuecat_event_id TEXT PRIMARY KEY/);
+});
 
 function buildEventPayload(overrides = {}) {
   const event = {
@@ -263,6 +283,9 @@ test('IAP webhook: duplicate event ID returns 200 without double update', async 
       body,
     });
     assert.equal(first.status, 200);
+    const firstJson = await first.json();
+    assert.equal(firstJson.processed, true);
+    assert.notEqual(firstJson.duplicate, true);
 
     await db.query(
       `UPDATE family SET subscription_status = 'expired' WHERE id = $1`,
@@ -278,10 +301,98 @@ test('IAP webhook: duplicate event ID returns 200 without double update', async 
     const secondJson = await second.json();
     assert.equal(secondJson.duplicate, true);
 
+    const third = await fetch(`${http.baseUrl}/api/iap/webhook`, {
+      method: 'POST',
+      headers,
+      body,
+    });
+    assert.equal(third.status, 200);
+    const thirdJson = await third.json();
+    assert.equal(thirdJson.duplicate, true);
+
+    const { rows: logRows } = await db.query(
+      'SELECT COUNT(*)::int AS count FROM iap_webhook_log WHERE revenuecat_event_id = $1',
+      [eventId]
+    );
+    assert.equal(logRows[0].count, 1, 'exactly one webhook log row for event id');
+
     const { rows } = await db.query(
       'SELECT subscription_status FROM family WHERE id = $1',
       [familyId]
     );
+    assert.equal(rows[0].subscription_status, 'expired');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('IAP webhook: subscription lifecycle INITIAL_PURCHASE → CANCELLATION → EXPIRATION', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  process.env.REVENUECAT_WEBHOOK_SECRET = WEBHOOK_AUTH;
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const familyId = await seedTestFamily(db, { subscriptionStatus: 'none' });
+    const futureMs = Date.now() + 7 * 86_400_000;
+    const pastMs = Date.now() - 1000;
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: WEBHOOK_AUTH,
+    };
+
+    const purchase = await fetch(`${http.baseUrl}/api/iap/webhook`, {
+      method: 'POST',
+      headers,
+      body: buildEventPayload({
+        type: 'INITIAL_PURCHASE',
+        app_user_id: familyId,
+      }),
+    });
+    assert.equal(purchase.status, 200);
+    let { rows } = await db.query(
+      'SELECT subscription_status FROM family WHERE id = $1',
+      [familyId]
+    );
+    assert.equal(rows[0].subscription_status, 'active');
+
+    const cancel = await fetch(`${http.baseUrl}/api/iap/webhook`, {
+      method: 'POST',
+      headers,
+      body: buildEventPayload({
+        type: 'CANCELLATION',
+        app_user_id: familyId,
+        expiration_at_ms: futureMs,
+      }),
+    });
+    assert.equal(cancel.status, 200);
+    ({ rows } = await db.query(
+      'SELECT subscription_status FROM family WHERE id = $1',
+      [familyId]
+    ));
+    assert.equal(rows[0].subscription_status, 'active', 'CANCELLATION keeps access until expiration');
+
+    const expire = await fetch(`${http.baseUrl}/api/iap/webhook`, {
+      method: 'POST',
+      headers,
+      body: buildEventPayload({
+        type: 'EXPIRATION',
+        app_user_id: familyId,
+        expiration_at_ms: pastMs,
+      }),
+    });
+    assert.equal(expire.status, 200);
+    ({ rows } = await db.query(
+      'SELECT subscription_status FROM family WHERE id = $1',
+      [familyId]
+    ));
     assert.equal(rows[0].subscription_status, 'expired');
   } finally {
     await http.close();
