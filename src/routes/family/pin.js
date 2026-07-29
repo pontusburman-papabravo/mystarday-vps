@@ -18,6 +18,7 @@ const { requireParent, requireAuth, resolveParentIdForLoginPicker, verifyToken }
 const { generateCsrfToken } = require('../../middleware/csrf');
 const { parentPinLimiter } = require('../../middleware/rateLimiter');
 const parentPinDb = require('../../../db/parent-pin');
+const { activateParentSessionCookies } = require('../../lib/parent-session-cookies');
 
 const router = express.Router();
 
@@ -37,36 +38,6 @@ async function resolvePickerParentContext(req) {
     familyId: parentRow.family_id,
     parent: parentRow,
   };
-}
-
-/** Activate parent httpOnly cookies from stjarndag_parent_session (add-child / onboarding). */
-function activateParentSessionCookies(req, res) {
-  const parentSessionCookie = req.cookies?.stjarndag_parent_session;
-  if (!parentSessionCookie) return false;
-  let session;
-  try {
-    session = JSON.parse(Buffer.from(parentSessionCookie, 'base64').toString('utf8'));
-  } catch {
-    return false;
-  }
-  if (!session?.access_token || !session?.refresh_token) return false;
-
-  res.cookie('access_token', session.access_token, {
-    httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'lax',
-    maxAge: 15 * 60 * 1000,
-    path: '/',
-  });
-  res.cookie('refresh_token', session.refresh_token, {
-    httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: '/api/auth',
-  });
-  res.clearCookie('stjarndag_parent_session', { path: '/' });
-  return true;
 }
 
 /** Attach req.user from barnväljare for rate limiting on picker PIN routes. */
