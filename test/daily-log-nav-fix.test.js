@@ -42,5 +42,8 @@ describe('daily-log navigation fix (support: stuck on log page)', () => {
     assert.doesNotMatch(src, /else if \(!children\.length\)/);
     assert.match(src, /ParentMagicPageBoot\.register\('daily-log'/);
     assert.match(src, /_loadLogSeq/);
+    assert.match(src, /resolveBootUser/);
+    assert.match(src, /retryChildrenIfEmpty/);
+    assert.match(src, /AUTH_BOOT_TIMEOUT_MS/);
   });
 });
