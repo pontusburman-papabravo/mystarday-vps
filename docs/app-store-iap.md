@@ -139,19 +139,27 @@ function canPurchase() {
 ```
 POST /api/iap/webhook
 Content-Type: application/json
-Authorization: Bearer <api_key>:<base64_hmac_sha256>
+Authorization: <värde från RevenueCat Dashboard>
+```
+
+Valfritt vid HMAC-signering i RevenueCat:
+
+```
+X-RevenueCat-Webhook-Signature: t=<unix_timestamp>,v1=<hmac_sha256_hex>
 ```
 
 ### Valideringssteg
 
-1. **Authorization-header saknas** → `401 Unauthorized`
-2. **Header felformatterad** (`Bearer:missing`) → `401 Unauthorized`
-3. **HMAC-SHA256(body, REVENUECAT_WEBHOOK_SECRET) ≠ providedSig** → `401 Unauthorized`
-4. **Body inte valid JSON** → `400 Bad Request`
-5. **`event.type` saknas** → `200 OK` (RevenueCat retry-policy)
-6. **`app_user_id` saknas** → `200 OK` (RevenueCat retry-policy)
+1. **Webhook auth ej konfigurerad** (`REVENUECAT_WEBHOOK_SECRET` och `REVENUECAT_WEBHOOK_SIGNING_SECRET` saknas) → `500`
+2. **Ogiltig auth** → `401 Unauthorized`
+3. **Body inte valid JSON** → `400 Bad Request`
+4. **Saknat `event` eller `event.type`** → `400 Bad Request`
+5. **Saknad app-användaridentitet** → `400 Bad Request`
+6. **Familj hittas inte** → `404 Not Found`
+7. **Tillfälligt DB-fel** → `503 Service Unavailable` (RevenueCat retryar)
+8. **Lyckad bearbetning eller duplicerat `event.id`** → `200 OK`
 
-OmFamiljen inte hittas → `200 OK` (RevenueCat retry-policy). Om DB-uppdateringen misslyckas → `200 OK` (RevenueCat retry-policy). **Soft errors** returnerar alltid `200` för att trigga RevenueCats automatiska retry.
+Payload-fält läses från `payload.event` (inte `event.data.attributes`): `id`, `type`, `app_user_id`, `original_app_user_id`, `aliases`, `expiration_at_ms`.
 
 ### Event-typer och statusuppdateringar
 
@@ -159,15 +167,20 @@ OmFamiljen inte hittas → `200 OK` (RevenueCat retry-policy). Om DB-uppdatering
 |---|---|---|
 | `INITIAL_PURCHASE` | `active` | Sätter även `rc_customer_id = app_user_id` |
 | `RENEWAL` | `active` | |
-| `CANCELLATION` | `cancelled` | |
+| `UNCANCELLATION`, `PRODUCT_CHANGE`, … | `active` | |
+| `CANCELLATION` | `active` om `expiration_at_ms` ligger i framtiden | Avslutar inte åtkomst före periodslut |
 | `EXPIRATION` | `expired` | |
 | `BILLING_ISSUE` | `grace_period` | Apple försöker betala igen |
-| `(övriga)` | *(ignoreras)* | Retunerar `200 OK`, loggar varning |
+| `(övriga)` | *(ingen statusändring)* | `200 OK`, loggas som skipped |
+
+Idempotens: `event.id` lagras i `iap_webhook_log.revenuecat_event_id` (UNIQUE). Duplicerade leveranser returnerar `200` utan ny effekt.
 
 ### Lookup-logik
 
-1. Primärt: `family.id = app_user_id` (family UUID)
-2. Sekundärt (ej INITIAL_PURCHASE/EXPIRATION): `family.rc_customer_id = app_user_id`
+1. `family.id` matchar någon av: `app_user_id`, `original_app_user_id`, `aliases`
+2. Annars `family.rc_customer_id` matchar samma kandidater
+
+Se även `docs/code-review-p0-iap-deploy.md` för drifts- och verifieringschecklista.
 
 ---
 

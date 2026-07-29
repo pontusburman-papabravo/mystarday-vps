@@ -27,7 +27,7 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | Variabel | Värde | Kommentar |
 |----------|-------|-----------|
 | `REVENUECAT_API_KEY` | (från RevenueCat Dashboard) | Publika nyckeln — exponeras via `/api/iap/config` |
-| `REVENUECAT_WEBHOOK_SECRET` | (från RevenueCat Dashboard) | Hemlig nyckel för webhook-HMAC-validering |
+| `REVENUECAT_WEBHOOK_SECRET` | (från RevenueCat Dashboard) | Authorization-header-värde för webhook (exakt match) |
 | `APNS_KEY_ID` | `RTJ37525AU` | 10-teckens Key ID från Apple Developer → Keys |
 | `APNS_TEAM_ID` | `PQ7M3B7VW5` | Apple Team ID |
 | `APNS_KEY_CONTENT` | (PEM-nyckel inkl. `-----BEGIN PRIVATE KEY-----`) | Hela .p8-nyckeln som env-var |
