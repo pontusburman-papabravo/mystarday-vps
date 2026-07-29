@@ -16,7 +16,7 @@
 
 **Never:** `translations[name] || name` without origin verification.
 
-### Prod audit results (2026-07-29)
+### Live database audit results (2026-07-29)
 
 **Distribution**
 
@@ -36,7 +36,21 @@
 
 **RC-1 decision:** `NULL` → legacy system is correct for ~91% of NULL rows. ~558 user-like NULL rows accepted as post-launch debt.
 
-**Post-launch (not #775):** backfill `source='user'` where `source IS NULL` and name frequency ≤5 (or manual review).
+### Post-launch backlog (tracked — not forgotten)
+
+**PL-1 — Legacy `activity_template.source` backfill**
+
+After go-live, with analysis and validation on live database samples:
+
+- Backfill `activity_template.source = 'user'` for verified legacy rows with unclear provenance (heuristic start: `source IS NULL` and name appears in ≤5 families).
+- Re-run collision query (`middag`, `bad`, `frukost` on non-`user` source).
+- Do **not** block RC-1 launch; do **not** fold into i18n program — treat as a small data hygiene release bug.
+
+```sql
+-- Post-launch: likely user NULL rows (re-run before backfill)
+WITH nf AS (SELECT name, COUNT(*) freq FROM activity_template WHERE source IS NULL GROUP BY name)
+SELECT COUNT(*) FROM activity_template a JOIN nf ON nf.name=a.name AND nf.freq <= 5 WHERE a.source IS NULL;
+```
 
 ```sql
 -- Distribution
@@ -51,10 +65,6 @@ FROM activity_template
 WHERE LOWER(name) IN ('middag', 'bad', 'frukost')
   AND source IS DISTINCT FROM 'user'
 LIMIT 20;
-
--- Post-launch: likely user NULL rows
-WITH nf AS (SELECT name, COUNT(*) freq FROM activity_template WHERE source IS NULL GROUP BY name)
-SELECT COUNT(*) FROM activity_template a JOIN nf ON nf.name=a.name AND nf.freq <= 5 WHERE a.source IS NULL;
 ```
 
 ---
@@ -121,13 +131,13 @@ After journey A or B:
 
 ### R4-E — Locale torture test (merge gate)
 
-Single end-to-end stress path that exercises Calendar/Today races, locale switch mid-navigation, reload, logout, and child handoff. **Run once on real phone before merge.**
+End-to-end path exercising navigation, locale switch, cache, reload, logout, login, handoff, and child shell. **Run on real phone before calling RC-1 green.**
 
 | Step | Action |
 |------|--------|
 | 1 | Start logged in on **English** |
 | 2 | Open **Calendar** |
-| 3 | Settings (or in-page switcher if available) → switch to **Swedish** |
+| 3 | Settings → switch to **Swedish** |
 | 4 | **Immediately** go to **Today** (do not wait for idle) |
 | 5 | Switch back to **English** |
 | 6 | Open **Library** |
@@ -137,13 +147,21 @@ Single end-to-end stress path that exercises Calendar/Today races, locale switch
 | 10 | **Child handoff** |
 | 11 | **Child Today** |
 
-**Pass criteria**
+**Pass criteria (both passes)**
 
 - No blank Calendar / Today / Library / child views
-- No half-Swedish / half-English chrome on any step
-- No stale fetch overwriting the new locale (watch for flash of wrong language after step 4–5)
+- No half-Swedish / half-English chrome
+- No stale fetch overwriting the new locale
 - Child view follows family locale + `english_child_experience` rule
-- User-created activity **Middag** still shows **Middag** (not "Dinner") on parent Today and child Today
+- User-created **Middag** stays **Middag** (not "Dinner") on parent and child Today
+
+**Pass 1 — normal pace**  
+Execute all 11 steps at comfortable speed.
+
+**Pass 2 — stress timing**  
+Same 11 steps: tap quickly, switch language again before render completes, open the next page early, reload mid-flow. Targets races already seen in Calendar, Today, `parent-i18n-ready`, and child handoff.
+
+Do not add extra steps beyond the 11 above.
 
 ### Manual stress test (Settings-only, lighter)
 
@@ -163,7 +181,7 @@ Repeat 3–4 times. No half-Swedish/half-English chrome, no blank Calendar/Today
 |-------|-------|
 | Type | RC release bug |
 | Priority | **High** |
-| Status | **Merge after final manual verification** (R4-E torture test + journeys A–D) |
+| Status | **All automated gates pass.** Remaining acceptance: physical R4-E (pass 1 + pass 2) on real device after deploy. |
 | Not | Open development / feature work |
 
 ---
@@ -177,4 +195,6 @@ Repeat 3–4 times. No half-Swedish/half-English chrome, no blank Calendar/Today
 | R4 Settings-only stress test (optional, lighter) | QA |
 | `test:gate` + `test:e2e:i18n` green on branch | CI |
 
-**Do not merge #775 until R4-E torture test and manual journeys pass.**
+**#775:** RC release bug (High). All automated gates pass. Remaining acceptance criterion is the final physical R4-E language-switch torture test on a real device (pass 1 normal + pass 2 stress).
+
+After R4-E passes without new findings: continue RC-1; treat any new issues as ordinary release bugs, not i18n program work.
