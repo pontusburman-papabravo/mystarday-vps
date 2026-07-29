@@ -6,6 +6,11 @@ on:
     types: [completed]
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy_sha:
+        description: 'Git commit SHA to deploy (40 hex chars)'
+        required: true
+        type: string
 
 concurrency:
   group: vps-deploy
@@ -16,13 +21,37 @@ jobs:
     name: Deploy main to VPS
     runs-on: ubuntu-latest
     environment: vps
-    # Only deploy after green CI on main, or manual dispatch
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'
+      )
 
     steps:
-      - name: Deploy over SSH
+      - name: Resolve deploy SHA
+        id: sha
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TARGET_SHA="${{ github.event.inputs.deploy_sha }}"
+          else
+            TARGET_SHA="${{ github.event.workflow_run.head_sha }}"
+          fi
+          if ! [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid deploy SHA: $TARGET_SHA"
+            exit 1
+          fi
+          echo "sha=$TARGET_SHA" >> "$GITHUB_OUTPUT"
+          echo "Deploying exact CI-tested SHA: $TARGET_SHA"
+
+      - name: Checkout repository (deploy script only)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.sha.outputs.sha }}
+          fetch-depth: 1
+
+      - name: Deploy exact revision over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ vars.VPS_HOST }}
@@ -31,70 +60,22 @@ jobs:
           port: ${{ vars.VPS_SSH_PORT || 22 }}
           command_timeout: 15m
           script_stop: true
-          envs: VPS_APP_PATH,VPS_RESTART_CMD,VPS_HEALTH_URL
+          envs: DEPLOY_SHA,VPS_APP_PATH,VPS_RESTART_CMD,VPS_HEALTH_URL,VPS_SERVICE
           script: |
-            set -eo pipefail
-
+            set -Eeuo pipefail
+            export DEPLOY_SHA="${{ steps.sha.outputs.sha }}"
             if [ -z "${VPS_APP_PATH:-}" ]; then
               echo "VPS_APP_PATH variable is not set"
               exit 1
             fi
-
             cd "$VPS_APP_PATH"
-
-            echo "→ Fetch latest main"
-            git fetch origin main
-            git reset --hard origin/main
-
-            echo "→ Node 20"
-            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-            # Do not source nvm.sh over SSH — it may call exit 3 in non-interactive shells.
-            shopt -s nullglob
-            for node_bin in "$NVM_DIR"/versions/node/v20*/bin; do
-              if [ -x "$node_bin/node" ]; then
-                export PATH="$node_bin:$PATH"
-                break
-              fi
-            done
-            shopt -u nullglob
-            if ! command -v node >/dev/null 2>&1; then
-              echo "node not found — på VPS som deploy: nvm install 20"
-              exit 1
-            fi
-            echo "node $(node -v) npm $(npm -v)"
-
-            echo "→ npm install"
-            export NPM_CONFIG_MIN_RELEASE_AGE=0
-            if [ -f package-lock.json ]; then
-              npm ci --legacy-peer-deps --include=dev || npm install --legacy-peer-deps --include=dev
-            else
-              npm install --legacy-peer-deps --include=dev
-            fi
-
-            echo "→ migrate"
-            npm run migrate
-
-            echo "→ restart app"
-            if [ -n "${VPS_RESTART_CMD:-}" ]; then
-              eval "$VPS_RESTART_CMD"
-            else
-              sudo systemctl restart mystarday
-            fi
-
-            echo "→ health check (on server)"
-            sleep 3
-            HEALTH_URL="${VPS_HEALTH_URL:-http://127.0.0.1:3000/health}"
-            for i in 1 2 3 4 5; do
-              if curl -fsS "$HEALTH_URL" >/dev/null; then
-                echo "OK: $HEALTH_URL"
-                exit 0
-              fi
-              echo "waiting for app… ($i/5)"
-              sleep 3
-            done
-            echo "health check failed: $HEALTH_URL"
-            exit 1
+            git fetch --depth 1 origin "$DEPLOY_SHA"
+            git show "$DEPLOY_SHA:scripts/vps-deploy-revision.sh" > /tmp/vps-deploy-revision.sh
+            chmod +x /tmp/vps-deploy-revision.sh
+            bash /tmp/vps-deploy-revision.sh
         env:
+          DEPLOY_SHA: ${{ steps.sha.outputs.sha }}
           VPS_APP_PATH: ${{ vars.VPS_APP_PATH }}
           VPS_RESTART_CMD: ${{ vars.VPS_RESTART_CMD }}
           VPS_HEALTH_URL: ${{ vars.VPS_HEALTH_URL }}
+          VPS_SERVICE: ${{ vars.VPS_SERVICE }}
