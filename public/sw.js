@@ -226,7 +226,8 @@
 // stjarndag-v664: en-GB Home magic hub locale gate (P-i18n-Home-B)
 // stjarndag-v710: admin inbox — reply to contact messages from Meddelanden
 // stjarndag-v716: remaining English child experience (settings, schedule chrome, today warmth)
-const CACHE_NAME = 'stjarndag-v717';
+// stjarndag-v718: daily-log Android child picker — robust boot, 401 retry, pointerup tabs
+const CACHE_NAME = 'stjarndag-v718';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav
@@ -501,6 +502,7 @@ const CACHE_NAME = 'stjarndag-v717';
 // stjarndag-v709: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v710: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v711: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v718: daily-log Android child picker boot + retry (support #43)
 // stjarndag-v717: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js

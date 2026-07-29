@@ -634,8 +634,22 @@ describe('daily-log child selection boot', () => {
     assert.match(dailyLog, /bootDailyLogPage/);
     assert.match(dailyLog, /if \(logoutBtn\)/);
     assert.match(dailyLog, /normalizeChildId/);
-    assert.match(dailyLog, /childTabsMount\.addEventListener\('click'/);
+    assert.match(dailyLog, /childTabsMount\.addEventListener/);
     assert.doesNotMatch(dailyLog, /onclick="selectChild/);
+  });
+
+  it('schedules boot when DOM is already ready and registers ParentMagicPageBoot', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    assert.match(dailyLog, /scheduleBootDailyLogPage/);
+    assert.match(dailyLog, /ParentMagicPageBoot\.register\('daily-log'/);
+    assert.match(dailyLog, /document\.readyState === 'loading'/);
+  });
+
+  it('retries children fetch after silent refresh on 401 (Android session)', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    assert.match(dailyLog, /fetchChildrenList/);
+    assert.match(dailyLog, /silentRefresh/);
+    assert.match(dailyLog, /renderChildTabsError/);
   });
 });
 
