@@ -592,19 +592,27 @@ const Auth = {
   /** Persist family locale for auth entry (login/register/child-login) after session ends. */
   async _persistAuthEntryLocaleContext() {
     const storageKey = (window.I18n && I18n.STORAGE_KEY) || 'sd_preferred_locale';
-    const explicitKey = (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice';
     try {
-      let me = this.getUser();
-      if (!me || me.type !== 'parent') {
+      // Always fetch fresh — Settings locale switch updates DB but stjarndag_user cache can lag.
+      let me = null;
+      try {
         const res = await fetch('/api/auth/me', { credentials: 'include' });
         if (res.ok) me = await res.json();
-      }
+      } catch { /* ignore */ }
+      if (!me) me = this.getUser();
+
       if (me && me.type === 'parent') {
-        if (me.preferred_locale) {
-          sessionStorage.setItem(storageKey, me.preferred_locale);
-          try { localStorage.setItem(storageKey, me.preferred_locale); } catch { /* ignore */ }
-          sessionStorage.setItem(explicitKey, '1');
-          try { localStorage.setItem(explicitKey, '1'); } catch { /* ignore */ }
+        let locale = me.preferred_locale;
+        if (window.I18n && typeof I18n.getCurrentLang === 'function') {
+          const active = I18n.getCurrentLang();
+          if (active) locale = active;
+        }
+        if (locale) {
+          sessionStorage.setItem(storageKey, locale);
+          try { localStorage.setItem(storageKey, locale); } catch { /* ignore */ }
+          // Do not set sd_locale_explicit_choice here — that flag means the user
+          // clicked the switcher on this login/register page. Logout only seeds the
+          // login UI language; it must not override the next account's family locale.
         }
         if (typeof me.english_child_experience_enabled === 'boolean') {
           const flag = me.english_child_experience_enabled ? '1' : '0';

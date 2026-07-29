@@ -4,6 +4,11 @@ const maps = require('../../config/family-content-locale/sv-to-en.json');
 const { isEnglishFamilyLocale } = require('./family-locale');
 const { buildContentTranslator, staticLookup, translateContentText } = require('./content-translator');
 
+const CONTENT_SCOPE = {
+  FAMILY: 'family',
+  STANDARD_LIBRARY: 'standard_library',
+};
+
 function activityCompositeKey(row) {
   if (!row) return '';
   return [
@@ -28,11 +33,46 @@ function lookupActivityName(svName, row) {
 function lookupRewardName(svName, row) {
   if (!svName) return undefined;
   if (maps.rewards[svName]) return maps.rewards[svName];
-  const byKey = `${row?.icon || ''}|${row?.star_cost ?? ''}`;
+  const byKey = `${row?.icon || row?.reward_icon || ''}|${row?.star_cost ?? ''}`;
   if (byKey && maps.rewardByKey && maps.rewardByKey[byKey]) {
     return maps.rewardByKey[byKey];
   }
   return staticLookup(svName, 'en-GB') || undefined;
+}
+
+/**
+ * System-seeded activity (standard library copy or registration seed).
+ * User-created rows must have source='user' and are never auto-translated.
+ * @param {object} row
+ * @returns {boolean}
+ */
+function isSystemSeededActivity(row) {
+  if (!row) return false;
+  if (row.source === 'user') return false;
+  if (row.source === 'admin') return true;
+  // Legacy registration seeds (source unset) — not user-created after source='user' on create.
+  return row.source == null || row.source === '';
+}
+
+/**
+ * System-seeded reward (admin library copy). User-created rewards lack source_default_id.
+ * @param {object} row
+ * @returns {boolean}
+ */
+function isSystemSeededReward(row) {
+  if (!row) return false;
+  if (row.modified_by_family) return false;
+  return row.source_default_id != null;
+}
+
+function shouldLocalizeActivity(row, options = {}) {
+  if (options.contentScope === CONTENT_SCOPE.STANDARD_LIBRARY) return true;
+  return isSystemSeededActivity(row);
+}
+
+function shouldLocalizeReward(row, options = {}) {
+  if (options.contentScope === CONTENT_SCOPE.STANDARD_LIBRARY) return true;
+  return isSystemSeededReward(row);
 }
 
 function resolveSchoolVariantDisplayName(svVariant, locale) {
@@ -50,6 +90,7 @@ function resolveSchoolVariantDisplayName(svVariant, locale) {
  */
 async function resolveActivityDisplayName(locale, storedName, row) {
   if (!storedName || !isEnglishFamilyLocale(locale)) return storedName;
+  if (row && !isSystemSeededActivity(row)) return storedName;
   const schoolEn = resolveSchoolVariantDisplayName(storedName, locale);
   if (schoolEn !== storedName) return schoolEn;
   const mapped = lookupActivityName(storedName, row);
@@ -65,15 +106,16 @@ async function resolveActivityDisplayName(locale, storedName, row) {
  */
 async function resolveRewardDisplayName(locale, storedName, row) {
   if (!storedName || !isEnglishFamilyLocale(locale)) return storedName;
+  if (row && !isSystemSeededReward(row)) return storedName;
   const mapped = lookupRewardName(storedName, row);
   if (mapped) return mapped;
   return translateContentText(storedName, locale);
 }
 
-function collectActivityTexts(items) {
+function collectActivityTexts(items, options = {}) {
   const texts = [];
   for (const item of items || []) {
-    if (!item) continue;
+    if (!item || !shouldLocalizeActivity(item, options)) continue;
     const label = item.activity_name_display || item.activity_name || item.name;
     if (label) texts.push(label);
     if (Array.isArray(item.sub_steps)) {
@@ -85,10 +127,10 @@ function collectActivityTexts(items) {
   return texts;
 }
 
-function collectRewardTexts(items) {
+function collectRewardTexts(items, options = {}) {
   const texts = [];
   for (const item of items || []) {
-    if (!item) continue;
+    if (!item || !shouldLocalizeReward(item, options)) continue;
     if (item.name) texts.push(item.name);
     if (item.reward_name) texts.push(item.reward_name);
     if (item.to_reward_name) texts.push(item.to_reward_name);
@@ -114,8 +156,9 @@ function collectScheduleTexts(schedules) {
   return texts;
 }
 
-function applyActivityTranslation(item, translate, locale) {
+function applyActivityTranslation(item, translate, locale, options = {}) {
   if (!item || !isEnglishFamilyLocale(locale)) return item;
+  if (!shouldLocalizeActivity(item, options)) return item;
   const storedName = item.activity_name || item.name;
   if (!storedName) return item;
 
@@ -142,8 +185,9 @@ function applyActivityTranslation(item, translate, locale) {
   return out;
 }
 
-function applyRewardTranslation(item, translate, locale) {
+function applyRewardTranslation(item, translate, locale, options = {}) {
   if (!item || !isEnglishFamilyLocale(locale)) return item;
+  if (!shouldLocalizeReward(item, options)) return item;
   const storedName = item.name || item.reward_name;
   const out = { ...item };
   let changed = false;
@@ -172,10 +216,11 @@ function applyRewardTranslation(item, translate, locale) {
  * @param {object} item
  * @param {string|null|undefined} locale
  * @param {string} [sourceLocale]
+ * @param {object} [options]
  * @returns {Promise<object>}
  */
-async function localizeActivityRow(item, locale, sourceLocale = 'sv-SE') {
-  const [out] = await localizeActivityItems([item], locale, sourceLocale);
+async function localizeActivityRow(item, locale, sourceLocale = 'sv-SE', options = {}) {
+  const [out] = await localizeActivityItems([item], locale, sourceLocale, options);
   return out;
 }
 
@@ -183,10 +228,11 @@ async function localizeActivityRow(item, locale, sourceLocale = 'sv-SE') {
  * @param {object} item
  * @param {string|null|undefined} locale
  * @param {string} [sourceLocale]
+ * @param {object} [options]
  * @returns {Promise<object>}
  */
-async function localizeRewardRow(item, locale, sourceLocale = 'sv-SE') {
-  const [out] = await localizeRewardItems([item], locale, sourceLocale);
+async function localizeRewardRow(item, locale, sourceLocale = 'sv-SE', options = {}) {
+  const [out] = await localizeRewardItems([item], locale, sourceLocale, options);
   return out;
 }
 
@@ -194,24 +240,34 @@ async function localizeRewardRow(item, locale, sourceLocale = 'sv-SE') {
  * @param {Array<object>} items
  * @param {string|null|undefined} locale
  * @param {string} [sourceLocale]
+ * @param {object} [options] contentScope: 'standard_library' | 'family' (default)
  * @returns {Promise<Array<object>>}
  */
-async function localizeActivityItems(items, locale, sourceLocale = 'sv-SE') {
+async function localizeActivityItems(items, locale, sourceLocale = 'sv-SE', options = {}) {
   if (!Array.isArray(items) || !isEnglishFamilyLocale(locale)) return items;
-  const translate = await buildContentTranslator(collectActivityTexts(items), locale, sourceLocale);
-  return items.map((item) => applyActivityTranslation(item, translate, locale));
+  const translate = await buildContentTranslator(
+    collectActivityTexts(items, options),
+    locale,
+    sourceLocale
+  );
+  return items.map((item) => applyActivityTranslation(item, translate, locale, options));
 }
 
 /**
  * @param {Array<object>} items
  * @param {string|null|undefined} locale
  * @param {string} [sourceLocale]
+ * @param {object} [options] contentScope: 'standard_library' | 'family' (default)
  * @returns {Promise<Array<object>>}
  */
-async function localizeRewardItems(items, locale, sourceLocale = 'sv-SE') {
+async function localizeRewardItems(items, locale, sourceLocale = 'sv-SE', options = {}) {
   if (!Array.isArray(items) || !isEnglishFamilyLocale(locale)) return items;
-  const translate = await buildContentTranslator(collectRewardTexts(items), locale, sourceLocale);
-  return items.map((item) => applyRewardTranslation(item, translate, locale));
+  const translate = await buildContentTranslator(
+    collectRewardTexts(items, options),
+    locale,
+    sourceLocale
+  );
+  return items.map((item) => applyRewardTranslation(item, translate, locale, options));
 }
 
 /**
@@ -223,6 +279,7 @@ async function localizeRewardItems(items, locale, sourceLocale = 'sv-SE') {
  */
 async function localizeStandardSchedules(schedules, locale, sourceLocale = 'sv-SE') {
   if (!Array.isArray(schedules) || !isEnglishFamilyLocale(locale)) return schedules;
+  const libraryOpts = { contentScope: CONTENT_SCOPE.STANDARD_LIBRARY };
   const translate = await buildContentTranslator(collectScheduleTexts(schedules), locale, sourceLocale);
   return schedules.map((schedule) => {
     const out = { ...schedule };
@@ -236,7 +293,7 @@ async function localizeStandardSchedules(schedules, locale, sourceLocale = 'sv-S
     }
     if (Array.isArray(schedule.items)) {
       out.items = schedule.items.map((item) =>
-        applyActivityTranslation({ ...item, activity_name: item.name }, translate, locale)
+        applyActivityTranslation({ ...item, activity_name: item.name }, translate, locale, libraryOpts)
       );
     }
     return out;
@@ -244,6 +301,9 @@ async function localizeStandardSchedules(schedules, locale, sourceLocale = 'sv-S
 }
 
 module.exports = {
+  CONTENT_SCOPE,
+  isSystemSeededActivity,
+  isSystemSeededReward,
   resolveActivityDisplayName,
   resolveRewardDisplayName,
   resolveSchoolVariantDisplayName,

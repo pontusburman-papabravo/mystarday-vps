@@ -468,7 +468,8 @@ childRouter.get('/goal', async (req, res) => {
 
     const goalResult = await db.query(
       `SELECT crg.id, crg.status, crg.created_at,
-              r.id AS reward_id, r.name AS reward_name, r.icon AS reward_icon, r.star_cost
+              r.id AS reward_id, r.name AS reward_name, r.icon AS reward_icon, r.star_cost,
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM child_reward_goal crg
        LEFT JOIN reward r ON r.id = crg.reward_id
        WHERE crg.child_id = $1 AND crg.status = 'active'
@@ -478,7 +479,8 @@ childRouter.get('/goal', async (req, res) => {
 
     const pendingChangeResult = await db.query(
       `SELECT crgcr.id, crgcr.status, crgcr.created_at,
-              rt.name AS to_reward_name, rt.icon AS to_reward_icon, rt.star_cost AS to_star_cost
+              rt.name AS to_reward_name, rt.icon AS to_reward_icon, rt.star_cost AS to_star_cost,
+              rt.source_default_id, COALESCE(rt.modified_by_family, false) AS modified_by_family
        FROM child_reward_goal_change_request crgcr
        JOIN reward rt ON rt.id = crgcr.to_reward_id
        WHERE crgcr.child_id = $1 AND crgcr.status = 'pending'

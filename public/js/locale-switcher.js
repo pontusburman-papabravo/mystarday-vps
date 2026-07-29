@@ -4,6 +4,7 @@
  */
 (function localeSwitcherModule() {
   const SWITCHER_CLASS = 'locale-switcher';
+  let _localeChangeInflight = false;
 
   function track(eventType, metadata) {
     if (typeof window.analytics !== 'undefined' && analytics.track) {
@@ -157,11 +158,14 @@
   }
 
   async function applyLocaleChange(container, next, previous, englishOk, showHints) {
+    if (_localeChangeInflight) return;
     if (next === 'en-GB' && !englishOk) {
       setSelected(container, 'sv-SE');
       return;
     }
 
+    _localeChangeInflight = true;
+    try {
     sessionStorage.setItem(I18n.STORAGE_KEY, next);
     try { localStorage.setItem(I18n.STORAGE_KEY, next); } catch (_) { /* ignore */ }
     try {
@@ -180,26 +184,50 @@
     I18n.apply(container);
 
     if (window.Auth && typeof Auth.api === 'function') {
+      let me = null;
       try {
-        const me = await Auth.api('/api/auth/me');
-        if (me?.type === 'parent') {
-          await Auth.api('/api/family/settings', {
-            method: 'PUT',
-            body: JSON.stringify({ preferred_locale: next }),
-          });
-          track('language_changed', {
-            locale: next,
-            previous_locale: previous,
-            selection_source: 'settings',
-          });
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (res.ok) me = await res.json();
+      } catch (_) { /* pre-auth: no session */ }
+      if (me?.type === 'parent') {
+        await Auth.api('/api/family/settings', {
+          method: 'PUT',
+          body: JSON.stringify({ preferred_locale: next }),
+        });
+        const cached = Auth.getUser();
+        if (cached) {
+          cached.preferred_locale = next;
+          try {
+            localStorage.setItem(Auth.USER_KEY, JSON.stringify(cached));
+          } catch (_) { /* ignore */ }
         }
-      } catch (err) {
-        console.warn('[locale-switcher] Could not persist locale:', err.message);
+        track('language_changed', {
+          locale: next,
+          previous_locale: previous,
+          selection_source: 'settings',
+        });
       }
     }
 
     document.dispatchEvent(new CustomEvent('locale-changed', { detail: { locale: next } }));
     document.dispatchEvent(new CustomEvent('parent-i18n-ready', { detail: { locale: next } }));
+  } catch (err) {
+    console.warn('[locale-switcher] Locale change failed:', err.message);
+    try {
+      sessionStorage.setItem(I18n.STORAGE_KEY, previous);
+      localStorage.setItem(I18n.STORAGE_KEY, previous);
+    } catch (_) { /* ignore */ }
+    await I18n.load(previous);
+    setSelected(container, previous);
+    updateBetaHint(container, previous, showHints);
+    I18n.apply(container);
+    const msg = I18n.t('auth.errors.serverError');
+    if (typeof window.showToast === 'function' && msg && msg !== 'auth.errors.serverError') {
+      window.showToast(msg);
+    }
+  } finally {
+    _localeChangeInflight = false;
+  }
   }
 
   async function mount(container) {

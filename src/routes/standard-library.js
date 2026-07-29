@@ -14,10 +14,13 @@ const { broadcast } = require('../lib/sse-broadcast');
 const { insertFamilyActivityFromDefault } = require('../lib/standard-library-copy');
 const { getFamilyLocale } = require('../lib/onboarding-locale');
 const {
+  CONTENT_SCOPE,
   localizeActivityItems,
   localizeRewardItems,
   localizeStandardSchedules,
 } = require('../lib/family-content-display');
+
+const STANDARD_LIBRARY_SCOPE = { contentScope: CONTENT_SCOPE.STANDARD_LIBRARY };
 
 const router = express.Router();
 router.use(requireParent);
@@ -52,7 +55,7 @@ router.get('/', async (req, res) => {
     }));
 
     const locale = await getFamilyLocale(req.user.familyId);
-    res.json(await localizeActivityItems(activities, locale));
+    res.json(await localizeActivityItems(activities, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] List error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
@@ -262,7 +265,7 @@ router.get('/rewards', async (req, res) => {
     }));
 
     const locale = await getFamilyLocale(req.user.familyId);
-    res.json(await localizeRewardItems(rewards, locale));
+    res.json(await localizeRewardItems(rewards, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Rewards list error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
