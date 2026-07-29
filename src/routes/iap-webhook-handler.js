@@ -61,7 +61,11 @@ async function handleIapWebhook(req, res) {
 
     if (result.skipped) {
       console.log(`[iap-webhook] Skipped event ${event.id}: ${result.reason}`);
-      return res.status(200).json({ received: true, skipped: result.reason });
+      return res.status(200).json({
+        received: true,
+        skipped: result.reason,
+        duplicate: result.duplicate === true,
+      });
     }
 
     console.log(
@@ -69,10 +73,6 @@ async function handleIapWebhook(req, res) {
     );
     return res.status(200).json({ received: true });
   } catch (err) {
-    if (err.code === 'FAMILY_NOT_FOUND') {
-      console.warn('[iap-webhook] Family not found for event identity');
-      return res.status(404).json({ error: 'Family not found' });
-    }
     if (err.code === 'INVALID_EVENT' || err.code === 'MISSING_IDENTITY') {
       return res.status(400).json({ error: err.message });
     }

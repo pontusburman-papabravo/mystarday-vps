@@ -52,7 +52,7 @@ Om HMAC är aktiverat i RevenueCat:
 |-----------|--------|
 | Ogiltig/saknad auth | `401` |
 | Ogiltig JSON / saknat event / saknad identitet | `400` |
-| Familj hittas inte | `404` |
+| Familj hittas inte | `200` med `{ skipped: "family_not_found" }` — RevenueCat retryar alla icke-200 |
 | Tillfälligt DB-fel | `503` (RevenueCat retryar) |
 | Lyckad bearbetning eller duplicerat event | `200` |
 

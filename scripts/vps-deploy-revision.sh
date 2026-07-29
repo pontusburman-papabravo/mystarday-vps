@@ -61,6 +61,12 @@ echo "→ Target deploy SHA: $TARGET_SHA"
 echo "→ Fetch exact target revision"
 git fetch --depth 1 origin "$TARGET_SHA"
 
+if ! git cat-file -e "${TARGET_SHA}^{commit}" 2>/dev/null; then
+  echo "Target commit not found after fetch: $TARGET_SHA"
+  rollback_to_sha "$PREV_SHA" || true
+  exit 1
+fi
+
 echo "→ Checkout target revision"
 git checkout --detach "$TARGET_SHA"
 

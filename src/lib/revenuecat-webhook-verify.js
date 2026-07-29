@@ -1,3 +1,9 @@
+/**
+ * RevenueCat webhook authentication.
+ * @see https://www.revenuecat.com/docs/integrations/webhooks
+ * - Static Authorization header (dashboard-configured value)
+ * - Optional X-RevenueCat-Webhook-Signature HMAC over "{t}.{raw_body}"
+ */
 'use strict';
 
 const crypto = require('crypto');

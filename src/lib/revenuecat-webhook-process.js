@@ -102,9 +102,27 @@ async function processRevenueCatEvent(db, event) {
 
   const family = await findFamilyForAppUserIds(db, appUserIds);
   if (!family) {
-    const err = new Error('Family not found for app user');
-    err.code = 'FAMILY_NOT_FOUND';
-    throw err;
+    const client = await db.getClient();
+    try {
+      await client.query('BEGIN');
+      const insertResult = await client.query(
+        `INSERT INTO iap_webhook_log (revenuecat_event_id, event_type, family_id)
+         VALUES ($1, $2, NULL)
+         ON CONFLICT (revenuecat_event_id) DO NOTHING
+         RETURNING revenuecat_event_id`,
+        [eventId, eventType]
+      );
+      await client.query('COMMIT');
+      if (insertResult.rowCount === 0) {
+        return { duplicate: true, skipped: true, reason: 'family_not_found' };
+      }
+      return { duplicate: false, skipped: true, reason: 'family_not_found' };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   if (family.is_lifetime_free) {

@@ -155,7 +155,7 @@ X-RevenueCat-Webhook-Signature: t=<unix_timestamp>,v1=<hmac_sha256_hex>
 3. **Body inte valid JSON** → `400 Bad Request`
 4. **Saknat `event` eller `event.type`** → `400 Bad Request`
 5. **Saknad app-användaridentitet** → `400 Bad Request`
-6. **Familj hittas inte** → `404 Not Found`
+6. **Familj hittas inte** → `200 OK` med `{ skipped: "family_not_found" }` (RevenueCat retryar alla icke-200)
 7. **Tillfälligt DB-fel** → `503 Service Unavailable` (RevenueCat retryar)
 8. **Lyckad bearbetning eller duplicerat `event.id`** → `200 OK`
 

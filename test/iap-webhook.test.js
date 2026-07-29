@@ -100,15 +100,14 @@ describe('revenuecat-webhook-verify', () => {
     );
   });
 
-  test('HMAC signature validates raw body', () => {
-    const body = Buffer.from('{"event":{"type":"TEST"}}');
+  test('HMAC signed payload matches RevenueCat documentation format', () => {
+    const body = Buffer.from('{"api_version":"1.0","event":{"type":"TEST"}}');
+    const secret = 'rc_signing_secret';
     const ts = Math.floor(Date.now() / 1000);
+    const signedPayload = Buffer.concat([Buffer.from(`${ts}.`, 'utf8'), body]);
+    const v1 = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex');
     assert.equal(
-      verifyWebhookSignature(
-        body,
-        signHmacWebhook(body, SIGNING_SECRET, ts).signature,
-        SIGNING_SECRET
-      ),
+      verifyWebhookSignature(body, `t=${ts},v1=${v1}`, secret),
       true
     );
   });
@@ -486,6 +485,39 @@ test('IAP webhook: does not log secrets or full payload', async () => {
     console.error = origError;
     console.log = origLog;
     console.warn = origWarn;
+    mock.restore();
+  }
+});
+
+test('IAP webhook: unknown family returns 200 skipped (no RevenueCat retry)', async () => {
+  process.env.REVENUECAT_WEBHOOK_SECRET = WEBHOOK_AUTH;
+  const mock = injectMockDb();
+  mock.setQuery(async (sql) => {
+    if (String(sql).includes('FROM family')) {
+      return { rows: [] };
+    }
+    if (String(sql).includes('INSERT INTO iap_webhook_log')) {
+      return { rows: [{ revenuecat_event_id: 'evt_orphan' }], rowCount: 1 };
+    }
+    return { rows: [], rowCount: 0 };
+  });
+
+  const familyId = crypto.randomUUID();
+  const body = buildEventPayload({
+    id: 'evt_orphan',
+    type: 'RENEWAL',
+    app_user_id: familyId,
+  });
+  const res = makeRes();
+  try {
+    await invokeHandler(
+      { headers: { authorization: WEBHOOK_AUTH }, body: Buffer.from(body) },
+      res
+    );
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.skipped, 'family_not_found');
+    assert.equal(res.body.received, true);
+  } finally {
     mock.restore();
   }
 });
