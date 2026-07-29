@@ -69,6 +69,18 @@
     return _page;
   }
 
+  function renderNavItem(item, activeId) {
+    const isActive = item.id === activeId;
+    const active = isActive ? ' is-active' : '';
+    const aria = isActive ? ' aria-current="page"' : '';
+    const iconItem = Object.assign({}, item, { active: isActive });
+    return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '"' + aria + '>' +
+      '<span class="parent-bottom-nav-icon" aria-hidden="true">' +
+      (window.IconSystem ? IconSystem.forItem(iconItem, 28, 'app-icon app-icon--nav') : item.icon) +
+      '</span>' +
+      '<span>' + item.label + '</span></a>';
+  }
+
   function renderBottomNav() {
     if (isNativeTabBarActive()) {
       const hidden = document.getElementById('parentBottomNav');
@@ -86,20 +98,19 @@
       nav.setAttribute('aria-label', navAriaLabel());
       document.body.appendChild(nav);
     }
-    nav.removeAttribute('hidden');
     const activeId = activeNavId();
     const items = getNavItems();
+    if (!items.length) {
+      nav.hidden = true;
+      nav.replaceChildren();
+      nav.style.display = 'none';
+      console.error('[parent-nav] NavConfig missing or empty');
+      return;
+    }
     nav.innerHTML = items.map(function (item) {
-      const isActive = item.id === activeId;
-      const active = isActive ? ' is-active' : '';
-      const aria = isActive ? ' aria-current="page"' : '';
-      const iconItem = Object.assign({}, item, { active: isActive });
-      return '<a href="' + item.href + '" class="parent-bottom-nav-btn' + active + '"' + aria + '>' +
-        '<span class="parent-bottom-nav-icon" aria-hidden="true">' +
-        (window.IconSystem ? IconSystem.forItem(iconItem, 28, 'app-icon app-icon--nav') : item.icon) +
-        '</span>' +
-        '<span>' + item.label + '</span></a>';
+      return renderNavItem(item, activeId);
     }).join('');
+    nav.hidden = false;
     if (!nav.dataset.magicNavBound) {
       nav.dataset.magicNavBound = '1';
       nav.addEventListener('click', function (e) {

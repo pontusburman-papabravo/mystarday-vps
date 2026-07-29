@@ -28,9 +28,9 @@ body:has(> .fixed.inset-0:not(.hidden)) .parent-bottom-nav {
   visibility: hidden;
 }
 
-body.parent-magic-dashboard .parent-bottom-nav,
-body.parent-magic-view .parent-bottom-nav,
-body.parent-magic-library .parent-bottom-nav {
+body.parent-magic-dashboard .parent-bottom-nav:not([hidden]),
+body.parent-magic-view .parent-bottom-nav:not([hidden]),
+body.parent-magic-library .parent-bottom-nav:not([hidden]) {
   display: flex;
 }
 
