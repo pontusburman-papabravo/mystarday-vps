@@ -1263,10 +1263,17 @@ body.parent-magic-view:not(.parent-theme-light) #giveStarsModal #giveStarsReason
   color: #fff !important;
 }
 
+/* Solid modal panels — do not let .bg-white transparency apply to the shell */
+body.parent-magic-view:not(.parent-theme-light) #giveStarsPickerModal > div,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal > div {
+  background: #1b2340 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5) !important;
+}
+
 body.parent-magic-view:not(.parent-theme-light) #giveStarsModal .bg-sky,
-body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-sky,
-body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-white,
-body.parent-magic-view:not(.parent-theme-light) #ledigDagModal .bg-red-50 {
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .bg-white,
+body.parent-magic-view:not(.parent-theme-light) #ledigDagModal #ledigDagList .bg-red-50 {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
@@ -1326,6 +1333,8 @@ body.parent-magic-view .share-popup-card input[type="email"]::placeholder {
 /* Modal panels — opaque (global .bg-white dimming must not apply) */
 body.parent-magic-view .magic-modal-panel,
 body.parent-magic-view .fixed.inset-0 > .bg-white.rounded-2xl,
+body.parent-magic-view #ledigDagModal > .bg-white.rounded-2xl,
+body.parent-magic-view #giveStarsPickerModal > .bg-white.rounded-2xl,
 body.parent-magic-view #medforalderCtaModal .bg-white,
 body.parent-magic-library .library-modal-overlay .magic-modal-panel,
 body.parent-magic-library #activityModal .activity-modal-panel {

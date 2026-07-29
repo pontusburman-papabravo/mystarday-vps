@@ -30,6 +30,7 @@
   "loading": "Laddar loggen…",
   "retry": "Försök igen",
   "errors": {
+    "signInRequired": "Logga in för att se daglig logg",
     "loadChildren": "Kunde inte ladda barn",
     "loadLog": "Kunde inte ladda loggen. Försök igen.",
     "saveOrder": "Kunde inte spara ordningen",

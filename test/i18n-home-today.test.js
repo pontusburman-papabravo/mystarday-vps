@@ -651,6 +651,69 @@ describe('daily-log child selection boot', () => {
     assert.match(dailyLog, /silentRefresh/);
     assert.match(dailyLog, /renderChildTabsError/);
   });
+
+  it('loads children in parallel with i18n and does not block on initParentAppI18n', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    assert.match(dailyLog, /Promise\.all\(\[loadChildren\(\), i18nTask\]\)/);
+    assert.match(dailyLog, /CHILDREN_FETCH_TIMEOUT_MS/);
+    assert.match(dailyLog, /today\.errors\.signInRequired/);
+    assert.doesNotMatch(dailyLog, /await initParentAppI18n\(user\.preferred_locale\);\s*\n\s*if \(!_dailyLogPageBound\)/);
+  });
+
+  it('parent-magic-i18n skips duplicate auth boot on manual-init pages', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/parent-magic-i18n.js'), 'utf8');
+    assert.match(src, /i18nManualInit/);
+    assert.match(src, /pageHandlesOwnI18nBoot/);
+  });
+
+  it('loadLog renders schedule before ratings fetch completes', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    const loadLogBlock = dailyLog.slice(dailyLog.indexOf('async function loadLog'));
+    assert.match(loadLogBlock, /renderLog\(data\)/);
+    assert.match(loadLogBlock, /loadItemRatings\(itemIds\)/);
+    const renderIdx = loadLogBlock.indexOf('renderLog(data)');
+    const ratingsIdx = loadLogBlock.indexOf('loadItemRatings(itemIds)');
+    assert.ok(renderIdx > 0 && ratingsIdx > renderIdx, 'renderLog before loadItemRatings in loadLog');
+  });
+
+  it('home sv-SE openToday is Swedish not English Today', () => {
+    const home = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/home-sv-SE.json'), 'utf8'));
+    assert.equal(home.summary.openToday, 'Öppna idag');
+    assert.equal(home.nav.today, 'Idag');
+    assert.equal(home.readiness.items.pausedDaySub, 'Öppna idag');
+  });
+});
+
+describe('home quick actions (retroactive + ledig dag modal)', () => {
+  const hub = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-home-hub.js'), 'utf8');
+  const cardActions = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-card-actions.js'), 'utf8');
+  const cards = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-cards.js'), 'utf8');
+  const core = fs.readFileSync(path.join(__dirname, '../src/routes/family/core.js'), 'utf8');
+  const magicCss = fs.readFileSync(path.join(__dirname, '../public/css/parent-magic-common.css'), 'utf8');
+  const dashMagicCss = fs.readFileSync(path.join(__dirname, '../public/css/dashboard-magic.css'), 'utf8');
+
+  it('retroactive quick action links to past date with latest_incomplete_date when available', () => {
+    assert.match(hub, /function retroactiveLogHref/);
+    assert.match(hub, /latest_incomplete_date/);
+    assert.match(hub, /params\.set\('date', date\)/);
+    assert.match(hub, /offsetIsoDate\(-1\)/);
+  });
+
+  it('readiness and dashboard cards pass incomplete date to daily-log', () => {
+    assert.match(core, /latest_incomplete_date/);
+    assert.match(core, /encodeURIComponent\(incDate\)/);
+    assert.match(cards, /latest_incomplete_date/);
+    assert.match(cards, /encodeURIComponent\(c\.latest_incomplete_date\)/);
+  });
+
+  it('ledig dag modal uses solid panel and scroll lock', () => {
+    assert.match(magicCss, /#ledigDagModal > div/);
+    assert.match(magicCss, /#ledigDagModal > \.bg-white\.rounded-2xl/);
+    assert.match(cardActions, /setDashboardModalOpen/);
+    assert.match(cardActions, /closeLedigDagModal/);
+    assert.match(cardActions, /closeGiveStarsPickerModal/);
+    assert.match(dashMagicCss, /dashboard-modal-open/);
+  });
 });
 
 describe('LocaleDateTime formatTime', () => {

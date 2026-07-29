@@ -98,6 +98,8 @@
     let _dailyLogPageBound = false;
     let _bootInFlight = null;
     let _loadLogSeq = 0;
+    const CHILDREN_FETCH_TIMEOUT_MS = 15000;
+    const LOG_FETCH_TIMEOUT_MS = 15000;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
@@ -112,14 +114,27 @@
       window.androidStabilityLog(step, detail);
     }
 
+    function childrenFetchTimeoutError() {
+      return new Error(pt('today.errors.loadChildren') + ' (timeout)');
+    }
+
     async function fetchChildrenList() {
-      let res = await apiFetch('/api/children');
-      if (!res.ok && res.status === 401 && window.Auth && typeof Auth.silentRefresh === 'function') {
-        logAndroidStability('daily_log_children_401_refresh', { status: res.status });
-        await Auth.silentRefresh();
-        res = await apiFetch('/api/children');
-      }
-      return res;
+      const doFetch = async () => {
+        let res = await apiFetch('/api/children');
+        if (!res.ok && res.status === 401 && window.Auth && typeof Auth.silentRefresh === 'function') {
+          logAndroidStability('daily_log_children_401_refresh', { status: res.status });
+          await Auth.silentRefresh();
+          res = await apiFetch('/api/children');
+        }
+        return res;
+      };
+
+      return Promise.race([
+        doFetch(),
+        new Promise((_, reject) => {
+          window.setTimeout(() => reject(childrenFetchTimeoutError()), CHILDREN_FETCH_TIMEOUT_MS);
+        }),
+      ]);
     }
 
     function renderChildTabsLoading() {
@@ -160,12 +175,18 @@
           }
           if (!user) {
             logAndroidStability('daily_log_boot_no_user', null);
+            const signInMsg = pt('today.errors.signInRequired');
+            renderChildTabsError(signInMsg, () => {
+              window.location.href = '/login?next=' + encodeURIComponent('/daily-log');
+            });
             return;
           }
 
-          if (typeof window.initParentAppI18n === 'function') {
-            await initParentAppI18n(user.preferred_locale);
-          }
+          const i18nTask = typeof window.initParentAppI18n === 'function'
+            ? initParentAppI18n(user.preferred_locale).catch((err) => {
+                console.warn('[daily-log] initParentAppI18n failed:', err);
+              })
+            : Promise.resolve();
 
           if (!_dailyLogPageBound) {
             _dailyLogPageBound = true;
@@ -202,7 +223,7 @@
             return;
           }
 
-          await loadChildren();
+          await Promise.all([loadChildren(), i18nTask]);
           await loadCustodyPrintOption();
           logAndroidStability('daily_log_boot_done', { childCount: children.length, currentChildId: currentChildId });
         } catch (err) {
@@ -370,6 +391,32 @@
 
     // ── Log loading ───────────────────────────────────────
 
+    async function loadItemRatings(itemIds) {
+      if (!itemIds.length) return;
+      const results = await Promise.allSettled(
+        itemIds.map((id) =>
+          apiFetch(`/api/daily-log-items/${id}/ratings`)
+            .then((r) => r.json()).then((r) => ({ id, r })).catch(() => null)
+        )
+      );
+      for (const res of results) {
+        if (res.status === 'fulfilled' && res.value) {
+          const { id, r } = res.value;
+          if (r && !r.error) itemRatings[id] = r;
+        }
+      }
+    }
+
+    async function fetchDailyLog(childId, dateParam) {
+      const url = `/api/children/${childId}/daily-log?date=${encodeURIComponent(dateParam)}`;
+      return Promise.race([
+        apiFetch(url),
+        new Promise((_, reject) => {
+          window.setTimeout(() => reject(new Error(pt('today.errors.loadLog') + ' (timeout)')), LOG_FETCH_TIMEOUT_MS);
+        }),
+      ]);
+    }
+
     async function loadLog() {
       if (!currentChildId) return;
       const seq = ++_loadLogSeq;
@@ -379,7 +426,7 @@
 
       try {
         currentDateStr = dateParam;
-        const res = await apiFetch(`/api/children/${childId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        const res = await fetchDailyLog(childId, dateParam);
         if (seq !== _loadLogSeq || childId !== currentChildId) return;
         if (!res.ok) {
           let msg = pt('today.errors.loadLog');
@@ -395,27 +442,15 @@
         currentLog = data.log;
         currentItems = data.items || [];
         currentSectionTimes = data.section_times || {};
-
-        // Load ratings for all items in parallel
         itemRatings = {};
-        const itemIds = (data.items || []).map(i => i.id);
-        if (itemIds.length > 0) {
-          const results = await Promise.allSettled(
-            itemIds.map(id =>
-              apiFetch(`/api/daily-log-items/${id}/ratings`)
-                .then(r => r.json()).then(r => ({ id, r })).catch(() => null)
-            )
-          );
-          for (const res of results) {
-            if (res.status === 'fulfilled' && res.value) {
-              const { id, r } = res.value;
-              if (r && !r.error) itemRatings[id] = r;
-            }
-          }
-        }
 
         renderLog(data);
-        await loadMoodSummary();
+
+        const itemIds = (data.items || []).map((i) => i.id);
+        await Promise.all([
+          loadMoodSummary(),
+          loadItemRatings(itemIds),
+        ]);
       } catch (err) {
         console.error('[daily-log] loadLog error:', err);
         renderLogError(err);

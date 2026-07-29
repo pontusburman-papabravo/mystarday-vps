@@ -556,6 +556,34 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       // Table may not exist yet on old instances
     }
 
+    const sevenDaysAgoIncomplete = new Date();
+    sevenDaysAgoIncomplete.setDate(sevenDaysAgoIncomplete.getDate() - 7);
+    const incompleteFromStr = sevenDaysAgoIncomplete.toISOString().slice(0, 10);
+    const incompletePastRes = await db.query(
+      `SELECT child_id, COUNT(*)::int AS incomplete_days, MAX(date)::text AS latest_incomplete_date
+       FROM (
+         SELECT dl.child_id, dl.date
+         FROM daily_log dl
+         JOIN daily_log_item dli ON dli.daily_log_id = dl.id
+         WHERE dl.child_id = ANY($1)
+           AND dl.date >= $2::date
+           AND dl.date < CURRENT_DATE
+           AND dl.is_paused = false
+         GROUP BY dl.child_id, dl.id, dl.date
+         HAVING COUNT(dli.id) > 0
+           AND COUNT(CASE WHEN dli.completed THEN 1 END) < COUNT(dli.id)
+       ) sub
+       GROUP BY child_id`,
+      [childIds, incompleteFromStr]
+    );
+    const incompletePastMap = {};
+    for (const row of incompletePastRes.rows) {
+      incompletePastMap[row.child_id] = {
+        count: parseInt(row.incomplete_days, 10) || 0,
+        latest: row.latest_incomplete_date || null,
+      };
+    }
+
     const childStats = await Promise.all(children.map(async (c) => {
       const earned = earnedMap[c.id] || 0;
       const manual = manualMap[c.id] || 0;
@@ -621,6 +649,8 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         } : null,
         pending_redemptions: pendingMap[c.id] || 0,
         pending_goal_changes: pendingGoalMap[c.id] || 0,
+        incomplete_past_days: incompletePastMap[c.id]?.count || 0,
+        latest_incomplete_date: incompletePastMap[c.id]?.latest || null,
         history: historyByChild[c.id] || [],
       };
     }));
@@ -715,7 +745,7 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const fromStr = sevenDaysAgo.toISOString().slice(0, 10);
     const incompleteRes = await db.query(
-      `SELECT child_id, COUNT(*)::int AS incomplete_days
+      `SELECT child_id, COUNT(*)::int AS incomplete_days, MAX(date)::text AS latest_incomplete_date
        FROM (
          SELECT dl.child_id, dl.date
          FROM daily_log dl
@@ -733,7 +763,10 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
     );
     const incompleteMap = {};
     for (const row of incompleteRes.rows) {
-      incompleteMap[row.child_id] = parseInt(row.incomplete_days, 10) || 0;
+      incompleteMap[row.child_id] = {
+        count: parseInt(row.incomplete_days, 10) || 0,
+        latest: row.latest_incomplete_date || null,
+      };
     }
 
     let pendingInviteCount = 0;
@@ -776,8 +809,10 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
           priority: 0,
         });
       }
-      const incompleteDays = incompleteMap[c.id] || 0;
+      const incompleteDays = incompleteMap[c.id]?.count || 0;
       if (incompleteDays > 0) {
+        const incDate = incompleteMap[c.id]?.latest;
+        const dateParam = incDate ? '&date=' + encodeURIComponent(incDate) : '';
         items.push({
           type: 'incomplete_past_days',
           child_id: c.id,
@@ -786,7 +821,7 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
             ? t(lang, 'home.readiness.items.incompleteDaysTitleOne', { name: c.name })
             : t(lang, 'home.readiness.items.incompleteDaysTitleMany', { name: c.name, count: incompleteDays }),
           sub: t(lang, 'home.readiness.items.incompleteDaysSub'),
-          href: '/daily-log?childId=' + encodeURIComponent(c.id),
+          href: '/daily-log?childId=' + encodeURIComponent(c.id) + dateParam,
           priority: 1,
         });
       }

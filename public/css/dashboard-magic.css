@@ -979,3 +979,9 @@ body.parent-magic-dashboard.parent-theme-light .parent-readiness-heading {
 body.parent-magic-dashboard.parent-theme-light .parent-ready-progress {
   color: #c8870a;
 }
+
+/* Hem quick-action modals — lock scroll while picker is open */
+body.parent-magic-dashboard.dashboard-modal-open {
+  overflow: hidden;
+  touch-action: none;
+}

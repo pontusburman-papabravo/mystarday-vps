@@ -365,9 +365,13 @@
 
     if (restoreScreenIfNeeded()) return;
 
-    // Returning parent on Android: skip welcome — show role pick (Förälder/Barn).
+    // Returning parent on native app: skip welcome — show role pick (Förälder/Barn).
+    const isNativeApp =
+      document.documentElement.classList.contains('is-native-android') ||
+      document.documentElement.classList.contains('platform-ios') ||
+      (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative());
     if (
-      document.documentElement.classList.contains('is-native-android') &&
+      isNativeApp &&
       window.Auth && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn()
     ) {
       showScreen('ENTRY_ROLE_PICK');

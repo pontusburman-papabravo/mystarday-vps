@@ -30,6 +30,7 @@
   "loading": "Loading…",
   "retry": "Try again",
   "errors": {
+    "signInRequired": "Sign in to see Today",
     "loadChildren": "Could not load children",
     "loadLog": "Could not load the log. Try again.",
     "saveOrder": "Could not save order",

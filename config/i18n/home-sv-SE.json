@@ -42,7 +42,7 @@
     "weekTooltip": "V{{week}}: {{count}} stjärnor"
   },
   "nav": {
-    "today": "Today",
+    "today": "Idag",
     "dailyLog": "Daglig logg",
     "fillRetroactive": "📝 Fyll i i efterhand"
   },
@@ -62,7 +62,7 @@
       "missingPinTitle": "{{name}} saknar PIN",
       "missingPinSub": "Sätt PIN i barnprofilen",
       "pausedDayTitle": "{{name}} — pausad idag",
-      "pausedDaySub": "Öppna Today",
+      "pausedDaySub": "Öppna idag",
       "noScheduleTitle": "{{name}} — inget schema idag",
       "noScheduleSub": "Öppna veckoschema"
     }
@@ -87,7 +87,7 @@
     "seeSchedule": "Se schema",
     "nextActivityHeadline": "{{name}} är redo för {{activity}}",
     "nextActivitySub": "Nästa aktivitet i rutinen",
-    "openToday": "Öppna Today",
+    "openToday": "Öppna idag",
     "calmDayHeadline": "Lugn dag — inget schema just nu",
     "calmDaySub": "Perfekt tillfälle att lägga till aktiviteter eller ge extra stjärnor",
     "defaultChild": "Barnet",

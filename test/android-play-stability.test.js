@@ -125,9 +125,10 @@ describe('Android Play stability guards', () => {
     assert.match(patch, /setWebContentsDebuggingEnabled\(true\)/);
   });
 
-  it('login skips auto-redirect to dashboard on Android native (GPU crash loop)', () => {
+  it('login skips auto-redirect to dashboard on native app (language + role pick)', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
-    assert.match(html, /androidStayOnLogin/);
+    assert.match(html, /nativeStayOnLogin/);
+    assert.match(html, /isNativeApp/);
     assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
   });
 
@@ -259,9 +260,17 @@ describe('Android Play stability guards', () => {
     assert.match(js, /window\.ScheduleCore \|\| \{\}/);
   });
 
-  it('apiFetch skips silentRefresh on Android GET', () => {
+  it('apiFetch skips silentRefresh on native GET (Android + iOS WebView)', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
-    assert.match(js, /is-native-android[\s\S]*!isMutation[\s\S]*fetch\(url/);
+    assert.match(js, /isNativeClient/);
+    assert.match(js, /!isMutation[\s\S]*fetch\(url/);
+  });
+
+  it('authGuard uses lightweight fetch on native client', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
+    assert.match(js, /isNativeClient[\s\S]*auth_me_fetch_start/);
+    assert.match(js, /fetch\('\/api\/auth\/me'/);
+    assert.match(js, /auth_me_json_ok/);
   });
 
   it('Android GPU strip does not use MutationObserver', () => {
@@ -273,13 +282,6 @@ describe('Android Play stability guards', () => {
   it('feature-check skips MutationObserver on Android', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/feature-check.js'), 'utf8');
     assert.match(js, /is-native-android[\s\S]*observeNewElements/);
-  });
-
-  it('authGuard uses lightweight fetch on Android native', () => {
-    const js = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
-    assert.match(js, /is-native-android[\s\S]*auth_me_fetch_start/);
-    assert.match(js, /fetch\('\/api\/auth\/me'/);
-    assert.match(js, /auth_me_json_ok/);
   });
 
   it('dashboard.js does not shadow window.androidStabilityLog (stack overflow guard)', () => {
