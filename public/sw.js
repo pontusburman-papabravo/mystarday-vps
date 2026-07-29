@@ -505,6 +505,7 @@ const CACHE_NAME = 'stjarndag-v734';
 // stjarndag-v711: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v718: daily-log Android child picker boot + retry (support #43)
 // stjarndag-v717: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v734: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
