@@ -1,128 +1,84 @@
 /**
  * POST /api/iap/webhook — RevenueCat subscription sync.
- * Mounted in app.js BEFORE express.json() (raw body for HMAC verification).
+ * Mounted in app.js BEFORE express.json() (raw body for auth verification).
  */
 'use strict';
 
-const crypto = require('crypto');
-const db = require('../lib/db');
+const { authenticateRevenueCatWebhook } = require('../lib/revenuecat-webhook-verify');
+const { processRevenueCatEvent } = require('../lib/revenuecat-webhook-process');
 
 async function handleIapWebhook(req, res) {
-  const authHeader = req.headers['authorization'] || '';
-  const webhookSecret = process.env.REVENUECAT_WEBHOOK_SECRET;
-  if (!webhookSecret) {
-    console.error('[iap-webhook] REVENUECAT_WEBHOOK_SECRET not configured — rejecting webhook');
+  const db = require('../lib/db');
+  const staticSecret = process.env.REVENUECAT_WEBHOOK_SECRET;
+  const signingSecret = process.env.REVENUECAT_WEBHOOK_SIGNING_SECRET;
+  if (!staticSecret && !signingSecret) {
+    console.error('[iap-webhook] Webhook auth not configured — rejecting');
     return res.status(500).json({ error: 'Webhook not configured' });
   }
-  if (!authHeader) {
-    console.error('[iap-webhook] Missing Authorization header');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
 
-  const parts = authHeader.split(':');
-  if (parts.length < 2) {
-    console.error('[iap-webhook] Malformed Authorization header');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  const providedSig = parts.slice(1).join(':');
-  const expectedSig = crypto
-    .createHmac('sha256', webhookSecret)
-    .update(req.body)
-    .digest('base64');
+  const bodyBuffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || '');
 
-  const providedBuf = Buffer.from(providedSig);
-  const expectedBuf = Buffer.from(expectedSig);
-  if (providedBuf.length !== expectedBuf.length
-    || !crypto.timingSafeEqual(providedBuf, expectedBuf)) {
-    console.error('[iap-webhook] Signature mismatch');
+  if (!authenticateRevenueCatWebhook(req, bodyBuffer)) {
+    console.error('[iap-webhook] Authentication failed');
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   let payload;
   try {
-    payload = JSON.parse(req.body);
+    payload = JSON.parse(bodyBuffer.toString('utf8'));
   } catch {
     console.error('[iap-webhook] Invalid JSON body');
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
-  const eventType = payload?.event?.type;
-  const appUserId = payload?.event?.data?.attributes?.app_user_id;
-  if (!eventType) {
-    console.warn('[iap-webhook] Missing event type in payload');
-    return res.status(200).json({ received: true });
+  const event = payload?.event;
+  if (!event || typeof event !== 'object') {
+    console.warn('[iap-webhook] Missing event object');
+    return res.status(400).json({ error: 'Missing event' });
   }
+
+  if (!event.type) {
+    console.warn('[iap-webhook] Missing event type');
+    return res.status(400).json({ error: 'Missing event type' });
+  }
+
+  const appUserId = event.app_user_id || event.original_app_user_id
+    || (Array.isArray(event.aliases) && event.aliases[0]);
   if (!appUserId) {
-    console.warn('[iap-webhook] Missing app_user_id in payload');
-    return res.status(200).json({ received: true });
+    console.warn('[iap-webhook] Missing app user identity');
+    return res.status(400).json({ error: 'Missing app user identity' });
   }
 
-  console.log(`[iap-webhook] Received event: ${eventType} for app_user_id: ${appUserId}`);
+  console.log(`[iap-webhook] Received event: ${event.type} id=${event.id || 'unknown'}`);
 
-  const eventStatusMap = {
-    INITIAL_PURCHASE: 'active',
-    RENEWAL: 'active',
-    CANCELLATION: 'cancelled',
-    EXPIRATION: 'expired',
-    BILLING_ISSUE: 'grace_period',
-  };
-
-  const newStatus = eventStatusMap[eventType];
-  if (!newStatus) {
-    console.log(`[iap-webhook] Unhandled event type: ${eventType} — ignoring`);
-    return res.status(200).json({ received: true });
-  }
-
-  let family;
   try {
-    const result = await db.query(
-      'SELECT id, is_lifetime_free, subscription_status, rc_customer_id FROM family WHERE id = $1',
-      [appUserId]
+    const result = await processRevenueCatEvent(db, event);
+
+    if (result.duplicate) {
+      console.log(`[iap-webhook] Duplicate event ${event.id} — already processed`);
+      return res.status(200).json({ received: true, duplicate: true });
+    }
+
+    if (result.skipped) {
+      console.log(`[iap-webhook] Skipped event ${event.id}: ${result.reason}`);
+      return res.status(200).json({ received: true, skipped: result.reason });
+    }
+
+    console.log(
+      `[iap-webhook] Family ${result.familyId} subscription_status → ${result.subscriptionStatus}`
     );
-    family = result.rows[0] ?? null;
+    return res.status(200).json({ received: true });
   } catch (err) {
-    console.error('[iap-webhook] DB error looking up family:', err.message);
-    return res.status(200).json({ received: true });
-  }
-
-  if (!family) {
-    if (eventType !== 'INITIAL_PURCHASE' && eventType !== 'EXPIRATION') {
-      const result = await db.query(
-        'SELECT id, is_lifetime_free, subscription_status FROM family WHERE rc_customer_id = $1',
-        [appUserId]
-      );
-      family = result.rows[0] ?? null;
+    if (err.code === 'FAMILY_NOT_FOUND') {
+      console.warn('[iap-webhook] Family not found for event identity');
+      return res.status(404).json({ error: 'Family not found' });
     }
-    if (!family) {
-      console.warn(`[iap-webhook] Family not found for app_user_id: ${appUserId} — returning 200 (RevenueCat will retry)`);
-      return res.status(200).json({ received: true });
+    if (err.code === 'INVALID_EVENT' || err.code === 'MISSING_IDENTITY') {
+      return res.status(400).json({ error: err.message });
     }
+    console.error('[iap-webhook] Processing failed:', err.message);
+    return res.status(503).json({ error: 'Processing failed' });
   }
-
-  if (family.is_lifetime_free) {
-    console.log(`[iap-webhook] Family ${family.id} is lifetime_free — skipping status update for ${eventType}`);
-    return res.status(200).json({ received: true });
-  }
-
-  const updateFields = ['subscription_status = $1', 'updated_at = NOW()'];
-  const params = [newStatus];
-
-  if (eventType === 'INITIAL_PURCHASE') {
-    updateFields.push('rc_customer_id = $2');
-    params.push(appUserId);
-  }
-
-  params.push(family.id);
-  const sql = `UPDATE family SET ${updateFields.join(', ')} WHERE id = $${params.length}`;
-  try {
-    await db.query(sql, params);
-    console.log(`[iap-webhook] Family ${family.id} subscription_status → ${newStatus}`);
-  } catch (err) {
-    console.error('[iap-webhook] Failed to update family:', err.message);
-    return res.status(200).json({ received: true });
-  }
-
-  res.status(200).json({ received: true });
 }
 
 module.exports = { handleIapWebhook };
