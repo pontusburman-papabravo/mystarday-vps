@@ -1,10 +1,8 @@
 # Code review P0 — RevenueCat-webhook och deterministisk deploy
 
-> Branch: `fix/code-review-p0`  
-> Commits: `2ebd6493` (IAP), `7ca468de` (deploy)  
-> Status: redo för merge till `main`
+> Status: P0 stängt i kod. Merge PR #781 före stagingtest.
 
-Detta dokument beskriver de två P0-åtgärderna från code review: säker RevenueCat-webhook och deploy av exakt CI-testad revision.
+Detta dokument beskriver P0-åtgärderna: säker RevenueCat-webhook, deterministisk deploy, orphan-spårbarhet och reconciliation.
 
 ---
 
@@ -144,7 +142,7 @@ GitHub Actions → Deploy to VPS → Run workflow → ange 40-teckens commit-SHA
 ```bash
 cd "$VPS_APP_PATH"
 git rev-parse HEAD   # ska matcha CI-SHA
-curl -fsS http://127.0.0.1:3000/health
+curl -fsS http://127.0.0.1:3000/health | jq .git_sha   # ska matcha deployad SHA
 ```
 
 ### Rollback
@@ -172,10 +170,11 @@ Samma fält sparas i `iap_webhook_log` (migration `1810000000013`).
 
 ```bash
 npm run reconcile:revenuecat -- <family-uuid>
+npm run reconcile:revenuecat -- --dry-run <family-uuid>   # read-only, ingen DB-skrivning
 ```
 
 Hämtar `GET /v1/subscribers/{app_user_id}` från RevenueCat och uppdaterar `family.subscription_status`.
-Kräver `REVENUECAT_SECRET_API_KEY` (server `sk_…`-nyckel).
+Kräver `REVENUECAT_SECRET_API_KEY` (server `sk_…`-nyckel). Nyckeln loggas aldrig.
 
 ---
 
@@ -188,6 +187,10 @@ Kräver `REVENUECAT_SECRET_API_KEY` (server `sk_…`-nyckel).
 | `static` | Endast Authorization-header |
 | `hmac` | Endast `X-RevenueCat-Webhook-Signature` |
 | `both` | Kräver **båda** — ingen downgrade om HMAC misslyckas men static lyckas |
+
+**Viktigt:** Sätt `REVENUECAT_WEBHOOK_AUTH_MODE` **explicit** i `.env` — förlita er inte på autodetekterad standard.
+
+Om ni sätter `both` måste RevenueCat skicka **både** Authorization-headern **och** `X-RevenueCat-Webhook-Signature` i staging. Annars får korrekt konfigurerade anrop avsiktligt `401`. Om RevenueCat bara skickar static header, använd `static`.
 
 Standard när osett: `both` om båda secrets finns, annars den konfigurerade metoden.
 
@@ -207,6 +210,31 @@ Standard när osett: `both` om båda secrets finns, annars den konfigurerade met
 | Tillfälligt DB-fel | 503 | RevenueCat kan leverera igen |
 | Okänd familj | 200 `skipped: family_not_found` | orphan-logg med felsökningsfält |
 
+### Go till staging (efter merge av PR #781)
+
+- [ ] PR #781 mergad
+- [ ] Migration `1810000000013` körd och verifierad (`\d iap_webhook_log` visar audit-kolumner)
+- [ ] `REVENUECAT_WEBHOOK_AUTH_MODE` explicit satt (matchar vad RevenueCat faktiskt skickar)
+- [ ] `curl /health` visar `git_sha` som matchar deployad revision
+- [ ] `npm run reconcile:revenuecat -- --dry-run <family-uuid>` fungerar mot känd testfamilj
+- [ ] `REVENUECAT_SECRET_API_KEY` finns i `.env` men skrivs **aldrig** i logg eller deploy-output
+
+### Go till produktion
+
+Alla staging-kriterier ovan, plus:
+
+- [ ] Samtliga åtta staging-scenarier gröna (tabell ovan)
+- [ ] `CANCELLATION` behåller åtkomst till framtida `expiration_at_ms`
+- [ ] `EXPIRATION` tar bort åtkomst
+- [ ] Trippelleverans → en enda behandling
+- [ ] Felaktig auth → `401` utan DB-rad
+- [ ] Simulerat DB-fel → `5xx`, lyckas vid nästa leverans
+- [ ] Orphan-event kan identifieras (SQL ovan) och reconcileras (`reconcile:revenuecat`)
+- [ ] `DEPLOY_SUMMARY` visar samma `requested_sha` och `deployed_sha`
+- [ ] Rollback verifierad i kontrollerat stagingtest
+
+**Nästa prioritet efter produktion:** rewards-concurrency som separat P1-PR — utan engelska, UI eller ytterligare RevenueCat-förändringar.
+
 ---
 
 ## 6. Tester
@@ -219,18 +247,3 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false \
 ```
 
 Förväntat: alla gröna.
-
----
-
-## 4. PR
-
-**Titel:** Fix RevenueCat webhook handling and deterministic deploys  
-**Branch:** `fix/code-review-p0` → `main`
-
-Skapa PR om den inte finns:
-
-```bash
-gh pr create --base main --head fix/code-review-p0 \
-  --title "Fix RevenueCat webhook handling and deterministic deploys" \
-  --draft
-```

@@ -5,7 +5,9 @@
  *
  * Usage:
  *   node scripts/reconcile-revenuecat-family.js <family-uuid>
+ *   node scripts/reconcile-revenuecat-family.js --dry-run <family-uuid>
  *   npm run reconcile:revenuecat -- <family-uuid>
+ *   npm run reconcile:revenuecat -- --dry-run <family-uuid>
  *
  * Requires: DATABASE_URL, REVENUECAT_SECRET_API_KEY (or sk_-prefixed REVENUECAT_API_KEY)
  */
@@ -18,9 +20,11 @@ const {
 } = require('../src/lib/revenuecat-subscriber-sync');
 
 async function main() {
-  const familyId = process.argv[2];
+  const args = process.argv.slice(2);
+  const dryRun = args.includes('--dry-run');
+  const familyId = args.find((arg) => arg !== '--dry-run');
   if (!familyId) {
-    console.error('Usage: node scripts/reconcile-revenuecat-family.js <family-uuid>');
+    console.error('Usage: node scripts/reconcile-revenuecat-family.js [--dry-run] <family-uuid>');
     process.exit(1);
   }
 
@@ -53,6 +57,13 @@ async function main() {
 
   if (nextStatus === previousStatus) {
     console.log(`OK: subscription_status already ${nextStatus}`);
+    process.exit(0);
+  }
+
+  if (dryRun) {
+    console.log(
+      `DRY RUN: would update family ${family.id}: subscription_status ${previousStatus} → ${nextStatus}`
+    );
     process.exit(0);
   }
 

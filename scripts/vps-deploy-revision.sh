@@ -79,6 +79,9 @@ fi
 echo "→ Checkout target revision"
 git checkout --detach "$TARGET_SHA"
 
+mkdir -p data
+echo "$TARGET_SHA" > data/deployed-sha
+
 DEPLOYED_SHA="$(git rev-parse HEAD)"
 if [ "$DEPLOYED_SHA" != "$TARGET_SHA" ]; then
   echo "Checkout verification failed — HEAD=$DEPLOYED_SHA expected=$TARGET_SHA"

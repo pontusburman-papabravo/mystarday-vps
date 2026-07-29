@@ -2,6 +2,8 @@
 
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const {
   authenticateRevenueCatWebhook,
   resolveAuthMode,
@@ -91,4 +93,13 @@ describe('deriveSubscriptionStatusFromSubscriber', () => {
     });
     assert.equal(status, 'expired');
   });
+});
+
+test('reconcile script supports --dry-run flag', () => {
+  const script = fs.readFileSync(
+    path.join(__dirname, '../scripts/reconcile-revenuecat-family.js'),
+    'utf8'
+  );
+  assert.match(script, /--dry-run/);
+  assert.match(script, /DRY RUN:/);
 });
