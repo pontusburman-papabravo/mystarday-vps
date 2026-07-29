@@ -99,7 +99,10 @@
 
     let _dailyLogPageBound = false;
     let _bootInFlight = null;
+    let _bootStartedAt = 0;
     let _loadLogSeq = 0;
+    const AUTH_BOOT_TIMEOUT_MS = 12000;
+    const BOOT_STALE_MS = 20000;
     const CHILDREN_FETCH_TIMEOUT_MS = 15000;
     const LOG_FETCH_TIMEOUT_MS = 15000;
 
@@ -118,6 +121,42 @@
 
     function childrenFetchTimeoutError() {
       return new Error(pt('today.errors.loadChildren') + ' (timeout)');
+    }
+
+    async function resolveBootUser() {
+      if (typeof window.authGuard !== 'function') {
+        return window.Auth && Auth.requireAuth() ? Auth.getUser() : null;
+      }
+      try {
+        return await Promise.race([
+          window.authGuard(),
+          new Promise((resolve) => {
+            window.setTimeout(() => {
+              console.warn('[daily-log] authGuard slow — using cached session');
+              resolve(window.Auth ? Auth.getUser() : null);
+            }, AUTH_BOOT_TIMEOUT_MS);
+          }),
+        ]);
+      } catch (err) {
+        console.warn('[daily-log] authGuard failed:', err);
+        return window.Auth ? Auth.getUser() : null;
+      }
+    }
+
+    function retryChildrenIfEmpty() {
+      if (!document.getElementById('logContent')) return;
+      if (currentChildId) {
+        void loadLog();
+        return;
+      }
+      if (children.length) return;
+      if (_bootInFlight) return;
+      const cachedUser = window.Auth ? Auth.getUser() : null;
+      if (cachedUser) {
+        void loadChildren();
+        return;
+      }
+      void bootDailyLogPage();
     }
 
     async function fetchChildrenList() {
@@ -163,18 +202,18 @@
 
     async function bootDailyLogPage() {
       if (!document.getElementById('logContent')) return;
-      if (_bootInFlight) return _bootInFlight;
+      if (_bootInFlight) {
+        if (Date.now() - _bootStartedAt < BOOT_STALE_MS) return _bootInFlight;
+        console.warn('[daily-log] stale boot — retrying');
+        _bootInFlight = null;
+      }
 
+      _bootStartedAt = Date.now();
       _bootInFlight = (async () => {
         try {
           logAndroidStability('daily_log_boot_start', { path: window.location.pathname });
 
-          let user = null;
-          if (typeof window.authGuard === 'function') {
-            user = await window.authGuard();
-          } else if (window.Auth && Auth.requireAuth()) {
-            user = Auth.getUser();
-          }
+          const user = await resolveBootUser();
           if (!user) {
             logAndroidStability('daily_log_boot_no_user', null);
             const signInMsg = pt('today.errors.signInRequired');
@@ -267,25 +306,14 @@
       if (window.I18n && typeof I18n.apply === 'function') I18n.apply();
       if (currentChildId) {
         void loadLog();
-      } else if (!children.length) {
-        void bootDailyLogPage();
       }
     });
 
-    window.addEventListener('pageshow', () => {
-      if (!document.getElementById('logContent')) return;
-      if (currentChildId) {
-        void loadLog();
-      } else if (!children.length) {
-        void bootDailyLogPage();
-      }
-    });
+    window.addEventListener('pageshow', retryChildrenIfEmpty);
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState !== 'visible') return;
-      if (!document.getElementById('logContent')) return;
-      if (currentChildId || children.length) return;
-      void bootDailyLogPage();
+      retryChildrenIfEmpty();
     });
 
     function openPrintMenuHint() {

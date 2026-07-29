@@ -664,6 +664,8 @@ describe('daily-log child selection boot', () => {
     const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
     assert.match(dailyLog, /Promise\.all\(\[loadChildren\(\), i18nTask\]\)/);
     assert.match(dailyLog, /CHILDREN_FETCH_TIMEOUT_MS/);
+    assert.match(dailyLog, /AUTH_BOOT_TIMEOUT_MS/);
+    assert.match(dailyLog, /resolveBootUser/);
     assert.match(dailyLog, /today\.errors\.signInRequired/);
     assert.doesNotMatch(dailyLog, /await initParentAppI18n\(user\.preferred_locale\);\s*\n\s*if \(!_dailyLogPageBound\)/);
   });

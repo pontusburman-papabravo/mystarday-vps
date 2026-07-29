@@ -471,9 +471,9 @@
       }
     }
 
-    /* PWA/mobile without native tab bar */
+    /* PWA/mobile without native tab bar or magic shell dock */
     @media (max-width: 767px) {
-      body:not(.has-native-tab-bar) #hbBtn {
+      body:not(.has-native-tab-bar):not(.parent-magic-view):not(.parent-magic-dashboard):not(.parent-magic-library) #hbBtn {
         bottom: 80px;
         z-index: 40;
       }
