@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '27';
+const MAGIC_VERSION = '28'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/dashboard',
@@ -100,6 +100,8 @@ function bumpMagicAssetVersions(body, reqPath) {
   return body
     .replace(/\/css\/app-view-toggle\.css\?v=\d+/g, '/css/app-view-toggle.css?v=' + MAGIC_VERSION)
     .replace(/\/css\/parent-magic-common\.css\?v=\d+/g, '/css/parent-magic-common.css?v=' + MAGIC_VERSION)
+    .replace(/\/css\/dashboard-magic\.css\?v=\d+/g, '/css/dashboard-magic.css?v=' + MAGIC_VERSION)
+    .replace(/\/css\/dashboard-warmth\.css\?v=[^"']+/g, '/css/dashboard-warmth.css?v=' + MAGIC_VERSION)
     .replace(/\/js\/parent-magic-auto\.js\?v=[^"']+/g, '/js/parent-magic-auto.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/app-view-mode\.js\?v=[^"']+/g, '/js/app-view-mode.js?v=' + MAGIC_VERSION);
 }
