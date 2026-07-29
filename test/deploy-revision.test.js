@@ -17,7 +17,9 @@ test('vps-deploy-revision.sh requires DEPLOY_SHA and validates format', () => {
   assert.match(script, /git fetch --depth 1 origin "\$TARGET_SHA"/);
   assert.match(script, /git checkout --detach "\$TARGET_SHA"/);
   assert.doesNotMatch(script, /git fetch origin main/);
-  assert.doesNotMatch(script, /git reset --hard origin\/main/);
+  assert.match(script, /DEPLOY_SUMMARY/);
+  assert.match(script, /requested_sha=/);
+  assert.match(script, /rollback_sha=/);
   assert.match(script, /git rev-parse HEAD/);
   assert.doesNotMatch(script, /npm install/);
 });

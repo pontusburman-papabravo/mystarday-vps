@@ -152,15 +152,70 @@ curl -fsS http://127.0.0.1:3000/health
 - Automatisk vid misslyckad deploy (skriptet)
 - Manuell: workflow_dispatch med tidigare känd bra SHA, eller `git revert` på `main` och ny CI-deploy
 
+Deploy-loggen skriver en sammanfattningsrad:
+
+```
+DEPLOY_SUMMARY status=... requested_sha=... previous_sha=... deployed_sha=... health_check_result=... rollback_sha=...
+```
+
 ---
 
-## 3. Tester
+## 3. Orphan-events och reconciliation
+
+Okänd familj returnerar `200` med `skipped: family_not_found` och loggar **WARN** med:
+
+- `app_user_id`, `original_app_user_id`, `event`, `type`, `product_id`, `expiration_at_ms`, `skip_reason`
+
+Samma fält sparas i `iap_webhook_log` (migration `1810000000013`).
+
+**Manuell reconciliation** (återspelar inte webhook):
+
+```bash
+npm run reconcile:revenuecat -- <family-uuid>
+```
+
+Hämtar `GET /v1/subscribers/{app_user_id}` från RevenueCat och uppdaterar `family.subscription_status`.
+Kräver `REVENUECAT_SECRET_API_KEY` (server `sk_…`-nyckel).
+
+---
+
+## 4. Webhook-auth-läge
+
+`REVENUECAT_WEBHOOK_AUTH_MODE`:
+
+| Värde | Beteende |
+|-------|----------|
+| `static` | Endast Authorization-header |
+| `hmac` | Endast `X-RevenueCat-Webhook-Signature` |
+| `both` | Kräver **båda** — ingen downgrade om HMAC misslyckas men static lyckas |
+
+Standard när osett: `both` om båda secrets finns, annars den konfigurerade metoden.
+
+---
+
+## 5. Godkännandekriterier staging
+
+| Scenario | HTTP | DB |
+|----------|------|-----|
+| Initialt köp | 200 `processed` | `active` |
+| Förnyelse | 200 `processed` | `active` |
+| Uppsägning | 200 `processed` | `active` till utgång |
+| Återaktivering | 200 `processed` | `active` |
+| Utgång | 200 `processed` | `expired` |
+| Samma event ×3 | 200 ×3 (`duplicate` efter första) | 1 loggrad, 1 statusändring |
+| Felaktig auth | 401 | ingen loggrad / ingen statusändring |
+| Tillfälligt DB-fel | 503 | RevenueCat kan leverera igen |
+| Okänd familj | 200 `skipped: family_not_found` | orphan-logg med felsökningsfält |
+
+---
+
+## 6. Tester
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false \
   env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY \
-  node --test test/iap-webhook.test.js test/deploy-revision.test.js test/paywall-model-contract.test.js
+  node --test test/iap-webhook.test.js test/deploy-revision.test.js test/revenuecat-ops.test.js test/paywall-model-contract.test.js
 ```
 
 Förväntat: alla gröna.

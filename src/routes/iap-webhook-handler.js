@@ -6,6 +6,7 @@
 
 const { authenticateRevenueCatWebhook } = require('../lib/revenuecat-webhook-verify');
 const { processRevenueCatEvent } = require('../lib/revenuecat-webhook-process');
+const { formatOrphanWarnFields } = require('../lib/revenuecat-webhook-audit');
 
 async function handleIapWebhook(req, res) {
   const db = require('../lib/db');
@@ -61,9 +62,13 @@ async function handleIapWebhook(req, res) {
 
     if (result.skipped) {
       if (result.reason === 'family_not_found') {
+        const fields = formatOrphanWarnFields(event);
         console.warn(
-          `[iap-webhook] WARN Unknown app_user_id — event=${event.id || 'unknown'} ` +
-          `type=${event.type} app_user_id=${appUserId} product_id=${event.product_id || 'n/a'}`
+          '[iap-webhook] WARN RevenueCat webhook orphan — ' +
+          `event=${fields.event_id} type=${fields.event_type} ` +
+          `app_user_id=${fields.app_user_id} original_app_user_id=${fields.original_app_user_id} ` +
+          `product_id=${fields.product_id} expiration_at_ms=${fields.expiration_at_ms} ` +
+          `skip_reason=${fields.skip_reason}`
         );
       } else {
         console.log(`[iap-webhook] Skipped event ${event.id}: ${result.reason}`);
