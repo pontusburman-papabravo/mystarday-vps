@@ -99,6 +99,7 @@
     let _bootInFlight = null;
     let _loadLogSeq = 0;
     const CHILDREN_FETCH_TIMEOUT_MS = 15000;
+    const LOG_FETCH_TIMEOUT_MS = 15000;
 
     function normalizeChildId(id) {
       return id == null ? '' : String(id);
@@ -390,6 +391,32 @@
 
     // ── Log loading ───────────────────────────────────────
 
+    async function loadItemRatings(itemIds) {
+      if (!itemIds.length) return;
+      const results = await Promise.allSettled(
+        itemIds.map((id) =>
+          apiFetch(`/api/daily-log-items/${id}/ratings`)
+            .then((r) => r.json()).then((r) => ({ id, r })).catch(() => null)
+        )
+      );
+      for (const res of results) {
+        if (res.status === 'fulfilled' && res.value) {
+          const { id, r } = res.value;
+          if (r && !r.error) itemRatings[id] = r;
+        }
+      }
+    }
+
+    async function fetchDailyLog(childId, dateParam) {
+      const url = `/api/children/${childId}/daily-log?date=${encodeURIComponent(dateParam)}`;
+      return Promise.race([
+        apiFetch(url),
+        new Promise((_, reject) => {
+          window.setTimeout(() => reject(new Error(pt('today.errors.loadLog') + ' (timeout)')), LOG_FETCH_TIMEOUT_MS);
+        }),
+      ]);
+    }
+
     async function loadLog() {
       if (!currentChildId) return;
       const seq = ++_loadLogSeq;
@@ -399,7 +426,7 @@
 
       try {
         currentDateStr = dateParam;
-        const res = await apiFetch(`/api/children/${childId}/daily-log?date=${encodeURIComponent(dateParam)}`);
+        const res = await fetchDailyLog(childId, dateParam);
         if (seq !== _loadLogSeq || childId !== currentChildId) return;
         if (!res.ok) {
           let msg = pt('today.errors.loadLog');
@@ -415,27 +442,15 @@
         currentLog = data.log;
         currentItems = data.items || [];
         currentSectionTimes = data.section_times || {};
-
-        // Load ratings for all items in parallel
         itemRatings = {};
-        const itemIds = (data.items || []).map(i => i.id);
-        if (itemIds.length > 0) {
-          const results = await Promise.allSettled(
-            itemIds.map(id =>
-              apiFetch(`/api/daily-log-items/${id}/ratings`)
-                .then(r => r.json()).then(r => ({ id, r })).catch(() => null)
-            )
-          );
-          for (const res of results) {
-            if (res.status === 'fulfilled' && res.value) {
-              const { id, r } = res.value;
-              if (r && !r.error) itemRatings[id] = r;
-            }
-          }
-        }
 
         renderLog(data);
-        await loadMoodSummary();
+
+        const itemIds = (data.items || []).map((i) => i.id);
+        await Promise.all([
+          loadMoodSummary(),
+          loadItemRatings(itemIds),
+        ]);
       } catch (err) {
         console.error('[daily-log] loadLog error:', err);
         renderLogError(err);

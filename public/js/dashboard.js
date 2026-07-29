@@ -911,4 +911,7 @@ document.addEventListener('parent-i18n-ready', () => {
     if (section) I18n.apply(section);
   }
   if (typeof window.renderStarHistory === 'function') window.renderStarHistory();
+  if (window.DashboardDailySummary && dashboardStats) {
+    DashboardDailySummary.update(dashboardStats);
+  }
 });

@@ -665,6 +665,23 @@ describe('daily-log child selection boot', () => {
     assert.match(src, /i18nManualInit/);
     assert.match(src, /pageHandlesOwnI18nBoot/);
   });
+
+  it('loadLog renders schedule before ratings fetch completes', () => {
+    const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
+    const loadLogBlock = dailyLog.slice(dailyLog.indexOf('async function loadLog'));
+    assert.match(loadLogBlock, /renderLog\(data\)/);
+    assert.match(loadLogBlock, /loadItemRatings\(itemIds\)/);
+    const renderIdx = loadLogBlock.indexOf('renderLog(data)');
+    const ratingsIdx = loadLogBlock.indexOf('loadItemRatings(itemIds)');
+    assert.ok(renderIdx > 0 && ratingsIdx > renderIdx, 'renderLog before loadItemRatings in loadLog');
+  });
+
+  it('home sv-SE openToday is Swedish not English Today', () => {
+    const home = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/home-sv-SE.json'), 'utf8'));
+    assert.equal(home.summary.openToday, 'Öppna idag');
+    assert.equal(home.nav.today, 'Idag');
+    assert.equal(home.readiness.items.pausedDaySub, 'Öppna idag');
+  });
 });
 
 describe('LocaleDateTime formatTime', () => {

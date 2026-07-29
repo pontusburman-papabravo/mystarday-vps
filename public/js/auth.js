@@ -31,6 +31,18 @@
   } catch (e) { /* localStorage unavailable — not a problem */ }
 })();
 
+const SILENT_REFRESH_TIMEOUT_MS = 12000;
+
+/** Native WebView: cookie auth + skip refresh round-trips (Android Play + iOS parity). */
+function isNativeClient() {
+  if (document.documentElement.classList.contains('is-native-android')) return true;
+  if (document.documentElement.classList.contains('platform-native')) return true;
+  if (typeof window.Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) {
+    return true;
+  }
+  return false;
+}
+
 const Auth = {
   TOKEN_KEY: 'stjarndag_token',
   USER_KEY: 'stjarndag_user',
@@ -258,7 +270,12 @@ const Auth = {
    * to catch child refresh cookie overwriting parent session.
    */
   async silentRefresh() {
-    if (this._refreshPromise) return this._refreshPromise;
+    if (this._refreshPromise) {
+      return Promise.race([
+        this._refreshPromise,
+        new Promise((resolve) => setTimeout(() => resolve(null), SILENT_REFRESH_TIMEOUT_MS)),
+      ]);
+    }
 
     this._refreshPromise = (async () => {
       for (let attempt = 0; attempt < 2; attempt++) {
@@ -329,7 +346,10 @@ const Auth = {
     })();
 
     try {
-      return await this._refreshPromise;
+      return await Promise.race([
+        this._refreshPromise,
+        new Promise((resolve) => setTimeout(() => resolve(null), SILENT_REFRESH_TIMEOUT_MS)),
+      ]);
     } finally {
       this._refreshPromise = null;
     }
@@ -858,9 +878,9 @@ const Auth = {
 
 window.Auth = Auth;
 
-// Re-schedule refresh on page load (skip on Android — defer until after dashboard auth).
+// Re-schedule refresh on page load (skip on native — defer until after first paint).
 (function () {
-  if (document.documentElement.classList.contains('is-native-android')) return;
+  if (isNativeClient()) return;
   if (!Auth.isLoggedIn()) return;
   const expMs = Auth._getExpiryMs();
   if (expMs) {
@@ -872,10 +892,10 @@ window.Auth = Auth;
   }
 })();
 
-// Proactively fetch CSRF token on page load (skip on Android dashboard safe mode).
+// Proactively fetch CSRF token on page load (skip on native safe mode).
 (function () {
   if (!Auth.isLoggedIn()) return;
-  if (document.documentElement.classList.contains('is-native-android')) return;
+  if (isNativeClient()) return;
   Auth.ensureCsrfToken();
 })();
 
@@ -925,12 +945,11 @@ function setLoading(btn, loading) {
  * Returns raw Response (does NOT throw on non-2xx).
  */
 window.apiFetch = async function(url, options = {}) {
-  const isAndroid = document.documentElement.classList.contains('is-native-android');
   const method = (options.method || 'GET').toUpperCase();
   const isMutation = !['GET', 'HEAD', 'OPTIONS'].includes(method);
 
-  // Android read path: skip silentRefresh round-trip — authGuard already verified cookies.
-  if (isAndroid && !isMutation) {
+  // Native read path: skip silentRefresh round-trip — authGuard already verified cookies.
+  if (isNativeClient() && !isMutation) {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     const token = Auth.getToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -995,7 +1014,6 @@ function redirectIncompleteOnboarding(user) {
 
 window.authGuard = async function() {
   const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
-  const isAndroid = document.documentElement.classList.contains('is-native-android');
   const stabilityLog = function (step, detail) {
     if (typeof window.androidStabilityLog === 'function') {
       window.androidStabilityLog(step, detail);
@@ -1003,7 +1021,7 @@ window.authGuard = async function() {
   };
   try {
     let res;
-    if (isAndroid) {
+    if (isNativeClient()) {
       stabilityLog('auth_me_fetch_start');
       res = await fetch('/api/auth/me', { credentials: 'include' });
       stabilityLog('auth_me_fetch_done', { status: res.status, ok: res.ok });
