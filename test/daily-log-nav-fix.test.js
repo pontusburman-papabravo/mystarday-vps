@@ -46,4 +46,12 @@ describe('daily-log navigation fix (support: stuck on log page)', () => {
     assert.match(src, /retryChildrenIfEmpty/);
     assert.match(src, /AUTH_BOOT_TIMEOUT_MS/);
   });
+
+  it('daily-log dlPt does not shadow window.pt (stack overflow regression)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/daily-log.js'), 'utf8');
+    assert.doesNotMatch(src, /function pt\s*\(/);
+    assert.match(src, /function dlPt\s*\(/);
+    assert.match(src, /window\.pt\(key/);
+    assert.doesNotMatch(src, /window\.dlPt/);
+  });
 });

@@ -549,8 +549,8 @@ describe('Today HTML shell i18n', () => {
 describe('Today runtime locale', () => {
   const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
 
-  it('uses pt() for rating saved toast (no hardcoded Swedish)', () => {
-    assert.match(dailyLog, /pt\('today\.rating\.saved'\)/);
+  it('uses dlPt() for rating saved toast (no hardcoded Swedish)', () => {
+    assert.match(dailyLog, /dlPt\('today\.rating\.saved'\)/);
     assert.doesNotMatch(dailyLog, /Betyg sparat/);
   });
 
