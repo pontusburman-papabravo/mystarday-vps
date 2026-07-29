@@ -50,6 +50,13 @@ describe('family-content-display', () => {
     );
   });
 
+  it('does not translate family-customized activities (source=user after edit)', async () => {
+    assert.equal(
+      await resolveActivityDisplayName('en-GB', 'Förskola vardag', { source: 'user', icon: '🏫' }),
+      'Förskola vardag'
+    );
+  });
+
   it('does not translate user-created rewards without system origin', async () => {
     const items = [{ id: '1', name: 'Middag', star_cost: 5, icon: '🍽️', modified_by_family: false }];
     const out = await localizeRewardItems(items, 'en-GB');

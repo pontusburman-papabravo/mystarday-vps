@@ -669,8 +669,8 @@ async function resolveStandardScheduleDateRangeItems(client, familyId, standardS
       templateId = existing.rows[0].id;
     } else {
       const newTemplate = await client.query(
-        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order)
-         VALUES ($1, $2, $3, $4, false, $5) RETURNING id`,
+        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, source)
+         VALUES ($1, $2, $3, $4, false, $5, 'admin') RETURNING id`,
         [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
       );
       templateId = newTemplate.rows[0].id;

@@ -273,10 +273,13 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
 
     if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
 
+    // Family customization — stop auto-localization (mirrors reward.modified_by_family).
+    updates.push(`source = 'user'`);
+
     values.push(req.params.id);
     const result = await db.query(
       `UPDATE activity_template SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds`,
+       RETURNING id, name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds, source`,
       values
     );
 

@@ -59,8 +59,8 @@ async function seedDefaultActivities(client, familyId) {
     const timeOffset = TIME_CATEGORY_OFFSET[act.category] ?? 400;
     const combinedSort = timeOffset + (act.sort_order ?? 0);
     await client.query(
-      `INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order)
-       VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8)`,
+      `INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source)
+       VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, 'admin')`,
       [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.schema_type, combinedSort]
     );
   }
