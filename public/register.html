@@ -305,9 +305,10 @@
           }
           const inviteData = await res.json();
           document.getElementById('loadingState').classList.add('hidden');
-          document.getElementById('registerForm').classList.remove('hidden');
-          document.getElementById('loginLink').classList.remove('hidden');
-          document.getElementById('childLoginLink').classList.remove('hidden');
+          if (window.AuthLoginPlatform && typeof AuthLoginPlatform.applyAuthSections === 'function') {
+            AuthLoginPlatform.applyAuthSections({ page: 'register' });
+          }
+          document.dispatchEvent(new CustomEvent('register-form-ready'));
 
           // Pre-fill and lock email if invite specifies it
           if (inviteData.email) {
@@ -315,9 +316,6 @@
             emailField.value = inviteData.email;
             emailField.readOnly = true;
             emailField.classList.add('bg-gray-50', 'text-text-soft');
-          }
-          if (window.AuthLoginPlatform && typeof AuthLoginPlatform.applyAuthSections === 'function') {
-            AuthLoginPlatform.applyAuthSections({ page: 'register' });
           }
         } catch {
           document.getElementById('loadingState').classList.add('hidden');
@@ -334,16 +332,14 @@
             window.location.href = '/login?reason=registration_closed';
             return;
           }
-          // Open registration allowed — show form directly
+          // Open registration allowed — reveal form when language + country are confirmed
           document.getElementById('loadingState').classList.add('hidden');
-          document.getElementById('registerForm').classList.remove('hidden');
-          document.getElementById('loginLink').classList.remove('hidden');
-          document.getElementById('childLoginLink').classList.remove('hidden');
 
           // OAuth sections — platform matrix (auth-login-platform.js; google-auth-ui binds Google)
           if (window.AuthLoginPlatform && typeof AuthLoginPlatform.applyAuthSections === 'function') {
             AuthLoginPlatform.applyAuthSections({ page: 'register' });
           }
+          document.dispatchEvent(new CustomEvent('register-form-ready'));
         } catch {
           window.location.href = '/login';
           return;

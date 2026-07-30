@@ -50,7 +50,7 @@
     const eu = countries.filter((c) => !featured.includes(c));
 
     let options = `<option value="">${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
-    options += `<option value="SE"${suggest === 'SE' ? ' selected' : ''}>${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
+    options += `<option value="SE">${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
     if (eu.length) {
       options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
       eu.forEach((c) => {
@@ -95,6 +95,11 @@
       }
       .country-choice__hint { font-size: 0.75rem; color: #6B3FA0; margin-top: 0.5rem; }
       .country-choice__error { font-size: 0.8125rem; color: #ef4444; margin-top: 0.5rem; text-align: center; }
+      .register-gate-hint {
+        text-align: center; padding: 1.25rem 1rem; margin: 0.5rem 0 1rem;
+        border-radius: 12px; background: #FFF8EB; border: 2px dashed #F5A623;
+        color: #1B2340; font-size: 0.9375rem; line-height: 1.5;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -206,25 +211,75 @@
     };
   }
 
+  const REGISTER_GATED_IDS = [
+    'registerForm',
+    'googleRegisterSection',
+    'appleRegisterSection',
+    'loginLink',
+    'childLoginLink',
+  ];
+
+  function gateHintMessage(langOk, countryOk) {
+    if (!window.I18n) {
+      if (!langOk) return 'Choose a language above to continue registration.';
+      if (!countryOk) return 'Choose your country above to continue registration.';
+      return '';
+    }
+    if (!langOk) return I18n.t('auth.register.gateHintLanguage');
+    if (!countryOk) return I18n.t('auth.register.gateHintCountry');
+    return '';
+  }
+
   function gateRegisterForm() {
     const formCard = document.getElementById('formCard');
     const mountEl = document.querySelector('[data-country-choice-mount]');
     if (!formCard || !mountEl) return;
 
+    let hintEl = document.getElementById('registerGateHint');
+    if (!hintEl) {
+      hintEl = document.createElement('div');
+      hintEl.id = 'registerGateHint';
+      hintEl.className = 'register-gate-hint';
+      hintEl.setAttribute('role', 'status');
+      hintEl.hidden = true;
+      formCard.insertBefore(hintEl, formCard.firstChild);
+    }
+
+    let formReady = false;
+
     const updateForm = () => {
       const langOk = !window.LanguageChoice || LanguageChoice.isConfirmed();
       const countryOk = isConfirmed();
-      const enabled = langOk && countryOk;
-      formCard.style.opacity = enabled ? '1' : '0.45';
-      formCard.style.pointerEvents = enabled ? '' : 'none';
+      const enabled = formReady && langOk && countryOk;
+
+      REGISTER_GATED_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('hidden', !enabled);
+      });
+
+      if (hintEl) {
+        const showHint = formReady && !enabled;
+        hintEl.hidden = !showHint;
+        if (showHint) {
+          hintEl.textContent = gateHintMessage(langOk, countryOk);
+        }
+      }
+
+      formCard.style.opacity = '';
+      formCard.style.pointerEvents = '';
     };
 
-    updateForm();
+    document.addEventListener('register-form-ready', () => {
+      formReady = true;
+      updateForm();
+    });
     document.addEventListener('language-choice-confirmed', () => {
       if (mountEl.dataset.countryChoiceMounted !== '1') mount(mountEl);
       updateForm();
     });
     document.addEventListener('country-choice-confirmed', updateForm);
+    updateForm();
   }
 
   function autoMount() {
