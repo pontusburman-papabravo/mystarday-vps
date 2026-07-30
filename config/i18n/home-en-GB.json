@@ -32,6 +32,10 @@
     "childLogin": "👶 Child logs in",
     "parentLogout": "Log out"
   },
+  "founderBanner": {
+    "title": "🎉 You're a founding member",
+    "body": "As one of the first families, you have lifetime access at no cost. Thank you for being with us from the start!"
+  },
   "weekStory": {
     "title": "This week's story"
   },

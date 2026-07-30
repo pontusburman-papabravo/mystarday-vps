@@ -1,15 +1,42 @@
 /**
- * founder-banner.js — shows Grundarmedlem badge for lifetime-free families.
+ * founder-banner.js — shows founding-member badge for lifetime-free families.
  */
 (function () {
   'use strict';
+
+  function founderCopy() {
+    if (typeof window.pt === 'function') {
+      const title = window.pt('home.founderBanner.title');
+      const body = window.pt('home.founderBanner.body');
+      if (title && title !== 'home.founderBanner.title') {
+        return { title, body };
+      }
+    }
+    return {
+      title: '🎉 Du är grundarmedlem',
+      body: 'Som en av de första familjerna har du livstids tillgång utan kostnad. Tack för att du är med från början!',
+    };
+  }
+
+  function applyBannerCopy() {
+    const banner = document.getElementById('founderMemberBanner');
+    if (!banner) return;
+    const copy = founderCopy();
+    const paras = banner.querySelectorAll('p');
+    if (paras[0]) paras[0].textContent = copy.title;
+    if (paras[1]) paras[1].textContent = copy.body;
+  }
 
   function showBanner() {
     const user = window.Auth && Auth.getUser ? Auth.getUser() : null;
     if (!user || user.is_lifetime_free !== true) return;
 
-    if (document.getElementById('founderMemberBanner')) return;
+    if (document.getElementById('founderMemberBanner')) {
+      applyBannerCopy();
+      return;
+    }
 
+    const copy = founderCopy();
     const banner = document.createElement('div');
     banner.id = 'founderMemberBanner';
     banner.setAttribute('role', 'status');
@@ -25,12 +52,12 @@
       'box-shadow:0 4px 16px rgba(245,166,35,0.15)',
     ].join(';');
     banner.innerHTML =
-      '<p style="margin:0;font-weight:800;font-size:1rem;">🎉 Du är grundarmedlem</p>' +
-      '<p style="margin:6px 0 0;font-weight:500;">Som en av de första familjerna har du livstids tillgång utan kostnad. Tack för att du är med från början!</p>';
+      '<p style="margin:0;font-weight:800;font-size:1rem;">' + copy.title + '</p>' +
+      '<p style="margin:6px 0 0;font-weight:500;">' + copy.body + '</p>';
 
     const main = document.querySelector('main');
+  // Must stay inside <main> so the banner scrolls with page content on desktop.
     if (main) {
-      // Must stay inside <main> — inserting before main breaks md:flex-row (3-column crush).
       const anchor =
         document.getElementById('appViewToggleMount') ||
         main.querySelector('.bg-sky.border-b') ||
@@ -60,6 +87,16 @@
     }
     document.addEventListener('auth:ready', showBanner, { once: true });
   }
+
+  document.addEventListener('parent-i18n-ready', function () {
+    if (document.getElementById('founderMemberBanner')) applyBannerCopy();
+    else showBanner();
+  });
+  document.addEventListener('locale-changed', function () {
+    const el = document.getElementById('founderMemberBanner');
+    if (el) el.remove();
+    showBanner();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

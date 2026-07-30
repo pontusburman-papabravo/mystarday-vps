@@ -41,26 +41,42 @@ async function bootstrapChildLoginI18n() {
   if (typeof window.initChildAppI18n !== 'function') return;
   let preferredLocale = null;
   let englishChildEnabled = false;
+  if (typeof window.readPersistedChildLocaleHints === 'function') {
+    const stored = readPersistedChildLocaleHints();
+    preferredLocale = stored.preferredLocale;
+    englishChildEnabled = stored.englishChildEnabled;
+  }
+
   try {
     const res = await fetch('/api/auth/login-picker-children', { credentials: 'same-origin' });
     const ctx = res.ok ? await res.json() : {};
-    preferredLocale = ctx.child_ui_locale || ctx.preferred_locale || null;
-    if (typeof ctx.english_child_experience_enabled === 'boolean') {
-      englishChildEnabled = ctx.english_child_experience_enabled;
+    if (ctx.hasSession) {
+      if (ctx.child_ui_locale || ctx.preferred_locale) {
+        preferredLocale = ctx.child_ui_locale || ctx.preferred_locale;
+      }
+      if (typeof ctx.english_child_experience_enabled === 'boolean') {
+        englishChildEnabled = ctx.english_child_experience_enabled;
+      }
     }
   } catch (_) {
     /* offline / logged out */
   }
-  if (!preferredLocale && window.I18n) {
-    try {
-      preferredLocale = sessionStorage.getItem(I18n.STORAGE_KEY)
-        || localStorage.getItem(I18n.STORAGE_KEY);
-      const flagRaw = sessionStorage.getItem('sd_english_child_experience')
-        || localStorage.getItem('sd_english_child_experience');
-      if (flagRaw === '1') englishChildEnabled = true;
-      if (flagRaw === '0') englishChildEnabled = false;
-    } catch (_) { /* ignore */ }
+
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'same-origin' });
+    if (meRes.ok) {
+      const me = await meRes.json();
+      if (me.child_ui_locale || me.preferred_locale) {
+        preferredLocale = me.child_ui_locale || me.preferred_locale;
+      }
+      if (typeof me.english_child_experience_enabled === 'boolean') {
+        englishChildEnabled = me.english_child_experience_enabled;
+      }
+    }
+  } catch (_) {
+    /* no session */
   }
+
   await initChildAppI18n({
     preferredLocale,
     englishChildEnabled,
@@ -1280,6 +1296,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   await bootstrapChildLoginI18n();
   document.addEventListener('child-i18n-ready', function () {
     if (window.I18n) I18n.apply();
+    if (typeof window.authT === 'function' && typeof window.authEntryI18nBootstrapped !== 'undefined') {
+      document.querySelectorAll('[data-i18n^="auth.childLogin"]').forEach(function (el) {
+        const key = el.getAttribute('data-i18n');
+        if (!key) return;
+        const text = authT(key);
+        if (text && text !== key) el.textContent = text;
+      });
+      document.querySelectorAll('[data-i18n-aria-label^="auth.childLogin"]').forEach(function (el) {
+        const key = el.getAttribute('data-i18n-aria-label');
+        if (!key) return;
+        const text = authT(key);
+        if (text && text !== key) el.setAttribute('aria-label', text);
+      });
+    }
     applyChildLoginStaticCopy();
   });
   applyChildLoginStaticCopy();

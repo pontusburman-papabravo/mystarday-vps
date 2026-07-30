@@ -12,6 +12,13 @@ test('calendar page boots without waiting only on late parent-i18n-ready', () =>
   assert.match(html, /ParentMagicPageBoot\.register\('calendar'/);
   assert.match(html, /DOMContentLoaded',\s*bootCalendar/);
   assert.match(html, /_calendarBooted/);
+  assert.match(html, /authGuard/);
+  assert.match(html, /revealCalendarUi/);
+  const bootIdx = html.indexOf('parent-magic-page-boot.js');
+  const inlineIdx = html.indexOf('function bootCalendar');
+  assert.ok(bootIdx > 0 && inlineIdx > bootIdx, 'parent-magic-page-boot.js must load before inline calendar boot');
+  assert.match(html, /normalizeCalendarWeekPayload/);
+  assert.match(html, /stjarndag-magic-navigated/);
 });
 
 test('library-magic-schedules uses pt for segment labels', () => {

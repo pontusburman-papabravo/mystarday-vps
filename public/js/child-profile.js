@@ -4,14 +4,19 @@
 (function () {
   'use strict';
 
+  function pt(key, params) {
+    if (typeof window.pt !== 'function') return key;
+    return window.pt('family.' + key, params || {});
+  }
+
   const TABS = [
-    { id: 'overview', label: 'Översikt' },
-    { id: 'log', label: 'Daglig logg' },
-    { id: 'schema', label: 'Schema' },
-    { id: 'rewards', label: 'Belöningar' },
-    { id: 'progress', label: 'Framsteg' },
-    { id: 'setup', label: 'Inställningar' },
-    { id: 'child-view', label: 'Barnvy' },
+    { id: 'overview', labelKey: 'childProfile.tabs.overview' },
+    { id: 'log', labelKey: 'childProfile.tabs.log' },
+    { id: 'schema', labelKey: 'childProfile.tabs.schema' },
+    { id: 'rewards', labelKey: 'childProfile.tabs.rewards' },
+    { id: 'progress', labelKey: 'childProfile.tabs.progress' },
+    { id: 'setup', labelKey: 'childProfile.tabs.setup' },
+    { id: 'child-view', labelKey: 'childProfile.tabs.childView' },
   ];
 
   let childId = null;
@@ -89,12 +94,14 @@
     const m = today.getMonth() - bday.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
     if (age < 0) return null;
-    return age + ' år';
+    if (age === 1) return pt('child.yearsOne', { count: age });
+    return pt('child.yearsMany', { count: age });
   }
 
   function profileSubtitle(child) {
     const ageText = formatAge(child && child.birthday);
-    return ageText ? ('Barnprofil · ' + ageText) : 'Barnprofil';
+    if (!ageText) return pt('childProfile.profileLabel');
+    return pt('childProfile.profileWithAge', { age: ageText });
   }
 
   function pinSetupHtml() {
@@ -133,7 +140,7 @@
         const block = PendingApprovals.renderList(pending, {
           childId: childId,
           childName: child.name,
-          heading: 'Väntar på godkännande',
+          heading: pt('childProfile.pendingHeading'),
         });
         if (block.indexOf('Inga väntande') === -1) html += '<div class="mb-4">' + block + '</div>';
       } catch (_) { /* silent */ }
@@ -142,15 +149,15 @@
       const pct = goalRow.progress_pct != null ? Math.min(100, goalRow.progress_pct) : 0;
       html +=
         '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
-        '<p class="text-sm text-text-soft">Aktuellt mål</p>' +
-        '<p class="font-bold text-navy">' + esc(goalRow.reward_icon || '🎁') + ' ' + esc(goalRow.reward_name) + '</p>' +
+        '<p class="text-sm text-text-soft">' + esc(pt('childProfile.currentGoal')) + '</p>' +
+        '<p class="font-bold text-navy">' + esc(goalRow.reward_icon || '🎁') + ' ' + esc(goalRow.reward_name_display || goalRow.reward_name) + '</p>' +
         '<div class="h-2 bg-lavender rounded-full mt-2 overflow-hidden"><div class="h-full bg-gold" style="width:' + pct + '%"></div></div>' +
         '<p class="text-xs text-text-soft mt-1">' + (goalRow.stars_toward_goal || 0) + ' / ' + (goalRow.star_cost || '?') + ' ⭐</p>' +
         '</div>';
     } else {
-      html += '<p class="text-text-soft text-sm mb-3">Inget aktivt mål — välj i biblioteket.</p>';
+      html += '<p class="text-text-soft text-sm mb-3">' + esc(pt('childProfile.noActiveGoal')) + '</p>';
     }
-    html += '<a href="/library#rewards" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Hantera belöningar →</a>';
+    html += '<a href="/library#rewards" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.manageRewards')) + '</a>';
     return html;
   }
 
@@ -159,10 +166,10 @@
     const logId = dashRow && dashRow.today_log_id;
     return '<div class="grid grid-cols-2 gap-2 mb-6">' +
       '<button type="button" data-action="pause" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">' +
-      (paused ? '▶ Återuppta dag' : '⏸ Pausa idag') + '</button>' +
-      '<button type="button" data-action="stars" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">⭐ Extra stjärnor</button>' +
-      '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '&date=' + encodeURIComponent(new Date().toISOString().slice(0, 10)) + '" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px] flex items-center justify-center col-span-2">📅 Fyll i i efterhand</a>' +
-      '<button type="button" data-action="once" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">📋 Engångsaktivitet</button>' +
+      (paused ? pt('childProfile.resumeDay') : pt('childProfile.pauseToday')) + '</button>' +
+      '<button type="button" data-action="stars" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">' + pt('childProfile.extraStars') + '</button>' +
+      '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '&date=' + encodeURIComponent(new Date().toISOString().slice(0, 10)) + '" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px] flex items-center justify-center col-span-2">' + pt('childProfile.fillRetroactive') + '</a>' +
+      '<button type="button" data-action="once" class="p-3 bg-white border border-lavender rounded-xl font-semibold text-sm text-navy min-h-[52px]">' + pt('childProfile.onceTask') + '</button>' +
       '</div>';
   }
 
@@ -180,8 +187,10 @@
     if (incomplete > 0) {
       html +=
         '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 mb-4 bg-coral/10 border border-coral rounded-2xl">' +
-        '<p class="font-semibold text-navy">📅 ' + incomplete + ' ofullständig' + (incomplete === 1 ? ' dag' : 'a dagar') + '</p>' +
-        '<p class="text-sm text-text-soft">Fyll i i efterhand i daglig logg</p></a>';
+        '<p class="font-semibold text-navy">' + esc(incomplete === 1
+          ? pt('childProfile.incompleteDaysOne', { count: incomplete })
+          : pt('childProfile.incompleteDaysMany', { count: incomplete })) + '</p>' +
+        '<p class="text-sm text-text-soft">' + esc(pt('childProfile.incompleteHint')) + '</p></a>';
     }
     return html;
   }
@@ -189,13 +198,13 @@
   async function progressTabHtml() {
     const res = await window.apiFetch('/api/family/star-history');
     if (!res.ok) {
-      return '<p class="text-text-soft">Kunde inte ladda stjärnhistorik.</p>';
+      return '<p class="text-text-soft">' + esc(pt('childProfile.errors.loadStarHistory')) + '</p>';
     }
     const data = await res.json();
     const weeks = data.weeks || [];
     if (!weeks.length) {
-      return '<p class="text-text-soft mb-4">Ingen stjärnhistorik ännu.</p>' +
-        '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna rapporter →</a>';
+      return '<p class="text-text-soft mb-4">' + esc(pt('childProfile.noStarHistory')) + '</p>' +
+        '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.openReports')) + '</a>';
     }
     const totals = weeks.map(function (w) { return (w.child_totals && w.child_totals[childId]) || 0; });
     const max = Math.max.apply(null, totals.concat([1]));
@@ -209,9 +218,9 @@
         '<span class="text-[10px] text-text-soft">' + esc(w.week_label || '') + '</span></div>';
     }).join('');
     return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4 overflow-hidden">' +
-      '<p class="text-sm text-text-soft mb-3">Stjärnor per vecka (8 veckor)</p>' +
+      '<p class="text-sm text-text-soft mb-3">' + esc(pt('childProfile.starsPerWeek')) + '</p>' +
       '<div class="max-w-full overflow-x-auto pb-1"><div class="flex gap-1 items-end">' + bars + '</div></div></div>' +
-      '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Se utveckling i rapporter →</a>';
+      '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.openReports')) + '</a>';
   }
 
   function tabContent(tab) {
@@ -221,29 +230,29 @@
       return quickActionsHtml() +
         overviewAlertsHtml() +
         '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
-        '<p class="text-sm text-text-soft">Idag</p>' +
+        '<p class="text-sm text-text-soft">' + esc(pt('childProfile.todayLabel')) + '</p>' +
         '<p class="text-2xl font-heading font-bold text-navy">' + stars + ' ⭐</p>' +
-        (paused ? '<p class="text-sm text-coral font-semibold mt-1">⏸ Pausad idag</p>' : '') +
+        (paused ? '<p class="text-sm text-coral font-semibold mt-1">' + esc(pt('childProfile.pausedToday')) + '</p>' : '') +
         '</div>';
     }
     if (tab === 'log') {
-      return '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 bg-gold text-white rounded-xl font-bold text-center">Öppna daglig logg →</a>';
+      return '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 bg-gold text-white rounded-xl font-bold text-center">' + esc(pt('childProfile.openDailyLog')) + '</a>';
     }
     if (tab === 'schema') {
-      return '<div id="profileSchemaBody">Laddar schema…</div>';
+      return '<div id="profileSchemaBody">' + esc(pt('childProfile.loadingSchema')) + '</div>';
     }
     if (tab === 'rewards') {
-      return '<div id="profileRewardsBody">Laddar…</div>';
+      return '<div id="profileRewardsBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
     }
     if (tab === 'progress') {
-      return '<div id="profileProgressBody">Laddar…</div>';
+      return '<div id="profileProgressBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
     }
     if (tab === 'setup') {
-      return '<div id="childProfileSetupBody">Laddar…</div>';
+      return '<div id="childProfileSetupBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
     }
     if (tab === 'child-view') {
-      return '<p class="text-text-soft mb-4">Låt barnet logga in på denna enhet.</p>' +
-        '<button type="button" id="childHandoffBtn" class="w-full p-4 bg-gold text-white rounded-xl font-bold">Barnet loggar in</button>';
+      return '<p class="text-text-soft mb-4">' + esc(pt('childProfile.childHandoffLead')) + '</p>' +
+        '<button type="button" id="childHandoffBtn" class="w-full p-4 bg-gold text-white rounded-xl font-bold">' + esc(pt('childProfile.childHandoffBtn')) + '</button>';
     }
     return '';
   }
@@ -254,11 +263,11 @@
     const tab = currentTab();
     const tabsHtml = TABS.map(function (t) {
       const active = t.id === tab;
-      return '<button type="button" data-tab="' + t.id + '" class="child-profile-tab px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + (active ? ' is-active' : '') + '">' + t.label + '</button>';
+      return '<button type="button" data-tab="' + t.id + '" class="child-profile-tab px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + (active ? ' is-active' : '') + '">' + esc(pt(t.labelKey)) + '</button>';
     }).join('');
 
     mount.innerHTML =
-      '<a href="/family" class="text-sm text-gold font-semibold mb-4 inline-block">← Familj</a>' +
+      '<a href="/family" class="text-sm text-gold font-semibold mb-4 inline-block">' + esc(pt('childProfile.backFamily')) + '</a>' +
       '<div class="flex items-center gap-3 mb-4">' +
       '<span class="text-4xl">' + esc(child.emoji || '⭐') + '</span>' +
       '<div><h1 class="text-2xl font-heading font-bold text-navy">' + esc(child.name) + '</h1>' +
@@ -284,7 +293,7 @@
         });
       }).catch(function () {
         const el = document.getElementById('profileRewardsBody');
-        if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda belöningar.</p>';
+        if (el) el.innerHTML = '<p class="text-coral text-sm">' + esc(pt('childProfile.errors.loadRewards')) + '</p>';
       });
     }
 
@@ -294,7 +303,7 @@
         if (el) el.innerHTML = html;
       }).catch(function () {
         const el = document.getElementById('profileProgressBody');
-        if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda framsteg.</p>';
+        if (el) el.innerHTML = '<p class="text-coral text-sm">' + esc(pt('childProfile.errors.loadProgress')) + '</p>';
       });
     }
 
@@ -305,7 +314,7 @@
           if (el) el.innerHTML = html;
         }).catch(function () {
           const el = document.getElementById('profileSchemaBody');
-          if (el) el.innerHTML = '<p class="text-coral text-sm">Kunde inte ladda schema.</p>';
+          if (el) el.innerHTML = '<p class="text-coral text-sm">' + esc(pt('childProfile.errors.loadSchema')) + '</p>';
         });
       }
     }
@@ -445,9 +454,18 @@
     render();
   }
 
-    async function boot() {
+  async function boot() {
     try {
-      Auth.requireAuth();
+      let user = null;
+      if (typeof window.authGuard === 'function') {
+        user = await window.authGuard();
+      } else if (Auth.requireAuth()) {
+        user = Auth.getUser();
+      }
+      if (!user) return;
+      if (typeof window.initParentAppI18n === 'function') {
+        await initParentAppI18n(user.preferred_locale);
+      }
       await loadData();
       render();
       document.getElementById('manualStarCancel')?.addEventListener('click', function () {
@@ -459,6 +477,13 @@
       if (mount) mount.innerHTML = '<p class="text-coral text-center py-8">' + esc(err.message) + '</p>';
     }
   }
+
+  document.addEventListener('parent-i18n-ready', function () {
+    if (child) render();
+  });
+  document.addEventListener('locale-changed', function () {
+    if (child) render();
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

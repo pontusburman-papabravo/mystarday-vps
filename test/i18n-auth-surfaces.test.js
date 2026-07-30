@@ -141,9 +141,10 @@ describe('auth i18n — static surfaces', () => {
     assert.match(authJs, /sd_english_child_experience/);
     assert.match(i18nJs, /_readStoredLocale/);
     assert.match(i18nJs, /localStorage\.getItem\(this\.STORAGE_KEY\)/);
-    assert.match(childLoginJs, /sd_english_child_experience/);
-    assert.match(childLoginJs, /localStorage\.getItem\(I18n\.STORAGE_KEY\)/);
+    assert.match(childLoginJs, /readPersistedChildLocaleHints/);
+    assert.match(childLoginJs, /\/api\/auth\/me/);
     assert.match(childAppI18n, /sd_english_child_experience/);
+    assert.match(childAppI18n, /sd_child_ui_locale/);
   });
 });
 
