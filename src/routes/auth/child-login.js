@@ -25,6 +25,7 @@ const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { ChildLoginSchema } = require('../../lib/schemas');
 const { avatarApiFields } = require('../../lib/avatar-api');
+const { resolveParentFamilyIdFromCookies } = require('../../lib/parent-session-family');
 const { parseDuration } = require('./session');
 
 const router = express.Router();
@@ -58,32 +59,15 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     let child = childResult.rows[0];
 
     if (!child) {
-      const nameResult = await db.query(
-        'SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at FROM child WHERE LOWER(name) = $1',
-        [normalizedInput]
-      );
-      if (nameResult.rows.length === 1) {
-        child = nameResult.rows[0];
-      } else if (nameResult.rows.length > 1) {
-        // Multiple children with same display name — PIN disambiguates
-        for (const candidate of nameResult.rows) {
-          if (await comparePassword(pin, candidate.pin)) {
-            child = candidate;
-            break;
-          }
-        }
-        if (!child) {
-          // Can't determine which child — record generic failure and return error
-          // (no child_id to attach lockout to in this edge case)
-          await db.query(
-            'INSERT INTO login_attempt (identifier, ip_address, success) VALUES ($1, $2, false)',
-            [normalizedInput, clientIp]
-          );
-          return res.status(401).json({
-            error: 'Felaktigt namn eller PIN-kod',
-            code: 'CHILD_PIN_INVALID',
-            attempts_remaining: null,
-          });
+      const parentFamilyId = resolveParentFamilyIdFromCookies(req);
+      if (parentFamilyId) {
+        const nameResult = await db.query(
+          `SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at
+           FROM child WHERE family_id = $1 AND LOWER(name) = $2`,
+          [parentFamilyId, normalizedInput]
+        );
+        if (nameResult.rows.length === 1) {
+          child = nameResult.rows[0];
         }
       }
     }
@@ -163,7 +147,8 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
                JOIN parent p ON p.id = pc.parent_id
                JOIN family f ON f.id = p.family_id
                WHERE pc.child_id = $1
-               ORDER BY pc.role = 'primary' DESC
+                 AND pc.revoked_at IS NULL
+               ORDER BY (pc.role = 'primary') DESC, pc.connected_at NULLS LAST
                LIMIT 1`,
               [child.id]
             );
