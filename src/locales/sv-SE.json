@@ -356,6 +356,34 @@
       "goToLoginInline": "Gå till inloggning",
       "loginLink": "Gå till inloggning"
     },
+    "supportBubble": {
+      "closeAria": "Stäng",
+      "triggerAria": "Kontakta support",
+      "title": "Behöver du hjälp? 💬",
+      "subtitle": "Vi svarar så snart vi kan",
+      "success": "Tack! Vi har tagit emot ditt meddelande och återkommer snart.",
+      "nameLabel": "Namn",
+      "namePlaceholder": "Ditt namn",
+      "emailLabel": "E-post",
+      "emailPlaceholder": "din@epost.se",
+      "emailHint": "Så vi kan svara dig",
+      "messageLabel": "Meddelande",
+      "messagePlaceholder": "Beskriv ditt ärende...",
+      "submit": "Skicka meddelande",
+      "fillAllFields": "Fyll i alla fält",
+      "messageMinLength": "Meddelandet måste vara minst 10 tecken",
+      "submitting": "Skickar...",
+      "sendFailed": "Kunde inte skicka meddelandet. Försök igen.",
+      "genericError": "Något gick fel"
+    },
+    "contactForm": {
+      "fillRequired": "Alla fält är obligatoriska.",
+      "emailInvalid": "Ange en giltig e-postadress.",
+      "messageTooShort": "Meddelandet är för kort (minst 5 tecken).",
+      "submitting": "Skickar…",
+      "submit": "Skicka",
+      "genericError": "Något gick fel. Försök igen."
+    },
     "api": {
       "errors": {
         "emailAndPasswordRequired": "E-post och lösenord krävs",

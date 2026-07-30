@@ -356,6 +356,34 @@
       "goToLoginInline": "Go to log in",
       "loginLink": "Go to log in"
     },
+    "supportBubble": {
+      "closeAria": "Close",
+      "triggerAria": "Contact support",
+      "title": "Need help? 💬",
+      "subtitle": "We'll reply as soon as we can",
+      "success": "Thanks! We received your message and will get back to you soon.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "So we can reply to you",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Describe your issue...",
+      "submit": "Send message",
+      "fillAllFields": "Fill in all fields",
+      "messageMinLength": "Message must be at least 10 characters",
+      "submitting": "Sending...",
+      "sendFailed": "Could not send your message. Try again.",
+      "genericError": "Something went wrong"
+    },
+    "contactForm": {
+      "fillRequired": "All fields are required.",
+      "emailInvalid": "Enter a valid email address.",
+      "messageTooShort": "Message is too short (at least 5 characters).",
+      "submitting": "Sending…",
+      "submit": "Send",
+      "genericError": "Something went wrong. Try again."
+    },
     "api": {
       "errors": {
         "emailAndPasswordRequired": "Email and password are required",

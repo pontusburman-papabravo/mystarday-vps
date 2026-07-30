@@ -8,8 +8,15 @@
 (function () {
   'use strict';
 
-  // Don't render if already present
   if (document.getElementById('supportBubbleRoot')) return;
+
+  function t(key, params) {
+    if (typeof window.authT === 'function') return window.authT(key, params);
+    if (window.I18n && typeof I18n.t === 'function') {
+      return I18n.t(key, params || {});
+    }
+    return key;
+  }
 
   // ─── Styles ────────────────────────────────────────────────
   const style = document.createElement('style');
@@ -190,115 +197,197 @@
   `;
   document.head.appendChild(style);
 
-  // ─── HTML ──────────────────────────────────────────────────
-  const root = document.createElement('div');
-  root.id = 'supportBubbleRoot';
-  root.innerHTML = `
+  function buildPanelHtml() {
+    return `
     <div class="sb-panel" id="sbPanel">
-      <button class="sb-close" id="sbClose" aria-label="Stäng">&times;</button>
+      <button class="sb-close" id="sbClose" type="button" aria-label=""></button>
       <div class="sb-header">
-        <h3>Behöver du hjälp? 💬</h3>
-        <p>Vi svarar så snart vi kan</p>
+        <h3 id="sbTitle"></h3>
+        <p id="sbSubtitle"></p>
       </div>
       <div class="sb-body">
-        <div class="sb-alert success" id="sbSuccess">Tack! Vi har tagit emot ditt meddelande och återkommer snart.</div>
+        <div class="sb-alert success" id="sbSuccess"></div>
         <div class="sb-alert error" id="sbError"></div>
         <form id="sbForm">
           <div class="sb-field">
-            <label for="sbName">Namn</label>
-            <input type="text" id="sbName" placeholder="Ditt namn" required>
+            <label for="sbName" id="sbNameLabel"></label>
+            <input type="text" id="sbName" required>
           </div>
           <div class="sb-field">
-            <label for="sbEmail">E-post</label>
-            <input type="email" id="sbEmail" placeholder="din@epost.se" required>
-            <p class="sb-email-hint">Så vi kan svara dig</p>
+            <label for="sbEmail" id="sbEmailLabel"></label>
+            <input type="email" id="sbEmail" required>
+            <p class="sb-email-hint" id="sbEmailHint"></p>
           </div>
           <div class="sb-field">
-            <label for="sbMessage">Meddelande</label>
-            <textarea id="sbMessage" placeholder="Beskriv ditt ärende..." required></textarea>
+            <label for="sbMessage" id="sbMessageLabel"></label>
+            <textarea id="sbMessage" required></textarea>
           </div>
-          <button type="submit" class="sb-submit" id="sbSubmit">Skicka meddelande</button>
+          <button type="submit" class="sb-submit" id="sbSubmit"></button>
         </form>
       </div>
     </div>
-    <button class="sb-trigger" id="sbTrigger" aria-label="Kontakta support">
+    <button class="sb-trigger" id="sbTrigger" type="button" aria-label="">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
         <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
       </svg>
-    </button>
-  `;
-  document.body.appendChild(root);
-
-  // ─── Logic ─────────────────────────────────────────────────
-  const trigger = document.getElementById('sbTrigger');
-  const panel = document.getElementById('sbPanel');
-  const closeBtn = document.getElementById('sbClose');
-  const form = document.getElementById('sbForm');
-  const submitBtn = document.getElementById('sbSubmit');
-  const successEl = document.getElementById('sbSuccess');
-  const errorEl = document.getElementById('sbError');
-
-  function togglePanel() {
-    panel.classList.toggle('open');
+    </button>`;
   }
 
-  trigger.addEventListener('click', togglePanel);
-  closeBtn.addEventListener('click', function () {
-    panel.classList.remove('open');
-  });
+  function applyStrings() {
+    const closeBtn = document.getElementById('sbClose');
+    const trigger = document.getElementById('sbTrigger');
+    const submitBtn = document.getElementById('sbSubmit');
+    if (!closeBtn || !trigger) return;
 
-  // Close on outside click
-  document.addEventListener('click', function (e) {
-    if (!root.contains(e.target) && panel.classList.contains('open')) {
+    closeBtn.setAttribute('aria-label', t('auth.supportBubble.closeAria'));
+    trigger.setAttribute('aria-label', t('auth.supportBubble.triggerAria'));
+
+    const title = document.getElementById('sbTitle');
+    const subtitle = document.getElementById('sbSubtitle');
+    if (title) title.textContent = t('auth.supportBubble.title');
+    if (subtitle) subtitle.textContent = t('auth.supportBubble.subtitle');
+
+    const successEl = document.getElementById('sbSuccess');
+    if (successEl) successEl.textContent = t('auth.supportBubble.success');
+
+    const nameLabel = document.getElementById('sbNameLabel');
+    const emailLabel = document.getElementById('sbEmailLabel');
+    const emailHint = document.getElementById('sbEmailHint');
+    const messageLabel = document.getElementById('sbMessageLabel');
+    const nameInput = document.getElementById('sbName');
+    const emailInput = document.getElementById('sbEmail');
+    const messageInput = document.getElementById('sbMessage');
+
+    if (nameLabel) nameLabel.textContent = t('auth.supportBubble.nameLabel');
+    if (emailLabel) emailLabel.textContent = t('auth.supportBubble.emailLabel');
+    if (emailHint) emailHint.textContent = t('auth.supportBubble.emailHint');
+    if (messageLabel) messageLabel.textContent = t('auth.supportBubble.messageLabel');
+    if (nameInput) nameInput.placeholder = t('auth.supportBubble.namePlaceholder');
+    if (emailInput) emailInput.placeholder = t('auth.supportBubble.emailPlaceholder');
+    if (messageInput) messageInput.placeholder = t('auth.supportBubble.messagePlaceholder');
+    if (submitBtn && !submitBtn.disabled) {
+      submitBtn.textContent = t('auth.supportBubble.submit');
+    }
+  }
+
+  let wired = false;
+
+  function wireLogic() {
+    if (wired) return;
+    wired = true;
+
+    const trigger = document.getElementById('sbTrigger');
+    const panel = document.getElementById('sbPanel');
+    const closeBtn = document.getElementById('sbClose');
+    const form = document.getElementById('sbForm');
+    const submitBtn = document.getElementById('sbSubmit');
+    const successEl = document.getElementById('sbSuccess');
+    const errorEl = document.getElementById('sbError');
+    const root = document.getElementById('supportBubbleRoot');
+
+    function togglePanel() {
+      panel.classList.toggle('open');
+    }
+
+    trigger.addEventListener('click', togglePanel);
+    closeBtn.addEventListener('click', function () {
       panel.classList.remove('open');
-    }
-  });
+    });
 
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    successEl.style.display = 'none';
-    errorEl.style.display = 'none';
+    document.addEventListener('click', function (e) {
+      if (!root.contains(e.target) && panel.classList.contains('open')) {
+        panel.classList.remove('open');
+      }
+    });
 
-    const name = document.getElementById('sbName').value.trim();
-    const email = document.getElementById('sbEmail').value.trim();
-    const message = document.getElementById('sbMessage').value.trim();
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      successEl.style.display = 'none';
+      errorEl.style.display = 'none';
 
-    if (!name || !email || !message) {
-      errorEl.textContent = 'Fyll i alla fält';
-      errorEl.style.display = 'block';
-      return;
-    }
-    if (message.length < 10) {
-      errorEl.textContent = 'Meddelandet måste vara minst 10 tecken';
-      errorEl.style.display = 'block';
-      return;
-    }
+      const name = document.getElementById('sbName').value.trim();
+      const email = document.getElementById('sbEmail').value.trim();
+      const message = document.getElementById('sbMessage').value.trim();
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Skickar...';
-
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email, message: message }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Något gick fel');
+      if (!name || !email || !message) {
+        errorEl.textContent = t('auth.supportBubble.fillAllFields');
+        errorEl.style.display = 'block';
+        return;
+      }
+      if (message.length < 10) {
+        errorEl.textContent = t('auth.supportBubble.messageMinLength');
+        errorEl.style.display = 'block';
+        return;
       }
 
-      successEl.style.display = 'block';
-      form.reset();
-    } catch (err) {
-      errorEl.textContent = err.message || 'Kunde inte skicka meddelandet. Försök igen.';
-      errorEl.style.display = 'block';
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Skicka meddelande';
-    }
-  });
+      submitBtn.disabled = true;
+      submitBtn.textContent = t('auth.supportBubble.submitting');
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, email: email, message: message }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || t('auth.supportBubble.genericError'));
+        }
+
+        successEl.style.display = 'block';
+        form.reset();
+      } catch (err) {
+        errorEl.textContent = err.message || t('auth.supportBubble.sendFailed');
+        errorEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = t('auth.supportBubble.submit');
+      }
+    });
+  }
+
+  async function ensureI18n() {
+    if (!window.I18n) return;
+    if (Object.keys(I18n.locale || {}).length > 0) return;
+    try {
+      await I18n.init();
+    } catch (_) { /* fall back to keys */ }
+  }
+
+  async function mount() {
+    await ensureI18n();
+
+    const root = document.createElement('div');
+    root.id = 'supportBubbleRoot';
+    root.innerHTML = buildPanelHtml();
+    document.body.appendChild(root);
+
+    applyStrings();
+    wireLogic();
+
+    document.addEventListener('locale-changed', applyStrings);
+  }
+
+  function scheduleMount() {
+    mount().catch(function (err) {
+      console.warn('[support-bubble] mount failed:', err);
+      if (!document.getElementById('supportBubbleRoot')) {
+        const root = document.createElement('div');
+        root.id = 'supportBubbleRoot';
+        root.innerHTML = buildPanelHtml();
+        document.body.appendChild(root);
+        applyStrings();
+        wireLogic();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleMount);
+  } else {
+    scheduleMount();
+  }
 })();

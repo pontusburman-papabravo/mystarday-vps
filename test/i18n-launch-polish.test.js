@@ -160,6 +160,16 @@ describe('en-GB date formatting guards', () => {
 });
 
 describe('mobile overlay polish', () => {
+  it('support bubble uses auth.supportBubble i18n keys', () => {
+    const support = read('public/js/support-bubble.js');
+    assert.match(support, /auth\.supportBubble\.title/);
+    assert.match(support, /locale-changed/);
+    assert.doesNotMatch(support, /Behöver du hjälp\?/);
+    loadLocales();
+    assert.equal(t('en-GB', 'auth.supportBubble.title'), 'Need help? 💬');
+    assert.equal(t('sv-SE', 'auth.supportBubble.submit'), 'Skicka meddelande');
+  });
+
   it('help + support bubble triggers sit below modal overlays (z-50)', () => {
     const help = read('public/js/help-bubble.js');
     const hbBtnZ = help.match(/#hbBtn[^}]*z-index:\s*(\d+)/s);
