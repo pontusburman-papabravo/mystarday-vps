@@ -61,8 +61,8 @@ const KNOWN_TEMPLATE_KEYS = TEMPLATE_GROUP_META.map((g) => g.key);
 function getTemplateGroupFallback() {
   return TEMPLATE_GROUP_META.map((g) => ({
     ...g,
-    name: ot('onboarding.templateGroups.' + g.key + '.name'),
-    description: ot('onboarding.templateGroups.' + g.key + '.description'),
+    name: tOnboarding('onboarding.templateGroups.' + g.key + '.name'),
+    description: tOnboarding('onboarding.templateGroups.' + g.key + '.description'),
   }));
 }
 
@@ -70,8 +70,8 @@ function localizeTemplateGroup(group) {
   if (!group?.key || !KNOWN_TEMPLATE_KEYS.includes(group.key)) return group;
   return {
     ...group,
-    name: ot('onboarding.templateGroups.' + group.key + '.name'),
-    description: ot('onboarding.templateGroups.' + group.key + '.description'),
+    name: tOnboarding('onboarding.templateGroups.' + group.key + '.name'),
+    description: tOnboarding('onboarding.templateGroups.' + group.key + '.description'),
   };
 }
 
@@ -130,24 +130,25 @@ function rewardPresetKey(reward) {
 function localizeReward(reward) {
   const key = rewardPresetKey(reward);
   if (key) {
-    return { ...reward, name: ot('onboarding.rewards.fallback.' + key) };
+    return { ...reward, name: tOnboarding('onboarding.rewards.fallback.' + key) };
   }
   return reward;
 }
 
 function getRewardPresetsFallback() {
   return REWARD_FALLBACK_META.map((r) => ({
-    name: ot('onboarding.rewards.fallback.' + r.key),
+    name: tOnboarding('onboarding.rewards.fallback.' + r.key),
     icon: r.icon,
     star_cost: r.star_cost,
   }));
 }
 
-function ot(key, params) {
+// Must not declare top-level `function ot` — that becomes window.ot and overwrites onboarding-i18n.js.
+function tOnboarding(key, params) {
   return window.ot ? window.ot(key, params) : key;
 }
 
-function onboardingPlural(key, count, params) {
+function pOnboarding(key, count, params) {
   return window.onboardingPlural ? window.onboardingPlural(key, count, params) : key;
 }
 
@@ -199,7 +200,7 @@ function buildEmojiGrid() {
     btn.className = 'emoji-btn text-2xl p-1.5 text-center';
     btn.textContent = emoji;
     btn.type = 'button';
-    btn.setAttribute('aria-label', ot('onboarding.child.emojiAriaLabel', { emoji }));
+    btn.setAttribute('aria-label', tOnboarding('onboarding.child.emojiAriaLabel', { emoji }));
     btn.addEventListener('click', function () { selectEmojiButton(btn, emoji); });
     grid.appendChild(btn);
   });
@@ -225,17 +226,17 @@ function buildTemplateGroupGrid(groups) {
     card.dataset.pref = g.key;
     const detailsId = `details-${g.key}`;
     const arrowId = `arrow-${g.key}`;
-    const activityLabel = onboardingPlural('onboarding.templateGroups.activityCount', g.activity_count, { count: g.activity_count });
+    const activityLabel = pOnboarding('onboarding.templateGroups.activityCount', g.activity_count, { count: g.activity_count });
     card.innerHTML = `
       <div class="text-3xl mb-1.5">${g.icon}</div>
       <div class="font-semibold text-navy text-sm">${escapeHtml(g.name)}</div>
       <div class="text-text-soft text-xs mt-0.5">${escapeHtml(g.description)}</div>
       <div class="text-gold text-xs mt-1 font-medium">${escapeHtml(activityLabel)}</div>
       <button class="template-toggle-btn" onclick="event.stopPropagation(); toggleTemplateDetails('${g.key}')">
-        ${escapeHtml(ot('onboarding.templateGroups.showActivities'))} <span class="arrow" id="${arrowId}">▼</span>
+        ${escapeHtml(tOnboarding('onboarding.templateGroups.showActivities'))} <span class="arrow" id="${arrowId}">▼</span>
       </button>
       <div class="template-details" id="${detailsId}">
-        <div class="text-xs text-text-soft py-1">${escapeHtml(ot('onboarding.templateGroups.loadingActivities'))}</div>
+        <div class="text-xs text-text-soft py-1">${escapeHtml(tOnboarding('onboarding.templateGroups.loadingActivities'))}</div>
       </div>
     `;
     card.addEventListener('click', (e) => {
@@ -327,8 +328,8 @@ function updateRewardSelectCount() {
   const el = document.getElementById('s4SelectCount');
   if (!el) return;
   el.textContent = count >= 1
-    ? onboardingPlural('onboarding.rewards.selectCount', count, { count })
-    : ot('onboarding.rewards.selectCount.zero');
+    ? pOnboarding('onboarding.rewards.selectCount', count, { count })
+    : tOnboarding('onboarding.rewards.selectCount.zero');
 }
 
 function buildRewardGrid(rewards) {
@@ -337,8 +338,8 @@ function buildRewardGrid(rewards) {
   const localizedRewards = rewards.map(localizeReward);
   const introPara = document.querySelector('#step4 .bg-lavender p.text-xs');
   if (introPara) {
-    const childLabel = childName || ot('onboarding.common.childFallback');
-    introPara.textContent = ot('onboarding.rewards.introWithCount', {
+    const childLabel = childName || tOnboarding('onboarding.common.childFallback');
+    introPara.textContent = tOnboarding('onboarding.rewards.introWithCount', {
       count: localizedRewards.length,
       childName: childLabel,
     });
@@ -353,7 +354,7 @@ function buildRewardGrid(rewards) {
       <div class="text-3xl mb-1">${escapeHtml(reward.icon)}</div>
       <div class="font-semibold text-navy text-xs leading-snug mb-0.5">${escapeHtml(reward.name)}</div>
       ${renderStarRating(reward.star_cost)}
-      <div class="text-gold font-bold text-xs mt-0.5">${escapeHtml(ot('onboarding.rewards.starCost', { count: Number(reward.star_cost) }))}</div>
+      <div class="text-gold font-bold text-xs mt-0.5">${escapeHtml(tOnboarding('onboarding.rewards.starCost', { count: Number(reward.star_cost) }))}</div>
     `;
     card.addEventListener('click', () => toggleReward(card, reward));
     grid.appendChild(card);
@@ -378,29 +379,29 @@ function toggleReward(card, reward) {
 function updateStepLabel() {
   const label = document.getElementById('stepLabel');
   if (label) {
-    label.textContent = ot('onboarding.common.stepLabel', { current: currentStep, total: TOTAL_STEPS });
+    label.textContent = tOnboarding('onboarding.common.stepLabel', { current: currentStep, total: TOTAL_STEPS });
   }
 }
 
 function refreshOnboardingDynamicUI() {
   updateStepLabel();
-  const childLabel = childName || ot('onboarding.common.childFallback');
+  const childLabel = childName || tOnboarding('onboarding.common.childFallback');
   const agTitle = document.getElementById('activityGuideTitle');
-  if (agTitle) agTitle.textContent = ot('onboarding.activityGuide.title', { childName: childLabel });
+  if (agTitle) agTitle.textContent = tOnboarding('onboarding.activityGuide.title', { childName: childLabel });
   const viewTitle = document.getElementById('viewTypeTitle');
-  if (viewTitle) viewTitle.textContent = ot('onboarding.viewType.title', { childName: childLabel });
+  if (viewTitle) viewTitle.textContent = tOnboarding('onboarding.viewType.title', { childName: childLabel });
   const s3Sub = document.getElementById('s3Subtitle');
-  if (s3Sub) s3Sub.textContent = ot('onboarding.scheduleReady.subtitle', { childName: childLabel });
+  if (s3Sub) s3Sub.textContent = tOnboarding('onboarding.scheduleReady.subtitle', { childName: childLabel });
   const s4Intro = document.getElementById('s4RewardsIntro');
-  if (s4Intro) s4Intro.textContent = ot('onboarding.rewards.intro', { childName: childLabel });
+  if (s4Intro) s4Intro.textContent = tOnboarding('onboarding.rewards.intro', { childName: childLabel });
   const s5Lead = document.getElementById('s5HandoffLead');
-  if (s5Lead) s5Lead.textContent = ot('onboarding.handoff.lead', { childName: childLabel });
+  if (s5Lead) s5Lead.textContent = tOnboarding('onboarding.handoff.lead', { childName: childLabel });
   const s5Coach = document.getElementById('s5ParentCoachTip');
   if (s5Coach) {
     s5Coach.textContent = [
-      ot('onboarding.handoff.parentTipLead'),
-      ot('onboarding.handoff.parentTipEmphasis'),
-      ot('onboarding.handoff.parentTipTail', { childName: childLabel }),
+      tOnboarding('onboarding.handoff.parentTipLead'),
+      tOnboarding('onboarding.handoff.parentTipEmphasis'),
+      tOnboarding('onboarding.handoff.parentTipTail', { childName: childLabel }),
     ].join(' ');
   }
   if (templateGroups.length > 0) {
@@ -422,11 +423,11 @@ function refreshOnboardingDynamicUI() {
   }
   if (IS_ADD_CHILD) {
     const step6Btn = document.getElementById('step6Btn');
-    if (step6Btn) step6Btn.textContent = ot('onboarding.common.addChildDone');
+    if (step6Btn) step6Btn.textContent = tOnboarding('onboarding.common.addChildDone');
   }
   if (journeyHandoffMode) {
     const btn = document.getElementById('step6Btn');
-    if (btn) btn.textContent = ot('onboarding.complete.letChildStartPlain');
+    if (btn) btn.textContent = tOnboarding('onboarding.complete.letChildStartPlain');
   }
 }
 
@@ -554,17 +555,17 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
   const errorEl = document.getElementById('step1Error');
   errorEl.classList.add('hidden');
 
-  if (!name) { showError(errorEl, ot('onboarding.child.nameRequired')); return; }
+  if (!name) { showError(errorEl, tOnboarding('onboarding.child.nameRequired')); return; }
   const hasAvatar = Platform && Platform.isNative() && selectedAvatarFile;
   if (!emoji && !hasAvatar) {
     // iOS/iPad: emoji rutnät ska vara synligt; fallback till 🌟 om inget valts
     if (Platform && Platform.isIOS()) emoji = ensureDefaultEmoji();
-    if (!emoji && !hasAvatar) { showError(errorEl, ot('onboarding.child.emojiRequired')); return; }
+    if (!emoji && !hasAvatar) { showError(errorEl, tOnboarding('onboarding.child.emojiRequired')); return; }
   }
-  if (!selectedDayPref) { showError(errorEl, ot('onboarding.child.scheduleRequired')); return; }
+  if (!selectedDayPref) { showError(errorEl, tOnboarding('onboarding.child.scheduleRequired')); return; }
 
   const btn = document.getElementById('step1Btn');
-  setLoading(btn, ot('onboarding.child.creatingChild'));
+  setLoading(btn, tOnboarding('onboarding.child.creatingChild'));
 
   try {
     const birthday = document.getElementById('childBirthday').value || null;
@@ -575,7 +576,7 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
         body: JSON.stringify({ name, emoji, birthday }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || ot('onboarding.common.genericError'));
+      if (!res.ok) throw new Error(data.error || tOnboarding('onboarding.common.genericError'));
 
       childId = data.id;
       if (selectedAvatarFile && window.AvatarUploadFlow && typeof AvatarUploadFlow.putAvatarFile === 'function') {
@@ -583,7 +584,7 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
           await AvatarUploadFlow.putAvatarFile('/api/children/' + childId + '/avatar', selectedAvatarFile);
         } catch (uploadErr) {
           console.error('[onboarding] avatar upload failed:', uploadErr.message);
-          showToast(ot('onboarding.child.avatarSaveFailedToast'), true);
+          showToast(tOnboarding('onboarding.child.avatarSaveFailedToast'), true);
         }
       }
       if (window.OnboardingActivation && typeof OnboardingActivation.setChildId === 'function') {
@@ -594,18 +595,18 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
       childPin = data.pin;
       childBirthdayValue = birthday;
       if (data.resumed) {
-        showToast(ot('onboarding.child.childResumedToast'));
+        showToast(tOnboarding('onboarding.child.childResumedToast'));
       }
     }
 
     // Now create the schedule immediately (we know the template group)
-    setLoading(btn, ot('onboarding.child.creatingSchedule'));
+    setLoading(btn, tOnboarding('onboarding.child.creatingSchedule'));
     const schedRes = await window.apiFetch('/api/onboarding/schedule', {
       method: 'POST',
       body: JSON.stringify({ child_id: childId, template_group: selectedDayPref }),
     });
     const schedData = await schedRes.json();
-    if (!schedRes.ok) throw new Error(schedData.error || ot('onboarding.child.scheduleCreateFailed'));
+    if (!schedRes.ok) throw new Error(schedData.error || tOnboarding('onboarding.child.scheduleCreateFailed'));
     if (window.MetaAppEvents && typeof MetaAppEvents.handleServerMilestones === 'function') {
       MetaAppEvents.handleServerMilestones(schedData && schedData.meta_milestones);
     }
@@ -620,9 +621,9 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
       await finalizeSchemaAndGoHandoff();
     }
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
   } finally {
-    setLoading(btn, ot('onboarding.common.next'), false);
+    setLoading(btn, tOnboarding('onboarding.common.next'), false);
   }
 });
 
@@ -644,7 +645,7 @@ window.applyWeekendSchedule = async function() {
   errorEl.classList.add('hidden');
   yesBtn.disabled = true;
   noBtn.disabled = true;
-  yesBtn.textContent = ot('onboarding.weekend.yesLoading');
+  yesBtn.textContent = tOnboarding('onboarding.weekend.yesLoading');
 
   try {
     const res = await window.apiFetch('/api/onboarding/weekend-schedule', {
@@ -652,16 +653,16 @@ window.applyWeekendSchedule = async function() {
       body: JSON.stringify({ child_id: childId }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || ot('onboarding.weekend.addFailed'));
+    if (!res.ok) throw new Error(data.error || tOnboarding('onboarding.weekend.addFailed'));
 
     weekendScheduleAdded = true;
     hideWeekendModal();
     await finalizeSchemaAndGoHandoff();
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
     yesBtn.disabled = false;
     noBtn.disabled = false;
-    yesBtn.textContent = ot('onboarding.weekend.yesBtn');
+    yesBtn.textContent = tOnboarding('onboarding.weekend.yesBtn');
   }
 };
 
@@ -678,7 +679,7 @@ document.getElementById('step2vBtn').addEventListener('click', async () => {
   const errorEl = document.getElementById('step2vError');
   errorEl.classList.add('hidden');
   const btn = document.getElementById('step2vBtn');
-  setLoading(btn, ot('onboarding.viewType.saving'));
+  setLoading(btn, tOnboarding('onboarding.viewType.saving'));
 
   try {
     // Save view_type to DB (non-blocking on failure — we fall back to default)
@@ -702,7 +703,7 @@ document.getElementById('step2vBtn').addEventListener('click', async () => {
     await populateStep3();
     goToStep(3);
   } finally {
-    setLoading(btn, ot('onboarding.common.next'), false);
+    setLoading(btn, tOnboarding('onboarding.common.next'), false);
   }
 });
 
@@ -710,7 +711,7 @@ async function populateStep3() {
   const groupMeta = localizeTemplateGroup(
     templateGroups.find(g => g.key === selectedDayPref)
     || getTemplateGroupFallback().find(g => g.key === selectedDayPref)
-    || { icon: '📅', name: ot('onboarding.scheduleReady.templateFallback'), description: '' }
+    || { icon: '📅', name: tOnboarding('onboarding.scheduleReady.templateFallback'), description: '' }
   );
 
   document.getElementById('s3ChildName').textContent = childName;
@@ -722,17 +723,17 @@ async function populateStep3() {
   const daysLabel = document.getElementById('s3DaysLabel');
   if (daysLabel) {
     if (isSchoolTemplate && weekendScheduleAdded) {
-      daysLabel.textContent = ot('onboarding.scheduleReady.daysMonFriWeekend');
+      daysLabel.textContent = tOnboarding('onboarding.scheduleReady.daysMonFriWeekend');
     } else if (isSchoolTemplate) {
-      daysLabel.textContent = ot('onboarding.scheduleReady.daysMonFri');
+      daysLabel.textContent = tOnboarding('onboarding.scheduleReady.daysMonFri');
     } else {
-      daysLabel.textContent = ot('onboarding.scheduleReady.daysWeek');
+      daysLabel.textContent = tOnboarding('onboarding.scheduleReady.daysWeek');
     }
   }
 
   const subtitleEl = document.getElementById('s3Subtitle');
   if (subtitleEl) {
-    subtitleEl.textContent = ot('onboarding.scheduleReady.subtitleWithTemplate', {
+    subtitleEl.textContent = tOnboarding('onboarding.scheduleReady.subtitleWithTemplate', {
       templateName: groupMeta.name,
       childName: childName,
     });
@@ -800,12 +801,12 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
   errorEl.classList.add('hidden');
 
   if (selectedRewards.length < 1) {
-    showError(errorEl, ot('onboarding.rewards.minOneError'));
+    showError(errorEl, tOnboarding('onboarding.rewards.minOneError'));
     return;
   }
 
   const btn = document.getElementById('step4Btn');
-  setLoading(btn, ot('onboarding.rewards.saving'));
+  setLoading(btn, tOnboarding('onboarding.rewards.saving'));
 
   try {
     // Create all selected rewards (parallel)
@@ -817,9 +818,9 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
     ));
     await enterChildHandoff('legacy_rewards');
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
   } finally {
-    setLoading(btn, ot('onboarding.rewards.saveBtn'), false);
+    setLoading(btn, tOnboarding('onboarding.rewards.saveBtn'), false);
   }
 });
 
@@ -827,9 +828,9 @@ document.getElementById('step4Btn').addEventListener('click', async () => {
 // STEP 5 — Login info helpers
 // ────────────────────────────────────────────────────────────────────────────
 async function copyLoginInfo() {
-  const brand = ot('onboarding.common.brand');
+  const brand = tOnboarding('onboarding.common.brand');
   const appUrl = window.location.origin;
-  const text = ot('onboarding.handoff.copyLoginText', {
+  const text = tOnboarding('onboarding.handoff.copyLoginText', {
     brand,
     childName,
     username: childUsername,
@@ -839,10 +840,10 @@ async function copyLoginInfo() {
   try {
     await navigator.clipboard.writeText(text);
     const btn = document.getElementById('copyPinBtn');
-    btn.textContent = ot('onboarding.handoff.copied');
-    setTimeout(() => { btn.textContent = ot('onboarding.handoff.copyInfo'); }, 2000);
+    btn.textContent = tOnboarding('onboarding.handoff.copied');
+    setTimeout(() => { btn.textContent = tOnboarding('onboarding.handoff.copyInfo'); }, 2000);
   } catch {
-    alert(ot('onboarding.handoff.copyManual', { text }));
+    alert(tOnboarding('onboarding.handoff.copyManual', { text }));
   }
 }
 
@@ -850,11 +851,11 @@ async function emailLoginInfo() {
   try {
     const me = await (await window.apiFetch('/api/auth/me')).json();
     const email = me.email || '';
-    const brand = ot('onboarding.common.brand');
+    const brand = tOnboarding('onboarding.common.brand');
     const appUrl = window.location.origin;
-    const subject = encodeURIComponent(ot('onboarding.handoff.emailSubject', { brand, childName }));
+    const subject = encodeURIComponent(tOnboarding('onboarding.handoff.emailSubject', { brand, childName }));
     const body = encodeURIComponent(
-      ot('onboarding.handoff.emailBody', {
+      tOnboarding('onboarding.handoff.emailBody', {
         brand,
         childName,
         username: childUsername,
@@ -864,7 +865,7 @@ async function emailLoginInfo() {
     );
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   } catch {
-    alert(ot('onboarding.handoff.emailFallbackAlert', {
+    alert(tOnboarding('onboarding.handoff.emailFallbackAlert', {
       childName,
       username: childUsername,
       pin: childPin,
@@ -903,18 +904,18 @@ window.saveCustomPin = async function() {
   errorEl.classList.add('hidden');
 
   if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-    showError(errorEl, ot('onboarding.handoff.pinMustBe4'));
+    showError(errorEl, tOnboarding('onboarding.handoff.pinMustBe4'));
     return;
   }
   // Check weak patterns
   if (/^(\d)\1{3}$/.test(newPin)) {
-    showError(errorEl, ot('onboarding.handoff.pinTooWeak'));
+    showError(errorEl, tOnboarding('onboarding.handoff.pinTooWeak'));
     return;
   }
 
   const btn = document.getElementById('savePinBtn');
   btn.disabled = true;
-  btn.textContent = ot('onboarding.handoff.savingPin');
+  btn.textContent = tOnboarding('onboarding.handoff.savingPin');
 
   try {
     const res = await window.apiFetch('/api/onboarding/update-pin', {
@@ -922,7 +923,7 @@ window.saveCustomPin = async function() {
       body: JSON.stringify({ child_id: childId, pin: newPin }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || ot('onboarding.handoff.pinSaveFailed'));
+    if (!res.ok) throw new Error(data.error || tOnboarding('onboarding.handoff.pinSaveFailed'));
 
     childPin = newPin;
     document.getElementById('s5Pin').textContent = newPin;
@@ -931,10 +932,10 @@ window.saveCustomPin = async function() {
       OnboardingActivation.notifyPinSet('onboarding_custom');
     }
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
   } finally {
     btn.disabled = false;
-    btn.textContent = ot('onboarding.handoff.savePin');
+    btn.textContent = tOnboarding('onboarding.handoff.savePin');
   }
 };
 
@@ -1018,14 +1019,14 @@ async function saveOnboardingParentPinIfProvided() {
 
   if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
     if (errorEl) {
-      errorEl.textContent = ot('onboarding.parentPin.pinRequiredOrEmpty');
+      errorEl.textContent = tOnboarding('onboarding.parentPin.pinRequiredOrEmpty');
       errorEl.classList.remove('hidden');
     }
     return false;
   }
   if (pin !== confirm) {
     if (errorEl) {
-      errorEl.textContent = ot('onboarding.parentPin.pinMismatch');
+      errorEl.textContent = tOnboarding('onboarding.parentPin.pinMismatch');
       errorEl.classList.remove('hidden');
     }
     return false;
@@ -1039,7 +1040,7 @@ async function saveOnboardingParentPinIfProvided() {
     if (!res.ok) {
       const data = await res.json().catch(function () { return {}; });
       if (errorEl) {
-        errorEl.textContent = data.error || ot('onboarding.parentPin.saveFailed');
+        errorEl.textContent = data.error || tOnboarding('onboarding.parentPin.saveFailed');
         errorEl.classList.remove('hidden');
       }
       return false;
@@ -1047,7 +1048,7 @@ async function saveOnboardingParentPinIfProvided() {
     return true;
   } catch (err) {
     if (errorEl) {
-      errorEl.textContent = err.message || ot('onboarding.parentPin.saveFailed');
+      errorEl.textContent = err.message || tOnboarding('onboarding.parentPin.saveFailed');
       errorEl.classList.remove('hidden');
     }
     return false;
@@ -1062,20 +1063,20 @@ async function initJourneyOnboardingCta() {
     journeyHandoffMode = await JourneyContextClient.isJourneyApiEnabled();
     if (journeyHandoffMode) {
       const btn = document.getElementById('step6Btn');
-      if (btn) btn.textContent = ot('onboarding.complete.letChildStartPlain');
+      if (btn) btn.textContent = tOnboarding('onboarding.complete.letChildStartPlain');
     }
   } catch (_) { /* legacy CTA */ }
 }
 
 async function finishOnboardingWithJourneyHandoff(btn, errorEl) {
   if (!(await saveOnboardingParentPinIfProvided())) {
-    setLoading(btn, ot('onboarding.complete.letChildStartPlain'), false);
+    setLoading(btn, tOnboarding('onboarding.complete.letChildStartPlain'), false);
     return;
   }
   launchStars();
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailed'));
+    if (!res.ok) throw new Error(tOnboarding('onboarding.complete.completeFailed'));
     const user = Auth.getUser();
     if (user) {
       user.onboarding_completed = true;
@@ -1094,8 +1095,8 @@ async function finishOnboardingWithJourneyHandoff(btn, errorEl) {
       }
     }, 900);
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
-    setLoading(btn, ot('onboarding.complete.letChildStartPlain'), false);
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
+    setLoading(btn, tOnboarding('onboarding.complete.letChildStartPlain'), false);
   }
 }
 document.getElementById('step6Btn').addEventListener('click', async () => {
@@ -1110,15 +1111,15 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
   }
 
   if (journeyHandoffMode) {
-    setLoading(btn, ot('onboarding.common.finishing'));
+    setLoading(btn, tOnboarding('onboarding.common.finishing'));
     await finishOnboardingWithJourneyHandoff(btn, errorEl);
     return;
   }
 
-  setLoading(btn, ot('onboarding.common.finishing'));
+  setLoading(btn, tOnboarding('onboarding.common.finishing'));
 
   if (!(await saveOnboardingParentPinIfProvided())) {
-    setLoading(btn, ot('onboarding.complete.letChildStart'), false);
+    setLoading(btn, tOnboarding('onboarding.complete.letChildStart'), false);
     return;
   }
 
@@ -1127,7 +1128,7 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
 
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailed'));
+    if (!res.ok) throw new Error(tOnboarding('onboarding.complete.completeFailed'));
 
     // Update local auth state
     const user = Auth.getUser();
@@ -1142,15 +1143,15 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
         onDone: () => { redirectToChildHandoffAfterComplete(); },
       });
       if (showedChoice) {
-        setLoading(btn, ot('onboarding.complete.letChildStart'), false);
+        setLoading(btn, tOnboarding('onboarding.complete.letChildStart'), false);
         return;
       }
     }
 
     await redirectToChildHandoffAfterComplete();
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
-    setLoading(btn, ot('onboarding.complete.letChildStart'), false);
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
+    setLoading(btn, tOnboarding('onboarding.complete.letChildStart'), false);
   }
 });
 
@@ -1225,7 +1226,7 @@ window.resendVerificationEmail = async function() {
   const errorEl = document.getElementById('resendError');
 
   resendBtn.disabled = true;
-  resendBtn.textContent = ot('onboarding.verifyEmail.resendSending');
+  resendBtn.textContent = tOnboarding('onboarding.verifyEmail.resendSending');
   successEl.classList.add('hidden');
   errorEl.classList.add('hidden');
 
@@ -1240,22 +1241,22 @@ window.resendVerificationEmail = async function() {
     const data = await res.json();
 
     if (!res.ok) {
-      errorEl.textContent = data?.error || ot('onboarding.verifyEmail.resendError');
+      errorEl.textContent = data?.error || tOnboarding('onboarding.verifyEmail.resendError');
       errorEl.classList.remove('hidden');
     } else {
-      successEl.textContent = ot('onboarding.verifyEmail.resendSuccess');
+      successEl.textContent = tOnboarding('onboarding.verifyEmail.resendSuccess');
       successEl.classList.remove('hidden');
-      resendBtn.textContent = ot('onboarding.verifyEmail.resendSent');
+      resendBtn.textContent = tOnboarding('onboarding.verifyEmail.resendSent');
     }
   } catch {
-    errorEl.textContent = ot('onboarding.common.networkError');
+    errorEl.textContent = tOnboarding('onboarding.common.networkError');
     errorEl.classList.remove('hidden');
   } finally {
     resendBtn.disabled = false;
     if (!successEl.classList.contains('hidden')) {
-      resendBtn.textContent = ot('onboarding.verifyEmail.resendSent');
+      resendBtn.textContent = tOnboarding('onboarding.verifyEmail.resendSent');
     } else {
-      resendBtn.textContent = ot('onboarding.verifyEmail.resend');
+      resendBtn.textContent = tOnboarding('onboarding.verifyEmail.resend');
     }
   }
 };
@@ -1296,15 +1297,15 @@ window.sendInvite = async function() {
   errorEl.classList.add('hidden');
   successEl.classList.add('hidden');
 
-  if (!email) { errorEl.textContent = ot('onboarding.invite.emailRequired'); errorEl.classList.remove('hidden'); return; }
-  if (!email.includes('@')) { errorEl.textContent = ot('onboarding.invite.invalidEmail'); errorEl.classList.remove('hidden'); return; }
+  if (!email) { errorEl.textContent = tOnboarding('onboarding.invite.emailRequired'); errorEl.classList.remove('hidden'); return; }
+  if (!email.includes('@')) { errorEl.textContent = tOnboarding('onboarding.invite.invalidEmail'); errorEl.classList.remove('hidden'); return; }
 
   // Collect selected child IDs
   const checkedBoxes = document.querySelectorAll('.invite-child-check:checked');
   const childIds = Array.from(checkedBoxes).map(cb => cb.value);
 
   btn.disabled = true;
-  btn.textContent = ot('onboarding.invite.sending');
+  btn.textContent = tOnboarding('onboarding.invite.sending');
 
   try {
     const res = await window.apiFetch('/api/family/invite', {
@@ -1313,24 +1314,24 @@ window.sendInvite = async function() {
     });
     const data = await res.json();
     if (!res.ok) {
-      errorEl.textContent = data.error || ot('onboarding.invite.sendFailed');
+      errorEl.textContent = data.error || tOnboarding('onboarding.invite.sendFailed');
       errorEl.classList.remove('hidden');
     } else {
-      successEl.textContent = ot('onboarding.invite.success', { email });
+      successEl.textContent = tOnboarding('onboarding.invite.success', { email });
       successEl.classList.remove('hidden');
       document.getElementById('inviteName').value = '';
       document.getElementById('inviteEmail').value = '';
       // Disable form after success
-      btn.textContent = ot('onboarding.invite.sent');
+      btn.textContent = tOnboarding('onboarding.invite.sent');
       btn.className = btn.className.replace('bg-navy hover:bg-navy-soft', 'bg-green-500 cursor-default');
       return; // keep btn disabled
     }
   } catch {
-    errorEl.textContent = ot('onboarding.common.networkError');
+    errorEl.textContent = tOnboarding('onboarding.common.networkError');
     errorEl.classList.remove('hidden');
   }
   btn.disabled = false;
-  btn.textContent = ot('onboarding.invite.sendBtn');
+  btn.textContent = tOnboarding('onboarding.invite.sendBtn');
 };
 
 window.skipInvite = async function() {
@@ -1342,7 +1343,7 @@ window.skipInvite = async function() {
 
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailed'));
+    if (!res.ok) throw new Error(tOnboarding('onboarding.complete.completeFailed'));
 
     const user = Auth.getUser();
     if (user) {
@@ -1352,7 +1353,7 @@ window.skipInvite = async function() {
 
     await redirectToChildHandoffAfterComplete();
   } catch (err) {
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
   }
 };
 
@@ -1361,18 +1362,18 @@ window.skipInvite = async function() {
 // ────────────────────────────────────────────────────────────────────────────
 async function completeAddChild() {
   const btn = document.getElementById('step6Btn');
-  setLoading(btn, ot('onboarding.common.finishing'));
+  setLoading(btn, tOnboarding('onboarding.common.finishing'));
 
   try {
     if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.isEnabled === 'function' &&
         OnboardingHandoffFilm.isEnabled()) {
-      setLoading(btn, ot('onboarding.common.addChildDone'), false);
+      setLoading(btn, tOnboarding('onboarding.common.addChildDone'), false);
       await enterChildHandoff('add_child_step6');
       return;
     }
 
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-    if (!res.ok) throw new Error(ot('onboarding.complete.completeFailedShort'));
+    if (!res.ok) throw new Error(tOnboarding('onboarding.complete.completeFailedShort'));
 
     // Update local auth
     const user = Auth.getUser();
@@ -1386,8 +1387,8 @@ async function completeAddChild() {
     setTimeout(() => { window.location.href = '/child-login'; }, 1200);
   } catch (err) {
     const errorEl = document.getElementById('step6Error');
-    showError(errorEl, err.message || ot('onboarding.common.genericError'));
-    setLoading(btn, ot('onboarding.common.goForward'), false);
+    showError(errorEl, err.message || tOnboarding('onboarding.common.genericError'));
+    setLoading(btn, tOnboarding('onboarding.common.goForward'), false);
   }
 }
 
@@ -1404,7 +1405,7 @@ if (IS_ADD_CHILD) {
   const inviteSection = document.getElementById('inviteSection');
   if (inviteSection) inviteSection.classList.add('hidden');
   const step6Btn = document.getElementById('step6Btn');
-  if (step6Btn) step6Btn.textContent = ot('onboarding.common.addChildDone');
+  if (step6Btn) step6Btn.textContent = tOnboarding('onboarding.common.addChildDone');
   const parentPinBlock = document.getElementById('onboardingParentPinBlock');
   if (parentPinBlock) parentPinBlock.classList.add('hidden');
 }
@@ -1446,7 +1447,7 @@ function initIOSAvatarPicker() {
   // "Choose photo" — opens camera/photo library
   chooseBtn.addEventListener('click', async () => {
     chooseBtn.disabled = true;
-    chooseBtn.textContent = ot('onboarding.child.avatarLoading');
+    chooseBtn.textContent = tOnboarding('onboarding.child.avatarLoading');
     try {
       const result = await Platform.camera.pick({ source: 'library', quality: 'medium' });
       if (!result) {
@@ -1456,11 +1457,11 @@ function initIOSAvatarPicker() {
         showToast(result.error, true);
         return;
       }
-      chooseBtn.textContent = ot('onboarding.child.avatarPreparing');
+      chooseBtn.textContent = tOnboarding('onboarding.child.avatarPreparing');
       const file = Platform.camera.toAvatarFile
         ? await Platform.camera.toAvatarFile(result)
         : null;
-      if (!file) throw new Error(ot('onboarding.child.avatarReadFailed'));
+      if (!file) throw new Error(tOnboarding('onboarding.child.avatarReadFailed'));
       selectedAvatarFile = file;
       preview.src = URL.createObjectURL(file);
       preview.classList.add('ring-2', 'ring-gold');
@@ -1468,10 +1469,10 @@ function initIOSAvatarPicker() {
       useDefaultBtn.classList.remove('hidden');
     } catch (err) {
       console.error('[onboarding] avatar upload failed:', err.message);
-      showToast(ot('onboarding.child.avatarUploadFailed'), true);
+      showToast(tOnboarding('onboarding.child.avatarUploadFailed'), true);
     } finally {
       chooseBtn.disabled = false;
-      chooseBtn.textContent = ot('onboarding.child.avatarPickBtn');
+      chooseBtn.textContent = tOnboarding('onboarding.child.avatarPickBtn');
     }
   });
 }
@@ -1606,7 +1607,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     templateGroups = [];
     const grid = document.getElementById('templateGroupGrid');
     if (grid) {
-      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">' + escapeHtml(ot('onboarding.child.templatesLoadFailed')) + '</p>';
+      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">' + escapeHtml(tOnboarding('onboarding.child.templatesLoadFailed')) + '</p>';
     }
     const step1Btn = document.getElementById('step1Btn');
     if (step1Btn) step1Btn.disabled = true;
