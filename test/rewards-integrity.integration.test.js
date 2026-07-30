@@ -128,6 +128,26 @@ async function redeemReward(http, childCookies, rewardId, csrfToken) {
   });
 }
 
+async function denyRedemption(http, session, redemptionId) {
+  return fetch(`${http.baseUrl}/api/rewards/redemptions/${redemptionId}/deny`, {
+    method: 'PUT',
+    headers: {
+      Cookie: cookieHeader(session.cookies),
+      'X-CSRF-Token': session.csrfToken,
+    },
+  });
+}
+
+async function approveRedemption(http, session, redemptionId) {
+  return fetch(`${http.baseUrl}/api/rewards/redemptions/${redemptionId}/approve`, {
+    method: 'PUT',
+    headers: {
+      Cookie: cookieHeader(session.cookies),
+      'X-CSRF-Token': session.csrfToken,
+    },
+  });
+}
+
 describe('reward integrity migration', () => {
   test('migration defines snapshot columns and pending uniqueness indexes', () => {
     const mig = fs.readFileSync(
@@ -136,6 +156,7 @@ describe('reward integrity migration', () => {
     );
     assert.match(mig, /reward_name VARCHAR/);
     assert.match(mig, /idx_reward_redemption_one_pending_per_reward/);
+    assert.match(mig, /idx_reward_redemption_one_fulfilled_per_reward/);
     assert.match(mig, /reward_redemption_status_valid/);
   });
 });
@@ -217,6 +238,88 @@ describe('same-child concurrent redemption', () => {
         [child1Id, rewardId]
       );
       assert.equal(rows.rows[0].n, 1);
+    } finally {
+      await http.close();
+      await db.cleanup();
+    }
+  });
+});
+
+describe('denied exclusive redemption semantics', () => {
+  test('after deny: other child and same child can redeem; approved blocks all', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+
+    try {
+      const base = await setupTwoChildFamily(http, db);
+      await grantStars(db, base.child1Id, base.parentId, 20);
+      await grantStars(db, base.child2Id, base.parentId, 20);
+      const rewardId = await createReward(http, base.session, { name: 'Exklusiv glass', star_cost: 5 });
+
+      const childA = await childLogin(http.baseUrl, 'anna', '1111');
+      const childB = await childLogin(http.baseUrl, 'erik', '2222');
+
+      const firstRedeem = await redeemReward(http, childA.cookies, rewardId, childA.csrfToken);
+      assert.equal(firstRedeem.status, 201);
+
+      const pendingRow = await db.query(
+        `SELECT id, status, redeemed_at FROM reward_redemption WHERE reward_id = $1`,
+        [rewardId]
+      );
+      assert.equal(pendingRow.rows.length, 1);
+      assert.equal(pendingRow.rows[0].status, 'pending');
+      assert.equal(pendingRow.rows[0].redeemed_at, null, 'pending must not set redeemed_at');
+
+      const denyRes = await denyRedemption(http, base.session, pendingRow.rows[0].id);
+      assert.equal(denyRes.status, 200);
+
+      const deniedRow = await db.query(
+        `SELECT status, redeemed_at FROM reward_redemption WHERE id = $1`,
+        [pendingRow.rows[0].id]
+      );
+      assert.equal(deniedRow.rows[0].status, 'denied');
+      assert.equal(deniedRow.rows[0].redeemed_at, null, 'denied must clear redeemed_at');
+
+      const childBRedeem = await redeemReward(http, childB.cookies, rewardId, childB.csrfToken);
+      assert.equal(childBRedeem.status, 201, 'child B should redeem after deny');
+
+      const childBRow = await db.query(
+        `SELECT id, status FROM reward_redemption WHERE reward_id = $1 AND child_id = $2 AND status = 'pending'`,
+        [rewardId, base.child2Id]
+      );
+      assert.equal(childBRow.rows.length, 1);
+
+      const denyB = await denyRedemption(http, base.session, childBRow.rows[0].id);
+      assert.equal(denyB.status, 200);
+
+      const childARedeemAgain = await redeemReward(http, childA.cookies, rewardId, childA.csrfToken);
+      assert.equal(childARedeemAgain.status, 201, 'child A should redeem again after deny');
+
+      const childAFinal = await db.query(
+        `SELECT id FROM reward_redemption WHERE reward_id = $1 AND child_id = $2 AND status = 'pending'`,
+        [rewardId, base.child1Id]
+      );
+      const approveRes = await approveRedemption(http, base.session, childAFinal.rows[0].id);
+      assert.equal(approveRes.status, 200);
+
+      const approvedRow = await db.query(
+        `SELECT status, redeemed_at FROM reward_redemption WHERE id = $1`,
+        [childAFinal.rows[0].id]
+      );
+      assert.equal(approvedRow.rows[0].status, 'approved');
+      assert.ok(approvedRow.rows[0].redeemed_at, 'approved must set redeemed_at');
+
+      const childBBlocked = await redeemReward(http, childB.cookies, rewardId, childB.csrfToken);
+      assert.equal(childBBlocked.status, 409);
+
+      const childABlocked = await redeemReward(http, childA.cookies, rewardId, childA.csrfToken);
+      assert.equal(childABlocked.status, 409);
     } finally {
       await http.close();
       await db.cleanup();
