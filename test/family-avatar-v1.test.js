@@ -54,9 +54,11 @@ describe('family avatar v1 — settings magic group', () => {
 });
 
 describe('family avatar v1 — lifecycle cleanup', () => {
-  it('delete-account route calls deleteAvatarsForFamily', () => {
-    const src = fs.readFileSync(path.join(__dirname, '../src/routes/family/account.js'), 'utf8');
-    assert.match(src, /deleteAvatarsForFamily/);
+  it('delete-account route uses family deletion service with avatar cleanup', () => {
+    const route = fs.readFileSync(path.join(__dirname, '../src/routes/family/account.js'), 'utf8');
+    const lib = fs.readFileSync(path.join(__dirname, '../src/lib/family-account-deletion.js'), 'utf8');
+    assert.match(route, /deleteFamilyAccountData/);
+    assert.match(lib, /deleteAvatarsForFamily/);
   });
 });
 

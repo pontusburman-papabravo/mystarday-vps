@@ -585,6 +585,17 @@ CREATE TABLE IF NOT EXISTS pin_lockout (
   last_attempt_at TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS pin_notification_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  child_id UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  family_id UUID REFERENCES family(id) ON DELETE CASCADE,
+  channel VARCHAR(32) NOT NULL,
+  notified_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pin_notification_log_child_channel
+  ON pin_notification_log (child_id, channel, notified_at DESC);
+
 CREATE TABLE IF NOT EXISTS pin_audit_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
