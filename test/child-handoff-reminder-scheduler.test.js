@@ -333,6 +333,9 @@ test('runChildHandoffReminderJob sends once and claims sent_at', async (t) => {
     return;
   }
 
+  const prevEmailEnabled = process.env.EMAIL_ENABLED;
+  process.env.EMAIL_ENABLED = 'true';
+
   const { runChildHandoffReminderJob } = require('../src/lib/child-handoff-reminder-scheduler');
 
   try {
@@ -354,6 +357,11 @@ test('runChildHandoffReminderJob sends once and claims sent_at', async (t) => {
     );
     assert.equal(candidates.rows.length, 0, 'second run must not re-select family');
   } finally {
+    if (prevEmailEnabled === undefined) {
+      delete process.env.EMAIL_ENABLED;
+    } else {
+      process.env.EMAIL_ENABLED = prevEmailEnabled;
+    }
     await db.cleanup();
   }
 });
