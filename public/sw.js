@@ -229,7 +229,8 @@
 // stjarndag-v718: daily-log Android child picker — robust boot, 401 retry, pointerup tabs
 // stjarndag-v727: merge #775 RC-1 i18n (locale switch, system-origin guards, calendar)
 // stjarndag-v738: fix register form gate — hide fields until language + country confirmed
-const CACHE_NAME = 'stjarndag-v738';
+// stjarndag-v739: fix(register) fail-open form — remove pointer-events gate, inline unlock
+const CACHE_NAME = 'stjarndag-v739';
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
 // stjarndag-v645: library Belöningar chrome icon + hash-active bottom nav

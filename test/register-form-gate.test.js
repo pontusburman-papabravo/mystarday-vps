@@ -7,25 +7,17 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 
-test('register form gate hides fields until language and country are confirmed', () => {
+test('register page never blocks form with pointer-events gate', () => {
   const countryChoice = fs.readFileSync(path.join(ROOT, 'public/js/country-choice.js'), 'utf8');
   const registerHtml = fs.readFileSync(path.join(ROOT, 'public/register.html'), 'utf8');
+  const appJs = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
 
-  assert.match(countryChoice, /register-form-ready/);
-  assert.match(countryChoice, /registerGateHint/);
-  assert.match(countryChoice, /REGISTER_GATED_IDS/);
-  assert.doesNotMatch(countryChoice, /formCard\.style\.pointerEvents\s*=\s*'none'/);
+  assert.doesNotMatch(countryChoice, /gateRegisterForm/);
+  assert.doesNotMatch(countryChoice, /formCard\.style\.pointerEvents/);
   assert.doesNotMatch(countryChoice, /suggest === 'SE' \? ' selected'/);
-  assert.match(registerHtml, /register-form-ready/);
-  assert.doesNotMatch(registerHtml, /registerForm'\)\.classList\.remove\('hidden'\)/);
-});
-
-test('register gate hints exist in locale bundles', () => {
-  const sv = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/locales/sv-SE.json'), 'utf8'));
-  const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/locales/en-GB.json'), 'utf8'));
-
-  assert.ok(sv.auth.register.gateHintLanguage);
-  assert.ok(sv.auth.register.gateHintCountry);
-  assert.ok(en.auth.register.gateHintLanguage);
-  assert.ok(en.auth.register.gateHintCountry);
+  assert.match(registerHtml, /authEntryInlineUnlock/);
+  assert.match(registerHtml, /#auth-entry-fallback \{ display: none !important/);
+  assert.match(registerHtml, /fetchWithTimeout/);
+  assert.match(registerHtml, /registerForm'\)\.classList\.remove\('hidden'\)/);
+  assert.match(appJs, /req\.path === '\/register'/);
 });
