@@ -9,7 +9,7 @@ Revision pass after contradictory first report. **No IAP/RevenueCat/subscription
 | Field | Value |
 |--------|--------|
 | Branch | `cursor/free-product-integrity-fixes-01b8` |
-| HEAD | `02afc0fb9f7e456b54cdd59144dd62d768ede2a7` (+ pending commit for `1810000000017_pin_notification_log`) |
+| HEAD | `f722d585` (+ merge-review commits on branch) |
 | `origin/main` (after `git fetch`) | `db1d27d05f37404a17ede345ab3319004a643580` |
 | Merge-base `origin/main` ∩ HEAD | `db1d27d05f37404a17ede345ab3319004a643580` |
 | Branch start SHA | `db1d27d05f37404a17ede345ab3319004a643580` |
@@ -28,6 +28,7 @@ Revision pass after contradictory first report. **No IAP/RevenueCat/subscription
 76e04311 fix(security): admin API rate limit and apiLimiter comments
 dda65472 test(integrity): authz, rate limits, child login, rewards coverage
 02afc0fb docs: free product integrity verification report 2026-07-30
+f722d585 fix(db): add pin_notification_log migration and revise integrity report
 ```
 
 ---
@@ -185,10 +186,45 @@ GitHub pull request **#790** (branch `cursor/free-product-integrity-fixes-01b8` 
 
 ## 14. Recommendation (free product)
 
-**GO WITH FOLLOW-UP**
+**GO** — PR introduces **zero new** `npm test` failure names vs `db1d27d`; ratings P1 fixed; `test:gate` green. Follow-up (P2+): schedules `revoked_at`, parent-session handoff, clear 50-test `npm test` debt on `main`.
 
-- Branch diff is **clean** vs payment/IAP scope.
-- Gate green; integrity concurrency green.
-- Follow-up: parent-session handoff, ratings/schedules `revoked_at`, full `npm test` debt (50 failures on `main` baseline, not introduced here).
+Payment / IAP: **Deferred** — not in PR diff.
 
-Payment / IAP: **Deferred** — explicitly out of scope for this PR.
+---
+
+## 15. Final merge review (PR #790)
+
+### 15.1 Full `npm test` comparison
+
+Worktrees at `db1d27d` and PR HEAD; fresh Postgres DBs; command:
+
+`NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY node --test test/*.test.js`
+
+| | main | PR |
+|--|------|-----|
+| pass | 3071 | 3090 |
+| fail | 50 | 50 |
+| exit | 1 | 1 |
+
+41 unique failing names on each side — **same set** (39 suite names + 2 landing test files). Apparent “only main” / “only PR” diff = **path prefix only** (worktree vs workspace). **0 regressions.**
+
+### 15.2 `npm test` exit code
+
+`scripts/run-full-npm-test.js` exits non-zero when TAP `# fail` or `# cancelled` &gt; 0. `test/npm-test-runner-exit.test.js` validates TAP parsing.
+
+### 15.3 Ratings P1 — fixed
+
+`src/routes/ratings.js` + `test/ratings-revoked-parent.integration.test.js` (5× green).
+
+### 15.4 Schedules P2 follow-up (not changed)
+
+- `POST /api/schedule-templates/:templateId/apply` — `templates.js` child access without `revoked_at`.
+- `POST /api/children/:childId/schedules/fill-week` — `fill-week.js` same.
+
+Revoked parent can still mutate child schedule until follow-up adds `pc.revoked_at IS NULL`.
+
+### 15.5 Gate + concurrency
+
+- `npm run test:gate`: green (1594 unit + 263 db).
+- `rewards-integrity.integration.test.js`: 20× pass.
+

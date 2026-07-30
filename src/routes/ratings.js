@@ -160,7 +160,7 @@ parentRouter.post('/:itemId/rate', async (req, res) => {
        JOIN daily_log dl ON dl.id = dli.daily_log_id
        JOIN parent_child pc ON pc.child_id = dl.child_id
        LEFT JOIN activity_template at ON at.id = dli.activity_template_id
-       WHERE dli.id = $1 AND pc.parent_id = $2`,
+       WHERE dli.id = $1 AND pc.parent_id = $2 AND pc.revoked_at IS NULL`,
       [itemId, parentId]
     );
     if (itemResult.rows.length === 0) {
@@ -202,7 +202,7 @@ parentRouter.get('/:itemId/ratings', async (req, res) => {
       `SELECT dli.id FROM daily_log_item dli
        JOIN daily_log dl ON dl.id = dli.daily_log_id
        JOIN parent_child pc ON pc.child_id = dl.child_id
-       WHERE dli.id = $1 AND pc.parent_id = $2`,
+       WHERE dli.id = $1 AND pc.parent_id = $2 AND pc.revoked_at IS NULL`,
       [itemId, parentId]
     );
     if (itemResult.rows.length === 0) {

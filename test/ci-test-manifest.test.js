@@ -16,6 +16,7 @@ const CRITICAL_INTEGRATION = [
   'test/reward-visibility.integration.test.js',
   'test/reward-delete-history.integration.test.js',
   'test/pin-warning-revoked-parent.integration.test.js',
+  'test/ratings-revoked-parent.integration.test.js',
 ];
 
 const CRITICAL_UNIT = [
