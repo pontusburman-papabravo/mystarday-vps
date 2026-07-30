@@ -9,6 +9,48 @@
   let _childUiLocale = 'sv-SE';
   let _englishChildEnabled = false;
 
+  const CHILD_UI_LOCALE_STORAGE_KEY = 'sd_child_ui_locale';
+  const ENGLISH_CHILD_FLAG_KEY = 'sd_english_child_experience';
+
+  function readPersistedChildLocaleHints() {
+    let preferredLocale = null;
+    let englishChildEnabled = false;
+    if (!window.I18n) return { preferredLocale, englishChildEnabled };
+    try {
+      const storedChildUi = localStorage.getItem(CHILD_UI_LOCALE_STORAGE_KEY)
+        || sessionStorage.getItem(CHILD_UI_LOCALE_STORAGE_KEY);
+      if (storedChildUi === 'en-GB' || storedChildUi === 'sv-SE') {
+        preferredLocale = storedChildUi;
+        if (storedChildUi === 'en-GB') englishChildEnabled = true;
+      }
+      const flagRaw = localStorage.getItem(ENGLISH_CHILD_FLAG_KEY)
+        || sessionStorage.getItem(ENGLISH_CHILD_FLAG_KEY);
+      if (flagRaw === '1') englishChildEnabled = true;
+      if (flagRaw === '0') englishChildEnabled = false;
+      if (!preferredLocale) {
+        preferredLocale = localStorage.getItem(I18n.STORAGE_KEY)
+          || sessionStorage.getItem(I18n.STORAGE_KEY);
+      }
+    } catch (_) { /* ignore */ }
+    return { preferredLocale, englishChildEnabled };
+  }
+
+  function persistChildUiLocaleHandoff(resolvedLocale, englishChildEnabled) {
+    if (!window.I18n) return;
+    const storageKey = I18n.STORAGE_KEY;
+    try {
+      sessionStorage.setItem(CHILD_UI_LOCALE_STORAGE_KEY, resolvedLocale);
+      localStorage.setItem(CHILD_UI_LOCALE_STORAGE_KEY, resolvedLocale);
+      const flag = englishChildEnabled ? '1' : '0';
+      sessionStorage.setItem(ENGLISH_CHILD_FLAG_KEY, flag);
+      localStorage.setItem(ENGLISH_CHILD_FLAG_KEY, flag);
+      if (resolvedLocale === 'en-GB' || resolvedLocale === 'sv-SE') {
+        sessionStorage.setItem(storageKey, resolvedLocale);
+        localStorage.setItem(storageKey, resolvedLocale);
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   function resolveChildUiLocale(preferredLocale, englishChildEnabled) {
     const locale = String(preferredLocale || 'sv-SE').trim();
     if (locale === 'en-GB' && englishChildEnabled === true) {
@@ -74,6 +116,7 @@
     _englishChildEnabled = englishChild;
     _childUiLocale = resolveChildUiLocale(preferred, englishChild);
     await I18n.init(_childUiLocale);
+    persistChildUiLocaleHandoff(_childUiLocale, _englishChildEnabled);
     applyChildDom();
     document.dispatchEvent(new CustomEvent('child-i18n-ready', {
       detail: { lang: _childUiLocale, englishChildEnabled: _englishChildEnabled },
@@ -167,4 +210,6 @@
   window.childErrorFromCode = childErrorFromCode;
   window.getChildUiLocale = getChildUiLocale;
   window.resolveChildUiLocale = resolveChildUiLocale;
+  window.readPersistedChildLocaleHints = readPersistedChildLocaleHints;
+  window.persistChildUiLocaleHandoff = persistChildUiLocaleHandoff;
 })();

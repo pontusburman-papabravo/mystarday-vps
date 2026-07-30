@@ -17,6 +17,13 @@ describe('i18n child core', () => {
     assert.equal(resolveChildUiLocale(null, true), 'sv-SE');
   });
 
+  it('child-app-i18n persists sd_child_ui_locale for cold start', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-app-i18n.js'), 'utf8');
+    assert.match(src, /sd_child_ui_locale/);
+    assert.match(src, /readPersistedChildLocaleHints/);
+    assert.match(src, /persistChildUiLocaleHandoff/);
+  });
+
   it('child locale fragments merge into API bundles', () => {
     const i18n = require('../src/lib/i18n');
     i18n.loadLocales();

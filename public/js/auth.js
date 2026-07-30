@@ -740,6 +740,25 @@ const Auth = {
         }
         return;
       }
+      if (me && me.type === 'child') {
+        const locale = me.child_ui_locale || me.preferred_locale;
+        if (locale) {
+          sessionStorage.setItem(storageKey, locale);
+          try { localStorage.setItem(storageKey, locale); } catch { /* ignore */ }
+        }
+        if (typeof me.english_child_experience_enabled === 'boolean') {
+          const flag = me.english_child_experience_enabled ? '1' : '0';
+          sessionStorage.setItem('sd_english_child_experience', flag);
+          try { localStorage.setItem('sd_english_child_experience', flag); } catch { /* ignore */ }
+        }
+        if (me.child_ui_locale) {
+          try {
+            sessionStorage.setItem('sd_child_ui_locale', me.child_ui_locale);
+            localStorage.setItem('sd_child_ui_locale', me.child_ui_locale);
+          } catch { /* ignore */ }
+        }
+        return;
+      }
       const current = window.I18n && typeof I18n.getCurrentLang === 'function'
         ? I18n.getCurrentLang()
         : null;
