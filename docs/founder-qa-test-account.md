@@ -9,7 +9,7 @@ Do **not** use other prod accounts (especially the App Store review account) unl
 | Role | Value |
 |------|--------|
 | Parent email | `pontus@burman.cc` |
-| Parent password | `Kalle001!` | // pragma: allowlist secret
+| Parent password | `Kalle001!` // pragma: allowlist secret |
 | Child name | Astrid |
 | Child PIN | `1112` |
 
