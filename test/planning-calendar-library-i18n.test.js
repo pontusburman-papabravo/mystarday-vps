@@ -7,18 +7,17 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 
-test('calendar page boots without waiting only on late parent-i18n-ready', () => {
+test('calendar page boots via calendar-page.js after parent-magic-page-boot', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/calendar.html'), 'utf8');
-  assert.match(html, /ParentMagicPageBoot\.register\('calendar'/);
-  assert.match(html, /DOMContentLoaded',\s*bootCalendar/);
-  assert.match(html, /_calendarBooted/);
-  assert.match(html, /authGuard/);
-  assert.match(html, /revealCalendarUi/);
+  assert.match(html, /calendar-page\.js/);
+  assert.doesNotMatch(html, /ParentMagicPageBoot\.register\('calendar'/);
   const bootIdx = html.indexOf('parent-magic-page-boot.js');
-  const inlineIdx = html.indexOf('function bootCalendar');
-  assert.ok(bootIdx > 0 && inlineIdx > bootIdx, 'parent-magic-page-boot.js must load before inline calendar boot');
-  assert.match(html, /normalizeCalendarWeekPayload/);
-  assert.match(html, /stjarndag-magic-navigated/);
+  const pageIdx = html.indexOf('calendar-page.js');
+  assert.ok(bootIdx > 0 && pageIdx > bootIdx, 'parent-magic-page-boot.js must load before calendar-page.js');
+  const js = fs.readFileSync(path.join(ROOT, 'public/js/calendar-page.js'), 'utf8');
+  assert.match(js, /registerCalendarBootHandler/);
+  assert.match(js, /normalizeCalendarWeekPayload/);
+  assert.match(js, /stjarndag-magic-navigated/);
 });
 
 test('library-magic-schedules uses pt for segment labels', () => {

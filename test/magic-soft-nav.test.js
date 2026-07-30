@@ -34,6 +34,7 @@ describe('magic soft navigation', () => {
       'public/js/family.js',
       'public/js/planning-hub.js',
       'public/js/rewards-hub.js',
+      'public/js/calendar-page.js',
     ];
     files.forEach((rel) => {
       const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
