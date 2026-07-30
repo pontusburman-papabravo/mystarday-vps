@@ -2,7 +2,7 @@
  * Audit columns on iap_webhook_log for orphan follow-up and ops reconciliation.
  */
 module.exports = {
-  name: '1810000000013_iap_webhook_log_audit_columns',
+  name: '1810000000015_iap_webhook_log_audit_fields',
 
   up: async (client) => {
     await client.query(`

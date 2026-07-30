@@ -164,7 +164,7 @@ Okänd familj returnerar `200` med `skipped: family_not_found` och loggar **WARN
 
 - `app_user_id`, `original_app_user_id`, `event`, `type`, `product_id`, `expiration_at_ms`, `skip_reason`
 
-Samma fält sparas i `iap_webhook_log` (migration `1810000000013`).
+Samma fält sparas i `iap_webhook_log` (migration `1810000000015`).
 
 **Manuell reconciliation** (återspelar inte webhook):
 
@@ -229,7 +229,7 @@ npm run reconcile:revenuecat -- --dry-run <test-family-uuid>
 Checklista:
 
 - [ ] PR #781 mergad
-- [ ] Migration `1810000000013` körd och verifierad (`\d iap_webhook_log` visar audit-kolumner)
+- [ ] Migration `1810000000015` körd och verifierad (`\d iap_webhook_log` visar audit-kolumner)
 - [ ] `REVENUECAT_WEBHOOK_AUTH_MODE=static` satt (byt till `both` endast efter verifierad dubbel-header från RevenueCat)
 - [ ] `curl /health` visar `git_sha` som matchar deployad revision
 - [ ] `npm run reconcile:revenuecat -- --dry-run <family-uuid>` fungerar mot känd testfamilj
