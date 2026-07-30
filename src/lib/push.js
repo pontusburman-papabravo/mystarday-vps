@@ -168,7 +168,16 @@ async function notifyChildStarGranted(childId, childName, starCount, parentName)
  */
 async function notifyParentsRewardRequest(familyId, childId, childName, rewardName) {
   try {
-    const parents = await getFamilyParents(familyId);
+    const result = await db.query(
+      `SELECT p.id, p.push_preferences, p.admin_push_enabled,
+              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+       FROM parent p
+       JOIN parent_child pc ON pc.parent_id = p.id AND pc.child_id = $2 AND pc.revoked_at IS NULL
+       JOIN family f ON f.id = p.family_id
+       WHERE p.family_id = $1`,
+      [familyId, childId]
+    );
+    const parents = result.rows;
     for (const parent of parents) {
       if (!isPushEnabledForChild(parent, childId)) continue;
       const lang = parentLocale(parent);
