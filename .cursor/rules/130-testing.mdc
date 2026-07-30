@@ -28,7 +28,7 @@ Unset email API keys for tests per root `AGENTS.md` (env unset email key vars).
 4. Mobile smoke when native-affecting  
 5. Manual constitution test on UX (15 Section A)
 
-**QA test account** (prod browser/mobile): `review@mystarday.se` · child Anna — credentials in [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md) via [`docs/qa-test-account.md`](../docs/qa-test-account.md).
+**QA test account** (prod browser/mobile, agents only): `pontus@burman.cc` · child Astrid — [`docs/founder-qa-test-account.md`](../docs/founder-qa-test-account.md). **Not** the App Store review account / Anna (see app-store-demo-konto).
 
 ## When to add tests
 

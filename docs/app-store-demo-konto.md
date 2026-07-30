@@ -2,6 +2,8 @@
 
 > Test account credentials and step-by-step walkthrough for Apple App Store reviewers.
 > English — Apple reviewers read English.
+>
+> **Cursor / Cloud Agents:** use [`founder-qa-test-account.md`](founder-qa-test-account.md) (`pontus@burman.cc` / Astrid) for routine QA — **not** this account unless the task is App Store / release QA.
 
 ---
 

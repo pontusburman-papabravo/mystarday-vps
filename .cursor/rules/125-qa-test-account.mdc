@@ -1,22 +1,25 @@
 ---
-description: QA test account for browser/mobile smoke tests on mystarday.se — use for all manual and automated UI verification.
+description: Prod QA for agents — pontus@burman.cc + Astrid only; not App Store review account unless founder overrides.
 alwaysApply: true
 ---
 
-# 125 — QA Test Account
+# 125 — QA Test Account (agents)
 
-**Credentials + flows:** [`docs/qa-test-account.md`](../docs/qa-test-account.md) → [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md)
+**Canonical doc:** [`docs/founder-qa-test-account.md`](../docs/founder-qa-test-account.md)
 
 | Role | Value |
-|------|-------|
-| Parent email | `review@mystarday.se` |
-| Child name | Anna |
-
-Password and child PIN are in **`docs/app-store-demo-konto.md`** (same as App Store review account).
+|------|--------|
+| Parent | `pontus@burman.cc` / `Kalle001?` |
+| Child | Astrid / PIN `1112` |
 
 ## Rules
 
-- Prefer this account over inventing test users on prod
-- Do not delete Anna or run destructive tests without explicit user approval
-- Lifetime-free — expect no paywall (402)
-- Child login: `/child-login` → Anna → PIN from demo doc
+- All prod browser/mobile smoke and manual QA by **Cursor / Cloud Agents** → **only** the account above.
+- **Forbidden by default:** App Store review account + child Anna, and any other prod login — including [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md) (App Store / human release only).
+- Do not invent new prod test users when this account is enough.
+- Do not delete Astrid or run destructive tests without explicit founder approval.
+
+## Login
+
+- Parent: `/login`
+- Child: `/child-login` → Astrid → `1112`
