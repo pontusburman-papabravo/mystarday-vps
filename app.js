@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 
 const requestIdMiddleware = require('./src/middleware/requestId');
 const securityHeadersMiddleware = require('./src/middleware/securityHeaders');
-const { globalLimiter, apiLimiter } = require('./src/middleware/rateLimiter');
+const { globalLimiter, apiLimiter, adminApiLimiter } = require('./src/middleware/rateLimiter');
 const { optionalAuth, restoreParentSession } = require('./src/middleware/auth');
 const { loadLocales, getLocale, getAvailableLanguages } = require('./src/lib/i18n');
 const {
@@ -137,6 +137,7 @@ function createApp() {
   app.use('/api', blockImpersonationWrites);
 
   const { childParentApiBlock } = require('./src/middleware/child-parent-api-block');
+  app.use('/api/admin', adminApiLimiter);
   app.use('/api', childParentApiBlock, apiLimiter);
 
   // Maintenance must run before routes so API traffic is blocked during downtime.

@@ -260,14 +260,9 @@ const apiLimiter = rateLimit({
     return `ip:${getRealIp(req)}`;
   },
   // Skip SSE — long-lived connections must not consume rate limit tokens.
-  // Skip authenticated users — apiLimiter uses per-user keys (user:parentId) so
-  // authenticated users already have their own 100 req/min bucket. GlobalLimiter also
-  // has its own skip for these. Without this skip, authenticated admin requests could
-  // hit the 30 req/min unauthenticated limit when IP budget is exhausted (e.g. after
-  // loading many static files), causing 429 → infinite loading on admin pages.
+  // Authenticated traffic uses per-user keys (user:id); unauthenticated uses ip:.
   skip: (req) =>
     !ENABLED ||
-    (req.user && req.user.id) ||  // skip authenticated users
     isApiBootstrapPath(req) ||
     req.path === '/events' ||
     req.path.startsWith('/events') ||
@@ -282,6 +277,27 @@ const apiLimiter = rateLimit({
         error: 'För många förfrågningar. Vänta en minut och försök igen.',
         retry_after: retryAfterSec,
       });
+  },
+});
+
+/** Admin API: explicit 300 req/min per admin user (not unlimited). */
+const adminApiLimiter = rateLimit({
+  windowMs: config.rateLimits.apiAuthenticated.windowMs,
+  max: ENABLED ? 300 : 0,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `admin:${req.user?.id || getRealIp(req)}`,
+  skip: (req) =>
+    !ENABLED ||
+    !req.user?.id ||
+    !req.user?.isAdmin,
+  handler: (req, res, next, options) => {
+    onLimitReached(req, res, options);
+    const retryAfterSec = Math.ceil(options.windowMs / 1000);
+    res.status(429).json({
+      error: 'För många förfrågningar. Vänta en minut och försök igen.',
+      retry_after: retryAfterSec,
+    });
   },
 });
 
@@ -397,6 +413,7 @@ module.exports = {
   childLoginLimiter,
   registrationLimiter,
   apiLimiter,
+  adminApiLimiter,
   inviteLimiter,
   forgotPasswordLimiter,
   resendVerificationLimiter,

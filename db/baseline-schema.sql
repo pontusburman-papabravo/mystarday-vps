@@ -595,6 +595,17 @@ CREATE TABLE IF NOT EXISTS pin_audit_log (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS pin_notification_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  child_id UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  family_id UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+  channel VARCHAR(16) NOT NULL,
+  notified_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS pin_notification_log_child_channel_idx
+  ON pin_notification_log (child_id, channel, notified_at DESC);
+
 CREATE TABLE IF NOT EXISTS rating (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   daily_log_item_id UUID NOT NULL REFERENCES daily_log_item(id) ON DELETE CASCADE,
