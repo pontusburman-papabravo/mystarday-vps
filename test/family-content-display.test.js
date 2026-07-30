@@ -100,6 +100,19 @@ describe('family-content-display', () => {
     assert.equal(out[0].display_name, 'Extra screen time');
   });
 
+  it('localizeRewardItems with localizeAll translates family rewards without library origin', async () => {
+    const items = [{
+      id: '1',
+      name: 'Familjens spelkväll',
+      star_cost: 150,
+      icon: '🎲',
+      modified_by_family: false,
+    }];
+    const out = await localizeRewardItems(items, 'en-GB', 'sv-SE', { localizeAll: true });
+    assert.equal(out[0].name, 'Familjens spelkväll');
+    assert.equal(out[0].display_name, 'Family games night');
+  });
+
   it('localizeRewardItems localizes goal rows with reward_name only', async () => {
     const items = [{
       reward_id: '1',

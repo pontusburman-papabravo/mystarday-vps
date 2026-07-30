@@ -20,6 +20,10 @@ const { sendRewardRedemptionEmail } = require('../lib/email');
 const { notifyParentsRewardRequest } = require('../lib/push');
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { localizeRewardItems } = require('../lib/family-content-display');
+const {
+  resolveChildContentLocaleForFamily,
+  childRewardLocalizeOptions,
+} = require('../lib/child-ui-locale');
 const { validate, validateParams } = require('../middleware/validate');
 const {
   CreateRewardSchema,
@@ -502,11 +506,12 @@ childRouter.get('/rewards', async (req, res) => {
        WHERE rr.child_id = $1 ORDER BY rr.created_at DESC LIMIT 50`,
       [childId]
     );
-    const locale = await getFamilyPreferredLocale(familyId);
+    const contentLocale = await resolveChildContentLocaleForFamily(familyId);
+    const rewardLocalizeOpts = childRewardLocalizeOptions(contentLocale);
     res.json({
-      rewards: await localizeRewardItems(visibleRewards, locale),
+      rewards: await localizeRewardItems(visibleRewards, contentLocale, 'sv-SE', rewardLocalizeOpts),
       starBalance: balance,
-      redemptions: await localizeRewardItems(redemptions.rows, locale),
+      redemptions: await localizeRewardItems(redemptions.rows, contentLocale, 'sv-SE', rewardLocalizeOpts),
     });
   } catch (err) {
     console.error('[REWARDS] Child list error:', err);

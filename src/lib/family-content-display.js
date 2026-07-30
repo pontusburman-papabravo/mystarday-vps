@@ -71,6 +71,7 @@ function shouldLocalizeActivity(row, options = {}) {
 }
 
 function shouldLocalizeReward(row, options = {}) {
+  if (options.localizeAll === true) return true;
   if (options.contentScope === CONTENT_SCOPE.STANDARD_LIBRARY) return true;
   return isSystemSeededReward(row);
 }
