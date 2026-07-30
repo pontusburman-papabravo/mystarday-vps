@@ -1,37 +1,23 @@
 # Ops — reward integrity deploy (migration `1810000000013`)
 
-Deploy för PR som introducerar `reward_name` / `reward_icon`, pending-unikhet och fulfilled-unikhet per `reward_id`.
+Deploy för reward redemption integrity: snapshots, pending-unikhet, atomisk approve/deny, `redeemed_at` endast vid godkännande.
+
+**Belöningssemantik:** Aktiva belöningar är **återanvändbara**. Varje godkänd inlösen är en egen historikrad; stjärnor dras per godkännande. Endast **en pending** per `reward_id` i familjen samtidigt. **Nekad** pending frigör reservationen. Det finns **ingen** `is_exclusive` / engångsfält i datamodellen.
 
 **Ordning:** precheck → migration → applikationsdeploy. Kör **inte** ny app-kod före migrationen — nya routes läser snapshot-kolumner som måste finnas.
 
-Migrationen är **expand-only** (nya kolumner, backfill, index, CHECK) och är normalt säker mot **gammal** app-kod som fortfarande kör under migrationen.
+Migrationen är **expand-only** (nya kolumner, backfill, pending-index, CHECK) och är normalt säker mot **gammal** app-kod under migrationen.
 
-## Före merge
+## Före merge / deploy
 
 - Bekräfta att inget annat öppet PR tar migrationsnummer `1810000000013`.
-- GitHub CI **grön** på merge-SHA (inkl. `test:gate`).
+- GitHub CI **grön** på deploy-SHA.
 
 ## Produktion — före migration (read-only)
 
-Kör på prod-databasen. **Stoppa** om något av resultaten är oväntat; rätta data innan `npm run migrate`.
+Kör på prod-databasen. **Stoppa** om oväntade statusvärden eller negativa kostnader hittas.
 
-### 1. Fler än en fulfilled redemption per belöning
-
-```sql
-SELECT
-  reward_id,
-  COUNT(*) AS fulfilled_count,
-  ARRAY_AGG(id ORDER BY created_at) AS redemption_ids,
-  ARRAY_AGG(status ORDER BY created_at) AS statuses
-FROM reward_redemption
-WHERE status IN ('approved', 'auto')
-GROUP BY reward_id
-HAVING COUNT(*) > 1;
-```
-
-**Förväntat:** 0 rader.
-
-### 2. Statusfördelning (innan CHECK `reward_redemption_status_valid`)
+### 1. Statusfördelning (innan CHECK `reward_redemption_status_valid`)
 
 ```sql
 SELECT status, COUNT(*)
@@ -42,7 +28,7 @@ ORDER BY status;
 
 **Förväntat:** endast `pending`, `approved`, `denied`, `auto` (inga NULL eller legacy-värden).
 
-### 3. Negativa snapshot-priser
+### 2. Negativa snapshot-priser
 
 ```sql
 SELECT id, reward_id, child_id, star_cost, status
@@ -52,24 +38,36 @@ WHERE star_cost < 0;
 
 **Förväntat:** 0 rader.
 
-Dokumentera resultat (datum, vem, 0-rader eller åtgärd) i deploy-logg eller PR-kommentar.
+### 3. (Informativt) Flera godkända rader per samma `reward_id`
+
+```sql
+SELECT reward_id, COUNT(*) AS approved_count
+FROM reward_redemption
+WHERE status IN ('approved', 'auto')
+GROUP BY reward_id
+HAVING COUNT(*) > 1;
+```
+
+**Detta är inte fel data** — det speglar återanvändbara belöningar (samma barn eller syskon har löst in samma belöning vid flera tillfällen). Migreringen skapar **inte** unikt index på fulfilled rader.
+
+Dokumentera resultat (datum, vem) i deploy-logg eller PR-kommentar.
 
 ## Produktion — deploysekvens
 
-1. Verifiera att prod kör senaste **stabila** SHA (innan reward-integrity-merge).
-2. Kör de tre precheck-frågorna ovan.
-3. På VPS (app root enligt deploy-regler i repot): `npm run migrate` — bekräfta att `1810000000013_reward_integrity_constraints` är registrerad i `pgmigrations`.
-4. Deploya **exakt** grön merge-SHA (GitHub Actions eller manuell pull + omstart av produktionstjänsten enligt deploy-reglerna).
+1. Verifiera att prod kör senaste **stabila** SHA (innan reward-integrity-deploy).
+2. Kör precheck-frågorna ovan (1–2 obligatoriska; 3 informativ).
+3. På VPS (app root enligt deploy-regler i repot): `npm run migrate` — bekräfta att `1810000000013_reward_integrity_constraints` och (vid behov) `1810000000014_drop_reward_fulfilled_unique` finns i `_migrations`.
+4. Deploya **exakt** grön merge-SHA.
 5. `sleep 3` → `curl -s http://127.0.0.1:3000/health` och verifiera deploy-SHA om tillgängligt.
-6. Smoke: barn begär belöning → förälder nekar (belöning ska kunna begäras igen) → godkänn (stjärnor dras, `redeemed_at` satt, andra barn 409 om exklusiv belöning).
-7. Bevaka apploggar (systemd för produktionstjänsten) samt 409/5xx på redemption-endpoints.
+6. Smoke: barn begär → förälder nekar → begär igen (samma eller syskon) → godkänn → ny begäran efter godkännande ska **lyckas** om belöningen fortfarande är aktiv och barnet har stjärnor; samtidiga pending ska ge 409.
+7. Bevaka apploggar samt 409/5xx på redemption-endpoints.
 
 ## Semantik (referens)
 
-| Status | Konsumerar belöning | `redeemed_at` |
-|--------|---------------------|---------------|
-| `pending` | Reserverar (ingen permanent förbrukning) | NULL |
-| `denied` | Frigör helt | NULL |
-| `approved` / `auto` | Permanent familjeförbrukning | Sätts vid godkännande |
+| Status | Betydelse | `redeemed_at` |
+|--------|-----------|---------------|
+| `pending` | Reserverar (ingen stjärnavdragning) | NULL |
+| `denied` | Frigör reservation | NULL |
+| `approved` / `auto` | Historik + stjärnor dras vid godkännande | Sätts vid godkännande |
 
 Stjärnor dras vid godkännande, inte vid begäran. Snapshot-fält bevarar historik om belöningen ändras eller inaktiveras.

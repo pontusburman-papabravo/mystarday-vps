@@ -156,12 +156,12 @@ describe('reward integrity migration', () => {
     );
     assert.match(mig, /reward_name VARCHAR/);
     assert.match(mig, /idx_reward_redemption_one_pending_per_reward/);
-    assert.match(mig, /idx_reward_redemption_one_fulfilled_per_reward/);
+    assert.doesNotMatch(mig, /idx_reward_redemption_one_fulfilled_per_reward/);
     assert.match(mig, /reward_redemption_status_valid/);
   });
 });
 
-describe('concurrent exclusive redemption', () => {
+describe('concurrent pending redemption', () => {
   test('two children: exactly one succeeds, one 409, single pending row', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
@@ -245,8 +245,8 @@ describe('same-child concurrent redemption', () => {
   });
 });
 
-describe('denied exclusive redemption semantics', () => {
-  test('after deny: other child and same child can redeem; approved blocks all', async (t) => {
+describe('repeatable reward redemption', () => {
+  test('deny releases pending; after approve, same or other child can redeem again', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -315,11 +315,28 @@ describe('denied exclusive redemption semantics', () => {
       assert.equal(approvedRow.rows[0].status, 'approved');
       assert.ok(approvedRow.rows[0].redeemed_at, 'approved must set redeemed_at');
 
-      const childBBlocked = await redeemReward(http, childB.cookies, rewardId, childB.csrfToken);
-      assert.equal(childBBlocked.status, 409);
+      const balanceAfterApprove = await getStarBalance(base.child1Id);
+      assert.equal(balanceAfterApprove, 15);
 
-      const childABlocked = await redeemReward(http, childA.cookies, rewardId, childA.csrfToken);
-      assert.equal(childABlocked.status, 409);
+      const childBAfterApprove = await redeemReward(http, childB.cookies, rewardId, childB.csrfToken);
+      assert.equal(childBAfterApprove.status, 201, 'child B can redeem again after prior approval');
+
+      const childBPending = await db.query(
+        `SELECT id FROM reward_redemption WHERE reward_id = $1 AND child_id = $2 AND status = 'pending'`,
+        [rewardId, base.child2Id]
+      );
+      const approveB = await approveRedemption(http, base.session, childBPending.rows[0].id);
+      assert.equal(approveB.status, 200);
+      assert.equal(await getStarBalance(base.child2Id), 15);
+
+      const childAAgain = await redeemReward(http, childA.cookies, rewardId, childA.csrfToken);
+      assert.equal(childAAgain.status, 201, 'child A can redeem same reward again after approval cycle');
+
+      const approvedCount = await db.query(
+        `SELECT COUNT(*)::int AS n FROM reward_redemption WHERE reward_id = $1 AND status = 'approved'`,
+        [rewardId]
+      );
+      assert.equal(approvedCount.rows[0].n, 2);
     } finally {
       await http.close();
       await db.cleanup();
@@ -518,6 +535,11 @@ describe('soft delete preserves history', () => {
       assert.equal(listBody.rewards.some((r) => r.id === rewardId), false);
       assert.ok(listBody.redemptions.length >= 1);
       assert.equal(await getStarBalance(base.child1Id), 8);
+
+      const inactiveRes = await redeemReward(http, child.cookies, rewardId, child.csrfToken);
+      assert.equal(inactiveRes.status, 400);
+      const inactiveBody = JSON.parse(await inactiveRes.text());
+      assert.equal(inactiveBody.code, 'reward_inactive');
     } finally {
       await http.close();
       await db.cleanup();

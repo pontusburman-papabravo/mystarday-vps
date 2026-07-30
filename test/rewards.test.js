@@ -56,22 +56,21 @@ test('Redemption with insufficient stars returns 400', () => {
   assert.equal(result.status, 400, 'Insufficient stars should return 400');
 });
 
-test('Approved exclusive reward blocks another redemption for same reward', () => {
-  // Family-wide exclusive: fulfilled (approved/auto) consumes the reward for everyone.
-  function canRedeemExclusive(existingRedemptions, childId, rewardId, starBalance, starCost) {
+test('Approved reward does not block a later redemption for the same child', () => {
+  function canRedeemRepeatable(existingRedemptions, childId, rewardId, starBalance, starCost) {
     if (starBalance < starCost) {
       return { allowed: false, status: 400 };
-    }
-    const fulfilled = existingRedemptions.some(
-      (r) => r.reward_id === rewardId && ['approved', 'auto'].includes(r.status)
-    );
-    if (fulfilled) {
-      return { allowed: false, status: 409 };
     }
     const alreadyPending = existingRedemptions.some(
       (r) => r.child_id === childId && r.reward_id === rewardId && r.status === 'pending'
     );
     if (alreadyPending) {
+      return { allowed: false, status: 409 };
+    }
+    const familyPending = existingRedemptions.some(
+      (r) => r.reward_id === rewardId && r.status === 'pending'
+    );
+    if (familyPending) {
       return { allowed: false, status: 409 };
     }
     return { allowed: true, status: 201 };
@@ -80,30 +79,50 @@ test('Approved exclusive reward blocks another redemption for same reward', () =
   const existing = [
     { child_id: 'child-1', reward_id: 'reward-1', status: 'approved' },
   ];
-  const result = canRedeemExclusive(existing, 'child-1', 'reward-1', 100, 50);
-  assert.equal(result.allowed, false);
-  assert.equal(result.status, 409);
+  const result = canRedeemRepeatable(existing, 'child-1', 'reward-1', 100, 50);
+  assert.equal(result.allowed, true);
+  assert.equal(result.status, 201);
 });
 
-test('Denied redemption does not block a later redemption', () => {
-  function canRedeemExclusive(existingRedemptions, childId, rewardId, starBalance, starCost) {
+test('Family-wide pending blocks another child until resolved', () => {
+  function canRedeemRepeatable(existingRedemptions, childId, rewardId, starBalance, starCost) {
     if (starBalance < starCost) return { allowed: false, status: 400 };
-    const fulfilled = existingRedemptions.some(
-      (r) => r.reward_id === rewardId && ['approved', 'auto'].includes(r.status)
-    );
-    if (fulfilled) return { allowed: false, status: 409 };
     const alreadyPending = existingRedemptions.some(
       (r) => r.child_id === childId && r.reward_id === rewardId && r.status === 'pending'
     );
     if (alreadyPending) return { allowed: false, status: 409 };
+    const familyPending = existingRedemptions.some(
+      (r) => r.reward_id === rewardId && r.status === 'pending'
+    );
+    if (familyPending) return { allowed: false, status: 409 };
+    return { allowed: true, status: 201 };
+  }
+
+  const existing = [
+    { child_id: 'child-1', reward_id: 'reward-1', status: 'pending' },
+  ];
+  assert.equal(canRedeemRepeatable(existing, 'child-2', 'reward-1', 100, 50).allowed, false);
+});
+
+test('Denied redemption does not block a later redemption', () => {
+  function canRedeemRepeatable(existingRedemptions, childId, rewardId, starBalance, starCost) {
+    if (starBalance < starCost) return { allowed: false, status: 400 };
+    const alreadyPending = existingRedemptions.some(
+      (r) => r.child_id === childId && r.reward_id === rewardId && r.status === 'pending'
+    );
+    if (alreadyPending) return { allowed: false, status: 409 };
+    const familyPending = existingRedemptions.some(
+      (r) => r.reward_id === rewardId && r.status === 'pending'
+    );
+    if (familyPending) return { allowed: false, status: 409 };
     return { allowed: true, status: 201 };
   }
 
   const existing = [
     { child_id: 'child-1', reward_id: 'reward-1', status: 'denied' },
   ];
-  assert.equal(canRedeemExclusive(existing, 'child-2', 'reward-1', 100, 50).allowed, true);
-  assert.equal(canRedeemExclusive(existing, 'child-1', 'reward-1', 100, 50).allowed, true);
+  assert.equal(canRedeemRepeatable(existing, 'child-2', 'reward-1', 100, 50).allowed, true);
+  assert.equal(canRedeemRepeatable(existing, 'child-1', 'reward-1', 100, 50).allowed, true);
 });
 
 test('Different reward can be redeemed while another is pending', () => {
