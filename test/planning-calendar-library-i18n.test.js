@@ -12,6 +12,8 @@ test('calendar page boots without waiting only on late parent-i18n-ready', () =>
   assert.match(html, /ParentMagicPageBoot\.register\('calendar'/);
   assert.match(html, /DOMContentLoaded',\s*bootCalendar/);
   assert.match(html, /_calendarBooted/);
+  assert.match(html, /authGuard/);
+  assert.match(html, /revealCalendarUi/);
 });
 
 test('library-magic-schedules uses pt for segment labels', () => {

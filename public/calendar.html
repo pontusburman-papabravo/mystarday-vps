@@ -336,7 +336,7 @@
       </div>
 
       <!-- Calendar UI -->
-      <div id="calendarUI" class="hidden fade-in">
+      <div id="calendarUI" class="hidden">
 
         <!-- Child selector -->
         <div id="childTabs" class="flex flex-wrap gap-2 mb-5"></div>
@@ -385,8 +385,33 @@
 
     // ─── Init ─────────────────────────────────────────────────
     async function init() {
-      if (!Auth.requireAuth()) return;
+      let user = null;
+      if (typeof window.authGuard === 'function') {
+        try {
+          user = await Promise.race([
+            window.authGuard(),
+            new Promise(function (resolve) {
+              window.setTimeout(function () { resolve(Auth.getUser()); }, 12000);
+            }),
+          ]);
+        } catch (err) {
+          console.warn('[CALENDAR] authGuard failed:', err);
+        }
+      }
+      if (!user && Auth && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn()) {
+        user = Auth.getUser();
+      }
+      if (!user) {
+        if (!Auth.requireAuth()) return;
+      }
       await loadChildren();
+    }
+
+    function revealCalendarUi() {
+      const ui = document.getElementById('calendarUI');
+      if (!ui) return;
+      ui.classList.remove('hidden');
+      ui.style.opacity = '1';
     }
 
     async function loadChildren() {
@@ -460,7 +485,7 @@
         renderCalendar(data);
 
         document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('calendarUI').classList.remove('hidden');
+        revealCalendarUi();
       } catch (err) {
         console.error('[CALENDAR] load error:', err);
         document.getElementById('loadingState').classList.add('hidden');
@@ -717,7 +742,10 @@
     function bootCalendar() {
       if (_calendarBooted) return;
       _calendarBooted = true;
-      init();
+      init().catch(function (err) {
+        console.error('[CALENDAR] init error:', err);
+        showError(pt('schedule.calendar.loadChildrenError'));
+      });
     }
 
     if (document.readyState === 'loading') {
