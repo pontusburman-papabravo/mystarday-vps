@@ -60,6 +60,16 @@ describe('i18n child UI leaks — static wiring', () => {
   it('photo activity cards do not clip expanded sub-steps', () => {
     const html = read('public/child-dashboard.html');
     assert.match(html, /\.photo-activity-card\s*\{[^}]*overflow:\s*visible/s);
+    assert.match(html, /\.photo-activity-card__meta \.substep-progress/);
+  });
+
+  it('substeps module times out hung fetches and focus bar uses display_name', () => {
+    const sub = read('public/js/child-dashboard-substeps.js');
+    assert.match(sub, /SUBSTEPS_FETCH_TIMEOUT_MS/);
+    assert.match(sub, /steps\.loadFailed/);
+    const focus = read('public/js/child-today-focus.js');
+    assert.match(focus, /function activityLabel/);
+    assert.match(focus, /activityLabel\(nextItem\)/);
   });
 
   it('child-dashboard loads achievement i18n helper before trophy views', () => {

@@ -12,7 +12,26 @@
   }
 
   let _childSortables = [];
-  const _expandLoading = {}; // itemId -> true while a fetch is in-flight
+  const _expandFetches = {}; // itemId -> Promise
+  const SUBSTEPS_FETCH_TIMEOUT_MS = 12000;
+
+  function fetchSubSteps(itemId) {
+    if (_expandFetches[itemId]) return _expandFetches[itemId];
+    _expandFetches[itemId] = Promise.race([
+      Auth.api(`/api/me/daily-log-items/${itemId}/sub-steps`),
+      new Promise(function (_, reject) {
+        window.setTimeout(function () {
+          reject(new Error(t('steps.loadFailed')));
+        }, SUBSTEPS_FETCH_TIMEOUT_MS);
+      }),
+    ]).then(function (data) {
+      subStepCache[itemId] = (data && data.sub_steps) ? data.sub_steps : [];
+      return subStepCache[itemId];
+    }).finally(function () {
+      delete _expandFetches[itemId];
+    });
+    return _expandFetches[itemId];
+  }
 
   function escHtml(s) {
     const d = document.createElement('div');
@@ -70,8 +89,6 @@
     event.stopPropagation();
     event.preventDefault();
 
-    if (_expandLoading[itemId]) return;
-
     const container = document.getElementById('substeps-' + itemId);
     const btn = document.getElementById('expand-btn-' + itemId);
     if (!container || !btn) return;
@@ -86,29 +103,30 @@
         document.querySelectorAll('.expand-btn.intro-hint').forEach(el => el.classList.remove('intro-hint'));
       }
 
-      if (!subStepCache[itemId]) {
-        _expandLoading[itemId] = true;
-        btn.classList.add('loading');
-        btn.textContent = '⏳';
-        try {
-          const data = await Auth.api(`/api/me/daily-log-items/${itemId}/sub-steps`);
-          subStepCache[itemId] = data.sub_steps || [];
-        } catch (err) {
-          console.error('Sub-steps load error:', err);
-          showToast(t('today.saveFailed'), true);
-          btn.innerHTML = `📋 ${t('steps.substepsLabel')} <span class="chevron">▾</span>`;
-          btn.classList.remove('loading');
-          _expandLoading[itemId] = false;
-          return;
+      btn.classList.add('loading');
+      try {
+        if (!subStepCache[itemId]) {
+          await fetchSubSteps(itemId);
         }
+      } catch (err) {
+        console.error('Sub-steps load error:', err);
+        showToast(err.message || t('steps.loadFailed'), true);
+        btn.innerHTML = '📋 ' + t('steps.substepsLabel') + ' <span class="chevron">▾</span>';
         btn.classList.remove('loading');
-        _expandLoading[itemId] = false;
+        return;
       }
-      renderSubStepList(itemId);
+      btn.classList.remove('loading');
+
+      const steps = subStepCache[itemId] || [];
+      if (!steps.length) {
+        container.innerHTML = '<p class="substep-empty-hint">' + escHtml(t('steps.emptyList')) + '</p>';
+      } else {
+        renderSubStepList(itemId);
+      }
       subStepExpanded[itemId] = true;
       container.classList.add('expanded');
       btn.classList.add('open');
-      btn.innerHTML = `📋 ${t('steps.substepsLabel')} <span class="chevron">▾</span>`;
+      btn.innerHTML = '📋 ' + t('steps.substepsLabel') + ' <span class="chevron">▾</span>';
     } else {
       subStepExpanded[itemId] = false;
       container.classList.remove('expanded');

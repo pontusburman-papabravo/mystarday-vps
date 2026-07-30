@@ -27,6 +27,11 @@
     return String(name).trim().split(/\s+/)[0];
   }
 
+  function activityLabel(item) {
+    if (!item) return '';
+    return item.display_name || item.name || '';
+  }
+
   function incompleteItems(items) {
     return (items || []).filter(function (item) {
       return item && !item.completed;
@@ -119,7 +124,7 @@
 
     let nextStepLabel = '';
     if (nextItem) {
-      nextStepLabel = ctf('today.laterPrefix', { name: nextItem.name });
+      nextStepLabel = ctf('today.laterPrefix', { name: activityLabel(nextItem) });
     } else if (nowItem) {
       nextStepLabel = ctf('today.checkOffToContinue');
     }
@@ -200,7 +205,7 @@
   function renderFocusBar(state) {
     const progress = state.progressLabel || '';
     const nextStep = state.nextStepLabel || '';
-    const nowName = state.nowItem ? state.nowItem.name : '';
+    const nowName = state.nowItem ? activityLabel(state.nowItem) : '';
     const fun = window.ChildTodayFun;
     const samlingFun = fun && fun.isSamlingGateOn && fun.isSamlingGateOn();
     const warmth = window.ChildTodayWarmth;

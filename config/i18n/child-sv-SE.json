@@ -119,7 +119,9 @@
     "prevStep": "Föregående steg",
     "allDone": "Allt klart!",
     "substepsDone": "{{done}}/{{total}} klara",
-    "substepsLabel": "Delsteg"
+    "substepsLabel": "Delsteg",
+    "loadFailed": "Kunde inte ladda stegen. Försök igen.",
+    "emptyList": "Inga steg att visa för den här aktiviteten."
   },
   "celebration": {
     "milestone25": "Bra jobbat! Första steget! 🌟",
