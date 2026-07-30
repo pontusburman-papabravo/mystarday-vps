@@ -1,126 +1,194 @@
-# Free product integrity — verification report (2026-07-30)
+# Free product integrity — revised verification report (2026-07-30)
 
-Branch: `cursor/free-product-integrity-fixes-01b8`  
-Start `origin/main`: `db1d27d05f37404a17ede345ab3319004a643580` (includes review doc `8118f4bb` lineage)  
-Scope: gratisprodukt only — no IAP/subscriptions/paywall changes.
-
-## Verdict
-
-**GO WITH FOLLOW-UP** — P0/P1 items in this scope are fixed with integration/concurrency evidence; parent-session backup cookie remains a documented follow-up (opaque server-side handoff).
+Revision pass after contradictory first report. **No IAP/RevenueCat/subscription/paywall code in this PR.**
 
 ---
 
-## 1. Verified findings (fixed + tested)
+## 1. Branch identity
 
-| # | Area | Evidence |
-|---|------|----------|
-| 1 | Authenticated API rate limits | `apiLimiter` uses `user:{id}` / `ip:` keys; no skip for authenticated users. `test/rate-limit-buckets.test.js`, `test/rate-limit-behavior.integration.test.js`. Admin: `adminApiLimiter` 300/min per admin on `/api/admin`. |
-| 2 | Revoked parents in rewards | `revoked_at IS NULL` on parent_child in list/redemptions/reorder/approve/deny/notify. `test/rewards-revoked-access.integration.test.js`. |
-| 3 | `visible_to_children` | `src/lib/reward-visible-children.js` — null / `[]` / UUID list; foreign IDs filtered to family children. `test/reward-visibility.integration.test.js`. |
-| 4 | `requires_approval` | Auto-redemption atomic in transaction (existing + integrity tests). `test/rewards-integrity.integration.test.js` (20 consecutive passes). |
-| 5 | Deny atomic | Single `UPDATE … FROM parent_child` with `status = 'pending'` and `revoked_at IS NULL`. Concurrency in rewards-integrity suite. |
-| 6 | Reward delete / history | Soft delete `is_active = false`; snapshots on `reward_redemption`. `test/reward-delete-history.integration.test.js`. |
-| 7 | Cross-family child login | No global `LOWER(name)` PIN sweep; name fallback only with verified parent family from cookies. `test/child-login-cross-family.integration.test.js`. |
-| 8 | PIN warnings | Parent query requires `pc.revoked_at IS NULL`; prefers primary. `test/pin-warning-revoked-parent.integration.test.js`. |
-| 10 | SSRF (family images) | `src/lib/safe-url-fetch.js` + proxy route. `test/safe-url-fetch.test.js`. |
-| 11 | CI gate | New critical tests in `test:gate:unit` / `test:gate:db`; `test/ci-test-manifest.test.js`. |
+| Field | Value |
+|--------|--------|
+| Branch | `cursor/free-product-integrity-fixes-01b8` |
+| HEAD | `02afc0fb9f7e456b54cdd59144dd62d768ede2a7` (+ pending commit for `1810000000017_pin_notification_log`) |
+| `origin/main` (after `git fetch`) | `db1d27d05f37404a17ede345ab3319004a643580` |
+| Merge-base `origin/main` ∩ HEAD | `db1d27d05f37404a17ede345ab3319004a643580` |
+| Branch start SHA | `db1d27d05f37404a17ede345ab3319004a643580` |
+
+**`origin/main` did not advance** after branch creation. Diff `origin/main...HEAD` equals diff `db1d27d...HEAD`.
 
 ---
 
-## 2. Disproved / already correct
+## 2. Complete commit list (`origin/main..HEAD`)
 
-| Item | Result |
-|------|--------|
-| Hard `DELETE` reward on parent “ta bort” | Already soft-deactivate; no new migration required for snapshots. |
-| `rewards-integrity.integration.test.js` missing from CI | Already listed in `test:gate:db` before this branch. |
-
----
-
-## 3. Parent-session backup (item 9)
-
-**Verified risk (not rewritten in this PR):**
-
-- Cookie `stjarndag_parent_session` holds **base64 JSON** with raw `access_token` / `refresh_token` (not signed).
-- Restored in `src/middleware/auth.js` and child-login save path.
-- Logout paths clear cookie (`src/routes/auth/login.js`).
-- Manipulated cookie could restore tokens until JWT/refresh expiry/revocation.
-
-`test/parent-session-backup-security.test.js` documents this. **Follow-up:** opaque hashed handoff id server-side, short TTL, bind parent+family, clear on logout/reset/delete/revoke-all.
+```
+8a116787 fix(security): block SSRF in family image proxy and restore API rate limits
+33b6e743 fix(rewards): enforce revoked access and auto-redemption semantics
+8aaa2d86 fix(auth): scope child display-name login to parent family context
+62648e4e fix(rewards): visibility normalization and atomic deny
+76e04311 fix(security): admin API rate limit and apiLimiter comments
+dda65472 test(integrity): authz, rate limits, child login, rewards coverage
+02afc0fb docs: free product integrity verification report 2026-07-30
+```
 
 ---
 
-## 4. SSRF assessment
+## 3. Exact PR diff (`origin/main...HEAD`)
 
-**Mitigated** for family image proxy via central fetch helper (protocol allowlist, IP/DNS checks, redirect hops, timeout, size limit, image magic bytes). User-supplied arbitrary URLs on other routes should still be reviewed if new upload-URL features are added.
+**22 files**, +1338 / −122 lines. **No** `.env.example`, `server.js`, `revenuecat-*`, `iap-client-config`, or `1810000000016_iap_event_ordering_audit.js`.
+
+```
+M  app.js
+A  docs/FREE-PRODUCT-INTEGRITY-2026-07-30.md
+M  package.json
+A  src/lib/parent-session-family.js
+M  src/lib/push.js
+A  src/lib/reward-visible-children.js
+A  src/lib/safe-url-fetch-hosts.js
+A  src/lib/safe-url-fetch.js
+M  src/middleware/rateLimiter.js
+M  src/routes/auth/child-login.js
+M  src/routes/family-images.js
+M  src/routes/rewards.js
+A  test/child-login-cross-family.integration.test.js
+A  test/ci-test-manifest.test.js
+A  test/parent-session-backup-security.test.js
+A  test/pin-warning-revoked-parent.integration.test.js
+A  test/rate-limit-behavior.integration.test.js
+A  test/rate-limit-buckets.test.js
+A  test/reward-delete-history.integration.test.js
+A  test/reward-visibility.integration.test.js
+A  test/rewards-revoked-access.integration.test.js
+A  test/safe-url-fetch.test.js
+```
+
+**IAP grep on branch diff:**
+
+```bash
+git diff --name-only origin/main...HEAD | grep -Ei 'iap|revenuecat|subscription|paywall|1810000000016'
+# → no matches (empty)
+```
+
+The earlier “16 files + IAP migration” UI likely referred to **another branch/PR** (e.g. full-repo integrity review), not `#790`.
+
+**Per-file IAP check (all zero diff lines vs `origin/main`):** `.env.example`, `server.js`, `src/lib/revenuecat-webhook-process.js`. No `1810000000016_iap_event_ordering_audit.js` in repository.
 
 ---
 
-## 5. Tenant isolation
+## 4. Rewards soft-delete / history (single status)
 
-- Child login: integration test two families, same display name + PIN — anonymous name login fails; unique usernames succeed.
-- Rewards: family_id on reward/child; parent_child revocation enforced on mutations.
+**Partially verified — existing soft-delete; regression coverage added; snapshot columns on main**
+
+| Question | Answer |
+|----------|--------|
+| Start SHA (`db1d27d`) delete behavior | `DELETE /api/rewards/:id` → `UPDATE reward SET is_active = false` (not hard delete). |
+| Original review claim | Some reports assumed hard delete of `reward` + `reward_redemption`. |
+| Motbevisat? | **Hard-delete on parent delete path** — yes, already soft-delete on start SHA. |
+| What this branch changed in delete path | **No change** to delete SQL on `rewards.js` vs start SHA. |
+| Real history issue on main | Snapshot columns `reward_name` / `reward_icon` added in migration `1810000000013_reward_integrity_constraints` (already on `main`). |
+| This branch | Integration test `test/reward-delete-history.integration.test.js` proves snapshots survive deactivate + inactive redeem returns `reward_inactive`. |
 
 ---
 
-## 6. Concurrency
+## 5. Verified and fixed (this branch)
 
-- `test/rewards-integrity.integration.test.js`: **20 runs, 0 failures** (`NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false`, `RESEND_API_KEY` unset).
+- API rate limits (per-user buckets, admin limiter, behavior test).
+- Rewards: revoked `parent_child`, visibility, atomic deny, auto-redemption (with existing integrity suite).
+- Child login: no global display-name PIN sweep.
+- PIN warning parent selection (`revoked_at IS NULL`).
+- SSRF guard for family image proxy.
+- CI manifest for critical integration tests.
 
 ---
 
-## 7. Repo sweep (same root patterns)
+## 6. Disproved findings
 
-Prioritize verified P1 only; not fixed in this branch unless listed above:
+- IAP/RevenueCat files in **this** PR diff.
+- Parent reward delete as hard-delete (was already soft-delete on branch start).
+- “New migrations” for reward snapshots (already on `main` as `1810000000013`).
 
-| Pattern | Notes |
+---
+
+## 7. Partially verified
+
+- Reward history: soft-delete pre-existing; snapshots on `main`; branch adds **tests only** for delete/history path.
+
+---
+
+## 8. Remaining authorization findings (`parent_child` without `revoked_at`)
+
+| Location | Endpoint / use | Class | Severity | Consequence | Follow-up |
+|----------|----------------|-------|----------|-------------|-----------|
+| `src/routes/ratings.js` ~161 | POST parent rating on daily log item | **Authorization** | **P1** | Revoked shared parent can rate child activities if link row still exists | Add `pc.revoked_at IS NULL`; integration test |
+| `src/routes/ratings.js` ~204 | GET ratings for item | **Authorization** | **P1** | Revoked parent can read ratings | Same |
+| `src/routes/schedules/templates.js` ~267 | Child access for template apply | **Authorization** | **P2** | Revoked parent may apply template to child | Add `revoked_at IS NULL` |
+| `src/routes/schedules/fill-week.js` ~19 | Child access for fill-week | **Authorization** | **P2** | Same pattern | Same |
+
+**Already correct in scope:** pedagog routes (`revoked_at` + role `pedagog`), goals list/approve/deny, rewards (this branch), children.js access checks, push redemption notify.
+
+---
+
+## 9. Parent-session backup
+
+**Verified risk (unchanged):** `stjarndag_parent_session` = base64 JSON with raw tokens. Logout clears cookie. **Follow-up:** opaque server-side handoff (documented in `test/parent-session-backup-security.test.js`).
+
+---
+
+## 10. `pin_notification_log` schema
+
+| Finding | Detail |
 |---------|--------|
-| `parent_child` without `revoked_at` | Remaining joins in pedagog routes, goals, ratings, schedules — need case-by-case authz review (out of scope here). |
-| `DELETE FROM reward` | Account deletion / admin family wipe only (expected). |
-| `pin_notification_log` | Schema drift — table used in prod; missing on fresh migrate (documented in systemdokumentation). PIN tests stub notification insert where needed. |
-| `fetch(` server-side | Family-images path guarded; other `fetch` usages should stay audited. |
+| CREATE in migrations | **Missing** until `1810000000017_pin_notification_log` (this revision). |
+| `db/baseline-schema.sql` | Had `pin_lockout` + `pin_audit_log` but **not** `pin_notification_log`. |
+| Fresh DB (`npm run migrate` on empty Postgres) | Before fix: `pin_notification_log` **did not exist** → PIN notify path errors on `recordNotification`. |
+| Local test DB | Often had table from prod-like state or partial history; tests stubbed `recordNotification` in pin-warning test. |
+| Fix | Migration `1810000000017_pin_notification_log` + baseline-schema update; rollback covered by `test/migration-rollback-gate.test.js`. |
 
 ---
 
-## 8. Tests run (this branch)
+## 11. Test results (revision run)
 
-| Command | Result |
-|---------|--------|
-| `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run test:gate` | pass (unit 1593, db 262) |
-| `NODE_ENV=test node --test test/migration-rollback-gate.test.js` | pass 3 |
-| Rewards integrity 20× | pass 20 / fail 0 |
+| Command | Exit | pass | fail | skip | cancelled | Notes |
+|---------|------|------|------|------|-----------|-------|
+| `npm ci --legacy-peer-deps --include=dev` | 0 | — | — | — | — | |
+| `npm run css:build` | 0 | — | — | — | — | |
+| `npm run check:ambient-objects` | 0 | — | — | — | — | |
+| `npm run lint` | 0 | — | — | — | — | 0 errors, 81 warnings |
+| `npm run lint:public` | 0 | — | — | — | — | 671/673 budget OK |
+| `npm run check:routes` | 0 | — | — | — | — | |
+| `npm run migrate` | 0 | — | — | — | — | applies `1810000000017` |
+| `npm run test:gate` | 0 | unit 1593 + db 262 | 0 | 0 | 0 | |
+| `npm test` | 0* | 3088 | **50** | 0 | 0 | *runner exit 0 with failing subtests; failures are pre-existing contract/POS/landing suites — **none** of new integrity test files appear in failure list |
+| `node --test test/migration-rollback-gate.test.js` | 0 | 3 | 0 | 0 | 0 | includes rollback of latest migration |
+| `rewards-integrity.integration.test.js` ×20 | 0 | 20 runs all `# fail 0` | 0 | — | — | prior revision run |
 
-Full `npm test` not required for this deliverable; gate is green.
-
----
-
-## 9. Migrations
-
-No new migrations on this branch (reward snapshots and soft-delete already in schema).
-
----
-
-## 10. Changed files (summary)
-
-- `src/middleware/rateLimiter.js`, `app.js`
-- `src/routes/rewards.js`, `src/lib/reward-visible-children.js`
-- `src/routes/auth/child-login.js`, `src/lib/parent-session-family.js`
-- `src/routes/family-images.js`, `src/lib/safe-url-fetch.js` (prior commit on branch)
-- `package.json`, tests listed in §1
-- This document
+DB tests: main `DATABASE_URL` after migrate; empty DB `integrity_empty_schema_test` used for schema proof.
 
 ---
 
-## 11. Remaining risks
+## 12. Migrations and rollback
 
-- Parent-session backup cookie (follow-up).
-- `pin_notification_log` / `pin_audit_log` migration gap on fresh DB.
-- Pedagog/goals/ratings `parent_child` queries without explicit revoke filter.
-- Approve path still uses lock + conditional update (deny is fully atomic SQL).
+| Migration | Purpose |
+|-----------|---------|
+| `1810000000017_pin_notification_log` | PIN email cooldown / notification log (not payment) |
+
+`down()` drops table + index. Verified via migration rollback gate on dev-like and empty DB.
+
+**No IAP migrations added on this branch.**
 
 ---
 
-## 12. Commits on branch
+## 13. PR
 
-See `git log` on `cursor/free-product-integrity-fixes-01b8` after push.
+GitHub pull request **#790** (branch `cursor/free-product-integrity-fixes-01b8` → `main`).
 
-POS: security child scope, P-02, R-02, 15 Section B (no surprise auth, tenant isolation).
+---
+
+## 14. Recommendation (free product)
+
+**GO WITH FOLLOW-UP**
+
+- Branch diff is **clean** vs payment/IAP scope.
+- Gate green; integrity concurrency green.
+- Follow-up: parent-session handoff, ratings/schedules `revoked_at`, full `npm test` debt (50 failures on `main` baseline, not introduced here).
+
+Payment / IAP: **Deferred** — explicitly out of scope for this PR.
