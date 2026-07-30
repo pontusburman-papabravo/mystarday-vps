@@ -371,6 +371,7 @@
     </main>
   </div>
 
+  <script src="/js/parent-magic-page-boot.js?v=1"></script>
   <script>
     function pt(key, params) {
       return (typeof window.pt === 'function') ? window.pt(key, params) : key;
@@ -481,8 +482,11 @@
           throw new Error(err.error || 'Kunde inte ladda kalender');
         }
         const data = await res.json();
-        currentData = data;
-        renderCalendar(data);
+        currentData = normalizeCalendarWeekPayload(data);
+        if (!currentData) {
+          throw new Error('Invalid calendar response: days is missing');
+        }
+        renderCalendar(currentData);
 
         document.getElementById('loadingState').classList.add('hidden');
         revealCalendarUi();
@@ -497,6 +501,8 @@
       document.getElementById('errorMsg').textContent = msg;
       document.getElementById('errorState').classList.remove('hidden');
       document.getElementById('loadingState').classList.add('hidden');
+      const ui = document.getElementById('calendarUI');
+      if (ui) ui.classList.add('hidden');
     }
 
     function changeWeek(delta) {
@@ -511,14 +517,37 @@
 
     // ─── Render ───────────────────────────────────────────────
 
+    function normalizeCalendarWeekPayload(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      const days = Array.isArray(raw.days)
+        ? raw.days
+        : (Array.isArray(raw.calendar) ? raw.calendar : null);
+      if (!days) return null;
+      return {
+        ...raw,
+        days,
+        weekStart: raw.weekStart || raw.week_start,
+        weekEnd: raw.weekEnd || raw.week_end,
+      };
+    }
+
     function renderCalendar(data) {
-      renderWeekHeader(data);
-      renderGrid(data);
+      const normalized = normalizeCalendarWeekPayload(data);
+      if (!normalized) {
+        throw new Error('Invalid calendar response: days is missing');
+      }
+      renderWeekHeader(normalized);
+      renderGrid(normalized);
     }
 
     function renderWeekHeader(data) {
       const weekLabel = document.getElementById('weekLabel');
       const weekSubLabel = document.getElementById('weekSubLabel');
+      if (!data.weekStart || !data.weekEnd) {
+        if (weekLabel) weekLabel.textContent = '';
+        if (weekSubLabel) weekSubLabel.textContent = '';
+        return;
+      }
 
       const startDate = parseDate(data.weekStart);
       const endDate = parseDate(data.weekEnd);
@@ -543,9 +572,11 @@
 
     function renderGrid(data) {
       const grid = document.getElementById('calGrid');
+      if (!grid) return;
       grid.innerHTML = '';
 
-      for (const day of data.days) {
+      const days = Array.isArray(data.days) ? data.days : [];
+      for (const day of days) {
         const col = document.createElement('div');
         col.className = 'day-col' +
           (day.isToday ? ' today' : '') +
@@ -593,15 +624,16 @@
         // Body
         const body = document.createElement('div');
         body.className = 'p-2';
+        const activities = Array.isArray(day.activities) ? day.activities : [];
 
         if (day.isPaused) {
           body.innerHTML = `<div class="empty-day">${escapeHtml(pt('schedule.calendar.pausedDay'))}</div>`;
-        } else if (day.activities.length === 0) {
+        } else if (activities.length === 0) {
           body.innerHTML = `<div class="empty-day">${escapeHtml(pt('schedule.calendar.emptyDay'))}</div>`;
         } else {
           // Group by section
           const sections = {};
-          for (const act of day.activities) {
+          for (const act of activities) {
             const sec = act.section || 'dag';
             if (!sections[sec]) sections[sec] = [];
             sections[sec].push(act);
@@ -748,21 +780,25 @@
       });
     }
 
+    if (window.ParentMagicPageBoot) {
+      ParentMagicPageBoot.register('calendar', bootCalendar);
+    }
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', bootCalendar);
+      document.addEventListener('DOMContentLoaded', bootCalendar, { once: true });
     } else {
       bootCalendar();
     }
     document.addEventListener('parent-i18n-ready', bootCalendar, { once: true });
-    if (window.ParentMagicPageBoot) {
-      ParentMagicPageBoot.register('calendar', bootCalendar);
-    }
+    document.addEventListener('stjarndag-magic-navigated', function (e) {
+      if (!e.detail || e.detail.pageId !== 'calendar') return;
+      _calendarBooted = false;
+      bootCalendar();
+    });
   </script>
 <script src="/js/feature-check.js?v=2.13.0"></script>
 <script src="/js/nav-config.js?v=1"></script>
 <script src="/js/icon-system.js?v=1"></script>
 <script src="/js/app-view-mode.js?v=4"></script>
-<script src="/js/parent-magic-page-boot.js?v=1"></script>
 <script src="/js/parent-magic-page-hubs.js?v=2"></script>
 <script src="/js/parent-magic-shell.js?v=2"></script>
 <script src="/js/parent-magic-auto.js?v=12"></script>
