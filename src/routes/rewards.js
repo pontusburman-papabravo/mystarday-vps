@@ -8,6 +8,11 @@
 
 const express = require('express');
 const db = require('../lib/db');
+const { getStarBalance } = require('../lib/reward-balance');
+const {
+  sendRewardRedemptionError,
+  mapRedemptionUniqueViolation,
+} = require('../lib/reward-redemption-errors');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { requireNotPedagogOnly, getChildAccess, requireChildAccess } = require('../middleware/authz');
@@ -23,59 +28,13 @@ const {
   UUIDParam,
 } = require('../lib/schemas');
 
-/**
- * Compute star balance for a child.
- * Earned = sum of star_value on completed daily_log_items.
- * Spent = sum of star_cost snapshots on approved/auto redemptions
- *         (falls back to reward.star_cost for pre-migration rows).
- */
-async function getStarBalance(childId) {
-  // Run all balance queries in parallel — they are independent reads
-  const [earnedResult, spentSnapshotResult, spentLegacyResult] = await Promise.all([
-    db.query(
-      `SELECT COALESCE(SUM(dli.star_value), 0) AS earned
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dl.child_id = $1 AND dli.completed = true`,
-      [childId]
-    ),
-    // Snapshotted star_cost (migration 007+)
-    db.query(
-      `SELECT COALESCE(SUM(rr.star_cost), 0) AS spent
-       FROM reward_redemption rr
-       WHERE rr.child_id = $1
-         AND rr.status IN ('approved', 'auto')
-         AND rr.star_cost IS NOT NULL`,
-      [childId]
-    ),
-    // Legacy rows without snapshot — join to reward for current price
-    db.query(
-      `SELECT COALESCE(SUM(r.star_cost), 0) AS spent
-       FROM reward_redemption rr
-       JOIN reward r ON r.id = rr.reward_id
-       WHERE rr.child_id = $1
-         AND rr.status IN ('approved', 'auto')
-         AND rr.star_cost IS NULL`,
-      [childId]
-    ),
-  ]);
+const REDEMPTION_SNAPSHOT_SQL = `
+  COALESCE(rr.reward_name, r.name) AS reward_name,
+  COALESCE(rr.reward_icon, r.icon) AS reward_icon,
+  COALESCE(rr.star_cost, r.star_cost) AS star_cost`;
 
-  // Manual star grants from parents (migration 042+) — table may not exist on old instances
-  let manualStars = 0;
-  try {
-    const manualResult = await db.query(
-      `SELECT COALESCE(SUM(star_count), 0) AS manual FROM manual_star_grant WHERE child_id = $1`,
-      [childId]
-    );
-    manualStars = parseInt(manualResult.rows[0].manual, 10);
-  } catch (_) {
-    // Table may not exist yet on old instances — graceful fallback
-  }
-
-  const earned = parseInt(earnedResult.rows[0].earned, 10);
-  const spent = parseInt(spentSnapshotResult.rows[0].spent, 10) + parseInt(spentLegacyResult.rows[0].spent, 10);
-  return Math.max(0, earned + manualStars - spent);
-}
+/** Terminal statuses that permanently consume an exclusive family reward. */
+const FULFILLED_REDEMPTION_STATUS_SQL = "status IN ('approved', 'auto')";
 
 // ─── Parent Router ────────────────────────────────────────
 
@@ -115,8 +74,7 @@ parentRouter.get('/child-view/:childId', requireChildAccess('childId'), async (r
 
     const redemptions = await db.query(
       `SELECT rr.id, rr.reward_id, rr.status, rr.created_at,
-              r.name AS reward_name, r.icon AS reward_icon,
-              COALESCE(rr.star_cost, r.star_cost) AS star_cost,
+              ${REDEMPTION_SNAPSHOT_SQL},
               r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM reward_redemption rr JOIN reward r ON r.id = rr.reward_id
        WHERE rr.child_id = $1 ORDER BY rr.created_at DESC LIMIT 50`,
@@ -310,25 +268,20 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
 parentRouter.delete('/:id', async (req, res) => {
   try {
     const existing = await db.query(
-      'SELECT id FROM reward WHERE id = $1 AND family_id = $2',
+      'SELECT id, is_active FROM reward WHERE id = $1 AND family_id = $2',
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
       return res.status(404).json({ error: 'Belöning hittades inte' });
     }
-    const client = await db.getClient();
-    try {
-      await client.query('BEGIN');
-      await client.query('DELETE FROM reward_redemption WHERE reward_id = $1', [req.params.id]);
-      await client.query('DELETE FROM reward WHERE id = $1', [req.params.id]);
-      await client.query('COMMIT');
-      res.json({ message: 'Belöning borttagen' });
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
+    if (!existing.rows[0].is_active) {
+      return res.json({ message: 'Belöning borttagen' });
     }
+    await db.query(
+      `UPDATE reward SET is_active = false, modified_by_family = true WHERE id = $1 AND family_id = $2`,
+      [req.params.id, req.user.familyId]
+    );
+    res.json({ message: 'Belöning borttagen' });
   } catch (err) {
     console.error('[REWARDS] Delete error:', err);
     res.status(500).json({ error: 'Något gick fel.' });
@@ -339,8 +292,7 @@ parentRouter.get('/redemptions', async (req, res) => {
   try {
     const result = await db.query(
       `SELECT rr.id, rr.status, rr.created_at, rr.approved_by, rr.sort_order,
-              COALESCE(rr.star_cost, r.star_cost) AS star_cost,
-              r.name AS reward_name, r.icon AS reward_icon,
+              ${REDEMPTION_SNAPSHOT_SQL},
               c.name AS child_name, c.emoji AS child_emoji, c.id AS child_id
        FROM reward_redemption rr
        JOIN reward r ON r.id = rr.reward_id
@@ -394,16 +346,14 @@ parentRouter.put('/redemptions/reorder', validate(ReorderSchema), async (req, re
 });
 
 parentRouter.put('/redemptions/:id/approve', async (req, res) => {
-  // Lock order: child row FIRST (to match redeem-path order), then redemption row.
-  // Inline balance calculation via transaction client (not pool) for consistent snapshot.
-  // Deadlock risk eliminated: both approve and redeem lock child → redemption in same order.
+  // Lock order: child row first, then conditional redemption update (matches deny path).
   const client = await db.getClient();
   try {
     await client.query('BEGIN');
 
-    // 1. Fetch redemption to get child_id (no FOR UPDATE here — child lock comes first)
     const rrLookup = await client.query(
-      `SELECT rr.id, rr.status, rr.child_id, rr.star_cost, r.name AS reward_name
+      `SELECT rr.id, rr.status, rr.child_id, rr.star_cost,
+              COALESCE(rr.reward_name, r.name) AS reward_name
        FROM reward_redemption rr
        JOIN reward r ON r.id = rr.reward_id
        JOIN parent_child pc ON pc.child_id = rr.child_id
@@ -419,76 +369,39 @@ parentRouter.put('/redemptions/:id/approve', async (req, res) => {
     const { child_id, star_cost, reward_name } = rrLookup.rows[0];
     if (rrLookup.rows[0].status !== 'pending') {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Kan bara godkänna väntande inlösen' });
+      return sendRewardRedemptionError(res, 'redemption_not_pending');
     }
 
     const cost = parseInt(star_cost ?? 0, 10);
 
-    // 2. Lock child row FIRST — serializes all approves + redeems for this child.
-    // Matches the lock order in the redeem path to prevent deadlock.
     await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [child_id]);
 
-    // 3. Now lock the redemption row
-    const rr = await client.query(
-      `SELECT id, status FROM reward_redemption WHERE id = $1 FOR UPDATE`,
-      [req.params.id]
-    );
-
-    if (rr.rows.length === 0 || rr.rows[0].status !== 'pending') {
-      await client.query('ROLLBACK');
-      return res.status(409).json({ error: 'Redan hanterad' });
-    }
-
-    // 4. Inline balance check via transaction client — same SQL as redeem path (lines 569-599).
-    // Runs inside the transaction so snapshot is consistent with the row locks.
-    const earnedResult = await client.query(
-      `SELECT COALESCE(SUM(dli.star_value), 0) AS earned
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dl.child_id = $1 AND dli.completed = true`,
-      [child_id]
-    );
-    let manualStars = 0;
-    try {
-      const manualResult = await client.query(
-        `SELECT COALESCE(SUM(star_count), 0) AS manual FROM manual_star_grant WHERE child_id = $1`,
-        [child_id]
-      );
-      manualStars = parseInt(manualResult.rows[0].manual, 10);
-    } catch (_) { /* table may not exist on old instances */ }
-    const spentSnapshotResult = await client.query(
-      `SELECT COALESCE(SUM(rr.star_cost), 0) AS spent
-       FROM reward_redemption rr
-       WHERE rr.child_id = $1 AND rr.status IN ('approved', 'auto') AND rr.star_cost IS NOT NULL`,
-      [child_id]
-    );
-    const spentLegacyResult = await client.query(
-      `SELECT COALESCE(SUM(r.star_cost), 0) AS spent
-       FROM reward_redemption rr
-       JOIN reward r ON r.id = rr.reward_id
-       WHERE rr.child_id = $1 AND rr.status IN ('approved', 'auto') AND rr.star_cost IS NULL`,
-      [child_id]
-    );
-    const earned = parseInt(earnedResult.rows[0].earned, 10);
-    const spent = parseInt(spentSnapshotResult.rows[0].spent, 10) + parseInt(spentLegacyResult.rows[0].spent, 10);
-    const balance = Math.max(0, earned + manualStars - spent);
-
+    const balance = await getStarBalance(child_id, client);
     if (balance < cost) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Barnet har inte tillräckligt med stjärnor' });
+      return sendRewardRedemptionError(res, 'insufficient_stars', {
+        error: 'Barnet har inte tillräckligt med stjärnor',
+      });
     }
 
-    await client.query(
-      `UPDATE reward_redemption SET status = 'approved', approved_by = $1 WHERE id = $2`,
+    const updated = await client.query(
+      `UPDATE reward_redemption
+       SET status = 'approved', approved_by = $1, redeemed_at = NOW()
+       WHERE id = $2 AND status = 'pending'
+       RETURNING id`,
       [req.user.id, req.params.id]
     );
+
+    if (updated.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return sendRewardRedemptionError(res, 'redemption_not_pending');
+    }
 
     await client.query('COMMIT');
     res.json({ message: 'Inlösen av ' + reward_name + ' godkänd!' });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     if (err.code === '40P01') {
-      // Deadlock detected — log explicitly for monitoring
       console.error('[REWARDS] Deadlock detected in approve:', err);
       return res.status(503).json({ error: 'Tjänsten är upptagen, försök igen.' });
     }
@@ -500,21 +413,59 @@ parentRouter.put('/redemptions/:id/approve', async (req, res) => {
 });
 
 parentRouter.put('/redemptions/:id/deny', async (req, res) => {
+  // Lock order: child row first, then conditional redemption update (matches approve path).
+  const client = await db.getClient();
   try {
-    const rr = await db.query(
-      `SELECT rr.id, rr.status, r.name AS reward_name FROM reward_redemption rr
+    await client.query('BEGIN');
+
+    const rrLookup = await client.query(
+      `SELECT rr.id, rr.status, rr.child_id,
+              COALESCE(rr.reward_name, r.name) AS reward_name
+       FROM reward_redemption rr
        JOIN reward r ON r.id = rr.reward_id
        JOIN parent_child pc ON pc.child_id = rr.child_id
        WHERE rr.id = $1 AND pc.parent_id = $2`,
       [req.params.id, req.user.id]
     );
-    if (rr.rows.length === 0) return res.status(404).json({ error: 'Inlösen hittades inte' });
-    if (rr.rows[0].status !== 'pending') return res.status(400).json({ error: 'Kan bara neka väntande inlösen' });
-    await db.query(`UPDATE reward_redemption SET status = 'denied' WHERE id = $1`, [req.params.id]);
-    res.json({ message: 'Inlösen av ' + rr.rows[0].reward_name + ' nekad.' });
+
+    if (rrLookup.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Inlösen hittades inte' });
+    }
+
+    const { child_id, reward_name } = rrLookup.rows[0];
+    if (rrLookup.rows[0].status !== 'pending') {
+      await client.query('ROLLBACK');
+      return sendRewardRedemptionError(res, 'redemption_not_pending');
+    }
+
+    await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [child_id]);
+
+    const updated = await client.query(
+      `UPDATE reward_redemption
+       SET status = 'denied', redeemed_at = NULL
+       WHERE id = $1 AND status = 'pending'
+       RETURNING id`,
+      [req.params.id]
+    );
+
+    if (updated.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return sendRewardRedemptionError(res, 'redemption_not_pending');
+    }
+
+    await client.query('COMMIT');
+    res.json({ message: 'Inlösen av ' + reward_name + ' nekad.' });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    if (err.code === '40P01') {
+      console.error('[REWARDS] Deadlock detected in deny:', err);
+      return res.status(503).json({ error: 'Tjänsten är upptagen, försök igen.' });
+    }
     console.error('[REWARDS] Deny error:', err);
     res.status(500).json({ error: 'Något gick fel.' });
+  } finally {
+    client.release();
   }
 });
 
@@ -534,13 +485,15 @@ childRouter.get('/rewards', async (req, res) => {
     // Filter: show only active rewards where:
     // - visible_to_children is NULL (visible to all) OR
     // - visible_to_children contains this child's ID
-    // Exclude rewards that have already been redeemed by another child (redeemed_at set, not by this child)
+    // Exclude rewards already fulfilled by another child (approved/auto only — not pending/denied).
     const rewards = await db.query(
       `SELECT r.id, r.name, r.icon, r.star_cost, r.requires_approval,
               r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family,
               CASE WHEN rr_redeemed.id IS NOT NULL AND rr_redeemed.child_id != $1 THEN true ELSE false END AS already_redeemed_by_other
        FROM reward r
-       LEFT JOIN reward_redemption rr_redeemed ON rr_redeemed.reward_id = r.id AND rr_redeemed.redeemed_at IS NOT NULL AND rr_redeemed.child_id != $1
+       LEFT JOIN reward_redemption rr_redeemed ON rr_redeemed.reward_id = r.id
+         AND rr_redeemed.status IN ('approved', 'auto')
+         AND rr_redeemed.child_id != $1
        WHERE r.family_id = $2 AND r.is_active = true
          AND (r.visible_to_children IS NULL OR $1 = ANY(r.visible_to_children))
        ORDER BY r.sort_order ASC, r.star_cost ASC`,
@@ -551,8 +504,7 @@ childRouter.get('/rewards', async (req, res) => {
     const balance = await getStarBalance(childId);
     const redemptions = await db.query(
       `SELECT rr.id, rr.reward_id, rr.status, rr.created_at,
-              r.name AS reward_name, r.icon AS reward_icon,
-              COALESCE(rr.star_cost, r.star_cost) AS star_cost,
+              ${REDEMPTION_SNAPSHOT_SQL},
               r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM reward_redemption rr JOIN reward r ON r.id = rr.reward_id
        WHERE rr.child_id = $1 ORDER BY rr.created_at DESC LIMIT 50`,
@@ -591,14 +543,11 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Lock the child row to serialize concurrent redemption attempts for the same child.
-    // SELECT FOR UPDATE on child serializes all redemptions for this child — prevents
-    // two simultaneous requests from both reading the same balance and both succeeding.
-    await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [childId]);
-
+    // Lock order: reward row -> child row (serializes exclusive cross-child races).
     const rewardResult = await client.query(
       `SELECT id, name, icon, star_cost, requires_approval, is_active, visible_to_children
-       FROM reward WHERE id = $1 AND family_id = $2`,
+       FROM reward WHERE id = $1 AND family_id = $2
+       FOR UPDATE`,
       [req.params.id, familyId]
     );
     if (rewardResult.rows.length === 0) {
@@ -609,10 +558,9 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
 
     if (!reward.is_active) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Den här belöningen är inte längre tillgänglig' });
+      return sendRewardRedemptionError(res, 'reward_inactive');
     }
 
-    // Check: is this reward visible to this child?
     if (reward.visible_to_children !== null && Array.isArray(reward.visible_to_children)) {
       if (!reward.visible_to_children.includes(childId)) {
         await client.query('ROLLBACK');
@@ -620,73 +568,34 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
       }
     }
 
-    // Check: has another child already redeemed this exclusive reward?
+    await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [childId]);
+
     const otherRedemption = await client.query(
-      `SELECT id, child_id FROM reward_redemption
-       WHERE reward_id = $1 AND redeemed_at IS NOT NULL AND child_id != $2
+      `SELECT id FROM reward_redemption
+       WHERE reward_id = $1 AND ${FULFILLED_REDEMPTION_STATUS_SQL}
        LIMIT 1`,
-      [req.params.id, childId]
+      [req.params.id]
     );
     if (otherRedemption.rows.length > 0) {
       await client.query('ROLLBACK');
-      return res.status(409).json({ error: 'Den här belöningen har redan låsts in av ett annat barn' });
+      return sendRewardRedemptionError(res, 'reward_already_redeemed');
     }
 
-    // Re-compute balance inside the transaction (after acquiring the row lock)
-    const earnedResult = await client.query(
-      `SELECT COALESCE(SUM(dli.star_value), 0) AS earned
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dl.child_id = $1 AND dli.completed = true`,
-      [childId]
-    );
-    let manualStars = 0;
-    try {
-      const manualResult = await client.query(
-        `SELECT COALESCE(SUM(star_count), 0) AS manual FROM manual_star_grant WHERE child_id = $1`,
-        [childId]
-      );
-      manualStars = parseInt(manualResult.rows[0].manual, 10);
-    } catch (_) { /* table may not exist on old instances */ }
-    const spentSnapshotResult = await client.query(
-      `SELECT COALESCE(SUM(rr.star_cost), 0) AS spent
-       FROM reward_redemption rr
-       WHERE rr.child_id = $1 AND rr.status IN ('approved', 'auto') AND rr.star_cost IS NOT NULL`,
-      [childId]
-    );
-    const spentLegacyResult = await client.query(
-      `SELECT COALESCE(SUM(r.star_cost), 0) AS spent
-       FROM reward_redemption rr
-       JOIN reward r ON r.id = rr.reward_id
-       WHERE rr.child_id = $1 AND rr.status IN ('approved', 'auto') AND rr.star_cost IS NULL`,
-      [childId]
-    );
-    const earned = parseInt(earnedResult.rows[0].earned, 10);
-    const spent = parseInt(spentSnapshotResult.rows[0].spent, 10) + parseInt(spentLegacyResult.rows[0].spent, 10);
-    const balance = Math.max(0, earned + manualStars - spent);
-
+    const balance = await getStarBalance(childId, client);
     if (balance < reward.star_cost) {
       await client.query('ROLLBACK');
-      return res.status(400).json({
+      return sendRewardRedemptionError(res, 'insufficient_stars', {
         error: `Du har ${balance} stjärnor men behöver ${reward.star_cost} för ${reward.name}`,
       });
     }
 
-    const existingPending = await client.query(
-      `SELECT id FROM reward_redemption WHERE child_id = $1 AND reward_id = $2 AND status = 'pending'`,
-      [childId, req.params.id]
-    );
-    if (existingPending.rows.length > 0) {
-      await client.query('ROLLBACK');
-      return res.status(409).json({ error: 'Du har redan en väntande inlösen för den här belöningen' });
-    }
-
-    // All child-initiated redemptions go through parent approval
-    // Snapshot star_cost at redemption time
     const insertResult = await client.query(
-      `INSERT INTO reward_redemption (reward_id, child_id, status, star_cost, redeemed_at)
-       VALUES ($1, $2, 'pending', $3, NOW()) RETURNING id, status`,
-      [req.params.id, childId, reward.star_cost]
+      `INSERT INTO reward_redemption (
+         reward_id, child_id, status, star_cost, reward_name, reward_icon
+       )
+       VALUES ($1, $2, 'pending', $3, $4, $5)
+       RETURNING id, status`,
+      [req.params.id, childId, reward.star_cost, reward.name, reward.icon]
     );
 
     await client.query('COMMIT');
@@ -695,6 +604,14 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     familyIdForNotify = familyId;
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
+    const conflictKey = mapRedemptionUniqueViolation(err);
+    if (conflictKey) {
+      return sendRewardRedemptionError(res, conflictKey);
+    }
+    if (err.code === '40P01') {
+      console.error('[REWARDS] Deadlock detected in redeem:', err);
+      return res.status(503).json({ error: 'Tjänsten är upptagen, försök igen.' });
+    }
     console.error('[REWARDS] Redeem error:', err);
     return res.status(500).json({ error: 'Något gick fel.' });
   } finally {
