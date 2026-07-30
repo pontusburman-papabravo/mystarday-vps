@@ -13,6 +13,7 @@ const { validate, validateParams } = require('../middleware/validate');
 const { UUIDParam } = require('../lib/schemas');
 const { z } = require('zod');
 const { getLocalUploadDir } = require('../lib/object-storage');
+const { safeFetchImageUrl } = require('../lib/safe-url-fetch');
 
 const { syncDailyLogsForTemplateChange } = require('../lib/daily-log-generator');
 
@@ -143,23 +144,20 @@ router.get('/source', async (req, res) => {
       }
     }
 
-    let fetchUrl;
-    try {
-      fetchUrl = new URL(imageUrl);
-    } catch {
-      return res.status(404).json({ error: 'Bilden hittades inte' });
+    const response = await safeFetchImageUrl(imageUrl);
+    res.set('Content-Type', response.contentType);
+    res.set('Cache-Control', 'private, no-store');
+    res.send(response.buffer);
+  } catch (err) {
+    if (err.code === 'BLOCKED_HOST' || err.code === 'INVALID_PROTOCOL' || err.code === 'INVALID_URL') {
+      return res.status(403).json({ error: 'URL ej tillåten' });
     }
-
-    const response = await fetch(fetchUrl);
-    if (!response.ok) {
+    if (err.code === 'NOT_IMAGE') {
+      return res.status(400).json({ error: 'Filen är inte en giltig bild' });
+    }
+    if (err.code === 'TIMEOUT' || err.code === 'TOO_LARGE') {
       return res.status(502).json({ error: 'Kunde inte hämta bilden' });
     }
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    res.set('Content-Type', contentType);
-    res.set('Cache-Control', 'private, no-store');
-    res.send(buffer);
-  } catch (err) {
     console.error('[FAMILY-IMAGES] Source proxy error:', err.message);
     res.status(500).json({ error: 'Kunde inte hämta bilden' });
   }
