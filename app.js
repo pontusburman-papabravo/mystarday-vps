@@ -67,7 +67,13 @@ function createApp() {
   loadLocales();
 
   app.get('/health', (req, res) => {
-    res.json({ status: 'healthy', version: '2.3.1' });
+    const { readDeployedSha } = require('./src/lib/deployed-sha');
+    const gitSha = readDeployedSha();
+    res.json({
+      status: 'healthy',
+      version: '2.3.1',
+      ...(gitSha ? { git_sha: gitSha } : {}),
+    });
   });
 
   function sendAssetLinks(_req, res) {

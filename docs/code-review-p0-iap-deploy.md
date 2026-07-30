@@ -1,10 +1,8 @@
 # Code review P0 — RevenueCat-webhook och deterministisk deploy
 
-> Branch: `fix/code-review-p0`  
-> Commits: `2ebd6493` (IAP), `7ca468de` (deploy)  
-> Status: redo för merge till `main`
+> Status: P0 stängt i kod. Merge PR #781 före stagingtest.
 
-Detta dokument beskriver de två P0-åtgärderna från code review: säker RevenueCat-webhook och deploy av exakt CI-testad revision.
+Detta dokument beskriver P0-åtgärderna: säker RevenueCat-webhook, deterministisk deploy, orphan-spårbarhet och reconciliation.
 
 ---
 
@@ -144,7 +142,7 @@ GitHub Actions → Deploy to VPS → Run workflow → ange 40-teckens commit-SHA
 ```bash
 cd "$VPS_APP_PATH"
 git rev-parse HEAD   # ska matcha CI-SHA
-curl -fsS http://127.0.0.1:3000/health
+curl -fsS http://127.0.0.1:3000/health | jq .git_sha   # ska matcha deployad SHA
 ```
 
 ### Rollback
@@ -152,30 +150,252 @@ curl -fsS http://127.0.0.1:3000/health
 - Automatisk vid misslyckad deploy (skriptet)
 - Manuell: workflow_dispatch med tidigare känd bra SHA, eller `git revert` på `main` och ny CI-deploy
 
+Deploy-loggen skriver en sammanfattningsrad:
+
+```
+DEPLOY_SUMMARY status=... requested_sha=... previous_sha=... deployed_sha=... health_check_result=... rollback_sha=...
+```
+
 ---
 
-## 3. Tester
+## 3. Orphan-events och reconciliation
+
+Okänd familj returnerar `200` med `skipped: family_not_found` och loggar **WARN** med:
+
+- `app_user_id`, `original_app_user_id`, `event`, `type`, `product_id`, `expiration_at_ms`, `skip_reason`
+
+Samma fält sparas i `iap_webhook_log` (migration `1810000000015`).
+
+**Manuell reconciliation** (återspelar inte webhook):
+
+```bash
+npm run reconcile:revenuecat -- <family-uuid>
+npm run reconcile:revenuecat -- --dry-run <family-uuid>   # read-only, ingen DB-skrivning
+```
+
+Hämtar `GET /v1/subscribers/{app_user_id}` från RevenueCat och uppdaterar `family.subscription_status`.
+Kräver `REVENUECAT_SECRET_API_KEY` (server `sk_…`-nyckel). Nyckeln loggas aldrig.
+
+---
+
+## 4. Webhook-auth-läge
+
+`REVENUECAT_WEBHOOK_AUTH_MODE`:
+
+| Värde | Beteende |
+|-------|----------|
+| `static` | Endast Authorization-header |
+| `hmac` | Endast `X-RevenueCat-Webhook-Signature` |
+| `both` | Kräver **båda** — ingen downgrade om HMAC misslyckas men static lyckas |
+
+**Viktigt:** Sätt `REVENUECAT_WEBHOOK_AUTH_MODE` **explicit** i `.env` — förlita er inte på autodetekterad standard.
+
+Om ni sätter `both` måste RevenueCat skicka **både** Authorization-headern **och** `X-RevenueCat-Webhook-Signature` i staging. Annars får korrekt konfigurerade anrop avsiktligt `401`. Om RevenueCat bara skickar static header, använd `static`.
+
+Standard när osett: `both` om båda secrets finns, annars den konfigurerade metoden.
+
+---
+
+## 5. Godkännandekriterier staging
+
+| Scenario | HTTP | DB |
+|----------|------|-----|
+| Initialt köp | 200 `processed` | `active` |
+| Förnyelse | 200 `processed` | `active` |
+| Uppsägning | 200 `processed` | `active` till utgång |
+| Återaktivering | 200 `processed` | `active` |
+| Utgång | 200 `processed` | `expired` |
+| Samma event ×3 | 200 ×3 (`duplicate` efter första) | 1 loggrad, 1 statusändring |
+| Felaktig auth | 401 | ingen loggrad / ingen statusändring |
+| Tillfälligt DB-fel | 503 | RevenueCat kan leverera igen |
+| Okänd familj | 200 `skipped: family_not_found` | orphan-logg med felsökningsfält |
+
+### Go till staging (efter merge av PR #781)
+
+**Startkonfiguration:** `REVENUECAT_WEBHOOK_AUTH_MODE=static`  
+Byt endast till `both` när en faktisk RevenueCat-leverans visar både `Authorization` och `X-RevenueCat-Webhook-Signature`.
+
+Minimikontroll efter merge:
+
+```bash
+npm run migrate
+
+curl -s http://127.0.0.1:3000/health | jq .
+# git_sha ska matcha CI-godkänd och deployad SHA
+
+npm run reconcile:revenuecat -- --dry-run <test-family-uuid>
+```
+
+Checklista:
+
+- [ ] PR #781 mergad
+- [ ] Migration `1810000000015` körd och verifierad (`\d iap_webhook_log` visar audit-kolumner)
+- [ ] `REVENUECAT_WEBHOOK_AUTH_MODE=static` satt (byt till `both` endast efter verifierad dubbel-header från RevenueCat)
+- [ ] `curl /health` visar `git_sha` som matchar deployad revision
+- [ ] `npm run reconcile:revenuecat -- --dry-run <family-uuid>` fungerar mot känd testfamilj
+- [ ] `REVENUECAT_SECRET_API_KEY` finns i `.env` men skrivs **aldrig** i logg eller deploy-output
+
+### Go till produktion
+
+Alla staging-kriterier ovan, plus:
+
+- [ ] Samtliga åtta staging-scenarier gröna (tabell ovan)
+- [ ] `CANCELLATION` behåller åtkomst till framtida `expiration_at_ms`
+- [ ] `EXPIRATION` tar bort åtkomst
+- [ ] Trippelleverans → en enda behandling
+- [ ] Felaktig auth → `401` utan DB-rad
+- [ ] Simulerat DB-fel → `5xx`, lyckas vid nästa leverans
+- [ ] Orphan-event kan identifieras (SQL ovan) och reconcileras (`reconcile:revenuecat`)
+- [ ] `DEPLOY_SUMMARY` visar samma `requested_sha` och `deployed_sha`
+- [ ] Rollback verifierad i kontrollerat stagingtest
+
+**Nästa prioritet efter produktion:** rewards-concurrency som separat P1-PR — utan engelska, UI eller ytterligare RevenueCat-förändringar.
+
+Ingen ytterligare P0-utveckling före staging-signoff, utom rena korrigeringar av fel upptäckta under verifieringen.
+
+---
+
+## 7. Produktionsverifiering (kontrollerad riskradie)
+
+Behandla produktion som en **kontrollerad verifieringsmiljö** — inte full skarp användning förrän sandboxtesterna är gröna.
+
+### Produktionsordning
+
+1. Merga PR #781
+2. Deploya exakt den gröna CI-SHA:n
+3. Kör migrationen
+4. Sätt auth-läge explicit:
+
+```bash
+REVENUECAT_WEBHOOK_AUTH_MODE=static
+```
+
+5. Verifiera direkt:
+
+```bash
+npm run migrate
+curl -s http://127.0.0.1:3000/health | jq .
+```
+
+Kontrollera:
+
+- `status` = `healthy`
+- `git_sha` = SHA från mergad och godkänd release
+
+6. Reconciliation dry-run mot testfamilj:
+
+```bash
+npm run reconcile:revenuecat -- --dry-run <test-family-uuid>
+```
+
+### Begränsa risken
+
+Aktivera **inte** betalflödet brett direkt. Testa först med:
+
+- Eget konto eller särskild testfamilj
+- RevenueCat-sandboxköp
+- En enda produkt
+- Inga riktiga kundkonton under testet
+
+Om betalning är avstängd via feature flag eller rollout — låt den vara avstängd tills verifieringen är klar.
+
+### Åtta tester i produktion
+
+**1. Testwebhook från RevenueCat**
+
+Förväntat: HTTP `200`, `processed: true`
+
+```sql
+SELECT * FROM iap_webhook_log ORDER BY processed_at DESC LIMIT 10;
+```
+
+**2. Sandboxköp**
+
+```sql
+SELECT id, subscription_status, rc_customer_id, trial_ends_at
+FROM family
+WHERE id = '<test-family-uuid>';
+```
+
+Förväntat: `subscription_status = active`
+
+**3. Samma webhook tre gånger**
+
+Förväntat: `processed` → `duplicate` → `duplicate`. Endast en rad per `revenuecat_event_id`.
+
+**4. Uppsägning**
+
+`CANCELLATION` med framtida `expiration_at_ms` → `subscription_status = active`
+
+**5. Utgång**
+
+`EXPIRATION` → `subscription_status = expired`
+
+**6. Felaktig auth**
+
+Manuellt anrop med fel `Authorization`-header.
+
+Förväntat: `401`, ingen rad i `iap_webhook_log`.
+
+**7. Okänd familj**
+
+Förväntat: `200`, `skipped: family_not_found`
+
+```sql
+SELECT revenuecat_event_id, event_type, app_user_id, product_id,
+       skip_reason, processed_at
+FROM iap_webhook_log
+WHERE skip_reason = 'family_not_found'
+ORDER BY processed_at DESC;
+```
+
+**8. Reconciliation**
+
+```bash
+npm run reconcile:revenuecat -- --dry-run <test-family-uuid>
+# Om korrekt:
+npm run reconcile:revenuecat -- <test-family-uuid>
+```
+
+### Rollback-gräns
+
+Rollback direkt om:
+
+- `/health` visar fel SHA
+- Webhook ger `500` vid normalt event
+- Köp registreras men familjen förblir `expired`
+- `CANCELLATION` tar bort åtkomst omedelbart
+- Dublettevent ändrar status igen
+- Andra API-routes slutar kunna läsa JSON
+- CPU, minne eller felrate ökar tydligt efter deploy
+
+Ha föregående SHA tillgänglig **innan** deploy:
+
+```bash
+git rev-parse HEAD   # spara som previous_sha
+```
+
+Verifiera deployloggen:
+
+```
+DEPLOY_SUMMARY status=... requested_sha=... previous_sha=... deployed_sha=... health_check_result=... rollback_sha=...
+```
+
+### Efter verifiering
+
+När köp, uppsägning, utgång, dublett och reconciliation fungerar på testfamiljen: öppna betalflödet gradvis.
+
+**P1 (rewards-concurrency)** väntar tills detta är verifierat.
+
+---
+
+## 8. Tester
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false \
   env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY \
-  node --test test/iap-webhook.test.js test/deploy-revision.test.js test/paywall-model-contract.test.js
+  node --test test/iap-webhook.test.js test/deploy-revision.test.js test/revenuecat-ops.test.js test/paywall-model-contract.test.js
 ```
 
 Förväntat: alla gröna.
-
----
-
-## 4. PR
-
-**Titel:** Fix RevenueCat webhook handling and deterministic deploys  
-**Branch:** `fix/code-review-p0` → `main`
-
-Skapa PR om den inte finns:
-
-```bash
-gh pr create --base main --head fix/code-review-p0 \
-  --title "Fix RevenueCat webhook handling and deterministic deploys" \
-  --draft
-```

@@ -1,10 +1,26 @@
 'use strict';
 
+const { buildWebhookLogFields } = require('./revenuecat-webhook-audit');
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-/**
- * Collect unique identity candidates from a RevenueCat event (canonical structure).
- */
+const INSERT_WEBHOOK_LOG_SQL = `
+  INSERT INTO iap_webhook_log (
+    revenuecat_event_id,
+    event_type,
+    family_id,
+    app_user_id,
+    original_app_user_id,
+    product_id,
+    expiration_at_ms,
+    skip_reason,
+    processing_outcome
+  )
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+  ON CONFLICT (revenuecat_event_id) DO NOTHING
+  RETURNING revenuecat_event_id
+`;
+
 function collectAppUserIds(event) {
   const ids = [];
   if (event?.app_user_id) ids.push(String(event.app_user_id));
@@ -17,10 +33,6 @@ function collectAppUserIds(event) {
   return [...new Set(ids)];
 }
 
-/**
- * Derive subscription_status from event type and expiration.
- * Cancellation does not revoke access before the paid period ends.
- */
 function resolveSubscriptionStatus(eventType, expirationAtMs, nowMs = Date.now()) {
   const notExpired = !expirationAtMs || expirationAtMs > nowMs;
 
@@ -48,9 +60,6 @@ function isUuid(value) {
   return UUID_RE.test(String(value));
 }
 
-/**
- * Look up family by app user id candidates (family.id or rc_customer_id).
- */
 async function findFamilyForAppUserIds(db, appUserIds) {
   for (const candidate of appUserIds) {
     if (!isUuid(candidate)) {
@@ -75,10 +84,21 @@ async function findFamilyForAppUserIds(db, appUserIds) {
   return null;
 }
 
-/**
- * Process a validated RevenueCat event idempotently.
- * Returns { duplicate, familyId, subscriptionStatus }.
- */
+function webhookLogParams(event, eventType, familyId, audit) {
+  const fields = buildWebhookLogFields(event, audit);
+  return [
+    event.id,
+    eventType,
+    familyId,
+    fields.app_user_id,
+    fields.original_app_user_id,
+    fields.product_id,
+    fields.expiration_at_ms,
+    fields.skip_reason,
+    fields.processing_outcome,
+  ];
+}
+
 async function processRevenueCatEvent(db, event) {
   const eventId = event.id;
   const eventType = event.type;
@@ -106,11 +126,11 @@ async function processRevenueCatEvent(db, event) {
     try {
       await client.query('BEGIN');
       const insertResult = await client.query(
-        `INSERT INTO iap_webhook_log (revenuecat_event_id, event_type, family_id)
-         VALUES ($1, $2, NULL)
-         ON CONFLICT (revenuecat_event_id) DO NOTHING
-         RETURNING revenuecat_event_id`,
-        [eventId, eventType]
+        INSERT_WEBHOOK_LOG_SQL,
+        webhookLogParams(event, eventType, null, {
+          skipReason: 'family_not_found',
+          processingOutcome: 'skipped_orphan',
+        })
       );
       await client.query('COMMIT');
       if (insertResult.rowCount === 0) {
@@ -134,11 +154,11 @@ async function processRevenueCatEvent(db, event) {
     await client.query('BEGIN');
 
     const insertResult = await client.query(
-      `INSERT INTO iap_webhook_log (revenuecat_event_id, event_type, family_id)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (revenuecat_event_id) DO NOTHING
-       RETURNING revenuecat_event_id`,
-      [eventId, eventType, family.id]
+      INSERT_WEBHOOK_LOG_SQL,
+      webhookLogParams(event, eventType, family.id, {
+        skipReason: null,
+        processingOutcome: 'applied',
+      })
     );
 
     if (insertResult.rowCount === 0) {
@@ -180,4 +200,5 @@ module.exports = {
   findFamilyForAppUserIds,
   processRevenueCatEvent,
   isUuid,
+  INSERT_WEBHOOK_LOG_SQL,
 };
