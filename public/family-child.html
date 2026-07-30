@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="/css/theme.css?v=2.13.0">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=15">
+  <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=12">
   <style>
     html, body { overflow-x: clip; max-width: 100%; }
     #childProfileMount,
@@ -65,9 +67,12 @@
   </style>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/locale-datetime.js?v=1"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
 </head>
-<body class="font-body bg-sky min-h-screen flex flex-col md:flex-row" data-magic-page="family">
+<body class="font-body bg-sky min-h-screen flex flex-col md:flex-row" data-magic-page="family-child" data-i18n-manual-init="true" data-i18n-title="family.childProfile.pageTitle">
   <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
     <a href="/dashboard" class="hidden md:flex items-center gap-3 mb-8 no-underline text-white">
       <span class="text-2xl">⭐</span>
@@ -79,8 +84,10 @@
     </div>
   </nav>
   <main class="flex-1 flex flex-col min-h-screen pb-20 md:pb-4">
+    <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
+    <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
     <div id="childProfileMount" class="p-4 md:p-8 max-w-2xl mx-auto w-full">
-      <p class="text-text-soft text-center py-12">Laddar barnprofil…</p>
+      <p class="text-text-soft text-center py-12" data-i18n="family.childProfile.loadingProfile">Laddar barnprofil…</p>
     </div>
   </main>
   <div id="deleteChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
@@ -122,14 +129,15 @@
   <script src="/js/avatar-upload-flow.js?v=1"></script>
   <script src="/js/birthday-picker.js?v=2.15.0"></script>
   <script src="/js/child-profile-setup.js?v=2.4"></script>
-  <script src="/js/child-profile.js?v=1.3.3"></script>
+  <script src="/js/child-profile.js?v=1.4.0"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
+  <script src="/js/parent-magic-page-hubs.js?v=1"></script>
   <script src="/js/parent-magic-shell.js?v=1"></script>
-  <script src="/js/parent-magic-bootstrap.js?v=1"></script>
+  <script src="/js/parent-magic-bootstrap.js?v=13"></script>
   <script src="/js/parent-nav-sidebar.js?v=1"></script>
+  <script src="/js/parent-magic-i18n.js?v=1"></script>
   <script>
     document.getElementById('logoutBtn')?.addEventListener('click', function () { Auth.logout(); });
-    Auth.requireAuth();
   </script>
 </body>
 </html>

@@ -202,6 +202,29 @@ describe('user-authored data unchanged', () => {
   });
 });
 
+describe('family-child parent i18n', () => {
+  it('family-child.html loads parent i18n stack and magic page id', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/family-child.html'), 'utf8');
+    assert.match(html, /parent-app-i18n\.js/);
+    assert.match(html, /data-magic-page="family-child"/);
+    assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /child-profile\.js\?v=1\.4/);
+  });
+
+  it('child-profile.js uses labelKey and initParentAppI18n boot', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/child-profile.js'), 'utf8');
+    assert.match(js, /labelKey/);
+    assert.match(js, /initParentAppI18n/);
+    assert.doesNotMatch(js, /\+ t\.label/);
+  });
+
+  it('founder-banner refreshes copy after parent-i18n-ready', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/founder-banner.js'), 'utf8');
+    assert.match(js, /applyBannerCopy/);
+    assert.match(js, /parent-i18n-ready/);
+  });
+});
+
 describe('i18n merge domains', () => {
   it('src/lib/i18n.js merges planning/family/schedule domains', () => {
     const i18n = fs.readFileSync(path.join(__dirname, '../src/lib/i18n.js'), 'utf8');

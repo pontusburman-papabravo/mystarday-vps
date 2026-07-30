@@ -137,5 +137,49 @@
     "parentHome": "Parent ↔ home",
     "homeName": "Home name",
     "colorFor": "Colour for {{name}}"
+  },
+  "childProfile": {
+    "pageTitle": "Child profile — {{brand}}",
+    "backFamily": "← Family",
+    "profileLabel": "Child profile",
+    "profileWithAge": "Child profile · {{age}}",
+    "tabs": {
+      "overview": "Overview",
+      "log": "Daily log",
+      "schema": "Schedule",
+      "rewards": "Rewards",
+      "progress": "Progress",
+      "setup": "Settings",
+      "childView": "Child view"
+    },
+    "pauseToday": "⏸ Pause today",
+    "resumeDay": "▶ Resume day",
+    "extraStars": "⭐ Bonus stars",
+    "fillRetroactive": "📅 Log later",
+    "onceTask": "📋 One-off activity",
+    "currentGoal": "Current goal",
+    "noActiveGoal": "No active goal — choose one in the library.",
+    "manageRewards": "Manage rewards →",
+    "pendingHeading": "Waiting for approval",
+    "childHandoffLead": "Let your child log in on this device.",
+    "childHandoffBtn": "Child logs in",
+    "loadingSetup": "Loading…",
+    "loadingProfile": "Loading child profile…",
+    "loadingSchema": "Loading schedule…",
+    "todayLabel": "Today",
+    "pausedToday": "⏸ Paused today",
+    "openDailyLog": "Open daily log →",
+    "incompleteDaysOne": "📅 {{count}} incomplete day",
+    "incompleteDaysMany": "📅 {{count}} incomplete days",
+    "incompleteHint": "Log later in the daily log",
+    "starsPerWeek": "Stars per week (8 weeks)",
+    "openReports": "See progress in reports →",
+    "noStarHistory": "No star history yet.",
+    "errors": {
+      "loadRewards": "Could not load rewards.",
+      "loadProgress": "Could not load progress.",
+      "loadSchema": "Could not load schedule.",
+      "loadStarHistory": "Could not load star history."
+    }
   }
 }

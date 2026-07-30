@@ -405,6 +405,9 @@
       if (!user) {
         if (!Auth.requireAuth()) return;
       }
+      if (user && typeof window.initParentAppI18n === 'function') {
+        await initParentAppI18n(user.preferred_locale);
+      }
       await loadChildren();
     }
 
@@ -780,6 +783,11 @@
       });
     }
 
+    window.__bootCalendarPage = function (opts) {
+      if (opts && opts.force) _calendarBooted = false;
+      bootCalendar();
+    };
+
     if (window.ParentMagicPageBoot) {
       ParentMagicPageBoot.register('calendar', bootCalendar);
     }
@@ -802,7 +810,7 @@
 <script src="/js/parent-magic-page-hubs.js?v=2"></script>
 <script src="/js/parent-magic-shell.js?v=2"></script>
 <script src="/js/parent-magic-auto.js?v=12"></script>
-<script src="/js/parent-magic-bootstrap.js?v=12"></script>
+<script src="/js/parent-magic-bootstrap.js?v=13"></script>
 <script src="/js/parent-magic-i18n.js?v=1"></script>
 <nav id="parentBottomNav" class="parent-bottom-nav" role="navigation" aria-label="Huvudnavigering"></nav>
 <!-- Contextual help bubble -->

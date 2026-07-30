@@ -22,7 +22,11 @@
     _started = true;
     ParentMagicShell.init(page).then(function () {
       if (window.ParentMagicPageBoot && ParentMagicPageBoot.run) {
-        ParentMagicPageBoot.run(page);
+        return ParentMagicPageBoot.run(page);
+      }
+    }).then(function () {
+      if (page === 'calendar' && typeof window.__bootCalendarPage === 'function') {
+        window.__bootCalendarPage({ force: true });
       }
     });
   }

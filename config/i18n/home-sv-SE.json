@@ -32,6 +32,10 @@
     "childLogin": "👶 Barnet loggar in",
     "parentLogout": "Logga ut"
   },
+  "founderBanner": {
+    "title": "🎉 Du är grundarmedlem",
+    "body": "Som en av de första familjerna har du livstids tillgång utan kostnad. Tack för att du är med från början!"
+  },
   "weekStory": {
     "title": "Veckans berättelse"
   },

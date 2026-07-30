@@ -137,5 +137,49 @@
     "parentHome": "Förälder ↔ hem",
     "homeName": "Namn på hem",
     "colorFor": "Färg för {{name}}"
+  },
+  "childProfile": {
+    "pageTitle": "Barnprofil — {{brand}}",
+    "backFamily": "← Familj",
+    "profileLabel": "Barnprofil",
+    "profileWithAge": "Barnprofil · {{age}}",
+    "tabs": {
+      "overview": "Översikt",
+      "log": "Daglig logg",
+      "schema": "Schema",
+      "rewards": "Belöningar",
+      "progress": "Framsteg",
+      "setup": "Inställningar",
+      "childView": "Barnvy"
+    },
+    "pauseToday": "⏸ Pausa idag",
+    "resumeDay": "▶ Återuppta dag",
+    "extraStars": "⭐ Extra stjärnor",
+    "fillRetroactive": "📅 Fyll i i efterhand",
+    "onceTask": "📋 Engångsaktivitet",
+    "currentGoal": "Aktuellt mål",
+    "noActiveGoal": "Inget aktivt mål — välj i biblioteket.",
+    "manageRewards": "Hantera belöningar →",
+    "pendingHeading": "Väntar på godkännande",
+    "childHandoffLead": "Låt barnet logga in på denna enhet.",
+    "childHandoffBtn": "Barnet loggar in",
+    "loadingSetup": "Laddar…",
+    "loadingProfile": "Laddar barnprofil…",
+    "loadingSchema": "Laddar schema…",
+    "todayLabel": "Idag",
+    "pausedToday": "⏸ Pausad idag",
+    "openDailyLog": "Öppna daglig logg →",
+    "incompleteDaysOne": "📅 {{count}} ofullständig dag",
+    "incompleteDaysMany": "📅 {{count}} ofullständiga dagar",
+    "incompleteHint": "Fyll i i efterhand i daglig logg",
+    "starsPerWeek": "Stjärnor per vecka (8 veckor)",
+    "openReports": "Se utveckling i rapporter →",
+    "noStarHistory": "Ingen stjärnhistorik ännu.",
+    "errors": {
+      "loadRewards": "Kunde inte ladda belöningar.",
+      "loadProgress": "Kunde inte ladda framsteg.",
+      "loadSchema": "Kunde inte ladda schema.",
+      "loadStarHistory": "Kunde inte ladda stjärnhistorik."
+    }
   }
 }
