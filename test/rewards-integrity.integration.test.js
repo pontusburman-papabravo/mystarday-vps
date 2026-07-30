@@ -149,6 +149,13 @@ async function approveRedemption(http, session, redemptionId) {
 }
 
 describe('reward integrity migration', () => {
+  test('migrate.js tracks applied migrations by name only (no checksum)', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../migrate.js'), 'utf8');
+    assert.match(src, /SELECT name FROM _migrations/);
+    assert.doesNotMatch(src, /checksum/i);
+    assert.match(src, /appliedNames\.has\(name\)/);
+  });
+
   test('migration defines snapshot columns and pending uniqueness indexes', () => {
     const mig = fs.readFileSync(
       path.join(__dirname, '../migrations/1810000000013_reward_integrity_constraints.js'),

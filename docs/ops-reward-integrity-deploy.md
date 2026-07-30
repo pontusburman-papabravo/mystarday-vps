@@ -8,6 +8,8 @@ Deploy för reward redemption integrity: snapshots, pending-unikhet, atomisk app
 
 Migrationen är **expand-only** (nya kolumner, backfill, pending-index, CHECK) och är normalt säker mot **gammal** app-kod under migrationen.
 
+**Migrationsrunner (`migrate.js`):** Körda migrationer spåras i `_migrations` **endast via `name`** (modulens `migration.name` / filnamn). Det finns **ingen** checksum — en redan applicerad migration körs inte om även om filinnehållet ändras i git. Prod som inte kört `1810000000013` får den **nuvarande** filversionen (utan fulfilled-index). Dev som körde en äldre revision med fulfilled-index får `1810000000014_drop_reward_fulfilled_unique` som tar bort indexet.
+
 ## Före merge / deploy
 
 - Bekräfta att inget annat öppet PR tar migrationsnummer `1810000000013`.
@@ -56,11 +58,35 @@ Dokumentera resultat (datum, vem) i deploy-logg eller PR-kommentar.
 
 1. Verifiera att prod kör senaste **stabila** SHA (innan reward-integrity-deploy).
 2. Kör precheck-frågorna ovan (1–2 obligatoriska; 3 informativ).
-3. På VPS (app root enligt deploy-regler i repot): `npm run migrate` — bekräfta att `1810000000013_reward_integrity_constraints` och (vid behov) `1810000000014_drop_reward_fulfilled_unique` finns i `_migrations`.
-4. Deploya **exakt** grön merge-SHA.
-5. `sleep 3` → `curl -s http://127.0.0.1:3000/health` och verifiera deploy-SHA om tillgängligt.
-6. Smoke: barn begär → förälder nekar → begär igen (samma eller syskon) → godkänn → ny begäran efter godkännande ska **lyckas** om belöningen fortfarande är aktiv och barnet har stjärnor; samtidiga pending ska ge 409.
-7. Bevaka apploggar samt 409/5xx på redemption-endpoints.
+3. På VPS (app root enligt deploy-regler i repot): `npm run migrate` — bekräfta i `_migrations`:
+   - `1810000000013_reward_integrity_constraints`
+   - `1810000000014_drop_reward_fulfilled_unique`
+4. **Indexkontroll** (read-only):
+
+```sql
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'reward_redemption'
+ORDER BY indexname;
+```
+
+**Förväntat:** `idx_reward_redemption_one_pending_per_reward` och `idx_reward_redemption_child_reward_pending` finns.  
+**Förväntat saknas:** `idx_reward_redemption_one_fulfilled_per_reward`.
+
+5. Deploya **exakt** grön merge-SHA.
+6. `sleep 3` → `curl -s http://127.0.0.1:3000/health` och verifiera deploy-SHA om tillgängligt.
+7. **Smoke** (upprepningsbar belöning — **inte** 409 för syskon efter godkännande):
+   1. Barn A begär aktiv belöning → success (201)
+   2. Barn B begär medan A är pending → 409
+   3. Förälder nekar A
+   4. Barn B begär samma belöning → success
+   5. Förälder godkänner B → stjärnor dras en gång
+   6. Barn A eller B begär samma aktiva belöning igen → success om saldo räcker
+   7. Medan den nya begäran är pending → ytterligare begäran 409
+   8. Inaktivera belöningen (förälder)
+   9. Ny begäran → 400 `reward_inactive`
+   10. Tidigare historik och saldo oförändrade (inga rader omskrivna)
+8. Bevaka apploggar samt 409/5xx på redemption-endpoints.
 
 ## Semantik (referens)
 
