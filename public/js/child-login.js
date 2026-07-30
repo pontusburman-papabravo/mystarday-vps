@@ -1060,6 +1060,14 @@ function hideLoading() {
 // Checks if parent is logged in → if PIN is set, shows overlay before redirect.
 // If no session, redirects to login.html (which has its own PIN guard flow).
 window.handleParentSwitch = function () {
+  if (Auth.isLoggedIn() && Auth.getUser()?.type === 'child') {
+    Auth.ensureParentAccessFromChild(function () {
+      window.location.href = '/dashboard';
+    }, function () {
+      window.location.href = '/login?parent=1';
+    });
+    return;
+  }
   if (Auth.isLoggedIn()) {
     window.apiFetch('/api/family/parent-pin-status').then(function (res) {
       if (res && res.ok) {

@@ -225,6 +225,8 @@
       "hasAccount": "Har du redan ett konto?",
       "loginLink": "Logga in här",
       "childLoginLink": "Är du barn? Logga in här",
+      "gateHintLanguage": "Välj språk ovan för att fortsätta med registreringen.",
+      "gateHintCountry": "Välj land ovan för att fortsätta med registreringen.",
       "tagline": "En lugn dag, en stjärna i taget",
       "orDivider": "eller",
       "validatingInvite": "Validerar inbjudan...",

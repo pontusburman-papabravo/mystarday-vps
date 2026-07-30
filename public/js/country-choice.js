@@ -50,7 +50,7 @@
     const eu = countries.filter((c) => !featured.includes(c));
 
     let options = `<option value="">${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
-    options += `<option value="SE"${suggest === 'SE' ? ' selected' : ''}>${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
+    options += `<option value="SE">${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
     if (eu.length) {
       options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
       eu.forEach((c) => {
@@ -206,36 +206,12 @@
     };
   }
 
-  function gateRegisterForm() {
-    const formCard = document.getElementById('formCard');
-    const mountEl = document.querySelector('[data-country-choice-mount]');
-    if (!formCard || !mountEl) return;
-
-    const updateForm = () => {
-      const langOk = !window.LanguageChoice || LanguageChoice.isConfirmed();
-      const countryOk = isConfirmed();
-      const enabled = langOk && countryOk;
-      formCard.style.opacity = enabled ? '1' : '0.45';
-      formCard.style.pointerEvents = enabled ? '' : 'none';
-    };
-
-    updateForm();
-    document.addEventListener('language-choice-confirmed', () => {
-      if (mountEl.dataset.countryChoiceMounted !== '1') mount(mountEl);
-      updateForm();
-    });
-    document.addEventListener('country-choice-confirmed', updateForm);
-  }
-
   function autoMount() {
     const mounts = document.querySelectorAll('[data-country-choice-mount]');
     if (!mounts.length) return;
     document.addEventListener('language-choice-confirmed', () => {
       mounts.forEach((el) => mount(el));
     }, { once: true });
-    if (document.body.dataset.countryChoiceGate === 'register') {
-      gateRegisterForm();
-    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {

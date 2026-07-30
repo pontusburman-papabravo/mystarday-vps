@@ -250,6 +250,104 @@ const Auth = {
     return true;
   },
 
+  isParentUser(user) {
+    return !!(user && user.type === 'parent');
+  },
+
+  /**
+   * Swap child httpOnly cookies for saved parent session (no PIN families only).
+   */
+  async activateSavedParentSession() {
+    try {
+      await this.ensureCsrfToken();
+      const csrf = this.getCsrfToken();
+      const headers = { 'Content-Type': 'application/json' };
+      if (csrf) headers['X-CSRF-Token'] = csrf;
+      const res = await fetch('/api/family/activate-saved-parent-session', {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+      });
+      let data = {};
+      try { data = await res.json(); } catch { /* ignore */ }
+      if (!res.ok) {
+        return {
+          ok: false,
+          status: res.status,
+          code: data.code,
+          error: data.error,
+        };
+      }
+      if (data.parent) {
+        this.setAuth(null, data.parent, data.csrfToken || csrf);
+      }
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      return { ok: true, user: data.parent, alreadyParent: !!data.alreadyParent };
+    } catch (err) {
+      return { ok: false, error: err && err.message };
+    }
+  },
+
+  /**
+   * Silent restore when child cookie is active but a saved parent session exists (no PIN).
+   */
+  async tryActivateSavedParentSession() {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.ok) {
+      const me = await meRes.json();
+      if (this.isParentUser(me)) {
+        const csrf = this.getCsrfToken();
+        const expMs = this._getExpiryMs();
+        this.setAuth(null, me, csrf, expMs);
+        return { ok: true, user: me };
+      }
+    }
+    const ctx = await this.fetchLoginPickerContext();
+    if (!ctx.hasSession) {
+      return { ok: false, code: 'NO_SAVED_PARENT_SESSION' };
+    }
+    return this.activateSavedParentSession();
+  },
+
+  /**
+   * UI flow: child session active, user chose parent — PIN gate or cookie swap.
+   */
+  ensureParentAccessFromChild(onSuccess, onCancel) {
+    const self = this;
+    return this.fetchLoginPickerContext().then(function (ctx) {
+      if (!ctx.hasSession) {
+        self.clearAuth();
+        if (onCancel) onCancel({ code: 'NO_SAVED_PARENT_SESSION' });
+        return false;
+      }
+      return fetch('/api/family/parent-pin-status-picker', { credentials: 'include' })
+        .then(function (r) { return r.ok ? r.json() : { has_pin: true }; })
+        .then(function (pinData) {
+          if (pinData.has_pin) {
+            self._showParentPinGateOverlay(function () {
+              self.activateSavedParentSession().then(function (result) {
+                if (result.ok && onSuccess) onSuccess(result.user);
+                else if (onCancel) onCancel(result);
+              });
+            }, function () {
+              if (onCancel) onCancel({ code: 'PIN_CANCELLED' });
+            }, { verifyUrl: '/api/family/verify-pin-picker', applyPickerResponse: true });
+            return true;
+          }
+          return self.activateSavedParentSession().then(function (result) {
+            if (result.ok) {
+              if (onSuccess) onSuccess(result.user);
+              return true;
+            }
+            if (onCancel) onCancel(result);
+            return false;
+          });
+        });
+    });
+  },
+
   /**
    * Schedule a silent refresh 2 min before token expiry.
    */
@@ -744,7 +842,10 @@ const Auth = {
    * Show the parent PIN gate overlay after child logout.
    * Verifies PIN, stores gateToken on window._ppinGateToken, then calls onSuccess.
    */
-  _showParentPinGateOverlay: function (onSuccess, onCancel) {
+  _showParentPinGateOverlay: function (onSuccess, onCancel, opts) {
+    opts = opts || {};
+    const verifyUrl = opts.verifyUrl || '/api/family/verify-pin';
+    const applyPickerResponse = opts.applyPickerResponse === true;
     function pgT(key, params) {
       if (typeof window.childT === 'function') {
         const fromChild = childT(key, params);
@@ -843,12 +944,21 @@ const Auth = {
     function submitPin() {
       const pin = entered;
       const csrf = Auth.getCsrfToken() || '';
-      fetch('/api/family/verify-pin', {
+      fetch(verifyUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         credentials: 'include',
         body: JSON.stringify({ pin: pin }),
       }).then(function (r) { return r.json(); }).then(function (res) {
+        if (applyPickerResponse && res.ok && res.parent) {
+          Auth.setAuth(null, res.parent, res.csrfToken || csrf);
+          if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+            DeviceMode.enterParent();
+          }
+          document.body.removeChild(overlay);
+          onSuccess();
+          return;
+        }
         if (res.ok && res.gateToken) {
           window._ppinGateToken = res.gateToken;
           document.body.removeChild(overlay);
@@ -1056,6 +1166,27 @@ window.authGuard = async function() {
       const csrf = Auth.getCsrfToken();
       const expMs = Auth._getExpiryMs();
       Auth.setAuth(null, user, csrf, expMs);
+    } else if (user && user.type === 'child') {
+      Auth.setAuth(null, user);
+      const restored = await Auth.tryActivateSavedParentSession();
+      if (restored.ok && restored.user) {
+        stabilityLog('auth_parent_restored_from_child', null);
+        return restored.user;
+      }
+      if (restored.code === 'PARENT_PIN_REQUIRED') {
+        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = '/login?parent=1&next=' + next;
+        return null;
+      }
+      if (restored.code === 'NO_SAVED_PARENT_SESSION') {
+        Auth.clearAuth();
+        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = '/login?next=' + next;
+        return null;
+      }
+      Auth.clearAuth();
+      window.location.href = '/login?parent=1&next=' + encodeURIComponent(window.location.pathname + window.location.search);
+      return null;
     }
     if (redirectIncompleteOnboarding(user)) return null;
     return user;

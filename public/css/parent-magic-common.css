@@ -73,14 +73,16 @@ body.parent-magic-view main {
   padding-bottom: max(96px, calc(env(safe-area-inset-bottom, 0px) + 96px));
 }
 
-body.parent-magic-view .parent-bottom-nav {
+body.parent-magic-view .parent-bottom-nav:not([hidden]) {
   display: flex;
 }
 
 /* Floating help + feedback above magic bottom dock (tablet + phone) */
-body.parent-magic-view #globalFeedbackBtn {
+body.parent-magic-view #globalFeedbackBtn,
+body.parent-magic-view .global-feedback-fab {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
   top: auto !important;
+  z-index: 10210 !important;
 }
 
 body.parent-magic-view #helpBtn,
@@ -88,6 +90,7 @@ body.parent-magic-view #hbBtn {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 68px) !important;
   top: auto !important;
   right: max(16px, env(safe-area-inset-right, 0px)) !important;
+  z-index: 10210 !important;
 }
 
 body.parent-magic-dashboard #globalFeedbackBtn {

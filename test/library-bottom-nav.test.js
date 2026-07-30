@@ -29,6 +29,14 @@ describe('library bottom nav isolation', () => {
     assert.match(src, /isLibraryPath: isLibraryPath/);
   });
 
+  it('parent-magic-shell hides bottom nav when NavConfig returns no items', () => {
+    const shell = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-shell.js'), 'utf8');
+    assert.match(shell, /if \(!items\.length\)/);
+    assert.match(shell, /nav\.hidden = true/);
+    assert.match(shell, /NavConfig missing or empty/);
+    assert.doesNotMatch(shell, /nav\.removeAttribute\('hidden'\)/);
+  });
+
   it('leaving /library hard-navigates instead of soft-swapping primary tabs', () => {
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
     const tabs = fs.readFileSync(path.join(ROOT, 'public/js/native-tab-bar.js'), 'utf8');

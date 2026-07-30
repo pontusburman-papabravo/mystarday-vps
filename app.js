@@ -67,7 +67,13 @@ function createApp() {
   loadLocales();
 
   app.get('/health', (req, res) => {
-    res.json({ status: 'healthy', version: '2.3.1' });
+    const { readDeployedSha } = require('./src/lib/deployed-sha');
+    const gitSha = readDeployedSha();
+    res.json({
+      status: 'healthy',
+      version: '2.3.1',
+      ...(gitSha ? { git_sha: gitSha } : {}),
+    });
   });
 
   function sendAssetLinks(_req, res) {
@@ -158,7 +164,10 @@ function createApp() {
     if (
       /^\/js\/auth-entry-(failsafe|i18n)\.js$/.test(req.path) ||
       req.path === '/login' ||
-      req.path === '/login.html'
+      req.path === '/login.html' ||
+      req.path === '/register' ||
+      req.path === '/register.html' ||
+      req.path === '/en/register'
     ) {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.set('Pragma', 'no-cache');

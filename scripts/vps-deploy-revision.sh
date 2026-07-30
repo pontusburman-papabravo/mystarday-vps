@@ -21,12 +21,21 @@ fi
 
 cd "$VPS_APP_PATH"
 
+ROLLBACK_SHA=""
+HEALTH_CHECK_RESULT="pending"
+
+log_deploy_summary() {
+  local status="$1"
+  echo "DEPLOY_SUMMARY status=${status} requested_sha=${TARGET_SHA} previous_sha=${PREV_SHA:-unknown} deployed_sha=$(git rev-parse HEAD 2>/dev/null || echo unknown) health_check_result=${HEALTH_CHECK_RESULT} rollback_sha=${ROLLBACK_SHA:-none}"
+}
+
 rollback_to_sha() {
   local sha="$1"
   if [ -z "$sha" ] || ! git cat-file -e "${sha}^{commit}" 2>/dev/null; then
     echo "Rollback skipped — previous SHA unavailable: ${sha:-<empty>}"
     return 1
   fi
+  ROLLBACK_SHA="$sha"
   echo "→ Rolling back to ${sha}"
   git fetch --depth 1 origin "$sha"
   git checkout --detach "$sha"
@@ -69,6 +78,9 @@ fi
 
 echo "→ Checkout target revision"
 git checkout --detach "$TARGET_SHA"
+
+mkdir -p data
+echo "$TARGET_SHA" > data/deployed-sha
 
 DEPLOYED_SHA="$(git rev-parse HEAD)"
 if [ "$DEPLOYED_SHA" != "$TARGET_SHA" ]; then
@@ -145,6 +157,8 @@ for i in 1 2 3 4 5; do
       exit 1
     fi
     echo "OK: deployed $FINAL_SHA — $HEALTH_URL"
+    HEALTH_CHECK_RESULT="ok"
+    log_deploy_summary success
     exit 0
   fi
   echo "waiting for app… ($i/5)"
@@ -152,5 +166,7 @@ for i in 1 2 3 4 5; do
 done
 
 echo "health check failed: $HEALTH_URL"
+HEALTH_CHECK_RESULT="failed"
 rollback_to_sha "$PREV_SHA" || true
+log_deploy_summary failed
 exit 1

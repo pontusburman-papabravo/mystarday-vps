@@ -5,6 +5,7 @@ node_modules/
 .DS_Store
 
 # Uploaded images (local disk storage)
+data/deployed-sha
 data/uploads/*
 !data/uploads/.gitkeep
 data/downloads/*

@@ -3,12 +3,19 @@
  * @see https://www.revenuecat.com/docs/integrations/webhooks
  * - Static Authorization header (dashboard-configured value)
  * - Optional X-RevenueCat-Webhook-Signature HMAC over "{t}.{raw_body}"
+ *
+ * REVENUECAT_WEBHOOK_AUTH_MODE:
+ * - static — Authorization header only
+ * - hmac   — X-RevenueCat-Webhook-Signature only
+ * - both   — require both (no downgrade when both secrets are configured)
+ * Default when unset: both if both secrets exist, else the configured method.
  */
 'use strict';
 
 const crypto = require('crypto');
 
 const HMAC_TOLERANCE_SEC = 300;
+const AUTH_MODES = new Set(['static', 'hmac', 'both']);
 
 function timingSafeEqualStrings(a, b) {
   const aBuf = Buffer.from(String(a));
@@ -69,10 +76,23 @@ function verifyWebhookSignature(bodyBuffer, signatureHeader, signingSecret) {
   return timingSafeEqualStrings(computed, expectedSig);
 }
 
+function resolveAuthMode(options = {}) {
+  const explicit = String(
+    options.authMode ?? process.env.REVENUECAT_WEBHOOK_AUTH_MODE ?? ''
+  ).trim().toLowerCase();
+  if (AUTH_MODES.has(explicit)) {
+    return explicit;
+  }
+
+  const staticSecret = options.staticSecret ?? process.env.REVENUECAT_WEBHOOK_SECRET;
+  const signingSecret = options.signingSecret ?? process.env.REVENUECAT_WEBHOOK_SIGNING_SECRET;
+  if (staticSecret && signingSecret) return 'both';
+  if (signingSecret) return 'hmac';
+  return 'static';
+}
+
 /**
  * Authenticate a RevenueCat webhook request.
- * Prefers HMAC when X-RevenueCat-Webhook-Signature is present and signing secret is set.
- * Otherwise validates the static Authorization header against REVENUECAT_WEBHOOK_SECRET.
  */
 function authenticateRevenueCatWebhook(req, bodyBuffer, options = {}) {
   const authHeader = req.headers.authorization || req.headers.Authorization || '';
@@ -82,21 +102,30 @@ function authenticateRevenueCatWebhook(req, bodyBuffer, options = {}) {
 
   const staticSecret = options.staticSecret ?? process.env.REVENUECAT_WEBHOOK_SECRET;
   const signingSecret = options.signingSecret ?? process.env.REVENUECAT_WEBHOOK_SIGNING_SECRET;
+  const mode = resolveAuthMode(options);
 
-  if (signatureHeader && signingSecret) {
-    return verifyWebhookSignature(bodyBuffer, signatureHeader, signingSecret);
+  const staticOk = Boolean(staticSecret && authHeader
+    && verifyStaticAuthorization(authHeader, staticSecret));
+  const hmacOk = Boolean(signingSecret && signatureHeader
+    && verifyWebhookSignature(bodyBuffer, signatureHeader, signingSecret));
+
+  switch (mode) {
+    case 'static':
+      return staticOk;
+    case 'hmac':
+      return hmacOk;
+    case 'both':
+      return staticOk && hmacOk;
+    default:
+      return false;
   }
-
-  if (staticSecret && authHeader) {
-    return verifyStaticAuthorization(authHeader, staticSecret);
-  }
-
-  return false;
 }
 
 module.exports = {
   authenticateRevenueCatWebhook,
   verifyStaticAuthorization,
   verifyWebhookSignature,
+  resolveAuthMode,
   HMAC_TOLERANCE_SEC,
+  AUTH_MODES,
 };

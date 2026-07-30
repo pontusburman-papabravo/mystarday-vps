@@ -5,8 +5,9 @@
  *
  * Mount order matters (endpoint-map R1):
  *   1. invites-public  — unauthenticated invite validation/acceptance (BEFORE the gate)
- *   2. requireParent   — parent auth gate (with child→parent session restore)
- *   3. everything else — inherits the parent gate
+ *   2. session-public  — child JWT + saved parent session (activate before gate)
+ *   3. requireParent   — parent auth gate (with child→parent session restore)
+ *   4. everything else — inherits the parent gate
  *
  * See docs/refactor/e1-family-endpoint-map.md.
  */
@@ -18,6 +19,9 @@ const router = express.Router();
 
 // ─── Public family-invite routes (no auth) — mounted BEFORE requireParent ──
 router.use('/', require('./invites-public'));
+
+// Child session + saved parent session (before requireParent gate)
+router.use('/', require('./session-public'));
 
 // All remaining routes require parent auth
 router.use(requireParent);

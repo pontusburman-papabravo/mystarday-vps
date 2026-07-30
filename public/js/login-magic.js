@@ -155,8 +155,19 @@
       if (window.DeviceMode && DeviceMode.isChildMode()) {
         DeviceMode.enterParent();
       }
-      // If parent already has an active session, skip login form → go to dashboard.
+      // Active session — parent only; child session must restore vuxen first.
       if (window.Auth && Auth.isLoggedIn()) {
+        const storedUser = Auth.getUser();
+        if (storedUser && storedUser.type === 'child') {
+          Auth.ensureParentAccessFromChild(function () {
+            redirectAfterParentCardLogin();
+          }, function () {
+            parentCard.disabled = false;
+            parentCard.style.opacity = '';
+            showParentLogin();
+          });
+          return;
+        }
         parentCard.disabled = true;
         parentCard.style.opacity = '0.7';
         window.apiFetch('/api/auth/me').then(function (res) {

@@ -39,6 +39,16 @@ test('iap_webhook_log migration enforces UNIQUE via PRIMARY KEY on revenuecat_ev
   assert.match(mig, /revenuecat_event_id TEXT PRIMARY KEY/);
 });
 
+test('iap_webhook_log audit migration adds orphan follow-up columns', () => {
+  const mig = fs.readFileSync(
+    path.join(__dirname, '../migrations/1810000000015_iap_webhook_log_audit_fields.js'),
+    'utf8'
+  );
+  assert.match(mig, /app_user_id TEXT/);
+  assert.match(mig, /skip_reason VARCHAR/);
+  assert.match(mig, /processing_outcome VARCHAR/);
+});
+
 function buildEventPayload(overrides = {}) {
   const event = {
     id: overrides.id || `evt_${crypto.randomUUID()}`,

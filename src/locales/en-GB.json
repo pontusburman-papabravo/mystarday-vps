@@ -225,6 +225,8 @@
       "hasAccount": "Already have an account?",
       "loginLink": "Log in here",
       "childLoginLink": "Are you a child? Log in here",
+      "gateHintLanguage": "Choose a language above to continue registration.",
+      "gateHintCountry": "Choose your country above to continue registration.",
       "tagline": "A calm day, one star at a time",
       "orDivider": "or",
       "validatingInvite": "Validating invite...",
