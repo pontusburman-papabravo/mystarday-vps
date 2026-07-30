@@ -6,7 +6,7 @@ This repo is a Swedish family-routine app (Express.js + PostgreSQL, static front
 
 Use for **all** agent logged-in QA on prod — [`docs/founder-qa-test-account.md`](docs/founder-qa-test-account.md) (index: [`docs/qa-test-account.md`](docs/qa-test-account.md)).
 
-- Parent: `pontus@burman.cc` / `Kalle001?`
+- Parent: `pontus@burman.cc` / `Kalle001!` // pragma: allowlist secret
 - Child: Astrid / PIN `1112`
 - **Do not** use the App Store review account / Anna (`app-store-demo-konto.md`) unless the task explicitly says App Store / release QA.
 

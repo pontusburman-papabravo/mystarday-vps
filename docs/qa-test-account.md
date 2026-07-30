@@ -6,7 +6,7 @@
 
 | Role | Value |
 |------|--------|
-| Parent | `pontus@burman.cc` / `Kalle001?` |
+| Parent | `pontus@burman.cc` / `Kalle001!` | // pragma: allowlist secret
 | Child | Astrid / PIN `1112` |
 
 Agents must **not** use the App Store review account (Anna) for routine testing. <!-- pragma: allowlist secret -->
