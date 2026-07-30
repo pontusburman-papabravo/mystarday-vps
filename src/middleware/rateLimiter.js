@@ -267,7 +267,6 @@ const apiLimiter = rateLimit({
   // loading many static files), causing 429 → infinite loading on admin pages.
   skip: (req) =>
     !ENABLED ||
-    (req.user && req.user.id) ||  // skip authenticated users
     isApiBootstrapPath(req) ||
     req.path === '/events' ||
     req.path.startsWith('/events') ||
