@@ -13,6 +13,7 @@
     '/rewards': 'rewards',
     '/for-dig': 'for-dig',
     '/family': 'family',
+    '/calendar': 'calendar',
     '/skattkammaren': 'skattkammaren',
     '/upgrade': 'upgrade',
   };
@@ -59,6 +60,7 @@
       '/js/coparent-invite-ui.js?v=1',
     ],
     planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.6.1'],
+    calendar: ['/js/calendar-page.js?v=1'],
     rewards: [
       '/js/pending-approvals.js?v=1',
       '/js/rewards-hub.js?v=1.2.1',
