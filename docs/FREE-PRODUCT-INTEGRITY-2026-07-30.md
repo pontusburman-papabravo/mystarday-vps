@@ -208,9 +208,11 @@ Worktrees at `db1d27d` and PR HEAD; fresh Postgres DBs; command:
 
 41 unique failing names on each side — **same set** (39 suite names + 2 landing test files). Apparent “only main” / “only PR” diff = **path prefix only** (worktree vs workspace). **0 regressions.**
 
-### 15.2 `npm test` exit code
+### 15.2 `npm test` exit code (policy)
 
-`scripts/run-full-npm-test.js` exits non-zero when TAP `# fail` or `# cancelled` &gt; 0. `test/npm-test-runner-exit.test.js` validates TAP parsing.
+- **`npm test`** remains `node --test test/*.test.js` (same as pre-PR; may exit 0 while TAP reports failures — known debt).
+- **Strict runner** moved to **`npm run test:full`** (`scripts/run-full-npm-test.js`) — exits 1 when TAP `# fail` / `# cancelled` &gt; 0. Follow-up PR recommended to adopt `test:full` in CI after clearing the 50 failures.
+- `test/npm-test-runner-exit.test.js` validates TAP parsing for the optional runner.
 
 ### 15.3 Ratings P1 — fixed
 
