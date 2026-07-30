@@ -12,6 +12,7 @@ const { syncDailyLogWithSchedule } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { CreateScheduleTemplateSchema } = require('../../lib/schemas');
+const { getChildAccess } = require('../../middleware/authz');
 
 const router = express.Router();
 router.use(requireParent);
@@ -263,11 +264,8 @@ router.post('/:templateId/apply', async (req, res) => {
       return res.status(404).json({ error: 'Schemamallen hittades inte' });
     }
 
-    const childAccess = await db.query(
-      'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
-      [req.user.id, child_id]
-    );
-    if (childAccess.rows.length === 0) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    const childAccess = await getChildAccess(req.user.id, child_id);
+    if (!childAccess) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
     const templateItems = await db.query(
       `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
@@ -330,7 +328,7 @@ router.post('/:templateId/apply', async (req, res) => {
       } catch {}
     }
 
-    broadcast(childAccess.rows[0].family_id, 'SCHEDULE_UPDATED', { childId: child_id });
+    broadcast(childAccess.family_id, 'SCHEDULE_UPDATED', { childId: child_id });
 
     const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
     const dayStr = filledDays.map(d => dayNames[d]).join(', ');

@@ -18,6 +18,8 @@ function read(rel) {
 const H1_FILES = [
   ['src/routes/schedules/child-crud.js', /authz\.getChildAccess/],
   ['src/routes/schedules/child-bulk.js', /authz\.getChildAccess/],
+  ['src/routes/schedules/templates.js', /getChildAccess/],
+  ['src/routes/schedules/fill-week.js', /getChildAccess/],
   ['src/routes/special-day-schedules.js', /authz\.getChildAccess|authz\.getSpecialDayAccess/],
   ['src/routes/onboarding.js', /authz\.getChildAccess/],
   ['src/routes/children.js', /requireChildAccess\('id'\)/],
