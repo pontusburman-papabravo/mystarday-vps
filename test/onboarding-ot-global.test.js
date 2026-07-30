@@ -18,7 +18,10 @@ test('onboarding.js must not declare top-level function ot (overwrites window.ot
   );
 });
 
-test('onboarding.js delegates via tOnboarding helper', () => {
-  assert.match(onboardingJs, /function tOnboarding\(key, params\)/);
-  assert.match(onboardingJs, /window\.ot \? window\.ot\(key, params\)/);
+test('onboarding.js must not declare top-level function onboardingPlural', () => {
+  assert.doesNotMatch(
+    onboardingJs,
+    /^\s*function\s+onboardingPlural\s*\(/m,
+    'top-level onboardingPlural becomes window.onboardingPlural'
+  );
 });
