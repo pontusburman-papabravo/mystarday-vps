@@ -82,16 +82,9 @@ module.exports = {
       WHERE status IN ('approved', 'auto')
         AND redeemed_at IS NULL
     `);
-
-    await client.query(`
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_reward_redemption_one_fulfilled_per_reward
-      ON reward_redemption (reward_id)
-      WHERE status IN ('approved', 'auto')
-    `);
   },
 
   down: async (client) => {
-    await client.query('DROP INDEX IF EXISTS idx_reward_redemption_one_fulfilled_per_reward');
     await client.query('DROP INDEX IF EXISTS idx_reward_redemption_child_reward_pending');
     await client.query('DROP INDEX IF EXISTS idx_reward_redemption_one_pending_per_reward');
     await client.query('ALTER TABLE reward_redemption DROP CONSTRAINT IF EXISTS reward_redemption_status_valid');

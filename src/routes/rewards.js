@@ -33,9 +33,6 @@ const REDEMPTION_SNAPSHOT_SQL = `
   COALESCE(rr.reward_icon, r.icon) AS reward_icon,
   COALESCE(rr.star_cost, r.star_cost) AS star_cost`;
 
-/** Terminal statuses that permanently consume an exclusive family reward. */
-const FULFILLED_REDEMPTION_STATUS_SQL = "status IN ('approved', 'auto')";
-
 // ─── Parent Router ────────────────────────────────────────
 
 const parentRouter = express.Router();
@@ -485,22 +482,17 @@ childRouter.get('/rewards', async (req, res) => {
     // Filter: show only active rewards where:
     // - visible_to_children is NULL (visible to all) OR
     // - visible_to_children contains this child's ID
-    // Exclude rewards already fulfilled by another child (approved/auto only — not pending/denied).
+  // Active rewards stay visible; each approval is a separate history row (repeatable redemptions).
     const rewards = await db.query(
       `SELECT r.id, r.name, r.icon, r.star_cost, r.requires_approval,
-              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family,
-              CASE WHEN rr_redeemed.id IS NOT NULL AND rr_redeemed.child_id != $1 THEN true ELSE false END AS already_redeemed_by_other
+              r.source_default_id, COALESCE(r.modified_by_family, false) AS modified_by_family
        FROM reward r
-       LEFT JOIN reward_redemption rr_redeemed ON rr_redeemed.reward_id = r.id
-         AND rr_redeemed.status IN ('approved', 'auto')
-         AND rr_redeemed.child_id != $1
-       WHERE r.family_id = $2 AND r.is_active = true
-         AND (r.visible_to_children IS NULL OR $1 = ANY(r.visible_to_children))
+       WHERE r.family_id = $1 AND r.is_active = true
+         AND (r.visible_to_children IS NULL OR $2 = ANY(r.visible_to_children))
        ORDER BY r.sort_order ASC, r.star_cost ASC`,
-      [childId, familyId]
+      [familyId, childId]
     );
-    // Filter out rewards already redeemed by another child
-    const visibleRewards = rewards.rows.filter(r => !r.already_redeemed_by_other).map(({ already_redeemed_by_other, ...r }) => r);
+    const visibleRewards = rewards.rows;
     const balance = await getStarBalance(childId);
     const redemptions = await db.query(
       `SELECT rr.id, rr.reward_id, rr.status, rr.created_at,
@@ -543,7 +535,7 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Lock order: reward row -> child row (serializes exclusive cross-child races).
+    // Lock order: reward row -> child row (serializes concurrent pending inserts).
     const rewardResult = await client.query(
       `SELECT id, name, icon, star_cost, requires_approval, is_active, visible_to_children
        FROM reward WHERE id = $1 AND family_id = $2
@@ -569,17 +561,6 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     }
 
     await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [childId]);
-
-    const otherRedemption = await client.query(
-      `SELECT id FROM reward_redemption
-       WHERE reward_id = $1 AND ${FULFILLED_REDEMPTION_STATUS_SQL}
-       LIMIT 1`,
-      [req.params.id]
-    );
-    if (otherRedemption.rows.length > 0) {
-      await client.query('ROLLBACK');
-      return sendRewardRedemptionError(res, 'reward_already_redeemed');
-    }
 
     const balance = await getStarBalance(childId, client);
     if (balance < reward.star_cost) {
