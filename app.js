@@ -158,7 +158,10 @@ function createApp() {
     if (
       /^\/js\/auth-entry-(failsafe|i18n)\.js$/.test(req.path) ||
       req.path === '/login' ||
-      req.path === '/login.html'
+      req.path === '/login.html' ||
+      req.path === '/register' ||
+      req.path === '/register.html' ||
+      req.path === '/en/register'
     ) {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.set('Pragma', 'no-cache');
