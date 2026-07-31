@@ -666,7 +666,7 @@ async function requestRedeem(rewardId) {
   }
 
   try {
-    const data = await Auth.api('/api/me/rewards/' + rewardId + '/redeem', { method: 'POST' });
+    await Auth.api('/api/me/rewards/' + rewardId + '/redeem', { method: 'POST' });
     window.rewardsLoaded = false;
     if (window.Platform && window.Platform.haptics) {
       window.Platform.haptics.medium();
@@ -726,7 +726,7 @@ async function setGoal(rewardId, isChange) {
   try {
     if (isChange) {
       // Send change request to parent
-      const data = await Auth.api('/api/me/goal/change-request', {
+      await Auth.api('/api/me/goal/change-request', {
         method: 'POST',
         body: JSON.stringify({ to_reward_id: rewardId }),
       });
