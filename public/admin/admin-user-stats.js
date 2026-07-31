@@ -163,3 +163,5 @@ function fmt(n) {
   const v = parseFloat(n || 0);
   return v % 1 === 0 ? v.toLocaleString('sv-SE') : v.toLocaleString('sv-SE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 }
+
+window.loadUserStats = loadUserStats;

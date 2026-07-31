@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var ROUTES = {
+  const ROUTES = {
     SHOW_CHILD: '/child-login',
     ADD_EVENING: '/planning',
     INVITE_CO_PARENT: '/family',
@@ -13,7 +13,7 @@
     TRIGGER_CELEBRATION: '/child-login',
   };
 
-  var TONES = {
+  const TONES = {
     SHOW_CHILD: 'coach',
     ADD_EVENING: 'coach',
     INVITE_CO_PARENT: 'calm',
@@ -27,8 +27,8 @@
   }
 
   function get(policyName) {
-    var name = ROUTES[policyName] ? policyName : 'SHOW_CHILD';
-    var base = 'journey.engineVoice.' + name;
+    const name = ROUTES[policyName] ? policyName : 'SHOW_CHILD';
+    const base = 'journey.engineVoice.' + name;
     return {
       headline: pt(base + '.headline'),
       body: pt(base + '.body'),

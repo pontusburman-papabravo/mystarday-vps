@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var MOUNT_ID = 'engineCoachMount';
+  const MOUNT_ID = 'engineCoachMount';
 
   function pt(key, params) {
     return window.pt ? window.pt(key, params) : key;
@@ -23,7 +23,7 @@
 
   function buildChangeNoticeHtml(notice) {
     if (!notice) return '';
-    var rid = esc(notice.release_id);
+    const rid = esc(notice.release_id);
     return (
       '<div class="engine-coach-change-notice mb-3 p-3 rounded-xl bg-white/80 border border-indigo-200 text-sm" ' +
       'role="status" data-engine-change-id="' + rid + '">' +
@@ -40,14 +40,14 @@
   }
 
   function bindChangeNotice(mount) {
-    var el = mount.querySelector('.engine-coach-change-notice');
+    const el = mount.querySelector('.engine-coach-change-notice');
     if (!el || !window.EngineCoachChange) return;
-    var releaseId = el.getAttribute('data-engine-change-id');
+    const releaseId = el.getAttribute('data-engine-change-id');
     function dismiss() {
       EngineCoachChange.acknowledge(releaseId);
       el.remove();
     }
-    var btn = el.querySelector('.engine-coach-change-dismiss');
+    const btn = el.querySelector('.engine-coach-change-dismiss');
     if (btn) btn.addEventListener('click', dismiss);
   }
 
@@ -74,12 +74,12 @@
   }
 
   function shouldDeferToJourneyCoach() {
-    var journey = document.getElementById('journeyCoachMount');
+    const journey = document.getElementById('journeyCoachMount');
     return journey && !journey.classList.contains('hidden') && journey.innerHTML.trim().length > 0;
   }
 
   function render(engine) {
-    var mount = document.getElementById(MOUNT_ID);
+    const mount = document.getElementById(MOUNT_ID);
     if (!mount) return false;
     if (shouldDeferToExceptions() || shouldDeferToJourneyCoach()) {
       mount.classList.add('hidden');
@@ -92,14 +92,14 @@
       return false;
     }
 
-    var copy = window.EngineVoice ? EngineVoice.get(engine.policy.name) : { headline: '', body: '', cta: pt('journey.coachChange.continueFallback'), tone: 'coach' };
-    var theme = (engine.policy.uiTokens && engine.policy.uiTokens.theme) || copy.tone;
-    var border = toneClass(theme === 'CELEBRATION' ? 'celebration' : theme === 'CALM' ? 'calm' : 'coach');
+    const copy = window.EngineVoice ? EngineVoice.get(engine.policy.name) : { headline: '', body: '', cta: pt('journey.coachChange.continueFallback'), tone: 'coach' };
+    const theme = (engine.policy.uiTokens && engine.policy.uiTokens.theme) || copy.tone;
+    const border = toneClass(theme === 'CELEBRATION' ? 'celebration' : theme === 'CALM' ? 'calm' : 'coach');
 
     mount.classList.remove('hidden');
     mount.setAttribute('data-authority', 'engine-only');
     mount.setAttribute('data-engine-policy', engine.policy.name);
-    var changeNotice = window.EngineCoachChange ? EngineCoachChange.getNotice() : null;
+    const changeNotice = window.EngineCoachChange ? EngineCoachChange.getNotice() : null;
     mount.innerHTML =
       '<div class="engine-coach-card rounded-2xl border-2 p-4 mb-4 ' + border + '" role="region" aria-label="' + esc(pt('journey.coach.nextStep')) + '">' +
       buildChangeNoticeHtml(changeNotice) +
@@ -111,7 +111,7 @@
 
     bindChangeNotice(mount);
 
-    var btn = mount.querySelector('.engine-coach-cta');
+    const btn = mount.querySelector('.engine-coach-cta');
     if (btn) {
       btn.addEventListener('click', function () {
         if (window.EngineCoachChange && changeNotice) {
@@ -130,7 +130,7 @@
   }
 
   function clear() {
-    var mount = document.getElementById(MOUNT_ID);
+    const mount = document.getElementById(MOUNT_ID);
     if (!mount) return;
     mount.classList.add('hidden');
     mount.innerHTML = '';
@@ -138,7 +138,7 @@
 
   async function load(options) {
     if (!window.EngineClient) return { ok: false, reason: 'no_client' };
-    var result = await EngineClient.load(options);
+    const result = await EngineClient.load(options);
     if (!result.ok) {
       clear();
       return result;

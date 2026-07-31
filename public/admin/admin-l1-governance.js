@@ -25,7 +25,7 @@
     };
   }
 
-  function computeClientRecommendation(data) {
+  function computeClientRecommendation(_data) {
     const a = collectAnswers();
     if (a.qualitative_drift || a.competition_drift) {
       return {

@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var PACK = {
+  const PACK = {
   "version": "1.0.0",
   "scenes": {
     "routine_home": {
@@ -302,7 +302,7 @@
 };
 
   function getScene(sceneId) {
-    var scene = PACK.scenes[sceneId];
+    const scene = PACK.scenes[sceneId];
     if (!scene || !scene.objects) return [];
     return scene.objects.slice();
   }
