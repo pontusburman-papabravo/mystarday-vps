@@ -7,6 +7,7 @@ const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
 const { syncDailyLogWithSchedule } = require('../../lib/daily-log-generator');
+const { getChildAccess } = require('../../middleware/authz');
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
@@ -15,11 +16,8 @@ router.use(requireParent);
 // Body: { template_category_id, days: [1,2,3,4,5], overwrite: boolean }
 router.post('/fill-week', async (req, res) => {
   try {
-    const childResult = await db.query(
-      'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
-      [req.user.id, req.params.childId]
-    );
-    if (childResult.rows.length === 0) {
+    const childRow = req.authzChild || await getChildAccess(req.user.id, req.params.childId);
+    if (!childRow) {
       return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     }
 
@@ -30,7 +28,7 @@ router.post('/fill-week', async (req, res) => {
     const validDays = days.map(d => parseInt(d, 10)).filter(d => !isNaN(d) && d >= 0 && d <= 6);
     if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar angavs (0=sön, 1=mån…6=lör)' });
 
-    const familyId = childResult.rows[0].family_id;
+    const familyId = childRow.family_id;
 
     const catResult = await db.query(
       'SELECT id, name FROM category WHERE id = $1 AND family_id = $2',
