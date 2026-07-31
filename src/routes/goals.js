@@ -36,6 +36,7 @@ const {
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { localizeRewardRow, localizeRewardItems } = require('../lib/family-content-display');
 const { resolveChildContentLocaleForFamily } = require('../lib/child-ui-locale');
+const { sendChildTreasureError } = require('../lib/child-treasure-api-errors');
 
 // ─── SSE helper: look up family_id for a child ───────────
 async function getChildFamilyId(childId) {
@@ -526,7 +527,7 @@ childRouter.post('/goal', validate(ChildSetGoalSchema), async (req, res) => {
   try {
     const childId = req.user.id;
     const { reward_id } = req.body;
-    if (!reward_id) return res.status(400).json({ error: 'reward_id krävs' });
+    if (!reward_id) return sendChildTreasureError(res, 'CHILD_REWARD_ID_REQUIRED');
 
     // Check no active goal exists
     const existing = await db.query(
@@ -534,12 +535,12 @@ childRouter.post('/goal', validate(ChildSetGoalSchema), async (req, res) => {
       [childId]
     );
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Du har redan ett aktivt mål. Begär byte istället.' });
+      return sendChildTreasureError(res, 'CHILD_GOAL_ALREADY_ACTIVE');
     }
 
     // Verify reward is visible to this child
     const childResult = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
-    if (childResult.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (childResult.rows.length === 0) return sendChildTreasureError(res, 'CHILD_NOT_FOUND');
     const familyId = childResult.rows[0].family_id;
 
     const rewardCheck = await db.query(
@@ -547,16 +548,19 @@ childRouter.post('/goal', validate(ChildSetGoalSchema), async (req, res) => {
        AND (visible_to_children IS NULL OR $3 = ANY(visible_to_children))`,
       [reward_id, familyId, childId]
     );
-    if (rewardCheck.rows.length === 0) return res.status(404).json({ error: 'Belöning hittades inte' });
+    if (rewardCheck.rows.length === 0) return sendChildTreasureError(res, 'CHILD_REWARD_NOT_FOUND');
 
     await db.query(
       `INSERT INTO child_reward_goal (child_id, reward_id, status) VALUES ($1, $2, 'active')`,
       [childId, reward_id]
     );
-    res.status(201).json({ message: `Mål satt: ${rewardCheck.rows[0].name}!` });
+    res.status(201).json({
+      code: 'CHILD_GOAL_SET',
+      reward_name: rewardCheck.rows[0].name,
+    });
   } catch (err) {
     console.error('[GOALS] Child set goal error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return sendChildTreasureError(res, 'CHILD_SERVER_ERROR');
   }
 });
 
@@ -569,7 +573,7 @@ childRouter.post('/goal/change-request', validate(GoalChangeRequestSchema), asyn
   try {
     const childId = req.user.id;
     const { to_reward_id } = req.body;
-    if (!to_reward_id) return res.status(400).json({ error: 'to_reward_id krävs' });
+    if (!to_reward_id) return sendChildTreasureError(res, 'CHILD_GOAL_TARGET_REQUIRED');
 
     // Get current active goal
     const current = await db.query(
@@ -585,12 +589,12 @@ childRouter.post('/goal/change-request', validate(GoalChangeRequestSchema), asyn
       [childId]
     );
     if (existingReq.rows.length > 0) {
-      return res.status(409).json({ error: 'Du har redan en väntande bytebegäran.' });
+      return sendChildTreasureError(res, 'CHILD_GOAL_CHANGE_PENDING');
     }
 
     // Verify the new reward is visible to this child
     const childResult = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
-    if (childResult.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (childResult.rows.length === 0) return sendChildTreasureError(res, 'CHILD_NOT_FOUND');
     const familyId = childResult.rows[0].family_id;
 
     const rewardCheck = await db.query(
@@ -598,7 +602,7 @@ childRouter.post('/goal/change-request', validate(GoalChangeRequestSchema), asyn
        AND (visible_to_children IS NULL OR $3 = ANY(visible_to_children))`,
       [to_reward_id, familyId, childId]
     );
-    if (rewardCheck.rows.length === 0) return res.status(404).json({ error: 'Belöning hittades inte' });
+    if (rewardCheck.rows.length === 0) return sendChildTreasureError(res, 'CHILD_REWARD_NOT_FOUND');
 
     const fromRewardId = current.rows.length > 0 ? current.rows[0].reward_id : null;
 
@@ -607,10 +611,13 @@ childRouter.post('/goal/change-request', validate(GoalChangeRequestSchema), asyn
        VALUES ($1, $2, $3, 'pending')`,
       [childId, fromRewardId, to_reward_id]
     );
-    res.status(201).json({ message: `Bytebegäran skickad för ${rewardCheck.rows[0].name}!` });
+    res.status(201).json({
+      code: 'CHILD_GOAL_CHANGE_REQUESTED',
+      reward_name: rewardCheck.rows[0].name,
+    });
   } catch (err) {
     console.error('[GOALS] Change request error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return sendChildTreasureError(res, 'CHILD_SERVER_ERROR');
   }
 });
 
