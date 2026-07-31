@@ -1,6 +1,7 @@
 {
   "pageTitle": "For you",
   "greeting": "Hi {{name}} 👋",
+  "greetingFallback": "there",
   "focus": "What do you want to focus on right now?",
   "loading": "Loading…",
   "libraryLink": "Want to build your own? Full library →",
@@ -70,5 +71,40 @@
     "sjalvstandighet": "Independence",
     "mindre_stress": "Less stress",
     "annat": "Other"
+  },
+  "errors": {
+    "loadPlan": "Could not load plan",
+    "loadCustomize": "Could not load customisation",
+    "loadGoals": "Could not load goals",
+    "activationFailed": "Activation failed",
+    "saveFavorite": "Could not save favourite",
+    "generic": "Something went wrong",
+    "sendSuggestion": "Could not send"
+  },
+  "activation": {
+    "addChildFirst": "Add a child first under Family.",
+    "activating": "Activating…",
+    "done": "Done!",
+    "nothingToCustomize": "Nothing to customise for this goal right now.",
+    "pickChildrenTitle": "Choose children",
+    "pickChildrenHint": "Choose one or more children.",
+    "continue": "Continue",
+    "customizeTitle": "Customise",
+    "customizeHintRewards": "Choose how many stars each reward should give.",
+    "customizeHintActivities": "Choose how many stars each activity should give.",
+    "back": "Back",
+    "starsWord": "stars"
+  },
+  "postActivation": {
+    "defaultHint": "Try the routine together with your child.",
+    "title": "Done!",
+    "intentQuestion": "What do you hope {{goal}} will help with?"
+  },
+  "suggestion": {
+    "modalTitle": "Suggest improvement",
+    "title": "What is missing in {{goal}}?",
+    "placeholder": "Tell us briefly…",
+    "thanks": "Thanks for your suggestion!",
+    "submit": "Send"
   }
 }

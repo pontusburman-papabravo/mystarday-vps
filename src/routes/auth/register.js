@@ -20,6 +20,7 @@ const { RegisterSchema } = require('../../lib/schemas');
 const { resolvePreAuthLocale } = require('../../lib/locale');
 const { resolveAuthApiLocale, authApiMessage } = require('../../lib/auth-api-messages');
 const { loadDefaultContent } = require('../../lib/default-content');
+const { lookupDefaultRewardIdForSeed } = require('../../lib/reward-provenance');
 const { t } = require('../../lib/i18n');
 const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
@@ -278,10 +279,16 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       }
       if (!rewardsSeeded && defaultRewardsList?.length) {
         for (const r of defaultRewardsList) {
+          let sourceDefaultId = null;
+          try {
+            sourceDefaultId = await lookupDefaultRewardIdForSeed(client, r);
+          } catch {
+            /* default_reward table missing */
+          }
           await client.query(
-            `INSERT INTO reward (family_id, name, icon, star_cost, requires_approval, is_active, modified_by_family)
-             VALUES ($1, $2, $3, $4, false, true, false)`,
-            [familyId, r.name, r.icon, r.star_cost]
+            `INSERT INTO reward (family_id, name, icon, star_cost, requires_approval, is_active, source_default_id, modified_by_family)
+             VALUES ($1, $2, $3, $4, false, true, $5, false)`,
+            [familyId, r.name, r.icon, r.star_cost, sourceDefaultId]
           );
         }
       }

@@ -126,7 +126,18 @@
     "Extra godis": "Extra treat",
     "Familjeutflykt": "Family day out",
     "Pizza": "Pizza",
-    "Present": "Gift"
+    "Present": "Gift",
+    "Familjens spelkväll": "Family games night",
+    "Utflykt till lekplats/park": "Trip to playground or park",
+    "Tältövernattning i vardagsrummet": "Living-room tent sleepover",
+    "Ny bok eller tidning": "New book or magazine",
+    "Biobesök med popcorn": "Cinema trip with popcorn",
+    "Utflykt (äventyrsbad/djurpark)": "Trip (water park or zoo)",
+    "Sent uppehåll": "Stay up late",
+    "Filmkväll": "Movie night",
+    "Baka ihop": "Baking together",
+    "Extra saga": "Extra story",
+    "Välja efterrätt": "Choose dessert"
   },
   "rewardByKey": {
     "📱|5": "Extra screen time",

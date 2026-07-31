@@ -1,6 +1,7 @@
 {
   "pageTitle": "För dig",
   "greeting": "Hej {{name}} 👋",
+  "greetingFallback": "där",
   "focus": "Vad vill du fokusera på just nu?",
   "loading": "Laddar…",
   "libraryLink": "Vill du bygga själv? Hela biblioteket →",
@@ -70,5 +71,40 @@
     "sjalvstandighet": "Självständighet",
     "mindre_stress": "Mindre stress",
     "annat": "Annat"
+  },
+  "errors": {
+    "loadPlan": "Kunde inte ladda planen",
+    "loadCustomize": "Kunde inte ladda anpassning",
+    "loadGoals": "Kunde inte ladda mål",
+    "activationFailed": "Aktivering misslyckades",
+    "saveFavorite": "Kunde inte spara favorit",
+    "generic": "Något gick fel",
+    "sendSuggestion": "Kunde inte skicka"
+  },
+  "activation": {
+    "addChildFirst": "Lägg till ett barn först under Familjen.",
+    "activating": "Aktiverar…",
+    "done": "Klart!",
+    "nothingToCustomize": "Inget att anpassa för detta mål just nu.",
+    "pickChildrenTitle": "Välj barn",
+    "pickChildrenHint": "Välj ett eller flera barn.",
+    "continue": "Fortsätt",
+    "customizeTitle": "Anpassa",
+    "customizeHintRewards": "Välj hur många stjärnor varje belöning ska ge.",
+    "customizeHintActivities": "Välj hur många stjärnor varje aktivitet ska ge.",
+    "back": "Tillbaka",
+    "starsWord": "stjärnor"
+  },
+  "postActivation": {
+    "defaultHint": "Testa rutinen tillsammans med barnet.",
+    "title": "Klart!",
+    "intentQuestion": "Vad hoppas du att {{goal}} ska hjälpa med?"
+  },
+  "suggestion": {
+    "modalTitle": "Föreslå förbättring",
+    "title": "Vad saknar du i {{goal}}?",
+    "placeholder": "Berätta kort…",
+    "thanks": "Tack för ditt förslag!",
+    "submit": "Skicka"
   }
 }

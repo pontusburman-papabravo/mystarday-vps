@@ -35,6 +35,7 @@ const {
 } = require('../lib/schemas');
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { localizeRewardRow, localizeRewardItems } = require('../lib/family-content-display');
+const { resolveChildContentLocaleForFamily } = require('../lib/child-ui-locale');
 
 // ─── SSE helper: look up family_id for a child ───────────
 async function getChildFamilyId(childId) {
@@ -464,7 +465,7 @@ childRouter.get('/goal', async (req, res) => {
     const childId = req.user.id;
     const balance = await getFullStarBalance(childId);
     const familyId = await getChildFamilyId(childId);
-    const locale = await getFamilyPreferredLocale(familyId);
+    const contentLocale = await resolveChildContentLocaleForFamily(familyId);
 
     const goalResult = await db.query(
       `SELECT crg.id, crg.status, crg.created_at,
@@ -490,12 +491,12 @@ childRouter.get('/goal', async (req, res) => {
 
     let goal = goalResult.rows[0] || null;
     if (goal) {
-      goal = await localizeRewardRow(goal, locale);
+      goal = await localizeRewardRow(goal, contentLocale);
     }
 
     let pendingChangeRequest = pendingChangeResult.rows[0] || null;
     if (pendingChangeRequest) {
-      const [localized] = await localizeRewardItems([pendingChangeRequest], locale);
+      const [localized] = await localizeRewardItems([pendingChangeRequest], contentLocale);
       pendingChangeRequest = localized;
     }
 
