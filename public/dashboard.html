@@ -569,7 +569,7 @@
         <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
         <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
         <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ För dig</a></li>
-        <li><a href="/reports" data-feature="klinisk_rapportering" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
+        <li><a href="/reports" data-feature="klinisk_rapportering" data-component="reporting" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
         <li><a href="/pedagog-note" data-feature="pedagoganteckningar" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📝 Pedagoganteckningar</a></li>
         <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors text-sm opacity-80">📚 Bibliotek (avancerat)</a></li>
         <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
@@ -624,7 +624,7 @@
       </div>
 
       <!-- Active sharing indicator (shown on overview only) -->
-      <a id="activeSharingBanner" href="/reports" class="hidden mx-4 mt-3 rounded-xl border-2 border-indigo-200 bg-indigo-50 px-4 py-3 flex items-center gap-3 no-underline hover:bg-indigo-100 transition-colors">
+      <a id="activeSharingBanner" href="/reports" data-component="reporting" class="hidden mx-4 mt-3 rounded-xl border-2 border-indigo-200 bg-indigo-50 px-4 py-3 flex items-center gap-3 no-underline hover:bg-indigo-100 transition-colors">
         <span class="text-xl flex-shrink-0">🔗</span>
         <div class="flex-1">
           <p class="font-semibold text-sm text-indigo-900" id="activeSharingText"></p>
