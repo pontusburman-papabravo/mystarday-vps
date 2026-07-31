@@ -274,7 +274,7 @@
             a.download = 'familjer-mailadresser.csv';
             a.click();
             URL.revokeObjectURL(url);
-          } catch (err) {
+          } catch (_err) {
             alert('Kunde inte exportera mailadresser');
           }
         });
@@ -367,19 +367,16 @@
       try {
         const stats = await Auth.api('/api/admin/stats');
         applyStats(stats);
-      } catch (e) {
+      } catch (_e) {
         // Silent fail for polling
       }
     }
 
     // ─── Welcome Email Template ─────────────────────────────
 
-    let cachedWelcomeEmailTemplate = null;
-
     async function loadWelcomeEmailTemplate() {
       try {
         const data = await Auth.api('/api/admin/welcome-email');
-        cachedWelcomeEmailTemplate = data;
 
         document.getElementById('welcomeEmailSubject').value = data.subject || '';
         document.getElementById('welcomeEmailBody').value = data.body || '';
@@ -402,7 +399,6 @@
       const subject = document.getElementById('welcomeEmailSubject').value.trim();
       const body = document.getElementById('welcomeEmailBody').value;
       const is_active = document.getElementById('welcomeEmailActive').checked;
-      const statusEl = document.getElementById('welcomeEmailStatus');
 
       if (!subject) {
         showWelcomeEmailStatus('Rubriken kan inte vara tom', 'text-sm p-3 rounded-xl bg-red-50 text-red-600');
@@ -414,11 +410,10 @@
       }
 
       try {
-        const data = await Auth.api('/api/admin/welcome-email', {
+        await Auth.api('/api/admin/welcome-email', {
           method: 'PUT',
           body: JSON.stringify({ subject, body, is_active }),
         });
-        cachedWelcomeEmailTemplate = data.template;
         showWelcomeEmailStatus('✓ Välkomstmailmallen har sparats!', 'text-sm p-3 rounded-xl bg-green-50 text-green-600');
 
         const activeStatus = document.getElementById('welcomeEmailActiveStatus');
@@ -438,7 +433,6 @@
     }
 
     function updateWelcomeEmailPreview() {
-      const subject = document.getElementById('welcomeEmailSubject').value || 'Välkommen till Min Stjärndag! 🌟';
       const body = document.getElementById('welcomeEmailBody').value || '';
       const previewEl = document.getElementById('welcomeEmailPreview');
 
@@ -487,3 +481,6 @@
       `;
 
     }
+
+    window.closeMobileMenu = closeMobileMenu;
+    window.saveWelcomeEmailTemplate = saveWelcomeEmailTemplate;

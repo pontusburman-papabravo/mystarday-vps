@@ -25,7 +25,6 @@ async function loadAdminImages() {
 
 function renderAdminImageGrid() {
   const grid = document.getElementById('adminImageGrid');
-  const emptyState = document.getElementById('adminImageEmptyState');
   if (!grid) return;
 
   if (adminImagesAll.length === 0) {
@@ -245,3 +244,5 @@ document.addEventListener('click', (e) => {
     closeImageBankModal();
   }
 });
+
+window.uploadAdminImage = uploadAdminImage;

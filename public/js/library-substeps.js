@@ -200,3 +200,10 @@ async function deleteSubStep(templateId, stepId, name) {
     }
   });
 }
+
+window.toggleSubSteps = toggleSubSteps;
+window.selectSubStepIcon = selectSubStepIcon;
+window.clearSubStepIcon = clearSubStepIcon;
+window.openSubStepModal = openSubStepModal;
+window.submitSubStep = submitSubStep;
+window.deleteSubStep = deleteSubStep;

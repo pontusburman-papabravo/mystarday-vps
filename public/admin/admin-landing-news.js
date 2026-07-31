@@ -2,7 +2,6 @@
 // Owns: list, add, edit, delete, reorder.
 // Does NOT own: esc() (in parent page), showSection() (in admin-core.js).
 
-let landingNewsLoaded = false;
 let landingNewsAll = [];
 
 async function loadLandingNews() {
@@ -11,7 +10,6 @@ async function loadLandingNews() {
     const data = await Auth.api('/api/admin/landing-news');
     landingNewsAll = Array.isArray(data) ? data : [];
     renderLandingNewsList();
-    landingNewsLoaded = true;
   } catch (err) {
     document.getElementById('landingNewsList').innerHTML =
       '<p class="text-red-500 text-sm">Kunde inte ladda poster: ' + esc(err.message) + '</p>';
@@ -80,7 +78,7 @@ async function loadLandingNews() {
         animation: 150,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
-        onEnd: async function (evt) {
+        onEnd: async function (_evt) {
           const items = list.querySelectorAll('[data-ln-id]');
           const updates = [];
           items.forEach((el, index) => {

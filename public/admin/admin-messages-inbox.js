@@ -327,7 +327,7 @@
       const idx = lastLoadedMessages.findIndex((m) => String(m.id) === String(id));
       if (idx >= 0) lastLoadedMessages[idx] = detail;
       renderTicketDetail(detail);
-    } catch (e) {
+    } catch (_e) {
       if (!cached) renderEmptyDetail('Kunde inte ladda ärendet.');
     }
 
@@ -346,7 +346,7 @@
     }
   }
 
-  function filterMessagesInbox(query) {
+  function filterMessagesInbox(_query) {
     if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(() => {
       loadMessagesInbox();
@@ -461,7 +461,7 @@
         : '<div>Ingen historik ännu</div>';
       eventCache.set(String(id), html);
       container.innerHTML = html;
-    } catch (e) {
+    } catch (_e) {
       container.innerHTML = '<div class="text-coral">Kunde inte ladda historik</div>';
     }
   }

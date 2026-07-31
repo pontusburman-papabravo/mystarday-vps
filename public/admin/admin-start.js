@@ -3,20 +3,10 @@
  * Blocks: growth, messages follow-up, activity feed, shortcuts.
  */
 (function () {
-  const DISCLAIMER_DEFAULT =
-    'Detta är en förenklad uppföljningsvy. Riktig inbox-status kommer i en senare version.';
-
   function esc(str) {
     const d = document.createElement('div');
     d.textContent = str == null ? '' : String(str);
     return d.innerHTML;
-  }
-
-  function formatDelta(metric) {
-    if (!metric) return '–';
-    const sign = metric.deltaAbs > 0 ? '+' : '';
-    const pct = metric.deltaPct == null ? '' : ` (${sign}${metric.deltaPct}%)`;
-    return `${sign}${metric.deltaAbs}${pct}`;
   }
 
   function formatRelativeTime(iso) {
@@ -290,18 +280,6 @@
         <button type="button" onclick="loadStartSummary()" class="text-sm font-bold text-gold hover:underline">Försök igen</button>
       </div>`
     );
-  }
-
-  function renderStartShortcuts(actions) {
-    const el = document.getElementById('startShortcutsBlock');
-    if (!el) return;
-    const items = actions && actions.length ? actions : [];
-    const html = `
-      <h3 class="text-lg font-heading font-bold text-navy mb-4">Genvägar</h3>
-      <div class="flex flex-wrap gap-2">
-        ${items.map((a) => `<a href="${esc(a.route)}" onclick="return adminNavClick(event)" class="px-4 py-2 rounded-xl text-sm font-semibold bg-white border-2 border-lavender text-navy hover:border-gold transition-colors">${esc(a.label)}</a>`).join('')}
-      </div>`;
-    setBlockState('startShortcutsBlock', 'ready', html);
   }
 
   function severityStyles(severity) {

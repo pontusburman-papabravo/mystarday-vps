@@ -129,7 +129,6 @@ function renderStandardLibrary() {
 
   // Flat list — each activity has its own copy button
   const notCopied = standardActivities.filter(a => !a.already_copied);
-  const copied = standardActivities.filter(a => a.already_copied);
 
   let html = '';
 
@@ -363,3 +362,8 @@ async function copyDefaultReward(rewardId) {
 }
 
 window.loadStandardLibrary = loadStandardLibrary;
+window.copyStandardActivity = copyStandardActivity;
+window.copyAllStandardActivities = copyAllStandardActivities;
+window.toggleRewardSelection = toggleRewardSelection;
+window.copySelectedRewards = copySelectedRewards;
+window.copyDefaultReward = copyDefaultReward;

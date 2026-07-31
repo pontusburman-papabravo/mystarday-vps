@@ -5,7 +5,6 @@ const wlLimit = 50;
 let wlTotal = 0;
 let wlSearch = '';
 let wlEntries = [];
-let wlStats = {};
 let wlSearchTimer = null;
 let wlPendingDeleteId = null;
 
@@ -34,7 +33,6 @@ async function fetchWaitlistData() {
 async function fetchWaitlistStats() {
   try {
     const data = await Auth.api('/api/admin/waitlist/stats');
-    wlStats = data;
     renderWaitlistStats(data);
   } catch (err) {
     console.error('[WAITLIST] stats error:', err);
@@ -229,39 +227,7 @@ function wlGoPage(pageIndex) {
   fetchWaitlistData();
 }
 
-// ─── Delete ─────────────────────────────────────────────────────────
-function wlConfirmDelete(id, email) {
-  wlPendingDeleteId = id;
-  const modal = document.getElementById('deleteWaitlistModal');
-  const nameEl = document.getElementById('deleteWaitlistName');
-  if (modal) {
-    if (nameEl) nameEl.textContent = email || 'denna anmälan';
-    modal.classList.remove('hidden');
-  }
-}
-
-function closeWlDeleteModal() {
-  const modal = document.getElementById('deleteWaitlistModal');
-  if (modal) modal.classList.add('hidden');
-  wlPendingDeleteId = null;
-}
-
-async function executeWlDelete() {
-  if (!wlPendingDeleteId) return;
-  const id = wlPendingDeleteId;
-  wlPendingDeleteId = null;
-  closeWlDeleteModal();
-
-  try {
-    await Auth.api(`/api/admin/waitlist/${id}`, { method: 'DELETE' });
-    wlTotal = Math.max(0, wlTotal - 1);
-    fetchWaitlistData();
-  } catch (err) {
-    alert('Kunde inte radera: ' + (err.message || 'Okänt fel'));
-  }
-}
-
-// ─── Status badge ───────────────────────────────────────────────────
+// ─── Delete (legacy modal — superseded by waitlistDeleteModal) ─────────
 function statusBadge(status) {
   if (status === 'completed') return '<span class="inline-block bg-green-100 text-green-700 text-xs font-bold rounded-full px-2 py-0.5">✓ Svarat</span>';
   if (status === 'skipped') return '<span class="inline-block bg-gray-100 text-gray-500 text-xs font-bold rounded-full px-2 py-0.5">Skipped</span>';
@@ -414,3 +380,7 @@ async function executeWaitlistDelete() {
     }
   }
 }
+
+window.wlGoPage = wlGoPage;
+window.showWaitlistDeleteModal = showWaitlistDeleteModal;
+window.executeWaitlistDelete = executeWaitlistDelete;
