@@ -220,7 +220,6 @@ function selectActivityPeriod(period) {
 
 // ── Fields toggle ─────────────────────────────────────────────────
 function toggleField(card) {
-  const field = card.dataset.field;
   const checkbox = card.querySelector('input[type="checkbox"]');
   checkbox.checked = !checkbox.checked;
   card.classList.toggle('selected', checkbox.checked);
@@ -408,7 +407,7 @@ function renderQRCode(url) {
     box.innerHTML = `<div style="display:inline-block;padding:8px;background:white;border-radius:12px;">
       <img src="${qr.createDataURL(4, 0)}" width="${size}" height="${size}" alt="QR-kod" style="display:block;">
     </div>`;
-  } catch (err) {
+  } catch (_err) {
     // QR library not loaded yet — retry after short delay
     setTimeout(() => renderQRCode(url), 500);
   }
@@ -517,7 +516,6 @@ function renderActivityList(dateMap, allItems) {
     let html = '';
 
     dates.forEach(date => {
-      const log = dateMap[date];
       const items = (allItems && allItems[date]) ? allItems[date] : [];
 
       // Normalize date: extract YYYY-MM-DD from ISO timestamps or plain dates
@@ -722,7 +720,7 @@ function renderGeneralObservationsSection(active, archived) {
   }
 }
 
-function toggleGenObsExpand(obsId, forceShow) {
+function toggleGenObsExpand(obsId, _forceShow) {
   const obs = _generalObsActive.find(o => o.id === obsId) || _generalObsArchived.find(o => o.id === obsId);
   if (!obs) return;
   const preview = document.getElementById('genObs-preview-' + obsId);
@@ -1076,7 +1074,7 @@ async function loadSharedReports() {
     }
 
     applySharedFilter();
-  } catch (err) {
+  } catch (_err) {
     document.getElementById('sharedLoading').classList.add('hidden');
     showToast('Kunde inte ladda delade rapporter', 'error');
   }
@@ -1244,55 +1242,6 @@ async function copyLink(publicId) {
   }
 }
 
-async function revokeReport(id) {
-  if (!confirm('Återkalla denna rapportlänk? Den kommer inte längre att fungera.')) return;
-
-  try {
-    const csrf = getCsrfToken();
-    const headers = {};
-    if (csrf) headers['X-CSRF-Token'] = csrf;
-    const res = await fetch(`/api/reports/${id}`, {
-      method: 'DELETE',
-      headers,
-      credentials: 'include',
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'Kunde inte återkalla');
-    }
-    showToast('Rapport återkallad', 'success');
-    loadSharedReports();
-    if (window.refreshReportsActiveCount) window.refreshReportsActiveCount();
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-}
-
-async function renewReport(id) {
-  if (!confirm('Förnya rapporten i 7 nya dagar?')) return;
-
-  try {
-    const csrf = getCsrfToken();
-    const headers = { 'Content-Type': 'application/json' };
-    if (csrf) headers['X-CSRF-Token'] = csrf;
-    const res = await fetch(`/api/reports/${id}`, {
-      method: 'PATCH',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify({ renew: true }),
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'Kunde inte förnya');
-    }
-    showToast('Rapport förnyad!', 'success');
-    loadSharedReports();
-    if (window.refreshReportsActiveCount) window.refreshReportsActiveCount();
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
-}
-
 // ── Tab switching ────────────────────────────────────────────────
 function switchTab(tab) {
   ['create', 'activity', 'shared'].forEach(t => {
@@ -1440,6 +1389,37 @@ async function permanentlyDeleteReport() {
     showToast(err.message, 'error');
   }
 }
+
+// reports.html + generated markup onclick API
+window.selectChild = selectChild;
+window.selectActivityChild = selectActivityChild;
+window.selectPeriod = selectPeriod;
+window.selectActivityPeriod = selectActivityPeriod;
+window.toggleField = toggleField;
+window.togglePinField = togglePinField;
+window.createReport = createReport;
+window.copyShareUrl = copyShareUrl;
+window.loadActivityView = loadActivityView;
+window.toggleGenObsExpand = toggleGenObsExpand;
+window.toggleArchivedSection = toggleArchivedSection;
+window.openObsModal = openObsModal;
+window.closeObsModal = closeObsModal;
+window.saveObservation = saveObservation;
+window.doArchiveObservation = doArchiveObservation;
+window.doRestoreObservation = doRestoreObservation;
+window.doDeleteGeneralObs = doDeleteGeneralObs;
+window.openNoteModal = openNoteModal;
+window.closeNoteModal = closeNoteModal;
+window.saveNote = saveNote;
+window.setSharedFilter = setSharedFilter;
+window.copyLink = copyLink;
+window.archiveReportDirect = archiveReportDirect;
+window.showDeleteDialog = showDeleteDialog;
+window.showRevokeDialog = showRevokeDialog;
+window.closeRevokeDialog = closeRevokeDialog;
+window.archiveReport = archiveReport;
+window.permanentlyDeleteReport = permanentlyDeleteReport;
+window.switchTab = switchTab;
 
 function showToast(msg, type) {
   if (typeof window.showToast === 'function') {
