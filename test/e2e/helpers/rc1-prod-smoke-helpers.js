@@ -582,6 +582,11 @@ async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
         await rc1Sleep(3000);
         continue;
       }
+      const isRateLimited = (page._rc1Diagnostics?.consoleErrors || []).some((e) => /429|för många/i.test(e));
+      if (isRateLimited && process.env.RC1_ALLOW_LOCALE_API_FALLBACK !== '0') {
+        console.warn('[rc1-smoke] settings locale blocked by rate limit — authenticated API set (same PUT as Settings UI)');
+        return persistFamilyLocaleViaApi(page, locale);
+      }
     }
   }
   throw lastErr;
@@ -713,30 +718,37 @@ async function triggerChildToParentHandoff(page) {
     () => /\/child(\/today|-dashboard)/.test(window.location.pathname),
     { timeout: 30000 }
   );
-  const overlayRace = page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 12000 }).catch(() => null);
+
   await page.evaluate(async () => {
-    if (window.Auth && typeof Auth.logout === 'function') {
+    if (typeof window.childLogout === 'function') {
+      await window.childLogout();
+    } else if (window.Auth && typeof Auth.logout === 'function') {
       await Auth.logout();
     }
   });
-  const overlay = await overlayRace;
-  if (overlay) return 'pin';
 
-  await rc1Sleep(2500);
-  const state = await page.evaluate(async () => {
+  try {
+    await page.waitForFunction(
+      () => document.getElementById('ppin-gate-overlay')
+        || /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
+      { timeout: 90000 }
+    );
+  } catch (_) {
+    /* fall through to session check */
+  }
+
+  const hasOverlay = await page.$('#ppin-gate-overlay');
+  if (hasOverlay) return 'pin';
+
+  const parent = await page.evaluate(async () => {
     const r = await fetch('/api/auth/me', { credentials: 'include' });
-    const me = r.ok ? await r.json() : {};
-    return {
-      path: window.location.pathname,
-      parent: Boolean(me.email),
-      child: Boolean(me.username && !me.email),
-    };
+    if (!r.ok) return false;
+    const me = await r.json();
+    return Boolean(me.email);
   });
-  if (state.parent && !state.child) return 'restored';
-  if (/\/(dashboard|planning|family|settings|for-dig)/.test(state.path) && state.parent) return 'restored';
+  if (parent) return 'restored';
 
-  await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 45000 });
-  return 'pin';
+  assert.fail('parent handoff: no PIN gate and parent session not restored after child logout');
 }
 
 async function completeChildToParentHandoff(page, pin) {
