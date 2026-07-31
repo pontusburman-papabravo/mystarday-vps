@@ -603,7 +603,7 @@
 
     return new Promise((resolve) => {
       let phase = shouldSkipChildPicker(preselectedChildId) ? 'confirm' : 'pick';
-      let selectedChildIds = initialIds;
+      const selectedChildIds = initialIds;
       let preview = null;
       let plan = null;
       let planLoading = false;

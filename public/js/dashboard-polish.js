@@ -15,7 +15,7 @@
       setTimeout(markReady, 400);
       return;
     }
-    let obs = new MutationObserver(function () {
+    const obs = new MutationObserver(function () {
       if (grid.children.length > 0 && !grid.textContent.includes('Laddar')) {
         markReady();
         obs.disconnect();
