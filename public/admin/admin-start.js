@@ -140,7 +140,7 @@
         ${kpiCard(
           'Fast i onboarding',
           m.stuckOnboarding ?? '–',
-          '48h–14d utan klar onboarding',
+          `${m.stuckOnboardingQa || 0} QA exkl. · ${m.stuckOnboardingTotal || 0} totalt · 48h–14d`,
           (m.stuckOnboarding || 0) > 0 ? 'text-red-600' : 'text-green-700',
           '#analytics'
         )}

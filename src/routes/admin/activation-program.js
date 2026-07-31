@@ -105,7 +105,13 @@ router.get('/activation-program/stuck-families', async (req, res) => {
     const maxAgeDays = Math.min(Math.max(parseInt(req.query.maxAgeDays, 10) || 14, 1), 90);
     const minAgeHours = Math.min(Math.max(parseInt(req.query.minAgeHours, 10) || 48, 1), 168);
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
-    const families = await stuckFamiliesDb.listStuckFamilies({ maxAgeDays, minAgeHours, limit });
+    const includeInternalQa = req.query.includeQa === '1' || req.query.includeQa === 'true';
+    const families = await stuckFamiliesDb.listStuckFamilies({
+      maxAgeDays,
+      minAgeHours,
+      limit,
+      includeInternalQa,
+    });
     res.json({
       generatedAt: new Date().toISOString(),
       maxAgeDays,

@@ -107,6 +107,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'feature_minimal_ui_enabled',
   // ACT-1 activation funnel (act-1-ai-startschema-spec.md §10)
   'activation_onboarding_started',
+  'activation_onboarding_screen_viewed',
   'activation_question_answered',
   'starter_template_selected',
   'starter_plan_generation_started',

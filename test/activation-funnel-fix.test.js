@@ -27,6 +27,14 @@ describe('activation funnel fixes', () => {
     assert.doesNotMatch(src, /track\('starter_plan_saved'/);
   });
 
+  it('starter plan tracks screen view on entry and started on first answer', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/onboarding-starter-plan.js'), 'utf8');
+    assert.match(src, /activation_onboarding_screen_viewed/);
+    assert.match(src, /trackOnboardingStartedOnce/);
+    assert.match(src, /signup_slim_first_answer/);
+    assert.doesNotMatch(src, /track\('activation_onboarding_started', \{ source: 'signup_slim_entry'/);
+  });
+
   it('onboarding resumes ACT-1 at handoff when schema already saved', () => {
     const starter = fs.readFileSync(path.join(__dirname, '../public/js/onboarding-starter-plan.js'), 'utf8');
     const onboarding = fs.readFileSync(path.join(__dirname, '../public/js/onboarding.js'), 'utf8');

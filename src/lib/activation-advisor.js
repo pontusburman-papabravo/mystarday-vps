@@ -2,6 +2,7 @@
 
 const db = require('./db');
 const { ACT1_ONBOARDING_FLAG_KEYS } = require('./activation-flags');
+const { excludeInternalQaWhere } = require('../../config/internal-qa-families');
 
 const P0_TARGET_PCT = 25;
 const NEVER_ACTIVATED_WARN_PCT = 35;
@@ -85,6 +86,7 @@ async function collectMetrics() {
       WHERE f.archived_at IS NULL
         AND f.created_at >= NOW() - INTERVAL '14 days'
         AND f.created_at <= NOW() - INTERVAL '48 hours'
+        AND ${excludeInternalQaWhere('f')}
         AND NOT EXISTS (
           SELECT 1 FROM parent p2
           WHERE p2.family_id = f.id AND p2.onboarding_completed = true

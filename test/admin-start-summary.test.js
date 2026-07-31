@@ -39,8 +39,8 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
         }],
       };
     }
-    if (q.includes('stuck_families')) {
-      return { rows: [{ stuck: 4 }] };
+    if (q.includes('stuck_families') || q.includes('stuck_total')) {
+      return { rows: [{ stuck_total: 5, stuck_product: 4, stuck_qa: 1 }] };
     }
     if (q.includes('FROM family WHERE archived_at IS NULL') && q.includes('COUNT(*)::int AS total')) {
       return { rows: [{ total: 201 }] };

@@ -130,7 +130,16 @@
     return (y && m && d) ? y + '-' + m + '-' + d : '';
   }
 
+  let onboardingStartedTracked = false;
+
+  function trackOnboardingStartedOnce(source) {
+    if (onboardingStartedTracked) return;
+    onboardingStartedTracked = true;
+    track('activation_onboarding_started', { source: source || 'starter_plan' });
+  }
+
   function trackQuestionAnswered(questionId) {
+    trackOnboardingStartedOnce(state.slim ? 'signup_slim_first_answer' : 'starter_plan_first_answer');
     track('activation_question_answered', { question_id: questionId });
   }
 
@@ -383,7 +392,7 @@
     if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.creatingRoutine'); }
 
     try {
-      track('activation_onboarding_started', { source: 'signup_slim' });
+      trackOnboardingStartedOnce('signup_slim');
 
       const suggestBody = {
         age_band: resolveAgeBand(),
@@ -576,7 +585,7 @@
     if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.loading'); }
 
     try {
-      track('activation_onboarding_started', { source: 'starter_plan_wizard' });
+      trackOnboardingStartedOnce('starter_plan_wizard');
 
       const suggestBody = {
         age_band: resolveAgeBand(),
@@ -831,7 +840,7 @@
         ensureCard();
         renderQuestion();
         showStarterStep();
-        track('activation_onboarding_started', { source: 'signup_slim_entry' });
+        track('activation_onboarding_screen_viewed', { source: 'signup_slim_entry' });
         initResult = 'active';
         return initResult;
       }
@@ -847,7 +856,7 @@
       ensureCard();
       renderQuestion();
       showStarterStep();
-      track('activation_onboarding_started', {
+      track('activation_onboarding_screen_viewed', {
         source: isAddChild ? 'add_child_entry' : 'onboarding_entry',
       });
       initResult = 'active';
