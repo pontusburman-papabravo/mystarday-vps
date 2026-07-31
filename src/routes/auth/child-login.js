@@ -241,9 +241,20 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
     if (parentAccessToken && parentRefreshToken) {
       try {
         const { createHandoffFromParentCookies } = require('../../lib/parent-session-handoff');
-        await createHandoffFromParentCookies(req, res);
+        const handoffCreated = await createHandoffFromParentCookies(req, res);
+        if (!handoffCreated) {
+          console.error('[AUTH] Parent handoff create failed', req.id);
+          return res.status(409).json({
+            code: 'PARENT_HANDOFF_CREATE_FAILED',
+            requiresParentLogin: false,
+          });
+        }
       } catch (saveErr) {
-        console.error('[AUTH] Parent handoff save failed:', saveErr.message);
+        console.error('[AUTH] Parent handoff save failed:', req.id, saveErr.message);
+        return res.status(409).json({
+          code: 'PARENT_HANDOFF_CREATE_FAILED',
+          requiresParentLogin: false,
+        });
       }
     }
 

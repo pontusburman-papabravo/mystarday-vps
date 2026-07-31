@@ -14,11 +14,32 @@ const {
   verifyRefreshToken,
   setRefreshCookie,
   setAccessCookie,
+  lookupRefreshTokenRow,
+  hashToken,
 } = require('./refresh-tokens');
 const { parseDuration } = require('../routes/auth/session');
 
 const HANDOFF_COOKIE = 'stjarndag_parent_session';
 const HANDOFF_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Stable internal codes for logs and server-side branching (never sent with secrets). */
+const HANDOFF_CODES = {
+  cookie_missing: 'HANDOFF_COOKIE_MISSING',
+  row_missing: 'HANDOFF_ROW_MISSING',
+  legacy: 'HANDOFF_LEGACY',
+  revoked: 'HANDOFF_REVOKED',
+  used: 'HANDOFF_USED',
+  expired: 'HANDOFF_EXPIRED',
+  access_revoked: 'HANDOFF_ACCESS_REVOKED',
+  parent_refresh_missing: 'HANDOFF_PARENT_REFRESH_MISSING',
+  parent_refresh_invalid: 'HANDOFF_PARENT_REFRESH_INVALID',
+};
+
+function truncateHash(hex) {
+  if (!hex || typeof hex !== 'string') return 'none';
+  if (hex.length <= 10) return hex;
+  return `${hex.slice(0, 8)}…`;
+}
 
 function hashOpaque(raw) {
   return crypto.createHash('sha256').update(raw).digest('hex');
@@ -193,20 +214,107 @@ async function refreshRowStillValid(handoff) {
 }
 
 /**
+ * Full handoff validation result (server-internal). Callers must check `ok` before using `handoff`.
+ */
+async function evaluateHandoffForRequest(req, res) {
+  const rawCookie = req.cookies?.[HANDOFF_COOKIE];
+  if (!rawCookie) {
+    return { ok: false, reason: 'cookie_missing', code: HANDOFF_CODES.cookie_missing };
+  }
+  if (isLegacyBase64SessionCookie(rawCookie)) {
+    clearHandoffCookie(res);
+    return { ok: false, reason: 'legacy', code: HANDOFF_CODES.legacy };
+  }
+
+  const loaded = await loadHandoffRowByCookie(req);
+  if (!loaded || loaded.legacy) {
+    if (loaded?.legacy) clearHandoffCookie(res);
+    return { ok: false, reason: 'row_missing', code: HANDOFF_CODES.row_missing };
+  }
+  if (loaded.revoked_at) {
+    return { ok: false, reason: 'revoked', code: HANDOFF_CODES.revoked, handoffId: loaded.id };
+  }
+  if (loaded.used_at) {
+    return { ok: false, reason: 'used', code: HANDOFF_CODES.used, handoffId: loaded.id };
+  }
+  if (new Date(loaded.expires_at) < new Date()) {
+    return { ok: false, reason: 'expired', code: HANDOFF_CODES.expired, handoffId: loaded.id };
+  }
+  if (!await parentHasActiveFamilyAccess(loaded.parent_id, loaded.family_id)) {
+    return { ok: false, reason: 'access_revoked', code: HANDOFF_CODES.access_revoked, handoffId: loaded.id };
+  }
+  const refreshValid = await refreshRowStillValid(loaded);
+  if (!refreshValid) {
+    return {
+      ok: false,
+      reason: 'parent_refresh_invalid',
+      code: HANDOFF_CODES.parent_refresh_invalid,
+      handoffId: loaded.id,
+    };
+  }
+  return {
+    ok: true,
+    handoff: loaded,
+    parentId: loaded.parent_id,
+    familyId: loaded.family_id,
+  };
+}
+
+/**
+ * Structured handoff + refresh diagnostics for logout (no raw tokens or cookies).
+ */
+async function logHandoffLogoutDiagnostics(req, phase, handoffEval, accessDecoded, rawRefresh) {
+  const correlationId = req.id || 'no-request-id';
+  const handoffCookiePresent = Boolean(req.cookies?.[HANDOFF_COOKIE]);
+  const handoffHash = handoffCookiePresent
+    ? truncateHash(hashOpaque(req.cookies[HANDOFF_COOKIE]))
+    : 'none';
+
+  let refreshHash = 'none';
+  let refreshUserType = null;
+  let refreshChildId = null;
+  let refreshParentId = null;
+  let refreshRowId = null;
+  if (rawRefresh) {
+    refreshHash = truncateHash(hashToken(rawRefresh));
+    const row = await lookupRefreshTokenRow(rawRefresh);
+    if (row) {
+      refreshUserType = row.user_type;
+      refreshChildId = row.child_id;
+      refreshParentId = row.parent_id;
+      refreshRowId = row.id;
+    }
+  }
+
+  const payload = {
+    correlationId,
+    phase,
+    handoffCookiePresent,
+    handoffCookieHash: handoffHash,
+    handoffOk: handoffEval?.ok === true,
+    handoffCode: handoffEval?.ok ? 'OK' : (handoffEval?.code || 'UNKNOWN'),
+    handoffReason: handoffEval?.ok ? null : (handoffEval?.reason || null),
+    accessSessionType: accessDecoded?.type || null,
+    accessSubjectId: accessDecoded?.id || null,
+    accessFamilyId: accessDecoded?.familyId || null,
+    refreshHash,
+    refreshUserType,
+    refreshChildId,
+    refreshParentId,
+    refreshRowId,
+    handoffRefreshTokenId: handoffEval?.ok ? handoffEval.handoff.refresh_token_id : null,
+  };
+
+  console.info('[HANDOFF]', JSON.stringify(payload));
+}
+
+/**
  * Validate handoff without consuming (for in-request parent context).
+ * @returns {Promise<object|null>} handoff row or null — use evaluateHandoffForRequest when reason matters.
  */
 async function validateHandoffForRequest(req, res) {
-  const loaded = await loadHandoffRowByCookie(req);
-  if (!loaded) return null;
-  if (loaded.legacy) {
-    clearHandoffCookie(res);
-    return null;
-  }
-  if (loaded.revoked_at || loaded.used_at) return null;
-  if (new Date(loaded.expires_at) < new Date()) return null;
-  if (!await parentHasActiveFamilyAccess(loaded.parent_id, loaded.family_id)) return null;
-  if (!await refreshRowStillValid(loaded)) return null;
-  return loaded;
+  const evaluated = await evaluateHandoffForRequest(req, res);
+  return evaluated.ok ? evaluated.handoff : null;
 }
 
 /**
@@ -300,11 +408,14 @@ async function resolveFamilyIdFromHandoff(req, res) {
 
 module.exports = {
   HANDOFF_COOKIE,
+  HANDOFF_CODES,
   hashOpaque,
   clearHandoffCookie,
   isLegacyBase64SessionCookie,
   createHandoffFromParentCookies,
+  evaluateHandoffForRequest,
   validateHandoffForRequest,
+  logHandoffLogoutDiagnostics,
   applyHandoffToRequestCookies,
   consumeHandoffAndActivateSession,
   resolveParentIdFromHandoff,
