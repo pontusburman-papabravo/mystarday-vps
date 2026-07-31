@@ -582,7 +582,6 @@ async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
         await rc1Sleep(3000);
         continue;
       }
-      const isRateLimited = (page._rc1Diagnostics?.consoleErrors || []).some((e) => /429|för många/i.test(e));
       if (isRateLimited && process.env.RC1_ALLOW_LOCALE_API_FALLBACK !== '0') {
         console.warn('[rc1-smoke] settings locale blocked by rate limit — authenticated API set (same PUT as Settings UI)');
         return persistFamilyLocaleViaApi(page, locale);
