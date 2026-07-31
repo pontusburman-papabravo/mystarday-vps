@@ -29,15 +29,54 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 ### Mätpunkter (node:test `test/*.test.js`)
 
-| Mätpunkt | Baslinje | Batch 2 | Batch 3 | Batch 4 | Δ batch 4 |
-|----------|----------|---------|---------|---------|-----------|
-| Pass | 3109 | 3128 | 3134 | 3151 | +17 |
-| Fail | 57 | 39 | 34 | 17 | −17 |
-| Skip | 0 | 4 | 4 | 4 | 0 |
-| Cancelled | 0 | 0 | 0 | 0 | 0 |
-| Exit code | 1 | 1 | 1 | 1 | — |
+| Mätpunkt | Baslinje | Batch 4 | Batch 5 | Δ batch 5 |
+|----------|----------|---------|---------|-----------|
+| Pass | 3109 | 3151 | 3160 | +9 |
+| Fail | 57 | 17 | 8 | −9 |
+| Skip | 0 | 4 | 4 | 0 |
+| Cancelled | 0 | 0 | 0 | 0 |
+| Exit code | 1 | 1 | 1 | — |
 
-TAP/log batch 4: `.local/full-suite-after-batch4-2026-07-31.log`
+TAP/log batch 5: `.local/full-suite-after-batch5-2026-07-31.log`
+
+## Produktbeslut (batch 5 — barn)
+
+**Barnens teman** används för **visuell personalisering** av barnvyn (bakgrund, färger, illustrationer, ikoner) via `child-theme.js` / `child-theme-picker.js` — **aktiv**, ska bevaras.
+
+**Morgonhuset** och den **separata spel-/world-navigationen** (WorldHub → Trädgården → Minnesrummet som gameplay-ingång) är **avvecklad produkt** när `barnets_samling` är på (`isWorldHubEntryDisabled`). Legacy kod finns kvar i repo men ska inte vara canonical barnflöde.
+
+**Min samling** (`barnets_samling`): flikar today / collection / treasure / family / settings — **aktiv**. **Memory hall** (`memory_hall_playable`, dev-flag): living-world scaffold / pack — **inte** samma som Min samling UI; gated, ej primär nav.
+
+| Funktion | Aktiv | Visuell endast | Avvecklad | I navigation (samling) | Åtgärd i batch 5 |
+|----------|-------|----------------|-----------|------------------------|------------------|
+| Temaval | ✓ | ✓ | | settings/tema | befintliga `child-theme*` tester |
+| Temabakgrunder/CSS | ✓ | ✓ | | via `data-child-theme` | — |
+| Temaikoner | ✓ | ✓ | | picker grid | — |
+| Morgonhuset som ingång | | | ✓ | nej när gate på | negativt kontrakt `isWorldHubEntryDisabled` |
+| Child worlds (hub gameplay) | | | ✓ | nej (treasure direkt) | BL-028 → implementation i legacy JS, inte UI-kontrakt |
+| Spelmekanik i världar | | | ✓ | | ej återinförd |
+| Memory hall (living world) | dev | | delvis | nej | pack/API-kontrakt uppdaterade |
+| Min samling (treasure/collection) | ✓ | | | ✓ | `SAMLING_WORLDS` kontrakt |
+
+## Batch 5 — family UI, library, XSS, barn (2026-07-31)
+
+Scoped baseline: **54 tests, 9 fail** (6 filer). Efter fix: **54 pass** (+ `retired-child-gameplay-contracts`).
+
+| Testfil | Status | Rotorsak | Ändring | Produkt |
+|---------|--------|----------|---------|---------|
+| `xss.test.js` step 4 | **Test contract fixed** | `tOnboarding` + `textContent`; `escapeHtml` på reward cards | Uppdaterat regex | Ingen XSS — redan säker |
+| `family-ui-avatar-menu-fix` | **Test contract fixed** | Dropdown flyttad → `parent-nav-header` | Assert header chrome | — |
+| `library-load-error-handling` | **Test contract fixed** | i18n `library.errors.*` via `lpt()` | Uppdaterat regex | Fel-UI finns |
+| `memory-hall-exhibits-pack` | **Test contract fixed** | mock `hasAccess` SQL params | Fixture | Pack schema aktiv (dev) |
+| `memory-hall-playable` | **Test contract fixed** | ADR-fil → `docs/art-specs/memory-hall-bl041.md` | Doc path | Scaffold, ej Min samling |
+| `child-world-a11y` | **Test contract fixed** | Wayfinder + ambient runtime (ej hotspot-HTML) | Peka på JS + status region | Legacy moduler kvar i kod |
+| `retired-child-gameplay-contracts` | **Ny** | Negativa nav-kontrakt | SAMLING_WORLDS, redirect | — |
+
+**Produktfiler ändrade:** inga.
+
+**Säkerhet (XSS):** step 3/4 använder `textContent` + `tOnboarding()`; reward-grid använder `escapeHtml` på namn/ikon — **ingen produktfix behövd**.
+
+**Kvar efter batch 5 (Activation batch):** 8 fail — endast ACT-1 / activation-program (6 suites + nested).
 
 **Batch 1 borttagna failures (12):** `release-os` (3 handoff/async), `apple-signup-sql`, `daily-logs-authz-contract`, `admin-start-summary` (getMessageCounts scope), `landing-mobile-layout` + `landing-share-restore` (node:test harness), samt 4 `governance-registry` som blev **skip** (inte fail).
 
@@ -114,20 +153,20 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 | `test/barnmeny-v2.test.js` | **fixed batch 4** |
 | `test/calendar-magic-contrast.test.js` | **fixed batch 4** |
 | `test/child-dashboard-celebrations.test.js` | **fixed batch 3** |
-| `test/child-world-a11y.test.js` | BL-028 a11y |
+| `test/child-world-a11y.test.js` | **fixed batch 5** |
 | `test/daily-logs-authz-contract.test.js` | Stale `getLogAccess` vs `requireLogAccess` |
 | `test/dashboard-card-actions.test.js` | **fixed batch 3** |
 | `test/dashboard-split.test.js` | **fixed batch 3** |
-| `test/family-ui-avatar-menu-fix.test.js` | Family UI contract |
+| `test/family-ui-avatar-menu-fix.test.js` | **fixed batch 5** |
 | `test/governance-registry.test.js` | POS/COS files not in cloud clone |
 | `test/landing-mobile-layout.test.js` | Missing `node:test` import (`describe` undefined) |
 | `test/landing-share-restore.test.js` | Same |
 | `test/legacy-parent-pages.test.js` | Inline script contracts |
-| `test/library-load-error-handling.test.js` | Library error UI |
+| `test/library-load-error-handling.test.js` | **fixed batch 5** |
 | `test/magic-nav-flash-fix.test.js` | **fixed batch 4** |
 | `test/magic-soft-nav.test.js` | **fixed batch 4** |
-| `test/memory-hall-exhibits-pack.test.js` | Memory hall pack |
-| `test/memory-hall-playable.test.js` | Memory hall playable |
+| `test/memory-hall-exhibits-pack.test.js` | **fixed batch 5** |
+| `test/memory-hall-playable.test.js` | **fixed batch 5** |
 | `test/meny-v2-review-fixes.test.js` | **fixed batch 4** |
 | `test/meny-v21.test.js` | **fixed batch 4** |
 | `test/meny-v22.test.js` | **fixed batch 4** |
@@ -141,7 +180,7 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 | `test/schedule-core.test.js` | **fixed batch 3** |
 | `test/seo-pages.test.js` | SEO meta/robots/canonical |
 | `test/vuxenmeny-v2.test.js` | **fixed batch 4** |
-| `test/xss.test.js` | onboarding.js step 4 reward intro |
+| `test/xss.test.js` | **fixed batch 5** |
 
 Nested failures also in: `test/deploy-gate.test.js` (GitHub workflow), `test/onboarding-handoff-p0.test.js`, `test/pr5-checkpoint.test.js`, etc.
 
@@ -198,7 +237,7 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 | 2026-07-31 | 45 fail, 4 skip | After batch 1 (`20abd744`) |
 | 2026-07-31 | 39 fail, 4 skip | After batch 2 (`d3180468`) |
 | 2026-07-31 | 34 fail, 4 skip | After batch 3 (`905ffd2b`) |
-| 2026-07-31 | 17 fail, 4 skip | After batch 4 (`d0b56a3c`) — menu v2 / magic nav |
+| 2026-07-31 | 8 fail, 4 skip | After batch 5 — family/library/XSS/barn (`1b11071e` + doc/retired) |
 
 ## Slutmål
 
