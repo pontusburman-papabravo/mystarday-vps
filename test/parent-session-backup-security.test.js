@@ -20,6 +20,12 @@ test('parent handoff uses opaque cookie storage (not base64 JWT backup)', () => 
   assert.match(cookies, /consumeHandoffAndActivateSession/);
 });
 
+test('parent-pin-status-picker JSON omits parent identity fields', () => {
+  const pin = fs.readFileSync(path.join(ROOT, 'src/routes/family/pin.js'), 'utf8');
+  assert.match(pin, /res\.json\(\{\s*has_session: false,\s*has_pin: false\s*\}\)/);
+  assert.match(pin, /res\.json\(\{\s*has_session: true,\s*has_pin: hasPin/);
+});
+
 test('logout clears parent handoff cookie', () => {
   const login = fs.readFileSync(path.join(ROOT, 'src/routes/auth/login.js'), 'utf8');
   assert.match(login, /clearHandoffCookie/);

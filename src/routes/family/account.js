@@ -82,7 +82,12 @@ router.delete('/delete-account', requireParent, async (req, res) => {
     await client.query(`DELETE FROM email_verification WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(`DELETE FROM password_reset WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);
     await client.query(
-      `DELETE FROM waitlist WHERE email IN (SELECT email FROM parent WHERE family_id = $1)`,
+      `DELETE FROM waitlist w
+       WHERE EXISTS (
+         SELECT 1 FROM parent p
+         WHERE p.family_id = $1
+           AND LOWER(TRIM(p.email)) = LOWER(TRIM(w.email))
+       )`,
       [family_id]
     );
     await client.query(`DELETE FROM notification_preference WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)`, [family_id]);

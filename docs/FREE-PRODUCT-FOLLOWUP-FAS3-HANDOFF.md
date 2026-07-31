@@ -1,32 +1,55 @@
 # Free product follow-up — Fas 3 (opaque handoff)
 
 **Branch:** `cursor/opaque-parent-session-handoff`  
-**Base:** `e53f59e0` (`origin/main`)  
-**Status:** GO (draft PR, no merge)
+**PR:** #796  
+**Status:** Ready for review — **merge after #795** (rebase + re-run gates)
 
 ## Summary
 
 Replaced `stjarndag_parent_session` base64 `{access_token, refresh_token}` backup with **opaque server-side handoff**:
 
-- Cookie: random `base64url` token only
-- DB: `parent_session_handoff` (`token_hash`, `parent_id`, `family_id`, `refresh_token_id`, TTL, `used_at`, `revoked_at`)
-- Activate: atomic consume + refresh rotation + new access cookies
+- Cookie: random `base64url` token only (32 bytes)
+- DB: `parent_session_handoff` — **SHA-256 hash only**, `refresh_token_id`, parent/family binding, TTL cap 7d (min of refresh expiry)
+- Activate: `consumeHandoffAndActivateSession` — atomic `UPDATE … used_at` + refresh rotation
 - Legacy base64 cookies cleared on read (not honored)
 
-## Tests
+## Pre-merge verification matrix (#796)
 
-- `test/parent-session-handoff.integration.test.js` — create, activate, reuse denied, revoked co-parent, tampered token, concurrent consume (200/401)
-- `test/parent-session-backup-security.test.js` — contract updated
-- `test/parent-child-session-restore.test.js` — opaque fixture
-- `npm run test:gate` green
-- `test/migration-rollback-gate.test.js` green (migration `1810000000018`)
+| Requirement | Evidence |
+|-------------|----------|
+| Opaque cookie has no access/refresh JWT | `createHandoffFromParentCookies` uses `randomBytes`; integration asserts no `eyJ` / `access_token` in cookie |
+| Only hash in DB | `INSERT` uses `token_hash = hashOpaque(opaque)` |
+| Short TTL | `HANDOFF_TTL_MS` 7d, capped by refresh `expires_at` |
+| Tampered token denied | Integration: random base64url → activate 401 |
+| Expired token denied | Integration: past `expires_at` → activate 401; parent-gated picker 403 (no bypass) |
+| Revoked co-parent cannot restore | Integration: `parent_child.revoked_at` → activate 401 |
+| Bound to parent + family | Row stores `parent_id`, `family_id`; `parentHasActiveFamilyAccess` on validate/consume |
+| Concurrent activate: one wins | Integration: parallel POST → `[200, 401]` |
+| Atomic one-time consume + rotation | `consumeHandoffAndActivateSession` conditional `UPDATE … RETURNING` then delete old refresh + new tokens |
+| `revokeAll` / password reset / change-password | Integration: real endpoints → activate 401 |
+| Forgot-password alone does not revoke | Integration: forgot → picker still OK until `reset-password` |
+| Parent logout revokes handoff | Integration: parent `POST /logout` after child login → handoff row gone, activate 401 |
+| Account delete removes handoff | Integration: `DELETE /delete-account` → activate 401, row removed |
+| Migration + rollback | `1810000000018_parent_session_handoff.js`; `test/migration-rollback-gate.test.js` |
+| Picker rate limit / no sensitive leak | `parent-pin-status-picker` in bootstrap exempt list (global IP limit still applies); JSON only `has_session` + `has_pin` (contract test) |
+| Non-consuming picker ≠ session oracle for cookies | Picker proves handoff validity only to holder of cookie; does not issue parent JWT; **activate** is consume/rotate gate |
 
-## Out of scope (as requested)
+## Waitlist cleanup on delete-account
+
+Fixed erroneous `waitlist.family_id` (column does not exist). Deletion uses parameterized `family_id` subquery with **`LOWER(TRIM(p.email)) = LOWER(TRIM(w.email))`**. Zero matching waitlist rows is a no-op (does not fail the transaction).
+
+## Merge order (founder)
+
+1. Merge **#795** (schedules revoked-parent authz).
+2. Rebase **#796** on new `main`.
+3. `npm run test:gate`, `node --test test/migration-rollback-gate.test.js`, handoff integration file.
+4. Review diff post-rebase → final GO for #796.
+
+## After #795 + #796
+
+Next phase: fix **50 existing `npm test` failures** from a **new branch** off then-current `main` — do not mix push-native or onboarding in the same PR.
+
+## Out of scope
 
 - PR #794 founder QA rule
-- PR #795 schedules authz
-- Push-native P2 (documented separately)
-
-## PR
-
-_(link after push)_
+- Push-native P2

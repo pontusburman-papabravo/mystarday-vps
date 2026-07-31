@@ -497,3 +497,91 @@ test('DELETE /api/family/delete-account invalidates saved handoff activation', a
     await db.cleanup();
   }
 });
+
+test('expired handoff is denied for picker and activate', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const tag = Date.now();
+  const password = 'handoff-exp-1';
+  const fixture = await setupParentChildFixture(db, tag, password);
+
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, password);
+    const { childCookies, childBody } = await childLoginSession(
+      baseUrl,
+      parentLogin,
+      fixture.username,
+      '1112'
+    );
+
+    await db.query(
+      `UPDATE parent_session_handoff
+       SET expires_at = NOW() - INTERVAL '1 minute'
+       WHERE parent_id = $1`,
+      [fixture.parentId]
+    );
+
+    const pickerRes = await fetch(`${baseUrl}/api/family/parent-pin-status-picker`, {
+      headers: { Cookie: cookieHeader(childCookies) },
+    });
+    assert.equal(pickerRes.status, 403, 'expired handoff must not bypass requireParent');
+
+    await assertActivateHandoffFails(baseUrl, childCookies, childBody.csrfToken);
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('parent logout revokes handoff tied to parent refresh token', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const tag = Date.now();
+  const password = 'handoff-logout-1';
+  const fixture = await setupParentChildFixture(db, tag, password);
+
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, password);
+    const { childCookies, childBody } = await childLoginSession(
+      baseUrl,
+      parentLogin,
+      fixture.username,
+      '1112'
+    );
+    await assertHandoffSessionPickerOk(baseUrl, childCookies);
+
+    const logoutRes = await fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookieHeader(parentLogin.cookies),
+        'X-CSRF-Token': parentLogin.csrfToken,
+      },
+    });
+    assert.equal(logoutRes.status, 200);
+
+    await assertActivateHandoffFails(baseUrl, childCookies, childBody.csrfToken);
+
+    const rows = await db.query(
+      `SELECT COUNT(*)::int AS n FROM parent_session_handoff WHERE parent_id = $1`,
+      [fixture.parentId]
+    );
+    assert.equal(rows.rows[0].n, 0, 'handoff row removed when parent refresh revoked');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
