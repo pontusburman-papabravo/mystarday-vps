@@ -304,4 +304,4 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 
 ## Slutmål
 
-**Uppnått:** `npm run test:full` → fail 0, cancelled 0, exit 0; gates (lint, test:gate, migration rollback, css, rou
+**Uppnått:** `npm run test:full` → fail 0, cancelled 0, exit 0; gates (lint, test:gate, migration rollback, css, routes, migrate) gröna.
