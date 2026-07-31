@@ -175,6 +175,7 @@
     "serverError": "Something went wrong. Try again.",
     "networkError": "Could not connect. Try again.",
     "pinNameRequired": "Name is required",
+    "pinNameInvalid": "That name is too long — try a shorter one",
     "pinRequired": "PIN is required",
     "pinInvalidFormat": "PIN must be 4 digits",
     "pinInvalid": "Wrong name or PIN",

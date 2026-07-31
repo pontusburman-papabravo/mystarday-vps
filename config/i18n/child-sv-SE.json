@@ -175,6 +175,7 @@
     "serverError": "Något gick fel. Försök igen.",
     "networkError": "Kunde inte ansluta. Försök igen.",
     "pinNameRequired": "Namn krävs",
+    "pinNameInvalid": "Namnet är för långt — prova ett kortare",
     "pinRequired": "PIN-kod krävs",
     "pinInvalidFormat": "PIN-koden måste vara 4 siffror",
     "pinInvalid": "Felaktigt namn eller PIN-kod",
