@@ -31,11 +31,11 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 | Mätpunkt | Baslinje | Efter batch 1 | Efter batch 2 | Delta batch 1 | Delta batch 2 |
 |----------|----------|---------------|---------------|---------------|---------------|
-| Pass | 3109 | 3122 | (pending) | +13 | (pending) |
-| Fail | 57 | 45 | (pending) | −12 | (pending) |
-| Skip | 0 | 4 | (pending) | +4 | (pending) |
-| Cancelled | 0 | 0 | (pending) | 0 | (pending) |
-| Exit code | 1 | 1 | (pending) | — | (pending) |
+| Pass | 3109 | 3122 | 3128 | +13 | +6 |
+| Fail | 57 | 45 | 39 | −12 | −6 |
+| Skip | 0 | 4 | 4 | +4 | 0 |
+| Cancelled | 0 | 0 | 0 | 0 | 0 |
+| Exit code | 1 | 1 | 1 | — | — |
 
 TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 
@@ -48,12 +48,16 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 3. Constitution has six rules  
 4. child IA ADR  
 
-**Nya failures efter batch 1:** inga identifierade (samma failure-set minus ovan).
+**Batch 2 borttagna failures (6):** `seo-pages` (register i18n meta/hero, robots Sitemap, canonical URLs), `pricing-info-route` (SV `pris-och-tillgang`, EN waitlist/faq), `legacy-parent-pages` (calendar auth i `calendar-page.js`).
 
-| Mätpunkt | Efter batch 1 | Efter batch 2 (pending full run) |
-|----------|---------------|----------------------------------|
-| Pass | 3122 | (kör `test:full`) |
-| Fail | 45 | mål −6 från batch 2 scope |
+**Nya failures efter batch 2:** inga (39 = 45 − 6).
+
+TAP/log: `.local/full-suite-after-batch2-2026-07-31.log` (npm summary rad; full TAP truncated om inte `NPM_TEST_RUNNER_VERBOSE=1`).
+
+| Mätpunkt | Efter batch 1 | Efter batch 2 |
+|----------|---------------|-----------------|
+| Pass | 3122 | 3128 |
+| Fail | 45 | 39 |
 
 **≈50 failures:** yes — **57** counted failures (46 top-level `not ok` lines; remainder nested subtests).
 
@@ -151,7 +155,7 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 |------|------------|--------|
 | 2026-07-31 | 57 | Baseline on `b16c6709`, fresh DB |
 | 2026-07-31 | 45 fail, 4 skip | After batch 1 (`20abd744`) |
-| 2026-07-31 | (pending) | After batch 2 — SEO/landing/pricing contracts |
+| 2026-07-31 | 39 fail, 4 skip | After batch 2 (`ba041a43`) — SEO/landing/pricing contracts |
 
 ## Slutmål
 
