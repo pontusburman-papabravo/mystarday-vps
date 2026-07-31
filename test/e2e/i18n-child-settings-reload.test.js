@@ -75,6 +75,8 @@ async function openSettingsView(page) {
     if (window.ChildSettingsView && ChildSettingsView.refresh) {
       ChildSettingsView.refresh({ force: true });
     }
+    const navBtn = document.querySelector('#childBottomNav [data-child-world="settings"]');
+    if (navBtn) navBtn.click();
   });
 
   await page.waitForFunction(() => {
