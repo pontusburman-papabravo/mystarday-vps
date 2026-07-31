@@ -2,7 +2,15 @@
 
 **Branch:** `cursor/opaque-parent-session-handoff`  
 **PR:** #796  
-**Status:** Ready for review — **merge after #795** (rebase + re-run gates)
+**Status:** **Villkorat GO** efter rebase på `main` (inkl. efter merge av #795) + gröna gates.
+
+## Handoff TTL (7 dagar)
+
+`HANDOFF_TTL_MS` caps cookie/`expires_at` at **7 days**, further limited by the parent **refresh token** expiry (typically 30d cap on cookie maxAge, but handoff row expires at `min(refresh_expires, now+7d)`).
+
+**Why not shorter:** Barn kan lämna barnläge och återvända till barnväljaren samma vecka utan att föräldern ska logga in igen — samma förväntning som den tidigare base64-backup som följde refresh-livslängden. Token är opaque, hashad, family-bunden, atomiskt konsumerad vid activate och återkallad vid logout, credential-ändring och kontoradering.
+
+**Follow-up (non-blocking):** Kortare grund-TTL med säker rotation vid barnaktivitet; dedikerad rate limit på `parent-pin-status-picker`; strukturerad loggning av upprepade misslyckade picker/activate (utan token i logg).
 
 ## Summary
 
@@ -40,10 +48,19 @@ Fixed erroneous `waitlist.family_id` (column does not exist). Deletion uses para
 
 ## Merge order (founder)
 
-1. Merge **#795** (schedules revoked-parent authz).
-2. Rebase **#796** on new `main`.
-3. `npm run test:gate`, `node --test test/migration-rollback-gate.test.js`, handoff integration file.
-4. Review diff post-rebase → final GO for #796.
+1. Merge **#795** (schedules revoked-parent authz) — **ännu öppen** på `main` vid senaste check.
+2. Rebase **#796** på nya `main` (pre-rebase mot `bef78aa7` redan gjord lokalt; **rebase igen efter #795**).
+3. Verifiera migration `1810000000018` — ingen kollision med befintliga `1810000000015`/`1810000000017` på main.
+4. Gates: `npm run test:gate`, `migration-rollback-gate`, `parent-session-handoff.integration.test.js`, child-login-relaterade tester.
+5. Granska diff efter rebase → **GO för merge #796** (waitlist-fix ingår).
+
+### Post-rebase på `bef78aa7` (före #795 merge)
+
+| Gate | Result |
+|------|--------|
+| `npm run test:gate` | 270 pass |
+| `migration-rollback-gate` | 3 pass |
+| handoff + child-login integration | 15 pass |
 
 ## After #795 + #796
 
