@@ -22,8 +22,7 @@ const pinLockout = require('../../../db/pin-lockout');
 const { sendPinWarningEmail } = require('../../lib/email');
 const { createSystemMessage } = require('../../../db/system-messages');
 const { broadcast } = require('../../lib/sse-broadcast');
-const { validate } = require('../../middleware/validate');
-const { ChildLoginSchema } = require('../../lib/schemas');
+const { validateChildLoginBody } = require('../../middleware/validate-child-login');
 const { avatarApiFields } = require('../../lib/avatar-api');
 const { resolveParentFamilyIdFromCookies } = require('../../lib/parent-session-family');
 const { parseDuration } = require('./session');
@@ -34,19 +33,9 @@ const router = express.Router();
 // Requires BOTH name + PIN. Tracks attempts in pin_lockout table with
 // exponential backoff (5 attempts → 1min, 8 → 5min, 11 → 15min).
 // Notifies parent at 3rd failed attempt (in-app + email, with email cooldown).
-router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async (req, res) => {
+router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (req, res) => {
   try {
     const { username, pin } = req.body;
-
-    if (!username || !username.trim()) {
-      return res.status(400).json({ error: 'Namn krävs', code: 'CHILD_NAME_REQUIRED' });
-    }
-    if (!pin) {
-      return res.status(400).json({ error: 'PIN-kod krävs', code: 'CHILD_PIN_REQUIRED' });
-    }
-    if (!/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN-koden måste vara 4 siffror', code: 'CHILD_PIN_INVALID_FORMAT' });
-    }
 
     const normalizedInput = username.toLowerCase().trim();
     const clientIp = req.ip || 'unknown';

@@ -148,16 +148,16 @@
       }
       return childErrorFromCode('CHILD_PIN_LOCKED', { minutes: minutes || 1 });
     }
-    if (data.code && data.code !== 'CHILD_PIN_INVALID') {
-      return childErrorFromCode(data.code);
-    }
     const remaining = data.attempts_remaining;
-    if (remaining === 1) return cpt('errors.pinWarningLast');
-    if (remaining != null && remaining <= 2 && remaining > 0) {
-      return cpt('errors.pinWarningLow', { remaining: remaining });
+    if (data.code === 'CHILD_PIN_INVALID') {
+      if (remaining === 1) return cpt('errors.pinWarningLast');
+      if (remaining != null && remaining <= 2 && remaining > 0) {
+        return cpt('errors.pinWarningLow', { remaining: remaining });
+      }
+      return childErrorFromCode('CHILD_PIN_INVALID');
     }
     if (data.code) return childErrorFromCode(data.code);
-    return data.error || cpt('errors.serverError');
+    return cpt('errors.serverError');
   }
 
   function lockoutCountdownText(remainingSeconds) {
@@ -173,6 +173,7 @@
   function childErrorFromCode(code, params) {
     const map = {
       CHILD_NAME_REQUIRED: 'errors.pinNameRequired',
+      CHILD_NAME_INVALID: 'errors.pinNameInvalid',
       CHILD_PIN_REQUIRED: 'errors.pinRequired',
       CHILD_PIN_INVALID_FORMAT: 'errors.pinInvalidFormat',
       CHILD_PIN_INVALID: 'errors.pinInvalid',

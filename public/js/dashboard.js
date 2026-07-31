@@ -189,9 +189,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // klinisk_rapportering → hide "Rapporter" sidebar link and sharing banner.
   (async () => {
     try {
-      const resp = await fetch('/api/features', { credentials: 'include' });
-      if (!resp.ok) return;
-      const features = await resp.json();
+      const [featuresResp, accessResp] = await Promise.all([
+        fetch('/api/features', { credentials: 'include' }),
+        fetch('/api/subscription/access', { credentials: 'include' }),
+      ]);
+      if (!featuresResp.ok) return;
+      const features = await featuresResp.json();
       const accessible = {};
       for (let i = 0; i < features.length; i++) {
         accessible[features[i].slug] = true;
@@ -203,12 +206,27 @@ document.addEventListener('DOMContentLoaded', async () => {
           DashboardHomeHub.render(dashboardStats);
         }
       }
-      const slugs = features.map(f => f.slug);
-      if (!slugs.includes('klinisk_rapportering')) {
-        const rapporterLink = document.querySelector('a[href="/reports"].sidebar-nav');
-        if (rapporterLink) rapporterLink.closest('li')?.remove();
+      let reportingHas = false;
+      if (accessResp.ok) {
+        const access = await accessResp.json();
+        window._packageAccess = access;
+        reportingHas = !!(access.components && access.components.reporting && access.components.reporting.has);
+      }
+      if (!reportingHas) {
+        document.querySelectorAll('[data-component="reporting"], a[href="/reports"].sidebar-nav').forEach(function (el) {
+          if (el.id === 'activeSharingBanner') el.remove();
+          else el.closest('li')?.remove() || el.remove();
+        });
         const banner = document.getElementById('activeSharingBanner');
         if (banner) banner.remove();
+      } else {
+        const slugs = features.map(f => f.slug);
+        if (!slugs.includes('klinisk_rapportering')) {
+          const rapporterLink = document.querySelector('a[href="/reports"].sidebar-nav');
+          if (rapporterLink) rapporterLink.closest('li')?.remove();
+          const banner = document.getElementById('activeSharingBanner');
+          if (banner) banner.remove();
+        }
       }
     } catch (_) { /* non-critical — allow page to load */ }
   })();

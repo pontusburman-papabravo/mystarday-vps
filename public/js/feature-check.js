@@ -35,6 +35,38 @@
 
   // Synchronously hide all [data-feature] elements on the page.
   // Runs before mobile-nav.js or any other script can show the sidebar.
+  function hasReportingPackage(access) {
+    return !!(access && access.components && access.components.reporting && access.components.reporting.has);
+  }
+
+  function hideReportingComponentElements() {
+    const els = document.querySelectorAll('[data-component="reporting"]');
+    for (let i = 0; i < els.length; i++) {
+      const el = els[i];
+      el._origReportingDisplay = el.style.display;
+      el.style.display = 'none';
+    }
+  }
+
+  function applyReportingComponentGate(packageAccess) {
+    const allowed = hasReportingPackage(packageAccess);
+    const els = document.querySelectorAll('[data-component="reporting"]');
+    for (let i = 0; i < els.length; i++) {
+      const el = els[i];
+      if (!allowed) {
+        if (el.id === 'activeSharingBanner') {
+          el.remove();
+        } else {
+          el.style.display = 'none';
+        }
+      } else if (el._origReportingDisplay !== undefined) {
+        el.style.display = el._origReportingDisplay;
+      } else {
+        el.style.display = '';
+      }
+    }
+  }
+
   function hideAllGatedElements() {
     // First: mark sidebar links that don't yet have data-feature with their slug
     // so they can be hidden alongside explicitly-marked elements.
@@ -66,6 +98,7 @@
 
   // Run synchronously before any other script can read the sidebar
   hideAllGatedElements();
+  hideReportingComponentElements();
 
   function applyFeatureGate(accessible) {
     const els = document.querySelectorAll('[data-feature]');
@@ -88,6 +121,9 @@
     if (banner && !accessible['klinisk_rapportering']) {
       banner.remove();
     }
+    if (window._packageAccess) {
+      applyReportingComponentGate(window._packageAccess);
+    }
   }
 
   // MutationObserver: re-apply gate to newly inserted [data-feature] elements
@@ -109,8 +145,20 @@
     ? window.fetchStjarndagFeatures()
     : fetch('/api/features', { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : []; });
 
-  loadFeatures
-    .then(function (features) {
+  const loadPackageAccess = window.fetchPackageAccess
+    ? window.fetchPackageAccess().catch(function () { return null; })
+    : fetch('/api/subscription/access', { credentials: 'include' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+
+  Promise.all([loadFeatures, loadPackageAccess])
+    .then(function (results) {
+      const features = results[0];
+      const packageAccess = results[1];
+      if (packageAccess) {
+        window._packageAccess = packageAccess;
+        applyReportingComponentGate(packageAccess);
+      }
       const accessible = {};
       for (let i = 0; i < features.length; i++) {
         accessible[features[i].slug] = true;

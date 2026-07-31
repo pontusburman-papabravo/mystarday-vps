@@ -50,9 +50,9 @@ describe('i18n child core', () => {
     assert.equal(typeof sandbox.window.initChildAppI18n, 'function');
   });
 
-  it('child-login route returns stable error codes', () => {
+  it('child-login route uses stable validation middleware', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/auth/child-login.js'), 'utf8');
-    assert.match(src, /code: 'CHILD_NAME_REQUIRED'/);
+    assert.match(src, /validateChildLoginBody/);
     assert.match(src, /code: 'CHILD_PIN_LOCKED'/);
     assert.match(src, /code: 'CHILD_PIN_INVALID'/);
     assert.match(src, /code: 'CHILD_SERVER_ERROR'/);
