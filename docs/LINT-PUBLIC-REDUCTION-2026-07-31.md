@@ -189,7 +189,7 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 | `npm run lint` | exit 0 |
 | `npm run check:routes` | OK |
 | `npm run test:gate` | 281 pass, 0 fail |
-| `npm run test:full` | (kör vid merge) |
+| `npm run test:full` | 3212 pass, 0 fail, 4 governance skips |
 
 **Batch 1 regression:** `window.loadUserStats` kvar i `admin-user-stats.js`; `check:ambient-objects` reproducerbar från generator.
 
