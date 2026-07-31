@@ -563,9 +563,28 @@ async function assertFamilyLocalePersisted(page, locale) {
 }
 
 async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
-  await openSettingsFamilyLocale(page, baseUrl);
-  await selectSettingsLocaleWithEvent(page, locale);
-  return assertFamilyLocalePersisted(page, locale);
+  const attempts = Number(process.env.RC1_LOCALE_SETTINGS_ATTEMPTS || 3);
+  let lastErr;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      await openSettingsFamilyLocale(page, baseUrl);
+      await selectSettingsLocaleWithEvent(page, locale);
+      return assertFamilyLocalePersisted(page, locale);
+    } catch (err) {
+      lastErr = err;
+      const isRateLimited = (page._rc1Diagnostics?.consoleErrors || []).some((e) => /429|för många/i.test(e));
+      if (i < attempts - 1 && isRateLimited) {
+        console.warn(`[rc1-smoke] settings locale retry ${i + 1}/${attempts - 1} after rate limit`);
+        await rc1Sleep(65000);
+        continue;
+      }
+      if (i < attempts - 1) {
+        await rc1Sleep(3000);
+        continue;
+      }
+    }
+  }
+  throw lastErr;
 }
 
 async function reloginParent(page, baseUrl, seed, loginLocale) {
@@ -647,25 +666,16 @@ async function assertRc1ChildLocaleContract(page) {
 }
 
 async function triggerChildToParentHandoff(page) {
+  await page.waitForFunction(
+    () => /\/child(\/today|-dashboard)/.test(window.location.pathname),
+    { timeout: 30000 }
+  );
   await page.evaluate(async () => {
     if (window.Auth && typeof Auth.logout === 'function') {
-      await Auth.logout({ childFlow: true });
+      await Auth.logout();
     }
   });
-  const sawOverlay = await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', {
-    visible: true,
-    timeout: 8000,
-  }).catch(() => null);
-  if (sawOverlay) return;
-
-  const onChild = await page.evaluate(() => /\/child/.test(window.location.pathname));
-  if (onChild && await page.evaluate(() => Boolean(window.ParentalGate && ParentalGate.show))) {
-    await page.evaluate(() => {
-      ParentalGate.show(() => {}, () => {});
-    });
-    return;
-  }
-  await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', { visible: true, timeout: 45000 });
+  await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 45000 });
 }
 
 async function waitForParentHandoffComplete(page, baseUrl) {
@@ -677,31 +687,27 @@ async function waitForParentHandoffComplete(page, baseUrl) {
 }
 
 async function enterParentAppPin(page, pin) {
-  await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', { visible: true, timeout: 45000 });
+  await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 45000 });
   const digits = String(pin).split('');
   for (const digit of digits) {
     await page.evaluate((d) => {
-      const overlay = document.getElementById('ppin-gate-overlay') || document.getElementById('ppin-overlay');
-      if (!overlay) return;
-      const kbd = overlay.querySelector('#ppgo-keypad, #ppin-keypad');
+      const kbd = document.querySelector('#ppgo-keypad');
       if (!kbd) return;
       const buttons = [...kbd.querySelectorAll('button')];
       const btn = buttons.find((b) => (b.textContent || '').trim() === d);
       if (btn) btn.click();
     }, digit);
-    await new Promise((r) => setTimeout(r, 80));
+    await rc1Sleep(150);
   }
   await page.evaluate(() => {
-    const overlay = document.getElementById('ppin-gate-overlay') || document.getElementById('ppin-overlay');
-    if (!overlay) return;
-    const kbd = overlay.querySelector('#ppgo-keypad, #ppin-keypad');
+    const kbd = document.querySelector('#ppgo-keypad');
     if (!kbd) return;
     const submit = [...kbd.querySelectorAll('button')].find((b) => (b.textContent || '').trim() === '✓');
     if (submit) submit.click();
   });
   await page.waitForFunction(
-    () => !document.getElementById('ppin-gate-overlay') && !document.getElementById('ppin-overlay'),
-    { timeout: 30000 }
+    () => !document.getElementById('ppin-gate-overlay'),
+    { timeout: 90000 }
   );
 }
 

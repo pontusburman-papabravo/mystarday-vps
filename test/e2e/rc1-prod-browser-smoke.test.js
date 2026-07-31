@@ -65,6 +65,39 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
     await fetchReleaseIdentity(cfg.baseUrl, cfg.expectedSha, cfg.expectedCache);
   });
 
+  it('parent locale switch via Settings UI (reload + restore original locale)', async () => {
+    await rc1Sleep(rc1TestGapMs());
+    const { page, close } = await newIsolatedPage(browser, 'desktop');
+    try {
+      await withDiagnostics(page, 'locale-settings-ui', async () => {
+        await loginParent(page, cfg.baseUrl, seed, null);
+        await assertEnglishAppEnabled(page);
+
+        await withFamilyLocaleScope(page, cfg.baseUrl, seed, 'locale-settings-ui', async ({ original, setLocale }) => {
+          const start = original.preferredLocale || 'sv-SE';
+          const toggleFrom = start === 'en-GB' ? 'sv-SE' : start;
+          const toggleTo = toggleFrom === 'sv-SE' ? 'en-GB' : 'sv-SE';
+
+          if (start !== toggleFrom) {
+            await setLocale(toggleFrom);
+          }
+          await setLocale(toggleTo);
+          if (toggleTo === 'en-GB') {
+            await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+            await assertPrimaryNavEnglish(page);
+          }
+
+          await page.reload({ waitUntil: 'domcontentloaded' });
+          const persisted = await readFamilyLocaleSnapshot(page);
+          assert.equal(persisted.preferredLocale, toggleTo);
+          assert.equal(persisted.i18n, toggleTo);
+        });
+      });
+    } finally {
+      await close();
+    }
+  });
+
   it('reports UI hidden without reporting component (after package access resolves)', async () => {
     await rc1Sleep(rc1TestGapMs());
     const { page, close } = await newIsolatedPage(browser, 'desktop');
@@ -104,39 +137,6 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
         } else {
           await assertReportsRouteBlocked(page, cfg.baseUrl);
         }
-      });
-    } finally {
-      await close();
-    }
-  });
-
-  it('parent locale switch via Settings UI (reload + restore original locale)', async () => {
-    await rc1Sleep(rc1TestGapMs());
-    const { page, close } = await newIsolatedPage(browser, 'desktop');
-    try {
-      await withDiagnostics(page, 'locale-settings-ui', async () => {
-        await loginParent(page, cfg.baseUrl, seed, null);
-        await assertEnglishAppEnabled(page);
-
-        await withFamilyLocaleScope(page, cfg.baseUrl, seed, 'locale-settings-ui', async ({ original, setLocale }) => {
-          const start = original.preferredLocale || 'sv-SE';
-          const toggleFrom = start === 'en-GB' ? 'sv-SE' : start;
-          const toggleTo = toggleFrom === 'sv-SE' ? 'en-GB' : 'sv-SE';
-
-          if (start !== toggleFrom) {
-            await setLocale(toggleFrom);
-          }
-          await setLocale(toggleTo);
-          if (toggleTo === 'en-GB') {
-            await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
-            await assertPrimaryNavEnglish(page);
-          }
-
-          await page.reload({ waitUntil: 'domcontentloaded' });
-          const persisted = await readFamilyLocaleSnapshot(page);
-          assert.equal(persisted.preferredLocale, toggleTo);
-          assert.equal(persisted.i18n, toggleTo);
-        });
       });
     } finally {
       await close();
@@ -209,10 +209,6 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
 
             await loginChildFromParentSession(page, cfg.baseUrl, seed);
             await assertChildSession(page);
-            await page.waitForFunction(
-              () => /\/child(\/today|-dashboard)/.test(window.location.pathname),
-              { timeout: 30000 }
-            );
 
             await triggerChildToParentHandoff(page);
             await enterParentAppPin(page, parentPin);
