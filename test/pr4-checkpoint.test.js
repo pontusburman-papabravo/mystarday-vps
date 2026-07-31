@@ -17,7 +17,7 @@ describe('ACT-1 PR4 checkpoint', () => {
     assert.match(src, /starter-plan\/personalize/);
     assert.match(src, /activation_ai_starter_plan/);
     assert.match(src, /used_ai/);
-    assert.match(src, /Anpassar schema/);
+    assert.match(src, /onboarding\.starter\.personalizing/);
   });
 
   it('onboarding API has personalize route with generation events', () => {

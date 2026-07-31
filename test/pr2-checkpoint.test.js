@@ -56,7 +56,8 @@ describe('ACT-1 PR2 checkpoint', () => {
     assert.match(db, /child_created_at/);
     assert.match(db, /buildStepConversions/);
     assert.match(admin, /activation-funnel/);
-    assert.match(ui, /loadActivationFunnel/);
+    assert.match(ui, /loadActivationWeeklyReport/);
+    assert.match(ui, /renderActivationFunnelFromReport/);
     assert.match(ui, /First Success-tratt/);
     assert.match(ui, /buildFunnelConversionColumns/);
   });
