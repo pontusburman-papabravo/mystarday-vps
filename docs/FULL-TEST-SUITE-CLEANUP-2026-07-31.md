@@ -29,15 +29,17 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 ### Mätpunkter (node:test `test/*.test.js`)
 
-| Mätpunkt | Baslinje | Batch 4 | Batch 5 | Δ batch 5 |
-|----------|----------|---------|---------|-----------|
-| Pass | 3109 | 3151 | 3160 | +9 |
-| Fail | 57 | 17 | 8 | −9 |
-| Skip | 0 | 4 | 4 | 0 |
-| Cancelled | 0 | 0 | 0 | 0 |
-| Exit code | 1 | 1 | 1 | — |
+| Mätpunkt | Baslinje | Batch 4 | Batch 5 | Batch 6 (final) |
+|----------|----------|---------|---------|-----------------|
+| Pass | 3109 | 3151 | 3160 | **3173** |
+| Fail | 57 | 17 | 8 | **0** |
+| Skip | 0 | 4 | 4 | **4** |
+| Cancelled | 0 | 0 | 0 | **0** |
+| Exit code | 1 | 1 | 1 | **0** |
 
-TAP/log batch 5: `.local/full-suite-after-batch5-2026-07-31.log`
+TAP/log batch 5: `.local/full-suite-after-batch5-2026-07-31.log`  
+TAP/log batch 6 (pre): `.local/full-suite-pre-batch6-2026-07-31.log` (pass 3165, fail 8)  
+TAP/log batch 6 (final): `.local/full-suite-post-batch6-2026-07-31.log` (pass 3173, fail 0)
 
 ## Produktbeslut (batch 5 — barn)
 
@@ -76,11 +78,71 @@ Scoped baseline: **54 tests, 9 fail** (6 filer). Efter fix: **54 pass** (+ `reti
 
 **Säkerhet (XSS):** step 3/4 använder `textContent` + `tOnboarding()`; reward-grid använder `escapeHtml` på namn/ikon — **ingen produktfix behövd**.
 
-**Kvar efter batch 5 (Activation batch):** 8 fail — endast ACT-1 / activation-program (6 suites + nested).
+**Kvar efter batch 5 (Activation batch):** 8 fail — endast ACT-1 / activation-program — **åtgärdade i batch 6**.
+
+## Batch 6 — Activation / ACT-1 (2026-07-31, final Fas 4 batch)
+
+Scoped baseline på `34bc0976`: **41 tests, 8 fail** (5 filer). Efter fix: **41 pass, 0 fail**.
+
+| Testfil / subtest | Klass | Rotorsak | Ändring | Produkt |
+|-------------------|-------|----------|---------|---------|
+| `act1-rollout` — deploy workflow | 9 | `deploy.yml` kör `vps-deploy-revision.sh` (migrate/restart där), inte inline migrate | Assert revision script + no `enable-act1-flags` i workflow | Flags via migration `180922` |
+| `activation-growth` — handoff copy | 8 | Copy i i18n + `onboarding.html` `data-i18n` + handoff-film | Assert nycklar/helpers + sv-SE fragment | Handoff aktiv |
+| `activation-program-fas3` — day copy (3) | 4 | `getDayContent` kräver `loadLocales()` i test (samma som app `app.js`) | `loadLocales()` före import | Program copy i `src/locales` |
+| `activation-program-fas3` — supportive swap | 4 | Samma locale-load | Samma | — |
+| `pr2-checkpoint` — admin funnel UI | 2 | UI laddar funnel via `loadActivationWeeklyReport` / `renderActivationFunnelFromReport` | Ersätt `loadActivationFunnel` | Funnel API kvar |
+| `pr4-checkpoint` — personalize label | 8 | `ot('onboarding.starter.personalizing')` | Assert i18n-nyckel | AI personalize aktiv |
+
+**Produktfiler ändrade:** inga.
+
+**Verkliga produktfel:** inga i batch 6.
+
+**Borttagna/omdöpta tester:** inga — endast kontraktuppdateringar.
+
+### Fas 4 batch summary
+
+| Batch | Fail före | Fail efter | Produktfel | Kontraktsfel | Nya skips |
+|-------|-----------|------------|------------|--------------|-----------|
+| Baseline | 57 | 57 | — | — | 0 |
+| Batch 1 | 57 | 45 | 0 | 12 | 4 |
+| Batch 2 | 45 | 39 | 0 | 6 | 0 |
+| Batch 3 | 39 | 34 | 0 | 5 | 0 |
+| Batch 4 | 34 | 17 | 0 | 17 | 0 |
+| Batch 5 | 17 | 8 | 0 | 9 | 0 |
+| Batch 6 | 8 | **0** | **0** | **8** | **0** |
+
+### Governance skips (endast dessa fyra)
+
+Räknas som skip i fullsviten (`ok … # SKIP`), inte pass/fail:
+
+1. POS required files exist  
+2. COS org OS files exist (`LIVING_WORLD_SCORE.md` saknas i cloud clone)  
+3. Constitution has six rules  
+4. child IA ADR  
+
+**Inga andra skips** i `npm run test:full`.
+
+### Slutgates (batch 6 HEAD `2794bbef`)
+
+| Kommando | Resultat |
+|----------|----------|
+| `npm run css:build` | exit 0 |
+| `npm run check:ambient-objects` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run lint:public` | exit 0 (budget 674/674, ej höjd) |
+| `npm run check:routes` | exit 0 |
+| `npm run migrate` | exit 0 |
+| `npm run test:gate` | pass 271, fail 0, exit 0 |
+| `npm run test:full` | pass 3173, fail 0, skip 4, exit 0 |
+| `node --test test/migration-rollback-gate.test.js` | exit 0 |
+
+**Merge/deploy:** ej utfört (enligt uppdrag). **PR #801:** ready for review när gates gröna.
+
+**Follow-up:** POS/COS vendoring i cloud clone (governance skips); activation smoke `scripts/smoke-act1-onboarding-e2e.js` kan uppdateras till i18n-handoff-copy (ej blockerande).
 
 **Batch 1 borttagna failures (12):** `release-os` (3 handoff/async), `apple-signup-sql`, `daily-logs-authz-contract`, `admin-start-summary` (getMessageCounts scope), `landing-mobile-layout` + `landing-share-restore` (node:test harness), samt 4 `governance-registry` som blev **skip** (inte fail).
 
-**Governance skips (4)** — räknas som skip i fullsviten (`ok … # SKIP`), inte som pass/fail:
+**Governance skips (4)** — historisk notering (se även ovan); samma fyra skips:
 
 1. POS required files exist  
 2. COS org OS files exist (`LIVING_WORLD_SCORE.md` saknas i clone)  
@@ -145,9 +207,9 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 
 | File | Notes |
 |------|--------|
-| `test/act1-rollout.test.js` | Activation ACT-1 — **follow-up** (onboarding/activation; out of scope) |
-| `test/activation-growth-completion.test.js` | Same |
-| `test/activation-program-fas3.test.js` | Activation content contracts |
+| `test/act1-rollout.test.js` | **fixed batch 6** |
+| `test/activation-growth-completion.test.js` | **fixed batch 6** |
+| `test/activation-program-fas3.test.js` | **fixed batch 6** |
 | `test/admin-start-summary.test.js` | getMessageCounts alias scope |
 | `test/apple-signup-sql.test.js` | Stale path to `createParentWithApple` |
 | `test/barnmeny-v2.test.js` | **fixed batch 4** |
@@ -172,8 +234,8 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 | `test/meny-v22.test.js` | **fixed batch 4** |
 | `test/meny-v23.test.js` | **fixed batch 4** |
 | `test/meny-v24.test.js` | **fixed batch 4** |
-| `test/pr2-checkpoint.test.js` | ACT-1 checkpoint |
-| `test/pr4-checkpoint.test.js` | ACT-1 checkpoint |
+| `test/pr2-checkpoint.test.js` | **fixed batch 6** |
+| `test/pr4-checkpoint.test.js` | **fixed batch 6** |
 | `test/pricing-info-route.test.js` | Landing/pricing links |
 | `test/release-os.test.js` | Async handoff middleware + legacy cookie |
 | `test/schedule-child-split.test.js` | **fixed batch 3** |
@@ -223,7 +285,7 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 
 ## Follow-up buckets (not fixed in Fas 4 scope)
 
-- **Activation / ACT-1 / onboarding-handoff / xss onboarding step 4** — separate onboarding/activation track (user: do not mix).
+- **Activation / ACT-1** — **batch 6 done** (`2794bbef`, `a1ed6b96`).
 - **Meny v2 / magic-nav** — **batch 4 done** (`d0b56a3c`).
 - **Dashboard/schedule split contracts** — **batch 3 done** (`cea08988`).
 - **POS vendoring** — `product-operating-system/` absent in GitHub clone; full POS tests need vendored docs or CI checkout (follow-up).
@@ -238,7 +300,8 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 | 2026-07-31 | 39 fail, 4 skip | After batch 2 (`d3180468`) |
 | 2026-07-31 | 34 fail, 4 skip | After batch 3 (`905ffd2b`) |
 | 2026-07-31 | 8 fail, 4 skip | After batch 5 — family/library/XSS/barn (`1b11071e` + doc/retired) |
+| 2026-07-31 | **0 fail**, 4 skip, exit 0 | Fas 4 complete — batch 6 activation (`2794bbef`) |
 
 ## Slutmål
 
-`npm run test:full` → fail 0, cancelled 0, exit 0; plus gates listed in assignment (lint, test:gate, migration rollback, etc.).
+**Uppnått:** `npm run test:full` → fail 0, cancelled 0, exit 0; gates (lint, test:gate, migration rollback, css, rou
