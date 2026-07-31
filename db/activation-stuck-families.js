@@ -1,15 +1,17 @@
 'use strict';
 
 const db = require('../src/lib/db');
+const { excludeInternalQaWhere } = require('../config/internal-qa-families');
 
 /**
  * Families registered 48h–14d ago that have not completed onboarding.
- * @param {{ minAgeHours?: number, maxAgeDays?: number, limit?: number }} [opts]
+ * @param {{ minAgeHours?: number, maxAgeDays?: number, limit?: number, includeInternalQa?: boolean }} [opts]
  */
 async function listStuckFamilies(opts = {}) {
   const minAgeHours = opts.minAgeHours ?? 48;
   const maxAgeDays = opts.maxAgeDays ?? 14;
   const limit = Math.min(opts.limit ?? 100, 500);
+  const includeInternalQa = opts.includeInternalQa === true;
 
   const { rows } = await db.query(
     `SELECT
@@ -30,6 +32,10 @@ async function listStuckFamilies(opts = {}) {
          WHERE ae.family_id = f.id AND ae.event_type = 'funnel_onboarding_started'
        ) AS legacy_onboarding_started,
        EXISTS (
+         SELECT 1 FROM analytics_events ae
+         WHERE ae.family_id = f.id AND ae.event_type = 'activation_question_answered'
+       ) AS act_question_answered,
+       EXISTS (
          SELECT 1 FROM login_event le WHERE le.family_id = f.id
        ) AS has_login
      FROM family f
@@ -39,6 +45,7 @@ async function listStuckFamilies(opts = {}) {
      WHERE f.archived_at IS NULL
        AND f.created_at >= NOW() - ($2::int * interval '1 day')
        AND f.created_at <= NOW() - ($1::int * interval '1 hour')
+       ${includeInternalQa ? '' : `AND ${excludeInternalQaWhere('f')}`}
      GROUP BY f.id, f.name, f.created_at, s.activation_variant, s.schema_saved_at, s.activation_nudge_sent_at
      HAVING NOT BOOL_OR(p.onboarding_completed)
      ORDER BY f.created_at DESC
@@ -61,9 +68,11 @@ async function listStuckFamilies(opts = {}) {
       ? 'child_without_schema'
       : !row.act1_started && !row.legacy_onboarding_started
         ? 'never_opened_onboarding'
-        : !row.schema_saved_at
-          ? 'onboarding_no_schema'
-          : 'incomplete_onboarding',
+        : row.act1_started && !row.act_question_answered
+          ? 'bounce_before_first_answer'
+          : !row.schema_saved_at
+            ? 'onboarding_no_schema'
+            : 'incomplete_onboarding',
   }));
 }
 

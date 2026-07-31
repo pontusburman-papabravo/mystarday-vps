@@ -4,6 +4,7 @@
 const db = require('../src/lib/db');
 const contactMessages = require('./contact-messages');
 const adminOperationalAlerts = require('./admin-operational-alerts');
+const { familyIsInternalQaSql } = require('../config/internal-qa-families');
 
 const DEFAULT_FOUNDER_LIMIT = 225;
 
@@ -52,15 +53,19 @@ async function fetchKeyMetrics() {
          AND f.created_at >= NOW() - INTERVAL '7 days'`
     ),
     db.query(
-      `SELECT COUNT(*)::int AS stuck
+      `SELECT
+         COUNT(*)::int AS stuck_total,
+         COUNT(*) FILTER (WHERE NOT internal_qa)::int AS stuck_product,
+         COUNT(*) FILTER (WHERE internal_qa)::int AS stuck_qa
        FROM (
-         SELECT f.id
+         SELECT f.id,
+           (${familyIsInternalQaSql('f')}) AS internal_qa
          FROM family f
          JOIN parent p ON p.family_id = f.id
          WHERE f.archived_at IS NULL
            AND f.created_at >= NOW() - INTERVAL '14 days'
            AND f.created_at <= NOW() - INTERVAL '48 hours'
-         GROUP BY f.id
+         GROUP BY f.id, f.name
          HAVING NOT BOOL_OR(p.onboarding_completed)
        ) stuck_families`
     ),
@@ -104,7 +109,9 @@ async function fetchKeyMetrics() {
     firstCompletion7d: firstCompletion,
     firstCompletionRatePct: rate(firstCompletion, signups7d),
     starAfterAccessRatePct: rate(firstCompletion, childAccess || null),
-    stuckOnboarding: stuckRow.rows[0]?.stuck || 0,
+    stuckOnboarding: stuckRow.rows[0]?.stuck_product || 0,
+    stuckOnboardingQa: stuckRow.rows[0]?.stuck_qa || 0,
+    stuckOnboardingTotal: stuckRow.rows[0]?.stuck_total || 0,
     totalFamilies,
     founderSlotsLeft: Math.max(0, founderLimit - totalFamilies),
     founderLimit,
