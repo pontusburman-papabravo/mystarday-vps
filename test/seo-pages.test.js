@@ -62,10 +62,10 @@ test('index.html has absolute canonical and no hidden SEO text', () => {
 
 test('register.html has unique meta description and hero copy', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/register.html'), 'utf8');
-  assert.match(html, /<title>Skapa konto \|/);
+  assert.match(html, /data-i18n-title="auth\.register\.pageTitle"/);
+  assert.match(html, /data-i18n="auth\.register\.pageHeading"/);
+  assert.match(html, /auth-entry-i18n\.js/);
   assert.match(html, /meta name="description"/);
-  assert.match(html, /visuellt schema med bildstöd/);
-  assert.match(html, /<h1[^>]*>Skapa ett föräldrakonto<\/h1>/);
 });
 
 test('sitemap reflects index strategy', () => {
@@ -118,11 +118,12 @@ test('SoftwareApplication JSON-LD uses numeric price (Search Console value type)
 });
 
 test('robots.txt disallows app routes like activities and notifications', () => {
+  const { buildRobotsTxt, SITE_URL } = require('../src/lib/seo-pages');
   const txt = buildRobotsTxt();
   assert.match(txt, /Disallow: \/activities/);
   assert.match(txt, /Disallow: \/notifications/);
   assert.match(txt, /Disallow: \/dashboard/);
-  assert.match(txt, /Sitemap: https:\/\/.+\/sitemap\.xml/);
+  assert.equal(txt.trimEnd().endsWith(`Sitemap: ${SITE_URL}/sitemap.xml`), true);
 });
 
 test('injectPlatformHtml sets noindex on app pages', () => {
@@ -354,8 +355,12 @@ test('SEO indexable HTML pages use absolute canonical URLs', () => {
   };
   for (const [p, file] of Object.entries(pageFiles)) {
     const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
-    const loc = p === '/' ? 'https://mystarday.se/' : `https://mystarday.se${p}`;
-    assert.match(html, new RegExp(`rel="canonical" href="${loc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`), p);
+    const suffix = p === '/' ? '/' : p;
+    const escapedSuffix = suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const canonicalRe = new RegExp(
+      `rel="canonical" href="(?:__SITE_URL__${escapedSuffix}|https://[^"]+${escapedSuffix})"`
+    );
+    assert.match(html, canonicalRe, `canonical for ${p}`);
   }
 });
 

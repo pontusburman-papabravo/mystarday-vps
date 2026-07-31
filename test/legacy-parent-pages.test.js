@@ -13,9 +13,10 @@ describe('legacy parent pages — inline script sanity', () => {
     assert.doesNotMatch(html, /\brenderPresets\s*\(/);
   });
 
-  it('calendar.html uses Auth.requireAuth for session gate', () => {
+  it('calendar page gates session via Auth.requireAuth in calendar-page.js', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/calendar-page.js'), 'utf8');
+    assert.match(js, /Auth\.requireAuth\s*\(/);
     const html = fs.readFileSync(path.join(ROOT, 'public/calendar.html'), 'utf8');
-    assert.match(html, /Auth\.requireAuth\s*\(/);
-    assert.doesNotMatch(html, /\bawait\s+requireAuth\s*\(/);
+    assert.match(html, /calendar-page\.js/);
   });
 });

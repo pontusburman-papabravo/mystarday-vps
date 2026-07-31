@@ -27,6 +27,34 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 | duration | ~724s |
 | TAP archive | `.local/full-suite-baseline-2026-07-31.tap` (not committed) |
 
+### Mätpunkter (node:test `test/*.test.js`)
+
+| Mätpunkt | Baslinje | Efter batch 1 | Efter batch 2 | Delta batch 1 | Delta batch 2 |
+|----------|----------|---------------|---------------|---------------|---------------|
+| Pass | 3109 | 3122 | (pending) | +13 | (pending) |
+| Fail | 57 | 45 | (pending) | −12 | (pending) |
+| Skip | 0 | 4 | (pending) | +4 | (pending) |
+| Cancelled | 0 | 0 | (pending) | 0 | (pending) |
+| Exit code | 1 | 1 | (pending) | — | (pending) |
+
+TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
+
+**Batch 1 borttagna failures (12):** `release-os` (3 handoff/async), `apple-signup-sql`, `daily-logs-authz-contract`, `admin-start-summary` (getMessageCounts scope), `landing-mobile-layout` + `landing-share-restore` (node:test harness), samt 4 `governance-registry` som blev **skip** (inte fail).
+
+**Governance skips (4)** — räknas som skip i fullsviten (`ok … # SKIP`), inte som pass/fail:
+
+1. POS required files exist  
+2. COS org OS files exist (`LIVING_WORLD_SCORE.md` saknas i clone)  
+3. Constitution has six rules  
+4. child IA ADR  
+
+**Nya failures efter batch 1:** inga identifierade (samma failure-set minus ovan).
+
+| Mätpunkt | Efter batch 1 | Efter batch 2 (pending full run) |
+|----------|---------------|----------------------------------|
+| Pass | 3122 | (kör `test:full`) |
+| Fail | 45 | mål −6 från batch 2 scope |
+
 **≈50 failures:** yes — **57** counted failures (46 top-level `not ok` lines; remainder nested subtests).
 
 ### Failing test files (top-level)
@@ -87,7 +115,18 @@ Nested failures also in: `test/deploy-gate.test.js` (GitHub workflow), `test/onb
 | 9 | POS/dokumentkontrakt |
 | 10 | Annat |
 
-## Batch 1 fixes (in progress on branch)
+## Batch 2 — SEO / landing / pricing (2026-07-31)
+
+| Test | Cat | Rotorsak | Ändring |
+|------|-----|----------|---------|
+| `register.html` meta/hero | 2 | i18n-driven register; statisk svensk copy bort | Assert `data-i18n-*` + `auth-entry-i18n.js` |
+| `robots.txt` Sitemap | 2 | Regex krävde `https://` men `SITE_URL` env | Assert `Sitemap: ${SITE_URL}/sitemap.xml` |
+| Canonical URLs | 2 | `index.html` använder `__SITE_URL__` injektion | Accept `__SITE_URL__` eller `https://` per path |
+| `pricing-info` landing links | 2 | Section-id `pris-och-tillgang` (inte `grundarprogram`) | Uppdaterat kontrakt |
+| `en.html` waitlist | 2 | EN-sida har waitlist-funnel (avsiktligt) | Kontrakt speglar waitlist + `/en/faq` |
+| `legacy-parent-pages` calendar | 2 | Auth gate i `calendar-page.js`, inte inline HTML | Kontrakt pekar på JS-modul |
+
+Ingen produktändring i batch 2 (endast testkontrakt).
 
 | Item | Cat | Action |
 |------|-----|--------|
@@ -111,7 +150,8 @@ Nested failures also in: `test/deploy-gate.test.js` (GitHub workflow), `test/onb
 | Date | fail count | notes |
 |------|------------|--------|
 | 2026-07-31 | 57 | Baseline on `b16c6709`, fresh DB |
-| 2026-07-31 | (pending) | After batch 1 — re-run `test:full` |
+| 2026-07-31 | 45 fail, 4 skip | After batch 1 (`20abd744`) |
+| 2026-07-31 | (pending) | After batch 2 — SEO/landing/pricing contracts |
 
 ## Slutmål
 
