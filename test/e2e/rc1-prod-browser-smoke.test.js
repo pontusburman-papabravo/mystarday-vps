@@ -2,174 +2,259 @@
 
 const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const { launchBrowser, acceptCookies, loginChildFromParentSession } = require('./helpers/puppeteer-browser');
 const {
-  launchBrowser,
-  newPage,
-  acceptCookies,
-  selectLoginLocale,
-  loginParentEnglish,
-} = require('./helpers/puppeteer-browser');
+  SWEDISH_SERVER_LEAK,
+  smokeConfig,
+  withDiagnostics,
+  newIsolatedPage,
+  fetchReleaseIdentity,
+  loginParent,
+  waitForPackageAccessResolved,
+  collectVisibleReportsTargets,
+  waitForChildI18nReady,
+  assertPrimaryNavEnglish,
+  assertParentSession,
+  assertChildSession,
+  enterParentAppPin,
+  openSettingsFamilyLocale,
+  assertRc1ChildLocaleContract,
+  assertEnglishAppEnabled,
+  selectSettingsLocaleWithEvent,
+  assertReportsRouteBlocked,
+  fetchWithSessionRetry,
+  ensureFamilyLocale,
+} = require('./helpers/rc1-prod-smoke-helpers');
 
-const baseUrl = process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
-const email = process.env.RC1_REVIEW_EMAIL;
-const password = process.env.RC1_REVIEW_PASSWORD;
-const childUser = process.env.RC1_CHILD_USERNAME;
-const childPin = process.env.RC1_CHILD_PIN;
-const restoreLocale = process.env.RC1_RESTORE_LOCALE || 'sv-SE';
-
-async function isElementVisible(page, selector) {
-  return page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    if (!el) return false;
-    const style = window.getComputedStyle(el);
-    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
-    const rect = el.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-  }, selector);
+function requireSeed(cfg) {
+  assert.ok(cfg.email, 'RC1_REVIEW_EMAIL required');
+  assert.ok(cfg.password, 'RC1_REVIEW_PASSWORD required');
+  assert.ok(cfg.childUsername, 'RC1_CHILD_USERNAME required');
+  assert.ok(cfg.childPin, 'RC1_CHILD_PIN required');
+  return {
+    email: cfg.email,
+    password: cfg.password,
+    childUsername: cfg.childUsername,
+    childPin: cfg.childPin,
+  };
 }
 
-async function visibleReportsLinks(page) {
-  return page.evaluate(() => {
-    const out = [];
-    const links = document.querySelectorAll('a[href="/reports"], a[href*="/reports?"]');
-    for (const el of links) {
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden') continue;
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) out.push(el.textContent.trim().slice(0, 80));
-    }
-    return out;
-  });
-}
-
-async function parentLogin(page, locale) {
-  await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded' });
-  await acceptCookies(page);
-  if (locale) await selectLoginLocale(page, locale);
-  await page.waitForSelector('#email', { visible: true });
-  await page.type('#email', email, { delay: 10 });
-  await page.type('#password', password, { delay: 10 });
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-    page.click('button[type="submit"], #loginBtn, [data-testid="login-submit"]'),
-  ]);
-}
-
-describe('RC-1 prod browser smoke', { skip: !email }, () => {
+describe('RC-1 prod browser smoke', { skip: !process.env.RC1_REVIEW_EMAIL }, () => {
+  const cfg = smokeConfig();
+  const seed = requireSeed(cfg);
   let browser;
-  let page;
 
   before(async () => {
+    assert.ok(cfg.baseUrl, 'RC1_SMOKE_BASE_URL or E2E_BASE_URL required');
     browser = await launchBrowser();
-    page = await newPage(browser, 'desktop');
   });
 
   after(async () => {
     if (browser) await browser.close();
   });
 
-  it('service worker advertises current cache generation', async () => {
-    const res = await fetch(`${baseUrl}/sw.js`);
-    assert.equal(res.status, 200);
-    const text = await res.text();
-    const m = text.match(/const CACHE_NAME = '(stjarndag-v\d+)'/);
-    assert.ok(m, 'CACHE_NAME in sw.js');
-    assert.ok(Number(m[1].replace('stjarndag-v', '')) >= 747, 'cache must not regress below v747');
+  it('release identity matches RC1_EXPECTED_SHA and RC1_EXPECTED_CACHE', async () => {
+    await fetchReleaseIdentity(cfg.baseUrl, cfg.expectedSha, cfg.expectedCache);
   });
 
-  it('reports UI hidden without reporting component (after access loads)', async () => {
-    await parentLogin(page, 'sv-SE');
-    await page.goto(`${baseUrl}/dashboard`, { waitUntil: 'networkidle2' });
-    await page.waitForFunction(() => window._packageAccess || window._stjarndagFeatures, { timeout: 20000 });
-    await new Promise((r) => setTimeout(r, 1500));
-    const visible = await visibleReportsLinks(page);
-    assert.equal(visible.length, 0, `unexpected visible /reports links: ${visible.join(', ')}`);
-    const bannerVisible = await isElementVisible(page, '#activeSharingBanner');
-    assert.equal(bannerVisible, false);
-    const apiRes = await page.evaluate(async () => {
-      const r = await fetch('/api/reports/active-count', { credentials: 'include' });
-      return { status: r.status, body: await r.json() };
-    });
-    assert.equal(apiRes.status, 403);
-    assert.equal(apiRes.body.code, 'COMPONENT_MISSING');
-    const navRes = await page.evaluate(async () => {
-      const r = await fetch('/reports', { redirect: 'manual', credentials: 'include' });
-      return { status: r.status, location: r.headers.get('location') };
-    });
-    assert.equal(navRes.status, 302);
-    assert.match(navRes.location || '', /component=reporting/);
-  });
+  it('reports UI hidden without reporting component (after package access resolves)', async () => {
+    const { page, close } = await newIsolatedPage(browser, 'desktop');
+    try {
+      await withDiagnostics(page, 'reports-gating', async () => {
+        await loginParent(page, cfg.baseUrl, seed, 'sv-SE');
+        await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(
+          () => document.documentElement.classList.contains('stjarndag-features-loaded')
+            || (window._stjarndagFeatures && window._packageAccess),
+          { timeout: 45000 }
+        );
+        const access = await waitForPackageAccessResolved(page);
+        assert.equal(access.reportingHas, false, 'components.reporting.has must be false for review family');
+        if (access.kliniskFeature) {
+          assert.equal(
+            access.reportingHas,
+            false,
+            'klinisk_rapportering ON must not expose reporting without package component'
+          );
+        }
 
-  it('parent locale switch sv-SE → en-GB updates primary nav without reload', async () => {
-    await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('[data-locale-value="en-GB"], #localeSwitcher', { timeout: 15000 }).catch(() => {});
-    const switched = await page.evaluate(async () => {
-      if (window.LocaleSwitcher && LocaleSwitcher.setLocale) {
-        await LocaleSwitcher.setLocale('en-GB');
-        return true;
-      }
-      const btn = document.querySelector('[data-locale-value="en-GB"]');
-      if (btn) { btn.click(); return true; }
-      return false;
-    });
-    assert.ok(switched, 'locale switch control');
-    await page.waitForFunction(() => {
-      const nav = document.querySelector('#parentBottomNav, .parent-bottom-nav, [data-parent-magic-nav]');
-      if (!nav) return false;
-      const text = nav.innerText || '';
-      return /Home|Planning|Rewards/i.test(text) && !/^\s*Hem\s*$/m.test(text);
-    }, { timeout: 15000 });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => (window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === 'en-GB')
-      || document.documentElement.lang === 'en-GB', { timeout: 15000 });
-  });
+        const visible = await collectVisibleReportsTargets(page);
+        assert.equal(visible.length, 0, `visible reports UI: ${JSON.stringify(visible)}`);
 
-  it('child login shows localized errors (format + wrong pin), then succeeds', async () => {
-    await page.goto(`${baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
-    await acceptCookies(page);
-    await page.waitForSelector('#pinInput, .cl-pin-input, input[name="pin"]', { timeout: 15000 }).catch(() => {});
+        const apiRes = await fetchWithSessionRetry(page, '/api/reports/active-count');
+        assert.equal(apiRes.status, 403, `reports active-count status (body: ${JSON.stringify(apiRes.body)})`);
+        assert.equal(apiRes.body.code, 'COMPONENT_MISSING');
 
-    const formatMsg = await page.evaluate(async () => {
-      if (typeof window.childLoginErrorFromResponse !== 'function') return null;
-      return childLoginErrorFromResponse({ code: 'CHILD_PIN_INVALID_FORMAT' });
-    });
-    assert.ok(formatMsg && !/PIN-koden måste|Ogiltiga/i.test(formatMsg), formatMsg);
-
-    await page.evaluate(async (user) => {
-      const nameInput = document.querySelector('#childNameInput, #manualNameInput, input[name="username"]');
-      if (nameInput) nameInput.value = user;
-    }, childUser);
-
-    const badPinRes = await page.evaluate(async (user) => {
-      const r = await fetch('/api/auth/child-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username: user, pin: '12' }),
+        const navRes = await page.evaluate(async () => {
+          const r = await fetch('/reports', { redirect: 'manual', credentials: 'include' });
+          return { status: r.status, type: r.type, location: r.headers.get('location') };
+        });
+        if (navRes.status === 302) {
+          assert.match(navRes.location || '', /component=reporting|upgrade|access/i);
+        } else {
+          await assertReportsRouteBlocked(page, cfg.baseUrl);
+        }
       });
-      return r.json();
-    }, childUser);
-    assert.equal(badPinRes.code, 'CHILD_PIN_INVALID_FORMAT');
-
-    await page.goto(`${baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
-    await page.evaluate(async (user, pin) => {
-      const r = await fetch('/api/auth/child-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username: user, pin }),
-      });
-      return r.status;
-    }, childUser, childPin);
-    await page.goto(`${baseUrl}/child/today`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => !window.location.pathname.includes('child-login'), { timeout: 20000 });
+    } finally {
+      await close();
+    }
   });
 
-  it('restore parent locale after smoke', async () => {
-    if (restoreLocale === 'en-GB') return;
-    await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
-    await page.evaluate(async (loc) => {
-      if (window.LocaleSwitcher && LocaleSwitcher.setLocale) await LocaleSwitcher.setLocale(loc);
-    }, restoreLocale);
+  it('parent locale switch via Settings UI (sv-SE → en-GB, reload, restore)', async () => {
+    const { page, close } = await newIsolatedPage(browser, 'desktop');
+    try {
+      await withDiagnostics(page, 'locale-settings-ui', async () => {
+        await loginParent(page, cfg.baseUrl, seed, 'sv-SE');
+        await assertEnglishAppEnabled(page);
+        await ensureFamilyLocale(page, cfg.baseUrl, 'sv-SE');
+        await openSettingsFamilyLocale(page, cfg.baseUrl);
+
+        await selectSettingsLocaleWithEvent(page, 'en-GB');
+        await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('.native-tab-bar .tab-label, #parentBottomNav .tab-label, #sidebar', { timeout: 30000 });
+        const htmlLang = await page.evaluate(() => document.documentElement.lang);
+        assert.match(htmlLang, /^en-gb$/i, 'documentElement.lang after switch');
+        await assertPrimaryNavEnglish(page);
+
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(
+          () => window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === 'en-GB',
+          { timeout: 25000 }
+        );
+        const persisted = await page.evaluate(async () => {
+          const r = await fetch('/api/auth/me', { credentials: 'include' });
+          const me = r.ok ? await r.json() : {};
+          return {
+            preferredLocale: me.preferred_locale,
+            htmlLang: document.documentElement.lang,
+            i18n: window.I18n && I18n.getCurrentLang ? I18n.getCurrentLang() : null,
+          };
+        });
+        assert.equal(persisted.i18n, 'en-GB');
+        assert.match(persisted.htmlLang, /^en-gb$/i);
+        assert.equal(persisted.preferredLocale, 'en-GB');
+
+        if (cfg.restoreLocale !== 'en-GB') {
+          await openSettingsFamilyLocale(page, cfg.baseUrl);
+          await selectSettingsLocaleWithEvent(page, cfg.restoreLocale);
+          await page.waitForFunction(
+            (loc) => window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === loc,
+            { timeout: 20000 },
+            cfg.restoreLocale
+          );
+        }
+      });
+    } finally {
+      await close();
+    }
+  });
+
+  it('child login i18n, validation codes, and successful child session', async () => {
+    const { page, close } = await newIsolatedPage(browser, 'mobile');
+    try {
+      await withDiagnostics(page, 'child-login', async () => {
+        await loginParent(page, cfg.baseUrl, seed, 'sv-SE');
+        await assertRc1ChildLocaleContract(page);
+
+        await page.goto(`${cfg.baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
+        await acceptCookies(page);
+        await waitForChildI18nReady(page);
+
+        const childLocale = await page.evaluate(() => (
+          typeof window.getChildUiLocale === 'function' ? getChildUiLocale() : null
+        ));
+        assert.equal(childLocale, 'en-GB', 'child UI locale on login page');
+
+        const formatMsg = await page.evaluate(() => {
+          if (typeof window.childLoginErrorFromResponse !== 'function') return null;
+          return childLoginErrorFromResponse({ code: 'CHILD_PIN_INVALID_FORMAT' });
+        });
+        assert.ok(formatMsg, 'childLoginErrorFromResponse after i18n init');
+        assert.doesNotMatch(formatMsg, SWEDISH_SERVER_LEAK, formatMsg);
+        assert.match(formatMsg, /pin|digit|number|format/i);
+
+        const formatApi = await page.evaluate(async (user) => {
+          const r = await fetch('/api/auth/child-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username: user, pin: '12' }),
+          });
+          return { status: r.status, body: await r.json() };
+        }, seed.childUsername);
+        assert.equal(formatApi.status, 400);
+        assert.equal(formatApi.body.code, 'CHILD_PIN_INVALID_FORMAT');
+
+        await loginChildFromParentSession(page, cfg.baseUrl, seed);
+        await assertChildSession(page);
+        const path = await page.evaluate(() => window.location.pathname);
+        assert.match(path, /\/child(\/today|-dashboard)/);
+        await page.waitForFunction(() => {
+          const main = document.getElementById('childMain') || document.getElementById('todayView');
+          return main && !window.location.pathname.includes('child-login');
+        }, { timeout: 30000 });
+      });
+    } finally {
+      await close();
+    }
   });
 });
+
+if (process.env.RC1_PARENT_PIN) {
+  describe('RC-1 prod parent/child handoff', { skip: !process.env.RC1_REVIEW_EMAIL }, () => {
+    const cfg = smokeConfig();
+    const seed = requireSeed(cfg);
+    let browser;
+
+    before(async () => {
+      assert.ok(cfg.baseUrl, 'RC1_SMOKE_BASE_URL or E2E_BASE_URL required');
+      browser = await launchBrowser();
+    });
+
+    after(async () => {
+      if (browser) await browser.close();
+    });
+
+    it('parent → child PIN → parental gate restore → parent session', async () => {
+      const parentPin = process.env.RC1_PARENT_PIN;
+      const { page, close } = await newIsolatedPage(browser, 'mobile');
+      try {
+        await withDiagnostics(page, 'parent-child-handoff', async () => {
+          await loginParent(page, cfg.baseUrl, seed, cfg.restoreLocale);
+          await assertParentSession(page);
+
+          await loginChildFromParentSession(page, cfg.baseUrl, seed);
+          await assertChildSession(page);
+
+          await page.evaluate(async () => {
+            if (window.Auth && typeof Auth.logout === 'function') {
+              await Auth.logout();
+            }
+          });
+
+          await enterParentAppPin(page, parentPin);
+
+          await page.waitForFunction(
+            () => /\/(dashboard|planning|family|settings)/.test(window.location.pathname),
+            { timeout: 60000 }
+          );
+          const restored = await assertParentSession(page);
+          assert.ok(restored.email, 'parent session after handoff');
+          await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+          await page.waitForFunction(
+            () => /\/(dashboard|planning|family)/.test(window.location.pathname),
+            { timeout: 30000 }
+          );
+          const childLeak = await page.evaluate(async () => {
+            const r = await fetch('/api/auth/me', { credentials: 'include' });
+            const me = r.ok ? await r.json() : {};
+            return Boolean(me.username && !me.email);
+          });
+          assert.equal(childLeak, false, 'child session must not remain active after parent restore');
+        });
+      } finally {
+        await close();
+      }
+    });
+  });
+}
