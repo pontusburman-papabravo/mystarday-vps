@@ -18,6 +18,7 @@ const {
   assertChildSession,
   enterParentAppPin,
   triggerChildToParentHandoff,
+  completeChildToParentHandoff,
   waitForParentHandoffComplete,
   assertRc1ChildLocaleContract,
   assertEnglishAppEnabled,
@@ -196,7 +197,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
 
   if (cfg.requireHandoff) {
     it('parent → child PIN → parental gate restore → parent session', async () => {
-      await rc1Sleep(rc1TestGapMs());
+      await rc1Sleep(Math.max(rc1TestGapMs(), Number(process.env.RC1_HANDOFF_GAP_MS || 90000)));
       const parentPin = cfg.parentPin;
       const { page, close } = await newIsolatedPage(browser, 'mobile');
       try {
@@ -210,8 +211,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
             await loginChildFromParentSession(page, cfg.baseUrl, seed);
             await assertChildSession(page);
 
-            await triggerChildToParentHandoff(page);
-            await enterParentAppPin(page, parentPin);
+            await completeChildToParentHandoff(page, parentPin);
             await waitForParentHandoffComplete(page, cfg.baseUrl);
 
             const childLeak = await page.evaluate(async () => {

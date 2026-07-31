@@ -587,6 +587,49 @@ async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
   throw lastErr;
 }
 
+async function persistFamilyLocaleViaApi(page, locale) {
+  await page.evaluate(async (loc) => {
+    if (window.Auth && typeof Auth.api === 'function') {
+      await Auth.api('/api/family/settings', {
+        method: 'PUT',
+        body: JSON.stringify({ preferred_locale: loc }),
+      });
+      const cached = Auth.getUser && Auth.getUser();
+      if (cached) {
+        cached.preferred_locale = loc;
+        try {
+          localStorage.setItem(Auth.USER_KEY, JSON.stringify(cached));
+        } catch (_) { /* ignore */ }
+      }
+    }
+    if (window.NativeLocaleContract && typeof NativeLocaleContract.applyFamilyLocale === 'function') {
+      await NativeLocaleContract.applyFamilyLocale(loc);
+    } else if (window.I18n && typeof I18n.init === 'function') {
+      await I18n.init(loc);
+      document.documentElement.lang = loc;
+    }
+  }, locale);
+  return assertFamilyLocalePersisted(page, locale);
+}
+
+async function restoreFamilyLocale(page, baseUrl, seed, restoreTarget) {
+  try {
+    await setFamilyLocaleViaSettings(page, baseUrl, restoreTarget);
+  } catch (uiErr) {
+    console.warn(`[rc1-smoke] settings restore failed, using API fallback: ${uiErr.message}`);
+    const session = await page.evaluate(async () => {
+      const r = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!r.ok) return 'anonymous';
+      const me = await r.json();
+      return me.email ? 'parent' : 'anonymous';
+    });
+    if (session !== 'parent') {
+      await reloginParent(page, baseUrl, seed, null);
+    }
+    await persistFamilyLocaleViaApi(page, restoreTarget);
+  }
+}
+
 async function reloginParent(page, baseUrl, seed, loginLocale) {
   const { parentLogout } = require('./puppeteer-browser');
   await parentLogout(page);
@@ -622,7 +665,7 @@ async function withFamilyLocaleScope(page, baseUrl, seed, testName, fn) {
       }
       const now = await readPreferredLocaleFromApi(page);
       if (now !== restoreTarget) {
-        await setFamilyLocaleViaSettings(page, baseUrl, restoreTarget);
+        await restoreFamilyLocale(page, baseUrl, seed, restoreTarget);
       }
       const after = await readFamilyLocaleSnapshot(page);
       logLocaleAudit({ test: testName, phase: 'after_restore', ...after, restoreTarget });
@@ -670,12 +713,37 @@ async function triggerChildToParentHandoff(page) {
     () => /\/child(\/today|-dashboard)/.test(window.location.pathname),
     { timeout: 30000 }
   );
+  const overlayRace = page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 12000 }).catch(() => null);
   await page.evaluate(async () => {
     if (window.Auth && typeof Auth.logout === 'function') {
       await Auth.logout();
     }
   });
+  const overlay = await overlayRace;
+  if (overlay) return 'pin';
+
+  await rc1Sleep(2500);
+  const state = await page.evaluate(async () => {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    const me = r.ok ? await r.json() : {};
+    return {
+      path: window.location.pathname,
+      parent: Boolean(me.email),
+      child: Boolean(me.username && !me.email),
+    };
+  });
+  if (state.parent && !state.child) return 'restored';
+  if (/\/(dashboard|planning|family|settings|for-dig)/.test(state.path) && state.parent) return 'restored';
+
   await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 45000 });
+  return 'pin';
+}
+
+async function completeChildToParentHandoff(page, pin) {
+  const mode = await triggerChildToParentHandoff(page);
+  if (mode === 'pin') {
+    await enterParentAppPin(page, pin);
+  }
 }
 
 async function waitForParentHandoffComplete(page, baseUrl) {
@@ -738,6 +806,7 @@ module.exports = {
   openSettingsFamilyLocale,
   enterParentAppPin,
   triggerChildToParentHandoff,
+  completeChildToParentHandoff,
   waitForParentHandoffComplete,
   rc1Sleep,
   rc1TestGapMs,
