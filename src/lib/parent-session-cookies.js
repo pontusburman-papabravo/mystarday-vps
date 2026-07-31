@@ -1,18 +1,28 @@
 'use strict';
 
-const config = require('./config');
 const {
   consumeHandoffAndActivateSession,
   clearHandoffCookie,
+  mapHandoffClientCode,
 } = require('./parent-session-handoff');
 
 /**
  * Activate saved parent session from opaque handoff cookie.
- * @returns {Promise<boolean>}
+ * @returns {Promise<{ ok: true, parent: object, expiresAt: number }|{ ok: false, code: string }>}
  */
-async function activateParentSessionCookies(req, res) {
-  const result = await consumeHandoffAndActivateSession(req, res);
-  return result.ok;
+async function activateParentSessionCookies(req, res, options = {}) {
+  const result = await consumeHandoffAndActivateSession(req, res, options);
+  if (!result.ok) {
+    return {
+      ok: false,
+      code: result.clientCode || mapHandoffClientCode(result.code),
+    };
+  }
+  return {
+    ok: true,
+    parent: result.parent,
+    expiresAt: result.expiresAt,
+  };
 }
 
 /**

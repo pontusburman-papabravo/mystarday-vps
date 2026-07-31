@@ -17,7 +17,7 @@ const { recordLoginEvent } = require('../../lib/login-event');
 const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../../lib/magic-view-access');
 const { isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
 const { resolveChildUiLocale } = require('../../lib/child-ui-locale');
-const { requireAuth } = require('../../middleware/auth');
+const { requireAuth, verifyToken } = require('../../middleware/auth');
 const { generateCsrfToken } = require('../../middleware/csrf');
 const {
   createRefreshToken,
@@ -27,6 +27,7 @@ const {
   setAccessCookie,
   clearAccessCookie,
   clearRefreshCookie,
+  lookupRefreshTokenRow,
 } = require('../../lib/refresh-tokens');
 const parentPinDb = require('../../../db/parent-pin');
 const familySubscriptions = require('../../../db/family-subscriptions');
@@ -466,20 +467,78 @@ router.post('/logout', async (req, res) => {
     logHandoffLogoutDiagnostics,
   } = require('../../lib/parent-session-handoff');
 
+  function verifyChildAccess(accessTokenStr) {
+    if (!accessTokenStr) return null;
+    try {
+      const decoded = verifyToken(accessTokenStr);
+      if (decoded.type !== 'child' || !decoded.id || !decoded.familyId) return null;
+      return decoded;
+    } catch {
+      return null;
+    }
+  }
+
+  function verifyAccessPayload(accessTokenStr) {
+    if (!accessTokenStr) return null;
+    try {
+      return verifyToken(accessTokenStr);
+    } catch {
+      return null;
+    }
+  }
+
   try {
     const switchChild = req.body?.switchChild === true;
     const rawRefresh = req.cookies?.refresh_token;
     const accessTokenStr = req.cookies?.access_token;
-    const decoded = accessTokenStr ? jwt.decode(accessTokenStr) : null;
-    const sessionType = decoded?.type;
+    const refreshRow = await lookupRefreshTokenRow(rawRefresh);
+    const refreshSessionType = refreshRow?.user_type || null;
+    const verifiedAccess = verifyAccessPayload(accessTokenStr);
+    const accessSessionType = verifiedAccess?.type || null;
+    const sessionType = accessSessionType === 'child'
+      ? 'child'
+      : (refreshSessionType || accessSessionType);
+    let childSession = verifyChildAccess(accessTokenStr);
+    if (!childSession && refreshRow?.user_type === 'child' && refreshRow.child_id) {
+      const accessParent = accessSessionType === 'parent';
+      if (accessParent) {
+        childSession = {
+          id: refreshRow.child_id,
+          familyId: refreshRow.family_id,
+          type: 'child',
+        };
+      }
+    }
     const hasHandoffCookie = Boolean(req.cookies?.stjarndag_parent_session);
 
+    if (
+      refreshRow?.user_type === 'child'
+      && accessTokenStr
+      && !verifyChildAccess(accessTokenStr)
+      && accessSessionType !== 'parent'
+    ) {
+      if (hasHandoffCookie) {
+        clearAllSessionCookies(res);
+        clearHandoffCookie(res);
+        return res.status(401).json({
+          code: 'CHILD_SESSION_INVALID',
+          requiresParentLogin: true,
+        });
+      }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ loggedOut: true, handoffAvailable: false });
+    }
+
     // ── Switch child: end child JWT only; keep handoff for picker ─────────
-    if (switchChild && sessionType === 'child' && decoded?.id) {
+    if (switchChild) {
+      if (!childSession) {
+        return res.status(401).json({ code: 'CHILD_SESSION_INVALID' });
+      }
       await revokeRefreshTokenForSession(rawRefresh, {
         userType: 'child',
-        userId: decoded.id,
-        familyId: decoded.familyId,
+        userId: childSession.id,
+        familyId: childSession.familyId,
       });
       clearAccessCookie(res);
       clearRefreshCookie(res);
@@ -487,8 +546,8 @@ router.post('/logout', async (req, res) => {
       return res.json({ message: 'Utloggad', switchChild: true });
     }
 
-    // ── Parent / anonymous logout ───────────────────────────────────────────
-    if (sessionType !== 'child') {
+    // ── Parent logout ─────────────────────────────────────────────────────
+    if (sessionType === 'parent') {
       if (rawRefresh) {
         await revokeRefreshToken(rawRefresh);
       }
@@ -497,15 +556,61 @@ router.post('/logout', async (req, res) => {
       return res.json({ message: 'Utloggad', loggedOut: true });
     }
 
-    // ── Child logout ──────────────────────────────────────────────────────
-    const childId = decoded.id;
-    const childFamilyId = decoded.familyId;
+    // Invalid/expired child JWT with handoff must not fall through to anonymous logout.
+    if (sessionType !== 'child') {
+      if (hasHandoffCookie) {
+        clearAllSessionCookies(res);
+        clearHandoffCookie(res);
+        return res.status(401).json({
+          code: 'CHILD_SESSION_INVALID',
+          requiresParentLogin: true,
+        });
+      }
+      if (rawRefresh) {
+        await revokeRefreshToken(rawRefresh);
+      }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ loggedOut: true, handoffAvailable: false });
+    }
+
+    // ── Child logout (valid child JWT) ──────────────────────────────────────
+    if (!childSession) {
+      if (hasHandoffCookie) {
+        clearAllSessionCookies(res);
+        clearHandoffCookie(res);
+        return res.status(401).json({
+          code: 'CHILD_SESSION_INVALID',
+          requiresParentLogin: true,
+        });
+      }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ loggedOut: true, handoffAvailable: false });
+    }
+
+    const childId = childSession.id;
+    const childFamilyId = childSession.familyId;
     const handoffEval = hasHandoffCookie
       ? await evaluateHandoffForRequest(req, res)
       : { ok: false, reason: 'cookie_missing', code: 'HANDOFF_COOKIE_MISSING' };
 
     if (hasHandoffCookie) {
-      await logHandoffLogoutDiagnostics(req, 'child_logout_pre', handoffEval, decoded, rawRefresh);
+      await logHandoffLogoutDiagnostics(req, 'child_logout_pre', handoffEval, childSession, rawRefresh);
+    }
+
+    if (hasHandoffCookie && handoffEval.ok && handoffEval.familyId !== childFamilyId) {
+      await revokeRefreshTokenForSession(rawRefresh, {
+        userType: 'child',
+        userId: childId,
+        familyId: childFamilyId,
+      });
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.status(409).json({
+        code: 'PARENT_HANDOFF_INVALID',
+        requiresParentLogin: true,
+      });
     }
 
     if (hasHandoffCookie && !handoffEval.ok) {
@@ -552,7 +657,7 @@ router.post('/logout', async (req, res) => {
       }
 
       const restored = await consumeHandoffAndActivateSession(req, res);
-      await logHandoffLogoutDiagnostics(req, 'child_logout_post_consume', handoffEval, decoded, null);
+      await logHandoffLogoutDiagnostics(req, 'child_logout_post_consume', handoffEval, childSession, null);
 
       if (restored.ok) {
         return res.json({ sessionRestored: true });

@@ -688,7 +688,7 @@ const Auth = {
 
         if (res.ok && data.needsParentPin) {
           this._clearChildCookies();
-          var cancelUrlPin = childFlow ? '/child-login' : '/login';
+          const cancelUrlPin = childFlow ? '/child-login' : '/login';
           this._showParentPinGateOverlay(function () {
             window.location.href = '/dashboard';
           }, function () {
@@ -1013,7 +1013,40 @@ const Auth = {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         credentials: 'include',
         body: JSON.stringify({ pin: pin }),
-      }).then(function (r) { return r.json(); }).then(function (res) {
+      }).then(function (r) {
+        if (r.status === 429) {
+          msgEl.textContent = pgT('errors.logoutRateLimited') || pgT('errors.serverError');
+          entered = '';
+          updateDots();
+          buildKeypad();
+          return null;
+        }
+        if (!r.ok && r.status >= 500) {
+          msgEl.textContent = pgT('errors.serverError');
+          entered = '';
+          updateDots();
+          buildKeypad();
+          return null;
+        }
+        return r.json().then(function (res) { return { httpOk: r.ok, httpStatus: r.status, body: res }; });
+      }).then(function (wrapped) {
+        if (!wrapped) return;
+        var res = wrapped.body;
+        if (!wrapped.httpOk) {
+          if (res && res.code === 'PARENT_PIN_INVALID') {
+            msgEl.textContent = pgT('errors.parentPinInvalid');
+          } else if (res && res.code && res.code.indexOf('HANDOFF') !== -1) {
+            document.body.removeChild(overlay);
+            Auth._redirectToParentLoginAfterHandoffFailure();
+            return;
+          } else {
+            msgEl.textContent = pgT('errors.serverError');
+          }
+          entered = '';
+          updateDots();
+          buildKeypad();
+          return;
+        }
         if (applyPickerResponse && res.ok && res.parent) {
           Auth.setAuth(null, res.parent, res.csrfToken || csrf);
           if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {

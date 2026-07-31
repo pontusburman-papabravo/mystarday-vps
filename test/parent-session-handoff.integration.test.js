@@ -532,7 +532,10 @@ test('expired handoff is denied for picker and activate', async (t) => {
     const pickerRes = await fetch(`${baseUrl}/api/family/parent-pin-status-picker`, {
       headers: { Cookie: cookieHeader(childCookies) },
     });
-    assert.equal(pickerRes.status, 403, 'expired handoff must not bypass requireParent');
+    assert.equal(pickerRes.status, 200);
+    const pickerBody = await pickerRes.json();
+    assert.equal(pickerBody.has_session, false);
+    assert.equal(pickerBody.has_pin, false);
 
     await assertActivateHandoffFails(baseUrl, childCookies, childBody.csrfToken);
   } finally {
@@ -577,10 +580,14 @@ test('parent logout revokes handoff tied to parent refresh token', async (t) => 
     await assertActivateHandoffFails(baseUrl, childCookies, childBody.csrfToken);
 
     const rows = await db.query(
-      `SELECT COUNT(*)::int AS n FROM parent_session_handoff WHERE parent_id = $1`,
+      `SELECT revoked_at FROM parent_session_handoff WHERE parent_id = $1`,
       [fixture.parentId]
     );
-    assert.equal(rows.rows[0].n, 0, 'handoff row removed when parent refresh revoked');
+    assert.ok(rows.rows.length >= 1, 'handoff row should remain for audit');
+    assert.ok(
+      rows.rows.every((r) => r.revoked_at !== null),
+      'handoff must be revoked when parent logs out'
+    );
   } finally {
     await close();
     await db.cleanup();

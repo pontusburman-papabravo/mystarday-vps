@@ -2,55 +2,96 @@
 
 Opaque cookie `stjarndag_parent_session` + DB row `parent_session_handoff` preserve the parent refresh path when a parent logs in as a child.
 
+## Route mount order (`src/routes/family/index.js`)
+
+```
+invites-public (no auth)
+→ session-public
+    GET  /parent-pin-status-picker   (handoff only)
+    POST /verify-pin-picker          (handoff + PIN, CSRF-exempt)
+    POST /activate-saved-parent-session (child JWT + handoff)
+→ requireParent
+→ pin.js, core, …                    (authenticated parent routes)
+```
+
+**Why picker PIN is before `requireParent`:** After child logout with `needsParentPin`, `clearAllSessionCookies` removes `access_token` / `refresh_token` / CSRF. Only the HttpOnly handoff cookie remains. `requireParent` would 401 before `attachHandoffPickerContext` runs.
+
+**CSRF:** `POST /verify-pin-picker` is listed in `csrf.js` exclusions (no session cookie to double-submit yet). Rate limit: `parentPinLimiter` + handoff-bound parent/family from DB, not request body.
+
+## Credentials after child logout (PIN path)
+
+| Cookie / token | After `needsParentPin` logout |
+|----------------|-----------------------------|
+| `access_token` | cleared |
+| `refresh_token` | cleared (child row revoked when identity matches) |
+| `csrf_token` | cleared |
+| `stjarndag_parent_session` | **kept** until PIN consume or invalidation |
+
 ## State machine (summary)
 
 1. **Parent logged in** — parent `access_token` + `refresh_token` (path `/api/auth`).
-2. **Child login from parent** — `createHandoffFromParentCookies` stores parent `refresh_token_id`, sets handoff cookie; child tokens replace session cookies.
-3. **Child active** — access JWT `type: child`; handoff row unused; parent refresh row still exists (referenced by handoff).
-4. **Child logout**
-   - **Valid handoff, no PIN** — validate handoff → revoke **child** refresh only → `consumeHandoffAndActivateSession` → `{ sessionRestored: true }`.
-   - **Valid handoff, PIN** — validate → revoke child refresh → `{ needsParentPin: true }` → client uses **Model B**: `POST /api/family/verify-pin-picker` (consumes handoff + parent cookies).
-   - **Handoff cookie but invalid** — fail closed `409` `{ code: PARENT_HANDOFF_INVALID, requiresParentLogin: true }` (not plain `Utloggad`).
-   - **No handoff** — `{ loggedOut: true, handoffAvailable: false }`.
+2. **Child login from parent** — handoff row + cookie; child tokens replace session cookies. Handoff must succeed or `409 PARENT_HANDOFF_CREATE_FAILED` (no child refresh row).
+3. **Child logout**
+   - Valid handoff, no PIN — verified child JWT → revoke child refresh only → transactional consume → `{ sessionRestored: true }`.
+   - Valid handoff, PIN — verified child JWT → revoke child refresh → `{ needsParentPin: true }` → `verify-pin-picker` consumes handoff.
+   - Handoff cookie but invalid session/handoff — fail closed (`401` / `409` with stable `code`).
+   - No handoff — `{ loggedOut: true, handoffAvailable: false }`.
+
+## JWT verification (logout)
+
+Child handoff logout uses `verifyToken()` (current + previous secret), not `jwt.decode()`. Forged, expired, or wrong-family child JWT cannot consume handoff.
+
+## Transaction boundary (`consumeHandoffAndActivateSession`)
+
+DB work runs in a single transaction (`BEGIN` … `COMMIT`):
+
+1. `SELECT handoff … FOR UPDATE`
+2. Validate unused / unrevoked / unexpired + family access
+3. `SELECT parent refresh … FOR UPDATE`
+4. Insert **new** parent refresh row
+5. `UPDATE handoff SET used_at`
+6. `DELETE` old parent refresh row
+7. `COMMIT`
+
+Response cookies are set **only after** commit. On failure: `ROLLBACK` — `used_at` unchanged, old parent refresh retained.
+
+Concurrent consume: second locker gets `PARENT_HANDOFF_USED` / conflict.
 
 ## Revocation order (child logout)
 
-1. Decode access JWT → must be `child`.
-2. `evaluateHandoffForRequest` **before** any destructive refresh revoke.
-3. `revokeRefreshTokenForSession` — deletes refresh row **only** if `user_type` + `child_id` + `family_id` match (stale parent refresh in the jar cannot revoke parent handoff).
-4. Clear child session cookies on response.
-5. Consume handoff or return PIN contract.
+1. Verify access JWT → `type: child`
+2. `evaluateHandoffForRequest` before destructive steps
+3. `revokeRefreshTokenForSession` (child identity only)
+4. Clear child session cookies on response
+5. Consume or PIN contract
 
-Parent logout still uses `revokeRefreshToken` (revokes parent refresh + handoffs).
+## Stable client codes
 
-## Child-login preconditions
+| Code | When |
+|------|------|
+| `sessionRestored` | No-PIN logout success |
+| `needsParentPin` | PIN required after logout |
+| `PARENT_PIN_INVALID` | Wrong picker PIN |
+| `PARENT_PIN_REQUIRED` | PIN not configured |
+| `PARENT_HANDOFF_INVALID` | Bad/missing handoff |
+| `PARENT_HANDOFF_USED` | Replay |
+| `PARENT_HANDOFF_EXPIRED` | TTL |
+| `PARENT_HANDOFF_CONSUME_FAILED` | Internal consume/transaction error |
+| `CHILD_SESSION_INVALID` | Handoff present but child JWT invalid |
+| `PARENT_HANDOFF_CREATE_FAILED` | Parent→child without handoff |
+| `SERVER_ERROR` | Generic 500 |
 
-| Case | Parent cookies | Handoff |
-|------|----------------|---------|
-| Standalone child login | absent | not required |
-| Parent → child | both present | **must** create DB row + cookie or `409 PARENT_HANDOFF_CREATE_FAILED` |
+## PIN architecture (Model B)
 
-## Stable server codes (client-safe)
-
-| Code | HTTP | Meaning |
-|------|------|---------|
-| `sessionRestored` | 200 | Parent session active in Set-Cookie |
-| `needsParentPin` | 200 | Handoff reserved; use verify-pin-picker |
-| `loggedOut` + `handoffAvailable: false` | 200 | Normal child exit |
-| `PARENT_HANDOFF_INVALID` | 409 | Handoff cookie present but not restorable |
-| `PARENT_HANDOFF_CREATE_FAILED` | 409 | Parent→child without handoff |
-| `HANDOFF_CONSUME_FAILED` | 500 | Internal consume error |
-
-Internal log codes: `HANDOFF_*` in `src/lib/parent-session-handoff.js` (`HANDOFF_CODES`).
-
-## PIN architecture
-
-**Model B (chosen):** After `needsParentPin`, client calls `/api/family/verify-pin-picker`, which verifies PIN, consumes handoff, and sets parent cookies. No `/restore-parent-session` on this path.
+After `needsParentPin`, client calls `/api/family/verify-pin-picker` (public mount). Success returns `ok: true`, parent session cookies, and CSRF — no `/restore-parent-session`.
 
 ## Why plain `200 Utloggad` is wrong with handoff cookie
 
-If the client sends `stjarndag_parent_session` but the server cannot validate it, treating the response as a normal child logout strands the family (cookie implies parent return path). The server returns `409 PARENT_HANDOFF_INVALID` so the client routes to parent login.
+If the client sends `stjarndag_parent_session` but restore cannot be validated, a normal child logout misleads the UI. Use explicit `409`/`401` codes and parent-login recovery.
 
-## Single-use and races
+## Tests
 
-Handoff consumption uses `UPDATE … WHERE used_at IS NULL` (one winner). Concurrent logout/login tests live in `test/parent-session-handoff.integration.test.js`.
+- `test/parent-session-handoff.integration.test.js` — no-PIN HTTP, refresh confusion
+- `test/parent-child-handoff-pin.integration.test.js` — full-stack PIN path, rollback, child-login orphan guard
+- `test/parent-child-handoff-logout-jwt.integration.test.js` — forged/expired JWT
+- `test/parent-child-handoff-logout-client.test.js` — client contract

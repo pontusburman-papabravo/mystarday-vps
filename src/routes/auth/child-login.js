@@ -203,39 +203,13 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
       });
     }
 
-    // ── Successful login ──────────────────────────────────────────────────
-    await pinLockout.recordSuccessfulLogin(child.id);
-    await db.query(
-      'INSERT INTO login_attempt (identifier, ip_address, success) VALUES ($1, $2, true)',
-      [normalizedInput, clientIp]
-    );
-    pinLockout.auditLog(child.id, child.family_id, 'attempt_success', clientIp, {}).catch(() => {});
-
-    // Record login event for analytics
-    db.query(
-      'INSERT INTO login_event (user_id, role, family_id) VALUES ($1, $2, $3)',
-      [child.id, 'child', child.family_id]
-    ).catch(() => {});
-
+    // ── Successful login (session + handoff before success side-effects) ───
     const accessToken = jwt.sign(
       { id: child.id, type: 'child', familyId: child.family_id, username: child.username, name: child.name },
       config.jwt.secret,
       { expiresIn: config.jwt.childExpiresIn }
     );
 
-    // Issue 7-day refresh token — same as parent login.
-    // Without this, child sessions cannot silently refresh and expire permanently
-    // when the access token dies (8h for children).
-    const rawRefresh = await createRefreshToken({
-      userId: child.id,
-      userType: 'child',
-      familyId: child.family_id,
-    });
-
-    // ── Save parent session before overwriting cookies ─────────────────────
-    // When a parent logs in as a child, their httpOnly tokens get overwritten.
-    // Save them now so restoreParentSession middleware can restore the parent
-    // view when the user navigates back to parent-facing pages.
     const parentAccessToken = req.cookies?.access_token;
     const parentRefreshToken = req.cookies?.refresh_token;
     if (parentAccessToken && parentRefreshToken) {
@@ -258,11 +232,27 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
       }
     }
 
-    setRefreshCookie(res, rawRefresh);
+    const rawRefresh = await createRefreshToken({
+      userId: child.id,
+      userType: 'child',
+      familyId: child.family_id,
+    });
 
-    // Set access token as httpOnly cookie — XSS cannot read it.
+    setRefreshCookie(res, rawRefresh);
     const expiresInSecs = parseDuration(config.jwt.childExpiresIn);
     setAccessCookie(res, accessToken, expiresInSecs);
+
+    await pinLockout.recordSuccessfulLogin(child.id);
+    await db.query(
+      'INSERT INTO login_attempt (identifier, ip_address, success) VALUES ($1, $2, true)',
+      [normalizedInput, clientIp]
+    );
+    pinLockout.auditLog(child.id, child.family_id, 'attempt_success', clientIp, {}).catch(() => {});
+
+    db.query(
+      'INSERT INTO login_event (user_id, role, family_id) VALUES ($1, $2, $3)',
+      [child.id, 'child', child.family_id]
+    ).catch(() => {});
 
     const { ingestMilestoneAsync } = require('../../lib/journey/ingest');
     ingestMilestoneAsync({

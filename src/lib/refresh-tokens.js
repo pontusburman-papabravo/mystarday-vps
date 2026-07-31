@@ -24,21 +24,25 @@ function hashToken(raw) {
  * Generate and store a new refresh token.
  * Returns the raw token (set in cookie by caller).
  */
-async function createRefreshToken({ userId, userType, familyId }) {
+async function insertRefreshTokenRow(client, { userId, userType, familyId }) {
   const raw = crypto.randomBytes(32).toString('hex');
   const hash = hashToken(raw);
   const expiresAt = new Date(Date.now() + config.refreshToken.expiryDays * 24 * 60 * 60 * 1000);
-
   const parentId = userType === 'parent' ? userId : null;
-  const childId  = userType === 'child'  ? userId : null;
-
-  await db.query(
+  const childId = userType === 'child' ? userId : null;
+  await client.query(
     `INSERT INTO refresh_token (parent_id, child_id, token_hash, family_id, user_type, expires_at)
      VALUES ($1, $2, $3, $4, $5, $6)`,
     [parentId, childId, hash, familyId, userType, expiresAt]
   );
-
   return raw;
+}
+
+async function createRefreshToken({ userId, userType, familyId }) {
+  return insertRefreshTokenRow(
+    { query: (text, params) => db.query(text, params) },
+    { userId, userType, familyId }
+  );
 }
 
 /**
@@ -207,6 +211,7 @@ function clearAccessCookie(res) {
 
 module.exports = {
   hashToken,
+  insertRefreshTokenRow,
   createRefreshToken,
   verifyRefreshToken,
   lookupRefreshTokenRow,
