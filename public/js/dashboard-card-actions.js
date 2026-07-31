@@ -34,7 +34,7 @@
   bindDashboardModalBackdrop('ledigDagModal', closeLedigDagModal);
   bindDashboardModalBackdrop('giveStarsPickerModal', closeGiveStarsPickerModal);
 
-async function toggleInlineRedemption(childId, childName) {
+async function toggleInlineRedemption(childId, _childName) {
   const panel = document.getElementById(`inline-redemption-${childId}`);
   if (!panel) return;
 
@@ -77,12 +77,12 @@ async function toggleInlineRedemption(childId, childName) {
     }
     html += '</div>';
     panel.innerHTML = html;
-  } catch (err) {
+  } catch (_err) {
     panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-red-500 py-2">Kunde inte ladda förfrågningar.</div>`;
   }
 }
 
-async function inlineApproveGoalChange(requestId, childId) {
+async function inlineApproveGoalChange(requestId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/approve`, { method: 'PUT' });
     if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
@@ -91,7 +91,7 @@ async function inlineApproveGoalChange(requestId, childId) {
   } catch { showToast('Nätverksfel', true); }
 }
 
-async function inlineDenyGoalChange(requestId, childId) {
+async function inlineDenyGoalChange(requestId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/deny`, { method: 'PUT' });
     if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
@@ -100,7 +100,7 @@ async function inlineDenyGoalChange(requestId, childId) {
   } catch { showToast('Nätverksfel', true); }
 }
 
-async function inlineApproveRedemption(redemptionId, childId) {
+async function inlineApproveRedemption(redemptionId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/approve`, { method: 'PUT' });
     if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
@@ -109,7 +109,7 @@ async function inlineApproveRedemption(redemptionId, childId) {
   } catch { showToast('Nätverksfel', true); }
 }
 
-async function inlineDenyRedemption(redemptionId, childId) {
+async function inlineDenyRedemption(redemptionId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/deny`, { method: 'PUT' });
     if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
@@ -127,7 +127,7 @@ async function togglePauseDay(childId, logId, currentlyPaused) {
     if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
     showToast(currentlyPaused ? 'Dagen återupptagen!' : 'Dagen pausad!');
     await loadDashboardCards();
-  } catch (err) {
+  } catch (_err) {
     showToast('Nätverksfel', true);
   }
 }
@@ -206,7 +206,7 @@ async function ledigDagToggle(childId, logId, currentlyPaused) {
     showToast(currentlyPaused ? 'Schema återupptaget!' : '🏠 Markerat som ledig dag!');
     await loadDashboardCards();
     closeLedigDagModal();
-  } catch (err) {
+  } catch (_err) {
     showToast('Nätverksfel', true);
   }
 }
@@ -235,7 +235,7 @@ async function dashToggleActivity(itemId, childId, currentlyCompleted) {
     // Refresh dashboard cards to get updated state
     await loadDashboardCards();
     showToast(currentlyCompleted ? 'Avmarkerad!' : '✅ Klar!');
-  } catch (err) {
+  } catch (_err) {
     showToast('Nätverksfel', true);
     if (btn) { btn.classList.remove('checking'); btn.disabled = false; }
   }

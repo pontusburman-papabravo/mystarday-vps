@@ -193,11 +193,66 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 
 **Batch 1 regression:** `window.loadUserStats` kvar i `admin-user-stats.js`; `check:ambient-objects` reproducerbar från generator.
 
-### Rekommenderad batch 3
+### Rekommenderad batch 3 (utförd — se nedan)
 
-1. `prefer-const` / `no-var` i medelfiler med granskning: `daily-log.js`, `dashboard-card-actions.js`, `auth.js` (endast catch/`_` — ej session paths).
-2. Domän-batch `reports.js`, `library.js` (31 w) med HTML/global-kontrakt.
-3. Separat scope: `schedule.js`, `dashboard.js`, `family.js`, `admin-library.js`, `child-dashboard.js`.
-4. Produktfix: custody select pre-fill (`homeB`, `defaultHome`, parent `mapped`).
+## Produkt-follow-up (ej PR #804)
 
-**GO WITH FOLLOW-UP** — budget ratchetad, inga lint-regeländringar, blockerade monoliter kvar.
+**Custody settings preselect** — `public/js/custody-settings.js`: `homeB`, `defaultHome`, och parent-rad `mapped` beräknas men appliceras inte som `<option selected>` i custody-selecten.
+
+- **Framtida branch:** `fix(custody): preselect mapped home in parent custody settings` (från aktuell `main`)
+- **Tester:** DOM/beteende — sparat hem A/B, default utan mapping, rätt förälder-select, ingen cross-family påverkan
+- **Lint-PR:** dokumenterad här; ingen custody-produktkod ändrad i #804
+
+## Batch 3 — medelstora publika moduler
+
+**Start HEAD:** `7139e2da` · **Warnings/budget:** 494  
+**Slut HEAD:** (efter push) · **Warnings/budget:** 398  
+
+### Inventering (`.local/lint-public-after-batch2.json`)
+
+| Regel | Count |
+|-------|-------|
+| `no-unused-vars` | 432 |
+| `prefer-const` | 28 |
+| `no-var` | 34 |
+| **Total** | **494** |
+
+### Valda filer
+
+| Fil | Warnings | HTML-globaler | Risk | Vald |
+|-----|----------|---------------|------|------|
+| `reports.js` | 32 | `reports.html` + genererad markup | Medel | Ja |
+| `library.js` | 31 | `library.html` + genererad grid | Medel | Ja |
+| `daily-log.js` | 17 | `daily-log.html` + genererad cards | Medel | Ja |
+| `dashboard-card-actions.js` | 9 | `dashboard.html` | Låg | Ja |
+| `schedule-views.js` | 7 | `schedule.js` onclick | Medel | Ja |
+
+### Delbatch-logg
+
+| Delbatch | Före | Efter | Filer | Regler | Risk | Tester |
+|----------|------|-------|-------|--------|------|--------|
+| reports | 494 | ~462 | `reports.js` | window exports, dead revoke helpers | Låg | i18n-home-today |
+| library | ~462 | ~431 | `library.js` | window exports | Låg | library-load-error-handling |
+| daily-log + actions | ~431 | ~407 | `daily-log.js`, `dashboard-card-actions.js` | exports, dead legacy print | Medel | daily-log-nav-fix, dashboard-card-actions |
+| schedule-views | ~407 | 398 | `schedule-views.js` | window exports | Medel | test:gate |
+
+**Stop condition:** warnings &lt; 400 (398).
+
+### Gates (batch 3)
+
+| Kommando | Resultat |
+|----------|----------|
+| `npm run lint:public` | 398/398 |
+| `npm run lint:public:sync-budget` | 494 → 398 |
+| `npm run test:gate` | 281 pass, 0 fail |
+| `npm run test:full` | 3212 pass, 0 fail, 4 skips |
+| `migration-rollback-gate` | 3 pass |
+
+### Monolitbatch-plan (batch 4+)
+
+1. `schedule.js` (64) — separat analys  
+2. `dashboard.js` (47)  
+3. `family.js`, `admin-library.js`, `child-dashboard.js`  
+4. Custody produktfix — egen PR
+
+**GO WITH FOLLOW-UP** — batch 3 klart; custody + monoliter kvar.
