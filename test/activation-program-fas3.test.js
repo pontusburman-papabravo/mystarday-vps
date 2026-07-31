@@ -8,6 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const { DateTime } = require('luxon');
 
+const { loadLocales } = require('../src/lib/i18n');
+loadLocales();
 const { getDayContent } = require('../src/lib/activation-program-content');
 const {
   rolloverDayStatus,
