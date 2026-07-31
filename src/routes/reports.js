@@ -15,10 +15,12 @@
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
+const { requireComponent } = require('../middleware/require-component');
 const shareLink = require('../../db/professional-share-link');
 
 const router = express.Router();
 router.use(requireParent);
+router.use(requireComponent('reporting'));
 router.use(requireFeature('klinisk_rapportering'));
 
 // Fire analytics event on report creation (fire-and-forget, never blocks response)

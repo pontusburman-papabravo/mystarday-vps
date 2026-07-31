@@ -13,6 +13,7 @@ const express = require('express');
 const path = require('path');
 const { optionalAuth } = require('../middleware/auth');
 const { gateHtmlPage } = require('../middleware/feature-gate');
+const { gateComponentHtml } = require('../middleware/require-component');
 const db = require('../lib/db');
 
 const router = express.Router();
@@ -25,8 +26,8 @@ function requireParentPage(req, res, next) {
 }
 
 // ─── GET /reports ────────────────────────────────────────
-// Page loads for all parents; preview-shell or real UI per package-access (§6.6).
-router.get('/reports', optionalAuth, requireParentPage, (req, res) => {
+// Requires reporting component; otherwise redirect to upgrade (option B — no full Swedish reports UI).
+router.get('/reports', optionalAuth, requireParentPage, gateComponentHtml('reporting', '/upgrade'), (req, res) => {
   res.sendFile(path.join(__dirname, '..', '..', 'public', 'reports.html'));
 });
 
