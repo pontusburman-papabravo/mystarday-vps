@@ -178,6 +178,23 @@
       CHILD_PIN_INVALID: 'errors.pinInvalid',
       CHILD_PIN_LOCKED: 'errors.pinLocked',
       CHILD_SERVER_ERROR: 'errors.serverError',
+      CHILD_NOT_FOUND: 'errors.serverError',
+      CHILD_REWARD_NOT_FOUND: 'treasure.rewardNotFound',
+      CHILD_REWARD_NOT_VISIBLE: 'treasure.rewardNotVisible',
+      CHILD_REWARD_ID_REQUIRED: 'treasure.goalInvalid',
+      CHILD_GOAL_ALREADY_ACTIVE: 'treasure.goalAlreadyActive',
+      CHILD_GOAL_CHANGE_PENDING: 'treasure.goalChangePending',
+      CHILD_GOAL_TARGET_REQUIRED: 'treasure.goalInvalid',
+      CHILD_SERVICE_BUSY: 'treasure.serviceBusy',
+      CHILD_GOAL_SET: 'treasure.goalSet',
+      CHILD_GOAL_CHANGE_REQUESTED: 'treasure.goalChangeSent',
+      CHILD_REDEEM_SUCCESS: 'rewards.redeemSuccess',
+      CHILD_REDEEM_PENDING: 'rewards.redeemSent',
+      insufficient_stars: 'treasure.insufficientStars',
+      redemption_pending_exists: 'treasure.redeemPending',
+      reward_already_redeemed: 'treasure.redeemTaken',
+      reward_inactive: 'treasure.rewardInactive',
+      redemption_not_pending: 'treasure.redeemHandled',
     };
     const path = map[code];
     if (!path) return cpt('errors.serverError');
@@ -188,6 +205,32 @@
         : cpt('errors.minuteOther');
     }
     return cpt(path, p);
+  }
+
+  function childTreasureErrorFromThrown(err) {
+    if (!err) return cpt('errors.serverError');
+    const netErr = err.message === 'Failed to fetch'
+      || err.message === 'NetworkError when attempting to fetch resource.';
+    if (netErr || !navigator.onLine) return cpt('errors.networkError');
+    const body = err.body || {};
+    if (body.code) {
+      return childErrorFromCode(body.code, {
+        balance: body.balance,
+        required: body.required,
+        reward_name: body.reward_name,
+        name: body.reward_name,
+      });
+    }
+    return cpt('errors.serverError');
+  }
+
+  function childTreasureSuccessFromBody(data, fallbackKey) {
+    if (!data) return cpt(fallbackKey);
+    if (data.code) {
+      const msg = childErrorFromCode(data.code, { name: data.reward_name, reward_name: data.reward_name });
+      if (msg && !String(msg).startsWith('child.')) return msg;
+    }
+    return cpt(fallbackKey);
   }
 
   function getChildUiLocale() {
@@ -208,6 +251,8 @@
   window.childLoginErrorFromResponse = childLoginErrorFromResponse;
   window.childLockoutCountdownText = lockoutCountdownText;
   window.childErrorFromCode = childErrorFromCode;
+  window.childTreasureErrorFromThrown = childTreasureErrorFromThrown;
+  window.childTreasureSuccessFromBody = childTreasureSuccessFromBody;
   window.getChildUiLocale = getChildUiLocale;
   window.resolveChildUiLocale = resolveChildUiLocale;
   window.readPersistedChildLocaleHints = readPersistedChildLocaleHints;

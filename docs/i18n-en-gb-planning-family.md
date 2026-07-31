@@ -47,7 +47,15 @@ Shared bootstrap: `public/js/parent-app-i18n.js`, `public/js/parent-magic-i18n.j
 | Server-generated | API errors (localized where server i18n exists) |
 | Config `labelKey` | `nav-config.js` CAPABILITIES, HEADER_ACTIONS, AVATAR_ACTIONS |
 | User-authored (not translated) | Activity names, schedule names, child names, reward names |
-| Out of scope | `/for-dig` hub body, child dashboard, admin, SEO, legal |
+| Out of scope | Admin, SEO, legal; **Reports** product (gated off when `reporting` absent) |
+
+## RC-1 additions (2026-07-31)
+
+| Surface | Route | Status |
+|---------|-------|--------|
+| Child profile (parent) | `/family/child/:id` | en-GB system copy in `childProfile.*` fragments |
+| För dig | `/for-dig` | Primary nav — activation modals + toasts localized |
+| Treasure Chest reward titles | Child API | Provenance-safe `display_name` only |
 
 ## Migrations (immutable)
 

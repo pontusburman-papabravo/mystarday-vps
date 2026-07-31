@@ -2,7 +2,15 @@
 
 **Status:** In progress (platform shipped; P0 UI extraction ongoing)  
 **ADR:** [`docs/adr/ADR-017-family-locale-i18n.md`](adr/ADR-017-family-locale-i18n.md)  
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-31 (RC-1 safe rewards + child profile + För dig)
+
+### RC-1 slice (automated)
+
+- [x] Provenance-safe reward `display_name` (rejects PR #791 `localizeAll`)
+- [x] Child profile parent surface en-GB
+- [x] För dig primary view en-GB (stable `scheduleName`, not Swedish UI prefix hacks)
+- [x] Reports CTA hidden without `reporting` component
+- [ ] Physical device matrix (see `docs/releases/RC1_I18N_RC_BRANCH_STATUS.md`)
 
 ---
 

@@ -1,6 +1,6 @@
 # P-i18n-Child-Core-C — inventory (planning only)
 
-**Status:** Not implemented. Create after PR #713 and #715 are merged and deployed.
+**Status:** Child core largely implemented; this branch completes **child profile** parent surface + safe reward provenance for Treasure Chest.
 
 **Gate:** `english_child_experience` feature flag (use existing `family_features` / `feature_flag` system; create flag in child phase if absent).
 

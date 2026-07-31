@@ -31,11 +31,13 @@ const REWARD_REDEMPTION_ERRORS = {
 function sendRewardRedemptionError(res, key, overrides = {}) {
   const base = REWARD_REDEMPTION_ERRORS[key];
   if (!base) {
-    return res.status(500).json({ error: 'Något gick fel.' });
+    return res.status(500).json({ code: 'CHILD_SERVER_ERROR' });
   }
+  const { error, ...rest } = overrides;
   return res.status(base.status).json({
-    error: overrides.error ?? base.error,
     code: base.code,
+    error: error ?? base.error,
+    ...rest,
   });
 }
 

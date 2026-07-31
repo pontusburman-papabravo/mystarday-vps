@@ -62,15 +62,15 @@
 
   async function loadData() {
     childId = parseChildId();
-    if (!childId) throw new Error('Saknar barn-id');
+    if (!childId) throw new Error(pt('childProfile.errors.missingChildId'));
 
     const statsRes = await window.apiFetch('/api/family/dashboard-stats');
-    if (!statsRes.ok) throw new Error('Kunde inte ladda status');
+    if (!statsRes.ok) throw new Error(pt('childProfile.errors.loadStatus'));
     const stats = await statsRes.json();
     dashRow = (stats.children || []).find(function (c) { return c.id === childId; });
 
     const childRes = await window.apiFetch('/api/children/' + encodeURIComponent(childId));
-    if (!childRes.ok) throw new Error('Barn hittades inte');
+    if (!childRes.ok) throw new Error(pt('childProfile.errors.childNotFound'));
     child = await childRes.json();
 
     try {
@@ -104,9 +104,13 @@
     return pt('childProfile.profileWithAge', { age: ageText });
   }
 
+  function localizedApiError(_errBody, fallbackKey) {
+    return pt(fallbackKey || 'childProfile.errors.generic');
+  }
+
   function pinSetupHtml() {
     return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4" id="profilePinBlock">' +
-      '<p class="font-semibold text-navy mb-2">PIN-kod (4 siffror)</p>' +
+      '<p class="font-semibold text-navy mb-2">' + esc(pt('childProfile.pinTitle')) + '</p>' +
       '<div class="flex gap-2 justify-center mb-3" id="profilePinDots">' +
       [0, 1, 2, 3].map(function () {
         return '<span class="w-3 h-3 rounded-full bg-lavender inline-block profile-pin-dot"></span>';
@@ -115,10 +119,13 @@
       '<div class="grid grid-cols-3 gap-2 max-w-xs mx-auto mb-3" id="profilePinPad">' +
       ['1','2','3','4','5','6','7','8','9','','0','⌫'].map(function (d) {
         if (d === '') return '<span></span>';
+        if (d === '⌫') {
+          return '<button type="button" class="p-3 bg-sky rounded-xl font-bold text-navy min-h-[48px]" data-pin-digit="' + d + '" aria-label="' + esc(pt('childProfile.pinBackspace')) + '">' + d + '</button>';
+        }
         return '<button type="button" class="p-3 bg-sky rounded-xl font-bold text-navy min-h-[48px]" data-pin-digit="' + d + '">' + d + '</button>';
       }).join('') +
       '</div>' +
-      '<button type="button" id="profilePinSave" class="w-full p-3 bg-gold text-navy rounded-xl font-bold" disabled>Spara PIN</button>' +
+      '<button type="button" id="profilePinSave" class="w-full p-3 bg-gold text-navy rounded-xl font-bold" disabled>' + esc(pt('childProfile.pinSave')) + '</button>' +
       '</div>';
   }
 
@@ -132,17 +139,32 @@
     if (save) save.disabled = pinBuffer.length !== 4;
   }
 
+  async function reportsLinkHtml() {
+    try {
+      const access = window._packageAccess
+        || (typeof window.fetchPackageAccess === 'function' ? await window.fetchPackageAccess() : null);
+      if (!access || !access.components || !access.components.reporting || !access.components.reporting.has) {
+        return '';
+      }
+    } catch (_) {
+      return '';
+    }
+    return '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.openReports')) + '</a>';
+  }
+
   async function rewardsTabHtml() {
     let html = quickActionsHtml();
     if (window.PendingApprovals) {
       try {
         const pending = await PendingApprovals.fetchPending();
-        const block = PendingApprovals.renderList(pending, {
-          childId: childId,
-          childName: child.name,
-          heading: pt('childProfile.pendingHeading'),
-        });
-        if (block.indexOf('Inga väntande') === -1) html += '<div class="mb-4">' + block + '</div>';
+        if (pending && pending.length > 0) {
+          const block = PendingApprovals.renderList(pending, {
+            childId: childId,
+            childName: child.name,
+            heading: pt('childProfile.pendingHeading'),
+          });
+          html += '<div class="mb-4">' + block + '</div>';
+        }
       } catch (_) { /* silent */ }
     }
     if (goalRow && goalRow.reward_name) {
@@ -204,7 +226,7 @@
     const weeks = data.weeks || [];
     if (!weeks.length) {
       return '<p class="text-text-soft mb-4">' + esc(pt('childProfile.noStarHistory')) + '</p>' +
-        '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.openReports')) + '</a>';
+        (await reportsLinkHtml());
     }
     const totals = weeks.map(function (w) { return (w.child_totals && w.child_totals[childId]) || 0; });
     const max = Math.max.apply(null, totals.concat([1]));
@@ -220,7 +242,7 @@
     return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4 overflow-hidden">' +
       '<p class="text-sm text-text-soft mb-3">' + esc(pt('childProfile.starsPerWeek')) + '</p>' +
       '<div class="max-w-full overflow-x-auto pb-1"><div class="flex gap-1 items-end">' + bars + '</div></div></div>' +
-      '<a href="/reports?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.openReports')) + '</a>';
+      (await reportsLinkHtml());
   }
 
   function tabContent(tab) {
@@ -343,10 +365,10 @@
             if (!res.ok) {
               let e = {};
               try { e = await res.json(); } catch (_) { /* non-json */ }
-              showToast(e.error || 'Kunde inte spara PIN', true);
+              showToast(localizedApiError(e, 'childProfile.pinSaveFailed'), true);
               return;
             }
-            showToast('PIN sparad!');
+            showToast(pt('childProfile.pinSaved'));
             pinBuffer = '';
             renderPinDots();
           });
@@ -376,10 +398,10 @@
   function wireDeleteChild(childRow) {
     const btn = document.getElementById('profileDeleteChildBtn');
     const modal = document.getElementById('deleteChildModal');
-    const nameEl = document.getElementById('deleteChildTargetName');
+    const titleEl = document.getElementById('deleteChildModalTitle');
     const cancelBtn = document.getElementById('deleteChildCancelBtn');
     const confirmBtn = document.getElementById('deleteChildConfirmBtn');
-    if (!btn || !modal || !nameEl || !confirmBtn) return;
+    if (!btn || !modal || !titleEl || !confirmBtn) return;
 
     function closeDeleteModal() {
       modal.classList.add('hidden');
@@ -387,7 +409,9 @@
     }
 
     btn.onclick = function () {
-      nameEl.textContent = childRow.name || 'barnet';
+      titleEl.textContent = pt('childProfile.deleteChildTitle', {
+        name: childRow.name || pt('childProfile.deleteChildDefaultName'),
+      });
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     };
@@ -403,14 +427,14 @@
         if (!res.ok) {
           let err = {};
           try { err = await res.json(); } catch (_) { /* non-json */ }
-          showToast(err.error || 'Kunde inte ta bort barnet', true);
+          showToast(localizedApiError(err, 'childProfile.deleteChildFailed'), true);
           return;
         }
         closeDeleteModal();
-        showToast('Barnet är borttaget');
+        showToast(pt('childProfile.deleteChildSuccess'));
         window.location.href = '/family';
       } catch (err) {
-        showToast('Kunde inte ta bort: ' + (err.message || 'okänt fel'), true);
+        showToast(pt('childProfile.deleteChildFailed') + ': ' + (err.message || pt('childProfile.deleteChildUnknown')), true);
       } finally {
         confirmBtn.disabled = false;
       }
@@ -421,12 +445,12 @@
     const action = e.currentTarget.getAttribute('data-action');
     if (action === 'pause') {
       const logId = dashRow && dashRow.today_log_id;
-      if (!logId) { showToast('Inget schema idag', true); return; }
+      if (!logId) { showToast(pt('childProfile.pauseNoSchedule'), true); return; }
       const paused = dashRow.today_is_paused;
       const ep = paused ? 'unpause' : 'pause';
       const res = await window.apiFetch('/api/daily-logs/' + logId + '/' + ep, { method: 'PUT' });
-      if (!res.ok) { showToast('Kunde inte uppdatera', true); return; }
-      showToast(paused ? 'Dagen återupptagen' : 'Dagen pausad');
+      if (!res.ok) { showToast(pt('childProfile.pauseUpdateFailed'), true); return; }
+      showToast(paused ? pt('childProfile.pauseResumed') : pt('childProfile.pausePaused'));
       await loadData();
       render();
     }
@@ -441,17 +465,39 @@
   async function submitManualStar() {
     const count = parseInt(document.getElementById('manualStarCount').value, 10) || 1;
     const reason = document.getElementById('manualStarReason').value.trim();
-    if (!reason) { showToast('Skriv en anledning', true); return; }
+    if (!reason) { showToast(pt('childProfile.manualStarsReasonRequired'), true); return; }
     const res = await window.apiFetch('/api/rewards/manual-stars', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ child_id: childId, star_count: count, reason: reason }),
     });
-    if (!res.ok) { showToast('Kunde inte ge stjärnor', true); return; }
+    if (!res.ok) { showToast(pt('childProfile.manualStarsFailed'), true); return; }
     document.getElementById('manualStarModal').classList.add('hidden');
-    showToast('Stjärnor givna!');
+    showToast(pt('childProfile.manualStarsSuccess'));
     await loadData();
     render();
+  }
+
+  function applyStaticChromeI18n() {
+    const delTitle = document.getElementById('deleteChildModalTitle');
+    const delMsg = document.getElementById('deleteChildTargetMessage');
+    const delCancel = document.getElementById('deleteChildCancelBtn');
+    const delConfirm = document.getElementById('deleteChildConfirmBtn');
+    const starTitle = document.getElementById('manualStarModalTitle');
+    const starReason = document.getElementById('manualStarReason');
+    const starCancel = document.getElementById('manualStarCancel');
+    const starSubmit = document.getElementById('manualStarSubmit');
+    if (delMsg) delMsg.textContent = pt('childProfile.deleteChildMessage');
+    if (delCancel) delCancel.textContent = pt('childProfile.deleteChildCancel');
+    if (delConfirm) delConfirm.textContent = pt('childProfile.deleteChildConfirm');
+    if (starTitle) starTitle.textContent = pt('childProfile.manualStarsTitle');
+    if (starReason) starReason.placeholder = pt('childProfile.manualStarsReasonPlaceholder');
+    if (starCancel) starCancel.textContent = pt('childProfile.manualStarsCancel');
+    if (starSubmit) starSubmit.textContent = pt('childProfile.manualStarsSubmit');
+    if (delTitle && child) {
+      const name = child.name || pt('childProfile.deleteChildDefaultName');
+      delTitle.textContent = pt('childProfile.deleteChildTitle', { name: name });
+    }
   }
 
   async function boot() {
@@ -466,7 +512,11 @@
       if (typeof window.initParentAppI18n === 'function') {
         await initParentAppI18n(user.preferred_locale);
       }
+      if (typeof window.fetchPackageAccess === 'function') {
+        try { await fetchPackageAccess(); } catch (_) { /* optional */ }
+      }
       await loadData();
+      applyStaticChromeI18n();
       render();
       document.getElementById('manualStarCancel')?.addEventListener('click', function () {
         document.getElementById('manualStarModal').classList.add('hidden');
@@ -474,14 +524,16 @@
       document.getElementById('manualStarSubmit')?.addEventListener('click', submitManualStar);
     } catch (err) {
       const mount = document.getElementById('childProfileMount');
-      if (mount) mount.innerHTML = '<p class="text-coral text-center py-8">' + esc(err.message) + '</p>';
+      if (mount) mount.innerHTML = '<p class="text-coral text-center py-8">' + esc(err.message || pt('childProfile.errors.generic')) + '</p>';
     }
   }
 
   document.addEventListener('parent-i18n-ready', function () {
+    applyStaticChromeI18n();
     if (child) render();
   });
   document.addEventListener('locale-changed', function () {
+    applyStaticChromeI18n();
     if (child) render();
   });
 

@@ -666,7 +666,7 @@ async function requestRedeem(rewardId) {
   }
 
   try {
-    const data = await Auth.api('/api/me/rewards/' + rewardId + '/redeem', { method: 'POST' });
+    await Auth.api('/api/me/rewards/' + rewardId + '/redeem', { method: 'POST' });
     window.rewardsLoaded = false;
     if (window.Platform && window.Platform.haptics) {
       window.Platform.haptics.medium();
@@ -679,7 +679,10 @@ async function requestRedeem(rewardId) {
       OfflineQueue.queueRedeem(me.id, rewardId).catch(() => {});
       showToast('📶 ' + t('offline.savedWillSend'), false);
     } else {
-      showToast(err.message || t('rewards.couldNotRedeem'), true);
+      const msg = (typeof childTreasureErrorFromThrown === 'function')
+        ? childTreasureErrorFromThrown(err)
+        : (err.message || t('rewards.couldNotRedeem'));
+      showToast(msg, true);
     }
   }
 }
@@ -723,7 +726,7 @@ async function setGoal(rewardId, isChange) {
   try {
     if (isChange) {
       // Send change request to parent
-      const data = await Auth.api('/api/me/goal/change-request', {
+      await Auth.api('/api/me/goal/change-request', {
         method: 'POST',
         body: JSON.stringify({ to_reward_id: rewardId }),
       });
@@ -734,13 +737,19 @@ async function setGoal(rewardId, isChange) {
         method: 'POST',
         body: JSON.stringify({ reward_id: rewardId }),
       });
-      showToast('🎯 ' + data.message);
+      const successMsg = (typeof childTreasureSuccessFromBody === 'function')
+        ? childTreasureSuccessFromBody(data, 'rewards.goalSet')
+        : t('rewards.goalSet');
+      showToast('🎯 ' + successMsg);
       launchMilestoneConfetti();
     }
     window.rewardsLoaded = false;
     await loadRewards();
   } catch (err) {
-    showToast(err.message || t('rewards.couldNotSetGoal'), true);
+    const msg = (typeof childTreasureErrorFromThrown === 'function')
+      ? childTreasureErrorFromThrown(err)
+      : (err.message || t('rewards.couldNotSetGoal'));
+    showToast(msg, true);
   }
 }
 

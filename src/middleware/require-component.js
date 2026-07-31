@@ -7,6 +7,33 @@
 const familySubscriptions = require('../../db/family-subscriptions');
 
 /**
+ * Redirect HTML navigations when the family lacks a subscription component.
+ * Admin users bypass. Unauthenticated parents are sent to login with return URL.
+ */
+function gateComponentHtml(componentName, fallbackPath = '/upgrade') {
+  return async (req, res, next) => {
+    if (req.user?.isAdmin) return next();
+
+    const familyId = req.user?.familyId || req.user?.family_id;
+    if (!familyId) {
+      const nextUrl = req.originalUrl || '/';
+      return res.redirect('/login?next=' + encodeURIComponent(nextUrl));
+    }
+
+    try {
+      const has = await familySubscriptions.hasComponent(familyId, componentName);
+      if (has) return next();
+
+      const sep = fallbackPath.includes('?') ? '&' : '?';
+      return res.redirect(`${fallbackPath}${sep}component=${encodeURIComponent(componentName)}`);
+    } catch (err) {
+      console.error('[REQUIRE-COMPONENT] HTML gate failed:', err.message);
+      return res.status(503).send('Tillfälligt fel, försök igen');
+    }
+  };
+}
+
+/**
  * Middleware factory that requires a specific subscription component.
  * Returns 403 if the family lacks the component or it has expired.
  *
@@ -86,4 +113,4 @@ function requireComponent(componentName) {
   };
 }
 
-module.exports = { requireComponent };
+module.exports = { requireComponent, gateComponentHtml };

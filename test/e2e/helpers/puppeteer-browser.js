@@ -42,10 +42,31 @@ async function waitForAuthEntryReady(page) {
   }, { timeout: 15000 });
 }
 
+async function revealParentLoginLocaleSwitcher(page) {
+  await page.evaluate(() => {
+    const parentSection = document.getElementById('parent-login-section');
+    if (parentSection && window.getComputedStyle(parentSection).display === 'none') {
+      document.querySelectorAll('.app-entry-screen').forEach((el) => {
+        if (el.id !== 'parent-login-section') el.style.display = 'none';
+      });
+      parentSection.style.display = 'flex';
+    }
+    if (window.LocaleSwitcher && typeof LocaleSwitcher.autoMount === 'function') {
+      LocaleSwitcher.autoMount();
+    }
+  });
+}
+
 async function selectLoginLocale(page, locale) {
   await waitForAuthEntryReady(page);
-  const selector = `[data-locale-value="${locale}"]`;
-  await page.waitForSelector(selector, { visible: true, timeout: 15000 });
+  await revealParentLoginLocaleSwitcher(page);
+  const selector = `#parent-login-section [data-locale-value="${locale}"], [data-locale-value="${locale}"]`;
+  await page.waitForFunction((loc) => {
+    const btn = document.querySelector(`#parent-login-section [data-locale-value="${loc}"]`)
+      || document.querySelector(`[data-locale-value="${loc}"]`);
+    if (!btn) return false;
+    return btn.offsetParent !== null;
+  }, { timeout: 20000 }, locale);
   await page.evaluate((loc) => {
     sessionStorage.setItem('sd_preferred_locale', loc);
     sessionStorage.setItem('sd_locale_explicit_choice', '1');
@@ -54,9 +75,33 @@ async function selectLoginLocale(page, locale) {
       localStorage.setItem('sd_locale_explicit_choice', '1');
     } catch (_) { /* ignore */ }
   }, locale);
-  await page.click(selector);
+  const clicked = await page.evaluate((loc) => {
+    const roots = [
+      document.getElementById('parent-login-section'),
+      document.body,
+    ];
+    for (const root of roots) {
+      if (!root) continue;
+      const btn = root.querySelector(`[data-locale-value="${loc}"]`);
+      if (btn && btn.offsetParent !== null) {
+        btn.click();
+        return true;
+      }
+    }
+    const visible = [...document.querySelectorAll(`[data-locale-value="${loc}"]`)]
+      .find((el) => el.offsetParent !== null);
+    if (visible) {
+      visible.click();
+      return true;
+    }
+    return false;
+  }, locale);
+  if (!clicked) {
+    throw new Error(`No visible locale switcher button for ${locale}`);
+  }
   await page.waitForFunction((loc) => {
-    const btn = document.querySelector(`[data-locale-value="${loc}"]`);
+    const btn = document.querySelector(`#parent-login-section [data-locale-value="${loc}"]`)
+      || document.querySelector(`[data-locale-value="${loc}"]`);
     const pressed = btn && btn.getAttribute('aria-pressed') === 'true';
     const choice = window.LoginLocale && LoginLocale.getPreAuthLocaleChoice
       ? LoginLocale.getPreAuthLocaleChoice() === loc

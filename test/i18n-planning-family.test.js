@@ -211,11 +211,12 @@ describe('family-child parent i18n', () => {
     assert.match(html, /child-profile\.js\?v=1\.4/);
   });
 
-  it('child-profile.js uses labelKey and initParentAppI18n boot', () => {
+  it('child-profile.js localizes PIN, modals and toasts via pt()', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/child-profile.js'), 'utf8');
-    assert.match(js, /labelKey/);
-    assert.match(js, /initParentAppI18n/);
-    assert.doesNotMatch(js, /\+ t\.label/);
+    assert.match(js, /childProfile\.pinTitle/);
+    assert.match(js, /childProfile\.manualStarsTitle/);
+    assert.match(js, /locale-changed/);
+    assert.doesNotMatch(js, /showToast\('[^']*[åäöÅÄÖ]/);
   });
 
   it('founder-banner refreshes copy after parent-i18n-ready', () => {

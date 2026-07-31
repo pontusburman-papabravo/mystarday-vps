@@ -20,6 +20,8 @@ const { sendRewardRedemptionEmail } = require('../lib/email');
 const { notifyParentsRewardRequest } = require('../lib/push');
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { localizeRewardItems } = require('../lib/family-content-display');
+const { resolveChildContentLocaleForFamily } = require('../lib/child-ui-locale');
+const { sendChildTreasureError } = require('../lib/child-treasure-api-errors');
 const { normalizeVisibleToChildren } = require('../lib/reward-visible-children');
 const { validate, validateParams } = require('../middleware/validate');
 const {
@@ -446,7 +448,7 @@ childRouter.get('/rewards', async (req, res) => {
   try {
     const childId = req.user.id;
     const childResult = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
-    if (childResult.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (childResult.rows.length === 0) return sendChildTreasureError(res, 'CHILD_NOT_FOUND');
     const familyId = childResult.rows[0].family_id;
 
     // Filter: show only active rewards where:
@@ -472,15 +474,15 @@ childRouter.get('/rewards', async (req, res) => {
        WHERE rr.child_id = $1 ORDER BY rr.created_at DESC LIMIT 50`,
       [childId]
     );
-    const locale = await getFamilyPreferredLocale(familyId);
+    const contentLocale = await resolveChildContentLocaleForFamily(familyId);
     res.json({
-      rewards: await localizeRewardItems(visibleRewards, locale),
+      rewards: await localizeRewardItems(visibleRewards, contentLocale),
       starBalance: balance,
-      redemptions: await localizeRewardItems(redemptions.rows, locale),
+      redemptions: await localizeRewardItems(redemptions.rows, contentLocale),
     });
   } catch (err) {
     console.error('[REWARDS] Child list error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return sendChildTreasureError(res, 'CHILD_SERVER_ERROR');
   }
 });
 
@@ -495,11 +497,11 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
   let familyId;
   try {
     const childResult = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
-    if (childResult.rows.length === 0) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (childResult.rows.length === 0) return sendChildTreasureError(res, 'CHILD_NOT_FOUND');
     familyId = childResult.rows[0].family_id;
   } catch (err) {
     console.error('[REWARDS] Redeem child lookup error:', err);
-    return res.status(500).json({ error: 'Något gick fel.' });
+    return sendChildTreasureError(res, 'CHILD_SERVER_ERROR');
   }
 
   const client = await db.getClient();
@@ -515,7 +517,7 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     );
     if (rewardResult.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Belöning hittades inte' });
+      return sendChildTreasureError(res, 'CHILD_REWARD_NOT_FOUND');
     }
     const reward = rewardResult.rows[0];
 
@@ -527,7 +529,7 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     if (reward.visible_to_children !== null && Array.isArray(reward.visible_to_children)) {
       if (!reward.visible_to_children.includes(childId)) {
         await client.query('ROLLBACK');
-        return res.status(403).json({ error: 'Den här belöningen är inte synlig för dig' });
+        return sendChildTreasureError(res, 'CHILD_REWARD_NOT_VISIBLE');
       }
     }
 
@@ -537,7 +539,9 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     if (balance < reward.star_cost) {
       await client.query('ROLLBACK');
       return sendRewardRedemptionError(res, 'insufficient_stars', {
-        error: `Du har ${balance} stjärnor men behöver ${reward.star_cost} för ${reward.name}`,
+        balance,
+        required: reward.star_cost,
+        reward_name: reward.name,
       });
     }
 
@@ -567,10 +571,10 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     }
     if (err.code === '40P01') {
       console.error('[REWARDS] Deadlock detected in redeem:', err);
-      return res.status(503).json({ error: 'Tjänsten är upptagen, försök igen.' });
+      return sendChildTreasureError(res, 'CHILD_SERVICE_BUSY');
     }
     console.error('[REWARDS] Redeem error:', err);
-    return res.status(500).json({ error: 'Något gick fel.' });
+    return sendChildTreasureError(res, 'CHILD_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -582,6 +586,8 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     ? `${rewardForNotify.name} skickad för godkännande`
     : `${rewardForNotify.name} inlöst!`;
   res.status(201).json({
+    code: redeemRequiresApproval ? 'CHILD_REDEEM_PENDING' : 'CHILD_REDEEM_SUCCESS',
+    reward_name: rewardForNotify.name,
     message,
     redemption: redemptionResult,
     requiresApproval: redeemRequiresApproval,

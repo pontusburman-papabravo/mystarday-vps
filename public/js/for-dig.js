@@ -63,12 +63,12 @@
     try {
       const user = typeof Auth !== 'undefined' && Auth.getUser ? Auth.getUser() : null;
       const email = user && user.email;
-      if (!email) return 'där';
+      if (!email) return pt('forDig.greetingFallback');
       const local = email.split('@')[0] || '';
-      if (!local || local.length < 2) return 'där';
+      if (!local || local.length < 2) return pt('forDig.greetingFallback');
       return local.charAt(0).toUpperCase() + local.slice(1).split(/[._+-]/)[0];
     } catch (_) {
-      return 'där';
+      return pt('forDig.greetingFallback');
     }
   }
 
@@ -278,7 +278,12 @@
     const items = details.items || [];
     const itemType = details.type === 'rewards' ? pt('forDig.decision.rewardSingular') : pt('forDig.decision.activitySingular');
     const itemTypePlural = details.type === 'rewards' ? pt('forDig.decision.rewardPlural') : pt('forDig.decision.activityPlural');
-    const starWord = pt('forDig.decision.activityPlural');
+    function starLabelForValue(starValue) {
+      const n = Number(starValue);
+      if (!Number.isFinite(n)) return pt('forDig.decision.starPlural');
+      const key = n === 1 ? 'forDig.decision.starSingular' : 'forDig.decision.starPlural';
+      return pt(key);
+    }
 
     return `
       <div class="for-dig-details-panel mb-4">
@@ -288,7 +293,7 @@
             ${items.map((item) => `
               <li class="text-sm text-text-soft py-1">
                 ${item.icon || '📋'} ${esc(item.name)}
-                ${item.star_value ? `<span class="text-xs"> · ${item.star_value} ${starWord}</span>` : ''}
+                ${item.star_value ? `<span class="text-xs"> · ${item.star_value} ${esc(starLabelForValue(item.star_value))}</span>` : ''}
               </li>
             `).join('')}
           </ul>
@@ -337,11 +342,8 @@
   }
 
   function scheduleLabel(goal) {
-    if (goal.activateLabel && goal.activateLabel.toLowerCase().startsWith('aktivera ')) {
-      const rest = goal.activateLabel.slice(9);
-      return rest.charAt(0).toUpperCase() + rest.slice(1);
-    }
-    return goal.title;
+    if (goal && goal.scheduleName) return goal.scheduleName;
+    return goal ? goal.title : '';
   }
 
   function renderRecommendations() {
@@ -512,19 +514,20 @@
       </div>`;
   }
 
-  function customizeStarLabel(previewType) {
-    if (previewType === 'rewards') return 'stjärnor';
-    return 'stjärnor';
+  function customizeStarLabel() {
+    return pt('forDig.activation.starsWord');
   }
 
   function buildCustomizeHtml(goal, preview, starOverrides) {
     const items = (preview && preview.items) || [];
     const type = preview && preview.type;
-    const starWord = customizeStarLabel(type);
+    const hint = type === 'rewards'
+      ? pt('forDig.activation.customizeHintRewards')
+      : pt('forDig.activation.customizeHintActivities');
     return `
       ${renderGoalHeader(goal)}
-      <h3 class="font-heading font-bold text-navy text-lg mb-2">Anpassa</h3>
-      <p class="text-sm text-text-soft mb-4">Välj hur många ${starWord} varje ${type === 'rewards' ? 'belöning' : 'aktivitet'} ska ge.</p>
+      <h3 class="font-heading font-bold text-navy text-lg mb-2">${esc(pt('forDig.activation.customizeTitle'))}</h3>
+      <p class="text-sm text-text-soft mb-4">${esc(hint)}</p>
       <div class="mb-4 max-h-64 overflow-y-auto" style="${goalAccentStyle(goal)}">
         ${items.map((item, idx) => {
           const current = starOverrides[item.name] || item.star_value || 1;
@@ -541,8 +544,8 @@
       </div>
       <div class="for-dig-activate-actions">
         <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); border-color:var(--fdg-accent)">${esc(goalCtaLabel(goal))}</button>
-        <button type="button" class="text-sm text-text-soft underline w-full" data-action="customize-back">Tillbaka</button>
-        <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
+        <button type="button" class="text-sm text-text-soft underline w-full" data-action="customize-back">${esc(pt('forDig.activation.back'))}</button>
+        <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">${esc(pt('forDig.cta.cancel'))}</button>
       </div>`;
   }
 
@@ -551,8 +554,8 @@
       const ids = selectedChildIds || new Set();
       return `
         ${renderGoalHeader(goal)}
-        <h3 class="font-heading font-bold text-navy text-lg mb-2">Välj barn</h3>
-        <p class="text-sm text-text-soft mb-4">Välj ett eller flera barn.</p>
+        <h3 class="font-heading font-bold text-navy text-lg mb-2">${esc(pt('forDig.activation.pickChildrenTitle'))}</h3>
+        <p class="text-sm text-text-soft mb-4">${esc(pt('forDig.activation.pickChildrenHint'))}</p>
         <div class="space-y-2" id="forDigChildPicker" style="${goalAccentStyle(goal)}">
           ${children.map((c) => `
             <button type="button" class="for-dig-intent-option${ids.has(c.id) ? ' is-selected' : ''}" data-child-id="${esc(c.id)}">
@@ -561,8 +564,8 @@
           `).join('')}
         </div>
         <div class="for-dig-activate-actions mt-4">
-          <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="pick-continue" style="background:var(--fdg-accent); color:#1B2340" ${ids.size === 0 ? 'disabled' : ''}>Fortsätt</button>
-          <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">Avbryt</button>
+          <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="pick-continue" style="background:var(--fdg-accent); color:#1B2340" ${ids.size === 0 ? 'disabled' : ''}>${esc(pt('forDig.activation.continue'))}</button>
+          <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">${esc(pt('forDig.cta.cancel'))}</button>
         </div>`;
     }
 
@@ -580,13 +583,13 @@
       body: JSON.stringify({ child_ids: childIds }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Kunde inte ladda planen');
+    if (!res.ok) throw new Error(data.error || pt('forDig.errors.loadPlan'));
     return data;
   }
 
   async function confirmActivation(goal, preselectedChildId) {
     if (children.length === 0) {
-      window.showToast && showToast('Lägg till ett barn först under Familjen.', true);
+      window.showToast && showToast(pt('forDig.activation.addChildFirst'), true);
       return null;
     }
 
@@ -631,7 +634,7 @@
         try {
           plan = await fetchActivationPlan(goal, Array.from(selectedChildIds));
         } catch (err) {
-          window.showToast && showToast(err.message || 'Kunde inte ladda planen', true);
+          window.showToast && showToast(err.message || pt('forDig.errors.loadPlan'), true);
           backdrop.remove();
           resolve(null);
           return;
@@ -692,10 +695,10 @@
           try {
             const res = await window.apiFetch(`/api/for-dig/${goal.slug}/preview`);
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Kunde inte ladda anpassning');
+            if (!res.ok) throw new Error(data.error || pt('forDig.errors.loadCustomize'));
             preview = data;
             if (!preview.items || preview.items.length === 0) {
-              window.showToast && showToast('Inget att anpassa för detta mål just nu.', true);
+              window.showToast && showToast(pt('forDig.activation.nothingToCustomize'), true);
               return;
             }
             starOverrides = {};
@@ -705,7 +708,7 @@
             phase = 'customize';
             renderModal();
           } catch (err) {
-            window.showToast && showToast(err.message || 'Kunde inte ladda anpassning', true);
+            window.showToast && showToast(err.message || pt('forDig.errors.loadCustomize'), true);
           }
           return;
         }
@@ -761,7 +764,7 @@
     const originalLabels = btns.map((b) => b.textContent);
     btns.forEach((b) => {
       b.disabled = true;
-      b.textContent = 'Aktiverar…';
+      b.textContent = pt('forDig.activation.activating');
     });
 
     try {
@@ -775,15 +778,15 @@
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Aktivering misslyckades');
+      if (!res.ok) throw new Error(data.error || pt('forDig.errors.activationFailed'));
 
-      window.showToast && showToast(data.message || 'Klart!');
+      window.showToast && showToast(data.message || pt('forDig.activation.done'));
       await loadInstalls();
       renderGoals();
       renderRecommendations();
       await showPostActivationModal(data, slug, selectedChildren, goalHeadline(goal));
     } catch (err) {
-      window.showToast && showToast(err.message || 'Något gick fel', true);
+      window.showToast && showToast(err.message || pt('forDig.errors.generic'), true);
     } finally {
       // renderGoals()/renderRecommendations() may have replaced some buttons;
       // restore only those still attached to the DOM.
@@ -799,15 +802,15 @@
     const step = data && data.next_step;
     const firstChild = selectedChildren[0];
     const childId = firstChild ? firstChild.id : null;
-    const hint = (step && step.hint) || 'Testa rutinen tillsammans med barnet.';
+    const hint = (step && step.hint) || pt('forDig.postActivation.defaultHint');
 
     const html = `
-      <h3 class="font-heading font-bold text-navy text-lg mb-2">Klart!</h3>
+      <h3 class="font-heading font-bold text-navy text-lg mb-2">${esc(pt('forDig.postActivation.title'))}</h3>
       <p class="text-sm text-text-soft mb-3">${esc(data.message || '')}</p>
       <p class="text-sm text-text-soft mb-4">${esc(hint)}</p>
       <a href="/child-login" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">${esc(pt('forDig.cta.openChildView'))}</a>
       <div class="border-t border-lavender pt-4 mt-2">
-        <p class="text-sm text-text-soft mb-3">Vad hoppas du att <strong>${esc(goalTitle)}</strong> ska hjälpa med?</p>
+        <p class="text-sm text-text-soft mb-3">${esc(pt('forDig.postActivation.intentQuestion', { goal: goalTitle }))}</p>
         <div id="forDigIntentOptions">
           ${intentOptions().map((o) => `
             <button type="button" class="for-dig-intent-option" data-reason="${o.value}">${esc(o.label)}</button>
@@ -854,11 +857,11 @@
   function showSuggestionModal(goalSlug) {
     const goal = goals.find((g) => g.slug === goalSlug);
     const html = `
-      <h3 class="font-heading font-bold text-navy text-lg mb-2">Föreslå förbättring</h3>
-      <p class="text-sm text-text-soft mb-3">Vad saknar du i ${esc(goal ? goal.title : 'detta mål')}?</p>
-      <textarea id="forDigSuggestionText" rows="4" maxlength="500" class="w-full border-2 border-lavender rounded-xl p-3 text-sm mb-3" placeholder="Berätta kort…"></textarea>
-      <button type="button" id="forDigSuggestionSubmit" class="for-dig-cta for-dig-cta-primary">Skicka</button>
-      <button type="button" id="forDigSuggestionCancel" class="mt-2 text-sm text-text-soft underline w-full">Avbryt</button>
+      <h3 class="font-heading font-bold text-navy text-lg mb-2">${esc(pt('forDig.suggestion.modalTitle'))}</h3>
+      <p class="text-sm text-text-soft mb-3">${esc(pt('forDig.suggestion.title', { goal: goal ? goal.title : pt('forDig.goal.catalogTitle') }))}</p>
+      <textarea id="forDigSuggestionText" rows="4" maxlength="500" class="w-full border-2 border-lavender rounded-xl p-3 text-sm mb-3" placeholder="${esc(pt('forDig.suggestion.placeholder'))}"></textarea>
+      <button type="button" id="forDigSuggestionSubmit" class="for-dig-cta for-dig-cta-primary">${esc(pt('forDig.suggestion.submit'))}</button>
+      <button type="button" id="forDigSuggestionCancel" class="mt-2 text-sm text-text-soft underline w-full">${esc(pt('forDig.cta.cancel'))}</button>
     `;
     showModal(html, (backdrop) => {
       backdrop.querySelector('#forDigSuggestionCancel').addEventListener('click', () => backdrop.remove());
@@ -872,9 +875,9 @@
             body: JSON.stringify({ goal_slug: goalSlug, phase: 'suggestion', free_text: text }),
           });
           // Server records `for_dig_feedback_suggestion` on successful insert.
-          window.showToast && showToast('Tack för ditt förslag!');
+          window.showToast && showToast(pt('forDig.suggestion.thanks'));
         } catch (_) {
-          window.showToast && showToast('Kunde inte skicka', true);
+          window.showToast && showToast(pt('forDig.errors.sendSuggestion'), true);
         }
         backdrop.remove();
       });
@@ -883,7 +886,7 @@
 
   async function loadGoals() {
     const res = await window.apiFetch('/api/for-dig/goals');
-    if (!res.ok) throw new Error('Kunde inte ladda mål');
+    if (!res.ok) throw new Error(pt('forDig.errors.loadGoals'));
     const data = await res.json();
     goals = data.goals || [];
   }
@@ -924,7 +927,7 @@
         body: JSON.stringify({ goal_slug: slug }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Kunde inte spara favorit');
+      if (!res.ok) throw new Error(data.error || pt('forDig.errors.saveFavorite'));
       if (data.is_favorite) {
         goalFavoriteSlugs.add(slug);
       } else {
@@ -935,7 +938,7 @@
       renderFavorites();
       renderGoals();
     } catch (err) {
-      window.showToast && showToast(err.message || 'Kunde inte spara favorit', true);
+      window.showToast && showToast(err.message || pt('forDig.errors.saveFavorite'), true);
     }
   }
 
