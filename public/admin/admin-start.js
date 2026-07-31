@@ -50,6 +50,7 @@
     return parts.join(' · ');
   }
 
+  function formatPct(value) {
     if (value == null) return '–';
     return `${value}%`;
   }
