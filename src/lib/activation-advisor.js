@@ -251,9 +251,9 @@ async function buildRecommendations(metrics) {
       slug: 'activation-incomplete-onboarding',
       category: 'activation',
       severity: 'info',
-      title: `${m.incompleteOnboarding14d} familjer fast i onboarding`,
-      body: 'Registrerade för 2–14 dagar sedan men har inte slutfört onboarding. Överväg nudge-mejl (activation_nudge_v1) eller manuell uppföljning.',
-      action_route: '#familjer',
+      title: `${m.incompleteOnboarding14d} kundfamiljer fast i onboarding`,
+      body: 'Registrerade 2–14 dagar sedan, onboarding ej klar. Test/automation-familjer (Smoke Parents, *@test.stjarndag.local) är exkluderade. Överväg nudge eller manuell uppföljning.',
+      action_route: '#analytics',
       metrics: { incompleteOnboarding14d: m.incompleteOnboarding14d },
     });
   }

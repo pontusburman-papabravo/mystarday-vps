@@ -38,7 +38,18 @@
     el.innerHTML = html;
   }
 
-  function formatPct(value) {
+  function stuckOnboardingSubtitle(metrics) {
+    const m = metrics || {};
+    const product = m.stuckOnboarding ?? 0;
+    const qa = m.stuckOnboardingQa || 0;
+    const total = m.stuckOnboardingTotal ?? product;
+    const parts = [`${product} kundfamiljer · 2–14 dagar`];
+    if (qa > 0) {
+      parts.push(`${qa} test/automation exkluderade (${total} råtotalt)`);
+    }
+    return parts.join(' · ');
+  }
+
     if (value == null) return '–';
     return `${value}%`;
   }
@@ -140,7 +151,7 @@
         ${kpiCard(
           'Fast i onboarding',
           m.stuckOnboarding ?? '–',
-          `${m.stuckOnboardingQa || 0} QA exkl. · ${m.stuckOnboardingTotal || 0} totalt · 48h–14d`,
+          stuckOnboardingSubtitle(m),
           (m.stuckOnboarding || 0) > 0 ? 'text-red-600' : 'text-green-700',
           '#analytics'
         )}
