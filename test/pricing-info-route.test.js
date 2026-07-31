@@ -104,7 +104,7 @@ test('landing page links to pricing-info and skattkammaren demo', () => {
   assert.doesNotMatch(html, /id="landingMatrixBody"/);
   assert.doesNotMatch(html, /landing-program-matrix\.js/);
   assert.match(html, /id="sa-fungerar-det"/);
-  assert.match(html, /id="grundarprogram"/);
+  assert.match(html, /id="pris-och-tillgang"/);
   assert.match(html, /data-track="hero_signup_click"/);
   assert.match(html, /href="\/child-login"/);
   assert.match(html, /landing-login-entry/);
@@ -112,7 +112,7 @@ test('landing page links to pricing-info and skattkammaren demo', () => {
   assert.match(html, /landing-nav__lang-label">English</);
 });
 
-test('English landing mirrors Swedish layout without waitlist', () => {
+test('English landing mirrors Swedish layout with EN waitlist funnel', () => {
   const en = fs.readFileSync(path.join(ROOT, 'public/en.html'), 'utf8');
   const landingJs = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
   assert.match(en, /<html lang="en">/);
@@ -121,10 +121,10 @@ test('English landing mirrors Swedish layout without waitlist', () => {
   assert.match(en, /landing\.css/);
   assert.match(en, /My Starday/);
   assert.match(en, /landing-nav__lang-label">Svenska</);
-  assert.match(en, /href="\/en\/register"/);
   assert.match(en, /href="\/en\/faq"/);
-  assert.doesNotMatch(en, /waitlist/i);
-  assert.doesNotMatch(en, /Secure your free spot/i);
+  assert.match(en, /href="#waitlist"/);
+  assert.match(en, /id="waitlist"/);
+  assert.match(en, /waitlist-form/);
   assert.match(landingJs, /serveLandingHtml\(res, 'en\.html'\)/);
   assert.match(landingJs, /injectStoreLinks/);
   assert.doesNotMatch(landingJs, /engelsk_landingssida/);

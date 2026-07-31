@@ -50,8 +50,10 @@ describe('magic soft navigation', () => {
     const custodyIdx = familyBlock[0].indexOf('custody-settings.js');
     const familyJsIdx = familyBlock[0].indexOf('family.js');
     assert.ok(custodyIdx >= 0 && familyJsIdx > custodyIdx, 'custody-settings must load before family.js');
-    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
-    assert.match(hubs, /#custodyScheduleSection/);
+    const planning = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
+    const familyHtml = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
+    assert.match(planning, /custodyScheduleSection/);
+    assert.match(familyHtml, /id="custodyScheduleSection"/);
   });
 
   it('router loads planning and rewards hub scripts on soft nav', () => {
@@ -90,7 +92,7 @@ describe('magic soft navigation', () => {
   });
 
   it('calendar page parses children via apiFetch response json', () => {
-    const html = fs.readFileSync(path.join(ROOT, 'public/calendar.html'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/js/calendar-page.js'), 'utf8');
     assert.match(html, /await res\.json\(\)/);
     assert.match(html, /window\.apiFetch\('\/api\/children'\)/);
   });
@@ -157,10 +159,10 @@ describe('magic soft navigation', () => {
 
   it('settings uses full page load (not soft-nav) due to inline init', () => {
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
-    const avatar = fs.readFileSync(path.join(ROOT, 'public/js/parent-avatar-menu.js'), 'utf8');
+    const header = fs.readFileSync(path.join(ROOT, 'public/js/parent-nav-header.js'), 'utf8');
     assert.doesNotMatch(router, /['"]\/settings['"]:\s*'settings'/);
     assert.match(router, /['"]\/settings['"]:\s*true/);
-    assert.match(avatar, /settingsPath === '\/settings'/);
+    assert.match(header, /\/settings/);
   });
 
   it('settings back clears hash so profile group does not reopen', () => {
@@ -169,7 +171,7 @@ describe('magic soft navigation', () => {
     assert.match(hubs, /clearSettingsHash/);
     assert.match(hubs, /skipHash/);
     assert.match(hubs, /returnToSettingsMenu/);
-    assert.match(hubs, /← Inställningar/);
+    assert.match(hubs, /settings\.appearance\.backToSettings/);
     assert.match(hubs, /bindSettingsDelegation/);
     assert.match(family, /href="\/settings"/);
     assert.doesNotMatch(family, /href="\/settings#profil"/);

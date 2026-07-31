@@ -1,8 +1,9 @@
 'use strict';
 
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 

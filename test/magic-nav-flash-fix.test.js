@@ -37,7 +37,8 @@ describe('magic nav flash fix', () => {
   it('parent-magic-i18n notifies nav after early session locale apply', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-i18n.js'), 'utf8');
     assert.match(src, /notifyParentI18nReady/);
-    assert.match(src, /earlyApply[\s\S]*parent-i18n-ready/);
+    assert.match(src, /parent-i18n-ready/);
+    assert.match(src, /earlyApply[\s\S]*notifyParentI18nReady/);
   });
 
   it('SW bumped to v293', () => {

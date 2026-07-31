@@ -167,8 +167,11 @@ test('start-summary route is mounted in admin router', () => {
 
 test('getMessageCounts query uses contact_message alias consistently', () => {
   const cmSrc = fs.readFileSync(path.join(__dirname, '../db/contact-messages.js'), 'utf8');
-  assert.match(cmSrc, /FROM contact_message cm/);
-  assert.doesNotMatch(cmSrc, /FROM contact_message\n/);
+  const fnStart = cmSrc.indexOf('async function getMessageCounts');
+  const fnEnd = cmSrc.indexOf('async function', fnStart + 1);
+  const fnBody = fnEnd > fnStart ? cmSrc.slice(fnStart, fnEnd) : cmSrc.slice(fnStart);
+  assert.match(fnBody, /FROM contact_message cm/);
+  assert.doesNotMatch(fnBody, /FROM contact_message\n/);
 });
 
 test('fetchKeyMetrics does not query Meta attribution', () => {

@@ -67,7 +67,7 @@ describe('F3a–F3d schedule + child-dashboard split', () => {
     assert.match(dash, /!window\.rewardsLoaded/);
     assert.match(rewards, /window\.rewardsLoaded\s*=\s*true/);
     assert.match(rewards, /_loadRewardsInflight/);
-    assert.match(rewards, /Försök igen/);
+    assert.match(rewards, /t\('common\.retry'\)/);
   });
 
   it('child-rewards-engine reads star_balance from goal API', () => {

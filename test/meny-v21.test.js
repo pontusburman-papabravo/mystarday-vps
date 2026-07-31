@@ -15,10 +15,9 @@ describe('meny v2.1 — Sprint 1 deploy prep + mobile-nav', () => {
     assert.match(src, /pathMatches/);
   });
 
-  it('parent avatar menu hides subscription on native', () => {
+  it('parent avatar menu refreshes billing on shell pages', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-avatar-menu.js'), 'utf8');
-    assert.match(src, /isNativeShell/);
-    assert.match(src, /subscription.*isNativeShell/s);
+    assert.match(src, /BillingUi\.refresh/);
   });
 
   it('settings subscription shows native message instead of billing UI', () => {

@@ -31,11 +31,14 @@ describe('F3 child-dashboard-celebrations.js', () => {
     assert.doesNotMatch(src, /function getMilestoneStorageKey\(/);
   });
 
-  it('child-dashboard.js still calls the extracted functions', () => {
-    const src = read('public/js/child-dashboard.js');
-    assert.match(src, /checkMilestones\(total, completed\)/);
-    assert.match(src, /launchDopaminBurst\(checkEl\)/);
-    // launchMilestoneConfetti() anropas ur rewards-modulen efter F-split
+  it('split child modules still call celebration entry points', () => {
+    const activities = read('public/js/child-dashboard-activities.js');
+    assert.match(activities, /checkMilestones\(total, completed\)/);
+    const checkoff = read('public/js/child-dashboard-checkoff.js');
+    assert.match(checkoff, /launchDopaminBurst\(checkEl\)/);
+  });
+
+  it('rewards module triggers milestone confetti after split', () => {
     const rewards = read('public/js/child-dashboard-rewards.js');
     assert.match(rewards, /launchMilestoneConfetti\(\)/);
   });

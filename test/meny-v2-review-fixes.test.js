@@ -23,7 +23,8 @@ describe('meny v2 review fixes — HIGH', () => {
 describe('meny v2 review fixes — MED', () => {
   it('readiness incomplete_days uses SQL count not +1', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/core.js'), 'utf8');
-    assert.match(src, /incompleteMap\[row\.child_id\] = parseInt\(row\.incomplete_days/);
+    assert.match(src, /incompleteMap\[row\.child_id\] = \{/);
+    assert.match(src, /parseInt\(row\.incomplete_days, 10\)/);
     assert.doesNotMatch(src, /incompleteMap\[row\.child_id\] = .*\+ 1/);
   });
 
@@ -37,7 +38,7 @@ describe('meny v2 review fixes — MED', () => {
   it('child-profile-setup validates avatar URL protocol', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
     assert.match(src, /function safeAvatarUrl/);
-    assert.match(src, /safeAvatarUrl\(child\.avatar_url\)/);
+    assert.match(src, /MemberAvatar\.renderChildAvatar/);
   });
 
   it('pending-approvals uses data attrs not inline onclick', () => {

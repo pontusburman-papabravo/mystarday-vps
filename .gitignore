@@ -47,3 +47,4 @@ assets/play-store/signing/*.jks
 projects/
 *.jsonl
 artifacts/
+.local/

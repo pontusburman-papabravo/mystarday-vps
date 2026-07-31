@@ -46,8 +46,10 @@ describe('ACT-1 full rollout scripts', () => {
 
   it('GitHub deploy workflow runs migrate + restart (PR 1–4 via migration 180922)', () => {
     const wf = fs.readFileSync(path.join(ROOT, '.github/workflows/deploy.yml'), 'utf8');
-    assert.match(wf, /npm run migrate/);
-    assert.match(wf, /systemctl restart|VPS_RESTART_CMD/);
+    assert.match(wf, /vps-deploy-revision\.sh/);
+    const deployScript = fs.readFileSync(path.join(ROOT, 'scripts/vps-deploy-revision.sh'), 'utf8');
+    assert.match(deployScript, /npm run migrate/);
+    assert.match(deployScript, /systemctl restart|VPS_RESTART_CMD/);
     assert.doesNotMatch(wf, /enable-act1-flags\.js/);
   });
 

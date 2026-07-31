@@ -10,6 +10,7 @@ const {
   getExhibitWorldDef,
   buildExhibitViews,
 } = require('../src/lib/experience-pack');
+const { injectMockDb } = require('./helpers/setup.js');
 
 const WORLD = 'memory_hall';
 const CHILD_ID = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
@@ -64,16 +65,21 @@ describe('memory hall exhibits pack schema (BL-029b prep)', () => {
   });
 
   it('garden path gates to memory_hall when memory_hall_playable allowed', async () => {
-    const { injectMockDb } = require('./helpers/setup.js');
     const FEATURE = 'memory_hall_playable';
     const FAMILY = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     injectMockDb().setQuery(async (sql, params) => {
       const q = String(sql);
       if (q.includes('FROM features WHERE slug')) {
-        return { rows: [{ slug: params[0], status: 'dev' }] };
+        const slug = params[0];
+        if (slug !== FEATURE) return { rows: [] };
+        return { rows: [{ slug, status: 'dev' }] };
       }
-      if (q.includes('FROM family_features')) {
-        return params[1] === FEATURE ? { rows: [{ family_id: FAMILY }] } : { rows: [] };
+      if (q.includes('FROM family_features WHERE family_id')) {
+        const [familyId, slug] = params;
+        if (familyId === FAMILY && slug === FEATURE) {
+          return { rows: [{ family_id: familyId }] };
+        }
+        return { rows: [] };
       }
       if (q.includes('has_component')) return { rows: [{ has_component: true }] };
       return { rows: [] };
@@ -81,8 +87,10 @@ describe('memory hall exhibits pack schema (BL-029b prep)', () => {
 
     const gardenPath = require.resolve('../src/lib/garden-playable');
     const accessPath = require.resolve('../src/lib/living-world-access');
+    const featuresPath = require.resolve('../db/features');
     delete require.cache[gardenPath];
     delete require.cache[accessPath];
+    delete require.cache[featuresPath];
     const fresh = require('../src/lib/garden-playable');
     const state = await fresh.buildSceneState(CHILD_ID, FAMILY);
     const pathScenery = state.scenery.find((s) => s.scenery_id === 'garden_path');

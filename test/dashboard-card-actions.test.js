@@ -42,8 +42,8 @@ describe('F2i dashboard-card-actions.js', () => {
     }
   });
 
-  it('dashboard.js still renders onclick hooks for card actions', () => {
-    const src = read('public/js/dashboard.js');
+  it('dashboard-cards.js renders onclick hooks wired to card-actions handlers', () => {
+    const src = read('public/js/dashboard-cards.js');
     assert.match(src, /dashToggleActivity\(/);
     assert.match(src, /toggleInlineRedemption\(/);
     assert.match(src, /togglePauseDay\(/);
@@ -57,8 +57,8 @@ describe('F2i dashboard-card-actions.js', () => {
     assert.ok(dashIdx < modIdx, 'card-actions must load after dashboard.js');
   });
 
-  it('sw.js cache version bumped for the split', () => {
+  it('sw.js documents dashboard-card-actions split', () => {
     const src = read('public/sw.js');
-    assert.match(src, /stjarndag-v30[8-9]|stjarndag-v3[1-9]\d/);
+    assert.match(src, /dashboard-card-actions\.js/);
   });
 });

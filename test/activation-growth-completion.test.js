@@ -43,9 +43,17 @@ describe('ACT-1 growth completion', () => {
   });
 
   it('onboarding handoff has copy login info', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/onboarding-activation.js'), 'utf8');
-    assert.match(src, /Kopiera inloggningsinfo/);
-    assert.match(src, /Skicka via e-post/);
+    const handoffFilm = fs.readFileSync(path.join(ROOT, 'public/js/onboarding-handoff-film.js'), 'utf8');
+    const onboardingHtml = fs.readFileSync(path.join(ROOT, 'public/onboarding.html'), 'utf8');
+    const onboarding = fs.readFileSync(path.join(ROOT, 'public/js/onboarding.js'), 'utf8');
+    const i18n = fs.readFileSync(path.join(ROOT, 'config/i18n/onboarding-sv-SE.json'), 'utf8');
+    assert.match(handoffFilm, /handoffFilm\.copyLogin/);
+    assert.match(onboardingHtml, /onboarding\.handoff\.copyInfo/);
+    assert.match(onboardingHtml, /onboarding\.handoff\.emailLogin/);
+    assert.match(onboarding, /copyLoginInfo/);
+    assert.match(onboarding, /emailLoginInfo/);
+    assert.match(i18n, /Kopiera inloggning|Kopiera info/);
+    assert.match(i18n, /Skicka till mejl/);
   });
 
   it('dashboard custody BC-4/BC-6 module exists', () => {

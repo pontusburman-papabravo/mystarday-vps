@@ -202,14 +202,11 @@ describe('memory_hall_playable — world 3 scaffold (BL-029)', () => {
     assert.doesNotMatch(withExhibits, /mu-exhibit-label/);
   });
 
-  it('prep doc and BL-012 ADR exist for human decision', () => {
-    assert.ok(fs.existsSync(path.join(__dirname, '../docs/museum-world-prep.md')));
-    assert.ok(fs.existsSync(path.join(__dirname, '../docs/decisions/adr-memory-hall-bl012.md')));
-    const prep = fs.readFileSync(path.join(__dirname, '../docs/museum-world-prep.md'), 'utf8');
-    assert.match(prep, /BL-012/);
-    assert.match(prep, /memory_hall/);
-    const adr = fs.readFileSync(path.join(__dirname, '../docs/decisions/adr-memory-hall-bl012.md'), 'utf8');
-    assert.match(adr, /pride/i);
-    assert.match(adr, /dev/);
+  it('prep doc and BL-012 art spec exist for human decision', () => {
+    assert.ok(fs.existsSync(path.join(__dirname, '../docs/art-specs/memory-hall-bl041.md')));
+    const spec = fs.readFileSync(path.join(__dirname, '../docs/art-specs/memory-hall-bl041.md'), 'utf8');
+    assert.match(spec, /BL-012/);
+    assert.match(spec, /memory_hall/);
+    assert.match(spec, /pride/i);
   });
 });

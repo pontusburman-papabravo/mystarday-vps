@@ -57,6 +57,6 @@ describe('F1 schedule-core.js', () => {
     assert.match(src, /section-card border-2/);
     assert.match(src, /items-list/);
     assert.match(src, /openAddModal\('\$\{sec\.key\}'\)/);
-    assert.match(src, /Inga aktiviteter/);
+    assert.match(src, /localizedString\('schedule\.emptySection'\)/);
   });
 });

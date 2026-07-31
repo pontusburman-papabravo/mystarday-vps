@@ -1,5 +1,5 @@
 /**
- * apple-signup-sql.test.js — guard against PostgreSQL 42P08 on Apple signup.
+ * apple-signup-sql.test.js — guard against PostgreSQL 42P08 on OAuth signup.
  */
 'use strict';
 
@@ -8,17 +8,17 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
-test('createParentWithApple family_subscriptions insert avoids reused $2 in CASE', () => {
-  const src = fs.readFileSync(path.join(__dirname, '../src/routes/auth/oauth-apple.js'), 'utf8');
+test('createParentFromOAuth family_subscriptions insert uses separate params', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../src/lib/create-oauth-parent.js'), 'utf8');
   assert.ok(
-    src.includes('createParentWithApple'),
-    'createParentWithApple helper expected in auth/oauth-apple.js'
+    src.includes('createParentFromOAuth'),
+    'createParentFromOAuth helper expected in create-oauth-parent.js'
   );
   assert.ok(
     !/CASE WHEN \$2 = 'trial'/.test(src),
-    'Reusing $2 in CASE WHEN causes PostgreSQL 42P08 (text vs varchar) on Apple signup'
+    'Reusing $2 in CASE WHEN causes PostgreSQL 42P08 (text vs varchar) on OAuth signup'
   );
-  const fnStart = src.indexOf('async function createParentWithApple');
+  const fnStart = src.indexOf('async function createParentFromOAuth');
   const fnBody = src.slice(fnStart);
   assert.match(
     fnBody,
