@@ -33,7 +33,9 @@ Tests do **not** rely on execution order. Each stateful test captures the family
 | `RC1_REQUIRE_HANDOFF` | `true` (default) = 5 tests; `false` = limited 4-test diagnostic |
 | `RC1_RESTORE_LOCALE` | Optional **post-suite** target (runner); per-test restore always uses captured `/api/auth/me` locale |
 | `RC1_SMOKE_RUNS` | Repeat full suite (use `2` for release gate) |
-| `RC1_SMOKE_PACING_MS` | Pause between full suites (default `8000`) |
+| `RC1_SMOKE_PACING_MS` | Pause between full suites (default `90000`) |
+| `RC1_TEST_GAP_MS` | Pause between individual tests in one suite (default `20000`) |
+| `RC1_SMOKE_INITIAL_COOLDOWN_MS` | Optional wait before first suite (rate-limit recovery) |
 
 Credentials must **never** appear in logs or committed files.
 

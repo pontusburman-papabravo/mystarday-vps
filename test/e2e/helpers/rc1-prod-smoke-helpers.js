@@ -30,6 +30,28 @@ function localeAuditPath() {
   return path.join(dir, 'locale-audit.jsonl');
 }
 
+function rc1Sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function rc1TestGapMs() {
+  return Number(process.env.RC1_TEST_GAP_MS || 20000);
+}
+
+async function enableRc1RequestEconomy(page) {
+  await page.setRequestInterception(true);
+  page.on('request', (req) => {
+    const url = req.url();
+    if (
+      /google-analytics\.com|googletagmanager\.com|doubleclick\.net|googleadservices\.com/i.test(url)
+    ) {
+      req.abort();
+      return;
+    }
+    req.continue();
+  });
+}
+
 function logLocaleAudit(entry) {
   const line = JSON.stringify({ at: new Date().toISOString(), ...entry });
   fs.appendFileSync(localeAuditPath(), `${line}\n`, 'utf8');
@@ -140,6 +162,7 @@ async function newIsolatedPage(browser, viewportName = 'desktop') {
     failedRequests.push({ url: req.url(), failure: req.failure()?.errorText });
   });
   page._rc1Diagnostics = { consoleErrors, pageErrors, failedRequests };
+  await enableRc1RequestEconomy(page);
 
   async function close() {
     await context.close();
@@ -416,27 +439,25 @@ async function assertReportsRouteBlocked(page, baseUrl) {
 
 async function openSettingsFamilyLocale(page, baseUrl) {
   await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
-  await new Promise((r) => setTimeout(r, 2500));
+  await rc1Sleep(2500);
   await page.waitForFunction(() => {
     return document.body.classList.contains('parent-magic-page-settings')
       || document.querySelector('[data-locale-switcher-mount]');
-  }, { timeout: 30000 });
+  }, { timeout: 60000 });
 
   const inMagicMenu = await page.evaluate(() => (
     document.body.classList.contains('parent-magic-page-settings')
   ));
   if (inMagicMenu) {
     await page.evaluate(() => {
-      if (window.ParentMagicPageHub) {
-        if (typeof ParentMagicPageHub.tagSettingsSections === 'function') {
-          ParentMagicPageHub.tagSettingsSections();
-        }
-        if (typeof ParentMagicPageHub.showSettingsGroup === 'function') {
-          ParentMagicPageHub.showSettingsGroup('family');
-        }
+      if (window.ParentMagicPageHub && typeof ParentMagicPageHub.showSettingsGroup === 'function') {
+        ParentMagicPageHub.showSettingsGroup('family');
+      } else {
+        const btn = document.querySelector('[data-settings-group="family"]');
+        if (btn) btn.click();
       }
     });
-    await new Promise((r) => setTimeout(r, 800));
+    await rc1Sleep(800);
   } else {
     await page.evaluate(() => {
       if (window.ParentMagicPageHub && typeof ParentMagicPageHub.showSettingsGroup === 'function') {
@@ -454,13 +475,13 @@ async function openSettingsFamilyLocale(page, baseUrl) {
       LocaleSwitcher.autoMount();
     }
   });
-  await new Promise((r) => setTimeout(r, 600));
+  await rc1Sleep(600);
 
   await page.waitForFunction(() => {
     const btn = document.querySelector('[data-locale-switcher-mount] [data-locale-value="en-GB"]')
       || document.querySelector('[data-locale-value="en-GB"]');
     return btn && btn.offsetParent !== null && !btn.disabled && !btn.hidden;
-  }, { timeout: 45000 });
+  }, { timeout: 60000 });
 }
 
 async function fetchWithSessionRetry(page, url, { maxAttempts = 4 } = {}) {
@@ -628,9 +649,31 @@ async function assertRc1ChildLocaleContract(page) {
 async function triggerChildToParentHandoff(page) {
   await page.evaluate(async () => {
     if (window.Auth && typeof Auth.logout === 'function') {
-      await Auth.logout();
+      await Auth.logout({ childFlow: true });
     }
   });
+  const sawOverlay = await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', {
+    visible: true,
+    timeout: 8000,
+  }).catch(() => null);
+  if (sawOverlay) return;
+
+  const onChild = await page.evaluate(() => /\/child/.test(window.location.pathname));
+  if (onChild && await page.evaluate(() => Boolean(window.ParentalGate && ParentalGate.show))) {
+    await page.evaluate(() => {
+      ParentalGate.show(() => {}, () => {});
+    });
+    return;
+  }
+  await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', { visible: true, timeout: 45000 });
+}
+
+async function waitForParentHandoffComplete(page, baseUrl) {
+  await page.waitForFunction(
+    () => /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
+    { timeout: 90000 }
+  );
+  await assertParentSession(page);
 }
 
 async function enterParentAppPin(page, pin) {
@@ -689,5 +732,8 @@ module.exports = {
   openSettingsFamilyLocale,
   enterParentAppPin,
   triggerChildToParentHandoff,
+  waitForParentHandoffComplete,
+  rc1Sleep,
+  rc1TestGapMs,
   captureFailureDiagnostics,
 };

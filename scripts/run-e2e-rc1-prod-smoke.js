@@ -40,8 +40,9 @@ for (const key of required) {
 
 const runs = Math.max(1, Number(process.env.RC1_SMOKE_RUNS || 1));
 const expectedTests = requireHandoff ? 5 : 4;
-const pacingMs = Number(process.env.RC1_SMOKE_PACING_MS || 8000);
+const pacingMs = Number(process.env.RC1_SMOKE_PACING_MS || 90000);
 const testFile = path.join(__dirname, '..', 'test', 'e2e', 'rc1-prod-browser-smoke.test.js');
+const initialCooldownMs = Number(process.env.RC1_SMOKE_INITIAL_COOLDOWN_MS || 0);
 
 function parseTapSummary(output) {
   const tests = output.match(/^# tests (\d+)/m);
@@ -52,7 +53,7 @@ function parseTapSummary(output) {
     tests: tests ? Number(tests[1]) : null,
     pass: pass ? Number(pass[1]) : null,
     fail: fail ? Number(fail[1]) : null,
-    skip: skip ? Number(skip[1]) : null,
+    skip: skip ? Number(skip[1]) : 0,
   };
 }
 
@@ -65,6 +66,11 @@ function count429FromOutput(output) {
     sum += Number(m[1]);
   }
   return sum;
+}
+
+if (initialCooldownMs > 0) {
+  console.log(`[rc1-prod-smoke] initial cooldown ${initialCooldownMs}ms before first suite`);
+  execSync(`sleep ${Math.ceil(initialCooldownMs / 1000)}`);
 }
 
 function runOnce(runIndex) {

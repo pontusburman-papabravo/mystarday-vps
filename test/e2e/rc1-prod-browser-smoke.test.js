@@ -18,12 +18,15 @@ const {
   assertChildSession,
   enterParentAppPin,
   triggerChildToParentHandoff,
+  waitForParentHandoffComplete,
   assertRc1ChildLocaleContract,
   assertEnglishAppEnabled,
   assertReportsRouteBlocked,
   fetchWithSessionRetry,
   withFamilyLocaleScope,
   readFamilyLocaleSnapshot,
+  rc1Sleep,
+  rc1TestGapMs,
 } = require('./helpers/rc1-prod-smoke-helpers');
 
 function requireSeed(cfg) {
@@ -63,6 +66,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
   });
 
   it('reports UI hidden without reporting component (after package access resolves)', async () => {
+    await rc1Sleep(rc1TestGapMs());
     const { page, close } = await newIsolatedPage(browser, 'desktop');
     try {
       await withDiagnostics(page, 'reports-gating', async () => {
@@ -107,6 +111,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
   });
 
   it('parent locale switch via Settings UI (reload + restore original locale)', async () => {
+    await rc1Sleep(rc1TestGapMs());
     const { page, close } = await newIsolatedPage(browser, 'desktop');
     try {
       await withDiagnostics(page, 'locale-settings-ui', async () => {
@@ -139,6 +144,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
   });
 
   it('child login i18n, validation codes, and successful child session', async () => {
+    await rc1Sleep(rc1TestGapMs());
     const { page, close } = await newIsolatedPage(browser, 'mobile');
     try {
       await withDiagnostics(page, 'child-login', async () => {
@@ -190,6 +196,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
 
   if (cfg.requireHandoff) {
     it('parent → child PIN → parental gate restore → parent session', async () => {
+      await rc1Sleep(rc1TestGapMs());
       const parentPin = cfg.parentPin;
       const { page, close } = await newIsolatedPage(browser, 'mobile');
       try {
@@ -202,15 +209,14 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
 
             await loginChildFromParentSession(page, cfg.baseUrl, seed);
             await assertChildSession(page);
+            await page.waitForFunction(
+              () => /\/child(\/today|-dashboard)/.test(window.location.pathname),
+              { timeout: 30000 }
+            );
 
             await triggerChildToParentHandoff(page);
             await enterParentAppPin(page, parentPin);
-
-            await page.waitForFunction(
-              () => /\/(dashboard|planning|family|settings)/.test(window.location.pathname),
-              { timeout: 60000 }
-            );
-            await assertParentSession(page);
+            await waitForParentHandoffComplete(page, cfg.baseUrl);
 
             const childLeak = await page.evaluate(async () => {
               const r = await fetch('/api/auth/me', { credentials: 'include' });
