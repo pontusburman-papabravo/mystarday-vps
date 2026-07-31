@@ -30,9 +30,9 @@ describe('E3c — daily-logs authz helper usage (contract)', () => {
     assert.doesNotMatch(src, /parent_child/);
   });
 
-  it('logs router uses getLogAccess', () => {
+  it('logs router uses requireLogAccess middleware', () => {
     const src = read('logs.js');
-    assert.match(src, /getLogAccess/);
+    assert.match(src, /requireLogAccess/);
     assert.doesNotMatch(src, /parent_child/);
   });
 

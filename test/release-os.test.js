@@ -7,47 +7,64 @@ const config = require('../src/lib/config');
 const { childParentApiBlock } = require('../src/middleware/child-parent-api-block');
 const { injectPlatformHtml } = require('../src/middleware/platform-html');
 
-test('childParentApiBlock allows /me for child JWT', () => {
-  let called = false;
+function runChildParentApiBlock(req, resOverrides = {}) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (nextCalled) => {
+      if (!settled) {
+        settled = true;
+        resolve({ nextCalled, statusCode: res.statusCode });
+      }
+    };
+    const res = {
+      statusCode: undefined,
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json() {
+        finish(false);
+        return this;
+      },
+      clearCookie() {},
+      ...resOverrides,
+    };
+    childParentApiBlock(req, res, (err) => {
+      if (err) reject(err);
+      else finish(true);
+    });
+  });
+}
+
+test('childParentApiBlock allows /me for child JWT', async () => {
   const req = { user: { type: 'child', id: 'c1' }, path: '/me/rewards' };
-  const res = { status() { return res; }, json() {} };
-  childParentApiBlock(req, res, () => { called = true; });
-  assert.equal(called, true);
+  const { nextCalled } = await runChildParentApiBlock(req);
+  assert.equal(nextCalled, true);
 });
 
-test('childParentApiBlock allows verify-pin for child JWT', () => {
-  let called = false;
+test('childParentApiBlock allows verify-pin for child JWT', async () => {
   const req = { user: { type: 'child', id: 'c1' }, path: '/family/verify-pin' };
-  const res = { status() { return res; }, json() {} };
-  childParentApiBlock(req, res, () => { called = true; });
-  assert.equal(called, true);
+  const { nextCalled } = await runChildParentApiBlock(req);
+  assert.equal(nextCalled, true);
 });
 
-test('childParentApiBlock allows family member avatars for child JWT', () => {
-  let called = false;
+test('childParentApiBlock allows family member avatars for child JWT', async () => {
   const req = {
     user: { type: 'child', id: 'c1', familyId: 'f1' },
     path: '/avatars/parent/p1',
   };
-  const res = { status() { return res; }, json() {} };
-  childParentApiBlock(req, res, () => { called = true; });
-  assert.equal(called, true);
+  const { nextCalled } = await runChildParentApiBlock(req);
+  assert.equal(nextCalled, true);
 });
 
-test('childParentApiBlock blocks /family for child JWT', () => {
-  let statusCode;
-  const req = { user: { type: 'child', id: 'c1' }, path: '/family/members' };
-  const res = {
-    status(code) { statusCode = code; return res; },
-    json() {},
-  };
-  let nextCalled = false;
-  childParentApiBlock(req, res, () => { nextCalled = true; });
+test('childParentApiBlock blocks /family for child JWT', async () => {
+  const req = { user: { type: 'child', id: 'c1' }, path: '/family/members', cookies: {} };
+  const { nextCalled, statusCode } = await runChildParentApiBlock(req);
   assert.equal(nextCalled, false);
   assert.equal(statusCode, 403);
 });
 
-test('childParentApiBlock restores parent session for GET /children', () => {
+test('childParentApiBlock does not restore legacy base64 parent session cookie', async () => {
   const parentToken = jwt.sign(
     { type: 'parent', id: 'p1', familyId: 'f1' },
     config.jwt.secret,
@@ -58,38 +75,26 @@ test('childParentApiBlock restores parent session for GET /children', () => {
     refresh_token: 'rt',
   }), 'utf8').toString('base64');
 
-  let called = false;
   const req = {
     user: { type: 'child', id: 'c1' },
     path: '/children',
     cookies: { stjarndag_parent_session: session },
   };
-  const res = { status() { return res; }, json() {} };
-  childParentApiBlock(req, res, () => {
-    called = true;
-    assert.equal(req.user.type, 'parent');
-    assert.equal(req.user.id, 'p1');
-  });
-  assert.equal(called, true);
-});
-
-test('childParentApiBlock denies unknown child routes by default', () => {
-  let statusCode;
-  const req = { user: { type: 'child', id: 'c1' }, path: '/messages/inbox' };
-  const res = {
-    status(code) { statusCode = code; return res; },
-    json() {},
-  };
-  childParentApiBlock(req, res, () => {});
+  const { nextCalled, statusCode } = await runChildParentApiBlock(req);
+  assert.equal(nextCalled, false);
   assert.equal(statusCode, 403);
 });
 
-test('childParentApiBlock passes parent through', () => {
-  let called = false;
+test('childParentApiBlock denies unknown child routes by default', async () => {
+  const req = { user: { type: 'child', id: 'c1' }, path: '/messages/inbox', cookies: {} };
+  const { statusCode } = await runChildParentApiBlock(req);
+  assert.equal(statusCode, 403);
+});
+
+test('childParentApiBlock passes parent through', async () => {
   const req = { user: { type: 'parent', id: 'p1' }, path: '/family/members' };
-  const res = { status() { return res; }, json() {} };
-  childParentApiBlock(req, res, () => { called = true; });
-  assert.equal(called, true);
+  const { nextCalled } = await runChildParentApiBlock(req);
+  assert.equal(nextCalled, true);
 });
 
 test('injectPlatformHtml adds device-mode and skips duplicate platform.js', () => {
@@ -108,12 +113,10 @@ test('getChildAccess SQL filters revoked_at', () => {
   assert.match(authz, /getChildAccess[\s\S]*revoked_at IS NULL/);
 });
 
-test('login-picker path allowed for child JWT', () => {
-  let called = false;
+test('login-picker path allowed for child JWT', async () => {
   const req = { user: { type: 'child', id: 'c1' }, path: '/auth/login-picker-children' };
-  const res = { status() { return res; }, json() {} };
-  childParentApiBlock(req, res, () => { called = true; });
-  assert.equal(called, true);
+  const { nextCalled } = await runChildParentApiBlock(req);
+  assert.equal(nextCalled, true);
 });
 
 test('injectPlatformHtml is idempotent', () => {
