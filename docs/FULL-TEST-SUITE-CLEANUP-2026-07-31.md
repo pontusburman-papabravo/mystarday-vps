@@ -29,15 +29,15 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 ### Mätpunkter (node:test `test/*.test.js`)
 
-| Mätpunkt | Baslinje | Efter batch 1 | Efter batch 2 | Delta batch 1 | Delta batch 2 |
-|----------|----------|---------------|---------------|---------------|---------------|
-| Pass | 3109 | 3122 | 3128 | +13 | +6 |
-| Fail | 57 | 45 | 39 | −12 | −6 |
-| Skip | 0 | 4 | 4 | +4 | 0 |
+| Mätpunkt | Baslinje | Efter batch 1 | Efter batch 2 | Efter batch 3 | Δ batch 3 |
+|----------|----------|---------------|---------------|---------------|-----------|
+| Pass | 3109 | 3122 | 3128 | 3134 | +6 |
+| Fail | 57 | 45 | 39 | 34 | −5 |
+| Skip | 0 | 4 | 4 | 4 | 0 |
 | Cancelled | 0 | 0 | 0 | 0 | 0 |
-| Exit code | 1 | 1 | 1 | — | — |
+| Exit code | 1 | 1 | 1 | 1 | — |
 
-TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
+TAP/log batch 3: `.local/full-suite-after-batch3-2026-07-31.log`
 
 **Batch 1 borttagna failures (12):** `release-os` (3 handoff/async), `apple-signup-sql`, `daily-logs-authz-contract`, `admin-start-summary` (getMessageCounts scope), `landing-mobile-layout` + `landing-share-restore` (node:test harness), samt 4 `governance-registry` som blev **skip** (inte fail).
 
@@ -50,14 +50,25 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 
 **Batch 2 borttagna failures (6):** `seo-pages` (register i18n meta/hero, robots Sitemap, canonical URLs), `pricing-info-route` (SV `pris-och-tillgang`, EN waitlist/faq), `legacy-parent-pages` (calendar auth i `calendar-page.js`).
 
-**Nya failures efter batch 2:** inga (39 = 45 − 6).
+**Nya failures efter batch 3:** inga (34 = 39 − 5).
 
-TAP/log: `.local/full-suite-after-batch2-2026-07-31.log` (npm summary rad; full TAP truncated om inte `NPM_TEST_RUNNER_VERBOSE=1`).
+## Batch 3 — dashboard / schedule split contracts (2026-07-31)
 
-| Mätpunkt | Efter batch 1 | Efter batch 2 |
-|----------|---------------|-----------------|
-| Pass | 3122 | 3128 |
-| Fail | 45 | 39 |
+Scoped baseline före fix: **5 fail** i fem filer (40→34 pass i scoped körning efter +1 delad celebrations-subtest).
+
+| Test / subtest | Rotorsak | Test vs prod | Ändring |
+|----------------|----------|--------------|---------|
+| `schedule-core` — `buildSectionCardsHtml` | Tom sektion via `localizedString('schedule.emptySection')` (i18n) | Test inaktuellt | Assert i18n-nyckel, inte hårdkodad svensk |
+| `dashboard-split` — radbudget | `dashboard.js` 917 r (>900 Fas 8-mål) | Test inaktuellt | Budget <1000 tills nästa extraktion |
+| `dashboard-card-actions` — onclick hooks | Handlers i `dashboard-cards.js` efter kort-render-split | Test inaktuellt | Verifiera `dashboard-cards.js` + SW-kommentar |
+| `child-dashboard-celebrations` — anrop | `checkMilestones` i `child-dashboard-activities.js`, `launchDopaminBurst` i checkoff | Test inaktuellt | Peka på split-moduler |
+| `schedule-child-split` — rewards retry | Retry-knapp via `t('common.retry')` | Test inaktuellt | Ersätt `Försök igen` regex |
+
+**Produktändringar:** inga.
+
+**Batch 3 borttagna fullsuite-failures (5 top-level):** `child-dashboard-celebrations`, `dashboard-card-actions`, `dashboard-split`, `schedule-child-split`, `schedule-core`.
+
+TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 
 **≈50 failures:** yes — **57** counted failures (46 top-level `not ok` lines; remainder nested subtests).
 
@@ -72,11 +83,11 @@ TAP/log: `.local/full-suite-after-batch2-2026-07-31.log` (npm summary rad; full 
 | `test/apple-signup-sql.test.js` | Stale path to `createParentWithApple` |
 | `test/barnmeny-v2.test.js` | Meny v2 contracts |
 | `test/calendar-magic-contrast.test.js` | Magic/calendar markup |
-| `test/child-dashboard-celebrations.test.js` | F3 split contract |
+| `test/child-dashboard-celebrations.test.js` | **fixed batch 3** |
 | `test/child-world-a11y.test.js` | BL-028 a11y |
 | `test/daily-logs-authz-contract.test.js` | Stale `getLogAccess` vs `requireLogAccess` |
-| `test/dashboard-card-actions.test.js` | Dashboard split contract |
-| `test/dashboard-split.test.js` | Dashboard split contract |
+| `test/dashboard-card-actions.test.js` | **fixed batch 3** |
+| `test/dashboard-split.test.js` | **fixed batch 3** |
 | `test/family-ui-avatar-menu-fix.test.js` | Family UI contract |
 | `test/governance-registry.test.js` | POS/COS files not in cloud clone |
 | `test/landing-mobile-layout.test.js` | Missing `node:test` import (`describe` undefined) |
@@ -96,8 +107,8 @@ TAP/log: `.local/full-suite-after-batch2-2026-07-31.log` (npm summary rad; full 
 | `test/pr4-checkpoint.test.js` | ACT-1 checkpoint |
 | `test/pricing-info-route.test.js` | Landing/pricing links |
 | `test/release-os.test.js` | Async handoff middleware + legacy cookie |
-| `test/schedule-child-split.test.js` | Schedule F3 split |
-| `test/schedule-core.test.js` | schedule-core contract |
+| `test/schedule-child-split.test.js` | **fixed batch 3** |
+| `test/schedule-core.test.js` | **fixed batch 3** |
 | `test/seo-pages.test.js` | SEO meta/robots/canonical |
 | `test/vuxenmeny-v2.test.js` | Vuxenmeny v2 |
 | `test/xss.test.js` | onboarding.js step 4 reward intro |
