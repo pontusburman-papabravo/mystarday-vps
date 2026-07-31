@@ -66,20 +66,29 @@ describe('parent session restore from child session', () => {
         [parentId, childId]
       );
 
-      const parentToken = jwt.sign(
-        { type: 'parent', id: parentId, familyId },
-        config.jwt.secret,
-        { expiresIn: '1h' }
+      const { createRefreshToken } = require('../src/lib/refresh-tokens');
+      const { hashOpaque } = require('../src/lib/parent-session-handoff');
+      const crypto = require('crypto');
+      const rawRefresh = await createRefreshToken({
+        userId: parentId,
+        userType: 'parent',
+        familyId,
+      });
+      const { verifyRefreshToken } = require('../src/lib/refresh-tokens');
+      const refreshRow = await verifyRefreshToken(rawRefresh);
+      assert.ok(refreshRow?.id, 'refresh token row required');
+      const opaque = crypto.randomBytes(32).toString('base64url');
+      await db.query(
+        `INSERT INTO parent_session_handoff (token_hash, parent_id, family_id, refresh_token_id, expires_at)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [hashOpaque(opaque), parentId, familyId, refreshRow.id, refreshRow.expires_at]
       );
+
       const childToken = jwt.sign(
         { type: 'child', id: childId, familyId, username: 'maja' },
         config.jwt.secret,
         { expiresIn: '1h' }
       );
-      const session = Buffer.from(JSON.stringify({
-        access_token: parentToken,
-        refresh_token: 'rt-test',
-      }), 'utf8').toString('base64');
 
       const sessionPublic = require('../src/routes/family/session-public');
       const express = require('express');
@@ -103,7 +112,7 @@ describe('parent session restore from child session', () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Cookie: `access_token=${childToken}; stjarndag_parent_session=${session}`,
+            Cookie: `access_token=${childToken}; refresh_token=${rawRefresh}; stjarndag_parent_session=${opaque}`,
           },
         });
         assert.equal(res.status, 200);

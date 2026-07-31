@@ -7,16 +7,26 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 
-test('stjarndag_parent_session stores base64 JSON with tokens (documented risk)', () => {
-  const auth = fs.readFileSync(path.join(ROOT, 'src/middleware/auth.js'), 'utf8');
-  assert.match(auth, /stjarndag_parent_session/);
-  assert.match(auth, /Buffer\.from\(saved, 'base64'\)/);
-  assert.match(auth, /access_token/);
+test('parent handoff uses opaque cookie storage (not base64 JWT backup)', () => {
+  const handoff = fs.readFileSync(path.join(ROOT, 'src/lib/parent-session-handoff.js'), 'utf8');
+  assert.match(handoff, /randomBytes/);
+  assert.match(handoff, /parent_session_handoff/);
+  assert.doesNotMatch(handoff, /Buffer\.from\(.*base64.*access_token/);
+
   const childLogin = fs.readFileSync(path.join(ROOT, 'src/routes/auth/child-login.js'), 'utf8');
-  assert.match(childLogin, /stjarndag_parent_session/);
+  assert.match(childLogin, /createHandoffFromParentCookies/);
+
+  const cookies = fs.readFileSync(path.join(ROOT, 'src/lib/parent-session-cookies.js'), 'utf8');
+  assert.match(cookies, /consumeHandoffAndActivateSession/);
 });
 
-test('logout clears stjarndag_parent_session cookie', () => {
+test('parent-pin-status-picker JSON omits parent identity fields', () => {
+  const pin = fs.readFileSync(path.join(ROOT, 'src/routes/family/pin.js'), 'utf8');
+  assert.match(pin, /res\.json\(\{\s*has_session: false,\s*has_pin: false\s*\}\)/);
+  assert.match(pin, /res\.json\(\{\s*has_session: true,\s*has_pin: hasPin/);
+});
+
+test('logout clears parent handoff cookie', () => {
   const login = fs.readFileSync(path.join(ROOT, 'src/routes/auth/login.js'), 'utf8');
-  assert.match(login, /clearCookie\('stjarndag_parent_session'/);
+  assert.match(login, /clearHandoffCookie/);
 });

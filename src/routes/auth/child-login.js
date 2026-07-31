@@ -59,7 +59,7 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     let child = childResult.rows[0];
 
     if (!child) {
-      const parentFamilyId = resolveParentFamilyIdFromCookies(req);
+      const parentFamilyId = await resolveParentFamilyIdFromCookies(req, res);
       if (parentFamilyId) {
         const nameResult = await db.query(
           `SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at
@@ -251,22 +251,10 @@ router.post('/child-login', childLoginLimiter, validate(ChildLoginSchema), async
     const parentRefreshToken = req.cookies?.refresh_token;
     if (parentAccessToken && parentRefreshToken) {
       try {
-        const parentPayload = JSON.stringify({
-          access_token: parentAccessToken,
-          refresh_token: parentRefreshToken,
-        });
-        const encoded = Buffer.from(parentPayload).toString('base64');
-        const maxAgeMs = 7 * 24 * 60 * 60 * 1000; // 7 days, same as refresh token
-        res.cookie('stjarndag_parent_session', encoded, {
-          httpOnly: true,
-          secure: config.cookieSecure,
-          sameSite: 'lax',
-          maxAge: maxAgeMs,
-          path: '/',
-        });
+        const { createHandoffFromParentCookies } = require('../../lib/parent-session-handoff');
+        await createHandoffFromParentCookies(req, res);
       } catch (saveErr) {
-        // Non-fatal: parent session save failure must not block child login
-        console.error('[AUTH] Parent session save failed:', saveErr.message);
+        console.error('[AUTH] Parent handoff save failed:', saveErr.message);
       }
     }
 

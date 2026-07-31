@@ -1,50 +1,34 @@
 'use strict';
 
 const config = require('./config');
+const {
+  consumeHandoffAndActivateSession,
+  clearHandoffCookie,
+} = require('./parent-session-handoff');
 
 /**
- * Read saved parent session from stjarndag_parent_session cookie.
- * @returns {{ access_token: string, refresh_token: string } | null}
+ * Activate saved parent session from opaque handoff cookie.
+ * @returns {Promise<boolean>}
  */
-function readSavedParentSession(req) {
-  const parentSessionCookie = req.cookies?.stjarndag_parent_session;
-  if (!parentSessionCookie) return null;
-  try {
-    const session = JSON.parse(Buffer.from(parentSessionCookie, 'base64').toString('utf8'));
-    if (!session?.access_token || !session?.refresh_token) return null;
-    return session;
-  } catch {
-    return null;
-  }
+async function activateParentSessionCookies(req, res) {
+  const result = await consumeHandoffAndActivateSession(req, res);
+  return result.ok;
 }
 
 /**
- * Swap httpOnly child cookies for saved parent session (clears stjarndag_parent_session).
- * @returns {boolean}
+ * Legacy sync reader — opaque handoffs do not expose tokens client-side.
+ * @returns {null}
  */
-function activateParentSessionCookies(req, res) {
-  const session = readSavedParentSession(req);
-  if (!session) return false;
+function readSavedParentSession() {
+  return null;
+}
 
-  res.cookie('access_token', session.access_token, {
-    httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'lax',
-    maxAge: 15 * 60 * 1000,
-    path: '/',
-  });
-  res.cookie('refresh_token', session.refresh_token, {
-    httpOnly: true,
-    secure: config.cookieSecure,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: '/api/auth',
-  });
-  res.clearCookie('stjarndag_parent_session', { path: '/' });
-  return true;
+function clearParentSessionCookie(res) {
+  clearHandoffCookie(res);
 }
 
 module.exports = {
   readSavedParentSession,
   activateParentSessionCookies,
+  clearParentSessionCookie,
 };

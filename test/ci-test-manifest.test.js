@@ -18,6 +18,7 @@ const CRITICAL_INTEGRATION = [
   'test/pin-warning-revoked-parent.integration.test.js',
   'test/ratings-revoked-parent.integration.test.js',
   'test/schedules-revoked-parent.integration.test.js',
+  'test/parent-session-handoff.integration.test.js',
 ];
 
 const CRITICAL_UNIT = [

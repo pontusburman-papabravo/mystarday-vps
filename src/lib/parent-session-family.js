@@ -2,6 +2,7 @@
 
 const jwt = require('jsonwebtoken');
 const config = require('./config');
+const { resolveFamilyIdFromHandoff } = require('./parent-session-handoff');
 
 function decodeParentFamilyId(token) {
   if (!token) return null;
@@ -28,18 +29,14 @@ function decodeParentFamilyId(token) {
 /**
  * Resolve active parent family from request cookies (family-scoped child login fallback).
  */
-function resolveParentFamilyIdFromCookies(req) {
+async function resolveParentFamilyIdFromCookies(req, res) {
   const fromAccess = decodeParentFamilyId(req.cookies?.access_token);
   if (fromAccess) return fromAccess;
 
-  const saved = req.cookies?.stjarndag_parent_session;
-  if (!saved) return null;
-  try {
-    const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
-    return decodeParentFamilyId(session?.access_token);
-  } catch {
-    return null;
-  }
+  const fromHandoff = await resolveFamilyIdFromHandoff(req, res);
+  if (fromHandoff) return fromHandoff;
+
+  return null;
 }
 
 module.exports = { resolveParentFamilyIdFromCookies, decodeParentFamilyId };

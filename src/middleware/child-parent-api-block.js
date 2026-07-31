@@ -36,12 +36,15 @@ function childParentApiBlock(req, res, next) {
     if (CHILD_ALLOWED[i].test(subPath)) return next();
   }
 
-  if (restoreParentUserFromCookie(req)) return next();
-
-  return res.status(403).json({
-    error: 'Förbjuden — barnläge har inte åtkomst till denna funktion',
-    code: 'CHILD_PARENT_API_BLOCKED',
-  });
+  restoreParentUserFromCookie(req, res)
+    .then((restored) => {
+      if (restored) return next();
+      return res.status(403).json({
+        error: 'Förbjuden — barnläge har inte åtkomst till denna funktion',
+        code: 'CHILD_PARENT_API_BLOCKED',
+      });
+    })
+    .catch(next);
 }
 
 module.exports = { childParentApiBlock };

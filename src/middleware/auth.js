@@ -8,6 +8,10 @@
  */
 const jwt = require('jsonwebtoken');
 const config = require('../lib/config');
+const {
+  applyHandoffToRequestCookies,
+  resolveParentIdFromHandoff,
+} = require('../lib/parent-session-handoff');
 
 /**
  * Try to verify a JWT with the current secret, then fall back to the previous secret.
@@ -58,32 +62,26 @@ function requireParent(req, res, next) {
   requireAuth(req, res, () => {
     if (req.user.type === 'parent') return next();
 
-    // Parent reached a parent-only page with an active child token.
-    // Restore the saved parent session from stjarndag_parent_session cookie.
-    const saved = req.cookies?.stjarndag_parent_session;
-    if (saved) {
-      try {
-        const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
-        if (session?.access_token) {
-          // Swap child cookie for parent cookie — requireAuth will re-parse on next tick
-          req.cookies.access_token = session.access_token;
-          req.cookies.refresh_token = session.refresh_token;
-          // Re-verify as parent
-          const decoded = verifyToken(session.access_token);
-          if (decoded.type === 'parent') {
-            req.user = decoded;
-            return next();
+    applyHandoffToRequestCookies(req, res)
+      .then((applied) => {
+        if (applied) {
+          try {
+            const decoded = verifyToken(req.cookies.access_token);
+            if (decoded.type === 'parent') {
+              req.user = decoded;
+              return next();
+            }
+          } catch {
+            /* fall through */
           }
         }
-      } catch {
-        // Corrupt cookie or bad token — fall through to reject
-      }
-    }
 
-    console.warn(
-      `[AUTH] requireParent rejected — type=${req.user.type} id=${req.user.id} path=${req.method} ${req.originalUrl}`
-    );
-    return res.status(403).json({ error: 'Förbjuden — kräver föräldrabehörighet' });
+        console.warn(
+          `[AUTH] requireParent rejected — type=${req.user.type} id=${req.user.id} path=${req.method} ${req.originalUrl}`
+        );
+        return res.status(403).json({ error: 'Förbjuden — kräver föräldrabehörighet' });
+      })
+      .catch(next);
   });
 }
 
@@ -158,8 +156,8 @@ function extractToken(req) {
 /**
  * Restore parent session when user is logged in as a child.
  *
- * When a parent logs in as a child, the child-login endpoint saves the parent session
- * in the `stjarndag_parent_session` cookie (base64 JSON of { access_token, refresh_token }).
+ * When a parent logs in as a child, the child-login endpoint stores an opaque
+ * handoff in `stjarndag_parent_session` (server-side row + refresh_token_id).
  * This middleware runs on all /api/* routes and restores the parent session when:
  *   - Current user is a child (child token found in access_token cookie)
  *   - A saved parent session exists in stjarndag_parent_session
@@ -170,20 +168,9 @@ function extractToken(req) {
  * IMPORTANT: This modifies req.cookies so that downstream requireAuth reads the
  * restored parent token instead of the child token.
  */
-function restoreParentSession(req, res, next) {
-  const sessionCookie = req.cookies?.stjarndag_parent_session;
-  if (!sessionCookie) return next();
+async function restoreParentSession(req, res, next) {
+  if (!req.cookies?.stjarndag_parent_session) return next();
 
-  let session;
-  try {
-    session = JSON.parse(Buffer.from(sessionCookie, 'base64').toString('utf8'));
-  } catch {
-    return next();
-  }
-
-  if (!session?.access_token || !session?.refresh_token) return next();
-
-  // Only restore if current user is a child (parent session is intact — no-op)
   const currentToken = req.cookies?.access_token;
   if (!currentToken) return next();
 
@@ -193,40 +180,27 @@ function restoreParentSession(req, res, next) {
       algorithms: ['HS256'],
     });
     if (decoded.type !== 'child') return next();
-    // Child token is valid — child auth takes precedence, do NOT override
     currentIsValidChild = true;
   } catch {
-    // Child token is invalid/expired/rotated-key — try previous secret before giving up.
-    // An expired child token should not destroy the saved parent session.
     if (config.jwt.previousSecret) {
       try {
         const decoded = jwt.verify(currentToken, config.jwt.previousSecret, {
           algorithms: ['HS256'],
         });
-        if (decoded.type === 'child') {
-          currentIsValidChild = true;
-        }
+        if (decoded.type === 'child') currentIsValidChild = true;
       } catch {
-        // Still invalid — fall through to restore parent session
+        /* fall through */
       }
-    }
-    if (!currentIsValidChild) {
-      // Token is null, invalid, or not a child token.
-      // Parent session restoration is NOT safe here — the current token may be
-      // a fresh parent/admin session that just happens to be unreadable locally
-      // (e.g., privacy mode, localStorage cleared). Let optionalAuth handle it.
-      return next();
     }
   }
 
-  // Current child token is valid — skip parent session restoration so child auth succeeds.
-  // The parent session cookie is preserved so it can be restored on logout or when the
-  // child navigates to parent-facing pages.
   if (currentIsValidChild) return next();
 
-  // Current user is a child AND we have a saved parent session → restore it
-  req.cookies.access_token = session.access_token;
-  req.cookies.refresh_token = session.refresh_token;
+  try {
+    await applyHandoffToRequestCookies(req, res);
+  } catch (err) {
+    return next(err);
+  }
   next();
 }
 
@@ -235,14 +209,11 @@ function restoreParentSession(req, res, next) {
  * restore req.user from stjarndag_parent_session for this request only.
  * Used by childParentApiBlock (runs before route-level requireParent).
  */
-function restoreParentUserFromCookie(req) {
-  const saved = req.cookies?.stjarndag_parent_session;
-  if (!saved) return false;
-
+async function restoreParentUserFromCookie(req, res) {
+  const applied = await applyHandoffToRequestCookies(req, res);
+  if (!applied) return false;
   try {
-    const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
-    if (!session?.access_token) return false;
-    const decoded = verifyToken(session.access_token);
+    const decoded = verifyToken(req.cookies.access_token);
     if (decoded.type !== 'parent') return false;
     req.user = decoded;
     return true;
@@ -254,7 +225,7 @@ function restoreParentUserFromCookie(req) {
 /**
  * Parent id for barnväljaren — aktiv vuxensession eller sparad stjarndag_parent_session.
  */
-function resolveParentIdForLoginPicker(req) {
+async function resolveParentIdForLoginPicker(req, res) {
   const token = extractToken(req);
   if (token) {
     try {
@@ -264,17 +235,7 @@ function resolveParentIdForLoginPicker(req) {
       /* fall through */
     }
   }
-  const saved = req.cookies?.stjarndag_parent_session;
-  if (!saved) return null;
-  try {
-    const session = JSON.parse(Buffer.from(saved, 'base64').toString('utf8'));
-    if (!session?.access_token) return null;
-    const decoded = verifyToken(session.access_token);
-    if (decoded.type === 'parent') return decoded.id;
-  } catch {
-    return null;
-  }
-  return null;
+  return await resolveParentIdFromHandoff(req, res);
 }
 
 module.exports = {
