@@ -14,17 +14,19 @@ describe('calendar magic contrast (schemaöversikt)', () => {
     assert.match(html, /parent-app-i18n\.js/);
     assert.match(html, /parent-magic-i18n\.js/);
     assert.match(html, /data-i18n-manual-init="true"/);
-    assert.match(html, /display_name \|\| act\.name/);
+    assert.match(html, /calendar-page\.js/);
+    const pageJs = fs.readFileSync(path.join(ROOT, 'public/js/calendar-page.js'), 'utf8');
+    assert.match(pageJs, /display_name \|\| act\.name/);
   });
 
   it('day-col light cards keep dark text in magic dark theme', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
-    const html = fs.readFileSync(path.join(ROOT, 'public/calendar.html'), 'utf8');
+    const pageJs = fs.readFileSync(path.join(ROOT, 'public/js/calendar-page.js'), 'utf8');
     assert.match(css, /parent-magic-page-calendar/);
     assert.match(css, /\.day-col \.day-name/);
     assert.match(css, /\.day-col \.day-star-progress/);
     assert.match(css, /native-tab-bar \.tab-item\.active/);
-    const gridFn = html.slice(html.indexOf('function renderGrid'), html.indexOf('function renderGrid') + 3500);
+    const gridFn = pageJs.slice(pageJs.indexOf('function renderGrid'), pageJs.indexOf('function renderGrid') + 3500);
     assert.match(gridFn, /day-star-progress/);
     assert.match(gridFn, /day-name/);
     assert.doesNotMatch(gridFn, /dark:text/);

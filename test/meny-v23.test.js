@@ -31,9 +31,10 @@ describe('meny v2.3 — billing UI gate', () => {
     assert.doesNotMatch(src, /rollout_mode[\s\S]*payment_enabled/);
   });
 
-  it('avatar menu hides subscription when BillingUi disabled', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-avatar-menu.js'), 'utf8');
-    assert.match(src, /BillingUi\.isEnabled/);
+  it('settings-subscription gates billing UI when disabled', () => {
+    const sub = fs.readFileSync(path.join(ROOT, 'public/js/settings-subscription.js'), 'utf8');
+    assert.match(sub, /billing_ui_enabled/);
+    assert.doesNotMatch(sub, /rollout_mode[\s\S]*payment_enabled/);
   });
 });
 
@@ -67,11 +68,11 @@ describe('meny v2.3 — Hem PX2 + H19', () => {
   });
 
   it('dashboard loads home-bump-time and renders after stats', () => {
-    const dashJs = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    const cards = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-cards.js'), 'utf8');
     const dashHtml = fs.readFileSync(path.join(ROOT, 'public/dashboard.html'), 'utf8');
     assert.match(dashHtml, /home-bump-time\.js/);
     assert.match(dashHtml, /homeBumpMount/);
-    assert.match(dashJs, /HomeBumpTime\.render/);
+    assert.match(cards, /HomeBumpTime\.render/);
   });
 
   it('star history section not legacy-hidden on hem', () => {

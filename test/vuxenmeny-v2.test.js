@@ -133,11 +133,10 @@ describe('vuxenmeny v2 — Sprint 6 capabilities', () => {
 
   it('planning-hub uses capabilitiesForPlacement', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
-    assert.match(src, /capabilitiesForPlacement/);
+    assert.match(src, /NavConfig\.capabilitiesForPlacement/);
     assert.match(src, /planning_hub/);
     assert.match(src, /magic-bilder/);
-    assert.match(src, /Bygg innehåll/);
-    assert.doesNotMatch(src, /href: '\/activities'/);
+    assert.match(src, /planning\.links\.library/);
   });
 
   it('rewards-hub uses capabilitiesForPlacement', () => {

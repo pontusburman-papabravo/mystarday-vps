@@ -39,13 +39,13 @@ describe('meny v2.2 — Sprint 2 readiness extensions + PX4', () => {
 
 describe('meny v2.2 — Sprint 3 Hem PX3 + profile links', () => {
   it('dashboard sorts children by attention score', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-cards.js'), 'utf8');
     assert.match(src, /childAttentionScore/);
     assert.match(src, /childList\.slice\(\)\.sort/);
   });
 
   it('dashboard child name links to barnprofil', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-cards.js'), 'utf8');
     assert.match(src, /\/family\/child\/\$\{c\.id\}/);
   });
 });

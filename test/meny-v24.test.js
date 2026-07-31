@@ -20,7 +20,7 @@ describe('meny v2.4 — B2 schema hybrid', () => {
 
 describe('meny v2.4 — H18 deprecate embedded schema editor on hem', () => {
   it('dashboard child cards link to schedule instead of openCreateActivityModal', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard.js'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/dashboard-cards.js'), 'utf8');
     assert.match(src, /Skapa aktivitet i schema/);
     assert.match(src, /\/schedule\?child=/);
     const cardSection = src.slice(src.indexOf('function renderDashboardCards'), src.indexOf('function renderDashboardCards') + 8000);

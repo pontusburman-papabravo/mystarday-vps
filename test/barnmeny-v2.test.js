@@ -114,7 +114,7 @@ describe('barnmeny v2 — Sprint 4 coach & support', () => {
   it('child-support-layer renders substeps', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-support-layer.js'), 'utf8');
     assert.match(src, /renderSubsteps/);
-    assert.match(src, /Steg/);
+    assert.match(src, /steps\.progress/);
   });
 });
 
