@@ -45,7 +45,7 @@ jobs:
           RC1_CHILD_USERNAME: ${{ secrets.RC1_CHILD_USERNAME }}
           RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
           RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
-          RC1_RESTORE_LOCALE: sv-SE
+          RC1_REQUIRE_HANDOFF: 'true'
         run: npm run test:e2e:rc1-prod-smoke
 
       - name: Upload smoke artifacts on failure

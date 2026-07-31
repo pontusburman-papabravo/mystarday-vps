@@ -8,6 +8,8 @@ const SWEDISH_SERVER_LEAK = /Ogiltiga värden|Namn krävs|PIN-koden måste|Anvä
 
 function smokeConfig() {
   const baseUrl = (process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL || '').replace(/\/$/, '');
+  const requireHandoff = process.env.RC1_REQUIRE_HANDOFF !== 'false'
+    && process.env.RC1_REQUIRE_HANDOFF !== '0';
   return {
     baseUrl,
     expectedSha: process.env.RC1_EXPECTED_SHA || 'd369dd5726fed42f303b93083ed8842cce49aba3',
@@ -17,8 +19,20 @@ function smokeConfig() {
     childUsername: process.env.RC1_CHILD_USERNAME,
     childPin: process.env.RC1_CHILD_PIN,
     parentPin: process.env.RC1_PARENT_PIN || null,
-    restoreLocale: process.env.RC1_RESTORE_LOCALE || 'sv-SE',
+    requireHandoff,
+    restoreLocaleOverride: process.env.RC1_RESTORE_LOCALE || null,
   };
+}
+
+function localeAuditPath() {
+  const dir = path.join(process.cwd(), 'artifacts', 'rc1-prod-smoke');
+  fs.mkdirSync(dir, { recursive: true });
+  return path.join(dir, 'locale-audit.jsonl');
+}
+
+function logLocaleAudit(entry) {
+  const line = JSON.stringify({ at: new Date().toISOString(), ...entry });
+  fs.appendFileSync(localeAuditPath(), `${line}\n`, 'utf8');
 }
 
 function artifactsDir(testName) {
@@ -338,40 +352,55 @@ async function assertEnglishAppEnabled(page) {
   assert.equal(state.ok, true, `english_app_enabled (locale-options: ${JSON.stringify(state)})`);
 }
 
-async function ensureFamilyLocale(page, baseUrl, locale) {
-  const current = await page.evaluate(async () => {
+async function readPreferredLocaleFromApi(page) {
+  return page.evaluate(async () => {
     const r = await fetch('/api/auth/me', { credentials: 'include' });
     if (!r.ok) return null;
     const me = await r.json();
-    return me.preferred_locale;
+    return me.preferred_locale || null;
   });
-  if (current === locale) return;
-  await openSettingsFamilyLocale(page, baseUrl);
-  await selectSettingsLocaleWithEvent(page, locale);
 }
 
 async function selectSettingsLocaleWithEvent(page, locale) {
+  const currentApi = await readPreferredLocaleFromApi(page);
+  const currentI18n = await page.evaluate(() => (
+    window.I18n && typeof I18n.getCurrentLang === 'function' ? I18n.getCurrentLang() : null
+  ));
+  if (currentApi === locale && currentI18n === locale) {
+    return;
+  }
+
   const selector = `[data-locale-switcher-mount] [data-locale-value="${locale}"]`;
   const fallback = `[data-locale-value="${locale}"]`;
   const hasScoped = await page.$(selector);
   const target = hasScoped ? selector : fallback;
   await page.waitForSelector(target, { visible: true, timeout: 30000 });
-  await page.evaluate((sel) => {
-    const btn = document.querySelector(sel);
-    if (btn) btn.click();
-  }, target);
-  await new Promise((r) => setTimeout(r, 1200));
+
+  await page.waitForFunction(() => {
+    const btn = document.querySelector('[data-locale-switcher-mount] [data-locale-value="en-GB"], [data-locale-value="en-GB"]');
+    return btn && !btn.disabled;
+  }, { timeout: 15000 });
+
+  await page.click(target);
   await page.waitForFunction(
     async (loc) => {
-      if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang() === loc) {
-        return true;
+      const pressed = document.querySelector(`[data-locale-value="${loc}"]`);
+      if (pressed && pressed.getAttribute('aria-pressed') === 'true') {
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        if (r.ok) {
+          const me = await r.json();
+          if (me.preferred_locale === loc) return true;
+        }
       }
-      const r = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!r.ok) return false;
-      const me = await r.json();
-      return me.preferred_locale === loc;
+      if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang() === loc) {
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!r.ok) return false;
+        const me = await r.json();
+        return me.preferred_locale === loc;
+      }
+      return false;
     },
-    { timeout: 45000 },
+    { timeout: 60000 },
     locale
   );
 }
@@ -435,12 +464,25 @@ async function openSettingsFamilyLocale(page, baseUrl) {
 }
 
 async function fetchWithSessionRetry(page, url, { maxAttempts = 4 } = {}) {
-  return page.evaluate(async (u, attempts) => {
+  const result = await page.evaluate(async (u, attempts) => {
+    const diag = { attempts: 0, count429: 0, retryAfterSeconds: null, statuses: [] };
     for (let i = 0; i < attempts; i += 1) {
+      diag.attempts += 1;
       const r = await fetch(u, { credentials: 'include' });
-      if (r.status === 429 && i < attempts - 1) {
-        await new Promise((res) => setTimeout(res, 1200 * (i + 1)));
-        continue;
+      diag.statuses.push(r.status);
+      if (r.status === 429) {
+        diag.count429 += 1;
+        const ra = r.headers.get('Retry-After');
+        if (ra && !Number.isNaN(Number(ra))) {
+          diag.retryAfterSeconds = Number(ra);
+        }
+        if (i < attempts - 1) {
+          const waitMs = diag.retryAfterSeconds != null
+            ? Math.max(1000, diag.retryAfterSeconds * 1000)
+            : 1200 * (i + 1);
+          await new Promise((res) => setTimeout(res, waitMs));
+          continue;
+        }
       }
       let body = {};
       try {
@@ -448,10 +490,109 @@ async function fetchWithSessionRetry(page, url, { maxAttempts = 4 } = {}) {
       } catch {
         body = {};
       }
-      return { status: r.status, body };
+      return { status: r.status, body, diagnostics: diag };
     }
-    return { status: 429, body: {} };
+    return { status: 429, body: {}, diagnostics: diag };
   }, url, maxAttempts);
+  if (result.diagnostics && result.diagnostics.count429 > 0) {
+    console.warn(
+      `[rc1-smoke] rate-limit: url=${url} attempts=${result.diagnostics.attempts} `
+      + `429_count=${result.diagnostics.count429} retry_after=${result.diagnostics.retryAfterSeconds}`
+    );
+  }
+  return result;
+}
+
+async function readFamilyLocaleSnapshot(page) {
+  return page.evaluate(async () => {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    const me = r.ok ? await r.json() : {};
+    return {
+      preferredLocale: me.preferred_locale || null,
+      i18n: window.I18n && I18n.getCurrentLang ? I18n.getCurrentLang() : null,
+      htmlLang: document.documentElement.lang || null,
+    };
+  });
+}
+
+function assertHtmlLangMatchesLocale(htmlLang, locale) {
+  const expected = locale.toLowerCase();
+  assert.equal((htmlLang || '').toLowerCase(), expected, `html lang ${htmlLang} vs ${locale}`);
+}
+
+async function assertFamilyLocalePersisted(page, locale) {
+  await page.waitForFunction(
+    async (loc) => {
+      if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang() === loc) {
+        return true;
+      }
+      const r = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!r.ok) return false;
+      const me = await r.json();
+      return me.preferred_locale === loc;
+    },
+    { timeout: 45000 },
+    locale
+  );
+  const snap = await readFamilyLocaleSnapshot(page);
+  assert.equal(snap.preferredLocale, locale, 'preferred_locale persisted');
+  assert.equal(snap.i18n, locale, 'I18n.getCurrentLang persisted');
+  assertHtmlLangMatchesLocale(snap.htmlLang, locale);
+  return snap;
+}
+
+async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
+  await openSettingsFamilyLocale(page, baseUrl);
+  await selectSettingsLocaleWithEvent(page, locale);
+  return assertFamilyLocalePersisted(page, locale);
+}
+
+async function reloginParent(page, baseUrl, seed, loginLocale) {
+  const { parentLogout } = require('./puppeteer-browser');
+  await parentLogout(page);
+  await loginParent(page, baseUrl, seed, loginLocale || null);
+}
+
+/**
+ * Captures DB/UI locale, runs fn, restores original locale in finally (even on failure).
+ */
+async function withFamilyLocaleScope(page, baseUrl, seed, testName, fn) {
+  const original = await readFamilyLocaleSnapshot(page);
+  logLocaleAudit({ test: testName, phase: 'before', ...original });
+  const restoreTarget = original.preferredLocale || 'sv-SE';
+  try {
+    return await fn({
+      original,
+      restoreTarget,
+      setLocale: (loc) => setFamilyLocaleViaSettings(page, baseUrl, loc),
+    });
+  } finally {
+    let restoreErr;
+    try {
+      const session = await page.evaluate(async () => {
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!r.ok) return { kind: 'anonymous' };
+        const me = await r.json();
+        if (me.username && !me.email) return { kind: 'child' };
+        if (me.email) return { kind: 'parent' };
+        return { kind: 'unknown' };
+      });
+      if (session.kind === 'child' || session.kind === 'anonymous') {
+        await reloginParent(page, baseUrl, seed, null);
+      }
+      const now = await readPreferredLocaleFromApi(page);
+      if (now !== restoreTarget) {
+        await setFamilyLocaleViaSettings(page, baseUrl, restoreTarget);
+      }
+      const after = await readFamilyLocaleSnapshot(page);
+      logLocaleAudit({ test: testName, phase: 'after_restore', ...after, restoreTarget });
+      assert.equal(after.preferredLocale, restoreTarget, 'locale restore persisted');
+    } catch (err) {
+      restoreErr = err;
+      logLocaleAudit({ test: testName, phase: 'restore_failed', message: err.message });
+    }
+    if (restoreErr) throw restoreErr;
+  }
 }
 
 async function fetchLoginPickerContext(page) {
@@ -484,8 +625,16 @@ async function assertRc1ChildLocaleContract(page) {
   return picker;
 }
 
+async function triggerChildToParentHandoff(page) {
+  await page.evaluate(async () => {
+    if (window.Auth && typeof Auth.logout === 'function') {
+      await Auth.logout();
+    }
+  });
+}
+
 async function enterParentAppPin(page, pin) {
-  await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', { visible: true, timeout: 20000 });
+  await page.waitForSelector('#ppin-gate-overlay, #ppin-overlay', { visible: true, timeout: 45000 });
   const digits = String(pin).split('');
   for (const digit of digits) {
     await page.evaluate((d) => {
@@ -516,10 +665,12 @@ async function enterParentAppPin(page, pin) {
 module.exports = {
   SWEDISH_SERVER_LEAK,
   smokeConfig,
+  logLocaleAudit,
   withDiagnostics,
   newIsolatedPage,
   fetchReleaseIdentity,
   loginParent,
+  reloginParent,
   waitForPackageAccessResolved,
   collectVisibleReportsTargets,
   waitForChildI18nReady,
@@ -529,11 +680,14 @@ module.exports = {
   assertRc1ChildLocaleContract,
   fetchWithSessionRetry,
   fetchLoginPickerContext,
-  ensureFamilyLocale,
+  readFamilyLocaleSnapshot,
+  setFamilyLocaleViaSettings,
+  withFamilyLocaleScope,
   assertEnglishAppEnabled,
   selectSettingsLocaleWithEvent,
   assertReportsRouteBlocked,
   openSettingsFamilyLocale,
   enterParentAppPin,
+  triggerChildToParentHandoff,
   captureFailureDiagnostics,
 };

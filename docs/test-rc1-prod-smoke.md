@@ -5,54 +5,77 @@ Release evidence against the live deploy (review QA account only). **Test-only**
 ## When to run
 
 - After RC-1 merge/deploy, before physical device QA (R4-E, Journeys A–D).
-- Twice in a row on the same `RC1_EXPECTED_SHA` with `RC1_SMOKE_RUNS=2`.
+- **Full release gate:** `RC1_REQUIRE_HANDOFF=true`, `RC1_SMOKE_RUNS=2`, **5/5 tests** twice in a row.
+- **Limited diagnostic:** `RC1_REQUIRE_HANDOFF=false` runs **4 tests** (no handoff). Output is marked **NOT READY FOR DEVICE QA**.
+
+## Test suite (full gate = 5)
+
+| # | Test | Stateful locale |
+|---|------|-----------------|
+| 1 | Release identity (SHA + SW cache) | No |
+| 2 | Reports gating | No |
+| 3 | Parent locale via Settings UI | Yes — restores captured `preferred_locale` in `finally` |
+| 4 | Child login + i18n | Yes — sets **en-GB** for the test, restores original in `finally` |
+| 5 | Parent/child handoff (requires `RC1_PARENT_PIN`) | Yes — sets **en-GB**, restores original in `finally` |
+
+Tests do **not** rely on execution order. Each stateful test captures the family locale from `/api/auth/me` before changes and restores it after (even on failure). Audit lines append to `artifacts/rc1-prod-smoke/locale-audit.jsonl`.
 
 ## Environment
 
 | Variable | Purpose |
 |----------|---------|
-| `RC1_SMOKE_BASE_URL` | Target host (set explicitly per release run) |
+| `RC1_SMOKE_BASE_URL` | Target host (explicit per release run) |
 | `RC1_EXPECTED_SHA` | Exact `/health` `git_sha` |
 | `RC1_EXPECTED_CACHE` | Exact `CACHE_NAME` in `/sw.js` (e.g. `stjarndag-v748`) |
-| `RC1_REVIEW_EMAIL` / `RC1_REVIEW_PASSWORD` | Parent — see [`qa-test-account.md`](qa-test-account.md) |
-| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Anna — username is **`anna691`** on prod review; PIN in [`app-store-demo-konto.md`](app-store-demo-konto.md) |
-| `RC1_RESTORE_LOCALE` | Locale restored after Settings test (default `sv-SE`) |
-| `RC1_PARENT_PIN` | Optional parent app-lock PIN for handoff test |
-| `RC1_SMOKE_RUNS` | Repeat full suite (default `1`, use `2` for flake gate) |
+| `RC1_REVIEW_EMAIL` / `RC1_REVIEW_PASSWORD` | Parent — [`qa-test-account.md`](qa-test-account.md) |
+| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Anna — username **`anna691`** on prod review |
+| `RC1_PARENT_PIN` | Parent app-lock PIN — **required** when `RC1_REQUIRE_HANDOFF=true` |
+| `RC1_REQUIRE_HANDOFF` | `true` (default) = 5 tests; `false` = limited 4-test diagnostic |
+| `RC1_RESTORE_LOCALE` | Optional **post-suite** target (runner); per-test restore always uses captured `/api/auth/me` locale |
+| `RC1_SMOKE_RUNS` | Repeat full suite (use `2` for release gate) |
+| `RC1_SMOKE_PACING_MS` | Pause between full suites (default `8000`) |
 
 Credentials must **never** appear in logs or committed files.
 
-### Review family release config (RC-1)
+## Review family release config
 
-Before expecting 5/5 prod smoke, the App Store review family must have:
+Before child/handoff assertions:
 
-- `english_app_enabled` (via `english_app` / locale-options)
-- `english_child_experience_enabled` on the family (`family_features`)
-- `preferred_locale` `en-GB` after the locale smoke step restores `sv-SE` by default
+- `english_app_enabled` via `/api/family/locale-options`
+- `english_child_experience_enabled` via admin **Development → Features** (`POST /api/admin/features/english_child_experience/families`)
 
-If `english_child_experience_enabled` is false, child/i18n assertions fail by design (**release config**, not a flaky test).
+Prep helper (admin credentials required, **review family only**):
 
-## Command
+```bash
+node scripts/rc1-prod-smoke-prep-review-family.js
+```
+
+Child UI contract requires **temporary** `preferred_locale=en-GB` inside the child test (not global review default). The test sets and restores locale itself.
+
+## Commands
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 export RC1_SMOKE_BASE_URL="<deploy-base-url>"
 export RC1_EXPECTED_SHA="<deploy-sha>"
 export RC1_EXPECTED_CACHE="stjarndag-v748"
-# set RC1_REVIEW_* and RC1_CHILD_* from secure store
-RC1_SMOKE_RUNS=2 npm run test:e2e:rc1-prod-smoke
+# RC1_REVIEW_*, RC1_CHILD_*, RC1_PARENT_PIN from secure store
+RC1_REQUIRE_HANDOFF=true RC1_SMOKE_RUNS=2 npm run test:e2e:rc1-prod-smoke
 ```
+
+## Rate limiting (429)
+
+`/api/reports/active-count` retries log sanitized warnings (`attempts`, `429_count`, `Retry-After`). Final status must be **403** `COMPONENT_MISSING`. All-429 attempts fail the run.
 
 ## Failure artifacts
 
-On assertion failure, diagnostics are written under `artifacts/rc1-prod-smoke/<timestamp>/<test-name>/` (gitignored). Contents are sanitized (no cookies, PIN, or passwords).
+`artifacts/rc1-prod-smoke/<timestamp>/<test-name>/` — screenshots + summary (no cookies/PIN).
 
 ## GitHub Actions
 
-Manual workflow: `.github/workflows/rc1-prod-smoke.yml` (`workflow_dispatch`) with GitHub Environment secrets and required inputs for URL, SHA, and cache version.
+`.github/workflows/rc1-prod-smoke.yml` — `workflow_dispatch`, environment `rc1-prod-smoke`, `RC1_REQUIRE_HANDOFF=true`, artifacts on failure.
 
 ## Scope
 
-- Does **not** bump service worker or change product code.
-- Does **not** create rewards, goals, or family data on the review account.
-- Does **not** mark RC-1 as device-approved.
+- No SW bump or product code changes in the smoke PR.
+- Does not mark RC-1 as device-approved.
