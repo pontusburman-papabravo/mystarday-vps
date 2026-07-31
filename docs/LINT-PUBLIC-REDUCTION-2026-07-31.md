@@ -125,3 +125,79 @@ Källa: `npx eslint public/js public/admin -f json` → `.local/lint-public-base
 | `npm run check:ambient-objects` | OK efter regenerate |
 
 **Slutgates** (`test:full`, migration rollback): kör före PR-merge enligt process.
+
+## Batch 2 — prefer-const + säkra unused-vars (post batch 1)
+
+**Start HEAD:** `3dcc79e1` · **Warnings/budget:** 599  
+**Slut HEAD:** `94da9c59` · **Warnings/budget:** 494  
+
+### Steg 1 inventering (efter batch 1)
+
+Källa: `npx eslint public/js public/admin -f json` (batch 1 baseline 599).
+
+| Metric | Batch 1 slut |
+|--------|----------------|
+| `no-unused-vars` | 535 |
+| `prefer-const` | 30 |
+| `no-var` | 34 |
+
+Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const`).
+
+### Delbatch-logg
+
+| Delbatch | Warnings före | Efter | Regel | Filer | Produktpåverkan |
+|----------|---------------|-------|-------|-------|-----------------|
+| prefer-const | 599 | ~597 | prefer-const | `dashboard-polish.js`, `for-dig.js` | Ingen |
+| public helpers | ~597 | ~547 | no-unused-vars, dead code | `skeleton.js`, `calendar-page.js`, `cookie-banner.js`, `birthday-picker.js`, `app-view-mode.js` | Ingen — borttagna helpers ej refererade |
+| admin små moduler | ~547 | ~494 | no-unused-vars, window exports | `admin-start`, `admin-waitlist`, `admin-core`, `admin-email-templates`, `admin-retention`, `admin-survey-rapport`, `admin-dagensnyhet`, `admin-newsletter`, `admin-messages-inbox`, `admin-subscription-settings`, `admin-analytics`, `admin-images`, `admin-landing-news` | Ingen — HTML `onclick` / `admin-core` typeof kräver `window.*` |
+| library + settings | (inkl. ovan) | 494 | no-unused-vars, window exports | `library-standard.js`, `library-substeps.js`, `library-schema.js`, `child-settings.js`, `custody-settings.js` | Ingen — custody endast unused callback-param |
+
+**Stop condition:** warnings &lt; 500 uppnått (494). Kvarvarande toppfiler är blockerade monoliter.
+
+### Borttagna symboler (ej triviala)
+
+| Symbol | Fil | Sökbevis | Varför oanvänd |
+|--------|-----|----------|----------------|
+| `fadeInContent`, `showSkeletonNow`, m.fl. | `skeleton.js` | `rg fadeInContent public` — endast definition | Legacy skeleton API efter refactor |
+| `DISCLAIMER_DEFAULT`, `formatDelta`, `renderStartShortcuts` | `admin-start.js` | `rg formatDelta public/admin` — inga anrop | Död admin-start copy |
+| `wlConfirmDelete`, `executeWlDelete` | `admin-waitlist.js` | HTML använder `showWaitlistDeleteModal` / `executeWaitlistDelete` | Superseded delete flow |
+| `readStorage`, `updateToggleUi` | `app-view-mode.js` | `rg updateToggleUi` — inga anrop | Magic-only parent view; toggle borttagen |
+| `copied` filter row | `library-standard.js` | Endast `notCopied` används i UI | Render använder full `standardActivities` lista |
+| `homes` param | `custody-settings.js` | `bindCustomDaySelects` / `bindOverrides` bodies | Param aldrig läst |
+
+**window exports (lint contract, inte borttagning):** `copyStandardActivity*`, `toggleSubSteps`, `confirmUnpublish`, `doFbSetup`, `loadNewsletterSubscribers`, `filterNewsletterSubs`, `sortNewsletterSubs`, `uploadAdminImage`, m.fl. — verifierat via `public/admin/index.html`, `library.html`, genererad admin HTML.
+
+**Ej fixat (produkt / risk):** `custody-settings.js` `homeB` / `defaultHome` / `mapped` — beräknas men ej applicerat på select `selected`; kräver separat produktfix.
+
+**Lint-disable:** inga nya filövergripande eller lokala disables i batch 2.
+
+### Batch 2 commits
+
+1. `chore(lint): resolve safe prefer-const warnings`
+2. `chore(lint): remove unused admin helper state`
+3. `chore(lint): remove unused landing and public helpers`
+4. `chore(lint): sync lint-public budget 599 → 494` (budget JSON)
+
+### Gates (batch 2)
+
+| Kommando | Resultat |
+|----------|----------|
+| `npm run lint:public` | 494/494 OK |
+| `npm run lint:public:sync-budget` | 599 → 494 (sänkt) |
+| `npm run check:ambient-objects` | OK |
+| `npm run css:build` | OK |
+| `npm run lint` | exit 0 |
+| `npm run check:routes` | OK |
+| `npm run test:gate` | 281 pass, 0 fail |
+| `npm run test:full` | (kör vid merge) |
+
+**Batch 1 regression:** `window.loadUserStats` kvar i `admin-user-stats.js`; `check:ambient-objects` reproducerbar från generator.
+
+### Rekommenderad batch 3
+
+1. `prefer-const` / `no-var` i medelfiler med granskning: `daily-log.js`, `dashboard-card-actions.js`, `auth.js` (endast catch/`_` — ej session paths).
+2. Domän-batch `reports.js`, `library.js` (31 w) med HTML/global-kontrakt.
+3. Separat scope: `schedule.js`, `dashboard.js`, `family.js`, `admin-library.js`, `child-dashboard.js`.
+4. Produktfix: custody select pre-fill (`homeB`, `defaultHome`, parent `mapped`).
+
+**GO WITH FOLLOW-UP** — budget ratchetad, inga lint-regeländringar, blockerade monoliter kvar.
