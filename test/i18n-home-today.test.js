@@ -131,11 +131,11 @@ describe('analytics regression (static event names)', () => {
     assert.match(readiness, /readiness_action_click/);
   });
 
-  it('daily-log analytics events unchanged', () => {
+  it('daily-log analytics: print_schema_exported on export redirect (custody on print-schema/filter UIs)', () => {
     assert.match(dailyLog, /print_schema_exported/);
-    assert.match(dailyLog, /custody_view_filtered/);
+    assert.doesNotMatch(dailyLog, /custody_view_filtered/);
     const matches = dailyLog.match(/analytics\.track\(/g) || [];
-    assert.equal(matches.length, 2);
+    assert.equal(matches.length, 1);
   });
 
   it('dashboard-home-hub preserves nav_hub_click if present', () => {
@@ -480,7 +480,7 @@ describe('analytics behavior parity (sv-SE vs en-GB)', () => {
   it('daily-log analytics: fixed event set does not branch on locale', () => {
     const dailyLog = fs.readFileSync(path.join(__dirname, '../public/js/daily-log.js'), 'utf8');
     const names = [...dailyLog.matchAll(/\.track\(\s*['"]([^'"]+)['"]/g)].map((m) => m[1]);
-    assert.deepEqual([...new Set(names)].sort(), ['custody_view_filtered', 'print_schema_exported']);
+    assert.deepEqual([...new Set(names)].sort(), ['print_schema_exported']);
     const trackBlocks = dailyLog.match(/analytics\.track\([^)]+\)[^;]*/g) || [];
     for (const block of trackBlocks) {
       assert.doesNotMatch(block, /getCurrentLang|preferred_locale|english_app/);

@@ -1284,12 +1284,7 @@
     function goPrintSchemaPdf(scope) {
       if (!currentChildId) { showToast(dlPt('today.errors.selectChild'), 'error'); return; }
       let url = '/print-schema?childId=' + encodeURIComponent(currentChildId);
-      if (scope === 'my') {
-        url += '&scope=my';
-        if (window.analytics && typeof window.analytics.track === 'function') {
-          window.analytics.track('custody_view_filtered', { source: 'print_my_days', days: null });
-        }
-      }
+      if (scope === 'my') url += '&scope=my';
       trackPrintExport(scope === 'my' ? 'my_days' : 'week');
       window.location.href = url;
     }
