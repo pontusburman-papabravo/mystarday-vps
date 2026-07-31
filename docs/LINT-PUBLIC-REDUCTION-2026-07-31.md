@@ -206,7 +206,7 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 ## Batch 3 — medelstora publika moduler
 
 **Start HEAD:** `7139e2da` · **Warnings/budget:** 494  
-**Slut HEAD:** (efter push) · **Warnings/budget:** 398  
+**Slut HEAD:** `e7a95086` · **Warnings/budget:** 398  
 
 ### Inventering (`.local/lint-public-after-batch2.json`)
 
@@ -256,3 +256,40 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 4. Custody produktfix — egen PR
 
 **GO WITH FOLLOW-UP** — batch 3 klart; custody + monoliter kvar.
+
+## Steg 0 — analytics (custody_view_filtered)
+
+| Fråga | Svar |
+|-------|------|
+| Vad ska eventet mäta? | Custody-filter toggles (`context` + `enabled`) eller print-schema PDF-success — **inte** daily-log redirect |
+| Före batch 3 (live) | `goPrintSchemaPdf` → endast `print_schema_exported` via `trackPrintExport` |
+| Batch 3 regression | Felaktig `custody_view_filtered` på redirect med `days: null` |
+| Fix (`40e9fcbe`) | Tog bort emit i `daily-log.js`; uppdaterade `test/i18n-home-today.test.js` |
+
+## Batch 4A — `schedule.js`
+
+**Start warnings:** 398 (budget) · **schedule.js:** 64  
+**Slut warnings:** 334 (budget) · **schedule.js:** 0  
+
+### Taktik
+
+| Åtgärd | Detalj |
+|--------|--------|
+| `window.*` exports | HTML/onclick: `selectChild`, `selectDay`, `setViewMode`, copy/delete modals, `toggleOverflowMenu`, `toggleScheduleSubSteps`, confirm |
+| Död kod | Stub-rader för insert/fill-week (ägs av `schedule-insert-fill.js`); `setBirthdayPicker`, `childSchedules`, `allExpanded`, `itemResults`, `moveBtns` |
+| Global kontrakt | `/* exported … */` + `var DAYS/SECTIONS` för split-moduler; `let` template state (`templateMode`, …) |
+| `catch (_e)` | Paused-banner fetch |
+
+### Gates (batch 4A + analytics)
+
+| Kommando | Resultat |
+|----------|----------|
+| `npm run lint:public` | 334/398 → sync **334** |
+| `npm run test:gate` | 281 pass |
+
+### Monolitbatch-plan (batch 4B+)
+
+1. ~~`schedule.js` (64)~~ — batch 4A  
+2. `dashboard.js` (47)  
+3. `family.js`, `admin-library.js`, `child-dashboard.js`  
+4. Custody produktfix — egen PR
