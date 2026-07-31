@@ -29,15 +29,15 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 
 ### Mätpunkter (node:test `test/*.test.js`)
 
-| Mätpunkt | Baslinje | Efter batch 1 | Efter batch 2 | Efter batch 3 | Δ batch 3 |
-|----------|----------|---------------|---------------|---------------|-----------|
-| Pass | 3109 | 3122 | 3128 | 3134 | +6 |
-| Fail | 57 | 45 | 39 | 34 | −5 |
+| Mätpunkt | Baslinje | Batch 2 | Batch 3 | Batch 4 | Δ batch 4 |
+|----------|----------|---------|---------|---------|-----------|
+| Pass | 3109 | 3128 | 3134 | 3151 | +17 |
+| Fail | 57 | 39 | 34 | 17 | −17 |
 | Skip | 0 | 4 | 4 | 4 | 0 |
 | Cancelled | 0 | 0 | 0 | 0 | 0 |
 | Exit code | 1 | 1 | 1 | 1 | — |
 
-TAP/log batch 3: `.local/full-suite-after-batch3-2026-07-31.log`
+TAP/log batch 4: `.local/full-suite-after-batch4-2026-07-31.log`
 
 **Batch 1 borttagna failures (12):** `release-os` (3 handoff/async), `apple-signup-sql`, `daily-logs-authz-contract`, `admin-start-summary` (getMessageCounts scope), `landing-mobile-layout` + `landing-share-restore` (node:test harness), samt 4 `governance-registry` som blev **skip** (inte fail).
 
@@ -49,6 +49,36 @@ TAP/log batch 3: `.local/full-suite-after-batch3-2026-07-31.log`
 4. child IA ADR  
 
 **Batch 2 borttagna failures (6):** `seo-pages` (register i18n meta/hero, robots Sitemap, canonical URLs), `pricing-info-route` (SV `pris-och-tillgang`, EN waitlist/faq), `legacy-parent-pages` (calendar auth i `calendar-page.js`).
+
+**Nya failures efter batch 4:** inga (17 = 34 − 17).
+
+## Batch 4 — meny v2 / magic navigation (2026-07-31)
+
+Scoped baseline: **139 tests, 17 fail** (10 filer). Efter fix: **139 pass, 0 fail**.
+
+| Område | Gammalt kontrakt | Auktoritet | Rotorsak (klass) | Ändring |
+|--------|------------------|------------|------------------|---------|
+| `child-support-layer` | hårdkodad `Steg` | `cpt('steps.progress')` | 1 i18n | Assert steps.progress |
+| `calendar-magic-contrast` | inline HTML `renderGrid` | `calendar-page.js` | 1 extraktion | Läs calendar-page för grid + act names |
+| `parent-magic-i18n` | `parent-i18n-ready` i `earlyApply` body | `notifyParentI18nReady()` | 1 struktur | Assert notify i earlyApply chain |
+| `magic-soft-nav` custody | `#custodyScheduleSection` i hubs JS | `planning-hub` + `family.html` | 1 | Verifiera planning link + section id |
+| `magic-soft-nav` calendar/json | inline `calendar.html` | `calendar-page.js` | 1 | Läs calendar-page |
+| `magic-soft-nav` settings | `parent-avatar-menu` settingsPath | `parent-nav-header` + router `settings: true` | 1 | Header chrome flyttad |
+| `magic-soft-nav` settings back | `← Inställningar` | `settings.appearance.backToSettings` | 1 i18n | Assert i18n-nyckel |
+| `readiness incomplete_days` | `incompleteMap[id] = parseInt(...)` | objekt `{ count, latest }` | 1 API-shape | Match parseInt på count |
+| `child-profile-setup` avatar | `safeAvatarUrl(child.avatar_url)` | `MemberAvatar.renderChildAvatar` | 1 | MemberAvatar + safeAvatarUrl finns |
+| `meny-v21` avatar native | `isNativeShell` i avatar menu | `BillingUi.refresh` hook | 1 | Chrome i nav-header/settings |
+| `meny-v22` dashboard cards | logik i `dashboard.js` | `dashboard-cards.js` | 1 split | Peka på dashboard-cards |
+| `meny-v23` billing gate | `BillingUi` i avatar menu | `settings-subscription` + `billing_ui_enabled` | 1 | Gate i settings-subscription |
+| `meny-v23` HomeBumpTime | render i `dashboard.js` | `dashboard-cards.js` | 1 split | HomeBumpTime.render i cards |
+| `meny-v24` schedule CTA | `dashboard.js` card section | `dashboard-cards.js` | 1 split | Samma |
+| `planning-hub` capabilities | `Bygg innehåll` hårdkodad | `planning.links.library` i18n | 1 | NavConfig + i18n keys |
+
+**calendar-magic-contrast:** inkluderad (samma magic/calendar-kontrakt; ingen produktändring).
+
+**Produktändringar:** inga.
+
+**Batch 4 borttagna fullsuite-failures (11 top-level + nested = −17 fail):** barnmeny v2 Sprint 4, calendar magic contrast, magic nav flash fix, magic soft navigation, meny v2 review MED, meny v2.1–v2.4 (delar), vuxenmeny v2 Sprint 6.
 
 **Nya failures efter batch 3:** inga (34 = 39 − 5).
 
@@ -81,8 +111,8 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 | `test/activation-program-fas3.test.js` | Activation content contracts |
 | `test/admin-start-summary.test.js` | getMessageCounts alias scope |
 | `test/apple-signup-sql.test.js` | Stale path to `createParentWithApple` |
-| `test/barnmeny-v2.test.js` | Meny v2 contracts |
-| `test/calendar-magic-contrast.test.js` | Magic/calendar markup |
+| `test/barnmeny-v2.test.js` | **fixed batch 4** |
+| `test/calendar-magic-contrast.test.js` | **fixed batch 4** |
 | `test/child-dashboard-celebrations.test.js` | **fixed batch 3** |
 | `test/child-world-a11y.test.js` | BL-028 a11y |
 | `test/daily-logs-authz-contract.test.js` | Stale `getLogAccess` vs `requireLogAccess` |
@@ -94,15 +124,15 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 | `test/landing-share-restore.test.js` | Same |
 | `test/legacy-parent-pages.test.js` | Inline script contracts |
 | `test/library-load-error-handling.test.js` | Library error UI |
-| `test/magic-nav-flash-fix.test.js` | Magic nav |
-| `test/magic-soft-nav.test.js` | Magic soft nav |
+| `test/magic-nav-flash-fix.test.js` | **fixed batch 4** |
+| `test/magic-soft-nav.test.js` | **fixed batch 4** |
 | `test/memory-hall-exhibits-pack.test.js` | Memory hall pack |
 | `test/memory-hall-playable.test.js` | Memory hall playable |
-| `test/meny-v2-review-fixes.test.js` | Meny v2 |
-| `test/meny-v21.test.js` | Meny v2.1 |
-| `test/meny-v22.test.js` | Meny v2.2 |
-| `test/meny-v23.test.js` | Meny v2.3 |
-| `test/meny-v24.test.js` | Meny v2.4 |
+| `test/meny-v2-review-fixes.test.js` | **fixed batch 4** |
+| `test/meny-v21.test.js` | **fixed batch 4** |
+| `test/meny-v22.test.js` | **fixed batch 4** |
+| `test/meny-v23.test.js` | **fixed batch 4** |
+| `test/meny-v24.test.js` | **fixed batch 4** |
 | `test/pr2-checkpoint.test.js` | ACT-1 checkpoint |
 | `test/pr4-checkpoint.test.js` | ACT-1 checkpoint |
 | `test/pricing-info-route.test.js` | Landing/pricing links |
@@ -110,7 +140,7 @@ TAP: `.local/full-suite-after-batch1-2026-07-31.tap`
 | `test/schedule-child-split.test.js` | **fixed batch 3** |
 | `test/schedule-core.test.js` | **fixed batch 3** |
 | `test/seo-pages.test.js` | SEO meta/robots/canonical |
-| `test/vuxenmeny-v2.test.js` | Vuxenmeny v2 |
+| `test/vuxenmeny-v2.test.js` | **fixed batch 4** |
 | `test/xss.test.js` | onboarding.js step 4 reward intro |
 
 Nested failures also in: `test/deploy-gate.test.js` (GitHub workflow), `test/onboarding-handoff-p0.test.js`, `test/pr5-checkpoint.test.js`, etc.
@@ -155,8 +185,8 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 ## Follow-up buckets (not fixed in Fas 4 scope)
 
 - **Activation / ACT-1 / onboarding-handoff / xss onboarding step 4** — separate onboarding/activation track (user: do not mix).
-- **Meny v2 / vuxenmeny / barnmeny / magic-nav** — large UI contract drift; batch after landing/SEO.
-- **Dashboard/schedule split contracts** — verify against refactor map; update contracts not product unless bug proven.
+- **Meny v2 / magic-nav** — **batch 4 done** (`d0b56a3c`).
+- **Dashboard/schedule split contracts** — **batch 3 done** (`cea08988`).
 - **POS vendoring** — `product-operating-system/` absent in GitHub clone; full POS tests need vendored docs or CI checkout (follow-up).
 - **Memory hall / child-world a11y** — product-area follow-ups.
 
@@ -166,7 +196,9 @@ Ingen produktändring i batch 2 (endast testkontrakt).
 |------|------------|--------|
 | 2026-07-31 | 57 | Baseline on `b16c6709`, fresh DB |
 | 2026-07-31 | 45 fail, 4 skip | After batch 1 (`20abd744`) |
-| 2026-07-31 | 39 fail, 4 skip | After batch 2 (`ba041a43`) — SEO/landing/pricing contracts |
+| 2026-07-31 | 39 fail, 4 skip | After batch 2 (`d3180468`) |
+| 2026-07-31 | 34 fail, 4 skip | After batch 3 (`905ffd2b`) |
+| 2026-07-31 | 17 fail, 4 skip | After batch 4 (`d0b56a3c`) — menu v2 / magic nav |
 
 ## Slutmål
 
