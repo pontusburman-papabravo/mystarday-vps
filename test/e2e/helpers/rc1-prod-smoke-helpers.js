@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('node:assert/strict');
+const { executeWithPrimaryAndCleanup } = require('../../helpers/rc1-scope-errors');
+const { performParentChildHandoff } = require('./rc1-prod-smoke-handoff');
 
 const SWEDISH_SERVER_LEAK = /Ogiltiga värden|Namn krävs|PIN-koden måste|Användarnamn krävs/i;
 
@@ -113,6 +115,9 @@ async function captureFailureDiagnostics(page, testName, extra = {}) {
       });
       return labels;
     });
+    if (extra.handoffDiagnostics || page._rc1HandoffDiagnostics) {
+      summary.handoffStateMachine = extra.handoffDiagnostics || page._rc1HandoffDiagnostics;
+    }
     if (extra.expectedSha || extra.actualSha || extra.expectedCache || extra.actualCache) {
       summary.releaseIdentity = {
         expectedSha: extra.expectedSha,
@@ -562,29 +567,32 @@ async function assertFamilyLocalePersisted(page, locale) {
   return snap;
 }
 
+function settingsAttemptRateLimited(page, attemptStartIndex) {
+  const errs = page._rc1Diagnostics?.consoleErrors || [];
+  return errs.slice(attemptStartIndex).some((e) => /429|för många/i.test(e));
+}
+
 async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
   const attempts = Number(process.env.RC1_LOCALE_SETTINGS_ATTEMPTS || 3);
   let lastErr;
   for (let i = 0; i < attempts; i += 1) {
+    const attemptStart = page._rc1Diagnostics?.consoleErrors?.length ?? 0;
     try {
       await openSettingsFamilyLocale(page, baseUrl);
       await selectSettingsLocaleWithEvent(page, locale);
       return assertFamilyLocalePersisted(page, locale);
     } catch (err) {
       lastErr = err;
-      const isRateLimited = (page._rc1Diagnostics?.consoleErrors || []).some((e) => /429|för många/i.test(e));
+      const isRateLimited = settingsAttemptRateLimited(page, attemptStart);
       if (i < attempts - 1 && isRateLimited) {
-        console.warn(`[rc1-smoke] settings locale retry ${i + 1}/${attempts - 1} after rate limit`);
-        await rc1Sleep(65000);
+        const retryAfter = Number(process.env.RC1_SETTINGS_RETRY_AFTER_MS || 65000);
+        console.warn(`[rc1-smoke] settings locale retry ${i + 1}/${attempts - 1} after 429 (attempt-local)`);
+        await rc1Sleep(retryAfter);
         continue;
       }
       if (i < attempts - 1) {
         await rc1Sleep(3000);
         continue;
-      }
-      if (isRateLimited && process.env.RC1_ALLOW_LOCALE_API_FALLBACK !== '0') {
-        console.warn('[rc1-smoke] settings locale blocked by rate limit — authenticated API set (same PUT as Settings UI)');
-        return persistFamilyLocaleViaApi(page, locale);
       }
     }
   }
@@ -616,70 +624,85 @@ async function persistFamilyLocaleViaApi(page, locale) {
   return assertFamilyLocalePersisted(page, locale);
 }
 
-async function restoreFamilyLocale(page, baseUrl, seed, restoreTarget) {
+async function restoreLocaleViaIsolatedParent(browser, baseUrl, seed, restoreTarget, testName) {
+  logLocaleAudit({ test: testName, phase: 'cleanup_started', restoreTarget });
+  const { page, close } = await newIsolatedPage(browser, 'desktop');
   try {
-    await setFamilyLocaleViaSettings(page, baseUrl, restoreTarget);
-  } catch (uiErr) {
-    console.warn(`[rc1-smoke] settings restore failed, using API fallback: ${uiErr.message}`);
-    const session = await page.evaluate(async () => {
-      const r = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!r.ok) return 'anonymous';
-      const me = await r.json();
-      return me.email ? 'parent' : 'anonymous';
-    });
-    if (session !== 'parent') {
-      await reloginParent(page, baseUrl, seed, null);
-    }
+    await loginParent(page, baseUrl, seed, null);
     await persistFamilyLocaleViaApi(page, restoreTarget);
+    const after = await readFamilyLocaleSnapshot(page);
+    assert.equal(after.preferredLocale, restoreTarget, 'isolated parent cleanup locale');
+    logLocaleAudit({ test: testName, phase: 'cleanup_passed', ...after, restoreTarget });
+  } catch (err) {
+    logLocaleAudit({ test: testName, phase: 'cleanup_failed', message: err.message });
+    throw err;
+  } finally {
+    await close();
   }
-}
-
-async function reloginParent(page, baseUrl, seed, loginLocale) {
-  const { parentLogout } = require('./puppeteer-browser');
-  await parentLogout(page);
-  await loginParent(page, baseUrl, seed, loginLocale || null);
 }
 
 /**
- * Captures DB/UI locale, runs fn, restores original locale in finally (even on failure).
+ * Settings UI locale proof — only for the dedicated locale Settings test.
  */
-async function withFamilyLocaleScope(page, baseUrl, seed, testName, fn) {
+async function withFamilyLocaleScope(browser, page, baseUrl, seed, testName, fn) {
   const original = await readFamilyLocaleSnapshot(page);
   logLocaleAudit({ test: testName, phase: 'before', ...original });
   const restoreTarget = original.preferredLocale || 'sv-SE';
-  try {
-    return await fn({
+
+  return executeWithPrimaryAndCleanup({
+    onPrimaryFailure: (err) => logLocaleAudit({ test: testName, phase: 'test_failed', message: err.message }),
+    fn: () => fn({
       original,
       restoreTarget,
       setLocale: (loc) => setFamilyLocaleViaSettings(page, baseUrl, loc),
-    });
-  } finally {
-    let restoreErr;
-    try {
+    }),
+    cleanup: async () => {
       const session = await page.evaluate(async () => {
         const r = await fetch('/api/auth/me', { credentials: 'include' });
-        if (!r.ok) return { kind: 'anonymous' };
+        if (!r.ok) return 'anonymous';
         const me = await r.json();
-        if (me.username && !me.email) return { kind: 'child' };
-        if (me.email) return { kind: 'parent' };
-        return { kind: 'unknown' };
+        if (me.email) return 'parent';
+        return 'non-parent';
       });
-      if (session.kind === 'child' || session.kind === 'anonymous') {
-        await reloginParent(page, baseUrl, seed, null);
+      if (session === 'parent') {
+        const now = await readPreferredLocaleFromApi(page);
+        if (now !== restoreTarget) {
+          await setFamilyLocaleViaSettings(page, baseUrl, restoreTarget);
+        }
+        const after = await readFamilyLocaleSnapshot(page);
+        logLocaleAudit({ test: testName, phase: 'cleanup_passed', ...after, restoreTarget });
+        assert.equal(after.preferredLocale, restoreTarget, 'locale restore persisted');
+        return;
       }
-      const now = await readPreferredLocaleFromApi(page);
-      if (now !== restoreTarget) {
-        await restoreFamilyLocale(page, baseUrl, seed, restoreTarget);
+      await restoreLocaleViaIsolatedParent(browser, baseUrl, seed, restoreTarget, testName);
+    },
+  });
+}
+
+/**
+ * API locale fixture for child/handoff — no Settings UI.
+ */
+async function withFamilyLocaleFixture(browser, page, baseUrl, seed, testName, locale, discardTestContext, fn) {
+  const original = await readFamilyLocaleSnapshot(page);
+  logLocaleAudit({ test: testName, phase: 'before', ...original });
+  const restoreTarget = original.preferredLocale || 'sv-SE';
+
+  await persistFamilyLocaleViaApi(page, locale);
+
+  return executeWithPrimaryAndCleanup({
+    onPrimaryFailure: (err) => logLocaleAudit({ test: testName, phase: 'test_failed', message: err.message }),
+    fn: () => fn({ original, locale, restoreTarget }),
+    cleanup: async () => {
+      logLocaleAudit({ test: testName, phase: 'cleanup_started', restoreTarget });
+      try {
+        await discardTestContext();
+        await restoreLocaleViaIsolatedParent(browser, baseUrl, seed, restoreTarget, testName);
+      } catch (err) {
+        logLocaleAudit({ test: testName, phase: 'cleanup_failed', message: err.message });
+        throw err;
       }
-      const after = await readFamilyLocaleSnapshot(page);
-      logLocaleAudit({ test: testName, phase: 'after_restore', ...after, restoreTarget });
-      assert.equal(after.preferredLocale, restoreTarget, 'locale restore persisted');
-    } catch (err) {
-      restoreErr = err;
-      logLocaleAudit({ test: testName, phase: 'restore_failed', message: err.message });
-    }
-    if (restoreErr) throw restoreErr;
-  }
+    },
+  });
 }
 
 async function fetchLoginPickerContext(page) {
@@ -712,82 +735,10 @@ async function assertRc1ChildLocaleContract(page) {
   return picker;
 }
 
-async function triggerChildToParentHandoff(page) {
-  await page.waitForFunction(
-    () => /\/child(\/today|-dashboard)/.test(window.location.pathname),
-    { timeout: 30000 }
-  );
-
-  await page.evaluate(async () => {
-    if (typeof window.childLogout === 'function') {
-      await window.childLogout();
-    } else if (window.Auth && typeof Auth.logout === 'function') {
-      await Auth.logout();
-    }
-  });
-
-  try {
-    await page.waitForFunction(
-      () => document.getElementById('ppin-gate-overlay')
-        || /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
-      { timeout: 90000 }
-    );
-  } catch (_) {
-    /* fall through to session check */
-  }
-
-  const hasOverlay = await page.$('#ppin-gate-overlay');
-  if (hasOverlay) return 'pin';
-
-  const parent = await page.evaluate(async () => {
-    const r = await fetch('/api/auth/me', { credentials: 'include' });
-    if (!r.ok) return false;
-    const me = await r.json();
-    return Boolean(me.email);
-  });
-  if (parent) return 'restored';
-
-  assert.fail('parent handoff: no PIN gate and parent session not restored after child logout');
-}
-
-async function completeChildToParentHandoff(page, pin) {
-  const mode = await triggerChildToParentHandoff(page);
-  if (mode === 'pin') {
-    await enterParentAppPin(page, pin);
-  }
-}
-
-async function waitForParentHandoffComplete(page, baseUrl) {
-  await page.waitForFunction(
-    () => /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
-    { timeout: 90000 }
-  );
-  await assertParentSession(page);
-}
-
-async function enterParentAppPin(page, pin) {
-  await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 45000 });
-  const digits = String(pin).split('');
-  for (const digit of digits) {
-    await page.evaluate((d) => {
-      const kbd = document.querySelector('#ppgo-keypad');
-      if (!kbd) return;
-      const buttons = [...kbd.querySelectorAll('button')];
-      const btn = buttons.find((b) => (b.textContent || '').trim() === d);
-      if (btn) btn.click();
-    }, digit);
-    await rc1Sleep(150);
-  }
-  await page.evaluate(() => {
-    const kbd = document.querySelector('#ppgo-keypad');
-    if (!kbd) return;
-    const submit = [...kbd.querySelectorAll('button')].find((b) => (b.textContent || '').trim() === '✓');
-    if (submit) submit.click();
-  });
-  await page.waitForFunction(
-    () => !document.getElementById('ppin-gate-overlay'),
-    { timeout: 90000 }
-  );
+function smokeFilterMode() {
+  const raw = (process.env.RC1_SMOKE_FILTER || '').trim().toLowerCase();
+  if (raw === 'handoff') return 'handoff';
+  return 'full';
 }
 
 module.exports = {
@@ -798,7 +749,6 @@ module.exports = {
   newIsolatedPage,
   fetchReleaseIdentity,
   loginParent,
-  reloginParent,
   waitForPackageAccessResolved,
   collectVisibleReportsTargets,
   waitForChildI18nReady,
@@ -811,14 +761,16 @@ module.exports = {
   readFamilyLocaleSnapshot,
   setFamilyLocaleViaSettings,
   withFamilyLocaleScope,
+  withFamilyLocaleFixture,
+  restoreLocaleViaIsolatedParent,
+  persistFamilyLocaleViaApi,
   assertEnglishAppEnabled,
   selectSettingsLocaleWithEvent,
   assertReportsRouteBlocked,
   openSettingsFamilyLocale,
-  enterParentAppPin,
-  triggerChildToParentHandoff,
-  completeChildToParentHandoff,
-  waitForParentHandoffComplete,
+  performParentChildHandoff,
+  smokeFilterMode,
+  executeWithPrimaryAndCleanup,
   rc1Sleep,
   rc1TestGapMs,
   captureFailureDiagnostics,

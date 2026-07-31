@@ -10,15 +10,32 @@ Release evidence against the live deploy (review QA account only). **Test-only**
 
 ## Test suite (full gate = 5)
 
-| # | Test | Stateful locale |
-|---|------|-----------------|
-| 1 | Release identity (SHA + SW cache) | No |
-| 2 | Reports gating | No |
-| 3 | Parent locale via Settings UI | Yes — restores captured `preferred_locale` in `finally` |
-| 4 | Child login + i18n | Yes — sets **en-GB** for the test, restores original in `finally` |
-| 5 | Parent/child handoff (requires `RC1_PARENT_PIN`) | Yes — sets **en-GB**, restores original in `finally` |
+Order (full gate):
 
-Tests do **not** rely on execution order. Each stateful test captures the family locale from `/api/auth/me` before changes and restores it after (even on failure). Audit lines append to `artifacts/rc1-prod-smoke/locale-audit.jsonl`.
+| # | Test | Locale |
+|---|------|--------|
+| 1 | Release identity (SHA + SW cache) | No |
+| 2 | Parent locale via **Settings UI** | Settings UI + restore |
+| 3 | Child login + i18n | API fixture (`withFamilyLocaleFixture`) |
+| 4 | Parent/child handoff (`RC1_PARENT_PIN`) | API fixture only |
+| 5 | Reports gating (last — may see documented 429 + Retry-After) | No |
+
+Handoff uses HTTP contract on `POST /api/auth/logout`, `verify-pin`, and `restore-parent-session` — not DOM-only inference.
+
+## Handoff debug (not release gate)
+
+```bash
+RC1_SMOKE_FILTER=handoff RC1_HANDOFF_DEBUG_RUNS=3 npm run test:e2e:rc1-prod-smoke
+```
+
+Runs release identity + handoff only (2 tests). Requires 3/3 pass before trusting full gate.
+
+## Locale fixtures
+
+- **Settings UI test** — `withFamilyLocaleScope` (Settings selectors; attempt-local 429 retry only).
+- **Child + handoff** — `withFamilyLocaleFixture` (authenticated `PUT /api/family/settings`; cleanup via **new isolated parent context**, never child `logout`).
+
+Primary vs cleanup failures use `AggregateError` when both fail; locale audit phases: `test_failed`, `cleanup_started`, `cleanup_passed` / `cleanup_failed`.
 
 ## Environment
 

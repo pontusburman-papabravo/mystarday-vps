@@ -6,6 +6,7 @@ const { launchBrowser, acceptCookies, loginChildFromParentSession } = require('.
 const {
   SWEDISH_SERVER_LEAK,
   smokeConfig,
+  smokeFilterMode,
   withDiagnostics,
   newIsolatedPage,
   fetchReleaseIdentity,
@@ -16,15 +17,13 @@ const {
   assertPrimaryNavEnglish,
   assertParentSession,
   assertChildSession,
-  enterParentAppPin,
-  triggerChildToParentHandoff,
-  completeChildToParentHandoff,
-  waitForParentHandoffComplete,
+  performParentChildHandoff,
   assertRc1ChildLocaleContract,
   assertEnglishAppEnabled,
   assertReportsRouteBlocked,
   fetchWithSessionRetry,
   withFamilyLocaleScope,
+  withFamilyLocaleFixture,
   readFamilyLocaleSnapshot,
   rc1Sleep,
   rc1TestGapMs,
@@ -43,18 +42,27 @@ function requireSeed(cfg) {
     password: cfg.password,
     childUsername: cfg.childUsername,
     childPin: cfg.childPin,
-    restoreLocaleOverride: cfg.restoreLocaleOverride,
   };
 }
 
 const cfg = smokeConfig();
 const seed = cfg.email ? requireSeed(cfg) : null;
+const filterMode = smokeFilterMode();
+const handoffDebugOnly = filterMode === 'handoff';
+
+function skipUnlessFullGate(testName) {
+  if (!handoffDebugOnly) return false;
+  return testName !== 'release' && testName !== 'handoff';
+}
 
 describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
   let browser;
 
   before(async () => {
     assert.ok(cfg.baseUrl, 'RC1_SMOKE_BASE_URL or E2E_BASE_URL required');
+    if (handoffDebugOnly) {
+      console.warn('[rc1-prod-smoke] RC1_SMOKE_FILTER=handoff — LIMITED HANDOFF DEBUG (not release gate)');
+    }
     browser = await launchBrowser();
   });
 
@@ -66,7 +74,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
     await fetchReleaseIdentity(cfg.baseUrl, cfg.expectedSha, cfg.expectedCache);
   });
 
-  it('parent locale switch via Settings UI (reload + restore original locale)', async () => {
+  it('parent locale switch via Settings UI (reload + restore original locale)', { skip: skipUnlessFullGate('locale') }, async () => {
     await rc1Sleep(rc1TestGapMs());
     const { page, close } = await newIsolatedPage(browser, 'desktop');
     try {
@@ -74,7 +82,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
         await loginParent(page, cfg.baseUrl, seed, null);
         await assertEnglishAppEnabled(page);
 
-        await withFamilyLocaleScope(page, cfg.baseUrl, seed, 'locale-settings-ui', async ({ original, setLocale }) => {
+        await withFamilyLocaleScope(browser, page, cfg.baseUrl, seed, 'locale-settings-ui', async ({ original, setLocale }) => {
           const start = original.preferredLocale || 'sv-SE';
           const toggleFrom = start === 'en-GB' ? 'sv-SE' : start;
           const toggleTo = toggleFrom === 'sv-SE' ? 'en-GB' : 'sv-SE';
@@ -99,7 +107,124 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
     }
   });
 
-  it('reports UI hidden without reporting component (after package access resolves)', async () => {
+  it('child login i18n, validation codes, and successful child session', { skip: skipUnlessFullGate('child') }, async () => {
+    await rc1Sleep(rc1TestGapMs());
+    const { page, close } = await newIsolatedPage(browser, 'mobile');
+    let contextClosed = false;
+    const disposeContext = async () => {
+      if (!contextClosed) {
+        contextClosed = true;
+        await close();
+      }
+    };
+    try {
+      await withDiagnostics(page, 'child-login', async () => {
+        await loginParent(page, cfg.baseUrl, seed, null);
+
+        await withFamilyLocaleFixture(
+          browser,
+          page,
+          cfg.baseUrl,
+          seed,
+          'child-login',
+          'en-GB',
+          disposeContext,
+          async () => {
+            await assertRc1ChildLocaleContract(page);
+
+            await page.goto(`${cfg.baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
+            await acceptCookies(page);
+            await waitForChildI18nReady(page);
+
+            const childLocale = await page.evaluate(() => (
+              typeof window.getChildUiLocale === 'function' ? getChildUiLocale() : null
+            ));
+            assert.equal(childLocale, 'en-GB', 'child UI locale on login page');
+
+            const formatMsg = await page.evaluate(() => {
+              if (typeof window.childLoginErrorFromResponse !== 'function') return null;
+              return childLoginErrorFromResponse({ code: 'CHILD_PIN_INVALID_FORMAT' });
+            });
+            assert.ok(formatMsg, 'childLoginErrorFromResponse after i18n init');
+            assert.doesNotMatch(formatMsg, SWEDISH_SERVER_LEAK, formatMsg);
+            assert.match(formatMsg, /pin|digit|number|format/i);
+
+            const formatApi = await page.evaluate(async (user) => {
+              const r = await fetch('/api/auth/child-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ username: user, pin: '12' }),
+              });
+              return { status: r.status, body: await r.json() };
+            }, seed.childUsername);
+            assert.equal(formatApi.status, 400);
+            assert.equal(formatApi.body.code, 'CHILD_PIN_INVALID_FORMAT');
+
+            await loginChildFromParentSession(page, cfg.baseUrl, seed);
+            await assertChildSession(page);
+            const path = await page.evaluate(() => window.location.pathname);
+            assert.match(path, /\/child(\/today|-dashboard)/);
+          }
+        );
+      });
+    } finally {
+      await disposeContext();
+    }
+  });
+
+  if (cfg.requireHandoff) {
+    it('parent → child PIN → parental gate restore → parent session', { skip: false }, async () => {
+      await rc1Sleep(handoffDebugOnly
+        ? rc1TestGapMs()
+        : Math.max(rc1TestGapMs(), Number(process.env.RC1_HANDOFF_GAP_MS || 30000)));
+      const parentPin = cfg.parentPin;
+      const { page, close } = await newIsolatedPage(browser, 'mobile');
+      let contextClosed = false;
+      const disposeContext = async () => {
+        if (!contextClosed) {
+          contextClosed = true;
+          await close();
+        }
+      };
+      try {
+        await withDiagnostics(page, 'parent-child-handoff', async () => {
+          await loginParent(page, cfg.baseUrl, seed, null);
+
+          await withFamilyLocaleFixture(
+            browser,
+            page,
+            cfg.baseUrl,
+            seed,
+            'parent-child-handoff',
+            'en-GB',
+            disposeContext,
+            async () => {
+              await assertParentSession(page);
+
+              await loginChildFromParentSession(page, cfg.baseUrl, seed);
+              await assertChildSession(page);
+
+              const handoffDiag = await performParentChildHandoff(page, parentPin);
+              assert.ok(handoffDiag.finalSession === 'parent', 'handoff must end in parent session');
+              await assertParentSession(page);
+
+              const childLeak = await page.evaluate(async () => {
+                const r = await fetch('/api/auth/me', { credentials: 'include' });
+                const me = r.ok ? await r.json() : {};
+                return Boolean(me.username && !me.email);
+              });
+              assert.equal(childLeak, false, 'child session must not remain active after parent restore');
+            }
+          );
+        });
+      } finally {
+        await disposeContext();
+      }
+    });
+  }
+
+  it('reports UI hidden without reporting component (after package access resolves)', { skip: skipUnlessFullGate('reports') }, async () => {
     await rc1Sleep(rc1TestGapMs());
     const { page, close } = await newIsolatedPage(browser, 'desktop');
     try {
@@ -143,88 +268,4 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
       await close();
     }
   });
-
-  it('child login i18n, validation codes, and successful child session', async () => {
-    await rc1Sleep(rc1TestGapMs());
-    const { page, close } = await newIsolatedPage(browser, 'mobile');
-    try {
-      await withDiagnostics(page, 'child-login', async () => {
-        await loginParent(page, cfg.baseUrl, seed, null);
-
-        await withFamilyLocaleScope(page, cfg.baseUrl, seed, 'child-login', async ({ setLocale }) => {
-          await setLocale('en-GB');
-          await assertRc1ChildLocaleContract(page);
-
-          await page.goto(`${cfg.baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
-          await acceptCookies(page);
-          await waitForChildI18nReady(page);
-
-          const childLocale = await page.evaluate(() => (
-            typeof window.getChildUiLocale === 'function' ? getChildUiLocale() : null
-          ));
-          assert.equal(childLocale, 'en-GB', 'child UI locale on login page');
-
-          const formatMsg = await page.evaluate(() => {
-            if (typeof window.childLoginErrorFromResponse !== 'function') return null;
-            return childLoginErrorFromResponse({ code: 'CHILD_PIN_INVALID_FORMAT' });
-          });
-          assert.ok(formatMsg, 'childLoginErrorFromResponse after i18n init');
-          assert.doesNotMatch(formatMsg, SWEDISH_SERVER_LEAK, formatMsg);
-          assert.match(formatMsg, /pin|digit|number|format/i);
-
-          const formatApi = await page.evaluate(async (user) => {
-            const r = await fetch('/api/auth/child-login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({ username: user, pin: '12' }),
-            });
-            return { status: r.status, body: await r.json() };
-          }, seed.childUsername);
-          assert.equal(formatApi.status, 400);
-          assert.equal(formatApi.body.code, 'CHILD_PIN_INVALID_FORMAT');
-
-          await loginChildFromParentSession(page, cfg.baseUrl, seed);
-          await assertChildSession(page);
-          const path = await page.evaluate(() => window.location.pathname);
-          assert.match(path, /\/child(\/today|-dashboard)/);
-        });
-      });
-    } finally {
-      await close();
-    }
-  });
-
-  if (cfg.requireHandoff) {
-    it('parent → child PIN → parental gate restore → parent session', async () => {
-      await rc1Sleep(Math.max(rc1TestGapMs(), Number(process.env.RC1_HANDOFF_GAP_MS || 90000)));
-      const parentPin = cfg.parentPin;
-      const { page, close } = await newIsolatedPage(browser, 'mobile');
-      try {
-        await withDiagnostics(page, 'parent-child-handoff', async () => {
-          await loginParent(page, cfg.baseUrl, seed, null);
-
-          await withFamilyLocaleScope(page, cfg.baseUrl, seed, 'parent-child-handoff', async ({ setLocale }) => {
-            await setLocale('en-GB');
-            await assertParentSession(page);
-
-            await loginChildFromParentSession(page, cfg.baseUrl, seed);
-            await assertChildSession(page);
-
-            await completeChildToParentHandoff(page, parentPin);
-            await waitForParentHandoffComplete(page, cfg.baseUrl);
-
-            const childLeak = await page.evaluate(async () => {
-              const r = await fetch('/api/auth/me', { credentials: 'include' });
-              const me = r.ok ? await r.json() : {};
-              return Boolean(me.username && !me.email);
-            });
-            assert.equal(childLeak, false, 'child session must not remain active after parent restore');
-          });
-        });
-      } finally {
-        await close();
-      }
-    });
-  }
 });

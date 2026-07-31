@@ -13,10 +13,16 @@ if (!baseUrl) {
   process.exit(0);
 }
 
-const requireHandoff = process.env.RC1_REQUIRE_HANDOFF !== 'false'
+const smokeFilter = (process.env.RC1_SMOKE_FILTER || '').trim().toLowerCase();
+const handoffDebugOnly = smokeFilter === 'handoff';
+
+const requireHandoff = !handoffDebugOnly
+  && process.env.RC1_REQUIRE_HANDOFF !== 'false'
   && process.env.RC1_REQUIRE_HANDOFF !== '0';
 
-if (!requireHandoff) {
+if (handoffDebugOnly) {
+  console.warn('[rc1-prod-smoke] RC1_SMOKE_FILTER=handoff — LIMITED HANDOFF DEBUG — NOT RELEASE GATE');
+} else if (!requireHandoff) {
   console.warn('[rc1-prod-smoke] LIMITED SMOKE — HANDOFF NOT RUN — NOT READY FOR DEVICE QA');
 } else if (!process.env.RC1_PARENT_PIN) {
   console.error('[rc1-prod-smoke] missing RC1_PARENT_PIN (RC1_REQUIRE_HANDOFF=true)');
@@ -38,8 +44,13 @@ for (const key of required) {
   }
 }
 
-const runs = Math.max(1, Number(process.env.RC1_SMOKE_RUNS || 1));
-const expectedTests = requireHandoff ? 5 : 4;
+const handoffDebugRuns = handoffDebugOnly
+  ? Math.max(1, Number(process.env.RC1_HANDOFF_DEBUG_RUNS || 3))
+  : 1;
+const runs = handoffDebugOnly
+  ? handoffDebugRuns
+  : Math.max(1, Number(process.env.RC1_SMOKE_RUNS || 1));
+const expectedTests = handoffDebugOnly ? 2 : (requireHandoff ? 5 : 4);
 const pacingMs = Number(process.env.RC1_SMOKE_PACING_MS || 90000);
 const testFile = path.join(__dirname, '..', 'test', 'e2e', 'rc1-prod-browser-smoke.test.js');
 const initialCooldownMs = Number(process.env.RC1_SMOKE_INITIAL_COOLDOWN_MS || 0);
@@ -58,12 +69,27 @@ function parseTapSummary(output) {
 }
 
 let total429 = 0;
+let handoff429 = 0;
 
 function count429FromOutput(output) {
   if (!output) return 0;
   let sum = 0;
   for (const m of output.matchAll(/429_count=(\d+)/g)) {
     sum += Number(m[1]);
+  }
+  return sum;
+}
+
+function countHandoff429(output) {
+  if (!output) return 0;
+  let sum = 0;
+  for (const m of output.matchAll(/PRODUCT BUG FOUND:.*429/g)) {
+    sum += 1;
+    void m;
+  }
+  for (const m of output.matchAll(/handoff.*429|logout returned 429|verify-pin returned 429|restore-parent-session returned 429/gi)) {
+    sum += 1;
+    void m;
   }
   return sum;
 }
@@ -83,13 +109,16 @@ function runOnce(runIndex) {
         ...process.env,
         E2E_BASE_URL: baseUrl,
         RC1_SMOKE_BASE_URL: baseUrl,
-        RC1_REQUIRE_HANDOFF: requireHandoff ? 'true' : 'false',
+        RC1_REQUIRE_HANDOFF: requireHandoff || handoffDebugOnly ? 'true' : 'false',
+        RC1_SMOKE_FILTER: smokeFilter || '',
       },
     }
   );
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
-  total429 += count429FromOutput(`${result.stdout || ''}${result.stderr || ''}`);
+  const blob = `${result.stdout || ''}${result.stderr || ''}`;
+  total429 += count429FromOutput(blob);
+  handoff429 += countHandoff429(blob);
 
   const summary = parseTapSummary(result.stdout || '');
   const okExit = result.status === 0;
@@ -120,10 +149,13 @@ for (let i = 1; i <= runs; i += 1) {
   }
 }
 
-if (requireHandoff) {
+if (handoffDebugOnly) {
+  console.log(`[rc1-prod-smoke] handoff debug: ${runs}/${runs} OK (not release gate)`);
+} else if (requireHandoff) {
   console.log('[rc1-prod-smoke] release gate: 5/5 OK for all runs');
 } else {
   console.log('[rc1-prod-smoke] LIMITED SMOKE complete (4 tests) — NOT READY FOR DEVICE QA');
 }
-console.log(`[rc1-prod-smoke] observed_429_total=${total429}`);
+console.log(`[rc1-prod-smoke] observed_reports_429_total=${total429}`);
+console.log(`[rc1-prod-smoke] observed_handoff_429_signals=${handoff429}`);
 process.exit(0);
