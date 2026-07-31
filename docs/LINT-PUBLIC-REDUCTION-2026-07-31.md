@@ -286,10 +286,27 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 |----------|----------|
 | `npm run lint:public` | 334/398 → sync **334** |
 | `npm run test:gate` | 281 pass |
+| `npm run test:full` | **3212 pass, 0 fail, 4 skip, 0 cancelled, exit 0** |
+| Schedule-fokus (contract/integration) | 94 pass (split, modals, dnd, insert-fill, fill-week authz) |
+
+**Governance skips:** 4 (`test/governance-registry.test.js` — POS/COS clone follow-up).
+
+**Kompatibilitetsnot:** `/* exported */` + `var DAYS/SECTIONS` i `schedule.js` är avsiktlig legacy-script kontrakt — **inte** generell lintmetod. Dashboard använder befintlig `var` + `eslint-disable` med dokumentation.
 
 ### Monolitbatch-plan (batch 4B+)
 
 1. ~~`schedule.js` (64)~~ — batch 4A  
-2. `dashboard.js` (47)  
-3. `family.js`, `admin-library.js`, `child-dashboard.js`  
+2. ~~`dashboard.js` (47)~~ — batch 4B  
+3. `family.js`, `admin-library.js`, `child-dashboard.js`, `admin-families.js`, `admin-surveys.js`  
 4. Custody produktfix — egen PR
+
+## Batch 4B — `dashboard.js`
+
+**Start:** 334 warnings · **dashboard.js:** 47  
+**Slut:** 287 warnings · **dashboard.js:** 0  
+
+| Åtgärd | Detalj |
+|--------|--------|
+| `var` + `eslint-disable` | Delad state för `dashboard-*.js` (befintlig kontrakt, ej `/* exported */`) |
+| `window.*` | `selectChild`, `selectDay`, `setViewMode`, `trackEvent`, `shareChildSchedule`, … |
+| Död kod | `calculateAge`, `activities`, `childSchedules`, `allExpanded`, payment stubs, unused destructure |

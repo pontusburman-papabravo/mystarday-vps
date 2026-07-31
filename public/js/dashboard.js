@@ -28,9 +28,7 @@ const _scheduleCore = window.ScheduleCore || {};
 const {
   DAYS,
   DAYS_SHORT,
-  SECTIONS,
   fmtTime,
-  sectionTimeLabel,
   getDayDateLabel,
   buildSectionCardsHtml,
 } = _scheduleCore;
@@ -38,23 +36,9 @@ if (!window.ScheduleCore) {
   console.warn('[DASHBOARD] ScheduleCore missing — schedule-core.js must load before dashboard.js');
 }
 
-function calculateAge(birthday) {
-  const birth = new Date(birthday);
-  const today = new Date();
-  let years = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) years--;
-  if (years < 1) {
-    const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
-    return months + ' mån';
-  }
-  return years + ' år';
-}
-
 // ── State (var = shared across dashboard-*.js classic scripts) ─────────────
+/* eslint-disable no-var, no-unused-vars -- dashboard-*.js shared globals; intentional var */
 var children = [];
-const activities = [];
-const childSchedules = {};
 let currentChildId = null;
 let currentDay = new Date().getDay();
 let currentScheduleId = null;
@@ -67,7 +51,6 @@ var copyDaySelections = [];
 var _pendingDeleteItemId = null;
 var _pendingTargetChildIds = [];
 var copyTargetChildId = null;
-var allExpanded = true;
 var _onceMode = false; // true when addActivityModal is opened for a one-time task
 var _onceCreateContext = null; // snapshot of once-flow context when "Skapa ny" is opened from once mode
 
@@ -80,6 +63,7 @@ var sbsItems = [];
 var sbsScheduleId = null;
 var sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
 var allTemplates = [];
+/* eslint-enable no-unused-vars, no-var */
 
 // ── Calendar navigation state ─────────────────────────────
 let calView = 'week'; // 'day' | 'week' | 'month'
@@ -99,6 +83,7 @@ if (window.ScheduleCalNav) {
 // ── Init ─────────────────────────────────────────────────
 // Capture platform-html injected logger before any local binding (top-level
 // function declarations become window.* and would recurse into themselves).
+/* eslint-disable no-var -- dashboard stability logger binding */
 var _injectedAndroidStabilityLog = window.androidStabilityLog;
 
 var logDashboardStability = function (step, detail) {
@@ -124,6 +109,7 @@ var logDashboardStability = function (step, detail) {
     }).catch(function () {});
   } catch (_) {}
 };
+/* eslint-enable no-var */
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -292,7 +278,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // logoutBtn2 removed — logout only in sidebar/hamburger menu now
 
   // Skeleton loading on Capacitor: show shimmer immediately if slow
-  const grid = document.getElementById('childCardsGrid');
   let skeletonTimer;
   if (window.Skeleton && window.Skeleton.isNative() && !androidFlat) {
     skeletonTimer = window.Skeleton.createTimer(function () {
@@ -507,6 +492,7 @@ window.addEventListener('stjarndag-magic-navigated', function (e) {
 // escHtml shim — delegates to escapeHtml() from /js/dom-utils.js
 function escHtml(s) { return escapeHtml(s); }
 // ── Dashboard state ──────────────────────────────────────
+// eslint-disable-next-line no-var -- dashboard-cards.js + DashboardDailySummary
 var dashboardStats = null; // cached stats from /api/family/dashboard-stats
 
 // ── Dashboard cards (tidsblock pills + child grid) — /js/dashboard-cards.js (Fas 8 D1) ──
@@ -549,12 +535,6 @@ function trackEvent(eventType, metadata) {
 // Extracted to /js/dashboard-cta.js (Fas 8 F2b).
 // Exposes window.showMedforalderCtaIfEligible / initDelaAppenCta (called below) +
 // sd* onclick handlers (openMedforalderCtaInvite, dismiss*, submit*, openDelaAppenShare).
-
-// Payment UI removed for App Store review — no subscription references in client.
-function dismissPaymentPrompt() {}
-function goToUpgrade() { window.location.href = '/dashboard'; }
-
-
 
 // ── Card actions + quick header buttons ───────────────────
 // Extracted to /js/dashboard-card-actions.js (Fas 8 F2i).
@@ -933,3 +913,12 @@ document.addEventListener('parent-i18n-ready', () => {
     DashboardDailySummary.update(dashboardStats);
   }
 });
+
+window.trackEvent = trackEvent;
+window.shareChildSchedule = shareChildSchedule;
+window.selectChild = selectChild;
+window.backToChildrenList = backToChildrenList;
+window.selectDay = selectDay;
+window.setViewMode = setViewMode;
+window.refreshAfterOnceTaskChange = refreshAfterOnceTaskChange;
+window.createSchedule = createSchedule;
