@@ -74,7 +74,15 @@ async function verifyRefreshToken(raw) {
 async function revokeRefreshToken(raw) {
   if (!raw) return;
   const hash = hashToken(raw);
+  const row = await db.query(
+    'SELECT parent_id FROM refresh_token WHERE token_hash = $1',
+    [hash]
+  );
   await db.query('DELETE FROM refresh_token WHERE token_hash = $1', [hash]);
+  if (row.rows[0]?.parent_id) {
+    const { revokeHandoffsForParent } = require('./parent-session-handoff');
+    await revokeHandoffsForParent(row.rows[0].parent_id);
+  }
 }
 
 /**
@@ -86,6 +94,8 @@ async function revokeAllRefreshTokens({ userId, userType }) {
   } else {
     await db.query('DELETE FROM refresh_token WHERE child_id = $1', [userId]);
   }
+  const { revokeHandoffsForUser } = require('./parent-session-handoff');
+  await revokeHandoffsForUser({ userId, userType });
 }
 
 /**

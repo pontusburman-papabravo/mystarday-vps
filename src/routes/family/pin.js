@@ -23,8 +23,8 @@ const { activateParentSessionCookies } = require('../../lib/parent-session-cooki
 const router = express.Router();
 
 /** Resolve parent + family from barnväljare (active parent JWT or stjarndag_parent_session). */
-async function resolvePickerParentContext(req) {
-  const parentId = resolveParentIdForLoginPicker(req);
+async function resolvePickerParentContext(req, res) {
+  const parentId = await resolveParentIdForLoginPicker(req, res);
   if (!parentId) return null;
   const parentResult = await db.query(
     `SELECT id, email, family_id, is_admin, onboarding_completed
@@ -43,7 +43,7 @@ async function resolvePickerParentContext(req) {
 /** Attach req.user from barnväljare for rate limiting on picker PIN routes. */
 async function attachPickerFamily(req, res, next) {
   try {
-    const ctx = await resolvePickerParentContext(req);
+    const ctx = await resolvePickerParentContext(req, res);
     if (!ctx) {
       return res.status(401).json({ error: 'Ingen sparad vuxensession. Logga in som vuxen.' });
     }
@@ -59,7 +59,7 @@ async function attachPickerFamily(req, res, next) {
 // Barnväljare without active JWT — uses stjarndag_parent_session only.
 router.get('/parent-pin-status-picker', async (req, res) => {
   try {
-    const ctx = await resolvePickerParentContext(req);
+    const ctx = await resolvePickerParentContext(req, res);
     if (!ctx) {
       return res.json({ has_session: false, has_pin: false });
     }
@@ -103,8 +103,8 @@ router.post('/verify-pin-picker', attachPickerFamily, parentPinLimiter, async (r
     );
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
-    const ctx = await resolvePickerParentContext(req);
-    activateParentSessionCookies(req, res);
+    const ctx = await resolvePickerParentContext(req, res);
+    await activateParentSessionCookies(req, res);
 
     const csrfToken = generateCsrfToken(res);
     const p = ctx?.parent;
@@ -277,32 +277,11 @@ router.post('/restore-parent-session', async (req, res) => {
       return res.status(401).json({ error: 'Ingen sparad session hittades. Logga in igen.' });
     }
 
-    let session;
-    try {
-      session = JSON.parse(Buffer.from(parentSessionCookie, 'base64').toString('utf8'));
-    } catch {
-      return res.status(401).json({ error: 'Ogiltig session.' });
+    const { consumeHandoffAndActivateSession } = require('../../lib/parent-session-handoff');
+    const restored = await consumeHandoffAndActivateSession(req, res);
+    if (!restored.ok) {
+      return res.status(401).json({ error: 'Ingen sparad session hittades. Logga in igen.' });
     }
-
-    if (!session?.access_token || !session?.refresh_token) {
-      return res.status(401).json({ error: 'Saknad session. Logga in igen.' });
-    }
-
-    res.cookie('access_token', session.access_token, {
-      httpOnly: true,
-      secure: config.cookieSecure,
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000,
-      path: '/',
-    });
-    res.cookie('refresh_token', session.refresh_token, {
-      httpOnly: true,
-      secure: config.cookieSecure,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/api/auth',
-    });
-    res.clearCookie('stjarndag_parent_session', { path: '/' });
 
     res.json({ restored: true, expiresAt: payload.exp });
   } catch (err) {

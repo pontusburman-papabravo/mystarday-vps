@@ -12,8 +12,8 @@ const parentPinDb = require('../../../db/parent-pin');
 
 const router = express.Router();
 
-async function resolvePickerParentContext(req) {
-  const parentId = resolveParentIdForLoginPicker(req);
+async function resolvePickerParentContext(req, res) {
+  const parentId = await resolveParentIdForLoginPicker(req, res);
   if (!parentId) return null;
   const parentResult = await db.query(
     `SELECT id, email, family_id, is_admin, onboarding_completed
@@ -54,7 +54,7 @@ router.post('/activate-saved-parent-session', requireAuth, async (req, res) => {
       }) });
     }
 
-    const ctx = await resolvePickerParentContext(req);
+    const ctx = await resolvePickerParentContext(req, res);
     if (!ctx) {
       return res.status(401).json({
         error: 'Ingen sparad föräldersession. Logga in som vuxen.',
@@ -70,7 +70,7 @@ router.post('/activate-saved-parent-session', requireAuth, async (req, res) => {
       });
     }
 
-    if (!activateParentSessionCookies(req, res)) {
+    if (!(await activateParentSessionCookies(req, res))) {
       return res.status(401).json({
         error: 'Kunde inte återställa föräldersessionen.',
         code: 'ACTIVATE_FAILED',

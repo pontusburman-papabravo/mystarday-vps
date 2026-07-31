@@ -400,7 +400,7 @@ router.get('/login-picker-children', async (req, res) => {
   const lang = resolveAuthApiLocale(req);
   try {
     const { resolveParentIdForLoginPicker } = require('../../middleware/auth');
-    const parentId = resolveParentIdForLoginPicker(req);
+    const parentId = await resolveParentIdForLoginPicker(req, res);
     if (!parentId) {
       return res.json({ hasSession: false, children: [] });
     }
@@ -474,68 +474,44 @@ router.post('/logout', async (req, res) => {
 
     // ── Restore parent session only if CHILD is logging out ────────────────
     if (decoded?.type !== 'child') {
-      res.clearCookie('stjarndag_parent_session', { path: '/' });
+      const { clearHandoffCookie } = require('../../lib/parent-session-handoff');
+      clearHandoffCookie(res);
       return res.json({ message: 'Utloggad' });
     }
 
-    const parentSessionCookie = req.cookies?.stjarndag_parent_session;
-    if (parentSessionCookie) {
-      let session;
-      try {
-        session = JSON.parse(Buffer.from(parentSessionCookie, 'base64').toString('utf8'));
-      } catch {
-        // Invalid cookie — just clear it
-        res.clearCookie('stjarndag_parent_session', { path: '/' });
-        return res.json({ message: 'Utloggad' });
-      }
+    const {
+      validateHandoffForRequest,
+      consumeHandoffAndActivateSession,
+      clearHandoffCookie,
+    } = require('../../lib/parent-session-handoff');
 
-      if (session?.access_token && session?.refresh_token) {
-        // Require PIN if the saved parent account has one set.
+    if (req.cookies?.stjarndag_parent_session) {
+      const handoff = await validateHandoffForRequest(req, res);
+      if (handoff) {
         try {
-          let savedParentId = null;
-          try {
-            const parentDecoded = jwt.decode(session.access_token);
-            if (parentDecoded?.type === 'parent') savedParentId = parentDecoded.id;
-          } catch { /* fall through */ }
-
-          const needsPin = savedParentId
-            ? await parentPinDb.parentHasPin(savedParentId)
-            : await parentPinDb.familyAnyParentHasPin(decoded.familyId);
+          const needsPin = await parentPinDb.parentHasPin(handoff.parent_id);
 
           if (needsPin) {
             return res.json({ message: 'Utloggad', needsParentPin: true });
           }
         } catch (err) {
           console.error('[AUTH] Logout: parent-pin check failed:', err.message);
-          // On error, fall through to auto-restore (favor usability)
         }
 
-        // No parent PIN → auto-restore parent session
-        res.cookie('access_token', session.access_token, {
-          httpOnly: true,
-          secure: config.cookieSecure,
-          sameSite: 'lax',
-          maxAge: 15 * 60 * 1000,
-          path: '/',
-        });
-        res.cookie('refresh_token', session.refresh_token, {
-          httpOnly: true,
-          secure: config.cookieSecure,
-          sameSite: 'lax',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-          path: '/api/auth',
-        });
-        res.clearCookie('stjarndag_parent_session', { path: '/' });
-        return res.json({ message: 'Utloggad', sessionRestored: true });
+        const restored = await consumeHandoffAndActivateSession(req, res);
+        if (restored.ok) {
+          return res.json({ message: 'Utloggad', sessionRestored: true });
+        }
       }
     }
 
-    res.clearCookie('stjarndag_parent_session', { path: '/' });
+    clearHandoffCookie(res);
     res.json({ message: 'Utloggad' });
   } catch (err) {
     console.error('[AUTH] Logout error:', err);
     clearAllSessionCookies(res);
-    res.clearCookie('stjarndag_parent_session', { path: '/' });
+    const { clearHandoffCookie } = require('../../lib/parent-session-handoff');
+    clearHandoffCookie(res);
     res.json({ message: 'Utloggad' });
   }
 });
