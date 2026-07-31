@@ -8,14 +8,12 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('family UI + avatar menu fix', () => {
-  it('avatar menu uses fixed dropdown portal styling', () => {
-    const js = fs.readFileSync(path.join(ROOT, 'public/js/parent-avatar-menu.js'), 'utf8');
+  it('parent shell uses parent-nav-header for top chrome', () => {
+    const header = fs.readFileSync(path.join(ROOT, 'public/js/parent-nav-header.js'), 'utf8');
     const css = fs.readFileSync(path.join(ROOT, 'public/css/app-view-toggle.css'), 'utf8');
-    assert.match(js, /positionMenu/);
-    assert.match(js, /parent-avatar-menu-dropdown/);
-    assert.match(js, /document\.body\.appendChild\(menu\)/);
+    assert.match(header, /data-parent-nav-header/);
+    assert.match(header, /HEADER_ACTIONS/);
     assert.match(css, /#parentAvatarMenu\.parent-avatar-menu-dropdown/);
-    assert.match(css, /background: #141432 !important/);
   });
 
   it('family child card links to barnprofil — no delete on card', () => {
