@@ -278,7 +278,12 @@
     const items = details.items || [];
     const itemType = details.type === 'rewards' ? pt('forDig.decision.rewardSingular') : pt('forDig.decision.activitySingular');
     const itemTypePlural = details.type === 'rewards' ? pt('forDig.decision.rewardPlural') : pt('forDig.decision.activityPlural');
-    const starWord = pt('forDig.decision.activityPlural');
+    function starLabelForValue(starValue) {
+      const n = Number(starValue);
+      if (!Number.isFinite(n)) return pt('forDig.decision.starPlural');
+      const key = n === 1 ? 'forDig.decision.starSingular' : 'forDig.decision.starPlural';
+      return pt(key);
+    }
 
     return `
       <div class="for-dig-details-panel mb-4">
@@ -288,7 +293,7 @@
             ${items.map((item) => `
               <li class="text-sm text-text-soft py-1">
                 ${item.icon || '📋'} ${esc(item.name)}
-                ${item.star_value ? `<span class="text-xs"> · ${item.star_value} ${starWord}</span>` : ''}
+                ${item.star_value ? `<span class="text-xs"> · ${item.star_value} ${esc(starLabelForValue(item.star_value))}</span>` : ''}
               </li>
             `).join('')}
           </ul>

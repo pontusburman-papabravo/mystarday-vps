@@ -48,6 +48,8 @@
     "rewardPlural": "belöningar",
     "activitySingular": "aktivitet",
     "activityPlural": "aktiviteter",
+    "starSingular": "stjärna",
+    "starPlural": "stjärnor",
     "included": "ingår.",
     "days": "Dagar: {{label}}",
     "section": "Sektion: {{label}}",

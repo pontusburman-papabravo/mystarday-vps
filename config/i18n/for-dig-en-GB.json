@@ -48,6 +48,8 @@
     "rewardPlural": "rewards",
     "activitySingular": "activity",
     "activityPlural": "activities",
+    "starSingular": "star",
+    "starPlural": "stars",
     "included": "included.",
     "days": "Days: {{label}}",
     "section": "Section: {{label}}",
