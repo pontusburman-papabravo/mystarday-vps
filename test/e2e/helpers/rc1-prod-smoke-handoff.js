@@ -58,6 +58,14 @@ async function performParentChildHandoff(page, parentPin) {
     { timeout: 30000 }
   );
 
+  const cookiesBefore = await page.cookies();
+  const hasHandoffCookie = cookiesBefore.some((c) => c.name === 'stjarndag_parent_session');
+  diag.handoffCookiePresent = hasHandoffCookie;
+
+  const meBefore = await readSessionKind(page);
+  diag.sessionBeforeLogout = meBefore.kind;
+  assert.equal(meBefore.kind, 'child', 'handoff requires active child session before logout');
+
   diag.phase = 'logout';
   const logoutResponsePromise = page.waitForResponse(
     (response) => {
@@ -100,9 +108,21 @@ async function performParentChildHandoff(page, parentPin) {
 
   const sessionRestored = logoutBody.sessionRestored === true;
   const needsParentPin = logoutBody.needsParentPin === true;
+
+  if (hasHandoffCookie && !sessionRestored && !needsParentPin) {
+    const err = new Error(
+      `${PRODUCT_BUG}: POST /api/auth/logout returned 200 with handoff cookie present but `
+      + `neither sessionRestored nor needsParentPin (path=${pathAfterLogout})`
+    );
+    err.productBug = true;
+    throw err;
+  }
+
   assert.ok(
     sessionRestored || needsParentPin,
-    `logout body must set sessionRestored or needsParentPin (got ${JSON.stringify(sanitizeLogoutBody(logoutBody))})`
+    `logout 200 but missing sessionRestored/needsParentPin (handoffCookie=${hasHandoffCookie}, `
+    + `sessionBefore=${meBefore.kind}, body=${JSON.stringify(sanitizeLogoutBody(logoutBody))}, `
+    + `path=${pathAfterLogout})`
   );
 
   if (sessionRestored) {

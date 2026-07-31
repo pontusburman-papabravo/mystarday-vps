@@ -100,9 +100,12 @@ if (initialCooldownMs > 0) {
 }
 
 function runOnce(runIndex) {
+  const testArgs = handoffDebugOnly
+    ? ['--test', '--test-reporter', 'tap', '--test-name-pattern', 'release identity|parent → child', testFile]
+    : ['--test', '--test-reporter', 'tap', testFile];
   const result = spawnSync(
     process.execPath,
-    ['--test', '--test-reporter', 'tap', testFile],
+    testArgs,
     {
       encoding: 'utf8',
       env: {
@@ -122,10 +125,13 @@ function runOnce(runIndex) {
 
   const summary = parseTapSummary(result.stdout || '');
   const okExit = result.status === 0;
-  const countsOk = summary.tests === expectedTests
-    && summary.pass === expectedTests
-    && summary.fail === 0
-    && summary.skip === 0;
+  const passRequired = handoffDebugOnly ? 2 : expectedTests;
+  const countsOk = handoffDebugOnly
+    ? summary.fail === 0 && summary.pass === passRequired
+    : summary.tests === expectedTests
+      && summary.pass === expectedTests
+      && summary.fail === 0
+      && summary.skip === 0;
 
   if (!countsOk || !okExit) {
     console.error(

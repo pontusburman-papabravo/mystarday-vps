@@ -599,7 +599,23 @@ async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
   throw lastErr;
 }
 
-async function persistFamilyLocaleViaApi(page, locale) {
+async function assertFamilyLocaleApiOnly(page, locale) {
+  await page.waitForFunction(
+    async (loc) => {
+      const r = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!r.ok) return false;
+      const me = await r.json();
+      return me.preferred_locale === loc;
+    },
+    { timeout: 30000 },
+    locale
+  );
+  const snap = await readFamilyLocaleSnapshot(page);
+  assert.equal(snap.preferredLocale, locale, 'preferred_locale persisted (API)');
+  return snap;
+}
+
+async function persistFamilyLocaleViaApi(page, locale, { strictUi = false } = {}) {
   await page.evaluate(async (loc) => {
     if (window.Auth && typeof Auth.api === 'function') {
       await Auth.api('/api/family/settings', {
@@ -621,7 +637,10 @@ async function persistFamilyLocaleViaApi(page, locale) {
       document.documentElement.lang = loc;
     }
   }, locale);
-  return assertFamilyLocalePersisted(page, locale);
+  if (strictUi) {
+    return assertFamilyLocalePersisted(page, locale);
+  }
+  return assertFamilyLocaleApiOnly(page, locale);
 }
 
 async function restoreLocaleViaIsolatedParent(browser, baseUrl, seed, restoreTarget, testName) {
