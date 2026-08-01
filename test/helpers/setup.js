@@ -10,6 +10,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { Pool } = require('pg');
 const { acquireDbTestLock, isMockDatabaseUrl } = require('./db-test-lock.js');
+const { truncatePublicTablesWithRetry } = require('./db-truncate-retry.js');
 
 const REPO_ROOT = path.join(__dirname, '../..');
 let migrationsAppliedForUrl = null;
@@ -57,15 +58,7 @@ async function setupTestDb(options = {}) {
     });
 
     async function truncatePublicTables() {
-      const { rows } = await pool.query(`
-        SELECT tablename
-        FROM pg_tables
-        WHERE schemaname = 'public'
-          AND tablename NOT IN ('_migrations')
-      `);
-      if (rows.length === 0) return;
-      const tables = rows.map((r) => `"${r.tablename}"`).join(', ');
-      await pool.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
+      await truncatePublicTablesWithRetry(pool);
     }
 
     if (options.truncate !== false) {
