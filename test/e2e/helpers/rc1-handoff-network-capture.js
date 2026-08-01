@@ -1,11 +1,27 @@
 'use strict';
 
+const {
+  decodeCdpBody,
+  sanitizeLogoutBodyFromText,
+  summarizeSetCookieNames,
+  sanitizeErrorMessage,
+} = require('./rc1-handoff-cdp-body');
+
 const HANDOFF_COOKIE = 'stjarndag_parent_session';
 const LOGOUT_PATH = '/api/auth/logout';
 
 function cookieNamesFromHeader(cookieHeader) {
   if (!cookieHeader || typeof cookieHeader !== 'string') return [];
   return cookieHeader.split(';').map((part) => part.trim().split('=')[0]).filter(Boolean);
+}
+
+function cookieNamesFromSetCookieLines(lines) {
+  const names = [];
+  for (const line of lines) {
+    const name = String(line).split('=')[0]?.trim();
+    if (name) names.push(name);
+  }
+  return names;
 }
 
 function countNamedCookies(names, cookieName) {
@@ -73,7 +89,61 @@ function createLogoutRequestState() {
     status: null,
     responseHeaders: null,
     correlationId: null,
+    responseSetCookieNames: [],
+    loadingFinished: false,
+    loadingFailed: null,
+    cdpBody: null,
+    cdpBodyError: null,
+    bodyCapturePromise: null,
+    bodyCaptureResolve: null,
   };
+}
+
+function ensureBodyCapturePromise(state) {
+  if (!state.bodyCapturePromise) {
+    state.bodyCapturePromise = new Promise((resolve) => {
+      state.bodyCaptureResolve = resolve;
+    });
+  }
+  return state.bodyCapturePromise;
+}
+
+function finishBodyCapture(state, payload) {
+  if (state.bodyCaptureResolve) {
+    state.bodyCaptureResolve(payload);
+    state.bodyCaptureResolve = null;
+  }
+}
+
+async function fetchCdpResponseBody(client, requestId) {
+  try {
+    const result = await client.send('Network.getResponseBody', { requestId });
+    const rawText = decodeCdpBody(result.body, result.base64Encoded === true);
+    const sanitized = sanitizeLogoutBodyFromText(rawText);
+    return {
+      bodyCaptureOk: true,
+      base64Encoded: result.base64Encoded === true,
+      ...sanitized,
+      cdpError: null,
+    };
+  } catch (err) {
+    return {
+      bodyCaptureOk: false,
+      base64Encoded: null,
+      bodyLength: 0,
+      jsonParseOk: false,
+      sessionRestored: null,
+      needsParentPin: null,
+      loggedOut: null,
+      handoffAvailable: null,
+      code: null,
+      switchChild: null,
+      cdpError: {
+        name: err.name || 'Error',
+        message: sanitizeErrorMessage(err.message || 'getResponseBody_failed'),
+      },
+    };
+  }
 }
 
 /**
@@ -123,6 +193,7 @@ class Rc1HandoffNetworkCapture {
         state.handoffCookieCount = countNamedCookies(names, HANDOFF_COOKIE);
         state.origin = request.headers?.Origin || request.headers?.origin || null;
         state.referer = request.headers?.Referer || request.headers?.referer || null;
+        ensureBodyCapturePromise(state);
         this.logoutByRequestId.set(requestId, state);
         this.logoutCapture = state;
       }
@@ -156,6 +227,14 @@ class Rc1HandoffNetworkCapture {
         state.correlationId = response.headers?.['x-request-id']
           || response.headers?.['X-Request-ID']
           || null;
+        const client = this.client;
+        void (async () => {
+          const early = await fetchCdpResponseBody(client, requestId);
+          if (early.jsonParseOk) {
+            state.cdpBody = early;
+            finishBodyCapture(state, early);
+          }
+        })();
       }
       if (this.childLoginCapture?.requestId === requestId) {
         this.childLoginCapture.status = response.status;
@@ -163,17 +242,70 @@ class Rc1HandoffNetworkCapture {
     });
 
     bind('Network.responseReceivedExtraInfo', (params) => {
-      if (this.childLoginCapture?.requestId !== params.requestId) return;
-      const headers = params.headers || {};
-      const setCookie = headers['set-cookie'] || headers['Set-Cookie'];
-      const lines = Array.isArray(setCookie) ? setCookie : (setCookie ? [setCookie] : []);
-      this.childLoginCapture.setCookieNames = lines.map((line) => String(line).split('=')[0]);
+      const logoutState = this.logoutByRequestId.get(params.requestId);
+      if (logoutState) {
+        const headers = params.headers || {};
+        const setCookie = headers['set-cookie'] || headers['Set-Cookie'];
+        const lines = Array.isArray(setCookie) ? setCookie : (setCookie ? [setCookie] : []);
+        logoutState.responseSetCookieNames = cookieNamesFromSetCookieLines(lines);
+      }
+      if (this.childLoginCapture?.requestId === params.requestId) {
+        const headers = params.headers || {};
+        const setCookie = headers['set-cookie'] || headers['Set-Cookie'];
+        const lines = Array.isArray(setCookie) ? setCookie : (setCookie ? [setCookie] : []);
+        this.childLoginCapture.setCookieNames = cookieNamesFromSetCookieLines(lines);
+      }
     });
+
+    bind('Network.loadingFailed', (params) => {
+      const state = this.logoutByRequestId.get(params.requestId);
+      if (!state) return;
+      state.loadingFailed = {
+        errorText: sanitizeErrorMessage(params.errorText || 'loading_failed'),
+        canceled: params.canceled === true,
+      };
+      finishBodyCapture(state, {
+        bodyCaptureOk: false,
+        cdpError: { name: 'LoadingFailed', message: state.loadingFailed.errorText },
+      });
+    });
+
+    bind('Network.loadingFinished', (params) => {
+      const state = this.logoutByRequestId.get(params.requestId);
+      if (!state) return;
+      state.loadingFinished = true;
+      const client = this.client;
+      const { requestId } = params;
+      void (async () => {
+        const cdpBody = await fetchCdpResponseBody(client, requestId);
+        state.cdpBody = cdpBody;
+        finishBodyCapture(state, cdpBody);
+      })();
+    });
+  }
+
+  async waitForLogoutCdpBody(timeoutMs = 8000) {
+    const state = this.logoutCapture;
+    if (!state) return null;
+    ensureBodyCapturePromise(state);
+    let timer;
+    const timeout = new Promise((resolve) => {
+      timer = setTimeout(() => resolve(null), timeoutMs);
+    });
+    const result = await Promise.race([state.bodyCapturePromise, timeout]);
+    clearTimeout(timer);
+    if (result) return result;
+    if (state.cdpBody) return state.cdpBody;
+    return {
+      bodyCaptureOk: false,
+      cdpError: { name: 'Timeout', message: 'logout_cdp_body_timeout' },
+    };
   }
 
   getLogoutWireCapture() {
     if (!this.logoutCapture) return null;
     const c = this.logoutCapture;
+    const setCookieSummary = summarizeSetCookieNames(c.responseSetCookieNames);
     return {
       pathname: c.pathname,
       method: c.method,
@@ -187,6 +319,10 @@ class Rc1HandoffNetworkCapture {
       responseHeaders: c.responseHeaders,
       requestId: c.requestId,
       correlationId: c.correlationId,
+      loadingFinished: c.loadingFinished,
+      loadingFailed: c.loadingFailed,
+      logoutSetCookies: setCookieSummary,
+      cdpBody: c.cdpBody || null,
     };
   }
 
@@ -223,4 +359,5 @@ module.exports = {
   parsePostDataSwitchChild,
   attachHandoffNetworkCapture,
   Rc1HandoffNetworkCapture,
+  sanitizeLogoutBodyFromText,
 };

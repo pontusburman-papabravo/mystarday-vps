@@ -20,7 +20,20 @@ Order (full gate):
 | 4 | Parent/child handoff (`RC1_PARENT_PIN`) | API fixture only |
 | 5 | Reports gating (last — may see documented 429 + Retry-After) | No |
 
-Handoff uses HTTP contract on `POST /api/auth/logout` and **Model B** parent restore: `needsParentPin` → `POST /api/family/verify-pin-picker` (not `verify-pin` + `restore-parent-session`). CDP captures whether `stjarndag_parent_session` was on the wire for logout; diagnostics classify cookie transport vs review data vs runtime.
+Handoff uses HTTP contract on `POST /api/auth/logout` and **Model B** (`verify-pin-picker`). CDP `Network.getResponseBody` is primary logout-body evidence; Puppeteer read failures are not treated as `{}` server contracts. See **Handoff diagnostics** below.
+
+## Handoff diagnostics
+
+`SessionGate.shouldBlockSessionRestore()` (`public/js/session-gate.js`) equals `DeviceMode.isChildMode()`. After `{ sessionRestored: true }`, Auth may still navigate to `/child-login` when child device mode is active.
+
+| Classification | Meaning |
+|----------------|---------|
+| `RESPONSE_BODY_CAPTURE_FAILED` | Puppeteer + CDP could not capture JSON body |
+| `DIAGNOSTIC_BLOCK_RESPONSE_BODY_OR_SESSION_GATE` | `[HANDOFF] post_consume` but body/nav/session ambiguous |
+| `TEST_HARNESS_BUG` | CDP proves contract; Puppeteer read failed |
+| `SESSION_GATE_OR_CLIENT_NAVIGATION_BUG` | Parent `/api/auth/me` but `/child-login` with gate evidence |
+| `SERVER_COOKIE_ACTIVATION_BUG` | Restore signals but browser session anonymous |
+| `SERVER_LOGOUT_CONTRACT_BUG` | CDP JSON proves invalid 200 only |
 
 ## Handoff debug (not release gate)
 

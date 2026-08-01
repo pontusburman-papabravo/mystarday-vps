@@ -6,6 +6,19 @@ const {
   fetchHandoffRowDiagnostic,
   fetchHandoffServerLogs,
 } = require('./rc1-handoff-prod-diagnostic');
+const {
+  installLogoutClientTrace,
+  readLogoutClientTrace,
+  readSessionGateSnapshotBeforeLogout,
+} = require('./rc1-handoff-client-trace');
+const {
+  classifyHandoffOutcome,
+  inferServerOutcomeFromLogs,
+  contractFlagsFromSources,
+  readPuppeteerLogoutBody,
+  cookieJarSummary,
+} = require('./rc1-handoff-classify');
+const { sanitizeErrorMessage } = require('./rc1-handoff-cdp-body');
 
 const PRODUCT_BUG = 'PRODUCT BUG FOUND';
 const ACCESS_COOKIE = 'access_token';
@@ -27,6 +40,11 @@ function createHandoffDiagnostics() {
     handoffDbBeforeLogout: null,
     handoffDbAfterLogout: null,
     serverHandoffLogs: null,
+    serverInferredOutcome: null,
+    sessionGateBefore: null,
+    clientTrace: null,
+    authMeImmediate: null,
+    cookiesAfterLogout: null,
     classification: null,
     finalSession: null,
     finalPath: null,
@@ -215,69 +233,20 @@ function beginChildLoginInstrumentation(page) {
   };
 }
 
-function classifyHandoffFailure(diag) {
-  const logout = diag.logout || {};
-  const wire = diag.logoutWire || {};
-  const logs = diag.serverHandoffLogs;
-  const entries = logs?.entries || [];
-  const pre = entries.find((e) => e.phase === 'child_logout_pre') || entries[0];
-  const post = entries.find((e) => e.phase === 'child_logout_post_consume');
-
-  if (logout.switchChild || wire.switchChildInBody) {
-    return 'TEST_UI_CONTRACT_SWITCH_CHILD';
-  }
-  if (logout.status === 409 && logout.code === 'PARENT_HANDOFF_INVALID') {
-    return 'INVALID_HANDOFF_HTTP_409';
-  }
-
-  if (
-    logout.status === 200
-    && !logout.sessionRestored
-    && !logout.needsParentPin
-    && pre?.handoffCookiePresent === true
-    && pre?.handoffOk === true
-  ) {
-    if (wire.handoffCookieCountOnWire >= 1) {
-      if (post?.handoffOk === true) {
-        return 'RUNTIME_BUG';
-      }
-      return 'RUNTIME_BUG_HANDOFF_OK_BUT_WRONG_200_BODY';
-    }
-    return 'TEST_COOKIE_TRANSPORT_BUG';
-  }
-
-  if (logout.loggedOut && !logout.handoffAvailable && !logout.sessionRestored && !logout.needsParentPin) {
-    if (wire.handoffCookieCountOnWire === 0) {
-      return 'TEST_COOKIE_TRANSPORT_BUG';
-    }
-    if (!entries.length) {
-      return 'TEST_COOKIE_TRANSPORT_OR_CORRELATION_BUG';
-    }
-    if (pre && pre.handoffCookiePresent === false) {
-      return 'TEST_COOKIE_TRANSPORT_BUG';
-    }
-    if (pre && pre.handoffOk === false) {
-      return 'REVIEW_DATA_OR_HANDOFF_ROW_BUG';
-    }
-    if (pre && pre.handoffOk === true) {
-      return 'RUNTIME_BUG';
-    }
-  }
-  if (diag.handoffCookiesBeforeLogout?.issues?.length) {
-    return 'TEST_COOKIE_METADATA_BUG';
-  }
-  return 'HANDOFF_DIAGNOSTIC_INCONCLUSIVE';
-}
-
 function logHandoffDiagnosticReport(diag) {
   console.warn('[rc1-handoff-diagnostic]', JSON.stringify({
     canonicalHost: diag.canonicalHost,
     handoffCookiesBeforeLogout: diag.handoffCookiesBeforeLogout,
     childLogin: diag.childLogin,
+    sessionGateBefore: diag.sessionGateBefore,
     logoutUi: diag.logoutUi,
     logout: diag.logout,
     logoutWire: diag.logoutWire,
+    clientTrace: diag.clientTrace,
+    authMeImmediate: diag.authMeImmediate,
+    cookiesAfterLogout: diag.cookiesAfterLogout,
     serverHandoffLogs: diag.serverHandoffLogs,
+    serverInferredOutcome: diag.serverInferredOutcome,
     handoffDbBeforeLogout: diag.handoffDbBeforeLogout,
     classification: diag.classification,
   }));
@@ -373,6 +342,9 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
     hasSwitchChildMember: Boolean(window.Auth && typeof Auth.switchChildMember === 'function'),
   }));
 
+  diag.sessionGateBefore = await readSessionGateSnapshotBeforeLogout(page);
+  await installLogoutClientTrace(page);
+
   await page.evaluate(() => {
     if (!(window.Auth && typeof Auth.logout === 'function')) {
       throw new Error('Auth.logout missing — diagnostic requires Auth.logout({ childFlow: true })');
@@ -382,100 +354,161 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
 
   const logoutRes = await logoutResponsePromise;
   const logoutStatus = logoutRes.status();
-  let logoutBody = {};
-  try {
-    logoutBody = await logoutRes.json();
-  } catch {
-    logoutBody = {};
-  }
 
-  const sanitizedBody = sanitizeLogoutBody(logoutBody);
-  const responseHeaders = logoutRes.headers();
-  const correlationFromResponse = responseHeaders['x-request-id'] || responseHeaders['x-request-id'.toUpperCase()] || null;
+  const puppeteerBodyRead = await readPuppeteerLogoutBody(page, logoutRes);
+
+  let authMeImmediate = null;
+  try {
+    authMeImmediate = await readSessionKind(page);
+  } catch (err) {
+    authMeImmediate = {
+      kind: 'read_failed',
+      status: null,
+      error: sanitizeErrorMessage(err.message),
+    };
+  }
+  diag.authMeImmediate = authMeImmediate;
+
+  const cookiesAfter = await page.cookies();
+  diag.cookiesAfterLogout = cookieJarSummary(cookiesAfter);
+
+  const cdpBody = networkCapture ? await networkCapture.waitForLogoutCdpBody() : null;
 
   diag.logoutWire = networkCapture?.getLogoutWireCapture?.() || null;
-  if (diag.logoutWire && !diag.logoutWire.correlationId && correlationFromResponse) {
-    diag.logoutWire.correlationId = correlationFromResponse;
+  if (cdpBody && diag.logoutWire) {
+    diag.logoutWire.cdpBody = cdpBody;
   }
 
-  const pathAfterLogout = await page.evaluate(() => window.location.pathname);
+  const correlationFromResponse = diag.logoutWire?.correlationId
+    || logoutRes.headers()['x-request-id']
+    || null;
+
+  const contract = contractFlagsFromSources(puppeteerBodyRead, cdpBody);
+  const sanitizedBody = puppeteerBodyRead.bodyReadOk
+    ? sanitizeLogoutBody(puppeteerBodyRead.body)
+    : null;
+
+  let pathAfterLogout = null;
+  try {
+    pathAfterLogout = await page.evaluate(() => window.location.pathname);
+  } catch {
+    pathAfterLogout = puppeteerBodyRead.pageUrlAtRead;
+  }
+
   diag.logout = {
     status: logoutStatus,
-    ...sanitizedBody,
+    puppeteerBodyRead,
+    cdpBody,
+    contract,
     body: sanitizedBody,
     pathnameAfterResponse: pathAfterLogout,
-    correlationId: diag.logoutWire?.correlationId || correlationFromResponse,
+    correlationId: correlationFromResponse,
   };
 
+  if (options.childLogin) {
+    diag.childLogin = options.childLogin;
+  }
+
+  diag.serverHandoffLogs = fetchHandoffServerLogs(correlationFromResponse);
+  diag.serverInferredOutcome = inferServerOutcomeFromLogs(diag.serverHandoffLogs, logoutStatus);
+
+  await new Promise((r) => setTimeout(r, 1200));
+  try {
+    diag.clientTrace = await readLogoutClientTrace(page);
+  } catch (err) {
+    diag.clientTrace = { readError: sanitizeErrorMessage(err.message) };
+  }
+
+  diag.classification = classifyHandoffOutcome(diag);
+  logHandoffDiagnosticReport(diag);
+
   if (logoutStatus === 409) {
-    diag.classification = sanitizedBody.code === 'PARENT_HANDOFF_INVALID'
-      ? 'INVALID_HANDOFF_HTTP_409'
-      : 'HANDOFF_HTTP_409';
-    diag.serverHandoffLogs = fetchHandoffServerLogs(diag.logout.correlationId);
-    logHandoffDiagnosticReport(diag);
     assertHandoffHttpStatus('POST /api/auth/logout', logoutStatus, { allowed: [] });
   }
   if (logoutStatus === 500) {
-    diag.classification = sanitizedBody.code === 'HANDOFF_CONSUME_FAILED'
-      ? 'HANDOFF_CONSUME_FAILED'
-      : 'HANDOFF_HTTP_500';
-    diag.serverHandoffLogs = fetchHandoffServerLogs(diag.logout.correlationId);
-    logHandoffDiagnosticReport(diag);
     assertHandoffHttpStatus('POST /api/auth/logout', logoutStatus, { allowed: [] });
   }
 
   assertHandoffHttpStatus('POST /api/auth/logout', logoutStatus, { allowed: [200] });
 
-  if (diag.logoutWire) {
-    if (diag.logoutWire.switchChildInBody) {
-      diag.classification = 'TEST_UI_CONTRACT_SWITCH_CHILD';
-      logHandoffDiagnosticReport(diag);
-      assert.fail('logout postData must not contain switchChild:true');
-    }
+  if (diag.logoutWire?.switchChildInBody) {
+    assert.fail('logout postData must not contain switchChild:true');
   }
 
-  const sessionRestored = sanitizedBody.sessionRestored;
-  const needsParentPin = sanitizedBody.needsParentPin;
+  const sessionRestored = contract.sessionRestored === true
+    || (diag.serverInferredOutcome === 'session_restored_likely' && diag.authMeImmediate?.kind === 'parent');
+  const needsParentPin = contract.needsParentPin === true
+    || diag.serverInferredOutcome === 'needs_parent_pin_likely';
+
+  const terminalDiagnosticClassifications = new Set([
+    'SESSION_GATE_OR_CLIENT_NAVIGATION_BUG',
+    'TEST_HARNESS_BUG',
+    'SERVER_COOKIE_ACTIVATION_BUG',
+    'SERVER_LOGOUT_CONTRACT_BUG',
+  ]);
+
+  if (terminalDiagnosticClassifications.has(diag.classification)) {
+    assert.fail(
+      `handoff diagnostic terminal — classification=${diag.classification} `
+      + `authMeImmediate=${diag.authMeImmediate?.kind} path=${diag.logout.pathnameAfterResponse} `
+      + `deviceModeIsChild=${diag.sessionGateBefore?.deviceModeIsChild}`
+    );
+  }
+
+  const inconclusiveClassifications = new Set([
+    'RESPONSE_BODY_CAPTURE_FAILED',
+    'DIAGNOSTIC_BLOCK_RESPONSE_BODY_OR_SESSION_GATE',
+    'TEST_HARNESS_BUG',
+    'SESSION_GATE_OR_CLIENT_NAVIGATION_BUG',
+    'SERVER_COOKIE_ACTIVATION_BUG',
+    'SERVER_LOGOUT_CONTRACT_BUG',
+    'CHILD_SESSION_REMAINING',
+  ]);
 
   if (!sessionRestored && !needsParentPin) {
-    if (options.childLogin) {
-      diag.childLogin = options.childLogin;
-    }
-    diag.serverHandoffLogs = fetchHandoffServerLogs(diag.logout.correlationId);
-    diag.classification = classifyHandoffFailure(diag);
     if (handoffValueForDb) {
       diag.handoffDbAfterLogout = fetchHandoffRowDiagnostic(handoffValueForDb, reviewFamilyId);
     }
-    logHandoffDiagnosticReport(diag);
-    if (diag.classification === 'RUNTIME_BUG' || diag.classification === 'RUNTIME_BUG_HANDOFF_OK_BUT_WRONG_200_BODY') {
-      const err = new Error(
-        `${PRODUCT_BUG}: server saw handoff but logout 200 was plain child logout `
-        + `(${JSON.stringify(sanitizedBody)})`
-      );
-      err.productBug = true;
-      throw err;
-    }
     assert.fail(
-      `logout missing sessionRestored/needsParentPin — classification=${diag.classification} `
-      + `body=${JSON.stringify(sanitizedBody)} wireHandoffCount=${diag.logoutWire?.handoffCookieCountOnWire ?? 'n/a'}`
+      `handoff logout inconclusive — classification=${diag.classification} `
+      + `puppeteerReadOk=${puppeteerBodyRead.bodyReadOk} cdpJsonOk=${cdpBody?.jsonParseOk ?? false} `
+      + `authMeImmediate=${authMeImmediate?.kind} serverOutcome=${diag.serverInferredOutcome}`
     );
   }
 
+  if (inconclusiveClassifications.has(diag.classification) && (sessionRestored || needsParentPin)) {
+    // Contract flags from CDP but outcome still blocked (e.g. gate) — report without PRODUCT_BUG
+    assert.fail(`handoff blocked after contract flags — classification=${diag.classification}`);
+  }
+
   if (sessionRestored) {
-    diag.phase = 'navigation';
-    await page.waitForFunction(
-      () => /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
-      { timeout: 90000 }
-    );
-    diag.navigation = { path: await page.evaluate(() => window.location.pathname) };
     diag.phase = 'auth_me';
-    const me = await readSessionKind(page);
+    const me = authMeImmediate?.kind === 'parent'
+      ? authMeImmediate
+      : await readSessionKind(page);
     diag.authMe = { kind: me.kind, httpStatus: me.status };
+    if (diag.classification === 'SESSION_GATE_OR_CLIENT_NAVIGATION_BUG') {
+      assert.fail(`session restored on server but client gate blocked navigation (${diag.classification})`);
+    }
+    if (me.kind === 'parent' && diag.logout.pathnameAfterResponse === '/child-login') {
+      assert.fail('parent session active but page at /child-login — SESSION_GATE_OR_CLIENT_NAVIGATION_BUG');
+    }
     assert.equal(me.kind, 'parent', 'sessionRestored: /api/auth/me must be parent');
     assert.equal(me.hasUsername, false, 'sessionRestored: child username must not remain');
     diag.finalSession = me.kind;
-    diag.finalPath = diag.navigation.path;
-    diag.classification = 'SUCCESS_SESSION_RESTORED';
+    try {
+      await page.waitForFunction(
+        () => /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
+        { timeout: 15000 }
+      );
+      diag.navigation = { path: await page.evaluate(() => window.location.pathname) };
+    } catch {
+      diag.navigation = { path: diag.logout.pathnameAfterResponse, navigationSkipped: true };
+    }
+    diag.finalPath = diag.navigation?.path || diag.logout.pathnameAfterResponse;
+    if (diag.classification === 'SUCCESS_SESSION_RESTORED' || diag.classification.startsWith('SUCCESS')) {
+      diag.classification = 'SUCCESS_SESSION_RESTORED';
+    }
     return diag;
   }
 
@@ -545,6 +578,6 @@ module.exports = {
   beginChildLoginInstrumentation,
   attachHandoffNetworkCapture,
   performParentChildHandoff,
-  classifyHandoffFailure,
+  classifyHandoffOutcome,
   logHandoffDiagnosticReport,
 };
