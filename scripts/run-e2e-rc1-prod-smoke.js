@@ -2,9 +2,10 @@
 'use strict';
 
 /**
- * RC-1 browser smoke against a deployed host (review QA account).
- * Requires: RC1_SMOKE_BASE_URL, RC1_REVIEW_EMAIL, RC1_REVIEW_PASSWORD,
+ * RC-1 browser smoke against a deployed host (founder QA account — see docs/founder-qa-test-account.md).
+ * Requires: RC1_SMOKE_BASE_URL, RC1_QA_EMAIL, RC1_QA_PASSWORD,
  *           RC1_CHILD_USERNAME, RC1_CHILD_PIN
+ * Deprecated aliases: RC1_REVIEW_EMAIL, RC1_REVIEW_PASSWORD
  * Optional: RC1_RESTORE_LOCALE=sv-SE (default) after run
  */
 const { spawnSync } = require('node:child_process');
@@ -16,15 +17,33 @@ if (!baseUrl) {
   process.exit(0);
 }
 
-const required = [
-  'RC1_REVIEW_EMAIL',
-  'RC1_REVIEW_PASSWORD',
-  'RC1_CHILD_USERNAME',
-  'RC1_CHILD_PIN',
-];
-for (const key of required) {
-  if (!process.env[key]) {
-    console.error(`[rc1-prod-smoke] missing ${key}`);
+function qaCredential(primary, legacy) {
+  const value = process.env[primary] || process.env[legacy];
+  if (!process.env[primary] && process.env[legacy]) {
+    console.warn(`[rc1-prod-smoke] ${legacy} is deprecated; use ${primary} (founder QA — docs/founder-qa-test-account.md)`);
+  }
+  return value;
+}
+
+const qaEmail = qaCredential('RC1_QA_EMAIL', 'RC1_REVIEW_EMAIL');
+const qaPassword = qaCredential('RC1_QA_PASSWORD', 'RC1_REVIEW_PASSWORD');
+const childUsername = process.env.RC1_CHILD_USERNAME;
+const childPin = process.env.RC1_CHILD_PIN;
+
+if (!qaEmail) {
+  console.error('[rc1-prod-smoke] missing RC1_QA_EMAIL (or deprecated RC1_REVIEW_EMAIL)');
+  process.exit(1);
+}
+if (!qaPassword) {
+  console.error('[rc1-prod-smoke] missing RC1_QA_PASSWORD (or deprecated RC1_REVIEW_PASSWORD)');
+  process.exit(1);
+}
+for (const [label, value] of [
+  ['RC1_CHILD_USERNAME', childUsername],
+  ['RC1_CHILD_PIN', childPin],
+]) {
+  if (!value) {
+    console.error(`[rc1-prod-smoke] missing ${label}`);
     process.exit(1);
   }
 }
@@ -38,6 +57,8 @@ const result = spawnSync(
     env: {
       ...process.env,
       E2E_BASE_URL: baseUrl,
+      RC1_QA_EMAIL: qaEmail,
+      RC1_QA_PASSWORD: qaPassword,
     },
   }
 );

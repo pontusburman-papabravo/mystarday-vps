@@ -11,8 +11,8 @@ const {
 } = require('./helpers/puppeteer-browser');
 
 const baseUrl = process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
-const email = process.env.RC1_REVIEW_EMAIL;
-const password = process.env.RC1_REVIEW_PASSWORD;
+const email = process.env.RC1_QA_EMAIL || process.env.RC1_REVIEW_EMAIL;
+const password = process.env.RC1_QA_PASSWORD || process.env.RC1_REVIEW_PASSWORD;
 const childUser = process.env.RC1_CHILD_USERNAME;
 const childPin = process.env.RC1_CHILD_PIN;
 const restoreLocale = process.env.RC1_RESTORE_LOCALE || 'sv-SE';
