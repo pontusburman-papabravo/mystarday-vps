@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const assert = require('node:assert/strict');
 const { HANDOFF_COOKIE, attachHandoffNetworkCapture } = require('./rc1-handoff-network-capture');
 const {
@@ -19,6 +21,11 @@ const {
   cookieJarSummary,
 } = require('./rc1-handoff-classify');
 const { sanitizeErrorMessage } = require('./rc1-handoff-cdp-body');
+const {
+  classifyPinPreflight,
+  classifyVerifyPinPickerOutcome,
+  buildVerifyPinPickerCapture,
+} = require('./rc1-handoff-picker-contract');
 
 const PRODUCT_BUG = 'PRODUCT BUG FOUND';
 const ACCESS_COOKIE = 'access_token';
@@ -34,6 +41,10 @@ function createHandoffDiagnostics() {
     logout: null,
     logoutWire: null,
     verifyPinPicker: null,
+    parentPinStatusPicker: null,
+    pinPreflightClass: null,
+    verifyFailureClass: null,
+    handoffDbAtVerifyFailure: null,
     pinOverlay: null,
     navigation: null,
     authMe: null,
@@ -80,6 +91,141 @@ function sanitizeVerifyPinPickerBody(body) {
   };
 }
 
+function writePickerContractArtifact(diag) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const dir = path.join(process.cwd(), 'artifacts', 'rc1-prod-smoke', stamp, 'parent-child-handoff');
+  fs.mkdirSync(dir, { recursive: true });
+  const contract = {
+    at: new Date().toISOString(),
+    parentPinStatusPicker: diag.parentPinStatusPicker || null,
+    pinPreflightClass: diag.pinPreflightClass || null,
+    verifyPinPicker: diag.verifyPinPicker || null,
+    verifyFailureClass: diag.verifyFailureClass || null,
+    handoffDbAtVerifyFailure: diag.handoffDbAtVerifyFailure || null,
+    logoutCorrelationId: diag.logout?.correlationId || null,
+  };
+  fs.writeFileSync(path.join(dir, 'picker-contract.json'), JSON.stringify(contract, null, 2), 'utf8');
+  return dir;
+}
+
+function stopHandoffWithPickerContract(diag, message, classification) {
+  diag.verifyFailureClass = classification;
+  const artifactDir = writePickerContractArtifact(diag);
+  const vp = diag.verifyPinPicker || {};
+  const err = new Error(
+    `${message} [classification=${classification}] `
+    + `verify-pin-picker status=${vp.status ?? 'n/a'} code=${vp.code ?? 'n/a'} `
+    + `requestId=${vp.requestId ?? 'n/a'} [picker-contract: ${artifactDir}]`
+  );
+  err.rc1Classification = classification;
+  throw err;
+}
+
+async function fetchParentPinStatusPicker(page) {
+  return page.evaluate(async () => {
+    const r = await fetch('/api/family/parent-pin-status-picker', { credentials: 'include' });
+    let body = {};
+    let bodyReadOk = false;
+    try {
+      body = await r.json();
+      bodyReadOk = true;
+    } catch {
+      body = {};
+    }
+    return {
+      status: r.status,
+      bodyReadOk,
+      has_session: body.has_session === true,
+      has_pin: body.has_pin === true,
+      code: body.code || null,
+    };
+  });
+}
+
+function assertPreflightPinStatusOrStop(diag) {
+  const preflightClass = classifyPinPreflight(diag.parentPinStatusPicker);
+  diag.pinPreflightClass = preflightClass;
+  if (preflightClass === 'HANDOFF_INVALID_BEFORE_PIN') {
+    stopHandoffWithPickerContract(
+      diag,
+      'parent-pin-status-picker: has_session=false before PIN (handoff invalid)',
+      'HANDOFF_INVALID_BEFORE_PIN'
+    );
+  }
+  if (preflightClass === 'PARENT_PIN_NOT_CONFIGURED') {
+    stopHandoffWithPickerContract(
+      diag,
+      'parent-pin-status-picker: has_pin=false (parent app-lock not configured)',
+      'PARENT_PIN_NOT_CONFIGURED'
+    );
+  }
+  if (preflightClass === 'OTHER_CONTRACT_ERROR') {
+    stopHandoffWithPickerContract(
+      diag,
+      'parent-pin-status-picker: unreadable or unexpected response',
+      'OTHER_CONTRACT_ERROR'
+    );
+  }
+}
+
+function finalizeVerifyPinPickerOrStop(diag, pickerRes, pickerBody, bodyReadOk, handoffValueForDb, reviewFamilyId) {
+  const pickerStatus = pickerRes.status();
+  const headers = pickerRes.headers();
+  const capture = buildVerifyPinPickerCapture(pickerStatus, headers, pickerBody, bodyReadOk);
+  const sanitizedPicker = sanitizeVerifyPinPickerBody(pickerBody);
+  diag.verifyPinPicker = {
+    ...capture,
+    ...sanitizedPicker,
+  };
+
+  if (pickerStatus === 429 || capture.retryAfter) {
+    stopHandoffWithPickerContract(
+      diag,
+      'verify-pin-picker rate limited',
+      'OTHER_CONTRACT_ERROR'
+    );
+  }
+
+  if (pickerStatus === 200 && pickerBody.ok === true) {
+    return;
+  }
+
+  const code = pickerBody.code || null;
+  const failureClass = classifyVerifyPinPickerOutcome(pickerStatus, code, pickerBody.ok);
+  diag.verifyFailureClass = failureClass;
+
+  if (
+    code === 'PARENT_HANDOFF_INVALID'
+    || code === 'PARENT_HANDOFF_USED'
+    || code === 'PARENT_HANDOFF_EXPIRED'
+    || code === 'PARENT_HANDOFF_CONSUME_FAILED'
+  ) {
+    if (handoffValueForDb) {
+      diag.handoffDbAtVerifyFailure = fetchHandoffRowDiagnostic(handoffValueForDb, reviewFamilyId);
+    }
+    diag.serverHandoffLogsAtVerify = fetchHandoffServerLogs(capture.requestId);
+    stopHandoffWithPickerContract(
+      diag,
+      `verify-pin-picker handoff contract failure (${code})`,
+      'HANDOFF_INVALID_BEFORE_PIN'
+    );
+  }
+
+  if (code === 'PARENT_PIN_INVALID') {
+    stopHandoffWithPickerContract(
+      diag,
+      'verify-pin-picker code PARENT_PIN_INVALID',
+      'PARENT_PIN_SECRET_MISMATCH'
+    );
+  }
+
+  stopHandoffWithPickerContract(
+    diag,
+    `verify-pin-picker unexpected contract status=${pickerStatus} code=${code || 'none'}`,
+    'OTHER_CONTRACT_ERROR'
+  );
+}
+
 function assertHandoffHttpStatus(label, status, { allowed = [200], productBugOn429 = true } = {}) {
   if (status === 429) {
     const err = new Error(`${PRODUCT_BUG}: ${label} returned 429 (rate-limited handoff path)`);
@@ -99,6 +245,7 @@ function assertHandoffHttpStatus(label, status, { allowed = [200], productBugOn4
     throw new Error(`${label} unexpected HTTP status ${status}`);
   }
 }
+
 
 async function readSessionKind(page) {
   return page.evaluate(async () => {
@@ -543,6 +690,10 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
     return diag;
   }
 
+  diag.phase = 'parent_pin_status_picker';
+  diag.parentPinStatusPicker = await fetchParentPinStatusPicker(page);
+  assertPreflightPinStatusOrStop(diag);
+
   diag.phase = 'pin_overlay';
   await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 45000 });
   await page.waitForSelector('#ppgo-keypad', { visible: true, timeout: 15000 });
@@ -561,20 +712,25 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
   await fillParentPinOverlay(page, parentPin);
 
   const pickerRes = await verifyPickerPromise;
-  const pickerStatus = pickerRes.status();
   let pickerBody = {};
+  let pickerBodyReadOk = true;
   try {
     pickerBody = await pickerRes.json();
   } catch {
     pickerBody = {};
+    pickerBodyReadOk = false;
   }
-  const sanitizedPicker = sanitizeVerifyPinPickerBody(pickerBody);
-  diag.verifyPinPicker = {
-    status: pickerStatus,
-    ...sanitizedPicker,
-  };
 
-  assertHandoffHttpStatus('POST /api/family/verify-pin-picker', pickerStatus, { allowed: [200] });
+  finalizeVerifyPinPickerOrStop(
+    diag,
+    pickerRes,
+    pickerBody,
+    pickerBodyReadOk,
+    handoffValueForDb,
+    reviewFamilyId
+  );
+  const sanitizedPicker = diag.verifyPinPicker;
+
   assert.equal(pickerBody.ok, true, 'verify-pin-picker body.ok must be true');
   assert.ok(sanitizedPicker.parent?.hasId, 'verify-pin-picker must return parent.id');
   assert.ok(sanitizedPicker.parent?.hasEmail, 'verify-pin-picker must return parent.email');
