@@ -108,22 +108,69 @@ done
 
 Root cause: inner loop `TRUNCATE CASCADE` racing async `family-event` / completion side-effects still holding row locks (also seen in CI at ~2.6s test duration = early iteration).
 
-## 17. Flake PR
+## 17. Flake PR (#811)
 
-Branch: `cursor/stabilize-fas6-concurrency-ci-01b8` — retry truncate on deadlock inside the milestone race loop only (no weaker assertions, no suite-wide serialisation). PR #811.
+Branch: `cursor/stabilize-fas6-concurrency-ci-01b8`.
 
-## 18. Verdict
+| Requirement | Status (2026-08-01 follow-up) |
+|-------------|-------------------------------|
+| Retry only on test fixture `TRUNCATE` / reset (`40P01`, max 3, jitter) | **Yes** — `test/helpers/db-truncate-retry.js` + `setupTestDb().truncate()` |
+| Product completion race **not** wrapped in retry | **Yes** — milestone test calls plain `db.truncate()`; `completeItemRaw` unchanged |
+| Targeted unit tests for retry boundaries | **Yes** — `test/db-truncate-retry.test.js` |
+| `npm run test:gate` | **Green** (330 pass, 0 skip) on branch |
+| `npm run test:full` | Run in agent window (long); gate is CI blocker |
+| 10× milestone file loop | **10/10 pass** after fixture-layer fix (local Postgres) |
 
-**GO WITH FOLLOW-UP**
+Prior branch revision retried inside the milestone loop; superseded by fixture-layer helper to avoid masking product deadlocks.
 
-| Area | Status |
-|------|--------|
-| Live SHA / health / migration | OK |
-| FSM DB integrity (read-only) | OK for measured children |
-| Anna regression + parent PIN handoff | OK |
-| Arne full golden-path UI completion on live | **Blocked** — add per-child PIN secrets for `arne111` / `test360` to automation (rotation report or Cursor secrets); then re-run `.local/fas6-prod-smoke/` |
-| CI flake | Follow-up PR #811 |
+## 18. Synthetic child — full First Star smoke (follow-up run)
+
+Harness: `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs` (uncommitted).
+
+**Intent:** Create a unique synthetic child in the **existing** App Review family via `POST /api/onboarding/child` (no schedule), run mobile-class API + optional Puppeteer smoke, read-only DB verify, `DELETE /api/family/children/:id` cleanup. No PIN changes for Anna / Arne / Test.
+
+**Routes documented (no request bodies with PIN in logs):**
+
+- `POST /api/auth/login` (parent)
+- `GET /api/auth/me`
+- `POST /api/onboarding/child`
+- `GET /api/children/:id/daily-log` (pre-smoke)
+- `POST /api/auth/child-login`
+- `GET /api/me/daily-log`, `GET /api/me/goal`
+- `PUT /api/me/daily-log-items/:id/complete`
+- `POST /api/family/verify-pin-picker` (parent restore)
+- `DELETE /api/family/children/:id` (cleanup)
+
+**Credential sources tried (values not logged):**
+
+| Source | Parent login | Notes |
+|--------|--------------|--------|
+| VPS deploy-home rotation JSON (`rotation-*.json`) | **401** `INVALID_CREDENTIALS` | Same report file used earlier in §3 |
+| Cursor `APP_REVIEW_*` | Not injected in cloud agent | |
+| Cursor `PROD_EMAIL` / `PROD_PASSWORD` | **401** | |
+| Anna child login with rotation child PIN | **401** in follow-up window | Earlier §4–9 used working Anna path; credentials no longer authenticate |
+
+**Result:** Synthetic child **not created** — blocked at parent login. No DB mutations for smoke (read-only checks on VPS-sourced `.env` showed a **local** Postgres role/DB with **0** children when scripts `source .env`; live HTTP API may still use the long-lived Node pool from process start — treat DB reads via shell `.env` as **not authoritative** for live user data unless `DATABASE_URL` matches the running app).
+
+**Anna / Arne / Test:** No synthetic child created → no cleanup path exercised; no intentional changes to legacy children in this run.
+
+## 19. Verdict (updated)
+
+| Area | Verdict |
+|------|---------|
+| Fas 6 code live at SHA `58b9b110…` | **GO** (no redeploy required) |
+| Full automated synthetic First Star on live | **NO-GO** — restore App Review parent credentials in approved secret store (or re-run rotation against the **live** app DB with `ROTATION_CONFIRM=1`, then update rotation JSON); inject `APP_REVIEW_*` into cloud agent; re-run harness |
+| Partial live smoke (earlier Anna / handoff) | **GO WITH FOLLOW-UP** — see §4–11; Arne/Test PIN gap remains |
+| PR #811 CI flake | **GO** — fixture-layer retry + gate green; merge recommended |
+| PR #812 (this report) | **GO** — sanitized report only |
+
+**Follow-ups**
+
+1. Align VPS `DATABASE_URL` in `.env` with the database the live `node server.js` process uses (or document Neon vs local split).
+2. Refresh rotation report after confirmed parent login against live API.
+3. Re-run `synthetic-first-star-smoke.mjs` (API + Puppeteer 390×844).
+4. Optional: non-blocking 50× milestone stress workflow in CI/docs.
 
 ---
 
-*Harness: `.local/fas6-prod-smoke/prod-smoke.mjs` (not committed — targets live site + rotation credentials).*
+*Harness (uncommitted): `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs`, `prod-smoke.mjs`.*
