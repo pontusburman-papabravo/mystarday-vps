@@ -16,7 +16,7 @@
     "addSchedule": "+ Schedule",
     "back": "Back",
     "sections": {
-      "standard": { "title": "Standard schedules", "subtitle": "Ready-made templates to copy" },
+      "standard": { "title": "Standard library", "subtitle": "Schedules, activities and rewards to copy" },
       "activities": { "title": "Activities", "subtitle": "Your activities — emoji or your own photo" },
       "images": { "title": "Image archive", "subtitle": "Your photos — toothbrush, bed, school" },
       "rewards": { "title": "Rewards", "subtitle": "Goals children work towards" },

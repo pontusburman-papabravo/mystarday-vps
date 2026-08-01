@@ -16,7 +16,7 @@
     "addSchedule": "+ Schema",
     "back": "Tillbaka",
     "sections": {
-      "standard": { "title": "Standardscheman", "subtitle": "Färdiga mallar att kopiera" },
+      "standard": { "title": "Standardbibliotek", "subtitle": "Schema, aktiviteter och belöningar att kopiera" },
       "activities": { "title": "Aktiviteter", "subtitle": "Dina aktiviteter — emoji eller eget foto" },
       "images": { "title": "Bildarkiv", "subtitle": "Egna foton — tandborste, säng, skola" },
       "rewards": { "title": "Belöningar", "subtitle": "Mål barnen strävar mot" },
