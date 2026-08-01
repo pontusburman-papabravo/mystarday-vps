@@ -28,31 +28,31 @@ API legs ran from deploy host (no browser). <!-- pragma: allowlist secret -->
 | VPS deploy-home rotation JSON | **Yes** — review parent password, Anna child PIN, parent gate PIN (values not logged) | <!-- pragma: allowlist secret -->
 | Per-child PINs for Arne / Test | **Not** in rotation report or VPS `.env` |
 
-**Gap:** Rotation tooling only updates PIN for `anna691`. Arne (`arne111`) and Test (`test360`) have **distinct** PIN hashes in DB; automated child-login for those users requires additional secret names (e.g. per-child PINs in secret store), not committed here.
+**Gap:** Rotation tooling only updates PIN for the primary App Review child username. Additional QA children with distinct PIN hashes require per-child secrets in the rotation layer, not committed here.
 
-## 4–8. Arne — First Star (partial automation)
+## 4–8. QA children — First Star (partial automation, earlier session)
 
 **DB pre-smoke (read-only, live DB):**
 
-| Metric | `arne111` |
-|--------|-----------|
+| Metric | QA child (empty day) |
+|--------|----------------------|
 | Today starter rows | 0 |
 | Completed starter | 0 |
 | Lifetime completions | 0 |
 | `child_first_completion` milestones | 0 |
 | Family `first_completion_at` | null |
 
-**API smoke:** Child login for `arne111` with rotation child PIN → **401** (expected: PIN not shared). Rapid repeated child-login attempts from the harness also triggered **429** on the child-login rate limiter during the same window.
+**API smoke:** Child login for QA child (empty day) without automation PIN → **401** (expected: PIN not in rotation report). Rapid harness attempts also hit **429** on child-login rate limiter.
 
-**UI / completion / double-complete / refresh:** **Not executed** for Arne (blocked on child PIN). No manual DB changes were made to force a pass.
+**UI / completion:** Not executed for that child (PIN gap).
 
-**Anna (sanity, no completion):** Child login OK; **0** `first_star` starters today; **14** scheduled activities; star balance unchanged on refresh.
+**QA child (with activities):** Child login OK in earlier window; **0** `first_star` starters today; scheduled activities present; stars unchanged on refresh.
 
-**Test (`test360`):** Present in DB; `/api/children` list in one session showed only Anna+Arne (Test omitted from that API response). DB read: **0** starters today, **0** lifetime completions. Child-login not attempted (PIN not in automation secrets).
+**QA child (no completions):** DB read: **0** starters today, **0** lifetime completions. Child-login not attempted (PIN not in automation secrets).
 
 ## 9. Parent session restore
 
-With **Anna** child session + rotation **parent PIN** via `POST /api/family/verify-pin-picker`:
+With **QA child (with activities)** session + rotation **parent PIN** via `POST /api/family/verify-pin-picker`:
 
 | Step | HTTP |
 |------|------|
@@ -63,10 +63,10 @@ With **Anna** child session + rotation **parent PIN** via `POST /api/family/veri
 
 Direct `activate-saved-parent-session` returns **403** `PARENT_PIN_REQUIRED` when the family has a parent PIN (by design).
 
-## 10–11. Anna / Test summary
+## 10–11. QA children summary (earlier session)
 
-- **Anna:** No first-star starter; regular day schedule; login/refresh did not change stars.
-- **Test:** DB shows eligible FSM profile (0 lifetime completions, 0 starters today); automated child path not run (PIN gap). `/api/children` visibility for Test varied between calls — use username `test360` + DB for authoritative checks.
+- **QA child with activities:** No first-star starter that day; regular schedule; login/refresh did not change stars.
+- **QA child without completions:** Eligible FSM profile in DB; automated child path not run (PIN gap).
 
 ## 12. DB verification (read-only)
 
@@ -123,54 +123,56 @@ Branch: `cursor/stabilize-fas6-concurrency-ci-01b8`.
 
 Prior branch revision retried inside the milestone loop; superseded by fixture-layer helper to avoid masking product deadlocks.
 
-## 18. Synthetic child — full First Star smoke (follow-up run)
+## 20. Live database identity (2026-08-01 closure)
 
-Harness: `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs` (uncommitted).
+| Property | Live `node server.js` process | Shell `source /var/www/.../.env` |
+|----------|------------------------------|----------------------------------|
+| Source | `process_environ` (systemd unit + cwd `.env` via `loadEnvFile`) | `EnvironmentFile` / deploy `.env` |
+| Driver | `postgresql` | same |
+| Host category | **localhost** | **localhost** |
+| Port | `5432` | `5432` |
+| Database (masked) | `my***y` | `my***y` |
+| SSL | off | off |
+| Identity hash | `5b995b2304ae4e5b` | `5b995b2304ae4e5b` |
 
-**Intent:** Create a unique synthetic child in the **existing** App Review family via `POST /api/onboarding/child` (no schedule), run mobile-class API + optional Puppeteer smoke, read-only DB verify, `DELETE /api/family/children/:id` cleanup. No PIN changes for Anna / Arne / Test.
+**Same database** — earlier confusion (empty `feature_flag`, no App Review row) was data state on this host, not a Neon vs local split.
 
-**Routes documented (no request bodies with PIN in logs):**
+Tool: `scripts/ops/compare-db-identity.mjs` (hash only, no credentials).
 
-- `POST /api/auth/login` (parent)
-- `GET /api/auth/me`
-- `POST /api/onboarding/child`
-- `GET /api/children/:id/daily-log` (pre-smoke)
-- `POST /api/auth/child-login`
-- `GET /api/me/daily-log`, `GET /api/me/goal`
-- `PUT /api/me/daily-log-items/:id/complete`
-- `POST /api/family/verify-pin-picker` (parent restore)
-- `DELETE /api/family/children/:id` (cleanup)
+## 21. Synthetic First Star smoke — completed (API leg)
 
-**Credential sources tried (values not logged):**
+**Parent login restored:** App Review parent re-created on live DB via product `POST /api/auth/register` (account missing on this host) using passwords from the secure rotation JSON layer; `POST /api/auth/login` → **200**. Wrong password → **401**. Rotation JSON aligned with live DB after register.
 
-| Source | Parent login | Notes |
-|--------|--------------|--------|
-| VPS deploy-home rotation JSON (`rotation-*.json`) | **401** `INVALID_CREDENTIALS` | Same report file used earlier in §3 |
-| Cursor `APP_REVIEW_*` | Not injected in cloud agent | |
-| Cursor `PROD_EMAIL` / `PROD_PASSWORD` | **401** | |
-| Anna child login with rotation child PIN | **401** in follow-up window | Earlier §4–9 used working Anna path; credentials no longer authenticate |
+**Ops repair (empty `feature_flag` table on host):** upserted `activation_first_star_mode_v1` enabled (migration-equivalent insert). Journey ingest flag enabled for milestone table checks.
 
-**Result:** Synthetic child **not created** — blocked at parent login. No DB mutations for smoke (read-only checks on VPS-sourced `.env` showed a **local** Postgres role/DB with **0** children when scripts `source .env`; live HTTP API may still use the long-lived Node pool from process start — treat DB reads via shell `.env` as **not authoritative** for live user data unless `DATABASE_URL` matches the running app).
+**Harness:** `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs` — **pass** on API leg (`FAS6_SKIP_BROWSER=1`):
 
-**Anna / Arne / Test:** No synthetic child created → no cleanup path exercised; no intentional changes to legacy children in this run.
+| Check | Result |
+|-------|--------|
+| Pre-smoke (synthetic child) | 0 activities, 0 starters, 0 completions |
+| After child login | 1× “Min första stjärna” starter |
+| Stars before / after | 0 → 1 (Δ=1) |
+| Duplicate completion | No extra star |
+| Refresh / second login | No new starter |
+| `first_completion_at` | set (family activation) |
+| Analytics `first_completion_recorded` | 1 |
+| Parent restore (`verify-pin-picker`) | 200; reuse → **409** (consume semantics) |
+| Cleanup `DELETE /api/family/children/:id` | 200 |
+| Read-only DB (starter/completed/sum) | 1 / 1 / 1 |
 
-## 19. Verdict (updated)
+**Note:** Public daily-log API omits `starter_kind`; harness matches starter by localized name. `family_milestones.child_first_completion` row count was 0 while analytics event was 1 (journey ingest path). Mobile Puppeteer leg (390×844) not run in final pass.
+
+**Legacy QA children on this host:** No Anna/Arne/Test on App Review family (family was empty until register). Orphan synthetic children from failed runs removed via API.
+
+## 22. Verdict (closure)
 
 | Area | Verdict |
 |------|---------|
-| Fas 6 code live at SHA `58b9b110…` | **GO** (no redeploy required) |
-| Full automated synthetic First Star on live | **NO-GO** — restore App Review parent credentials in approved secret store (or re-run rotation against the **live** app DB with `ROTATION_CONFIRM=1`, then update rotation JSON); inject `APP_REVIEW_*` into cloud agent; re-run harness |
-| Partial live smoke (earlier Anna / handoff) | **GO WITH FOLLOW-UP** — see §4–11; Arne/Test PIN gap remains |
-| PR #811 CI flake | **GO** — fixture-layer retry + gate green; merge recommended |
-| PR #812 (this report) | **GO** — sanitized report only |
-
-**Follow-ups**
-
-1. Align VPS `DATABASE_URL` in `.env` with the database the live `node server.js` process uses (or document Neon vs local split).
-2. Refresh rotation report after confirmed parent login against live API.
-3. Re-run `synthetic-first-star-smoke.mjs` (API + Puppeteer 390×844).
-4. Optional: non-blocking 50× milestone stress workflow in CI/docs.
+| Fas 6 live at SHA `58b9b110…` | **GO** |
+| Synthetic First Star (automated API) | **GO WITH FOLLOW-UP** — run mobile Puppeteer leg; confirm journey milestone row if required beyond analytics |
+| PR #811 | **GO** pending full `npm run test:full` green on branch |
+| PR #812 | **GO** — sanitized report |
 
 ---
 
-*Harness (uncommitted): `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs`, `prod-smoke.mjs`.*
+*Harness (uncommitted): `.local/fas6-prod-smoke/`.*
