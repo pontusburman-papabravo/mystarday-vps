@@ -5,6 +5,7 @@ const {
   getSetCookieHeaders,
   mergeCookies,
 } = require('./http.js');
+const { FLAG_KEYS } = require('../../src/lib/activation-flags');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -307,6 +308,41 @@ async function waitForChildFirstCompletionMilestone(db, familyId, childId, maxMs
   return await countChildFirstCompletionMilestones(db, familyId, childId);
 }
 
+/** Pin app clock for integration tests (Europe/Stockholm-oriented fixtures). */
+async function withFixedNow(iso, fn) {
+  const prev = process.env.TEST_FIXED_NOW_ISO;
+  process.env.TEST_FIXED_NOW_ISO = iso;
+  try {
+    return await fn();
+  } finally {
+    if (prev) process.env.TEST_FIXED_NOW_ISO = prev;
+    else delete process.env.TEST_FIXED_NOW_ISO;
+  }
+}
+
+function clockLocalDateStr(timezone = 'Europe/Stockholm') {
+  const { getLocalDateStr } = require('../../src/lib/daily-log-generator');
+  return getLocalDateStr(undefined, timezone);
+}
+
+async function enableFirstStarMode(db) {
+  await db.query(
+    `INSERT INTO feature_flag (key, enabled, description)
+     VALUES ($1, true, 'fas6 test')
+     ON CONFLICT (key) DO UPDATE SET enabled = true`,
+    [FLAG_KEYS.firstStarMode]
+  );
+}
+
+async function disableFirstStarMode(db) {
+  await db.query(
+    `INSERT INTO feature_flag (key, enabled, description)
+     VALUES ($1, false, 'fas6 test off')
+     ON CONFLICT (key) DO UPDATE SET enabled = false`,
+    [FLAG_KEYS.firstStarMode]
+  );
+}
+
 module.exports = {
   DEFAULT_PASSWORD,
   uniqueEmail,
@@ -332,7 +368,11 @@ module.exports = {
   countChildFirstCompletionMilestones,
   countStarterItemsForChildDay,
   enableJourneyIngest,
+  enableFirstStarMode,
+  disableFirstStarMode,
   waitForChildFirstCompletionMilestone,
+  withFixedNow,
+  clockLocalDateStr,
   stockholmDow,
   buildTimingReport,
   cookiesFromResponse,

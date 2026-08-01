@@ -5,7 +5,7 @@
  */
 
 module.exports = {
-  name: '1810100000000_first_star_starter_kind',
+  name: '1810110000000_first_star_starter_kind',
 
   up: async (client) => {
     await client.query(`

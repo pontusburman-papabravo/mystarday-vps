@@ -6,6 +6,7 @@
 
 const express = require('express');
 const db = require('../../lib/db');
+const { getLocalDateStr } = require('../../lib/daily-log-generator');
 const { requireChild } = require('../../middleware/auth');
 const { scopeRouterToPath } = require('../../middleware/router-path-scope');
 const { getOrGenerateDailyLog, getLocalDateStr, getDayOfWeek } = require('../../lib/daily-log-generator');
@@ -47,7 +48,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     );
     const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
     const dateStr = parseLogDate(req.query.date, childTimezone);
-    const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: childTimezone });
+    const todayStr = getLocalDateStr(undefined, childTimezone);
     const isToday = dateStr === todayStr;
 
     const allowChildReorder = childResult.rows[0]?.allow_child_reorder || false;

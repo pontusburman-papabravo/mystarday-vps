@@ -36,7 +36,13 @@ Stop condition: **any** lifetime completion (`completed = true` on any log item)
 
 - `child.firstStarStarter.name` — sv-SE: «Min första stjärna», en-GB: «My first star»
 
-## Tests
+## GET self-heal (idempotent)
+
+| Path | Role |
+|------|------|
+| Child login (primary) | After real successful login, ensure starter when FSM + 0 completions + empty today log |
+| `GET /api/me/daily-log` (self-heal) | Same ensure for authenticated child with empty today log — retries/refreshes/legacy sessions |
+| Never | After any lifetime completion; more than one starter per child-day; cross-tenant |
 
 - `golden-path-fas6-weekend-first-star.integration.test.js`
 - `golden-path-fas6-starter-race.integration.test.js` (20× concurrent ensure)
