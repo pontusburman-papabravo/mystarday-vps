@@ -42,6 +42,7 @@ function initDragDrop() {
         scheduleDragSrc = { id: evt.item.dataset.id, section: evt.item.dataset.section };
       },
       onEnd: function(evt) {
+        scheduleDragSrc = null;
         if (evt.oldIndex === evt.newIndex) return;
         const sectionEl = evt.from.closest('[data-section]');
         const section = sectionEl ? sectionEl.dataset.section : null;
@@ -218,7 +219,6 @@ async function moveItem(itemId, section, direction) {
 // ── Copy activity to another day (drop on day tab) ────────
 async function copyActivityToDay(itemId, toDay) {
   if (!currentScheduleId || !currentChildId) return;
-  const item = scheduleItems.find(i => i.id == itemId);
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-item-to-day`, {
     method: 'POST', body: JSON.stringify({ item_id: itemId, from_schedule_id: currentScheduleId, to_day: toDay }),
   });
@@ -237,7 +237,13 @@ function openDayDndModal(s, d) {
   document.getElementById('dayDndSwapBtn').onclick = () => { closeDayDndModal(); doDayDndSwap(s,d); };
   document.getElementById('dayDndModal').classList.remove('hidden');
 }
-function closeDayDndModal() { document.getElementById('dayDndModal').classList.add('hidden'); dayDndSrc=null; dayDndDst=null; }
+function closeDayDndModal() {
+  document.getElementById('dayDndModal').classList.add('hidden');
+  if (dayDndSrc !== null || dayDndDst !== null) {
+    dayDndSrc = null;
+    dayDndDst = null;
+  }
+}
 async function doDayDndCopy(src, dst) {
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`, { method: 'POST', body: JSON.stringify({ from_day: src, to_days: [dst] }) });
   const data = await res.json();

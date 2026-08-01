@@ -18,7 +18,7 @@
         document.body.appendChild(ghost);
         const t=e.touches[0]; ghost.style.left=(t.clientX-60)+'px'; ghost.style.top=(t.clientY-30)+'px';
         d.classList.add('dragging');
-        try{d.dispatchEvent(new DragEvent('dragstart',{bubbles:true,cancelable:true}));}catch(x){}
+        try{d.dispatchEvent(new DragEvent('dragstart',{bubbles:true,cancelable:true}));}catch(_x){}
       },380);
     },{passive:true});
     document.addEventListener('touchmove', e=>{
@@ -28,7 +28,7 @@
       ghost.style.display='none';
       const el=document.elementFromPoint(t.clientX,t.clientY);
       ghost.style.display='';
-      if(el)try{el.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true}));}catch(x){}
+      if(el)try{el.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true}));}catch(_x){}
     },{passive:true});
     document.addEventListener('touchend', e=>{
       clearTimeout(longPressTimer); longPressTimer=null;
@@ -37,8 +37,8 @@
       ghost.style.display='none';
       const el=document.elementFromPoint(t.clientX,t.clientY);
       ghost.remove(); ghost=null;
-      if(el)try{el.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true}));}catch(x){}
-      try{touchEl.dispatchEvent(new DragEvent('dragend',{bubbles:true}));}catch(x){}
+      if(el)try{el.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true}));}catch(_x){}
+      try{touchEl.dispatchEvent(new DragEvent('dragend',{bubbles:true}));}catch(_x){}
       touchEl.classList.remove('dragging'); touchEl=null;
     },{passive:true});
   }

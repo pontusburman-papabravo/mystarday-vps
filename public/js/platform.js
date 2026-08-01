@@ -26,9 +26,7 @@
   }).catch(function () {});
 })();
 
-var Platform = (function () {
-  function noop() {}
-
+const Platform = (function () {
   function isNative() {
     return typeof Capacitor !== 'undefined' && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform();
   }
@@ -771,7 +769,7 @@ var Platform = (function () {
         reader.readAsDataURL(file);
       };
 
-      var timer = window.setTimeout(function () { finish(null); }, 120000);
+      const timer = window.setTimeout(function () { finish(null); }, 120000);
       window.addEventListener('focus', onWindowFocus);
       input.click();
     });
@@ -1065,7 +1063,11 @@ var Platform = (function () {
         blob = dataUrlOrResult.file;
       } else if (dataUrlOrResult && dataUrlOrResult.dataUrl) {
         blob = dataUrlToBlob(dataUrlOrResult.dataUrl);
-      } else {
+      } else if (dataUrlOrResult && typeof dataUrlOrResult === 'object') {
+        const fromPick = blobFromPickResult(dataUrlOrResult);
+        if (fromPick) blob = fromPick;
+      }
+      if (!blob) {
         throw new Error('Ingen bild att bearbeta');
       }
       blob = await compressAvatarBlob(blob);
@@ -1093,6 +1095,10 @@ var Platform = (function () {
       const csrf = authObj.getCsrfToken();
       if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
 
+      if (!_nativeFormPostReady()) {
+        /* fetch path (default) */
+      }
+
       const fd = new FormData();
       fd.append('image', file, 'avatar.jpg');
       const result = await fetch(endpoint, {
@@ -1108,9 +1114,13 @@ var Platform = (function () {
       }
       const json = await result.json();
       if (!json.avatar_src) throw new Error('Servern returnerade ingen bild-URL');
-      return json.avatar_src;
+      return normalizePublicUrl(json.avatar_src);
     },
   };
+
+  function _nativeFormPostReady() {
+    return typeof postFormDataNative === 'function';
+  }
 
   return {
     isNative: isNative,
