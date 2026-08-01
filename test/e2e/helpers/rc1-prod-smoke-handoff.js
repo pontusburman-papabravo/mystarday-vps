@@ -252,6 +252,36 @@ function logHandoffDiagnosticReport(diag) {
   }));
 }
 
+async function assertHandoffParentClientComplete(page, diag) {
+  const client = await page.evaluate(async () => {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    const me = meRes.ok ? await meRes.json() : {};
+    const authUser = window.Auth && typeof Auth.getUser === 'function' ? Auth.getUser() : null;
+    const csrf = window.Auth && typeof Auth.getCsrfToken === 'function' ? Auth.getCsrfToken() : null;
+    const deviceChild = window.DeviceMode && typeof DeviceMode.isChildMode === 'function'
+      ? DeviceMode.isChildMode()
+      : null;
+    return {
+      meType: me.type || null,
+      authUserType: authUser && authUser.type ? authUser.type : null,
+      deviceModeIsChild: deviceChild,
+      hasCsrf: Boolean(csrf),
+      path: window.location.pathname,
+    };
+  });
+  diag.parentClientComplete = client;
+  assert.equal(client.meType, 'parent', '/api/auth/me.type must be parent after handoff');
+  assert.equal(client.authUserType, 'parent', 'Auth.getUser().type must be parent');
+  assert.equal(client.deviceModeIsChild, false, 'DeviceMode.isChildMode() must be false');
+  assert.equal(client.hasCsrf, true, 'CSRF token must be present after parent restore');
+  assert.match(client.path, /^\/(dashboard|planning|family|settings|for-dig)/, 'must land on parent route (dashboard hub)');
+  await new Promise((r) => setTimeout(r, 1500));
+  const pathAfterSettle = await page.evaluate(() => window.location.pathname);
+  diag.pathAfterSettle = pathAfterSettle;
+  assert.notEqual(pathAfterSettle, '/child-login', 'SessionGate must not redirect back to child-login');
+  assert.match(pathAfterSettle, /^\/(dashboard|planning|family|settings|for-dig)/, 'path stable on parent surface');
+}
+
 async function fillParentPinOverlay(page, parentPin) {
   const digits = String(parentPin).split('');
   for (let i = 0; i < digits.length; i += 1) {
@@ -472,7 +502,7 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
     assert.fail(
       `handoff logout inconclusive — classification=${diag.classification} `
       + `puppeteerReadOk=${puppeteerBodyRead.bodyReadOk} cdpJsonOk=${cdpBody?.jsonParseOk ?? false} `
-      + `authMeImmediate=${authMeImmediate?.kind} serverOutcome=${diag.serverInferredOutcome}`
+      + `authMeImmediate=${diag.authMeImmediate?.kind} serverOutcome=${diag.serverInferredOutcome}`
     );
   }
 
@@ -509,6 +539,7 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
     if (diag.classification === 'SUCCESS_SESSION_RESTORED' || diag.classification.startsWith('SUCCESS')) {
       diag.classification = 'SUCCESS_SESSION_RESTORED';
     }
+    await assertHandoffParentClientComplete(page, diag);
     return diag;
   }
 
@@ -564,6 +595,7 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
   diag.finalSession = meAfterPicker.kind;
   diag.finalPath = diag.navigation.path;
   diag.classification = 'SUCCESS_NEEDS_PARENT_PIN';
+  await assertHandoffParentClientComplete(page, diag);
   return diag;
 }
 
@@ -579,5 +611,6 @@ module.exports = {
   attachHandoffNetworkCapture,
   performParentChildHandoff,
   classifyHandoffOutcome,
+  assertHandoffParentClientComplete,
   logHandoffDiagnosticReport,
 };
