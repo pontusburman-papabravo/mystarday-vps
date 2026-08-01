@@ -1,6 +1,6 @@
 # Fas 6 — Weekend / first star (P1) findings
 
-**Status:** Tests document current behavior. No product change in this delivery (product decision required).
+**Status:** Implemented in PR #809 — see `docs/fas6-first-star-starter-decision.md`.
 
 ## Verified in code
 
