@@ -438,7 +438,10 @@
       "emailExists": "Det finns redan ett konto med den e-postadressen",
       "tooManyAttempts": "För många försök. Vänta en stund och försök igen.",
       "serverError": "Något gick fel. Försök igen senare.",
-      "parentPinInvalid": "Felaktig PIN-kod — försök igen"
+      "parentPinInvalid": "Felaktig PIN-kod — försök igen",
+      "logoutFailed": "Utloggningen misslyckades. Försök igen.",
+      "logoutRateLimited": "För många försök. Vänta en stund och försök igen.",
+      "handoffInvalid": "Vuxensessionen kunde inte återställas. Logga in som vuxen."
     }
   },
   "dashboard": {

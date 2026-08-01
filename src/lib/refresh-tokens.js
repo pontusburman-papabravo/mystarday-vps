@@ -24,21 +24,25 @@ function hashToken(raw) {
  * Generate and store a new refresh token.
  * Returns the raw token (set in cookie by caller).
  */
-async function createRefreshToken({ userId, userType, familyId }) {
+async function insertRefreshTokenRow(client, { userId, userType, familyId }) {
   const raw = crypto.randomBytes(32).toString('hex');
   const hash = hashToken(raw);
   const expiresAt = new Date(Date.now() + config.refreshToken.expiryDays * 24 * 60 * 60 * 1000);
-
   const parentId = userType === 'parent' ? userId : null;
-  const childId  = userType === 'child'  ? userId : null;
-
-  await db.query(
+  const childId = userType === 'child' ? userId : null;
+  await client.query(
     `INSERT INTO refresh_token (parent_id, child_id, token_hash, family_id, user_type, expires_at)
      VALUES ($1, $2, $3, $4, $5, $6)`,
     [parentId, childId, hash, familyId, userType, expiresAt]
   );
-
   return raw;
+}
+
+async function createRefreshToken({ userId, userType, familyId }) {
+  return insertRefreshTokenRow(
+    { query: (text, params) => db.query(text, params) },
+    { userId, userType, familyId }
+  );
 }
 
 /**
@@ -66,6 +70,46 @@ async function verifyRefreshToken(raw) {
   }
 
   return row;
+}
+
+/**
+ * Look up refresh token row without side effects (logging / pre-revoke checks).
+ */
+async function lookupRefreshTokenRow(raw) {
+  if (!raw) return null;
+  const hash = hashToken(raw);
+  const result = await db.query(
+    `SELECT id, parent_id, child_id, family_id, user_type, expires_at
+     FROM refresh_token WHERE token_hash = $1`,
+    [hash]
+  );
+  return result.rows[0] || null;
+}
+
+/**
+ * Revoke refresh token only when it matches the active session identity.
+ * Mismatch does not delete the row (prevents child logout from revoking parent handoff refresh).
+ */
+async function revokeRefreshTokenForSession(raw, { userType, userId, familyId }) {
+  if (!raw) return { revoked: false, reason: 'missing_token' };
+  const row = await lookupRefreshTokenRow(raw);
+  if (!row) return { revoked: false, reason: 'not_found' };
+  if (familyId && row.family_id !== familyId) {
+    return { revoked: false, reason: 'family_mismatch' };
+  }
+  if (userType === 'child') {
+    if (row.user_type !== 'child' || row.child_id !== userId) {
+      return { revoked: false, reason: 'identity_mismatch' };
+    }
+  } else if (userType === 'parent') {
+    if (row.user_type !== 'parent' || row.parent_id !== userId) {
+      return { revoked: false, reason: 'identity_mismatch' };
+    }
+  } else {
+    return { revoked: false, reason: 'invalid_user_type' };
+  }
+  await db.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
+  return { revoked: true };
 }
 
 /**
@@ -166,9 +210,13 @@ function clearAccessCookie(res) {
 }
 
 module.exports = {
+  hashToken,
+  insertRefreshTokenRow,
   createRefreshToken,
   verifyRefreshToken,
+  lookupRefreshTokenRow,
   revokeRefreshToken,
+  revokeRefreshTokenForSession,
   revokeAllRefreshTokens,
   setRefreshCookie,
   clearRefreshCookie,

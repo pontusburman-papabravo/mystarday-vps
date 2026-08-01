@@ -169,6 +169,13 @@ function extractToken(req) {
  * restored parent token instead of the child token.
  */
 async function restoreParentSession(req, res, next) {
+  if (
+    req.method === 'POST'
+    && (req.path === '/api/auth/logout' || req.originalUrl?.startsWith('/api/auth/logout'))
+  ) {
+    return next();
+  }
+
   if (!req.cookies?.stjarndag_parent_session) return next();
 
   const currentToken = req.cookies?.access_token;

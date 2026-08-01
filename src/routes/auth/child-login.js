@@ -203,7 +203,45 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
       });
     }
 
-    // ── Successful login ──────────────────────────────────────────────────
+    // ── Successful login (session + handoff before success side-effects) ───
+    const accessToken = jwt.sign(
+      { id: child.id, type: 'child', familyId: child.family_id, username: child.username, name: child.name },
+      config.jwt.secret,
+      { expiresIn: config.jwt.childExpiresIn }
+    );
+
+    const parentAccessToken = req.cookies?.access_token;
+    const parentRefreshToken = req.cookies?.refresh_token;
+    if (parentAccessToken && parentRefreshToken) {
+      try {
+        const { createHandoffFromParentCookies } = require('../../lib/parent-session-handoff');
+        const handoffCreated = await createHandoffFromParentCookies(req, res);
+        if (!handoffCreated) {
+          console.error('[AUTH] Parent handoff create failed', req.id);
+          return res.status(409).json({
+            code: 'PARENT_HANDOFF_CREATE_FAILED',
+            requiresParentLogin: false,
+          });
+        }
+      } catch (saveErr) {
+        console.error('[AUTH] Parent handoff save failed:', req.id, saveErr.message);
+        return res.status(409).json({
+          code: 'PARENT_HANDOFF_CREATE_FAILED',
+          requiresParentLogin: false,
+        });
+      }
+    }
+
+    const rawRefresh = await createRefreshToken({
+      userId: child.id,
+      userType: 'child',
+      familyId: child.family_id,
+    });
+
+    setRefreshCookie(res, rawRefresh);
+    const expiresInSecs = parseDuration(config.jwt.childExpiresIn);
+    setAccessCookie(res, accessToken, expiresInSecs);
+
     await pinLockout.recordSuccessfulLogin(child.id);
     await db.query(
       'INSERT INTO login_attempt (identifier, ip_address, success) VALUES ($1, $2, true)',
@@ -211,47 +249,10 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
     );
     pinLockout.auditLog(child.id, child.family_id, 'attempt_success', clientIp, {}).catch(() => {});
 
-    // Record login event for analytics
     db.query(
       'INSERT INTO login_event (user_id, role, family_id) VALUES ($1, $2, $3)',
       [child.id, 'child', child.family_id]
     ).catch(() => {});
-
-    const accessToken = jwt.sign(
-      { id: child.id, type: 'child', familyId: child.family_id, username: child.username, name: child.name },
-      config.jwt.secret,
-      { expiresIn: config.jwt.childExpiresIn }
-    );
-
-    // Issue 7-day refresh token — same as parent login.
-    // Without this, child sessions cannot silently refresh and expire permanently
-    // when the access token dies (8h for children).
-    const rawRefresh = await createRefreshToken({
-      userId: child.id,
-      userType: 'child',
-      familyId: child.family_id,
-    });
-
-    // ── Save parent session before overwriting cookies ─────────────────────
-    // When a parent logs in as a child, their httpOnly tokens get overwritten.
-    // Save them now so restoreParentSession middleware can restore the parent
-    // view when the user navigates back to parent-facing pages.
-    const parentAccessToken = req.cookies?.access_token;
-    const parentRefreshToken = req.cookies?.refresh_token;
-    if (parentAccessToken && parentRefreshToken) {
-      try {
-        const { createHandoffFromParentCookies } = require('../../lib/parent-session-handoff');
-        await createHandoffFromParentCookies(req, res);
-      } catch (saveErr) {
-        console.error('[AUTH] Parent handoff save failed:', saveErr.message);
-      }
-    }
-
-    setRefreshCookie(res, rawRefresh);
-
-    // Set access token as httpOnly cookie — XSS cannot read it.
-    const expiresInSecs = parseDuration(config.jwt.childExpiresIn);
-    setAccessCookie(res, accessToken, expiresInSecs);
 
     const { ingestMilestoneAsync } = require('../../lib/journey/ingest');
     ingestMilestoneAsync({

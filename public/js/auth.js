@@ -666,10 +666,18 @@ const Auth = {
           await this.ensureCsrfToken();
           continue; // retry with fresh CSRF
         }
+        if (res.status === 429) {
+          this._showLogoutFailureMessage('rateLimit');
+          return;
+        }
+        if (!res.ok && res.status >= 500) {
+          this._showLogoutFailureMessage('server');
+          return;
+        }
         let data;
         try { data = await res.json(); } catch { data = {}; }
 
-        if (data.sessionRestored) {
+        if (res.ok && data.sessionRestored) {
           if (window.SessionGate && SessionGate.shouldBlockSessionRestore && SessionGate.shouldBlockSessionRestore()) {
             window.location.href = '/child-login';
             return;
@@ -678,27 +686,37 @@ const Auth = {
           return;
         }
 
-        if (data.needsParentPin) {
-          // Parent PIN required — clear child tokens, show PIN overlay, then restore
+        if (res.ok && data.needsParentPin) {
           this._clearChildCookies();
-          var cancelUrl = childFlow ? '/child-login' : '/login';
+          const cancelUrlPin = childFlow ? '/child-login' : '/login';
           this._showParentPinGateOverlay(function () {
-            // PIN verified → call restore-parent-session endpoint
-            Auth.api('/api/family/restore-parent-session', {
-              method: 'POST',
-              body: JSON.stringify({ gateToken: window._ppinGateToken }),
-            }).then(function () {
-              window.location.href = '/dashboard';
-            }).catch(function () {
-              window.location.href = cancelUrl;
-            });
+            window.location.href = '/dashboard';
           }, function () {
-            window.location.href = cancelUrl;
+            window.location.href = cancelUrlPin;
+          }, {
+            verifyUrl: '/api/family/verify-pin-picker',
+            applyPickerResponse: true,
           });
           return;
         }
 
-        this._redirectAfterLogoutClear(childFlow);
+        if (res.status === 409 && data.code === 'PARENT_HANDOFF_INVALID') {
+          this._clearChildCookies();
+          this._redirectToParentLoginAfterHandoffFailure();
+          return;
+        }
+
+        if (!res.ok) {
+          this._showLogoutFailureMessage('unknown');
+          return;
+        }
+
+        if (data.loggedOut === true || data.handoffAvailable === false || data.message) {
+          this._redirectAfterLogoutClear(childFlow);
+          return;
+        }
+
+        this._showLogoutFailureMessage('contract');
         return;
       } catch {
         // Network error — break and fall through
@@ -857,6 +875,33 @@ const Auth = {
     return '';
   },
 
+  _showLogoutFailureMessage(kind) {
+    var msg = '';
+    if (window.I18n) {
+      if (kind === 'rateLimit') {
+        msg = I18n.t('auth.errors.logoutRateLimited');
+      } else if (kind === 'server') {
+        msg = I18n.t('auth.errors.serverError');
+      } else {
+        msg = I18n.t('auth.errors.logoutFailed');
+      }
+      if (msg && msg.indexOf('auth.errors.') !== 0) {
+        if (typeof showToast === 'function') showToast(msg, 'error');
+        else if (typeof window.alert === 'function') window.alert(msg);
+      }
+    }
+  },
+
+  _redirectToParentLoginAfterHandoffFailure() {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const msg = I18n.t('auth.errors.handoffInvalid');
+      if (msg && msg.indexOf('auth.errors.') !== 0 && typeof showToast === 'function') {
+        showToast(msg, 'error');
+      }
+    }
+    window.location.replace('/login');
+  },
+
   /**
    * Show the parent PIN gate overlay after child logout.
    * Verifies PIN, stores gateToken on window._ppinGateToken, then calls onSuccess.
@@ -968,7 +1013,40 @@ const Auth = {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
         credentials: 'include',
         body: JSON.stringify({ pin: pin }),
-      }).then(function (r) { return r.json(); }).then(function (res) {
+      }).then(function (r) {
+        if (r.status === 429) {
+          msgEl.textContent = pgT('errors.logoutRateLimited') || pgT('errors.serverError');
+          entered = '';
+          updateDots();
+          buildKeypad();
+          return null;
+        }
+        if (!r.ok && r.status >= 500) {
+          msgEl.textContent = pgT('errors.serverError');
+          entered = '';
+          updateDots();
+          buildKeypad();
+          return null;
+        }
+        return r.json().then(function (res) { return { httpOk: r.ok, httpStatus: r.status, body: res }; });
+      }).then(function (wrapped) {
+        if (!wrapped) return;
+        var res = wrapped.body;
+        if (!wrapped.httpOk) {
+          if (res && res.code === 'PARENT_PIN_INVALID') {
+            msgEl.textContent = pgT('errors.parentPinInvalid');
+          } else if (res && res.code && res.code.indexOf('HANDOFF') !== -1) {
+            document.body.removeChild(overlay);
+            Auth._redirectToParentLoginAfterHandoffFailure();
+            return;
+          } else {
+            msgEl.textContent = pgT('errors.serverError');
+          }
+          entered = '';
+          updateDots();
+          buildKeypad();
+          return;
+        }
         if (applyPickerResponse && res.ok && res.parent) {
           Auth.setAuth(null, res.parent, res.csrfToken || csrf);
           if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {

@@ -17,13 +17,17 @@ const { recordLoginEvent } = require('../../lib/login-event');
 const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../../lib/magic-view-access');
 const { isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
 const { resolveChildUiLocale } = require('../../lib/child-ui-locale');
-const { requireAuth } = require('../../middleware/auth');
+const { requireAuth, verifyToken } = require('../../middleware/auth');
 const { generateCsrfToken } = require('../../middleware/csrf');
 const {
   createRefreshToken,
   revokeRefreshToken,
+  revokeRefreshTokenForSession,
   setRefreshCookie,
   setAccessCookie,
+  clearAccessCookie,
+  clearRefreshCookie,
+  lookupRefreshTokenRow,
 } = require('../../lib/refresh-tokens');
 const parentPinDb = require('../../../db/parent-pin');
 const familySubscriptions = require('../../../db/family-subscriptions');
@@ -456,63 +460,228 @@ router.get('/login-picker-children', async (req, res) => {
 // Body { switchChild: true } — end child session only; keep parent session cookie for child picker.
 
 router.post('/logout', async (req, res) => {
+  const {
+    evaluateHandoffForRequest,
+    consumeHandoffAndActivateSession,
+    clearHandoffCookie,
+    logHandoffLogoutDiagnostics,
+  } = require('../../lib/parent-session-handoff');
+
+  function verifyChildAccess(accessTokenStr) {
+    if (!accessTokenStr) return null;
+    try {
+      const decoded = verifyToken(accessTokenStr);
+      if (decoded.type !== 'child' || !decoded.id || !decoded.familyId) return null;
+      return decoded;
+    } catch {
+      return null;
+    }
+  }
+
+  function verifyAccessPayload(accessTokenStr) {
+    if (!accessTokenStr) return null;
+    try {
+      return verifyToken(accessTokenStr);
+    } catch {
+      return null;
+    }
+  }
+
   try {
     const switchChild = req.body?.switchChild === true;
-    const raw = req.cookies?.refresh_token;
+    const rawRefresh = req.cookies?.refresh_token;
     const accessTokenStr = req.cookies?.access_token;
-    const decoded = accessTokenStr ? jwt.decode(accessTokenStr) : null;
-
-    if (raw) {
-      await revokeRefreshToken(raw);
+    const refreshRow = await lookupRefreshTokenRow(rawRefresh);
+    const refreshSessionType = refreshRow?.user_type || null;
+    const verifiedAccess = verifyAccessPayload(accessTokenStr);
+    const accessSessionType = verifiedAccess?.type || null;
+    const sessionType = accessSessionType === 'child'
+      ? 'child'
+      : (refreshSessionType || accessSessionType);
+    let childSession = verifyChildAccess(accessTokenStr);
+    if (!childSession && refreshRow?.user_type === 'child' && refreshRow.child_id) {
+      const accessParent = accessSessionType === 'parent';
+      if (accessParent) {
+        childSession = {
+          id: refreshRow.child_id,
+          familyId: refreshRow.family_id,
+          type: 'child',
+        };
+      }
     }
-    clearAllSessionCookies(res);
+    const hasHandoffCookie = Boolean(req.cookies?.stjarndag_parent_session);
 
-    // Switch child: end child JWT only; keep stjarndag_parent_session for child picker
-    if (switchChild && decoded?.type === 'child') {
+    if (
+      refreshRow?.user_type === 'child'
+      && accessTokenStr
+      && !verifyChildAccess(accessTokenStr)
+      && accessSessionType !== 'parent'
+    ) {
+      if (hasHandoffCookie) {
+        clearAllSessionCookies(res);
+        clearHandoffCookie(res);
+        return res.status(401).json({
+          code: 'CHILD_SESSION_INVALID',
+          requiresParentLogin: true,
+        });
+      }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ loggedOut: true, handoffAvailable: false });
+    }
+
+    // ── Switch child: end child JWT only; keep handoff for picker ─────────
+    if (switchChild) {
+      if (!childSession) {
+        return res.status(401).json({ code: 'CHILD_SESSION_INVALID' });
+      }
+      await revokeRefreshTokenForSession(rawRefresh, {
+        userType: 'child',
+        userId: childSession.id,
+        familyId: childSession.familyId,
+      });
+      clearAccessCookie(res);
+      clearRefreshCookie(res);
+      res.clearCookie('csrf_token', { path: '/' });
       return res.json({ message: 'Utloggad', switchChild: true });
     }
 
-    // ── Restore parent session only if CHILD is logging out ────────────────
-    if (decoded?.type !== 'child') {
-      const { clearHandoffCookie } = require('../../lib/parent-session-handoff');
-      clearHandoffCookie(res);
-      return res.json({ message: 'Utloggad' });
-    }
-
-    const {
-      validateHandoffForRequest,
-      consumeHandoffAndActivateSession,
-      clearHandoffCookie,
-    } = require('../../lib/parent-session-handoff');
-
-    if (req.cookies?.stjarndag_parent_session) {
-      const handoff = await validateHandoffForRequest(req, res);
-      if (handoff) {
-        try {
-          const needsPin = await parentPinDb.parentHasPin(handoff.parent_id);
-
-          if (needsPin) {
-            return res.json({ message: 'Utloggad', needsParentPin: true });
-          }
-        } catch (err) {
-          console.error('[AUTH] Logout: parent-pin check failed:', err.message);
-        }
-
-        const restored = await consumeHandoffAndActivateSession(req, res);
-        if (restored.ok) {
-          return res.json({ message: 'Utloggad', sessionRestored: true });
-        }
+    // ── Parent logout ─────────────────────────────────────────────────────
+    if (sessionType === 'parent') {
+      if (rawRefresh) {
+        await revokeRefreshToken(rawRefresh);
       }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ message: 'Utloggad', loggedOut: true });
     }
 
-    clearHandoffCookie(res);
-    res.json({ message: 'Utloggad' });
-  } catch (err) {
-    console.error('[AUTH] Logout error:', err);
+    // Invalid/expired child JWT with handoff must not fall through to anonymous logout.
+    if (sessionType !== 'child') {
+      if (hasHandoffCookie) {
+        clearAllSessionCookies(res);
+        clearHandoffCookie(res);
+        return res.status(401).json({
+          code: 'CHILD_SESSION_INVALID',
+          requiresParentLogin: true,
+        });
+      }
+      if (rawRefresh) {
+        await revokeRefreshToken(rawRefresh);
+      }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ loggedOut: true, handoffAvailable: false });
+    }
+
+    // ── Child logout (valid child JWT) ──────────────────────────────────────
+    if (!childSession) {
+      if (hasHandoffCookie) {
+        clearAllSessionCookies(res);
+        clearHandoffCookie(res);
+        return res.status(401).json({
+          code: 'CHILD_SESSION_INVALID',
+          requiresParentLogin: true,
+        });
+      }
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.json({ loggedOut: true, handoffAvailable: false });
+    }
+
+    const childId = childSession.id;
+    const childFamilyId = childSession.familyId;
+    const handoffEval = hasHandoffCookie
+      ? await evaluateHandoffForRequest(req, res)
+      : { ok: false, reason: 'cookie_missing', code: 'HANDOFF_COOKIE_MISSING' };
+
+    if (hasHandoffCookie) {
+      await logHandoffLogoutDiagnostics(req, 'child_logout_pre', handoffEval, childSession, rawRefresh);
+    }
+
+    if (hasHandoffCookie && handoffEval.ok && handoffEval.familyId !== childFamilyId) {
+      await revokeRefreshTokenForSession(rawRefresh, {
+        userType: 'child',
+        userId: childId,
+        familyId: childFamilyId,
+      });
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      return res.status(409).json({
+        code: 'PARENT_HANDOFF_INVALID',
+        requiresParentLogin: true,
+      });
+    }
+
+    if (hasHandoffCookie && !handoffEval.ok) {
+      await revokeRefreshTokenForSession(rawRefresh, {
+        userType: 'child',
+        userId: childId,
+        familyId: childFamilyId,
+      });
+      clearAllSessionCookies(res);
+      clearHandoffCookie(res);
+      console.warn(
+        '[AUTH] Child logout handoff invalid',
+        req.id,
+        handoffEval.code || handoffEval.reason
+      );
+      return res.status(409).json({
+        code: 'PARENT_HANDOFF_INVALID',
+        requiresParentLogin: true,
+      });
+    }
+
+    if (hasHandoffCookie && handoffEval.ok) {
+      let needsPin = false;
+      try {
+        needsPin = await parentPinDb.parentHasPin(handoffEval.parentId);
+      } catch (err) {
+        console.error('[AUTH] Logout: parent-pin check failed:', req.id, err.message);
+        return res.status(500).json({ code: 'SERVER_ERROR' });
+      }
+
+      const revokeResult = await revokeRefreshTokenForSession(rawRefresh, {
+        userType: 'child',
+        userId: childId,
+        familyId: childFamilyId,
+      });
+      if (revokeResult.reason === 'identity_mismatch') {
+        console.warn('[AUTH] Child logout refresh identity mismatch — skipping destructive revoke', req.id);
+      }
+
+      clearAllSessionCookies(res);
+
+      if (needsPin) {
+        return res.json({ needsParentPin: true });
+      }
+
+      const restored = await consumeHandoffAndActivateSession(req, res);
+      await logHandoffLogoutDiagnostics(req, 'child_logout_post_consume', handoffEval, childSession, null);
+
+      if (restored.ok) {
+        return res.json({ sessionRestored: true });
+      }
+
+      console.error('[AUTH] Handoff consume failed after child logout', req.id, restored.code);
+      clearHandoffCookie(res);
+      return res.status(500).json({ code: 'HANDOFF_CONSUME_FAILED' });
+    }
+
+    // Child without handoff — normal barnlogout
+    await revokeRefreshTokenForSession(rawRefresh, {
+      userType: 'child',
+      userId: childId,
+      familyId: childFamilyId,
+    });
     clearAllSessionCookies(res);
-    const { clearHandoffCookie } = require('../../lib/parent-session-handoff');
     clearHandoffCookie(res);
-    res.json({ message: 'Utloggad' });
+    return res.json({ loggedOut: true, handoffAvailable: false });
+  } catch (err) {
+    console.error('[AUTH] Logout error:', req.id, err.message);
+    clearAllSessionCookies(res);
+    clearHandoffCookie(res);
+    return res.status(500).json({ code: 'SERVER_ERROR' });
   }
 });
 

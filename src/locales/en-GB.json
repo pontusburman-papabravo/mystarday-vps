@@ -438,7 +438,10 @@
       "emailExists": "An account with that email address already exists",
       "tooManyAttempts": "Too many attempts. Please wait a moment and try again.",
       "serverError": "Something went wrong. Please try again later.",
-      "parentPinInvalid": "Wrong PIN — try again"
+      "parentPinInvalid": "Wrong PIN — try again",
+      "logoutFailed": "Sign-out failed. Please try again.",
+      "logoutRateLimited": "Too many attempts. Please wait a moment and try again.",
+      "handoffInvalid": "Could not restore the adult session. Please sign in as a parent."
     }
   },
   "dashboard": {
