@@ -143,7 +143,7 @@ Simulator: **iPhone 14 Plus** → 1284×2778 · **iPhone 11 Pro Max** → 1242×
 **Contact Email:** info@mystarday.se
 **Phone:** [Phone number — optional]
 **Demo Account Username:** review@mystarday.se
-**Demo Account Password:** AppReview2026!
+**Demo Account Password:** APP_REVIEW_PASSWORD (secret store)
 
 **Notes to Reviewer (Engelska):**
 > The app is a Swedish family routine and reward app. The reviewer can log in with the test account above. The parent logs in with email + password. Children use a 4-digit PIN to access the child view. The app has a privacy policy at /privacy.html and terms of service at /terms.html. All user data is stored in EU. Push notifications are opt-in. No advertising. No third-party analytics without consent.

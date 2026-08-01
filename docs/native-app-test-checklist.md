@@ -13,7 +13,7 @@
 |-----------|-------|
 | Testkonto (förälder) | App Store demo — se `app-store-demo-konto.md` (inte för agenter) |
 | Barnets namn | Anna |
-| Barnets PIN | `4455` |
+| Barnets PIN | `APP_REVIEW_CHILD_PIN` |
 | Antal barn | 1 |
 | Antal föräldrar | 2 |
 

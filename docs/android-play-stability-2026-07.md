@@ -43,7 +43,7 @@ Remote WebView loads UI from the deployed web app. Server-side fixes ship via gi
 3. Tap **Jag är vuxen** (not only "Logga in" on welcome)
 4. Email: review demo account (see `docs/app-store-demo-konto.md`)
 5. Parent dashboard (Hem) should load without crash
-6. Child: Anna, PIN `4455`
+6. Child: Anna, PIN from APP_REVIEW_CHILD_PIN
 
 ## Re-enable debug (internal only)
 

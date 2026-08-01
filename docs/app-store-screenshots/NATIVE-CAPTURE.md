@@ -39,8 +39,8 @@ I Xcode verktygsfältet:
 | Fält | Värde |
 |------|-------|
 | E-post | `review@mystarday.se` |
-| Lösenord | `AppReview2026!` |
-| Barn-PIN | `4455` |
+| Lösenord | `APP_REVIEW_PASSWORD (secret store)` |
+| Barn-PIN | `APP_REVIEW_CHILD_PIN` |
 
 ## 4. Ta fem screenshots (⌘S)
 

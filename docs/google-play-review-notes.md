@@ -17,10 +17,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Parent email** | `review@mystarday.se` |
-| **Parent password** | `AppReview2026!` |
+| **Parent email** | `APP_REVIEW_EMAIL` |
+| **Parent password** | `APP_REVIEW_PASSWORD (secret store)` |
 | **Child name** | Anna |
-| **Child PIN** | `4455` |
+| **Child PIN** | `APP_REVIEW_CHILD_PIN` |
 
 This account is pre-seeded with fictional data only. No real family data.
 
@@ -30,11 +30,11 @@ This account is pre-seeded with fictional data only. No real family data.
 
 1. Install the app from the internal/closed testing track.
 2. On the login screen, tap **Logga in** (email login).
-3. Enter `review@mystarday.se` / `AppReview2026!`
+3. Enter `APP_REVIEW_EMAIL` / `APP_REVIEW_PASSWORD (secret store)`
 4. Parent dashboard shows "Review Family" with one child (Anna).
-5. Switch to child view → enter PIN `4455`.
+5. Switch to child view → enter PIN from APP_REVIEW_CHILD_PIN.
 6. Tap an activity to mark complete and earn a star.
-7. Return to parent mode via menu → parental gate PIN `4455`.
+7. Return to parent mode via menu → parental gate PIN from APP_REVIEW_CHILD_PIN.
 8. Open **Skattkammaren** from navigation — rewards and history.
 9. **Settings → Integritetspolicy** — privacy policy loads in-app.
 

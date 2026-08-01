@@ -4,7 +4,7 @@
  *
  * Usage:
  *   export SMOKE_PARENT_EMAIL="qa.mobil@test.stjarndag.local"
- *   export SMOKE_PARENT_PASSWORD="QaMobilTest2026!Secure"
+ *   export SMOKE_PARENT_PASSWORD from secret store
  *   export SMOKE_CHILD_NAME="Astrid"
  *   export SMOKE_CHILD_PIN="4829"
  *   export SMOKE_CHILD2_NAME="Erik"

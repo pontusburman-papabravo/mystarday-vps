@@ -1,20 +1,26 @@
 /**
  * Browser E2E: Apple Review account on mystarday.se
  * - Registers review@mystarday.se if missing
- * - Completes onboarding (Anna, 2018-09-08, skola + helg, PIN 4455)
+ * - Completes onboarding (Anna, 2018-09-08, skola + helg, PIN from APP_REVIEW_CHILD_PIN)
  * - Verifies parent dashboard + child PIN login
  */
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 
-const BASE = 'https://mystarday.se';
-const EMAIL = 'review@mystarday.se';
-const PASSWORD = 'AppReview2026!';
+const BASE = (process.env.APP_REVIEW_BASE_URL || process.env.BASE_URL || '').replace(/\/$/, '');
+const EMAIL = process.env.APP_REVIEW_EMAIL;
+const PASSWORD = process.env.APP_REVIEW_PASSWORD;
+const CHILD_NAME = process.env.APP_REVIEW_CHILD_NAME || 'Anna';
+
+if (!BASE || !EMAIL || !PASSWORD || !CHILD_PIN) {
+  console.error('Set APP_REVIEW_BASE_URL (or BASE_URL), APP_REVIEW_EMAIL, APP_REVIEW_PASSWORD, APP_REVIEW_CHILD_PIN');
+  process.exit(1);
+}
 const PARENT_NAME = 'Review Tester';
 const CHILD_NAME = 'Anna';
 const CHILD_BIRTHDAY = { year: '2018', month: '09', day: '08' };
-const CHILD_PIN = '4455';
+const CHILD_PIN = process.env.APP_REVIEW_CHILD_PIN;
 
 const ARTIFACTS = '/workspace/artifacts/apple-review-browser';
 fs.mkdirSync(ARTIFACTS, { recursive: true });
@@ -132,7 +138,7 @@ async function completeOnboarding(page) {
   await page.click('#step4Btn');
   await page.waitForTimeout(2000);
 
-  // Step 5 — set PIN 4455
+  // Step 5 — set PIN from APP_REVIEW_CHILD_PIN
   await page.click('button:has-text("Välj egen PIN-kod")');
   await page.waitForSelector('#pinD1');
   for (let i = 0; i < 4; i++) {

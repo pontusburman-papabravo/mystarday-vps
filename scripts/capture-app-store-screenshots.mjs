@@ -12,9 +12,16 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 
-const BASE = 'https://mystarday.se';
-const EMAIL = 'review@mystarday.se';
-const PASSWORD = 'AppReview2026!';
+const BASE = (process.env.APP_REVIEW_BASE_URL || process.env.BASE_URL || '').replace(/\/$/, '');
+const EMAIL = process.env.APP_REVIEW_EMAIL;
+const PASSWORD = process.env.APP_REVIEW_PASSWORD;
+const CHILD_NAME = process.env.APP_REVIEW_CHILD_NAME || 'Anna';
+const CHILD_PIN = process.env.APP_REVIEW_CHILD_PIN;
+
+if (!BASE || !EMAIL || !PASSWORD || !CHILD_PIN) {
+  console.error('Set APP_REVIEW_BASE_URL (or BASE_URL), APP_REVIEW_EMAIL, APP_REVIEW_PASSWORD, APP_REVIEW_CHILD_PIN');
+  process.exit(1);
+}
 const CHILD_NAME = 'Anna';
 const CHILD_PIN = '4455';
 
