@@ -20,7 +20,7 @@ Order (full gate):
 | 4 | Parent/child handoff (`RC1_PARENT_PIN`) | API fixture only |
 | 5 | Reports gating (last — may see documented 429 + Retry-After) | No |
 
-Handoff uses HTTP contract on `POST /api/auth/logout`, `verify-pin`, and `restore-parent-session` — not DOM-only inference.
+Handoff uses HTTP contract on `POST /api/auth/logout` and **Model B** parent restore: `needsParentPin` → `POST /api/family/verify-pin-picker` (not `verify-pin` + `restore-parent-session`). CDP captures whether `stjarndag_parent_session` was on the wire for logout; diagnostics classify cookie transport vs review data vs runtime.
 
 ## Handoff debug (not release gate)
 
@@ -53,6 +53,8 @@ Primary vs cleanup failures use `AggregateError` when both fail; locale audit ph
 | `RC1_SMOKE_PACING_MS` | Pause between full suites (default `90000`) |
 | `RC1_TEST_GAP_MS` | Pause between individual tests in one suite (default `20000`) |
 | `RC1_SMOKE_INITIAL_COOLDOWN_MS` | Optional wait before first suite (rate-limit recovery) |
+| `RC1_SMOKE_FILTER` | `handoff` = release identity + handoff only (limited debug, not release gate) |
+| `RC1_HANDOFF_DEBUG_RUNS` | With `RC1_SMOKE_FILTER=handoff`, repeat handoff suite (use `1` for single diagnostic repro) |
 
 Credentials must **never** appear in logs or committed files.
 

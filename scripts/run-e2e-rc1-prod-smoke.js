@@ -83,11 +83,7 @@ function count429FromOutput(output) {
 function countHandoff429(output) {
   if (!output) return 0;
   let sum = 0;
-  for (const m of output.matchAll(/PRODUCT BUG FOUND:.*429/g)) {
-    sum += 1;
-    void m;
-  }
-  for (const m of output.matchAll(/handoff.*429|logout returned 429|verify-pin returned 429|restore-parent-session returned 429/gi)) {
+  for (const m of output.matchAll(/verify-pin-picker returned 429|logout returned 429/gi)) {
     sum += 1;
     void m;
   }

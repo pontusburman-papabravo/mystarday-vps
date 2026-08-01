@@ -18,6 +18,10 @@ const {
   assertParentSession,
   assertChildSession,
   performParentChildHandoff,
+  assertCanonicalHost,
+  auditHandoffCookies,
+  attachHandoffNetworkCapture,
+  beginChildLoginInstrumentation,
   assertRc1ChildLocaleContract,
   assertEnglishAppEnabled,
   assertReportsRouteBlocked,
@@ -202,19 +206,53 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
             async () => {
               await assertParentSession(page);
 
-              await loginChildFromParentSession(page, cfg.baseUrl, seed);
-              await assertChildSession(page);
-
-              const handoffDiag = await performParentChildHandoff(page, parentPin);
-              assert.ok(handoffDiag.finalSession === 'parent', 'handoff must end in parent session');
-              await assertParentSession(page);
-
-              const childLeak = await page.evaluate(async () => {
+              const reviewFamilyId = await page.evaluate(async () => {
                 const r = await fetch('/api/auth/me', { credentials: 'include' });
                 const me = r.ok ? await r.json() : {};
-                return Boolean(me.username && !me.email);
+                return me.family_id || me.familyId || null;
               });
-              assert.equal(childLeak, false, 'child session must not remain active after parent restore');
+
+              await assertCanonicalHost(page, cfg.baseUrl);
+
+              const networkCapture = await attachHandoffNetworkCapture(page);
+              const childLoginInstr = beginChildLoginInstrumentation(page);
+              try {
+                await loginChildFromParentSession(page, cfg.baseUrl, seed);
+                await assertChildSession(page);
+                const path = await page.evaluate(() => window.location.pathname);
+                assert.match(path, /\/child(\/today|-dashboard)/);
+
+                const childLoginDiag = await childLoginInstr.finish(networkCapture);
+                const cookieAudit = await auditHandoffCookies(page, cfg.baseUrl);
+                page._rc1HandoffChildLogin = childLoginDiag;
+                page._rc1HandoffCookieAudit = cookieAudit;
+                assert.ok(childLoginDiag.hasHandoffCookie, 'child-login must Set-Cookie stjarndag_parent_session');
+                assert.ok(cookieAudit.count >= 1, 'handoff cookie must exist on Child Today');
+
+                const handoffDiag = await performParentChildHandoff(page, parentPin, {
+                  baseUrl: cfg.baseUrl,
+                  reviewFamilyId,
+                  networkCapture,
+                  deepDiagnostic: handoffDebugOnly,
+                });
+                if (page._rc1HandoffChildLogin) {
+                  handoffDiag.childLogin = page._rc1HandoffChildLogin;
+                }
+                if (page._rc1HandoffCookieAudit) {
+                  handoffDiag.handoffCookiesAfterChildLogin = page._rc1HandoffCookieAudit;
+                }
+                assert.ok(handoffDiag.finalSession === 'parent', 'handoff must end in parent session');
+                await assertParentSession(page);
+
+                const childLeak = await page.evaluate(async () => {
+                  const r = await fetch('/api/auth/me', { credentials: 'include' });
+                  const me = r.ok ? await r.json() : {};
+                  return Boolean(me.username && !me.email);
+                });
+                assert.equal(childLeak, false, 'child session must not remain active after parent restore');
+              } finally {
+                await networkCapture.stop();
+              }
             }
           );
         });

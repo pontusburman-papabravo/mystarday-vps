@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('node:assert/strict');
 const { executeWithPrimaryAndCleanup } = require('../../helpers/rc1-scope-errors');
-const { performParentChildHandoff } = require('./rc1-prod-smoke-handoff');
+const handoffModule = require('./rc1-prod-smoke-handoff');
+const { performParentChildHandoff } = handoffModule;
 
 const SWEDISH_SERVER_LEAK = /Ogiltiga värden|Namn krävs|PIN-koden måste|Användarnamn krävs/i;
 
@@ -788,6 +789,10 @@ module.exports = {
   assertReportsRouteBlocked,
   openSettingsFamilyLocale,
   performParentChildHandoff,
+  attachHandoffNetworkCapture: handoffModule.attachHandoffNetworkCapture,
+  beginChildLoginInstrumentation: handoffModule.beginChildLoginInstrumentation,
+  assertCanonicalHost: handoffModule.assertCanonicalHost,
+  auditHandoffCookies: handoffModule.auditHandoffCookies,
   smokeFilterMode,
   executeWithPrimaryAndCleanup,
   rc1Sleep,
