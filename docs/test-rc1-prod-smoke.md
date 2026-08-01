@@ -1,6 +1,6 @@
 # RC-1 live deploy browser smoke
 
-Release evidence against the live deploy (review QA account only). **Test-only** — no product writes beyond login, locale restore, and read-only API checks.
+Release evidence against the live deploy (founder QA account — [`founder-qa-test-account.md`](founder-qa-test-account.md)). **Test-only** — no product writes beyond login, locale restore, and read-only API checks.
 
 ## When to run
 
@@ -56,9 +56,9 @@ Primary vs cleanup failures use `AggregateError` when both fail; locale audit ph
 |----------|---------|
 | `RC1_SMOKE_BASE_URL` | Target host (explicit per release run) |
 | `RC1_EXPECTED_SHA` | Exact `/health` `git_sha` |
-| `RC1_EXPECTED_CACHE` | Exact `CACHE_NAME` in `/sw.js` (e.g. `stjarndag-v748`) |
-| `RC1_REVIEW_EMAIL` / `RC1_REVIEW_PASSWORD` | Parent — [`qa-test-account.md`](qa-test-account.md) |
-| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Anna — username **`anna691`** on prod review |
+| `RC1_EXPECTED_CACHE` | Exact `CACHE_NAME` in `/sw.js` (match deployed `public/sw.js`, e.g. `stjarndag-v753`) |
+| `RC1_QA_EMAIL` / `RC1_QA_PASSWORD` | Parent — [`founder-qa-test-account.md`](founder-qa-test-account.md) (`RC1_REVIEW_*` deprecated) |
+| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Astrid (`1112`) for agent QA |
 | `RC1_PARENT_PIN` | Parent app-lock PIN — **required** when `RC1_REQUIRE_HANDOFF=true` |
 | `RC1_REQUIRE_HANDOFF` | `true` (default) = 5 tests; `false` = limited 4-test diagnostic |
 | `RC1_RESTORE_LOCALE` | Optional **post-suite** target (runner); per-test restore always uses captured `/api/auth/me` locale |

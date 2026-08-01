@@ -3,13 +3,15 @@
 > Gedigna testfall för funktionstestning av Min Stjärndag iOS-app före App Store-lansering.
 > Svenska.
 
+**Cursor / Cloud Agents:** use [`founder-qa-test-account.md`](founder-qa-test-account.md) (`pontus@burman.cc` + Astrid), not the App Store review account below.
+
 ---
 
 ## Testmiljö
 
 | Parameter | Värde |
 |-----------|-------|
-| Testkonto (förälder) | `review@mystarday.se` / `AppReview2026!` |
+| Testkonto (förälder) | App Store demo — se `app-store-demo-konto.md` (inte för agenter) |
 | Barnets namn | Anna |
 | Barnets PIN | `4455` |
 | Antal barn | 1 |

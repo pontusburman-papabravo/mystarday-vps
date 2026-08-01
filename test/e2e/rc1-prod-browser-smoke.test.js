@@ -34,8 +34,8 @@ const {
 } = require('./helpers/rc1-prod-smoke-helpers');
 
 function requireSeed(cfg) {
-  assert.ok(cfg.email, 'RC1_REVIEW_EMAIL required');
-  assert.ok(cfg.password, 'RC1_REVIEW_PASSWORD required');
+  assert.ok(cfg.email, 'RC1_QA_EMAIL (or RC1_REVIEW_EMAIL) required');
+  assert.ok(cfg.password, 'RC1_QA_PASSWORD (or RC1_REVIEW_PASSWORD) required');
   assert.ok(cfg.childUsername, 'RC1_CHILD_USERNAME required');
   assert.ok(cfg.childPin, 'RC1_CHILD_PIN required');
   if (cfg.requireHandoff) {

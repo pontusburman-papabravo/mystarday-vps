@@ -1,44 +1,41 @@
-# RC-1 English family app — branch status (2026-07-31)
+# RC-1 English — automation & release status (2026-08-01)
 
-**Branch:** `cursor/rc1-i18n-safe-rewards-profile-fordig-b0f7`  
-**Base:** `main` (post #796 parent session handoff merge)
+**Prod identity (verify before each smoke):** `GET /health` → `git_sha`; `GET /sw.js` → `CACHE_NAME`  
+**Handoff client fix:** merged **#806** (`5164db4c`, SW **v750+**; prod may be ahead e.g. **v753** on `caa5753d`).  
+**Prod smoke harness:** open **#803** (`cursor/rc1-prod-smoke-stabilize-b0f7`).
 
-## Verified in code + automated tests
+## RC definitions (consistent)
 
-| Area | Status | Tests / gates |
-|------|--------|----------------|
-| Reward display localization (provenance-safe) | Done | `test/reward-localization-provenance.test.js`, `test/family-content-display.test.js` |
-| Child `/api/me/rewards` + `/api/me/goal` content locale | Done | `resolveChildContentLocaleForFamily` (no `localizeAll`) |
-| en-GB registration reward `source_default_id` when library match | Done | `src/lib/reward-provenance.js`, `register.js` |
-| Child profile (`/family/child/:id`) system copy en-GB | Done | `family-*-GB.json` `childProfile.*`, `test/i18n-planning-family.test.js` |
-| För dig primary view system copy en-GB | Done | `for-dig-*-GB.json`, `for-dig.js` (`scheduleName`, `pt()`) |
-| Reports link on child profile | Capability-gated | `components.reporting.has` via `fetchPackageAccess` |
-| i18n audits | Green | `npm run audit:i18n:strict`, `audit:i18n:baseline` (0 hits) |
-| CI gate | Green | `npm run test:gate` (test env per root AGENTS.md) |
+| Phase | Scope |
+|-------|--------|
+| **RC-1** | Code, automation, prod-smoke, **physical** functional QA (iPhone + Android) |
+| **RC-2** | Store metadata, market web, rollout flags, ops |
 
-## PR #791 handling
+## Automation gates
 
-**Not merged.** Open PR #791 proposed `localizeAll: true` for all reward names on English child locale. This branch **rejects** that approach:
+| Gate | Requirement | Status |
+|------|-------------|--------|
+| #806 merged + deployed | Handoff `sessionRestored` client completion | **PASS** (on main/prod) |
+| Handoff-only smoke | 3/3, `RC1_SMOKE_FILTER=handoff` | Run per deploy SHA |
+| Full prod-smoke | 5/5 × 2, `RC1_REQUIRE_HANDOFF=true` | Run per deploy SHA |
+| GitHub `rc1-prod-smoke` workflow | 5/5 × 2 with secrets | Pending per release |
+| `test:gate` + `test:e2e:i18n` | CI green on smoke PR | Required before #803 merge |
+| Physical R4-E + Journeys A–D | Real devices + evidence | **NOT RUN** (agent cannot sign off) |
 
-- Only `source_default_id` + `modified_by_family = false` rows localize (unchanged `isSystemSeededReward`).
-- Registration seeds set `source_default_id` when `default_reward` match is unambiguous (icon + cost + name, or unique icon+cost).
-- Legacy rows without provenance stay in stored language (safe default).
-- Expanded `sv-to-en.json` reward map for library titles (subset of #791, without broad auto-translate).
+## QA account (agents)
 
-## PR #796 dependency
+**Founder prod smoke:** `pontus@burman.cc` + Astrid — [`docs/founder-qa-test-account.md`](../founder-qa-test-account.md).  
+**App Store review family** (Anna): store/release checklists only — not agent automation.
 
-#796 (opaque parent session handoff) is **merged on main**. RC-1 child/parent locale behaviour still depends on handoff + session restore for Journey C / R4-E; see physical QA below.
+## Overall RC-1 verdict
 
-## Physical QA — NOT RUN (required before device sign-off)
+| Milestone | Status |
+|-----------|--------|
+| READY FOR DEVICE QA | After #803 merge + green 5/5×2 on deploy SHA |
+| RC-1 DEVICE PASS | After documented iPhone + Android matrix |
+| RC-1 GO | After R4-E, Journeys, R1–R3, push/email/PDF on devices |
+| READY FOR ENGLISH STORE RELEASE | RC-1 GO + RC-2 store/ops |
 
-- R4-E normal pass
-- R4-E stress pass
-- Manual journeys A–D (`docs/releases/RC1_I18N_RELEASE_REQUIREMENTS.md`)
-- iPhone Safari / native WebView
-- Android Chrome / WebView
-- Child handoff after session handoff deploy on target environment
-- Service worker update verification after deploy
+## Out of scope (unchanged)
 
-## Explicitly out of RC-1 scope (unchanged)
-
-- Swedish admin, SEO articles, resurser PDFs, full Reports product copy, legal en review, Professional Report PDF
+Swedish admin, growth/referral, För dig Sprint 2–5, new paywalls, broad polish without repro.

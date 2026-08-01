@@ -2,7 +2,10 @@
 'use strict';
 
 /**
- * RC-1 browser smoke against a deployed host (review QA account).
+ * RC-1 browser smoke against a deployed host (founder QA — docs/founder-qa-test-account.md).
+ * Requires: RC1_SMOKE_BASE_URL, RC1_QA_EMAIL, RC1_QA_PASSWORD (or deprecated RC1_REVIEW_*),
+ *           RC1_CHILD_USERNAME, RC1_CHILD_PIN, RC1_EXPECTED_SHA, RC1_EXPECTED_CACHE
+ * Optional: RC1_PARENT_PIN when RC1_REQUIRE_HANDOFF=true
  */
 const { spawnSync, execSync } = require('node:child_process');
 const path = require('node:path');
@@ -12,6 +15,17 @@ if (!baseUrl) {
   console.log('[rc1-prod-smoke] skip — set RC1_SMOKE_BASE_URL or E2E_BASE_URL');
   process.exit(0);
 }
+
+function qaCredential(primary, legacy) {
+  const value = process.env[primary] || process.env[legacy];
+  if (!process.env[primary] && process.env[legacy]) {
+    console.warn(`[rc1-prod-smoke] ${legacy} is deprecated; use ${primary} (founder QA — docs/founder-qa-test-account.md)`);
+  }
+  return value;
+}
+
+const qaEmail = qaCredential('RC1_QA_EMAIL', 'RC1_REVIEW_EMAIL') || process.env.PROD_EMAIL;
+const qaPassword = qaCredential('RC1_QA_PASSWORD', 'RC1_REVIEW_PASSWORD') || process.env.PROD_PASSWORD;
 
 const smokeFilter = (process.env.RC1_SMOKE_FILTER || '').trim().toLowerCase();
 const handoffDebugOnly = smokeFilter === 'handoff';
@@ -29,9 +43,16 @@ if (handoffDebugOnly) {
   process.exit(1);
 }
 
+if (!qaEmail) {
+  console.error('[rc1-prod-smoke] missing RC1_QA_EMAIL (or RC1_REVIEW_EMAIL / PROD_EMAIL)');
+  process.exit(1);
+}
+if (!qaPassword) {
+  console.error('[rc1-prod-smoke] missing RC1_QA_PASSWORD (or RC1_REVIEW_PASSWORD / PROD_PASSWORD)');
+  process.exit(1);
+}
+
 const required = [
-  'RC1_REVIEW_EMAIL',
-  'RC1_REVIEW_PASSWORD',
   'RC1_CHILD_USERNAME',
   'RC1_CHILD_PIN',
   'RC1_EXPECTED_SHA',
@@ -108,6 +129,10 @@ function runOnce(runIndex) {
         ...process.env,
         E2E_BASE_URL: baseUrl,
         RC1_SMOKE_BASE_URL: baseUrl,
+        RC1_QA_EMAIL: qaEmail,
+        RC1_QA_PASSWORD: qaPassword,
+        RC1_REVIEW_EMAIL: qaEmail,
+        RC1_REVIEW_PASSWORD: qaPassword,
         RC1_REQUIRE_HANDOFF: requireHandoff || handoffDebugOnly ? 'true' : 'false',
         RC1_SMOKE_FILTER: smokeFilter || '',
       },
