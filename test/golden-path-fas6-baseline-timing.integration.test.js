@@ -9,41 +9,25 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { setupTestDb } = require('./helpers/setup.js');
-const { cookieHeader, listenApp, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
+const {
+  cookieHeader,
+  listenApp,
+  getSetCookieHeaders,
+  mergeCookies,
+} = require('./helpers/http.js');
+const {
+  seedMinimalDefaultSchedule,
+  buildTimingReport,
+  familyIdByEmail,
+} = require('./helpers/golden-path-fas6.js');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
 }
 
-async function seedMinimalDefaultSchedule(db, scheduleName, itemName = 'Vakna') {
-  let defaultSched = await db.query('SELECT id FROM default_schedule WHERE name = $1', [scheduleName]);
-  if (defaultSched.rows.length === 0) {
-    const ins = await db.query(
-      `INSERT INTO default_schedule (name, sort_order) VALUES ($1, 0) RETURNING id`,
-      [scheduleName]
-    );
-    await db.query(
-      `INSERT INTO default_schedule_item
-         (default_schedule_id, name, icon, section, star_value, sort_order)
-       VALUES ($1, $2, '🛏️', 'morgon', 1, 0)`,
-      [ins.rows[0].id, itemName]
-    );
-    return ins.rows[0].id;
-  }
-  const items = await db.query(
-    'SELECT id FROM default_schedule_item WHERE default_schedule_id = $1 LIMIT 1',
-    [defaultSched.rows[0].id]
-  );
-  if (items.rows.length === 0) {
-    await db.query(
-      `INSERT INTO default_schedule_item
-         (default_schedule_id, name, icon, section, star_value, sort_order)
-       VALUES ($1, $2, '🛏️', 'morgon', 1, 0)`,
-      [defaultSched.rows[0].id, itemName]
-    );
-  }
-  return defaultSched.rows[0].id;
+async function seedMinimalDefaultScheduleLocal(db, scheduleName, itemName = 'Vakna') {
+  return seedMinimalDefaultSchedule(db, scheduleName, itemName);
 }
 
 function msSince(start) {
@@ -60,15 +44,18 @@ test('Fas 6 golden path — API timing baseline (read-only measurement)', async 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   const apiCalls = [];
+  const stepStatuses = [];
   const timings = {};
   let t0 = Date.now();
-  const mark = (key) => {
+  let retryCount = 0;
+  const mark = (key, status = 'ok') => {
     timings[key] = msSince(t0);
+    stepStatuses.push({ step: key, status, ms: timings[key] });
     t0 = Date.now();
   };
 
   try {
-    await seedMinimalDefaultSchedule(db, 'Helg');
+    await seedMinimalDefaultScheduleLocal(db, 'Helg');
     const templateGroup = 'helg';
 
     const email = `golden-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
@@ -175,7 +162,8 @@ test('Fas 6 golden path — API timing baseline (read-only measurement)', async 
     });
     apiCalls.push('PUT /api/me/daily-log-items/:id/complete (idempotent retry)');
     assert.equal(dupCompleteRes.status, 200);
-    mark('child_complete_retry_ms');
+    retryCount += 1;
+    mark('child_complete_retry_ms', 'ok');
 
     const activation = await db.query(
       `SELECT schema_saved_at, child_access_completed_at, first_completion_at
@@ -188,14 +176,20 @@ test('Fas 6 golden path — API timing baseline (read-only measurement)', async 
     assert.ok(activation.rows[0].child_access_completed_at);
     assert.ok(activation.rows[0].first_completion_at);
 
-    const report = {
-      origin_main_note: 'Run against local listenApp + Postgres (NODE_ENV=test)',
-      timings_ms: timings,
-      total_api_calls: apiCalls.length,
-      api_sequence: apiCalls,
-      first_star_meta: completeBody.meta_milestones || {},
-      child_access_meta: childLoginBody.meta_milestones || {},
-    };
+    const syntheticFamilyId = await familyIdByEmail(db, email);
+
+    const report = buildTimingReport({
+      steps: stepStatuses,
+      apiCalls,
+      retryCount,
+      syntheticFamilyId,
+      syntheticChildId: childId,
+      totalMs: Object.values(timings).reduce((a, b) => a + b, 0),
+      note: 'origin_main_note: Run against local listenApp + Postgres (NODE_ENV=test)',
+    });
+    report.first_star_meta = completeBody.meta_milestones || {};
+    report.child_access_meta = childLoginBody.meta_milestones || {};
+    report.timings_ms = timings;
     console.log('[FAS6_GOLDEN_PATH_TIMING]', JSON.stringify(report, null, 2));
   } finally {
     await http.close();

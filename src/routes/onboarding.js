@@ -206,8 +206,16 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
     const client = await db.getClient();
     try {
       await client.query('BEGIN');
-
-      // Insert child
+      await client.query('SELECT id FROM family WHERE id = $1 FOR UPDATE', [req.user.familyId]);
+      const dupInside = await checkChildNameInFamily(client, childName, req.user.familyId);
+      if (!dupInside.ok) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({
+          error: dupInside.error,
+          code: dupInside.code,
+          suggestions: dupInside.suggestions,
+        });
+      }
       const childResult = await client.query(
         `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint)
          VALUES ($1, $2, $3, $4, 'Europe/Stockholm', 'auto', 'now_next_later', $5, $6, $7)
@@ -375,8 +383,7 @@ router.post('/schedule', async (req, res) => {
     let schedulesCreated = 0;
     try {
       await client.query('BEGIN');
-
-      // Ensure category records exist for each section used
+      await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [child_id]);
       const sectionToCategoryName = { morgon: 'Morgon', dag: 'Dag', kvall: 'Kväll', natt: 'Natt' };
       const categorySortOrder = { morgon: 0, dag: 1, kvall: 2, natt: 3 };
       const categoryMap = {};
@@ -475,13 +482,27 @@ router.post('/schedule', async (req, res) => {
             [scheduleId]
           );
         } else {
-          const schedResult = await client.query(
-            `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order)
-             VALUES ($1, $2, $3) RETURNING id`,
-            [child_id, dow, dow]
-          );
-          scheduleId = schedResult.rows[0].id;
-          schedulesCreated++;
+          try {
+            const schedResult = await client.query(
+              `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order)
+               VALUES ($1, $2, $3) RETURNING id`,
+              [child_id, dow, dow]
+            );
+            scheduleId = schedResult.rows[0].id;
+            schedulesCreated++;
+          } catch (insertErr) {
+            if (insertErr.code !== '23505') throw insertErr;
+            const again = await client.query(
+              'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
+              [child_id, dow]
+            );
+            if (again.rows.length === 0) throw insertErr;
+            scheduleId = again.rows[0].id;
+            await client.query(
+              'DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1',
+              [scheduleId]
+            );
+          }
         }
 
         let sortIdx = 0;
