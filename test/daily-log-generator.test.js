@@ -28,6 +28,10 @@ describe('daily-log-generator', () => {
   });
 
   it('getChildAgeInYears uses timezone calendar dates (L4)', () => {
+    const prevIso = process.env.TEST_FIXED_NOW_ISO;
+    const prevMs = process.env.TEST_FIXED_NOW_MS;
+    delete process.env.TEST_FIXED_NOW_ISO;
+    delete process.env.TEST_FIXED_NOW_MS;
     const realDate = Date;
     global.Date = class extends realDate {
       constructor(...args) {
@@ -46,6 +50,10 @@ describe('daily-log-generator', () => {
       assert.equal(getSchoolVariant('2020-06-05'), 'Skola/Förskola');
     } finally {
       global.Date = realDate;
+      if (prevIso !== undefined) process.env.TEST_FIXED_NOW_ISO = prevIso;
+      else delete process.env.TEST_FIXED_NOW_ISO;
+      if (prevMs !== undefined) process.env.TEST_FIXED_NOW_MS = prevMs;
+      else delete process.env.TEST_FIXED_NOW_MS;
     }
   });
 });
