@@ -1,7 +1,7 @@
 'use strict';
 
 const db = require('../../lib/db');
-const { getSchoolVariant } = require('../../lib/daily-log-generator');
+const { getSchoolVariant, getLocalDateStr } = require('../../lib/daily-log-generator');
 
 async function getChildFamilyId(childId) {
   const r = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
@@ -24,7 +24,7 @@ async function getSectionTimes(childId) {
 function parseLogDate(queryDate, timezone = 'Europe/Stockholm') {
   let dateStr = queryDate;
   if (!dateStr || dateStr === 'null' || dateStr === 'undefined') {
-    dateStr = new Date().toLocaleDateString('sv-SE', { timeZone: timezone });
+    dateStr = getLocalDateStr(undefined, timezone);
   } else {
     const m = dateStr.match(/^(\d{4}-\d{2}-\d{2})/);
     if (m) dateStr = m[1];
