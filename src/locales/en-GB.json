@@ -454,6 +454,11 @@
     "stars": "Stars",
     "streak": "Streak"
   },
+  "child": {
+    "firstStarStarter": {
+      "name": "My first star"
+    }
+  },
   "childDashboard": {
     "welcome": "Hi {{name}}! ⭐",
     "today": "Today",

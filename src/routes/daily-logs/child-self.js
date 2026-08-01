@@ -47,6 +47,8 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     );
     const childTimezone = childResult.rows[0]?.timezone || 'Europe/Stockholm';
     const dateStr = parseLogDate(req.query.date, childTimezone);
+    const todayStr = getLocalDateStr(undefined, childTimezone);
+    const isToday = dateStr === todayStr;
 
     const allowChildReorder = childResult.rows[0]?.allow_child_reorder || false;
     const showNowNext = childResult.rows[0]?.show_now_next === true; // default off — parent opt-in
@@ -61,7 +63,22 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const colorCoding = childResult.rows[0]?.color_coding !== false; // default true
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
 
-    const { log, items, generated } = await getOrGenerateDailyLog(childId, dateStr);
+    let { log, items, generated } = await getOrGenerateDailyLog(childId, dateStr);
+    const familyIdEarly = req.user.familyId;
+    if (familyIdEarly && isToday && items.length === 0) {
+      const fsmOn = await isActivationFlagEnabled(FLAG_KEYS.firstStarMode, familyIdEarly);
+      if (fsmOn && await countLifetimeCompletions(childId) === 0) {
+        const localeEarly = await getFamilyPreferredLocale(familyIdEarly);
+        const { ensureFirstStarStarterActivity } = require('../../lib/first-star-starter');
+        await ensureFirstStarStarterActivity({
+          childId,
+          familyId: familyIdEarly,
+          dateStr,
+          locale: localeEarly,
+        });
+        ({ log, items, generated } = await getOrGenerateDailyLog(childId, dateStr));
+      }
+    }
     const enrichedItems = enrichPictogramFieldsMany(await enrichLogItemsWithForDigGoal(items));
 
     // Apply child's custom ordering within each section.
@@ -181,9 +198,6 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     //   'now'   = first unchecked (featured card)
     //   'next'  = second unchecked
     //   'later' = all remaining unchecked
-    const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: childTimezone });
-    const isToday = dateStr === todayStr;
-
     let filteredItems = sortedItems;
     let nowNextFiltered = false;
     let firstStarModeApplied = false;
@@ -287,6 +301,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
  * Child marks an activity as completed.
  */
 childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
+  const client = await db.getClient();
   try {
     // Verify the item belongs to this child
     const itemResult = await db.query(
@@ -311,7 +326,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     );
     const logDate2 = logDateResult2.rows[0]?.date || new Date();
 
-    const result = await db.query(
+    let justCompleted = false;
+    let firstStarNewlyRecorded = false;
+    let completeRow = null;
+    let familyIdForMilestone = req.user.familyId;
+
+    await client.query('BEGIN');
+    const result = await client.query(
       `UPDATE daily_log_item
        SET completed = true, completed_at = NOW(), completed_date = $2,
            completed_by = COALESCE(completed_by, 'child'),
@@ -320,7 +341,20 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate2]
     );
-    const justCompleted = result.rows.length > 0;
+    justCompleted = result.rows.length > 0;
+    completeRow = result.rows[0] || null;
+
+    if (justCompleted) {
+      if (!familyIdForMilestone) {
+        const fam = await client.query('SELECT family_id FROM child WHERE id = $1', [req.user.id]);
+        familyIdForMilestone = fam.rows[0]?.family_id;
+      }
+      if (familyIdForMilestone) {
+        const { tryAtomicFirstCompletionInTx } = require('../../lib/activation-first-completion');
+        firstStarNewlyRecorded = await tryAtomicFirstCompletionInTx(client, familyIdForMilestone);
+      }
+    }
+    await client.query('COMMIT');
 
     if (justCompleted && req.user.familyId) {
       const { maybeTrackFirstStarModeActivity } = require('../../lib/first-star-mode-analytics');
@@ -332,24 +366,16 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       });
     }
 
-    let firstStarNewlyRecorded = false;
-    if (justCompleted) {
-      const fid = req.user.familyId || await getChildFamilyId(req.user.id);
-      if (fid) {
-        try {
-          firstStarNewlyRecorded = await require('../../lib/activation-first-completion')
-            .maybeRecordFirstCompletion(fid, {
-              child_id: req.user.id,
-              source: 'child_complete',
-            });
-        } catch (err) {
-          console.error('[DAILY-LOG-CHILD] maybeRecordFirstCompletion failed:', err.message);
-        }
-      }
+    if (firstStarNewlyRecorded && familyIdForMilestone) {
+      const { emitFirstCompletionRecorded } = require('../../lib/activation-first-completion');
+      emitFirstCompletionRecorded(familyIdForMilestone, {
+        child_id: req.user.id,
+        source: 'child_complete',
+      });
     }
 
     const completePayload = justCompleted
-      ? Object.assign({}, result.rows[0], {
+      ? Object.assign({}, completeRow, {
         meta_milestones: firstStarNewlyRecorded
           ? { first_star_earned: true, flow: 'child_complete' }
           : {},
@@ -366,12 +392,14 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       if (!fid) return;
       broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
       if (!justCompleted) return;
-      require('../../lib/journey/ingest').ingestMilestoneAsync({
-        familyId: fid,
-        milestone: 'child_first_completion',
-        childId: req.user.id,
-        metadata: { daily_log_item_id: req.params.itemId },
-      });
+      if (firstStarNewlyRecorded) {
+        require('../../lib/journey/ingest').ingestMilestoneAsync({
+          familyId: fid,
+          milestone: 'child_first_completion',
+          childId: req.user.id,
+          metadata: { daily_log_item_id: req.params.itemId },
+        });
+      }
       require('../../lib/platform-runtime').handleActivityComplete({
         childId: req.user.id,
         familyId: fid,
@@ -419,8 +447,15 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       }
     }).catch((err) => console.error('[DAILY-LOG-CHILD] Post-complete broadcast failed:', err.message));
   } catch (err) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {
+      /* ignore */
+    }
     console.error('[DAILY-LOG-CHILD] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  } finally {
+    client.release();
   }
 });
 

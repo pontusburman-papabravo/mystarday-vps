@@ -75,6 +75,7 @@ itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
 });
 
 itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res) => {
+  const client = await db.getClient();
   try {
     const item = req.authzItem;
 
@@ -84,7 +85,12 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
     );
     const logDate = logDateResult.rows[0]?.date || new Date();
 
-    const result = await db.query(
+    let justCompleted = false;
+    let firstStarNewlyRecorded = false;
+    let completeRow = null;
+
+    await client.query('BEGIN');
+    const result = await client.query(
       `UPDATE daily_log_item
        SET completed = true, completed_at = NOW(), completed_date = $2,
            completed_by = COALESCE(completed_by, 'parent'),
@@ -94,25 +100,31 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
        RETURNING id, completed, completed_at, completed_date`,
       [req.params.itemId, logDate, req.user.id]
     );
-    const justCompleted = result.rows.length > 0;
-    let firstStarNewlyRecorded = false;
+    justCompleted = result.rows.length > 0;
+    completeRow = result.rows[0] || null;
+
     if (justCompleted) {
-      try {
-        const fid = await getChildFamilyId(item.child_id);
-        if (fid) {
-          firstStarNewlyRecorded = await require('../../lib/activation-first-completion')
-            .maybeRecordFirstCompletion(fid, {
-              child_id: item.child_id,
-              source: 'parent_complete',
-            });
-        }
-      } catch (err) {
-        console.error('[DAILY-LOG-ITEM] maybeRecordFirstCompletion failed:', err.message);
+      const fid = await getChildFamilyId(item.child_id);
+      if (fid) {
+        const { tryAtomicFirstCompletionInTx } = require('../../lib/activation-first-completion');
+        firstStarNewlyRecorded = await tryAtomicFirstCompletionInTx(client, fid);
+      }
+    }
+    await client.query('COMMIT');
+
+    if (firstStarNewlyRecorded) {
+      const fid = await getChildFamilyId(item.child_id);
+      if (fid) {
+        const { emitFirstCompletionRecorded } = require('../../lib/activation-first-completion');
+        emitFirstCompletionRecorded(fid, {
+          child_id: item.child_id,
+          source: 'parent_complete',
+        });
       }
     }
     res.json(
       justCompleted
-        ? Object.assign({}, result.rows[0], {
+        ? Object.assign({}, completeRow, {
           meta_milestones: firstStarNewlyRecorded
             ? { first_star_earned: true, flow: 'parent_complete' }
             : {},
@@ -145,8 +157,15 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
       }
     }).catch((err) => console.error('[DAILY-LOG-ITEM] Post-complete broadcast failed:', err.message));
   } catch (err) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {
+      /* ignore */
+    }
     console.error('[DAILY-LOG-ITEM] Complete error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  } finally {
+    client.release();
   }
 });
 

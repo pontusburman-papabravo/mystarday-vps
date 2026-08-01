@@ -15,6 +15,20 @@ const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
 const { STOCKHOLM_TZ } = require('./stockholm-time');
 
+function getNow() {
+  const iso = process.env.TEST_FIXED_NOW_ISO;
+  if (iso) {
+    const d = new Date(iso);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  const ms = process.env.TEST_FIXED_NOW_MS;
+  if (ms) {
+    const n = Number(ms);
+    if (!Number.isNaN(n)) return new Date(n);
+  }
+  return new Date();
+}
+
 /**
  * Calculate child's age in years from a birthday string (YYYY-MM-DD).
  * Returns a floating-point number (e.g. 4.5 for a 4.5-year-old).
@@ -26,7 +40,7 @@ function getChildAgeInYears(birthday, timezone = STOCKHOLM_TZ) {
   const birthMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(birthday).trim());
   if (!birthMatch) return null;
 
-  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: timezone });
+  const todayStr = getLocalDateStr(undefined, timezone);
   const [by, bm, bd] = birthMatch.slice(1).map(Number);
   const [ty, tm, td] = todayStr.split('-').map(Number);
 
@@ -86,7 +100,7 @@ async function batchInsertDailyLogItems(q, logId, items) {
  */
 function getLocalDateStr(dateInput, timezone) {
   const tz = timezone || 'Europe/Stockholm';
-  const d = dateInput ? new Date(dateInput) : new Date();
+  const d = dateInput ? new Date(dateInput) : getNow();
   return d.toLocaleDateString('sv-SE', { timeZone: tz }); // sv-SE produces YYYY-MM-DD
 }
 
