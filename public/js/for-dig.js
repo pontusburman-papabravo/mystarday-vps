@@ -99,12 +99,6 @@
     return pt('forDig.goal.starsHintEarn', { hint: goal.starsHint });
   }
 
-  function recommendationHighlights(goal) {
-    const highlights = goal.highlightActivities || [];
-    if (highlights.length > 0) return highlights.slice(0, 3).join(' · ');
-    return goal.tagline || '';
-  }
-
   function shouldSkipChildPicker(preselectedChildId) {
     if (children.length === 1) return true;
     return Boolean(preselectedChildId);
@@ -514,10 +508,6 @@
       </div>`;
   }
 
-  function customizeStarLabel() {
-    return pt('forDig.activation.starsWord');
-  }
-
   function buildCustomizeHtml(goal, preview, starOverrides) {
     const items = (preview && preview.items) || [];
     const type = preview && preview.type;
@@ -603,7 +593,7 @@
 
     return new Promise((resolve) => {
       let phase = shouldSkipChildPicker(preselectedChildId) ? 'confirm' : 'pick';
-      let selectedChildIds = initialIds;
+      const selectedChildIds = initialIds;
       let preview = null;
       let plan = null;
       let planLoading = false;
@@ -821,7 +811,7 @@
 
     return new Promise((resolve) => {
       let intentRecorded = false;
-      const backdrop = showModal(html, (root) => {
+      showModal(html, (root) => {
         const dismiss = () => {
           root.remove();
           resolve();
@@ -1137,7 +1127,7 @@
   // it appears.
   if (!registerPageBoot()) {
     let bootAttempts = 0;
-    var bootTimer = setInterval(function () {
+    const bootTimer = setInterval(function () {
       bootAttempts += 1;
       if (registerPageBoot() || bootAttempts >= 40) {
         clearInterval(bootTimer);

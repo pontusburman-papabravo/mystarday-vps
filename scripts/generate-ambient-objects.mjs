@@ -19,10 +19,10 @@ function buildClientSource(pack) {
 (function () {
   'use strict';
 
-  var PACK = ${JSON.stringify(pack, null, 2)};
+  const PACK = ${JSON.stringify(pack, null, 2)};
 
   function getScene(sceneId) {
-    var scene = PACK.scenes[sceneId];
+    const scene = PACK.scenes[sceneId];
     if (!scene || !scene.objects) return [];
     return scene.objects.slice();
   }

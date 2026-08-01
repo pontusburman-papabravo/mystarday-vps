@@ -57,7 +57,7 @@ async function submitGiveStars() {
     showToast(`⭐ ${starCount === 1 ? spt('schedule.modals.giveStars.successOne') : spt('schedule.modals.giveStars.success', { count: starCount })}`);
     await loadDashboardCards();
     await loadStarHistory();
-  } catch (err) {
+  } catch (_err) {
     errEl.textContent = spt('schedule.errors.network');
     errEl.classList.remove('hidden');
     btn.disabled = false;
@@ -128,7 +128,7 @@ async function openRequestPanel(childId, childName) {
     }
 
     content.innerHTML = html;
-  } catch (err) {
+  } catch (_err) {
     content.innerHTML = '<p class="text-center text-red-500 py-6">Kunde inte ladda förfrågningar.</p>';
   }
 }

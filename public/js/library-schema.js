@@ -765,7 +765,7 @@ function openCopyScheduleModal(childId, childName) {
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-function onCopySourceChange(value) {
+function onCopySourceChange(_value) {
   const dayPicker = document.getElementById('copyFromDayPicker');
   const overwriteRow = document.getElementById('copyFromOverwriteRow');
   if (dayPicker) dayPicker.classList.remove('hidden');
@@ -847,3 +847,11 @@ window.openScheduleCopyDialog = openScheduleCopyDialog;
 window.toggleScheduleCopyPeriod = toggleScheduleCopyPeriod;
 window.renderStdScheduleItem = renderStdScheduleItem;
 window.toggleStdSubSteps = toggleStdSubSteps;
+window.toggleTemplateFavorite = toggleTemplateFavorite;
+window.executeCreateTemplate = executeCreateTemplate;
+window.deleteTemplate = deleteTemplate;
+window.openCopyFamilyTemplateDialog = openCopyFamilyTemplateDialog;
+window.executeScheduleCopy = executeScheduleCopy;
+window.openCopyScheduleModal = openCopyScheduleModal;
+window.onCopySourceChange = onCopySourceChange;
+window.executeCopyFrom = executeCopyFrom;

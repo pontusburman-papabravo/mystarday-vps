@@ -12,14 +12,6 @@
     settings: 'Inställningar',
   };
 
-  const PARENT_LABELS = {
-    landningssidor: 'Landningssidor',
-    produktanalys: 'Produktanalys',
-    kampanjer: 'Kampanjer',
-    experiment: 'Experiment',
-    paket: 'Paket',
-  };
-
   const ADMIN_NAV_GROUPS = [
     {
       id: 'home',

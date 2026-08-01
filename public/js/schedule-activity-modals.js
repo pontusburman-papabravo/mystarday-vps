@@ -274,10 +274,6 @@ function formatDateSv(d) {
   return d.toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
-function toDateStr(d) {
-  return d.toLocaleDateString('sv-SE'); // YYYY-MM-DD (technical format for API payloads — do not localize)
-}
-
 function recDayLabel(dow) {
   return (window.ScheduleCore && ScheduleCore.dayShort) ? ScheduleCore.dayShort(dow) : spt('schedule.daysShort.' + dow);
 }
@@ -398,7 +394,6 @@ async function confirmRecurrenceMultiDay() {
   const sections = _pendingRecurrenceSections && _pendingRecurrenceSections.length > 0
     ? _pendingRecurrenceSections : [_pendingRecurrenceSection];
 
-  let addedCount = 0;
   let errorOccurred = false;
 
   try {
@@ -428,8 +423,7 @@ async function confirmRecurrenceMultiDay() {
           method: 'POST',
           body: JSON.stringify(itemBody)
         });
-        if (res.ok) addedCount++;
-        else {
+        if (!res.ok) {
           const err = await res.json();
           if (!err.error || !err.error.includes('finns redan')) errorOccurred = true;
         }
@@ -443,7 +437,7 @@ async function confirmRecurrenceMultiDay() {
       showToast(spt('schedule.toasts.addedWeekly', { days: dayNames }) + ' ✅');
     }
     await loadScheduleForDay();
-  } catch (e) {
+  } catch (_e) {
     document.getElementById('recurrenceError').textContent = spt('schedule.validation.networkError');
     document.getElementById('recurrenceError').classList.remove('hidden');
   } finally {
@@ -488,7 +482,7 @@ async function addOnceToDay() {
   return res.ok;
 }
 
-async function confirmRecurrence(choice) {
+async function confirmRecurrence(_choice) {
   // choice is always 'once' now — 'weekly' is replaced by confirmRecurrenceMultiDay
   document.getElementById('recurrenceError').classList.add('hidden');
   const onceBtn = document.getElementById('recurrenceOnceBtn');
@@ -510,7 +504,7 @@ async function confirmRecurrence(choice) {
       onceBtn.disabled = false;
       if (weeklyBtn) weeklyBtn.disabled = false;
     }
-  } catch (e) {
+  } catch (_e) {
     document.getElementById('recurrenceError').textContent = spt('schedule.validation.networkError');
     document.getElementById('recurrenceError').classList.remove('hidden');
     onceBtn.disabled = false;
@@ -739,7 +733,7 @@ async function submitCreateActivity() {
     _pendingRecurrenceStart = document.getElementById('addStartTime')?.value || null;
     _pendingRecurrenceEnd = document.getElementById('addEndTime')?.value || null;
     openRecurrenceModal();
-  } catch (e) {
+  } catch (_e) {
     const modalSpinner = document.getElementById('createActivitySpinner');
     if (modalSpinner) modalSpinner.classList.add('hidden');
     showToast(spt('schedule.validation.networkError'), true);
@@ -800,7 +794,7 @@ function renderEditTplSubsteps() {
   const list = document.getElementById('editTplSubstepList');
   const visible = _editTplSubsteps.filter(s => !s._deleted);
   if (visible.length === 0) { list.innerHTML = ''; return; }
-  list.innerHTML = visible.map((s, vi) => {
+  list.innerHTML = visible.map((s, _vi) => {
     const realIdx = _editTplSubsteps.indexOf(s);
     return `<div class="flex items-center gap-2 bg-sky/50 rounded-lg px-3 py-1.5">
       <span class="text-sm flex-1">${escHtml(s.name)}</span>

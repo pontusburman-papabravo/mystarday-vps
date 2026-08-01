@@ -19,17 +19,15 @@
    *   If provided, looks for: prefix+'Year', prefix+'Month', prefix+'Day'.
    */
   function initBirthdayPicker(prefix) {
-    let yearSel, monthSel, daySel, daySelId;
+    let yearSel, monthSel;
 
     if (prefix) {
       yearSel  = document.getElementById(prefix + 'Year');
       monthSel = document.getElementById(prefix + 'Month');
-      daySelId = prefix + 'Day';
     } else {
       // Onboarding / no-prefix mode: fixed IDs for childBirthday
       yearSel  = document.getElementById('childBirthdayYear');
       monthSel = document.getElementById('childBirthdayMonth');
-      daySelId = 'childBirthdayDay';
     }
 
     if (!yearSel) return;

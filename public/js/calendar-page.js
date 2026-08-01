@@ -295,7 +295,6 @@ function renderGrid(data) {
           const item = document.createElement('div');
           const isDone = act.completed === true;
           const isNotDone = act.completed === false; // past log, not done
-          const isPlanned = act.source === 'template'; // future, no log
 
           item.className = 'act-item' + (isDone ? ' completed-item' : '');
 
@@ -438,6 +437,9 @@ window.__bootCalendarPage = function (opts) {
   if (opts && opts.force) resetCalendarBootState();
   bootCalendar();
 };
+
+window.changeWeek = changeWeek;
+window.goToToday = goToToday;
 
 function setupCalendarPageBoot() {
   if (!registerCalendarBootHandler()) {

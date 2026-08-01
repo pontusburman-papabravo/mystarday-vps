@@ -159,7 +159,6 @@
   }
 
   async function exitToParent(room) {
-    const target = room.exit_target;
     if (window.LivingWorldTransition
         && typeof window.LivingWorldTransition.isActive === 'function'
         && window.LivingWorldTransition.isActive()

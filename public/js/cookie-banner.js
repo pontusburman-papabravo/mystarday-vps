@@ -82,7 +82,7 @@
     try {
       const raw = localStorage.getItem(LS_KEY);
       return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
+    } catch (_e) { return null; }
   }
 
   /** Sparar val + sätter cc_consent cookie (1 år) */
@@ -93,7 +93,7 @@
       personalization: choices.personalization,
       timestamp:       new Date().toISOString(),
     };
-    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) {}
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (_e) {}
     // Sätt cookie 1 år
     const expires = new Date();
     expires.setFullYear(expires.getFullYear() + 1);

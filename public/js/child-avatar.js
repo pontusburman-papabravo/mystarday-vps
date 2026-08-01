@@ -53,7 +53,7 @@
       '</div>';
   }
 
-  function pickerRow(label, items, field, current, onPick) {
+  function pickerRow(label, items, field, current, _onPick) {
     const btns = items.map(function (item) {
       const active = current === item.id ? ' is-active' : '';
       return '<button type="button" class="cu-pick-btn' + active + '" data-field="' + field + '" data-val="' + item.id + '">' +

@@ -74,7 +74,6 @@ let _rewardsLoaded = false;
 let _activitiesLoaded = false;
 let _categoriesLoaded = false;
 let _libIsAdmin = false;
-let confirmCallback = null;
 let favValue = false;
 let approvalValue = true;
 let activeSchemaTab = null; // category id of active schema tab
@@ -506,7 +505,7 @@ function initActivityDnD() {
     const s = new Sortable(el, {
       animation: 200, handle: '.drag-handle', draggable: '[data-id]',
       ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', forceFallback: true,
-      onEnd: async function(evt) {
+      onEnd: async function(_evt) {
         const items = Array.from(evt.from.querySelectorAll('[data-id]'));
         const order = items.map((item, i) => ({ id: item.dataset.id, sort_order: i }));
         try {
@@ -769,7 +768,7 @@ function renderLibActSubsteps() {
     list.innerHTML = '<p class="text-xs text-text-soft italic">' + lpt('library.empty.noSubsteps') + '</p>';
     return;
   }
-  list.innerHTML = visible.map((s, vi) => {
+  list.innerHTML = visible.map((s) => {
     const realIdx = _libActSubsteps.indexOf(s);
     const icon = s.icon ? `<span class="text-base">${s.icon}</span>` : '';
     const editBtn = s.id
@@ -1493,7 +1492,7 @@ function initRewardsDnD() {
   _rewardSortable = new Sortable(el, {
     animation: 200, handle: '.drag-handle', draggable: '[data-id]',
     ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', forceFallback: true,
-    onEnd: async function(evt) {
+    onEnd: async function(_evt) {
       const items = Array.from(el.querySelectorAll('[data-id]'));
       const order = items.map((item, i) => ({ id: item.dataset.id, sort_order: i }));
       try {
@@ -1622,14 +1621,12 @@ function openConfirmModal(msg, callback) {
   const msgEl = document.getElementById('confirmMsg');
   // Support newlines in message by splitting into paragraphs
   msgEl.innerHTML = msg.split('\n').map(line => line.trim() ? `<span class="block mb-2">${escHtml(line)}</span>` : '').join('');
-  confirmCallback = callback;
   document.getElementById('confirmModal').classList.remove('hidden');
   document.getElementById('confirmOkBtn').onclick = async () => { closeConfirmModal(); await callback(); };
 }
 
 function closeConfirmModal() {
   document.getElementById('confirmModal').classList.add('hidden');
-  confirmCallback = null;
 }
 
 function closeAllLibraryModals() {
@@ -1666,3 +1663,37 @@ window.openActivityModalById = openActivityModalById;
 window.openRewardModal = openRewardModal;
 window.selectSchemaTab = selectSchemaTab;
 window.loadActivities = loadActivities;
+window.toggleOverflowMenu = toggleOverflowMenu;
+window.openActivityModalInCategory = openActivityModalInCategory;
+window.selectIcon = selectIcon;
+window.onEmojiTextInput = onEmojiTextInput;
+window.selectRewardIcon = selectRewardIcon;
+window.onRewardEmojiTextInput = onRewardEmojiTextInput;
+window.toggleActivityFavoriteInline = toggleActivityFavoriteInline;
+window.toggleFavorite = toggleFavorite;
+window.toggleApproval = toggleApproval;
+window.openCategoryModal = openCategoryModal;
+window.submitCategory = submitCategory;
+window.deleteCategory = deleteCategory;
+window.deleteCategoryWithConfirm = deleteCategoryWithConfirm;
+window.addLibActSubstep = addLibActSubstep;
+window.removeLibActSubstep = removeLibActSubstep;
+window.openLibActSubstepEdit = openLibActSubstepEdit;
+window.submitLibActSubstepEdit = submitLibActSubstepEdit;
+window.clearLibActStepIcon = clearLibActStepIcon;
+window.submitActivity = submitActivity;
+window.deleteActivity = deleteActivity;
+window.openActivityModalWithName = openActivityModalWithName;
+window.copyStandardActivityToLibrary = copyStandardActivityToLibrary;
+window.openRewardModalWithName = openRewardModalWithName;
+window.copyStandardRewardToLibrary = copyStandardRewardToLibrary;
+window.toggleRewardFavorite = toggleRewardFavorite;
+window.toggleRewardActive = toggleRewardActive;
+window.submitReward = submitReward;
+window.deleteReward = deleteReward;
+window.selectStar = selectStar;
+window.closeCategoryModal = closeCategoryModal;
+window.closeActivityModal = closeActivityModal;
+window.closeRewardModal = closeRewardModal;
+window.closeConfirmModal = closeConfirmModal;
+window.closeLibActSubstepEdit = closeLibActSubstepEdit;

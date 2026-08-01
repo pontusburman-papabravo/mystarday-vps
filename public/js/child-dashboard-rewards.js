@@ -634,8 +634,8 @@ function playCoinSound() {
       osc.start(t);
       osc.stop(t + 0.2);
     });
-    setTimeout(() => { try { ctx.close(); } catch(e) {} }, 1200);
-  } catch(e) { /* Audio not available - silent fail */ }
+    setTimeout(() => { try { ctx.close(); } catch (_e) {} }, 1200);
+  } catch (_e) { /* Audio not available - silent fail */ }
 }
 
 // ── Coin ripple visual on entry ─────────────────────────

@@ -43,7 +43,7 @@
           <a href="#arenden" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-sky rounded-xl text-sm font-bold">Ärenden</a>
           <a href="#paketintresse" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-gold rounded-xl text-sm font-bold">Paketintresse</a>
         </div>`;
-    } catch (e) {
+    } catch (_e) {
       body.innerHTML = '<p class="text-red-500 text-sm">Kunde inte ladda familj</p>';
     }
   }

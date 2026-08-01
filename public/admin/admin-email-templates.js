@@ -290,3 +290,9 @@ function escHtml(str) {
     .replace(/>/g, '&gt;');
   // Don't escape " inside textarea (not an attribute context)
 }
+
+window.loadEmailTemplates = loadEmailTemplates;
+window.switchEmailTab = switchEmailTab;
+window.saveEmailTemplate = saveEmailTemplate;
+window.toggleEmailPreview = toggleEmailPreview;
+window.insertVariable = insertVariable;

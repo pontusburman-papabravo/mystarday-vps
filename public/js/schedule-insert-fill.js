@@ -137,7 +137,7 @@ async function doInsertDayFromTemplate(templateId, forceOverwrite = false) {
 
     // Reload if this is the current day
     if (insertDayTarget === currentDay) await loadScheduleForDay();
-  } catch (e) {
+  } catch (_e) {
     showToast(spt('schedule.validation.generic'), true);
   }
 }
@@ -175,7 +175,7 @@ async function doInsertDayFromStandardSchedule(scheduleId, scheduleName, forceOv
 
     // Reload schedule view
     await loadScheduleForDay();
-  } catch (e) {
+  } catch (_e) {
     showToast(spt('schedule.validation.generic'), true);
   }
 }
@@ -228,7 +228,7 @@ async function doInsertDayExecute(categoryId, existingScheduleId) {
       currentScheduleId = data.id || (res.status === 409 ? data.id : null);
       if (currentScheduleId) await loadScheduleForDay();
     }
-  } catch (e) {
+  } catch (_e) {
     showToast(spt('schedule.validation.generic'), true);
   }
 }
@@ -321,7 +321,6 @@ async function fetchChildSchedules(childId) {
 
 // ── Fill Week ─────────────────────────────────────────────
 let fillWeekSelectedCatId = null;
-let fillWeekSelectedCatName = null;
 let fillWeekDaySelections = [];
 
 let allCategories = []; // { id, name, template_count }
@@ -345,7 +344,6 @@ async function loadAllCategories() {
 async function openFillWeekModal() {
   if (!currentChildId) { showToast(spt('schedule.insert.pickChild'), true); return; }
   fillWeekSelectedCatId = null;
-  fillWeekSelectedCatName = null;
   fillWeekDaySelections = [];
 
   if (allCategories.length === 0) await loadAllCategories();
@@ -378,7 +376,6 @@ function closeFillWeekModal() {
 
 function fillWeekSelectSchema(catId, catName) {
   fillWeekSelectedCatId = catId;
-  fillWeekSelectedCatName = catName;
 
   // Highlight selected
   document.querySelectorAll('.fw-schema-btn').forEach(b => {

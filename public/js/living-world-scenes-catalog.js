@@ -4,7 +4,7 @@
  */
 (function () {
   'use strict';
-  var rooms = [
+  const rooms = [
   {
     "scene_id": "home_exterior",
     "world_id": "home_exterior",
@@ -701,13 +701,13 @@
   }
 ];
   function byWorldId(id) {
-    for (var i = 0; i < rooms.length; i++) {
+    for (let i = 0; i < rooms.length; i++) {
       if (rooms[i].world_id === id) return rooms[i];
     }
     return null;
   }
   function bySceneId(id) {
-    for (var i = 0; i < rooms.length; i++) {
+    for (let i = 0; i < rooms.length; i++) {
       if (rooms[i].scene_id === id) return rooms[i];
     }
     return null;

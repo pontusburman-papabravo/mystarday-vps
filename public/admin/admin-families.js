@@ -66,7 +66,7 @@
         return nameA.localeCompare(nameB, 'sv');
       });
 
-      container.innerHTML = families.map((family, idx) => {
+      container.innerHTML = families.map((family) => {
         const shortId = family.id ? family.id.substring(0, 8) : '?';
         const parentRows = (family.parents || []).map(p => {
           const verifiedBadge = p.verified
@@ -676,10 +676,7 @@
     }
 
     // ── Library Tab Switching ───────────────────────────────────
-    let activeLibTab = 'activities'; // 'activities' | 'rewards'
-
     function switchLibTab(tab) {
-      activeLibTab = tab;
       const btnA = document.getElementById('libTabActivities');
       const btnR = document.getElementById('libTabRewards');
       const btnS = document.getElementById('libTabSchedules');
@@ -933,4 +930,36 @@
         alert(err.message || 'Kunde inte uppdatera komponent');
       }
     }
+
+    // admin/index.html + genererad familjmarkup onclick
+    window.saveFamilyName = saveFamilyName;
+    window.openImpersonation = openImpersonation;
+    window.toggleFamilyCard = toggleFamilyCard;
+    window.archiveFamily = archiveFamily;
+    window.toggleArchivedSection = toggleArchivedSection;
+    window.restoreFamily = restoreFamily;
+    window.deleteFamilyPermanent = deleteFamilyPermanent;
+    window.confirmFamilyDelete = confirmFamilyDelete;
+    window.cancelFamilyDelete = cancelFamilyDelete;
+    window.filterMessages = filterMessages;
+    window.saveNote = saveNote;
+    window.toggleRead = toggleRead;
+    window.deleteMessage = deleteMessage;
+    window.approveParent = approveParent;
+    window.toggleAdmin = toggleAdmin;
+    window.lockParent = lockParent;
+    window.unlockParent = unlockParent;
+    window.resetParentPassword = resetParentPassword;
+    window.confirmResetPw = confirmResetPw;
+    window.deleteAccount = deleteAccount;
+    window.confirmDelete = confirmDelete;
+    window.cancelDelete = cancelDelete;
+    window.switchLibTab = switchLibTab;
+    window.openChangeEmailModal = openChangeEmailModal;
+    window.confirmChangeEmail = confirmChangeEmail;
+    window.openUnlinkAppleModal = openUnlinkAppleModal;
+    window.confirmUnlinkApple = confirmUnlinkApple;
+    window.toggleAuditLog = toggleAuditLog;
+    window.toggleFamilyComponents = toggleFamilyComponents;
+    window.setFamilyComponent = setFamilyComponent;
 

@@ -337,8 +337,7 @@ function _drawScaleChart(canvasId, b, chartsArr) {
     labels.push(label);
     data.push(countMap[v] || 0);
   }
-  // avg line position
-  const avgPos = b.avg !== null ? b.avg - min : null;
+  // avg line position (avg used inline in backgroundColor below)
   const chart = new Chart(canvas, {
     type: 'bar',
     data: {
@@ -361,7 +360,7 @@ function _drawScaleChart(canvasId, b, chartsArr) {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { afterBody: (ctx) => b.avg !== null ? [`Medelvärde: ${b.avg}`] : [] } },
+        tooltip: { callbacks: { afterBody: (_ctx) => b.avg !== null ? [`Medelvärde: ${b.avg}`] : [] } },
       },
       scales: {
         x: { ticks: { font: { size: 10 } }, grid: { display: false } },
@@ -418,7 +417,7 @@ async function openComparison() {
   try {
     comparisonSurveys = await Auth.api('/api/admin/surveys');
     renderComparisonSelector(comparisonSurveys);
-  } catch (err) {
+  } catch (_err) {
     container.innerHTML = '<p class="text-red-500 text-sm">Kunde inte ladda enkäter.</p>';
   }
 }
@@ -638,3 +637,12 @@ function _typeLabel(type) {
 }
 
 // escHtml is defined in admin-surveys.js and shared globally.
+
+window.openRapport = openRapport;
+window.closeRapport = closeRapport;
+window.openExportPanel = openExportPanel;
+window.closeExportPanel = closeExportPanel;
+window.downloadCSV = downloadCSV;
+window.openComparison = openComparison;
+window.closeComparison = closeComparison;
+window.runComparison = runComparison;

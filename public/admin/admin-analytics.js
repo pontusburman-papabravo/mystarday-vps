@@ -9,7 +9,6 @@
 
 const chartInstances = {};
 let activeTab = 'overview';
-const trendChart = null;
 
 function syncAnalyticsHistoryWarnings() {
   const warn = window.AdminHistoryWarning;
@@ -49,7 +48,7 @@ async function loadAnalytics() {
 
 function prefetchTabs() {
   // Kick off data fetches for non-visible tabs so they're ready when switched
-  ['dynamics', 'warnings', 'retention', 'trends', 'newsletter'].forEach(tab => {
+  ['dynamics', 'warnings', 'retention', 'trends', 'newsletter'].forEach((_tab) => {
     // Just pre-warm by rendering the tab structure — data loads on demand
   });
 }

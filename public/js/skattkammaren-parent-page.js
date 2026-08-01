@@ -48,7 +48,7 @@
       _children = await res.json();
       renderChildChips();
       if (_children.length === 1) selectChild(_children[0].id);
-    } catch (e) {
+    } catch (_e) {
       const chips = document.getElementById('childChips');
       if (chips) chips.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda barn</p>';
     }
@@ -79,8 +79,6 @@
     if (trophySection && trophyGrid) {
       if (earned.length > 0) {
         trophyGrid.innerHTML = earned.map(function (r, i) {
-          const d = new Date(r.created_at || r.redeemed_at);
-          const dateStr = isNaN(d) ? '' : d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
           return '<div class="trg-item earned" style="animation-delay:' + (i * 40) + 'ms;">' +
             '<span class="trg-badge">✅</span><div class="trg-icon">' + (r.reward_icon || '🎁') + '</div>' +
             '<div class="trg-name">' + escHtml(r.reward_name) + '</div></div>';
@@ -146,7 +144,7 @@
       const res = await window.apiFetch('/api/rewards/child-view/' + childId);
       if (!res.ok) throw new Error('API error');
       renderTreasury(await res.json());
-    } catch (e) {
+    } catch (_e) {
       setView('placeholder');
       if (window.showToast) showToast('Kunde inte ladda Skattkammaren', 'error');
     }

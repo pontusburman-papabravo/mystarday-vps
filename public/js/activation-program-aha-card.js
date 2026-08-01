@@ -11,12 +11,6 @@
     return document.getElementById(MODAL_ID);
   }
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str || '';
-    return div.innerHTML;
-  }
-
   function showModal(item) {
     const modal = getModal();
     if (!modal) return;

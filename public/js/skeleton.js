@@ -30,31 +30,9 @@ function el(selector) {
   return document.querySelector(selector);
 }
 
-function els(selector) {
-  return document.querySelectorAll(selector);
-}
-
 function $html(el, html) {
   if (!el) return;
   el.innerHTML = html;
-}
-
-// Wrap content in skeleton-fade-in + loaded class
-function fadeInContent(el, content) {
-  if (!el) return;
-  $html(el, content);
-  el.classList.add('skeleton-fade-in');
-  el.classList.add('loaded');
-}
-
-function fadeInContentRaw(el, content) {
-  if (!el) return;
-  el.innerHTML = content;
-  el.style.opacity = '0';
-  // Trigger reflow
-  void el.offsetWidth;
-  el.style.transition = 'opacity 0.35s ease';
-  el.style.opacity = '1';
 }
 
 // ── Child dashboard skeletons ───────────────────────────────
@@ -139,14 +117,6 @@ function renderParentDashboardSkeleton() {
   `);
 }
 
-// Renders shimmer skeleton for a single child card (used when expanding)
-function renderChildCardSkeleton() {
-  if (!Skeleton.isNative) return;
-  return `
-    <div class="skeleton skeleton-child-card" style="height:88px; margin-bottom:12px;"></div>
-  `;
-}
-
 // ── Activity list skeleton (parent schedule editor) ─────────
 
 function renderActivityListSkeleton() {
@@ -227,24 +197,6 @@ function createSkeletonTimer(onShow) {
   timer = setTimeout(showIfNeeded, Skeleton.minDisplayMs);
 
   return { stop, showIfNeeded };
-}
-
-// ── Fade helpers ─────────────────────────────────────────────
-
-// Call this when data arrives to smoothly replace skeleton with content.
-// container: DOM element containing skeleton
-// contentFn: function(container) -> sets innerHTML and applies fade
-function replaceSkeletonWithContent(container, contentFn) {
-  if (!container) return;
-  contentFn(container);
-  container.classList.add('skeleton-fade-in');
-  container.classList.add('loaded');
-}
-
-// Convenience: show skeleton instantly, return timer controller
-function showSkeletonNow(renderFn) {
-  renderFn();
-  return { stop: function() {} };
 }
 
 // ── Exposed API ─────────────────────────────────────────────

@@ -14,7 +14,6 @@ let childData = null;
 let hasTeacchAccess = false;
 let pinBuffer = '';
 let selectedEmoji = '';
-let selectedAvatarUrl = null;   // set when parent picks a new photo (PWA + native)
 let rewardsData = [];
 
 // showToast (red/navy) and showSuccessToast (green) are in /js/toast.js
@@ -72,7 +71,7 @@ function makeToggle(id, field, value, onChange) {
       await saveSetting(field, newVal);
       showSuccessToast(newVal ? 'Inställningar aktiverade!' : 'Inställningar inaktiverade!');
       if (onChange) onChange(newVal);
-    } catch(e) {
+    } catch(_e) {
       // revert
       track.classList.toggle('on');
     }
@@ -249,7 +248,7 @@ function initViewToggle(initialType) {
     try {
       await saveSetting('view_type', 'day_sections');
       showSuccessToast('Dagsvy sparad!');
-    } catch(e) { setActive('now_next_later'); }
+    } catch(_e) { setActive('now_next_later'); }
   };
   tlBtn.onclick = async () => {
     if (currentViewType === 'now_next_later') return;
@@ -257,7 +256,7 @@ function initViewToggle(initialType) {
     try {
       await saveSetting('view_type', 'now_next_later');
       showSuccessToast('Nu/Nästa/Senare sparat!');
-    } catch(e) { setActive('day_sections'); }
+    } catch(_e) { setActive('day_sections'); }
   };
 }
 
@@ -330,7 +329,6 @@ async function changeChildPhoto() {
     const updated = await AvatarUploadFlow.pickCropAndUpload(endpoint);
     if (!updated) return;
     childData = { ...childData, ...updated };
-    selectedAvatarUrl = null;
     setHeaderAvatarPreview(childData);
     if (childData.username && typeof Auth.persistKnownChildrenFromSession === 'function') {
       Auth.persistKnownChildrenFromSession([childData], Auth.getFamilyId());
@@ -499,14 +497,18 @@ async function loadRewards() {
         }
       };
     });
-  } catch (err) {
+  } catch (_err) {
     if (container) container.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda belöningar.</p>';
   }
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+window.saveProfile = saveProfile;
+window.changeChildPhoto = changeChildPhoto;
+window.unlockChild = unlockChild;
 
 // ── Main render ─────────────────────────────────────────
 function renderPage(child) {

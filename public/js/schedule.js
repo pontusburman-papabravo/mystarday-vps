@@ -75,31 +75,26 @@ document.addEventListener('touchstart', e => {
 
 // ── Constants ────────────────────────────────────────────
 const {
-  DAYS,
-  DAYS_SHORT,
   dayName,
   dayShort,
-  SECTIONS,
   fmtTime,
-  sectionTimeLabel,
   getDayDateLabel,
   buildSectionCardsHtml,
 } = window.ScheduleCore;
-function setBirthdayPicker(prefix, dateStr) {
-  if (!dateStr) return;
-  const parts = dateStr.split('T')[0].split('-');
-  if (parts.length < 3) return;
-  document.getElementById(prefix + 'Year').value = parts[0];
-  document.getElementById(prefix + 'Month').value = parts[1];
-  updateBirthdayDays(prefix);
-  document.getElementById(prefix + 'Day').value = parts[2];
-  updateBirthdayHidden(prefix);
-}
+/* exported DAYS, DAYS_SHORT, SECTIONS, activities, sectionTimes, selectedTemplateId, addSectionOverride,
+   addSectionsMulti, editSectionVal, _pendingRecurrenceTemplateId, _pendingRecurrenceTemplateName,
+   _pendingRecurrenceSection, _pendingRecurrenceSections, _pendingRecurrenceStart, _pendingRecurrenceEnd,
+   sbsChildId, sbsItems, sbsScheduleId, sbsAllData, allTemplates, templateMode, currentTemplateId,
+   templateItems, templateName, dayOffset, scheduleMode, fwWeekOffset, fwChildData */
+/* eslint-disable no-var -- global lexical contract for schedule-*.js split modules */
+var DAYS = window.ScheduleCore.DAYS;
+var DAYS_SHORT = window.ScheduleCore.DAYS_SHORT;
+var SECTIONS = window.ScheduleCore.SECTIONS;
+/* eslint-enable no-var */
 
 // ── State ────────────────────────────────────────────────
 let children = [];
-const activities = [];
-const childSchedules = {};
+let activities = [];
 let currentChildId = null;
 let currentDay = 1;
 let currentScheduleId = null;
@@ -111,7 +106,6 @@ let addSectionsMulti = new Set(['dag']); // multi-section selection state
 let editSectionVal = 'dag';
 let copyDaySelections = [];
 let copyTargetChildId = null;
-const allExpanded = true;
 
 // Recurrence dialog state — set when submitAddActivity succeeds, before showing the prompt
 let _pendingRecurrenceTemplateId = null;
@@ -125,26 +119,27 @@ let _pendingRecurrenceEnd = null;
 let dndType = null; // 'within-day' | 'activity-to-day' | 'day-tab' | 'timeline' | 'sbs'
 let dndSrcDay = null;
 let currentViewMode = 'normal';
-/* eslint-disable prefer-const -- assigned from schedule-views.js (sbs view) */
 let sbsChildId = null;
 let sbsItems = [];
 let sbsScheduleId = null;
 let sbsAllData = {}; // { [childId]: { items: [], scheduleId: null } }
-/* eslint-enable prefer-const */
 let allTemplates = [];
 
 // ── Template editing mode ──────────────────────────────
 // Templates are family-level schedules (child_id IS NULL) editable via the library page.
 // When ?view=template&template=<id> is in the URL, schedule.js enters template mode.
-const templateMode = false;
-const currentTemplateId = null;
+let templateMode = false;
+let currentTemplateId = null;
 let templateItems = [];  // items for the currently loaded template
-const templateName = '';
+let templateName = '';
 
 // ── Calendar navigation state ─────────────────────────────
 let calView = 'week'; // 'day' | 'week' | 'month'
 let weekOffset = 0;   // 0 = current week, -1 = last week, +1 = next week
 let dayOffset = 0;    // offset in days from today (for day view)
+let scheduleMode = 'single'; // 'single' | 'family' — schedule-family-grid.js
+let fwWeekOffset = 0;
+let fwChildData = {}; // childId → { [dow]: { scheduleId, items[] } }
 
 if (window.ScheduleCalNav) {
   ScheduleCalNav.registerHost({
@@ -374,7 +369,6 @@ async function renderChildrenOverview() {
   const sm = {}; for (const r of results) sm[r.childId] = r.schedules;
 
   // Also fetch items for each schedule to show activity names
-  const itemResults = {};
   const allSchedules = [];
   for (const r of results) {
     for (const s of r.schedules) {
@@ -737,7 +731,7 @@ async function checkIfDayPaused() {
       const content = document.getElementById('scheduleContent');
       if (content) content.prepend(banner);
     }
-  } catch (e) { /* non-critical — ignore */ }
+  } catch (_e) { /* non-critical — ignore */ }
 }
 
 function renderEmptyDay() {
@@ -793,7 +787,6 @@ function renderItem(item) {
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
   const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="' + spt('schedule.actions.dragReorder') + '">⠿</button>';
   const oncePin = isOnce ? '<span title="' + spt('schedule.actions.oneOff') + '" class="text-[10px] flex-shrink-0">📌</span>' : '';
-  const moveBtns = isOnce ? '' : `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="${spt('schedule.editor.moveUp')}" aria-label="${spt('schedule.editor.moveUp')}">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="${spt('schedule.editor.moveDown')}" aria-label="${spt('schedule.editor.moveDown')}">▼</button>`;
   const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="${spt('schedule.editor.editTime')}">🕐</button>`;
   const tplIcon = canEditTpl
     ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="${spt('schedule.editor.editActivity')}">${item.activity_icon || '📌'}</button>`
@@ -932,7 +925,7 @@ function openCopyChildModal(){
   document.getElementById('copyChildPicker').innerHTML=others.map(c=>`<button type="button" onclick="selectCopyChild('${c.id}',this)" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-lavender hover:border-gold transition-colors text-left" data-cid="${c.id}"><span class="text-2xl">${c.emoji||'👤'}</span><span class="font-semibold text-navy">${escHtml(c.name)}</span></button>`).join('');
   document.getElementById('copyChildModal').classList.remove('hidden');
 }
-function selectCopyChild(id,btn){copyTargetChildId=id;document.querySelectorAll('#copyChildPicker button').forEach(b=>{b.classList.toggle('border-gold',b.dataset.cid===id);b.classList.toggle('bg-sky',b.dataset.cid===id);});}
+function selectCopyChild(id,_btn){copyTargetChildId=id;document.querySelectorAll('#copyChildPicker button').forEach(b=>{b.classList.toggle('border-gold',b.dataset.cid===id);b.classList.toggle('bg-sky',b.dataset.cid===id);});}
 function closeCopyChildModal(){document.getElementById('copyChildModal').classList.add('hidden');}
 async function submitCopyChild(){
   if(!copyTargetChildId){showToast(spt('schedule.copy.selectChild'),true);return;}
@@ -942,38 +935,34 @@ async function submitCopyChild(){
   else showToast(data.error||spt('schedule.errors.generic'),true);
 }
 
-// ── Insert Day (+ button per day tab) ────────────────────
-const insertDayTarget = null; // dow 0-6
-const familyScheduleTemplates = []; // cached family-level templates
-const standardLibrarySchedules = []; // admin-created standard schedules
-
-// Apply a family schedule template to insertDayTarget
-// Apply a standard library schedule (admin-created default) to insertDayTarget
-// Insert empty schedule (no template)
-// ── New Schedule Template ─────────────────────────────────
-// ── Delete Schedule Template ──────────────────────────────
-const _deleteScheduleTemplateId = null;
-
-// ── Fill Week ─────────────────────────────────────────────
-const fillWeekSelectedCatId = null;
-const fillWeekSelectedCatName = null;
-const fillWeekDaySelections = [];
-
-const allCategories = []; // { id, name, template_count }
-
 // ── Confirm modal ─────────────────────────────────────────
 function openConfirmModal(msg,cb){document.getElementById('confirmMsg').textContent=msg;document.getElementById('confirmOkBtn').onclick=async()=>{closeConfirmModal();await cb();};document.getElementById('confirmModal').classList.remove('hidden');}
 function closeConfirmModal(){document.getElementById('confirmModal').classList.add('hidden');}
 
 // ── Touch DnD Bridge — /js/dnd-touch-bridge.js (Fas 8 PR-0) ─
 
-// ── Family Grid Mode (Alla barn) — state; logic in schedule-family-grid.js ──
-let scheduleMode = 'single'; // 'single' | 'family'
-let fwWeekOffset = 0;
-let fwChildData = {}; // childId → { [dow]: { scheduleId, items[] } }
-
 // ── Modal backdrop close ──────────────────────────────────
 ['addActivityModal','editItemModal','copyDayModal','copyChildModal','copyWeeksModal','confirmModal','dayDndModal','specialDayModal','createActivityModal','editTemplateModal'].forEach(id=>{
   const el=document.getElementById(id);
   if(el)el.addEventListener('click',e=>{if(e.target===e.currentTarget)el.classList.add('hidden');});
 });
+
+// schedule.html + generated onclick handlers
+window.toggleOverflowMenu = toggleOverflowMenu;
+window.backToChildrenList = backToChildrenList;
+window.openRewardsForCurrentChild = openRewardsForCurrentChild;
+window.selectChild = selectChild;
+window.selectDay = selectDay;
+window.setViewMode = setViewMode;
+window.toggleScheduleSubSteps = toggleScheduleSubSteps;
+window.confirmDeleteSchedule = confirmDeleteSchedule;
+window.openCopyDayModal = openCopyDayModal;
+window.toggleCopyDay = toggleCopyDay;
+window.closeCopyDayModal = closeCopyDayModal;
+window.submitCopyDay = submitCopyDay;
+window.openCopyChildModal = openCopyChildModal;
+window.selectCopyChild = selectCopyChild;
+window.closeCopyChildModal = closeCopyChildModal;
+window.submitCopyChild = submitCopyChild;
+window.openConfirmModal = openConfirmModal;
+window.closeConfirmModal = closeConfirmModal;

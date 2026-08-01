@@ -401,7 +401,7 @@
 
   /* ── Init ──────────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
-    var androidNative = document.documentElement.classList.contains('is-native-android');
+    const androidNative = document.documentElement.classList.contains('is-native-android');
     if (!androidNative) {
       generateStars(50);
       generateClouds(5);

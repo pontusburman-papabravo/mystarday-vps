@@ -20,7 +20,7 @@
     const next = data.next_wave;
     const healthOk = data.health?.ok !== false;
 
-    let wavesHtml = (data.waves || []).map((w) => `
+    const wavesHtml = (data.waves || []).map((w) => `
       <div class="flex items-start gap-3 py-2 border-b border-sky last:border-0">
         <span class="text-xs font-bold px-2 py-1 rounded-lg border ${waveBadge(w.status)}">W${w.wave}</span>
         <div class="flex-1 min-w-0">

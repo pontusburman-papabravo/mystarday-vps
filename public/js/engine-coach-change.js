@@ -5,10 +5,10 @@
 (function () {
   'use strict';
 
-  var STORAGE_PREFIX = 'engine_coach_change_seen_';
+  const STORAGE_PREFIX = 'engine_coach_change_seen_';
 
   /** Bump release_id when user-visible coach behavior changes in prod. */
-  var ACTIVE_RELEASE_ID = 'coach_primary_v1';
+  const ACTIVE_RELEASE_ID = 'coach_primary_v1';
 
   function pt(key, params) {
     return window.pt ? window.pt(key, params) : key;

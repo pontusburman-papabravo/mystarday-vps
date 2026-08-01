@@ -347,7 +347,16 @@ function initSbsDnd() {
   });
 }
 
-// Legacy compatibility stubs (kept for any inline callers)
+// Legacy compatibility stubs (schedule.js may still call these)
 function renderSbsChildSelector() {}
 async function loadSbsSchedule() { await loadAllChildrenSchedules(); }
 async function selectSbsChild(id) { sbsChildId = id; }
+
+// schedule.js + generated HTML onclick API
+window.renderListView = renderListView;
+window.openCopyWeeksModal = openCopyWeeksModal;
+window.toggleCopyWeek = toggleCopyWeek;
+window.submitCopyWeeks = submitCopyWeeks;
+window.renderSbsChildSelector = renderSbsChildSelector;
+window.loadSbsSchedule = loadSbsSchedule;
+window.selectSbsChild = selectSbsChild;

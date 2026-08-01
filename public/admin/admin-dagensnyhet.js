@@ -50,7 +50,7 @@
         const totalSubscribers = countRes.ok ? (await countRes.json()).total : null;
         renderNyhetHistory(nyheter, totalSubscribers);
         nyhetHistoryLoaded = true;
-      } catch (err) {
+      } catch (_err) {
         document.getElementById('nyhetHistoryContainer').innerHTML =
           '<p class="text-red-500 text-sm">Kunde inte ladda historik</p>';
       }
@@ -221,7 +221,7 @@
           nyhetHistoryLoaded = false;
           loadNyheter();
         }
-      } catch (err) {
+      } catch (_err) {
         msg.textContent = 'Nätverksfel. Försök igen.';
         msg.className = 'text-sm text-red-500';
       } finally {
@@ -270,7 +270,7 @@
 
         // Scroll to form
         document.getElementById('nyhetForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch (err) {
+      } catch (_err) {
         alert('Kunde inte ladda utkastet. Försök igen.');
       }
     };
@@ -298,7 +298,7 @@
         if (confirm('Vill du skicka nyheten som e-post till prenumeranter?')) {
           showEmailRecipientModal(id, title);
         }
-      } catch (err) {
+      } catch (_err) {
         alert('Nätverksfel. Försök igen.');
       }
     };
@@ -348,7 +348,7 @@
         // Force refresh history
         nyhetHistoryLoaded = false;
         loadNyheter();
-      } catch (err) {
+      } catch (_err) {
         alert('Nätverksfel. Försök igen.');
       }
     }
@@ -428,7 +428,7 @@
               }, 400);
             }
           }
-        } catch (err) {
+        } catch (_err) {
           msg.textContent = 'Nätverksfel. Försök igen.';
           msg.className = 'text-sm text-red-500';
         } finally {
@@ -489,6 +489,9 @@
         btn.textContent = 'Hämta Page Access Token';
       }
     }
+
+    window.confirmUnpublish = confirmUnpublish;
+    window.doFbSetup = doFbSetup;
 
     // ─── Newsletter email recipient modal ───────────────────
     // Shows after publish if "Skicka nyhetsbrev" was checked.

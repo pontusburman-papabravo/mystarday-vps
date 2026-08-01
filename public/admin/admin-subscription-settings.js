@@ -140,7 +140,7 @@ async function loadPackageStats() {
         <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-gold rounded-full" style="width:${pct}%"></div></div>
       </div>`;
     }).join('');
-  } catch (err) {
+  } catch (_err) {
     barsEl.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda statistik</p>';
   }
 }
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const founderLimit = document.getElementById('founderLimitInput').value;
     const msg = document.getElementById('basicSettingsMsg');
     try {
-      const data = await Auth.api('/api/admin/subscription-settings', {
+      await Auth.api('/api/admin/subscription-settings', {
         method: 'PATCH',
         body: JSON.stringify({
           basic_price_sek: parseInt(price, 10),

@@ -24,8 +24,6 @@
   const _checkOffQueue = [];
   let _checkOffRunning = false;
   let ratingItemId = null;
-  let ratingItemIcon = null;
-  let ratingItemName = null;
   let ratingScore = 0;
   let ratingEmotionKey = null;
 
@@ -212,8 +210,6 @@
 
   function openRatingModal(itemId, icon, name) {
     ratingItemId = itemId;
-    ratingItemIcon = icon;
-    ratingItemName = name;
     ratingScore = 5;
     ratingEmotionKey = null;
     document.getElementById('ratingActivityIcon').textContent = icon;

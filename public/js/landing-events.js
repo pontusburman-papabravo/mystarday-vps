@@ -47,7 +47,7 @@
     document.querySelectorAll(selector).forEach(function (el) {
       el.addEventListener('click', function () {
         if (ALLOWED[eventName] || eventName.indexOf('faq_expand_') === 0) {
-          var meta = { page: 'landing' };
+          const meta = { page: 'landing' };
           if (eventName === 'landing_guide_card_click') {
             meta.guide_slug = el.getAttribute('data-guide-slug') || undefined;
           }

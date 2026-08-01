@@ -137,7 +137,7 @@
             }, AUTH_BOOT_TIMEOUT_MS);
           }),
         ]);
-      } catch (err) {
+      } catch (_err) {
         console.warn('[daily-log] authGuard failed:', err);
         return window.Auth ? Auth.getUser() : null;
       }
@@ -267,7 +267,7 @@
           await Promise.all([loadChildren(), i18nTask]);
           await loadCustodyPrintOption();
           logAndroidStability('daily_log_boot_done', { childCount: children.length, currentChildId: currentChildId });
-        } catch (err) {
+        } catch (_err) {
           console.error('[daily-log] boot error:', err);
           logAndroidStability('daily_log_boot_error', { message: err && err.message });
           renderChildTabsError(dlPt('today.errors.loadChildren'), loadChildren);
@@ -315,16 +315,6 @@
       if (document.visibilityState !== 'visible') return;
       retryChildrenIfEmpty();
     });
-
-    function openPrintMenuHint() {
-      const menu = document.getElementById('printMenu');
-      const btn = document.getElementById('printBtn');
-      if (menu && menu.classList.contains('hidden')) togglePrintMenu();
-      if (btn) {
-        btn.classList.add('ring-2', 'ring-gold', 'ring-offset-2');
-        setTimeout(function () { btn.classList.remove('ring-2', 'ring-gold', 'ring-offset-2'); }, 4000);
-      }
-    }
 
     function trackPrintExport(format) {
       const meta = { format: format, source: 'daily_log' };
@@ -401,7 +391,7 @@
         const match = paramChildId && children.find((c) => normalizeChildId(c.id) === normalizeChildId(paramChildId));
         const targetChild = match ? normalizeChildId(match.id) : normalizeChildId(children[0].id);
         selectChild(targetChild);
-      } catch (err) {
+      } catch (_err) {
         console.error('[daily-log] loadChildren error:', err);
         const detail = err && err.message ? String(err.message) : dlPt('today.errors.loadChildren');
         showToast(dlPt('today.errors.loadChildren'), 'error');
@@ -487,7 +477,7 @@
           loadMoodSummary(),
           loadItemRatings(itemIds),
         ]);
-      } catch (err) {
+      } catch (_err) {
         console.error('[daily-log] loadLog error:', err);
         renderLogError(err);
       }
@@ -517,7 +507,7 @@
     }
 
     function renderLog(data) {
-      const { log: rawLog, items = [], section_times } = data;
+      const { log: rawLog, items = [] } = data;
       const log = rawLog || { is_paused: false };
       const total = items.length;
       const completed = items.filter(i => i.completed).length;
@@ -633,7 +623,6 @@
         </div>` : '';
 
       // ── Bump-time bar (time_adjustment toggle) ────────────
-      const hasUncompleted = items.some(i => !i.completed && i.start_time);
       const bumpBarHtml = (currentChildTimeAdjustment && !log.is_paused && items.length > 0) ? `
         <div id="bumpBar" class="bg-white dark:bg-navy-soft rounded-2xl px-4 py-3 shadow-sm border border-lavender">
           <div class="flex items-center justify-between flex-wrap gap-2">
@@ -890,7 +879,7 @@
                 method: 'PUT',
                 body: JSON.stringify({ ordered_item_ids: ordered_ids }),
               });
-            } catch (err) {
+            } catch (_err) {
               showToast(dlPt('today.errors.saveOrder'), 'error');
             }
           },
@@ -922,7 +911,7 @@
           method: 'PUT',
           body: JSON.stringify({ ordered_item_ids: ordered_ids }),
         });
-      } catch (err) {
+      } catch (_err) {
         showToast(dlPt('today.errors.saveOrder'), 'error');
       }
     }
@@ -1305,212 +1294,6 @@
       window.print();
     }
 
-    async function printWeek() {
-      if (!currentChildId) { showToast(dlPt('today.errors.selectChild'), 'error'); return; }
-      const child = children.find(c => c.id === currentChildId);
-      const childName = child ? child.name : dlPt('today.childFallback');
-      const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
-
-      // Calculate Monday of current week
-      const current = new Date(currentDateStr + 'T12:00:00');
-      const dow = current.getDay();
-      const mondayOffset = dow === 0 ? -6 : 1 - dow;
-      const monday = new Date(current);
-      monday.setDate(current.getDate() + mondayOffset);
-
-      const DAY_NAMES_SHORT = (window.LocaleDateTime && LocaleDateTime.weekDayLabelsSundayFirst)
-        ? LocaleDateTime.weekDayLabelsSundayFirst()
-        : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      const DAY_NAMES_FULL = DAY_NAMES_SHORT.map((_, i) => {
-        const d = new Date('2024-01-07T12:00:00');
-        d.setDate(d.getDate() + i);
-        return (window.LocaleDateTime && LocaleDateTime.weekdayLong)
-          ? LocaleDateTime.weekdayLong(d) : DAY_NAMES_SHORT[i];
-      });
-      const SECTION_ORDER   = ['morgon', 'dag', 'kvall', 'natt'];
-      const sectionLabelEmoji = (sec) => (window.LocaleDateTime && LocaleDateTime.sectionLabelWithEmoji)
-        ? LocaleDateTime.sectionLabelWithEmoji(sec)
-        : sec;
-
-      // Fetch all 7 days
-      const dayPromises = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        const dateStr = d.toISOString().slice(0, 10);
-        dayPromises.push(
-          apiFetch(`/api/children/${currentChildId}/daily-log?date=${dateStr}`)
-            .then(r => r.json())
-            .then(data => ({ dateStr, date: d, items: data.items || [], log: data.log }))
-            .catch(() => ({ dateStr, date: d, items: [], log: null }))
-        );
-      }
-
-      showToast(dlPt('today.weekOverview.preparing'));
-      const days = await Promise.all(dayPromises);
-
-      // Build compact A4-landscape week grid
-      const mondayStr = (window.LocaleDateTime && LocaleDateTime.monthDayYear) ? LocaleDateTime.monthDayYear(monday) : monday.toISOString().slice(0,10);
-      const sundayDate = new Date(monday);
-      sundayDate.setDate(monday.getDate() + 6);
-      const sundayStr = (window.LocaleDateTime && LocaleDateTime.monthDay) ? LocaleDateTime.monthDay(sundayDate) : sundayDate.toISOString().slice(0,10);
-
-      // One column per day
-      const dayColumns = days.map(day => {
-        const dayIdx = day.date.getDay();
-        const dayShort = DAY_NAMES_SHORT[dayIdx];
-        const dayFull  = DAY_NAMES_FULL[dayIdx];
-        const dayNum   = day.date.getDate();
-        const monthNum = day.date.getMonth() + 1;
-
-        let colHtml = `<div style="border:1px solid #ccc;border-radius:4px;overflow:hidden;display:flex;flex-direction:column;">
-          <div style="background:#1B2340;color:white;padding:4px 6px;font-size:9px;font-weight:700;font-family:Outfit,sans-serif;line-height:1.2;">
-            ${escHtml(dayFull)}<br><span style="font-size:8px;opacity:0.8;">${dayNum}/${monthNum}</span>
-          </div>
-          <div style="padding:4px;flex:1;">`;
-
-        if (day.items.length === 0) {
-          colHtml += `<div style="color:#aaa;font-size:7px;padding:4px 2px;font-style:italic;">–</div>`;
-        } else {
-          const grouped = {};
-          for (const item of day.items) {
-            const sec = item.section || 'dag';
-            if (!grouped[sec]) grouped[sec] = [];
-            grouped[sec].push(item);
-          }
-          for (const sec of SECTION_ORDER) {
-            if (!grouped[sec]) continue;
-            colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;text-transform:uppercase;letter-spacing:0.3px;">${sectionLabelEmoji(sec)}</div>`;
-            for (const item of grouped[sec]) {
-              const check = item.completed ? '☑' : '☐';
-              const timeStr = item.start_time ? `<span style="color:#888;"> ${item.start_time}</span>` : '';
-              colHtml += `<div style="display:flex;align-items:baseline;gap:2px;padding:1.5px 0;font-size:7.5px;line-height:1.3;border-bottom:1px solid #f0f0f0;">
-                <span style="flex-shrink:0;">${check}</span>
-                <span style="flex-shrink:0;">${item.icon || ''}</span>
-                <span style="flex:1;word-break:break-word;">${escHtml(itemLabel(item))}${timeStr}</span>
-              </div>`;
-            }
-          }
-        }
-
-        colHtml += `</div></div>`;
-        return colHtml;
-      }).join('');
-
-      const printStyles = `
-        @page { size: A4 landscape; margin: 8mm; }
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', Arial, sans-serif; color: #1B2340; }
-        .week-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 2px solid #1B2340; }
-        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-      `;
-
-      const weekHtml = `
-        <div class="week-header">
-          <span style="font-size:1.6em;">${childAvatarHtml}</span>
-          <div>
-            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;color:#1B2340;">${escHtml(dlPt('today.weekOverview.weekScheduleTitle', { name: childName }))}</h1>
-            <p style="color:#5A6178;margin:2px 0 0;font-size:9px;">${mondayStr} – ${sundayStr}</p>
-          </div>
-        </div>
-        <div class="week-grid">${dayColumns}</div>
-      `;
-
-      // Open print window
-      const printWin = window.open('', '_blank', 'width=1100,height=700');
-      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-        '<title>' + escHtml(dlPt('today.shell.printWeekDocTitle', { name: childName })) + '<\/title>' +
-        '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">' +
-        '<style>' + printStyles + '<\/style>' +
-        '<\/head><body>' + weekHtml + '<\/body><\/html>');
-      printWin.document.close();
-      printWin.focus();
-      setTimeout(() => printWin.print(), 800);
-      trackPrintExport('week');
-    }
-
-    async function printMyDaysWeek() {
-      if (!currentChildId) { showToast(dlPt('today.errors.selectChild'), 'error'); return; }
-      if (!custodyPrintEnabled) { showToast(dlPt('today.errors.custodyDisabled'), 'error'); return; }
-
-      const child = children.find(c => c.id === currentChildId);
-      const childName = child ? child.name : dlPt('today.childFallback');
-      const childAvatarHtml = child ? renderChildAvatar(child, 32) : '';
-
-      showToast(dlPt('today.weekOverview.preparingCustody'));
-      const calRes = await apiFetch(
-        `/api/children/${currentChildId}/calendar-week?weekOffset=0&myDays=1`
-      );
-      if (!calRes.ok) { showToast(dlPt('today.errors.loadWeek'), 'error'); return; }
-      const cal = await calRes.json();
-
-      const myDays = (cal.days || []).filter((d) => d.activities && d.activities.length > 0);
-      if (!myDays.length) {
-        showToast(dlPt('today.weekOverview.noMyDays'), 'error');
-        return;
-      }
-
-      if (window.analytics && typeof window.analytics.track === 'function') {
-        window.analytics.track('custody_view_filtered', { source: 'print_my_days', days: myDays.length });
-      }
-
-      const DAY_NAMES_FULL = (window.LocaleDateTime && LocaleDateTime.weekDayLabelsSundayFirst)
-        ? LocaleDateTime.weekDayLabelsSundayFirst().map((_, i) => {
-          const d = new Date('2024-01-07T12:00:00');
-          d.setDate(d.getDate() + i);
-          return LocaleDateTime.weekdayLong(d);
-        }) : [];
-      const SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
-      const sectionLabelEmoji = (sec) => (window.LocaleDateTime && LocaleDateTime.sectionLabelWithEmoji)
-        ? LocaleDateTime.sectionLabelWithEmoji(sec) : sec;
-
-      const dayColumns = myDays.map((day) => {
-        const d = new Date(day.date + 'T12:00:00');
-        const dayFull = DAY_NAMES_FULL[day.dayOfWeek] || day.dayName;
-        const borderColor = day.custody?.color || '#1B2340';
-        let colHtml = `<div style="border:2px solid ${borderColor};border-radius:4px;overflow:hidden;display:flex;flex-direction:column;">
-          <div style="background:${borderColor};color:white;padding:4px 6px;font-size:9px;font-weight:700;line-height:1.2;">
-            ${escHtml(dayFull)}<br><span style="font-size:8px;opacity:0.9;">${escHtml(day.date)}</span>
-          </div><div style="padding:4px;flex:1;">`;
-
-        const grouped = {};
-        for (const item of day.activities) {
-          const sec = item.section || 'dag';
-          if (!grouped[sec]) grouped[sec] = [];
-          grouped[sec].push(item);
-        }
-        for (const sec of SECTION_ORDER) {
-          if (!grouped[sec]) continue;
-          colHtml += `<div style="font-size:6.5px;color:#888;font-weight:700;margin:4px 0 2px;">${sectionLabelEmoji(sec)}</div>`;
-          for (const item of grouped[sec]) {
-            const check = item.completed ? '☑' : '☐';
-            colHtml += `<div style="font-size:7.5px;padding:1.5px 0;border-bottom:1px solid #f0f0f0;">
-              ${check} ${item.icon || ''} ${escHtml(itemLabel(item))}
-            </div>`;
-          }
-        }
-        colHtml += '</div></div>';
-        return colHtml;
-      }).join('');
-
-      const weekHtml = `
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;border-bottom:2px solid #1B2340;padding-bottom:6px;">
-          <span style="font-size:1.6em;">${childAvatarHtml}</span>
-          <div>
-            <h1 style="font-family:Outfit,Arial,sans-serif;font-size:13px;margin:0;">${escHtml(dlPt('today.weekOverview.myDaysTitle', { name: childName }))}</h1>
-            <p style="font-size:9px;color:#5A6178;margin:2px 0 0;">${escHtml(cal.weekStart)} – ${escHtml(cal.weekEnd)}</p>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(${myDays.length},1fr);gap:5px;">${dayColumns}</div>`;
-
-      const printWin = window.open('', '_blank', 'width=1100,height=700');
-      printWin.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + escHtml(dlPt('today.shell.printMyDaysDocTitle')) + '</title><style>@page{size:A4 landscape;margin:8mm;}body{margin:0;font-family:Arial,sans-serif;}</style></head><body>' + weekHtml + '</body></html>');
-      printWin.document.close();
-      printWin.focus();
-      setTimeout(() => printWin.print(), 800);
-      trackPrintExport('my_days');
-    }
-
     // ── Parent Ratings ────────────────────────────────────
 
     function openParentRating(itemId, itemName) {
@@ -1585,4 +1368,16 @@
         showToast(err.message || dlPt('today.errors.saveRating'), 'error');
       }
     }
+
+    window.togglePause = togglePause;
+    window.bumpTime = bumpTime;
+    window.undoBumpTime = undoBumpTime;
+    window.togglePrintMenu = togglePrintMenu;
+    window.closePrintMenu = closePrintMenu;
+    window.goPrintSchemaPdf = goPrintSchemaPdf;
+    window.printDay = printDay;
+    window.openParentRating = openParentRating;
+    window.closeParentRating = closeParentRating;
+    window.selectParentStar = selectParentStar;
+    window.submitParentRating = submitParentRating;
   

@@ -448,7 +448,7 @@
           btn.className = 'px-5 py-2.5 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold text-sm transition-colors flex items-center gap-2';
           btn.disabled = false;
         }, 3000);
-      } catch (err) {
+      } catch (_err) {
         btn.innerHTML = '<span>⬇️</span> Exportera e-postlista (CSV)';
         btn.className = 'px-5 py-2.5 bg-red-500 text-white rounded-xl font-heading font-bold text-sm flex items-center gap-2';
         setTimeout(() => {
@@ -457,3 +457,7 @@
         }, 3000);
       }
     });
+
+    window.loadNewsletterSubscribers = loadNewsletterSubscribers;
+    window.filterNewsletterSubs = filterNewsletterSubs;
+    window.sortNewsletterSubs = sortNewsletterSubs;

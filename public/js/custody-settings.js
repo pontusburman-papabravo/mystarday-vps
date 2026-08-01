@@ -238,7 +238,7 @@
     container.innerHTML = weeks.map(function (weekRow, i) {
       return customWeekPanelHtml(i, weekRow, homes, true);
     }).join('');
-    bindCustomDaySelects(block, homes);
+    bindCustomDaySelects(block);
     syncCustomWeekVisibility(block);
   }
 
@@ -254,7 +254,7 @@
     if (markerLabel && label) markerLabel.textContent = label;
   }
 
-  function bindCustomDaySelects(block, homes) {
+  function bindCustomDaySelects(block) {
     block.querySelectorAll('.custody-custom-day').forEach(function (sel) {
       updateSwatchForSelect(sel);
       sel.addEventListener('change', function () { updateSwatchForSelect(sel); });
@@ -501,15 +501,15 @@
       });
     }
 
-    bindCustomDaySelects(block, homes);
+    bindCustomDaySelects(block);
     togglePatternFields(block);
-    bindOverrides(block, block.getAttribute('data-child-id'), homes);
+    bindOverrides(block, block.getAttribute('data-child-id'));
     if (pat) {
       loadPreviewForBlock(block, block.getAttribute('data-child-id'));
     }
   }
 
-  function bindOverrides(block, childId, homes) {
+  function bindOverrides(block, childId) {
     const addBtn = block.querySelector('.custody-override-add');
     if (!addBtn) return;
 

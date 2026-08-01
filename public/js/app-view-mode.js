@@ -70,14 +70,6 @@
     return mode === 'magic' ? 'new' : 'classic';
   }
 
-  function readStorage(key) {
-    try {
-      const v = localStorage.getItem(key);
-      if (v === 'magic' || v === 'classic') return v;
-    } catch (_) {}
-    return null;
-  }
-
   function writeStorage(key, mode) {
     try {
       localStorage.setItem(key, normalize(mode));
@@ -175,10 +167,6 @@
     document.querySelectorAll('.app-view-toggle-wrap').forEach(function (el) {
       el.style.display = 'none';
     });
-  }
-
-  function updateToggleUi() {
-    // No-op: the view toggle no longer exists. Kept for call-site compatibility.
   }
 
   function fetchAccess() {
