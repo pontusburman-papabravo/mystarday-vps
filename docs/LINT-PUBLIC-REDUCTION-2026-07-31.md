@@ -336,3 +336,98 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 **Warnings:** 30 → **0** · **budget:** 218 → **188** · **commit:** `936fcfeb`
 
 **Stopp före `family.js`** enligt plan.
+
+## Batch 5D — säker restsvans (slutbatch i #804)
+
+**Start HEAD:** `83a55eda` · **warnings/budget:** 188  
+**Slut HEAD:** `971ea843` · **warnings/budget:** **133** (−55)
+
+### Steg 0 — genererade filer
+
+| Artefakt | Resultat |
+|----------|----------|
+| `public/sw.js` | Ingen diff efter `css:build` (lint-PR lämnar SW orörd) |
+| `public/css/tailwind.build.css` | Ingen ocommittad diff (deterministik build matchar branch) |
+| Oavsiktlig SW-bump | **Ingen** |
+
+### Valda filer (5D)
+
+| Fil | Warnings (före) | Vald | Åtgärd |
+|-----|-----------------|------|--------|
+| `schedule-activity-modals.js` | 7 | ✓ | Död `toDateStr`, counter, `_catch`/`_args` |
+| `platform.js` | 6 | ✓ | `const` IIFE, `normalizePublicUrl` på upload, `blobFromPickResult` i `toAvatarFile` |
+| `schedule-dnd.js` / `dashboard-dnd.js` | 4+4 | ✓ | DnD state reads, borttagen oanvänd `item` lookup |
+| `dnd-touch-bridge.js` | 4 | ✓ | `catch (_x)` |
+| `schedule-insert-fill.js` | 4 | ✓ | Borttagen `fillWeekSelectedCatName` |
+| `for-dig.js` | 4 | ✓ | Döda helpers, `const bootTimer` |
+| `settings-account.js` | 3 | ✓ | Död `msgId`/`csrf`, `_err` |
+| `skattkammaren-parent-page.js` | 3 | ✓ | `_e`, borttagen oanvänd trophy-datum |
+| `dashboard-home-hub.js` | 3 | ✓ | `let`/`const`, `_btn` |
+| `mobile-nav.js` | 3→2 | ✓ | `_e` (1 kvar: övrig regel) |
+| `dashboard-cta.js` | 2 | ✓ | Död `showShareToast`, `_e` |
+| `dashboard-approvals.js` | 2 | ✓ | `_err` |
+| `dashboard-activity-modal.js` | 2 | ✓ | Ej `SECTIONS`, `_e` |
+| `dashboard-special-days.js` / `schedule-special-days.js` | 2+2 | ✓ | `lastDay`, `_idx` |
+| `child-dashboard-checkoff.js` | 2 | ✓ | Borttagen rating icon/name state |
+| `child-dashboard-rewards.js` | 2 | ✓ | `_e` i audio |
+
+**Medvetet ej i 5D:** `family.js`, `child-dashboard.js`, `auth.js`, `child-login.js`, `onboarding.js`, `custody-settings.js`, `child-garden.js` / `child-morgonhus.js` / `child-memory-hall.js` (outdoor/hall dead wiring — produktfollow-up), `sw-register.js`.
+
+### Produktfynd / follow-up
+
+| Ämne | Beslut |
+|------|--------|
+| Custody preselect | Fortfarande **egen PR** (ej #804) |
+| `child-garden.js` `outdoorNavHotspots` / `handleOutdoorNav` | Funktioner finns men **ej inkopplade** i render — katalog-test kräver strängen; lämna warning |
+| `child-morgonhus.js` ambient/hall helpers | Samma mönster — dead wiring |
+| Trophy-datum i skattkammaren-parent | `dateStr` beräknades men ej visad — borttagen beräkning (ingen UI-ändring) |
+
+### Commits (5D)
+
+- `e498cb6c` — schedule modals, platform, DnD, fill, for-dig  
+- `971ea843` — små helpers + budget **188 → 133**
+
+### Gates (5D slut)
+
+| Kommando | Resultat |
+|----------|----------|
+| `npm run lint:public` | **133/133** |
+| `npm run check:ambient-objects` | OK |
+| `npm run lint` | 0 errors |
+| `npm run check:routes` | OK |
+| `npm run test:gate` | **281 pass** |
+| `npm run test:full` | **3212 pass, 0 fail, 4 skip** |
+| `migration-rollback-gate` | 3 pass |
+| Schedule modal / dnd / avatar contract tests | 44 pass |
+
+**Governance skips:** 4 (oförändrat).
+
+### Kvarvarande warning-topplista (133)
+
+| Fil | Warnings |
+|-----|----------|
+| `public/js/child-dashboard.js` | 36 |
+| `public/js/family.js` | 33 |
+| `public/js/auth.js` | 8 |
+| `public/js/child-login.js` | 8 |
+| `public/js/onboarding.js` | 6 |
+| `public/js/child-garden.js` | 3 |
+| `public/js/child-memory-hall.js` | 3 |
+| `public/js/child-morgonhus.js` | 3 |
+| `public/js/custody-settings.js` | 3 |
+| `public/js/mobile-nav.js` | 2 |
+| `public/js/sw-register.js` | 2 |
+| Övriga 1-warning filer | 21 filer × 1 |
+
+### PR #804 slutstatus
+
+| Metric | Start (Fas 5) | Slut |
+|--------|---------------|------|
+| Warnings | 673 | **133** |
+| Budget | 673 | **133** |
+
+**Ej i #804:** `family.js`, `child-dashboard.js`, auth/session, SW/offline, IAP, custody-fix.
+
+**PR #804:** ready for review (ingen merge/deploy).
+
+**Merge-rekommendation:** **GO WITH FOLLOW-UP** — lint-ratchet klart; monoliter + custody + child-world wiring i separata PR:er.
