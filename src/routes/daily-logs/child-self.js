@@ -6,7 +6,6 @@
 
 const express = require('express');
 const db = require('../../lib/db');
-const { getLocalDateStr } = require('../../lib/daily-log-generator');
 const { requireChild } = require('../../middleware/auth');
 const { scopeRouterToPath } = require('../../middleware/router-path-scope');
 const { getOrGenerateDailyLog, getLocalDateStr, getDayOfWeek } = require('../../lib/daily-log-generator');
