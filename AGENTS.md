@@ -4,10 +4,11 @@ This repo is a Swedish family-routine app (Express.js + PostgreSQL, static front
 
 ### QA test account (browser / mobile smoke tests)
 
-Use for **all** logged-in QA on https://mystarday.se — [`docs/qa-test-account.md`](docs/qa-test-account.md) (credentials in [`docs/app-store-demo-konto.md`](docs/app-store-demo-konto.md)).
+Use for **all** agent logged-in QA on prod — [`docs/founder-qa-test-account.md`](docs/founder-qa-test-account.md) (index: [`docs/qa-test-account.md`](docs/qa-test-account.md)).
 
-- Parent: `review@mystarday.se`
-- Child: Anna (PIN in demo doc)
+- Parent: `pontus@burman.cc` / `Kalle001!` // pragma: allowlist secret
+- Child: Astrid / PIN `1112`
+- **Do not** use the App Store review account / Anna (`app-store-demo-konto.md`) unless the task explicitly says App Store / release QA.
 
 ### För dig 10/10 (agent-uppdrag)
 

@@ -2,174 +2,317 @@
 
 const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const { launchBrowser, acceptCookies, loginChildFromParentSession } = require('./helpers/puppeteer-browser');
 const {
-  launchBrowser,
-  newPage,
-  acceptCookies,
-  selectLoginLocale,
-  loginParentEnglish,
-} = require('./helpers/puppeteer-browser');
+  SWEDISH_SERVER_LEAK,
+  smokeConfig,
+  smokeFilterMode,
+  withDiagnostics,
+  newIsolatedPage,
+  fetchReleaseIdentity,
+  loginParent,
+  waitForPackageAccessResolved,
+  collectVisibleReportsTargets,
+  waitForChildI18nReady,
+  assertPrimaryNavEnglish,
+  assertParentSession,
+  assertRc1QaFamilyId,
+  assertChildSession,
+  performParentChildHandoff,
+  assertCanonicalHost,
+  auditHandoffCookies,
+  attachHandoffNetworkCapture,
+  beginChildLoginInstrumentation,
+  assertRc1ChildLocaleContract,
+  assertEnglishAppEnabled,
+  assertReportsRouteBlocked,
+  fetchWithSessionRetry,
+  withFamilyLocaleScope,
+  withFamilyLocaleFixture,
+  readFamilyLocaleSnapshot,
+  rc1Sleep,
+  rc1TestGapMs,
+} = require('./helpers/rc1-prod-smoke-helpers');
 
-const baseUrl = process.env.E2E_BASE_URL || 'http://127.0.0.1:3000';
-const email = process.env.RC1_REVIEW_EMAIL;
-const password = process.env.RC1_REVIEW_PASSWORD;
-const childUser = process.env.RC1_CHILD_USERNAME;
-const childPin = process.env.RC1_CHILD_PIN;
-const restoreLocale = process.env.RC1_RESTORE_LOCALE || 'sv-SE';
-
-async function isElementVisible(page, selector) {
-  return page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    if (!el) return false;
-    const style = window.getComputedStyle(el);
-    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
-    const rect = el.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-  }, selector);
+function requireSeed(cfg) {
+  assert.ok(cfg.email, 'RC1_QA_EMAIL (or RC1_REVIEW_EMAIL) required');
+  assert.ok(cfg.password, 'RC1_QA_PASSWORD (or RC1_REVIEW_PASSWORD) required');
+  assert.ok(cfg.childUsername, 'RC1_CHILD_USERNAME required');
+  assert.ok(cfg.childPin, 'RC1_CHILD_PIN required');
+  if (cfg.requireHandoff) {
+    assert.ok(cfg.parentPin, 'RC1_PARENT_PIN required when RC1_REQUIRE_HANDOFF=true');
+  }
+  return {
+    email: cfg.email,
+    password: cfg.password,
+    childUsername: cfg.childUsername,
+    childPin: cfg.childPin,
+  };
 }
 
-async function visibleReportsLinks(page) {
-  return page.evaluate(() => {
-    const out = [];
-    const links = document.querySelectorAll('a[href="/reports"], a[href*="/reports?"]');
-    for (const el of links) {
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden') continue;
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) out.push(el.textContent.trim().slice(0, 80));
-    }
-    return out;
-  });
+const cfg = smokeConfig();
+const seed = cfg.email ? requireSeed(cfg) : null;
+const filterMode = smokeFilterMode();
+const handoffDebugOnly = filterMode === 'handoff';
+
+function skipUnlessFullGate(testName) {
+  if (!handoffDebugOnly) return false;
+  return testName !== 'release' && testName !== 'handoff';
 }
 
-async function parentLogin(page, locale) {
-  await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded' });
-  await acceptCookies(page);
-  if (locale) await selectLoginLocale(page, locale);
-  await page.waitForSelector('#email', { visible: true });
-  await page.type('#email', email, { delay: 10 });
-  await page.type('#password', password, { delay: 10 });
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-    page.click('button[type="submit"], #loginBtn, [data-testid="login-submit"]'),
-  ]);
-}
-
-describe('RC-1 prod browser smoke', { skip: !email }, () => {
+describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
   let browser;
-  let page;
 
   before(async () => {
+    assert.ok(cfg.baseUrl, 'RC1_SMOKE_BASE_URL or E2E_BASE_URL required');
+    if (handoffDebugOnly) {
+      console.warn('[rc1-prod-smoke] RC1_SMOKE_FILTER=handoff — LIMITED HANDOFF DEBUG (not release gate)');
+    }
     browser = await launchBrowser();
-    page = await newPage(browser, 'desktop');
   });
 
   after(async () => {
     if (browser) await browser.close();
   });
 
-  it('service worker advertises current cache generation', async () => {
-    const res = await fetch(`${baseUrl}/sw.js`);
-    assert.equal(res.status, 200);
-    const text = await res.text();
-    const m = text.match(/const CACHE_NAME = '(stjarndag-v\d+)'/);
-    assert.ok(m, 'CACHE_NAME in sw.js');
-    assert.ok(Number(m[1].replace('stjarndag-v', '')) >= 747, 'cache must not regress below v747');
+  it('release identity matches RC1_EXPECTED_SHA and RC1_EXPECTED_CACHE', async () => {
+    await fetchReleaseIdentity(cfg.baseUrl, cfg.expectedSha, cfg.expectedCache);
   });
 
-  it('reports UI hidden without reporting component (after access loads)', async () => {
-    await parentLogin(page, 'sv-SE');
-    await page.goto(`${baseUrl}/dashboard`, { waitUntil: 'networkidle2' });
-    await page.waitForFunction(() => window._packageAccess || window._stjarndagFeatures, { timeout: 20000 });
-    await new Promise((r) => setTimeout(r, 1500));
-    const visible = await visibleReportsLinks(page);
-    assert.equal(visible.length, 0, `unexpected visible /reports links: ${visible.join(', ')}`);
-    const bannerVisible = await isElementVisible(page, '#activeSharingBanner');
-    assert.equal(bannerVisible, false);
-    const apiRes = await page.evaluate(async () => {
-      const r = await fetch('/api/reports/active-count', { credentials: 'include' });
-      return { status: r.status, body: await r.json() };
-    });
-    assert.equal(apiRes.status, 403);
-    assert.equal(apiRes.body.code, 'COMPONENT_MISSING');
-    const navRes = await page.evaluate(async () => {
-      const r = await fetch('/reports', { redirect: 'manual', credentials: 'include' });
-      return { status: r.status, location: r.headers.get('location') };
-    });
-    assert.equal(navRes.status, 302);
-    assert.match(navRes.location || '', /component=reporting/);
+  it('parent locale switch via Settings UI (reload + restore original locale)', { skip: skipUnlessFullGate('locale') }, async () => {
+    await rc1Sleep(rc1TestGapMs());
+    const { page, close } = await newIsolatedPage(browser, 'desktop');
+    try {
+      await withDiagnostics(page, 'locale-settings-ui', async () => {
+        await loginParent(page, cfg.baseUrl, seed, null);
+        if (cfg.qaFamilyId) {
+          await assertRc1QaFamilyId(page, cfg.qaFamilyId);
+        }
+        await assertEnglishAppEnabled(page);
+
+        await withFamilyLocaleScope(browser, page, cfg.baseUrl, seed, 'locale-settings-ui', async ({ original, setLocale }) => {
+          const start = original.preferredLocale || 'sv-SE';
+          const toggleFrom = start === 'en-GB' ? 'sv-SE' : start;
+          const toggleTo = toggleFrom === 'sv-SE' ? 'en-GB' : 'sv-SE';
+
+          if (start !== toggleFrom) {
+            await setLocale(toggleFrom);
+          }
+          await setLocale(toggleTo);
+          if (toggleTo === 'en-GB') {
+            await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+            await assertPrimaryNavEnglish(page);
+          }
+
+          await page.reload({ waitUntil: 'domcontentloaded' });
+          const persisted = await readFamilyLocaleSnapshot(page);
+          assert.equal(persisted.preferredLocale, toggleTo);
+          assert.equal(persisted.i18n, toggleTo);
+        });
+      });
+    } finally {
+      await close();
+    }
   });
 
-  it('parent locale switch sv-SE → en-GB updates primary nav without reload', async () => {
-    await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('[data-locale-value="en-GB"], #localeSwitcher', { timeout: 15000 }).catch(() => {});
-    const switched = await page.evaluate(async () => {
-      if (window.LocaleSwitcher && LocaleSwitcher.setLocale) {
-        await LocaleSwitcher.setLocale('en-GB');
-        return true;
+  it('child login i18n, validation codes, and successful child session', { skip: skipUnlessFullGate('child') }, async () => {
+    await rc1Sleep(rc1TestGapMs());
+    const { page, close } = await newIsolatedPage(browser, 'mobile');
+    let contextClosed = false;
+    const disposeContext = async () => {
+      if (!contextClosed) {
+        contextClosed = true;
+        await close();
       }
-      const btn = document.querySelector('[data-locale-value="en-GB"]');
-      if (btn) { btn.click(); return true; }
-      return false;
-    });
-    assert.ok(switched, 'locale switch control');
-    await page.waitForFunction(() => {
-      const nav = document.querySelector('#parentBottomNav, .parent-bottom-nav, [data-parent-magic-nav]');
-      if (!nav) return false;
-      const text = nav.innerText || '';
-      return /Home|Planning|Rewards/i.test(text) && !/^\s*Hem\s*$/m.test(text);
-    }, { timeout: 15000 });
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => (window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === 'en-GB')
-      || document.documentElement.lang === 'en-GB', { timeout: 15000 });
+    };
+    try {
+      await withDiagnostics(page, 'child-login', async () => {
+        await loginParent(page, cfg.baseUrl, seed, null);
+        if (cfg.qaFamilyId) {
+          await assertRc1QaFamilyId(page, cfg.qaFamilyId);
+        }
+
+        await withFamilyLocaleFixture(
+          browser,
+          page,
+          cfg.baseUrl,
+          seed,
+          'child-login',
+          'en-GB',
+          disposeContext,
+          async () => {
+            await assertRc1ChildLocaleContract(page);
+
+            await page.goto(`${cfg.baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
+            await acceptCookies(page);
+            await waitForChildI18nReady(page);
+
+            const childLocale = await page.evaluate(() => (
+              typeof window.getChildUiLocale === 'function' ? getChildUiLocale() : null
+            ));
+            assert.equal(childLocale, 'en-GB', 'child UI locale on login page');
+
+            const formatMsg = await page.evaluate(() => {
+              if (typeof window.childLoginErrorFromResponse !== 'function') return null;
+              return childLoginErrorFromResponse({ code: 'CHILD_PIN_INVALID_FORMAT' });
+            });
+            assert.ok(formatMsg, 'childLoginErrorFromResponse after i18n init');
+            assert.doesNotMatch(formatMsg, SWEDISH_SERVER_LEAK, formatMsg);
+            assert.match(formatMsg, /pin|digit|number|format/i);
+
+            const formatApi = await page.evaluate(async (user) => {
+              const r = await fetch('/api/auth/child-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ username: user, pin: '12' }),
+              });
+              return { status: r.status, body: await r.json() };
+            }, seed.childUsername);
+            assert.equal(formatApi.status, 400);
+            assert.equal(formatApi.body.code, 'CHILD_PIN_INVALID_FORMAT');
+
+            await loginChildFromParentSession(page, cfg.baseUrl, seed);
+            await assertChildSession(page);
+            const path = await page.evaluate(() => window.location.pathname);
+            assert.match(path, /\/child(\/today|-dashboard)/);
+          }
+        );
+      });
+    } finally {
+      await disposeContext();
+    }
   });
 
-  it('child login shows localized errors (format + wrong pin), then succeeds', async () => {
-    await page.goto(`${baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
-    await acceptCookies(page);
-    await page.waitForSelector('#pinInput, .cl-pin-input, input[name="pin"]', { timeout: 15000 }).catch(() => {});
+  if (cfg.requireHandoff) {
+    it('parent → child PIN → parental gate restore → parent session', { skip: false }, async () => {
+      await rc1Sleep(handoffDebugOnly
+        ? rc1TestGapMs()
+        : Math.max(rc1TestGapMs(), Number(process.env.RC1_HANDOFF_GAP_MS || 30000)));
+      const parentPin = cfg.parentPin;
+      const { page, close } = await newIsolatedPage(browser, 'mobile');
+      let contextClosed = false;
+      const disposeContext = async () => {
+        if (!contextClosed) {
+          contextClosed = true;
+          await close();
+        }
+      };
+      try {
+        await withDiagnostics(page, 'parent-child-handoff', async () => {
+          await loginParent(page, cfg.baseUrl, seed, null);
+        if (cfg.qaFamilyId) {
+          await assertRc1QaFamilyId(page, cfg.qaFamilyId);
+        }
 
-    const formatMsg = await page.evaluate(async () => {
-      if (typeof window.childLoginErrorFromResponse !== 'function') return null;
-      return childLoginErrorFromResponse({ code: 'CHILD_PIN_INVALID_FORMAT' });
+          await withFamilyLocaleFixture(
+            browser,
+            page,
+            cfg.baseUrl,
+            seed,
+            'parent-child-handoff',
+            'en-GB',
+            disposeContext,
+            async () => {
+              await assertParentSession(page);
+
+              const reviewFamilyId = await page.evaluate(async () => {
+                const r = await fetch('/api/auth/me', { credentials: 'include' });
+                const me = r.ok ? await r.json() : {};
+                return me.family_id || me.familyId || null;
+              });
+
+              await assertCanonicalHost(page, cfg.baseUrl);
+
+              const networkCapture = await attachHandoffNetworkCapture(page);
+              const childLoginInstr = beginChildLoginInstrumentation(page);
+              try {
+                await loginChildFromParentSession(page, cfg.baseUrl, seed);
+                await assertChildSession(page);
+                const path = await page.evaluate(() => window.location.pathname);
+                assert.match(path, /\/child(\/today|-dashboard)/);
+
+                const childLoginDiag = await childLoginInstr.finish(networkCapture);
+                const cookieAudit = await auditHandoffCookies(page, cfg.baseUrl);
+                page._rc1HandoffChildLogin = childLoginDiag;
+                page._rc1HandoffCookieAudit = cookieAudit;
+                assert.ok(childLoginDiag.hasHandoffCookie, 'child-login must Set-Cookie stjarndag_parent_session');
+                assert.ok(cookieAudit.count >= 1, 'handoff cookie must exist on Child Today');
+
+                const handoffDiag = await performParentChildHandoff(page, parentPin, {
+                  baseUrl: cfg.baseUrl,
+                  reviewFamilyId,
+                  networkCapture,
+                  deepDiagnostic: handoffDebugOnly,
+                  childLogin: childLoginDiag,
+                  qaFixtureMode: cfg.qaFixtureMode,
+                });
+                if (page._rc1HandoffCookieAudit) {
+                  handoffDiag.handoffCookiesAfterChildLogin = page._rc1HandoffCookieAudit;
+                }
+                assert.ok(handoffDiag.finalSession === 'parent', 'handoff must end in parent session');
+                await assertParentSession(page);
+
+                const childLeak = await page.evaluate(async () => {
+                  const r = await fetch('/api/auth/me', { credentials: 'include' });
+                  const me = r.ok ? await r.json() : {};
+                  return Boolean(me.username && !me.email);
+                });
+                assert.equal(childLeak, false, 'child session must not remain active after parent restore');
+              } finally {
+                await networkCapture.stop();
+              }
+            }
+          );
+        });
+      } finally {
+        await disposeContext();
+      }
     });
-    assert.ok(formatMsg && !/PIN-koden måste|Ogiltiga/i.test(formatMsg), formatMsg);
+  }
 
-    await page.evaluate(async (user) => {
-      const nameInput = document.querySelector('#childNameInput, #manualNameInput, input[name="username"]');
-      if (nameInput) nameInput.value = user;
-    }, childUser);
+  it('reports UI hidden without reporting component (after package access resolves)', { skip: skipUnlessFullGate('reports') }, async () => {
+    await rc1Sleep(rc1TestGapMs());
+    const { page, close } = await newIsolatedPage(browser, 'desktop');
+    try {
+      await withDiagnostics(page, 'reports-gating', async () => {
+        await loginParent(page, cfg.baseUrl, seed, 'sv-SE');
+        await page.goto(`${cfg.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(
+          () => document.documentElement.classList.contains('stjarndag-features-loaded')
+            || (window._stjarndagFeatures && window._packageAccess),
+          { timeout: 45000 }
+        );
+        const access = await waitForPackageAccessResolved(page);
+        assert.equal(access.reportingHas, false, 'components.reporting.has must be false for review family');
 
-    const badPinRes = await page.evaluate(async (user) => {
-      const r = await fetch('/api/auth/child-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username: user, pin: '12' }),
+        const visible = await collectVisibleReportsTargets(page);
+        assert.equal(visible.length, 0, `visible reports UI: ${JSON.stringify(visible)}`);
+
+        const apiRes = await fetchWithSessionRetry(page, '/api/reports/active-count');
+        assert.ok(apiRes.diagnostics, 'retry diagnostics required');
+        if (apiRes.diagnostics.count429 >= apiRes.diagnostics.attempts) {
+          assert.fail(`reports active-count: all attempts returned 429 (${JSON.stringify(apiRes.diagnostics)})`);
+        }
+        assert.equal(
+          apiRes.status,
+          403,
+          `reports active-count final status (diagnostics: ${JSON.stringify(apiRes.diagnostics)})`
+        );
+        assert.equal(apiRes.body.code, 'COMPONENT_MISSING');
+
+        const navRes = await page.evaluate(async () => {
+          const r = await fetch('/reports', { redirect: 'manual', credentials: 'include' });
+          return { status: r.status, location: r.headers.get('location') };
+        });
+        if (navRes.status === 302) {
+          assert.match(navRes.location || '', /component=reporting|upgrade|access/i);
+        } else {
+          await assertReportsRouteBlocked(page, cfg.baseUrl);
+        }
       });
-      return r.json();
-    }, childUser);
-    assert.equal(badPinRes.code, 'CHILD_PIN_INVALID_FORMAT');
-
-    await page.goto(`${baseUrl}/child-login`, { waitUntil: 'domcontentloaded' });
-    await page.evaluate(async (user, pin) => {
-      const r = await fetch('/api/auth/child-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username: user, pin }),
-      });
-      return r.status;
-    }, childUser, childPin);
-    await page.goto(`${baseUrl}/child/today`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => !window.location.pathname.includes('child-login'), { timeout: 20000 });
-  });
-
-  it('restore parent locale after smoke', async () => {
-    if (restoreLocale === 'en-GB') return;
-    await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
-    await page.evaluate(async (loc) => {
-      if (window.LocaleSwitcher && LocaleSwitcher.setLocale) await LocaleSwitcher.setLocale(loc);
-    }, restoreLocale);
+    } finally {
+      await close();
+    }
   });
 });

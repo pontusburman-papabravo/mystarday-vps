@@ -42,6 +42,16 @@ import {
   runChildRedeemGate,
   runParentApproveGate,
 } from './lib/mobile-qa-gate-flows.mjs';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const {
+  assertExactHealthSha,
+  assertExactCacheName,
+  assertAuthMeFamilyId,
+  assertFixtureChildUsername,
+  releaseIdentityEnforced,
+} = require('./lib/rc1-release-identity.js');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -54,6 +64,22 @@ const CHILD_NAME = process.env.SMOKE_CHILD_NAME || 'Astrid';
 const CHILD_PIN = process.env.SMOKE_CHILD_PIN || '4829';
 const CHILD2_NAME = process.env.SMOKE_CHILD2_NAME || 'Erik';
 const CHILD2_PIN = process.env.SMOKE_CHILD2_PIN || '7391';
+const RC1_SINGLE_CHILD = process.env.RC1_QA_SINGLE_CHILD === '1';
+
+const DEVICE_PROFILES = {
+  ios: {
+    userAgent:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    viewport: { width: 390, height: 844 },
+  },
+  android: {
+    userAgent:
+      'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    viewport: { width: 412, height: 915 },
+  },
+};
+const deviceProfile = DEVICE_PROFILES[process.env.RC1_MOBILE_PROFILE] || null;
+const activeViewport = deviceProfile?.viewport || MOBILE_VIEWPORT;
 const ARTIFACTS = process.env.SMOKE_ARTIFACTS || path.join(ROOT, 'artifacts/mobile-full-qa');
 const HEADED = process.env.SMOKE_HEADED === '1' || process.env.SMOKE_HEADED === 'true';
 const SLOW_MS = Number(process.env.SMOKE_SLOW_MS || (HEADED ? 60 : 0)) || 0;
@@ -139,7 +165,18 @@ async function acceptCookies(page) {
 
 async function phaseInfra() {
   const { json } = await http('GET', '/health');
-  record('A01', 'GET /health', json?.status === 'healthy', json?.status || 'missing');
+  const enforceIdentity = releaseIdentityEnforced(process.env);
+  if (enforceIdentity) {
+    try {
+      assertExactHealthSha(json, process.env.RC1_EXPECTED_SHA);
+      record('A01', 'GET /health git_sha', true, json?.git_sha || '');
+    } catch (e) {
+      record('A01', 'GET /health git_sha', false, e.message);
+      throw e;
+    }
+  } else {
+    record('A01', 'GET /health', json?.status === 'healthy', json?.status || 'missing');
+  }
 
   if (QA_MODE === 'full') {
     const { res: mRes, text: manifest } = await http('GET', '/manifest.json');
@@ -149,7 +186,17 @@ async function phaseInfra() {
     record('A02', 'PWA manifest + ikon', manifestOk && iconOk, `manifest=${mRes.status} icon=${iconRes.status}`);
 
     const { text: sw } = await http('GET', '/sw.js');
-    record('A03', 'GET /sw.js', sw.includes('CACHE_NAME') && sw.includes('STATIC_ASSETS'), 'sw.js ok');
+    if (enforceIdentity) {
+      try {
+        assertExactCacheName(sw, process.env.RC1_EXPECTED_CACHE);
+        record('A03', 'GET /sw.js CACHE_NAME', true, process.env.RC1_EXPECTED_CACHE);
+      } catch (e) {
+        record('A03', 'GET /sw.js CACHE_NAME', false, e.message);
+        throw e;
+      }
+    } else {
+      record('A03', 'GET /sw.js', sw.includes('CACHE_NAME') && sw.includes('STATIC_ASSETS'), 'sw.js ok');
+    }
   }
 
   await http('POST', '/api/auth/login', {
@@ -158,14 +205,41 @@ async function phaseInfra() {
   });
   record('A05', 'POST /api/auth/login (seed parent)', cookieJar.includes('access_token') || cookieJar.length > 10, 'session set');
 
+  if (enforceIdentity) {
+    const { json: me } = await http('GET', '/api/auth/me');
+    try {
+      assertAuthMeFamilyId(me, process.env.RC1_QA_FAMILY_ID);
+      record('A05b', 'GET /api/auth/me family_id', true, process.env.RC1_QA_FAMILY_ID);
+    } catch (e) {
+      record('A05b', 'GET /api/auth/me family_id', false, e.message);
+      throw e;
+    }
+  }
+
+  const singleChildQa = process.env.RC1_QA_SINGLE_CHILD === '1';
   const { json: children } = await http('GET', '/api/children');
   childrenCache = Array.isArray(children) ? children : children?.children || [];
-  record('A06', 'GET /api/children ≥2', childrenCache.length >= 2, String(childrenCache.length));
+  const minChildren = singleChildQa ? 1 : 2;
+  record('A06', `GET /api/children ≥${minChildren}`, childrenCache.length >= minChildren, String(childrenCache.length));
 
-  for (const [id, spec] of [
-    ['A07', { name: CHILD_NAME, pin: CHILD_PIN }],
-    ['A08', { name: CHILD2_NAME, pin: CHILD2_PIN }],
-  ]) {
+  if (enforceIdentity && singleChildQa) {
+    const expectedChild = process.env.RC1_CHILD_USERNAME || process.env.SMOKE_CHILD_NAME;
+    try {
+      assertFixtureChildUsername(childrenCache, expectedChild);
+      record('A06b', 'fixture child username', true, expectedChild);
+    } catch (e) {
+      record('A06b', 'fixture child username', false, e.message);
+      throw e;
+    }
+  }
+
+  const childSpecs = singleChildQa
+    ? [['A07', { name: CHILD_NAME, pin: CHILD_PIN }]]
+    : [
+      ['A07', { name: CHILD_NAME, pin: CHILD_PIN }],
+      ['A08', { name: CHILD2_NAME, pin: CHILD2_PIN }],
+    ];
+  for (const [id, spec] of childSpecs) {
     const saved = cookieJar;
     cookieJar = '';
     const { res, json } = await http('POST', '/api/auth/child-login', {
@@ -310,8 +384,13 @@ async function phaseParentRoutes(page) {
       handoff: !!document.querySelector('[data-action="child-login"], a[href*="child-login"], .parent-handoff-primary'),
       notifLink: !!document.querySelector('a[href="/notifications"]'),
     };
-  }, [CHILD_NAME, CHILD2_NAME]);
-  record('D02', 'Barnkort båda barn', dash.bothChildren, `${CHILD_NAME}+${CHILD2_NAME}`);
+  }, RC1_SINGLE_CHILD ? [CHILD_NAME] : [CHILD_NAME, CHILD2_NAME]);
+  record(
+    'D02',
+    RC1_SINGLE_CHILD ? 'Barnkort QA-barn' : 'Barnkort båda barn',
+    dash.bothChildren,
+    RC1_SINGLE_CHILD ? CHILD_NAME : `${CHILD_NAME}+${CHILD2_NAME}`,
+  );
   record('Z02', 'initDragDrop', dash.initDragDrop, dash.initDragDrop ? 'function' : 'missing');
   record('Z03', 'loadStarHistory', dash.loadStarHistory, dash.loadStarHistory ? 'function' : 'missing');
   record('Z04', 'renderSpecialDaysCalendar', dash.renderSpecialDaysCalendar, dash.renderSpecialDaysCalendar ? 'function' : 'missing');
@@ -346,7 +425,13 @@ async function phaseParentRoutes(page) {
   await page.goto(`${BASE}/family`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await new Promise((r) => setTimeout(r, 1200));
   const famText = await page.evaluate(() => document.body.innerText || '');
-  record('K02', 'Familj listar båda barn', [CHILD_NAME, CHILD2_NAME].every((n) => famText.toLowerCase().includes(n.toLowerCase())), '');
+  const famNames = RC1_SINGLE_CHILD ? [CHILD_NAME] : [CHILD_NAME, CHILD2_NAME];
+  record(
+    'K02',
+    RC1_SINGLE_CHILD ? 'Familj listar QA-barn' : 'Familj listar båda barn',
+    famNames.every((n) => famText.toLowerCase().includes(n.toLowerCase())),
+    '',
+  );
 
   const astrid = findChild(CHILD_NAME);
   if (astrid?.id) {
@@ -407,14 +492,26 @@ async function phaseParentRoutes(page) {
     http,
     record,
     astrid: findChild(CHILD_NAME),
-    erik: findChild(CHILD2_NAME),
+    erik: RC1_SINGLE_CHILD ? null : findChild(CHILD2_NAME),
   });
-  await runMultiChildStatsGate({
-    http,
-    record,
-    astrid: findChild(CHILD_NAME),
-    erik: findChild(CHILD2_NAME),
-  });
+  if (RC1_SINGLE_CHILD) {
+    const { json, res } = await http('GET', '/api/family/dashboard-stats');
+    const rows = json?.children || [];
+    const row = rows.find((c) => c.id === findChild(CHILD_NAME)?.id);
+    record(
+      'T01',
+      'Stjärnsaldo (single-child QA)',
+      res.ok && row && row.star_balance != null,
+      row ? `balance=${row.star_balance}` : `HTTP ${res.status}`,
+    );
+  } else {
+    await runMultiChildStatsGate({
+      http,
+      record,
+      astrid: findChild(CHILD_NAME),
+      erik: findChild(CHILD2_NAME),
+    });
+  }
 }
 
 async function parentLogout(page) {
@@ -569,11 +666,13 @@ async function phaseChild(browser, parentPage) {
 
   await ctx.close();
 
-  const ctx2 = await browser.createBrowserContext();
-  const page2 = await ctx2.newPage();
-  await enterChildPin(page2, CHILD2_NAME, CHILD2_PIN, 'O06');
-  await page2.screenshot({ path: path.join(ARTIFACTS, 'child-erik-final.png'), fullPage: true }).catch(() => {});
-  await ctx2.close();
+  if (!RC1_SINGLE_CHILD && QA_MODE === 'full') {
+    const ctx2 = await browser.createBrowserContext();
+    const page2 = await ctx2.newPage();
+    await enterChildPin(page2, CHILD2_NAME, CHILD2_PIN, 'O06');
+    await page2.screenshot({ path: path.join(ARTIFACTS, 'child-erik-final.png'), fullPage: true }).catch(() => {});
+    await ctx2.close();
+  }
 
   if (redeemOk && parentPage) {
     await parentPage.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
@@ -662,7 +761,11 @@ ${failRows || '| — | Inga | — |'}
 
 async function main() {
   console.log(`\n📱 Mobile QA (${QA_MODE}) — ${BASE}`);
-  console.log(`Viewport: ${MOBILE_VIEWPORT.width}×${MOBILE_VIEWPORT.height} | Headed: ${HEADED}\n`);
+  console.log(`Viewport: ${activeViewport.width}×${activeViewport.height} | Headed: ${HEADED}`);
+  if (deviceProfile) {
+    console.log(`Mobile browser profile: ${process.env.RC1_MOBILE_PROFILE}`);
+  }
+  console.log('');
 
   await phaseInfra();
   await phaseRedirects();
@@ -672,7 +775,7 @@ async function main() {
     slowMo: SLOW_MS,
     args: HEADED ? ['--window-size=420,900'] : ['--no-sandbox'],
     defaultViewport: {
-      ...MOBILE_VIEWPORT,
+      ...activeViewport,
       isMobile: true,
       hasTouch: true,
       deviceScaleFactor: 2,
@@ -680,6 +783,9 @@ async function main() {
   });
 
   const page = await browser.newPage();
+  if (deviceProfile?.userAgent) {
+    await page.setUserAgent(deviceProfile.userAgent);
+  }
   page.on('pageerror', (e) => pageErrors.push(e.message));
   page.on('console', (msg) => {
     if (msg.type() === 'error' && !isBenignError(msg.text())) pageErrors.push(msg.text());
@@ -700,7 +806,7 @@ async function main() {
   const summary = {
     base: BASE,
     mode: QA_MODE,
-    viewport: MOBILE_VIEWPORT,
+    viewport: activeViewport,
     timestamp: new Date().toISOString(),
     protocolDoc: 'docs/QA-mobil-fullstandig-protokoll.md',
     protocolVersion: '1.2',

@@ -1,44 +1,39 @@
-# RC-1 English family app — branch status (2026-07-31)
+# RC-1 English — automation & release status (2026-08-01)
 
-**Branch:** `cursor/rc1-i18n-safe-rewards-profile-fordig-b0f7`  
-**Base:** `main` (post #796 parent session handoff merge)
+**Prod identity (verify before each smoke):** `GET /health` → `git_sha`; `GET /sw.js` → `CACHE_NAME`  
+**Handoff client fix:** merged **#806** (`5164db4c`, SW **v750+**).  
+**Prod smoke harness:** open **#803** (Draft) — dedicated QA fixture [`rc1-qa-fixture.md`](../rc1-qa-fixture.md).
 
-## Verified in code + automated tests
+## RC definitions (consistent)
 
-| Area | Status | Tests / gates |
-|------|--------|----------------|
-| Reward display localization (provenance-safe) | Done | `test/reward-localization-provenance.test.js`, `test/family-content-display.test.js` |
-| Child `/api/me/rewards` + `/api/me/goal` content locale | Done | `resolveChildContentLocaleForFamily` (no `localizeAll`) |
-| en-GB registration reward `source_default_id` when library match | Done | `src/lib/reward-provenance.js`, `register.js` |
-| Child profile (`/family/child/:id`) system copy en-GB | Done | `family-*-GB.json` `childProfile.*`, `test/i18n-planning-family.test.js` |
-| För dig primary view system copy en-GB | Done | `for-dig-*-GB.json`, `for-dig.js` (`scheduleName`, `pt()`) |
-| Reports link on child profile | Capability-gated | `components.reporting.has` via `fetchPackageAccess` |
-| i18n audits | Green | `npm run audit:i18n:strict`, `audit:i18n:baseline` (0 hits) |
-| CI gate | Green | `npm run test:gate` (test env per root AGENTS.md) |
+| Phase | Scope |
+|-------|--------|
+| **RC-1** | Code, automation, prod-smoke, automated device matrix |
+| **RC-2** | Store metadata, market web, rollout flags, ops |
 
-## PR #791 handling
+## Automation gates
 
-**Not merged.** Open PR #791 proposed `localizeAll: true` for all reward names on English child locale. This branch **rejects** that approach:
+| Gate | Requirement | Status |
+|------|-------------|--------|
+| #806 merged + deployed | Handoff `sessionRestored` client completion | **PASS** (on main/prod) |
+| QA fixture + `rc1:qa:prepare` | Allowlisted family only; no founder PIN attempts | **READY** (in #803) |
+| Handoff-only smoke | 1/1 then 3/3, `RC1_SMOKE_FILTER=handoff` | **BLOCK** — secrets + first prod prepare not run in CI yet |
+| Full prod-smoke | 5/5 × 2, `RC1_REQUIRE_HANDOFF=true` | **BLOCK** (depends on handoff) |
+| GitHub `rc1-release-gate` workflow | prepare → handoff ladder → smoke ×2 → iOS/Android | **READY** (needs env secrets) |
+| `test:gate` | CI green on smoke PR | Required before #803 merge |
+| Native Capacitor binaries on farm | Real device permissions (media upload, etc.) | **VISUAL_REVIEW_OPTIONAL** where not scriptable |
 
-- Only `source_default_id` + `modified_by_family = false` rows localize (unchanged `isSystemSeededReward`).
-- Registration seeds set `source_default_id` when `default_reward` match is unambiguous (icon + cost + name, or unique icon+cost).
-- Legacy rows without provenance stay in stored language (safe default).
-- Expanded `sv-to-en.json` reward map for library titles (subset of #791, without broad auto-translate).
+## QA account (automation)
 
-## PR #796 dependency
+**RC-1 prod smoke / device QA:** allowlisted `rc1-qa-parent@…` + child `rc1qachild` — secrets only; see [`rc1-qa-fixture.md`](../rc1-qa-fixture.md).  
+**Founder manual QA:** [`founder-qa-test-account.md`](../founder-qa-test-account.md) — **not** RC-1 automation.  
+**App Store review** (Anna): store checklists only.
 
-#796 (opaque parent session handoff) is **merged on main**. RC-1 child/parent locale behaviour still depends on handoff + session restore for Journey C / R4-E; see physical QA below.
+## Overall RC-1 verdict
 
-## Physical QA — NOT RUN (required before device sign-off)
+| Milestone | Status |
+|-----------|--------|
+| RC-1 AUTOMATED FUNCTIONAL PASS | **BLOCK** — prod smoke not green on QA fixture |
+| READY FOR ENGLISH STORE RELEASE | After RC-1 GO + RC-2 |
 
-- R4-E normal pass
-- R4-E stress pass
-- Manual journeys A–D (`docs/releases/RC1_I18N_RELEASE_REQUIREMENTS.md`)
-- iPhone Safari / native WebView
-- Android Chrome / WebView
-- Child handoff after session handoff deploy on target environment
-- Service worker update verification after deploy
-
-## Explicitly out of RC-1 scope (unchanged)
-
-- Swedish admin, SEO articles, resurser PDFs, full Reports product copy, legal en review, Professional Report PDF
+## Out of scope (unchanged)
