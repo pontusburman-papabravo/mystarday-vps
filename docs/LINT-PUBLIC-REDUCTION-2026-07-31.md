@@ -317,7 +317,7 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 |------|----------|
 | `node --test` dashboard-split, dashboard-card-actions, dashboard-*.test.js | 52 pass |
 | `test:gate` | 281 pass |
-| `test:full` | (körs efter 4B — kräver fail 0, skip 4) |
+| `test:full` | **3212 pass, 0 fail, 4 skip, 0 cancelled, exit 0** |
 
 **Dödkod-granskning:** `calculateAge` finns kvar lokalt i `family.js`; inga HTML/`window.*`/dynamiska anrop till dashboard-kopian. `dismissPaymentPrompt` / `goToUpgrade` endast tomma stubs utan referenser i repo (ingen betal-UI-återintroduktion).
 
@@ -326,3 +326,13 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 ## Batch 5A — `admin-library.js`
 
 **Start:** 287 · **admin-library:** 37 → **0** · **totalt:** 250
+
+## Batch 5B — `admin-families.js`
+
+**Warnings:** 32 → **0** · **budget:** 250 → 218 · **commit:** `5f9a9490`
+
+## Batch 5C — `admin-surveys.js`
+
+**Warnings:** 30 → **0** · **budget:** 218 → **188** · **commit:** `936fcfeb`
+
+**Stopp före `family.js`** enligt plan.
