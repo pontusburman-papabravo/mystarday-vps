@@ -83,7 +83,15 @@ test(`Fas6 F — concurrent two different items (${TWO_ITEM_RACE_RUNS} runs): on
       const analyticsN = await countAnalyticsEvent(db, familyId, 'first_completion_recorded');
       assert.equal(analyticsN, 1, `run ${run}: one first_completion_recorded event`);
 
-      await db.truncate();
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          await db.truncate();
+          break;
+        } catch (err) {
+          if (err.code !== '40P01' || attempt === 4) throw err;
+          await new Promise((r) => setTimeout(r, 40 * (attempt + 1)));
+        }
+      }
     }
   } finally {
     await http.close();
