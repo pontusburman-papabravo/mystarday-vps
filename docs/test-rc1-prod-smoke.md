@@ -1,6 +1,8 @@
 # RC-1 live deploy browser smoke
 
-Release evidence against the live deploy (founder QA account — [`founder-qa-test-account.md`](founder-qa-test-account.md)). **Test-only** — no product writes beyond login, locale restore, and read-only API checks.
+Release evidence against the live deploy using the **dedicated RC-1 QA fixture** — [`rc1-qa-fixture.md`](rc1-qa-fixture.md). **Test-only** — no product writes beyond login, locale restore, and read-only API checks.
+
+**Do not** use founder (`pontus@burman.cc`) or App Store review accounts for this harness.
 
 ## When to run
 
@@ -57,9 +59,12 @@ Primary vs cleanup failures use `AggregateError` when both fail; locale audit ph
 | `RC1_SMOKE_BASE_URL` | Target host (explicit per release run) |
 | `RC1_EXPECTED_SHA` | Exact `/health` `git_sha` |
 | `RC1_EXPECTED_CACHE` | Exact `CACHE_NAME` in `/sw.js` (match deployed `public/sw.js`, e.g. `stjarndag-v753`) |
-| `RC1_QA_EMAIL` / `RC1_QA_PASSWORD` | Parent — [`founder-qa-test-account.md`](founder-qa-test-account.md) (`RC1_REVIEW_*` deprecated) |
-| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Astrid — username **`astrid921`**, PIN `1112` |
-| `RC1_PARENT_PIN` | Parent **app-lock** PIN on the QA family — **required** when `RC1_REQUIRE_HANDOFF=true` (not the child PIN; store in Cursor secrets, never in repo) |
+| `RC1_QA_EMAIL` / `RC1_QA_PASSWORD` | Parent — [`rc1-qa-fixture.md`](rc1-qa-fixture.md) (`RC1_REVIEW_*` deprecated) |
+| `RC1_QA_FAMILY_ID` | UUID from prepare; smoke fails if `/api/auth/me` family mismatches |
+| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child `rc1qachild` + secret PIN |
+| `RC1_PARENT_PIN` | Parent **app-lock** PIN — **required** when `RC1_REQUIRE_HANDOFF=true` |
+| `RC1_PIN_FINGERPRINT_KEY` | HMAC key; prep + runner log `prep_pin_fingerprint_matches_runner` |
+| `RC1_RUN_QA_PREP` | `1` runs `npm run rc1:qa:prepare` before smoke (needs `DATABASE_URL`) |
 | `RC1_REQUIRE_HANDOFF` | `true` (default) = 5 tests; `false` = limited 4-test diagnostic |
 | `RC1_RESTORE_LOCALE` | Optional **post-suite** target (runner); per-test restore always uses captured `/api/auth/me` locale |
 | `RC1_SMOKE_RUNS` | Repeat full suite (use `2` for release gate) |
@@ -73,15 +78,10 @@ Credentials must **never** appear in logs or committed files.
 
 ## Review family release config
 
-Before child/handoff assertions:
-
-- `english_app_enabled` via `/api/family/locale-options`
-- `english_child_experience_enabled` via admin **Development → Features** (`POST /api/admin/features/english_child_experience/families`)
-
-Prep helper (admin credentials required, **review family only**):
+The QA fixture is prepared by `npm run rc1:qa:prepare` (en-GB, `english_app`, `english_child_experience`, reporting off). Legacy admin prep for founder/review families is **not** used for RC-1 automation:
 
 ```bash
-node scripts/rc1-prod-smoke-prep-review-family.js
+npm run rc1:qa:prepare
 ```
 
 Child UI contract requires **temporary** `preferred_locale=en-GB` inside the child test (not global review default). The test sets and restores locale itself.
@@ -93,7 +93,7 @@ export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 export RC1_SMOKE_BASE_URL="<deploy-base-url>"
 export RC1_EXPECTED_SHA="<deploy-sha>"
 export RC1_EXPECTED_CACHE="stjarndag-v748"
-# RC1_REVIEW_*, RC1_CHILD_*, RC1_PARENT_PIN from secure store
+# RC1_REVIEW_* deprecated — use RC1_QA_* from secure store
 RC1_REQUIRE_HANDOFF=true RC1_SMOKE_RUNS=2 npm run test:e2e:rc1-prod-smoke
 ```
 
@@ -107,7 +107,8 @@ RC1_REQUIRE_HANDOFF=true RC1_SMOKE_RUNS=2 npm run test:e2e:rc1-prod-smoke
 
 ## GitHub Actions
 
-`.github/workflows/rc1-prod-smoke.yml` — `workflow_dispatch`, environment `rc1-prod-smoke`, `RC1_REQUIRE_HANDOFF=true`, artifacts on failure.
+`.github/workflows/rc1-prod-smoke.yml` — `workflow_dispatch`, environment `rc1-prod-smoke`.  
+`.github/workflows/rc1-release-gate.yml` — full prepare + handoff ladder + device matrix.
 
 ## Scope
 

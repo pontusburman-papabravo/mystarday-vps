@@ -168,7 +168,7 @@ function assertPreflightPinStatusOrStop(diag) {
   }
 }
 
-function finalizeVerifyPinPickerOrStop(diag, pickerRes, pickerBody, bodyReadOk, handoffValueForDb, reviewFamilyId) {
+function finalizeVerifyPinPickerOrStop(diag, pickerRes, pickerBody, bodyReadOk, handoffValueForDb, reviewFamilyId, options = {}) {
   const pickerStatus = pickerRes.status();
   const headers = pickerRes.headers();
   const capture = buildVerifyPinPickerCapture(pickerStatus, headers, pickerBody, bodyReadOk);
@@ -215,7 +215,7 @@ function finalizeVerifyPinPickerOrStop(diag, pickerRes, pickerBody, bodyReadOk, 
     stopHandoffWithPickerContract(
       diag,
       'verify-pin-picker code PARENT_PIN_INVALID',
-      'PARENT_PIN_SECRET_MISMATCH'
+      options.qaFixtureMode ? 'QA_FIXTURE_OR_SECRET_INJECTION_FAILURE' : 'PARENT_PIN_SECRET_MISMATCH'
     );
   }
 
@@ -727,7 +727,8 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
     pickerBody,
     pickerBodyReadOk,
     handoffValueForDb,
-    reviewFamilyId
+    reviewFamilyId,
+    { qaFixtureMode: options.qaFixtureMode === true }
   );
   const sanitizedPicker = diag.verifyPinPicker;
 

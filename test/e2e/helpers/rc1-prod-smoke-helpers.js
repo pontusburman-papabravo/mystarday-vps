@@ -9,22 +9,39 @@ const { performParentChildHandoff } = handoffModule;
 
 const SWEDISH_SERVER_LEAK = /Ogiltiga värden|Namn krävs|PIN-koden måste|Användarnamn krävs/i;
 
+const { pinFingerprintsMatch } = require('../../../src/lib/rc1-pin-fingerprint');
+const { RC1_QA_CHILD_USERNAME } = require('../../../src/lib/rc1-qa-fixture');
+
 function smokeConfig() {
   const baseUrl = (process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL || '').replace(/\/$/, '');
   const requireHandoff = process.env.RC1_REQUIRE_HANDOFF !== 'false'
     && process.env.RC1_REQUIRE_HANDOFF !== '0';
+  const qaFamilyId = (process.env.RC1_QA_FAMILY_ID || '').trim() || null;
   return {
     baseUrl,
-    expectedSha: process.env.RC1_EXPECTED_SHA || 'd369dd5726fed42f303b93083ed8842cce49aba3',
-    expectedCache: process.env.RC1_EXPECTED_CACHE || 'stjarndag-v748',
-    email: process.env.RC1_QA_EMAIL || process.env.RC1_REVIEW_EMAIL || process.env.PROD_EMAIL,
-    password: process.env.RC1_QA_PASSWORD || process.env.RC1_REVIEW_PASSWORD || process.env.PROD_PASSWORD,
-    childUsername: process.env.RC1_CHILD_USERNAME,
+    expectedSha: process.env.RC1_EXPECTED_SHA,
+    expectedCache: process.env.RC1_EXPECTED_CACHE,
+    email: process.env.RC1_QA_EMAIL || process.env.RC1_REVIEW_EMAIL,
+    password: process.env.RC1_QA_PASSWORD || process.env.RC1_REVIEW_PASSWORD,
+    childUsername: process.env.RC1_CHILD_USERNAME || RC1_QA_CHILD_USERNAME,
     childPin: process.env.RC1_CHILD_PIN,
     parentPin: process.env.RC1_PARENT_PIN || null,
+    qaFamilyId,
+    qaFixtureMode: process.env.RC1_USE_QA_FIXTURE !== '0',
     requireHandoff,
     restoreLocaleOverride: process.env.RC1_RESTORE_LOCALE || null,
   };
+}
+
+async function assertRc1QaFamilyId(page, expectedFamilyId) {
+  assert.ok(expectedFamilyId, 'RC1_QA_FAMILY_ID required for automated RC-1 smoke');
+  const actual = await page.evaluate(async () => {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!r.ok) return null;
+    const me = await r.json();
+    return me.family_id || me.familyId || null;
+  });
+  assert.equal(actual, expectedFamilyId, 'logged-in family must match RC1_QA_FAMILY_ID');
 }
 
 function localeAuditPath() {
@@ -738,7 +755,7 @@ async function assertRc1ChildLocaleContract(page) {
   assert.equal(
     picker.english_child_experience_enabled,
     true,
-    'RC-1 prod smoke requires english_child_experience_enabled on review family (release config)'
+    'RC-1 prod smoke requires english_child_experience_enabled on QA fixture (release config)'
   );
   const { resolveChildUiLocale } = require('../../../src/lib/child-ui-locale');
   const expected = resolveChildUiLocale(picker.preferred_locale, picker.english_child_experience_enabled);
@@ -750,7 +767,7 @@ async function assertRc1ChildLocaleContract(page) {
   assert.equal(
     expected,
     'en-GB',
-    'RC-1 expects review family preferred_locale en-GB with english_child_experience ON'
+    'RC-1 expects QA family preferred_locale en-GB with english_child_experience ON'
   );
   return picker;
 }
@@ -763,6 +780,7 @@ function smokeFilterMode() {
 
 module.exports = {
   SWEDISH_SERVER_LEAK,
+  assertRc1QaFamilyId,
   smokeConfig,
   logLocaleAudit,
   withDiagnostics,

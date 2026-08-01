@@ -35,19 +35,9 @@ Do **not** use other prod accounts (especially the App Store review account) unl
 
 App Store credentials live in [`app-store-demo-konto.md`](app-store-demo-konto.md) — **for store review and release checklists only**, not for Cursor agents.
 
-## RC-1 prod browser smoke (env) <!-- pragma: allowlist secret -->
+## RC-1 prod browser smoke
 
-Set in Cursor secrets or your shell (password from table above):
-
-| Variable | Typical value |
-|----------|----------------|
-| `RC1_SMOKE_BASE_URL` | prod base URL (see qa-test-account) |
-| `RC1_QA_EMAIL` | `pontus@burman.cc` |
-| `RC1_QA_PASSWORD` | founder password |
-| `RC1_CHILD_USERNAME` | `Astrid` |
-| `RC1_CHILD_PIN` | `1112` |
-
-Runner: `node scripts/run-e2e-rc1-prod-smoke.js`. Legacy `RC1_REVIEW_*` env names still work but log a deprecation warning.
+**Not** this founder account. RC-1 automation uses the dedicated QA fixture only — [`rc1-qa-fixture.md`](rc1-qa-fixture.md). Do **not** run handoff/PIN smoke against `pontus@burman.cc`.
 
 ## Related
 

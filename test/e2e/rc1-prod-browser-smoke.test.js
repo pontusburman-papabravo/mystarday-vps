@@ -16,6 +16,7 @@ const {
   waitForChildI18nReady,
   assertPrimaryNavEnglish,
   assertParentSession,
+  assertRc1QaFamilyId,
   assertChildSession,
   performParentChildHandoff,
   assertCanonicalHost,
@@ -84,6 +85,9 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
     try {
       await withDiagnostics(page, 'locale-settings-ui', async () => {
         await loginParent(page, cfg.baseUrl, seed, null);
+        if (cfg.qaFamilyId) {
+          await assertRc1QaFamilyId(page, cfg.qaFamilyId);
+        }
         await assertEnglishAppEnabled(page);
 
         await withFamilyLocaleScope(browser, page, cfg.baseUrl, seed, 'locale-settings-ui', async ({ original, setLocale }) => {
@@ -124,6 +128,9 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
     try {
       await withDiagnostics(page, 'child-login', async () => {
         await loginParent(page, cfg.baseUrl, seed, null);
+        if (cfg.qaFamilyId) {
+          await assertRc1QaFamilyId(page, cfg.qaFamilyId);
+        }
 
         await withFamilyLocaleFixture(
           browser,
@@ -194,6 +201,9 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
       try {
         await withDiagnostics(page, 'parent-child-handoff', async () => {
           await loginParent(page, cfg.baseUrl, seed, null);
+        if (cfg.qaFamilyId) {
+          await assertRc1QaFamilyId(page, cfg.qaFamilyId);
+        }
 
           await withFamilyLocaleFixture(
             browser,
@@ -235,6 +245,7 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
                   networkCapture,
                   deepDiagnostic: handoffDebugOnly,
                   childLogin: childLoginDiag,
+                  qaFixtureMode: cfg.qaFixtureMode,
                 });
                 if (page._rc1HandoffCookieAudit) {
                   handoffDiag.handoffCookiesAfterChildLogin = page._rc1HandoffCookieAudit;

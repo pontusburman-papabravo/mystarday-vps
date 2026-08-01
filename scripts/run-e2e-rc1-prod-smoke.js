@@ -2,13 +2,14 @@
 'use strict';
 
 /**
- * RC-1 browser smoke against a deployed host (founder QA — docs/founder-qa-test-account.md).
- * Requires: RC1_SMOKE_BASE_URL, RC1_QA_EMAIL, RC1_QA_PASSWORD (or deprecated RC1_REVIEW_*),
- *           RC1_CHILD_USERNAME, RC1_CHILD_PIN, RC1_EXPECTED_SHA, RC1_EXPECTED_CACHE
- * Optional: RC1_PARENT_PIN when RC1_REQUIRE_HANDOFF=true
+ * RC-1 browser smoke — dedicated QA fixture (docs/rc1-qa-fixture.md).
+ * Requires: RC1_SMOKE_BASE_URL, RC1_QA_*, RC1_EXPECTED_SHA, RC1_EXPECTED_CACHE, RC1_QA_FAMILY_ID
+ * Optional: RC1_RUN_QA_PREP=1 runs scripts/rc1-qa-family-prepare.js before smoke (needs DATABASE_URL)
  */
 const { spawnSync, execSync } = require('node:child_process');
 const path = require('node:path');
+const { pinFingerprintsMatch } = require('../src/lib/rc1-pin-fingerprint');
+const { RC1_QA_PARENT_EMAIL, RC1_QA_CHILD_USERNAME, isAllowedRc1QaParentEmail } = require('../src/lib/rc1-qa-fixture');
 
 const baseUrl = process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL;
 if (!baseUrl) {
@@ -19,13 +20,65 @@ if (!baseUrl) {
 function qaCredential(primary, legacy) {
   const value = process.env[primary] || process.env[legacy];
   if (!process.env[primary] && process.env[legacy]) {
-    console.warn(`[rc1-prod-smoke] ${legacy} is deprecated; use ${primary} (founder QA — docs/founder-qa-test-account.md)`);
+    console.warn(`[rc1-prod-smoke] ${legacy} is deprecated; use ${primary}`);
   }
   return value;
 }
 
-const qaEmail = qaCredential('RC1_QA_EMAIL', 'RC1_REVIEW_EMAIL') || process.env.PROD_EMAIL;
-const qaPassword = qaCredential('RC1_QA_PASSWORD', 'RC1_REVIEW_PASSWORD') || process.env.PROD_PASSWORD;
+const qaEmail = qaCredential('RC1_QA_EMAIL', 'RC1_REVIEW_EMAIL');
+const qaPassword = qaCredential('RC1_QA_PASSWORD', 'RC1_REVIEW_PASSWORD');
+const useQaFixture = process.env.RC1_USE_QA_FIXTURE !== '0';
+
+if (useQaFixture && qaEmail && !isAllowedRc1QaParentEmail(qaEmail)) {
+  console.error('[rc1-prod-smoke] RC1_QA_EMAIL is not an allowlisted RC-1 QA fixture (refusing founder/review accounts)');
+  process.exit(1);
+}
+if (useQaFixture && !process.env.RC1_QA_FAMILY_ID) {
+  console.error('[rc1-prod-smoke] missing RC1_QA_FAMILY_ID (required for RC-1 QA fixture)');
+  process.exit(1);
+}
+
+if (process.env.RC1_RUN_QA_PREP === '1') {
+  if (!process.env.DATABASE_URL) {
+    console.error('[rc1-prod-smoke] RC1_RUN_QA_PREP=1 requires DATABASE_URL');
+    process.exit(1);
+  }
+  console.log('[rc1-prod-smoke] running rc1-qa-family-prepare…');
+  const prepScript = path.join(__dirname, 'rc1-qa-family-prepare.js');
+  const prep = spawnSync(process.execPath, [prepScript], {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      RC1_QA_EMAIL: qaEmail || RC1_QA_PARENT_EMAIL,
+    },
+  });
+  if (prep.stdout) process.stdout.write(prep.stdout);
+  if (prep.stderr) process.stderr.write(prep.stderr);
+  if (prep.status !== 0) {
+    console.error('[rc1-prod-smoke] QA prepare failed');
+    process.exit(prep.status || 1);
+  }
+  try {
+    const lines = prep.stdout.trim().split('\n').filter(Boolean);
+    const prepOut = JSON.parse(lines[lines.length - 1]);
+    if (prepOut.family_id) {
+      process.env.RC1_QA_FAMILY_ID = prepOut.family_id;
+    }
+    const fpMatch = pinFingerprintsMatch(
+      process.env.RC1_PARENT_PIN,
+      process.env.RC1_PIN_FINGERPRINT_KEY,
+      prepOut.pin_fingerprint
+    );
+    console.log(`[rc1-prod-smoke] prep_pin_fingerprint_matches_runner=${fpMatch === true}`);
+    if (fpMatch === false) {
+      console.error('[rc1-prod-smoke] QA_FIXTURE_OR_SECRET_INJECTION_FAILURE: PIN fingerprint mismatch');
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error('[rc1-prod-smoke] could not parse prepare output');
+    process.exit(1);
+  }
+}
 
 const smokeFilter = (process.env.RC1_SMOKE_FILTER || '').trim().toLowerCase();
 const handoffDebugOnly = smokeFilter === 'handoff';
@@ -44,12 +97,16 @@ if (handoffDebugOnly) {
 }
 
 if (!qaEmail) {
-  console.error('[rc1-prod-smoke] missing RC1_QA_EMAIL (or RC1_REVIEW_EMAIL / PROD_EMAIL)');
+  console.error('[rc1-prod-smoke] missing RC1_QA_EMAIL');
   process.exit(1);
 }
 if (!qaPassword) {
-  console.error('[rc1-prod-smoke] missing RC1_QA_PASSWORD (or RC1_REVIEW_PASSWORD / PROD_PASSWORD)');
+  console.error('[rc1-prod-smoke] missing RC1_QA_PASSWORD');
   process.exit(1);
+}
+
+if (!process.env.RC1_CHILD_USERNAME && useQaFixture) {
+  process.env.RC1_CHILD_USERNAME = RC1_QA_CHILD_USERNAME;
 }
 
 const required = [

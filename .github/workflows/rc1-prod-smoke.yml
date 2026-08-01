@@ -16,6 +16,10 @@ on:
         description: 'Consecutive full runs (use 2 before device QA)'
         required: true
         default: '2'
+      run_prepare:
+        description: 'Reset QA fixture before smoke'
+        type: boolean
+        default: true
 
 jobs:
   rc1-prod-smoke:
@@ -34,17 +38,45 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps --include=dev
 
+      - name: Prepare QA fixture
+        if: inputs.run_prepare
+        env:
+          DATABASE_URL: ${{ secrets.RC1_QA_DATABASE_URL }}
+          RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
+          RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
+          RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
+          RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
+          RC1_PIN_FINGERPRINT_KEY: ${{ secrets.RC1_PIN_FINGERPRINT_KEY }}
+          RC1_QA_FAMILY_ID: ${{ secrets.RC1_QA_FAMILY_ID }}
+        run: |
+          set -euo pipefail
+          OUT=$(node scripts/rc1-qa-family-prepare.js)
+          echo "$OUT"
+          FAMILY_ID=$(echo "$OUT" | tail -1 | jq -r .family_id)
+          echo "RC1_QA_FAMILY_ID=$FAMILY_ID" >> "$GITHUB_ENV"
+          FP=$(echo "$OUT" | tail -1 | jq -r .pin_fingerprint)
+          node -e "
+          const { pinFingerprintsMatch } = require('./src/lib/rc1-pin-fingerprint');
+          if (!pinFingerprintsMatch(process.env.RC1_PARENT_PIN, process.env.RC1_PIN_FINGERPRINT_KEY, '$FP')) {
+            console.error('prep_pin_fingerprint_matches_runner=false');
+            process.exit(1);
+          }
+          console.log('prep_pin_fingerprint_matches_runner=true');
+          "
+
       - name: RC-1 prod browser smoke
         env:
           RC1_SMOKE_BASE_URL: ${{ inputs.base_url }}
           RC1_EXPECTED_SHA: ${{ inputs.expected_sha }}
           RC1_EXPECTED_CACHE: ${{ inputs.expected_cache }}
           RC1_SMOKE_RUNS: ${{ inputs.smoke_runs }}
-          RC1_REVIEW_EMAIL: ${{ secrets.RC1_REVIEW_EMAIL }}
-          RC1_REVIEW_PASSWORD: ${{ secrets.RC1_REVIEW_PASSWORD }}
+          RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
+          RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
           RC1_CHILD_USERNAME: ${{ secrets.RC1_CHILD_USERNAME }}
           RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
           RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
+          RC1_QA_FAMILY_ID: ${{ env.RC1_QA_FAMILY_ID || secrets.RC1_QA_FAMILY_ID }}
+          RC1_PIN_FINGERPRINT_KEY: ${{ secrets.RC1_PIN_FINGERPRINT_KEY }}
           RC1_REQUIRE_HANDOFF: 'true'
         run: npm run test:e2e:rc1-prod-smoke
 
