@@ -1,28 +1,20 @@
-# QA test account
+# QA test account index
 
-## Cursor / Cloud Agents (default)
+**Agents (Cursor / Cloud):** use [`founder-qa-test-account.md`](founder-qa-test-account.md) only.
 
-**Use only:** [`founder-qa-test-account.md`](founder-qa-test-account.md)
+| Role | Reference |
+|------|-----------|
+| Parent | `FOUNDER_QA_EMAIL` / `FOUNDER_QA_PASSWORD` |
+| Child | Astrid · username `FOUNDER_CHILD_USERNAME` · PIN `FOUNDER_CHILD_PIN` |
 
-| Role | Value |
-|------|--------|
-| Parent | `pontus@burman.cc` / `Kalle001!` // pragma: allowlist secret |
-| Child | Astrid / PIN `1112` |
+Values are stored outside the repository — see [`secret-references.md`](secret-references.md).
 
-Agents must **not** use the App Store review account (Anna) for routine testing. <!-- pragma: allowlist secret -->
+Agents must **not** use the App Store review account (Anna) for routine testing.
 
-## App Store / human release (not for agents)
+## App Store / human release QA
 
-Apple/Google review and release checklists use a separate demo family:
+- [`app-store-demo-konto.md`](app-store-demo-konto.md) — `APP_REVIEW_*` secrets only when the task is store review or release QA.
 
-- [`app-store-demo-konto.md`](app-store-demo-konto.md) — App Store review parent + Anna <!-- pragma: allowlist secret -->
-- Only when the task is explicitly store review, release QA, or founder says to use that account
+## RC-1 automation
 
-**Prod URL:** https://mystarday.se <!-- pragma: allowlist secret -->
-
-Use child login username **`astrid921`** (not display name) in automation env vars.
-
-## Related
-
-- [`native-app-test-checklist.md`](native-app-test-checklist.md)
-- [`RELEASE.md`](RELEASE.md)
+- [`rc1-qa-fixture.md`](rc1-qa-fixture.md) — dedicated `RC1_QA_*` fixture (not founder / not review).

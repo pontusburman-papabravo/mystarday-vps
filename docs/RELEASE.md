@@ -71,22 +71,22 @@ https://mystarday.se/api/iap/webhook
 
 Pontus registrerar sig manuellt på https://mystarday.se:
 1. Gå till https://mystarday.se/register
-2. E-post: `review@mystarday.se` | Lösenord: `AppReview2026!`
+2. E-post: `APP_REVIEW_EMAIL` | Lösenord: `APP_REVIEW_PASSWORD (secret store)`
 3. Namn: Pontus (valfritt)
 4. Bekräfta e-post (klicka länken i inkorgen)
-5. Lägg till barn: **Anna**, född 2018-09-08, PIN **4455**
+5. Lägg till barn: **Anna**, född 2018-09-08, PIN from APP_REVIEW_CHILD_PIN
 6. Skapa minst ett veckoschema med aktiviteter + en belöning i Skattkammaren
 
 > ⚠️ Kontot hamnar bland de <225 och får **lifetime free automatiskt** — bekräfta med:
 > ```sql
-> SELECT is_lifetime_free FROM family WHERE id = (SELECT family_id FROM parent WHERE email = 'review@mystarday.se');
+> SELECT is_lifetime_free FROM family WHERE id = (SELECT family_id FROM parent WHERE email = 'APP_REVIEW_EMAIL');
 > -- Förväntat: true
 > ```
 
 ### Testkonto-referens (för Apple-revisorer)
-- E-post: `review@mystarday.se`
-- Lösenord: `AppReview2026!`
-- Barn: Anna, PIN: 4455
+- E-post: `APP_REVIEW_EMAIL`
+- Lösenord: `APP_REVIEW_PASSWORD (secret store)`
+- Barn: Anna, PIN: (APP_REVIEW_CHILD_PIN)
 
 ---
 
@@ -188,12 +188,12 @@ Konfigurera i App Store Connect → **Inköp i appen**:
 
 ## App Store Review Notes (referens)
 
-Barnet i testkontot heter **Anna** med PIN **4455** (ej å/ä/ö för Apple-granskare).
+Barnet i testkontot heter **Anna** med PIN from APP_REVIEW_CHILD_PIN (ej å/ä/ö för Apple-granskare).
 
 ### Snabbtest för reviewer
-1. Logga in: `review@mystarday.se` / `AppReview2026!`
+1. Logga in: `APP_REVIEW_EMAIL` / `APP_REVIEW_PASSWORD (secret store)`
 2. Öppna parent dashboard
-3. "Barnet loggar in" → välj Anna → PIN `4455`
+3. "Barnet loggar in" → välj Anna → PIN from APP_REVIEW_CHILD_PIN
 4. Markera en aktivitet på **Idag**-fliken
 5. Byt till **Skattkammaren** och **Familj** via bottenflikarna
 6. Testa inställningar → Integritetspolicy

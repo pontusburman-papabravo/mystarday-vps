@@ -1,5 +1,5 @@
 ---
-description: Prod QA for agents — pontus@burman.cc + Astrid only; not App Store review account unless founder overrides.
+description: Prod QA for agents — founder account via secret refs only; not App Store review unless task says so.
 alwaysApply: true
 ---
 
@@ -7,19 +7,21 @@ alwaysApply: true
 
 **Canonical doc:** [`docs/founder-qa-test-account.md`](../docs/founder-qa-test-account.md)
 
-| Role | Value |
-|------|--------|
-| Parent | `pontus@burman.cc` / `Kalle001!` // pragma: allowlist secret |
-| Child | Astrid / username `astrid921` / PIN `1112` |
+| Role | Reference |
+|------|-----------|
+| Parent | `FOUNDER_QA_EMAIL` / `FOUNDER_QA_PASSWORD` |
+| Child | Astrid · `FOUNDER_CHILD_USERNAME` · `FOUNDER_CHILD_PIN` |
+
+Values live in approved secret management only — see [`docs/secret-references.md`](../docs/secret-references.md).
 
 ## Rules
 
-- All prod browser/mobile smoke and manual QA by **Cursor / Cloud Agents** → **only** the account above.
-- **Forbidden by default:** App Store review account + child Anna, and any other prod login — including [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md) (App Store / human release only).
-- Do not invent new prod test users when this account is enough.
+- Prod browser/mobile smoke by **Cursor / Cloud Agents** → founder QA secrets above unless the task names another approved account.
+- **Forbidden by default:** App Store review account (Anna) and [`docs/app-store-demo-konto.md`](../docs/app-store-demo-konto.md) except explicit store/release tasks.
+- Do not invent new prod test users when the founder account suffices.
 - Do not delete Astrid or run destructive tests without explicit founder approval.
 
 ## Login
 
-- Parent: `/login`
-- Child: `/child-login` → Astrid → `1112`
+- Parent: `/login` (credentials from secret store)
+- Child: `/child-login` → Astrid (PIN from secret store)

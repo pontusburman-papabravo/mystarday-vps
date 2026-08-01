@@ -397,7 +397,7 @@ Dölj **support-bubble** på barnlogin om den stör (valfritt — matcha login-m
 4. **Selfie:** foto syns i lista + PIN-ring
 5. **Mobil:** tavla → barn-dashboard
 6. **Fel PIN / lockout**
-7. **App Review:** Anna PIN **4455**
+7. **App Review:** Anna PIN from APP_REVIEW_CHILD_PIN
 
 ---
 

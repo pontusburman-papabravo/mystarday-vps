@@ -24,9 +24,9 @@ const OUT = path.join(ROOT, 'assets', 'play-store', 'out');
 
 const BASE_URL = (process.env.BASE_URL || 'https://mystarday.se').replace(/\/$/, '');
 const REVIEW_EMAIL = process.env.REVIEW_EMAIL || 'review@mystarday.se';
-const REVIEW_PASSWORD = process.env.REVIEW_PASSWORD || 'AppReview2026!';
+const REVIEW_PASSWORD = process.env.APP_REVIEW_PASSWORD || process.env.REVIEW_PASSWORD;
 const CHILD_NAME = process.env.CHILD_NAME || 'Anna';
-const CHILD_PIN = process.env.CHILD_PIN || '4455';
+const CHILD_PIN = process.env.APP_REVIEW_CHILD_PIN || process.env.CHILD_PIN;
 
 const ANDROID_UA =
   'Mozilla/5.0 (Linux; Android 14; Pixel Tablet) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';

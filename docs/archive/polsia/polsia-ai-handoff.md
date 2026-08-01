@@ -129,9 +129,9 @@ App Store / demo (se `docs/RELEASE.md`, `docs/app-store-demo-konto.md`):
 | Steg | Kontroll |
 |------|----------|
 | Health | `GET https://stjarndag.polsia.app/health` → OK |
-| Inloggning | `review@mystarday.se` / lösenord enligt demo-doc |
-| Barn-PIN | Anna — PIN **4455** |
-| Lifetime free | I Neon: `SELECT is_lifetime_free FROM family WHERE id = (SELECT family_id FROM parent WHERE email = 'review@mystarday.se');` — demo-kontot kan hamna bland första 200 |
+| Inloggning | `APP_REVIEW_EMAIL` / lösenord enligt demo-doc |
+| Barn-PIN | Anna — PIN from APP_REVIEW_CHILD_PIN |
+| Lifetime free | I Neon: `SELECT is_lifetime_free FROM family WHERE id = (SELECT family_id FROM parent WHERE email = 'APP_REVIEW_EMAIL');` — demo-kontot kan hamna bland första 200 |
 | Prenumeration | Ingen betalvägg för lifetime-free; `hasActiveSubscription` / IAP UI |
 
 Därefter: Xcode → TestFlight enligt `docs/app-store-testflight-checklist.md`.

@@ -25,9 +25,9 @@ Eller mot annan miljö:
 
 ```bash
 BASE_URL=https://mystarday.se \
-  REVIEW_EMAIL=review@mystarday.se \
-  REVIEW_PASSWORD='AppReview2026!' \
-  CHILD_NAME=Anna CHILD_PIN=4455 \
+  REVIEW_EMAIL=APP_REVIEW_EMAIL \
+  REVIEW_PASSWORD='APP_REVIEW_PASSWORD (secret store)' \
+  CHILD_NAME=Anna CHILD_PIN=$APP_REVIEW_CHILD_PIN \
   node scripts/generate-play-store-assets.mjs
 ```
 
@@ -65,8 +65,8 @@ Skriptet simulerar **Android WebView** (native tab bar, ingen desktop-sidebar).
 
 | | |
 |--|--|
-| Förälder | `review@mystarday.se` / `AppReview2026!` |
-| Barn | Anna / PIN `4455` |
+| Förälder | `APP_REVIEW_EMAIL` / `APP_REVIEW_PASSWORD (secret store)` |
+| Barn | Anna / PIN from APP_REVIEW_CHILD_PIN |
 
 ## Android App Bundle (AAB)
 

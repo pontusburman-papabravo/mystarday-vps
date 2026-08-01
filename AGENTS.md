@@ -4,11 +4,10 @@ This repo is a Swedish family-routine app (Express.js + PostgreSQL, static front
 
 ### QA test account (browser / mobile smoke tests)
 
-Use for **all** agent logged-in QA on prod — [`docs/founder-qa-test-account.md`](docs/founder-qa-test-account.md) (index: [`docs/qa-test-account.md`](docs/qa-test-account.md)).
+Use for **agent** logged-in QA on prod — [`docs/founder-qa-test-account.md`](docs/founder-qa-test-account.md) (`FOUNDER_QA_*` secrets; see [`docs/secret-references.md`](docs/secret-references.md)).
 
-- Parent: `pontus@burman.cc` / `Kalle001!` // pragma: allowlist secret
-- Child: Astrid / PIN `1112`
-- **Do not** use the App Store review account / Anna (`app-store-demo-konto.md`) unless the task explicitly says App Store / release QA.
+- **Do not** commit or paste credentials in issues, PRs, or logs.
+- **Do not** use the App Store review account unless the task explicitly says App Store / release QA.
 
 ### För dig 10/10 (agent-uppdrag)
 

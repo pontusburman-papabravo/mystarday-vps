@@ -41,8 +41,8 @@ Please review on iPad Air (11-inch) in portrait — the dashboard welcome tour a
 
 Review account (full free access):
 - Email: review@mystarday.se
-- Password: AppReview2026!
-- Child PIN: 4455
+- Password: APP_REVIEW_PASSWORD (secret store)
+- Child PIN: (APP_REVIEW_CHILD_PIN)
 ```
 
 **Reply to Guideline 4 in App Store Connect:**
@@ -93,8 +93,8 @@ Please review on iPhone, or on iPad in iPhone compatibility mode. The previous u
 
 Review account (full free access):
 - Email: review@mystarday.se
-- Password: AppReview2026!
-- Child PIN: 4455
+- Password: APP_REVIEW_PASSWORD (secret store)
+- Child PIN: (APP_REVIEW_CHILD_PIN)
 ```
 
 **Reply to Guideline 4 in App Store Connect:**
@@ -294,7 +294,7 @@ Pontus Burman
 
 Key features:
 - Parent dashboard with weekly schedule builder
-- Child view (PIN-protected, e.g. `4455`) with three focused tabs: **Idag**, **Skattkammaren**, **Familj**
+- Child view (PIN-protected, e.g. `APP_REVIEW_CHILD_PIN`) with three focused tabs: **Idag**, **Skattkammaren**, **Familj**
 - Push notifications for schedule reminders
 - Apple Sign In for parents
 - Skattkammaren (reward redemption system)
@@ -310,9 +310,9 @@ Please use our dedicated App Store review test account:
 | Field | Value |
 |-------|-------|
 | **Parent email** | `review@mystarday.se` |
-| **Parent password** | `AppReview2026!` |
+| **Parent password** | `APP_REVIEW_PASSWORD (secret store)` |
 | **Child name** | Anna |
-| **Child PIN** | `4455` |
+| **Child PIN** | `APP_REVIEW_CHILD_PIN` |
 | **App URL** | https://mystarday.se |
 
 **Note:** This account is pre-seeded in our database and is not connected to any real family's data. It contains only fictional review content. The account has **lifetime free** access — no subscription or payment is required to test.
@@ -330,7 +330,7 @@ Sign in with Apple works on iPad in Build 16. If Apple Sign In fails, use the em
 ### Switch to child view
 
 4. From the dashboard, tap **"Barnet loggar in"** (or go to child login), then select **Anna**
-5. **Enter child PIN** `4455` on the numeric keypad
+5. **Enter child PIN** `APP_REVIEW_CHILD_PIN` on the numeric keypad
 6. You are now in the **child view** with three bottom tabs:
 
 | Tab | Purpose |
@@ -344,14 +344,14 @@ Sign in with Apple works on iPad in Build 16. If Apple Sign In fails, use the em
 7. On **Idag**, tap an activity to mark it done — star count increases
 8. Switch to **Skattkammaren** — view rewards and star balance
 9. Switch to **Familj** — family hall loads (empty state is OK)
-10. **Return to parent view** — tap **"Jag är vuxen"** → enter PIN `4455` (or parent PIN if set)
+10. **Return to parent view** — tap **"Jag är vuxen"** → enter PIN from APP_REVIEW_CHILD_PIN (or parent PIN if set)
 11. **Test settings** — Inställningar → Integritetspolicy and Användarvillkor (Terms of Service)
 
 ---
 
 ## Child PIN for Review
 
-- **PIN:** `4455`
+- **PIN:** `APP_REVIEW_CHILD_PIN`
 - **Child name:** Anna (🌟)
 - **Purpose:** Demonstrates the PIN-gated child view. Use this PIN when switching between parent and child modes.
 
@@ -363,10 +363,10 @@ Min Stjärndag has **two independent PIN systems**:
 
 | PIN Type | Example Value | Set By | Purpose |
 |----------|--------------|--------|---------|
-| **Child PIN** (Barn-PIN) | `4455` | Parent in Settings | Child login / child → parent switch |
+| **Child PIN** (Barn-PIN) | `APP_REVIEW_CHILD_PIN` | Parent in Settings | Child login / child → parent switch |
 | **Parent PIN** (Föräldra-PIN) | `1234` | Parent in Settings → Föräldralås | Protects parent mode — prevents children from accessing the parent dashboard |
 
-- Child PIN (`4455`): set per child. Used when Anna logs in.
+- Child PIN (`APP_REVIEW_CHILD_PIN`): set per child. Used when Anna logs in.
 - Parent PIN: set per family. When set, every child logout + "Jag är vuxen" click requires this PIN before the parent dashboard is shown.
 
 ---

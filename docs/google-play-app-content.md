@@ -24,7 +24,7 @@ Appen kräver inloggning. Välj: **All or some functionality is restricted**.
 | Fält | Värde |
 |------|-------|
 | Användarnamn | `review@mystarday.se` |
-| Lösenord | `AppReview2026!` |
+| Lösenord | `APP_REVIEW_PASSWORD (secret store)` |
 
 ### Instruktioner (engelska — klistra in)
 
@@ -33,10 +33,10 @@ This is a family routine app. Login is required.
 
 1. Open the app and tap "Logga in" (Login).
 2. Email: review@mystarday.se
-3. Password: AppReview2026!
+3. Password: APP_REVIEW_PASSWORD (secret store)
 4. Parent dashboard opens with one child "Anna".
-5. To test child view: tap the child card → enter PIN 4455.
-6. To return to parent mode: use menu → enter PIN 4455 at parental gate.
+5. To test child view: tap the child card → enter PIN (APP_REVIEW_CHILD_PIN).
+6. To return to parent mode: use menu → enter PIN (APP_REVIEW_CHILD_PIN) at parental gate.
 
 Google Sign In is optional and only works for accounts already registered with the same email. The test account above uses email/password.
 
