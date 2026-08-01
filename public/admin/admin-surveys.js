@@ -2,7 +2,6 @@
 // Owns: survey CRUD, question/option management, QR codes, response stats.
 // Does NOT own: family/child data, auth, analytics outside surveys.
 
-let surveysData = [];
 let currentSurvey = null;
 let surveyEditMode = false; // 'create' | 'edit' | false
 
@@ -10,9 +9,8 @@ let surveyEditMode = false; // 'create' | 'edit' | false
 async function loadSurveys() {
   try {
     const surveys = await Auth.api('/api/admin/surveys');
-    surveysData = surveys;
     renderSurveyList(surveys);
-  } catch (err) {
+  } catch (_err) {
     document.getElementById('surveysListContainer').innerHTML =
       '<p class="text-red-500">Kunde inte ladda enkäter.</p>';
   }
@@ -83,7 +81,7 @@ async function openSurvey(id) {
     renderSurveyEditor(data);
     document.getElementById('surveysListView').classList.add('hidden');
     document.getElementById('surveysEditorView').classList.remove('hidden');
-  } catch (err) {
+  } catch (_err) {
     alert('Kunde inte öppna enkät.');
   }
 }
@@ -375,7 +373,7 @@ async function toggleSurveyStatus(id, currentStatus) {
     } else {
       await loadSurveys();
     }
-  } catch (err) {
+  } catch (_err) {
     alert('Kunde inte uppdatera status.');
   }
 }
@@ -385,7 +383,7 @@ async function closeSurveyStatus(id) {
   try {
     await Auth.api(`/api/admin/surveys/${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'closed' }) });
     await openSurvey(id);
-  } catch (err) {
+  } catch (_err) {
     alert('Kunde inte stänga enkäten.');
   }
 }
@@ -520,7 +518,7 @@ async function deleteQuestion(qid) {
   try {
     await Auth.api(`/api/admin/surveys/${currentSurvey.id}/questions/${qid}`, { method: 'DELETE' });
     await openSurvey(currentSurvey.id);
-  } catch (err) {
+  } catch (_err) {
     alert('Kunde inte ta bort fråga.');
   }
 }
@@ -595,7 +593,7 @@ async function viewResponses(surveyId) {
         </div>
       </div>
     `).join('');
-  } catch (err) {
+  } catch (_err) {
     document.getElementById('responsesContainer').innerHTML = '<p class="text-red-500 text-sm">Kunde inte ladda svar.</p>';
   }
 }
@@ -715,7 +713,7 @@ async function loadContestEntries(surveyId) {
         `).join('')}
       </div>
     `;
-  } catch (err) {
+  } catch (_err) {
     document.getElementById('contestEntriesContainer').innerHTML = '<p class="text-red-500 text-sm">Kunde inte hämta deltagare.</p>';
   }
 }
@@ -743,3 +741,28 @@ async function markContacted(surveyId, entryId) {
     alert('Kunde inte uppdatera: ' + (err.message || 'Okänt fel'));
   }
 }
+
+// admin/index.html + genererad enkätmarkup onclick
+window.openSurvey = openSurvey;
+window.closeSurveyEditor = closeSurveyEditor;
+window.openCreateSurvey = openCreateSurvey;
+window.openEditMeta = openEditMeta;
+window.saveMetaModal = saveMetaModal;
+window.toggleSurveyStatus = toggleSurveyStatus;
+window.closeSurveyStatus = closeSurveyStatus;
+window.openAddQuestion = openAddQuestion;
+window.editQuestion = editQuestion;
+window.saveQuestionModal = saveQuestionModal;
+window.deleteQuestion = deleteQuestion;
+window.showQR = showQR;
+window.closeQRModal = closeQRModal;
+window.copyLink = copyLink;
+window.viewResponses = viewResponses;
+window.closeResponsesModal = closeResponsesModal;
+window.seedSurveys = seedSurveys;
+window.openDistributionPanel = openDistributionPanel;
+window.toggleContestFields = toggleContestFields;
+window.saveDistribution = saveDistribution;
+window.openContestPanel = openContestPanel;
+window.pickWinners = pickWinners;
+window.markContacted = markContacted;
