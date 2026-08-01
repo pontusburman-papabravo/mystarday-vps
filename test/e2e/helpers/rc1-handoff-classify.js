@@ -62,6 +62,15 @@ function classifyHandoffOutcome(diag) {
     || diag.clientTrace?.gateBlockedCalls?.some((v) => v === true);
 
   if (puppeteer && puppeteer.bodyReadOk === false && !(cdp && cdp.jsonParseOk)) {
+    if (serverOutcome === 'session_restored_likely' && authMe?.kind === 'parent') {
+      const path = diag.logout?.pathnameAfterResponse;
+      const gate = diag.sessionGateBefore?.shouldBlockBeforeLogout === true
+        || diag.clientTrace?.deviceModeIsChild === true
+        || gateBlocked;
+      if (path === '/child-login' && gate) {
+        return 'SESSION_GATE_OR_CLIENT_NAVIGATION_BUG';
+      }
+    }
     if (serverOutcome === 'session_restored_likely') {
       return 'DIAGNOSTIC_BLOCK_RESPONSE_BODY_OR_SESSION_GATE';
     }
