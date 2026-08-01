@@ -39,3 +39,9 @@ test('library-magic-schedules preserves legacy containers across render', () => 
   const src = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-schedules.js'), 'utf8');
   assert.match(src, /restoreLegacyStdContent\(\);\s*\n\s*if \(_detailId/s);
 });
+
+test('library-magic.css styles copied standard rows in section mount (dark)', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'public/css/library-magic.css'), 'utf8');
+  assert.match(css, /#libraryMagicSectionMount \.bg-green-50/);
+  assert.match(css, /#libraryMagicSectionMount \.text-navy/);
+});
