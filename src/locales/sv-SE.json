@@ -454,6 +454,11 @@
     "stars": "Stjärnor",
     "streak": "Serie"
   },
+  "child": {
+    "firstStarStarter": {
+      "name": "Min första stjärna"
+    }
+  },
   "childDashboard": {
     "welcome": "Hej {{name}}! ⭐",
     "today": "Idag",

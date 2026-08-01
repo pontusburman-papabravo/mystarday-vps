@@ -269,6 +269,22 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
     });
     const { maybeTrackChildLogin } = require('../../lib/first-star-mode-analytics');
     await maybeTrackChildLogin({ familyId: child.family_id, childId: child.id });
+    try {
+      const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+      const { ensureFirstStarStarterActivity } = require('../../lib/first-star-starter');
+      const { getLocalDateStr } = require('../../lib/daily-log-generator');
+      const tz = child.timezone || 'Europe/Stockholm';
+      const todayStr = getLocalDateStr(undefined, tz);
+      const locale = await getFamilyPreferredLocale(child.family_id);
+      await ensureFirstStarStarterActivity({
+        childId: child.id,
+        familyId: child.family_id,
+        dateStr: todayStr,
+        locale,
+      });
+    } catch (starterErr) {
+      console.error('[AUTH] first-star starter ensure failed:', starterErr.message);
+    }
     const { recordActivationMilestone } = require('../../lib/activation-p0');
     let childAccessNewlyRecorded = false;
     try {
