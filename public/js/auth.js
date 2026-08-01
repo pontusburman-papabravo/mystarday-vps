@@ -28,7 +28,7 @@
     for (let i = 0; i < staleKeys.length; i++) {
       localStorage.removeItem(staleKeys[i]);
     }
-  } catch (e) { /* localStorage unavailable — not a problem */ }
+  } catch (_e) { /* localStorage unavailable — not a problem */ }
 })();
 
 const SILENT_REFRESH_TIMEOUT_MS = 12000;
