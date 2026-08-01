@@ -34,6 +34,9 @@ describe('family-content-display', () => {
     assert.equal(await resolveRewardDisplayName('en-GB', 'Välja middag'), 'Choose dinner');
     assert.equal(await resolveRewardDisplayName('en-GB', 'Restaurangbesök'), 'Restaurant visit');
     assert.equal(await resolveRewardDisplayName('en-GB', 'Pyssel-projekt tillsammans'), 'Craft project together');
+    assert.equal(await resolveRewardDisplayName('en-GB', 'Välja film på filmkväll'), 'Choose a film on movie night');
+    assert.equal(await resolveRewardDisplayName('en-GB', 'Frukost på sängen'), 'Breakfast in bed');
+    assert.equal(await resolveRewardDisplayName('en-GB', 'Extra saga vid läggdags'), 'Extra story at bedtime');
   });
 
   it('translates customized reward names via static map when available', async () => {

@@ -73,7 +73,20 @@
     "Gör uppgiften": "Do the task",
     "Skola/Förskola": "Preschool/School",
     "Rast": "Break",
-    "Borsta tänderna (morgon)": "Brush teeth (morning)"
+    "Borsta tänderna (morgon)": "Brush teeth (morning)",
+    "Bada/Duscha": "Bath or shower",
+    "Borsta håret": "Brush hair",
+    "Duscha": "Shower",
+    "Film / Pyssel": "Film or crafts",
+    "Förskola": "Preschool",
+    "Läsa själv": "Read by yourself",
+    "Läxa": "Homework",
+    "Läxor / Pyssel": "Homework or crafts",
+    "Mata husdjuret": "Feed the pet",
+    "Musik/Dans": "Music and dance",
+    "Toalett": "Toilet",
+    "Tvätta händerna": "Wash hands",
+    "Yoga/Stretching": "Yoga and stretching"
   },
   "activityByKey": {
     "🛏️|forskola|Morning|0|1": "Wake up",
@@ -137,21 +150,46 @@
     "Filmkväll": "Movie night",
     "Baka ihop": "Baking together",
     "Extra saga": "Extra story",
-    "Välja efterrätt": "Choose dessert"
+    "Extra saga vid läggdags": "Extra story at bedtime",
+    "Välja efterrätt": "Choose dessert",
+    "Välja film på filmkväll": "Choose a film on movie night",
+    "Välja mellanmål": "Choose a snack",
+    "Frukost på sängen": "Breakfast in bed",
+    "Baka tillsammans": "Baking together",
+    "Stort valfritt önskemål": "Big wish of your choice"
   },
   "rewardByKey": {
     "📱|5": "Extra screen time",
     "🍕|10": "Choose dinner",
     "🎁|20": "Small gift",
     "🍕|350": "Restaurant visit",
-    "🎨|100": "Craft project together"
+    "🎨|100": "Craft project together",
+    "⭐|50": "Extra story at bedtime",
+    "🍿|50": "Choose a film on movie night",
+    "🍎|75": "Choose a snack",
+    "🥞|75": "Breakfast in bed",
+    "🍝|100": "Choose dinner",
+    "🧁|125": "Baking together",
+    "🎲|150": "Family games night",
+    "🏖️|150": "Trip to playground or park",
+    "⛺|200": "Living-room tent sleepover",
+    "📚|200": "New book or magazine",
+    "🎬|250": "Cinema trip with popcorn",
+    "🎢|300": "Trip (water park or zoo)",
+    "🌟|500": "Big wish of your choice",
+    "🍦|30": "Ice cream",
+    "📱|40": "Screen time"
   },
   "schedules": {
     "Förskola vardag": "Nursery weekday",
     "Skola vardag": "School weekday",
     "Helg": "Weekend",
     "Morgonrutin": "Morning routine",
-    "Kvällsrutin": "Evening routine"
+    "Kvällsrutin": "Evening routine",
+    "Kort morgon": "Short morning",
+    "Lov": "School break",
+    "Sommarlov": "Summer break",
+    "Jullov": "Christmas break"
   },
   "scheduleDescriptions": {
     "Typisk dag med förskola: morgonrutin → förskola → eftermiddag → kväll": "Typical nursery day: morning routine → nursery → afternoon → evening",
