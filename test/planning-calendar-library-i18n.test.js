@@ -25,3 +25,12 @@ test('library-magic-schedules uses pt for segment labels', () => {
   assert.match(src, /library\.standard\.segments\.schedules/);
   assert.doesNotMatch(src, /label: '📅 Scheman'/);
 });
+
+test('library-magic-schedules toggles std panes from _stdSegment', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-schedules.js'), 'utf8');
+  assert.match(src, /function stdPaneClass\(segmentId\)/);
+  assert.match(src, /stdPaneClass\('schedules'\)/);
+  assert.match(src, /stdPaneClass\('activities'\)/);
+  assert.match(src, /stdPaneClass\('rewards'\)/);
+  assert.doesNotMatch(src, /library-magic-std-pane hidden" data-std-pane="activities"/);
+});

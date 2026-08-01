@@ -118,6 +118,10 @@
       + '</div>' + subHtml + '</div>';
   }
 
+  function stdPaneClass(segmentId) {
+    return 'library-magic-std-pane' + (_stdSegment === segmentId ? '' : ' hidden');
+  }
+
   function renderSegmentBar() {
     return '<div class="library-magic-segments" role="tablist">'
       + STD_SEGMENT_DEFS.map(function (seg) {
@@ -159,17 +163,17 @@
     }).join('');
 
     return renderSegmentBar()
-      + '<div class="library-magic-std-pane" data-std-pane="schedules">'
+      + '<div class="' + stdPaneClass('schedules') + '" data-std-pane="schedules">'
       + renderFilterChips()
       + (list.length
         ? '<div class="library-magic-schedule-list">' + cards + '</div>'
         : '<p class="library-magic-empty">' + escHtml(pt('library.standard.noSchedulesMatch')) + '</p>')
       + '</div>'
-      + '<div class="library-magic-std-pane hidden" data-std-pane="activities">'
+      + '<div class="' + stdPaneClass('activities') + '" data-std-pane="activities">'
       + '<p class="library-magic-std-hint">' + pt('library.standard.activitiesHint') + '</p>'
       + '<div id="libraryMagicStdActivitiesMount"></div>'
       + '</div>'
-      + '<div class="library-magic-std-pane hidden" data-std-pane="rewards">'
+      + '<div class="' + stdPaneClass('rewards') + '" data-std-pane="rewards">'
       + '<p class="library-magic-std-hint">' + escHtml(pt('library.standard.rewardsHint')) + '</p>'
       + '<div id="libraryMagicStdRewardsMount"></div>'
       + '</div>';
