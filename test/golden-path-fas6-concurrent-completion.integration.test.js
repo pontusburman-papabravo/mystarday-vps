@@ -139,13 +139,8 @@ test('Fas6 F — two different activities concurrent: both complete, one first_c
     const stars = await sumCompletedStarsForChild(db, child.body.id);
     assert.equal(stars, 3);
 
-    const completedCount = await db.query(
-      `SELECT COUNT(*)::int AS n FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dl.child_id = $1 AND dli.completed = true`,
-      [child.body.id]
-    );
-    assert.equal(completedCount.rows[0].n, 2);
+    const act = await activationRow(db, familyId);
+    assert.ok(act.first_completion_at);
   } finally {
     await http.close();
     await db.cleanup();

@@ -109,8 +109,11 @@ async function childLoginRaw(baseUrl, { username, pin }, extraHeaders = {}) {
   return { res, status: res.status, text, body, cookies, csrfToken: body?.csrfToken };
 }
 
-async function getDailyLog(baseUrl, childCookies, csrfToken) {
-  const res = await fetch(`${baseUrl}/api/me/daily-log`, {
+async function getDailyLog(baseUrl, childCookies, csrfToken, dateStr) {
+  const url = dateStr
+    ? `${baseUrl}/api/me/daily-log?date=${encodeURIComponent(dateStr)}`
+    : `${baseUrl}/api/me/daily-log`;
+  const res = await fetch(url, {
     headers: {
       Cookie: cookieHeader(childCookies),
       ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
@@ -266,6 +269,44 @@ function buildTimingReport({
   };
 }
 
+async function countChildFirstCompletionMilestones(db, familyId, childId) {
+  const row = await db.query(
+    `SELECT COUNT(*)::int AS n FROM family_milestones
+     WHERE family_id = $1 AND milestone = 'child_first_completion'
+       AND child_id = $2`,
+    [familyId, childId]
+  );
+  return row.rows[0]?.n ?? 0;
+}
+
+async function countStarterItemsForChildDay(db, childId, dateStr) {
+  const row = await db.query(
+    `SELECT COUNT(*)::int AS n FROM daily_log_item dli
+     JOIN daily_log dl ON dl.id = dli.daily_log_id
+     WHERE dl.child_id = $1 AND dl.date = $2::date AND dli.starter_kind = 'first_star'`,
+    [childId, dateStr]
+  );
+  return row.rows[0]?.n ?? 0;
+}
+
+async function enableJourneyIngest(db) {
+  await db.query(
+    `INSERT INTO feature_flag (key, enabled, description)
+     VALUES ('family_journey_ingest_enabled', true, 'fas6 test')
+     ON CONFLICT (key) DO UPDATE SET enabled = true`
+  );
+}
+
+async function waitForChildFirstCompletionMilestone(db, familyId, childId, maxMs = 5000) {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const n = await countChildFirstCompletionMilestones(db, familyId, childId);
+    if (n >= 1) return n;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return await countChildFirstCompletionMilestones(db, familyId, childId);
+}
+
 module.exports = {
   DEFAULT_PASSWORD,
   uniqueEmail,
@@ -288,6 +329,10 @@ module.exports = {
   countWeeklySchedules,
   sumCompletedStarsForChild,
   countAnalyticsEvent,
+  countChildFirstCompletionMilestones,
+  countStarterItemsForChildDay,
+  enableJourneyIngest,
+  waitForChildFirstCompletionMilestone,
   stockholmDow,
   buildTimingReport,
   cookiesFromResponse,
