@@ -26,7 +26,6 @@ function pt(key, params) {
 // ── Render the "Konto & inloggning" section ─────────────────────────────────
 async function initAccountSection() {
   const sectionId = 'accountSection';
-  const msgId = 'accountMsg';
 
   try {
     const me = await Auth.api('/api/auth/me');
@@ -35,9 +34,6 @@ async function initAccountSection() {
 
     const section = document.getElementById(sectionId);
     if (!section) return;
-
-    // Helper: get CSRF token for POST
-    function csrf() { return Auth.getCsrfToken() || ''; }
 
     // ── Build inner HTML ────────────────────────────────────────────────────
     let html = `
@@ -735,7 +731,7 @@ async function handleCurrentPinEntry(pin) {
       document.getElementById('ppChangeStep2').classList.remove('hidden');
       showNewPinChooseStep();
     }
-  } catch (err) {
+  } catch (_err) {
     const msg = document.getElementById('ppChangeStep1Msg');
     if (msg) {
       msg.textContent = pt('settings.parentPin.wrongPin');

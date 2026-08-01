@@ -13,7 +13,7 @@ function damIntlLang() {
   return (window.I18n && typeof I18n.getCurrentLang === 'function') ? I18n.getCurrentLang() : 'sv-SE';
 }
   const _scheduleCore = window.ScheduleCore || {};
-  const { DAYS, SECTIONS } = _scheduleCore;
+  const { DAYS } = _scheduleCore;
   if (!window.ScheduleCore) {
     console.warn('[DASHBOARD] activity-modal: ScheduleCore missing');
   }
@@ -22,7 +22,7 @@ async function loadTemplates() {
   try {
     const res = await window.apiFetch('/api/activities');
     if (res.ok) allTemplates = await res.json();
-  } catch (e) {
+  } catch (_e) {
     console.error('[DASHBOARD] loadTemplates failed:', e);
   }
 }
@@ -788,7 +788,7 @@ async function submitCreateActivity() {
       document.getElementById('createActivityError').textContent = data.error || spt('schedule.validation.createFailed');
       document.getElementById('createActivityError').classList.remove('hidden');
     }
-  } catch (e) {
+  } catch (_e) {
     document.getElementById('createActivityError').textContent = spt('schedule.validation.networkError');
     document.getElementById('createActivityError').classList.remove('hidden');
   }

@@ -38,7 +38,6 @@ async function renderSpecialDaysCalendar() {
   const childName = child ? `${child.emoji||'👤'} ${escHtml(child.name)}` : '';
 
   const firstDay = new Date(sdCalYear, sdCalMonth, 1);
-  const lastDay = new Date(sdCalYear, sdCalMonth + 1, 0);
   const today = new Date().toISOString().slice(0,10);
 
   // Build a set of special day dates for quick lookup
@@ -244,7 +243,7 @@ function renderSdItems() {
     if (!grouped[sec]) continue;
     html += `<div class="mb-3">
       <div class="text-xs font-bold text-text-soft uppercase mb-1">${secEmoji[sec]||''} ${secLabel(sec)||sec}</div>
-      ${grouped[sec].map((item, idx) => `
+      ${grouped[sec].map((item, _idx) => `
         <div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-lavender mb-1 group">
           <span class="text-lg">${escHtml(item.icon||'')}</span>
           <div class="flex-1 min-w-0">

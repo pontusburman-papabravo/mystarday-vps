@@ -105,7 +105,7 @@
     if (currentUser && (currentUser.type === 'child' || (!currentUser.email && currentUser.username))) {
       isParentUser = false;
     }
-  } catch (e) { /* silent — keep default true */ }
+  } catch (_e) { /* silent — keep default true */ }
 
   // ── Gated feature paths ───────────────────────────────────────
   const GATED_PATHS = {

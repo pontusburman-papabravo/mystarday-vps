@@ -130,7 +130,7 @@
           loadDashboardCards();
         }, 1500);
       }
-    } catch (e) {
+    } catch (_e) {
       errorEl.textContent = 'Något gick fel. Kontrollera din uppkoppling.';
       errorEl.classList.remove('hidden');
     } finally {
@@ -146,14 +146,6 @@
 
   const DELA_APPEN_KEY = 'dela_appen_cta_dismissed';
   const DELA_APPEN_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
-
-  function showShareToast(message) {
-    const el = document.createElement('div');
-    el.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-navy text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50';
-    el.textContent = message;
-    document.body.appendChild(el);
-    setTimeout(function () { el.remove(); }, 2500);
-  }
 
   function showDelaAppenCtaIfEligible() {
     const banner = document.getElementById('delaAppenCtaBanner');

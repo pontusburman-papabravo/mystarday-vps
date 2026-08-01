@@ -121,8 +121,8 @@
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + mondayOffset + i);
-      var dateStr = d.toISOString().slice(0, 10);
-      var totalCompleted = 0;
+      const dateStr = d.toISOString().slice(0, 10);
+      let totalCompleted = 0;
       children.forEach(function (c) {
         const hist = c.history || [];
         const row = hist.find(function (h) { return h.date === dateStr; });
@@ -375,7 +375,7 @@
   }
 
   function bindActions(mount) {
-    function handleAction(action, btn) {
+    function handleAction(action, _btn) {
       if (action === 'child-login') {
         if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
           DashboardChildHandoff.startChildLogin();
