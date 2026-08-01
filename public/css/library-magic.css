@@ -321,6 +321,35 @@ body.parent-magic-library.library-magic-has-section-mount #libraryMagicSectionMo
   display: block !important;
 }
 
+/* Legacy standard-library rows (activities/rewards) portaled into magic mount */
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .text-navy {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .text-text-soft {
+  color: rgba(244, 244, 255, 0.62) !important;
+}
+
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .bg-white {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .bg-green-50,
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .bg-mint\/30 {
+  background: rgba(34, 197, 94, 0.16) !important;
+  border-color: rgba(74, 222, 128, 0.38) !important;
+}
+
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .border-green-100,
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .border-green-200 {
+  border-color: rgba(74, 222, 128, 0.38) !important;
+}
+
+body.parent-magic-library:not(.parent-theme-light) #libraryMagicSectionMount .text-green-600 {
+  color: #86efac !important;
+}
+
 /* ── Filter chips ── */
 .library-magic-filters {
   display: flex;

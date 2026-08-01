@@ -160,7 +160,7 @@ function renderStandardLibrary() {
           <span class="text-lg">${a.icon || '📌'}</span>
           <span class="flex-1 text-sm font-medium text-navy">${escHtml(stdActivityLabel(a))} ${subStepsBadge}</span>
           <span class="text-xs text-text-soft">${'⭐'.repeat(a.star_value)}</span>
-          <span class="text-xs text-green-600 font-semibold whitespace-nowrap">✓ ${escHtml(libPt('library.standard.copied'))}</span>
+          <span class="text-xs text-green-600 font-semibold whitespace-nowrap"> ${escHtml(libPt('library.standard.copied'))}</span>
         </div>
       `;
     }
@@ -250,11 +250,11 @@ function renderStandardRewards() {
           <div class="flex items-center gap-3 min-w-0 flex-1">
             <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
             <div class="min-w-0 flex-1">
-              <span class="font-semibold text-sm text-navy">${escHtml(r.name)}</span>
+              <span class="font-semibold text-sm text-navy">${escHtml(r.display_name || r.name)}</span>
               <div class="text-xs text-text-soft mt-0.5">${r.star_cost} ⭐</div>
             </div>
           </div>
-          <span class="flex items-center gap-1 text-xs text-green-600 font-semibold whitespace-nowrap flex-shrink-0"><span>✓</span> ${escHtml(libPt('library.standard.copied'))}</span>
+          <span class="flex items-center gap-1 text-xs text-green-600 font-semibold whitespace-nowrap flex-shrink-0">${escHtml(libPt('library.standard.copied'))}</span>
         </div>
       `;
     }
@@ -268,7 +268,7 @@ function renderStandardRewards() {
             onchange="toggleRewardSelection('${r.id}', this.checked)">
           <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
           <div class="min-w-0 flex-1">
-            <span class="font-semibold text-sm text-navy">${escHtml(r.name)}</span>
+            <span class="font-semibold text-sm text-navy">${escHtml(r.display_name || r.name)}</span>
             <div class="text-xs text-text-soft mt-0.5">${r.star_cost} ⭐</div>
           </div>
         </div>
