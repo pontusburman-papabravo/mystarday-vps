@@ -10,15 +10,36 @@ const jwt = require('jsonwebtoken');
 const db = require('./db');
 const config = require('./config');
 const {
-  createRefreshToken,
+  insertRefreshTokenRow,
   verifyRefreshToken,
   setRefreshCookie,
   setAccessCookie,
+  lookupRefreshTokenRow,
+  hashToken,
 } = require('./refresh-tokens');
 const { parseDuration } = require('../routes/auth/session');
 
 const HANDOFF_COOKIE = 'stjarndag_parent_session';
 const HANDOFF_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Stable internal codes for logs and server-side branching (never sent with secrets). */
+const HANDOFF_CODES = {
+  cookie_missing: 'HANDOFF_COOKIE_MISSING',
+  row_missing: 'HANDOFF_ROW_MISSING',
+  legacy: 'HANDOFF_LEGACY',
+  revoked: 'HANDOFF_REVOKED',
+  used: 'HANDOFF_USED',
+  expired: 'HANDOFF_EXPIRED',
+  access_revoked: 'HANDOFF_ACCESS_REVOKED',
+  parent_refresh_missing: 'HANDOFF_PARENT_REFRESH_MISSING',
+  parent_refresh_invalid: 'HANDOFF_PARENT_REFRESH_INVALID',
+};
+
+function truncateHash(hex) {
+  if (!hex || typeof hex !== 'string') return 'none';
+  if (hex.length <= 10) return hex;
+  return `${hex.slice(0, 8)}…`;
+}
 
 function hashOpaque(raw) {
   return crypto.createHash('sha256').update(raw).digest('hex');
@@ -49,8 +70,8 @@ function handoffCookieOptions(maxAgeMs) {
   };
 }
 
-async function parentHasActiveFamilyAccess(parentId, familyId) {
-  const result = await db.query(
+async function parentHasActiveFamilyAccess(parentId, familyId, queryFn = db.query.bind(db)) {
+  const result = await queryFn(
     `SELECT 1
      FROM parent p
      WHERE p.id = $1 AND p.family_id = $2
@@ -193,20 +214,107 @@ async function refreshRowStillValid(handoff) {
 }
 
 /**
+ * Full handoff validation result (server-internal). Callers must check `ok` before using `handoff`.
+ */
+async function evaluateHandoffForRequest(req, res) {
+  const rawCookie = req.cookies?.[HANDOFF_COOKIE];
+  if (!rawCookie) {
+    return { ok: false, reason: 'cookie_missing', code: HANDOFF_CODES.cookie_missing };
+  }
+  if (isLegacyBase64SessionCookie(rawCookie)) {
+    clearHandoffCookie(res);
+    return { ok: false, reason: 'legacy', code: HANDOFF_CODES.legacy };
+  }
+
+  const loaded = await loadHandoffRowByCookie(req);
+  if (!loaded || loaded.legacy) {
+    if (loaded?.legacy) clearHandoffCookie(res);
+    return { ok: false, reason: 'row_missing', code: HANDOFF_CODES.row_missing };
+  }
+  if (loaded.revoked_at) {
+    return { ok: false, reason: 'revoked', code: HANDOFF_CODES.revoked, handoffId: loaded.id };
+  }
+  if (loaded.used_at) {
+    return { ok: false, reason: 'used', code: HANDOFF_CODES.used, handoffId: loaded.id };
+  }
+  if (new Date(loaded.expires_at) < new Date()) {
+    return { ok: false, reason: 'expired', code: HANDOFF_CODES.expired, handoffId: loaded.id };
+  }
+  if (!await parentHasActiveFamilyAccess(loaded.parent_id, loaded.family_id)) {
+    return { ok: false, reason: 'access_revoked', code: HANDOFF_CODES.access_revoked, handoffId: loaded.id };
+  }
+  const refreshValid = await refreshRowStillValid(loaded);
+  if (!refreshValid) {
+    return {
+      ok: false,
+      reason: 'parent_refresh_invalid',
+      code: HANDOFF_CODES.parent_refresh_invalid,
+      handoffId: loaded.id,
+    };
+  }
+  return {
+    ok: true,
+    handoff: loaded,
+    parentId: loaded.parent_id,
+    familyId: loaded.family_id,
+  };
+}
+
+/**
+ * Structured handoff + refresh diagnostics for logout (no raw tokens or cookies).
+ */
+async function logHandoffLogoutDiagnostics(req, phase, handoffEval, accessDecoded, rawRefresh) {
+  const correlationId = req.id || 'no-request-id';
+  const handoffCookiePresent = Boolean(req.cookies?.[HANDOFF_COOKIE]);
+  const handoffHash = handoffCookiePresent
+    ? truncateHash(hashOpaque(req.cookies[HANDOFF_COOKIE]))
+    : 'none';
+
+  let refreshHash = 'none';
+  let refreshUserType = null;
+  let refreshChildId = null;
+  let refreshParentId = null;
+  let refreshRowId = null;
+  if (rawRefresh) {
+    refreshHash = truncateHash(hashToken(rawRefresh));
+    const row = await lookupRefreshTokenRow(rawRefresh);
+    if (row) {
+      refreshUserType = row.user_type;
+      refreshChildId = row.child_id;
+      refreshParentId = row.parent_id;
+      refreshRowId = row.id;
+    }
+  }
+
+  const payload = {
+    correlationId,
+    phase,
+    handoffCookiePresent,
+    handoffCookieHash: handoffHash,
+    handoffOk: handoffEval?.ok === true,
+    handoffCode: handoffEval?.ok ? 'OK' : (handoffEval?.code || 'UNKNOWN'),
+    handoffReason: handoffEval?.ok ? null : (handoffEval?.reason || null),
+    accessSessionType: accessDecoded?.type || null,
+    accessSubjectId: accessDecoded?.id || null,
+    accessFamilyId: accessDecoded?.familyId || null,
+    refreshHash,
+    refreshUserType,
+    refreshChildId,
+    refreshParentId,
+    refreshRowId,
+    handoffRefreshTokenId: handoffEval?.ok ? handoffEval.handoff.refresh_token_id : null,
+  };
+
+  console.info('[HANDOFF]', JSON.stringify(payload));
+}
+
+/**
  * Validate handoff without consuming (for in-request parent context).
+ * @returns {Promise<object|null>} handoff row or null — use evaluateHandoffForRequest when reason matters.
  */
 async function validateHandoffForRequest(req, res) {
-  const loaded = await loadHandoffRowByCookie(req);
-  if (!loaded) return null;
-  if (loaded.legacy) {
-    clearHandoffCookie(res);
-    return null;
-  }
-  if (loaded.revoked_at || loaded.used_at) return null;
-  if (new Date(loaded.expires_at) < new Date()) return null;
-  if (!await parentHasActiveFamilyAccess(loaded.parent_id, loaded.family_id)) return null;
-  if (!await refreshRowStillValid(loaded)) return null;
-  return loaded;
+  const evaluated = await evaluateHandoffForRequest(req, res);
+  return evaluated.ok ? evaluated.handoff : null;
 }
 
 /**
@@ -224,68 +332,156 @@ async function applyHandoffToRequestCookies(req, res) {
   return true;
 }
 
+/** Map internal consume codes to stable client-facing codes. */
+function mapHandoffClientCode(internalCode) {
+  switch (internalCode) {
+    case 'missing':
+    case 'cookie_missing':
+    case 'legacy':
+    case 'row_missing':
+    case 'revoked':
+    case 'access_revoked':
+    case 'refresh_invalid':
+    case 'parent_refresh_invalid':
+    case 'parent_missing':
+      return 'PARENT_HANDOFF_INVALID';
+    case 'used':
+      return 'PARENT_HANDOFF_USED';
+    case 'used_or_expired':
+    case 'expired':
+      return 'PARENT_HANDOFF_EXPIRED';
+    case 'concurrent_conflict':
+      return 'PARENT_HANDOFF_USED';
+    default:
+      return 'PARENT_HANDOFF_CONSUME_FAILED';
+  }
+}
+
 /**
- * Atomically consume handoff and set parent session cookies (logout / activate).
+ * Atomically consume handoff (DB transaction) then set parent session cookies.
  */
-async function consumeHandoffAndActivateSession(req, res) {
+async function consumeHandoffAndActivateSession(req, res, options = {}) {
   const loaded = await loadHandoffRowByCookie(req);
-  if (!loaded) return { ok: false, code: 'missing' };
+  if (!loaded) {
+    return { ok: false, code: 'missing', clientCode: 'PARENT_HANDOFF_INVALID' };
+  }
   if (loaded.legacy) {
     clearHandoffCookie(res);
-    return { ok: false, code: 'legacy' };
+    return { ok: false, code: 'legacy', clientCode: 'PARENT_HANDOFF_INVALID' };
   }
 
-  const consume = await db.query(
-    `UPDATE parent_session_handoff
-     SET used_at = NOW()
-     WHERE id = $1
-       AND used_at IS NULL
-       AND revoked_at IS NULL
-       AND expires_at > NOW()
-     RETURNING id, parent_id, family_id, refresh_token_id`,
-    [loaded.id]
-  );
-  if (consume.rows.length === 0) {
-    return { ok: false, code: 'used_or_expired' };
+  const tokenHash = hashOpaque(loaded.raw);
+  const client = await db.getClient();
+  let txResult;
+  try {
+    await client.query('BEGIN');
+
+    const handoffLock = await client.query(
+      `SELECT id, parent_id, family_id, refresh_token_id, expires_at, used_at, revoked_at
+       FROM parent_session_handoff
+       WHERE token_hash = $1
+       FOR UPDATE`,
+      [tokenHash]
+    );
+    const handoffRow = handoffLock.rows[0];
+    if (!handoffRow) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'missing', clientCode: 'PARENT_HANDOFF_INVALID' };
+    }
+    if (handoffRow.revoked_at) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'revoked', clientCode: 'PARENT_HANDOFF_INVALID' };
+    }
+    if (handoffRow.used_at) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'used', clientCode: 'PARENT_HANDOFF_USED' };
+    }
+    if (new Date(handoffRow.expires_at) < new Date()) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'expired', clientCode: 'PARENT_HANDOFF_EXPIRED' };
+    }
+
+    if (options.testInjectFailAfterHandoffLock) {
+      throw new Error('HANDOFF_TEST_INJECT_FAIL');
+    }
+
+    if (!await parentHasActiveFamilyAccess(handoffRow.parent_id, handoffRow.family_id, client.query.bind(client))) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'access_revoked', clientCode: 'PARENT_HANDOFF_INVALID' };
+    }
+
+    const refreshLock = await client.query(
+      `SELECT id, expires_at FROM refresh_token
+       WHERE id = $1 AND parent_id = $2
+       FOR UPDATE`,
+      [handoffRow.refresh_token_id, handoffRow.parent_id]
+    );
+    if (refreshLock.rows.length === 0 || new Date(refreshLock.rows[0].expires_at) < new Date()) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'refresh_invalid', clientCode: 'PARENT_HANDOFF_INVALID' };
+    }
+
+    const parentRes = await client.query(
+      `SELECT id, email, family_id, is_admin, onboarding_completed FROM parent WHERE id = $1`,
+      [handoffRow.parent_id]
+    );
+    const parentRow = parentRes.rows[0];
+    if (!parentRow) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'parent_missing', clientCode: 'PARENT_HANDOFF_INVALID' };
+    }
+
+    const newRefresh = await insertRefreshTokenRow(client, {
+      userId: handoffRow.parent_id,
+      userType: 'parent',
+      familyId: handoffRow.family_id,
+    });
+
+    const marked = await client.query(
+      `UPDATE parent_session_handoff
+       SET used_at = NOW()
+       WHERE id = $1 AND used_at IS NULL
+       RETURNING id`,
+      [handoffRow.id]
+    );
+    if (marked.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'concurrent_conflict', clientCode: 'PARENT_HANDOFF_USED' };
+    }
+
+    await client.query('DELETE FROM refresh_token WHERE id = $1', [handoffRow.refresh_token_id]);
+    await client.query('COMMIT');
+
+    const accessToken = signParentAccessToken(parentRow);
+    const expiresInSecs = typeof config.jwt.expiresIn === 'string'
+      ? parseDuration(config.jwt.expiresIn)
+      : config.jwt.expiresIn;
+
+    setRefreshCookie(res, newRefresh);
+    setAccessCookie(res, accessToken, expiresInSecs);
+    clearHandoffCookie(res);
+
+    txResult = {
+      ok: true,
+      parent: parentRow,
+      expiresAt: Date.now() + expiresInSecs * 1000,
+    };
+  } catch (err) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      /* ignore */
+    }
+    if (err.message === 'HANDOFF_TEST_INJECT_FAIL') {
+      return { ok: false, code: 'inject_fail', clientCode: 'PARENT_HANDOFF_CONSUME_FAILED' };
+    }
+    console.error('[HANDOFF] consume transaction error:', req.id || 'no-req-id', err.message, err.stack?.split('\n')[0]);
+    return { ok: false, code: 'transaction_error', clientCode: 'PARENT_HANDOFF_CONSUME_FAILED' };
+  } finally {
+    client.release();
   }
-  const handoff = consume.rows[0];
 
-  if (!await parentHasActiveFamilyAccess(handoff.parent_id, handoff.family_id)) {
-    return { ok: false, code: 'access_revoked' };
-  }
-
-  const refreshCheck = await db.query(
-    `SELECT id FROM refresh_token WHERE id = $1 AND parent_id = $2 AND expires_at > NOW()`,
-    [handoff.refresh_token_id, handoff.parent_id]
-  );
-  if (refreshCheck.rows.length === 0) {
-    return { ok: false, code: 'refresh_invalid' };
-  }
-
-  await db.query('DELETE FROM refresh_token WHERE id = $1', [handoff.refresh_token_id]);
-
-  const parentRow = await fetchParentRow(handoff.parent_id);
-  if (!parentRow) return { ok: false, code: 'parent_missing' };
-
-  const newRefresh = await createRefreshToken({
-    userId: handoff.parent_id,
-    userType: 'parent',
-    familyId: handoff.family_id,
-  });
-  const accessToken = signParentAccessToken(parentRow);
-  const expiresInSecs = typeof config.jwt.expiresIn === 'string'
-    ? parseDuration(config.jwt.expiresIn)
-    : config.jwt.expiresIn;
-
-  setRefreshCookie(res, newRefresh);
-  setAccessCookie(res, accessToken, expiresInSecs);
-  clearHandoffCookie(res);
-
-  return {
-    ok: true,
-    parent: parentRow,
-    expiresAt: Date.now() + expiresInSecs * 1000,
-  };
+  return txResult;
 }
 
 async function resolveParentIdFromHandoff(req, res) {
@@ -300,13 +496,17 @@ async function resolveFamilyIdFromHandoff(req, res) {
 
 module.exports = {
   HANDOFF_COOKIE,
+  HANDOFF_CODES,
   hashOpaque,
   clearHandoffCookie,
   isLegacyBase64SessionCookie,
   createHandoffFromParentCookies,
+  evaluateHandoffForRequest,
   validateHandoffForRequest,
+  logHandoffLogoutDiagnostics,
   applyHandoffToRequestCookies,
   consumeHandoffAndActivateSession,
+  mapHandoffClientCode,
   resolveParentIdFromHandoff,
   resolveFamilyIdFromHandoff,
   revokeHandoffsForParent,

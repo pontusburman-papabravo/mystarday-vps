@@ -14,120 +14,13 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const db = require('../../lib/db');
 const config = require('../../lib/config');
-const { requireParent, requireAuth, resolveParentIdForLoginPicker, verifyToken } = require('../../middleware/auth');
+const { requireParent, requireAuth, verifyToken } = require('../../middleware/auth');
 const { generateCsrfToken } = require('../../middleware/csrf');
 const { parentPinLimiter } = require('../../middleware/rateLimiter');
 const parentPinDb = require('../../../db/parent-pin');
 const { activateParentSessionCookies } = require('../../lib/parent-session-cookies');
 
 const router = express.Router();
-
-/** Resolve parent + family from barnväljare (active parent JWT or stjarndag_parent_session). */
-async function resolvePickerParentContext(req, res) {
-  const parentId = await resolveParentIdForLoginPicker(req, res);
-  if (!parentId) return null;
-  const parentResult = await db.query(
-    `SELECT id, email, family_id, is_admin, onboarding_completed
-     FROM parent WHERE id = $1`,
-    [parentId]
-  );
-  const parentRow = parentResult.rows[0];
-  if (!parentRow) return null;
-  return {
-    parentId: parentRow.id,
-    familyId: parentRow.family_id,
-    parent: parentRow,
-  };
-}
-
-/** Attach req.user from barnväljare for rate limiting on picker PIN routes. */
-async function attachPickerFamily(req, res, next) {
-  try {
-    const ctx = await resolvePickerParentContext(req, res);
-    if (!ctx) {
-      return res.status(401).json({ error: 'Ingen sparad vuxensession. Logga in som vuxen.' });
-    }
-    req.user = { id: ctx.parentId, familyId: ctx.familyId, type: 'parent' };
-    next();
-  } catch (err) {
-    console.error('[FAMILY] attachPickerFamily error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
-  }
-}
-
-// ─── GET /api/family/parent-pin-status-picker ────────────────
-// Barnväljare without active JWT — uses stjarndag_parent_session only.
-router.get('/parent-pin-status-picker', async (req, res) => {
-  try {
-    const ctx = await resolvePickerParentContext(req, res);
-    if (!ctx) {
-      return res.json({ has_session: false, has_pin: false });
-    }
-    const hasPin = await parentPinDb.parentHasPin(ctx.parentId);
-    res.json({
-      has_session: true,
-      has_pin: hasPin,
-    });
-  } catch (err) {
-    console.error('[FAMILY] parent-pin-status-picker error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
-  }
-});
-
-// ─── POST /api/family/verify-pin-picker ────────────────────────
-// Verify parent PIN from barnväljare (no active JWT) and restore parent session cookies.
-router.post('/verify-pin-picker', attachPickerFamily, parentPinLimiter, async (req, res) => {
-  try {
-    const { pin } = req.body;
-    if (!pin || !/^\d{4}$/.test(String(pin))) {
-      return res.status(400).json({ error: 'PIN-kod krävs (4 siffror)' });
-    }
-
-    if (!(await parentPinDb.parentHasPin(req.user.id))) {
-      return res.status(400).json({ error: 'Ingen PIN-kod satt för ditt konto' });
-    }
-
-    const { ok } = await parentPinDb.verifyParentPin({
-      familyId: req.user.familyId,
-      parentId: req.user.id,
-      pin,
-    });
-    if (!ok) {
-      return res.status(401).json({ ok: false, attempts_remaining: null });
-    }
-
-    const gateToken = jwt.sign(
-      { type: 'gate', familyId: req.user.familyId, parentId: req.user.id },
-      config.jwt.secret,
-      { expiresIn: '15m' }
-    );
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-    const ctx = await resolvePickerParentContext(req, res);
-    await activateParentSessionCookies(req, res);
-
-    const csrfToken = generateCsrfToken(res);
-    const p = ctx?.parent;
-
-    res.json({
-      ok: true,
-      gateToken,
-      expiresAt,
-      csrfToken,
-      parent: p ? {
-        id: p.id,
-        email: p.email || null,
-        familyId: p.family_id,
-        isAdmin: p.is_admin || false,
-        type: 'parent',
-        onboarding_completed: p.onboarding_completed,
-      } : undefined,
-    });
-  } catch (err) {
-    console.error('[FAMILY] verify-pin-picker error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
-  }
-});
 
 // ─── GET /api/family/parent-pin-status ───────────────────────
 // Parent: own PIN. Child session: any adult in family has PIN (for "Jag är vuxen" gate).
@@ -277,10 +170,9 @@ router.post('/restore-parent-session', async (req, res) => {
       return res.status(401).json({ error: 'Ingen sparad session hittades. Logga in igen.' });
     }
 
-    const { consumeHandoffAndActivateSession } = require('../../lib/parent-session-handoff');
-    const restored = await consumeHandoffAndActivateSession(req, res);
+    const restored = await activateParentSessionCookies(req, res);
     if (!restored.ok) {
-      return res.status(401).json({ error: 'Ingen sparad session hittades. Logga in igen.' });
+      return res.status(401).json({ error: 'Ingen sparad session hittades. Logga in igen.', code: restored.code });
     }
 
     res.json({ restored: true, expiresAt: payload.exp });

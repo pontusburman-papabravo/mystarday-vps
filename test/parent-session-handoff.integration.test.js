@@ -91,6 +91,7 @@ async function childLoginSession(baseUrl, parentLogin, username, pin) {
   for (const header of getSetCookieHeaders(childLoginRes)) {
     childCookies = mergeCookies(childCookies, [header]);
   }
+  childCookies = { ...parentLogin.cookies, ...childCookies };
   const childBody = JSON.parse(childLoginText);
   const handoffRaw = handoffFromCookies(childCookies);
   assert.ok(handoffRaw, 'handoff cookie expected after child login');
@@ -531,7 +532,10 @@ test('expired handoff is denied for picker and activate', async (t) => {
     const pickerRes = await fetch(`${baseUrl}/api/family/parent-pin-status-picker`, {
       headers: { Cookie: cookieHeader(childCookies) },
     });
-    assert.equal(pickerRes.status, 403, 'expired handoff must not bypass requireParent');
+    assert.equal(pickerRes.status, 200);
+    const pickerBody = await pickerRes.json();
+    assert.equal(pickerBody.has_session, false);
+    assert.equal(pickerBody.has_pin, false);
 
     await assertActivateHandoffFails(baseUrl, childCookies, childBody.csrfToken);
   } finally {
@@ -576,10 +580,171 @@ test('parent logout revokes handoff tied to parent refresh token', async (t) => 
     await assertActivateHandoffFails(baseUrl, childCookies, childBody.csrfToken);
 
     const rows = await db.query(
-      `SELECT COUNT(*)::int AS n FROM parent_session_handoff WHERE parent_id = $1`,
+      `SELECT revoked_at FROM parent_session_handoff WHERE parent_id = $1`,
       [fixture.parentId]
     );
-    assert.equal(rows.rows[0].n, 0, 'handoff row removed when parent refresh revoked');
+    assert.ok(rows.rows.length >= 1, 'handoff row should remain for audit');
+    assert.ok(
+      rows.rows.every((r) => r.revoked_at !== null),
+      'handoff must be revoked when parent logs out'
+    );
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('child POST /api/auth/logout restores parent when family has no PIN', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const tag = Date.now();
+  const fixture = await setupParentChildFixture(db, tag, `clo-${tag}`);
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, fixture.password);
+    const { childCookies, childBody } = await childLoginSession(
+      baseUrl,
+      parentLogin,
+      fixture.username,
+      '1112'
+    );
+
+    const handoffRows = await db.query(
+      `SELECT id, used_at FROM parent_session_handoff WHERE parent_id = $1`,
+      [fixture.parentId]
+    );
+    assert.equal(handoffRows.rows.length, 1);
+    assert.equal(handoffRows.rows[0].used_at, null);
+
+    const logoutRes = await fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookieHeader(childCookies),
+        'X-CSRF-Token': childBody.csrfToken,
+        'Content-Type': 'application/json',
+      },
+    });
+    const logoutText = await logoutRes.text();
+    assert.equal(logoutRes.status, 200, logoutText);
+    const logoutBody = JSON.parse(logoutText);
+    assert.equal(logoutBody.sessionRestored, true);
+    assert.equal(logoutBody.needsParentPin, undefined);
+
+    let afterCookies = { ...childCookies };
+    for (const header of getSetCookieHeaders(logoutRes)) {
+      afterCookies = mergeCookies(afterCookies, [header]);
+    }
+
+    const meRes = await fetch(`${baseUrl}/api/auth/me`, {
+      headers: { Cookie: cookieHeader(afterCookies) },
+    });
+    const meBody = await meRes.json();
+    assert.equal(meRes.status, 200);
+    assert.equal(meBody.type, 'parent');
+    assert.equal(meBody.id, fixture.parentId);
+
+    const activeHandoff = await db.query(
+      `SELECT COUNT(*)::int AS n FROM parent_session_handoff
+       WHERE parent_id = $1 AND used_at IS NULL AND revoked_at IS NULL`,
+      [fixture.parentId]
+    );
+    assert.equal(activeHandoff.rows[0].n, 0, 'handoff must be consumed or removed');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('child logout with stale parent refresh cookie still restores parent (refresh confusion)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const tag = Date.now();
+  const fixture = await setupParentChildFixture(db, tag, `mis-${tag}`);
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, fixture.password);
+    const parentRefresh = parentLogin.cookies.refresh_token;
+    const { childCookies, childBody } = await childLoginSession(
+      baseUrl,
+      parentLogin,
+      fixture.username,
+      '1112'
+    );
+    const confusedCookies = { ...childCookies, refresh_token: parentRefresh };
+
+    const logoutRes = await fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookieHeader(confusedCookies),
+        'X-CSRF-Token': childBody.csrfToken,
+        'Content-Type': 'application/json',
+      },
+    });
+    const logoutBody = JSON.parse(await logoutRes.text());
+    assert.equal(logoutRes.status, 200, JSON.stringify(logoutBody));
+    assert.equal(logoutBody.sessionRestored, true);
+
+    const parentRefreshRow = await db.query(
+      `SELECT COUNT(*)::int AS n FROM refresh_token WHERE parent_id = $1`,
+      [fixture.parentId]
+    );
+    assert.ok(parentRefreshRow.rows[0].n >= 1, 'parent refresh must survive identity-bound child logout');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('child logout with handoff cookie but revoked handoff returns PARENT_HANDOFF_INVALID', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const tag = Date.now();
+  const fixture = await setupParentChildFixture(db, tag, `inv-${tag}`);
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, fixture.password);
+    const { childCookies, childBody, handoffRaw } = await childLoginSession(
+      baseUrl,
+      parentLogin,
+      fixture.username,
+      '1112'
+    );
+    await db.query(
+      `UPDATE parent_session_handoff SET revoked_at = NOW() WHERE parent_id = $1`,
+      [fixture.parentId]
+    );
+
+    const logoutRes = await fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookieHeader(childCookies),
+        'X-CSRF-Token': childBody.csrfToken,
+        'Content-Type': 'application/json',
+      },
+    });
+    assert.equal(logoutRes.status, 409);
+    const body = await logoutRes.json();
+    assert.equal(body.code, 'PARENT_HANDOFF_INVALID');
+    assert.equal(body.requiresParentLogin, true);
+    assert.ok(handoffRaw);
   } finally {
     await close();
     await db.cleanup();
