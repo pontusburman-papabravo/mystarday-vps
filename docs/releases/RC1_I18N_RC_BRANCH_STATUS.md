@@ -16,7 +16,7 @@
 | Gate | Requirement | Status |
 |------|-------------|--------|
 | #806 merged + deployed | Handoff `sessionRestored` client completion | **PASS** (on main/prod) |
-| Handoff-only smoke | 3/3, `RC1_SMOKE_FILTER=handoff` | Run per deploy SHA |
+| Handoff-only smoke | 3/3, `RC1_SMOKE_FILTER=handoff` | **BLOCK** — `verify-pin-picker` 401: update `RC1_PARENT_PIN` + `RC1_CHILD_USERNAME=astrid921` in secrets |
 | Full prod-smoke | 5/5 × 2, `RC1_REQUIRE_HANDOFF=true` | Run per deploy SHA |
 | GitHub `rc1-prod-smoke` workflow | 5/5 × 2 with secrets | Pending per release |
 | `test:gate` + `test:e2e:i18n` | CI green on smoke PR | Required before #803 merge |
@@ -31,7 +31,7 @@
 
 | Milestone | Status |
 |-----------|--------|
-| READY FOR DEVICE QA | After #803 merge + green 5/5×2 on deploy SHA |
+| READY FOR DEVICE QA | **BLOCK** — prod handoff smoke not 3/3 (parent PIN secret + child username) |
 | RC-1 DEVICE PASS | After documented iPhone + Android matrix |
 | RC-1 GO | After R4-E, Journeys, R1–R3, push/email/PDF on devices |
 | READY FOR ENGLISH STORE RELEASE | RC-1 GO + RC-2 store/ops |

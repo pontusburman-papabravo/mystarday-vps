@@ -10,7 +10,7 @@ alwaysApply: true
 | Role | Value |
 |------|--------|
 | Parent | `pontus@burman.cc` / `Kalle001!` // pragma: allowlist secret |
-| Child | Astrid / PIN `1112` |
+| Child | Astrid / username `astrid921` / PIN `1112` |
 
 ## Rules
 

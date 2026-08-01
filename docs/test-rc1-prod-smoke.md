@@ -58,8 +58,8 @@ Primary vs cleanup failures use `AggregateError` when both fail; locale audit ph
 | `RC1_EXPECTED_SHA` | Exact `/health` `git_sha` |
 | `RC1_EXPECTED_CACHE` | Exact `CACHE_NAME` in `/sw.js` (match deployed `public/sw.js`, e.g. `stjarndag-v753`) |
 | `RC1_QA_EMAIL` / `RC1_QA_PASSWORD` | Parent — [`founder-qa-test-account.md`](founder-qa-test-account.md) (`RC1_REVIEW_*` deprecated) |
-| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Astrid (`1112`) for agent QA |
-| `RC1_PARENT_PIN` | Parent app-lock PIN — **required** when `RC1_REQUIRE_HANDOFF=true` |
+| `RC1_CHILD_USERNAME` / `RC1_CHILD_PIN` | Child Astrid — username **`astrid921`**, PIN `1112` |
+| `RC1_PARENT_PIN` | Parent **app-lock** PIN on the QA family — **required** when `RC1_REQUIRE_HANDOFF=true` (not the child PIN; store in Cursor secrets, never in repo) |
 | `RC1_REQUIRE_HANDOFF` | `true` (default) = 5 tests; `false` = limited 4-test diagnostic |
 | `RC1_RESTORE_LOCALE` | Optional **post-suite** target (runner); per-test restore always uses captured `/api/auth/me` locale |
 | `RC1_SMOKE_RUNS` | Repeat full suite (use `2` for release gate) |

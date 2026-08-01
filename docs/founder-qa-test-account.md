@@ -11,6 +11,7 @@ Do **not** use other prod accounts (especially the App Store review account) unl
 | Parent email | `pontus@burman.cc` |
 | Parent password | `Kalle001!` // pragma: allowlist secret |
 | Child name | Astrid |
+| Child login username | `astrid921` (picker / `data-username`, not display name) |
 | Child PIN | `1112` |
 
 ## Login flows

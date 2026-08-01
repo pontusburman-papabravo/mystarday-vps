@@ -18,7 +18,9 @@ Apple/Google review and release checklists use a separate demo family:
 - [`app-store-demo-konto.md`](app-store-demo-konto.md) — App Store review parent + Anna <!-- pragma: allowlist secret -->
 - Only when the task is explicitly store review, release QA, or founder says to use that account
 
-**Prod URL:** [REDACTED] <!-- pragma: allowlist secret -->
+**Prod URL:** https://mystarday.se <!-- pragma: allowlist secret -->
+
+Use child login username **`astrid921`** (not display name) in automation env vars.
 
 ## Related
 
