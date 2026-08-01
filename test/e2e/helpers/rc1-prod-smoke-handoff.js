@@ -219,6 +219,9 @@ function classifyHandoffFailure(diag) {
   const logout = diag.logout || {};
   const wire = diag.logoutWire || {};
   const logs = diag.serverHandoffLogs;
+  const entries = logs?.entries || [];
+  const pre = entries.find((e) => e.phase === 'child_logout_pre') || entries[0];
+  const post = entries.find((e) => e.phase === 'child_logout_post_consume');
 
   if (logout.switchChild || wire.switchChildInBody) {
     return 'TEST_UI_CONTRACT_SWITCH_CHILD';
@@ -226,15 +229,30 @@ function classifyHandoffFailure(diag) {
   if (logout.status === 409 && logout.code === 'PARENT_HANDOFF_INVALID') {
     return 'INVALID_HANDOFF_HTTP_409';
   }
+
+  if (
+    logout.status === 200
+    && !logout.sessionRestored
+    && !logout.needsParentPin
+    && pre?.handoffCookiePresent === true
+    && pre?.handoffOk === true
+  ) {
+    if (wire.handoffCookieCountOnWire >= 1) {
+      if (post?.handoffOk === true) {
+        return 'RUNTIME_BUG';
+      }
+      return 'RUNTIME_BUG_HANDOFF_OK_BUT_WRONG_200_BODY';
+    }
+    return 'TEST_COOKIE_TRANSPORT_BUG';
+  }
+
   if (logout.loggedOut && !logout.handoffAvailable && !logout.sessionRestored && !logout.needsParentPin) {
     if (wire.handoffCookieCountOnWire === 0) {
       return 'TEST_COOKIE_TRANSPORT_BUG';
     }
-    const entries = logs?.entries || [];
     if (!entries.length) {
       return 'TEST_COOKIE_TRANSPORT_OR_CORRELATION_BUG';
     }
-    const pre = entries.find((e) => e.phase === 'child_logout_pre') || entries[0];
     if (pre && pre.handoffCookiePresent === false) {
       return 'TEST_COOKIE_TRANSPORT_BUG';
     }
@@ -420,13 +438,16 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
   const needsParentPin = sanitizedBody.needsParentPin;
 
   if (!sessionRestored && !needsParentPin) {
+    if (options.childLogin) {
+      diag.childLogin = options.childLogin;
+    }
     diag.serverHandoffLogs = fetchHandoffServerLogs(diag.logout.correlationId);
     diag.classification = classifyHandoffFailure(diag);
     if (handoffValueForDb) {
       diag.handoffDbAfterLogout = fetchHandoffRowDiagnostic(handoffValueForDb, reviewFamilyId);
     }
     logHandoffDiagnosticReport(diag);
-    if (diag.classification === 'RUNTIME_BUG') {
+    if (diag.classification === 'RUNTIME_BUG' || diag.classification === 'RUNTIME_BUG_HANDOFF_OK_BUT_WRONG_200_BODY') {
       const err = new Error(
         `${PRODUCT_BUG}: server saw handoff but logout 200 was plain child logout `
         + `(${JSON.stringify(sanitizedBody)})`

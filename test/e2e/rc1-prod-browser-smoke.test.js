@@ -234,10 +234,8 @@ describe('RC-1 prod browser smoke', { skip: !cfg.email }, () => {
                   reviewFamilyId,
                   networkCapture,
                   deepDiagnostic: handoffDebugOnly,
+                  childLogin: childLoginDiag,
                 });
-                if (page._rc1HandoffChildLogin) {
-                  handoffDiag.childLogin = page._rc1HandoffChildLogin;
-                }
                 if (page._rc1HandoffCookieAudit) {
                   handoffDiag.handoffCookiesAfterChildLogin = page._rc1HandoffCookieAudit;
                 }
