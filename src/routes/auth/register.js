@@ -421,7 +421,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     }
   } catch (err) {
     console.error('[AUTH] Register error:', err);
-    if (err.code === '23505' && String(err.constraint || '').includes('parent_email')) {
+    if (err.code === '23505' && require('../../lib/activation-first-completion').isParentEmailUniqueViolation(err)) {
       return res.status(409).json({ error: authApiMessage(preAuthLang, 'errors.emailExists') });
     }
     res.status(500).json({ error: authApiMessage(preAuthLang, 'errors.serverError') });

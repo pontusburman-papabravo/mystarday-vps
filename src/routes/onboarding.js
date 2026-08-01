@@ -491,7 +491,8 @@ router.post('/schedule', async (req, res) => {
             scheduleId = schedResult.rows[0].id;
             schedulesCreated++;
           } catch (insertErr) {
-            if (insertErr.code !== '23505') throw insertErr;
+            const { isWeeklyScheduleDowUniqueViolation } = require('../../lib/activation-first-completion');
+            if (!isWeeklyScheduleDowUniqueViolation(insertErr)) throw insertErr;
             const again = await client.query(
               'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
               [child_id, dow]
