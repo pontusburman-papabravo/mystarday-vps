@@ -310,3 +310,19 @@ Blockerade för mass-autofix: `schedule.js`, `child-dashboard.js` (`prefer-const
 | `var` + `eslint-disable` | Delad state för `dashboard-*.js` (befintlig kontrakt, ej `/* exported */`) |
 | `window.*` | `selectChild`, `selectDay`, `setViewMode`, `trackEvent`, `shareChildSchedule`, … |
 | Död kod | `calculateAge`, `activities`, `childSchedules`, `allExpanded`, payment stubs, unused destructure |
+
+### Batch 4B sign-off (dashboard)
+
+| Gate | Resultat |
+|------|----------|
+| `node --test` dashboard-split, dashboard-card-actions, dashboard-*.test.js | 52 pass |
+| `test:gate` | 281 pass |
+| `test:full` | (körs efter 4B — kräver fail 0, skip 4) |
+
+**Dödkod-granskning:** `calculateAge` finns kvar lokalt i `family.js`; inga HTML/`window.*`/dynamiska anrop till dashboard-kopian. `dismissPaymentPrompt` / `goToUpgrade` endast tomma stubs utan referenser i repo (ingen betal-UI-återintroduktion).
+
+**eslint-disable:** block 40–66 (`var` delad state), block 86–113 (Android logger), rad 495 (`dashboardStats`) — inga filövergripande undantag.
+
+## Batch 5A — `admin-library.js`
+
+**Start:** 287 · **admin-library:** 37 → **0** · **totalt:** 250

@@ -200,7 +200,6 @@
     function renderScheduleEditor(scheduleId, items, container) {
       const sectionOrder = ['morgon', 'dag', 'kvall'];
       const sectionLabels = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌙 Kväll' };
-      const sectionColors = { morgon: 'border-yellow-400 bg-yellow-50', dag: 'border-blue-400 bg-blue-50', kvall: 'border-indigo-400 bg-indigo-50' };
 
       const bySection = { morgon: [], dag: [], kvall: [] };
       for (const item of items) {
@@ -425,31 +424,6 @@
 
     // ── Default Templates Management ───────────────────────────
     let defaultTemplates = [];
-    let activeSchemaTab = 'forskola'; // 'forskola'|'skola'|'morgon'|'dag'|'kvall'|'helg'
-
-    const SCHEMA_TAB_IDS = {
-      forskola: 'tabForskola',
-      skola: 'tabSkola',
-      morgon: 'tabMorgon',
-      dag: 'tabDag',
-      kvall: 'tabKvall',
-      helg: 'tabHelg',
-    };
-
-    function switchSchemaTab(tab) {
-      activeSchemaTab = tab;
-      // Update all tab button styles
-      for (const [key, btnId] of Object.entries(SCHEMA_TAB_IDS)) {
-        const btn = document.getElementById(btnId);
-        if (!btn) continue;
-        if (key === tab) {
-          btn.className = 'px-4 py-2 rounded-xl font-heading font-bold text-sm transition-colors bg-gold text-navy';
-        } else {
-          btn.className = 'px-4 py-2 rounded-xl font-heading font-bold text-sm transition-colors bg-lavender text-text-soft hover:bg-sky';
-        }
-      }
-      loadDefaultTemplates();
-    }
 
     async function loadDefaultTemplates() {
       const container = document.getElementById('defaultTemplatesList');
@@ -552,11 +526,6 @@
       });
     }
 
-    const SCHEMA_TAB_LABELS = {
-      forskola: 'Förskola', skola: 'Skola', morgon: 'Morgon',
-      dag: 'Dag', kvall: 'Kväll', helg: 'Helg',
-    };
-
     // ─── Sub-steps for default templates ──────────────────
     let dtSubSteps = [];
 
@@ -590,7 +559,7 @@
       const container = document.getElementById('dtSubStepsList');
       const rows = container.querySelectorAll('div');
       const result = [];
-      rows.forEach((row, i) => {
+      rows.forEach((row) => {
         const inputs = row.querySelectorAll('input');
         const icon = inputs[0]?.value?.trim() || '';
         const name = inputs[1]?.value?.trim() || '';
@@ -1208,7 +1177,41 @@
               </div>
             </div>`;
           }).join('');
-      } catch (err) {
+      } catch (_err) {
         histContainer.innerHTML = '<p class="text-xs text-red-500">Kunde inte ladda historik</p>';
       }
     }
+
+    // admin/index.html + generated markup onclick
+    window.openAddDefaultScheduleModal = openAddDefaultScheduleModal;
+    window.editDefaultScheduleMeta = editDefaultScheduleMeta;
+    window.submitDefaultSchedule = submitDefaultSchedule;
+    window.deleteDefaultSchedule = deleteDefaultSchedule;
+    window.viewDefaultSchedule = viewDefaultSchedule;
+    window.toggleScheduleEditor = toggleScheduleEditor;
+    window.addSiSubStep = addSiSubStep;
+    window.removeSiSubStep = removeSiSubStep;
+    window.openAddScheduleItem = openAddScheduleItem;
+    window.openEditScheduleItem = openEditScheduleItem;
+    window.submitScheduleItem = submitScheduleItem;
+    window.deleteScheduleItem = deleteScheduleItem;
+    window.moveScheduleItem = moveScheduleItem;
+    window.toggleApplyDefaultSchema = toggleApplyDefaultSchema;
+    window.addDtSubStep = addDtSubStep;
+    window.removeDtSubStep = removeDtSubStep;
+    window.openAddDefaultModal = openAddDefaultModal;
+    window.openEditDefaultModal = openEditDefaultModal;
+    window.submitDefaultTemplate = submitDefaultTemplate;
+    window.deleteDefaultTemplate = deleteDefaultTemplate;
+    window.setOverviewPeriod = setOverviewPeriod;
+    window.setLoginPeriod = setLoginPeriod;
+    window.loadOverviewLoginStats = loadOverviewLoginStats;
+    window.toggleOverviewFamily = toggleOverviewFamily;
+    window.loadLoginStats = loadLoginStats;
+    window.toggleLoginFamily = toggleLoginFamily;
+    window.openAddDefaultRewardModal = openAddDefaultRewardModal;
+    window.openEditDefaultRewardModal = openEditDefaultRewardModal;
+    window.submitDefaultReward = submitDefaultReward;
+    window.deleteDefaultReward = deleteDefaultReward;
+    window.toggleMsgPanel = toggleMsgPanel;
+    window.sendSystemMessage = sendSystemMessage;
