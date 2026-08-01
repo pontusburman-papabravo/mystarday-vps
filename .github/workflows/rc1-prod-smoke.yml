@@ -4,31 +4,78 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Deploy base URL (required)'
+        description: 'Target URL for smoke tests'
         required: true
       expected_sha:
-        description: 'Expected /health git_sha'
+        description: 'Expected /health git_sha (must match main commit)'
         required: true
       expected_cache:
-        description: 'Expected sw.js CACHE_NAME (e.g. stjarndag-v748)'
+        description: 'Expected sw.js CACHE_NAME'
         required: true
       smoke_runs:
-        description: 'Consecutive full runs (use 2 before device QA)'
+        description: 'Consecutive full runs (use 2 for release)'
         required: true
         default: '2'
       run_prepare:
-        description: 'Reset QA fixture before smoke'
+        description: 'Run QA DB prepare (main + rc1-qa-db-prepare only)'
         type: boolean
-        default: true
+        default: false
 
 jobs:
+  enforce-release-context:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce main + SHA
+        env:
+          RC1_ENFORCE_MAIN: '1'
+          RC1_EXPECTED_SHA: ${{ inputs.expected_sha }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: node scripts/rc1-assert-release-gate-context.js
+
+  prepare-qa-fixture:
+    needs: enforce-release-context
+    if: ${{ inputs.run_prepare == true }}
+    runs-on: ubuntu-latest
+    environment: rc1-qa-db-prepare
+    outputs:
+      family_id: ${{ steps.prep.outputs.family_id }}
+      child_username: ${{ steps.prep.outputs.child_username }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps --include=dev
+      - name: Prepare QA fixture
+        id: prep
+        env:
+          DATABASE_URL: ${{ secrets.RC1_QA_DATABASE_URL }}
+          RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
+          RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
+          RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
+          RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
+          RC1_QA_FAMILY_ID: ${{ secrets.RC1_QA_FAMILY_ID }}
+        run: |
+          set -euo pipefail
+          JSON_LINE=$(node scripts/rc1-qa-family-prepare.js | tail -1)
+          echo "family_id=$(echo "$JSON_LINE" | jq -r .family_id)" >> "$GITHUB_OUTPUT"
+          echo "child_username=$(echo "$JSON_LINE" | jq -r .child_username)" >> "$GITHUB_OUTPUT"
+
   rc1-prod-smoke:
+    needs: [enforce-release-context, prepare-qa-fixture]
+    if: always() && needs.enforce-release-context.result == 'success' && (inputs.run_prepare != true || needs.prepare-qa-fixture.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: rc1-prod-smoke
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -38,32 +85,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps --include=dev
 
-      - name: Prepare QA fixture
-        if: inputs.run_prepare
-        env:
-          DATABASE_URL: ${{ secrets.RC1_QA_DATABASE_URL }}
-          RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
-          RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
-          RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
-          RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
-          RC1_PIN_FINGERPRINT_KEY: ${{ secrets.RC1_PIN_FINGERPRINT_KEY }}
-          RC1_QA_FAMILY_ID: ${{ secrets.RC1_QA_FAMILY_ID }}
-        run: |
-          set -euo pipefail
-          OUT=$(node scripts/rc1-qa-family-prepare.js)
-          echo "$OUT"
-          FAMILY_ID=$(echo "$OUT" | tail -1 | jq -r .family_id)
-          echo "RC1_QA_FAMILY_ID=$FAMILY_ID" >> "$GITHUB_ENV"
-          FP=$(echo "$OUT" | tail -1 | jq -r .pin_fingerprint)
-          node -e "
-          const { pinFingerprintsMatch } = require('./src/lib/rc1-pin-fingerprint');
-          if (!pinFingerprintsMatch(process.env.RC1_PARENT_PIN, process.env.RC1_PIN_FINGERPRINT_KEY, '$FP')) {
-            console.error('prep_pin_fingerprint_matches_runner=false');
-            process.exit(1);
-          }
-          console.log('prep_pin_fingerprint_matches_runner=true');
-          "
-
       - name: RC-1 prod browser smoke
         env:
           RC1_SMOKE_BASE_URL: ${{ inputs.base_url }}
@@ -72,11 +93,10 @@ jobs:
           RC1_SMOKE_RUNS: ${{ inputs.smoke_runs }}
           RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
           RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
-          RC1_CHILD_USERNAME: ${{ secrets.RC1_CHILD_USERNAME }}
+          RC1_CHILD_USERNAME: ${{ needs.prepare-qa-fixture.outputs.child_username || 'rc1qachild' }}
           RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
           RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
-          RC1_QA_FAMILY_ID: ${{ env.RC1_QA_FAMILY_ID || secrets.RC1_QA_FAMILY_ID }}
-          RC1_PIN_FINGERPRINT_KEY: ${{ secrets.RC1_PIN_FINGERPRINT_KEY }}
+          RC1_QA_FAMILY_ID: ${{ needs.prepare-qa-fixture.outputs.family_id || secrets.RC1_QA_FAMILY_ID }}
           RC1_REQUIRE_HANDOFF: 'true'
         run: npm run test:e2e:rc1-prod-smoke
 

@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { pinFingerprint, pinFingerprintsMatch } = require('../src/lib/rc1-pin-fingerprint');
+const { pinFingerprint, pinFingerprintsMatch } = require('../scripts/lib/rc1-pin-fingerprint');
 
 describe('rc1-pin-fingerprint', () => {
   it('produces stable 16-char hex without logging pin', () => {

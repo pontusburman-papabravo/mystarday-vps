@@ -1,6 +1,8 @@
 # RC-1 automated QA fixture
 
-Dedicated **automation-only** family for RC-1 prod smoke and device QA. Not used for App Store review or founder accounts.
+**Scope:** scripts, tests, and GitHub workflows — includes a **live-DB prepare script** (not app runtime). See `docs/rc1-github-environment.md` for secret placement and main-only execution.
+
+Dedicated **automation-only** family for RC-1 live deploy smoke and mobile-browser QA.
 
 ## Identity (public)
 
@@ -8,75 +10,66 @@ Dedicated **automation-only** family for RC-1 prod smoke and device QA. Not used
 |-------|--------|
 | Parent email | `rc1-qa-parent@qa-automation.<internal-domain>` |
 | Family name | `RC-1 QA Fixture (automation)` |
-| Child display name | `RC1 Child` |
-| Child username | `rc1qachild` |
+| Child username | `rc1qachild` (not a secret — wired from prepare job output) |
 
-Passwords and PINs live **only** in Cursor/GitHub Environment secrets — never in the repo.
+Passwords and PINs live **only** in GitHub/Cursor deployment secrets.
+
+## Gates
+
+| Verdict | Meaning |
+|---------|---------|
+| **RC-1 AUTOMATED WEB PASS** | Browser smoke 5/5×2 + mobile-browser iOS/Android profiles (Chromium) |
+| **RC-1 NATIVE DEVICE PASS** | Future — real Capacitor iOS/Android (`docs/rc1-native-device-automation-plan.md`) |
+| **BROWSER-ONLY DIAGNOSTIC PASS** | Smoke without mobile-browser matrix (`skip_mobile_browser`) |
+
+Mobile-browser tests use viewport + user-agent only — **not** native apps.
 
 ## Secrets
 
-| Variable | Purpose |
-|----------|---------|
-| `RC1_QA_EMAIL` | Must match allowlisted parent email above |
-| `RC1_QA_PASSWORD` | Parent login password (synced by prepare) |
-| `RC1_CHILD_PIN` | 4-digit child PIN |
-| `RC1_PARENT_PIN` | 4-digit parent **app-lock** PIN (synced by prepare) |
-| `RC1_CHILD_USERNAME` | `rc1qachild` (smoke + device harness) |
-| `RC1_QA_FAMILY_ID` | UUID after first prepare (pin in environment) |
-| `RC1_PIN_FINGERPRINT_KEY` | Shared HMAC key for prep/smoke fingerprint check |
-| `RC1_QA_DATABASE_URL` | Prod DB URL for prepare (GitHub `rc1-prod-smoke` environment) |
-| `DATABASE_URL` | Same as above when running prepare locally |
-| `RC1_SMOKE_BASE_URL` | Live deploy HTTPS origin (per release run) |
+| Variable | Where |
+|----------|--------|
+| `RC1_QA_DATABASE_URL` | **Only** `rc1-qa-db-prepare` deployment target |
+| `RC1_QA_EMAIL`, `RC1_QA_PASSWORD`, `RC1_CHILD_PIN`, `RC1_PARENT_PIN` | `rc1-qa-db-prepare` + `rc1-prod-smoke` targets |
+| `RC1_QA_FAMILY_ID` | `rc1-prod-smoke` target (until prepare creates fixture) |
+
+Do **not** store `RC1_CHILD_USERNAME` as a secret — use prepare output `child_username`.
+
+## Code layout
+
+| Path | Role |
+|------|------|
+| `test/support/rc1-qa-fixture.js` | Allowlisted fixture constants (not `src/`) |
+| `scripts/lib/rc1-qa-prepare-core.js` | Transactional prepare logic |
+| `scripts/lib/rc1-qa-reset-manifest.js` | Reset table manifest + wipe |
+| `scripts/rc1-qa-family-prepare.js` | CLI |
+| `scripts/rc1-assert-release-gate-context.js` | Main + SHA guard |
+
+PIN verification: `prep_pin_verified_against_database=true` in prepare JSON (in-transaction, before `COMMIT`). End-to-end PIN proof is `verify-pin-picker` in browser smoke.
 
 ## Prepare / reset
 
 ```bash
-export DATABASE_URL=…
-export RC1_QA_EMAIL=rc1-qa-parent@qa-automation.<internal-domain>
-export RC1_QA_PASSWORD=…
-export RC1_CHILD_PIN=…
-export RC1_PARENT_PIN=…
-export RC1_PIN_FINGERPRINT_KEY=…
-
 npm run rc1:qa:prepare:dry-run
+# After SAFE TO PREP PROD — from protected main only:
 npm run rc1:qa:prepare
 ```
 
-Prepare will **refuse** any email not on the allowlist and only mutates the resolved QA family (guarded by family name + email domain).
+## Workflows
 
-## Browser smoke
+- `.github/workflows/rc1-web-release-gate.yml` — web gate (`run_prepare` default **false**)
+- `.github/workflows/rc1-prod-smoke.yml` — browser smoke only
 
-```bash
-export RC1_RUN_QA_PREP=1   # optional: reset fixture before smoke (needs DATABASE_URL)
-export RC1_EXPECTED_SHA=…
-export RC1_EXPECTED_CACHE=stjarndag-v753
-# RC1_SMOKE_BASE_URL + RC1_QA_* + RC1_QA_FAMILY_ID + RC1_PIN_FINGERPRINT_KEY
+## First live-DB prepare (operator)
 
-RC1_SMOKE_FILTER=handoff RC1_HANDOFF_DEBUG_RUNS=1 npm run test:e2e:rc1-prod-smoke
-RC1_SMOKE_FILTER=handoff RC1_HANDOFF_DEBUG_RUNS=3 npm run test:e2e:rc1-prod-smoke
-RC1_REQUIRE_HANDOFF=true RC1_SMOKE_RUNS=2 npm run test:e2e:rc1-prod-smoke
-```
+Only when verdict is **SAFE TO PREP PROD**:
 
-On `PARENT_PIN_INVALID` with QA fixture enabled, the harness classifies **`QA_FIXTURE_OR_SECRET_INJECTION_FAILURE`** (no repeated PIN attempts).
+1. Merge infrastructure to `main`
+2. Configure deployment targets per `docs/rc1-github-environment.md`
+3. `run_prepare: false` dry-run on main
+4. `run_prepare: true` once — verify `fixture_verified` + idempotent second run
+5. Store `family_id` in `RC1_QA_FAMILY_ID` if needed
+6. Run full web release gate
 
-## Device QA (automated mobile matrix)
+## Founder / review
 
-```bash
-# RC1_SMOKE_BASE_URL + RC1_QA_EMAIL / RC1_QA_PASSWORD / RC1_CHILD_* 
-export RC1_CHILD_USERNAME=rc1qachild
-export RC1_DEVICE_PROFILE=ios   # or android
-npm run rc1:device-qa
-```
-
-Uses Puppeteer mobile viewport + user-agent profiles (not a substitute for native Capacitor binaries; native farm hooks are **VISUAL_REVIEW_OPTIONAL** where OS permission dialogs cannot be scripted).
-
-## GitHub workflows
-
-- `.github/workflows/rc1-prod-smoke.yml` — browser smoke only (`workflow_dispatch`)
-- `.github/workflows/rc1-release-gate.yml` — prepare → handoff 1/1 → 3/3 → 5/5×2 → iOS/Android device matrix → summary
-
-## Founder / review accounts
-
-- **Do not** use `pontus@burman.cc` or the App Store review parent for RC-1 automation.
-- App Store review: `docs/app-store-demo-konto.md` only.
-- Founder manual QA: `docs/founder-qa-test-account.md` (not RC-1 release fixture).
+Do **not** use founder or App Store review accounts for RC-1 automation.

@@ -8,8 +8,7 @@
  */
 const { spawnSync, execSync } = require('node:child_process');
 const path = require('node:path');
-const { pinFingerprintsMatch } = require('../src/lib/rc1-pin-fingerprint');
-const { RC1_QA_PARENT_EMAIL, RC1_QA_CHILD_USERNAME, isAllowedRc1QaParentEmail } = require('../src/lib/rc1-qa-fixture');
+const { RC1_QA_PARENT_EMAIL, RC1_QA_CHILD_USERNAME, isAllowedRc1QaParentEmail } = require('../test/support/rc1-qa-fixture');
 
 const baseUrl = process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL;
 if (!baseUrl) {
@@ -64,15 +63,11 @@ if (process.env.RC1_RUN_QA_PREP === '1') {
     if (prepOut.family_id) {
       process.env.RC1_QA_FAMILY_ID = prepOut.family_id;
     }
-    const fpMatch = pinFingerprintsMatch(
-      process.env.RC1_PARENT_PIN,
-      process.env.RC1_PIN_FINGERPRINT_KEY,
-      prepOut.pin_fingerprint
-    );
-    console.log(`[rc1-prod-smoke] prep_pin_fingerprint_matches_runner=${fpMatch === true}`);
-    if (fpMatch === false) {
-      console.error('[rc1-prod-smoke] QA_FIXTURE_OR_SECRET_INJECTION_FAILURE: PIN fingerprint mismatch');
-      process.exit(1);
+    if (prepOut.child_username) {
+      process.env.RC1_CHILD_USERNAME = prepOut.child_username;
+    }
+    if (prepOut.prep_pin_verified_against_database === true) {
+      console.log('[rc1-prod-smoke] prep_pin_verified_against_database=true');
     }
   } catch (err) {
     console.error('[rc1-prod-smoke] could not parse prepare output');
@@ -107,6 +102,10 @@ if (!qaPassword) {
 
 if (!process.env.RC1_CHILD_USERNAME && useQaFixture) {
   process.env.RC1_CHILD_USERNAME = RC1_QA_CHILD_USERNAME;
+}
+if (useQaFixture && process.env.RC1_CHILD_USERNAME !== RC1_QA_CHILD_USERNAME) {
+  console.error('[rc1-prod-smoke] RC1_CHILD_USERNAME must match fixture child_username from prepare');
+  process.exit(1);
 }
 
 const required = [

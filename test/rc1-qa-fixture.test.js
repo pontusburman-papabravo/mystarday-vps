@@ -6,7 +6,7 @@ const {
   RC1_QA_PARENT_EMAIL,
   isAllowedRc1QaParentEmail,
   assertRc1QaFixtureEmail,
-} = require('../src/lib/rc1-qa-fixture');
+} = require('../test/support/rc1-qa-fixture');
 
 describe('rc1-qa-fixture allowlist', () => {
   it('allows canonical QA parent email', () => {

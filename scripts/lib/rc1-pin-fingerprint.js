@@ -3,7 +3,7 @@
 const crypto = require('node:crypto');
 
 /**
- * Short-lived fingerprint to verify prep and smoke share the same PIN secret (not stored in DB).
+ * Optional HMAC fingerprint for local prep/runner alignment checks (never stored in DB).
  */
 function pinFingerprint(pin, key) {
   if (!pin || !key) return null;

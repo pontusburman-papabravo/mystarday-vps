@@ -9,8 +9,7 @@ const { performParentChildHandoff } = handoffModule;
 
 const SWEDISH_SERVER_LEAK = /Ogiltiga värden|Namn krävs|PIN-koden måste|Användarnamn krävs/i;
 
-const { pinFingerprintsMatch } = require('../../../src/lib/rc1-pin-fingerprint');
-const { RC1_QA_CHILD_USERNAME } = require('../../../src/lib/rc1-qa-fixture');
+const { RC1_QA_CHILD_USERNAME } = require('../../../test/support/rc1-qa-fixture');
 
 function smokeConfig() {
   const baseUrl = (process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL || '').replace(/\/$/, '');

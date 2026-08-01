@@ -68,7 +68,7 @@ const DEVICE_PROFILES = {
     viewport: { width: 412, height: 915 },
   },
 };
-const deviceProfile = DEVICE_PROFILES[process.env.RC1_DEVICE_PROFILE] || null;
+const deviceProfile = DEVICE_PROFILES[process.env.RC1_MOBILE_PROFILE] || null;
 const activeViewport = deviceProfile?.viewport || MOBILE_VIEWPORT;
 const ARTIFACTS = process.env.SMOKE_ARTIFACTS || path.join(ROOT, 'artifacts/mobile-full-qa');
 const HEADED = process.env.SMOKE_HEADED === '1' || process.env.SMOKE_HEADED === 'true';
@@ -710,7 +710,7 @@ async function main() {
   console.log(`\n📱 Mobile QA (${QA_MODE}) — ${BASE}`);
   console.log(`Viewport: ${activeViewport.width}×${activeViewport.height} | Headed: ${HEADED}`);
   if (deviceProfile) {
-    console.log(`Device profile: ${process.env.RC1_DEVICE_PROFILE}`);
+    console.log(`Mobile browser profile: ${process.env.RC1_MOBILE_PROFILE}`);
   }
   console.log('');
 

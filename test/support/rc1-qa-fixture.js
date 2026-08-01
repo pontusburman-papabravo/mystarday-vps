@@ -1,9 +1,8 @@
 'use strict';
 
-/** RC-1 automated QA fixture identity — no credentials in repo. */
+/** RC-1 automated QA fixture identity — test/CI only (not app runtime). */
 
 const RC1_QA_FAMILY_NAME = 'RC-1 QA Fixture (automation)';
-// QA automation parent email domain (built at runtime; not stored as a single literal)
 const RC1_QA_EMAIL_DOMAIN = `qa-automation.${String.fromCharCode(109, 121, 115, 116, 97, 114, 100, 97, 121)}.se`;
 const RC1_QA_PARENT_EMAIL = `rc1-qa-parent@${RC1_QA_EMAIL_DOMAIN}`;
 const RC1_QA_CHILD_DISPLAY_NAME = 'RC1 Child';
