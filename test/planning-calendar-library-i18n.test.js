@@ -34,3 +34,8 @@ test('library-magic-schedules toggles std panes from _stdSegment', () => {
   assert.match(src, /stdPaneClass\('rewards'\)/);
   assert.doesNotMatch(src, /library-magic-std-pane hidden" data-std-pane="activities"/);
 });
+
+test('library-magic-schedules preserves legacy containers across render', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-schedules.js'), 'utf8');
+  assert.match(src, /restoreLegacyStdContent\(\);\s*\n\s*if \(_detailId/s);
+});

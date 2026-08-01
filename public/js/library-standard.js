@@ -56,8 +56,11 @@ async function loadStandardLibrary() {
     renderStandardLibrary();
     renderStandardRewards();
     renderStdSchedulesInStdTab();
-    switchStdSubTab('schedules');  // Default sub-tab
-    if (window.LibraryMagicSchedules) LibraryMagicSchedules.refresh();
+    if (window.LibraryMagicSchedules && LibraryMagicSchedules.isActive()) {
+      LibraryMagicSchedules.refresh();
+    } else {
+      switchStdSubTab('schedules');  // Default sub-tab (legacy library UI)
+    }
   } catch {
     container.innerHTML = '<p class="text-red-500 col-span-full text-center py-8">' + escHtml(libPt('library.standard.genericError')) + '</p>';
   }

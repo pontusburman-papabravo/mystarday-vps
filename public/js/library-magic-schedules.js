@@ -273,7 +273,11 @@
         if (typeof window.switchStdSubTab === 'function') {
           window.switchStdSubTab(_stdSegment);
         }
-        render();
+        const needsStdLib = _stdSegment === 'activities' || _stdSegment === 'rewards';
+        const loadStd = (needsStdLib && typeof window.loadStandardLibrary === 'function')
+          ? window.loadStandardLibrary()
+          : Promise.resolve();
+        loadStd.then(function () { render(); });
         return;
       }
 
@@ -316,6 +320,9 @@
 
     mount.classList.remove('hidden');
     document.body.classList.add('library-magic-has-section-mount');
+
+    // Keep legacy DOM nodes in hidden panes — innerHTML on mount would destroy moved containers.
+    restoreLegacyStdContent();
 
     if (_detailId && _stdSegment === 'schedules') {
       const schedule = schedules().find(function (s) { return String(s.id) === String(_detailId); });
