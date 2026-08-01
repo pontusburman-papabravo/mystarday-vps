@@ -96,8 +96,14 @@ describe('rc1-qa-prepare transaction rollback', () => {
         if (s.includes('FROM parent WHERE LOWER(email)')) {
           return { rows: [{ id: 'parent-1', family_id: 'fam-1' }] };
         }
-        if (s.includes('SELECT name FROM family')) {
-          return { rows: [{ name: 'RC-1 QA Fixture (automation)' }] };
+        if (s.includes('SELECT id, name FROM family WHERE id')) {
+          return { rows: [{ id: 'fam-1', name: 'RC-1 QA Fixture (automation)' }] };
+        }
+        if (s.includes('SELECT id, email FROM parent WHERE family_id')) {
+          return { rows: [{ id: 'parent-1', email: RC1_QA_PARENT_EMAIL }] };
+        }
+        if (s.includes('SELECT id, username FROM child WHERE family_id')) {
+          return { rows: [{ id: 'child-1', username: 'rc1qachild' }] };
         }
         if (s.includes('parent_pin_hash FROM parent')) {
           return { rows: [{ id: 'parent-1', family_id: 'fam-1', parent_pin_hash: pinHash }] };
@@ -142,5 +148,9 @@ describe('rc1-qa-reset-manifest', () => {
     assert.ok(reset.length >= 15);
     const preserve = RC1_QA_RESET_STEPS.filter((s) => s.policy === 'preserve');
     assert.ok(preserve.some((p) => p.table === 'family'));
+    const tables = reset.map((r) => r.table);
+    assert.ok(tables.includes('child_reward_goal'));
+    assert.ok(tables.includes('child_reward_goal_change_request'));
+    assert.ok(tables.includes('manual_star_grant'));
   });
 });

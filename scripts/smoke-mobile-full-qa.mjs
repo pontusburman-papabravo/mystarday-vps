@@ -42,6 +42,16 @@ import {
   runChildRedeemGate,
   runParentApproveGate,
 } from './lib/mobile-qa-gate-flows.mjs';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const {
+  assertExactHealthSha,
+  assertExactCacheName,
+  assertAuthMeFamilyId,
+  assertFixtureChildUsername,
+  releaseIdentityEnforced,
+} = require('./lib/rc1-release-identity.js');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -155,7 +165,18 @@ async function acceptCookies(page) {
 
 async function phaseInfra() {
   const { json } = await http('GET', '/health');
-  record('A01', 'GET /health', json?.status === 'healthy', json?.status || 'missing');
+  const enforceIdentity = releaseIdentityEnforced(process.env);
+  if (enforceIdentity) {
+    try {
+      assertExactHealthSha(json, process.env.RC1_EXPECTED_SHA);
+      record('A01', 'GET /health git_sha', true, json?.git_sha || '');
+    } catch (e) {
+      record('A01', 'GET /health git_sha', false, e.message);
+      throw e;
+    }
+  } else {
+    record('A01', 'GET /health', json?.status === 'healthy', json?.status || 'missing');
+  }
 
   if (QA_MODE === 'full') {
     const { res: mRes, text: manifest } = await http('GET', '/manifest.json');
@@ -165,7 +186,17 @@ async function phaseInfra() {
     record('A02', 'PWA manifest + ikon', manifestOk && iconOk, `manifest=${mRes.status} icon=${iconRes.status}`);
 
     const { text: sw } = await http('GET', '/sw.js');
-    record('A03', 'GET /sw.js', sw.includes('CACHE_NAME') && sw.includes('STATIC_ASSETS'), 'sw.js ok');
+    if (enforceIdentity) {
+      try {
+        assertExactCacheName(sw, process.env.RC1_EXPECTED_CACHE);
+        record('A03', 'GET /sw.js CACHE_NAME', true, process.env.RC1_EXPECTED_CACHE);
+      } catch (e) {
+        record('A03', 'GET /sw.js CACHE_NAME', false, e.message);
+        throw e;
+      }
+    } else {
+      record('A03', 'GET /sw.js', sw.includes('CACHE_NAME') && sw.includes('STATIC_ASSETS'), 'sw.js ok');
+    }
   }
 
   await http('POST', '/api/auth/login', {
@@ -174,11 +205,33 @@ async function phaseInfra() {
   });
   record('A05', 'POST /api/auth/login (seed parent)', cookieJar.includes('access_token') || cookieJar.length > 10, 'session set');
 
+  if (enforceIdentity) {
+    const { json: me } = await http('GET', '/api/auth/me');
+    try {
+      assertAuthMeFamilyId(me, process.env.RC1_QA_FAMILY_ID);
+      record('A05b', 'GET /api/auth/me family_id', true, process.env.RC1_QA_FAMILY_ID);
+    } catch (e) {
+      record('A05b', 'GET /api/auth/me family_id', false, e.message);
+      throw e;
+    }
+  }
+
   const singleChildQa = process.env.RC1_QA_SINGLE_CHILD === '1';
   const { json: children } = await http('GET', '/api/children');
   childrenCache = Array.isArray(children) ? children : children?.children || [];
   const minChildren = singleChildQa ? 1 : 2;
   record('A06', `GET /api/children ≥${minChildren}`, childrenCache.length >= minChildren, String(childrenCache.length));
+
+  if (enforceIdentity && singleChildQa) {
+    const expectedChild = process.env.RC1_CHILD_USERNAME || process.env.SMOKE_CHILD_NAME;
+    try {
+      assertFixtureChildUsername(childrenCache, expectedChild);
+      record('A06b', 'fixture child username', true, expectedChild);
+    } catch (e) {
+      record('A06b', 'fixture child username', false, e.message);
+      throw e;
+    }
+  }
 
   const childSpecs = singleChildQa
     ? [['A07', { name: CHILD_NAME, pin: CHILD_PIN }]]

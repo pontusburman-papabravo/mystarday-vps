@@ -6,8 +6,9 @@
  * QA/test infrastructure — not app runtime.
  *
  * Usage:
- *   npm run rc1:qa:prepare
- *   npm run rc1:qa:prepare -- --dry-run
+ *   RC1_PREPARE_MODE=apply npm run rc1:qa:prepare
+ *   RC1_PREPARE_MODE=dry-run npm run rc1:qa:prepare
+ *   npm run rc1:qa:prepare:dry-run  (legacy: no DB, plan only)
  */
 
 const db = require('../src/lib/db');
@@ -19,9 +20,19 @@ const {
 const {
   validatePrepareEnv,
   runRc1QaPrepareTransaction,
+  runRc1QaPrepareDryRunInspect,
 } = require('./lib/rc1-qa-prepare-core');
 
-const dryRun = process.argv.includes('--dry-run');
+function resolvePrepareMode(argv, env) {
+  const fromEnv = (env.RC1_PREPARE_MODE || '').trim().toLowerCase();
+  if (fromEnv === 'none' || fromEnv === 'dry-run' || fromEnv === 'apply') {
+    return fromEnv;
+  }
+  if (argv.includes('--dry-run')) {
+    return 'legacy-cli-dry-run';
+  }
+  return 'apply';
+}
 
 function sanitizePrepareError(err) {
   const msg = String(err?.message || err);
@@ -32,12 +43,24 @@ function sanitizePrepareError(err) {
 }
 
 async function main() {
+  const mode = resolvePrepareMode(process.argv, process.env);
   try {
-    if (dryRun) {
+    if (mode === 'none') {
+      console.log(JSON.stringify({
+        prepare_mode: 'none',
+        skipped: true,
+        child_username: RC1_QA_CHILD_USERNAME,
+      }));
+      return;
+    }
+
+    if (mode === 'legacy-cli-dry-run') {
       const qaEmail = normalizeEmail(process.env.RC1_QA_EMAIL || RC1_QA_PARENT_EMAIL);
       validatePrepareEnv(process.env, { dryRun: true });
       console.log(JSON.stringify({
         dry_run: true,
+        prepare_mode: 'legacy-cli-dry-run',
+        note: 'No database access — use RC1_PREPARE_MODE=dry-run for DB inspection dry-run',
         actions: [
           'upsert QA family by allowlisted email only',
           'set en-GB locale + english_app + english_child_experience',
@@ -54,11 +77,24 @@ async function main() {
       return;
     }
 
+    if (mode === 'dry-run') {
+      const config = validatePrepareEnv(process.env, { dryRun: false });
+      const client = await db.getClient();
+      try {
+        const result = await runRc1QaPrepareDryRunInspect(client, config);
+        console.log(JSON.stringify(result));
+      } finally {
+        client.release();
+        await db.pool.end().catch(() => {});
+      }
+      return;
+    }
+
     const config = validatePrepareEnv(process.env, { dryRun: false });
     const client = await db.getClient();
     try {
       const result = await runRc1QaPrepareTransaction(client, config);
-      console.log(JSON.stringify(result));
+      console.log(JSON.stringify({ ...result, prepare_mode: 'apply' }));
     } finally {
       client.release();
       await db.pool.end().catch(() => {});

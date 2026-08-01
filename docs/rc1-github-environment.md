@@ -1,6 +1,6 @@
 # RC-1 GitHub deployment targets (live QA)
 
-Configure these **before** the first `run_prepare` against the live deploy database.
+Configure these **before** the first `prepare_mode: apply` against the live deploy database.
 
 ## Deployment targets
 
@@ -28,8 +28,8 @@ GitHub deployment targets are **not** branch-protected by default. Configure in 
 
 `.github/workflows/rc1-web-release-gate.yml`:
 
-1. `enforce-release-context` — `scripts/rc1-assert-release-gate-context.js` fails unless `github.ref == refs/heads/main` and `github.sha == inputs.expected_sha`
-2. `prepare-qa-fixture` — only when `run_prepare: true`, target `rc1-qa-db-prepare`, checkout at `github.sha`
+1. `enforce-release-context` — checkout at `github.sha`, then `scripts/rc1-assert-release-gate-context.js` fails unless `github.ref == refs/heads/main` and `github.sha == inputs.expected_sha`
+2. `prepare-qa-fixture` — only when `prepare_mode: apply`, target `rc1-qa-db-prepare`, checkout at `github.sha`
 3. Browser/mobile jobs — no `DATABASE_URL`, target `rc1-prod-smoke`
 
 PR branches can dispatch workflows but **cannot** receive deployment secrets for protected targets when deployment branches = main only.

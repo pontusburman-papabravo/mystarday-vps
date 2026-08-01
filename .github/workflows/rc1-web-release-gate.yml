@@ -14,10 +14,14 @@ on:
       expected_cache:
         description: 'Expected sw.js CACHE_NAME (e.g. stjarndag-v753)'
         required: true
-      run_prepare:
-        description: 'Run QA DB prepare (requires main + rc1-qa-db-prepare environment)'
-        type: boolean
-        default: false
+      prepare_mode:
+        description: 'QA DB prepare — none (default), dry-run (read-only inspect), apply (writes; protected env)'
+        type: choice
+        options:
+          - none
+          - dry-run
+          - apply
+        default: none
       skip_mobile_browser:
         description: 'Skip mobile-browser matrix (browser smoke only — diagnostic)'
         type: boolean
@@ -31,6 +35,10 @@ jobs:
   enforce-release-context:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
       - name: Enforce main + SHA
         env:
           RC1_ENFORCE_MAIN: '1'
@@ -41,7 +49,7 @@ jobs:
 
   prepare-qa-fixture:
     needs: enforce-release-context
-    if: ${{ inputs.run_prepare == true }}
+    if: ${{ inputs.prepare_mode == 'apply' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: rc1-qa-db-prepare
@@ -63,9 +71,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps --include=dev
 
-      - name: Prepare RC-1 QA fixture
+      - name: Prepare RC-1 QA fixture (apply)
         id: prep
         env:
+          RC1_PREPARE_MODE: apply
           DATABASE_URL: ${{ secrets.RC1_QA_DATABASE_URL }}
           RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
           RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
@@ -82,8 +91,56 @@ jobs:
           echo "fixture_verified=$(echo "$JSON_LINE" | jq -r .fixture_verified)" >> "$GITHUB_OUTPUT"
           echo "prep_pin_verified=$(echo "$JSON_LINE" | jq -r .prep_pin_verified_against_database)" >> "$GITHUB_OUTPUT"
 
+  prepare-dry-run:
+    needs: enforce-release-context
+    if: ${{ inputs.prepare_mode == 'dry-run' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: rc1-qa-db-prepare
+    outputs:
+      dry_run_ok: ${{ steps.dry.outputs.dry_run_ok }}
+      resolved_family_id: ${{ steps.dry.outputs.resolved_family_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci --legacy-peer-deps --include=dev
+
+      - name: RC-1 QA prepare dry-run (no writes)
+        id: dry
+        env:
+          RC1_PREPARE_MODE: dry-run
+          DATABASE_URL: ${{ secrets.RC1_QA_DATABASE_URL }}
+          RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
+          RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
+          RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
+          RC1_PARENT_PIN: ${{ secrets.RC1_PARENT_PIN }}
+          RC1_QA_FAMILY_ID: ${{ secrets.RC1_QA_FAMILY_ID }}
+        run: |
+          set -euo pipefail
+          OUT=$(node scripts/rc1-qa-family-prepare.js)
+          JSON_LINE=$(echo "$OUT" | tail -1)
+          GUARD=$(echo "$JSON_LINE" | jq -r .guard_status)
+          if [ "$GUARD" = "contract_failed" ]; then
+            echo "dry-run guard failed"; exit 1
+          fi
+          echo "dry_run_ok=true" >> "$GITHUB_OUTPUT"
+          RID=$(echo "$JSON_LINE" | jq -r .resolved_family_id // empty)
+          if [ -n "$RID" ] && [ "$RID" != "null" ]; then
+            echo "resolved_family_id=$RID" >> "$GITHUB_OUTPUT"
+          fi
+          echo "## RC-1 prepare dry-run" >> "$GITHUB_STEP_SUMMARY"
+          echo "- guard_status: $GUARD" >> "$GITHUB_STEP_SUMMARY"
+          echo "- fixture_exists: $(echo "$JSON_LINE" | jq -r .fixture_exists)" >> "$GITHUB_STEP_SUMMARY"
+
   resolve-fixture-context:
-    needs: [enforce-release-context, prepare-qa-fixture]
+    needs: [enforce-release-context, prepare-qa-fixture, prepare-dry-run]
     if: always() && needs.enforce-release-context.result == 'success'
     runs-on: ubuntu-latest
     environment: rc1-prod-smoke
@@ -94,23 +151,31 @@ jobs:
       - name: Resolve family + child username
         id: out
         env:
+          PREP_MODE: ${{ inputs.prepare_mode }}
           PREP_FAMILY: ${{ needs.prepare-qa-fixture.outputs.family_id }}
           PREP_CHILD: ${{ needs.prepare-qa-fixture.outputs.child_username }}
+          DRY_FAMILY: ${{ needs.prepare-dry-run.outputs.resolved_family_id }}
           SECRET_FAMILY: ${{ secrets.RC1_QA_FAMILY_ID }}
         run: |
           set -euo pipefail
-          if [ "${{ inputs.run_prepare }}" = "true" ]; then
+          if [ "$PREP_MODE" = "apply" ]; then
             if [ "${{ needs.prepare-qa-fixture.result }}" != "success" ]; then
-              echo "prepare required but failed"; exit 1
+              echo "prepare apply required but failed"; exit 1
             fi
             FAMILY="$PREP_FAMILY"
             CHILD="$PREP_CHILD"
+          elif [ "$PREP_MODE" = "dry-run" ]; then
+            if [ "${{ needs.prepare-dry-run.result }}" != "success" ]; then
+              echo "prepare dry-run failed"; exit 1
+            fi
+            FAMILY="${DRY_FAMILY:-$SECRET_FAMILY}"
+            CHILD="rc1qachild"
           else
             FAMILY="$SECRET_FAMILY"
             CHILD="rc1qachild"
           fi
           if [ -z "$FAMILY" ]; then
-            echo "missing family_id (run prepare or set RC1_QA_FAMILY_ID secret)"; exit 1
+            echo "missing family_id (run prepare apply/dry-run or set RC1_QA_FAMILY_ID secret)"; exit 1
           fi
           if [ -n "${{ secrets.RC1_CHILD_USERNAME }}" ] && [ "${{ secrets.RC1_CHILD_USERNAME }}" != "$CHILD" ]; then
             echo "RC1_CHILD_USERNAME secret must match fixture child_username ($CHILD)"; exit 1
@@ -216,10 +281,13 @@ jobs:
       - name: RC-1 mobile browser QA (${{ matrix.profile }})
         env:
           RC1_SMOKE_BASE_URL: ${{ inputs.base_url }}
+          RC1_EXPECTED_SHA: ${{ inputs.expected_sha }}
+          RC1_EXPECTED_CACHE: ${{ inputs.expected_cache }}
           RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
           RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
           RC1_CHILD_USERNAME: ${{ needs.resolve-fixture-context.outputs.child_username }}
           RC1_CHILD_PIN: ${{ secrets.RC1_CHILD_PIN }}
+          RC1_QA_FAMILY_ID: ${{ needs.resolve-fixture-context.outputs.family_id }}
           RC1_MOBILE_PROFILE: ${{ matrix.profile }}
           RC1_MOBILE_BROWSER_QA_MODE: full
         run: npm run rc1:mobile-browser-qa
@@ -236,6 +304,7 @@ jobs:
     needs:
       - enforce-release-context
       - prepare-qa-fixture
+      - prepare-dry-run
       - resolve-fixture-context
       - browser-smoke
       - mobile-browser-matrix
@@ -244,9 +313,12 @@ jobs:
     steps:
       - name: RC-1 web gate verdict
         env:
-          RUN_PREPARE: ${{ inputs.run_prepare }}
+          PREPARE_MODE: ${{ inputs.prepare_mode }}
           SKIP_MOBILE: ${{ inputs.skip_mobile_browser }}
-          PREP_RESULT: ${{ needs.prepare-qa-fixture.result }}
+          CONTEXT_RESULT: ${{ needs.enforce-release-context.result }}
+          PREP_APPLY_RESULT: ${{ needs.prepare-qa-fixture.result }}
+          PREP_DRY_RESULT: ${{ needs.prepare-dry-run.result }}
+          FIXTURE_RESULT: ${{ needs.resolve-fixture-context.result }}
           BROWSER_RESULT: ${{ needs.browser-smoke.result }}
           MOBILE_RESULT: ${{ needs.mobile-browser-matrix.result }}
           EXPECTED_SHA: ${{ inputs.expected_sha }}
@@ -257,14 +329,24 @@ jobs:
           fail() { echo "$1" >> "$GITHUB_STEP_SUMMARY"; exit 1; }
 
           echo "## RC-1 web release gate" >> "$GITHUB_STEP_SUMMARY"
+          echo "- prepare_mode: $PREPARE_MODE" >> "$GITHUB_STEP_SUMMARY"
           echo "- tested_sha: $EXPECTED_SHA" >> "$GITHUB_STEP_SUMMARY"
           echo "- tested_cache: $EXPECTED_CACHE" >> "$GITHUB_STEP_SUMMARY"
-          echo "- fixture_verified: ${FIXTURE_VERIFIED:-from_secret}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- fixture_verified: ${FIXTURE_VERIFIED:-from_secret_or_dry_run}" >> "$GITHUB_STEP_SUMMARY"
           echo "- browser_smoke: $BROWSER_RESULT" >> "$GITHUB_STEP_SUMMARY"
           echo "- mobile_browser_matrix: $MOBILE_RESULT" >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "$RUN_PREPARE" = "true" ] && [ "$PREP_RESULT" != "success" ]; then
-            fail "BLOCK: QA prepare did not succeed"
+          if [ "$CONTEXT_RESULT" != "success" ]; then
+            fail "BLOCK: release context guard failed"
+          fi
+          if [ "$PREPARE_MODE" = "apply" ] && [ "$PREP_APPLY_RESULT" != "success" ]; then
+            fail "BLOCK: QA prepare apply did not succeed"
+          fi
+          if [ "$PREPARE_MODE" = "dry-run" ] && [ "$PREP_DRY_RESULT" != "success" ]; then
+            fail "BLOCK: QA prepare dry-run did not succeed"
+          fi
+          if [ "$FIXTURE_RESULT" != "success" ]; then
+            fail "BLOCK: fixture context resolution failed"
           fi
           if [ "$BROWSER_RESULT" != "success" ]; then
             fail "BLOCK: browser smoke failed"

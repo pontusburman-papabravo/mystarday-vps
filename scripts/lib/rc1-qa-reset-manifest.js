@@ -11,6 +11,9 @@
 const RC1_QA_RESET_STEPS = [
   { table: 'daily_log_item', policy: 'reset', via: 'daily_log.child_id → child.family_id' },
   { table: 'daily_log', policy: 'reset', via: 'child.family_id' },
+  { table: 'child_reward_goal_change_request', policy: 'reset', via: 'child.family_id' },
+  { table: 'child_reward_goal', policy: 'reset', via: 'child.family_id' },
+  { table: 'manual_star_grant', policy: 'reset', via: 'child.family_id' },
   { table: 'reward_redemption', policy: 'reset', via: 'reward.family_id' },
   { table: 'reward', policy: 'reset', via: 'family_id' },
   { table: 'weekly_schedule_item', policy: 'reset', via: 'weekly_schedule.family_id' },
@@ -55,6 +58,18 @@ async function wipeQaFamilyData(client, familyId) {
   );
   await client.query(
     `DELETE FROM daily_log WHERE child_id IN (${childIdsSub})`,
+    [familyId]
+  );
+  await client.query(
+    `DELETE FROM child_reward_goal_change_request WHERE child_id IN (${childIdsSub})`,
+    [familyId]
+  );
+  await client.query(
+    `DELETE FROM child_reward_goal WHERE child_id IN (${childIdsSub})`,
+    [familyId]
+  );
+  await client.query(
+    `DELETE FROM manual_star_grant WHERE child_id IN (${childIdsSub})`,
     [familyId]
   );
   await client.query(

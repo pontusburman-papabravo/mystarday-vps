@@ -16,16 +16,22 @@ on:
         description: 'Consecutive full runs (use 2 for release)'
         required: true
         default: '2'
-      run_prepare:
-        description: 'Run QA DB prepare (main + rc1-qa-db-prepare only)'
-        type: boolean
-        default: false
+      prepare_mode:
+        description: 'QA DB prepare — none (default), dry-run, apply'
+        type: choice
+        options:
+          - none
+          - dry-run
+          - apply
+        default: none
 
 jobs:
   enforce-release-context:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - name: Enforce main + SHA
         env:
           RC1_ENFORCE_MAIN: '1'
@@ -36,7 +42,7 @@ jobs:
 
   prepare-qa-fixture:
     needs: enforce-release-context
-    if: ${{ inputs.run_prepare == true }}
+    if: ${{ inputs.prepare_mode == 'apply' }}
     runs-on: ubuntu-latest
     environment: rc1-qa-db-prepare
     outputs:
@@ -54,6 +60,7 @@ jobs:
       - name: Prepare QA fixture
         id: prep
         env:
+          RC1_PREPARE_MODE: apply
           DATABASE_URL: ${{ secrets.RC1_QA_DATABASE_URL }}
           RC1_QA_EMAIL: ${{ secrets.RC1_QA_EMAIL }}
           RC1_QA_PASSWORD: ${{ secrets.RC1_QA_PASSWORD }}
@@ -68,7 +75,7 @@ jobs:
 
   rc1-prod-smoke:
     needs: [enforce-release-context, prepare-qa-fixture]
-    if: always() && needs.enforce-release-context.result == 'success' && (inputs.run_prepare != true || needs.prepare-qa-fixture.result == 'success')
+    if: always() && needs.enforce-release-context.result == 'success' && (inputs.prepare_mode != 'apply' || needs.prepare-qa-fixture.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: rc1-prod-smoke

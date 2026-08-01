@@ -3,6 +3,10 @@
 const { hashPassword, comparePassword } = require('../../src/lib/hash');
 const { wipeQaFamilyData } = require('./rc1-qa-reset-manifest');
 const {
+  assertExistingRc1QaFixtureContract,
+  inspectRc1QaFixtureState,
+} = require('./rc1-qa-fixture-contract');
+const {
   RC1_QA_FAMILY_NAME,
   RC1_QA_PARENT_EMAIL,
   RC1_QA_CHILD_DISPLAY_NAME,
@@ -185,20 +189,29 @@ async function runRc1QaPrepareTransaction(client, config) {
   let parentId;
   let childId;
 
+  const existingParents = await client.query(
+    'SELECT id, family_id FROM parent WHERE LOWER(email) = LOWER($1)',
+    [qaEmail]
+  );
+  if (existingParents.rows.length > 1) {
+    throw new Error('RC1 QA prepare: multiple parents match fixture email');
+  }
+
+  if (existingParents.rows.length === 1) {
+    parentId = existingParents.rows[0].id;
+    familyId = existingParents.rows[0].family_id;
+    await assertExistingRc1QaFixtureContract(client, {
+      qaEmail,
+      parentId,
+      familyId,
+      expectedFamilyId,
+    });
+  }
+
   await client.query('BEGIN');
 
   try {
-    const existingParents = await client.query(
-      'SELECT id, family_id FROM parent WHERE LOWER(email) = LOWER($1)',
-      [qaEmail]
-    );
-    if (existingParents.rows.length > 1) {
-      throw new Error('RC1 QA prepare: multiple parents match fixture email');
-    }
-
     if (existingParents.rows.length === 1) {
-      parentId = existingParents.rows[0].id;
-      familyId = existingParents.rows[0].family_id;
       await client.query(
         `UPDATE family SET name = $1, timezone = 'Europe/Stockholm', preferred_locale = 'en-GB',
            locale_selection_source = 'admin', locale_selected_at = NOW(), is_lifetime_free = true
@@ -223,11 +236,6 @@ async function runRc1QaPrepareTransaction(client, config) {
         [familyId, qaEmail, passwordHash]
       );
       parentId = par.rows[0].id;
-    }
-
-    const famCheck = await client.query('SELECT name FROM family WHERE id = $1', [familyId]);
-    if (famCheck.rows[0]?.name !== RC1_QA_FAMILY_NAME) {
-      throw new Error('RC1 QA prepare: family name guard failed — not a QA fixture');
     }
 
     if (expectedFamilyId && expectedFamilyId !== familyId) {
@@ -322,11 +330,28 @@ async function runRc1QaPrepareTransaction(client, config) {
   }
 }
 
+async function runRc1QaPrepareDryRunInspect(client, config) {
+  const { qaEmail, expectedFamilyId } = config;
+  const inspection = await inspectRc1QaFixtureState(client, { qaEmail, expectedFamilyId });
+  return {
+    dry_run: true,
+    prepare_mode: 'dry-run',
+    ...inspection,
+    child_username: RC1_QA_CHILD_USERNAME,
+    planned_actions: inspection.would_create
+      ? ['create family + parent', 'seed fixture', 'wipe manifest tables']
+      : inspection.guard_status === 'contract_ok'
+        ? ['reset manifest', 'reseed minimal schedule', 'verify PIN in transaction']
+        : [],
+  };
+}
+
 module.exports = {
   ACTIVITIES,
   REWARDS,
   validatePrepareEnv,
   verifyParentPinInTransaction,
   runRc1QaPrepareTransaction,
+  runRc1QaPrepareDryRunInspect,
   stockholmToday,
 };

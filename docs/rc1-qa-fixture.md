@@ -48,15 +48,24 @@ PIN verification: `prep_pin_verified_against_database=true` in prepare JSON (in-
 
 ## Prepare / reset
 
+`prepare_mode` (workflow input / `RC1_PREPARE_MODE` env):
+
+| Mode | Behavior |
+|------|----------|
+| **none** | No DB job — use existing `RC1_QA_FAMILY_ID` secret |
+| **dry-run** | Read-only DB inspect (`rc1-qa-db-prepare`) — guard + plan, no writes |
+| **apply** | Atomic prepare (`rc1-qa-db-prepare`) — writes + reset manifest |
+
 ```bash
-npm run rc1:qa:prepare:dry-run
+npm run rc1:qa:prepare:dry-run   # legacy CLI plan only (no DB)
+RC1_PREPARE_MODE=dry-run npm run rc1:qa:prepare   # DB inspect dry-run
 # After SAFE TO PREP PROD — from protected main only:
-npm run rc1:qa:prepare
+RC1_PREPARE_MODE=apply npm run rc1:qa:prepare
 ```
 
 ## Workflows
 
-- `.github/workflows/rc1-web-release-gate.yml` — web gate (`run_prepare` default **false**)
+- `.github/workflows/rc1-web-release-gate.yml` — web gate (`prepare_mode` default **none**)
 - `.github/workflows/rc1-prod-smoke.yml` — browser smoke only
 
 ## First live-DB prepare (operator)
@@ -65,8 +74,8 @@ Only when verdict is **SAFE TO PREP PROD**:
 
 1. Merge infrastructure to `main`
 2. Configure deployment targets per `docs/rc1-github-environment.md`
-3. `run_prepare: false` dry-run on main
-4. `run_prepare: true` once — verify `fixture_verified` + idempotent second run
+3. `prepare_mode: dry-run` on main (read-only guard inspect)
+4. `prepare_mode: apply` once — verify `fixture_verified` + idempotent second run
 5. Store `family_id` in `RC1_QA_FAMILY_ID` if needed
 6. Run full web release gate
 

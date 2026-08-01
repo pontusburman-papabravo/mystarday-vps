@@ -108,7 +108,7 @@ RC1_REQUIRE_HANDOFF=true RC1_SMOKE_RUNS=2 npm run test:e2e:rc1-prod-smoke
 ## GitHub Actions
 
 `.github/workflows/rc1-web-release-gate.yml` — full web gate.  
-`.github/workflows/rc1-prod-smoke.yml` — browser smoke only (`workflow_dispatch`, `run_prepare` default false).
+`.github/workflows/rc1-prod-smoke.yml` — browser smoke only (`workflow_dispatch`, `prepare_mode` default `none`).
 
 ## Scope
 

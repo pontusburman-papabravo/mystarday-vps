@@ -36,6 +36,10 @@ const env = {
     || path.join(root, 'artifacts', 'rc1-mobile-browser-qa', profile),
 };
 
+if (process.env.RC1_EXPECTED_SHA && process.env.RC1_EXPECTED_CACHE && process.env.RC1_QA_FAMILY_ID) {
+  env.RC1_ENFORCE_RELEASE_IDENTITY = '1';
+}
+
 if (!env.SMOKE_PARENT_EMAIL || !env.SMOKE_PARENT_PASSWORD) {
   console.error('[rc1-mobile-browser-qa] missing RC1_QA_EMAIL / RC1_QA_PASSWORD');
   process.exit(1);
