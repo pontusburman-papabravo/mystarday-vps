@@ -678,11 +678,10 @@ const Auth = {
         try { data = await res.json(); } catch { data = {}; }
 
         if (res.ok && data.sessionRestored) {
-          if (window.SessionGate && SessionGate.shouldBlockSessionRestore && SessionGate.shouldBlockSessionRestore()) {
-            window.location.href = '/child-login';
-            return;
+          const restored = await this._completeHandoffParentSessionRestore();
+          if (!restored.ok) {
+            this._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
           }
-          window.location.href = '/dashboard';
           return;
         }
 
@@ -865,6 +864,52 @@ const Auth = {
       localStorage.removeItem('stjarndag_selected_child');
       localStorage.removeItem('stjarndag_theme');
     } catch {}
+  },
+
+  /**
+   * After child logout with handoff consume (no PIN): sync client to parent session
+   * before leaving child device mode — SessionGate stays unchanged globally.
+   */
+  async _completeHandoffParentSessionRestore() {
+    try {
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!meRes.ok) {
+        return { ok: false, kind: 'server', code: 'AUTH_ME_HTTP_' + meRes.status };
+      }
+      const me = await meRes.json();
+      if (!this.isParentUser(me)) {
+        return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT' };
+      }
+      this._clearStaleChildLocalState();
+      await this.ensureCsrfToken();
+      const csrf = this.getCsrfToken();
+      const expMs = this._getExpiryMs();
+      this.setAuth(null, me, csrf, expMs);
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      window.location.href = '/dashboard';
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, kind: 'server', error: err && err.message };
+    }
+  },
+
+  _clearStaleChildLocalState() {
+    this._clearChildCookies();
+    try {
+      localStorage.removeItem('stjarndag_child');
+      sessionStorage.removeItem('cl_selected_username');
+      sessionStorage.removeItem('cl_add_child_pending');
+      sessionStorage.removeItem('cl_add_child_next');
+      sessionStorage.removeItem('cl_force_picker');
+      const keys = Object.keys(localStorage);
+      for (let i = 0; i < keys.length; i += 1) {
+        if (keys[i].indexOf('stjarndag_child_ui_view_') === 0) {
+          localStorage.removeItem(keys[i]);
+        }
+      }
+    } catch { /* ignore */ }
   },
 
   _localizedServerError() {
