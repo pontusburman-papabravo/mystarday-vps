@@ -4,11 +4,17 @@ const { buildWebhookLogFields } = require('./revenuecat-webhook-audit');
 const {
   getEntitlementId,
   isAllowedAppId,
+  hasAppAllowlistConfigured,
   isAllowedProductId,
   eventHasEntitlement,
   isSandboxTestFamily,
   getNonRenewingSubscriptionProductIds,
 } = require('../../config/revenuecat-iap');
+const {
+  parseEventTimestampMs,
+  compareToStoredState,
+  isDestructiveStatus,
+} = require('./revenuecat-event-ordering');
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -90,17 +96,6 @@ function isUuid(value) {
   return UUID_RE.test(String(value));
 }
 
-function isDestructiveStatus(status) {
-  return status === 'expired' || status === 'grace_period';
-}
-
-function parseEventTimestampMs(event) {
-  const raw = event?.event_timestamp_ms ?? event?.timestamp_ms ?? event?.purchased_at_ms;
-  if (raw === undefined || raw === null) return null;
-  const n = Number(raw);
-  return Number.isFinite(n) ? Math.floor(n) : null;
-}
-
 async function findFamilyForAppUserIds(db, appUserIds) {
   const seen = new Set();
   for (const candidate of appUserIds) {
@@ -109,14 +104,14 @@ async function findFamilyForAppUserIds(db, appUserIds) {
 
     if (isUuid(candidate)) {
       const byId = await db.query(
-        'SELECT id, is_lifetime_free, subscription_status, rc_customer_id, iap_last_event_timestamp_ms FROM family WHERE id = $1',
+        'SELECT id, is_lifetime_free, subscription_status, rc_customer_id, iap_last_event_timestamp_ms, iap_last_revenuecat_event_id, iap_last_event_type FROM family WHERE id = $1',
         [candidate]
       );
       if (byId.rows[0]) return byId.rows[0];
     }
 
     const byRc = await db.query(
-      'SELECT id, is_lifetime_free, subscription_status, rc_customer_id, iap_last_event_timestamp_ms FROM family WHERE rc_customer_id = $1',
+      'SELECT id, is_lifetime_free, subscription_status, rc_customer_id, iap_last_event_timestamp_ms, iap_last_revenuecat_event_id, iap_last_event_type FROM family WHERE rc_customer_id = $1',
       [candidate]
     );
     if (byRc.rows[0]) return byRc.rows[0];
@@ -125,6 +120,10 @@ async function findFamilyForAppUserIds(db, appUserIds) {
 }
 
 function validateEventScope(event) {
+  if (!hasAppAllowlistConfigured()) {
+    return { ok: false, skipReason: 'iap_app_allowlist_not_configured' };
+  }
+
   const productId = event?.product_id ? String(event.product_id) : null;
   const appId = event?.app_id ? String(event.app_id) : null;
   const environment = event?.environment ? String(event.environment) : null;
@@ -330,7 +329,8 @@ async function processRevenueCatEvent(db, event) {
     await client.query('BEGIN');
 
     const locked = await client.query(
-      `SELECT id, subscription_status, iap_last_event_timestamp_ms, rc_customer_id
+      `SELECT id, subscription_status, iap_last_event_timestamp_ms, iap_last_revenuecat_event_id,
+              iap_last_event_type, rc_customer_id
        FROM family WHERE id = $1 FOR UPDATE`,
       [family.id]
     );
@@ -340,11 +340,8 @@ async function processRevenueCatEvent(db, event) {
       return { duplicate: false, skipped: true, reason: 'family_not_found' };
     }
 
-    const lastTs = row.iap_last_event_timestamp_ms != null
-      ? Number(row.iap_last_event_timestamp_ms)
-      : null;
-
-    if (eventTimestampMs != null && lastTs != null && eventTimestampMs < lastTs) {
+    const orderCmp = compareToStoredState(event, row);
+    if (orderCmp === 'stale') {
       const insertResult = await insertWebhookLog(client, event, eventType, family.id, {
         skipReason: 'skipped_stale',
         processingOutcome: 'skipped_stale',
@@ -356,7 +353,19 @@ async function processRevenueCatEvent(db, event) {
       return { duplicate: false, skipped: true, familyId: family.id, reason: 'skipped_stale' };
     }
 
-    if (eventTimestampMs == null && lastTs != null && isDestructiveStatus(newStatus)) {
+    if (eventTimestampMs == null && row.iap_last_event_timestamp_ms != null && !isDestructiveStatus(newStatus)) {
+      const insertResult = await insertWebhookLog(client, event, eventType, family.id, {
+        skipReason: 'insufficient_ordering',
+        processingOutcome: 'skipped_manual_reconciliation',
+      }, null, environment);
+      await client.query('COMMIT');
+      if (insertResult.rowCount === 0) {
+        return { duplicate: true, familyId: family.id, reason: 'insufficient_ordering' };
+      }
+      return { duplicate: false, skipped: true, familyId: family.id, reason: 'insufficient_ordering' };
+    }
+
+    if (eventTimestampMs == null && row.iap_last_event_timestamp_ms != null && isDestructiveStatus(newStatus)) {
       const insertResult = await insertWebhookLog(client, event, eventType, family.id, {
         skipReason: 'skipped_stale',
         processingOutcome: 'skipped_stale_no_timestamp',
@@ -391,6 +400,11 @@ async function processRevenueCatEvent(db, event) {
       params.push(eventTimestampMs);
     }
 
+    updateFields.push(`iap_last_revenuecat_event_id = $${params.length + 1}`);
+    params.push(String(eventId));
+    updateFields.push(`iap_last_event_type = $${params.length + 1}`);
+    params.push(String(eventType));
+
     const rcId = event.app_user_id || event.original_app_user_id
       || (Array.isArray(event.aliases) && event.aliases[0]);
     if (rcId && (!row.rc_customer_id || eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL')) {
@@ -423,8 +437,8 @@ module.exports = {
   resolveSubscriptionStatus,
   findFamilyForAppUserIds,
   processRevenueCatEvent,
+  validateEventScope,
   isUuid,
-  parseEventTimestampMs,
   INSERT_WEBHOOK_LOG_SQL,
   HANDLED_EVENT_TYPES,
 };

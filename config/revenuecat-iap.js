@@ -27,6 +27,27 @@ function getAllowedAppIds() {
   return parseCsvEnv('REVENUECAT_ALLOWED_APP_IDS');
 }
 
+/** True when at least one app id is configured (fail-closed otherwise). */
+function hasAppAllowlistConfigured() {
+  return getAllowedAppIds().length > 0;
+}
+
+/**
+ * Non-secret IAP webhook readiness for /health.
+ * @returns {{ webhookReady: boolean, issues: string[] }}
+ */
+function getIapWebhookReadiness() {
+  const issues = [];
+  if (!hasAppAllowlistConfigured()) {
+    issues.push('REVENUECAT_ALLOWED_APP_IDS');
+  }
+  const products = getAllowedProductIds();
+  if (!products.length) {
+    issues.push('REVENUECAT_ALLOWED_PRODUCT_IDS');
+  }
+  return { webhookReady: issues.length === 0, issues };
+}
+
 function getEntitlementId() {
   return process.env.REVENUECAT_ENTITLEMENT_ID || DEFAULT_ENTITLEMENT_ID;
 }
@@ -54,7 +75,7 @@ function isAllowedProductId(productId) {
 
 function isAllowedAppId(appId) {
   const allowed = getAllowedAppIds();
-  if (allowed.length === 0) return true;
+  if (allowed.length === 0) return false;
   if (!appId) return false;
   return allowed.includes(String(appId));
 }
@@ -99,6 +120,8 @@ module.exports = {
   DEFAULT_ENTITLEMENT_ID,
   getAllowedProductIds,
   getAllowedAppIds,
+  hasAppAllowlistConfigured,
+  getIapWebhookReadiness,
   getEntitlementId,
   getNonRenewingSubscriptionProductIds,
   getSandboxTestFamilyIds,
