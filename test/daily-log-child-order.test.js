@@ -25,6 +25,16 @@ describe('daily-log-child-order', () => {
     assert.ok(compareChildDailyLogItems(b, a) < 0);
   });
 
+  it('compareChildDailyLogItems breaks ties on sort_order when legacy child_sort_order is 0', () => {
+    const items = [
+      { name: 'A', sort_order: 0, child_sort_order: 0, section: 'morgon' },
+      { name: 'B', sort_order: 1, child_sort_order: 0, section: 'morgon' },
+      { name: 'C', sort_order: 2, child_sort_order: 0, section: 'morgon' },
+    ];
+    const sorted = [...items].sort(compareChildDailyLogItems);
+    assert.deepEqual(sorted.map((i) => i.name), ['A', 'B', 'C']);
+  });
+
   it('compareChildDailyLogItems uses child override when set', () => {
     const a = { sort_order: 0, child_sort_order: 3, section: 'morgon' };
     const b = { sort_order: 9, child_sort_order: 1, section: 'morgon' };

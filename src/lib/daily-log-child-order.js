@@ -13,7 +13,10 @@ function effectiveChildItemSortOrder(item) {
 
 function compareChildDailyLogItems(a, b) {
   if (a.section !== b.section) return 0;
-  return effectiveChildItemSortOrder(a) - effectiveChildItemSortOrder(b);
+  const aPrimary = effectiveChildItemSortOrder(a);
+  const bPrimary = effectiveChildItemSortOrder(b);
+  if (aPrimary !== bPrimary) return aPrimary - bPrimary;
+  return (a.sort_order ?? 0) - (b.sort_order ?? 0);
 }
 
 module.exports = {
