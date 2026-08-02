@@ -546,8 +546,6 @@ async function selectSettingsLocaleWithEvent(page, locale, { startLocale = null,
     );
   }
 
-  const selector = `[data-locale-switcher-mount] [data-locale-value="${locale}"]`;
-  const fallbackSelector = `[data-locale-value="${locale}"]`;
   const networkWatch = await attachLocaleSettingsNetworkWatch(page, locale);
 
   try {
@@ -607,7 +605,7 @@ async function selectSettingsLocaleWithEvent(page, locale, { startLocale = null,
     const settingsPutPromise = page.waitForResponse(
       (response) => /\/api\/family\/settings/.test(response.url())
         && response.request().method() === 'PUT',
-      { timeout: 60000 }
+      { timeout: 45000 }
     );
 
     const syncPromise = page.waitForFunction(
@@ -622,13 +620,92 @@ async function selectSettingsLocaleWithEvent(page, locale, { startLocale = null,
         const me = await r.json();
         return me.preferred_locale === loc;
       },
-      { timeout: 60000 },
+      { timeout: 45000 },
       locale
     );
 
-    await page.click(selector).catch(() => page.click(fallbackSelector));
+    const clicked = await page.evaluate((loc) => {
+      const mount = document.querySelector('[data-locale-switcher-mount]');
+      const btn = mount
+        ? mount.querySelector(`[data-locale-value="${loc}"]`)
+        : document.querySelector(`[data-locale-value="${loc}"]`);
+      if (!btn || btn.disabled || btn.hidden || btn.offsetParent === null) {
+        return { ok: false, disabled: Boolean(btn && btn.disabled) };
+      }
+      btn.scrollIntoView({ block: 'center', inline: 'nearest' });
+      btn.click();
+      return { ok: true };
+    }, locale);
 
-    await Promise.all([settingsPutPromise, syncPromise]);
+    if (!clicked.ok) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'target_button_enabled');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_TARGET_DISABLED,
+        `Locale target not clickable: ${locale}`,
+        diag
+      );
+    }
+
+    let putResponse;
+    try {
+      putResponse = await settingsPutPromise;
+    } catch (putErr) {
+      const snap = await readLocaleSnapshotFromPage(page);
+      if (isLocaleFullySynchronized(snap, locale)) {
+        return {
+          classification: afterRemount
+            ? LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI_AFTER_REMOUNT
+            : LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI,
+          skippedClick: false,
+          network: { status: 200, preferredLocaleUpdated: true, requestedLocale: locale },
+        };
+      }
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'settings_request_sent');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_SETTINGS_REQUEST_NOT_SENT,
+        putErr.message || 'No PUT /api/family/settings observed after locale click',
+        diag
+      );
+    }
+
+    const putStatus = putResponse.status();
+    networkWatch.state.settingsRequestSent = true;
+    networkWatch.state.settingsResponse = sanitizeSettingsNetworkEvidence({
+      status: putStatus,
+      preferredLocaleUpdated: putStatus >= 200 && putStatus < 300,
+      requestedLocale: locale,
+    });
+    if (putStatus === 429) {
+      networkWatch.state.rateLimited429 = true;
+      const ra = putResponse.headers()['retry-after'];
+      if (ra && !Number.isNaN(Number(ra))) {
+        networkWatch.state.retryAfterSeconds = Number(ra);
+      }
+    }
+
+    if (putStatus < 200 || putStatus >= 300) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'settings_response_received');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_SETTINGS_API_FAILED,
+        `Settings API failed with status ${putStatus}`,
+        { ...diag, network: networkWatch.state.settingsResponse }
+      );
+    }
+
+    try {
+      await syncPromise;
+    } catch (syncErr) {
+      const finalSnap = await readLocaleSnapshotFromPage(page);
+      if (isApiLocaleSynchronized(finalSnap, locale) && finalSnap.i18n !== locale) {
+        const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'i18n_locale_updated');
+        throw new LocaleHarnessError(
+          LOCALE_CLASSIFICATIONS.LOCALE_API_UPDATED_UI_NOT_UPDATED,
+          syncErr.message || 'API preferred_locale updated but I18n did not follow',
+          diag
+        );
+      }
+      throw syncErr;
+    }
 
     await rc1Sleep(300);
 
