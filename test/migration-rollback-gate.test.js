@@ -10,15 +10,13 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const {
-  isMockDatabaseUrl,
-  makePool,
-  runMigrate,
   listMigrationsWithDown,
   wipePublicSchema,
   tableExists,
   rollbackLastApplied,
+  runMigrate,
 } = require('./helpers/migration-gate.js');
-const { acquireDbTestLock } = require('./helpers/db-test-lock.js');
+const { withMigrationGateDatabase } = require('./helpers/migration-gate-database.js');
 
 const CORE_TABLE = 'family';
 
@@ -40,69 +38,53 @@ test('migration inventory: latest folder migration exposes down()', () => {
 });
 
 test('G3c dev-like DB: migrate, rollback latest, re-migrate', async (t) => {
-  const url = process.env.DATABASE_URL;
-  if (isMockDatabaseUrl(url)) {
-    t.skip('DATABASE_URL not set or mock');
-    return;
-  }
+  await withMigrationGateDatabase(t, async ({ testUrl, pool }) => {
+    const client = await pool.connect();
+    try {
+      runMigrate(testUrl);
 
-  const releaseLock = await acquireDbTestLock();
-  const pool = makePool(url);
-  const client = await pool.connect();
-  try {
-    runMigrate(url);
+      const countBefore = await appliedMigrationCount(client);
+      assert.ok(countBefore > 0, 'expected applied migrations');
+      assert.equal(await tableExists(client, CORE_TABLE), true, 'family table missing');
 
-    const countBefore = await appliedMigrationCount(client);
-    assert.ok(countBefore > 0, 'expected applied migrations');
-    assert.equal(await tableExists(client, CORE_TABLE), true, 'family table missing');
+      const rolled = await rollbackLastApplied(pool, 1);
+      assert.equal(rolled.length, 1);
 
-    const rolled = await rollbackLastApplied(pool, 1);
-    assert.equal(rolled.length, 1);
+      const countAfterRollback = await appliedMigrationCount(client);
+      assert.equal(countAfterRollback, countBefore - 1);
 
-    const countAfterRollback = await appliedMigrationCount(client);
-    assert.equal(countAfterRollback, countBefore - 1);
+      runMigrate(testUrl);
+      assert.equal(await tableExists(client, CORE_TABLE), true, 'family table missing after re-migrate');
 
-    runMigrate(url);
-    assert.equal(await tableExists(client, CORE_TABLE), true, 'family table missing after re-migrate');
-
-    const countAfterRemigrate = await appliedMigrationCount(client);
-    assert.equal(countAfterRemigrate, countBefore, 'migration count should match after rollback + re-migrate');
-  } finally {
-    client.release();
-    await pool.end();
-    await releaseLock();
-  }
+      const countAfterRemigrate = await appliedMigrationCount(client);
+      assert.equal(countAfterRemigrate, countBefore, 'migration count should match after rollback + re-migrate');
+    } finally {
+      client.release();
+    }
+  });
 });
 
 test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
-  const url = process.env.DATABASE_URL;
-  if (isMockDatabaseUrl(url)) {
-    t.skip('DATABASE_URL not set or mock');
-    return;
-  }
+  await withMigrationGateDatabase(t, async ({ testUrl, pool }) => {
+    const client = await pool.connect();
+    try {
+      await wipePublicSchema(client);
+      runMigrate(testUrl);
 
-  const releaseLock = await acquireDbTestLock();
-  const pool = makePool(url);
-  const client = await pool.connect();
-  try {
-    await wipePublicSchema(client);
-    runMigrate(url);
+      const countBefore = await appliedMigrationCount(client);
+      assert.ok(countBefore > 0, 'migrate on empty DB should apply folder migrations');
+      assert.equal(await tableExists(client, CORE_TABLE), true);
+      assert.equal(await tableExists(client, 'users'), false, 'legacy users table must not be bootstrapped');
 
-    const countBefore = await appliedMigrationCount(client);
-    assert.ok(countBefore > 0, 'migrate on empty DB should apply folder migrations');
-    assert.equal(await tableExists(client, CORE_TABLE), true);
-    assert.equal(await tableExists(client, 'users'), false, 'legacy users table must not be bootstrapped');
+      await rollbackLastApplied(pool, 1);
+      assert.equal(await appliedMigrationCount(client), countBefore - 1);
 
-    await rollbackLastApplied(pool, 1);
-    assert.equal(await appliedMigrationCount(client), countBefore - 1);
-
-    runMigrate(url);
-    assert.equal(await tableExists(client, CORE_TABLE), true);
-    assert.equal(await tableExists(client, 'users'), false, 'legacy users table must not be bootstrapped');
-    assert.equal(await appliedMigrationCount(client), countBefore);
-  } finally {
-    client.release();
-    await pool.end();
-    await releaseLock();
-  }
+      runMigrate(testUrl);
+      assert.equal(await tableExists(client, CORE_TABLE), true);
+      assert.equal(await tableExists(client, 'users'), false, 'legacy users table must not be bootstrapped');
+      assert.equal(await appliedMigrationCount(client), countBefore);
+    } finally {
+      client.release();
+    }
+  });
 });

@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { Pool } = require('pg');
+const { assertMigrationsMatchFilesystem } = require('./database-branch-guard.js');
 
 const REPO_ROOT = path.join(__dirname, '../..');
 const MIGRATIONS_DIR = path.join(REPO_ROOT, 'migrations');
@@ -73,6 +74,7 @@ async function tableExists(client, tableName) {
  * (newest first; skips applied migrations without down()).
  */
 async function rollbackLastApplied(pool, count = 1) {
+  await assertMigrationsMatchFilesystem(pool);
   const client = await pool.connect();
   try {
     const { rows } = await client.query(

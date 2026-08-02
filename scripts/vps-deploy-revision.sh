@@ -119,6 +119,35 @@ if ! npm ci --legacy-peer-deps; then
   exit 1
 fi
 
+OPS_DIR="$(cd "$(dirname "$0")/ops" && pwd)"
+DEPLOY_DATA_DIR="${VPS_APP_PATH}/data/deploy"
+mkdir -p "${DEPLOY_DATA_DIR}/snapshots"
+
+export APP_DEPLOY_PRODUCTION="${APP_DEPLOY_PRODUCTION:-1}"
+export BACKUP_REQUIRED="${BACKUP_REQUIRED:-1}"
+export BACKUP_EMERGENCY_MARKER_FILE="${DEPLOY_EMERGENCY_MARKER:-${BACKUP_EMERGENCY_MARKER_FILE:-}}"
+
+PRE_SNAPSHOT="${DEPLOY_DATA_DIR}/snapshots/pre-${TARGET_SHA}.json"
+POST_SNAPSHOT="${DEPLOY_DATA_DIR}/snapshots/post-${TARGET_SHA}.json"
+
+echo "→ pre-deploy database snapshot"
+if ! node "${OPS_DIR}/db-integrity-snapshot.mjs" --out "${PRE_SNAPSHOT}" --label pre-deploy --deploy-sha "${TARGET_SHA}"; then
+  echo "pre-deploy snapshot failed"
+  rollback_to_sha "$PREV_SHA" || true
+  exit 1
+fi
+
+echo "→ pre-deploy backup gate"
+GATE_ARGS=(--deploy-sha "${TARGET_SHA}" --snapshot-in "${PRE_SNAPSHOT}")
+if [ -n "${BACKUP_EMERGENCY_MARKER_FILE:-}" ]; then
+  GATE_ARGS+=(--emergency-marker "${BACKUP_EMERGENCY_MARKER_FILE}")
+fi
+if ! node "${OPS_DIR}/pre-deploy-backup-gate.mjs" "${GATE_ARGS[@]}"; then
+  echo "pre-deploy backup gate failed — migration and restart blocked"
+  rollback_to_sha "$PREV_SHA" || true
+  exit 1
+fi
+
 echo "→ migrate"
 if ! npm run migrate; then
   echo "migrate failed"
@@ -158,6 +187,25 @@ for i in 1 2 3 4 5; do
     fi
     echo "OK: deployed $FINAL_SHA — $HEALTH_URL"
     HEALTH_CHECK_RESULT="ok"
+
+    echo "→ post-deploy database snapshot"
+    if node "${OPS_DIR}/db-integrity-snapshot.mjs" --out "${POST_SNAPSHOT}" --label post-deploy --deploy-sha "${TARGET_SHA}"; then
+      echo "→ post-deploy snapshot compare"
+      if ! node "${OPS_DIR}/compare-db-snapshots.mjs" --before "${PRE_SNAPSHOT}" --after "${POST_SNAPSHOT}"; then
+        echo "Post-deploy snapshot drift detected — investigate before considering deploy complete"
+        HEALTH_CHECK_RESULT="snapshot_drift"
+        rollback_to_sha "$PREV_SHA" || true
+        log_deploy_summary failed
+        exit 1
+      fi
+    else
+      echo "post-deploy snapshot failed"
+      HEALTH_CHECK_RESULT="post_snapshot_failed"
+      rollback_to_sha "$PREV_SHA" || true
+      log_deploy_summary failed
+      exit 1
+    fi
+
     log_deploy_summary success
     exit 0
   fi
