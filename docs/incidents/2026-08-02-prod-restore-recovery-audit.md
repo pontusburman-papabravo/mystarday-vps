@@ -1,7 +1,7 @@
 # P0 Live Restore Recovery Audit — 2026-08-02
 
-**Status:** `DB MIGRATION HUMAN GATE REQUIRED` (Scenario C)  
-**Recovery verdict:** `CODE RECOVERED — DB GATE PENDING`  
+**Status:** `RECOVERY GATE COMPLETE` (2026-08-02 UTC)  
+**Recovery verdict:** `DEPLOY COMPLETE — MANUAL DEVICE QA PENDING`  
 **Operator:** Cursor cloud agent (single-agent, Composer 2.5)  
 **Audit dir (VPS):** `/var/tmp/<app>-recovery-audit-20260802-20260802T082441Z/`  
 **Recovery backup (VPS):** `/home/deploy/<app>-backups/recovery-20260802T082633Z/` (chmod 700)
@@ -284,3 +284,133 @@ All five originals: size/mtime/SHA unchanged after analysis.
 ### Next safe step
 
 Do **not** import stub dumps. Keep disposable-only policy. Proceed only after human approval of the four migrations + exact-SHA deploy plan already documented above. Optionally investigate host/provider snapshots covering **2026-08-01 18:00–20:00 UTC** outside this archive set.
+
+---
+
+## 12. Final recovery gate (2026-08-02 ~09:20–09:40 UTC / 11:20–11:40 CEST)
+
+**Final recovery verdict:** `DEPLOY COMPLETE — MANUAL DEVICE QA PENDING`
+
+```text
+NO LATER RECOVERY SOURCE FOUND
+DATA GAP ACCEPTED FOR TECHNICAL RECOVERY
+```
+
+### 1. Provider recovery check
+
+Read-only on VPS: no `hcloud` CLI, no `~/.config/hcloud`, no Hetzner env, metadata URL unavailable, single `vda2` disk (50G), no provider backup paths under `/home/deploy` beyond operator-created dumps. **Founder Hetzner Console** may still hold snapshots — not reachable from this agent environment.
+
+| Candidate | Typ | Skapad UTC | Server/volume | Storlek | Sannolik DB-tid | Status |
+| --------- | --- | ---------- | ------------- | ------: | --------------- | ------ |
+| *(none accessible)* | — | — | — | — | — | **NO VPS-ACCESSIBLE CANDIDATE** |
+
+**Stopregel:** not triggered — no snapshot/backup found that could contain DB after 2026-07-30 and before wipe.
+
+### 2. Pre-deploy backup
+
+| Item | Value |
+|------|--------|
+| Path | `/home/deploy/<app>-backups/pre-v753-deploy-20260802T092056Z/` |
+| Custom dump | ~10 417 623 bytes; `pg_restore --list` 726 lines |
+| Dump SHA-256 | `086895bebb6bd2669e75e7eab3167561e3b9b1c219cc855d80d0fd335f79bd35` |
+| Row counts (pre) | families 276, parents 287, children 304, daily_log_item 133121 |
+| Git HEAD (pre) | `8118f4bbe4624119e4d7a109a81563bb1584a90a` |
+| Redeploy quick backup | `/home/deploy/<app>-backups/pre-v753-redeploy-20260802T093602Z/` (~10.4 MB) |
+
+### 3. Pre-deploy identity
+
+```text
+DEPLOY_FROM=8118f4bbe4624119e4d7a109a81563bb1584a90a
+DEPLOY_TO=58b9b110a46566eca2c89240642cdcd724825ecc
+EXPECTED_SW=stjarndag-v753
+MIGRATIONS=0017,0018,181010,181011
+BACKUP_VERIFIED=yes
+TEST_GATE=pass (prior disposable run)
+BETTER_RECOVERY_SOURCE_FOUND=no
+```
+
+### 4. Migration result (first deploy ~09:22 UTC)
+
+| Migration | Resultat | Anmärkning |
+| --------- | -------- | ---------- |
+| `1810000000017_pin_notification_log` | OK | CREATE TABLE + index |
+| `1810000000018_parent_session_handoff` | OK | CREATE TABLE + indexes |
+| `1810100000000_handoff_refresh_fk_set_null` | OK | FK ON DELETE SET NULL |
+| `1810110000000_first_star_starter_kind` | OK | column + partial unique index |
+
+Second deploy (after auto-overwrite): migrate reported **Migrations complete** (no-op).
+
+### 5. Deployment
+
+| Field | Value |
+|-------|--------|
+| Mechanism | `scripts/vps-deploy-revision.sh` |
+| From → To | `8118f4bb…` → `58b9b110…` (then brief overwrite, see below) |
+| SW | v739 → **v753** |
+| Public `/health.git_sha` | `58b9b110a46566eca2c89240642cdcd724825ecc` (after redeploy + FAS 9 restart) |
+| Service | `active` |
+
+**Incident during gate:** GitHub Actions (or equivalent) auto-deployed **`7d58ed8f`** (PR #817, SW v754) ~**09:28 UTC** (~6 min after first successful `58b9b110` deploy). **Redeployed** exact `58b9b110` at ~**09:36 UTC** with quick pre-redeploy dump. **Action required:** pause/disable floating `main` deploy until recovery sign-off, or pin deploy SHA in workflow.
+
+### 6. Post-deploy data integrity
+
+| Mått | Före | Efter | Resultat |
+| ---- | ---: | ----: | -------- |
+| families | 276 | 276 | OK |
+| parents | 287 | 287 | OK |
+| children | 304 | 304 | OK |
+| daily_log_item | 133121 | 133121 | OK |
+| Missing migrations | 4 | 0 | OK |
+
+### 7. Automated verification
+
+| Kontroll | Resultat | Bevis |
+| -------- | -------- | ----- |
+| Local + public `/health` | PASS | `git_sha=58b9b110…`, status healthy |
+| `CACHE_NAME` | PASS | `stjarndag-v753` on `/sw.js` |
+| Migrations table | PASS | all four names present |
+| Journal SQL/migrate errors | PASS | clean restart after redeploy |
+| VPS API smoke (founder login) | NOT RUN | no `FOUNDER_QA_*` / `SMOKE_*` in VPS `.env` |
+| Cloud agent browser smoke | BLOCKED | wrong/stale `PROD_*` creds in agent env |
+
+### 8. Founder QA smoke (live site)
+
+| Smoke | Resultat | Anmärkning |
+| ----- | -------- | ---------- |
+| Parent sv/en login, dashboard, settings, locale | **NOT RUN** | credentials not in agent/VPS env |
+| Child + handoff + refresh persistence | **NOT RUN** | requires founder QA |
+| Data-write test activity | **NOT RUN** | requires founder QA |
+| iPhone / Android viewport | **NOT RUN** | requires authenticated browser |
+| PWA / SW refresh | **PARTIAL** | public SW v753 confirmed via curl |
+| Physical device QA | **NOT RUN** | per protocol |
+
+### 9. FAS 9 controlled restart
+
+Executed ~**09:37 UTC** (11:37 CEST): controlled application service restart → `active`; health unchanged; SHA unchanged.
+
+### 10. Remaining risks
+
+- **Permanent datagap** (~Jul 30 08:00 UTC → wipe ~Aug 1 18:44–19:46 UTC) — unchanged; not hidden.
+- **Auto-deploy race** — `main` tip can overwrite pinned recovery SHA until workflow is gated.
+- **Founder functional smoke** — must be run manually with secrets from approved store.
+- **External Hetzner snapshots** — not ruled out; only “none accessible from VPS/agent.”
+- **Exact wipe command** — still UNCONFIRMED.
+
+### 11. Rollback readiness
+
+| Item | Value |
+|------|--------|
+| Code rollback SHA | `8118f4bbe4624119e4d7a109a81563bb1584a90a` |
+| DB backup | `pre-v753-deploy-20260802T092056Z` + `recovery-20260802T082633Z` |
+| Rollback used? | **No** |
+
+### 12. Final answers
+
+1. **Bättre recovery source?** No accessible candidate from VPS/agent (founder may check Hetzner Console separately).  
+2. **Migrationer applicerade?** **Yes** — all four on restored DB.  
+3. **Prod exakt `58b9b110…`?** **Yes** (after redeploy; verify after any future CI deploy).  
+4. **SW v753?** **Yes** on live `/sw.js` at gate completion.  
+5. **Databas intakt?** **Yes** — counts ≥ baseline.  
+6. **Parent/child/handoff?** **Not verified** in this run — manual founder QA required.  
+7. **Säker att använda?** **Technically recovered** on Jul-30 data + v753 code; **product sign-off** pending smoke + datagap communication.  
+8. **Manuella kontroller kvar:** founder full smoke (§8 mission list), physical device QA, pause floating deploy, optional Hetzner snapshot review.
