@@ -30,7 +30,9 @@ itemRouter.put('/reorder', async (req, res) => {
       await client.query('BEGIN');
       for (let i = 0; i < ordered_item_ids.length; i++) {
         await client.query(
-          'UPDATE daily_log_item SET sort_order = $1 WHERE id = $2 AND daily_log_id = $3',
+          `UPDATE daily_log_item
+           SET sort_order = $1, child_sort_order = NULL
+           WHERE id = $2 AND daily_log_id = $3`,
           [i, ordered_item_ids[i], firstItem.daily_log_id]
         );
       }

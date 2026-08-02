@@ -364,8 +364,8 @@ router.post('/once-tasks', async (req, res) => {
       const itemResult = await db.query(
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, start_time, end_time,
-            star_value, sort_order, child_sort_order, section, is_once_task)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9, true)
+            star_value, sort_order, section, is_once_task)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
          RETURNING id, daily_log_id, activity_template_id, name, icon, start_time, end_time,
                    star_value, completed, sort_order, section, is_once_task`,
         [log.id, templateId, name.trim(), safeIcon, start_time || null, end_time || null,
