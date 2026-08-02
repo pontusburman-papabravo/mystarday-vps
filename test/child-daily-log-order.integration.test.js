@@ -235,6 +235,48 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
       const names = itemNamesInOrder(log.body);
       assert.ok(names.indexOf('Morgonakt') < names.indexOf('Kvällsakt'));
     });
+
+    await t.test('I — parent daily log matches child order after child reorder', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const kid = await createChildWithLogin(http, session, db);
+      await db.query('UPDATE child SET allow_child_reorder = true WHERE id = $1', [kid.childId]);
+      const { ids } = await insertDailyLogItems(db, kid.childId, DATE, [
+        { name: 'One', sort_order: 0 },
+        { name: 'Two', sort_order: 1 },
+        { name: 'Three', sort_order: 2 },
+      ]);
+      const reorderRes = await fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookieHeader(kid.childCookies),
+          'X-CSRF-Token': kid.childCsrf,
+        },
+        body: JSON.stringify({ ordered_item_ids: [ids[2], ids[0], ids[1]] }),
+      });
+      assert.equal(reorderRes.status, 200, await reorderRes.text());
+
+      const childLog = await getDailyLog(http.baseUrl, kid.childCookies, kid.childCsrf, DATE);
+      const expected = morgonNamesInOrder(childLog.body);
+
+      const parentRes = await fetch(
+        `${http.baseUrl}/api/children/${kid.childId}/daily-log?date=${DATE}`,
+        { headers: { Cookie: cookieHeader(session.cookies) } }
+      );
+      const parentText = await parentRes.text();
+      assert.equal(parentRes.status, 200, parentText);
+      const parentBody = JSON.parse(parentText);
+      assert.deepEqual(morgonNamesInOrder(parentBody), expected);
+      assert.deepEqual(morgonNamesInOrder(parentBody), ['Three', 'One', 'Two']);
+
+      const rows = await db.query(
+        'SELECT sort_order, child_sort_order FROM daily_log_item WHERE daily_log_id = (SELECT id FROM daily_log WHERE child_id = $1 AND date = $2) ORDER BY sort_order',
+        [kid.childId, DATE]
+      );
+      for (const row of rows.rows) {
+        assert.equal(row.child_sort_order, row.sort_order);
+      }
+    });
   } finally {
     await http.close();
     await db.cleanup();

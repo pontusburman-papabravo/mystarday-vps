@@ -15,6 +15,10 @@ const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
 const { STOCKHOLM_TZ } = require('./stockholm-time');
 
+/** SQL fragment: household order (child override when set, else parent sort_order). */
+const DAILY_LOG_ITEM_SECTION_ORDER_SQL = `CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END`;
+const DAILY_LOG_ITEM_SORT_ORDER_SQL = `COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`;
+
 function getNow() {
   const iso = process.env.TEST_FIXED_NOW_ISO;
   if (iso) {
@@ -137,7 +141,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
        FROM daily_log_item dli
        LEFT JOIN activity_template at ON at.id = dli.activity_template_id
        WHERE dli.daily_log_id = $1
-       ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+       ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
       [log.id]
     );
 
@@ -178,7 +182,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
              FROM daily_log_item dli
              LEFT JOIN activity_template at ON at.id = dli.activity_template_id
              WHERE dli.daily_log_id = $1
-             ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+             ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
             [log.id]
           );
           return { log, items: populatedItems.rows, generated: true, from_special_day: true };
@@ -214,7 +218,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
              FROM daily_log_item dli
              LEFT JOIN activity_template at ON at.id = dli.activity_template_id
              WHERE dli.daily_log_id = $1
-             ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+             ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
             [log.id]
           );
           return { log, items: populatedItems.rows, generated: true };
@@ -285,7 +289,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
          FROM daily_log_item dli
          LEFT JOIN activity_template at ON at.id = dli.activity_template_id
          WHERE dli.daily_log_id = $1
-         ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+         ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
         [log.id]
       );
 
@@ -334,7 +338,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
      FROM daily_log_item dli
      LEFT JOIN activity_template at ON at.id = dli.activity_template_id
      WHERE dli.daily_log_id = $1
-     ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+     ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
     [log.id]
   );
 

@@ -34,8 +34,11 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
 
     const { log, items, generated } = await getOrGenerateDailyLog(req.params.childId, dateStr);
 
+    const { compareChildDailyLogItems } = require('../../lib/daily-log-child-order');
+    const sortedItems = [...items].sort(compareChildDailyLogItems);
+
     const locale = await getFamilyPreferredLocale(child.family_id);
-    const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(items, child.birthday);
+    const { schoolVariant, itemsWithVariant } = attachSchoolVariantToItems(sortedItems, child.birthday);
     const localizedItems = await localizeActivityItems(itemsWithVariant, locale);
 
     const sections = groupItemsBySection(localizedItems);
