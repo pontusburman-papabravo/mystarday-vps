@@ -260,4 +260,98 @@ Row counts for rewards, redemptions, analytics, schedules on live stub were not 
 
 ---
 
-*Report prepared under read-only incident rules. No restore, cutover, or live mutation performed.*
+## 17. Containment update (2026-08-02 ~06:03 UTC)
+
+### 17.1 Write-stop mechanisms in product
+
+| Mechanism | Blocks mutations? | Current state |
+|-----------|-------------------|---------------|
+| `maintenance_mode` feature flag (`checkMaintenanceMode` in `app.js`) | **Yes** — 503 for non-admin (API + pages); `/health`, IAP webhook, admin login exempt | **Ineffective:** row **missing** from `feature_flag` (only `activation_first_star_mode_v1`, `family_journey_ingest_enabled`). Middleware treats missing row as **off**. |
+| Registration gate | Checks `maintenance_mode` only | Same — registration **still open** |
+| `AUTHZ_HARDENING_ENABLED=false` | **No** — not a write stop; weakens authz only | Not recommended for this incident |
+| Nginx maintenance | Not configured | `default` site only; no maintenance snippet |
+| `systemctl stop` app unit | **Yes** — all app writes stop; direct `psql` still possible | **Not activated** (requires founder **GO**) |
+
+**Minimum-risk write stop without product deploy (founder/ops GO):**
+
+1. **Preferred:** `INSERT INTO feature_flag (key, enabled, description) VALUES ('maintenance_mode', true, 'P0 incident') ON CONFLICT (key) DO UPDATE SET enabled = true` — then optional `systemctl restart` app unit (cache TTL 5s may suffice). **This is a live DB mutation** — excluded until explicit GO.
+2. **Stronger:** `sudo systemctl stop <app-unit>` — site down except Postgres; stops app mutations immediately. **GO required.**
+
+**Agent did not activate write stop** in this pass (no GO for DB mutation or service stop).
+
+### 17.2 Backup timeline (all on VPS, not in Git)
+
+| Label | UTC dir | Size (B) | SHA-256 | families | parents | children | pg_restore lines |
+|-------|---------|----------|---------|----------|---------|----------|------------------|
+| initial P0 | `20260802T055006Z` | 362652 | `76f36e18…f68d61` | 4 | 4 | 2 | 744 |
+| pre-freeze | `20260802T060214Z-pre-freeze` | 365042 | `be71fd92…260540` | 4 | 4 | 1 | 743 |
+| containment-pending | `20260802T060328Z-containment-pending` | 365376 | `68da6ed4…80014` | 4 | 4 | 1 | 743 |
+
+Row counts **still changed** between dumps (children 2→1) → **live stub still mutating**; post-freeze “frozen” dump **not** taken (write stop not active).
+
+### 17.3 VPS provider / snapshots
+
+| Field | Value |
+|-------|--------|
+| Hostname pattern | `server-188-66-60-93` |
+| Network org (ipinfo) | AS206170 Yelles AB |
+| Automated snapshot API | **Not queried** — no provider API credentials in agent environment |
+| Action | Founder: check Yelles (or reseller) panel for **volume/image snapshot** before **2026-08-01 11:35 UTC** and **2026-07-31 / 2026-08-01** window; clone to **separate** server/volume only |
+
+### 17.4 PostgreSQL WAL / PITR
+
+| Setting | Value |
+|---------|--------|
+| `archive_mode` | `off` |
+| `archive_command` | disabled |
+| `wal_level` | `replica` |
+| `pg_postmaster_start_time()` | 2026-07-30 ~14:59 UTC (cluster not restarted on wipe day) |
+| `data_directory` | Not readable by app DB role |
+| **PITR on this host** | **Not configured** — no WAL archive path for point-in-time restore |
+
+### 17.5 Wipe-window host activity (2026-08-01)
+
+| Time (UTC) | Signal |
+|------------|--------|
+| 11:35 | Last high family counter (#279) |
+| 12:07–12:19 | Deploy user `systemctl restart` app (×3) |
+| 15:46 | `systemctl restart` app |
+| 17:42 | `systemctl restart` app; operator-local folder activity |
+| 21:42 | RC1 operator deploy mirror tree at deployed SHA |
+| 21:46+ | New families #2–#4 |
+| Journal | No `DROP`/`TRUNCATE`/`psql` strings in accessible system journal grep |
+
+### 17.6 Recovery candidates (read-only inventory)
+
+| Candidate | Families | Notes |
+|-----------|----------|--------|
+| Live stub (now) | 4 | signup 2026-08-01 21:44–23:14 +02; 132 migrations; analytics_events **279** (likely legacy/orphan stream — **not** 279 families) |
+| Pre-wipe localhost | ~279 | **No dump found** |
+| JSON harvest 2026-06-08 | 108 dirs | partial |
+| `RC1_QA_DATABASE_URL` | **Not queried** | secret not in cloud agent env; GitHub `rc1-qa-db-prepare` / release-gate reference only |
+| Cloud agent `DATABASE_URL` | 0 | identity hash `b5e7f8bf444cf467` — **dev CI DB, not prod** |
+| Provider snapshot | unknown | panel access required |
+
+**Stub aggregates (2026-08-02 ~06:03 UTC):** daily_logs 2, daily_log_items 5, rewards 11, redemptions 0, weekly_schedules 5, latest migration `normalize_features_documentation`.
+
+### 17.7 Recommended recovery source (provisional)
+
+1. **Yelles/provider snapshot** or **founder Mac `pg_dump`** before 2026-08-01 21:00 UTC — if found → **Alternativ B** (restore to new DB name).
+2. Else **read-only verify `RC1_QA_DATABASE_URL`** (Neon or other) — if ≥200 families → **Alternativ A**.
+3. June JSON harvest — **supplement only**, not canonical.
+
+### 17.8 Restore rehearsal GO / NO-GO
+
+**NO-GO** for restore rehearsal until: write-stop **GO** executed, pre-wipe candidate **identified**, isolated non-live restore target provisioned.
+
+### 17.9 PR status (this update)
+
+| PR | CI | Notes |
+|----|-----|--------|
+| #814 | Mixed (one FAILURE + one SUCCESS on last runs) | this report — docs only |
+| #811 | SUCCESS | test fixture |
+| #812 | SUCCESS | Fas 6 smoke |
+
+---
+
+*Report prepared under read-only incident rules. No restore, cutover, or live-environment mutation performed. Additional pg_dump copies only.*
