@@ -158,6 +158,12 @@ for i in 1 2 3 4 5; do
     fi
     echo "OK: deployed $FINAL_SHA — $HEALTH_URL"
     HEALTH_CHECK_RESULT="ok"
+    echo "→ refresh origin/main tracking ref (avoid stale shallow origin/main)"
+    if git fetch origin "+refs/heads/main:refs/remotes/origin/main" --depth=1 2>/dev/null; then
+      echo "origin/main=$(git rev-parse origin/main 2>/dev/null || echo unknown)"
+    else
+      echo "warning: could not refresh origin/main ref (non-fatal)"
+    fi
     log_deploy_summary success
     exit 0
   fi
