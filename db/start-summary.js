@@ -31,11 +31,34 @@ async function periodMetricFromTable(table) {
   return buildPeriodMetric(rows[0] || {});
 }
 
+async function fetchStuckOnboardingCounts() {
+  const { rows } = await db.query(
+    `SELECT
+       COUNT(*)::int AS stuck_total,
+       COUNT(*) FILTER (WHERE NOT internal_qa)::int AS stuck_product,
+       COUNT(*) FILTER (WHERE internal_qa)::int AS stuck_qa
+     FROM (
+       SELECT f.id,
+         (${familyIsInternalQaSql('f')}) AS internal_qa
+       FROM family f
+       JOIN parent p ON p.family_id = f.id
+       WHERE f.archived_at IS NULL
+         AND f.created_at >= NOW() - INTERVAL '14 days'
+         AND f.created_at <= NOW() - INTERVAL '48 hours'
+       GROUP BY f.id, f.name
+       HAVING NOT BOOL_OR(p.onboarding_completed)
+     ) stuck_families`
+  );
+  return rows[0] || { stuck_total: 0, stuck_product: 0, stuck_qa: 0 };
+}
+
 async function fetchKeyMetrics() {
   const [weekRow, stuckRow, totalFamiliesRow, founderLimitRow] = await Promise.all([
     db.query(
       `SELECT
-         COUNT(*)::int AS signups_7d,
+         COUNT(*) FILTER (
+           WHERE f.created_at >= NOW() - INTERVAL '7 days'
+         )::int AS signups_7d,
          COUNT(*) FILTER (
            WHERE f.created_at >= NOW() - INTERVAL '14 days'
              AND f.created_at < NOW() - INTERVAL '7 days'
@@ -43,32 +66,27 @@ async function fetchKeyMetrics() {
          COUNT(*) FILTER (
            WHERE f.created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
          )::int AS signups_today,
-         COUNT(*) FILTER (WHERE s.schema_saved_at IS NOT NULL)::int AS schema_saved,
-         COUNT(*) FILTER (WHERE s.child_access_completed_at IS NOT NULL)::int AS child_access,
-         COUNT(*) FILTER (WHERE s.first_completion_at IS NOT NULL)::int AS first_completion,
-         COUNT(*) FILTER (WHERE s.p0_activated_within_48h)::int AS p0_48h
+         COUNT(*) FILTER (
+           WHERE f.created_at >= NOW() - INTERVAL '7 days'
+             AND s.schema_saved_at IS NOT NULL
+         )::int AS schema_saved,
+         COUNT(*) FILTER (
+           WHERE f.created_at >= NOW() - INTERVAL '7 days'
+             AND s.child_access_completed_at IS NOT NULL
+         )::int AS child_access,
+         COUNT(*) FILTER (
+           WHERE f.created_at >= NOW() - INTERVAL '7 days'
+             AND s.first_completion_at IS NOT NULL
+         )::int AS first_completion,
+         COUNT(*) FILTER (
+           WHERE f.created_at >= NOW() - INTERVAL '7 days'
+             AND s.p0_activated_within_48h
+         )::int AS p0_48h
        FROM family f
        LEFT JOIN family_activation_state s ON s.family_id = f.id
-       WHERE f.archived_at IS NULL
-         AND f.created_at >= NOW() - INTERVAL '7 days'`
+       WHERE f.archived_at IS NULL`
     ),
-    db.query(
-      `SELECT
-         COUNT(*)::int AS stuck_total,
-         COUNT(*) FILTER (WHERE NOT internal_qa)::int AS stuck_product,
-         COUNT(*) FILTER (WHERE internal_qa)::int AS stuck_qa
-       FROM (
-         SELECT f.id,
-           (${familyIsInternalQaSql('f')}) AS internal_qa
-         FROM family f
-         JOIN parent p ON p.family_id = f.id
-         WHERE f.archived_at IS NULL
-           AND f.created_at >= NOW() - INTERVAL '14 days'
-           AND f.created_at <= NOW() - INTERVAL '48 hours'
-         GROUP BY f.id, f.name
-         HAVING NOT BOOL_OR(p.onboarding_completed)
-       ) stuck_families`
-    ),
+    fetchStuckOnboardingCounts(),
     db.query(
       `SELECT COUNT(*)::int AS total FROM family WHERE archived_at IS NULL`
     ),
@@ -109,9 +127,9 @@ async function fetchKeyMetrics() {
     firstCompletion7d: firstCompletion,
     firstCompletionRatePct: rate(firstCompletion, signups7d),
     starAfterAccessRatePct: rate(firstCompletion, childAccess || null),
-    stuckOnboarding: stuckRow.rows[0]?.stuck_product || 0,
-    stuckOnboardingQa: stuckRow.rows[0]?.stuck_qa || 0,
-    stuckOnboardingTotal: stuckRow.rows[0]?.stuck_total || 0,
+    stuckOnboarding: stuckRow.stuck_product || 0,
+    stuckOnboardingQa: stuckRow.stuck_qa || 0,
+    stuckOnboardingTotal: stuckRow.stuck_total || 0,
     totalFamilies,
     founderSlotsLeft: Math.max(0, founderLimit - totalFamilies),
     founderLimit,
@@ -169,6 +187,11 @@ async function fetchMessageSummary() {
 }
 
 async function fetchRecommendations() {
+  const { buildRecommendations } = require('../src/lib/activation-advisor');
+  const proposals = await buildRecommendations();
+  await Promise.all(proposals.map((p) => adminOperationalAlerts.refreshActiveAlertCopy(p)));
+  await Promise.all(proposals.map((p) => adminOperationalAlerts.insertAlertIfMissing(p)));
+  await adminOperationalAlerts.syncActivationAlerts(proposals.map((p) => p.slug));
   const operationalRows = await adminOperationalAlerts.listActive(5);
   return adminOperationalAlerts.toRecommendationCards(operationalRows);
 }
@@ -275,6 +298,7 @@ module.exports = {
   buildPeriodMetric,
   periodMetricFromTable,
   newFamiliesMetric,
+  fetchStuckOnboardingCounts,
   fetchKeyMetrics,
   fetchMessageSummary,
   fetchActivityFeed,

@@ -180,10 +180,20 @@ test('fetchKeyMetrics does not query Meta attribution', () => {
   assert.doesNotMatch(src, /metaSignups/);
 });
 
-test('fetchRecommendations uses operational alerts only', () => {
+test('fetchRecommendations refreshes live activation advisor copy', () => {
   const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
-  assert.match(src, /adminOperationalAlerts\.listActive/);
+  assert.match(src, /buildRecommendations/);
+  assert.match(src, /refreshActiveAlertCopy/);
   assert.doesNotMatch(src, /UNION ALL SELECT id FROM professional_interest/);
+});
+
+test('fetchKeyMetrics counts signups_prev_7d outside the 7d cohort filter', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  const fnStart = src.indexOf('async function fetchKeyMetrics');
+  const fnEnd = src.indexOf('async function fetchStuckOnboardingCounts', fnStart);
+  const fnBody = fnEnd > fnStart ? src.slice(fnStart, fnEnd) : src.slice(fnStart);
+  assert.doesNotMatch(fnBody, /created_at >= NOW\(\) - INTERVAL '7 days'\s*\n\s*`/);
+  assert.match(fnBody, /signups_prev_7d/);
 });
 
 test('admin-start.js shows familjer KPI instead of Meta', () => {
