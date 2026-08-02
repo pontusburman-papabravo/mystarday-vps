@@ -564,11 +564,11 @@ function renderNowCard(item, canToggle) {
       ${hasSubSteps ? `
       <div class="mt-3 pt-2 border-t" style="border-color:rgba(245,166,35,0.25)" onclick="event.stopPropagation()">
         <div style="position:relative;display:inline-block;">
-          <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !_substepIntroSeen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
+          <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !substepIntroState.seen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
                   onclick="expandSubSteps(event, '${item.id}')">
             ${substepsBtnLabel()} <span class="chevron">▾</span>
           </button>
-          ${!isExpanded && !_substepIntroSeen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
+          ${!isExpanded && !substepIntroState.seen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
         </div>
         <div class="substep-container ${isExpanded ? 'expanded' : ''}" id="substeps-${item.id}">
           ${isExpanded && cachedSteps ? renderSubStepListHtml(item.id, cachedSteps) : ''}
@@ -709,11 +709,11 @@ function renderActivityCard(item, isToday, timeStatus) {
       ${hasSubSteps ? `
       <div class="mt-3 pt-2 border-t border-lavender/50" onclick="event.stopPropagation()">
         <div style="position:relative;display:inline-block;">
-          <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !_substepIntroSeen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
+          <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !substepIntroState.seen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
                   onclick="expandSubSteps(event, '${item.id}')">
             ${substepsBtnLabel()} <span class="chevron">▾</span>
           </button>
-          ${!isExpanded && !_substepIntroSeen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
+          ${!isExpanded && !substepIntroState.seen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
         </div>
         <div class="substep-container ${isExpanded ? 'expanded' : ''}" id="substeps-${item.id}">
           ${isExpanded && cachedSteps ? renderSubStepListHtml(item.id, cachedSteps) : ''}

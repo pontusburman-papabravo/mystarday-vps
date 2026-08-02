@@ -34,7 +34,7 @@ let colorCoding = true; // toggled by parent — color-codes cards by activity t
 let subStepCache = {};    // itemId -> array of { id, name, icon, sort_order, completed }
 const subStepExpanded = {}; // itemId -> bool (expanded state)
 // Track whether child has seen the substep intro tooltip (persisted in localStorage)
-let _substepIntroSeen = localStorage.getItem('substepIntroSeen') === '1';
+const substepIntroState = { seen: localStorage.getItem('substepIntroSeen') === '1' };
 
 // ── Date helpers ───────────────────────────────────────
 

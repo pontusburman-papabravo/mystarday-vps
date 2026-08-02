@@ -38,7 +38,7 @@
   function renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) {
     if (!subStepCount) return '';
     const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
-    const intro = typeof _substepIntroSeen !== 'undefined' ? _substepIntroSeen : true;
+    const intro = typeof substepIntroState !== 'undefined' ? substepIntroState.seen : true;
     return (
       '<div class="mt-3 pt-2 border-t border-lavender/50 px-3 pb-1" onclick="event.stopPropagation()">' +
         '<div style="position:relative;display:inline-block;">' +
