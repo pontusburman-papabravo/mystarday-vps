@@ -15,6 +15,10 @@ Kortreferens för drift vid incidenter. Fullständig deploy-info: root `AGENTS.m
 
 Se [`docs/ops-pool-monitoring.md`](ops-pool-monitoring.md).
 
+## Daglig backup
+
+PostgreSQL (+ lokala uploads om de finns), cron **03:15 Europe/Stockholm**, retention 14 dagar — se [`ops-daily-backup.md`](ops-daily-backup.md).
+
 ## Rate limiting (single-instance)
 
 `express-rate-limit` använder MemoryStore — OK för nuvarande en-process-VPS. Vid horizontal skalning: Redis store krävs (se kommentar i `src/middleware/rateLimiter.js`).

@@ -89,6 +89,7 @@ Agents **must** use these values (also `.cursor/rules/mystarday-deploy.mdc`):
 
 After `sudo systemctl restart mystarday`: **`sleep 3`** then `curl -s http://127.0.0.1:3000/health`.
 Logs: `sudo journalctl -u mystarday -f` (not `stjarndag`).
+Daily backup (03:15 Europe/Stockholm, 14 days): [`docs/ops-daily-backup.md`](docs/ops-daily-backup.md).
 
 ### Direct VPS SSH (optional)
 
