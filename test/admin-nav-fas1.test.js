@@ -217,7 +217,9 @@ describe('Fas 1 — sidebar render', () => {
     assert.match(html, /Experiment/);
     assert.match(html, /Funktioner/);
     assert.match(html, /\/admin\/development/);
-    assert.doesNotMatch(html, /Översikt/);
+    // Hem uses "Start" (not legacy top-level Översikt); Paket submenu may still label overview Översikt.
+    assert.doesNotMatch(html, /<a[^>]+data-nav-id="start"[^>]*>Översikt</);
+    assert.match(html, /data-nav-id="start"[^>]*>Start</);
     assert.doesNotMatch(html, /Intresseanmälningar/);
     // Common emoji ranges in nav output
     assert.doesNotMatch(html, /[\u{1F300}-\u{1FAFF}]/u);
