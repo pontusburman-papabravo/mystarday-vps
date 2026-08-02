@@ -131,47 +131,108 @@ Prior branch revision retried inside the milestone loop; superseded by fixture-l
 | Driver | `postgresql` | same |
 | Host category | **localhost** | **localhost** |
 | Port | `5432` | `5432` |
-| Database (masked) | `my***y` | `my***y` |
+| Database (masked) | `***` (deploy `.env`) | same |
 | SSL | off | off |
 | Identity hash | `5b995b2304ae4e5b` | `5b995b2304ae4e5b` |
 
-**Same database** — earlier confusion (empty `feature_flag`, no App Review row) was data state on this host, not a Neon vs local split.
+**Same database identity** for app process and `.env` on this host — but **not** evidence that this is the historical prod-tier dataset (see §23).
 
 Tool: `scripts/ops/compare-db-identity.mjs` (hash only, no credentials).
 
-## 21. Synthetic First Star smoke — completed (API leg)
+## 23. Live data provenance (2026-08-02) — **P0** <!-- pragma: allowlist secret -->
 
-**Parent login restored:** App Review parent re-created on live DB via product `POST /api/auth/register` (account missing on this host) using passwords from the secure rotation JSON layer; `POST /api/auth/login` → **200**. Wrong password → **401**. Rotation JSON aligned with live DB after register.
+Read-only SQL on live VPS PostgreSQL (`localhost:5432`, identity hash `5b995b2304ae4e5b`, DB size ~15 MB):
 
-**Ops repair (empty `feature_flag` table on host):** upserted `activation_first_star_mode_v1` enabled (migration-equivalent insert). Journey ingest flag enabled for milestone table checks.
+| Metric | Count |
+|--------|------:|
+| Families | 4 |
+| Parents | 4 |
+| Children | 2 (after smoke orphans cleaned) |
+| Weekly schedules | 5 |
+| Daily logs | 3 |
+| `_migrations` | 132 |
+| `feature_flag` rows | 2 (ops-upserted keys only at time of first audit) |
 
-**Harness:** `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs` — **pass** on API leg (`FAS6_SKIP_BROWSER=1`):
+| Signup window (family `created_at`) | Value |
+|-------------------------------------|--------|
+| Oldest | 2026-08-01 (evening UTC) |
+| Newest | 2026-08-01 (evening UTC) |
 
-| Check | Result |
-|-------|--------|
-| Pre-smoke (synthetic child) | 0 activities, 0 starters, 0 completions |
-| After child login | 1× “Min första stjärna” starter |
-| Stars before / after | 0 → 1 (Δ=1) |
-| Duplicate completion | No extra star |
-| Refresh / second login | No new starter |
-| `first_completion_at` | set (family activation) |
-| Analytics `first_completion_recorded` | 1 |
-| Parent restore (`verify-pin-picker`) | 200; reuse → **409** (consume semantics) |
-| Cleanup `DELETE /api/family/children/:id` | 200 |
-| Read-only DB (starter/completed/sum) | 1 / 1 / 1 |
+Latest migration names (sample): `1810110000000_first_star_starter_kind`, `1810100000000_handoff_refresh_fk_set_null`, `1810000000018_parent_session_handoff`.
 
-**Note:** Public daily-log API omits `starter_kind`; harness matches starter by localized name. `family_milestones.child_first_completion` row count was 0 while analytics event was 1 (journey ingest path). Mobile Puppeteer leg (390×844) not run in final pass.
+**Backup / restore:** No application Postgres backup artifacts found under deploy home or `/var/backups` in read-only inspection (only system package backups). **No verified restore timestamp** on this host.
 
-**Legacy QA children on this host:** No Anna/Arne/Test on App Review family (family was empty until register). Orphan synthetic children from failed runs removed via API.
+**Conclusion:** Live code at SHA `58b9b110…` serves the public App Review hostname, but the attached database looks like a **fresh local Postgres** seeded from registrations/smoke on **2026-08-01**, not the long-lived Neon-scale dataset referenced in older ops docs (~200+ families). Treat as **P0 data provenance** until backup/restore or provider cutover is documented. **No restore performed in this task.** <!-- pragma: allowlist secret -->
 
-## 22. Verdict (closure)
+## 24. Feature-flag seed root cause (2026-08-02)
+
+| Question | Finding |
+|----------|---------|
+| Which migration seeds flags? | Many migrations `INSERT INTO feature_flag … ON CONFLICT DO NOTHING` (e.g. `1809170000000_activation_first_star_mode_flag`, `1808920000000_family_journey` for `family_journey_ingest_enabled` default **off**) |
+| Registered in `_migrations`? | **Yes** — 132 applied |
+| Why empty table on VPS? | Migrations **do not re-run** when name exists in `_migrations` (`migrate.js`). A **truncate/wipe of `feature_flag` without clearing `_migrations`** leaves zero rows and skips seed `up()` |
+| Deploy script skips seed? | **No** — `npm run migrate` runs migration `up()` only for **new** names |
+| Flags deleted? | Possible data loss / fresh DB; not a missing migration registration |
+| Ops upsert vs migration? | Manual upserts repaired smoke but are **not** the long-term fix |
+
+**Fresh database:** First-time migrate on empty `_migrations` runs all `up()` and inserts default flag rows. **Repair gap:** already-migrated DB with empty `feature_flag` needs a documented ops repair migration or one-shot re-seed — **no new fix PR** in this closure (normal fresh deploy path is sound). **No further manual upserts** in this task after audit.
+
+## 25. Journey milestone semantics (2026-08-02)
+
+After synthetic completion on live host:
+
+| Source | State |
+|--------|--------|
+| `family_activation_state.first_completion_at` | **Set** |
+| Analytics `first_completion_recorded` | **1** |
+| `family_milestones.child_first_completion` | **0** when `family_journey_ingest_enabled` was off at completion time |
+
+**Canonical for Fas 6 First Star:** activation state + analytics (`tryAtomicFirstCompletionInTx` / `emitFirstCompletionRecorded` in `src/lib/activation-first-completion.js`). **`family_milestones` row is optional** — created only when `family_journey_ingest_enabled` is on via `ingestMilestoneAsync` (`src/lib/journey/ingest.js`). Smoke harness **does not** require `milestone_count > 0` for pass.
+
+## 26. Synthetic First Star — Puppeteer leg (2026-08-02)
+
+Harness: `.local/fas6-prod-smoke/synthetic-first-star-smoke.mjs` with `FAS6_SKIP_BROWSER=0`, viewport **390×844**, Mobile Safari UA, rotation creds from deploy rotation JSON (not logged).
+
+**Run `fas6-ui-final-1785649204` — `pass: true`, `uiPass: true`**
+
+| Timing | ms |
+|--------|---:|
+| Child login → usable Idag (`/child/today`, one starter visible) | 6631 |
+| Tap → first visual response | 1 |
+| Tap → completed UI state | 771 |
+
+| UI check | Result |
+|----------|--------|
+| One “Min första stjärna” | Yes |
+| Star balance 0 → 1 | Yes |
+| Double tap / refresh / re-login | No extra star / starter |
+| Parent handoff | `verify-pin-picker` 200; reuse 409 |
+| Uncaught page errors | 0 |
+| HTTP 5xx on golden-path APIs | 0 |
+| Harness API calls (post-UI) | 13 (no duplicate complete on golden path; UI completed first) |
+
+**DB read-only snapshot (pre-delete):** starter 1 / completed 1 / star sum 1; analytics 1; `first_completion_at` set; milestone row 0 (ingest gating as above).
+
+## 27. PR status (2026-08-02)
+
+| PR | Branch | CI | Recommendation |
+|----|--------|-----|----------------|
+| #811 | `cursor/stabilize-fas6-concurrency-ci-01b8` | **SUCCESS** (mergeable) | **GO** — merge to fix CI `40P01` flake; test-only fixture retry |
+| #812 | `cursor/fas6-prod-smoke-report-01b8` | **SUCCESS** (mergeable) | **GO** — sanitized report including this closure |
+
+`main` at `58b9b110` (merge #809). Post-#811 merge, re-run CI on `main` expected green.
+
+## 28. Verdict (Fas 6 closure 2026-08-02)
 
 | Area | Verdict |
 |------|---------|
-| Fas 6 live at SHA `58b9b110…` | **GO** |
-| Synthetic First Star (automated API) | **GO WITH FOLLOW-UP** — run mobile Puppeteer leg; confirm journey milestone row if required beyond analytics |
-| PR #811 | **GO** pending full `npm run test:full` green on branch |
-| PR #812 | **GO** — sanitized report |
+| Live app SHA + golden path (API + Puppeteer) | **GO** |
+| Live **data** provenance on VPS DB | **NO-GO (P0)** — stub dataset; backup/restore not verified |
+| Feature-flag repair on migrated-empty table | **GO WITH FOLLOW-UP** — document ops repair; fresh migrate OK |
+| Journey milestone acceptance | **Clarified** — activation + analytics canonical |
+| PR #811 | **GO** merge |
+| PR #812 | **GO** merge |
+| **Fas 6 “helt klar”** | **GO WITH FOLLOW-UP** — blocked on data provenance + ops flag repair doc; product smoke green | <!-- pragma: allowlist secret -->
 
 ---
 
