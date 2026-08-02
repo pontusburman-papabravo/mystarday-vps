@@ -19,6 +19,7 @@ const CRITICAL_INTEGRATION = [
   'test/ratings-revoked-parent.integration.test.js',
   'test/schedules-revoked-parent.integration.test.js',
   'test/parent-session-handoff.integration.test.js',
+  'test/iap-webhook-ordering.integration.test.js',
 ];
 
 const CRITICAL_UNIT = [
@@ -26,6 +27,8 @@ const CRITICAL_UNIT = [
   'test/safe-url-fetch.test.js',
   'test/parent-session-backup-security.test.js',
   'test/ci-test-manifest.test.js',
+  'test/iap-client-config.test.js',
+  'test/scheduler-registry-contract.test.js',
 ];
 
 test('critical integration tests are listed in test:gate:db', () => {
