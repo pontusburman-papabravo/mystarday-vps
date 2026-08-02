@@ -215,3 +215,72 @@ BACKUP_VERIFIED=yes
 TEST_GATE=pass
 HUMAN_GATE=pending
 ```
+
+
+---
+
+## 11. Targeted Restore/2026-08-02-1 forensics (follow-up)
+
+**Analysis dir:** `/var/tmp/<app>-targeted-restore-analysis-20260802T091146Z/`  
+**Verdict:** `INCIDENT EVIDENCE FOUND — NO GAP DATA`  
+**Stub dump:** `STUB DATABASE CONFIRMED`  
+**Recovery decision:** unchanged — `CODE RECOVERED — DB GATE PENDING` / `DB MIGRATION HUMAN GATE REQUIRED`
+
+### File identity (SHA stable before/after)
+
+| Fil | Format | Storlek | SHA-256 | Klassificering |
+| --- | ------ | ------: | ------- | -------------- |
+| `backup-before-full-restore.env` | UTF-8 text | 2921 | `4208ca29…8401` | Same as active `.env` |
+| `live-local-20260802T065849Z.custom.dump` | PG custom v1.15-0 | 365433 | `ebaf81de…9352` | Stub dump (incident evidence) |
+| `<app>.service.backup` | UTF-8 text | 529 | `255f8004…03c94` | Same as active systemd unit |
+| `operator-local-MAC.tar.gz` | gzip/tar (~114 MiB unpacked) | 7550277 | `66568656…7636` | Jun-2026 harvest JSON + ad-hoc scripts |
+| `p0-incident-backups-MAC.tar.gz` | gzip/tar (~4.6 MiB unpacked) | 693236 | `3aeaedc0…ec57` | Stub dump series + wipe-window journal |
+
+All five originals: size/mtime/SHA unchanged after analysis.
+
+### Stub dump
+
+- Archive created **2026-08-02 06:58:49 UTC** (filename + `pg_restore --list` agree).
+- PG 16.14 custom/gzip; TOC ~743 lines; schema includes `parent_session_handoff` / `pin_notification_log` / `starter_kind`.
+- Metadata siblings: **4 families / 4 parents / 1 child**; `family_max_created=2026-08-01 23:14:53+02`; **132 migrations**; `deployedGitSha=58b9b110…`.
+- Same SHA as archive member `…/20260802T065849Z-manual-from-mac-request/live-local.custom.dump`.
+- **Not** a full recovery source (≈365 KB vs current restored dump ≈10 MB / 276 families).
+
+### `p0-incident-backups-MAC.tar.gz`
+
+- Six ~365 KB `live-local.custom.dump` snapshots from **2026-08-02 05:50–06:58 UTC** (pre-freeze → post-stop → manual).
+- Forensics journal `*-journal-wipe-window.txt` (~2.1 MB, 14 254 lines): app logs **2026-08-01 ~10:04 CEST → 2026-08-02 ~00:56 CEST**.
+- No WAL/datadir/`PG_VERSION`/base backup.
+- No `DROP DATABASE` / `dropdb` / `pg_restore` / `npm run migrate` strings in journal.
+- Timeline evidence (local CEST = UTC+2):
+  - `11:35:48` Family **#279** created (`lifetime_free: false`) — full DB still present.
+  - `19:23:43` deploy restart; push milestones still fire for many children at `19:28` — full DB still present.
+  - `20:44:28` existing Apple Sign-In login **200** — full DB still present.
+  - `21:46:26` Family **#2** created (`lifetime_free: true`) — stub DB in effect.
+- **Likely wipe window:** **2026-08-01 18:44–19:46 UTC** (20:44–21:46 CEST). Exact wipe command: **UNCONFIRMED**.
+
+### `operator-local-MAC.tar.gz`
+
+- Path prefix `deploy/<app>-vps-operator-local/20260801/`.
+- 218 `harvest.json` under Backup harvests dated **2026-06-02 / 2026-06-08** only.
+- Ad-hoc diagnose scripts; `package*.backup`; no `.git`, no `.env`, no SQL/WAL/PG datadir, no gap-period exports.
+
+### Env + systemd
+
+- Backup `.env` **byte-identical** to active `.env`; `DATABASE_URL` → `localhost:5432` same user/db fingerprints as live process.
+- No rclone/restic/pgBackRest/Barman/Hetzner/WAL backup config keys.
+- Systemd backup **identical** to active unit: `ExecStart=/usr/bin/node server.js`, EnvironmentFile=`$VPS_APP_PATH/.env`, **no** ExecStartPre migrate/build hooks.
+
+### Effect on plan
+
+1. Datagap **not reduced** for Jul-30→wipe business data.  
+2. Gap-interval DB rows **not recoverable** from these five files.  
+3. No full backup / PITR / WAL material here.  
+4. External provider backups: **no credentials/paths found** in this material; still worth separate Hetzner/snapshot check outside these files.  
+5. Migration human gate **unchanged**.  
+6. Candidate `58b9b110` **unchanged** (stub era already ran it against empty DB; restored Jul-30 DB still lacks 0017/0018/181010/181011).  
+7. Keep **`DB MIGRATION HUMAN GATE REQUIRED`**.
+
+### Next safe step
+
+Do **not** import stub dumps. Keep disposable-only policy. Proceed only after human approval of the four migrations + exact-SHA deploy plan already documented above. Optionally investigate host/provider snapshots covering **2026-08-01 18:00–20:00 UTC** outside this archive set.
