@@ -18,6 +18,7 @@ describe('child dashboard mutable globals (#763 regression)', () => {
   const mutableGlobals = [
     'weekOffset',
     'subStepCache',
+    '_substepIntroSeen',
     'allowChildReorder',
     'showNowNext',
     'requireSequentialCompletion',
@@ -43,4 +44,10 @@ describe('child dashboard mutable globals (#763 regression)', () => {
       assert.match(hostSrc, new RegExp(`let ${name}\\s*=`), `${name} is assigned in load-day but not let in host`);
     });
   }
+
+  it('expandSubSteps may assign _substepIntroSeen on first tap', () => {
+    const substepsSrc = read('public/js/child-dashboard-substeps.js');
+    assert.match(substepsSrc, /_substepIntroSeen\s*=\s*true/);
+    assert.match(hostSrc, /let _substepIntroSeen\s*=/);
+  });
 });
