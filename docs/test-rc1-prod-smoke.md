@@ -50,8 +50,10 @@ Runs release identity + handoff only (2 tests). Requires 3/3 pass before trustin
 
 ## Locale fixtures
 
-- **Settings UI test** — `withFamilyLocaleScope` (Settings selectors; attempt-local 429 retry only).
+- **Settings UI test** — `withFamilyLocaleScope` (Settings selectors; **target-locale** waits — active locale button may be `disabled`; do not wait for `en-GB` enabled when switching to `sv-SE`). One mount/reload recovery for transient mount errors; 429 retry respects `Retry-After` only.
 - **Child + handoff** — `withFamilyLocaleFixture` (authenticated `PUT /api/family/settings`; cleanup via **new isolated parent context**, never child `logout`).
+
+Locale harness classifications include `LOCALE_TARGET_DISABLED`, `LOCALE_API_UPDATED_UI_NOT_UPDATED`, `SUCCESS_LOCALE_SETTINGS_UI`, etc. (see `test/e2e/helpers/rc1-locale-settings-harness.js`).
 
 Primary vs cleanup failures use `AggregateError` when both fail; locale audit phases: `test_failed`, `cleanup_started`, `cleanup_passed` / `cleanup_failed`.
 

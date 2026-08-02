@@ -6,6 +6,17 @@ const assert = require('node:assert/strict');
 const { executeWithPrimaryAndCleanup } = require('../../helpers/rc1-scope-errors');
 const handoffModule = require('./rc1-prod-smoke-handoff');
 const { performParentChildHandoff } = handoffModule;
+const {
+  LOCALE_CLASSIFICATIONS,
+  LocaleHarnessError,
+  isLocaleFullySynchronized,
+  isApiLocaleSynchronized,
+  isDeterministicLocaleFailure,
+  allowsSingleMountRecovery,
+  sanitizeLocaleSwitcherDiagnostics,
+  sanitizeSettingsNetworkEvidence,
+  LOCALE_SWITCHER_DOM_PROBE,
+} = require('./rc1-locale-settings-harness');
 
 const SWEDISH_SERVER_LEAK = /Ogiltiga värden|Namn krävs|PIN-koden måste|Användarnamn krävs/i;
 
@@ -406,48 +417,294 @@ async function readPreferredLocaleFromApi(page) {
   });
 }
 
-async function selectSettingsLocaleWithEvent(page, locale) {
-  const currentApi = await readPreferredLocaleFromApi(page);
-  const currentI18n = await page.evaluate(() => (
-    window.I18n && typeof I18n.getCurrentLang === 'function' ? I18n.getCurrentLang() : null
-  ));
-  if (currentApi === locale && currentI18n === locale) {
-    return;
+async function collectLocaleDomDiagnostics(page, requestedLocale, startLocale, timeoutPhase) {
+  const dom = await page.evaluate(LOCALE_SWITCHER_DOM_PROBE);
+  const apiLocale = await readPreferredLocaleFromApi(page);
+  return sanitizeLocaleSwitcherDiagnostics({
+    requestedLocale,
+    startLocale,
+    currentApiLocale: apiLocale,
+    currentI18nLocale: dom.i18n,
+    pagePath: dom.pagePath,
+    mountCount: dom.mountCount,
+    buttons: dom.buttons,
+    timeoutPhase,
+  });
+}
+
+async function attachLocaleSettingsNetworkWatch(page, requestedLocale) {
+  const state = {
+    settingsRequestSent: false,
+    settingsResponse: null,
+    rateLimited429: false,
+    retryAfterSeconds: null,
+  };
+  const onResponse = async (response) => {
+    const url = response.url();
+    if (!/\/api\/family\/settings/.test(url) || response.request().method() !== 'PUT') {
+      return;
+    }
+    state.settingsRequestSent = true;
+    const status = response.status();
+    if (status === 429) {
+      state.rateLimited429 = true;
+      const ra = response.headers()['retry-after'];
+      if (ra && !Number.isNaN(Number(ra))) {
+        state.retryAfterSeconds = Number(ra);
+      }
+    }
+    let preferredLocaleUpdated = false;
+    if (status >= 200 && status < 300) {
+      try {
+        const mePreferred = await page.evaluate(async () => {
+          const r = await fetch('/api/auth/me', { credentials: 'include' });
+          if (!r.ok) return null;
+          const me = await r.json();
+          return me.preferred_locale || null;
+        });
+        preferredLocaleUpdated = mePreferred === requestedLocale;
+      } catch {
+        preferredLocaleUpdated = false;
+      }
+    }
+    state.settingsResponse = sanitizeSettingsNetworkEvidence({
+      status,
+      preferredLocaleUpdated,
+      requestedLocale,
+    });
+  };
+  page.on('response', onResponse);
+  return {
+    state,
+    detach() {
+      page.off('response', onResponse);
+    },
+  };
+}
+
+async function waitForLocaleChangedEvent(page, locale, timeoutMs = 60000) {
+  return page.evaluate(
+    (loc, ms) => new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        document.removeEventListener('locale-changed', onLocale);
+        reject(new Error('locale-changed timeout'));
+      }, ms);
+      function onLocale(ev) {
+        if (ev.detail && ev.detail.locale === loc) {
+          clearTimeout(timer);
+          document.removeEventListener('locale-changed', onLocale);
+          resolve(true);
+        }
+      }
+      document.addEventListener('locale-changed', onLocale);
+    }),
+    locale,
+    timeoutMs
+  );
+}
+
+async function readLocaleSnapshotFromPage(page) {
+  const snap = await readFamilyLocaleSnapshot(page);
+  return snap;
+}
+
+async function selectSettingsLocaleWithEvent(page, locale, { startLocale = null, afterRemount = false } = {}) {
+  const startSnap = await readLocaleSnapshotFromPage(page);
+  const effectiveStart = startLocale || startSnap.preferredLocale;
+
+  if (isLocaleFullySynchronized(startSnap, locale)) {
+    return {
+      classification: afterRemount
+        ? LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI_AFTER_REMOUNT
+        : LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI,
+      skippedClick: true,
+    };
+  }
+
+  if (isApiLocaleSynchronized(startSnap, locale)
+    && startSnap.i18n !== locale) {
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await rc1Sleep(1500);
+    const afterReload = await readLocaleSnapshotFromPage(page);
+    if (isLocaleFullySynchronized(afterReload, locale)) {
+      return {
+        classification: LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI,
+        skippedClick: true,
+        reloadedForUiSync: true,
+      };
+    }
+    const diag = await collectLocaleDomDiagnostics(
+      page,
+      locale,
+      effectiveStart,
+      'locale_ui_state_not_synchronized'
+    );
+    throw new LocaleHarnessError(
+      LOCALE_CLASSIFICATIONS.LOCALE_UI_STATE_NOT_SYNCHRONIZED,
+      `API locale ${locale} but UI/I18n not synchronized after reload`,
+      diag
+    );
   }
 
   const selector = `[data-locale-switcher-mount] [data-locale-value="${locale}"]`;
-  const fallback = `[data-locale-value="${locale}"]`;
-  const hasScoped = await page.$(selector);
-  const target = hasScoped ? selector : fallback;
-  await page.waitForSelector(target, { visible: true, timeout: 30000 });
+  const fallbackSelector = `[data-locale-value="${locale}"]`;
+  const networkWatch = await attachLocaleSettingsNetworkWatch(page, locale);
 
-  await page.waitForFunction(() => {
-    const btn = document.querySelector('[data-locale-switcher-mount] [data-locale-value="en-GB"], [data-locale-value="en-GB"]');
-    return btn && !btn.disabled;
-  }, { timeout: 15000 });
+  try {
+    await page.waitForFunction(
+      (loc) => {
+        const mount = document.querySelector('[data-locale-switcher-mount]');
+        const button = mount
+          ? mount.querySelector(`[data-locale-value="${loc}"]`)
+          : document.querySelector(`[data-locale-value="${loc}"]`);
+        return Boolean(button && button.offsetParent !== null && !button.hidden);
+      },
+      { timeout: 30000 },
+      locale
+    );
+  } catch {
+    networkWatch.detach();
+    const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'target_button_found');
+    throw new LocaleHarnessError(
+      LOCALE_CLASSIFICATIONS.LOCALE_TARGET_NOT_FOUND,
+      `Locale target not found: ${locale}`,
+      diag
+    );
+  }
 
-  await page.click(target);
-  await page.waitForFunction(
-    async (loc) => {
-      const pressed = document.querySelector(`[data-locale-value="${loc}"]`);
-      if (pressed && pressed.getAttribute('aria-pressed') === 'true') {
-        const r = await fetch('/api/auth/me', { credentials: 'include' });
-        if (r.ok) {
+  try {
+    await page.waitForFunction(
+      (loc) => {
+        const mount = document.querySelector('[data-locale-switcher-mount]');
+        const button = mount
+          ? mount.querySelector(`[data-locale-value="${loc}"]`)
+          : document.querySelector(`[data-locale-value="${loc}"]`);
+        return Boolean(button && button.offsetParent !== null && !button.hidden && !button.disabled);
+      },
+      { timeout: 15000 },
+      locale
+    );
+  } catch {
+    const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'target_button_enabled');
+    const snap = await readLocaleSnapshotFromPage(page);
+    networkWatch.detach();
+    if (isLocaleFullySynchronized(snap, locale)) {
+      return {
+        classification: afterRemount
+          ? LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI_AFTER_REMOUNT
+          : LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI,
+        skippedClick: true,
+      };
+    }
+    throw new LocaleHarnessError(
+      LOCALE_CLASSIFICATIONS.LOCALE_TARGET_DISABLED,
+      `Locale target disabled: ${locale}`,
+      diag
+    );
+  }
+
+  try {
+    const clickPromise = page.click(selector).catch(() => page.click(fallbackSelector));
+
+    const outcomePromise = Promise.race([
+      waitForLocaleChangedEvent(page, locale, 60000).catch(() => null),
+      page.waitForFunction(
+        async (loc) => {
+          const htmlOk = (document.documentElement.lang || '').toLowerCase() === loc.toLowerCase();
+          const i18nOk = window.I18n
+            && typeof I18n.getCurrentLang === 'function'
+            && I18n.getCurrentLang() === loc;
+          if (!i18nOk && !htmlOk) return false;
+          const r = await fetch('/api/auth/me', { credentials: 'include' });
+          if (!r.ok) return false;
           const me = await r.json();
-          if (me.preferred_locale === loc) return true;
+          return me.preferred_locale === loc && i18nOk && htmlOk;
+        },
+        { timeout: 60000 },
+        locale
+      ),
+    ]);
+
+    await clickPromise;
+    await outcomePromise;
+
+    await rc1Sleep(300);
+
+    const finalSnap = await readLocaleSnapshotFromPage(page);
+    if (networkWatch.state.rateLimited429) {
+      const err = new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_SETTINGS_API_FAILED,
+        'Settings locale API returned 429',
+        {
+          ...(await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'settings_response_received')),
+          network: {
+            ...networkWatch.state.settingsResponse,
+            requestedLocale: locale,
+          },
+          rateLimited429: true,
+          retryAfterSeconds: networkWatch.state.retryAfterSeconds,
         }
-      }
-      if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang() === loc) {
-        const r = await fetch('/api/auth/me', { credentials: 'include' });
-        if (!r.ok) return false;
-        const me = await r.json();
-        return me.preferred_locale === loc;
-      }
-      return false;
-    },
-    { timeout: 60000 },
-    locale
-  );
+      );
+      err.rateLimited429 = true;
+      err.retryAfterSeconds = networkWatch.state.retryAfterSeconds;
+      throw err;
+    }
+
+    if (!networkWatch.state.settingsRequestSent) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'settings_request_sent');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_SETTINGS_REQUEST_NOT_SENT,
+        'No PUT /api/family/settings observed after locale click',
+        diag
+      );
+    }
+
+    const apiStatus = networkWatch.state.settingsResponse?.status;
+    if (apiStatus && (apiStatus < 200 || apiStatus >= 300)) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'settings_response_received');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_SETTINGS_API_FAILED,
+        `Settings API failed with status ${apiStatus}`,
+        { ...diag, network: { ...networkWatch.state.settingsResponse, requestedLocale: locale } }
+      );
+    }
+
+    if (isApiLocaleSynchronized(finalSnap, locale) && finalSnap.i18n !== locale) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'i18n_locale_updated');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_API_UPDATED_UI_NOT_UPDATED,
+        'API preferred_locale updated but I18n did not follow',
+        diag
+      );
+    }
+
+    if (!isApiLocaleSynchronized(finalSnap, locale) && finalSnap.i18n === locale) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'api_preferred_locale_updated');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_UI_UPDATED_API_NOT_UPDATED,
+        'I18n updated but API preferred_locale did not persist',
+        diag
+      );
+    }
+
+    if (!isLocaleFullySynchronized(finalSnap, locale)) {
+      const diag = await collectLocaleDomDiagnostics(page, locale, effectiveStart, 'i18n_locale_updated');
+      throw new LocaleHarnessError(
+        LOCALE_CLASSIFICATIONS.LOCALE_API_UPDATED_UI_NOT_UPDATED,
+        'Locale switch did not reach fully synchronized state',
+        diag
+      );
+    }
+
+    return {
+      classification: afterRemount
+        ? LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI_AFTER_REMOUNT
+        : LOCALE_CLASSIFICATIONS.SUCCESS_LOCALE_SETTINGS_UI,
+      network: { ...networkWatch.state.settingsResponse, requestedLocale: locale },
+    };
+  } finally {
+    networkWatch.detach();
+  }
 }
 
 async function assertReportsRouteBlocked(page, baseUrl) {
@@ -500,9 +757,17 @@ async function openSettingsFamilyLocale(page, baseUrl) {
   await rc1Sleep(600);
 
   await page.waitForFunction(() => {
-    const btn = document.querySelector('[data-locale-switcher-mount] [data-locale-value="en-GB"]')
-      || document.querySelector('[data-locale-value="en-GB"]');
-    return btn && btn.offsetParent !== null && !btn.disabled && !btn.hidden;
+    const familyPane = document.querySelector('[data-magic-settings-content="family"]');
+    const familyOk = !familyPane || familyPane.offsetParent !== null;
+    const mount = document.querySelector('[data-locale-switcher-mount]');
+    if (!mount || mount.offsetParent === null) return false;
+    const en = mount.querySelector('[data-locale-value="en-GB"]');
+    const sv = mount.querySelector('[data-locale-value="sv-SE"]');
+    if (!en || !sv || en.offsetParent === null || sv.offsetParent === null) return false;
+    const anyClickable = [...mount.querySelectorAll('[data-locale-value]')].some(
+      (btn) => btn.offsetParent !== null && !btn.hidden && !btn.disabled
+    );
+    return familyOk && anyClickable;
   }, { timeout: 60000 });
 }
 
@@ -590,27 +855,54 @@ function settingsAttemptRateLimited(page, attemptStartIndex) {
 }
 
 async function setFamilyLocaleViaSettings(page, baseUrl, locale) {
-  const attempts = Number(process.env.RC1_LOCALE_SETTINGS_ATTEMPTS || 3);
+  const startSnap = await readFamilyLocaleSnapshot(page);
+  let mountRecoveryUsed = false;
   let lastErr;
-  for (let i = 0; i < attempts; i += 1) {
-    const attemptStart = page._rc1Diagnostics?.consoleErrors?.length ?? 0;
+
+  const runOnce = async (afterRemount) => {
+    await openSettingsFamilyLocale(page, baseUrl);
+    await selectSettingsLocaleWithEvent(page, locale, {
+      startLocale: startSnap.preferredLocale,
+      afterRemount,
+    });
+    return assertFamilyLocalePersisted(page, locale);
+  };
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      await openSettingsFamilyLocale(page, baseUrl);
-      await selectSettingsLocaleWithEvent(page, locale);
-      return assertFamilyLocalePersisted(page, locale);
+      return await runOnce(mountRecoveryUsed);
     } catch (err) {
       lastErr = err;
-      const isRateLimited = settingsAttemptRateLimited(page, attemptStart);
-      if (i < attempts - 1 && isRateLimited) {
-        const retryAfter = Number(process.env.RC1_SETTINGS_RETRY_AFTER_MS || 65000);
-        console.warn(`[rc1-smoke] settings locale retry ${i + 1}/${attempts - 1} after 429 (attempt-local)`);
-        await rc1Sleep(retryAfter);
+      const classification = err.classification || null;
+
+      if (err.rateLimited429) {
+        const waitMs = err.retryAfterSeconds != null
+          ? Math.max(1000, err.retryAfterSeconds * 1000)
+          : Number(process.env.RC1_SETTINGS_RETRY_AFTER_MS || 65000);
+        console.warn(`[rc1-smoke] settings locale 429 retry (retry-after ${err.retryAfterSeconds})`);
+        await rc1Sleep(waitMs);
         continue;
       }
-      if (i < attempts - 1) {
-        await rc1Sleep(3000);
+
+      if (isDeterministicLocaleFailure(classification)) {
+        throw err;
+      }
+
+      if (allowsSingleMountRecovery(classification) && !mountRecoveryUsed) {
+        mountRecoveryUsed = true;
+        await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
+        await rc1Sleep(2000);
         continue;
       }
+
+      if (!mountRecoveryUsed && classification === LOCALE_CLASSIFICATIONS.LOCALE_SWITCHER_NOT_MOUNTED) {
+        mountRecoveryUsed = true;
+        await page.goto(`${baseUrl}/settings`, { waitUntil: 'domcontentloaded' });
+        await rc1Sleep(2000);
+        continue;
+      }
+
+      throw err;
     }
   }
   throw lastErr;
