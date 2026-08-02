@@ -128,8 +128,8 @@
         )}
         ${kpiCard(
           'North Star — P0 inom 48h',
-          m.p0_48h ?? '–',
-          `${formatPct(m.p0RatePct)} av nya · mål ${m.p0TargetPct || 25}%`,
+          formatPct(m.p0RatePct),
+          `${m.p0_48h ?? 0} av ${m.signups7d || 0} nya · mål ${m.p0TargetPct || 25}%`,
           p0Tone,
           '#analytics'
         )}

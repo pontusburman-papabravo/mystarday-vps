@@ -2,7 +2,7 @@
 
 const db = require('./db');
 const { ACT1_ONBOARDING_FLAG_KEYS } = require('./activation-flags');
-const { excludeInternalQaWhere } = require('../../config/internal-qa-families');
+const { fetchStuckOnboardingCounts } = require('../../db/start-summary');
 
 const P0_TARGET_PCT = 25;
 const NEVER_ACTIVATED_WARN_PCT = 35;
@@ -22,7 +22,7 @@ async function collectMetrics() {
     weekSignups,
     funnelWeek,
     flags,
-    incompleteOnboarding,
+    stuckOnboarding,
     events30d,
   ] = await Promise.all([
     db.query(`
@@ -79,19 +79,7 @@ async function collectMetrics() {
       WHERE key LIKE 'activation_%' OR key = 'referral_program'
       ORDER BY key
     `),
-    db.query(`
-      SELECT COUNT(DISTINCT f.id)::int AS n
-      FROM family f
-      JOIN parent p ON p.family_id = f.id
-      WHERE f.archived_at IS NULL
-        AND f.created_at >= NOW() - INTERVAL '14 days'
-        AND f.created_at <= NOW() - INTERVAL '48 hours'
-        AND ${excludeInternalQaWhere('f')}
-        AND NOT EXISTS (
-          SELECT 1 FROM parent p2
-          WHERE p2.family_id = f.id AND p2.onboarding_completed = true
-        )
-    `),
+    fetchStuckOnboardingCounts(),
     db.query(`
       SELECT event_type, COUNT(*)::int AS n
       FROM analytics_events
@@ -129,7 +117,8 @@ async function collectMetrics() {
     weekFirstCompletion: w.first_completion || 0,
     cohortWeekSignups: fw.signups || 0,
     cohortWeekP0RatePct: pct(fw.p0_48h, fw.signups),
-    incompleteOnboarding14d: incompleteOnboarding.rows[0]?.n || 0,
+    incompleteOnboarding14d: stuckOnboarding.stuck_product || 0,
+    incompleteOnboardingQa14d: stuckOnboarding.stuck_qa || 0,
     flags: flags.rows,
     events30d: eventMap,
   };
@@ -247,12 +236,15 @@ async function buildRecommendations(metrics) {
   }
 
   if (m.incompleteOnboarding14d >= 5) {
+    const qaNote = m.incompleteOnboardingQa14d > 0
+      ? ` ${m.incompleteOnboardingQa14d} test/automation exkluderade (${m.incompleteOnboarding14d + m.incompleteOnboardingQa14d} råtotalt).`
+      : '';
     alerts.push({
       slug: 'activation-incomplete-onboarding',
       category: 'activation',
       severity: 'info',
-      title: `${m.incompleteOnboarding14d} kundfamiljer fast i onboarding`,
-      body: 'Registrerade 2–14 dagar sedan, onboarding ej klar. Test/automation-familjer (Smoke Parents, *@test.stjarndag.local) är exkluderade. Överväg nudge eller manuell uppföljning.',
+      title: `${m.incompleteOnboarding14d} familjer fast i onboarding`,
+      body: `Registrerade för 2–14 dagar sedan men har inte slutfört onboarding.${qaNote} Överväg nudge-mejl (activation_nudge_v1) eller manuell uppföljning.`,
       action_route: '#analytics',
       metrics: { incompleteOnboarding14d: m.incompleteOnboarding14d },
     });

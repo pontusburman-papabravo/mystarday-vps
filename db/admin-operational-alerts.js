@@ -41,6 +41,48 @@ async function upsertAlert(alert) {
   return rows[0];
 }
 
+/** Update title/body for undismissed alerts — keeps copy in sync with live metrics on Start. */
+async function refreshActiveAlertCopy(alert) {
+  await db.query(
+    `UPDATE admin_operational_alert
+     SET category = $2,
+         severity = $3,
+         title = $4,
+         body = $5,
+         action_route = $6,
+         metrics = $7::jsonb
+     WHERE slug = $1
+       AND dismissed_at IS NULL`,
+    [
+      alert.slug,
+      alert.category || 'activation',
+      alert.severity || 'info',
+      alert.title,
+      alert.body,
+      alert.action_route || null,
+      JSON.stringify(alert.metrics || {}),
+    ]
+  );
+}
+
+async function insertAlertIfMissing(alert) {
+  await db.query(
+    `INSERT INTO admin_operational_alert (
+       slug, category, severity, title, body, action_route, metrics
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
+     ON CONFLICT (slug) DO NOTHING`,
+    [
+      alert.slug,
+      alert.category || 'activation',
+      alert.severity || 'info',
+      alert.title,
+      alert.body,
+      alert.action_route || null,
+      JSON.stringify(alert.metrics || {}),
+    ]
+  );
+}
+
 async function listActive(limit = 20) {
   const { rows } = await db.query(
     `SELECT id, slug, category, severity, title, body, action_route, metrics, created_at
@@ -119,6 +161,8 @@ function toRecommendationCards(rows) {
 
 module.exports = {
   upsertAlert,
+  refreshActiveAlertCopy,
+  insertAlertIfMissing,
   listActive,
   dismiss,
   syncActivationAlerts,
