@@ -1,9 +1,8 @@
 'use strict';
 
 /**
- * Sort key for child-facing daily log items.
- * child_sort_order is only set when the child drag-reorders (allow_child_reorder).
- * NULL means "follow parent's sort_order".
+ * Sort key for daily log items (child + parent views).
+ * child_sort_order when the child has drag-reordered; NULL follows parent sort_order.
  */
 function effectiveChildItemSortOrder(item) {
   if (item == null) return 0;

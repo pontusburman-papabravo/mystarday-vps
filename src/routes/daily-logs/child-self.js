@@ -460,8 +460,8 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
  * Child reorders activities in their daily log.
  * Accepts: { ordered_item_ids: string[] } — new order of item IDs (within same log)
  *
- * Saves child_sort_order for each item. This is separate from the parent's
- * schedule sort_order, so children's custom ordering doesn't affect the template.
+ * Saves order for the household: updates child_sort_order and sort_order so
+ * parent daily log and child view stay in sync for this day.
  */
 childSelfRouter.put('/daily-log/reorder', async (req, res) => {
   try {
@@ -515,7 +515,9 @@ childSelfRouter.put('/daily-log/reorder', async (req, res) => {
       await client.query('BEGIN');
       for (let i = 0; i < ordered_item_ids.length; i++) {
         await client.query(
-          'UPDATE daily_log_item SET child_sort_order = $1 WHERE id = $2 AND daily_log_id = $3',
+          `UPDATE daily_log_item
+           SET child_sort_order = $1, sort_order = $1
+           WHERE id = $2 AND daily_log_id = $3`,
           [i, ordered_item_ids[i], logId]
         );
       }
