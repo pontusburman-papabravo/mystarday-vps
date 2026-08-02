@@ -19,7 +19,7 @@ See also: `docs/VPS-DEPLOY-GITHUB-ACTIONS.md`, `scripts/vps-deploy-revision.sh`.
 | `PROD_MIN_DATABASE_BYTES` | Fail-closed minimum `pg_database_size` |
 | `EXPECTED_DATABASE_IDENTITY_HASH` | Optional SHA-256 identity fingerprint — mismatch blocks deploy |
 | `BACKUP_MIN_FREE_BYTES` | Free disk required on backup volume (default 2_000_000_000) |
-| `BACKUP_EMERGENCY_OVERRIDE` | **Incident only:** `INCIDENT_ACKNOWLEDGED` skips gate (logged loudly) |
+| `BACKUP_EMERGENCY_MARKER_FILE` / `DEPLOY_EMERGENCY_MARKER` | **Incident only:** short-lived JSON marker (max 30 min) — skips `pg_dump` after identity guards; env `BACKUP_EMERGENCY_OVERRIDE` is **rejected** |
 | `DISPOSABLE_DB_PREFIX` | Prefix required for restore rehearsal DB names (default `integrity_restore_`) |
 | `PROTECTED_DATABASE_NAME` | Production DB name — refused as restore target |
 | `DEPLOY_SHA` | Git SHA (set by deploy script) |
@@ -130,7 +130,22 @@ Pre-deploy gate checks **free disk** before `pg_dump`; it does **not** auto-prun
 - **No automatic DB restore** in deploy scripts  
 - App rollback: revert git + redeploy previous SHA (existing rollback in deploy script)  
 - DB restore: separate incident decision + rehearsal-tested dump  
-- `BACKUP_EMERGENCY_OVERRIDE=INCIDENT_ACKNOWLEDGED`: skip gate only in documented incident mode  
+- `BACKUP_EMERGENCY_MARKER_FILE` / `DEPLOY_EMERGENCY_MARKER`: skip `pg_dump` only when a valid marker file is present (see below). Identity hash and family/migration guards still run. **Do not** set `BACKUP_EMERGENCY_OVERRIDE` in `.env` or systemd — the gate rejects it.
+
+### Emergency marker file (incident only)
+
+Create a JSON file on the VPS (not in git), pass path via `DEPLOY_EMERGENCY_MARKER` for one deploy:
+
+```json
+{
+  "acknowledged": "INCIDENT_ACKNOWLEDGED",
+  "deploy_sha": "<40-char DEPLOY_SHA>",
+  "operator": "on-call-handle",
+  "created_at_utc": "2026-08-02T18:00:00.000Z"
+}
+```
+
+Valid for 30 minutes; must match `DEPLOY_SHA`. Logged with operator and UTC time. Remove file after incident deploy.
 
 ---
 

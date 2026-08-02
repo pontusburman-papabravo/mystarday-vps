@@ -7,6 +7,12 @@ import pg from 'pg';
 import { databaseIdentityHash, parseDatabaseUrlSafe, sanitizeIdentityForLog } from './database-identity.mjs';
 import { captureDbIntegritySnapshot } from './db-integrity-snapshot-core.mjs';
 import { BACKUP_ARCHIVE_REQUIRED_TABLES } from './snapshot-tables.mjs';
+import { readEmergencyOverrideMarker, logEmergencyOverride } from './emergency-override.mjs';
+import {
+  assertBackupToolchain,
+  assertBackupDirectorySafe,
+  assertWritableDirectory,
+} from './backup-prerequisites.mjs';
 
 const { Pool } = pg;
 const require = createRequire(import.meta.url);
@@ -18,12 +24,12 @@ export function isProductionDeployMode(env = process.env) {
 }
 
 export function assertBackupPolicy(env = process.env) {
+  if (env.BACKUP_EMERGENCY_OVERRIDE) {
+    throw new Error('BACKUP_EMERGENCY_ENV_FORBIDDEN_USE_MARKER_FILE');
+  }
   const prodDeploy = isProductionDeployMode(env);
   if (!prodDeploy) {
-    return { production: false, skipGate: env.BACKUP_REQUIRED !== '1' };
-  }
-  if (env.BACKUP_EMERGENCY_OVERRIDE === 'INCIDENT_ACKNOWLEDGED') {
-    return { production: true, skipGate: true, emergency: true };
+    return { productionDeploy: false, skipGate: env.BACKUP_REQUIRED !== '1' };
   }
   if (env.BACKUP_REQUIRED !== '1') {
     throw new Error('BACKUP_REQUIRED=1 is mandatory for prod deploy');
@@ -37,7 +43,7 @@ export function assertBackupPolicy(env = process.env) {
   if (!env.PROD_MIN_DATABASE_BYTES) {
     throw new Error('PROD_MIN_DATABASE_BYTES must be set for prod backup gate');
   }
-  return { production: true, skipGate: false };
+  return { productionDeploy: true, skipGate: false };
 }
 
 export function isBlockedProductionDatabaseName(dbName) {
@@ -170,27 +176,41 @@ async function listAppliedMigrations(databaseUrl) {
 export async function runPreDeployBackupGate(opts) {
   const env = { ...process.env, ...opts.env };
   const policy = assertBackupPolicy(env);
-  if (policy.skipGate && !policy.emergency) {
-    return { skipped: true, reason: 'backup_not_required' };
-  }
-  if (policy.emergency) {
-    console.error('[backup-gate] EMERGENCY OVERRIDE — backup gate skipped (incident mode)');
-    return { skipped: true, reason: 'emergency_override' };
-  }
-
   const databaseUrl = opts.databaseUrl || env.DATABASE_URL;
   if (!databaseUrl) throw new Error('DATABASE_URL_MISSING');
 
   const repoRoot = opts.repoRoot || process.cwd();
   const deploySha = opts.deploySha || env.DEPLOY_SHA || 'unknown';
-  const backupDir = opts.backupDir || env.APP_DB_BACKUP_DIR;
-  if (!backupDir) throw new Error('APP_DB_BACKUP_DIR_MISSING');
 
   const snapshot =
     opts.snapshot ||
     (await captureDbIntegritySnapshot(databaseUrl, { label: 'pre-backup', deploySha }));
 
   await validatePreBackupGuards(databaseUrl, snapshot, env);
+
+  const markerPath =
+    opts.emergencyMarkerPath || env.BACKUP_EMERGENCY_MARKER_FILE || env.DEPLOY_EMERGENCY_MARKER;
+  const emergencyOverride = readEmergencyOverrideMarker(markerPath, env);
+  if (emergencyOverride.active) {
+    logEmergencyOverride(emergencyOverride.record);
+    return {
+      skipped: true,
+      reason: 'emergency_override',
+      emergency: emergencyOverride.record,
+      snapshot,
+    };
+  }
+
+  if (policy.skipGate) {
+    return { skipped: true, reason: 'backup_not_required', snapshot };
+  }
+
+  const backupDir = opts.backupDir || env.APP_DB_BACKUP_DIR;
+  if (!backupDir) throw new Error('APP_DB_BACKUP_DIR_MISSING');
+
+  assertBackupToolchain();
+  assertBackupDirectorySafe(backupDir, repoRoot);
+  assertWritableDirectory(backupDir);
 
   const applied = await listAppliedMigrations(databaseUrl);
   const folderMigrations = listPendingMigrations(repoRoot);

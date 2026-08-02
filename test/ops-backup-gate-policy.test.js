@@ -40,13 +40,15 @@ describe('backup gate policy', () => {
 
   test('emergency override skips with flag', async () => {
     const { assertBackupPolicy } = await import('../scripts/ops/lib/backup-gate-core.mjs');
-    const p = assertBackupPolicy({
-      APP_DEPLOY_PRODUCTION: '1',
-      BACKUP_REQUIRED: '1',
-      BACKUP_EMERGENCY_OVERRIDE: 'INCIDENT_ACKNOWLEDGED',
-    });
-    assert.equal(p.skipGate, true);
-    assert.equal(p.emergency, true);
+    assert.throws(
+      () =>
+        assertBackupPolicy({
+          APP_DEPLOY_PRODUCTION: '1',
+          BACKUP_REQUIRED: '1',
+          BACKUP_EMERGENCY_OVERRIDE: 'INCIDENT_ACKNOWLEDGED',
+        }),
+      /BACKUP_EMERGENCY_ENV_FORBIDDEN/
+    );
   });
 
   test('restore target refuses protected database name', async () => {

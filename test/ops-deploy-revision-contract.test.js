@@ -28,6 +28,8 @@ describe('vps-deploy-revision database safety contract', () => {
     const sh = fs.readFileSync(DEPLOY_SH, 'utf8');
     assert.match(sh, /BACKUP_REQUIRED="\$\{BACKUP_REQUIRED:-1\}"/);
     assert.match(sh, /APP_DEPLOY_PRODUCTION="\$\{APP_DEPLOY_PRODUCTION:-1\}"/);
+    assert.match(sh, /BACKUP_EMERGENCY_MARKER_FILE/);
+    assert.match(sh, /--emergency-marker/);
   });
 
   test('post-deploy snapshot compare after health', () => {

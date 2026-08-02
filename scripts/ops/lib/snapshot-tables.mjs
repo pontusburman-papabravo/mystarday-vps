@@ -91,7 +91,7 @@ export const SNAPSHOT_TABLE_SPECS = [
   },
 ];
 
-/** Tables that must appear in a pg_restore --list for production backup verification. */
+/** Tables that must appear in a pg_restore --list for prod backup verification. */
 export const BACKUP_ARCHIVE_REQUIRED_TABLES = [
   'family',
   'parent',
@@ -109,9 +109,32 @@ export const PII_FIELD_DENYLIST = new Set([
   'email',
   'password_hash',
   'pin_hash',
+  'pin_fingerprint',
   'message',
   'body',
   'token',
   'subscription_json',
   'native_token',
+  'avatar_url',
+  'apple_email',
 ]);
+
+/** Explicit allowlist: every fingerprint column must be listed here. */
+export const FINGERPRINT_COLUMN_ALLOWLIST = new Set(
+  SNAPSHOT_TABLE_SPECS.flatMap((spec) => spec.fingerprintColumns)
+);
+
+export function assertFingerprintAllowlist() {
+  for (const spec of SNAPSHOT_TABLE_SPECS) {
+    for (const col of spec.fingerprintColumns) {
+      if (!FINGERPRINT_COLUMN_ALLOWLIST.has(col)) {
+        throw new Error(`FINGERPRINT_NOT_ALLOWLISTED:${spec.table}.${col}`);
+      }
+      if (PII_FIELD_DENYLIST.has(col)) {
+        throw new Error(`PII_IN_FINGERPRINT:${spec.table}.${col}`);
+      }
+    }
+  }
+}
+
+assertFingerprintAllowlist();

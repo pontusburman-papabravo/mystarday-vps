@@ -8,11 +8,13 @@ function parseArgs(argv) {
     deploySha: process.env.DEPLOY_SHA || null,
     snapshotIn: null,
     metadataOut: null,
+    emergencyMarker: process.env.BACKUP_EMERGENCY_MARKER_FILE || process.env.DEPLOY_EMERGENCY_MARKER || null,
   };
   for (let i = 2; i < argv.length; i += 1) {
     if (argv[i] === '--deploy-sha') out.deploySha = argv[++i];
     else if (argv[i] === '--snapshot-in') out.snapshotIn = argv[++i];
     else if (argv[i] === '--metadata-out') out.metadataOut = argv[++i];
+    else if (argv[i] === '--emergency-marker') out.emergencyMarker = argv[++i];
   }
   return out;
 }
@@ -32,6 +34,7 @@ async function main() {
   const result = await runPreDeployBackupGate({
     deploySha: args.deploySha,
     snapshot,
+    emergencyMarkerPath: args.emergencyMarker,
   });
 
   if (result.skipped) {

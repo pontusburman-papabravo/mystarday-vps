@@ -125,6 +125,7 @@ mkdir -p "${DEPLOY_DATA_DIR}/snapshots"
 
 export APP_DEPLOY_PRODUCTION="${APP_DEPLOY_PRODUCTION:-1}"
 export BACKUP_REQUIRED="${BACKUP_REQUIRED:-1}"
+export BACKUP_EMERGENCY_MARKER_FILE="${DEPLOY_EMERGENCY_MARKER:-${BACKUP_EMERGENCY_MARKER_FILE:-}}"
 
 PRE_SNAPSHOT="${DEPLOY_DATA_DIR}/snapshots/pre-${TARGET_SHA}.json"
 POST_SNAPSHOT="${DEPLOY_DATA_DIR}/snapshots/post-${TARGET_SHA}.json"
@@ -137,7 +138,11 @@ if ! node "${OPS_DIR}/db-integrity-snapshot.mjs" --out "${PRE_SNAPSHOT}" --label
 fi
 
 echo "→ pre-deploy backup gate"
-if ! node "${OPS_DIR}/pre-deploy-backup-gate.mjs" --deploy-sha "${TARGET_SHA}" --snapshot-in "${PRE_SNAPSHOT}"; then
+GATE_ARGS=(--deploy-sha "${TARGET_SHA}" --snapshot-in "${PRE_SNAPSHOT}")
+if [ -n "${BACKUP_EMERGENCY_MARKER_FILE:-}" ]; then
+  GATE_ARGS+=(--emergency-marker "${BACKUP_EMERGENCY_MARKER_FILE}")
+fi
+if ! node "${OPS_DIR}/pre-deploy-backup-gate.mjs" "${GATE_ARGS[@]}"; then
   echo "pre-deploy backup gate failed — migration and restart blocked"
   rollback_to_sha "$PREV_SHA" || true
   exit 1
