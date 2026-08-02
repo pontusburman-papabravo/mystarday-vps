@@ -1003,11 +1003,28 @@ async function assertFamilyLocaleApiOnly(page, locale) {
 
 async function persistFamilyLocaleViaApi(page, locale, { strictUi = false } = {}) {
   await page.evaluate(async (loc) => {
+    const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
     if (window.Auth && typeof Auth.api === 'function') {
-      await Auth.api('/api/family/settings', {
-        method: 'PUT',
-        body: JSON.stringify({ preferred_locale: loc }),
-      });
+      let lastErr;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        try {
+          await Auth.api('/api/family/settings', {
+            method: 'PUT',
+            body: JSON.stringify({ preferred_locale: loc }),
+          });
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          const msg = String(err && err.message ? err.message : err);
+          if (attempt < 3 && /429|för många/i.test(msg)) {
+            await sleep(65000);
+            continue;
+          }
+          throw err;
+        }
+      }
+      if (lastErr) throw lastErr;
       const cached = Auth.getUser && Auth.getUser();
       if (cached) {
         cached.preferred_locale = loc;
