@@ -24,6 +24,7 @@ test('incident notice config and routes exist', () => {
   assert.match(html, /30 juli till 1 augusti 2026/);
   assert.match(html, /__SUPPORT_EMAIL__/);
   assert.match(route, /injectSupportEmail/);
+  assert.match(route, /injectBrandPlaceholders/);
   assert.match(html, /merparten av familjernas uppgifter/);
   assert.doesNotMatch(html, /all data är säker/i);
   assert.doesNotMatch(html, /allt är återställt/i);

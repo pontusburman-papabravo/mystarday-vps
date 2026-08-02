@@ -11,38 +11,18 @@ const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
 const { getPlayStoreUrl } = require('../../config/store-links');
 const incidentNotice = require('../../config/incident-notice');
+const {
+  brandName,
+  siteUrl,
+  injectSiteUrl,
+  injectBrandPlaceholders,
+} = require('../lib/public-html-placeholders');
 
 const router = express.Router();
-
-const BRAND_NAME_FALLBACK = ['Min', 'Stjärndag'].join(' ');
-
-function brandName() {
-  const fromEnv = process.env.EMAIL_FROM_NAME;
-  if (fromEnv && !fromEnv.includes('REDACTED')) return fromEnv;
-  return BRAND_NAME_FALLBACK;
-}
-
-function siteUrl() {
-  const fromEnv = process.env.PUBLIC_SITE_URL || process.env.APP_URL || '';
-  if (fromEnv && !fromEnv.includes('REDACTED')) {
-    return fromEnv.replace(/\/$/, '');
-  }
-  return ['https://', 'mys', 'tar', 'day', '.se'].join('');
-}
-
-function injectSiteUrl(html) {
-  return html.replace(/__SITE_URL__/g, siteUrl());
-}
 
 function injectSocialLinks(html) {
   const slug = process.env.FACEBOOK_PAGE_SLUG || 'mystarday'; // pragma: allowlist secret
   return html.replace(/__FACEBOOK_SLUG__/g, slug);
-}
-
-/** Cloud-agent placeholders in static HTML → real product name at serve time */
-function injectBrandPlaceholders(html) {
-  const brand = brandName();
-  return html.replace(/\[REDACTED\]/g, brand);
 }
 
 function injectStoreLinks(html) {

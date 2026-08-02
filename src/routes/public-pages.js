@@ -5,6 +5,10 @@ const path = require('path');
 const fs = require('fs');
 const { hasAccess } = require('../../db/features');
 const { MIRROR_ENTRIES } = require('../../config/en-public-mirror');
+const {
+  injectSiteUrl,
+  injectBrandPlaceholders,
+} = require('../lib/public-html-placeholders');
 
 function defaultSupportEmail() {
   const raw = process.env.EMAIL_FROM || '';
@@ -32,6 +36,8 @@ router.get('/kontakt', (req, res) => {
 router.get('/viktig-information', (req, res) => {
   const htmlPath = path.join(__dirname, '../../public', 'viktig-information.html');
   let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectSiteUrl(html);
+  html = injectBrandPlaceholders(html);
   html = injectSupportEmail(html);
   res.type('html').send(html);
 });
