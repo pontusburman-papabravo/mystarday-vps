@@ -101,13 +101,19 @@
       label: 'Paket',
       items: [
         {
-          key: 'paket',
+          navOnly: true,
           navId: 'paket',
           label: 'Paket',
-          targetSection: 'paket',
-          subview: 'teacch',
-          capability: 'stable',
           children: [
+            {
+              key: 'paket',
+              navId: 'paket',
+              label: 'Översikt',
+              targetSection: 'paket',
+              subview: 'teacch',
+              parentNavId: 'paket',
+              capability: 'stable',
+            },
             { key: 'extra-stod', navId: 'extra-stod', label: 'Extra stöd', targetSection: 'paket', subview: 'teacch', parentNavId: 'paket', capability: 'stable' },
             { key: 'paket-rapportering', navId: 'paket-rapportering', label: 'Rapportering', targetSection: 'paket', subview: 'reporting', parentNavId: 'paket', capability: 'stable' },
             { key: 'paket-pedagog', navId: 'paket-pedagog', label: 'Pedagog', targetSection: 'paket', subview: 'pedagog', parentNavId: 'paket', capability: 'stable' },
