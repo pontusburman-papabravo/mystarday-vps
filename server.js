@@ -7,6 +7,8 @@ if (process.env.ACTIVATION_PROGRAM_LAUNCH_AT) {
 }
 
 const logger = require('./src/lib/logger');
+const { validateRevenueCatClientKeysAtStartup } = require('./src/lib/iap-client-config');
+validateRevenueCatClientKeysAtStartup();
 const { startMidnightScheduler, stopMidnightScheduler } = require('./src/lib/midnight-scheduler');
 const { startDeletionScheduler, stopDeletionScheduler } = require('./src/lib/deletion-scheduler');
 const { startWeeklySummaryScheduler, stopWeeklySummaryScheduler } = require('./src/lib/weekly-summary-scheduler');
