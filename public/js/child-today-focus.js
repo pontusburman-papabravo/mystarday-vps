@@ -38,21 +38,12 @@
     });
   }
 
-  function sortBySchedule(items) {
-    return items.slice().sort(function (a, b) {
-      const am = a.sort_order != null ? a.sort_order : 0;
-      const bm = b.sort_order != null ? b.sort_order : 0;
-      if (am !== bm) return am - bm;
-      return String(a.start_time || '').localeCompare(String(b.start_time || ''));
-    });
-  }
-
   function buildQuestQueue(items, backendFiltered) {
-    const sorted = sortBySchedule(items);
+    const ordered = items || [];
     const result = { now: [], next: [], later: [] };
 
     if (backendFiltered) {
-      sorted.forEach(function (item) {
+      ordered.forEach(function (item) {
         if (item.completed) return;
         const status = item._nnl_status || 'now';
         if (status === 'now') result.now.push(item);
@@ -63,7 +54,7 @@
     }
 
     let unchecked = 0;
-    sorted.forEach(function (item) {
+    ordered.forEach(function (item) {
       if (item.completed) return;
       unchecked++;
       if (unchecked === 1) result.now.push(item);
