@@ -399,13 +399,14 @@ async function assertPrimaryNavEnglish(page) {
 }
 
 async function assertEnglishAppEnabled(page) {
-  const state = await page.evaluate(async () => {
-    const r = await fetch('/api/family/locale-options', { credentials: 'include' });
-    if (!r.ok) return { ok: false, status: r.status };
-    const opts = await r.json();
-    return { ok: opts.english_app_enabled === true, opts };
-  });
-  assert.equal(state.ok, true, `english_app_enabled (locale-options: ${JSON.stringify(state)})`);
+  const result = await fetchWithSessionRetry(page, '/api/family/locale-options');
+  const opts = result.body || {};
+  const ok = result.status === 200 && opts.english_app_enabled === true;
+  assert.equal(
+    ok,
+    true,
+    `english_app_enabled (locale-options: status=${result.status}, opts=${JSON.stringify(opts)})`
+  );
 }
 
 async function readPreferredLocaleFromApi(page) {
