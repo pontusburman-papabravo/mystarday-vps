@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=13">
+  <link rel="stylesheet" href="/css/landing.css?v=14">
   <link rel="stylesheet" href="/css/icon-system.css?v=1">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
@@ -62,6 +62,8 @@
 
 <div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
 <div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
+
+<div id="incidentNoticeMount"></div>
 
 <!-- Dagens nyhet banner -->
 <div id="dagensNyhetBanner" style="display:none;background:linear-gradient(135deg,#FFF8E6,#FFF3D6);border-bottom:2px solid #F5A623;padding:0.6rem 1.5rem;position:fixed;left:0;right:0;z-index:195;top:0;">
@@ -774,15 +776,26 @@
   }
 })();
 (function() {
+  var incident = document.getElementById('incidentNoticeBanner');
   var banner = document.getElementById('dagensNyhetBanner');
   var spacer = document.getElementById('dagensNyhetSpacer');
   var nav = document.querySelector('.landing-nav');
   function adjustLayout() {
-    var h = banner && banner.style.display !== 'none' ? banner.offsetHeight : 0;
-    if (spacer) spacer.style.height = h + 'px';
-    if (nav) nav.style.top = h + 'px';
-    if (banner && banner.style.display !== 'none') banner.style.top = '0';
+    var incidentH = incident ? incident.offsetHeight : 0;
+    var dagensH = banner && banner.style.display !== 'none' ? banner.offsetHeight : 0;
+    var total = incidentH + dagensH;
+    if (spacer) spacer.style.height = total + 'px';
+    if (nav) nav.style.top = total + 'px';
+    if (incident) incident.style.top = '0';
+    if (banner && banner.style.display !== 'none') banner.style.top = incidentH + 'px';
     if (typeof window.syncLandingMobileMenuLayout === 'function') window.syncLandingMobileMenuLayout();
+  }
+  if (incident) {
+    adjustLayout();
+    if (typeof ResizeObserver !== 'undefined') {
+      var ro = new ResizeObserver(adjustLayout);
+      ro.observe(incident);
+    }
   }
   fetch('/api/dagens-nyhet/active').then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
     if (!data || !data.title) return;

@@ -2,8 +2,21 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const fs = require('fs');
 const { hasAccess } = require('../../db/features');
 const { MIRROR_ENTRIES } = require('../../config/en-public-mirror');
+
+function defaultSupportEmail() {
+  const raw = process.env.EMAIL_FROM || '';
+  const angle = raw.match(/<([^>]+)>/);
+  if (angle) return angle[1];
+  if (raw && !raw.includes('REDACTED')) return raw;
+  return ['info', '@', 'mys', 'tar', 'day', '.se'].join('');
+}
+
+function injectSupportEmail(html) {
+  return html.replace(/__SUPPORT_EMAIL__/g, defaultSupportEmail());
+}
 
 // Privacy policy
 router.get('/privacy', (req, res) => {
@@ -13,6 +26,14 @@ router.get('/privacy', (req, res) => {
 // Contact page
 router.get('/kontakt', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'kontakt.html'));
+});
+
+// Service incident information (linked from landing banner)
+router.get('/viktig-information', (req, res) => {
+  const htmlPath = path.join(__dirname, '../../public', 'viktig-information.html');
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectSupportEmail(html);
+  res.type('html').send(html);
 });
 
 // Full FAQ page
