@@ -75,7 +75,7 @@
               body: JSON.stringify({ ordered_item_ids: ordered_ids }),
             });
             await loadDay(currentDate, false);
-          } catch (err) {
+          } catch (_err) {
             showToast(t('today.saveFailed'), true);
             await loadDay(currentDate, false);
           }
@@ -96,8 +96,8 @@
     const isExpanded = subStepExpanded[itemId];
 
     if (!isExpanded) {
-      if (!_substepIntroSeen) {
-        _substepIntroSeen = true;
+      if (!substepIntroState.seen) {
+        substepIntroState.seen = true;
         localStorage.setItem('substepIntroSeen', '1');
         document.querySelectorAll('.intro-tooltip').forEach(el => el.remove());
         document.querySelectorAll('.expand-btn.intro-hint').forEach(el => el.classList.remove('intro-hint'));
