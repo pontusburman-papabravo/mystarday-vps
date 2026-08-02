@@ -285,22 +285,13 @@ function renderActivities(data, trueStarBalance) {
       }
     }
 
-    // Sort each sub-group by start_time
-    const sortByTime = (arr) => [...arr].sort((a, b) => {
-      const am = getTimeMinutes(a.start_time);
-      const bm = getTimeMinutes(b.start_time);
-      if (am === null && bm === null) return 0;
-      if (am === null) return 1;
-      if (bm === null) return -1;
-      return am - bm;
-    });
-
+    // Preserve order from GET /api/me/daily-log (parent sort_order / child override).
     const dagdelGroups = [
-      { key: 'morgon',      items: sortByTime(sections['morgon'] || []) },
-      { key: 'formiddag',   items: sortByTime(formiddagItems) },
-      { key: 'eftermiddag', items: sortByTime(eftermiddagItems) },
-      { key: 'kvall',       items: sortByTime(sections['kvall'] || []) },
-      { key: 'natt',        items: sortByTime(sections['natt'] || []) },
+      { key: 'morgon',      items: sections['morgon'] || [] },
+      { key: 'formiddag',   items: formiddagItems },
+      { key: 'eftermiddag', items: eftermiddagItems },
+      { key: 'kvall',       items: sections['kvall'] || [] },
+      { key: 'natt',        items: sections['natt'] || [] },
     ];
 
     for (const group of dagdelGroups) {
