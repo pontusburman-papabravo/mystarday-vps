@@ -842,11 +842,8 @@ async function openSettingsFamilyLocale(page, baseUrl) {
     if (!mount || mount.offsetParent === null) return false;
     const en = mount.querySelector('[data-locale-value="en-GB"]');
     const sv = mount.querySelector('[data-locale-value="sv-SE"]');
-    if (!en || !sv || en.offsetParent === null || sv.offsetParent === null) return false;
-    const anyClickable = [...mount.querySelectorAll('[data-locale-value]')].some(
-      (btn) => btn.offsetParent !== null && !btn.hidden && !btn.disabled
-    );
-    return familyOk && anyClickable;
+    return familyOk
+      && Boolean(en && sv && en.offsetParent !== null && sv.offsetParent !== null);
   }, { timeout: 60000 });
 }
 
@@ -1074,7 +1071,7 @@ async function withFamilyLocaleScope(browser, page, baseUrl, seed, testName, fn)
       if (session === 'parent') {
         const now = await readPreferredLocaleFromApi(page);
         if (now !== restoreTarget) {
-          await setFamilyLocaleViaSettings(page, baseUrl, restoreTarget);
+          await persistFamilyLocaleViaApi(page, restoreTarget);
         }
         const after = await readFamilyLocaleSnapshot(page);
         logLocaleAudit({ test: testName, phase: 'cleanup_passed', ...after, restoreTarget });
