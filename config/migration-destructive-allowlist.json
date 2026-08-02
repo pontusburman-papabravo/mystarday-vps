@@ -1,0 +1,4 @@
+{
+  "comment": "Manually reviewed migrations that intentionally contain destructive SQL. Empty by default for PR-825 expand-only migrations.",
+  "allowedMigrationFiles": []
+}

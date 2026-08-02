@@ -97,7 +97,8 @@ function detectImageMime(buffer) {
   return null;
 }
 
-async function pickConnectAddress(hostname) {
+async function pickConnectAddress(hostname, options = {}) {
+  const allowTestLoopback = process.env.NODE_ENV === 'test' && options.allowLoopback === true;
   const host = String(hostname || '').toLowerCase().replace(/\.$/, '');
   if (!host) {
     const err = new Error('blocked_host');
@@ -105,7 +106,7 @@ async function pickConnectAddress(hostname) {
     throw err;
   }
   if (net.isIP(host)) {
-    if (isPrivateOrBlockedIp(host)) {
+    if (isPrivateOrBlockedIp(host) && !(allowTestLoopback && (host === '127.0.0.1' || host === '::1'))) {
       const err = new Error('blocked_host');
       err.code = 'BLOCKED_HOST';
       throw err;
@@ -119,21 +120,21 @@ async function pickConnectAddress(hostname) {
     throw err;
   }
   for (const entry of addresses) {
-    if (!isPrivateOrBlockedIp(entry.address)) {
-      return entry;
+    if (isPrivateOrBlockedIp(entry.address)) {
+      const err = new Error('blocked_host');
+      err.code = 'BLOCKED_HOST';
+      throw err;
     }
   }
-  const err = new Error('blocked_host');
-  err.code = 'BLOCKED_HOST';
-  throw err;
+  return addresses[0];
 }
 
 /**
  * HTTP(S) GET with DNS pinning — connects to a pre-resolved public IP and verifies socket remoteAddress.
  */
-function pinnedHttpGet(currentUrl, timeoutMs, maxBytes = DEFAULT_MAX_BYTES) {
+function pinnedHttpGet(currentUrl, timeoutMs, maxBytes = DEFAULT_MAX_BYTES, fetchOptions = {}) {
   return new Promise((resolve, reject) => {
-    pickConnectAddress(currentUrl.hostname)
+    pickConnectAddress(currentUrl.hostname, fetchOptions)
       .then((target) => {
         const isHttps = currentUrl.protocol === 'https:';
         const mod = isHttps ? https : http;
@@ -187,7 +188,9 @@ function pinnedHttpGet(currentUrl, timeoutMs, maxBytes = DEFAULT_MAX_BYTES) {
         req.on('socket', (socket) => {
           socket.once('connect', () => {
             const remote = socket.remoteAddress;
-            if (isPrivateOrBlockedIp(remote)) {
+            const allowTestLoopback = process.env.NODE_ENV === 'test' && fetchOptions.allowLoopback === true;
+            const loopbackRemote = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1';
+            if (isPrivateOrBlockedIp(remote) && !(allowTestLoopback && loopbackRemote)) {
               req.destroy();
               const err = new Error('blocked_host');
               err.code = 'BLOCKED_HOST';
@@ -241,10 +244,20 @@ async function safeFetchImageUrl(urlString, options = {}) {
     throw err;
   }
 
+  if (currentUrl.username || currentUrl.password) {
+    const err = new Error('credentials_in_url');
+    err.code = 'CREDENTIALS_IN_URL';
+    throw err;
+  }
+
   let redirectCount = 0;
+  const allowTestLoopback = process.env.NODE_ENV === 'test' && options.allowLoopback === true;
+
   while (true) {
+    const loopbackHost = net.isIP(currentUrl.hostname)
+      && (currentUrl.hostname === '127.0.0.1' || currentUrl.hostname === '::1');
     const hostOkPolicy = hostnameAllowedByPolicy(currentUrl.hostname, { allowHostnames });
-    if (!hostOkPolicy) {
+    if (!hostOkPolicy && !(allowTestLoopback && loopbackHost)) {
       const hostOk = await resolveHostAllowed(currentUrl.hostname);
       if (!hostOk) {
         const err = new Error('blocked_host');
@@ -254,7 +267,9 @@ async function safeFetchImageUrl(urlString, options = {}) {
     }
 
     try {
-      const response = await pinnedHttpGet(currentUrl, timeoutMs, maxBytes);
+      const response = await pinnedHttpGet(currentUrl, timeoutMs, maxBytes, {
+        allowLoopback: options.allowLoopback,
+      });
 
       if (response.status >= 300 && response.status < 400) {
         const location = response.headers.location;

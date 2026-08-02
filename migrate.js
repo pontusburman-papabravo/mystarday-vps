@@ -44,11 +44,19 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false },
 });
 
+const MIGRATION_RUNNER_LOCK_ID = 1099;
+
 async function migrate() {
   console.log('Running migrations...');
 
   const client = await pool.connect();
   try {
+    const lock = await client.query('SELECT pg_try_advisory_lock($1) AS acquired', [MIGRATION_RUNNER_LOCK_ID]);
+    if (!lock.rows[0]?.acquired) {
+      throw new Error('Another migration runner holds the advisory lock');
+    }
+    await client.query('SET lock_timeout = 30000');
+    await client.query('SET statement_timeout = 600000');
     // 1. Create migration tracking table (always first)
     await client.query(`
       CREATE TABLE IF NOT EXISTS _migrations (
@@ -66,6 +74,11 @@ async function migrate() {
 
     console.log('Migrations complete.');
   } finally {
+    try {
+      await client.query('SELECT pg_advisory_unlock($1)', [MIGRATION_RUNNER_LOCK_ID]);
+    } catch {
+      // ignore unlock errors on disconnect
+    }
     client.release();
     await pool.end();
   }
