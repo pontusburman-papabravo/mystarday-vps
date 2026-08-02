@@ -254,9 +254,13 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Key: userId for authenticated, IP for unauthenticated
+  // Key: namespaced principal for authenticated traffic; IP for unauthenticated
   keyGenerator: (req) => {
-    if (req.user && req.user.id) return `user:${req.user.id}`;
+    if (req.user && req.user.id) {
+      if (req.user.type === 'child') return `child:${req.user.id}`;
+      if (req.user.isAdmin) return `admin:${req.user.id}`;
+      return `parent:${req.user.id}`;
+    }
     return `ip:${getRealIp(req)}`;
   },
   // Skip SSE — long-lived connections must not consume rate limit tokens.
