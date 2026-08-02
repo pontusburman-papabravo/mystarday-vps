@@ -604,29 +604,31 @@ async function selectSettingsLocaleWithEvent(page, locale, { startLocale = null,
   }
 
   try {
-    const clickPromise = page.click(selector).catch(() => page.click(fallbackSelector));
+    const settingsPutPromise = page.waitForResponse(
+      (response) => /\/api\/family\/settings/.test(response.url())
+        && response.request().method() === 'PUT',
+      { timeout: 60000 }
+    );
 
-    const outcomePromise = Promise.race([
-      waitForLocaleChangedEvent(page, locale, 60000).catch(() => null),
-      page.waitForFunction(
-        async (loc) => {
-          const htmlOk = (document.documentElement.lang || '').toLowerCase() === loc.toLowerCase();
-          const i18nOk = window.I18n
-            && typeof I18n.getCurrentLang === 'function'
-            && I18n.getCurrentLang() === loc;
-          if (!i18nOk && !htmlOk) return false;
-          const r = await fetch('/api/auth/me', { credentials: 'include' });
-          if (!r.ok) return false;
-          const me = await r.json();
-          return me.preferred_locale === loc && i18nOk && htmlOk;
-        },
-        { timeout: 60000 },
-        locale
-      ),
-    ]);
+    const syncPromise = page.waitForFunction(
+      async (loc) => {
+        const htmlOk = (document.documentElement.lang || '').toLowerCase() === loc.toLowerCase();
+        const i18nOk = window.I18n
+          && typeof I18n.getCurrentLang === 'function'
+          && I18n.getCurrentLang() === loc;
+        if (!i18nOk || !htmlOk) return false;
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!r.ok) return false;
+        const me = await r.json();
+        return me.preferred_locale === loc;
+      },
+      { timeout: 60000 },
+      locale
+    );
 
-    await clickPromise;
-    await outcomePromise;
+    await page.click(selector).catch(() => page.click(fallbackSelector));
+
+    await Promise.all([settingsPutPromise, syncPromise]);
 
     await rc1Sleep(300);
 
