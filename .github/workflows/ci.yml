@@ -61,6 +61,9 @@ jobs:
       - name: Migrate
         run: npm run migrate
 
+      - name: Assert test database schema matches branch
+        run: node scripts/assert-disposable-database.mjs
+
       - name: Test
         run: npm run test:gate
 
