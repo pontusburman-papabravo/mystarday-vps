@@ -2061,3 +2061,46 @@ body.landing-login-choice-open {
   .landing-login-choice-overlay { display: none; }
 }
 
+/* ── Incident / drift notice (landing) ───────────────────── */
+.incident-notice-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 196;
+  background: linear-gradient(135deg, #f4f8fc, #eef4fa);
+  border-bottom: 2px solid rgba(42, 51, 85, 0.12);
+  padding: 0.75rem 1.25rem;
+}
+.incident-notice-banner__inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  text-align: center;
+}
+.incident-notice-banner__title {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--navy);
+  margin-bottom: 0.35rem;
+}
+.incident-notice-banner__body,
+.incident-notice-banner__detail {
+  font-size: 0.86rem;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin: 0 0 0.35rem;
+}
+.incident-notice-banner__link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.incident-notice-banner__link:hover {
+  color: var(--amber-dk);
+}
+

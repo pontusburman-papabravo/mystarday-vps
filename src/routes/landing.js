@@ -10,6 +10,7 @@ const { getFounderStatus } = require('../lib/payment-policy');
 const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
 const { getPlayStoreUrl } = require('../../config/store-links');
+const incidentNotice = require('../../config/incident-notice');
 
 const router = express.Router();
 
@@ -79,6 +80,24 @@ function getInlineStoreBadges() {
 function injectStoreBadgeSvgs(html) {
   const badges = getInlineStoreBadges();
   return html.replace(STORE_BADGE_IMG_RE, (_match, slug) => badges[slug] || _match);
+}
+
+function injectIncidentNotice(html) {
+  const mountRe = /<div id="incidentNoticeMount"><\/div>/;
+  if (!mountRe.test(html) || !incidentNotice.landingBannerEnabled) {
+    return html.replace(mountRe, '');
+  }
+  const infoPath = incidentNotice.infoPagePath || '/viktig-information';
+  const bannerHtml =
+    '<div id="incidentNoticeBanner" class="incident-notice-banner" role="region" aria-label="Viktig information">' +
+    '<div class="incident-notice-banner__inner">' +
+    '<p class="incident-notice-banner__title">Viktig information om ' + esc(brandName()) + '</p>' +
+    '<p class="incident-notice-banner__body">Vi har återställt tjänsten efter ett tekniskt fel. ' +
+    'Uppgifter som skapades eller ändrades mellan den 30 juli och 1 augusti kan tyvärr saknas.</p>' +
+    '<p class="incident-notice-banner__detail">Det kan bland annat gälla nya konton, barn, scheman, avprickade aktiviteter och intjänade stjärnor.</p>' +
+    '<a href="' + infoPath + '" class="incident-notice-banner__link">Läs mer och få hjälp</a>' +
+    '</div></div>';
+  return html.replace(mountRe, bannerHtml);
 }
 
 // Shared script injection — adds window.__APP_MODE__ for registration mode
@@ -162,6 +181,7 @@ async function serveLandingHtml(res, filename) {
   html = injectStoreLinks(html);
   html = injectStoreBadgeSvgs(html);
   html = await injectLandingNews(html);
+  html = injectIncidentNotice(html);
   html = injectAppMode(html);
   res.type('html').send(html);
   return true;

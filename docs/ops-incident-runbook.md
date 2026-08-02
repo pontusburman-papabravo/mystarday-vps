@@ -18,3 +18,9 @@ Se [`docs/ops-pool-monitoring.md`](ops-pool-monitoring.md).
 ## Rate limiting (single-instance)
 
 `express-rate-limit` använder MemoryStore — OK för nuvarande en-process-VPS. Vid horizontal skalning: Redis store krävs (se kommentar i `src/middleware/rateLimiter.js`).
+
+## Återställning juli–augusti 2026 (familjesupport)
+
+- **Publik info:** landningsbanner (`config/incident-notice.js`, `landingBannerEnabled`) → `/viktig-information`.
+- **Support:** förtroendebaserat — kräv inte bevis när en familj rapporterar saknade stjärnor/framsteg från 30 juli–1 augusti 2026. Justera rimligt antal stjärnor i admin när det efterfrågas.
+- **Lova inte** att all förlorad data kan återskapas; merparten av konton fanns i säkerhetskopian.
