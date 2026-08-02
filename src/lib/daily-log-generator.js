@@ -82,13 +82,13 @@ async function batchInsertDailyLogItems(q, logId, items) {
   const params = [];
   let pi = 1;
   for (const item of items) {
-    valueClauses.push(`($${pi}, $${pi + 1}, $${pi + 2}, $${pi + 3}, $${pi + 4}, $${pi + 5}, $${pi + 6}, $${pi + 7}, $${pi + 8}, $${pi + 8}, $${pi + 9})`);
+    valueClauses.push(`($${pi}, $${pi + 1}, $${pi + 2}, $${pi + 3}, $${pi + 4}, $${pi + 5}, $${pi + 6}, $${pi + 7}, $${pi + 8}, $${pi + 9})`);
     params.push(logId, item.activity_template_id, item.name, item.icon, item.image_url || null,
       item.start_time, item.end_time, item.star_value, item.sort_order, item.section);
     pi += 10;
   }
   await q.query(
-    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, child_sort_order, section) VALUES ${valueClauses.join(', ')}
+    `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time, star_value, sort_order, section) VALUES ${valueClauses.join(', ')}
      ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
     params
   );
@@ -480,7 +480,7 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
         await q.query(
           `UPDATE daily_log_item
            SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
-               star_value = $6, sort_order = $7, section = $8
+               star_value = $6, sort_order = $7, section = $8, child_sort_order = NULL
            WHERE id = $9`,
           [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.star_value, si.sort_order, si.section, di.id]
@@ -490,7 +490,7 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
         await q.query(
           `UPDATE daily_log_item
            SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
-               sort_order = $6, section = $7
+               sort_order = $6, section = $7, child_sort_order = NULL
            WHERE id = $8`,
           [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.sort_order, si.section, di.id]
@@ -514,8 +514,8 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
       await q.query(
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
-            star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)
+            star_value, sort_order, section)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
         [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, nextOrder, si.section]
@@ -619,8 +619,8 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
       await q.query(
         `INSERT INTO daily_log_item
            (daily_log_id, activity_template_id, name, icon, image_url, start_time, end_time,
-            star_value, sort_order, child_sort_order, section)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)
+            star_value, sort_order, section)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          ON CONFLICT (daily_log_id, activity_template_id) WHERE activity_template_id IS NOT NULL DO NOTHING`,
         [logId, si.activity_template_id, si.name, si.icon, si.image_url || null,
          si.start_time, si.end_time, si.star_value, si.sort_order, si.section]
@@ -646,7 +646,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
         await q.query(
           `UPDATE daily_log_item
            SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
-               star_value = $6, sort_order = $7, section = $8
+               star_value = $6, sort_order = $7, section = $8, child_sort_order = NULL
            WHERE id = $9`,
           [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.star_value, si.sort_order, si.section, di.id]
@@ -656,7 +656,7 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
         await q.query(
           `UPDATE daily_log_item
            SET name = $1, icon = $2, image_url = $3, start_time = $4, end_time = $5,
-               sort_order = $6, section = $7
+               sort_order = $6, section = $7, child_sort_order = NULL
            WHERE id = $8`,
           [si.name, si.icon, si.image_url || null, si.start_time, si.end_time,
            si.sort_order, si.section, di.id]

@@ -220,7 +220,7 @@ CREATE TABLE IF NOT EXISTS daily_log_item (
   completed_at TIMESTAMPTZ,
   completed_date DATE,
   sort_order INTEGER DEFAULT 0,
-  child_sort_order INTEGER DEFAULT 0,
+  child_sort_order INTEGER DEFAULT NULL,
   section VARCHAR(32) DEFAULT 'morgon',
   parent_note TEXT,
   child_note TEXT

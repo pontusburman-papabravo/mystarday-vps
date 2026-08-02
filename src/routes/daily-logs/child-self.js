@@ -84,12 +84,8 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     // Apply child's custom ordering within each section.
     // child_sort_order is set when the child reorders activities via drag & drop.
     // Falls back to parent's sort_order when no custom order has been set.
-    const sortedItems = [...enrichedItems].sort((a, b) => {
-      if (a.section !== b.section) return 0; // section grouping handled below
-      const aOrder = a.child_sort_order != null ? a.child_sort_order : a.sort_order;
-      const bOrder = b.child_sort_order != null ? b.child_sort_order : b.sort_order;
-      return aOrder - bOrder;
-    });
+    const { compareChildDailyLogItems } = require('../../lib/daily-log-child-order');
+    const sortedItems = [...enrichedItems].sort(compareChildDailyLogItems);
 
     // Group items by section (using child-sorted order)
     const sections = {};

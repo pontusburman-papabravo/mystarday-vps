@@ -13,7 +13,7 @@ describe('daily-log-generator', () => {
     assert.equal(getDayOfWeek('2026-06-04', 'Europe/Stockholm'), 4);
   });
 
-  it('batchInsertDailyLogItems uses 10 bind params per row (11 cols, child_sort_order reuses sort_order)', () => {
+  it('batchInsertDailyLogItems uses 10 bind params per row (sort_order + section, no child_sort_order)', () => {
     const src = fs.readFileSync(
       path.join(__dirname, '../src/lib/daily-log-generator.js'),
       'utf8',
@@ -23,8 +23,8 @@ describe('daily-log-generator', () => {
     assert.ok(start >= 0 && end > start);
     const fn = src.slice(start, end);
     assert.match(fn, /pi \+= 10;/);
-    assert.match(fn, /child_sort_order, section\) VALUES/);
-    assert.doesNotMatch(fn, /pi \+ 10\}/);
+    assert.match(fn, /sort_order, section\) VALUES/);
+    assert.doesNotMatch(fn, /child_sort_order, section\) VALUES/);
   });
 
   it('getChildAgeInYears uses timezone calendar dates (L4)', () => {
