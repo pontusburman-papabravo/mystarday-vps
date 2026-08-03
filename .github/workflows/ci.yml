@@ -27,9 +27,12 @@ jobs:
       JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
       NODE_ENV: test
       TEST_SKIP_MIGRATE: '1'
+      GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:

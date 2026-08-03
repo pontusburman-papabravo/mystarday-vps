@@ -26,15 +26,33 @@ function loadAllowlist() {
   return new Set(raw.allowedMigrationFiles || []);
 }
 
-function listNewMigrationFiles() {
-  let diff;
+function resolveMigrationDiffBase() {
+  if (process.env.GITHUB_BASE_SHA) {
+    return process.env.GITHUB_BASE_SHA;
+  }
   try {
-    diff = execSync('git diff --name-only --diff-filter=A origin/main -- migrations/', {
+    return execSync('git merge-base HEAD origin/main', {
       cwd: REPO_ROOT,
       encoding: 'utf8',
     }).trim();
   } catch {
-    return fs.readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.js'));
+    return 'origin/main';
+  }
+}
+
+function listNewMigrationFiles() {
+  const base = resolveMigrationDiffBase();
+  let diff;
+  try {
+    diff = execSync(`git diff --name-only --diff-filter=A ${base}...HEAD -- migrations/`, {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+    }).trim();
+  } catch (err) {
+    if (process.env.CI === 'true') {
+      throw new Error(`listNewMigrationFiles failed in CI (base=${base}): ${err.message}`);
+    }
+    return [];
   }
   if (!diff) {
     return [];
