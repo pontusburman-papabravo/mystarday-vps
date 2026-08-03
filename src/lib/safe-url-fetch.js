@@ -1,6 +1,8 @@
 'use strict';
 
 const dns = require('dns').promises;
+const http = require('http');
+const https = require('https');
 const net = require('net');
 const { URL } = require('url');
 const { getR2PublicHostname } = require('./safe-url-fetch-hosts');
@@ -95,6 +97,129 @@ function detectImageMime(buffer) {
   return null;
 }
 
+async function pickConnectAddress(hostname, options = {}) {
+  const allowTestLoopback = process.env.NODE_ENV === 'test' && options.allowLoopback === true;
+  const host = String(hostname || '').toLowerCase().replace(/\.$/, '');
+  if (!host) {
+    const err = new Error('blocked_host');
+    err.code = 'BLOCKED_HOST';
+    throw err;
+  }
+  if (net.isIP(host)) {
+    if (isPrivateOrBlockedIp(host) && !(allowTestLoopback && (host === '127.0.0.1' || host === '::1'))) {
+      const err = new Error('blocked_host');
+      err.code = 'BLOCKED_HOST';
+      throw err;
+    }
+    return { address: host, family: net.isIP(host) === 6 ? 6 : 4 };
+  }
+  const addresses = await dns.lookup(host, { all: true, verbatim: true });
+  if (!addresses.length) {
+    const err = new Error('blocked_host');
+    err.code = 'BLOCKED_HOST';
+    throw err;
+  }
+  for (const entry of addresses) {
+    if (isPrivateOrBlockedIp(entry.address)) {
+      const err = new Error('blocked_host');
+      err.code = 'BLOCKED_HOST';
+      throw err;
+    }
+  }
+  return addresses[0];
+}
+
+/**
+ * HTTP(S) GET with DNS pinning — connects to a pre-resolved public IP and verifies socket remoteAddress.
+ */
+function pinnedHttpGet(currentUrl, timeoutMs, maxBytes = DEFAULT_MAX_BYTES, fetchOptions = {}) {
+  return new Promise((resolve, reject) => {
+    pickConnectAddress(currentUrl.hostname, fetchOptions)
+      .then((target) => {
+        const isHttps = currentUrl.protocol === 'https:';
+        const mod = isHttps ? https : http;
+        const defaultPort = isHttps ? 443 : 80;
+        const port = currentUrl.port ? Number(currentUrl.port) : defaultPort;
+        const path = `${currentUrl.pathname || '/'}${currentUrl.search || ''}`;
+
+        const req = mod.request(
+          {
+            host: target.address,
+            port,
+            path,
+            method: 'GET',
+            headers: {
+              Host: currentUrl.hostname,
+              Accept: 'image/*',
+              Connection: 'close',
+            },
+            servername: isHttps ? currentUrl.hostname : undefined,
+            family: target.family,
+            timeout: timeoutMs,
+          },
+          (res) => {
+            const chunks = [];
+            let total = 0;
+            let tooLarge = false;
+            res.on('data', (chunk) => {
+              if (tooLarge) return;
+              total += chunk.length;
+              if (total > maxBytes) {
+                tooLarge = true;
+                req.destroy();
+                const err = new Error('too_large');
+                err.code = 'TOO_LARGE';
+                reject(err);
+                return;
+              }
+              chunks.push(chunk);
+            });
+            res.on('end', () => {
+              if (tooLarge) return;
+              resolve({
+                status: res.statusCode || 0,
+                headers: res.headers,
+                body: Buffer.concat(chunks),
+              });
+            });
+          }
+        );
+
+        req.on('socket', (socket) => {
+          socket.once('connect', () => {
+            const remote = socket.remoteAddress;
+            const allowTestLoopback = process.env.NODE_ENV === 'test' && fetchOptions.allowLoopback === true;
+            const loopbackRemote = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1';
+            if (isPrivateOrBlockedIp(remote) && !(allowTestLoopback && loopbackRemote)) {
+              req.destroy();
+              const err = new Error('blocked_host');
+              err.code = 'BLOCKED_HOST';
+              reject(err);
+            }
+          });
+        });
+
+        req.on('timeout', () => {
+          req.destroy();
+          const err = new Error('timeout');
+          err.code = 'TIMEOUT';
+          reject(err);
+        });
+        req.on('error', (err) => {
+          if (err.code === 'ABORT_ERR') {
+            const timeoutErr = new Error('timeout');
+            timeoutErr.code = 'TIMEOUT';
+            reject(timeoutErr);
+            return;
+          }
+          reject(err);
+        });
+        req.end();
+      })
+      .catch(reject);
+  });
+}
+
 /**
  * Fetch a remote image URL with SSRF protections.
  * @returns {Promise<{ buffer: Buffer, contentType: string }>}
@@ -119,10 +244,20 @@ async function safeFetchImageUrl(urlString, options = {}) {
     throw err;
   }
 
+  if (currentUrl.username || currentUrl.password) {
+    const err = new Error('credentials_in_url');
+    err.code = 'CREDENTIALS_IN_URL';
+    throw err;
+  }
+
   let redirectCount = 0;
+  const allowTestLoopback = process.env.NODE_ENV === 'test' && options.allowLoopback === true;
+
   while (true) {
+    const loopbackHost = net.isIP(currentUrl.hostname)
+      && (currentUrl.hostname === '127.0.0.1' || currentUrl.hostname === '::1');
     const hostOkPolicy = hostnameAllowedByPolicy(currentUrl.hostname, { allowHostnames });
-    if (!hostOkPolicy) {
+    if (!hostOkPolicy && !(allowTestLoopback && loopbackHost)) {
       const hostOk = await resolveHostAllowed(currentUrl.hostname);
       if (!hostOk) {
         const err = new Error('blocked_host');
@@ -131,18 +266,13 @@ async function safeFetchImageUrl(urlString, options = {}) {
       }
     }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(currentUrl, {
-        method: 'GET',
-        redirect: 'manual',
-        signal: controller.signal,
-        headers: { Accept: 'image/*' },
+      const response = await pinnedHttpGet(currentUrl, timeoutMs, maxBytes, {
+        allowLoopback: options.allowLoopback,
       });
 
       if (response.status >= 300 && response.status < 400) {
-        const location = response.headers.get('location');
+        const location = response.headers.location;
         if (!location || redirectCount >= MAX_REDIRECTS) {
           const err = new Error('redirect_limit');
           err.code = 'REDIRECT_LIMIT';
@@ -153,52 +283,39 @@ async function safeFetchImageUrl(urlString, options = {}) {
         continue;
       }
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status >= 300) {
         const err = new Error('fetch_failed');
         err.code = 'FETCH_FAILED';
         err.status = response.status;
         throw err;
       }
 
-      const chunks = [];
-      let total = 0;
-      const body = response.body;
-      if (!body) {
+      const buffer = response.body;
+      if (!buffer || buffer.length === 0) {
         const err = new Error('empty_body');
         err.code = 'EMPTY_BODY';
         throw err;
       }
-      const reader = body.getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        total += value.length;
-        if (total > maxBytes) {
-          const err = new Error('too_large');
-          err.code = 'TOO_LARGE';
-          throw err;
-        }
-        chunks.push(value);
+      if (buffer.length > maxBytes) {
+        const err = new Error('too_large');
+        err.code = 'TOO_LARGE';
+        throw err;
       }
-      const buffer = Buffer.concat(chunks);
+
       const magicMime = detectImageMime(buffer);
       if (!magicMime) {
         const err = new Error('not_image');
         err.code = 'NOT_IMAGE';
         throw err;
       }
-      const headerMime = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+      const headerMime = (response.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
       const contentType = headerMime.startsWith('image/') ? headerMime : magicMime;
       return { buffer, contentType };
     } catch (fetchErr) {
-      if (fetchErr.name === 'AbortError') {
-        const err = new Error('timeout');
-        err.code = 'TIMEOUT';
-        throw err;
+      if (fetchErr.code === 'TIMEOUT') {
+        throw fetchErr;
       }
       throw fetchErr;
-    } finally {
-      clearTimeout(timer);
     }
   }
 }
@@ -207,6 +324,7 @@ module.exports = {
   safeFetchImageUrl,
   isPrivateOrBlockedIp,
   resolveHostAllowed,
+  pickConnectAddress,
   detectImageMime,
   DEFAULT_MAX_BYTES,
   DEFAULT_TIMEOUT_MS,

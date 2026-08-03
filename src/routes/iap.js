@@ -6,12 +6,20 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
+const {
+  getPublicSdkKeyForPlatform,
+  getLegacyPublicApiKey,
+  getEntitlementId,
+  DEFAULT_PRODUCT_ID,
+} = require('../lib/iap-client-config');
 
 router.get('/config', requireAuth, (req, res) => {
+  const platform = String(req.query.platform || '').toLowerCase() === 'android' ? 'android' : 'ios';
+  const apiKey = getPublicSdkKeyForPlatform(platform) || getLegacyPublicApiKey();
   res.json({
-    apiKey: process.env.REVENUECAT_API_KEY || null,
-    productId: 'se.mystarday.app.basic',
-    entitlementId: 'basic',
+    apiKey: apiKey || null,
+    productId: process.env.REVENUECAT_DEFAULT_PRODUCT_ID || DEFAULT_PRODUCT_ID,
+    entitlementId: getEntitlementId(),
   });
 });
 

@@ -6,6 +6,7 @@ const {
   isPrivateOrBlockedIp,
   detectImageMime,
   resolveHostAllowed,
+  safeFetchImageUrl,
 } = require('../src/lib/safe-url-fetch');
 
 describe('safe-url-fetch', () => {
@@ -33,5 +34,19 @@ describe('safe-url-fetch', () => {
   test('resolveHostAllowed rejects localhost hostname', async () => {
     const ok = await resolveHostAllowed('localhost');
     assert.equal(ok, false);
+  });
+
+  test('safeFetchImageUrl blocks loopback URL', async () => {
+    await assert.rejects(
+      () => safeFetchImageUrl('http://127.0.0.1/'),
+      (err) => err && err.code === 'BLOCKED_HOST'
+    );
+  });
+
+  test('safeFetchImageUrl blocks file protocol', async () => {
+    await assert.rejects(
+      () => safeFetchImageUrl('file:///etc/passwd'),
+      (err) => err && err.code === 'INVALID_PROTOCOL'
+    );
   });
 });

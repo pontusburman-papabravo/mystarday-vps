@@ -12,6 +12,9 @@ const {
   verifyWebhookSignature,
 } = require('../src/lib/revenuecat-webhook-verify');
 const { resolveSubscriptionStatus } = require('../src/lib/revenuecat-webhook-process');
+const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
+
+applyIapWebhookTestEnv();
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
@@ -50,14 +53,19 @@ test('iap_webhook_log audit migration adds orphan follow-up columns', () => {
 });
 
 function buildEventPayload(overrides = {}) {
+  const now = Date.now();
   const event = {
     id: overrides.id || `evt_${crypto.randomUUID()}`,
     type: overrides.type || 'RENEWAL',
     app_user_id: overrides.app_user_id,
     original_app_user_id: overrides.original_app_user_id,
     aliases: overrides.aliases,
-    expiration_at_ms: overrides.expiration_at_ms,
-    environment: 'SANDBOX',
+    expiration_at_ms: overrides.expiration_at_ms ?? (now + 86_400_000),
+    environment: overrides.environment || 'LIVE',
+    product_id: overrides.product_id || 'rc_basic_monthly',
+    entitlement_ids: overrides.entitlement_ids || ['basic'],
+    app_id: overrides.app_id ?? TEST_APP_ID,
+    event_timestamp_ms: overrides.event_timestamp_ms ?? now,
     ...overrides.event,
   };
   if (overrides.type) event.type = overrides.type;
