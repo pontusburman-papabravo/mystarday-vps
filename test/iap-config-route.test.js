@@ -55,6 +55,7 @@ test('GET /api/iap/config returns contract without secrets', async (t) => {
     if (prevIos === undefined) delete process.env.REVENUECAT_IOS_PUBLIC_SDK_KEY;
     else process.env.REVENUECAT_IOS_PUBLIC_SDK_KEY = prevIos;
     await http.close();
+    await db.cleanup();
   }
 });
 
@@ -93,5 +94,6 @@ test('GET /api/iap/config withholds sdk key outside sandbox allowlist', async (t
     if (prevIos === undefined) delete process.env.REVENUECAT_IOS_PUBLIC_SDK_KEY;
     else process.env.REVENUECAT_IOS_PUBLIC_SDK_KEY = prevIos;
     await http.close();
+    await db.cleanup();
   }
 });
