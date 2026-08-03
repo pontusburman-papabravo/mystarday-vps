@@ -40,6 +40,20 @@ function buildFingerprintSql(spec) {
   return `SELECT encode(digest(coalesce(string_agg((${aggExpr}), '|' ORDER BY ${orderClause}), ''), 'sha256'), 'hex') AS fp FROM ${quoteIdent(spec.table)}`;
 }
 
+async function listAppliedMigrationNames(client) {
+  const exists = await tableExists(client, '_migrations');
+  if (!exists) return [];
+  const { rows } = await client.query('SELECT name FROM _migrations ORDER BY id');
+  return rows.map((r) => r.name);
+}
+
+async function loadFeatureFlagRows(client) {
+  const exists = await tableExists(client, 'feature_flag');
+  if (!exists) return [];
+  const { rows } = await client.query('SELECT key, enabled FROM feature_flag ORDER BY key');
+  return rows.map((r) => ({ key: r.key, enabled: r.enabled }));
+}
+
 async function snapshotTable(client, spec) {
   const exists = await tableExists(client, spec.table);
   if (!exists) {
@@ -116,7 +130,12 @@ export async function captureDbIntegritySnapshot(databaseUrl, meta = {}) {
     const tables = {};
     for (const spec of SNAPSHOT_TABLE_SPECS) {
       tables[spec.table] = await snapshotTable(client, spec);
+      if (spec.table === 'feature_flag' && tables.feature_flag.exists) {
+        tables.feature_flag.flag_rows = await loadFeatureFlagRows(client);
+      }
     }
+
+    const applied_migration_names = await listAppliedMigrationNames(client);
 
     return {
       version: 1,
@@ -126,6 +145,7 @@ export async function captureDbIntegritySnapshot(databaseUrl, meta = {}) {
       database_identity_hash: databaseIdentityHash(databaseUrl),
       postgres_server_version: pgVersion.rows[0].server_version,
       database_size_bytes: Number(dbSize.rows[0].bytes),
+      applied_migration_names,
       tables,
     };
   } finally {

@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import { runPreDeployBackupGate } from './lib/backup-gate-core.mjs';
 import { captureDbIntegritySnapshot } from './lib/db-integrity-snapshot-core.mjs';
+import { resolveDeployDatabaseUrl } from './lib/deploy-database-url.mjs';
 
 function parseArgs(argv) {
   const out = {
@@ -21,11 +22,12 @@ function parseArgs(argv) {
 
 async function main() {
   const args = parseArgs(process.argv);
+  const { databaseUrl } = resolveDeployDatabaseUrl();
   let snapshot = null;
   if (args.snapshotIn) {
     snapshot = JSON.parse(fs.readFileSync(args.snapshotIn, 'utf8'));
   } else {
-    snapshot = await captureDbIntegritySnapshot(process.env.DATABASE_URL, {
+    snapshot = await captureDbIntegritySnapshot(databaseUrl, {
       label: 'pre-deploy',
       deploySha: args.deploySha,
     });
@@ -35,6 +37,7 @@ async function main() {
     deploySha: args.deploySha,
     snapshot,
     emergencyMarkerPath: args.emergencyMarker,
+    databaseUrl,
   });
 
   if (result.skipped) {
@@ -51,6 +54,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`[backup-gate] FAILED: ${err.message}`);
+  console.error(`[backup-gate] ${err.code || err.message}`);
   process.exit(1);
 });

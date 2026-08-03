@@ -36,8 +36,15 @@ describe('vps-deploy-revision database safety contract', () => {
     const sh = fs.readFileSync(DEPLOY_SH, 'utf8');
     assert.match(sh, /compare-db-snapshots\.mjs/);
     const healthIdx = sh.indexOf('health check');
-    const compareIdx = sh.indexOf('compare-db-snapshots.mjs');
+    const compareIdx = sh.indexOf('post-deploy-runtime');
     assert.ok(compareIdx > healthIdx);
+  });
+
+  test('ensure deploy database env before first snapshot', () => {
+    const sh = fs.readFileSync(DEPLOY_SH, 'utf8');
+    const ensureIdx = sh.indexOf('ensure-deploy-database-env.mjs');
+    const snapIdx = sh.indexOf('pre-deploy database snapshot');
+    assert.ok(ensureIdx > -1 && ensureIdx < snapIdx);
   });
 
   test('migrate is invoked exactly once per deploy script path', () => {
