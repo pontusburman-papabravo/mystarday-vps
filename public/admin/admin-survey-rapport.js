@@ -15,6 +15,9 @@ let comparisonCharts = [];
 
 async function openRapport(surveyId) {
   rapportSurveyId = surveyId;
+  if (typeof window.ensureAdminChartJs === 'function') {
+    await window.ensureAdminChartJs();
+  }
   // Show rapport view, hide editor
   document.getElementById('surveysEditorView').classList.add('hidden');
   document.getElementById('surveysRapportView').classList.remove('hidden');
@@ -457,6 +460,9 @@ async function runComparison() {
   resultContainer.innerHTML = '<p class="text-text-soft text-sm py-4">Laddar jämförelsedata…</p>';
 
   try {
+    if (typeof window.ensureAdminChartJs === 'function') {
+      await window.ensureAdminChartJs();
+    }
     _destroyCharts(comparisonCharts);
     comparisonCharts = [];
     const data = await Auth.api('/api/admin/surveys/compare', { method: 'POST', body: JSON.stringify({ survey_ids: checked }) });

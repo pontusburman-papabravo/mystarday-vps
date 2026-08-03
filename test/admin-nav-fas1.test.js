@@ -291,6 +291,22 @@ describe('Fas 1 — admin-core wiring', () => {
     assert.match(lib, /showSection = function\(name, route\)/);
   });
 
+  test('admin-core does not eagerly load families or full inbox on DOMContentLoaded', () => {
+    const core = fs.readFileSync(CORE_PATH, 'utf8');
+    const initStart = core.indexOf("document.addEventListener('DOMContentLoaded'");
+    assert.ok(initStart > 0);
+    const initBlock = core.slice(initStart, initStart + 4500);
+    assert.doesNotMatch(initBlock, /loadFamilies\(\)/);
+    assert.doesNotMatch(initBlock, /loadMessagesInbox\(\)/);
+    assert.doesNotMatch(initBlock, /await loadAdminStats/);
+  });
+
+  test('index.html lazy-loads Chart.js via admin-chart-loader', () => {
+    const html = fs.readFileSync(INDEX_PATH, 'utf8');
+    assert.match(html, /admin-chart-loader\.js/);
+    assert.doesNotMatch(html, /chart\.js@4\.4\.0/);
+  });
+
   test('breadcrumb container in index.html', () => {
     const html = fs.readFileSync(INDEX_PATH, 'utf8');
     assert.match(html, /id="adminBreadcrumb"/);

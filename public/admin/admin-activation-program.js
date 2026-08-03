@@ -238,6 +238,10 @@
         Auth.api(`/api/admin/activation-program/retention?window=${currentWindow}`),
       ]);
 
+      if (typeof window.ensureAdminChartJs === 'function') {
+        await window.ensureAdminChartJs();
+      }
+
       const gapEl = document.getElementById('activationEnrollmentGap');
       if (gapEl) gapEl.textContent = String(funnel.enrollmentGap ?? '—');
 

@@ -250,15 +250,8 @@
           navigateToRoute(window.location.hash, { skipHashWrite: true });
         });
 
-        // Load stats (retry up to 3 times on transient failures)
-        await loadAdminStats(3);
-
-        // Load grouped families
-        if (typeof loadFamilies === 'function') loadFamilies();
-
-        // Load contact messages (prefer inbox v2 loader)
-        if (typeof loadMessagesInbox === 'function') loadMessagesInbox();
-        else if (typeof loadMessages === 'function') loadMessages();
+        // Stats for nav badges — do not block init; section loaders run via refreshSectionData
+        void loadAdminStats(3);
 
         // Export family emails (CSV)
         document.getElementById('exportEmailsBtn').addEventListener('click', async () => {
