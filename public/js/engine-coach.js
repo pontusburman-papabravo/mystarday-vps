@@ -74,6 +74,11 @@
   }
 
   function shouldDeferToJourneyCoach() {
+    if (window.ActivationFirstSuccessHub &&
+      typeof ActivationFirstSuccessHub.shouldSuppressLegacyCoaches === 'function' &&
+      ActivationFirstSuccessHub.shouldSuppressLegacyCoaches()) {
+      return true;
+    }
     const journey = document.getElementById('journeyCoachMount');
     return journey && !journey.classList.contains('hidden') && journey.innerHTML.trim().length > 0;
   }

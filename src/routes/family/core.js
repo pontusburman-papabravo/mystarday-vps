@@ -1021,13 +1021,15 @@ router.get('/activation-config', async (req, res) => {
         isActivationFlagEnabled(FLAG_KEYS.aiStarterPlan, familyId),
         isActivationFlagEnabled(FLAG_KEYS.signupSlim, familyId),
         isActivationFlagEnabled(FLAG_KEYS.handoffFilm, familyId),
-      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan, signupSlim, handoffFilm]) => ({
+        isActivationFlagEnabled(FLAG_KEYS.firstSuccessV1, familyId),
+      ]).then(([onboarding, childHandoff, firstStarGuide, aiStarterPlan, signupSlim, handoffFilm, firstSuccessV1]) => ({
         activation_onboarding_v1: onboarding,
         activation_child_handoff_v1: childHandoff,
         activation_first_star_guide_v1: firstStarGuide,
         activation_ai_starter_plan: aiStarterPlan,
         activation_signup_slim_v1: signupSlim,
         activation_onboarding_handoff_film_v1: handoffFilm,
+        activation_first_success_v1: firstSuccessV1,
       })),
       activationDb.getByFamilyId(familyId),
       db.query(

@@ -272,6 +272,8 @@
 
     if (readiness && readinessSlot) readinessSlot.appendChild(readiness);
     if (coachSlot) {
+      const fsCoach = document.getElementById('activationFirstSuccessCoachMount');
+      if (fsCoach) coachSlot.appendChild(fsCoach);
       if (engine) coachSlot.appendChild(engine);
       if (journey) coachSlot.appendChild(journey);
     }
@@ -362,6 +364,9 @@
       }
       if (window.HomeReadiness && typeof HomeReadiness.reload === 'function') {
         await HomeReadiness.reload();
+      }
+      if (window.ActivationFirstSuccessHub && typeof ActivationFirstSuccessHub.load === 'function') {
+        await ActivationFirstSuccessHub.load({ force: true }).catch(function () {});
       }
       if (window.EngineCoach && typeof EngineCoach.load === 'function') {
         await EngineCoach.load({ force: true }).catch(function () {});

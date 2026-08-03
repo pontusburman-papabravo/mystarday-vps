@@ -786,7 +786,8 @@
     if (funnelStep === 'signup' || isAddChild) return false;
 
     const flags = data.flags || {};
-    const act1Live = flags.activation_onboarding_v1 || flags.activation_signup_slim_v1;
+    const dayZero = flags.activation_first_success_v1 || flags.activation_signup_slim_v1;
+    const act1Live = flags.activation_onboarding_v1 || dayZero;
     if (!act1Live) return false;
 
     state.enabled = true;
@@ -799,7 +800,7 @@
       }));
     }
     if (funnelStep === 'child_created') {
-      if (flags.activation_signup_slim_v1) {
+      if (dayZero) {
         state.slim = true;
         hideLegacyStep1();
         ensureCard();
@@ -831,6 +832,19 @@
         return initResult;
       }
       const flags = data.flags || {};
+
+      if (flags.activation_first_success_v1 && !isAddChild) {
+        state.slim = true;
+        state.enabled = true;
+        state.flags = flags;
+        hideLegacyStep1();
+        ensureCard();
+        renderQuestion();
+        showStarterStep();
+        track('activation_onboarding_screen_viewed', { source: 'first_success_v1_entry' });
+        initResult = 'active';
+        return initResult;
+      }
 
       if (flags.activation_signup_slim_v1 && !isAddChild) {
         state.slim = true;

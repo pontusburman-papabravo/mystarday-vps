@@ -32,6 +32,52 @@
     "childLogin": "👶 Child logs in",
     "parentLogout": "Log out"
   },
+  "firstSuccess": {
+    "coachAria": "Next step toward your first successful routine",
+    "pinHint": "Your child uses their PIN. You can restore parent mode when they are done.",
+    "actions": {
+      "create_child": {
+        "headline": "Create your child's profile",
+        "body": "A name and a simple PIN are enough to get started.",
+        "cta": "Continue with child"
+      },
+      "save_schedule": {
+        "headline": "Save a simple first routine",
+        "body": "Pick a starter schedule — you can change it anytime.",
+        "cta": "Choose starter schedule"
+      },
+      "child_access": {
+        "headline": "Open child view",
+        "body": "Let your child log in with their PIN and try the first activity.",
+        "cta": "Child logs in"
+      },
+      "await_first_completion": {
+        "headline": "Waiting for the first activity",
+        "body": "Your child sees their routine in child view. Help them start if needed.",
+        "cta": "Open child view"
+      },
+      "parent_ack": {
+        "headline": "Your child completed an activity!",
+        "body": "Confirm so the star counts and you can celebrate together.",
+        "cta": "View activity"
+      },
+      "celebrate_first_success": {
+        "headline": "First star done!",
+        "body": "Well done — the routine works for real.",
+        "cta": "Continue"
+      },
+      "journey_coach": {
+        "headline": "Next step",
+        "body": "Keep building the routine at your pace.",
+        "cta": "Continue"
+      },
+      "engine_legacy": {
+        "headline": "Next step",
+        "body": "Follow the suggested next step.",
+        "cta": "Continue"
+      }
+    }
+  },
   "founderBanner": {
     "title": "🎉 You're a founding member",
     "body": "As one of the first families, you have lifetime access at no cost. Thank you for being with us from the start!"

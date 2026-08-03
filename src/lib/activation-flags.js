@@ -18,6 +18,7 @@ const FLAG_KEYS = {
   growthReferralCta: 'growth_referral_cta_v1',
   growthStuckCohorts: 'growth_stuck_cohorts_v1',
   growthWaitlistFunnel: 'growth_waitlist_funnel_v1',
+  firstSuccessV1: 'activation_first_success_v1',
 };
 
 /** PR 1–4 rollout — template, handoff, first star guide, AI (excludes PR 5 nudge). */

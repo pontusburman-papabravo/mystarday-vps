@@ -32,8 +32,11 @@ router.use('/', require('./core'));
 // ─── Locale context + English beta offer ─────────────────────────────────────
 router.use('/', require('./locale'));
 
-// ─── Product Engine API (single source of truth) ─────────────────────────────
+// ─── Product Engine API (compatibility adapter during Journey migration) ─────
 router.use('/', require('./first-success'));
+
+// ─── Canonical next-action (Journey authority, flag-gated) ───────────────────
+router.use('/', require('./next-action'));
 
 // ─── Account-deletion route ───────────────────────────────────────────────────
 router.use('/', require('./account'));

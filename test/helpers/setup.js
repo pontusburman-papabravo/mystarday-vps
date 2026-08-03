@@ -65,7 +65,20 @@ async function setupTestDb(options = {}) {
       `);
       if (rows.length === 0) return;
       const tables = rows.map((r) => `"${r.tablename}"`).join(', ');
-      await pool.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
+      const sql = `TRUNCATE ${tables} RESTART IDENTITY CASCADE`;
+      const maxAttempts = 4;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          await pool.query(sql);
+          return;
+        } catch (err) {
+          if (err.code === '40P01' && attempt < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, 25 * attempt));
+            continue;
+          }
+          throw err;
+        }
+      }
     }
 
     if (options.truncate !== false) {

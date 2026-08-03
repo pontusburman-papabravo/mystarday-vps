@@ -236,7 +236,7 @@
 // stjarndag-v764: child-login resume active child session; loadDay clears subStepExpanded
 // stjarndag-v763: child substep toggle stability, resilient SW precache, /health cache_version
 // stjarndag-v766: growth feedback loop client assets (flag-gated)
-const CACHE_NAME = 'stjarndag-v766';
+const CACHE_NAME = 'stjarndag-v767';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -533,6 +533,7 @@ const CACHE_NAME = 'stjarndag-v766';
 // stjarndag-v762: admin inbox split + merge main
 
 // stjarndag-v763: growth feedback loop client assets (flag-gated)
+// stjarndag-v767: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

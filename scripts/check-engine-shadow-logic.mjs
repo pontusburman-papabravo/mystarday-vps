@@ -26,6 +26,7 @@ const ALLOWLIST = new Set([
   path.join(ROOT, 'src/lib/win-back-scheduler.js'),
   path.join(ROOT, 'db/family-activation-state.js'),
   path.join(ROOT, 'src/routes/family/first-success.js'),
+  path.join(ROOT, 'src/lib/activation/canonical-next-action.js'),
   path.join(ROOT, 'src/lib/engine-trace-queue.js'),
 ]);
 
