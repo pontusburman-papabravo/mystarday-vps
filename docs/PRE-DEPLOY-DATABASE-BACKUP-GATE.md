@@ -155,6 +155,30 @@ Valid for 30 minutes; must match `DEPLOY_SHA`. Logged with operator and UTC time
 
 ---
 
+## VPS disposable restore databases (sudo helper)
+
+On the production VPS, `integrity_restore_*` create/drop uses **one** path: passwordless `sudo` to `/usr/local/sbin/app-disposable-db` (installed by `scripts/ops/install-vps-ops-environment.sh`). There is **no** `DATABASE_ADMIN_URL` or `CREATEDB` SQL role on the app server.
+
+### Sudoers (no `SETENV`)
+
+```text
+Cmnd_Alias APP_DISPOSABLE_DB = /usr/local/sbin/app-disposable-db create integrity_restore_*, \
+                               /usr/local/sbin/app-disposable-db drop integrity_restore_*
+deploy ALL=(root) NOPASSWD: APP_DISPOSABLE_DB
+```
+
+Sudo matches `create|drop` plus a single `integrity_restore_*` argument (fnmatch). The helper **re-validates** the name (`^integrity_restore_[a-z0-9_]+$`, max 63 chars, not `PROTECTED_DATABASE_NAME`) and accepts **exactly two** argv entries. Extra tokens are rejected by sudo and by the helper.
+
+### Helper environment
+
+PostgreSQL runs under `env -i` with fixed `PATH=/usr/bin:/bin`, `HOME=/var/lib/postgresql`, via `/usr/sbin/runuser -u postgres` and `/usr/bin/psql -X -h /var/run/postgresql -d postgres`. Caller `PGHOST`, `PGPORT`, `PSQLRC`, `PGOPTIONS`, `PATH`, etc. are not used for the `psql` invocation.
+
+### CI / local rehearsal
+
+`scripts/ops/lib/disposable-db-admin.mjs` may use `DATABASE_ADMIN_URL` (connection with `CREATEDB`) **only** in CI or disposable Postgres — never written by the VPS installer. PostgreSQL cannot restrict `CREATEDB` to a name prefix; that is why production avoids a parallel admin URL.
+
+---
+
 ## Scripts
 
 | Script | Role |
@@ -164,6 +188,8 @@ Valid for 30 minutes; must match `DEPLOY_SHA`. Logged with operator and UTC time
 | `scripts/ops/db-integrity-snapshot.mjs` | Read-only snapshot |
 | `scripts/ops/compare-db-snapshots.mjs` | Pre/post compare |
 | `scripts/ops/verify-backup-restore.mjs` | Disposable restore rehearsal |
+| `scripts/ops/install-vps-ops-environment.sh` | One-time VPS: sudo helper + `/etc/deploy-ops` |
+| `scripts/ops/app-disposable-db.sh` | Root-only create/drop `integrity_restore_*` |
 
 ---
 

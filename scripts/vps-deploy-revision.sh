@@ -123,6 +123,18 @@ OPS_DIR="$(cd "$(dirname "$0")/ops" && pwd)"
 DEPLOY_DATA_DIR="${VPS_APP_PATH}/data/deploy"
 mkdir -p "${DEPLOY_DATA_DIR}/snapshots"
 
+# Ops-only deploy gate config (not loaded by Node app systemd unit) # pragma: allowlist secret
+for _ops_env in /etc/deploy-ops/deploy-ops.env "${HOME}/deploy-ops.env"; do
+  if [ -f "${_ops_env}" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    . "${_ops_env}"
+    set +a
+    break
+  fi
+done
+unset _ops_env
+
 export APP_DEPLOY_PRODUCTION="${APP_DEPLOY_PRODUCTION:-1}"
 export BACKUP_REQUIRED="${BACKUP_REQUIRED:-1}"
 export BACKUP_EMERGENCY_MARKER_FILE="${DEPLOY_EMERGENCY_MARKER:-${BACKUP_EMERGENCY_MARKER_FILE:-}}"
