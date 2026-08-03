@@ -86,15 +86,32 @@ English i18n program remains **implementation-complete** on current `main` (SW `
 | Command | Result | Counts | Duration | First relevant issue | Class |
 |---------|--------|--------|----------|----------------------|-------|
 | `npm run audit:i18n:strict` | **PASS** | 0 hits | ~0.14s | — | — |
-| `npm run test:gate` (pre-fix, missing `sharp`) | FAIL | 1756 pass / 1 fail / 4 skipped | ~72s | `room-scene-export` MODULE_NOT_FOUND `sharp` | **Environment** (devDep not installed) |
-| `npm run test:gate` (after `npm ci --legacy-peer-deps`) | see final matrix | — | — | — | — |
-| RC1 unit suite (ported harness) | **PASS** | 28 pass | ~0.09s | — | — |
+| `npm run test:gate` (after `npm ci --legacy-peer-deps`, Node 20) | **PASS** | 1817 pass / 0 fail / 4 skipped (1821 tests) | ~79s | — | — |
+| `npm run test:gate:db` (isolated) | **PASS** | 357 pass / 0 fail | ~137s | — | — |
+| RC1 unit suite (ported harness + env) | **PASS** | 31 pass (nav race + locale Settings + picker + release identity) | ~0.08s | — | — |
 | `test/unit/rc1-english-smoke-env.test.js` | **PASS** | 5 pass | ~0.06s | — | — |
-| `npm run test:rc1:english-smoke` (no secrets) | **BLOCKED** (exit 0 skip) | — | — | Missing `RC1_SMOKE_BASE_URL` | **Missing secret** |
-| `RC1_SMOKE_BASE_URL=… npm run test:rc1:english-smoke` | **BLOCKED** (exit 1) | — | — | Missing `RC1_QA_FAMILY_ID` (then other QA secrets) | **Missing secret** |
-| `npm run test:e2e:i18n` | see final matrix | Expected ≥23 pass, 0 skip | — | — | — |
+| `npm run test:rc1:english-smoke` (no secrets) | **BLOCKED** (exit 0 skip) | — | under 1s | Missing `RC1_SMOKE_BASE_URL` | **Missing secret** |
+| `npm run test:e2e:i18n` (`E2E_BASE_URL=http://127.0.0.1:3000`) | **PASS** | 23 pass / 0 skip / 0 fail | ~191s | `landing_news` missing locally (non-fatal) | **Environment** |
 
 **Secrets present in this agent env (names only):** `FOUNDER_QA_*` MISSING · `RC1_QA_*` MISSING · `RC1_BASE_URL` / `RC1_SMOKE_BASE_URL` MISSING. Prod browser evidence therefore cannot be claimed.
+
+### Final matrix (2026-08-03 audit VM)
+
+| Gate | Status |
+|------|--------|
+| `audit:i18n:strict` | **PASS** |
+| `test:gate` | **PASS** |
+| `test:e2e:i18n` (local server) | **PASS** |
+| RC1 harness unit tests | **PASS** |
+| `test:rc1:english-smoke` (prod) | **BLOCKED** (secrets) |
+| Prod handoff ladder / 5×5×2 | **BLOCKED** (secrets) |
+| Physical iPhone QA | **NOT RUN** / **NEEDS MANUAL QA** |
+| Physical Android QA | **NOT RUN** / **NEEDS MANUAL QA** |
+| English legal (`/en/privacy`, `/en/terms`) | **LEGAL REVIEW REQUIRED** |
+| Native EN screenshots | **MISSING** / **STALE** |
+| Store console upload | **NEEDS STORE ACCESS** |
+| RC-1 automated functional PASS | **BLOCK** |
+| English store launch | **NO-GO** |
 
 ---
 

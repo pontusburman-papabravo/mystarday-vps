@@ -27,7 +27,7 @@
 | Handoff-only smoke 3/3 | **BLOCK** — secrets |
 | Full prod-smoke 5/5 × 2 | **BLOCK** — secrets |
 | Harness unit tests (nav race + locale Settings + env validation) | **PASS** (local) |
-| `test:gate` / `test:e2e:i18n` | See audit report final matrix |
+| `test:gate` / `test:e2e:i18n` | **PASS** (2026-08-03 audit VM: gate 1817/0 fail; e2e:i18n 23/0) |
 | Native device matrix | **BLOCK** / **NEEDS MANUAL QA** |
 
 ### Verdict (2026-08-03)

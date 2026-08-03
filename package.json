@@ -64,7 +64,6 @@
     "test:e2e:i18n": "node scripts/run-e2e-i18n.js",
     "test:e2e:rc1-prod-smoke": "node scripts/run-e2e-rc1-prod-smoke.js",
     "test:rc1:english-smoke": "npm run test:e2e:rc1-prod-smoke",
-    "test:rc1:english-smoke": "node scripts/run-e2e-rc1-prod-smoke.js",
     "rc1:qa:prepare": "node scripts/rc1-qa-family-prepare.js",
     "rc1:qa:prepare:dry-run": "node scripts/rc1-qa-family-prepare.js --dry-run",
     "rc1:mobile-browser-qa": "node scripts/rc1-mobile-browser-qa.mjs",
