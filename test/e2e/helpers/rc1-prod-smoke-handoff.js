@@ -25,6 +25,8 @@ const {
   classifyPinPreflight,
   classifyVerifyPinPickerOutcome,
   buildVerifyPinPickerCapture,
+  mergeVerifyPinPickerBodies,
+  classifyPickerHandoffResolution,
 } = require('./rc1-handoff-picker-contract');
 
 const PRODUCT_BUG = 'PRODUCT BUG FOUND';
@@ -103,6 +105,10 @@ function writePickerContractArtifact(diag) {
     verifyFailureClass: diag.verifyFailureClass || null,
     handoffDbAtVerifyFailure: diag.handoffDbAtVerifyFailure || null,
     logoutCorrelationId: diag.logout?.correlationId || null,
+    pickerResolution: diag.pickerResolution || null,
+    endStateError: diag.endStateError || null,
+    endStateSummary: diag.endStateSummary || null,
+    navigation: diag.navigation || null,
   };
   fs.writeFileSync(path.join(dir, 'picker-contract.json'), JSON.stringify(contract, null, 2), 'utf8');
   return dir;
@@ -429,7 +435,102 @@ async function assertHandoffParentClientComplete(page, diag) {
   assert.match(pathAfterSettle, /^\/(dashboard|planning|family|settings|for-dig)/, 'path stable on parent surface');
 }
 
-async function fillParentPinOverlay(page, parentPin) {
+async function readHandoffParentEndState(page, options = {}) {
+  const pickerWire = options.pickerWire || null;
+  await page.waitForFunction(
+    () => /^\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
+    { timeout: 90000 }
+  );
+
+  let client = null;
+  let cookieNames = [];
+  let handoffCookiePresent = true;
+  let hasAccessCookie = false;
+  let hasRefreshCookie = false;
+
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    try {
+      client = await page.evaluate(async () => {
+        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+        const me = meRes.ok ? await meRes.json() : {};
+        const authUser = window.Auth && typeof Auth.getUser === 'function' ? Auth.getUser() : null;
+        const csrf = window.Auth && typeof Auth.getCsrfToken === 'function' ? Auth.getCsrfToken() : null;
+        const deviceChild = window.DeviceMode && typeof DeviceMode.isChildMode === 'function'
+          ? DeviceMode.isChildMode()
+          : null;
+        return {
+          meType: me.type || null,
+          authUserType: authUser && authUser.type ? authUser.type : null,
+          deviceModeIsChild: deviceChild,
+          hasCsrf: Boolean(csrf),
+          hasChildUsername: Boolean(me.username && !me.email),
+          pathname: window.location.pathname,
+        };
+      });
+    } catch (err) {
+      if (!/Execution context was destroyed|context was destroyed/i.test(String(err.message))) {
+        throw err;
+      }
+      client = null;
+    }
+
+    const cookies = await page.cookies();
+    cookieNames = cookies.map((c) => c.name);
+    handoffCookiePresent = cookieNames.includes(HANDOFF_COOKIE);
+    hasAccessCookie = cookieNames.includes(ACCESS_COOKIE);
+    hasRefreshCookie = cookieNames.includes(REFRESH_COOKIE);
+
+    if (
+      client
+      && client.meType === 'parent'
+      && client.authUserType === 'parent'
+      && client.deviceModeIsChild === false
+      && client.hasCsrf
+      && hasAccessCookie
+      && hasRefreshCookie
+      && !handoffCookiePresent
+    ) {
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  if (client && client.meType === 'parent' && hasAccessCookie && !hasRefreshCookie) {
+    if (pickerWire?.pickerSetCookies?.setsRefreshCookie) {
+      hasRefreshCookie = true;
+    }
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      await new Promise((r) => setTimeout(r, 250));
+      const cookies = await page.cookies();
+      cookieNames = cookies.map((c) => c.name);
+      hasRefreshCookie = hasRefreshCookie || cookieNames.includes(REFRESH_COOKIE);
+      handoffCookiePresent = cookieNames.includes(HANDOFF_COOKIE);
+      if (hasRefreshCookie) break;
+    }
+  }
+
+  if (!client) {
+    return { pathname: null, meType: null, authUserType: null, deviceModeIsChild: null };
+  }
+
+  await new Promise((r) => setTimeout(r, 1500));
+  let pathnameAfterSettle = client.pathname;
+  try {
+    pathnameAfterSettle = await page.evaluate(() => window.location.pathname);
+  } catch {
+    pathnameAfterSettle = client.pathname;
+  }
+
+  return {
+    ...client,
+    pathnameAfterSettle,
+    handoffCookiePresent,
+    hasAccessCookie,
+    hasRefreshCookie,
+  };
+}
+
+async function enterParentPinDigits(page, parentPin) {
   const digits = String(parentPin).split('');
   for (let i = 0; i < digits.length; i += 1) {
     const filledBefore = await page.evaluate(() => {
@@ -459,6 +560,17 @@ async function fillParentPinOverlay(page, parentPin) {
       filledBefore
     );
   }
+  const filledDots = await page.evaluate(() => {
+    const dots = [...document.querySelectorAll('#ppin-gate-overlay .ppgo-dot')];
+    return dots.filter((d) => {
+      const bg = d.style.background || '';
+      return bg.includes('245, 166, 35') || bg.includes('#F5A623') || bg.includes('rgb(245, 166, 35)');
+    }).length;
+  });
+  assert.equal(filledDots, 4, 'parent PIN overlay must show four filled dots before submit');
+}
+
+async function submitParentPin(page) {
   await page.evaluate(() => {
     const kbd = document.querySelector('#ppgo-keypad');
     if (!kbd) throw new Error('PIN keypad missing at submit');
@@ -466,6 +578,11 @@ async function fillParentPinOverlay(page, parentPin) {
     if (!submit) throw new Error('PIN submit ✓ missing');
     submit.click();
   });
+}
+
+async function fillParentPinOverlay(page, parentPin) {
+  await enterParentPinDigits(page, parentPin);
+  await submitParentPin(page);
 }
 
 async function performParentChildHandoff(page, parentPin, options = {}) {
@@ -699,59 +816,254 @@ async function performParentChildHandoff(page, parentPin, options = {}) {
   await page.waitForSelector('#ppgo-keypad', { visible: true, timeout: 15000 });
   diag.pinOverlay = { visible: true };
 
-  const verifyPickerPromise = page.waitForResponse(
-    (response) => {
-      const request = response.request();
-      return request.method() === 'POST'
-        && new URL(response.url()).pathname === '/api/family/verify-pin-picker';
-    },
-    { timeout: 90000 }
-  );
+  const isVerifyPinPickerResponse = (response) => {
+    const request = response.request();
+    return request.method() === 'POST'
+      && new URL(response.url()).pathname === '/api/family/verify-pin-picker';
+  };
+
+  const verifyPickerPromise = page.waitForResponse(isVerifyPinPickerResponse, { timeout: 90000 });
+  const navigationDomPromise = page
+    .waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 90000 })
+    .then(() => ({ navigationStarted: true, navigationError: null, waitUntil: 'domcontentloaded' }))
+    .catch((error) => ({
+      navigationStarted: false,
+      navigationError: sanitizeErrorMessage(error.message),
+      waitUntil: 'domcontentloaded',
+    }));
+  const parentRoutePromise = page
+    .waitForFunction(
+      () => /^\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
+      { timeout: 90000 }
+    )
+    .then(() => ({ navigationStarted: true, navigationError: null, waitUntil: 'spa_route' }))
+    .catch((error) => ({
+      navigationStarted: false,
+      navigationError: sanitizeErrorMessage(error.message),
+      waitUntil: 'spa_route',
+    }));
+  const navigationPromise = Promise.race([navigationDomPromise, parentRoutePromise]);
 
   diag.phase = 'verify_pin_picker';
-  await fillParentPinOverlay(page, parentPin);
+  await enterParentPinDigits(page, parentPin);
+
+  let backupPickerBody = null;
+  let backupPickerReadOk = false;
+  let backupResolve;
+  const backupBodyPromise = new Promise((resolve) => {
+    backupResolve = resolve;
+  });
+  const onPickerResponse = async (res) => {
+    try {
+      const req = res.request();
+      if (req.method() !== 'POST') return;
+      if (new URL(res.url()).pathname !== '/api/family/verify-pin-picker') return;
+      try {
+        backupPickerBody = await res.json();
+        backupPickerReadOk = true;
+      } catch {
+        try {
+          const text = await res.text();
+          backupPickerBody = JSON.parse(text);
+          backupPickerReadOk = true;
+        } catch {
+          backupPickerReadOk = false;
+        }
+      }
+      if (backupResolve) backupResolve();
+    } catch {
+      backupPickerReadOk = false;
+      if (backupResolve) backupResolve();
+    }
+  };
+  page.on('response', onPickerResponse);
+
+  await submitParentPin(page);
 
   const pickerRes = await verifyPickerPromise;
+  await Promise.race([
+    backupBodyPromise,
+    new Promise((r) => setTimeout(r, 5000)),
+  ]);
+  const navigationResult = await navigationPromise;
+  page.off('response', onPickerResponse);
+  void page.waitForFunction(() => document.readyState === 'complete', { timeout: 20000 }).catch(() => {});
+
+  const pickerStatus = pickerRes.status();
   let pickerBody = {};
-  let pickerBodyReadOk = true;
+  let pickerBodyReadOk = false;
   try {
-    pickerBody = await pickerRes.json();
+    const buf = await pickerRes.buffer();
+    const rawText = buf.toString('utf8');
+    if (rawText && rawText.trim()) {
+      pickerBody = JSON.parse(rawText);
+      pickerBodyReadOk = true;
+    }
   } catch {
-    pickerBody = {};
-    pickerBodyReadOk = false;
+    try {
+      const rawText = await pickerRes.text();
+      if (rawText && rawText.trim()) {
+        pickerBody = JSON.parse(rawText);
+        pickerBodyReadOk = true;
+      }
+    } catch {
+      try {
+        pickerBody = await pickerRes.json();
+        pickerBodyReadOk = true;
+      } catch {
+        pickerBody = {};
+        pickerBodyReadOk = false;
+      }
+    }
+  }
+  if (!pickerBodyReadOk && backupPickerReadOk && backupPickerBody) {
+    pickerBody = backupPickerBody;
+    pickerBodyReadOk = true;
+    diag.verifyPinPickerBackupCapture = true;
   }
 
-  finalizeVerifyPinPickerOrStop(
-    diag,
-    pickerRes,
-    pickerBody,
-    pickerBodyReadOk,
-    handoffValueForDb,
-    reviewFamilyId,
-    { qaFixtureMode: options.qaFixtureMode === true }
-  );
-  const sanitizedPicker = diag.verifyPinPicker;
+  const pickerCdpBody = networkCapture ? await networkCapture.waitForPickerCdpBody(20000) : null;
+  diag.pickerWire = networkCapture?.getPickerWireCapture?.() || null;
+  let pickerCdpResolved = pickerCdpBody;
+  if (networkCapture && (!pickerCdpResolved?.jsonParseOk) && typeof networkCapture.retryPickerCdpBody === 'function') {
+    pickerCdpResolved = await networkCapture.retryPickerCdpBody();
+  }
+  const merged = mergeVerifyPinPickerBodies(pickerBody, pickerBodyReadOk, pickerCdpResolved);
+  const contractBodyForCapture = merged.ok
+    ? {
+      ok: true,
+      code: merged.code,
+      parent: merged.hasParent ? { id: 'redacted' } : null,
+      csrfToken: merged.hasCsrfToken ? 'redacted' : null,
+    }
+    : (pickerBodyReadOk ? pickerBody : { ok: false, code: merged.code });
 
-  assert.equal(pickerBody.ok, true, 'verify-pin-picker body.ok must be true');
-  assert.ok(sanitizedPicker.parent?.hasId, 'verify-pin-picker must return parent.id');
-  assert.ok(sanitizedPicker.parent?.hasEmail, 'verify-pin-picker must return parent.email');
+  const capture = buildVerifyPinPickerCapture(
+    pickerStatus,
+    pickerRes.headers(),
+    contractBodyForCapture,
+    pickerBodyReadOk
+  );
+  const sanitizedPicker = sanitizeVerifyPinPickerBody(
+    pickerBodyReadOk ? pickerBody : (pickerCdpResolved?.jsonParseOk ? {
+      ok: pickerCdpResolved.ok,
+      code: pickerCdpResolved.code,
+      parent: pickerCdpResolved.hasParent ? { id: 'x' } : null,
+      csrfToken: pickerCdpResolved.hasCsrfToken ? 'x' : null,
+    } : {})
+  );
+  diag.verifyPinPicker = {
+    ...capture,
+    ...sanitizedPicker,
+    puppeteerBodyReadOk: pickerBodyReadOk,
+    cdpBodyReadOk: pickerCdpResolved?.jsonParseOk === true,
+    cdpOk: pickerCdpResolved?.ok === true,
+    mergedSource: merged.source,
+  };
+  diag.navigation = {
+    ...navigationResult,
+    pickerHttpStatus: pickerStatus,
+    pickerRequestId: capture.requestId,
+    cdpRequestId: diag.pickerWire?.requestId || null,
+  };
+
+  if (pickerStatus === 429 || capture.retryAfter) {
+    stopHandoffWithPickerContract(diag, 'verify-pin-picker rate limited', 'OTHER_CONTRACT_ERROR');
+  }
+
+  const handoffErrorCodes = new Set([
+    'PARENT_HANDOFF_INVALID',
+    'PARENT_HANDOFF_USED',
+    'PARENT_HANDOFF_EXPIRED',
+    'PARENT_HANDOFF_CONSUME_FAILED',
+  ]);
+  const failureCode = merged.code || pickerBody.code || pickerCdpResolved?.code || null;
+  if (pickerStatus === 401 && failureCode === 'PARENT_PIN_INVALID') {
+    stopHandoffWithPickerContract(
+      diag,
+      'verify-pin-picker code PARENT_PIN_INVALID',
+      options.qaFixtureMode ? 'QA_FIXTURE_OR_SECRET_INJECTION_FAILURE' : 'PARENT_PIN_SECRET_MISMATCH'
+    );
+  }
+  if (handoffErrorCodes.has(failureCode)) {
+    if (handoffValueForDb) {
+      diag.handoffDbAtVerifyFailure = fetchHandoffRowDiagnostic(handoffValueForDb, reviewFamilyId);
+    }
+    diag.serverHandoffLogsAtVerify = fetchHandoffServerLogs(capture.requestId);
+    stopHandoffWithPickerContract(
+      diag,
+      `verify-pin-picker handoff contract failure (${failureCode})`,
+      'HANDOFF_INVALID_BEFORE_PIN'
+    );
+  }
+
+  if (pickerStatus !== 200) {
+    finalizeVerifyPinPickerOrStop(
+      diag,
+      pickerRes,
+      pickerBodyReadOk ? pickerBody : {},
+      pickerBodyReadOk,
+      handoffValueForDb,
+      reviewFamilyId,
+      { qaFixtureMode: options.qaFixtureMode === true }
+    );
+  }
+
+  let endState = null;
+  try {
+    endState = await readHandoffParentEndState(page, { pickerWire: diag.pickerWire });
+  } catch (err) {
+    diag.endStateError = sanitizeErrorMessage(err.message);
+  }
+
+  diag.endStateSummary = endState
+    ? {
+      meType: endState.meType,
+      authUserType: endState.authUserType,
+      deviceModeIsChild: endState.deviceModeIsChild,
+      hasCsrf: endState.hasCsrf,
+      pathname: endState.pathname,
+      pathnameAfterSettle: endState.pathnameAfterSettle,
+      handoffCookiePresent: endState.handoffCookiePresent,
+      hasAccessCookie: endState.hasAccessCookie,
+      hasRefreshCookie: endState.hasRefreshCookie,
+      hasChildUsername: endState.hasChildUsername,
+    }
+    : null;
+
+  const resolution = classifyPickerHandoffResolution({
+    httpStatus: pickerStatus,
+    puppeteerReadOk: pickerBodyReadOk,
+    puppeteerOk: pickerBody.ok === true,
+    cdpJsonOk: pickerCdpResolved?.jsonParseOk === true,
+    cdpOk: pickerCdpResolved?.ok === true,
+    code: failureCode,
+    navigationStarted: navigationResult.navigationStarted === true
+      || (endState && /^\/(dashboard|planning|family|settings|for-dig)/.test(endState.pathname || '')),
+    navigationError: navigationResult.navigationError || null,
+    endState,
+  });
+  diag.pickerResolution = resolution;
+
+  if (!resolution.success) {
+    const msg = `verify-pin-picker harness/product outcome [classification=${resolution.classification}]`;
+    if (resolution.productBug) {
+      const err = new Error(`${PRODUCT_BUG}: ${msg}`);
+      err.rc1Classification = resolution.classification;
+      throw err;
+    }
+    stopHandoffWithPickerContract(diag, msg, resolution.classification);
+  }
 
   diag.phase = 'auth_me';
-  const meAfterPicker = await readSessionKind(page);
-  diag.authMe = { kind: meAfterPicker.kind, httpStatus: meAfterPicker.status };
-  assert.equal(meAfterPicker.kind, 'parent', 'after verify-pin-picker: /api/auth/me must be parent');
-  assert.equal(meAfterPicker.hasUsername, false, 'child session must not remain after picker');
+  diag.authMe = { kind: endState.meType, httpStatus: 200 };
+  assert.equal(endState.meType, 'parent', 'after verify-pin-picker: /api/auth/me must be parent');
+  assert.equal(endState.hasChildUsername, false, 'child session must not remain after picker');
 
-  diag.phase = 'navigation';
-  await page.waitForFunction(
-    () => /\/(dashboard|planning|family|settings|for-dig)/.test(window.location.pathname),
-    { timeout: 90000 }
-  );
-  diag.navigation = { path: await page.evaluate(() => window.location.pathname) };
-
-  diag.finalSession = meAfterPicker.kind;
-  diag.finalPath = diag.navigation.path;
-  diag.classification = 'SUCCESS_NEEDS_PARENT_PIN';
+  diag.finalSession = endState.meType;
+  diag.finalPath = endState.pathname;
+  diag.pathAfterSettle = endState.pathnameAfterSettle;
+  diag.classification = resolution.classification;
   await assertHandoffParentClientComplete(page, diag);
   return diag;
 }

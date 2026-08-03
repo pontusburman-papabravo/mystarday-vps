@@ -22,7 +22,7 @@ Order (full gate):
 | 4 | Parent/child handoff (`RC1_PARENT_PIN`) | API fixture only |
 | 5 | Reports gating (last — may see documented 429 + Retry-After) | No |
 
-Handoff uses HTTP contract on `POST /api/auth/logout` and **Model B** (`verify-pin-picker`). CDP `Network.getResponseBody` is primary logout-body evidence; Puppeteer read failures are not treated as `{}` server contracts. See **Handoff diagnostics** below.
+Handoff uses HTTP contract on `POST /api/auth/logout` and **Model B** (`verify-pin-picker`). CDP `Network.getResponseBody` is primary logout-body evidence; Puppeteer read failures are not treated as `{}` server contracts. For `verify-pin-picker`, listeners for response, CDP body, and navigation are installed **before** PIN submit (digits filled first, then submit). HTTP 200 with a failed Puppeteer `response.json()` during immediate `/dashboard` navigation is recovered via CDP body and/or post-navigation parent end-state — not classified as a server contract bug alone. See **Handoff diagnostics** below.
 
 ## Handoff diagnostics
 
@@ -36,6 +36,9 @@ Handoff uses HTTP contract on `POST /api/auth/logout` and **Model B** (`verify-p
 | `SESSION_GATE_OR_CLIENT_NAVIGATION_BUG` | Parent `/api/auth/me` but `/child-login` with gate evidence |
 | `SERVER_COOKIE_ACTIVATION_BUG` | Restore signals but browser session anonymous |
 | `SERVER_LOGOUT_CONTRACT_BUG` | CDP JSON proves invalid 200 only |
+| `SUCCESS_PICKER_*` / `SUCCESS_PICKER_BODY_CAPTURE_RACE_RECOVERED` | Picker + parent route end-state verified after navigation |
+| `TEST_HARNESS_NAVIGATION_RACE` | Picker listeners or document readiness lost to navigation (harness) |
+| `CLIENT_NAVIGATION_FAILED` | Picker contract OK but parent route never committed |
 
 ## Handoff debug (not release gate)
 
@@ -47,8 +50,10 @@ Runs release identity + handoff only (2 tests). Requires 3/3 pass before trustin
 
 ## Locale fixtures
 
-- **Settings UI test** — `withFamilyLocaleScope` (Settings selectors; attempt-local 429 retry only).
+- **Settings UI test** — `withFamilyLocaleScope` (Settings selectors; **target-locale** waits — active locale button may be `disabled`; do not wait for `en-GB` enabled when switching to `sv-SE`). One mount/reload recovery for transient mount errors; 429 retry respects `Retry-After` only.
 - **Child + handoff** — `withFamilyLocaleFixture` (authenticated `PUT /api/family/settings`; cleanup via **new isolated parent context**, never child `logout`).
+
+Locale harness classifications include `LOCALE_TARGET_DISABLED`, `LOCALE_API_UPDATED_UI_NOT_UPDATED`, `SUCCESS_LOCALE_SETTINGS_UI`, etc. (see `test/e2e/helpers/rc1-locale-settings-harness.js`).
 
 Primary vs cleanup failures use `AggregateError` when both fail; locale audit phases: `test_failed`, `cleanup_started`, `cleanup_passed` / `cleanup_failed`.
 

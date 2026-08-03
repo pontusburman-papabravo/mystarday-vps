@@ -9,10 +9,22 @@
 const { spawnSync, execSync } = require('node:child_process');
 const path = require('node:path');
 const { RC1_QA_PARENT_EMAIL, RC1_QA_CHILD_USERNAME, isAllowedRc1QaParentEmail } = require('../test/support/rc1-qa-fixture');
+const {
+  collectRc1EnglishSmokeEnvIssues,
+  formatRc1EnglishSmokeBlockedReason,
+} = require('./lib/rc1-english-smoke-env');
 
 const baseUrl = process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL;
 if (!baseUrl) {
-  console.log('[rc1-prod-smoke] skip — set RC1_SMOKE_BASE_URL or E2E_BASE_URL');
+  const blocked = formatRc1EnglishSmokeBlockedReason(
+    collectRc1EnglishSmokeEnvIssues(process.env, {
+      requireBaseUrl: true,
+      requireHandoff: process.env.RC1_REQUIRE_HANDOFF !== 'false',
+      useQaFixture: process.env.RC1_USE_QA_FIXTURE !== '0',
+    })
+  );
+  console.log(`[rc1-prod-smoke] skip — set RC1_SMOKE_BASE_URL or E2E_BASE_URL`);
+  if (blocked) console.log(`[rc1-prod-smoke] ${blocked}`);
   process.exit(0);
 }
 
