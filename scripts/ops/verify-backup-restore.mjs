@@ -3,13 +3,14 @@
  * Restore rehearsal to a disposable database only — never production.
  */
 import fs from 'node:fs';
-import { execFileSync, spawnSync } from 'node:child_process';
-import pg from 'pg';
+import { spawnSync } from 'node:child_process';
 import { assertDisposableRestoreDatabaseName } from './lib/backup-gate-core.mjs';
 import { captureDbIntegritySnapshot } from './lib/db-integrity-snapshot-core.mjs';
 import { compareDbSnapshots } from './lib/compare-snapshots.mjs';
-
-const { Pool } = pg;
+import {
+  createDisposableDatabase,
+  dropDisposableDatabase,
+} from './lib/disposable-db-admin.mjs';
 
 function parseArgs(argv) {
   const out = {
@@ -27,12 +28,6 @@ function parseArgs(argv) {
   return out;
 }
 
-function sslForUrl(databaseUrl) {
-  return databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1')
-    ? false
-    : { rejectUnauthorized: false };
-}
-
 async function main() {
   const args = parseArgs(process.argv);
   if (!args.backupFile || !args.targetDb) {
@@ -48,26 +43,8 @@ async function main() {
   const baseUrl = process.env.DATABASE_URL;
   if (!baseUrl) throw new Error('DATABASE_URL_MISSING');
 
-  const adminUrl = process.env.DATABASE_ADMIN_URL;
-  if (!adminUrl) {
-    throw new Error('DATABASE_ADMIN_URL_REQUIRED_FOR_RESTORE');
-  }
-  const adminPool = new Pool({
-    connectionString: adminUrl,
-    ssl: sslForUrl(adminUrl),
-  });
-  const admin = await adminPool.connect();
-  try {
-    await admin.query(
-      `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()`,
-      [args.targetDb]
-    );
-    await admin.query(`DROP DATABASE IF EXISTS ${quoteIdent(args.targetDb)}`);
-    await admin.query(`CREATE DATABASE ${quoteIdent(args.targetDb)}`);
-  } finally {
-    admin.release();
-    await adminPool.end();
-  }
+  const protectedName = process.env.PROTECTED_DATABASE_NAME || null;
+  await createDisposableDatabase(args.targetDb, { protectedName });
 
   const targetUrl = new URL(baseUrl);
   targetUrl.pathname = `/${args.targetDb}`;
@@ -109,11 +86,6 @@ async function main() {
   }
 
   console.error(`[restore-rehearsal] OK database=${args.targetDb}`);
-}
-
-function quoteIdent(name) {
-  if (!/^[a-z0-9_]+$/.test(name)) throw new Error('INVALID_DB_NAME');
-  return `"${name}"`;
 }
 
 main().catch((err) => {

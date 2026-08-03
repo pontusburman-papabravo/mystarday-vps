@@ -52,9 +52,11 @@ node scripts/ops/db-integrity-snapshot.mjs --out "$SNAP_PRE" --label pre-restore
 RESTORE_DB="integrity_restore_$(date -u +%Y%m%d_%H%M%S)"
 export RESTORE_DB
 
-if [ -z "${DATABASE_ADMIN_URL:-}" ]; then
-  echo "NO_GO: SAFE_DATABASE_ADMIN_PATH_UNAVAILABLE"
-  exit 2
+if [ ! -x "$(command -v sudo 2>/dev/null)" ] || ! sudo -n /usr/local/sbin/app-disposable-db create integrity_restore_probe_check 2>/dev/null; then
+  if [ "${APP_DISPOSABLE_DB_USE_SUDO:-}" != "1" ]; then
+    echo "NO_GO: SUDO_DISPOSABLE_DB_UNAVAILABLE"
+    exit 2
+  fi
 fi
 
 node scripts/ops/verify-backup-restore.mjs \
@@ -77,16 +79,7 @@ DATABASE_URL="$RESTORE_URL" NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false \
   REVENUECAT_ALLOWED_APP_IDS=test_app REVENUECAT_ALLOWED_PRODUCT_IDS=rc_basic_monthly \
   node --test test/migration-iap-safety.integration.test.js test/iap-webhook-ordering.integration.test.js
 
-# Drop restore DB via admin
-node --input-type=module -e "
-import pg from 'pg';
-const admin = process.env.DATABASE_ADMIN_URL;
-const name = process.env.RESTORE_DB;
-const pool = new pg.Pool({ connectionString: admin, ssl: false });
-const c = await pool.connect();
-await c.query(\`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = \$1 AND pid <> pg_backend_pid()\`, [name]);
-await c.query('DROP DATABASE IF EXISTS \"' + name.replace(/\"/g,'') + '\"');
-c.release(); await pool.end();
-"
+# Drop restore DB via sudo helper
+sudo -n /usr/local/sbin/app-disposable-db drop "$RESTORE_DB"
 
 echo "REHEARSAL_OK report=$REPORT_DIR"
