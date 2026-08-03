@@ -13,7 +13,34 @@
 
   let _childSortables = [];
   const _expandFetches = {}; // itemId -> Promise
+  const _substepInFlight = new Set(); // itemId:subStepId while PUT pending
   const SUBSTEPS_FETCH_TIMEOUT_MS = 12000;
+  const SUBSTEP_ERROR_FLASH_MS = 2000;
+
+  function substepInFlightKey(itemId, subStepId) {
+    return String(itemId) + ':' + String(subStepId);
+  }
+
+  function currentSubStepDone(itemId, subStepId, fallbackDone) {
+    if (subStepCache[itemId]) {
+      const step = subStepCache[itemId].find((s) => String(s.id) === String(subStepId));
+      if (step) return !!step.completed;
+    }
+    return !!fallbackDone;
+  }
+
+  function setSubstepRowUi(subStepId, className, on) {
+    const row = document.getElementById('substep-row-' + subStepId);
+    if (!row) return;
+    row.classList.toggle(className, !!on);
+  }
+
+  function isOfflineOrNetworkError(err) {
+    if (!navigator.onLine) return true;
+    if (err instanceof TypeError) return true;
+    const msg = (err && err.message) ? String(err.message) : '';
+    return /fetch|network|Failed to fetch|Load failed/i.test(msg);
+  }
 
   function fetchSubSteps(itemId) {
     if (_expandFetches[itemId]) return _expandFetches[itemId];
@@ -177,23 +204,34 @@
 
   async function toggleSubStep(event, itemId, subStepId, isCurrentlyDone) {
     event.stopPropagation();
-    const action = isCurrentlyDone ? 'uncomplete' : 'complete';
+    if (event.preventDefault) event.preventDefault();
+
+    const flightKey = substepInFlightKey(itemId, subStepId);
+    if (_substepInFlight.has(flightKey)) return;
+
+    const wasDone = currentSubStepDone(itemId, subStepId, isCurrentlyDone);
+    const action = wasDone ? 'uncomplete' : 'complete';
+    const nextDone = !wasDone;
+
+    _substepInFlight.add(flightKey);
+    setSubstepRowUi(subStepId, 'pending', true);
+    setSubstepRowUi(subStepId, 'error', false);
 
     if (subStepCache[itemId]) {
-      const step = subStepCache[itemId].find(s => s.id === subStepId);
+      const step = subStepCache[itemId].find((s) => String(s.id) === String(subStepId));
       if (step) {
-        step.completed = !isCurrentlyDone;
-        step.completed_at = !isCurrentlyDone ? new Date().toISOString() : null;
+        step.completed = nextDone;
+        step.completed_at = nextDone ? new Date().toISOString() : null;
       }
     }
     renderSubStepList(itemId);
+    updateSubStepProgressBadge(itemId);
 
     try {
       await Auth.api(`/api/me/daily-log-items/${itemId}/sub-steps/${subStepId}/${action}`, { method: 'PUT' });
-      updateSubStepProgressBadge(itemId);
 
       const steps = subStepCache[itemId] || [];
-      const allDone = steps.length > 0 && steps.every(s => s.completed);
+      const allDone = steps.length > 0 && steps.every((s) => s.completed);
       const card = document.getElementById('card-' + itemId);
       const mainIsDone = card && card.classList.contains('done');
 
@@ -210,12 +248,44 @@
       }
     } catch (err) {
       console.error('Sub-step toggle error:', err);
-      if (subStepCache[itemId]) {
-        const step = subStepCache[itemId].find(s => s.id === subStepId);
-        if (step) { step.completed = isCurrentlyDone; }
+      const hardFailure = err && typeof err.status === 'number' && err.status >= 400;
+      const queueOffline = !hardFailure && isOfflineOrNetworkError(err)
+        && window.OfflineQueue;
+
+      if (queueOffline) {
+        try {
+          if (nextDone) {
+            await window.OfflineQueue.queueSubstepComplete(itemId, subStepId);
+          } else {
+            await window.OfflineQueue.queueSubstepUncomplete(itemId, subStepId);
+          }
+        } catch (queueErr) {
+          console.error('Sub-step offline queue error:', queueErr);
+          hardFailureRollback();
+        }
+      } else {
+        hardFailureRollback();
       }
-      renderSubStepList(itemId);
-      showToast(t('today.saveFailed'), true);
+
+      function hardFailureRollback() {
+        if (subStepCache[itemId]) {
+          const step = subStepCache[itemId].find((s) => String(s.id) === String(subStepId));
+          if (step) {
+            step.completed = wasDone;
+            step.completed_at = wasDone ? step.completed_at : null;
+          }
+        }
+        renderSubStepList(itemId);
+        updateSubStepProgressBadge(itemId);
+        setSubstepRowUi(subStepId, 'error', true);
+        window.setTimeout(function () {
+          setSubstepRowUi(subStepId, 'error', false);
+        }, SUBSTEP_ERROR_FLASH_MS);
+        showToast(t('today.saveFailed'), true);
+      }
+    } finally {
+      _substepInFlight.delete(flightKey);
+      setSubstepRowUi(subStepId, 'pending', false);
     }
   }
 

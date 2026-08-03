@@ -856,6 +856,9 @@ const Auth = {
    */
   _fullClear() {
     this.clearAuth();
+    if (typeof window !== 'undefined' && window.OfflineQueue && typeof window.OfflineQueue.clear === 'function') {
+      window.OfflineQueue.clear().catch(() => {});
+    }
     try {
       localStorage.removeItem('stjarndag_selected_child');
       localStorage.removeItem('stjarndag_theme');
@@ -867,6 +870,9 @@ const Auth = {
    * Child tokens (httpOnly cookies) are revoked server-side.
    */
   _clearChildCookies: function () {
+    if (typeof window !== 'undefined' && window.OfflineQueue && typeof window.OfflineQueue.clear === 'function') {
+      window.OfflineQueue.clear().catch(() => {});
+    }
     try {
       localStorage.removeItem('stjarndag_selected_child');
       localStorage.removeItem('stjarndag_theme');

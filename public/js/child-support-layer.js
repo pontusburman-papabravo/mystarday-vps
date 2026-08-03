@@ -43,7 +43,14 @@
       if (!row || typeof window.toggleSubStep !== 'function') return;
       const itemId = row.getAttribute('data-substep-item');
       const stepId = row.getAttribute('data-substep-id');
-      const isDone = row.getAttribute('data-substep-done') === '1';
+      const rowDone = row.getAttribute('data-substep-done') === '1';
+      let isDone = rowDone;
+      if (window.subStepCache && window.subStepCache[itemId]) {
+        const step = window.subStepCache[itemId].find(function (s) {
+          return String(s.id) === String(stepId);
+        });
+        if (step) isDone = !!step.completed;
+      }
       window.toggleSubStep(e, itemId, stepId, isDone);
     });
   }
@@ -69,7 +76,7 @@
       const step = steps[i];
       const isChecked = !!step.completed;
       html +=
-        '<div class="substep-row" data-substep-item="' + esc(itemId) + '" data-substep-id="' + esc(step.id) + '" data-substep-done="' + (isChecked ? '1' : '0') + '" id="substep-row-' + esc(step.id) + '">' +
+        '<div class="substep-row" role="button" tabindex="0" aria-pressed="' + (isChecked ? 'true' : 'false') + '" data-substep-item="' + esc(itemId) + '" data-substep-id="' + esc(step.id) + '" data-substep-done="' + (isChecked ? '1' : '0') + '" id="substep-row-' + esc(step.id) + '">' +
         '<div class="substep-check ' + (isChecked ? 'checked' : '') + '" id="substep-check-' + esc(step.id) + '">' +
         (isChecked ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' : '') +
         '</div>' +

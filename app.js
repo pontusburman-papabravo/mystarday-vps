@@ -69,11 +69,13 @@ function createApp() {
   app.get('/health', (req, res) => {
     const { readDeployedSha } = require('./src/lib/deployed-sha');
     const { getIapReadinessSnapshot } = require('./src/lib/iap-readiness');
+    const { cacheName } = require('./config/cache-version.json');
     const gitSha = readDeployedSha();
     const iap = getIapReadinessSnapshot();
     res.json({
       status: 'healthy',
       version: '2.3.1',
+      cache_version: cacheName,
       ...(gitSha ? { git_sha: gitSha } : {}),
       ...iap,
     });

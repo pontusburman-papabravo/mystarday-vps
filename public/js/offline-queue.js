@@ -10,6 +10,8 @@
  * Action types:
  *   'COMPLETE_ACTIVITY'    { itemId, substepId?, completed: true }
  *   'UNCOMPLETE_ACTIVITY' { itemId, substepId? }
+ *   'COMPLETE_SUBSTEP'    { itemId, subStepId }
+ *   'UNCOMPLETE_SUBSTEP'  { itemId, subStepId }
  *   'ADD_STARS'            { childId, count, reason }
  *   'CHILD_RATE'           { itemId, score?, emotion_key?, comment? }
  *   'REDEEM_REWARD'        { childId, rewardId }
@@ -126,6 +128,9 @@
       case 'COMPLETE_ACTIVITY':
       case 'UNCOMPLETE_ACTIVITY':
         return 'item:' + (action.payload.itemId || action.payload.id);
+      case 'COMPLETE_SUBSTEP':
+      case 'UNCOMPLETE_SUBSTEP':
+        return 'substep:' + action.payload.itemId + ':' + action.payload.subStepId;
       case 'ADD_STARS':
         return 'stars:' + action.payload.childId;
       case 'CHILD_RATE':
@@ -293,6 +298,20 @@
           body: JSON.stringify({ child_id: childId, reward_id: rewardId }),
         });
       }
+      case 'COMPLETE_SUBSTEP': {
+        const { itemId, subStepId } = entry.payload;
+        return fetch(
+          `/api/me/daily-log-items/${itemId}/sub-steps/${subStepId}/complete`,
+          { ...opts, method: 'PUT' }
+        );
+      }
+      case 'UNCOMPLETE_SUBSTEP': {
+        const { itemId, subStepId } = entry.payload;
+        return fetch(
+          `/api/me/daily-log-items/${itemId}/sub-steps/${subStepId}/uncomplete`,
+          { ...opts, method: 'PUT' }
+        );
+      }
       default:
         return new Response(JSON.stringify({ error: 'Unknown action type' }), {
           status: 400,
@@ -344,6 +363,12 @@
     },
     queueRedeem(childId, rewardId) {
       return queueAction({ type: 'REDEEM_REWARD', payload: { childId, rewardId } });
+    },
+    queueSubstepComplete(itemId, subStepId) {
+      return queueAction({ type: 'COMPLETE_SUBSTEP', payload: { itemId, subStepId } });
+    },
+    queueSubstepUncomplete(itemId, subStepId) {
+      return queueAction({ type: 'UNCOMPLETE_SUBSTEP', payload: { itemId, subStepId } });
     },
   };
 })();

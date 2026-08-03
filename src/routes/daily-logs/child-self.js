@@ -711,7 +711,15 @@ childSelfRouter.get('/weekly-schedule', async (req, res) => {
        JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
        JOIN activity_template at ON at.id = wsi.activity_template_id
        WHERE ws.child_id = $1 AND ws.week_variant IS NULL
-       ORDER BY ws.day_of_week ASC, wsi.sort_order ASC`,
+       ORDER BY ws.day_of_week ASC,
+         CASE wsi.section
+           WHEN 'morgon' THEN 0
+           WHEN 'dag' THEN 1
+           WHEN 'kvall' THEN 2
+           WHEN 'natt' THEN 3
+           ELSE 9
+         END,
+         wsi.sort_order ASC`,
       [childId]
     );
 
