@@ -212,6 +212,14 @@ describe('app-disposable-db security (integration)', () => {
     }
     configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'deploy-ops-test-'));
     fs.writeFileSync(path.join(configDir, 'protected-database-name'), protectedName, 'utf8');
+    const appRole = (() => {
+      try {
+        return new URL(process.env.DATABASE_URL || '').username || 'postgres';
+      } catch {
+        return 'postgres';
+      }
+    })();
+    fs.writeFileSync(path.join(configDir, 'database-app-role'), appRole, 'utf8');
   });
 
   after(() => {
@@ -381,6 +389,7 @@ describe('app-disposable-db security (integration)', () => {
     }
     const blockDir = fs.mkdtempSync(path.join(os.tmpdir(), 'deploy-ops-block-'));
     fs.writeFileSync(path.join(blockDir, 'protected-database-name'), 'integrity_restore_production', 'utf8');
+    fs.writeFileSync(path.join(blockDir, 'database-app-role'), 'postgres', 'utf8');
     const r = runHelper(['create', 'integrity_restore_production'], {
       APP_DISPOSABLE_DB_CONFIG_DIR: blockDir,
     });
@@ -414,6 +423,7 @@ describe('app-disposable-db security (integration)', () => {
 function makeTestConfig(protectedDb) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'deploy-ops-static-'));
   fs.writeFileSync(path.join(dir, 'protected-database-name'), protectedDb, 'utf8');
+  fs.writeFileSync(path.join(dir, 'database-app-role'), 'postgres', 'utf8');
   return { dir, env: { APP_DISPOSABLE_DB_CONFIG_DIR: dir } };
 }
 

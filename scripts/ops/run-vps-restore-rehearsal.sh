@@ -52,7 +52,7 @@ git checkout -f "$TARGET_SHA"
 [ -d node_modules/pg ] || npm ci --legacy-peer-deps --include=dev --omit=optional >/dev/null
 
 DUMP=""
-for dir in "${APP_DB_BACKUP_DIR:-}" "$HOME/db-backups-rehearsal"; do
+for dir in "${APP_DB_BACKUP_DIR:-}" "$HOME/db-backups-gate" "$HOME/db-backups-rehearsal"; do
   [ -n "$dir" ] && [ -f "$dir/$BACKUP_BASENAME" ] && DUMP="$dir/$BACKUP_BASENAME" && break
 done
 if [ -z "$DUMP" ]; then

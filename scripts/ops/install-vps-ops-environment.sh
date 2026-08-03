@@ -27,8 +27,13 @@ if [ ! -f "$APP_ENV" ]; then
 fi
 
 PROTECTED_DB="$(grep -E '^DATABASE_URL=' "$APP_ENV" | sed -E 's/^DATABASE_URL=//; s/^["'\'']|["'\'']$//g' | python3 -c "import sys,urllib.parse; u=urllib.parse.urlparse(sys.stdin.read().strip()); print(urllib.parse.unquote(u.path.lstrip('/')))")"
+APP_DB_ROLE="$(grep -E '^DATABASE_URL=' "$APP_ENV" | sed -E 's/^DATABASE_URL=//; s/^["'\'']|["'\'']$//g' | python3 -c "import sys,urllib.parse; u=urllib.parse.urlparse(sys.stdin.read().strip()); print(urllib.parse.unquote(u.username or ''))")"
 if [ -z "$PROTECTED_DB" ] || [[ ! "$PROTECTED_DB" =~ ^[a-zA-Z0-9_]+$ ]]; then
   echo "install-vps-ops-environment: could not parse protected database name" >&2
+  exit 1
+fi
+if [ -z "$APP_DB_ROLE" ] || [[ ! "$APP_DB_ROLE" =~ ^[a-zA-Z0-9_]+$ ]]; then
+  echo "install-vps-ops-environment: could not parse database app role" >&2
   exit 1
 fi
 
@@ -50,6 +55,10 @@ visudo -cf "$SUDOERS_DROP" >/dev/null
 printf '%s' "$PROTECTED_DB" >"$PROTECTED_FILE"
 chmod 640 "$PROTECTED_FILE"
 chown root:"$APP_GROUP" "$PROTECTED_FILE"
+
+printf '%s' "$APP_DB_ROLE" >"${OPS_DIR}/database-app-role"
+chmod 640 "${OPS_DIR}/database-app-role"
+chown root:"$APP_GROUP" "${OPS_DIR}/database-app-role"
 
 set -a
 # shellcheck disable=SC1090
