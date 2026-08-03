@@ -35,6 +35,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     featureFlagInserts: [{ key: 'activation_first_success_v1', enabled: false }],
   },
+  '1810160000000_family_feature_override': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

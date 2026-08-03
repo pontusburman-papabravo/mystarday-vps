@@ -1,6 +1,8 @@
 'use strict';
 
 const db = require('./db');
+const familyOverrides = require('../../db/family-feature-overrides');
+const overrideCache = require('./activation-flag-family-cache');
 
 const FLAG_KEYS = {
   onboarding: 'activation_onboarding_v1',
@@ -49,12 +51,40 @@ function parseLaunchAt() {
 }
 
 /**
+ * Precedence (family override keys only):
+ * 1. Missing / archived family → OFF
+ * 2. Explicit family deny override → OFF
+ * 3. Explicit family allow override → ON (bypasses global OFF + cohort)
+ * 4. Global feature_flag OFF → OFF
+ * 5. Cohort / launch rule
+ * 6. Default ON when global enabled
+ *
  * @param {string} key feature_flag.key
  * @param {string} [familyId] optional cohort filter by family.created_at
  * @returns {Promise<boolean>} never throws — returns false on DB error (fail-closed)
  */
 async function isActivationFlagEnabled(key, familyId) {
   try {
+    if (familyId && familyOverrides.isOverrideFeatureKey(key)) {
+      const cached = overrideCache.getCached(familyId, key);
+      if (cached === 'allow') return true;
+      if (cached === 'deny') return false;
+
+      const lifecycle = await familyOverrides.getFamilyLifecycle(familyId);
+      if (!lifecycle || lifecycle.archived_at) {
+        overrideCache.setCached(familyId, key, 'deny');
+        return false;
+      }
+
+      const override = await familyOverrides.getActiveOverride(familyId, key);
+      if (override) {
+        const decision = override.enabled ? 'allow' : 'deny';
+        overrideCache.setCached(familyId, key, decision);
+        return override.enabled;
+      }
+      overrideCache.setCached(familyId, key, 'none');
+    }
+
     const result = await db.query(
       'SELECT enabled FROM feature_flag WHERE key = $1 LIMIT 1',
       [key]
