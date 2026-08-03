@@ -8,6 +8,7 @@ const {
   isValidResolutionType,
   AUTO_ARCHIVE_DAYS,
 } = require('../config/support-taxonomy');
+const { isValidQueue, typesForQueue } = require('../config/support-queues');
 
 const MESSAGE_STATUSES = ['new', 'read', 'in_progress', 'answered', 'archived'];
 const INBOX_TABS = {
@@ -35,6 +36,7 @@ function mapRow(row) {
 
 async function listMessages({
   type,
+  queue,
   status,
   inbox,
   followup,
@@ -46,7 +48,16 @@ async function listMessages({
   const params = [];
   let idx = 1;
 
-  if (type) {
+  if (queue && isValidQueue(queue)) {
+    const queueTypes = typesForQueue(queue);
+    if (type && queueTypes.includes(type)) {
+      conditions.push(`cm.message_type = $${idx++}`);
+      params.push(type);
+    } else {
+      conditions.push(`cm.message_type = ANY($${idx++}::text[])`);
+      params.push(queueTypes);
+    }
+  } else if (type) {
     conditions.push(`cm.message_type = $${idx++}`);
     params.push(type);
   }
@@ -128,6 +139,14 @@ async function getMessageCounts() {
   const { rows } = await db.query(`
     SELECT
       COUNT(*) FILTER (WHERE cm.status = 'new')::int AS unread_count,
+      COUNT(*) FILTER (WHERE cm.status = 'new' AND cm.message_type != 'bug')::int AS meddelanden_unread_count,
+      COUNT(*) FILTER (
+        WHERE cm.message_type = 'bug'
+          AND cm.status IN ('new', 'read', 'in_progress')
+      )::int AS incidenter_open_count,
+      COUNT(*) FILTER (
+        WHERE cm.message_type != 'bug' AND ${needsFollowUpSql('cm')}
+      )::int AS meddelanden_needs_follow_up_count,
       COUNT(*) FILTER (WHERE ${needsFollowUpSql('cm')})::int AS needs_follow_up_count,
       COUNT(*) FILTER (WHERE cm.status IN ('read', 'in_progress'))::int AS active_count,
       COUNT(*) FILTER (WHERE cm.status = 'answered')::int AS answered_count,
@@ -548,6 +567,7 @@ async function getLatestFollowUpMessages(limit = 5) {
      FROM contact_message cm
      LEFT JOIN family f ON f.id = cm.family_id
      WHERE ${needsFollowUpSql('cm')}
+       AND cm.message_type != 'bug'
      ORDER BY cm.created_at DESC
      LIMIT $1`,
     [limit]

@@ -19,7 +19,8 @@
       items: [
         { key: 'start', navId: 'start', label: 'Start', targetSection: 'overview', aliases: ['overview'], capability: 'proxy-data' },
         { key: 'familjer', navId: 'familjer', label: 'Familjer', targetSection: 'families', aliases: ['families'], capability: 'stable' },
-        { key: 'arenden', navId: 'arenden', label: 'Ärenden', targetSection: 'arenden', aliases: ['meddelanden', 'messages'], capability: 'stable', badgeId: 'messagesBadge', navClass: 'flex items-center justify-between gap-2' },
+        { key: 'meddelanden', navId: 'meddelanden', label: 'Meddelanden', targetSection: 'arenden', supportQueue: 'meddelanden', aliases: ['messages'], capability: 'stable', badgeId: 'messagesBadge', navClass: 'flex items-center justify-between gap-2' },
+        { key: 'incidenter', navId: 'incidenter', label: 'Incidenter & buggar', targetSection: 'arenden', supportQueue: 'incidenter', aliases: ['arenden', 'buggar'], capability: 'stable', badgeId: 'incidentsBadge', navClass: 'flex items-center justify-between gap-2' },
       ],
     },
     {
@@ -162,6 +163,7 @@
       refreshKey: item.targetSection,
       capability: item.capability || 'stable',
       parentNavId: item.parentNavId || null,
+      supportQueue: item.supportQueue || null,
     };
     if (item.aliases) {
       for (const a of item.aliases) {

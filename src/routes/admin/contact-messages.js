@@ -17,10 +17,12 @@ const router = express.Router();
 const VALID_TYPES = ['bug', 'feedback', 'contact', 'language'];
 const VALID_INBOX = ['unread', 'active', 'answered', 'archived'];
 const { isValidRootCause } = require('../../../config/support-taxonomy');
+const { isValidQueue } = require('../../../config/support-queues');
 
 router.get('/contact-messages', async (req, res, next) => {
   try {
     const type = VALID_TYPES.includes(req.query.type) ? req.query.type : undefined;
+    const queue = isValidQueue(req.query.queue) ? req.query.queue : undefined;
     const status = contactMessages.MESSAGE_STATUSES.includes(req.query.status)
       ? req.query.status
       : undefined;
@@ -31,6 +33,7 @@ router.get('/contact-messages', async (req, res, next) => {
     const limit = req.query.limit ? Math.min(Number(req.query.limit) || 100, 500) : 200;
     const rows = await contactMessages.listMessages({
       type,
+      queue,
       status,
       inbox,
       followup,

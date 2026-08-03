@@ -38,8 +38,9 @@ describe('Fas 1 — route registry', () => {
   const aliasCases = [
     ['overview', 'start', 'overview'],
     ['families', 'familjer', 'families'],
-    ['messages', 'arenden', 'arenden'],
-    ['meddelanden', 'arenden', 'arenden'],
+    ['messages', 'meddelanden', 'arenden'],
+    ['meddelanden', 'meddelanden', 'arenden'],
+    ['arenden', 'incidenter', 'arenden'],
     ['analytics', 'produktanalys', 'analytics'],
     ['intresseanmalningar', 'pedagogintresse', 'intresseanmalningar'],
     ['landning', 'landningssidor', 'landning'],
@@ -58,6 +59,11 @@ describe('Fas 1 — route registry', () => {
       assert.equal(r.targetSection, section);
     });
   }
+
+  test('meddelanden and incidenter routes carry supportQueue', () => {
+    assert.equal(resolveRoute('#meddelanden').supportQueue, 'meddelanden');
+    assert.equal(resolveRoute('#incidenter').supportQueue, 'incidenter');
+  });
 
   test('empty hash defaults to start', () => {
     const r = resolveRoute('');
@@ -112,7 +118,7 @@ describe('Fas 1 — DOM section targets exist in index.html', () => {
   const sections = sectionIdsFromHtml();
 
   const routes = [
-    'start', 'familjer', 'arenden', 'pedagogintresse', 'waitlist',
+    'start', 'familjer', 'meddelanden', 'incidenter', 'pedagogintresse', 'waitlist',
     'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
     'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
     'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
@@ -159,7 +165,7 @@ function renderNavHtml() {
 
 /** Canonical routes from A-admin-nav-spec.md §4 (hash router). */
 const SPEC_CANONICAL_ROUTES = [
-  'start', 'familjer', 'arenden', 'pedagogintresse', 'waitlist',
+  'start', 'familjer', 'meddelanden', 'incidenter', 'pedagogintresse', 'waitlist',
   'landningssidor', 'bildbank', 'undersokningar', 'nyhetsbrev', 'epostmallar', 'valkomstmail',
   'epostlogg', 'dagens-nyhet', 'produktanalys', 'anvandning', 'anvandarinsikter',
   'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
@@ -281,6 +287,7 @@ describe('Fas 1 — admin-core wiring', () => {
     const core = fs.readFileSync(CORE_PATH, 'utf8');
     assert.match(core, /hashchange/);
     assert.match(core, /navigateToRoute/);
+    assert.match(core, /syncSupportInboxWorkspace/);
     for (const section of ['retention', 'dagensnyhet', 'landning', 'undersokningar', 'nyhetsbrev']) {
       assert.match(core, new RegExp(`name === '${section}'`));
     }

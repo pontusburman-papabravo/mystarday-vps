@@ -26,6 +26,7 @@
   };
 
   let activeInbox = 'all';
+  let currentQueue = 'meddelanden';
   let lastLoadedMessages = [];
   let selectedTicketId = null;
   let searchDebounceTimer = null;
@@ -47,6 +48,56 @@
     const d = document.createElement('div');
     d.textContent = str == null ? '' : String(str);
     return d.innerHTML;
+  }
+
+  const QUEUE_UI = {
+    meddelanden: {
+      tagline: 'Kontakt, feedback och språkfrågor — sök, öppna och svara via e-post.',
+      listNoun: 'meddelanden',
+    },
+    incidenter: {
+      tagline: 'Buggrapporter och tekniska incidenter — klassificera rotorsak, lösning och trend.',
+      listNoun: 'incidenter',
+    },
+  };
+
+  function applySupportQueueChrome() {
+    const meta = QUEUE_UI[currentQueue] || QUEUE_UI.meddelanden;
+    const tagline = document.getElementById('supportInboxTagline');
+    if (tagline) tagline.textContent = meta.tagline;
+
+    const chartsBlock = document.getElementById('supportInboxChartsBlock');
+    if (chartsBlock) chartsBlock.classList.toggle('hidden', currentQueue !== 'incidenter');
+
+    const typeFilter = document.getElementById('messagesTypeFilter');
+    if (typeFilter) {
+      typeFilter.closest('div')?.classList.toggle('hidden', currentQueue === 'incidenter');
+      if (currentQueue === 'incidenter') typeFilter.value = '';
+    }
+
+    const rootFilter = document.getElementById('messagesRootCauseFilter');
+    if (rootFilter) {
+      rootFilter.classList.toggle('hidden', currentQueue !== 'incidenter');
+      if (currentQueue !== 'incidenter') rootFilter.value = '';
+    }
+  }
+
+  function syncSupportInboxWorkspace(route) {
+    const nextQueue = (route && route.supportQueue) || 'meddelanden';
+    if (nextQueue !== currentQueue) {
+      currentQueue = nextQueue;
+      activeInbox = 'all';
+      selectedTicketId = null;
+      supportMetaPromise = null;
+    }
+    applySupportQueueChrome();
+    const hash = window.location.hash || '';
+    if (hash.includes('inbox=unread')) activeInbox = 'unread';
+    if (hash.includes('followup=1')) window._messagesFollowupFilter = true;
+    const ticketMatch = hash.match(/[?&]ticket=(\d+)/);
+    if (ticketMatch) selectedTicketId = ticketMatch[1];
+    renderInboxTabs();
+    loadMessagesInbox();
   }
 
   function renderInboxTabs() {
@@ -136,6 +187,9 @@
   }
 
   function renderResolutionBlock(m) {
+    if (currentQueue !== 'incidenter' && m.message_type !== 'bug') {
+      return '';
+    }
     if (m.status === 'archived') {
       const summary = m.resolution_summary ? `<p class="text-sm text-navy whitespace-pre-wrap mt-2">${esc(m.resolution_summary)}</p>` : '';
       const fixRef = m.fix_reference ? `<p class="text-xs text-text-soft mt-1">Fix: ${esc(m.fix_reference)}</p>` : '';
@@ -216,9 +270,10 @@
 
     if (meta) {
       const q = document.getElementById('messagesSearch')?.value?.trim();
+      const noun = (QUEUE_UI[currentQueue] || QUEUE_UI.meddelanden).listNoun;
       meta.textContent = q
         ? `Visar ${messages.length} träff${messages.length === 1 ? '' : 'ar'}`
-        : `${messages.length} ärenden i vald vy`;
+        : `${messages.length} ${noun} i vald vy`;
     }
 
     if (!messages.length) {
@@ -332,7 +387,7 @@
     }
 
     if (window.history && window.history.replaceState) {
-      const base = (window.location.hash || '#arenden').split('?')[0];
+      const base = '#' + (currentQueue === 'incidenter' ? 'incidenter' : 'meddelanden');
       window.history.replaceState(null, '', base + '?ticket=' + encodeURIComponent(id));
     }
   }
@@ -367,6 +422,9 @@
   let supportMetaPromise = null;
 
   function ensureArendenSupportMeta() {
+    if (currentQueue !== 'incidenter') {
+      return loadTaxonomy();
+    }
     if (!supportMetaPromise) {
       supportMetaPromise = Promise.all([loadTaxonomy(), loadSupportAnalytics()]);
     }
@@ -497,6 +555,7 @@
       else if (activeInbox !== 'all') params.set('inbox', activeInbox);
       if (rootCauseFilter) params.set('root_cause', rootCauseFilter);
       if (searchVal) params.set('q', searchVal);
+      params.set('queue', currentQueue);
       params.set('limit', '200');
 
       const messages = await Auth.api('/api/admin/contact-messages?' + params.toString());
@@ -508,11 +567,23 @@
 
       const unreadCount = messages.filter((m) => m.status === 'new' || !m.is_read).length;
       const unreadEl = document.getElementById('unreadMessagesCount');
-      if (unreadEl) {
+      if (unreadEl && currentQueue === 'meddelanden') {
         unreadEl.textContent = unreadCount;
         unreadEl.style.color = unreadCount > 0 ? '#E53E3E' : '#1B2340';
       }
-      if (typeof updateMessagesBadge === 'function') updateMessagesBadge(unreadCount);
+      try {
+        const counts = await Auth.api('/api/admin/contact-messages/counts');
+        if (typeof updateMessagesBadge === 'function') {
+          updateMessagesBadge(counts.meddelanden_unread_count || 0);
+        }
+        if (typeof updateIncidentsBadge === 'function') {
+          updateIncidentsBadge(counts.incidenter_open_count || 0);
+        }
+      } catch (_badgeErr) {
+        if (currentQueue === 'meddelanden' && typeof updateMessagesBadge === 'function') {
+          updateMessagesBadge(unreadCount);
+        }
+      }
 
       renderMessagesList(messages);
 
@@ -600,6 +671,7 @@
   }
 
   window.loadMessagesInbox = loadMessagesInbox;
+  window.syncSupportInboxWorkspace = syncSupportInboxWorkspace;
   window.filterMessagesInbox = filterMessagesInbox;
   window.selectArendeTicket = selectArendeTicket;
   window.setMessageStatus = setMessageStatus;

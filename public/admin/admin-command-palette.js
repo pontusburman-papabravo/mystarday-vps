@@ -47,7 +47,8 @@
       parts.push(`<button type="button" class="w-full text-left px-4 py-2 hover:bg-sky rounded-lg family-result" data-family="${f.id}"><span class="text-xs text-text-soft">Familj</span><br><span class="font-semibold text-navy">${esc(f.name)}</span></button>`);
     });
     (data.messages || []).forEach((m) => {
-      parts.push(`<button type="button" class="w-full text-left px-4 py-2 hover:bg-sky rounded-lg" data-route="#arenden"><span class="text-xs text-text-soft">Ärende</span><br><span class="font-semibold text-navy">${esc(m.name || m.email)}</span></button>`);
+      const ticketRoute = m.message_type === 'bug' ? '#incidenter' : '#meddelanden';
+      parts.push(`<button type="button" class="w-full text-left px-4 py-2 hover:bg-sky rounded-lg" data-route="${ticketRoute}"><span class="text-xs text-text-soft">${m.message_type === 'bug' ? 'Incident' : 'Meddelande'}</span><br><span class="font-semibold text-navy">${esc(m.name || m.email)}</span></button>`);
     });
     (data.leads || []).forEach((l) => {
       parts.push(`<button type="button" class="w-full text-left px-4 py-2 hover:bg-sky rounded-lg" data-route="#tillvaxt-pipeline"><span class="text-xs text-text-soft">Lead</span><br><span class="font-semibold text-navy">${esc(l.title)}</span></button>`);
