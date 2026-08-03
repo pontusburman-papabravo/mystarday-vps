@@ -21,6 +21,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
 }
 
+const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
 const WEBHOOK_AUTH = 'Bearer revenuecat-static-webhook-secret';
 const SIGNING_SECRET = 'revenuecat-hmac-signing-secret';
 
@@ -62,7 +63,7 @@ function buildEventPayload(overrides = {}) {
     aliases: overrides.aliases,
     expiration_at_ms: overrides.expiration_at_ms ?? (now + 86_400_000),
     environment: overrides.environment || 'LIVE',
-    product_id: overrides.product_id || 'rc_basic_monthly',
+    product_id: overrides.product_id || STORE_PRODUCT_MONTHLY,
     entitlement_ids: overrides.entitlement_ids || ['basic'],
     app_id: overrides.app_id ?? TEST_APP_ID,
     event_timestamp_ms: overrides.event_timestamp_ms ?? now,

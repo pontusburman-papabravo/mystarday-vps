@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { setupTestDb } = require('./helpers/setup.js');
 const { processRevenueCatEvent, findFamilyForAppUserIds } = require('../src/lib/revenuecat-webhook-process');
 const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
+const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
 
 applyIapWebhookTestEnv();
 
@@ -30,7 +31,7 @@ function baseEvent(familyId, overrides = {}) {
     id: overrides.id || `evt_${crypto.randomUUID()}`,
     type: overrides.type || 'RENEWAL',
     app_user_id: familyId,
-    product_id: 'rc_basic_monthly',
+    product_id: STORE_PRODUCT_MONTHLY,
     entitlement_ids: ['basic'],
     environment: 'LIVE',
     app_id: TEST_APP_ID,

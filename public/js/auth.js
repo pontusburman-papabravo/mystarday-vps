@@ -175,9 +175,16 @@ const Auth = {
       document.cookie = `${this.TOKEN_EXP_KEY}=${expMs}; max-age=${30 * 24 * 60 * 60}; path=/; samesite=lax`;
       this._scheduleRefresh(expMs);
     }
+    if (typeof window !== 'undefined' && user) {
+      const familyId = user.familyId || user.family_id || null;
+      window.dispatchEvent(new CustomEvent('stjarndag:auth-login', { detail: { familyId } }));
+    }
   },
 
   clearAuth() {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('stjarndag:auth-logout'));
+    }
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_EXP_KEY);

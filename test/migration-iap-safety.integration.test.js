@@ -18,6 +18,7 @@ const {
   tableRowCounts,
   familyStableBusinessChecksum,
 } = require('./helpers/disposable-postgres.js');
+const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
 
 const STOP_BEFORE = '1810000000016_iap_event_ordering_audit';
 async function filterExistingTables(client, names) {
@@ -61,9 +62,9 @@ async function seedPre0016Data(client) {
   await client.query(
     `INSERT INTO iap_webhook_log (
        revenuecat_event_id, event_type, family_id, product_id, processing_outcome
-     ) VALUES ('evt_seed_1', 'RENEWAL', $1, 'rc_basic_monthly', 'applied'),
-              ('evt_seed_2', 'EXPIRATION', $2, 'rc_basic_monthly', 'applied')`,
-    [activeFamily, expiredFamily]
+     ) VALUES ('evt_seed_1', 'RENEWAL', $1, $3, 'applied'),
+              ('evt_seed_2', 'EXPIRATION', $2, $3, 'applied')`,
+    [activeFamily, expiredFamily, STORE_PRODUCT_MONTHLY]
   );
 
   return { activeFamily, expiredFamily, lifetimeFamily };

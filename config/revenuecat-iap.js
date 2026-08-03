@@ -2,11 +2,17 @@
 
 /**
  * RevenueCat IAP validation config (webhook + client SDK).
- * Secrets stay in env; this module only holds allowlists and helpers.
+ * Secrets stay in env; product defaults from config/iap-product-contract.js.
  */
 
-const DEFAULT_PRODUCT_ID = 'rc_basic_monthly';
-const DEFAULT_ENTITLEMENT_ID = 'basic';
+const {
+  ENTITLEMENT_ID: CONTRACT_ENTITLEMENT_ID,
+  WEBHOOK_PRODUCT_IDS,
+  STORE_PRODUCT_MONTHLY,
+} = require('./iap-product-contract');
+
+const DEFAULT_ENTITLEMENT_ID = CONTRACT_ENTITLEMENT_ID;
+const DEFAULT_PRODUCT_ID = STORE_PRODUCT_MONTHLY;
 
 function parseCsvEnv(name) {
   const raw = process.env[name];
@@ -20,7 +26,7 @@ function parseCsvEnv(name) {
 function getAllowedProductIds() {
   const fromEnv = parseCsvEnv('REVENUECAT_ALLOWED_PRODUCT_IDS');
   if (fromEnv.length > 0) return fromEnv;
-  return [DEFAULT_PRODUCT_ID];
+  return [...WEBHOOK_PRODUCT_IDS];
 }
 
 function getAllowedAppIds() {
@@ -58,14 +64,14 @@ function getNonRenewingSubscriptionProductIds() {
   return new Set(fromEnv);
 }
 
+const { isFamilyInStrictSandboxAllowlist } = require('../src/lib/iap-sandbox-allowlist');
+
 function getSandboxTestFamilyIds() {
-  return new Set(parseCsvEnv('REVENUECAT_SANDBOX_FAMILY_IDS'));
+  return parseCsvEnv('REVENUECAT_SANDBOX_FAMILY_IDS');
 }
 
 function isSandboxTestFamily(familyId) {
-  const allow = getSandboxTestFamilyIds();
-  if (allow.has('*')) return true;
-  return allow.has(String(familyId));
+  return isFamilyInStrictSandboxAllowlist(familyId);
 }
 
 function isAllowedProductId(productId) {
