@@ -115,6 +115,8 @@
 
 Harness profiles: 390×844, 412×915, touch, slow network, reduced motion, 18px root font, previous cache hint. No credentials in logs.
 
+**Harness run (local isolated DB):** both viewports PASS — orderOk, substepOk, resumeOk, health.cache_version=stjarndag-v764.
+
 ---
 
 ## GO / NO-GO

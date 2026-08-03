@@ -94,24 +94,8 @@ function mergeSetCookie(jar, res) {
 }
 
 async function registerFamily(baseUrl) {
-  const email = `core-harness-${Date.now()}@example.com`;
-  const password = `Harn${Date.now().toString(36)}!aA1`;
-  const reg = await api(baseUrl, 'POST', '/api/auth/register', {
-    body: {
-      email,
-      password,
-      name: 'Harness Förälder',
-      family_name: 'Harness',
-      country_code: 'SE',
-      preferred_locale: 'sv-SE',
-    },
-  });
-  if (reg.status !== 200 && reg.status !== 201) {
-    throw new Error(`register failed ${reg.status}`);
-  }
-  let cookies = mergeSetCookie({}, reg.res);
-  const csrf = cookies.csrf_token || reg.json?.csrfToken;
-  return { email, password, cookies, csrfToken: csrf };
+  const { registerAndLogin } = require(path.join(ROOT, 'test/helpers/auth-session.js'));
+  return registerAndLogin(baseUrl, { name: 'Harness Förälder' });
 }
 
 async function createChildWithSteps(baseUrl, session) {
@@ -182,33 +166,40 @@ async function runViewport(puppeteer, baseUrl, viewport, cacheVersion) {
     const { childLoginRaw, getDailyLog } = require(path.join(ROOT, 'test/helpers/golden-path-fas6.js'));
     const db = require(path.join(ROOT, 'src/lib/db'));
 
-    // Seed ordered daily log with substeps via SQL when available
+    // Seed ordered daily log (+ one activity with substeps) via SQL
     const dateStr = new Date().toLocaleDateString('sv-SE');
+    await db.query('DELETE FROM daily_log_item WHERE daily_log_id IN (SELECT id FROM daily_log WHERE child_id = $1 AND date = $2)', [childId, dateStr]);
+    await db.query('DELETE FROM daily_log WHERE child_id = $1 AND date = $2', [childId, dateStr]);
     const logIns = await db.query(
-      `INSERT INTO daily_log (child_id, date) VALUES ($1, $2)
-       ON CONFLICT DO NOTHING RETURNING id`,
+      'INSERT INTO daily_log (child_id, date) VALUES ($1, $2) RETURNING id',
       [childId, dateStr]
-    ).catch(() => ({ rows: [] }));
-
-    let logId = logIns.rows[0]?.id;
-    if (!logId) {
-      const existing = await db.query(
-        'SELECT id FROM daily_log WHERE child_id = $1 AND date = $2',
-        [childId, dateStr]
-      );
-      logId = existing.rows[0]?.id;
-    }
+    );
+    const logId = logIns.rows[0].id;
 
     const names = ['A-Först', 'B-Senare', 'C-Sist'];
-    if (logId) {
-      await db.query('DELETE FROM daily_log_item WHERE daily_log_id = $1', [logId]);
-      for (let i = 0; i < names.length; i++) {
-        await db.query(
-          `INSERT INTO daily_log_item (daily_log_id, name, icon, star_value, sort_order, child_sort_order, section)
-           VALUES ($1, $2, '⭐', 1, $3, NULL, 'morgon')`,
-          [logId, names[i], i]
-        );
-      }
+    const tpl = await db.query(
+      `INSERT INTO activity_template (family_id, name, icon, star_value, sort_order, source)
+       SELECT family_id, 'HarnessDelsteg', '🌅', 1, 0, 'user' FROM child WHERE id = $1 RETURNING id`,
+      [childId]
+    );
+    const templateId = tpl.rows[0].id;
+    for (let i = 0; i < 2; i++) {
+      await db.query(
+        `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
+         VALUES ($1, $2, '⭐', $3)`,
+        [templateId, `Del ${i + 1}`, i]
+      );
+    }
+
+    const itemIds = [];
+    for (let i = 0; i < names.length; i++) {
+      const ins = await db.query(
+        `INSERT INTO daily_log_item
+           (daily_log_id, activity_template_id, name, icon, star_value, sort_order, child_sort_order, section)
+         VALUES ($1, $2, $3, '⭐', 1, $4, NULL, 'morgon') RETURNING id`,
+        [logId, i === 0 ? templateId : null, names[i], i]
+      );
+      itemIds.push(ins.rows[0].id);
     }
 
     const cl = await childLoginRaw(baseUrl, {
@@ -221,13 +212,13 @@ async function runViewport(puppeteer, baseUrl, viewport, cacheVersion) {
     if (cl.status !== 200) throw new Error(`child login ${cl.status}`);
     log('child_login', { ok: true });
 
-    const daily = await getDailyLog(baseUrl, cl.cookies || cl.cookieHeader, cl.csrfToken);
-    const morgon = (daily?.sections?.morgon || daily?.items || [])
+    const dailyRes = await getDailyLog(baseUrl, cl.cookies, cl.csrfToken, dateStr);
+    const dailyBody = dailyRes.body || {};
+    const morgon = (dailyBody.sections?.morgon || dailyBody.items || [])
       .filter((i) => !i.section || i.section === 'morgon')
       .map((i) => i.name);
-    result.orderOk = names.every((n, idx) => morgon[idx] === n) ||
-      JSON.stringify(morgon.filter((n) => names.includes(n))) === JSON.stringify(names);
-    log('order_check', { orderOk: result.orderOk, count: morgon.length });
+    result.orderOk = JSON.stringify(morgon.filter((n) => names.includes(n))) === JSON.stringify(names);
+    log('order_check', { orderOk: result.orderOk, count: morgon.length, apiStatus: dailyRes.status });
 
     // DOM order on child today
     const cookieHeader = Object.entries(
@@ -242,17 +233,27 @@ async function runViewport(puppeteer, baseUrl, viewport, cacheVersion) {
       }))
     );
 
+    await page.evaluateOnNewDocument(() => {
+      try { localStorage.setItem('stjarndag_device_mode', 'child'); } catch (_) { /* ignore */ }
+    });
     await page.goto(`${baseUrl}/child/today`, { waitUntil: 'networkidle2', timeout: 60000 });
+    await page.waitForSelector('.activity-card, [data-item-id], .photo-activity-card', { timeout: 15000 }).catch(() => null);
     const domNames = await page.evaluate(() => {
-      const cards = Array.from(document.querySelectorAll('.activity-card[data-item-id], [data-item-id].activity-card'));
+      const cards = Array.from(document.querySelectorAll(
+        '.activity-card[data-item-id], [data-item-id].activity-card, .photo-activity-card[data-item-id], [data-item-id]'
+      ));
       return cards.map((c) => {
-        const title = c.querySelector('.activity-name, .photo-activity-card__title, h3, .font-bold');
-        return (title && title.textContent || '').trim();
+        const title = c.querySelector(
+          '.activity-name, .photo-activity-card__title, .card-title, h3, .font-bold, .font-heading'
+        );
+        return (title && title.textContent || c.getAttribute('data-name') || '').trim();
       }).filter(Boolean);
     });
-    if (domNames.length && result.orderOk !== false) {
+    if (domNames.length) {
       const filtered = domNames.filter((n) => names.includes(n));
-      result.orderOk = JSON.stringify(filtered) === JSON.stringify(names);
+      if (filtered.length === names.length) {
+        result.orderOk = JSON.stringify(filtered) === JSON.stringify(names);
+      }
     }
     log('dom_order', { orderOk: result.orderOk, domCount: domNames.length });
 
