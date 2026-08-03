@@ -1,5 +1,5 @@
 {
-  "cache": "stjarndag-v767",
+  "cache": "stjarndag-v768",
   "locales": {
     "sv-SE": {
       "locale": "sv-SE",
@@ -11,7 +11,7 @@
           "primaryCount": 1,
           "path": "/dashboard"
         },
-        "child_path": "http://127.0.0.1:33489/child/today",
+        "child_path": "http://127.0.0.1:34985/child/today",
         "completion": "api_only",
         "complete_status": 200,
         "first_star": true,
@@ -37,7 +37,7 @@
           "primaryCount": 1,
           "path": "/dashboard"
         },
-        "child_path": "http://127.0.0.1:33489/child/today",
+        "child_path": "http://127.0.0.1:34985/child/today",
         "completion": "api_only",
         "complete_status": 200,
         "first_star": true,
