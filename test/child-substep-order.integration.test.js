@@ -43,6 +43,11 @@ test('child sub-steps API preserves activity_sub_step sort_order', async (t) => 
   const http = await listenApp(createApp);
 
   try {
+    t.after(async () => {
+      await http.close().catch(() => {});
+      await db.cleanup();
+    });
+
     const session = await registerAndLogin(http.baseUrl);
     const pin = '5284';
     const childId = await createChild(http.baseUrl, session, {
@@ -117,5 +122,6 @@ test('child sub-steps API preserves activity_sub_step sort_order', async (t) => 
     );
   } finally {
     await http.close();
+    await db.cleanup();
   }
 });
