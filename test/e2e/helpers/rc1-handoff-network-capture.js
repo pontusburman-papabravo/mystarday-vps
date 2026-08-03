@@ -3,12 +3,14 @@
 const {
   decodeCdpBody,
   sanitizeLogoutBodyFromText,
+  sanitizeVerifyPinPickerBodyFromText,
   summarizeSetCookieNames,
   sanitizeErrorMessage,
 } = require('./rc1-handoff-cdp-body');
 
 const HANDOFF_COOKIE = 'stjarndag_parent_session';
 const LOGOUT_PATH = '/api/auth/logout';
+const VERIFY_PIN_PICKER_PATH = '/api/family/verify-pin-picker';
 
 function cookieNamesFromHeader(cookieHeader) {
   if (!cookieHeader || typeof cookieHeader !== 'string') return [];
@@ -146,6 +148,52 @@ async function fetchCdpResponseBody(client, requestId) {
   }
 }
 
+async function fetchCdpPickerResponseBody(client, requestId) {
+  try {
+    const result = await client.send('Network.getResponseBody', { requestId });
+    const rawText = decodeCdpBody(result.body, result.base64Encoded === true);
+    const sanitized = sanitizeVerifyPinPickerBodyFromText(rawText);
+    return {
+      bodyCaptureOk: true,
+      base64Encoded: result.base64Encoded === true,
+      ...sanitized,
+      cdpError: null,
+    };
+  } catch (err) {
+    return {
+      bodyCaptureOk: false,
+      base64Encoded: null,
+      bodyLength: 0,
+      jsonParseOk: false,
+      ok: null,
+      code: null,
+      hasParent: false,
+      hasCsrfToken: false,
+      cdpError: {
+        name: err.name || 'Error',
+        message: sanitizeErrorMessage(err.message || 'getResponseBody_failed'),
+      },
+    };
+  }
+}
+
+function createPickerRequestState() {
+  return {
+    requestId: null,
+    pathname: null,
+    method: null,
+    status: null,
+    responseHeaders: null,
+    correlationId: null,
+    responseSetCookieNames: [],
+    loadingFinished: false,
+    loadingFailed: null,
+    cdpBody: null,
+    bodyCapturePromise: null,
+    bodyCaptureResolve: null,
+  };
+}
+
 /**
  * Chrome DevTools Protocol capture for POST /api/auth/logout (Cookie header via ExtraInfo).
  */
@@ -154,7 +202,9 @@ class Rc1HandoffNetworkCapture {
     this.page = page;
     this.client = null;
     this.logoutByRequestId = new Map();
+    this.pickerByRequestId = new Map();
     this.logoutCapture = null;
+    this.pickerCapture = null;
     this.childLoginCapture = null;
     this._handlers = [];
   }
@@ -204,6 +254,15 @@ class Rc1HandoffNetworkCapture {
           setCookieNames: [],
         };
       }
+      if (request?.method === 'POST' && pathname === VERIFY_PIN_PICKER_PATH) {
+        const state = createPickerRequestState();
+        state.requestId = requestId;
+        state.pathname = pathname;
+        state.method = request.method;
+        ensureBodyCapturePromise(state);
+        this.pickerByRequestId.set(requestId, state);
+        this.pickerCapture = state;
+      }
     });
 
     bind('Network.requestWillBeSentExtraInfo', (params) => {
@@ -239,6 +298,22 @@ class Rc1HandoffNetworkCapture {
       if (this.childLoginCapture?.requestId === requestId) {
         this.childLoginCapture.status = response.status;
       }
+      const pickerState = this.pickerByRequestId.get(requestId);
+      if (pickerState) {
+        pickerState.status = response.status;
+        pickerState.responseHeaders = sanitizeResponseHeaders(response.headers);
+        pickerState.correlationId = response.headers?.['x-request-id']
+          || response.headers?.['X-Request-ID']
+          || null;
+        const client = this.client;
+        void (async () => {
+          const early = await fetchCdpPickerResponseBody(client, requestId);
+          if (early.jsonParseOk) {
+            pickerState.cdpBody = early;
+            finishBodyCapture(pickerState, early);
+          }
+        })();
+      }
     });
 
     bind('Network.responseReceivedExtraInfo', (params) => {
@@ -255,33 +330,112 @@ class Rc1HandoffNetworkCapture {
         const lines = Array.isArray(setCookie) ? setCookie : (setCookie ? [setCookie] : []);
         this.childLoginCapture.setCookieNames = cookieNamesFromSetCookieLines(lines);
       }
+      const pickerState = this.pickerByRequestId.get(params.requestId);
+      if (pickerState) {
+        const headers = params.headers || {};
+        const setCookie = headers['set-cookie'] || headers['Set-Cookie'];
+        const lines = Array.isArray(setCookie) ? setCookie : (setCookie ? [setCookie] : []);
+        pickerState.responseSetCookieNames = cookieNamesFromSetCookieLines(lines);
+      }
     });
 
     bind('Network.loadingFailed', (params) => {
       const state = this.logoutByRequestId.get(params.requestId);
-      if (!state) return;
-      state.loadingFailed = {
-        errorText: sanitizeErrorMessage(params.errorText || 'loading_failed'),
-        canceled: params.canceled === true,
-      };
-      finishBodyCapture(state, {
-        bodyCaptureOk: false,
-        cdpError: { name: 'LoadingFailed', message: state.loadingFailed.errorText },
-      });
+      if (state) {
+        state.loadingFailed = {
+          errorText: sanitizeErrorMessage(params.errorText || 'loading_failed'),
+          canceled: params.canceled === true,
+        };
+        finishBodyCapture(state, {
+          bodyCaptureOk: false,
+          cdpError: { name: 'LoadingFailed', message: state.loadingFailed.errorText },
+        });
+      }
+      const pickerState = this.pickerByRequestId.get(params.requestId);
+      if (pickerState) {
+        pickerState.loadingFailed = {
+          errorText: sanitizeErrorMessage(params.errorText || 'loading_failed'),
+          canceled: params.canceled === true,
+        };
+        finishBodyCapture(pickerState, {
+          bodyCaptureOk: false,
+          cdpError: { name: 'LoadingFailed', message: pickerState.loadingFailed.errorText },
+        });
+      }
     });
 
     bind('Network.loadingFinished', (params) => {
       const state = this.logoutByRequestId.get(params.requestId);
-      if (!state) return;
-      state.loadingFinished = true;
-      const client = this.client;
-      const { requestId } = params;
-      void (async () => {
-        const cdpBody = await fetchCdpResponseBody(client, requestId);
-        state.cdpBody = cdpBody;
-        finishBodyCapture(state, cdpBody);
-      })();
+      if (state) {
+        state.loadingFinished = true;
+        const client = this.client;
+        const { requestId } = params;
+        void (async () => {
+          const cdpBody = await fetchCdpResponseBody(client, requestId);
+          state.cdpBody = cdpBody;
+          finishBodyCapture(state, cdpBody);
+        })();
+      }
+      const pickerState = this.pickerByRequestId.get(params.requestId);
+      if (pickerState) {
+        pickerState.loadingFinished = true;
+        const client = this.client;
+        const { requestId } = params;
+        void (async () => {
+          const cdpBody = await fetchCdpPickerResponseBody(client, requestId);
+          pickerState.cdpBody = cdpBody;
+          finishBodyCapture(pickerState, cdpBody);
+        })();
+      }
     });
+  }
+
+  async waitForPickerCdpBody(timeoutMs = 8000) {
+    const state = this.pickerCapture;
+    if (!state) return null;
+    ensureBodyCapturePromise(state);
+    let timer;
+    const timeout = new Promise((resolve) => {
+      timer = setTimeout(() => resolve(null), timeoutMs);
+    });
+    const result = await Promise.race([state.bodyCapturePromise, timeout]);
+    clearTimeout(timer);
+    if (result) return result;
+    if (state.cdpBody) return state.cdpBody;
+    return {
+      bodyCaptureOk: false,
+      cdpError: { name: 'Timeout', message: 'picker_cdp_body_timeout' },
+    };
+  }
+
+  async retryPickerCdpBody() {
+    const state = this.pickerCapture;
+    if (!state?.requestId || !this.client) return null;
+    return fetchCdpPickerResponseBody(this.client, state.requestId);
+  }
+
+  getPickerWireCapture() {
+    if (!this.pickerCapture) return null;
+    const c = this.pickerCapture;
+    const cdp = c.cdpBody || {};
+    const setCookieSummary = summarizeSetCookieNames(c.responseSetCookieNames);
+    return {
+      status: c.status,
+      requestId: c.requestId,
+      correlationId: c.correlationId,
+      loadingFinished: c.loadingFinished,
+      loadingFailed: c.loadingFailed,
+      pickerSetCookies: setCookieSummary,
+      cdpBody: {
+        status: c.status,
+        bodyReadOk: cdp.jsonParseOk === true,
+        ok: cdp.ok === true,
+        code: cdp.code || null,
+        hasParent: cdp.hasParent === true,
+        hasCsrfToken: cdp.hasCsrfToken === true,
+        requestId: c.requestId,
+      },
+    };
   }
 
   async waitForLogoutCdpBody(timeoutMs = 8000) {

@@ -51,6 +51,37 @@ function sanitizeLogoutBodyFromText(rawText) {
   return out;
 }
 
+/**
+ * Sanitized verify-pin-picker JSON (no parent id/email, csrf, or PIN).
+ */
+function sanitizeVerifyPinPickerBodyFromText(rawText) {
+  const out = {
+    bodyCaptureOk: false,
+    bodyLength: rawText ? rawText.length : 0,
+    jsonParseOk: false,
+    ok: null,
+    code: null,
+    hasParent: false,
+    hasCsrfToken: false,
+  };
+  if (!rawText || !rawText.trim()) {
+    return out;
+  }
+  out.bodyCaptureOk = true;
+  let parsed;
+  try {
+    parsed = JSON.parse(rawText);
+    out.jsonParseOk = true;
+  } catch {
+    return out;
+  }
+  out.ok = parsed.ok === true;
+  out.code = parsed.code || null;
+  out.hasParent = Boolean(parsed.parent && (parsed.parent.id || parsed.parent.family_id || parsed.parent.familyId));
+  out.hasCsrfToken = Boolean(parsed.csrfToken);
+  return out;
+}
+
 function summarizeSetCookieNames(names) {
   const list = Array.isArray(names) ? names : [];
   return {
@@ -66,5 +97,6 @@ module.exports = {
   sanitizeErrorMessage,
   decodeCdpBody,
   sanitizeLogoutBodyFromText,
+  sanitizeVerifyPinPickerBodyFromText,
   summarizeSetCookieNames,
 };

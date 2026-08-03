@@ -30,6 +30,23 @@ describe('rc1-release-identity', () => {
     assert.equal(parseActiveCacheName(sw), 'stjarndag-v999');
   });
 
+  it('assertExactHealthSha rejects missing expected sha', () => {
+    assert.throws(
+      () => assertExactHealthSha({ status: 'healthy', git_sha: 'aaa' }, ''),
+      /RC1_EXPECTED_SHA required/
+    );
+  });
+
+  it('assertExactCacheName rejects missing cache', () => {
+    const sw = "const CACHE_NAME = 'stjarndag-v1';";
+    assert.throws(() => assertExactCacheName(sw, ''), /RC1_EXPECTED_CACHE required/);
+  });
+
+  it('assertExactCacheName accepts match', () => {
+    const sw = "const CACHE_NAME = 'stjarndag-v1';";
+    assert.doesNotThrow(() => assertExactCacheName(sw, 'stjarndag-v1'));
+  });
+
   it('assertExactCacheName rejects mismatch', () => {
     const sw = "const CACHE_NAME = 'stjarndag-v1';";
     assert.throws(() => assertExactCacheName(sw, 'stjarndag-v2'), /CACHE_NAME mismatch/);
