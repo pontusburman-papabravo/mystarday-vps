@@ -21,33 +21,36 @@ describe('referral v0', () => {
     assert.match(src, /referral_qualified/);
   });
 
-  it('GET /api/account/referral route exists', () => {
+  it('GET /api/account/referral route exists and is eligibility-gated', () => {
     const src = read('src/routes/account/lifecycle.js');
     assert.match(src, /router\.get\('\/referral'/);
     assert.match(src, /getOrCreateReferralCode/);
+    assert.match(src, /evaluateReferralEligibility/);
     assert.doesNotMatch(src, /Referral ej tillgängligt/);
   });
 
-  it('referral-share.js provides clean register URL for share flows', () => {
+  it('referral-share.js defaults to clean register URL; personal URL is opt-in via API', () => {
     const src = read('public/js/referral-share.js');
     assert.match(src, /REGISTER_URL/);
     assert.match(src, /window\.ReferralShare/);
     assert.match(src, /\/register/);
-    assert.doesNotMatch(src, /\?ref=/);
-    assert.doesNotMatch(src, /\/api\/account\/referral/);
+    assert.match(src, /\/api\/account\/referral/);
+    assert.match(src, /personalUrl/);
+    // Hardcoded ?ref= must not appear — personal refs come from eligibility API
+    assert.doesNotMatch(src, /REGISTER_URL \+ '\?ref=/);
   });
 
-  it('parent share flow does not fetch personal referral codes', () => {
+  it('parent share flow keeps generic dela-appen; personal referral is separate CTA', () => {
     const parent = read('public/js/parent-share-flow.js');
     const landing = read('public/js/landing-share.js');
     const referral = read('public/js/referral-share.js');
     assert.doesNotMatch(parent, /loadReferral/);
-    assert.doesNotMatch(parent, /referral_link_shared/);
     assert.doesNotMatch(parent, /Din kod:/);
-    assert.match(parent, /buildPayload\(\)/);
+    assert.match(parent, /buildPayload\(/);
     assert.match(landing, /REGISTER_URL/);
     assert.match(referral, /message: text/);
     assert.match(referral, /text: text/);
+    assert.match(read('public/js/growth-referral-cta.js'), /GrowthReferralCta/);
   });
 
   it('native share uses full text with URL (no separate url field)', () => {

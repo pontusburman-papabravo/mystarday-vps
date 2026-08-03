@@ -195,19 +195,82 @@ router.post('/share-notify', requireParent, async (req, res) => {
 });
 
 // ─── GET /api/account/referral ───────────────────────────
-// Lazy-create personal referral code for share flows (register capture still flag-gated).
+// Personal referral code only when Journey/value gate allows (growth_referral_cta_v1).
 router.get('/referral', requireParent, async (req, res) => {
   try {
+    const { evaluateReferralEligibility } = require('../../lib/referral-eligibility');
+    const eligibility = await evaluateReferralEligibility(req.user.familyId);
+    if (!eligibility.eligible) {
+      return res.json({
+        eligible: false,
+        reason: eligibility.reason,
+        blockers: eligibility.blockers || [],
+        code: null,
+        registerUrl: null,
+      });
+    }
     const referralDb = require('../../../db/referral');
     const code = await referralDb.getOrCreateReferralCode(req.user.id);
     const baseUrl = (process.env.APP_URL || 'https://mystarday.se').replace(/\/$/, '');
-    res.json({
+    const registerUrl = `${baseUrl}/register?ref=${encodeURIComponent(code)}`;
+    require('../../../db/analytics').track(req.user.familyId, 'referral_shown', {
       code,
-      registerUrl: `${baseUrl}/register?ref=${encodeURIComponent(code)}`,
+    }).catch(() => {});
+    res.json({
+      eligible: true,
+      reason: eligibility.reason,
+      code,
+      registerUrl,
     });
   } catch (err) {
     console.error('[ACCOUNT] Referral code error:', err);
     res.status(500).json({ error: 'Kunde inte hämta värvningskod' });
+  }
+});
+
+// ─── POST /api/account/attribution ───────────────────────
+// Idempotent first-touch capture for OAuth / late client attach. Never blocks UX.
+router.post('/attribution', requireParent, async (req, res) => {
+  try {
+    const { recordFamilyAttribution, normalizeAttributionInput, toAnalyticsMetadata } =
+      require('../../lib/acquisition-attribution');
+    const raw = req.body || {};
+    const normalized = normalizeAttributionInput(raw);
+    const result = await recordFamilyAttribution(req.user.familyId, raw, {
+      registeredAt: new Date(),
+    });
+    if (result.stored && normalized) {
+      require('../../lib/analytics-tracker').trackSignupAttribution(
+        req.user.familyId,
+        toAnalyticsMetadata(normalized)
+      );
+    }
+    if (normalized?.referral_code) {
+      try {
+        const { isActivationFlagEnabled, FLAG_KEYS } = require('../../lib/activation-flags');
+        const enabled = await isActivationFlagEnabled(FLAG_KEYS.referral, req.user.familyId);
+        if (enabled) {
+          const referralDb = require('../../../db/referral');
+          const referrer = await referralDb.findReferrerByCode(normalized.referral_code);
+          if (referrer && referrer.family_id !== req.user.familyId) {
+            await referralDb.createPendingReferral({
+              referrerParentId: referrer.parent_id,
+              referredFamilyId: req.user.familyId,
+              code: normalized.referral_code,
+            });
+            require('../../../db/analytics').track(req.user.familyId, 'referral_signup', {
+              code: normalized.referral_code,
+            }).catch(() => {});
+          }
+        }
+      } catch (refErr) {
+        console.error('[ACCOUNT] referral from attribution failed:', refErr.message);
+      }
+    }
+    res.json({ ok: true, stored: result.stored, reason: result.reason });
+  } catch (err) {
+    console.error('[ACCOUNT] Attribution error:', err);
+    res.json({ ok: false, stored: false, reason: 'error' });
   }
 });
 

@@ -82,6 +82,10 @@
       if (name === 'foraldaraktivering' && typeof loadActivationProgramAdmin === 'function') {
         loadActivationProgramAdmin();
       }
+      if (name === 'growthStuck') {
+        if (typeof loadGrowthStuckSummary === 'function') loadGrowthStuckSummary();
+        if (typeof loadGrowthStuckTable === 'function') loadGrowthStuckTable(null);
+      }
       if (name === 'l1Governance' && typeof loadL1GovernanceAdmin === 'function') {
         loadL1GovernanceAdmin();
       }

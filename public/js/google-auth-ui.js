@@ -188,14 +188,25 @@
       const result = await Platform.googleSignIn.signIn();
       if (!result || !result.idToken) return;
 
+      const attr =
+        (window.UtmCapture && UtmCapture.toRegisterFields && UtmCapture.toRegisterFields()) || {};
+      const googleBody = Object.assign(
+        { idToken: result.idToken },
+        attr,
+        {
+          referral_code:
+            (window.ReferralCapture && ReferralCapture.getCode && ReferralCapture.getCode()) ||
+            undefined,
+        }
+      );
       const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(
           (window.LoginLocale && LoginLocale.withLoginLocale)
-            ? LoginLocale.withLoginLocale({ idToken: result.idToken })
-            : { idToken: result.idToken }
+            ? LoginLocale.withLoginLocale(googleBody)
+            : googleBody
         ),
       });
       const data = await res.json().catch(function () { return {}; });

@@ -77,11 +77,23 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
       : (firstName?.trim() || (typeof name === 'string' && name.trim()) || appleEmail?.split('@')[0] || 'Förälder');
 
     console.log('[APPLE] creating new user');
+    const attribution = {
+      utm_source: req.body.utm_source,
+      utm_medium: req.body.utm_medium,
+      utm_campaign: req.body.utm_campaign,
+      utm_content: req.body.utm_content,
+      utm_term: req.body.utm_term,
+      referral_code: req.body.referral_code,
+      landing_locale: req.body.landing_locale || req.body.preferred_locale,
+      platform: req.body.platform,
+      first_touch_at: req.body.first_touch_at,
+    };
     const newParent = await createParentFromOAuth({
       displayName,
       email: appleEmail || `apple_${appleUserId}@privaterelay.appleid.com`,
       appleUserId,
       appleEmail,
+      attribution,
     });
 
     return completeLogin(req, res, newParent, 'parent', { isNewAccount: true });

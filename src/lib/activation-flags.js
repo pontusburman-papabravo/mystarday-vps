@@ -14,6 +14,10 @@ const FLAG_KEYS = {
   nudge: 'activation_nudge_v1',
   signupSlim: 'activation_signup_slim_v1',
   handoffFilm: 'activation_onboarding_handoff_film_v1',
+  growthFeedback: 'growth_feedback_v1',
+  growthReferralCta: 'growth_referral_cta_v1',
+  growthStuckCohorts: 'growth_stuck_cohorts_v1',
+  growthWaitlistFunnel: 'growth_waitlist_funnel_v1',
 };
 
 /** PR 1–4 rollout — template, handoff, first star guide, AI (excludes PR 5 nudge). */

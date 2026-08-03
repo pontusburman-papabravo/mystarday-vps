@@ -949,6 +949,46 @@
           </div>
         </div>
 
+        <!-- GROWTH STUCK COHORTS (preview only) -->
+        <div id="growthStuckSection" class="mb-8 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 class="text-2xl font-heading font-bold text-navy">Fastnade familjer</h3>
+              <p class="text-text-soft text-sm mt-1">Kohorter 48h–14d — previewsegment. Ingen automatisk utskickning.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <select id="growthStuckCohortFilter" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
+                <option value="">Alla kohorter</option>
+                <option value="onboarding_incomplete">Onboarding ej klar</option>
+                <option value="schema_no_child_login">Schema utan barnlogin</option>
+                <option value="login_no_completion">Login utan completion</option>
+                <option value="completion_no_return">Completion utan återkomst</option>
+                <option value="core_flow_errors">Tekniska fel</option>
+              </select>
+              <button type="button" id="growthStuckReloadBtn" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-semibold">↺ Uppdatera</button>
+            </div>
+          </div>
+          <div id="growthStuckSummary" class="mb-6">Laddar…</div>
+          <div class="bg-white rounded-2xl border-2 border-lavender p-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-text-soft border-b border-lavender">
+                  <th class="py-2 pr-2">Familj</th>
+                  <th class="py-2 pr-2">Blockerande steg</th>
+                  <th class="py-2 pr-2">Senaste event</th>
+                  <th class="py-2 pr-2">Locale</th>
+                  <th class="py-2 pr-2">Platform</th>
+                  <th class="py-2 pr-2">Acquisition</th>
+                  <th class="py-2 pr-2">Rekommenderad uppföljning</th>
+                </tr>
+              </thead>
+              <tbody id="growthStuckTableBody">
+                <tr><td colspan="7">Öppna fliken för att ladda</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- FÖR DIG -->
         <div id="fordigSection" class="mb-8 hidden">
           <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -2169,6 +2209,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-retention.js"></script>
   <script src="/admin/admin-activation-program.js"></script>
+  <script src="/admin/admin-growth-stuck.js"></script>
   <script src="/admin/admin-l1-governance.js?v=1.1.0"></script>
   <script src="/admin/admin-for-dig.js?v=2.3.0"></script>
   <script src="/admin/admin-email-stats.js"></script>

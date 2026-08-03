@@ -1,10 +1,11 @@
 /**
  * referral-capture.js — persist ?ref= for registration (referral v0).
+ * Also emits referral_landing when a code is first seen (allowlisted analytics).
  */
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'mystarday_referral_code'; // pragma: allowlist secret
+  const STORAGE_KEY = 'msd_referral_code'; // pragma: allowlist secret
 
   function readFromUrl() {
     try {
@@ -18,9 +19,21 @@
   function capture() {
     const ref = readFromUrl();
     if (!ref) return;
+    const code = ref.trim().toUpperCase().slice(0, 12);
+    if (!code) return;
+    let isNew = false;
     try {
-      localStorage.setItem(STORAGE_KEY, ref.trim().toUpperCase());
+      const prev = localStorage.getItem(STORAGE_KEY);
+      isNew = prev !== code;
+      localStorage.setItem(STORAGE_KEY, code);
     } catch (_) {}
+    if (isNew) {
+      try {
+        if (window.analytics && typeof analytics.track === 'function') {
+          analytics.track('referral_landing', { code: code });
+        }
+      } catch (_) {}
+    }
   }
 
   function getStoredCode() {
