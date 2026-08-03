@@ -119,7 +119,7 @@ if ! npm ci --legacy-peer-deps; then
   exit 1
 fi
 
-OPS_DIR="$(cd "$(dirname "$0")/ops" && pwd)"
+OPS_DIR="$(cd "${VPS_APP_PATH}/scripts/ops" && pwd)"
 DEPLOY_DATA_DIR="${VPS_APP_PATH}/data/deploy"
 mkdir -p "${DEPLOY_DATA_DIR}/snapshots"
 
