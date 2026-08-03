@@ -14,6 +14,7 @@ readonly PG_SOCKET_DIR="/var/run/postgresql"
 # Optional override for CI only (never set on VPS install).
 CONFIG_DIR="${APP_DISPOSABLE_DB_CONFIG_DIR:-/etc/deploy-ops}"
 PROTECTED_FILE="${CONFIG_DIR}/protected-database-name"
+APP_ROLE_FILE="${CONFIG_DIR}/database-app-role"
 
 if [ "$#" -ne 2 ]; then
   echo "usage: app-disposable-db create|drop <db_name>" >&2
@@ -54,6 +55,15 @@ if [ "$NAME" = "$PROTECTED" ]; then
   exit 1
 fi
 
+APP_ROLE=""
+if [ -f "$APP_ROLE_FILE" ]; then
+  APP_ROLE="$(tr -d '\r\n' <"$APP_ROLE_FILE")"
+fi
+if [ -z "$APP_ROLE" ] || [[ ! "$APP_ROLE" =~ ^[a-zA-Z0-9_]+$ ]]; then
+  echo "database app role not configured" >&2
+  exit 1
+fi
+
 if [ ! -x "$RUNUSER" ] || [ ! -x "$PSQL" ] || [ ! -x "$ENVI" ]; then
   echo "required system binaries missing" >&2
   exit 1
@@ -80,7 +90,7 @@ run_psql_sql() {
 }
 
 if [ "$ACTION" = "create" ]; then
-  run_psql_sql "CREATE DATABASE \"${NAME}\""
+  run_psql_sql "CREATE DATABASE \"${NAME}\" OWNER \"${APP_ROLE}\""
 else
   run_psql_sql "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${NAME}' AND pid <> pg_backend_pid()"
   run_psql_sql "DROP DATABASE IF EXISTS \"${NAME}\""
