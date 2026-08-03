@@ -4,14 +4,15 @@
 set -Eeuo pipefail
 
 APP="${VPS_APP_PATH:?VPS_APP_PATH required}"
-TARGET_SHA="${TARGET_SHA:-e7678a237b7855d3e6a25f2c5c9f4974dcad0ad3}"
+TARGET_SHA="${TARGET_SHA:-8f601af5860ce522c9580cbcc2a40ef657b6c1a8}"
 REPORT_DIR="${REPORT_DIR:-/tmp/restore-rehearsal-$(date -u +%Y%m%dT%H%M%SZ)}"
-BACKUP_BASENAME="${BACKUP_BASENAME:-predeploy_2026-08-03T07-36-50-987Z_e7678a237b78.dump}"
-EXPECTED_SHA="${EXPECTED_SHA:-bf40a35833a5e09ed838ea180c1d498d824d3d08bb3ed9188d372c35d3276b80}"
+BACKUP_BASENAME="${BACKUP_BASENAME:-predeploy_2026-08-03T08-00-14-328Z_e7678a237b78.dump}"
+EXPECTED_SHA="${EXPECTED_SHA:-bae2df455b9502ca454f5160c008e61330b0b4da57780e86639f6151904a41ee}"
 
 readonly PROBE_DB="integrity_restore_probe_check"
 PROBE_CREATED=0
 RESTORE_DB=""
+RESTORE_DB_CREATED=0
 RESTORE_DB_DROPPED=0
 
 rehearsal_cleanup() {
@@ -20,7 +21,7 @@ rehearsal_cleanup() {
     sudo -n /usr/local/sbin/app-disposable-db drop "$PROBE_DB" 2>/dev/null || true
     PROBE_CREATED=0
   fi
-  if [ -n "$RESTORE_DB" ] && [ "$RESTORE_DB_DROPPED" != 1 ]; then
+  if [ "$RESTORE_DB_CREATED" = 1 ] && [ "$RESTORE_DB_DROPPED" != 1 ] && [ -n "$RESTORE_DB" ]; then
     sudo -n /usr/local/sbin/app-disposable-db drop "$RESTORE_DB" 2>/dev/null || true
   fi
   trap - EXIT
@@ -38,17 +39,29 @@ for f in /etc/deploy-ops/deploy-ops.env "$HOME/deploy-ops.env"; do
 done
 set +a
 
+# verify-backup-restore external lifecycle must not see admin URL
+unset DATABASE_ADMIN_URL
+
 trap rehearsal_cleanup EXIT
 
 cd "$APP"
 WORK="/tmp/rehearsal-${TARGET_SHA:0:12}"
+WORK_REPO="$WORK/repo"
 mkdir -p "$WORK"
-if [ ! -d "$WORK/repo/.git" ]; then
-  git clone --depth 1 "$APP" "$WORK/repo"
+
+# Deterministic checkout: --no-checkout clone avoids binding to live APP HEAD; fetch TARGET_SHA from APP.
+if [ -d "$WORK_REPO/.git" ] && [ -f "$WORK_REPO/.rehearsal-target-sha" ] \
+  && [ "$(tr -d '\n' <"$WORK_REPO/.rehearsal-target-sha")" = "$TARGET_SHA" ]; then
+  :
+else
+  rm -rf "$WORK_REPO"
+  git clone --no-checkout "$APP" "$WORK_REPO"
 fi
-cd "$WORK/repo"
-git fetch origin "$TARGET_SHA" 2>/dev/null || git fetch origin main
-git checkout -f "$TARGET_SHA"
+cd "$WORK_REPO"
+RESOLVED_SHA="$(git -C "$APP" rev-parse "${TARGET_SHA}^{commit}")"
+git fetch --depth 1 "$APP" "$RESOLVED_SHA"
+git checkout -f FETCH_HEAD
+printf '%s' "$TARGET_SHA" >"$WORK_REPO/.rehearsal-target-sha"
 [ -d node_modules/pg ] || npm ci --legacy-peer-deps --include=dev --omit=optional >/dev/null
 
 DUMP=""
@@ -81,7 +94,14 @@ else
   PROBE_CREATED=1
 fi
 
+if ! sudo -n /usr/local/sbin/app-disposable-db create "$RESTORE_DB"; then
+  echo "NO_GO: RESTORE_DB_CREATE_FAILED"
+  exit 2
+fi
+RESTORE_DB_CREATED=1
+
 node scripts/ops/verify-backup-restore.mjs \
+  --database-lifecycle external \
   --backup "$DUMP" \
   --target-db "$RESTORE_DB" \
   --baseline-snapshot "$SNAP_PRE"
