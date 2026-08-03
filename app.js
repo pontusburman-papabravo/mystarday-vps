@@ -68,15 +68,14 @@ function createApp() {
 
   app.get('/health', (req, res) => {
     const { readDeployedSha } = require('./src/lib/deployed-sha');
-    const { getIapWebhookReadiness } = require('./config/revenuecat-iap');
+    const { getIapReadinessSnapshot } = require('./src/lib/iap-readiness');
     const gitSha = readDeployedSha();
-    const iap = getIapWebhookReadiness();
+    const iap = getIapReadinessSnapshot();
     res.json({
       status: 'healthy',
       version: '2.3.1',
       ...(gitSha ? { git_sha: gitSha } : {}),
-      iap_webhook_ready: iap.webhookReady,
-      ...(iap.issues.length ? { iap_config_issues: iap.issues } : {}),
+      ...iap,
     });
   });
 

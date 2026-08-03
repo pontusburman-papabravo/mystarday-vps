@@ -15,7 +15,8 @@
   var _config = null;
   var _purchaseInFlight = false;
   var _cachedEntitlementActive = null;
-  var _isNative = null;
+  var _lastRcFamilyId = null;
+  var _configureDone = false;
 
   function isNative() {
     if (_isNative !== null) return _isNative;
@@ -72,10 +73,16 @@
 
   async function loginRevenueCat(familyId) {
     if (!familyId) return;
+    var normalized = String(familyId).toLowerCase();
     try {
       var purchases = getPurchasesPlugin();
       if (!purchases) return;
-      await purchases.logIn({ appUserID: String(familyId) });
+      if (_lastRcFamilyId && _lastRcFamilyId !== normalized) {
+        await purchases.logOut();
+        _configureDone = false;
+      }
+      await purchases.logIn({ appUserID: normalized });
+      _lastRcFamilyId = normalized;
     } catch (err) {
       console.warn('[IAPManager] logIn failed (non-fatal):', err && err.message ? err.message : 'unknown');
     }
@@ -93,6 +100,8 @@
     _config = null;
     _initialized = false;
     _initPromise = null;
+    _lastRcFamilyId = null;
+    _configureDone = false;
   }
 
   async function init() {
@@ -117,7 +126,10 @@
           _initialized = true;
           return;
         }
-        await purchases.configure({ apiKey: _config.apiKey });
+        if (!_configureDone) {
+          await purchases.configure({ apiKey: _config.apiKey });
+          _configureDone = true;
+        }
 
         var familyId = getFamilyId();
         if (familyId) {
@@ -223,7 +235,7 @@
       var pkg = Logic.pickPackageFromOffering(
         offering,
         pkgMeta && pkgMeta.revenueCatPackageId,
-        pkgMeta && pkgMeta.revenueCatProductId
+        pkgMeta && pkgMeta.storeProductId
       );
       if (!pkg) {
         return { ok: false, code: Logic.PURCHASE_ERROR.NO_OFFERING };
@@ -277,6 +289,13 @@
     if (!isNative()) return;
     var familyId = (detail && detail.familyId) || getFamilyId();
     if (!familyId) return;
+    _config = await fetchConfig();
+    if (!_config || !_config.nativePurchasesEnabled) {
+      await logoutRevenueCat();
+      return;
+    }
+    _initPromise = null;
+    _initialized = false;
     await init();
     if (_config && _config.configReady) {
       await loginRevenueCat(familyId);

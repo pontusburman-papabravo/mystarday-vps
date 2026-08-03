@@ -231,7 +231,7 @@
 // stjarndag-v738: fix register form gate — hide fields until language + country confirmed
 // stjarndag-v739: fix(register) fail-open form — remove pointer-events gate, inline unlock
 // stjarndag-v740: fix(onboarding) stop top-level ot() from clobbering window.ot (slim signup)
-const CACHE_NAME = 'stjarndag-v759';
+const CACHE_NAME = 'stjarndag-v760';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
