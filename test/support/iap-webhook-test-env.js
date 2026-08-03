@@ -1,9 +1,11 @@
 'use strict';
 
+const { STORE_PRODUCT_MONTHLY } = require('../../config/iap-product-contract');
+
 /** Shared RevenueCat test env for webhook integration tests. */
 function applyIapWebhookTestEnv() {
   process.env.REVENUECAT_ALLOWED_APP_IDS = 'com.test.app,com.test.app.alt';
-  process.env.REVENUECAT_ALLOWED_PRODUCT_IDS = 'rc_basic_monthly';
+  process.env.REVENUECAT_ALLOWED_PRODUCT_IDS = STORE_PRODUCT_MONTHLY;
   process.env.REVENUECAT_ENTITLEMENT_ID = 'basic';
 }
 
