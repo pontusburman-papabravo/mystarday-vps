@@ -298,3 +298,15 @@ Self-review: PE ✓ Mobile N/A (inventory) CPO ✓ UX N/A QA ✓ Security ✓ (n
 Issues found and fixed: selective #813 port; smoke env validation; stale RC status rewrite avoided (history kept)
 POS governed by: release-candidate-en-launch.md, ADR-017, Quality Standard 15 (gates)
 ```
+
+---
+
+## 21. 5A closeout (gate readiness, 2026-08-03)
+
+- Added [`docs/runbooks/ENGLISH-RC1-RELEASE-GATE.md`](runbooks/ENGLISH-RC1-RELEASE-GATE.md) and [`docs/ENGLISH-RC1-GATE-READINESS-REPORT.md`](ENGLISH-RC1-GATE-READINESS-REPORT.md).
+- Hardened smoke preflight: **BLOCKED** exit code **2** when base URL / contract missing; URL credential userinfo → exit **1**.
+- Extended unit tests: secret matrix, blocked runner spawn, release identity missing SHA/cache, redirect host.
+- **PR #842 merge decision:** **MERGE READY** (harness only).
+- **RC1 execution:** **BLOCKED** (secrets + deploy SHA lock not run here).
+- **Store launch:** **NO-GO** (unchanged).
+- Prior BLOCKED prod smoke results in §6 **not** changed to PASS.

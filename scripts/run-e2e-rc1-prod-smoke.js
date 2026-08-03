@@ -12,10 +12,24 @@ const { RC1_QA_PARENT_EMAIL, RC1_QA_CHILD_USERNAME, isAllowedRc1QaParentEmail } 
 const {
   collectRc1EnglishSmokeEnvIssues,
   formatRc1EnglishSmokeBlockedReason,
+  validateSmokeBaseUrl,
+  RC1_SMOKE_BLOCKED_EXIT_CODE,
 } = require('./lib/rc1-english-smoke-env');
 
-const baseUrl = process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL;
-if (!baseUrl) {
+function blockedExitCode() {
+  const raw = process.env.RC1_SMOKE_BLOCKED_EXIT_CODE;
+  if (raw == null || String(raw).trim() === '') return RC1_SMOKE_BLOCKED_EXIT_CODE;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : RC1_SMOKE_BLOCKED_EXIT_CODE;
+}
+
+function exitBlocked(reason) {
+  console.log(`[rc1-prod-smoke] ${reason}`);
+  process.exit(blockedExitCode());
+}
+
+const rawBaseUrl = process.env.RC1_SMOKE_BASE_URL || process.env.E2E_BASE_URL;
+if (!rawBaseUrl || String(rawBaseUrl).trim() === '') {
   const blocked = formatRc1EnglishSmokeBlockedReason(
     collectRc1EnglishSmokeEnvIssues(process.env, {
       requireBaseUrl: true,
@@ -23,10 +37,15 @@ if (!baseUrl) {
       useQaFixture: process.env.RC1_USE_QA_FIXTURE !== '0',
     })
   );
-  console.log(`[rc1-prod-smoke] skip — set RC1_SMOKE_BASE_URL or E2E_BASE_URL`);
-  if (blocked) console.log(`[rc1-prod-smoke] ${blocked}`);
-  process.exit(0);
+  exitBlocked(blocked || 'BLOCKED: missing RC1_SMOKE_BASE_URL (or E2E_BASE_URL)');
 }
+
+const baseUrlCheck = validateSmokeBaseUrl(rawBaseUrl);
+if (!baseUrlCheck.ok) {
+  console.error(`[rc1-prod-smoke] FAIL: ${baseUrlCheck.message}`);
+  process.exit(1);
+}
+const baseUrl = baseUrlCheck.normalized;
 
 function qaCredential(primary, legacy) {
   const value = process.env[primary] || process.env[legacy];

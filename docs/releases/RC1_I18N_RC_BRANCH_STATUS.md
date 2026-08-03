@@ -38,6 +38,13 @@
 | 5A audit & automation track | **CONDITIONAL GO** (decision underlay complete; smoke still blocked) |
 | READY FOR ENGLISH STORE RELEASE | **NO-GO** |
 
+### 5A closeout addendum (2026-08-03)
+
+- Operator runbook: [`runbooks/ENGLISH-RC1-RELEASE-GATE.md`](../runbooks/ENGLISH-RC1-RELEASE-GATE.md)
+- Gate readiness: [`ENGLISH-RC1-GATE-READINESS-REPORT.md`](../ENGLISH-RC1-GATE-READINESS-REPORT.md)
+- #813 superseded by #842; BLOCKED preflight exit **2**
+- Main SW reference: `stjarndag-v762` (re-verify on deploy)
+
 ---
 
 ## Historical snapshot — 2026-08-01

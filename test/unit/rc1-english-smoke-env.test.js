@@ -6,6 +6,9 @@ const {
   collectRc1EnglishSmokeEnvIssues,
   formatRc1EnglishSmokeBlockedReason,
   ALWAYS_REQUIRED,
+  validateSmokeBaseUrl,
+  assertSmokeUrlSameHost,
+  RC1_SMOKE_BLOCKED_EXIT_CODE,
 } = require('../../scripts/lib/rc1-english-smoke-env');
 
 function fullEnv(overrides = {}) {
@@ -80,5 +83,56 @@ describe('rc1-english-smoke-env', () => {
   it('exports stable always-required names for docs/CI', () => {
     assert.ok(ALWAYS_REQUIRED.includes('RC1_QA_EMAIL'));
     assert.ok(ALWAYS_REQUIRED.includes('RC1_EXPECTED_CACHE'));
+  });
+
+  it('reports blocked when all QA secrets are missing', () => {
+    const report = collectRc1EnglishSmokeEnvIssues({}, {
+      requireBaseUrl: true,
+      requireHandoff: true,
+      useQaFixture: true,
+    });
+    assert.equal(report.ok, false);
+    assert.ok(report.missing.length >= ALWAYS_REQUIRED.length);
+    const reason = formatRc1EnglishSmokeBlockedReason(report);
+    assert.match(reason, /BLOCKED/);
+  });
+
+  it('reports blocked when a single secret is whitespace-only', () => {
+    const report = collectRc1EnglishSmokeEnvIssues(
+      fullEnv({ RC1_EXPECTED_SHA: '   ' }),
+      { requireBaseUrl: true, requireHandoff: true, useQaFixture: true }
+    );
+    assert.equal(report.ok, false);
+    assert.ok(report.missing.includes('RC1_EXPECTED_SHA'));
+  });
+
+  it('validateSmokeBaseUrl rejects invalid URL', () => {
+    const r = validateSmokeBaseUrl('not-a-url');
+    assert.equal(r.ok, false);
+    assert.equal(r.code, 'RC1_SMOKE_BASE_URL_INVALID');
+  });
+
+  it('validateSmokeBaseUrl rejects credentials in URL', () => {
+    const r = validateSmokeBaseUrl('https://alice:bob@example.test/path');
+    assert.equal(r.ok, false);
+    assert.equal(r.code, 'RC1_SMOKE_BASE_URL_CREDENTIALS');
+    assert.doesNotMatch(r.message, /alice|bob/);
+  });
+
+  it('validateSmokeBaseUrl normalizes to origin', () => {
+    const r = validateSmokeBaseUrl('https://example.test/foo/');
+    assert.equal(r.ok, true);
+    assert.equal(r.normalized, 'https://example.test');
+  });
+
+  it('assertSmokeUrlSameHost rejects redirect to another host', () => {
+    assert.throws(
+      () => assertSmokeUrlSameHost('https://example.test', 'https://other.test/dashboard'),
+      /host mismatch/
+    );
+  });
+
+  it('blocked exit code is not zero', () => {
+    assert.notEqual(RC1_SMOKE_BLOCKED_EXIT_CODE, 0);
   });
 });

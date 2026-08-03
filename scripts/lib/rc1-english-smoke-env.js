@@ -5,6 +5,9 @@
  * Keeps secret values out of return payloads — only names and presence.
  */
 
+/** Exit code when smoke cannot run (secrets/deploy contract missing). Not a test PASS. */
+const RC1_SMOKE_BLOCKED_EXIT_CODE = 2;
+
 const ALWAYS_REQUIRED = Object.freeze([
   'RC1_QA_EMAIL',
   'RC1_QA_PASSWORD',
@@ -13,6 +16,67 @@ const ALWAYS_REQUIRED = Object.freeze([
   'RC1_EXPECTED_SHA',
   'RC1_EXPECTED_CACHE',
 ]);
+
+/**
+ * @param {string} raw
+ * @returns {{ ok: true, normalized: string } | { ok: false, code: string, message: string }}
+ */
+function validateSmokeBaseUrl(raw) {
+  const trimmed = String(raw || '').trim();
+  if (!trimmed) {
+    return { ok: false, code: 'RC1_SMOKE_BASE_URL_MISSING', message: 'RC1_SMOKE_BASE_URL (or E2E_BASE_URL) is empty' };
+  }
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return { ok: false, code: 'RC1_SMOKE_BASE_URL_INVALID', message: 'RC1_SMOKE_BASE_URL is not a valid URL' };
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return {
+      ok: false,
+      code: 'RC1_SMOKE_BASE_URL_PROTOCOL',
+      message: 'RC1_SMOKE_BASE_URL must use http or https',
+    };
+  }
+  if (parsed.username || parsed.password) {
+    return {
+      ok: false,
+      code: 'RC1_SMOKE_BASE_URL_CREDENTIALS',
+      message: 'RC1_SMOKE_BASE_URL must not embed credentials (use secrets, not URL userinfo)',
+    };
+  }
+  const normalized = `${parsed.origin}`;
+  return { ok: true, normalized };
+}
+
+/**
+ * @param {string} expectedBaseUrl
+ * @param {string} actualUrl
+ */
+function assertSmokeUrlSameHost(expectedBaseUrl, actualUrl) {
+  const expected = validateSmokeBaseUrl(expectedBaseUrl);
+  if (!expected.ok) {
+    const err = new Error(expected.message);
+    err.code = expected.code;
+    throw err;
+  }
+  let actual;
+  try {
+    actual = new URL(actualUrl);
+  } catch {
+    const err = new Error('RC1 smoke redirect: actual URL is not valid');
+    err.code = 'RC1_SMOKE_REDIRECT_INVALID';
+    throw err;
+  }
+  if (actual.host !== new URL(expected.normalized).host) {
+    const err = new Error(
+      `RC1 smoke redirect host mismatch (expected ${new URL(expected.normalized).host}, got ${actual.host})`
+    );
+    err.code = 'RC1_SMOKE_REDIRECT_HOST_MISMATCH';
+    throw err;
+  }
+}
 
 /**
  * @param {NodeJS.ProcessEnv | Record<string, string | undefined>} env
@@ -93,7 +157,10 @@ function formatRc1EnglishSmokeBlockedReason(report) {
 }
 
 module.exports = {
+  RC1_SMOKE_BLOCKED_EXIT_CODE,
   ALWAYS_REQUIRED,
   collectRc1EnglishSmokeEnvIssues,
   formatRc1EnglishSmokeBlockedReason,
+  validateSmokeBaseUrl,
+  assertSmokeUrlSameHost,
 };

@@ -81,6 +81,8 @@ Primary vs cleanup failures use `AggregateError` when both fail; locale audit ph
 
 Credentials must **never** appear in logs or committed files.
 
+**Preflight BLOCKED:** If `RC1_SMOKE_BASE_URL` / required secrets are missing, the runner prints `BLOCKED` and exits with code **2** (not 0). Exit 0 only after a completed smoke run. Override blocked exit code with `RC1_SMOKE_BLOCKED_EXIT_CODE` (default `2`). URLs with embedded credentials exit **1** (FAIL).
+
 ## Review family release config
 
 The QA fixture is prepared by `npm run rc1:qa:prepare` (en-GB, `english_app`, `english_child_experience`, reporting off). Legacy admin prep for founder/review families is **not** used for RC-1 automation:
