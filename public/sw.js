@@ -231,7 +231,7 @@
 // stjarndag-v738: fix register form gate — hide fields until language + country confirmed
 // stjarndag-v739: fix(register) fail-open form — remove pointer-events gate, inline unlock
 // stjarndag-v740: fix(onboarding) stop top-level ot() from clobbering window.ot (slim signup)
-const CACHE_NAME = 'stjarndag-v761';
+const CACHE_NAME = 'stjarndag-v762';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -524,8 +524,8 @@ const CACHE_NAME = 'stjarndag-v761';
 // stjarndag-v756: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v757: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v758: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
-// stjarndag-v760: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
-// stjarndag-v761: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v762: admin inbox split + merge main
+
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

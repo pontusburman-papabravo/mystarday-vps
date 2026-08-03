@@ -179,8 +179,8 @@ async function fetchMessageSummary() {
   });
 
   return {
-    unreadCount: parseInt(counts.unread_count, 10) || 0,
-    needsFollowUpCount: parseInt(counts.needs_follow_up_count, 10) || 0,
+    unreadCount: parseInt(counts.meddelanden_unread_count, 10) || 0,
+    needsFollowUpCount: parseInt(counts.meddelanden_needs_follow_up_count, 10) || 0,
     latest,
     disclaimer: null,
   };

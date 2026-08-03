@@ -40,7 +40,8 @@
         </div>
         <div class="flex flex-wrap gap-2">
           <button type="button" onclick="closeFamilyHub()" class="px-4 py-2 bg-lavender rounded-xl text-sm font-bold">Stäng</button>
-          <a href="#arenden" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-sky rounded-xl text-sm font-bold">Ärenden</a>
+          <a href="#meddelanden" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-sky rounded-xl text-sm font-bold">Meddelanden</a>
+          <a href="#incidenter" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-lavender rounded-xl text-sm font-bold">Incidenter</a>
           <a href="#paketintresse" onclick="closeFamilyHub(); return adminNavClick(event)" class="px-4 py-2 bg-gold rounded-xl text-sm font-bold">Paketintresse</a>
         </div>`;
     } catch (_e) {

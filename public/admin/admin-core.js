@@ -67,11 +67,15 @@
         syncPaketWorkspace(route);
       }
       if (name === 'families' && typeof loadFamilies === 'function') loadFamilies();
-      if (name === 'arenden' && typeof loadMessagesInbox === 'function') {
+      if (name === 'arenden') {
         const hash = window.location.hash || '';
         window._messagesFollowupFilter = hash.includes('followup=1');
-        if (hash.includes('inbox=unread') && typeof initMessagesInbox === 'function') initMessagesInbox();
-        loadMessagesInbox();
+        if (typeof syncSupportInboxWorkspace === 'function') {
+          syncSupportInboxWorkspace(route);
+        } else if (typeof loadMessagesInbox === 'function') {
+          if (hash.includes('inbox=unread') && typeof initMessagesInbox === 'function') initMessagesInbox();
+          loadMessagesInbox();
+        }
       }
       if (name === 'defaults' && typeof switchLibTab === 'function') switchLibTab('activities');
       if (name === 'retention' && typeof loadRetentionData === 'function') loadRetentionData();
@@ -151,7 +155,7 @@
       const queryPart = raw.includes('?') ? raw.slice(raw.indexOf('?')) : '';
       const route = resolveRoute(hash);
       let canonical = '#' + route.canonicalKey;
-      if (queryPart && (route.canonicalKey === 'arenden' || route.canonicalKey === 'start')) {
+      if (queryPart && (route.canonicalKey === 'meddelanden' || route.canonicalKey === 'incidenter' || route.canonicalKey === 'start')) {
         canonical += queryPart;
       }
       const current = window.location.hash || '';
@@ -195,6 +199,9 @@
       document.getElementById('unreadMessagesCount').textContent = unread;
       document.getElementById('unreadMessagesCount').style.color = unread > 0 ? '#E53E3E' : '#1B2340';
       updateMessagesBadge(unread);
+      if (typeof updateIncidentsBadge === 'function') {
+        updateIncidentsBadge(stats.openIncidents ?? 0);
+      }
       // Also populate total messages count if available
       if (stats.totalMessages != null) {
         document.getElementById('totalMessagesCount').textContent = stats.totalMessages;

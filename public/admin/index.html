@@ -260,7 +260,7 @@
             <h3 class="text-2xl font-heading font-bold text-navy">Ärenden</h3>
             <span id="sectionUnreadBadge" class="bg-gold text-navy text-sm font-bold rounded-full px-3 py-1 hidden" style="min-width: 28px; text-align: center;"></span>
           </div>
-          <p class="text-text-soft text-sm mb-4">Ärendehantering — sök på #, namn eller e-post, öppna ärendet och svara.</p>
+          <p id="supportInboxTagline" class="text-text-soft text-sm mb-4">Kontakt, feedback och språkfrågor — sök, öppna och svara via e-post.</p>
           <div id="messagesInboxTabs" class="flex flex-wrap gap-2 border-b border-sky pb-3 mb-4"></div>
           <div class="mb-4 flex flex-col gap-3">
             <input type="search" id="messagesSearch" placeholder="Sök ärende #, namn, e-post eller text…" autocomplete="off" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
@@ -275,7 +275,6 @@
               </select>
               <select id="messagesTypeFilter" class="flex-1 min-w-[10rem] px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white text-navy font-semibold text-sm">
                 <option value="">Alla typer</option>
-                <option value="bug">Buggrapport</option>
                 <option value="feedback">Feedback</option>
                 <option value="contact">Kontakt</option>
                 <option value="language">Språk</option>
@@ -285,7 +284,7 @@
               </select>
             </div>
           </div>
-          <details class="mb-4 bg-sky/40 rounded-2xl border border-lavender px-4 py-3">
+          <details id="supportInboxChartsBlock" class="mb-4 bg-sky/40 rounded-2xl border border-lavender px-4 py-3 hidden">
             <summary class="text-sm font-bold text-navy cursor-pointer">Statistik &amp; bugganalys</summary>
             <div class="pt-4">
           <div id="messagesSupportStats" class="mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
@@ -2149,9 +2148,9 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-history-warning.js?v=1.0.0"></script>
   <script src="/admin/admin-chart-loader.js?v=1.0.0"></script>
-  <script src="/admin/admin-nav.js?v=1.4.1"></script>
-  <script src="/admin/admin-core.js?v=2.5.0"></script>
-  <script src="/admin/admin-start.js?v=1.4.4"></script>
+  <script src="/admin/admin-nav.js?v=1.5.0"></script>
+  <script src="/admin/admin-core.js?v=2.6.0"></script>
+  <script src="/admin/admin-start.js?v=1.5.0"></script>
   <script src="/admin/admin-journey-daily-analysis.js?v=1.2.0"></script>
   <script src="/admin/admin-produktanalys-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-landning-shell.js?v=1.0.0"></script>
@@ -2159,12 +2158,12 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-paket-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-paket-workspace.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
-  <script src="/admin/admin-families.js?v=2.3.0"></script>
+  <script src="/admin/admin-families.js?v=2.4.0"></script>
   <script src="/admin/admin-arenden-charts.js?v=1.0.0"></script>
-  <script src="/admin/admin-messages-inbox.js?v=1.5.0"></script>
+  <script src="/admin/admin-messages-inbox.js?v=1.6.0"></script>
   <script src="/admin/admin-growth-pipeline.js?v=1.0.0"></script>
-  <script src="/admin/admin-family-hub.js?v=1.0.0"></script>
-  <script src="/admin/admin-command-palette.js?v=1.0.0"></script>
+  <script src="/admin/admin-family-hub.js?v=1.1.0"></script>
+  <script src="/admin/admin-command-palette.js?v=1.1.0"></script>
   <script src="/admin/admin-subscription-settings.js?v=1.0.2"></script>
   <script src="/admin/admin-library.js?v=2.1.1"></script>
 

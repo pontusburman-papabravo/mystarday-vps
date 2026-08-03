@@ -4,6 +4,7 @@
 
 const express = require('express');
 const db = require('../../lib/db');
+const contactMessages = require('../../../db/contact-messages');
 
 const router = express.Router();
 
@@ -19,19 +20,21 @@ function familyActivityScore(family) {
 // ─── GET /api/admin/stats ─────────────────────────────────
 router.get('/stats', async (req, res) => {
   try {
-    const [families, parents, children, unreadMessages, totalMessages] = await Promise.all([
+    const [families, parents, children, messageCounts, totalMessages] = await Promise.all([
       db.query('SELECT COUNT(*) as count FROM family WHERE archived_at IS NULL'),
       db.query('SELECT COUNT(*) as count FROM parent'),
       db.query('SELECT COUNT(*) as count FROM child'),
-      db.query("SELECT COUNT(*) as count FROM contact_message WHERE status = 'new' OR is_read = false"),
+      contactMessages.getMessageCounts(),
       db.query('SELECT COUNT(*) as count FROM contact_message'),
     ]);
+    const counts = messageCounts || {};
 
     res.json({
       families: parseInt(families.rows[0].count),
       parents: parseInt(parents.rows[0].count),
       children: parseInt(children.rows[0].count),
-      unreadMessages: parseInt(unreadMessages.rows[0].count),
+      unreadMessages: parseInt(counts.meddelanden_unread_count, 10) || 0,
+      openIncidents: parseInt(counts.incidenter_open_count, 10) || 0,
       totalMessages: parseInt(totalMessages.rows[0].count),
     });
   } catch (err) {

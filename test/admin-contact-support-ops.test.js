@@ -41,6 +41,7 @@ describe('admin contact message support ops', () => {
 
   it('admin routes expose taxonomy, analytics, resolution, archive, events', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/admin/contact-messages.js'), 'utf8');
+    assert.match(src, /req\.query\.queue/);
     assert.match(src, /\/contact-messages\/taxonomy/);
     assert.match(src, /\/contact-messages\/analytics/);
     assert.match(src, /\/contact-messages\/:id\/resolution/);

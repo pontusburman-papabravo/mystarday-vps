@@ -391,6 +391,18 @@
       }
     }
 
+    function updateIncidentsBadge(count) {
+      const badge = document.getElementById('incidentsBadge');
+      if (!badge) return;
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+    window.updateIncidentsBadge = updateIncidentsBadge;
+
     async function loadMessages() {
       const container = document.getElementById('messagesContainer');
       if (!container) return;
@@ -448,7 +460,7 @@
     function renderMessages(messages) {
       const container = document.getElementById('messagesContainer');
       const followupBanner = window._messagesFollowupFilter
-        ? '<p class="text-sm text-navy bg-sky rounded-xl px-4 py-2 mb-4">Visar ärenden att följa upp (olästa eller utan intern anteckning). <a href="#arenden" onclick="return adminNavClick(event)" class="font-semibold text-gold">Visa alla</a></p>'
+        ? '<p class="text-sm text-navy bg-sky rounded-xl px-4 py-2 mb-4">Visar meddelanden att följa upp (olästa eller utan intern anteckning). <a href="#meddelanden" onclick="return adminNavClick(event)" class="font-semibold text-gold">Visa alla</a></p>'
         : '';
       if (messages.length > 0) {
         container.innerHTML = followupBanner + messages.map(m => {
