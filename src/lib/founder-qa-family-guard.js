@@ -38,8 +38,7 @@ async function assertFamilyEligibleForFounderOverride(db, familyId) {
   }
 
   const { rows } = await db.query(
-    `SELECT email FROM parent
-     WHERE family_id = $1 AND revoked_at IS NULL`,
+    `SELECT email FROM parent WHERE family_id = $1`,
     [familyId]
   );
   const match = rows.some((row) => allow.has(normalizeEmail(row.email)));
