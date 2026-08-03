@@ -13,6 +13,9 @@
  * Cannot change global feature_flag — family override only.
  */
 
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+
 const { loadEnvFile, diagnoseDatabaseUrl } = require('../src/lib/load-env');
 
 loadEnvFile();
