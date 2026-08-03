@@ -1,0 +1,58 @@
+{
+  "cache": "stjarndag-v767",
+  "locales": {
+    "sv-SE": {
+      "locale": "sv-SE",
+      "fixture": "api_register_child_schedule",
+      "browser": {
+        "parent_path": "/dashboard",
+        "coach_dom": {
+          "fsCoach": true,
+          "primaryCount": 1,
+          "path": "/dashboard"
+        },
+        "child_path": "http://127.0.0.1:33489/child/today",
+        "completion": "api_only",
+        "complete_status": 200,
+        "first_star": true,
+        "console_errors": []
+      },
+      "errors": [],
+      "next_action_after_schedule": "child_access",
+      "server": {
+        "first_completion_at": true,
+        "child_access_completed_at": true,
+        "first_success_milestone": true
+      },
+      "next_action_after_first_success": "none",
+      "show_coach_after": false
+    },
+    "en-GB": {
+      "locale": "en-GB",
+      "fixture": "api_register_child_schedule",
+      "browser": {
+        "parent_path": "/dashboard",
+        "coach_dom": {
+          "fsCoach": true,
+          "primaryCount": 1,
+          "path": "/dashboard"
+        },
+        "child_path": "http://127.0.0.1:33489/child/today",
+        "completion": "api_only",
+        "complete_status": 200,
+        "first_star": true,
+        "console_errors": []
+      },
+      "errors": [],
+      "next_action_after_schedule": "child_access",
+      "server": {
+        "first_completion_at": true,
+        "child_access_completed_at": true,
+        "first_success_milestone": true
+      },
+      "next_action_after_first_success": "none",
+      "show_coach_after": false
+    }
+  },
+  "errors": []
+}
