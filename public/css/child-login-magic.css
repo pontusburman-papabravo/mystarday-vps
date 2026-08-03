@@ -455,11 +455,16 @@
   border: none;
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   font-size: 1.75rem;
+  color: #1B2340;
 }
-.cl-key.digit.col-purple { color: #7B61FF; }
-.cl-key.digit.col-teal   { color: #14B8A6; }
-.cl-key.digit.col-pink   { color: #EC4899; }
-.cl-key.digit.col-gold   { color: #F5A623; }
+.cl-key.digit.col-purple { background: rgba(123, 97, 255, 0.14); color: #1B2340; }
+.cl-key.digit.col-teal   { background: rgba(20, 184, 166, 0.14); color: #1B2340; }
+.cl-key.digit.col-pink   { background: rgba(236, 72, 153, 0.14); color: #1B2340; }
+.cl-key.digit.col-gold   { background: rgba(245, 166, 35, 0.18); color: #1B2340; }
+.cl-key:focus-visible {
+  outline: 3px solid #7B61FF;
+  outline-offset: 2px;
+}
 .cl-key.digit:active {
   background: #f8f8ff;
   transform: scale(0.94);

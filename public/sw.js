@@ -1,6 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
- * v666: App Store 1.3 build 28 — slim onboarding födelsedag + family.js birthday guard
+ * v763: Child core-journey stability — substep toggle in-flight guard, resilient precache, /health cache_version
  * v665: App Store 1.3 — barnprofil födelsedag + iPad touch targets (Guideline 4 / 2.1a)
  * v659: Barnprofil Inställningar — byt namn & emoji (saknades efter drawer→profil)
  * v654: Store-badge ä → H&#228;mta (encoding) + ren inline SVG-tag
@@ -231,7 +231,8 @@
 // stjarndag-v738: fix register form gate — hide fields until language + country confirmed
 // stjarndag-v739: fix(register) fail-open form — remove pointer-events gate, inline unlock
 // stjarndag-v740: fix(onboarding) stop top-level ot() from clobbering window.ot (slim signup)
-const CACHE_NAME = 'stjarndag-v762';
+// stjarndag-v763: child substep toggle stability, resilient SW precache, /health cache_version
+const CACHE_NAME = 'stjarndag-v763';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -524,6 +525,7 @@ const CACHE_NAME = 'stjarndag-v762';
 // stjarndag-v756: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v757: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v758: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v763: child core-journey stability — substep offline queue, resilient precache
 // stjarndag-v762: admin inbox split + merge main
 
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
@@ -788,7 +790,13 @@ self.addEventListener('message', (event) => {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return Promise.all(
+        STATIC_ASSETS.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('[SW] precache skip:', url, err);
+          })
+        )
+      );
     }).then(() => self.skipWaiting())
   );
 });

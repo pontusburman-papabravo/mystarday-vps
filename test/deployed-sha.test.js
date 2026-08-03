@@ -60,3 +60,19 @@ test('/health includes git_sha when DEPLOY_SHA is set', async () => {
     else process.env.DEPLOY_SHA = prev;
   }
 });
+
+test('/health includes cache_version from config/cache-version.json', async () => {
+  const { cacheName } = require('../config/cache-version.json');
+  const { createApp } = require('../app');
+  const { listenApp } = require('./helpers/http');
+  const http = await listenApp(createApp);
+  try {
+    const res = await fetch(`${http.baseUrl}/health`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.cache_version, cacheName);
+    assert.match(String(body.cache_version), /^stjarndag-v\d+$/);
+  } finally {
+    await http.close();
+  }
+});
