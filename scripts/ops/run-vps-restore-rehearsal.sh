@@ -9,6 +9,24 @@ REPORT_DIR="${REPORT_DIR:-/tmp/restore-rehearsal-$(date -u +%Y%m%dT%H%M%SZ)}"
 BACKUP_BASENAME="${BACKUP_BASENAME:-predeploy_2026-08-03T07-36-50-987Z_e7678a237b78.dump}"
 EXPECTED_SHA="${EXPECTED_SHA:-bf40a35833a5e09ed838ea180c1d498d824d3d08bb3ed9188d372c35d3276b80}"
 
+readonly PROBE_DB="integrity_restore_probe_check"
+PROBE_CREATED=0
+RESTORE_DB=""
+RESTORE_DB_DROPPED=0
+
+rehearsal_cleanup() {
+  local ec=$?
+  if [ "$PROBE_CREATED" = 1 ]; then
+    sudo -n /usr/local/sbin/app-disposable-db drop "$PROBE_DB" 2>/dev/null || true
+    PROBE_CREATED=0
+  fi
+  if [ -n "$RESTORE_DB" ] && [ "$RESTORE_DB_DROPPED" != 1 ]; then
+    sudo -n /usr/local/sbin/app-disposable-db drop "$RESTORE_DB" 2>/dev/null || true
+  fi
+  trap - EXIT
+  exit "$ec"
+}
+
 mkdir -p "$REPORT_DIR"
 chmod 700 "$REPORT_DIR"
 
@@ -19,6 +37,8 @@ for f in /etc/deploy-ops/deploy-ops.env "$HOME/deploy-ops.env"; do
   [ -f "$f" ] && . "$f"
 done
 set +a
+
+trap rehearsal_cleanup EXIT
 
 cd "$APP"
 WORK="/tmp/rehearsal-${TARGET_SHA:0:12}"
@@ -52,11 +72,13 @@ node scripts/ops/db-integrity-snapshot.mjs --out "$SNAP_PRE" --label pre-restore
 RESTORE_DB="integrity_restore_$(date -u +%Y%m%d_%H%M%S)"
 export RESTORE_DB
 
-if [ ! -x "$(command -v sudo 2>/dev/null)" ] || ! sudo -n /usr/local/sbin/app-disposable-db create integrity_restore_probe_check 2>/dev/null; then
+if ! sudo -n /usr/local/sbin/app-disposable-db create "$PROBE_DB" 2>/dev/null; then
   if [ "${APP_DISPOSABLE_DB_USE_SUDO:-}" != "1" ]; then
     echo "NO_GO: SUDO_DISPOSABLE_DB_UNAVAILABLE"
     exit 2
   fi
+else
+  PROBE_CREATED=1
 fi
 
 node scripts/ops/verify-backup-restore.mjs \
@@ -64,7 +86,7 @@ node scripts/ops/verify-backup-restore.mjs \
   --target-db "$RESTORE_DB" \
   --baseline-snapshot "$SNAP_PRE"
 
-RESTORE_URL="$(node -e "const u=new URL(process.env.DATABASE_URL); u.pathname='/'+process.env.RESTORE_DB; console.log(u);")"
+RESTORE_URL="$(node -e "const u=new URL(process.env.DATABASE_URL); u.pathname='/'+process.env.RESTORE_DB; console.log(u.toString());")"
 SNAP_PRE_MIG="$REPORT_DIR/pre-migrate.json"
 DATABASE_URL="$RESTORE_URL" node scripts/ops/db-integrity-snapshot.mjs --out "$SNAP_PRE_MIG" --label pre-migrate
 
@@ -79,7 +101,7 @@ DATABASE_URL="$RESTORE_URL" NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false \
   REVENUECAT_ALLOWED_APP_IDS=test_app REVENUECAT_ALLOWED_PRODUCT_IDS=rc_basic_monthly \
   node --test test/migration-iap-safety.integration.test.js test/iap-webhook-ordering.integration.test.js
 
-# Drop restore DB via sudo helper
 sudo -n /usr/local/sbin/app-disposable-db drop "$RESTORE_DB"
+RESTORE_DB_DROPPED=1
 
 echo "REHEARSAL_OK report=$REPORT_DIR"
