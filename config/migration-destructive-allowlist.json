@@ -1,4 +1,11 @@
 {
   "comment": "Manually reviewed migrations that intentionally contain destructive SQL. Empty by default for PR-825 expand-only migrations.",
-  "allowedMigrationFiles": []
+  "allowedMigrationFiles": [
+    "1810140000000_family_acquisition_attribution.js",
+    "1810140000001_family_growth_feedback.js"
+  ],
+  "reviews": {
+    "1810140000000_family_acquisition_attribution.js": "ON DELETE CASCADE on family_id FK only — attribution rows must disappear with GDPR family deletion. No DROP/TRUNCATE in up().",
+    "1810140000001_family_growth_feedback.js": "ON DELETE CASCADE on family_id FK only — feedback rows must disappear with GDPR family deletion. No DROP/TRUNCATE in up()."
+  }
 }

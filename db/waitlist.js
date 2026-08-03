@@ -11,20 +11,100 @@ const { query } = require('../src/lib/db');
  * @param {string} email
  * @param {string|null} utmSource
  * @param {string|null} ipAddress
+ * @param {object} [extra]
  * @returns {Promise<{id: number, is_new: boolean}>}
  */
-async function addWaitlistEntry(name, email, utmSource = null, ipAddress = null) {
+async function addWaitlistEntry(name, email, utmSource = null, ipAddress = null, extra = {}) {
+  const consentGiven = extra.marketing_consent === true;
+  const consentVersion = consentGiven
+    ? String(extra.marketing_consent_version || 'waitlist_en_v1').slice(0, 32)
+    : null;
   const sql = `
-    INSERT INTO waitlist (name, email, utm_source, ip_address)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO waitlist (
+      name, email, utm_source, ip_address,
+      utm_medium, utm_campaign, utm_content,
+      landing_locale, marketing_consent, marketing_consent_at,
+      marketing_consent_version, platform
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,
+            CASE WHEN $9 THEN NOW() ELSE NULL END,
+            $10, $11)
     ON CONFLICT (email) DO UPDATE SET
       name = EXCLUDED.name,
       ip_address = COALESCE(EXCLUDED.ip_address, waitlist.ip_address),
-      utm_source = COALESCE(EXCLUDED.utm_source, waitlist.utm_source)
+      utm_source = COALESCE(EXCLUDED.utm_source, waitlist.utm_source),
+      utm_medium = COALESCE(waitlist.utm_medium, EXCLUDED.utm_medium),
+      utm_campaign = COALESCE(waitlist.utm_campaign, EXCLUDED.utm_campaign),
+      utm_content = COALESCE(waitlist.utm_content, EXCLUDED.utm_content),
+      landing_locale = COALESCE(waitlist.landing_locale, EXCLUDED.landing_locale),
+      platform = COALESCE(waitlist.platform, EXCLUDED.platform),
+      marketing_consent = waitlist.marketing_consent OR EXCLUDED.marketing_consent,
+      marketing_consent_at = CASE
+        WHEN waitlist.marketing_consent THEN waitlist.marketing_consent_at
+        WHEN EXCLUDED.marketing_consent THEN COALESCE(waitlist.marketing_consent_at, NOW())
+        ELSE waitlist.marketing_consent_at
+      END,
+      marketing_consent_version = CASE
+        WHEN waitlist.marketing_consent THEN waitlist.marketing_consent_version
+        WHEN EXCLUDED.marketing_consent THEN EXCLUDED.marketing_consent_version
+        ELSE waitlist.marketing_consent_version
+      END
     RETURNING id, (xmax = 0) AS is_new
   `;
-  const result = await query(sql, [name.trim(), email.toLowerCase().trim(), utmSource, ipAddress]);
+  const result = await query(sql, [
+    name.trim(),
+    email.toLowerCase().trim(),
+    utmSource,
+    ipAddress,
+    extra.utm_medium || null,
+    extra.utm_campaign || null,
+    extra.utm_content || null,
+    extra.landing_locale || 'en-GB',
+    consentGiven,
+    consentVersion,
+    extra.platform || null,
+  ]);
   return result.rows[0];
+}
+
+/**
+ * Link waitlist email to a newly registered family (funnel conversion).
+ * Idempotent — only sets converted_* once.
+ */
+async function linkWaitlistConversion(email, familyId) {
+  if (!email || !familyId) return null;
+  const result = await query(
+    `UPDATE waitlist
+     SET converted_family_id = $2,
+         converted_at = COALESCE(converted_at, NOW())
+     WHERE LOWER(email) = LOWER($1)
+       AND converted_family_id IS NULL
+     RETURNING id`,
+    [email, familyId]
+  );
+  return result.rows[0] || null;
+}
+
+/**
+ * Preview segment for launch invites — human approval required (no auto-send).
+ */
+async function listLaunchInviteCandidates({ limit = 100 } = {}) {
+  const result = await query(
+    `SELECT id, name, email, created_at, landing_locale, utm_source, marketing_consent,
+            launch_invited_at, converted_family_id
+     FROM waitlist
+     WHERE marketing_consent = true
+       AND launch_invited_at IS NULL
+       AND converted_family_id IS NULL
+     ORDER BY created_at ASC
+     LIMIT $1`,
+    [Math.min(limit, 500)]
+  );
+  return result.rows.map((row) => ({
+    ...row,
+    autoSendAllowed: false,
+    recommendedAction: 'preview_launch_invite',
+  }));
 }
 
 /**
@@ -164,4 +244,13 @@ async function deleteWaitlistEntry(id) {
   return result.rowCount > 0;
 }
 
-module.exports = { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped, listWaitlistEntries, getWaitlistStats, deleteWaitlistEntry };
+module.exports = {
+  addWaitlistEntry,
+  updateWaitlistSurvey,
+  markWaitlistSkipped,
+  listWaitlistEntries,
+  getWaitlistStats,
+  deleteWaitlistEntry,
+  linkWaitlistConversion,
+  listLaunchInviteCandidates,
+};

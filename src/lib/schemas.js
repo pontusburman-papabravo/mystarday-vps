@@ -67,13 +67,16 @@ const RegisterSchema = z.object({
   invite_token: z.string().max(128).optional(),
   // referral v0 — ?ref= capture at signup
   referral_code: z.string().max(12).optional(),
-  // ad attribution — persisted from ?utm_* / fbclid via utm-capture.js
-  utm_source: z.string().max(255).optional(),
-  utm_medium: z.string().max(255).optional(),
-  utm_campaign: z.string().max(255).optional(),
-  utm_content: z.string().max(255).optional(),
-  utm_term: z.string().max(255).optional(),
+  // ad attribution — persisted from ?utm_* via utm-capture.js (normalized server-side)
+  utm_source: z.string().max(64).optional(),
+  utm_medium: z.string().max(64).optional(),
+  utm_campaign: z.string().max(128).optional(),
+  utm_content: z.string().max(128).optional(),
+  utm_term: z.string().max(128).optional(),
+  // fbclid accepted for client compat but NOT stored in attribution table (token-like)
   fbclid: z.string().max(255).optional(),
+  platform: z.enum(['web', 'pwa', 'ios', 'android']).optional(),
+  first_touch_at: z.string().max(40).optional(),
   // language is optional (legacy) — preferred_locale is canonical
   language: z.string().max(10).optional(),
   preferred_locale: z.enum(['sv-SE', 'en-GB']).optional(),

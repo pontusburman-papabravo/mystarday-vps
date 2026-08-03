@@ -150,6 +150,15 @@ describe('migration IAP safety (disposable DBs)', () => {
         assert.equal(afterChecksum, beforeChecksum);
         const afterCounts = await tableRowCounts(client2, Object.keys(beforeCounts));
         for (const key of Object.keys(beforeCounts)) {
+          // feature_flag may grow when later migrations insert new keys (e.g. growth loop flags).
+          // Never allow shrinkage — that would indicate wipe/reset.
+          if (key === 'feature_flag') {
+            assert.ok(
+              afterCounts[key] >= beforeCounts[key],
+              `feature_flag count shrank: ${afterCounts[key]} < ${beforeCounts[key]}`
+            );
+            continue;
+          }
           assert.equal(afterCounts[key], beforeCounts[key], `count mismatch ${key}`);
         }
         await assertIapColumnsExist(client2);

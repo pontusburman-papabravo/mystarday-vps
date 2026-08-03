@@ -21,6 +21,7 @@
 
     const nameEl = document.getElementById('waitlistName');
     const emailEl = document.getElementById('waitlistEmail');
+    const consentEl = document.getElementById('waitlistConsent');
     const name = nameEl ? nameEl.value.trim() : '';
     const email = emailEl ? emailEl.value.trim() : '';
 
@@ -36,11 +37,32 @@
       return;
     }
 
+    if (consentEl && !consentEl.checked) {
+      showError('Please confirm you want launch updates by email.');
+      resetBtn('Join waitlist');
+      return;
+    }
+
+    const utm =
+      (window.UtmCapture && UtmCapture.toRegisterFields && UtmCapture.toRegisterFields()) ||
+      (window.UtmCapture && UtmCapture.get && UtmCapture.get()) ||
+      {};
+
     try {
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          marketing_consent: true,
+          landing_locale: 'en-GB',
+          utm_source: utm.utm_source || undefined,
+          utm_medium: utm.utm_medium || undefined,
+          utm_campaign: utm.utm_campaign || undefined,
+          utm_content: utm.utm_content || undefined,
+          platform: utm.platform || 'web',
+        }),
       });
       const data = await res.json().catch(function () { return {}; });
       if (!res.ok) {
@@ -52,6 +74,11 @@
       if (typeof window.gtag === 'function') {
         window.gtag('event', 'waitlist_signup', { event_category: 'conversion' });
       }
+      try {
+        if (window.analytics && typeof analytics.track === 'function') {
+          analytics.track('waitlist_signup', { locale: 'en-GB' });
+        }
+      } catch (_) { /* ignore */ }
       try { localStorage.setItem(STORAGE_KEY, email); } catch (_) { /* ignore */ }
       window.location.href = '/en/thank-you';
     } catch (_err) {

@@ -28,7 +28,8 @@
   <meta name="theme-color" content="#F5A623">
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
   <script src="/js/cookie-banner.js?v=2.13.2"></script>
-  <script src="/js/utm-capture.js?v=1.0.0"></script>
+  <script src="/js/utm-capture.js?v=1.1.0"></script>
+  <script src="/js/referral-capture.js?v=1.1.0"></script>
   <script src="/js/meta-app-events.js?v=1.0.0"></script>
   <script src="/js/marketing-events.js?v=2.13.5"></script>
   <script type="application/ld+json">
@@ -638,6 +639,10 @@
         <p class="waitlist-form__error" id="waitlistFormError" style="display:none;" role="alert"></p>
         <input type="text" id="waitlistName" class="waitlist-form__input" name="name" placeholder="Your name" required autocomplete="name">
         <input type="email" id="waitlistEmail" class="waitlist-form__input" name="email" placeholder="Your email address" required autocomplete="email">
+        <label class="waitlist-form__consent" for="waitlistConsent" style="display:flex;gap:0.5rem;align-items:flex-start;margin:0.75rem 0;font-size:0.875rem;line-height:1.4;">
+          <input type="checkbox" id="waitlistConsent" name="marketing_consent" required checked style="margin-top:0.2rem;min-width:1.1rem;min-height:1.1rem;">
+          <span>Email me when the English launch is ready. I can unsubscribe anytime.</span>
+        </label>
         <button type="submit" class="btn-primary waitlist-form__submit" id="waitlistSubmitBtn" data-track="waitlist_signup_click">Join waitlist</button>
       </form>
       <p class="founder-block__note">Later we will release more add-ons for families who want reporting, <strong>Extra Support</strong> (transition support and the Seven Questions in the app), or educator collaboration — packages are coming soon and cannot be purchased yet. <a href="/en/pricing" class="btn-ghost-link">Read about plans and upcoming packages →</a></p>

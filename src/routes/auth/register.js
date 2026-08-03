@@ -329,15 +329,54 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // Analytics: funnel step — signup_started (family just created)
       const tracker = require('../../lib/analytics-tracker');
       tracker.trackSignupStarted(familyId);
-      const attribution = {};
-      if (utmSource) attribution.utm_source = utmSource;
-      if (utmMedium) attribution.utm_medium = utmMedium;
-      if (utmCampaign) attribution.utm_campaign = utmCampaign;
-      if (utmContent) attribution.utm_content = utmContent;
-      if (utmTerm) attribution.utm_term = utmTerm;
-      if (fbclid) attribution.fbclid = fbclid;
-      if (Object.keys(attribution).length > 0) {
-        tracker.trackSignupAttribution(familyId, attribution);
+      // Durable first-touch attribution (normalized) — never blocks registration
+      try {
+        const {
+          normalizeAttributionInput,
+          recordFamilyAttribution,
+          toAnalyticsMetadata,
+        } = require('../../lib/acquisition-attribution');
+        const rawAttr = {
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          referral_code: referralCodeRaw,
+          landing_locale: familyLocale,
+          platform: req.body.platform,
+          first_touch_at: req.body.first_touch_at,
+        };
+        const normalized = normalizeAttributionInput(rawAttr);
+        if (normalized) {
+          await recordFamilyAttribution(familyId, rawAttr, { registeredAt: new Date() });
+          tracker.trackSignupAttribution(familyId, toAnalyticsMetadata(normalized));
+        } else if (utmSource || utmMedium || utmCampaign || utmContent || utmTerm) {
+          // Fallback analytics-only (legacy) if normalize dropped everything
+          const attribution = {};
+          if (utmSource) attribution.utm_source = String(utmSource).slice(0, 64);
+          if (utmMedium) attribution.utm_medium = String(utmMedium).slice(0, 64);
+          if (utmCampaign) attribution.utm_campaign = String(utmCampaign).slice(0, 128);
+          if (utmContent) attribution.utm_content = String(utmContent).slice(0, 128);
+          if (utmTerm) attribution.utm_term = String(utmTerm).slice(0, 128);
+          tracker.trackSignupAttribution(familyId, attribution);
+        }
+        // Link English waitlist → family when email matches (funnel, no auto-invite)
+        try {
+          const waitlistDb = require('../../../db/waitlist');
+          if (typeof waitlistDb.linkWaitlistConversion === 'function') {
+            const linked = await waitlistDb.linkWaitlistConversion(normalizedEmail, familyId);
+            if (linked) {
+              require('../../../db/analytics').track(familyId, 'waitlist_account_signup', {
+                locale: familyLocale,
+              }).catch(() => {});
+            }
+          }
+        } catch (wlErr) {
+          console.error('[AUTH] waitlist conversion link failed:', wlErr.message);
+        }
+      } catch (attrErr) {
+        console.error('[AUTH] attribution persist failed:', attrErr.message);
       }
       const activationP0 = require('../../lib/activation-p0');
       activationP0.resolveDefaultActivationVariant(familyId)

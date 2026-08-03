@@ -5,7 +5,11 @@ const db = require('../lib/db');
 const { sendEmail, isTestMailbox } = require('../lib/email');
 const { maskEmail } = require('../lib/log-redact');
 const { createProfessionalInterest } = require('../../db/professional-interest');
-const { addWaitlistEntry, updateWaitlistSurvey, markWaitlistSkipped } = require('../../db/waitlist');
+const {
+  addWaitlistEntry,
+  updateWaitlistSurvey,
+  markWaitlistSkipped,
+} = require('../../db/waitlist');
 const { WAITLIST_COUNTRIES, WAITLIST_COUNTRY_CODES } = require('../../config/market-countries');
 const { subscribePublic, VALID_COMPONENTS } = require('../../db/public-newsletter');
 const { getAllPreviewPackages } = require('../../config/preview-data');
@@ -281,7 +285,7 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
 // Redirects to /en/thank-you on success (handled client-side).
 router.post('/waitlist', waitlistLimiter, async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, marketing_consent: marketingConsent } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length < 1) {
       return res.status(400).json({ error: 'Name is required.' });
@@ -289,12 +293,40 @@ router.post('/waitlist', waitlistLimiter, async (req, res) => {
     if (!email || typeof email !== 'string' || !email.includes('@') || !email.includes('.')) {
       return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
+    if (marketingConsent !== true) {
+      return res.status(400).json({
+        error: 'Marketing consent is required to join the waitlist.',
+      });
+    }
 
     const normalizedName = name.trim().substring(0, 255);
     const normalizedEmail = email.toLowerCase().trim();
     const ipAddress = req.ip || null;
+    const clamp = (v, max) =>
+      typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : null;
+    const utmSource = clamp(req.body.utm_source, 64);
+    const extra = {
+      utm_medium: clamp(req.body.utm_medium, 64),
+      utm_campaign: clamp(req.body.utm_campaign, 128),
+      utm_content: clamp(req.body.utm_content, 128),
+      landing_locale: req.body.landing_locale === 'sv-SE' ? 'sv-SE' : 'en-GB',
+      marketing_consent: true,
+      marketing_consent_version: 'waitlist_en_v1',
+      platform: ['web', 'pwa', 'ios', 'android'].includes(req.body.platform)
+        ? req.body.platform
+        : 'web',
+    };
 
-    const entry = await addWaitlistEntry(normalizedName, normalizedEmail, null, ipAddress);
+    const entry = await addWaitlistEntry(
+      normalizedName,
+      normalizedEmail,
+      utmSource,
+      ipAddress,
+      extra
+    );
+
+    // Funnel analytics — anonymised family_id null; use session-less track via events with null family skipped.
+    // Persist as admin-visible signal through waitlist row only; client may also fire allowlisted event.
 
     if (!isTestMailbox(normalizedEmail)) {
     sendEmail({

@@ -68,7 +68,7 @@ async function seedDefaultActivities(client, familyId) {
 
 /**
  * Create family + verified parent from OAuth (Apple or Google).
- * @param {{ displayName: string, email: string, appleUserId?: string|null, appleEmail?: string|null }} opts
+ * @param {{ displayName: string, email: string, appleUserId?: string|null, appleEmail?: string|null, googleUserId?: string|null, attribution?: object|null }} opts
  */
 async function createParentFromOAuth(opts) {
   const {
@@ -77,6 +77,7 @@ async function createParentFromOAuth(opts) {
     appleUserId = null,
     appleEmail = null,
     googleUserId = null,
+    attribution = null,
   } = opts;
   const client = await db.getClient();
 
@@ -129,7 +130,7 @@ async function createParentFromOAuth(opts) {
     );
 
     await client.query('COMMIT');
-    await runOAuthSignupSideEffects(familyId, parent, displayName, email);
+    await runOAuthSignupSideEffects(familyId, parent, displayName, email, attribution);
     return parent;
   } catch (err) {
     await client.query('ROLLBACK');
@@ -139,8 +140,40 @@ async function createParentFromOAuth(opts) {
   }
 }
 
-async function runOAuthSignupSideEffects(familyId, parent, displayName, email) {
+async function runOAuthSignupSideEffects(familyId, parent, displayName, email, attributionInput = null) {
   require('./analytics-tracker').trackSignupStarted(familyId);
+
+  // Optional attribution from OAuth body — never blocks signup
+  if (attributionInput) {
+    try {
+      const {
+        normalizeAttributionInput,
+        recordFamilyAttribution,
+        toAnalyticsMetadata,
+      } = require('./acquisition-attribution');
+      const normalized = normalizeAttributionInput(attributionInput);
+      if (normalized) {
+        await recordFamilyAttribution(familyId, attributionInput, { registeredAt: new Date() });
+        require('./analytics-tracker').trackSignupAttribution(
+          familyId,
+          toAnalyticsMetadata(normalized)
+        );
+      }
+    } catch (attrErr) {
+      console.error('[AUTH] OAuth attribution failed:', attrErr.message);
+    }
+  }
+
+  if (email) {
+    try {
+      const waitlistDb = require('../../db/waitlist');
+      if (typeof waitlistDb.linkWaitlistConversion === 'function') {
+        await waitlistDb.linkWaitlistConversion(email, familyId);
+      }
+    } catch (wlErr) {
+      console.error('[AUTH] waitlist conversion link failed:', wlErr.message);
+    }
+  }
 
   const activationP0 = require('./activation-p0');
   activationP0.resolveDefaultActivationVariant(familyId)
