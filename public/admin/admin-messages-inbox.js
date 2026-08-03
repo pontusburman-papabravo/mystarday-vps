@@ -364,10 +364,22 @@
     if (current) el.value = current;
   }
 
+  let supportMetaPromise = null;
+
+  function ensureArendenSupportMeta() {
+    if (!supportMetaPromise) {
+      supportMetaPromise = Promise.all([loadTaxonomy(), loadSupportAnalytics()]);
+    }
+    return supportMetaPromise;
+  }
+
   async function loadSupportAnalytics() {
     try {
       supportAnalytics = await Auth.api('/api/admin/contact-messages/analytics');
       await renderSupportStats();
+      if (typeof window.ensureAdminChartJs === 'function') {
+        await window.ensureAdminChartJs();
+      }
       if (typeof renderArendenCharts === 'function') {
         renderArendenCharts(supportAnalytics, supportTaxonomy);
       }
@@ -470,6 +482,8 @@
     const listPanel = document.getElementById('arendenListPanel');
     if (!listPanel) return;
     listPanel.innerHTML = '<div class="text-center text-text-soft py-8">Laddar…</div>';
+
+    await ensureArendenSupportMeta();
 
     try {
       const typeFilter = document.getElementById('messagesTypeFilter')?.value || '';
@@ -578,8 +592,6 @@
   function initMessagesInbox() {
     renderInboxTabs();
     bindArendenFilters();
-    loadTaxonomy();
-    loadSupportAnalytics();
     const hash = window.location.hash || '';
     if (hash.includes('inbox=unread')) activeInbox = 'unread';
     if (hash.includes('followup=1')) window._messagesFollowupFilter = true;

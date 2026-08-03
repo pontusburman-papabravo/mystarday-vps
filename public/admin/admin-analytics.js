@@ -33,6 +33,14 @@ async function loadAnalytics() {
   const container = document.getElementById('analyticsContainer');
   if (!container) return;
 
+  if (typeof window.ensureAdminChartJs === 'function') {
+    try {
+      await window.ensureAdminChartJs();
+    } catch (e) {
+      console.error('[ANALYTICS] Chart.js load failed', e);
+    }
+  }
+
   Object.keys(chartInstances).forEach(destroyChart);
   activeTab = 'overview';
 

@@ -290,6 +290,9 @@
     renderLoading();
     try {
       const data = await Auth.api('/api/admin/journey-daily-analysis/latest?_=' + Date.now());
+      if (typeof window.ensureAdminChartJs === 'function') {
+        await window.ensureAdminChartJs();
+      }
       renderReport(data);
     } catch (err) {
       console.error('[ADMIN] journey daily analysis:', err);
