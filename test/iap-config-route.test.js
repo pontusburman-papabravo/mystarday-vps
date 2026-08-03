@@ -24,7 +24,7 @@ test('GET /api/iap/config returns contract without secrets', async (t) => {
   const prevIos = process.env.REVENUECAT_IOS_PUBLIC_SDK_KEY;
 
   const { createApp } = require('../app');
-  const http = await listenApp(createApp());
+  const http = await listenApp(createApp);
 
   try {
     const session = await registerAndLogin(http.baseUrl);
@@ -71,7 +71,7 @@ test('GET /api/iap/config withholds sdk key outside sandbox allowlist', async (t
   const prevIos = process.env.REVENUECAT_IOS_PUBLIC_SDK_KEY;
 
   const { createApp } = require('../app');
-  const http = await listenApp(createApp());
+  const http = await listenApp(createApp);
 
   try {
     const session = await registerAndLogin(http.baseUrl);
