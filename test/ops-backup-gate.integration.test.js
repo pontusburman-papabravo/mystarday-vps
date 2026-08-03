@@ -107,13 +107,16 @@ describe('ops backup gate integration', () => {
       fs.writeFileSync(baselinePath, JSON.stringify(snapshot));
 
       const rehDb = `${dbName}_reh`;
+      const adminUrl = new URL(baseUrl);
+      adminUrl.pathname = '/postgres';
       execSync(
-        `node scripts/ops/verify-backup-restore.mjs --backup "${result.dumpPath}" --target-db ${rehDb} --baseline-snapshot "${baselinePath}"`,
+        `node scripts/ops/verify-backup-restore.mjs --database-lifecycle managed --backup "${result.dumpPath}" --target-db ${rehDb} --baseline-snapshot "${baselinePath}"`,
         {
           cwd: path.join(__dirname, '..'),
           env: {
             ...process.env,
             DATABASE_URL: baseUrl,
+            DATABASE_ADMIN_URL: adminUrl.toString(),
             DISPOSABLE_DB_PREFIX: 'integrity_restore_',
           },
           stdio: 'pipe',

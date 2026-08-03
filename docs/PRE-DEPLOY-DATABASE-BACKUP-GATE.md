@@ -88,12 +88,16 @@ node scripts/ops/compare-db-snapshots.mjs --before pre.json --after post.json
 
 ```bash
 export DATABASE_URL=postgresql://...@localhost:5432/postgres
+export DATABASE_ADMIN_URL=postgresql://...@localhost:5432/postgres   # CI/disposable only — not on VPS
 node scripts/ops/verify-backup-restore.mjs \
+  --database-lifecycle managed \
   --backup /path/to/backup.dump \
   --target-db integrity_restore_20260802 \
   --baseline-snapshot pre.json \
   --run-migrate
 ```
+
+VPS on-host rehearsal uses **external** lifecycle: `run-vps-restore-rehearsal.sh` creates the target via `sudo app-disposable-db create`, then calls `verify-backup-restore.mjs --database-lifecycle external` (no `CREATE`/`DROP` inside verify; `DATABASE_ADMIN_URL` must be unset).
 
 Requirements:
 

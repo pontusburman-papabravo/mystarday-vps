@@ -84,13 +84,22 @@ function quoteIdent(name) {
 /**
  * VPS production: passwordless sudo to app-disposable-db (no SETENV).
  * CI/disposable tests: DATABASE_ADMIN_URL with CREATEDB (never installed on VPS app role).
+ * @param {{ protectedName?: string, lifecycle?: 'managed' | 'sudo' }} [opts]
  */
 export async function createDisposableDatabase(dbName, opts = {}) {
   assertDisposableRestoreDatabaseName(dbName);
   const v = validateDisposableDatabaseName(dbName, { protectedName: opts.protectedName });
   if (!v.ok) throw new Error(`INVALID_DISPOSABLE_NAME:${v.reason}`);
 
-  if (process.env.APP_DISPOSABLE_DB_USE_SUDO === '1' || sudoCreateDropAvailable()) {
+  if (opts.lifecycle === 'managed') {
+    if (!process.env.DATABASE_ADMIN_URL) {
+      throw new Error('DATABASE_ADMIN_URL_REQUIRED_FOR_MANAGED_LIFECYCLE');
+    }
+    await runAdminUrl('create', dbName);
+    return { method: 'database_admin_url_ci' };
+  }
+
+  if (process.env.APP_DISPOSABLE_DB_USE_SUDO === '1' || opts.lifecycle === 'sudo' || sudoCreateDropAvailable()) {
     runSudoHelper('create', dbName);
     return { method: 'sudo_helper' };
   }
@@ -101,12 +110,23 @@ export async function createDisposableDatabase(dbName, opts = {}) {
   throw new Error('DISPOSABLE_DB_ADMIN_UNAVAILABLE');
 }
 
+/**
+ * @param {{ protectedName?: string, lifecycle?: 'managed' | 'sudo' }} [opts]
+ */
 export async function dropDisposableDatabase(dbName, opts = {}) {
   assertDisposableRestoreDatabaseName(dbName);
   const v = validateDisposableDatabaseName(dbName, { protectedName: opts.protectedName });
   if (!v.ok) throw new Error(`INVALID_DISPOSABLE_NAME:${v.reason}`);
 
-  if (process.env.APP_DISPOSABLE_DB_USE_SUDO === '1' || sudoCreateDropAvailable()) {
+  if (opts.lifecycle === 'managed') {
+    if (!process.env.DATABASE_ADMIN_URL) {
+      throw new Error('DATABASE_ADMIN_URL_REQUIRED_FOR_MANAGED_LIFECYCLE');
+    }
+    await runAdminUrl('drop', dbName);
+    return { method: 'database_admin_url_ci' };
+  }
+
+  if (process.env.APP_DISPOSABLE_DB_USE_SUDO === '1' || opts.lifecycle === 'sudo' || sudoCreateDropAvailable()) {
     runSudoHelper('drop', dbName);
     return { method: 'sudo_helper' };
   }
