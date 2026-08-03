@@ -18,6 +18,6 @@ test('cache-version.json matches SW CACHE_NAME', () => {
     fs.readFileSync(path.join(__dirname, '../config/cache-version.json'), 'utf8')
   );
   const sw = fs.readFileSync(path.join(__dirname, '../public/sw.js'), 'utf8');
-  assert.equal(cacheName, 'stjarndag-v763');
+  assert.match(cacheName, /^stjarndag-v\d+$/);
   assert.match(sw, new RegExp(`const CACHE_NAME = '${cacheName}'`));
 });
