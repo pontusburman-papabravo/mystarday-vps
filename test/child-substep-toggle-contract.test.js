@@ -36,6 +36,12 @@ test('toggleSubStep queues offline substep mutations', () => {
   assert.match(src, /queueSubstepUncomplete/);
 });
 
+test('toggleSubStep does not queue 4xx hard failures', () => {
+  const src = fs.readFileSync(SUBSTEPS_SRC, 'utf8');
+  assert.match(src, /hardFailure.*status >= 400/s);
+  assert.match(src, /queueOffline = !hardFailure/);
+});
+
 test('offline-queue maps substep actions to PUT complete/uncomplete routes', () => {
   const src = fs.readFileSync(OFFLINE_SRC, 'utf8');
   assert.match(src, /COMPLETE_SUBSTEP/);

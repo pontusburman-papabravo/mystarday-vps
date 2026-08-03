@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/stability-child-core-v1`  
 **Base:** `origin/main` @ `93b68773` (Merge PR #839 product program baseline)  
-**SW:** `stjarndag-v764` (`config/cache-version.json`)  
+**SW:** `stjarndag-v765` (`config/cache-version.json`)  
 **Scope:** Parent plans → child sees same routine → opens substeps → completes → star registered → parent can return  
 **Constraint:** No merge/deploy · no prod DB · no auth weakening · no family-specific hotfix
 
@@ -147,3 +147,16 @@ Self-review: PE ✓ Mobile ✓ CPO ✓ UX ✓ Game ✓ QA ✓ Security ✓ AISA 
 Issues found and fixed: substep double-tap race; offline substeps; PIN contrast; SW addAll fragility; stale expand after loadDay; missing cache_version diagnostic; child-login re-PIN with live session
 POS governed by: 04 C-03/C-04/C-08, 15 Section B, Constitution 2–3
 ```
+
+---
+
+## Independent merge-readiness review (2026-08-03)
+
+Second-pass review (Composer 2.5) re-ran gates and browser harness, mapped delsteg/offline/session/SW risks, and added:
+
+- **Fix:** `OfflineQueue.clear()` on `Auth._fullClear` / `_clearChildCookies` (prevents queued child writes after logout/sibling switch).
+- **Tests:** `test/auth-offline-queue-logout.test.js`, extended substep/offline contracts (4xx skip, 409 replay, LWW).
+- **SW:** bumped to **`stjarndag-v765`** for `auth.js` static change.
+- **Report:** `docs/CHILD-CORE-PR840-MERGE-REVIEW.md` — decision **CONDITIONAL MERGE**.
+
+Harness re-run: 390×844 + 412×915 — orderOk · substepOk · resumeOk · `health.cache_version=stjarndag-v765`.
