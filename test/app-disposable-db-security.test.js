@@ -85,8 +85,18 @@ async function canUseDatabaseAdmin() {
   }
 }
 
+function localPostgresSocketReady() {
+  const dir = '/var/run/postgresql';
+  if (!fs.existsSync(dir)) return false;
+  try {
+    return fs.readdirSync(dir).some((f) => f.startsWith('.s.PGSQL.'));
+  } catch {
+    return false;
+  }
+}
+
 function canRunHelperAsPostgres() {
-  if (!fs.existsSync('/var/run/postgresql')) {
+  if (!localPostgresSocketReady()) {
     return false;
   }
   const viaSudo = spawnSync(
