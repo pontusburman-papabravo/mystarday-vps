@@ -162,9 +162,21 @@
       EngineClient.isReadinessBlockingCoach();
   }
 
+  function shouldDeferToFirstSuccessHub() {
+    return window.ActivationFirstSuccessHub &&
+      typeof ActivationFirstSuccessHub.shouldSuppressLegacyCoaches === 'function' &&
+      ActivationFirstSuccessHub.shouldSuppressLegacyCoaches();
+  }
+
   async function renderCoach(context, registry) {
     const mount = document.getElementById(MOUNT_ID);
     if (!mount) return;
+
+    if (shouldDeferToFirstSuccessHub()) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return;
+    }
 
     if (shouldDeferToExceptions()) {
       mount.classList.add('hidden');

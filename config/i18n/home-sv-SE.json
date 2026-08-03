@@ -32,6 +32,52 @@
     "childLogin": "👶 Barnet loggar in",
     "parentLogout": "Logga ut"
   },
+  "firstSuccess": {
+    "coachAria": "Nästa steg för första lyckade rutin",
+    "pinHint": "Barnet använder sin PIN. Du kan återställa föräldarläge när barnet är klart.",
+    "actions": {
+      "create_child": {
+        "headline": "Skapa barnets profil",
+        "body": "Ett namn och en enkel PIN räcker för att komma igång.",
+        "cta": "Fortsätt med barnet"
+      },
+      "save_schedule": {
+        "headline": "Spara en enkel första rutin",
+        "body": "Välj ett startschema — du kan alltid ändra det senare.",
+        "cta": "Välj startschema"
+      },
+      "child_access": {
+        "headline": "Öppna barnets vy",
+        "body": "Låt barnet logga in med PIN och prova dagens första aktivitet.",
+        "cta": "Barnet loggar in"
+      },
+      "await_first_completion": {
+        "headline": "Väntar på barnets första aktivitet",
+        "body": "Barnet ser sin rutin i barnvyn. Hjälp till att börja om det behövs.",
+        "cta": "Öppna barnets vy"
+      },
+      "parent_ack": {
+        "headline": "Barnet klarade en aktivitet!",
+        "body": "Bekräfta så att stjärnan registreras och ni kan fira tillsammans.",
+        "cta": "Visa aktiviteten"
+      },
+      "celebrate_first_success": {
+        "headline": "Första stjärnan är klar!",
+        "body": "Bra jobbat — rutinen fungerar på riktigt.",
+        "cta": "Fortsätt"
+      },
+      "journey_coach": {
+        "headline": "Nästa steg",
+        "body": "Fortsätt bygga rutinen i er takt.",
+        "cta": "Fortsätt"
+      },
+      "engine_legacy": {
+        "headline": "Nästa steg",
+        "body": "Följ det föreslagna nästa steget.",
+        "cta": "Fortsätt"
+      }
+    }
+  },
   "founderBanner": {
     "title": "🎉 Du är grundarmedlem",
     "body": "Som en av de första familjerna har du livstids tillgång utan kostnad. Tack för att du är med från början!"
