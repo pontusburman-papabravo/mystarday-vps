@@ -1291,6 +1291,29 @@ function escapeJs(str) {
   return String(str).replace(/'/g, "\\'").replace(/\\/g, '\\\\');
 }
 
+/**
+ * If a valid child JWT/session cookie already exists, skip PIN and open barnvy.
+ * Does not weaken auth: still requires a live server-validated child session.
+ * Explicit picker/add-child flows are never auto-skipped.
+ */
+async function resumeActiveChildSessionIfPresent(opts) {
+  const options = opts || {};
+  if (options.forcePicker || options.resumeAddChild) return false;
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!meRes.ok) return false;
+    const me = await meRes.json();
+    if (!me || me.type !== 'child') return false;
+    if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
+      DeviceMode.enterChild();
+    }
+    window.location.replace('/child/today');
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   await bootstrapChildLoginI18n();
@@ -1336,6 +1359,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
   const resumeAddChild = addChildParam === '1' || pendingAddChild;
   const forcePicker = url.searchParams.get('picker') === '1' || sessionStorage.getItem('cl_force_picker') === '1';
+
+  if (await resumeActiveChildSessionIfPresent({ forcePicker: forcePicker, resumeAddChild: resumeAddChild })) {
+    return;
+  }
 
   if (forcePicker) {
     sessionStorage.removeItem('cl_force_picker');

@@ -38,6 +38,12 @@
 
     currentDate = dateStr;
     subStepCache = {};
+    // Expanded panels must not keep stale empty lists after cache clear
+    if (typeof subStepExpanded === 'object' && subStepExpanded) {
+      Object.keys(subStepExpanded).forEach(function (id) {
+        delete subStepExpanded[id];
+      });
+    }
     renderDayTabs();
     updateDateLine();
 

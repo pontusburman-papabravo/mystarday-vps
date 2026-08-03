@@ -169,7 +169,13 @@ router.get('/', async (req, res) => {
          GROUP BY activity_template_id
        ) sub ON sub.activity_template_id = at.id
        WHERE wsi.weekly_schedule_id = $1
-       ORDER BY wsi.section, wsi.sort_order ASC`,
+       ORDER BY CASE wsi.section
+         WHEN 'morgon' THEN 0
+         WHEN 'dag' THEN 1
+         WHEN 'kvall' THEN 2
+         WHEN 'natt' THEN 3
+         ELSE 9
+       END, wsi.sort_order ASC`,
       [req.params.scheduleId]
     );
 

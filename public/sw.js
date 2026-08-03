@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v764: Child session resume on /child-login + clear subStepExpanded on loadDay
  * v763: Child core-journey stability — substep toggle in-flight guard, resilient precache, /health cache_version
  * v665: App Store 1.3 — barnprofil födelsedag + iPad touch targets (Guideline 4 / 2.1a)
  * v659: Barnprofil Inställningar — byt namn & emoji (saknades efter drawer→profil)
@@ -231,8 +232,9 @@
 // stjarndag-v738: fix register form gate — hide fields until language + country confirmed
 // stjarndag-v739: fix(register) fail-open form — remove pointer-events gate, inline unlock
 // stjarndag-v740: fix(onboarding) stop top-level ot() from clobbering window.ot (slim signup)
+// stjarndag-v764: child-login resume active child session; loadDay clears subStepExpanded
 // stjarndag-v763: child substep toggle stability, resilient SW precache, /health cache_version
-const CACHE_NAME = 'stjarndag-v763';
+const CACHE_NAME = 'stjarndag-v764';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
