@@ -27,10 +27,10 @@ function parseArgs(argv) {
   return out;
 }
 
-function adminUrlFromDatabaseUrl(databaseUrl) {
-  const u = new URL(databaseUrl);
-  u.pathname = '/postgres';
-  return u.toString();
+function sslForUrl(databaseUrl) {
+  return databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1')
+    ? false
+    : { rejectUnauthorized: false };
 }
 
 async function main() {
@@ -48,10 +48,13 @@ async function main() {
   const baseUrl = process.env.DATABASE_URL;
   if (!baseUrl) throw new Error('DATABASE_URL_MISSING');
 
-  const adminUrl = adminUrlFromDatabaseUrl(baseUrl);
+  const adminUrl = process.env.DATABASE_ADMIN_URL;
+  if (!adminUrl) {
+    throw new Error('DATABASE_ADMIN_URL_REQUIRED_FOR_RESTORE');
+  }
   const adminPool = new Pool({
     connectionString: adminUrl,
-    ssl: baseUrl.includes('localhost') ? false : { rejectUnauthorized: false },
+    ssl: sslForUrl(adminUrl),
   });
   const admin = await adminPool.connect();
   try {

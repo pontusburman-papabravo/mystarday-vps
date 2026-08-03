@@ -1,0 +1,45 @@
+name: VPS ops bootstrap (one-time)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: vps-ops-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: vps
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Install ops env (sudo on VPS)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.VPS_HOST }}
+          username: ${{ vars.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ vars.VPS_SSH_PORT || 22 }}
+          command_timeout: 10m
+          script_stop: true
+          envs: VPS_APP_PATH
+          script: |
+            set -Eeuo pipefail
+            APP="${VPS_APP_PATH:-/var/www/app}"
+            cd "$APP"
+            git fetch origin main
+            git show origin/main:scripts/ops/install-vps-ops-environment.sh > /tmp/install-vps-ops-environment.sh
+            chmod +x /tmp/install-vps-ops-environment.sh
+            if [ -z "${VPS_SUDO_PASSWORD:-}" ]; then
+              echo "VPS_SUDO_PASSWORD not available to SSH session — use manual sudo on VPS"
+              exit 1
+            fi
+            printf '%s\n' "$VPS_SUDO_PASSWORD" | sudo -S -p "" bash /tmp/install-vps-ops-environment.sh
+            rm -f /tmp/install-vps-ops-environment.sh
+        env:
+          VPS_APP_PATH: ${{ vars.VPS_APP_PATH }}
+          VPS_SUDO_PASSWORD: ${{ secrets.VPS_SUDO_PASSWORD }}
