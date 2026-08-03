@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { captureDbIntegritySnapshot } from './lib/db-integrity-snapshot-core.mjs';
+import { resolveDeployDatabaseUrl, redactDeploySecrets } from './lib/deploy-database-url.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,9 +19,11 @@ function parseArgs(argv) {
 
 async function main() {
   const args = parseArgs(process.argv);
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    console.error('[db-snapshot] DATABASE_URL is not set');
+  let databaseUrl;
+  try {
+    ({ databaseUrl } = resolveDeployDatabaseUrl());
+  } catch (err) {
+    console.error(`[db-snapshot] ${err.code || err.message}`);
     process.exit(1);
   }
   const snapshot = await captureDbIntegritySnapshot(databaseUrl, {
@@ -39,6 +42,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`[db-snapshot] ${err.message}`);
+  console.error(`[db-snapshot] ${redactDeploySecrets(err.message)}`);
   process.exit(1);
 });
