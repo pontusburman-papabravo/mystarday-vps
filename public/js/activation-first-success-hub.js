@@ -108,10 +108,24 @@
       const res = await window.apiFetch('/api/family/next-action');
       if (!res.ok) return null;
       const data = await res.json();
-      cache = { at: now, data: data, flagOn: Boolean(data.enabled) };
+      cache = {
+        at: now,
+        data: data,
+        flagOn: Boolean(data.enabled && data.show_primary_coach),
+      };
       return data;
     } catch (_) {
       return null;
+    }
+  }
+
+  async function refreshLegacyCoachMounts() {
+    if (!shouldSuppressLegacyCoaches()) return;
+    if (window.EngineCoach && typeof EngineCoach.load === 'function') {
+      await EngineCoach.load({ force: true }).catch(function () {});
+    }
+    if (window.JourneyCoach && typeof JourneyCoach.pollCoach === 'function') {
+      await JourneyCoach.pollCoach();
     }
   }
 
@@ -123,12 +137,16 @@
       return { ok: false, reason: 'disabled' };
     }
     cache.flagOn = Boolean(payload.show_primary_coach);
-    render(payload);
+    const shown = render(payload);
+    if (shown) {
+      await refreshLegacyCoachMounts();
+    }
     return { ok: true, payload: payload };
   }
 
   function shouldSuppressLegacyCoaches() {
-    return Boolean(cache.flagOn);
+    if (!cache.data || !cache.data.enabled) return false;
+    return Boolean(cache.data.show_primary_coach);
   }
 
   window.ActivationFirstSuccessHub = {

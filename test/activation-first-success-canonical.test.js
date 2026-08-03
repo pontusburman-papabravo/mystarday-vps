@@ -253,6 +253,12 @@ describe('client authority — single primary coach', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/journey-coach.js'), 'utf8');
     assert.match(src, /shouldDeferToFirstSuccessHub/);
   });
+  it('hub refreshes legacy coaches after primary render', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/activation-first-success-hub.js'), 'utf8');
+    assert.match(src, /refreshLegacyCoachMounts/);
+    assert.match(src, /EngineCoach\.load/);
+    assert.match(src, /JourneyCoach\.pollCoach/);
+  });
 });
 
 async function insertFamily(db) {

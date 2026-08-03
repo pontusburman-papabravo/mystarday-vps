@@ -211,6 +211,53 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(result.ok, false);
     assert.ok(result.drift.some((d) => d.issue === 'migration_contract_missing'));
   });
+
+  test('family_feature_override migration passes with schema-only contract', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const { loadMigrationSnapshotContract } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810160000000_family_feature_override';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract);
+    assert.equal(contract.schemaOnly, true);
+    assert.equal(contract.backwardCompatible, true);
+    assert.equal(contract.featureFlagInserts?.length || 0, 0);
+
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables._migrations.row_count = 6;
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
+  test('family_feature_override migration rejects unexpected feature_flag insert', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push('1810160000000_family_feature_override');
+    after.tables.feature_flag.flag_rows.push({ key: 'rogue_flag', enabled: false });
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'unexpected_insert'));
+  });
 });
 
 describe('deploy rollback policy', () => {

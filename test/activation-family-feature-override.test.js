@@ -23,6 +23,8 @@ describe('family_feature_override migration', () => {
     );
     assert.match(src, /family_feature_override/);
     assert.match(src, /down:/);
+    assert.match(src, /snapshotContract/);
+    assert.match(src, /schemaOnly:\s*true/);
   });
 });
 

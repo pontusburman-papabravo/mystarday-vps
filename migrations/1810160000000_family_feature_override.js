@@ -5,7 +5,7 @@
  * Default: no rows — all families follow global feature_flag + cohort rules.
  */
 
-module.exports = {
+const migration = {
   name: '1810160000000_family_feature_override',
 
   up: async (client) => {
@@ -38,3 +38,11 @@ module.exports = {
     await client.query('DROP TABLE IF EXISTS family_feature_override');
   },
 };
+
+/** Deploy snapshot gate: schema-only DDL; no feature_flag or override rows. */
+migration.snapshotContract = {
+  backwardCompatible: true,
+  schemaOnly: true,
+};
+
+module.exports = migration;
