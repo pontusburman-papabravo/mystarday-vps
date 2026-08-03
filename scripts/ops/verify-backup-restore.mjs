@@ -48,7 +48,7 @@ async function main() {
   const baseUrl = process.env.DATABASE_URL;
   if (!baseUrl) throw new Error('DATABASE_URL_MISSING');
 
-  const adminUrl = adminUrlFromDatabaseUrl(baseUrl);
+  const adminUrl = process.env.DATABASE_ADMIN_URL || adminUrlFromDatabaseUrl(baseUrl);
   const adminPool = new Pool({
     connectionString: adminUrl,
     ssl: baseUrl.includes('localhost') ? false : { rejectUnauthorized: false },

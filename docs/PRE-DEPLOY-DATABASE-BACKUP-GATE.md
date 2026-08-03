@@ -21,6 +21,7 @@ See also: `docs/VPS-DEPLOY-GITHUB-ACTIONS.md`, `scripts/vps-deploy-revision.sh`.
 | `BACKUP_MIN_FREE_BYTES` | Free disk required on backup volume (default 2_000_000_000) |
 | `BACKUP_EMERGENCY_MARKER_FILE` / `DEPLOY_EMERGENCY_MARKER` | **Incident only:** short-lived JSON marker (max 30 min) — skips `pg_dump` after identity guards; env `BACKUP_EMERGENCY_OVERRIDE` is **rejected** |
 | `DISPOSABLE_DB_PREFIX` | Prefix required for restore rehearsal DB names (default `integrity_restore_`) |
+| `DATABASE_ADMIN_URL` | Optional superuser (or `CREATEDB`) URL for `verify-backup-restore.mjs` create/drop only — app `DATABASE_URL` stays read-only for snapshots |
 | `PROTECTED_DATABASE_NAME` | Production DB name — refused as restore target |
 | `DEPLOY_SHA` | Git SHA (set by deploy script) |
 
