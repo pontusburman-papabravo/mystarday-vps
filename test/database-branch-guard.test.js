@@ -22,10 +22,20 @@ describe('database branch guard', () => {
     assert.throws(() => assertDisposableDatabaseName('stjarndag'), /TEST_DATABASE_NOT_DISPOSABLE/);
   });
 
-  test('folder migration inventory is non-empty', () => {
+  test('folder migration inventory includes IAP ordering migrations without prefix clash', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const dir = path.join(__dirname, '../migrations');
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith('.js'));
     const names = listFolderMigrationNames();
     assert.ok(names.length > 10);
-    assert.ok(!names.some((n) => n.includes('1810130000000_iap_event_ordering_tiebreak')));
+    const auditFile = files.find((f) => f.startsWith('1810000000016_'));
+    const tiebreakFile = files.find((f) => f.startsWith('1810130000000_'));
+    assert.ok(auditFile, '1810000000016 migration file missing');
+    assert.ok(tiebreakFile, '1810130000000 migration file missing');
+    assert.notEqual(auditFile.split('_')[0], tiebreakFile.split('_')[0]);
+    assert.ok(names.includes('1810000000016_iap_event_ordering_audit'));
+    assert.ok(names.includes('1810130000000_iap_event_ordering_tiebreak'));
   });
 });
 
