@@ -5,8 +5,8 @@
 (function () {
   'use strict';
 
-  var CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-  var loadPromise = null;
+  const CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  let loadPromise = null;
 
   function ensureAdminChartJs() {
     if (typeof window.Chart !== 'undefined') {
@@ -14,7 +14,7 @@
     }
     if (loadPromise) return loadPromise;
     loadPromise = new Promise(function (resolve, reject) {
-      var script = document.createElement('script');
+      const script = document.createElement('script');
       script.src = CHART_CDN;
       script.async = true;
       script.onload = function () {
