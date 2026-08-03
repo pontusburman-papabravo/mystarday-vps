@@ -109,6 +109,8 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'activation_onboarding_started',
   'activation_onboarding_screen_viewed',
   'activation_question_answered',
+  'activation_first_success_next_action_shown',
+  'activation_first_success_cta_clicked',
   'starter_template_selected',
   'starter_plan_generation_started',
   'starter_plan_generation_succeeded',
