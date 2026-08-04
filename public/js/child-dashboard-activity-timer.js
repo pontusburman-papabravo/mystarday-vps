@@ -46,8 +46,8 @@
   }
 
   function timersActive() {
-    return typeof activityTimerV2Enabled !== 'undefined'
-      && activityTimerV2Enabled
+    return typeof global.activityTimerV2Enabled !== 'undefined'
+      && global.activityTimerV2Enabled
       && typeof activityTimersEnabled !== 'undefined'
       && activityTimersEnabled;
   }
@@ -209,7 +209,7 @@
 
   function maybeFinishNatural(itemId, durationSeconds, subStepId) {
     const session = ActivityTimerSession.getSession(me.id, currentDate, itemId, subStepId || undefined);
-    let status = ActivityTimerSession.resolveStatus(session, durationSeconds);
+    const status = ActivityTimerSession.resolveStatus(session, durationSeconds);
     if (status !== 'finished') return false;
     if (session && !session.end_sound_played) {
       ActivityTimerSession.setEndSoundPlayed(me.id, currentDate, itemId, subStepId || undefined);
