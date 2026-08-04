@@ -215,6 +215,43 @@
       }
     }
   },
+  "activationRecoverable": {
+    "actions": {
+      "retry": "Försök igen",
+      "report": "Rapportera problem",
+      "continueAnyway": "Fortsätt ändå"
+    },
+    "schedule": {
+      "loading": "Laddar scheman du kan välja…",
+      "pickTitle": "Välj ett schema att börja med",
+      "emptyTitle": "Inga färdiga scheman hittades",
+      "emptyBody": "Det här är inte ett fel — du kan skapa ett eget schema eller göra det senare.",
+      "errorHint": "Kontrollera nätverket och försök igen, eller fortsätt utan att välja nu.",
+      "createNew": "Skapa nytt schema",
+      "starterHeading": "Startmallar",
+      "familyHeading": "Familjens sparade scheman"
+    },
+    "report": {
+      "title": "Rapportera problem",
+      "hint": "Beskriv kort vad som hände (valfritt). Vi skickar ingen PIN eller lösenord.",
+      "placeholder": "Vad hände?",
+      "send": "Skicka rapport",
+      "close": "Stäng",
+      "sent": "Tack — rapporten är skickad.",
+      "failed": "Rapporten kunde inte skickas. Du kan fortfarande fortsätta."
+    },
+    "errors": {
+      "generic": "Något gick fel. Försök igen eller fortsätt ändå.",
+      "ACTIVATION_SCHEDULE_LOAD_TIMEOUT": "Det tog för lång tid att ladda scheman för att välja.",
+      "ACTIVATION_SCHEDULE_LOAD_401": "Din session hann inte med — logga in igen om problemet kvarstår.",
+      "ACTIVATION_SCHEDULE_LOAD_403": "Du har inte behörighet att visa dessa scheman.",
+      "ACTIVATION_SCHEDULE_LOAD_404": "Schemalistan kunde inte hittas just nu.",
+      "ACTIVATION_SCHEDULE_LOAD_429": "För många försök — vänta en stund och försök igen.",
+      "ACTIVATION_SCHEDULE_LOAD_5XX": "Kunde inte ladda scheman för att välja just nu.",
+      "ACTIVATION_SCHEDULE_EMPTY": "Inga scheman att välja ännu.",
+      "ACTIVATION_SCHEDULE_PARSE_ERROR": "Svaret från servern gick inte att läsa."
+    }
+  },
   "pwa": {
     "title": "Installera appen för push-notiser",
     "iosLead": "På iPhone/iPad krävs att appen är installerad på hemskärmen för push-notiser.",

@@ -7,6 +7,7 @@
   const MOUNT_ID = 'activationFirstSuccessCoachMount';
   const CACHE_MS = 45 * 1000;
   let cache = { at: 0, data: null, flagOn: false };
+  let schedulePickerInstance = null;
 
   function pt(key, params) {
     return window.pt ? window.pt(key, params) : key;
@@ -22,6 +23,22 @@
     analytics.track(null, eventType, meta || {});
   }
 
+  function core() {
+    return window.ActivationRecoverableCore;
+  }
+
+  function familyId() {
+    return window.Auth && Auth.getUser ? Auth.getUser().familyId : null;
+  }
+
+  function isStepSkipped(stepId) {
+    const c = core();
+    if (!c || !familyId()) return false;
+    const skips = c.readSkips(familyId());
+    const entry = skips[stepId];
+    return entry && (entry.status === c.STEP_STATUS.skipped_by_user || entry.status === c.STEP_STATUS.deferred);
+  }
+
   function trackShownOnce(payload) {
     if (!payload || !payload.next_action) return;
     const dedupeKey = 'msd_afs_shown_' + payload.next_action + '_' + (payload.funnel_step || '');
@@ -34,6 +51,62 @@
       journey_phase: payload.journey_phase,
       funnel_step: payload.funnel_step,
     });
+    track('activation_step_viewed', {
+      step_id: payload.next_action,
+      rollout_source: 'activation_first_success_v1',
+    });
+  }
+
+  function destroySchedulePicker() {
+    if (schedulePickerInstance && schedulePickerInstance.destroy) {
+      schedulePickerInstance.destroy();
+    }
+    schedulePickerInstance = null;
+  }
+
+  function dismissCoach() {
+    destroySchedulePicker();
+    const mount = document.getElementById(MOUNT_ID);
+    if (mount) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+    }
+  }
+
+  function recoverableActionsHtml() {
+    const c = core();
+    if (!c) return '';
+    return (
+      '<div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-indigo-100">' +
+      '<button type="button" class="activation-fs-report min-h-[44px] px-3 py-2 rounded-xl border border-lavender text-navy text-xs font-semibold">' +
+      esc(c.pt('home.activationRecoverable.actions.report')) + '</button>' +
+      '<button type="button" class="activation-fs-continue min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 text-navy text-xs font-semibold">' +
+      esc(c.pt('home.activationRecoverable.actions.continueAnyway')) + '</button>' +
+      '</div>'
+    );
+  }
+
+  function wireRecoverableActions(mount, stepId) {
+    const c = core();
+    if (!c) return;
+    const reportBtn = mount.querySelector('.activation-fs-report');
+    const continueBtn = mount.querySelector('.activation-fs-continue');
+    if (reportBtn) {
+      reportBtn.addEventListener('click', function () {
+        track('activation_problem_report_opened', { step_id: stepId });
+        c.submitProblemReport(stepId, c.STEP_STATUS.pending, '', { rollout_source: 'activation_first_success_v1' })
+          .then(function (result) {
+            if (result.ok && typeof window.showToast === 'function') {
+              showToast(c.pt('home.activationRecoverable.report.sent'), false);
+            }
+          });
+      });
+    }
+    if (continueBtn) {
+      continueBtn.addEventListener('click', function () {
+        c.continueAnyway(stepId, {});
+      });
+    }
   }
 
   function onPrimaryCta(payload) {
@@ -42,6 +115,23 @@
       funnel_step: payload.funnel_step,
     });
     const action = payload.next_action;
+
+    if (action === 'save_schedule' && window.ActivationSchedulePicker) {
+      const mount = document.getElementById(MOUNT_ID);
+      const panel = mount && mount.querySelector('.activation-fs-expanded');
+      if (panel) {
+        destroySchedulePicker();
+        schedulePickerInstance = ActivationSchedulePicker.create({
+          mount: panel,
+          onApplied: function () {
+            destroySchedulePicker();
+            load({ force: true });
+          },
+        });
+      }
+      return;
+    }
+
     if (action === 'child_access' || action === 'await_first_completion') {
       if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
         DashboardChildHandoff.startChildLogin();
@@ -67,6 +157,14 @@
     const mount = document.getElementById(MOUNT_ID);
     if (!mount) return false;
     if (!payload || !payload.show_primary_coach || !payload.next_action || payload.next_action === 'none') {
+      destroySchedulePicker();
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return false;
+    }
+
+    if (isStepSkipped(payload.next_action)) {
+      destroySchedulePicker();
       mount.classList.add('hidden');
       mount.innerHTML = '';
       return false;
@@ -79,6 +177,10 @@
       ? '<p class="text-xs text-text-soft mt-2">' + esc(pt('home.firstSuccess.pinHint')) + '</p>'
       : '';
 
+    const expanded = payload.next_action === 'save_schedule'
+      ? '<div class="activation-fs-expanded mt-3 hidden"></div>'
+      : '';
+
     mount.classList.remove('hidden');
     mount.setAttribute('data-authority', 'activation-first-success-v1');
     mount.innerHTML =
@@ -87,13 +189,38 @@
       '<p class="text-sm text-navy mb-3">' + esc(body) + '</p>' +
       pinHint +
       '<button type="button" class="activation-fs-cta w-full min-h-[44px] py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(cta) + '</button>' +
+      recoverableActionsHtml() +
+      expanded +
       '</div>';
 
     const btn = mount.querySelector('.activation-fs-cta');
     if (btn) {
-      btn.addEventListener('click', function () { onPrimaryCta(payload); });
+      btn.addEventListener('click', function () {
+        if (payload.next_action === 'save_schedule') {
+          const panel = mount.querySelector('.activation-fs-expanded');
+          if (panel) {
+            panel.classList.remove('hidden');
+            if (!schedulePickerInstance && window.ActivationSchedulePicker) {
+              schedulePickerInstance = ActivationSchedulePicker.create({
+                mount: panel,
+                onApplied: function () {
+                  destroySchedulePicker();
+                  load({ force: true });
+                },
+              });
+            }
+          }
+          track('activation_first_success_cta_clicked', {
+            next_action: payload.next_action,
+            funnel_step: payload.funnel_step,
+          });
+          return;
+        }
+        onPrimaryCta(payload);
+      });
     }
 
+    wireRecoverableActions(mount, payload.next_action);
     trackShownOnce(payload);
     return true;
   }
@@ -153,6 +280,7 @@
     load: load,
     fetchNextAction: fetchNextAction,
     shouldSuppressLegacyCoaches: shouldSuppressLegacyCoaches,
+    dismissCoach: dismissCoach,
     clearCache: function () { cache = { at: 0, data: null, flagOn: false }; },
   };
 })();

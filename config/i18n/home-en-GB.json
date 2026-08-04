@@ -215,6 +215,43 @@
       }
     }
   },
+  "activationRecoverable": {
+    "actions": {
+      "retry": "Try again",
+      "report": "Report a problem",
+      "continueAnyway": "Continue anyway"
+    },
+    "schedule": {
+      "loading": "Loading schedules you can choose…",
+      "pickTitle": "Pick a schedule to start with",
+      "emptyTitle": "No ready-made schedules found",
+      "emptyBody": "This is not an error — you can create your own schedule or do this later.",
+      "errorHint": "Check your connection and try again, or continue without choosing now.",
+      "createNew": "Create a new schedule",
+      "starterHeading": "Starter templates",
+      "familyHeading": "Your saved schedules"
+    },
+    "report": {
+      "title": "Report a problem",
+      "hint": "Briefly describe what happened (optional). We never send PINs or passwords.",
+      "placeholder": "What happened?",
+      "send": "Send report",
+      "close": "Close",
+      "sent": "Thanks — your report was sent.",
+      "failed": "The report could not be sent. You can still continue."
+    },
+    "errors": {
+      "generic": "Something went wrong. Try again or continue anyway.",
+      "ACTIVATION_SCHEDULE_LOAD_TIMEOUT": "Loading schedules to choose from took too long.",
+      "ACTIVATION_SCHEDULE_LOAD_401": "Your session could not keep up — sign in again if this persists.",
+      "ACTIVATION_SCHEDULE_LOAD_403": "You do not have permission to view these schedules.",
+      "ACTIVATION_SCHEDULE_LOAD_404": "The schedule list could not be found right now.",
+      "ACTIVATION_SCHEDULE_LOAD_429": "Too many attempts — wait a moment and try again.",
+      "ACTIVATION_SCHEDULE_LOAD_5XX": "Could not load schedules to choose from right now.",
+      "ACTIVATION_SCHEDULE_EMPTY": "No schedules to choose yet.",
+      "ACTIVATION_SCHEDULE_PARSE_ERROR": "The server response could not be read."
+    }
+  },
   "pwa": {
     "title": "Install the app for push notifications",
     "iosLead": "On iPhone/iPad the app must be on your Home Screen for push notifications.",

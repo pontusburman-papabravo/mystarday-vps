@@ -38,6 +38,9 @@ router.use('/', require('./first-success'));
 // ─── Canonical next-action (Journey authority, flag-gated) ───────────────────
 router.use('/', require('./next-action'));
 
+// ─── Activation recoverable steps (schedule picker, skip, problem reports) ─
+router.use('/', require('./activation-recoverable'));
+
 // ─── Account-deletion route ───────────────────────────────────────────────────
 router.use('/', require('./account'));
 

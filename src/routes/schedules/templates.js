@@ -330,6 +330,17 @@ router.post('/:templateId/apply', async (req, res) => {
 
     broadcast(childAccess.family_id, 'SCHEDULE_UPDATED', { childId: child_id });
 
+    if (filledDays.length > 0) {
+      try {
+        const { recordActivationMilestone } = require('../../lib/activation-p0');
+        await recordActivationMilestone(req.user.familyId, 'schema_saved', {
+          source: 'schedule_template_apply',
+        });
+      } catch (actErr) {
+        console.error('[SCHEDULE-TEMPLATES] schema_saved milestone error:', actErr.message);
+      }
+    }
+
     const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
     const dayStr = filledDays.map(d => dayNames[d]).join(', ');
     res.status(201).json({
