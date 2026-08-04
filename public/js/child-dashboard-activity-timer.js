@@ -200,6 +200,13 @@
     return renderTimerWrap(itemId, step.id, st, true);
   }
 
+  const FINISH_CELEBRATION_MS = 15000;
+  let _finishCelebrationActive = false;
+  let _finishSoundInterval = null;
+  let _finishPulseInterval = null;
+  let _finishCelebrationEndTimer = null;
+  let _finishCelebrationLayer = null;
+
   function primeEndAudio() {
     try {
       const Ctx = global.AudioContext || global.webkitAudioContext;
@@ -210,24 +217,35 @@
     } catch { /* ignore */ }
   }
 
-  function playEndSound() {
+  function playEndChime(loud) {
     try {
       const Ctx = global.AudioContext || global.webkitAudioContext;
       if (!Ctx) return;
       const ctx = new Ctx();
+      const peak = loud ? 0.52 : 0.14;
       const startTone = function () {
-        const osc = ctx.createOscillator();
+        const now = ctx.currentTime;
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.12, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-        osc.connect(gain);
+        gain.gain.setValueAtTime(peak, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
         gain.connect(ctx.destination);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.6);
-        osc.onended = function () { ctx.close(); };
+
+        const oscA = ctx.createOscillator();
+        oscA.type = 'triangle';
+        oscA.frequency.setValueAtTime(523.25, now);
+        oscA.frequency.setValueAtTime(783.99, now + 0.08);
+        oscA.connect(gain);
+
+        const oscB = ctx.createOscillator();
+        oscB.type = 'sine';
+        oscB.frequency.setValueAtTime(1046.5, now + 0.05);
+        oscB.connect(gain);
+
+        oscA.start(now);
+        oscB.start(now + 0.05);
+        oscA.stop(now + 0.8);
+        oscB.stop(now + 0.8);
+        oscB.onended = function () { ctx.close(); };
       };
       if (ctx.state === 'suspended' && ctx.resume) {
         ctx.resume().then(startTone).catch(function () { ctx.close(); });
@@ -237,21 +255,78 @@
     } catch { /* ignore */ }
   }
 
-  function flashFinishScreen() {
+  function ensureFinishCelebrationLayer() {
+    if (_finishCelebrationLayer) return _finishCelebrationLayer;
+    const layer = document.createElement('div');
+    layer.id = 'activity-timer-celebration';
+    layer.className = 'activity-timer-celebration';
+    layer.hidden = true;
+    layer.setAttribute('role', 'button');
+    layer.setAttribute('aria-label', t('activityTimer.finishTapDismiss'));
+    layer.innerHTML = '<div class="activity-timer-celebration__burst"></div>';
+    layer.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      stopFinishCelebration();
+    });
+    document.body.appendChild(layer);
+    _finishCelebrationLayer = layer;
+    return layer;
+  }
+
+  function stopFinishCelebration() {
+    if (!_finishCelebrationActive && !_finishCelebrationLayer) return;
+    _finishCelebrationActive = false;
+    document.documentElement.classList.remove('activity-timer-finish-flash');
+    if (_finishCelebrationLayer) {
+      _finishCelebrationLayer.hidden = true;
+      _finishCelebrationLayer.classList.remove('activity-timer-celebration--on');
+    }
+    if (_finishSoundInterval) {
+      clearInterval(_finishSoundInterval);
+      _finishSoundInterval = null;
+    }
+    if (_finishPulseInterval) {
+      clearInterval(_finishPulseInterval);
+      _finishPulseInterval = null;
+    }
+    if (_finishCelebrationEndTimer) {
+      clearTimeout(_finishCelebrationEndTimer);
+      _finishCelebrationEndTimer = null;
+    }
+  }
+
+  function pulseFinishFlash() {
     if (reducedMotion()) return;
     const root = document.documentElement;
     root.classList.remove('activity-timer-finish-flash');
     void root.offsetWidth;
     root.classList.add('activity-timer-finish-flash');
-    window.setTimeout(function () {
-      root.classList.remove('activity-timer-finish-flash');
-    }, 700);
+  }
+
+  function startFinishCelebration() {
+    if (reducedMotion()) {
+      playEndChime(true);
+      if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
+      return;
+    }
+    stopFinishCelebration();
+    _finishCelebrationActive = true;
+    const layer = ensureFinishCelebrationLayer();
+    layer.hidden = false;
+    layer.classList.add('activity-timer-celebration--on');
+    pulseFinishFlash();
+    playEndChime(true);
+    if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
+    _finishSoundInterval = setInterval(function () {
+      playEndChime(true);
+    }, 1100);
+    _finishPulseInterval = setInterval(pulseFinishFlash, 480);
+    _finishCelebrationEndTimer = setTimeout(stopFinishCelebration, FINISH_CELEBRATION_MS);
   }
 
   function playFinishEffects() {
-    playEndSound();
-    flashFinishScreen();
-    if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
+    startFinishCelebration();
   }
 
   function maybeFinishNatural(itemId, durationSeconds, subStepId) {
@@ -316,11 +391,15 @@
       '<div class="activity-timer-overlay__backdrop"></div>' +
       '<div class="activity-timer-overlay__panel">' +
         '<button type="button" class="activity-timer-overlay__close" aria-label="' + t('activityTimer.close') + '">×</button>' +
-        '<div class="activity-timer-overlay__visual" id="activity-timer-overlay-visual"></div>' +
-        '<h2 class="activity-timer-overlay__title" id="activity-timer-overlay-title"></h2>' +
+        '<div class="activity-timer-overlay__head">' +
+          '<span class="activity-timer-overlay__visual" id="activity-timer-overlay-visual"></span>' +
+          '<h2 class="activity-timer-overlay__title" id="activity-timer-overlay-title"></h2>' +
+        '</div>' +
         '<div class="activity-timer-overlay__hourglass" id="activity-timer-overlay-hourglass"></div>' +
-        '<p class="activity-timer-overlay__digits" id="activity-timer-overlay-digits"></p>' +
-        '<p class="activity-timer-overlay__status" id="activity-timer-overlay-status"></p>' +
+        '<div class="activity-timer-overlay__time">' +
+          '<p class="activity-timer-overlay__digits" id="activity-timer-overlay-digits"></p>' +
+          '<p class="activity-timer-overlay__status" id="activity-timer-overlay-status"></p>' +
+        '</div>' +
         '<div class="activity-timer-overlay__actions">' +
           '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--primary" data-action="start">' + t('activityTimer.startShort') + '</button>' +
           '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--primary" data-action="resume">' + t('activityTimer.resume') + '</button>' +
@@ -430,6 +509,7 @@
       actions.querySelector('[data-action="resume"]').hidden = status !== 'paused';
       actions.querySelector('[data-action="stop"]').hidden = status === 'idle';
       actions.querySelector('[data-action="restart"]').hidden = status === 'idle';
+      actions.querySelector('[data-action="done"]').hidden = status !== 'finished';
     }
   }
 
@@ -453,6 +533,7 @@
   }
 
   function closeOverlay() {
+    stopFinishCelebration();
     if (!_overlayEl || _overlayEl.hidden) return;
     const finish = function () {
       _overlayEl.hidden = true;

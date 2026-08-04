@@ -123,10 +123,11 @@ describe('activity timer — dead Start regression', () => {
 
   it('plays finish sound and screen flash when timer reaches zero', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
-    assert.match(src, /function playFinishEffects/);
-    assert.match(src, /flashFinishScreen/);
-    assert.match(src, /activity-timer-finish-flash/);
-    assert.match(src, /playFinishEffects\(\)/);
+    assert.match(src, /function startFinishCelebration/);
+    assert.match(src, /FINISH_CELEBRATION_MS = 15000/);
+    assert.match(src, /stopFinishCelebration/);
+    assert.match(src, /activity-timer-celebration/);
+    assert.match(src, /playEndChime\(true\)/);
   });
 
   it('overlay mounts large hourglass via overlayHourglassMountHtml', () => {

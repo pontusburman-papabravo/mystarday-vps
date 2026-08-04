@@ -45,24 +45,30 @@
       transition: transform .35s linear;
     }
     .sand-stream {
-      opacity: var(--running, 0);
-      transition: opacity .18s ease;
-      animation: streamPulse .55s ease-in-out infinite alternate;
+      opacity: calc(var(--running, 0) * 0.92);
+      transition: opacity .22s ease;
+      transform-origin: 160px 226px;
+      animation: streamWobble .7s ease-in-out infinite alternate;
+    }
+    .sand-stream-shape {
+      transform-origin: 160px 226px;
+      animation: streamWobble .7s ease-in-out infinite alternate;
     }
     .sand-grain {
       opacity: var(--running, 0);
-      animation: grainFall 1.05s linear infinite;
+      animation: grainFall .85s linear infinite;
     }
-    .sand-grain.g2 { animation-delay: -.35s; }
-    .sand-grain.g3 { animation-delay: -.7s; }
-    @keyframes streamPulse {
-      from { transform: scaleX(.72); }
-      to { transform: scaleX(1); }
+    .sand-grain.g2 { animation-delay: -.28s; }
+    .sand-grain.g3 { animation-delay: -.55s; }
+    .sand-grain.g4 { animation-delay: -.12s; }
+    @keyframes streamWobble {
+      from { transform: scale(0.92, 1); }
+      to { transform: scale(1.05, 1.04); }
     }
     @keyframes grainFall {
-      from { transform: translateY(-12px); opacity: 0; }
-      20% { opacity: var(--running, 0); }
-      to { transform: translateY(34px); opacity: 0; }
+      from { transform: translateY(-16px) translateX(-2px); opacity: 0; }
+      15% { opacity: calc(var(--running, 0) * 0.95); }
+      to { transform: translateY(38px) translateX(2px); opacity: 0; }
     }
     @media (prefers-reduced-motion: reduce) {
       .upper-sand, .lower-sand { transition: none; }
@@ -97,14 +103,17 @@
       </g>
     </g>
 
-    <g class="sand-stream" transform-origin="160px 226px">
-      <rect x="157.4" y="210" width="5.2" height="51" rx="2.6" fill="#eca53a"/>
-      <rect x="158.5" y="210" width="1.4" height="51" rx=".7" fill="#ffd77b" opacity=".8"/>
+    <g class="sand-stream">
+      <g class="sand-stream-shape">
+        <path d="M148 206 C154 218 158 228 160 238 C162 228 166 218 172 206 C168 214 164 222 160 232 C156 222 152 214 148 206Z" fill="url(#sandFill)" opacity=".88"/>
+        <ellipse cx="160" cy="248" rx="11" ry="7" fill="#e89a2f" opacity=".55"/>
+      </g>
     </g>
 
-    <circle class="sand-grain g1" cx="154" cy="220" r="2.1" fill="#f4b94d"/>
-    <circle class="sand-grain g2" cx="166" cy="224" r="1.8" fill="#e99d31"/>
-    <circle class="sand-grain g3" cx="160" cy="219" r="1.4" fill="#ffd77b"/>
+    <circle class="sand-grain g1" cx="152" cy="218" r="2.4" fill="#f4b94d"/>
+    <circle class="sand-grain g2" cx="168" cy="222" r="2" fill="#e99d31"/>
+    <circle class="sand-grain g3" cx="160" cy="215" r="1.6" fill="#ffd77b"/>
+    <circle class="sand-grain g4" cx="157" cy="235" r="1.8" fill="#f8c45e"/>
 
     <path d="M100 100C88 139 99 168 126 192" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".34"/>
     <path d="M108 261C92 282 91 306 101 321" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".25"/>
