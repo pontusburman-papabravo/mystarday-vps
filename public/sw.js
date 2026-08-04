@@ -537,6 +537,7 @@ const CACHE_NAME = 'stjarndag-v770';
 // stjarndag-v763: growth feedback loop client assets (flag-gated)
 // stjarndag-v767: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v768: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v770: native child-first session restore (session-cookie-reconcile + bootstrap)
 // stjarndag-v769: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v770: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
@@ -612,6 +613,7 @@ const STATIC_ASSETS = [
   '/child-dashboard.html',
   '/css/child-login-magic.css',
   '/js/child-login.js',
+  '/js/native-child-session-restore.js',
   '/js/child-app-i18n.js',
   '/js/child-ui-text.js',
   '/js/child-dashboard.js',
