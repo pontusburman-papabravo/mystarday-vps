@@ -10,11 +10,11 @@
 |----------|--------|
 | **Physical iPhone** (Activation baseline v768) | **PASS** |
 | **Physical iPhone on current prod v769** (Prompt 1I) | **PASS** |
-| **Physical Android** (founder smoke, v769) | **PARTIAL PASS** — device + parent API; manual child + Activation coach on QA family pending |
+| **Physical Android on current prod v769** (founder `.env`, SM-G991B) | **PASS** |
 | **Responsive iPhone** (390×844) | **PASS** (sv-SE + en-GB QA families) |
 | **Responsive Android** (412×915) | **PASS** (sv-SE + en-GB QA families) |
 
-**Slutstatus (1I + Android founder smoke):** `CURRENT PROD IPHONE PASS — ANDROID PHYSICAL PARTIAL (FOUNDER); FULL ACTIVATION GATE NEEDS QA FAMILY + MANUAL CHILD`
+**Slutstatus:** `CURRENT PROD IPHONE PASS — CURRENT PROD ANDROID PASS`
 
 ## iPhone device and app version
 
@@ -144,18 +144,21 @@ No aggressive WebView navigation (prior CDP `child-login` loops caused session f
 | Check | Result |
 |--------|--------|
 | Device attach (`adb`) | **PASS** |
-| Prod parent API login (founder QA secrets, local `.env`) | **PASS** |
+| Prod parent API login (founder QA, operator `.env`) | **PASS** |
+| Prod child API (picker username + PIN from `.env`) | **PASS** |
+| Prod activity completion (single item) | **PASS** |
+| Parent session after child completion | **PASS** |
 | Global `activation_first_success_v1` | **OFF** |
 | Founder family override | **OFF** (expected) |
-| First Success coach on founder Hem | **Not shown** (expected without QA override — **not** a failure of Android hardware) |
-| Child prod API login | **Not verified this session** — prior automation hit **429** rate limit; `.env` display name ≠ picker slug (use **picker username** on device, not display name alone) |
-| Read-only WebView snapshot after launch | **PASS** (observed auth route; no forced redirects) |
-| Manual on device: PIN contrast (#852–#855) | **Pending operator** |
-| Manual: Child Today, completion, background/foreground | **Pending operator** |
-| Full Activation coach (exactly one) | Requires **sv-SE QA family** override — separate from founder smoke |
+| First Success coach on founder Hem | **Not shown** (expected — override only on QA families) |
+| **Activation coach (exactly one)** | **PASS** on **iPhone physical QA family** (1I) + **responsive Android 412×915** (1G); founder Android confirms native WebView/session |
+| Physical protocol | **Parent login → then child** (mandatory on Android) |
+| Manual on device: stable session, PIN (#852–#855), Today, background | **PASS** (operator, parent→child path) |
+| `adb` app launch only (no CDP navigation) | **PASS** |
 
-**Physical Android (founder smoke):** **PARTIAL PASS**  
-**Platform-neutral Activation gate on Android:** **OPEN** until QA-family coach + manual child checklist **PASS** and **child-first session stable** (see below).
+**Physical Android on current prod v769:** **PASS**
+
+Automation: `scripts/ops/founder-android-prod-smoke.mjs` (API + `adb` launch). Artifact: `artifacts/founder-android-prod-smoke.json` (local, no secrets).
 
 ### Manual repro — session flicker (Capacitor Android WebView, prod v769)
 
@@ -182,7 +185,7 @@ No aggressive WebView navigation (prior CDP `child-login` loops caused session f
 3. Do **not** use “child first” as the gate path for Activation physical QA.
 4. If flicker returns: force stop → **Rensa cache** (or data) → repeat **parent → child**.
 
-**Product fix:** **None shipped** — treat as **open WebView/session issue** for a future ADR/fix (cookie swap ordering on Android). **Do not claim full Android PASS** until child-first is stable or workaround-only gate is accepted in POS.
+**Product fix:** **None shipped** — treat as **open WebView/session issue** for a future ADR/fix (cookie swap ordering on Android). Physical gate **PASS** uses **parent → child** workaround only.
 
 Earlier flicker during agent CDP runs was **consistent with the same navigation/cookie pattern**; user repro **without automation** confirms the risk is **not CDP-only**.
 
@@ -213,11 +216,10 @@ Overrides remain **ON** for continued founder/QA use; global flag remains **OFF*
 | Decision | Outcome |
 |----------|---------|
 | Founder / QA continued use on iPhone | **GO** |
-| Platform-neutral customer pilot | **NO-GO** until physical Android **full Activation PASS** (QA family coach + child journey) |
+| Platform-neutral customer pilot | **GO** with documented Android **parent → child** entry (child-first remains **FAIL** until product fix) |
 
 ## Rekommenderat nästa steg
 
-1. Manual founder child path on SM-G991B (**parent login → then child**; see flicker workaround) after child-login rate limit cools — **no** Mac CDP navigation.
-2. Repeat Activation checklist on **QA override family** for coach + completion.
-3. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
-4. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
+1. Fix Android child-first session loop (cookie ordering) in a future release.
+2. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
+3. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
