@@ -451,16 +451,17 @@
   width: 100%;
 }
 .cl-key.digit {
-  background: #fff;
-  border: none;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
   font-size: 1.75rem;
+  font-weight: 800;
   color: #1B2340;
 }
-.cl-key.digit.col-purple { background: rgba(123, 97, 255, 0.14); color: #1B2340; }
-.cl-key.digit.col-teal   { background: rgba(20, 184, 166, 0.14); color: #1B2340; }
-.cl-key.digit.col-pink   { background: rgba(236, 72, 153, 0.14); color: #1B2340; }
-.cl-key.digit.col-gold   { background: rgba(245, 166, 35, 0.18); color: #1B2340; }
+.cl-key.digit.col-purple { color: #5B21B6; }
+.cl-key.digit.col-teal   { color: #0F766E; }
+.cl-key.digit.col-pink   { color: #BE185D; }
+.cl-key.digit.col-gold   { color: #B45309; }
 .cl-key:focus-visible {
   outline: 3px solid #7B61FF;
   outline-offset: 2px;

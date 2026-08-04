@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v769: child-login PIN keypad — higher contrast digits on white keys (physical QA)
  * v764: Child session resume on /child-login + clear subStepExpanded on loadDay
  * v763: Child core-journey stability — substep toggle in-flight guard, resilient precache, /health cache_version
  * v665: App Store 1.3 — barnprofil födelsedag + iPad touch targets (Guideline 4 / 2.1a)
@@ -236,7 +237,7 @@
 // stjarndag-v764: child-login resume active child session; loadDay clears subStepExpanded
 // stjarndag-v763: child substep toggle stability, resilient SW precache, /health cache_version
 // stjarndag-v766: growth feedback loop client assets (flag-gated)
-const CACHE_NAME = 'stjarndag-v768';
+const CACHE_NAME = 'stjarndag-v769';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
