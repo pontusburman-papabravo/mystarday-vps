@@ -53,6 +53,9 @@
       }),
     ]).then(function (data) {
       subStepCache[itemId] = (data && data.sub_steps) ? data.sub_steps : [];
+      if (window.ChildActivityTimer && typeof ChildActivityTimer.refreshParentTimerUi === 'function') {
+        ChildActivityTimer.refreshParentTimerUi(itemId);
+      }
       return subStepCache[itemId];
     }).finally(function () {
       delete _expandFetches[itemId];
@@ -191,13 +194,15 @@
       const isChecked = !!step.completed;
       const timerHtml = subStepTimerHtml(itemId, step);
       html += `
-      <div class="substep-row" onclick="toggleSubStep(event, '${itemId}', '${step.id}', ${isChecked})" id="substep-row-${step.id}">
+      <div class="substep-row" id="substep-row-${step.id}">
+        <div class="substep-row-primary" onclick="toggleSubStep(event, '${itemId}', '${step.id}', ${isChecked})">
         <div class="substep-check ${isChecked ? 'checked' : ''}" id="substep-check-${step.id}">
           ${isChecked ? `<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>` : ''}
         </div>
         ${step.icon ? `<span style="font-size:1.3rem;flex-shrink:0;">${step.icon}</span>` : ''}
         <span class="substep-name ${isChecked ? 'checked' : ''}" id="substep-name-${step.id}">${escHtml(step.display_name || step.name)}</span>
-        ${timerHtml}
+        </div>
+        ${timerHtml ? `<div class="substep-timer-slot">${timerHtml}</div>` : ''}
       </div>`;
     }
     html += `</div>`;

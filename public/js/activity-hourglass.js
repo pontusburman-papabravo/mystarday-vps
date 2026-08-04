@@ -46,7 +46,7 @@
   function loadSvgTemplate() {
     if (_svgTemplate) return Promise.resolve(_svgTemplate);
     if (!_svgLoadPromise) {
-      _svgLoadPromise = fetch('/images/child/activity-timer/hourglass.svg')
+      _svgLoadPromise = fetch('/images/child/activity-timer/hourglass.svg?v=2')
         .then(function (r) {
           if (!r.ok) throw new Error('hourglass.svg load failed');
           return r.text();
