@@ -934,7 +934,7 @@ const Auth = {
   },
 
   _showLogoutFailureMessage(kind) {
-    var msg = '';
+    let msg = '';
     if (window.I18n) {
       if (kind === 'rateLimit') {
         msg = I18n.t('auth.errors.logoutRateLimited');
@@ -1089,7 +1089,7 @@ const Auth = {
         return r.json().then(function (res) { return { httpOk: r.ok, httpStatus: r.status, body: res }; });
       }).then(function (wrapped) {
         if (!wrapped) return;
-        var res = wrapped.body;
+        const res = wrapped.body;
         if (!wrapped.httpOk) {
           if (res && res.code === 'PARENT_PIN_INVALID') {
             msgEl.textContent = pgT('errors.parentPinInvalid');
