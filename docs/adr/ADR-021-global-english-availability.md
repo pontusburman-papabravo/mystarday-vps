@@ -26,7 +26,7 @@ Product decision: **English should be selectable for all families** when globall
 | `isEnglishAppEnabled(familyId)` | Pre-auth (`null`) → `true`. Global ON → `true`. Global OFF → `hasAccess(english_app)` OR `preferred_locale = en-GB` (grandfather active en-GB UI). |
 | `canSelectEnglishLocale(familyId)` | Pre-auth → `true`. Global ON → `true`. Global OFF → `hasAccess(english_app)` only (no grandfather for **new** selection). |
 
-Flag read errors: **fail closed** (`false`) — same as other rollout kill switches.
+Flag read errors: **fail closed** (`enabled` treated as `false`). Server logs `[ENGLISH_GLOBAL_FLAG_READ_FAILED]` with the DB error message. `/health` exposes `english_global_flag_read_ok`, `english_global_flag_enabled`, and `english_global_flag_read_error` when the read fails (overall `status` remains `healthy` — English gate is fail-closed, not a process crash).
 
 Reads do **not** mutate `family_features`.
 
