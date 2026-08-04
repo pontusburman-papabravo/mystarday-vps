@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Activation QA prod gate (sv-SE) — API journey + optional Android adb launch.
- * Secrets: QA_PASSWORD (min 12), QA_CHILD_PIN (default 4821). Never logged.
+ * Secrets: QA_PASSWORD (min 12), QA_CHILD_PIN (env). Never logged.
  */
 import fs from 'fs';
 import path from 'path';
@@ -32,12 +32,7 @@ function loadQaPasswordFromFiles() {
 }
 
 async function resolveQaPasswordAsync() {
-  const direct = loadQaPasswordFromFiles();
-  if (direct) return direct;
-  const fp = process.env.FOUNDER_QA_PASSWORD;
-  if (!fp || fp.length < 8) return null;
-  const probe = await api('/api/auth/login', { method: 'POST', body: { email: QA_PARENT, password: fp } });
-  return probe.status === 200 ? fp : null;
+  return loadQaPasswordFromFiles();
 }
 
 function mergeJar(jar, setCookie) {

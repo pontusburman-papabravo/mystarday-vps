@@ -1,6 +1,6 @@
 # Activation First Success — Physical QA Gate
 
-**Prompt:** 1G (responsive) + **1H** (physical iPhone final) + **1I** (current prod iPhone regression)  
+**Prompt:** 1G (responsive) + **1H** (physical iPhone final) + **1I** (current prod iPhone regression) + **1J** (Android Activation completion gate)  
 **Date:** 2026-08-04  
 **Prod URL:** `https://mystarday.se` <!-- pragma: allowlist secret -->
 
@@ -10,11 +10,15 @@
 |----------|--------|
 | **Physical iPhone** (Activation baseline v768) | **PASS** |
 | **Physical iPhone on current prod v769** (Prompt 1I) | **PASS** |
-| **Physical Android on current prod v769** (founder `.env`, SM-G991B) | **PASS** |
+| **Physical Android core flow** (founder `.env`, SM-G991B, v769) | **PASS** — parent API, picker child, completion, `adb` launch |
+| **Physical Android Activation** (QA family override, First Success coach on device) | **NOT RUN** — QA credentials file unavailable locally |
+| **Child-first entry** (cold launch, existing child session) | **FAIL** — flicker / redirect loop (see §1J) |
 | **Responsive iPhone** (390×844) | **PASS** (sv-SE + en-GB QA families) |
 | **Responsive Android** (412×915) | **PASS** (sv-SE + en-GB QA families) |
 
-**Slutstatus:** `CURRENT PROD IPHONE PASS — CURRENT PROD ANDROID PASS`
+**Slutstatus:** `CURRENT PROD ANDROID CORE FLOW PASS — ACTIVATION FIRST SUCCESS ANDROID TARGETED GATE NOT YET RUN`
+
+**Prompt 1J gate outcome:** `PHYSICAL ANDROID ACTIVATION BLOCKED — QA CREDENTIALS UNAVAILABLE`
 
 ## iPhone device and app version
 
@@ -151,12 +155,12 @@ No aggressive WebView navigation (prior CDP `child-login` loops caused session f
 | Global `activation_first_success_v1` | **OFF** |
 | Founder family override | **OFF** (expected) |
 | First Success coach on founder Hem | **Not shown** (expected — override only on QA families) |
-| **Activation coach (exactly one)** | **PASS** on **iPhone physical QA family** (1I) + **responsive Android 412×915** (1G); founder Android confirms native WebView/session |
+| **Activation coach (exactly one)** | **Not verified on Android device** — requires Prompt 1J QA-family run (blocked: no `~/.config/mystarday/founder-activation-qa.env`) |
 | Physical protocol | **Parent login → then child** (mandatory on Android) |
-| Manual on device: stable session, PIN (#852–#855), Today, background | **PASS** (operator, parent→child path) |
+| Manual on device: stable session, PIN (#852–#855), Today, background | **PASS** (founder, parent→child path only) |
 | `adb` app launch only (no CDP navigation) | **PASS** |
 
-**Physical Android on current prod v769:** **PASS**
+**Physical Android core flow (founder):** **PASS** — not a substitute for **Activation targeted gate** on QA override family.
 
 Automation: `scripts/ops/founder-android-prod-smoke.mjs` (API + `adb` launch). Artifact: `artifacts/founder-android-prod-smoke.json` (local, no secrets).
 
@@ -185,7 +189,11 @@ Automation: `scripts/ops/founder-android-prod-smoke.mjs` (API + `adb` launch). A
 3. Do **not** use “child first” as the gate path for Activation physical QA.
 4. If flicker returns: force stop → **Rensa cache** (or data) → repeat **parent → child**.
 
-**Product fix:** **None shipped** — treat as **open WebView/session issue** for a future ADR/fix (cookie swap ordering on Android). Physical gate **PASS** uses **parent → child** workaround only.
+**Classification:** **PRODUCT BUG** (Android WebView cookie ordering + `resumeActiveChildSessionIfPresent` ↔ `child-dashboard` guard loop). **Not** EXPECTED SECURITY BEHAVIOR (child session should resume cleanly). **STALE SESSION** can trigger it when parent cookie remains. **No product fix** this session — see recommended fix prompt below.
+
+**Recommended separate fix prompt (outline):** On native Android, after child-login success, atomically clear parent `access_token` before barnvy navigation; on `/child/today`, if `me.type !== 'child'` but child localStorage present, prefer single redirect to `child-login?picker=1` instead of clear+loop; add Capacitor integration test for cold launch with child-only cookie jar.
+
+**Product fix shipped:** **None** — physical **core** gate uses **parent → child** only; **child-first remains FAIL**.
 
 Earlier flicker during agent CDP runs was **consistent with the same navigation/cookie pattern**; user repro **without automation** confirms the risk is **not CDP-only**.
 
@@ -216,10 +224,133 @@ Overrides remain **ON** for continued founder/QA use; global flag remains **OFF*
 | Decision | Outcome |
 |----------|---------|
 | Founder / QA continued use on iPhone | **GO** |
-| Platform-neutral customer pilot | **GO** with documented Android **parent → child** entry (child-first remains **FAIL** until product fix) |
+| Platform-neutral customer pilot | **NO-GO** until **Prompt 1J** Activation gate **PASS** on physical Android (QA family) |
 
 ## Rekommenderat nästa steg
 
-1. Fix Android child-first session loop (cookie ordering) in a future release.
-2. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
-3. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
+1. Create `~/.config/mystarday/founder-activation-qa.env` (mode `600`) with `QA_PASSWORD` (+ `QA_CHILD_PIN` if rotated); re-run `scripts/ops/run-android-activation-full-qa.sh` and complete manual SM-G991B checklist.
+2. Fix Android child-first session loop (cookie ordering) in a future release.
+3. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
+4. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
+
+---
+
+# Physical Android Activation Gate (Prompt 1J)
+
+## Status
+
+`CURRENT PROD ANDROID CORE FLOW PASS`  
+`ACTIVATION FIRST SUCCESS ANDROID TARGETED GATE NOT YET RUN`  
+**Gate outcome:** `PHYSICAL ANDROID ACTIVATION BLOCKED — QA CREDENTIALS UNAVAILABLE`
+
+## Device och appversion
+
+| Field | Value |
+|--------|--------|
+| Device | Samsung SM-G991B (Galaxy S21 5G) |
+| Android | 15 |
+| Serial | `R3CR3008SEK` (adb) |
+| App | `se.mystarday.app` 1.3.0 |
+| Native load | `https://mystarday.se` (Capacitor `server.url`, prod) |
+
+## Prod SHA/cache
+
+| Check | Result |
+|--------|--------|
+| `GET /health` | **healthy** |
+| `git_sha` | `8fea1f5543664ce75db8e8e23c014aea70bd97fd` |
+| `cache_version` | `stjarndag-v769` |
+
+## QA-family override
+
+| Check | Result |
+|--------|--------|
+| Global `activation_first_success_v1` | **OFF** (health + prior VPS verify) |
+| sv-SE QA family override | **ON** until `2026-08-10T23:59:59.000Z` |
+| en-GB QA family override | **ON** (same expiry) |
+| Control / founder family override | **OFF** (founder `activation-config` via API smoke) |
+| Growth flags | **OFF** |
+| QA scenario reset (no first_success, pending completion) | **Not run** — blocked without prod DB/VPS + QA login |
+| `~/.config/mystarday/founder-activation-qa.env` | **Missing** on operator Mac |
+
+## First Success coach
+
+| Check | Result |
+|--------|--------|
+| Exactly one coach on Hem (QA family, physical) | **NOT VERIFIED** — gate blocked |
+| Responsive Android 412×915 (QA API) | **PASS** (1G, prior run) |
+
+## Child login
+
+| Check | Result |
+|--------|--------|
+| Parent → picker → PIN → Today (founder) | **PASS** |
+| Child-first cold launch (existing child session) | **FAIL** (flicker / redirect loop) |
+
+## Completion och stjärna
+
+| Check | Result |
+|--------|--------|
+| Founder API completion | **PASS** (`founder-android-prod-smoke.mjs`) |
+| QA family physical completion + single star | **NOT RUN** |
+
+## Parent restore
+
+| Check | Result |
+|--------|--------|
+| After QA Activation journey | **NOT RUN** |
+
+## Native/WebView
+
+| Check | Result |
+|--------|--------|
+| `adb` cold launch | **PASS** |
+| No CDP navigation during physical QA | **Policy** (prior CDP caused session flicker) |
+| Back / keyboard / font scale | **NOT RUN** on QA Activation path |
+
+## Child-first reproduktion
+
+**Steps:** Force-stop app → relaunch with **existing valid child session** (no parent login first) → expected `/child/today`.
+
+**Observed:** Immediate UI flicker (logged-in vs logged-out).
+
+| Layer | Notes |
+|--------|--------|
+| Native launch URL | `https://mystarday.se` (remote WebView; last route may persist) |
+| Persisted child session | Child JWT + `localStorage` auth snapshot |
+| Parent/child resolution | `/api/auth/me` can return `parent` while parent `access_token` cookie remains |
+| Capacitor lifecycle | Standard cold start; no local bundle (remote URL) |
+| Service worker | Unregistered on native; not primary suspect |
+| Auth restore | `resumeActiveChildSessionIfPresent` → `/child/today`; dashboard rejects non-child `me` → `/child-login` |
+| Redirect order | Loop between child-login resume and dashboard guard |
+
+**Classification:** **PRODUCT BUG** (with **STALE SESSION** trigger when parent cookie coexists).
+
+## Tenant-isolering
+
+Founder smoke confirms founder family **without** Activation override. QA families isolated by UUID; no override spill observed in API checks documented in 1G/1H.
+
+## Säkerhetskontroll (PR #857)
+
+| Item | Result |
+|--------|--------|
+| Committed docs/scripts | No passwords, tokens, or cookies |
+| Scripts | Env-var only; removed founder-password probe on QA account |
+| Shell help | No literal PIN in operator instructions |
+| Artifacts | JSON metadata only; local `artifacts/*` not committed |
+| Operator `.env` | Founder secrets local only — not in PR |
+
+**Merge PR #857:** **Hold** until CI **green** and operator completes QA Activation physical gate (or documents blocked state — this run).
+
+## PR #857
+
+Branch `cursor/android-founder-physical-qa-doc`. Adds physical QA doc updates, `founder-android-prod-smoke.mjs`, `activation-qa-prod-gate.mjs`, `run-android-activation-full-qa.sh`. Title still says PARTIAL — doc now reflects core PASS + Activation gate NOT YET RUN.
+
+## Pilotbeslut
+
+| Decision | Outcome |
+|----------|---------|
+| Founder Android core (parent→child) | **GO** for internal smoke |
+| Activation First Success on physical Android (QA override) | **BLOCKED** until QA credentials + manual gate |
+| Global rollout | **NO-GO** (global flag OFF) |
+| Customer pilot | **NO-GO** until 1J Activation PASS on device |
