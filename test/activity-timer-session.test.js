@@ -36,62 +36,111 @@ function loadActivityTimerSession() {
 }
 
 describe('activity-timer-session (localStorage)', () => {
-  test('reload mid-timer: remaining from started_at, not full duration', () => {
-    const { ATS, store } = loadActivityTimerSession();
-    const childId = 'child-1';
-    const date = '2026-07-03';
-    const itemA = 'item-morning';
+  test('start sets ends_at and running status', () => {
+    const { ATS } = loadActivityTimerSession();
+    const s = ATS.startSession('c1', '2026-07-03', 'item-1', 120);
+    assert.equal(s.status, 'running');
+    assert.ok(s.ends_at);
+    assert.equal(ATS.resolveStatus(s, 120), 'running');
+  });
 
-    ATS.startSession(childId, date, itemA, 120);
-    const key = `activity_timer_session:${childId}:${date}:${itemA}`;
+  test('reload mid-timer: remaining from ends_at', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 120);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
     const session = JSON.parse(store.get(key));
-    session.started_at = new Date(Date.now() - 40_000).toISOString();
+    session.ends_at = new Date(Date.now() + 40_000).toISOString();
     store.set(key, JSON.stringify(session));
 
-    const remaining = ATS.computeRemainingSeconds(
-      ATS.getSession(childId, date, itemA),
-      120
-    );
-    assert.ok(remaining >= 75 && remaining <= 82, `expected ~80s remaining, got ${remaining}`);
-    assert.equal(ATS.resolveStatus(ATS.getSession(childId, date, itemA), 120), 'running');
+    const remaining = ATS.computeRemainingSeconds(ATS.getSession('c1', '2026-07-03', 'item-1'), 120);
+    assert.ok(remaining >= 38 && remaining <= 42);
   });
 
-  test('two daily_log_item_ids same day do not share session', () => {
+  test('pause and resume freeze and continue countdown', () => {
     const { ATS } = loadActivityTimerSession();
-    const childId = 'child-1';
-    const date = '2026-07-03';
-    const morning = 'log-morning';
-    const evening = 'log-evening';
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60);
+    ATS.pauseSession('c1', '2026-07-03', 'item-1', 60);
+    let session = ATS.getSession('c1', '2026-07-03', 'item-1');
+    assert.equal(ATS.resolveStatus(session, 60), 'paused');
+    const pausedRemaining = ATS.computeRemainingSeconds(session, 60);
 
-    ATS.startSession(childId, date, morning, 120);
-
-    assert.equal(ATS.resolveStatus(ATS.getSession(childId, date, morning), 120), 'running');
-    assert.equal(ATS.resolveStatus(ATS.getSession(childId, date, evening), 120), 'idle');
+    ATS.resumeSession('c1', '2026-07-03', 'item-1');
+    session = ATS.getSession('c1', '2026-07-03', 'item-1');
+    assert.equal(ATS.resolveStatus(session, 60), 'running');
+    const afterResume = ATS.computeRemainingSeconds(session, 60);
+    assert.ok(afterResume >= pausedRemaining - 2 && afterResume <= pausedRemaining + 2);
   });
 
-  test('end_sound_played flag persists on finished session', () => {
+  test('stop clears session (IDLE)', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60);
+    ATS.stopSession('c1', '2026-07-03', 'item-1');
+    assert.equal(ATS.getSession('c1', '2026-07-03', 'item-1'), null);
+    assert.equal(store.size, 0);
+    assert.equal(ATS.resolveStatus(null, 60), 'idle');
+  });
+
+  test('restart starts fresh running session', () => {
     const { ATS } = loadActivityTimerSession();
-    const childId = 'c';
-    const date = '2026-07-03';
-    const itemId = 'i1';
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30);
+    ATS.pauseSession('c1', '2026-07-03', 'item-1', 30);
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30);
+    const session = ATS.getSession('c1', '2026-07-03', 'item-1');
+    assert.equal(ATS.resolveStatus(session, 30), 'running');
+    const rem = ATS.computeRemainingSeconds(session, 30);
+    assert.ok(rem >= 28 && rem <= 30);
+  });
 
-    ATS.startSession(childId, date, itemId, 5);
-    ATS.markFinished(childId, date, itemId);
-    ATS.setEndSoundPlayed(childId, date, itemId);
-
-    const again = ATS.getSession(childId, date, itemId);
-    assert.equal(again.end_sound_played, true);
-    assert.equal(ATS.resolveStatus(again, 5), 'finished');
+  test('natural end resolves to finished', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 5);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
+    const session = JSON.parse(store.get(key));
+    session.ends_at = new Date(Date.now() - 1000).toISOString();
+    store.set(key, JSON.stringify(session));
+    assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'item-1'), 5), 'finished');
+    assert.equal(ATS.computeRemainingSeconds(ATS.getSession('c1', '2026-07-03', 'item-1'), 5), 0);
   });
 
   test('clearSession removes key (Klar path)', () => {
     const { ATS, store } = loadActivityTimerSession();
-    const childId = 'c';
-    const date = '2026-07-03';
-    const itemId = 'i1';
-    ATS.startSession(childId, date, itemId, 60);
-    ATS.clearSession(childId, date, itemId);
-    assert.equal(ATS.getSession(childId, date, itemId), null);
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60);
+    ATS.clearSession('c1', '2026-07-03', 'item-1');
+    assert.equal(ATS.getSession('c1', '2026-07-03', 'item-1'), null);
     assert.equal(store.size, 0);
+  });
+
+  test('corrupt localStorage does not throw', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    store.set('activity_timer_session:c1:2026-07-03:bad', '{not-json');
+    store.set('activity_timer_session:c1:2026-07-03:bad2', JSON.stringify({ foo: 1 }));
+    assert.equal(ATS.getSession('c1', '2026-07-03', 'bad'), null);
+    assert.equal(ATS.getSession('c1', '2026-07-03', 'bad2'), null);
+    assert.equal(ATS.resolveStatus(null, 60), 'idle');
+  });
+
+  test('sandProgress matches remaining at start, half, pause, finished', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    const duration = 100;
+    assert.equal(ATS.sandProgress(100, duration), 0);
+    assert.equal(ATS.sandProgress(50, duration), 0.5);
+    assert.equal(ATS.sandProgress(0, duration), 1);
+    ATS.startSession('c1', '2026-07-03', 'item-1', duration);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
+    const running = JSON.parse(store.get(key));
+    running.ends_at = new Date(Date.now() + 50_000).toISOString();
+    store.set(key, JSON.stringify(running));
+    ATS.pauseSession('c1', '2026-07-03', 'item-1', duration);
+    const session = ATS.getSession('c1', '2026-07-03', 'item-1');
+    const pausedRem = ATS.computeRemainingSeconds(session, duration);
+    assert.ok(pausedRem >= 48 && pausedRem <= 52);
+    assert.ok(Math.abs(ATS.sandProgress(pausedRem, duration) - 0.5) < 0.05);
+  });
+
+  test('two daily_log_item_ids same day do not share session', () => {
+    const { ATS } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'morning', 120);
+    assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'morning'), 120), 'running');
+    assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'evening'), 120), 'idle');
   });
 });

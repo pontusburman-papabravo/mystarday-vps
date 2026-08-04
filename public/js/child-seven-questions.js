@@ -83,9 +83,13 @@
     const exitBtn = `<button type="button" class="teacch-exit-btn" onclick="ChildSevenQuestions.exitNu()">Avsluta aktivitet</button>`;
 
     return `
-      <div class="now-card teacch-now-card ${isDone ? 'done' : ''}" id="card-${item.id}" data-item-id="${item.id}">
+      <div class="now-card teacch-now-card ${isDone ? 'done' : ''}" id="card-${item.id}" data-item-id="${item.id}"
+           data-item-name="${esc(item.name)}" data-item-icon="${esc(item.icon || '⭐')}">
         <div class="now-badge"><div class="pulse-dot"></div> NU</div>
         <div class="teacch-questions">${rows}</div>
+        ${global.ChildActivityTimer && ChildActivityTimer.renderBlock
+          ? '<div class="teacch-activity-timer">' + ChildActivityTimer.renderBlock(item) + '</div>'
+          : ''}
         <div class="teacch-now-actions">
           ${readAloudBtn}
           ${exitBtn}

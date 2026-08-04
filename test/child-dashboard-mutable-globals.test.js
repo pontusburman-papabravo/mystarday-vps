@@ -28,6 +28,7 @@ describe('child dashboard mutable globals (#763 regression)', () => {
     'dopaminAnimation',
     'visualTimer',
     'activityTimersEnabled',
+    'activityTimerV2Enabled',
     'hideClock',
     'colorCoding',
   ];

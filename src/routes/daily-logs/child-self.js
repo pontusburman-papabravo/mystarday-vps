@@ -59,6 +59,9 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     const dopaminAnimation = childResult.rows[0]?.dopamin_animation !== false; // default true
     const visualTimer = childResult.rows[0]?.visual_timer !== false; // default true
     const activityTimersEnabled = childResult.rows[0]?.activity_timers_enabled === true;
+    const { familyHasActivityTimerV2 } = require('../../lib/activity-timer-rollout');
+    const activityTimerV2 = activityTimersEnabled
+      && (await familyHasActivityTimerV2(req.user.familyId));
     const hideClock = childResult.rows[0]?.hide_clock || false; // default false
     const colorCoding = childResult.rows[0]?.color_coding !== false; // default true
     const viewType = childResult.rows[0]?.view_type || 'day_sections'; // 'day_sections' | 'now_next_later'
@@ -264,6 +267,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       dopamin_animation: dopaminAnimation,
       visual_timer: visualTimer,
       activity_timers_enabled: activityTimersEnabled,
+      activity_timer_v2: activityTimerV2,
       hide_clock: hideClock,
       color_coding: colorCoding,
       view_type: viewType,
