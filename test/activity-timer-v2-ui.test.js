@@ -29,6 +29,7 @@ describe('activity timer v2 — UI integration', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /ActivityHourglassUI/);
     assert.match(src, /syncHourglass/);
+    assert.match(src, /overlayHourglassMountHtml/);
     assert.match(src, /activity-timer-overlay-hourglass/);
     assert.match(src, /inlineTimerIconHtml/);
   });

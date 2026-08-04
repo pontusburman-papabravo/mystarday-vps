@@ -86,6 +86,7 @@ describe('activity-hourglass — timer UI wiring', () => {
     );
     assert.match(src, /ActivityHourglassUI/);
     assert.match(src, /activity-timer-overlay-hourglass/);
+    assert.match(src, /overlayHourglassMountHtml/);
     assert.match(src, /inlineTimerIconHtml/);
     assert.doesNotMatch(src, /at-hourglass/);
     assert.doesNotMatch(src, /hourglassMarkup/);

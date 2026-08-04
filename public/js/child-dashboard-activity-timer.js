@@ -100,8 +100,8 @@
     ActivityHourglassUI.applyToRoot(root, remaining, duration, status);
   }
 
-  function hourglassMountHtml(largeOnly) {
-    if (!global.ActivityHourglassUI || !largeOnly) return '';
+  function overlayHourglassMountHtml() {
+    if (!global.ActivityHourglassUI) return '';
     return ActivityHourglassUI.mountHtml('activity-hourglass-mount--large');
   }
 
@@ -374,7 +374,7 @@
     if (title) title.textContent = item.display_name || item.name || '';
     if (visual) visual.innerHTML = activityVisualHtml(item);
     if (hgSlot && !hgSlot.querySelector('[data-hourglass-mount="1"]')) {
-      hgSlot.innerHTML = hourglassMountHtml(false);
+      hgSlot.innerHTML = overlayHourglassMountHtml();
     }
     syncHourglass(hgSlot, duration, status, remaining);
 

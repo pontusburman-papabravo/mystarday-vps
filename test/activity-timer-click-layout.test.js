@@ -121,6 +121,12 @@ describe('activity timer — dead Start regression', () => {
     assert.deepEqual(order, ['start-handled']);
   });
 
+  it('overlay mounts large hourglass via overlayHourglassMountHtml', () => {
+    const src = read('public/js/child-dashboard-activity-timer.js');
+    assert.match(src, /hgSlot\.innerHTML = overlayHourglassMountHtml\(\)/);
+    assert.doesNotMatch(src, /hourglassMountHtml\(false\)/);
+  });
+
   it('wireDelegation registers a single capture listener', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /if \(_wired\) return/);
