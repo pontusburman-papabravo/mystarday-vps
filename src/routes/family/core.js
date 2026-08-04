@@ -16,7 +16,11 @@ const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
 const { isSupportedLocale, validateLocale, resolveFamilyLocale } = require('../../lib/locale');
-const { isEnglishAppEnabled, isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
+const {
+  isEnglishAppEnabled,
+  canSelectEnglishLocale,
+  isEnglishChildExperienceEnabled,
+} = require('../../lib/i18n-flags');
 const { SELECTION_SOURCES } = require('../../lib/locale-selection');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
 const { t } = require('../../lib/i18n');
@@ -182,11 +186,15 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       );
       const currentLocale = validateLocale(currentRow.rows[0]?.preferred_locale);
 
-      if (canonicalNext === 'en-GB') {
-        const englishOk = await isEnglishAppEnabled(req.user.familyId);
-        if (!englishOk) {
-          await enableEnglishAppForFamily(req.user.familyId);
+      if (canonicalNext === 'en-GB' && canonicalNext !== currentLocale) {
+        const maySelectEnglish = await canSelectEnglishLocale(req.user.familyId);
+        if (!maySelectEnglish) {
+          return res.status(403).json({
+            error: 'ENGLISH_NOT_AVAILABLE',
+            message: 'English is not available for this family.',
+          });
         }
+        await enableEnglishAppForFamily(req.user.familyId);
       }
 
       if (canonicalNext !== currentLocale) {

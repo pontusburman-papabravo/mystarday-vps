@@ -1,44 +1,62 @@
 'use strict';
 
 /**
- * Per-family English rollout flags (features/family_features).
+ * English rollout flags — central gate for parent/auth en-GB (ADR-017, ADR-021).
  * See migration 1810000000002_english_i18n_feature_flags.
  */
 
 const { hasAccess } = require('../../db/features');
+const { getFamilyPreferredLocale, isEnglishFamilyLocale } = require('./family-locale');
+const { isEnglishAppGlobalEnabled } = require('./english-app-global-flag');
 
 const ENGLISH_APP_SLUG = 'english_app';
 const ENGLISH_CHILD_EXPERIENCE_SLUG = 'english_child_experience';
 
 /**
- * Pre-auth flows (registration) may offer English without a family flag.
- * Existing families require english_app on family_features.
+ * Pre-auth flows always expose both locales in UI (registration language choice).
  * @param {string|null|undefined} familyId
  * @returns {Promise<boolean>}
  */
 async function isEnglishAppEnabled(familyId) {
   if (!familyId) return true;
+
+  if (await isEnglishAppGlobalEnabled()) return true;
+
+  if (await hasAccess(familyId, ENGLISH_APP_SLUG)) return true;
+
+  const familyLocale = await getFamilyPreferredLocale(familyId);
+  return isEnglishFamilyLocale(familyLocale);
+}
+
+/**
+ * Whether the family may newly select en-GB (settings, login explicit choice).
+ * Does not grandfather — use isEnglishAppEnabled for active UI when already on en-GB.
+ * @param {string|null|undefined} familyId
+ * @returns {Promise<boolean>}
+ */
+async function canSelectEnglishLocale(familyId) {
+  if (!familyId) return true;
+  if (await isEnglishAppGlobalEnabled()) return true;
   return hasAccess(familyId, ENGLISH_APP_SLUG);
 }
 
 /**
- * child_en is gated separately until the English child UX is complete.
- * Requires BOTH english_app AND english_child_experience for the family.
+ * child_en is gated separately until the English child UX rollout is complete.
+ * Requires parent English access AND english_child_experience for the family.
  * @param {string|null|undefined} familyId
  * @returns {Promise<boolean>}
  */
 async function isEnglishChildExperienceEnabled(familyId) {
   if (!familyId) return false;
-  const [appOk, childOk] = await Promise.all([
-    hasAccess(familyId, ENGLISH_APP_SLUG),
-    hasAccess(familyId, ENGLISH_CHILD_EXPERIENCE_SLUG),
-  ]);
-  return appOk && childOk;
+  const appOk = await isEnglishAppEnabled(familyId);
+  if (!appOk) return false;
+  return hasAccess(familyId, ENGLISH_CHILD_EXPERIENCE_SLUG);
 }
 
 module.exports = {
   ENGLISH_APP_SLUG,
   ENGLISH_CHILD_EXPERIENCE_SLUG,
   isEnglishAppEnabled,
+  canSelectEnglishLocale,
   isEnglishChildExperienceEnabled,
 };

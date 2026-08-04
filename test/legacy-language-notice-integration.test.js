@@ -57,8 +57,23 @@ test('legacy-language notice — relevant only after sv → en switch, once unti
   const pg = require('../src/lib/db');
 
   try {
+    await pg.query(
+      `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
+       VALUES ('english_app', 'English app', 'Parent/auth en-GB', 'dev', '{i18n}', 'high', 5, 8)
+       ON CONFLICT (slug) DO NOTHING`
+    );
+
     // ── Existing Swedish family ──
     const sv = await registerAndLogin(http.baseUrl, 'sv-SE');
+    const parentRow = await pg.query(
+      'SELECT family_id FROM parent WHERE LOWER(email) = $1',
+      [sv.email.toLowerCase()]
+    );
+    await pg.query(
+      `INSERT INTO family_features (family_id, feature_slug) VALUES ($1, 'english_app')
+       ON CONFLICT DO NOTHING`,
+      [parentRow.rows[0].family_id]
+    );
     const authHeaders = { 'Content-Type': 'application/json', Cookie: sv.cookies, 'X-CSRF-Token': sv.csrf };
 
     // Snapshot seeded (Swedish) user content before the switch

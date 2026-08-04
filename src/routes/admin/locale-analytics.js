@@ -109,6 +109,7 @@ router.get('/locale-analytics', async (req, res) => {
     const gateFlags = await db.query(
       `SELECT key, enabled FROM feature_flag
        WHERE key LIKE 'market_%_open' OR key = 'english_language_offer'
+          OR key = 'english_app_global_enabled'
        ORDER BY key`
     );
 

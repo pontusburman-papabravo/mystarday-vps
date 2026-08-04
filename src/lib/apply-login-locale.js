@@ -9,6 +9,7 @@
 const db = require('./db');
 const { normalizeLocale, validateLocale } = require('./locale');
 const { SELECTION_SOURCES } = require('./locale-selection');
+const { canSelectEnglishLocale } = require('./i18n-flags');
 const { enableEnglishAppForFamily } = require('./i18n-enable-english');
 
 /**
@@ -39,6 +40,10 @@ async function applyLoginLocaleChoice({ familyId, explicitLocale, language }) {
 
   try {
     if (requested === 'en-GB') {
+      const maySelectEnglish = await canSelectEnglishLocale(familyId);
+      if (!maySelectEnglish) {
+        return current;
+      }
       await enableEnglishAppForFamily(familyId);
     }
 
