@@ -536,6 +536,7 @@ const CACHE_NAME = 'stjarndag-v769';
 // stjarndag-v763: growth feedback loop client assets (flag-gated)
 // stjarndag-v767: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v768: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v769: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
