@@ -67,6 +67,39 @@ test('anonymous child login cannot cross families via display name', async (t) =
   }
 });
 
+test('anonymous child login works by unique display name without parent session', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const pinHash = await hashPassword('4321');
+  const displayName = `unikt-barn-${Date.now()}`;
+  const familyRes = await db.query(
+    `INSERT INTO family (name, timezone, is_lifetime_free) VALUES ('Fam', 'Europe/Stockholm', true) RETURNING id`
+  );
+  await db.query(
+    `INSERT INTO child (family_id, name, username, pin, emoji) VALUES ($1, $2, 'login_user_x', $3, '⭐')`,
+    [familyRes.rows[0].id, displayName, pinHash]
+  );
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp());
+
+  try {
+    const res = await fetch(`${http.baseUrl}/api/auth/child-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: displayName, pin: '4321' }),
+    });
+    assert.equal(res.status, 200);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('display name login works only within parent session family', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {

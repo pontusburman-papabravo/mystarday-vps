@@ -1243,9 +1243,18 @@ window.handleManualName = function(e) {
     input && input.focus();
     return;
   }
+  const known = loadKnownChildren();
+  const nameLower = name.toLowerCase();
+  const knownMatch = known.find(function (k) {
+    return (k.name && String(k.name).toLowerCase() === nameLower)
+      || (k.username && String(k.username).toLowerCase() === nameLower);
+  });
+  const loginUsername = knownMatch && knownMatch.username
+    ? knownMatch.username
+    : nameLower;
   // Create a synthetic child entry from the typed name and go straight to PIN
   const synth = {
-    username: name.toLowerCase(),
+    username: loginUsername,
     name: name,
     emoji: '⭐',
     has_avatar: false,

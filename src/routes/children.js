@@ -873,6 +873,7 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
 
     const pinHash = await hashPassword(pin);
     await db.query('UPDATE child SET pin = $1, pin_fingerprint = $2 WHERE id = $3', [pinHash, pinFp, req.params.id]);
+    await pinLockout.clearLockout(req.params.id);
 
     res.json({ message: 'PIN-koden har ändrats!' });
   } catch (err) {

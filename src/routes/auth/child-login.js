@@ -25,6 +25,7 @@ const { broadcast } = require('../../lib/sse-broadcast');
 const { validateChildLoginBody } = require('../../middleware/validate-child-login');
 const { avatarApiFields } = require('../../lib/avatar-api');
 const { resolveParentFamilyIdFromCookies } = require('../../lib/parent-session-family');
+const { resolveChildForLogin } = require('../../lib/resolve-child-login');
 const { parseDuration } = require('./session');
 
 const router = express.Router();
@@ -40,26 +41,8 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
     const normalizedInput = username.toLowerCase().trim();
     const clientIp = req.ip || 'unknown';
 
-    // Find child — username match first, then display name
-    const childResult = await db.query(
-      'SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at FROM child WHERE LOWER(username) = $1',
-      [normalizedInput]
-    );
-    let child = childResult.rows[0];
-
-    if (!child) {
-      const parentFamilyId = await resolveParentFamilyIdFromCookies(req, res);
-      if (parentFamilyId) {
-        const nameResult = await db.query(
-          `SELECT id, family_id, name, emoji, username, pin, avatar_storage_key, avatar_updated_at
-           FROM child WHERE family_id = $1 AND LOWER(name) = $2`,
-          [parentFamilyId, normalizedInput]
-        );
-        if (nameResult.rows.length === 1) {
-          child = nameResult.rows[0];
-        }
-      }
-    }
+    const parentFamilyId = await resolveParentFamilyIdFromCookies(req, res);
+    const child = await resolveChildForLogin(db, normalizedInput, parentFamilyId);
 
     // If child not found at all — return generic error (don't reveal child existence)
     if (!child) {

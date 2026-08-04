@@ -11,7 +11,7 @@
     "namePinLead": "Skriv ditt namn och din hemliga PIN-kod.",
     "pinGreeting": "Hej {{name}}!",
     "siblingNameHint": "Skriv syskonets namn — sedan ange hens PIN",
-    "nameHint": "Skriv barnets namn för att logga in",
+    "nameHint": "Skriv barnets namn och PIN — fungerar utan att föräldern är inloggad om namnet är unikt",
     "namePlaceholder": "Ditt namn",
     "addChild": "Lägg till ett barn",
     "notMe": "Jag hittar inte mig själv",

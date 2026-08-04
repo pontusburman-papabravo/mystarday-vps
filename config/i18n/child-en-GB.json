@@ -11,7 +11,7 @@
     "namePinLead": "Type your name and your secret PIN.",
     "pinGreeting": "Hi {{name}}!",
     "siblingNameHint": "Type your sibling's name — then enter their PIN",
-    "nameHint": "Type your name to log in",
+    "nameHint": "Type your name and PIN — works without a parent login when your name is unique in the app",
     "namePlaceholder": "Your name",
     "addChild": "Add a child",
     "notMe": "I can't find myself",
