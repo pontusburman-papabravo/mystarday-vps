@@ -121,6 +121,14 @@ describe('activity timer — dead Start regression', () => {
     assert.deepEqual(order, ['start-handled']);
   });
 
+  it('plays finish sound and screen flash when timer reaches zero', () => {
+    const src = read('public/js/child-dashboard-activity-timer.js');
+    assert.match(src, /function playFinishEffects/);
+    assert.match(src, /flashFinishScreen/);
+    assert.match(src, /activity-timer-finish-flash/);
+    assert.match(src, /playFinishEffects\(\)/);
+  });
+
   it('overlay mounts large hourglass via overlayHourglassMountHtml', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /hgSlot\.innerHTML = overlayHourglassMountHtml\(\)/);

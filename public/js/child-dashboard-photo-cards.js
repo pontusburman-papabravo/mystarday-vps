@@ -139,10 +139,12 @@
         '<div class="photo-activity-card__foot">' +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(activityTitle(item)) + '</div>' +
           starRewardHtml(item) +
-          activityTimerHtml +
           timerHtml +
           checkButton(item, isDone, canToggle, checkAttr) +
         '</div>' +
+        (activityTimerHtml
+          ? '<div class="activity-timer-card-row photo-activity-card__timer" onclick="event.stopPropagation()">' + activityTimerHtml + '</div>'
+          : '') +
         metaRow(item, timeStr, subBadge) +
         renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) +
       '</div>'
@@ -227,9 +229,11 @@
           dragHtml +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(activityTitle(item)) + '</div>' +
           starRewardHtml(item) +
-          activityTimerHtml +
           cardCheck +
         '</div>' +
+        (activityTimerHtml
+          ? '<div class="activity-timer-card-row photo-activity-card__timer" onclick="event.stopPropagation()">' + activityTimerHtml + '</div>'
+          : '') +
         metaRow(item, timeStr, subBadge + ratingHtml) +
         renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) +
       '</div>'

@@ -540,13 +540,13 @@ function renderNowCard(item, canToggle) {
             ${hasSubSteps ? `<span class="substep-progress ${subDone === subStepCount ? 'all-done' : ''}" id="substep-badge-${item.id}">${subDone}/${subStepCount}</span>` : ''}
           </div>
         </div>
-        ${activityTimerHtml}
         ${timerHtml}
         ${isDone
           ? `<div class="now-check" style="background:#22C55E; border-color:#22C55E;"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div>`
           : `<button class="now-check" ${checkAttr}></button>`
         }
       </div>
+      ${activityTimerHtml ? `<div class="activity-timer-card-row" onclick="event.stopPropagation()">${activityTimerHtml}</div>` : ''}
       ${hasSubSteps ? `
       <div class="mt-3 pt-2 border-t" style="border-color:rgba(245,166,35,0.25)" onclick="event.stopPropagation()">
         <div style="position:relative;display:inline-block;">

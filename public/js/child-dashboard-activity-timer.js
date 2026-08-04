@@ -200,24 +200,58 @@
     return renderTimerWrap(itemId, step.id, st, true);
   }
 
-  function playEndSound() {
-    if (reducedMotion()) return;
+  function primeEndAudio() {
     try {
       const Ctx = global.AudioContext || global.webkitAudioContext;
       if (!Ctx) return;
       const ctx = new Ctx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-      gain.gain.setValueAtTime(0.08, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.5);
-      osc.onended = function () { ctx.close(); };
+      const resume = ctx.resume ? ctx.resume() : Promise.resolve();
+      resume.then(function () { ctx.close(); }).catch(function () { ctx.close(); });
     } catch { /* ignore */ }
+  }
+
+  function playEndSound() {
+    try {
+      const Ctx = global.AudioContext || global.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const startTone = function () {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.6);
+        osc.onended = function () { ctx.close(); };
+      };
+      if (ctx.state === 'suspended' && ctx.resume) {
+        ctx.resume().then(startTone).catch(function () { ctx.close(); });
+      } else {
+        startTone();
+      }
+    } catch { /* ignore */ }
+  }
+
+  function flashFinishScreen() {
+    if (reducedMotion()) return;
+    const root = document.documentElement;
+    root.classList.remove('activity-timer-finish-flash');
+    void root.offsetWidth;
+    root.classList.add('activity-timer-finish-flash');
+    window.setTimeout(function () {
+      root.classList.remove('activity-timer-finish-flash');
+    }, 700);
+  }
+
+  function playFinishEffects() {
+    playEndSound();
+    flashFinishScreen();
+    if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
   }
 
   function maybeFinishNatural(itemId, durationSeconds, subStepId) {
@@ -227,8 +261,7 @@
     if (session && !session.end_sound_played) {
       ActivityTimerSession.setEndSoundPlayed(me.id, currentDate, itemId, subStepId || undefined);
       ActivityTimerSession.markFinished(me.id, currentDate, itemId, subStepId || undefined);
-      playEndSound();
-      if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
+      playFinishEffects();
     }
     return true;
   }
@@ -455,6 +488,7 @@
   }
 
   function onStart(itemId, stayInOverlay, subStepId) {
+    primeEndAudio();
     const key = tapKey(itemId, subStepId);
     const now = Date.now();
     if (_lastStartTap[key] && now - _lastStartTap[key] < DEBOUNCE_MS) return;
