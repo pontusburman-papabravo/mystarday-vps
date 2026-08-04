@@ -5,15 +5,16 @@
  *
  * Verification: family.preferred_locale set at registration (same transaction).
  * Password reset:
- *   1. parent.family_id → family.preferred_locale (one family per parent today)
- *   2. validated preferred_locale from reset request body (pre-auth)
- *   3. sv-SE
+ *   1. validated preferred_locale from forgot-password body (page language)
+ *   2. parent.family_id → family.preferred_locale
+ *   3. Accept-Language / sv-SE
  *
  * Locale is allowlisted via validateLocale — never used as a file path.
  */
 
 const {
   DEFAULT_LOCALE,
+  normalizeLocale,
   resolveFamilyLocale,
   resolvePreAuthLocale,
   validateLocale,
@@ -41,6 +42,10 @@ function resolvePasswordResetEmailLocale({
   requestLocale,
   acceptLanguage,
 } = {}) {
+  const fromForm = normalizeLocale(requestLocale);
+  if (fromForm) {
+    return fromForm;
+  }
   if (familyPreferredLocale) {
     return resolveFamilyLocale(familyPreferredLocale);
   }

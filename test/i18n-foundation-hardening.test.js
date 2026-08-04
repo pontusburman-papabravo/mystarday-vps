@@ -67,16 +67,20 @@ describe('auth email locale resolution', () => {
     assert.equal(resolveVerificationEmailLocale('sv'), 'sv-SE');
   });
 
-  it('password reset prefers stored family locale', () => {
+  it('password reset prefers explicit request locale over family', () => {
     assert.equal(resolvePasswordResetEmailLocale({
       familyPreferredLocale: 'en-GB',
       requestLocale: 'sv-SE',
+    }), 'sv-SE');
+    assert.equal(resolvePasswordResetEmailLocale({
+      familyPreferredLocale: 'sv-SE',
+      requestLocale: 'en',
     }), 'en-GB');
   });
 
-  it('password reset falls back to request locale then sv-SE', () => {
+  it('password reset falls back to family then sv-SE', () => {
     assert.equal(resolvePasswordResetEmailLocale({
-      requestLocale: 'en-GB',
+      familyPreferredLocale: 'en-GB',
     }), 'en-GB');
     assert.equal(resolvePasswordResetEmailLocale({}), DEFAULT_LOCALE);
     assert.equal(resolvePasswordResetEmailLocale({ requestLocale: 'bogus' }), DEFAULT_LOCALE);

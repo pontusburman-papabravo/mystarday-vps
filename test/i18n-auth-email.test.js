@@ -28,6 +28,10 @@ test('auth email locale — en-GB registration uses English verify subject key',
 test('auth email locale — password reset resolution', () => {
   assert.equal(resolvePasswordResetEmailLocale({ familyPreferredLocale: 'en-GB' }), 'en-GB');
   assert.equal(resolvePasswordResetEmailLocale({ requestLocale: 'en' }), 'en-GB');
+  assert.equal(resolvePasswordResetEmailLocale({
+    familyPreferredLocale: 'sv-SE',
+    requestLocale: 'en-GB',
+  }), 'en-GB');
   assert.equal(resolvePasswordResetEmailLocale({ requestLocale: 'bogus' }), 'sv-SE');
 });
 
@@ -63,7 +67,7 @@ test('forgot-password uses family locale when account exists', async (t) => {
       body: JSON.stringify({ email, preferred_locale: 'sv-SE' }),
     });
     assert.equal(forgot.status, 200);
-    // Family locale en-GB wins over request sv-SE (parent has single family_id)
+    // Request locale on forgot-password wins for email copy (family is en-GB)
     const fam = await pg.query(
       `SELECT f.preferred_locale FROM parent p JOIN family f ON f.id = p.family_id WHERE p.email = $1`,
       [email.toLowerCase()]
