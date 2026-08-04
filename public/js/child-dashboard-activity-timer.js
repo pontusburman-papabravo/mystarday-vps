@@ -167,7 +167,8 @@
 
     return (
       '<div class="activity-timer-wrap" id="activity-timer-' + item.id + '" data-item-id="' + item.id + '"' +
-           ' data-duration="' + st.duration + '" data-status="' + st.status + '">' +
+           ' data-duration="' + st.duration + '" data-status="' + st.status + '"' +
+           ' onclick="event.stopPropagation()">' +
         body +
         '<span class="sr-only activity-timer-aria">' + ariaLabel + '</span>' +
       '</div>'

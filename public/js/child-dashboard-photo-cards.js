@@ -171,6 +171,10 @@
     const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(activityTitle(item)) : '';
     const feedbackFor = item.feedback_for || 'both';
 
+    const activityTimerHtml = (window.ChildActivityTimer && ChildActivityTimer.renderBlock)
+      ? ChildActivityTimer.renderBlock(item)
+      : '';
+
     let badgeHtml = '';
     if (isNext) {
       badgeHtml = '<span class="nl-chip chip-next">' + t('scheduleChrome.nextBadge') + '</span>';
@@ -223,6 +227,7 @@
           dragHtml +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(activityTitle(item)) + '</div>' +
           starRewardHtml(item) +
+          activityTimerHtml +
           cardCheck +
         '</div>' +
         metaRow(item, timeStr, subBadge + ratingHtml) +
