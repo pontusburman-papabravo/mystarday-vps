@@ -28,7 +28,6 @@ describe('child dashboard mutable globals (#763 regression)', () => {
     'dopaminAnimation',
     'visualTimer',
     'activityTimersEnabled',
-    'activityTimerV2Enabled',
     'hideClock',
     'colorCoding',
   ];
@@ -44,6 +43,11 @@ describe('child dashboard mutable globals (#763 regression)', () => {
       assert.match(hostSrc, new RegExp(`let ${name}\\s*=`), `${name} is assigned in load-day but not let in host`);
     });
   }
+
+  it('activityTimerV2Enabled is bound on globalThis (v2 dark launch)', () => {
+    assert.match(hostSrc, /globalThis\.activityTimerV2Enabled\s*=/);
+    assert.match(loadDaySrc, /globalThis\.activityTimerV2Enabled\s*=/);
+  });
 
   it('expandSubSteps may mark substep intro seen on first tap', () => {
     const substepsSrc = read('public/js/child-dashboard-substeps.js');
