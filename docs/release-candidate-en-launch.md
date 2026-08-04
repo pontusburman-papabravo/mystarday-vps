@@ -1,8 +1,7 @@
 # English Launch — Release Candidate
 
-**Status:** RC-1 in progress · **English i18n program: COMPLETE** (2026-07-28)  
-**Last updated:** 2026-07-28  
-**Last updated:** 2026-07-28  
+**Status:** RC-1 in progress · **Core i18n implementation complete — English release readiness NO-GO pending RC-1/RC-2** (styrande: [`docs/releases/RC1_I18N_RC_BRANCH_STATUS.md`](releases/RC1_I18N_RC_BRANCH_STATUS.md), 2026-08-03)  
+**Last updated:** 2026-08-04  
 **Audience:** Product, QA, release engineering  
 **Related:** [`docs/i18n-glossary.md`](i18n-glossary.md), [`docs/qa-test-account.md`](qa-test-account.md), [`docs/e2e-i18n-english-journey.md`](e2e-i18n-english-journey.md)
 

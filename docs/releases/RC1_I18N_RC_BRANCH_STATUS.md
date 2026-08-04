@@ -1,5 +1,8 @@
 # RC-1 English — automation & release status
 
+**Headline (2026-08-04):** **Core i18n implementation complete — English release readiness NO-GO pending RC-1/RC-2.**  
+`english_app_global_enabled` (#870) opens **parent English beta** only after founder smoke; it is **not** full store/product English release.
+
 ## Update — 2026-08-03 (English Launch 5A audit)
 
 **Full audit report:** [`docs/ENGLISH-LAUNCH-RC-AUDIT-2026-08.md`](../ENGLISH-LAUNCH-RC-AUDIT-2026-08.md)
