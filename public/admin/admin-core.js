@@ -131,7 +131,11 @@
       }
     }
 
-    function showSection(name, route) {
+    async function showSection(name, route) {
+      if (typeof window.ensureAdminSectionScripts === 'function') {
+        await window.ensureAdminSectionScripts(name);
+      }
+
       document.querySelectorAll('[id$="Section"]').forEach((s) => {
         if (s.id !== 'accessDenied') s.classList.add('hidden');
       });
@@ -144,15 +148,15 @@
       runPostShowActions(route);
     }
 
-    function applyRoute(route) {
-      showSection(route.targetSection, route);
+    async function applyRoute(route) {
+      await showSection(route.targetSection, route);
     }
 
-    function navigateToRoute(hash, opts) {
+    async function navigateToRoute(hash, opts) {
       opts = opts || {};
       if (typeof resolveRoute !== 'function') {
         const fallback = (hash || '').replace(/^#/, '').split('?')[0] || 'overview';
-        showSection(fallback);
+        await showSection(fallback);
         return;
       }
       const raw = hash || window.location.hash || '';
@@ -169,7 +173,7 @@
         return;
       }
 
-      applyRoute(route);
+      await applyRoute(route);
     }
 
     // ─── Mobile Menu Toggle ────────────────────────────────────
@@ -255,10 +259,17 @@
 
         if (typeof renderAdminNav === 'function') renderAdminNav();
 
-        navigateToRoute(window.location.hash || '#start');
+        await navigateToRoute(window.location.hash || '#start');
 
         window.addEventListener('hashchange', () => {
-          navigateToRoute(window.location.hash, { skipHashWrite: true });
+          void navigateToRoute(window.location.hash, { skipHashWrite: true });
+        });
+
+        const scheduleIdle = window.requestIdleCallback || function (fn) { setTimeout(fn, 800); };
+        scheduleIdle(() => {
+          if (typeof window.ensureAdminSectionScripts === 'function') {
+            void window.ensureAdminSectionScripts('__idle');
+          }
         });
 
         // Stats for nav badges — do not block init; section loaders run via refreshSectionData

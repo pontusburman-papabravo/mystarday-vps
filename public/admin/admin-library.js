@@ -497,10 +497,15 @@
       initDefaultTemplateDnD();
     }
 
-    function initDefaultTemplateDnD() {
+    async function initDefaultTemplateDnD() {
       _defaultSortables.forEach(s => s.destroy());
       _defaultSortables = [];
-      if (typeof Sortable === 'undefined') return;
+      if (typeof window.ensureAdminSortable !== 'function') return;
+      try {
+        await window.ensureAdminSortable();
+      } catch {
+        return;
+      }
 
       document.querySelectorAll('.sortable-defaults').forEach(el => {
         const s = new Sortable(el, {
@@ -997,8 +1002,8 @@
 
     // Load defaults when section is shown
     const origShowSection = showSection;
-    showSection = function(name, route) {
-      origShowSection(name, route);
+    showSection = async function(name, route) {
+      await origShowSection(name, route);
       if (name === 'defaults') {
         // Load the active library tab
         if (activeLibTab === 'rewards') {

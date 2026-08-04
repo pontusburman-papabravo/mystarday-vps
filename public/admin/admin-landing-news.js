@@ -66,8 +66,13 @@ async function loadLandingNews() {
       initLandingNewsSortable();
     }
 
-    function initLandingNewsSortable() {
-      if (!window.Sortable) return;
+    async function initLandingNewsSortable() {
+      if (typeof window.ensureAdminSortable !== 'function') return;
+      try {
+        await window.ensureAdminSortable();
+      } catch {
+        return;
+      }
       const list = document.getElementById('landingNewsList');
       if (!list) return;
       // Only init once

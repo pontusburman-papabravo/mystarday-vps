@@ -82,7 +82,9 @@
   window.loadGrowthStuckSummary = loadGrowthStuckSummary;
   window.loadGrowthStuckTable = loadGrowthStuckTable;
 
-  document.addEventListener('DOMContentLoaded', function () {
+  function bindGrowthStuckDom() {
+    if (bindGrowthStuckDom._bound) return;
+    bindGrowthStuckDom._bound = true;
     const filter = document.getElementById('growthStuckCohortFilter');
     const reloadBtn = document.getElementById('growthStuckReloadBtn');
     if (reloadBtn) {
@@ -97,5 +99,11 @@
         loadGrowthStuckTable(filter.value || null);
       });
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindGrowthStuckDom);
+  } else {
+    bindGrowthStuckDom();
+  }
 })();

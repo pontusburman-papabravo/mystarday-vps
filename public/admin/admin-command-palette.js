@@ -105,6 +105,10 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', initCommandPalette);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCommandPalette);
+  } else {
+    initCommandPalette();
+  }
   window.openAdminCommandPalette = openPalette;
 })();

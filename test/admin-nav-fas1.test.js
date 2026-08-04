@@ -276,17 +276,19 @@ describe('Fas 1 — sidebar render', () => {
 });
 
 describe('Fas 1 — admin-core wiring', () => {
-  test('index.html loads admin-nav before admin-core', () => {
+  test('index.html loads section-loader before nav and core', () => {
     const html = fs.readFileSync(INDEX_PATH, 'utf8');
+    const loaderIdx = html.indexOf('admin-section-loader.js');
     const navIdx = html.indexOf('admin-nav.js');
     const coreIdx = html.indexOf('admin-core.js');
-    assert.ok(navIdx > 0 && coreIdx > navIdx);
+    assert.ok(loaderIdx > 0 && navIdx > loaderIdx && coreIdx > navIdx);
   });
 
   test('admin-core has hashchange and refresh handlers for fixed sections', () => {
     const core = fs.readFileSync(CORE_PATH, 'utf8');
     assert.match(core, /hashchange/);
     assert.match(core, /navigateToRoute/);
+    assert.match(core, /ensureAdminSectionScripts/);
     assert.match(core, /syncSupportInboxWorkspace/);
     for (const section of ['retention', 'dagensnyhet', 'landning', 'undersokningar', 'nyhetsbrev']) {
       assert.match(core, new RegExp(`name === '${section}'`));
@@ -295,7 +297,7 @@ describe('Fas 1 — admin-core wiring', () => {
 
   test('admin-library wraps showSection with route param', () => {
     const lib = fs.readFileSync(path.join(ROOT, 'public/admin/admin-library.js'), 'utf8');
-    assert.match(lib, /showSection = function\(name, route\)/);
+    assert.match(lib, /showSection = async function\(name, route\)/);
   });
 
   test('admin-core does not eagerly load families or full inbox on DOMContentLoaded', () => {
@@ -312,6 +314,17 @@ describe('Fas 1 — admin-core wiring', () => {
     const html = fs.readFileSync(INDEX_PATH, 'utf8');
     assert.match(html, /admin-chart-loader\.js/);
     assert.doesNotMatch(html, /chart\.js@4\.4\.0/);
+  });
+
+  test('index.html lazy-loads heavy admin modules via section-loader', () => {
+    const html = fs.readFileSync(INDEX_PATH, 'utf8');
+    const headEnd = html.indexOf('</head>');
+    const head = html.slice(0, headEnd);
+    assert.doesNotMatch(head, /src="\/js\/auth\.js/);
+    assert.match(html, /admin-section-loader\.js/);
+    assert.doesNotMatch(html, /<script[^>]+admin-analytics\.js/);
+    assert.doesNotMatch(html, /<script[^>]+admin-families\.js/);
+    assert.match(html, /defer[^>]+admin-core\.js/);
   });
 
   test('breadcrumb container in index.html', () => {

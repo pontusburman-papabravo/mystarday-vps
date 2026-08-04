@@ -287,7 +287,12 @@ function esc(str) {
   return d.innerHTML;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+let subscriptionSettingsDomBound = false;
+
+function initSubscriptionSettingsDom() {
+  if (subscriptionSettingsDomBound) return;
+  subscriptionSettingsDomBound = true;
+
   // Basic settings form
   document.getElementById('basicSettingsForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -406,4 +411,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('interestFilterSource')?.addEventListener('change', loadPackageInterest);
 
   // Loaded via admin-core.js showSection('prenumeration') — avoid duplicate fetch race on reload.
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSubscriptionSettingsDom);
+} else {
+  initSubscriptionSettingsDom();
+}

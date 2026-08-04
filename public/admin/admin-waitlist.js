@@ -272,7 +272,9 @@ function countryToLabel(code) {
 }
 
 // ─── Search ─────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
+function bindWaitlistDom() {
+  if (bindWaitlistDom._bound) return;
+  bindWaitlistDom._bound = true;
   const searchInput = document.getElementById('waitlistSearch');
   if (searchInput) {
     searchInput.addEventListener('input', function () {
@@ -294,7 +296,13 @@ document.addEventListener('DOMContentLoaded', function () {
   if (exportBtn) {
     exportBtn.addEventListener('click', exportWaitlistCsv);
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bindWaitlistDom);
+} else {
+  bindWaitlistDom();
+}
 
 // ─── CSV Export ─────────────────────────────────────────────────────
 async function exportWaitlistCsv() {

@@ -682,5 +682,9 @@
   window.loadMessageEvents = loadMessageEvents;
   window.initMessagesInbox = initMessagesInbox;
 
-  document.addEventListener('DOMContentLoaded', initMessagesInbox);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMessagesInbox);
+  } else {
+    initMessagesInbox();
+  }
 })();
