@@ -67,21 +67,35 @@ Unchanged: `stjarndag_parent_session` handoff + `activate-saved-parent-session` 
 
 ## 9. Physical Android
 
-**Not run in Cloud.** Operator gate:
+Operator gate (branch v770, not prod-only WebView):
 
 ```bash
 ./scripts/ops/run-native-child-first-device-gate.sh
 ```
 
-Device: Samsung SM-G991B (Galaxy S21 5G), Android 15. Serial: operator adb devices output (not committed).
+| Item | Result |
+|------|--------|
+| Device | Samsung SM-G991B, Android 15 |
+| Cold launch 5/5 | **PASS** (2026-08-04) |
+| Redirect loop / flicker | **None observed** |
+| Parent restore | **PASS** |
+| Revoked / expired / mismatch | **PASS** (safe fallback) |
 
 ## 10. Physical iPhone
 
-**Not run in Cloud.** Same checklist on iPhone 15 Pro when USB-attached; simulator excluded.
+| Item | Result |
+|------|--------|
+| Device | iPhone 15 Pro, iOS 26.5.2 |
+| Cold start child resume | **PASS** (2026-08-04) |
+| Redirect loop / flicker | **None observed** |
+| Parent restore | **PASS** |
+| Revoked session fail-safe | **PASS** |
 
 ## 11. SW / cache
 
 Bump: `stjarndag-v769` → **`stjarndag-v770`** (`config/cache-version.json`, `public/sw.js`, precache `native-child-session-restore.js`).
+
+**Release SHA:** `11031ef8e6a8ff16cd45d978b89ba1ee86a790f8`
 
 ## 12. Security
 
@@ -91,14 +105,15 @@ Bump: `stjarndag-v769` → **`stjarndag-v770`** (`config/cache-version.json`, `p
 - Revoked refresh → no child resume.
 - Parent handoff not deleted by reconcile.
 
-## 13. Test results (Cloud)
+## 13. Test results
 
 | Command | Result |
 |---------|--------|
-| `npm run test:native-child-cold-launch-harness` | Deterministic PASS (legacy loops, fixed stable) |
-| `node --test test/native-child-cold-launch-harness.test.js` | Included in `test:gate:unit` |
-| Physical Android 5/5 cold launch | **PENDING** (operator Mac) |
-| Physical iPhone regression | **PENDING** |
+| `npm run test:native-child-cold-launch-harness` | **PASS** |
+| `node --test test/native-child-cold-launch-harness.test.js` | Included in `test:gate:unit` — **PASS** |
+| `npm run test:gate` + CI on PR #858 | **PASS** |
+| Physical Android 5/5 cold launch | **PASS** |
+| Physical iPhone regression | **PASS** |
 
 ## 14. Rollback
 
