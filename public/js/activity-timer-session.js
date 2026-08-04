@@ -7,8 +7,13 @@
 
   const PREFIX = 'activity_timer_session:';
 
-  function storageKey(childId, scheduleDate, dailyLogItemId) {
-    return PREFIX + childId + ':' + scheduleDate + ':' + dailyLogItemId;
+  function sessionToken(dailyLogItemId, subStepId) {
+    if (subStepId) return dailyLogItemId + ':sub:' + subStepId;
+    return dailyLogItemId;
+  }
+
+  function storageKey(childId, scheduleDate, dailyLogItemId, subStepId) {
+    return PREFIX + childId + ':' + scheduleDate + ':' + sessionToken(dailyLogItemId, subStepId);
   }
 
   function read(key) {
@@ -54,6 +59,7 @@
         ? Number(raw.paused_remaining_seconds)
         : null,
       end_sound_played: raw.end_sound_played === true,
+      activity_sub_step_id: raw.activity_sub_step_id || null,
     };
 
     const allowed = ['idle', 'running', 'paused', 'finished'];
@@ -147,15 +153,16 @@
     return '#9A8B7A';
   }
 
-  function getSession(childId, scheduleDate, dailyLogItemId) {
-    return read(storageKey(childId, scheduleDate, dailyLogItemId));
+  function getSession(childId, scheduleDate, dailyLogItemId, subStepId) {
+    return read(storageKey(childId, scheduleDate, dailyLogItemId, subStepId));
   }
 
-  function startSession(childId, scheduleDate, dailyLogItemId, durationSeconds) {
-    const key = storageKey(childId, scheduleDate, dailyLogItemId);
+  function startSession(childId, scheduleDate, dailyLogItemId, durationSeconds, subStepId) {
+    const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
     const now = Date.now();
     const session = {
       daily_log_item_id: dailyLogItemId,
+      activity_sub_step_id: subStepId || null,
       child_id: childId,
       schedule_date: scheduleDate,
       duration_seconds: durationSeconds,
@@ -170,8 +177,8 @@
     return session;
   }
 
-  function pauseSession(childId, scheduleDate, dailyLogItemId, durationSeconds) {
-    const key = storageKey(childId, scheduleDate, dailyLogItemId);
+  function pauseSession(childId, scheduleDate, dailyLogItemId, durationSeconds, subStepId) {
+    const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
     const session = read(key);
     if (!session || session.status !== 'running') return null;
     const remaining = computeRemainingSeconds(session, durationSeconds);
@@ -182,8 +189,8 @@
     return session;
   }
 
-  function resumeSession(childId, scheduleDate, dailyLogItemId) {
-    const key = storageKey(childId, scheduleDate, dailyLogItemId);
+  function resumeSession(childId, scheduleDate, dailyLogItemId, subStepId) {
+    const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
     const session = read(key);
     if (!session || session.status !== 'paused') return null;
     const rem = Math.max(0, Math.ceil(session.paused_remaining_seconds || 0));
@@ -196,12 +203,12 @@
     return session;
   }
 
-  function stopSession(childId, scheduleDate, dailyLogItemId) {
-    clearSession(childId, scheduleDate, dailyLogItemId);
+  function stopSession(childId, scheduleDate, dailyLogItemId, subStepId) {
+    clearSession(childId, scheduleDate, dailyLogItemId, subStepId);
   }
 
-  function markFinished(childId, scheduleDate, dailyLogItemId) {
-    const key = storageKey(childId, scheduleDate, dailyLogItemId);
+  function markFinished(childId, scheduleDate, dailyLogItemId, subStepId) {
+    const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
     const session = read(key);
     if (!session) return null;
     session.status = 'finished';
@@ -212,16 +219,28 @@
     return session;
   }
 
-  function setEndSoundPlayed(childId, scheduleDate, dailyLogItemId) {
-    const key = storageKey(childId, scheduleDate, dailyLogItemId);
+  function setEndSoundPlayed(childId, scheduleDate, dailyLogItemId, subStepId) {
+    const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
     const session = read(key);
     if (!session) return;
     session.end_sound_played = true;
     write(key, session);
   }
 
-  function clearSession(childId, scheduleDate, dailyLogItemId) {
-    remove(storageKey(childId, scheduleDate, dailyLogItemId));
+  function clearSession(childId, scheduleDate, dailyLogItemId, subStepId) {
+    remove(storageKey(childId, scheduleDate, dailyLogItemId, subStepId));
+  }
+
+  /** Rensa huvudaktivitet + alla delsteg-timers för samma daily_log_item. */
+  function clearSessionsForDailyLogItem(childId, scheduleDate, dailyLogItemId) {
+    const prefix = PREFIX + childId + ':' + scheduleDate + ':' + dailyLogItemId;
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (!k || !k.startsWith(prefix)) continue;
+        remove(k);
+      }
+    } catch { /* ignore */ }
   }
 
   function pruneSessions(childId, scheduleDate, activeDailyLogItemIds) {
@@ -231,13 +250,15 @@
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const k = localStorage.key(i);
         if (!k || !k.startsWith(prefix)) continue;
-        const itemId = k.slice(prefix.length);
-        if (!active.has(itemId)) remove(k);
+        const suffix = k.slice(prefix.length);
+        const baseItemId = suffix.split(':sub:')[0];
+        if (!active.has(baseItemId)) remove(k);
       }
     } catch { /* ignore */ }
   }
 
   global.ActivityTimerSession = {
+    sessionToken,
     getSession,
     startSession,
     pauseSession,
@@ -245,6 +266,7 @@
     stopSession,
     markFinished,
     clearSession,
+    clearSessionsForDailyLogItem,
     pruneSessions,
     resolveStatus,
     computeRemainingSeconds,

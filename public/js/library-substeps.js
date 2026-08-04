@@ -3,6 +3,87 @@
 //       sub-step modal (add/edit/delete), sub-step icon picker, badge updates.
 // Does NOT own: activity list rendering (library.js), standard library (library-standard.js).
 
+function formatSubStepDurationLabel(seconds) {
+  if (!seconds || seconds < 5) return '';
+  if (seconds < 60) return seconds + ' s';
+  const m = Math.floor(seconds / 60);
+  const r = seconds % 60;
+  if (r === 0) return m + ' min';
+  return m + ':' + String(r).padStart(2, '0');
+}
+
+const SUB_STEP_TIMER_PRESETS = [
+  { label: '30 s', seconds: 30 },
+  { label: '1 min', seconds: 60 },
+  { label: '2 min', seconds: 120 },
+  { label: '3 min', seconds: 180 },
+  { label: '5 min', seconds: 300 },
+];
+
+let _subStepTimerPresetsBuilt = false;
+
+function buildSubStepTimerPresets() {
+  if (_subStepTimerPresetsBuilt) return;
+  const container = document.getElementById('subStepTimerPresets');
+  if (!container) return;
+  container.innerHTML = SUB_STEP_TIMER_PRESETS.map(function (p) {
+    return '<button type="button" class="substep-timer-preset-btn px-3 py-1.5 rounded-full text-xs font-semibold border-2 border-lavender hover:border-gold transition-colors" data-seconds="' + p.seconds + '">' + escHtml(p.label) + '</button>';
+  }).join('');
+  _subStepTimerPresetsBuilt = true;
+}
+
+function highlightSubStepTimerPreset(seconds) {
+  document.querySelectorAll('.substep-timer-preset-btn').forEach(function (btn) {
+    const s = parseInt(btn.dataset.seconds, 10);
+    const on = seconds != null && s === seconds;
+    btn.classList.toggle('border-gold', on);
+    btn.classList.toggle('bg-gold-light', on);
+  });
+}
+
+function setSubStepDurationSeconds(seconds) {
+  const hidden = document.getElementById('subStepDurationSeconds');
+  if (hidden) hidden.value = seconds == null ? '' : String(seconds);
+  highlightSubStepTimerPreset(seconds);
+}
+
+function initSubStepTimerUI(step) {
+  buildSubStepTimerPresets();
+  const dur = step && step.duration_seconds != null ? step.duration_seconds : null;
+  setSubStepDurationSeconds(dur);
+}
+
+function getSubStepDurationSecondsFromUI() {
+  const hidden = document.getElementById('subStepDurationSeconds');
+  const raw = hidden ? hidden.value : '';
+  if (raw === '') return null;
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 5 || n > 3600) return undefined;
+  return n;
+}
+
+function wireSubStepTimerControls() {
+  buildSubStepTimerPresets();
+  const presets = document.getElementById('subStepTimerPresets');
+  if (presets && !presets.dataset.wired) {
+    presets.dataset.wired = '1';
+    presets.addEventListener('click', function (e) {
+      const btn = e.target.closest('.substep-timer-preset-btn');
+      if (!btn) return;
+      setSubStepDurationSeconds(parseInt(btn.dataset.seconds, 10));
+    });
+  }
+  const clearBtn = document.getElementById('subStepTimerClear');
+  if (clearBtn && !clearBtn.dataset.wired) {
+    clearBtn.dataset.wired = '1';
+    clearBtn.addEventListener('click', function () {
+      setSubStepDurationSeconds(null);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', wireSubStepTimerControls);
+
 // ─── Sub-steps ────────────────────────────────────────────
 async function toggleSubSteps(templateId) {
   const panel = document.getElementById(`substeps-panel-${templateId}`);
@@ -50,7 +131,7 @@ function renderSubStepsList(templateId, steps) {
         <div class="substep-item bg-white rounded-lg px-2 py-1.5 gap-2" data-substep-id="${s.id}">
           <span class="drag-handle text-text-soft text-xs select-none cursor-grab px-0.5">☰</span>
           <span class="text-sm flex-shrink-0">${s.icon || '▸'}</span>
-          <span class="text-xs font-semibold text-navy flex-1" style="word-break:break-word">${i + 1}. ${escHtml(s.name)}</span>
+          <span class="text-xs font-semibold text-navy flex-1" style="word-break:break-word">${i + 1}. ${escHtml(s.name)}${s.duration_seconds ? ' <span class="text-text-soft font-normal">⏱ ' + escHtml(formatSubStepDurationLabel(s.duration_seconds)) + '</span>' : ''}</span>
           <button onclick="openSubStepModal('${templateId}', ${JSON.stringify(s).replace(/'/g, "\\'")})"
             class="text-text-soft hover:text-navy text-xs px-1 py-0.5 rounded transition-colors flex-shrink-0">✏️</button>
           <button onclick="deleteSubStep('${templateId}', '${s.id}', '${escHtml(s.name)}')"
@@ -123,6 +204,7 @@ function openSubStepModal(templateId, step) {
   document.getElementById('subStepIconDisplay').textContent = icon || '❓';
   document.getElementById('subStepModalTitle').textContent = step ? 'Redigera delsteg' : 'Lägg till delsteg';
   document.getElementById('subStepError').classList.add('hidden');
+  initSubStepTimerUI(step);
   buildSubStepIconPicker();
   if (icon) {
     setTimeout(() => {
@@ -146,15 +228,23 @@ async function submitSubStep(e) {
   const stepId = document.getElementById('subStepId').value;
   const name = document.getElementById('subStepName').value.trim();
   const icon = document.getElementById('subStepIcon').value || null;
+  const duration_seconds = getSubStepDurationSecondsFromUI();
   const btn = document.getElementById('subStepSubmitBtn');
   const errEl = document.getElementById('subStepError');
   errEl.classList.add('hidden');
+  if (duration_seconds === undefined) {
+    errEl.textContent = 'Timern måste vara mellan 5 sekunder och 60 minuter, eller ingen timer.';
+    errEl.classList.remove('hidden');
+    return;
+  }
   btn.disabled = true; btn.textContent = 'Sparar…';
   const url = stepId
     ? `/api/activities/${templateId}/sub-steps/${stepId}`
     : `/api/activities/${templateId}/sub-steps`;
   const method = stepId ? 'PUT' : 'POST';
-  const res = await window.apiFetch(url, { method, body: JSON.stringify({ name, icon }) });
+  const body = { name, icon };
+  if (duration_seconds !== undefined) body.duration_seconds = duration_seconds;
+  const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
   const data = await res.json();
   if (res.ok) {
     closeSubStepModal();

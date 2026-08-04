@@ -241,8 +241,8 @@
 // stjarndag-v763: child substep stability, resilient SW precache, /health cache_version
 // stjarndag-v766: growth feedback loop client assets (flag-gated)
 // stjarndag-v772: aktivitetstimer i dagsvy-kort
-// stjarndag-v771: aktivitetstimer v2 polish (timglas, overlay)
-const CACHE_NAME = 'stjarndag-v772';
+// stjarndag-v773: aktivitetstimer på delsteg
+const CACHE_NAME = 'stjarndag-v773';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

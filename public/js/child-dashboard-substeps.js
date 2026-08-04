@@ -165,6 +165,17 @@
     return (allDone ? '✅' : '📋') + ' ' + t('steps.substepsDone', { done: done, total: total });
   }
 
+  function subStepTimerHtml(itemId, step) {
+    if (!window.ChildActivityTimer || typeof ChildActivityTimer.renderSubStepBlock !== 'function') return '';
+    return ChildActivityTimer.renderSubStepBlock(itemId, step);
+  }
+
+  function initSubStepTimers(itemId, steps) {
+    if (window.ChildActivityTimer && typeof ChildActivityTimer.initForSubSteps === 'function') {
+      ChildActivityTimer.initForSubSteps(itemId, steps);
+    }
+  }
+
   function renderSubStepListHtml(itemId, steps) {
     const done = steps.filter(s => s.completed).length;
     const total = steps.length;
@@ -178,6 +189,7 @@
     }
     for (const step of steps) {
       const isChecked = !!step.completed;
+      const timerHtml = subStepTimerHtml(itemId, step);
       html += `
       <div class="substep-row" onclick="toggleSubStep(event, '${itemId}', '${step.id}', ${isChecked})" id="substep-row-${step.id}">
         <div class="substep-check ${isChecked ? 'checked' : ''}" id="substep-check-${step.id}">
@@ -185,6 +197,7 @@
         </div>
         ${step.icon ? `<span style="font-size:1.3rem;flex-shrink:0;">${step.icon}</span>` : ''}
         <span class="substep-name ${isChecked ? 'checked' : ''}" id="substep-name-${step.id}">${escHtml(step.display_name || step.name)}</span>
+        ${timerHtml}
       </div>`;
     }
     html += `</div>`;
@@ -200,6 +213,7 @@
       return;
     }
     container.innerHTML = renderSubStepListHtml(itemId, steps);
+    initSubStepTimers(itemId, steps);
   }
 
   async function toggleSubStep(event, itemId, subStepId, isCurrentlyDone) {

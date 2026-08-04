@@ -143,4 +143,23 @@ describe('activity-timer-session (localStorage)', () => {
     assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'morning'), 120), 'running');
     assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'evening'), 120), 'idle');
   });
+
+  test('sub-step session uses distinct storage key', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60, 'sub-a');
+    ATS.startSession('c1', '2026-07-03', 'item-1', 90);
+    assert.equal(ATS.sessionToken('item-1', 'sub-a'), 'item-1:sub:sub-a');
+    assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'item-1', 'sub-a'), 60), 'running');
+    assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'item-1'), 90), 'running');
+    assert.equal(store.size, 2);
+  });
+
+  test('clearSessionsForDailyLogItem removes parent and sub-step keys', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30);
+    ATS.startSession('c1', '2026-07-03', 'item-1', 45, 'sub-1');
+    assert.equal(store.size, 2);
+    ATS.clearSessionsForDailyLogItem('c1', '2026-07-03', 'item-1');
+    assert.equal(store.size, 0);
+  });
 });

@@ -45,15 +45,35 @@
     return r === 1 ? t('activityTimer.ariaOneSecond') : t('activityTimer.ariaSeconds', { count: r });
   }
 
-  function itemHasTimer(item) {
+  function timersActive() {
     return typeof activityTimerV2Enabled !== 'undefined'
       && activityTimerV2Enabled
       && typeof activityTimersEnabled !== 'undefined'
-      && activityTimersEnabled
+      && activityTimersEnabled;
+  }
+
+  function itemHasTimer(item) {
+    return timersActive()
       && item
       && !item.completed
       && item.duration_seconds != null
       && item.duration_seconds >= 5;
+  }
+
+  function subStepHasTimer(step) {
+    return timersActive()
+      && step
+      && !step.completed
+      && step.duration_seconds != null
+      && step.duration_seconds >= 5;
+  }
+
+  function wrapDomId(itemId, subStepId) {
+    return subStepId ? 'activity-timer-' + itemId + '-sub-' + subStepId : 'activity-timer-' + itemId;
+  }
+
+  function tapKey(itemId, subStepId) {
+    return subStepId ? itemId + ':' + subStepId : itemId;
   }
 
   function activityVisualHtml(item) {
@@ -110,10 +130,9 @@
     hg.dataset.status = status || 'idle';
   }
 
-  function readItemState(item) {
-    const duration = item.duration_seconds;
+  function readTimerState(itemId, duration, subStepId) {
     const session = (me && currentDate && global.ActivityTimerSession)
-      ? ActivityTimerSession.getSession(me.id, currentDate, item.id)
+      ? ActivityTimerSession.getSession(me.id, currentDate, itemId, subStepId || undefined)
       : null;
     let status = ActivityTimerSession
       ? ActivityTimerSession.resolveStatus(session, duration)
@@ -130,49 +149,70 @@
     return { session, status, remaining, duration, progress };
   }
 
-  function renderBlock(item) {
-    if (!itemHasTimer(item) || !me || !currentDate || !global.ActivityTimerSession) return '';
+  function readItemState(item) {
+    return readTimerState(item.id, item.duration_seconds, null);
+  }
 
-    const st = readItemState(item);
+  function renderTimerInner(st, itemId, subStepId, substepLayout) {
+    const subAttr = subStepId ? ' data-sub-step-id="' + subStepId + '"' : '';
     const display = st.status === 'idle'
       ? ActivityTimerSession.formatDisplay(st.duration)
       : ActivityTimerSession.formatDisplay(st.remaining);
-    const ariaLabel = st.status === 'finished'
-      ? t('activityTimer.ariaFinished')
-      : ariaRemainingLabel(st.remaining);
+    const startLabel = substepLayout ? t('activityTimer.startShort') : t('activityTimer.start');
 
-    let body = '';
     if (st.status === 'idle') {
-      body =
+      return (
         hourglassMarkup(true) +
         '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
-        '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + item.id + '">' +
-          t('activityTimer.start') + '</button>';
-    } else if (st.status === 'finished') {
-      body =
+        '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + itemId + '"' + subAttr + '>' +
+          startLabel + '</button>'
+      );
+    }
+    if (st.status === 'finished') {
+      return (
         hourglassMarkup(true) +
         '<span class="activity-timer-digits" aria-live="polite">0:00</span>' +
         '<p class="activity-timer-done-label">' + t('activityTimer.done') + '</p>' +
-        '<button type="button" class="activity-timer-open-compact text-sm font-semibold text-navy underline" data-item-id="' + item.id + '">' +
-          t('activityTimer.open') + '</button>';
-    } else {
-      const statusLabel = st.status === 'paused' ? t('activityTimer.paused') : t('activityTimer.running');
-      body =
-        '<button type="button" class="activity-timer-compact-btn" data-item-id="' + item.id + '">' +
-          hourglassMarkup(true) +
-          '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
-          '<span class="activity-timer-status-label">' + statusLabel + '</span>' +
-        '</button>';
+        '<button type="button" class="activity-timer-open-compact text-sm font-semibold text-navy underline" data-item-id="' + itemId + '"' + subAttr + '>' +
+          t('activityTimer.open') + '</button>'
+      );
     }
-
+    const statusLabel = st.status === 'paused' ? t('activityTimer.paused') : t('activityTimer.running');
     return (
-      '<div class="activity-timer-wrap" id="activity-timer-' + item.id + '" data-item-id="' + item.id + '"' +
+      '<button type="button" class="activity-timer-compact-btn" data-item-id="' + itemId + '"' + subAttr + '>' +
+        hourglassMarkup(true) +
+        '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
+        '<span class="activity-timer-status-label">' + statusLabel + '</span>' +
+      '</button>'
+    );
+  }
+
+  function renderTimerWrap(itemId, subStepId, st, substepLayout) {
+    const ariaLabel = st.status === 'finished'
+      ? t('activityTimer.ariaFinished')
+      : ariaRemainingLabel(st.remaining);
+    const subAttr = subStepId ? ' data-sub-step-id="' + subStepId + '"' : '';
+    const wrapCls = 'activity-timer-wrap' + (substepLayout ? ' activity-timer-wrap--substep' : '');
+    return (
+      '<div class="' + wrapCls + '" id="' + wrapDomId(itemId, subStepId) + '" data-item-id="' + itemId + '"' + subAttr +
            ' data-duration="' + st.duration + '" data-status="' + st.status + '"' +
            ' onclick="event.stopPropagation()">' +
-        body +
+        renderTimerInner(st, itemId, subStepId, substepLayout) +
         '<span class="sr-only activity-timer-aria">' + ariaLabel + '</span>' +
       '</div>'
     );
+  }
+
+  function renderBlock(item) {
+    if (!itemHasTimer(item) || !me || !currentDate || !global.ActivityTimerSession) return '';
+    const st = readItemState(item);
+    return renderTimerWrap(item.id, null, st, false);
+  }
+
+  function renderSubStepBlock(itemId, step) {
+    if (!subStepHasTimer(step) || !me || !currentDate || !global.ActivityTimerSession) return '';
+    const st = readTimerState(itemId, step.duration_seconds, step.id);
+    return renderTimerWrap(itemId, step.id, st, true);
   }
 
   function playEndSound() {
@@ -195,26 +235,26 @@
     } catch { /* ignore */ }
   }
 
-  function maybeFinishNatural(itemId, durationSeconds) {
-    const session = ActivityTimerSession.getSession(me.id, currentDate, itemId);
+  function maybeFinishNatural(itemId, durationSeconds, subStepId) {
+    const session = ActivityTimerSession.getSession(me.id, currentDate, itemId, subStepId || undefined);
     let status = ActivityTimerSession.resolveStatus(session, durationSeconds);
     if (status !== 'finished') return false;
     if (session && !session.end_sound_played) {
-      ActivityTimerSession.setEndSoundPlayed(me.id, currentDate, itemId);
-      ActivityTimerSession.markFinished(me.id, currentDate, itemId);
+      ActivityTimerSession.setEndSoundPlayed(me.id, currentDate, itemId, subStepId || undefined);
+      ActivityTimerSession.markFinished(me.id, currentDate, itemId, subStepId || undefined);
       playEndSound();
       if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
     }
     return true;
   }
 
-  function refreshItemUI(itemId, durationSeconds) {
-    const wrap = document.getElementById('activity-timer-' + itemId);
+  function refreshItemUI(itemId, durationSeconds, subStepId) {
+    const wrap = document.getElementById(wrapDomId(itemId, subStepId || null));
     if (!wrap || !me || !currentDate) return;
 
-    maybeFinishNatural(itemId, durationSeconds);
+    maybeFinishNatural(itemId, durationSeconds, subStepId);
 
-    const session = ActivityTimerSession.getSession(me.id, currentDate, itemId);
+    const session = ActivityTimerSession.getSession(me.id, currentDate, itemId, subStepId || undefined);
     let status = ActivityTimerSession.resolveStatus(session, durationSeconds);
     let remaining = durationSeconds;
     if (status !== 'idle') {
@@ -245,7 +285,9 @@
       statusLabel.textContent = status === 'paused' ? t('activityTimer.paused') : t('activityTimer.running');
     }
 
-    if (_overlayItem && _overlayItem.id === itemId && _overlayEl && !_overlayEl.hidden) {
+    if (_overlayItem && _overlayItem.id === itemId
+        && (_overlayItem.sub_step_id || null) === (subStepId || null)
+        && _overlayEl && !_overlayEl.hidden) {
       syncOverlayUI();
     }
   }
@@ -292,23 +334,25 @@
       e.preventDefault();
       const action = btn.dataset.action;
       const itemId = _overlayItem.id;
+      const subStepId = _overlayItem.sub_step_id || null;
       const duration = _overlayItem.duration_seconds;
-      if (action === 'start') onStart(itemId, true);
+      if (action === 'start') onStart(itemId, true, subStepId);
       else if (action === 'pause') {
-        ActivityTimerSession.pauseSession(me.id, currentDate, itemId, duration);
+        ActivityTimerSession.pauseSession(me.id, currentDate, itemId, duration, subStepId || undefined);
         if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
       } else if (action === 'resume') {
-        ActivityTimerSession.resumeSession(me.id, currentDate, itemId);
+        ActivityTimerSession.resumeSession(me.id, currentDate, itemId, subStepId || undefined);
         if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
       }
       else if (action === 'stop') {
-        ActivityTimerSession.stopSession(me.id, currentDate, itemId);
-        refreshItemUI(itemId, duration);
-        rerenderCompactBlock(itemId);
-      } else if (action === 'restart') onRestart(itemId);
-      else if (action === 'done') onComplete(itemId);
+        ActivityTimerSession.stopSession(me.id, currentDate, itemId, subStepId || undefined);
+        refreshItemUI(itemId, duration, subStepId);
+        if (!subStepId) rerenderCompactBlock(itemId);
+        else if (typeof global.renderSubStepList === 'function') renderSubStepList(itemId);
+      } else if (action === 'restart') onRestart(itemId, subStepId);
+      else if (action === 'done') onComplete(itemId, subStepId);
       syncOverlayUI();
-      refreshItemUI(itemId, duration);
+      refreshItemUI(itemId, duration, subStepId);
     });
 
     _overlayEl = el;
@@ -331,9 +375,10 @@
     if (!_overlayEl || !_overlayItem || !me || !currentDate) return;
     const item = _overlayItem;
     const duration = item.duration_seconds;
-    maybeFinishNatural(item.id, duration);
+    const subStepId = item.sub_step_id || null;
+    maybeFinishNatural(item.id, duration, subStepId);
 
-    const session = ActivityTimerSession.getSession(me.id, currentDate, item.id);
+    const session = ActivityTimerSession.getSession(me.id, currentDate, item.id, subStepId || undefined);
     let status = ActivityTimerSession.resolveStatus(session, duration);
     let remaining = duration;
     if (status !== 'idle') {
@@ -381,7 +426,7 @@
   }
 
   function openOverlay(item) {
-    if (!itemHasTimer(item)) return;
+    if (!item || !timersActive() || !item.duration_seconds || item.duration_seconds < 5) return;
     ensureOverlay();
     _overlayItem = item;
     syncOverlayUI();
@@ -416,7 +461,7 @@
   }
 
   function rerenderCompactBlock(itemId) {
-    const wrap = document.getElementById('activity-timer-' + itemId);
+    const wrap = document.getElementById(wrapDomId(itemId, null));
     if (!wrap) return;
     const parent = wrap.parentNode;
     if (!parent) return;
@@ -434,66 +479,80 @@
     if (next) parent.replaceChild(next, wrap);
   }
 
-  function onStart(itemId, stayInOverlay) {
+  function onStart(itemId, stayInOverlay, subStepId) {
+    const key = tapKey(itemId, subStepId);
     const now = Date.now();
-    if (_lastStartTap[itemId] && now - _lastStartTap[itemId] < DEBOUNCE_MS) return;
-    _lastStartTap[itemId] = now;
+    if (_lastStartTap[key] && now - _lastStartTap[key] < DEBOUNCE_MS) return;
+    _lastStartTap[key] = now;
 
-    const wrap = document.getElementById('activity-timer-' + itemId);
+    const wrap = document.getElementById(wrapDomId(itemId, subStepId || null));
     let duration = wrap ? parseInt(wrap.dataset.duration, 10) : 0;
     if (!duration && _overlayItem && _overlayItem.id === itemId) {
       duration = _overlayItem.duration_seconds;
     }
     if (!duration || !me || !currentDate) return;
 
-    ActivityTimerSession.startSession(me.id, currentDate, itemId, duration);
+    ActivityTimerSession.startSession(me.id, currentDate, itemId, duration, subStepId || undefined);
     if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
 
     if (_overlayItem && _overlayItem.id === itemId) {
       _overlayItem.duration_seconds = duration;
     }
-    rerenderCompactBlock(itemId);
-    refreshItemUI(itemId, duration);
+    if (subStepId) {
+      if (typeof global.renderSubStepList === 'function') renderSubStepList(itemId);
+    } else {
+      rerenderCompactBlock(itemId);
+    }
+    refreshItemUI(itemId, duration, subStepId);
     syncOverlayUI();
 
     if (!stayInOverlay) {
       const card = document.getElementById('card-' + itemId);
-      _overlayItem = buildOverlayItemFromDom(itemId, card);
+      _overlayItem = buildOverlayItemFromDom(itemId, card, subStepId);
       openOverlay(_overlayItem);
     }
   }
 
-  function onRestart(itemId) {
-    const wrap = document.getElementById('activity-timer-' + itemId);
+  function onRestart(itemId, subStepId) {
+    const wrap = document.getElementById(wrapDomId(itemId, subStepId || null));
     const duration = wrap
       ? parseInt(wrap.dataset.duration, 10)
       : (_overlayItem && _overlayItem.duration_seconds);
     if (!duration || !me || !currentDate) return;
-    ActivityTimerSession.startSession(me.id, currentDate, itemId, duration);
+    ActivityTimerSession.startSession(me.id, currentDate, itemId, duration, subStepId || undefined);
     if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
-    refreshItemUI(itemId, duration);
-    rerenderCompactBlock(itemId);
+    refreshItemUI(itemId, duration, subStepId);
+    if (subStepId) {
+      if (typeof global.renderSubStepList === 'function') renderSubStepList(itemId);
+    } else {
+      rerenderCompactBlock(itemId);
+    }
     syncOverlayUI();
   }
 
-  function onComplete(itemId) {
-    ActivityTimerSession.clearSession(me.id, currentDate, itemId);
+  function onComplete(itemId, subStepId) {
+    ActivityTimerSession.clearSession(me.id, currentDate, itemId, subStepId || undefined);
     closeOverlay();
-    const wrap = document.getElementById('activity-timer-' + itemId);
+    if (subStepId) {
+      if (typeof global.renderSubStepList === 'function') renderSubStepList(itemId);
+      return;
+    }
+    const wrap = document.getElementById(wrapDomId(itemId, null));
     const duration = wrap ? parseInt(wrap.dataset.duration, 10) : 0;
     if (wrap) wrap.remove();
     if (typeof global.toggleItem === 'function') {
       global.toggleItem(itemId, false);
     }
-    if (duration) refreshItemUI(itemId, duration);
+    if (duration) refreshItemUI(itemId, duration, null);
   }
 
   function tickAll() {
     document.querySelectorAll('.activity-timer-wrap[data-item-id]').forEach(function (wrap) {
       const itemId = wrap.dataset.itemId;
+      const subStepId = wrap.dataset.subStepId || null;
       const duration = parseInt(wrap.dataset.duration, 10);
       if (!itemId || !duration) return;
-      refreshItemUI(itemId, duration);
+      refreshItemUI(itemId, duration, subStepId);
     });
   }
 
@@ -506,9 +565,10 @@
         e.preventDefault();
         e.stopPropagation();
         const itemId = start.dataset.itemId;
+        const subStepId = start.dataset.subStepId || null;
         const card = document.getElementById('card-' + itemId);
-        _overlayItem = buildOverlayItemFromDom(itemId, card);
-        onStart(itemId, false);
+        _overlayItem = buildOverlayItemFromDom(itemId, card, subStepId);
+        onStart(itemId, false, subStepId);
         openOverlay(_overlayItem);
         return;
       }
@@ -517,28 +577,57 @@
         e.preventDefault();
         e.stopPropagation();
         const itemId = compact.dataset.itemId;
+        const subStepId = compact.dataset.subStepId || null;
         const card = document.getElementById('card-' + itemId);
-        _overlayItem = buildOverlayItemFromDom(itemId, card);
+        _overlayItem = buildOverlayItemFromDom(itemId, card, subStepId);
         openOverlay(_overlayItem);
       }
     });
   }
 
-  function buildOverlayItemFromDom(itemId, card) {
-    const wrap = document.getElementById('activity-timer-' + itemId);
+  function buildOverlayItemFromDom(itemId, card, subStepId) {
+    const wrap = document.getElementById(wrapDomId(itemId, subStepId || null));
     const duration = wrap ? parseInt(wrap.dataset.duration, 10) : 0;
+    let name = card && card.dataset.itemName ? card.dataset.itemName : '';
+    let icon = card && card.dataset.itemIcon ? card.dataset.itemIcon : '⭐';
+    if (subStepId && global.subStepCache && subStepCache[itemId]) {
+      const step = subStepCache[itemId].find(function (s) { return String(s.id) === String(subStepId); });
+      if (step) {
+        name = step.display_name || step.name || name;
+        icon = step.icon || icon;
+      }
+    }
     return {
       id: itemId,
+      sub_step_id: subStepId || null,
       duration_seconds: duration,
       completed: false,
-      name: card && card.dataset.itemName ? card.dataset.itemName : '',
-      display_name: card && card.dataset.itemName ? card.dataset.itemName : '',
-      icon: card && card.dataset.itemIcon ? card.dataset.itemIcon : '⭐',
+      name: name,
+      display_name: name,
+      icon: icon,
     };
   }
 
+  function initForSubSteps(itemId, steps) {
+    if (!timersActive()) return;
+    wireDelegation();
+    ensureOverlay();
+    const timed = (steps || []).filter(subStepHasTimer);
+    timed.forEach(function (step) {
+      const wrap = document.getElementById(wrapDomId(itemId, step.id));
+      if (wrap) {
+        const st = readTimerState(itemId, step.duration_seconds, step.id);
+        applyHourglass(wrap, st.progress, st.status);
+      }
+    });
+    if (!_tickInterval) {
+      _tickInterval = setInterval(tickAll, 1000);
+    }
+    tickAll();
+  }
+
   function initForItems(items) {
-    if (!activityTimerV2Enabled || !activityTimersEnabled) return;
+    if (!timersActive()) return;
     wireDelegation();
     ensureOverlay();
     const timed = (items || []).filter(itemHasTimer);
@@ -547,7 +636,7 @@
       ActivityTimerSession.pruneSessions(me.id, currentDate, ids);
     }
     timed.forEach(function (item) {
-      const wrap = document.getElementById('activity-timer-' + item.id);
+      const wrap = document.getElementById(wrapDomId(item.id, null));
       if (wrap) {
         const st = readItemState(item);
         applyHourglass(wrap, st.progress, st.status);
@@ -560,11 +649,12 @@
 
   function clearForItem(itemId) {
     if (me && currentDate && global.ActivityTimerSession) {
-      ActivityTimerSession.clearSession(me.id, currentDate, itemId);
+      ActivityTimerSession.clearSessionsForDailyLogItem(me.id, currentDate, itemId);
     }
     if (_overlayItem && _overlayItem.id === itemId) closeOverlay();
-    const wrap = document.getElementById('activity-timer-' + itemId);
-    if (wrap) wrap.remove();
+    document.querySelectorAll('.activity-timer-wrap[data-item-id="' + itemId + '"]').forEach(function (wrap) {
+      wrap.remove();
+    });
   }
 
   function attachItemMeta(item) {
@@ -574,8 +664,11 @@
 
   global.ChildActivityTimer = {
     itemHasTimer: itemHasTimer,
+    subStepHasTimer: subStepHasTimer,
     renderBlock: renderBlock,
+    renderSubStepBlock: renderSubStepBlock,
     initForItems: initForItems,
+    initForSubSteps: initForSubSteps,
     clearForItem: clearForItem,
     tickAll: tickAll,
     openOverlay: openOverlay,

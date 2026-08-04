@@ -945,6 +945,13 @@
           <input type="hidden" id="subStepIcon">
           <div id="subStepIconPicker" class="flex flex-wrap gap-1 max-h-32 overflow-y-auto p-2 bg-sky rounded-xl"></div>
         </div>
+        <div class="border-t border-lavender pt-4">
+          <p class="text-sm font-semibold text-navy mb-1">Timer (valfri)</p>
+          <p class="text-xs text-text-soft mb-2">Barnet kan starta en timer för just detta delsteg.</p>
+          <input type="hidden" id="subStepDurationSeconds" value="">
+          <div id="subStepTimerPresets" class="flex flex-wrap gap-2 mb-2"></div>
+          <button type="button" id="subStepTimerClear" class="text-xs text-text-soft underline">Ingen timer</button>
+        </div>
         <div id="subStepError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-1">
           <button type="button" onclick="closeSubStepModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>

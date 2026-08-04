@@ -589,6 +589,7 @@ childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
          s.name,
          s.icon,
          s.sort_order,
+         s.duration_seconds,
          COALESCE(t.completed, false) AS completed,
          t.completed_at
        FROM activity_sub_step s
