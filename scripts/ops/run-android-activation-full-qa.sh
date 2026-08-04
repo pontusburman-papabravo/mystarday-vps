@@ -16,9 +16,7 @@ NODE_ENV=development node scripts/ops/activation-qa-prod-gate.mjs
 code=$?
 if [ "$code" -ne 0 ]; then
   echo ""
-  echo "Om BLOCKED: lägg QA_PASSWORD (min 12 tecken, samma som vid provision av QA-familjen) i"
-  echo "  ~/.config/mystarday/founder-activation-qa.env"
-  echo "Kör sedan detta skript igen."
+echo "Om BLOCKED: kör scripts/ops/bootstrap-founder-activation-qa-secrets.sh (kräver VPS SSH eller prod DATABASE_URL), sedan detta skript igen."
   exit "$code"
 fi
 

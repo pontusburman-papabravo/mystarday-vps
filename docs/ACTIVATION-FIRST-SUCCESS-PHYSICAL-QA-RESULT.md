@@ -1,6 +1,6 @@
 # Activation First Success — Physical QA Gate
 
-**Prompt:** 1G (responsive) + **1H** (physical iPhone final) + **1I** (current prod iPhone regression) + **1J** (Android Activation completion gate)  
+**Prompt:** 1G (responsive) + **1H** (physical iPhone final) + **1I** (current prod iPhone regression) + **1J** / **1K** (Android Activation completion gate)  
 **Date:** 2026-08-04  
 **Prod URL:** `https://mystarday.se` <!-- pragma: allowlist secret -->
 
@@ -11,14 +11,14 @@
 | **Physical iPhone** (Activation baseline v768) | **PASS** |
 | **Physical iPhone on current prod v769** (Prompt 1I) | **PASS** |
 | **Physical Android core flow** (founder `.env`, SM-G991B, v769) | **PASS** — parent API, picker child, completion, `adb` launch |
-| **Physical Android Activation** (QA family override, First Success coach on device) | **NOT RUN** — QA credentials file unavailable locally |
+| **Physical Android Activation** (QA family override, First Success coach on device) | **NOT RUN** — secure QA provisioning unavailable in agent session (no VPS SSH / no prod `DATABASE_URL`) |
 | **Child-first entry** (cold launch, existing child session) | **FAIL** — flicker / redirect loop (see §1J) |
 | **Responsive iPhone** (390×844) | **PASS** (sv-SE + en-GB QA families) |
 | **Responsive Android** (412×915) | **PASS** (sv-SE + en-GB QA families) |
 
 **Slutstatus:** `CURRENT PROD ANDROID CORE FLOW PASS — ACTIVATION FIRST SUCCESS ANDROID TARGETED GATE NOT YET RUN`
 
-**Prompt 1J gate outcome:** `PHYSICAL ANDROID ACTIVATION BLOCKED — QA CREDENTIALS UNAVAILABLE`
+**Prompt 1J/1K gate outcome:** `PHYSICAL ANDROID ACTIVATION BLOCKED — SECURE QA PROVISIONING UNAVAILABLE`
 
 ## iPhone device and app version
 
@@ -228,7 +228,7 @@ Overrides remain **ON** for continued founder/QA use; global flag remains **OFF*
 
 ## Rekommenderat nästa steg
 
-1. Create `~/.config/mystarday/founder-activation-qa.env` (mode `600`) with `QA_PASSWORD` (+ `QA_CHILD_PIN` if rotated); re-run `scripts/ops/run-android-activation-full-qa.sh` and complete manual SM-G991B checklist.
+1. Export `VPS_SSH_KEY` + `VPS_HOST` (see `scripts/setup-cursor-agent-ssh.sh`) **or** prod `DATABASE_URL`, then run `scripts/ops/bootstrap-founder-activation-qa-secrets.sh` → `scripts/ops/run-android-activation-full-qa.sh` and complete manual SM-G991B checklist.
 2. Fix Android child-first session loop (cookie ordering) in a future release.
 3. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
 4. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
@@ -271,7 +271,7 @@ Overrides remain **ON** for continued founder/QA use; global flag remains **OFF*
 | Control / founder family override | **OFF** (founder `activation-config` via API smoke) |
 | Growth flags | **OFF** |
 | QA scenario reset (no first_success, pending completion) | **Not run** — blocked without prod DB/VPS + QA login |
-| `~/.config/mystarday/founder-activation-qa.env` | **Missing** on operator Mac |
+| `~/.config/mystarday/founder-activation-qa.env` | **Not created** — bootstrap blocked (no VPS SSH key in session; repo `.env` has localhost DB only) |
 
 ## First Success coach
 
@@ -335,22 +335,103 @@ Founder smoke confirms founder family **without** Activation override. QA famili
 | Item | Result |
 |--------|--------|
 | Committed docs/scripts | No passwords, tokens, or cookies |
-| Scripts | Env-var only; removed founder-password probe on QA account |
-| Shell help | No literal PIN in operator instructions |
+| Scripts | Env-var only; `bootstrap-founder-activation-qa-secrets.sh` never prints secrets |
+| Shell help | No literal PIN; bootstrap documented |
 | Artifacts | JSON metadata only; local `artifacts/*` not committed |
 | Operator `.env` | Founder secrets local only — not in PR |
 
-**Merge PR #857:** **Hold** until CI **green** and operator completes QA Activation physical gate (or documents blocked state — this run).
+**Merge PR #857:** **Hold** — Activation physical gate not PASS; merge after green CI **and** `PHYSICAL ANDROID ACTIVATION PASS — CHILD-FIRST ISSUE OPEN`.
 
 ## PR #857
 
-Branch `cursor/android-founder-physical-qa-doc`. Adds physical QA doc updates, `founder-android-prod-smoke.mjs`, `activation-qa-prod-gate.mjs`, `run-android-activation-full-qa.sh`. Title still says PARTIAL — doc now reflects core PASS + Activation gate NOT YET RUN.
+Branch `cursor/android-founder-physical-qa-doc`. Ops: `founder-android-prod-smoke.mjs`, `activation-qa-prod-gate.mjs`, `run-android-activation-full-qa.sh`, `bootstrap-founder-activation-qa-secrets.sh`, `verify-activation-qa-auth.mjs`.
 
 ## Pilotbeslut
 
 | Decision | Outcome |
 |----------|---------|
 | Founder Android core (parent→child) | **GO** for internal smoke |
-| Activation First Success on physical Android (QA override) | **BLOCKED** until QA credentials + manual gate |
+| Activation First Success on physical Android (QA override) | **BLOCKED** — secure provisioning unavailable this session |
 | Global rollout | **NO-GO** (global flag OFF) |
-| Customer pilot | **NO-GO** until 1J Activation PASS on device |
+| Customer pilot | **NO-GO** until Activation PASS on device |
+
+---
+
+# Physical Android Activation Gate — Final (Prompt 1K)
+
+## Status
+
+`CURRENT PROD ANDROID CORE FLOW PASS`  
+`ACTIVATION FIRST SUCCESS ANDROID TARGETED GATE NOT YET RUN`  
+**`PHYSICAL ANDROID ACTIVATION BLOCKED — SECURE QA PROVISIONING UNAVAILABLE`**
+
+## Device och appversion
+
+Samsung **SM-G991B**, Android **15**, adb **`R3CR3008SEK`**, `se.mystarday.app` **1.3.0** (versionCode 8). Capacitor loads **`https://mystarday.se`**.
+
+## Prod SHA/cache
+
+`GET /health`: **healthy** · `git_sha` **`8fea1f5543664ce75db8e8e23c014aea70bd97fd`** · SW `CACHE_NAME` **`stjarndag-v769`**.
+
+## Secure QA credential bootstrap
+
+| Step | Result |
+|------|--------|
+| `scripts/ops/bootstrap-founder-activation-qa-secrets.sh` | **BLOCKED** — no `VPS_SSH_KEY`; default SSH to `deploy@188.66.60.93` **Permission denied**; repo `.env` **`DATABASE_URL` → localhost** only |
+| `~/.config/mystarday/` | Not present before run; bootstrap creates dir when provisioning succeeds |
+| QA account rotation | **Not executed** — requires VPS or prod DB |
+| `verify-activation-qa-auth.mjs` | **Not run** (no env file) |
+
+## QA-family override och expiry
+
+Documented state unchanged: global **OFF**, QA families **ON** until **`2026-08-10T23:59:59.000Z`**. `feature:family-override --verify` **not run** (no prod DB in session). Scenario reset **not run**.
+
+## First Success coach
+
+Physical QA-family coach on device: **not verified**.
+
+## Child login
+
+Founder parent→child: **PASS** (prior). QA-family physical login: **not run**.
+
+## Completion och stjärna
+
+QA physical completion: **not run**.
+
+## Parent restore
+
+**not run**.
+
+## Native/WebView
+
+`adb devices` **OK**; force-stop/launch via existing smoke scripts **OK** on founder path. No new WebView CDP navigation.
+
+## Back, keyboard och lifecycle
+
+Full Activation checklist **not run** (blocked at credentials).
+
+## Child-first issue
+
+Unchanged: **PRODUCT BUG** + **STALE PARENT SESSION** trigger; does not block parent-first path once QA gate can run.
+
+**Recommended fix prompt:** On Android cold launch with child JWT, resolve parent/child cookie precedence before `resumeActiveChildSessionIfPresent` ↔ `child-dashboard` guard loop; native launch URL remains `https://mystarday.se`; audit `/api/auth/me` ordering, `Auth.clearAuth`, and redirect to `/child-login` without `picker=1`.
+
+## Tenant-isolering
+
+No prod mutations this session; founder vs QA isolation unchanged from 1G/1H.
+
+## Säkerhetskontroll
+
+Preflight: no staged secrets; new scripts avoid stdout secrets; `git diff` scanned for credential literals — **clean**.
+
+## PR #857 och CI
+
+Preflight: branch **`cursor/android-founder-physical-qa-doc`**, HEAD matches PR **`0f9cd4b5`** (before 1K commit). **Do not merge** until Activation PASS + CI green.
+
+## Slutligt flaggläge
+
+Global `activation_first_success_v1` **OFF** (health/API); QA overrides **unchanged** (not disabled — no stop condition triggered).
+
+## Pilotbeslut
+
+Internal founder Android core **GO**; customer / global Activation pilot **NO-GO** until physical QA-family gate **PASS**.
