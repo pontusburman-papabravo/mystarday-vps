@@ -2,8 +2,10 @@
 
 **Datum:** 2026-08-04  
 **Miljö:** Live deploy target (see deploy ops rule)  
-**Testare:** Founder  
+**Testare:** Founder (credentials) + Cloud Agent (API + browser, 2026-08-04 UTC)  
 **Syfte:** Verifiera parent English beta före eventuell aktivering av `english_app_global_enabled`.
+
+**Säkerhet:** Lösenord roteras av founder efter test; inga secrets i detta dokument.
 
 Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md)
 
@@ -13,23 +15,11 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 | Signal | Förväntat | Resultat |
 |--------|-----------|----------|
-| `git_sha` | `9c9088acb6632b98859ce835661b22bd95ace764` eller senare godkänd SHA | **PASS** — `fdce5b90c4e7e4b8f46c2db1184a3432c5162800` (publik `/health`, 2026-08-04) |
-| `english_global_flag_read_ok` | `true` | **PASS** — `true` |
-| `english_global_flag_row_present` | `true` | **PASS** — `true` |
-| `english_global_flag_enabled` | `false` | **PASS** — `false` |
-| Kill switch tillgänglig | Ja | **PASS** — flag read OK; global OFF (ingen aktivering testad) |
-
----
-
-## Agent pre-check (2026-08-04, Cloud Agent)
-
-| Check | Resultat | Not |
-|-------|----------|-----|
-| Publik prod `/health` (baseline ovan) | **PASS** | Ingen inloggning |
-| `test/english-app-global-availability.test.js` (14 tester, lokal Postgres) | **PASS** | Täcker grandfather/logout/child API — **inte** prod UI |
-| Founder-scenarier 1–5 (browser, prod inloggning) | **BLOCKED** | `FOUNDER_QA_EMAIL` / `FOUNDER_QA_PASSWORD` / `FOUNDER_CHILD_*` saknas i agent-miljön |
-
-För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `docs/founder-qa-test-account.md` i Cursor Cloud Agent, starta om körning, be agenten fylla tabellerna nedan (eller kör manuellt som founder).
+| `git_sha` | `9c9088acb6632b98859ce835661b22bd95ace764` eller senare godkänd SHA | **PASS** — `fdce5b90c4e7e4b8f46c2db1184a3432c5162800` |
+| `english_global_flag_read_ok` | `true` | **PASS** |
+| `english_global_flag_row_present` | `true` | **PASS** |
+| `english_global_flag_enabled` | `false` | **PASS** |
+| Kill switch tillgänglig | Ja | **PASS** — global OFF före/efter smoke |
 
 ---
 
@@ -37,14 +27,14 @@ För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `d
 
 ### 1. Grandfatherad en-GB-familj
 
-**Förutsättning:** Befintlig familj med tidigare engelska åtkomst.
+**Förutsättning:** Befintlig familj med tidigare engelska åtkomst (grandfather / tidigare en-GB utan `english_app`).
 
 | Kontroll | Resultat | Kommentar |
 |----------|----------|-----------|
-| Föräldravyn öppnas på engelska | | |
-| Navigation och primära flöden fungerar | | |
-| Ingen oväntad svensk text i kärnflödet | | |
-| Session och omladdning fungerar | | |
+| Föräldravyn öppnas på engelska | **SKIP** | Founder-QA-familjen är **sv-SE** med `english_app` beta — inte grandfather-fixture |
+| Navigation och primära flöden fungerar | **PARTIAL** | API: `PUT` en-GB → 200, `preferred_locale` en-GB, re-login behåller en-GB; återställt till sv-SE efter test |
+| Ingen oväntad svensk text i kärnflödet | **NOT RUN** | Ingen dedikerad en-GB-grandfather-session i browser |
+| Session och omladdning fungerar | **PASS** | API logout/login OK; browser: logout-knapp i Inställningar svarade inte (se avvikelser) |
 
 ### 2. English child experience ON
 
@@ -52,11 +42,11 @@ För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `d
 
 | Kontroll | Resultat | Kommentar |
 |----------|----------|-----------|
-| Barninloggning visas på engelska | | |
-| Barnets Today-vy visas på engelska | | |
-| Aktivitet kan öppnas och slutföras | | |
-| Parent → child → parent-handoff fungerar | | |
-| Ingen blockerande svensk text | | |
+| Barninloggning visas på engelska | **FAIL (expected sv)** | Familj `preferred_locale` **sv-SE** — child login UI **svenska** (korrekt per modell) |
+| Barnets Today-vy visas på engelska | **FAIL (expected sv)** | Today **svenska** trots `english_child_experience_enabled: true` |
+| Aktivitet kan öppnas och slutföras | **NOT RUN** | |
+| Parent → child → parent-handoff fungerar | **NOT RUN** | |
+| Ingen blockerande svensk text | **N/A** | Smoke kräver **familj en-GB** + child flag ON för engelsk barn-UI — ej denna fixture |
 
 ### 3. Separationstest — child flag OFF
 
@@ -64,20 +54,20 @@ För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `d
 
 | Kontroll | Resultat | Kommentar |
 |----------|----------|-----------|
-| Föräldravyn är på engelska | | |
-| Barnupplevelsen följer nuvarande svenska beteende | | |
-| Ingen oavsiktlig global aktivering av barnengelska | | |
+| Föräldravyn är på engelska | **NOT RUN** | Kräver admin/feature override på prod — ej kört |
+| Barnupplevelsen följer nuvarande svenska beteende | **NOT RUN** | |
+| Ingen oavsiktlig global aktivering av barnengelska | **PASS** | `/health` `english_global_flag_enabled` false efter smoke |
 
 ### 4. Svensk kontrollfamilj
 
-**Förutsättning:** `sv-SE`, inga engelska familjeflaggor.
+**Förutsättning:** `sv-SE`, inga engelska familjeflaggor (founder-familjen använd som kontroll: sv-SE, beta-flaggor ON).
 
 | Kontroll | Resultat | Kommentar |
 |----------|----------|-----------|
-| Föräldravyn är fortsatt svensk | | |
-| Barnupplevelsen är fortsatt svensk | | |
-| Befintliga kärnflöden fungerar | | |
-| Ingen regression från #870 | | |
+| Föräldravyn är fortsatt svensk | **PASS** | Dashboard svenska (browser) |
+| Barnupplevelsen är fortsatt svensk | **PASS** | Astrid Today svenska; API `child_ui_locale: sv-SE` |
+| Befintliga kärnflöden fungerar | **PASS** | Parent + child login OK (barn: använd **login username** `astrid921`, inte visningsnamn) |
+| Ingen regression från #870 | **PASS** | Flag OFF; locale APIs 200 |
 
 ### 5. Ny familj utan betaåtkomst
 
@@ -85,9 +75,9 @@ För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `d
 
 | Kontroll | Resultat | Kommentar |
 |----------|----------|-----------|
-| Engelska kan inte väljas utan behörighet | | |
-| Familjen får inte automatiskt engelsk åtkomst | | |
-| Standardspråk och onboarding fungerar | | |
+| Engelska kan inte väljas utan behörighet | **NOT RUN** | Ingen ny prod-registrering i denna körning (undvik skräpdata) |
+| Familjen får inte automatiskt engelsk åtkomst | **NOT RUN** | |
+| Standardspråk och onboarding fungerar | **NOT RUN** | Täcks delvis av integrationstester lokalt |
 
 ---
 
@@ -95,12 +85,12 @@ För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `d
 
 | Riskyta | Resultat | Kommentar |
 |---------|----------|-----------|
-| Ledig dag-modal | | |
-| Today och navigation | | |
-| Bildarkiv och bilduppladdning | | |
-| Inloggning och session restore | | |
-| Service worker/cache efter omladdning | | |
-| Parent/child-handoff | | |
+| Ledig dag-modal | **NOT RUN** | |
+| Today och navigation | **PASS** | Child Today laddar |
+| Bildarkiv och bilduppladdning | **NOT RUN** | |
+| Inloggning och session restore | **PARTIAL** | API OK; browser logout-knapp |
+| Service worker/cache efter omladdning | **NOT RUN** | |
+| Parent/child-handoff | **NOT RUN** | |
 
 ---
 
@@ -108,26 +98,23 @@ För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `d
 
 | Signal | Förväntat | Resultat |
 |--------|-----------|----------|
-| `/health` healthy | Ja | |
-| `english_global_flag_read_ok` | `true` | |
-| `english_global_flag_row_present` | `true` | |
-| `english_global_flag_enabled` | `false` | |
-| Nya relevanta error-loggar | Inga | |
-| Kill switch verifierad | Ja | |
+| `/health` healthy | Ja | **PASS** |
+| `english_global_flag_read_ok` | `true` | **PASS** |
+| `english_global_flag_row_present` | `true` | **PASS** |
+| `english_global_flag_enabled` | `false` | **PASS** |
+| Nya relevanta error-loggar | Inga | **PARTIAL** — 403 på vissa analytics/device-panel (icke-blockerande) |
+| Kill switch verifierad | Ja | **PASS** |
 
 ---
 
 ## Avvikelser
 
-Dokumentera varje avvikelse med:
-
-- scenario
-- enhet och webbläsare/appversion
-- steg för att återskapa
-- förväntat resultat
-- faktiskt resultat
-- skärmbild eller loggreferens
-- blockerande eller icke-blockerande
+| # | Scenario | Enhet | Förväntat | Faktiskt | Blockerande |
+|---|----------|-------|-----------|----------|-------------|
+| 1 | Browser logout | Desktop browser | Logga ut avslutar session | Knapp i Inställningar svarade inte; API `POST /api/auth/logout` fungerar | Nej |
+| 2 | Child login | API | PIN med visningsnamn | Kräver **username** (`astrid921`) | Nej (dokumentation) |
+| 3 | Scenario 2 | Founder fixture | Barn-UI engelska | Familj sv-SE → barn svenska trots child_experience ON | Nej — **fel fixture**; kör om med en-GB-familj |
+| 4 | Scenario 1 | Founder fixture | Grandfather en-GB | Familj är sv-SE + beta, inte grandfather | Ja för **global ON** tills grandfather-familj smokeats |
 
 ---
 
@@ -135,12 +122,16 @@ Dokumentera varje avvikelse med:
 
 | | |
 |--|--|
-| **Founder-smoke** | **PENDING** — baseline PASS; UI-scenarier 1–5 ej körda (kräver founder-inloggning) |
-| **Parent English beta global ON** | **NOT APPROVED** (väntar komplett founder-smoke) |
+| **Founder-smoke** | **PASS WITH NON-BLOCKING ISSUES** — baseline + svensk kontroll + API locale-byte OK; **grandfather (1), separation (3), ny familj (5), full en-GB barn (2) ej kompletta** |
+| **Parent English beta global ON** | **NOT APPROVED** — kör grandfather en-GB-familj + scenario 5 (eller godkänn explicit risk) före ops-enable |
 
 **Villkor eller kvarvarande åtgärder:**
 
-—
+- Rota founder-lösenord/PIN efter test (utfört av founder).
+- Smokea **dedikerad en-GB-grandfather**-familj (eller RC1 QA-fixture) för scenario 1.
+- Scenario 2: sätt familj till **en-GB** med `english_child_experience` ON och verifiera barn-UI.
+- Scenario 5: kontrollerad ny familj utan beta (staging eller engångs prod med städning).
+- Utreda logout-knapp i Inställningar (UI).
 
 ---
 
