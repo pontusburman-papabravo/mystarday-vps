@@ -448,12 +448,7 @@ function renderActivities(data, trueStarBalance) {
   // Start Time Timer ticks after DOM is updated
   initTimeTimers();
   if (window.ChildActivityTimer) {
-    let nuItems = items.filter(function (i) { return i._nnl_status === 'now'; });
-    if (!nuItems.length && data.now_next_filtered !== true) {
-      const firstOpen = items.find(function (i) { return !i.completed; });
-      if (firstOpen) nuItems = [firstOpen];
-    }
-    ChildActivityTimer.initForItems(nuItems);
+    ChildActivityTimer.initForItems(items);
   }
 
   // Auto-expand sub-steps for the NOW activity (first incomplete item with sub-steps)
@@ -700,8 +695,8 @@ function renderActivityCard(item, isToday, timeStatus) {
             ${hasSubSteps ? `<span class="substep-progress ${subDone === subStepCount ? 'all-done' : ''}" id="substep-badge-${item.id}">${subDone}/${subStepCount}</span>` : ''}
           </div>
         </div>
-        ${activityTimerHtml}
       </div>
+      ${activityTimerHtml ? `<div class="activity-timer-card-row" onclick="event.stopPropagation()">${activityTimerHtml}</div>` : ''}
       ${hasSubSteps ? `
       <div class="mt-3 pt-2 border-t border-lavender/50" onclick="event.stopPropagation()">
         <div style="position:relative;display:inline-block;">

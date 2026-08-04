@@ -117,6 +117,37 @@ async function main() {
     console.log(`\n✓ Satte timer på ${totalUpdated} aktivitet(er).`);
   }
 
+  const subStepPresets = [
+    { activityPattern: '%tandborst%', stepPattern: '%', seconds: 120 },
+    { activityPattern: '%tänder%', stepPattern: '%', seconds: 120 },
+    { activityPattern: '%pyjamas%', stepPattern: '%', seconds: 60 },
+    { activityPattern: '%middag%', stepPattern: '%', seconds: 120 },
+  ];
+  let subUpdated = 0;
+  for (const preset of subStepPresets) {
+    const res = await db.query(
+      `UPDATE activity_sub_step s
+       SET duration_seconds = $4
+       FROM activity_template t
+       WHERE t.id = s.activity_template_id
+         AND t.family_id = $1
+         AND t.name ILIKE $2
+         AND s.name ILIKE $3
+         AND (s.duration_seconds IS NULL OR s.duration_seconds < 5)
+       RETURNING s.id, s.name, t.name AS activity_name`,
+      [familyId, preset.activityPattern, preset.stepPattern, preset.seconds]
+    );
+    for (const row of res.rows) {
+      subUpdated += 1;
+      console.log(`✓ Delsteg-timer ${preset.seconds}s: ${row.activity_name} → ${row.name}`);
+    }
+  }
+  if (subUpdated > 0) {
+    console.log(`\n✓ Satte timer på ${subUpdated} delsteg.`);
+  } else {
+    console.log('\n– Inga delsteg fick duration_seconds (redan satta eller inga matchade).');
+  }
+
   console.log('\nKlart. Barn med activity_timers_enabled + duration_seconds ≥ 5 visar timglas.');
   console.log('v2-helskärm kräver fortfarande ACTIVITY_TIMER_V2_ALLOWLIST (founder-e-post).');
 }

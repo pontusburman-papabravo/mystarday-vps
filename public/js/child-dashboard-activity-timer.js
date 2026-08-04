@@ -45,9 +45,14 @@
     return r === 1 ? t('activityTimer.ariaOneSecond') : t('activityTimer.ariaSeconds', { count: r });
   }
 
+  function activityTimerV2On() {
+    if (typeof global.activityTimerV2Enabled !== 'undefined') return !!global.activityTimerV2Enabled;
+    if (typeof globalThis.activityTimerV2Enabled !== 'undefined') return !!globalThis.activityTimerV2Enabled;
+    return false;
+  }
+
   function timersActive() {
-    return typeof global.activityTimerV2Enabled !== 'undefined'
-      && global.activityTimerV2Enabled
+    return activityTimerV2On()
       && typeof activityTimersEnabled !== 'undefined'
       && activityTimersEnabled;
   }
@@ -533,7 +538,6 @@
         const card = document.getElementById('card-' + itemId);
         _overlayItem = buildOverlayItemFromDom(itemId, card, subStepId);
         onStart(itemId, false, subStepId);
-        openOverlay(_overlayItem);
         return;
       }
       const compact = e.target.closest('.activity-timer-compact-btn, .activity-timer-open-compact');
