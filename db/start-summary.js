@@ -187,69 +187,82 @@ async function fetchMessageSummary() {
 }
 
 async function fetchRecommendations() {
-  const { buildRecommendations } = require('../src/lib/activation-advisor');
-  const proposals = await buildRecommendations();
-  await Promise.all(proposals.map((p) => adminOperationalAlerts.refreshActiveAlertCopy(p)));
-  await Promise.all(proposals.map((p) => adminOperationalAlerts.insertAlertIfMissing(p)));
-  await adminOperationalAlerts.syncActivationAlerts(proposals.map((p) => p.slug));
+  // Read-only: advisor writes run via activation-advisor-scheduler (daily), not every admin page load.
   const operationalRows = await adminOperationalAlerts.listActive(5);
   return adminOperationalAlerts.toRecommendationCards(operationalRows);
 }
 
 async function fetchActivityFeed(limit = 8) {
+  const perSource = Math.max(limit, 8);
   const { rows } = await db.query(
     `
     SELECT type, id, title, meta, created_at, route FROM (
-      SELECT
-        'family_created'::text AS type,
-        f.id::text AS id,
-        'Ny familj: ' || COALESCE(f.name, 'Namnlös') AS title,
-        NULL::text AS meta,
-        f.created_at,
-        '#familjer'::text AS route
-      FROM family f
-      WHERE f.archived_at IS NULL
+      (
+        SELECT
+          'family_created'::text AS type,
+          f.id::text AS id,
+          'Ny familj: ' || COALESCE(f.name, 'Namnlös') AS title,
+          NULL::text AS meta,
+          f.created_at,
+          '#familjer'::text AS route
+        FROM family f
+        WHERE f.archived_at IS NULL
+        ORDER BY f.created_at DESC
+        LIMIT $2
+      )
 
       UNION ALL
 
-      SELECT
-        'contact_message_created',
-        cm.id::text,
-        COALESCE(cm.name, cm.email, 'Meddelande'),
-        cm.message_type,
-        cm.created_at,
-        '#arenden'
-      FROM contact_message cm
+      (
+        SELECT
+          'contact_message_created',
+          cm.id::text,
+          COALESCE(cm.name, cm.email, 'Meddelande'),
+          cm.message_type,
+          cm.created_at,
+          '#arenden'
+        FROM contact_message cm
+        ORDER BY cm.created_at DESC
+        LIMIT $2
+      )
 
       UNION ALL
 
-      SELECT
-        'newsletter_sent',
-        n.id::text,
-        'Nyhetsbrev: ' || LEFT(n.subject, 80),
-        n.sent_count::text || ' mottagare',
-        n.sent_at,
-        '#nyhetsbrev'
-      FROM newsletters n
-      WHERE n.status = 'sent' AND n.sent_at IS NOT NULL
+      (
+        SELECT
+          'newsletter_sent',
+          n.id::text,
+          'Nyhetsbrev: ' || LEFT(n.subject, 80),
+          n.sent_count::text || ' mottagare',
+          n.sent_at,
+          '#nyhetsbrev'
+        FROM newsletters n
+        WHERE n.status = 'sent' AND n.sent_at IS NOT NULL
+        ORDER BY n.sent_at DESC
+        LIMIT $2
+      )
 
       UNION ALL
 
-      SELECT
-        'dagens_nyhet_published',
-        d.id::text,
-        'Dagens nyhet: ' || LEFT(d.title, 80),
-        NULL,
-        COALESCE(d.published_at, d.publish_at, d.created_at),
-        '#dagens-nyhet'
-      FROM dagens_nyhet d
-      WHERE d.status = 'published'
+      (
+        SELECT
+          'dagens_nyhet_published',
+          d.id::text,
+          'Dagens nyhet: ' || LEFT(d.title, 80),
+          NULL,
+          COALESCE(d.published_at, d.publish_at, d.created_at),
+          '#dagens-nyhet'
+        FROM dagens_nyhet d
+        WHERE d.status = 'published'
+        ORDER BY COALESCE(d.published_at, d.publish_at, d.created_at) DESC
+        LIMIT $2
+      )
     ) feed
     WHERE created_at IS NOT NULL
     ORDER BY created_at DESC
     LIMIT $1
     `,
-    [limit]
+    [limit, perSource]
   );
 
   return rows.map((row) => ({

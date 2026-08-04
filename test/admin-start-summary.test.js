@@ -61,7 +61,7 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
       return { rows: [{ last7d: 3, prev7d: 3, total: 50 }] };
     }
     if (q.includes('needs_follow_up_count') || (q.includes('FROM contact_message') && q.includes("status = 'new'") && q.includes('FILTER'))) {
-      return { rows: [{ unread_count: 2, needs_follow_up_count: 3, active_count: 1, answered_count: 0, archived_count: 0 }] };
+      return { rows: [{ unread_count: 2, needs_follow_up_count: 3, meddelanden_unread_count: 2, meddelanden_needs_follow_up_count: 3, active_count: 1, answered_count: 0, archived_count: 0 }] };
     }
     if (q.includes('FROM contact_message cm') && q.includes('in_progress')) {
       return {
@@ -180,11 +180,24 @@ test('fetchKeyMetrics does not query Meta attribution', () => {
   assert.doesNotMatch(src, /metaSignups/);
 });
 
-test('fetchRecommendations refreshes live activation advisor copy', () => {
+test('fetchRecommendations reads persisted operational alerts only', () => {
   const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
-  assert.match(src, /buildRecommendations/);
-  assert.match(src, /refreshActiveAlertCopy/);
+  const fnStart = src.indexOf('async function fetchRecommendations');
+  const fnEnd = src.indexOf('async function fetchActivityFeed', fnStart);
+  const fnBody = fnEnd > fnStart ? src.slice(fnStart, fnEnd) : src.slice(fnStart);
+  assert.match(fnBody, /listActive/);
+  assert.doesNotMatch(fnBody, /buildRecommendations/);
+  assert.doesNotMatch(fnBody, /refreshActiveAlertCopy/);
   assert.doesNotMatch(src, /UNION ALL SELECT id FROM professional_interest/);
+});
+
+test('fetchActivityFeed limits each source before global sort', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  const fnStart = src.indexOf('async function fetchActivityFeed');
+  const fnEnd = src.indexOf('const QUICK_ACTIONS', fnStart);
+  const fnBody = fnEnd > fnStart ? src.slice(fnStart, fnEnd) : src.slice(fnStart);
+  assert.match(fnBody, /ORDER BY f\.created_at DESC\s+LIMIT \$2/);
+  assert.match(fnBody, /ORDER BY cm\.created_at DESC\s+LIMIT \$2/);
 });
 
 test('fetchKeyMetrics counts signups_prev_7d outside the 7d cohort filter', () => {
@@ -214,7 +227,7 @@ test('admin-start.js and overview blocks exist', () => {
   assert.match(html, /id="startKpiBlock"/);
   assert.doesNotMatch(html, /id="startGrowthBlock"/);
   assert.match(html, /admin-start\.js/);
-  assert.match(html, /admin-produktanalys-shell\.js/);
+  assert.match(html, /admin-section-loader\.js/);
   assert.match(html, /prenumerationWorkspaceTabs/);
   assert.match(html, /admin-deprecated-section/);
 });
