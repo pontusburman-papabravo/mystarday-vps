@@ -79,12 +79,14 @@ describe('activity-hourglass (UL component)', () => {
 });
 
 describe('activity-hourglass — timer UI wiring', () => {
-  it('child timer uses delivered SVG mount, not legacy CSS hourglass', () => {
+  it('child timer uses delivered SVG mount in overlay, not legacy CSS hourglass', () => {
     const src = fs.readFileSync(
       path.join(__dirname, '../public/js/child-dashboard-activity-timer.js'),
       'utf8'
     );
     assert.match(src, /ActivityHourglassUI/);
+    assert.match(src, /activity-timer-overlay-hourglass/);
+    assert.match(src, /inlineTimerIconHtml/);
     assert.doesNotMatch(src, /at-hourglass/);
     assert.doesNotMatch(src, /hourglassMarkup/);
   });

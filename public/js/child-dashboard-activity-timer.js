@@ -100,11 +100,13 @@
     ActivityHourglassUI.applyToRoot(root, remaining, duration, status);
   }
 
-  function hourglassMountHtml(compact) {
-    if (!global.ActivityHourglassUI) return '';
-    return ActivityHourglassUI.mountHtml(
-      compact ? 'activity-hourglass-mount--compact' : 'activity-hourglass-mount--large'
-    );
+  function hourglassMountHtml(largeOnly) {
+    if (!global.ActivityHourglassUI || !largeOnly) return '';
+    return ActivityHourglassUI.mountHtml('activity-hourglass-mount--large');
+  }
+
+  function inlineTimerIconHtml() {
+    return '<span class="activity-timer-inline-icon" aria-hidden="true">⏳</span>';
   }
 
   function readTimerState(itemId, duration, subStepId) {
@@ -139,27 +141,33 @@
 
     if (st.status === 'idle') {
       return (
-        hourglassMountHtml(true) +
-        '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
-        '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + itemId + '"' + subAttr + '>' +
-          startLabel + '</button>'
+        '<div class="activity-timer-controls-row">' +
+          inlineTimerIconHtml() +
+          '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
+          '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + itemId + '"' + subAttr + '>' +
+            startLabel + '</button>' +
+        '</div>'
       );
     }
     if (st.status === 'finished') {
       return (
-        hourglassMountHtml(true) +
-        '<span class="activity-timer-digits" aria-live="polite">0:00</span>' +
-        '<p class="activity-timer-done-label">' + t('activityTimer.done') + '</p>' +
-        '<button type="button" class="activity-timer-open-compact text-sm font-semibold text-navy underline" data-item-id="' + itemId + '"' + subAttr + '>' +
-          t('activityTimer.open') + '</button>'
+        '<div class="activity-timer-controls-row">' +
+          inlineTimerIconHtml() +
+          '<span class="activity-timer-digits" aria-live="polite">0:00</span>' +
+          '<p class="activity-timer-done-label">' + t('activityTimer.done') + '</p>' +
+          '<button type="button" class="activity-timer-open-compact text-sm font-semibold text-navy underline" data-item-id="' + itemId + '"' + subAttr + '>' +
+            t('activityTimer.open') + '</button>' +
+        '</div>'
       );
     }
     const statusLabel = st.status === 'paused' ? t('activityTimer.paused') : t('activityTimer.running');
     return (
       '<button type="button" class="activity-timer-compact-btn" data-item-id="' + itemId + '"' + subAttr + '>' +
-        hourglassMountHtml(true) +
-        '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
-        '<span class="activity-timer-status-label">' + statusLabel + '</span>' +
+        '<div class="activity-timer-controls-row">' +
+          inlineTimerIconHtml() +
+          '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
+          '<span class="activity-timer-status-label">' + statusLabel + '</span>' +
+        '</div>' +
       '</button>'
     );
   }
@@ -239,8 +247,6 @@
       if (status === 'running' && remaining <= 0) status = 'finished';
     }
     wrap.dataset.status = status;
-
-    syncHourglass(wrap, durationSeconds, status, remaining);
 
     const digits = wrap.querySelector('.activity-timer-digits');
     const aria = wrap.querySelector('.activity-timer-aria');
@@ -550,7 +556,7 @@
         _overlayItem = buildOverlayItemFromDom(itemId, card, subStepId);
         openOverlay(_overlayItem);
       }
-    });
+    }, true);
   }
 
   function buildOverlayItemFromDom(itemId, card, subStepId) {
@@ -576,19 +582,11 @@
     };
   }
 
-  function initForSubSteps(itemId, steps) {
+  function initForSubSteps(_itemId, _steps) {
     if (!timersActive()) return;
     if (global.ActivityHourglassUI) ActivityHourglassUI.preload();
     wireDelegation();
     ensureOverlay();
-    const timed = (steps || []).filter(subStepHasTimer);
-    timed.forEach(function (step) {
-      const wrap = document.getElementById(wrapDomId(itemId, step.id));
-      if (wrap) {
-        const st = readTimerState(itemId, step.duration_seconds, step.id);
-        syncHourglass(wrap, st.duration, st.status, st.remaining);
-      }
-    });
     if (!_tickInterval) {
       _tickInterval = setInterval(tickAll, 1000);
     }
@@ -605,13 +603,6 @@
     if (me && currentDate && global.ActivityTimerSession) {
       ActivityTimerSession.pruneSessions(me.id, currentDate, ids);
     }
-    timed.forEach(function (item) {
-      const wrap = document.getElementById(wrapDomId(item.id, null));
-      if (wrap) {
-        const st = readItemState(item);
-        syncHourglass(wrap, st.duration, st.status, st.remaining);
-      }
-    });
     if (_tickInterval) clearInterval(_tickInterval);
     _tickInterval = setInterval(tickAll, 1000);
     tickAll();

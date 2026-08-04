@@ -243,8 +243,8 @@
 // stjarndag-v772: aktivitetstimer i dagsvy-kort
 // stjarndag-v773: aktivitetstimer på delsteg
 // stjarndag-v774: levererad SVG-timglas (UL activity-hourglass-v1)
-// stjarndag-v775: aktivitetstimer dagsvy klick + kortlayout
-const CACHE_NAME = 'stjarndag-v775';
+// stjarndag-v776: aktivitetstimer Start-klick (capture) + kompakt delstegslayout
+const CACHE_NAME = 'stjarndag-v776';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
