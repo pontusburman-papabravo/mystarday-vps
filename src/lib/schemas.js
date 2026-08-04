@@ -257,12 +257,20 @@ const ReorderSchema = z.object({
 const CreateSubStepSchema = z.object({
   name: z.string().min(1, 'Namn krävs').max(200),
   icon: emoji,
+  duration_seconds: z.union([
+    z.null(),
+    z.number().int().min(5).max(3600),
+  ]).optional(),
 });
 
 const UpdateSubStepSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   icon: emoji,
   sort_order: z.coerce.number().int().optional(),
+  duration_seconds: z.union([
+    z.null(),
+    z.number().int().min(5).max(3600),
+  ]).optional(),
 }).partial();
 
 // ─── Rewards ──────────────────────────────────────────────

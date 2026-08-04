@@ -664,6 +664,10 @@ function renderActivityCard(item, isToday, timeStatus) {
   const subDone = cachedSteps ? cachedSteps.filter(s => s.completed).length : 0;
   const isExpanded = !!subStepExpanded[item.id];
 
+  const activityTimerHtml = (window.ChildActivityTimer && ChildActivityTimer.renderBlock)
+    ? ChildActivityTimer.renderBlock(item)
+    : '';
+
   const actColorCls = getChildColorClass(item.name);
   return `
     <div class="activity-card ${isDone ? 'done' : ''} ${isLater && !isDone ? 'opacity-60' : ''} ${actColorCls} bg-white rounded-xl p-4 shadow-sm border-2 ${isDone ? 'border-green-200' : isNext ? 'border-[#6B50F5]/30' : 'border-transparent'} ${canToggle ? 'cursor-pointer' : ''} group"
@@ -696,6 +700,7 @@ function renderActivityCard(item, isToday, timeStatus) {
             ${hasSubSteps ? `<span class="substep-progress ${subDone === subStepCount ? 'all-done' : ''}" id="substep-badge-${item.id}">${subDone}/${subStepCount}</span>` : ''}
           </div>
         </div>
+        ${activityTimerHtml}
       </div>
       ${hasSubSteps ? `
       <div class="mt-3 pt-2 border-t border-lavender/50" onclick="event.stopPropagation()">

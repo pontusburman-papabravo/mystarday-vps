@@ -2,12 +2,12 @@
 
 | | |
 |--|--|
-| **Status** | Accepted — implemented |
+| **Status** | Accepted — v0.4 helskärm (founder dark launch via `activity_timer_v2`) |
 | **Git** | [docs/aktivitetstimer-spec.md](https://github.com/pontusburman-papabravo/[REDACTED]-vps/blob/main/docs/aktivitetstimer-spec.md) <!-- pragma: allowlist secret --> |
 | **POS** | 04 C-04 (barnvy), 06A (mobil barn-UI), 15 B (a11y, reducerad rörelse, ej blockande) |
 | **Skiljer sig från** | `visual_timer` (schemafönster start–slut), `how_long` (text i De sju frågorna) |
 | **Relaterat** | [bildstod-app-plan.md](./bildstod-app-plan.md), [paket-v1.2-spec.md](./paket-v1.2-spec.md) |
-| **Changelog** | v0.3.1 — `timer_enabled` borttagen (härleds från `duration_seconds`); session `status` + `ended_at` (ej `cancelled_at`); designprincip. v0.3 — `duration_seconds`, Klar-rensning, localStorage, `daily_log_item_id`, ljudspec |
+| **Changelog** | v0.4 — helskärmsvy, paus/fortsätt/stopp/börja om, timglas-CSS, founder dark launch (`activity_timer_v2`). v0.3.1 — … |
 
 ---
 
@@ -29,7 +29,9 @@ Förälder vill säga *"borsta tänder i 2 minuter"* (eller 45 sekunder) och bar
 | Barnvy | Progress-ring runt timglas + `M:SS` eller `0:SS` |
 | Före start | Visa full tid (`2:00`, `0:45`), inte `--:--` |
 | Start | Barn trycker **Starta timer** — **ingen** auto-start v1 |
-| Paus | **v1: ingen paus.** Endast Start → (nedräkning) → Klar |
+| Paus | **v0.4:** Pausa/Fortsätt fryser `paused_remaining_seconds`. v1 inline: ingen paus. |
+| Helskärm | **v0.4:** Start öppnar overlay; kryss stänger bara vyn; timer fortsätter via `ends_at`. |
+| Stopp / Börja om | **v0.4:** Stopp → rensa session (IDLE). Börja om → ny `running` med full tid. |
 | Slut vid 0 | Stanna på `0:00`, **Färdig!** + ljud + lätt haptic |
 | Klar före 0 | Avsluta utan slutsignal; **rensa session** (se nedan) |
 | Blockerar inte | Ingen modal; **Klar** alltid tillgänglig (nödutgång) |
