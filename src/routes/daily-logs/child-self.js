@@ -104,9 +104,14 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     // One batch query: count sub-steps per activity_template_id.
     const templateIds = [...new Set(sortedItems.map(i => i.activity_template_id).filter(Boolean))];
     const subStepCountMap = {};
+    const subStepTimedCountMap = {};
     if (templateIds.length > 0) {
       const countResult = await db.query(
-        `SELECT activity_template_id, COUNT(*) AS cnt
+        `SELECT activity_template_id,
+                COUNT(*) AS cnt,
+                COUNT(*) FILTER (
+                  WHERE duration_seconds IS NOT NULL AND duration_seconds >= 5
+                ) AS timed_cnt
          FROM activity_sub_step
          WHERE activity_template_id = ANY($1::uuid[])
          GROUP BY activity_template_id`,
@@ -114,11 +119,13 @@ childSelfRouter.get('/daily-log', async (req, res) => {
       );
       for (const row of countResult.rows) {
         subStepCountMap[row.activity_template_id] = parseInt(row.cnt, 10);
+        subStepTimedCountMap[row.activity_template_id] = parseInt(row.timed_cnt, 10) || 0;
       }
     }
     // Attach sub_step_count to each sorted item
     for (const item of sortedItems) {
       item.sub_step_count = subStepCountMap[item.activity_template_id] || 0;
+      item.sub_step_timed_count = subStepTimedCountMap[item.activity_template_id] || 0;
     }
 
     // ── Enrich items with activity_template source (locale gating) ─────

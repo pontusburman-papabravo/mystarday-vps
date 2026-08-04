@@ -125,9 +125,22 @@ describe('activity timer — dead Start regression', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /function startFinishCelebration/);
     assert.match(src, /FINISH_CELEBRATION_MS = 15000/);
-    assert.match(src, /stopFinishCelebration/);
-    assert.match(src, /activity-timer-celebration/);
+    assert.match(src, /activity-timer-celebration--on/);
+    assert.doesNotMatch(src, /activity-timer-finish-flash/);
     assert.match(src, /playEndChime\(true\)/);
+  });
+
+  it('hides parent timer when timed substeps exist', () => {
+    const src = read('public/js/child-dashboard-activity-timer.js');
+    assert.match(src, /sub_step_timed_count/);
+    assert.match(src, /timedSubStepsOnItem/);
+    assert.match(src, /!timedSubStepsOnItem\(item\)/);
+  });
+
+  it('keeps screen awake while a timer is running', () => {
+    const src = read('public/js/child-dashboard-activity-timer.js');
+    assert.match(src, /syncScreenWakeLock/);
+    assert.match(src, /wakeLock\.request\('screen'\)/);
   });
 
   it('overlay mounts large hourglass via overlayHourglassMountHtml', () => {

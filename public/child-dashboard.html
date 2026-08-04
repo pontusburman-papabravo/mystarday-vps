@@ -571,19 +571,6 @@
       max-width: 11rem;
       margin-left: auto;
     }
-    html.activity-timer-finish-flash::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: 13050;
-      pointer-events: none;
-      background: radial-gradient(circle at 50% 42%, rgba(255, 248, 220, 0.95), rgba(245, 166, 35, 0.55) 45%, rgba(255, 107, 74, 0.35) 100%);
-      animation: activity-timer-finish-flash 0.42s ease-in-out infinite alternate;
-    }
-    @keyframes activity-timer-finish-flash {
-      0% { opacity: 0.35; filter: brightness(1); }
-      100% { opacity: 1; filter: brightness(1.15); }
-    }
     .activity-timer-celebration {
       position: fixed;
       inset: 0;
@@ -591,25 +578,41 @@
       cursor: pointer;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      background: transparent;
     }
     .activity-timer-celebration[hidden] { display: none !important; }
     .activity-timer-celebration__burst {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.35), transparent 55%);
+      background:
+        radial-gradient(circle at 30% 35%, rgba(255, 255, 255, 0.55), transparent 45%),
+        radial-gradient(circle at 70% 60%, rgba(255, 200, 80, 0.65), transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 107, 74, 0.35), transparent 65%);
       animation: at-celebrate-burst 0.55s ease-in-out infinite alternate;
     }
+    .activity-timer-celebration--on::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(245, 166, 35, 0.28);
+      animation: at-celebrate-flash 0.42s ease-in-out infinite alternate;
+    }
     .activity-timer-celebration--on .activity-timer-celebration__burst {
-      animation-duration: 0.38s;
+      animation-duration: 0.48s;
     }
     @keyframes at-celebrate-burst {
-      from { transform: scale(0.98); opacity: 0.5; }
-      to { transform: scale(1.02); opacity: 1; }
+      from { transform: scale(0.97); opacity: 0.55; }
+      to { transform: scale(1.03); opacity: 1; }
+    }
+    @keyframes at-celebrate-flash {
+      from { opacity: 0.25; }
+      to { opacity: 0.85; }
     }
     @media (prefers-reduced-motion: reduce) {
-      html.activity-timer-finish-flash::after,
-      .activity-timer-celebration__burst {
+      .activity-timer-celebration__burst,
+      .activity-timer-celebration--on::before {
         animation: none !important;
       }
     }
@@ -2684,7 +2687,7 @@
   <script src="/js/child-dashboard-timers.js?v=1"></script>
   <script src="/js/activity-timer-session.js?v=3"></script>
   <script src="/js/activity-hourglass.js?v=2"></script>
-  <script src="/js/child-dashboard-activity-timer.js?v=8"></script>
+  <script src="/js/child-dashboard-activity-timer.js?v=9"></script>
   <script src="/js/child-dashboard-load-day.js?v=1"></script>
   <script src="/js/child-dashboard-checkoff.js?v=1"></script>
   <script src="/js/child-dashboard.js?v=2.28.0"></script>

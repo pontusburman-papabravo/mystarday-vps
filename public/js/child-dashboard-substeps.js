@@ -53,6 +53,9 @@
       }),
     ]).then(function (data) {
       subStepCache[itemId] = (data && data.sub_steps) ? data.sub_steps : [];
+      if (window.ChildActivityTimer && typeof ChildActivityTimer.refreshParentTimerUi === 'function') {
+        ChildActivityTimer.refreshParentTimerUi(itemId);
+      }
       return subStepCache[itemId];
     }).finally(function () {
       delete _expandFetches[itemId];

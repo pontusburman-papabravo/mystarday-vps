@@ -11,6 +11,8 @@
   let _overlayItem = null;
   let _scrollLockY = 0;
   const _lastStartTap = Object.create(null);
+  let _wakeLockSentinel = null;
+  let _wakeLockBound = false;
 
   function t(key, params) {
     return (typeof global.childT === 'function' ? childT(key, params)
@@ -57,20 +59,94 @@
       && activityTimersEnabled;
   }
 
-  function itemHasTimer(item) {
-    return timersActive()
-      && item
-      && !item.completed
-      && item.duration_seconds != null
-      && item.duration_seconds >= 5;
-  }
-
   function subStepHasTimer(step) {
     return timersActive()
       && step
       && !step.completed
       && step.duration_seconds != null
       && step.duration_seconds >= 5;
+  }
+
+  function timedSubStepsOnItem(item) {
+    if (!item) return false;
+    const timedFromApi = Number(item.sub_step_timed_count);
+    if (Number.isFinite(timedFromApi) && timedFromApi > 0) return true;
+    if (!item.id || !global.subStepCache || !subStepCache[item.id]) return false;
+    return subStepCache[item.id].some(subStepHasTimer);
+  }
+
+  function itemHasTimer(item) {
+    return timersActive()
+      && item
+      && !item.completed
+      && item.duration_seconds != null
+      && item.duration_seconds >= 5
+      && !timedSubStepsOnItem(item);
+  }
+
+  function sessionIsRunning(childId, scheduleDate, itemId, durationSeconds, subStepId) {
+    if (!global.ActivityTimerSession || !durationSeconds) return false;
+    const session = ActivityTimerSession.getSession(childId, scheduleDate, itemId, subStepId || undefined);
+    return ActivityTimerSession.resolveStatus(session, durationSeconds) === 'running';
+  }
+
+  function anyRunningActivityTimer() {
+    if (!me || !currentDate) return false;
+    let running = false;
+    document.querySelectorAll('.activity-timer-wrap[data-item-id]').forEach(function (wrap) {
+      const itemId = wrap.dataset.itemId;
+      const subStepId = wrap.dataset.subStepId || null;
+      const duration = parseInt(wrap.dataset.duration, 10);
+      if (!itemId || !duration) return;
+      if (sessionIsRunning(me.id, currentDate, itemId, duration, subStepId)) running = true;
+    });
+    if (!running && _overlayItem && _overlayEl && !_overlayEl.hidden) {
+      const duration = _overlayItem.duration_seconds;
+      if (duration && sessionIsRunning(
+        me.id, currentDate, _overlayItem.id, duration, _overlayItem.sub_step_id || null
+      )) {
+        running = true;
+      }
+    }
+    return running;
+  }
+
+  async function releaseScreenWakeLock() {
+    if (_wakeLockSentinel) {
+      try {
+        await _wakeLockSentinel.release();
+      } catch { /* ignore */ }
+      _wakeLockSentinel = null;
+    }
+  }
+
+  async function acquireScreenWakeLock() {
+    if (_wakeLockSentinel || !anyRunningActivityTimer()) return;
+    try {
+      if (global.navigator && navigator.wakeLock && typeof navigator.wakeLock.request === 'function') {
+        _wakeLockSentinel = await navigator.wakeLock.request('screen');
+        _wakeLockSentinel.addEventListener('release', function () {
+          _wakeLockSentinel = null;
+        });
+      }
+    } catch { /* ignore */ }
+  }
+
+  function bindWakeLockLifecycle() {
+    if (_wakeLockBound || typeof document === 'undefined') return;
+    _wakeLockBound = true;
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') syncScreenWakeLock();
+    });
+  }
+
+  function syncScreenWakeLock() {
+    bindWakeLockLifecycle();
+    if (anyRunningActivityTimer()) {
+      acquireScreenWakeLock();
+    } else {
+      releaseScreenWakeLock();
+    }
   }
 
   function wrapDomId(itemId, subStepId) {
@@ -203,7 +279,6 @@
   const FINISH_CELEBRATION_MS = 15000;
   let _finishCelebrationActive = false;
   let _finishSoundInterval = null;
-  let _finishPulseInterval = null;
   let _finishCelebrationEndTimer = null;
   let _finishCelebrationLayer = null;
 
@@ -222,30 +297,32 @@
       const Ctx = global.AudioContext || global.webkitAudioContext;
       if (!Ctx) return;
       const ctx = new Ctx();
-      const peak = loud ? 0.52 : 0.14;
+      const peak = loud ? 0.48 : 0.12;
+      const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
       const startTone = function () {
         const now = ctx.currentTime;
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(peak, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
-        gain.connect(ctx.destination);
+        const master = ctx.createGain();
+        master.gain.setValueAtTime(peak, now);
+        master.gain.exponentialRampToValueAtTime(0.001, now + 1.05);
+        master.connect(ctx.destination);
 
-        const oscA = ctx.createOscillator();
-        oscA.type = 'triangle';
-        oscA.frequency.setValueAtTime(523.25, now);
-        oscA.frequency.setValueAtTime(783.99, now + 0.08);
-        oscA.connect(gain);
-
-        const oscB = ctx.createOscillator();
-        oscB.type = 'sine';
-        oscB.frequency.setValueAtTime(1046.5, now + 0.05);
-        oscB.connect(gain);
-
-        oscA.start(now);
-        oscB.start(now + 0.05);
-        oscA.stop(now + 0.8);
-        oscB.stop(now + 0.8);
-        oscB.onended = function () { ctx.close(); };
+        notes.forEach(function (freq, i) {
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          const t0 = now + i * 0.1;
+          osc.type = i % 2 === 0 ? 'triangle' : 'sine';
+          osc.frequency.setValueAtTime(freq, t0);
+          g.gain.setValueAtTime(0.001, t0);
+          g.gain.linearRampToValueAtTime(0.85, t0 + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.22);
+          osc.connect(g);
+          g.connect(master);
+          osc.start(t0);
+          osc.stop(t0 + 0.24);
+        });
+        window.setTimeout(function () {
+          try { ctx.close(); } catch { /* ignore */ }
+        }, 1200);
       };
       if (ctx.state === 'suspended' && ctx.resume) {
         ctx.resume().then(startTone).catch(function () { ctx.close(); });
@@ -277,7 +354,6 @@
   function stopFinishCelebration() {
     if (!_finishCelebrationActive && !_finishCelebrationLayer) return;
     _finishCelebrationActive = false;
-    document.documentElement.classList.remove('activity-timer-finish-flash');
     if (_finishCelebrationLayer) {
       _finishCelebrationLayer.hidden = true;
       _finishCelebrationLayer.classList.remove('activity-timer-celebration--on');
@@ -286,22 +362,10 @@
       clearInterval(_finishSoundInterval);
       _finishSoundInterval = null;
     }
-    if (_finishPulseInterval) {
-      clearInterval(_finishPulseInterval);
-      _finishPulseInterval = null;
-    }
     if (_finishCelebrationEndTimer) {
       clearTimeout(_finishCelebrationEndTimer);
       _finishCelebrationEndTimer = null;
     }
-  }
-
-  function pulseFinishFlash() {
-    if (reducedMotion()) return;
-    const root = document.documentElement;
-    root.classList.remove('activity-timer-finish-flash');
-    void root.offsetWidth;
-    root.classList.add('activity-timer-finish-flash');
   }
 
   function startFinishCelebration() {
@@ -315,13 +379,11 @@
     const layer = ensureFinishCelebrationLayer();
     layer.hidden = false;
     layer.classList.add('activity-timer-celebration--on');
-    pulseFinishFlash();
     playEndChime(true);
     if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
     _finishSoundInterval = setInterval(function () {
       playEndChime(true);
-    }, 1100);
-    _finishPulseInterval = setInterval(pulseFinishFlash, 480);
+    }, 1400);
     _finishCelebrationEndTimer = setTimeout(stopFinishCelebration, FINISH_CELEBRATION_MS);
   }
 
@@ -444,6 +506,7 @@
       else if (action === 'done') onComplete(itemId, subStepId);
       syncOverlayUI();
       refreshItemUI(itemId, duration, subStepId);
+      syncScreenWakeLock();
     });
 
     _overlayEl = el;
@@ -484,7 +547,13 @@
     const statusEl = _overlayEl.querySelector('#activity-timer-overlay-status');
 
     if (title) title.textContent = item.display_name || item.name || '';
-    if (visual) visual.innerHTML = activityVisualHtml(item);
+    if (visual) {
+      const visKey = String(item.id) + ':' + String(subStepId || '');
+      if (visual.dataset.visKey !== visKey) {
+        visual.dataset.visKey = visKey;
+        visual.innerHTML = activityVisualHtml(item);
+      }
+    }
     if (hgSlot && !hgSlot.querySelector('[data-hourglass-mount="1"]')) {
       hgSlot.innerHTML = overlayHourglassMountHtml();
     }
@@ -539,6 +608,7 @@
       _overlayEl.hidden = true;
       _overlayEl.classList.remove('activity-timer-overlay--closing', 'activity-timer-overlay--open');
       unlockScroll();
+      syncScreenWakeLock();
     };
     if (reducedMotion()) {
       finish();
@@ -601,6 +671,7 @@
       _overlayItem = buildOverlayItemFromDom(itemId, card, subStepId);
       openOverlay(_overlayItem);
     }
+    syncScreenWakeLock();
   }
 
   function onRestart(itemId, subStepId) {
@@ -618,11 +689,13 @@
       rerenderCompactBlock(itemId);
     }
     syncOverlayUI();
+    syncScreenWakeLock();
   }
 
   function onComplete(itemId, subStepId) {
     ActivityTimerSession.clearSession(me.id, currentDate, itemId, subStepId || undefined);
     closeOverlay();
+    syncScreenWakeLock();
     if (subStepId) {
       if (typeof global.renderSubStepList === 'function') renderSubStepList(itemId);
       return;
@@ -644,6 +717,27 @@
       if (!itemId || !duration) return;
       refreshItemUI(itemId, duration, subStepId);
     });
+    syncScreenWakeLock();
+  }
+
+  function refreshParentTimerUi(itemId) {
+    const wrap = document.getElementById(wrapDomId(itemId, null));
+    if (!wrap) return;
+    const card = document.getElementById('card-' + itemId);
+    const duration = parseInt(wrap.dataset.duration, 10);
+    const pseudoItem = {
+      id: itemId,
+      completed: card && card.classList.contains('done'),
+      duration_seconds: duration,
+      sub_step_timed_count: 0,
+    };
+    if (global.subStepCache && subStepCache[itemId]) {
+      pseudoItem.sub_step_timed_count = subStepCache[itemId].filter(subStepHasTimer).length;
+    }
+    if (itemHasTimer(pseudoItem)) return;
+    const row = wrap.closest('.activity-timer-card-row');
+    if (row) row.remove();
+    else wrap.remove();
   }
 
   function wireDelegation() {
@@ -749,6 +843,7 @@
     tickAll: tickAll,
     openOverlay: openOverlay,
     attachItemMeta: attachItemMeta,
+    refreshParentTimerUi: refreshParentTimerUi,
     sandProgress: function (r, d) {
       return global.ActivityTimerSession
         ? ActivityTimerSession.sandProgress(r, d)
