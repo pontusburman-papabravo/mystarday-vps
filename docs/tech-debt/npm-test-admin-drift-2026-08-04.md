@@ -2,7 +2,7 @@
 
 <!-- pragma: allowlist secret -->
 
-**Status:** open · **Owner:** admin v2 / platform  
+**Status:** fixed 2026-08-04 (admin nav count 29; start-summary mock `meddelanden_*` counts)  
 **Discovered:** 2026-08-04 during #870 full `npm test` on rebased `main`
 
 ## Summary

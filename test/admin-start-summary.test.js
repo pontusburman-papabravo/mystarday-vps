@@ -60,10 +60,21 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     if (q.includes('FROM family') && q.includes('last7d')) {
       return { rows: [{ last7d: 3, prev7d: 3, total: 50 }] };
     }
-    if (q.includes('needs_follow_up_count') || (q.includes('FROM contact_message') && q.includes("status = 'new'") && q.includes('FILTER'))) {
-      return { rows: [{ unread_count: 2, needs_follow_up_count: 3, active_count: 1, answered_count: 0, archived_count: 0 }] };
+    if (q.includes('FROM contact_message cm') && q.includes('meddelanden_unread_count')) {
+      return {
+        rows: [{
+          unread_count: 2,
+          meddelanden_unread_count: 2,
+          incidenter_open_count: 0,
+          meddelanden_needs_follow_up_count: 3,
+          needs_follow_up_count: 3,
+          active_count: 1,
+          answered_count: 0,
+          archived_count: 0,
+        }],
+      };
     }
-    if (q.includes('FROM contact_message cm') && q.includes('in_progress')) {
+    if (q.includes('FROM contact_message cm') && q.includes("message_type != 'bug'") && q.includes('LIMIT $1')) {
       return {
         rows: [{
           id: 1,
