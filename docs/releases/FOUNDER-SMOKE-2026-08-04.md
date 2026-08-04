@@ -13,11 +13,23 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 | Signal | Förväntat | Resultat |
 |--------|-----------|----------|
-| `git_sha` | `9c9088acb6632b98859ce835661b22bd95ace764` eller senare godkänd SHA | |
-| `english_global_flag_read_ok` | `true` | |
-| `english_global_flag_row_present` | `true` | |
-| `english_global_flag_enabled` | `false` | |
-| Kill switch tillgänglig | Ja | |
+| `git_sha` | `9c9088acb6632b98859ce835661b22bd95ace764` eller senare godkänd SHA | **PASS** — `fdce5b90c4e7e4b8f46c2db1184a3432c5162800` (publik `/health`, 2026-08-04) |
+| `english_global_flag_read_ok` | `true` | **PASS** — `true` |
+| `english_global_flag_row_present` | `true` | **PASS** — `true` |
+| `english_global_flag_enabled` | `false` | **PASS** — `false` |
+| Kill switch tillgänglig | Ja | **PASS** — flag read OK; global OFF (ingen aktivering testad) |
+
+---
+
+## Agent pre-check (2026-08-04, Cloud Agent)
+
+| Check | Resultat | Not |
+|-------|----------|-----|
+| Publik prod `/health` (baseline ovan) | **PASS** | Ingen inloggning |
+| `test/english-app-global-availability.test.js` (14 tester, lokal Postgres) | **PASS** | Täcker grandfather/logout/child API — **inte** prod UI |
+| Founder-scenarier 1–5 (browser, prod inloggning) | **BLOCKED** | `FOUNDER_QA_EMAIL` / `FOUNDER_QA_PASSWORD` / `FOUNDER_CHILD_*` saknas i agent-miljön |
+
+För att agent ska kunna köra prod-smoke: injicera founder QA-secrets enligt `docs/founder-qa-test-account.md` i Cursor Cloud Agent, starta om körning, be agenten fylla tabellerna nedan (eller kör manuellt som founder).
 
 ---
 
@@ -123,8 +135,8 @@ Dokumentera varje avvikelse med:
 
 | | |
 |--|--|
-| **Founder-smoke** | PASS / PASS WITH NON-BLOCKING ISSUES / FAIL |
-| **Parent English beta global ON** | APPROVED / NOT APPROVED |
+| **Founder-smoke** | **PENDING** — baseline PASS; UI-scenarier 1–5 ej körda (kräver founder-inloggning) |
+| **Parent English beta global ON** | **NOT APPROVED** (väntar komplett founder-smoke) |
 
 **Villkor eller kvarvarande åtgärder:**
 
