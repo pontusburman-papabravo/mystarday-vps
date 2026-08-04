@@ -68,6 +68,8 @@ After live deploy, run founder smoke with the global flag still **OFF** (founder
 
 Integration coverage for grandfather logout/re-login/child (with `english_child_experience` ON) is in `test/english-app-global-availability.test.js`; this prod pass is the human gate before flipping the global flag.
 
+**Record smoke results:** [`FOUNDER-SMOKE-2026-08-04.md`](FOUNDER-SMOKE-2026-08-04.md) (körspecifikt; håll huvudrunbooken generell).
+
 **Do not** set global English ON until this smoke passes.
 
 ## Global enable (only after founder prod smoke above)
