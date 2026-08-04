@@ -25,6 +25,12 @@ describe('activity timer v2 — UI integration', () => {
     assert.match(src, /teacch-activity-timer/);
   });
 
+  it('child timer uses delivered SVG hourglass component', () => {
+    const src = read('public/js/child-dashboard-activity-timer.js');
+    assert.match(src, /ActivityHourglassUI/);
+    assert.match(src, /syncHourglass/);
+  });
+
   it('close overlay does not clear session in timer module', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /function closeOverlay/);

@@ -513,184 +513,24 @@
       display: flex;
       justify-content: center;
     }
-    .at-hourglass {
-      --at-sand-light: #F2DDB0;
-      --at-sand: #E8C98A;
-      --at-sand-deep: #C9A55E;
-      --at-frame: #3D5A5C;
-      --at-glass: rgba(255, 255, 255, 0.35);
-      --at-progress: 0;
-      position: relative;
-      width: 52px;
-      height: 80px;
-      filter: drop-shadow(0 3px 10px rgba(27, 35, 64, 0.1));
+    .activity-hourglass-mount {
+      flex-shrink: 0;
+      line-height: 0;
     }
-    .at-hourglass--large {
-      width: min(38vw, 148px);
-      height: min(54vw, 210px);
-    }
-    .at-hourglass--compact {
-      width: 44px;
-      height: 68px;
-    }
-    .at-hourglass__glow {
-      position: absolute;
-      inset: -8%;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(107, 143, 122, 0.22) 0%, transparent 68%);
-      opacity: 0;
-      transform: scale(0.92);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      pointer-events: none;
-    }
-    .at-hourglass--finished .at-hourglass__glow {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .at-hourglass__frame {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      grid-template-rows: 1fr auto 1fr;
-      align-items: stretch;
-      justify-items: center;
-    }
-    .at-hourglass__glass {
-      position: absolute;
-      left: 4%;
-      right: 4%;
-      border: 2.5px solid var(--at-frame);
-      pointer-events: none;
-      z-index: 2;
-      background: linear-gradient(135deg, var(--at-glass) 0%, transparent 55%);
-    }
-    .at-hourglass__glass--top {
-      top: 0;
-      height: calc(50% - 5px);
-      border-radius: 16px 16px 6px 6px;
-      border-bottom: none;
-      clip-path: polygon(8% 0%, 92% 0%, 58% 100%, 42% 100%);
-    }
-    .at-hourglass__glass--bottom {
-      bottom: 0;
-      height: calc(50% - 5px);
-      border-radius: 6px 6px 16px 16px;
-      border-top: none;
-      clip-path: polygon(42% 0%, 58% 0%, 92% 100%, 8% 100%);
-    }
-    .at-hourglass__chamber {
-      width: 76%;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    .at-hourglass__chamber--top {
-      height: 100%;
-      clip-path: polygon(10% 0%, 90% 0%, 56% 100%, 44% 100%);
-    }
-    .at-hourglass__chamber--bottom {
-      height: 100%;
-      clip-path: polygon(44% 0%, 56% 0%, 90% 100%, 10% 100%);
-    }
-    .at-hourglass__neck {
-      width: 14%;
-      height: 10px;
-      background: var(--at-frame);
-      border-radius: 2px;
-      position: relative;
-      z-index: 3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-    .at-hourglass__sand {
-      position: absolute;
-      left: 0;
-      right: 0;
-      background: linear-gradient(180deg, var(--at-sand-light) 0%, var(--at-sand) 45%, var(--at-sand-deep) 100%);
-      will-change: transform;
-      transition: transform 0.85s cubic-bezier(0.33, 1, 0.68, 1);
-    }
-    .at-hourglass__sand-top {
-      bottom: 0;
-      height: 100%;
-      transform-origin: center bottom;
-      transform: scaleY(calc(1 - var(--at-progress)));
-    }
-    .at-hourglass__sand-bottom {
-      bottom: 0;
-      height: 100%;
-      transform-origin: center bottom;
-      transform: scaleY(var(--at-progress));
-      border-radius: 0 0 40% 40% / 0 0 12% 12%;
-    }
-    .at-hourglass__stream {
-      width: 2px;
-      height: 12px;
-      background: linear-gradient(180deg, var(--at-sand-light), var(--at-sand-deep));
-      border-radius: 2px;
-      opacity: 0;
-      transform: translateY(-2px);
-      will-change: transform, opacity;
-    }
-    .at-hourglass__stream--active {
-      animation: at-sand-stream 0.75s ease-in-out infinite;
-    }
-    @keyframes at-sand-stream {
-      0%, 100% { opacity: 0.4; transform: translateY(-3px) scaleY(0.9); }
-      50% { opacity: 0.95; transform: translateY(3px) scaleY(1.08); }
-    }
-    .at-hourglass--paused .at-hourglass__sand {
-      transition-duration: 0.2s;
-    }
-    .at-hourglass__complete {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 4;
-      opacity: 0;
-      transform: scale(0.85);
-      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .at-hourglass--finished .at-hourglass__complete {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .at-hourglass__check {
+    .activity-hourglass-mount svg {
       display: block;
-      width: 28%;
-      height: 28%;
-      min-width: 22px;
-      min-height: 22px;
-      border-radius: 50%;
-      background: #6B8F7A;
-      box-shadow: 0 2px 12px rgba(107, 143, 122, 0.45);
-      position: relative;
+      width: 100%;
+      height: auto;
+      overflow: visible;
     }
-    .at-hourglass__check::after {
-      content: "";
-      position: absolute;
-      left: 32%;
-      top: 38%;
-      width: 22%;
-      height: 40%;
-      border: solid #fff;
-      border-width: 0 0 2.5px 2.5px;
-      transform: rotate(-45deg);
+    .activity-hourglass-mount--compact {
+      width: 44px;
     }
-    .at-hourglass--large .at-hourglass__check {
-      min-width: 36px;
-      min-height: 36px;
+    .activity-hourglass-mount--large {
+      width: min(72vw, 290px);
+      margin: 0 auto;
     }
     @media (prefers-reduced-motion: reduce) {
-      .at-hourglass__stream--active { animation: none; }
-      .at-hourglass__sand { transition: none; }
-      .at-hourglass__complete { transition: none; }
       .activity-timer-overlay--open .activity-timer-overlay__panel,
       .activity-timer-overlay--closing .activity-timer-overlay__panel,
       .activity-timer-overlay--open .activity-timer-overlay__backdrop,
@@ -2707,7 +2547,8 @@
   <script src="/js/transition-support.js?v=1"></script>
   <script src="/js/child-dashboard-timers.js?v=1"></script>
   <script src="/js/activity-timer-session.js?v=3"></script>
-  <script src="/js/child-dashboard-activity-timer.js?v=3"></script>
+  <script src="/js/activity-hourglass.js?v=1"></script>
+  <script src="/js/child-dashboard-activity-timer.js?v=4"></script>
   <script src="/js/child-dashboard-load-day.js?v=1"></script>
   <script src="/js/child-dashboard-checkoff.js?v=1"></script>
   <script src="/js/child-dashboard.js?v=2.28.0"></script>

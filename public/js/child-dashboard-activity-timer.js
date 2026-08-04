@@ -83,51 +83,23 @@
     return item.icon || '⭐';
   }
 
-  function hourglassMarkup(compact) {
-    const cls = compact ? 'at-hourglass at-hourglass--compact' : 'at-hourglass at-hourglass--large';
-    return (
-      '<div class="' + cls + '" aria-hidden="true" style="--at-progress:0">' +
-        '<div class="at-hourglass__glow"></div>' +
-        '<div class="at-hourglass__frame">' +
-          '<div class="at-hourglass__glass at-hourglass__glass--top"></div>' +
-          '<div class="at-hourglass__chamber at-hourglass__chamber--top">' +
-            '<div class="at-hourglass__sand at-hourglass__sand-top"></div>' +
-          '</div>' +
-          '<div class="at-hourglass__neck">' +
-            '<div class="at-hourglass__stream"></div>' +
-          '</div>' +
-          '<div class="at-hourglass__chamber at-hourglass__chamber--bottom">' +
-            '<div class="at-hourglass__sand at-hourglass__sand-bottom"></div>' +
-          '</div>' +
-          '<div class="at-hourglass__glass at-hourglass__glass--bottom"></div>' +
-        '</div>' +
-        '<div class="at-hourglass__complete">' +
-          '<span class="at-hourglass__check" aria-hidden="true"></span>' +
-        '</div>' +
-      '</div>'
-    );
+  function syncHourglass(root, durationSeconds, status, remainingSeconds) {
+    if (!root || !global.ActivityHourglassUI) return;
+    const duration = Math.max(1, Number(durationSeconds) || 1);
+    let remaining = remainingSeconds;
+    if (status === 'idle') {
+      remaining = duration;
+    } else if (status === 'finished') {
+      remaining = 0;
+    }
+    ActivityHourglassUI.applyToRoot(root, remaining, duration, status);
   }
 
-  function applyHourglass(root, progress, status) {
-    if (!root) return;
-    const hg = root.querySelector('.at-hourglass') || root.closest('.at-hourglass') || root;
-    if (!hg || !hg.classList.contains('at-hourglass')) return;
-    const p = Math.max(0, Math.min(1, progress));
-    hg.style.setProperty('--at-progress', p.toFixed(4));
-    const running = status === 'running';
-    const finished = status === 'finished';
-    const paused = status === 'paused';
-    const rm = reducedMotion();
-    const stream = hg.querySelector('.at-hourglass__stream');
-    if (stream) {
-      const active = running && !rm && p > 0 && p < 1;
-      stream.classList.toggle('at-hourglass__stream--active', active);
-      stream.style.opacity = active ? String(0.5 + (1 - p) * 0.4) : '0';
-    }
-    hg.classList.toggle('at-hourglass--running', running);
-    hg.classList.toggle('at-hourglass--paused', paused);
-    hg.classList.toggle('at-hourglass--finished', finished);
-    hg.dataset.status = status || 'idle';
+  function hourglassMountHtml(compact) {
+    if (!global.ActivityHourglassUI) return '';
+    return ActivityHourglassUI.mountHtml(
+      compact ? 'activity-hourglass-mount--compact' : 'activity-hourglass-mount--large'
+    );
   }
 
   function readTimerState(itemId, duration, subStepId) {
@@ -162,7 +134,7 @@
 
     if (st.status === 'idle') {
       return (
-        hourglassMarkup(true) +
+        hourglassMountHtml(true) +
         '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
         '<button type="button" class="activity-timer-start btn-child-action" data-item-id="' + itemId + '"' + subAttr + '>' +
           startLabel + '</button>'
@@ -170,7 +142,7 @@
     }
     if (st.status === 'finished') {
       return (
-        hourglassMarkup(true) +
+        hourglassMountHtml(true) +
         '<span class="activity-timer-digits" aria-live="polite">0:00</span>' +
         '<p class="activity-timer-done-label">' + t('activityTimer.done') + '</p>' +
         '<button type="button" class="activity-timer-open-compact text-sm font-semibold text-navy underline" data-item-id="' + itemId + '"' + subAttr + '>' +
@@ -180,7 +152,7 @@
     const statusLabel = st.status === 'paused' ? t('activityTimer.paused') : t('activityTimer.running');
     return (
       '<button type="button" class="activity-timer-compact-btn" data-item-id="' + itemId + '"' + subAttr + '>' +
-        hourglassMarkup(true) +
+        hourglassMountHtml(true) +
         '<span class="activity-timer-digits" aria-live="polite">' + display + '</span>' +
         '<span class="activity-timer-status-label">' + statusLabel + '</span>' +
       '</button>'
@@ -263,11 +235,7 @@
     }
     wrap.dataset.status = status;
 
-    const progress = ActivityTimerSession.sandProgress(
-      status === 'idle' ? durationSeconds : remaining,
-      durationSeconds
-    );
-    applyHourglass(wrap, progress, status);
+    syncHourglass(wrap, durationSeconds, status, remaining);
 
     const digits = wrap.querySelector('.activity-timer-digits');
     const aria = wrap.querySelector('.activity-timer-aria');
@@ -394,14 +362,10 @@
 
     if (title) title.textContent = item.display_name || item.name || '';
     if (visual) visual.innerHTML = activityVisualHtml(item);
-    if (hgSlot && !hgSlot.querySelector('.at-hourglass')) {
-      hgSlot.innerHTML = hourglassMarkup(false);
+    if (hgSlot && !hgSlot.querySelector('[data-hourglass-mount="1"]')) {
+      hgSlot.innerHTML = hourglassMountHtml(false);
     }
-    const progress = ActivityTimerSession.sandProgress(
-      status === 'idle' ? duration : remaining,
-      duration
-    );
-    applyHourglass(hgSlot, progress, status);
+    syncHourglass(hgSlot, duration, status, remaining);
 
     const display = status === 'idle'
       ? ActivityTimerSession.formatDisplay(duration)
@@ -610,6 +574,7 @@
 
   function initForSubSteps(itemId, steps) {
     if (!timersActive()) return;
+    if (global.ActivityHourglassUI) ActivityHourglassUI.preload();
     wireDelegation();
     ensureOverlay();
     const timed = (steps || []).filter(subStepHasTimer);
@@ -617,7 +582,7 @@
       const wrap = document.getElementById(wrapDomId(itemId, step.id));
       if (wrap) {
         const st = readTimerState(itemId, step.duration_seconds, step.id);
-        applyHourglass(wrap, st.progress, st.status);
+        syncHourglass(wrap, st.duration, st.status, st.remaining);
       }
     });
     if (!_tickInterval) {
@@ -628,6 +593,7 @@
 
   function initForItems(items) {
     if (!timersActive()) return;
+    if (global.ActivityHourglassUI) ActivityHourglassUI.preload();
     wireDelegation();
     ensureOverlay();
     const timed = (items || []).filter(itemHasTimer);
@@ -639,7 +605,7 @@
       const wrap = document.getElementById(wrapDomId(item.id, null));
       if (wrap) {
         const st = readItemState(item);
-        applyHourglass(wrap, st.progress, st.status);
+        syncHourglass(wrap, st.duration, st.status, st.remaining);
       }
     });
     if (_tickInterval) clearInterval(_tickInterval);

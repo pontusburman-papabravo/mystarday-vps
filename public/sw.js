@@ -242,7 +242,8 @@
 // stjarndag-v766: growth feedback loop client assets (flag-gated)
 // stjarndag-v772: aktivitetstimer i dagsvy-kort
 // stjarndag-v773: aktivitetstimer på delsteg
-const CACHE_NAME = 'stjarndag-v773';
+// stjarndag-v774: levererad SVG-timglas (UL activity-hourglass-v1)
+const CACHE_NAME = 'stjarndag-v774';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -630,6 +631,8 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-day-nav.js',
   '/js/child-dashboard-timers.js',
   '/js/activity-timer-session.js',
+  '/js/activity-hourglass.js',
+  '/images/child/activity-timer/hourglass.svg',
   '/js/child-dashboard-activity-timer.js',
   '/js/child-dashboard-load-day.js',
   '/js/child-dashboard-checkoff.js',
