@@ -111,6 +111,14 @@ describe('auth i18n — static surfaces', () => {
     }
   });
 
+  test('login logo title uses locale app.name', () => {
+    const html = read('public/login.html');
+    assert.match(html, /login-magic-logo[\s\S]*<h1 data-i18n="app\.name"><\/h1>/);
+    loadLocales();
+    assert.equal(t('en-GB', 'app.name'), 'My Starday');
+    assert.equal(t('sv-SE', 'app.name'), 'Min Stj\u00e4rndag');
+  });
+
   test('register terms and success copy use data-i18n keys', () => {
     const html = read('public/register.html');
     assert.match(html, /data-i18n="auth\.register\.termsPrefix"/);
