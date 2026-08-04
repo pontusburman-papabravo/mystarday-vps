@@ -66,17 +66,23 @@
   function hourglassMarkup(compact) {
     const cls = compact ? 'at-hourglass at-hourglass--compact' : 'at-hourglass at-hourglass--large';
     return (
-      '<div class="' + cls + '" aria-hidden="true">' +
+      '<div class="' + cls + '" aria-hidden="true" style="--at-progress:0">' +
+        '<div class="at-hourglass__glow"></div>' +
         '<div class="at-hourglass__frame">' +
-          '<div class="at-hourglass__bulb at-hourglass__bulb--top">' +
+          '<div class="at-hourglass__glass at-hourglass__glass--top"></div>' +
+          '<div class="at-hourglass__chamber at-hourglass__chamber--top">' +
             '<div class="at-hourglass__sand at-hourglass__sand-top"></div>' +
           '</div>' +
           '<div class="at-hourglass__neck">' +
             '<div class="at-hourglass__stream"></div>' +
           '</div>' +
-          '<div class="at-hourglass__bulb at-hourglass__bulb--bottom">' +
+          '<div class="at-hourglass__chamber at-hourglass__chamber--bottom">' +
             '<div class="at-hourglass__sand at-hourglass__sand-bottom"></div>' +
           '</div>' +
+          '<div class="at-hourglass__glass at-hourglass__glass--bottom"></div>' +
+        '</div>' +
+        '<div class="at-hourglass__complete">' +
+          '<span class="at-hourglass__check" aria-hidden="true"></span>' +
         '</div>' +
       '</div>'
     );
@@ -87,18 +93,20 @@
     const hg = root.querySelector('.at-hourglass') || root.closest('.at-hourglass') || root;
     if (!hg || !hg.classList.contains('at-hourglass')) return;
     const p = Math.max(0, Math.min(1, progress));
-    const top = hg.querySelector('.at-hourglass__sand-top');
-    const bottom = hg.querySelector('.at-hourglass__sand-bottom');
-    const stream = hg.querySelector('.at-hourglass__stream');
-    if (top) top.style.transform = 'scaleY(' + (1 - p).toFixed(4) + ')';
-    if (bottom) bottom.style.transform = 'scaleY(' + p.toFixed(4) + ')';
+    hg.style.setProperty('--at-progress', p.toFixed(4));
     const running = status === 'running';
+    const finished = status === 'finished';
+    const paused = status === 'paused';
     const rm = reducedMotion();
+    const stream = hg.querySelector('.at-hourglass__stream');
     if (stream) {
       const active = running && !rm && p > 0 && p < 1;
       stream.classList.toggle('at-hourglass__stream--active', active);
-      stream.style.opacity = active ? String(0.45 + (1 - p) * 0.35) : '0';
+      stream.style.opacity = active ? String(0.5 + (1 - p) * 0.4) : '0';
     }
+    hg.classList.toggle('at-hourglass--running', running);
+    hg.classList.toggle('at-hourglass--paused', paused);
+    hg.classList.toggle('at-hourglass--finished', finished);
     hg.dataset.status = status || 'idle';
   }
 
@@ -260,11 +268,11 @@
         '<p class="activity-timer-overlay__status" id="activity-timer-overlay-status"></p>' +
         '<div class="activity-timer-overlay__actions">' +
           '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--primary" data-action="start">' + t('activityTimer.startShort') + '</button>' +
-          '<button type="button" class="activity-timer-overlay__btn" data-action="pause">' + t('activityTimer.pause') + '</button>' +
-          '<button type="button" class="activity-timer-overlay__btn" data-action="resume">' + t('activityTimer.resume') + '</button>' +
-          '<button type="button" class="activity-timer-overlay__btn" data-action="stop">' + t('activityTimer.stop') + '</button>' +
-          '<button type="button" class="activity-timer-overlay__btn" data-action="restart">' + t('activityTimer.restartShort') + '</button>' +
-          '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--gold" data-action="done">' + t('activityTimer.complete') + '</button>' +
+          '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--primary" data-action="resume">' + t('activityTimer.resume') + '</button>' +
+          '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--secondary" data-action="pause">' + t('activityTimer.pause') + '</button>' +
+          '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--secondary" data-action="stop">' + t('activityTimer.stop') + '</button>' +
+          '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--secondary" data-action="restart">' + t('activityTimer.restartShort') + '</button>' +
+          '<button type="button" class="activity-timer-overlay__btn activity-timer-overlay__btn--done" data-action="done">' + t('activityTimer.complete') + '</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(el);
@@ -285,8 +293,13 @@
       const itemId = _overlayItem.id;
       const duration = _overlayItem.duration_seconds;
       if (action === 'start') onStart(itemId, true);
-      else if (action === 'pause') ActivityTimerSession.pauseSession(me.id, currentDate, itemId, duration);
-      else if (action === 'resume') ActivityTimerSession.resumeSession(me.id, currentDate, itemId);
+      else if (action === 'pause') {
+        ActivityTimerSession.pauseSession(me.id, currentDate, itemId, duration);
+        if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
+      } else if (action === 'resume') {
+        ActivityTimerSession.resumeSession(me.id, currentDate, itemId);
+        if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
+      }
       else if (action === 'stop') {
         ActivityTimerSession.stopSession(me.id, currentDate, itemId);
         refreshItemUI(itemId, duration);
@@ -371,16 +384,34 @@
     ensureOverlay();
     _overlayItem = item;
     syncOverlayUI();
+    _overlayEl.classList.remove('activity-timer-overlay--closing');
     _overlayEl.hidden = false;
+    if (!reducedMotion()) {
+      _overlayEl.classList.remove('activity-timer-overlay--open');
+      void _overlayEl.offsetWidth;
+      _overlayEl.classList.add('activity-timer-overlay--open');
+    } else {
+      _overlayEl.classList.add('activity-timer-overlay--open');
+    }
     lockScroll();
     const closeBtn = _overlayEl.querySelector('.activity-timer-overlay__close');
     if (closeBtn) closeBtn.focus();
   }
 
   function closeOverlay() {
-    if (!_overlayEl) return;
-    _overlayEl.hidden = true;
-    unlockScroll();
+    if (!_overlayEl || _overlayEl.hidden) return;
+    const finish = function () {
+      _overlayEl.hidden = true;
+      _overlayEl.classList.remove('activity-timer-overlay--closing', 'activity-timer-overlay--open');
+      unlockScroll();
+    };
+    if (reducedMotion()) {
+      finish();
+      return;
+    }
+    _overlayEl.classList.remove('activity-timer-overlay--open');
+    _overlayEl.classList.add('activity-timer-overlay--closing');
+    window.setTimeout(finish, 340);
   }
 
   function rerenderCompactBlock(itemId) {
