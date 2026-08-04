@@ -39,7 +39,7 @@ test('english_child_experience pack gating', async (t) => {
     childId = child.rows[0].id;
 
     assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
-    assert.equal(await isEnglishAppEnabled(familyId), false);
+    assert.equal(await isEnglishAppEnabled(familyId), true);
     assert.equal(await isEnglishChildExperienceEnabled(familyId), false);
     assert.equal(await resolvePackIdForChild(childId), 'child_se');
 

@@ -47,6 +47,7 @@ Whitelisted in `src/routes/analytics.js`: `language_choice_viewed`, `language_se
 | `english_child_experience` | Separate gate for `child_en` pack (Child Core track) — **default OFF** |
 | `engelsk_landingssida` | Public `/en` marketing landing only |
 | `english_language_offer` | Global kill switch (`feature_flag`) for existing-family offer only; registration choice unaffected |
+| `english_app_global_enabled` | Global English availability — all families may **select** en-GB when ON (default OFF); does not auto-change locale (ADR-021) |
 | `market_uk_open` | Allow new registrations from GB (default OFF) |
 | `market_us_open` | Allow new registrations from US (default OFF) |
 

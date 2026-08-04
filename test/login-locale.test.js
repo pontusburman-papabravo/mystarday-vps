@@ -16,6 +16,17 @@ function uniqueEmail() {
   return `login-locale-${crypto.randomBytes(6).toString('hex')}@example.com`;
 }
 
+const GLOBAL_ENGLISH_FLAG = 'english_app_global_enabled';
+
+async function setGlobalEnglishFlag(pg, enabled) {
+  await pg.query(
+    `INSERT INTO feature_flag (key, enabled, description)
+     VALUES ($1, $2, 'test')
+     ON CONFLICT (key) DO UPDATE SET enabled = EXCLUDED.enabled`,
+    [GLOBAL_ENGLISH_FLAG, enabled]
+  );
+}
+
 describe('login-locale client helper', () => {
   test('login.html loads helper before auth handlers', () => {
     const fs = require('fs');
@@ -57,14 +68,17 @@ describe('applyLoginLocaleChoice unit', () => {
     );
     const familyId = fam.rows[0].id;
 
-    const en = await applyLoginLocaleChoice({ familyId, explicitLocale: 'en' });
-    assert.equal(en, 'en-GB');
+    try {
+      await setGlobalEnglishFlag(pg, true);
+      const en = await applyLoginLocaleChoice({ familyId, explicitLocale: 'en' });
+      assert.equal(en, 'en-GB');
 
-    const sv = await applyLoginLocaleChoice({ familyId, explicitLocale: 'sv' });
-    assert.equal(sv, 'sv-SE');
-
-    await pg.query('DELETE FROM family WHERE id = $1', [familyId]);
-    await db.cleanup();
+      const sv = await applyLoginLocaleChoice({ familyId, explicitLocale: 'sv' });
+      assert.equal(sv, 'sv-SE');
+    } finally {
+      await pg.query('DELETE FROM family WHERE id = $1', [familyId]);
+      await db.cleanup();
+    }
   });
 });
 
@@ -172,7 +186,57 @@ describe('login locale integration', () => {
     }
   });
 
-  test('explicit en-GB overrides sv-SE and enables english_app (scenario C)', async (t) => {
+  test('explicit en-GB on login blocked when global OFF and no english_app (scenario C0)', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    const pg = require('../src/lib/db');
+
+    try {
+      await setGlobalEnglishFlag(pg, false);
+      const email = uniqueEmail();
+      await fetch(`${http.baseUrl}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Parent C0',
+          email,
+          password: 'testpass123',
+        }),
+      });
+
+      const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password: 'testpass123',
+          preferred_locale: 'en-GB',
+        }),
+      });
+      const loginBody = JSON.parse(await loginRes.text());
+      assert.equal(loginRes.status, 200);
+      assert.equal(loginBody.user.preferred_locale, 'sv-SE');
+
+      const flags = await pg.query(
+        `SELECT 1 FROM family_features ff
+         JOIN parent p ON p.family_id = ff.family_id
+         WHERE p.email = $1 AND ff.feature_slug = 'english_app'`,
+        [email.toLowerCase()]
+      );
+      assert.equal(flags.rows.length, 0);
+    } finally {
+      await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('explicit en-GB overrides sv-SE and enables english_app when global ON (scenario C)', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -185,6 +249,7 @@ describe('login locale integration', () => {
     const { SELECTION_SOURCES } = require('../src/lib/locale-selection');
 
     try {
+      await setGlobalEnglishFlag(pg, true);
       const email = uniqueEmail();
       await fetch(`${http.baseUrl}/api/auth/register`, {
         method: 'POST',

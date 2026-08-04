@@ -66,18 +66,21 @@ function createApp() {
   app.use(securityHeadersMiddleware());
   loadLocales();
 
-  app.get('/health', (req, res) => {
+  app.get('/health', async (req, res) => {
     const { readDeployedSha } = require('./src/lib/deployed-sha');
     const { getIapReadinessSnapshot } = require('./src/lib/iap-readiness');
+    const { getEnglishGlobalAvailabilityReadiness } = require('./src/lib/english-app-global-flag');
     const { cacheName } = require('./config/cache-version.json');
     const gitSha = readDeployedSha();
     const iap = getIapReadinessSnapshot();
+    const englishGlobal = await getEnglishGlobalAvailabilityReadiness();
     res.json({
       status: 'healthy',
       version: '2.3.1',
       cache_version: cacheName,
       ...(gitSha ? { git_sha: gitSha } : {}),
       ...iap,
+      ...englishGlobal,
     });
   });
 
