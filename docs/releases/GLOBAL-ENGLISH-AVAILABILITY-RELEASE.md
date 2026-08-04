@@ -28,28 +28,51 @@ Merge **#870** only after backup/deploy safety is live — merging to `main` may
 
 ## Deploy with flag OFF
 
-1. Merge code with global flag **OFF** (migration seeds `enabled = false`).
-2. Deploy release build.
-3. Confirm `/health` shows `english_global_flag_read_ok: true` and `english_global_flag_enabled: false`.
+1. Merge code with global flag **OFF** (migration seeds `enabled = false` on **first insert only**).
+2. Deploy release build; ensure app process restarted (VPS systemd app unit — `/health` may omit `english_global_flag_*` until restart).
+3. Verify `/health` — **do not trust `status: healthy` alone** for flag readiness:
+
+| Field | Expected after deploy |
+|-------|------------------------|
+| `git_sha` | Matches merged `main` / deploy SHA from deploy identity check |
+| `english_global_flag_read_ok` | **`true`** (decisive; `false` ⇒ fail-closed OFF + check DB/logs) |
+| `english_global_flag_row_present` | **`true`** (row exists after migrate) |
+| `english_global_flag_enabled` | **`false`** |
+
+**Migration note:** `1810170000000_english_app_global_enabled_flag.js` uses `ON CONFLICT DO NOTHING`. It sets `enabled = false` when the row is **created**, but does **not** reset an existing row that was already `true`. After deploy, always confirm `english_global_flag_enabled` in `/health` (or DB), not only that migrate ran.
+
+## What global ON means (#870 scope)
+
+| Milestone | Gate |
+|-----------|------|
+| **Parent English beta** (`english_app_global_enabled`) | Founder prod smoke below + ops enable — **not** full product English |
+| **Full English release** (child UX, device QA, legal, store) | **NO-GO** until RC-1/RC-2 per [`RC1_I18N_RC_BRANCH_STATUS.md`](RC1_I18N_RC_BRANCH_STATUS.md) |
+
+`english_app_global_enabled` does **not** turn on child English. Child UI remains behind **`english_child_experience`** per family (`docs/i18n-beta-rollout-plan.md`).
 
 ## Founder prod smoke (mandatory before global ON)
 
 After live deploy, run founder smoke with the global flag still **OFF** (founder QA credentials in approved secret store; not App Store review account).
 
-| Check | Expected |
-|-------|----------|
-| Existing **en-GB** family (grandfather / prior beta) | After parent logout → login (new session), UI stays **en-GB** |
-| Same family — **child login** | Child session uses **en-GB** (`/api/auth/me` or child UI) |
-| Same family — **parent restore** (e.g. after child handoff) | Parent session **en-GB** |
-| **sv-SE** control family (no English beta) | Unchanged — still Swedish, no locale regression |
-| **New** family (no `english_app` beta) while global OFF | Cannot newly select **en-GB** in settings/login (unless already grandfathered / beta) |
-| Ops | `/health` (`english_global_flag_*`), logs, locale APIs — no new errors |
+| Scenario | `english_child_experience` | Expected |
+|----------|---------------------------|----------|
+| Grandfather / beta **en-GB** family | **ON** (required for child en-GB smoke) | Parent logout → login: **en-GB**; child login + `/api/auth/me`: **en-GB**; parent restore after handoff: **en-GB** |
+| Same family separation check | **OFF** (optional explicit case) | Parent may be **en-GB** if grandfathered; **child UI stays Swedish** — verifies parent vs child gates |
+| **sv-SE** control family (no English beta) | any | Swedish, no regression; cannot newly select en-GB while global OFF |
+| **New** family (no `english_app` beta) while global OFF | — | Cannot newly select **en-GB** in settings/login |
 
-Integration coverage for grandfather logout/re-login/child is in `test/english-app-global-availability.test.js`; this prod pass is the human gate before flipping the flag.
+| Ops | Expected |
+|-----|----------|
+| `/health` | `english_global_flag_read_ok: true`, `enabled: false`, `row_present: true` |
+| Logs / locale APIs | No new errors |
+
+Integration coverage for grandfather logout/re-login/child (with `english_child_experience` ON) is in `test/english-app-global-availability.test.js`; this prod pass is the human gate before flipping the global flag.
 
 **Do not** set global English ON until this smoke passes.
 
 ## Global enable (only after founder prod smoke above)
+
+**Parent English beta only** — not evidence of full English store release.
 
 Use the approved feature-flag / ops path (admin tooling or runbook), not ad-hoc SQL unless that is your established procedure:
 
@@ -74,5 +97,6 @@ WHERE key = 'english_app_global_enabled';
 
 ## Out of scope
 
-- Activation (#862)
-- `english_child_experience` cohort rollout (see `docs/i18n-beta-rollout-plan.md`)
+- Activation (#862) — separate flag; not required for basic parent English gate
+- `english_child_experience` cohort rollout (see `docs/i18n-beta-rollout-plan.md`) — physical device smoke before child cohort ON
+- Full English store release (legal, screenshots, RC-2) — see RC-1 status doc
