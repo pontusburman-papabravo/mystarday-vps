@@ -155,7 +155,36 @@ No aggressive WebView navigation (prior CDP `child-login` loops caused session f
 | Full Activation coach (exactly one) | Requires **sv-SE QA family** override — separate from founder smoke |
 
 **Physical Android (founder smoke):** **PARTIAL PASS**  
-**Platform-neutral Activation gate on Android:** **OPEN** until QA-family coach + manual child checklist **PASS**.
+**Platform-neutral Activation gate on Android:** **OPEN** until QA-family coach + manual child checklist **PASS** and **child-first session stable** (see below).
+
+### Manual repro — session flicker (Capacitor Android WebView, prod v769)
+
+**Observed on SM-G991B with no Mac automation running:**
+
+| Flow | Result |
+|------|--------|
+| **Child login first** (cold / barnväljare before parent) | **FAIL** — immediate flicker in/out (logged-in vs logged-out) |
+| Force stop → **parent login, then child** | **PASS** — stable session |
+
+**Likely mechanism (code review, not fixed this session):**
+
+1. **`child-login.js`** after PIN success verifies `/api/auth/me` because a **parent `access_token` cookie can shadow** the new child cookie (comment at child-login success path). If the server still sees `type: parent`, login aborts — but timing/WebView cookie commits on Android can race.
+2. **`child-dashboard.js` init** loads `Auth.getUser()` from **localStorage** and checks `document.cookie` for `access_token`. After child login it calls `/api/auth/me`; if `me.type !== 'child'` it **`Auth.clearAuth()`** and redirects to **`/child-login`** (no `picker=1`).
+3. **`child-login.js` `resumeActiveChildSessionIfPresent`** on load: when **not** `picker=1`, a valid child cookie redirects to **`/child/today`** again.
+4. **Hypothesis:** stale **parent JWT cookie** + child **localStorage** (or intermittent cookie winner on Android WebView) → **`/child/today` ↔ `/child-login`** redirect loop = flicker. **Parent login first** aligns cookies before child PIN so verify + barnvy agree on `type: child`.
+
+**`authGuard()`** (parent pages): on `me.type === 'child'` it runs **`tryActivateSavedParentSession()`** — not the barnvy init path, but related session/cookie complexity on native.
+
+**Physical QA workaround (mandatory on Android until fix):**
+
+1. Open app → **log in as parent first** (`/login`).
+2. Then open **barninloggning / picker** and complete child PIN.
+3. Do **not** use “child first” as the gate path for Activation physical QA.
+4. If flicker returns: force stop → **Rensa cache** (or data) → repeat **parent → child**.
+
+**Product fix:** **None shipped** — treat as **open WebView/session issue** for a future ADR/fix (cookie swap ordering on Android). **Do not claim full Android PASS** until child-first is stable or workaround-only gate is accepted in POS.
+
+Earlier flicker during agent CDP runs was **consistent with the same navigation/cookie pattern**; user repro **without automation** confirms the risk is **not CDP-only**.
 
 Artifact (no secrets): `artifacts/founder-android-prod-smoke.json` on operator Mac (local, not committed).
 
@@ -188,7 +217,7 @@ Overrides remain **ON** for continued founder/QA use; global flag remains **OFF*
 
 ## Rekommenderat nästa steg
 
-1. Manual founder child path on SM-G991B (picker username + PIN, Today, one completion) after child-login rate limit cools — **no** Mac CDP navigation.
+1. Manual founder child path on SM-G991B (**parent login → then child**; see flicker workaround) after child-login rate limit cools — **no** Mac CDP navigation.
 2. Repeat Activation checklist on **QA override family** for coach + completion.
 3. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
 4. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
