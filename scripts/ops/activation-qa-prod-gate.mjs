@@ -14,26 +14,18 @@ const { loadEnvFile } = require('../../src/lib/load-env.js');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '../..');
-loadEnvFile(path.join(ROOT, '.env'), { override: true });
+
+const QA_SECRETS_FILE =
+  process.env.ACTIVATION_QA_SECRETS_FILE ||
+  path.join(process.env.HOME || '', '.config/mystarday/founder-activation-qa.env');
+if (fs.existsSync(QA_SECRETS_FILE)) {
+  loadEnvFile(QA_SECRETS_FILE, { override: true });
+}
 
 const BASE = process.env.PROD_BASE || 'https://mystarday.se';
 const QA_PARENT = 'founder-activation-qa-sv@test.stjarndag.local';
 const CHILD_USER = 'qaactsv';
 const CHILD_PIN = process.env.QA_CHILD_PIN || '4821';
-
-function loadQaPasswordFromFiles() {
-  if (process.env.QA_PASSWORD && process.env.QA_PASSWORD.length >= 12) return process.env.QA_PASSWORD;
-  const extra = process.env.ACTIVATION_QA_SECRETS_FILE;
-  if (extra && fs.existsSync(extra)) {
-    loadEnvFile(extra, { override: true });
-    if (process.env.QA_PASSWORD && process.env.QA_PASSWORD.length >= 12) return process.env.QA_PASSWORD;
-  }
-  return null;
-}
-
-async function resolveQaPasswordAsync() {
-  return loadQaPasswordFromFiles();
-}
 
 function mergeJar(jar, setCookie) {
   for (const h of setCookie || []) {
@@ -80,10 +72,21 @@ function adbInfo() {
   }
 }
 
-async function runActivationApi(qaPassword) {
+async function runActivationApi() {
   const errors = [];
-  const login = await api('/api/auth/login', { method: 'POST', body: { email: QA_PARENT, password: qaPassword } });
-  if (login.status !== 200) return { status: 'FAIL', errors: [`parent_login_${login.status}`] };
+  const qaEmail = process.env.QA_EMAIL || QA_PARENT;
+  const qaPassword = process.env.QA_PASSWORD;
+  const login = await api('/api/auth/login', {
+    method: 'POST',
+    body: { email: qaEmail, password: qaPassword },
+  });
+  if (login.status !== 200) {
+    return {
+      status: 'FAIL',
+      errors: [`parent_login_${login.status}`],
+      meta: { pass_len: qaPassword ? qaPassword.length : 0 },
+    };
+  }
 
   const jar = mergeJar({}, login.setCookie);
   const act = (await api('/api/family/activation-config', { jar })).json || {};
@@ -132,8 +135,7 @@ async function runActivationApi(qaPassword) {
 }
 
 async function main() {
-  const qaPassword = await resolveQaPasswordAsync();
-  if (!qaPassword) {
+  if (!process.env.QA_PASSWORD || process.env.QA_PASSWORD.length < 12) {
     console.log(
       JSON.stringify({
         status: 'BLOCKED',
@@ -144,7 +146,7 @@ async function main() {
   }
 
   const health = await fetch(`${BASE}/health`).then((r) => r.json());
-  const apiResult = await runActivationApi(qaPassword);
+  const apiResult = await runActivationApi();
   const device = adbInfo();
 
   const out = {

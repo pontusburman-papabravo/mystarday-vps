@@ -12,7 +12,6 @@ const { loadEnvFile } = require('../../src/lib/load-env.js');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '../..');
-loadEnvFile(path.join(ROOT, '.env'), { override: true });
 
 const secretsFile =
   process.env.ACTIVATION_QA_SECRETS_FILE ||
