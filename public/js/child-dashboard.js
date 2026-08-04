@@ -556,6 +556,27 @@ window.escHtml = escHtml;
 // ── Init ───────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (
+    window.NativeChildSessionRestore
+    && NativeChildSessionRestore.shouldRunNativeChildBootstrap()
+  ) {
+    const boot = await NativeChildSessionRestore.bootstrapNativeChildSession();
+    if (!boot.ok) {
+      if (boot.code === 'NOT_CHILD' || boot.code === 'ME_FAILED') {
+        if (window.NativeChildSessionRestore.bumpLoopHops) {
+          NativeChildSessionRestore.bumpLoopHops();
+        }
+        Auth.clearAuth();
+        window.location.replace(NativeChildSessionRestore.childLoginFallbackUrl());
+        return;
+      }
+      if (boot.code === 'FAMILY_MISMATCH') {
+        window.location.replace(NativeChildSessionRestore.childLoginFallbackUrl());
+        return;
+      }
+    }
+  }
+
   const localUser = Auth.getUser();
   const hasCookie = document.cookie.includes('access_token=');
 
@@ -602,8 +623,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (me.type !== 'child') {
       console.warn('[child-dashboard] Session is not child (got', me.type, ') — redirect to barnväljare');
       Auth.clearAuth();
-      window.location.href = '/child-login';
+      const loginUrl = (
+        window.NativeChildSessionRestore
+        && typeof NativeChildSessionRestore.childLoginFallbackUrl === 'function'
+      )
+        ? NativeChildSessionRestore.childLoginFallbackUrl()
+        : '/child-login';
+      if (window.NativeChildSessionRestore && typeof NativeChildSessionRestore.bumpLoopHops === 'function') {
+        NativeChildSessionRestore.bumpLoopHops();
+      }
+      window.location.replace(loginUrl);
       return;
+    }
+    if (window.NativeChildSessionRestore && typeof NativeChildSessionRestore.clearLoopHops === 'function') {
+      NativeChildSessionRestore.clearLoopHops();
     }
     if (window.initChildAppI18n) {
       await initChildAppI18n({
