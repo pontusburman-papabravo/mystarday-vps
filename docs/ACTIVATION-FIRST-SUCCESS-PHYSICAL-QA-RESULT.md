@@ -10,11 +10,11 @@
 |----------|--------|
 | **Physical iPhone** (Activation baseline v768) | **PASS** |
 | **Physical iPhone on current prod v769** (Prompt 1I) | **PASS** |
-| **Physical Android** | **BLOCKED — NO DEVICE ACCESS** |
+| **Physical Android** (founder smoke, v769) | **PARTIAL PASS** — device + parent API; manual child + Activation coach on QA family pending |
 | **Responsive iPhone** (390×844) | **PASS** (sv-SE + en-GB QA families) |
 | **Responsive Android** (412×915) | **PASS** (sv-SE + en-GB QA families) |
 
-**Slutstatus (1I):** `CURRENT PROD IPHONE PASS — ANDROID PHYSICAL QA BLOCKED`
+**Slutstatus (1I + Android founder smoke):** `CURRENT PROD IPHONE PASS — ANDROID PHYSICAL PARTIAL (FOUNDER); FULL ACTIVATION GATE NEEDS QA FAMILY + MANUAL CHILD`
 
 ## iPhone device and app version
 
@@ -135,7 +135,29 @@ Documented in [`ACTIVATION-FIRST-SUCCESS-FOUNDER-DARK-LAUNCH-RESULT.md`](ACTIVAT
 
 ## Android-status
 
-**BLOCKED — NO DEVICE ACCESS** (no physical Android, emulator not used for physical gate, no device farm in repo).
+**Physical device connected:** Samsung **SM-G991B**, **Android 15**, `se.mystarday.app` **1.3.0**, prod **v769** / `8fea1f55…`.
+
+### Prompt — founder physical smoke (minimal automation)
+
+No aggressive WebView navigation (prior CDP `child-login` loops caused session flicker — **do not repeat**). Automation limited to **`adb` app launch** and **read-only** DevTools URL path snapshot.
+
+| Check | Result |
+|--------|--------|
+| Device attach (`adb`) | **PASS** |
+| Prod parent API login (founder QA secrets, local `.env`) | **PASS** |
+| Global `activation_first_success_v1` | **OFF** |
+| Founder family override | **OFF** (expected) |
+| First Success coach on founder Hem | **Not shown** (expected without QA override — **not** a failure of Android hardware) |
+| Child prod API login | **Not verified this session** — prior automation hit **429** rate limit; `.env` display name ≠ picker slug (use **picker username** on device, not display name alone) |
+| Read-only WebView snapshot after launch | **PASS** (observed auth route; no forced redirects) |
+| Manual on device: PIN contrast (#852–#855) | **Pending operator** |
+| Manual: Child Today, completion, background/foreground | **Pending operator** |
+| Full Activation coach (exactly one) | Requires **sv-SE QA family** override — separate from founder smoke |
+
+**Physical Android (founder smoke):** **PARTIAL PASS**  
+**Platform-neutral Activation gate on Android:** **OPEN** until QA-family coach + manual child checklist **PASS**.
+
+Artifact (no secrets): `artifacts/founder-android-prod-smoke.json` on operator Mac (local, not committed).
 
 ## Flagstatus och expiry
 
@@ -162,10 +184,11 @@ Overrides remain **ON** for continued founder/QA use; global flag remains **OFF*
 | Decision | Outcome |
 |----------|---------|
 | Founder / QA continued use on iPhone | **GO** |
-| Platform-neutral customer pilot | **NO-GO** until physical Android **PASS** |
+| Platform-neutral customer pilot | **NO-GO** until physical Android **full Activation PASS** (QA family coach + child journey) |
 
 ## Rekommenderat nästa steg
 
-1. Physical Android QA on hardware or approved device farm.
-2. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
-3. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
+1. Manual founder child path on SM-G991B (picker username + PIN, Today, one completion) after child-login rate limit cools — **no** Mac CDP navigation.
+2. Repeat Activation checklist on **QA override family** for coach + completion.
+3. Re-run `feature:family-override --verify` before override expiry (2026-08-10Z).
+4. Keep global `activation_first_success_v1` OFF until L1 go-live checklist.
