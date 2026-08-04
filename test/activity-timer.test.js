@@ -34,4 +34,10 @@ describe('activity-timer server helpers', () => {
     assert.equal(isTimerConfigured(MIN_DURATION_SECONDS), true);
     assert.equal(isTimerConfigured(MAX_DURATION_SECONDS), true);
   });
+
+  test('rollout allowlist defaults to founder email', () => {
+    const { getAllowlist } = require('../src/lib/activity-timer-rollout');
+    const list = getAllowlist();
+    assert.ok(list.includes('pontus@burman.cc'));
+  });
 });

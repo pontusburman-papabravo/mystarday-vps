@@ -51,6 +51,7 @@ describe('onboarding activity guide — parent defaults', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /duration_seconds/);
     assert.match(src, /activityTimersEnabled/);
+    assert.match(src, /activityTimerV2Enabled/);
   });
 
   it('child-settings keeps separate toggles for parent edits later', () => {

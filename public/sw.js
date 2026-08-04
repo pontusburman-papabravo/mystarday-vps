@@ -1,5 +1,7 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v772: aktivitetstimer i dagsvy (Morgon/Dag/Kväll) — Starta timer synlig
+ * v771: aktivitetstimer v2 polish — timglas, overlay animation
  * v770: login entry logo uses app.name i18n (My Starday in English)
  * v769: child-login PIN keypad — higher contrast digits on white keys (physical QA)
  * v764: Child session resume on /child-login + clear subStepExpanded on loadDay
@@ -236,9 +238,12 @@
 // stjarndag-v740: fix(onboarding) stop top-level ot() from clobbering window.ot (slim signup)
 // stjarndag-v765: clear offline queue on logout (child handoff / full clear)
 // stjarndag-v764: child-login resume active child session; loadDay clears subStepExpanded
-// stjarndag-v763: child substep toggle stability, resilient SW precache, /health cache_version
+// stjarndag-v763: child substep stability, resilient SW precache, /health cache_version
 // stjarndag-v766: growth feedback loop client assets (flag-gated)
-const CACHE_NAME = 'stjarndag-v772';
+// stjarndag-v772: aktivitetstimer i dagsvy-kort
+// stjarndag-v773: aktivitetstimer på delsteg
+// stjarndag-v774: levererad SVG-timglas (UL activity-hourglass-v1)
+const CACHE_NAME = 'stjarndag-v774';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -537,6 +542,7 @@ const CACHE_NAME = 'stjarndag-v772';
 // stjarndag-v763: growth feedback loop client assets (flag-gated)
 // stjarndag-v767: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v768: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v770: native child-first session restore (session-cookie-reconcile + bootstrap)
 // stjarndag-v769: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v770: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
@@ -612,6 +618,7 @@ const STATIC_ASSETS = [
   '/child-dashboard.html',
   '/css/child-login-magic.css',
   '/js/child-login.js',
+  '/js/native-child-session-restore.js',
   '/js/child-app-i18n.js',
   '/js/child-ui-text.js',
   '/js/child-dashboard.js',
@@ -624,6 +631,8 @@ const STATIC_ASSETS = [
   '/js/child-dashboard-day-nav.js',
   '/js/child-dashboard-timers.js',
   '/js/activity-timer-session.js',
+  '/js/activity-hourglass.js',
+  '/images/child/activity-timer/hourglass.svg',
   '/js/child-dashboard-activity-timer.js',
   '/js/child-dashboard-load-day.js',
   '/js/child-dashboard-checkoff.js',

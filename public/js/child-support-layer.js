@@ -75,17 +75,26 @@
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
       const isChecked = !!step.completed;
+      let timerHtml = '';
+      if (window.ChildActivityTimer && typeof ChildActivityTimer.renderSubStepBlock === 'function') {
+        timerHtml = ChildActivityTimer.renderSubStepBlock(itemId, step);
+      }
       html +=
         '<div class="substep-row" role="button" tabindex="0" aria-pressed="' + (isChecked ? 'true' : 'false') + '" data-substep-item="' + esc(itemId) + '" data-substep-id="' + esc(step.id) + '" data-substep-done="' + (isChecked ? '1' : '0') + '" id="substep-row-' + esc(step.id) + '">' +
         '<div class="substep-check ' + (isChecked ? 'checked' : '') + '" id="substep-check-' + esc(step.id) + '">' +
         (isChecked ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' : '') +
         '</div>' +
         (step.icon ? '<span style="font-size:1.3rem;flex-shrink:0;">' + esc(step.icon) + '</span>' : '') +
-        '<span class="substep-name ' + (isChecked ? 'checked' : '') + '" id="substep-name-' + esc(step.id) + '">' + esc(step.display_name || step.name) + '</span></div>';
+        '<span class="substep-name ' + (isChecked ? 'checked' : '') + '" id="substep-name-' + esc(step.id) + '">' + esc(step.display_name || step.name) + '</span>' +
+        timerHtml +
+        '</div>';
     }
     html += '</div>';
     container.innerHTML = html;
     bindSubstepClicks(container);
+    if (window.ChildActivityTimer && typeof ChildActivityTimer.initForSubSteps === 'function') {
+      ChildActivityTimer.initForSubSteps(itemId, steps);
+    }
   }
 
   window.ChildSupportLayer = {

@@ -131,6 +131,7 @@
       dopaminAnimation = data.dopamin_animation !== false;
       visualTimer = data.visual_timer !== false;
       activityTimersEnabled = data.activity_timers_enabled === true;
+      activityTimerV2Enabled = data.activity_timer_v2 === true;
       hideClock = !!data.hide_clock;
       colorCoding = data.color_coding !== false;
       if (window.ChildSevenQuestions?.ready) {

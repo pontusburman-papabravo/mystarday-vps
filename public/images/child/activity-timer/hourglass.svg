@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" role="img" aria-labelledby="title desc">
+  <title id="title">Aktivitetstimer med timglas</title>
+  <desc id="desc">Ett varmt petrolfärgat timglas med gul sand som styrs av timerprogress.</desc>
+  <defs>
+    <linearGradient id="frameTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f7c81"/>
+      <stop offset="1" stop-color="#18545d"/>
+    </linearGradient>
+    <linearGradient id="frameSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#184e58"/>
+      <stop offset=".5" stop-color="#226a70"/>
+      <stop offset="1" stop-color="#123f48"/>
+    </linearGradient>
+    <linearGradient id="sandFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8c45e"/>
+      <stop offset="1" stop-color="#e89a2f"/>
+    </linearGradient>
+    <linearGradient id="glassFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".58"/>
+      <stop offset=".55" stop-color="#dbe9e6" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".38"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#123f48" flood-opacity=".14"/>
+    </filter>
+    <clipPath id="upperClip">
+      <path d="M83 86H237C233 128 220 162 188 190C177 200 170 211 166 224H154C150 211 143 200 132 190C100 162 87 128 83 86Z"/>
+    </clipPath>
+    <clipPath id="lowerClip">
+      <path d="M154 196H166C170 209 177 220 188 230C220 258 233 292 237 334H83C87 292 100 258 132 230C143 220 150 209 154 196Z"/>
+    </clipPath>
+  </defs>
+
+  <style>
+    .upper-sand {
+      transform-box: fill-box;
+      transform-origin: center bottom;
+      transform: scaleY(calc(1 - var(--progress, 0)));
+      transition: transform .35s linear;
+    }
+    .lower-sand {
+      transform-box: fill-box;
+      transform-origin: center bottom;
+      transform: scaleY(var(--progress, 0));
+      transition: transform .35s linear;
+    }
+    .sand-stream {
+      opacity: var(--running, 0);
+      transition: opacity .18s ease;
+      animation: streamPulse .55s ease-in-out infinite alternate;
+    }
+    .sand-grain {
+      opacity: var(--running, 0);
+      animation: grainFall 1.05s linear infinite;
+    }
+    .sand-grain.g2 { animation-delay: -.35s; }
+    .sand-grain.g3 { animation-delay: -.7s; }
+    @keyframes streamPulse {
+      from { transform: scaleX(.72); }
+      to { transform: scaleX(1); }
+    }
+    @keyframes grainFall {
+      from { transform: translateY(-12px); opacity: 0; }
+      20% { opacity: var(--running, 0); }
+      to { transform: translateY(34px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .upper-sand, .lower-sand { transition: none; }
+      .sand-stream, .sand-grain { animation: none; }
+      .sand-grain { display: none; }
+    }
+  </style>
+
+  <g filter="url(#softShadow)">
+    <ellipse cx="160" cy="378" rx="106" ry="17" fill="#b98955" opacity=".14"/>
+    <rect x="58" y="44" width="204" height="48" rx="24" fill="url(#frameTop)"/>
+    <rect x="58" y="328" width="204" height="48" rx="24" fill="url(#frameTop)"/>
+    <rect x="65" y="80" width="22" height="260" rx="11" fill="url(#frameSide)"/>
+    <rect x="233" y="80" width="22" height="260" rx="11" fill="url(#frameSide)"/>
+
+    <path d="M78 78H242C241 128 226 168 192 197C184 204 177 214 173 226C177 238 184 248 192 255C226 284 241 324 242 342H78C79 324 94 284 128 255C136 248 143 238 147 226C143 214 136 204 128 197C94 168 79 128 78 78Z"
+          fill="url(#glassFill)" stroke="#d9ebe8" stroke-width="7" stroke-linejoin="round"/>
+
+    <g clip-path="url(#upperClip)">
+      <g class="upper-sand">
+        <path d="M85 118C110 107 139 104 160 105C181 104 210 107 235 118L235 218H85Z" fill="url(#sandFill)"/>
+        <path d="M91 118C119 111 139 110 160 111C181 110 201 111 229 118"
+              fill="none" stroke="#ffd883" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+      </g>
+    </g>
+
+    <g clip-path="url(#lowerClip)">
+      <g class="lower-sand">
+        <path d="M84 334V246C112 247 134 257 160 280C186 257 208 247 236 246V334Z" fill="url(#sandFill)"/>
+        <path d="M91 327C113 319 133 302 160 281C187 302 207 319 229 327"
+              fill="none" stroke="#ffd883" stroke-width="5" stroke-linecap="round" opacity=".65"/>
+      </g>
+    </g>
+
+    <g class="sand-stream" transform-origin="160px 226px">
+      <rect x="157.4" y="210" width="5.2" height="51" rx="2.6" fill="#eca53a"/>
+      <rect x="158.5" y="210" width="1.4" height="51" rx=".7" fill="#ffd77b" opacity=".8"/>
+    </g>
+
+    <circle class="sand-grain g1" cx="154" cy="220" r="2.1" fill="#f4b94d"/>
+    <circle class="sand-grain g2" cx="166" cy="224" r="1.8" fill="#e99d31"/>
+    <circle class="sand-grain g3" cx="160" cy="219" r="1.4" fill="#ffd77b"/>
+
+    <path d="M100 100C88 139 99 168 126 192" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".34"/>
+    <path d="M108 261C92 282 91 306 101 321" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".25"/>
+    <path d="M76 67H244" stroke="#75aeb0" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+    <path d="M76 351H244" stroke="#103e47" stroke-width="4" stroke-linecap="round" opacity=".28"/>
+  </g>
+</svg>

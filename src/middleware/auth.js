@@ -12,6 +12,7 @@ const {
   applyHandoffToRequestCookies,
   resolveParentIdFromHandoff,
 } = require('../lib/parent-session-handoff');
+const { reconcileChildSessionCookies } = require('../lib/session-cookie-reconcile');
 
 /**
  * Try to verify a JWT with the current secret, then fall back to the previous secret.
@@ -176,6 +177,15 @@ async function restoreParentSession(req, res, next) {
     return next();
   }
 
+  try {
+    const childSync = await reconcileChildSessionCookies(req, res);
+    if (childSync.reconciled || childSync.alreadyChild) {
+      return next();
+    }
+  } catch (err) {
+    return next(err);
+  }
+
   if (!req.cookies?.stjarndag_parent_session) return next();
 
   const currentToken = req.cookies?.access_token;
@@ -256,4 +266,5 @@ module.exports = {
   restoreParentSession,
   restoreParentUserFromCookie,
   resolveParentIdForLoginPicker,
+  reconcileChildSessionCookies,
 };

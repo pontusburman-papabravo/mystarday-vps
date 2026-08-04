@@ -1306,6 +1306,12 @@ function escapeJs(str) {
  * Explicit picker/add-child flows are never auto-skipped.
  */
 async function resumeActiveChildSessionIfPresent(opts) {
+  if (
+    window.NativeChildSessionRestore
+    && typeof NativeChildSessionRestore.resumeActiveChildSessionIfPresent === 'function'
+  ) {
+    return NativeChildSessionRestore.resumeActiveChildSessionIfPresent(opts);
+  }
   const options = opts || {};
   if (options.forcePicker || options.resumeAddChild) return false;
   try {

@@ -310,7 +310,7 @@ router.get('/:id/sub-steps', async (req, res) => {
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
     const result = await db.query(
-      `SELECT id, name, icon, sort_order
+      `SELECT id, name, icon, sort_order, duration_seconds
        FROM activity_sub_step
        WHERE activity_template_id = $1
        ORDER BY sort_order ASC, id ASC`,
@@ -334,9 +334,17 @@ router.post('/:id/sub-steps', validateParams(UUIDParam), validate(CreateSubStepS
       return res.status(404).json({ error: 'Aktiviteten hittades inte' });
     }
 
-    const { name, icon } = req.body;
+    const { name, icon, duration_seconds } = req.body;
     if (!name || name.trim().length < 1) {
       return res.status(400).json({ error: 'Namn krävs' });
+    }
+    let normalizedDuration = null;
+    if (duration_seconds !== undefined) {
+      const normalized = normalizeDurationSeconds(duration_seconds);
+      if (normalized === undefined) {
+        return res.status(400).json({ error: 'Timer måste vara mellan 5 och 3600 sekunder' });
+      }
+      normalizedDuration = normalized;
     }
     // Place at end of current list
     const countRes = await db.query(
@@ -346,10 +354,10 @@ router.post('/:id/sub-steps', validateParams(UUIDParam), validate(CreateSubStepS
     const sort_order = parseInt(countRes.rows[0].next, 10);
 
     const result = await db.query(
-      `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, name, icon, sort_order`,
-      [req.params.id, name.trim(), icon || null, sort_order]
+      `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order, duration_seconds)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, name, icon, sort_order, duration_seconds`,
+      [req.params.id, name.trim(), icon || null, sort_order, normalizedDuration]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -407,7 +415,7 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
       return res.status(404).json({ error: 'Delsteget hittades inte' });
     }
 
-    const { name, icon, sort_order } = req.body;
+    const { name, icon, sort_order, duration_seconds } = req.body;
     const updates = [];
     const values = [];
     let idx = 1;
@@ -425,13 +433,21 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
       updates.push(`sort_order = $${idx++}`);
       values.push(parseInt(sort_order, 10) || 0);
     }
+    if (duration_seconds !== undefined) {
+      const normalized = normalizeDurationSeconds(duration_seconds);
+      if (normalized === undefined) {
+        return res.status(400).json({ error: 'Timer måste vara mellan 5 och 3600 sekunder' });
+      }
+      updates.push(`duration_seconds = $${idx++}`);
+      values.push(normalized);
+    }
 
     if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
 
     values.push(req.params.stepId);
     const result = await db.query(
       `UPDATE activity_sub_step SET ${updates.join(', ')} WHERE id = $${idx}
-       RETURNING id, name, icon, sort_order`,
+       RETURNING id, name, icon, sort_order, duration_seconds`,
       values
     );
     res.json(result.rows[0]);
