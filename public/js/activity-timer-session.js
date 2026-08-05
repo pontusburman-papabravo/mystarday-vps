@@ -157,8 +157,16 @@
     return read(storageKey(childId, scheduleDate, dailyLogItemId, subStepId));
   }
 
-  function startSession(childId, scheduleDate, dailyLogItemId, durationSeconds, subStepId) {
+  function startSession(childId, scheduleDate, dailyLogItemId, durationSeconds, subStepId, opts) {
+    const force = !!(opts && opts.force);
     const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
+    const existing = read(key);
+    if (!force && existing) {
+      const status = resolveStatus(existing, durationSeconds);
+      if (status === 'running' || status === 'paused') {
+        return existing;
+      }
+    }
     const now = Date.now();
     const session = {
       daily_log_item_id: dailyLogItemId,
