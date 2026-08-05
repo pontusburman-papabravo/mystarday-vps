@@ -646,6 +646,10 @@ const Auth = {
   async logout(options) {
     options = options || {};
     const childFlow = options.childFlow === true;
+    const handoffUser = childFlow ? this.getUser() : null;
+    const expectedFamilyId = handoffUser
+      ? (handoffUser.familyId || handoffUser.family_id || null)
+      : null;
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
@@ -685,7 +689,7 @@ const Auth = {
         try { data = await res.json(); } catch { data = {}; }
 
         if (res.ok && data.sessionRestored) {
-          const restored = await this._completeHandoffParentSessionRestore();
+          const restored = await this._completeHandoffParentSessionRestore(expectedFamilyId);
           if (!restored.ok) {
             this._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
           }
@@ -695,13 +699,15 @@ const Auth = {
         if (res.ok && data.needsParentPin) {
           this._clearChildCookies();
           const cancelUrlPin = childFlow ? '/child-login' : '/login';
+          const self = this;
           this._showParentPinGateOverlay(function () {
-            window.location.href = '/dashboard';
+            window.location.replace('/dashboard');
           }, function () {
             window.location.href = cancelUrlPin;
           }, {
             verifyUrl: '/api/family/verify-pin-picker',
             applyPickerResponse: true,
+            expectedFamilyId: expectedFamilyId,
           });
           return;
         }
@@ -881,16 +887,30 @@ const Auth = {
 
   /**
    * Poll server until parent session cookies are active (post handoff PIN / consume).
-   * @returns {Promise<{ ok: true, me: object }|{ ok: false, kind: string, code?: string }>}
+   * @param {string|null} expectedFamilyId
+   * @param {{ attempts?: number, delayMs?: number }} [options]
+   * @returns {Promise<{ ok: true, user: object, familyId: string|null }|{ ok: false, kind: string, code?: string }>}
    */
-  async _syncParentSessionFromServer(timeoutMs = 10000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
+  async _syncParentSessionFromServer(expectedFamilyId, options = {}) {
+    const attempts = options.attempts || 8;
+    const delayMs = options.delayMs || 250;
+    let lastResult = null;
+
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
       try {
-        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-        if (meRes.ok) {
-          const me = await meRes.json();
-          if (this.isParentUser(me)) {
+        const res = await fetch('/api/auth/me', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+
+        if (res.ok) {
+          const me = await res.json();
+          const actualFamilyId = me.familyId || me.family_id || null;
+
+          if (
+            this.isParentUser(me) &&
+            (!expectedFamilyId || actualFamilyId === expectedFamilyId)
+          ) {
             this._clearStaleChildLocalState();
             await this.ensureCsrfToken();
             const csrf = this.getCsrfToken();
@@ -899,37 +919,70 @@ const Auth = {
             if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
               DeviceMode.enterParent();
             }
-            return { ok: true, me };
+            return {
+              ok: true,
+              user: me,
+              familyId: actualFamilyId,
+            };
           }
+
+          lastResult = {
+            ok: false,
+            kind: 'contract',
+            status: res.status,
+            type: me.type,
+            familyId: actualFamilyId,
+            code: !this.isParentUser(me)
+              ? 'AUTH_ME_NOT_PARENT'
+              : 'AUTH_ME_FAMILY_MISMATCH',
+          };
+        } else {
+          lastResult = {
+            ok: false,
+            kind: res.status >= 500 ? 'server' : 'contract',
+            status: res.status,
+            code: 'AUTH_ME_HTTP_' + res.status,
+          };
         }
-      } catch {
-        // retry until timeout
+      } catch (error) {
+        lastResult = {
+          ok: false,
+          kind: 'contract',
+          code: 'AUTH_ME_NETWORK',
+          error: error && error.message,
+        };
       }
-      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      if (attempt < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
     }
-    return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT_TIMEOUT' };
+
+    if (!lastResult) {
+      return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT_TIMEOUT' };
+    }
+    return Object.assign({ ok: false, kind: lastResult.kind || 'contract' }, lastResult);
   },
 
-  async _finishParentHandoffRestoreThen(onReady) {
-    const synced = await this._syncParentSessionFromServer(12000);
-    if (!synced.ok) {
-      this._showLogoutFailureMessage(synced.kind === 'server' ? 'server' : 'contract');
-      return;
+  async _finishParentHandoffRestoreThen(onReady, expectedFamilyId) {
+    const result = await this._syncParentSessionFromServer(expectedFamilyId);
+    if (!result.ok) {
+      return result;
     }
-    if (typeof onReady === 'function') onReady();
+    if (typeof onReady === 'function') {
+      onReady(result.user);
+    }
+    return result;
   },
 
   /**
    * After child logout with handoff consume (no PIN): sync client to parent session
    * before leaving child device mode — SessionGate stays unchanged globally.
    */
-  async _completeHandoffParentSessionRestore() {
-    const synced = await this._syncParentSessionFromServer(12000);
-    if (!synced.ok) {
-      return synced;
-    }
-    window.location.href = '/dashboard';
-    return { ok: true };
+  async _completeHandoffParentSessionRestore(expectedFamilyId) {
+    return this._finishParentHandoffRestoreThen(function () {
+      window.location.replace('/dashboard');
+    }, expectedFamilyId);
   },
 
   _clearStaleChildLocalState() {
@@ -1132,7 +1185,11 @@ const Auth = {
         if (applyPickerResponse && res.ok && res.parent) {
           Auth.setAuth(null, res.parent, res.csrfToken || csrf);
           document.body.removeChild(overlay);
-          void Auth._finishParentHandoffRestoreThen(onSuccess);
+          void Auth._finishParentHandoffRestoreThen(onSuccess, opts.expectedFamilyId).then(function (restored) {
+            if (!restored.ok) {
+              Auth._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
+            }
+          });
           return;
         }
         if (res.ok && res.gateToken) {
