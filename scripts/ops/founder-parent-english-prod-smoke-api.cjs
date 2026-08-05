@@ -10,6 +10,7 @@ const {
   snapshotsEqual,
 } = require('./founder-smoke-report-lib.cjs');
 const { vpsDb } = require('./founder-smoke-vps.cjs');
+const { performSc5ProdCleanup } = require('./founder-smoke-sc5-cleanup.cjs');
 
 const BASE = process.env.SMOKE_BASE_URL || process.env.PROD_BASE;
 const VPS_APP = process.env.VPS_APP_PATH;
@@ -148,10 +149,14 @@ async function runApiSmoke(opts = {}) {
   }
 
   try {
+    const child4 = await childSession(CHILD_USER);
     report.scenarios.sc4_sv_control = {
       parent_locale: me.preferred_locale,
-      pass: me.preferred_locale === 'sv-SE',
-      child: await childSession(CHILD_USER),
+      child: child4,
+      pass:
+        me.preferred_locale === 'sv-SE' &&
+        child4.status === 200 &&
+        child4.childMe?.child_ui_locale === 'sv-SE',
     };
 
     if (process.env.FOUNDER_SMOKE_VPS === '1') {
@@ -201,8 +206,9 @@ async function runApiSmoke(opts = {}) {
 
     const regEmail = `smoke-${Date.now()}@example.com`;
     const regPass = `SmokeTest-${Date.now()}!aB`;
-    let sc5Cookies = null;
-    let sc5Csrf = null;
+    const smokeRunStartedAt = Date.now();
+    let registerCreatedFamily = false;
+    let smokeFamilyId = null;
     try {
       const regRes = await jfetch(`${BASE}/api/auth/register`, {
         method: 'POST',
@@ -222,14 +228,18 @@ async function runApiSmoke(opts = {}) {
           reason: 'register failed on prod',
         };
       } else {
-        sc5Cookies = jar();
+        registerCreatedFamily = true;
+        const sc5Cookies = jar();
         const sc5Login = await parentLogin(sc5Cookies, regEmail, regPass);
-        sc5Csrf = sc5Login.csrf;
+        const sc5Csrf = sc5Login.csrf;
+        const me5reg = await parentMe(sc5Cookies);
+        smokeFamilyId = me5reg?.family_id || null;
         const opts5 = await localeOptions(sc5Cookies);
         const putEn = await apiLocale(sc5Cookies, sc5Csrf, 'en-GB');
         const me5 = await parentMe(sc5Cookies);
         report.scenarios.sc5_new_family = {
           register: regStatus,
+          family_id: smokeFamilyId,
           locale_options: opts5,
           put_en_gb_status: putEn.status,
           put_en_gb_error: putEn.body?.error,
@@ -242,12 +252,22 @@ async function runApiSmoke(opts = {}) {
         };
       }
     } finally {
-      if (sc5Cookies && sc5Csrf && /^smoke-\d+@example\.com$/.test(regEmail)) {
-        const delStatus = await deleteSmokeFamily(sc5Cookies, sc5Csrf);
-        report.sc5_cleanup = { delete_account_status: delStatus, email: regEmail };
-        if (delStatus !== 200 && delStatus !== 204) {
-          report.errors.push(`sc5 cleanup delete-account returned ${delStatus}`);
-        }
+      const vpsOn = process.env.FOUNDER_SMOKE_VPS === '1';
+      report.sc5_cleanup = await performSc5ProdCleanup({
+        base: BASE,
+        email: regEmail,
+        password: regPass,
+        smokeRunStartedAt,
+        registerCreatedFamily,
+        knownFamilyId: smokeFamilyId,
+        parentLogin: { jar, fn: parentLogin },
+        parentMe,
+        deleteSmokeFamily,
+        vpsEnabled: vpsOn,
+        vpsDb: vpsOn ? vpsDb : null,
+      });
+      if (report.sc5_cleanup.ok !== true) {
+        report.errors.push('sc5_cleanup failed');
       }
     }
   } finally {

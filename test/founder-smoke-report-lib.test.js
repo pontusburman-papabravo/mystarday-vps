@@ -7,6 +7,22 @@ const {
   snapshotsEqual,
 } = require('../scripts/ops/founder-smoke-report-lib.cjs');
 
+const HEALTH_OK = {
+  english_global_flag_read_ok: true,
+  english_global_flag_row_present: true,
+  english_global_flag_enabled: false,
+};
+
+function allScenariosPass() {
+  return {
+    sc1_grandfather: { pass: true },
+    sc2_child_en: { pass: true },
+    sc3_separation: { pass: true },
+    sc4_sv_control: { pass: true },
+    sc5_new_family: { pass: true },
+  };
+}
+
 describe('founder smoke report lib', () => {
   it('treats skip as incomplete', () => {
     const report = finalizeFounderSmokeReport(
@@ -20,6 +36,9 @@ describe('founder smoke report lib', () => {
         },
         restored: true,
         restore_matches_snapshot: true,
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        sc5_cleanup: { ok: true },
         errors: [],
       },
       { requireRestore: true, requireBrowser: false }
@@ -31,15 +50,46 @@ describe('founder smoke report lib', () => {
   it('requires restore_matches_snapshot for PASS', () => {
     const report = finalizeFounderSmokeReport(
       {
-        scenarios: {
-          sc1_grandfather: { pass: true },
-          sc2_child_en: { pass: true },
-          sc3_separation: { pass: true },
-          sc4_sv_control: { pass: true },
-          sc5_new_family: { pass: true },
-        },
+        scenarios: allScenariosPass(),
         restored: true,
         restore_matches_snapshot: false,
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        sc5_cleanup: { ok: true },
+        errors: [],
+      },
+      { requireRestore: true, requireBrowser: false }
+    );
+    assert.equal(report.overall, 'INCOMPLETE');
+  });
+
+  it('fails when browser scenarios pass but browser_restore mismatch', () => {
+    const report = finalizeFounderSmokeReport(
+      {
+        scenarios: allScenariosPass(),
+        restored: true,
+        restore_matches_snapshot: true,
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        sc5_cleanup: { ok: true },
+        browser: { pass: false, scenarios_pass: true, restore_pass: false },
+        browser_restore: { restored: true, restore_matches_snapshot: false },
+        errors: [],
+      },
+      { requireRestore: true, requireBrowser: true, requireBrowserRestore: true }
+    );
+    assert.equal(report.overall, 'INCOMPLETE');
+  });
+
+  it('fails when sc5_cleanup is not ok', () => {
+    const report = finalizeFounderSmokeReport(
+      {
+        scenarios: allScenariosPass(),
+        restored: true,
+        restore_matches_snapshot: true,
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        sc5_cleanup: { ok: false },
         errors: [],
       },
       { requireRestore: true, requireBrowser: false }

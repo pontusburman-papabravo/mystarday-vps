@@ -5,9 +5,14 @@
  * Usage: node scripts/ops/founder-smoke-db-helper.mjs snapshot|restore|set --family-id <uuid> [--slug english_app] [--on|--off]
  */
 const db = require('../../src/lib/db');
-const { assertFamilyEligibleForFounderOverride } = require('../../src/lib/founder-qa-family-guard');
+const {
+  assertFamilyEligibleForFounderOverride,
+  isFounderQaParentEmail,
+  normalizeEmail,
+} = require('../../src/lib/founder-qa-family-guard');
 
 const SNAPSHOT_KEY = ['english_app', 'english_child_experience'];
+const SMOKE_EMAIL_RE = /^smoke-\d+@example\.com$/i;
 
 async function snapshot(familyId) {
   const locale = await db.query(
@@ -49,10 +54,157 @@ async function restore(familyId, snap) {
   }
 }
 
+async function assertSmokeFamilyDeletable(familyId, expectedEmail, notBeforeMs) {
+  const email = normalizeEmail(expectedEmail);
+  if (!SMOKE_EMAIL_RE.test(email)) {
+    throw new Error('refusing delete: email is not smoke-*@example.com');
+  }
+  if (isFounderQaParentEmail(email)) {
+    throw new Error('refusing delete: founder QA email');
+  }
+  const parents = await db.query('SELECT id, email FROM parent WHERE family_id = $1', [familyId]);
+  if (parents.rows.length !== 1) {
+    throw new Error('refusing delete: expected exactly one parent');
+  }
+  if (normalizeEmail(parents.rows[0].email) !== email) {
+    throw new Error('refusing delete: parent email mismatch');
+  }
+  const fam = await db.query('SELECT created_at FROM family WHERE id = $1', [familyId]);
+  if (!fam.rows[0]) throw new Error('refusing delete: family not found');
+  if (notBeforeMs != null && Number.isFinite(Number(notBeforeMs))) {
+    const createdMs = new Date(fam.rows[0].created_at).getTime();
+    if (createdMs < Number(notBeforeMs)) {
+      throw new Error('refusing delete: family created before smoke run window');
+    }
+  }
+}
+
+async function findSmokeFamilyByEmail(email, notBeforeMs) {
+  const normalized = normalizeEmail(email);
+  if (!SMOKE_EMAIL_RE.test(normalized)) {
+    return { family_id: null };
+  }
+  const { rows } = await db.query(
+    `SELECT f.id, f.created_at, p.email
+     FROM family f
+     JOIN parent p ON p.family_id = f.id
+     WHERE lower(p.email) = $1`,
+    [normalized]
+  );
+  if (!rows.length) return { family_id: null };
+  if (rows.length > 1) {
+    throw new Error('ambiguous smoke email: multiple families');
+  }
+  if (isFounderQaParentEmail(rows[0].email)) {
+    throw new Error('refusing lookup: founder QA email');
+  }
+  if (notBeforeMs != null && Number.isFinite(Number(notBeforeMs))) {
+    const createdMs = new Date(rows[0].created_at).getTime();
+    if (createdMs < Number(notBeforeMs)) {
+      return { family_id: null, reason: 'too_old' };
+    }
+  }
+  return { family_id: rows[0].id };
+}
+
+async function familyExists(familyId) {
+  const { rows } = await db.query('SELECT 1 FROM family WHERE id = $1', [familyId]);
+  return { exists: rows.length > 0 };
+}
+
+/** Minimal disposable smoke-family delete (smoke-*@example.com only). */
+async function deleteSmokeFamilyRow(client, familyId) {
+  const children = await client.query('SELECT id FROM child WHERE family_id = $1', [familyId]);
+  for (const child of children.rows) {
+    await client.query(
+      `DELETE FROM daily_log_item WHERE daily_log_id IN (
+         SELECT id FROM daily_log WHERE child_id = $1
+       )`,
+      [child.id]
+    );
+    await client.query('DELETE FROM daily_log WHERE child_id = $1', [child.id]);
+    await client.query(
+      `DELETE FROM weekly_schedule_item WHERE weekly_schedule_id IN (
+         SELECT id FROM weekly_schedule WHERE child_id = $1
+       )`,
+      [child.id]
+    );
+    await client.query('DELETE FROM weekly_schedule WHERE child_id = $1', [child.id]);
+    await client.query('DELETE FROM streak WHERE child_id = $1', [child.id]);
+    await client.query('DELETE FROM reward_redemption WHERE child_id = $1', [child.id]);
+  }
+  await client.query(
+    'DELETE FROM parent_child WHERE child_id IN (SELECT id FROM child WHERE family_id = $1) OR parent_id IN (SELECT id FROM parent WHERE family_id = $1)',
+    [familyId]
+  );
+  await client.query('DELETE FROM child WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM reward WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM activity_template WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM category WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM family_invite WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM family_features WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM family_subscriptions WHERE family_id = $1', [familyId]);
+  await client.query(
+    'DELETE FROM refresh_token WHERE parent_id IN (SELECT id FROM parent WHERE family_id = $1)',
+    [familyId]
+  );
+  await client.query('DELETE FROM parent WHERE family_id = $1', [familyId]);
+  await client.query('DELETE FROM family WHERE id = $1', [familyId]);
+}
+
+async function deleteSmokeFamilyCmd(familyId, email, notBeforeMs) {
+  await assertSmokeFamilyDeletable(familyId, email, notBeforeMs);
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+    await deleteSmokeFamilyRow(client, familyId);
+    await client.query('COMMIT');
+    return { ok: true, family_id: familyId };
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const cmd = args[0];
+
+  if (cmd === 'find-smoke-family') {
+    const email = args[args.indexOf('--email') + 1];
+    const notBefore = args[args.indexOf('--not-before') + 1];
+    if (!email) {
+      console.error('missing --email');
+      process.exit(2);
+    }
+    console.log(JSON.stringify(await findSmokeFamilyByEmail(email, notBefore)));
+    return;
+  }
+
   const familyId = args[args.indexOf('--family-id') + 1];
+
+  if (cmd === 'family-exists') {
+    if (!familyId) {
+      console.error('missing --family-id');
+      process.exit(2);
+    }
+    console.log(JSON.stringify(await familyExists(familyId)));
+    return;
+  }
+
+  if (cmd === 'delete-smoke-family') {
+    const email = args[args.indexOf('--email') + 1];
+    const notBefore = args[args.indexOf('--not-before') + 1];
+    if (!familyId || !email) {
+      console.error('delete-smoke-family requires --family-id and --email');
+      process.exit(2);
+    }
+    console.log(JSON.stringify(await deleteSmokeFamilyCmd(familyId, email, notBefore)));
+    return;
+  }
+
   if (!familyId) {
     console.error('missing --family-id');
     process.exit(2);

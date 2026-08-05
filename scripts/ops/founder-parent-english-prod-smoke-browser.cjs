@@ -2,12 +2,15 @@
 'use strict';
 
 /**
- * Founder prod smoke — browser (parent/child locale UI, handoff, reload, logout).
- * VPS phases mirror API scenarios 1–4 UI; does not toggle english_app_global.
+ * Founder prod smoke — browser (locale UI, handoff, reload, logout).
  */
 const puppeteer = require('puppeteer');
 const { vpsDb } = require('./founder-smoke-vps.cjs');
 const { snapshotsEqual } = require('./founder-smoke-report-lib.cjs');
+const {
+  evaluateChildTodaySessionPass,
+  computeBrowserPass,
+} = require('./founder-smoke-browser-child.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
@@ -57,29 +60,71 @@ async function pageText(page) {
   return page.evaluate(() => document.body.innerText || '');
 }
 
-async function enterChildPin(page) {
-  await page.waitForSelector('#clKeypad', { visible: true, timeout: 30000 }).catch(() => null);
-  if (!(await page.$('#clKeypad'))) return false;
-  await page.evaluate((pin) => {
-    for (const digit of String(pin)) {
-      document.querySelector(`#clKeypad button[data-action="${digit}"]`)?.click();
-    }
-  }, CHILD_PIN);
-  await page
-    .waitForFunction(() => /\/child/.test(window.location.pathname), { timeout: 60000 })
-    .catch(() => {});
-  return (await page.evaluate(() => window.location.pathname)).includes('child');
+async function selectExpectedChild(page, expectedUsername) {
+  await page.waitForSelector('#clKeypad, .cl-child-card', { visible: true, timeout: 30000 });
+  const hasCard = await page.$(`.cl-child-card[data-username="${expectedUsername}"]`);
+  if (hasCard) {
+    await page.evaluate((user) => {
+      document.querySelector(`.cl-child-card[data-username="${user}"]`)?.click();
+    }, expectedUsername);
+    await page.waitForSelector('#clKeypad', { visible: true, timeout: 20000 });
+  } else {
+    await page.evaluate((user) => {
+      if (typeof window.selectChild === 'function') window.selectChild(user);
+    }, expectedUsername);
+    await page.waitForSelector('#clKeypad', { visible: true, timeout: 20000 }).catch(() => {});
+  }
 }
 
-async function childLoginFlow(page) {
+/**
+ * @param {import('puppeteer').Page} page
+ * @param {string} expectedUsername
+ * @param {'en-GB'|'sv-SE'} expectedChildUiLocale
+ * @param {string} [pinOverride]
+ */
+async function enterChildPin(page, expectedUsername, expectedChildUiLocale, pinOverride) {
   await page.goto(`${BASE}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  return enterChildPin(page);
+  await selectExpectedChild(page, expectedUsername);
+
+  const pin = pinOverride != null ? pinOverride : CHILD_PIN;
+  await page.evaluate((p) => {
+    for (const digit of String(p)) {
+      document.querySelector(`#clKeypad button[data-action="${digit}"]`)?.click();
+    }
+  }, pin);
+
+  try {
+    await page.waitForFunction(
+      () =>
+        window.location.pathname === '/child/today' ||
+        window.location.pathname.startsWith('/child/dashboard'),
+      { timeout: 60000 }
+    );
+  } catch {
+    // stay on login — evaluated below
+  }
+
+  const pathname = await page.evaluate(() => window.location.pathname);
+  const me = await fetchMe(page);
+  const todayBodyText = await pageText(page);
+  const evalResult = evaluateChildTodaySessionPass({
+    pathname,
+    me,
+    expectedUsername,
+    expectedChildUiLocale,
+    todayBodyText,
+  });
+
+  return {
+    path: pathname,
+    me,
+    pass: evalResult.pass === true,
+    reason: evalResult.reason,
+  };
 }
 
 async function openSettings(page) {
-  await page.goto(`${BASE}/settings`, { waitUntil: 'networkidle2', timeout: 90000 }).catch(() =>
-    page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded', timeout: 90000 })
-  );
+  await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded', timeout: 90000 });
   return !(await page.evaluate(() => window.location.pathname)).includes('/login');
 }
 
@@ -128,25 +173,16 @@ async function runBrowserSmoke() {
     if (VPS_ON && familyId) snap = vpsDb('snapshot', familyId);
 
     try {
-      const settingsOk = await openSettings(page);
-      const svText = await pageText(page);
+      const child4 = await enterChildPin(page, CHILD_USER, 'sv-SE');
       scenarios.browser_sc4_sv_control = {
-        pass:
-          settingsOk &&
-          (/språk/i.test(svText) || /familjeinställningar/i.test(svText)) &&
-          !/\bfamily settings\b/i.test(svText),
-        settings_reachable: settingsOk,
+        ...child4,
+        pass: child4.pass === true,
       };
 
       if (VPS_ON && familyId) {
         vpsDb('set-locale', familyId, ['--locale', 'en-GB']);
         vpsDb('set', familyId, ['--slug', 'english_app', '--off']);
-        await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
-        await fillParentLogin(page, EMAIL, PASSWORD);
-        await page.waitForFunction(
-          () => /\/(dashboard|onboarding|planning)/.test(window.location.pathname),
-          { timeout: 90000 }
-        );
+        await loginParent(page);
         await openSettings(page);
         const enParentText = await pageText(page);
         scenarios.browser_sc1_parent_english = {
@@ -158,25 +194,13 @@ async function runBrowserSmoke() {
 
         vpsDb('set', familyId, ['--slug', 'english_app', '--on']);
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--on']);
-        const childEn = await childLoginFlow(page);
-        const childEnText = await pageText(page);
-        scenarios.browser_sc2_child_english = {
-          pass:
-            childEn &&
-            (/\btoday\b/i.test(childEnText) || /who are you/i.test(childEnText) || /log in as a child/i.test(childEnText)),
-          on_child_path: childEn,
-        };
+        const childEn = await enterChildPin(page, CHILD_USER, 'en-GB');
+        scenarios.browser_sc2_child_english = childEn;
 
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--off']);
         await loginParent(page);
-        const childSv = await childLoginFlow(page);
-        const childSvText = await pageText(page);
-        scenarios.browser_sc3_child_separation = {
-          pass:
-            childSv &&
-            (/idag/i.test(childSvText) || /vem är du/i.test(childSvText) || /logga in som barn/i.test(childSvText)),
-          on_child_path: childSv,
-        };
+        const childSv = await enterChildPin(page, CHILD_USER, 'sv-SE');
+        scenarios.browser_sc3_child_separation = childSv;
 
         await loginParent(page);
         const handoffSettings = await openSettings(page);
@@ -190,12 +214,12 @@ async function runBrowserSmoke() {
             .catch(() => {});
         }
         const handoffPath = await page.evaluate(() => window.location.pathname);
-        const handoffChild = await enterChildPin(page).catch(() => false);
+        const handoffChild = await enterChildPin(page, CHILD_USER, 'sv-SE');
         scenarios.browser_handoff = {
           pass:
             handoffSettings &&
             (handoffPath.includes('child-login') || handoffPath.includes('login')) &&
-            handoffChild,
+            handoffChild.pass === true,
           path: handoffPath,
         };
       } else {
@@ -234,16 +258,23 @@ async function runBrowserSmoke() {
           restore_matches_snapshot:
             restored?.restore_matches_snapshot === true || snapshotsEqual(snap, restored?.after),
         };
+      } else if (VPS_ON) {
+        restoreMeta = { restored: false, restore_matches_snapshot: false };
       }
     }
 
-    const allPass = Object.values(scenarios).every((s) => s.pass === true);
+    const passBits = computeBrowserPass({ scenarios, restoreMeta, vpsOn: VPS_ON });
     return {
       part: 'browser',
       base: BASE,
       scenarios,
-      browser: { scenarios, pass: allPass },
-      ...restoreMeta,
+      restore: restoreMeta,
+      browser: {
+        scenarios,
+        scenarios_pass: passBits.scenariosPass,
+        restore_pass: passBits.restorePass,
+        pass: passBits.pass,
+      },
     };
   } finally {
     await browser.close();
@@ -263,4 +294,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { runBrowserSmoke };
+module.exports = { runBrowserSmoke, enterChildPin, selectExpectedChild, evaluateChildTodaySessionPass };

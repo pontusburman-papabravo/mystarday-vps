@@ -31,13 +31,15 @@ function vpsDb(cmd, familyId, extra, env = process.env) {
     cliExtra = extra.join(' ');
   }
 
+  const familyArg = familyId ? `--family-id ${familyId}` : '';
+
   const remote = [
     'set -a',
     `[ -f ${VPS_APP}/.env ] && . ${VPS_APP}/.env`,
     'set +a',
     `cd ${VPS_APP}`,
     `export FOUNDER_QA_EMAIL=${JSON.stringify(EMAIL)}`,
-    `node scripts/ops/founder-smoke-db-helper.cjs ${cmd} --family-id ${familyId} ${cliExtra}`,
+    `node scripts/ops/founder-smoke-db-helper.cjs ${cmd} ${familyArg} ${cliExtra}`.replace(/\s+/g, ' ').trim(),
   ].join(' && ');
 
   const out = execFileSync(path.join(__dirname, '../vps-ssh.sh'), [remote], {

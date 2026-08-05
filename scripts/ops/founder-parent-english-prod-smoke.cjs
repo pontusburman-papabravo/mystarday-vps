@@ -7,11 +7,18 @@
 const { runApiSmoke } = require('./founder-parent-english-prod-smoke-api.cjs');
 const { runBrowserSmoke } = require('./founder-parent-english-prod-smoke-browser.cjs');
 const { finalizeFounderSmokeReport } = require('./founder-smoke-report-lib.cjs');
+const { assertEnglishGlobalHealthContract } = require('./founder-smoke-health.cjs');
 
 const mode = process.env.FOUNDER_SMOKE_MODE || process.argv[2] || 'all';
 
+async function fetchHealth(base) {
+  const res = await fetch(`${base.replace(/\/$/, '')}/health`);
+  return res.json();
+}
+
 async function main() {
   const requireRestore = process.env.FOUNDER_SMOKE_VPS === '1';
+  const base = process.env.SMOKE_BASE_URL || process.env.PROD_BASE;
 
   if (mode === 'api') {
     const report = await runApiSmoke({});
@@ -21,16 +28,24 @@ async function main() {
   }
 
   if (mode === 'browser') {
+    const health = base ? await fetchHealth(base) : null;
     const browserReport = await runBrowserSmoke();
     const report = {
       base: browserReport.base,
       part: 'browser',
+      health,
+      health_after: base ? await fetchHealth(base) : null,
       browser: browserReport.browser,
+      browser_restore: browserReport.restore,
       browser_scenarios: browserReport.scenarios,
-      overall: browserReport.browser?.pass ? 'PASS' : 'INCOMPLETE',
     };
-    console.log(JSON.stringify(report, null, 2));
-    if (report.overall !== 'PASS') process.exit(1);
+    const finalized = finalizeFounderSmokeReport(report, {
+      requireRestore: false,
+      requireBrowser: true,
+      requireBrowserRestore: requireRestore,
+    });
+    console.log(JSON.stringify(finalized, null, 2));
+    if (finalized.overall !== 'PASS') process.exit(1);
     return;
   }
 
@@ -41,9 +56,10 @@ async function main() {
       {
         ...apiReport,
         browser: browserReport.browser,
+        browser_restore: browserReport.restore,
         browser_scenarios: browserReport.scenarios,
       },
-      { requireRestore, requireBrowser: true }
+      { requireRestore, requireBrowser: true, requireBrowserRestore: requireRestore }
     );
     console.log(JSON.stringify(merged, null, 2));
     if (merged.overall !== 'PASS') process.exit(1);

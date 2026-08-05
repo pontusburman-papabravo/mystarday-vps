@@ -1,5 +1,8 @@
 'use strict';
 
+const { evaluateSc5CleanupOk } = require('./founder-smoke-sc5-cleanup.cjs');
+const { assertEnglishGlobalHealthContract } = require('./founder-smoke-health.cjs');
+
 /** Scenarios 1–5 must all report `pass: true` — no skip/null as success. */
 const REQUIRED_SCENARIO_KEYS = [
   'sc1_grandfather',
@@ -23,7 +26,11 @@ function snapshotsEqual(a, b) {
  * @param {{ requireRestore?: boolean, requireBrowser?: boolean }} opts
  */
 function finalizeFounderSmokeReport(report, opts = {}) {
-  const { requireRestore = true, requireBrowser = false } = opts;
+  const {
+    requireRestore = true,
+    requireBrowser = false,
+    requireBrowserRestore = false,
+  } = opts;
   const scenarioResults = {};
   const failed = [];
   const missing = [];
@@ -62,8 +69,26 @@ function finalizeFounderSmokeReport(report, opts = {}) {
     report.errors.push('browser smoke must pass');
   }
 
+  if (report.scenarios?.sc5_new_family !== undefined && !evaluateSc5CleanupOk(report.sc5_cleanup)) {
+    report.errors = report.errors || [];
+    report.errors.push('sc5_cleanup.ok must be true');
+  }
+
+  const healthBefore = assertEnglishGlobalHealthContract(report.health, 'health_before');
+  const healthAfter = assertEnglishGlobalHealthContract(report.health_after, 'health_after');
+  if (!healthBefore.ok) report.errors = (report.errors || []).concat(healthBefore.errors);
+  if (!healthAfter.ok) report.errors = (report.errors || []).concat(healthAfter.errors);
+
   const restoreOk =
     !requireRestore || (report.restored === true && report.restore_matches_snapshot === true);
+  if (requireBrowserRestore && report.browser_restore) {
+    const br = report.browser_restore;
+    if (br.restored !== true || br.restore_matches_snapshot !== true) {
+      report.errors = report.errors || [];
+      report.errors.push('browser_restore must report restored and restore_matches_snapshot');
+    }
+  }
+
   const browserOk = !requireBrowser || report.browser?.pass === true;
 
   report.overall =
