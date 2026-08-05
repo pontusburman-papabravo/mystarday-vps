@@ -40,6 +40,7 @@ async function main() {
       browser_scenarios: browserReport.scenarios,
     };
     const finalized = finalizeFounderSmokeReport(report, {
+      requireApiScenarios: false,
       requireRestore: false,
       requireBrowser: true,
       requireBrowserRestore: requireRestore,

@@ -27,6 +27,7 @@ function snapshotsEqual(a, b) {
  */
 function finalizeFounderSmokeReport(report, opts = {}) {
   const {
+    requireApiScenarios = true,
     requireRestore = true,
     requireBrowser = false,
     requireBrowserRestore = false,
@@ -35,23 +36,26 @@ function finalizeFounderSmokeReport(report, opts = {}) {
   const failed = [];
   const missing = [];
 
-  for (const key of REQUIRED_SCENARIO_KEYS) {
-    const s = report.scenarios?.[key];
-    if (!s) {
-      missing.push(key);
-      scenarioResults[key] = 'missing';
-      continue;
+  if (requireApiScenarios) {
+    for (const key of REQUIRED_SCENARIO_KEYS) {
+      const s = report.scenarios?.[key];
+      if (!s) {
+        missing.push(key);
+        scenarioResults[key] = 'missing';
+        continue;
+      }
+      if (s.pass !== true) {
+        failed.push(key);
+        scenarioResults[key] = s.pass === false ? 'fail' : 'incomplete';
+      } else {
+        scenarioResults[key] = 'pass';
+      }
     }
-    if (s.pass !== true) {
-      failed.push(key);
-      scenarioResults[key] = s.pass === false ? 'fail' : 'incomplete';
-    } else {
-      scenarioResults[key] = 'pass';
-    }
+    report.scenario_results = scenarioResults;
+    report.scenarios_complete = missing.length === 0 && failed.length === 0;
+  } else {
+    report.scenarios_complete = true;
   }
-
-  report.scenario_results = scenarioResults;
-  report.scenarios_complete = missing.length === 0 && failed.length === 0;
 
   if (requireRestore) {
     if (report.restored !== true) {
@@ -81,9 +85,9 @@ function finalizeFounderSmokeReport(report, opts = {}) {
 
   const restoreOk =
     !requireRestore || (report.restored === true && report.restore_matches_snapshot === true);
-  if (requireBrowserRestore && report.browser_restore) {
+  if (requireBrowserRestore) {
     const br = report.browser_restore;
-    if (br.restored !== true || br.restore_matches_snapshot !== true) {
+    if (!br || br.restored !== true || br.restore_matches_snapshot !== true) {
       report.errors = report.errors || [];
       report.errors.push('browser_restore must report restored and restore_matches_snapshot');
     }

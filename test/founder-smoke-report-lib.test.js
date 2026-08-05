@@ -97,6 +97,62 @@ describe('founder smoke report lib', () => {
     assert.equal(report.overall, 'INCOMPLETE');
   });
 
+  it('fails when browser_restore missing under requireBrowserRestore', () => {
+    const report = finalizeFounderSmokeReport(
+      {
+        scenarios: allScenariosPass(),
+        restored: true,
+        restore_matches_snapshot: true,
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        sc5_cleanup: { ok: true },
+        browser: { pass: true },
+        errors: [],
+      },
+      { requireApiScenarios: true, requireRestore: true, requireBrowser: true, requireBrowserRestore: true }
+    );
+    assert.equal(report.overall, 'INCOMPLETE');
+  });
+
+  it('browser-only can PASS without API scenarios', () => {
+    const report = finalizeFounderSmokeReport(
+      {
+        part: 'browser',
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        browser: { pass: true },
+        browser_restore: { restored: true, restore_matches_snapshot: true },
+        errors: [],
+      },
+      {
+        requireApiScenarios: false,
+        requireRestore: false,
+        requireBrowser: true,
+        requireBrowserRestore: true,
+      }
+    );
+    assert.equal(report.overall, 'PASS');
+  });
+
+  it('browser-only fails without browser pass', () => {
+    const report = finalizeFounderSmokeReport(
+      {
+        health: HEALTH_OK,
+        health_after: HEALTH_OK,
+        browser: { pass: false },
+        browser_restore: { restored: true, restore_matches_snapshot: true },
+        errors: [],
+      },
+      {
+        requireApiScenarios: false,
+        requireRestore: false,
+        requireBrowser: true,
+        requireBrowserRestore: true,
+      }
+    );
+    assert.equal(report.overall, 'INCOMPLETE');
+  });
+
   it('snapshotsEqual compares sorted features', () => {
     assert.equal(
       snapshotsEqual(

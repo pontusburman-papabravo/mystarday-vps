@@ -16,6 +16,7 @@ const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
 const PASSWORD = process.env.FOUNDER_QA_PASSWORD;
 const CHILD_PIN = process.env.FOUNDER_CHILD_PIN;
+const PARENT_PIN = process.env.FOUNDER_PARENT_PIN;
 let CHILD_USER = process.env.FOUNDER_CHILD_USERNAME;
 const VPS_ON = process.env.FOUNDER_SMOKE_VPS === '1';
 
@@ -80,10 +81,21 @@ async function selectExpectedChild(page, expectedUsername) {
  * @param {import('puppeteer').Page} page
  * @param {string} expectedUsername
  * @param {'en-GB'|'sv-SE'} expectedChildUiLocale
- * @param {string} [pinOverride]
+ * @param {{ pinOverride?: string, navigate?: boolean } | string} [options]
  */
-async function enterChildPin(page, expectedUsername, expectedChildUiLocale, pinOverride) {
-  await page.goto(`${BASE}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+async function enterChildPin(page, expectedUsername, expectedChildUiLocale, options = {}) {
+  let pinOverride;
+  let navigate = true;
+  if (typeof options === 'string') {
+    pinOverride = options;
+  } else {
+    pinOverride = options.pinOverride;
+    if (options.navigate === false) navigate = false;
+  }
+
+  if (navigate) {
+    await page.goto(`${BASE}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  }
   await selectExpectedChild(page, expectedUsername);
 
   const pin = pinOverride != null ? pinOverride : CHILD_PIN;
@@ -120,6 +132,65 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, pinO
     me,
     pass: evalResult.pass === true,
     reason: evalResult.reason,
+  };
+}
+
+async function enterParentPinOverlay(page) {
+  if (!PARENT_PIN) return false;
+  await page.waitForSelector('#ppin-gate-overlay', { visible: true, timeout: 15000 }).catch(() => null);
+  if (!(await page.$('#ppin-gate-overlay'))) return false;
+  await page.evaluate((pin) => {
+    const kbd = document.getElementById('ppgo-keypad');
+    if (!kbd) return;
+    const buttons = [...kbd.querySelectorAll('button')];
+    for (const digit of String(pin)) {
+      buttons.find((b) => b.textContent.trim() === digit)?.click();
+    }
+    buttons.find((b) => b.textContent.trim() === '✓')?.click();
+  }, PARENT_PIN);
+  return true;
+}
+
+/** Child logout handoff → parent session without email/password login. */
+async function returnToParentViaChildHandoff(page) {
+  await page.evaluate(() => document.getElementById('logoutBtn')?.click());
+  await page
+    .waitForFunction(
+      () =>
+        document.getElementById('ppin-gate-overlay') ||
+        /\/(dashboard|planning|settings)/.test(window.location.pathname),
+      { timeout: 30000 }
+    )
+    .catch(() => {});
+
+  if (await page.$('#ppin-gate-overlay')) {
+    const entered = await enterParentPinOverlay(page);
+    if (!entered) {
+      return { pass: false, reason: 'parent_pin_overlay_without_FOUNDER_PARENT_PIN' };
+    }
+    await page
+      .waitForFunction(
+        () => /\/(dashboard|planning|settings)/.test(window.location.pathname),
+        { timeout: 45000 }
+      )
+      .catch(() => {});
+  }
+
+  const path = await page.evaluate(() => window.location.pathname);
+  const onLoginForm = await page.evaluate(() => Boolean(document.getElementById('loginForm')));
+  const me = await fetchMe(page);
+  const pass =
+    !onLoginForm &&
+    !path.startsWith('/login') &&
+    me &&
+    me.type === 'parent' &&
+    Boolean(me.email || me.id);
+
+  return {
+    pass: pass === true,
+    path,
+    parent_me: me ? { type: me.type, email: me.email } : null,
+    reason: pass ? undefined : 'parent_session_not_restored',
   };
 }
 
@@ -214,13 +285,19 @@ async function runBrowserSmoke() {
             .catch(() => {});
         }
         const handoffPath = await page.evaluate(() => window.location.pathname);
-        const handoffChild = await enterChildPin(page, CHILD_USER, 'sv-SE');
+        const handoffChild = await enterChildPin(page, CHILD_USER, 'sv-SE', { navigate: false });
+        const handoffParent = handoffChild.pass
+          ? await returnToParentViaChildHandoff(page)
+          : { pass: false, reason: 'child_handoff_login_failed' };
         scenarios.browser_handoff = {
           pass:
             handoffSettings &&
             (handoffPath.includes('child-login') || handoffPath.includes('login')) &&
-            handoffChild.pass === true,
+            handoffChild.pass === true &&
+            handoffParent.pass === true,
           path: handoffPath,
+          child: handoffChild,
+          parent_return: handoffParent,
         };
       } else {
         const vpsRequired = { pass: false, reason: 'FOUNDER_SMOKE_VPS=1 not set' };
