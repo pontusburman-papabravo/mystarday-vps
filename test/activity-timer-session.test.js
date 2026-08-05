@@ -177,6 +177,33 @@ describe('activity-timer-session (localStorage)', () => {
     assert.equal(store.size, 2);
   });
 
+  test('double resume is idempotent (running session unchanged)', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60);
+    ATS.pauseSession('c1', '2026-07-03', 'item-1', 60);
+    const first = ATS.resumeSession('c1', '2026-07-03', 'item-1');
+    const second = ATS.resumeSession('c1', '2026-07-03', 'item-1');
+    assert.equal(second.ends_at, first.ends_at);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
+    assert.equal(store.size, 1);
+    assert.equal(JSON.parse(store.get(key)).status, 'running');
+  });
+
+  test('paused remaining stable across simulated delay', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
+    const running = JSON.parse(store.get(key));
+    running.ends_at = new Date(Date.now() + 10_000).toISOString();
+    store.set(key, JSON.stringify(running));
+    ATS.pauseSession('c1', '2026-07-03', 'item-1', 30);
+    const paused = ATS.getSession('c1', '2026-07-03', 'item-1');
+    const rem1 = ATS.computeRemainingSeconds(paused, 30);
+    const rem2 = ATS.computeRemainingSeconds(paused, 30);
+    assert.equal(rem1, rem2);
+    assert.equal(paused.ends_at, null);
+  });
+
   test('clearSessionsForDailyLogItem removes parent and sub-step keys', () => {
     const { ATS, store } = loadActivityTimerSession();
     ATS.startSession('c1', '2026-07-03', 'item-1', 30);

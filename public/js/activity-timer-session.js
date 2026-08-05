@@ -200,7 +200,9 @@
   function resumeSession(childId, scheduleDate, dailyLogItemId, subStepId) {
     const key = storageKey(childId, scheduleDate, dailyLogItemId, subStepId);
     const session = read(key);
-    if (!session || session.status !== 'paused') return null;
+    if (!session) return null;
+    if (session.status === 'running') return session;
+    if (session.status !== 'paused') return null;
     const rem = Math.max(0, Math.ceil(session.paused_remaining_seconds || 0));
     const now = Date.now();
     session.status = 'running';
