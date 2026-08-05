@@ -136,7 +136,13 @@
     if (_wakeLockBound || typeof document === 'undefined') return;
     _wakeLockBound = true;
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible') syncScreenWakeLock();
+      if (document.visibilityState === 'visible') {
+        syncScreenWakeLock();
+        if (typeof global.ChildActivityTimer !== 'undefined'
+          && typeof global.ChildActivityTimer.tickAll === 'function') {
+          global.ChildActivityTimer.tickAll();
+        }
+      }
     });
   }
 
@@ -680,7 +686,7 @@
       ? parseInt(wrap.dataset.duration, 10)
       : (_overlayItem && _overlayItem.duration_seconds);
     if (!duration || !me || !currentDate) return;
-    ActivityTimerSession.startSession(me.id, currentDate, itemId, duration, subStepId || undefined);
+    ActivityTimerSession.startSession(me.id, currentDate, itemId, duration, subStepId || undefined, { force: true });
     if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
     refreshItemUI(itemId, duration, subStepId);
     if (subStepId) {

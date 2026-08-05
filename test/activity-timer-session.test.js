@@ -80,11 +80,34 @@ describe('activity-timer-session (localStorage)', () => {
     assert.equal(ATS.resolveStatus(null, 60), 'idle');
   });
 
+  test('start is idempotent while running (no ends_at reset)', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
+    const first = JSON.parse(store.get(key));
+    const endsFirst = first.ends_at;
+    ATS.startSession('c1', '2026-07-03', 'item-1', 60);
+    const second = JSON.parse(store.get(key));
+    assert.equal(second.ends_at, endsFirst);
+  });
+
+  test('force restart replaces running session', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30);
+    const key = 'activity_timer_session:c1:2026-07-03:item-1';
+    const running = JSON.parse(store.get(key));
+    running.ends_at = new Date(Date.now() + 4_000).toISOString();
+    store.set(key, JSON.stringify(running));
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30, undefined, { force: true });
+    const rem = ATS.computeRemainingSeconds(ATS.getSession('c1', '2026-07-03', 'item-1'), 30);
+    assert.ok(rem >= 28 && rem <= 30);
+  });
+
   test('restart starts fresh running session', () => {
     const { ATS } = loadActivityTimerSession();
     ATS.startSession('c1', '2026-07-03', 'item-1', 30);
     ATS.pauseSession('c1', '2026-07-03', 'item-1', 30);
-    ATS.startSession('c1', '2026-07-03', 'item-1', 30);
+    ATS.startSession('c1', '2026-07-03', 'item-1', 30, undefined, { force: true });
     const session = ATS.getSession('c1', '2026-07-03', 'item-1');
     assert.equal(ATS.resolveStatus(session, 30), 'running');
     const rem = ATS.computeRemainingSeconds(session, 30);
