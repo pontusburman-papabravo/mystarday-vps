@@ -41,6 +41,18 @@ describe('activity-timer server helpers', () => {
     assert.equal(activityTimerV2EnabledForChild(false), false);
   });
 
+  test('rollout kill switch disables child v2', () => {
+    const prev = process.env.ACTIVITY_TIMER_V2_DISABLED;
+    process.env.ACTIVITY_TIMER_V2_DISABLED = 'true';
+    const rolloutPath = require.resolve('../src/lib/activity-timer-rollout');
+    delete require.cache[rolloutPath];
+    const { isRolloutDisabled, activityTimerV2EnabledForChild } = require('../src/lib/activity-timer-rollout');
+    assert.equal(isRolloutDisabled(), true);
+    assert.equal(activityTimerV2EnabledForChild(true), false);
+    process.env.ACTIVITY_TIMER_V2_DISABLED = prev;
+    delete require.cache[rolloutPath];
+  });
+
   test('rollout allowlist helper still resolves founder email', () => {
     const { getAllowlist } = require('../src/lib/activity-timer-rollout');
     const list = getAllowlist();

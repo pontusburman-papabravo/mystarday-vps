@@ -11,7 +11,7 @@ const childId = urlParams.get('child') || urlParams.get('id');
 if (!childId) { window.location.href = '/family'; }
 
 let childData = null;
-let hasTeacchAccess = false;
+let hasTransitionSupportAccess = false;
 let pinBuffer = '';
 let selectedEmoji = '';
 let rewardsData = [];
@@ -722,7 +722,7 @@ function renderPage(child) {
     </div>
   </div>
 
-  ${hasTeacchAccess ? `
+  ${hasTransitionSupportAccess ? `
   <!-- 4b. Övergångsstöd (Extra stöd) -->
   <div class="section-card fade-in">
     <div class="section-title">⏳ Övergångsstöd</div>
@@ -1067,9 +1067,9 @@ async function init() {
           const res = await fetch('/api/subscription/access', { credentials: 'include' });
           if (res.ok) {
             const data = await res.json();
-            hasTeacchAccess = !!(data.components && data.components.teacch && data.components.teacch.has);
+            hasTransitionSupportAccess = !!(data.features && data.features.transition_support);
           }
-        } catch { hasTeacchAccess = false; }
+        } catch { hasTransitionSupportAccess = false; }
       })(),
     ]);
     const children = await Auth.api('/api/children');

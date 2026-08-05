@@ -70,6 +70,32 @@ test('GET /api/me/transition-support returns 403 without teacch', async (t) => {
   }
 });
 
+test('getFamilyAccess: teacch without transition_support dev grant is false', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  await seedBildstodPr3Features(db);
+  const familySubscriptions = require('../db/family-subscriptions');
+  const { getFamilyAccess } = require('../src/lib/package-access');
+
+  const familyRes = await db.query(`INSERT INTO family (name) VALUES ('PR3 teacch only') RETURNING id`);
+  const familyId = familyRes.rows[0].id;
+  await familySubscriptions.createForNewFamily(familyId);
+  await db.query(
+    `UPDATE family_subscriptions SET components = $1::jsonb WHERE family_id = $2`,
+    [JSON.stringify([{ component: 'basic_app', state: 'active' }, { component: 'teacch', state: 'active' }]), familyId]
+  );
+
+  const access = await getFamilyAccess(familyId);
+  assert.equal(access.components.teacch.has, true);
+  assert.equal(access.features.transition_support, false);
+
+  await db.query('DELETE FROM family WHERE id = $1', [familyId]);
+  await db.cleanup();
+});
+
 test('emotion_tracking hasAccess for basic_app families', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
