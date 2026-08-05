@@ -12,7 +12,7 @@ function read(rel) {
 }
 
 describe('activity timer v2 — UI integration', () => {
-  it('child timer requires v2 rollout flag from daily log', () => {
+  it('child timer reads v2 flag from daily log (master switch)', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /activityTimerV2Enabled/);
     const loadDay = read('public/js/child-dashboard-load-day.js');

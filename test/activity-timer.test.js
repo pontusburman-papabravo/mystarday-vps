@@ -35,7 +35,13 @@ describe('activity-timer server helpers', () => {
     assert.equal(isTimerConfigured(MAX_DURATION_SECONDS), true);
   });
 
-  test('rollout allowlist defaults to founder email', () => {
+  test('activityTimerV2EnabledForChild follows child master switch', () => {
+    const { activityTimerV2EnabledForChild } = require('../src/lib/activity-timer-rollout');
+    assert.equal(activityTimerV2EnabledForChild(true), true);
+    assert.equal(activityTimerV2EnabledForChild(false), false);
+  });
+
+  test('rollout allowlist helper still resolves founder email', () => {
     const { getAllowlist } = require('../src/lib/activity-timer-rollout');
     const list = getAllowlist();
     assert.ok(list.includes('pontus@burman.cc'));

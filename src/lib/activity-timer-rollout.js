@@ -1,8 +1,9 @@
 'use strict';
 
 /**
- * Dark launch: aktivitetstimer v2 (helskärm, paus) endast för allowlistade familjer.
- * Default: pontus@burman.cc (founder). Sätt ACTIVITY_TIMER_V2_DISABLED=true för kill switch.
+ * Aktivitetstimer v2 (helskärm, paus) styrs av barnets master `activity_timers_enabled`.
+ * `ACTIVITY_TIMER_V2_DISABLED=true` = kill switch (rollback).
+ * `familyHasActivityTimerV2` behålls för äldre ops/scripts (founder allowlist).
  */
 
 const DEFAULT_ALLOWLIST = 'pontus@burman.cc';
@@ -33,8 +34,14 @@ async function familyHasActivityTimerV2(familyId) {
   return result.rows.length > 0;
 }
 
+/** Child daily-log: v2 UX when master switch is on (R2). */
+function activityTimerV2EnabledForChild(activityTimersEnabled) {
+  return activityTimersEnabled === true && !isRolloutDisabled();
+}
+
 module.exports = {
   getAllowlist,
   familyHasActivityTimerV2,
+  activityTimerV2EnabledForChild,
   isRolloutDisabled,
 };
