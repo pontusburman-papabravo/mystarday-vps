@@ -46,12 +46,13 @@ describe('founder smoke english UI contract', () => {
   });
 
   it('child Today en-GB fails when only weak today/daily copy without main surface', () => {
-    assert.equal(hasEnglishChildTodaySurfaceCopy('Today\nDaily log'), false);
+    assert.equal(hasEnglishChildTodaySurfaceCopy('Today\nDaily log', ''), false);
   });
 
   it('child Today en-GB passes with Mission plus Treasure Chest nav copy', () => {
-    const body = 'Mission\nNow\nNext\nTreasure Chest';
-    assert.equal(hasEnglishChildTodaySurfaceCopy(body), true);
+    const main = 'Mission\nNow\nNext';
+    const nav = 'Treasure Chest';
+    assert.equal(hasEnglishChildTodaySurfaceCopy(main, nav), true);
     const r = evaluateChildTodaySessionPass({
       pathname: '/child/today',
       me: {
@@ -62,20 +63,27 @@ describe('founder smoke english UI contract', () => {
       },
       expectedUsername: 'astrid921',
       expectedChildUiLocale: 'en-GB',
-      todayBodyText: body,
+      mainText: main,
+      navText: nav,
+      childTodayI18nReady: true,
+      htmlLang: 'en-GB',
     });
     assert.equal(r.pass, true);
   });
 
-  it('child Today en-GB passes with Mission/Now/Next nav copy', () => {
-    const body = 'Mission\nMy collection\nNow\nNext\nLater';
-    assert.equal(hasEnglishChildTodaySurfaceCopy(body), true);
+  it('child Today en-GB passes with Mission/Now/Next and nav copy', () => {
+    const main = 'Mission\nNow\nNext\nLater';
+    const nav = 'My collection';
+    assert.equal(hasEnglishChildTodaySurfaceCopy(main, nav), true);
     const r = evaluateChildTodaySessionPass({
       pathname: '/child/today',
       me: { type: 'child', username: 'astrid921', child_ui_locale: 'en-GB' },
       expectedUsername: 'astrid921',
       expectedChildUiLocale: 'en-GB',
-      todayBodyText: body,
+      mainText: main,
+      navText: nav,
+      childTodayI18nReady: true,
+      htmlLang: 'en-GB',
     });
     assert.equal(r.pass, true);
   });
@@ -97,5 +105,10 @@ describe('founder smoke english UI contract', () => {
     assert.match(html, /parent-app-i18n\.js/);
     assert.match(html, /settings-parent-i18n\.js/);
     assert.match(html, /bootSettingsParentI18n/);
+  });
+
+  it('child dashboard loads child today i18n bootstrap', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(html, /child-today-i18n-bootstrap\.js/);
   });
 });
