@@ -365,14 +365,17 @@
       if (window.HomeReadiness && typeof HomeReadiness.reload === 'function') {
         await HomeReadiness.reload();
       }
+      if (window.JourneyCoach && typeof JourneyCoach.pollCoach === 'function') {
+        await JourneyCoach.pollCoach();
+      }
       if (window.ActivationFirstSuccessHub && typeof ActivationFirstSuccessHub.load === 'function') {
         await ActivationFirstSuccessHub.load({ force: true }).catch(function () {});
       }
       if (window.EngineCoach && typeof EngineCoach.load === 'function') {
         await EngineCoach.load({ force: true }).catch(function () {});
       }
-      if (window.JourneyCoach && typeof JourneyCoach.pollCoach === 'function') {
-        await JourneyCoach.pollCoach();
+      if (window.HomePrimaryAction && typeof HomePrimaryAction.apply === 'function') {
+        HomePrimaryAction.apply();
       }
     }());
 

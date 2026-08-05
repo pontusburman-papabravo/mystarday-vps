@@ -163,9 +163,7 @@
   }
 
   function shouldDeferToFirstSuccessHub() {
-    return window.ActivationFirstSuccessHub &&
-      typeof ActivationFirstSuccessHub.shouldSuppressLegacyCoaches === 'function' &&
-      ActivationFirstSuccessHub.shouldSuppressLegacyCoaches();
+    return false;
   }
 
   async function renderCoach(context, registry) {

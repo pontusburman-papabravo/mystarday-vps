@@ -249,9 +249,12 @@ describe('client authority — single primary coach', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/engine-coach.js'), 'utf8');
     assert.match(src, /ActivationFirstSuccessHub/);
   });
-  it('journey-coach defers when ActivationFirstSuccessHub suppresses', () => {
+  it('journey-coach defers to HomePrimaryAction (no inline activation yield)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/journey-coach.js'), 'utf8');
     assert.match(src, /shouldDeferToFirstSuccessHub/);
+    assert.match(src, /return false/);
+    const orch = fs.readFileSync(path.join(ROOT, 'public/js/home-primary-action.js'), 'utf8');
+    assert.match(orch, /journeyHasRelevantStep/);
   });
   it('hub refreshes legacy coaches after primary render', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/activation-first-success-hub.js'), 'utf8');
