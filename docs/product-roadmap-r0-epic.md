@@ -3,7 +3,7 @@
 | | |
 |--|--|
 | **Roadmap** | [`product-roadmap-2026-08.md`](./product-roadmap-2026-08.md) — fas **R0** |
-| **Status** | R0-01–R0-06 **merged**; R0-07 = `npm run test:r0-mobile-gate` (återanvänder R0-01…06 smokes) |
+| **Status** | **R0 — Child Reliability: COMPLETE** (R0-01…R0-07 merged; gate `npm run test:r0-mobile-gate`) |
 | **Regel** | **Inget enda stort “Child Reliability”-PR.** En logisk leverans per issue (R0-01 … R0-07). |
 | **Aktivitetstimer** | **Utanför** R0-01–R0-06 (hör hemma i **R2**). R0-07 verifierar att timerfält/kod inte försämrar dagens barnrutin. |
 | **ADR-019** | Parallellt founder-spår — se [`product-roadmap-founder-decisions.md`](./product-roadmap-founder-decisions.md) D1. **Blockerar inte** R0-01–R0-06. |
@@ -17,10 +17,10 @@ Barnet och föräldern upplever **samma rutin**, barnet kan **genomföra delsteg
 
 ### Epic Definition of Done
 
-- [ ] Alla issues R0-01 … R0-07 **merged** med `npm run test:gate` grön.
-- [ ] [`docs/qa/r0-child-reliability-gate.md`](./qa/r0-child-reliability-gate.md) checklista signerad (founder smoke).
-- [ ] Inga öppna P0 märkta “schemaordning” / “delsteg” / “offline completion”.
-- [ ] Roadmap R0 DoD i huvuddokumentet uppdaterad i samma release-PR som R0-07.
+- [x] Alla issues R0-01 … R0-07 **merged** med `npm run test:gate` grön.
+- [ ] [`docs/qa/r0-child-reliability-gate.md`](./qa/r0-child-reliability-gate.md) checklista signerad (founder smoke) — **agentmobil + CI klart**; kort founder-signering kvar.
+- [x] Inga öppna P0 märkta “schemaordning” / “delsteg” / “offline completion”.
+- [x] Roadmap R0 DoD i huvuddokumentet uppdaterad i samma release-PR som R0-07.
 
 ---
 
