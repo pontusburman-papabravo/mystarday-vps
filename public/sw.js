@@ -244,7 +244,7 @@
 // stjarndag-v773: aktivitetstimer på delsteg
 // stjarndag-v774: levererad SVG-timglas (UL activity-hourglass-v1)
 // stjarndag-v780: timer wake lock, ingen ikonblink, delsteg-only timer
-const CACHE_NAME = 'stjarndag-v781';
+const CACHE_NAME = 'stjarndag-v782';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -547,6 +547,7 @@ const CACHE_NAME = 'stjarndag-v781';
 // stjarndag-v769: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v770: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v781: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v782: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

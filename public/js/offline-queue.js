@@ -90,6 +90,13 @@
         // Remove any existing pending entry for this entityId (last-write-wins)
         // We determine entityId from action type
         const entityId = getEntityId(action);
+        const entry = {
+          id: uuid(),
+          type: action.type,
+          payload: action.payload,
+          timestamp: Date.now(),
+          synced: false,
+        };
 
         const cursorReq = store.openCursor();
         cursorReq.onsuccess = (event) => {
@@ -97,24 +104,16 @@
           if (cursor) {
             const e = cursor.value;
             if (!e.synced && getEntityIdFromEntry(e) === entityId) {
-              store.delete(e.id);
+              cursor.delete();
             }
             cursor.continue();
+          } else {
+            const addReq = store.add(entry);
+            addReq.onsuccess = () => resolve(entry.id);
+            addReq.onerror = () => reject(addReq.error);
           }
         };
 
-        tx.oncomplete = () => {
-          const entry = {
-            id: uuid(),
-            type: action.type,
-            payload: action.payload,
-            timestamp: Date.now(),
-            synced: false,
-          };
-          const addReq = store.add(entry);
-          addReq.onsuccess = () => resolve(entry.id);
-          addReq.onerror = () => reject(addReq.error);
-        };
         tx.onerror = () => reject(tx.error);
       });
     });
@@ -153,7 +152,9 @@
    * Mark an entry as synced by id.
    */
   function markSynced(entryId) {
-    return withStore('readwrite', (store) => {
+    return openQueueDB().then((db) => new Promise((resolve, reject) => {
+      const tx = db.transaction(QUEUE_STORE, 'readwrite');
+      const store = tx.objectStore(QUEUE_STORE);
       const getReq = store.get(entryId);
       getReq.onsuccess = () => {
         const entry = getReq.result;
@@ -162,8 +163,9 @@
           store.put(entry);
         }
       };
-      return getReq;
-    });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    }));
   }
 
   /**
@@ -185,12 +187,13 @@
    */
   function pruneSynced() {
     return withStore('readwrite', (store) => {
-      const idx = store.index('synced');
-      const req = idx.openCursor(IDBKeyRange.only(true));
+      const req = store.openCursor();
       req.onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) {
-          store.delete(cursor.primaryKey);
+          if (cursor.value && cursor.value.synced === true) {
+            cursor.delete();
+          }
           cursor.continue();
         }
       };
@@ -369,6 +372,10 @@
     },
     queueSubstepUncomplete(itemId, subStepId) {
       return queueAction({ type: 'UNCOMPLETE_SUBSTEP', payload: { itemId, subStepId } });
+    },
+    /** @deprecated use queueComplete / queueUncomplete — kept for child checkoff */
+    enqueue(itemId, action) {
+      return action === 'uncomplete' ? queueUncomplete(itemId) : queueComplete(itemId);
     },
   };
 })();
