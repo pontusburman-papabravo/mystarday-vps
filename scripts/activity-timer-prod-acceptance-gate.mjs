@@ -289,7 +289,7 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
   const childUiDeadline = Date.now() + 50000;
   while (Date.now() < childUiDeadline) {
     const probe = await childPage.evaluate(() => ({
-      me: typeof me !== 'undefined' && !!me.id,
+      me: typeof me !== 'undefined' && me !== null && !!me.id,
       starts: document.querySelectorAll('.activity-timer-wrap .activity-timer-start').length,
     }));
     if (probe.me && probe.starts > 0) {
