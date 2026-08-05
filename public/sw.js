@@ -249,8 +249,8 @@
 // stjarndag-v786: settings parent i18n bootstrap (en-GB smoke)
 // stjarndag-v787: settings switch user → child picker handoff
 // stjarndag-v788: settings parent i18n ready signal + founder smoke pageText hardening
-// stjarndag-v789: activity timer session idempotency + visibility tick
-const CACHE_NAME = 'stjarndag-v789';
+// stjarndag-v790: activity timer resume idempotent when already running
+const CACHE_NAME = 'stjarndag-v790';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
