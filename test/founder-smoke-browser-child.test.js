@@ -56,7 +56,10 @@ describe('founder smoke browser child', () => {
       me: { type: 'child', username: 'astrid921', child_ui_locale: 'en-GB' },
       expectedUsername: 'astrid921',
       expectedChildUiLocale: 'en-GB',
-      todayBodyText: 'Mission\nNow\nNext\nTreasure Chest',
+      mainText: 'Mission\nNow\nNext',
+      navText: 'Treasure Chest',
+      childTodayI18nReady: true,
+      htmlLang: 'en-GB',
     });
     assert.equal(r.pass, true);
   });
