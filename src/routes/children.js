@@ -27,6 +27,7 @@ const {
   mergeChildViewConfig,
   applyWarmEchoOptInMetadata,
 } = require('../lib/child-view-config');
+const { isRolloutDisabled } = require('../lib/activity-timer-rollout');
 
 const router = express.Router();
 
@@ -307,6 +308,7 @@ function toChildListResponse(row) {
     dopamin_animation: row.dopamin_animation,
     visual_timer: row.visual_timer,
     activity_timers_enabled: row.activity_timers_enabled === true,
+    activity_timer_v2_rollout_available: !isRolloutDisabled(),
     time_adjustment: row.time_adjustment,
     color_coding: row.color_coding,
     view_type: row.view_type,
