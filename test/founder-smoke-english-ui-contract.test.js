@@ -19,7 +19,7 @@ describe('founder smoke english UI contract', () => {
       settingsReachable: true,
       me: { type: 'parent', preferred_locale: 'en-GB' },
       htmlLang: 'en',
-      bodyText: 'Settings\nFamily settings\nLanguage\nProfile',
+      bodyText: 'Settings\nFamily settings\nLanguage\nProfile\nSave family settings',
     });
     assert.equal(r.pass, true);
     assert.equal(r.english_family_copy, true);
