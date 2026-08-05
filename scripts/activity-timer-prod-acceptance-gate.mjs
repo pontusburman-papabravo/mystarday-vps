@@ -197,7 +197,16 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
     await page.goto(`${BASE}/library`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForFunction(() => typeof openActivityModal === 'function', { timeout: 30000 });
     await new Promise((r) => setTimeout(r, 2000));
-    await openActivityEditor(page, snap.qa_activity);
+    try {
+      await openActivityEditor(page, snap.qa_activity);
+    } catch {
+      results.scenarioA = false;
+      results.scenarioB = false;
+      results.consoleErrors = consoleErrors.length;
+      results.http5xx = http5xx.length;
+      await browser.close();
+      return results;
+    }
     const bridgeA = await page.evaluate(() => {
       const el = document.getElementById('activityTimerMasterBridge');
       return {
@@ -248,7 +257,11 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
     return results;
   }
 
-  const childPage = await browser.newPage();
+  const childBrowser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+  const childPage = await childBrowser.newPage();
   await childPage.setViewport({
     width: vp.width,
     height: vp.height,
@@ -272,14 +285,31 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
     } catch (_) { /* ignore */ }
   }, `[${knownChild}]`);
   await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await childPage.waitForFunction(
-    () => typeof me !== 'undefined' && me.id,
-    { timeout: 45000 },
-  );
-  await childPage.waitForFunction(
-    () => document.querySelector('.activity-timer-wrap .activity-timer-start'),
-    { timeout: 45000 },
-  );
+  let childUiReady = false;
+  const childUiDeadline = Date.now() + 50000;
+  while (Date.now() < childUiDeadline) {
+    const probe = await childPage.evaluate(() => ({
+      me: typeof me !== 'undefined' && !!me.id,
+      starts: document.querySelectorAll('.activity-timer-wrap .activity-timer-start').length,
+    }));
+    if (probe.me && probe.starts > 0) {
+      childUiReady = true;
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  if (!childUiReady) {
+    results.scenarioC_start = false;
+    results.pauseRefresh = false;
+    results.scenarioD = false;
+    results.scenarioE = false;
+    results.android_render = false;
+    results.consoleErrors = consoleErrors.length;
+    results.http5xx = http5xx.length;
+    await childBrowser.close();
+    await browser.close();
+    return results;
+  }
   await new Promise((r) => setTimeout(r, 1500));
 
   const timerItem = await childPage.evaluate(() => {
@@ -298,22 +328,31 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
     const startBtn = await childPage.$(`.activity-timer-wrap[data-item-id="${timerItem.itemId}"] .activity-timer-start`);
     const box = startBtn ? await startBtn.boundingBox() : null;
     results.touch44 = !!(box && box.height >= 44 && box.width >= 44);
-    await startBtn?.click();
-    await new Promise((r) => setTimeout(r, 1500));
-    await childPage.evaluate((id) => {
-      if (typeof ActivityTimerSession !== 'undefined') {
-        ActivityTimerSession.pauseSession(me.id, currentDate, id, parseInt(document.querySelector(`.activity-timer-wrap[data-item-id="${id}"]`)?.dataset?.duration || '25', 10));
+    if (!startBtn) {
+      results.scenarioC_start = false;
+      results.pauseRefresh = false;
+    } else {
+      results.scenarioC_start = true;
+      await startBtn.click();
+      await new Promise((r) => setTimeout(r, 1500));
+      const pausedOk = await childPage.evaluate((id) => {
+        if (typeof me === 'undefined' || !me?.id) return false;
+        if (typeof ActivityTimerSession === 'undefined') return false;
+        const wrap = document.querySelector(`.activity-timer-wrap[data-item-id="${id}"]`);
+        const duration = parseInt(wrap?.dataset?.duration || '25', 10);
+        ActivityTimerSession.pauseSession(me.id, currentDate, id, duration);
         if (typeof ChildActivityTimer !== 'undefined' && ChildActivityTimer.tickAll) ChildActivityTimer.tickAll();
-      }
-    }, timerItem.itemId);
-    await new Promise((r) => setTimeout(r, 800));
-    await childPage.reload({ waitUntil: 'domcontentloaded' });
-    await new Promise((r) => setTimeout(r, 2000));
-    const paused = await childPage.evaluate((id) => {
-      const w = document.querySelector(`.activity-timer-wrap[data-item-id="${id}"]`);
-      return w && w.dataset.status === 'paused';
-    }, timerItem.itemId);
-    results.pauseRefresh = !!paused;
+        return wrap?.dataset?.status === 'paused';
+      }, timerItem.itemId);
+      await new Promise((r) => setTimeout(r, 800));
+      await childPage.reload({ waitUntil: 'domcontentloaded' });
+      await new Promise((r) => setTimeout(r, 2000));
+      const paused = await childPage.evaluate((id) => {
+        const w = document.querySelector(`.activity-timer-wrap[data-item-id="${id}"]`);
+        return w && w.dataset.status === 'paused';
+      }, timerItem.itemId);
+      results.pauseRefresh = !!(pausedOk && paused);
+    }
   }
 
   await apiFetch(parentJar, parent.csrf, `/api/children/${childRow.id}`, {
@@ -342,7 +381,7 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
   results.scenarioE = childLogE?.activity_timer_v2 === true && startAgain;
 
   const vp2 = VIEWPORTS[1];
-  const page2 = await browser.newPage();
+  const page2 = await childBrowser.newPage();
   await page2.setViewport({
     width: vp2.width,
     height: vp2.height,
@@ -359,6 +398,7 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
   await new Promise((r) => setTimeout(r, 1500));
   results.android_render = !!(await page2.$('.activity-timer-wrap'));
 
+  await childBrowser.close();
   await browser.close();
   results.consoleErrors = consoleErrors.length;
   results.http5xx = http5xx.length;
@@ -433,7 +473,12 @@ async function main() {
     const sibling = children.find((c) => c.id !== sessions.childRow.id);
     snap = await snapshotState(sessions.parent.jar, sessions.parent.csrf, sessions.childRow.id, sibling);
 
-    const timerResults = await runTimerScenarios(puppeteer, sessions, snap);
+    let timerResults = {};
+    try {
+      timerResults = await runTimerScenarios(puppeteer, sessions, snap);
+    } catch (e) {
+      timerResults = { ...timerResults, runner_error: e.message, runner_stack: e.stack?.split('\n').slice(0, 4).join(' | ') };
+    }
     report.scenarios = timerResults;
     report.extra_stod = await verifyExtraStod(sessions.parent.jar, sessions.parent.csrf, sessions.childRow);
 
