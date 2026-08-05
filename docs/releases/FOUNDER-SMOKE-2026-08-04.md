@@ -147,7 +147,7 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 1. Deploy smoke-tooling till prod (rätt `git_sha` på `/health`; `english_global_flag_enabled` fortfarande **false**).
 2. Rotera founder parent-lösenord och Astrids barn-PIN; uppdatera Cursor/QA-secret store (inga värden i GitHub eller detta dokument).
-3. `npm run founder:parent-english-smoke` — kräv `report.restored: true`.
+3. `npm run founder:parent-english-smoke` (eller `:api` / `:browser`) — kräv `overall: PASS`, `restored: true`, `restore_matches_snapshot: true`; scenarier 1–5 måste ha `pass: true` (skip räknas som INCOMPLETE).
 4. Slutför scenario **1, 2, 3, 5** och kvarvarande **riskytor** (handoff, cache, bilduppladdning, m.fl.).
 5. Kontrollera `/health` och relevanta loggar.
 6. Uppdatera **Beslut** i detta dokument; fatta nytt **global ON**-beslut endast om alla blockerare är PASS.
