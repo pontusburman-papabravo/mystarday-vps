@@ -249,7 +249,7 @@
 // stjarndag-v786: settings parent i18n bootstrap (en-GB smoke)
 // stjarndag-v787: settings switch user → child picker handoff
 // stjarndag-v788: settings parent i18n ready signal + founder smoke pageText hardening
-// stjarndag-v790: activity timer resume idempotent when already running
+// stjarndag-v790: activity timer resume idempotent + Child Today en-GB visible copy
 const CACHE_NAME = 'stjarndag-v790';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
@@ -630,6 +630,7 @@ const STATIC_ASSETS = [
   '/js/child-login.js',
   '/js/native-child-session-restore.js',
   '/js/child-app-i18n.js',
+  '/js/child-today-i18n-bootstrap.js',
   '/js/child-ui-text.js',
   '/js/child-dashboard.js',
   '/js/child-first-star-mode.js',

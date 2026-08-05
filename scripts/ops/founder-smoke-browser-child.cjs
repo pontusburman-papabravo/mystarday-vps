@@ -1,5 +1,11 @@
 'use strict';
 
+const {
+  findSwedishChildTodayLeaks,
+  hasSwedishChildTodayCoreLeakInText,
+  CHILD_TODAY_READY_ATTR,
+} = require('./founder-smoke-browser-child-today-visible.cjs');
+
 const CHILD_TODAY_PATHS = ['/child/today'];
 const CHILD_DASHBOARD_PREFIX = '/child/dashboard';
 
@@ -32,7 +38,11 @@ function looksLikeChildLoginScreenText(bodyText) {
  * @param {object|null} p.me — /api/auth/me JSON
  * @param {string} p.expectedUsername
  * @param {'en-GB'|'sv-SE'} p.expectedChildUiLocale
- * @param {string} p.todayBodyText — visible text on child today (not login)
+ * @param {string} [p.todayBodyText] — legacy full-page text (login guard)
+ * @param {string} [p.mainText] — visible canonical main/header copy
+ * @param {string} [p.navText] — visible canonical bottom nav copy
+ * @param {boolean} [p.childTodayI18nReady]
+ * @param {string} [p.htmlLang]
  */
 function evaluateChildTodaySessionPass(p) {
   const {
@@ -41,6 +51,10 @@ function evaluateChildTodaySessionPass(p) {
     expectedUsername,
     expectedChildUiLocale,
     todayBodyText,
+    mainText,
+    navText,
+    childTodayI18nReady,
+    htmlLang,
   } = p;
 
   if (!isAuthenticatedChildTodayPath(pathname)) {
@@ -64,20 +78,40 @@ function evaluateChildTodaySessionPass(p) {
   if (me.child_ui_locale !== expectedChildUiLocale) {
     return { pass: false, reason: 'wrong_child_ui_locale', actual: me.child_ui_locale };
   }
-  if (looksLikeChildLoginScreenText(todayBodyText)) {
+  const loginProbe = String(todayBodyText || mainText || '');
+  if (looksLikeChildLoginScreenText(loginProbe)) {
     return { pass: false, reason: 'login_screen_text' };
   }
 
-  const text = String(todayBodyText || '');
+  const main = String(mainText != null ? mainText : todayBodyText || '');
+  const nav = String(navText != null ? navText : '');
+
   if (expectedChildUiLocale === 'en-GB') {
-    if (!hasEnglishChildTodaySurfaceCopy(text)) {
-      return { pass: false, reason: 'missing_english_today_copy' };
+    if (childTodayI18nReady !== true) {
+      return { pass: false, reason: 'child_today_i18n_not_ready' };
     }
-    if (hasSwedishChildTodayCoreLeak(text)) {
-      return { pass: false, reason: 'swedish_leak_on_child_today' };
+    const lang = String(htmlLang || '').toLowerCase();
+    if (!lang.startsWith('en')) {
+      return { pass: false, reason: 'html_lang_not_en', actual: htmlLang || '' };
+    }
+    if (!hasEnglishChildTodayMainSurfaceMarker(main)) {
+      return { pass: false, reason: 'missing_english_today_main_copy' };
+    }
+    if (!hasEnglishChildTodayNavMarker(nav)) {
+      return { pass: false, reason: 'missing_english_today_nav_copy' };
+    }
+    const mainLeaks = findSwedishChildTodayLeaks(main, 'main');
+    const navLeaks = findSwedishChildTodayLeaks(nav, 'nav');
+    if (mainLeaks.length > 0 || navLeaks.length > 0) {
+      return {
+        pass: false,
+        reason: 'swedish_leak_on_child_today',
+        swedish_leaks: mainLeaks.concat(navLeaks),
+      };
     }
   } else if (expectedChildUiLocale === 'sv-SE') {
-    if (!hasSwedishChildTodaySurfaceCopy(text)) {
+    const surfaceText = [main, nav].filter(Boolean).join('\n') || main;
+    if (!hasSwedishChildTodaySurfaceCopy(surfaceText)) {
       return { pass: false, reason: 'missing_swedish_today_copy' };
     }
   }
@@ -100,25 +134,15 @@ function hasEnglishChildTodayNavMarker(bodyText) {
     /\btreasure chest\b/i.test(t) ||
     /\bmy collection\b/i.test(t) ||
     /\bmy world\b/i.test(t) ||
-    /\bmy people\b/i.test(t)
+    /\bmy people\b/i.test(t) ||
+    /\btoday\b/i.test(t)
   );
 }
 
-function hasEnglishChildTodaySurfaceCopy(bodyText) {
-  const t = String(bodyText || '');
-  const main = hasEnglishChildTodayMainSurfaceMarker(t);
-  const nav = hasEnglishChildTodayNavMarker(t);
-  if (!main) {
-    return false;
-  }
-  if (nav) {
-    return true;
-  }
-  const mainHits =
-    (/\bmission\b/i.test(t) ? 1 : 0) +
-    (/\bnow\b/i.test(t) ? 1 : 0) +
-    (/\bnext\b/i.test(t) ? 1 : 0);
-  return mainHits >= 2;
+function hasEnglishChildTodaySurfaceCopy(mainText, navText) {
+  const main = String(mainText || '');
+  const nav = String(navText || '');
+  return hasEnglishChildTodayMainSurfaceMarker(main) && hasEnglishChildTodayNavMarker(nav);
 }
 
 function hasSwedishChildTodaySurfaceCopy(bodyText) {
@@ -126,14 +150,9 @@ function hasSwedishChildTodaySurfaceCopy(bodyText) {
   return /\bidag\b/i.test(t) || /\bdaglig logg\b/i.test(t) || /\bmorgon\b/i.test(t);
 }
 
+/** @deprecated use findSwedishChildTodayLeaks on canonical regions */
 function hasSwedishChildTodayCoreLeak(bodyText) {
-  const t = String(bodyText || '');
-  return (
-    /\bidag\b/i.test(t) ||
-    /\bskattkammaren\b/i.test(t) ||
-    /\bnästa\b/i.test(t) ||
-    /\bnu\b/i.test(t)
-  );
+  return hasSwedishChildTodayCoreLeakInText(bodyText);
 }
 
 function normalizeUsername(value) {
@@ -219,11 +238,15 @@ module.exports = {
   isAuthenticatedChildTodayPath,
   looksLikeChildLoginScreenText,
   hasEnglishChildTodaySurfaceCopy,
+  hasEnglishChildTodayMainSurfaceMarker,
+  hasEnglishChildTodayNavMarker,
   hasSwedishChildTodaySurfaceCopy,
+  hasSwedishChildTodayCoreLeak,
   evaluateChildTodaySessionPass,
   evaluateParentSettingsEnglishPass,
   evaluateParentHandoffRestorePass,
   normalizeEmail,
   normalizeUsername,
   computeBrowserPass,
+  CHILD_TODAY_READY_ATTR,
 };

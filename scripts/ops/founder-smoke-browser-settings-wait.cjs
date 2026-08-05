@@ -1,6 +1,10 @@
 'use strict';
 
 const { pageText } = require('./founder-smoke-browser-page-text.cjs');
+const {
+  CHILD_TODAY_READY_ATTR,
+  collectChildTodayCanonicalVisibleTextInPage,
+} = require('./founder-smoke-browser-child-today-visible.cjs');
 
 const SETTINGS_READY_ATTR = 'parentI18nReady';
 const SETTINGS_ROOT_SELECTOR = 'main[data-settings-root]';
@@ -79,22 +83,39 @@ async function waitForChildTodaySurface(page, opts = {}) {
   await page.waitForSelector('#childMainHeader', { timeout: timeoutMs });
   await page.waitForSelector('#childBottomNav', { timeout: timeoutMs });
 
+  await page
+    .waitForFunction(
+      (readyAttr) => document.documentElement.dataset[readyAttr] === 'true',
+      { timeout: timeoutMs },
+      CHILD_TODAY_READY_ATTR
+    )
+    .catch(() => null);
+
   if (expected === 'en-GB') {
     await page
       .waitForFunction(
         () => {
-          const body = document.body;
-          if (!body) return false;
-          const t = body.innerText || '';
-          const main =
-            /\bmission\b/i.test(t) || /\bnow\b/i.test(t) || /\bnext\b/i.test(t);
-          const nav =
-            /\btreasure chest\b/i.test(t) ||
-            /\bmy collection\b/i.test(t) ||
-            /\bmy world\b/i.test(t) ||
-            /\bmy people\b/i.test(t);
           const lang = (document.documentElement.lang || '').toLowerCase();
-          return main && (nav || (/\bnow\b/i.test(t) && /\bnext\b/i.test(t))) && lang.startsWith('en');
+          if (!lang.startsWith('en')) return false;
+          const header = document.querySelector('#childMainHeader');
+          const nav = document.querySelector('#childBottomNav');
+          if (!header || !nav) return false;
+          const mainT = header.innerText || '';
+          const focus = document.querySelector('#todayFocusMount');
+          const focusT = focus && !focus.classList.contains('hidden') ? focus.innerText || '' : '';
+          const combinedMain = (mainT + '\n' + focusT).trim();
+          const navT = nav.innerText || '';
+          const main =
+            /\bmission\b/i.test(combinedMain) ||
+            /\bnow\b/i.test(combinedMain) ||
+            /\bnext\b/i.test(combinedMain);
+          const navOk =
+            /\btreasure chest\b/i.test(navT) ||
+            /\bmy collection\b/i.test(navT) ||
+            /\bmy world\b/i.test(navT) ||
+            /\bmy people\b/i.test(navT) ||
+            /\btoday\b/i.test(navT);
+          return main && navOk;
         },
         { timeout: timeoutMs }
       )
@@ -103,9 +124,9 @@ async function waitForChildTodaySurface(page, opts = {}) {
     await page
       .waitForFunction(
         () => {
-          const body = document.body;
-          if (!body) return false;
-          const t = body.innerText || '';
+          const header = document.querySelector('#childMainHeader');
+          const nav = document.querySelector('#childBottomNav');
+          const t = ((header && header.innerText) || '') + '\n' + ((nav && nav.innerText) || '');
           return /\bidag\b/i.test(t) || /\bmorgon\b/i.test(t) || /\bdaglig logg\b/i.test(t);
         },
         { timeout: timeoutMs }
@@ -114,10 +135,18 @@ async function waitForChildTodaySurface(page, opts = {}) {
   }
 }
 
+/**
+ * @param {import('puppeteer').Page} page
+ */
+async function collectChildTodayVisibleCopy(page) {
+  return page.evaluate(collectChildTodayCanonicalVisibleTextInPage);
+}
+
 module.exports = {
   SETTINGS_ROOT_SELECTOR,
   waitForSettingsParentI18n,
   collectSettingsPageDiagnostics,
   waitForChildTodaySurface,
+  collectChildTodayVisibleCopy,
   pageText,
 };

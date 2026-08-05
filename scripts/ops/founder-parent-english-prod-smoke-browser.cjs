@@ -27,6 +27,7 @@ const {
   waitForSettingsParentI18n,
   collectSettingsPageDiagnostics,
   waitForChildTodaySurface,
+  collectChildTodayVisibleCopy,
 } = require('./founder-smoke-browser-settings-wait.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
@@ -154,8 +155,9 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, opti
     const pathname = await page.evaluate(() => window.location.pathname);
     const me = await fetchMe(page);
     await waitForChildTodaySurface(page, { expectedChildUiLocale });
+    const visibleCopy = await collectChildTodayVisibleCopy(page);
     const todayBodyText = await pageText(page);
-    if (!todayBodyText) {
+    if (!visibleCopy.mainText && !visibleCopy.navText && !todayBodyText) {
       return {
         path: pathname,
         me,
@@ -170,6 +172,10 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, opti
       expectedUsername,
       expectedChildUiLocale,
       todayBodyText,
+      mainText: visibleCopy.mainText,
+      navText: visibleCopy.navText,
+      childTodayI18nReady: visibleCopy.child_today_i18n_ready,
+      htmlLang: visibleCopy.html_lang,
     });
 
     return {

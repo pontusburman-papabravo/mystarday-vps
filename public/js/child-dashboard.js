@@ -435,20 +435,30 @@ function renderNowNextLaterZones(opts) {
 
   html += '<div class="nnl-zones-layout">';
 
+  function nnlCpt(key) {
+    if (typeof window.cpt !== 'function') return '';
+    return cpt(key);
+  }
+
+  const zoneNowLabel = nnlCpt('today.zoneNow');
+  const zoneNextLabel = nnlCpt('today.zoneNext');
+  const zoneLaterLabel = nnlCpt('today.zoneLater');
+  const emptyNowLabel = nnlCpt('today.noActivities');
+
   html += `<div class="nnl-zone nnl-zone--now">
-    <div class="nnl-zone-header">⚡ NU</div>
+    <div class="nnl-zone-header">⚡ ${escHtml(zoneNowLabel)}</div>
     <div class="sortable-section space-y-3" data-sortable-section="now">`;
   if (nowItems.length > 0) {
     for (const item of nowItems) {
       html += renderNow(item, isToday);
     }
   } else {
-    html += '<p class="nnl-zone-empty text-sm text-text-soft px-1">Inget just nu</p>';
+    html += '<p class="nnl-zone-empty text-sm text-text-soft px-1">' + escHtml(emptyNowLabel) + '</p>';
   }
   html += `</div></div>`;
 
   html += `<div class="nnl-zone nnl-zone--next">
-    <div class="nnl-zone-header">▶ Nästa</div>
+    <div class="nnl-zone-header">▶ ${escHtml(zoneNextLabel)}</div>
     <div class="sortable-section space-y-3" data-sortable-section="next">`;
   if (nextItems.length > 0) {
     for (const item of nextItems) {
@@ -460,7 +470,7 @@ function renderNowNextLaterZones(opts) {
   html += `</div></div>`;
 
   html += `<div class="nnl-zone nnl-zone--later">
-    <div class="nnl-zone-header">📋 Senare</div>
+    <div class="nnl-zone-header">📋 ${escHtml(zoneLaterLabel)}</div>
     <div class="sortable-section space-y-3" data-sortable-section="later">`;
   if (laterItems.length > 0) {
     for (const item of laterItems) {
@@ -639,20 +649,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.NativeChildSessionRestore && typeof NativeChildSessionRestore.clearLoopHops === 'function') {
       NativeChildSessionRestore.clearLoopHops();
     }
+    if (window.ChildTodayI18n && typeof ChildTodayI18n.clearReady === 'function') {
+      ChildTodayI18n.clearReady();
+    }
+    const onChildI18nReady = function () {
+      if (window.ChildTodayI18n && typeof ChildTodayI18n.applyLocalizedSurfaces === 'function') {
+        ChildTodayI18n.applyLocalizedSurfaces();
+      }
+    };
+    document.addEventListener('child-i18n-ready', onChildI18nReady);
     if (window.initChildAppI18n) {
       await initChildAppI18n({
-        preferredLocale: me.preferred_locale,
+        preferredLocale: me.child_ui_locale || me.preferred_locale,
         englishChildEnabled: me.english_child_experience_enabled,
       });
     }
-    document.addEventListener('child-i18n-ready', function () {
-      if (window.ChildWorldsNav && typeof ChildWorldsNav.renderBottomNav === 'function') {
-        ChildWorldsNav.renderBottomNav();
-      }
-      if (window.ChildTodayFocus && typeof ChildTodayFocus.renameTab === 'function') {
-        ChildTodayFocus.renameTab();
-      }
-    });
+    onChildI18nReady();
     if (window.DeviceMode) DeviceMode.enterChild();
     Auth.setAuth(null, me);
     // Cache child profile for offline access
@@ -753,12 +765,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       : null;
     const needsScheduleNow = !initialWorld || initialWorld.id === 'today';
 
+    const loadDayPromise = loadDay(todayStr);
     if (needsScheduleNow) {
-      await loadDay(todayStr);
+      await loadDayPromise;
+      if (window.ChildTodayI18n && typeof ChildTodayI18n.markReady === 'function') {
+        ChildTodayI18n.markReady();
+      }
     } else {
-      loadDay(todayStr).catch(function (err) {
-        console.error('Background schedule preload failed:', err);
-      });
+      loadDayPromise
+        .catch(function (err) {
+          console.error('Background schedule preload failed:', err);
+        })
+        .finally(function () {
+          if (window.ChildTodayI18n && typeof ChildTodayI18n.markReady === 'function') {
+            ChildTodayI18n.markReady();
+          }
+        });
     }
   } catch (err) {
     if (window.ChildWorlds && ChildWorlds.finishAppBoot) ChildWorlds.finishAppBoot();
