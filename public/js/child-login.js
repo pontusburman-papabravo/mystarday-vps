@@ -935,6 +935,14 @@ function showSuccess() {
   if (el) el.classList.add('visible');
 }
 
+/** R0-03: brief success affordance; skip delay when reduced motion (POS MO-03). */
+function childLoginPostSuccessRedirectMs() {
+  try {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
+  } catch (_) { /* ignore */ }
+  return 400;
+}
+
 // Attempt dots
 function renderAttemptDots(remaining, max) {
   const container = document.getElementById('clAttemptBar');
@@ -1054,7 +1062,12 @@ async function submitLogin() {
       sessionStorage.removeItem('child_login_mode');
     } catch (_) { /* ignore */ }
     showSuccess();
-    setTimeout(() => { window.location.href = '/child/today'; }, 1200);
+    try { performance.mark('child-login-success'); } catch (_) { /* ignore */ }
+    const redirectMs = childLoginPostSuccessRedirectMs();
+    setTimeout(() => {
+      try { performance.mark('child-login-redirect'); } catch (_) { /* ignore */ }
+      window.location.href = '/child/today';
+    }, redirectMs);
 
   } catch (err) {
     hideLoading();
