@@ -101,7 +101,8 @@ async function resolveAllowlistedFamily() {
   for (const email of candidates) {
     const row = await lookupParentRow(email);
     if (!row) continue;
-    if (!isFounderQaParentEmail(row.email)) continue;
+    const inRolloutAllowlist = getAllowlist().includes(normalizeEmail(row.email));
+    if (!inRolloutAllowlist && !isFounderQaParentEmail(row.email)) continue;
     if ((await countChildren(row.family_id)) > 0) return row;
   }
 
