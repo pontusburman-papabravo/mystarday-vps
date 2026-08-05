@@ -14,13 +14,22 @@ describe('journey Fas 4 — activation sunset', () => {
     assert.match(src, /journey-context/);
   });
 
-  it('new enrollments gated by activationNewEnrollments flag', () => {
+  it('new enrollments gated by activationNewEnrollments flag on enroll-choice', () => {
     const src = require('fs').readFileSync(
       require('path').join(__dirname, '../src/routes/activation-program.js'),
       'utf8'
     );
     assert.match(src, /activationNewEnrollments/);
     assert.match(src, /enroll-choice/);
+  });
+
+  it('public invite route gates new enrollments flag', () => {
+    const src = require('fs').readFileSync(
+      require('path').join(__dirname, '../src/routes/public.js'),
+      'utf8'
+    );
+    assert.match(src, /activationNewEnrollments/);
+    assert.match(src, /activation-program\/invite/);
   });
 
   it('context exposes activation_ui_removed capability', () => {
