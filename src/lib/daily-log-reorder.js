@@ -2,6 +2,9 @@
 
 /**
  * Shared daily-log item reorder (parent + child). Single transaction, set-based updates.
+ *
+ * Lock order (deadlock-safe): resolve anchor without row lock → daily_log FOR UPDATE
+ * → section items FOR UPDATE (stable sort_order, id).
  */
 
 class DailyLogReorderError extends Error {
@@ -62,6 +65,28 @@ async function applyReorderUpdate(client, { orderedItemIds, mode, logId, section
   }
 }
 
+async function lockSectionAndValidateIds(client, logId, section, ids) {
+  await client.query('SELECT id FROM daily_log WHERE id = $1 FOR UPDATE', [logId]);
+
+  const locked = await client.query(
+    `SELECT dli.id
+     FROM daily_log_item dli
+     WHERE dli.daily_log_id = $1 AND dli.section = $2
+     ORDER BY dli.sort_order, dli.id
+     FOR UPDATE`,
+    [logId, section]
+  );
+  const expectedIds = new Set(locked.rows.map((r) => r.id));
+  if (expectedIds.size !== ids.length) {
+    throw new DailyLogReorderError(400, 'Listan måste innehålla alla aktiviteter i sektionen');
+  }
+  for (const id of ids) {
+    if (!expectedIds.has(id)) {
+      throw new DailyLogReorderError(400, 'Ogiltigt aktivitets-ID i listan');
+    }
+  }
+}
+
 /**
  * @param {import('pg').Pool} db
  * @param {{ parentId: string, orderedItemIds: string[] }} params
@@ -73,13 +98,12 @@ async function reorderDailyLogItemsAsParent(db, { parentId, orderedItemIds }) {
     await client.query('BEGIN');
 
     const anchor = await client.query(
-      `SELECT dli.id, dli.daily_log_id, dli.section, dl.child_id
+      `SELECT dli.daily_log_id, dli.section
        FROM daily_log_item dli
        JOIN daily_log dl ON dl.id = dli.daily_log_id
        JOIN child c ON c.id = dl.child_id
        JOIN parent_child pc ON pc.child_id = c.id AND pc.revoked_at IS NULL
-       WHERE dli.id = $1 AND pc.parent_id = $2
-       FOR UPDATE OF dli`,
+       WHERE dli.id = $1 AND pc.parent_id = $2`,
       [ids[0], parentId]
     );
     if (anchor.rows.length === 0) {
@@ -87,23 +111,7 @@ async function reorderDailyLogItemsAsParent(db, { parentId, orderedItemIds }) {
     }
     const { daily_log_id: logId, section } = anchor.rows[0];
 
-    const locked = await client.query(
-      `SELECT dli.id
-       FROM daily_log_item dli
-       WHERE dli.daily_log_id = $1 AND dli.section = $2
-       ORDER BY dli.sort_order, dli.id
-       FOR UPDATE`,
-      [logId, section]
-    );
-    const expectedIds = new Set(locked.rows.map((r) => r.id));
-    if (expectedIds.size !== ids.length) {
-      throw new DailyLogReorderError(400, 'Listan måste innehålla alla aktiviteter i sektionen');
-    }
-    for (const id of ids) {
-      if (!expectedIds.has(id)) {
-        throw new DailyLogReorderError(400, 'Ogiltigt aktivitets-ID i listan');
-      }
-    }
+    await lockSectionAndValidateIds(client, logId, section, ids);
 
     await applyReorderUpdate(client, {
       orderedItemIds: ids,
@@ -131,20 +139,11 @@ async function reorderDailyLogItemsAsChild(db, { childId, orderedItemIds }) {
   try {
     await client.query('BEGIN');
 
-    const childSettings = await client.query(
-      'SELECT allow_child_reorder FROM child WHERE id = $1 FOR UPDATE',
-      [childId]
-    );
-    if (!childSettings.rows[0]?.allow_child_reorder) {
-      throw new DailyLogReorderError(403, 'Omordning är inte tillåten för detta barn');
-    }
-
     const anchor = await client.query(
-      `SELECT dli.id, dli.daily_log_id, dli.section
+      `SELECT dli.daily_log_id, dli.section
        FROM daily_log_item dli
        JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dli.id = $1 AND dl.child_id = $2
-       FOR UPDATE OF dli`,
+       WHERE dli.id = $1 AND dl.child_id = $2`,
       [ids[0], childId]
     );
     if (anchor.rows.length === 0) {
@@ -152,22 +151,14 @@ async function reorderDailyLogItemsAsChild(db, { childId, orderedItemIds }) {
     }
     const { daily_log_id: logId, section } = anchor.rows[0];
 
-    const locked = await client.query(
-      `SELECT dli.id
-       FROM daily_log_item dli
-       WHERE dli.daily_log_id = $1 AND dli.section = $2
-       ORDER BY dli.sort_order, dli.id
-       FOR UPDATE`,
-      [logId, section]
+    await lockSectionAndValidateIds(client, logId, section, ids);
+
+    const childSettings = await client.query(
+      'SELECT allow_child_reorder FROM child WHERE id = $1',
+      [childId]
     );
-    const expectedIds = new Set(locked.rows.map((r) => r.id));
-    if (expectedIds.size !== ids.length) {
-      throw new DailyLogReorderError(400, 'Listan måste innehålla alla aktiviteter i sektionen');
-    }
-    for (const id of ids) {
-      if (!expectedIds.has(id)) {
-        throw new DailyLogReorderError(400, 'Ogiltigt aktivitets-ID i listan');
-      }
+    if (!childSettings.rows[0]?.allow_child_reorder) {
+      throw new DailyLogReorderError(403, 'Omordning är inte tillåten för detta barn');
     }
 
     await applyReorderUpdate(client, {

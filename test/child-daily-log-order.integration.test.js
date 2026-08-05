@@ -365,6 +365,59 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
       assert.ok(rows.every((row) => row.child_sort_order === null));
     });
 
+    await t.test('N — concurrent parent and child reorder completes without deadlock', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const kid = await createChildWithLogin(http, session, db);
+      await db.query('UPDATE child SET allow_child_reorder = true WHERE id = $1', [kid.childId]);
+      const { ids } = await insertDailyLogItems(db, kid.childId, DATE, [
+        { name: 'A', sort_order: 0 },
+        { name: 'B', sort_order: 1 },
+        { name: 'C', sort_order: 2 },
+      ]);
+      const parentHeaders = {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(session.cookies),
+        'X-CSRF-Token': session.csrfToken,
+      };
+      const childHeaders = {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(kid.childCookies),
+        'X-CSRF-Token': kid.childCsrf,
+      };
+      const runs = [];
+      for (let i = 0; i < 8; i++) {
+        runs.push(
+          Promise.all([
+            fetch(`${http.baseUrl}/api/daily-log-items/reorder`, {
+              method: 'PUT',
+              headers: parentHeaders,
+              body: JSON.stringify({ ordered_item_ids: [ids[2], ids[0], ids[1]] }),
+            }),
+            fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
+              method: 'PUT',
+              headers: childHeaders,
+              body: JSON.stringify({ ordered_item_ids: [ids[1], ids[2], ids[0]] }),
+            }),
+          ])
+        );
+      }
+      const settled = await Promise.all(runs);
+      for (const pair of settled) {
+        for (const res of pair) {
+          const text = await res.text();
+          assert.ok(
+            res.status === 200 || res.status === 400,
+            `unexpected status ${res.status}: ${text}`
+          );
+          assert.notEqual(res.status, 500, text);
+        }
+      }
+      const log = await getDailyLog(http.baseUrl, kid.childCookies, kid.childCsrf, DATE);
+      const names = morgonNamesInOrder(log.body);
+      assert.equal(names.length, 3);
+      assert.deepEqual([...names].sort(), ['A', 'B', 'C']);
+    });
+
     await t.test('H — section order morgon before kvall', async () => {
       const session = await registerAndLogin(http.baseUrl);
       const kid = await createChildWithLogin(http, session, db);
