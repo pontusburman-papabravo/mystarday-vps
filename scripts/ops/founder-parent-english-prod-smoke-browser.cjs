@@ -8,6 +8,11 @@ const puppeteer = require('puppeteer');
 const { vpsDb } = require('./founder-smoke-vps.cjs');
 const { snapshotsEqual } = require('./founder-smoke-report-lib.cjs');
 const { robustParentLogin } = require('./founder-smoke-browser-login.cjs');
+const {
+  evaluateChildTodaySessionPass,
+  evaluateParentHandoffRestorePass,
+  computeBrowserPass,
+} = require('./founder-smoke-browser-child.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
