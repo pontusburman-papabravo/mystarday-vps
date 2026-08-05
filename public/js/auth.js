@@ -880,32 +880,56 @@ const Auth = {
   },
 
   /**
+   * Poll server until parent session cookies are active (post handoff PIN / consume).
+   * @returns {Promise<{ ok: true, me: object }|{ ok: false, kind: string, code?: string }>}
+   */
+  async _syncParentSessionFromServer(timeoutMs = 10000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      try {
+        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (this.isParentUser(me)) {
+            this._clearStaleChildLocalState();
+            await this.ensureCsrfToken();
+            const csrf = this.getCsrfToken();
+            const expMs = this._getExpiryMs();
+            this.setAuth(null, me, csrf, expMs);
+            if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+              DeviceMode.enterParent();
+            }
+            return { ok: true, me };
+          }
+        }
+      } catch {
+        // retry until timeout
+      }
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT_TIMEOUT' };
+  },
+
+  async _finishParentHandoffRestoreThen(onReady) {
+    const synced = await this._syncParentSessionFromServer(12000);
+    if (!synced.ok) {
+      this._showLogoutFailureMessage(synced.kind === 'server' ? 'server' : 'contract');
+      return;
+    }
+    if (typeof onReady === 'function') onReady();
+  },
+
+  /**
    * After child logout with handoff consume (no PIN): sync client to parent session
    * before leaving child device mode — SessionGate stays unchanged globally.
    */
   async _completeHandoffParentSessionRestore() {
-    try {
-      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!meRes.ok) {
-        return { ok: false, kind: 'server', code: 'AUTH_ME_HTTP_' + meRes.status };
-      }
-      const me = await meRes.json();
-      if (!this.isParentUser(me)) {
-        return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT' };
-      }
-      this._clearStaleChildLocalState();
-      await this.ensureCsrfToken();
-      const csrf = this.getCsrfToken();
-      const expMs = this._getExpiryMs();
-      this.setAuth(null, me, csrf, expMs);
-      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-        DeviceMode.enterParent();
-      }
-      window.location.href = '/dashboard';
-      return { ok: true };
-    } catch (err) {
-      return { ok: false, kind: 'server', error: err && err.message };
+    const synced = await this._syncParentSessionFromServer(12000);
+    if (!synced.ok) {
+      return synced;
     }
+    window.location.href = '/dashboard';
+    return { ok: true };
   },
 
   _clearStaleChildLocalState() {
@@ -1107,11 +1131,8 @@ const Auth = {
         }
         if (applyPickerResponse && res.ok && res.parent) {
           Auth.setAuth(null, res.parent, res.csrfToken || csrf);
-          if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-            DeviceMode.enterParent();
-          }
           document.body.removeChild(overlay);
-          onSuccess();
+          void Auth._finishParentHandoffRestoreThen(onSuccess);
           return;
         }
         if (res.ok && res.gateToken) {
