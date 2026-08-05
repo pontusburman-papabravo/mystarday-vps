@@ -43,16 +43,22 @@ const {
 const analyticsTracker = require('../lib/analytics-tracker');
 const { FLAG_KEYS, isFlagEnabled } = require('../lib/journey/flags');
 const { getFamilyLocale, sendOnboardingError } = require('../lib/onboarding-locale');
+const {
+  isActivationProgramApiSunsetForFamily,
+  SUNSET_BODY,
+} = require('../lib/activation-program-runtime');
 
 const router = express.Router();
 router.use(requireParent);
 
 router.use(async (req, res, next) => {
-  if (await isFlagEnabled(FLAG_KEYS.activationApiDeprecated)) {
-    return res.status(410).json({
-      error: 'Activation-programmet är avvecklat. Använd Family Journey Context.',
-      migration: '/api/me/journey-context',
-    });
+  if (req.path.startsWith('/enroll-choice')) {
+    return next();
+  }
+  const familyId = req.user?.familyId;
+  if (!familyId) return next();
+  if (await isActivationProgramApiSunsetForFamily(familyId)) {
+    return res.status(410).json(SUNSET_BODY);
   }
   next();
 });

@@ -4,14 +4,13 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 
 describe('journey Fas 4 — activation sunset', () => {
-  it('activation-program returns 410 when api deprecated flag middleware present', () => {
+  it('activation-program uses participant-aware runtime sunset middleware', () => {
     const src = require('fs').readFileSync(
       require('path').join(__dirname, '../src/routes/activation-program.js'),
       'utf8'
     );
-    assert.match(src, /activationApiDeprecated/);
-    assert.match(src, /410/);
-    assert.match(src, /journey-context/);
+    assert.match(src, /isActivationProgramApiSunsetForFamily/);
+    assert.match(src, /enroll-choice/);
   });
 
   it('new enrollments gated by activationNewEnrollments flag on enroll-choice', () => {

@@ -14,6 +14,7 @@ const {
   isPostLaunchEnrollment,
 } = require('./activation-program-enroll');
 const { isEligibleForActivationEmail } = require('./activation-program-eligibility');
+const { isActivationProgramOutboundSunset } = require('./activation-program-runtime');
 const programAnalytics = require('./activation-program-analytics');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const { resolveCommunicationLocale } = require('./communication-locale');
@@ -85,6 +86,10 @@ async function sendInviteToParent(row) {
 async function runActivationEmailJob() {
   if (!isActivationEmailEnabled() || !isPostLaunchEnrollment()) {
     console.log('[ACTIVATION-EMAIL] Disabled or pre-launch — skipping');
+    return;
+  }
+  if (await isActivationProgramOutboundSunset()) {
+    console.log('[ACTIVATION-EMAIL] Runtime sunset — skipping');
     return;
   }
 
