@@ -4,6 +4,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   evaluateChildTodaySessionPass,
+  evaluateParentHandoffRestorePass,
   computeBrowserPass,
   looksLikeChildLoginScreenText,
 } = require('../scripts/ops/founder-smoke-browser-child.cjs');
@@ -69,5 +70,40 @@ describe('founder smoke browser child', () => {
     assert.equal(bits.scenariosPass, true);
     assert.equal(bits.restorePass, false);
     assert.equal(bits.pass, false);
+  });
+
+  it('evaluateParentHandoffRestorePass rejects wrong parent email', () => {
+    const r = evaluateParentHandoffRestorePass({
+      me: { type: 'parent', email: 'other@example.com', family_id: 'fam-1' },
+      path: '/dashboard',
+      onLoginForm: false,
+      expectedEmail: 'founder@example.com',
+      expectedFamilyId: 'fam-1',
+    });
+    assert.equal(r.pass, false);
+    assert.equal(r.reason, 'wrong_parent_email');
+  });
+
+  it('evaluateParentHandoffRestorePass rejects wrong family_id', () => {
+    const r = evaluateParentHandoffRestorePass({
+      me: { type: 'parent', email: 'founder@example.com', family_id: 'fam-other' },
+      path: '/dashboard',
+      onLoginForm: false,
+      expectedEmail: 'founder@example.com',
+      expectedFamilyId: 'fam-1',
+    });
+    assert.equal(r.pass, false);
+    assert.equal(r.reason, 'wrong_family_id');
+  });
+
+  it('evaluateParentHandoffRestorePass accepts matching founder parent', () => {
+    const r = evaluateParentHandoffRestorePass({
+      me: { type: 'parent', email: 'Founder@Example.com', family_id: 'fam-1', preferred_locale: 'en-GB' },
+      path: '/dashboard',
+      onLoginForm: false,
+      expectedEmail: 'founder@example.com',
+      expectedFamilyId: 'fam-1',
+    });
+    assert.equal(r.pass, true);
   });
 });

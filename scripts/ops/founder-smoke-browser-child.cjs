@@ -73,6 +73,27 @@ function evaluateChildTodaySessionPass(p) {
   return { pass: true };
 }
 
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function evaluateParentHandoffRestorePass(p) {
+  const { me, path, onLoginForm, expectedEmail, expectedFamilyId } = p;
+  if (onLoginForm || (path && path.startsWith('/login'))) {
+    return { pass: false, reason: 'on_login_form' };
+  }
+  if (!me || me.type !== 'parent') {
+    return { pass: false, reason: 'me_not_parent' };
+  }
+  if (normalizeEmail(me.email) !== normalizeEmail(expectedEmail)) {
+    return { pass: false, reason: 'wrong_parent_email' };
+  }
+  if (expectedFamilyId && me.family_id !== expectedFamilyId) {
+    return { pass: false, reason: 'wrong_family_id' };
+  }
+  return { pass: true };
+}
+
 function computeBrowserPass({ scenarios, restoreMeta, vpsOn }) {
   const scenariosPass = Object.values(scenarios).every((s) => s && s.pass === true);
   const restorePass =
@@ -89,5 +110,7 @@ module.exports = {
   isAuthenticatedChildTodayPath,
   looksLikeChildLoginScreenText,
   evaluateChildTodaySessionPass,
+  evaluateParentHandoffRestorePass,
+  normalizeEmail,
   computeBrowserPass,
 };

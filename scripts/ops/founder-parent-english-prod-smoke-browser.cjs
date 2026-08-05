@@ -10,6 +10,7 @@ const { snapshotsEqual } = require('./founder-smoke-report-lib.cjs');
 const {
   evaluateChildTodaySessionPass,
   computeBrowserPass,
+  evaluateParentHandoffRestorePass,
 } = require('./founder-smoke-browser-child.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
@@ -152,7 +153,7 @@ async function enterParentPinOverlay(page) {
 }
 
 /** Child logout handoff → parent session without email/password login. */
-async function returnToParentViaChildHandoff(page) {
+async function returnToParentViaChildHandoff(page, expectedEmail, expectedFamilyId) {
   await page.evaluate(() => document.getElementById('logoutBtn')?.click());
   await page
     .waitForFunction(
@@ -179,18 +180,19 @@ async function returnToParentViaChildHandoff(page) {
   const path = await page.evaluate(() => window.location.pathname);
   const onLoginForm = await page.evaluate(() => Boolean(document.getElementById('loginForm')));
   const me = await fetchMe(page);
-  const pass =
-    !onLoginForm &&
-    !path.startsWith('/login') &&
-    me &&
-    me.type === 'parent' &&
-    Boolean(me.email || me.id);
+  const evalResult = evaluateParentHandoffRestorePass({
+    me,
+    path,
+    onLoginForm,
+    expectedEmail,
+    expectedFamilyId,
+  });
 
   return {
-    pass: pass === true,
+    pass: evalResult.pass === true,
     path,
-    parent_me: me ? { type: me.type, email: me.email } : null,
-    reason: pass ? undefined : 'parent_session_not_restored',
+    parent_me: me ? { type: me.type, email: me.email, family_id: me.family_id } : null,
+    reason: evalResult.pass ? undefined : evalResult.reason || 'parent_session_not_restored',
   };
 }
 
@@ -254,10 +256,14 @@ async function runBrowserSmoke() {
         vpsDb('set-locale', familyId, ['--locale', 'en-GB']);
         vpsDb('set', familyId, ['--slug', 'english_app', '--off']);
         await loginParent(page);
-        await openSettings(page);
+        const settingsReachable = await openSettings(page);
+        const enMe = await fetchMe(page);
         const enParentText = await pageText(page);
         scenarios.browser_sc1_parent_english = {
           pass:
+            settingsReachable === true &&
+            enMe?.type === 'parent' &&
+            enMe?.preferred_locale === 'en-GB' &&
             /\bfamily\b/i.test(enParentText) &&
             (/language/i.test(enParentText) || /profile/i.test(enParentText)) &&
             !/familjeinställningar/i.test(enParentText),
@@ -287,7 +293,7 @@ async function runBrowserSmoke() {
         const handoffPath = await page.evaluate(() => window.location.pathname);
         const handoffChild = await enterChildPin(page, CHILD_USER, 'sv-SE', { navigate: false });
         const handoffParent = handoffChild.pass
-          ? await returnToParentViaChildHandoff(page)
+          ? await returnToParentViaChildHandoff(page, EMAIL, familyId)
           : { pass: false, reason: 'child_handoff_login_failed' };
         scenarios.browser_handoff = {
           pass:

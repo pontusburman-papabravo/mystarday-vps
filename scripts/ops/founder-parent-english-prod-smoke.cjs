@@ -7,7 +7,6 @@
 const { runApiSmoke } = require('./founder-parent-english-prod-smoke-api.cjs');
 const { runBrowserSmoke } = require('./founder-parent-english-prod-smoke-browser.cjs');
 const { finalizeFounderSmokeReport } = require('./founder-smoke-report-lib.cjs');
-const { assertEnglishGlobalHealthContract } = require('./founder-smoke-health.cjs');
 
 const mode = process.env.FOUNDER_SMOKE_MODE || process.argv[2] || 'all';
 
@@ -53,9 +52,12 @@ async function main() {
   if (mode === 'all') {
     const apiReport = await runApiSmoke({ finalize: false });
     const browserReport = await runBrowserSmoke();
+    const finalHealth = await fetchHealth(apiReport.base || base);
     const merged = finalizeFounderSmokeReport(
       {
         ...apiReport,
+        api_health_after: apiReport.health_after,
+        health_after: finalHealth,
         browser: browserReport.browser,
         browser_restore: browserReport.restore,
         browser_scenarios: browserReport.scenarios,
