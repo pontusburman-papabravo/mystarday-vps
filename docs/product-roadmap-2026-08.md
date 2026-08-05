@@ -60,7 +60,7 @@ Följande är **shippat eller merge-klart på `main`** (representativ lista — 
 | Growth feedback + referral capture (#841) | Implementerad | Nej (flaggor OFF) | `GROWTH-FEEDBACK-DARK-LAUNCH-PLAN.md` |
 | Paket v1.2 foundation + Extra stöd-fält (`seven_questions`, `transition_support`) | Implementerad | Nej (`PACKAGES_ROLLOUT_MODE=off`) | `paket-v1.2-spec.md` |
 | RevenueCat / IAP backend + native client logic | Implementerad | Köp avstängt / review-läge | `app-store-iap.md` |
-| Aktivitetstimer v0.4 + `activity_timer_v2` | Implementerad | Founder dark launch | `aktivitetstimer-spec.md` |
+| Aktivitetstimer v0.4 + `activity_timer_v2` | Implementerad | Per-barn master (`activity_timers_enabled`) + `duration_seconds` (R2.1) | `aktivitetstimer-spec.md` |
 | Engelska i18n + RC1 harness + global parent English (ADR-021) | Implementerad | Beta-gated | `GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md` |
 | Child Core (#840): offline-kö, `child_sort_order`, delsteg-hårdning | Mergad | Ja | `POST-MERGE-PRODUCT-BASELINE-2026-08.md` |
 | `minimal_ui` (distraktionsfri barnvy) | Implementerad | Feature `dev` | `seed-features.js` |
@@ -146,6 +146,8 @@ flowchart TB
 **POS:** PA-01, P-04 (inga nya coach-ytor), Constitution §1.
 
 **Detalj-spec:** [`family-journey-fas2-5-roadmap.md`](./family-journey-fas2-5-roadmap.md) (implementationsdjup — ändra inte domän här).
+
+**R1 engineering (2026-08-05):** **COMPLETE** — Hem-orkestrering (#889), founderpilot **GO** founder-only (#891), Activation enrollment + runtime sunset (#893, #895). Multi-family Journey Wave 1 **deferred** until an explicitly eligible cohort exists; **no product defect** blocks R2. Founderpilot unchanged.
 
 ---
 
