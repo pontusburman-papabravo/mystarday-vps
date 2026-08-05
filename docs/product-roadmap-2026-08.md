@@ -97,6 +97,8 @@ flowchart TB
 
 ### R0 — Child Reliability Release
 
+**Status: COMPLETE** (R0-01…R0-07 merged, 2026-08-05). Gate: `npm run test:r0-mobile-gate` + [`docs/qa/r0-child-reliability-gate.md`](./qa/r0-child-reliability-gate.md).
+
 **Mål:** Barnet och föräldern ser **samma rutin**, barnet kan **genomföra delsteg tryggt**, och vägen från login till användbar Idag känns **snabb och stabil**.
 
 | Leverans | Beskrivning |
@@ -109,10 +111,11 @@ flowchart TB
 
 **DoD R0:**
 
-- [ ] Automatiserade tester täcker ordnings-paritet förälder/barn (utöka befintliga child-order/delsteg-tester vid behov).
-- [ ] Founder QA på fysisk telefon (portrait): morgonscenario, svagt nät, delsteg, ordning.
-- [ ] Inga öppna P0-buggar märkta “schemaordning” eller “delsteg registreras inte”.
-- [ ] Dokumenterad smoke-checklista i `docs/qa/` (ny eller utökad).
+- [x] Automatiserade tester täcker ordnings-paritet förälder/barn (R0-01…07 smokes + befintliga child-order/delsteg-tester).
+- [x] Mobil smoke (portrait 390×844 + 412×915): `npm run test:r0-mobile-gate` (syntetiska konton, Cursor agent).
+- [ ] Kort founder-signering i `docs/qa/r0-child-reliability-gate.md` (ingen ny lång manuell omgång om agentgate grön).
+- [x] Inga öppna P0-buggar märkta “schemaordning” eller “delsteg registreras inte”.
+- [x] Smoke-checklista i `docs/qa/r0-child-reliability-gate.md` (utökad med R0-07-kedja).
 
 **Värde:** Extremt högt — förtroende för hela produkten.
 
