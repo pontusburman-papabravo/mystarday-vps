@@ -12,6 +12,7 @@ const {
   evaluateChildTodaySessionPass,
   evaluateParentHandoffRestorePass,
   computeBrowserPass,
+  normalizeUsername,
 } = require('./founder-smoke-browser-child.cjs');
 const {
   createChildLoginApiCollector,
@@ -27,6 +28,13 @@ const PASSWORD = process.env.FOUNDER_QA_PASSWORD;
 const CHILD_PIN = process.env.FOUNDER_CHILD_PIN;
 const PARENT_PIN = process.env.FOUNDER_PARENT_PIN;
 let CHILD_USER = process.env.FOUNDER_CHILD_USERNAME;
+
+function resolveFounderChildUsername(parentMe) {
+  const fromEnv = normalizeUsername(process.env.FOUNDER_CHILD_USERNAME);
+  if (fromEnv) return fromEnv;
+  const astrid = (parentMe?.children || []).find((c) => /astrid/i.test(c.name));
+  return normalizeUsername(astrid?.username);
+}
 const VPS_ON = process.env.FOUNDER_SMOKE_VPS === '1';
 
 async function cookieHeader(page) {
@@ -56,12 +64,22 @@ async function pageText(page) {
 }
 
 async function selectExpectedChild(page, expectedUsername) {
+  const normExpected = normalizeUsername(expectedUsername);
   await page.waitForSelector('#clKeypad, .cl-child-card', { visible: true, timeout: 10000 }).catch(() => {});
-  const hasCard = await page.$(`.cl-child-card[data-username="${expectedUsername}"]`);
+  const hasCard = await page.evaluate((user) => {
+    const norm = String(user || '').trim().toLowerCase();
+    return [...document.querySelectorAll('.cl-child-card')].some(
+      (el) => String(el.getAttribute('data-username') || '').trim().toLowerCase() === norm
+    );
+  }, normExpected);
   if (hasCard) {
     await page.evaluate((user) => {
-      document.querySelector(`.cl-child-card[data-username="${user}"]`)?.click();
-    }, expectedUsername);
+      const norm = String(user || '').trim().toLowerCase();
+      const card = [...document.querySelectorAll('.cl-child-card')].find(
+        (el) => String(el.getAttribute('data-username') || '').trim().toLowerCase() === norm
+      );
+      card?.click();
+    }, normExpected);
     await page.waitForSelector('#clKeypad', { visible: true, timeout: 20000 });
   } else {
     await page.evaluate((user) => {
@@ -146,6 +164,8 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, opti
       me,
       pass: evalResult.pass === true,
       reason: evalResult.reason,
+      expected_username: evalResult.expected_username,
+      actual_username: evalResult.actual_username,
       bootstrap_network: collector.snapshot(),
     };
   } finally {
@@ -269,9 +289,8 @@ async function runBrowserSmoke() {
     await loginParent(page, browser);
     const me0 = await fetchMe(page);
     familyId = me0?.family_id;
-    const astrid = (me0?.children || []).find((c) => /astrid/i.test(c.name));
-    if (!CHILD_USER && astrid) CHILD_USER = astrid.username;
-    if (!CHILD_USER) throw new Error('child username unknown for browser smoke');
+    CHILD_USER = resolveFounderChildUsername(me0);
+    if (!CHILD_USER) throw new Error('child username unknown for browser smoke (set FOUNDER_CHILD_USERNAME)');
 
     if (VPS_ON && familyId) snap = vpsDb('snapshot', familyId);
 
@@ -286,14 +305,25 @@ async function runBrowserSmoke() {
         const settingsReachable = await openSettings(page);
         const enMe = await fetchMe(page);
         const enParentText = await pageText(page);
+        const sc1 = {
+          settings_reachable: settingsReachable === true,
+          parent_type: enMe?.type === 'parent',
+          preferred_locale: enMe?.preferred_locale === 'en-GB',
+          preferred_locale_actual: enMe?.preferred_locale ?? null,
+          english_family_copy: /\bfamily\b/i.test(enParentText),
+          english_settings_copy:
+            /language/i.test(enParentText) || /profile/i.test(enParentText),
+          no_swedish_familjeinställningar_leak: !/familjeinställningar/i.test(enParentText),
+        };
         scenarios.browser_sc1_parent_english = {
+          ...sc1,
           pass:
-            settingsReachable === true &&
-            enMe?.type === 'parent' &&
-            enMe?.preferred_locale === 'en-GB' &&
-            /\bfamily\b/i.test(enParentText) &&
-            (/language/i.test(enParentText) || /profile/i.test(enParentText)) &&
-            !/familjeinställningar/i.test(enParentText),
+            sc1.settings_reachable &&
+            sc1.parent_type &&
+            sc1.preferred_locale &&
+            sc1.english_family_copy &&
+            sc1.english_settings_copy &&
+            sc1.no_swedish_familjeinställningar_leak,
         };
 
         vpsDb('set', familyId, ['--slug', 'english_app', '--on']);
