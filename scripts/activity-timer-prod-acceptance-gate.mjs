@@ -6,6 +6,7 @@
  *   set -a && source .env && set +a && node scripts/activity-timer-prod-acceptance-gate.mjs
  */
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
@@ -19,11 +20,7 @@ const {
 const { getLocalDateStr } = require(path.join(ROOT, 'src/lib/daily-log-generator'));
 
 const baseFromEnv = process.env.JOURNEY_QA_BASE_URL || process.env.SMOKE_BASE_URL;
-if (!baseFromEnv) {
-  console.log(JSON.stringify({ step: 'activity-timer-prod-acceptance-gate', pass: false, error: 'base_url_missing' }));
-  process.exit(2);
-}
-const BASE = String(baseFromEnv).replace(/\/$/, '');
+let BASE = baseFromEnv ? String(baseFromEnv).replace(/\/$/, '') : '';
 const VIEWPORTS = [
   { name: 'iphone-390x844', width: 390, height: 844 },
   { name: 'android-412x915', width: 412, height: 915 },
@@ -328,9 +325,33 @@ async function main() {
 
   let sessions = null;
   let snap = null;
+  let sessionFile = process.env.QA_SESSION_FILE;
   try {
-    sessions = await resolveQaBrowserSessions(BASE);
-    report.qa_auth = sessions.meta;
+    if (sessionFile) {
+      const raw = JSON.parse(fs.readFileSync(sessionFile, 'utf8'));
+      if (raw.base) BASE = String(raw.base).replace(/\/$/, '');
+      sessions = {
+        parent: { jar: raw.parent.jar, csrf: raw.parent.csrf },
+        child: { jar: raw.child.jar, csrf: raw.child.csrf },
+        childRow: {
+          id: raw.qaChildId,
+          username: raw.childUsername,
+          family_id: raw.familyId,
+          name: 'QA',
+        },
+        cleanup: async () => {},
+        meta: { ...(raw.meta || {}), session_file: true },
+      };
+      report.qa_auth = sessions.meta;
+    } else {
+      if (!BASE) {
+        console.log(JSON.stringify({ step: 'activity-timer-prod-acceptance-gate', pass: false, error: 'base_url_missing' }));
+        process.exit(2);
+      }
+      sessions = await resolveQaBrowserSessions(BASE);
+      report.qa_auth = sessions.meta;
+    }
+    report.base = BASE;
 
     const childrenRes = await apiFetch(sessions.parent.jar, sessions.parent.csrf, '/api/children');
     const children = Array.isArray(childrenRes.json) ? childrenRes.json : [];
@@ -357,6 +378,9 @@ async function main() {
       }
     }
     if (sessions?.cleanup) await sessions.cleanup();
+    if (sessionFile) {
+      try { fs.unlinkSync(sessionFile); } catch { /* ignore */ }
+    }
   }
 
   console.log(JSON.stringify(redact(report), null, 2));
