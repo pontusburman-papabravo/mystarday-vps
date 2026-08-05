@@ -908,6 +908,13 @@ function setActivityDurationSeconds(seconds) {
   const hidden = document.getElementById('activityDurationSeconds');
   if (hidden) hidden.value = seconds == null ? '' : String(seconds);
   highlightActivityTimerPreset(seconds);
+  refreshActivityTimerMasterBridge();
+}
+
+function refreshActivityTimerMasterBridge() {
+  if (window.LibraryActivityTimerBridge && typeof LibraryActivityTimerBridge.refresh === 'function') {
+    LibraryActivityTimerBridge.refresh();
+  }
 }
 
 function initActivityTimerUI(act) {
@@ -1057,12 +1064,19 @@ async function openActivityModal(act) {
 
   initActivityTimerUI(act);
 
+  if (window.LibraryActivityTimerBridge) {
+    LibraryActivityTimerBridge.clearChildrenCache();
+    LibraryActivityTimerBridge.wireBridge();
+    LibraryActivityTimerBridge.refresh();
+  }
+
   document.getElementById('activityModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('activityName').focus(), 100);
 }
 
 function closeActivityModal() {
   document.getElementById('activityModal').classList.add('hidden');
+  if (window.LibraryActivityTimerBridge) LibraryActivityTimerBridge.clearChildrenCache();
   if (window.LibrarySevenQuestions) LibrarySevenQuestions.reset();
 }
 
