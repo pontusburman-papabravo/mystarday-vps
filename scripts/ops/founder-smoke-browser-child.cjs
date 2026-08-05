@@ -49,8 +49,17 @@ function evaluateChildTodaySessionPass(p) {
   if (!me || me.type !== 'child') {
     return { pass: false, reason: 'me_not_child' };
   }
-  if (expectedUsername && me.username !== expectedUsername) {
-    return { pass: false, reason: 'wrong_child' };
+  if (expectedUsername) {
+    const expected = normalizeUsername(expectedUsername);
+    const actual = normalizeUsername(me.username);
+    if (actual !== expected) {
+      return {
+        pass: false,
+        reason: 'wrong_child',
+        expected_username: expected,
+        actual_username: actual || null,
+      };
+    }
   }
   if (me.child_ui_locale !== expectedChildUiLocale) {
     return { pass: false, reason: 'wrong_child_ui_locale', actual: me.child_ui_locale };
@@ -71,6 +80,10 @@ function evaluateChildTodaySessionPass(p) {
   }
 
   return { pass: true };
+}
+
+function normalizeUsername(value) {
+  return String(value || '').trim().toLowerCase();
 }
 
 function normalizeEmail(value) {
@@ -112,5 +125,6 @@ module.exports = {
   evaluateChildTodaySessionPass,
   evaluateParentHandoffRestorePass,
   normalizeEmail,
+  normalizeUsername,
   computeBrowserPass,
 };
