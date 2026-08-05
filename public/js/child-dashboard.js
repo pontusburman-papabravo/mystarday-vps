@@ -615,7 +615,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!featureSlugs.includes('emotion_tracking')) {
         showMoodRating = false;
       }
-      transitionSupportEnabled = featureSlugs.includes('transition_support');
+      let packageAccess = null;
+      try {
+        packageAccess = window.fetchPackageAccess
+          ? await window.fetchPackageAccess()
+          : null;
+      } catch {
+        packageAccess = null;
+      }
+      transitionSupportEnabled = packageAccess?.features?.transition_support === true;
     } catch {
       if (window.ChildWorlds && ChildWorlds.finishAppBoot) ChildWorlds.finishAppBoot();
     }
