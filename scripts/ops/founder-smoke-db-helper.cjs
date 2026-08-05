@@ -20,7 +20,7 @@ async function snapshot(familyId) {
   );
   return {
     preferred_locale: locale.rows[0]?.preferred_locale || 'sv-SE',
-    features: feats.rows.map((r) => r.feature_slug),
+    features: feats.rows.map((r) => r.feature_slug).sort(),
   };
 }
 
@@ -72,7 +72,11 @@ async function main() {
       snap = JSON.parse(args[args.indexOf('--json') + 1]);
     }
     await restore(familyId, snap);
-    console.log(JSON.stringify({ ok: true, restored: snap }));
+    const after = await snapshot(familyId);
+    const matches =
+      after.preferred_locale === snap.preferred_locale &&
+      JSON.stringify(after.features) === JSON.stringify([...(snap.features || [])].sort());
+    console.log(JSON.stringify({ ok: true, restored: snap, restore_matches_snapshot: matches, after }));
     return;
   }
   if (cmd === 'set') {
