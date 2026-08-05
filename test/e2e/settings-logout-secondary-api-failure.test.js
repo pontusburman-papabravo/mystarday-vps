@@ -57,10 +57,11 @@ describe('settings logout E2E', () => {
       });
 
       await page.goto(`${ctx.baseUrl}/settings`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-      if (page.url().includes('/login')) {
-        t.skip('browser login did not authorize /settings');
-        return;
-      }
+      assert.equal(
+        page.url().includes('/login'),
+        false,
+        `browser login did not authorize /settings: ${page.url()}`
+      );
 
       await page.waitForFunction(
         () => document.body.dataset.criticalAccountActionsBound === 'true'
