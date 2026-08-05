@@ -25,15 +25,28 @@ describe('Auth.logout handoff contract (client)', () => {
   it('sessionRestored completes parent client state before dashboard (no SessionGate short-circuit)', () => {
     assert.match(src, /_completeHandoffParentSessionRestore/);
     assert.match(src, /data\.sessionRestored[\s\S]{0,220}_completeHandoffParentSessionRestore/);
-    assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,900}fetch\('\/api\/auth\/me'/);
-    assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,900}isParentUser\(me\)/);
-    assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,900}_clearStaleChildLocalState/);
-    assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,900}DeviceMode\.enterParent/);
-    assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,900}ensureCsrfToken/);
+    assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,400}_syncParentSessionFromServer/);
+    assert.match(src, /_syncParentSessionFromServer[\s\S]{0,900}fetch\('\/api\/auth\/me'/);
+    assert.match(src, /_syncParentSessionFromServer[\s\S]{0,900}isParentUser\(me\)/);
     assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,400}location\.href = '\/dashboard'/);
     const restoredBlock = src.match(/if \(res\.ok && data\.sessionRestored\) \{[\s\S]*?\n        \}/);
     assert.ok(restoredBlock, 'sessionRestored block');
     assert.doesNotMatch(restoredBlock[0], /shouldBlockSessionRestore/);
+  });
+
+  it('needsParentPin path polls parent session before dashboard navigation', () => {
+    assert.match(src, /_finishParentHandoffRestoreThen/);
+    assert.match(src, /_syncParentSessionFromServer/);
+    assert.match(
+      src,
+      /applyPickerResponse && res\.ok && res\.parent[\s\S]{0,500}_finishParentHandoffRestoreThen/
+    );
+    assert.match(src, /AUTH_ME_NOT_PARENT_TIMEOUT/);
+    assert.match(src, /_finishParentHandoffRestoreThen[\s\S]{0,400}if \(typeof onReady === 'function'\) onReady\(\)/);
+    assert.doesNotMatch(
+      src.match(/async _finishParentHandoffRestoreThen[\s\S]{0,600}/)?.[0] || '',
+      /onReady\(\)[\s\S]{0,80}_syncParentSessionFromServer/
+    );
   });
 
   it('exposes localized handoff and logout failure strings', () => {
