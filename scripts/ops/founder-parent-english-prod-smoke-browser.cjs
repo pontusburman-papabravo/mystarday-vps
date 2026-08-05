@@ -7,11 +7,7 @@
 const puppeteer = require('puppeteer');
 const { vpsDb } = require('./founder-smoke-vps.cjs');
 const { snapshotsEqual } = require('./founder-smoke-report-lib.cjs');
-const {
-  evaluateChildTodaySessionPass,
-  computeBrowserPass,
-  evaluateParentHandoffRestorePass,
-} = require('./founder-smoke-browser-child.cjs');
+const { robustParentLogin } = require('./founder-smoke-browser-login.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
@@ -34,28 +30,13 @@ async function fetchMe(page) {
   return res.json();
 }
 
-async function fillParentLogin(page, email, password) {
-  await page.waitForSelector('#email', { visible: true, timeout: 30000 });
-  await page.evaluate((em, pw) => {
-    const emailEl = document.getElementById('email');
-    const passEl = document.getElementById('password');
-    if (emailEl) emailEl.value = em;
-    if (passEl) passEl.value = pw;
-  }, email, password);
-  await page.evaluate(() => {
-    const form = document.getElementById('loginForm');
-    if (form?.requestSubmit) form.requestSubmit();
-    else document.getElementById('submitBtn')?.click();
+async function loginParent(page, browser) {
+  await robustParentLogin(page, browser, {
+    base: BASE,
+    email: EMAIL,
+    password: PASSWORD,
+    fetchMe: () => fetchMe(page),
   });
-}
-
-async function loginParent(page) {
-  await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await fillParentLogin(page, EMAIL, PASSWORD);
-  await page.waitForFunction(
-    () => /\/(dashboard|onboarding|planning)/.test(window.location.pathname),
-    { timeout: 90000 }
-  );
 }
 
 async function pageText(page) {
@@ -236,7 +217,7 @@ async function runBrowserSmoke() {
     const page = await browser.newPage();
     await page.setViewport({ width: 390, height: 844, isMobile: true });
 
-    await loginParent(page);
+    await loginParent(page, browser);
     const me0 = await fetchMe(page);
     familyId = me0?.family_id;
     const astrid = (me0?.children || []).find((c) => /astrid/i.test(c.name));
@@ -255,7 +236,7 @@ async function runBrowserSmoke() {
       if (VPS_ON && familyId) {
         vpsDb('set-locale', familyId, ['--locale', 'en-GB']);
         vpsDb('set', familyId, ['--slug', 'english_app', '--off']);
-        await loginParent(page);
+        await loginParent(page, browser);
         const settingsReachable = await openSettings(page);
         const enMe = await fetchMe(page);
         const enParentText = await pageText(page);
@@ -275,11 +256,11 @@ async function runBrowserSmoke() {
         scenarios.browser_sc2_child_english = childEn;
 
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--off']);
-        await loginParent(page);
+        await loginParent(page, browser);
         const childSv = await enterChildPin(page, CHILD_USER, 'sv-SE');
         scenarios.browser_sc3_child_separation = childSv;
 
-        await loginParent(page);
+        await loginParent(page, browser);
         const handoffSettings = await openSettings(page);
         if (handoffSettings) {
           await page.evaluate(() => document.getElementById('switchUserBtn')?.click());
@@ -313,7 +294,7 @@ async function runBrowserSmoke() {
         scenarios.browser_handoff = { ...vpsRequired };
       }
 
-      await loginParent(page).catch(() => {});
+      await loginParent(page, browser).catch(() => {});
       const logoutSettings = await openSettings(page);
       scenarios.browser_settings_reachable = { pass: logoutSettings };
       if (logoutSettings) {
