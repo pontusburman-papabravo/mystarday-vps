@@ -239,7 +239,7 @@ describe('Fas 1 — sidebar render', () => {
     const html = renderNavHtml();
     const hrefs = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
     const { resolveRoute } = loadAdminNav();
-    assert.equal(hrefs.length, 27, 'expected 27 hash nav links (+ 1 external Funktioner)');
+    assert.equal(hrefs.length, 29, 'expected 29 hash nav links (+ 1 external Funktioner)');
     const dup = hrefs.filter((h, i) => hrefs.indexOf(h) !== i);
     assert.deepEqual(dup, [], 'duplicate nav hrefs: ' + dup.join(', '));
     for (const h of hrefs) {
