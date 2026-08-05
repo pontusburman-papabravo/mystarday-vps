@@ -75,7 +75,12 @@
     launchMilestoneConfetti();
   }
 
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
   function launchMilestoneConfetti() {
+    if (prefersReducedMotion()) return;
     const COLORS = ['#F5A623', '#22C55E', '#3B82F6', '#A855F7', '#EF4444', '#F59E0B'];
     const SHAPES = ['✨', '⭐', '🌟', '★'];
     const count = 30;
@@ -108,6 +113,7 @@
 
   function launchDopaminBurst(originEl) {
     if (!dopaminAnimation) return;
+    if (prefersReducedMotion()) return;
     const EMOJIS = ['⭐', '🌟', '✨', '⭐', '🌟'];
     const COLORS = ['#F5A623', '#22C55E', '#A855F7', '#3B82F6', '#EF4444'];
 
