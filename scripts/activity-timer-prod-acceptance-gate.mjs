@@ -74,8 +74,8 @@ function mergeJar(jar, setCookie) {
 async function snapshotState(parentJar, parentCsrf, qaChildId, siblingChild) {
   const childrenRes = await apiFetch(parentJar, parentCsrf, '/api/children');
   const actsRes = await apiFetch(parentJar, parentCsrf, '/api/activities');
-  const activities = actsRes.json?.activities || actsRes.json || [];
-  const qaAct = activities.find((a) => QA_ACTIVITY_NAME_RE.test(a.name))
+  const activities = Array.isArray(actsRes.json) ? actsRes.json : (actsRes.json?.activities || []);
+  const qaAct = activities.find((a) => /QA Timer/i.test(a.name) && /30/.test(a.name))
     || activities.find((a) => /QA Timer/i.test(a.name));
   const children = Array.isArray(childrenRes.json) ? childrenRes.json : [];
   const qaChild = children.find((c) => c.id === qaChildId);
@@ -86,6 +86,8 @@ async function snapshotState(parentJar, parentCsrf, qaChildId, siblingChild) {
     activity_id: qaAct?.id,
     duration_seconds: qaAct?.duration_seconds ?? null,
     activity_name: qaAct?.name,
+    has_qa_activity: !!qaAct,
+    qa_activity: qaAct || null,
   };
   return snap;
 }
@@ -111,6 +113,15 @@ async function childDailyLog(childJar) {
     headers: { Cookie: jarToCookieHeader(childJar) },
   });
   return res.ok ? res.json() : null;
+}
+
+async function openActivityEditor(page, activity) {
+  await page.evaluate((act) => {
+    if (typeof openActivityModal === 'function') openActivityModal(act);
+    else if (typeof openActivityModalById === 'function') openActivityModalById(act.id);
+  }, activity);
+  await page.waitForSelector('#activityModal:not(.hidden)', { timeout: 25000 });
+  await new Promise((r) => setTimeout(r, 1200));
 }
 
 async function runTimerScenarios(puppeteer, sessions, snap) {
@@ -162,11 +173,9 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
 
   if (snap.activity_id) {
     await page.goto(`${BASE}/library`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await new Promise((r) => setTimeout(r, 2500));
-    await page.evaluate((id) => {
-      if (typeof openActivityModalById === 'function') openActivityModalById(id);
-    }, snap.activity_id);
-    await page.waitForSelector('#activityModal:not(.hidden)', { timeout: 20000 }).catch(() => null);
+    await page.waitForFunction(() => typeof openActivityModal === 'function', { timeout: 30000 });
+    await new Promise((r) => setTimeout(r, 2000));
+    await openActivityEditor(page, snap.qa_activity);
     const bridgeA = await page.evaluate(() => {
       const el = document.getElementById('activityTimerMasterBridge');
       return {
@@ -255,10 +264,7 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
   results.scenarioD = childLogD?.activity_timer_v2 !== true;
 
   await page.bringToFront();
-  await page.evaluate((id) => {
-    if (typeof openActivityModalById === 'function') openActivityModalById(id);
-  }, snap.activity_id);
-  await new Promise((r) => setTimeout(r, 1000));
+  await openActivityEditor(page, snap.qa_activity);
   await page.click('.activity-timer-bridge-enable').catch(() => null);
   await new Promise((r) => setTimeout(r, 2000));
   const childLogE = await childDailyLog(childJar);
