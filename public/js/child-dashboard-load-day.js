@@ -114,9 +114,6 @@
         }
       }
       const unfetched = items.filter(i => !itemRatings[i.id]).map(i => i.id);
-      if (unfetched.length > 0) {
-        await loadRatingsForItems(unfetched);
-      }
       allowChildReorder = !!data.allow_child_reorder;
       showNowNext = data.show_now_next === true;
       requireSequentialCompletion = data.require_sequential_completion === true;
@@ -138,6 +135,7 @@
         await ChildSevenQuestions.ready();
       }
       renderActivities(data, rwdData?.starBalance);
+      try { performance.mark('child-today-first-activities-rendered'); } catch (_) { /* ignore */ }
       updateGoalBar(goalData);
       if (window.ChildActivityEngine) {
         ChildActivityEngine.setLastDayData(data);
@@ -146,6 +144,9 @@
       if (window.ChildRewardsEngine && goalData && !(window.ChildFirstStarMode && ChildFirstStarMode.isActive())) {
         ChildRewardsEngine.setGoalData(goalData);
         ChildRewardsEngine.mountGoalProgress();
+      }
+      if (unfetched.length > 0) {
+        void loadRatingsForItems(unfetched);
       }
     } catch (err) {
       if (skeletonTimer) skeletonTimer.stop();
