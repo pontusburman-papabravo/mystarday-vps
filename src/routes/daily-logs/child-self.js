@@ -13,6 +13,10 @@ const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 const { enrichPictogramFieldsMany } = require('../../../config/pictogram-library');
+const {
+  DailyLogReorderError,
+  reorderDailyLogItemsAsChild,
+} = require('../../lib/daily-log-reorder');
 const { FLAG_KEYS, isActivationFlagEnabled } = require('../../lib/activation-flags');
 const {
   countLifetimeCompletions,
@@ -477,71 +481,15 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
 childSelfRouter.put('/daily-log/reorder', async (req, res) => {
   try {
     const { ordered_item_ids } = req.body;
-    if (!Array.isArray(ordered_item_ids) || ordered_item_ids.length === 0) {
-      return res.status(400).json({ error: 'ordered_item_ids must be a non-empty array' });
-    }
-
-    const childId = req.user.id;
-
-    // Check that parent has enabled reordering for this child
-    const childSettings = await db.query(
-      'SELECT allow_child_reorder FROM child WHERE id = $1',
-      [childId]
-    );
-    if (!childSettings.rows[0]?.allow_child_reorder) {
-      return res.status(403).json({ error: 'Omordning är inte tillåten för detta barn' });
-    }
-
-    // Verify first item belongs to this child's daily log
-    const firstItem = await db.query(
-      `SELECT dli.id, dl.id AS log_id
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dli.id = $1 AND dl.child_id = $2`,
-      [ordered_item_ids[0], childId]
-    );
-    if (firstItem.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
-    }
-    const logId = firstItem.rows[0].log_id;
-
-    // Verify all items are in the same log and belong to this child
-    const validItems = await db.query(
-      `SELECT dli.id
-       FROM daily_log_item dli
-       JOIN daily_log dl ON dl.id = dli.daily_log_id
-       WHERE dl.id = $1 AND dl.child_id = $2`,
-      [logId, childId]
-    );
-    const validIds = new Set(validItems.rows.map(r => r.id));
-    for (const id of ordered_item_ids) {
-      if (!validIds.has(id)) {
-        return res.status(400).json({ error: 'Ogiltigt aktivitets-ID i listan' });
-      }
-    }
-
-    // Update child_sort_order for each item in a transaction
-    const client = await db.getClient();
-    try {
-      await client.query('BEGIN');
-      for (let i = 0; i < ordered_item_ids.length; i++) {
-        await client.query(
-          `UPDATE daily_log_item
-           SET child_sort_order = $1, sort_order = $1
-           WHERE id = $2 AND daily_log_id = $3`,
-          [i, ordered_item_ids[i], logId]
-        );
-      }
-      await client.query('COMMIT');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
-
+    await reorderDailyLogItemsAsChild(db, {
+      childId: req.user.id,
+      orderedItemIds: ordered_item_ids,
+    });
     res.json({ message: 'Ordning sparad' });
   } catch (err) {
+    if (err instanceof DailyLogReorderError) {
+      return res.status(err.statusCode).json({ error: err.message });
+    }
     console.error('[DAILY-LOG-CHILD] Reorder error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }

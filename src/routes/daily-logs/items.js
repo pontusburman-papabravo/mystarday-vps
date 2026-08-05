@@ -11,6 +11,10 @@ const { getItemAccess, requireItemAccess } = require('../../middleware/authz');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { getChildFamilyId } = require('./helpers');
+const {
+  DailyLogReorderError,
+  reorderDailyLogItemsAsParent,
+} = require('../../lib/daily-log-reorder');
 
 const itemRouter = express.Router();
 itemRouter.use(requireParent);
@@ -18,34 +22,15 @@ itemRouter.use(requireParent);
 itemRouter.put('/reorder', async (req, res) => {
   try {
     const { ordered_item_ids } = req.body;
-    if (!Array.isArray(ordered_item_ids) || ordered_item_ids.length === 0) {
-      return res.status(400).json({ error: 'ordered_item_ids must be a non-empty array' });
-    }
-
-    const firstItem = await getItemAccess(req.user.id, ordered_item_ids[0]);
-    if (!firstItem) return res.status(403).json({ error: 'Du har inte åtkomst till dessa aktiviteter' });
-
-    const client = await db.getClient();
-    try {
-      await client.query('BEGIN');
-      for (let i = 0; i < ordered_item_ids.length; i++) {
-        await client.query(
-          `UPDATE daily_log_item
-           SET sort_order = $1, child_sort_order = NULL
-           WHERE id = $2 AND daily_log_id = $3`,
-          [i, ordered_item_ids[i], firstItem.daily_log_id]
-        );
-      }
-      await client.query('COMMIT');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
-
+    await reorderDailyLogItemsAsParent(db, {
+      parentId: req.user.id,
+      orderedItemIds: ordered_item_ids,
+    });
     res.json({ ok: true });
   } catch (err) {
+    if (err instanceof DailyLogReorderError) {
+      return res.status(err.statusCode).json({ error: err.message });
+    }
     console.error('[DAILY-LOG-ITEM] Parent reorder error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
