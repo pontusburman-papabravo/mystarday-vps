@@ -40,12 +40,12 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 ### 2. English child experience ON
 
-**Förutsättning:** Familjen har `english_child_experience` aktiverad.
+**Förutsättning:** Familjen har `english_child_experience` aktiverad **och** `preferred_locale` **en-GB** (denna körning använde founder **sv-SE** — ogiltig fixture för engelsk barn-UI).
 
 | Kontroll | Resultat | Kommentar |
 |----------|----------|-----------|
-| Barninloggning visas på engelska | **FAIL (expected sv)** | Familj `preferred_locale` **sv-SE** — child login UI **svenska** (korrekt per modell) |
-| Barnets Today-vy visas på engelska | **FAIL (expected sv)** | Today **svenska** trots `english_child_experience_enabled: true` |
+| Barninloggning visas på engelska | **NOT RUN — invalid fixture** | Familj **sv-SE** → child login UI svenska (**OBSERVED — expected sv** för denna fixture) |
+| Barnets Today-vy visas på engelska | **NOT RUN — invalid fixture** | Today svenska trots child flag ON (**OBSERVED — expected sv** när familj inte är en-GB) |
 | Aktivitet kan öppnas och slutföras | **NOT RUN** | |
 | Parent → child → parent-handoff fungerar | **NOT RUN** | |
 | Ingen blockerande svensk text | **N/A** | Smoke kräver **familj en-GB** + child flag ON för engelsk barn-UI — ej denna fixture |
@@ -115,7 +115,7 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 |---|----------|-------|-----------|----------|-------------|
 | 1 | Browser logout | Desktop browser | Logga ut avslutar session | Knapp i Inställningar svarade inte; API `POST /api/auth/logout` fungerar | Nej |
 | 2 | Child login | API | PIN med visningsnamn | Kräver **username** (`astrid921`) | Nej (dokumentation) |
-| 3 | Scenario 2 | Founder fixture | Barn-UI engelska | Familj sv-SE → barn svenska trots child_experience ON | Nej — **fel fixture**; kör om med en-GB-familj |
+| 3 | Scenario 2 | Founder fixture | Barn-UI engelska | **NOT RUN — invalid fixture** (familj sv-SE; svenska barn-UI förväntat) | Nej — kör om med **en-GB**-familj + child experience ON |
 | 4 | Scenario 1 | Founder fixture | Grandfather en-GB | Familj är sv-SE + beta, inte grandfather | Ja för **global ON** tills grandfather-familj smokeats |
 
 ---
@@ -137,11 +137,21 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 **Villkor eller kvarvarande åtgärder:**
 
-- **Credential rotation:** **PENDING** — founder ska rotera parent-lösenord och barn-PIN och uppdatera Cursor-secrets; inga nya värden i PR/dokument.
+- **Credential rotation:** **PENDING** — **hårt säkerhetsvillkor före nästa prod-smoke och absolut före global ON** (inte merge-villkor för #874). Founder roterar parent-lösenord och barn-PIN och uppdaterar Cursor-secrets; inga nya värden i PR/dokument.
 - Smokea **dedikerad en-GB-grandfather**-familj (eller RC1 QA-fixture) för scenario 1.
 - Scenario 2: familj **en-GB** + `english_child_experience` ON — verifiera barn-UI (prod smoke med VPS DB helper efter deploy av tooling).
 - Scenario 5: kontrollerad ny familj utan beta (API-smoke eller staging).
-- Utreda logout-knapp i Inställningar (UI) — **öppen avvikelse**; ingen verifierad fix i #874.
+- Utreda logout-knapp i Inställningar (UI) — **öppen produktavvikelse** (ej blockerande för global ON); ingen verifierad fix i #874.
+
+## Körordning (efter merge #874, global flag OFF)
+
+1. Deploy smoke-tooling till prod (rätt `git_sha` på `/health`; `english_global_flag_enabled` fortfarande **false**).
+2. Rotera founder parent-lösenord och Astrids barn-PIN; uppdatera Cursor/QA-secret store (inga värden i GitHub eller detta dokument).
+3. `npm run founder:parent-english-smoke` — kräv `report.restored: true`.
+4. Slutför scenario **1, 2, 3, 5** och kvarvarande **riskytor** (handoff, cache, bilduppladdning, m.fl.).
+5. Kontrollera `/health` och relevanta loggar.
+6. Uppdatera **Beslut** i detta dokument; fatta nytt **global ON**-beslut endast om alla blockerare är PASS.
+7. Logout i Inställningar: separat spår — påverkar inte global ON-beslutet tills verifierad fix finns.
 
 ---
 
