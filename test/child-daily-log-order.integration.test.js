@@ -88,6 +88,48 @@ async function morgonRowsDb(db, childId, dateStr) {
   return rows;
 }
 
+function morgonNamesFromDbRows(rows) {
+  return [...rows].sort((a, b) => a.sort_order - b.sort_order).map((r) => r.name);
+}
+
+const PARENT_CONCURRENT_ORDER = ['C', 'A', 'B'];
+const CHILD_CONCURRENT_ORDER = ['B', 'C', 'A'];
+
+function assertMorgonWinnerState(rows, winner) {
+  const sorted = [...rows].sort((a, b) => a.sort_order - b.sort_order);
+  const names = sorted.map((r) => r.name);
+  if (winner === 'parent') {
+    assert.deepEqual(names, PARENT_CONCURRENT_ORDER);
+    assert.ok(sorted.every((row) => row.child_sort_order === null));
+    return;
+  }
+  assert.deepEqual(names, CHILD_CONCURRENT_ORDER);
+  assert.deepEqual(
+    sorted.map((row) => row.child_sort_order),
+    [0, 1, 2]
+  );
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function holdDailyLogRowLock(db, logId) {
+  const pg = require('../src/lib/db');
+  const client = await pg.getClient();
+  await client.query('BEGIN');
+  await client.query('SELECT id FROM daily_log WHERE id = $1 FOR UPDATE', [logId]);
+  return {
+    async release() {
+      try {
+        await client.query('COMMIT');
+      } finally {
+        client.release();
+      }
+    },
+  };
+}
+
 const DATE = '2026-08-10';
 
 test('P1 child daily-log order regression (A–H)', async (t) => {
@@ -384,6 +426,8 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
         Cookie: cookieHeader(kid.childCookies),
         'X-CSRF-Token': kid.childCsrf,
       };
+      const parentBody = JSON.stringify({ ordered_item_ids: [ids[2], ids[0], ids[1]] });
+      const childBody = JSON.stringify({ ordered_item_ids: [ids[1], ids[2], ids[0]] });
       const runs = [];
       for (let i = 0; i < 8; i++) {
         runs.push(
@@ -391,12 +435,12 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
             fetch(`${http.baseUrl}/api/daily-log-items/reorder`, {
               method: 'PUT',
               headers: parentHeaders,
-              body: JSON.stringify({ ordered_item_ids: [ids[2], ids[0], ids[1]] }),
+              body: parentBody,
             }),
             fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
               method: 'PUT',
               headers: childHeaders,
-              body: JSON.stringify({ ordered_item_ids: [ids[1], ids[2], ids[0]] }),
+              body: childBody,
             }),
           ])
         );
@@ -405,17 +449,104 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
       for (const pair of settled) {
         for (const res of pair) {
           const text = await res.text();
-          assert.ok(
-            res.status === 200 || res.status === 400,
-            `unexpected status ${res.status}: ${text}`
-          );
+          assert.equal(res.status, 200, text);
           assert.notEqual(res.status, 500, text);
         }
       }
-      const log = await getDailyLog(http.baseUrl, kid.childCookies, kid.childCsrf, DATE);
-      const names = morgonNamesInOrder(log.body);
-      assert.equal(names.length, 3);
-      assert.deepEqual([...names].sort(), ['A', 'B', 'C']);
+      const rows = await morgonRowsDb(db, kid.childId, DATE);
+      const names = morgonNamesFromDbRows(rows);
+      const parentWin = names.join() === PARENT_CONCURRENT_ORDER.join();
+      const childWin = names.join() === CHILD_CONCURRENT_ORDER.join();
+      assert.ok(parentWin || childWin, `unexpected final order: ${names.join(', ')}`);
+      if (parentWin) {
+        assertMorgonWinnerState(rows, 'parent');
+      } else {
+        assertMorgonWinnerState(rows, 'child');
+      }
+    });
+
+    await t.test('N-barrier — child transaction commits last', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const kid = await createChildWithLogin(http, session, db);
+      await db.query('UPDATE child SET allow_child_reorder = true WHERE id = $1', [kid.childId]);
+      const { logId, ids } = await insertDailyLogItems(db, kid.childId, DATE, [
+        { name: 'A', sort_order: 0 },
+        { name: 'B', sort_order: 1 },
+        { name: 'C', sort_order: 2 },
+      ]);
+      const parentHeaders = {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(session.cookies),
+        'X-CSRF-Token': session.csrfToken,
+      };
+      const childHeaders = {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(kid.childCookies),
+        'X-CSRF-Token': kid.childCsrf,
+      };
+      const lock = await holdDailyLogRowLock(db, logId);
+      const parentP = fetch(`${http.baseUrl}/api/daily-log-items/reorder`, {
+        method: 'PUT',
+        headers: parentHeaders,
+        body: JSON.stringify({ ordered_item_ids: [ids[2], ids[0], ids[1]] }),
+      });
+      await sleep(120);
+      const childP = fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
+        method: 'PUT',
+        headers: childHeaders,
+        body: JSON.stringify({ ordered_item_ids: [ids[1], ids[2], ids[0]] }),
+      });
+      await sleep(120);
+      await lock.release();
+      const [pres, cres] = await Promise.all([parentP, childP]);
+      const ptext = await pres.text();
+      const ctext = await cres.text();
+      assert.equal(pres.status, 200, ptext);
+      assert.equal(cres.status, 200, ctext);
+      const rows = await morgonRowsDb(db, kid.childId, DATE);
+      assertMorgonWinnerState(rows, 'child');
+    });
+
+    await t.test('N-barrier — parent transaction commits last', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const kid = await createChildWithLogin(http, session, db);
+      await db.query('UPDATE child SET allow_child_reorder = true WHERE id = $1', [kid.childId]);
+      const { logId, ids } = await insertDailyLogItems(db, kid.childId, DATE, [
+        { name: 'A', sort_order: 0 },
+        { name: 'B', sort_order: 1 },
+        { name: 'C', sort_order: 2 },
+      ]);
+      const parentHeaders = {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(session.cookies),
+        'X-CSRF-Token': session.csrfToken,
+      };
+      const childHeaders = {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(kid.childCookies),
+        'X-CSRF-Token': kid.childCsrf,
+      };
+      const lock = await holdDailyLogRowLock(db, logId);
+      const childP = fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
+        method: 'PUT',
+        headers: childHeaders,
+        body: JSON.stringify({ ordered_item_ids: [ids[1], ids[2], ids[0]] }),
+      });
+      await sleep(120);
+      const parentP = fetch(`${http.baseUrl}/api/daily-log-items/reorder`, {
+        method: 'PUT',
+        headers: parentHeaders,
+        body: JSON.stringify({ ordered_item_ids: [ids[2], ids[0], ids[1]] }),
+      });
+      await sleep(120);
+      await lock.release();
+      const [cres, pres] = await Promise.all([childP, parentP]);
+      const ctext = await cres.text();
+      const ptext = await pres.text();
+      assert.equal(cres.status, 200, ctext);
+      assert.equal(pres.status, 200, ptext);
+      const rows = await morgonRowsDb(db, kid.childId, DATE);
+      assertMorgonWinnerState(rows, 'parent');
     });
 
     await t.test('H — section order morgon before kvall', async () => {
