@@ -816,8 +816,13 @@ router.get('/public/activation-program/invite/:token', async (req, res) => {
     const config = require('../lib/config');
     const programAnalytics = require('../lib/activation-program-analytics');
     const { isActivationProgramEnabled, isPostLaunchEnrollment } = require('../lib/activation-program-enroll');
+    const { FLAG_KEYS, isFlagEnabled } = require('../lib/journey/flags');
 
     if (!isActivationProgramEnabled() || !isPostLaunchEnrollment()) {
+      return res.redirect('/');
+    }
+
+    if (!(await isFlagEnabled(FLAG_KEYS.activationNewEnrollments))) {
       return res.redirect('/');
     }
 
