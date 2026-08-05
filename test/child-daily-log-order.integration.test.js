@@ -12,6 +12,11 @@ const { cookieHeader, listenApp } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
 const { childLoginRaw, getDailyLog } = require('./helpers/golden-path-fas6.js');
 const { compareChildDailyLogItems } = require('../src/lib/daily-log-child-order');
+const {
+  getLocalDateStr,
+  getDayOfWeek,
+  getOrGenerateDailyLog,
+} = require('../src/lib/daily-log-generator');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -34,6 +39,11 @@ function assertSafeIntegrationDatabase() {
 function morgonNamesInOrder(body) {
   const sec = body.sections?.morgon || body.items.filter((i) => i.section === 'morgon');
   return sec.map((i) => i.name);
+}
+
+function morgonFieldInOrder(body, field) {
+  const sec = body.sections?.morgon || body.items.filter((i) => i.section === 'morgon');
+  return sec.map((i) => i[field]);
 }
 
 function itemNamesInOrder(body) {
@@ -276,6 +286,81 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
       for (const row of rows.rows) {
         assert.equal(row.child_sort_order, row.sort_order);
       }
+    });
+
+    await t.test('J — weekly schedule reorder → daily log → child API (R0-01)', async () => {
+      const tz = 'Europe/Stockholm';
+      const dateStr = getLocalDateStr(new Date(), tz);
+      const dow = getDayOfWeek(dateStr, tz);
+
+      const session = await registerAndLogin(http.baseUrl);
+      const kid = await createChildWithLogin(http, session, db);
+      const fam = await db.query('SELECT family_id FROM child WHERE id = $1', [kid.childId]);
+      const familyId = fam.rows[0].family_id;
+
+      const templates = [];
+      for (const label of ['R0OrderA', 'R0OrderB', 'R0OrderC']) {
+        const ins = await db.query(
+          `INSERT INTO activity_template (family_id, name, icon, star_value, sort_order)
+           VALUES ($1, $2, '⭐', 1, 0) RETURNING id`,
+          [familyId, label]
+        );
+        templates.push({ name: label, id: ins.rows[0].id });
+      }
+
+      const wsIns = await db.query(
+        `INSERT INTO weekly_schedule (family_id, name, day_of_week, child_id)
+         VALUES ($1, 'R0 order', $2, $3) RETURNING id`,
+        [familyId, dow, kid.childId]
+      );
+      const scheduleId = wsIns.rows[0].id;
+      const wsiIds = [];
+      for (let i = 0; i < templates.length; i++) {
+        const w = await db.query(
+          `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section)
+           VALUES ($1, $2, $3, 'morgon') RETURNING id`,
+          [scheduleId, templates[i].id, i]
+        );
+        wsiIds.push(w.rows[0].id);
+      }
+
+      await getOrGenerateDailyLog(kid.childId, dateStr);
+
+      const logBefore = await getDailyLog(http.baseUrl, kid.childCookies, kid.childCsrf, dateStr);
+      assert.equal(logBefore.status, 200, logBefore.text);
+      assert.deepEqual(morgonNamesInOrder(logBefore.body), ['R0OrderA', 'R0OrderB', 'R0OrderC']);
+
+      const reorderRes = await fetch(`${http.baseUrl}/api/schedules/${scheduleId}/items/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookieHeader(session.cookies),
+          'X-CSRF-Token': session.csrfToken,
+        },
+        body: JSON.stringify({
+          order: [
+            { id: wsiIds[2], sort_order: 0 },
+            { id: wsiIds[0], sort_order: 1 },
+            { id: wsiIds[1], sort_order: 2 },
+          ],
+        }),
+      });
+      assert.equal(reorderRes.status, 200, await reorderRes.text());
+
+      const logAfter = await getDailyLog(http.baseUrl, kid.childCookies, kid.childCsrf, dateStr);
+      assert.equal(logAfter.status, 200, logAfter.text);
+      const expectedTpl = [templates[2].id, templates[0].id, templates[1].id];
+      assert.deepEqual(morgonFieldInOrder(logAfter.body, 'activity_template_id'), expectedTpl);
+      assert.deepEqual(morgonNamesInOrder(logAfter.body), ['R0OrderC', 'R0OrderA', 'R0OrderB']);
+      const itemIdsAfter = morgonFieldInOrder(logAfter.body, 'id');
+
+      const logRefresh = await getDailyLog(http.baseUrl, kid.childCookies, kid.childCsrf, dateStr);
+      assert.deepEqual(morgonFieldInOrder(logRefresh.body, 'id'), itemIdsAfter);
+
+      const cl2 = await childLoginRaw(http.baseUrl, { username: kid.username, pin: kid.pin });
+      assert.equal(cl2.status, 200, cl2.text);
+      const logRelogin = await getDailyLog(http.baseUrl, cl2.cookies, cl2.csrfToken, dateStr);
+      assert.deepEqual(morgonFieldInOrder(logRelogin.body, 'activity_template_id'), expectedTpl);
     });
   } finally {
     await http.close();
