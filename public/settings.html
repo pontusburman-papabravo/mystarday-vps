@@ -584,9 +584,15 @@
           '#logoutBtn, #switchUserBtn, #nativeLogoutBtn, #nativeChildLoginBtn'
         );
         if (!button || button.disabled) return;
-        const options = button.id === 'nativeChildLoginBtn' ? { childFlow: true } : undefined;
         button.disabled = true;
         try {
+          if (button.id === 'switchUserBtn') {
+            if (typeof Auth.switchChildMember === 'function') {
+              await Auth.switchChildMember();
+            }
+            return;
+          }
+          const options = button.id === 'nativeChildLoginBtn' ? { childFlow: true } : undefined;
           await Auth.logout(options);
         } catch (error) {
           console.error('Account action failed:', error);
