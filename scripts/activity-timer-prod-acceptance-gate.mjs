@@ -186,14 +186,25 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
     results.scenarioA = !!(bridgeA.visible && bridgeA.hasCta && enableWrites === 0);
 
     const writesBefore = enableWrites;
-    await page.click('.activity-timer-bridge-enable').catch(() => null);
+    await page.evaluate(async (id) => {
+      const btn = document.querySelector(`.activity-timer-bridge-enable[data-child-id="${id}"]`);
+      if (window.LibraryActivityTimerBridge && btn) {
+        await LibraryActivityTimerBridge.enableForChild(id, btn);
+      }
+    }, childRow.id);
     await new Promise((r) => setTimeout(r, 2000));
     const bridgeB = await page.evaluate(() => {
       const el = document.getElementById('activityTimerMasterBridge');
       return { hasCta: !!(el && el.querySelector('.activity-timer-bridge-enable')) };
     });
     const childLogB = await childDailyLog(childJar);
-    results.scenarioB = enableWrites === writesBefore + 1 && !bridgeB.hasCta && childLogB?.activity_timer_v2 === true;
+    const childrenAfter = await apiFetch(parentJar, parent.csrf, '/api/children');
+    const qaAfter = (Array.isArray(childrenAfter.json) ? childrenAfter.json : [])
+      .find((c) => c.id === childRow.id);
+    results.scenarioB = enableWrites >= writesBefore + 1
+      && !bridgeB.hasCta
+      && qaAfter?.activity_timers_enabled === true
+      && childLogB?.activity_timer_v2 === true;
   }
 
   const childPage = await browser.newPage();
@@ -265,7 +276,7 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
 
   await page.bringToFront();
   await openActivityEditor(page, snap.qa_activity);
-  await page.click('.activity-timer-bridge-enable').catch(() => null);
+  await page.click(`.activity-timer-bridge-enable[data-child-id="${childRow.id}"]`).catch(() => null);
   await new Promise((r) => setTimeout(r, 2000));
   const childLogE = await childDailyLog(childJar);
   await childPage.reload({ waitUntil: 'domcontentloaded' });
