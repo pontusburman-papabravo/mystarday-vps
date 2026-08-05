@@ -73,6 +73,9 @@ Följande är **shippat eller merge-klart på `main`** (representativ lista — 
 
 ## 4. Roadmap — faser och Definition of Done
 
+**Epic R0 (körbar):** [`product-roadmap-r0-epic.md`](./product-roadmap-r0-epic.md) — issues R0-01 … R0-07, gate [`docs/qa/r0-child-reliability-gate.md`](./qa/r0-child-reliability-gate.md).  
+**Founder-beslut D1–D6:** [`product-roadmap-founder-decisions.md`](./product-roadmap-founder-decisions.md) (agent-stoppregler).
+
 Ingen fas startar innan föregående fas **DoD** är uppfylld och dokumenterad (founder + QA). Teknisk verifiering: `npm run test:gate` grön; user-facing: self-review (`.cursor/rules/180-self-review.mdc`).
 
 ```mermaid
@@ -282,6 +285,8 @@ Använd vid sprintplanering. **%** = leveransbedömning (kod + ops), inte rad-r�
 
 ## 8. Öppna produktbeslut (kräver founder)
 
+**Fullständig tabell (default, alternativ, risk, blockerar):** [`product-roadmap-founder-decisions.md`](./product-roadmap-founder-decisions.md).
+
 | ID | Fråga | Default om tystnad |
 |----|--------|---------------------|
 | D1 | ADR-019 — ship Option A? | Nej; behåll PIN-login |
@@ -297,6 +302,8 @@ Använd vid sprintplanering. **%** = leveransbedömning (kod + ops), inte rad-r�
 
 | Dokument | Roll |
 |----------|------|
+| `product-roadmap-r0-epic.md` | **R0** issues R0-01–R0-07 |
+| `product-roadmap-founder-decisions.md` | D1–D6 agent-stoppregler |
 | `family-journey-fas2-5-roadmap.md` | Teknisk fas 2–5 för Journey — **under** R1 |
 | `barnets-samling-github-roadmap.md` | Largely complete — underhåll |
 | `bildstod-app-plan.md` | SEO + app — löpande content, inte P0 |
@@ -312,6 +319,7 @@ Använd vid sprintplanering. **%** = leveransbedömning (kod + ops), inte rad-r�
 
 | Datum | Version | Ändring |
 |-------|---------|---------|
+| 2026-08-05 | 1.1 | R0 epic + founder decisions + gate checklist |
 | 2026-08-05 | 1.0 | Initial roadmap (repo-inventering + founder/ChatGPT-alignment, ingen kod) |
 
 ---
