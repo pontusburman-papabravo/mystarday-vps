@@ -245,7 +245,15 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
     } catch (_) { /* ignore */ }
   }, `[${knownChild}]`);
   await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 4000));
+  await childPage.waitForFunction(
+    () => typeof me !== 'undefined' && me.id && globalThis.activityTimerV2Enabled === true,
+    { timeout: 45000 },
+  );
+  await childPage.waitForFunction(
+    () => document.querySelector('.activity-timer-wrap .activity-timer-start'),
+    { timeout: 45000 },
+  );
+  await new Promise((r) => setTimeout(r, 1500));
 
   const timerItem = await childPage.evaluate(() => {
     const wraps = [...document.querySelectorAll('.activity-timer-wrap')];
@@ -317,7 +325,11 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
   });
   for (const c of puppeteerCookies(childJar, BASE)) await page2.setCookie(c);
   await page2.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 2500));
+  await page2.waitForFunction(
+    () => document.querySelector('.activity-timer-wrap'),
+    { timeout: 45000 },
+  );
+  await new Promise((r) => setTimeout(r, 1500));
   results.android_render = !!(await page2.$('.activity-timer-wrap'));
 
   await browser.close();
