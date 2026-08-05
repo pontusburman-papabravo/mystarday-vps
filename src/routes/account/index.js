@@ -13,5 +13,6 @@ router.use('/', require('./notifications'));
 router.use('/', require('./lifecycle'));
 router.use('/', require('./identity'));
 router.use('/', require('./avatar'));
+router.use('/', require('./support-diagnostics'));
 
 module.exports = router;

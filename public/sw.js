@@ -245,7 +245,8 @@
 // stjarndag-v774: levererad SVG-timglas (UL activity-hourglass-v1)
 // stjarndag-v780: timer wake lock, ingen ikonblink, delsteg-only timer
 // stjarndag-v781: settings — bind logout before async settings load
-const CACHE_NAME = 'stjarndag-v783';
+// stjarndag-v784: R0-06 settings support diagnostics clipboard
+const CACHE_NAME = 'stjarndag-v784';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
