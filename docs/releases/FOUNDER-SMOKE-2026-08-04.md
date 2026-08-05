@@ -5,7 +5,9 @@
 **Testare:** Founder (credentials) + Cloud Agent (API + browser, 2026-08-04 UTC)  
 **Syfte:** Verifiera parent English beta före eventuell aktivering av `english_app_global_enabled`.
 
-**Säkerhet:** Lösenord roteras av founder efter test; inga secrets i detta dokument.
+**Status (2026-08-05):** Founder-smoke **INCOMPLETE** — completed checks **PASS**. Parent English beta global ON: **NOT APPROVED**.
+
+**Säkerhet:** Inga secrets i detta dokument. Rotation av founder parent-lösenord och barn-PIN: **PENDING** tills founder bytt båda och Cursor-secrets uppdaterats.
 
 Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md)
 
@@ -122,16 +124,24 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 | | |
 |--|--|
-| **Founder-smoke** | **PASS WITH NON-BLOCKING ISSUES** — baseline + svensk kontroll + API locale-byte OK; **grandfather (1), separation (3), ny familj (5), full en-GB barn (2) ej kompletta** |
-| **Parent English beta global ON** | **NOT APPROVED** — kör grandfather en-GB-familj + scenario 5 (eller godkänn explicit risk) före ops-enable |
+| **Founder-smoke** | **INCOMPLETE** — completed checks **PASS** (deploy baseline, svensk kontroll, delvis API) |
+| **Parent English beta global ON** | **NOT APPROVED** |
+
+**Obligatoriska delar som saknas (blockerar global ON):**
+
+- Grandfatherad **en-GB**-familj (scenario 1)
+- Riktig **en-GB** + `english_child_experience` ON — barn-UI (scenario 2)
+- Separationstest barn flag OFF (scenario 3)
+- Ny familj utan betaåtkomst (scenario 5)
+- Flera riskytor: handoff, SW/cache, bilduppladdning, m.fl.
 
 **Villkor eller kvarvarande åtgärder:**
 
-- Rota founder-lösenord/PIN efter test (utfört av founder).
+- **Credential rotation:** **PENDING** — founder ska rotera parent-lösenord och barn-PIN och uppdatera Cursor-secrets; inga nya värden i PR/dokument.
 - Smokea **dedikerad en-GB-grandfather**-familj (eller RC1 QA-fixture) för scenario 1.
-- Scenario 2: sätt familj till **en-GB** med `english_child_experience` ON och verifiera barn-UI.
-- Scenario 5: kontrollerad ny familj utan beta (staging eller engångs prod med städning).
-- Utreda logout-knapp i Inställningar (UI).
+- Scenario 2: familj **en-GB** + `english_child_experience` ON — verifiera barn-UI (prod smoke med VPS DB helper efter deploy av tooling).
+- Scenario 5: kontrollerad ny familj utan beta (API-smoke eller staging).
+- Utreda logout-knapp i Inställningar (UI) — **öppen avvikelse**; ingen verifierad fix i #874.
 
 ---
 
