@@ -109,7 +109,7 @@ async function restoreState(parentJar, parentCsrf, snap) {
 
 async function childDailyLog(childJar) {
   const dateStr = getLocalDateStr(new Date(), 'Europe/Stockholm');
-  const res = await fetch(`${BASE}/api/children/me/daily-log?date=${dateStr}`, {
+  const res = await fetch(`${BASE}/api/me/daily-log?date=${dateStr}`, {
     headers: { Cookie: jarToCookieHeader(childJar) },
   });
   return res.ok ? res.json() : null;
