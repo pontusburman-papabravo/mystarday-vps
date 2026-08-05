@@ -12,6 +12,7 @@ const {
   isActivationProgramEnabled,
   isPostLaunchEnrollment,
 } = require('./activation-program-enroll');
+const { isActivationProgramOutboundSunset } = require('./activation-program-runtime');
 const {
   getEffectiveProgramDay,
   maybeExpireProgram,
@@ -112,6 +113,10 @@ async function runActivationPushJob({ force = false } = {}) {
   if (!isActivationProgramEnabled() || !isPostLaunchEnrollment()) {
     console.log('[ACTIVATION-PUSH] Disabled or pre-launch — skipping');
     return { sent: 0, skipped: 'disabled' };
+  }
+  if (await isActivationProgramOutboundSunset()) {
+    console.log('[ACTIVATION-PUSH] Runtime sunset — skipping');
+    return { sent: 0, skipped: 'sunset' };
   }
 
   const outcome = await withAdvisoryLock(ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID, async () => {
