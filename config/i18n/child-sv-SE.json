@@ -185,7 +185,8 @@
     "pinWarning": "Fel PIN. {{remaining}} försök kvar.",
     "pinWarningLast": "Nästan slut på försök! 1 försök kvar — fråga mamma eller pappa om du behöver hjälp 💛",
     "pinWarningLow": "Hmm, det var inte rätt PIN 🤔 Du har {{remaining}} försök kvar",
-    "parentPinInvalid": "Felaktig PIN-kod — försök igen"
+    "parentPinInvalid": "Felaktig PIN-kod — försök igen",
+    "handoffRestoreFailed": "Kunde inte öppna föräldraläge. Försök igen eller be en vuxen om hjälp."
   },
   "common": {
     "cancel": "Avbryt",
@@ -213,7 +214,8 @@
     "hint": "Ange din PIN-kod för att fortsätta",
     "adultPinHint": "Ange en vuxens PIN-kod för att fortsätta",
     "keypadAria": "PIN-tavla",
-    "cancel": "Avbryt"
+    "cancel": "Avbryt",
+    "restoringParentMode": "Öppnar föräldraläge…"
   },
   "offline": {
     "noConnection": "Ingen uppkoppling",

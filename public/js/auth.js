@@ -33,6 +33,10 @@
 
 const SILENT_REFRESH_TIMEOUT_MS = 12000;
 const AUTH_ME_TIMEOUT_MS = 12000;
+const AUTH_ME_HANDOFF_TOTAL_TIMEOUT_MS = 12000;
+const AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS = 2500;
+const AUTH_ME_HANDOFF_POLL_ATTEMPTS = 8;
+const AUTH_ME_HANDOFF_POLL_DELAY_MS = 250;
 
 /** Native WebView: cookie auth + skip refresh round-trips (Android Play + iOS parity). */
 function isNativeClient() {
@@ -57,6 +61,7 @@ const Auth = {
   _refreshPromise: null,
   _refreshTimer: null,
   _csrfFetchPromise: null,
+  _parentHandoffRestorePromise: null,
 
   /**
    * Get the stored access token.
@@ -646,6 +651,10 @@ const Auth = {
   async logout(options) {
     options = options || {};
     const childFlow = options.childFlow === true;
+    let expectedFamilyId = null;
+    if (childFlow) {
+      expectedFamilyId = await this._resolveExpectedFamilyIdForHandoff();
+    }
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
@@ -685,7 +694,12 @@ const Auth = {
         try { data = await res.json(); } catch { data = {}; }
 
         if (res.ok && data.sessionRestored) {
-          const restored = await this._completeHandoffParentSessionRestore();
+          if (!expectedFamilyId) {
+            this._logHandoffRestoreFailure('EXPECTED_FAMILY_ID_MISSING');
+            this._showLogoutFailureMessage('contract');
+            return;
+          }
+          const restored = await this._completeHandoffParentSessionRestore(expectedFamilyId);
           if (!restored.ok) {
             this._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
           }
@@ -693,15 +707,23 @@ const Auth = {
         }
 
         if (res.ok && data.needsParentPin) {
+          if (!expectedFamilyId) {
+            this._logHandoffRestoreFailure('EXPECTED_FAMILY_ID_MISSING');
+            this._showLogoutFailureMessage('contract');
+            return;
+          }
           this._clearChildCookies();
           const cancelUrlPin = childFlow ? '/child-login' : '/login';
           this._showParentPinGateOverlay(function () {
-            window.location.href = '/dashboard';
+            window.location.replace('/dashboard');
           }, function () {
             window.location.href = cancelUrlPin;
           }, {
             verifyUrl: '/api/family/verify-pin-picker',
             applyPickerResponse: true,
+            deferPickerResponseApply: true,
+            awaitSuccessBeforeClose: true,
+            expectedFamilyId: expectedFamilyId,
           });
           return;
         }
@@ -879,57 +901,217 @@ const Auth = {
     } catch {}
   },
 
-  /**
-   * Poll server until parent session cookies are active (post handoff PIN / consume).
-   * @returns {Promise<{ ok: true, me: object }|{ ok: false, kind: string, code?: string }>}
-   */
-  async _syncParentSessionFromServer(timeoutMs = 10000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      try {
-        const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-        if (meRes.ok) {
-          const me = await meRes.json();
-          if (this.isParentUser(me)) {
-            this._clearStaleChildLocalState();
-            await this.ensureCsrfToken();
-            const csrf = this.getCsrfToken();
-            const expMs = this._getExpiryMs();
-            this.setAuth(null, me, csrf, expMs);
-            if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-              DeviceMode.enterParent();
-            }
-            return { ok: true, me };
-          }
-        }
-      } catch {
-        // retry until timeout
-      }
-      await new Promise((resolve) => setTimeout(resolve, 150));
-    }
-    return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT_TIMEOUT' };
+  _logHandoffRestoreFailure(code) {
+    const safe = String(code || 'HANDOFF_RESTORE_FAILED').replace(/[^\w_]/g, '').slice(0, 64);
+    console.error('[AUTH] parent handoff restore:', safe);
   },
 
-  async _finishParentHandoffRestoreThen(onReady) {
-    const synced = await this._syncParentSessionFromServer(12000);
-    if (!synced.ok) {
-      this._showLogoutFailureMessage(synced.kind === 'server' ? 'server' : 'contract');
-      return;
+  async _fetchAuthMeForHandoff(requestTimeoutMs) {
+    const timeoutMs = Math.max(
+      1,
+      Math.min(
+        AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS,
+        typeof requestTimeoutMs === 'number' ? requestTimeoutMs : AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS
+      )
+    );
+    const controller = new AbortController();
+    let abortTimer = null;
+    abortTimer = window.setTimeout(function () {
+      controller.abort();
+    }, timeoutMs);
+    try {
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        return { ok: false, status: res.status, me: null };
+      }
+      const me = await res.json();
+      return { ok: true, status: res.status, me };
+    } catch (error) {
+      const aborted = error && error.name === 'AbortError';
+      return {
+        ok: false,
+        status: aborted ? 408 : 0,
+        me: null,
+        aborted,
+        network: true,
+      };
+    } finally {
+      if (abortTimer != null) {
+        window.clearTimeout(abortTimer);
+        abortTimer = null;
+      }
     }
-    if (typeof onReady === 'function') onReady();
+  },
+
+  async _resolveExpectedFamilyIdForHandoff() {
+    const user = this.getUser();
+    if (user) {
+      const fromUser = user.familyId || user.family_id || null;
+      if (fromUser) return fromUser;
+    }
+    const fetched = await this._fetchAuthMeForHandoff();
+    if (fetched.ok && fetched.me) {
+      return fetched.me.familyId || fetched.me.family_id || null;
+    }
+    return null;
+  },
+
+  /**
+   * Poll server until parent session cookies are active (post handoff PIN / consume).
+   * @param {string} expectedFamilyId
+   * @param {{ attempts?: number, delayMs?: number }} [options]
+   * @returns {Promise<{ ok: true, user: object, familyId: string|null }|{ ok: false, kind: string, code?: string }>}
+   */
+  async _syncParentSessionFromServer(expectedFamilyId, options = {}) {
+    if (!expectedFamilyId) {
+      return { ok: false, kind: 'contract', code: 'EXPECTED_FAMILY_ID_MISSING' };
+    }
+    const delayMs = options.delayMs || AUTH_ME_HANDOFF_POLL_DELAY_MS;
+    const maxAttempts = options.attempts || AUTH_ME_HANDOFF_POLL_ATTEMPTS;
+    const deadlineAt = Date.now() + (options.totalTimeoutMs || AUTH_ME_HANDOFF_TOTAL_TIMEOUT_MS);
+    let lastResult = null;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const remainingMs = deadlineAt - Date.now();
+      if (remainingMs <= 0) {
+        return {
+          ok: false,
+          kind: 'contract',
+          code: 'AUTH_ME_HANDOFF_TOTAL_TIMEOUT',
+        };
+      }
+
+      const requestTimeoutMs = Math.min(AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS, remainingMs);
+      const fetched = await this._fetchAuthMeForHandoff(requestTimeoutMs);
+
+      if (fetched.ok && fetched.me) {
+        const me = fetched.me;
+        const actualFamilyId = me.familyId || me.family_id || null;
+
+        if (this.isParentUser(me) && actualFamilyId === expectedFamilyId) {
+          this._clearStaleChildLocalState();
+          await this.ensureCsrfToken();
+          const csrf = this.getCsrfToken();
+          const expMs = this._getExpiryMs();
+          this.setAuth(null, me, csrf, expMs);
+          if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+            DeviceMode.enterParent();
+          }
+          return {
+            ok: true,
+            user: me,
+            familyId: actualFamilyId,
+          };
+        }
+
+        if (this.isParentUser(me) && actualFamilyId !== expectedFamilyId) {
+          return {
+            ok: false,
+            kind: 'contract',
+            status: fetched.status,
+            type: me.type,
+            familyId: actualFamilyId,
+            code: 'AUTH_ME_FAMILY_MISMATCH',
+          };
+        }
+
+        lastResult = {
+          ok: false,
+          kind: 'contract',
+          status: fetched.status,
+          type: me.type,
+          familyId: actualFamilyId,
+          code: 'AUTH_ME_NOT_PARENT',
+        };
+      } else if (fetched.status === 401 || fetched.status === 403) {
+        return {
+          ok: false,
+          kind: 'contract',
+          status: fetched.status,
+          code: 'AUTH_ME_HTTP_' + fetched.status,
+        };
+      } else if (fetched.status >= 500) {
+        lastResult = {
+          ok: false,
+          kind: 'server',
+          status: fetched.status,
+          code: 'AUTH_ME_HTTP_' + fetched.status,
+        };
+      } else if (fetched.aborted || fetched.network) {
+        lastResult = {
+          ok: false,
+          kind: 'contract',
+          code: fetched.aborted ? 'AUTH_ME_ABORT' : 'AUTH_ME_NETWORK',
+        };
+      } else {
+        lastResult = {
+          ok: false,
+          kind: 'contract',
+          status: fetched.status,
+          code: fetched.status ? 'AUTH_ME_HTTP_' + fetched.status : 'AUTH_ME_HTTP_UNKNOWN',
+        };
+      }
+
+      const remainingAfter = deadlineAt - Date.now();
+      if (remainingAfter <= 0) {
+        return Object.assign(
+          { ok: false, kind: lastResult.kind || 'contract', code: 'AUTH_ME_HANDOFF_TOTAL_TIMEOUT' },
+          lastResult || {}
+        );
+      }
+
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, Math.min(delayMs, remainingAfter)));
+      }
+    }
+
+    if (!lastResult) {
+      return { ok: false, kind: 'contract', code: 'AUTH_ME_NOT_PARENT_TIMEOUT' };
+    }
+    return Object.assign({ ok: false, kind: lastResult.kind || 'contract' }, lastResult);
+  },
+
+  async _finishParentHandoffRestoreThen(onReady, expectedFamilyId) {
+    if (!expectedFamilyId) {
+      return { ok: false, kind: 'contract', code: 'EXPECTED_FAMILY_ID_MISSING' };
+    }
+    if (this._parentHandoffRestorePromise) {
+      return this._parentHandoffRestorePromise;
+    }
+
+    const self = this;
+    let onReadyCalled = false;
+    this._parentHandoffRestorePromise = (async function () {
+      try {
+        const result = await self._syncParentSessionFromServer(expectedFamilyId);
+        if (!result.ok) {
+          return result;
+        }
+        if (typeof onReady === 'function' && !onReadyCalled) {
+          onReadyCalled = true;
+          onReady(result.user);
+        }
+        return result;
+      } finally {
+        self._parentHandoffRestorePromise = null;
+      }
+    })();
+
+    return this._parentHandoffRestorePromise;
   },
 
   /**
    * After child logout with handoff consume (no PIN): sync client to parent session
    * before leaving child device mode — SessionGate stays unchanged globally.
    */
-  async _completeHandoffParentSessionRestore() {
-    const synced = await this._syncParentSessionFromServer(12000);
-    if (!synced.ok) {
-      return synced;
-    }
-    window.location.href = '/dashboard';
-    return { ok: true };
+  async _completeHandoffParentSessionRestore(expectedFamilyId) {
+    return this._finishParentHandoffRestoreThen(function () {
+      window.location.replace('/dashboard');
+    }, expectedFamilyId);
   },
 
   _clearStaleChildLocalState() {
@@ -992,6 +1174,9 @@ const Auth = {
     opts = opts || {};
     const verifyUrl = opts.verifyUrl || '/api/family/verify-pin';
     const applyPickerResponse = opts.applyPickerResponse === true;
+    const deferPickerResponseApply = opts.deferPickerResponseApply === true;
+    const awaitSuccessBeforeClose = opts.awaitSuccessBeforeClose === true;
+    let overlayRestorePending = false;
     function pgT(key, params) {
       if (typeof window.childT === 'function') {
         const fromChild = childT(key, params);
@@ -1055,6 +1240,38 @@ const Auth = {
       });
     }
 
+    function setOverlayRestorePending(pending) {
+      overlayRestorePending = pending === true;
+      const kbd = document.getElementById('ppgo-keypad');
+      const cancelBtn = document.getElementById('ppgo-cancel');
+      if (kbd) {
+        kbd.querySelectorAll('button').forEach(function (btn) {
+          btn.disabled = overlayRestorePending;
+          btn.style.opacity = overlayRestorePending ? '0.45' : '';
+          btn.style.pointerEvents = overlayRestorePending ? 'none' : '';
+        });
+      }
+      if (cancelBtn) {
+        cancelBtn.disabled = overlayRestorePending;
+        cancelBtn.style.opacity = overlayRestorePending ? '0.45' : '';
+      }
+      if (overlayRestorePending) {
+        msgEl.style.color = '#5A6178';
+        msgEl.textContent = pgT('parentGate.restoringParentMode') || pgT('common.loading');
+      }
+    }
+
+    function resetOverlayAfterHandoffFailure() {
+      setOverlayRestorePending(false);
+      entered = '';
+      updateDots();
+      buildKeypad();
+      msgEl.style.color = '#ef4444';
+      msgEl.textContent =
+        pgT('errors.handoffRestoreFailed') ||
+        pgT('errors.serverError');
+    }
+
     function buildKeypad() {
       const kbd = document.getElementById('ppgo-keypad');
       kbd.innerHTML = '';
@@ -1072,6 +1289,7 @@ const Auth = {
         btn.addEventListener('mouseenter', function () { btn.style.background = '#D8BFD8'; });
         btn.addEventListener('mouseleave', function () { btn.style.background = '#EDE7F6'; });
         btn.addEventListener('click', function () {
+          if (overlayRestorePending) return;
           msgEl.textContent = '';
           if (d === '⌫') {
             entered = entered.slice(0, -1);
@@ -1130,9 +1348,47 @@ const Auth = {
           return;
         }
         if (applyPickerResponse && res.ok && res.parent) {
-          Auth.setAuth(null, res.parent, res.csrfToken || csrf);
+          if (!deferPickerResponseApply) {
+            Auth.setAuth(null, res.parent, res.csrfToken || csrf);
+            if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+              DeviceMode.enterParent();
+            }
+            document.body.removeChild(overlay);
+            onSuccess(res);
+            return;
+          }
+          if (awaitSuccessBeforeClose) {
+            setOverlayRestorePending(true);
+            void (async function () {
+              let handoffRestoreSucceeded = false;
+              try {
+                const restored = await Auth._finishParentHandoffRestoreThen(
+                  onSuccess,
+                  opts.expectedFamilyId
+                );
+                if (restored.ok) {
+                  handoffRestoreSucceeded = true;
+                  document.body.removeChild(overlay);
+                  return;
+                }
+                Auth._logHandoffRestoreFailure(restored.code);
+              } catch (_err) {
+                Auth._logHandoffRestoreFailure('AUTH_HANDOFF_RESTORE_EXCEPTION');
+              } finally {
+                if (!handoffRestoreSucceeded) {
+                  resetOverlayAfterHandoffFailure();
+                }
+              }
+            })();
+            return;
+          }
           document.body.removeChild(overlay);
-          void Auth._finishParentHandoffRestoreThen(onSuccess);
+          void Auth._finishParentHandoffRestoreThen(onSuccess, opts.expectedFamilyId).then(function (restored) {
+            if (!restored.ok) {
+              Auth._logHandoffRestoreFailure(restored.code);
+              Auth._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
+            }
+          });
           return;
         }
         if (res.ok && res.gateToken) {
@@ -1154,6 +1410,7 @@ const Auth = {
     }
 
     document.getElementById('ppgo-cancel').addEventListener('click', function () {
+      if (overlayRestorePending) return;
       document.body.removeChild(overlay);
       onCancel();
     });

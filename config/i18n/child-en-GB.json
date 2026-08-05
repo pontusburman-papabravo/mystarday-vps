@@ -185,7 +185,8 @@
     "pinWarning": "Wrong PIN. {{remaining}} tries left.",
     "pinWarningLast": "Almost out of tries! 1 try left — ask a grown-up if you need help 💛",
     "pinWarningLow": "Hmm, that wasn't the right PIN 🤔 You have {{remaining}} tries left",
-    "parentPinInvalid": "Wrong PIN — try again"
+    "parentPinInvalid": "Wrong PIN — try again",
+    "handoffRestoreFailed": "Could not open parent mode. Try again or ask a grown-up for help."
   },
   "common": {
     "cancel": "Cancel",
@@ -213,7 +214,8 @@
     "hint": "Enter your PIN to continue",
     "adultPinHint": "Enter a grown-up PIN to continue",
     "keypadAria": "PIN keypad",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "restoringParentMode": "Opening parent mode…"
   },
   "offline": {
     "noConnection": "No connection",
