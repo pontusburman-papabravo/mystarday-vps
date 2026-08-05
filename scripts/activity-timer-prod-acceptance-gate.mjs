@@ -124,11 +124,26 @@ async function openActivityEditor(page, activity) {
   await new Promise((r) => setTimeout(r, 1200));
 }
 
+async function waitChildTimerV2(childJar, maxMs = 15000) {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const log = await childDailyLog(childJar);
+    if (log?.activity_timer_v2 === true) return log;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  return null;
+}
+
 async function runTimerScenarios(puppeteer, sessions, snap) {
   const { parent, child, childRow } = sessions;
   const parentJar = { ...parent.jar };
   const childJar = { ...child.jar };
   const results = {};
+
+  if (!snap.qa_activity || !snap.activity_id) {
+    results.fatal = 'missing_qa_activity';
+    return results;
+  }
 
   await apiFetch(parentJar, parent.csrf, `/api/children/${childRow.id}`, {
     method: 'PUT',
@@ -221,6 +236,18 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
       && childLogB?.activity_timer_v2 === true;
   }
 
+  const timerReadyLog = await waitChildTimerV2(childJar);
+  if (!timerReadyLog) {
+    results.scenarioB = false;
+    results.scenarioC_start = false;
+    results.pauseRefresh = false;
+    results.scenarioD = false;
+    results.scenarioE = false;
+    results.android_render = false;
+    await browser.close();
+    return results;
+  }
+
   const childPage = await browser.newPage();
   await childPage.setViewport({
     width: vp.width,
@@ -246,7 +273,7 @@ async function runTimerScenarios(puppeteer, sessions, snap) {
   }, `[${knownChild}]`);
   await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await childPage.waitForFunction(
-    () => typeof me !== 'undefined' && me.id && globalThis.activityTimerV2Enabled === true,
+    () => typeof me !== 'undefined' && me.id,
     { timeout: 45000 },
   );
   await childPage.waitForFunction(
@@ -410,7 +437,8 @@ async function main() {
     report.scenarios = timerResults;
     report.extra_stod = await verifyExtraStod(sessions.parent.jar, sessions.parent.csrf, sessions.childRow);
 
-    const corePass = timerResults.scenarioA && timerResults.scenarioB && timerResults.scenarioC_start
+    const corePass = !timerResults.fatal
+      && timerResults.scenarioA && timerResults.scenarioB && timerResults.scenarioC_start
       && timerResults.scenarioD && timerResults.scenarioE && timerResults.pauseRefresh
       && timerResults.consoleErrors === 0 && timerResults.http5xx === 0;
     report.pass = corePass;
