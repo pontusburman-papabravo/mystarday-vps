@@ -560,42 +560,54 @@
   <script>
     let familyChildren = [];
 
-    function initNativeAccountActions() {
+    function bindCriticalAccountActions() {
+      if (document.body.dataset.criticalAccountActionsBound === 'true') return;
+      document.body.dataset.criticalAccountActionsBound = 'true';
+      document.body.addEventListener('click', async (event) => {
+        const button = event.target.closest(
+          '#logoutBtn, #switchUserBtn, #nativeLogoutBtn, #nativeChildLoginBtn'
+        );
+        if (!button || button.disabled) return;
+        const options = button.id === 'nativeChildLoginBtn' ? { childFlow: true } : undefined;
+        button.disabled = true;
+        try {
+          await Auth.logout(options);
+        } catch (error) {
+          console.error('Account action failed:', error);
+          button.disabled = false;
+        }
+      });
+    }
+
+    bindCriticalAccountActions();
+
+    function showNativeAccountActions() {
       var section = document.getElementById('nativeAccountActions');
       if (!section) return;
-      var isNative = window.Platform && Platform.isNative && Platform.isNative();
-      if (!isNative) return;
-      section.classList.remove('hidden');
-      var logoutBtn = document.getElementById('nativeLogoutBtn');
-      var childBtn = document.getElementById('nativeChildLoginBtn');
-      if (logoutBtn) logoutBtn.addEventListener('click', function () { Auth.logout(); });
-      if (childBtn) childBtn.addEventListener('click', function () { Auth.logout({ childFlow: true }); });
+      if (window.Platform && Platform.isNative && Platform.isNative()) {
+        section.classList.remove('hidden');
+      }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      Auth.requireAuth();
+      showNativeAccountActions();
+
+      let me;
       try {
-        Auth.requireAuth();
-        initNativeAccountActions();
-
-        // Fetch current user first (needed for view switch and pedagog invite)
-        const me = await Auth.api('/api/auth/me');
-
-        // Load family data — Auth.api() returns parsed JSON directly
+        me = await Auth.api('/api/auth/me');
         const fam = await Auth.api('/api/family');
         document.getElementById('familyName').value = fam.name || '';
         document.getElementById('soundEnabled').checked = fam.sound_enabled !== false;
 
         familyChildren = fam.children || [];
 
-        // Initialize pedagog invite section (primary parents only)
         initPedagogInviteSection();
         if (window.bootSettingsCoParent) bootSettingsCoParent();
 
-        // View switch buttons for dual-role parents
         if (me && me.account_type === 'dual') {
           const viewSection = document.getElementById('viewSwitchSection');
           viewSection.classList.remove('hidden');
-          // Hide the button for the current view mode
           if (me.preferred_view_mode === 'pedagog') {
             document.getElementById('switchToPedagog').style.display = 'none';
           } else {
@@ -619,75 +631,75 @@
           });
         }
 
-        // Populate parent name for family name fallback
         if (me && me.name) {
           document.getElementById('parentName').value = me.name;
         }
 
         const currentUser = Auth.getUser();
 
-        // Hide "Alla mejl globalt" for non-admin users
         if (!currentUser || !currentUser.isAdmin) {
           document.getElementById('emailEnabledLabel').style.display = 'none';
         }
-
-        // Load notification preferences
-        const notif = await Auth.api('/api/account/notifications');
-        document.getElementById('weeklySummary').checked = notif.weekly_summary !== false;
-        document.getElementById('rewardRedemption').checked = notif.reward_redemption !== false;
-        document.getElementById('emailEnabled').checked = notif.email_enabled !== false;
-
-        try {
-          const newsletter = await Auth.api('/api/newsletter/subscription');
-          document.getElementById('newsletterSubscribed').checked = newsletter.subscribed !== false;
-        } catch (_) {
-          document.getElementById('newsletterSubscribed').checked = true;
-        }
-
-        // Initialize push notification section
-        initPushSection(familyChildren, currentUser);
-
-        // Initialize reminder section
-        initReminderSection();
-
-        // Initialize theme controls
-        const darkToggle = document.getElementById('darkModeToggle');
-        const darkKnob = document.getElementById('darkModeKnob');
-        const cbSelect = document.getElementById('colorBlindMode');
-
-        function updateDarkToggleUI() {
-          if (Theme.isDark()) {
-            darkToggle.classList.remove('bg-gray-300');
-            darkToggle.classList.add('bg-gold');
-            darkKnob.style.transform = 'translateX(1.25rem)';
-          } else {
-            darkToggle.classList.remove('bg-gold');
-            darkToggle.classList.add('bg-gray-300');
-            darkKnob.style.transform = 'translateX(0)';
-          }
-        }
-        updateDarkToggleUI();
-        cbSelect.value = Theme.getColorBlind();
-
-        darkToggle.addEventListener('click', () => {
-          Theme.toggleDark();
-          updateDarkToggleUI();
-        });
-
-        cbSelect.addEventListener('change', () => {
-          Theme.setColorBlind(cbSelect.value);
-        });
-
-        document.getElementById('switchUserBtn').addEventListener('click', () => Auth.logout());
-        document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
-
-        if (window.ParentMagicShell) await ParentMagicShell.init('settings');
-
-        // (Immediate deletion — no pending state needed)
       } catch (error) {
-        console.error('Settings init failed:', error);
+        console.error('Settings auth/bootstrap failed:', error);
         window.location.href = '/login';
+        return;
       }
+
+      const currentUser = Auth.getUser();
+
+      await Promise.allSettled([
+        (async () => {
+          try {
+            const notif = await Auth.api('/api/account/notifications');
+            document.getElementById('weeklySummary').checked = notif.weekly_summary !== false;
+            document.getElementById('rewardRedemption').checked = notif.reward_redemption !== false;
+            document.getElementById('emailEnabled').checked = notif.email_enabled !== false;
+          } catch (err) {
+            console.warn('[settings] notifications load failed:', err);
+          }
+        })(),
+        (async () => {
+          try {
+            const newsletter = await Auth.api('/api/newsletter/subscription');
+            document.getElementById('newsletterSubscribed').checked = newsletter.subscribed !== false;
+          } catch (_) {
+            document.getElementById('newsletterSubscribed').checked = true;
+          }
+        })(),
+      ]);
+
+      initPushSection(familyChildren, currentUser);
+      initReminderSection();
+
+      const darkToggle = document.getElementById('darkModeToggle');
+      const darkKnob = document.getElementById('darkModeKnob');
+      const cbSelect = document.getElementById('colorBlindMode');
+
+      function updateDarkToggleUI() {
+        if (Theme.isDark()) {
+          darkToggle.classList.remove('bg-gray-300');
+          darkToggle.classList.add('bg-gold');
+          darkKnob.style.transform = 'translateX(1.25rem)';
+        } else {
+          darkToggle.classList.remove('bg-gold');
+          darkToggle.classList.add('bg-gray-300');
+          darkKnob.style.transform = 'translateX(0)';
+        }
+      }
+      updateDarkToggleUI();
+      cbSelect.value = Theme.getColorBlind();
+
+      darkToggle.addEventListener('click', () => {
+        Theme.toggleDark();
+        updateDarkToggleUI();
+      });
+
+      cbSelect.addEventListener('change', () => {
+        Theme.setColorBlind(cbSelect.value);
+      });
+
+      if (window.ParentMagicShell) await ParentMagicShell.init('settings');
     });
 
     // Download my data (GDPR export)
