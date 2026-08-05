@@ -20,6 +20,14 @@ describe('founder smoke english UI contract', () => {
       me: { type: 'parent', preferred_locale: 'en-GB' },
       htmlLang: 'en',
       bodyText: 'Settings\nFamily settings\nLanguage\nProfile\nSave family settings',
+      diagnostics: {
+        parent_i18n_ready: true,
+        pathname: '/settings',
+        readyState: 'complete',
+        html_lang: 'en',
+        settings_title_text: 'Settings',
+        family_save_text: 'Save family settings',
+      },
     });
     assert.equal(r.pass, true);
     assert.equal(r.english_family_copy, true);
