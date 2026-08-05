@@ -4,7 +4,7 @@
 (function settingsParentI18nModule() {
   'use strict';
 
-  var READY_ATTR = 'parentI18nReady';
+  const READY_ATTR = 'parentI18nReady';
 
   function normalizeLang(locale) {
     if (!locale || typeof locale !== 'string') return 'sv';
@@ -12,7 +12,7 @@
   }
 
   function textOf(selector) {
-    var el = document.querySelector(selector);
+    const el = document.querySelector(selector);
     if (!el) return '';
     return String(el.textContent || '').trim();
   }
@@ -32,10 +32,10 @@
    * @returns {{ ok: boolean, reasons: string[] }}
    */
   function isSettingsDomReadyForLocale(lang) {
-    var reasons = [];
-    var probe = collectSettingsI18nProbe();
-    var htmlLang = (probe.html_lang || '').toLowerCase();
-    var isEn = String(lang || '').toLowerCase().startsWith('en');
+    const reasons = [];
+    const probe = collectSettingsI18nProbe();
+    const htmlLang = (probe.html_lang || '').toLowerCase();
+    const isEn = String(lang || '').toLowerCase().startsWith('en');
 
     if (isEn) {
       if (!htmlLang.startsWith('en')) reasons.push('html_lang_not_en');
@@ -48,9 +48,9 @@
       return { ok: false, reasons: reasons };
     }
 
-    var expectedTitle = I18n.t('settings.title');
-    var expectedFamilyTitle = I18n.t('settings.family.title');
-    var expectedSave = I18n.t('settings.family.save');
+    const expectedTitle = I18n.t('settings.title');
+    const expectedFamilyTitle = I18n.t('settings.family.title');
+    const expectedSave = I18n.t('settings.family.save');
 
     if (!probe.settings_title_text || probe.settings_title_text !== expectedTitle) {
       reasons.push('settings_title_mismatch');
@@ -62,7 +62,7 @@
       reasons.push('family_section_title_mismatch');
     }
 
-    var bodyLower = (document.body && document.body.innerText ? document.body.innerText : '').toLowerCase();
+    const bodyLower = (document.body && document.body.innerText ? document.body.innerText : '').toLowerCase();
     if (isEn) {
       if (bodyLower.indexOf('familjeinställningar') !== -1) reasons.push('swedish_familjeinställningar_leak');
       if (bodyLower.indexOf('spara familjeinställningar') !== -1) {
@@ -76,7 +76,7 @@
   function clearParentI18nReady() {
     try {
       delete document.documentElement.dataset[READY_ATTR];
-    } catch (e) {
+    } catch (_err) {
       document.documentElement.removeAttribute('data-' + READY_ATTR);
     }
   }
@@ -100,13 +100,13 @@
       I18n.apply();
     }
 
-    var lang =
+    const lang =
       window.I18n && I18n.getCurrentLang ? I18n.getCurrentLang() : me.preferred_locale;
     if (lang) {
       document.documentElement.lang = normalizeLang(lang);
     }
 
-    var readyCheck = isSettingsDomReadyForLocale(lang || me.preferred_locale || 'sv-SE');
+    const readyCheck = isSettingsDomReadyForLocale(lang || me.preferred_locale || 'sv-SE');
     if (!readyCheck.ok) {
       console.warn('[settings-i18n] DOM not localized yet', readyCheck.reasons);
       return;
