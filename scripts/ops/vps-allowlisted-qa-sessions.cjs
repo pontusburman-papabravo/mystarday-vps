@@ -69,37 +69,45 @@ function puppeteerCookies(jar, baseUrl) {
   return out;
 }
 
-async function resolveAllowlistedFamily() {
-  const email = resolveQaParentEmail();
-  if (!email) {
-    const err = new Error('QA parent email env missing');
-    err.code = 'QA_EMAIL_MISSING';
-    throw err;
-  }
+const { getAllowlist } = require('../../src/lib/activity-timer-rollout');
+
+async function countChildren(familyId) {
+  const r = await db.query('SELECT count(*)::int AS n FROM child WHERE family_id = $1', [familyId]);
+  return r.rows[0]?.n || 0;
+}
+
+async function lookupParentRow(email) {
   const { rows } = await db.query(
     `SELECT p.id AS parent_id, p.family_id, p.email, p.is_admin, p.onboarding_completed
      FROM parent p WHERE lower(p.email) = $1`,
     [normalizeEmail(email)]
   );
-  if (rows.length !== 1) {
-    const err = new Error('Allowlisted QA parent must match exactly one account');
-    err.code = 'QA_FAMILY_AMBIGUOUS';
-    throw err;
-  }
-  const row = rows[0];
+  return rows.length === 1 ? rows[0] : null;
+}
+
+async function resolveAllowlistedFamily() {
   const journeyEmail = trimEnv('JOURNEY_QA_PARENT_EMAIL');
   if (journeyEmail) {
-    if (normalizeEmail(journeyEmail) !== normalizeEmail(row.email)) {
-      const err = new Error('Journey QA email mismatch');
-      err.code = 'QA_FAMILY_NOT_ALLOWED';
-      throw err;
+    const journeyRow = await lookupParentRow(journeyEmail);
+    if (journeyRow && (await countChildren(journeyRow.family_id)) > 0) {
+      return journeyRow;
     }
-  } else if (!isFounderQaParentEmail(row.email)) {
-    const err = new Error('Parent email not on founder QA allowlist');
-    err.code = 'QA_FAMILY_NOT_ALLOWED';
-    throw err;
   }
-  return row;
+
+  const candidates = new Set(getAllowlist());
+  const founderEnv = trimEnv('FOUNDER_QA_EMAIL');
+  if (founderEnv) founderEnv.split(',').forEach((e) => candidates.add(normalizeEmail(e)));
+
+  for (const email of candidates) {
+    const row = await lookupParentRow(email);
+    if (!row) continue;
+    if (!isFounderQaParentEmail(row.email)) continue;
+    if ((await countChildren(row.family_id)) > 0) return row;
+  }
+
+  const err = new Error('No allowlisted QA family with children found');
+  err.code = 'QA_FAMILY_NOT_FOUND';
+  throw err;
 }
 
 async function parentSessionViaApi(baseUrl) {
@@ -229,7 +237,12 @@ async function resolveQaBrowserSessions(baseUrl) {
   const childRow = await pickQaChild(parentRow.family_id);
   const mintedRefresh = [];
 
-  let parent = await parentSessionViaApi(baseUrl);
+  const journeyEmail = trimEnv('JOURNEY_QA_PARENT_EMAIL');
+  const canApiLogin = journeyEmail
+    && normalizeEmail(parentRow.email) === normalizeEmail(journeyEmail)
+    && trimEnv('JOURNEY_QA_PARENT_PASSWORD');
+
+  let parent = canApiLogin ? await parentSessionViaApi(baseUrl) : null;
   if (!parent) parent = await mintParentSession(parentRow);
   if (parent.refreshRaw) mintedRefresh.push(parent.refreshRaw);
 
