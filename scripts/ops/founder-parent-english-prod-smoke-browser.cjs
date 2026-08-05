@@ -13,6 +13,13 @@ const {
   evaluateParentHandoffRestorePass,
   computeBrowserPass,
 } = require('./founder-smoke-browser-child.cjs');
+const {
+  createChildLoginApiCollector,
+  waitForChildLoginBootstrap,
+  handoffFromSettingsSwitchUser,
+  buildChildLoginBootstrapError,
+  readChildLoginDomState,
+} = require('./founder-smoke-browser-child-bootstrap.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
@@ -49,7 +56,7 @@ async function pageText(page) {
 }
 
 async function selectExpectedChild(page, expectedUsername) {
-  await page.waitForSelector('#clKeypad, .cl-child-card', { visible: true, timeout: 30000 });
+  await page.waitForSelector('#clKeypad, .cl-child-card', { visible: true, timeout: 10000 }).catch(() => {});
   const hasCard = await page.$(`.cl-child-card[data-username="${expectedUsername}"]`);
   if (hasCard) {
     await page.evaluate((user) => {
@@ -80,46 +87,70 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, opti
     if (options.navigate === false) navigate = false;
   }
 
-  if (navigate) {
-    await page.goto(`${BASE}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  }
-  await selectExpectedChild(page, expectedUsername);
-
-  const pin = pinOverride != null ? pinOverride : CHILD_PIN;
-  await page.evaluate((p) => {
-    for (const digit of String(p)) {
-      document.querySelector(`#clKeypad button[data-action="${digit}"]`)?.click();
-    }
-  }, pin);
+  const collector = createChildLoginApiCollector();
+  const detach = collector.attach(page);
 
   try {
-    await page.waitForFunction(
-      () =>
-        window.location.pathname === '/child/today' ||
-        window.location.pathname.startsWith('/child/dashboard'),
-      { timeout: 60000 }
-    );
-  } catch {
-    // stay on login — evaluated below
+    if (navigate) {
+      await page.goto(`${BASE}/child-login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    }
+    try {
+      await waitForChildLoginBootstrap(page, { collector });
+    } catch (e) {
+      if (e.code === 'FOUNDER_SMOKE_CHILD_LOGIN_BOOTSTRAP_FAILED') {
+        e.diagnostics = { ...(e.diagnostics || {}), navigate, network: collector.snapshot() };
+        throw e;
+      }
+      throw buildChildLoginBootstrapError({
+        phase: 'enter_child_pin',
+        error: e.message,
+        dom: await readChildLoginDomState(page),
+        network: collector.snapshot(),
+        final_url: page.url(),
+        navigate,
+      });
+    }
+    await selectExpectedChild(page, expectedUsername);
+
+    const pin = pinOverride != null ? pinOverride : CHILD_PIN;
+    await page.evaluate((p) => {
+      for (const digit of String(p)) {
+        document.querySelector(`#clKeypad button[data-action="${digit}"]`)?.click();
+      }
+    }, pin);
+
+    try {
+      await page.waitForFunction(
+        () =>
+          window.location.pathname === '/child/today' ||
+          window.location.pathname.startsWith('/child/dashboard'),
+        { timeout: 60000 }
+      );
+    } catch {
+      // stay on login — evaluated below
+    }
+
+    const pathname = await page.evaluate(() => window.location.pathname);
+    const me = await fetchMe(page);
+    const todayBodyText = await pageText(page);
+    const evalResult = evaluateChildTodaySessionPass({
+      pathname,
+      me,
+      expectedUsername,
+      expectedChildUiLocale,
+      todayBodyText,
+    });
+
+    return {
+      path: pathname,
+      me,
+      pass: evalResult.pass === true,
+      reason: evalResult.reason,
+      bootstrap_network: collector.snapshot(),
+    };
+  } finally {
+    detach();
   }
-
-  const pathname = await page.evaluate(() => window.location.pathname);
-  const me = await fetchMe(page);
-  const todayBodyText = await pageText(page);
-  const evalResult = evaluateChildTodaySessionPass({
-    pathname,
-    me,
-    expectedUsername,
-    expectedChildUiLocale,
-    todayBodyText,
-  });
-
-  return {
-    path: pathname,
-    me,
-    pass: evalResult.pass === true,
-    reason: evalResult.reason,
-  };
 }
 
 async function enterParentPinOverlay(page) {
@@ -139,6 +170,19 @@ async function enterParentPinOverlay(page) {
 }
 
 /** Child logout handoff → parent session without email/password login. */
+async function runChildPinScenario(page, expectedUsername, expectedChildUiLocale, options) {
+  try {
+    const result = await enterChildPin(page, expectedUsername, expectedChildUiLocale, options);
+    return { ...result, pass: result.pass === true };
+  } catch (e) {
+    return {
+      pass: false,
+      reason: e.code || e.message,
+      bootstrap: e.diagnostics || null,
+    };
+  }
+}
+
 async function returnToParentViaChildHandoff(page, expectedEmail, expectedFamilyId) {
   await page.evaluate(() => document.getElementById('logoutBtn')?.click());
   await page
@@ -232,11 +276,8 @@ async function runBrowserSmoke() {
     if (VPS_ON && familyId) snap = vpsDb('snapshot', familyId);
 
     try {
-      const child4 = await enterChildPin(page, CHILD_USER, 'sv-SE');
-      scenarios.browser_sc4_sv_control = {
-        ...child4,
-        pass: child4.pass === true,
-      };
+      const child4 = await runChildPinScenario(page, CHILD_USER, 'sv-SE');
+      scenarios.browser_sc4_sv_control = child4;
 
       if (VPS_ON && familyId) {
         vpsDb('set-locale', familyId, ['--locale', 'en-GB']);
@@ -257,37 +298,52 @@ async function runBrowserSmoke() {
 
         vpsDb('set', familyId, ['--slug', 'english_app', '--on']);
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--on']);
-        const childEn = await enterChildPin(page, CHILD_USER, 'en-GB');
+        const childEn = await runChildPinScenario(page, CHILD_USER, 'en-GB');
         scenarios.browser_sc2_child_english = childEn;
 
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--off']);
         await loginParent(page, browser);
-        const childSv = await enterChildPin(page, CHILD_USER, 'sv-SE');
+        const childSv = await runChildPinScenario(page, CHILD_USER, 'sv-SE');
         scenarios.browser_sc3_child_separation = childSv;
 
         await loginParent(page, browser);
         const handoffSettings = await openSettings(page);
+        let handoffNav = { pass: false, reason: 'settings_not_reachable' };
         if (handoffSettings) {
-          await page.evaluate(() => document.getElementById('switchUserBtn')?.click());
-          await page
-            .waitForFunction(
-              () => /child-login|login-picker/.test(window.location.pathname),
-              { timeout: 20000 }
-            )
-            .catch(() => {});
+          try {
+            handoffNav = await handoffFromSettingsSwitchUser(page, {
+              fetchMe: () => fetchMe(page),
+              expectedParentEmail: EMAIL,
+            });
+          } catch (e) {
+            handoffNav = {
+              pass: false,
+              reason: e.code || e.message,
+              bootstrap: e.diagnostics || null,
+            };
+          }
         }
-        const handoffPath = await page.evaluate(() => window.location.pathname);
-        const handoffChild = await enterChildPin(page, CHILD_USER, 'sv-SE', { navigate: false });
+        const handoffPath =
+          handoffNav.pathname ||
+          (await page.evaluate(() => window.location.pathname));
+        const handoffChild = handoffNav.pass
+          ? await runChildPinScenario(page, CHILD_USER, 'sv-SE', { navigate: false })
+          : {
+              pass: false,
+              reason: 'handoff_route_or_bootstrap_failed',
+              handoff: handoffNav,
+            };
         const handoffParent = handoffChild.pass
           ? await returnToParentViaChildHandoff(page, EMAIL, familyId)
           : { pass: false, reason: 'child_handoff_login_failed' };
         scenarios.browser_handoff = {
           pass:
             handoffSettings &&
-            (handoffPath.includes('child-login') || handoffPath.includes('login')) &&
+            handoffNav.pass === true &&
             handoffChild.pass === true &&
             handoffParent.pass === true,
           path: handoffPath,
+          handoff_navigation: handoffNav,
           child: handoffChild,
           parent_return: handoffParent,
         };
