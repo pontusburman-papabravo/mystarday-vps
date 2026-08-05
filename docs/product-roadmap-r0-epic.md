@@ -3,7 +3,7 @@
 | | |
 |--|--|
 | **Roadmap** | [`product-roadmap-2026-08.md`](./product-roadmap-2026-08.md) — fas **R0** |
-| **Status** | **Ready** — issues definierade; implementation ej påbörjad i detta dokument |
+| **Status** | R0-01–R0-06 **merged**; R0-07 = `npm run test:r0-mobile-gate` (återanvänder R0-01…06 smokes) |
 | **Regel** | **Inget enda stort “Child Reliability”-PR.** En logisk leverans per issue (R0-01 … R0-07). |
 | **Aktivitetstimer** | **Utanför** R0-01–R0-06 (hör hemma i **R2**). R0-07 verifierar att timerfält/kod inte försämrar dagens barnrutin. |
 | **ADR-019** | Parallellt founder-spår — se [`product-roadmap-founder-decisions.md`](./product-roadmap-founder-decisions.md) D1. **Blockerar inte** R0-01–R0-06. |
