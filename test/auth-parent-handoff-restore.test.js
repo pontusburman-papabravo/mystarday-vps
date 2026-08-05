@@ -96,6 +96,17 @@ describe('auth parent handoff restore (PR F hardening)', () => {
     assert.match(src, /overlayRestorePending/);
   });
 
+  it('awaitSuccessBeforeClose uses try/finally-style cleanup on restore failure', () => {
+    assert.match(src, /resetOverlayAfterHandoffFailure/);
+    const awaitBlock = src.match(
+      /if \(awaitSuccessBeforeClose\) \{[\s\S]*?\n          \}/
+    );
+    assert.ok(awaitBlock, 'awaitSuccessBeforeClose block');
+    assert.match(awaitBlock[0], /try \{[\s\S]*await Auth\._finishParentHandoffRestoreThen/);
+    assert.match(awaitBlock[0], /finally \{[\s\S]*!handoffRestoreSucceeded[\s\S]*resetOverlayAfterHandoffFailure/);
+    assert.match(awaitBlock[0], /resetOverlayAfterHandoffFailure/);
+  });
+
   it('dedupes concurrent restore via _parentHandoffRestorePromise', () => {
     assert.match(src, /_parentHandoffRestorePromise/);
     assert.match(src, /if \(this\._parentHandoffRestorePromise\)/);

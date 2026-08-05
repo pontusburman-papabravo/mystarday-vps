@@ -1261,6 +1261,17 @@ const Auth = {
       }
     }
 
+    function resetOverlayAfterHandoffFailure() {
+      setOverlayRestorePending(false);
+      entered = '';
+      updateDots();
+      buildKeypad();
+      msgEl.style.color = '#ef4444';
+      msgEl.textContent =
+        pgT('errors.handoffRestoreFailed') ||
+        pgT('errors.serverError');
+    }
+
     function buildKeypad() {
       const kbd = document.getElementById('ppgo-keypad');
       kbd.innerHTML = '';
@@ -1348,22 +1359,27 @@ const Auth = {
           }
           if (awaitSuccessBeforeClose) {
             setOverlayRestorePending(true);
-            void Auth._finishParentHandoffRestoreThen(onSuccess, opts.expectedFamilyId).then(function (restored) {
-              if (restored.ok) {
-                document.body.removeChild(overlay);
-                return restored;
+            void (async function () {
+              let handoffRestoreSucceeded = false;
+              try {
+                const restored = await Auth._finishParentHandoffRestoreThen(
+                  onSuccess,
+                  opts.expectedFamilyId
+                );
+                if (restored.ok) {
+                  handoffRestoreSucceeded = true;
+                  document.body.removeChild(overlay);
+                  return;
+                }
+                Auth._logHandoffRestoreFailure(restored.code);
+              } catch (_err) {
+                Auth._logHandoffRestoreFailure('AUTH_HANDOFF_RESTORE_EXCEPTION');
+              } finally {
+                if (!handoffRestoreSucceeded) {
+                  resetOverlayAfterHandoffFailure();
+                }
               }
-              setOverlayRestorePending(false);
-              entered = '';
-              updateDots();
-              buildKeypad();
-              Auth._logHandoffRestoreFailure(restored.code);
-              msgEl.style.color = '#ef4444';
-              msgEl.textContent =
-                pgT('errors.handoffRestoreFailed') ||
-                pgT('errors.serverError');
-              return restored;
-            });
+            })();
             return;
           }
           document.body.removeChild(overlay);
