@@ -22,6 +22,12 @@ const {
   buildChildLoginBootstrapError,
   readChildLoginDomState,
 } = require('./founder-smoke-browser-child-bootstrap.cjs');
+const { pageText } = require('./founder-smoke-browser-page-text.cjs');
+const {
+  waitForSettingsParentI18n,
+  collectSettingsPageDiagnostics,
+  waitForChildTodaySurface,
+} = require('./founder-smoke-browser-settings-wait.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
@@ -58,10 +64,6 @@ async function loginParent(page, browser) {
     password: PASSWORD,
     fetchMe: () => fetchMe(page),
   });
-}
-
-async function pageText(page) {
-  return page.evaluate(() => document.body.innerText || '');
 }
 
 async function selectExpectedChild(page, expectedUsername) {
@@ -151,7 +153,17 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, opti
 
     const pathname = await page.evaluate(() => window.location.pathname);
     const me = await fetchMe(page);
+    await waitForChildTodaySurface(page, { expectedChildUiLocale });
     const todayBodyText = await pageText(page);
+    if (!todayBodyText) {
+      return {
+        path: pathname,
+        me,
+        pass: false,
+        reason: 'child_today_body_text_empty',
+        bootstrap_network: collector.snapshot(),
+      };
+    }
     const evalResult = evaluateChildTodaySessionPass({
       pathname,
       me,
@@ -249,7 +261,49 @@ async function returnToParentViaChildHandoff(page, expectedEmail, expectedFamily
 
 async function openSettings(page) {
   await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded', timeout: 90000 });
-  return !(await page.evaluate(() => window.location.pathname)).includes('/login');
+  const pathname = await page.evaluate(() => window.location.pathname);
+  return !pathname.includes('/login');
+}
+
+async function evaluateSettingsEnglishScenario(page, me) {
+  const settingsReachable = await openSettings(page);
+  if (!settingsReachable) {
+    return evaluateParentSettingsEnglishPass({
+      settingsReachable: false,
+      me,
+      htmlLang: '',
+      bodyText: '',
+      diagnostics: { parent_i18n_ready: false, pathname: '/login' },
+    });
+  }
+
+  let diagnostics;
+  try {
+    await waitForSettingsParentI18n(page);
+    diagnostics = await collectSettingsPageDiagnostics(page);
+  } catch (e) {
+    diagnostics = e.diagnostics || (await collectSettingsPageDiagnostics(page));
+    const fail = evaluateParentSettingsEnglishPass({
+      settingsReachable: true,
+      me,
+      htmlLang: diagnostics.html_lang || '',
+      bodyText: diagnostics.body_text_snippet || '',
+      diagnostics,
+    });
+    fail.pass = false;
+    fail.reason = e.code || 'settings_parent_i18n_ready_timeout';
+    return fail;
+  }
+
+  const enParentText = await pageText(page);
+  const htmlLang = diagnostics.html_lang || (await page.evaluate(() => document.documentElement.lang || ''));
+  return evaluateParentSettingsEnglishPass({
+    bodyText: enParentText,
+    me,
+    settingsReachable: true,
+    htmlLang,
+    diagnostics,
+  });
 }
 
 async function clickLogout(page) {
@@ -303,16 +357,8 @@ async function runBrowserSmoke() {
         vpsDb('set-locale', familyId, ['--locale', 'en-GB']);
         vpsDb('set', familyId, ['--slug', 'english_app', '--off']);
         await loginParent(page, browser);
-        const settingsReachable = await openSettings(page);
         const enMe = await fetchMe(page);
-        const enParentText = await pageText(page);
-        const htmlLang = await page.evaluate(() => document.documentElement.lang || '');
-        scenarios.browser_sc1_parent_english = evaluateParentSettingsEnglishPass({
-          bodyText: enParentText,
-          me: enMe,
-          settingsReachable,
-          htmlLang,
-        });
+        scenarios.browser_sc1_parent_english = await evaluateSettingsEnglishScenario(page, enMe);
 
         vpsDb('set', familyId, ['--slug', 'english_app', '--on']);
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--on']);
