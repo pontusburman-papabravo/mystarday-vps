@@ -56,9 +56,39 @@ describe('founder smoke browser child', () => {
       me: { type: 'child', username: 'astrid921', child_ui_locale: 'en-GB' },
       expectedUsername: 'astrid921',
       expectedChildUiLocale: 'en-GB',
-      todayBodyText: 'Today\nMorning',
+      todayBodyText: 'Mission\nNow\nNext\nTreasure Chest',
     });
     assert.equal(r.pass, true);
+  });
+
+  it('PASS when expected and actual username both astrid921 (case-insensitive)', () => {
+    const r = evaluateChildTodaySessionPass({
+      pathname: '/child/today',
+      me: {
+        type: 'child',
+        username: 'astrid921',
+        child_ui_locale: 'sv-SE',
+        family_id: 'fam-test',
+      },
+      expectedUsername: 'Astrid921',
+      expectedChildUiLocale: 'sv-SE',
+      todayBodyText: 'Idag\nMorgon',
+    });
+    assert.equal(r.pass, true);
+  });
+
+  it('wrong_child includes expected_username and actual_username', () => {
+    const r = evaluateChildTodaySessionPass({
+      pathname: '/child/today',
+      me: { type: 'child', username: 'otherkid', child_ui_locale: 'sv-SE' },
+      expectedUsername: 'astrid921',
+      expectedChildUiLocale: 'sv-SE',
+      todayBodyText: 'Idag\nMorgon',
+    });
+    assert.equal(r.pass, false);
+    assert.equal(r.reason, 'wrong_child');
+    assert.equal(r.expected_username, 'astrid921');
+    assert.equal(r.actual_username, 'otherkid');
   });
 
   it('computeBrowserPass fails when restore does not match', () => {
