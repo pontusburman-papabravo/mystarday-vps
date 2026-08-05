@@ -4,6 +4,7 @@ const familyMilestones = require('../../../db/family-milestones');
 const { deriveContext } = require('./evaluator');
 const { loadRegistry } = require('./registry');
 const { FLAG_KEYS, isFlagEnabled } = require('./flags');
+const { isJourneyFlagEnabledForFamily } = require('./family-pilot');
 const { getPhaseOpts } = require('./ingest');
 const {
   buildFirstWeekContext,
@@ -14,20 +15,20 @@ async function buildContextForFamily(familyId, { pedagogSkip = false } = {}) {
   const journeyRegistryDb = require('../../../db/journey-registry');
   const familyLocale = await journeyRegistryDb.getFamilyLocale(familyId);
 
-  const evaluatorOn = await isFlagEnabled(FLAG_KEYS.evaluatorEnabled);
+  const evaluatorOn = await isJourneyFlagEnabledForFamily(FLAG_KEYS.evaluatorEnabled, familyId);
   const phase = await familyMilestones.getJourneyPhase(familyId);
   const milestones = await familyMilestones.getMilestoneMap(familyId);
   const registry = await loadRegistry({
-    useDb: await isFlagEnabled(FLAG_KEYS.registryV2),
+    useDb: await isJourneyFlagEnabledForFamily(FLAG_KEYS.registryV2, familyId),
     locale: familyLocale,
   });
 
   const capabilities = {
-    handoff_v2: await isFlagEnabled(FLAG_KEYS.handoffV2),
-    coach_v1: await isFlagEnabled(FLAG_KEYS.coachV1),
-    parent_ack_v1: await isFlagEnabled(FLAG_KEYS.parentAckV1),
+    handoff_v2: await isJourneyFlagEnabledForFamily(FLAG_KEYS.handoffV2, familyId),
+    coach_v1: await isJourneyFlagEnabledForFamily(FLAG_KEYS.coachV1, familyId),
+    parent_ack_v1: await isJourneyFlagEnabledForFamily(FLAG_KEYS.parentAckV1, familyId),
     activation_ui_removed: await isFlagEnabled(FLAG_KEYS.activationUiRemoved),
-    first_week_v1: await isFlagEnabled(FLAG_KEYS.firstWeekV1),
+    first_week_v1: await isJourneyFlagEnabledForFamily(FLAG_KEYS.firstWeekV1, familyId),
   };
 
   if (!evaluatorOn) {

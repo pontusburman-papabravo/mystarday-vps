@@ -7,6 +7,7 @@ const db = require('../src/lib/db');
  */
 const OVERRIDE_FEATURE_KEYS = new Set([
   'activation_first_success_v1',
+  'family_journey_hem_pilot_v1',
 ]);
 
 function isOverrideFeatureKey(featureKey) {

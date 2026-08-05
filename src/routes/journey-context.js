@@ -9,6 +9,7 @@ const { ingestClientIntent, ingestMilestone } = require('../lib/journey/ingest')
 const { buildContextForFamily } = require('../lib/journey/context-builder');
 const { loadRegistry } = require('../lib/journey/registry');
 const { FLAG_KEYS, isFlagEnabled, getFlagState } = require('../lib/journey/flags');
+const { isJourneyFlagEnabledForFamily } = require('../lib/journey/family-pilot');
 const { listUnseenCompletions, mapCompletionRow } = require('../lib/activation-program-aha');
 const db = require('../lib/db');
 const { resolveFamilyLocale } = require('../lib/locale');
@@ -18,7 +19,8 @@ router.use(scopeRouterToPath('/journey-context', '/journey-debug'));
 router.use(requireParent);
 
 async function requireContextApi(req, res, next) {
-  const enabled = await isFlagEnabled(FLAG_KEYS.contextApi);
+  const familyId = req.user && req.user.familyId;
+  const enabled = await isJourneyFlagEnabledForFamily(FLAG_KEYS.contextApi, familyId);
   if (!enabled) {
     return res.status(503).json({ error: 'Family Journey API är inte aktiverat' });
   }

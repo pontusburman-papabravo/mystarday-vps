@@ -40,4 +40,11 @@ describe('R1 — Hem primary action orchestration', () => {
     const cIdx = html.indexOf('journey-coach.js');
     assert.ok(cIdx > 0 && jIdx > cIdx);
   });
+
+  it('exposes founder prod pilot CLI and orchestration smoke', () => {
+    const pkg = JSON.parse(read('package.json'));
+    assert.equal(pkg.scripts['r1:hem-founder-pilot'], 'node scripts/r1-hem-founder-pilot.mjs');
+    assert.ok(fs.existsSync(path.join(ROOT, 'scripts/r1-home-primary-action-orchestration-smoke.mjs')));
+    assert.match(read('src/lib/journey/family-pilot.js'), /family_journey_hem_pilot_v1/);
+  });
 });

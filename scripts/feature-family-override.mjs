@@ -60,6 +60,7 @@ feature:family-override — per-family activation flag override (QA allowlist)
 
   --family-id <uuid>
   --feature activation_first_success_v1
+  --feature family_journey_hem_pilot_v1
   --enable | --disable | --verify
   --reason <text>
   --expires-at <ISO8601>   optional expiry
