@@ -53,20 +53,74 @@ function visibleInnerTextFromRoot(root) {
   return parts.join('\n').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * Runs in the browser via page.evaluate — must not reference module-scope bindings.
+ */
 function collectChildTodayCanonicalVisibleTextInPage() {
-  const mainChunks = CHILD_TODAY_MAIN_SELECTORS.map((sel) => {
+  const mainSelectors = ['#childMainHeader', '#todayFocusMount'];
+  const navSelector = '#childBottomNav';
+  const readyAttr = 'childTodayI18nReady';
+
+  function isElementVisible(el) {
+    if (!el || el.nodeType !== 1) return false;
+    if (el.hidden) return false;
+    if (el.getAttribute('aria-hidden') === 'true') return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+    if (parseFloat(style.opacity) === 0) return false;
+    if (el.getClientRects().length === 0) return false;
+    return true;
+  }
+
+  function visibleInnerTextFromRoot(root) {
+    if (!root || !isElementVisible(root)) return '';
+    const parts = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || !isElementVisible(parent)) return NodeFilter.FILTER_REJECT;
+        const raw = node.textContent || '';
+        if (!raw.trim()) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    let node = walker.nextNode();
+    while (node) {
+      parts.push(node.textContent);
+      node = walker.nextNode();
+    }
+    return parts.join('\n').replace(/\s+/g, ' ').trim();
+  }
+
+  const mainChunks = mainSelectors.map((sel) => {
     const el = document.querySelector(sel);
+    const walked = el ? visibleInnerTextFromRoot(el) : '';
+    const inner =
+      el && isElementVisible(el)
+        ? String(el.innerText || '')
+            .replace(/\s+/g, ' ')
+            .trim()
+        : '';
+    const text = walked || inner;
     return {
       selector: sel,
-      text: el ? visibleInnerTextFromRoot(el) : '',
+      text,
       present: Boolean(el),
       visible: el ? isElementVisible(el) : false,
     };
   });
-  const navEl = document.querySelector(CHILD_TODAY_NAV_SELECTOR);
+  const navEl = document.querySelector(navSelector);
+  const navWalked = navEl ? visibleInnerTextFromRoot(navEl) : '';
+  const navInner =
+    navEl && isElementVisible(navEl)
+      ? String(navEl.innerText || '')
+          .replace(/\s+/g, ' ')
+          .trim()
+      : '';
+  const navTextResolved = navWalked || navInner;
   const navChunk = {
-    selector: CHILD_TODAY_NAV_SELECTOR,
-    text: navEl ? visibleInnerTextFromRoot(navEl) : '',
+    selector: navSelector,
+    text: navTextResolved,
     present: Boolean(navEl),
     visible: navEl ? isElementVisible(navEl) : false,
   };
@@ -77,7 +131,7 @@ function collectChildTodayCanonicalVisibleTextInPage() {
     navText,
     main: mainChunks,
     nav: navChunk,
-    child_today_i18n_ready: document.documentElement.dataset[CHILD_TODAY_READY_ATTR] === 'true',
+    child_today_i18n_ready: document.documentElement.dataset[readyAttr] === 'true',
     html_lang: document.documentElement.lang || '',
   };
 }

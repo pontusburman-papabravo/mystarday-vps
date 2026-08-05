@@ -124,10 +124,18 @@ async function waitForChildTodaySurface(page, opts = {}) {
     await page
       .waitForFunction(
         () => {
+          const lang = (document.documentElement.lang || '').toLowerCase();
+          if (!lang.startsWith('sv')) return false;
           const header = document.querySelector('#childMainHeader');
           const nav = document.querySelector('#childBottomNav');
           const t = ((header && header.innerText) || '') + '\n' + ((nav && nav.innerText) || '');
-          return /\bidag\b/i.test(t) || /\bmorgon\b/i.test(t) || /\bdaglig logg\b/i.test(t);
+          return (
+            /\bidag\b/i.test(t) ||
+            /\bmorgon\b/i.test(t) ||
+            /\bdaglig logg\b/i.test(t) ||
+            /\bnu:\s/i.test(t) ||
+            /\bsenare:\s/i.test(t)
+          );
         },
         { timeout: timeoutMs }
       )

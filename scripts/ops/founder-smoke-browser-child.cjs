@@ -97,9 +97,6 @@ function evaluateChildTodaySessionPass(p) {
     if (!hasEnglishChildTodayMainSurfaceMarker(main)) {
       return { pass: false, reason: 'missing_english_today_main_copy' };
     }
-    if (!hasEnglishChildTodayNavMarker(nav)) {
-      return { pass: false, reason: 'missing_english_today_nav_copy' };
-    }
     const mainLeaks = findSwedishChildTodayLeaks(main, 'main');
     const navLeaks = findSwedishChildTodayLeaks(nav, 'nav');
     if (mainLeaks.length > 0 || navLeaks.length > 0) {
@@ -108,6 +105,9 @@ function evaluateChildTodaySessionPass(p) {
         reason: 'swedish_leak_on_child_today',
         swedish_leaks: mainLeaks.concat(navLeaks),
       };
+    }
+    if (!hasEnglishChildTodayNavMarker(nav)) {
+      return { pass: false, reason: 'missing_english_today_nav_copy' };
     }
   } else if (expectedChildUiLocale === 'sv-SE') {
     const surfaceText = [main, nav].filter(Boolean).join('\n') || main;
@@ -147,7 +147,14 @@ function hasEnglishChildTodaySurfaceCopy(mainText, navText) {
 
 function hasSwedishChildTodaySurfaceCopy(bodyText) {
   const t = String(bodyText || '');
-  return /\bidag\b/i.test(t) || /\bdaglig logg\b/i.test(t) || /\bmorgon\b/i.test(t);
+  return (
+    /\bidag\b/i.test(t) ||
+    /\bdaglig logg\b/i.test(t) ||
+    /\bmorgon\b/i.test(t) ||
+    /\bnu:\s/i.test(t) ||
+    /\bsenare:\s/i.test(t) ||
+    /(?:^|\n)\s*⚡\s*NU\b/mi.test(t)
+  );
 }
 
 /** @deprecated use findSwedishChildTodayLeaks on canonical regions */
