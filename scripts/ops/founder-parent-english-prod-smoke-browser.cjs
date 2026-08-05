@@ -10,6 +10,7 @@ const { snapshotsEqual } = require('./founder-smoke-report-lib.cjs');
 const { robustParentLogin } = require('./founder-smoke-browser-login.cjs');
 const {
   evaluateChildTodaySessionPass,
+  evaluateParentSettingsEnglishPass,
   evaluateParentHandoffRestorePass,
   computeBrowserPass,
   normalizeUsername,
@@ -305,26 +306,13 @@ async function runBrowserSmoke() {
         const settingsReachable = await openSettings(page);
         const enMe = await fetchMe(page);
         const enParentText = await pageText(page);
-        const sc1 = {
-          settings_reachable: settingsReachable === true,
-          parent_type: enMe?.type === 'parent',
-          preferred_locale: enMe?.preferred_locale === 'en-GB',
-          preferred_locale_actual: enMe?.preferred_locale ?? null,
-          english_family_copy: /\bfamily\b/i.test(enParentText),
-          english_settings_copy:
-            /language/i.test(enParentText) || /profile/i.test(enParentText),
-          no_swedish_familjeinställningar_leak: !/familjeinställningar/i.test(enParentText),
-        };
-        scenarios.browser_sc1_parent_english = {
-          ...sc1,
-          pass:
-            sc1.settings_reachable &&
-            sc1.parent_type &&
-            sc1.preferred_locale &&
-            sc1.english_family_copy &&
-            sc1.english_settings_copy &&
-            sc1.no_swedish_familjeinställningar_leak,
-        };
+        const htmlLang = await page.evaluate(() => document.documentElement.lang || '');
+        scenarios.browser_sc1_parent_english = evaluateParentSettingsEnglishPass({
+          bodyText: enParentText,
+          me: enMe,
+          settingsReachable,
+          htmlLang,
+        });
 
         vpsDb('set', familyId, ['--slug', 'english_app', '--on']);
         vpsDb('set', familyId, ['--slug', 'english_child_experience', '--on']);
