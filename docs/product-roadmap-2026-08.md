@@ -157,14 +157,14 @@ flowchart TB
 
 | Leverans | Beskrivning |
 |----------|-------------|
-| R2.1 Aktivitetstimer | Founder-smoke `activity_timer_v2`; begränsad rollout (`activity_timers_enabled` + flag). |
+| R2.1 Aktivitetstimer | **ENGINEERING COMPLETE** · Live acceptansgate: **PASS** (2026-08-05, founder QA, snapshot/restore). Rollout: `activity_timers_enabled` + allowlist. |
 | R2.2 Minimal UI live | `minimal_ui` från `dev` → pilot → `live` för familjer som behöver det. |
-| R2.3 Extra stöd-pilot | 3–5 familjer med `teacch` via admin; feedback på `transition_support` (EPIC 3.3 bildstöd — produktägarbeslut). |
+| R2.3 Extra stöd-pilot | Slice C (parent/child `transition_support` gate): **COMPLETE** i kod (PR #905, SW v793). Live pilot: 3–5 familjer med `teacch` via admin (prod QA saknar grant — live feature-scenario deferred). |
 | R2.4 För dig × Journey | En rekommendation kopplad till `journey_phase` / readiness — inte generisk tips-sida. |
 
 **DoD R2:**
 
-- [ ] Timer: inga blockerande buggar i founder-smoke; rollback = flag OFF.
+- [x] Timer: inga blockerande buggar i founder-smoke; rollback = flag OFF. Live acceptansgate PASS 2026-08-05.
 - [ ] Minimal UI: dokumenterad i child-settings; inga regressioner i completion-flöde.
 - [ ] Pilot: skriftlig go/no-go för `PACKAGES_ROLLOUT_MODE=interest` (inte köp).
 
@@ -261,12 +261,12 @@ Använd vid sprintplanering. **%** = leveransbedömning (kod + ops), inte rad-r�
 |-----------|-----|----------------|-------|-----|
 | Child Reliability (ordning, delsteg, perf) | 70–85 % | E2E, QA, metrics | Extremt | R0 |
 | ADR-019 familjeenhet | 10–20 % | ADR accept + MVP | Extremt | R0 |
-| Aktivitetstimer v2 | 90–95 % | Device QA, rollout | Mycket högt | R2 |
+| Aktivitetstimer v2 | **100 %** (engineering + live acceptans PASS) | — | Mycket högt | R2 |
 | Family Journey | 85–90 % | Rollout + Hem-prioritet | Mycket högt | R1 |
 | `minimal_ui` | 85 % | Flag live + copy | Mycket högt | R2 |
 | För dig personalisering | 75 % | Journey-koppling | Högt | R2 |
 | Growth + referral | 90 % | Dark launch | Högt | R4 |
-| Extra stöd / teacch | 75 % | Pilot + interest mode | Högt | R2 → R5 |
+| Extra stöd / teacch | 80 % | Pilotfamiljer (admin grant) | Högt | R2 → R5 |
 | Engelsk beta | 88–93 % | Prod smoke | Högt (strategiskt) | R3 |
 | IAP / paket köp | 65–75 % | Store + sandbox | Högt (senare) | R5 |
 | Min värld (playable) | 35 % | Art + `scenes.json` | Medel lång sikt | Efter R2 |
