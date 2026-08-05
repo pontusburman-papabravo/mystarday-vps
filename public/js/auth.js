@@ -33,7 +33,8 @@
 
 const SILENT_REFRESH_TIMEOUT_MS = 12000;
 const AUTH_ME_TIMEOUT_MS = 12000;
-const AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS = 8000;
+const AUTH_ME_HANDOFF_TOTAL_TIMEOUT_MS = 12000;
+const AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS = 2500;
 const AUTH_ME_HANDOFF_POLL_ATTEMPTS = 8;
 const AUTH_ME_HANDOFF_POLL_DELAY_MS = 250;
 
@@ -721,6 +722,7 @@ const Auth = {
             verifyUrl: '/api/family/verify-pin-picker',
             applyPickerResponse: true,
             deferPickerResponseApply: true,
+            awaitSuccessBeforeClose: true,
             expectedFamilyId: expectedFamilyId,
           });
           return;
@@ -904,11 +906,19 @@ const Auth = {
     console.error('[AUTH] parent handoff restore:', safe);
   },
 
-  async _fetchAuthMeForHandoff() {
+  async _fetchAuthMeForHandoff(requestTimeoutMs) {
+    const timeoutMs = Math.max(
+      1,
+      Math.min(
+        AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS,
+        typeof requestTimeoutMs === 'number' ? requestTimeoutMs : AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS
+      )
+    );
     const controller = new AbortController();
-    const abortTimer = window.setTimeout(function () {
+    let abortTimer = null;
+    abortTimer = window.setTimeout(function () {
       controller.abort();
-    }, AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS);
+    }, timeoutMs);
     try {
       const res = await fetch('/api/auth/me', {
         credentials: 'include',
@@ -930,7 +940,10 @@ const Auth = {
         network: true,
       };
     } finally {
-      window.clearTimeout(abortTimer);
+      if (abortTimer != null) {
+        window.clearTimeout(abortTimer);
+        abortTimer = null;
+      }
     }
   },
 
@@ -957,12 +970,23 @@ const Auth = {
     if (!expectedFamilyId) {
       return { ok: false, kind: 'contract', code: 'EXPECTED_FAMILY_ID_MISSING' };
     }
-    const attempts = options.attempts || AUTH_ME_HANDOFF_POLL_ATTEMPTS;
     const delayMs = options.delayMs || AUTH_ME_HANDOFF_POLL_DELAY_MS;
+    const maxAttempts = options.attempts || AUTH_ME_HANDOFF_POLL_ATTEMPTS;
+    const deadlineAt = Date.now() + (options.totalTimeoutMs || AUTH_ME_HANDOFF_TOTAL_TIMEOUT_MS);
     let lastResult = null;
 
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const fetched = await this._fetchAuthMeForHandoff();
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const remainingMs = deadlineAt - Date.now();
+      if (remainingMs <= 0) {
+        return {
+          ok: false,
+          kind: 'contract',
+          code: 'AUTH_ME_HANDOFF_TOTAL_TIMEOUT',
+        };
+      }
+
+      const requestTimeoutMs = Math.min(AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS, remainingMs);
+      const fetched = await this._fetchAuthMeForHandoff(requestTimeoutMs);
 
       if (fetched.ok && fetched.me) {
         const me = fetched.me;
@@ -1032,8 +1056,16 @@ const Auth = {
         };
       }
 
-      if (attempt < attempts - 1) {
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      const remainingAfter = deadlineAt - Date.now();
+      if (remainingAfter <= 0) {
+        return Object.assign(
+          { ok: false, kind: lastResult.kind || 'contract', code: 'AUTH_ME_HANDOFF_TOTAL_TIMEOUT' },
+          lastResult || {}
+        );
+      }
+
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, Math.min(delayMs, remainingAfter)));
       }
     }
 
@@ -1143,6 +1175,8 @@ const Auth = {
     const verifyUrl = opts.verifyUrl || '/api/family/verify-pin';
     const applyPickerResponse = opts.applyPickerResponse === true;
     const deferPickerResponseApply = opts.deferPickerResponseApply === true;
+    const awaitSuccessBeforeClose = opts.awaitSuccessBeforeClose === true;
+    let overlayRestorePending = false;
     function pgT(key, params) {
       if (typeof window.childT === 'function') {
         const fromChild = childT(key, params);
@@ -1206,6 +1240,27 @@ const Auth = {
       });
     }
 
+    function setOverlayRestorePending(pending) {
+      overlayRestorePending = pending === true;
+      const kbd = document.getElementById('ppgo-keypad');
+      const cancelBtn = document.getElementById('ppgo-cancel');
+      if (kbd) {
+        kbd.querySelectorAll('button').forEach(function (btn) {
+          btn.disabled = overlayRestorePending;
+          btn.style.opacity = overlayRestorePending ? '0.45' : '';
+          btn.style.pointerEvents = overlayRestorePending ? 'none' : '';
+        });
+      }
+      if (cancelBtn) {
+        cancelBtn.disabled = overlayRestorePending;
+        cancelBtn.style.opacity = overlayRestorePending ? '0.45' : '';
+      }
+      if (overlayRestorePending) {
+        msgEl.style.color = '#5A6178';
+        msgEl.textContent = pgT('parentGate.restoringParentMode') || pgT('common.loading');
+      }
+    }
+
     function buildKeypad() {
       const kbd = document.getElementById('ppgo-keypad');
       kbd.innerHTML = '';
@@ -1223,6 +1278,7 @@ const Auth = {
         btn.addEventListener('mouseenter', function () { btn.style.background = '#D8BFD8'; });
         btn.addEventListener('mouseleave', function () { btn.style.background = '#EDE7F6'; });
         btn.addEventListener('click', function () {
+          if (overlayRestorePending) return;
           msgEl.textContent = '';
           if (d === '⌫') {
             entered = entered.slice(0, -1);
@@ -1290,6 +1346,26 @@ const Auth = {
             onSuccess(res);
             return;
           }
+          if (awaitSuccessBeforeClose) {
+            setOverlayRestorePending(true);
+            void Auth._finishParentHandoffRestoreThen(onSuccess, opts.expectedFamilyId).then(function (restored) {
+              if (restored.ok) {
+                document.body.removeChild(overlay);
+                return restored;
+              }
+              setOverlayRestorePending(false);
+              entered = '';
+              updateDots();
+              buildKeypad();
+              Auth._logHandoffRestoreFailure(restored.code);
+              msgEl.style.color = '#ef4444';
+              msgEl.textContent =
+                pgT('errors.handoffRestoreFailed') ||
+                pgT('errors.serverError');
+              return restored;
+            });
+            return;
+          }
           document.body.removeChild(overlay);
           void Auth._finishParentHandoffRestoreThen(onSuccess, opts.expectedFamilyId).then(function (restored) {
             if (!restored.ok) {
@@ -1318,6 +1394,7 @@ const Auth = {
     }
 
     document.getElementById('ppgo-cancel').addEventListener('click', function () {
+      if (overlayRestorePending) return;
       document.body.removeChild(overlay);
       onCancel();
     });

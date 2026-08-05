@@ -16,18 +16,20 @@ describe('auth parent handoff restore (PR F hardening)', () => {
       /if \(applyPickerResponse && res\.ok && res\.parent\) \{[\s\S]*?\n        \}/
     );
     assert.ok(overlayBlock, 'applyPickerResponse block');
-    const deferBranch = overlayBlock[0].match(
-      /document\.body\.removeChild\(overlay\);[\s\S]*?void Auth\._finishParentHandoffRestoreThen/
+    const awaitBranch = overlayBlock[0].match(
+      /if \(awaitSuccessBeforeClose\) \{[\s\S]*?setOverlayRestorePending\(true\)[\s\S]*?_finishParentHandoffRestoreThen/
     );
-    assert.ok(deferBranch, 'defer handoff branch');
-    assert.doesNotMatch(deferBranch[0], /Auth\.setAuth/);
-    assert.doesNotMatch(deferBranch[0], /DeviceMode\.enterParent/);
+    assert.ok(awaitBranch, 'awaitSuccessBeforeClose handoff branch');
+    assert.doesNotMatch(awaitBranch[0], /Auth\.setAuth/);
+    assert.doesNotMatch(awaitBranch[0], /DeviceMode\.enterParent/);
+    assert.doesNotMatch(awaitBranch[0].match(/setOverlayRestorePending\(true\)[\s\S]*?return;/)?.[0] || '', /removeChild\(overlay\)/);
   });
 
-  it('needsParentPin passes deferPickerResponseApply and expectedFamilyId', () => {
+  it('needsParentPin passes defer, awaitSuccessBeforeClose and expectedFamilyId', () => {
     const block = src.match(/if \(res\.ok && data\.needsParentPin\) \{[\s\S]*?\n        \}/);
     assert.ok(block);
     assert.match(block[0], /deferPickerResponseApply: true/);
+    assert.match(block[0], /awaitSuccessBeforeClose: true/);
     assert.match(block[0], /expectedFamilyId: expectedFamilyId/);
   });
 
@@ -71,8 +73,27 @@ describe('auth parent handoff restore (PR F hardening)', () => {
 
   it('uses AbortController per-request timeout on handoff /api/auth/me', () => {
     assert.match(src, /AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS/);
+    assert.match(src, /AUTH_ME_HANDOFF_TOTAL_TIMEOUT_MS/);
     assert.match(src, /_fetchAuthMeForHandoff[\s\S]{0,400}AbortController/);
+    assert.match(src, /clearTimeout\(abortTimer\)/);
     assert.match(src, /cache: 'no-store'/);
+  });
+
+  it('enforces total handoff restore deadline across polls', () => {
+    assert.match(src, /AUTH_ME_HANDOFF_TOTAL_TIMEOUT_MS = 12000/);
+    assert.match(src, /AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS = 2500/);
+    assert.match(src, /deadlineAt = Date\.now\(\)/);
+    assert.match(src, /remainingMs = deadlineAt - Date\.now\(\)/);
+    assert.match(src, /AUTH_ME_HANDOFF_TOTAL_TIMEOUT/);
+    assert.match(src, /Math\.min\(AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS, remainingMs\)/);
+    assert.match(src, /Math\.min\(delayMs, remainingAfter\)/);
+  });
+
+  it('keeps PIN overlay busy until restore completes when awaitSuccessBeforeClose', () => {
+    assert.match(src, /setOverlayRestorePending/);
+    assert.match(src, /parentGate\.restoringParentMode/);
+    assert.match(src, /errors\.handoffRestoreFailed/);
+    assert.match(src, /overlayRestorePending/);
   });
 
   it('dedupes concurrent restore via _parentHandoffRestorePromise', () => {

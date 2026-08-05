@@ -29,6 +29,7 @@ describe('Auth.logout handoff contract (client)', () => {
     assert.match(src, /verifyUrl: '\/api\/family\/verify-pin-picker'/);
     assert.match(src, /applyPickerResponse: true/);
     assert.match(src, /deferPickerResponseApply: true/);
+    assert.match(src, /awaitSuccessBeforeClose: true/);
     assert.doesNotMatch(src, /needsParentPin[\s\S]{0,400}restore-parent-session/);
   });
 
