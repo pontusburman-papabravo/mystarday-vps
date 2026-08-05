@@ -201,7 +201,7 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
         { name: 'B', sort_order: 1 },
         { name: 'C', sort_order: 2 },
       ]);
-      await fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
+      const childReorder = await fetch(`${http.baseUrl}/api/me/daily-log/reorder`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -210,6 +210,7 @@ test('P1 child daily-log order regression (A–H)', async (t) => {
         },
         body: JSON.stringify({ ordered_item_ids: [ids[2], ids[1], ids[0]] }),
       });
+      assert.equal(childReorder.status, 200, await childReorder.text());
       const parentRes = await fetch(`${http.baseUrl}/api/daily-log-items/reorder`, {
         method: 'PUT',
         headers: {

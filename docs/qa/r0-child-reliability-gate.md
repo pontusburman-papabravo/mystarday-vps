@@ -15,7 +15,7 @@ NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false env -u RESEND_API_KEY npm run tes
 NODE_ENV=test npm run test:child-core-harness
 ```
 
-- [ ] Båda exit 0 på release-SHA
+- [ ] Båda exit 0 på release-SHA (inkl. P1 `child-daily-log-order.integration.test.js` scenario G — **hårt förhandsvillkor före global English ON**, se [`FOUNDER-SMOKE-2026-08-04.md`](../releases/FOUNDER-SMOKE-2026-08-04.md))
 - [ ] `GET /health` — `cache_version` matchar `config/cache-version.json`
 
 ---

@@ -129,6 +129,7 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 
 **Obligatoriska delar som saknas (blockerar global ON):**
 
+- **`test/child-daily-log-order.integration.test.js` (P1)** — grön `test:gate`/CI på aktuell `main`, inkl. scenario **G** (föräldraomordning ersätter barnets egna ordning). Röd kontrakt = **hårt förhandsvillkor** (nära kundavvikelse schemaordning); ej orsakat av #870 men blockerar ny betaexponering.
 - Grandfatherad **en-GB**-familj (scenario 1)
 - Riktig **en-GB** + `english_child_experience` ON — barn-UI (scenario 2)
 - Separationstest barn flag OFF (scenario 3)
@@ -143,15 +144,17 @@ Related runbook: [`GLOBAL-ENGLISH-AVAILABILITY-RELEASE.md`](GLOBAL-ENGLISH-AVAIL
 - Scenario 5: kontrollerad ny familj utan beta (API-smoke eller staging).
 - Utreda logout-knapp i Inställningar (UI) — **öppen produktavvikelse** (ej blockerande för global ON); ingen verifierad fix i #874.
 
-## Körordning (efter merge #874, global flag OFF)
+## Körordning (styrande — global flag OFF tills allt PASS)
 
-1. Deploy smoke-tooling till prod (rätt `git_sha` på `/health`; `english_global_flag_enabled` fortfarande **false**).
-2. Rotera founder parent-lösenord och Astrids barn-PIN; uppdatera Cursor/QA-secret store (inga värden i GitHub eller detta dokument).
-3. `npm run founder:parent-english-smoke` — kräv `report.restored: true`.
-4. Slutför scenario **1, 2, 3, 5** och kvarvarande **riskytor** (handoff, cache, bilduppladdning, m.fl.).
-5. Kontrollera `/health` och relevanta loggar.
-6. Uppdatera **Beslut** i detta dokument; fatta nytt **global ON**-beslut endast om alla blockerare är PASS.
-7. Logout i Inställningar: separat spår — påverkar inte global ON-beslutet tills verifierad fix finns.
+1. **Rotera** founder parent-lösenord och Astrids barn-PIN; uppdatera Cursor/QA-secret store (inga värden i GitHub eller detta dokument).
+2. **Deploy** `4f62e923` eller senare godkänd SHA; `/health` — `english_global_flag_enabled` fortfarande **false**.
+3. **CI-kontrakt:** grön `test:gate`/relevant CI på aktuell `main`, inkl. **P1** `child-daily-log-order` (scenario G). Reparera eller dokumentera reproducerbar rotorsak om rött — inte bara “bevaka”.
+4. `npm run founder:parent-english-smoke` — kräv `report.restored: true`.
+5. Slutför founder-smoke scenario **1, 2, 3, 5** och kvarvarande **riskytor** (handoff, SW/cache, bilduppladdning, m.fl.).
+6. Kontrollera `/health` och relevanta loggar; uppdatera **Beslut** i detta dokument.
+7. Fatta **parent English beta global ON** endast om alla blockerare ovan är PASS.
+
+**Separat (blockerar inte global ON):** logout i Inställningar — öppen produktavvikelse. **Full engelsk release** (RC-1/RC-2) förblir **NO-GO**.
 
 ---
 

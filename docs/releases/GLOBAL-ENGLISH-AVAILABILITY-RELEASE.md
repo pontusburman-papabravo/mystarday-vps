@@ -26,6 +26,18 @@ Merge **#870** only after backup/deploy safety is live — merging to `main` may
 - [ ] `npm run test:e2e:i18n` green
 - [ ] `npm run audit:i18n:strict` green
 
+## Hard gates before global ON (in addition to founder smoke)
+
+These are **not** introduced by #870 but block new beta exposure:
+
+| Gate | Why |
+|------|-----|
+| `npm run test:gate` green on release SHA | Includes P1 `test/child-daily-log-order.integration.test.js` — parent `sort_order` vs child `/api/me/daily-log` (scenario **G**: parent reorder after child reorder resets child order) |
+| [`FOUNDER-SMOKE-2026-08-04.md`](FOUNDER-SMOKE-2026-08-04.md) **INCOMPLETE → PASS** | Scenarios 1–5 + risk areas; `report.restored: true` on prod smoke tooling |
+| Founder credentials rotated | Secrets updated; nothing committed to Git |
+
+Do **not** enable `english_app_global_enabled` while P1 child daily-log order is failing on `main` CI.
+
 ## Deploy with flag OFF
 
 1. Merge code with global flag **OFF** (migration seeds `enabled = false` on **first insert only**).
