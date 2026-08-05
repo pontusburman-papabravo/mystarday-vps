@@ -71,6 +71,29 @@
   }
 
   /**
+   * Patch one item's completed flag in cached daily log (offline optimistic UI).
+   */
+  async function patchDailyLogItemCompleted(childId, date, itemId, completed) {
+    const data = await getDailyLog(childId, date);
+    if (!data || !Array.isArray(data.items)) return false;
+    const item = data.items.find((i) => String(i.id) === String(itemId));
+    if (!item) return false;
+    item.completed = !!completed;
+    if (completed) {
+      item.completed_at = item.completed_at || new Date().toISOString();
+      item.completed_by = item.completed_by || 'child';
+    } else {
+      item.completed_at = null;
+      item.completed_by = null;
+    }
+    const doneCount = data.items.filter((i) => i.completed).length;
+    if (typeof data.completed === 'number') data.completed = doneCount;
+    if (typeof data.total === 'number') data.total = data.items.length;
+    await saveDailyLog(childId, date, data);
+    return true;
+  }
+
+  /**
    * Read cached daily log for child+date.
    * Returns null if nothing cached.
    * @returns {Promise<object|null>} - cached data or null
@@ -183,6 +206,7 @@
   window.OfflineStore = {
     saveDailyLog,
     getDailyLog,
+    patchDailyLogItemCompleted,
     hasDailyLog,
     saveChildProfile,
     getChildProfile,

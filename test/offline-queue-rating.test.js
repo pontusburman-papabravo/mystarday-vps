@@ -33,10 +33,11 @@ test('offline-queue substep actions use itemId+subStepId entity key', () => {
 test('offline-queue flush treats 409 as synced (idempotent replay)', () => {
   const src = fs.readFileSync(path.join(__dirname, '../public/js/offline-queue.js'), 'utf8');
   assert.match(src, /res\.ok \|\| res\.status === 409/);
+  assert.doesNotMatch(src, /IDBKeyRange\.only\(true\)/);
 });
 
 test('offline-queue last-write-wins per entityId', () => {
   const src = fs.readFileSync(path.join(__dirname, '../public/js/offline-queue.js'), 'utf8');
   assert.match(src, /getEntityIdFromEntry\(e\) === entityId/);
-  assert.match(src, /store\.delete\(e\.id\)/);
+  assert.match(src, /cursor\.delete\(\)/);
 });

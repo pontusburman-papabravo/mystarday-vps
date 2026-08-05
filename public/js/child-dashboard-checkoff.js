@@ -71,12 +71,16 @@
     if (!isCurrentlyDone) {
       let steps = subStepCache[itemId];
       if (!steps || steps.length === 0) {
-        try {
-          const data = await Auth.api(`/api/me/daily-log-items/${itemId}/sub-steps`);
-          steps = data.sub_steps || [];
-          subStepCache[itemId] = steps;
-        } catch {
-          steps = [];
+        if (!navigator.onLine) {
+          steps = subStepCache[itemId] || [];
+        } else {
+          try {
+            const data = await Auth.api(`/api/me/daily-log-items/${itemId}/sub-steps`);
+            steps = data.sub_steps || [];
+            subStepCache[itemId] = steps;
+          } catch {
+            steps = [];
+          }
         }
       }
       if (steps.length > 0) {
@@ -142,14 +146,48 @@
     _checkOffRunning = false;
   }
 
+  async function patchOfflineCompletionCache(itemId, completed) {
+    if (!window.OfflineStore || !me?.id) return;
+    const dateStr = currentDate || todayStr || (typeof getLocalDate === 'function' ? getLocalDate() : null);
+    if (!dateStr) return;
+    try {
+      await OfflineStore.patchDailyLogItemCompleted(me.id, dateStr, itemId, completed);
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function _processCheckOff({ itemId, isCurrentlyDone, action, feedbackFor, icon, name }) {
     let queueId = null;
+    let queuedOffline = false;
+    const completing = action === 'complete';
 
     if (window.Platform && window.Platform.haptics) {
       window.Platform.haptics.light();
     }
 
-    const apiPromise = Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, { method: 'PUT' })
+    const isOfflineNow = !navigator.onLine;
+    if (isOfflineNow && window.OfflineQueue) {
+      try {
+        queueId = await (completing
+          ? window.OfflineQueue.queueComplete(itemId)
+          : window.OfflineQueue.queueUncomplete(itemId));
+        queuedOffline = true;
+        await patchOfflineCompletionCache(itemId, completing);
+        if (typeof coalescedLoadDay === 'function') {
+          await coalescedLoadDay().catch(() => {});
+        }
+        if (!isCurrentlyDone) {
+          showToast('📶 ' + t('checkoff.savedOffline'), false);
+        }
+      } catch (queueErr) {
+        console.error('Offline queue error:', queueErr);
+      }
+    }
+
+    const apiPromise = queuedOffline
+      ? Promise.resolve()
+      : Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, { method: 'PUT' })
       .then((data) => {
         if (queueId && window.OfflineQueue) {
           window.OfflineQueue.markSynced(queueId);
@@ -162,16 +200,23 @@
           MetaAppEvents.handleServerMilestones(data && data.meta_milestones);
         }
       })
-      .catch((err) => {
+      .catch(async (err) => {
         const isOffline = !navigator.onLine ||
           (err && (err.message === 'Failed to fetch' || err.message === 'NetworkError when attempting to fetch resource.'));
 
-        if (isOffline && window.OfflineQueue) {
-          queueId = window.OfflineQueue.enqueue(itemId, action);
-          if (!isCurrentlyDone) {
-            showToast('📶 ' + t('checkoff.savedOffline'), false);
+        if (isOffline && window.OfflineQueue && !queuedOffline) {
+          try {
+            queueId = await (completing
+              ? window.OfflineQueue.queueComplete(itemId)
+              : window.OfflineQueue.queueUncomplete(itemId));
+            await patchOfflineCompletionCache(itemId, completing);
+            if (!isCurrentlyDone) {
+              showToast('📶 ' + t('checkoff.savedOffline'), false);
+            }
+          } catch (queueErr) {
+            console.error('Offline queue error:', queueErr);
           }
-        } else {
+        } else if (!isOffline) {
           console.error('Toggle error:', err);
           if (window.Platform && window.Platform.haptics) {
             window.Platform.haptics.error();
