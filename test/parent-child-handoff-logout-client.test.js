@@ -16,9 +16,8 @@ describe('Auth.logout handoff contract (client)', () => {
     assert.match(src, /res\.status === 409 && data\.code === 'PARENT_HANDOFF_INVALID'/);
   });
 
-  it('captures expectedFamilyId before child logout handoff', () => {
-    assert.match(src, /const expectedFamilyId = handoffUser/);
-    assert.match(src, /handoffUser\.familyId \|\| handoffUser\.family_id/);
+  it('resolves expectedFamilyId before child logout handoff', () => {
+    assert.match(src, /await this\._resolveExpectedFamilyIdForHandoff\(\)/);
     assert.match(
       src,
       /_completeHandoffParentSessionRestore\(expectedFamilyId\)/
@@ -29,14 +28,16 @@ describe('Auth.logout handoff contract (client)', () => {
   it('uses verify-pin-picker Model B after needsParentPin', () => {
     assert.match(src, /verifyUrl: '\/api\/family\/verify-pin-picker'/);
     assert.match(src, /applyPickerResponse: true/);
+    assert.match(src, /deferPickerResponseApply: true/);
     assert.doesNotMatch(src, /needsParentPin[\s\S]{0,400}restore-parent-session/);
   });
 
   it('sessionRestored completes parent client state before dashboard (no SessionGate short-circuit)', () => {
     assert.match(src, /_completeHandoffParentSessionRestore/);
-    assert.match(src, /data\.sessionRestored[\s\S]{0,220}_completeHandoffParentSessionRestore/);
+    assert.match(src, /data\.sessionRestored[\s\S]{0,400}_completeHandoffParentSessionRestore/);
     assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,400}_finishParentHandoffRestoreThen/);
-    assert.match(src, /_syncParentSessionFromServer[\s\S]{0,900}fetch\('\/api\/auth\/me'/);
+    assert.match(src, /_syncParentSessionFromServer/);
+    assert.match(src, /_fetchAuthMeForHandoff/);
     assert.match(src, /cache: 'no-store'/);
     assert.match(src, /AUTH_ME_FAMILY_MISMATCH/);
     assert.match(src, /_completeHandoffParentSessionRestore[\s\S]{0,400}location\.replace\('\/dashboard'\)/);
@@ -50,17 +51,17 @@ describe('Auth.logout handoff contract (client)', () => {
     assert.match(src, /_syncParentSessionFromServer/);
     assert.match(
       src,
-      /applyPickerResponse && res\.ok && res\.parent[\s\S]{0,500}_finishParentHandoffRestoreThen\(onSuccess, opts\.expectedFamilyId\)/
+      /void Auth\._finishParentHandoffRestoreThen\(onSuccess, opts\.expectedFamilyId\)/
     );
     assert.match(src, /AUTH_ME_NOT_PARENT_TIMEOUT/);
-    assert.match(src, /_finishParentHandoffRestoreThen[\s\S]{0,400}onReady\(result\.user\)/);
+    assert.match(src, /_finishParentHandoffRestoreThen[\s\S]{0,1200}onReady\(result\.user\)/);
     assert.doesNotMatch(
-      src.match(/async _finishParentHandoffRestoreThen[\s\S]{0,600}/)?.[0] || '',
+      src.match(/async _finishParentHandoffRestoreThen[\s\S]{0,800}/)?.[0] || '',
       /onReady\([\s\S]{0,80}_syncParentSessionFromServer/
     );
     assert.match(
       src,
-      /needsParentPin[\s\S]{0,500}location\.replace\('\/dashboard'\)/
+      /needsParentPin[\s\S]{0,700}deferPickerResponseApply: true/
     );
     assert.doesNotMatch(
       src.match(/if \(res\.ok && data\.needsParentPin\) \{[\s\S]*?\n        \}/)?.[0] || '',

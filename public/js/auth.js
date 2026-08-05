@@ -33,6 +33,9 @@
 
 const SILENT_REFRESH_TIMEOUT_MS = 12000;
 const AUTH_ME_TIMEOUT_MS = 12000;
+const AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS = 8000;
+const AUTH_ME_HANDOFF_POLL_ATTEMPTS = 8;
+const AUTH_ME_HANDOFF_POLL_DELAY_MS = 250;
 
 /** Native WebView: cookie auth + skip refresh round-trips (Android Play + iOS parity). */
 function isNativeClient() {
@@ -57,6 +60,7 @@ const Auth = {
   _refreshPromise: null,
   _refreshTimer: null,
   _csrfFetchPromise: null,
+  _parentHandoffRestorePromise: null,
 
   /**
    * Get the stored access token.
@@ -646,10 +650,10 @@ const Auth = {
   async logout(options) {
     options = options || {};
     const childFlow = options.childFlow === true;
-    const handoffUser = childFlow ? this.getUser() : null;
-    const expectedFamilyId = handoffUser
-      ? (handoffUser.familyId || handoffUser.family_id || null)
-      : null;
+    let expectedFamilyId = null;
+    if (childFlow) {
+      expectedFamilyId = await this._resolveExpectedFamilyIdForHandoff();
+    }
 
     if (childFlow && window.DeviceMode) DeviceMode.enterChild();
 
@@ -689,6 +693,11 @@ const Auth = {
         try { data = await res.json(); } catch { data = {}; }
 
         if (res.ok && data.sessionRestored) {
+          if (!expectedFamilyId) {
+            this._logHandoffRestoreFailure('EXPECTED_FAMILY_ID_MISSING');
+            this._showLogoutFailureMessage('contract');
+            return;
+          }
           const restored = await this._completeHandoffParentSessionRestore(expectedFamilyId);
           if (!restored.ok) {
             this._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
@@ -697,9 +706,13 @@ const Auth = {
         }
 
         if (res.ok && data.needsParentPin) {
+          if (!expectedFamilyId) {
+            this._logHandoffRestoreFailure('EXPECTED_FAMILY_ID_MISSING');
+            this._showLogoutFailureMessage('contract');
+            return;
+          }
           this._clearChildCookies();
           const cancelUrlPin = childFlow ? '/child-login' : '/login';
-          const self = this;
           this._showParentPinGateOverlay(function () {
             window.location.replace('/dashboard');
           }, function () {
@@ -707,6 +720,7 @@ const Auth = {
           }, {
             verifyUrl: '/api/family/verify-pin-picker',
             applyPickerResponse: true,
+            deferPickerResponseApply: true,
             expectedFamilyId: expectedFamilyId,
           });
           return;
@@ -885,71 +899,136 @@ const Auth = {
     } catch {}
   },
 
+  _logHandoffRestoreFailure(code) {
+    const safe = String(code || 'HANDOFF_RESTORE_FAILED').replace(/[^\w_]/g, '').slice(0, 64);
+    console.error('[AUTH] parent handoff restore:', safe);
+  },
+
+  async _fetchAuthMeForHandoff() {
+    const controller = new AbortController();
+    const abortTimer = window.setTimeout(function () {
+      controller.abort();
+    }, AUTH_ME_HANDOFF_REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        return { ok: false, status: res.status, me: null };
+      }
+      const me = await res.json();
+      return { ok: true, status: res.status, me };
+    } catch (error) {
+      const aborted = error && error.name === 'AbortError';
+      return {
+        ok: false,
+        status: aborted ? 408 : 0,
+        me: null,
+        aborted,
+        network: true,
+      };
+    } finally {
+      window.clearTimeout(abortTimer);
+    }
+  },
+
+  async _resolveExpectedFamilyIdForHandoff() {
+    const user = this.getUser();
+    if (user) {
+      const fromUser = user.familyId || user.family_id || null;
+      if (fromUser) return fromUser;
+    }
+    const fetched = await this._fetchAuthMeForHandoff();
+    if (fetched.ok && fetched.me) {
+      return fetched.me.familyId || fetched.me.family_id || null;
+    }
+    return null;
+  },
+
   /**
    * Poll server until parent session cookies are active (post handoff PIN / consume).
-   * @param {string|null} expectedFamilyId
+   * @param {string} expectedFamilyId
    * @param {{ attempts?: number, delayMs?: number }} [options]
    * @returns {Promise<{ ok: true, user: object, familyId: string|null }|{ ok: false, kind: string, code?: string }>}
    */
   async _syncParentSessionFromServer(expectedFamilyId, options = {}) {
-    const attempts = options.attempts || 8;
-    const delayMs = options.delayMs || 250;
+    if (!expectedFamilyId) {
+      return { ok: false, kind: 'contract', code: 'EXPECTED_FAMILY_ID_MISSING' };
+    }
+    const attempts = options.attempts || AUTH_ME_HANDOFF_POLL_ATTEMPTS;
+    const delayMs = options.delayMs || AUTH_ME_HANDOFF_POLL_DELAY_MS;
     let lastResult = null;
 
     for (let attempt = 0; attempt < attempts; attempt += 1) {
-      try {
-        const res = await fetch('/api/auth/me', {
-          credentials: 'include',
-          cache: 'no-store',
-        });
+      const fetched = await this._fetchAuthMeForHandoff();
 
-        if (res.ok) {
-          const me = await res.json();
-          const actualFamilyId = me.familyId || me.family_id || null;
+      if (fetched.ok && fetched.me) {
+        const me = fetched.me;
+        const actualFamilyId = me.familyId || me.family_id || null;
 
-          if (
-            this.isParentUser(me) &&
-            (!expectedFamilyId || actualFamilyId === expectedFamilyId)
-          ) {
-            this._clearStaleChildLocalState();
-            await this.ensureCsrfToken();
-            const csrf = this.getCsrfToken();
-            const expMs = this._getExpiryMs();
-            this.setAuth(null, me, csrf, expMs);
-            if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-              DeviceMode.enterParent();
-            }
-            return {
-              ok: true,
-              user: me,
-              familyId: actualFamilyId,
-            };
+        if (this.isParentUser(me) && actualFamilyId === expectedFamilyId) {
+          this._clearStaleChildLocalState();
+          await this.ensureCsrfToken();
+          const csrf = this.getCsrfToken();
+          const expMs = this._getExpiryMs();
+          this.setAuth(null, me, csrf, expMs);
+          if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+            DeviceMode.enterParent();
           }
-
-          lastResult = {
-            ok: false,
-            kind: 'contract',
-            status: res.status,
-            type: me.type,
+          return {
+            ok: true,
+            user: me,
             familyId: actualFamilyId,
-            code: !this.isParentUser(me)
-              ? 'AUTH_ME_NOT_PARENT'
-              : 'AUTH_ME_FAMILY_MISMATCH',
-          };
-        } else {
-          lastResult = {
-            ok: false,
-            kind: res.status >= 500 ? 'server' : 'contract',
-            status: res.status,
-            code: 'AUTH_ME_HTTP_' + res.status,
           };
         }
-      } catch (error) {
+
+        if (this.isParentUser(me) && actualFamilyId !== expectedFamilyId) {
+          return {
+            ok: false,
+            kind: 'contract',
+            status: fetched.status,
+            type: me.type,
+            familyId: actualFamilyId,
+            code: 'AUTH_ME_FAMILY_MISMATCH',
+          };
+        }
+
         lastResult = {
           ok: false,
           kind: 'contract',
-          code: 'AUTH_ME_NETWORK',
-          error: error && error.message,
+          status: fetched.status,
+          type: me.type,
+          familyId: actualFamilyId,
+          code: 'AUTH_ME_NOT_PARENT',
+        };
+      } else if (fetched.status === 401 || fetched.status === 403) {
+        return {
+          ok: false,
+          kind: 'contract',
+          status: fetched.status,
+          code: 'AUTH_ME_HTTP_' + fetched.status,
+        };
+      } else if (fetched.status >= 500) {
+        lastResult = {
+          ok: false,
+          kind: 'server',
+          status: fetched.status,
+          code: 'AUTH_ME_HTTP_' + fetched.status,
+        };
+      } else if (fetched.aborted || fetched.network) {
+        lastResult = {
+          ok: false,
+          kind: 'contract',
+          code: fetched.aborted ? 'AUTH_ME_ABORT' : 'AUTH_ME_NETWORK',
+        };
+      } else {
+        lastResult = {
+          ok: false,
+          kind: 'contract',
+          status: fetched.status,
+          code: fetched.status ? 'AUTH_ME_HTTP_' + fetched.status : 'AUTH_ME_HTTP_UNKNOWN',
         };
       }
 
@@ -965,14 +1044,32 @@ const Auth = {
   },
 
   async _finishParentHandoffRestoreThen(onReady, expectedFamilyId) {
-    const result = await this._syncParentSessionFromServer(expectedFamilyId);
-    if (!result.ok) {
-      return result;
+    if (!expectedFamilyId) {
+      return { ok: false, kind: 'contract', code: 'EXPECTED_FAMILY_ID_MISSING' };
     }
-    if (typeof onReady === 'function') {
-      onReady(result.user);
+    if (this._parentHandoffRestorePromise) {
+      return this._parentHandoffRestorePromise;
     }
-    return result;
+
+    const self = this;
+    let onReadyCalled = false;
+    this._parentHandoffRestorePromise = (async function () {
+      try {
+        const result = await self._syncParentSessionFromServer(expectedFamilyId);
+        if (!result.ok) {
+          return result;
+        }
+        if (typeof onReady === 'function' && !onReadyCalled) {
+          onReadyCalled = true;
+          onReady(result.user);
+        }
+        return result;
+      } finally {
+        self._parentHandoffRestorePromise = null;
+      }
+    })();
+
+    return this._parentHandoffRestorePromise;
   },
 
   /**
@@ -1045,6 +1142,7 @@ const Auth = {
     opts = opts || {};
     const verifyUrl = opts.verifyUrl || '/api/family/verify-pin';
     const applyPickerResponse = opts.applyPickerResponse === true;
+    const deferPickerResponseApply = opts.deferPickerResponseApply === true;
     function pgT(key, params) {
       if (typeof window.childT === 'function') {
         const fromChild = childT(key, params);
@@ -1183,10 +1281,19 @@ const Auth = {
           return;
         }
         if (applyPickerResponse && res.ok && res.parent) {
-          Auth.setAuth(null, res.parent, res.csrfToken || csrf);
+          if (!deferPickerResponseApply) {
+            Auth.setAuth(null, res.parent, res.csrfToken || csrf);
+            if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+              DeviceMode.enterParent();
+            }
+            document.body.removeChild(overlay);
+            onSuccess(res);
+            return;
+          }
           document.body.removeChild(overlay);
           void Auth._finishParentHandoffRestoreThen(onSuccess, opts.expectedFamilyId).then(function (restored) {
             if (!restored.ok) {
+              Auth._logHandoffRestoreFailure(restored.code);
               Auth._showLogoutFailureMessage(restored.kind === 'server' ? 'server' : 'contract');
             }
           });
