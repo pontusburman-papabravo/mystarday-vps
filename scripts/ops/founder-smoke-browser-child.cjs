@@ -145,13 +145,14 @@ function normalizeEmail(value) {
 }
 
 function evaluateParentSettingsEnglishPass(p) {
-  const { bodyText, me, settingsReachable, htmlLang } = p;
+  const { bodyText, me, settingsReachable, htmlLang, diagnostics } = p;
   const text = String(bodyText || '');
   const checks = {
     settings_reachable: settingsReachable === true,
     parent_type: me?.type === 'parent',
     preferred_locale: me?.preferred_locale === 'en-GB',
     preferred_locale_actual: me?.preferred_locale ?? null,
+    parent_i18n_ready: diagnostics?.parent_i18n_ready === true,
     html_lang_en: typeof htmlLang === 'string' && htmlLang.toLowerCase().startsWith('en'),
     english_settings_heading: /\bsettings\b/i.test(text),
     english_family_save_copy:
@@ -164,11 +165,24 @@ function evaluateParentSettingsEnglishPass(p) {
     checks.settings_reachable &&
     checks.parent_type &&
     checks.preferred_locale &&
+    checks.parent_i18n_ready &&
     checks.html_lang_en &&
     checks.english_settings_heading &&
     checks.english_family_save_copy &&
     checks.no_swedish_familjeinställningar_leak &&
     checks.no_spara_familjeinställningar_leak;
+  if (!checks.pass && diagnostics && !checks.diagnostics) {
+    checks.diagnostics = {
+      pathname: diagnostics.pathname,
+      readyState: diagnostics.readyState,
+      html_lang: diagnostics.html_lang ?? htmlLang,
+      parent_i18n_ready: diagnostics.parent_i18n_ready,
+      settings_title_text: diagnostics.settings_title_text,
+      family_save_text: diagnostics.family_save_text,
+      body_text_snippet: diagnostics.body_text_snippet,
+      swedish_leaks: diagnostics.swedish_leaks,
+    };
+  }
   return checks;
 }
 
