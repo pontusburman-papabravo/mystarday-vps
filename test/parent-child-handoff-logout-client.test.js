@@ -41,6 +41,12 @@ describe('Auth.logout handoff contract (client)', () => {
       src,
       /applyPickerResponse && res\.ok && res\.parent[\s\S]{0,500}_finishParentHandoffRestoreThen/
     );
+    assert.match(src, /AUTH_ME_NOT_PARENT_TIMEOUT/);
+    assert.match(src, /_finishParentHandoffRestoreThen[\s\S]{0,400}if \(typeof onReady === 'function'\) onReady\(\)/);
+    assert.doesNotMatch(
+      src.match(/async _finishParentHandoffRestoreThen[\s\S]{0,600}/)?.[0] || '',
+      /onReady\(\)[\s\S]{0,80}_syncParentSessionFromServer/
+    );
   });
 
   it('exposes localized handoff and logout failure strings', () => {
