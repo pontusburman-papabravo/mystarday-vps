@@ -5,25 +5,14 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
-const { readDeployedSha } = require('../src/lib/deployed-sha');
-
 const TEST_SHA = 'a'.repeat(40);
+const STALE_SHA = 'b'.repeat(40);
 
 describe('readDeployedSha', () => {
-  test('prefers DEPLOY_SHA env', () => {
+  test('prefers data/deployed-sha over stale DEPLOY_SHA env', () => {
+    const { readDeployedSha } = require('../src/lib/deployed-sha');
     const prev = process.env.DEPLOY_SHA;
-    process.env.DEPLOY_SHA = TEST_SHA;
-    try {
-      assert.equal(readDeployedSha(), TEST_SHA);
-    } finally {
-      if (prev === undefined) delete process.env.DEPLOY_SHA;
-      else process.env.DEPLOY_SHA = prev;
-    }
-  });
-
-  test('reads data/deployed-sha when env unset', () => {
-    const prev = process.env.DEPLOY_SHA;
-    delete process.env.DEPLOY_SHA;
+    process.env.DEPLOY_SHA = STALE_SHA;
     const filePath = path.join(__dirname, '../data/deployed-sha');
     const hadFile = fs.existsSync(filePath);
     const prevContents = hadFile ? fs.readFileSync(filePath, 'utf8') : null;
@@ -38,12 +27,36 @@ describe('readDeployedSha', () => {
       else process.env.DEPLOY_SHA = prev;
     }
   });
+
+  test('reads DEPLOY_SHA env when deployed-sha file absent', () => {
+    delete require.cache[require.resolve('../src/lib/deployed-sha')];
+    const { readDeployedSha } = require('../src/lib/deployed-sha');
+    const prev = process.env.DEPLOY_SHA;
+    process.env.DEPLOY_SHA = TEST_SHA;
+    const filePath = path.join(__dirname, '../data/deployed-sha');
+    const hadFile = fs.existsSync(filePath);
+    const prevContents = hadFile ? fs.readFileSync(filePath, 'utf8') : null;
+    if (hadFile) fs.unlinkSync(filePath);
+    try {
+      assert.equal(readDeployedSha(), TEST_SHA);
+    } finally {
+      if (hadFile) fs.writeFileSync(filePath, prevContents);
+      if (prev === undefined) delete process.env.DEPLOY_SHA;
+      else process.env.DEPLOY_SHA = prev;
+    }
+  });
 });
 
-test('/health includes git_sha when DEPLOY_SHA is set', async () => {
+test('/health includes git_sha when DEPLOY_SHA is set and file absent', async () => {
   const prev = process.env.DEPLOY_SHA;
   process.env.DEPLOY_SHA = TEST_SHA;
+  const filePath = path.join(__dirname, '../data/deployed-sha');
+  const hadFile = fs.existsSync(filePath);
+  const prevContents = hadFile ? fs.readFileSync(filePath, 'utf8') : null;
+  if (hadFile) fs.unlinkSync(filePath);
   try {
+    delete require.cache[require.resolve('../src/lib/deployed-sha')];
+    delete require.cache[require.resolve('../app')];
     const { createApp } = require('../app');
     const { listenApp } = require('./helpers/http');
     const http = await listenApp(createApp);
@@ -56,6 +69,7 @@ test('/health includes git_sha when DEPLOY_SHA is set', async () => {
       await http.close();
     }
   } finally {
+    if (hadFile) fs.writeFileSync(filePath, prevContents);
     if (prev === undefined) delete process.env.DEPLOY_SHA;
     else process.env.DEPLOY_SHA = prev;
   }

@@ -110,6 +110,26 @@ git checkout --detach "$TARGET_SHA"
 mkdir -p data
 echo "$TARGET_SHA" > data/deployed-sha
 
+sync_deploy_sha_env() {
+  local sha="$1"
+  local env_file="${APP_ENV_FILE:-${VPS_APP_PATH}/.env}"
+  if [ ! -f "$env_file" ]; then
+    return 0
+  fi
+  local backup="${env_file}.bak.deploy-sha"
+  cp -p "$env_file" "$backup"
+  if grep -qE '^DEPLOY_SHA=' "$env_file" 2>/dev/null; then
+    local tmp
+    tmp="$(mktemp)"
+    sed "s/^DEPLOY_SHA=.*/DEPLOY_SHA=${sha}/" "$env_file" > "$tmp"
+    mv "$tmp" "$env_file"
+  else
+    printf '\nDEPLOY_SHA=%s\n' "$sha" >> "$env_file"
+  fi
+}
+
+sync_deploy_sha_env "$TARGET_SHA"
+
 DEPLOYED_SHA="$(git rev-parse HEAD)"
 if [ "$DEPLOYED_SHA" != "$TARGET_SHA" ]; then
   echo "Checkout verification failed — HEAD=$DEPLOYED_SHA expected=$TARGET_SHA"
