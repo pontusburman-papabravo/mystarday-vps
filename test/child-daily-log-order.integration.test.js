@@ -50,8 +50,23 @@ function itemNamesInOrder(body) {
   return body.items.map((i) => i.name);
 }
 
+const WEAK_PINS = new Set([
+  '0123', '1234', '2345', '3456', '4567', '5678', '6789', '7890',
+  '9876', '8765', '7654', '6543', '5432', '4321', '3210', '2109',
+  '0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999',
+]);
+
+function integrationTestPin(explicit) {
+  if (explicit) return explicit;
+  for (let i = 0; i < 40; i += 1) {
+    const candidate = String(2000 + Math.floor(Math.random() * 7000));
+    if (!WEAK_PINS.has(candidate)) return candidate;
+  }
+  return '2580';
+}
+
 async function createChildWithLogin(http, session, db, pin) {
-  const uniquePin = pin || String(2000 + Math.floor(Math.random() * 7000)).replace(/1234|2345|3456/, '2580');
+  const uniquePin = integrationTestPin(pin);
   const childId = await createChild(http.baseUrl, session, {
     name: `Ordning${Date.now().toString(36)}`,
     pin: uniquePin,
