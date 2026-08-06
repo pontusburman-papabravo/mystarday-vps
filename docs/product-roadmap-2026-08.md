@@ -202,7 +202,7 @@ flowchart TB
 
 ### R4 — Familj, session och tillväxt (R4.1–R4.8)
 
-**Status (2026-08-06):** **R4 COMPLETE — PHYSICAL RC-2 ITEMS DEFERRED** — prod deploy SHA `d89310b2`, cache `stjarndag-v807`. Engineering slices R4.1–R4.7 shipped on `main`; R4.8 stabilization (test gate PIN fix, roadmap alignment). Physical iOS/Android widget smoke and store RC-2 remain **PENDING** (see deferred list).
+**Status (2026-08-06):** **R4 COMPLETE — PHYSICAL RC-2 ITEMS DEFERRED** — prod deploy SHA `46dfe120`, cache `stjarndag-v807`.
 
 **Mål:** Efter tillit — tydlig barnväg, pålitlig session/enhet, flera barn och vuxna utan läckage, native completion där flaggat, ett Journey-beslut på Hem, post-value growth utan att blockera kärnloop.
 
