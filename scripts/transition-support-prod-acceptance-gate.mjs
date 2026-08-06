@@ -282,8 +282,9 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     await childPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     for (const c of puppeteerCookies(child.jar, BASE)) await childPage.setCookie(c);
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await childPage.waitForFunction(() => !!window.ChildDashboardContext, { timeout: 45000 });
     if (logSnap.item?.id) {
-      await childPage.waitForSelector('.transition-inline', { timeout: 45000 });
+      await childPage.waitForSelector('.now-card .transition-inline', { timeout: 45000 });
     } else {
       await new Promise((r) => setTimeout(r, 3500));
     }
@@ -292,7 +293,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
       const overflowX = doc.scrollWidth > doc.clientWidth + 2;
       const transition = document.querySelector('.transition-inline');
       const rect = transition?.getBoundingClientRect();
-      const touchOk = !transition || (rect.width >= 44 && rect.height >= 24);
+      const touchOk = !transition || (rect.width >= 44 && rect.height >= 44);
       return {
         overflowX,
         hasTransition: !!transition,
