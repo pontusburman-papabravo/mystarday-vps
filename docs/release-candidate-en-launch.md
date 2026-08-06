@@ -1,7 +1,7 @@
 # English Launch — Release Candidate
 
 **Status:** RC-1 in progress · **Core i18n implementation complete — English release readiness NO-GO pending RC-1/RC-2** (styrande: [`docs/releases/RC1_I18N_RC_BRANCH_STATUS.md`](releases/RC1_I18N_RC_BRANCH_STATUS.md), 2026-08-03)  
-**Last updated:** 2026-08-04  
+**Last updated:** 2026-08-06  
 **Audience:** Product, QA, release engineering  
 **Related:** [`docs/i18n-glossary.md`](i18n-glossary.md), [`docs/qa-test-account.md`](qa-test-account.md), [`docs/e2e-i18n-english-journey.md`](e2e-i18n-english-journey.md)
 
@@ -42,8 +42,10 @@ These were **closed implementation PRs**; verify on current `main` during RC smo
 | # | Area | How to verify (en-GB family) | Pass |
 |---|------|------------------------------|------|
 | R1 | **Day-off modal** | Home → `Ledig dag` / day-off → modal title, body, buttons English; dark theme readable | [x] PR R3 home.dayOffModal (2026-08-06) |
-| R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [ ] |
-| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav visible; select child → log loads (not stuck on empty placeholder) | [ ] |
+| R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [ ] PR #916 — verify on `main` after deploy |
+| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav + `aria-label` en-GB; child → log loads (not stuck on placeholder) | [ ] PR #917 — verify on `main` after deploy |
+
+**RC-1 engineering (automated):** R1 live on prod; R2/R3 fixes in **#916** / **#917** — **pending merge, deploy, and prod smoke on current `main`**. Local gates (`test:gate`, i18n audits, `test:e2e:i18n`, nav aria regression gate) green on PR branches. **RC-2 manual launch** (physical devices, store, legal) remains separate — not PASS without evidence.
 
 **R1 repro hint:** `openLedigDagModal()` / `#ledigDagModal` — strings may still be hardcoded Swedish on `main`.  
 **R2 repro hint:** Upload flow toasts (“Laddar upp…”, delete confirm) in `public/js/library-images.js`.  

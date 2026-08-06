@@ -176,6 +176,8 @@ flowchart TB
 
 ### R3 — Engelsk kontrollerad beta
 
+**Status (2026-08-06):** **R3 engineering closure: PENDING** merge and deploy verification of **#916** (R2) and **#917** (R3). English i18n programme remains **closed**; no new i18n epic. **RC-2** controlled beta / physical-device & store launch: **PENDING**. <!-- pragma: allowlist secret -->
+
 **Mål:** Parent English och begränsad kohort — **inte** full App Store-internationalisering.
 
 | Leverans | Beskrivning |
@@ -187,6 +189,7 @@ flowchart TB
 
 **DoD R3 (beta):**
 
+- [x] RC-1 known risks R1–R3: engineering fixes + automated gates (2026-08-06; deploy follows #916 / daily-log RC PR).
 - [ ] RC1 smoke PASS eller dokumenterad waiver med riskägare.
 - [ ] Rollback: flag OFF inom minuter.
 - [ ] Inga child-surface regressions i `test:e2e:i18n` / child-core harness.
