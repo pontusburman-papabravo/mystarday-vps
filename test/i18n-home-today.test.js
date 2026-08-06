@@ -735,6 +735,18 @@ describe('home quick actions (retroactive + ledig dag modal)', () => {
     assert.match(dashMagicCss, /dashboard-modal-open/);
   });
 
+  it('day-off modal uses home.dayOffModal i18n (RC-1 R1)', () => {
+    const dashboardHtml = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
+    const en = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/home-en-GB.json'), 'utf8'));
+    assert.match(dashboardHtml, /data-i18n="home\.dayOffModal\.title"/);
+    assert.match(dashboardHtml, /data-i18n="home\.dayOffModal\.subtitle"/);
+    assert.match(cardActions, /home\.dayOffModal\./);
+    assert.equal(en.dayOffModal.title, '🏠 Day off');
+    assert.equal(en.dayOffModal.markDayOff, '🏠 Mark as day off');
+    assert.doesNotMatch(cardActions, /showToast\('Inga barn hittades'/);
+    assert.doesNotMatch(cardActions, /Ledig dag idag/);
+  });
+
   it('star history chart uses light surface and dark text on magic dark', () => {
     assert.match(magicCss, /#starHistoryContent/);
     assert.match(magicCss, /#starHistoryContent \.text-navy/);

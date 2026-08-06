@@ -41,7 +41,7 @@ These were **closed implementation PRs**; verify on current `main` during RC smo
 
 | # | Area | How to verify (en-GB family) | Pass |
 |---|------|------------------------------|------|
-| R1 | **Day-off modal** | Home → `Ledig dag` / day-off → modal title, body, buttons English; dark theme readable | [ ] |
+| R1 | **Day-off modal** | Home → `Ledig dag` / day-off → modal title, body, buttons English; dark theme readable | [x] PR R3 home.dayOffModal (2026-08-06) |
 | R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [ ] |
 | R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav visible; select child → log loads (not stuck on empty placeholder) | [ ] |
 
