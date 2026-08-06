@@ -230,7 +230,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     hasTouch: true,
     deviceScaleFactor: 2,
   });
-  const parentSettingsUrl = `${BASE}/child-settings?child=${qaChildId}`;
+  const parentSettingsUrl = `${BASE}/family/child/${encodeURIComponent(qaChildId)}?tab=setup`;
   const accessPromise = parentPage.waitForResponse(
     (res) => res.url().includes('/api/subscription/access') && res.status() === 200,
     { timeout: 45000 },
