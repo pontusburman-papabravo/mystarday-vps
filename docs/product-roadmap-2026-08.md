@@ -84,7 +84,7 @@ flowchart TB
   R1[R1 One next step]
   R2[R2 Activate NPF + timer]
   R3[R3 English beta]
-  R4[R4 Growth + co-parent]
+  R4[R4 Family session + growth]
   R5[R5 Monetization]
   R0 --> R1
   R1 --> R2
@@ -200,26 +200,57 @@ flowchart TB
 
 ---
 
-### R4 — Tillväxt efter tillit
+### R4 — Familj, session och tillväxt (R4.1–R4.8)
 
-**Mål:** Mätbar loop när First Success är stabil.
+**Status (2026-08-06):** **R4 COMPLETE — PHYSICAL RC-2 ITEMS DEFERRED** — prod deploy SHA `d89310b2`, cache `stjarndag-v807`. Engineering slices R4.1–R4.7 shipped on `main`; R4.8 stabilization (test gate PIN fix, roadmap alignment). Physical iOS/Android widget smoke and store RC-2 remain **PENDING** (see deferred list).
 
-| Leverans | Beskrivning |
-|----------|-------------|
-| R4.1 Growth dark launch | Fas 0–3 i [`GROWTH-FEEDBACK-DARK-LAUNCH-PLAN.md`](./GROWTH-FEEDBACK-DARK-LAUNCH-PLAN.md). |
-| R4.2 Medförälder | `medforalder_cta` ON efter First Success-värde; mät `cta_invite_co_parent_*`. |
-| R4.3 Referral v0 | `referral_program` + `growth_referral_cta_v1` — spårning only (ingen belöning v0, se [`referral-program.md`](./referral-program.md)). |
-| R4.4 Kvällsanpassad onboarding | Produktcopy/flow: rutin klar ikväll → barnvy imorgon (ny UX — kräver spec/ADR om stor). |
-| R4.6 Journey retention | `journey_retention_home_v1` — ett Hem-beslut via `buildRetentionHomeDecision`. |
-| R4.7 Product-led growth | `growth_home_v1` — post-value invite, privat veckohöjdpunkt, kvalificerad referral (first_success). |
+**Mål:** Efter tillit — tydlig barnväg, pålitlig session/enhet, flera barn och vuxna utan läckage, native completion där flaggat, ett Journey-beslut på Hem, post-value growth utan att blockera kärnloop.
 
-**DoD R4:**
+| Slice | Status | Runtime / flag | Testbevis |
+|-------|--------|----------------|-----------|
+| R4.1 Child-first post-schema handoff | **COMPLETE** | Live handoff + child-login kedja | `r41-post-schema-handoff-browser`, `dashboard-post-schema-handoff`, handoff integration |
+| R4.2 Trusted device + session restore | **PARTIAL** | `trusted_device_v1` default **OFF** (kill switch); ADR-019 Option A kod live | `trusted-device-child.integration`, `trusted-device-contract`, `parent-child-session-restore` |
+| R4.3 Flera barn / delad enhet | **COMPLETE** | Shared mode + picker (`trusted-device-bootstrap.js`) | `r43-shared-device.integration`, `r43-child-login-authz` |
+| R4.4 Flera vuxna / child-scoped access | **COMPLETE** | Invites + revoke + trusted device scope | `r44-adult-child-access.integration`, `child-access-*` |
+| R4.5 Native snabb-completion (widget) | **PARTIAL** | `native_widget_enabled` / `widget_completion_enabled` default **OFF**; idempotency table live | `r45-widget-completion.integration` |
+| R4.6 Journey-ledd retention | **COMPLETE** | `journey_retention_home_v1` ON | `journey-retention-home`, `journey-retention-comms-gate`, canonical activation tests |
+| R4.7 Product-led growth | **COMPLETE** | `growth_home_v1` ON; referral kvalificeras vid `first_success` | `growth-home`, `referral-v0` |
+| R4.8 Stabilisering och closure | **COMPLETE** | Ingen ny produktyta; gate + roadmap | `test:gate`, R4 integration suite ovan |
 
-- [ ] Inga growth-prompter vid first login eller under blocking journey experiences.
-- [ ] Referral self-abuse tester gröna; ingen reward-löfte i copy.
-- [ ] Medförälder: invite → accept → aktiv medförälder mäts 7d.
+**Feature flags (R4 — behåll kill switches):**
 
-**Värde:** Hög organisk tillväxt när kärnan håller.
+| Flag | Default | Kan tas bort? |
+|------|---------|---------------|
+| `trusted_device_v1` | OFF | Nej — rollout/kill |
+| `widget_completion_enabled` | OFF | Nej — widget kill |
+| `native_widget_enabled` | OFF | Nej — native kill |
+| `journey_retention_home_v1` | ON | Ej förrän bred stabilisering |
+| `growth_home_v1` | ON | Ej förrän bred stabilisering |
+| `growth_referral_cta_v1` / `referral_program` | legacy spårning | Behåll tills referral v1 beslut |
+
+**DoD R4 (engineering):**
+
+- [x] Högst ett primärt Hem-beslut när `journey_retention_home_v1` ON; legacy coacher deferrerar till hub.
+- [x] Growth efter värde (`growth_home_v1`); referral ger inte familjeaccess.
+- [x] Server authz för barn/completion; integrationstester för handoff, trusted device, shared device, vuxen revoke, widget idempotency.
+- [x] `npm run test:gate` grön på closure-SHA.
+- [ ] Fysisk iOS/Android/widget + Dynamic Type — **DEFERRED RC-2**.
+- [ ] `trusted_device_v1` / widget flags bred ON — produktbeslut efter pilot (flaggar kvar OFF default).
+
+**Superseded (äldre roadmap-rader):** “R4.1 Growth dark launch”, “R4.2 Medförälder”, “R4.3 Referral v0”, “R4.4 Kvällsanpassad onboarding” i tabellform nedan ersattes av slice-numrering ovan; medförälder/referral levereras via R4.4/R4.7 + befintliga `medforalder_cta` / `referral_program` flaggor. Kvällsanpassad onboarding → **DEFERRED** (D6).
+
+**Värde:** Hög när kärnan håller — R4 stängd för kod/ops; RC-2 fysisk verifiering kvar.
+
+---
+
+_Legacy growth-radreferens (arkiv):_
+
+| Äldre rad | Ersatt av |
+|-----------|-----------|
+| Growth dark launch plan | R4.7 + `GROWTH-FEEDBACK-DARK-LAUNCH-PLAN.md` (flaggor) |
+| Medförälder CTA | R4.4 + R4.7 `INVITE_ADULT` |
+| Referral v0 | R4.7 + `referral_program` |
+| Kvällsanpassad onboarding | **DEFERRED** — [`product-roadmap-founder-decisions.md`](./product-roadmap-founder-decisions.md) D6 |
 
 ---
 
@@ -244,15 +275,15 @@ flowchart TB
 
 ## 5. Parallellt spår — Trusted child device (ADR-019)
 
-**Status:** Proposed — implementation **stopped** tills accept.
+**Status:** **Accepted — implemented (R4.2/R4.3)**; global flag `trusted_device_v1` default **OFF** for controlled rollout.
 
-Detta är den största **produkt**-luckan under R0: “familjeenhet” som begriplig inställning (barnets tablet öppnar barnvy utan PIN varje gång, förälder via gate).
+Familjeenhet: barnets tablet öppnar barnvy med server-auktoriserad restore; delad enhet med barnväljare; revoke tar bort device + refresh.
 
 | Steg | Action |
 |------|--------|
-| 1 | Founder accepterar ADR-019 Option A (device-bound child refresh) eller avvisar scope. |
-| 2 | Minimal MVP-spec: enable/disable, revoke, audit, child JWT scope oförändrad. |
-| 3 | Implementeras som **egen release** under R0, inte smyg i handoff-fixar. |
+| 1 | ~~Founder accepterar ADR-019~~ **Done** — Option A shipped. |
+| 2 | Pilot / bred ON via `trusted_device_v1` + ops-smoke. |
+| 3 | RC-2 fysisk enhet (iOS/Android cold start) — **PENDING**. |
 
 **Värde:** Extremt högt för målgruppen (Emma-use case).
 
