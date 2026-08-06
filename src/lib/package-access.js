@@ -205,6 +205,28 @@ async function getFamilyAccess(familyId, user = null, session = {}) {
   };
 }
 
+/** Keys omitted from GET /api/subscription/access for child JWT (no billing / rollout / interest). */
+const CHILD_SUBSCRIPTION_ACCESS_FORBIDDEN_KEYS = [
+  'rollout_mode',
+  'purchase_enabled',
+  'show_prices',
+  'preview',
+  'archive',
+  'interest',
+];
+
+/**
+ * Minimal package payload for barnläge — features + component gates only.
+ * @param {Awaited<ReturnType<typeof getFamilyAccess>>} access
+ */
+function toChildPackageAccess(access) {
+  return {
+    view_mode: access.view_mode,
+    components: access.components,
+    features: access.features,
+  };
+}
+
 module.exports = {
   VALID_ROLLOUT_MODES,
   normalizeRolloutMode,
@@ -215,6 +237,8 @@ module.exports = {
   getArchiveCounts,
   buildFeatureAccess,
   getFamilyAccess,
+  toChildPackageAccess,
+  CHILD_SUBSCRIPTION_ACCESS_FORBIDDEN_KEYS,
   getComponentForFeature,
   getFeaturesForComponent,
   ALL_COMPONENTS,

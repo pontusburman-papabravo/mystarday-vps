@@ -472,7 +472,9 @@ function renderActivities(data, trueStarBalance) {
 // ── NOW card (large, featured) ──────────────────────────
 
 function renderNowCard(item, canToggle) {
-  if (window.ChildSevenQuestions && typeof ChildSevenQuestions.tryRender === 'function') {
+  const useTransitionNu =
+    transitionSupportEnabled && !item.completed && item.start_time && window.TransitionSupport;
+  if (!useTransitionNu && window.ChildSevenQuestions && typeof ChildSevenQuestions.tryRender === 'function') {
     const teacchHtml = ChildSevenQuestions.tryRender(item, canToggle);
     if (teacchHtml) {
       if (window.ChildPackageNav) ChildPackageNav.setNavHidden(true);

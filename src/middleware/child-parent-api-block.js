@@ -16,6 +16,7 @@ const CHILD_ALLOWED = [
   /^\/registration-status$/,
   /^\/consent(\/|$)/,
   /^\/features(\/|$)/,
+  /^\/subscription\/access$/,
   /^\/family\/verify-pin$/,
   /^\/family\/restore-parent-session$/,
   /^\/family\/activate-saved-parent-session$/,
