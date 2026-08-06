@@ -32,7 +32,10 @@ router.get('/next-action', requireNotPedagogOnly, async (req, res) => {
       });
     }
 
-    const payload = await buildCanonicalNextAction(familyId, { includeEngineAdapter: true });
+    const payload = await buildCanonicalNextAction(familyId, {
+      includeEngineAdapter: true,
+      parentId: req.user.id,
+    });
     res.json(payload);
   } catch (err) {
     console.error('[FAMILY] GET /next-action error:', err);

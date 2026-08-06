@@ -74,6 +74,11 @@
         "body": "Let your child log in with their PIN and try the first activity.",
         "cta": "Child logs in"
       },
+      "child_access_named": {
+        "headline": "{{name}}'s routine is ready",
+        "body": "Your child can log in with their PIN and start when it suits you.",
+        "cta": "Open child view"
+      },
       "await_first_completion": {
         "headline": "Waiting for the first activity",
         "body": "Your child sees their routine in child view. Help them start if needed.",
@@ -98,6 +103,21 @@
         "headline": "Next step",
         "body": "Follow the suggested next step.",
         "cta": "Continue"
+      },
+      "continue_today": {
+        "headline": "{{name}} still has routine left today",
+        "body": "Would you like to continue where they left off?",
+        "cta": "Continue routine"
+      },
+      "welcome_back": {
+        "headline": "Welcome back",
+        "body": "Your next step is still here when you need it — open your child's routine?",
+        "cta": "Open child view"
+      },
+      "invite_adult": {
+        "headline": "Another adult can help too",
+        "body": "Invite when it suits you — you stay in control.",
+        "cta": "Invite adult"
       }
     }
   },

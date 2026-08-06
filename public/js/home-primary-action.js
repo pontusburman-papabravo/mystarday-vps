@@ -59,11 +59,22 @@
     if (el) el.classList.remove('hidden');
   }
 
+  function activationRetentionOwnsHome() {
+    const hub = window.ActivationFirstSuccessHub;
+    if (!hub || typeof hub.getCachedPayload !== 'function') return false;
+    const p = hub.getCachedPayload();
+    return Boolean(p && p.enabled && p.authority === 'journey_retention');
+  }
+
   function resolveWinner() {
     if (window.EngineClient &&
       typeof EngineClient.isReadinessBlockingCoach === 'function' &&
       EngineClient.isReadinessBlockingCoach()) {
       return { winner: 'none', reason: 'readiness' };
+    }
+    if (activationRetentionOwnsHome()) {
+      if (activationHasPrimary()) return { winner: 'activation' };
+      return { winner: 'none', reason: 'journey_retention_silent' };
     }
     if (journeyHasRelevantStep()) return { winner: 'journey' };
     if (activationHasPrimary()) return { winner: 'activation' };

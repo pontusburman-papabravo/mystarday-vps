@@ -256,8 +256,8 @@
 // stjarndag-v797: Extra stöd — child subscription/access allowlist + package access fallback
 // stjarndag-v798: Home day-off modal en-GB + 44px touch + browser gate (RC-1 R1)
 // stjarndag-v799: Library image archive upload i18n (RC-1 R2)
-// stjarndag-v805: R4.5 widget server contract + bridge stub
-const CACHE_NAME = 'stjarndag-v805';
+// stjarndag-v806: R4.6 Journey-ledd retention — single Hem authority
+const CACHE_NAME = 'stjarndag-v806';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

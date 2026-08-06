@@ -163,6 +163,11 @@
   }
 
   function shouldDeferToFirstSuccessHub() {
+    if (window.ActivationFirstSuccessHub
+      && typeof ActivationFirstSuccessHub.shouldSuppressLegacyCoaches === 'function'
+      && ActivationFirstSuccessHub.shouldSuppressLegacyCoaches()) {
+      return true;
+    }
     return false;
   }
 

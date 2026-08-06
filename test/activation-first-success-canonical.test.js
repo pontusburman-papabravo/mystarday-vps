@@ -20,11 +20,15 @@ const ACTION_KEYS = [
   'create_child',
   'save_schedule',
   'child_access',
+  'child_access_named',
   'await_first_completion',
   'parent_ack',
   'celebrate_first_success',
   'journey_coach',
   'engine_legacy',
+  'continue_today',
+  'welcome_back',
+  'invite_adult',
 ];
 
 before(() => {
@@ -171,7 +175,7 @@ describe('first_success — derived milestone path', () => {
     }
   });
 
-  it('hides coach after derived first_success when v1 flag ON', async (t) => {
+  it('hides coach after derived first_success when v1 flag ON (retention SILENT)', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -180,27 +184,44 @@ describe('first_success — derived milestone path', () => {
     try {
       await enableFirstSuccessFlag(db);
       await enableJourneyIngest(db);
+      await enableRetentionHomeFlag(db);
       const familyId = await insertFamily(db);
+      const parent = await db.query(
+        `INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified)
+         VALUES ('ret-silent@test.local', 'hash', $1, 'P', true, true) RETURNING id`,
+        [familyId]
+      );
+      const parentId = parent.rows[0].id;
       const child = await db.query(
         `INSERT INTO child (family_id, name, emoji, username, pin, sort_order)
          VALUES ($1, 'Erik', '⭐', 'erikfs', 'hash', 0) RETURNING id`,
         [familyId]
       );
       const childId = child.rows[0].id;
-      const { ingestMilestone, maybeDeriveFirstSuccess } =
-        require('../src/lib/journey/ingest');
+      await db.query(
+        `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary')`,
+        [parentId, childId]
+      );
+      const { ingestMilestone } = require('../src/lib/journey/ingest');
 
       await ingestMilestone({ familyId, milestone: 'child_first_completion', childId, source: 'system' });
       await ingestMilestone({ familyId, milestone: 'parent_saw_completion', source: 'system' });
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'established_routine',
+        source: 'system',
+      });
       const map = await familyMilestones.getMilestoneMap(familyId);
       assert.ok(map.first_success);
 
-      const payload = await buildCanonicalNextAction(familyId);
+      const payload = await buildCanonicalNextAction(familyId, { parentId });
       assert.equal(payload.enabled, true);
+      assert.equal(payload.authority, 'journey_retention');
       assert.equal(payload.show_primary_coach, false);
-      assert.equal(payload.reason[0], 'already_first_success');
+      assert.equal(payload.primary_action.action, 'SILENT');
     } finally {
       await disableFirstSuccessFlag(db);
+      await disableRetentionHomeFlag(db);
       await db.cleanup();
     }
   });
@@ -249,12 +270,12 @@ describe('client authority — single primary coach', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/engine-coach.js'), 'utf8');
     assert.match(src, /ActivationFirstSuccessHub/);
   });
-  it('journey-coach defers to HomePrimaryAction (no inline activation yield)', () => {
+  it('journey-coach defers when ActivationFirstSuccessHub suppresses', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/journey-coach.js'), 'utf8');
     assert.match(src, /shouldDeferToFirstSuccessHub/);
-    assert.match(src, /return false/);
+    assert.match(src, /ActivationFirstSuccessHub\.shouldSuppressLegacyCoaches/);
     const orch = fs.readFileSync(path.join(ROOT, 'public/js/home-primary-action.js'), 'utf8');
-    assert.match(orch, /journeyHasRelevantStep/);
+    assert.match(orch, /journey_retention/);
   });
   it('hub refreshes legacy coaches after primary render', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/activation-first-success-hub.js'), 'utf8');
@@ -290,4 +311,16 @@ async function enableJourneyIngest(db) {
      ON CONFLICT (key) DO UPDATE SET enabled = true`,
     [FLAG_KEYS.ingestEnabled]
   );
+}
+
+async function enableRetentionHomeFlag(db) {
+  await db.query(
+    `INSERT INTO feature_flag (key, enabled, description) VALUES ($1, true, 'test')
+     ON CONFLICT (key) DO UPDATE SET enabled = true`,
+    ['journey_retention_home_v1']
+  );
+}
+
+async function disableRetentionHomeFlag(db) {
+  await db.query(`UPDATE feature_flag SET enabled = false WHERE key = $1`, ['journey_retention_home_v1']);
 }

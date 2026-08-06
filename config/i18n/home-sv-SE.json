@@ -74,6 +74,11 @@
         "body": "Låt barnet logga in med PIN och prova dagens första aktivitet.",
         "cta": "Barnet loggar in"
       },
+      "child_access_named": {
+        "headline": "{{name}}s rutin är redo",
+        "body": "Barnet kan logga in med PIN och börja när det passar.",
+        "cta": "Öppna barnets vy"
+      },
       "await_first_completion": {
         "headline": "Väntar på barnets första aktivitet",
         "body": "Barnet ser sin rutin i barnvyn. Hjälp till att börja om det behövs.",
@@ -98,6 +103,21 @@
         "headline": "Nästa steg",
         "body": "Följ det föreslagna nästa steget.",
         "cta": "Fortsätt"
+      },
+      "continue_today": {
+        "headline": "{{name}} har rutin kvar idag",
+        "body": "Vill ni fortsätta där barnet var?",
+        "cta": "Fortsätt rutinen"
+      },
+      "welcome_back": {
+        "headline": "Välkommen tillbaka",
+        "body": "Nästa steg finns kvar när ni behöver det — vill ni öppna barnets rutin?",
+        "cta": "Öppna barnets vy"
+      },
+      "invite_adult": {
+        "headline": "En annan vuxen kan också hjälpa till",
+        "body": "Bjud in när det passar — ni bestämmer själva.",
+        "cta": "Bjud in vuxen"
       }
     }
   },
