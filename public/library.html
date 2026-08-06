@@ -469,20 +469,20 @@
           <div id="familyImageArchive" class="library-magic-mine-block border-2 border-lavender rounded-2xl p-4 bg-white/80" data-mine-block="bilder">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
               <div>
-                <h3 class="text-lg font-heading font-bold text-navy">📷 Bildarkiv</h3>
-                <p class="text-sm text-text-soft mt-0.5">Fota motivet — du beskär innan det sparas. Återanvänd i aktiviteter.</p>
+                <h3 class="text-lg font-heading font-bold text-navy" data-i18n="library.images.archiveTitle">📷 Bildarkiv</h3>
+                <p class="text-sm text-text-soft mt-0.5" data-i18n="library.images.archiveLead">Fota motivet — du beskär innan det sparas. Återanvänd i aktiviteter.</p>
               </div>
             </div>
             <div class="flex flex-col sm:flex-row gap-2 mb-3">
-              <input type="text" id="familyImageLabel" maxlength="120" placeholder="Namn (valfritt), t.ex. Tandborste"
+              <input type="text" id="familyImageLabel" maxlength="120" data-i18n-placeholder="library.images.labelPlaceholder" placeholder="Namn (valfritt), t.ex. Tandborste"
                 class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm">
-              <label class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer whitespace-nowrap text-center">
-                <span id="familyImageUploadBtn">📷 Ladda upp bild</span>
+              <label class="px-4 py-2 min-h-[44px] inline-flex items-center justify-center bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors cursor-pointer whitespace-nowrap text-center">
+                <span id="familyImageUploadBtn" data-i18n="library.images.uploadBtn">📷 Ladda upp bild</span>
                 <input type="file" id="familyImageFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="environment" class="hidden">
               </label>
             </div>
             <div id="familyImageGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 min-h-[4rem]">
-              <p class="text-sm text-text-soft col-span-full py-2">Laddar bildarkiv…</p>
+              <p class="text-sm text-text-soft col-span-full py-2" data-i18n="library.images.loadingArchive">Laddar bildarkiv…</p>
             </div>
           </div>
 
@@ -727,7 +727,7 @@
                 📷 Ny bild
                 <input type="file" id="activityImageFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="environment" class="hidden">
               </label>
-              <button type="button" id="activityImageRecropBtn" class="hidden px-3 py-2 border-2 border-gold text-navy rounded-lg text-sm font-semibold">✂️ Beskär om</button>
+              <button type="button" id="activityImageRecropBtn" class="hidden px-3 py-2 border-2 border-gold text-navy rounded-lg text-sm font-semibold" data-i18n="library.images.recropBtn">✂️ Beskär om</button>
               <button type="button" id="activityImageClearBtn" class="px-3 py-2 border-2 border-lavender rounded-lg text-sm font-semibold">Ta bort foto</button>
             </div>
             <p class="text-xs text-text-soft">Eller välj från bildarkivet:</p>

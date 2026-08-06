@@ -87,6 +87,33 @@
     "timerRange": "Timer måste vara mellan 5 sekunder och 60 minuter (heltal).",
     "pickImage": "Välj en bild från bildarkivet (eller ladda upp en ny)."
   },
+  "images": {
+    "archiveTitle": "📷 Bildarkiv",
+    "archiveLead": "Fota motivet — du beskär innan det sparas. Återanvänd i aktiviteter.",
+    "labelPlaceholder": "Namn (valfritt), t.ex. Tandborste",
+    "uploadBtn": "📷 Ladda upp bild",
+    "loadingArchive": "Laddar bildarkiv…",
+    "emptyArchive": "Inga bilder ännu — ladda upp t.ex. tandborste, säng eller skolbyggnad.",
+    "defaultLabel": "Bild",
+    "deleteTitle": "Ta bort",
+    "deleteConfirm": "Ta bort bilden från bildarkivet? Aktiviteter som använder den får emoji (⭐) istället.",
+    "deleteFailed": "Kunde inte ta bort bilden",
+    "deleted": "Bilden borttagen",
+    "pickerEmpty": "Ladda upp bilder i bildarkivet nedan, eller välj en fil här.",
+    "pickTitle": "Välj bild",
+    "uploading": "Laddar upp…",
+    "addedToArchive": "Bild tillagd i bildarkivet",
+    "uploadFailed": "Uppladdning misslyckades",
+    "uploadBadResponse": "Uppladdning misslyckades (servern svarade inte korrekt)",
+    "uploadNoUrl": "Servern returnerade ingen bild-URL",
+    "uploaded": "Bild uppladdad",
+    "saveFailed": "Kunde inte spara i bildarkivet",
+    "recropBtn": "✂️ Beskär om",
+    "recropOpening": "Öppnar…",
+    "recropOpenFailed": "Kunde inte öppna beskärningen",
+    "recropSaved": "Bilden uppdaterad",
+    "recropSaveFailed": "Kunde inte spara beskärningen"
+  },
   "substeps": {
     "add": "+ Lägg till delsteg"
   },
