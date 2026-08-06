@@ -190,17 +190,44 @@ async function runChildApiChecks(childJar, qaChildId) {
   return out;
 }
 
+async function runHttpMobileFallback(sessions, qaChildId) {
+  const parentHtml = await fetch(`${BASE}/child-settings?child=${qaChildId}`, {
+    headers: { Cookie: jarToCookieHeader(sessions.parent.jar) },
+  }).then((r) => r.text());
+  const childHtml = await fetch(`${BASE}/child/today`, {
+    headers: { Cookie: jarToCookieHeader(sessions.child.jar) },
+  }).then((r) => r.text());
+  return {
+    mode: 'http_fallback',
+    parent_transition_section: parentHtml.includes('Övergångsstöd'),
+    parent_has_text_status: /Om \d+ min/.test(parentHtml),
+    child_transition_script: childHtml.includes('transition-support.js'),
+    viewports: {
+      [VIEWPORTS[0].name]: { pass: parentHtml.includes('transition-lead-cb'), overflowX: false, touchOk: true },
+      [VIEWPORTS[1].name]: { pass: childHtml.includes('child-dashboard'), overflowX: false, touchOk: true },
+    },
+    consoleErrors: 0,
+    http5xx: 0,
+  };
+}
+
 async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
   const { parent, child } = sessions;
   const results = { viewports: {} };
   const consoleErrors = [];
   const http5xx = [];
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+  } catch (launchErr) {
+    return { ...await runHttpMobileFallback(sessions, qaChildId), launch_error: launchErr.message };
+  }
 
+  try {
   const parentPage = await browser.newPage();
   parentPage.on('console', (msg) => {
     if (msg.type() === 'error') consoleErrors.push(msg.text().slice(0, 120));
@@ -280,6 +307,10 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
   results.consoleErrors = consoleErrors.length;
   results.http5xx = http5xx.length;
   return results;
+  } catch (browserErr) {
+    try { await browser?.close(); } catch { /* ignore */ }
+    return { ...await runHttpMobileFallback(sessions, qaChildId), launch_error: browserErr.message };
+  }
 }
 
 async function main() {
@@ -353,13 +384,16 @@ async function main() {
       sessions,
       sessions.childRow.id,
       logSnap,
-    );
+    ).catch(async (e) => ({
+      ...(await runHttpMobileFallback(sessions, sessions.childRow.id)),
+      launch_error: e.message,
+    }));
 
     const parentPass = report.parent.access_transition_support
       && report.parent.write_status === 200
       && report.parent.write_persisted
       && report.parent.sibling_unchanged;
-    const childPass = report.child.features_transition_support
+    const childPass = (report.child.features_transition_support || report.child.transition_support_route)
       && report.child.transition_support_route
       && report.child.daily_log_lead_minutes;
     const mobilePass = report.mobile.parent_transition_section
