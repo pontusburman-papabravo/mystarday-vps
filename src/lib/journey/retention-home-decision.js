@@ -103,19 +103,21 @@ async function buildRetentionHomeDecision(familyId, parentId) {
   const todayStr = getLocalDateStr(undefined, tz);
 
   const routineReady = Boolean(milestones.routine_ready);
-  const anyLoggedIn = children.some((c) => childEverLoggedIn(milestones, c.id));
+  const needingHandoff = children.filter((c) => !childEverLoggedIn(milestones, c.id));
 
-  if (routineReady && !anyLoggedIn) {
-    const target = children.length === 1 ? children[0] : pickChildNeedingHandoff(children, milestones);
+  if (routineReady && needingHandoff.length > 0) {
+    const target = needingHandoff.length === 1
+      ? needingHandoff[0]
+      : pickChildNeedingHandoff(needingHandoff, milestones);
     return {
       action: 'SHOW_CHILD',
       priority: 100,
-      reason: 'ROUTINE_READY_NO_CHILD_ACCESS',
+      reason: needingHandoff.length > 1 ? 'MULTI_CHILD_HANDOFF' : 'ROUTINE_READY_NO_CHILD_ACCESS',
       surface: 'home',
       communication: 'none',
       show_primary_coach: true,
-      child_id: target?.id || children[0].id,
-      child_name: target?.name || children[0].name,
+      child_id: target?.id || needingHandoff[0].id,
+      child_name: target?.name || needingHandoff[0].name,
     };
   }
 

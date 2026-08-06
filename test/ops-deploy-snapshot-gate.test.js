@@ -126,6 +126,20 @@ describe('migration-aware snapshot compare', () => {
     assert.ok(result.drift.some((d) => d.issue === 'enabled_changed'));
   });
 
+  test('migration contract allows feature_flag insert enabled true when declared', async () => {
+    const { validateFeatureFlagMigrationDiff } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const { expectedFeatureFlagInserts } = await import('../scripts/ops/lib/migration-snapshot-manifest.mjs');
+    const names = ['1810200000000_journey_retention_home_v1'];
+    const expected = expectedFeatureFlagInserts(names, REPO_ROOT);
+    const diff = {
+      inserts: [{ key: 'journey_retention_home_v1', enabled: true }],
+      enabledChanges: [],
+      deletes: [],
+    };
+    const result = validateFeatureFlagMigrationDiff(diff, expected);
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
   test('unexpected family row_count drift fails post-migration', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const before = {
