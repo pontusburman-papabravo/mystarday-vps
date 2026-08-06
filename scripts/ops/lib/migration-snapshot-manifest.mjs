@@ -39,6 +39,11 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810180000000_trusted_device_v1': {
+    backwardCompatible: true,
+    schemaOnly: true,
+    featureFlagInserts: [{ key: 'trusted_device_v1', enabled: false }],
+  },
 };
 
 /**
