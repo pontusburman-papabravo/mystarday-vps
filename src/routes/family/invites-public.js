@@ -134,7 +134,7 @@ router.post('/invite/accept-new', async (req, res) => {
 
       await createNewsletterSubscription(client, newParent.id, normalizedEmail);
 
-      // Link new parent to invited child_ids (if specified), else all family children
+      // Link new parent to invited child_ids (always explicit on new invites)
       let childIdsToLink = invite.child_ids && invite.child_ids.length > 0
         ? invite.child_ids
         : null;
@@ -145,15 +145,19 @@ router.post('/invite/accept-new', async (req, res) => {
           [invite.family_id]
         );
         childIdsToLink = allChildrenResult.rows.map(r => r.id);
+      } else {
+        const valid = await client.query(
+          'SELECT id FROM child WHERE family_id = $1 AND id = ANY($2::uuid[])',
+          [invite.family_id, childIdsToLink]
+        );
+        if (valid.rows.length !== childIdsToLink.length) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'Inbjudan innehåller ogiltiga barn' });
+        }
       }
 
-      for (const childId of childIdsToLink) {
-        await client.query(
-          `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'shared')
-           ON CONFLICT (parent_id, child_id) DO NOTHING`,
-          [newParent.id, childId]
-        );
-      }
+      const { setActiveChildrenForParent } = require('../../../db/parent-child-links');
+      await setActiveChildrenForParent(client, newParent.id, childIdsToLink, {});
 
       // Mark invite as accepted (single-use)
       await client.query(
@@ -162,6 +166,9 @@ router.post('/invite/accept-new', async (req, res) => {
       );
 
       await client.query('COMMIT');
+
+      const { syncAccountType } = require('../../../db/parent-access');
+      await syncAccountType(newParent.id);
 
       res.status(201).json({
         message: 'Konto aktiverat! Du kan nu logga in.',

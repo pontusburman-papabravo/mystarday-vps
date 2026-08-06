@@ -6,6 +6,7 @@ const config = require('./config');
 const db = require('./db');
 const deviceDb = require('../../db/family-trusted-device');
 const authz = require('../middleware/authz');
+const { getChildrenForParent } = require('../../db/parent-access');
 const {
   createRefreshToken,
   lookupRefreshTokenRow,
@@ -118,7 +119,18 @@ function allowedCountBucket(count) {
   return '3_plus';
 }
 
-async function listFamilyChildrenForDevice(familyId) {
+async function listFamilyChildrenForDevice(familyId, enrollingParentId) {
+  if (enrollingParentId) {
+    const rows = await getChildrenForParent(enrollingParentId, { allowedRoles: ['primary', 'shared'] });
+    return rows.map((c) => ({
+      id: c.id,
+      username: c.username,
+      name: c.name,
+      emoji: c.emoji || '⭐',
+      familyId: c.family_id,
+      ...avatarApiFields(c, 'child'),
+    }));
+  }
   const result = await db.query(
     `SELECT id, family_id, username, name, emoji, avatar_url
      FROM child WHERE family_id = $1 ORDER BY name ASC`,
@@ -218,7 +230,7 @@ async function getTrustedDeviceContext(rawToken) {
   if (!enabled) {
     return { ok: false, code: 'TRUSTED_DEVICE_DISABLED' };
   }
-  const allowed = await listFamilyChildrenForDevice(row.family_id);
+  const allowed = await listFamilyChildrenForDevice(row.family_id, row.created_by_parent_id);
   return {
     ok: true,
     device_mode: row.device_mode,
@@ -241,7 +253,7 @@ async function selectChildOnTrustedDevice(res, rawToken, childId) {
   if (row.device_mode !== 'shared') {
     return { ok: false, code: 'DEVICE_MODE_NOT_SHARED' };
   }
-  const allowed = await listFamilyChildrenForDevice(row.family_id);
+  const allowed = await listFamilyChildrenForDevice(row.family_id, row.created_by_parent_id);
   if (!allowed.some((c) => c.id === childId)) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }
@@ -261,7 +273,7 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
   }
 
   if (row.device_mode === 'shared') {
-    const allowed = await listFamilyChildrenForDevice(row.family_id);
+    const allowed = await listFamilyChildrenForDevice(row.family_id, row.created_by_parent_id);
     if (allowed.length === 0) {
       return { ok: false, code: 'CHILD_NOT_FOUND' };
     }

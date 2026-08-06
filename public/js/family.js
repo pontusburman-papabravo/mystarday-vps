@@ -913,11 +913,20 @@
           </div>
 
           <!-- Child visibility -->
-          ${(familyData?.allChildren || []).length > 0 ? `
+          ${(() => {
+            const manageable = (familyData?.children && familyData.children.length)
+              ? familyData.children
+              : (familyData?.allChildren || []);
+            return manageable.length > 0;
+          })() ? `
             <div class="mb-3">
               <label class="block text-xs text-text-soft mb-1">Ser dessa barn</label>
               <div class="space-y-1">
-                ${(familyData?.allChildren || []).map(c => {
+                ${(() => {
+                  const manageable = (familyData?.children && familyData.children.length)
+                    ? familyData.children
+                    : (familyData?.allChildren || []);
+                  return manageable.map(c => {
                   const linked = (parent.linked_child_ids || []).includes(c.id);
                   return `<label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" class="pc-cb w-4 h-4 rounded border-lavender text-gold focus:ring-gold"
@@ -925,7 +934,8 @@
                       onchange="updateParentChildren('${parent.id}')">
                     ${childAvatarHtml(c, 20)} ${escHtml(c.name)}
                   </label>`;
-                }).join('')}
+                }).join('');
+                })()}
               </div>
             </div>
           ` : ''}
