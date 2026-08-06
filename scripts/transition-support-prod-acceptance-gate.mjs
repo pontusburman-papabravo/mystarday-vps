@@ -281,8 +281,12 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     });
     await childPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     for (const c of puppeteerCookies(child.jar, BASE)) await childPage.setCookie(c);
+    const dailyLogReady = childPage.waitForResponse(
+      (res) => res.url().includes('/api/me/daily-log') && res.status() === 200,
+      { timeout: 60000 },
+    );
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await childPage.waitForFunction(() => !!window.ChildDashboardContext, { timeout: 45000 });
+    await dailyLogReady;
     if (logSnap.item?.id) {
       await childPage.waitForSelector('.now-card .transition-inline', { timeout: 45000 });
     } else {
