@@ -68,6 +68,8 @@
     "founder:parent-english-smoke": "node scripts/ops/founder-parent-english-prod-smoke.cjs all",
     "founder:parent-english-smoke:api": "node scripts/ops/founder-parent-english-prod-smoke-api.cjs",
     "founder:parent-english-smoke:browser": "node scripts/ops/founder-parent-english-prod-smoke.cjs browser",
+    "ops:english-global-flag:on": "node scripts/ops/english-app-global-flag-vps.cjs --on",
+    "ops:english-global-flag:off": "node scripts/ops/english-app-global-flag-vps.cjs --off",
     "rc1:qa:prepare": "node scripts/rc1-qa-family-prepare.js",
     "rc1:qa:prepare:dry-run": "node scripts/rc1-qa-family-prepare.js --dry-run",
     "rc1:mobile-browser-qa": "node scripts/rc1-mobile-browser-qa.mjs",
