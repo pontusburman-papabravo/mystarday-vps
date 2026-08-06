@@ -173,9 +173,10 @@ async function runParentChecks(parentJar, parentCsrf, qaChildId, sibling) {
   return out;
 }
 
-async function runChildApiChecks(childJar, qaChildId) {
+async function runChildApiChecks(childJar) {
   const out = {};
   const access = await apiFetch(childJar, null, '/api/subscription/access');
+  out.access_status = access.status;
   out.features_transition_support = access.json?.features?.transition_support === true;
 
   const ts = await apiFetch(childJar, null, '/api/me/transition-support');
@@ -190,25 +191,8 @@ async function runChildApiChecks(childJar, qaChildId) {
   return out;
 }
 
-async function runHttpMobileFallback(sessions, qaChildId) {
-  const parentHtml = await fetch(`${BASE}/child-settings?child=${qaChildId}`, {
-    headers: { Cookie: jarToCookieHeader(sessions.parent.jar) },
-  }).then((r) => r.text());
-  const childHtml = await fetch(`${BASE}/child/today`, {
-    headers: { Cookie: jarToCookieHeader(sessions.child.jar) },
-  }).then((r) => r.text());
-  return {
-    mode: 'http_fallback',
-    parent_transition_section: parentHtml.includes('Övergångsstöd'),
-    parent_has_text_status: /Om \d+ min/.test(parentHtml),
-    child_transition_script: childHtml.includes('transition-support.js'),
-    viewports: {
-      [VIEWPORTS[0].name]: { pass: true, overflowX: false, touchOk: true, note: 'api_parent_verified' },
-      [VIEWPORTS[1].name]: { pass: childHtml.includes('child-dashboard'), overflowX: false, touchOk: true },
-    },
-    consoleErrors: 0,
-    http5xx: 0,
-  };
+async function runHttpMobileFallback() {
+  throw new Error('browser_required_no_http_fallback');
 }
 
 async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
@@ -224,7 +208,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
   } catch (launchErr) {
-    return { ...await runHttpMobileFallback(sessions, qaChildId), launch_error: launchErr.message };
+    return { launch_error: launchErr.message, pass: false };
   }
 
   try {
@@ -281,6 +265,9 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
       hasTouch: true,
       deviceScaleFactor: 2,
     });
+    await childPage.evaluateOnNewDocument(() => {
+      document.documentElement.style.fontSize = '125%';
+    });
     for (const c of puppeteerCookies(child.jar, BASE)) await childPage.setCookie(c);
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await new Promise((r) => setTimeout(r, 3500));
@@ -299,17 +286,21 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     });
     results.viewports[vp.name] = {
       ...metrics,
-      pass: !metrics.overflowX && metrics.touchOk && (logSnap.item?.id ? metrics.hasTransition : true),
+      pass: !metrics.overflowX && metrics.touchOk
+        && (logSnap.item?.id ? (metrics.hasTransition && metrics.transitionText.length > 0) : true),
     };
   }
 
   await browser.close();
-  results.consoleErrors = consoleErrors.length;
-  results.http5xx = http5xx.length;
+  results.pass = results.consoleErrors === 0
+    && results.http5xx === 0
+    && results.parent_transition_section
+    && results.parent_has_text_status
+    && Object.values(results.viewports).every((v) => v.pass);
   return results;
   } catch (browserErr) {
     try { await browser?.close(); } catch { /* ignore */ }
-    return { ...await runHttpMobileFallback(sessions, qaChildId), launch_error: browserErr.message };
+    return { pass: false, launch_error: browserErr.message };
   }
 }
 
@@ -355,16 +346,17 @@ async function main() {
       throw new Error('grant_read_back_failed');
     }
 
-    // Fresh child cookies so package access is not stale vs pre-grant mint.
     const childPin = process.env.FOUNDER_CHILD_PIN || process.env.QA_CHILD_PIN;
     const childUser = process.env.FOUNDER_CHILD_USERNAME || sessions.childRow.username;
-    if (childPin && childUser) {
-      const freshChild = await childSessionViaApi(childUser, childPin);
-      if (freshChild) {
-        sessions.child = freshChild;
-        sessions.meta.child_auth = freshChild.via || 'api_login_refresh';
-      }
+    if (!childPin || !childUser) {
+      throw new Error('child_pin_required_for_post_grant_session');
     }
+    const freshChild = await childSessionViaApi(childUser, childPin);
+    if (!freshChild) {
+      throw new Error('child_api_login_failed_after_grant');
+    }
+    sessions.child = freshChild;
+    sessions.meta.child_auth = freshChild.via || 'api_login_refresh';
 
     logSnap = await snapshotLogItemTiming(
       sessions.parent.jar,
@@ -378,29 +370,23 @@ async function main() {
       sessions.childRow.id,
       sibling,
     );
-    report.child = await runChildApiChecks(sessions.child.jar, sessions.childRow.id);
+    report.child = await runChildApiChecks(sessions.child.jar);
     report.mobile = await runBrowserChecks(
       puppeteer,
       sessions,
       sessions.childRow.id,
       logSnap,
-    ).catch(async (e) => ({
-      ...(await runHttpMobileFallback(sessions, sessions.childRow.id)),
-      launch_error: e.message,
-    }));
+    );
 
     const parentPass = report.parent.access_transition_support
       && report.parent.write_status === 200
       && report.parent.write_persisted
       && report.parent.sibling_unchanged;
-    const childPass = (report.child.features_transition_support || report.child.transition_support_route)
+    const childPass = report.child.features_transition_support === true
+      && report.child.access_status === 200
       && report.child.transition_support_route
       && report.child.daily_log_lead_minutes;
-    const mobilePass = report.mobile.consoleErrors === 0
-      && report.mobile.http5xx === 0
-      && (report.mobile.parent_transition_section
-        || (report.mobile.mode === 'http_fallback' && report.parent.write_persisted))
-      && Object.values(report.mobile.viewports || {}).every((v) => v.pass);
+    const mobilePass = report.mobile.pass === true;
 
     report.pass = report.apply.pass && parentPass && childPass && mobilePass;
   } finally {

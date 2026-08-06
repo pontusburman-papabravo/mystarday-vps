@@ -627,9 +627,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       let packageAccess = null;
       try {
-        packageAccess = window.fetchPackageAccess
-          ? await window.fetchPackageAccess()
-          : null;
+        if (window.fetchPackageAccess) {
+          packageAccess = await window.fetchPackageAccess();
+        } else {
+          const res = await fetch('/api/subscription/access', { credentials: 'include' });
+          packageAccess = res.ok ? await res.json() : null;
+        }
       } catch {
         packageAccess = null;
       }

@@ -159,7 +159,7 @@ flowchart TB
 |----------|-------------|
 | R2.1 Aktivitetstimer | **ENGINEERING COMPLETE** · Live acceptansgate: **PASS** (2026-08-05, founder QA, snapshot/restore). Rollout: `activity_timers_enabled` + allowlist. |
 | R2.2 Minimal UI live | `minimal_ui` från `dev` → pilot → `live` för familjer som behöver det. |
-| R2.3 Extra stöd-pilot | Slice C (parent/child `transition_support` gate): **ENGINEERING COMPLETE** (PR #905). **Live acceptance: PASS** (2026-08-06, QA grant snapshot/restore, VPS gate). Customer pilot: **DEFERRED** until explicitly approved families exist. |
+| R2.3 Extra stöd-pilot | **R2 Extra stöd: ENGINEERING COMPLETE** · Slice C (`features.transition_support`, PR #905). **Live acceptance: PASS** (2026-08-06, child `/api/subscription/access` allowlist + browser gate). **Customer pilot: DEFERRED** until explicitly approved families exist. |
 | R2.4 För dig × Journey | En rekommendation kopplad till `journey_phase` / readiness — inte generisk tips-sida. |
 
 **DoD R2:**

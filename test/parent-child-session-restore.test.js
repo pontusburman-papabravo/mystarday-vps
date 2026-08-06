@@ -33,6 +33,14 @@ describe('parent session restore from child session', () => {
     assert.equal(called, true);
   });
 
+  it('childParentApiBlock allows GET /subscription/access for package features', () => {
+    const { childParentApiBlock } = require('../src/middleware/child-parent-api-block');
+    let called = false;
+    const req = { user: { type: 'child', id: 'c1' }, path: '/subscription/access' };
+    childParentApiBlock(req, { status() { return this; }, json() {} }, () => { called = true; });
+    assert.equal(called, true);
+  });
+
   it('activate route swaps cookies when family has no PIN', async (t) => {
     const db = require('../src/lib/db');
     if (!process.env.DATABASE_URL) {
