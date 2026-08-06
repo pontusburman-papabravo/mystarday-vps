@@ -38,6 +38,10 @@
     "lockoutSubMinutes": "Try again in {{minutes}} minute{{minuteSuffix}}",
     "lockoutSubSeconds": "Only {{seconds}} seconds left!"
   },
+  "sharedDevice": {
+    "whoUsesApp": "Who is using the app?",
+    "pickProfile": "Pick your name to open your day."
+  },
   "nav": {
     "today": "Today",
     "todayYoung": "Mission",

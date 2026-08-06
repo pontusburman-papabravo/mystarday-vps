@@ -538,6 +538,7 @@
       "disabled": "Child device mode is not enabled for your family yet.",
       "enrollHint": "On the child's tablet or phone: choose the child and make this device their child device.",
       "enrollThisDevice": "Make child device",
+      "enrollSharedDevice": "Make shared family device",
       "enrollFailed": "Could not register this device. Try again.",
       "empty": "No trusted devices registered.",
       "revoke": "Revoke",

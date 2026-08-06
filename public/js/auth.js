@@ -613,6 +613,11 @@ const Auth = {
     }
 
     this.clearAuth();
+    if (window.ChildSessionContext && typeof ChildSessionContext.invalidate === 'function') {
+      ChildSessionContext.invalidate('switch');
+    } else if (window.OfflineQueue && typeof OfflineQueue.clear === 'function') {
+      OfflineQueue.clear().catch(function () {});
+    }
     try {
       localStorage.removeItem('stjarndag_selected_child');
       localStorage.removeItem('stjarndag_child');

@@ -268,8 +268,11 @@ function renderChildList(initOpts) {
         seen.add(pc.username);
         return mergeKnownIntoApiChild(pc, knownByUser[pc.username]);
       });
-      for (let j = 0; j < known.length; j++) {
-        if (!seen.has(known[j].username)) merged.push(known[j]);
+      // R4.3: when server lists children (parent session), never add stale local-only profiles.
+      if (!hasSession) {
+        for (let j = 0; j < known.length; j++) {
+          if (!seen.has(known[j].username)) merged.push(known[j]);
+        }
       }
       if (typeof Auth.persistKnownChildrenFromSession === 'function') {
         const familyId = merged[0] && merged[0].familyId;
@@ -1383,6 +1386,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  if (url.searchParams.get('shared_device') === '1' && window.TrustedDeviceBootstrap) {
+    let pickerChildren = null;
+    try {
+      const raw = sessionStorage.getItem('shared_device_picker_children');
+      if (raw) pickerChildren = JSON.parse(raw);
+    } catch (_) { /* ignore */ }
+    if (pickerChildren && pickerChildren.length && typeof window.showSharedDevicePicker === 'function') {
+      showSharedDevicePicker(pickerChildren, { source: 'child_login', bucket: String(pickerChildren.length) });
+      return;
+    }
+  }
+
+  if (!forcePicker && !resumeAddChild && window.TrustedDeviceBootstrap) {
+    const cold = await TrustedDeviceBootstrap.tryColdStart({ skipRedirect: true, source: 'child_login' });
+    if (cold && cold.code === 'PICKER_SHOWN') return;
+    if (cold && cold.ok) return;
+  }
+
+  if (forcePicker && window.TrustedDeviceBootstrap) {
+    const sharedCold = await TrustedDeviceBootstrap.tryColdStart({
+      skipRedirect: true,
+      forcePicker: true,
+      source: 'switch_child',
+    });
+    if (sharedCold && (sharedCold.code === 'PICKER_SHOWN' || sharedCold.ok)) return;
+  }
+
   if (forcePicker) {
     sessionStorage.removeItem('cl_force_picker');
     sessionStorage.removeItem('cl_selected_username');
@@ -1420,3 +1450,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 150);
   }
 });
+
+let sharedDevicePickerMeta = null;
+
+function txShared(key) {
+  return tx('sharedDevice.' + key) || tx('login.' + key);
+}
+
+function paintSharedDevicePickerCards(children) {
+  const list = document.getElementById('clChildList');
+  if (!list) return;
+  list.innerHTML = children.map(function (child) {
+    const mapped = mapPickerChild(child, child.familyId);
+    return [
+      '<button type="button" class="cl-child-card cl-shared-device-card" data-child-id="', escapeHtml(child.id),
+      '" onclick="pickSharedDeviceChild(\'', escapeJs(child.id), '\')">',
+      '<div class="cl-avatar-ring">', renderClChildAvatar(mapped, 72), '</div>',
+      '<div class="cl-child-info">',
+      '<div class="cl-child-name">', escapeHtml(mapped.name), '</div>',
+      '</div>',
+      '</button>',
+    ].join('');
+  }).join('');
+}
+
+window.showSharedDevicePicker = function (children, meta) {
+  sharedDevicePickerMeta = meta || {};
+  const title = document.getElementById('clSelectTitle');
+  const sub = document.getElementById('clSelectSub');
+  if (title) title.textContent = txShared('whoUsesApp') || tx('login.whoAreYou');
+  if (sub) sub.textContent = txShared('pickProfile') || '';
+  document.getElementById('clStepPin')?.classList.remove('active');
+  document.getElementById('clStepProfiles')?.classList.add('active');
+  const empty = document.getElementById('clEmptyState');
+  const noSession = document.getElementById('clNoSessionState');
+  if (empty) empty.classList.add('hidden');
+  if (noSession) noSession.classList.add('hidden');
+  const addRow = document.getElementById('clAddChildRow');
+  if (addRow) addRow.classList.add('hidden');
+  paintSharedDevicePickerCards(children);
+  trackChildEntry('shared_device_picker_shown', {
+    allowed_count_bucket: sharedDevicePickerMeta.bucket || '2',
+  });
+};
+
+window.pickSharedDeviceChild = async function (childId) {
+  if (!childId || !window.TrustedDeviceBootstrap) return;
+  const btn = document.querySelector('[data-child-id="' + childId + '"]');
+  if (btn) btn.disabled = true;
+  await TrustedDeviceBootstrap.pickSharedChild(childId, sharedDevicePickerMeta);
+  if (btn) btn.disabled = false;
+};

@@ -136,6 +136,17 @@
           const restored = await TrustedDeviceClient.tryRestoreSession();
           if (restored.ok) {
             meResult = await fetchAuthMe();
+          } else if (
+            restored.code === 'SHARED_PICKER_REQUIRED'
+            && window.TrustedDeviceBootstrap
+            && typeof TrustedDeviceBootstrap.tryColdStart === 'function'
+          ) {
+            await TrustedDeviceBootstrap.tryColdStart({
+              force: true,
+              skipRedirect: false,
+              source: 'native_restore',
+            });
+            return { ok: false, code: 'SHARED_PICKER' };
           }
         }
       }

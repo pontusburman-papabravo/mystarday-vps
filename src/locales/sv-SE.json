@@ -538,6 +538,7 @@
       "disabled": "Barnenhet är inte aktiverat för er familj ännu.",
       "enrollHint": "På barnets surfplatta eller telefon: välj barn och gör den här enheten till barnenhet.",
       "enrollThisDevice": "Gör till barnenhet",
+      "enrollSharedDevice": "Gör till delad familjeenhet",
       "enrollFailed": "Kunde inte registrera enheten. Försök igen.",
       "empty": "Inga betrodda enheter registrerade.",
       "revoke": "Återkalla",
