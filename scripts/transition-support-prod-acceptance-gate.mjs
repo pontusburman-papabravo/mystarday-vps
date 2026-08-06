@@ -268,6 +268,13 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMe
   }
 
   for (const vp of VIEWPORTS) {
+    if (logSnap.items?.length) {
+      const start = stockholmTimePlusMinutes(2);
+      const end = stockholmTimePlusMinutes(20);
+      for (const row of logSnap.items) {
+        await setLogItemStartTimeDb(row.id, start, end);
+      }
+    }
     const childPage = await browser.newPage();
     childPage.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(`[${vp.name}] ${msg.text().slice(0, 100)}`);
