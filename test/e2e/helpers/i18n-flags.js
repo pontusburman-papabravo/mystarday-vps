@@ -41,6 +41,23 @@ async function clearFamilyEnglishChildFlag(query, familyId) {
  * E2E DB truncates public tables after migrations — re-seed live barnets_samling row.
  * Live status makes the gate available to all families (no family_features row needed).
  */
+async function ensureFeedbackFormularLive(query) {
+  await query(
+    `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
+     VALUES (
+       'feedback_formular',
+       'Feedback',
+       'Parent floating feedback FAB',
+       'live',
+       '{feedback}',
+       'low',
+       1,
+       1
+     )
+     ON CONFLICT (slug) DO UPDATE SET status = 'live', updated_at = NOW()`
+  );
+}
+
 async function ensureBarnetsSamlingLive(query) {
   await query(
     `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
@@ -60,6 +77,7 @@ async function ensureBarnetsSamlingLive(query) {
 
 module.exports = {
   ensureEnglishFeatureRows,
+  ensureFeedbackFormularLive,
   ensureBarnetsSamlingLive,
   setFamilyEnglishFlags,
   clearFamilyEnglishChildFlag,

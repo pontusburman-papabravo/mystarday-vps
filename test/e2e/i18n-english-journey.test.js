@@ -7,6 +7,7 @@ const path = require('path');
 
 const { createE2eContext } = require('./helpers/e2e-context');
 const { seedEnglishJourneyFamily } = require('./helpers/seed-family');
+const { ensureFeedbackFormularLive } = require('./helpers/i18n-flags');
 const { detectSwedishSystemCopy } = require('./helpers/swedish-copy');
 const { skipUnlessI18nStack } = require('./helpers/prerequisites');
 const {
@@ -216,6 +217,126 @@ describe('i18n English journey E2E', () => {
       }
     });
   }
+});
+
+describe('i18n English journey — global feedback FAB', () => {
+  it('en-GB parent sees English FAB modal and can submit via /api/feedback', async (t) => {
+    const ctx = await createE2eContext();
+    if (ctx.skip) {
+      t.skip(ctx.reason);
+      return;
+    }
+    if (!skipUnlessI18nStack(t)) {
+      await ctx.close();
+      return;
+    }
+
+    const browser = await launchBrowser();
+    try {
+      await ensureFeedbackFormularLive(ctx.query);
+      const seed = await seedEnglishJourneyFamily(ctx.baseUrl, ctx.query, {
+        registerLocale: 'en-GB',
+        dbLocale: 'en-GB',
+      });
+      const page = await newPage(browser, 'desktop');
+
+      let feedbackRequest = null;
+      await page.setRequestInterception(true);
+      page.on('request', (req) => {
+        const url = req.url();
+        if (req.method() === 'POST' && /\/api\/feedback(?:\?|$)/.test(url)) {
+          feedbackRequest = {
+            url,
+            body: req.postData() || '',
+          };
+          req.respond({
+            status: 201,
+            contentType: 'application/json',
+            body: JSON.stringify({ message: 'Your report has been sent.' }),
+          });
+          return;
+        }
+        req.continue();
+      });
+
+      await loginParentEnglish(page, ctx.baseUrl, seed, { explicitLocale: true });
+      await page.goto(`${ctx.baseUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+
+      await page.waitForFunction(() => {
+        return typeof window.pt === 'function'
+          && window.pt('home.globalFeedback.modalTitle') !== 'home.globalFeedback.modalTitle';
+      }, { timeout: 20000 });
+
+      await page.waitForSelector('#globalFeedbackBtn', { visible: true, timeout: 15000 });
+
+      const fabMeta = await page.$eval('#globalFeedbackBtn', (el) => ({
+        ariaLabel: el.getAttribute('aria-label'),
+        title: el.title,
+      }));
+      assert.match(fabMeta.ariaLabel, /Give feedback/i);
+      assert.match(fabMeta.title, /Give feedback/i);
+
+      await page.click('#globalFeedbackBtn');
+      await page.waitForSelector('#globalFeedbackModal:not(.hidden)', { timeout: 5000 });
+
+      const modalCopy = await page.evaluate(() => {
+        return {
+          title: document.getElementById('globalFeedbackModalTitle')?.textContent || '',
+          bug: document.getElementById('globalFeedbackTypeBug')?.textContent || '',
+          suggestion: document.getElementById('globalFeedbackTypeSuggestion')?.textContent || '',
+          language: document.getElementById('globalFeedbackTypeLanguage')?.textContent || '',
+          titlePh: document.getElementById('globalFeedbackTitle')?.placeholder || '',
+          messagePh: document.getElementById('globalFeedbackMessage')?.placeholder || '',
+          submit: document.getElementById('globalFeedbackSubmit')?.textContent || '',
+        };
+      });
+      assert.match(modalCopy.title, /Give feedback/i);
+      assert.match(modalCopy.bug, /Report a problem/i);
+      assert.match(modalCopy.suggestion, /Suggestion/i);
+      assert.match(modalCopy.language, /Language/i);
+      assert.match(modalCopy.titlePh, /^Title$/i);
+      assert.match(modalCopy.messagePh, /What happened/i);
+      assert.match(modalCopy.submit, /Send report/i);
+
+      await page.type('#globalFeedbackTitle', 'E2E feedback title');
+      await page.type('#globalFeedbackMessage', 'Automated i18n E2E feedback body text.');
+      await page.click('#globalFeedbackSubmit');
+
+      await page.waitForFunction(() => {
+        const el = document.getElementById('globalFeedbackMsg');
+        return el && /Your report has been sent/i.test(el.textContent);
+      }, { timeout: 10000 });
+
+      assert.ok(feedbackRequest, 'POST /api/feedback should be intercepted');
+      assert.match(feedbackRequest.url, /\/api\/feedback/);
+      const payload = JSON.parse(feedbackRequest.body);
+      assert.equal(payload.type, 'bug');
+      assert.match(payload.title, /E2E feedback title/);
+      assert.match(payload.message, /Automated i18n E2E/);
+
+      function collectKeys(obj, prefix) {
+        const keys = [];
+        if (!obj || typeof obj !== 'object') return keys;
+        for (const [k, v] of Object.entries(obj)) {
+          const full = prefix ? `${prefix}.${k}` : k;
+          keys.push(full.toLowerCase());
+          if (v && typeof v === 'object' && !Array.isArray(v)) {
+            keys.push(...collectKeys(v, full));
+          }
+        }
+        return keys;
+      }
+      const sensitive = collectKeys(payload, '').filter((k) =>
+        /pin|password|cookie|token/.test(k)
+      );
+      assert.equal(sensitive.length, 0, `payload must not include secrets: ${sensitive.join(', ')}`);
+      const bodyStr = JSON.stringify(payload).toLowerCase();
+      assert.doesNotMatch(bodyStr, /"pin"|"password"|"cookie"|"token"/);
+    } finally {
+      await browser.close();
+      await ctx.close();
+    }
+  });
 });
 
 describe('i18n English journey — cache reload', () => {

@@ -224,5 +224,21 @@
     "androidLead": "Installera appen för att få påminnelser i mobilen.",
     "androidInstall": "Installera appen",
     "dismissAria": "Stäng"
+  },
+  "globalFeedback": {
+    "fabAria": "Ge feedback",
+    "fabTitle": "Ge feedback",
+    "modalTitle": "Ge feedback",
+    "typeBug": "Problem",
+    "typeSuggestion": "Förslag",
+    "typeLanguage": "Språk",
+    "titlePlaceholder": "Rubrik",
+    "messagePlaceholder": "Beskriv problemet eller förbättringsförslaget...",
+    "cancel": "Avbryt",
+    "submit": "Skicka",
+    "submitting": "Skickar...",
+    "validationRequired": "Fyll i alla fält.",
+    "success": "Tack för din feedback!",
+    "errorGeneric": "Något gick fel. Försök igen."
   }
 }
