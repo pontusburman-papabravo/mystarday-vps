@@ -117,7 +117,31 @@
     if (el) el.classList.add('hidden');
   }
 
+  function trackDashboardHandoffAnalytics(deepLink) {
+    if (typeof window.analytics === 'undefined' || !analytics.track) return;
+    const source = deepLink ? 'dashboard_deeplink' : 'dashboard_handoff';
+    const meta = { source: source };
+    if (window.apiFetch) {
+      window.apiFetch('/api/family/activation-config')
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (cfg) {
+          if (cfg && cfg.primary_child_id) meta.child_id = cfg.primary_child_id;
+          analytics.track(null, 'child_handoff_started', meta);
+          analytics.track(null, 'child_view_opened', meta);
+        })
+        .catch(function () {
+          analytics.track(null, 'child_handoff_started', meta);
+          analytics.track(null, 'child_view_opened', meta);
+        });
+    } else {
+      analytics.track(null, 'child_handoff_started', meta);
+      analytics.track(null, 'child_view_opened', meta);
+    }
+  }
+
   function startChildLogin() {
+    const deepLink = wantsChildHandoffDeepLink();
+    trackDashboardHandoffAnalytics(deepLink);
     if (window.JourneyContextClient) {
       JourneyContextClient.postEvent('handoff_started').catch(function () {});
     }
