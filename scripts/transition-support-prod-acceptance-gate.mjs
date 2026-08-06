@@ -390,6 +390,13 @@ async function main() {
       logSnap.item.end_time = end;
     }
 
+    const qaChild = sessions.childRow.id;
+    const nnlPut = await apiFetch(sessions.parent.jar, sessions.parent.csrf, `/api/children/${qaChild}`, {
+      method: 'PUT',
+      body: { show_now_next: true, require_sequential_completion: true },
+    });
+    report.mobile_nnl_enable_status = nnlPut.status;
+
     report.parent = await runParentChecks(
       sessions.parent.jar,
       sessions.parent.csrf,
