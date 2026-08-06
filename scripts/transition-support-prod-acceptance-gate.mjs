@@ -114,16 +114,21 @@ async function snapshotLogItemTiming(parentJar, parentCsrf, qaChildId) {
   const dateStr = getLocalDateStr(new Date(), 'Europe/Stockholm');
   const logRes = await apiFetch(parentJar, parentCsrf, `/api/children/${qaChildId}/daily-log?date=${dateStr}`);
   const items = logRes.json?.items || [];
-  const target = items.find((i) => !i.completed && !i.image_url)
-    || items.find((i) => !i.completed)
-    || items[0];
-  if (!target?.id) return { item: null };
+  const incomplete = items.filter((i) => !i.completed);
+  if (!incomplete.length) return { items: [], item: null };
+  const start = stockholmTimePlusMinutes(3);
+  const end = stockholmTimePlusMinutes(20);
+  const snaps = incomplete.map((i) => ({
+    id: i.id,
+    start_time: i.start_time ?? null,
+    end_time: i.end_time ?? null,
+  }));
+  for (const row of snaps) {
+    await setLogItemStartTimeDb(row.id, start, end);
+  }
   return {
-    item: {
-      id: target.id,
-      start_time: target.start_time ?? null,
-      end_time: target.end_time ?? null,
-    },
+    items: snaps,
+    item: snaps[0],
   };
 }
 
@@ -389,14 +394,6 @@ async function main() {
       sessions.childRow.id,
     );
 
-    if (logSnap.item?.id) {
-      const start = stockholmTimePlusMinutes(3);
-      const end = stockholmTimePlusMinutes(20);
-      await setLogItemStartTimeDb(logSnap.item.id, start, end);
-      logSnap.item.start_time = start;
-      logSnap.item.end_time = end;
-    }
-
     const qaChild = sessions.childRow.id;
     const nnlPut = await apiFetch(sessions.parent.jar, sessions.parent.csrf, `/api/children/${qaChild}`, {
       method: 'PUT',
@@ -432,7 +429,11 @@ async function main() {
   } finally {
     if (packageSnap && familyId) {
       try {
-        if (logSnap.item?.id) {
+        if (logSnap.items?.length) {
+          for (const row of logSnap.items) {
+            await setLogItemStartTimeDb(row.id, row.start_time, row.end_time);
+          }
+        } else if (logSnap.item?.id) {
           await setLogItemStartTimeDb(
             logSnap.item.id,
             logSnap.item.start_time,
