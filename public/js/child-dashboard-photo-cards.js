@@ -131,7 +131,7 @@
       const tr = TransitionSupport.getTransitionFromStartTime(item.start_time, {
         leadMinutes: typeof transitionLeadMinutes !== 'undefined' ? transitionLeadMinutes : undefined,
       });
-      transitionHtml = '<div class="transition-inline" id="transition-' + item.id + '" data-start="' + esc(item.start_time) + '" aria-live="polite">' + esc(tr.label) + '</div>';
+      transitionHtml = '<div class="transition-inline min-h-[44px] py-2 flex items-center" id="transition-' + item.id + '" data-start="' + esc(item.start_time) + '" aria-live="polite">' + esc(tr.label) + '</div>';
     }
 
     return (

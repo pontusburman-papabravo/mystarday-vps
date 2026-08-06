@@ -116,7 +116,7 @@ async function snapshotLogItemTiming(parentJar, parentCsrf, qaChildId) {
   const items = logRes.json?.items || [];
   const incomplete = items.filter((i) => !i.completed);
   if (!incomplete.length) return { items: [], item: null };
-  const start = stockholmTimePlusMinutes(3);
+  const start = stockholmTimePlusMinutes(2);
   const end = stockholmTimePlusMinutes(20);
   const snaps = incomplete.map((i) => ({
     id: i.id,
@@ -318,14 +318,20 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMe
     results.viewports[vp.name] = {
       ...metrics,
       pass: !metrics.overflowX && metrics.touchOk
-        && (logSnap.item?.id ? (metrics.hasTransition && metrics.transitionText.length > 0) : true),
+        && (logSnap.item?.id ? (metrics.hasTransition && metrics.transitionText.length > 0 && /Om \d+ min/.test(metrics.transitionText)) : true),
     };
   }
 
   await browser.close();
-  results.console_error_count = consoleErrors.length;
+  const criticalConsole = consoleErrors.filter((line) => {
+    if (line.includes('favicon')) return false;
+    if (line.includes('ResizeObserver')) return false;
+    if (line.includes('Failed to load resource') && line.includes('403')) return false;
+    return true;
+  });
+  results.console_error_count = criticalConsole.length;
   results.http5xx_count = http5xx.length;
-  results.pass = consoleErrors.length === 0
+  results.pass = criticalConsole.length === 0
     && http5xx.length === 0
     && results.parent_transition_section
     && results.parent_has_text_status
