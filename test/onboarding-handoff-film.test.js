@@ -90,13 +90,23 @@ describe('Onboarding handoff film', () => {
     assert.match(src, /\/activation\/handoff-film-seen/);
   });
 
-  it('handoff copy on dashboard matches activation spec', () => {
+  it('handoff copy on dashboard uses localized post-schema keys', () => {
     const dash = read('public/dashboard.html');
+    const handoffJs = read('public/js/dashboard-child-handoff.js');
+    const hubJs = read('public/js/dashboard-home-hub.js');
     const registry = read('config/journey-experience-registry.json');
-    assert.match(dash, /Nästa steg: Låt barnet testa sin rutin/);
-    assert.match(dash, /Öppna barnläget/);
+    assert.match(dash, /dashboardChildHandoff/);
+    assert.match(dash, /dash-child-handoff-title/);
+    assert.doesNotMatch(dash, /Nästa steg: Låt barnet testa sin rutin/);
+    assert.match(handoffJs, /home\.handoff\.postSchema/);
+    assert.match(handoffJs, /applyMagicHandoffCopy/);
+    assert.match(hubJs, /syncPostSchemaHandoffCard/);
     assert.match(registry, /"cta": "Testa barnläget nu"/);
     assert.match(registry, /Låt barnet testa sin rutin/);
+    const enTitle = t('en-GB', 'home.handoff.postSchema.title');
+    assert.match(enTitle, /Let your child try their routine/i);
+    const enCta = t('en-GB', 'home.handoff.postSchema.childLogin');
+    assert.match(enCta, /Try child mode now/i);
   });
 
   it('first-star guide defers to film when film flag active', () => {

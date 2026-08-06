@@ -279,6 +279,40 @@
     }
   }
 
+  async function syncPostSchemaHandoffCard(mount) {
+    const handoff = mount && mount.querySelector('.parent-handoff-card');
+    if (!handoff || !window.DashboardChildHandoff) return;
+
+    let postSchema = false;
+    try {
+      if (DashboardChildHandoff.wantsChildHandoffDeepLink && DashboardChildHandoff.wantsChildHandoffDeepLink()) {
+        postSchema = true;
+      } else if (DashboardChildHandoff.loadActivationHandoffNeeded) {
+        postSchema = await DashboardChildHandoff.loadActivationHandoffNeeded();
+      }
+    } catch (_) { /* non-critical */ }
+
+    if (window.ActivationFirstSuccessHub) {
+      try {
+        const payload = await ActivationFirstSuccessHub.fetchNextAction();
+        if (
+          payload &&
+          payload.enabled &&
+          payload.show_primary_coach &&
+          (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion')
+        ) {
+          handoff.classList.add('hidden');
+          return;
+        }
+      } catch (_) { /* non-critical */ }
+    }
+
+    handoff.classList.remove('hidden');
+    if (typeof DashboardChildHandoff.applyMagicHandoffCopy === 'function') {
+      DashboardChildHandoff.applyMagicHandoffCopy(handoff, postSchema);
+    }
+  }
+
   /** Restore mounts to classic DOM order for engine-coach contract tests. */
   function restoreMounts() {
     const hub = document.getElementById('parentHomeHubMount');
@@ -362,6 +396,7 @@
           }
         } catch (_) { /* non-critical */ }
       }
+      await syncPostSchemaHandoffCard(mount);
       if (window.HomeReadiness && typeof HomeReadiness.reload === 'function') {
         await HomeReadiness.reload();
       }
@@ -381,6 +416,12 @@
 
     return true;
   }
+
+  document.addEventListener('parent-i18n-ready', function () {
+    const mount = document.getElementById('parentHomeHubMount');
+    if (!mount || mount.classList.contains('hidden')) return;
+    void syncPostSchemaHandoffCard(mount);
+  });
 
   function bindActions(mount) {
     function handleAction(action, _btn) {

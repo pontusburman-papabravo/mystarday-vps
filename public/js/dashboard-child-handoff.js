@@ -9,6 +9,49 @@
   const DISMISS_KEY = 'dashboard_child_handoff_dismissed';
   const DISMISS_TTL = 3 * 24 * 60 * 60 * 1000; // 3 days (mobile web only)
 
+  function pt(key, params) {
+    return window.pt ? window.pt(key, params) : key;
+  }
+
+  function copyPrefix(postSchema) {
+    return postSchema ? 'home.handoff.postSchema.' : 'home.handoff.';
+  }
+
+  function applyLegacyHandoffCopy(el, postSchema) {
+    if (!el) return;
+    const prefix = copyPrefix(postSchema);
+    const titleEl = el.querySelector('.dash-child-handoff-title');
+    const subEl = el.querySelector('.dash-child-handoff-sub');
+    const childBtn = el.querySelector('#dashboardChildLoginBtn');
+    const logoutBtn = el.querySelector('#dashboardParentLogoutBtn');
+    const dismissBtn = el.querySelector('#dashboardChildHandoffDismiss');
+    if (titleEl) titleEl.textContent = pt(prefix + 'title');
+    if (subEl) subEl.textContent = pt(prefix + 'sub');
+    if (childBtn) childBtn.textContent = pt(prefix + 'childLogin');
+    if (logoutBtn) logoutBtn.textContent = pt('home.handoff.parentLogout');
+    el.setAttribute('aria-label', pt(prefix + 'regionAria'));
+    if (dismissBtn) dismissBtn.setAttribute('title', pt('home.handoff.dismissTitle'));
+    el.classList.toggle('dash-child-handoff-post-schema', Boolean(postSchema));
+    if (logoutBtn) logoutBtn.classList.toggle('hidden', Boolean(postSchema));
+  }
+
+  function applyMagicHandoffCopy(handoffRoot, postSchema) {
+    if (!handoffRoot) return;
+    const prefix = copyPrefix(postSchema);
+    const titleEl = handoffRoot.querySelector('.parent-handoff-title');
+    const subEl = handoffRoot.querySelector('.parent-handoff-sub');
+    const childBtn = handoffRoot.querySelector('[data-action="child-login"]');
+    const logoutBtn = handoffRoot.querySelector('[data-action="parent-logout"]');
+    if (titleEl) titleEl.textContent = pt(prefix + 'title');
+    if (subEl) subEl.textContent = pt(prefix + 'sub');
+    if (childBtn) childBtn.textContent = pt(prefix + 'childLogin');
+    if (logoutBtn) {
+      logoutBtn.textContent = pt('home.handoff.parentLogout');
+      logoutBtn.classList.toggle('hidden', Boolean(postSchema));
+    }
+    handoffRoot.classList.toggle('parent-handoff-post-schema', Boolean(postSchema));
+  }
+
   function isNativeShell() {
     return (window.Platform && Platform.isNative && Platform.isNative()) ||
       document.body.classList.contains('has-native-tab-bar') ||
@@ -137,6 +180,7 @@
     }
 
     if (activationNeeded || deepLink) {
+      applyLegacyHandoffCopy(el, true);
       el.classList.remove('hidden');
       bindEvents(el, { persistent: true });
       if (deepLink) {
@@ -154,6 +198,8 @@
       }
       return;
     }
+
+    applyLegacyHandoffCopy(el, false);
 
     if (window.JourneyContextClient) {
       try {
@@ -189,6 +235,15 @@
     resolveVisibility(el);
   }
 
+  function onParentI18nReady() {
+    const el = document.getElementById('dashboardChildHandoff');
+    if (!el || el.classList.contains('hidden')) return;
+    const postSchema = el.classList.contains('dash-child-handoff-post-schema');
+    applyLegacyHandoffCopy(el, postSchema);
+  }
+
+  document.addEventListener('parent-i18n-ready', onParentI18nReady);
+
   window.DashboardChildHandoff = {
     init: init,
     dismiss: dismiss,
@@ -196,5 +251,9 @@
     parentLogout: parentLogout,
     resolveVisibility: resolveVisibility,
     contextWantsHandoff: contextWantsHandoff,
+    loadActivationHandoffNeeded: loadActivationHandoffNeeded,
+    wantsChildHandoffDeepLink: wantsChildHandoffDeepLink,
+    applyLegacyHandoffCopy: applyLegacyHandoffCopy,
+    applyMagicHandoffCopy: applyMagicHandoffCopy,
   };
 })();
