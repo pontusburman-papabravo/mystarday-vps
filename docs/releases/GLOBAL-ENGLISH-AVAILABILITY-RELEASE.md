@@ -84,6 +84,20 @@ SET enabled = true
 WHERE key = 'english_app_global_enabled';
 ```
 
+**Canonical ops (VPS, after deploy includes `scripts/ops/english-app-global-flag.cjs`):**
+
+```bash
+ENGLISH_GLOBAL_FLAG_CONFIRM=1 npm run ops:english-global-flag:on
+```
+
+Rollback:
+
+```bash
+ENGLISH_GLOBAL_FLAG_CONFIRM=1 npm run ops:english-global-flag:off
+```
+
+Post-enable founder smoke: set `FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED=1` so `/health` contract expects `english_global_flag_enabled=true` (pre-enable runs leave this unset).
+
 ## Staged enable (optional)
 
 5. Enable `english_app_global_enabled` in **QA / staging** only.
