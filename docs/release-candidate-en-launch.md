@@ -42,10 +42,10 @@ These were **closed implementation PRs**; verify on current `main` during RC smo
 | # | Area | How to verify (en-GB family) | Pass |
 |---|------|------------------------------|------|
 | R1 | **Day-off modal** | Home → `Ledig dag` / day-off → modal title, body, buttons English; dark theme readable | [x] PR R3 home.dayOffModal (2026-08-06) |
-| R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [ ] PR #916 — verify on `main` after deploy |
-| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav + `aria-label` en-GB; child → log loads (not stuck on placeholder) | [ ] PR #917 — verify on `main` after deploy |
+| R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [x] #916 merged; prod `stjarndag-v799`→`v800` lineage (2026-08-06) |
+| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav + `aria-label` en-GB; child → log loads (not stuck on placeholder) | [x] #917 merged; prod `stjarndag-v800`, `parent-magic-shell.js` aria sync (2026-08-06) |
 
-**RC-1 engineering (automated):** R1 live on prod; R2/R3 fixes in **#916** / **#917** — **pending merge, deploy, and prod smoke on current `main`**. Local gates (`test:gate`, i18n audits, `test:e2e:i18n`, nav aria regression gate) green on PR branches. **RC-2 manual launch** (physical devices, store, legal) remains separate — not PASS without evidence.
+**RC-1 engineering (automated):** **PASS** — R1–R3 on prod (`17599137` / `stjarndag-v800`). Gates: `test:gate`, i18n audits, `test:e2e:i18n`, library upload browser gate, parent nav aria + daily-log RC browser gates. Founder logged-in browser smoke on prod deferred when `FOUNDER_QA_PASSWORD` is absent from agent secrets; static prod artifact checks passed. **RC-2 manual launch** (physical devices, store, legal) remains **PENDING** — not PASS without evidence.
 
 **R1 repro hint:** `openLedigDagModal()` / `#ledigDagModal` — strings may still be hardcoded Swedish on `main`.  
 **R2 repro hint:** Upload flow toasts (“Laddar upp…”, delete confirm) in `public/js/library-images.js`.  
