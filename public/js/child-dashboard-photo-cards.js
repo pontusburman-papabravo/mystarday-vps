@@ -125,6 +125,15 @@
       ? ChildActivityTimer.renderBlock(item)
       : '';
 
+    let transitionHtml = '';
+    if (typeof transitionSupportEnabled !== 'undefined' && transitionSupportEnabled && !isDone
+      && item.start_time && window.TransitionSupport) {
+      const tr = TransitionSupport.getTransitionFromStartTime(item.start_time, {
+        leadMinutes: typeof transitionLeadMinutes !== 'undefined' ? transitionLeadMinutes : undefined,
+      });
+      transitionHtml = '<div class="transition-inline" id="transition-' + item.id + '" data-start="' + esc(item.start_time) + '" aria-live="polite">' + esc(tr.label) + '</div>';
+    }
+
     return (
       '<div class="activity-card photo-activity-card photo-activity-card--now ' + (isDone ? 'done' : '') + ' ' + colorCls + '" id="card-' + item.id + '"' +
            ' data-feedback-for="' + esc(item.feedback_for || 'both') + '"' +
@@ -138,6 +147,7 @@
         imageSlot(item) +
         '<div class="photo-activity-card__foot">' +
           '<div class="photo-activity-card__title ' + (isDone ? 'line-through text-text-soft' : '') + '">' + esc(activityTitle(item)) + '</div>' +
+          transitionHtml +
           starRewardHtml(item) +
           timerHtml +
           checkButton(item, isDone, canToggle, checkAttr) +

@@ -298,7 +298,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMe
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await dailyLogReady;
     if (logSnap.item?.id) {
-      await childPage.waitForSelector('.now-card .transition-inline', { timeout: 45000 });
+      await childPage.waitForSelector('.transition-inline', { timeout: 45000 });
     } else {
       await new Promise((r) => setTimeout(r, 3500));
     }
