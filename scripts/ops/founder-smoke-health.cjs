@@ -11,8 +11,10 @@ function assertEnglishGlobalHealthContract(health, label = 'health') {
   if (health.english_global_flag_row_present !== true) {
     errors.push(`${label}: english_global_flag_row_present must be true`);
   }
-  if (health.english_global_flag_enabled !== false) {
-    errors.push(`${label}: english_global_flag_enabled must be false`);
+  const expectEnabled = process.env.FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED === '1';
+  const expectedFlag = expectEnabled;
+  if (health.english_global_flag_enabled !== expectedFlag) {
+    errors.push(`${label}: english_global_flag_enabled must be ${expectedFlag}`);
   }
   return { ok: errors.length === 0, errors };
 }
