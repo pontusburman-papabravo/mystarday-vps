@@ -254,7 +254,7 @@
 // stjarndag-v793: Extra stöd — övergångsstöd gate via subscription access (parent + child)
 // stjarndag-v795: parent global feedback FAB en-GB via home.globalFeedback
 // stjarndag-v796: Extra stöd — child subscription/access allowlist + package access fallback
-const CACHE_NAME = 'stjarndag-v796';
+const CACHE_NAME = 'stjarndag-v797';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -559,6 +559,7 @@ const CACHE_NAME = 'stjarndag-v796';
 // stjarndag-v781: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v782: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v783: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v797: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

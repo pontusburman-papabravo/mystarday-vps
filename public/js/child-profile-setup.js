@@ -86,6 +86,48 @@
     });
   }
 
+  function transitionLeadHtml(child, hasAccess) {
+    if (!hasAccess) return '';
+    const leadMins = Array.isArray(child.transition_lead_minutes) ? child.transition_lead_minutes : [5, 1];
+    const options = [5, 3, 1].map(function (m) {
+      const checked = leadMins.indexOf(m) >= 0;
+      return '<label class="flex items-center gap-2 text-sm text-navy cursor-pointer min-h-[44px]">' +
+        '<input type="checkbox" class="transition-lead-cb accent-gold min-w-[44px] min-h-[44px]" data-minutes="' + m + '"' +
+        (checked ? ' checked' : '') + '>' +
+        ' Om ' + m + ' min' + (m === 1 ? '' : 'uter') +
+        '</label>';
+    }).join('');
+    return '<div class="bg-white rounded-2xl border border-lavender p-4">' +
+      '<p class="font-semibold text-navy mb-1">⏳ Övergångsstöd</p>' +
+      '<p class="text-xs text-text-soft mb-3">Välj när barnet ser varningstext i NU-kortet: Snart → Om X min → Nu.</p>' +
+      '<div class="flex flex-col gap-2" id="transitionLeadGroup">' + options + '</div>' +
+      '<p class="text-xs text-text-soft mt-3">Minst en lead-tid rekommenderas. Standard: 5 och 1 minut.</p>' +
+      '</div>';
+  }
+
+  function wireTransitionLeadCheckboxes(child) {
+    document.querySelectorAll('.transition-lead-cb').forEach(function (cb) {
+      cb.addEventListener('change', async function () {
+        const selected = Array.from(document.querySelectorAll('.transition-lead-cb:checked'))
+          .map(function (el) { return parseInt(el.getAttribute('data-minutes'), 10); })
+          .filter(function (n) { return !Number.isNaN(n); });
+        if (selected.length === 0) {
+          showToast('Välj minst en lead-tid', true);
+          cb.checked = true;
+          return;
+        }
+        const res = await saveChildField(child.id, 'transition_lead_minutes', selected);
+        if (!res.ok) {
+          cb.checked = !cb.checked;
+          showToast('Kunde inte spara övergångstider', true);
+          return;
+        }
+        child.transition_lead_minutes = selected;
+        showToast('Övergångstider sparade');
+      });
+    });
+  }
+
   function advancedSettingsHtml(child) {
     const hapticsOn = localStorage.getItem('stjarndag_haptics_enabled') !== 'false';
     return '<div class="bg-white rounded-2xl border border-lavender p-4">' +
@@ -196,10 +238,11 @@
     }
   }
 
-  function setupHtml(child, viewConfig) {
+  function setupHtml(child, viewConfig, hasTransitionSupportAccess) {
     const vm = viewConfig || {};
     const avatar = avatarPreviewHtml(child);
     const hasPhoto = !!child.has_avatar;
+    const transitionBlock = transitionLeadHtml(child, !!hasTransitionSupportAccess);
     return '<div class="space-y-4">' +
       '<div class="bg-white rounded-2xl border border-lavender p-4">' +
       '<p class="font-semibold text-navy mb-3">Profilbild</p>' +
@@ -225,6 +268,7 @@
       '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">Laddar belöningar…</p></div>' +
       '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">Skapa fler belöningar →</a>' +
       '</div>' +
+      transitionBlock +
       advancedSettingsHtml(child) +
       '<div class="pt-4 mt-2 border-t border-lavender">' +
       '<button type="button" id="profileDeleteChildBtn" class="w-full py-3 bg-coral/30 hover:bg-coral/50 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">' +
@@ -387,11 +431,20 @@
     _wiring = true;
     const mount = document.getElementById('childProfileSetupBody');
     if (!mount) { _wiring = false; return; }
+    let hasTransitionSupportAccess = false;
+    try {
+      const accessRes = await fetch('/api/subscription/access', { credentials: 'include' });
+      if (accessRes.ok) {
+        const accessData = await accessRes.json();
+        hasTransitionSupportAccess = !!(accessData.features && accessData.features.transition_support);
+      }
+    } catch (_) { /* non-blocking */ }
     // Name/emoji first — parents look here to rename a child (was lost when drawer → barnprofil).
-    mount.innerHTML = profileIdentityHtml(child) + (pinSetupHtml || '') + setupHtml(child, viewConfig);
+    mount.innerHTML = profileIdentityHtml(child) + (pinSetupHtml || '') + setupHtml(child, viewConfig, hasTransitionSupportAccess);
     if (onPinWire) onPinWire();
     wireBirthdayPicker(child);
     wireIdentityForm(child);
+    wireTransitionLeadCheckboxes(child);
 
     const rewardsMount = document.getElementById('profileSetupRewards');
     if (rewardsMount) loadRewardsList(child.id, rewardsMount);

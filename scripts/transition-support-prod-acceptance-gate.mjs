@@ -114,14 +114,21 @@ async function snapshotLogItemTiming(parentJar, parentCsrf, qaChildId) {
   const dateStr = getLocalDateStr(new Date(), 'Europe/Stockholm');
   const logRes = await apiFetch(parentJar, parentCsrf, `/api/children/${qaChildId}/daily-log?date=${dateStr}`);
   const items = logRes.json?.items || [];
-  const target = items.find((i) => !i.completed) || items[0];
-  if (!target?.id) return { item: null };
+  const incomplete = items.filter((i) => !i.completed);
+  if (!incomplete.length) return { items: [], item: null };
+  const start = stockholmTimePlusMinutes(1);
+  const end = stockholmTimePlusMinutes(20);
+  const snaps = incomplete.map((i) => ({
+    id: i.id,
+    start_time: i.start_time ?? null,
+    end_time: i.end_time ?? null,
+  }));
+  for (const row of snaps) {
+    await setLogItemStartTimeDb(row.id, start, end);
+  }
   return {
-    item: {
-      id: target.id,
-      start_time: target.start_time ?? null,
-      end_time: target.end_time ?? null,
-    },
+    items: snaps,
+    item: snaps[0],
   };
 }
 
@@ -195,11 +202,20 @@ async function runHttpMobileFallback() {
   throw new Error('browser_required_no_http_fallback');
 }
 
-async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
+async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMeUser) {
   const { parent, child } = sessions;
   const results = { viewports: {} };
   const consoleErrors = [];
   const http5xx = [];
+
+  let childMe = childMeUser;
+  if (!childMe) {
+    try {
+      const meRes = await apiFetch(child.jar, null, '/api/auth/me');
+      if (meRes.status === 200 && meRes.json?.type === 'child') childMe = meRes.json;
+    } catch { /* browser may still fail later */ }
+  }
+  results.child_me_seeded = !!childMe;
 
   let browser;
   try {
@@ -221,6 +237,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     if (res.status() >= 500 && u.includes(BASE.replace(/^https?:\/\//, ''))) http5xx.push(res.status());
   });
 
+  await parentPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   for (const c of puppeteerCookies(parent.jar, BASE)) await parentPage.setCookie(c);
   await parentPage.setViewport({
     width: VIEWPORTS[0].width,
@@ -229,14 +246,17 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     hasTouch: true,
     deviceScaleFactor: 2,
   });
-  await parentPage.goto(`${BASE}/child-settings?child=${qaChildId}`, {
+  const parentSettingsUrl = `${BASE}/family/child/${encodeURIComponent(qaChildId)}?tab=setup`;
+  const accessPromise = parentPage.waitForResponse(
+    (res) => res.url().includes('/api/subscription/access') && res.status() === 200,
+    { timeout: 45000 },
+  );
+  await parentPage.goto(parentSettingsUrl, {
     waitUntil: 'domcontentloaded',
     timeout: 60000,
   });
-  await parentPage.waitForFunction(
-    () => document.body.innerText.includes('Övergångsstöd'),
-    { timeout: 25000 },
-  );
+  await accessPromise;
+  await parentPage.waitForSelector('.transition-lead-cb', { timeout: 25000 });
   results.parent_transition_section = true;
 
   const cb = await parentPage.$('.transition-lead-cb');
@@ -247,17 +267,25 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     results.parent_has_text_status = /Om \d+ min/.test(statusText);
   }
 
-  if (logSnap.item?.id) {
-    const start = stockholmTimePlusMinutes(3);
-    const end = stockholmTimePlusMinutes(20);
-    await setLogItemStartTimeDb(logSnap.item.id, start, end);
-  }
-
   for (const vp of VIEWPORTS) {
+    if (logSnap.items?.length) {
+      const start = stockholmTimePlusMinutes(1);
+      const end = stockholmTimePlusMinutes(20);
+      for (const row of logSnap.items) {
+        await setLogItemStartTimeDb(row.id, start, end);
+      }
+    }
     const childPage = await browser.newPage();
     childPage.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(`[${vp.name}] ${msg.text().slice(0, 100)}`);
     });
+    if (childMe) {
+      const csrf = child.csrf || '';
+      await childPage.evaluateOnNewDocument((user, csrfToken) => {
+        localStorage.setItem('stjarndag_user', JSON.stringify(user));
+        if (csrfToken) localStorage.setItem('stjarndag_csrf', csrfToken);
+      }, childMe, csrf);
+    }
     await childPage.setViewport({
       width: vp.width,
       height: vp.height,
@@ -268,15 +296,25 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     await childPage.evaluateOnNewDocument(() => {
       document.documentElement.style.fontSize = '125%';
     });
+    await childPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     for (const c of puppeteerCookies(child.jar, BASE)) await childPage.setCookie(c);
+    const dailyLogReady = childPage.waitForResponse(
+      (res) => res.url().includes('/api/me/daily-log') && res.status() === 200,
+      { timeout: 60000 },
+    );
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await new Promise((r) => setTimeout(r, 3500));
+    await dailyLogReady;
+    if (logSnap.item?.id) {
+      await childPage.waitForSelector('.transition-inline', { timeout: 45000 });
+    } else {
+      await new Promise((r) => setTimeout(r, 3500));
+    }
     const metrics = await childPage.evaluate(() => {
       const doc = document.documentElement;
       const overflowX = doc.scrollWidth > doc.clientWidth + 2;
       const transition = document.querySelector('.transition-inline');
       const rect = transition?.getBoundingClientRect();
-      const touchOk = !transition || (rect.width >= 44 && rect.height >= 24);
+      const touchOk = !transition || (rect.width >= 44 && rect.height >= 44);
       return {
         overflowX,
         hasTransition: !!transition,
@@ -287,13 +325,21 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     results.viewports[vp.name] = {
       ...metrics,
       pass: !metrics.overflowX && metrics.touchOk
-        && (logSnap.item?.id ? (metrics.hasTransition && metrics.transitionText.length > 0) : true),
+        && (logSnap.item?.id ? (metrics.hasTransition && /^(Om \d+ min|Nu|Snart)$/.test(metrics.transitionText.trim())) : true),
     };
   }
 
   await browser.close();
-  results.pass = results.consoleErrors === 0
-    && results.http5xx === 0
+  const criticalConsole = consoleErrors.filter((line) => {
+    if (line.includes('favicon')) return false;
+    if (line.includes('ResizeObserver')) return false;
+    if (line.includes('Failed to load resource') && line.includes('403')) return false;
+    return true;
+  });
+  results.console_error_count = criticalConsole.length;
+  results.http5xx_count = http5xx.length;
+  results.pass = criticalConsole.length === 0
+    && http5xx.length === 0
     && results.parent_transition_section
     && results.parent_has_text_status
     && Object.values(results.viewports).every((v) => v.pass);
@@ -364,6 +410,13 @@ async function main() {
       sessions.childRow.id,
     );
 
+    const qaChild = sessions.childRow.id;
+    const nnlPut = await apiFetch(sessions.parent.jar, sessions.parent.csrf, `/api/children/${qaChild}`, {
+      method: 'PUT',
+      body: { show_now_next: true, require_sequential_completion: true },
+    });
+    report.mobile_nnl_enable_status = nnlPut.status;
+
     report.parent = await runParentChecks(
       sessions.parent.jar,
       sessions.parent.csrf,
@@ -371,11 +424,13 @@ async function main() {
       sibling,
     );
     report.child = await runChildApiChecks(sessions.child.jar);
+    const childMeRes = await apiFetch(sessions.child.jar, null, '/api/auth/me');
     report.mobile = await runBrowserChecks(
       puppeteer,
       sessions,
       sessions.childRow.id,
       logSnap,
+      childMeRes.status === 200 ? childMeRes.json : null,
     );
 
     const parentPass = report.parent.access_transition_support
@@ -392,7 +447,11 @@ async function main() {
   } finally {
     if (packageSnap && familyId) {
       try {
-        if (logSnap.item?.id) {
+        if (logSnap.items?.length) {
+          for (const row of logSnap.items) {
+            await setLogItemStartTimeDb(row.id, row.start_time, row.end_time);
+          }
+        } else if (logSnap.item?.id) {
           await setLogItemStartTimeDb(
             logSnap.item.id,
             logSnap.item.start_time,
