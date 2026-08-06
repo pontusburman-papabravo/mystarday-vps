@@ -251,12 +251,6 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     results.parent_has_text_status = /Om \d+ min/.test(statusText);
   }
 
-  if (logSnap.item?.id) {
-    const start = stockholmTimePlusMinutes(3);
-    const end = stockholmTimePlusMinutes(20);
-    await setLogItemStartTimeDb(logSnap.item.id, start, end);
-  }
-
   for (const vp of VIEWPORTS) {
     const childPage = await browser.newPage();
     childPage.on('console', (msg) => {
@@ -275,7 +269,11 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     await childPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     for (const c of puppeteerCookies(child.jar, BASE)) await childPage.setCookie(c);
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await new Promise((r) => setTimeout(r, 3500));
+    if (logSnap.item?.id) {
+      await childPage.waitForSelector('.transition-inline', { timeout: 45000 });
+    } else {
+      await new Promise((r) => setTimeout(r, 3500));
+    }
     const metrics = await childPage.evaluate(() => {
       const doc = document.documentElement;
       const overflowX = doc.scrollWidth > doc.clientWidth + 2;
@@ -370,6 +368,14 @@ async function main() {
       sessions.parent.csrf,
       sessions.childRow.id,
     );
+
+    if (logSnap.item?.id) {
+      const start = stockholmTimePlusMinutes(3);
+      const end = stockholmTimePlusMinutes(20);
+      await setLogItemStartTimeDb(logSnap.item.id, start, end);
+      logSnap.item.start_time = start;
+      logSnap.item.end_time = end;
+    }
 
     report.parent = await runParentChecks(
       sessions.parent.jar,
