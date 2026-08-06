@@ -34,6 +34,17 @@ async function findByTokenHash(tokenHash) {
   return result.rows[0] || null;
 }
 
+async function findById(deviceId) {
+  const result = await db.query(
+    `SELECT id, family_id, created_by_parent_id, device_mode, default_child_id,
+            last_active_child_id, token_hash, platform, label, trusted_at, last_seen_at, revoked_at
+     FROM family_trusted_device
+     WHERE id = $1`,
+    [deviceId]
+  );
+  return result.rows[0] || null;
+}
+
 async function listActiveForFamily(familyId) {
   const result = await db.query(
     `SELECT d.id, d.device_mode, d.default_child_id, d.last_active_child_id,
@@ -116,6 +127,7 @@ async function revokeAllForFamilyWithTokens(familyId) {
 module.exports = {
   insertDevice,
   findByTokenHash,
+  findById,
   listActiveForFamily,
   revokeForFamily,
   revokeAllForFamily,
