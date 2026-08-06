@@ -7,6 +7,12 @@
 module.exports = {
   name: '1810180000000_trusted_device_v1',
 
+  snapshotContract: {
+    backwardCompatible: true,
+    schemaOnly: true,
+    featureFlagInserts: [{ key: 'trusted_device_v1', enabled: false }],
+  },
+
   up: async (client) => {
     await client.query(`
       CREATE TABLE IF NOT EXISTS family_trusted_device (
