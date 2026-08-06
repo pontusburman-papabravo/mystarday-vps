@@ -43,6 +43,11 @@
       '<select id="coParentInviteModalRole" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">' +
       '<option value="">— Välj —</option><option value="mamma">Mamma</option><option value="pappa">Pappa</option>' +
       '<option value="bonusförälder">Bonusförälder</option><option value="annan">Annan</option></select></div>' +
+      '<div id="coParentInviteChildSection" class="hidden">' +
+      '<p class="text-sm font-semibold text-navy mb-2">Vilka barn ska personen kunna hjälpa?</p>' +
+      '<div id="coParentInviteChildList" class="space-y-2 max-h-40 overflow-y-auto"></div>' +
+      '<button type="button" id="coParentInviteSelectAll" class="text-sm text-gold font-semibold mt-1 hidden">Välj alla</button>' +
+      '</div>' +
       '<p id="coParentInviteModalMsg" class="text-sm min-h-[1.4em]"></p>' +
       '<div class="flex gap-3 pt-1">' +
       '<button type="button" class="co-parent-invite-close flex-1 px-4 py-3 border-2 border-lavender text-navy rounded-xl font-semibold">Avbryt</button>' +
@@ -53,7 +58,7 @@
     bindModal(wrap);
   }
 
-  async function sendInvite(name, email, familyRole, msgEl, btn) {
+  async function sendInvite(name, email, familyRole, childIds, msgEl, btn) {
     if (!global.Auth || !global.Auth.api) {
       if (msgEl) {
         msgEl.textContent = 'Kunde inte skicka — logga in igen.';
@@ -80,9 +85,13 @@
         }
         return false;
       }
+      const payload = { name: name, email: email, family_role: familyRole };
+      if (Array.isArray(childIds) && childIds.length > 0) {
+        payload.child_ids = childIds;
+      }
       await global.Auth.api('/api/family/invite', {
         method: 'POST',
-        body: JSON.stringify({ name: name, email: email, family_role: familyRole }),
+        body: JSON.stringify(payload),
       });
       if (msgEl) {
         msgEl.textContent = '✓ Inbjudan skickad till ' + escHtml(email) + '!';
@@ -100,6 +109,49 @@
         btn.disabled = false;
         btn.textContent = 'Skicka inbjudan';
       }
+    }
+  }
+
+  function getSelectedInviteChildIds() {
+    const boxes = global.document.querySelectorAll('.co-parent-invite-child-cb:checked');
+    return [...boxes].map(function (cb) { return cb.value; });
+  }
+
+  async function loadInviteChildChoices() {
+    const section = global.document.getElementById('coParentInviteChildSection');
+    const list = global.document.getElementById('coParentInviteChildList');
+    const selectAllBtn = global.document.getElementById('coParentInviteSelectAll');
+    if (!section || !list || !global.Auth || !global.Auth.api) return;
+
+    try {
+      const fam = await global.Auth.api('/api/family');
+      const children = (fam && fam.children) ? fam.children : [];
+      list.innerHTML = '';
+      if (children.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      section.classList.remove('hidden');
+      children.forEach(function (c) {
+        const label = global.document.createElement('label');
+        label.className = 'flex items-center gap-3 text-sm text-navy cursor-pointer min-h-[44px]';
+        label.innerHTML =
+          '<input type="checkbox" class="co-parent-invite-child-cb w-5 h-5 rounded border-lavender text-gold focus:ring-gold" value="' +
+          escHtml(c.id) + '" checked>' +
+          '<span>' + escHtml(c.emoji || '⭐') + ' ' + escHtml(c.name) + '</span>';
+        list.appendChild(label);
+      });
+      if (selectAllBtn) {
+        selectAllBtn.classList.toggle('hidden', children.length <= 1);
+        selectAllBtn.onclick = function () {
+          global.document.querySelectorAll('.co-parent-invite-child-cb').forEach(function (cb) {
+            cb.checked = true;
+          });
+        };
+      }
+    } catch (err) {
+      console.warn('[CO-PARENT] child list failed:', err);
+      section.classList.add('hidden');
     }
   }
 
@@ -122,9 +174,19 @@
       const email = global.document.getElementById('coParentInviteModalEmail').value.trim();
       const roleEl = global.document.getElementById('coParentInviteModalRole');
       const familyRole = roleEl && roleEl.value ? roleEl.value : null;
+      const childIds = getSelectedInviteChildIds();
       const msg = global.document.getElementById('coParentInviteModalMsg');
       const btn = global.document.getElementById('coParentInviteModalSubmit');
-      const ok = await sendInvite(name, email, familyRole, msg, btn);
+      if (global.document.getElementById('coParentInviteChildSection') &&
+          !global.document.getElementById('coParentInviteChildSection').classList.contains('hidden') &&
+          childIds.length === 0) {
+        if (msg) {
+          msg.textContent = 'Välj minst ett barn.';
+          msg.className = 'text-sm text-red-500 font-medium';
+        }
+        return;
+      }
+      const ok = await sendInvite(name, email, familyRole, childIds, msg, btn);
       if (ok) {
         global.document.getElementById('coParentInviteModalName').value = '';
         global.document.getElementById('coParentInviteModalEmail').value = '';
@@ -141,6 +203,8 @@
     ensureModal();
     const modal = global.document.getElementById(MODAL_ID);
     if (!modal) return;
+
+    loadInviteChildChoices();
 
     const drawer = global.document.getElementById('childDrawer');
     if (drawer && !drawer.classList.contains('hidden') && typeof global.closeChildDrawer === 'function') {

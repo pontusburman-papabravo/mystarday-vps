@@ -20,6 +20,8 @@ const {
   checkChildNameInFamily,
   VALID_FAMILY_ROLES,
 } = require('../../lib/family-duplicates');
+const { resolveInviteChildIdsForParent } = require('../../lib/family-invite-child-ids');
+const { syncAccountType } = require('../../../db/parent-access');
 
 const router = express.Router();
 
@@ -53,7 +55,8 @@ router.post('/check-member', validate(CheckFamilyMemberSchema), async (req, res)
 // ─── POST /api/family/invite ────────────────────────────
 router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, res) => {
   try {
-    const { email, name, childIds, family_role: familyRole } = req.body;
+    const { email, name, child_ids: childIdsSnake, family_role: familyRole } = req.body;
+    const requestedChildIds = childIdsSnake;
 
     const normalizedEmail = email.toLowerCase().trim();
     const inviteeName = name ? name.trim() : null;
@@ -84,6 +87,16 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
     const locale = resolveCommunicationLocale(familyResult.rows[0]?.preferred_locale);
 
+    const childResolution = await resolveInviteChildIdsForParent(
+      req.user.id,
+      req.user.familyId,
+      requestedChildIds
+    );
+    if (!childResolution.ok) {
+      return res.status(childResolution.status).json({ error: childResolution.error });
+    }
+    const inviteChildIds = childResolution.childIds;
+
     // Create invite with crypto token (64 hex chars)
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 7 * 24 * 3600_000); // 7 days
@@ -91,7 +104,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     await db.query(
       `INSERT INTO family_invite (family_id, email, child_ids, token, expires_at, inviter_name, invitee_name, invitee_family_role)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [req.user.familyId, normalizedEmail, childIds || [], token, expiresAt, inviterName, inviteeName, inviteeFamilyRole]
+      [req.user.familyId, normalizedEmail, inviteChildIds, token, expiresAt, inviterName, inviteeName, inviteeFamilyRole]
     );
 
     // Send invite email
@@ -311,22 +324,29 @@ router.post('/accept-invite', async (req, res) => {
         [invite.family_id, req.user.id]
       );
 
-      // Create parent_child records for shared children
-      if (invite.child_ids && invite.child_ids.length > 0) {
-        for (const childId of invite.child_ids) {
-          // Check if link already exists
-          const existing = await client.query(
-            'SELECT 1 FROM parent_child WHERE parent_id = $1 AND child_id = $2',
-            [req.user.id, childId]
-          );
-          if (existing.rows.length === 0) {
-            await client.query(
-              `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'shared')`,
-              [req.user.id, childId]
-            );
-          }
+      // Create parent_child records for invited children only
+      let childIdsToLink = invite.child_ids && invite.child_ids.length > 0
+        ? invite.child_ids
+        : [];
+      if (childIdsToLink.length === 0) {
+        const allInFamily = await client.query(
+          'SELECT id FROM child WHERE family_id = $1',
+          [invite.family_id]
+        );
+        childIdsToLink = allInFamily.rows.map((r) => r.id);
+      } else {
+        const valid = await client.query(
+          'SELECT id FROM child WHERE family_id = $1 AND id = ANY($2::uuid[])',
+          [invite.family_id, childIdsToLink]
+        );
+        if (valid.rows.length !== childIdsToLink.length) {
+          await client.query('ROLLBACK');
+          return res.status(400).json({ error: 'Inbjudan innehåller ogiltiga barn' });
         }
       }
+
+      const { setActiveChildrenForParent } = require('../../../db/parent-child-links');
+      await setActiveChildrenForParent(client, req.user.id, childIdsToLink, {});
 
       // Mark invite as accepted
       await client.query(
@@ -335,6 +355,8 @@ router.post('/accept-invite', async (req, res) => {
       );
 
       await client.query('COMMIT');
+
+      await syncAccountType(req.user.id);
 
       require('../../lib/journey/ingest').ingestMilestoneAsync({
         familyId: invite.family_id,

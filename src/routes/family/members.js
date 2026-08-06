@@ -11,6 +11,9 @@ const { deleteAvatarForChildRecord, deleteAvatarForParentRecord } = require('../
 const { validate } = require('../../middleware/validate');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { UpdateFamilyMemberSchema } = require('../../lib/schemas');
+const { getChildrenForParent, syncAccountType } = require('../../../db/parent-access');
+const { setActiveChildrenForParent } = require('../../../db/parent-child-links');
+const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
 
 const router = express.Router();
 
@@ -53,10 +56,17 @@ router.put('/members/:id/children', async (req, res) => {
   const client = await db.getClient();
   try {
     const memberId = req.params.id;
-    const { childIds } = req.body;
+    const childIds = req.body.child_ids || req.body.childIds;
 
     if (!Array.isArray(childIds) || childIds.length === 0) {
       return res.status(400).json({ error: 'Minst ett barn måste väljas' });
+    }
+
+    const adminAccessible = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
+    const adminChildIds = new Set(adminAccessible.map((c) => c.id));
+    const cannotAssign = childIds.filter((id) => !adminChildIds.has(id));
+    if (cannotAssign.length > 0) {
+      return res.status(403).json({ error: 'Du kan bara ge åtkomst till barn du själv administrerar' });
     }
 
     await client.query('BEGIN');
@@ -76,27 +86,20 @@ router.put('/members/:id/children', async (req, res) => {
       'SELECT id FROM child WHERE family_id = $1',
       [req.user.familyId]
     );
-    const familyChildIds = childResult.rows.map(r => r.id);
-    const invalidIds = childIds.filter(id => !familyChildIds.includes(id));
+    const familyChildIds = new Set(childResult.rows.map((r) => r.id));
+    const invalidIds = childIds.filter((id) => !familyChildIds.has(id));
     if (invalidIds.length > 0) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Ogiltiga barn-ID:n' });
     }
 
-    // Remove existing links
-    await client.query('DELETE FROM parent_child WHERE parent_id = $1', [memberId]);
-
-    // Re-create with selected children
-    for (const childId of childIds) {
-      await client.query(
-        `INSERT INTO parent_child (parent_id, child_id, role)
-         VALUES ($1, $2, 'shared')
-         ON CONFLICT (parent_id, child_id) DO NOTHING`,
-        [memberId, childId]
-      );
-    }
+    await setActiveChildrenForParent(client, memberId, childIds, { revokedBy: req.user.id });
 
     await client.query('COMMIT');
+
+    await syncAccountType(memberId);
+    await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });
+
     res.json({ message: 'Barnkopplingar uppdaterade!' });
   } catch (err) {
     await client.query('ROLLBACK');
@@ -159,6 +162,9 @@ router.delete('/members/:id', async (req, res) => {
     await client.query('DELETE FROM parent WHERE id = $1', [memberId]);
 
     await client.query('COMMIT');
+
+    await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });
+
     res.json({ message: 'Förälder borttagen från famiglia.' });
   } catch (err) {
     await client.query('ROLLBACK');

@@ -64,7 +64,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       `SELECT pc.parent_id, pc.child_id, pc.role
        FROM parent_child pc
        JOIN parent p ON p.id = pc.parent_id
-       WHERE p.family_id = $1`,
+       WHERE p.family_id = $1 AND pc.revoked_at IS NULL`,
       [req.user.familyId]
     );
     const linksByParent = {};
