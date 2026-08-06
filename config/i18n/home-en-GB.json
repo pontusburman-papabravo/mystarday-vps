@@ -45,7 +45,15 @@
     "title": "Time for your child to log in?",
     "sub": "Switch to child view with PIN.",
     "childLogin": "👶 Child logs in",
-    "parentLogout": "Log out"
+    "parentLogout": "Log out",
+    "regionAria": "Switch to child login",
+    "dismissTitle": "Close",
+    "postSchema": {
+      "title": "Next step: Let your child try their routine",
+      "sub": "Open child mode together — it only takes about a minute.",
+      "childLogin": "Try child mode now",
+      "regionAria": "Next step: let your child try their routine"
+    }
   },
   "firstSuccess": {
     "coachAria": "Next step toward your first successful routine",

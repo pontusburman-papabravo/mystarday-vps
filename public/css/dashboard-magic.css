@@ -811,6 +811,14 @@ body.parent-magic-dashboard .parent-ready-child {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.parent-handoff-post-schema .parent-handoff-lock {
+  display: none;
+}
+
+.dash-child-handoff-post-schema .dash-child-handoff-secondary.hidden {
+  display: none;
+}
+
 .parent-encourage-inline {
   display: flex;
   align-items: center;

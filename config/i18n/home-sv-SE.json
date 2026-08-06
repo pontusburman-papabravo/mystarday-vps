@@ -45,7 +45,15 @@
     "title": "Dags för barnet att logga in?",
     "sub": "Byt till barnets vy med PIN-kod.",
     "childLogin": "👶 Barnet loggar in",
-    "parentLogout": "Logga ut"
+    "parentLogout": "Logga ut",
+    "regionAria": "Byt till barnets inloggning",
+    "dismissTitle": "Stäng",
+    "postSchema": {
+      "title": "Nästa steg: Låt barnet testa sin rutin",
+      "sub": "Det tar ungefär en minut",
+      "childLogin": "Testa barnläget nu",
+      "regionAria": "Nästa steg: låt barnet testa sin rutin"
+    }
   },
   "firstSuccess": {
     "coachAria": "Nästa steg för första lyckade rutin",
