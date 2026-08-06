@@ -94,6 +94,14 @@ async function listReferralStats() {
  */
 async function qualifyReferralForFamily(familyId) {
   if (!familyId) return null;
+  const fs = await db.query(
+    `SELECT 1 FROM family_milestones
+     WHERE family_id = $1 AND milestone = 'first_success'
+     LIMIT 1`,
+    [familyId]
+  );
+  if (!fs.rows[0]) return null;
+
   const result = await db.query(
     `UPDATE referral
      SET status = 'qualified', qualified_at = NOW()

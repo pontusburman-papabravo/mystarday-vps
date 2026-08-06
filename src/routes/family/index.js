@@ -38,6 +38,9 @@ router.use('/', require('./first-success'));
 // ─── Canonical next-action (Journey authority, flag-gated) ───────────────────
 router.use('/', require('./next-action'));
 
+// ─── R4.7 growth (dismiss snooze, weekly highlight) ────────────────────────
+router.use('/', require('./growth'));
+
 // ─── Account-deletion route ───────────────────────────────────────────────────
 router.use('/', require('./account'));
 

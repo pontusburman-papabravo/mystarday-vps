@@ -29,6 +29,8 @@ const ACTION_KEYS = [
   'continue_today',
   'welcome_back',
   'invite_adult',
+  'share_week',
+  'refer_family',
 ];
 
 before(() => {

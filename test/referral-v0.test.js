@@ -15,10 +15,9 @@ describe('referral v0', () => {
     assert.match(src, /qualifyReferralForFamily/);
   });
 
-  it('activation-p0 qualifies referral when P0 first achieved', () => {
-    const src = read('src/lib/activation-p0.js');
-    assert.match(src, /qualifyReferralForFamily/);
-    assert.match(src, /referral_qualified/);
+  it('qualifies on first_success not registration alone', () => {
+    const src = read('db/referral.js');
+    assert.match(src, /milestone = 'first_success'/);
   });
 
   it('GET /api/account/referral route exists and is eligibility-gated', () => {

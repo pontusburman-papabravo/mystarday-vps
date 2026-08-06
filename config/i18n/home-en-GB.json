@@ -115,9 +115,44 @@
         "cta": "Open child view"
       },
       "invite_adult": {
-        "headline": "Another adult can help too",
+        "headline": "Would another adult like to help too?",
         "body": "Invite when it suits you — you stay in control.",
-        "cta": "Invite adult"
+        "cta": "Invite an adult"
+      },
+      "share_week": {
+        "headline": "A small highlight from the week",
+        "body": "Share only if you want — nothing is posted automatically.",
+        "cta": "Share highlight"
+      },
+      "refer_family": {
+        "headline": "Know a family who might like routines?",
+        "body": "Share a personal link — no reward, just a tip.",
+        "cta": "Share the app"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Not now",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "You took steps in your routines this week",
+        "body": "A calm summary — just for you.",
+        "shareText": "We use My Starday for children's routines at home. If you want to try a simple family app."
+      },
+      "morning": {
+        "headline": "Several mornings went a bit smoother this week",
+        "body": "Well done — share only if you want.",
+        "shareText": "We've had calmer mornings with a simple routine app. It might help your family too."
+      },
+      "evening": {
+        "headline": "The evening routine worked several times this week",
+        "body": "A private highlight — no ranking.",
+        "shareText": "Evening routines got a bit easier at our house. If you're looking for a calm tool."
+      },
+      "multi_child": {
+        "headline": "Your children took several steps in their routines this week",
+        "body": "Summary without names or photos.",
+        "shareText": "We use My Starday for the kids' routines. To try it:"
       }
     }
   },
