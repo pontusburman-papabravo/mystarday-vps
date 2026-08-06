@@ -60,8 +60,8 @@
     if (document.getElementById('globalFeedbackBtn')) return;
     const btn = document.createElement('button');
     btn.id = 'globalFeedbackBtn';
-    btn.setAttribute('aria-label', fbOr('fabAria', 'Ge feedback'));
-    btn.title = fbOr('fabTitle', 'Ge feedback');
+    btn.setAttribute('aria-label', fbOr('fabAria', 'Give feedback'));
+    btn.title = fbOr('fabTitle', 'Give feedback');
     btn.innerHTML = '💬';
     btn.className = 'global-feedback-fab fixed z-40 flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95';
     Object.assign(btn.style, {
@@ -87,29 +87,29 @@
     modal.innerHTML = `
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-2xl" style="max-width:28rem;">
         <div class="flex items-center justify-between mb-4">
-          <h3 id="globalFeedbackModalTitle" class="text-lg font-heading font-bold text-navy dark:text-white" style="font-family:'Outfit',sans-serif;">💬 Ge feedback</h3>
+          <h3 id="globalFeedbackModalTitle" class="text-lg font-heading font-bold text-navy dark:text-white" style="font-family:'Outfit',sans-serif;">💬 Give feedback</h3>
           <button id="globalFeedbackClose" type="button" class="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1 rounded-lg transition-colors text-xl" style="line-height:1;" aria-label="Close">&times;</button>
         </div>
         <form id="globalFeedbackForm" class="space-y-4" style="display:flex;flex-direction:column;gap:16px;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="bug" checked style="accent-color:#F5A623;">
-              <span id="globalFeedbackTypeBug" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🐛 Problem</span>
+              <span id="globalFeedbackTypeBug" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🐛 Report a problem</span>
             </label>
             <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="feedback" style="accent-color:#F5A623;">
-              <span id="globalFeedbackTypeSuggestion" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">💡 Förslag</span>
+              <span id="globalFeedbackTypeSuggestion" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">💡 Suggestion</span>
             </label>
             <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="language" style="accent-color:#F5A623;">
-              <span id="globalFeedbackTypeLanguage" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🌐 Språk</span>
+              <span id="globalFeedbackTypeLanguage" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🌐 Language</span>
             </label>
           </div>
-          <input type="text" id="globalFeedbackTitle" placeholder="Rubrik" required maxlength="100"
+          <input type="text" id="globalFeedbackTitle" placeholder="Title" required maxlength="100"
             class="dark:bg-navy dark:text-white"
             style="width:100%;padding:12px 16px;border:2px solid #EDE7F6;border-radius:12px;font-size:14px;outline:none;transition:border-color 0.2s;color:#1B2340;"
             onfocus="this.style.borderColor='#F5A623'" onblur="this.style.borderColor='#EDE7F6'">
-          <textarea id="globalFeedbackMessage" placeholder="Beskriv problemet eller förbättringsförslaget..." required rows="4"
+          <textarea id="globalFeedbackMessage" placeholder="What happened?" required rows="4"
             class="dark:bg-navy dark:text-white"
             style="width:100%;padding:12px 16px;border:2px solid #EDE7F6;border-radius:12px;font-size:14px;outline:none;transition:border-color 0.2s;resize:none;color:#1B2340;"
             onfocus="this.style.borderColor='#F5A623'" onblur="this.style.borderColor='#EDE7F6'"></textarea>
@@ -117,10 +117,10 @@
           <div style="display:flex;gap:12px;">
             <button type="button" id="globalFeedbackCancel"
               style="flex:1;padding:12px;background:#EDE7F6;color:#1B2340;border:none;border-radius:12px;font-weight:600;font-size:14px;cursor:pointer;transition:background 0.2s;"
-              onmouseover="this.style.background='#E8F0FE'" onmouseout="this.style.background='#EDE7F6'">Avbryt</button>
+              onmouseover="this.style.background='#E8F0FE'" onmouseout="this.style.background='#EDE7F6'">Cancel</button>
             <button type="submit" id="globalFeedbackSubmit"
               style="flex:1;padding:12px;background:#F5A623;color:#fff;border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;transition:background 0.2s;font-family:'Outfit',sans-serif;"
-              onmouseover="this.style.background='#e09500'" onmouseout="this.style.background='#F5A623'">Skicka</button>
+              onmouseover="this.style.background='#e09500'" onmouseout="this.style.background='#F5A623'">Send report</button>
           </div>
         </form>
       </div>
@@ -131,25 +131,25 @@
   function applyFeedbackCopy() {
     const btn = document.getElementById('globalFeedbackBtn');
     if (btn) {
-      btn.setAttribute('aria-label', fbOr('fabAria', 'Ge feedback'));
-      btn.title = fbOr('fabTitle', 'Ge feedback');
+      btn.setAttribute('aria-label', fbOr('fabAria', 'Give feedback'));
+      btn.title = fbOr('fabTitle', 'Give feedback');
     }
     const title = document.getElementById('globalFeedbackModalTitle');
-    if (title) title.textContent = '💬 ' + fbOr('modalTitle', 'Ge feedback');
+    if (title) title.textContent = '💬 ' + fbOr('modalTitle', 'Give feedback');
     const bug = document.getElementById('globalFeedbackTypeBug');
-    if (bug) bug.textContent = '🐛 ' + fbOr('typeBug', 'Problem');
+    if (bug) bug.textContent = '🐛 ' + fbOr('typeBug', 'Report a problem');
     const sug = document.getElementById('globalFeedbackTypeSuggestion');
-    if (sug) sug.textContent = '💡 ' + fbOr('typeSuggestion', 'Förslag');
+    if (sug) sug.textContent = '💡 ' + fbOr('typeSuggestion', 'Suggestion');
     const lang = document.getElementById('globalFeedbackTypeLanguage');
-    if (lang) lang.textContent = '🌐 ' + fbOr('typeLanguage', 'Språk');
+    if (lang) lang.textContent = '🌐 ' + fbOr('typeLanguage', 'Language');
     const titleInput = document.getElementById('globalFeedbackTitle');
-    if (titleInput) titleInput.placeholder = fbOr('titlePlaceholder', 'Rubrik');
+    if (titleInput) titleInput.placeholder = fbOr('titlePlaceholder', 'Title');
     const msgInput = document.getElementById('globalFeedbackMessage');
-    if (msgInput) msgInput.placeholder = fbOr('messagePlaceholder', 'Beskriv problemet eller förbättringsförslaget...');
+    if (msgInput) msgInput.placeholder = fbOr('messagePlaceholder', 'What happened?');
     const cancel = document.getElementById('globalFeedbackCancel');
-    if (cancel) cancel.textContent = fbOr('cancel', 'Avbryt');
+    if (cancel) cancel.textContent = fbOr('cancel', 'Cancel');
     const submit = document.getElementById('globalFeedbackSubmit');
-    if (submit && !submit.disabled) submit.textContent = fbOr('submit', 'Skicka');
+    if (submit && !submit.disabled) submit.textContent = fbOr('submit', 'Send report');
   }
 
   function buildFeedbackMetadata() {
@@ -204,13 +204,13 @@
       const message = document.getElementById('globalFeedbackMessage').value.trim();
 
       if (!title || !message) {
-        msgEl.textContent = fbOr('validationRequired', 'Fyll i alla fält.');
+        msgEl.textContent = fbOr('validationRequired', 'Please fill in all fields.');
         msgEl.style.color = '#ef4444';
         return;
       }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = fbOr('submitting', 'Skickar...');
+      submitBtn.textContent = fbOr('submitting', 'Sending...');
       submitBtn.style.opacity = '0.7';
 
       try {
@@ -224,15 +224,15 @@
           }),
         });
         if (type === 'language') trackLanguageReport('language_issue_report_submitted');
-        msgEl.textContent = data.message || fbOr('success', 'Tack för din feedback!');
+        msgEl.textContent = data.message || fbOr('success', 'Your report has been sent.');
         msgEl.style.color = '#16a34a';
         setTimeout(function() { closeModal(); }, 2000);
       } catch (err) {
-        msgEl.textContent = err.message || fbOr('errorGeneric', 'Något gick fel. Försök igen.');
+        msgEl.textContent = err.message || fbOr('errorGeneric', 'Something went wrong. Please try again.');
         msgEl.style.color = '#ef4444';
       }
       submitBtn.disabled = false;
-      submitBtn.textContent = fbOr('submit', 'Skicka');
+      submitBtn.textContent = fbOr('submit', 'Send report');
       submitBtn.style.opacity = '1';
     });
   }

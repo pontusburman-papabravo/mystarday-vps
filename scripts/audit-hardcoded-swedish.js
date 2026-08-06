@@ -55,6 +55,7 @@ const STRICT_FILES = [
   'src/routes/onboarding.js',
   'config/i18n/onboarding-en-GB.json',
   'public/js/parent-app-i18n.js',
+  'public/js/feedback.js',
   'public/js/locale-datetime.js',
   'public/js/dashboard-home-hub.js',
   'public/js/dashboard-daily-summary.js',
