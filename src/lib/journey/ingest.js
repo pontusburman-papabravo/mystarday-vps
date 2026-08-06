@@ -161,7 +161,23 @@ async function maybeDeriveFirstSuccess(familyId, client) {
     occurredAt,
   }, client);
 
-  if (inserted) await familyMilestones.setJourneyPhase(familyId, 'BUILDING_ROUTINE', client);
+  if (inserted) {
+    await familyMilestones.setJourneyPhase(familyId, 'BUILDING_ROUTINE', client);
+    try {
+      const { isActivationFlagEnabled, FLAG_KEYS } = require('../activation-flags');
+      const referralEnabled = await isActivationFlagEnabled(FLAG_KEYS.referral, familyId);
+      if (referralEnabled) {
+        const referralDb = require('../../../db/referral');
+        const qualified = await referralDb.qualifyReferralForFamily(familyId);
+        if (qualified) {
+          const analytics = require('../../../db/analytics');
+          analytics.track(familyId, 'referral_qualified', { outcome: 'first_success' });
+        }
+      }
+    } catch (refErr) {
+      console.error('[journey/ingest] referral qualify failed:', refErr.message);
+    }
+  }
   return inserted;
 }
 

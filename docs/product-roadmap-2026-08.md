@@ -210,6 +210,8 @@ flowchart TB
 | R4.2 Medförälder | `medforalder_cta` ON efter First Success-värde; mät `cta_invite_co_parent_*`. |
 | R4.3 Referral v0 | `referral_program` + `growth_referral_cta_v1` — spårning only (ingen belöning v0, se [`referral-program.md`](./referral-program.md)). |
 | R4.4 Kvällsanpassad onboarding | Produktcopy/flow: rutin klar ikväll → barnvy imorgon (ny UX — kräver spec/ADR om stor). |
+| R4.6 Journey retention | `journey_retention_home_v1` — ett Hem-beslut via `buildRetentionHomeDecision`. |
+| R4.7 Product-led growth | `growth_home_v1` — post-value invite, privat veckohöjdpunkt, kvalificerad referral (first_success). |
 
 **DoD R4:**
 

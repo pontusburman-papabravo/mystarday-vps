@@ -200,32 +200,9 @@ async function buildRetentionHomeDecision(familyId, parentId) {
     };
   }
 
-  const parentCount = await db.query(
-    'SELECT COUNT(*)::int AS n FROM parent WHERE family_id = $1',
-    [familyId]
-  );
-  const invitePending = await db.query(
-    `SELECT COUNT(*)::int AS n FROM family_invite
-     WHERE family_id = $1 AND accepted = false AND expires_at > NOW()`,
-    [familyId]
-  );
-  if (
-    parentCount.rows[0].n === 1
-    && !milestones.coparent_joined
-    && invitePending.rows[0].n === 0
-    && milestones.first_success
-  ) {
-    return {
-      action: 'INVITE_ADULT',
-      priority: 40,
-      reason: 'OPTIONAL_CO_PARENT',
-      surface: 'home',
-      communication: 'none',
-      show_primary_coach: true,
-      child_id: null,
-      child_name: null,
-    };
-  }
+  const { pickGrowthHomeStep } = require('../growth/home-growth-step');
+  const growth = await pickGrowthHomeStep(familyId, parentId, { milestones, children });
+  if (growth) return growth;
 
   return {
     action: 'SILENT',
@@ -250,6 +227,8 @@ const ACTION_TO_NEXT = {
   CONTINUE_TODAY: 'continue_today',
   WELCOME_BACK: 'welcome_back',
   INVITE_ADULT: 'invite_adult',
+  SHARE_WEEK: 'share_week',
+  REFER_FAMILY: 'refer_family',
   SILENT: 'none',
 };
 
@@ -299,9 +278,37 @@ async function retentionToCanonicalFields(decision, familyId) {
     const tz = localeRow.rows[0]?.timezone || 'Europe/Stockholm';
     ctaTarget = `/daily-log?childId=${decision.child_id}&date=${getLocalDateStr(undefined, tz)}`;
   }
-  if (nextAction === 'invite_adult') {
-    ctaTarget = null;
+
+  const weeklyHighlight = decision.weekly_highlight
+    ? (() => {
+      const { formatHighlightCopy } = require('../growth/weekly-highlight');
+      return formatHighlightCopy(lang, decision.weekly_highlight);
+    })()
+    : null;
+
+  if (weeklyHighlight && nextAction === 'share_week') {
+    return {
+      show_primary_coach: true,
+      next_action: nextAction,
+      primary_action: {
+        action: decision.action,
+        priority: decision.priority,
+        reason: decision.reason,
+        surface: decision.surface,
+        communication: decision.communication,
+        child_id: decision.child_id,
+      },
+      reason: [decision.reason],
+      cta_label: ctaLabel,
+      cta_target: null,
+      headline: weeklyHighlight.headline,
+      body: weeklyHighlight.body,
+      share_text: weeklyHighlight.share_text,
+      dismiss_action: 'snooze_share_week',
+    };
   }
+
+  const dismissAction = nextAction === 'invite_adult' ? 'snooze_invite_adult' : null;
 
   return {
     show_primary_coach: true,
@@ -319,6 +326,7 @@ async function retentionToCanonicalFields(decision, familyId) {
     cta_target: ctaTarget,
     headline,
     body,
+    dismiss_action: dismissAction,
   };
 }
 

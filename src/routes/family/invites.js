@@ -113,6 +113,13 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
       return res.status(502).json({ error: 'Kunde inte skicka inbjudan via e-post. Försök igen.' });
     }
 
+    try {
+      require('../../../db/analytics').track(req.user.familyId, 'adult_invite_sent', {
+        surface: req.body?.surface || 'family_settings',
+        child_count_bucket: inviteChildIds.length > 1 ? 'multi' : 'single',
+      });
+    } catch (_) { /* non-critical */ }
+
     res.status(201).json({
       message: `Inbjudan skickad till ${normalizedEmail}!`,
       invite: {

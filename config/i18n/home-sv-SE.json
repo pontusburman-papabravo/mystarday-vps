@@ -115,9 +115,44 @@
         "cta": "Öppna barnets vy"
       },
       "invite_adult": {
-        "headline": "En annan vuxen kan också hjälpa till",
+        "headline": "Vill du att en annan vuxen också ska kunna hjälpa till?",
         "body": "Bjud in när det passar — ni bestämmer själva.",
-        "cta": "Bjud in vuxen"
+        "cta": "Bjud in en vuxen"
+      },
+      "share_week": {
+        "headline": "En liten höjdpunkt från veckan",
+        "body": "Dela frivilligt — inget publiceras automatiskt.",
+        "cta": "Dela höjdpunkten"
+      },
+      "refer_family": {
+        "headline": "Känner du en familj som skulle gilla rutiner?",
+        "body": "Dela en personlig länk — ingen belöning, bara ett tips.",
+        "cta": "Dela appen"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Inte nu",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Ni har tagit steg i rutinerna den här veckan",
+        "body": "En lugn sammanfattning — bara för er.",
+        "shareText": "Vi använder en enkel rutinapp för barnen hemma. Om ni vill prova något liknande."
+      },
+      "morning": {
+        "headline": "Flera morgnar blev lite enklare den här veckan",
+        "body": "Bra jobbat — dela bara om ni vill.",
+        "shareText": "Vi har fått till fler lugna morgnar med en enkel rutinapp. Om det kan hjälpa er familj också."
+      },
+      "evening": {
+        "headline": "Kvällsrutinen har fungerat flera gånger den här veckan",
+        "body": "En privat höjdpunkt — ingen ranking.",
+        "shareText": "Kvällsrutiner har blivit lite enklare hemma hos oss. Tips om ni söker ett lugnt verktyg."
+      },
+      "multi_child": {
+        "headline": "Barnen har tagit flera steg i sina rutiner den här veckan",
+        "body": "Sammanfattning utan namn eller bilder.",
+        "shareText": "Vi använder Min Stjärndag för rutiner med barnen. Om ni vill testa:"
       }
     }
   },

@@ -37,6 +37,19 @@
     });
   }
 
+  async function onDismissGrowth(payload) {
+    if (!payload || !payload.dismiss_action || typeof window.apiFetch !== 'function') return;
+    try {
+      await window.apiFetch('/api/family/growth/dismiss', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: payload.dismiss_action }),
+      });
+    } catch (_) { /* non-critical */ }
+    cache = { at: 0, data: null, flagOn: false };
+    render(null);
+  }
+
   function onPrimaryCta(payload) {
     track('activation_first_success_cta_clicked', {
       next_action: payload.next_action,
@@ -57,6 +70,7 @@
       return;
     }
     if (action === 'invite_adult') {
+      track('cta_invite_co_parent_clicked', { surface: 'journey_home' });
       if (window.CoParentInviteUI && typeof CoParentInviteUI.open === 'function') {
         CoParentInviteUI.open();
         return;
@@ -66,6 +80,34 @@
         return;
       }
       window.location.href = '/settings#family';
+      return;
+    }
+    if (action === 'share_week') {
+      track('weekly_highlight_shared', { surface: 'journey_home', channel: 'primary_cta' });
+      var text = payload.share_text || payload.body || '';
+      if (navigator.share) {
+        navigator.share({ text: text }).catch(function () {});
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function () {});
+      }
+      return;
+    }
+    if (action === 'refer_family') {
+      if (window.ReferralShare && typeof ReferralShare.load === 'function') {
+        ReferralShare.load().then(function (ref) {
+          var payloadShare = ReferralShare.buildPayload(ref ? { personalUrl: ref.registerUrl } : {});
+          if (navigator.share) {
+            navigator.share({ text: payloadShare.text, url: payloadShare.url }).catch(function () {});
+          } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(payloadShare.text).catch(function () {});
+          }
+          track('referral_link_shared', { surface: 'journey_home', personal: Boolean(ref) });
+        });
+        return;
+      }
+      window.location.href = '/settings';
       return;
     }
     if (action === 'parent_ack' && payload.cta_target) {
@@ -93,6 +135,11 @@
       ? '<p class="text-xs text-text-soft mt-2">' + esc(pt('home.firstSuccess.pinHint')) + '</p>'
       : '';
 
+    const dismissHtml = payload.dismiss_action
+      ? '<button type="button" class="activation-fs-dismiss w-full min-h-[44px] py-3 mt-2 rounded-xl border-2 border-lavender text-navy font-semibold text-sm">' +
+        esc(pt('home.growth.dismissNotNow')) + '</button>'
+      : '';
+
     mount.classList.remove('hidden');
     mount.setAttribute('data-authority', 'activation-first-success-v1');
     mount.innerHTML =
@@ -101,11 +148,26 @@
       '<p class="text-sm text-navy mb-3">' + esc(body) + '</p>' +
       pinHint +
       '<button type="button" class="activation-fs-cta w-full min-h-[44px] py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(cta) + '</button>' +
+      dismissHtml +
       '</div>';
 
     const btn = mount.querySelector('.activation-fs-cta');
     if (btn) {
       btn.addEventListener('click', function () { onPrimaryCta(payload); });
+    }
+    const dismissBtn = mount.querySelector('.activation-fs-dismiss');
+    if (dismissBtn && payload.dismiss_action) {
+      dismissBtn.addEventListener('click', function () { onDismissGrowth(payload); });
+    }
+
+    if (payload.next_action === 'invite_adult') {
+      track('cta_invite_co_parent_shown', { surface: 'journey_home' });
+    }
+    if (payload.next_action === 'share_week') {
+      track('weekly_highlight_shown', { surface: 'journey_home' });
+    }
+    if (payload.next_action === 'refer_family') {
+      track('referral_shown', { surface: 'journey_home' });
     }
 
     trackShownOnce(payload);
