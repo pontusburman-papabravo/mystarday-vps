@@ -632,6 +632,16 @@ describe('Home offline banner locale', () => {
     assert.match(tour, /parent-i18n-ready/);
     assert.doesNotMatch(tour, /Välkommen till dashboarden/);
   });
+
+  it('global feedback FAB uses home.globalFeedback keys after parent i18n', () => {
+    const feedback = fs.readFileSync(path.join(__dirname, '../public/js/feedback.js'), 'utf8');
+    const en = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/home-en-GB.json'), 'utf8'));
+    assert.match(feedback, /home\.globalFeedback\./);
+    assert.match(feedback, /parent-i18n-ready/);
+    assert.equal(en.globalFeedback.typeBug, 'Report a problem');
+    assert.equal(en.globalFeedback.submit, 'Send report');
+    assert.equal(en.globalFeedback.success, 'Your report has been sent.');
+  });
 });
 
 describe('daily-log child selection boot', () => {

@@ -1,23 +1,33 @@
 /**
- * Global feedback button + modal for Min Stjärndag.
+ * Global feedback button + modal for [REDACTED].
  * Include this script on any parent page AFTER auth.js.
- * Injects a fixed-position feedback button (top-right) and a modal form.
- * Submits to POST /api/feedback (types: 'bug' | 'feedback').
+ * Injects a fixed-position feedback button and a modal form.
+ * Submits to POST /api/feedback (types: 'bug' | 'feedback' | 'language').
  */
 (function() {
   'use strict';
 
-  // Only init when the page is loaded and user is authenticated
   if (typeof Auth === 'undefined') return;
 
-  // Gate 2H: feedback_formular — only init if feature is available.
+  let mounted = false;
+
+  function fb(key) {
+    const fullKey = 'home.globalFeedback.' + key;
+    if (typeof window.pt === 'function') {
+      const v = window.pt(fullKey);
+      if (v && v !== fullKey) return v;
+    }
+  }
+
+  function fbOr(key, fallback) {
+    return fb(key) || fallback;
+  }
+
   async function initFeedback() {
     if (!Auth.isLoggedIn()) return;
     const user = Auth.getUser();
     if (user && (user.type === 'child' || (!user.email && user.username))) return;
 
-    // Async feature check — skip if feedback_formular is not available.
-    // If the check fails (non-critical), init anyway.
     try {
       const resp = await fetch('/api/features', { credentials: 'include' });
       if (resp.ok) {
@@ -27,16 +37,31 @@
       }
     } catch (_) { /* non-critical — proceed with init */ }
 
+    ensureMountedWhenI18nReady();
+    document.addEventListener('parent-i18n-ready', ensureMountedWhenI18nReady);
+    document.addEventListener('locale-changed', applyFeedbackCopy);
+  }
+
+  function ensureMountedWhenI18nReady() {
+    if (mounted) {
+      applyFeedbackCopy();
+      return;
+    }
+    if (!window.I18n || typeof window.pt !== 'function') return;
+    if (!Auth.isLoggedIn()) return;
     injectButton();
     injectModal();
     bindEvents();
+    applyFeedbackCopy();
+    mounted = true;
   }
 
   function injectButton() {
+    if (document.getElementById('globalFeedbackBtn')) return;
     const btn = document.createElement('button');
     btn.id = 'globalFeedbackBtn';
-    btn.setAttribute('aria-label', 'Ge feedback');
-    btn.title = 'Ge feedback';
+    btn.setAttribute('aria-label', fbOr('fabAria', 'Ge feedback'));
+    btn.title = fbOr('fabTitle', 'Ge feedback');
     btn.innerHTML = '💬';
     btn.className = 'global-feedback-fab fixed z-40 flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95';
     Object.assign(btn.style, {
@@ -54,6 +79,7 @@
   }
 
   function injectModal() {
+    if (document.getElementById('globalFeedbackModal')) return;
     const modal = document.createElement('div');
     modal.id = 'globalFeedbackModal';
     modal.className = 'hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4';
@@ -61,22 +87,22 @@
     modal.innerHTML = `
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-2xl" style="max-width:28rem;">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white" style="font-family:'Outfit',sans-serif;">💬 Ge feedback</h3>
-          <button id="globalFeedbackClose" class="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1 rounded-lg transition-colors text-xl" style="line-height:1;">&times;</button>
+          <h3 id="globalFeedbackModalTitle" class="text-lg font-heading font-bold text-navy dark:text-white" style="font-family:'Outfit',sans-serif;">💬 Ge feedback</h3>
+          <button id="globalFeedbackClose" type="button" class="text-gray-400 hover:text-gray-700 dark:hover:text-white p-1 rounded-lg transition-colors text-xl" style="line-height:1;" aria-label="Close">&times;</button>
         </div>
         <form id="globalFeedbackForm" class="space-y-4" style="display:flex;flex-direction:column;gap:16px;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="bug" checked style="accent-color:#F5A623;">
-              <span class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🐛 Problem</span>
+              <span id="globalFeedbackTypeBug" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🐛 Problem</span>
             </label>
             <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="feedback" style="accent-color:#F5A623;">
-              <span class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">💡 Förslag</span>
+              <span id="globalFeedbackTypeSuggestion" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">💡 Förslag</span>
             </label>
             <label style="flex:1;min-width:7rem;display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:12px;border:2px solid #EDE7F6;">
               <input type="radio" name="globalFeedbackType" value="language" style="accent-color:#F5A623;">
-              <span class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🌐 Språk</span>
+              <span id="globalFeedbackTypeLanguage" class="text-navy dark:text-white" style="font-weight:600;font-size:14px;">🌐 Språk</span>
             </label>
           </div>
           <input type="text" id="globalFeedbackTitle" placeholder="Rubrik" required maxlength="100"
@@ -100,6 +126,30 @@
       </div>
     `;
     document.body.appendChild(modal);
+  }
+
+  function applyFeedbackCopy() {
+    const btn = document.getElementById('globalFeedbackBtn');
+    if (btn) {
+      btn.setAttribute('aria-label', fbOr('fabAria', 'Ge feedback'));
+      btn.title = fbOr('fabTitle', 'Ge feedback');
+    }
+    const title = document.getElementById('globalFeedbackModalTitle');
+    if (title) title.textContent = '💬 ' + fbOr('modalTitle', 'Ge feedback');
+    const bug = document.getElementById('globalFeedbackTypeBug');
+    if (bug) bug.textContent = '🐛 ' + fbOr('typeBug', 'Problem');
+    const sug = document.getElementById('globalFeedbackTypeSuggestion');
+    if (sug) sug.textContent = '💡 ' + fbOr('typeSuggestion', 'Förslag');
+    const lang = document.getElementById('globalFeedbackTypeLanguage');
+    if (lang) lang.textContent = '🌐 ' + fbOr('typeLanguage', 'Språk');
+    const titleInput = document.getElementById('globalFeedbackTitle');
+    if (titleInput) titleInput.placeholder = fbOr('titlePlaceholder', 'Rubrik');
+    const msgInput = document.getElementById('globalFeedbackMessage');
+    if (msgInput) msgInput.placeholder = fbOr('messagePlaceholder', 'Beskriv problemet eller förbättringsförslaget...');
+    const cancel = document.getElementById('globalFeedbackCancel');
+    if (cancel) cancel.textContent = fbOr('cancel', 'Avbryt');
+    const submit = document.getElementById('globalFeedbackSubmit');
+    if (submit && !submit.disabled) submit.textContent = fbOr('submit', 'Skicka');
   }
 
   function buildFeedbackMetadata() {
@@ -128,18 +178,17 @@
     const cancelBtn = document.getElementById('globalFeedbackCancel');
     const form = document.getElementById('globalFeedbackForm');
 
-    if (!btn || !modal || !form) return;
+    if (!btn || !modal || !form || form.dataset.bound === '1') return;
+    form.dataset.bound = '1';
 
     btn.addEventListener('click', function() { openModal(); });
     closeBtn.addEventListener('click', function() { closeModal(); });
     cancelBtn.addEventListener('click', function() { closeModal(); });
 
-    // Close on backdrop click
     modal.addEventListener('click', function(e) {
       if (e.target === modal) closeModal();
     });
 
-    // Close on Escape
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
         closeModal();
@@ -155,13 +204,13 @@
       const message = document.getElementById('globalFeedbackMessage').value.trim();
 
       if (!title || !message) {
-        msgEl.textContent = 'Fyll i alla fält.';
+        msgEl.textContent = fbOr('validationRequired', 'Fyll i alla fält.');
         msgEl.style.color = '#ef4444';
         return;
       }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Skickar...';
+      submitBtn.textContent = fbOr('submitting', 'Skickar...');
       submitBtn.style.opacity = '0.7';
 
       try {
@@ -175,15 +224,15 @@
           }),
         });
         if (type === 'language') trackLanguageReport('language_issue_report_submitted');
-        msgEl.textContent = data.message || 'Tack för din feedback!';
+        msgEl.textContent = data.message || fbOr('success', 'Tack för din feedback!');
         msgEl.style.color = '#16a34a';
         setTimeout(function() { closeModal(); }, 2000);
       } catch (err) {
-        msgEl.textContent = err.message || 'Något gick fel. Försök igen.';
+        msgEl.textContent = err.message || fbOr('errorGeneric', 'Något gick fel. Försök igen.');
         msgEl.style.color = '#ef4444';
       }
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Skicka';
+      submitBtn.textContent = fbOr('submit', 'Skicka');
       submitBtn.style.opacity = '1';
     });
   }
@@ -191,6 +240,7 @@
   function openModal(presetType) {
     const modal = document.getElementById('globalFeedbackModal');
     if (!modal) return;
+    applyFeedbackCopy();
     modal.classList.remove('hidden');
     document.getElementById('globalFeedbackMsg').textContent = '';
     document.getElementById('globalFeedbackMsg').style.color = '';
@@ -210,12 +260,10 @@
     if (modal) modal.classList.add('hidden');
   }
 
-  // Expose for any inline onclick handlers that might still exist
   window.openFeedbackModal = function(presetType) { openModal(presetType); };
   window.openLanguageFeedbackModal = function() { openModal('language'); };
   window.closeFeedbackModal = function() { closeModal(); };
 
-  // Init when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFeedback);
   } else {

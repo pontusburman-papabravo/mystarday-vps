@@ -224,5 +224,21 @@
     "androidLead": "Install the app to get reminders on your phone.",
     "androidInstall": "Install app",
     "dismissAria": "Close"
+  },
+  "globalFeedback": {
+    "fabAria": "Give feedback",
+    "fabTitle": "Give feedback",
+    "modalTitle": "Give feedback",
+    "typeBug": "Report a problem",
+    "typeSuggestion": "Suggestion",
+    "typeLanguage": "Language",
+    "titlePlaceholder": "Title",
+    "messagePlaceholder": "What happened?",
+    "cancel": "Cancel",
+    "submit": "Send report",
+    "submitting": "Sending...",
+    "validationRequired": "Please fill in all fields.",
+    "success": "Your report has been sent.",
+    "errorGeneric": "Something went wrong. Please try again."
   }
 }
