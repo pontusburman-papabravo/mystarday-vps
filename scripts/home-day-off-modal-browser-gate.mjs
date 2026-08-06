@@ -147,19 +147,43 @@ async function main() {
         const doc = document.documentElement;
         const overflowX = doc.scrollWidth > doc.clientWidth + 2;
         const actionButtons = modal
-          ? Array.from(modal.querySelectorAll('button')).filter((b) => /Mark as day off|Resume routine/i.test(b.textContent || ''))
+          ? Array.from(modal.querySelectorAll('button.ledig-dag-toggle-btn'))
           : [];
-        const touchOk = actionButtons.length > 0 && actionButtons.every((b) => {
-          const r = b.getBoundingClientRect();
-          return r.width >= 120 && r.height >= 36;
-        });
+        const closeBtn = modal?.querySelector('button.ledig-dag-close-btn');
+        const rectOk = (el, minW, minH) => {
+          if (!el) return false;
+          const r = el.getBoundingClientRect();
+          return r.width >= minW && r.height >= minH;
+        };
+        const primaryTouchOk = actionButtons.length > 0
+          && actionButtons.every((b) => rectOk(b, 44, 44));
+        const closeTouchOk = rectOk(closeBtn, 44, 44);
+        const touchOk = primaryTouchOk && closeTouchOk;
         const enOk = markers.every((m) => text.includes(m));
         const svOk = !/Ledig dag|Pausar barnets schema|Barnet behöver inte bocka/i.test(text);
-        return { overflowX, touchOk, enOk, svOk, actionButtonCount: actionButtons.length, textSample: text.slice(0, 200) };
+        const primaryRects = actionButtons.map((b) => {
+          const r = b.getBoundingClientRect();
+          return { w: r.width, h: r.height };
+        });
+        const closeRect = closeBtn
+          ? (() => { const r = closeBtn.getBoundingClientRect(); return { w: r.width, h: r.height }; })()
+          : null;
+        return {
+          overflowX,
+          touchOk,
+          primaryTouchOk,
+          closeTouchOk,
+          enOk,
+          svOk,
+          actionButtonCount: actionButtons.length,
+          primaryRects,
+          closeRect,
+          textSample: text.slice(0, 200),
+        };
       }, EN_MARKERS);
       report.viewports[vp.name] = {
         ...metrics,
-        pass: !metrics.overflowX && metrics.enOk && metrics.svOk,
+        pass: !metrics.overflowX && metrics.enOk && metrics.svOk && metrics.touchOk,
       };
       await page.close();
     }

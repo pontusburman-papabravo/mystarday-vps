@@ -743,6 +743,8 @@ describe('home quick actions (retroactive + ledig dag modal)', () => {
     assert.match(cardActions, /home\.dayOffModal\./);
     assert.equal(en.dayOffModal.title, '🏠 Day off');
     assert.equal(en.dayOffModal.markDayOff, '🏠 Mark as day off');
+    assert.match(dashboardHtml, /ledig-dag-toggle-btn/);
+    assert.match(dashboardHtml, /min-height:\s*44px/);
     assert.doesNotMatch(cardActions, /showToast\('Inga barn hittades'/);
     assert.doesNotMatch(cardActions, /Ledig dag idag/);
   });

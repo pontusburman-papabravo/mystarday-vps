@@ -92,6 +92,22 @@
         max-height: calc(100dvh - 2rem);
         overflow-y: auto;
       }
+      #ledigDagModal .ledig-dag-toggle-btn {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+      }
+      #ledigDagModal .ledig-dag-close-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+      }
       /* Modal sticky footer buttons — always visible */
       #addActivityModal .flex-shrink-0:last-child {
         position: sticky;
@@ -1099,7 +1115,7 @@
           <h3 class="text-xl font-heading font-bold text-navy" data-i18n="home.dayOffModal.title">🏠 Ledig dag</h3>
           <p class="text-xs text-text-soft mt-0.5" data-i18n="home.dayOffModal.subtitle">Pausar barnets schema för hela dagen</p>
         </div>
-        <button type="button" onclick="if (window.closeLedigDagModal) closeLedigDagModal();" class="text-text-soft hover:text-navy text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center">&times;</button>
+        <button type="button" onclick="if (window.closeLedigDagModal) closeLedigDagModal();" class="ledig-dag-close-btn text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <div id="ledigDagList" class="flex flex-col gap-2"></div>
       <p class="text-xs text-text-soft mt-4 text-center" data-i18n="home.dayOffModal.footer">Barnet behöver inte bocka av aktiviteter en ledig dag</p>

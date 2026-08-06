@@ -190,7 +190,7 @@ async function openLedigDagModal() {
           </div>
           <button ${disabled}
             onclick="ledigDagToggle('${c.id}', '${logId}', ${isPaused})"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold border-2 transition-all ${btnCls} ${!logId ? 'opacity-40 cursor-not-allowed' : ''}">
+            class="ledig-dag-toggle-btn px-3 py-2 rounded-lg text-xs font-semibold border-2 transition-all ${btnCls} ${!logId ? 'opacity-40 cursor-not-allowed' : ''}">
             ${btnLabel}
           </button>
         </div>
