@@ -87,6 +87,33 @@
     "timerRange": "Timer must be between 5 seconds and 60 minutes (whole number).",
     "pickImage": "Choose an image from the image archive (or upload a new one)."
   },
+  "images": {
+    "archiveTitle": "📷 Image archive",
+    "archiveLead": "Take a photo — you crop before it is saved. Reuse on activities.",
+    "labelPlaceholder": "Name (optional), e.g. Toothbrush",
+    "uploadBtn": "📷 Upload image",
+    "loadingArchive": "Loading image archive…",
+    "emptyArchive": "No images yet — upload e.g. toothbrush, bed or school building.",
+    "defaultLabel": "Image",
+    "deleteTitle": "Remove",
+    "deleteConfirm": "Remove this image from the archive? Activities using it will show emoji (⭐) instead.",
+    "deleteFailed": "Could not remove the image",
+    "deleted": "Image removed",
+    "pickerEmpty": "Upload images in the archive below, or choose a file here.",
+    "pickTitle": "Choose image",
+    "uploading": "Uploading…",
+    "addedToArchive": "Image added to the archive",
+    "uploadFailed": "Upload failed",
+    "uploadBadResponse": "Upload failed (unexpected server response)",
+    "uploadNoUrl": "Server returned no image URL",
+    "uploaded": "Image uploaded",
+    "saveFailed": "Could not save to the image archive",
+    "recropBtn": "✂️ Re-crop",
+    "recropOpening": "Opening…",
+    "recropOpenFailed": "Could not open crop tool",
+    "recropSaved": "Image updated",
+    "recropSaveFailed": "Could not save crop"
+  },
   "substeps": {
     "add": "+ Add step"
   },
