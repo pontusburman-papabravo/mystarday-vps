@@ -176,6 +176,8 @@ flowchart TB
 
 ### R3 — Engelsk kontrollerad beta
 
+**Status (2026-08-06):** **R3 English engineering: COMPLETE** (i18n programme closed; RC-1 known risks R1–R3 addressed). **RC-1 automated acceptance: PASS** (local/CI gates). **Controlled beta / RC-2 physical-device & store launch: PENDING** (not blocked by open i18n engineering gaps).
+
 **Mål:** Parent English och begränsad kohort — **inte** full App Store-internationalisering.
 
 | Leverans | Beskrivning |
