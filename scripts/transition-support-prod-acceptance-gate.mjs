@@ -114,7 +114,9 @@ async function snapshotLogItemTiming(parentJar, parentCsrf, qaChildId) {
   const dateStr = getLocalDateStr(new Date(), 'Europe/Stockholm');
   const logRes = await apiFetch(parentJar, parentCsrf, `/api/children/${qaChildId}/daily-log?date=${dateStr}`);
   const items = logRes.json?.items || [];
-  const target = items.find((i) => !i.completed) || items[0];
+  const target = items.find((i) => !i.completed && !i.image_url)
+    || items.find((i) => !i.completed)
+    || items[0];
   if (!target?.id) return { item: null };
   return {
     item: {
