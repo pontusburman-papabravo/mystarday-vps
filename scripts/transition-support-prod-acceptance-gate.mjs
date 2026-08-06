@@ -202,17 +202,20 @@ async function runHttpMobileFallback() {
   throw new Error('browser_required_no_http_fallback');
 }
 
-async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
+async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMeUser) {
   const { parent, child } = sessions;
   const results = { viewports: {} };
   const consoleErrors = [];
   const http5xx = [];
 
-  let childMe = null;
-  try {
-    const meRes = await apiFetch(child.jar, null, '/api/auth/me');
-    if (meRes.status === 200 && meRes.json?.type === 'child') childMe = meRes.json;
-  } catch { /* browser may still fail later */ }
+  let childMe = childMeUser;
+  if (!childMe) {
+    try {
+      const meRes = await apiFetch(child.jar, null, '/api/auth/me');
+      if (meRes.status === 200 && meRes.json?.type === 'child') childMe = meRes.json;
+    } catch { /* browser may still fail later */ }
+  }
+  results.child_me_seeded = !!childMe;
 
   let browser;
   try {
@@ -408,11 +411,13 @@ async function main() {
       sibling,
     );
     report.child = await runChildApiChecks(sessions.child.jar);
+    const childMeRes = await apiFetch(sessions.child.jar, null, '/api/auth/me');
     report.mobile = await runBrowserChecks(
       puppeteer,
       sessions,
       sessions.childRow.id,
       logSnap,
+      childMeRes.status === 200 ? childMeRes.json : null,
     );
 
     const parentPass = report.parent.access_transition_support
