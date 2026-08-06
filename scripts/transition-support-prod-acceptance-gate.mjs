@@ -69,6 +69,23 @@ async function apiFetch(jar, csrf, pathname, opts = {}) {
   return { status: res.status, json };
 }
 
+async function childSessionViaApi(username, pin) {
+  const loginRes = await fetch(`${BASE}/api/auth/child-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, pin }),
+  });
+  if (!loginRes.ok) return null;
+  const body = await loginRes.json();
+  const jar = {};
+  for (const h of loginRes.headers.getSetCookie?.() || []) {
+    const pair = h.split(';')[0];
+    const i = pair.indexOf('=');
+    if (i > 0) jar[pair.slice(0, i)] = pair.slice(i + 1);
+  }
+  return { jar, csrf: body.csrfToken, via: 'api_login' };
+}
+
 async function pickSiblingChild(parentJar, parentCsrf, qaChildId) {
   const childrenRes = await apiFetch(parentJar, parentCsrf, '/api/children');
   const list = Array.isArray(childrenRes.json) ? childrenRes.json : [];
@@ -305,6 +322,17 @@ async function main() {
 
     if (!report.apply.pass) {
       throw new Error('grant_read_back_failed');
+    }
+
+    // Fresh child cookies so package access is not stale vs pre-grant mint.
+    const childPin = process.env.FOUNDER_CHILD_PIN || process.env.QA_CHILD_PIN;
+    const childUser = process.env.FOUNDER_CHILD_USERNAME || sessions.childRow.username;
+    if (childPin && childUser) {
+      const freshChild = await childSessionViaApi(childUser, childPin);
+      if (freshChild) {
+        sessions.child = freshChild;
+        sessions.meta.child_auth = freshChild.via || 'api_login_refresh';
+      }
     }
 
     logSnap = await snapshotLogItemTiming(

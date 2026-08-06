@@ -118,9 +118,11 @@ async function restorePackageSnapshot(db, familyId, snap) {
   }
 
   for (const [childId, data] of Object.entries(snap.children || {})) {
+    const lead = data.transition_lead_minutes;
+    const leadParam = lead == null ? null : JSON.stringify(lead);
     await db.query(
-      'UPDATE child SET transition_lead_minutes = $1 WHERE id = $2 AND family_id = $3',
-      [data.transition_lead_minutes, childId, familyId]
+      'UPDATE child SET transition_lead_minutes = $1::jsonb WHERE id = $2 AND family_id = $3',
+      [leadParam, childId, familyId]
     );
   }
 }
