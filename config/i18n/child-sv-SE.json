@@ -38,6 +38,10 @@
     "lockoutSubMinutes": "Försök igen om {{minutes}} minut{{minuteSuffix}}",
     "lockoutSubSeconds": "Bara {{seconds}} sekunder kvar!"
   },
+  "sharedDevice": {
+    "whoUsesApp": "Vem använder appen?",
+    "pickProfile": "Välj ditt namn för att öppna din dag."
+  },
   "nav": {
     "today": "Idag",
     "todayYoung": "Uppdrag",

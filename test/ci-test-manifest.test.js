@@ -20,6 +20,7 @@ const CRITICAL_INTEGRATION = [
   'test/schedules-revoked-parent.integration.test.js',
   'test/parent-session-handoff.integration.test.js',
   'test/trusted-device-child.integration.test.js',
+  'test/r43-shared-device.integration.test.js',
   'test/iap-webhook-ordering.integration.test.js',
 ];
 

@@ -28,11 +28,20 @@
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
-      if (!res.ok) return { ok: false, status: res.status };
-      const body = await res.json();
-      if (!body.ok) return { ok: false };
-      if (window.DeviceMode && DeviceMode.enterChild) DeviceMode.enterChild();
-      return { ok: true, redirect: body.redirect || '/child/today' };
+      const body = await res.json().catch(function () { return {}; });
+      if (body.ok) {
+        if (window.DeviceMode && DeviceMode.enterChild) DeviceMode.enterChild();
+        return { ok: true, redirect: body.redirect || '/child/today', user: body.user };
+      }
+      if (body.code === 'SHARED_PICKER_REQUIRED') {
+        return {
+          ok: false,
+          code: body.code,
+          allowed_children: body.allowed_children,
+          allowed_count_bucket: body.allowed_count_bucket,
+        };
+      }
+      return { ok: false, status: res.status, code: body.code };
     } catch (_) {
       return { ok: false };
     }
@@ -47,6 +56,27 @@
       method: 'POST',
       body: JSON.stringify({
         child_id: childId,
+        platform: platform,
+        label: label || null,
+      }),
+    });
+    if (!res.ok) return { ok: false, status: res.status };
+    const body = await res.json();
+    if (body.enroll_token) await storeEnrollToken(body.enroll_token);
+    if (options && options.enterChildMode && window.DeviceMode && DeviceMode.enterChild) {
+      DeviceMode.enterChild();
+    }
+    return { ok: true, device: body.device };
+  }
+
+  async function enrollSharedDevice(label, options) {
+    if (!window.apiFetch) return { ok: false };
+    const platform = isNative()
+      ? (document.documentElement.classList.contains('is-native-android') ? 'android' : 'ios')
+      : 'web';
+    const res = await window.apiFetch('/api/family/trusted-devices/shared', {
+      method: 'POST',
+      body: JSON.stringify({
         platform: platform,
         label: label || null,
       }),
@@ -78,6 +108,7 @@
   window.TrustedDeviceClient = {
     tryRestoreSession: tryRestoreSession,
     enrollChildDevice: enrollChildDevice,
+    enrollSharedDevice: enrollSharedDevice,
     loadDevices: loadDevices,
     revokeDevice: revokeDevice,
     isNative: isNative,

@@ -93,9 +93,24 @@
         btn.disabled = false;
         alert(pt('settings.trustedDevices.enrollFailed'));
       });
+      const sharedBtn = document.createElement('button');
+      sharedBtn.type = 'button';
+      sharedBtn.className = 'btn-secondary min-h-[44px] px-4 rounded-xl font-semibold';
+      sharedBtn.textContent = pt('settings.trustedDevices.enrollSharedDevice');
+      sharedBtn.addEventListener('click', async () => {
+        sharedBtn.disabled = true;
+        const result = await TrustedDeviceClient.enrollSharedDevice(null, { enterChildMode: true });
+        if (result.ok) {
+          window.location.href = '/child-login?shared_device=1';
+          return;
+        }
+        sharedBtn.disabled = false;
+        alert(pt('settings.trustedDevices.enrollFailed'));
+      });
       row.appendChild(select);
       row.appendChild(btn);
       enrollBlock.appendChild(row);
+      enrollBlock.appendChild(sharedBtn);
     }
 
     const list = document.createElement('ul');

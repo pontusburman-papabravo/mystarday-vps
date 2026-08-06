@@ -36,6 +36,7 @@
     }
     if (!me) return;
 
+    const loadGen = window.ChildSessionContext ? ChildSessionContext.capture() : 0;
     currentDate = dateStr;
     subStepCache = {};
     // Expanded panels must not keep stale empty lists after cache clear
@@ -93,6 +94,9 @@
               Auth.api('/api/me/goal').catch(() => null),
             ]
       );
+      if (window.ChildSessionContext && ChildSessionContext.discardIfStale(loadGen, { surface: 'loadDay' })) {
+        return;
+      }
       if (skeletonTimer) skeletonTimer.stop();
 
       if (window.OfflineStore && me?.id) {
