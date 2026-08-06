@@ -53,6 +53,9 @@ router.use('/', require('./pedagog'));
 // ─── Parent PIN + login-picker session routes ────────────────────────────────
 router.use('/', require('./pin'));
 
+// ─── Trusted devices (R4.2) ─────────────────────────────────────────────────
+router.use('/', require('./trusted-devices'));
+
 // ─── FEAT-1 boendeschema (custody_schedule_beta) ─────────────────────────────
 router.use('/custody', require('./custody'));
 

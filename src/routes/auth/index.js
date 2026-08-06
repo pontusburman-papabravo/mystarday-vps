@@ -25,6 +25,9 @@ router.use('/', require('./refresh'));
 // ─── Child login route ────────────────────────────────────────────────────────
 router.use('/', require('./child-login'));
 
+// ─── Trusted device session restore (R4.2) ─────────────────────────────────────
+router.use('/', require('./trusted-device'));
+
 // ─── Email-flow routes (verify / resend / forgot / reset) ─────────────────────
 router.use('/', require('./email'));
 

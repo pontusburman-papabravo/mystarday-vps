@@ -531,6 +531,22 @@
       "colorBlindProtanopia": "Protanopia (red-blind)",
       "colorBlindDeuteranopia": "Deuteranopia (green-blind)",
       "colorBlindTritanopia": "Tritanopia (blue-blind)"
+    },
+    "trustedDevices": {
+      "title": "Trusted devices",
+      "description": "Child devices can open the child view without a PIN after you approve the device here.",
+      "disabled": "Child device mode is not enabled for your family yet.",
+      "enrollHint": "On the child's tablet or phone: choose the child and make this device their child device.",
+      "enrollThisDevice": "Make child device",
+      "enrollFailed": "Could not register this device. Try again.",
+      "empty": "No trusted devices registered.",
+      "revoke": "Revoke",
+      "revokeAll": "Revoke all devices",
+      "revokeAllConfirm": "All trusted devices will be signed out. Continue?",
+      "modeChild": "Child device",
+      "modeShared": "Shared device",
+      "modeParent": "Parent device",
+      "unknownChild": "Child"
     }
   },
   "common": {

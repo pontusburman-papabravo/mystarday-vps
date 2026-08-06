@@ -531,6 +531,22 @@
       "colorBlindProtanopia": "Protanopi (röd-blind)",
       "colorBlindDeuteranopia": "Deuteranopi (grön-blind)",
       "colorBlindTritanopia": "Tritanopi (blå-blind)"
+    },
+    "trustedDevices": {
+      "title": "Betrodda enheter",
+      "description": "Barnenheter kan öppna barnvyn utan PIN efter att du godkänt enheten här.",
+      "disabled": "Barnenhet är inte aktiverat för er familj ännu.",
+      "enrollHint": "På barnets surfplatta eller telefon: välj barn och gör den här enheten till barnenhet.",
+      "enrollThisDevice": "Gör till barnenhet",
+      "enrollFailed": "Kunde inte registrera enheten. Försök igen.",
+      "empty": "Inga betrodda enheter registrerade.",
+      "revoke": "Återkalla",
+      "revokeAll": "Återkalla alla enheter",
+      "revokeAllConfirm": "Alla betrodda enheter loggas ut. Fortsätta?",
+      "modeChild": "Barnenhet",
+      "modeShared": "Delad enhet",
+      "modeParent": "Förälderenhet",
+      "unknownChild": "Barn"
     }
   },
   "common": {
