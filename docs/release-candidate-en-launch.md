@@ -43,7 +43,7 @@ These were **closed implementation PRs**; verify on current `main` during RC smo
 |---|------|------------------------------|------|
 | R1 | **Day-off modal** | Home → `Ledig dag` / day-off → modal title, body, buttons English; dark theme readable | [x] PR R3 home.dayOffModal (2026-08-06) |
 | R2 | **Bildarkiv upload** | Planning → Library → upload image → buttons/toasts English (`library-images.js`) | [x] PR #916 (pending merge/deploy) |
-| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav + `aria-label` en-GB; child → log loads (not stuck on placeholder) | [x] PR daily-log RC closure (pending merge/deploy) |
+| R3 | **Daily log nav / empty view** | Today (`/daily-log`) → bottom nav + `aria-label` en-GB; child → log loads (not stuck on placeholder) | [x] PR #917 (pending merge/deploy) |
 
 **RC-1 engineering (automated):** R1–R3 known risks addressed in code; `test:gate`, `audit:i18n:strict`/`baseline`, `test:e2e:i18n`, and focused browser gates green locally. **RC-2 manual launch** (physical devices, store, legal) remains separate — not PASS without evidence.
 
