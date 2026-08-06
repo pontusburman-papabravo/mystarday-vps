@@ -201,6 +201,12 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
   const consoleErrors = [];
   const http5xx = [];
 
+  let childMe = null;
+  try {
+    const meRes = await apiFetch(child.jar, null, '/api/auth/me');
+    if (meRes.status === 200 && meRes.json?.type === 'child') childMe = meRes.json;
+  } catch { /* browser may still fail later */ }
+
   let browser;
   try {
     browser = await puppeteer.launch({
@@ -256,6 +262,13 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     childPage.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(`[${vp.name}] ${msg.text().slice(0, 100)}`);
     });
+    if (childMe) {
+      const csrf = child.csrf || '';
+      await childPage.evaluateOnNewDocument((user, csrfToken) => {
+        localStorage.setItem('stjarndag_user', JSON.stringify(user));
+        if (csrfToken) localStorage.setItem('stjarndag_csrf', csrfToken);
+      }, childMe, csrf);
+    }
     await childPage.setViewport({
       width: vp.width,
       height: vp.height,
