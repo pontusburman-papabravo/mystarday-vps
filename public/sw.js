@@ -254,7 +254,7 @@
 // stjarndag-v793: Extra stöd — övergångsstöd gate via subscription access (parent + child)
 // stjarndag-v795: parent global feedback FAB en-GB via home.globalFeedback
 // stjarndag-v797: Extra stöd — child subscription/access allowlist + package access fallback
-// stjarndag-v798: Home day-off modal en-GB (home.dayOffModal, RC-1 R1)
+// stjarndag-v798: Home day-off modal en-GB + browser gate (RC-1 R1)
 const CACHE_NAME = 'stjarndag-v798';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
