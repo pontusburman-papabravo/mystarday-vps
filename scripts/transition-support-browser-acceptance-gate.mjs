@@ -18,6 +18,27 @@ const VIEWPORTS = [
   { name: 'android-412x915', width: 412, height: 915 },
 ];
 
+/** Console noise that is never a gate failure (never blanket-ignore HTTP 403). */
+const CONSOLE_ERROR_IGNORE = [
+  /analytics/i,
+  /favicon/i,
+  /ResizeObserver/i,
+  /client-log/i,
+];
+
+/** If a 403 appears in console, only these request targets are non-fatal. */
+const CONSOLE_403_URL_ALLOWLIST = [
+  /\/api\/analytics\//,
+];
+
+function isIgnorableConsoleError(text) {
+  if (CONSOLE_ERROR_IGNORE.some((re) => re.test(text))) return true;
+  if (/Failed to load resource: the server responded with a status of 403/i.test(text)) {
+    return CONSOLE_403_URL_ALLOWLIST.some((re) => re.test(text));
+  }
+  return false;
+}
+
 function stockholmTimePlusMinutes(offsetMin) {
   const now = new Date();
   const parts = new Intl.DateTimeFormat('en-GB', {
@@ -169,7 +190,7 @@ async function main() {
         if (msg.type() === 'error') {
           const t = msg.text().slice(0, 160);
           consoleErrors.push(t);
-          if (!/analytics|favicon|ResizeObserver|client-log|Failed to load resource: the server responded with a status of 403/i.test(t)) {
+          if (!isIgnorableConsoleError(t)) {
             criticalConsole.push(t);
           }
         }

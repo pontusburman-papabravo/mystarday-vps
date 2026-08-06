@@ -14,7 +14,7 @@ const { hashPassword } = require('../src/lib/hash');
 const { seedBildstodPr3Features } = require('./helpers/bildstod-pr3-features.js');
 const familySubscriptions = require('../db/family-subscriptions');
 const features = require('../db/features');
-const { getFamilyAccess } = require('../src/lib/package-access');
+const { getFamilyAccess, CHILD_SUBSCRIPTION_ACCESS_FORBIDDEN_KEYS } = require('../src/lib/package-access');
 const grantCore = require('../scripts/lib/qa-extra-stod-grant-core.cjs');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
@@ -84,6 +84,13 @@ test('new child session: subscription/access matches getFamilyAccess after Extra
       true,
       'child /api/subscription/access must expose features.transition_support'
     );
+    for (const key of CHILD_SUBSCRIPTION_ACCESS_FORBIDDEN_KEYS) {
+      assert.equal(key in accessBody, false, `child access must not leak ${key}`);
+    }
+    const parentOnlyScalars = ['email', 'billing', 'tier', 'trial', 'revenuecat', 'stripe', 'subscription_status'];
+    for (const key of parentOnlyScalars) {
+      assert.equal(key in accessBody, false, `child access must not leak ${key}`);
+    }
 
     const tsRes = await fetch(`${http.baseUrl}/api/me/transition-support`, {
       headers: { Cookie: cookieHeader(childCookies) },

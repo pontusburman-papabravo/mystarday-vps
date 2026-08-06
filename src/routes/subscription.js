@@ -13,7 +13,7 @@ const packageInterest = require('../../db/package-interest');
 const appSettings = require('../../db/app-settings');
 const { isBillingUiEnabled } = require('../lib/billing-ui');
 const analytics = require('../../db/analytics');
-const { getFamilyAccess } = require('../lib/package-access');
+const { getFamilyAccess, toChildPackageAccess } = require('../lib/package-access');
 const { getAllMergedPreviewPackages } = require('../lib/preview-package-config');
 const {
   INTEREST_COMPONENTS,
@@ -61,6 +61,9 @@ router.get('/access', requireAuth, async (req, res) => {
     };
 
     const access = await getFamilyAccess(familyId, req.user, session);
+    if (req.user.type === 'child') {
+      return res.json(toChildPackageAccess(access));
+    }
     res.json(access);
   } catch (err) {
     console.error('[SUBSCRIPTION] access error:', err);
