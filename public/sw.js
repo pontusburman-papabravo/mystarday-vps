@@ -256,8 +256,8 @@
 // stjarndag-v797: Extra stöd — child subscription/access allowlist + package access fallback
 // stjarndag-v798: Home day-off modal en-GB + 44px touch + browser gate (RC-1 R1)
 // stjarndag-v799: Library image archive upload i18n (RC-1 R2)
-// stjarndag-v801: R4.1 child-first post-schema handoff (home.handoff.postSchema i18n)
-const CACHE_NAME = 'stjarndag-v801';
+// stjarndag-v802: R4.2 trusted child device enroll + silent restore
+const CACHE_NAME = 'stjarndag-v802';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -637,6 +637,7 @@ const STATIC_ASSETS = [
   '/css/child-login-magic.css',
   '/js/child-login.js',
   '/js/native-child-session-restore.js',
+  '/js/trusted-device-client.js',
   '/js/child-app-i18n.js',
   '/js/child-today-i18n-bootstrap.js',
   '/js/child-ui-text.js',

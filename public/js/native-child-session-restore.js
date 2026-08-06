@@ -132,6 +132,15 @@
       }
 
       if (!meResult.ok || !meResult.me) {
+        if (window.TrustedDeviceClient && typeof TrustedDeviceClient.tryRestoreSession === 'function') {
+          const restored = await TrustedDeviceClient.tryRestoreSession();
+          if (restored.ok) {
+            meResult = await fetchAuthMe();
+          }
+        }
+      }
+
+      if (!meResult.ok || !meResult.me) {
         setMode(AUTH_MODE.UNKNOWN);
         return { ok: false, code: 'ME_FAILED', status: meResult.status };
       }
@@ -192,6 +201,13 @@
 
   async function resumeLegacyChildSession() {
     try {
+      if (window.TrustedDeviceClient && typeof TrustedDeviceClient.tryRestoreSession === 'function') {
+        const restored = await TrustedDeviceClient.tryRestoreSession();
+        if (restored.ok) {
+          window.location.replace(restored.redirect || '/child/today');
+          return true;
+        }
+      }
       const meRes = await fetch('/api/auth/me', { credentials: 'include' });
       if (!meRes.ok) return false;
       const me = await meRes.json();
