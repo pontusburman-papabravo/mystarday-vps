@@ -22,6 +22,7 @@ const CRITICAL_INTEGRATION = [
   'test/trusted-device-child.integration.test.js',
   'test/r43-shared-device.integration.test.js',
   'test/r44-adult-child-access.integration.test.js',
+  'test/r45-widget-completion.integration.test.js',
   'test/iap-webhook-ordering.integration.test.js',
 ];
 

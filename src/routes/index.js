@@ -39,6 +39,7 @@ function registerRoutes(app) {
 
   app.use('/api/events', require('./events'));
   app.use('/api/auth', require('./auth'));
+  app.use('/api/widget', require('./widget'));
   app.use('/api/family', require('./family'));
   app.use('/api/children', require('./children-avatar'));
   app.use('/api/children', require('./children'));

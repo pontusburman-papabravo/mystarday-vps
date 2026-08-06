@@ -26,6 +26,7 @@ const CHILD_ALLOWED = [
   /^\/children\/[^/]+\/visual-theme$/,
   /^\/children\/[^/]+\/pictogram-pack$/,
   /^\/children\/[^/]+\/activity-card-size$/,
+  /^\/widget(\/|$)/,
   /^\/avatars\/[^/]+\/[^/]+$/,
 ];
 
