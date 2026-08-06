@@ -159,7 +159,7 @@ flowchart TB
 |----------|-------------|
 | R2.1 Aktivitetstimer | **ENGINEERING COMPLETE** · Live acceptansgate: **PASS** (2026-08-05, founder QA, snapshot/restore). Rollout: `activity_timers_enabled` + allowlist. |
 | R2.2 Minimal UI live | `minimal_ui` från `dev` → pilot → `live` för familjer som behöver det. |
-| R2.3 Extra stöd-pilot | Slice C (parent/child `transition_support` gate): **COMPLETE** i kod (PR #905, SW v793). Live pilot: 3–5 familjer med `teacch` via admin (prod QA saknar grant — live feature-scenario deferred). |
+| R2.3 Extra stöd-pilot | Slice C (parent/child `transition_support` gate): **ENGINEERING COMPLETE** (PR #905). **Live acceptance: PASS** (2026-08-06, QA grant snapshot/restore, VPS gate). Customer pilot: **DEFERRED** until explicitly approved families exist. |
 | R2.4 För dig × Journey | En rekommendation kopplad till `journey_phase` / readiness — inte generisk tips-sida. |
 
 **DoD R2:**
@@ -266,7 +266,7 @@ Använd vid sprintplanering. **%** = leveransbedömning (kod + ops), inte rad-r�
 | `minimal_ui` | 85 % | Flag live + copy | Mycket högt | R2 |
 | För dig personalisering | 75 % | Journey-koppling | Högt | R2 |
 | Growth + referral | 90 % | Dark launch | Högt | R4 |
-| Extra stöd / teacch | 80 % | Pilotfamiljer (admin grant) | Högt | R2 → R5 |
+| Extra stöd / teacch | **100 %** (engineering + live acceptance PASS) | Customer pilot (approved families) | Högt | R2 → R5 |
 | Engelsk beta | 88–93 % | Prod smoke | Högt (strategiskt) | R3 |
 | IAP / paket köp | 65–75 % | Store + sandbox | Högt (senare) | R5 |
 | Min värld (playable) | 35 % | Art + `scenes.json` | Medel lång sikt | Efter R2 |
