@@ -85,11 +85,12 @@ export function validateFeatureFlagMigrationDiff(diff, expectedInserts) {
       unexpectedInserts.push(ins);
       continue;
     }
-    if (ins.enabled !== false || exp.enabled !== false) {
+    if (ins.enabled !== exp.enabled) {
       drift.push({
         table: 'feature_flag',
-        issue: 'insert_not_default_off',
+        issue: 'insert_enabled_mismatch',
         key: ins.key,
+        expected: exp.enabled,
         enabled: ins.enabled,
       });
     }

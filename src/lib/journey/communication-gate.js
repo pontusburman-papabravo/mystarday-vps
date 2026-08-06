@@ -7,6 +7,10 @@
 
 const db = require('../db');
 const { getFamilyCommunicationState } = require('./derived-state');
+const {
+  getRetentionHomeCommsBlock,
+  hasFamilyRetentionCommToday,
+} = require('./retention-home-comms');
 
 /** @typedef {'email'|'push'} CommunicationChannel */
 /** @typedef {'legacy_win_back'|'legacy_activation_email'|'legacy_activation_nudge'|'legacy_child_handoff_reminder'|'legacy_retention_push'|'retention_email'|'retention_push'} CommunicationIntent */
@@ -35,6 +39,23 @@ const RETENTION_PUSH_INTENTS = new Set(['legacy_retention_push', 'retention_push
 
 function normalizeIntent(intent) {
   return String(intent || '').trim().toLowerCase();
+}
+
+async function applyRetentionHomeSuppression(familyId, intent, state, phase) {
+  const retentionBlock = await getRetentionHomeCommsBlock(familyId);
+  if (!retentionBlock?.suppress) return null;
+  const pushLike = RETENTION_PUSH_INTENTS.has(intent)
+    || LEGACY_HANDOFF_REMINDER_INTENTS.has(intent);
+  const welcomeOverlap = retentionBlock.action === 'WELCOME_BACK'
+    && LEGACY_WIN_BACK_INTENTS.has(intent);
+  if (!pushLike && !welcomeOverlap) return null;
+  return {
+    allowed: false,
+    reason: retentionBlock.reason,
+    state,
+    phase,
+    journey_action: retentionBlock.action,
+  };
 }
 
 function isLegacyWinBackDisabled() {
@@ -81,6 +102,9 @@ async function evaluateCommunicationGate(familyId, opts = {}) {
   }
 
   const { state, phase } = comm;
+
+  const retentionSuppressed = await applyRetentionHomeSuppression(familyId, intent, state, phase);
+  if (retentionSuppressed) return retentionSuppressed;
 
   if (LEGACY_WIN_BACK_INTENTS.has(intent)) {
     if (isLegacyWinBackDisabled()) {
@@ -166,6 +190,17 @@ async function evaluateCommunicationGate(familyId, opts = {}) {
 
   if (channel === 'push' && !PUSH_ALLOWED_STATES.has(state)) {
     return { allowed: false, reason: 'push_not_allowed_for_state', state, phase };
+  }
+
+  if (RETENTION_PUSH_INTENTS.has(intent) || LEGACY_WIN_BACK_INTENTS.has(intent)) {
+    if (await hasFamilyRetentionCommToday(familyId)) {
+      return {
+        allowed: false,
+        reason: 'retention_comm_cooldown_same_day',
+        state,
+        phase,
+      };
+    }
   }
 
   return { allowed: true, reason: 'allowed', state, phase };

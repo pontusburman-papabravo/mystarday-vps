@@ -161,3 +161,93 @@ describe('journey retention home decision', () => {
     }
   });
 });
+
+describe('journey retention home — welcome back and multi-child', () => {
+  it('WELCOME_BACK after gap without guilt milestones', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+    try {
+      await enableFlags(db);
+      const { familyId, parentId } = await insertFamilyWithParent(db);
+      const childId = await insertChild(db, familyId, parentId, 'Astrid');
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'first_success',
+        source: 'system',
+      });
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'child_logged_in',
+        childId,
+        source: 'system',
+      });
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'child_first_completion',
+        childId,
+        source: 'system',
+      });
+      const fiveDaysAgo = new Date();
+      fiveDaysAgo.setUTCDate(fiveDaysAgo.getUTCDate() - 5);
+      const log = await db.query(
+        'INSERT INTO daily_log (child_id, date) VALUES ($1, $2::date) RETURNING id',
+        [childId, fiveDaysAgo.toISOString().slice(0, 10)]
+      );
+      await db.query(
+        `INSERT INTO daily_log_item (daily_log_id, name, section, sort_order, star_value, completed, completed_at)
+         VALUES ($1, 'Tandborsta', 'fm', 0, 1, true, $2)`,
+        [log.rows[0].id, fiveDaysAgo.toISOString()]
+      );
+
+      const decision = await buildRetentionHomeDecision(familyId, parentId);
+      assert.equal(decision.action, 'WELCOME_BACK');
+      assert.equal(decision.reason, 'RETURN_AFTER_GAP');
+
+      const { retentionToCanonicalFields } = require('../src/lib/journey/retention-home-decision');
+      const fields = await retentionToCanonicalFields(decision, familyId);
+      const body = fields.body || '';
+      assert.doesNotMatch(body, /streak|missat|missade/i);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('prefers child needing handoff when sibling already logged in', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+    try {
+      await enableFlags(db);
+      const { familyId, parentId } = await insertFamilyWithParent(db);
+      const childA = await insertChild(db, familyId, parentId, 'Astrid');
+      const childB = await insertChild(db, familyId, parentId, 'Erik');
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'first_success',
+        source: 'system',
+      });
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'routine_ready',
+        source: 'system',
+      });
+      await familyMilestones.insertMilestone({
+        familyId,
+        milestone: 'child_logged_in',
+        childId: childB,
+        source: 'system',
+      });
+
+      const decision = await buildRetentionHomeDecision(familyId, parentId);
+      assert.equal(decision.action, 'SHOW_CHILD');
+      assert.equal(decision.child_id, childA);
+    } finally {
+      await db.cleanup();
+    }
+  });
+});
