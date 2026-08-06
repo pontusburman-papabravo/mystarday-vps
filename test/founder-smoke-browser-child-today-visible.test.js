@@ -95,6 +95,18 @@ describe('founder smoke child today visible contract', () => {
     assert.equal(r.reason, 'missing_english_today_nav_copy');
   });
 
+  it('child flag OFF sv-SE PASS with Swedish NNL main copy', () => {
+    const r = evaluateChildTodaySessionPass({
+      pathname: '/child/today',
+      me: { type: 'child', username: 'astrid921', child_ui_locale: 'sv-SE' },
+      expectedUsername: 'astrid921',
+      expectedChildUiLocale: 'sv-SE',
+      mainText: 'Nu: Klä på sig',
+      navText: 'Skattkammaren',
+    });
+    assert.equal(r.pass, true);
+  });
+
   it('child flag OFF sv-SE PASS with Swedish surface', () => {
     const r = evaluateChildTodaySessionPass({
       pathname: '/child/today',

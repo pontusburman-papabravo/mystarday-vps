@@ -26,9 +26,14 @@ const { pageText } = require('./founder-smoke-browser-page-text.cjs');
 const {
   waitForSettingsParentI18n,
   collectSettingsPageDiagnostics,
-  waitForChildTodaySurface,
-  collectChildTodayVisibleCopy,
 } = require('./founder-smoke-browser-settings-wait.cjs');
+const { waitChildTodayLocaleContract } = require('./founder-smoke-child-today-wait-contract.cjs');
+const {
+  runChildLocaleScenarioInFreshContext,
+  prepareSc4ServerState,
+  prepareSc2ServerState,
+  prepareSc3ServerState,
+} = require('./founder-smoke-browser-child-locale-scenario.cjs');
 
 const BASE = (process.env.SMOKE_BASE_URL || process.env.PROD_BASE || '').replace(/\/$/, '');
 const EMAIL = process.env.FOUNDER_QA_EMAIL;
@@ -154,8 +159,29 @@ async function enterChildPin(page, expectedUsername, expectedChildUiLocale, opti
 
     const pathname = await page.evaluate(() => window.location.pathname);
     const me = await fetchMe(page);
-    await waitForChildTodaySurface(page, { expectedChildUiLocale });
-    const visibleCopy = await collectChildTodayVisibleCopy(page);
+    const englishChildFlag =
+      expectedChildUiLocale === 'en-GB' ? true : expectedChildUiLocale === 'sv-SE' ? false : undefined;
+    let contract;
+    try {
+      contract = await waitChildTodayLocaleContract(page, () => fetchMe(page), {
+        expectedChildUiLocale,
+        expectedEnglishChildExperience: englishChildFlag,
+        expectedUsername,
+      });
+    } catch (e) {
+      if (e.code === 'CHILD_LOCALE_CONTRACT_NOT_APPLIED') {
+        return {
+          path: pathname,
+          me,
+          pass: false,
+          reason: e.code,
+          diagnostics: e.diagnostics,
+          bootstrap_network: collector.snapshot(),
+        };
+      }
+      throw e;
+    }
+    const visibleCopy = contract.visibleCopy;
     const todayBodyText = await pageText(page);
     if (!visibleCopy.mainText && !visibleCopy.navText && !todayBodyText) {
       return {
@@ -356,8 +382,23 @@ async function runBrowserSmoke() {
     if (VPS_ON && familyId) snap = vpsDb('snapshot', familyId);
 
     try {
-      const child4 = await runChildPinScenario(page, CHILD_USER, 'sv-SE');
-      scenarios.browser_sc4_sv_control = child4;
+      const localeScenarioBase = {
+        browser,
+        base: BASE,
+        email: EMAIL,
+        password: PASSWORD,
+        childUser: CHILD_USER,
+        childPin: CHILD_PIN,
+        familyId,
+      };
+
+      scenarios.browser_sc4_sv_control = await runChildLocaleScenarioInFreshContext({
+        ...localeScenarioBase,
+        expectedChildUiLocale: 'sv-SE',
+        expectedEnglishChildExperience: false,
+        prepareServerState: VPS_ON && familyId ? (fid) => prepareSc4ServerState(vpsDb, fid) : undefined,
+        scenarioName: 'browser_sc4_sv_control',
+      });
 
       if (VPS_ON && familyId) {
         vpsDb('set-locale', familyId, ['--locale', 'en-GB']);
@@ -366,15 +407,21 @@ async function runBrowserSmoke() {
         const enMe = await fetchMe(page);
         scenarios.browser_sc1_parent_english = await evaluateSettingsEnglishScenario(page, enMe);
 
-        vpsDb('set', familyId, ['--slug', 'english_app', '--on']);
-        vpsDb('set', familyId, ['--slug', 'english_child_experience', '--on']);
-        const childEn = await runChildPinScenario(page, CHILD_USER, 'en-GB');
-        scenarios.browser_sc2_child_english = childEn;
+        scenarios.browser_sc2_child_english = await runChildLocaleScenarioInFreshContext({
+          ...localeScenarioBase,
+          expectedChildUiLocale: 'en-GB',
+          expectedEnglishChildExperience: true,
+          prepareServerState: (fid) => prepareSc2ServerState(vpsDb, fid),
+          scenarioName: 'browser_sc2_child_english',
+        });
 
-        vpsDb('set', familyId, ['--slug', 'english_child_experience', '--off']);
-        await loginParent(page, browser);
-        const childSv = await runChildPinScenario(page, CHILD_USER, 'sv-SE');
-        scenarios.browser_sc3_child_separation = childSv;
+        scenarios.browser_sc3_child_separation = await runChildLocaleScenarioInFreshContext({
+          ...localeScenarioBase,
+          expectedChildUiLocale: 'sv-SE',
+          expectedEnglishChildExperience: false,
+          prepareServerState: (fid) => prepareSc3ServerState(vpsDb, fid),
+          scenarioName: 'browser_sc3_child_separation',
+        });
 
         await loginParent(page, browser);
         const handoffSettings = await openSettings(page);

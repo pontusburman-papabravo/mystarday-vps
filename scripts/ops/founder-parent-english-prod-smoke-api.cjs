@@ -10,6 +10,7 @@ const {
   snapshotsEqual,
 } = require('./founder-smoke-report-lib.cjs');
 const { vpsDb } = require('./founder-smoke-vps.cjs');
+const { prepareSc4ServerState } = require('./founder-smoke-browser-child-locale-scenario.cjs');
 const { performSc5ProdCleanup } = require('./founder-smoke-sc5-cleanup.cjs');
 
 const BASE = process.env.SMOKE_BASE_URL || process.env.PROD_BASE;
@@ -149,12 +150,16 @@ async function runApiSmoke(opts = {}) {
   }
 
   try {
+    if (process.env.FOUNDER_SMOKE_VPS === '1') {
+      prepareSc4ServerState(vpsDb, familyId);
+    }
+    const me4 = await parentMe(cookies);
     const child4 = await childSession(CHILD_USER);
     report.scenarios.sc4_sv_control = {
-      parent_locale: me.preferred_locale,
+      parent_locale: me4.preferred_locale,
       child: child4,
       pass:
-        me.preferred_locale === 'sv-SE' &&
+        me4.preferred_locale === 'sv-SE' &&
         child4.status === 200 &&
         child4.childMe?.child_ui_locale === 'sv-SE',
     };
