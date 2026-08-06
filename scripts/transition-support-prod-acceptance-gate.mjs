@@ -221,6 +221,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     if (res.status() >= 500 && u.includes(BASE.replace(/^https?:\/\//, ''))) http5xx.push(res.status());
   });
 
+  await parentPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   for (const c of puppeteerCookies(parent.jar, BASE)) await parentPage.setCookie(c);
   await parentPage.setViewport({
     width: VIEWPORTS[0].width,
@@ -229,14 +230,17 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     hasTouch: true,
     deviceScaleFactor: 2,
   });
-  await parentPage.goto(`${BASE}/child-settings?child=${qaChildId}`, {
+  const parentSettingsUrl = `${BASE}/child-settings?child=${qaChildId}`;
+  const accessPromise = parentPage.waitForResponse(
+    (res) => res.url().includes('/api/subscription/access') && res.status() === 200,
+    { timeout: 45000 },
+  );
+  await parentPage.goto(parentSettingsUrl, {
     waitUntil: 'domcontentloaded',
     timeout: 60000,
   });
-  await parentPage.waitForFunction(
-    () => document.body.innerText.includes('Övergångsstöd'),
-    { timeout: 25000 },
-  );
+  await accessPromise;
+  await parentPage.waitForSelector('.transition-lead-cb', { timeout: 25000 });
   results.parent_transition_section = true;
 
   const cb = await parentPage.$('.transition-lead-cb');
@@ -268,6 +272,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
     await childPage.evaluateOnNewDocument(() => {
       document.documentElement.style.fontSize = '125%';
     });
+    await childPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     for (const c of puppeteerCookies(child.jar, BASE)) await childPage.setCookie(c);
     await childPage.goto(`${BASE}/child/today`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await new Promise((r) => setTimeout(r, 3500));
@@ -292,8 +297,10 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap) {
   }
 
   await browser.close();
-  results.pass = results.consoleErrors === 0
-    && results.http5xx === 0
+  results.console_error_count = consoleErrors.length;
+  results.http5xx_count = http5xx.length;
+  results.pass = consoleErrors.length === 0
+    && http5xx.length === 0
     && results.parent_transition_section
     && results.parent_has_text_status
     && Object.values(results.viewports).every((v) => v.pass);

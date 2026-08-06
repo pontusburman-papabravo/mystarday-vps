@@ -51,18 +51,21 @@ function mergeSetCookie(jar, setCookieHeaders) {
 }
 
 function puppeteerCookies(jar, baseUrl) {
-  const host = new URL(baseUrl).hostname;
+  const parsed = new URL(baseUrl);
+  const host = parsed.hostname;
+  const isHttps = parsed.protocol === 'https:';
   const out = [];
   for (const [name, val] of Object.entries(jar)) {
     const value = typeof val === 'string' ? val : val.value;
     const opts = typeof val === 'string' ? {} : (val.options || {});
+    const secure = opts.secure !== undefined ? !!opts.secure : isHttps;
     out.push({
       name,
       value,
       domain: host,
       path: opts.path || '/',
-      httpOnly: !!opts.httpOnly,
-      secure: opts.secure !== false,
+      httpOnly: opts.httpOnly !== undefined ? !!opts.httpOnly : true,
+      secure,
       sameSite: opts.sameSite === 'strict' ? 'Strict' : 'Lax',
     });
   }
