@@ -162,4 +162,28 @@ describe('founder smoke report lib', () => {
       true
     );
   });
+
+  it('accepts global flag enabled when FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED=1', () => {
+    const prev = process.env.FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED;
+    process.env.FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED = '1';
+    try {
+      const healthOn = { ...HEALTH_OK, english_global_flag_enabled: true };
+      const report = finalizeFounderSmokeReport(
+        {
+          scenarios: allScenariosPass(),
+          restored: true,
+          restore_matches_snapshot: true,
+          health: healthOn,
+          health_after: healthOn,
+          sc5_cleanup: { ok: true },
+          errors: [],
+        },
+        { requireRestore: true, requireBrowser: false }
+      );
+      assert.equal(report.overall, 'PASS');
+    } finally {
+      if (prev === undefined) delete process.env.FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED;
+      else process.env.FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED = prev;
+    }
+  });
 });
