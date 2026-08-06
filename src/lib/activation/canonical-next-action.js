@@ -40,6 +40,7 @@ const I18N_PREFIX = 'home.firstSuccess.actions.';
  * @param {string} familyId
  * @param {object} [options]
  * @param {boolean} [options.includeEngineAdapter]
+ * @param {string} [options.parentId]
  * @returns {Promise<CanonicalNextAction>}
  */
 async function buildCanonicalNextAction(familyId, options = {}) {
@@ -58,6 +59,28 @@ async function buildCanonicalNextAction(familyId, options = {}) {
   const funnelStep = getActivationFunnelStep(state);
 
   if (milestones.first_success || state?.p0_activated_at) {
+    const parentId = options.parentId;
+    if (parentId) {
+      const {
+        buildRetentionHomeDecision,
+        retentionToCanonicalFields,
+        isRetentionHomeEnabled,
+      } = require('../journey/retention-home-decision');
+      if (await isRetentionHomeEnabled(familyId)) {
+        const decision = await buildRetentionHomeDecision(familyId, parentId);
+        if (decision) {
+          const fields = await retentionToCanonicalFields(decision, familyId);
+          return {
+            enabled: true,
+            authority: 'journey_retention',
+            funnel_step: funnelStep,
+            journey_phase: phase,
+            blocking_issue: null,
+            ...fields,
+          };
+        }
+      }
+    }
     return {
       enabled: true,
       show_primary_coach: false,

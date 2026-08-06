@@ -29,9 +29,11 @@ describe('R1 — Hem primary action orchestration', () => {
     assert.ok(journeyIdx > 0 && applyIdx > journeyIdx);
   });
 
-  it('journey coach no longer yields to activation-first-success (R1 authority)', () => {
+  it('journey coach defers when canonical Hem hub suppresses legacy coaches (R4.6)', () => {
     const journey = read('public/js/journey-coach.js');
-    assert.match(journey, /function shouldDeferToFirstSuccessHub\(\) \{\s*return false;/);
+    assert.match(journey, /ActivationFirstSuccessHub\.shouldSuppressLegacyCoaches/);
+    const orch = read('public/js/home-primary-action.js');
+    assert.match(orch, /journey_retention/);
   });
 
   it('dashboard loads home-primary-action after journey-coach', () => {

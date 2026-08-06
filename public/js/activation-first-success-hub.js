@@ -33,6 +33,7 @@
       next_action: payload.next_action,
       journey_phase: payload.journey_phase,
       funnel_step: payload.funnel_step,
+      journey_action: payload.primary_action && payload.primary_action.action,
     });
   }
 
@@ -40,9 +41,10 @@
     track('activation_first_success_cta_clicked', {
       next_action: payload.next_action,
       funnel_step: payload.funnel_step,
+      journey_action: payload.primary_action && payload.primary_action.action,
     });
     const action = payload.next_action;
-    if (action === 'child_access' || action === 'await_first_completion') {
+    if (action === 'child_access' || action === 'await_first_completion' || action === 'welcome_back') {
       if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
         DashboardChildHandoff.startChildLogin();
         return;
@@ -52,6 +54,18 @@
         return;
       }
       window.location.href = '/child-login';
+      return;
+    }
+    if (action === 'invite_adult') {
+      if (window.CoParentInviteUI && typeof CoParentInviteUI.open === 'function') {
+        CoParentInviteUI.open();
+        return;
+      }
+      if (typeof window.openCoParentInviteModal === 'function') {
+        openCoParentInviteModal();
+        return;
+      }
+      window.location.href = '/settings#family';
       return;
     }
     if (action === 'parent_ack' && payload.cta_target) {
@@ -75,7 +89,7 @@
     const headline = payload.headline || pt('home.firstSuccess.actions.' + payload.next_action + '.headline');
     const body = payload.body || pt('home.firstSuccess.actions.' + payload.next_action + '.body');
     const cta = payload.cta_label || pt('home.firstSuccess.actions.' + payload.next_action + '.cta');
-    const pinHint = (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion')
+    const pinHint = (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion' || payload.next_action === 'welcome_back')
       ? '<p class="text-xs text-text-soft mt-2">' + esc(pt('home.firstSuccess.pinHint')) + '</p>'
       : '';
 
@@ -138,7 +152,21 @@
     }
     cache.flagOn = Boolean(payload.show_primary_coach);
     const shown = render(payload);
-    if (shown) {
+    if (payload.authority === 'journey_retention') {
+      if (payload.primary_action && payload.primary_action.action === 'SILENT') {
+        track('journey_silent', {
+          reason: payload.primary_action.reason,
+          surface: 'home',
+        });
+      } else if (shown) {
+        track('journey_coach_shown', {
+          action: payload.primary_action && payload.primary_action.action,
+          reason: payload.primary_action && payload.primary_action.reason,
+          surface: 'home',
+        });
+      }
+      await refreshLegacyCoachMounts();
+    } else if (shown) {
       await refreshLegacyCoachMounts();
     }
     return { ok: true, payload: payload };
@@ -146,13 +174,19 @@
 
   function shouldSuppressLegacyCoaches() {
     if (!cache.data || !cache.data.enabled) return false;
+    if (cache.data.authority === 'journey_retention') return true;
     return Boolean(cache.data.show_primary_coach);
+  }
+
+  function getCachedPayload() {
+    return cache.data || null;
   }
 
   window.ActivationFirstSuccessHub = {
     load: load,
     fetchNextAction: fetchNextAction,
     shouldSuppressLegacyCoaches: shouldSuppressLegacyCoaches,
+    getCachedPayload: getCachedPayload,
     clearCache: function () { cache = { at: 0, data: null, flagOn: false }; },
   };
 })();

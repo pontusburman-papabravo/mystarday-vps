@@ -228,6 +228,13 @@
       if (banner) banner.classList.add('hidden');
       return;
     }
+    if (window.ActivationFirstSuccessHub
+      && typeof ActivationFirstSuccessHub.shouldSuppressLegacyCoaches === 'function'
+      && ActivationFirstSuccessHub.shouldSuppressLegacyCoaches()) {
+      const banner = document.getElementById(BANNER_ID);
+      if (banner) banner.classList.add('hidden');
+      return;
+    }
     try {
       const res = await window.apiFetch('/api/me/activation-program');
       if (res.status === 410) return;
