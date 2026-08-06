@@ -187,6 +187,7 @@ flowchart TB
 
 **DoD R3 (beta):**
 
+- [x] RC-1 known risks R1–R3: engineering fixes + automated gates (2026-08-06; deploy follows #916 / daily-log RC PR).
 - [ ] RC1 smoke PASS eller dokumenterad waiver med riskägare.
 - [ ] Rollback: flag OFF inom minuter.
 - [ ] Inga child-surface regressions i `test:e2e:i18n` / child-core harness.

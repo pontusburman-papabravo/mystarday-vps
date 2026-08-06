@@ -81,7 +81,15 @@
       '<span>' + item.label + '</span></a>';
   }
 
+  function syncBottomNavAria() {
+    const nav = document.getElementById('parentBottomNav');
+    if (!nav) return;
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', navAriaLabel());
+  }
+
   function renderBottomNav() {
+    syncBottomNavAria();
     if (isNativeTabBarActive()) {
       const hidden = document.getElementById('parentBottomNav');
       if (hidden) hidden.style.display = 'none';
@@ -94,10 +102,9 @@
       nav = document.createElement('nav');
       nav.id = 'parentBottomNav';
       nav.className = 'parent-bottom-nav';
-      nav.setAttribute('role', 'navigation');
-      nav.setAttribute('aria-label', navAriaLabel());
       document.body.appendChild(nav);
     }
+    syncBottomNavAria();
     const activeId = activeNavId();
     const items = getNavItems();
     if (!items.length) {
@@ -167,6 +174,7 @@
       NativeDebug.log('magic_shell_refresh', { magic: magic, page: _page });
     }
     applyPageClasses(magic);
+    syncBottomNavAria();
     if (magic) {
       ensureOrbs();
       renderBottomNav();
