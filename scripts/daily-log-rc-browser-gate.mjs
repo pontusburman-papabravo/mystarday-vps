@@ -36,8 +36,9 @@ async function main() {
   const { setupTestDb } = require(path.join(ROOT, 'test/helpers/setup.js'));
   const { listenApp, mergeCookies, getSetCookieHeaders } = require(path.join(ROOT, 'test/helpers/http.js'));
   const { createChild } = require(path.join(ROOT, 'test/helpers/auth-session.js'));
+  const { runParentNavAriaRegression } = await import(path.join(ROOT, 'scripts/parent-nav-aria-regression-gate.mjs'));
 
-  const report = { step: 'daily-log-rc-browser-gate', viewports: {}, pass: false };
+  const report = { step: 'daily-log-rc-browser-gate', regression: null, viewports: {}, pass: false };
   const testDb = await setupTestDb();
   if (testDb.skip) {
     console.log(JSON.stringify({ pass: false, error: 'no_database' }));
@@ -88,6 +89,32 @@ async function main() {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
+
+    const regressionPage = await browser.newPage();
+    await regressionPage.setViewport({ width: 1280, height: 900, isMobile: false });
+    for (const c of puppeteerCookies(cookies, BASE)) await regressionPage.setCookie(c);
+    const { regression, pass: regressionPass } = await runParentNavAriaRegression({
+      BASE,
+      cookies,
+      childId,
+      page: regressionPage,
+    });
+    report.regression = regression;
+    await regressionPage.close();
+
+    if (!regressionPass) {
+      await browser.close();
+      report.pass = false;
+      console.log(JSON.stringify(report, null, 2));
+      await http.close();
+      await testDb.cleanup();
+      try {
+        const db = require(path.join(ROOT, 'src/lib/db'));
+        await db.pool.end();
+      } catch { /* ignore */ }
+      process.exit(1);
+    }
+
     const criticalConsole = [];
     let logFetchCount = 0;
 
@@ -130,7 +157,8 @@ async function main() {
       await page.evaluate(async () => {
         if (window.ParentMagicShell && typeof ParentMagicShell.init === 'function') {
           await ParentMagicShell.init('daily-log');
-        } else if (window.ParentMagicShell && typeof ParentMagicShell.refresh === 'function') {
+        }
+        if (window.ParentMagicShell && typeof ParentMagicShell.refresh === 'function') {
           ParentMagicShell.refresh();
         }
       });
