@@ -242,6 +242,16 @@ async function runApiSmoke(opts = {}) {
         const opts5 = await localeOptions(sc5Cookies);
         const putEn = await apiLocale(sc5Cookies, sc5Csrf, 'en-GB');
         const me5 = await parentMe(sc5Cookies);
+        const globalOn = process.env.FOUNDER_SMOKE_EXPECT_GLOBAL_ENABLED === '1';
+        const passGlobalOff =
+          opts5.english_app_enabled === false &&
+          putEn.status === 403 &&
+          putEn.body?.error === 'ENGLISH_NOT_AVAILABLE' &&
+          me5.preferred_locale === 'sv-SE';
+        const passGlobalOn =
+          opts5.english_app_enabled === true &&
+          putEn.status === 200 &&
+          me5.preferred_locale === 'en-GB';
         report.scenarios.sc5_new_family = {
           register: regStatus,
           family_id: smokeFamilyId,
@@ -249,11 +259,8 @@ async function runApiSmoke(opts = {}) {
           put_en_gb_status: putEn.status,
           put_en_gb_error: putEn.body?.error,
           parent_locale_after: me5.preferred_locale,
-          pass:
-            opts5.english_app_enabled === false &&
-            putEn.status === 403 &&
-            putEn.body?.error === 'ENGLISH_NOT_AVAILABLE' &&
-            me5.preferred_locale === 'sv-SE',
+          global_on_smoke: globalOn,
+          pass: globalOn ? passGlobalOn : passGlobalOff,
         };
       }
     } finally {
