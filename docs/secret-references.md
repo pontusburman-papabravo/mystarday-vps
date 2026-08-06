@@ -14,6 +14,8 @@ Values are stored **outside the repository** in approved secret management (GitH
 | `FOUNDER_CHILD_PIN` | Child PIN |
 | `FOUNDER_PARENT_PIN` | Parent app-lock PIN (if set) |
 
+**VPS prod gates (Extra stöd, activity timer):** store `FOUNDER_CHILD_PIN` in `/home/deploy/deploy-ops.env` (`chmod 600`, `deploy:deploy`). Push from a machine with the secret: `./scripts/ops/push-founder-child-pin-to-vps.sh`. Run gate: `./scripts/ops/run-transition-support-prod-gate-vps.sh`.
+
 Canonical flow: [`founder-qa-test-account.md`](founder-qa-test-account.md)
 
 ## App Store / Play review demo family

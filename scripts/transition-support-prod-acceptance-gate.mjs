@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
  * Extra stöd (transition_support) — live acceptance on founder/Journey QA family.
- * VPS: set -a && source .env && set +a && node scripts/transition-support-prod-acceptance-gate.mjs
+ * VPS: set -a && source .env && [ -f /home/deploy/deploy-ops.env ] && source /home/deploy/deploy-ops.env && set +a
+ *   && export JOURNEY_QA_BASE_URL="${JOURNEY_QA_BASE_URL:-$APP_URL}"
+ *   && node scripts/transition-support-prod-acceptance-gate.mjs
+ * Or: ./scripts/ops/run-transition-support-prod-gate-vps.sh (after FOUNDER_CHILD_PIN in deploy-ops.env)
  */
 import path from 'node:path';
 import fs from 'node:fs';
