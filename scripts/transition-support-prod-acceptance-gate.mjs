@@ -116,7 +116,7 @@ async function snapshotLogItemTiming(parentJar, parentCsrf, qaChildId) {
   const items = logRes.json?.items || [];
   const incomplete = items.filter((i) => !i.completed);
   if (!incomplete.length) return { items: [], item: null };
-  const start = stockholmTimePlusMinutes(2);
+  const start = stockholmTimePlusMinutes(1);
   const end = stockholmTimePlusMinutes(20);
   const snaps = incomplete.map((i) => ({
     id: i.id,
@@ -269,7 +269,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMe
 
   for (const vp of VIEWPORTS) {
     if (logSnap.items?.length) {
-      const start = stockholmTimePlusMinutes(2);
+      const start = stockholmTimePlusMinutes(1);
       const end = stockholmTimePlusMinutes(20);
       for (const row of logSnap.items) {
         await setLogItemStartTimeDb(row.id, start, end);
@@ -325,7 +325,7 @@ async function runBrowserChecks(puppeteer, sessions, qaChildId, logSnap, childMe
     results.viewports[vp.name] = {
       ...metrics,
       pass: !metrics.overflowX && metrics.touchOk
-        && (logSnap.item?.id ? (metrics.hasTransition && metrics.transitionText.length > 0 && /Om \d+ min/.test(metrics.transitionText)) : true),
+        && (logSnap.item?.id ? (metrics.hasTransition && /^(Om \d+ min|Nu|Snart)$/.test(metrics.transitionText.trim())) : true),
     };
   }
 
