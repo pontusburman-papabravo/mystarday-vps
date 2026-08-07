@@ -28,7 +28,7 @@ async function setActiveChildrenForParent(client, parentId, childIds, options = 
       `INSERT INTO parent_child (parent_id, child_id, role, revoked_at, revoked_by)
        VALUES ($1, $2, 'shared', NULL, NULL)
        ON CONFLICT (parent_id, child_id) DO UPDATE
-       SET revoked_at = NULL, revoked_by = NULL, role = EXCLUDED.role`,
+       SET revoked_at = NULL, revoked_by = NULL`,
       [parentId, childId]
     );
   }

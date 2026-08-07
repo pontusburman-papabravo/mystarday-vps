@@ -160,7 +160,23 @@ async function verifyTrustedDeviceRaw(raw) {
   return row;
 }
 
+async function creatorHasChildAccess(row, childId) {
+  const access = await authz.getChildAccess(row.created_by_parent_id, childId);
+  if (!access) return false;
+  const childRes = await db.query(
+    'SELECT id FROM child WHERE id = $1 AND family_id = $2',
+    [childId, row.family_id]
+  );
+  return Boolean(childRes.rows[0]);
+}
+
 async function issueChildSessionForDevice(res, row, rawToken, childId, source) {
+  if (!childId) {
+    return { ok: false, code: 'CHILD_NOT_FOUND' };
+  }
+  if (!(await creatorHasChildAccess(row, childId))) {
+    return { ok: false, code: 'CHILD_ACCESS_DENIED' };
+  }
   const childRes = await db.query(
     `SELECT id, family_id, username, name FROM child WHERE id = $1 AND family_id = $2`,
     [childId, row.family_id]
@@ -177,6 +193,7 @@ async function issueChildSessionForDevice(res, row, rawToken, childId, source) {
       familyId: child.family_id,
       username: child.username,
       name: child.name,
+      trustedDeviceId: row.id,
     },
     config.jwt.secret,
     { expiresIn: config.jwt.childExpiresIn }
@@ -297,6 +314,9 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
   }
 
   const childId = row.last_active_child_id || row.default_child_id;
+  if (row.device_mode === 'child' && childId !== row.default_child_id) {
+    return { ok: false, code: 'CHILD_ACCESS_DENIED' };
+  }
   return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_restore');
 }
 

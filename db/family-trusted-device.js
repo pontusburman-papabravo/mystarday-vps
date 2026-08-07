@@ -61,7 +61,7 @@ async function listActiveForFamily(familyId) {
 
 async function revokeForFamily(deviceId, familyId) {
   const existing = await db.query(
-    `SELECT id, last_refresh_token_id FROM family_trusted_device
+    `SELECT id, last_refresh_token_id, device_mode, default_child_id FROM family_trusted_device
      WHERE id = $1 AND family_id = $2 AND revoked_at IS NULL`,
     [deviceId, familyId]
   );
@@ -69,6 +69,12 @@ async function revokeForFamily(deviceId, familyId) {
   if (!row) return null;
   if (row.last_refresh_token_id) {
     await db.query('DELETE FROM refresh_token WHERE id = $1', [row.last_refresh_token_id]);
+  }
+  if (row.device_mode === 'child' && row.default_child_id) {
+    await db.query(
+      'DELETE FROM refresh_token WHERE child_id = $1 AND family_id = $2',
+      [row.default_child_id, familyId]
+    );
   }
   const result = await db.query(
     `UPDATE family_trusted_device
@@ -110,6 +116,29 @@ async function setLastRefreshTokenId(deviceId, refreshTokenId) {
   );
 }
 
+/** After refresh rotation, keep revoke targeting the live child session token. */
+async function advanceLastRefreshTokenId(oldRefreshTokenId, newRefreshTokenId) {
+  if (!oldRefreshTokenId || !newRefreshTokenId) return;
+  await db.query(
+    `UPDATE family_trusted_device
+     SET last_refresh_token_id = $2
+     WHERE last_refresh_token_id = $1 AND revoked_at IS NULL`,
+    [oldRefreshTokenId, newRefreshTokenId]
+  );
+}
+
+async function findActiveByLastRefreshTokenId(refreshTokenId) {
+  if (!refreshTokenId) return null;
+  const result = await db.query(
+    `SELECT id, family_id, created_by_parent_id, device_mode, default_child_id,
+            last_active_child_id, revoked_at
+     FROM family_trusted_device
+     WHERE last_refresh_token_id = $1 AND revoked_at IS NULL`,
+    [refreshTokenId]
+  );
+  return result.rows[0] || null;
+}
+
 async function revokeAllForFamilyWithTokens(familyId) {
   const rows = await db.query(
     `SELECT id, last_refresh_token_id FROM family_trusted_device
@@ -135,4 +164,6 @@ module.exports = {
   touchLastSeen,
   setLastActiveChild,
   setLastRefreshTokenId,
+  advanceLastRefreshTokenId,
+  findActiveByLastRefreshTokenId,
 };

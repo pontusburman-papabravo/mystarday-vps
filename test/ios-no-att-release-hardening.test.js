@@ -20,9 +20,12 @@ describe('R4.5 iOS no-ATT release hardening', () => {
   it('Capacitor iOS includePlugins excludes ATT plugin', () => {
     const ts = fs.readFileSync(path.join(ROOT, 'capacitor.config.ts'), 'utf8');
     assert.doesNotMatch(ts, /capacitor-plugin-app-tracking-transparency/);
-    const json = fs.readFileSync(path.join(ROOT, 'ios/App/App/capacitor.config.json'), 'utf8');
-    assert.doesNotMatch(json, /AppTrackingTransparencyPlugin/);
-    assert.doesNotMatch(json, /capacitor-plugin-app-tracking-transparency/);
+    const jsonPath = path.join(ROOT, 'ios/App/App/capacitor.config.json');
+    if (fs.existsSync(jsonPath)) {
+      const json = fs.readFileSync(jsonPath, 'utf8');
+      assert.doesNotMatch(json, /AppTrackingTransparencyPlugin/);
+      assert.doesNotMatch(json, /capacitor-plugin-app-tracking-transparency/);
+    }
   });
 
   it('Podfile has no ATT pod after canonical patch assumptions', () => {

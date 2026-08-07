@@ -14,6 +14,10 @@ const { UpdateFamilyMemberSchema } = require('../../lib/schemas');
 const { getChildrenForParent, syncAccountType } = require('../../../db/parent-access');
 const { setActiveChildrenForParent } = require('../../../db/parent-child-links');
 const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
+const {
+  assertCanUpdateMemberChildren,
+  assertNoChildWithoutAdmin,
+} = require('../../lib/family-member-children-authz');
 
 const router = express.Router();
 
@@ -69,6 +73,11 @@ router.put('/members/:id/children', async (req, res) => {
       return res.status(403).json({ error: 'Du kan bara ge åtkomst till barn du själv administrerar' });
     }
 
+    const authzCheck = await assertCanUpdateMemberChildren(req.user.id, memberId, req.user.familyId);
+    if (!authzCheck.ok) {
+      return res.status(403).json({ error: authzCheck.message || 'Åtkomst nekad' });
+    }
+
     await client.query('BEGIN');
 
     // Verify member belongs to same family
@@ -91,6 +100,17 @@ router.put('/members/:id/children', async (req, res) => {
     if (invalidIds.length > 0) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Ogiltiga barn-ID:n' });
+    }
+
+    const orphanCheck = await assertNoChildWithoutAdmin(
+      client,
+      req.user.familyId,
+      memberId,
+      childIds
+    );
+    if (!orphanCheck.ok) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: orphanCheck.message || 'Åtkomst nekad' });
     }
 
     await setActiveChildrenForParent(client, memberId, childIds, { revokedBy: req.user.id });

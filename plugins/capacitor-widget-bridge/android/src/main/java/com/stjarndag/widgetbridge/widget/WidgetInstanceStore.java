@@ -61,4 +61,11 @@ public final class WidgetInstanceStore {
         return WidgetBindingScope.isSwitchInProgress(context, inst)
             || WidgetBindingScope.isPendingActionInvalidated(context, inst);
     }
+
+    public static void clearWidgetConfig(Context context, int widgetId) {
+        WidgetBridgeStore.publicPrefs(context).edit()
+            .remove(key(widgetId, "mode"))
+            .remove(key(widgetId, "locked_child"))
+            .apply();
+    }
 }

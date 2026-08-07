@@ -8,17 +8,26 @@
  *   const { addClient, removeClient, broadcast } = require('./sse-broadcast');
  */
 
-// Map<familyId, Set<res>> — one Set per family, containing Express response objects
+/**
+ * @typedef {object} SseClient
+ * @property {import('express').Response} res
+ * @property {(type: string, data: object) => boolean} shouldDeliver
+ */
+
+// Map<familyId, Set<SseClient>>
 const clients = new Map();
 
 /**
  * Register an SSE response object for a family.
  * @param {string} familyId
  * @param {import('express').Response} res
+ * @param {{ shouldDeliver?: (type: string, data: object) => boolean }} [options]
  */
-function addClient(familyId, res) {
+function addClient(familyId, res, options = {}) {
+  const shouldDeliver = options.shouldDeliver || (() => true);
+  const client = { res, shouldDeliver };
   if (!clients.has(familyId)) clients.set(familyId, new Set());
-  clients.get(familyId).add(res);
+  clients.get(familyId).add(client);
 }
 
 /**
@@ -29,7 +38,12 @@ function addClient(familyId, res) {
 function removeClient(familyId, res) {
   const set = clients.get(familyId);
   if (!set) return;
-  set.delete(res);
+  for (const client of set) {
+    if (client.res === res) {
+      set.delete(client);
+      break;
+    }
+  }
   if (set.size === 0) clients.delete(familyId);
 }
 
@@ -46,9 +60,10 @@ function broadcast(familyId, type, data) {
   if (!set || set.size === 0) return;
 
   const payload = `event: ${type}\ndata: ${JSON.stringify(data)}\n\n`;
-  for (const res of set) {
+  for (const client of set) {
     try {
-      res.write(payload);
+      if (!client.shouldDeliver(type, data || {})) continue;
+      client.res.write(payload);
     } catch {
       // Client already disconnected — cleanup handled by close listener
     }

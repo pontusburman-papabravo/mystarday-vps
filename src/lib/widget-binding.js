@@ -47,6 +47,12 @@ async function resolveBindingFromTrustedDevice(rawDeviceToken, { childId, instal
   }
 
   let boundChildId = childId || row.default_child_id || row.last_active_child_id;
+  if (row.device_mode === 'child') {
+    boundChildId = row.default_child_id || row.last_active_child_id;
+    if (childId && childId !== boundChildId) {
+      return { ok: false, code: 'child_switch_forbidden' };
+    }
+  }
   if (!boundChildId && row.device_mode === 'shared') {
     return { ok: false, code: 'needs_child_selection' };
   }
@@ -162,6 +168,12 @@ async function reissueBindingForChild(binding, targetChildId) {
     if (!row || row.revoked_at) {
       return { ok: false, code: 'device_revoked' };
     }
+    if (row.device_mode === 'child') {
+      const bound = row.default_child_id || row.last_active_child_id;
+      if (targetChildId !== bound) {
+        return { ok: false, code: 'child_switch_forbidden' };
+      }
+    }
     parentIdForAccess = row.created_by_parent_id;
   } else {
     return { ok: false, code: 'reauth_required' };
@@ -216,6 +228,12 @@ async function reissueBindingForInstallation(binding, { installationId, childId 
     const row = await deviceDb.findById(binding.device_id);
     if (!row || row.revoked_at) {
       return { ok: false, code: 'device_revoked' };
+    }
+    if (row.device_mode === 'child') {
+      const bound = row.default_child_id || row.last_active_child_id;
+      if (targetChildId !== bound) {
+        return { ok: false, code: 'child_switch_forbidden' };
+      }
     }
     parentIdForAccess = row.created_by_parent_id;
   } else if (binding.mode === 'child_session') {

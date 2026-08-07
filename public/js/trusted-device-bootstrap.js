@@ -11,13 +11,13 @@
   }
 
   async function postRestore(options) {
-    const body = {};
-    if (options && options.forcePicker) body.force_picker = true;
+    const reqBody = {};
+    if (options && options.forcePicker) reqBody.force_picker = true;
     const res = await fetch('/api/auth/trusted-device/restore', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(reqBody),
     });
     const body = await res.json().catch(function () { return {}; });
     return { status: res.status, body: body };

@@ -16,6 +16,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { assertAndroidReleaseSigningPreconditions } from './assert-android-release-signing.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -24,36 +25,33 @@ const OUT_AAB = path.join(ROOT, 'assets', 'play-store', 'out', 'min-stjarnadag-r
 const KEYSTORE = path.join(SIGNING_DIR, 'mystarday-upload.keystore');
 const KEYSTORE_PROPS = path.join(ROOT, 'android', 'keystore.properties');
 
-const STORE_PASS = process.env.ANDROID_KEYSTORE_PASSWORD || 'MinStjarnadagUpload2026!';
-const KEY_PASS = process.env.ANDROID_KEY_PASSWORD || STORE_PASS;
-const KEY_ALIAS = process.env.ANDROID_KEY_ALIAS || 'mystarday-upload';
 
 function run(cmd, opts = {}) {
   console.log('>', cmd);
   execSync(cmd, { stdio: 'inherit', cwd: opts.cwd || ROOT, env: { ...process.env, ...opts.env } });
 }
 
-function ensureKeystore() {
+function ensureDevKeystore(keystorePath, storePass, keyPass, keyAlias) {
   fs.mkdirSync(SIGNING_DIR, { recursive: true });
-  if (fs.existsSync(KEYSTORE)) {
-    console.log('Using existing keystore:', KEYSTORE);
+  if (fs.existsSync(keystorePath)) {
+    console.log('Using existing keystore:', keystorePath);
     return;
   }
-  console.log('Creating upload keystore (save this file + password for all future Play updates)…');
+  console.log('Creating dev upload keystore…');
   run(
-    `keytool -genkey -v -keystore "${KEYSTORE}" -alias ${KEY_ALIAS} ` +
+    `keytool -genkey -v -keystore "${keystorePath}" -alias ${keyAlias} ` +
       `-keyalg RSA -keysize 2048 -validity 10000 ` +
-      `-storepass "${STORE_PASS}" -keypass "${KEY_PASS}" ` +
-      `-dname "CN=Min Stjarnadag, OU=Mobile, O=PapaBravo, L=Stockholm, C=SE"`
+      `-storepass "${storePass}" -keypass "${keyPass}" ` +
+      `-dname "CN=Min Stjarnadag Dev, OU=Mobile, O=PapaBravo, L=Stockholm, C=SE"`
   );
 }
 
-function writeKeystoreProperties() {
-  const relStore = path.relative(path.join(ROOT, 'android', 'app'), KEYSTORE).replace(/\\/g, '/');
+function writeKeystoreProperties(keystorePath, storePass, keyPass, keyAlias) {
+  const relStore = path.relative(path.join(ROOT, 'android', 'app'), keystorePath).replace(/\\/g, '/');
   const content = `storeFile=${relStore}
-storePassword=${STORE_PASS}
-keyAlias=${KEY_ALIAS}
-keyPassword=${KEY_PASS}
+storePassword=${storePass}
+keyAlias=${keyAlias}
+keyPassword=${keyPass}
 `;
   fs.writeFileSync(KEYSTORE_PROPS, content);
   console.log('Wrote', KEYSTORE_PROPS);
@@ -107,14 +105,19 @@ function main() {
     process.exit(1);
   }
 
+  const signing = assertAndroidReleaseSigningPreconditions();
+  const keystorePath = signing.keystorePath || KEYSTORE;
+
   run('NODE_ENV=development npm install --include=dev --legacy-peer-deps');
-  ensureKeystore();
-  writeKeystoreProperties();
+  if (signing.allowDevKeystore) {
+    ensureDevKeystore(keystorePath, signing.storePass, signing.keyPass, signing.keyAlias);
+  }
+  writeKeystoreProperties(keystorePath, signing.storePass, signing.keyPass, signing.keyAlias);
   patchBuildGradle();
 
-  if (!process.env.GOOGLE_WEB_CLIENT_ID) {
-    console.warn('\n⚠️  GOOGLE_WEB_CLIENT_ID not set — Google Sign In will fail on Android.');
-    console.warn('    Export it before building: GOOGLE_WEB_CLIENT_ID=xxx.apps.googleusercontent.com npm run android:aab\n');
+  if (!signing.allowDevKeystore && !process.env.GOOGLE_WEB_CLIENT_ID) {
+    console.error('\n❌ GOOGLE_WEB_CLIENT_ID required for release AAB.\n');
+    process.exit(1);
   }
 
   const env = { ...process.env, NODE_ENV: 'development' };
@@ -140,10 +143,9 @@ function main() {
   const mb = (fs.statSync(OUT_AAB).size / (1024 * 1024)).toFixed(2);
   console.log(`\n✅ AAB ready: ${OUT_AAB} (${mb} MB)`);
   console.log('\nUpload in Play Console → Testing → Internal testing → Create release');
-  console.log('Keystore:', KEYSTORE);
-  console.log('Alias:', KEY_ALIAS);
+  console.log('Keystore:', keystorePath);
+  console.log('Alias:', signing.keyAlias);
   if (!process.env.ANDROID_KEYSTORE_PASSWORD) {
-    console.log('\n⚠️  Default upload password was used. Set ANDROID_KEYSTORE_PASSWORD before production.');
   }
 }
 
