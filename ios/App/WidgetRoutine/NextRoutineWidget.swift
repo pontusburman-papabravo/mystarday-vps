@@ -36,7 +36,9 @@ struct NextRoutineProvider: TimelineProvider {
             childLabel: "🦊 Astrid",
             feedbackStars: 0,
             feedbackTitle: "",
-            allDoneMessage: WidgetL10n.allDoneNeutral
+            feedbackChildName: "",
+            allDoneMessage: WidgetL10n.allDoneNeutral,
+            canSwitchChildren: false
         )
     }
 }
@@ -61,12 +63,16 @@ struct NextRoutineWidgetEntryView: View {
 
     private var headerLine: some View {
         HStack {
-            if let child = entry.childLabel, family == .systemMedium {
-                Text("‹ \(child) ›")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .accessibilityLabel(child)
+            if family == .systemMedium {
+                if entry.canSwitchChildren {
+                    childSwitcherRow
+                } else if let child = entry.childLabel {
+                    Text("‹ \(child) ›")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .accessibilityLabel(child)
+                }
             }
             Spacer(minLength: 4)
             if entry.progressTotal > 0 {
@@ -76,6 +82,44 @@ struct NextRoutineWidgetEntryView: View {
                     .accessibilityLabel(progressText)
             }
         }
+    }
+
+    @ViewBuilder
+    private var childSwitcherRow: some View {
+        if #available(iOS 17.0, *) {
+            HStack(spacing: 4) {
+                Button(intent: SwitchChildIntent(direction: "prev")) {
+                    Text("‹")
+                        .font(.title3.weight(.semibold))
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(WidgetL10n.switchChildPrev)
+                Text(activeChildName)
+                    .font(.subheadline.weight(.bold))
+                    .lineLimit(1)
+                    .accessibilityLabel(activeChildName)
+                Button(intent: SwitchChildIntent(direction: "next")) {
+                    Text("›")
+                        .font(.title3.weight(.semibold))
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(WidgetL10n.switchChildNext)
+            }
+        }
+    }
+
+    private var activeChildName: String {
+        if !entry.feedbackChildName.isEmpty {
+            return entry.feedbackChildName
+        }
+        if let label = entry.childLabel {
+            let parts = label.split(separator: " ", maxSplits: 1)
+            if parts.count == 2 { return String(parts[1]) }
+            return label
+        }
+        return ""
     }
 
     private var progressText: String {
@@ -122,9 +166,15 @@ struct NextRoutineWidgetEntryView: View {
         switch entry.phase {
         case .feedback:
             VStack(alignment: .leading, spacing: 4) {
-                Text(WidgetL10n.feedbackDone)
-                    .font(.headline)
-                    .foregroundStyle(.green)
+                if !entry.feedbackChildName.isEmpty, WidgetBridgeStore.viewerMode() != "child_session" {
+                    Text(WidgetL10n.feedbackDoneFor(entry.feedbackChildName))
+                        .font(.headline)
+                        .foregroundStyle(.green)
+                } else {
+                    Text(WidgetL10n.feedbackDone)
+                        .font(.headline)
+                        .foregroundStyle(.green)
+                }
                 if entry.feedbackStars > 0 {
                     Text(WidgetL10n.starsAdded(entry.feedbackStars))
                         .font(.subheadline)
@@ -193,7 +243,9 @@ struct NextRoutineWidgetEntryView: View {
 
     @ViewBuilder
     private var completeButton: some View {
-        if #available(iOS 17.0, *), let token = entry.instanceToken, !token.isEmpty, token != "preview" {
+        if entry.phase == .switchingChild || WidgetBridgeStore.isSwitchInProgress() {
+            EmptyView()
+        } else if #available(iOS 17.0, *), let token = entry.instanceToken, !token.isEmpty, token != "preview" {
             Button(intent: CompleteNextActivityIntent(instanceToken: token)) {
                 Text(WidgetL10n.actionDone)
                     .font(.body.weight(.semibold))

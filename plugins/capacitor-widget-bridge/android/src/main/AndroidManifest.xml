@@ -22,5 +22,9 @@
         <receiver
             android:name="com.stjarndag.widgetbridge.widget.WidgetOpenAppReceiver"
             android:exported="false" />
+
+        <receiver
+            android:name="com.stjarndag.widgetbridge.widget.WidgetChildSwitchReceiver"
+            android:exported="false" />
     </application>
 </manifest>

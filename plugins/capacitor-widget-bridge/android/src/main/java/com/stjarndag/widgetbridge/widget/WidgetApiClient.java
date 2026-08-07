@@ -58,6 +58,16 @@ public final class WidgetApiClient {
         return post(context, "/api/widget/complete-action", payload);
     }
 
+    public static ApiResult switchChild(Context context, String targetChildId) {
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("child_id", targetChildId);
+        } catch (Exception e) {
+            return new ApiResult(0, null, true);
+        }
+        return post(context, "/api/widget/switch-child", payload);
+    }
+
     private static ApiResult get(Context context, String path) {
         String token = WidgetBridgeStore.getBindingToken(context);
         if (token == null || token.isEmpty()) {

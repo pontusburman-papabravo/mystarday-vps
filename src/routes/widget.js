@@ -54,6 +54,18 @@ function completionSourceForPlatform(platform) {
   return platform === 'android' ? 'widget_android' : 'widget_ios';
 }
 
+function allowedChildrenBucket(count) {
+  if (count <= 1) return '1';
+  if (count === 2) return '2';
+  return '3+';
+}
+
+function widgetDeviceMode(binding) {
+  if (binding.mode === 'child_session') return 'child_session';
+  if (binding.mode === 'trusted_device') return 'trusted_device';
+  return 'parent';
+}
+
 // ─── POST /api/widget/bindings ─────────────────────────────
 router.post('/bindings', optionalAuth, async (req, res, next) => {
   try {
@@ -161,16 +173,36 @@ router.post('/switch-child', requireWidgetBinding, async (req, res, next) => {
     if (req.widgetBinding.mode === 'child_session') {
       return res.status(403).json({ status: 'child_switch_forbidden' });
     }
+    const contextBefore = await buildWidgetContext(req.widgetBinding, req.widgetChildId);
+    const bucket = allowedChildrenBucket(contextBefore.allowed_children?.length || 0);
+    const platform = req.widgetBinding.platform === 'android' ? 'android' : 'ios';
     const result = await reissueBindingForChild(req.widgetBinding, targetChildId);
     if (!result.ok) {
+      analytics.track(req.widgetFamilyId, 'widget_child_switch_failed', {
+        platform,
+        device_mode: widgetDeviceMode(req.widgetBinding),
+        allowed_children_bucket: bucket,
+        outcome: result.code || 'error',
+      });
       const status = result.code === 'child_switch_forbidden' ? 403 : 403;
       return res.status(status).json({ status: result.code });
     }
     const nextAction = await resolveWidgetNextAction(result.child_id);
+    const contextAfter = await buildWidgetContext(
+      { ...req.widgetBinding, child_id: result.child_id },
+      result.child_id
+    );
+    analytics.track(req.widgetFamilyId, 'widget_child_switched', {
+      platform,
+      device_mode: widgetDeviceMode(req.widgetBinding),
+      allowed_children_bucket: bucket,
+      outcome: 'ok',
+    });
     return res.json({
       binding_token: result.binding_token,
       child_id: result.child_id,
       next: nextAction,
+      context: contextAfter,
     });
   } catch (err) {
     next(err);

@@ -3,11 +3,16 @@ import WidgetKit
 
 enum WidgetEntryBuilder {
     static func buildFromStorageOrFetch(completion: @escaping (NextRoutineEntry) -> Void) {
+        if WidgetBridgeStore.isSwitchInProgress() {
+            completion(switchingEntry())
+            return
+        }
+
         if WidgetBridgeStore.isPendingActionInvalidated() {
             WidgetBridgeStore.clearPendingActionInvalidated()
             completion(switchingEntry())
             WidgetAPIClient.shared.fetchNextAction { _ in
-                syncChildLabel {
+                syncContext {
                     WidgetCenter.shared.reloadAllTimelines()
                 }
             }
@@ -15,7 +20,7 @@ enum WidgetEntryBuilder {
         }
 
         if let feedback = WidgetBridgeStore.feedbackActive() {
-            completion(feedbackEntry(stars: feedback.stars, title: feedback.title))
+            completion(feedbackEntry(stars: feedback.stars, title: feedback.title, childName: feedback.childName))
             return
         }
 
@@ -29,7 +34,7 @@ enum WidgetEntryBuilder {
             case .failure(let err):
                 completion(mapError(err))
             case .success(let json):
-                syncChildLabel {
+                syncContext {
                     completion(mapNext(json))
                 }
             }
@@ -38,6 +43,7 @@ enum WidgetEntryBuilder {
 
     static func mapNext(_ json: [String: Any]) -> NextRoutineEntry {
         let privacy = WidgetBridgeStore.privacyMode()
+        let flags = entryFlags()
         if privacy == "private" {
             return NextRoutineEntry(
                 date: .now,
@@ -53,7 +59,9 @@ enum WidgetEntryBuilder {
                 childLabel: childLabelIfAllowed(),
                 feedbackStars: 0,
                 feedbackTitle: "",
-                allDoneMessage: WidgetL10n.allDoneNeutral
+                feedbackChildName: "",
+                allDoneMessage: WidgetL10n.allDoneNeutral,
+                canSwitchChildren: flags.canSwitch
             )
         }
 
@@ -79,7 +87,9 @@ enum WidgetEntryBuilder {
                 childLabel: childLabelIfAllowed(),
                 feedbackStars: 0,
                 feedbackTitle: "",
-                allDoneMessage: msg
+                feedbackChildName: "",
+                allDoneMessage: msg,
+                canSwitchChildren: flags.canSwitch
             )
         case "nothing_now":
             return NextRoutineEntry(
@@ -96,7 +106,9 @@ enum WidgetEntryBuilder {
                 childLabel: childLabelIfAllowed(),
                 feedbackStars: 0,
                 feedbackTitle: "",
-                allDoneMessage: WidgetL10n.allDoneNeutral
+                feedbackChildName: "",
+                allDoneMessage: WidgetL10n.allDoneNeutral,
+                canSwitchChildren: flags.canSwitch
             )
         case "ready":
             guard let activity = payload.activity else {
@@ -111,6 +123,7 @@ enum WidgetEntryBuilder {
             let emoji = WidgetPictogramMap.emoji(for: imageKey)
             let displayTitle = privacy == "reduced" ? WidgetL10n.genericNextStep : title
             let durationLabel = formatDuration(activity["duration_seconds"] as? Int)
+            let tokenForUi = WidgetBridgeStore.isSwitchInProgress() ? nil : instanceToken
 
             if capability == "open_app" {
                 return NextRoutineEntry(
@@ -123,11 +136,13 @@ enum WidgetEntryBuilder {
                     progressTotal: progress.total,
                     openAppReason: openReason,
                     timerDurationLabel: durationLabel,
-                    instanceToken: instanceToken,
+                    instanceToken: tokenForUi,
                     childLabel: childLabelIfAllowed(),
                     feedbackStars: 0,
                     feedbackTitle: "",
-                    allDoneMessage: WidgetL10n.allDoneNeutral
+                    feedbackChildName: "",
+                    allDoneMessage: WidgetL10n.allDoneNeutral,
+                    canSwitchChildren: flags.canSwitch
                 )
             }
             return NextRoutineEntry(
@@ -140,11 +155,13 @@ enum WidgetEntryBuilder {
                 progressTotal: progress.total,
                 openAppReason: nil,
                 timerDurationLabel: nil,
-                instanceToken: instanceToken,
+                instanceToken: tokenForUi,
                 childLabel: childLabelIfAllowed(),
                 feedbackStars: 0,
                 feedbackTitle: "",
-                allDoneMessage: WidgetL10n.allDoneNeutral
+                feedbackChildName: "",
+                allDoneMessage: WidgetL10n.allDoneNeutral,
+                canSwitchChildren: flags.canSwitch
             )
         default:
             return statusEntry(.reauth)
@@ -159,6 +176,10 @@ enum WidgetEntryBuilder {
         return "\(mins) min"
     }
 
+    private static func entryFlags() -> (canSwitch: Bool) {
+        (WidgetBridgeStore.canSwitchChildren() && !WidgetBridgeStore.isSwitchInProgress())
+    }
+
     private static func childLabelIfAllowed() -> String? {
         let privacy = WidgetBridgeStore.privacyMode()
         if privacy == "private" || privacy == "reduced" { return nil }
@@ -167,21 +188,35 @@ enum WidgetEntryBuilder {
         return WidgetBridgeStore.widgetChildDisplayLabel()
     }
 
-    private static func syncChildLabel(then: @escaping () -> Void) {
+    private static func syncContext(then: @escaping () -> Void) {
         let viewer = WidgetBridgeStore.viewerMode()
         guard viewer != "child_session", !viewer.isEmpty else {
             then()
             return
         }
         WidgetAPIClient.shared.fetchContext { result in
-            if case .success(let json) = result,
-               let active = json["active_child"] as? [String: Any],
-               let name = active["display_name"] as? String {
-                let emoji = active["emoji"] as? String ?? ""
-                let label = emoji.isEmpty ? name : "\(emoji) \(name)"
-                WidgetBridgeStore.setWidgetChildDisplayLabel(label)
+            if case .success(let json) = result {
+                applyContext(json)
             }
             then()
+        }
+    }
+
+    static func applyContextFromSwitch(_ json: [String: Any]) {
+        applyContext(json)
+    }
+
+    private static func applyContext(_ json: [String: Any]) {
+        if let allowed = json["allowed_children"] as? [[String: Any]],
+           let data = try? JSONSerialization.data(withJSONObject: allowed),
+           let str = String(data: data, encoding: .utf8) {
+            WidgetBridgeStore.setAllowedChildrenJson(str)
+        }
+        if let active = json["active_child"] as? [String: Any],
+           let name = active["display_name"] as? String {
+            let emoji = active["emoji"] as? String ?? ""
+            let label = emoji.isEmpty ? name : "\(emoji) \(name)"
+            WidgetBridgeStore.setWidgetChildDisplayLabel(label)
         }
     }
 
@@ -216,7 +251,9 @@ enum WidgetEntryBuilder {
             childLabel: nil,
             feedbackStars: 0,
             feedbackTitle: "",
-            allDoneMessage: WidgetL10n.allDoneNeutral
+            feedbackChildName: "",
+            allDoneMessage: WidgetL10n.allDoneNeutral,
+            canSwitchChildren: false
         )
     }
 
@@ -235,11 +272,13 @@ enum WidgetEntryBuilder {
             childLabel: nil,
             feedbackStars: 0,
             feedbackTitle: "",
-            allDoneMessage: WidgetL10n.allDoneNeutral
+            feedbackChildName: "",
+            allDoneMessage: WidgetL10n.allDoneNeutral,
+            canSwitchChildren: false
         )
     }
 
-    static func feedbackEntry(stars: Int, title: String) -> NextRoutineEntry {
+    static func feedbackEntry(stars: Int, title: String, childName: String) -> NextRoutineEntry {
         NextRoutineEntry(
             date: .now,
             phase: .feedback,
@@ -254,7 +293,9 @@ enum WidgetEntryBuilder {
             childLabel: childLabelIfAllowed(),
             feedbackStars: stars,
             feedbackTitle: title,
-            allDoneMessage: WidgetL10n.allDoneNeutral
+            feedbackChildName: childName,
+            allDoneMessage: WidgetL10n.allDoneNeutral,
+            canSwitchChildren: false
         )
     }
 }

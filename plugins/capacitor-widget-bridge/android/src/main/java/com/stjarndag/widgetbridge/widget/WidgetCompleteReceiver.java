@@ -43,7 +43,8 @@ public class WidgetCompleteReceiver extends BroadcastReceiver {
         }
         lastCompleteAtMs = now;
 
-        if (WidgetBridgeStore.isPendingActionInvalidated(app)) {
+        if (WidgetBridgeStore.isPendingActionInvalidated(app)
+            || WidgetInstanceStore.isCompleteBlocked(app, widgetId)) {
             WidgetRenderer.refreshAllWidgets(app);
             pending.finish();
             return;
@@ -84,7 +85,12 @@ public class WidgetCompleteReceiver extends BroadcastReceiver {
         JSONObject completed = body.optJSONObject("completed");
         String title = completed != null ? completed.optString("title", "") : "";
         long until = System.currentTimeMillis() + WidgetConfig.FEEDBACK_MS;
-        WidgetBridgeStore.setFeedbackUntil(app, until, stars, title);
+        String parentChildName = null;
+        String viewer = WidgetBridgeStore.getViewerMode(app);
+        if (viewer != null && !viewer.isEmpty() && !"child_session".equals(viewer)) {
+            parentChildName = WidgetRenderer.activeChildDisplayNameForFeedback(app);
+        }
+        WidgetBridgeStore.setFeedbackUntil(app, until, stars, title, parentChildName);
         android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
         handler.postDelayed(() -> WidgetRenderer.refreshAllWidgets(app), WidgetConfig.FEEDBACK_MS + 150);
     }

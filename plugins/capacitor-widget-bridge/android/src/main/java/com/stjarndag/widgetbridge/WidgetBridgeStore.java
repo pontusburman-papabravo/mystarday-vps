@@ -57,7 +57,7 @@ public final class WidgetBridgeStore {
         publicPrefs(context).edit().putString("last_refresh_at", Instant.now().toString()).apply();
     }
 
-    static String getOrCreateInstallationId(Context context) {
+    public static String getOrCreateInstallationId(Context context) {
         SharedPreferences pub = publicPrefs(context);
         String existing = pub.getString("installation_id", null);
         if (existing != null && !existing.isEmpty()) {
@@ -125,10 +125,42 @@ public final class WidgetBridgeStore {
     }
 
     public static void setFeedbackUntil(Context context, long epochMs, int stars, String title) {
+        setFeedbackUntil(context, epochMs, stars, title, null);
+    }
+
+    public static void setFeedbackUntil(
+        Context context,
+        long epochMs,
+        int stars,
+        String title,
+        String childNameForParent
+    ) {
         publicPrefs(context).edit()
             .putLong("widget_feedback_until", epochMs)
             .putInt("widget_feedback_stars", stars)
             .putString("widget_feedback_title", title != null ? title : "")
+            .putString("widget_feedback_child_name", childNameForParent != null ? childNameForParent : "")
+            .apply();
+    }
+
+    public static String getFeedbackChildName(Context context) {
+        return publicPrefs(context).getString("widget_feedback_child_name", "");
+    }
+
+    public static void setAllowedChildrenJson(Context context, String json) {
+        publicPrefs(context).edit().putString("widget_allowed_children_json", json).apply();
+    }
+
+    public static String getAllowedChildrenJson(Context context) {
+        return publicPrefs(context).getString("widget_allowed_children_json", null);
+    }
+
+    public static void updateBindingFromSwitch(Context context, String bindingToken, String activeChildId)
+        throws Exception {
+        secretPrefs(context).edit().putString(KEY_BINDING, bindingToken).apply();
+        publicPrefs(context).edit()
+            .putString("active_child_id", activeChildId)
+            .putBoolean("pending_action_invalidated", false)
             .apply();
     }
 

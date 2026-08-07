@@ -13,12 +13,21 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Fetches widget state and updates RemoteViews (R4.5e). */
+/** Fetches widget state and updates RemoteViews (R4.5e / R4.5f). */
 public final class WidgetRefreshHelper {
     private static final ExecutorService EXEC = Executors.newSingleThreadExecutor();
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     private WidgetRefreshHelper() {}
+
+    public static void refreshSingleWidget(
+        Context context,
+        AppWidgetManager mgr,
+        int widgetId,
+        boolean switchingChild
+    ) {
+        refreshWidgets(context, mgr, new int[] { widgetId }, switchingChild);
+    }
 
     public static void refreshWidgets(
         Context context,
@@ -27,7 +36,7 @@ public final class WidgetRefreshHelper {
         boolean switchingChild
     ) {
         for (int id : widgetIds) {
-            if (switchingChild) {
+            if (switchingChild || WidgetInstanceStore.isSwitchInProgress(context, id)) {
                 WidgetRenderer.applySwitching(context, mgr, id);
             } else {
                 WidgetRenderer.applyLoading(context, mgr, id);
@@ -56,26 +65,56 @@ public final class WidgetRefreshHelper {
                     .apply();
             }
 
-            WidgetApiClient.ApiResult nextResult = WidgetApiClient.fetchNextAction(app);
-            JSONObject next = mapNextPayload(app, nextResult);
-            if (next != null) {
-                WidgetBridgeStore.setWidgetSnapshotJson(app, next.toString());
+            syncContextFromServer(app);
+
+            for (int widgetId : widgetIds) {
+                ensureBindingMatchesWidgetInstance(app, mgr, widgetId);
+                WidgetChildSwitchHelper.reconcileActiveChild(app, widgetId);
             }
 
-            syncChildLabel(app);
-
             boolean showFeedback = System.currentTimeMillis() < WidgetBridgeStore.getFeedbackUntil(app);
-            JSONObject finalNext = next != null ? next : offlineOrErrorPayload(app, nextResult);
 
-            MAIN.post(() -> {
-                for (int id : widgetIds) {
-                    WidgetRenderer.applyFromNextJson(app, mgr, id, finalNext, showFeedback);
+            for (int widgetId : widgetIds) {
+                WidgetApiClient.ApiResult nextResult = WidgetApiClient.fetchNextAction(app);
+                JSONObject next = mapNextPayload(app, nextResult);
+                if (next != null) {
+                    WidgetBridgeStore.setWidgetSnapshotJson(app, next.toString());
                 }
-            });
+                syncChildLabel(app);
+                JSONObject finalNext = next != null ? next : offlineOrErrorPayload(app, nextResult);
+                MAIN.post(() -> WidgetRenderer.applyFromNextJson(app, mgr, widgetId, finalNext, showFeedback));
+            }
         });
     }
 
-    private static void syncChildLabel(Context app) {
+    private static void ensureBindingMatchesWidgetInstance(
+        Context app,
+        AppWidgetManager mgr,
+        int widgetId
+    ) {
+        String locked = WidgetInstanceStore.getLockedChildId(app, widgetId);
+        if (locked != null && !locked.isEmpty()) {
+            WidgetInstanceStore.setWidgetMode(app, widgetId, WidgetInstanceStore.MODE_PERSONAL);
+            String active = WidgetBridgeStore.getActiveChildId(app);
+            if (active == null || !locked.equals(active)) {
+                WidgetChildSwitchHelper.switchToChild(app, mgr, widgetId, locked, null);
+            }
+            return;
+        }
+        String allowedJson = WidgetBridgeStore.getAllowedChildrenJson(app);
+        if (allowedJson != null && allowedJson.length() > 2) {
+            try {
+                int count = new org.json.JSONArray(allowedJson).length();
+                if (count > 1) {
+                    WidgetInstanceStore.setWidgetMode(app, widgetId, WidgetInstanceStore.MODE_FAMILY);
+                }
+            } catch (Exception ignored) {
+                // ignore
+            }
+        }
+    }
+
+    private static void syncContextFromServer(Context app) {
         String viewer = WidgetBridgeStore.getViewerMode(app);
         if (viewer == null || viewer.isEmpty() || "child_session".equals(viewer)) {
             return;
@@ -84,17 +123,39 @@ public final class WidgetRefreshHelper {
         if (ctx.httpCode != 200 || ctx.body == null) {
             return;
         }
-        JSONObject active = ctx.body.optJSONObject("active_child");
-        if (active == null) {
+        try {
+            WidgetChildSwitchHelper.applyContext(app, ctx.body);
+        } catch (Exception ignored) {
+            // ignore
+        }
+    }
+
+    private static void syncChildLabel(Context app) {
+        String viewer = WidgetBridgeStore.getViewerMode(app);
+        if (viewer == null || viewer.isEmpty() || "child_session".equals(viewer)) {
             return;
         }
-        String name = active.optString("display_name", "");
-        String emoji = active.optString("emoji", "");
-        if (name.isEmpty()) {
-            return;
+        String json = WidgetBridgeStore.getAllowedChildrenJson(app);
+        String activeId = WidgetBridgeStore.getActiveChildId(app);
+        if (json != null && activeId != null) {
+            try {
+                org.json.JSONArray arr = new org.json.JSONArray(json);
+                for (int i = 0; i < arr.length(); i++) {
+                    org.json.JSONObject c = arr.getJSONObject(i);
+                    if (activeId.equals(c.optString("id"))) {
+                        String name = c.optString("display_name", "");
+                        String emoji = c.optString("emoji", "");
+                        if (!name.isEmpty()) {
+                            String label = emoji.isEmpty() ? name : (emoji + " " + name);
+                            WidgetBridgeStore.setWidgetChildDisplayLabel(app, label);
+                        }
+                        return;
+                    }
+                }
+            } catch (Exception ignored) {
+                // ignore
+            }
         }
-        String label = emoji.isEmpty() ? name : (emoji + " " + name);
-        WidgetBridgeStore.setWidgetChildDisplayLabel(app, label);
     }
 
     private static JSONObject mapNextPayload(Context app, WidgetApiClient.ApiResult result) {

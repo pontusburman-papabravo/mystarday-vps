@@ -21,6 +21,18 @@ test('R4.5d iOS widget Swift sources present', () => {
   }
 });
 
+test('R4.5f SwitchChildIntent + switch-child API on iOS', () => {
+  const intents = fs.readFileSync(path.join(WIDGET_DIR, 'WidgetIntents.swift'), 'utf8');
+  assert.match(intents, /SwitchChildIntent/);
+  const api = fs.readFileSync(path.join(WIDGET_DIR, 'WidgetAPIClient.swift'), 'utf8');
+  assert.match(api, /switchChild/);
+  const store = fs.readFileSync(
+    path.join(ROOT, 'plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift'),
+    'utf8'
+  );
+  assert.match(store, /allowedChildrenJson/);
+});
+
 test('CompleteNextActivityIntent uses idempotency', () => {
   const src = fs.readFileSync(path.join(WIDGET_DIR, 'WidgetIntents.swift'), 'utf8');
   assert.match(src, /CompleteNextActivityIntent/);
