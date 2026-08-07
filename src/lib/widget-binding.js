@@ -146,10 +146,61 @@ async function assertBindingStillValid(binding) {
   return { ok: false, code: 'reauth_required' };
 }
 
+/**
+ * Re-bind same installation to another allowed child (parent / trusted_device only).
+ */
+async function reissueBindingForChild(binding, targetChildId) {
+  if (binding.mode === 'child_session') {
+    return { ok: false, code: 'child_switch_forbidden' };
+  }
+
+  let parentIdForAccess;
+  if (binding.mode === 'parent') {
+    parentIdForAccess = binding.parent_id;
+  } else if (binding.mode === 'trusted_device') {
+    const row = await deviceDb.findById(binding.device_id);
+    if (!row || row.revoked_at) {
+      return { ok: false, code: 'device_revoked' };
+    }
+    parentIdForAccess = row.created_by_parent_id;
+  } else {
+    return { ok: false, code: 'reauth_required' };
+  }
+
+  const allowed = await getChildrenForParent(parentIdForAccess, { allowedRoles: ['primary', 'shared'] });
+  if (!allowed.some((c) => c.id === targetChildId)) {
+    return { ok: false, code: 'device_revoked' };
+  }
+
+  const base = {
+    family_id: binding.family_id,
+    child_id: targetChildId,
+    installation_id: binding.installation_id,
+    platform: binding.platform === 'android' ? 'android' : 'ios',
+  };
+
+  if (binding.mode === 'parent') {
+    const token = issueBindingToken({
+      mode: 'parent',
+      parent_id: binding.parent_id,
+      ...base,
+    });
+    return { ok: true, binding_token: token, child_id: targetChildId };
+  }
+
+  const token = issueBindingToken({
+    mode: 'trusted_device',
+    device_id: binding.device_id,
+    ...base,
+  });
+  return { ok: true, binding_token: token, child_id: targetChildId };
+}
+
 module.exports = {
   issueBindingToken,
   verifyBindingToken,
   resolveBindingFromTrustedDevice,
   resolveBindingFromParent,
   assertBindingStillValid,
+  reissueBindingForChild,
 };

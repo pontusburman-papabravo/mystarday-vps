@@ -42,6 +42,7 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/auth/trusted-device/select-child',
   '/widget/bindings',
   '/widget/complete-action',
+  '/widget/switch-child',
   '/auth/logout',
   '/auth/csrf-token',
   // Apple Sign In: idToken is the auth credential — same principle as /auth/login

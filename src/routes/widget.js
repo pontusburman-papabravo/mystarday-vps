@@ -8,7 +8,11 @@ const {
   resolveBindingFromParent,
   verifyBindingToken,
   assertBindingStillValid,
+  reissueBindingForChild,
 } = require('../lib/widget-binding');
+const { buildWidgetContext, viewerModeFromBinding } = require('../lib/widget-context');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { resolveActivityDisplayName } = require('../lib/family-content-display');
 const { isNativeWidgetEnabled, isWidgetCompletionEnabled } = require('../lib/widget-flags');
 const { resolveWidgetNextAction } = require('../lib/widget-next-activity');
 const { verifyInstanceToken } = require('../lib/widget-instance-token');
@@ -137,6 +141,42 @@ router.post('/bindings', optionalAuth, async (req, res, next) => {
   }
 });
 
+// ─── GET /api/widget/context ─────────────────────────────
+router.get('/context', requireWidgetBinding, async (req, res, next) => {
+  try {
+    const payload = await buildWidgetContext(req.widgetBinding, req.widgetChildId);
+    return res.json(payload);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── POST /api/widget/switch-child ───────────────────────
+router.post('/switch-child', requireWidgetBinding, async (req, res, next) => {
+  try {
+    const { child_id: targetChildId } = req.body || {};
+    if (!targetChildId) {
+      return res.status(400).json({ error: 'child_id krävs' });
+    }
+    if (req.widgetBinding.mode === 'child_session') {
+      return res.status(403).json({ status: 'child_switch_forbidden' });
+    }
+    const result = await reissueBindingForChild(req.widgetBinding, targetChildId);
+    if (!result.ok) {
+      const status = result.code === 'child_switch_forbidden' ? 403 : 403;
+      return res.status(status).json({ status: result.code });
+    }
+    const nextAction = await resolveWidgetNextAction(result.child_id);
+    return res.json({
+      binding_token: result.binding_token,
+      child_id: result.child_id,
+      next: nextAction,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── GET /api/widget/next-action ─────────────────────────
 router.get('/next-action', requireWidgetBinding, async (req, res, next) => {
   try {
@@ -213,6 +253,8 @@ router.post('/complete-action', requireWidgetBinding, async (req, res, next) => 
       familyId: req.widgetFamilyId,
       dailyLogItemId: verified.dailyLogItemId,
       completionSource: source,
+      bindingMode: req.widgetBinding.mode,
+      parentId: req.widgetBinding.parent_id || null,
     });
 
     if (result.status === 'not_found') {
@@ -225,10 +267,26 @@ router.post('/complete-action', requireWidgetBinding, async (req, res, next) => 
     const starsAdded = result.justCompleted ? (result.star_value || 0) : 0;
     const nextAfter = await resolveWidgetNextAction(req.widgetChildId);
 
+    let completedTitle = null;
+    if (verified.dailyLogItemId) {
+      const titleRow = await require('../lib/db').query(
+        `SELECT dli.name, dli.activity_template_id
+         FROM daily_log_item dli WHERE dli.id = $1`,
+        [verified.dailyLogItemId]
+      );
+      const row = titleRow.rows[0];
+      if (row) {
+        const locale = await getFamilyPreferredLocale(req.widgetFamilyId);
+        completedTitle = await resolveActivityDisplayName(locale, row.name, row);
+      }
+    }
+
     const responseBody = {
       status: result.status === 'completed' ? 'completed' : 'already_completed',
+      viewer_mode: viewerModeFromBinding(req.widgetBinding),
       completed: {
         stars_added: starsAdded,
+        ...(completedTitle ? { title: completedTitle } : {}),
       },
       reward: {
         stars_added: starsAdded,
