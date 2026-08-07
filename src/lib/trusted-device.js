@@ -203,6 +203,7 @@ async function issueChildSessionForDevice(res, row, rawToken, childId, source) {
     userId: child.id,
     userType: 'child',
     familyId: child.family_id,
+    trustedDeviceId: row.id,
   });
   const refreshRow = await lookupRefreshTokenRow(rawRefresh);
   if (refreshRow?.id) {
@@ -247,12 +248,46 @@ async function getTrustedDeviceContext(rawToken) {
   if (!enabled) {
     return { ok: false, code: 'TRUSTED_DEVICE_DISABLED' };
   }
+  if (row.device_mode === 'child') {
+    const childId = row.default_child_id;
+    if (!childId || !(await creatorHasChildAccess(row, childId))) {
+      return { ok: false, code: 'CHILD_ACCESS_DENIED' };
+    }
+    const childRes = await db.query(
+      `SELECT id, family_id, username, name, emoji, avatar_url
+       FROM child WHERE id = $1 AND family_id = $2`,
+      [childId, row.family_id]
+    );
+    const c = childRes.rows[0];
+    if (!c) {
+      return { ok: false, code: 'CHILD_NOT_FOUND' };
+    }
+    const allowed = [{
+      id: c.id,
+      username: c.username,
+      name: c.name,
+      emoji: c.emoji || '⭐',
+      familyId: c.family_id,
+      ...avatarApiFields(c, 'child'),
+    }];
+    return {
+      ok: true,
+      device_mode: row.device_mode,
+      allowed_children: allowed,
+      allowed_count_bucket: '1',
+      can_switch_children: false,
+      last_active_child_id: row.last_active_child_id,
+      family_id: row.family_id,
+    };
+  }
+
   const allowed = await listFamilyChildrenForDevice(row.family_id, row.created_by_parent_id);
   return {
     ok: true,
     device_mode: row.device_mode,
     allowed_children: allowed,
     allowed_count_bucket: allowedCountBucket(allowed.length),
+    can_switch_children: true,
     last_active_child_id: row.last_active_child_id,
     family_id: row.family_id,
   };

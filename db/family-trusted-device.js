@@ -1,6 +1,10 @@
 'use strict';
 
 const db = require('../src/lib/db');
+const {
+  revokeRefreshTokensForTrustedDevice,
+  revokeRefreshTokensForTrustedDevices,
+} = require('../src/lib/refresh-tokens');
 
 async function insertDevice(row) {
   const result = await db.query(
@@ -61,21 +65,14 @@ async function listActiveForFamily(familyId) {
 
 async function revokeForFamily(deviceId, familyId) {
   const existing = await db.query(
-    `SELECT id, last_refresh_token_id, device_mode, default_child_id FROM family_trusted_device
+    `SELECT id FROM family_trusted_device
      WHERE id = $1 AND family_id = $2 AND revoked_at IS NULL`,
     [deviceId, familyId]
   );
-  const row = existing.rows[0];
-  if (!row) return null;
-  if (row.last_refresh_token_id) {
-    await db.query('DELETE FROM refresh_token WHERE id = $1', [row.last_refresh_token_id]);
-  }
-  if (row.device_mode === 'child' && row.default_child_id) {
-    await db.query(
-      'DELETE FROM refresh_token WHERE child_id = $1 AND family_id = $2',
-      [row.default_child_id, familyId]
-    );
-  }
+  if (!existing.rows[0]) return null;
+
+  await revokeRefreshTokensForTrustedDevice(deviceId);
+
   const result = await db.query(
     `UPDATE family_trusted_device
      SET revoked_at = NOW(), last_refresh_token_id = NULL
@@ -116,7 +113,6 @@ async function setLastRefreshTokenId(deviceId, refreshTokenId) {
   );
 }
 
-/** After refresh rotation, keep revoke targeting the live child session token. */
 async function advanceLastRefreshTokenId(oldRefreshTokenId, newRefreshTokenId) {
   if (!oldRefreshTokenId || !newRefreshTokenId) return;
   await db.query(
@@ -141,15 +137,12 @@ async function findActiveByLastRefreshTokenId(refreshTokenId) {
 
 async function revokeAllForFamilyWithTokens(familyId) {
   const rows = await db.query(
-    `SELECT id, last_refresh_token_id FROM family_trusted_device
+    `SELECT id FROM family_trusted_device
      WHERE family_id = $1 AND revoked_at IS NULL`,
     [familyId]
   );
-  for (const row of rows.rows) {
-    if (row.last_refresh_token_id) {
-      await db.query('DELETE FROM refresh_token WHERE id = $1', [row.last_refresh_token_id]);
-    }
-  }
+  const deviceIds = rows.rows.map((r) => r.id);
+  await revokeRefreshTokensForTrustedDevices(deviceIds);
   await revokeAllForFamily(familyId);
 }
 

@@ -3,38 +3,26 @@
  *
  * Owns: the in-process Map of connected SSE clients, keyed by familyId.
  * Does NOT own: authentication, routing, or event triggers.
- *
- * Usage:
- *   const { addClient, removeClient, broadcast } = require('./sse-broadcast');
  */
+
+const { validateBroadcastPayload, getEventScope } = require('./sse-event-scope');
 
 /**
  * @typedef {object} SseClient
  * @property {import('express').Response} res
  * @property {(type: string, data: object) => boolean} shouldDeliver
+ * @property {string | null} [parentId]
  */
 
-// Map<familyId, Set<SseClient>>
 const clients = new Map();
 
-/**
- * Register an SSE response object for a family.
- * @param {string} familyId
- * @param {import('express').Response} res
- * @param {{ shouldDeliver?: (type: string, data: object) => boolean }} [options]
- */
 function addClient(familyId, res, options = {}) {
   const shouldDeliver = options.shouldDeliver || (() => true);
-  const client = { res, shouldDeliver };
+  const client = { res, shouldDeliver, parentId: options.parentId || null };
   if (!clients.has(familyId)) clients.set(familyId, new Set());
   clients.get(familyId).add(client);
 }
 
-/**
- * Remove an SSE response object (called on connection close).
- * @param {string} familyId
- * @param {import('express').Response} res
- */
 function removeClient(familyId, res) {
   const set = clients.get(familyId);
   if (!set) return;
@@ -48,14 +36,36 @@ function removeClient(familyId, res) {
 }
 
 /**
- * Broadcast an SSE event to all clients in the same family.
- * Silent if no clients are connected — no error, no queue.
- *
- * @param {string} familyId
- * @param {string} type   — e.g. 'DAILY_LOG_ITEM_COMPLETED'
- * @param {object} data   — payload (will be JSON-serialised)
+ * Close open SSE connections for a parent so they reconnect with fresh child scope.
  */
+function disconnectParentClients(parentId, familyId) {
+  if (!parentId || !familyId) return;
+  const set = clients.get(familyId);
+  if (!set) return;
+  const wantParent = String(parentId);
+  for (const client of [...set]) {
+    if (String(client.parentId) === wantParent) {
+      try {
+        client.res.end();
+      } catch {
+        /* already closed */
+      }
+      set.delete(client);
+    }
+  }
+  if (set.size === 0) clients.delete(familyId);
+}
+
 function broadcast(familyId, type, data) {
+  const validation = validateBroadcastPayload(type, data || {});
+  if (!validation.ok) {
+    if (process.env.NODE_ENV === 'test') {
+      throw new Error(`SSE broadcast blocked: ${type} (${validation.reason})`);
+    }
+    console.warn('[SSE] blocked child-scoped broadcast without childId', { type });
+    return;
+  }
+
   const set = clients.get(familyId);
   if (!set || set.size === 0) return;
 
@@ -65,9 +75,15 @@ function broadcast(familyId, type, data) {
       if (!client.shouldDeliver(type, data || {})) continue;
       client.res.write(payload);
     } catch {
-      // Client already disconnected — cleanup handled by close listener
+      /* disconnect cleanup via close listener */
     }
   }
 }
 
-module.exports = { addClient, removeClient, broadcast };
+module.exports = {
+  addClient,
+  removeClient,
+  disconnectParentClients,
+  broadcast,
+  getEventScope,
+};

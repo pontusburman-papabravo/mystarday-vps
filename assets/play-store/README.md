@@ -107,7 +107,7 @@ assets/play-store/signing/mystarday-upload.keystore
 | | |
 |--|--|
 | Alias | `mystarday-upload` |
-| Lösenord | `MinStjarnadagUpload2026!` (byt vid produktion) |
+| Lösenord | Sätts via `ANDROID_UPLOAD_KEY_PASSWORD` / hemlig lagring — **aldrig** i git |
 
 **SHA-1:** `8D:B3:2D:CD:77:6C:97:CB:1B:13:B7:D0:30:FD:52:3E:AC:AE:76:81`  
 **SHA-256:** `E5:53:1C:CD:B0:1A:FF:11:C0:16:D5:9E:A9:C6:D5:A5:D8:3A:9A:3E:F3:A6:7B:34:E2:4C:05:96:4A:6E:42:88`

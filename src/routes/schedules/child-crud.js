@@ -374,7 +374,9 @@ router.post('/once-tasks', async (req, res) => {
       created.push(itemResult.rows[0]);
     }
 
-    broadcast(child.family_id, 'SCHEDULE_UPDATED', { date, once_task: true });
+    for (const cid of new Set(targetChildIds)) {
+      broadcast(child.family_id, 'SCHEDULE_UPDATED', { childId: cid, date, once_task: true });
+    }
 
     res.status(201).json({ created, count: created.length });
   } catch (err) {

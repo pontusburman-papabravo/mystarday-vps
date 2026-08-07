@@ -51,7 +51,7 @@ itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
     await db.query('DELETE FROM daily_log_item WHERE id = $1', [req.params.itemId]);
 
     getChildFamilyId(item.child_id).then(fid => {
-      if (fid) broadcast(fid, 'SCHEDULE_UPDATED', { once_task: true });
+      if (fid) broadcast(fid, 'SCHEDULE_UPDATED', { childId: item.child_id, once_task: true });
     }).catch((err) => console.error('[DAILY-LOG-ITEM] Broadcast after delete failed:', err.message));
 
     res.json({ ok: true });
