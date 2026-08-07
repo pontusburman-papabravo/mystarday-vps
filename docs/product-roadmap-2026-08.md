@@ -212,7 +212,7 @@ flowchart TB
 | R4.2 Trusted device + session restore | **PARTIAL** | `trusted_device_v1` default **OFF** (kill switch); ADR-019 Option A kod live | `trusted-device-child.integration`, `trusted-device-contract`, `parent-child-session-restore` |
 | R4.3 Flera barn / delad enhet | **COMPLETE** | Shared mode + picker (`trusted-device-bootstrap.js`) | `r43-shared-device.integration`, `r43-child-login-authz` |
 | R4.4 Flera vuxna / child-scoped access | **COMPLETE** | Invites + revoke + trusted device scope | `r44-adult-child-access.integration`, `child-access-*` |
-| R4.5 Native snabb-completion (widget) | **PARTIAL** | `native_widget_enabled` / `widget_completion_enabled` default **OFF**; idempotency table live | `r45-widget-completion.integration` |
+| R4.5 Native snabb-completion (widget) | **ENGINEERING COMPLETE** (rollout OFF) | `native_widget_enabled` / `widget_completion_enabled` default **OFF**; main `82cd33f9` — prod VPS deploy **DEFERRED** (VPS @ R4.5c) | `r45-widget-completion`, `r45b`–`r45g`, `r45-closure-blockers`; native physical/store **DEFERRED** |
 | R4.6 Journey-ledd retention | **COMPLETE** | `journey_retention_home_v1` ON | `journey-retention-home`, `journey-retention-comms-gate`, canonical activation tests |
 | R4.7 Product-led growth | **COMPLETE** | `growth_home_v1` ON; referral kvalificeras vid `first_success` | `growth-home`, `referral-v0` |
 | R4.8 Stabilisering och closure | **COMPLETE** | Ingen ny produktyta; gate + roadmap | `test:gate`, R4 integration suite ovan |
