@@ -9,6 +9,7 @@ const {
   verifyBindingToken,
   assertBindingStillValid,
   reissueBindingForChild,
+  reissueBindingForInstallation,
 } = require('../lib/widget-binding');
 const { buildWidgetContext, viewerModeFromBinding } = require('../lib/widget-context');
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
@@ -202,6 +203,34 @@ router.post('/switch-child', requireWidgetBinding, async (req, res, next) => {
       binding_token: result.binding_token,
       child_id: result.child_id,
       next: nextAction,
+      context: contextAfter,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── POST /api/widget/rebind-installation ────────────────
+router.post('/rebind-installation', requireWidgetBinding, async (req, res, next) => {
+  try {
+    const { installation_id: installationId, child_id: childId } = req.body || {};
+    if (!installationId) {
+      return res.status(400).json({ error: 'installation_id krävs' });
+    }
+    const result = await reissueBindingForInstallation(req.widgetBinding, {
+      installationId,
+      childId,
+    });
+    if (!result.ok) {
+      return res.status(403).json({ status: result.code });
+    }
+    const contextAfter = await buildWidgetContext(
+      { ...req.widgetBinding, child_id: result.child_id, installation_id: installationId },
+      result.child_id
+    );
+    return res.status(201).json({
+      binding_token: result.binding_token,
+      child_id: result.child_id,
       context: contextAfter,
     });
   } catch (err) {

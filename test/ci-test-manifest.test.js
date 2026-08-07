@@ -26,6 +26,7 @@ const CRITICAL_INTEGRATION = [
   'test/r45b-widget-server-parity.integration.test.js',
   'test/r45f-widget-family-multichild.integration.test.js',
   'test/r45g-widget-polish.integration.test.js',
+  'test/r45-closure-blockers.integration.test.js',
   'test/iap-webhook-ordering.integration.test.js',
 ];
 

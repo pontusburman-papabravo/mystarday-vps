@@ -31,8 +31,9 @@ struct NextRoutineEntry: TimelineEntry {
     let feedbackChildName: String
     let allDoneMessage: String
     let canSwitchChildren: Bool
+    let installationId: String?
 
-    static func loading() -> NextRoutineEntry {
+    static func loading(installationId: String? = nil) -> NextRoutineEntry {
         NextRoutineEntry(
             date: .now,
             phase: .loading,
@@ -49,7 +50,8 @@ struct NextRoutineEntry: TimelineEntry {
             feedbackTitle: "",
             feedbackChildName: "",
             allDoneMessage: WidgetL10n.allDoneNeutral,
-            canSwitchChildren: false
+            canSwitchChildren: false,
+            installationId: installationId
         )
     }
 }

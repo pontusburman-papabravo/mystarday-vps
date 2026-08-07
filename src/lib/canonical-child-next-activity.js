@@ -16,6 +16,8 @@ const {
 } = require('./first-star-mode');
 const { getFamilyPreferredLocale } = require('./family-locale');
 const { ensureFirstStarStarterActivity } = require('./first-star-starter');
+const { normalizeLeadMinutes, getTransitionFromStartTime } = require('./transition-support');
+const { featureAccess } = require('./feature-access');
 
 /** Same section walk as child-self NOW/NEXT/LATER tagging */
 const NNL_SECTION_ORDER = ['morgon', 'dag', 'kvall', 'natt'];
@@ -39,40 +41,68 @@ function buildSections(sortedItems) {
  * @param {object} ctx
  * @returns {object|null}
  */
-function pickIdagPrimaryNowItem(sortedItems, ctx) {
+/**
+ * Widget must not surface direct_complete before övergångsstöd lead window (R4.5 closure).
+ * @param {object} item
+ * @param {{ transitionSupportEnabled: boolean, transitionLeadMinutes: number[], now?: Date }} opts
+ */
+function isItemBlockedByTransitionLead(item, opts) {
+  if (!opts.transitionSupportEnabled) return false;
+  if (!item || item.completed) return false;
+  if (!item.start_time) return false;
+  const { phase } = getTransitionFromStartTime(item.start_time, {
+    leadMinutes: opts.transitionLeadMinutes,
+    now: opts.now || new Date(),
+  });
+  return phase === 'soon';
+}
+
+function pickIdagPrimaryNowItem(sortedItems, ctx, options = {}) {
   const {
     firstStarMode,
     isToday,
     viewType,
     showNowNext,
   } = ctx;
+  const shouldReject = options.shouldRejectPrimary || (() => false);
+
+  let candidate = null;
 
   if (firstStarMode && isToday) {
     const filtered = applyFirstStarModeFilter(sortedItems);
-    return filtered[0] || null;
-  }
-
-  if (isToday && viewType === 'now_next_later' && showNowNext) {
+    candidate = filtered[0] || null;
+  } else if (isToday && viewType === 'now_next_later' && showNowNext) {
     const sections = buildSections(sortedItems);
     for (const sec of NNL_SECTION_ORDER) {
       if (!sections[sec]) continue;
       for (const item of sections[sec]) {
-        if (!item.completed) return item;
+        if (!item.completed) {
+          candidate = item;
+          break;
+        }
+      }
+      if (candidate) break;
+    }
+  } else {
+    for (const item of sortedItems) {
+      if (!item.completed) {
+        candidate = item;
+        break;
       }
     }
+  }
+
+  if (candidate && shouldReject(candidate)) {
     return null;
   }
-
-  for (const item of sortedItems) {
-    if (!item.completed) return item;
-  }
-  return null;
+  return candidate;
 }
 
-async function loadChildDayContext(childId) {
+async function loadChildDayContext(childId, options = {}) {
+  const audience = options.audience || 'idag';
   const childRes = await db.query(
     `SELECT id, family_id, timezone, show_now_next, require_sequential_completion,
-            view_type, activity_timers_enabled
+            view_type, activity_timers_enabled, transition_lead_minutes
      FROM child WHERE id = $1`,
     [childId]
   );
@@ -116,12 +146,28 @@ async function loadChildDayContext(childId) {
   const showNowNext = child.show_now_next === true;
   const viewType = child.view_type || 'day_sections';
 
+  let transitionSupportEnabled = false;
+  let transitionLeadMinutes = normalizeLeadMinutes(child.transition_lead_minutes);
+  if (familyId) {
+    transitionSupportEnabled = await featureAccess(familyId, 'transition_support');
+  }
+
+  const transitionOpts = {
+    transitionSupportEnabled,
+    transitionLeadMinutes,
+    now: options.now,
+  };
+
+  const shouldRejectPrimary = audience === 'widget'
+    ? (item) => isItemBlockedByTransitionLead(item, transitionOpts)
+    : () => false;
+
   const primaryItem = pickIdagPrimaryNowItem(sortedItems, {
     firstStarMode,
     isToday,
     viewType,
     showNowNext,
-  });
+  }, { shouldRejectPrimary });
 
   return {
     child,
@@ -137,6 +183,8 @@ async function loadChildDayContext(childId) {
     activityTimersEnabled: child.activity_timers_enabled === true,
     familyId,
     dateStr,
+    transitionSupportEnabled,
+    transitionLeadMinutes,
   };
 }
 
@@ -153,8 +201,8 @@ async function loadChildDayContext(childId) {
  *   log?: object,
  * }>}
  */
-async function resolveCanonicalChildNextActivity(childId) {
-  const ctx = await loadChildDayContext(childId);
+async function resolveCanonicalChildNextActivity(childId, options = {}) {
+  const ctx = await loadChildDayContext(childId, options);
   if (!ctx) {
     return { status: 'not_found' };
   }
@@ -177,6 +225,7 @@ module.exports = {
   NNL_SECTION_ORDER,
   sortItemsLikeChildIdag,
   pickIdagPrimaryNowItem,
+  isItemBlockedByTransitionLead,
   loadChildDayContext,
   resolveCanonicalChildNextActivity,
 };

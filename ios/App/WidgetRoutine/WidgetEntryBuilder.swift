@@ -2,48 +2,61 @@ import Foundation
 import WidgetKit
 
 enum WidgetEntryBuilder {
-    static func buildFromStorageOrFetch(completion: @escaping (NextRoutineEntry) -> Void) {
-        if WidgetBridgeStore.isSwitchInProgress() {
-            completion(switchingEntry())
+    private static var activeInstallation: String? {
+        WidgetBridgeStore.timelineScope ?? WidgetBridgeStore.installationId(forScope: nil)
+    }
+
+    static func buildFromStorageOrFetch(installationId: String? = nil, completion: @escaping (NextRoutineEntry) -> Void) {
+        let prior = WidgetBridgeStore.timelineScope
+        if let installationId = installationId {
+            WidgetBridgeStore.timelineScope = installationId
+            WidgetBridgeStore.migrateLegacyBindingIfNeeded(targetInstallationId: installationId)
+        }
+        defer { WidgetBridgeStore.timelineScope = prior }
+
+        let inst = activeInstallation
+        if WidgetBridgeStore.isSwitchInProgress(installationId: inst) {
+            completion(switchingEntry(installationId: inst))
             return
         }
 
-        if WidgetBridgeStore.isPendingActionInvalidated() {
-            WidgetBridgeStore.clearPendingActionInvalidated()
-            completion(switchingEntry())
+        if WidgetBridgeStore.isPendingActionInvalidated(installationId: inst) {
+            WidgetBridgeStore.clearPendingActionInvalidated(installationId: inst)
+            completion(switchingEntry(installationId: inst))
             WidgetAPIClient.shared.fetchNextAction { _ in
-                syncContext {
+                syncContext(installationId: inst) {
                     WidgetCenter.shared.reloadAllTimelines()
                 }
             }
             return
         }
 
-        if let feedback = WidgetBridgeStore.feedbackActive() {
-            completion(feedbackEntry(stars: feedback.stars, title: feedback.title, childName: feedback.childName))
+        if let feedback = WidgetBridgeStore.feedbackActive(installationId: inst) {
+            completion(feedbackEntry(stars: feedback.stars, title: feedback.title, childName: feedback.childName, installationId: inst))
             return
         }
 
-        if !WidgetBridgeStore.hasBinding() {
-            completion(statusEntry(.reauth))
+        if !WidgetBridgeStore.hasBinding(installationId: inst) {
+            completion(statusEntry(.reauth, installationId: inst))
             return
         }
 
         WidgetAPIClient.shared.fetchNextAction { result in
             switch result {
             case .failure(let err):
-                completion(mapError(err))
+                completion(mapError(err, installationId: inst))
             case .success(let json):
-                syncContext {
-                    completion(mapNext(json))
+                syncContext(installationId: inst) {
+                    completion(mapNext(json, installationId: inst))
                 }
             }
         }
     }
 
-    static func mapNext(_ json: [String: Any]) -> NextRoutineEntry {
-        let privacy = WidgetBridgeStore.privacyMode()
-        let flags = entryFlags()
+    static func mapNext(_ json: [String: Any], installationId: String? = nil) -> NextRoutineEntry {
+        let inst = installationId ?? activeInstallation
+        let privacy = WidgetBridgeStore.privacyMode(installationId: inst)
+        let flags = entryFlags(installationId: inst)
         if privacy == "private" {
             return NextRoutineEntry(
                 date: .now,
@@ -56,12 +69,13 @@ enum WidgetEntryBuilder {
                 openAppReason: nil,
                 timerDurationLabel: nil,
                 instanceToken: nil,
-                childLabel: childLabelIfAllowed(),
+                childLabel: childLabelIfAllowed(installationId: inst),
                 feedbackStars: 0,
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: WidgetL10n.allDoneNeutral,
-                canSwitchChildren: flags.canSwitch
+                canSwitchChildren: flags.canSwitch,
+                installationId: inst
             )
         }
 
@@ -84,12 +98,13 @@ enum WidgetEntryBuilder {
                 openAppReason: nil,
                 timerDurationLabel: nil,
                 instanceToken: nil,
-                childLabel: childLabelIfAllowed(),
+                childLabel: childLabelIfAllowed(installationId: inst),
                 feedbackStars: 0,
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: msg,
-                canSwitchChildren: flags.canSwitch
+                canSwitchChildren: flags.canSwitch,
+                installationId: inst
             )
         case "nothing_now":
             return NextRoutineEntry(
@@ -103,16 +118,17 @@ enum WidgetEntryBuilder {
                 openAppReason: nil,
                 timerDurationLabel: nil,
                 instanceToken: nil,
-                childLabel: childLabelIfAllowed(),
+                childLabel: childLabelIfAllowed(installationId: inst),
                 feedbackStars: 0,
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: WidgetL10n.allDoneNeutral,
-                canSwitchChildren: flags.canSwitch
+                canSwitchChildren: flags.canSwitch,
+                installationId: inst
             )
         case "ready":
             guard let activity = payload.activity else {
-                return statusEntry(.nothingNow)
+                return statusEntry(.nothingNow, installationId: inst)
             }
             let title = activity["title"] as? String ?? WidgetL10n.genericNextStep
             let routine = activity["routine_title"] as? String ?? WidgetL10n.routineHeader
@@ -123,7 +139,7 @@ enum WidgetEntryBuilder {
             let emoji = WidgetPictogramMap.emoji(for: imageKey)
             let displayTitle = privacy == "reduced" ? WidgetL10n.genericNextStep : title
             let durationLabel = formatDuration(activity["duration_seconds"] as? Int)
-            let tokenForUi = WidgetBridgeStore.isSwitchInProgress() ? nil : instanceToken
+            let tokenForUi = WidgetBridgeStore.isSwitchInProgress(installationId: inst) ? nil : instanceToken
 
             if capability == "open_app" {
                 return NextRoutineEntry(
@@ -137,12 +153,13 @@ enum WidgetEntryBuilder {
                     openAppReason: openReason,
                     timerDurationLabel: durationLabel,
                     instanceToken: tokenForUi,
-                    childLabel: childLabelIfAllowed(),
+                    childLabel: childLabelIfAllowed(installationId: inst),
                     feedbackStars: 0,
                     feedbackTitle: "",
                     feedbackChildName: "",
                     allDoneMessage: WidgetL10n.allDoneNeutral,
-                    canSwitchChildren: flags.canSwitch
+                    canSwitchChildren: flags.canSwitch,
+                    installationId: inst
                 )
             }
             return NextRoutineEntry(
@@ -156,15 +173,16 @@ enum WidgetEntryBuilder {
                 openAppReason: nil,
                 timerDurationLabel: nil,
                 instanceToken: tokenForUi,
-                childLabel: childLabelIfAllowed(),
+                childLabel: childLabelIfAllowed(installationId: inst),
                 feedbackStars: 0,
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: WidgetL10n.allDoneNeutral,
-                canSwitchChildren: flags.canSwitch
+                canSwitchChildren: flags.canSwitch,
+                installationId: inst
             )
         default:
-            return statusEntry(.reauth)
+            return statusEntry(.reauth, installationId: inst)
         }
     }
 
@@ -176,59 +194,65 @@ enum WidgetEntryBuilder {
         return "\(mins) min"
     }
 
-    private static func entryFlags() -> (canSwitch: Bool) {
-        (WidgetBridgeStore.canSwitchChildren() && !WidgetBridgeStore.isSwitchInProgress())
+    private static func entryFlags(installationId: String?) -> (canSwitch: Bool) {
+        (
+            WidgetBridgeStore.canSwitchChildren(installationId: installationId)
+                && !WidgetBridgeStore.isSwitchInProgress(installationId: installationId)
+        )
     }
 
-    private static func childLabelIfAllowed() -> String? {
-        let privacy = WidgetBridgeStore.privacyMode()
+    private static func childLabelIfAllowed(installationId: String?) -> String? {
+        let privacy = WidgetBridgeStore.privacyMode(installationId: installationId)
         if privacy == "private" || privacy == "reduced" { return nil }
-        let viewer = WidgetBridgeStore.viewerMode()
+        let viewer = WidgetBridgeStore.viewerMode(installationId: installationId)
         if viewer == "child_session" || viewer.isEmpty { return nil }
-        return WidgetBridgeStore.widgetChildDisplayLabel()
+        return WidgetBridgeStore.widgetChildDisplayLabel(installationId: installationId)
     }
 
-    private static func syncContext(then: @escaping () -> Void) {
-        let viewer = WidgetBridgeStore.viewerMode()
+    private static func syncContext(installationId: String?, then: @escaping () -> Void) {
+        let viewer = WidgetBridgeStore.viewerMode(installationId: installationId)
         guard viewer != "child_session", !viewer.isEmpty else {
             then()
             return
         }
+        let prior = WidgetBridgeStore.timelineScope
+        WidgetBridgeStore.timelineScope = installationId
         WidgetAPIClient.shared.fetchContext { result in
             if case .success(let json) = result {
-                applyContext(json)
+                applyContext(json, installationId: installationId)
             }
+            WidgetBridgeStore.timelineScope = prior
             then()
         }
     }
 
-    static func applyContextFromSwitch(_ json: [String: Any]) {
-        applyContext(json)
+    static func applyContextFromSwitch(_ json: [String: Any], installationId: String? = nil) {
+        applyContext(json, installationId: installationId)
     }
 
-    private static func applyContext(_ json: [String: Any]) {
+    private static func applyContext(_ json: [String: Any], installationId: String?) {
         if let allowed = json["allowed_children"] as? [[String: Any]],
            let data = try? JSONSerialization.data(withJSONObject: allowed),
            let str = String(data: data, encoding: .utf8) {
-            WidgetBridgeStore.setAllowedChildrenJson(str)
+            WidgetBridgeStore.setAllowedChildrenJson(str, installationId: installationId)
         }
         if let active = json["active_child"] as? [String: Any],
            let name = active["display_name"] as? String {
             let emoji = active["emoji"] as? String ?? ""
             let label = emoji.isEmpty ? name : "\(emoji) \(name)"
-            WidgetBridgeStore.setWidgetChildDisplayLabel(label)
+            WidgetBridgeStore.setWidgetChildDisplayLabel(label, installationId: installationId)
         }
     }
 
-    static func mapError(_ error: WidgetAPIError) -> NextRoutineEntry {
+    static func mapError(_ error: WidgetAPIError, installationId: String? = nil) -> NextRoutineEntry {
         switch error {
-        case .offline: return statusEntry(.offline)
-        case .reauth: return statusEntry(.reauth)
-        case .revoked: return statusEntry(.revoked)
+        case .offline: return statusEntry(.offline, installationId: installationId)
+        case .reauth: return statusEntry(.reauth, installationId: installationId)
+        case .revoked: return statusEntry(.revoked, installationId: installationId)
         }
     }
 
-    static func statusEntry(_ phase: WidgetPhase) -> NextRoutineEntry {
+    static func statusEntry(_ phase: WidgetPhase, installationId: String? = nil) -> NextRoutineEntry {
         let title: String
         switch phase {
         case .offline: title = WidgetL10n.offline
@@ -253,11 +277,12 @@ enum WidgetEntryBuilder {
             feedbackTitle: "",
             feedbackChildName: "",
             allDoneMessage: WidgetL10n.allDoneNeutral,
-            canSwitchChildren: false
+            canSwitchChildren: false,
+            installationId: installationId
         )
     }
 
-    static func switchingEntry() -> NextRoutineEntry {
+    static func switchingEntry(installationId: String? = nil) -> NextRoutineEntry {
         NextRoutineEntry(
             date: .now,
             phase: .switchingChild,
@@ -274,11 +299,17 @@ enum WidgetEntryBuilder {
             feedbackTitle: "",
             feedbackChildName: "",
             allDoneMessage: WidgetL10n.allDoneNeutral,
-            canSwitchChildren: false
+            canSwitchChildren: false,
+            installationId: installationId
         )
     }
 
-    static func feedbackEntry(stars: Int, title: String, childName: String) -> NextRoutineEntry {
+    static func feedbackEntry(
+        stars: Int,
+        title: String,
+        childName: String,
+        installationId: String? = nil
+    ) -> NextRoutineEntry {
         NextRoutineEntry(
             date: .now,
             phase: .feedback,
@@ -290,12 +321,13 @@ enum WidgetEntryBuilder {
             openAppReason: nil,
             timerDurationLabel: nil,
             instanceToken: nil,
-            childLabel: childLabelIfAllowed(),
+            childLabel: childLabelIfAllowed(installationId: installationId),
             feedbackStars: stars,
             feedbackTitle: title,
             feedbackChildName: childName,
             allDoneMessage: WidgetL10n.allDoneNeutral,
-            canSwitchChildren: false
+            canSwitchChildren: false,
+            installationId: installationId
         )
     }
 }

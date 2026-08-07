@@ -38,7 +38,70 @@ struct NextRoutineProvider: TimelineProvider {
             feedbackTitle: "",
             feedbackChildName: "",
             allDoneMessage: WidgetL10n.allDoneNeutral,
-            canSwitchChildren: false
+            canSwitchChildren: false,
+            installationId: nil
+        )
+    }
+}
+
+@available(iOS 17.0, *)
+struct NextRoutineIntentProvider: AppIntentTimelineProvider {
+    typealias Entry = NextRoutineEntry
+    typealias Intent = NextRoutineWidgetConfigIntent
+
+    func placeholder(in context: Context) -> NextRoutineEntry {
+        .loading()
+    }
+
+    func snapshot(for configuration: NextRoutineWidgetConfigIntent, in context: Context) async -> NextRoutineEntry {
+        if context.isPreview {
+            return NextRoutineProvider().previewEntryForIntent(configuration)
+        }
+        return await loadEntry(configuration: configuration)
+    }
+
+    func timeline(for configuration: NextRoutineWidgetConfigIntent, in context: Context) async -> Timeline<NextRoutineEntry> {
+        let entry = await loadEntry(configuration: configuration)
+        let refresh = Calendar.current.date(byAdding: .minute, value: 15, to: .now) ?? .now
+        return Timeline(entries: [entry], policy: .after(refresh))
+    }
+
+    private func loadEntry(configuration: NextRoutineWidgetConfigIntent) async -> NextRoutineEntry {
+        let instanceId = configuration.widgetInstanceId.isEmpty
+            ? UUID().uuidString
+            : configuration.widgetInstanceId
+        await WidgetConfigureHelper.applyConfiguration(configuration, widgetInstanceId: instanceId)
+        let baseInst = WidgetBridgeStore.installationId(forScope: nil) ?? UUID().uuidString
+        let installationId = "\(baseInst):wi:\(instanceId)"
+        return await withCheckedContinuation { cont in
+            WidgetEntryBuilder.buildFromStorageOrFetch(installationId: installationId) { entry in
+                cont.resume(returning: entry)
+            }
+        }
+    }
+}
+
+@available(iOS 17.0, *)
+private extension NextRoutineProvider {
+    func previewEntryForIntent(_ configuration: NextRoutineWidgetConfigIntent) -> NextRoutineEntry {
+        NextRoutineEntry(
+            date: .now,
+            phase: .readyDirect,
+            routineTitle: "Morgon",
+            activityTitle: "Borsta tänderna",
+            pictogramEmoji: "🪥",
+            progressCompleted: 2,
+            progressTotal: 5,
+            openAppReason: nil,
+            timerDurationLabel: nil,
+            instanceToken: "preview",
+            childLabel: configuration.selectedChild?.displayName ?? "Astrid",
+            feedbackStars: 0,
+            feedbackTitle: "",
+            feedbackChildName: "",
+            allDoneMessage: WidgetL10n.allDoneNeutral,
+            canSwitchChildren: configuration.widgetMode == .family,
+            installationId: nil
         )
     }
 }
@@ -88,7 +151,7 @@ struct NextRoutineWidgetEntryView: View {
     private var childSwitcherRow: some View {
         if #available(iOS 17.0, *) {
             HStack(spacing: 4) {
-                Button(intent: SwitchChildIntent(direction: "prev")) {
+                Button(intent: SwitchChildIntent(direction: "prev", installationId: entry.installationId ?? "")) {
                     Text("‹")
                         .font(.title3.weight(.semibold))
                         .frame(minWidth: 44, minHeight: 44)
@@ -99,7 +162,7 @@ struct NextRoutineWidgetEntryView: View {
                     .font(.subheadline.weight(.bold))
                     .lineLimit(1)
                     .accessibilityLabel(activeChildName)
-                Button(intent: SwitchChildIntent(direction: "next")) {
+                Button(intent: SwitchChildIntent(direction: "next", installationId: entry.installationId ?? "")) {
                     Text("›")
                         .font(.title3.weight(.semibold))
                         .frame(minWidth: 44, minHeight: 44)
@@ -243,10 +306,13 @@ struct NextRoutineWidgetEntryView: View {
 
     @ViewBuilder
     private var completeButton: some View {
-        if entry.phase == .switchingChild || WidgetBridgeStore.isSwitchInProgress() {
+        if entry.phase == .switchingChild || WidgetBridgeStore.isSwitchInProgress(installationId: entry.installationId) {
             EmptyView()
         } else if #available(iOS 17.0, *), let token = entry.instanceToken, !token.isEmpty, token != "preview" {
-            Button(intent: CompleteNextActivityIntent(instanceToken: token)) {
+            Button(intent: CompleteNextActivityIntent(
+                instanceToken: token,
+                installationId: entry.installationId ?? ""
+            )) {
                 Text(WidgetL10n.actionDone)
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity)
@@ -292,11 +358,24 @@ struct NextRoutineWidget: Widget {
     let kind: String = "NextRoutineWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: NextRoutineProvider()) { entry in
-            NextRoutineWidgetEntryView(entry: entry)
+        if #available(iOS 17.0, *) {
+            return AppIntentConfiguration(
+                kind: kind,
+                intent: NextRoutineWidgetConfigIntent.self,
+                provider: NextRoutineIntentProvider()
+            ) { entry in
+                NextRoutineWidgetEntryView(entry: entry)
+            }
+            .configurationDisplayName(WidgetL10n.routineHeader)
+            .description(WidgetL10n.genericNextStep)
+            .supportedFamilies([.systemSmall, .systemMedium])
+        } else {
+            return StaticConfiguration(kind: kind, provider: NextRoutineProvider()) { entry in
+                NextRoutineWidgetEntryView(entry: entry)
+            }
+            .configurationDisplayName(WidgetL10n.routineHeader)
+            .description(WidgetL10n.genericNextStep)
+            .supportedFamilies([.systemSmall, .systemMedium])
         }
-        .configurationDisplayName(WidgetL10n.routineHeader)
-        .description(WidgetL10n.genericNextStep)
-        .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

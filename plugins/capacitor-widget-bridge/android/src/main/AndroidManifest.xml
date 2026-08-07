@@ -26,5 +26,14 @@
         <receiver
             android:name="com.stjarndag.widgetbridge.widget.WidgetChildSwitchReceiver"
             android:exported="false" />
+
+        <activity
+            android:name="com.stjarndag.widgetbridge.widget.RoutineWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

@@ -4,6 +4,7 @@
     android:minHeight="110dp"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_routine"
+    android:configure="com.stjarndag.widgetbridge.widget.RoutineWidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/widget_routine_description" />

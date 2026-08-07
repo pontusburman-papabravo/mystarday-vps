@@ -69,6 +69,22 @@ public final class WidgetApiClient {
         return post(context, installationId, "/api/widget/switch-child", payload);
     }
 
+    public static ApiResult rebindInstallation(
+        Context context,
+        String authInstallationId,
+        String newInstallationId,
+        String childId
+    ) {
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("installation_id", newInstallationId);
+            payload.put("child_id", childId);
+        } catch (Exception e) {
+            return new ApiResult(0, null, true);
+        }
+        return post(context, authInstallationId, "/api/widget/rebind-installation", payload);
+    }
+
     private static ApiResult get(Context context, String installationId, String path) {
         String token = WidgetBindingScope.getBindingToken(context, installationId);
         if (token == null || token.isEmpty()) {

@@ -53,4 +53,5 @@ test('WidgetBridgeStore exposes widget extension API', () => {
   );
   assert.match(src, /func bindingToken/);
   assert.match(src, /func setFeedback/);
+  assert.match(src, /timelineScope/);
 });

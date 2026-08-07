@@ -23,5 +23,9 @@
     <string name="widget_feedback_stars">⭐ +%1$d</string>
     <string name="widget_progress_fmt">%1$d av %2$d klara</string>
     <string name="widget_private_activity">Nästa steg</string>
+    <string name="widget_configure_title">Välj widget</string>
+    <string name="widget_configure_personal">Personlig (ett barn)</string>
+    <string name="widget_configure_family">Familj (byt barn)</string>
+    <string name="widget_configure_save">Spara</string>
     <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
 </resources>
