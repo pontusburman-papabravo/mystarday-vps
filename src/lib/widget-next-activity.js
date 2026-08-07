@@ -72,7 +72,7 @@ function resolveWidgetCapability(item, childFlags, incompleteSubs) {
  * Pick the next activity for widget presentation (canonical Idag parity).
  */
 async function resolveWidgetNextAction(childId) {
-  const canonical = await resolveCanonicalChildNextActivity(childId);
+  const canonical = await resolveCanonicalChildNextActivity(childId, { audience: 'widget' });
   if (canonical.status === 'not_found') {
     return { status: 'reauth_required' };
   }

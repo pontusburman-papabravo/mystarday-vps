@@ -59,13 +59,26 @@ final class WidgetAPIClient {
         request(path: "/api/widget/complete-action", method: "POST", body: body, completion: completion)
     }
 
+    func rebindInstallation(
+        installationId: String,
+        childId: String,
+        completion: @escaping (Result<[String: Any], WidgetAPIError>) -> Void
+    ) {
+        let body: [String: Any] = [
+            "installation_id": installationId,
+            "child_id": childId,
+        ]
+        request(path: "/api/widget/rebind-installation", method: "POST", body: body, completion: completion)
+    }
+
     private func request(
         path: String,
         method: String,
         body: [String: Any]?,
         completion: @escaping (Result<[String: Any], WidgetAPIError>) -> Void
     ) {
-        guard WidgetBridgeStore.hasBinding(), let token = WidgetBridgeStore.bindingToken() else {
+        guard WidgetBridgeStore.hasBinding(installationId: activeInstallationId()),
+              let token = WidgetBridgeStore.bindingToken(installationId: activeInstallationId()) else {
             completion(.failure(.reauth))
             return
         }
@@ -114,6 +127,10 @@ final class WidgetAPIClient {
             completion(.success(json))
         }
         task.resume()
+    }
+
+    private func activeInstallationId() -> String? {
+        WidgetBridgeStore.timelineScope ?? WidgetBridgeStore.installationId(forScope: nil)
     }
 }
 

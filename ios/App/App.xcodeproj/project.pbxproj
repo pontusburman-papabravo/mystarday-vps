@@ -26,6 +26,7 @@
 		R45D011A1FED79650016851 /* WidgetL10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D011B1FED79650016851 /* WidgetL10n.swift */; };
 		R45D011C1FED79650016851 /* WidgetPictogramMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D011D1FED79650016851 /* WidgetPictogramMap.swift */; };
 		R45D011E1FED79650016851 /* WidgetIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D011F1FED79650016851 /* WidgetIntents.swift */; };
+		R45G011E1FED79650016851 /* WidgetConfigurationIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45G011F1FED79650016851 /* WidgetConfigurationIntents.swift */; };
 		R45D01201FED79650016851 /* WidgetBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D01211FED79650016851 /* WidgetBackgroundModifier.swift */; };
 		R45D01221FED79650016851 /* WidgetBridgeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D01231FED79650016851 /* WidgetBridgeStore.swift */; };
 		R45D01241FED79650016851 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = R45D01251FED79650016851 /* Assets.xcassets */; };
@@ -60,6 +61,7 @@
 		R45D011B1FED79650016851 /* WidgetL10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetL10n.swift; sourceTree = "<group>"; };
 		R45D011D1FED79650016851 /* WidgetPictogramMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPictogramMap.swift; sourceTree = "<group>"; };
 		R45D011F1FED79650016851 /* WidgetIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntents.swift; sourceTree = "<group>"; };
+		R45G011F1FED79650016851 /* WidgetConfigurationIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetConfigurationIntents.swift; sourceTree = "<group>"; };
 		R45D01211FED79650016851 /* WidgetBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBackgroundModifier.swift; sourceTree = "<group>"; };
 		R45D01231FED79650016851 /* WidgetBridgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetBridgeStore.swift; path = ../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift; sourceTree = "<group>"; };
 		R45D01261FED79650016851 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				R45D011B1FED79650016851 /* WidgetL10n.swift */,
 				R45D011D1FED79650016851 /* WidgetPictogramMap.swift */,
 				R45D011F1FED79650016851 /* WidgetIntents.swift */,
+				R45G011F1FED79650016851 /* WidgetConfigurationIntents.swift */,
 				R45D01211FED79650016851 /* WidgetBackgroundModifier.swift */,
 				R45D01231FED79650016851 /* WidgetBridgeStore.swift */,
 				R45D01261FED79650016851 /* Info.plist */,
@@ -328,6 +331,7 @@
 				R45D011A1FED79650016851 /* WidgetL10n.swift in Sources */,
 				R45D011C1FED79650016851 /* WidgetPictogramMap.swift in Sources */,
 				R45D011E1FED79650016851 /* WidgetIntents.swift in Sources */,
+				R45G011E1FED79650016851 /* WidgetConfigurationIntents.swift in Sources */,
 				R45D01201FED79650016851 /* WidgetBackgroundModifier.swift in Sources */,
 				R45D01221FED79650016851 /* WidgetBridgeStore.swift in Sources */,
 			);

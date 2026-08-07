@@ -78,3 +78,7 @@ test('WidgetBindingScope stores per-installation bindings', () => {
   assert.match(src, /binding_/);
   assert.match(src, /clearScope/);
 });
+
+test('RoutineWidgetConfigureActivity exists', () => {
+  assert.ok(fs.existsSync(path.join(WIDGET_JAVA, 'RoutineWidgetConfigureActivity.java')));
+});
