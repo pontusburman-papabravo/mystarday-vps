@@ -22,7 +22,7 @@ test('android:aab release mode fails closed without signing secrets', () => {
   });
   assert.notEqual(r.status, 0);
   const out = (r.stdout || '') + (r.stderr || '');
-  assert.match(out, /keystore|ANDROID_KEYSTORE|GOOGLE_WEB_CLIENT_ID|google-services\.json/i);
+  assert.match(out, /keystore|ANDROID_KEYSTORE|GOOGLE_WEB_CLIENT_ID/i);
 });
 
 test('android configure activity fails closed on rebind failure (source)', () => {
