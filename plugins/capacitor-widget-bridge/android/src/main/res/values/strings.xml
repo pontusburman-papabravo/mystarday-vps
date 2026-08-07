@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Nästa aktivitet</string>
+    <string name="widget_routine_description">Markera nästa rutinsteg utan att öppna hela appen.</string>
+    <string name="widget_cd_pictogram">Aktivitetssymbol</string>
+    <string name="widget_cd_complete">Markera aktivitet som klar</string>
+    <string name="widget_cd_open_app">Öppna i appen</string>
+    <string name="widget_action_complete">Klar</string>
+    <string name="widget_action_open_timer">Öppna timglas</string>
+    <string name="widget_action_show_steps">Visa steg</string>
+    <string name="widget_action_open_app">Öppna appen</string>
+    <string name="widget_loading">Laddar…</string>
+    <string name="widget_all_done">Allt klart för idag!</string>
+    <string name="widget_nothing_now">Inget just nu</string>
+    <string name="widget_offline">Ingen nätverksanslutning</string>
+    <string name="widget_reauth">Logga in i appen</string>
+    <string name="widget_revoked">Enheten har återkallats</string>
+    <string name="widget_switching">Byter barn…</string>
+    <string name="widget_feedback_done">✓ Klart!</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d av %2$d klara</string>
+    <string name="widget_private_activity">Nästa steg</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

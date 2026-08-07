@@ -1,9 +1,10 @@
-# Android App Widget (R4.5d)
+# Android App Widget (R4.5e)
 
-Generate `android/` via `npm run cap:sync:android`, then add:
+Persistent implementation lives in `plugins/capacitor-widget-bridge/android/` (survives `npm run cap:sync:android`).
 
-- `RoutineWidgetProvider` — `RemoteViews` with title + **Klar** `PendingIntent` (immutable, explicit component).
-- `WidgetCompleteReceiver` — calls `POST /api/widget/complete-action` with binding from EncryptedSharedPreferences.
-- Configuration activity for child selection when multiple children allowed.
+- `RoutineWidgetProvider` — `RemoteViews` + `WidgetRefreshHelper` (GET `/api/widget/next-action`).
+- `WidgetCompleteReceiver` — `POST /api/widget/complete-action` with Keystore-backed bearer + idempotency key.
+- `WidgetOpenAppReceiver` — deep link to `/child/today` for timer/substeps (no unsigned completion URLs).
+- `scripts/patch-android-widget.mjs` — injects `widget_api_base_url` from Capacitor server URL.
 
 See `docs/r45-widget-native.md` for API contract.

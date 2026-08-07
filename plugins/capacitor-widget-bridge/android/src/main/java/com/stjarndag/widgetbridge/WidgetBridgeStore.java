@@ -77,7 +77,74 @@ public final class WidgetBridgeStore {
         }
     }
 
-    static SharedPreferences publicPrefs(Context context) {
+    /** Widget extension — same process as main app; never log return value. */
+    public static String getBindingToken(Context context) {
+        try {
+            return secretPrefs(context).getString(KEY_BINDING, null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getActiveChildId(Context context) {
+        return publicPrefs(context).getString("active_child_id", null);
+    }
+
+    public static String getViewerMode(Context context) {
+        return publicPrefs(context).getString("viewer_mode", "");
+    }
+
+    public static String getPrivacyMode(Context context) {
+        String mode = publicPrefs(context).getString("privacy_mode", "standard");
+        if (mode == null || mode.isEmpty()) return "full";
+        return mode;
+    }
+
+    public static String getInstallationId(Context context) {
+        return publicPrefs(context).getString("installation_id", null);
+    }
+
+    public static boolean isPendingActionInvalidated(Context context) {
+        return publicPrefs(context).getBoolean("pending_action_invalidated", false);
+    }
+
+    public static void setWidgetChildDisplayLabel(Context context, String label) {
+        publicPrefs(context).edit().putString("widget_child_display_label", label).apply();
+    }
+
+    public static String getWidgetChildDisplayLabel(Context context) {
+        return publicPrefs(context).getString("widget_child_display_label", null);
+    }
+
+    public static void setWidgetSnapshotJson(Context context, String json) {
+        publicPrefs(context).edit().putString("widget_snapshot_json", json).apply();
+    }
+
+    public static String getWidgetSnapshotJson(Context context) {
+        return publicPrefs(context).getString("widget_snapshot_json", null);
+    }
+
+    public static void setFeedbackUntil(Context context, long epochMs, int stars, String title) {
+        publicPrefs(context).edit()
+            .putLong("widget_feedback_until", epochMs)
+            .putInt("widget_feedback_stars", stars)
+            .putString("widget_feedback_title", title != null ? title : "")
+            .apply();
+    }
+
+    public static long getFeedbackUntil(Context context) {
+        return publicPrefs(context).getLong("widget_feedback_until", 0L);
+    }
+
+    public static int getFeedbackStars(Context context) {
+        return publicPrefs(context).getInt("widget_feedback_stars", 0);
+    }
+
+    public static String getFeedbackTitle(Context context) {
+        return publicPrefs(context).getString("widget_feedback_title", "");
+    }
+
+    public static SharedPreferences publicPrefs(Context context) {
         return context.getSharedPreferences(PREFS_PUBLIC, Context.MODE_PRIVATE);
     }
 
