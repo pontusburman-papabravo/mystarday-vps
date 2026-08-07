@@ -47,6 +47,9 @@
       ChildSessionContext.setActiveChildId(user.id);
     }
     if (window.DeviceMode && DeviceMode.enterChild) DeviceMode.enterChild();
+    if (window.WidgetBridgeProvision && user && user.id) {
+      WidgetBridgeProvision.syncBinding({ childId: user.id }).catch(function () {});
+    }
   }
 
   async function tryColdStart(opts) {

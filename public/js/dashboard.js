@@ -565,6 +565,9 @@ async function selectChild(id) {
   document.getElementById('viewModeBar').classList.remove('hidden');
   document.getElementById('calNavBar').classList.remove('hidden');
   currentChildId = id; currentDay = new Date().getDay();
+  if (window.WidgetBridgeBootstrap && typeof WidgetBridgeBootstrap.onChildChanged === 'function') {
+    WidgetBridgeBootstrap.onChildChanged(id);
+  }
   document.getElementById('daySelectorWrap').classList.remove('hidden');
   calView = 'week'; weekOffset = 0; dayOffset = 0;
   setCalView('week');

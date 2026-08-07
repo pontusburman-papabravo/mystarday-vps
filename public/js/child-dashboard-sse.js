@@ -42,7 +42,12 @@ function scheduleSSEStarReload() {
   }, 400);
 }
 
-window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', () => scheduleSSEReload());
+window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', function () {
+  scheduleSSEReload();
+  if (window.WidgetBridgeClient) {
+    WidgetBridgeClient.refreshAll();
+  }
+});
 window.addEventListener('sse:SCHEDULE_UPDATED', () => {
   if (typeof showToast === 'function') showToast('📅 Schema uppdaterat!');
   scheduleSSEReload();

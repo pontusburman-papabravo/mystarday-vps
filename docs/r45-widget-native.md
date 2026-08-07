@@ -22,6 +22,17 @@
 
 **Rollback:** disable `widget_completion_enabled` first, then `native_widget_enabled`.
 
+## Native bridge (R4.5c)
+
+Capacitor plugin `capacitor-widget-bridge` (`WidgetBridge`):
+
+- `configureBinding` — bearer token → Keychain / EncryptedSharedPreferences
+- `refreshAll` / `clearBindings` / `notifyChildChanged` / `getStatus`
+
+Web: `public/js/widget-bridge-{client,provision,bootstrap}.js` (no-op off native).
+
+App Group: `group.stjarndag.widget` (iOS entitlements patch).
+
 ## Native (follow-up PRs)
 
 - Capacitor bridge: refresh widget timelines after in-app completion.
