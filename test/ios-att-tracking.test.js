@@ -51,4 +51,10 @@ describe('iOS Meta privacy (no cross-app tracking / no ATT)', () => {
     assert.match(patch, /NSUserTrackingUsageDescription/);
     assert.doesNotMatch(patch, /upsertPlistKey\(\s*\n\s*content,\s*\n\s*'NSUserTrackingUsageDescription'/);
   });
+
+  it('cap:sync:ios chain includes SKAdNetwork patch and no-ATT verify', () => {
+    const pkg = fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8');
+    assert.match(pkg, /patch-ios-skadnetwork\.mjs/);
+    assert.match(pkg, /verify-ios-no-att-meta-release\.mjs/);
+  });
 });

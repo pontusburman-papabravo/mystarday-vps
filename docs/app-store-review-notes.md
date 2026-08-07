@@ -1,7 +1,24 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-07-25 | iOS build 29 (English Beta native l10n)
+> Last updated: 2026-08-07 | iOS build 30 (R4.5 no-ATT Meta attribution hardening)
+
+---
+
+## Build 30 — No ATT / privacy-preserving attribution (2026-08-07)
+
+**Context:** Build **28** was rejected under Guideline **2.1** because the binary linked App Tracking Transparency without showing the ATT prompt. Build **30** removes the ATT Capacitor plugin entirely, does not declare `NSUserTrackingUsageDescription`, and does not access IDFA. Meta advertiser tracking and advertiser ID collection remain disabled. Meta App Events fire only after the user's **marketing consent**. Paid install attribution uses Apple's privacy-preserving mechanisms (SKAdNetwork) with Meta SDK configured accordingly.
+
+**Paste into App Review Information → Notes:**
+
+```
+My Starday does not track users across apps or websites owned by other companies and does not use the App Tracking Transparency permission.
+The app does not access IDFA. Meta advertiser tracking and advertiser ID collection are disabled.
+Advertising attribution uses Apple's privacy-preserving attribution mechanisms. Meta App Events are enabled only after the user's marketing consent.
+The App Store privacy information has been updated to reflect that tracking is not performed.
+```
+
+**Test account:** see `docs/app-store-demo-konto.md` for App Review credentials (do not paste secrets in public notes).
 
 ---
 

@@ -1,0 +1,9 @@
+{
+  "documentationUrl": "https://developers.facebook.com/docs/setting-up/platform-setup/ios/SKAdNetwork/",
+  "documentationRetrieved": "2026-08-07",
+  "identifiers": [
+    "v9wttpbfk9.skadnetwork",
+    "n38lu8286q.skadnetwork"
+  ],
+  "notes": "Official Meta Audience Network / install attribution SKAdNetwork IDs per Meta iOS SKAdNetwork setup doc. AdAttributionKit: no additional Info.plist keys documented by Meta for this app slice — configure SKAN events in Meta Events Manager."
+}

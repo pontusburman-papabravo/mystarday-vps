@@ -69,10 +69,10 @@ npm run cap:ios
 1. **Färsk install** (ta bort appen först om du testat tidigare).
 2. Öppna **utan** marknadsföringssamtycke → Meta Events Manager: **inga** events.
 3. Logga in som förälder — appen ska inte krascha före/efter WebView.
-4. **Acceptera** marknadsföringssamtycke (+ ATT-dialog om den visas).
+4. **Acceptera** marknadsföringssamtycke (ingen ATT-dialog — appen använder inte ATT).
 5. Stäng appen, öppna igen → **framtida** app open kan synas (inte retroaktiv install).
 6. **Återkalla** samtycke i appen → inga nya events.
-7. Marketing ja + **ATT nekad** → events tillåtna, **utan** advertiser-ID.
+7. Meta events ska **inte** aktivera advertiser-ID (alltid av i denna build).
 
 ## 3. Android — signerad AAB → Google Play live track
 
@@ -107,7 +107,8 @@ Släpp **inte** om:
 - appen kraschar eller fastnar före inloggning
 - Meta Test Events visar något **före** marknadsföringssamtycke
 - events fortsätter **efter** återkallat samtycke
-- iOS med nekad ATT ändå samlar advertiser-ID (kolla `advertiserTrackingAllowed: false` i debug)
+- `verify-ios-no-att-meta-release.mjs` eller `verify-meta-native-release.mjs` failar
+- iOS-binary länkar ATT eller deklarerar `NSUserTrackingUsageDescription`
 
 ## 5. Meta Dashboard (behåll avstängt)
 

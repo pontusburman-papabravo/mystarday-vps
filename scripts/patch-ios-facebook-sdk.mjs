@@ -46,7 +46,7 @@ function ensurePodfilePods() {
   }
   if (content !== before) {
     fs.writeFileSync(podfilePath, content);
-    console.log('Ensured Meta/ATT pods in Podfile');
+    console.log('Ensured Meta pods in Podfile');
   }
 }
 

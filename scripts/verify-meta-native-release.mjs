@@ -150,7 +150,21 @@ function checkPrivacyDefaults() {
   }
 }
 
-// 1) Plugin privacy patch
+// 1) No ATT / SKAdNetwork / Meta privacy (iOS)
+const noAtt = spawnSync(
+  process.execPath,
+  [path.join(ROOT, 'scripts', 'verify-ios-no-att-meta-release.mjs')],
+  { cwd: ROOT, encoding: 'utf8' }
+);
+if (noAtt.status !== 0) {
+  fail('iOS no-ATT / SKAdNetwork release verification failed');
+  if (noAtt.stderr) process.stderr.write(noAtt.stderr);
+  if (noAtt.stdout) process.stdout.write(noAtt.stdout);
+} else {
+  ok('iOS no-ATT / SKAdNetwork gates verified');
+}
+
+// 2) Plugin privacy patch
 const privacy = spawnSync(
   process.execPath,
   [path.join(ROOT, 'scripts', 'verify-capacitor-facebook-events-privacy.mjs')],
@@ -164,14 +178,14 @@ if (privacy.status !== 0) {
   ok('Facebook plugin privacy patch verified');
 }
 
-// 2) Client token in native resources (never print value)
+// 3) Client token in native resources (never print value)
 const iosToken = readPlistString(IOS_PLIST, 'FacebookClientToken');
 secretPresent('iOS FacebookClientToken', iosToken);
 
 const androidToken = readAndroidString(ANDROID_STRINGS, 'facebook_client_token');
 secretPresent('Android facebook_client_token', androidToken);
 
-// 3) Public App ID sanity
+// 4) Public App ID sanity
 const iosAppId = readPlistString(IOS_PLIST, 'FacebookAppID');
 if (iosAppId !== '27941105858861495') {
   fail(`iOS FacebookAppID unexpected: ${iosAppId || '(empty)'}`);
@@ -186,7 +200,7 @@ if (androidAppId !== '27941105858861495') {
   ok('Android facebook_app_id matches');
 }
 
-// 4) Privacy defaults
+// 5) Privacy defaults
 checkPrivacyDefaults();
 
 console.log('');
