@@ -84,14 +84,16 @@ if (capTs) {
   if (!failed) ok('capacitor.config.ts has no ATT plugin registration');
 }
 
-const capJson = readUtf8(PATHS.capacitorJson, 'capacitor.config.json');
-if (capJson) {
+if (fs.existsSync(PATHS.capacitorJson)) {
+  const capJson = fs.readFileSync(PATHS.capacitorJson, 'utf8');
   assertNoForbidden(capJson, 'ios/App/App/capacitor.config.json');
   if (!capJson.includes('capacitor-widget-bridge')) {
     fail('capacitor.config.json missing capacitor-widget-bridge (widget regression)');
   } else if (!failed) {
     ok('iOS Capacitor config has no ATT plugin');
   }
+} else {
+  ok('capacitor.config.json absent until cap sync ios (canonical source: capacitor.config.ts)');
 }
 
 const podfile = readUtf8(PATHS.podfile, 'Podfile');
