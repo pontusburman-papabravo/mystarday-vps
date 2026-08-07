@@ -33,7 +33,6 @@ const config: CapacitorConfig = {
       '@capacitor/push-notifications',
       '@revenuecat/purchases-capacitor',
       'capacitor-facebook-events',
-      'capacitor-plugin-app-tracking-transparency',
       'capacitor-widget-bridge',
     ],
   },

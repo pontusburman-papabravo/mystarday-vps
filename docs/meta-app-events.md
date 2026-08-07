@@ -1,168 +1,98 @@
-# Meta App Events (iOS + Android) — privacy-first
+# Meta App Events (iOS + Android) — privacy-first (no ATT)
 
-Native App Events for install/open measurement and activation funnel.  
-**Web** continues to use the Meta Pixel (`app-consent.js` / `marketing-events.js`).  
-**Native** uses a privacy-patched `capacitor-facebook-events` via `public/js/meta-app-events.js`.
+Native App Events for activation funnel measurement after **marketing consent**.  
+**Web** uses the Meta Pixel (`app-consent.js` / `marketing-events.js`).  
+**Native** uses privacy-patched `capacitor-facebook-events` via `public/js/meta-app-events.js`.
+
+## Product policy (R4.5 — Option A, no ATT)
+
+- My Starday **does not** request App Tracking Transparency.
+- **No IDFA** and **no** Apple-defined cross-app tracking.
+- `advertiserTrackingAllowed` is **always false** on all platforms.
+- `FacebookAdvertiserIDCollectionEnabled` / `isAdvertiserIDCollectionEnabled` are **false**.
+- `FacebookAutoLogAppEventsEnabled` / AutoLog default **false** until marketing consent.
+- App Store privacy intent: **Tracking = No** (verify manually in App Store Connect).
+
+### Historical App Review note (build 28)
+
+Apple Guideline **2.1** rejected build **28** because the binary linked **App Tracking Transparency** (Capacitor ATT plugin) while the product does not show an ATT prompt. **Do not** reintroduce `capacitor-plugin-app-tracking-transparency` or `NSUserTrackingUsageDescription` as a “fix” for Meta attribution. Install attribution uses **SKAdNetwork** + Meta Events Manager (AEM), not IDFA.
 
 ## Meta App ID
 
-`27941105858861495`  
-Android package: Capacitor `appId` / Play Console package name.
+`27941105858861495`
 
-## Blocking privacy policy (EU/GDPR)
-
-**No data is sent to Meta before the user actively grants marketing consent.**
-
-This includes:
-
-- automatic install / first open
-- app activation / app open
-- SDK-initiated App Events
-- manual conversion events
-
-ATT and marketing consent are **separate**:
+## Consent model
 
 ```text
-metaEventsAllowed        = marketingConsent === true
-advertiserTrackingAllowed = marketingConsent === true
-                         && platform === 'ios'
-                         && attStatus === 'authorized'
+metaEventsAllowed           = marketingConsent === true
+advertiserTrackingAllowed   = false (always)
+isAttBlockingMeta()         = false (ATT not used)
 ```
 
-On Android, marketing consent alone enables App Events (no ATT). Advertiser ID collection follows marketing consent on Android.
+**No Meta App Event network traffic** (including AutoLog install/open) before the user grants **marketing consent**.
 
-### Native defaults (safe without JS / WebView)
+Marketing consent and ATT are **not** coupled — we do not use ATT at all.
+
+### Native defaults (safe without JS)
 
 | Setting | Default |
 |---|---|
-| `FacebookAutoLogAppEventsEnabled` | **false** (Info.plist / AndroidManifest) |
+| `FacebookAutoLogAppEventsEnabled` | **false** |
 | `FacebookAdvertiserIDCollectionEnabled` | **false** |
-| `activateApp()` | **not** called unless persisted marketing consent is true |
-| Manual `logEvent` | no-ops until marketing consent persisted |
+| `Settings.shared.isAdvertiserTrackingEnabled` | **false** (`AttTrackingCoordinator`) |
+| `activateApp()` | only when persisted marketing consent is true |
+| Manual `logEvent` | no-op until marketing consent |
 
-## Consent sequences
+## SDK initialization vs App Events (section 5 decision)
 
-### First app start (no consent yet)
+| Concern | Behavior |
+|---|---|
+| Facebook SDK bootstrap (`ApplicationDelegate`) | Runs at launch (required for URL handling / SDK lifecycle) |
+| `activateApp()` / AutoLog | **Gated** on marketing consent only |
+| Manual App Events | **Gated** on marketing consent |
+| Advertiser tracking / IDFA | **Off** always |
+| Pre-consent marketing events | **Never** sent |
 
-1. Native reads plist/manifest → AutoLog = false, AdvertiserID = false  
-2. AppDelegate / Android plugin **does not** call `activateApp()`  
-3. **iOS:** system ATT dialog is shown on fresh install (AppDelegate + JS fallback) while the app is active — independent of marketing consent  
-4. WebView loads; `meta-app-events.js` sees no marketing consent → no configureConsent(true), no events  
-5. Result: **zero** Meta App Event network traffic
+Meta’s public SKAdNetwork documentation lists **Info.plist SKAdNetwork identifiers** for attribution; it does **not** require enabling AutoLog or ATT for listing those IDs. We did **not** add pre-consent event sending in this slice. If Meta SDK initialization at launch is required for SKAN postbacks, the existing `ApplicationDelegate` + fail-closed `AttTrackingCoordinator` startup path provides minimal init without IDFA or pre-consent events.
 
-### Marketing consent accepted
+## iOS SKAdNetwork
 
-1. Cookie banner / AppConsent grants `ad_storage` / marketing  
-2. `MetaAppEvents.onConsentGranted()`  
-3. iOS: read ATT status (prompt only if still `notDetermined` — usually already resolved at startup)  
-4. `configureConsent({ marketingConsent: true, advertiserTrackingAllowed })`  
-5. Native enables AutoLog for **future** foreground/cold-start cycles only (`applicationDidBecomeActive` / `handleOnStart`) — **no backfill** of install or prior opens  
-6. Manual conversion events may fire when business milestones occur
+Required Meta identifiers (official doc: [SKAdNetwork for Audience Network](https://developers.facebook.com/docs/setting-up/platform-setup/ios/SKAdNetwork/)):
 
-### Marketing consent denied (first choice)
+- `v9wttpbfk9.skadnetwork`
+- `n38lu8286q.skadnetwork`
 
-1. Consent stored as denied  
-2. `onConsentRevoked` / configureConsent(false)  
-3. AutoLog stays off; no activateApp; no manual events  
-4. App works normally
+Canonical list: `config/meta-skadnetwork.json`. Applied on every `npm run cap:sync:ios` via `scripts/patch-ios-skadnetwork.mjs`.
 
-### Marketing consent revoked later
+**AdAttributionKit:** No additional Info.plist keys are documented by Meta for this app slice beyond SKAdNetworkItems. Configure conversion priorities in **Meta Events Manager** (see `docs/meta-ios-skan-aem-runbook.md`).
 
-1. `MetaAppEvents.onConsentRevoked()`  
-2. Clear local once-keys / pending client queues  
-3. Native: AutoLog off, advertiser ID off, clear user data, flush behavior explicit-only  
-4. Immediate stop of manual events  
-5. App works normally
-
-### ATT accepted (iOS) — only relevant after marketing consent
-
-1. Marketing consent already true  
-2. ATT → `authorized` (may have been granted at first app launch)  
-3. `advertiserTrackingAllowed = true` → Advertiser ID collection + ATE on  
-4. App Events already allowed by marketing consent
-
-### ATT denied / restricted (iOS) with marketing consent
-
-1. Marketing consent true → App Events / AutoLog **on**  
-2. `advertiserTrackingAllowed = false` → no IDFA / advertiser ID collection  
-3. Conversion events still allowed (aggregated / non-IDFA path)
-
-### ATT authorized but marketing consent false
-
-1. **No** Meta events  
-2. ATT may still be requested at first launch (Apple requirement); Meta stays off until marketing consent
-
-## Events (after consent only)
+## Events (after marketing consent only)
 
 | Event | Trigger |
 |---|---|
-| Install / app open | Meta AutoLog + gated `activateApp()` |
-| CompleteRegistration | Signup success (native; Pixel skipped on native) |
-| TutorialCompletion | First `schema_saved_at` |
-| `child_access_completed` | Verified child PIN login only |
-| `first_star_earned` | Family first completion |
+| Install / app open | Meta AutoLog + gated `activateApp()` (forward-looking only) |
+| `fb_mobile_complete_registration` | Signup success (native) |
+| `fb_mobile_tutorial_completion` | First schedule saved |
+| `child_access_completed` | Verified child PIN login |
+| `first_star_earned` | Family first star |
 
-**Not implemented:** Purchase / Subscribe / StartTrial.
+**Forbidden in parameters:** child name, email, family/user ids, activity titles, health/NPF fields (see `FORBIDDEN_PARAM_KEYS` in `meta-app-events.js`).
 
-## Manual Meta Dashboard setup
+**Not implemented:** Purchase / Subscribe / StartTrial to Meta.
 
-1. Meta for Developers → App `27941105858861495`  
-2. Add iOS + Android platforms  
-3. Copy **Client Token** → env `META_CLIENT_TOKEN` before release sync  
-4. Link ad account  
-5. Keep **Automatically Log In-App Purchase Events = OFF** for iOS and Android  
-
-## Build / sync
+## Build / verify
 
 ```bash
-export META_CLIENT_TOKEN='…'
-npm run cap:sync:ios      # applies privacy plugin patch + verify + Info.plist/AppDelegate
-npm run cap:sync:android  # applies privacy plugin patch + verify + manifest
+export META_CLIENT_TOKEN='…'   # Meta App Dashboard → Settings → Advanced
+npm run cap:sync:ios
+node scripts/verify-meta-native-release.mjs
+node scripts/verify-ios-no-att-meta-release.mjs
 ```
 
-Durable plugin sources: `scripts/ios/*.patched`, `scripts/android/*.patched`  
-Applied by: `scripts/patch-capacitor-facebook-events-privacy.mjs`  
-Verified by: `scripts/verify-capacitor-facebook-events-privacy.mjs` (fails if upstream plugin drifts)
+`cap:sync:ios` runs `verify-ios-no-att-meta-release.mjs --skip-client-token` (ATT/SKAdNetwork only). Full release gate requires `FacebookClientToken` in Info.plist.
 
-## App Store release checklist
+## Related docs
 
-Native changes require **new iOS + Android builds**. Remote WebView deploy alone does not start Meta reporting.
-
-1. Merge PR #703  
-2. Set `META_CLIENT_TOKEN` in release environment (Meta App Dashboard → Settings → Advanced)  
-3. Build release binaries:
-   - iOS: archive → App Store Connect → store review  
-   - Android: release AAB → Google Play live track  
-4. Minimum smoke on **real devices** (release builds):
-   - App starts and login works  
-   - No Meta events before marketing consent  
-   - Accept consent → app still works; future opens may appear in Test Events  
-   - Revoke consent → app still works; new events stop  
-   - iOS: marketing yes + ATT denied → events without advertiser ID  
-5. Keep Meta Dashboard **Automatically Log In-App Purchase Events = OFF**
-
-Meta data appears only after users update to the new app version **and** grant marketing consent.
-
-## How to test in Events Manager
-
-1. Install build with Client Token  
-2. Fresh install → confirm **no** Test Events before consent  
-3. Grant marketing consent → then walk signup → schedule → child login → first star  
-4. Revoke marketing → confirm events stop  
-5. Optional non-live debug: `localStorage.setItem('msd_meta_app_events_debug','1')`
-
-## Purchases (later)
-
-RevenueCat does not send to Meta today. When IAP goes live, pick **one** reporter and keep dashboard IAP auto-log OFF until verified.
-
-## Privacy rules
-
-Never send: email, phone, names, DB IDs, diagnoses, activity/reward/schedule content, free text, birthdates.  
-Allowed generics: `appversion`, `platform`, `onboarding_version`, `flow`, `environment`.
-
-## Code map
-
-- Abstraction: `public/js/meta-app-events.js`  
-- Native privacy patches: `scripts/patch-capacitor-facebook-events-privacy.mjs`  
-- Shell config: `scripts/patch-ios-facebook-sdk.mjs`, `scripts/patch-android-facebook-sdk.mjs`  
-- Tests: `test/meta-app-events.test.js`
+- `docs/meta-ios-skan-aem-runbook.md` — AEM / Events Manager manual steps
+- `docs/meta-app-events-store-release.md` — Mac archive checklist
+- `docs/app-store-review-notes.md` — suggested Review Notes (build 30)

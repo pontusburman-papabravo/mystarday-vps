@@ -51,6 +51,13 @@ if (GOOGLE_AUTH_POD.test(content)) {
   console.log('Removed CodetrixStudioCapacitorGoogleAuth from iOS Podfile (Android-only plugin).');
 }
 
+const ATT_POD =
+  /^\s*pod 'CapacitorPluginAppTrackingTransparency'.*\n/m;
+if (ATT_POD.test(content)) {
+  content = content.replace(ATT_POD, '');
+  console.log('Removed CapacitorPluginAppTrackingTransparency from iOS Podfile (no ATT / no IDFA).');
+}
+
 const hasQuotedFix = content.includes('CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER');
 const hasSandboxFix = content.includes('ENABLE_USER_SCRIPT_SANDBOXING');
 const hasSaveFix = content.includes('user_project.save');
