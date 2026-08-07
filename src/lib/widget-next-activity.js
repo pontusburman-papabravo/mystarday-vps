@@ -1,14 +1,11 @@
 'use strict';
 
 const db = require('./db');
-const { getOrGenerateDailyLog, getLocalDateStr } = require('./daily-log-generator');
-const { compareChildDailyLogItems } = require('./daily-log-child-order');
 const { enrichPictogramFieldsMany } = require('../../config/pictogram-library');
 const { signInstanceToken } = require('./widget-instance-token');
 const { getFamilyPreferredLocale } = require('./family-locale');
 const { resolveActivityDisplayName } = require('./family-content-display');
-
-const SECTION_ORDER = ['morgon', 'formiddag', 'dag', 'eftermiddag', 'kvall', 'natt'];
+const { resolveCanonicalChildNextActivity } = require('./canonical-child-next-activity');
 
 const ROUTINE_LABELS = {
   morgon: 'Morgon',
@@ -18,19 +15,6 @@ const ROUTINE_LABELS = {
   kvall: 'Kväll',
   natt: 'Natt',
 };
-
-function sectionRank(section) {
-  const idx = SECTION_ORDER.indexOf(section);
-  return idx >= 0 ? idx : SECTION_ORDER.length;
-}
-
-function sortItemsForChild(items) {
-  return [...items].sort((a, b) => {
-    const sr = sectionRank(a.section) - sectionRank(b.section);
-    if (sr !== 0) return sr;
-    return compareChildDailyLogItems(a, b);
-  });
-}
 
 async function loadSubStepCounts(templateIds) {
   const map = {};
@@ -81,101 +65,64 @@ function resolveWidgetCapability(item, childFlags, incompleteSubs) {
   if (childFlags.activity_timers_enabled && (subMeta.sub_step_timed_count > 0 || item.duration_seconds)) {
     return { capability: 'open_app', reason: 'timer' };
   }
-  if (subMeta.sub_step_count > 0) {
-    return { capability: 'open_app', reason: 'sub_steps' };
-  }
   return { capability: 'direct_complete', reason: null };
 }
 
 /**
- * Pick the next activity for widget presentation.
+ * Pick the next activity for widget presentation (canonical Idag parity).
  */
 async function resolveWidgetNextAction(childId) {
-  const childRes = await db.query(
-    `SELECT id, family_id, timezone, require_sequential_completion, activity_timers_enabled
-     FROM child WHERE id = $1`,
-    [childId]
-  );
-  const child = childRes.rows[0];
-  if (!child) {
+  const canonical = await resolveCanonicalChildNextActivity(childId);
+  if (canonical.status === 'not_found') {
     return { status: 'reauth_required' };
   }
-
-  const tz = child.timezone || 'Europe/Stockholm';
-  const dateStr = getLocalDateStr(undefined, tz);
-  const { log, items } = await getOrGenerateDailyLog(childId, dateStr);
-  if (log?.is_paused) {
+  if (canonical.status === 'paused') {
     return { status: 'nothing_now' };
   }
-
-  const sorted = sortItemsForChild(items);
-  const total = sorted.length;
-  const completed = sorted.filter((i) => i.completed).length;
-  if (total > 0 && completed >= total) {
+  const { completed, total } = canonical;
+  if (canonical.status === 'all_done') {
     return { status: 'all_done', progress: { completed, total } };
   }
-  if (total === 0) {
-    return { status: 'nothing_now', progress: { completed: 0, total: 0 } };
+  if (canonical.status === 'nothing_now') {
+    return { status: 'nothing_now', progress: { completed, total } };
   }
+
+  const item = canonical.primaryItem;
+  const sorted = canonical.sortedItems;
+  const childFlags = { activity_timers_enabled: canonical.activityTimersEnabled === true };
 
   const templateIds = [...new Set(sorted.map((i) => i.activity_template_id).filter(Boolean))];
   const subMap = await loadSubStepCounts(templateIds);
-  for (const item of sorted) {
-    const meta = subMap[item.activity_template_id];
-    if (meta) item._sub_meta = meta;
+  const meta = subMap[item.activity_template_id];
+  if (meta) item._sub_meta = meta;
+
+  const incompleteSubs = await incompleteSubStepCount(item.id);
+  const cap = resolveWidgetCapability(item, childFlags, incompleteSubs);
+
+  const locale = await getFamilyPreferredLocale(canonical.familyId);
+  const title = await resolveActivityDisplayName(locale, item.name, item);
+  const enriched = enrichPictogramFieldsMany([item])[0];
+
+  const activityPayload = {
+    instance_token: signInstanceToken(childId, item.id),
+    title,
+    image_key: enriched.icon_key || null,
+    routine_title: ROUTINE_LABELS[item.section] || item.section,
+    capability: cap.capability,
+    progress: { completed, total },
+  };
+  if (cap.reason) {
+    activityPayload.open_app_reason = cap.reason;
   }
 
-  const requireSequential = child.require_sequential_completion === true;
-  const childFlags = { activity_timers_enabled: child.activity_timers_enabled === true };
-
-  let firstIncompleteSeen = false;
-  for (const item of sorted) {
-    if (item.completed) continue;
-    if (requireSequential && firstIncompleteSeen) {
-      break;
-    }
-    firstIncompleteSeen = true;
-
-    const incompleteSubs = await incompleteSubStepCount(item.id);
-    const cap = resolveWidgetCapability(item, childFlags, incompleteSubs);
-
-    const locale = await getFamilyPreferredLocale(child.family_id);
-    const title = await resolveActivityDisplayName(locale, item.name, item);
-    const enriched = enrichPictogramFieldsMany([item])[0];
-
-    if (cap.capability === 'open_app') {
-      return {
-        status: 'ready',
-        activity: {
-          instance_token: signInstanceToken(childId, item.id),
-          title,
-          image_key: enriched.icon_key || null,
-          routine_title: ROUTINE_LABELS[item.section] || item.section,
-          capability: 'open_app',
-          open_app_reason: cap.reason,
-          progress: { completed, total },
-        },
-      };
-    }
-
-    return {
-      status: 'ready',
-      activity: {
-        instance_token: signInstanceToken(childId, item.id),
-        title,
-        image_key: enriched.icon_key || null,
-        routine_title: ROUTINE_LABELS[item.section] || item.section,
-        capability: 'direct_complete',
-        progress: { completed, total },
-      },
-    };
-  }
-
-  return { status: 'nothing_now', progress: { completed, total } };
+  return {
+    status: 'ready',
+    activity: activityPayload,
+  };
 }
 
 module.exports = {
   resolveWidgetNextAction,
-  sortItemsForChild,
   resolveWidgetCapability,
+  incompleteSubStepCount,
 };
