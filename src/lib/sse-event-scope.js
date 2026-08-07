@@ -12,10 +12,17 @@ const EVENT_SCOPE = {
   PIN_FAILED_WARNING: 'child',
   SYSTEM_ALERT: 'family',
   CONNECTED: 'system',
+  GOAL_PROGRESS_UPDATE: 'child',
 };
 
 function getEventScope(type) {
-  return EVENT_SCOPE[type] || 'family';
+  const scope = EVENT_SCOPE[type];
+  if (!scope) return null;
+  return scope;
+}
+
+function isKnownEventType(type) {
+  return Object.prototype.hasOwnProperty.call(EVENT_SCOPE, type);
 }
 
 function isChildScopedEvent(type) {
@@ -26,6 +33,9 @@ function isChildScopedEvent(type) {
  * @returns {{ ok: true } | { ok: false, reason: string }}
  */
 function validateBroadcastPayload(type, data) {
+  if (!isKnownEventType(type)) {
+    return { ok: false, reason: 'unknown_event_type' };
+  }
   if (!isChildScopedEvent(type)) {
     return { ok: true };
   }
@@ -43,6 +53,7 @@ function listChildScopedEventTypes() {
 module.exports = {
   EVENT_SCOPE,
   getEventScope,
+  isKnownEventType,
   isChildScopedEvent,
   validateBroadcastPayload,
   listChildScopedEventTypes,

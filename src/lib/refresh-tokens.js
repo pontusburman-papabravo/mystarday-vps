@@ -30,19 +30,21 @@ async function insertRefreshTokenRow(client, { userId, userType, familyId, trust
   const expiresAt = new Date(Date.now() + config.refreshToken.expiryDays * 24 * 60 * 60 * 1000);
   const parentId = userType === 'parent' ? userId : null;
   const childId = userType === 'child' ? userId : null;
-  await client.query(
+  const result = await client.query(
     `INSERT INTO refresh_token (parent_id, child_id, token_hash, family_id, user_type, expires_at, trusted_device_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id`,
     [parentId, childId, hash, familyId, userType, expiresAt, trustedDeviceId]
   );
-  return raw;
+  return { raw, row: result.rows[0] };
 }
 
 async function createRefreshToken({ userId, userType, familyId, trustedDeviceId = null }) {
-  return insertRefreshTokenRow(
+  const { raw } = await insertRefreshTokenRow(
     { query: (text, params) => db.query(text, params) },
     { userId, userType, familyId, trustedDeviceId }
   );
+  return raw;
 }
 
 /**
@@ -108,6 +110,23 @@ async function rotateRefreshToken(raw) {
   try {
     await client.query('BEGIN');
     const hash = hashToken(raw);
+
+    const peekRes = await client.query(
+      `SELECT trusted_device_id FROM refresh_token WHERE token_hash = $1`,
+      [hash]
+    );
+    const peekTrustedId = peekRes.rows[0]?.trusted_device_id || null;
+    if (peekTrustedId) {
+      const dev = await client.query(
+        `SELECT id, revoked_at FROM family_trusted_device WHERE id = $1 FOR UPDATE`,
+        [peekTrustedId]
+      );
+      if (!dev.rows[0] || dev.rows[0].revoked_at) {
+        await client.query('ROLLBACK');
+        return { ok: false, code: 'device_revoked' };
+      }
+    }
+
     const locked = await client.query(
       `SELECT id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id
        FROM refresh_token WHERE token_hash = $1 FOR UPDATE`,
@@ -123,12 +142,12 @@ async function rotateRefreshToken(raw) {
       await client.query('COMMIT');
       return { ok: false, code: 'expired' };
     }
-    if (row.trusted_device_id) {
+    if (row.trusted_device_id && !peekTrustedId) {
       const dev = await client.query(
-        'SELECT id FROM family_trusted_device WHERE id = $1 AND revoked_at IS NULL',
+        `SELECT id, revoked_at FROM family_trusted_device WHERE id = $1 FOR UPDATE`,
         [row.trusted_device_id]
       );
-      if (!dev.rows[0]) {
+      if (!dev.rows[0] || dev.rows[0].revoked_at) {
         await client.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
         await client.query('COMMIT');
         return { ok: false, code: 'device_revoked' };
@@ -136,15 +155,20 @@ async function rotateRefreshToken(raw) {
     }
 
     await client.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
-    const newRaw = await insertRefreshTokenRow(client, {
+    const inserted = await insertRefreshTokenRow(client, {
       userId: row.user_type === 'parent' ? row.parent_id : row.child_id,
       userType: row.user_type,
       familyId: row.family_id,
       trustedDeviceId: row.trusted_device_id || null,
     });
+    const newRow = inserted.row;
+    const newRaw = inserted.raw;
+    if (row.trusted_device_id && !newRow?.trusted_device_id) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'lineage_lost' };
+    }
     await client.query('COMMIT');
 
-    const newRow = await lookupRefreshTokenRow(newRaw);
     return { ok: true, row, newRaw, newRow };
   } catch (err) {
     await client.query('ROLLBACK');

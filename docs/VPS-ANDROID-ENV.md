@@ -22,6 +22,11 @@ Android- och iOS-apparna laddar **live-webben** från `mystarday.se`. De flesta 
 |----------|-------|
 | `APP_URL` | `https://mystarday.se` |
 | `GOOGLE_WEB_CLIENT_ID` | Google Sign In (Web client ID) |
+| `ANDROID_KEYSTORE_PATH` | Path to upload keystore on build machine |
+| `ANDROID_KEY_ALIAS` | Key alias inside upload keystore |
+| `ANDROID_KEYSTORE_PASSWORD` | Upload keystore password — **rotate before Play upload** if committed in local notes |
+| `ANDROID_KEY_PASSWORD` | Key password if distinct from keystore password |
+| `ANDROID_UPLOAD_CERT_SHA256` | Play App Signing / assetlinks fingerprint (upload cert) |
 | `FCM_SERVER_KEY` | Push till Android (Firebase legacy key) |
 | `ANDROID_SHA256_CERT_FINGERPRINT` | App Links (`assetlinks.json`) |
 | `ANDROID_PACKAGE_NAME` | `se.mystarday.app` (default) |

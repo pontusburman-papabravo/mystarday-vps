@@ -155,12 +155,19 @@
     } catch (err) {
       if (skeletonTimer) skeletonTimer.stop();
       console.error('Load day error:', err);
+      const status = err && err.status;
       const cached = await (window.OfflineStore
         ? OfflineStore.getDailyLog(me?.id, dateStr)
         : Promise.resolve(null));
       if (cached) {
         renderActivities(cached, null);
-        showOfflineBanner(t('offline.scheduleCached'));
+        if (status === 429) {
+          showToast(t('checkoff.tooFast'), true);
+        } else {
+          showOfflineBanner(t('offline.scheduleCached'));
+        }
+      } else if (status === 429 && window.Skeleton && window.Skeleton.showChildScheduleRateLimit) {
+        window.Skeleton.showChildScheduleRateLimit(container, dateStr);
       } else if (window.Skeleton) {
         window.Skeleton.showChildScheduleError(container, dateStr);
       } else {

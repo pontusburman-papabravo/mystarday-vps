@@ -14,5 +14,12 @@ test('child-scoped SSE events require childId at broadcast time', () => {
 });
 
 test('family-scoped SYSTEM_ALERT does not require childId', () => {
+  const { validateBroadcastPayload } = require('../src/lib/sse-event-scope');
   assert.equal(validateBroadcastPayload('SYSTEM_ALERT', { message: 'x' }).ok, true);
+});
+
+test('unknown SSE event type is rejected at validateBroadcastPayload', () => {
+  const { validateBroadcastPayload, getEventScope } = require('../src/lib/sse-event-scope');
+  assert.equal(getEventScope('NOT_A_REAL_EVENT'), null);
+  assert.equal(validateBroadcastPayload('NOT_A_REAL_EVENT', {}).ok, false);
 });

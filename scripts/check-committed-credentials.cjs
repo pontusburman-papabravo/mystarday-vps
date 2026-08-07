@@ -15,6 +15,7 @@ const SCAN_DIRS = [
   '.cursor/rules',
   'docs',
   'scripts',
+  'assets',
   'AGENTS.md',
   '.github',
 ];

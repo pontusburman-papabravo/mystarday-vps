@@ -42,7 +42,11 @@ function scheduleSSEStarReload() {
   }, 400);
 }
 
-window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', function () {
+window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', function (e) {
+  const detail = (e && e.detail) || {};
+  if (typeof me !== 'undefined' && me && me.id && detail.childId === me.id) {
+    return;
+  }
   scheduleSSEReload();
   if (window.WidgetBridgeClient) {
     WidgetBridgeClient.refreshAll();

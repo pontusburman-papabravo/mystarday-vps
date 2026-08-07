@@ -64,23 +64,37 @@ async function listActiveForFamily(familyId) {
 }
 
 async function revokeForFamily(deviceId, familyId) {
-  const existing = await db.query(
-    `SELECT id FROM family_trusted_device
-     WHERE id = $1 AND family_id = $2 AND revoked_at IS NULL`,
-    [deviceId, familyId]
-  );
-  if (!existing.rows[0]) return null;
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+    const existing = await client.query(
+      `SELECT id FROM family_trusted_device
+       WHERE id = $1 AND family_id = $2 AND revoked_at IS NULL
+       FOR UPDATE`,
+      [deviceId, familyId]
+    );
+    if (!existing.rows[0]) {
+      await client.query('ROLLBACK');
+      return null;
+    }
 
-  await revokeRefreshTokensForTrustedDevice(deviceId);
+    await revokeRefreshTokensForTrustedDevice(deviceId, client);
 
-  const result = await db.query(
-    `UPDATE family_trusted_device
-     SET revoked_at = NOW(), last_refresh_token_id = NULL
-     WHERE id = $1
-     RETURNING id`,
-    [deviceId]
-  );
-  return result.rows[0] || null;
+    const result = await client.query(
+      `UPDATE family_trusted_device
+       SET revoked_at = NOW(), last_refresh_token_id = NULL
+       WHERE id = $1
+       RETURNING id`,
+      [deviceId]
+    );
+    await client.query('COMMIT');
+    return result.rows[0] || null;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 async function revokeAllForFamily(familyId) {
@@ -113,28 +127,6 @@ async function setLastRefreshTokenId(deviceId, refreshTokenId) {
   );
 }
 
-async function advanceLastRefreshTokenId(oldRefreshTokenId, newRefreshTokenId) {
-  if (!oldRefreshTokenId || !newRefreshTokenId) return;
-  await db.query(
-    `UPDATE family_trusted_device
-     SET last_refresh_token_id = $2
-     WHERE last_refresh_token_id = $1 AND revoked_at IS NULL`,
-    [oldRefreshTokenId, newRefreshTokenId]
-  );
-}
-
-async function findActiveByLastRefreshTokenId(refreshTokenId) {
-  if (!refreshTokenId) return null;
-  const result = await db.query(
-    `SELECT id, family_id, created_by_parent_id, device_mode, default_child_id,
-            last_active_child_id, revoked_at
-     FROM family_trusted_device
-     WHERE last_refresh_token_id = $1 AND revoked_at IS NULL`,
-    [refreshTokenId]
-  );
-  return result.rows[0] || null;
-}
-
 async function revokeAllForFamilyWithTokens(familyId) {
   const rows = await db.query(
     `SELECT id FROM family_trusted_device
@@ -157,6 +149,4 @@ module.exports = {
   touchLastSeen,
   setLastActiveChild,
   setLastRefreshTokenId,
-  advanceLastRefreshTokenId,
-  findActiveByLastRefreshTokenId,
 };

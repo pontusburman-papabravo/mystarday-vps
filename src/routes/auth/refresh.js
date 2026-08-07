@@ -2,7 +2,6 @@
 
 /**
  * CSRF + refresh token routes (E2). GET /api/auth/csrf-token, POST /api/auth/refresh.
- * Mounted at /api/auth in index.js. Refresh flow must stay byte-identical (endpoint-map R-D).
  */
 
 const express = require('express');
@@ -16,7 +15,6 @@ const {
   clearRefreshCookie,
   setAccessCookie,
 } = require('../../lib/refresh-tokens');
-const deviceDb = require('../../../db/family-trusted-device');
 const { parseDuration } = require('./session');
 
 const router = express.Router();
@@ -37,9 +35,6 @@ router.post('/refresh', async (req, res) => {
     }
 
     const { row, newRaw, newRow } = rotation;
-    if (newRow?.id) {
-      await deviceDb.advanceLastRefreshTokenId(row.id, newRow.id);
-    }
     setRefreshCookie(res, newRaw);
 
     let accessToken;
@@ -70,6 +65,10 @@ router.post('/refresh', async (req, res) => {
         return res.status(401).json({ error: 'Användare hittades inte' });
       }
       const c = cr.rows[0];
+      if (row.trusted_device_id && !newRow?.trusted_device_id) {
+        clearRefreshCookie(res);
+        return res.status(401).json({ error: 'Refresh-token ogiltig eller utgången' });
+      }
       const childClaims = {
         id: c.id,
         type: 'child',

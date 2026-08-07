@@ -26,12 +26,22 @@ function getRealIp(req) {
 }
 
 // Shared handler: log blocked attempt + return 429
-function onLimitReached(req, res, options) {
+function onLimitReached(req, res, options, limiterName = 'unknown') {
   const retryAfterSec = Math.ceil(options.windowMs / 1000);
   const maxVal = typeof options.max === 'function' ? '(dynamic)' : options.max;
+  const actorType = req.user?.type || (req.user?.id ? 'parent' : 'anonymous');
   console.warn(
-    `[RATE_LIMIT] blocked — ip=${getRealIp(req)} path=${req.path} ` +
-    `limit=${maxVal} window=${options.windowMs}ms retry_after=${retryAfterSec}s`
+    `[RATE_LIMIT] blocked — limiter=${limiterName} actor=${actorType} ip=${getRealIp(req)} ` +
+    `path=${req.path} limit=${maxVal} window=${options.windowMs}ms retry_after=${retryAfterSec}s`
+  );
+}
+
+/** Child routine check-off bursts must not compete with the general API bucket. */
+function isChildRoutineBurstPath(req) {
+  const p = (req.originalUrl || req.url || req.path || '').split('?')[0];
+  return (
+    /\/daily-log-items\/[^/]+\/(complete|uncomplete)$/.test(p) ||
+    /\/daily-log-items\/[^/]+\/sub-steps\/[^/]+\/(complete|uncomplete)$/.test(p)
   );
 }
 
@@ -265,14 +275,19 @@ const apiLimiter = rateLimit({
   },
   // Skip SSE — long-lived connections must not consume rate limit tokens.
   // Authenticated traffic uses per-user keys (user:id); unauthenticated uses ip:.
-  skip: (req) =>
-    !ENABLED ||
-    isApiBootstrapPath(req) ||
-    req.path === '/events' ||
-    req.path.startsWith('/events') ||
-    req.originalUrl?.startsWith('/api/events'),
+  skip: (req) => {
+    const baseSkip =
+      !ENABLED ||
+      isApiBootstrapPath(req) ||
+      req.path === '/events' ||
+      req.path.startsWith('/events') ||
+      req.originalUrl?.startsWith('/api/events');
+    if (baseSkip) return true;
+    if (req.user?.type === 'child' && isChildRoutineBurstPath(req)) return true;
+    return false;
+  },
   handler: (req, res, next, options) => {
-    onLimitReached(req, res, options);
+    onLimitReached(req, res, options, 'api');
     const retryAfterSec = Math.ceil(options.windowMs / 1000);
     res
       .set('Retry-After', String(retryAfterSec))
@@ -425,4 +440,5 @@ module.exports = {
   iapWebhookLimiter,
   resendWebhookLimiter,
   parentPinLimiter,
+  isChildRoutineBurstPath,
 };
