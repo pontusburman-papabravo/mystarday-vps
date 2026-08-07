@@ -1,0 +1,27 @@
+{
+  "name": "capacitor-widget-bridge",
+  "version": "1.0.0",
+  "description": "Secure widget binding storage for Stjarndag native widgets",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "android/src/main/",
+    "android/build.gradle",
+    "dist/",
+    "ios/Plugin/",
+    "CapacitorWidgetBridge.podspec"
+  ],
+  "license": "UNLICENSED",
+  "peerDependencies": {
+    "@capacitor/core": ">=7.0.0"
+  },
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  }
+}

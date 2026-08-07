@@ -250,7 +250,10 @@
       // loadDay failed (e.g. fully offline) — optimistic state already shown
     }
 
-    await apiPromise.catch(() => {});
+    await apiPromise.catch(function () {});
+    if (completing && !isCurrentlyDone && window.WidgetBridgeClient) {
+      window.dispatchEvent(new CustomEvent('stjarndag:widget-refresh'));
+    }
   }
 
   function openRatingModal(itemId, icon, name) {

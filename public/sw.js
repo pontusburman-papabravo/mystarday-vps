@@ -257,7 +257,7 @@
 // stjarndag-v798: Home day-off modal en-GB + 44px touch + browser gate (RC-1 R1)
 // stjarndag-v799: Library image archive upload i18n (RC-1 R2)
 // stjarndag-v807: R4.7 product-led growth (invite, weekly highlight, referral)
-const CACHE_NAME = 'stjarndag-v807';
+const CACHE_NAME = 'stjarndag-v808';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

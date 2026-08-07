@@ -34,6 +34,7 @@ const config: CapacitorConfig = {
       '@revenuecat/purchases-capacitor',
       'capacitor-facebook-events',
       'capacitor-plugin-app-tracking-transparency',
+      'capacitor-widget-bridge',
     ],
   },
   android: {
@@ -46,6 +47,7 @@ const config: CapacitorConfig = {
       '@codetrix-studio/capacitor-google-auth',
       '@revenuecat/purchases-capacitor',
       'capacitor-facebook-events',
+      'capacitor-widget-bridge',
     ],
   },
   plugins: {

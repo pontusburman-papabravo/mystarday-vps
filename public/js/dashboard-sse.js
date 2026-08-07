@@ -15,7 +15,10 @@
       }, 500);
     }
 
-    window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', () => scheduleSSEDashRefresh());
+    window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', () => {
+      scheduleSSEDashRefresh();
+      if (window.WidgetBridgeClient) WidgetBridgeClient.refreshAll();
+    });
     window.addEventListener('sse:STAR_GRANTED', () => scheduleSSEDashRefresh());
     window.addEventListener('sse:GOAL_PROGRESS_UPDATE', () => scheduleSSEDashRefresh());
     window.addEventListener('sse:SCHEDULE_UPDATED', () => {
