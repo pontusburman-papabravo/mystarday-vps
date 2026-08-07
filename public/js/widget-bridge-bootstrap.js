@@ -26,7 +26,11 @@
 
   global.addEventListener('stjarndag:auth-logout', onLogout);
   global.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', onCompletion);
-  global.addEventListener('stjarndag:widget-refresh', onCompletion);
+  global.addEventListener('stjarndag:widget-privacy-changed', function () {
+    if (global.WidgetBridgeClient) {
+      WidgetBridgeClient.refreshAll();
+    }
+  });
 
   if (global.Auth && typeof Auth.setAuth === 'function') {
     var orig = Auth.setAuth.bind(Auth);

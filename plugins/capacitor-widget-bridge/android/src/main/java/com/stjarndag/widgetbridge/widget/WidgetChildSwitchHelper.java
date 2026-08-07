@@ -3,12 +3,12 @@ package com.stjarndag.widgetbridge.widget;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 
-import com.stjarndag.widgetbridge.WidgetBridgeStore;
+import com.stjarndag.widgetbridge.WidgetBindingScope;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** Safe child switch sequence for family widget (R4.5f). */
+/** Safe child switch sequence for family widget (R4.5f / R4.5g scoped binding). */
 public final class WidgetChildSwitchHelper {
     private WidgetChildSwitchHelper() {}
 
@@ -24,61 +24,66 @@ public final class WidgetChildSwitchHelper {
         SwitchCallback callback
     ) {
         Context app = context.getApplicationContext();
-        WidgetInstanceStore.setSwitchInProgress(app, widgetId, true);
-        WidgetBridgeStore.invalidatePendingAction(app);
+        String inst = WidgetInstanceStore.getInstallationId(app, widgetId);
+        WidgetBindingScope.setSwitchInProgress(app, inst, true);
+        WidgetBindingScope.invalidatePendingAction(app, inst);
         WidgetRenderer.applySwitching(app, mgr, widgetId);
 
-        WidgetApiClient.ApiResult result = WidgetApiClient.switchChild(app, targetChildId);
+        WidgetApiClient.ApiResult result = WidgetApiClient.switchChild(app, inst, targetChildId);
         boolean ok = false;
         try {
             if (!result.networkError && result.httpCode == 200 && result.body != null) {
                 String token = result.body.optString("binding_token", "");
                 String childId = result.body.optString("child_id", "");
                 if (!token.isEmpty() && !childId.isEmpty()) {
-                    WidgetBridgeStore.updateBindingFromSwitch(app, token, childId);
+                    WidgetBindingScope.saveBinding(
+                        app,
+                        inst,
+                        token,
+                        childId,
+                        WidgetBindingScope.getViewerMode(app, inst),
+                        WidgetBindingScope.getPrivacyMode(app, inst)
+                    );
                 }
                 JSONObject ctx = result.body.optJSONObject("context");
                 if (ctx != null) {
-                    applyContext(app, ctx);
+                    applyContext(app, inst, ctx);
                 }
                 JSONObject next = result.body.optJSONObject("next");
                 if (next != null) {
-                    WidgetBridgeStore.setWidgetSnapshotJson(app, next.toString());
+                    WidgetBindingScope.setSnapshotJson(app, inst, next.toString());
                 }
                 ok = true;
             }
         } catch (Exception ignored) {
             ok = false;
         } finally {
-            WidgetInstanceStore.setSwitchInProgress(app, widgetId, false);
+            WidgetBindingScope.setSwitchInProgress(app, inst, false);
         }
         if (callback != null) {
             callback.onFinished(ok);
         }
     }
 
-    public static void applyContext(Context app, JSONObject ctx) throws Exception {
+    public static void applyContext(Context app, String installationId, JSONObject ctx) throws Exception {
         JSONArray allowed = ctx.optJSONArray("allowed_children");
         if (allowed != null) {
-            WidgetBridgeStore.setAllowedChildrenJson(app, allowed.toString());
+            WidgetBindingScope.setAllowedChildrenJson(app, installationId, allowed.toString());
         }
-        String profile = ctx.optString("widget_profile", "");
         JSONObject active = ctx.optJSONObject("active_child");
         if (active != null) {
             String name = active.optString("display_name", "");
             String emoji = active.optString("emoji", "");
             if (!name.isEmpty()) {
                 String label = emoji.isEmpty() ? name : emoji + " " + name;
-                WidgetBridgeStore.setWidgetChildDisplayLabel(app, label);
+                WidgetBindingScope.setChildDisplayLabel(app, installationId, label);
             }
-        }
-        if (!profile.isEmpty()) {
-            // family vs personal default for new instances handled per widget id on refresh
         }
     }
 
     public static String resolveTargetChildId(Context context, int widgetId, String direction) {
-        String json = WidgetBridgeStore.getAllowedChildrenJson(context);
+        String inst = WidgetInstanceStore.getInstallationId(context, widgetId);
+        String json = WidgetBindingScope.getAllowedChildrenJson(context, inst);
         if (json == null || json.isEmpty()) {
             return null;
         }
@@ -87,7 +92,7 @@ public final class WidgetChildSwitchHelper {
             if (arr.length() <= 1) {
                 return null;
             }
-            String activeId = WidgetBridgeStore.getActiveChildId(context);
+            String activeId = WidgetBindingScope.getActiveChildId(context, inst);
             int idx = 0;
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject c = arr.getJSONObject(i);
@@ -108,7 +113,11 @@ public final class WidgetChildSwitchHelper {
     }
 
     public static void reconcileActiveChild(Context app, int widgetId) {
-        String json = WidgetBridgeStore.getAllowedChildrenJson(app);
+        String inst = WidgetInstanceStore.getInstallationId(app, widgetId);
+        if (WidgetBindingScope.isSwitchInProgress(app, inst)) {
+            return;
+        }
+        String json = WidgetBindingScope.getAllowedChildrenJson(app, inst);
         if (json == null) {
             return;
         }
@@ -117,7 +126,7 @@ public final class WidgetChildSwitchHelper {
             if (arr.length() == 0) {
                 return;
             }
-            String active = WidgetBridgeStore.getActiveChildId(app);
+            String active = WidgetBindingScope.getActiveChildId(app, inst);
             boolean found = false;
             for (int i = 0; i < arr.length(); i++) {
                 if (active != null && active.equals(arr.getJSONObject(i).optString("id"))) {

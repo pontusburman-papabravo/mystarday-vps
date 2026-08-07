@@ -103,16 +103,27 @@ async function resolveWidgetNextAction(childId) {
   const title = await resolveActivityDisplayName(locale, item.name, item);
   const enriched = enrichPictogramFieldsMany([item])[0];
 
+  const instanceToken = signInstanceToken(childId, item.id);
+  const panel = cap.reason === 'timer' ? 'timer' : cap.reason === 'sub_steps' ? 'substeps' : null;
+  let openAppPath = `/child/today?widget_focus=${encodeURIComponent(instanceToken)}`;
+  if (panel) {
+    openAppPath += `&panel=${panel}`;
+  }
+
   const activityPayload = {
-    instance_token: signInstanceToken(childId, item.id),
+    instance_token: instanceToken,
     title,
     image_key: enriched.icon_key || null,
     routine_title: ROUTINE_LABELS[item.section] || item.section,
     capability: cap.capability,
     progress: { completed, total },
+    open_app_path: openAppPath,
   };
   if (cap.reason) {
     activityPayload.open_app_reason = cap.reason;
+  }
+  if (cap.reason === 'timer' && item.duration_seconds) {
+    activityPayload.duration_seconds = item.duration_seconds;
   }
 
   return {

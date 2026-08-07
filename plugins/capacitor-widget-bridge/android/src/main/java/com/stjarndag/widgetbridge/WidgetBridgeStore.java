@@ -27,30 +27,26 @@ public final class WidgetBridgeStore {
         String privacyMode,
         String installationId
     ) throws Exception {
-        SharedPreferences secret = secretPrefs(context);
-        secret.edit().putString(KEY_BINDING, bindingToken).apply();
-        SharedPreferences pub = publicPrefs(context);
-        SharedPreferences.Editor e = pub.edit();
-        e.putString("active_child_id", activeChildId);
-        e.putString("viewer_mode", viewerMode != null ? viewerMode : "");
-        e.putString("privacy_mode", privacyMode != null ? privacyMode : "standard");
-        if (installationId != null) {
-            e.putString("installation_id", installationId);
-        }
-        e.putString("last_refresh_at", Instant.now().toString());
-        e.putBoolean("pending_action_invalidated", false);
-        e.apply();
+        WidgetBindingScope.saveBinding(
+            context,
+            installationId,
+            bindingToken,
+            activeChildId,
+            viewerMode,
+            privacyMode
+        );
     }
 
     static void clearAll(Context context) {
-        try {
-            secretPrefs(context).edit().clear().apply();
-        } catch (Exception ignored) { /* ignore */ }
-        publicPrefs(context).edit().clear().apply();
+        WidgetBindingScope.clearAll(context);
     }
 
     static void invalidatePendingAction(Context context) {
-        publicPrefs(context).edit().putBoolean("pending_action_invalidated", true).apply();
+        invalidatePendingAction(context, null);
+    }
+
+    static void invalidatePendingAction(Context context, String installationId) {
+        WidgetBindingScope.invalidatePendingAction(context, installationId);
     }
 
     static void touchRefresh(Context context) {
@@ -69,21 +65,11 @@ public final class WidgetBridgeStore {
     }
 
     static boolean hasBinding(Context context) {
-        try {
-            String t = secretPrefs(context).getString(KEY_BINDING, null);
-            return t != null && !t.isEmpty();
-        } catch (Exception e) {
-            return false;
-        }
+        return WidgetBindingScope.hasBinding(context, null);
     }
 
-    /** Widget extension — same process as main app; never log return value. */
     public static String getBindingToken(Context context) {
-        try {
-            return secretPrefs(context).getString(KEY_BINDING, null);
-        } catch (Exception e) {
-            return null;
-        }
+        return WidgetBindingScope.getBindingToken(context, null);
     }
 
     public static String getActiveChildId(Context context) {
@@ -155,13 +141,25 @@ public final class WidgetBridgeStore {
         return publicPrefs(context).getString("widget_allowed_children_json", null);
     }
 
+    public static void updateBindingFromSwitch(
+        Context context,
+        String installationId,
+        String bindingToken,
+        String activeChildId
+    ) throws Exception {
+        WidgetBindingScope.saveBinding(
+            context,
+            installationId,
+            bindingToken,
+            activeChildId,
+            WidgetBindingScope.getViewerMode(context, installationId),
+            WidgetBindingScope.getPrivacyMode(context, installationId)
+        );
+    }
+
     public static void updateBindingFromSwitch(Context context, String bindingToken, String activeChildId)
         throws Exception {
-        secretPrefs(context).edit().putString(KEY_BINDING, bindingToken).apply();
-        publicPrefs(context).edit()
-            .putString("active_child_id", activeChildId)
-            .putBoolean("pending_action_invalidated", false)
-            .apply();
+        updateBindingFromSwitch(context, null, bindingToken, activeChildId);
     }
 
     public static long getFeedbackUntil(Context context) {

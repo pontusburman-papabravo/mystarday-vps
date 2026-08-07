@@ -150,13 +150,20 @@ enum WidgetBridgeStore {
         defaults?.synchronize()
     }
 
-    static func isSwitchInProgress() -> Bool {
-        defaults?.bool(forKey: "widget_switch_in_progress") ?? false
+    static func isSwitchInProgress(installationId: String? = nil) -> Bool {
+        let key = switchKey(installationId)
+        return defaults?.bool(forKey: key) ?? false
     }
 
-    static func setSwitchInProgress(_ value: Bool) {
-        defaults?.set(value, forKey: "widget_switch_in_progress")
+    static func setSwitchInProgress(_ value: Bool, installationId: String? = nil) {
+        let key = switchKey(installationId)
+        defaults?.set(value, forKey: key)
         defaults?.synchronize()
+    }
+
+    private static func switchKey(_ installationId: String?) -> String {
+        let id = installationId ?? defaults?.string(forKey: "installation_id") ?? "default"
+        return "widget_switching_" + id.replacingOccurrences(of: ":", with: "_")
     }
 
     static func canSwitchChildren() -> Bool {

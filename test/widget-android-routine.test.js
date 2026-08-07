@@ -69,3 +69,12 @@ test('WidgetRenderer binds family child switcher', () => {
   assert.match(src, /widget_child_switcher/);
   assert.match(src, /isCompleteBlocked/);
 });
+
+test('WidgetBindingScope stores per-installation bindings', () => {
+  const src = fs.readFileSync(
+    path.join(ROOT, 'plugins/capacitor-widget-bridge/android/src/main/java/com/stjarndag/widgetbridge/WidgetBindingScope.java'),
+    'utf8'
+  );
+  assert.match(src, /binding_/);
+  assert.match(src, /clearScope/);
+});

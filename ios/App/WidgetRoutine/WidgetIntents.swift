@@ -47,13 +47,15 @@ struct CompleteNextActivityIntent: AppIntent {
             if status == "completed" || status == "already_completed" {
                 let stars = (json["reward"] as? [String: Any])?["stars_added"] as? Int ?? 0
                 let title = (json["completed"] as? [String: Any])?["title"] as? String ?? ""
-                let until = Date().addingTimeInterval(2.2)
+                let until = Date().addingTimeInterval(1.2)
                 var childName = ""
                 let viewer = WidgetBridgeStore.viewerMode()
                 if viewer != "child_session", !viewer.isEmpty {
                     childName = activeChildDisplayName() ?? ""
                 }
-                WidgetBridgeStore.setFeedback(until: until, stars: stars, title: title, childNameForParent: childName)
+                if stars > 0 || status == "completed" {
+                    WidgetBridgeStore.setFeedback(until: until, stars: stars, title: title, childNameForParent: childName)
+                }
             }
             if let next = json["next"] as? [String: Any] {
                 _ = WidgetEntryBuilder.mapNext(next)
@@ -83,7 +85,7 @@ struct SwitchChildIntent: AppIntent {
         guard WidgetBridgeStore.canSwitchChildren() else { return .result() }
         guard let targetId = resolveTargetChildId(direction: direction) else { return .result() }
 
-        WidgetBridgeStore.setSwitchInProgress(true)
+        WidgetBridgeStore.setSwitchInProgress(true, installationId: WidgetBridgeStore.installationId())
         WidgetBridgeStore.invalidatePendingAction()
         WidgetCenter.shared.reloadAllTimelines()
 
@@ -94,7 +96,7 @@ struct SwitchChildIntent: AppIntent {
         }
 
         defer {
-            WidgetBridgeStore.setSwitchInProgress(false)
+            WidgetBridgeStore.setSwitchInProgress(false, installationId: WidgetBridgeStore.installationId())
             WidgetCenter.shared.reloadAllTimelines()
         }
 

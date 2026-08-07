@@ -14,7 +14,12 @@ public class WidgetOpenAppReceiver extends BroadcastReceiver {
         if (intent == null || !WidgetConfig.ACTION_OPEN_APP.equals(intent.getAction())) {
             return;
         }
-        String url = WidgetConfig.childTodayDeepLink(context);
+        String url = intent.getStringExtra(WidgetConfig.EXTRA_OPEN_APP_PATH);
+        if (url == null || url.isEmpty()) {
+            url = WidgetConfig.childTodayDeepLink(context);
+        } else if (!url.startsWith("http")) {
+            url = WidgetConfig.apiBaseUrl(context) + url;
+        }
         Intent launch = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         launch.setPackage(context.getPackageName());
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
