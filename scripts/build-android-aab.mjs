@@ -16,6 +16,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { assertAndroidReleaseSigningPreconditions } from './assert-android-release-signing.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -33,27 +34,27 @@ function run(cmd, opts = {}) {
   execSync(cmd, { stdio: 'inherit', cwd: opts.cwd || ROOT, env: { ...process.env, ...opts.env } });
 }
 
-function ensureKeystore() {
+function ensureDevKeystore(keystorePath, storePass, keyPass, keyAlias) {
   fs.mkdirSync(SIGNING_DIR, { recursive: true });
-  if (fs.existsSync(KEYSTORE)) {
-    console.log('Using existing keystore:', KEYSTORE);
+  if (fs.existsSync(keystorePath)) {
+    console.log('Using existing keystore:', keystorePath);
     return;
   }
-  console.log('Creating upload keystore (save this file + password for all future Play updates)…');
+  console.log('Creating dev upload keystore…');
   run(
-    `keytool -genkey -v -keystore "${KEYSTORE}" -alias ${KEY_ALIAS} ` +
+    `keytool -genkey -v -keystore "${keystorePath}" -alias ${keyAlias} ` +
       `-keyalg RSA -keysize 2048 -validity 10000 ` +
-      `-storepass "${STORE_PASS}" -keypass "${KEY_PASS}" ` +
-      `-dname "CN=Min Stjarnadag, OU=Mobile, O=PapaBravo, L=Stockholm, C=SE"`
+      `-storepass "${storePass}" -keypass "${keyPass}" ` +
+      `-dname "CN=Min Stjarnadag Dev, OU=Mobile, O=PapaBravo, L=Stockholm, C=SE"`
   );
 }
 
-function writeKeystoreProperties() {
-  const relStore = path.relative(path.join(ROOT, 'android', 'app'), KEYSTORE).replace(/\\/g, '/');
+function writeKeystoreProperties(keystorePath, storePass, keyPass, keyAlias) {
+  const relStore = path.relative(path.join(ROOT, 'android', 'app'), keystorePath).replace(/\\/g, '/');
   const content = `storeFile=${relStore}
-storePassword=${STORE_PASS}
-keyAlias=${KEY_ALIAS}
-keyPassword=${KEY_PASS}
+storePassword=${storePass}
+keyAlias=${keyAlias}
+keyPassword=${keyPass}
 `;
   fs.writeFileSync(KEYSTORE_PROPS, content);
   console.log('Wrote', KEYSTORE_PROPS);
@@ -107,14 +108,19 @@ function main() {
     process.exit(1);
   }
 
+  const signing = assertAndroidReleaseSigningPreconditions();
+  const keystorePath = signing.keystorePath || KEYSTORE;
+
   run('NODE_ENV=development npm install --include=dev --legacy-peer-deps');
-  ensureKeystore();
-  writeKeystoreProperties();
+  if (signing.allowDevKeystore) {
+    ensureDevKeystore(keystorePath, signing.storePass, signing.keyPass, signing.keyAlias);
+  }
+  writeKeystoreProperties(keystorePath, signing.storePass, signing.keyPass, signing.keyAlias);
   patchBuildGradle();
 
-  if (!process.env.GOOGLE_WEB_CLIENT_ID) {
-    console.warn('\n⚠️  GOOGLE_WEB_CLIENT_ID not set — Google Sign In will fail on Android.');
-    console.warn('    Export it before building: GOOGLE_WEB_CLIENT_ID=xxx.apps.googleusercontent.com npm run android:aab\n');
+  if (!signing.allowDevKeystore && !process.env.GOOGLE_WEB_CLIENT_ID) {
+    console.error('\n❌ GOOGLE_WEB_CLIENT_ID required for release AAB.\n');
+    process.exit(1);
   }
 
   const env = { ...process.env, NODE_ENV: 'development' };

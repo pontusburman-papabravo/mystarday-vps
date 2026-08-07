@@ -6,7 +6,7 @@ const { spawnSync } = require('node:child_process');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const script = path.join(ROOT, 'scripts/build-android-aab.mjs');
+const script = path.join(ROOT, 'scripts/assert-android-release-signing.mjs');
 
 test('android:aab release mode fails closed without signing secrets', () => {
   const r = spawnSync(process.execPath, [script], {

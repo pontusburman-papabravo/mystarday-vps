@@ -94,7 +94,7 @@
     "reels:export": "node scripts/export-reels-assets.mjs",
     "instagram:recensioner": "node scripts/export-instagram-recensioner-video.mjs",
     "android:aab": "node scripts/build-android-aab.mjs",
-    "android:aab:dev": "node scripts/build-android-aab.mjs --allow-dev-keystore",
+    "android:aab:dev": "ANDROID_AAB_ALLOW_DEV_KEYSTORE=1 node scripts/build-android-aab.mjs",
     "android:aab:publish": "node scripts/publish-aab-download.mjs",
     "qa:mobile-gate": "QA_MODE=gate node scripts/smoke-mobile-full-qa.mjs",
     "qa:mobile-full": "QA_MODE=full node scripts/smoke-mobile-full-qa.mjs",
