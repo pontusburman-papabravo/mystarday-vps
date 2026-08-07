@@ -8,20 +8,20 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('i18n store beta build versions', () => {
-  it('iOS build 29 for English Beta native l10n', () => {
+  it('iOS build 30 for English Beta native l10n', () => {
     const pbx = fs.readFileSync(
       path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'),
       'utf8'
     );
-    assert.match(pbx, /CURRENT_PROJECT_VERSION = 29;/);
+    assert.match(pbx, /CURRENT_PROJECT_VERSION = 30;/);
     assert.match(pbx, /MARKETING_VERSION = 1\.3;/);
   });
 
-  it('Android versionCode 9 for English Beta native l10n', () => {
+  it('Android versionCode 10 for English Beta native l10n', () => {
     const ver = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8')
     );
-    assert.equal(ver.versionCode, 9);
+    assert.equal(ver.versionCode, 10);
     assert.equal(ver.versionName, '1.3.0');
   });
 

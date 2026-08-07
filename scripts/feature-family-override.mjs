@@ -24,6 +24,9 @@ const db = require('../src/lib/db');
 const familyOverrides = require('../db/family-feature-overrides');
 const overrideCache = require('../src/lib/activation-flag-family-cache');
 const { isActivationFlagEnabled } = require('../src/lib/activation-flags');
+const { isFeatureEnabledForFamily } = require('../src/lib/feature-flag-with-family-override');
+const { FLAG_NATIVE, FLAG_COMPLETION } = require('../src/lib/widget-flags');
+const { FLAG_KEY: TRUSTED_DEVICE_FLAG } = require('../src/lib/trusted-device-flags');
 const { assertFamilyEligibleForFounderOverride } = require('../src/lib/founder-qa-family-guard');
 
 function parseArgs(argv) {

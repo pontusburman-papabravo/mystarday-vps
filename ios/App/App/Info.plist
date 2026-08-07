@@ -63,8 +63,6 @@
 	<false/>
 	<key>FacebookAdvertiserIDCollectionEnabled</key>
 	<false/>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Din tillåtelse hjälper oss att mäta vilka annonser som leder till att Min Stjärndag installeras och används.</string> <!-- pragma: allowlist secret -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -132,10 +132,10 @@ function checkPrivacyDefaults() {
       ok('AttTrackingCoordinator.swift present');
     }
     const plistContent = fs.readFileSync(IOS_PLIST, 'utf8');
-    if (!plistContent.includes('NSUserTrackingUsageDescription')) {
-      fail('Info.plist missing NSUserTrackingUsageDescription');
+    if (plistContent.includes('NSUserTrackingUsageDescription')) {
+      fail('Info.plist must not declare NSUserTrackingUsageDescription (no cross-app tracking)');
     } else {
-      ok('NSUserTrackingUsageDescription present in Info.plist');
+      ok('Info.plist has no ATT usage description');
     }
     // Match method declarations only — Capacitor boilerplate comments mention applicationWillTerminate earlier.
     const becomeActive = delegate.slice(
