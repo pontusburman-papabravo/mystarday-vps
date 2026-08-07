@@ -2,4 +2,3 @@
 "CFBundleDisplayName" = "[REDACTED]"; // pragma: allowlist secret
 "NSCameraUsageDescription" = "[REDACTED] uses the camera so you can take a new profile photo for your child in the app. The photo is saved on your family account and is only shown to your family."; // pragma: allowlist secret
 "NSPhotoLibraryUsageDescription" = "[REDACTED] needs access to your photos so you can choose an existing picture as your child's profile photo. For example, you can pick a photo from a summer album and it will appear as your child's avatar in the daily schedule."; // pragma: allowlist secret
-"NSUserTrackingUsageDescription" = "We use this to measure ads and understand which campaigns help families find the app. No child data is sent.";

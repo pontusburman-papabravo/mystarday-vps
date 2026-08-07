@@ -3,11 +3,10 @@
  *
  * Privacy policy (EU/GDPR — blocking):
  *   No Meta App Events (including AutoLog install/open) until marketing consent.
- *   ATT is separate from marketing consent — the system ATT dialog is shown on iOS
- *   fresh install (native AppDelegate + JS fallback) before any tracking data.
+ *   My Starday does not perform Apple-defined cross-app tracking (no IDFA / no ATT).
  *
  *   metaEventsAllowed = marketingConsent === true
- *   advertiserTrackingAllowed = marketingConsent && platform==='ios' && attStatus==='authorized'
+ *   advertiserTrackingAllowed = false (always — no IDFA on any platform)
  *
  * WHAT NOT: Purchase/Subscribe/StartTrial; web Pixel; direct Facebook SDK calls elsewhere.
  * Failures never throw into the app flow.
@@ -134,9 +133,7 @@
   }
 
   function isAttBlockingMeta() {
-    if (getPlatformName() !== 'ios') return false;
-    if (cachedAttStatus === null) return true;
-    return cachedAttStatus === 'notDetermined';
+    return false;
   }
 
   function shouldSend() {
@@ -256,45 +253,12 @@
    * Resolve ATT status. Prompt only when allowPrompt is true and status is notDetermined.
    * ATT prompt is independent of marketing consent (Apple Guideline 2.1).
    */
-  async function resolveAttStatus(options) {
-    const allowPrompt = !!(options && options.allowPrompt);
-    const platform = getPlatformName();
-    if (platform !== 'ios') return 'not_applicable';
-
-    const att = getAttPlugin();
-    if (!att || typeof att.getStatus !== 'function') return 'unavailable';
-
-    try {
-      let statusResult = await att.getStatus();
-      let status = statusResult && statusResult.status ? statusResult.status : 'notDetermined';
-      cachedAttStatus = status;
-      debugLog('att_status', { status: status, allowPrompt: allowPrompt });
-      if (
-        allowPrompt &&
-        status === 'notDetermined' &&
-        typeof att.requestPermission === 'function' &&
-        !attRequested
-      ) {
-        attRequested = true;
-        debugLog('att_request_attempted', {});
-        statusResult = await att.requestPermission();
-        status = statusResult && statusResult.status ? statusResult.status : status;
-        cachedAttStatus = status;
-        debugLog('att_request_completed', { status: status });
-      }
-      return status;
-    } catch (err) {
-      debugLog('ATT resolve failed', err && err.message ? err.message : 'error');
-      return 'unavailable';
-    }
+  async function resolveAttStatus() {
+    return 'not_applicable';
   }
 
-  function computeAdvertiserTrackingAllowed(attStatus) {
-    return (
-      metaEventsAllowed() === true &&
-      getPlatformName() === 'ios' &&
-      attStatus === 'authorized'
-    );
+  function computeAdvertiserTrackingAllowed() {
+    return false;
   }
 
   /**
@@ -309,16 +273,9 @@
     }
 
     const marketing = metaEventsAllowed();
-    let attStatus = 'not_applicable';
-    if (getPlatformName() === 'ios') {
-      attStatus = await resolveAttStatus({
-        allowPrompt: !!(options && options.allowAttPrompt),
-      });
-    }
-
-    const attBlocksMeta = getPlatformName() === 'ios' && attStatus === 'notDetermined';
-    const effectiveMarketing = marketing && !attBlocksMeta;
-    const advertiserTrackingAllowed = computeAdvertiserTrackingAllowed(attStatus);
+    const attStatus = 'not_applicable';
+    const effectiveMarketing = marketing;
+    const advertiserTrackingAllowed = false;
     const configureKey = String(effectiveMarketing) + ':' + String(advertiserTrackingAllowed);
 
     try {
@@ -333,7 +290,7 @@
             marketingConsent: effectiveMarketing,
             advertiserTrackingAllowed: advertiserTrackingAllowed,
             attStatus: attStatus,
-            attBlocksMeta: attBlocksMeta,
+            attBlocksMeta: false,
           });
         }
       } else if (typeof facebook.setAdvertiserTrackingEnabled === 'function') {
@@ -467,29 +424,10 @@
   }
 
   /**
-   * iOS startup: ensure ATT is requested while the app is active on fresh install.
-   * Native AppDelegate also schedules this; JS is a fallback if status stays notDetermined.
+   * Legacy hook — ATT is not used (no cross-app tracking).
    */
   function scheduleAttStartupIfNeeded() {
-    if (attStartupScheduled) return;
-    if (!isNative() || getPlatformName() !== 'ios') return;
-    attStartupScheduled = true;
-
-    function run() {
-      resolveAttStatus({ allowPrompt: true })
-        .then(function () {
-          return applyNativeConsentConfig({ allowAttPrompt: false });
-        })
-        .catch(function () {});
-    }
-
-    if (typeof document !== 'undefined' && document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () {
-        setTimeout(run, 500);
-      });
-    } else {
-      setTimeout(run, 500);
-    }
+    // no-op
   }
 
   /**

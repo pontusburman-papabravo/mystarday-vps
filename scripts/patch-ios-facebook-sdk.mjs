@@ -32,10 +32,6 @@ function ensurePodfilePods() {
       name: 'CapacitorFacebookEvents',
       line: "  pod 'CapacitorFacebookEvents', :path => '../../node_modules/capacitor-facebook-events'",
     },
-    {
-      name: 'CapacitorPluginAppTrackingTransparency',
-      line: "  pod 'CapacitorPluginAppTrackingTransparency', :path => '../../node_modules/capacitor-plugin-app-tracking-transparency'",
-    },
   ];
   for (const pod of pods) {
     if (content.includes(pod.name)) continue;
@@ -139,10 +135,9 @@ function patchInfoPlist() {
   }
   content = upsertPlistBool(content, 'FacebookAutoLogAppEventsEnabled', false);
   content = upsertPlistBool(content, 'FacebookAdvertiserIDCollectionEnabled', false);
-  content = upsertPlistKey(
-    content,
-    'NSUserTrackingUsageDescription',
-    'Din tillåtelse hjälper oss att mäta vilka annonser som leder till att Min Stjärndag installeras och används.' // pragma: allowlist secret
+  content = content.replace(
+    /\t<key>NSUserTrackingUsageDescription<\/key>\s*\n\s*<string>[\s\S]*?<\/string>(?:\s*<!-- pragma: allowlist secret -->)?\s*\n/g,
+    ''
   );
   content = ensureFacebookUrlScheme(content, META_APP_ID);
 
@@ -181,7 +176,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        AttTrackingCoordinator.shared.schedulePromptIfNeeded(application: application, window: window)
+        AttTrackingCoordinator.shared.applyMetaSettingsForCurrentAttStatus()
         if Settings.shared.isAutoLogAppEventsEnabled {
             AppEvents.shared.activateApp()
         }

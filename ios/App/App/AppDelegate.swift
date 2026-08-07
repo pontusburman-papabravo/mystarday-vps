@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        AttTrackingCoordinator.shared.schedulePromptIfNeeded(application: application, window: window)
+        AttTrackingCoordinator.shared.applyMetaSettingsForCurrentAttStatus()
 
         if Settings.shared.isAutoLogAppEventsEnabled {
             AppEvents.shared.activateApp()

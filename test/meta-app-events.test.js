@@ -128,7 +128,7 @@ describe('MetaAppEvents privacy gate', () => {
     assert.equal(logged.filter((e) => e.type === 'event').length, 0);
   });
 
-  it('3b) iOS blocks Meta events while ATT is notDetermined even with marketing consent', async () => {
+  it('3b) iOS allows Meta events with marketing consent (no ATT gate)', async () => {
     const { MetaAppEvents, logged } = loadMeta({
       force: true,
       consent: true,
@@ -136,28 +136,21 @@ describe('MetaAppEvents privacy gate', () => {
       attStatus: 'notDetermined',
     });
     await MetaAppEvents.trackRegistrationCompleted({ method: 'email' });
-    assert.equal(logged.filter((e) => e.type === 'event').length, 0);
+    assert.equal(logged.filter((e) => e.type === 'event').length, 1);
     const result = await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: false });
-    assert.equal(result.metaEventsAllowed, false);
+    assert.equal(result.metaEventsAllowed, true);
     assert.equal(result.advertiserTrackingAllowed, false);
   });
 
-  it('3c) iOS ATT prompt attempted via JS when status is notDetermined', async () => {
-    let promptCalled = false;
+  it('3c) iOS does not request ATT (no cross-app tracking)', async () => {
     const { MetaAppEvents } = loadMeta({
       force: true,
       consent: false,
       platform: 'ios',
       attStatus: 'notDetermined',
     });
-    MetaAppEvents._internal.resetAttForTests();
-    const original = MetaAppEvents._internal.resolveAttStatus;
-    MetaAppEvents._internal.resolveAttStatus = async function (options) {
-      if (options && options.allowPrompt) promptCalled = true;
-      return original.call(this, options);
-    };
-    await MetaAppEvents._internal.resolveAttStatus({ allowPrompt: true });
-    assert.equal(promptCalled, true);
+    const status = await MetaAppEvents._internal.resolveAttStatus({ allowPrompt: true });
+    assert.equal(status, 'not_applicable');
   });
 
   it('4) marketing consent on Android enables App Events', async () => {
@@ -191,7 +184,7 @@ describe('MetaAppEvents privacy gate', () => {
     assert.equal(logged.filter((e) => e.event === 'fb_mobile_tutorial_completion').length, 1);
   });
 
-  it('6) iOS marketing consent + ATT authorized allows advertiser tracking', async () => {
+  it('6) iOS marketing consent never enables advertiser tracking (no IDFA)', async () => {
     const { MetaAppEvents, logged } = loadMeta({
       force: true,
       consent: true,
@@ -199,9 +192,9 @@ describe('MetaAppEvents privacy gate', () => {
       attStatus: 'authorized',
     });
     const result = await MetaAppEvents._internal.applyNativeConsentConfig({ allowAttPrompt: false });
-    assert.equal(result.advertiserTrackingAllowed, true);
+    assert.equal(result.advertiserTrackingAllowed, false);
     const cfg = logged.find((e) => e.type === 'configureConsent');
-    assert.equal(cfg.advertiserTrackingAllowed, true);
+    assert.equal(cfg.advertiserTrackingAllowed, false);
   });
 
   it('7) revoked consent stops AutoLog and manual events', async () => {
@@ -245,8 +238,8 @@ describe('MetaAppEvents privacy gate', () => {
 
     const delegate = fs.readFileSync(path.join(ROOT, 'ios/App/App/AppDelegate.swift'), 'utf8');
     const coordinator = fs.readFileSync(path.join(ROOT, 'ios/App/App/AttTrackingCoordinator.swift'), 'utf8');
-    assert.match(delegate, /AttTrackingCoordinator\.shared\.schedulePromptIfNeeded/);
     assert.match(delegate, /AttTrackingCoordinator\.shared\.applyStartupPrivacyDefaults/);
+    assert.match(delegate, /AttTrackingCoordinator\.shared\.applyMetaSettingsForCurrentAttStatus/);
     assert.match(coordinator, /msd_meta_marketing_consent/);
     assert.match(coordinator, /applyMetaSettingsForCurrentAttStatus/);
     // Must not call activateApp() outside the consent gate.

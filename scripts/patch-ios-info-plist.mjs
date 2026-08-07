@@ -22,8 +22,6 @@ const EN_USAGE = {
     `${APP_NAME} uses the camera so you can take a new profile photo for your child in the app. The photo is saved on your family account and is only shown to your family.`,
   NSPhotoLibraryUsageDescription:
     `${APP_NAME} needs access to your photos so you can choose an existing picture as your child's profile photo. For example, you can pick a photo from a summer album and it will appear as your child's avatar in the daily schedule.`,
-  NSUserTrackingUsageDescription:
-    'We use this to measure ads and understand which campaigns help families find the app. No child data is sent.',
 };
 
 const SV_USAGE = {
@@ -31,12 +29,10 @@ const SV_USAGE = {
     `${APP_NAME} använder kameran så att du som förälder kan ta en ny profilbild till ditt barn i appen. Bilden sparas på familjekontot och visas bara för er familj.`,
   NSPhotoLibraryUsageDescription:
     `${APP_NAME} behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.`,
-  NSUserTrackingUsageDescription:
-    'Vi använder detta för att mäta annonser och förstå vilka kampanjer som hjälper familjer hitta appen. Ingen barndata skickas.',
 };
 
-/** App only reads photos; never saves to the library. */
-const REMOVE_KEYS = ['NSPhotoLibraryAddUsageDescription'];
+/** App only reads photos; never saves to the library. No ATT — no cross-app tracking. */
+const REMOVE_KEYS = ['NSPhotoLibraryAddUsageDescription', 'NSUserTrackingUsageDescription'];
 
 function escapePlistString(value) {
   return value
