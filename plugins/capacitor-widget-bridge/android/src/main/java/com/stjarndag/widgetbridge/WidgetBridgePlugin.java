@@ -59,7 +59,7 @@ public class WidgetBridgePlugin extends Plugin {
                 .apply();
         }
         WidgetBridgeStore.invalidatePendingAction(getContext());
-        notifyWidgetRefresh();
+        notifyWidgetRefreshSwitching();
         call.resolve(new JSObject().put("ok", true));
     }
 
@@ -80,6 +80,13 @@ public class WidgetBridgePlugin extends Plugin {
     private void notifyWidgetRefresh() {
         Intent intent = new Intent("com.stjarndag.widget.REFRESH");
         intent.setPackage(getContext().getPackageName());
+        getContext().sendBroadcast(intent);
+    }
+
+    private void notifyWidgetRefreshSwitching() {
+        Intent intent = new Intent("com.stjarndag.widget.REFRESH");
+        intent.setPackage(getContext().getPackageName());
+        intent.putExtra("switching_child", true);
         getContext().sendBroadcast(intent);
     }
 }

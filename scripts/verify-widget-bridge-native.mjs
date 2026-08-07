@@ -14,6 +14,9 @@ const required = [
   'ios/Plugin/WidgetBridgePlugin.swift',
   'ios/Plugin/WidgetBridgeStore.swift',
   'android/src/main/java/com/stjarndag/widgetbridge/WidgetBridgePlugin.java',
+  'android/src/main/java/com/stjarndag/widgetbridge/widget/RoutineWidgetProvider.java',
+  'android/src/main/res/layout/widget_routine.xml',
+  'android/src/main/res/xml/routine_widget_info.xml',
 ];
 
 let ok = true;

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Next activity</string>
+    <string name="widget_routine_description">Complete the next routine step without opening the full app.</string>
+    <string name="widget_cd_pictogram">Activity symbol</string>
+    <string name="widget_cd_complete">Mark activity complete</string>
+    <string name="widget_cd_open_app">Open in app</string>
+    <string name="widget_action_complete">Done</string>
+    <string name="widget_action_open_timer">Open timer</string>
+    <string name="widget_action_show_steps">Show steps</string>
+    <string name="widget_action_open_app">Open app</string>
+    <string name="widget_loading">Loading…</string>
+    <string name="widget_all_done">All done for today!</string>
+    <string name="widget_nothing_now">Nothing right now</string>
+    <string name="widget_offline">No network connection</string>
+    <string name="widget_reauth">Sign in in the app</string>
+    <string name="widget_revoked">Device access revoked</string>
+    <string name="widget_switching">Switching child…</string>
+    <string name="widget_feedback_done">✓ Done!</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d of %2$d done</string>
+    <string name="widget_private_activity">Next step</string>
+</resources>
