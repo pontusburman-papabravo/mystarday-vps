@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import Capacitor
 import WidgetKit
 
@@ -22,6 +23,9 @@ public class WidgetBridgePlugin: CAPPlugin {
                 privacyMode: call.getString("privacyMode"),
                 installationId: call.getString("installationId")
             )
+            if let base = Self.resolveApiBaseUrl(from: bridge?.viewController) {
+                WidgetBridgeStore.setApiBaseUrl(base)
+            }
             if #available(iOS 14.0, *) {
                 WidgetCenter.shared.reloadAllTimelines()
             }
@@ -60,6 +64,22 @@ public class WidgetBridgePlugin: CAPPlugin {
 
     @objc func getStatus(_ call: CAPPluginCall) {
         call.resolve(WidgetBridgeStore.status())
+    }
+
+    /// Remote WebView server URL for widget API (no secrets in extension plist).
+    private static func resolveApiBaseUrl(from viewController: UIViewController?) -> String? {
+        if let bridgeVC = viewController as? CAPBridgeViewController,
+           let url = bridgeVC.webView?.url {
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            components?.path = ""
+            components?.query = nil
+            components?.fragment = nil
+            if let base = components?.url?.absoluteString.trimmingCharacters(in: CharacterSet(charactersIn: "/")),
+               base.hasPrefix("http") {
+                return base
+            }
+        }
+        return WidgetBridgeStore.apiBaseUrl()
     }
 }
 

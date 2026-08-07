@@ -1,9 +1,10 @@
-# iOS WidgetRoutine extension
+# iOS WidgetRoutine extension (R4.5d)
 
-1. In Xcode: **File → New → Target → Widget Extension** named `WidgetRoutine`.
-2. Replace generated Swift with files in this folder (`NextRoutineWidget.swift`).
-3. Add **App Group** shared with main app; store `binding_token` via Keychain (bridge from Capacitor).
-4. Implement `WidgetAPIClient` + `CompleteNextActivityIntent` (App Intent) calling server contract documented in `docs/r45-widget-native.md`.
-5. Enable flags `native_widget_enabled` + `widget_completion_enabled` for test family.
+Wired via `scripts/patch-ios-widget-extension.mjs` and related verify scripts.
 
-Native build required for App Store; server contract works without extension installed.
+- **WidgetRoutine** appex — small + medium families, `CompleteNextActivityIntent` (iOS 17+), Link fallback on iOS 14–16.
+- **WidgetAPIClient** — `GET /api/widget/next-action`, `POST /api/widget/complete-action`, `GET /api/widget/context`.
+- **WidgetBridgeStore** (shared plugin) — App Group + Keychain bearer; API base URL copied from WebView on `configureBinding`.
+- **Entitlements** — `WidgetRoutine/WidgetRoutine.entitlements` + main `App.entitlements` patched for `group.stjarndag.widget`.
+
+Enable `native_widget_enabled` + `widget_completion_enabled` for test families. See `docs/r45-widget-native.md`.
