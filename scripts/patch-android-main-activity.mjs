@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Ensure MainActivity enables WebView remote debugging after `npx cap sync android`.
+ * Ensure MainActivity enables WebView remote debugging only in DEBUG builds.
  * android/ is gitignored — namespace is read from build.gradle at patch time.
  */
 import fs from 'fs';
@@ -25,8 +25,10 @@ public class MainActivity extends BridgeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // Enables chrome://inspect remote debugging for Android WebView (internal testing).
-    WebView.setWebContentsDebuggingEnabled(true);
+    // chrome://inspect only in debug builds — never in Play release.
+    if (BuildConfig.DEBUG) {
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
   }
 }
 `;
@@ -55,8 +57,8 @@ if (!fs.existsSync(main)) {
 
 const current = fs.readFileSync(main, 'utf8');
 if (current === expected) {
-  console.log('MainActivity.java already enables WebView debugging');
+  console.log('MainActivity.java already gates WebView debugging on BuildConfig.DEBUG');
 } else {
   fs.writeFileSync(main, expected);
-  console.log('Patched MainActivity.java → WebView.setWebContentsDebuggingEnabled(true)');
+  console.log('Patched MainActivity.java → WebView debugging DEBUG-only');
 }
