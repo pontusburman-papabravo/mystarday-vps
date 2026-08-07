@@ -36,5 +36,6 @@ App Group: `group.stjarndag.widget` (iOS entitlements patch).
 ## Native (follow-up PRs)
 
 - Capacitor bridge: refresh widget timelines after in-app completion.
-- iOS WidgetKit + App Intent; **Android App Widget** in `capacitor-widget-bridge` (R4.5e).
+- iOS WidgetKit extension in `ios/App/WidgetRoutine` (R4.5d).
+- **Android App Widget** in `capacitor-widget-bridge` (R4.5e).
 - Parent settings surface for child binding + privacy.

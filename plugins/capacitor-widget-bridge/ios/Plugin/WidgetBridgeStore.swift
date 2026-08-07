@@ -62,6 +62,81 @@ enum WidgetBridgeStore {
         ]
     }
 
+    // MARK: - Widget extension (R4.5d) — never log return values
+
+    static func hasBinding() -> Bool {
+        guard let t = readKeychain(), !t.isEmpty else { return false }
+        return true
+    }
+
+    static func bindingToken() -> String? {
+        readKeychain()
+    }
+
+    static func activeChildId() -> String? {
+        defaults?.string(forKey: "active_child_id")
+    }
+
+    static func viewerMode() -> String {
+        defaults?.string(forKey: "viewer_mode") ?? ""
+    }
+
+    static func privacyMode() -> String {
+        let raw = defaults?.string(forKey: "privacy_mode") ?? "standard"
+        if raw == "private" || raw == "reduced" || raw == "full" { return raw }
+        return raw == "standard" ? "full" : raw
+    }
+
+    static func installationId() -> String? {
+        defaults?.string(forKey: "installation_id")
+    }
+
+    static func isPendingActionInvalidated() -> Bool {
+        defaults?.bool(forKey: "pending_action_invalidated") ?? false
+    }
+
+    static func clearPendingActionInvalidated() {
+        defaults?.set(false, forKey: "pending_action_invalidated")
+        defaults?.synchronize()
+    }
+
+    static func setWidgetChildDisplayLabel(_ label: String?) {
+        if let label = label, !label.isEmpty {
+            defaults?.set(label, forKey: "widget_child_display_label")
+        } else {
+            defaults?.removeObject(forKey: "widget_child_display_label")
+        }
+        defaults?.synchronize()
+    }
+
+    static func widgetChildDisplayLabel() -> String? {
+        defaults?.string(forKey: "widget_child_display_label")
+    }
+
+    static func setFeedback(until: Date, stars: Int, title: String) {
+        defaults?.set(until.timeIntervalSince1970, forKey: "widget_feedback_until")
+        defaults?.set(stars, forKey: "widget_feedback_stars")
+        defaults?.set(title, forKey: "widget_feedback_title")
+        defaults?.synchronize()
+    }
+
+    static func feedbackActive() -> (stars: Int, title: String)? {
+        let until = defaults?.double(forKey: "widget_feedback_until") ?? 0
+        guard until > Date().timeIntervalSince1970 else { return nil }
+        let stars = defaults?.integer(forKey: "widget_feedback_stars") ?? 0
+        let title = defaults?.string(forKey: "widget_feedback_title") ?? ""
+        return (stars, title)
+    }
+
+    static func setApiBaseUrl(_ url: String) {
+        defaults?.set(url, forKey: "widget_api_base_url")
+        defaults?.synchronize()
+    }
+
+    static func apiBaseUrl() -> String? {
+        defaults?.string(forKey: "widget_api_base_url")
+    }
+
     private static func setKeychain(_ value: String) throws {
         deleteKeychain()
         guard let data = value.data(using: .utf8) else { return }
