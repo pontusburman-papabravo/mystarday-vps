@@ -17,6 +17,9 @@
     <string name="widget_revoked">Enheten har återkallats</string>
     <string name="widget_switching">Byter barn…</string>
     <string name="widget_feedback_done">✓ Klart!</string>
+    <string name="widget_feedback_done_for">✓ Klart för %1$s</string>
+    <string name="widget_cd_child_prev">Föregående barn</string>
+    <string name="widget_cd_child_next">Nästa barn</string>
     <string name="widget_feedback_stars">⭐ +%1$d</string>
     <string name="widget_progress_fmt">%1$d av %2$d klara</string>
     <string name="widget_private_activity">Nästa steg</string>

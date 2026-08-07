@@ -138,6 +138,8 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'widget_completion_failed',
   'widget_binding_revoked',
   'widget_refresh_failed',
+  'widget_child_switched',
+  'widget_child_switch_failed',
   'onboarding_handoff_film_shown',
   'onboarding_handoff_film_complete',
   'onboarding_handoff_film_cta_try',

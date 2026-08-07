@@ -62,12 +62,14 @@ public final class WidgetRenderer {
 
         if (showFeedback && System.currentTimeMillis() < WidgetBridgeStore.getFeedbackUntil(context)) {
             renderFeedback(context, views);
+            bindChildSwitcher(context, views, widgetId);
             mgr.updateAppWidget(widgetId, views);
             return;
         }
 
         String status = next.optString("status", "loading");
         hideOptional(views);
+        bindChildSwitcher(context, views, widgetId);
         bindChildLabel(context, views);
 
         switch (status) {
@@ -157,11 +159,15 @@ public final class WidgetRenderer {
         } else if ("direct_complete".equals(capability) && !"private".equals(privacy)) {
             views.setViewVisibility(R.id.widget_primary_action, View.VISIBLE);
             views.setTextViewText(R.id.widget_primary_action, context.getString(R.string.widget_action_complete));
-            String instanceToken = activity.optString("instance_token", "");
-            views.setOnClickPendingIntent(
-                R.id.widget_primary_action,
-                completePendingIntent(context, widgetId, instanceToken)
-            );
+            if (!WidgetInstanceStore.isCompleteBlocked(context, widgetId)) {
+                String instanceToken = activity.optString("instance_token", "");
+                views.setOnClickPendingIntent(
+                    R.id.widget_primary_action,
+                    completePendingIntent(context, widgetId, instanceToken)
+                );
+            } else {
+                views.setOnClickPendingIntent(R.id.widget_primary_action, null);
+            }
             views.setContentDescription(
                 R.id.widget_primary_action,
                 context.getString(R.string.widget_cd_complete)
@@ -179,7 +185,17 @@ public final class WidgetRenderer {
     private static void renderFeedback(Context context, RemoteViews views) {
         hideOptional(views);
         views.setViewVisibility(R.id.widget_feedback, View.VISIBLE);
-        views.setTextViewText(R.id.widget_feedback, context.getString(R.string.widget_feedback_done));
+        String viewer = WidgetBridgeStore.getViewerMode(context);
+        String childName = WidgetBridgeStore.getFeedbackChildName(context);
+        if (childName != null && !childName.isEmpty()
+            && viewer != null && !viewer.isEmpty() && !"child_session".equals(viewer)) {
+            views.setTextViewText(
+                R.id.widget_feedback,
+                context.getString(R.string.widget_feedback_done_for, childName)
+            );
+        } else {
+            views.setTextViewText(R.id.widget_feedback, context.getString(R.string.widget_feedback_done));
+        }
         int stars = WidgetBridgeStore.getFeedbackStars(context);
         if (stars > 0) {
             views.setViewVisibility(R.id.widget_progress, View.VISIBLE);
@@ -214,6 +230,9 @@ public final class WidgetRenderer {
     }
 
     private static void bindChildLabel(Context context, RemoteViews views) {
+        if (views == null) {
+            return;
+        }
         String privacy = normalizePrivacy(WidgetBridgeStore.getPrivacyMode(context));
         if ("private".equals(privacy) || "reduced".equals(privacy)) {
             views.setViewVisibility(R.id.widget_child_label, View.GONE);
@@ -224,13 +243,110 @@ public final class WidgetRenderer {
             views.setViewVisibility(R.id.widget_child_label, View.GONE);
             return;
         }
-        String label = WidgetBridgeStore.getWidgetChildDisplayLabel(context);
-        if (label == null || label.isEmpty()) {
-            views.setViewVisibility(R.id.widget_child_label, View.GONE);
+        if (!canShowChildSwitcher(context)) {
+            String label = WidgetBridgeStore.getWidgetChildDisplayLabel(context);
+            if (label == null || label.isEmpty()) {
+                views.setViewVisibility(R.id.widget_child_label, View.GONE);
+                return;
+            }
+            views.setViewVisibility(R.id.widget_child_label, View.VISIBLE);
+            views.setTextViewText(R.id.widget_child_label, label);
             return;
         }
-        views.setViewVisibility(R.id.widget_child_label, View.VISIBLE);
-        views.setTextViewText(R.id.widget_child_label, label);
+        views.setViewVisibility(R.id.widget_child_label, View.GONE);
+    }
+
+    private static boolean canShowChildSwitcher(Context context) {
+        String viewer = WidgetBridgeStore.getViewerMode(context);
+        if (viewer == null || viewer.isEmpty() || "child_session".equals(viewer)) {
+            return false;
+        }
+        String privacy = normalizePrivacy(WidgetBridgeStore.getPrivacyMode(context));
+        if ("private".equals(privacy) || "reduced".equals(privacy)) {
+            return false;
+        }
+        String json = WidgetBridgeStore.getAllowedChildrenJson(context);
+        if (json == null || json.isEmpty()) {
+            return false;
+        }
+        try {
+            org.json.JSONArray arr = new org.json.JSONArray(json);
+            return arr.length() > 1;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static void bindChildSwitcher(Context context, RemoteViews views, int widgetId) {
+        if (!canShowChildSwitcher(context)) {
+            views.setViewVisibility(R.id.widget_child_switcher, View.GONE);
+            return;
+        }
+        String activeName = activeChildDisplayName(context);
+        if (activeName == null || activeName.isEmpty()) {
+            views.setViewVisibility(R.id.widget_child_switcher, View.GONE);
+            return;
+        }
+        views.setViewVisibility(R.id.widget_child_switcher, View.VISIBLE);
+        views.setTextViewText(R.id.widget_child_name, activeName);
+        views.setContentDescription(R.id.widget_child_name, activeName);
+        boolean blocked = WidgetInstanceStore.isCompleteBlocked(context, widgetId);
+        if (blocked) {
+            views.setOnClickPendingIntent(R.id.widget_child_prev, null);
+            views.setOnClickPendingIntent(R.id.widget_child_next, null);
+        } else {
+            views.setOnClickPendingIntent(
+                R.id.widget_child_prev,
+                switchChildPendingIntent(context, widgetId, "prev")
+            );
+            views.setOnClickPendingIntent(
+                R.id.widget_child_next,
+                switchChildPendingIntent(context, widgetId, "next")
+            );
+        }
+    }
+
+    /** Display name only (no emoji) for parent completion feedback. */
+    public static String activeChildDisplayNameForFeedback(Context context) {
+        return activeChildDisplayName(context);
+    }
+
+    private static String activeChildDisplayName(Context context) {
+        String activeId = WidgetBridgeStore.getActiveChildId(context);
+        String json = WidgetBridgeStore.getAllowedChildrenJson(context);
+        if (json == null || activeId == null) {
+            return WidgetBridgeStore.getWidgetChildDisplayLabel(context);
+        }
+        try {
+            org.json.JSONArray arr = new org.json.JSONArray(json);
+            for (int i = 0; i < arr.length(); i++) {
+                org.json.JSONObject c = arr.getJSONObject(i);
+                if (activeId.equals(c.optString("id"))) {
+                    return c.optString("display_name", "");
+                }
+            }
+        } catch (Exception ignored) {
+            // ignore
+        }
+        String label = WidgetBridgeStore.getWidgetChildDisplayLabel(context);
+        if (label == null) {
+            return null;
+        }
+        int space = label.indexOf(' ');
+        if (space > 0 && space < label.length() - 1) {
+            return label.substring(space + 1);
+        }
+        return label;
+    }
+
+    public static PendingIntent switchChildPendingIntent(Context context, int widgetId, String direction) {
+        Intent intent = new Intent(context, WidgetChildSwitchReceiver.class);
+        intent.setAction(WidgetConfig.ACTION_SWITCH_CHILD);
+        intent.putExtra(WidgetConfig.EXTRA_APP_WIDGET_ID, widgetId);
+        intent.putExtra(WidgetConfig.EXTRA_SWITCH_DIRECTION, direction);
+        int requestCode = widgetId * 31 + ("next".equals(direction) ? 4 : 3);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.getBroadcast(context, requestCode, intent, flags);
     }
 
     private static void hideOptional(RemoteViews views) {

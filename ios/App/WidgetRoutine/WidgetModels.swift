@@ -28,7 +28,9 @@ struct NextRoutineEntry: TimelineEntry {
     let childLabel: String?
     let feedbackStars: Int
     let feedbackTitle: String
+    let feedbackChildName: String
     let allDoneMessage: String
+    let canSwitchChildren: Bool
 
     static func loading() -> NextRoutineEntry {
         NextRoutineEntry(
@@ -45,7 +47,9 @@ struct NextRoutineEntry: TimelineEntry {
             childLabel: nil,
             feedbackStars: 0,
             feedbackTitle: "",
-            allDoneMessage: WidgetL10n.allDoneNeutral
+            feedbackChildName: "",
+            allDoneMessage: WidgetL10n.allDoneNeutral,
+            canSwitchChildren: false
         )
     }
 }

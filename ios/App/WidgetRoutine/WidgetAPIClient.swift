@@ -39,6 +39,14 @@ final class WidgetAPIClient {
         request(path: "/api/widget/context", method: "GET", body: nil, completion: completion)
     }
 
+    func switchChild(
+        targetChildId: String,
+        completion: @escaping (Result<[String: Any], WidgetAPIError>) -> Void
+    ) {
+        let body: [String: Any] = ["child_id": targetChildId]
+        request(path: "/api/widget/switch-child", method: "POST", body: body, completion: completion)
+    }
+
     func completeAction(
         instanceToken: String,
         idempotencyKey: String,

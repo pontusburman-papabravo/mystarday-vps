@@ -113,19 +113,62 @@ enum WidgetBridgeStore {
         defaults?.string(forKey: "widget_child_display_label")
     }
 
-    static func setFeedback(until: Date, stars: Int, title: String) {
+    static func setFeedback(until: Date, stars: Int, title: String, childNameForParent: String? = nil) {
         defaults?.set(until.timeIntervalSince1970, forKey: "widget_feedback_until")
         defaults?.set(stars, forKey: "widget_feedback_stars")
         defaults?.set(title, forKey: "widget_feedback_title")
+        defaults?.set(childNameForParent ?? "", forKey: "widget_feedback_child_name")
         defaults?.synchronize()
     }
 
-    static func feedbackActive() -> (stars: Int, title: String)? {
+    static func feedbackActive() -> (stars: Int, title: String, childName: String)? {
         let until = defaults?.double(forKey: "widget_feedback_until") ?? 0
         guard until > Date().timeIntervalSince1970 else { return nil }
         let stars = defaults?.integer(forKey: "widget_feedback_stars") ?? 0
         let title = defaults?.string(forKey: "widget_feedback_title") ?? ""
-        return (stars, title)
+        let childName = defaults?.string(forKey: "widget_feedback_child_name") ?? ""
+        return (stars, title, childName)
+    }
+
+    static func setAllowedChildrenJson(_ json: String?) {
+        if let json = json, !json.isEmpty {
+            defaults?.set(json, forKey: "widget_allowed_children_json")
+        } else {
+            defaults?.removeObject(forKey: "widget_allowed_children_json")
+        }
+        defaults?.synchronize()
+    }
+
+    static func allowedChildrenJson() -> String? {
+        defaults?.string(forKey: "widget_allowed_children_json")
+    }
+
+    static func updateBindingFromSwitch(token: String, activeChildId: String) throws {
+        try setKeychain(token)
+        defaults?.set(activeChildId, forKey: "active_child_id")
+        defaults?.set(false, forKey: "pending_action_invalidated")
+        defaults?.synchronize()
+    }
+
+    static func isSwitchInProgress() -> Bool {
+        defaults?.bool(forKey: "widget_switch_in_progress") ?? false
+    }
+
+    static func setSwitchInProgress(_ value: Bool) {
+        defaults?.set(value, forKey: "widget_switch_in_progress")
+        defaults?.synchronize()
+    }
+
+    static func canSwitchChildren() -> Bool {
+        let viewer = viewerMode()
+        if viewer == "child_session" || viewer.isEmpty { return false }
+        if privacyMode() == "private" || privacyMode() == "reduced" { return false }
+        guard let json = allowedChildrenJson(),
+              let data = json.data(using: .utf8),
+              let arr = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+            return false
+        }
+        return arr.count > 1
     }
 
     static func setApiBaseUrl(_ url: String) {

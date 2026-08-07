@@ -48,11 +48,20 @@ async function listAllowedChildrenForBinding(binding) {
 
 async function buildWidgetContext(binding, activeChildId) {
   const allowed = await listAllowedChildrenForBinding(binding);
-  const active = allowed.find((c) => c.id === activeChildId) || null;
+  let active = allowed.find((c) => c.id === activeChildId) || null;
+  if (!active && allowed.length > 0) {
+    active = allowed[0];
+  }
+  const canSwitch = binding.mode !== 'child_session' && allowed.length > 1;
+  const widgetProfile = binding.mode === 'child_session' || allowed.length <= 1
+    ? 'personal'
+    : 'family';
   return {
     viewer_mode: viewerModeFromBinding(binding),
     active_child: active,
     allowed_children: allowed,
+    can_switch_children: canSwitch,
+    widget_profile: widgetProfile,
   };
 }
 

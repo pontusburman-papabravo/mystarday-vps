@@ -18,6 +18,9 @@ const REQUIRED = [
   'WidgetApiClient.java',
   'WidgetRenderer.java',
   'WidgetRefreshHelper.java',
+  'WidgetChildSwitchHelper.java',
+  'WidgetChildSwitchReceiver.java',
+  'WidgetInstanceStore.java',
 ];
 
 test('R4.5e Android widget Java sources present in plugin module', () => {
@@ -53,4 +56,16 @@ test('WidgetOpenAppReceiver opens child today without completion deep link', () 
 test('verify-widget-bridge-native checks Android widget layout', () => {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/verify-widget-bridge-native.mjs'), 'utf8');
   assert.match(src, /RoutineWidgetProvider/);
+});
+
+test('WidgetChildSwitchReceiver calls safe switch + refresh', () => {
+  const src = fs.readFileSync(path.join(WIDGET_JAVA, 'WidgetChildSwitchReceiver.java'), 'utf8');
+  assert.match(src, /WidgetChildSwitchHelper/);
+  assert.match(src, /refreshSingleWidget/);
+});
+
+test('WidgetRenderer binds family child switcher', () => {
+  const src = fs.readFileSync(path.join(WIDGET_JAVA, 'WidgetRenderer.java'), 'utf8');
+  assert.match(src, /widget_child_switcher/);
+  assert.match(src, /isCompleteBlocked/);
 });

@@ -19,6 +19,8 @@ enum WidgetL10n {
     static var reauth: String { isEnglish ? "Sign in in the app" : "Logga in i appen" }
     static var revoked: String { isEnglish ? "Device access revoked" : "Enheten har återkallats" }
     static var switching: String { isEnglish ? "Switching child…" : "Byter barn…" }
+    static var switchChildPrev: String { isEnglish ? "Previous child" : "Föregående barn" }
+    static var switchChildNext: String { isEnglish ? "Next child" : "Nästa barn" }
     static var feedbackDone: String { isEnglish ? "✓ Done!" : "✓ Klart!" }
     static var genericNextStep: String { isEnglish ? "Next step" : "Nästa steg" }
 
@@ -28,4 +30,9 @@ enum WidgetL10n {
     }
 
     static func starsAdded(_ n: Int) -> String { "⭐ +\(n)" }
+
+    static func feedbackDoneFor(_ name: String) -> String {
+        if isEnglish { return "✓ Done for \(name)" }
+        return "✓ Klart för \(name)"
+    }
 }
