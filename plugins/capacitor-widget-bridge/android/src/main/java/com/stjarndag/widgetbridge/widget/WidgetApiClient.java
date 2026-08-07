@@ -3,7 +3,7 @@ package com.stjarndag.widgetbridge.widget;
 import android.content.Context;
 import android.util.Log;
 
-import com.stjarndag.widgetbridge.WidgetBridgeStore;
+import com.stjarndag.widgetbridge.WidgetBindingScope;
 
 import org.json.JSONObject;
 
@@ -16,7 +16,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Server widget API (Bearer binding). No logging of tokens.
+ * Server widget API (Bearer binding per installation). No logging of tokens.
  */
 public final class WidgetApiClient {
     private static final String TAG = "WidgetApi";
@@ -35,16 +35,17 @@ public final class WidgetApiClient {
         }
     }
 
-    public static ApiResult fetchNextAction(Context context) {
-        return get(context, "/api/widget/next-action");
+    public static ApiResult fetchNextAction(Context context, String installationId) {
+        return get(context, installationId, "/api/widget/next-action");
     }
 
-    public static ApiResult fetchContext(Context context) {
-        return get(context, "/api/widget/context");
+    public static ApiResult fetchContext(Context context, String installationId) {
+        return get(context, installationId, "/api/widget/context");
     }
 
     public static ApiResult completeAction(
         Context context,
+        String installationId,
         String instanceToken,
         String idempotencyKey
     ) {
@@ -55,21 +56,21 @@ public final class WidgetApiClient {
         } catch (Exception e) {
             return new ApiResult(0, null, true);
         }
-        return post(context, "/api/widget/complete-action", payload);
+        return post(context, installationId, "/api/widget/complete-action", payload);
     }
 
-    public static ApiResult switchChild(Context context, String targetChildId) {
+    public static ApiResult switchChild(Context context, String installationId, String targetChildId) {
         JSONObject payload = new JSONObject();
         try {
             payload.put("child_id", targetChildId);
         } catch (Exception e) {
             return new ApiResult(0, null, true);
         }
-        return post(context, "/api/widget/switch-child", payload);
+        return post(context, installationId, "/api/widget/switch-child", payload);
     }
 
-    private static ApiResult get(Context context, String path) {
-        String token = WidgetBridgeStore.getBindingToken(context);
+    private static ApiResult get(Context context, String installationId, String path) {
+        String token = WidgetBindingScope.getBindingToken(context, installationId);
         if (token == null || token.isEmpty()) {
             return new ApiResult(401, errorJson("reauth_required"), false);
         }
@@ -95,8 +96,8 @@ public final class WidgetApiClient {
         }
     }
 
-    private static ApiResult post(Context context, String path, JSONObject payload) {
-        String token = WidgetBridgeStore.getBindingToken(context);
+    private static ApiResult post(Context context, String installationId, String path, JSONObject payload) {
+        String token = WidgetBindingScope.getBindingToken(context, installationId);
         if (token == null || token.isEmpty()) {
             return new ApiResult(401, errorJson("reauth_required"), false);
         }

@@ -46,15 +46,18 @@ public final class WidgetInstanceStore {
     }
 
     public static boolean isSwitchInProgress(Context context, int widgetId) {
-        return WidgetBridgeStore.publicPrefs(context).getBoolean(key(widgetId, "switching"), false);
+        String inst = getInstallationId(context, widgetId);
+        return WidgetBindingScope.isSwitchInProgress(context, inst);
     }
 
     public static void setSwitchInProgress(Context context, int widgetId, boolean value) {
-        WidgetBridgeStore.publicPrefs(context).edit().putBoolean(key(widgetId, "switching"), value).apply();
+        String inst = getInstallationId(context, widgetId);
+        WidgetBindingScope.setSwitchInProgress(context, inst, value);
     }
 
     public static boolean isCompleteBlocked(Context context, int widgetId) {
-        return isSwitchInProgress(context, widgetId)
-            || WidgetBridgeStore.isPendingActionInvalidated(context);
+        String inst = getInstallationId(context, widgetId);
+        return WidgetBindingScope.isSwitchInProgress(context, inst)
+            || WidgetBindingScope.isPendingActionInvalidated(context, inst);
     }
 }

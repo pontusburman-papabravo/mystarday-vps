@@ -16,9 +16,10 @@ public final class WidgetConfig {
     public static final String EXTRA_IDEMPOTENCY_KEY = "idempotency_key";
     public static final String EXTRA_OPEN_APP_REASON = "open_app_reason";
     public static final String EXTRA_TARGET_CHILD_ID = "target_child_id";
+    public static final String EXTRA_OPEN_APP_PATH = "open_app_path";
     public static final String EXTRA_SWITCH_DIRECTION = "switch_direction";
 
-    public static final long FEEDBACK_MS = 2200L;
+    public static final long FEEDBACK_MS = 1200L;
     public static final long COMPLETE_DEBOUNCE_MS = 1500L;
 
     private WidgetConfig() {}

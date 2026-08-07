@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.stjarndag.widgetbridge.R;
-import com.stjarndag.widgetbridge.WidgetBridgeStore;
+import com.stjarndag.widgetbridge.WidgetBindingScope;
 
 import org.json.JSONObject;
 
@@ -37,10 +37,14 @@ public final class WidgetRenderer {
         mgr.updateAppWidget(widgetId, views);
     }
 
+    private static String inst(Context context, int widgetId) {
+        return WidgetInstanceStore.getInstallationId(context, widgetId);
+    }
+
     public static void applyStatus(Context context, AppWidgetManager mgr, int widgetId, String messageRes) {
         RemoteViews views = baseViews(context);
         views.setTextViewText(R.id.widget_routine_title, context.getString(R.string.widget_routine_label));
-        bindChildLabel(context, views);
+        bindChildLabel(context, views, widgetId);
         views.setTextViewText(R.id.widget_activity_title, "");
         views.setViewVisibility(R.id.widget_pictogram, View.GONE);
         views.setViewVisibility(R.id.widget_progress, View.GONE);
@@ -58,10 +62,11 @@ public final class WidgetRenderer {
         boolean showFeedback
     ) {
         RemoteViews views = baseViews(context);
-        String privacy = normalizePrivacy(WidgetBridgeStore.getPrivacyMode(context));
+        String installationId = inst(context, widgetId);
+        String privacy = normalizePrivacy(WidgetBindingScope.getPrivacyMode(context, installationId));
 
-        if (showFeedback && System.currentTimeMillis() < WidgetBridgeStore.getFeedbackUntil(context)) {
-            renderFeedback(context, views);
+        if (showFeedback && System.currentTimeMillis() < WidgetBindingScope.getFeedbackUntil(context, installationId)) {
+            renderFeedback(context, views, widgetId);
             bindChildSwitcher(context, views, widgetId);
             mgr.updateAppWidget(widgetId, views);
             return;
@@ -70,7 +75,7 @@ public final class WidgetRenderer {
         String status = next.optString("status", "loading");
         hideOptional(views);
         bindChildSwitcher(context, views, widgetId);
-        bindChildLabel(context, views);
+        bindChildLabel(context, views, widgetId);
 
         switch (status) {
             case "offline":
@@ -150,7 +155,7 @@ public final class WidgetRenderer {
             }
             views.setOnClickPendingIntent(
                 R.id.widget_primary_action,
-                openAppPendingIntent(context, widgetId, openReason)
+                openAppPendingIntent(context, widgetId, openReason, activity.optString("open_app_path", null))
             );
             views.setContentDescription(
                 R.id.widget_primary_action,
@@ -177,16 +182,17 @@ public final class WidgetRenderer {
             views.setTextViewText(R.id.widget_primary_action, context.getString(R.string.widget_action_open_app));
             views.setOnClickPendingIntent(
                 R.id.widget_primary_action,
-                openAppPendingIntent(context, widgetId, openReason)
+                openAppPendingIntent(context, widgetId, openReason, activity.optString("open_app_path", null))
             );
         }
     }
 
-    private static void renderFeedback(Context context, RemoteViews views) {
+    private static void renderFeedback(Context context, RemoteViews views, int widgetId) {
+        String installationId = inst(context, widgetId);
         hideOptional(views);
         views.setViewVisibility(R.id.widget_feedback, View.VISIBLE);
-        String viewer = WidgetBridgeStore.getViewerMode(context);
-        String childName = WidgetBridgeStore.getFeedbackChildName(context);
+        String viewer = WidgetBindingScope.getViewerMode(context, installationId);
+        String childName = WidgetBindingScope.getFeedbackChildName(context, installationId);
         if (childName != null && !childName.isEmpty()
             && viewer != null && !viewer.isEmpty() && !"child_session".equals(viewer)) {
             views.setTextViewText(
@@ -196,7 +202,7 @@ public final class WidgetRenderer {
         } else {
             views.setTextViewText(R.id.widget_feedback, context.getString(R.string.widget_feedback_done));
         }
-        int stars = WidgetBridgeStore.getFeedbackStars(context);
+        int stars = WidgetBindingScope.getFeedbackStars(context, installationId);
         if (stars > 0) {
             views.setViewVisibility(R.id.widget_progress, View.VISIBLE);
             views.setTextViewText(
@@ -204,7 +210,7 @@ public final class WidgetRenderer {
                 context.getString(R.string.widget_feedback_stars, stars)
             );
         }
-        String title = WidgetBridgeStore.getFeedbackTitle(context);
+        String title = WidgetBindingScope.getFeedbackTitle(context, installationId);
         if (title != null && !title.isEmpty()) {
             views.setTextViewText(R.id.widget_activity_title, title);
         }
@@ -229,22 +235,23 @@ public final class WidgetRenderer {
         );
     }
 
-    private static void bindChildLabel(Context context, RemoteViews views) {
+    private static void bindChildLabel(Context context, RemoteViews views, int widgetId) {
         if (views == null) {
             return;
         }
-        String privacy = normalizePrivacy(WidgetBridgeStore.getPrivacyMode(context));
+        String installationId = inst(context, widgetId);
+        String privacy = normalizePrivacy(WidgetBindingScope.getPrivacyMode(context, installationId));
         if ("private".equals(privacy) || "reduced".equals(privacy)) {
             views.setViewVisibility(R.id.widget_child_label, View.GONE);
             return;
         }
-        String viewer = WidgetBridgeStore.getViewerMode(context);
+        String viewer = WidgetBindingScope.getViewerMode(context, installationId);
         if (viewer == null || viewer.isEmpty() || "child_session".equals(viewer)) {
             views.setViewVisibility(R.id.widget_child_label, View.GONE);
             return;
         }
-        if (!canShowChildSwitcher(context)) {
-            String label = WidgetBridgeStore.getWidgetChildDisplayLabel(context);
+        if (!canShowChildSwitcher(context, widgetId)) {
+            String label = WidgetBindingScope.getChildDisplayLabel(context, installationId);
             if (label == null || label.isEmpty()) {
                 views.setViewVisibility(R.id.widget_child_label, View.GONE);
                 return;
@@ -256,16 +263,23 @@ public final class WidgetRenderer {
         views.setViewVisibility(R.id.widget_child_label, View.GONE);
     }
 
-    private static boolean canShowChildSwitcher(Context context) {
-        String viewer = WidgetBridgeStore.getViewerMode(context);
+    private static boolean canShowChildSwitcher(Context context, int widgetId) {
+        String installationId = inst(context, widgetId);
+        if (WidgetInstanceStore.MODE_PERSONAL.equals(WidgetInstanceStore.getWidgetMode(context, widgetId))) {
+            String locked = WidgetInstanceStore.getLockedChildId(context, widgetId);
+            if (locked != null && !locked.isEmpty()) {
+                return false;
+            }
+        }
+        String viewer = WidgetBindingScope.getViewerMode(context, installationId);
         if (viewer == null || viewer.isEmpty() || "child_session".equals(viewer)) {
             return false;
         }
-        String privacy = normalizePrivacy(WidgetBridgeStore.getPrivacyMode(context));
+        String privacy = normalizePrivacy(WidgetBindingScope.getPrivacyMode(context, installationId));
         if ("private".equals(privacy) || "reduced".equals(privacy)) {
             return false;
         }
-        String json = WidgetBridgeStore.getAllowedChildrenJson(context);
+        String json = WidgetBindingScope.getAllowedChildrenJson(context, installationId);
         if (json == null || json.isEmpty()) {
             return false;
         }
@@ -278,11 +292,11 @@ public final class WidgetRenderer {
     }
 
     private static void bindChildSwitcher(Context context, RemoteViews views, int widgetId) {
-        if (!canShowChildSwitcher(context)) {
+        if (!canShowChildSwitcher(context, widgetId)) {
             views.setViewVisibility(R.id.widget_child_switcher, View.GONE);
             return;
         }
-        String activeName = activeChildDisplayName(context);
+        String activeName = activeChildDisplayName(context, widgetId);
         if (activeName == null || activeName.isEmpty()) {
             views.setViewVisibility(R.id.widget_child_switcher, View.GONE);
             return;
@@ -307,15 +321,16 @@ public final class WidgetRenderer {
     }
 
     /** Display name only (no emoji) for parent completion feedback. */
-    public static String activeChildDisplayNameForFeedback(Context context) {
-        return activeChildDisplayName(context);
+    public static String activeChildDisplayNameForFeedback(Context context, int widgetId) {
+        return activeChildDisplayName(context, widgetId);
     }
 
-    private static String activeChildDisplayName(Context context) {
-        String activeId = WidgetBridgeStore.getActiveChildId(context);
-        String json = WidgetBridgeStore.getAllowedChildrenJson(context);
+    private static String activeChildDisplayName(Context context, int widgetId) {
+        String installationId = inst(context, widgetId);
+        String activeId = WidgetBindingScope.getActiveChildId(context, installationId);
+        String json = WidgetBindingScope.getAllowedChildrenJson(context, installationId);
         if (json == null || activeId == null) {
-            return WidgetBridgeStore.getWidgetChildDisplayLabel(context);
+            return WidgetBindingScope.getChildDisplayLabel(context, installationId);
         }
         try {
             org.json.JSONArray arr = new org.json.JSONArray(json);
@@ -328,7 +343,7 @@ public final class WidgetRenderer {
         } catch (Exception ignored) {
             // ignore
         }
-        String label = WidgetBridgeStore.getWidgetChildDisplayLabel(context);
+        String label = WidgetBindingScope.getChildDisplayLabel(context, installationId);
         if (label == null) {
             return null;
         }
@@ -383,11 +398,19 @@ public final class WidgetRenderer {
         return PendingIntent.getBroadcast(context, widgetId * 31 + 1, intent, flags);
     }
 
-    public static PendingIntent openAppPendingIntent(Context context, int widgetId, String reason) {
+    public static PendingIntent openAppPendingIntent(
+        Context context,
+        int widgetId,
+        String reason,
+        String openAppPath
+    ) {
         Intent intent = new Intent(context, WidgetOpenAppReceiver.class);
         intent.setAction(WidgetConfig.ACTION_OPEN_APP);
         intent.putExtra(WidgetConfig.EXTRA_APP_WIDGET_ID, widgetId);
         intent.putExtra(WidgetConfig.EXTRA_OPEN_APP_REASON, reason != null ? reason : "");
+        if (openAppPath != null && !openAppPath.isEmpty()) {
+            intent.putExtra(WidgetConfig.EXTRA_OPEN_APP_PATH, openAppPath);
+        }
         int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         return PendingIntent.getBroadcast(context, widgetId * 31 + 2, intent, flags);
     }
