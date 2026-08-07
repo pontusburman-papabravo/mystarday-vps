@@ -17,11 +17,11 @@ describe('i18n store beta build versions', () => {
     assert.match(pbx, /MARKETING_VERSION = 1\.3;/);
   });
 
-  it('Android versionCode 10 for English Beta native l10n', () => {
+  it('Android versionCode 11 for R4.5 native release (1.3.0)', () => {
     const ver = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8')
     );
-    assert.equal(ver.versionCode, 10);
+    assert.equal(ver.versionCode, 11);
     assert.equal(ver.versionName, '1.3.0');
   });
 

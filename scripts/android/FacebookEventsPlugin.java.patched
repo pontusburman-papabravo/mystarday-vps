@@ -64,10 +64,9 @@ public class FacebookEventsPlugin extends Plugin {
             call.reject("Missing enabled argument");
             return;
         }
-        // Android has no ATT; advertiser ID follows marketing consent only.
-        boolean marketing = isMarketingConsentPersisted();
+        // My Stjärndag does not collect Advertising ID (parity with iOS no-IDFA).
         ensureSdkInitializedPrivacySafe();
-        FacebookSdk.setAdvertiserIDCollectionEnabled(marketing && enabled);
+        FacebookSdk.setAdvertiserIDCollectionEnabled(false);
         call.resolve();
     }
 
@@ -78,25 +77,23 @@ public class FacebookEventsPlugin extends Plugin {
             call.getBoolean("advertiserTrackingAllowed", false)
         );
         boolean metaEventsAllowed = marketingConsent;
-        // On Android, advertiser ID collection follows marketing consent (no ATT).
-        boolean advertiserAllowed = marketingConsent;
+        // Marketing consent gates App Events only — not Advertising ID collection.
+        boolean advertiserAllowed = false;
 
         SharedPreferences prefs = getPrefs();
         if (prefs != null) {
-            // Android has no ATT — advertiser ID collection follows marketing consent.
-            // advertiserTrackingAllowed is accepted for API parity with iOS but unused here.
             prefs.edit()
                 .putBoolean(KEY_MARKETING, metaEventsAllowed)
-                .putBoolean(KEY_ADVERTISER, advertiserAllowed)
+                .putBoolean(KEY_ADVERTISER, false)
                 .apply();
         }
         if (!advertiserTrackingAllowed && marketingConsent) {
-            Logger.debug(LOG_TAG, "configureConsent: Android ignores ATT flag; marketing gates App Events");
+            Logger.debug(LOG_TAG, "configureConsent: advertiser ID collection stays off (no cross-app tracking)");
         }
 
         ensureSdkInitializedPrivacySafe();
         FacebookSdk.setAutoLogAppEventsEnabled(metaEventsAllowed);
-        FacebookSdk.setAdvertiserIDCollectionEnabled(advertiserAllowed);
+        FacebookSdk.setAdvertiserIDCollectionEnabled(false);
 
         if (!metaEventsAllowed) {
             FacebookSdk.setAutoLogAppEventsEnabled(false);
@@ -140,7 +137,7 @@ public class FacebookEventsPlugin extends Plugin {
         ensureSdkInitializedPrivacySafe();
         boolean marketing = isMarketingConsentPersisted();
         FacebookSdk.setAutoLogAppEventsEnabled(marketing);
-        FacebookSdk.setAdvertiserIDCollectionEnabled(marketing);
+        FacebookSdk.setAdvertiserIDCollectionEnabled(false);
     }
 
     private void ensureSdkInitializedPrivacySafe() {
