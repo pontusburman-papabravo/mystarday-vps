@@ -2,6 +2,7 @@ package com.stjarndag.widgetbridge.widget;
 
 import android.content.Context;
 
+import com.stjarndag.widgetbridge.WidgetBindingScope;
 import com.stjarndag.widgetbridge.WidgetBridgeStore;
 
 /** Per–app-widget instance state (R4.5f). */

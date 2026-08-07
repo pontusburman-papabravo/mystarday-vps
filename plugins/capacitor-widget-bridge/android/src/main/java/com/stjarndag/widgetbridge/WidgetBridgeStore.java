@@ -49,7 +49,7 @@ public final class WidgetBridgeStore {
         WidgetBindingScope.invalidatePendingAction(context, installationId);
     }
 
-    static void touchRefresh(Context context) {
+    public static void touchRefresh(Context context) {
         publicPrefs(context).edit().putString("last_refresh_at", Instant.now().toString()).apply();
     }
 
