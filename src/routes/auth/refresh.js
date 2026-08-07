@@ -11,55 +11,37 @@ const db = require('../../lib/db');
 const config = require('../../lib/config');
 const { generateCsrfToken } = require('../../middleware/csrf');
 const {
-  createRefreshToken,
-  verifyRefreshToken,
-  revokeRefreshToken,
+  rotateRefreshToken,
   setRefreshCookie,
   clearRefreshCookie,
   setAccessCookie,
-  lookupRefreshTokenRow,
 } = require('../../lib/refresh-tokens');
 const deviceDb = require('../../../db/family-trusted-device');
 const { parseDuration } = require('./session');
 
 const router = express.Router();
 
-// ─── GET /api/auth/csrf-token ─────────────────────────────
-// Returns a fresh CSRF token and sets it in a readable (non-httpOnly) cookie.
-// Call this once on app init, then include X-CSRF-Token header on mutations.
 router.get('/csrf-token', (req, res) => {
   const token = generateCsrfToken(res);
   res.json({ csrfToken: token });
 });
 
-// ─── POST /api/auth/refresh ───────────────────────────────
-// Exchange a valid refresh token cookie for a new short-lived access token.
-// The refresh token cookie is rotated (old one deleted, new one issued).
 router.post('/refresh', async (req, res) => {
   try {
     const raw = req.cookies?.refresh_token;
-    const row = await verifyRefreshToken(raw);
+    const rotation = await rotateRefreshToken(raw);
 
-    if (!row) {
+    if (!rotation.ok) {
       clearRefreshCookie(res);
       return res.status(401).json({ error: 'Refresh-token ogiltig eller utgången' });
     }
 
-    // Rotate refresh token — revoke old, issue new
-    const oldRefreshRowId = row.id;
-    await revokeRefreshToken(raw);
-    const newRaw = await createRefreshToken({
-      userId: row.user_type === 'parent' ? row.parent_id : row.child_id,
-      userType: row.user_type,
-      familyId: row.family_id,
-    });
-    const newRefreshRow = await lookupRefreshTokenRow(newRaw);
-    if (newRefreshRow?.id) {
-      await deviceDb.advanceLastRefreshTokenId(oldRefreshRowId, newRefreshRow.id);
+    const { row, newRaw, newRow } = rotation;
+    if (newRow?.id) {
+      await deviceDb.advanceLastRefreshTokenId(row.id, newRow.id);
     }
     setRefreshCookie(res, newRaw);
 
-    // Issue a new short-lived access token
     let accessToken;
     let accessExpiresSecs;
     if (row.user_type === 'parent') {
@@ -88,11 +70,6 @@ router.post('/refresh', async (req, res) => {
         return res.status(401).json({ error: 'Användare hittades inte' });
       }
       const c = cr.rows[0];
-      let trustedDeviceId;
-      if (newRefreshRow?.id) {
-        const deviceRow = await deviceDb.findActiveByLastRefreshTokenId(newRefreshRow.id);
-        if (deviceRow) trustedDeviceId = deviceRow.id;
-      }
       const childClaims = {
         id: c.id,
         type: 'child',
@@ -100,7 +77,9 @@ router.post('/refresh', async (req, res) => {
         username: c.username,
         name: c.name,
       };
-      if (trustedDeviceId) childClaims.trustedDeviceId = trustedDeviceId;
+      if (newRow?.trusted_device_id) {
+        childClaims.trustedDeviceId = newRow.trusted_device_id;
+      }
       accessToken = jwt.sign(
         childClaims,
         config.jwt.secret,
@@ -109,14 +88,8 @@ router.post('/refresh', async (req, res) => {
       accessExpiresSecs = parseDuration(config.jwt.childExpiresIn);
     }
 
-    // Set access token as httpOnly cookie — XSS cannot read it.
     setAccessCookie(res, accessToken, accessExpiresSecs);
-
-    // Refresh the CSRF cookie so it doesn't expire between silent refreshes.
-    // The cookie has a 24h maxAge; without this, long-lived sessions lose CSRF protection.
     const csrfToken = generateCsrfToken(res);
-
-    // expiresAt lets the frontend re-schedule the next silent refresh
     const expiresAt = Date.now() + accessExpiresSecs * 1000;
     res.json({ csrfToken, expiresAt });
   } catch (err) {

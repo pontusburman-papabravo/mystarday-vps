@@ -28,9 +28,9 @@ const BANNED = [
   { id: 'founder_child_pin_doc_literal', re: /(?:Astrid|astrid921)[^\n]{0,120}PIN[^\n]*`1112`/i },
   { id: 'qa_mobil_smoke_password_literal', re: /SMOKE_PARENT_PASSWORD\s*=\s*["'][^"']{8,}["']/ },
   { id: 'pragma_allowlist_with_inline_secret', re: /pragma:\s*allowlist secret[^\n]*`[^[\]]{6,}`/i },
+  { id: 'android_upload_keystore_password_literal', re: /MinStjarnadagUpload20\d{2}!/ },
   { id: 'password_table_cell_literal', re: /\|\s*Parent password\s*\|\s*`(?![A-Z][A-Z0-9_]*`)[^`]{5,}`\s*\|/i },
 ];
-
 const EXT_OK = new Set([
   '.md', '.mdc', '.js', '.mjs', '.cjs', '.json', '.yml', '.yaml', '.html', '.txt', '.py',
 ]);

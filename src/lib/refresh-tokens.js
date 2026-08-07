@@ -24,24 +24,24 @@ function hashToken(raw) {
  * Generate and store a new refresh token.
  * Returns the raw token (set in cookie by caller).
  */
-async function insertRefreshTokenRow(client, { userId, userType, familyId }) {
+async function insertRefreshTokenRow(client, { userId, userType, familyId, trustedDeviceId = null }) {
   const raw = crypto.randomBytes(32).toString('hex');
   const hash = hashToken(raw);
   const expiresAt = new Date(Date.now() + config.refreshToken.expiryDays * 24 * 60 * 60 * 1000);
   const parentId = userType === 'parent' ? userId : null;
   const childId = userType === 'child' ? userId : null;
   await client.query(
-    `INSERT INTO refresh_token (parent_id, child_id, token_hash, family_id, user_type, expires_at)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [parentId, childId, hash, familyId, userType, expiresAt]
+    `INSERT INTO refresh_token (parent_id, child_id, token_hash, family_id, user_type, expires_at, trusted_device_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [parentId, childId, hash, familyId, userType, expiresAt, trustedDeviceId]
   );
   return raw;
 }
 
-async function createRefreshToken({ userId, userType, familyId }) {
+async function createRefreshToken({ userId, userType, familyId, trustedDeviceId = null }) {
   return insertRefreshTokenRow(
     { query: (text, params) => db.query(text, params) },
-    { userId, userType, familyId }
+    { userId, userType, familyId, trustedDeviceId }
   );
 }
 
@@ -54,7 +54,7 @@ async function verifyRefreshToken(raw) {
 
   const hash = hashToken(raw);
   const result = await db.query(
-    `SELECT id, parent_id, child_id, family_id, user_type, expires_at
+    `SELECT id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id
      FROM refresh_token
      WHERE token_hash = $1`,
     [hash]
@@ -69,6 +69,17 @@ async function verifyRefreshToken(raw) {
     return null;
   }
 
+  if (row.trusted_device_id) {
+    const dev = await db.query(
+      'SELECT id FROM family_trusted_device WHERE id = $1 AND revoked_at IS NULL',
+      [row.trusted_device_id]
+    );
+    if (!dev.rows[0]) {
+      await db.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
+      return null;
+    }
+  }
+
   return row;
 }
 
@@ -79,11 +90,79 @@ async function lookupRefreshTokenRow(raw) {
   if (!raw) return null;
   const hash = hashToken(raw);
   const result = await db.query(
-    `SELECT id, parent_id, child_id, family_id, user_type, expires_at
+    `SELECT id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id
      FROM refresh_token WHERE token_hash = $1`,
     [hash]
   );
   return result.rows[0] || null;
+}
+
+/**
+ * Atomically consume a refresh token and issue exactly one successor (single-use under concurrency).
+ * @returns {Promise<{ ok: true, row: object, newRaw: string, newRow: object } | { ok: false, code: string }>}
+ */
+async function rotateRefreshToken(raw) {
+  if (!raw) return { ok: false, code: 'missing_token' };
+
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+    const hash = hashToken(raw);
+    const locked = await client.query(
+      `SELECT id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id
+       FROM refresh_token WHERE token_hash = $1 FOR UPDATE`,
+      [hash]
+    );
+    const row = locked.rows[0];
+    if (!row) {
+      await client.query('ROLLBACK');
+      return { ok: false, code: 'invalid' };
+    }
+    if (new Date(row.expires_at) < new Date()) {
+      await client.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
+      await client.query('COMMIT');
+      return { ok: false, code: 'expired' };
+    }
+    if (row.trusted_device_id) {
+      const dev = await client.query(
+        'SELECT id FROM family_trusted_device WHERE id = $1 AND revoked_at IS NULL',
+        [row.trusted_device_id]
+      );
+      if (!dev.rows[0]) {
+        await client.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
+        await client.query('COMMIT');
+        return { ok: false, code: 'device_revoked' };
+      }
+    }
+
+    await client.query('DELETE FROM refresh_token WHERE id = $1', [row.id]);
+    const newRaw = await insertRefreshTokenRow(client, {
+      userId: row.user_type === 'parent' ? row.parent_id : row.child_id,
+      userType: row.user_type,
+      familyId: row.family_id,
+      trustedDeviceId: row.trusted_device_id || null,
+    });
+    await client.query('COMMIT');
+
+    const newRow = await lookupRefreshTokenRow(newRaw);
+    return { ok: true, row, newRaw, newRow };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function revokeRefreshTokensForTrustedDevice(deviceId, client = null) {
+  const q = client ? client.query.bind(client) : db.query.bind(db);
+  await q('DELETE FROM refresh_token WHERE trusted_device_id = $1', [deviceId]);
+}
+
+async function revokeRefreshTokensForTrustedDevices(deviceIds, client = null) {
+  if (!deviceIds?.length) return;
+  const q = client ? client.query.bind(client) : db.query.bind(db);
+  await q('DELETE FROM refresh_token WHERE trusted_device_id = ANY($1::uuid[])', [deviceIds]);
 }
 
 /**
@@ -150,12 +229,9 @@ function setRefreshCookie(res, raw) {
   res.cookie('refresh_token', raw, {
     httpOnly: true,
     secure: config.cookieSecure,
-    // 'lax' so the cookie is sent on top-level navigations (e.g. the user returns to the app).
-    // 'strict' would block the cookie being sent when the user opens a link from email.
-    // SSE uses a query param fallback, not this cookie.
     sameSite: 'lax',
     maxAge: maxAgeMs,
-    path: '/api/auth', // only sent to auth endpoints — not broadcast on every request
+    path: '/api/auth',
   });
 }
 
@@ -173,18 +249,6 @@ function clearRefreshCookie(res) {
 
 /**
  * Set the access token as a secure httpOnly cookie.
- * The access token is also returned in the response body (for backwards compat
- * during rollout). After the cookie is trusted, the token field can be removed.
- *
- * Cookie maxAge is 30 days — independent of the JWT's internal TTL (15 min).
- * Why: users close the PWA for hours/days. If the cookie expires before the refresh
- * token (30d), the browser deletes it and the user must re-authenticate even though
- * their refresh token is still valid. By keeping the cookie for 30 days, the refresh
- * flow triggers on next open and silently rotates to a fresh access token.
- *
- * @param {object} res  - Express response object
- * @param {string} token - Raw JWT access token string
- * @param {number} expiresInSecs - Token TTL in seconds (ignored — cookie is 30d)
  */
 function setAccessCookie(res, token, expiresInSecs) {
   const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
@@ -215,6 +279,9 @@ module.exports = {
   createRefreshToken,
   verifyRefreshToken,
   lookupRefreshTokenRow,
+  rotateRefreshToken,
+  revokeRefreshTokensForTrustedDevice,
+  revokeRefreshTokensForTrustedDevices,
   revokeRefreshToken,
   revokeRefreshTokenForSession,
   revokeAllRefreshTokens,

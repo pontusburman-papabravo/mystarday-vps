@@ -11,13 +11,16 @@ const { deleteAvatarForChildRecord, deleteAvatarForParentRecord } = require('../
 const { validate } = require('../../middleware/validate');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { UpdateFamilyMemberSchema } = require('../../lib/schemas');
-const { getChildrenForParent, syncAccountType } = require('../../../db/parent-access');
+const { syncAccountType } = require('../../../db/parent-access');
 const { setActiveChildrenForParent } = require('../../../db/parent-child-links');
 const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
 const {
   assertCanUpdateMemberChildren,
+  assertAuthorizedChildLinkDelta,
+  lockParentChildRowsForChildren,
   assertNoChildWithoutAdmin,
 } = require('../../lib/family-member-children-authz');
+const { disconnectParentClients } = require('../../lib/sse-broadcast');
 
 const router = express.Router();
 
@@ -66,13 +69,6 @@ router.put('/members/:id/children', async (req, res) => {
       return res.status(400).json({ error: 'Minst ett barn måste väljas' });
     }
 
-    const adminAccessible = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
-    const adminChildIds = new Set(adminAccessible.map((c) => c.id));
-    const cannotAssign = childIds.filter((id) => !adminChildIds.has(id));
-    if (cannotAssign.length > 0) {
-      return res.status(403).json({ error: 'Du kan bara ge åtkomst till barn du själv administrerar' });
-    }
-
     const authzCheck = await assertCanUpdateMemberChildren(req.user.id, memberId, req.user.familyId);
     if (!authzCheck.ok) {
       return res.status(403).json({ error: authzCheck.message || 'Åtkomst nekad' });
@@ -80,7 +76,6 @@ router.put('/members/:id/children', async (req, res) => {
 
     await client.query('BEGIN');
 
-    // Verify member belongs to same family
     const memberResult = await client.query(
       'SELECT id FROM parent WHERE id = $1 AND family_id = $2',
       [memberId, req.user.familyId]
@@ -90,16 +85,30 @@ router.put('/members/:id/children', async (req, res) => {
       return res.status(404).json({ error: 'Medlem hittades inte' });
     }
 
-    // Verify all children belong to same family
     const childResult = await client.query(
-      'SELECT id FROM child WHERE family_id = $1',
+      'SELECT id FROM child WHERE family_id = $1 ORDER BY id',
       [req.user.familyId]
     );
-    const familyChildIds = new Set(childResult.rows.map((r) => r.id));
-    const invalidIds = childIds.filter((id) => !familyChildIds.has(id));
+    const familyChildIds = childResult.rows.map((r) => r.id);
+    const familyChildIdSet = new Set(familyChildIds);
+    const invalidIds = childIds.filter((id) => !familyChildIdSet.has(id));
     if (invalidIds.length > 0) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Ogiltiga barn-ID:n' });
+    }
+
+    await lockParentChildRowsForChildren(client, familyChildIds);
+
+    const deltaCheck = await assertAuthorizedChildLinkDelta(
+      client,
+      req.user.id,
+      req.user.familyId,
+      memberId,
+      childIds
+    );
+    if (!deltaCheck.ok) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: deltaCheck.message || 'Åtkomst nekad' });
     }
 
     const orphanCheck = await assertNoChildWithoutAdmin(
@@ -116,6 +125,8 @@ router.put('/members/:id/children', async (req, res) => {
     await setActiveChildrenForParent(client, memberId, childIds, { revokedBy: req.user.id });
 
     await client.query('COMMIT');
+
+    disconnectParentClients(memberId, req.user.familyId);
 
     await syncAccountType(memberId);
     await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });

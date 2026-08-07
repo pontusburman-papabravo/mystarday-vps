@@ -7,6 +7,7 @@ enum WidgetBridgeStore {
     static let appGroupId = "group.stjarndag.widget"
     static let keychainService = "stjarndag.widget.binding"
     static let legacyKeychainAccount = "binding_token"
+    private static let scopeIndexKey = "known_binding_scopes"
 
     /// Active scope for the current widget timeline / intent (set by AppIntentConfiguration provider).
     static var timelineScope: String?
@@ -67,6 +68,7 @@ enum WidgetBridgeStore {
         }
         d?.set(ISO8601DateFormatter().string(from: Date()), forKey: pubKey(scope, "last_refresh_at"))
         d?.set(false, forKey: pubKey(scope, "pending_invalidated"))
+        registerBindingScope(scope)
         d?.synchronize()
         if scope == "default" {
             legacyMirrorPub(activeChildId: activeChildId, viewerMode: viewerMode, privacyMode: privacyMode)
@@ -87,7 +89,9 @@ enum WidgetBridgeStore {
 
     static func clearAll() {
         deleteKeychain(account: legacyKeychainAccount)
-        for scope in knownBindingScopes() {
+        var scopes = Set(knownBindingScopes())
+        scopes.insert("default")
+        for scope in scopes {
             deleteKeychain(account: keychainAccount(for: scope))
         }
         let d = defaults
@@ -98,6 +102,7 @@ enum WidgetBridgeStore {
             || key.hasPrefix("wi_") {
             d?.removeObject(forKey: key)
         }
+        d?.removeObject(forKey: scopeIndexKey)
         d?.synchronize()
     }
 
@@ -430,19 +435,35 @@ enum WidgetBridgeStore {
         SecItemDelete(query as CFDictionary)
     }
 
-    /// Scopes that have stored widget UserDefaults keys (for logout keychain sweep).
+    /// Scopes with stored widget bindings (explicit index + legacy UserDefaults keys).
     private static func knownBindingScopes() -> [String] {
-        guard let dict = defaults?.dictionaryRepresentation() else { return [] }
         var scopes = Set<String>()
+        if let indexed = defaults?.stringArray(forKey: scopeIndexKey) {
+            for scope in indexed where !scope.isEmpty {
+                scopes.insert(scope)
+            }
+        }
+        guard let dict = defaults?.dictionaryRepresentation() else {
+            return Array(scopes)
+        }
         for key in dict.keys where key.hasPrefix("s_") {
             let rest = String(key.dropFirst(2))
-            guard let firstUnderscore = rest.firstIndex(of: "_") else { continue }
-            let scope = String(rest[..<firstUnderscore])
+            guard let marker = rest.range(of: "_active_child_id") ?? rest.range(of: "_installation_id") else {
+                continue
+            }
+            let scope = String(rest[..<marker.lowerBound])
             if !scope.isEmpty { scopes.insert(scope) }
         }
         if dict["installation_id"] != nil {
             scopes.insert("default")
         }
         return Array(scopes)
+    }
+
+    private static func registerBindingScope(_ scope: String) {
+        guard !scope.isEmpty else { return }
+        var scopes = Set(knownBindingScopes())
+        scopes.insert(scope)
+        defaults?.set(Array(scopes), forKey: scopeIndexKey)
     }
 }

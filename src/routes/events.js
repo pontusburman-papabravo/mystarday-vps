@@ -16,6 +16,7 @@ const express = require('express');
 const db = require('../lib/db');
 const { verifyToken } = require('../middleware/auth');
 const { addClient, removeClient } = require('../lib/sse-broadcast');
+const { getEventScope } = require('../lib/sse-event-scope');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { getChildrenForParent } = require('../../db/parent-access');
 
@@ -87,21 +88,32 @@ router.get('/', asyncHandler(async (req, res) => {
   if (user.type === 'parent') {
     const children = await getChildrenForParent(user.id, { allowedRoles: ['primary', 'shared', 'pedagog'] });
     const allowedChildIds = new Set(children.map((c) => c.id));
-    shouldDeliver = (_type, data) => {
+    shouldDeliver = (type, data) => {
+      const scope = getEventScope(type);
       const childId = data?.childId;
-      if (!childId) return true;
-      return allowedChildIds.has(childId);
+      if (scope === 'child') {
+        if (!childId) return false;
+        return allowedChildIds.has(childId);
+      }
+      return true;
     };
   } else if (user.type === 'child') {
     const ownId = user.id;
-    shouldDeliver = (_type, data) => {
+    shouldDeliver = (type, data) => {
+      const scope = getEventScope(type);
       const childId = data?.childId;
-      if (!childId) return true;
-      return childId === ownId;
+      if (scope === 'child') {
+        if (!childId) return false;
+        return childId === ownId;
+      }
+      return true;
     };
   }
 
-  addClient(familyId, res, { shouldDeliver });
+  addClient(familyId, res, {
+    shouldDeliver,
+    parentId: user.type === 'parent' ? user.id : null,
+  });
 
   // Heartbeat every 15 seconds — keeps proxies from closing idle connections
   const heartbeat = setInterval(() => {
