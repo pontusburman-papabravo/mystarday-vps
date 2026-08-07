@@ -143,18 +143,42 @@ function renderActivityListSkeleton() {
 // ── Error states ───────────────────────────────────────────
 
 // Error state for child dashboard schedule
-function showChildScheduleError(container, dateStr) {
+function childScheduleErrorCopy(options) {
+  const opts = options || {};
+  const tr = (key) => {
+    if (typeof window.childT === 'function') return childT(key);
+    if (typeof window.cpt === 'function') return cpt(key);
+    return '';
+  };
+  if (opts.reason === 'rate_limit') {
+    return {
+      title: tr('scheduleChrome.rateLimitTitle') || 'Ta en kort paus',
+      hint: tr('scheduleChrome.rateLimitHint') || tr('checkoff.tooFast'),
+    };
+  }
+  return {
+    title: tr('scheduleChrome.errorTitle') || 'Hmm, något gick fel.',
+    hint: tr('scheduleChrome.errorWifiHint') || 'Försök igen — och kontrollera att wifi är på',
+  };
+}
+
+function showChildScheduleError(container, dateStr, options) {
   if (!container) return;
+  const copy = childScheduleErrorCopy(options);
   $html(container, `
     <div class="skeleton-error">
       <div class="skeleton-error-icon">🌟</div>
-      <p class="skeleton-error-text">Hmm, något gick fel.</p>
-      <p class="skeleton-error-hint">Försök igen — och kontrollera att wifi är på</p>
+      <p class="skeleton-error-text">${copy.title}</p>
+      <p class="skeleton-error-hint">${copy.hint}</p>
       <button class="skeleton-retry-btn" onclick="loadDay('${dateStr}', false)">
         🔄 Försök igen
       </button>
     </div>
   `);
+}
+
+function showChildScheduleRateLimit(container, dateStr) {
+  showChildScheduleError(container, dateStr, { reason: 'rate_limit' });
 }
 
 // Error state for parent dashboard
@@ -207,6 +231,7 @@ window.Skeleton = {
   showChildScheduleSkeleton: renderChildScheduleSkeleton,
   showChildRewardsSkeleton: renderChildRewardsSkeleton,
   showChildScheduleError: showChildScheduleError,
+  showChildScheduleRateLimit: showChildScheduleRateLimit,
 
   // Parent dashboard
   showParentDashboardSkeleton: renderParentDashboardSkeleton,

@@ -90,23 +90,25 @@ router.get('/', asyncHandler(async (req, res) => {
     const allowedChildIds = new Set(children.map((c) => c.id));
     shouldDeliver = (type, data) => {
       const scope = getEventScope(type);
+      if (!scope) return false;
       const childId = data?.childId;
       if (scope === 'child') {
         if (!childId) return false;
         return allowedChildIds.has(childId);
       }
-      return true;
+      return scope === 'family';
     };
   } else if (user.type === 'child') {
     const ownId = user.id;
     shouldDeliver = (type, data) => {
       const scope = getEventScope(type);
+      if (!scope) return false;
       const childId = data?.childId;
       if (scope === 'child') {
         if (!childId) return false;
         return childId === ownId;
       }
-      return true;
+      return scope === 'family';
     };
   }
 

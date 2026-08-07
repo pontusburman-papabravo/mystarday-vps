@@ -257,7 +257,7 @@
 // stjarndag-v798: Home day-off modal en-GB + 44px touch + browser gate (RC-1 R1)
 // stjarndag-v799: Library image archive upload i18n (RC-1 R2)
 // stjarndag-v807: R4.7 product-led growth (invite, weekly highlight, referral)
-const CACHE_NAME = 'stjarndag-v808';
+const CACHE_NAME = 'stjarndag-v809';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -564,6 +564,7 @@ const CACHE_NAME = 'stjarndag-v808';
 // stjarndag-v783: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v797: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v808: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v809: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

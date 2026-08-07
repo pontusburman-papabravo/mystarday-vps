@@ -34,4 +34,26 @@ async function setActiveChildrenForParent(client, parentId, childIds, options = 
   }
 }
 
-module.exports = { setActiveChildrenForParent };
+async function revokeAllActiveLinksForParent(client, parentId, revokedBy) {
+  await client.query(
+    `UPDATE parent_child
+     SET revoked_at = NOW(), revoked_by = $2
+     WHERE parent_id = $1 AND revoked_at IS NULL`,
+    [parentId, revokedBy]
+  );
+}
+
+/**
+ * Grant primary admin link (orphan recovery only — caller must verify orphan first).
+ */
+async function grantPrimaryAdminLink(client, parentId, childId) {
+  await client.query(
+    `INSERT INTO parent_child (parent_id, child_id, role, revoked_at, revoked_by)
+     VALUES ($1, $2, 'primary', NULL, NULL)
+     ON CONFLICT (parent_id, child_id) DO UPDATE
+     SET revoked_at = NULL, revoked_by = NULL, role = 'primary'`,
+    [parentId, childId]
+  );
+}
+
+module.exports = { setActiveChildrenForParent, revokeAllActiveLinksForParent, grantPrimaryAdminLink };

@@ -12,15 +12,17 @@ const { validate } = require('../../middleware/validate');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { UpdateFamilyMemberSchema } = require('../../lib/schemas');
 const { syncAccountType } = require('../../../db/parent-access');
-const { setActiveChildrenForParent } = require('../../../db/parent-child-links');
+const { setActiveChildrenForParent, revokeAllActiveLinksForParent, grantPrimaryAdminLink } = require('../../../db/parent-child-links');
 const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
 const {
   assertCanUpdateMemberChildren,
   assertAuthorizedChildLinkDelta,
+  assertAuthorizedMemberDelete,
+  assertCanRecoverOrphanChild,
   lockParentChildRowsForChildren,
   assertNoChildWithoutAdmin,
 } = require('../../lib/family-member-children-authz');
-const { disconnectParentClients } = require('../../lib/sse-broadcast');
+const { notifyParentAccessRevoked } = require('../../lib/parent-access-sse');
 
 const router = express.Router();
 
@@ -126,7 +128,7 @@ router.put('/members/:id/children', async (req, res) => {
 
     await client.query('COMMIT');
 
-    disconnectParentClients(memberId, req.user.familyId);
+    notifyParentAccessRevoked(memberId, req.user.familyId);
 
     await syncAccountType(memberId);
     await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });
@@ -147,9 +149,13 @@ router.delete('/members/:id', async (req, res) => {
   try {
     const memberId = req.params.id;
 
+    const authzCheck = await assertCanUpdateMemberChildren(req.user.id, memberId, req.user.familyId);
+    if (!authzCheck.ok) {
+      return res.status(403).json({ error: authzCheck.message || 'Åtkomst nekad' });
+    }
+
     await client.query('BEGIN');
 
-    // Prevent removing yourself if you're the last admin
     const allParents = await client.query(
       'SELECT id, is_admin FROM parent WHERE family_id = $1',
       [req.user.familyId]
@@ -168,38 +174,98 @@ router.delete('/members/:id', async (req, res) => {
       return res.status(404).json({ error: 'Medlem hittades inte' });
     }
 
-    // Don't let a non-admin remove an admin
     if (!req.user.isAdmin && memberResult.rows[0].is_admin) {
       await client.query('ROLLBACK');
       return res.status(403).json({ error: 'Kan inte ta bort en admin' });
     }
 
-    // Remove parent_child links first (no FK cascade on parent_id, so clean explicitly)
-    await client.query(
-      'DELETE FROM parent_child WHERE parent_id = $1',
-      [memberId]
+    const childResult = await client.query(
+      'SELECT id FROM child WHERE family_id = $1 ORDER BY id',
+      [req.user.familyId]
     );
+    const familyChildIds = childResult.rows.map((r) => r.id);
+    await lockParentChildRowsForChildren(client, familyChildIds);
 
-    // Remove notification preferences (FK has no ON DELETE CASCADE despite original assumption)
+    const deleteAuthz = await assertAuthorizedMemberDelete(
+      client,
+      req.user.id,
+      req.user.familyId,
+      memberId
+    );
+    if (!deleteAuthz.ok) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: deleteAuthz.message || 'Åtkomst nekad' });
+    }
+
+    const orphanCheck = await assertNoChildWithoutAdmin(
+      client,
+      req.user.familyId,
+      memberId,
+      []
+    );
+    if (!orphanCheck.ok) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: orphanCheck.message || 'Åtkomst nekad' });
+    }
+
+    await revokeAllActiveLinksForParent(client, memberId, req.user.id);
+
     await client.query(
       'DELETE FROM notification_preference WHERE parent_id = $1',
       [memberId]
     );
 
-    // Delete avatar file before parent row is removed
     await deleteAvatarForParentRecord(memberId);
 
-    // Delete the parent
     await client.query('DELETE FROM parent WHERE id = $1', [memberId]);
 
     await client.query('COMMIT');
 
+    notifyParentAccessRevoked(memberId, req.user.familyId);
     await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });
 
-    res.json({ message: 'Förälder borttagen från famiglia.' });
+    res.json({ message: 'Förälder borttagen från familjen.' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Member delete error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  } finally {
+    client.release();
+  }
+});
+
+// ─── POST /api/family/children/:id/recover-admin ────────
+router.post('/children/:id/recover-admin', requireNotPedagogOnly, async (req, res) => {
+  const client = await db.getClient();
+  try {
+    const childId = req.params.id;
+    await client.query('BEGIN');
+
+    const recoverCheck = await assertCanRecoverOrphanChild(
+      client,
+      req.user.id,
+      req.user.familyId,
+      childId
+    );
+    if (!recoverCheck.ok) {
+      await client.query('ROLLBACK');
+      const status = recoverCheck.code === 'NOT_FOUND' ? 404 : 403;
+      return res.status(status).json({ error: recoverCheck.message || 'Åtkomst nekad' });
+    }
+
+    await lockParentChildRowsForChildren(client, [childId]);
+    await grantPrimaryAdminLink(client, req.user.id, childId);
+
+    await client.query('COMMIT');
+    console.warn('[FAMILY] orphan_admin_recovery', {
+      familyId: req.user.familyId,
+      childId,
+      callerId: req.user.id,
+    });
+    res.json({ message: 'Åtkomst återställd för barnet' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[FAMILY] Orphan recover error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   } finally {
     client.release();

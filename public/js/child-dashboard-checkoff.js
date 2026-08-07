@@ -221,13 +221,20 @@
           if (window.Platform && window.Platform.haptics) {
             window.Platform.haptics.error();
           }
-          coalescedLoadDay().catch(() => {});
-          showToast(t('checkoff.updateFailed'), true);
+          if (err && err.status === 429) {
+            showToast(t('checkoff.tooFast'), true);
+          } else {
+            coalescedLoadDay().catch(() => {});
+            showToast(t('checkoff.updateFailed'), true);
+          }
         }
       });
 
     try {
-      await coalescedLoadDay();
+      await apiPromise;
+      if (typeof coalescedLoadDay === 'function') {
+        await coalescedLoadDay().catch(() => {});
+      }
       if (!isCurrentlyDone && window.ChildEventBus) {
         ChildEventBus.emitActivityCompleted({
           childId: me && me.id,
@@ -250,7 +257,6 @@
       // loadDay failed (e.g. fully offline) — optimistic state already shown
     }
 
-    await apiPromise.catch(function () {});
     if (completing && !isCurrentlyDone && window.WidgetBridgeClient) {
       window.dispatchEvent(new CustomEvent('stjarndag:widget-refresh'));
     }

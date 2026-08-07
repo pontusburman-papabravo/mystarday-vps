@@ -62,7 +62,11 @@ function broadcast(familyId, type, data) {
     if (process.env.NODE_ENV === 'test') {
       throw new Error(`SSE broadcast blocked: ${type} (${validation.reason})`);
     }
-    console.warn('[SSE] blocked child-scoped broadcast without childId', { type });
+    if (validation.reason === 'unknown_event_type') {
+      console.warn('[SSE] blocked unknown event type', { type });
+    } else {
+      console.warn('[SSE] blocked child-scoped broadcast without childId', { type });
+    }
     return;
   }
 

@@ -11,6 +11,7 @@ const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
 const { requirePrimaryParent } = require('../../middleware/authz');
 const { syncAccountType } = require('../../../db/parent-access');
+const { notifyParentAccessRevoked } = require('../../lib/parent-access-sse');
 
 const router = express.Router();
 
@@ -180,6 +181,8 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
     await syncAccountType(pedagogParentId);
     // Also sync for the revoking parent (might transition from dual to family)
     await syncAccountType(req.user.id);
+
+    notifyParentAccessRevoked(pedagogParentId, req.user.familyId);
 
     res.json({ message: 'Åtkomst återkallad' });
   } catch (err) {
