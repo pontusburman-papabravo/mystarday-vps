@@ -20,6 +20,7 @@ const { verifyInstanceToken } = require('../lib/widget-instance-token');
 const { completeChildDailyLogItem } = require('../lib/widget-child-complete');
 const idempotencyDb = require('../../db/widget-idempotency');
 const analytics = require('../../db/analytics');
+const deviceDb = require('../../db/family-trusted-device');
 
 const router = express.Router();
 
@@ -84,6 +85,33 @@ router.post('/bindings', optionalAuth, async (req, res, next) => {
         return res.status(400).json({ error: 'installation_id krävs' });
       }
       const { issueBindingToken } = require('../lib/widget-binding');
+      const trustedDeviceId = req.user.trustedDeviceId;
+      if (trustedDeviceId) {
+        const deviceRow = await deviceDb.findById(trustedDeviceId);
+        if (!deviceRow || deviceRow.revoked_at) {
+          return res.status(403).json({ status: 'device_revoked' });
+        }
+        if (deviceRow.device_mode === 'child') {
+          const bound = deviceRow.default_child_id || deviceRow.last_active_child_id;
+          if (req.user.id !== bound) {
+            return res.status(403).json({ status: 'child_switch_forbidden' });
+          }
+        }
+        const token = issueBindingToken({
+          mode: 'trusted_device',
+          device_id: trustedDeviceId,
+          family_id: familyId,
+          child_id: req.user.id,
+          installation_id: inst,
+          platform: platform === 'android' ? 'android' : 'ios',
+        });
+        analytics.track(familyId, 'widget_configured', {
+          platform: platform === 'android' ? 'android' : 'ios',
+          device_mode: 'trusted_device',
+          allowed_children_bucket: '1',
+        });
+        return res.status(201).json({ binding_token: token, child_id: req.user.id });
+      }
       const token = issueBindingToken({
         mode: 'child_session',
         family_id: familyId,

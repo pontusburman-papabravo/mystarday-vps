@@ -17,7 +17,9 @@ const {
   setRefreshCookie,
   clearRefreshCookie,
   setAccessCookie,
+  lookupRefreshTokenRow,
 } = require('../../lib/refresh-tokens');
+const deviceDb = require('../../../db/family-trusted-device');
 const { parseDuration } = require('./session');
 
 const router = express.Router();
@@ -44,12 +46,17 @@ router.post('/refresh', async (req, res) => {
     }
 
     // Rotate refresh token — revoke old, issue new
+    const oldRefreshRowId = row.id;
     await revokeRefreshToken(raw);
     const newRaw = await createRefreshToken({
       userId: row.user_type === 'parent' ? row.parent_id : row.child_id,
       userType: row.user_type,
       familyId: row.family_id,
     });
+    const newRefreshRow = await lookupRefreshTokenRow(newRaw);
+    if (newRefreshRow?.id) {
+      await deviceDb.advanceLastRefreshTokenId(oldRefreshRowId, newRefreshRow.id);
+    }
     setRefreshCookie(res, newRaw);
 
     // Issue a new short-lived access token
@@ -81,8 +88,21 @@ router.post('/refresh', async (req, res) => {
         return res.status(401).json({ error: 'Användare hittades inte' });
       }
       const c = cr.rows[0];
+      let trustedDeviceId;
+      if (newRefreshRow?.id) {
+        const deviceRow = await deviceDb.findActiveByLastRefreshTokenId(newRefreshRow.id);
+        if (deviceRow) trustedDeviceId = deviceRow.id;
+      }
+      const childClaims = {
+        id: c.id,
+        type: 'child',
+        familyId: c.family_id,
+        username: c.username,
+        name: c.name,
+      };
+      if (trustedDeviceId) childClaims.trustedDeviceId = trustedDeviceId;
       accessToken = jwt.sign(
-        { id: c.id, type: 'child', familyId: c.family_id, username: c.username, name: c.name },
+        childClaims,
         config.jwt.secret,
         { expiresIn: config.jwt.childExpiresIn }
       );

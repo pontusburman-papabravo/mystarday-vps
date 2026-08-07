@@ -22,6 +22,7 @@ const CRITICAL_INTEGRATION = [
   'test/trusted-device-child.integration.test.js',
   'test/r43-shared-device.integration.test.js',
   'test/r44-adult-child-access.integration.test.js',
+  'test/r4-final-security-blockers.integration.test.js',
   'test/r45-widget-completion.integration.test.js',
   'test/r45b-widget-server-parity.integration.test.js',
   'test/r45f-widget-family-multichild.integration.test.js',
@@ -35,6 +36,8 @@ const CRITICAL_UNIT = [
   'test/safe-url-fetch.test.js',
   'test/parent-session-backup-security.test.js',
   'test/ci-test-manifest.test.js',
+  'test/r4-runtime-release-gates.test.js',
+  'test/android-aab-release-gate.test.js',
   'test/iap-client-config.test.js',
   'test/scheduler-registry-contract.test.js',
 ];

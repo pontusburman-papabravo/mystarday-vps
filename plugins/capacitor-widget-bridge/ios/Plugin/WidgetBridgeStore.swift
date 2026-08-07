@@ -87,6 +87,9 @@ enum WidgetBridgeStore {
 
     static func clearAll() {
         deleteKeychain(account: legacyKeychainAccount)
+        for scope in knownBindingScopes() {
+            deleteKeychain(account: keychainAccount(for: scope))
+        }
         let d = defaults
         guard let dict = d?.dictionaryRepresentation() else { return }
         for key in dict.keys where key.hasPrefix("s_") || key.hasPrefix("widget_switching_")
@@ -425,5 +428,21 @@ enum WidgetBridgeStore {
             kSecAttrAccessGroup as String: appGroupId,
         ]
         SecItemDelete(query as CFDictionary)
+    }
+
+    /// Scopes that have stored widget UserDefaults keys (for logout keychain sweep).
+    private static func knownBindingScopes() -> [String] {
+        guard let dict = defaults?.dictionaryRepresentation() else { return [] }
+        var scopes = Set<String>()
+        for key in dict.keys where key.hasPrefix("s_") {
+            let rest = String(key.dropFirst(2))
+            guard let firstUnderscore = rest.firstIndex(of: "_") else { continue }
+            let scope = String(rest[..<firstUnderscore])
+            if !scope.isEmpty { scopes.insert(scope) }
+        }
+        if dict["installation_id"] != nil {
+            scopes.insert("default")
+        }
+        return Array(scopes)
     }
 }

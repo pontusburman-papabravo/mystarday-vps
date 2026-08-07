@@ -39,6 +39,15 @@ async function listAllowedChildrenForBinding(binding) {
   if (binding.mode === 'trusted_device') {
     const row = await deviceDb.findById(binding.device_id);
     if (!row) return [];
+    if (row.device_mode === 'child') {
+      const boundId = row.default_child_id || row.last_active_child_id;
+      const childRes = await db.query(
+        'SELECT id, name, emoji FROM child WHERE id = $1 AND family_id = $2',
+        [boundId, binding.family_id]
+      );
+      const rowChild = childRes.rows[0];
+      return rowChild ? [childDisplayRow(rowChild)] : [];
+    }
     const children = await getChildrenForParent(row.created_by_parent_id, { allowedRoles: ['primary', 'shared'] });
     return children.map(childDisplayRow);
   }
@@ -52,7 +61,11 @@ async function buildWidgetContext(binding, activeChildId) {
   if (!active && allowed.length > 0) {
     active = allowed[0];
   }
-  const canSwitch = binding.mode !== 'child_session' && allowed.length > 1;
+  let canSwitch = binding.mode === 'parent' && allowed.length > 1;
+  if (binding.mode === 'trusted_device' && allowed.length > 1) {
+    const row = await deviceDb.findById(binding.device_id);
+    canSwitch = Boolean(row && row.device_mode === 'shared' && !row.revoked_at);
+  }
   const widgetProfile = binding.mode === 'child_session' || allowed.length <= 1
     ? 'personal'
     : 'family';

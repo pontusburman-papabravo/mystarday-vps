@@ -159,23 +159,41 @@ public class RoutineWidgetConfigureActivity extends Activity {
         }
         boolean personal = modeGroup.getCheckedRadioButtonId() == modeGroup.getChildAt(0).getId();
         String mode = personal ? WidgetInstanceStore.MODE_PERSONAL : WidgetInstanceStore.MODE_FAMILY;
-        WidgetInstanceStore.setWidgetMode(this, appWidgetId, mode);
-        if (personal) {
-            WidgetInstanceStore.setLockedChildId(this, appWidgetId, selected.id);
-        } else {
-            WidgetInstanceStore.setLockedChildId(this, appWidgetId, null);
+        String inst = WidgetInstanceStore.getInstallationId(this, appWidgetId);
+
+        View root = findViewById(android.R.id.content);
+        Button saveBtn = null;
+        if (root instanceof LinearLayout) {
+            LinearLayout layout = (LinearLayout) root;
+            for (int i = 0; i < layout.getChildCount(); i++) {
+                View child = layout.getChildAt(i);
+                if (child instanceof Button) {
+                    saveBtn = (Button) child;
+                    break;
+                }
+            }
+        }
+        if (saveBtn != null) {
+            saveBtn.setEnabled(false);
         }
 
-        String inst = WidgetInstanceStore.getInstallationId(this, appWidgetId);
         EXEC.execute(() -> {
             WidgetApiClient.ApiResult rebind = WidgetApiClient.rebindInstallation(
                 this, defaultInstForRebind(), inst, selected.id
             );
+            boolean ok = false;
             if (rebind.httpCode == 201 && rebind.body != null) {
                 try {
                     String token = rebind.body.optString("binding_token", "");
                     String childId = rebind.body.optString("child_id", selected.id);
-                    if (!token.isEmpty()) {
+                    if (!token.isEmpty() && selected.id.equals(childId)) {
+                        if (personal) {
+                            WidgetInstanceStore.setWidgetMode(this, appWidgetId, mode);
+                            WidgetInstanceStore.setLockedChildId(this, appWidgetId, selected.id);
+                        } else {
+                            WidgetInstanceStore.setWidgetMode(this, appWidgetId, mode);
+                            WidgetInstanceStore.setLockedChildId(this, appWidgetId, null);
+                        }
                         WidgetBindingScope.saveBinding(
                             this,
                             inst,
@@ -184,18 +202,25 @@ public class RoutineWidgetConfigureActivity extends Activity {
                             WidgetBindingScope.getViewerMode(this, defaultInstForRebind()),
                             WidgetBindingScope.getPrivacyMode(this, defaultInstForRebind())
                         );
-                    }
-                    JSONObject context = rebind.body.optJSONObject("context");
-                    if (context != null) {
-                        WidgetChildSwitchHelper.applyContext(this, inst, context);
+                        JSONObject context = rebind.body.optJSONObject("context");
+                        if (context != null) {
+                            WidgetChildSwitchHelper.applyContext(this, inst, context);
+                        }
+                        ok = true;
                     }
                 } catch (Exception ignored) {
-                    // ignore
+                    // fall through to cancel
                 }
             }
-            AppWidgetManager mgr = AppWidgetManager.getInstance(this);
-            WidgetRefreshHelper.refreshSingleWidget(this, mgr, appWidgetId, false);
-            runOnUiThread(this::finishOk);
+            if (ok) {
+                AppWidgetManager mgr = AppWidgetManager.getInstance(this);
+                WidgetRefreshHelper.refreshSingleWidget(this, mgr, appWidgetId, false);
+                runOnUiThread(this::finishOk);
+            } else {
+                WidgetInstanceStore.clearWidgetConfig(this, appWidgetId);
+                WidgetBindingScope.clearScope(this, inst);
+                runOnUiThread(this::finishCancel);
+            }
         });
     }
 

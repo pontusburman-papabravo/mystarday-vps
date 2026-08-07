@@ -17,6 +17,7 @@ const db = require('../lib/db');
 const { verifyToken } = require('../middleware/auth');
 const { addClient, removeClient } = require('../lib/sse-broadcast');
 const { asyncHandler } = require('../middleware/asyncHandler');
+const { getChildrenForParent } = require('../../db/parent-access');
 
 const router = express.Router();
 
@@ -82,8 +83,25 @@ router.get('/', asyncHandler(async (req, res) => {
   // Send initial handshake event
   res.write(`event: CONNECTED\ndata: ${JSON.stringify({ familyId })}\n\n`);
 
-  // Register this connection
-  addClient(familyId, res);
+  let shouldDeliver = () => true;
+  if (user.type === 'parent') {
+    const children = await getChildrenForParent(user.id, { allowedRoles: ['primary', 'shared', 'pedagog'] });
+    const allowedChildIds = new Set(children.map((c) => c.id));
+    shouldDeliver = (_type, data) => {
+      const childId = data?.childId;
+      if (!childId) return true;
+      return allowedChildIds.has(childId);
+    };
+  } else if (user.type === 'child') {
+    const ownId = user.id;
+    shouldDeliver = (_type, data) => {
+      const childId = data?.childId;
+      if (!childId) return true;
+      return childId === ownId;
+    };
+  }
+
+  addClient(familyId, res, { shouldDeliver });
 
   // Heartbeat every 15 seconds — keeps proxies from closing idle connections
   const heartbeat = setInterval(() => {
