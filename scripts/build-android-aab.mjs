@@ -25,9 +25,6 @@ const OUT_AAB = path.join(ROOT, 'assets', 'play-store', 'out', 'min-stjarnadag-r
 const KEYSTORE = path.join(SIGNING_DIR, 'mystarday-upload.keystore');
 const KEYSTORE_PROPS = path.join(ROOT, 'android', 'keystore.properties');
 
-const STORE_PASS = process.env.ANDROID_KEYSTORE_PASSWORD || 'MinStjarnadagUpload2026!';
-const KEY_PASS = process.env.ANDROID_KEY_PASSWORD || STORE_PASS;
-const KEY_ALIAS = process.env.ANDROID_KEY_ALIAS || 'mystarday-upload';
 
 function run(cmd, opts = {}) {
   console.log('>', cmd);
@@ -146,10 +143,9 @@ function main() {
   const mb = (fs.statSync(OUT_AAB).size / (1024 * 1024)).toFixed(2);
   console.log(`\n✅ AAB ready: ${OUT_AAB} (${mb} MB)`);
   console.log('\nUpload in Play Console → Testing → Internal testing → Create release');
-  console.log('Keystore:', KEYSTORE);
-  console.log('Alias:', KEY_ALIAS);
+  console.log('Keystore:', keystorePath);
+  console.log('Alias:', signing.keyAlias);
   if (!process.env.ANDROID_KEYSTORE_PASSWORD) {
-    console.log('\n⚠️  Default upload password was used. Set ANDROID_KEYSTORE_PASSWORD before production.');
   }
 }
 
