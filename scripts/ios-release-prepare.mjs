@@ -22,7 +22,12 @@ if (!chain) {
 }
 chain = chain.replace(/\s*--skip-client-token/g, '');
 if (!chain.includes('verify-meta-native-release')) {
-  chain += ' && node scripts/verify-meta-native-release.mjs';
+  chain += ' && node scripts/verify-meta-native-release.mjs --ios';
+} else if (!chain.includes('verify-meta-native-release.mjs --ios')) {
+  chain = chain.replace(
+    /node scripts\/verify-meta-native-release\.mjs(?!\s+--ios)/g,
+    'node scripts/verify-meta-native-release.mjs --ios'
+  );
 }
 
 execSync(chain, { cwd: ROOT, stdio: 'inherit', env: { ...process.env, NODE_ENV: 'development' } });

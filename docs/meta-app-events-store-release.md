@@ -8,9 +8,13 @@ Kör **efter** `git pull`, `npm install`, `cap:sync` med `META_CLIENT_TOKEN` sat
 cd <repo-root>
 export META_CLIENT_TOKEN='…'   # redan satt i din shell
 
-node scripts/verify-meta-native-release.mjs
+node scripts/verify-meta-native-release.mjs --ios    # iOS Archive
+node scripts/verify-meta-native-release.mjs --android # Play AAB (efter cap:sync:android)
+node scripts/verify-meta-native-release.mjs          # båda plattformarna
 node scripts/verify-capacitor-facebook-events-privacy.mjs
 ```
+
+**Obs:** Kör `npm install` / `npm ci` **före** release prepare eller `cap:sync:*`. Kör **inte** om install mellan prepare och Archive/AAB — då försvinner privacy-patch i `node_modules`. Kör om prepare/sync om du installerat om.
 
 **STOPPA** om något failar. Skriptet skriver bara *längd* på token, aldrig värdet.
 
