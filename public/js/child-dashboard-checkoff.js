@@ -185,10 +185,20 @@
       }
     }
 
-    const apiPromise = queuedOffline
-      ? Promise.resolve()
-      : Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, { method: 'PUT' })
-      .then((data) => {
+    let mutationSucceeded = queuedOffline;
+
+    const completionHeaders = {};
+    if (typeof getChildCompletionClientId === 'function') {
+      completionHeaders['X-Completion-Client-Id'] = getChildCompletionClientId();
+    }
+
+    if (!queuedOffline) {
+      try {
+        const data = await Auth.api(`/api/me/daily-log-items/${itemId}/${action}`, {
+          method: 'PUT',
+          headers: completionHeaders,
+        });
+        mutationSucceeded = true;
         if (queueId && window.OfflineQueue) {
           window.OfflineQueue.markSynced(queueId);
         }
@@ -199,8 +209,7 @@
         ) {
           MetaAppEvents.handleServerMilestones(data && data.meta_milestones);
         }
-      })
-      .catch(async (err) => {
+      } catch (err) {
         const isOffline = !navigator.onLine ||
           (err && (err.message === 'Failed to fetch' || err.message === 'NetworkError when attempting to fetch resource.'));
 
@@ -210,6 +219,7 @@
               ? window.OfflineQueue.queueComplete(itemId)
               : window.OfflineQueue.queueUncomplete(itemId));
             await patchOfflineCompletionCache(itemId, completing);
+            mutationSucceeded = true;
             if (!isCurrentlyDone) {
               showToast('📶 ' + t('checkoff.savedOffline'), false);
             }
@@ -222,16 +232,25 @@
             window.Platform.haptics.error();
           }
           if (err && err.status === 429) {
+            const retrySec = err.body && err.body.retry_after;
             showToast(t('checkoff.tooFast'), true);
+            if (retrySec && typeof retrySec === 'number') {
+              window._checkoffRateLimitUntil = Date.now() + retrySec * 1000;
+            }
           } else {
             coalescedLoadDay().catch(() => {});
             showToast(t('checkoff.updateFailed'), true);
           }
         }
-      });
+        return;
+      }
+    }
+
+    if (!mutationSucceeded) {
+      return;
+    }
 
     try {
-      await apiPromise;
       if (typeof coalescedLoadDay === 'function') {
         await coalescedLoadDay().catch(() => {});
       }

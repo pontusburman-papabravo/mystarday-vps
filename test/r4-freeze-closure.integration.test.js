@@ -364,16 +364,21 @@ test('C1: rapid child completions do not 429 under integration profile', async (
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: 'burstchild', pin: '2580' }),
     });
-    assert.equal(loginRes.status, 200, await loginRes.text());
+    const loginText = await loginRes.text();
+    assert.equal(loginRes.status, 200, loginText);
     let childCookies = {};
     for (const header of getSetCookieHeaders(loginRes)) {
       childCookies = mergeCookies(childCookies, [header]);
     }
+    const childBody = JSON.parse(loginText);
 
     for (const itemId of itemIds) {
       const res = await fetch(`${http.baseUrl}/api/me/daily-log-items/${itemId}/complete`, {
         method: 'PUT',
-        headers: { Cookie: cookieHeader(childCookies) },
+        headers: {
+          Cookie: cookieHeader(childCookies),
+          'X-CSRF-Token': childBody.csrfToken,
+        },
       });
       assert.notEqual(res.status, 429, `completion should not 429 item ${itemId}`);
     }

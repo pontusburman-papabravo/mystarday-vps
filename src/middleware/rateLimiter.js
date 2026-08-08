@@ -246,6 +246,39 @@ const forgotPasswordLimiter = rateLimit({
   },
 });
 
+/** Generous burst for legitimate rapid routine check-offs (separate from read apiLimiter). */
+const CHILD_ROUTINE_MUTATION_MAX_PER_MIN = config.rateLimits.childRoutineMutation.max;
+const CHILD_ROUTINE_MUTATION_WINDOW_MS = config.rateLimits.childRoutineMutation.windowMs;
+
+const childRoutineMutationLimiter = rateLimit({
+  windowMs: CHILD_ROUTINE_MUTATION_WINDOW_MS,
+  max: ENABLED ? CHILD_ROUTINE_MUTATION_MAX_PER_MIN : 0,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    if (req.user?.type === 'child' && req.user.id) {
+      return `child-routine:${req.user.id}`;
+    }
+    return `child-routine-ip:${getRealIp(req)}`;
+  },
+  skip: (req) => {
+    if (!ENABLED) return true;
+    if (req.user?.type !== 'child') return true;
+    return !isChildRoutineBurstPath(req);
+  },
+  handler: (req, res, next, options) => {
+    onLimitReached(req, res, options, 'child_routine_mutation');
+    const retryAfterSec = Math.ceil(options.windowMs / 1000);
+    res
+      .set('Retry-After', String(retryAfterSec))
+      .status(429)
+      .json({
+        error: 'Det gick lite fort. Vänta några sekunder och försök igen.',
+        retry_after: retryAfterSec,
+      });
+  },
+});
+
 /**
  * Per-user API limiter: 100 req/min for authenticated users, 30 req/min for unauthenticated IPs.
  * Key: userId from JWT if present, otherwise IP.
@@ -283,7 +316,6 @@ const apiLimiter = rateLimit({
       req.path.startsWith('/events') ||
       req.originalUrl?.startsWith('/api/events');
     if (baseSkip) return true;
-    if (req.user?.type === 'child' && isChildRoutineBurstPath(req)) return true;
     return false;
   },
   handler: (req, res, next, options) => {
@@ -441,4 +473,6 @@ module.exports = {
   resendWebhookLimiter,
   parentPinLimiter,
   isChildRoutineBurstPath,
+  childRoutineMutationLimiter,
+  CHILD_ROUTINE_MUTATION_MAX_PER_MIN,
 };

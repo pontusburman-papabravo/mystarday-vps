@@ -4,7 +4,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { isChildRoutineBurstPath } = require('../src/middleware/rateLimiter');
 
-test('child routine completion paths are burst-exempt route patterns', () => {
+test('child routine completion paths match dedicated mutation limiter patterns', () => {
   assert.equal(isChildRoutineBurstPath({ originalUrl: '/api/me/daily-log-items/abc/complete' }), true);
   assert.equal(isChildRoutineBurstPath({ originalUrl: '/api/me/daily-log-items/abc/uncomplete' }), true);
   assert.equal(
