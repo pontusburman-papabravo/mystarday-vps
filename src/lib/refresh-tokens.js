@@ -10,6 +10,16 @@ const crypto = require('crypto');
 const db = require('./db');
 const config = require('./config');
 
+const RAW_REFRESH_TOKEN_RE = /^[0-9a-f]{64}$/i;
+
+/**
+ * Refresh cookies must be the raw 64-char hex string from randomBytes(32).
+ * Rejects objects, "[object Object]", JSON blobs, etc.
+ */
+function isValidRawRefreshToken(value) {
+  return typeof value === 'string' && RAW_REFRESH_TOKEN_RE.test(value);
+}
+
 /**
  * Hash a token for storage. Using SHA-256 (not bcrypt) because:
  *   - Refresh tokens are already 32 random bytes — not a password.
@@ -17,6 +27,9 @@ const config = require('./config');
  *   - bcrypt's intentional slowness is for low-entropy inputs (passwords).
  */
 function hashToken(raw) {
+  if (!isValidRawRefreshToken(raw)) {
+    return null;
+  }
   return crypto.createHash('sha256').update(raw).digest('hex');
 }
 
@@ -52,9 +65,10 @@ async function createRefreshToken({ userId, userType, familyId, trustedDeviceId 
  * Deletes expired tokens on lookup (passive cleanup).
  */
 async function verifyRefreshToken(raw) {
-  if (!raw) return null;
+  if (!isValidRawRefreshToken(raw)) return null;
 
   const hash = hashToken(raw);
+  if (!hash) return null;
   const result = await db.query(
     `SELECT id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id
      FROM refresh_token
@@ -89,8 +103,9 @@ async function verifyRefreshToken(raw) {
  * Look up refresh token row without side effects (logging / pre-revoke checks).
  */
 async function lookupRefreshTokenRow(raw) {
-  if (!raw) return null;
+  if (!isValidRawRefreshToken(raw)) return null;
   const hash = hashToken(raw);
+  if (!hash) return null;
   const result = await db.query(
     `SELECT id, parent_id, child_id, family_id, user_type, expires_at, trusted_device_id
      FROM refresh_token WHERE token_hash = $1`,
@@ -104,7 +119,7 @@ async function lookupRefreshTokenRow(raw) {
  * @returns {Promise<{ ok: true, row: object, newRaw: string, newRow: object } | { ok: false, code: string }>}
  */
 async function rotateRefreshToken(raw) {
-  if (!raw) return { ok: false, code: 'missing_token' };
+  if (!isValidRawRefreshToken(raw)) return { ok: false, code: 'missing_token' };
 
   const client = await db.getClient();
   try {
@@ -194,7 +209,7 @@ async function revokeRefreshTokensForTrustedDevices(deviceIds, client = null) {
  * Mismatch does not delete the row (prevents child logout from revoking parent handoff refresh).
  */
 async function revokeRefreshTokenForSession(raw, { userType, userId, familyId }) {
-  if (!raw) return { revoked: false, reason: 'missing_token' };
+  if (!isValidRawRefreshToken(raw)) return { revoked: false, reason: 'missing_token' };
   const row = await lookupRefreshTokenRow(raw);
   if (!row) return { revoked: false, reason: 'not_found' };
   if (familyId && row.family_id !== familyId) {
@@ -219,8 +234,9 @@ async function revokeRefreshTokenForSession(raw, { userType, userId, familyId })
  * Revoke a specific refresh token (logout).
  */
 async function revokeRefreshToken(raw) {
-  if (!raw) return;
+  if (!isValidRawRefreshToken(raw)) return;
   const hash = hashToken(raw);
+  if (!hash) return;
   const row = await db.query(
     'SELECT parent_id FROM refresh_token WHERE token_hash = $1',
     [hash]
@@ -249,6 +265,11 @@ async function revokeAllRefreshTokens({ userId, userType }) {
  * Set the refresh token as a secure httpOnly cookie on the response.
  */
 function setRefreshCookie(res, raw) {
+  if (!isValidRawRefreshToken(raw)) {
+    console.warn('[AUTH] refused invalid refresh_token cookie value');
+    clearRefreshCookie(res);
+    return;
+  }
   const maxAgeMs = config.refreshToken.expiryDays * 24 * 60 * 60 * 1000;
   res.cookie('refresh_token', raw, {
     httpOnly: true,
@@ -297,7 +318,21 @@ function clearAccessCookie(res) {
   });
 }
 
+/**
+ * Drop malformed refresh_token cookies before crypto/hash (prevents ERR_INVALID_ARG_TYPE).
+ */
+function sanitizeRefreshTokenCookie(req, res) {
+  const raw = req.cookies?.refresh_token;
+  if (raw === undefined) return;
+  if (!isValidRawRefreshToken(raw)) {
+    clearRefreshCookie(res);
+    delete req.cookies.refresh_token;
+  }
+}
+
 module.exports = {
+  isValidRawRefreshToken,
+  sanitizeRefreshTokenCookie,
   hashToken,
   insertRefreshTokenRow,
   createRefreshToken,

@@ -16,6 +16,7 @@ const {
   setAccessCookie,
   lookupRefreshTokenRow,
   hashToken,
+  isValidRawRefreshToken,
 } = require('./refresh-tokens');
 const { parseDuration } = require('../routes/auth/session');
 
@@ -275,7 +276,7 @@ async function logHandoffLogoutDiagnostics(req, phase, handoffEval, accessDecode
   let refreshChildId = null;
   let refreshParentId = null;
   let refreshRowId = null;
-  if (rawRefresh) {
+  if (rawRefresh && isValidRawRefreshToken(rawRefresh)) {
     refreshHash = truncateHash(hashToken(rawRefresh));
     const row = await lookupRefreshTokenRow(rawRefresh);
     if (row) {
@@ -431,11 +432,12 @@ async function consumeHandoffAndActivateSession(req, res, options = {}) {
       return { ok: false, code: 'parent_missing', clientCode: 'PARENT_HANDOFF_INVALID' };
     }
 
-    const newRefresh = await insertRefreshTokenRow(client, {
+    const inserted = await insertRefreshTokenRow(client, {
       userId: handoffRow.parent_id,
       userType: 'parent',
       familyId: handoffRow.family_id,
     });
+    const newRefreshRaw = inserted.raw;
 
     const marked = await client.query(
       `UPDATE parent_session_handoff
@@ -457,7 +459,7 @@ async function consumeHandoffAndActivateSession(req, res, options = {}) {
       ? parseDuration(config.jwt.expiresIn)
       : config.jwt.expiresIn;
 
-    setRefreshCookie(res, newRefresh);
+    setRefreshCookie(res, newRefreshRaw);
     setAccessCookie(res, accessToken, expiresInSecs);
     clearHandoffCookie(res);
 
