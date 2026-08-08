@@ -10,6 +10,7 @@ const { requireChild } = require('../../middleware/auth');
 const { scopeRouterToPath } = require('../../middleware/router-path-scope');
 const { getOrGenerateDailyLog, getLocalDateStr, getDayOfWeek } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
+const { readCompletionClientOrigin } = require('../../lib/completion-client-origin');
 const { notifyParentsChildCompleted } = require('../../lib/push');
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 const { enrichPictogramFieldsMany } = require('../../../config/pictogram-library');
@@ -400,7 +401,13 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
     }
     getChildFamilyId(req.user.id).then(async (fid) => {
       if (!fid) return;
-      broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', { itemId: req.params.itemId, childId: req.user.id, completed: true });
+      const clientOriginId = readCompletionClientOrigin(req);
+      broadcast(fid, 'DAILY_LOG_ITEM_COMPLETED', {
+        itemId: req.params.itemId,
+        childId: req.user.id,
+        completed: true,
+        ...(clientOriginId ? { clientOriginId } : {}),
+      });
       if (!justCompleted) return;
       if (firstStarNewlyRecorded) {
         require('../../lib/journey/ingest').ingestMilestoneAsync({

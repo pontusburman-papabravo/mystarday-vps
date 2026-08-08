@@ -44,7 +44,8 @@ function scheduleSSEStarReload() {
 
 window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', function (e) {
   const detail = (e && e.detail) || {};
-  if (typeof me !== 'undefined' && me && me.id && detail.childId === me.id) {
+  const myOrigin = typeof getChildCompletionClientId === 'function' ? getChildCompletionClientId() : null;
+  if (myOrigin && detail.clientOriginId && detail.clientOriginId === myOrigin) {
     return;
   }
   scheduleSSEReload();

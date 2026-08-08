@@ -90,6 +90,11 @@ module.exports = {
       windowMs: parseInt(process.env.REGISTER_RATE_LIMIT_WINDOW_MS) || 60 * 60_000,
       max: parseInt(process.env.REGISTER_RATE_LIMIT_MAX) || 3,
     },
+    // Child routine complete/uncomplete bursts (separate from apiLimiter)
+    childRoutineMutation: {
+      windowMs: parseInt(process.env.CHILD_ROUTINE_MUTATION_WINDOW_MS) || 60_000,
+      max: parseInt(process.env.CHILD_ROUTINE_MUTATION_MAX_PER_MIN) || 300,
+    },
   },
 
   email: {

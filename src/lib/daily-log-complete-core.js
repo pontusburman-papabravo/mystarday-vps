@@ -16,6 +16,7 @@ const { countLifetimeCompletions } = require('./first-star-mode');
  * @param {'child'|'parent'} params.completedBy
  * @param {string|null} [params.completedByParentId]
  * @param {string} params.completionSource — e.g. widget_ios, home
+ * @param {string|null} [params.clientOriginId]
  */
 async function completeDailyLogItemCore({
   dailyLogItemId,
@@ -24,6 +25,7 @@ async function completeDailyLogItemCore({
   completedBy,
   completedByParentId = null,
   completionSource,
+  clientOriginId = null,
 }) {
   const client = await db.getClient();
   try {
@@ -121,6 +123,7 @@ async function completeDailyLogItemCore({
           itemId: dailyLogItemId,
           childId,
           completed: true,
+          ...(clientOriginId ? { clientOriginId } : {}),
         });
         if (firstStarNewlyRecorded) {
           require('./journey/ingest').ingestMilestoneAsync({

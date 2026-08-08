@@ -21,6 +21,7 @@ const {
   assertCanRecoverOrphanChild,
   lockParentChildRowsForChildren,
   assertNoChildWithoutAdmin,
+  childHasNoAdministrativeAdult,
 } = require('../../lib/family-member-children-authz');
 const { notifyParentAccessRevoked } = require('../../lib/parent-access-sse');
 
@@ -254,6 +255,10 @@ router.post('/children/:id/recover-admin', requireNotPedagogOnly, async (req, re
     }
 
     await lockParentChildRowsForChildren(client, [childId]);
+    if (!(await childHasNoAdministrativeAdult(client, childId))) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Barnet har redan en vuxen med åtkomst' });
+    }
     await grantPrimaryAdminLink(client, req.user.id, childId);
 
     await client.query('COMMIT');
