@@ -13,6 +13,7 @@ const {
   resolveParentIdFromHandoff,
 } = require('../lib/parent-session-handoff');
 const { reconcileChildSessionCookies } = require('../lib/session-cookie-reconcile');
+const { sanitizeRefreshTokenCookie } = require('../lib/refresh-tokens');
 
 /**
  * Try to verify a JWT with the current secret, then fall back to the previous secret.
@@ -170,6 +171,8 @@ function extractToken(req) {
  * restored parent token instead of the child token.
  */
 async function restoreParentSession(req, res, next) {
+  sanitizeRefreshTokenCookie(req, res);
+
   if (
     req.method === 'POST'
     && (req.path === '/api/auth/logout' || req.originalUrl?.startsWith('/api/auth/logout'))
