@@ -259,7 +259,8 @@
 // stjarndag-v807: R4.7 product-led growth (invite, weekly highlight, referral)
 // stjarndag-v814: engångsaktivitet — flytta ordning idag (NU/NÄSTA-dag)
 // stjarndag-v815: widget återanslut — force sync, mount retries, auth hook defer
-const CACHE_NAME = 'stjarndag-v815';
+// stjarndag-v816: widget tap reauth → inställningar; förälder på /child/today redirect
+const CACHE_NAME = 'stjarndag-v816';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

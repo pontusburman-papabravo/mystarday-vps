@@ -74,3 +74,15 @@ test('settings-widgets uses force sync on reconnect', () => {
   assert.match(src, /force:\s*true/);
   assert.match(src, /mapBindingError/);
 });
+
+test('child-dashboard redirects native parent away from hidden today-focus shell', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/child-dashboard.js'), 'utf8');
+  assert.match(src, /widgetSettingsSection/);
+  assert.match(src, /Platform\.isNative/);
+});
+
+test('iOS widget reauth opens settings reconnect URL', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'ios/App/WidgetRoutine/WidgetAPIClient.swift'), 'utf8');
+  assert.match(src, /widgetReconnectSettingsURL/);
+  assert.match(src, /openURL\(for entry/);
+});

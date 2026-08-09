@@ -51,7 +51,20 @@ public final class WidgetRenderer {
         views.setViewVisibility(R.id.widget_status_message, View.VISIBLE);
         views.setTextViewText(R.id.widget_status_message, messageRes);
         views.setViewVisibility(R.id.widget_primary_action, View.GONE);
+        bindReconnectTap(context, views, widgetId);
         mgr.updateAppWidget(widgetId, views);
+    }
+
+    private static void bindReconnectTap(Context context, RemoteViews views, int widgetId) {
+        views.setOnClickPendingIntent(
+            R.id.widget_root,
+            openAppPendingIntent(
+                context,
+                widgetId,
+                "reauth",
+                "/settings?from_widget=1#widgetSettingsSection"
+            )
+        );
     }
 
     public static void applyFromNextJson(
@@ -78,14 +91,17 @@ public final class WidgetRenderer {
         bindChildLabel(context, views, widgetId);
 
         switch (status) {
-            case "offline":
-                views.setTextViewText(R.id.widget_activity_title, context.getString(R.string.widget_offline));
-                break;
             case "reauth":
                 views.setTextViewText(R.id.widget_activity_title, context.getString(R.string.widget_reauth));
+                bindReconnectTap(context, views, widgetId);
                 break;
             case "revoked":
                 views.setTextViewText(R.id.widget_activity_title, context.getString(R.string.widget_revoked));
+                bindReconnectTap(context, views, widgetId);
+                break;
+            case "offline":
+                views.setTextViewText(R.id.widget_activity_title, context.getString(R.string.widget_offline));
+                bindReconnectTap(context, views, widgetId);
                 break;
             case "ready":
                 renderReady(context, views, widgetId, next, privacy);

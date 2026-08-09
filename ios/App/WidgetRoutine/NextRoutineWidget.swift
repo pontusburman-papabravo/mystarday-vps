@@ -121,7 +121,7 @@ struct NextRoutineWidgetEntryView: View {
             }
         }
         .modifier(WidgetBackgroundModifier())
-        .widgetURL(WidgetAPIConfig.childTodayURL())
+        .widgetURL(WidgetAPIConfig.openURL(for: entry))
     }
 
     private var headerLine: some View {
