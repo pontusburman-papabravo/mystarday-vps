@@ -19,25 +19,24 @@ const SWIFT = path.join(
 );
 
 describe('patch-ios-widget-bridge-store-path', () => {
-  it('rewrites wrong ../../plugins WidgetBridgeStore path to ../../../plugins', () => {
+  it('normalizes any WidgetBridgeStore PBX path to ../../../plugins', () => {
     const original = fs.readFileSync(PBX, 'utf8');
-    const wrong =
-      'path = ../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift';
     const right =
       'path = ../../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift';
+    const wrong =
+      'path = ../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift';
     assert.ok(fs.existsSync(SWIFT));
-    if (!original.includes(wrong) && original.includes(right)) {
-      const poisoned = original.replace(right, wrong);
-      fs.writeFileSync(PBX, poisoned);
-      try {
-        const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
-        assert.equal(r.status, 0, r.stderr || r.stdout);
-        assert.match(fs.readFileSync(PBX, 'utf8'), new RegExp(right.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      } finally {
-        fs.writeFileSync(PBX, original);
-      }
-      return;
+    const poisoned = original.includes(wrong)
+      ? original
+      : original.replace(right, wrong);
+    assert.ok(poisoned.includes(wrong), 'need wrong path fixture');
+    fs.writeFileSync(PBX, poisoned);
+    try {
+      const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
+      assert.equal(r.status, 0, r.stderr || r.stdout);
+      assert.match(fs.readFileSync(PBX, 'utf8'), new RegExp(right.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    } finally {
+      fs.writeFileSync(PBX, original);
     }
-    assert.match(original, new RegExp(right.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   });
 });
