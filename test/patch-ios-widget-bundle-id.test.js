@@ -15,10 +15,11 @@ describe('patch-ios-widget-bundle-id', () => {
 
   before(() => {
     original = fs.readFileSync(PBX, 'utf8');
-    const stripped = original.replace(
-      /\n\t\t\t\tWIDGET_PARENT_BUNDLE_ID = [^;]+;(?: \/\/ pragma: allowlist secret)?\n/g,
-      '\n'
-    );
+    const stripped = original
+      .replace(
+        /\n\t\t\t\tWIDGET_PARENT_BUNDLE_ID = [^;]+;(?: \/\/ pragma: allowlist secret)?\n/g,
+        '\n'
+      );
     fs.writeFileSync(PBX, stripped);
     assert.doesNotMatch(stripped, /WIDGET_PARENT_BUNDLE_ID\s*=/);
   });
@@ -27,7 +28,7 @@ describe('patch-ios-widget-bundle-id', () => {
     fs.writeFileSync(PBX, original);
   });
 
-  it('sets WIDGET_PARENT_BUNDLE_ID when only widget macro references exist', () => {
+  it('sets WIDGET_PARENT_BUNDLE_ID at project level when only widget macro references exist', () => {
     const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
     if (r.status !== 0) {
       throw new Error((r.stdout || '') + (r.stderr || ''));
@@ -35,5 +36,10 @@ describe('patch-ios-widget-bundle-id', () => {
     const updated = fs.readFileSync(PBX, 'utf8');
     assert.match(updated, /WIDGET_PARENT_BUNDLE_ID\s*=\s*[^;\n]+;/);
     assert.match(updated, /\$\(WIDGET_PARENT_BUNDLE_ID\)\.WidgetRoutine/);
+    const projectDebug = updated.match(
+      /504EC3141FED79650016851F \/\* Debug \*\/ = \{[\s\S]*?buildSettings = \{([\s\S]*?)\n\t\t\t\};/
+    );
+    assert.ok(projectDebug, 'project Debug configuration block');
+    assert.match(projectDebug[1], /WIDGET_PARENT_BUNDLE_ID\s*=/);
   });
 });

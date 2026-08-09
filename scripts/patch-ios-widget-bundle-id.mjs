@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /**
  * Set WIDGET_PARENT_BUNDLE_ID from main app target (R4.5d).
+ * Must live in **project-level** Debug/Release configs so WidgetRoutine can resolve
+ * $(WIDGET_PARENT_BUNDLE_ID). App-target-only settings are invisible to the extension.
  */
 import fs from 'fs';
 import path from 'path';
@@ -9,6 +11,11 @@ const pbxPath = path.join(process.cwd(), 'ios', 'App', 'App.xcodeproj', 'project
 if (!fs.existsSync(pbxPath)) process.exit(0);
 
 let pbx = fs.readFileSync(pbxPath, 'utf8');
+
+const PROJECT_CONFIGS = [
+  ['504EC3141FED79650016851F', 'Debug'],
+  ['504EC3151FED79650016851F', 'Release'],
+];
 
 /** App target bundle id (not the widget $(WIDGET_PARENT_BUNDLE_ID) macro). */
 function readMainAppBundleId(source) {
@@ -47,8 +54,43 @@ function readMainAppBundleId(source) {
   return null;
 }
 
-function hasWidgetParentBuildSetting(source) {
-  return /WIDGET_PARENT_BUNDLE_ID\s*=/.test(source);
+function upsertWidgetParentInProjectConfigs(source, settingLine) {
+  let out = source;
+  let touched = 0;
+  for (const [id, name] of PROJECT_CONFIGS) {
+    const blockRe = new RegExp(
+      `(${id} /\\* ${name} \\*/ = \\{[\\s\\S]*?buildSettings = \\{)([\\s\\S]*?)(\\n\\t\\t\\t\\};)`,
+    );
+    const m = out.match(blockRe);
+    if (!m) continue;
+    let inner = m[2];
+    if (/WIDGET_PARENT_BUNDLE_ID\s*=/.test(inner)) {
+      inner = inner.replace(
+        /[ \t]*WIDGET_PARENT_BUNDLE_ID\s*=\s*[^;]+;\s*(\/\/ pragma: allowlist secret)?\n/g,
+        `\t\t\t\t${settingLine}\n`
+      );
+    } else {
+      const next = inner.replace(
+        /(IPHONEOS_DEPLOYMENT_TARGET = 14\.0;\n)/,
+        `$1\t\t\t\t${settingLine}\n`
+      );
+      if (next === inner) {
+        continue;
+      }
+      inner = next;
+    }
+    out = out.replace(blockRe, `${m[1]}${inner}${m[3]}`);
+    touched += 1;
+  }
+  return { pbx: out, touched };
+}
+
+/** Remove App-target-only copies (optional cleanup; project level is authoritative). */
+function stripAppTargetWidgetParent(source) {
+  return source.replace(
+    /(INFOPLIST_FILE = App\/Info\.plist;\n)\t\t\t\tWIDGET_PARENT_BUNDLE_ID\s*=\s*[^;]+;\s*(\/\/ pragma: allowlist secret)?\n/g,
+    '$1'
+  );
 }
 
 const parentId = readMainAppBundleId(pbx);
@@ -59,26 +101,17 @@ if (!parentId) {
   process.exit(1);
 }
 
-const setting = `WIDGET_PARENT_BUNDLE_ID = ${parentId}; // pragma: allowlist secret`;
+const settingLine = `WIDGET_PARENT_BUNDLE_ID = ${parentId}; // pragma: allowlist secret`;
 
-if (hasWidgetParentBuildSetting(pbx)) {
-  pbx = pbx.replace(
-    /WIDGET_PARENT_BUNDLE_ID\s*=\s*[^;]+;\s*(\/\/ pragma: allowlist secret)?\n/g,
-    `${setting}\n`
+const { pbx: withProject, touched } = upsertWidgetParentInProjectConfigs(pbx, settingLine);
+if (touched === 0) {
+  console.error(
+    '[widget-bundle] FAIL: could not set WIDGET_PARENT_BUNDLE_ID on project Debug/Release build settings'
   );
-} else {
-  let insertCount = 0;
-  pbx = pbx.replace(/(INFOPLIST_FILE = App\/Info\.plist;\n)/g, (line) => {
-    insertCount += 1;
-    return `${line}\t\t\t\t${setting}\n`;
-  });
-  if (insertCount === 0) {
-    console.error(
-      '[widget-bundle] FAIL: could not insert WIDGET_PARENT_BUNDLE_ID into App Debug/Release build settings'
-    );
-    process.exit(1);
-  }
+  process.exit(1);
 }
 
+pbx = stripAppTargetWidgetParent(withProject);
+
 fs.writeFileSync(pbxPath, pbx);
-console.log('[widget-bundle] WIDGET_PARENT_BUNDLE_ID configured');
+console.log('[widget-bundle] WIDGET_PARENT_BUNDLE_ID configured at project level (WidgetRoutine can resolve macro)');
