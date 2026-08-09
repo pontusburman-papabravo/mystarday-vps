@@ -99,6 +99,23 @@
     );
   }
 
+  function mapBindingError(result) {
+    const code = result && result.data && result.data.status;
+    if (code === 'offline_unavailable') {
+      return 'Widgeten är inte aktiverad för er familj ännu. Kontakta support om det ska vara på.';
+    }
+    if (code === 'reauth_required' || code === 'device_revoked') {
+      return 'Sessionen behöver förnyas. Logga ut och in igen, försök sedan återansluta.';
+    }
+    if (result && result.reason === 'native_configure_failed') {
+      return 'Appen kunde inte spara widget-kopplingen. Stäng appen helt och öppna igen.';
+    }
+    if (result && (result.status === 403 || result.status === 401)) {
+      return 'Widgeten är inte aktiverad eller sessionen behöver förnyas. Logga ut och in igen.';
+    }
+    return null;
+  }
+
   async function reconnectWidget(mount, children) {
     const user = global.Auth && Auth.getUser ? Auth.getUser() : null;
     if (!global.WidgetBridgeProvision) {
@@ -118,36 +135,47 @@
         return;
       }
       saveChildId(childId);
+    } else if (!user) {
+      const msg = 'Du måste vara inloggad för att ansluta widgeten.';
+      setMessage(mount, msg, true);
+      flash(msg, true);
+      return;
     }
 
     setMessage(mount, 'Ansluter…', false);
-    const result = await global.WidgetBridgeProvision.syncBinding({ childId: childId });
+    try {
+      const result = await global.WidgetBridgeProvision.syncBinding({ childId: childId, force: true });
 
-    if (result && result.ok) {
-      const okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
-      setMessage(mount, okMsg, false);
-      flash(okMsg, false);
-      await renderWidgetSettings(mount);
-      return;
+      if (result && result.ok) {
+        const okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
+        setMessage(mount, okMsg, false);
+        flash(okMsg, false);
+        await renderWidgetSettings(mount);
+        return;
+      }
+
+      if (result && result.skipped && result.reason === 'no_child_context') {
+        const pickMsg = 'Välj barn i listan ovan och försök igen.';
+        setMessage(mount, pickMsg, true);
+        flash(pickMsg, true);
+        return;
+      }
+
+      const mapped = mapBindingError(result);
+      if (mapped) {
+        setMessage(mount, mapped, true);
+        flash(mapped, true);
+        return;
+      }
+
+      const failMsg = 'Kunde inte ansluta just nu. Försök igen om en stund.';
+      setMessage(mount, failMsg, true);
+      flash(failMsg, true);
+    } catch (err) {
+      const failMsg = 'Kunde inte ansluta just nu. Kontrollera nätverket och försök igen.';
+      setMessage(mount, failMsg, true);
+      flash(failMsg, true);
     }
-
-    if (result && result.skipped && result.reason === 'no_child_context') {
-      const pickMsg = 'Välj barn i listan ovan och försök igen.';
-      setMessage(mount, pickMsg, true);
-      flash(pickMsg, true);
-      return;
-    }
-
-    if (result && (result.status === 403 || result.status === 401)) {
-      const offMsg = 'Widgeten är inte aktiverad eller sessionen behöver förnyas. Logga ut och in igen.';
-      setMessage(mount, offMsg, true);
-      flash(offMsg, true);
-      return;
-    }
-
-    const failMsg = 'Kunde inte ansluta just nu. Försök igen om en stund.';
-    setMessage(mount, failMsg, true);
-    flash(failMsg, true);
   }
 
   async function renderWidgetSettings(mount) {
@@ -212,11 +240,26 @@
     }
   }
 
+  function scheduleMountRetries() {
+    const mount = document.getElementById('widgetSettingsSection');
+    if (!mount) return;
+    [0, 400, 1200].forEach(function (delay) {
+      setTimeout(function () {
+        renderWidgetSettings(mount);
+      }, delay);
+    });
+  }
+
   global.SettingsWidgets = {
     mount: renderWidgetSettings,
   };
 
   document.addEventListener('DOMContentLoaded', function () {
+    const mount = document.getElementById('widgetSettingsSection');
+    if (mount) renderWidgetSettings(mount);
+    scheduleMountRetries();
+  });
+  global.addEventListener('pageshow', function () {
     const mount = document.getElementById('widgetSettingsSection');
     if (mount) renderWidgetSettings(mount);
   });

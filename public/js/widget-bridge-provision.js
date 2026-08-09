@@ -6,6 +6,7 @@
   'use strict';
 
   var _syncPromise = null;
+  var _syncKey = null;
 
   function isNative() {
     return global.WidgetBridgeClient && global.WidgetBridgeClient.isNative();
@@ -65,6 +66,7 @@
   }
 
   async function syncBinding(options) {
+    options = options || {};
     if (!isNative()) return { ok: false, skipped: true };
     if (!global.Auth || typeof Auth.getUser !== 'function') return { ok: false };
 
@@ -93,21 +95,40 @@
     var boundChild = result.data.child_id || childId;
     if (!token || !boundChild) return { ok: false, data: result.data };
 
-    await global.WidgetBridgeClient.configureBinding({
-      bindingToken: token,
-      activeChildId: boundChild,
-      viewerMode: viewerModeForUser(user),
-      privacyMode: 'standard',
-      installationId: installationId,
-    });
+    try {
+      var configured = await global.WidgetBridgeClient.configureBinding({
+        bindingToken: token,
+        activeChildId: boundChild,
+        viewerMode: viewerModeForUser(user),
+        privacyMode: 'standard',
+        installationId: installationId,
+      });
+      if (configured && configured.ok === false) {
+        return { ok: false, reason: 'native_configure_failed', data: configured };
+      }
+    } catch (configureErr) {
+      return { ok: false, reason: 'native_configure_failed', error: configureErr };
+    }
     await global.WidgetBridgeClient.refreshAll();
     return { ok: true, childId: boundChild };
   }
 
   function syncBindingCoalesced(options) {
-    if (_syncPromise) return _syncPromise;
+    options = options || {};
+    if (options.force) {
+      return syncBinding(options);
+    }
+    var key = String(options.childId || '');
+    if (_syncPromise && _syncKey === key) return _syncPromise;
+    if (_syncPromise) {
+      return _syncPromise.then(function () {
+        return syncBindingCoalesced(options);
+      });
+    }
+    _syncKey = key;
     _syncPromise = syncBinding(options).finally(function () {
       _syncPromise = null;
+      _syncKey = null;
     });
     return _syncPromise;
   }
