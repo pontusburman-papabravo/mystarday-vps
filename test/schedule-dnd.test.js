@@ -35,9 +35,11 @@ describe('Fas 8 PR-S4 schedule-dnd.js', () => {
     }
   });
 
-  it('uses ScheduleCore for DAYS/SECTIONS', () => {
+  it('uses ScheduleCore for DAYS/SECTIONS and daily-log reorder helpers', () => {
     const src = read(MODULE);
-    assert.match(src, /const \{ DAYS, SECTIONS \} = window\.ScheduleCore;/);
+    assert.match(src, /window\.ScheduleCore/);
+    assert.match(src, /buildOrderedDailyIdsFromReorder/);
+    assert.match(src, /pendingReorderIncludesOnceTask/);
   });
 
   it('keeps module-private Sortable/reorder/day-DnD state out of the global scope', () => {
@@ -71,7 +73,8 @@ describe('Fas 8 PR-S4 schedule-dnd.js', () => {
     assert.match(src, /items-'\s*\+\s*sec\.key/);
     assert.match(src, /\.drag-handle/);
     assert.match(src, /\.activity-item/);
-    assert.match(src, /\.once-task-item/);
+    assert.match(src, /onceTaskDragFiltered/);
+    assert.match(src, /once-task-item/);
     assert.match(src, /getElementById\('dayDndModal'\)/);
     assert.match(src, /getElementById\('dayDndTitle'\)/);
     assert.match(src, /reorder-dialog-overlay/);

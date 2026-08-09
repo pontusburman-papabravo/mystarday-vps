@@ -785,7 +785,10 @@ function renderItem(item) {
   const canEditTpl = !isOnce || !!onceTplId;
   const onceClass = isOnce ? ' once-task-item' : '';
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
-  const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="' + spt('schedule.actions.dragReorder') + '">⠿</button>';
+  const canReorderOnceToday = isOnce && typeof getCurrentDayDateStr === 'function' && !!getCurrentDayDateStr();
+  const dragHandle = (!isOnce || canReorderOnceToday)
+    ? '<button type="button" class="drag-handle" aria-label="' + spt('schedule.actions.dragReorder') + '">⠿</button>'
+    : '';
   const oncePin = isOnce ? '<span title="' + spt('schedule.actions.oneOff') + '" class="text-[10px] flex-shrink-0">📌</span>' : '';
   const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="${spt('schedule.editor.editTime')}">🕐</button>`;
   const tplIcon = canEditTpl

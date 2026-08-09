@@ -91,6 +91,58 @@
     return '';
   }
 
+  /**
+   * Map DOM/schedule reorder snapshot → daily_log_item IDs (today-only save).
+   * Honors engångsaktiviteter by daily_log_item id; weekly rows still match by template.
+   */
+  function buildOrderedDailyIdsFromReorder(newOrder, scheduleItems, logItems) {
+    const orderedDailyIds = [];
+    const logById = new Map(logItems.map((li) => [String(li.id), li]));
+
+    SECTIONS.forEach((sec) => {
+      const sectionOrder = newOrder
+        .filter((o) => o.section === sec.key)
+        .sort((a, b) => a.sort_order - b.sort_order);
+
+      for (const entry of sectionOrder) {
+        const schedItem = scheduleItems.find((i) => String(i.id) === String(entry.id));
+        if (!schedItem) continue;
+
+        if (schedItem.is_once_task) {
+          const logItem = logById.get(String(entry.id));
+          if (logItem && logItem.section === sec.key && !orderedDailyIds.includes(logItem.id)) {
+            orderedDailyIds.push(logItem.id);
+          }
+          continue;
+        }
+
+        const templateId = schedItem.activity_template_id;
+        if (!templateId) continue;
+
+        const match = logItems.find(
+          (li) =>
+            li.activity_template_id == templateId &&
+            li.section === sec.key &&
+            !orderedDailyIds.includes(li.id)
+        );
+        if (match) orderedDailyIds.push(match.id);
+      }
+
+      logItems
+        .filter((li) => li.section === sec.key && !orderedDailyIds.includes(li.id))
+        .forEach((li) => orderedDailyIds.push(li.id));
+    });
+
+    return orderedDailyIds;
+  }
+
+  function pendingReorderIncludesOnceTask(newOrder, scheduleItems) {
+    return newOrder.some(({ id }) => {
+      const item = scheduleItems.find((i) => String(i.id) === String(id));
+      return item && item.is_once_task;
+    });
+  }
+
   function buildSectionCardsHtml(scheduleItems, renderItemFn) {
     return SECTIONS.map(sec => {
       const items = scheduleItems.filter(i => i.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
@@ -122,6 +174,8 @@
     sectionTimeLabel,
     getDayDateLabel,
     buildSectionCardsHtml,
+    buildOrderedDailyIdsFromReorder,
+    pendingReorderIncludesOnceTask,
   };
 
   // HTML onclick handlers (dashboard.html, schedule.html)
