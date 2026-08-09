@@ -4,7 +4,7 @@
  * R4.5 closure — widget status + reconnect in parent settings (native only).
  */
 (function (global) {
-  var CHILD_STORAGE_KEY = 'stjarndag_widget_bind_child_v1';
+  const CHILD_STORAGE_KEY = 'stjarndag_widget_bind_child_v1';
 
   function esc(s) {
     if (typeof global.escHtml === 'function') return global.escHtml(s);
@@ -25,7 +25,7 @@
   }
 
   function setMessage(mount, text, isError) {
-    var el = mount.querySelector('#widgetSettingsMsg');
+    const el = mount.querySelector('#widgetSettingsMsg');
     if (!el) return;
     el.textContent = text || '';
     el.className =
@@ -42,13 +42,13 @@
   async function loadChildren() {
     try {
       if (typeof global.apiFetch === 'function') {
-        var res = await global.apiFetch('/api/children');
+        const res = await global.apiFetch('/api/children');
         if (!res.ok) return [];
-        var body = await res.json();
+        const body = await res.json();
         return Array.isArray(body) ? body : body.children || [];
       }
       if (global.Auth && typeof Auth.api === 'function') {
-        var data = await Auth.api('/api/children');
+        const data = await Auth.api('/api/children');
         return Array.isArray(data) ? data : data.children || [];
       }
     } catch (_) { /* ignore */ }
@@ -71,23 +71,23 @@
 
   function resolveDefaultChildId(children) {
     if (!children.length) return null;
-    var stored = storedChildId();
+    const stored = storedChildId();
     if (stored && children.some(function (c) { return c.id === stored; })) return stored;
     return children[0].id;
   }
 
   function readSelectedChildId(mount, children) {
-    var select = mount.querySelector('#widgetSettingsChildSelect');
+    const select = mount.querySelector('#widgetSettingsChildSelect');
     if (select && select.value) return select.value;
     return resolveDefaultChildId(children);
   }
 
   function childPickerHtml(children, selectedId) {
     if (children.length <= 1) return '';
-    var opts = children
+    const opts = children
       .map(function (c) {
-        var label = (c.emoji ? c.emoji + ' ' : '') + (c.name || 'Barn');
-        var sel = c.id === selectedId ? ' selected' : '';
+        const label = (c.emoji ? c.emoji + ' ' : '') + (c.name || 'Barn');
+        const sel = c.id === selectedId ? ' selected' : '';
         return '<option value="' + esc(c.id) + '"' + sel + '>' + esc(label) + '</option>';
       })
       .join('');
@@ -100,19 +100,19 @@
   }
 
   async function reconnectWidget(mount, children) {
-    var user = global.Auth && Auth.getUser ? Auth.getUser() : null;
+    const user = global.Auth && Auth.getUser ? Auth.getUser() : null;
     if (!global.WidgetBridgeProvision) {
       setMessage(mount, 'Widget-stöd saknas i den här versionen. Uppdatera appen.', true);
       return;
     }
 
-    var childId = null;
+    let childId = null;
     if (user && user.type === 'child') {
       childId = user.id;
     } else if (user && user.type === 'parent') {
       childId = readSelectedChildId(mount, children);
       if (!childId) {
-        var msg = 'Lägg till ett barn i familjen först, sedan kan du ansluta widgeten.';
+        const msg = 'Lägg till ett barn i familjen först, sedan kan du ansluta widgeten.';
         setMessage(mount, msg, true);
         flash(msg, true);
         return;
@@ -121,10 +121,10 @@
     }
 
     setMessage(mount, 'Ansluter…', false);
-    var result = await global.WidgetBridgeProvision.syncBinding({ childId: childId });
+    const result = await global.WidgetBridgeProvision.syncBinding({ childId: childId });
 
     if (result && result.ok) {
-      var okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
+      const okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
       setMessage(mount, okMsg, false);
       flash(okMsg, false);
       await renderWidgetSettings(mount);
@@ -132,20 +132,20 @@
     }
 
     if (result && result.skipped && result.reason === 'no_child_context') {
-      var pickMsg = 'Välj barn i listan ovan och försök igen.';
+      const pickMsg = 'Välj barn i listan ovan och försök igen.';
       setMessage(mount, pickMsg, true);
       flash(pickMsg, true);
       return;
     }
 
     if (result && (result.status === 403 || result.status === 401)) {
-      var offMsg = 'Widgeten är inte aktiverad eller sessionen behöver förnyas. Logga ut och in igen.';
+      const offMsg = 'Widgeten är inte aktiverad eller sessionen behöver förnyas. Logga ut och in igen.';
       setMessage(mount, offMsg, true);
       flash(offMsg, true);
       return;
     }
 
-    var failMsg = 'Kunde inte ansluta just nu. Försök igen om en stund.';
+    const failMsg = 'Kunde inte ansluta just nu. Försök igen om en stund.';
     setMessage(mount, failMsg, true);
     flash(failMsg, true);
   }
@@ -156,16 +156,16 @@
       return;
     }
 
-    var status = {};
+    let status = {};
     try {
       status = await global.WidgetBridgeClient.getStatus();
     } catch (_) {
       status = {};
     }
-    var hasBinding = !!status.hasBinding;
-    var privacy = privacyLabel(status.privacyMode);
-    var children = await loadChildren();
-    var defaultChild = resolveDefaultChildId(children);
+    const hasBinding = !!status.hasBinding;
+    const privacy = privacyLabel(status.privacyMode);
+    const children = await loadChildren();
+    const defaultChild = resolveDefaultChildId(children);
 
     mount.innerHTML =
       '<h2 class="font-heading text-lg text-navy mb-2">Widgets och snabbåtkomst</h2>' +
@@ -187,14 +187,14 @@
       '</button>' +
       '<p id="widgetSettingsMsg" class="text-sm min-h-[1.4em] mt-2 text-text-soft" role="status" aria-live="polite"></p>';
 
-    var select = mount.querySelector('#widgetSettingsChildSelect');
+    const select = mount.querySelector('#widgetSettingsChildSelect');
     if (select) {
       select.addEventListener('change', function () {
         saveChildId(select.value);
       });
     }
 
-    var btn = mount.querySelector('#widgetSettingsReconnect');
+    const btn = mount.querySelector('#widgetSettingsReconnect');
     if (btn) {
       btn.addEventListener('click', function () {
         btn.disabled = true;
@@ -204,7 +204,7 @@
       });
     }
 
-    var guideBtn = mount.querySelector('#widgetSettingsGuide');
+    const guideBtn = mount.querySelector('#widgetSettingsGuide');
     if (guideBtn && global.WidgetInstallPrompt) {
       guideBtn.addEventListener('click', function () {
         global.WidgetInstallPrompt.openGuide();
@@ -217,7 +217,7 @@
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    var mount = document.getElementById('widgetSettingsSection');
+    const mount = document.getElementById('widgetSettingsSection');
     if (mount) renderWidgetSettings(mount);
   });
 })(window);
