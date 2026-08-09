@@ -56,10 +56,10 @@ enum WidgetEntryBuilder {
     static func mapNext(_ json: [String: Any], installationId: String? = nil) -> NextRoutineEntry {
         let inst = installationId ?? activeInstallation
         let privacy = WidgetBridgeStore.privacyMode(installationId: inst)
-        let flags = entryFlags(installationId: inst)
+        let canSwitchChildren = entryFlags(installationId: inst)
         if privacy == "private" {
             return NextRoutineEntry(
-                date: .now,
+                date: Date(),
                 phase: .privateOpenApp,
                 routineTitle: WidgetL10n.routineHeader,
                 activityTitle: WidgetL10n.actionOpenApp,
@@ -74,7 +74,7 @@ enum WidgetEntryBuilder {
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: WidgetL10n.allDoneNeutral,
-                canSwitchChildren: flags.canSwitch,
+                canSwitchChildren: canSwitchChildren,
                 installationId: inst
             )
         }
@@ -88,7 +88,7 @@ enum WidgetEntryBuilder {
                 ? WidgetL10n.allDoneMorning
                 : WidgetL10n.allDoneNeutral
             return NextRoutineEntry(
-                date: .now,
+                date: Date(),
                 phase: .allDone,
                 routineTitle: routine.isEmpty ? WidgetL10n.routineHeader : routine,
                 activityTitle: msg,
@@ -103,12 +103,12 @@ enum WidgetEntryBuilder {
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: msg,
-                canSwitchChildren: flags.canSwitch,
+                canSwitchChildren: canSwitchChildren,
                 installationId: inst
             )
         case "nothing_now":
             return NextRoutineEntry(
-                date: .now,
+                date: Date(),
                 phase: .nothingNow,
                 routineTitle: WidgetL10n.routineHeader,
                 activityTitle: WidgetL10n.nothingNow,
@@ -123,7 +123,7 @@ enum WidgetEntryBuilder {
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: WidgetL10n.allDoneNeutral,
-                canSwitchChildren: flags.canSwitch,
+                canSwitchChildren: canSwitchChildren,
                 installationId: inst
             )
         case "ready":
@@ -143,7 +143,7 @@ enum WidgetEntryBuilder {
 
             if capability == "open_app" {
                 return NextRoutineEntry(
-                    date: .now,
+                    date: Date(),
                     phase: .readyOpenApp,
                     routineTitle: routine,
                     activityTitle: displayTitle,
@@ -158,12 +158,12 @@ enum WidgetEntryBuilder {
                     feedbackTitle: "",
                     feedbackChildName: "",
                     allDoneMessage: WidgetL10n.allDoneNeutral,
-                    canSwitchChildren: flags.canSwitch,
+                    canSwitchChildren: canSwitchChildren,
                     installationId: inst
                 )
             }
             return NextRoutineEntry(
-                date: .now,
+                date: Date(),
                 phase: .readyDirect,
                 routineTitle: routine,
                 activityTitle: displayTitle,
@@ -178,7 +178,7 @@ enum WidgetEntryBuilder {
                 feedbackTitle: "",
                 feedbackChildName: "",
                 allDoneMessage: WidgetL10n.allDoneNeutral,
-                canSwitchChildren: flags.canSwitch,
+                canSwitchChildren: canSwitchChildren,
                 installationId: inst
             )
         default:
@@ -260,7 +260,7 @@ enum WidgetEntryBuilder {
         default: title = WidgetL10n.loading
         }
         return NextRoutineEntry(
-            date: .now,
+            date: Date(),
             phase: phase,
             routineTitle: WidgetL10n.routineHeader,
             activityTitle: title,
@@ -282,7 +282,7 @@ enum WidgetEntryBuilder {
 
     static func switchingEntry(installationId: String? = nil) -> NextRoutineEntry {
         NextRoutineEntry(
-            date: .now,
+            date: Date(),
             phase: .switchingChild,
             routineTitle: WidgetL10n.routineHeader,
             activityTitle: WidgetL10n.switching,
@@ -309,7 +309,7 @@ enum WidgetEntryBuilder {
         installationId: String? = nil
     ) -> NextRoutineEntry {
         NextRoutineEntry(
-            date: .now,
+            date: Date(),
             phase: .feedback,
             routineTitle: WidgetL10n.routineHeader,
             activityTitle: title.isEmpty ? WidgetL10n.feedbackDone : title,
