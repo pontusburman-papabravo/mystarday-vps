@@ -222,6 +222,10 @@
     const backBar = document.getElementById('magicSettingsBackBar');
     if (backBar) backBar.innerHTML = renderSettingsBackBar();
     if (groupId === 'appearance') updateThemePickerUi();
+    if (groupId === 'app' && global.SettingsWidgets && typeof SettingsWidgets.mount === 'function') {
+      const widgetMount = document.getElementById('widgetSettingsSection');
+      if (widgetMount) SettingsWidgets.mount(widgetMount);
+    }
   }
 
   function hideSettingsGroup() {

@@ -29,6 +29,29 @@
     }
   }
 
+  function installAuthHooks() {
+    if (global.Auth && typeof Auth.setAuth === 'function' && !Auth.setAuth.__widgetBridgePatched) {
+      var orig = Auth.setAuth.bind(Auth);
+      Auth.setAuth = function (token, user, csrfToken, expMs) {
+        var out = orig(token, user, csrfToken, expMs);
+        if (user) {
+          setTimeout(onSessionReady, 0);
+        }
+        return out;
+      };
+      Auth.setAuth.__widgetBridgePatched = true;
+    }
+
+    if (global.Auth && typeof Auth._fullClear === 'function' && !Auth._fullClear.__widgetBridgePatched) {
+      var origClear = Auth._fullClear.bind(Auth);
+      Auth._fullClear = function () {
+        onLogout();
+        return origClear();
+      };
+      Auth._fullClear.__widgetBridgePatched = true;
+    }
+  }
+
   global.addEventListener('stjarndag:auth-logout', onLogout);
   global.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', onCompletion);
   global.addEventListener('stjarndag:widget-privacy-changed', function () {
@@ -37,23 +60,9 @@
     }
   });
 
-  if (global.Auth && typeof Auth.setAuth === 'function') {
-    var orig = Auth.setAuth.bind(Auth);
-    Auth.setAuth = function (token, user, csrfToken, expMs) {
-      var out = orig(token, user, csrfToken, expMs);
-      if (user) {
-        setTimeout(onSessionReady, 0);
-      }
-      return out;
-    };
-  }
-
-  if (global.Auth && typeof Auth._fullClear === 'function') {
-    var origClear = Auth._fullClear.bind(Auth);
-    Auth._fullClear = function () {
-      onLogout();
-      return origClear();
-    };
+  installAuthHooks();
+  if (global.document) {
+    global.document.addEventListener('DOMContentLoaded', installAuthHooks);
   }
 
   global.WidgetBridgeBootstrap = {

@@ -60,4 +60,17 @@ test('widget-bridge-bootstrap clears on auth logout event', () => {
   const bootstrap = fs.readFileSync(path.join(ROOT, 'public/js/widget-bridge-bootstrap.js'), 'utf8');
   assert.match(bootstrap, /stjarndag:auth-logout/);
   assert.match(bootstrap, /clearBindings/);
+  assert.match(bootstrap, /installAuthHooks/);
+});
+
+test('widget-bridge-provision supports force reconnect bypassing coalesce', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/widget-bridge-provision.js'), 'utf8');
+  assert.match(src, /options\.force/);
+  assert.match(src, /native_configure_failed/);
+});
+
+test('settings-widgets uses force sync on reconnect', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/settings-widgets.js'), 'utf8');
+  assert.match(src, /force:\s*true/);
+  assert.match(src, /mapBindingError/);
 });
