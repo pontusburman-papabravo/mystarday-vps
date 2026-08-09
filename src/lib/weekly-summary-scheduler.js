@@ -3,7 +3,9 @@
  *
  * Fires every Sunday at 21:00 Europe/Stockholm time.
  * Aggregates stars earned, routines completed, and mood ratings for the past week.
- * Sends a formatted email to every parent with weekly_summary = true in notification_preference.
+ * Sends a formatted email to every parent with weekly_summary = true in notification_preference
+ * who had family activity (login or child completion) within the last 28 days.
+ * Inactive parents are recorded in weekly_summary_inactive_log for a separate mail later.
  *
  * Does NOT manage any other notification type — reward redemption notifications
  * live in src/routes/rewards.js.
@@ -24,6 +26,11 @@ const {
   stockholmWallClockToUtcMs,
   addDaysToStockholmDate,
 } = require('./stockholm-time');
+const { sqlFamilyHadActivityWithinDays } = require('./family-recent-activity');
+const { recordInactiveParentsForWeek } = require('../../db/weekly-summary-inactive-log');
+
+/** Minimum recent activity window — no Sunday mail if inactive longer than this. */
+const WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS = 28;
 
 function msUntilNextSunday2100Stockholm({ afterRun = false, now = new Date() } = {}) {
   const parts = getStockholmDateParts(now);
@@ -301,6 +308,17 @@ async function runWeeklySummaryJob() {
     const weekLabel = `${startDate} – ${endDate}`;
     console.log(`[WEEKLY-SUMMARY] Starting job for ${weekLabel}`);
 
+    const inactiveLogged = await recordInactiveParentsForWeek(
+      endDate,
+      WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS
+    );
+    if (inactiveLogged > 0) {
+      console.log(
+        `[WEEKLY-SUMMARY] Logged ${inactiveLogged} inactive parent(s) (no activity in ${WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS}d) for later mail`
+      );
+    }
+
+    const familyActiveSql = sqlFamilyHadActivityWithinDays('p.family_id', WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS);
     const parentsResult = await db.query(
       `SELECT p.id AS parent_id, p.email, p.name AS parent_name, p.family_id,
               COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale,
@@ -309,11 +327,12 @@ async function runWeeklySummaryJob() {
        JOIN family f ON f.id = p.family_id
        JOIN notification_preference np ON np.parent_id = p.id
        WHERE np.weekly_summary = true AND np.email_enabled = true
-         AND p.verified = true`,
+         AND p.verified = true
+         AND ${familyActiveSql}`,
       []
     );
 
-    console.log(`[WEEKLY-SUMMARY] Found ${parentsResult.rows.length} opted-in parents`);
+    console.log(`[WEEKLY-SUMMARY] Found ${parentsResult.rows.length} opted-in active parents`);
 
     for (const parent of parentsResult.rows) {
       try {
@@ -425,4 +444,5 @@ module.exports = {
   msUntilNextSunday2100Stockholm,
   getStockholmWeekKey,
   buildEncouragementMessage,
+  WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS,
 };
