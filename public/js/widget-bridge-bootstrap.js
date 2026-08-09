@@ -31,9 +31,9 @@
 
   function installAuthHooks() {
     if (global.Auth && typeof Auth.setAuth === 'function' && !Auth.setAuth.__widgetBridgePatched) {
-      var orig = Auth.setAuth.bind(Auth);
+      const orig = Auth.setAuth.bind(Auth);
       Auth.setAuth = function (token, user, csrfToken, expMs) {
-        var out = orig(token, user, csrfToken, expMs);
+        const out = orig(token, user, csrfToken, expMs);
         if (user) {
           setTimeout(onSessionReady, 0);
         }
@@ -43,7 +43,7 @@
     }
 
     if (global.Auth && typeof Auth._fullClear === 'function' && !Auth._fullClear.__widgetBridgePatched) {
-      var origClear = Auth._fullClear.bind(Auth);
+      const origClear = Auth._fullClear.bind(Auth);
       Auth._fullClear = function () {
         onLogout();
         return origClear();

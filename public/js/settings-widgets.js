@@ -171,7 +171,7 @@
       const failMsg = 'Kunde inte ansluta just nu. Försök igen om en stund.';
       setMessage(mount, failMsg, true);
       flash(failMsg, true);
-    } catch (err) {
+    } catch (_err) {
       const failMsg = 'Kunde inte ansluta just nu. Kontrollera nätverket och försök igen.';
       setMessage(mount, failMsg, true);
       flash(failMsg, true);
