@@ -44,6 +44,14 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     schemaOnly: true,
     featureFlagInserts: [{ key: 'trusted_device_v1', enabled: false }],
   },
+  '1810240000000_weekly_summary_inactive_log': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
+  '1810250000000_landing_news_archive_i18n': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**
