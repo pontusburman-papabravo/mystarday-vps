@@ -45,6 +45,24 @@ if (!fs.existsSync(pbx)) {
       'WIDGET_PARENT_BUNDLE_ID must be set on project-level Debug (not App-target only) — re-run patch-ios-widget-bundle-id.mjs'
     );
   }
+  const bridgeRel =
+    '../../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift';
+  if (!src.includes(bridgeRel)) {
+    fail(
+      `WidgetBridgeStore.swift PBX path must be ${bridgeRel} — run patch-ios-widget-bridge-store-path.mjs`
+    );
+  }
+  const bridgeAbs = path.join(
+    ROOT,
+    'plugins',
+    'capacitor-widget-bridge',
+    'ios',
+    'Plugin',
+    'WidgetBridgeStore.swift'
+  );
+  if (!fs.existsSync(bridgeAbs)) {
+    fail(`Missing ${path.relative(ROOT, bridgeAbs)} on disk`);
+  }
 }
 
 if (!fs.existsSync(path.join(ROOT, 'ios/App/WidgetRoutine/WidgetRoutine.entitlements'))) {

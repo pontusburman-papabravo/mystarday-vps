@@ -52,7 +52,7 @@ const snippet = `
 \t\tR45D011D1FED79650016851 /* WidgetPictogramMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPictogramMap.swift; sourceTree = "<group>"; };
 \t\tR45D011F1FED79650016851 /* WidgetIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntents.swift; sourceTree = "<group>"; };
 \t\tR45D01211FED79650016851 /* WidgetBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBackgroundModifier.swift; sourceTree = "<group>"; };
-\t\tR45D01231FED79650016851 /* WidgetBridgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetBridgeStore.swift; path = ../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift; sourceTree = "<group>"; };
+\t\tR45D01231FED79650016851 /* WidgetBridgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetBridgeStore.swift; path = ../../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift; sourceTree = "<group>"; };
 \t\tR45D01261FED79650016851 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 \t\tR45D01271FED79650016851 /* WidgetRoutine.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetRoutine.entitlements; sourceTree = "<group>"; };
 \t\tR45D01251FED79650016851 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };

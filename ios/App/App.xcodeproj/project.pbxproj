@@ -63,7 +63,7 @@
 		R45D011F1FED79650016851 /* WidgetIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntents.swift; sourceTree = "<group>"; };
 		R45G011F1FED79650016851 /* WidgetConfigurationIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetConfigurationIntents.swift; sourceTree = "<group>"; };
 		R45D01211FED79650016851 /* WidgetBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBackgroundModifier.swift; sourceTree = "<group>"; };
-		R45D01231FED79650016851 /* WidgetBridgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetBridgeStore.swift; path = ../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift; sourceTree = "<group>"; };
+		R45D01231FED79650016851 /* WidgetBridgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetBridgeStore.swift; path = ../../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift; sourceTree = "<group>"; };
 		R45D01261FED79650016851 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		R45D01271FED79650016851 /* WidgetRoutine.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetRoutine.entitlements; sourceTree = "<group>"; };
 		R45D01251FED79650016851 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
