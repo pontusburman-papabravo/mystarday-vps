@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 enum WidgetPhase: String {
     case loading

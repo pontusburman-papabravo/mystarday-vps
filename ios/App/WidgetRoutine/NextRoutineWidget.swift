@@ -82,7 +82,7 @@ struct NextRoutineIntentProvider: AppIntentTimelineProvider {
 }
 
 @available(iOS 17.0, *)
-private extension NextRoutineProvider {
+fileprivate extension NextRoutineProvider {
     func previewEntryForIntent(_ configuration: NextRoutineWidgetConfigIntent) -> NextRoutineEntry {
         NextRoutineEntry(
             date: .now,

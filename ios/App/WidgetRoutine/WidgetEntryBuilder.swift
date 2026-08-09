@@ -194,11 +194,9 @@ enum WidgetEntryBuilder {
         return "\(mins) min"
     }
 
-    private static func entryFlags(installationId: String?) -> (canSwitch: Bool) {
-        (
-            WidgetBridgeStore.canSwitchChildren(installationId: installationId)
-                && !WidgetBridgeStore.isSwitchInProgress(installationId: installationId)
-        )
+    private static func entryFlags(installationId: String?) -> Bool {
+        WidgetBridgeStore.canSwitchChildren(installationId: installationId)
+            && !WidgetBridgeStore.isSwitchInProgress(installationId: installationId)
     }
 
     private static func childLabelIfAllowed(installationId: String?) -> String? {
