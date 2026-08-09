@@ -146,6 +146,10 @@
     try {
       const result = await global.WidgetBridgeProvision.syncBinding({ childId: childId, force: true });
 
+      if (result && result.superseded) {
+        return;
+      }
+
       if (result && result.ok) {
         const okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
         setMessage(mount, okMsg, false);
