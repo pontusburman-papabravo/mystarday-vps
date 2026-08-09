@@ -31,6 +31,9 @@
       '</dl>' +
       '<button type="button" id="widgetSettingsReconnect" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-semibold min-h-[44px]">' +
       'Återanslut widget' +
+      '</button>' +
+      '<button type="button" id="widgetSettingsGuide" class="w-full mt-2 px-4 py-3 bg-lavender/40 text-navy rounded-xl font-semibold min-h-[44px]">' +
+      'Visa guide för hemskärmswidget' +
       '</button>';
 
     var btn = mount.querySelector('#widgetSettingsReconnect');
@@ -41,6 +44,12 @@
           btn.disabled = false;
           renderWidgetSettings(mount);
         });
+      });
+    }
+    var guideBtn = mount.querySelector('#widgetSettingsGuide');
+    if (guideBtn && global.WidgetInstallPrompt) {
+      guideBtn.addEventListener('click', function () {
+        global.WidgetInstallPrompt.openGuide();
       });
     }
   }

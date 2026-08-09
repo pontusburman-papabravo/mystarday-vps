@@ -16,14 +16,14 @@ struct NextRoutineProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<NextRoutineEntry>) -> Void) {
         WidgetEntryBuilder.buildFromStorageOrFetch { entry in
-            let refresh = Calendar.current.date(byAdding: .minute, value: 15, to: .now) ?? .now
+            let refresh = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date()
             completion(Timeline(entries: [entry], policy: .after(refresh)))
         }
     }
 
     private func previewEntry() -> NextRoutineEntry {
         NextRoutineEntry(
-            date: .now,
+            date: Date(),
             phase: .readyDirect,
             routineTitle: "Morgon",
             activityTitle: "Borsta tänderna",
@@ -62,7 +62,7 @@ struct NextRoutineIntentProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: NextRoutineWidgetConfigIntent, in context: Context) async -> Timeline<NextRoutineEntry> {
         let entry = await loadEntry(configuration: configuration)
-        let refresh = Calendar.current.date(byAdding: .minute, value: 15, to: .now) ?? .now
+        let refresh = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date()
         return Timeline(entries: [entry], policy: .after(refresh))
     }
 
@@ -82,10 +82,10 @@ struct NextRoutineIntentProvider: AppIntentTimelineProvider {
 }
 
 @available(iOS 17.0, *)
-private extension NextRoutineProvider {
+fileprivate extension NextRoutineProvider {
     func previewEntryForIntent(_ configuration: NextRoutineWidgetConfigIntent) -> NextRoutineEntry {
         NextRoutineEntry(
-            date: .now,
+            date: Date(),
             phase: .readyDirect,
             routineTitle: "Morgon",
             activityTitle: "Borsta tänderna",
@@ -238,7 +238,7 @@ struct NextRoutineWidgetEntryView: View {
                         .font(.headline)
                         .foregroundStyle(.green)
                 }
-        if entry.feedbackStars > 0 {
+                if entry.feedbackStars > 0 {
                     Text(WidgetL10n.starsAdded(entry.feedbackStars))
                         .font(.subheadline)
                 }

@@ -32,6 +32,37 @@ if (!fs.existsSync(pbx)) {
   if (!src.includes('R45D01011FED79650016851 /* WidgetRoutine */')) {
     fail('WidgetRoutine target missing — run patch-ios-widget-extension.mjs');
   }
+  if (!/WIDGET_PARENT_BUNDLE_ID\s*=/.test(src)) {
+    fail(
+      'WIDGET_PARENT_BUNDLE_ID build setting missing — run patch-ios-widget-bundle-id.mjs (or ios:release:prepare)'
+    );
+  }
+  const projectDebug = src.match(
+    /504EC3141FED79650016851F \/\* Debug \*\/ = \{[\s\S]*?buildSettings = \{([\s\S]*?)\n\t\t\t\};/
+  );
+  if (!projectDebug || !/WIDGET_PARENT_BUNDLE_ID\s*=/.test(projectDebug[1])) {
+    fail(
+      'WIDGET_PARENT_BUNDLE_ID must be set on project-level Debug (not App-target only) — re-run patch-ios-widget-bundle-id.mjs'
+    );
+  }
+  const bridgeRel =
+    '../../../plugins/capacitor-widget-bridge/ios/Plugin/WidgetBridgeStore.swift';
+  if (!src.includes(bridgeRel)) {
+    fail(
+      `WidgetBridgeStore.swift PBX path must be ${bridgeRel} — run patch-ios-widget-bridge-store-path.mjs`
+    );
+  }
+  const bridgeAbs = path.join(
+    ROOT,
+    'plugins',
+    'capacitor-widget-bridge',
+    'ios',
+    'Plugin',
+    'WidgetBridgeStore.swift'
+  );
+  if (!fs.existsSync(bridgeAbs)) {
+    fail(`Missing ${path.relative(ROOT, bridgeAbs)} on disk`);
+  }
 }
 
 if (!fs.existsSync(path.join(ROOT, 'ios/App/WidgetRoutine/WidgetRoutine.entitlements'))) {

@@ -6,7 +6,7 @@ Do **not** upload from CI agents without founder approval. Do **not** commit sec
 
 ## iOS / iPadOS (1.3, build ≥ 30)
 
-1. Clean checkout of latest `main`.
+1. Clean checkout of latest `main` (must include committed `ios/` — never `rm -rf ios`; only remove `ios/App/Pods` and `ios/App/Podfile.lock` if you need a fresh `pod install`).
 2. `export META_CLIENT_TOKEN='…'` (Meta App Dashboard → Settings → Advanced). **Required** for `FacebookClientToken` in Info.plist.
 3. `export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"` (Node 20).
 4. `npm install --include=dev --legacy-peer-deps` (or `npm ci` with the same flags) **before** release prepare.

@@ -386,6 +386,11 @@ enum WidgetBridgeStore {
         defaults?.string(forKey: "widget_api_base_url")
     }
 
+    static func defaultsRefreshTimestamp() {
+        defaults?.set(ISO8601DateFormatter().string(from: Date()), forKey: "last_refresh_at")
+        defaults?.synchronize()
+    }
+
     // MARK: - Keychain
 
     private static func setKeychain(_ value: String, scope: String) throws {

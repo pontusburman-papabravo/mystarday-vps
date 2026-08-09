@@ -22,6 +22,11 @@
     if (global.WidgetBridgeProvision) {
       WidgetBridgeProvision.syncBinding().catch(function () {});
     }
+    if (global.WidgetInstallPrompt) {
+      setTimeout(function () {
+        WidgetInstallPrompt.tryShow().catch(function () {});
+      }, 1200);
+    }
   }
 
   global.addEventListener('stjarndag:auth-logout', onLogout);

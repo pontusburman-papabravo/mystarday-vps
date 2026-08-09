@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 enum WidgetPhase: String {
     case loading
@@ -35,7 +36,7 @@ struct NextRoutineEntry: TimelineEntry {
 
     static func loading(installationId: String? = nil) -> NextRoutineEntry {
         NextRoutineEntry(
-            date: .now,
+            date: Date(),
             phase: .loading,
             routineTitle: WidgetL10n.routineHeader,
             activityTitle: WidgetL10n.loading,
