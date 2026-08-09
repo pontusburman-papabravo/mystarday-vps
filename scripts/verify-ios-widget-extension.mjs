@@ -32,6 +32,11 @@ if (!fs.existsSync(pbx)) {
   if (!src.includes('R45D01011FED79650016851 /* WidgetRoutine */')) {
     fail('WidgetRoutine target missing — run patch-ios-widget-extension.mjs');
   }
+  if (!/WIDGET_PARENT_BUNDLE_ID\s*=/.test(src)) {
+    fail(
+      'WIDGET_PARENT_BUNDLE_ID build setting missing — run patch-ios-widget-bundle-id.mjs (or ios:release:prepare)'
+    );
+  }
 }
 
 if (!fs.existsSync(path.join(ROOT, 'ios/App/WidgetRoutine/WidgetRoutine.entitlements'))) {

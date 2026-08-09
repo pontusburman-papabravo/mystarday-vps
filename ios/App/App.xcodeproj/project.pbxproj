@@ -526,6 +526,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 30;
 				INFOPLIST_FILE = App/Info.plist;
+				WIDGET_PARENT_BUNDLE_ID = se.mystarday.app; // pragma: allowlist secret
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -548,6 +549,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 30;
 				INFOPLIST_FILE = App/Info.plist;
+				WIDGET_PARENT_BUNDLE_ID = se.mystarday.app; // pragma: allowlist secret
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
