@@ -5,6 +5,9 @@
   'use strict';
 
   function onLogout() {
+    if (global.WidgetBridgeProvision && typeof WidgetBridgeProvision.invalidateBindingIntents === 'function') {
+      WidgetBridgeProvision.invalidateBindingIntents();
+    }
     if (global.WidgetBridgeClient) {
       WidgetBridgeClient.clearBindings().then(function () {
         return WidgetBridgeClient.refreshAll();

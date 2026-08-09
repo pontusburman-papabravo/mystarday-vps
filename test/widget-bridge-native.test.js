@@ -63,9 +63,11 @@ test('widget-bridge-bootstrap clears on auth logout event', () => {
   assert.match(bootstrap, /installAuthHooks/);
 });
 
-test('widget-bridge-provision supports force reconnect bypassing coalesce', () => {
+test('widget-bridge-provision serializes binding intent and guards native configure', () => {
   const src = fs.readFileSync(path.join(ROOT, 'public/js/widget-bridge-provision.js'), 'utf8');
-  assert.match(src, /options\.force/);
+  assert.match(src, /invalidateBindingIntents/);
+  assert.match(src, /isSuperseded/);
+  assert.match(src, /superseded:\s*true/);
   assert.match(src, /native_configure_failed/);
 });
 
