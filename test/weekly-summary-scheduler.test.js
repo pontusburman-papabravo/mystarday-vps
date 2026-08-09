@@ -7,6 +7,7 @@ const path = require('path');
 const {
   msUntilNextSunday2100Stockholm,
   buildEncouragementMessage,
+  WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS,
 } = require('../src/lib/weekly-summary-scheduler');
 const { buildNotificationEmailFooterHtml } = require('../src/lib/email-notification-footer');
 const { buildOptOutUrl } = require('../src/lib/notification-email-opt-out');
@@ -22,6 +23,9 @@ describe('weekly summary scheduler', () => {
     );
     assert.ok(src.includes('db.getClient()'), 'must acquire advisory lock on a dedicated connection');
     assert.ok(src.includes('weekly_summary_send_log'), 'must dedupe sends per parent/week');
+    assert.ok(src.includes('weekly_summary_inactive_log'), 'must track inactive parents for later mail');
+    assert.ok(src.includes('family-recent-activity'), 'must use shared family activity definition');
+    assert.equal(WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS, 28);
     assert.ok(src.includes("apiKeyProfile: 'weekly'"), 'must use dedicated weekly Resend key profile');
     assert.ok(src.includes('stockholm-time'), 'must use timezone-safe Stockholm conversion');
     assert.ok(!src.includes('Fail-open'), 'must not fail open on lock errors');
