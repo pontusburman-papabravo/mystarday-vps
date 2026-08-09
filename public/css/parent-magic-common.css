@@ -607,6 +607,43 @@ body.parent-magic-view:not(.parent-theme-light) #widgetSettingsSection .widget-s
   color: #86efac !important;
 }
 
+.native-settings-back-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 30;
+}
+
+.native-settings-back-link,
+.native-settings-menu-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4f4ff;
+}
+
+html:not(.dark) .native-settings-back-link,
+html:not(.dark) .native-settings-menu-link,
+body.parent-theme-light .native-settings-back-link,
+body.parent-theme-light .native-settings-menu-link {
+  background: #fff;
+  color: #1b2340;
+  border-color: rgba(27, 35, 64, 0.12);
+}
+
 body.parent-magic-view:not(.parent-theme-light) input[type="text"],
 body.parent-magic-view:not(.parent-theme-light) input[type="email"],
 body.parent-magic-view:not(.parent-theme-light) input[type="password"],
