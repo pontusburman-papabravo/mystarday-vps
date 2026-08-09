@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const { optionalAuth } = require('../middleware/auth');
+const { optionalAuth, requireAuth } = require('../middleware/auth');
 const trusted = require('../lib/trusted-device');
 const {
   resolveBindingFromTrustedDevice,
@@ -23,6 +23,20 @@ const analytics = require('../../db/analytics');
 const deviceDb = require('../../db/family-trusted-device');
 
 const router = express.Router();
+
+// ─── GET /api/widget/native-status — client gating for native widget promo ───
+router.get('/native-status', requireAuth, async (req, res, next) => {
+  try {
+    const familyId = req.user.familyId;
+    if (!familyId) {
+      return res.json({ native_widget_enabled: false });
+    }
+    const enabled = await isNativeWidgetEnabled(familyId);
+    return res.json({ native_widget_enabled: enabled });
+  } catch (err) {
+    next(err);
+  }
+});
 
 function extractBindingToken(req) {
   const auth = req.headers.authorization || '';

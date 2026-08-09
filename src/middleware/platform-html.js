@@ -451,6 +451,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/widget-bridge-client.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-provision.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/widget-install-prompt.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/meta-app-events.js?v=' + RELEASE_TAG + '"><\/script>',
