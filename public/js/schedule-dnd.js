@@ -10,7 +10,14 @@
  * ScheduleCore. Handlers exposed on window for inline onclick + cross-file callers.
  */
 (function () {
-  const { DAYS, SECTIONS } = window.ScheduleCore;
+  const { DAYS, SECTIONS, buildOrderedDailyIdsFromReorder, pendingReorderIncludesOnceTask } = window.ScheduleCore;
+
+  function onceTaskDragFiltered(evt) {
+    const el = evt.target.closest ? evt.target.closest('.activity-item') : null;
+    if (!el || !el.classList.contains('once-task-item')) return false;
+    const dateStr = typeof getCurrentDayDateStr === 'function' ? getCurrentDayDateStr() : null;
+    return !dateStr;
+  }
 
   function spt(key, params) {
     return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
@@ -46,7 +53,7 @@
         animation: 200,
         handle: '.drag-handle',
         draggable: '.activity-item',
-        filter: '.once-task-item',
+        filter: onceTaskDragFiltered,
         preventOnFilter: false,
         forceFallback: true,
         fallbackTolerance: 3,
@@ -87,6 +94,7 @@
   // "Bara idag / Alla [veckodagar]" confirmation dialog
   function showReorderDialog() {
     const dayPlural = dayPluralLabel();
+    const hideAllDays = _pendingReorderOrder && pendingReorderIncludesOnceTask(_pendingReorderOrder, scheduleItems);
     const existing = document.getElementById('reorder-dialog-overlay');
     if (existing) existing.remove();
 
@@ -97,14 +105,14 @@
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center">
       <p class="text-2xl mb-2">↕️</p>
       <h3 class="font-heading font-bold text-navy text-lg mb-1">${spt('schedule.dnd.reorderTitle')}</h3>
-      <p class="text-sm text-text-soft mb-5">${spt('schedule.dnd.reorderBody', { plural: dayPlural })}</p>
+      <p class="text-sm text-text-soft mb-5">${hideAllDays ? spt('schedule.dnd.reorderOnceBody') : spt('schedule.dnd.reorderBody', { plural: dayPlural })}</p>
       <div class="flex flex-col gap-2">
         <button id="reorder-today-btn" class="w-full py-3 px-4 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
           ${spt('schedule.dnd.reorderTodayBtn')}
         </button>
-        <button id="reorder-all-btn" class="w-full py-3 px-4 bg-navy hover:bg-purple-900 text-white rounded-xl font-semibold text-sm transition-colors">
+        ${hideAllDays ? '' : `<button id="reorder-all-btn" class="w-full py-3 px-4 bg-navy hover:bg-purple-900 text-white rounded-xl font-semibold text-sm transition-colors">
           ${spt('schedule.dnd.reorderAllBtn', { plural: dayPlural })}
-        </button>
+        </button>`}
         <button id="reorder-cancel-btn" class="w-full py-2 px-4 text-text-soft hover:text-navy text-sm transition-colors">
           ${spt('schedule.modals.common.cancel')}
         </button>
@@ -114,7 +122,8 @@
 
     overlay.addEventListener('click', (e) => { if (e.target === overlay) cancelReorderDialog(); });
     document.getElementById('reorder-today-btn').addEventListener('click', () => confirmReorderTodayOnly());
-    document.getElementById('reorder-all-btn').addEventListener('click', () => confirmReorderAllDays());
+    const allBtn = document.getElementById('reorder-all-btn');
+    if (allBtn) allBtn.addEventListener('click', () => confirmReorderAllDays());
     document.getElementById('reorder-cancel-btn').addEventListener('click', () => cancelReorderDialog());
   }
 
@@ -179,28 +188,7 @@
       const logData = await logRes.json();
       const logItems = logData.items || [];
 
-      // Map new order: for each section, ordered template IDs → matching daily_log_item IDs
-      const orderedDailyIds = [];
-      SECTIONS.forEach(sec => {
-        const sectionOrder = newOrder.filter(o => o.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
-        for (const entry of sectionOrder) {
-          // Find schedule item to get activity_template_id
-          const schedItem = scheduleItems.find(i => i.id == entry.id);
-          if (!schedItem) continue;
-          const templateId = schedItem.activity_template_id;
-          if (!templateId) continue; // skip once-tasks
-
-          // Find matching daily_log_item by activity_template_id + section
-          const match = logItems.find(li =>
-            li.activity_template_id == templateId && li.section === sec.key &&
-            !orderedDailyIds.includes(li.id)
-          );
-          if (match) orderedDailyIds.push(match.id);
-        }
-        // Append any remaining daily_log_items in this section not matched (once-tasks, etc)
-        logItems.filter(li => li.section === sec.key && !orderedDailyIds.includes(li.id))
-          .forEach(li => orderedDailyIds.push(li.id));
-      });
+      const orderedDailyIds = buildOrderedDailyIdsFromReorder(newOrder, scheduleItems, logItems);
 
       if (orderedDailyIds.length === 0) throw new Error(spt('schedule.dnd.nothingToSort'));
 

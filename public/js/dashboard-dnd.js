@@ -7,6 +7,14 @@
  * DAYS via ScheduleCore). Handlers exposed on window for inline onclick + dashboard.js callers.
  */
 (function () {
+  const { buildOrderedDailyIdsFromReorder, pendingReorderIncludesOnceTask } = window.ScheduleCore;
+
+  function onceTaskDragFiltered(evt) {
+    const el = evt.target.closest ? evt.target.closest('.activity-item') : null;
+    if (!el || !el.classList.contains('once-task-item')) return false;
+    return typeof getCurrentDateStr !== 'function' || !getCurrentDateStr();
+  }
+
 let scheduleSortables = {}; // section -> Sortable instance
 let scheduleDragSrc = null; // { id, section } from sortablejs evt.item
 let _pendingReorderSection = null; // section key from last drag
@@ -32,7 +40,7 @@ function initDragDrop() {
       animation: 200,
       handle: '.drag-handle',
       draggable: '.activity-item',
-      filter: '.once-task-item',
+      filter: onceTaskDragFiltered,
       preventOnFilter: false,
       forceFallback: true,
       fallbackTolerance: 3,
@@ -74,6 +82,7 @@ function captureAndAskReorder(section) {
 function showReorderDialog() {
   const dayName = DAYS[currentDay] ? DAYS[currentDay].toLowerCase() : '';
   const dayPlural = dayName ? `alla ${dayName}ar` : 'alla dagar';
+  const hideAllDays = _pendingReorderOrder && pendingReorderIncludesOnceTask(_pendingReorderOrder, scheduleItems);
   const existing = document.getElementById('reorder-dialog-overlay');
   if (existing) existing.remove();
 
@@ -84,14 +93,14 @@ function showReorderDialog() {
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center">
       <p class="text-2xl mb-2">↕️</p>
       <h3 class="font-heading font-bold text-navy text-lg mb-1">Ändra ordning</h3>
-      <p class="text-sm text-text-soft mb-5">Ska ändringen gälla bara idag eller ${dayPlural}?</p>
+      <p class="text-sm text-text-soft mb-5">${hideAllDays ? 'Engångsaktiviteter kan bara flyttas för idag. Spara den nya ordningen?' : `Ska ändringen gälla bara idag eller ${dayPlural}?`}</p>
       <div class="flex flex-col gap-2">
         <button id="reorder-today-btn" class="w-full py-3 px-4 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
           📅 Ändra bara idag
         </button>
-        <button id="reorder-all-btn" class="w-full py-3 px-4 bg-navy hover:bg-purple-900 text-white rounded-xl font-semibold text-sm transition-colors">
+        ${hideAllDays ? '' : `<button id="reorder-all-btn" class="w-full py-3 px-4 bg-navy hover:bg-purple-900 text-white rounded-xl font-semibold text-sm transition-colors">
           🔁 Ändra ${dayPlural}
-        </button>
+        </button>`}
         <button id="reorder-cancel-btn" class="w-full py-2 px-4 text-text-soft hover:text-navy text-sm transition-colors">
           Avbryt
         </button>
@@ -101,7 +110,8 @@ function showReorderDialog() {
 
   overlay.addEventListener('click', (e) => { if (e.target === overlay) cancelReorderDialog(); });
   document.getElementById('reorder-today-btn').addEventListener('click', () => confirmReorderTodayOnly());
-  document.getElementById('reorder-all-btn').addEventListener('click', () => confirmReorderAllDays());
+  const allBtn = document.getElementById('reorder-all-btn');
+  if (allBtn) allBtn.addEventListener('click', () => confirmReorderAllDays());
   document.getElementById('reorder-cancel-btn').addEventListener('click', () => cancelReorderDialog());
 }
 
@@ -163,24 +173,7 @@ async function confirmReorderTodayOnly() {
     const logData = await logRes.json();
     const logItems = logData.items || [];
 
-    // Map new order: template IDs → matching daily_log_item IDs
-    const orderedDailyIds = [];
-    SECTIONS.forEach(sec => {
-      const sectionOrder = newOrder.filter(o => o.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
-      for (const entry of sectionOrder) {
-        const schedItem = scheduleItems.find(i => i.id == entry.id);
-        if (!schedItem) continue;
-        const templateId = schedItem.activity_template_id;
-        if (!templateId) continue;
-        const match = logItems.find(li =>
-          li.activity_template_id === templateId && li.section === sec.key &&
-          !orderedDailyIds.includes(li.id)
-        );
-        if (match) orderedDailyIds.push(match.id);
-      }
-      logItems.filter(li => li.section === sec.key && !orderedDailyIds.includes(li.id))
-        .forEach(li => orderedDailyIds.push(li.id));
-    });
+    const orderedDailyIds = buildOrderedDailyIdsFromReorder(newOrder, scheduleItems, logItems);
 
     if (orderedDailyIds.length === 0) throw new Error('Inga aktiviteter att sortera');
 

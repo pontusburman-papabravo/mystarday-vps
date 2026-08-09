@@ -503,6 +503,7 @@
   "dnd": {
     "reorderTitle": "Change order",
     "reorderBody": "Apply the change just today, or {{plural}}?",
+    "reorderOnceBody": "One-off activities can only be reordered for today. Save the new order?",
     "reorderTodayBtn": "📅 Change today only",
     "reorderAllBtn": "🔁 Change {{plural}}",
     "savedAll": "Order saved for {{plural}} ✅",

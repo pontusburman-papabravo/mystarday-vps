@@ -810,9 +810,14 @@ function renderItem(item) {
   const isOnce = !!item.is_once_task;
   const onceClass = isOnce ? ' once-task-item' : '';
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
-  const dragHandle = isOnce ? '' : '<button type="button" class="drag-handle" aria-label="Dra för att ändra ordning">⠿</button>';
+  const canReorderOnceToday = isOnce && !!getCurrentDateStr();
+  const dragHandle = (!isOnce || canReorderOnceToday)
+    ? '<button type="button" class="drag-handle" aria-label="Dra för att ändra ordning">⠿</button>'
+    : '';
   const oncePin = isOnce ? '<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>' : '';
-  const moveBtns = isOnce ? '' : `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="Flytta upp" aria-label="Flytta upp">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="Flytta ner" aria-label="Flytta ner">▼</button>`;
+  const moveBtns = (!isOnce || canReorderOnceToday)
+    ? `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="Flytta upp" aria-label="Flytta upp">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="Flytta ner" aria-label="Flytta ner">▼</button>`
+    : '';
   const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="Redigera">✏️</button>`;
   const timeStr = item.start_time ? fmtTime(item.start_time) + (item.end_time ? '–' + fmtTime(item.end_time) : '') : '';
   return `

@@ -503,6 +503,7 @@
   "dnd": {
     "reorderTitle": "Ändra ordning",
     "reorderBody": "Ska ändringen gälla bara idag eller {{plural}}?",
+    "reorderOnceBody": "Engångsaktiviteter kan bara flyttas för idag. Spara den nya ordningen?",
     "reorderTodayBtn": "📅 Ändra bara idag",
     "reorderAllBtn": "🔁 Ändra {{plural}}",
     "savedAll": "Ordning sparad för {{plural}} ✅",
