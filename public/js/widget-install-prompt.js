@@ -5,16 +5,16 @@
 (function (global) {
   'use strict';
 
-  var DISMISS_FOREVER_KEY = 'stjarndag_widget_homescreen_prompt_dismiss_v1';
-  var OVERLAY_ID = 'msj-widget-prompt-overlay';
-  var _showPromise = null;
+  const DISMISS_FOREVER_KEY = 'stjarndag_widget_homescreen_prompt_dismiss_v1';
+  const OVERLAY_ID = 'msj-widget-prompt-overlay';
+  let _showPromise = null;
 
   function isNative() {
     return global.WidgetBridgeClient && global.WidgetBridgeClient.isNative();
   }
 
   function isExcludedPath() {
-    var p = (global.location.pathname || '').replace(/\/$/, '') || '/';
+    const p = (global.location.pathname || '').replace(/\/$/, '') || '/';
     if (p === '/login' || p === '/register' || p === '/onboarding' || p === '/admin') return true;
     if (p === '/' || p === '/index.html' || p === '/en' || p === '/en.html') return true;
     return false;
@@ -39,14 +39,14 @@
   }
 
   function removeModal() {
-    var overlay = global.document.getElementById(OVERLAY_ID);
+    const overlay = global.document.getElementById(OVERLAY_ID);
     if (overlay) overlay.remove();
   }
 
   function buildModal(opts) {
     opts = opts || {};
     removeModal();
-    var overlay = global.document.createElement('div');
+    const overlay = global.document.createElement('div');
     overlay.id = OVERLAY_ID;
     overlay.className = 'fixed inset-0 z-[10450] flex items-end sm:items-center justify-center p-4 bg-black/50';
     overlay.setAttribute('role', 'presentation');
@@ -76,9 +76,9 @@
 
     global.document.body.appendChild(overlay);
 
-    var connectBtn = overlay.querySelector('#msjWidgetPromptConnect');
-    var laterBtn = overlay.querySelector('#msjWidgetPromptLater');
-    var settingsBtn = overlay.querySelector('#msjWidgetPromptSettings');
+    const connectBtn = overlay.querySelector('#msjWidgetPromptConnect');
+    const laterBtn = overlay.querySelector('#msjWidgetPromptLater');
+    const settingsBtn = overlay.querySelector('#msjWidgetPromptSettings');
 
     if (connectBtn) {
       connectBtn.addEventListener('click', function () {
@@ -105,7 +105,7 @@
   }
 
   function closeWithOptions(overlay, afterConnect) {
-    var never = overlay.querySelector('#msjWidgetPromptNever');
+    const never = overlay.querySelector('#msjWidgetPromptNever');
     if (never && never.checked) setDismissedForever();
     removeModal();
     if (!afterConnect && never && never.checked) return;
@@ -113,7 +113,7 @@
 
   async function onConnect() {
     if (!global.WidgetBridgeProvision) return;
-    var result = await global.WidgetBridgeProvision.syncBinding({});
+    const result = await global.WidgetBridgeProvision.syncBinding({});
     if (result && result.ok) return;
     if (result && result.skipped && result.reason === 'no_child_context') {
       global.location.href = '/settings#widgetSettingsSection';
@@ -128,16 +128,16 @@
       if (!isNative() || !isLoggedIn()) return false;
     }
 
-    var status = {};
+    let status = {};
     try {
       status = await global.WidgetBridgeClient.getStatus();
     } catch (_) { /* ignore */ }
     if (status.hasBinding && !opts.force) return false;
 
     try {
-      var res = await global.fetch('/api/widget/native-status', { credentials: 'include' });
+      const res = await global.fetch('/api/widget/native-status', { credentials: 'include' });
       if (!res.ok) return false;
-      var data = await res.json();
+      const data = await res.json();
       return !!data.native_widget_enabled;
     } catch (_) {
       return false;
