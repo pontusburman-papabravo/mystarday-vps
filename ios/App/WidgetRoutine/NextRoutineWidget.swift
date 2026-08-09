@@ -238,7 +238,7 @@ struct NextRoutineWidgetEntryView: View {
                         .font(.headline)
                         .foregroundStyle(.green)
                 }
-        if entry.feedbackStars > 0 {
+                if entry.feedbackStars > 0 {
                     Text(WidgetL10n.starsAdded(entry.feedbackStars))
                         .font(.subheadline)
                 }
