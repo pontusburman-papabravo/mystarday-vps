@@ -8,8 +8,8 @@ module.exports = {
     await client.query(`
       CREATE TABLE IF NOT EXISTS weekly_summary_inactive_log (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        parent_id UUID NOT NULL REFERENCES parent(id) ON DELETE CASCADE,
-        family_id UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+        parent_id UUID NOT NULL REFERENCES parent(id),
+        family_id UUID NOT NULL REFERENCES family(id),
         week_end_date DATE NOT NULL,
         skip_reason VARCHAR(64) NOT NULL DEFAULT 'inactive_4_weeks',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
