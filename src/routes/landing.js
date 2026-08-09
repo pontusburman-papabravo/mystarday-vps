@@ -96,7 +96,14 @@ function esc(str) {
 }
 
 // Server-side renders landing news directly into the HTML (no client-side JS needed)
-async function injectLandingNews(html) {
+async function injectLandingNews(html, { locale = 'sv' } = {}) {
+  const archiveHref = locale === 'en' ? '/en/news/archive' : '/nyheter/arkiv';
+  const archiveLabel = locale === 'en' ? 'News archive' : 'Tidigare nyheter';
+  const archiveLinkHtml =
+    `<p style="text-align:center;margin-top:0.65rem;">` +
+    `<a href="${archiveHref}" style="font-size:0.82rem;font-weight:600;color:var(--text-2);text-decoration:none;">` +
+  `${archiveLabel} →</a></p>`;
+
   let items = [];
   try {
     items = await getActiveItems();
@@ -104,7 +111,7 @@ async function injectLandingNews(html) {
     console.error('[landing] news injection error:', err.message);
   }
   if (!items || !items.length) {
-    // Hide the section entirely when no news
+    // Hide the section entirely when no news — keep archive link in footer only
     return html.replace(
       /(<div id="landingNewsSection")[^>]*(>[\s\S]*?<\/div>\s*<\/div>)/,
       '$1 style="display:none"$2'
@@ -138,6 +145,7 @@ async function injectLandingNews(html) {
   // Replace the placeholder section with the pre-rendered content (visible)
   const sectionHtml = '<div id="landingNewsSection" style="width:100%;max-width:460px;margin-bottom:1.4rem;">'
     + '<div id="landingNewsGrid" style="display:flex;flex-direction:column;gap:0.8rem;">' + cardsHtml + '</div>'
+    + archiveLinkHtml
     + '</div>';
   return html.replace(
     /<div id="landingNewsSection"[^>]*>[\s\S]*?<\/div>\s*<\/div>/,
@@ -160,7 +168,7 @@ async function serveLandingHtml(res, filename) {
   html = injectSocialLinks(html);
   html = injectStoreLinks(html);
   html = injectStoreBadgeSvgs(html);
-  html = await injectLandingNews(html);
+  html = await injectLandingNews(html, { locale: filename === 'en.html' ? 'en' : 'sv' });
   html = injectIncidentNotice(html);
   html = injectAppMode(html);
   res.type('html').send(html);

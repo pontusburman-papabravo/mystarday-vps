@@ -23,6 +23,7 @@ const CORE_MIRROR_PAGES = [
   { sv: '/bildschema-app', en: '/en/visual-schedule-app', fileSv: 'bildschema-app.html', fileEn: 'en/visual-schedule-app.html' },
   { sv: '/alternativ-bildschema-tavla', en: '/en/alternative-visual-schedule-board', fileSv: 'alternativ-bildschema-tavla.html', fileEn: 'en/alternative-visual-schedule-board.html' },
   { sv: '/veckoschema-bildstod', en: '/en/weekly-schedule-visual-support', fileSv: 'veckoschema-bildstod.html', fileEn: 'en/weekly-schedule-visual-support.html' },
+  { sv: '/nyheter/arkiv', en: '/en/news/archive', fileSv: 'nyheter-arkiv.html', fileEn: 'en/news-archive.html' },
 ];
 
 function resurserMirrorEntry(page) {

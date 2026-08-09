@@ -44,18 +44,23 @@ router.get('/:id', async (req, res) => {
 // ─── POST /api/admin/landing-news ────────────────────────────
 router.post('/', async (req, res) => {
   try {
-    const { title, body, image_url, button_text, button_url, sort_order, is_active } = req.body;
+    const { title, body, image_url, button_text, button_url, sort_order, is_active,
+      title_en, body_en, button_text_en, is_archived } = req.body;
     if (!title || !title.trim()) {
       return res.status(400).json({ error: 'Titel krävs' });
     }
     const item = await createItem({
       title: title.trim(),
       body: body?.trim() || null,
+      title_en: title_en?.trim() || null,
+      body_en: body_en?.trim() || null,
       image_url: image_url?.trim() || null,
       button_text: button_text?.trim() || 'Läs mer',
+      button_text_en: button_text_en?.trim() || null,
       button_url: button_url?.trim() || null,
       sort_order: typeof sort_order === 'number' ? sort_order : 0,
       is_active: is_active !== false,
+      is_archived: is_archived === true,
     });
     res.status(201).json(item);
   } catch (err) {
@@ -71,7 +76,8 @@ router.put('/:id', async (req, res) => {
     const existing = await getItemById(id);
     if (!existing) return res.status(404).json({ error: 'Hittades inte' });
 
-    const { title, body, image_url, button_text, button_url, sort_order, is_active } = req.body;
+    const { title, body, image_url, button_text, button_url, sort_order, is_active,
+      title_en, body_en, button_text_en, is_archived } = req.body;
     if (!title || !title.trim()) {
       return res.status(400).json({ error: 'Titel krävs' });
     }
@@ -79,11 +85,15 @@ router.put('/:id', async (req, res) => {
     const item = await updateItem(id, {
       title: title.trim(),
       body: body?.trim() || null,
+      title_en: title_en?.trim() || null,
+      body_en: body_en?.trim() || null,
       image_url: image_url?.trim() || null,
       button_text: button_text?.trim() || 'Läs mer',
+      button_text_en: button_text_en?.trim() || null,
       button_url: button_url?.trim() || null,
       sort_order: typeof sort_order === 'number' ? sort_order : existing.sort_order,
       is_active: typeof is_active === 'boolean' ? is_active : existing.is_active,
+      is_archived: typeof is_archived === 'boolean' ? is_archived : existing.is_archived,
     });
     res.json(item);
   } catch (err) {
