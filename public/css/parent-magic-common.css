@@ -595,6 +595,18 @@ body.parent-magic-view:not(.parent-theme-light) .text-text-soft {
   color: rgba(244, 244, 255, 0.62) !important;
 }
 
+body.parent-magic-view:not(.parent-theme-light) #widgetSettingsSection .text-navy-soft {
+  color: rgba(244, 244, 255, 0.62) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #widgetSettingsSection .widget-settings-msg--error {
+  color: #fca5a5 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) #widgetSettingsSection .widget-settings-msg--ok {
+  color: #86efac !important;
+}
+
 body.parent-magic-view:not(.parent-theme-light) input[type="text"],
 body.parent-magic-view:not(.parent-theme-light) input[type="email"],
 body.parent-magic-view:not(.parent-theme-light) input[type="password"],
