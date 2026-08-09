@@ -9,7 +9,7 @@ const ROOT = path.join(__dirname, '..');
 
 test('incident notice config and routes exist', () => {
   const cfg = require('../config/incident-notice');
-  assert.equal(cfg.landingBannerEnabled, true);
+  assert.equal(cfg.landingBannerEnabled, false);
   assert.equal(cfg.infoPagePath, '/viktig-information');
 
   const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');

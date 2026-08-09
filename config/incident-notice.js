@@ -3,6 +3,6 @@
  * Set landingBannerEnabled to false when the banner should be removed.
  */
 module.exports = {
-  landingBannerEnabled: true,
+  landingBannerEnabled: false,
   infoPagePath: '/viktig-information',
 };
