@@ -39,4 +39,8 @@ public final class WidgetConfig {
     public static String childTodayDeepLink(Context context) {
         return apiBaseUrl(context) + "/child/today";
     }
+
+    public static String widgetReconnectSettingsDeepLink(Context context) {
+        return apiBaseUrl(context) + "/settings?from_widget=1#widgetSettingsSection";
+    }
 }

@@ -596,8 +596,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Guard: parent tokens cannot access child-dashboard — show clear message
+  // Guard: parent tokens cannot access child-dashboard — redirect (scheduleView is hidden in today-focus mode)
   if (localUser && localUser.type && localUser.type !== 'child') {
+    const isNative = window.Platform && typeof Platform.isNative === 'function' && Platform.isNative();
+    if (isNative) {
+      window.location.replace('/settings#widgetSettingsSection');
+      return;
+    }
+    document.getElementById('scheduleView').classList.remove('hidden');
     document.getElementById('scheduleView').innerHTML = `
       <div class="text-center py-12 bg-white rounded-2xl mt-2">
         <p class="text-4xl mb-3">🔒</p>
