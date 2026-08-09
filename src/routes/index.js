@@ -91,6 +91,7 @@ function registerRoutes(app) {
   app.use('/api/notifications', require('./notification-log'));
 
   // Landing page API (before public router to catch /api/landing/*)
+  app.use(require('./landing-news-archive'));
   app.use(require('./landing'));
   app.use('/api', require('./public'));
   app.use('/api/market', require('./market'));

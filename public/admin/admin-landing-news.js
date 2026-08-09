@@ -29,7 +29,9 @@ async function loadLandingNews() {
         const imgThumb = item.image_url
           ? `<img src="${esc(item.image_url)}" alt="" class="w-12 h-12 rounded-lg object-cover border border-lavender flex-shrink-0" onerror="this.style.display='none'">`
           : `<div class="w-12 h-12 rounded-lg bg-lavender flex items-center justify-center text-xl flex-shrink-0">📄</div>`;
-        const activeBadge = item.is_active
+        const activeBadge = item.is_archived
+          ? '<span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Arkiverad</span>'
+          : item.is_active
           ? '<span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktiv</span>'
           : '<span class="text-xs font-bold bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Inaktiv</span>';
         return `
@@ -107,10 +109,14 @@ async function loadLandingNews() {
       const payload = {
         title: document.getElementById('lnTitle').value.trim(),
         body: document.getElementById('lnBody').value.trim(),
+        title_en: document.getElementById('lnTitleEn').value.trim(),
+        body_en: document.getElementById('lnBodyEn').value.trim(),
         image_url: document.getElementById('lnImageUrl').value.trim(),
         button_text: document.getElementById('lnButtonText').value.trim() || 'Läs mer',
+        button_text_en: document.getElementById('lnButtonTextEn').value.trim(),
         button_url: document.getElementById('lnButtonUrl').value.trim(),
         is_active: document.getElementById('lnIsActive').checked,
+        is_archived: document.getElementById('lnIsArchived').checked,
       };
 
       if (!payload.title) {
@@ -144,10 +150,14 @@ async function loadLandingNews() {
       document.getElementById('lnEditingId').value = id;
       document.getElementById('lnTitle').value = item.title || '';
       document.getElementById('lnBody').value = item.body || '';
+      document.getElementById('lnTitleEn').value = item.title_en || '';
+      document.getElementById('lnBodyEn').value = item.body_en || '';
       document.getElementById('lnImageUrl').value = item.image_url || '';
       document.getElementById('lnButtonText').value = item.button_text || 'Läs mer';
+      document.getElementById('lnButtonTextEn').value = item.button_text_en || '';
       document.getElementById('lnButtonUrl').value = item.button_url || '';
-      document.getElementById('lnIsActive').checked = item.is_active !== false;
+      document.getElementById('lnIsActive').checked = item.is_active !== false && !item.is_archived;
+      document.getElementById('lnIsArchived').checked = item.is_archived === true;
       document.getElementById('lnSubmitBtn').textContent = 'Uppdatera';
       document.getElementById('lnCancelBtn').classList.remove('hidden');
       document.getElementById('lnTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -161,10 +171,14 @@ async function loadLandingNews() {
       document.getElementById('lnEditingId').value = '';
       document.getElementById('lnTitle').value = '';
       document.getElementById('lnBody').value = '';
+      document.getElementById('lnTitleEn').value = '';
+      document.getElementById('lnBodyEn').value = '';
       document.getElementById('lnImageUrl').value = '';
       document.getElementById('lnButtonText').value = 'Läs mer';
+      document.getElementById('lnButtonTextEn').value = '';
       document.getElementById('lnButtonUrl').value = '';
       document.getElementById('lnIsActive').checked = true;
+      document.getElementById('lnIsArchived').checked = false;
       document.getElementById('lnSubmitBtn').textContent = 'Spara';
       document.getElementById('lnCancelBtn').classList.add('hidden');
     }
@@ -185,7 +199,11 @@ async function loadLandingNews() {
       try {
         await Auth.api(`/api/admin/landing-news/${id}`, {
           method: 'PUT',
-          body: JSON.stringify({ ...item, is_active: !item.is_active }),
+          body: JSON.stringify({
+            ...item,
+            is_active: !item.is_active,
+            is_archived: false,
+          }),
         });
         loadLandingNews();
       } catch (err) {
