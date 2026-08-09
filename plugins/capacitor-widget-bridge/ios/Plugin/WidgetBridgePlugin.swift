@@ -82,10 +82,3 @@ public class WidgetBridgePlugin: CAPPlugin {
         return WidgetBridgeStore.apiBaseUrl()
     }
 }
-
-extension WidgetBridgeStore {
-    static func defaultsRefreshTimestamp() {
-        defaults?.set(ISO8601DateFormatter().string(from: Date()), forKey: "last_refresh_at")
-        defaults?.synchronize()
-    }
-}
