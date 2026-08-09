@@ -15,7 +15,7 @@
 
   function isExcludedPath() {
     const p = (global.location.pathname || '').replace(/\/$/, '') || '/';
-    if (p === '/login' || p === '/register' || p === '/onboarding' || p === '/admin') return true;
+    if (p === '/login' || p === '/register' || p === '/onboarding' || p === '/admin' || p === '/settings') return true;
     if (p === '/' || p === '/index.html' || p === '/en' || p === '/en.html') return true;
     return false;
   }
@@ -41,6 +41,13 @@
   function removeModal() {
     const overlay = global.document.getElementById(OVERLAY_ID);
     if (overlay) overlay.remove();
+    if (global.document && global.document.body) {
+      global.document.body.classList.remove('modal-open');
+    }
+  }
+
+  function dismissForNavigation() {
+    removeModal();
   }
 
   function buildModal(opts) {
@@ -97,6 +104,7 @@
     if (settingsBtn) {
       settingsBtn.addEventListener('click', function () {
         closeWithOptions(overlay, false);
+        dismissForNavigation();
         global.location.href = '/settings#widgetSettingsSection';
       });
     }

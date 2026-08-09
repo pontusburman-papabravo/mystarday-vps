@@ -339,6 +339,7 @@
     tagChild('pedagogInviteSection', 'family');
     tagChild('notifForm', 'app');
     tagChild('pushSection', 'app');
+    tagChild('widgetSettingsSection', 'app');
     tagChild('reminderSection', 'app');
     tagChild('consentSection', 'app');
     tagChild('dataExportSection', 'app');
@@ -368,6 +369,14 @@
     }
     if (hash === 'profil' || hash === 'profile') {
       showSettingsGroup('profile');
+      return true;
+    }
+    if (hash === 'widgetSettingsSection' || hash === 'widget') {
+      showSettingsGroup('app');
+      setTimeout(function () {
+        const el = document.getElementById('widgetSettingsSection');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
       return true;
     }
     return false;
