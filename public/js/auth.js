@@ -609,6 +609,9 @@ const Auth = {
       && AppEntryOrchestrator.isActive();
 
     if (dailyUx && orchActive) {
+      if (window.ChildTrustedChrome && typeof ChildTrustedChrome.refreshAllowedCountFromServer === 'function') {
+        await ChildTrustedChrome.refreshAllowedCountFromServer();
+      }
       if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
         DeviceMode.enterChild();
       }

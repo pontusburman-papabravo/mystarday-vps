@@ -4,8 +4,19 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
+
+function loadClientLeasePolicy() {
+  const src = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege-lease-policy.js'), 'utf8');
+  const sandbox = { console };
+  sandbox.window = sandbox;
+  sandbox.globalThis = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(src, sandbox);
+  return sandbox.AdultPrivilegeLeasePolicy;
+}
 
 test('AUTO_LOCK_MATRIX: client policy mirrors server durations', () => {
   const server = fs.readFileSync(path.join(ROOT, 'src/lib/adult-privilege-lease-policy.js'), 'utf8');
@@ -23,8 +34,12 @@ test('lifecycle owns single expiry timer', () => {
 });
 
 test('parent device background does not auto-expire via policy helper', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege-lease-policy.js'), 'utf8');
-  assert.match(src, /deviceMode === 'parent'/);
+  const policy = loadClientLeasePolicy();
+  assert.equal(policy.shouldAutoExpireOnBackground('parent'), false);
+  assert.equal(policy.leaseApplies('parent'), false);
+  assert.equal(policy.shouldAutoExpireOnBackground('shared'), true);
+  assert.equal(policy.leaseApplies('shared'), true);
+  assert.equal(policy.shouldAutoExpireOnBackground('child'), true);
 });
 
 test('adult pin UI meets touch and a11y minimums', () => {

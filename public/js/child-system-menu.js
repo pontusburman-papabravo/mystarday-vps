@@ -109,7 +109,7 @@
       : false;
     const adultLabel = dailyUx ? 'Vuxen' : t('nav.parent');
     const adultIcon = dailyUx ? '🔒' : (window.IconSystem ? IconSystem.nav('installningar') : '⚙️');
-    btn.setAttribute('aria-label', dailyUx ? 'Vuxenläge' : t('nav.parentAria'));
+    btn.setAttribute('aria-label', dailyUx ? t('nav.parentLockAria') : t('nav.parentAria'));
     btn.setAttribute('aria-haspopup', dailyUx ? 'false' : 'menu');
     btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<span aria-hidden="true">' + adultIcon + '</span><span>' + adultLabel + '</span>';

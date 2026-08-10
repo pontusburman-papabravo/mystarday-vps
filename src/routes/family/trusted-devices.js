@@ -118,38 +118,6 @@ router.post('/trusted-devices/this-device/setup', async (req, res, next) => {
   }
 });
 
-router.post('/trusted-devices/parent', async (req, res, next) => {
-  try {
-    const familyId = req.user.familyId;
-    const parentId = req.user.id;
-    const platform = typeof req.body?.platform === 'string' ? req.body.platform.slice(0, 32) : null;
-    const label = typeof req.body?.label === 'string' ? req.body.label.slice(0, 120) : null;
-    const { device, rawToken } = await trusted.enrollParentDevice({
-      parentId,
-      familyId,
-      platform,
-      label,
-    });
-    trusted.setTrustedDeviceCookie(res, rawToken);
-    res.status(201).json({
-      device: {
-        id: device.id,
-        device_mode: device.device_mode,
-        default_child_id: device.default_child_id,
-        platform: device.platform,
-        label: device.label,
-        trusted_at: device.trusted_at,
-      },
-      enroll_token: rawToken,
-    });
-  } catch (err) {
-    if (err.code === 'TRUSTED_DEVICE_DISABLED') {
-      return res.status(403).json({ code: err.code });
-    }
-    next(err);
-  }
-});
-
 router.post('/trusted-devices/shared', async (req, res, next) => {
   try {
     const familyId = req.user.familyId;

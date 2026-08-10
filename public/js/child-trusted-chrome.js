@@ -72,5 +72,6 @@
     isDailyUxActive: isDailyUxActive,
     getAllowedChildCount: getAllowedChildCount,
     apply: apply,
+    refreshAllowedCountFromServer: refreshAllowedCountFromServer,
   };
 })();

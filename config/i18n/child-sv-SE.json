@@ -57,6 +57,7 @@
     "worldHubSubcopyLegacy": "Vad vill du göra i din värld?",
     "parent": "Förälder",
     "parentAria": "Förälder — kräver PIN",
+    "parentLockAria": "Vuxenläge",
     "switchChild": "Byt barn",
     "ariaLabel": "Barnnavigering"
   },

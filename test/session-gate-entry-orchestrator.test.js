@@ -34,6 +34,19 @@ describe('SessionGate + AppEntryOrchestrator (Fas 2B contract J)', () => {
     assert.match(boot, /AppEntryOrchestrator\.runColdStart/);
     assert.match(boot, /ORCHESTRATOR_OFF/);
   });
+
+  it('when orchestrator is active, session gate prefers applied decision over DeviceMode', () => {
+    const gate = fs.readFileSync(path.join(ROOT, 'public/js/session-gate.js'), 'utf8');
+    const idx = gate.indexOf('function isChildViewAuthoritative');
+    assert.ok(idx > 0);
+    const fn = gate.slice(idx, idx + 700);
+    assert.match(fn, /AppEntryOrchestrator\.isActive/);
+    assert.match(fn, /getAppliedViewContext/);
+    const deviceIdx = fn.indexOf('DeviceMode');
+    const orchIdx = fn.indexOf('AppEntryOrchestrator');
+    assert.ok(orchIdx >= 0 && (deviceIdx < 0 || orchIdx < deviceIdx),
+      'orchestrator branch must be evaluated before DeviceMode fallback');
+  });
 });
 
 describe('app-entry API route mounted', () => {

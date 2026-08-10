@@ -37,11 +37,14 @@ describe('Fas 4A — daily child UX paths', () => {
 describe('Fas 4A — client contracts', () => {
   it('Auth.switchChildMember uses profile-picker on trusted daily UX before legacy logout', () => {
     const auth = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
-    const fn = auth.slice(auth.indexOf('async switchChildMember()'), auth.indexOf('async switchChildMember()') + 1200);
+    const start = auth.indexOf('async switchChildMember()');
+    const end = auth.indexOf('_redirectAfterLogoutClear', start);
+    assert.ok(start > 0 && end > start);
+    const fn = auth.slice(start, end);
     assert.match(fn, /\/child\/profile-picker\?switch=1/);
     const pickerIdx = fn.indexOf('/child/profile-picker');
     const logoutIdx = fn.indexOf("fetch('/api/auth/logout'");
-    assert.ok(pickerIdx > 0 && pickerIdx < logoutIdx, 'trusted path must run before logout');
+    assert.ok(pickerIdx > 0 && logoutIdx > 0 && pickerIdx < logoutIdx, 'trusted path must run before logout');
   });
 
   it('child-trusted-chrome hides logout and gates switch by allowed count', () => {
@@ -59,6 +62,18 @@ describe('Fas 4A — client contracts', () => {
   it('profile picker page is registered on Express', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
     assert.match(routes, /\/child\/profile-picker/);
+  });
+
+  it('profile picker cards meet 44px minimum touch target', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-profile-picker.html'), 'utf8');
+    assert.match(html, /cpp-profile-card[\s\S]*min-height:\s*11rem/);
+    const rem = 11 * 16;
+    assert.ok(rem >= 44, 'profile cards must be at least 44px tall');
+  });
+
+  it('profile picker does not load device-mode.js (cold start is orchestrator-only)', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-profile-picker.html'), 'utf8');
+    assert.doesNotMatch(html, /device-mode\.js/);
   });
 });
 
