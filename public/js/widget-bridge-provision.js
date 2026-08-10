@@ -25,11 +25,6 @@
     if (options.childId) return options.childId;
     if (!user) return null;
     if (user.type === 'child') return user.id;
-    if (user.type === 'parent' && options.childId) return options.childId;
-    if (global.ChildSessionContext && typeof ChildSessionContext.getActiveChildId === 'function') {
-      const ctx = ChildSessionContext.getActiveChildId();
-      if (ctx) return ctx;
-    }
     return null;
   }
 

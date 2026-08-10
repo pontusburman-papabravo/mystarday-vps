@@ -73,14 +73,8 @@
     onCompletion: onCompletion,
     onSessionReady: onSessionReady,
     onChildChanged: function (childId) {
-      if (global.WidgetBridgeProvision && childId) {
-        WidgetBridgeProvision.switchBinding(childId).catch(function () {
-          if (global.WidgetBridgeClient) {
-            WidgetBridgeClient.notifyChildChangedAndRefresh(childId);
-          }
-        });
-      } else if (global.WidgetBridgeClient) {
-        WidgetBridgeClient.notifyChildChangedAndRefresh(childId);
+      if (global.WidgetBridgeClient) {
+        WidgetBridgeClient.refreshAll();
       }
     },
   };

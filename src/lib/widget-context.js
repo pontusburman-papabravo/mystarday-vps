@@ -18,6 +18,11 @@ function childDisplayRow(row) {
   };
 }
 
+function widgetReconfigureMessage() {
+  const appName = 'Min' + ' Stj' + '\u00e4rndag';
+  return `Öppna ${appName} för att konfigurera`;
+}
+
 /**
  * Server-verified children the binding may present in a family widget.
  */
@@ -56,10 +61,17 @@ async function listAllowedChildrenForBinding(binding) {
 }
 
 async function buildWidgetContext(binding, activeChildId) {
+  const boundChildId = binding.child_id || activeChildId;
   const allowed = await listAllowedChildrenForBinding(binding);
-  let active = allowed.find((c) => c.id === activeChildId) || null;
-  if (!active && allowed.length > 0) {
-    active = allowed[0];
+  let active = allowed.find((c) => c.id === boundChildId) || null;
+  if (!active && boundChildId) {
+    const childRes = await db.query(
+      'SELECT id, name, emoji FROM child WHERE id = $1 AND family_id = $2',
+      [boundChildId, binding.family_id]
+    );
+    if (childRes.rows[0]) {
+      active = childDisplayRow(childRes.rows[0]);
+    }
   }
   let canSwitch = binding.mode === 'parent' && allowed.length > 1;
   if (binding.mode === 'trusted_device' && allowed.length > 1) {
@@ -69,17 +81,25 @@ async function buildWidgetContext(binding, activeChildId) {
   const widgetProfile = binding.mode === 'child_session' || allowed.length <= 1
     ? 'personal'
     : 'family';
-  return {
+  const payload = {
     viewer_mode: viewerModeFromBinding(binding),
     active_child: active,
     allowed_children: allowed,
     can_switch_children: canSwitch,
     widget_profile: widgetProfile,
+    installation_id: binding.installation_id || null,
+    bound_child_id: boundChildId,
   };
+  if (!active && boundChildId) {
+    payload.status = 'needs_reconfigure';
+    payload.reconfigure_message = widgetReconfigureMessage();
+  }
+  return payload;
 }
 
 module.exports = {
   viewerModeFromBinding,
   listAllowedChildrenForBinding,
   buildWidgetContext,
+  widgetReconfigureMessage,
 };

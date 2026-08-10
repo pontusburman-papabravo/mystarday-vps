@@ -54,7 +54,8 @@ async function requireWidgetBinding(req, res, next) {
   }
   const valid = await assertBindingStillValid(verified.binding);
   if (!valid.ok) {
-    return res.status(403).json({ status: valid.code || 'device_revoked' });
+    const status = valid.code === 'child_removed' ? 'child_removed' : (valid.code || 'device_revoked');
+    return res.status(403).json({ status });
   }
   const enabled = await isNativeWidgetEnabled(valid.familyId);
   if (!enabled) {
