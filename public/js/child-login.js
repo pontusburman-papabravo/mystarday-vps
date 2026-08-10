@@ -1387,6 +1387,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (!forcePicker && !resumeAddChild && window.AppEntryOrchestrator) {
+    if (AppEntryOrchestrator.isDecisionApplied && AppEntryOrchestrator.isDecisionApplied()) {
+      return;
+    }
     const entryBoot = await AppEntryOrchestrator.bootstrapOnEntryPage();
     if (entryBoot && entryBoot.ok) return;
   }

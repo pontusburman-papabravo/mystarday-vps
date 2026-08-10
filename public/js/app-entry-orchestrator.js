@@ -9,8 +9,19 @@
   const ACTIVE_FLAG_KEY = 'stjarndag_family_device_entry_v1';
   const APPLIED_KEY = 'stjarndag_entry_decision_applied';
   const NAV_GUARD_KEY = 'stjarndag_entry_nav_guard';
+  const SERVER_ACTION_KEY = 'stjarndag_entry_server_action_done';
 
   let _coldStartPromise = null;
+
+  function clearOrchestratorSessionState() {
+    try {
+      sessionStorage.removeItem(DECISION_KEY);
+      sessionStorage.removeItem(APPLIED_KEY);
+      sessionStorage.removeItem(NAV_GUARD_KEY);
+      sessionStorage.removeItem(SERVER_ACTION_KEY);
+      sessionStorage.setItem(ACTIVE_FLAG_KEY, '0');
+    } catch (_) { /* ignore */ }
+  }
 
   (function markDeferSessionGatePaths() {
     try {
@@ -119,6 +130,7 @@
     }
     setActiveFlag(body.orchestratorActive === true);
     if (body.orchestratorActive !== true) {
+      clearOrchestratorSessionState();
       return { ok: true, orchestratorActive: false, body: body };
     }
     if (!validateDecision(body.decision)) {
@@ -130,6 +142,21 @@
   async function executeServerAction(decision) {
     const action = decision.serverAction;
     if (!action || action === 'none') return { ok: true };
+
+    let doneKey = null;
+    try {
+      doneKey = SERVER_ACTION_KEY + ':' + action + ':' + (decision.childId || '');
+      if (sessionStorage.getItem(doneKey) === '1') {
+        return { ok: true, code: 'SERVER_ACTION_ALREADY_DONE' };
+      }
+    } catch (_) { /* ignore */ }
+
+    function markActionDone() {
+      if (!doneKey) return;
+      try {
+        sessionStorage.setItem(doneKey, '1');
+      } catch (_) { /* ignore */ }
+    }
 
     if (action === 'restore-child') {
       const res = await fetch('/api/auth/trusted-device/restore', {
@@ -143,9 +170,12 @@
         Auth.setAuth(null, body.user);
       }
       if (body.code === 'SHARED_PICKER_REQUIRED') {
+        markActionDone();
         return { ok: true, picker: true, allowed: body.allowed_children };
       }
-      return { ok: res.ok && body.ok !== false, body: body };
+      const ok = res.ok && body.ok !== false;
+      if (ok) markActionDone();
+      return { ok: ok, body: body };
     }
 
     if (action === 'select-child' && decision.childId) {
@@ -159,7 +189,9 @@
       if (body.ok && body.user && window.Auth && Auth.setAuth) {
         Auth.setAuth(null, body.user);
       }
-      return { ok: res.ok && body.ok === true, body: body };
+      const ok = res.ok && body.ok === true;
+      if (ok) markActionDone();
+      return { ok: ok, body: body };
     }
 
     if (action === 'restore-parent') {
@@ -173,7 +205,9 @@
       if (body.ok && body.user && window.Auth && Auth.setAuth) {
         Auth.setAuth(body.user, null);
       }
-      return { ok: res.ok && body.ok === true, body: body };
+      const ok = res.ok && body.ok === true;
+      if (ok) markActionDone();
+      return { ok: ok, body: body };
     }
 
     return { ok: true };
@@ -196,6 +230,14 @@
     if (_coldStartPromise) return _coldStartPromise;
 
     _coldStartPromise = (async function () {
+      if (isDecisionApplied()) {
+        return {
+          ok: true,
+          code: 'ALREADY_APPLIED',
+          decision: getAppliedDecision(),
+        };
+      }
+
       const fetched = await fetchEntryDecision(opts.intentChildId || null);
       if (!fetched.ok) {
         return { ok: false, code: fetched.code || 'FETCH_FAILED' };

@@ -45,9 +45,13 @@
 
   function isChildViewAuthoritative() {
     if (window.AppEntryOrchestrator && AppEntryOrchestrator.isActive && AppEntryOrchestrator.isActive()) {
+      if (AppEntryOrchestrator.isDecisionApplied && !AppEntryOrchestrator.isDecisionApplied()) {
+        return false;
+      }
       const ctx = AppEntryOrchestrator.getAppliedViewContext && AppEntryOrchestrator.getAppliedViewContext();
       if (ctx === 'child') return true;
       if (ctx === 'parent' || ctx === 'picker') return false;
+      return false;
     }
     return window.DeviceMode && DeviceMode.isChildMode();
   }

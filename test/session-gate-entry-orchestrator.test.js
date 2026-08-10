@@ -19,6 +19,7 @@ describe('SessionGate + AppEntryOrchestrator (Fas 2B contract J)', () => {
     const gate = fs.readFileSync(path.join(ROOT, 'public/js/session-gate.js'), 'utf8');
     assert.match(gate, /destination === 'child-home'/);
     assert.match(gate, /getAppliedDecision/);
+    assert.match(gate, /isDecisionApplied/);
   });
 
   it('orchestrator navigates once via replace', () => {

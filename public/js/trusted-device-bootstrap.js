@@ -71,6 +71,21 @@
     });
     const body = restored.body || {};
     if (body.ok && body.user) {
+      if (body.user.type === 'parent') {
+        if (window.Auth && typeof Auth.setAuth === 'function') {
+          Auth.setAuth(body.user, null);
+        }
+        if (window.DeviceMode && DeviceMode.enterParent) DeviceMode.enterParent();
+        track('parent_context_restore', {
+          device_mode: body.device_mode || 'parent',
+          source: 'trusted_device_restore',
+          outcome: 'success',
+        });
+        if (!options.skipRedirect) {
+          window.location.replace(body.redirect || '/dashboard');
+        }
+        return { ok: true, user: body.user };
+      }
       await applySessionUser(body.user);
       track('child_context_restore', {
         device_mode: body.device_mode || 'child',
