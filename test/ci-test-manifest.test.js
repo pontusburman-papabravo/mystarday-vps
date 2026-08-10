@@ -19,6 +19,7 @@ const CRITICAL_INTEGRATION = [
   'test/ratings-revoked-parent.integration.test.js',
   'test/schedules-revoked-parent.integration.test.js',
   'test/parent-session-handoff.integration.test.js',
+  'test/adult-privilege.integration.test.js',
   'test/trusted-device-child.integration.test.js',
   'test/r43-shared-device.integration.test.js',
   'test/r44-adult-child-access.integration.test.js',
@@ -27,6 +28,7 @@ const CRITICAL_INTEGRATION = [
   'test/r45b-widget-server-parity.integration.test.js',
   'test/r45f-widget-family-multichild.integration.test.js',
   'test/r45g-widget-polish.integration.test.js',
+  'test/fas-5-widget-family-device.integration.test.js',
   'test/r45-closure-blockers.integration.test.js',
   'test/iap-webhook-ordering.integration.test.js',
 ];

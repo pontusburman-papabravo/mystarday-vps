@@ -138,6 +138,39 @@ async function revokeAllForFamilyWithTokens(familyId) {
   await revokeAllForFamily(familyId);
 }
 
+async function updateDeviceSettings(deviceId, familyId, patch) {
+  const fields = [];
+  const values = [];
+  let idx = 1;
+  if (patch.device_mode) {
+    fields.push(`device_mode = $${idx++}`);
+    values.push(patch.device_mode);
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'default_child_id')) {
+    fields.push(`default_child_id = $${idx++}`);
+    values.push(patch.default_child_id);
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'label')) {
+    fields.push(`label = $${idx++}`);
+    values.push(patch.label);
+  }
+  if (!fields.length) {
+    const existing = await findById(deviceId);
+    if (!existing || existing.family_id !== familyId || existing.revoked_at) return null;
+    return existing;
+  }
+  values.push(deviceId, familyId);
+  const result = await db.query(
+    `UPDATE family_trusted_device
+     SET ${fields.join(', ')}
+     WHERE id = $${idx++} AND family_id = $${idx} AND revoked_at IS NULL
+     RETURNING id, family_id, device_mode, default_child_id, last_active_child_id,
+               platform, label, trusted_at, last_seen_at, revoked_at`,
+    values
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   insertDevice,
   findByTokenHash,
@@ -149,4 +182,5 @@ module.exports = {
   touchLastSeen,
   setLastActiveChild,
   setLastRefreshTokenId,
+  updateDeviceSettings,
 };

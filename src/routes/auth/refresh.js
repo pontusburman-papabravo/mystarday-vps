@@ -49,8 +49,18 @@ router.post('/refresh', async (req, res) => {
         return res.status(401).json({ error: 'Användare hittades inte' });
       }
       const p = pr.rows[0];
+      const parentClaims = {
+        id: p.id,
+        type: 'parent',
+        familyId: p.family_id,
+        email: p.email,
+        isAdmin: p.is_admin,
+      };
+      if (newRow?.trusted_device_id) {
+        parentClaims.trustedDeviceId = newRow.trusted_device_id;
+      }
       accessToken = jwt.sign(
-        { id: p.id, type: 'parent', familyId: p.family_id, email: p.email, isAdmin: p.is_admin },
+        parentClaims,
         config.jwt.secret,
         { expiresIn: config.jwt.expiresIn }
       );

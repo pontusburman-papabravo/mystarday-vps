@@ -57,6 +57,7 @@
     "worldHubSubcopyLegacy": "What do you want to do in your world?",
     "parent": "Grown-up",
     "parentAria": "Grown-up — PIN required",
+    "parentLockAria": "Adult mode",
     "switchChild": "Switch child",
     "ariaLabel": "Child navigation"
   },

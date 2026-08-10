@@ -11,6 +11,9 @@ const OVERRIDE_FEATURE_KEYS = new Set([
   'native_widget_enabled',
   'widget_completion_enabled',
   'trusted_device_v1',
+  'family_device_entry_v1',
+  'adult_privilege_v1',
+  'family_device_daily_ux_v1',
 ]);
 
 function isOverrideFeatureKey(featureKey) {

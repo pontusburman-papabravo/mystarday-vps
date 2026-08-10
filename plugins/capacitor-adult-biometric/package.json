@@ -1,0 +1,27 @@
+{
+  "name": "capacitor-adult-biometric",
+  "version": "1.0.0",
+  "description": "Local device biometric gate for adult privilege escalation (no secrets in JS)",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "android/src/main/",
+    "android/build.gradle",
+    "dist/",
+    "ios/Plugin/",
+    "CapacitorAdultBiometric.podspec"
+  ],
+  "license": "UNLICENSED",
+  "peerDependencies": {
+    "@capacitor/core": ">=7.0.0"
+  },
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  }
+}

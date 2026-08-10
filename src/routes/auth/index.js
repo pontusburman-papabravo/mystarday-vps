@@ -28,6 +28,9 @@ router.use('/', require('./child-login'));
 // ─── Trusted device session restore (R4.2) ─────────────────────────────────────
 router.use('/', require('./trusted-device'));
 
+// ─── App entry orchestrator (Fas 2B) ───────────────────────────────────────────
+router.use('/', require('./app-entry'));
+
 // ─── Email-flow routes (verify / resend / forgot / reset) ─────────────────────
 router.use('/', require('./email'));
 

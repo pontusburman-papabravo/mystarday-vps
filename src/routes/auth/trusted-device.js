@@ -28,6 +28,23 @@ router.post('/trusted-device/restore', async (req, res, next) => {
     if (!raw) {
       return res.status(401).json({ code: 'TRUSTED_DEVICE_MISSING' });
     }
+    const preview = await trusted.verifyTrustedDeviceRaw(raw);
+    if (preview && preview.device_mode === 'parent') {
+      const result = await trusted.restoreParentSessionFromDevice(res, raw);
+      if (!result.ok) {
+        const status = result.code === 'TRUSTED_DEVICE_DISABLED' ? 403
+          : result.code === 'PARENT_ACCESS_DENIED' ? 403
+            : 401;
+        return res.status(status).json({ code: result.code });
+      }
+      return res.json({
+        ok: true,
+        user: result.parent,
+        redirect: '/dashboard',
+        session_mode: 'resume',
+        device_mode: result.device_mode,
+      });
+    }
     const result = await trusted.restoreChildSessionFromDevice(req, res, raw, {
       forcePicker: req.body?.force_picker === true,
     });

@@ -1,5 +1,7 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v820: Fas 2C parent trusted device enroll/restore
+ * v819: Fas 2B app-entry-orchestrator + session-gate entry wiring
  * v772: aktivitetstimer i dagsvy (Morgon/Dag/Kväll) — Starta timer synlig
  * v771: aktivitetstimer v2 polish — timglas, overlay animation
  * v770: login entry logo uses app.name i18n (My Starday in English)
@@ -261,7 +263,8 @@
 // stjarndag-v815: widget återanslut — force sync, mount retries, auth hook defer
 // stjarndag-v816: widget tap reauth → inställningar; förälder på /child/today redirect
 // stjarndag-v817: widget reconnect — binding intent id, stale configure guard
-const CACHE_NAME = 'stjarndag-v818';
+// stjarndag-v826: Family Device RC — entry 2A–5, this-device settings, widget per-install child
+const CACHE_NAME = 'stjarndag-v826';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -576,6 +579,10 @@ const CACHE_NAME = 'stjarndag-v818';
 // stjarndag-v814: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v813: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v818: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v819: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v820: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v824: Fas 4A trusted daily child UX
+// stjarndag-v823: Fas 3B adult privilege lease + PIN fallback + lifecycle
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -646,9 +653,12 @@ const STATIC_ASSETS = [
   '/js/feedback.js',
   // Child view pages + JS (offline reading)
   '/child-login.html',
+  '/child-profile-picker.html',
   '/child-dashboard.html',
   '/css/child-login-magic.css',
   '/js/child-login.js',
+  '/js/child-profile-picker.js',
+  '/js/app-entry-orchestrator.js',
   '/js/native-child-session-restore.js',
   '/js/trusted-device-client.js',
   '/js/trusted-device-bootstrap.js',
@@ -814,6 +824,11 @@ const STATIC_ASSETS = [
   '/js/package-access-cache.js',
   '/js/session-gate.js',
   '/js/parental-gate.js',
+  '/js/adult-biometric-client.js',
+  '/js/adult-privilege-lease-policy.js',
+  '/js/adult-pin-gate-ui.js',
+  '/js/adult-privilege-lifecycle.js',
+  '/js/adult-privilege.js',
   '/js/crash-reporter.js',
   '/js/native-tab-bar.js',
   '/js/deep-link-router.js',

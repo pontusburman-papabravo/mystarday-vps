@@ -34,6 +34,7 @@ const config: CapacitorConfig = {
       '@revenuecat/purchases-capacitor',
       'capacitor-facebook-events',
       'capacitor-widget-bridge',
+      'capacitor-adult-biometric',
     ],
   },
   android: {
@@ -47,6 +48,7 @@ const config: CapacitorConfig = {
       '@revenuecat/purchases-capacitor',
       'capacitor-facebook-events',
       'capacitor-widget-bridge',
+      'capacitor-adult-biometric',
     ],
   },
   plugins: {

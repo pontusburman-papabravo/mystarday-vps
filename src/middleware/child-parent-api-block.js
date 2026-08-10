@@ -4,6 +4,7 @@
  * för vuxen-API (t.ex. GET /api/children) så daglig logg/dashboard fungerar.
  */
 const { restoreParentUserFromCookie } = require('./auth');
+const { isAdultPrivilegeEnabled } = require('../lib/adult-privilege-flags');
 
 const CHILD_ALLOWED = [
   /^\/me(\/|$)/,
@@ -20,6 +21,10 @@ const CHILD_ALLOWED = [
   /^\/family\/verify-pin$/,
   /^\/family\/restore-parent-session$/,
   /^\/family\/activate-saved-parent-session$/,
+  /^\/family\/adult-privilege\/status$/,
+  /^\/family\/adult-privilege\/unlock$/,
+  /^\/family\/adult-privilege\/expire$/,
+  /^\/family\/adult-privilege\/policy$/,
   /^\/family\/parent-pin-status-picker$/,
   /^\/family\/verify-pin-picker$/,
   /^\/children\/[^/]+\/view-config$/,
@@ -38,12 +43,22 @@ function childParentApiBlock(req, res, next) {
     if (CHILD_ALLOWED[i].test(subPath)) return next();
   }
 
-  restoreParentUserFromCookie(req, res)
-    .then((restored) => {
-      if (restored) return next();
-      return res.status(403).json({
-        error: 'Förbjuden — barnläge har inte åtkomst till denna funktion',
-        code: 'CHILD_PARENT_API_BLOCKED',
+  const familyId = req.user.familyId;
+  isAdultPrivilegeEnabled(familyId)
+    .then((privilegeV1) => {
+      if (privilegeV1) {
+        return res.status(403).json({
+          error: 'Förbjuden — barnläge har inte åtkomst till denna funktion',
+          code: 'CHILD_PARENT_API_BLOCKED',
+          adultPrivilegeRequired: true,
+        });
+      }
+      return restoreParentUserFromCookie(req, res).then((restored) => {
+        if (restored) return next();
+        return res.status(403).json({
+          error: 'Förbjuden — barnläge har inte åtkomst till denna funktion',
+          code: 'CHILD_PARENT_API_BLOCKED',
+        });
       });
     })
     .catch(next);

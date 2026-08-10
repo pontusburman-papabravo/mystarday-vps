@@ -31,4 +31,12 @@ describe('R4.2 trusted device contracts', () => {
     const trusted = idx.indexOf("require('./trusted-devices')");
     assert.ok(parentGate > 0 && trusted > parentGate);
   });
+
+  it('Fas 2C exposes parent device enroll route', () => {
+    const routes = read('src/routes/family/trusted-devices.js');
+    assert.match(routes, /trusted-devices\/parent/);
+    const lib = read('src/lib/trusted-device.js');
+    assert.match(lib, /enrollParentDevice/);
+    assert.match(lib, /restoreParentSessionFromDevice/);
+  });
 });

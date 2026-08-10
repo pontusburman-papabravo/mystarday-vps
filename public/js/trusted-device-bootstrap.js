@@ -54,6 +54,15 @@
 
   async function tryColdStart(opts) {
     const options = opts || {};
+    if (
+      window.AppEntryOrchestrator
+      && typeof AppEntryOrchestrator.runColdStart === 'function'
+    ) {
+      const orch = await AppEntryOrchestrator.runColdStart(options);
+      if (orch && orch.code !== 'ORCHESTRATOR_OFF') {
+        return orch;
+      }
+    }
     if (!options.force && window.Auth && Auth.isLoggedIn && Auth.isLoggedIn()) {
       return { ok: false, code: 'ALREADY_LOGGED_IN' };
     }
@@ -62,6 +71,21 @@
     });
     const body = restored.body || {};
     if (body.ok && body.user) {
+      if (body.user.type === 'parent') {
+        if (window.Auth && typeof Auth.setAuth === 'function') {
+          Auth.setAuth(body.user, null);
+        }
+        if (window.DeviceMode && DeviceMode.enterParent) DeviceMode.enterParent();
+        track('parent_context_restore', {
+          device_mode: body.device_mode || 'parent',
+          source: 'trusted_device_restore',
+          outcome: 'success',
+        });
+        if (!options.skipRedirect) {
+          window.location.replace(body.redirect || '/dashboard');
+        }
+        return { ok: true, user: body.user };
+      }
       await applySessionUser(body.user);
       track('child_context_restore', {
         device_mode: body.device_mode || 'child',
@@ -79,6 +103,13 @@
         allowed_count_bucket: body.allowed_count_bucket || '2',
         source: options.source || 'cold_start',
       });
+      const dailyUx = window.AppEntryOrchestrator && AppEntryOrchestrator.isDailyUxActive
+        ? AppEntryOrchestrator.isDailyUxActive()
+        : false;
+      if (dailyUx) {
+        window.location.replace('/child/profile-picker');
+        return { ok: false, code: 'REDIRECT_PICKER' };
+      }
       if (typeof window.showSharedDevicePicker === 'function') {
         window.showSharedDevicePicker(body.allowed_children, {
           bucket: body.allowed_count_bucket,

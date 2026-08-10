@@ -14,6 +14,7 @@ const {
 } = require('../lib/parent-session-handoff');
 const { reconcileChildSessionCookies } = require('../lib/session-cookie-reconcile');
 const { sanitizeRefreshTokenCookie } = require('../lib/refresh-tokens');
+const { isEscalatedParentExpired } = require('../lib/adult-privilege-escalation');
 
 /**
  * Try to verify a JWT with the current secret, then fall back to the previous secret.
@@ -62,7 +63,15 @@ function requireAuth(req, res, next) {
  */
 function requireParent(req, res, next) {
   requireAuth(req, res, () => {
-    if (req.user.type === 'parent') return next();
+    if (req.user.type === 'parent') {
+      if (isEscalatedParentExpired(req.user)) {
+        return res.status(403).json({
+          error: 'Förbjuden — vuxenprivilegiet har gått ut',
+          code: 'ADULT_PRIVILEGE_EXPIRED',
+        });
+      }
+      return next();
+    }
 
     applyHandoffToRequestCookies(req, res)
       .then((applied) => {

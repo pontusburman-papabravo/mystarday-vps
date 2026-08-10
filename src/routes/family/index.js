@@ -23,6 +23,9 @@ router.use('/', require('./invites-public'));
 // Child session + saved parent session (before requireParent gate)
 router.use('/', require('./session-public'));
 
+// Fas 3A — adult privilege escalation (child JWT + handoff → parent activate)
+router.use('/', require('./adult-privilege'));
+
 // All remaining routes require parent auth
 router.use(requireParent);
 

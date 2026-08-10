@@ -12,15 +12,15 @@ describe('child logout / switch (barnmeny v2)', () => {
     assert.match(src, /Auth\._showParentPinGateOverlay/);
   });
 
-  it('child-system-menu keeps logout and switch header buttons visible', () => {
-    const src = read('public/js/child-system-menu.js');
-    assert.doesNotMatch(src, /logoutBtn.*style\.display/);
-    assert.doesNotMatch(src, /switchChildBtn.*style\.display/);
+  it('Fas 4A: trusted daily UX removes child logout from normal chrome', () => {
+    const chrome = read('public/js/child-trusted-chrome.js');
+    assert.match(chrome, /logoutBtn/);
+    const settings = read('public/js/child-settings-view.js');
+    assert.match(settings, /ChildTrustedChrome\.isDailyUxActive/);
   });
 
-  it('child-dashboard exposes logout/switch on window for system menu', () => {
+  it('child-dashboard exposes switchChildMember for profile context switch', () => {
     const src = read('public/js/child-dashboard.js');
-    assert.match(src, /window\.childLogout\s*=\s*childLogout/);
     assert.match(src, /window\.switchChildMember\s*=\s*switchChildMember/);
   });
 });
