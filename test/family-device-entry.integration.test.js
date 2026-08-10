@@ -12,6 +12,7 @@ const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
 const { hashPassword } = require('../src/lib/hash');
 const { FLAG_KEY: TRUSTED_FLAG } = require('../src/lib/trusted-device-flags');
 const { FLAG_KEY: ENTRY_FLAG } = require('../src/lib/family-device-entry-flags');
+const { FLAG_KEY: DAILY_UX_FLAG } = require('../src/lib/family-device-daily-ux-flags');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -21,7 +22,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 }
 
 async function enableFlags(db) {
-  for (const key of [TRUSTED_FLAG, ENTRY_FLAG]) {
+  for (const key of [TRUSTED_FLAG, ENTRY_FLAG, DAILY_UX_FLAG]) {
     await db.query(
       `INSERT INTO feature_flag (key, enabled, description)
        VALUES ($1, true, 'test')
@@ -176,6 +177,14 @@ test('family device entry matrix A–K', async (t) => {
       const { body } = await fetchAppEntry(http.baseUrl, trustedOnlyCookies(deviceCookies));
       assert.equal(body.decision.destination, 'profile-picker');
       assert.equal(body.decision.credentialContext, 'none');
+    });
+
+    await t.test('C2: shared multi-child picker path uses profile-picker page when daily UX on', async () => {
+      const deviceCookies = await enrollShared(http, parent);
+      const { body } = await fetchAppEntry(http.baseUrl, trustedOnlyCookies(deviceCookies));
+      assert.equal(body.dailyUxActive, true);
+      assert.equal(body.decision.destination, 'profile-picker');
+      assert.equal(body.decision.path, '/child/profile-picker');
     });
 
     await t.test('D: shared + default child → that child home', async () => {

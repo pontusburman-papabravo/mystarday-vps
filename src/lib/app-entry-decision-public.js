@@ -5,14 +5,15 @@ const { DESTINATIONS, SERVER_ACTIONS } = require('./app-entry-resolve');
 const ALLOWED_DESTINATIONS = new Set(Object.values(DESTINATIONS));
 const ALLOWED_SERVER_ACTIONS = new Set(Object.values(SERVER_ACTIONS));
 
-function pathForDestination(destination) {
+function pathForDestination(destination, options) {
+  const dailyUx = options && options.dailyUxActive === true;
   switch (destination) {
     case DESTINATIONS.PARENT_HOME:
       return '/dashboard';
     case DESTINATIONS.CHILD_HOME:
       return '/child/today';
     case DESTINATIONS.PROFILE_PICKER:
-      return '/child-login?shared_device=1&entry_picker=1';
+      return dailyUx ? '/child/profile-picker' : '/child-login?shared_device=1&entry_picker=1';
     case DESTINATIONS.PARENT_LOGIN:
       return '/login';
     case DESTINATIONS.DEVICE_SETUP:
@@ -25,7 +26,7 @@ function pathForDestination(destination) {
 /**
  * Strip internal fields; safe for browser consumption (no tokens/secrets).
  */
-function toPublicEntryDecision(resolved) {
+function toPublicEntryDecision(resolved, options) {
   const destination = ALLOWED_DESTINATIONS.has(resolved.destination)
     ? resolved.destination
     : DESTINATIONS.PARENT_LOGIN;
@@ -42,7 +43,7 @@ function toPublicEntryDecision(resolved) {
     reason: resolved.reason,
     serverAction,
     failClosed: resolved.failClosed === true,
-    path: pathForDestination(destination),
+    path: pathForDestination(destination, options),
   };
 }
 

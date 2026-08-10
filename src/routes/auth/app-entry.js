@@ -6,6 +6,7 @@ const { buildAppEntryInput } = require('../../lib/build-app-entry-input');
 const { resolveAppEntry } = require('../../lib/app-entry-resolve');
 const { toPublicEntryDecision } = require('../../lib/app-entry-decision-public');
 const { isFamilyDeviceEntryEnabled } = require('../../lib/family-device-entry-flags');
+const { isFamilyDeviceDailyUxEnabled } = require('../../lib/family-device-daily-ux-flags');
 
 const router = express.Router();
 
@@ -16,12 +17,14 @@ router.get('/app-entry', optionalAuth, async (req, res, next) => {
     });
     const familyId = input.familyId;
     const orchestratorActive = await isFamilyDeviceEntryEnabled(familyId);
+    const dailyUxActive = orchestratorActive && (await isFamilyDeviceDailyUxEnabled(familyId));
 
     const resolved = resolveAppEntry(input);
-    const decision = toPublicEntryDecision(resolved);
+    const decision = toPublicEntryDecision(resolved, { dailyUxActive });
 
     return res.json({
       orchestratorActive,
+      dailyUxActive,
       decision,
       allowedChildren: orchestratorActive
         ? input.allowedChildren.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji }))

@@ -103,6 +103,13 @@
         allowed_count_bucket: body.allowed_count_bucket || '2',
         source: options.source || 'cold_start',
       });
+      const dailyUx = window.AppEntryOrchestrator && AppEntryOrchestrator.isDailyUxActive
+        ? AppEntryOrchestrator.isDailyUxActive()
+        : false;
+      if (dailyUx) {
+        window.location.replace('/child/profile-picker');
+        return { ok: false, code: 'REDIRECT_PICKER' };
+      }
       if (typeof window.showSharedDevicePicker === 'function') {
         window.showSharedDevicePicker(body.allowed_children, {
           bucket: body.allowed_count_bucket,

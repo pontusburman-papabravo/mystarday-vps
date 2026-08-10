@@ -60,6 +60,9 @@
       }
     }
     if (window.ChildSystemMenu && ChildSystemMenu.shouldMount && ChildSystemMenu.shouldMount()) {
+      if (window.ChildTrustedChrome && ChildTrustedChrome.apply) {
+        ChildTrustedChrome.apply();
+      }
       ChildSystemMenu.mount();
     }
 

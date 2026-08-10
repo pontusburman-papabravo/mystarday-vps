@@ -594,6 +594,28 @@ const Auth = {
       this._refreshTimer = null;
     }
 
+    const dailyUx = (function () {
+      try {
+        if (window.AppEntryOrchestrator && AppEntryOrchestrator.isDailyUxActive) {
+          return AppEntryOrchestrator.isDailyUxActive();
+        }
+        return sessionStorage.getItem('stjarndag_family_device_daily_ux_v1') === '1';
+      } catch (_) {
+        return false;
+      }
+    })();
+    const orchActive = window.AppEntryOrchestrator
+      && AppEntryOrchestrator.isActive
+      && AppEntryOrchestrator.isActive();
+
+    if (dailyUx && orchActive) {
+      if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
+        DeviceMode.enterChild();
+      }
+      window.location.replace('/child/profile-picker?switch=1');
+      return;
+    }
+
     try {
       await this.ensureCsrfToken();
       const csrf = this.getCsrfToken();

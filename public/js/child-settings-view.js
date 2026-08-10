@@ -41,7 +41,13 @@
   }
 
   function childActionsHtml() {
-    return CHILD_ACTIONS.map(function (action) {
+    const actions = CHILD_ACTIONS.filter(function (action) {
+      if (action.id === 'logout' && window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive()) {
+        return false;
+      }
+      return true;
+    });
+    return actions.map(function (action) {
       const value = action.id === 'dark_mode' ? darkModeStatusLabel() : '';
       const label = t(action.labelKey);
       const hint = t(action.hintKey);
@@ -60,7 +66,17 @@
   }
 
   function parentActionsHtml() {
-    return PARENT_ACTIONS.map(function (action) {
+    const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
+      ? ChildTrustedChrome.isDailyUxActive()
+      : false;
+    const allowed = dailyUx && window.ChildTrustedChrome && ChildTrustedChrome.getAllowedChildCount
+      ? ChildTrustedChrome.getAllowedChildCount()
+      : 2;
+    const actions = PARENT_ACTIONS.filter(function (action) {
+      if (action.id === 'switch_child' && dailyUx && allowed <= 1) return false;
+      return true;
+    });
+    return actions.map(function (action) {
       const label = t(action.labelKey);
       const hint = t(action.hintKey);
       return (

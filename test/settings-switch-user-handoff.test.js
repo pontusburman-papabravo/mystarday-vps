@@ -31,9 +31,10 @@ describe('settings switch user → child picker handoff', () => {
     assert.match(bindBlock, /nativeChildLoginBtn.*childFlow: true/s);
   });
 
-  it('Auth.switchChildMember posts switchChild and navigates to child-login picker', () => {
+  it('Auth.switchChildMember posts switchChild for legacy; trusted daily UX uses profile-picker', () => {
     assert.match(AUTH_JS, /async switchChildMember\(\)/);
     assert.match(AUTH_JS, /switchChild:\s*true/);
+    assert.match(AUTH_JS, /\/child\/profile-picker\?switch=1/);
     assert.match(AUTH_JS, /\/child-login\?picker=1/);
   });
 

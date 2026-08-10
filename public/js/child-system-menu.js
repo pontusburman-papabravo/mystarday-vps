@@ -23,10 +23,26 @@
   }
 
   function hideLegacyHeaderActions() {
-    ['childDarkBtn', 'viewToggleBtn', 'printBtn', 'switchChildBtn', 'logoutBtn'].forEach(function (id) {
+    const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
+      ? ChildTrustedChrome.isDailyUxActive()
+      : false;
+    const allowed = dailyUx && window.ChildTrustedChrome && ChildTrustedChrome.getAllowedChildCount
+      ? ChildTrustedChrome.getAllowedChildCount()
+      : 2;
+    ['childDarkBtn', 'viewToggleBtn', 'printBtn', 'logoutBtn'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
+    const switchEl = document.getElementById('switchChildBtn');
+    if (switchEl) {
+      if (dailyUx && allowed <= 1) {
+        switchEl.style.display = 'none';
+      } else if (dailyUx && allowed > 1) {
+        switchEl.style.display = '';
+      } else {
+        switchEl.style.display = 'none';
+      }
+    }
   }
 
   function runAction(actionId) {
@@ -88,6 +104,26 @@
     btn.id = BTN_ID;
     btn.className =
       'min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-colors';
+    const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
+      ? ChildTrustedChrome.isDailyUxActive()
+      : false;
+    const adultLabel = dailyUx ? 'Vuxen' : t('nav.parent');
+    const adultIcon = dailyUx ? '🔒' : (window.IconSystem ? IconSystem.nav('installningar') : '⚙️');
+    btn.setAttribute('aria-label', dailyUx ? 'Vuxenläge' : t('nav.parentAria'));
+    btn.setAttribute('aria-haspopup', dailyUx ? 'false' : 'menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span aria-hidden="true">' + adultIcon + '</span><span>' + adultLabel + '</span>';
+
+    if (dailyUx) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        onSystemIconClick();
+      });
+      wrap.appendChild(btn);
+      header.appendChild(wrap);
+      return;
+    }
+
     btn.setAttribute('aria-label', t('nav.parentAria'));
     btn.setAttribute('aria-haspopup', 'menu');
     btn.setAttribute('aria-expanded', 'false');
@@ -99,7 +135,17 @@
       'hidden absolute right-0 top-full mt-2 min-w-[200px] bg-white text-navy border border-lavender rounded-xl shadow-lg z-50 py-1';
     menu.setAttribute('role', 'menu');
 
-    menu.innerHTML = ChildCapabilities.CHILD_SYSTEM_ACTIONS.map(function (action) {
+    menu.innerHTML = ChildCapabilities.CHILD_SYSTEM_ACTIONS.filter(function (action) {
+      if (action.id !== 'switch_child') return true;
+      const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
+        ? ChildTrustedChrome.isDailyUxActive()
+        : false;
+      if (!dailyUx) return true;
+      const allowed = window.ChildTrustedChrome.getAllowedChildCount
+        ? ChildTrustedChrome.getAllowedChildCount()
+        : 0;
+      return allowed > 1;
+    }).map(function (action) {
       return (
         '<button type="button" role="menuitem" class="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-sky min-h-[44px]" data-system-action="' +
         action.id +

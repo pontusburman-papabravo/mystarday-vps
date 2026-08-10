@@ -7,6 +7,8 @@
 
   const DECISION_KEY = 'stjarndag_entry_decision_v1';
   const ACTIVE_FLAG_KEY = 'stjarndag_family_device_entry_v1';
+  const DAILY_UX_KEY = 'stjarndag_family_device_daily_ux_v1';
+  const ALLOWED_COUNT_KEY = 'stjarndag_entry_allowed_count';
   const APPLIED_KEY = 'stjarndag_entry_decision_applied';
   const NAV_GUARD_KEY = 'stjarndag_entry_nav_guard';
   const SERVER_ACTION_KEY = 'stjarndag_entry_server_action_done';
@@ -26,7 +28,8 @@
   (function markDeferSessionGatePaths() {
     try {
       const p = (window.location.pathname || '').replace(/\/$/, '') || '/';
-      if (p === '/login' || p === '/child-login' || p.indexOf('/child-login') === 0) {
+      if (p === '/login' || p === '/child-login' || p.indexOf('/child-login') === 0
+        || p === '/child/profile-picker') {
         window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
       }
     } catch (_) { /* ignore */ }
@@ -52,6 +55,37 @@
       return sessionStorage.getItem(ACTIVE_FLAG_KEY) === '1';
     } catch (_) {
       return false;
+    }
+  }
+
+  function storeEntryResponseMeta(body) {
+    if (!body || typeof body !== 'object') return;
+    try {
+      if (body.dailyUxActive === true) {
+        sessionStorage.setItem(DAILY_UX_KEY, '1');
+      } else {
+        sessionStorage.removeItem(DAILY_UX_KEY);
+      }
+      if (Array.isArray(body.allowedChildren)) {
+        sessionStorage.setItem(ALLOWED_COUNT_KEY, String(body.allowedChildren.length));
+      }
+    } catch (_) { /* ignore */ }
+  }
+
+  function isDailyUxActive() {
+    try {
+      return sessionStorage.getItem(DAILY_UX_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function getAllowedChildCount() {
+    try {
+      const n = parseInt(sessionStorage.getItem(ALLOWED_COUNT_KEY), 10);
+      return Number.isFinite(n) && n >= 0 ? n : null;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -129,6 +163,7 @@
       return { ok: false, status: res.status, body: body };
     }
     setActiveFlag(body.orchestratorActive === true);
+    storeEntryResponseMeta(body);
     if (body.orchestratorActive !== true) {
       clearOrchestratorSessionState();
       return { ok: true, orchestratorActive: false, body: body };
@@ -259,7 +294,7 @@
       }
 
       if (decision.destination === 'profile-picker' && actionResult.picker) {
-        if (typeof window.showSharedDevicePicker === 'function') {
+        if (!isDailyUxActive() && typeof window.showSharedDevicePicker === 'function') {
           window.showSharedDevicePicker(actionResult.allowed || [], { source: 'app_entry' });
           return { ok: true, decision: decision, code: 'PICKER_SHOWN' };
         }
@@ -298,5 +333,8 @@
     getAppliedViewContext: getAppliedViewContext,
     markDecisionApplied: markDecisionApplied,
     validateDecision: validateDecision,
+    isDailyUxActive: isDailyUxActive,
+    getAllowedChildCount: getAllowedChildCount,
+    clearOrchestratorSessionState: clearOrchestratorSessionState,
   };
 })();
