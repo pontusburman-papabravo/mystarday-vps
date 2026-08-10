@@ -60,7 +60,7 @@ function jarWithTrustedDevice(sourceJar) {
 }
 
 let lastRegisterMs = 0;
-const REGISTER_GAP_MS = 3500;
+const REGISTER_GAP_MS = 5500;
 
 async function registerFamily(baseUrl, childCount, track5xx) {
   const gap = Date.now() - lastRegisterMs;
@@ -69,19 +69,36 @@ async function registerFamily(baseUrl, childCount, track5xx) {
   }
   lastRegisterMs = Date.now();
 
-  const email = makeDisposableEmail();
+  let email = makeDisposableEmail();
   assertFamilyDevicePilotDisposableEmail(email);
   const password = randPassword();
   const parentPin = randParentPin();
 
+  let regEmail = email;
   const reg = await apiFetch(baseUrl, '/api/auth/register', {
     method: 'POST',
-    body: { email, password, name: 'FD Pilot QA', preferred_locale: 'sv-SE' },
+    body: { email: regEmail, password, name: 'FD Pilot QA', preferred_locale: 'sv-SE' },
     track5xx,
   });
-  if (reg.status !== 201) {
-    throw new Error(`register_failed:${reg.status}`);
+  let regStatus = reg.status;
+  if (regStatus === 429) {
+    await new Promise((r) => setTimeout(r, 90_000));
+    regEmail = makeDisposableEmail();
+    assertFamilyDevicePilotDisposableEmail(regEmail);
+    const retry = await apiFetch(baseUrl, '/api/auth/register', {
+      method: 'POST',
+      body: { email: regEmail, password, name: 'FD Pilot QA', preferred_locale: 'sv-SE' },
+      track5xx,
+    });
+    regStatus = retry.status;
+    if (regStatus === 201) {
+      Object.assign(reg, retry);
+    }
   }
+  if (regStatus !== 201) {
+    throw new Error(`register_failed:${regStatus}`);
+  }
+  email = regEmail;
 
   const jar = createCookieJar();
   const login = await apiFetch(baseUrl, '/api/auth/login', {
