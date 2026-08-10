@@ -47,9 +47,10 @@ test('WidgetCompleteReceiver uses idempotency and secure POST', () => {
   assert.match(src, /goAsync/);
 });
 
-test('WidgetOpenAppReceiver opens child today without completion deep link', () => {
+test('WidgetOpenAppReceiver opens parent home by default (not child PIN route)', () => {
   const src = fs.readFileSync(path.join(WIDGET_JAVA, 'WidgetOpenAppReceiver.java'), 'utf8');
-  assert.match(src, /childTodayDeepLink/);
+  assert.match(src, /parentHomeDeepLink/);
+  assert.match(src, /widgetReconnectSettingsDeepLink/);
   assert.doesNotMatch(src, /complete-action/);
 });
 

@@ -22,6 +22,10 @@
   }
 
   function onSessionReady() {
+    if (!global.Auth || typeof Auth.getUser !== 'function') return;
+    const user = Auth.getUser();
+    // Widget binding is parent-authorized device state — never auto-rebind from child PIN session.
+    if (!user || user.type !== 'parent') return;
     if (global.WidgetBridgeProvision) {
       WidgetBridgeProvision.syncBinding().catch(function () {});
     }
@@ -37,7 +41,7 @@
       const orig = Auth.setAuth.bind(Auth);
       Auth.setAuth = function (token, user, csrfToken, expMs) {
         const out = orig(token, user, csrfToken, expMs);
-        if (user) {
+        if (user && user.type === 'parent') {
           setTimeout(onSessionReady, 0);
         }
         return out;

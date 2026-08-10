@@ -4,6 +4,8 @@
 (function () {
   'use strict';
 
+  const LAUNCH_URL_CONSUMED_KEY = 'stjarndag_launch_url_consumed_v1';
+
   function normalizeIncomingUrl(raw) {
     if (!raw) return null;
     try {
@@ -18,6 +20,43 @@
   /**
    * Map mystarday.se paths → in-app routes (WebView).
    */
+  function isNativeApp() {
+    return typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative();
+  }
+
+  function isChildAppPath(pathAndQuery) {
+    if (!pathAndQuery) return false;
+    const path = pathAndQuery.split('?')[0].replace(/\/$/, '') || '/';
+    return path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0;
+  }
+
+  /** Widget taps must not force parents into child PIN routes (POS widget contract). */
+  function parentDestinationForWidgetDeepLink(pathAndQuery) {
+    const raw = pathAndQuery || '';
+    if (raw.indexOf('from_widget=1') >= 0 || raw.indexOf('widgetSettingsSection') >= 0) {
+      return '/settings?from_widget=1#widgetSettingsSection';
+    }
+    return '/dashboard';
+  }
+
+  function remapWidgetChildDeepLink(pathAndQuery) {
+    if (!isNativeApp() || !isChildAppPath(pathAndQuery)) return pathAndQuery;
+    const user = window.Auth && typeof Auth.getUser === 'function' ? Auth.getUser() : null;
+    const parentSession = user && user.type === 'parent';
+    const widgetIntent =
+      (pathAndQuery || '').indexOf('from_widget') >= 0
+      || (pathAndQuery || '').indexOf('widget') >= 0;
+    if (parentSession || widgetIntent) {
+      return parentDestinationForWidgetDeepLink(pathAndQuery);
+    }
+    return pathAndQuery;
+  }
+
+  function launchUrlFingerprint(raw) {
+    const normalized = normalizeIncomingUrl(raw);
+    return normalized || String(raw || '');
+  }
+
   function mapDeepPath(pathAndQuery) {
     if (!pathAndQuery) return null;
     const path = pathAndQuery.split('?')[0].replace(/\/$/, '') || '/';
@@ -64,16 +103,30 @@
   }
 
   function navigate(pathAndQuery) {
-    const target = mapDeepPath(pathAndQuery);
+    const remapped = remapWidgetChildDeepLink(pathAndQuery);
+    const target = mapDeepPath(remapped);
     if (!target) return false;
-    if (window.location.pathname + (window.location.search || '') === target) return true;
+    const current = window.location.pathname + (window.location.search || '') + (window.location.hash || '');
+    if (current === target || window.location.pathname + (window.location.search || '') === target) {
+      return true;
+    }
     window.location.href = target;
     return true;
   }
 
-  function handleUrl(raw) {
+  function handleUrl(raw, options) {
+    options = options || {};
     const normalized = normalizeIncomingUrl(raw);
     if (!normalized) return false;
+    if (options.fromColdLaunch) {
+      try {
+        const fp = launchUrlFingerprint(raw);
+        if (sessionStorage.getItem(LAUNCH_URL_CONSUMED_KEY) === fp) {
+          return false;
+        }
+        sessionStorage.setItem(LAUNCH_URL_CONSUMED_KEY, fp);
+      } catch (_) { /* ignore */ }
+    }
     return navigate(normalized);
   }
 
@@ -105,7 +158,7 @@
     }
     if (typeof App.getLaunchUrl === 'function') {
       App.getLaunchUrl().then(function (ret) {
-        if (ret && ret.url) handleUrl(ret.url);
+        if (ret && ret.url) handleUrl(ret.url, { fromColdLaunch: true });
       }).catch(function () {});
     }
   }

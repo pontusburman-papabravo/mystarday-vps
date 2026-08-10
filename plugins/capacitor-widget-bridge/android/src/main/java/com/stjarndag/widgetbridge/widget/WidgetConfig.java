@@ -40,6 +40,10 @@ public final class WidgetConfig {
         return apiBaseUrl(context) + "/child/today";
     }
 
+    public static String parentHomeDeepLink(Context context) {
+        return apiBaseUrl(context) + "/dashboard";
+    }
+
     public static String widgetReconnectSettingsDeepLink(Context context) {
         return apiBaseUrl(context) + "/settings?from_widget=1#widgetSettingsSection";
     }

@@ -18,6 +18,12 @@ enum WidgetAPIConfig {
         return URL(string: base + "/child/today")
     }
 
+    static func parentHomeURL() -> URL? {
+        let base = baseUrl()
+        guard !base.isEmpty else { return nil }
+        return URL(string: base + "/dashboard")
+    }
+
     /// Parent must reconnect widget binding — not child PIN flow.
     static func widgetReconnectSettingsURL() -> URL? {
         let base = baseUrl()
@@ -28,9 +34,9 @@ enum WidgetAPIConfig {
     static func openURL(for entry: NextRoutineEntry) -> URL? {
         switch entry.phase {
         case .reauth, .revoked, .offline:
-            return widgetReconnectSettingsURL() ?? childTodayURL()
+            return widgetReconnectSettingsURL() ?? parentHomeURL()
         default:
-            return childTodayURL()
+            return parentHomeURL() ?? childTodayURL()
         }
     }
 }

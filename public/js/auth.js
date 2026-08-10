@@ -409,6 +409,12 @@ const Auth = {
                 const meData = await meRes.json();
                 const currentUser = this.getUser();
                 if (currentUser && meData.type && meData.type !== currentUser.type) {
+                  if (currentUser.type === 'parent' && meData.type === 'child') {
+                    const restored = await this.tryActivateSavedParentSession();
+                    if (restored.ok) {
+                      return true;
+                    }
+                  }
                   console.warn('[AUTH] User type mismatch after refresh: expected', currentUser.type, 'got', meData.type, '— forcing re-login');
                   this.clearAuth();
                   this._sessionLostRedirect();
@@ -472,7 +478,13 @@ const Auth = {
    */
   async _ensureFreshToken() {
     const expMs = this._getExpiryMs();
-    if (!expMs) return;
+    if (!expMs) {
+      if (isNativeClient() && this.isLoggedIn() && !this._nativeColdRefreshAttempted) {
+        this._nativeColdRefreshAttempted = true;
+        await this.silentRefresh();
+      }
+      return;
+    }
     if (Date.now() >= expMs - this.REFRESH_THRESHOLD_MS) {
       await this.silentRefresh();
     }
@@ -1427,17 +1439,23 @@ const Auth = {
 
 window.Auth = Auth;
 
-// Re-schedule refresh on page load (skip on native — defer until after first paint).
+// Re-schedule refresh on page load (native: proactive refresh when expiry missing/stale).
 (function () {
-  if (isNativeClient()) return;
   if (!Auth.isLoggedIn()) return;
   const expMs = Auth._getExpiryMs();
-  if (expMs) {
-    if (Date.now() < expMs) {
+  if (isNativeClient()) {
+    if (expMs && Date.now() < expMs) {
       Auth._scheduleRefresh(expMs);
     } else {
       Auth.silentRefresh();
     }
+    return;
+  }
+  if (!expMs) return;
+  if (Date.now() < expMs) {
+    Auth._scheduleRefresh(expMs);
+  } else {
+    Auth.silentRefresh();
   }
 })();
 
@@ -1568,16 +1586,24 @@ window.authGuard = async function() {
       window.androidStabilityLog(step, detail);
     }
   };
+  async function fetchAuthMeNative() {
+    stabilityLog('auth_me_fetch_start');
+    const controller = new AbortController();
+    const abortTimer = window.setTimeout(function () { controller.abort(); }, AUTH_ME_TIMEOUT_MS);
+    try {
+      return await fetch('/api/auth/me', { credentials: 'include', signal: controller.signal });
+    } finally {
+      window.clearTimeout(abortTimer);
+    }
+  }
   try {
     let res;
     if (isNativeClient()) {
-      stabilityLog('auth_me_fetch_start');
-      const controller = new AbortController();
-      const abortTimer = window.setTimeout(function () { controller.abort(); }, AUTH_ME_TIMEOUT_MS);
-      try {
-        res = await fetch('/api/auth/me', { credentials: 'include', signal: controller.signal });
-      } finally {
-        window.clearTimeout(abortTimer);
+      res = await fetchAuthMeNative();
+      if (!res.ok && res.status === 401) {
+        stabilityLog('auth_me_refresh_attempt', { status: res.status });
+        await Auth.silentRefresh();
+        res = await fetchAuthMeNative();
       }
       stabilityLog('auth_me_fetch_done', { status: res.status, ok: res.ok });
     } else {

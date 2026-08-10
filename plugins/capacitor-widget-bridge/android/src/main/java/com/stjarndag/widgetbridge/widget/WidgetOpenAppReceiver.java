@@ -16,7 +16,12 @@ public class WidgetOpenAppReceiver extends BroadcastReceiver {
         }
         String url = intent.getStringExtra(WidgetConfig.EXTRA_OPEN_APP_PATH);
         if (url == null || url.isEmpty()) {
-            url = WidgetConfig.childTodayDeepLink(context);
+            String reason = intent.getStringExtra(WidgetConfig.EXTRA_OPEN_APP_REASON);
+            if (reason != null && (reason.contains("reauth") || reason.contains("revoked"))) {
+                url = WidgetConfig.widgetReconnectSettingsDeepLink(context);
+            } else {
+                url = WidgetConfig.parentHomeDeepLink(context);
+            }
         } else if (!url.startsWith("http")) {
             url = WidgetConfig.apiBaseUrl(context) + url;
         }

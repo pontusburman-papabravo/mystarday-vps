@@ -596,11 +596,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Guard: parent tokens cannot access child-dashboard — redirect (scheduleView is hidden in today-focus mode)
+  // Guard: parent tokens cannot access child-dashboard — redirect to parent home (not settings loop)
   if (localUser && localUser.type && localUser.type !== 'child') {
     const isNative = window.Platform && typeof Platform.isNative === 'function' && Platform.isNative();
     if (isNative) {
-      window.location.replace('/settings#widgetSettingsSection');
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      window.location.replace('/dashboard');
       return;
     }
     document.getElementById('scheduleView').classList.remove('hidden');

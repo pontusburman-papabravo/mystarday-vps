@@ -116,6 +116,53 @@
     return null;
   }
 
+  function childLabel(c) {
+    return (c.emoji ? c.emoji + ' ' : '') + (c.name || 'Barn');
+  }
+
+  function buildConnectionCopy(status, children) {
+    const hasBinding = !!status.hasBinding;
+    if (!hasBinding) {
+      return {
+        headline: 'Behöver återanslutas',
+        detailHtml: '<p class="text-sm text-text-soft">Anslut widgeten igen för att visa barnets rutin på hemskärmen.</p>',
+      };
+    }
+    const activeId = status.activeChildId || null;
+    const viewerParent = !status.viewerMode || status.viewerMode === 'parent';
+    const pool = viewerParent && children.length ? children : children.filter(function (c) {
+      return c.id === activeId;
+    });
+    if (pool.length <= 0 && activeId) {
+      return {
+        headline: 'Widgeten är ansluten',
+        detailHtml: '<p class="text-sm text-text-soft">Ansluten (uppdatera sidan om barnnamn saknas).</p>',
+      };
+    }
+    if (pool.length === 1) {
+      const only = pool[0];
+      const name = childLabel(only);
+      return {
+        headline: 'Widgeten är ansluten',
+        detailHtml: '<p class="text-sm text-navy font-semibold">Ansluten till ' + esc(name) + '</p>',
+      };
+    }
+    const lines = pool.map(function (c) {
+      const mark = c.id === activeId ? '✓ ' : '○ ';
+      return '<li class="text-sm text-navy">' + mark + esc(childLabel(c)) + '</li>';
+    }).join('');
+    const activeNote = activeId
+      ? '<p class="text-xs text-text-soft mt-2">Visar nu: ' + esc(childLabel(pool.find(function (x) { return x.id === activeId; }) || { name: '—' })) + '</p>'
+      : '';
+    return {
+      headline: 'Widgeten är ansluten',
+      detailHtml:
+        '<p class="text-sm text-text-soft mb-1">Tillgängliga barn i widgeten:</p>' +
+        '<ul class="space-y-1">' + lines + '</ul>' +
+        activeNote,
+    };
+  }
+
   async function reconnectWidget(mount, children) {
     const user = global.Auth && Auth.getUser ? Auth.getUser() : null;
     if (!global.WidgetBridgeProvision) {
@@ -151,6 +198,9 @@
       }
 
       if (result && result.ok) {
+        if (global.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+          DeviceMode.enterParent();
+        }
         const okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
         setMessage(mount, okMsg, false);
         flash(okMsg, false);
@@ -198,19 +248,21 @@
     const privacy = privacyLabel(status.privacyMode);
     const children = await loadChildren();
     const defaultChild = resolveDefaultChildId(children);
+    const connection = buildConnectionCopy(status, children);
 
     mount.innerHTML =
       '<h2 class="font-heading text-lg text-navy mb-2">Widgets och snabbåtkomst</h2>' +
       '<p class="text-sm text-text-soft mb-3">Personlig widget = ett barn. Familjewidget = flera barn. Välj barn här om ni är flera.</p>' +
       childPickerHtml(children, defaultChild) +
-      '<dl class="text-sm space-y-2 mb-4 text-navy">' +
+      '<dl class="text-sm space-y-2 mb-2 text-navy">' +
       '<div><dt class="font-semibold inline">Status: </dt><dd class="inline text-text-soft">' +
-      (hasBinding ? 'Ansluten' : 'Behöver återanslutas') +
+      esc(connection.headline) +
       '</dd></div>' +
       '<div><dt class="font-semibold inline">Integritet: </dt><dd class="inline text-text-soft">' +
       esc(privacy) +
       '</dd></div>' +
       '</dl>' +
+      '<div class="mb-4 widget-settings-connection-detail">' + connection.detailHtml + '</div>' +
       '<button type="button" id="widgetSettingsReconnect" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-semibold min-h-[44px]">' +
       'Återanslut widget' +
       '</button>' +
@@ -260,6 +312,12 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     const mount = document.getElementById('widgetSettingsSection');
+    if (global.Auth && typeof Auth.getUser === 'function') {
+      const u = Auth.getUser();
+      if (u && u.type === 'parent' && global.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+    }
     if (mount) renderWidgetSettings(mount);
     scheduleMountRetries();
   });
