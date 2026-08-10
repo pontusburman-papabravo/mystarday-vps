@@ -15,25 +15,11 @@ const {
   isFamilyDevicePilotDisposableEmail,
   redactSecrets,
 } = require('../../src/lib/family-device-pilot-guard');
+const { createDisposableFamilyDeviceQaFamily } = require('./family-device-qa-fixture.cjs');
+const { makeDisposableEmail } = require('./family-device-pilot-guard-helpers.cjs');
 const { isFounderQaParentEmail } = require('../../src/lib/founder-qa-family-guard');
 
-function randPassword() {
-  return `FdP-${crypto.randomBytes(18).toString('base64url')}1aA`;
-}
-
-function randParentPin() {
-  let p;
-  do {
-    p = String(crypto.randomInt(1000, 10000));
-  } while (/^(\d)\1{3}$/.test(p));
-  return p;
-}
-
-function makeDisposableEmail() {
-  return `fd-pilot-${Date.now()}@example.com`;
-}
-
-async function apiFetch(baseUrl, path, { method = 'GET', jar, csrf, body, track5xx, authBearer } = {}) {
+async function apiFetch(baseUrl, path, { method = 'GET', jar, csrf, body, track5xx, track429, authBearer } = {}) {
   const headers = {};
   if (jar?.header()) headers.Cookie = jar.header();
   if (csrf) headers['X-CSRF-Token'] = csrf;
@@ -47,7 +33,7 @@ async function apiFetch(baseUrl, path, { method = 'GET', jar, csrf, body, track5
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   jar?.store(res);
-  return readJson(res, track5xx);
+  return readJson(res, track5xx, track429);
 }
 
 function jarWithTrustedDevice(sourceJar) {
@@ -59,132 +45,33 @@ function jarWithTrustedDevice(sourceJar) {
   return jar;
 }
 
-let lastRegisterMs = 0;
-const REGISTER_GAP_MS = 5500;
-
-async function registerFamily(baseUrl, childCount, track5xx) {
-  const gap = Date.now() - lastRegisterMs;
-  if (lastRegisterMs && gap < REGISTER_GAP_MS) {
-    await new Promise((r) => setTimeout(r, REGISTER_GAP_MS - gap));
-  }
-  lastRegisterMs = Date.now();
-
-  let email = makeDisposableEmail();
-  assertFamilyDevicePilotDisposableEmail(email);
-  const password = randPassword();
-  const parentPin = randParentPin();
-
-  let regEmail = email;
-  const reg = await apiFetch(baseUrl, '/api/auth/register', {
-    method: 'POST',
-    body: { email: regEmail, password, name: 'FD Pilot QA', preferred_locale: 'sv-SE' },
-    track5xx,
-  });
-  let regStatus = reg.status;
-  if (regStatus === 429) {
-    await new Promise((r) => setTimeout(r, 90_000));
-    regEmail = makeDisposableEmail();
-    assertFamilyDevicePilotDisposableEmail(regEmail);
-    const retry = await apiFetch(baseUrl, '/api/auth/register', {
-      method: 'POST',
-      body: { email: regEmail, password, name: 'FD Pilot QA', preferred_locale: 'sv-SE' },
-      track5xx,
-    });
-    regStatus = retry.status;
-    if (regStatus === 201) {
-      Object.assign(reg, retry);
-    }
-  }
-  if (regStatus !== 201) {
-    throw new Error(`register_failed:${regStatus}`);
-  }
-  email = regEmail;
+async function provisionFamily(db, baseUrl, childCount, track5xx, track429Fixture) {
+  const fixture = await createDisposableFamilyDeviceQaFamily(db, { childCount });
+  assertFamilyDevicePilotDisposableEmail(fixture.email);
 
   const jar = createCookieJar();
   const login = await apiFetch(baseUrl, '/api/auth/login', {
     method: 'POST',
     jar,
-    body: { email, password },
+    body: { email: fixture.email, password: fixture.password },
     track5xx,
+    track429: track429Fixture,
   });
   if (login.status !== 200 || !login.body?.csrfToken) {
     throw new Error(`login_failed:${login.status}`);
   }
-  const csrf = login.body.csrfToken;
-  const familyId = login.body.user?.familyId || login.body.user?.family_id;
-
-  const children = [];
-  for (let i = 0; i < childCount; i++) {
-    if (i === 0) {
-      const childRes = await apiFetch(baseUrl, '/api/onboarding/child', {
-        method: 'POST',
-        jar,
-        csrf,
-        body: { name: childCount === 1 ? 'Solo' : 'Alma', emoji: '🌟' },
-        track5xx,
-      });
-      if (childRes.status !== 200 && childRes.status !== 201) {
-        throw new Error(`child_create_failed:${childRes.status}`);
-      }
-      children.push({
-        id: childRes.body.id,
-        username: childRes.body.username,
-        pin: childRes.body.pin,
-        name: childRes.body.name,
-      });
-      await apiFetch(baseUrl, '/api/onboarding/schedule', {
-        method: 'POST',
-        jar,
-        csrf,
-        body: { child_id: childRes.body.id, template_group: 'morgon' },
-        track5xx,
-      });
-      await apiFetch(baseUrl, '/api/onboarding/complete', { method: 'POST', jar, csrf, body: {}, track5xx });
-    } else {
-      const childRes = await apiFetch(baseUrl, '/api/children', {
-        method: 'POST',
-        jar,
-        csrf,
-        body: { name: 'Bo', emoji: '🐻', birthday: '2018-06-01' },
-        track5xx,
-      });
-      if (childRes.status !== 201) {
-        throw new Error(`child_add_failed:${childRes.status}`);
-      }
-      children.push({
-        id: childRes.body.id,
-        username: childRes.body.username,
-        pin: childRes.body.pin,
-        name: childRes.body.name,
-      });
-    }
-  }
-
-  const pinRes = await apiFetch(baseUrl, '/api/family/set-pin', {
-    method: 'POST',
-    jar,
-    csrf,
-    body: { pin: parentPin, confirmPin: parentPin },
-    track5xx,
-  });
-  if (pinRes.status !== 200) {
-    throw new Error(`set_pin_failed:${pinRes.status}`);
-  }
-
-  const me = await apiFetch(baseUrl, '/api/auth/me', { jar, track5xx });
-  const resolvedFamilyId = me.body?.familyId || me.body?.family_id || familyId;
 
   return {
-    email,
-    password,
-    parentPin,
-    familyId: resolvedFamilyId,
-    children,
-    session: { jar, csrf },
+    email: fixture.email,
+    password: fixture.password,
+    parentPin: fixture.parentPin,
+    familyId: fixture.familyId,
+    children: fixture.children,
+    session: { jar, csrf: login.body.csrfToken },
   };
 }
 
-async function enrollShared(baseUrl, session, track5xx) {
+async function enrollShared(baseUrl, session, track5xx, track429) {
   const res = await apiFetch(baseUrl, '/api/family/trusted-devices/shared', {
     method: 'POST',
     jar: session.jar,
@@ -264,11 +151,17 @@ function decodeWidgetChildId(token, secret) {
  */
 async function runFamilyDeviceProdPilot(opts) {
   const track5xx = [];
+  const track429 = [];
+  const track429Fixture = [];
   const families = [];
   const report = {
     ok: false,
     scenarios: {},
     unexpected5xx: track5xx,
+    unexpected429: track429,
+    unexpected429DuringFixtureSetup: track429Fixture,
+    publicSignupUsedForFixture: false,
+    fixtureCreationMethod: 'db_ops',
     wrongChildWrites: 0,
     globalFlagsChanged: false,
     founderCredentialsUsed: false,
@@ -288,8 +181,8 @@ async function runFamilyDeviceProdPilot(opts) {
 
     globalBefore = await snapshotGlobalPilotFlags(opts.db);
 
-    const single = await registerFamily(opts.baseUrl, 1, track5xx);
-    const multi = await registerFamily(opts.baseUrl, 2, track5xx);
+    const single = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
+    const multi = await provisionFamily(opts.db, opts.baseUrl, 2, track5xx, track429Fixture);
     families.push(single, multi);
 
     for (const fam of families) {
@@ -343,7 +236,7 @@ async function runFamilyDeviceProdPilot(opts) {
 
     // C — parent device
     {
-      const pFam = await registerFamily(opts.baseUrl, 1, track5xx);
+      const pFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
       families.push(pFam);
       await enablePilotOverrides(opts.db, pFam.familyId, pFam.email);
       await enrollParent(opts.baseUrl, pFam.session, track5xx);
@@ -432,21 +325,23 @@ async function runFamilyDeviceProdPilot(opts) {
 
     // F — revoke (dedicated one-child family)
     {
-      const rFam = await registerFamily(opts.baseUrl, 1, track5xx);
+      const rFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
       families.push(rFam);
       await enablePilotOverrides(opts.db, rFam.familyId, rFam.email);
       await enrollChildDevice(opts.baseUrl, rFam.session, rFam.children[0].id, track5xx);
       const list = await apiFetch(opts.baseUrl, '/api/family/trusted-devices', {
-        jar: rFam.session,
+        jar: rFam.session.jar,
         csrf: rFam.session.csrf,
         track5xx,
+        track429,
       });
       const deviceId = list.body?.devices?.[0]?.id;
       const del = await apiFetch(opts.baseUrl, `/api/family/trusted-devices/${deviceId}`, {
         method: 'DELETE',
-        jar: rFam.session,
+        jar: rFam.session.jar,
         csrf: rFam.session.csrf,
         track5xx,
+        track429,
       });
       const tdJar = jarWithTrustedDevice(rFam.session.jar);
       const entry = await appEntry(opts.baseUrl, tdJar, '', track5xx);
@@ -537,7 +432,11 @@ async function runFamilyDeviceProdPilot(opts) {
         k === 'OFFLINE_IDENTITY' ||
         k === 'WIDGET_SERVER_SCOPE'
     );
-    report.ok = keys.every((k) => report.scenarios[k] === 'PASS') && track5xx.length === 0;
+    report.ok =
+      keys.every((k) => report.scenarios[k] === 'PASS') &&
+      track5xx.length === 0 &&
+      track429Fixture.length === 0 &&
+      !report.publicSignupUsedForFixture;
   } finally {
     if (!opts.dryRun) {
       for (const fam of families) {
@@ -576,7 +475,6 @@ async function runFamilyDeviceProdPilot(opts) {
 module.exports = {
   makeDisposableEmail,
   isFamilyDevicePilotDisposableEmail,
-  randPassword,
   runFamilyDeviceProdPilot,
   redactSecrets,
 };
