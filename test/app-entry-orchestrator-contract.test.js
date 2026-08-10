@@ -28,13 +28,13 @@ describe('app entry orchestrator contract (Fas 1)', () => {
     const md = fs.readFileSync(SPEC, 'utf8');
     assert.match(md, /resolveAppEntry/);
     assert.match(md, /device_mode/);
-    assert.match(md, /credentialType/);
+    assert.match(md, /credentialContext/);
     assert.match(md, /Device role ≠ view context ≠ credential/);
   });
 
-  it('implementation module not yet required in Fas 1', () => {
+  it('implementation module exports resolveAppEntry', () => {
     const resolver = findResolver();
-    if (!resolver) return;
+    assert.ok(resolver, 'src/lib/app-entry-resolve.js expected');
     const mod = require(resolver);
     assert.equal(typeof mod.resolveAppEntry, 'function');
   });

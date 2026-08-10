@@ -116,7 +116,7 @@ Home    │          Home
 ### 3.1 Orchestrator-kontrakt (Fas 2)
 
 ```js
-// Konceptuellt — implementation i public/js/app-entry-orchestrator.js (ny fil)
+// Konceptuellt — implementation: `src/lib/app-entry-resolve.js` (Fas 2A ren resolver); Fas 2B kopplar bootstrap/gates.
 resolveAppEntry({
   parentSession,      // null | { valid, user }
   trustedDevice,      // null | { device_mode, default_child_id, last_active_child_id, allowed_children, revoked }
@@ -131,7 +131,9 @@ resolveAppEntry({
 {
   destination: 'parent-home' | 'child-home' | 'profile-picker' | 'parent-login' | 'device-setup',
   childId: string | null,
-  credentialType: 'parent' | 'child' | 'none',
+  deviceMode: 'parent' | 'shared' | 'child' | null,
+  viewContext: 'parent' | 'child' | 'picker',
+  credentialContext: 'parent' | 'child' | 'none',
   reason: string,           // telemetri / debug
   serverAction: 'restore-parent' | 'restore-child' | 'select-child' | 'none' | 'enroll-prompt',
 }
@@ -297,6 +299,10 @@ Support och revoke ska kunna hanteras här utan att “logga ut hela familjen”
 ---
 
 ### Fas 2 — Entry orchestrator
+
+**Fas 2A (denna PR-typ):** ren `resolveAppEntry()` i `src/lib/app-entry-resolve.js` + beslutsmatris + invariants (ingen navigation, ingen UI).
+
+**Fas 2B:** koppla `TrustedDeviceBootstrap`, Auth restore, `SessionGate`, `app-entry` till resolvern.
 
 **Mål:** En funktion bestämmer cold start; inget annat modul får `location.replace` på grund av device identity utan orchestrator.
 
