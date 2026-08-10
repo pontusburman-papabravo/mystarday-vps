@@ -463,7 +463,7 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
     if (allowed.length === 0) {
       return { ok: false, code: 'CHILD_NOT_FOUND' };
     }
-    let childId = opts.forcePicker ? null : row.last_active_child_id;
+    let childId = opts.preferredChildId || (opts.forcePicker ? null : row.last_active_child_id);
     if (childId && !allowed.some((c) => c.id === childId)) {
       childId = null;
     }
@@ -482,7 +482,7 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
     return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_restore');
   }
 
-  const childId = row.last_active_child_id || row.default_child_id;
+  const childId = opts.preferredChildId || row.last_active_child_id || row.default_child_id;
   if (row.device_mode === 'child' && childId !== row.default_child_id) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }

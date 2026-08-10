@@ -24,10 +24,11 @@
           return;
         }
         if (result && result.code === 'BIOMETRIC_UNAVAILABLE') {
-          if (typeof showParentPinGateOverlay === 'function') {
-            showParentPinGateOverlay(success, cancel);
-            return;
-          }
+          AdultPrivilege.requestEscalation({ preferPin: true }).then(function (pinRes) {
+            if (pinRes && pinRes.ok && onSuccess) onSuccess();
+            else if (cancel) cancel();
+          });
+          return;
         }
         if (cancel) cancel();
       });

@@ -185,6 +185,7 @@ test('unlock activates parent session and allows parent API (one consume)', asyn
     assert.equal(unlockBody.ok, true);
     assert.equal(unlockBody.state, 'active');
     assert.equal(unlockBody.parent.id, fixture.parentId);
+    assert.ok(unlockBody.privilegeLeaseUntil || unlockBody.policy);
 
     const parentJar = cookiesAfterResponse(childCookies, unlockRes);
     const meRes = await fetch(`${baseUrl}/api/auth/me`, {

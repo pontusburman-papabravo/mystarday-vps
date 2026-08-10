@@ -23,6 +23,8 @@ const CHILD_ALLOWED = [
   /^\/family\/activate-saved-parent-session$/,
   /^\/family\/adult-privilege\/status$/,
   /^\/family\/adult-privilege\/unlock$/,
+  /^\/family\/adult-privilege\/expire$/,
+  /^\/family\/adult-privilege\/policy$/,
   /^\/family\/parent-pin-status-picker$/,
   /^\/family\/verify-pin-picker$/,
   /^\/children\/[^/]+\/view-config$/,

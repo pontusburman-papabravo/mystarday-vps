@@ -18,6 +18,9 @@
   let unlockInFlight = false;
   let featureEnabled = false;
   let expiresAtMs = null;
+  let privilegeLeaseUntilMs = null;
+  let devicePolicy = null;
+  let expireInFlight = false;
 
   function track(eventType) {
     if (!window.analytics || typeof window.analytics.track !== 'function') return;
@@ -87,12 +90,20 @@
         if (out.body.privilegeActive || out.body.state === STATES.ACTIVE) {
           setState(STATES.ACTIVE);
           expiresAtMs = out.body.expiresAt || null;
+          privilegeLeaseUntilMs = out.body.privilegeLeaseUntil || out.body.expiresAt || null;
+          devicePolicy = out.body.policy || devicePolicy;
         } else if (out.body.state === STATES.EXPIRED) {
           setState(STATES.EXPIRED);
         } else if (out.body.state === STATES.REVOKED) {
           setState(STATES.REVOKED);
         } else {
           setState(STATES.LOCKED);
+        }
+        if (out.body.policy) {
+          devicePolicy = out.body.policy;
+          if (window.AdultPrivilegeLifecycle) {
+            AdultPrivilegeLifecycle.onPolicyUpdate(devicePolicy, privilegeLeaseUntilMs);
+          }
         }
         return { ok: true, body: out.body };
       })
@@ -112,6 +123,60 @@
     });
   }
 
+  function runPinGate() {
+    if (window.AdultPinGateUI && typeof AdultPinGateUI.collectAdultPin === 'function') {
+      return AdultPinGateUI.collectAdultPin();
+    }
+    return Promise.resolve({ ok: false, code: 'PIN_UI_UNAVAILABLE' });
+  }
+
+  function expirePrivilegeIfDue(reason) {
+    if (expireInFlight) return Promise.resolve({ ok: false, code: 'EXPIRE_IN_FLIGHT' });
+    if (!featureEnabled) return Promise.resolve({ ok: false, code: 'DISABLED' });
+    if (devicePolicy && window.AdultPrivilegeLeasePolicy
+      && !AdultPrivilegeLeasePolicy.shouldAutoExpireOnBackground(devicePolicy.deviceMode)
+      && reason === 'background') {
+      return Promise.resolve({ ok: true, noop: true });
+    }
+    if (state !== STATES.ACTIVE && reason !== 'lease_timer') {
+      return Promise.resolve({ ok: false, code: 'NOT_ACTIVE' });
+    }
+    if (privilegeLeaseUntilMs && Date.now() < privilegeLeaseUntilMs && reason === 'lease_timer') {
+      return Promise.resolve({ ok: false, code: 'LEASE_STILL_VALID' });
+    }
+    expireInFlight = true;
+    return fetchJson('/api/family/adult-privilege/expire', {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason || 'policy' }),
+    })
+      .then(function (out) {
+        if (out.body && out.body.noop) {
+          return { ok: true, noop: true };
+        }
+        if (!out.res.ok || !out.body.ok) {
+          return { ok: false, code: out.body.code || 'EXPIRE_FAILED' };
+        }
+        if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
+          window.Auth.setCsrfToken(out.body.csrfToken);
+        }
+        setState(STATES.LOCKED);
+        privilegeLeaseUntilMs = null;
+        expiresAtMs = null;
+        if (window.AdultPrivilegeLifecycle) AdultPrivilegeLifecycle.onPrivilegeCleared();
+        if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
+          DeviceMode.enterChild();
+        }
+        track('adult_privilege_expired');
+        return { ok: true, child: out.body.child };
+      })
+      .catch(function () {
+        return { ok: false, code: 'NETWORK' };
+      })
+      .finally(function () {
+        expireInFlight = false;
+      });
+  }
+
   function runBiometricGate() {
     if (!window.AdultBiometricClient) {
       return Promise.reject(new Error('BIOMETRIC_UNAVAILABLE'));
@@ -124,6 +189,53 @@
     });
   }
 
+  function applyUnlockSuccess(body) {
+    if (body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
+      window.Auth.setCsrfToken(body.csrfToken);
+    }
+    return verifyParentAuthority().then(function (verified) {
+      if (!verified) {
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
+      }
+      setState(STATES.ACTIVE);
+      expiresAtMs = body.expiresAt || null;
+      privilegeLeaseUntilMs = body.privilegeLeaseUntil || body.expiresAt || null;
+      devicePolicy = body.policy || devicePolicy;
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      if (window.AdultPrivilegeLifecycle) {
+        AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
+      }
+      track('adult_privilege_unlock_success');
+      return { ok: true, parent: body.parent };
+    });
+  }
+
+  function postUnlock(unlockMethod, pin) {
+    const payload = { unlockMethod: unlockMethod || 'biometric' };
+    if (unlockMethod === 'pin' && pin) payload.pin = pin;
+    return fetchJson('/api/family/adult-privilege/unlock', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }).then(function (out) {
+      if (!out.res.ok || !out.body.ok) {
+        const code = out.body.code || 'ADULT_PRIVILEGE_UNLOCK_FAILED';
+        if (code === 'PARENT_HANDOFF_EXPIRED') setState(STATES.EXPIRED);
+        else if (code === 'PARENT_HANDOFF_INVALID' || code === 'PARENT_HANDOFF_USED') {
+          setState(STATES.REVOKED);
+        } else {
+          setState(STATES.LOCKED);
+        }
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: code, status: out.res.status };
+      }
+      return applyUnlockSuccess(out.body);
+    });
+  }
+
   /**
    * Escalate child → parent: biometric (native) then server unlock + /me verify.
    * @returns {Promise<{ok:boolean, parent?:object, code?:string}>}
@@ -131,7 +243,7 @@
   function requestEscalation(options) {
     const opts = options || {};
     if (!featureEnabled) {
-      return refreshStatus().then(function (st) {
+      return refreshStatus().then(function () {
         if (!featureEnabled) {
           return { ok: false, code: 'ADULT_PRIVILEGE_DISABLED' };
         }
@@ -153,53 +265,31 @@
     setState(STATES.UNLOCKING);
     track('adult_privilege_unlock_started');
 
-    const skipBiometric = opts.skipBiometric === true;
+    const usePin = opts.unlockMethod === 'pin' || opts.preferPin === true;
+    const skipBiometric = opts.skipBiometric === true || usePin;
 
-    const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
+    let gatePromise;
+    if (usePin) {
+      gatePromise = runPinGate().then(function (pinResult) {
+        if (!pinResult.ok || !pinResult.pin) {
+          return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+        }
+        return postUnlock('pin', pinResult.pin);
+      });
+    } else {
+      const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
+      gatePromise = bioPromise.then(function () {
+        return postUnlock('biometric');
+      });
+    }
 
-    return bioPromise
-      .then(function () {
-        return fetchJson('/api/family/adult-privilege/unlock', {
-          method: 'POST',
-          body: JSON.stringify({ unlockMethod: opts.unlockMethod || 'biometric' }),
-        });
-      })
-      .then(function (out) {
-        if (!out.res.ok || !out.body.ok) {
-          const code = out.body.code || 'ADULT_PRIVILEGE_UNLOCK_FAILED';
-          if (code === 'PARENT_HANDOFF_EXPIRED') setState(STATES.EXPIRED);
-          else if (code === 'PARENT_HANDOFF_INVALID' || code === 'PARENT_HANDOFF_USED') {
-            setState(STATES.REVOKED);
-          } else {
-            setState(STATES.LOCKED);
-          }
-          track('adult_privilege_unlock_failed');
-          return { ok: false, code: code, status: out.res.status };
-        }
-        if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
-          window.Auth.setCsrfToken(out.body.csrfToken);
-        }
-        return verifyParentAuthority().then(function (verified) {
-          if (!verified) {
-            setState(STATES.LOCKED);
-            track('adult_privilege_unlock_failed');
-            return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
-          }
-          setState(STATES.ACTIVE);
-          expiresAtMs = out.body.expiresAt || null;
-          if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-            DeviceMode.enterParent();
-          }
-          track('adult_privilege_unlock_success');
-          return { ok: true, parent: out.body.parent };
-        });
-      })
+    return gatePromise
       .catch(function (err) {
-        const msg = err && err.message ? String(err.message) : '';
-        if (msg.indexOf('BIOMETRIC_CANCEL') !== -1) {
+        const msg = err && err.message ? String(err.message) : String(err || '');
+        if (msg.indexOf('BIOMETRIC_CANCEL') !== -1 || msg.indexOf('PIN_CANCEL') !== -1) {
           setState(STATES.LOCKED);
           track('adult_privilege_unlock_failed');
-          return { ok: false, code: 'BIOMETRIC_CANCEL' };
+          return { ok: false, code: msg.indexOf('PIN') !== -1 ? 'PIN_CANCEL' : 'BIOMETRIC_CANCEL' };
         }
         if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1) {
           setState(STATES.LOCKED);
@@ -218,6 +308,8 @@
   function resetToLocked() {
     setState(STATES.LOCKED);
     expiresAtMs = null;
+    privilegeLeaseUntilMs = null;
+    if (window.AdultPrivilegeLifecycle) AdultPrivilegeLifecycle.onPrivilegeCleared();
   }
 
   function initFromSession() {
@@ -226,6 +318,7 @@
     } catch (_) {
       return Promise.resolve();
     }
+    if (window.AdultPrivilegeLifecycle) AdultPrivilegeLifecycle.start();
     return refreshStatus();
   }
 
@@ -236,6 +329,7 @@
     isPrivilegeActive: isPrivilegeActive,
     refreshStatus: refreshStatus,
     requestEscalation: requestEscalation,
+    expirePrivilegeIfDue: expirePrivilegeIfDue,
     resetToLocked: resetToLocked,
     initFromSession: initFromSession,
   };

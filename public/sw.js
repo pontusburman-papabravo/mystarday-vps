@@ -263,7 +263,7 @@
 // stjarndag-v815: widget återanslut — force sync, mount retries, auth hook defer
 // stjarndag-v816: widget tap reauth → inställningar; förälder på /child/today redirect
 // stjarndag-v817: widget reconnect — binding intent id, stale configure guard
-const CACHE_NAME = 'stjarndag-v822';
+const CACHE_NAME = 'stjarndag-v823';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -580,7 +580,7 @@ const CACHE_NAME = 'stjarndag-v822';
 // stjarndag-v818: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v819: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v820: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
-// stjarndag-v822: Fas 3A adult privilege escalation + biometric bridge
+// stjarndag-v823: Fas 3B adult privilege lease + PIN fallback + lifecycle
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -820,6 +820,9 @@ const STATIC_ASSETS = [
   '/js/session-gate.js',
   '/js/parental-gate.js',
   '/js/adult-biometric-client.js',
+  '/js/adult-privilege-lease-policy.js',
+  '/js/adult-pin-gate-ui.js',
+  '/js/adult-privilege-lifecycle.js',
   '/js/adult-privilege.js',
   '/js/crash-reporter.js',
   '/js/native-tab-bar.js',
