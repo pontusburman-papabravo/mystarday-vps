@@ -71,6 +71,30 @@ async function provisionFamily(db, baseUrl, childCount, track5xx, track429Fixtur
   };
 }
 
+const TRUSTED_DEVICE_PROPAGATION_MS = 20_000;
+const TRUSTED_DEVICE_POLL_MS = 400;
+
+/** Wait until app HTTP sees per-family trusted_device override (DB replica lag). */
+async function assertTrustedDeviceEnabledOnServer(baseUrl, session, track5xx, track429) {
+  const deadline = Date.now() + TRUSTED_DEVICE_PROPAGATION_MS;
+  while (Date.now() < deadline) {
+    const res = await apiFetch(baseUrl, '/api/family/trusted-devices', {
+      jar: session.jar,
+      csrf: session.csrf,
+      track5xx,
+      track429,
+    });
+    if (res.status === 200 && res.body?.enabled === true) return;
+    await new Promise((r) => setTimeout(r, TRUSTED_DEVICE_POLL_MS));
+  }
+  throw new Error('trusted_device_enable_timeout');
+}
+
+async function enablePilotForFamily(db, baseUrl, fam, track5xx, track429) {
+  await enablePilotOverrides(db, fam.familyId, fam.email);
+  await assertTrustedDeviceEnabledOnServer(baseUrl, fam.session, track5xx, track429);
+}
+
 async function enrollShared(baseUrl, session, track5xx, track429) {
   const res = await apiFetch(baseUrl, '/api/family/trusted-devices/shared', {
     method: 'POST',
@@ -190,7 +214,7 @@ async function runFamilyDeviceProdPilot(opts) {
         report.founderCredentialsUsed = true;
         throw new Error('founder_email_in_fixture');
       }
-      await enablePilotOverrides(opts.db, fam.familyId, fam.email);
+      await enablePilotForFamily(opts.db, opts.baseUrl, fam, track5xx, track429);
       report.disposableFamilies.push({ family_id: fam.familyId, email_domain: 'example.com' });
     }
 
@@ -238,7 +262,7 @@ async function runFamilyDeviceProdPilot(opts) {
     {
       const pFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
       families.push(pFam);
-      await enablePilotOverrides(opts.db, pFam.familyId, pFam.email);
+      await enablePilotForFamily(opts.db, opts.baseUrl, pFam, track5xx, track429);
       await enrollParent(opts.baseUrl, pFam.session, track5xx);
       const cold = jarWithTrustedDevice(pFam.session.jar);
       const entry = await appEntry(opts.baseUrl, pFam.session.jar, '', track5xx);
@@ -327,7 +351,7 @@ async function runFamilyDeviceProdPilot(opts) {
     {
       const rFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
       families.push(rFam);
-      await enablePilotOverrides(opts.db, rFam.familyId, rFam.email);
+      await enablePilotForFamily(opts.db, opts.baseUrl, rFam, track5xx, track429);
       await enrollChildDevice(opts.baseUrl, rFam.session, rFam.children[0].id, track5xx);
       const list = await apiFetch(opts.baseUrl, '/api/family/trusted-devices', {
         jar: rFam.session.jar,
