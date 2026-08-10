@@ -102,21 +102,15 @@
           start_mode: childId ? 'child' : (usage === 'parent_phone' ? 'parent' : 'choose_child'),
           start_child_id: childId,
         };
-        const doPost = window.apiFetch
-          ? function () {
-              return window.apiFetch('/api/family/trusted-devices/this-device/setup', {
-                method: 'POST',
-                body: JSON.stringify(body),
-              });
-            }
-          : function () {
-              return fetch('/api/family/trusted-devices/this-device/setup', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-              });
-            };
+        const doPost = function () {
+          if (!window.apiFetch) {
+            return Promise.resolve({ ok: false, status: 0 });
+          }
+          return window.apiFetch('/api/family/trusted-devices/this-device/setup', {
+            method: 'POST',
+            body: JSON.stringify(body),
+          });
+        };
         const res = await doPost();
         if (res.ok) {
           track('device_role_selected', { usage: usage, source: 'setup_prompt' });
@@ -132,9 +126,8 @@
 
   async function fetchSetupState() {
     try {
-      const res = window.apiFetch
-        ? await window.apiFetch('/api/family/trusted-devices/this-device')
-        : await fetch('/api/family/trusted-devices/this-device', { credentials: 'include' });
+      if (!window.apiFetch) return null;
+      const res = await window.apiFetch('/api/family/trusted-devices/this-device');
       if (!res.ok) return null;
       return res.json();
     } catch (_) {
