@@ -125,6 +125,10 @@
       return;
     }
     track('device_role_selected', { usage: body.usage, source: 'settings' });
+    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.applyAfterDeviceSetup === 'function') {
+      await AppEntryOrchestrator.applyAfterDeviceSetup();
+      return;
+    }
     await init();
   }
 

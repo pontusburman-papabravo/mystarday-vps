@@ -35,6 +35,19 @@ describe('SessionGate + AppEntryOrchestrator (Fas 2B contract J)', () => {
     assert.match(boot, /ORCHESTRATOR_OFF/);
   });
 
+  it('parent entry bootstrap runs orchestrator on dashboard', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family-device-entry-bootstrap.js'), 'utf8');
+    assert.match(src, /runColdStart/);
+    assert.match(src, /\/dashboard/);
+  });
+
+  it('device setup prompt applies entry decision after save', () => {
+    const prompt = fs.readFileSync(path.join(ROOT, 'public/js/device-setup-prompt.js'), 'utf8');
+    assert.match(prompt, /applyAfterDeviceSetup/);
+    const orch = fs.readFileSync(path.join(ROOT, 'public/js/app-entry-orchestrator.js'), 'utf8');
+    assert.match(orch, /applyAfterDeviceSetup/);
+  });
+
   it('when orchestrator is active, session gate prefers applied decision over DeviceMode', () => {
     const gate = fs.readFileSync(path.join(ROOT, 'public/js/session-gate.js'), 'utf8');
     const idx = gate.indexOf('function isChildViewAuthoritative');

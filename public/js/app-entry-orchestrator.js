@@ -265,13 +265,17 @@
     if (_coldStartPromise) return _coldStartPromise;
 
     _coldStartPromise = (async function () {
-      if (isDecisionApplied()) {
+      if (!opts.forceReapply && isDecisionApplied()) {
         return {
           ok: true,
           code: 'ALREADY_APPLIED',
           decision: getAppliedDecision(),
         };
       }
+
+      try {
+        window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
+      } catch (_) { /* ignore */ }
 
       const fetched = await fetchEntryDecision(opts.intentChildId || null);
       if (!fetched.ok) {
@@ -321,10 +325,23 @@
     return result;
   }
 
+  /**
+   * After device role setup — re-fetch authoritative entry and navigate once.
+   */
+  async function applyAfterDeviceSetup() {
+    clearOrchestratorSessionState();
+    _coldStartPromise = null;
+    try {
+      sessionStorage.removeItem(NAV_GUARD_KEY);
+    } catch (_) { /* ignore */ }
+    return runColdStart({ source: 'device_setup_complete', forceReapply: true });
+  }
+
   window.AppEntryOrchestrator = {
     fetchEntryDecision: fetchEntryDecision,
     runColdStart: runColdStart,
     bootstrapOnEntryPage: bootstrapOnEntryPage,
+    applyAfterDeviceSetup: applyAfterDeviceSetup,
     isActive: isActive,
     shouldUseOrchestrator: shouldUseOrchestrator,
     shouldDeferSessionGate: shouldDeferSessionGate,

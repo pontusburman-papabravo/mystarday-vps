@@ -105,9 +105,10 @@ describe('Fas 2 adversarial — client wiring contracts', () => {
 
   it('buildAppEntryInput separates privilege from handoff auth', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/lib/build-app-entry-input.js'), 'utf8');
-    assert.match(src, /parentPrivilegeActive = user\?\.type === 'parent'/);
-    assert.match(src, /privilegeActive: parentPrivilegeActive/);
+    assert.match(src, /resolveParentPrivilegeActive/);
+    assert.match(src, /privilegeEscalation/);
     assert.match(src, /parentAuthenticated = handoff\.ok/);
+    assert.doesNotMatch(src, /parentPrivilegeActive = user\?\.type === 'parent'/);
   });
 
   it('trusted-device restore branches parent mode before child restore', () => {

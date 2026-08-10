@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const trusted = require('./trusted-device');
 const { isTrustedDeviceEnabled } = require('./trusted-device-flags');
 const { evaluateHandoffForRequest } = require('./parent-session-handoff');
+const { isEscalatedParentExpired } = require('./adult-privilege-escalation');
 const deviceDb = require('../../db/family-trusted-device');
 
 function hashTrustedRaw(raw) {
@@ -21,23 +22,31 @@ function mapAllowedChildren(rows) {
 }
 
 /**
+ * Active vuxenläge for entry — not the same as dormant parent JWT on a shared device.
+ */
+function resolveParentPrivilegeActive(user, activeTrustedRow) {
+  if (!user || user.type !== 'parent') return false;
+  if (user.privilegeEscalation === true) {
+    return !isEscalatedParentExpired(user);
+  }
+  if (activeTrustedRow && activeTrustedRow.device_mode === 'parent') {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Normalize request state for resolveAppEntry (no side effects except handoff eval may clear invalid cookies).
  */
 async function buildAppEntryInput(req, res, options) {
   const opts = options || {};
   const user = req.user || null;
 
-  const parentPrivilegeActive = user?.type === 'parent';
-  let parentAuthenticated = parentPrivilegeActive;
+  let parentAuthenticated = user?.type === 'parent';
   if (!parentAuthenticated) {
     const handoff = await evaluateHandoffForRequest(req, res);
     parentAuthenticated = handoff.ok === true;
   }
-
-  const parentSession = {
-    authenticated: parentAuthenticated,
-    privilegeActive: parentPrivilegeActive,
-  };
 
   const childSession =
     user?.type === 'child' && user.id
@@ -47,6 +56,7 @@ async function buildAppEntryInput(req, res, options) {
   let trustedDevice = { valid: false };
   let allowedChildren = [];
   let familyId = user?.familyId || user?.family_id || null;
+  let activeTrustedRow = null;
 
   const rawTrusted = req.cookies?.[trusted.COOKIE_NAME];
   if (rawTrusted) {
@@ -64,6 +74,7 @@ async function buildAppEntryInput(req, res, options) {
       const enabled = await isTrustedDeviceEnabled(familyId);
       if (enabled) {
         const row = await trusted.verifyTrustedDeviceRaw(rawTrusted);
+        activeTrustedRow = row;
         trustedDevice = {
           valid: true,
           revoked: false,
@@ -104,6 +115,13 @@ async function buildAppEntryInput(req, res, options) {
     deepLink = { childId: intentChildId };
   }
 
+  const parentPrivilegeActive = resolveParentPrivilegeActive(user, activeTrustedRow);
+
+  const parentSession = {
+    authenticated: parentAuthenticated,
+    privilegeActive: parentPrivilegeActive,
+  };
+
   return {
     parentSession,
     parentPrivilegeActive,
@@ -118,4 +136,5 @@ async function buildAppEntryInput(req, res, options) {
 
 module.exports = {
   buildAppEntryInput,
+  resolveParentPrivilegeActive,
 };

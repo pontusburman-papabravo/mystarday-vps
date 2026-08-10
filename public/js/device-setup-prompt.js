@@ -116,6 +116,9 @@
           track('device_role_selected', { usage: usage, source: 'setup_prompt' });
           markShown();
           removeModal();
+          if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.applyAfterDeviceSetup === 'function') {
+            await AppEntryOrchestrator.applyAfterDeviceSetup();
+          }
           return;
         }
         btn.disabled = false;
