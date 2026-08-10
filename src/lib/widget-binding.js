@@ -46,16 +46,23 @@ async function resolveBindingFromTrustedDevice(rawDeviceToken, { childId, instal
     return { ok: false, code: 'device_revoked' };
   }
 
-  let boundChildId = childId || row.default_child_id || row.last_active_child_id;
+  const explicitChildId = typeof childId === 'string' && childId ? childId : null;
+
+  let boundChildId;
   if (row.device_mode === 'child') {
     boundChildId = row.default_child_id || row.last_active_child_id;
-    if (childId && childId !== boundChildId) {
+    if (explicitChildId && explicitChildId !== boundChildId) {
       return { ok: false, code: 'child_switch_forbidden' };
     }
+  } else if (row.device_mode === 'shared' || row.device_mode === 'parent') {
+    if (!explicitChildId) {
+      return { ok: false, code: 'needs_child_selection' };
+    }
+    boundChildId = explicitChildId;
+  } else {
+    return { ok: false, code: 'device_revoked' };
   }
-  if (!boundChildId && row.device_mode === 'shared') {
-    return { ok: false, code: 'needs_child_selection' };
-  }
+
   if (!boundChildId) {
     return { ok: false, code: 'needs_child_selection' };
   }
@@ -138,6 +145,10 @@ async function assertBindingStillValid(binding) {
     }
     const allowed = await getChildrenForParent(row.created_by_parent_id, { allowedRoles: ['primary', 'shared'] });
     if (!allowed.some((c) => c.id === binding.child_id)) {
+      const childRes = await db.query('SELECT id FROM child WHERE id = $1', [binding.child_id]);
+      if (!childRes.rows[0]) {
+        return { ok: false, code: 'child_removed' };
+      }
       return { ok: false, code: 'device_revoked' };
     }
     return { ok: true, familyId: row.family_id, childId: binding.child_id };
@@ -145,6 +156,10 @@ async function assertBindingStillValid(binding) {
   if (binding.mode === 'parent') {
     const access = await getActiveChildAccess(binding.parent_id, binding.child_id);
     if (!access) {
+      const childRes = await db.query('SELECT id FROM child WHERE id = $1', [binding.child_id]);
+      if (!childRes.rows[0]) {
+        return { ok: false, code: 'child_removed' };
+      }
       return { ok: false, code: 'device_revoked' };
     }
     return { ok: true, familyId: binding.family_id, childId: binding.child_id };
