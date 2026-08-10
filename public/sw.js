@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v819: Fas 2B app-entry-orchestrator + session-gate entry wiring
  * v772: aktivitetstimer i dagsvy (Morgon/Dag/Kväll) — Starta timer synlig
  * v771: aktivitetstimer v2 polish — timglas, overlay animation
  * v770: login entry logo uses app.name i18n (My Starday in English)
