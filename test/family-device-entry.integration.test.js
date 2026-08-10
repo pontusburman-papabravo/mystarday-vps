@@ -49,6 +49,24 @@ async function enrollShared(http, session) {
   return cookies;
 }
 
+async function enrollParent(http, session) {
+  const enrollRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/parent`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: cookieHeader(session.cookies),
+      'X-CSRF-Token': session.csrfToken,
+    },
+    body: JSON.stringify({ platform: 'web', label: 'Entry parent device' }),
+  });
+  assert.equal(enrollRes.status, 201, await enrollRes.text());
+  let cookies = { ...session.cookies };
+  for (const header of getSetCookieHeaders(enrollRes)) {
+    cookies = mergeCookies(cookies, [header]);
+  }
+  return cookies;
+}
+
 async function enrollChildDevice(http, session, childId) {
   const enrollRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/child`, {
     method: 'POST',
@@ -186,13 +204,7 @@ test('family device entry matrix A–K', async (t) => {
     await t.test('G: parent device + parent JWT → parent-home', async () => {
       const p3 = await registerAndLogin(http.baseUrl);
       await createChild(http.baseUrl, p3, { name: 'X', emoji: '⭐' });
-      const deviceCookies = await enrollShared(http, p3);
-      const crypto = require('crypto');
-      const hash = crypto.createHash('sha256').update(deviceCookies.trusted_device).digest('hex');
-      await db.query(
-        `UPDATE family_trusted_device SET device_mode = 'parent' WHERE token_hash = $1`,
-        [hash]
-      );
+      const deviceCookies = await enrollParent(http, p3);
       const { body } = await fetchAppEntry(http.baseUrl, deviceCookies);
       assert.equal(body.decision.destination, 'parent-home');
       assert.equal(body.decision.credentialContext, 'parent');

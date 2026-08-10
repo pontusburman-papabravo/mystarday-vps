@@ -62,16 +62,17 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assertParentHome(r, 'parent');
   });
 
-  it('parent device without parent privilege → parent-login restore-parent', () => {
+  it('parent device without parent privilege → parent-home restore-parent', () => {
     const r = resolveAppEntry({
       parentSession: { authenticated: true, privilegeActive: false },
       childSession: null,
       trustedDevice: td('parent'),
       allowedChildren: [{ id: A }],
     });
-    assert.equal(r.destination, DESTINATIONS.PARENT_LOGIN);
+    assert.equal(r.destination, DESTINATIONS.PARENT_HOME);
     assert.equal(r.serverAction, SERVER_ACTIONS.RESTORE_PARENT);
     assert.equal(r.deviceMode, 'parent');
+    assert.equal(r.credentialContext, 'none');
   });
 
   it('parent device with child session (no parent privilege) → child home', () => {

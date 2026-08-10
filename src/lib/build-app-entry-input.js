@@ -52,6 +52,14 @@ async function buildAppEntryInput(req, res, options) {
   if (rawTrusted) {
     const ctx = await trusted.getTrustedDeviceContext(rawTrusted);
     if (ctx.ok) {
+      const sessFamily = user?.familyId || user?.family_id;
+      if (sessFamily && ctx.family_id && sessFamily !== ctx.family_id) {
+        trustedDevice = {
+          valid: false,
+          revoked: false,
+          deviceMode: ctx.device_mode,
+        };
+      } else {
       familyId = familyId || ctx.family_id;
       const enabled = await isTrustedDeviceEnabled(familyId);
       if (enabled) {
@@ -65,6 +73,9 @@ async function buildAppEntryInput(req, res, options) {
         };
         allowedChildren = mapAllowedChildren(ctx.allowed_children);
       }
+      }
+    } else if (ctx.code === 'PARENT_ACCESS_DENIED') {
+      trustedDevice = { valid: false, revoked: false, deviceMode: null };
     } else {
       const row = await deviceDb.findByTokenHash(hashTrustedRaw(rawTrusted));
       if (row?.revoked_at) {

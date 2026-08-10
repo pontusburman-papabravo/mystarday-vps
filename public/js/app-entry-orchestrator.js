@@ -163,12 +163,17 @@
     }
 
     if (action === 'restore-parent') {
-      const res = await fetch('/api/auth/refresh', {
+      const res = await fetch('/api/auth/trusted-device/restore', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
       });
-      return { ok: res.ok };
+      const body = await res.json().catch(function () { return {}; });
+      if (body.ok && body.user && window.Auth && Auth.setAuth) {
+        Auth.setAuth(body.user, null);
+      }
+      return { ok: res.ok && body.ok === true, body: body };
     }
 
     return { ok: true };

@@ -224,11 +224,11 @@ function resolveAppEntry(input) {
     }
     if (!isChildSessionValid(childSession)) {
       return buildResult({
-        destination: DESTINATIONS.PARENT_LOGIN,
+        destination: DESTINATIONS.PARENT_HOME,
         deviceMode: 'parent',
         viewContext: 'parent',
         credentialContext: 'none',
-        reason: 'parent_device_requires_parent_privilege',
+        reason: 'parent_device_restore_required',
         serverAction: SERVER_ACTIONS.RESTORE_PARENT,
       });
     }
