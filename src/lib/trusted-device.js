@@ -113,6 +113,28 @@ async function enrollSharedDevice({ parentId, familyId, platform, label }) {
   return { device: row, rawToken: raw };
 }
 
+async function enrollParentDevice({ parentId, familyId, platform, label }) {
+  const enabled = await isTrustedDeviceEnabled(familyId);
+  if (!enabled) {
+    const err = new Error('FEATURE_DISABLED');
+    err.code = 'TRUSTED_DEVICE_DISABLED';
+    throw err;
+  }
+
+  const raw = generateRawToken();
+  const row = await deviceDb.insertDevice({
+    family_id: familyId,
+    created_by_parent_id: parentId,
+    device_mode: 'parent',
+    default_child_id: null,
+    token_hash: hashToken(raw),
+    platform,
+    label,
+  });
+
+  return { device: row, rawToken: raw };
+}
+
 function allowedCountBucket(count) {
   if (count <= 1) return '1';
   if (count === 2) return '2';
@@ -152,7 +174,7 @@ async function verifyTrustedDeviceRaw(raw) {
   if (!row || row.revoked_at) return null;
   if (row.device_mode === 'child') {
     if (!row.default_child_id) return null;
-  } else if (row.device_mode === 'shared') {
+  } else if (row.device_mode === 'shared' || row.device_mode === 'parent') {
     /* ok */
   } else {
     return null;
@@ -281,6 +303,18 @@ async function getTrustedDeviceContext(rawToken) {
     };
   }
 
+  if (row.device_mode === 'parent') {
+    return {
+      ok: true,
+      device_mode: row.device_mode,
+      allowed_children: [],
+      allowed_count_bucket: '0',
+      can_switch_children: false,
+      last_active_child_id: null,
+      family_id: row.family_id,
+    };
+  }
+
   const allowed = await listFamilyChildrenForDevice(row.family_id, row.created_by_parent_id);
   return {
     ok: true,
@@ -359,6 +393,7 @@ module.exports = {
   COOKIE_NAME,
   enrollChildDevice,
   enrollSharedDevice,
+  enrollParentDevice,
   restoreChildSessionFromDevice,
   getTrustedDeviceContext,
   selectChildOnTrustedDevice,
