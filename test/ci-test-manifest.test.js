@@ -38,6 +38,7 @@ const CRITICAL_UNIT = [
   'test/safe-url-fetch.test.js',
   'test/parent-session-backup-security.test.js',
   'test/ci-test-manifest.test.js',
+  'test/family-device-prod-pilot-harness.test.js',
   'test/r4-runtime-release-gates.test.js',
   'test/android-aab-release-gate.test.js',
   'test/iap-client-config.test.js',
