@@ -64,7 +64,7 @@ test('pilot harness source: no founder password env requirement', () => {
   );
   assert.doesNotMatch(src, /FOUNDER_QA_PASSWORD/);
   assert.doesNotMatch(src, /FOUNDER_CHILD_PIN/);
-  assert.match(src, /fd-pilot-/);
+  assert.match(src, /createDisposableFamilyDeviceQaFamily/);
 });
 
 test('pilot harness: redacts secrets in logs', () => {
@@ -94,4 +94,98 @@ test('pilot db module: global flag keys are allowlisted only', () => {
   ]) {
     assert.match(dbSrc, new RegExp(`'${key}'`));
   }
+});
+
+test('pilot harness: fixture path does not call public register', () => {
+  const files = [
+    '../scripts/ops/family-device-prod-pilot-core.cjs',
+    '../scripts/ops/family-device-qa-fixture.cjs',
+    '../scripts/ops/family-device-prod-pilot.mjs',
+  ];
+  for (const rel of files) {
+    const src = fs.readFileSync(path.join(__dirname, rel), 'utf8');
+    assert.doesNotMatch(src, /\/api\/auth\/register/);
+    assert.doesNotMatch(src, /auth\/register/);
+  }
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  assert.match(core, /createDisposableFamilyDeviceQaFamily/);
+  assert.match(core, /fixtureCreationMethod:\s*'db_ops'/);
+});
+
+test('pilot qa fixture: refuses pontus@burman.cc', async () => {
+  const { createDisposableFamilyDeviceQaFamily } = require('../scripts/ops/family-device-qa-fixture.cjs');
+  const prev = process.env.FAMILY_DEVICE_PILOT_CONFIRM;
+  process.env.FAMILY_DEVICE_PILOT_CONFIRM = '1';
+  try {
+    await assert.rejects(
+      () =>
+        createDisposableFamilyDeviceQaFamily(
+          { getClient: () => ({ query: async () => ({ rows: [] }), release: () => {} }) },
+          { childCount: 1, email: 'pontus@burman.cc' }
+        ),
+      /refused|not fd-pilot/
+    );
+  } finally {
+    if (prev === undefined) delete process.env.FAMILY_DEVICE_PILOT_CONFIRM;
+    else process.env.FAMILY_DEVICE_PILOT_CONFIRM = prev;
+  }
+});
+
+test('pilot qa fixture: refuses non-disposable email', async () => {
+  const { createDisposableFamilyDeviceQaFamily } = require('../scripts/ops/family-device-qa-fixture.cjs');
+  process.env.FAMILY_DEVICE_PILOT_CONFIRM = '1';
+  await assert.rejects(
+    () =>
+      createDisposableFamilyDeviceQaFamily(
+        { getClient: () => ({ query: async () => ({ rows: [] }), release: () => {} }) },
+        { childCount: 1, email: 'customer@example.com' }
+      ),
+    /not fd-pilot/
+  );
+});
+
+test('pilot qa fixture: requires FAMILY_DEVICE_PILOT_CONFIRM', async () => {
+  const { createDisposableFamilyDeviceQaFamily } = require('../scripts/ops/family-device-qa-fixture.cjs');
+  const prev = process.env.FAMILY_DEVICE_PILOT_CONFIRM;
+  delete process.env.FAMILY_DEVICE_PILOT_CONFIRM;
+  try {
+    await assert.rejects(
+      () =>
+        createDisposableFamilyDeviceQaFamily(
+          { getClient: () => ({ query: async () => ({ rows: [] }), release: () => {} }) },
+          { childCount: 1 }
+        ),
+      /FAMILY_DEVICE_PILOT_CONFIRM/
+    );
+  } finally {
+    if (prev !== undefined) process.env.FAMILY_DEVICE_PILOT_CONFIRM = prev;
+  }
+});
+
+test('pilot harness: cleanup finally deletes disposable families', () => {
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  assert.match(core, /finally\s*\{/);
+  assert.match(core, /deletePilotFamily/);
+  assert.match(core, /countPilotOverrides/);
+});
+
+test('pilot harness: does not mutate global feature_flag enable', () => {
+  const dbPilot = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-pilot-db.cjs'),
+    'utf8'
+  );
+  assert.doesNotMatch(dbPilot, /UPDATE feature_flag SET enabled\s*=\s*true/i);
+  assert.match(dbPilot, /family_feature_override/);
+});
+
+test('registration rate limiter: unchanged prod signup cap', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../src/middleware/rateLimiter.js'), 'utf8');
+  assert.match(src, /Registration limiter: 3 registrations per hour per IP/);
+  assert.match(src, /config\.rateLimits\.registration/);
 });

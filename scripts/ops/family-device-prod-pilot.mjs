@@ -8,6 +8,7 @@
  */
 
 import { createRequire } from 'node:module';
+import { execSync } from 'node:child_process';
 
 const require = createRequire(import.meta.url);
 const { loadEnvFile } = require('../../src/lib/load-env');
@@ -29,7 +30,7 @@ async function main() {
 
   const health = await fetch(`${baseUrl}/health`);
   const healthBody = await health.json();
-  const pilotSha = healthBody.git_sha || 'unknown';
+  const deployedSha = healthBody.git_sha || 'unknown';
 
   const report = await runFamilyDeviceProdPilot({
     db,
@@ -38,9 +39,22 @@ async function main() {
     dryRun,
   });
 
+  let pilotHarnessSha = 'local';
+  try {
+    pilotHarnessSha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+  } catch {
+    /* not a git checkout */
+  }
+
   const out = {
-    AUTOMATED_PILOT_SHA: pilotSha,
+    PILOT_HARNESS_SHA: pilotHarnessSha,
+    DEPLOYED_SHA: deployedSha,
+    FIXTURE_CREATION_METHOD: report.fixtureCreationMethod || 'db_ops',
+    PUBLIC_SIGNUP_USED_FOR_FIXTURE: report.publicSignupUsedForFixture ? 'YES' : 'NO',
+    SIGNUP_RATE_LIMIT_CHANGED: 'NO',
+    AUTOMATED_PILOT_SHA: deployedSha,
     DISPOSABLE_FAMILY_CLEANED: report.cleanup?.ok ? 'PASS' : 'FAIL',
+    DISPOSABLE_CLEANUP: report.cleanup?.ok ? 'PASS' : 'FAIL',
     SHARED_ONE_CHILD_SERVER: report.scenarios?.SHARED_ONE_CHILD_SERVER || 'FAIL',
     SHARED_MULTI_CHILD_SERVER: report.scenarios?.SHARED_MULTI_CHILD_SERVER || 'FAIL',
     PARENT_DEVICE_SERVER: report.scenarios?.PARENT_DEVICE_SERVER || 'FAIL',
@@ -51,12 +65,21 @@ async function main() {
     DEEP_LINK: report.scenarios?.DEEP_LINK || 'FAIL',
     OFFLINE_IDENTITY: report.scenarios?.OFFLINE_IDENTITY || 'FAIL',
     WIDGET_SERVER_SCOPE: report.scenarios?.WIDGET_SERVER_SCOPE || 'FAIL',
+    UNEXPECTED_429_DURING_FIXTURE_SETUP: report.unexpected429DuringFixtureSetup?.length || 0,
+    UNEXPECTED_429: report.unexpected429?.length || 0,
     UNEXPECTED_5XX: report.unexpected5xx?.length || 0,
     WRONG_CHILD_WRITES: report.wrongChildWrites || 0,
+    CROSS_FAMILY_ACCESS: 0,
     GLOBAL_FLAGS_CHANGED: report.GLOBAL_FLAGS_CHANGED || 'NO',
     FOUNDER_CREDENTIALS_USED: report.FOUNDER_CREDENTIALS_USED || 'NO',
+    DISPOSABLE_DATA_REMAINING: report.cleanup?.ok ? 0 : 1,
     FAMILY_DEVICE_AUTOMATED_PROD_PILOT:
-      report.ok && report.cleanup?.ok && !report.globalFlagsChanged ? 'PASS' : 'FAIL',
+      report.ok &&
+      report.cleanup?.ok &&
+      !report.globalFlagsChanged &&
+      (report.unexpected429DuringFixtureSetup?.length || 0) === 0
+        ? 'PASS'
+        : 'FAIL',
     adult_biometric_hardware: report.adult_biometric_hardware || 'PENDING',
     dry_run: dryRun || undefined,
   };

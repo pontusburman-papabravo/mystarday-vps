@@ -32,7 +32,10 @@ function createCookieJar() {
   };
 }
 
-async function readJson(res, track5xx) {
+async function readJson(res, track5xx, track429) {
+  if (res.status === 429 && track429) {
+    track429.push({ status: 429, url: res.url });
+  }
   if (res.status >= 500 && track5xx) {
     track5xx.push({ status: res.status, url: res.url });
   }

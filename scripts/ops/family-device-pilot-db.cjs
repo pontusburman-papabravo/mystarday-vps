@@ -95,6 +95,7 @@ async function deletePilotFamily(db, familyId, email) {
       [familyId]
     );
     await client.query('DELETE FROM family_trusted_device WHERE family_id = $1', [familyId]);
+    await client.query('DELETE FROM parent_session_handoff WHERE family_id = $1', [familyId]);
     await client.query('DELETE FROM family_feature_override WHERE family_id = $1', [familyId]);
     await client.query('DELETE FROM child WHERE family_id = $1', [familyId]);
     await client.query('DELETE FROM reward WHERE family_id = $1', [familyId]);
