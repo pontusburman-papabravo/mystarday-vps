@@ -3,6 +3,7 @@
 **Status:** Accepted (R4.2 vertical slice — child device mode)  
 **Date:** 2026-08-03 (updated 2026-08-06)  
 **Scope:** Child session lifetime on a dedicated family device  
+**Superseded notes:** Shared/parent modes, widget parity, and single entry authority — see **[ADR-022](ADR-022-family-device-architecture.md)** and [`docs/family-device-architecture.md`](../family-device-architecture.md).  
 **Related:** `docs/parent-session-handoff.md`, DeviceMode / SessionGate, POS `04` C-01/C-08  
 **POS:** Constitution rule 2 (no surprise), child scope deny-by-default
 
