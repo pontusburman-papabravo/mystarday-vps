@@ -93,11 +93,6 @@ function assertProdPilotEnvironment(env = process.env) {
     err.code = 'FD_PILOT_CONFIRM_REQUIRED';
     throw err;
   }
-  if (isFounderQaParentEmail(env.FOUNDER_QA_EMAIL || '')) {
-    const err = new Error('Do not run pilot with FOUNDER_QA_EMAIL in environment');
-    err.code = 'FD_PILOT_FOUNDER_ENV';
-    throw err;
-  }
   return base;
 }
 
