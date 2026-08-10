@@ -100,9 +100,18 @@ test('setup flow enrolls shared device without widget side effects', async (t) =
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
-    await enableTrusted(db);
+    await enableFamilyDeviceEntryFlags(db);
     const parent = await registerAndLogin(http.baseUrl);
-    await createChild(http.baseUrl, parent, { name: 'A', emoji: '⭐' });
+    await createChild(http.baseUrl, parent, { name: 'Olle', emoji: '🦊' });
+    await createChild(http.baseUrl, parent, { name: 'Astrid', emoji: '⭐' });
+    await createChild(http.baseUrl, parent, { name: 'Anna', emoji: '🐻' });
+
+    const before = await db.query(
+      `SELECT COUNT(*)::int AS n FROM family_trusted_device
+       WHERE family_id = (SELECT family_id FROM parent WHERE LOWER(email) = $1)`,
+      [parent.email.toLowerCase()]
+    );
+    assert.equal(before.rows[0].n, 0);
 
     const setupRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/this-device/setup`, {
       method: 'POST',
@@ -113,7 +122,7 @@ test('setup flow enrolls shared device without widget side effects', async (t) =
       },
       body: JSON.stringify({
         usage: deviceSettings.USAGE_SHARED,
-        platform: 'web',
+        platform: 'ios',
         start_mode: deviceSettings.START_PICKER,
       }),
     });
@@ -121,6 +130,29 @@ test('setup flow enrolls shared device without widget side effects', async (t) =
     const body = await setupRes.json();
     assert.equal(body.device.usage, deviceSettings.USAGE_SHARED);
     assert.equal(body.device.start_mode, deviceSettings.START_PICKER);
+    assert.equal(body.setup_required, false);
+
+    let cookies = { ...parent.cookies };
+    for (const header of getSetCookieHeaders(setupRes)) {
+      cookies = mergeCookies(cookies, [header]);
+    }
+
+    const after = await db.query(
+      `SELECT device_mode, default_child_id FROM family_trusted_device
+       WHERE family_id = (SELECT family_id FROM parent WHERE LOWER(email) = $1) AND revoked_at IS NULL`,
+      [parent.email.toLowerCase()]
+    );
+    assert.equal(after.rows.length, 1);
+    assert.equal(after.rows[0].device_mode, 'shared');
+    assert.equal(after.rows[0].default_child_id, null);
+
+    const entryRes = await fetch(`${http.baseUrl}/api/auth/app-entry`, {
+      headers: { Cookie: cookieHeader(trustedOnlyCookies(cookies)) },
+    });
+    assert.equal(entryRes.status, 200);
+    const entry = await entryRes.json();
+    assert.equal(entry.decision.destination, 'profile-picker');
+    assert.equal(entry.decision.credentialContext, 'none');
 
     const widgetCount = await db.query(
       `SELECT COUNT(*)::int AS n FROM analytics_events WHERE event_type = 'widget_configured'`
@@ -167,74 +199,6 @@ test('setup POST without CSRF → 403 CSRF_MISSING (device-setup prompt regressi
       [parent.email.toLowerCase()]
     );
     assert.equal(count.rows[0].n, 0);
-  } finally {
-    await http.close();
-    await db.cleanup();
-  }
-});
-
-test('first enrollment: multi-child family, shared via setup → DB row + profile-picker app-entry', async (t) => {
-  const db = await setupTestDb();
-  if (db.skip) {
-    t.skip('No real DATABASE_URL');
-    return;
-  }
-  const { createApp } = require('../app');
-  const http = await listenApp(createApp);
-  try {
-    await enableFamilyDeviceEntryFlags(db);
-    const parent = await registerAndLogin(http.baseUrl);
-    await createChild(http.baseUrl, parent, { name: 'Olle', emoji: '🦊' });
-    await createChild(http.baseUrl, parent, { name: 'Astrid', emoji: '⭐' });
-    await createChild(http.baseUrl, parent, { name: 'Anna', emoji: '🐻' });
-
-    const before = await db.query(
-      `SELECT COUNT(*)::int AS n FROM family_trusted_device
-       WHERE family_id = (SELECT family_id FROM parent WHERE LOWER(email) = $1)`,
-      [parent.email.toLowerCase()]
-    );
-    assert.equal(before.rows[0].n, 0);
-
-    const setupRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/this-device/setup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: cookieHeader(parent.cookies),
-        'X-CSRF-Token': parent.csrfToken,
-      },
-      body: JSON.stringify({
-        usage: 'shared_with_children',
-        platform: 'ios',
-        start_mode: deviceSettings.START_PICKER,
-      }),
-    });
-    assert.equal(setupRes.status, 201);
-    const setupBody = await setupRes.json();
-    assert.equal(setupBody.device.usage, deviceSettings.USAGE_SHARED);
-    assert.equal(setupBody.device.start_mode, deviceSettings.START_PICKER);
-    assert.equal(setupBody.setup_required, false);
-
-    let cookies = { ...parent.cookies };
-    for (const header of getSetCookieHeaders(setupRes)) {
-      cookies = mergeCookies(cookies, [header]);
-    }
-
-    const after = await db.query(
-      `SELECT device_mode, default_child_id FROM family_trusted_device
-       WHERE family_id = (SELECT family_id FROM parent WHERE LOWER(email) = $1) AND revoked_at IS NULL`,
-      [parent.email.toLowerCase()]
-    );
-    assert.equal(after.rows.length, 1);
-    assert.equal(after.rows[0].device_mode, 'shared');
-    assert.equal(after.rows[0].default_child_id, null);
-
-    const entryRes = await fetch(`${http.baseUrl}/api/auth/app-entry`, {
-      headers: { Cookie: cookieHeader(trustedOnlyCookies(cookies)) },
-    });
-    assert.equal(entryRes.status, 200);
-    const entry = await entryRes.json();
-    assert.equal(entry.decision.destination, 'profile-picker');
-    assert.equal(entry.decision.credentialContext, 'none');
   } finally {
     await http.close();
     await db.cleanup();
