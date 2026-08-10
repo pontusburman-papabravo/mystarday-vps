@@ -134,7 +134,7 @@ async function registerFamily(baseUrl, childCount, track5xx) {
     }
   }
 
-  await apiFetch(baseUrl, '/api/family/set-pin', {
+  const pinRes = await apiFetch(baseUrl, '/api/family/set-pin', {
     method: 'POST',
     jar,
     csrf,
