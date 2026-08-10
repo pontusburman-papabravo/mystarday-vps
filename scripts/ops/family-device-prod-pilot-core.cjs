@@ -59,7 +59,16 @@ function jarWithTrustedDevice(sourceJar) {
   return jar;
 }
 
+let lastRegisterMs = 0;
+const REGISTER_GAP_MS = 3500;
+
 async function registerFamily(baseUrl, childCount, track5xx) {
+  const gap = Date.now() - lastRegisterMs;
+  if (lastRegisterMs && gap < REGISTER_GAP_MS) {
+    await new Promise((r) => setTimeout(r, REGISTER_GAP_MS - gap));
+  }
+  lastRegisterMs = Date.now();
+
   const email = makeDisposableEmail();
   assertFamilyDevicePilotDisposableEmail(email);
   const password = randPassword();
@@ -332,14 +341,19 @@ async function runFamilyDeviceProdPilot(opts) {
       report.scenarios.PARENT_DEVICE_SERVER = pass ? 'PASS' : 'FAIL';
     }
 
-    // D — child device
+    // D — child device (reuse single-child family)
     {
-      const cFam = await registerFamily(opts.baseUrl, 2, track5xx);
-      families.push(cFam);
-      await enablePilotOverrides(opts.db, cFam.familyId, cFam.email);
-      const boundId = cFam.children[0].id;
-      await enrollChildDevice(opts.baseUrl, cFam.session, boundId, track5xx);
-      const tdJar = jarWithTrustedDevice(cFam.session.jar);
+      const boundId = single.children[0].id;
+      const childSession = {
+        jar: createCookieJar(),
+        csrf: single.session.csrf,
+      };
+      for (const k of single.session.jar.keys()) {
+        const v = single.session.jar.get(k);
+        childSession.jar.store({ headers: { getSetCookie: () => [`${k}=${v}; Path=/`] } });
+      }
+      await enrollChildDevice(opts.baseUrl, childSession, boundId, track5xx);
+      const tdJar = jarWithTrustedDevice(childSession.jar);
       const entry = await appEntry(opts.baseUrl, tdJar, '', track5xx);
       const pass =
         entry.body.decision?.destination === 'child-home' &&
@@ -399,7 +413,7 @@ async function runFamilyDeviceProdPilot(opts) {
       report.adult_biometric_hardware = 'PENDING';
     }
 
-    // F — revoke
+    // F — revoke (dedicated one-child family)
     {
       const rFam = await registerFamily(opts.baseUrl, 1, track5xx);
       families.push(rFam);
