@@ -1,6 +1,6 @@
 /**
  * session-gate.js — Central routing när device_mode === 'child' (Sprint 3a/3c).
- * Körs tidigt via platform-html inject på alla HTML-sidor.
+ * Fas 2B: defers to AppEntryOrchestrator when authoritative decision is active.
  */
 (function () {
   'use strict';
@@ -43,17 +43,44 @@
     return false;
   }
 
+  function isChildViewAuthoritative() {
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.isActive && AppEntryOrchestrator.isActive()) {
+      const ctx = AppEntryOrchestrator.getAppliedViewContext && AppEntryOrchestrator.getAppliedViewContext();
+      if (ctx === 'child') return true;
+      if (ctx === 'parent' || ctx === 'picker') return false;
+    }
+    return window.DeviceMode && DeviceMode.isChildMode();
+  }
+
   function resolveRedirect(pathname) {
-    if (!window.DeviceMode || !DeviceMode.isChildMode()) return null;
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.shouldDeferSessionGate
+      && AppEntryOrchestrator.shouldDeferSessionGate()) {
+      return null;
+    }
+
+    if (!isChildViewAuthoritative()) return null;
+
     const path = normalizePath(pathname);
     if (path === '/child-login' || path === '/child-dashboard' || path.indexOf('/child/') === 0 || path === '/login' || path === '/register') {
       return null;
     }
-    if (isParentOnlyPath(path)) return '/child-login';
+    if (isParentOnlyPath(path)) {
+      if (window.AppEntryOrchestrator && AppEntryOrchestrator.isActive && AppEntryOrchestrator.isActive()) {
+        const d = AppEntryOrchestrator.getAppliedDecision && AppEntryOrchestrator.getAppliedDecision();
+        if (d && d.destination === 'child-home' && d.path) {
+          return d.path;
+        }
+      }
+      return '/child-login';
+    }
     return null;
   }
 
   function run() {
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.shouldDeferSessionGate
+      && AppEntryOrchestrator.shouldDeferSessionGate()) {
+      return;
+    }
     const target = resolveRedirect(window.location.pathname);
     if (target && normalizePath(window.location.pathname) !== normalizePath(target)) {
       window.location.replace(target);
@@ -61,6 +88,10 @@
   }
 
   function shouldBlockSessionRestore() {
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.isActive && AppEntryOrchestrator.isActive()) {
+      const ctx = AppEntryOrchestrator.getAppliedViewContext && AppEntryOrchestrator.getAppliedViewContext();
+      return ctx === 'child';
+    }
     return window.DeviceMode && DeviceMode.isChildMode();
   }
 
@@ -68,6 +99,7 @@
     resolveRedirect: resolveRedirect,
     shouldBlockSessionRestore: shouldBlockSessionRestore,
     run: run,
+    isChildViewAuthoritative: isChildViewAuthoritative,
   };
 
   if (document.readyState === 'loading') {

@@ -51,9 +51,10 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.equal(r.reason, 'no_family_or_device_auth');
   });
 
-  it('parent device + valid parent session → parent-home', () => {
+  it('parent device + active parent privilege → parent-home', () => {
     const r = resolveAppEntry({
-      parentSession: { valid: true },
+      parentPrivilegeActive: true,
+      parentSession: { authenticated: true, privilegeActive: true },
       childSession: null,
       trustedDevice: td('parent'),
       allowedChildren: [{ id: A }],
@@ -61,9 +62,9 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assertParentHome(r, 'parent');
   });
 
-  it('parent device without parent session → parent-login restore-parent', () => {
+  it('parent device without parent privilege → parent-login restore-parent', () => {
     const r = resolveAppEntry({
-      parentSession: null,
+      parentSession: { authenticated: true, privilegeActive: false },
       childSession: null,
       trustedDevice: td('parent'),
       allowedChildren: [{ id: A }],
@@ -71,6 +72,17 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.equal(r.destination, DESTINATIONS.PARENT_LOGIN);
     assert.equal(r.serverAction, SERVER_ACTIONS.RESTORE_PARENT);
     assert.equal(r.deviceMode, 'parent');
+  });
+
+  it('parent device with child session (no parent privilege) → child home', () => {
+    const r = resolveAppEntry({
+      parentSession: { authenticated: true, privilegeActive: false },
+      parentPrivilegeActive: false,
+      childSession: { valid: true, childId: A },
+      trustedDevice: td('parent'),
+      allowedChildren: [{ id: A }],
+    });
+    assertChildHome(r, A, 'parent');
   });
 
   it('child device + valid binding → bound child home', () => {
@@ -141,9 +153,10 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.equal(r.credentialContext, 'none');
   });
 
-  it('shared: parent session without privilege → child path not parent-home', () => {
+  it('shared: parent authenticated + privilege locked → child path not parent-home', () => {
     const r = resolveAppEntry({
-      parentSession: { valid: true, privileged: false },
+      parentSession: { authenticated: true, privilegeActive: false },
+      parentPrivilegeActive: false,
       childSession: null,
       trustedDevice: td('shared'),
       allowedChildren: [{ id: A }],
@@ -152,9 +165,10 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.notEqual(r.destination, DESTINATIONS.PARENT_HOME);
   });
 
-  it('shared: parent session with privilege → parent-home', () => {
+  it('shared: parent privilege active → parent-home', () => {
     const r = resolveAppEntry({
-      parentSession: { valid: true, privileged: true },
+      parentPrivilegeActive: true,
+      parentSession: { authenticated: true, privilegeActive: true },
       childSession: null,
       trustedDevice: td('shared'),
       allowedChildren: [{ id: A }],
@@ -209,9 +223,10 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.equal(r.reason, 'deep_link_child_home');
   });
 
-  it('legacy parent session without trusted device → parent-home', () => {
+  it('legacy parent privilege without trusted device → parent-home', () => {
     const r = resolveAppEntry({
-      parentSession: { valid: true },
+      parentPrivilegeActive: true,
+      parentSession: { authenticated: true, privilegeActive: true },
       childSession: null,
       trustedDevice: null,
       allowedChildren: [],
@@ -228,6 +243,17 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     });
     assertChildHome(r, A, 'shared');
     assert.equal(r.serverAction, SERVER_ACTIONS.NONE);
+  });
+
+  it('shared + invalid default child id → fail closed picker', () => {
+    const r = resolveAppEntry({
+      parentSession: null,
+      childSession: null,
+      trustedDevice: td('shared', { defaultChildId: C }),
+      allowedChildren: [{ id: A }, { id: B }],
+    });
+    assert.equal(r.failClosed, true);
+    assert.equal(r.reason, 'default_child_not_allowed');
   });
 
   it('shared with zero allowed children → device-setup', () => {
@@ -247,7 +273,8 @@ describe('resolveAppEntry — invariants', () => {
     {
       name: 'parent-home shared privileged',
       input: {
-        parentSession: { valid: true, privileged: true },
+        parentSession: { authenticated: true, privilegeActive: true },
+        parentPrivilegeActive: true,
         childSession: null,
         trustedDevice: td('shared'),
         allowedChildren: [{ id: A }, { id: B }],
@@ -294,10 +321,8 @@ describe('resolveAppEntry — invariants', () => {
       if (r.destination === DESTINATIONS.PARENT_HOME) {
         assert.equal(r.viewContext, 'parent');
         assert.equal(r.credentialContext, 'parent');
-        const priv =
-          c.input.parentSession &&
-          (c.input.trustedDevice?.deviceMode === 'parent' ||
-            c.input.parentSession.privileged === true);
+        const priv = c.input.parentPrivilegeActive === true
+          || (c.input.parentSession && c.input.parentSession.privilegeActive === true);
         assert.ok(priv, 'parent home requires active parent privilege');
       }
 

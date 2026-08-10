@@ -132,6 +132,18 @@
       }
 
       if (!meResult.ok || !meResult.me) {
+        if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.runColdStart === 'function') {
+          const orch = await AppEntryOrchestrator.runColdStart({
+            force: options.force === true,
+            source: 'native_restore',
+          });
+          if (orch && orch.ok) {
+            return { ok: false, code: 'ORCHESTRATOR_NAV' };
+          }
+          if (orch && orch.code === 'PICKER_SHOWN') {
+            return { ok: false, code: 'SHARED_PICKER' };
+          }
+        }
         if (window.TrustedDeviceClient && typeof TrustedDeviceClient.tryRestoreSession === 'function') {
           const restored = await TrustedDeviceClient.tryRestoreSession();
           if (restored.ok) {

@@ -1386,6 +1386,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  if (!forcePicker && !resumeAddChild && window.AppEntryOrchestrator) {
+    const entryBoot = await AppEntryOrchestrator.bootstrapOnEntryPage();
+    if (entryBoot && entryBoot.ok) return;
+  }
+
   if (url.searchParams.get('shared_device') === '1' && window.TrustedDeviceBootstrap) {
     let pickerChildren = null;
     try {

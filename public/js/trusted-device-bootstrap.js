@@ -54,6 +54,15 @@
 
   async function tryColdStart(opts) {
     const options = opts || {};
+    if (
+      window.AppEntryOrchestrator
+      && typeof AppEntryOrchestrator.runColdStart === 'function'
+    ) {
+      const orch = await AppEntryOrchestrator.runColdStart(options);
+      if (orch && orch.code !== 'ORCHESTRATOR_OFF') {
+        return orch;
+      }
+    }
     if (!options.force && window.Auth && Auth.isLoggedIn && Auth.isLoggedIn()) {
       return { ok: false, code: 'ALREADY_LOGGED_IN' };
     }

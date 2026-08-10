@@ -31,14 +31,20 @@ function normalizeAllowedChildren(allowedChildren) {
   return ids;
 }
 
-function isParentSessionValid(parentSession) {
-  return Boolean(parentSession && parentSession.valid === true);
+function isParentSessionAuthenticated(parentSession) {
+  if (!parentSession) return false;
+  if (parentSession.authenticated === true) return true;
+  return parentSession.valid === true;
 }
 
-function isParentPrivileged(parentSession, deviceMode) {
-  if (!isParentSessionValid(parentSession)) return false;
-  if (deviceMode === 'parent') return true;
-  return parentSession.privileged === true;
+/** Active vuxenläge — not the same as latent parent/handoff on a child JWT. */
+function isParentPrivilegeActive(state) {
+  if (state && state.parentPrivilegeActive === true) return true;
+  const ps = state && state.parentSession;
+  if (!ps) return false;
+  if (ps.privilegeActive === true) return true;
+  if (ps.privileged === true) return true;
+  return false;
 }
 
 function isChildSessionValid(childSession) {
@@ -126,6 +132,9 @@ function resolveSharedChildTarget(trustedDevice, allowedIds) {
     return { kind: 'child', childId: allowedIds[0] };
   }
   const defaultId = trustedDevice.defaultChildId;
+  if (defaultId && !allowedIds.includes(defaultId)) {
+    return { kind: 'fail', reason: 'default_child_not_allowed' };
+  }
   if (defaultId && allowedIds.includes(defaultId)) {
     return { kind: 'child', childId: defaultId };
   }
@@ -142,7 +151,8 @@ function resolveChildModeTarget(trustedDevice, allowedIds) {
 
 /**
  * @param {object} input
- * @param {object|null} input.parentSession — { valid, privileged? }
+ * @param {object|null} input.parentSession — { authenticated?, privilegeActive?, valid?, privileged? }
+ * @param {boolean} [input.parentPrivilegeActive] — explicit vuxenprivileg (wins over parentSession)
  * @param {object|null} input.childSession — { valid, childId }
  * @param {object|null} input.trustedDevice — { valid, revoked?, deviceMode, defaultChildId?, lastActiveChildId? }
  * @param {Array<{id:string}>} input.allowedChildren
@@ -182,7 +192,7 @@ function resolveAppEntry(input) {
     deepLink && typeof deepLink.childId === 'string' && deepLink.childId ? deepLink.childId : null;
 
   if (!isTrustedDeviceActive(trustedDevice)) {
-    if (isParentSessionValid(parentSession)) {
+    if (isParentPrivilegeActive(state)) {
       return parentHomeDecision(null, 'legacy_parent_session_no_trusted_device');
     }
     if (isChildSessionValid(childSession)) {
@@ -209,24 +219,30 @@ function resolveAppEntry(input) {
   const deviceMode = trustedDevice.deviceMode;
 
   if (deviceMode === 'parent') {
-    if (isParentSessionValid(parentSession)) {
-      return parentHomeDecision('parent', 'parent_device_parent_session');
+    if (isParentPrivilegeActive(state)) {
+      return parentHomeDecision('parent', 'parent_device_parent_privilege');
     }
-    return buildResult({
-      destination: DESTINATIONS.PARENT_LOGIN,
-      deviceMode: 'parent',
-      viewContext: 'parent',
-      credentialContext: 'none',
-      reason: 'parent_device_requires_parent_session',
-      serverAction: SERVER_ACTIONS.RESTORE_PARENT,
-    });
+    if (!isChildSessionValid(childSession)) {
+      return buildResult({
+        destination: DESTINATIONS.PARENT_LOGIN,
+        deviceMode: 'parent',
+        viewContext: 'parent',
+        credentialContext: 'none',
+        reason: 'parent_device_requires_parent_privilege',
+        serverAction: SERVER_ACTIONS.RESTORE_PARENT,
+      });
+    }
   }
 
-  if (deviceMode === 'shared' && isParentPrivileged(parentSession, deviceMode)) {
+  if (deviceMode === 'shared' && isParentPrivilegeActive(state)) {
     return parentHomeDecision('shared', 'shared_device_parent_privilege_active');
   }
 
   let targetChildId = deepLinkChildId;
+
+  if (!targetChildId && deviceMode === 'parent' && isChildSessionValid(childSession)) {
+    targetChildId = childSession.childId;
+  }
 
   if (!targetChildId) {
     if (deviceMode === 'child') {
@@ -237,6 +253,9 @@ function resolveAppEntry(input) {
       targetChildId = bound.childId;
     } else if (deviceMode === 'shared') {
       const shared = resolveSharedChildTarget(trustedDevice, allowedIds);
+      if (shared.kind === 'fail') {
+        return failClosedPicker('shared', shared.reason);
+      }
       if (shared.kind === 'setup') {
         return buildResult({
           destination: DESTINATIONS.DEVICE_SETUP,
@@ -288,4 +307,6 @@ module.exports = {
   resolveAppEntry,
   DESTINATIONS,
   SERVER_ACTIONS,
+  isParentPrivilegeActive,
+  isParentSessionAuthenticated,
 };
