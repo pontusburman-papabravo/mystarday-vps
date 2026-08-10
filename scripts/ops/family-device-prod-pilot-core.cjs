@@ -18,11 +18,15 @@ const {
 const { createDisposableFamilyDeviceQaFamily } = require('./family-device-qa-fixture.cjs');
 const { makeDisposableEmail } = require('./family-device-pilot-guard-helpers.cjs');
 const { isFounderQaParentEmail } = require('../../src/lib/founder-qa-family-guard');
+const { PILOT_FLAG_KEYS } = require('../../src/lib/family-device-pilot-guard');
+
+const PILOT_TRUSTED_DEVICE_KEYS = PILOT_FLAG_KEYS.filter((k) => k !== 'adult_privilege_v1');
 
 async function apiFetch(baseUrl, path, { method = 'GET', jar, csrf, body, track5xx, track429, authBearer } = {}) {
   const headers = {};
   if (jar?.header()) headers.Cookie = jar.header();
-  if (csrf) headers['X-CSRF-Token'] = csrf;
+  const csrfHeader = jar?.get('csrf_token') || csrf;
+  if (csrfHeader) headers['X-CSRF-Token'] = csrfHeader;
   if (authBearer) headers.Authorization = `Bearer ${authBearer}`;
   if (body !== undefined) {
     headers['Content-Type'] = 'application/json';
@@ -60,6 +64,8 @@ async function provisionFamily(db, baseUrl, childCount, track5xx, track429Fixtur
   if (login.status !== 200 || !login.body?.csrfToken) {
     throw new Error(`login_failed:${login.status}`);
   }
+  const jarCsrf = jar.get('csrf_token');
+  const sessionCsrf = jarCsrf || login.body.csrfToken;
 
   return {
     email: fixture.email,
@@ -67,44 +73,102 @@ async function provisionFamily(db, baseUrl, childCount, track5xx, track429Fixtur
     parentPin: fixture.parentPin,
     familyId: fixture.familyId,
     children: fixture.children,
-    session: { jar, csrf: login.body.csrfToken },
+    session: { jar, csrf: sessionCsrf },
   };
 }
 
-async function enrollShared(baseUrl, session, track5xx, track429) {
+const TRUSTED_DEVICE_PROPAGATION_MS = 20_000;
+const TRUSTED_DEVICE_POLL_MS = 400;
+
+/** Wait until app HTTP sees per-family trusted_device override (DB replica lag). */
+async function assertTrustedDeviceEnabledOnServer(baseUrl, session, track5xx, track429) {
+  const deadline = Date.now() + TRUSTED_DEVICE_PROPAGATION_MS;
+  while (Date.now() < deadline) {
+    const res = await apiFetch(baseUrl, '/api/family/trusted-devices', {
+      jar: session.jar,
+      csrf: session.csrf,
+      track5xx,
+      track429,
+    });
+    if (res.status === 200 && res.body?.enabled === true) {
+      const jarCsrf = session.jar.get('csrf_token');
+      if (jarCsrf) session.csrf = jarCsrf;
+      return;
+    }
+    await new Promise((r) => setTimeout(r, TRUSTED_DEVICE_POLL_MS));
+  }
+  throw new Error('trusted_device_enable_timeout');
+}
+
+async function enablePilotForFamily(db, baseUrl, fam, track5xx, track429, keys = PILOT_TRUSTED_DEVICE_KEYS) {
+  await enablePilotOverrides(db, fam.familyId, fam.email, 'family-device-prod-pilot', keys);
+  await assertTrustedDeviceEnabledOnServer(baseUrl, fam.session, track5xx, track429);
+}
+
+async function reloginParentIfNeeded(baseUrl, fam, track5xx, track429) {
+  const me = await apiFetch(baseUrl, '/api/auth/me', {
+    jar: fam.session.jar,
+    csrf: fam.session.csrf,
+    track5xx,
+    track429,
+  });
+  if (me.body?.type === 'parent') return;
+  const jar = createCookieJar();
+  const login = await apiFetch(baseUrl, '/api/auth/login', {
+    method: 'POST',
+    jar,
+    body: { email: fam.email, password: fam.password },
+    track5xx,
+    track429,
+  });
+  if (login.status !== 200 || !login.body?.csrfToken) {
+    throw new Error(`parent_relogin_failed:${login.status}`);
+  }
+  fam.session.jar = jar;
+  fam.session.csrf = jar.get('csrf_token') || login.body.csrfToken;
+}
+
+async function enrollShared(baseUrl, fam, track5xx, track429) {
+  await reloginParentIfNeeded(baseUrl, fam, track5xx, track429);
   const res = await apiFetch(baseUrl, '/api/family/trusted-devices/shared', {
     method: 'POST',
-    jar: session.jar,
-    csrf: session.csrf,
+    jar: fam.session.jar,
+    csrf: fam.session.csrf,
     body: { platform: 'web', label: 'pilot-shared' },
     track5xx,
   });
-  if (res.status !== 201) throw new Error(`enroll_shared:${res.status}`);
-  return session.jar;
+  if (res.status !== 201) {
+    throw new Error(
+      `enroll_shared:${res.status}:${res.body?.code || JSON.stringify(res.body)?.slice(0, 120)}`
+    );
+  }
+  return fam.session.jar;
 }
 
-async function enrollParent(baseUrl, session, track5xx) {
+async function enrollParent(baseUrl, fam, track5xx, track429) {
+  await reloginParentIfNeeded(baseUrl, fam, track5xx, track429);
   const res = await apiFetch(baseUrl, '/api/family/trusted-devices/parent', {
     method: 'POST',
-    jar: session.jar,
-    csrf: session.csrf,
+    jar: fam.session.jar,
+    csrf: fam.session.csrf,
     body: { platform: 'web', label: 'pilot-parent' },
     track5xx,
   });
   if (res.status !== 201) throw new Error(`enroll_parent:${res.status}`);
-  return session.jar;
+  return fam.session.jar;
 }
 
-async function enrollChildDevice(baseUrl, session, childId, track5xx) {
+async function enrollChildDevice(baseUrl, fam, childId, track5xx, track429) {
+  await reloginParentIfNeeded(baseUrl, fam, track5xx, track429);
   const res = await apiFetch(baseUrl, '/api/family/trusted-devices/child', {
     method: 'POST',
-    jar: session.jar,
-    csrf: session.csrf,
+    jar: fam.session.jar,
+    csrf: fam.session.csrf,
     body: { child_id: childId, platform: 'web', label: 'pilot-child' },
     track5xx,
   });
   if (res.status !== 201) throw new Error(`enroll_child:${res.status}`);
-  return session.jar;
+  return fam.session.jar;
 }
 
 async function appEntry(baseUrl, jar, query, track5xx) {
@@ -190,13 +254,14 @@ async function runFamilyDeviceProdPilot(opts) {
         report.founderCredentialsUsed = true;
         throw new Error('founder_email_in_fixture');
       }
-      await enablePilotOverrides(opts.db, fam.familyId, fam.email);
+      await enablePilotForFamily(opts.db, opts.baseUrl, fam, track5xx, track429);
+      await reloginParentIfNeeded(opts.baseUrl, fam, track5xx, track429);
       report.disposableFamilies.push({ family_id: fam.familyId, email_domain: 'example.com' });
     }
 
     // A — shared one child
     {
-      await enrollShared(opts.baseUrl, single.session, track5xx);
+      await enrollShared(opts.baseUrl, single, track5xx, track429);
       const tdOnly = jarWithTrustedDevice(single.session.jar);
       const entry = await appEntry(opts.baseUrl, tdOnly, '', track5xx);
       const restore = await trustedRestore(opts.baseUrl, tdOnly, {}, track5xx);
@@ -214,7 +279,7 @@ async function runFamilyDeviceProdPilot(opts) {
 
     // B — shared multi
     {
-      await enrollShared(opts.baseUrl, multi.session, track5xx);
+      await enrollShared(opts.baseUrl, multi, track5xx, track429);
       const tdJar = jarWithTrustedDevice(multi.session.jar);
       const entry = await appEntry(opts.baseUrl, tdJar, '', track5xx);
       const pickerOk =
@@ -238,8 +303,8 @@ async function runFamilyDeviceProdPilot(opts) {
     {
       const pFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
       families.push(pFam);
-      await enablePilotOverrides(opts.db, pFam.familyId, pFam.email);
-      await enrollParent(opts.baseUrl, pFam.session, track5xx);
+      await enablePilotForFamily(opts.db, opts.baseUrl, pFam, track5xx, track429);
+      await enrollParent(opts.baseUrl, pFam, track5xx, track429);
       const cold = jarWithTrustedDevice(pFam.session.jar);
       const entry = await appEntry(opts.baseUrl, pFam.session.jar, '', track5xx);
       const restore = await trustedRestore(opts.baseUrl, cold, {}, track5xx);
@@ -254,16 +319,9 @@ async function runFamilyDeviceProdPilot(opts) {
     // D — child device (reuse single-child family)
     {
       const boundId = single.children[0].id;
-      const childSession = {
-        jar: createCookieJar(),
-        csrf: single.session.csrf,
-      };
-      for (const k of single.session.jar.keys()) {
-        const v = single.session.jar.get(k);
-        childSession.jar.store({ headers: { getSetCookie: () => [`${k}=${v}; Path=/`] } });
-      }
-      await enrollChildDevice(opts.baseUrl, childSession, boundId, track5xx);
-      const tdJar = jarWithTrustedDevice(childSession.jar);
+      await reloginParentIfNeeded(opts.baseUrl, single, track5xx, track429);
+      await enrollChildDevice(opts.baseUrl, single, boundId, track5xx, track429);
+      const tdJar = jarWithTrustedDevice(single.session.jar);
       const entry = await appEntry(opts.baseUrl, tdJar, '', track5xx);
       const pass =
         entry.body.decision?.destination === 'child-home' &&
@@ -274,6 +332,13 @@ async function runFamilyDeviceProdPilot(opts) {
 
     // E — adult privilege server (PIN unlock, no biometric claim)
     {
+      await enablePilotOverrides(
+        opts.db,
+        multi.familyId,
+        multi.email,
+        'family-device-prod-pilot',
+        ['adult_privilege_v1']
+      );
       const child = multi.children[0];
       const handoff = await childLoginHandoff(
         opts.baseUrl,
@@ -327,8 +392,8 @@ async function runFamilyDeviceProdPilot(opts) {
     {
       const rFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
       families.push(rFam);
-      await enablePilotOverrides(opts.db, rFam.familyId, rFam.email);
-      await enrollChildDevice(opts.baseUrl, rFam.session, rFam.children[0].id, track5xx);
+      await enablePilotForFamily(opts.db, opts.baseUrl, rFam, track5xx, track429);
+      await enrollChildDevice(opts.baseUrl, rFam, rFam.children[0].id, track5xx, track429);
       const list = await apiFetch(opts.baseUrl, '/api/family/trusted-devices', {
         jar: rFam.session.jar,
         csrf: rFam.session.csrf,
@@ -356,7 +421,7 @@ async function runFamilyDeviceProdPilot(opts) {
 
     // G — wrong child (deep link out of scope)
     {
-      await enrollShared(opts.baseUrl, single.session, track5xx);
+      await enrollShared(opts.baseUrl, single, track5xx, track429);
       const tdJar = jarWithTrustedDevice(single.session.jar);
       const bogus = '00000000-0000-4000-8000-00000000abcd';
       const entry = await appEntry(
@@ -391,7 +456,7 @@ async function runFamilyDeviceProdPilot(opts) {
         report.scenarios.WIDGET_SERVER_SCOPE = 'FAIL';
       } else {
         const wJar = jarWithTrustedDevice(multi.session.jar);
-        await enrollShared(opts.baseUrl, multi.session, track5xx);
+        await enrollShared(opts.baseUrl, multi, track5xx, track429);
         const childA = multi.children[0].id;
         const childB = multi.children[1].id;
         const bind = await apiFetch(opts.baseUrl, '/api/widget/bindings', {

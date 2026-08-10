@@ -24,9 +24,15 @@ function globalFlagsUnchanged(before, after) {
   return true;
 }
 
-async function enablePilotOverrides(db, familyId, email, reason = 'family-device-prod-pilot') {
+async function enablePilotOverrides(
+  db,
+  familyId,
+  email,
+  reason = 'family-device-prod-pilot',
+  keys = PILOT_FLAG_KEYS
+) {
   await assertFamilyDevicePilotFamily(db, familyId, email);
-  for (const featureKey of PILOT_FLAG_KEYS) {
+  for (const featureKey of keys) {
     familyOverrides.assertOverrideFeatureKey(featureKey);
     await familyOverrides.upsertOverride(familyId, featureKey, true, {
       reason,
