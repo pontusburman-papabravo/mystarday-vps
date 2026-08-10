@@ -96,6 +96,12 @@ test('pilot db module: global flag keys are allowlisted only', () => {
   }
 });
 
+test('device setup prompt: mutations use apiFetch (CSRF)', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../public/js/device-setup-prompt.js'), 'utf8');
+  assert.match(src, /window\.apiFetch\([^)]*this-device\/setup/);
+  assert.doesNotMatch(src, /fetch\('\/api\/family\/trusted-devices\/this-device\/setup'/);
+});
+
 test('pilot harness: fixture path does not call public register', () => {
   const files = [
     '../scripts/ops/family-device-prod-pilot-core.cjs',
