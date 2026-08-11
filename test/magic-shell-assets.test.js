@@ -38,7 +38,9 @@ describe('magic shell assets on all parent pages', () => {
 
   it('settings hub resets group menu on each entry', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
-    assert.match(src, /resetSettingsState/);
+    assert.match(src, /showSettingsRootMenu/);
+    assert.match(src, /hasSettingsDeepLink/);
+    assert.doesNotMatch(src, /restoreGroup/);
     assert.match(src, /page === 'settings'/);
   });
 });

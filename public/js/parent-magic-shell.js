@@ -168,7 +168,16 @@
     }
   }
 
+  function syncPageFromDom() {
+    const attr = document.body && document.body.getAttribute('data-magic-page');
+    const resolved = attr || (window.ParentMagicAuto && ParentMagicAuto.resolvePage
+      ? ParentMagicAuto.resolvePage(window.location.pathname)
+      : null);
+    if (resolved) _page = resolved;
+  }
+
   function refresh() {
+    syncPageFromDom();
     const magic = isMagic();
     if (window.NativeDebug) {
       NativeDebug.log('magic_shell_refresh', { magic: magic, page: _page });
@@ -206,8 +215,15 @@
   }
 
   function init(page) {
-    if (_initPromise) return _initPromise;
-    _page = page || 'dashboard';
+    const nextPage = page || _page || 'dashboard';
+    if (_initPromise) {
+      if (nextPage && nextPage !== _page) {
+        _page = nextPage;
+        refresh();
+      }
+      return _initPromise;
+    }
+    _page = nextPage;
     if (window.ParentMagicAuto) {
       ParentMagicAuto.prepareDom();
     }

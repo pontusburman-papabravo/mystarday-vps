@@ -219,8 +219,7 @@
 
   function returnToSettingsMenu() {
     clearSettingsHash();
-    hideSettingsGroup();
-    refresh('settings', true, { skipHash: true });
+    showSettingsRootMenu();
     if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
   }
 
@@ -336,8 +335,26 @@
     bindThemePickerDelegation();
   }
 
+  function hasSettingsDeepLink() {
+    const hash = (window.location.hash || '').replace('#', '');
+    return hash === 'prenumeration' || hash === 'profil' || hash === 'profile'
+      || hash === 'widgetSettingsSection' || hash === 'widget'
+      || hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications';
+  }
+
+  function showSettingsRootMenu() {
+    resetSettingsState();
+    tagSettingsSections();
+    const el = mount();
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.innerHTML = renderSettingsMenu();
+    bindSettingsEvents(el);
+    const backBar = document.getElementById('magicSettingsBackBar');
+    if (backBar) backBar.innerHTML = '';
+  }
+
   function tagSettingsSections() {
-    const restoreGroup = _activeSettingsGroup;
     bindThemePickerDelegation();
     ensureAppearanceSection();
     function tagChild(childId, groupId) {
@@ -367,9 +384,6 @@
     tagChild('consentSection', 'app');
     tagChild('dataExportSection', 'app');
     tagChild('deletionSection', 'app');
-    if (restoreGroup) {
-      showSettingsGroup(restoreGroup);
-    }
   }
 
   function resetSettingsState() {
@@ -422,27 +436,18 @@
     const magic = window.ParentMagicShell && ParentMagicShell.isMagic && ParentMagicShell.isMagic();
     if (!magic) return;
 
-    tagSettingsSections();
     const mountEl = mount();
-    const hash = (window.location.hash || '').replace('#', '');
-    const hasDeepLink = hash === 'prenumeration' || hash === 'profil' || hash === 'profile'
-      || hash === 'widgetSettingsSection' || hash === 'widget'
-      || hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications';
+    const hasDeepLink = hasSettingsDeepLink();
 
-    if (!hasDeepLink && !_activeSettingsGroup) {
-      resetSettingsState();
+    if (!hasDeepLink) {
+      showSettingsRootMenu();
+    } else {
+      tagSettingsSections();
+      if (!_activeSettingsGroup) {
+        openFromHash();
+      }
+      if (mountEl) mountEl.classList.remove('hidden');
     }
-
-    const menuMissing = !mountEl || mountEl.classList.contains('hidden') || !mountEl.innerHTML.trim();
-    if ((menuMissing || !_activeSettingsGroup) && !hasDeepLink) {
-      refresh('settings', true, { skipHash: true });
-    } else if (hasDeepLink && !_activeSettingsGroup) {
-      openFromHash();
-    } else if (hasDeepLink && _activeSettingsGroup) {
-      openFromHash();
-    }
-
-    if (mountEl) mountEl.classList.remove('hidden');
 
     if (window.ParentNavHeader && typeof ParentNavHeader.ensure === 'function') {
       ParentNavHeader.ensure();
@@ -492,13 +497,17 @@
       el.innerHTML = '';
       el.classList.add('hidden');
     } else if (page === 'settings') {
-      resetSettingsState();
-      tagSettingsSections();
-      el.innerHTML = renderSettingsMenu();
-      bindSettingsEvents(el);
-      const backBar = document.getElementById('magicSettingsBackBar');
-      if (backBar) backBar.innerHTML = '';
-      if (!opts.skipHash) openFromHash();
+      if (opts.skipHash || !hasSettingsDeepLink()) {
+        showSettingsRootMenu();
+      } else {
+        resetSettingsState();
+        tagSettingsSections();
+        el.innerHTML = renderSettingsMenu();
+        bindSettingsEvents(el);
+        const backBar = document.getElementById('magicSettingsBackBar');
+        if (backBar) backBar.innerHTML = '';
+        openFromHash();
+      }
     } else if (page === 'planning') {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -531,9 +540,10 @@
     applyHubCopy();
     if (window.ParentMagicShell && ParentMagicShell.isMagic()) {
       const page = document.body.getAttribute('data-magic-page');
-      if (page) refresh(page, true);
       if (page === 'settings' && window.ParentMagicPageHub && window.ParentMagicPageHub.ensureSettingsChrome) {
         window.ParentMagicPageHub.ensureSettingsChrome();
+      } else if (page) {
+        refresh(page, true);
       }
     }
   });
@@ -541,9 +551,10 @@
     applyHubCopy();
     if (window.ParentMagicShell && ParentMagicShell.isMagic()) {
       const page = document.body.getAttribute('data-magic-page');
-      if (page) refresh(page, true);
       if (page === 'settings' && window.ParentMagicPageHub && window.ParentMagicPageHub.ensureSettingsChrome) {
         window.ParentMagicPageHub.ensureSettingsChrome();
+      } else if (page) {
+        refresh(page, true);
       }
     }
   });
@@ -568,6 +579,8 @@
     returnToSettingsMenu: returnToSettingsMenu,
     clearSettingsHash: clearSettingsHash,
     ensureSettingsChrome: ensureSettingsChrome,
+    showSettingsRootMenu: showSettingsRootMenu,
+    hasSettingsDeepLink: hasSettingsDeepLink,
     applyHubCopy: applyHubCopy,
   };
 
