@@ -107,14 +107,28 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assertChildHome(r, A, 'shared');
   });
 
-  it('shared + multiple children + default child → default child home', () => {
+  it('shared + multiple children + default child → profile-picker (Netflix)', () => {
     const r = resolveAppEntry({
       parentSession: null,
       childSession: null,
       trustedDevice: td('shared', { defaultChildId: B }),
       allowedChildren: [{ id: A }, { id: B }],
     });
-    assertChildHome(r, B, 'shared');
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.viewContext, 'picker');
+    assert.equal(r.credentialContext, 'none');
+  });
+
+  it('shared + one child + one parent → profile-picker', () => {
+    const r = resolveAppEntry({
+      parentSession: null,
+      childSession: null,
+      trustedDevice: td('shared'),
+      allowedChildren: [{ id: A }],
+      allowedParents: [{ id: 'parent-uuid' }],
+    });
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.viewContext, 'picker');
   });
 
   it('shared + multiple children without default → profile-picker', () => {
@@ -166,27 +180,55 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.notEqual(r.destination, DESTINATIONS.PARENT_HOME);
   });
 
-  it('shared: parent privilege active → parent-home', () => {
+  it('shared: parent privilege active on cold start → profile-picker when multi-profile', () => {
     const r = resolveAppEntry({
       parentPrivilegeActive: true,
       parentSession: { authenticated: true, privilegeActive: true },
       childSession: null,
       trustedDevice: td('shared'),
       allowedChildren: [{ id: A }],
+      allowedParents: [{ id: 'parent-uuid' }],
     });
-    assertParentHome(r, 'shared');
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.viewContext, 'picker');
   });
 
-  it('child session mismatch with resolved target → fail closed', () => {
+  it('shared: parent privilege active on cold_start multi-profile → profile-picker', () => {
+    const r = resolveAppEntry({
+      parentPrivilegeActive: true,
+      parentSession: { authenticated: true, privilegeActive: true },
+      childSession: null,
+      trustedDevice: td('shared'),
+      allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-uuid' }],
+    });
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.viewContext, 'picker');
+  });
+
+  it('shared + multiple children + child session → profile-picker (no client resume bypass)', () => {
     const r = resolveAppEntry({
       parentSession: null,
       childSession: { valid: true, childId: A },
       trustedDevice: td('shared', { defaultChildId: B }),
       allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-uuid' }],
     });
-    assert.equal(r.failClosed, true);
-    assert.equal(r.reason, 'child_session_mismatch');
     assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.reason, 'shared_device_picker_required');
+  });
+
+  it('shared + multiple children + child session always → profile-picker', () => {
+    const r = resolveAppEntry({
+      parentSession: null,
+      childSession: { valid: true, childId: A },
+      trustedDevice: td('shared', { defaultChildId: B }),
+      allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-uuid' }],
+    });
+    assert.equal(r.failClosed, false);
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.serverAction, SERVER_ACTIONS.SELECT_CHILD);
   });
 
   it('child session not in allowed → fail closed', () => {
@@ -246,15 +288,16 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.equal(r.serverAction, SERVER_ACTIONS.NONE);
   });
 
-  it('shared + invalid default child id → fail closed picker', () => {
+  it('shared + invalid default child id → profile-picker (default ignored)', () => {
     const r = resolveAppEntry({
       parentSession: null,
       childSession: null,
       trustedDevice: td('shared', { defaultChildId: C }),
       allowedChildren: [{ id: A }, { id: B }],
     });
-    assert.equal(r.failClosed, true);
-    assert.equal(r.reason, 'default_child_not_allowed');
+    assert.equal(r.failClosed, false);
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.reason, 'shared_device_picker_required');
   });
 
   it('shared with zero allowed children → device-setup', () => {

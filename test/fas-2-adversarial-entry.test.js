@@ -29,15 +29,29 @@ describe('Fas 2 adversarial — resolver fail-closed', () => {
     assert.equal(r.reason, 'deep_link_child_out_of_scope');
   });
 
-  it('child JWT mismatch → fail-closed, never silent swap', () => {
+  it('child JWT on multi-profile shared → profile-picker (no silent resume)', () => {
     const r = resolveAppEntry({
       trustedDevice: { valid: true, deviceMode: 'shared', defaultChildId: B },
       allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-1' }],
       childSession: { valid: true, childId: A },
       parentSession: null,
     });
-    assert.equal(r.failClosed, true);
-    assert.equal(r.reason, 'child_session_mismatch');
+    assert.equal(r.failClosed, false);
+    assert.equal(r.destination, 'profile-picker');
+    assert.equal(r.reason, 'shared_device_picker_required');
+  });
+
+  it('child JWT on multi-profile shared cannot bypass picker via client context', () => {
+    const r = resolveAppEntry({
+      trustedDevice: { valid: true, deviceMode: 'shared', defaultChildId: B },
+      allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-1' }],
+      childSession: { valid: true, childId: A },
+      parentSession: null,
+    });
+    assert.equal(r.destination, 'profile-picker');
+    assert.equal(r.childId, null);
   });
 
   it('handoff authenticated without privilege → not parent-home on shared', () => {

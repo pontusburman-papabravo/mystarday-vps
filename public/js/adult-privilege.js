@@ -124,8 +124,8 @@
   }
 
   function runPinGate() {
-    if (window.AdultPinGateUI && typeof AdultPinGateUI.collectAdultPin === 'function') {
-      return AdultPinGateUI.collectAdultPin();
+    if (window.AdultPinGateUI && typeof window.AdultPinGateUI.collectAdultPin === 'function') {
+      return window.AdultPinGateUI.collectAdultPin();
     }
     return Promise.resolve({ ok: false, code: 'PIN_UI_UNAVAILABLE' });
   }
@@ -214,9 +214,8 @@
     });
   }
 
-  function postUnlock(unlockMethod, pin) {
-    const payload = { unlockMethod: unlockMethod || 'biometric' };
-    if (unlockMethod === 'pin' && pin) payload.pin = pin;
+  function postUnlock(pin) {
+    const payload = { unlockMethod: 'pin', pin: pin };
     return fetchJson('/api/family/adult-privilege/unlock', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -236,8 +235,22 @@
     });
   }
 
+  function runPinGateOrRejectSetup() {
+    return refreshStatus().then(function (statusResult) {
+      if (statusResult.body && statusResult.body.pinRequiredForUnlock === false) {
+        return Promise.reject(new Error('ADULT_PIN_SETUP_REQUIRED'));
+      }
+      return runPinGate();
+    }).then(function (pinResult) {
+      if (!pinResult.ok || !pinResult.pin) {
+        return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+      }
+      return pinResult.pin;
+    });
+  }
+
   /**
-   * Escalate child → parent: biometric (native) then server unlock + /me verify.
+   * Escalate child → parent: adult PIN gate then server unlock + /me verify.
    * @returns {Promise<{ok:boolean, parent?:object, code?:string}>}
    */
   function requestEscalation(options) {
@@ -265,36 +278,22 @@
     setState(STATES.UNLOCKING);
     track('adult_privilege_unlock_started');
 
-    const usePin = opts.unlockMethod === 'pin' || opts.preferPin === true;
-    const skipBiometric = opts.skipBiometric === true || usePin;
-
-    let gatePromise;
-    if (usePin) {
-      gatePromise = runPinGate().then(function (pinResult) {
-        if (!pinResult.ok || !pinResult.pin) {
-          return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
-        }
-        return postUnlock('pin', pinResult.pin);
-      });
-    } else {
-      const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
-      gatePromise = bioPromise.then(function () {
-        return postUnlock('biometric');
-      });
-    }
+    const gatePromise = runPinGateOrRejectSetup().then(function (pin) {
+      return postUnlock(pin);
+    });
 
     return gatePromise
       .catch(function (err) {
         const msg = err && err.message ? String(err.message) : String(err || '');
-        if (msg.indexOf('BIOMETRIC_CANCEL') !== -1 || msg.indexOf('PIN_CANCEL') !== -1) {
+        if (msg.indexOf('PIN_CANCEL') !== -1) {
           setState(STATES.LOCKED);
           track('adult_privilege_unlock_failed');
-          return { ok: false, code: msg.indexOf('PIN') !== -1 ? 'PIN_CANCEL' : 'BIOMETRIC_CANCEL' };
+          return { ok: false, code: 'PIN_CANCEL' };
         }
-        if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1) {
+        if (msg.indexOf('ADULT_PIN_SETUP_REQUIRED') !== -1) {
           setState(STATES.LOCKED);
           track('adult_privilege_unlock_failed');
-          return { ok: false, code: 'BIOMETRIC_UNAVAILABLE' };
+          return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
         }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
@@ -322,6 +321,96 @@
     return refreshStatus();
   }
 
+  function postSelectParent(pin, parentId) {
+    const payload = {
+      parent_id: parentId,
+      unlock_method: 'pin',
+      pin: pin,
+    };
+    return fetchJson('/api/auth/trusted-device/select-parent', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }).then(function (out) {
+      if (!out.res.ok || !out.body.ok) {
+        const code = out.body.code || 'TRUSTED_SELECT_PARENT_FAILED';
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: code, status: out.res.status };
+      }
+      if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
+        window.Auth.setCsrfToken(out.body.csrfToken);
+      }
+      return applyUnlockSuccess({
+        csrfToken: out.body.csrfToken,
+        parent: out.body.user || out.body.parent,
+        expiresAt: out.body.privilegeLeaseUntil,
+        privilegeLeaseUntil: out.body.privilegeLeaseUntil,
+        policy: out.body.policy,
+      }).then(function (result) {
+        if (result.ok) {
+          return {
+            ok: true,
+            parent: result.parent,
+            redirect: out.body.redirect || '/home',
+          };
+        }
+        return result;
+      });
+    });
+  }
+
+  /**
+   * Netflix picker → adult profile: adult PIN gate (server-verifiable).
+   * @returns {Promise<{ok:boolean, parent?:object, redirect?:string, code?:string}>}
+   */
+  function requestTrustedProfileUnlock(options) {
+    const opts = options || {};
+    const parentId = opts.parentId;
+    if (!parentId) {
+      return Promise.resolve({ ok: false, code: 'PARENT_ID_REQUIRED' });
+    }
+    if (!featureEnabled) {
+      return refreshStatus().then(function () {
+        if (!featureEnabled) {
+          return { ok: false, code: 'ADULT_PRIVILEGE_DISABLED' };
+        }
+        return requestTrustedProfileUnlock(opts);
+      });
+    }
+    if (unlockInFlight) {
+      return Promise.resolve({ ok: false, code: 'ADULT_PRIVILEGE_IN_FLIGHT' });
+    }
+
+    unlockInFlight = true;
+    setState(STATES.UNLOCKING);
+    track('adult_privilege_unlock_started');
+
+    const gatePromise = runPinGateOrRejectSetup().then(function (pin) {
+      return postSelectParent(pin, parentId);
+    });
+
+    return gatePromise
+      .catch(function (err) {
+        const msg = err && err.message ? String(err.message) : String(err || '');
+        if (msg.indexOf('PIN_CANCEL') !== -1) {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: 'PIN_CANCEL' };
+        }
+        if (msg.indexOf('ADULT_PIN_SETUP_REQUIRED') !== -1) {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
+        }
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
+      })
+      .finally(function () {
+        unlockInFlight = false;
+      });
+  }
+
   window.AdultPrivilege = {
     STATES: STATES,
     getState: getState,
@@ -329,6 +418,7 @@
     isPrivilegeActive: isPrivilegeActive,
     refreshStatus: refreshStatus,
     requestEscalation: requestEscalation,
+    requestTrustedProfileUnlock: requestTrustedProfileUnlock,
     expirePrivilegeIfDue: expirePrivilegeIfDue,
     resetToLocked: resetToLocked,
     initFromSession: initFromSession,

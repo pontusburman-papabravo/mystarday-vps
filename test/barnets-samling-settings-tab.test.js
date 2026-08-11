@@ -30,7 +30,7 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.match(src, /\/child\/settings/);
   });
 
-  it('child-settings-view: child actions without PIN, parent switch_child with PIN', () => {
+  it('child-settings-view: child actions without PIN, unified switch_profile for adults', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-settings-view.js'), 'utf8');
     assert.match(src, /ChildCustomizationEntries/);
     assert.match(src, /CHILD_ACTIONS/);
@@ -40,15 +40,24 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.match(src, /data-child-action="/);
     assert.match(src, /settings\.logoutConfirm/);
     assert.match(src, /data-parent-action="/);
-    assert.match(src, /id: 'switch_child'/);
-    assert.match(src, /ParentalGate\.requireParentMode/);
+    assert.match(src, /id: 'switch_profile'/);
+    assert.match(src, /settings\.switchProfile/);
+    assert.doesNotMatch(src, /id: 'switch_child'/);
+    assert.doesNotMatch(src, /id: 'adult_unlock'/);
     assert.doesNotMatch(src, /CHILD_SYSTEM_ACTIONS/);
     assert.doesNotMatch(src, /data-parent-action="logout"/);
     assert.doesNotMatch(src, /data-parent-action="dark_mode"/);
-    const runChildBlock = src.slice(src.indexOf('function runChildAction'), src.indexOf('function runParentAction'));
+    const runChildBlock = src.slice(src.indexOf('function runChildAction'), src.indexOf('function bindChildActions'));
     assert.doesNotMatch(runChildBlock, /ParentalGate/);
     const bindParentBlock = src.slice(src.indexOf('function bindParentActions'), src.indexOf('function refresh'));
-    assert.match(bindParentBlock, /ParentalGate\.requireParentMode/);
+    assert.match(bindParentBlock, /actionId === 'switch_profile'/);
+    assert.match(bindParentBlock, /if \(actionId === 'switch_profile'\)/);
+    const switchEarly = bindParentBlock.slice(
+      bindParentBlock.indexOf("actionId === 'switch_profile'"),
+      bindParentBlock.indexOf('if (window.ParentalGate')
+    );
+    assert.match(switchEarly, /run\(\)/);
+    assert.doesNotMatch(switchEarly, /ParentalGate/);
   });
 
   it('customization entries live in shared module (not Min samling page)', () => {

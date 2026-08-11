@@ -153,10 +153,11 @@
   }
 
   async function fetchEntryDecision(intentChildId) {
-    let url = '/api/auth/app-entry';
+    const params = new URLSearchParams();
     if (intentChildId) {
-      url += '?intent_child_id=' + encodeURIComponent(intentChildId);
+      params.set('intent_child_id', intentChildId);
     }
+    const url = '/api/auth/app-entry' + (params.toString() ? '?' + params.toString() : '');
     const res = await fetch(url, { credentials: 'include' });
     const body = await res.json().catch(function () { return {}; });
     if (!res.ok) {
@@ -316,7 +317,9 @@
   }
 
   async function bootstrapOnEntryPage() {
-    const result = await runColdStart({ source: 'entry_page' });
+    const result = await runColdStart({
+      source: 'entry_page',
+    });
     if (result.ok) return result;
     if (result.code === 'ORCHESTRATOR_OFF') {
       window.__DEFER_SESSION_GATE_FOR_ENTRY__ = false;

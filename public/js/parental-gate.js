@@ -63,6 +63,13 @@
         if (AdultPrivilege.isFeatureEnabled()) {
           AdultPrivilege.requestEscalation().then(function (result) {
             if (result && result.ok && onAllowed) onAllowed();
+            else if (result && result.code === 'BIOMETRIC_UNAVAILABLE') {
+              AdultPrivilege.requestEscalation({ preferPin: true }).then(function (pinRes) {
+                if (pinRes && pinRes.ok && onAllowed) onAllowed();
+                else if (onCancel) onCancel();
+              });
+              return;
+            }
             else if (onCancel) onCancel();
           });
           return;

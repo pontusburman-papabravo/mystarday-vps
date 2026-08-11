@@ -3,6 +3,9 @@
 /**
  * Fas 2A — pure entry decision engine (no navigation, storage, or network).
  * Device role ≠ view context ≠ credential context.
+ *
+ * GET /api/auth/app-entry is authoritative COLD START entry only.
+ * Multi-profile shared devices always resolve to profile-picker.
  */
 
 const DESTINATIONS = Object.freeze({
@@ -124,19 +127,19 @@ function assertChildSessionCompatible(childSession, targetChildId, allowedIds) {
   return { ok: true };
 }
 
-function resolveSharedChildTarget(trustedDevice, allowedIds) {
-  if (allowedIds.length === 0) {
+function resolveSharedChildTarget(trustedDevice, allowedIds, options) {
+  const opts = options || {};
+  const parentCount = opts.allowedParentCount || 0;
+  const totalProfiles = allowedIds.length + parentCount;
+
+  if (allowedIds.length === 0 && parentCount === 0) {
     return { kind: 'setup' };
+  }
+  if (totalProfiles > 1) {
+    return { kind: 'picker' };
   }
   if (allowedIds.length === 1) {
     return { kind: 'child', childId: allowedIds[0] };
-  }
-  const defaultId = trustedDevice.defaultChildId;
-  if (defaultId && !allowedIds.includes(defaultId)) {
-    return { kind: 'fail', reason: 'default_child_not_allowed' };
-  }
-  if (defaultId && allowedIds.includes(defaultId)) {
-    return { kind: 'child', childId: defaultId };
   }
   return { kind: 'picker' };
 }
@@ -156,12 +159,13 @@ function resolveChildModeTarget(trustedDevice, allowedIds) {
  * @param {object|null} input.childSession — { valid, childId }
  * @param {object|null} input.trustedDevice — { valid, revoked?, deviceMode, defaultChildId?, lastActiveChildId? }
  * @param {Array<{id:string}>} input.allowedChildren
+ * @param {Array<{id:string}>} [input.allowedParents]
  * @param {object|null} [input.deepLink] — { childId? }
- * @param {'parent'|'child'|null} [input.localDeviceModeHint] — ignored for authority (server wins)
  */
 function resolveAppEntry(input) {
   const state = input || {};
   const allowedIds = normalizeAllowedChildren(state.allowedChildren);
+  const allowedParentCount = Array.isArray(state.allowedParents) ? state.allowedParents.length : 0;
   const trustedDevice = state.trustedDevice;
   const parentSession = state.parentSession;
   const childSession = state.childSession;
@@ -234,10 +238,6 @@ function resolveAppEntry(input) {
     }
   }
 
-  if (deviceMode === 'shared' && isParentPrivilegeActive(state)) {
-    return parentHomeDecision('shared', 'shared_device_parent_privilege_active');
-  }
-
   let targetChildId = deepLinkChildId;
 
   if (!targetChildId && deviceMode === 'parent' && isChildSessionValid(childSession)) {
@@ -252,7 +252,9 @@ function resolveAppEntry(input) {
       }
       targetChildId = bound.childId;
     } else if (deviceMode === 'shared') {
-      const shared = resolveSharedChildTarget(trustedDevice, allowedIds);
+      const shared = resolveSharedChildTarget(trustedDevice, allowedIds, {
+        allowedParentCount,
+      });
       if (shared.kind === 'fail') {
         return failClosedPicker('shared', shared.reason);
       }
@@ -277,11 +279,13 @@ function resolveAppEntry(input) {
           deviceMode: 'shared',
           viewContext: 'picker',
           credentialContext: 'none',
+          childId: null,
           reason: 'shared_device_picker_required',
           serverAction: SERVER_ACTIONS.SELECT_CHILD,
         });
+      } else {
+        targetChildId = shared.childId;
       }
-      targetChildId = shared.childId;
     }
   }
 

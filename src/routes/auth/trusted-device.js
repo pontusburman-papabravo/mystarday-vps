@@ -2,8 +2,23 @@
 
 const express = require('express');
 const trusted = require('../../lib/trusted-device');
+const { parentPinLimiter } = require('../../middleware/rateLimiter');
 
 const router = express.Router();
+
+async function attachTrustedPinRateLimitScope(req, res, next) {
+  try {
+    const raw = req.cookies?.[trusted.COOKIE_NAME];
+    if (!raw) return next();
+    const row = await trusted.verifyTrustedDeviceRaw(raw);
+    if (row?.family_id) {
+      req.trustedPinRateLimitFamilyId = row.family_id;
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
 
 router.get('/trusted-device/context', async (req, res, next) => {
   try {
@@ -83,11 +98,12 @@ router.post('/trusted-device/select-child', async (req, res, next) => {
     if (!childId) {
       return res.status(400).json({ code: 'CHILD_ID_REQUIRED' });
     }
-    const result = await trusted.selectChildOnTrustedDevice(res, raw, childId);
+    const result = await trusted.selectChildOnTrustedDevice(req, res, raw, childId);
     if (!result.ok) {
       const status = result.code === 'CHILD_ACCESS_DENIED' ? 403
         : result.code === 'TRUSTED_DEVICE_DISABLED' ? 403
-          : 401;
+          : result.code === 'PARENT_HANDOFF_CREATE_FAILED' ? 409
+            : 401;
       return res.status(status).json({ code: result.code });
     }
     return res.json({
@@ -96,6 +112,46 @@ router.post('/trusted-device/select-child', async (req, res, next) => {
       redirect: '/child/today',
       session_mode: 'select',
       device_mode: result.device_mode,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/trusted-device/select-parent', attachTrustedPinRateLimitScope, parentPinLimiter, async (req, res, next) => {
+  try {
+    const raw = req.cookies?.[trusted.COOKIE_NAME];
+    if (!raw) {
+      return res.status(401).json({ code: 'TRUSTED_DEVICE_MISSING' });
+    }
+    const parentId = req.body?.parent_id;
+    if (!parentId) {
+      return res.status(400).json({ code: 'PARENT_ID_REQUIRED' });
+    }
+    const result = await trusted.selectParentOnTrustedDevice(req, res, raw, parentId, {
+      pin: req.body?.pin,
+      unlockMethod: req.body?.unlock_method,
+      source: 'trusted_device_select_parent',
+    });
+    if (!result.ok) {
+      const status = result.code === 'PARENT_ACCESS_DENIED' ? 403
+        : result.code === 'TRUSTED_DEVICE_DISABLED' ? 403
+          : result.code === 'PARENT_PIN_INVALID' ? 401
+            : result.code === 'ADULT_PIN_SETUP_REQUIRED' ? 403
+              : result.code === 'ADULT_VERIFICATION_REQUIRED' ? 401
+                : 401;
+      return res.status(status).json({ code: result.code });
+    }
+    const { generateCsrfToken } = require('../../middleware/csrf');
+    const csrfToken = generateCsrfToken(res);
+    return res.json({
+      ok: true,
+      user: result.parent,
+      redirect: '/home',
+      session_mode: 'select',
+      device_mode: result.device_mode,
+      privilegeLeaseUntil: result.privilegeLeaseUntil,
+      csrfToken,
     });
   } catch (err) {
     next(err);

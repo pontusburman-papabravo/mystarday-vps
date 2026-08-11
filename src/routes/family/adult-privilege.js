@@ -1,8 +1,7 @@
 'use strict';
 
 /**
- * Adult privilege escalation — child session + saved handoff → parent JWT (server activate).
- * UI/biometric proof is client-side; parent API authority only after consumeHandoff here.
+ * Adult privilege escalation — child session + saved handoff + verified adult PIN → parent JWT.
  */
 const express = require('express');
 const jwt = require('jsonwebtoken');
@@ -227,13 +226,18 @@ router.post('/adult-privilege/unlock', requireAuth, requireAdultPrivilegeFlag, p
       return res.status(403).json({ ok: false, code: 'ADULT_PRIVILEGE_CHILD_ONLY' });
     }
 
-    const unlockMethod = String(req.body?.unlockMethod || 'biometric');
-    if (unlockMethod !== 'biometric' && unlockMethod !== 'pin') {
-      return res.status(400).json({ ok: false, code: 'ADULT_PRIVILEGE_INVALID_METHOD' });
+    const familyHasPin = await parentPinDb.familyAnyParentHasPin(req.user.familyId);
+    if (!familyHasPin) {
+      return res.status(403).json({ ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' });
+    }
+
+    const unlockMethod = String(req.body?.unlockMethod || '').toLowerCase();
+    if (unlockMethod !== 'pin') {
+      return res.status(401).json({ ok: false, code: 'ADULT_VERIFICATION_REQUIRED' });
     }
 
     const result = await unlockWithHandoff(req, res, {
-      verifyPin: unlockMethod === 'pin',
+      verifyPin: true,
       pin: req.body?.pin,
     });
     if (!result.ok) {

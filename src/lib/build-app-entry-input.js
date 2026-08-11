@@ -55,6 +55,7 @@ async function buildAppEntryInput(req, res, options) {
 
   let trustedDevice = { valid: false };
   let allowedChildren = [];
+  let allowedParents = [];
   let familyId = user?.familyId || user?.family_id || null;
   let activeTrustedRow = null;
 
@@ -83,6 +84,9 @@ async function buildAppEntryInput(req, res, options) {
           lastActiveChildId: row?.last_active_child_id || null,
         };
         allowedChildren = mapAllowedChildren(ctx.allowed_children);
+        if (row?.device_mode === 'shared' || row?.device_mode === 'child') {
+          allowedParents = await trusted.listParentsForSharedDevice(ctx.family_id);
+        }
       }
       }
     } else if (ctx.code === 'PARENT_ACCESS_DENIED') {
@@ -128,6 +132,7 @@ async function buildAppEntryInput(req, res, options) {
     childSession,
     trustedDevice,
     allowedChildren,
+    allowedParents,
     deepLink,
     localDeviceModeHint: null,
     familyId,

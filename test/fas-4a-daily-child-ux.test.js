@@ -21,16 +21,30 @@ describe('Fas 4A — daily child UX paths', () => {
     );
   });
 
-  it('shared single child still resolves child-home with zero picker taps', () => {
+  it('shared single child with no adults still resolves child-home with zero picker taps', () => {
     const resolved = resolveAppEntry({
       trustedDevice: { valid: true, deviceMode: 'shared' },
       allowedChildren: [{ id: 'solo-child-id' }],
+      allowedParents: [],
       childSession: null,
       parentSession: null,
     });
     const pub = toPublicEntryDecision(resolved, { dailyUxActive: true });
     assert.equal(pub.destination, 'child-home');
     assert.equal(pub.path, '/child/today');
+  });
+
+  it('shared single child + one parent resolves profile-picker (Netflix)', () => {
+    const resolved = resolveAppEntry({
+      trustedDevice: { valid: true, deviceMode: 'shared' },
+      allowedChildren: [{ id: 'solo-child-id' }],
+      allowedParents: [{ id: 'parent-id' }],
+      childSession: null,
+      parentSession: null,
+    });
+    const pub = toPublicEntryDecision(resolved, { dailyUxActive: true });
+    assert.equal(pub.destination, 'profile-picker');
+    assert.equal(pub.path, '/child/profile-picker');
   });
 });
 
@@ -74,6 +88,17 @@ describe('Fas 4A — client contracts', () => {
   it('profile picker does not load device-mode.js (cold start is orchestrator-only)', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/child-profile-picker.html'), 'utf8');
     assert.doesNotMatch(html, /device-mode\.js/);
+  });
+
+  it('profile picker uses AdultPrivilege for adult unlock', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
+    assert.match(js, /AdultPrivilege\.requestTrustedProfileUnlock/);
+    assert.doesNotMatch(js, /fetch\('\/api\/auth\/trusted-device\/select-parent'/);
+  });
+
+  it('trusted bootstrap does not sync widget binding on profile pick', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/trusted-device-bootstrap.js'), 'utf8');
+    assert.doesNotMatch(src, /syncBinding/);
   });
 });
 

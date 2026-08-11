@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Välj barn | My Starday</title>
+  <title>Välj profil | My Starday</title>
   <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
   <link rel="stylesheet" href="/css/child-login-magic.css?v=154">
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
@@ -14,7 +14,10 @@
   <script src="/js/trusted-device-bootstrap.js?v=1.0.0"></script>
   <script src="/js/app-entry-orchestrator.js?v=1.0.0"></script>
   <script src="/js/app-entry-analytics.js?v=284"></script>
-  <script src="/js/child-profile-picker.js?v=1.0.0"></script>
+  <script src="/js/member-avatar.js?v=1.0.0"></script>
+  <script src="/js/adult-pin-gate-ui.js?v=1.0.0"></script>
+  <script src="/js/adult-privilege.js?v=1.0.0"></script>
+  <script src="/js/child-profile-picker.js?v=1.2.0"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <style>
     .cpp-picker-grid {
@@ -36,11 +39,24 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
       padding: 1.25rem 1rem;
       font-weight: 700;
       font-size: 1.125rem;
-      transition: transform 0.15s ease, background 0.15s ease;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .cpp-profile-card-parent {
+      border-color: rgba(255, 215, 0, 0.45);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .cpp-profile-name {
+      text-align: center;
+      line-height: 1.2;
+    }
+    .cpp-profile-hint {
+      font-size: 0.75rem;
+      font-weight: 600;
+      opacity: 0.85;
     }
     .cpp-profile-card:focus-visible {
       outline: 3px solid #fff;
@@ -50,6 +66,15 @@
     .cpp-avatar {
       font-size: 3.5rem;
       line-height: 1;
+    }
+    .cpp-avatar-adult {
+      font-size: 2.75rem;
+    }
+    .cpp-avatar-img {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 0.75rem;
+      object-fit: cover;
     }
     .cpp-fallback-link {
       display: block;
@@ -69,8 +94,8 @@
       <div style="width:80px;"></div>
     </header>
     <section class="cl-step active" aria-labelledby="cppTitle">
-      <h1 id="cppTitle" class="cl-select-title">Vem är du?</h1>
-      <p id="cppSub" class="cl-select-sub">Tryck på ditt namn</p>
+      <h1 id="cppTitle" class="cl-select-title">Vem använder appen?</h1>
+      <p id="cppSub" class="cl-select-sub">Tryck på din profil</p>
       <div id="cppError" class="cl-error-box hidden" role="alert"></div>
       <div id="cppGrid" class="cpp-picker-grid" role="list"></div>
       <a id="cppLegacyLink" class="cpp-fallback-link hidden" href="/child-login">Logga in med användarnamn och PIN</a>

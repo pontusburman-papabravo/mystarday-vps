@@ -407,6 +407,13 @@ const parentPinLimiter = rateLimit({
     if (req.user?.type === 'parent' && req.user.id) {
       return `parent-pin:parent:${req.user.id}`;
     }
+    if (req.trustedPinRateLimitFamilyId) {
+      const parentId = req.body?.parent_id;
+      if (parentId) {
+        return `parent-pin:trusted:${req.trustedPinRateLimitFamilyId}:${parentId}`;
+      }
+      return `parent-pin:family:${req.trustedPinRateLimitFamilyId}`;
+    }
     if (req.user?.familyId) {
       return `parent-pin:family:${req.user.familyId}`;
     }

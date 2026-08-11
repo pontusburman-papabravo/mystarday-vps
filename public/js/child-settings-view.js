@@ -15,7 +15,7 @@
   ];
 
   const PARENT_ACTIONS = [
-    { id: 'switch_child', labelKey: 'settings.switchChild', hintKey: 'settings.switchChildHint' },
+    { id: 'switch_profile', labelKey: 'settings.switchProfile', hintKey: 'settings.switchProfileHint' },
   ];
 
   let _rendered = false;
@@ -25,6 +25,24 @@
     const d = document.createElement('div');
     d.textContent = str == null ? '' : String(str);
     return d.innerHTML;
+  }
+
+  function isDailyUxActive() {
+    return window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
+      ? ChildTrustedChrome.isDailyUxActive()
+      : false;
+  }
+
+  function getAllowedChildCount() {
+    if (!isDailyUxActive()) return 0;
+    if (window.ChildTrustedChrome && ChildTrustedChrome.getAllowedChildCount) {
+      return ChildTrustedChrome.getAllowedChildCount();
+    }
+    return 0;
+  }
+
+  function isDailyUxMultiChild() {
+    return isDailyUxActive() && getAllowedChildCount() > 1;
   }
 
   function headerKickerHtml() {
@@ -42,7 +60,7 @@
 
   function childActionsHtml() {
     const actions = CHILD_ACTIONS.filter(function (action) {
-      if (action.id === 'logout' && window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive()) {
+      if (action.id === 'logout' && isDailyUxActive()) {
         return false;
       }
       return true;
@@ -66,16 +84,9 @@
   }
 
   function parentActionsHtml() {
-    const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
-      ? ChildTrustedChrome.isDailyUxActive()
-      : false;
-    const allowed = dailyUx && window.ChildTrustedChrome && ChildTrustedChrome.getAllowedChildCount
-      ? ChildTrustedChrome.getAllowedChildCount()
-      : 2;
-    const actions = PARENT_ACTIONS.filter(function (action) {
-      if (action.id === 'switch_child' && dailyUx && allowed <= 1) return false;
-      return true;
-    });
+    const dailyUx = isDailyUxActive();
+    if (!dailyUx) return '';
+    const actions = PARENT_ACTIONS;
     return actions.map(function (action) {
       const label = t(action.labelKey);
       const hint = t(action.hintKey);
@@ -147,7 +158,7 @@
   }
 
   function runParentAction(actionId) {
-    if (actionId === 'switch_child' && typeof window.switchChildMember === 'function') {
+    if (actionId === 'switch_profile' && typeof window.switchChildMember === 'function') {
       window.switchChildMember();
     }
   }
@@ -173,6 +184,10 @@
         const run = function () {
           runParentAction(actionId);
         };
+        if (actionId === 'switch_profile') {
+          run();
+          return;
+        }
         if (window.ParentalGate && ParentalGate.requireParentMode) {
           ParentalGate.requireParentMode(run);
         } else {

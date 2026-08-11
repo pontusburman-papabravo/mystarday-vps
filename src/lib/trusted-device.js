@@ -6,7 +6,7 @@ const config = require('./config');
 const db = require('./db');
 const deviceDb = require('../../db/family-trusted-device');
 const authz = require('../middleware/authz');
-const { getChildrenForParent } = require('../../db/parent-access');
+const { getChildrenForParent, getAllowedParentsForFamilyDevice, isParentEligibleForFamilyDevice } = require('../../db/parent-access');
 const {
   createRefreshToken,
   lookupRefreshTokenRow,
@@ -16,6 +16,7 @@ const {
 const { parseDuration } = require('../routes/auth/session');
 const { isTrustedDeviceEnabled } = require('./trusted-device-flags');
 const { avatarApiFields } = require('./avatar-api');
+const { ensureHandoffForChildSession } = require('./parent-session-handoff');
 
 const COOKIE_NAME = 'trusted_device';
 const TOKEN_BYTES = 32;
@@ -187,6 +188,27 @@ async function listFamilyChildrenForDevice(familyId, enrollingParentId) {
   }));
 }
 
+async function listParentsForSharedDevice(familyId) {
+  const rows = await getAllowedParentsForFamilyDevice(familyId);
+  return rows.map((p) => ({
+    id: p.id,
+    name: p.name || (p.email ? String(p.email).split('@')[0] : 'Vuxen'),
+    familyId: p.family_id,
+    type: 'parent',
+    ...avatarApiFields(p, 'parent'),
+  }));
+}
+
+async function countSharedDeviceProfiles(familyId, enrollingParentId) {
+  const children = await listFamilyChildrenForDevice(familyId, enrollingParentId);
+  const parents = await listParentsForSharedDevice(familyId);
+  return {
+    children,
+    parents,
+    totalProfiles: children.length + parents.length,
+  };
+}
+
 async function verifyTrustedDeviceRaw(raw) {
   if (!raw || typeof raw !== 'string') return null;
   const row = await deviceDb.findByTokenHash(hashToken(raw));
@@ -268,12 +290,17 @@ async function issueParentSessionForDevice(res, row, rawToken, source) {
   };
 }
 
-async function issueChildSessionForDevice(res, row, rawToken, childId, source) {
+async function issueChildSessionForDevice(req, res, row, rawToken, childId, source) {
   if (!childId) {
     return { ok: false, code: 'CHILD_NOT_FOUND' };
   }
   if (!(await creatorHasChildAccess(row, childId))) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
+  }
+  const handoffOk = await ensureHandoffForChildSession(req, res, row);
+  if (!handoffOk) {
+    console.error('[TRUSTED_DEVICE] handoff create failed before child session', row?.id, source);
+    return { ok: false, code: 'PARENT_HANDOFF_CREATE_FAILED' };
   }
   const childRes = await db.query(
     `SELECT id, family_id, username, name FROM child WHERE id = $1 AND family_id = $2`,
@@ -408,7 +435,7 @@ async function getTrustedDeviceContext(rawToken) {
   };
 }
 
-async function selectChildOnTrustedDevice(res, rawToken, childId) {
+async function selectChildOnTrustedDevice(req, res, rawToken, childId) {
   const row = await verifyTrustedDeviceRaw(rawToken);
   if (!row) {
     return { ok: false, code: 'TRUSTED_DEVICE_INVALID' };
@@ -424,7 +451,104 @@ async function selectChildOnTrustedDevice(res, rawToken, childId) {
   if (!allowed.some((c) => c.id === childId)) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }
-  return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_select_child');
+  return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_select_child');
+}
+
+async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options) {
+  const opts = options || {};
+  const row = await verifyTrustedDeviceRaw(rawToken);
+  if (!row) {
+    return { ok: false, code: 'TRUSTED_DEVICE_INVALID' };
+  }
+  const enabled = await isTrustedDeviceEnabled(row.family_id);
+  if (!enabled) {
+    return { ok: false, code: 'TRUSTED_DEVICE_DISABLED' };
+  }
+  if (row.device_mode !== 'shared' && row.device_mode !== 'child') {
+    return { ok: false, code: 'DEVICE_MODE_NOT_SHARED' };
+  }
+
+  const eligible = await isParentEligibleForFamilyDevice(parentId, row.family_id);
+  if (!eligible) {
+    return { ok: false, code: 'PARENT_ACCESS_DENIED' };
+  }
+
+  const parentRes = await db.query(
+    `SELECT id, email, family_id, is_admin, name, onboarding_completed
+     FROM parent WHERE id = $1 AND family_id = $2 AND is_admin = false`,
+    [parentId, row.family_id]
+  );
+  const parentRow = parentRes.rows[0];
+  if (!parentRow) {
+    return { ok: false, code: 'PARENT_ACCESS_DENIED' };
+  }
+
+  const parentPinDb = require('../../db/parent-pin');
+  const familyHasPin = await parentPinDb.familyAnyParentHasPin(row.family_id);
+  if (!familyHasPin) {
+    return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
+  }
+
+  const unlockMethod = String(opts.unlockMethod || '').toLowerCase();
+  if (unlockMethod !== 'pin') {
+    return { ok: false, code: 'ADULT_VERIFICATION_REQUIRED' };
+  }
+
+  const pin = String(opts.pin || '');
+  if (!/^\d{4}$/.test(pin)) {
+    return { ok: false, code: 'PARENT_PIN_INVALID' };
+  }
+  const pinResult = await parentPinDb.verifyParentPin({
+    familyId: row.family_id,
+    parentId,
+    pin,
+  });
+  if (!pinResult.ok) {
+    return { ok: false, code: 'PARENT_PIN_INVALID' };
+  }
+
+  const { signParentAccessWithOptionalLease } = require('./adult-privilege-escalation');
+  const signed = signParentAccessWithOptionalLease(parentRow, {
+    deviceMode: row.device_mode,
+  });
+
+  const rawRefresh = await createRefreshToken({
+    userId: parentRow.id,
+    userType: 'parent',
+    familyId: parentRow.family_id,
+    trustedDeviceId: row.id,
+  });
+  const refreshRow = await lookupRefreshTokenRow(rawRefresh);
+  if (refreshRow?.id) {
+    await deviceDb.setLastRefreshTokenId(row.id, refreshRow.id);
+  }
+
+  setRefreshCookie(res, rawRefresh);
+  setAccessCookie(res, signed.accessToken, signed.expiresInSecs);
+  setTrustedDeviceCookie(res, rawToken);
+  await deviceDb.touchLastSeen(row.id);
+
+  const analytics = require('../../db/analytics');
+  analytics.track(row.family_id, 'parent_session_started', {
+    source: opts.source || 'trusted_device_select_parent',
+    session_mode: 'select',
+    device_mode: row.device_mode,
+  });
+
+  return {
+    ok: true,
+    parent: {
+      id: parentRow.id,
+      type: 'parent',
+      familyId: parentRow.family_id,
+      email: parentRow.email || null,
+      name: parentRow.name || null,
+      onboarding_completed: parentRow.onboarding_completed,
+    },
+    device_id: row.id,
+    device_mode: row.device_mode,
+    privilegeLeaseUntil: signed.privilegeLeaseUntil,
+  };
 }
 
 async function restoreParentSessionFromDevice(res, rawToken) {
@@ -459,34 +583,58 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
   }
 
   if (row.device_mode === 'shared') {
-    const allowed = await listFamilyChildrenForDevice(row.family_id, row.created_by_parent_id);
+    const profileCounts = await countSharedDeviceProfiles(row.family_id, row.created_by_parent_id);
+    const allowed = profileCounts.children;
     if (allowed.length === 0) {
       return { ok: false, code: 'CHILD_NOT_FOUND' };
     }
-    let childId = opts.preferredChildId || (opts.forcePicker ? null : row.last_active_child_id);
+
+    let childId = opts.preferredChildId || null;
     if (childId && !allowed.some((c) => c.id === childId)) {
       childId = null;
     }
-    if (!childId && allowed.length === 1) {
-      childId = allowed[0].id;
+
+    if (profileCounts.totalProfiles > 1) {
+      if (!childId) {
+        return {
+          ok: false,
+          code: 'SHARED_PICKER_REQUIRED',
+          device_mode: 'shared',
+          allowed_children: allowed,
+          allowed_count_bucket: allowedCountBucket(allowed.length),
+        };
+      }
+      return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_restore');
     }
-    if (!childId) {
-      return {
-        ok: false,
-        code: 'SHARED_PICKER_REQUIRED',
-        device_mode: 'shared',
-        allowed_children: allowed,
-        allowed_count_bucket: allowedCountBucket(allowed.length),
-      };
+
+    if (allowed.length === 1) {
+      return issueChildSessionForDevice(req, res, row, rawToken, allowed[0].id, 'trusted_device_restore');
     }
-    return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_restore');
+
+    return {
+      ok: false,
+      code: 'SHARED_PICKER_REQUIRED',
+      device_mode: 'shared',
+      allowed_children: allowed,
+      allowed_count_bucket: allowedCountBucket(allowed.length),
+    };
   }
 
   const childId = opts.preferredChildId || row.last_active_child_id || row.default_child_id;
   if (row.device_mode === 'child' && childId !== row.default_child_id) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }
-  return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_restore');
+  return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_restore');
+}
+
+async function revokeDeviceForFamily(deviceId, familyId) {
+  const row = await deviceDb.findById(deviceId);
+  const revoked = await deviceDb.revokeForFamily(deviceId, familyId);
+  if (revoked && row?.created_by_parent_id) {
+    const { revokeHandoffsForParent } = require('./parent-session-handoff');
+    await revokeHandoffsForParent(row.created_by_parent_id);
+  }
+  return revoked;
 }
 
 module.exports = {
@@ -498,11 +646,14 @@ module.exports = {
   restoreParentSessionFromDevice,
   getTrustedDeviceContext,
   selectChildOnTrustedDevice,
+  selectParentOnTrustedDevice,
+  listParentsForSharedDevice,
+  countSharedDeviceProfiles,
   verifyTrustedDeviceRaw,
   getEnrollingParentRow,
   setTrustedDeviceCookie,
   clearTrustedDeviceCookie,
-  revokeDeviceForFamily: deviceDb.revokeForFamily,
+  revokeDeviceForFamily,
   listDevicesForFamily: deviceDb.listActiveForFamily,
   revokeAllForFamily: deviceDb.revokeAllForFamilyWithTokens,
   allowedCountBucket,
