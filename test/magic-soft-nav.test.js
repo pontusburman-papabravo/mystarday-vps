@@ -130,13 +130,13 @@ describe('magic soft navigation', () => {
     assert.match(css, /magic-hub-links/);
   });
 
-  it('soft nav applies body classes before swap and clears stale hub', () => {
+  it('soft nav applies body classes before swap and renders settings chrome after boot', () => {
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
     const idxApply = router.indexOf('applyBodyFromPage(doc, pageId)');
     const idxSwap = router.indexOf('swapMain(doc)');
     assert.ok(idxApply >= 0 && idxSwap > idxApply, 'applyBodyFromPage must run before swapMain');
-    assert.match(router, /parentMagicPageMount/);
-    assert.match(router, /hubMount\.innerHTML = ''/);
+    assert.match(router, /pageId === 'settings'[\s\S]*ensureSettingsChrome/);
+    assert.doesNotMatch(router, /hubMount\.innerHTML = ''/);
   });
 
   it('top chrome keeps icons visible when toggle is empty', () => {
@@ -174,8 +174,12 @@ describe('magic soft navigation', () => {
   it('settings page re-syncs chrome after magic init', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
     const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
     assert.match(html, /ensureSettingsChrome/);
     assert.match(hubs, /ensureSettingsChrome/);
+    assert.match(hubs, /stjarndag-magic-navigated/);
+    assert.match(router, /pageId === 'settings'[\s\S]*ensureSettingsChrome/);
+    assert.doesNotMatch(router, /hubMount\.innerHTML = ''/);
     assert.match(hubs, /hash === 'aviseringar'/);
     assert.match(hubs, /data-profile-switch-settings/);
     assert.match(hubs, /hydrateParentSessionFromCookies/);
