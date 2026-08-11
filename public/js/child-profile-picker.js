@@ -91,9 +91,11 @@
 
     const parentCards = (parents || []).map(function (parent) {
       const name = parent.name || 'Vuxen';
+      const hasAppPin = parent.hasAppPin === true;
       return (
         '<button type="button" class="cpp-profile-card cpp-profile-card-parent" role="listitem" data-profile-kind="parent" data-parent-id="' +
         escHtml(parent.id) +
+        '" data-parent-has-app-pin="' + (hasAppPin ? '1' : '0') +
         '" aria-label="' + escHtml(name) + ', vuxen">' +
         parentAvatarHtml(parent) +
         '<span class="cpp-profile-name">' + escHtml(name) + '</span>' +
@@ -134,6 +136,16 @@
     if (!parentId) return;
     if (btn) btn.disabled = true;
     showError('');
+
+    const hasAppPin = btn && btn.getAttribute('data-parent-has-app-pin') === '1';
+    if (!hasAppPin) {
+      if (window.Auth && typeof Auth.redirectToParentBackupLogin === 'function') {
+        Auth.redirectToParentBackupLogin('/home');
+        return;
+      }
+      window.location.href = '/login?parent=1&next=' + encodeURIComponent('/home');
+      return;
+    }
 
     if (!window.AdultPrivilege || typeof AdultPrivilege.requestTrustedProfileUnlock !== 'function') {
       showError('Kunde inte låsa upp vuxenläge. Försök igen.');

@@ -36,6 +36,7 @@ router.get('/app-entry', optionalAuth, async (req, res, next) => {
           name: p.name,
           has_avatar: p.has_avatar,
           avatar_src: p.avatar_src,
+          hasAppPin: p.hasAppPin === true,
         }))
         : undefined,
       pinRequiredForParents: orchestratorActive && familyId

@@ -264,7 +264,7 @@
 // stjarndag-v816: widget tap reauth → inställningar; förälder på /child/today redirect
 // stjarndag-v817: widget reconnect — binding intent id, stale configure guard
 // stjarndag-v835: profile picker adult unlock without JWT status gate
-const CACHE_NAME = 'stjarndag-v839';
+const CACHE_NAME = 'stjarndag-v840';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -585,6 +585,7 @@ const CACHE_NAME = 'stjarndag-v839';
 // stjarndag-v823: Fas 3B adult privilege lease + PIN fallback + lifecycle
 // stjarndag-v838: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v839: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v840: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

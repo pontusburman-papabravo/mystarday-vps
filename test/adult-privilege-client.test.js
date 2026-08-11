@@ -293,9 +293,16 @@ describe('adult-privilege client state machine', () => {
     assert.doesNotMatch(src, /sessionStorage\.getItem\(PIN_REQUIRED_KEY\) !== null/);
   });
 
-  it('allowed parents on family device require parent_pin_hash', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'db/parent-access.js'), 'utf8');
-    assert.match(src, /getAllowedParentsForFamilyDevice[\s\S]*parent_pin_hash IS NOT NULL/);
-    assert.match(src, /isParentEligibleForFamilyDevice[\s\S]*parent_pin_hash IS NOT NULL/);
+  it('picker lists all eligible parents; PIN unlock stays server-gated', () => {
+    const access = fs.readFileSync(path.join(ROOT, 'db/parent-access.js'), 'utf8');
+    const picker = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
+    const trusted = fs.readFileSync(path.join(ROOT, 'src/lib/trusted-device.js'), 'utf8');
+    const getParentsFn = access.match(/async function getAllowedParentsForFamilyDevice[\s\S]*?^}/m);
+    assert.ok(getParentsFn, 'getAllowedParentsForFamilyDevice present');
+    assert.doesNotMatch(getParentsFn[0], /WHERE[\s\S]*parent_pin_hash IS NOT NULL/);
+    assert.match(access, /has_app_pin/);
+    assert.match(picker, /data-parent-has-app-pin/);
+    assert.match(picker, /redirectToParentBackupLogin/);
+    assert.match(trusted, /PARENT_PIN_NOT_SET/);
   });
 });

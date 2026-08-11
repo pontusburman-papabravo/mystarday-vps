@@ -110,11 +110,11 @@ const TRUSTED_DEVICE_PARENT_ROLES = ['primary', 'shared'];
  */
 async function getAllowedParentsForFamilyDevice(familyId) {
   const result = await db.query(
-    `SELECT p.id, p.family_id, p.email, p.name, p.avatar_storage_key, p.avatar_updated_at
+    `SELECT p.id, p.family_id, p.email, p.name, p.avatar_storage_key, p.avatar_updated_at,
+            (p.parent_pin_hash IS NOT NULL) AS has_app_pin
      FROM parent p
      WHERE p.family_id = $1
        AND p.is_admin = false
-       AND p.parent_pin_hash IS NOT NULL
        AND EXISTS (
          SELECT 1 FROM parent_child pc
          WHERE pc.parent_id = p.id
@@ -138,7 +138,6 @@ async function isParentEligibleForFamilyDevice(parentId, familyId) {
      WHERE p.id = $1
        AND p.family_id = $2
        AND p.is_admin = false
-       AND p.parent_pin_hash IS NOT NULL
        AND pc.revoked_at IS NULL
        AND pc.role = ANY($3::text[])
      LIMIT 1`,

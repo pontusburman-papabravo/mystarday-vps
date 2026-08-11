@@ -22,6 +22,7 @@ describe('parent backup login (e-post/Apple/Google)', () => {
     assert.match(html, /e-post eller Apple\/Google/);
     assert.match(js, /redirectToParentBackupLogin/);
     assert.match(js, /wireParentBackupLink/);
+    assert.match(js, /data-parent-has-app-pin/);
   });
 
   it('adult PIN gate offers forgot-PIN backup login', () => {

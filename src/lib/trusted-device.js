@@ -195,6 +195,7 @@ async function listParentsForSharedDevice(familyId) {
     name: p.name || (p.email ? String(p.email).split('@')[0] : 'Vuxen'),
     familyId: p.family_id,
     type: 'parent',
+    hasAppPin: p.has_app_pin === true,
     ...avatarApiFields(p, 'parent'),
   }));
 }
