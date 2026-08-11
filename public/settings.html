@@ -637,6 +637,10 @@
       let me;
       try {
         me = await Auth.api('/api/auth/me');
+        if (me && typeof Auth.setAuth === 'function' && !Auth.isLoggedIn()) {
+          await Auth.ensureCsrfToken();
+          Auth.setAuth(null, me, Auth.getCsrfToken());
+        }
         const fam = await Auth.api('/api/family');
         document.getElementById('familyName').value = fam.name || '';
         document.getElementById('soundEnabled').checked = fam.sound_enabled !== false;
@@ -746,7 +750,7 @@
 
       if (window.ParentMagicShell) await ParentMagicShell.init('settings');
       if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
-        ParentMagicPageHub.ensureSettingsChrome();
+        await ParentMagicPageHub.ensureSettingsChrome();
       }
       if (window.SettingsNativeNav && SettingsNativeNav.init) SettingsNativeNav.init();
     });

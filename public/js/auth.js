@@ -324,6 +324,29 @@ const Auth = {
   },
 
   /**
+   * Hydrate localStorage parent user from httpOnly session cookies.
+   * Needed on family shared devices and Safari private mode where only cookies survive.
+   * @returns {Promise<boolean>}
+   */
+  async hydrateParentSessionFromCookies() {
+    if (this.isLoggedIn()) {
+      const u = this.getUser();
+      if (this.isParentUser(u)) return true;
+    }
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) return false;
+      const me = await res.json();
+      if (!this.isParentUser(me)) return false;
+      await this.ensureCsrfToken();
+      this.setAuth(null, me, this.getCsrfToken(), this._getExpiryMs());
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
    * UI flow: child session active, user chose parent — PIN gate or cookie swap.
    */
   ensureParentAccessFromChild(onSuccess, onCancel) {

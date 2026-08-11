@@ -178,12 +178,23 @@
   }
 
   function renderSettingsMenu() {
+    let switchCard = '';
+    if (window.ProfileSwitchChrome && ProfileSwitchChrome.shouldShow && ProfileSwitchChrome.shouldShow()) {
+      const switchLabel = ProfileSwitchChrome.labelText ? ProfileSwitchChrome.labelText() : 'Byt profil';
+      switchCard =
+        '<button type="button" class="magic-settings-group-card magic-3d-card" data-profile-switch-settings="1">' +
+        '<span class="magic-settings-group-icon app" aria-hidden="true">' + pageIcon('profil', 28) + '</span>' +
+        '<span class="magic-settings-group-text"><strong>' + escHtml(switchLabel) + '</strong>' +
+        '<span>' + escHtml((typeof window.cpt === 'function' && cpt('settings.switchProfileHint')) || 'Välj barn eller vuxen på denna enhet') + '</span></span>' +
+        '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';
+    }
     return '<div class="magic-page-shell magic-3d-scene magic-page-hero-wrap">' +
       '<div class="magic-page-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('installningar') + '</div>' +
       '<div><h1>' + escHtml(pt('settings.title')) + '</h1><p>' + escHtml(pt('settings.shellLead')) + '</p></div>' +
       '</div></div>' +
       '<div class="magic-settings-menu">' +
+      switchCard +
       SETTINGS_GROUPS.map(function (g) {
         return '<button type="button" class="magic-settings-group-card magic-3d-card" data-settings-group="' + g.id + '">' +
           '<span class="magic-settings-group-icon ' + g.iconClass + '" aria-hidden="true">' + pageIcon(g.icon, 28) + '</span>' +
@@ -236,6 +247,12 @@
 
   function bindSettingsEvents(root) {
     root.onclick = function (e) {
+      if (e.target.closest('[data-profile-switch-settings]')) {
+        if (window.Auth && typeof Auth.switchChildMember === 'function') {
+          Auth.switchChildMember();
+        }
+        return;
+      }
       const groupBtn = e.target.closest('[data-settings-group]');
       if (groupBtn) {
         showSettingsGroup(groupBtn.getAttribute('data-settings-group'));
@@ -396,9 +413,12 @@
     return false;
   }
 
-  function ensureSettingsChrome() {
+  async function ensureSettingsChrome() {
     const page = document.body.getAttribute('data-magic-page');
     if (page !== 'settings') return;
+    if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
+      try { await Auth.hydrateParentSessionFromCookies(); } catch (_) { /* ignore */ }
+    }
     const magic = window.ParentMagicShell && ParentMagicShell.isMagic && ParentMagicShell.isMagic();
     if (!magic) return;
     tagSettingsSections();
@@ -409,6 +429,15 @@
     }
     if (!_activeSettingsGroup) {
       openFromHash();
+    }
+    if (window.ParentNavHeader && typeof ParentNavHeader.ensure === 'function') {
+      ParentNavHeader.ensure();
+    }
+    if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
+      ParentMagicAuto.ensureTopChrome();
+    }
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+      ProfileSwitchChrome.apply();
     }
     if (window.SettingsNativeNav && SettingsNativeNav.sync) {
       SettingsNativeNav.sync();

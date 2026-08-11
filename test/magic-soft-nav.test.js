@@ -177,6 +177,22 @@ describe('magic soft navigation', () => {
     assert.match(html, /ensureSettingsChrome/);
     assert.match(hubs, /ensureSettingsChrome/);
     assert.match(hubs, /hash === 'aviseringar'/);
+    assert.match(hubs, /data-profile-switch-settings/);
+    assert.match(hubs, /hydrateParentSessionFromCookies/);
+  });
+
+  it('family hub does not duplicate header settings link', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
+    const header = fs.readFileSync(path.join(ROOT, 'public/js/parent-nav-header.js'), 'utf8');
+    assert.doesNotMatch(html, /family-hub-intro[\s\S]*href="\/settings"/);
+    assert.match(header, /action\.id === 'settings' && path === '\/settings'/);
+  });
+
+  it('auth hydrates parent session from cookies for chrome scripts', () => {
+    const auth = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
+    const chrome = fs.readFileSync(path.join(ROOT, 'public/js/profile-switch-chrome.js'), 'utf8');
+    assert.match(auth, /hydrateParentSessionFromCookies/);
+    assert.match(chrome, /hydrateParentSessionFromCookies/);
   });
 
   it('settings uses full page load (not soft-nav) due to inline init', () => {

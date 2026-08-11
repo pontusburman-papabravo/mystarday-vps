@@ -65,6 +65,9 @@
     const label = (window.NavConfig && typeof window.NavConfig.resolveLabel === 'function')
       ? window.NavConfig.resolveLabel(action)
       : (action.label || '');
+    if (action.id === 'settings' && path === '/settings') {
+      return null;
+    }
     if (action.action === 'tipsa' || action.action === 'share') {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -169,7 +172,8 @@
       bar.setAttribute('data-parent-nav-header', '1');
 
       for (let i = 0; i < actions.length; i++) {
-        bar.appendChild(buildActionElement(actions[i]));
+        const el = buildActionElement(actions[i]);
+        if (el) bar.appendChild(el);
       }
 
       if (main && main.firstChild) {
@@ -182,7 +186,8 @@
         const action = actions[j];
         const selector = selectorForAction(action);
         if (selector && !bar.querySelector(selector)) {
-          bar.appendChild(buildActionElement(action));
+          const el = buildActionElement(action);
+          if (el) bar.appendChild(el);
         }
       }
       refreshHeaderIcons(bar);
@@ -201,10 +206,26 @@
     return bar;
   }
 
-  function boot() {
+  function hasParentSessionHint() {
+    if (typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn()) return true;
+    try {
+      return document.cookie.indexOf('access_token=') !== -1;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function boot() {
     if (document.querySelector('.landing-nav') || document.body.classList.contains('landing-page')) return;
-    if (typeof Auth !== 'undefined' && Auth.isLoggedIn && !Auth.isLoggedIn()) return;
+    if (!hasParentSessionHint()) return;
+    if (typeof Auth !== 'undefined' && Auth.isLoggedIn && !Auth.isLoggedIn()
+        && typeof Auth.hydrateParentSessionFromCookies === 'function') {
+      try { await Auth.hydrateParentSessionFromCookies(); } catch (_) { /* ignore */ }
+    }
     ensureHeaderBar();
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+      ProfileSwitchChrome.apply();
+    }
   }
 
   if (document.readyState === 'loading') {

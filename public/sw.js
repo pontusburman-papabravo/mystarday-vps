@@ -264,7 +264,7 @@
 // stjarndag-v816: widget tap reauth → inställningar; förälder på /child/today redirect
 // stjarndag-v817: widget reconnect — binding intent id, stale configure guard
 // stjarndag-v835: profile picker adult unlock without JWT status gate
-const CACHE_NAME = 'stjarndag-v836';
+const CACHE_NAME = 'stjarndag-v837';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
