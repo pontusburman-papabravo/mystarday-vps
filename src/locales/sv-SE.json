@@ -252,7 +252,8 @@
       "title": "Föräldralås",
       "hint": "Ange din PIN-kod för att fortsätta",
       "keypadAria": "PIN-tavla",
-      "cancel": "Avbryt"
+      "cancel": "Avbryt",
+      "forgotPinBackup": "Glömt PIN? Logga in med e-post eller Apple/Google"
     },
     "childLogin": {
       "title": "Hej! 👋",

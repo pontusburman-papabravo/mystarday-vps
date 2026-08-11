@@ -126,9 +126,10 @@
     });
   }
 
-  function runPinGate() {
+  function runPinGate(gateOpts) {
+    const opts = gateOpts || { allowBackupLogin: true, backupNext: '/home' };
     if (window.AdultPinGateUI && typeof window.AdultPinGateUI.collectAdultPin === 'function') {
-      return window.AdultPinGateUI.collectAdultPin();
+      return window.AdultPinGateUI.collectAdultPin(opts);
     }
     return Promise.resolve({ ok: false, code: 'PIN_UI_UNAVAILABLE' });
   }
@@ -301,7 +302,7 @@
       if (!isPickerPinConfigured()) {
         return Promise.reject(new Error('ADULT_PIN_SETUP_REQUIRED'));
       }
-      return runPinGate();
+      return runPinGate({ allowBackupLogin: true, backupNext: '/home' });
     }).then(function (pinResult) {
       if (!pinResult.ok || !pinResult.pin) {
         return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
@@ -315,7 +316,10 @@
       if (statusResult.body && statusResult.body.pinRequiredForUnlock === false) {
         return Promise.reject(new Error('ADULT_PIN_SETUP_REQUIRED'));
       }
-      return runPinGate();
+      const backupNext = (typeof window !== 'undefined' && window.location)
+        ? window.location.pathname + window.location.search
+        : '/home';
+      return runPinGate({ allowBackupLogin: true, backupNext: backupNext });
     }).then(function (pinResult) {
       if (!pinResult.ok || !pinResult.pin) {
         return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));

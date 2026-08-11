@@ -558,6 +558,15 @@
         AppEntry.init();
       }
 
+      const loginParamsParent = new URLSearchParams(window.location.search);
+      if (loginParamsParent.get('parent') === '1') {
+        if (window.LoginMagic && typeof LoginMagic.showParentLogin === 'function') {
+          LoginMagic.showParentLogin();
+        } else if (window.AppEntry && typeof AppEntry.goToAdultLogin === 'function') {
+          AppEntry.goToAdultLogin();
+        }
+      }
+
       const childLoginFooterLink = document.getElementById('childLoginFooterLink');
       if (childLoginFooterLink) {
         childLoginFooterLink.addEventListener('click', function () {

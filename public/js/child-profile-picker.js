@@ -46,6 +46,19 @@
     el.classList.toggle('hidden', !msg);
   }
 
+  function wireParentBackupLink() {
+    const link = document.getElementById('cppParentBackupLink');
+    if (!link || link.dataset.wired === '1') return;
+    link.dataset.wired = '1';
+    link.addEventListener('click', function () {
+      if (window.Auth && typeof Auth.redirectToParentBackupLogin === 'function') {
+        Auth.redirectToParentBackupLogin('/home');
+        return;
+      }
+      window.location.href = '/login?parent=1&next=' + encodeURIComponent('/home');
+    });
+  }
+
   function childAvatarHtml(child) {
     if (child.has_avatar && child.avatar_src) {
       return '<img class="cpp-avatar-img" src="' + escHtml(child.avatar_src) + '" alt="">';
@@ -133,9 +146,9 @@
       if (result && result.code === 'PARENT_PIN_INVALID') {
         showError('Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.');
       } else if (result && result.code === 'PARENT_PIN_NOT_SET') {
-        showError('Den här vuxenprofilen har ingen app-lås-PIN än. Logga in som vuxen på en annan enhet och ställ in PIN under Inställningar.');
+        showError('Den här vuxenprofilen har ingen app-lås-PIN än. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
       } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
-        showError('En vuxen behöver ställa in app-lås-PIN under Inställningar först.');
+        showError('En vuxen behöver ställa in app-lås-PIN — eller logga in med e-post eller Apple/Google via knappen nedan.');
       } else if (result && result.code === 'ADULT_PRIVILEGE_VERIFY_FAILED') {
         showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
       } else if (result && result.code === 'PARENT_ACCESS_DENIED') {
@@ -209,6 +222,7 @@
         : 'Tryck på din profil';
     }
     renderCards(children, parents);
+    wireParentBackupLink();
   }
 
   if (document.readyState === 'loading') {

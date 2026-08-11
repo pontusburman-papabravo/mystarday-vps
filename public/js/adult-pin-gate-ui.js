@@ -146,6 +146,34 @@
         finish(false, { ok: false, code: 'PIN_CANCEL' });
       });
 
+      if (opts.allowBackupLogin !== false) {
+        const forgotBtn = document.createElement('button');
+        forgotBtn.type = 'button';
+        forgotBtn.textContent = tx(
+          'parentGate.forgotPinBackup',
+          'Glömt PIN? Logga in med e-post eller Apple/Google'
+        );
+        forgotBtn.setAttribute(
+          'aria-label',
+          tx('parentGate.forgotPinBackup', 'Glömt PIN? Logga in med e-post eller Apple/Google')
+        );
+        forgotBtn.style.cssText = [
+          'display:block;margin:12px auto 0;min-height:44px;padding:8px 12px;',
+          'font-size:0.8rem;font-weight:600;color:#5A6178;background:none;border:none;',
+          'text-decoration:underline;cursor:pointer;',
+        ].join('');
+        forgotBtn.addEventListener('click', function () {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+          const backupNext = opts.backupNext || '/home';
+          if (window.Auth && typeof Auth.redirectToParentBackupLogin === 'function') {
+            Auth.redirectToParentBackupLogin(backupNext);
+            return;
+          }
+          window.location.href = '/login?parent=1&next=' + encodeURIComponent(backupNext);
+        });
+        card.appendChild(forgotBtn);
+      }
+
       updateDots();
     });
   }

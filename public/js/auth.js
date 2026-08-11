@@ -701,6 +701,46 @@ const Auth = {
     }
   },
 
+  /**
+   * Full logout then parent login (e-post/lösenord/Apple/Google) — backup when PIN fails or is forgotten.
+   * @param {string} [nextPath] — safe relative path after login (default /home)
+   */
+  async redirectToParentBackupLogin(nextPath) {
+    const next = (nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//'))
+      ? nextPath
+      : '/home';
+    const loginUrl = '/login?parent=1&next=' + encodeURIComponent(next);
+
+    await this._persistAuthEntryLocaleContext();
+    await this.snapshotKnownChildrenBeforeLogout();
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const csrf = this.getCsrfToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (csrf) headers['X-CSRF-Token'] = csrf;
+        const res = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include', headers });
+        if (res.status === 403) {
+          localStorage.removeItem(this.CSRF_KEY);
+          await this.ensureCsrfToken();
+          continue;
+        }
+        break;
+      } catch (_) {
+        break;
+      }
+    }
+
+    this._fullClear();
+    if (window.AdultPrivilege && typeof AdultPrivilege.resetToLocked === 'function') {
+      AdultPrivilege.resetToLocked();
+    }
+    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+      DeviceMode.enterParent();
+    }
+    window.location.replace(loginUrl);
+  },
+
   async logout(options) {
     options = options || {};
     const childFlow = options.childFlow === true;
@@ -1467,6 +1507,27 @@ const Auth = {
       document.body.removeChild(overlay);
       onCancel();
     });
+
+    if (opts.allowBackupLogin !== false) {
+      const forgotBtn = document.createElement('button');
+      forgotBtn.type = 'button';
+      forgotBtn.textContent = pgT('parentGate.forgotPinBackup') || 'Glömt PIN? Logga in med e-post eller Apple/Google';
+      forgotBtn.style.cssText = [
+        'display:block;margin:8px auto 0;min-height:44px;padding:8px 12px;',
+        'font-size:0.8rem;font-weight:600;color:#5A6178;background:none;border:none;',
+        'text-decoration:underline;cursor:pointer;',
+      ].join('');
+      forgotBtn.addEventListener('click', function () {
+        if (overlayRestorePending) return;
+        if (overlay.parentNode) document.body.removeChild(overlay);
+        const backupNext = opts.backupNext
+          || ((typeof window !== 'undefined' && window.location)
+            ? window.location.pathname + window.location.search
+            : '/home');
+        Auth.redirectToParentBackupLogin(backupNext);
+      });
+      card.appendChild(forgotBtn);
+    }
 
     buildKeypad();
     updateDots();

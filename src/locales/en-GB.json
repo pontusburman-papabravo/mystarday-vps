@@ -252,7 +252,8 @@
       "title": "Parent lock",
       "hint": "Enter your PIN to continue",
       "keypadAria": "PIN keypad",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "forgotPinBackup": "Forgot PIN? Sign in with email or Apple/Google"
     },
     "childLogin": {
       "title": "Hello! 👋",
