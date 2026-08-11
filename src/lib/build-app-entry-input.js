@@ -5,7 +5,6 @@ const trusted = require('./trusted-device');
 const { isTrustedDeviceEnabled } = require('./trusted-device-flags');
 const { evaluateHandoffForRequest } = require('./parent-session-handoff');
 const { isEscalatedParentExpired } = require('./adult-privilege-escalation');
-const { normalizeLaunchContext } = require('./app-entry-launch-context');
 const deviceDb = require('../../db/family-trusted-device');
 
 function hashTrustedRaw(raw) {
@@ -120,8 +119,6 @@ async function buildAppEntryInput(req, res, options) {
     deepLink = { childId: intentChildId };
   }
 
-  const launchContext = normalizeLaunchContext(opts.launchContext || req.query?.launch_context);
-
   const parentPrivilegeActive = resolveParentPrivilegeActive(user, activeTrustedRow);
 
   const parentSession = {
@@ -137,7 +134,6 @@ async function buildAppEntryInput(req, res, options) {
     allowedChildren,
     allowedParents,
     deepLink,
-    launchContext,
     localDeviceModeHint: null,
     familyId,
   };

@@ -159,17 +159,17 @@ test('family device entry matrix A–K', async (t) => {
       assert.notEqual(body.decision.path, '/child-login');
     });
 
-    await t.test('B: shared + parent handoff + child JWT → child-home not parent-home', async () => {
+    await t.test('B: shared + parent handoff + child JWT → profile-picker (multi-profile cold entry)', async () => {
       const pB = await registerAndLogin(http.baseUrl);
       const soloB = await createChild(http.baseUrl, pB, { name: 'SoloB', emoji: '🦊' });
       await setChildPin(db, soloB);
       const uB = (await db.query('SELECT username FROM child WHERE id = $1', [soloB])).rows[0].username;
       const deviceCookies = await enrollShared(http, pB);
       const childCookies = await childLoginFromParent(http, { ...pB, cookies: deviceCookies }, uB);
-      const { body } = await fetchAppEntry(http.baseUrl, childCookies, 'launch_context=foreground_resume');
-      assert.equal(body.decision.destination, 'child-home');
+      const { body } = await fetchAppEntry(http.baseUrl, childCookies);
+      assert.equal(body.decision.destination, 'profile-picker');
       assert.notEqual(body.decision.destination, 'parent-home');
-      assert.equal(body.decision.credentialContext, 'child');
+      assert.equal(body.decision.credentialContext, 'none');
     });
 
     await t.test('C: shared + multiple children without default → picker', async () => {
@@ -245,7 +245,7 @@ test('family device entry matrix A–K', async (t) => {
       assert.notEqual(body.decision.destination, 'child-home');
     });
 
-    await t.test('I: cold_start + child JWT on multi-profile → profile-picker', async () => {
+    await t.test('I: child JWT on multi-profile → profile-picker', async () => {
       const p5 = await registerAndLogin(http.baseUrl);
       const ca = await createChild(http.baseUrl, p5, { name: 'CA', emoji: 'A' });
       await createChild(http.baseUrl, p5, { name: 'CB', emoji: 'B' });
@@ -253,17 +253,13 @@ test('family device entry matrix A–K', async (t) => {
       const uA = (await db.query('SELECT username FROM child WHERE id = $1', [ca])).rows[0].username;
       const deviceCookies = await enrollShared(http, p5);
       const childCookies = await childLoginFromParent(http, { ...p5, cookies: deviceCookies }, uA);
-      const { body } = await fetchAppEntry(
-        http.baseUrl,
-        childCookies,
-        'launch_context=cold_start'
-      );
+      const { body } = await fetchAppEntry(http.baseUrl, childCookies);
       assert.equal(body.decision.failClosed, false);
       assert.equal(body.decision.destination, 'profile-picker');
       assert.equal(body.decision.path, '/child/profile-picker');
     });
 
-    await t.test('I2: foreground_resume + child JWT on multi-profile → child-home', async () => {
+    await t.test('I2: spoofed foreground_resume query still → profile-picker', async () => {
       const p5b = await registerAndLogin(http.baseUrl);
       const ca = await createChild(http.baseUrl, p5b, { name: 'CA2', emoji: 'A' });
       await createChild(http.baseUrl, p5b, { name: 'CB2', emoji: 'B' });
@@ -276,9 +272,9 @@ test('family device entry matrix A–K', async (t) => {
         childCookies,
         'launch_context=foreground_resume'
       );
-      assert.equal(body.decision.destination, 'child-home');
-      assert.equal(body.decision.childId, ca);
-      assert.equal(body.decision.credentialContext, 'child');
+      assert.equal(body.decision.destination, 'profile-picker');
+      assert.equal(body.decision.credentialContext, 'none');
+      assert.equal(body.launchContext, undefined);
     });
 
     await t.test('K: deep-link child out of scope → fail closed', async () => {

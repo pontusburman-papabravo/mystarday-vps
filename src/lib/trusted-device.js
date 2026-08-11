@@ -485,31 +485,26 @@ async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options
 
   const parentPinDb = require('../../db/parent-pin');
   const familyHasPin = await parentPinDb.familyAnyParentHasPin(row.family_id);
-  const unlockMethod = String(opts.unlockMethod || '').toLowerCase();
-
-  if (familyHasPin) {
-    if (unlockMethod === 'biometric') {
-      /* Client-local biometric proof — same trust model as adult-privilege/unlock */
-    } else if (unlockMethod === 'pin') {
-      const pin = String(opts.pin || '');
-      if (!/^\d{4}$/.test(pin)) {
-        return { ok: false, code: 'PARENT_PIN_INVALID' };
-      }
-      const pinResult = await parentPinDb.verifyParentPin({
-        familyId: row.family_id,
-        parentId,
-        pin,
-      });
-      if (!pinResult.ok) {
-        return { ok: false, code: 'PARENT_PIN_INVALID' };
-      }
-    } else {
-      return { ok: false, code: 'ADULT_VERIFICATION_REQUIRED' };
-    }
-  } else if (unlockMethod === 'biometric') {
-    /* No family PIN — biometric is the only allowed verification on shared picker */
-  } else {
+  if (!familyHasPin) {
     return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
+  }
+
+  const unlockMethod = String(opts.unlockMethod || '').toLowerCase();
+  if (unlockMethod !== 'pin') {
+    return { ok: false, code: 'ADULT_VERIFICATION_REQUIRED' };
+  }
+
+  const pin = String(opts.pin || '');
+  if (!/^\d{4}$/.test(pin)) {
+    return { ok: false, code: 'PARENT_PIN_INVALID' };
+  }
+  const pinResult = await parentPinDb.verifyParentPin({
+    familyId: row.family_id,
+    parentId,
+    pin,
+  });
+  if (!pinResult.ok) {
+    return { ok: false, code: 'PARENT_PIN_INVALID' };
   }
 
   const { signParentAccessWithOptionalLease } = require('./adult-privilege-escalation');

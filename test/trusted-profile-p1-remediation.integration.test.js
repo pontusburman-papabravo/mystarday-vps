@@ -312,18 +312,18 @@ test('P1 remediation: trusted profile picker security matrix', async (t) => {
       assert.equal(body.code, 'ADULT_VERIFICATION_REQUIRED');
     });
 
-    await t.test('P1-5c: biometric unlock succeeds when no family PIN', async () => {
-      const primary = await registerAndLogin(http.baseUrl);
-      await createChild(http.baseUrl, primary, { name: 'Kid', emoji: '⭐' });
-      const deviceCookies = await enrollShared(http, primary);
-      const parentRow = await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [
-        primary.email.toLowerCase(),
-      ]);
+    await t.test('P1-5c: biometric unlock denied without server-verifiable proof', async () => {
+      const tag = `bio-deny-${Date.now()}`;
+      const fixture = await setupPinParent(db, tag);
+      const session = await loginByEmail(http.baseUrl, fixture.email, fixture.password);
+      const deviceCookies = await enrollShared(http, session);
 
-      const res = await postSelectParent(http.baseUrl, deviceCookies, parentRow.rows[0].id, {
+      const res = await postSelectParent(http.baseUrl, deviceCookies, fixture.parentId, {
         unlock_method: 'biometric',
       });
-      assert.equal(res.status, 200, await res.text());
+      const body = await res.json();
+      assert.ok(res.status >= 400, JSON.stringify(body));
+      assert.equal(body.code, 'ADULT_VERIFICATION_REQUIRED');
     });
 
     await t.test('P1-3/P1-4: multi-profile cold restore forces picker (no last_active bypass)', async () => {
@@ -353,23 +353,22 @@ test('P1 remediation: trusted profile picker security matrix', async (t) => {
 
       const { body: entryBody } = await fetchAppEntry(
         http.baseUrl,
-        trustedOnly(deviceCookies),
-        'launch_context=cold_start'
+        trustedOnly(deviceCookies)
       );
       assert.equal(entryBody.decision.destination, 'profile-picker');
-      assert.equal(entryBody.launchContext, 'cold_start');
+      assert.equal(entryBody.launchContext, undefined);
     });
 
     await t.test('adult→child lockdown: select-child clears parent privilege', async () => {
-      const primary = await registerAndLogin(http.baseUrl);
-      const childA = await createChild(http.baseUrl, primary, { name: 'Lock', emoji: '🔒' });
-      const deviceCookies = await enrollShared(http, primary);
-      const parentRow = await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [
-        primary.email.toLowerCase(),
-      ]);
+      const tag = `lockdown-${Date.now()}`;
+      const fixture = await setupPinParent(db, tag);
+      const session = await loginByEmail(http.baseUrl, fixture.email, fixture.password);
+      const childA = fixture.childId;
+      const deviceCookies = await enrollShared(http, session);
 
-      const parentRes = await postSelectParent(http.baseUrl, deviceCookies, parentRow.rows[0].id, {
-        unlock_method: 'biometric',
+      const parentRes = await postSelectParent(http.baseUrl, deviceCookies, fixture.parentId, {
+        unlock_method: 'pin',
+        pin: '4321',
       });
       assert.equal(parentRes.status, 200, await parentRes.text());
       let cookies = trustedOnly(deviceCookies);

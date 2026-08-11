@@ -9,6 +9,7 @@ const assert = require('node:assert/strict');
 const { setupTestDb } = require('./helpers/setup.js');
 const { cookieHeader, listenApp, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
+const { hashPassword } = require('../src/lib/hash');
 const { FLAG_KEY } = require('../src/lib/trusted-device-flags');
 const { HANDOFF_COOKIE, hashOpaque } = require('../src/lib/parent-session-handoff');
 
@@ -146,6 +147,8 @@ test('select-parent on shared device issues parent session with privilege lease'
       [session.email]
     );
     const parentId = parentRow.rows[0].id;
+    const pinHash = await hashPassword('4321');
+    await db.query('UPDATE parent SET parent_pin_hash = $1 WHERE id = $2', [pinHash, parentId]);
 
     const selectRes = await fetch(`${http.baseUrl}/api/auth/trusted-device/select-parent`, {
       method: 'POST',
@@ -153,7 +156,7 @@ test('select-parent on shared device issues parent session with privilege lease'
         'Content-Type': 'application/json',
         Cookie: cookieHeader(deviceCookies),
       },
-      body: JSON.stringify({ parent_id: parentId, unlock_method: 'biometric' }),
+      body: JSON.stringify({ parent_id: parentId, unlock_method: 'pin', pin: '4321' }),
     });
     const selectText = await selectRes.text();
     assert.equal(selectRes.status, 200, selectText);

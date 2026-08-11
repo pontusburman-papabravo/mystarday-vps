@@ -9,17 +9,13 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..');
 
 function loadAdultPrivilege(sandbox) {
-  const bio = fs.readFileSync(path.join(ROOT, 'public/js/adult-biometric-client.js'), 'utf8');
   const priv = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege.js'), 'utf8');
-  sandbox.window.Capacitor = sandbox.window.Capacitor || sandbox.Capacitor;
-  sandbox.window.fetch = sandbox.fetch;
-  vm.runInNewContext(bio, sandbox, { context: sandbox });
   vm.runInNewContext(priv, sandbox, { context: sandbox });
   return sandbox.window.AdultPrivilege;
 }
 
 describe('adult-privilege client state machine', () => {
-  it('biometric unavailable falls back to PIN gate without unlock until PIN entered', async () => {
+  it('PIN cancel does not call unlock API', async () => {
     let unlockCalls = 0;
     const sandbox = {
       window: {
@@ -40,9 +36,7 @@ describe('adult-privilege client state machine', () => {
             delete this._m[k];
           },
         },
-        Capacitor: { isNativePlatform: () => false, Plugins: {} },
       },
-      Capacitor: { isNativePlatform: () => false, Plugins: {} },
       fetch: (url) => {
         if (String(url).includes('/status')) {
           return Promise.resolve({
@@ -55,6 +49,7 @@ describe('adult-privilege client state machine', () => {
                   state: 'locked',
                   privilegeActive: false,
                   handoffAvailable: true,
+                  pinRequiredForUnlock: true,
                 })
               ),
           });
@@ -75,12 +70,15 @@ describe('adult-privilege client state machine', () => {
     assert.equal(AdultPrivilege.getState(), 'locked');
   });
 
-  it('biometric cancel does not call unlock API', async () => {
+  it('no family PIN configured rejects before unlock API', async () => {
     let unlockCalls = 0;
     const sandbox = {
       window: {
         analytics: { track: () => {} },
         Auth: { getCsrfToken: () => 'csrf' },
+        AdultPinGateUI: {
+          collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
+        },
         sessionStorage: {
           _m: { stjarndag_adult_privilege_v1: '1' },
           getItem(k) {
@@ -90,15 +88,6 @@ describe('adult-privilege client state machine', () => {
             this._m[k] = v;
           },
         },
-        Capacitor: {
-          isNativePlatform: () => true,
-          Plugins: {
-            AdultBiometric: {
-              isAvailable: () => Promise.resolve({ available: true }),
-              authenticate: () => Promise.reject(new Error('BIOMETRIC_CANCEL')),
-            },
-          },
-        },
       },
       fetch: (url) => {
         if (String(url).includes('/status')) {
@@ -106,7 +95,15 @@ describe('adult-privilege client state machine', () => {
             ok: true,
             status: 200,
             text: () =>
-              Promise.resolve(JSON.stringify({ ok: true, state: 'locked', privilegeActive: false })),
+              Promise.resolve(
+                JSON.stringify({
+                  ok: true,
+                  state: 'locked',
+                  privilegeActive: false,
+                  handoffAvailable: true,
+                  pinRequiredForUnlock: false,
+                })
+              ),
           });
         }
         if (String(url).includes('/unlock')) unlockCalls += 1;
@@ -118,7 +115,7 @@ describe('adult-privilege client state machine', () => {
     await AdultPrivilege.refreshStatus();
     const result = await AdultPrivilege.requestEscalation();
     assert.equal(result.ok, false);
-    assert.equal(result.code, 'BIOMETRIC_CANCEL');
+    assert.equal(result.code, 'ADULT_PIN_SETUP_REQUIRED');
     assert.equal(unlockCalls, 0);
   });
 
@@ -128,6 +125,9 @@ describe('adult-privilege client state machine', () => {
       window: {
         analytics: { track: () => {} },
         Auth: { getCsrfToken: () => 'csrf' },
+        AdultPinGateUI: {
+          collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
+        },
         sessionStorage: {
           _m: { stjarndag_adult_privilege_v1: '1' },
           getItem(k) {
@@ -137,49 +137,48 @@ describe('adult-privilege client state machine', () => {
             this._m[k] = v;
           },
         },
-        Capacitor: {
-          isNativePlatform: () => true,
-          Plugins: {
-            AdultBiometric: {
-              isAvailable: () => Promise.resolve({ available: true }),
-              authenticate: () => Promise.resolve({ ok: true }),
-            },
-          },
-        },
         DeviceMode: { enterParent: () => {} },
       },
       fetch: (url) => {
-          if (String(url).includes('/status')) {
-            return Promise.resolve({
-              ok: true,
-              status: 200,
-              text: () =>
-                Promise.resolve(JSON.stringify({ ok: true, state: 'locked', privilegeActive: false })),
-            });
-          }
-          if (String(url).includes('/unlock')) {
-            inflight += 1;
-            return new Promise((resolve) => {
-              setTimeout(() => {
-                resolve({
+        if (String(url).includes('/status')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
                   ok: true,
-                  status: 200,
-                  text: () =>
-                    Promise.resolve(
-                      JSON.stringify({ ok: true, parent: { id: 'p1' }, csrfToken: 'c' })
-                    ),
-                });
-              }, 50);
-            });
-          }
-          if (String(url).includes('/me')) {
-            return Promise.resolve({
-              ok: true,
-              status: 200,
-              text: () => Promise.resolve(JSON.stringify({ type: 'parent' })),
-            });
-          }
-          return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+                  state: 'locked',
+                  privilegeActive: false,
+                  handoffAvailable: true,
+                  pinRequiredForUnlock: true,
+                })
+              ),
+          });
+        }
+        if (String(url).includes('/unlock')) {
+          inflight += 1;
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                status: 200,
+                text: () =>
+                  Promise.resolve(
+                    JSON.stringify({ ok: true, parent: { id: 'p1' }, csrfToken: 'c' })
+                  ),
+              });
+            }, 50);
+          });
+        }
+        if (String(url).includes('/me')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(JSON.stringify({ type: 'parent' })),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
       },
     };
     sandbox.globalThis = sandbox.window;
@@ -197,7 +196,6 @@ describe('adult-privilege client state machine', () => {
       window: {
         analytics: { track: () => {} },
         sessionStorage: { _m: {}, getItem: () => null, setItem: () => {}, removeItem: () => {} },
-        Capacitor: { isNativePlatform: () => false, Plugins: {} },
       },
     };
     sandbox.globalThis = sandbox.window;

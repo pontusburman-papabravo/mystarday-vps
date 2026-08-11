@@ -43,9 +43,11 @@ async function loginParent(baseUrl, email, password) {
   return { cookies, csrfToken: JSON.parse(text).csrfToken };
 }
 
-async function setupFamily(db, tag, password) {
+async function setupFamily(db, tag, password, options) {
+  const opts = options || {};
   const passwordHash = await hashPassword(password);
   const childPinHash = await hashPassword('1112');
+  const pinHash = opts.parentPin ? await hashPassword(opts.parentPin) : null;
   const email = `apriv-${tag}@example.com`;
   const username = `apbarn-${tag}`;
   const familyId = (
@@ -55,9 +57,12 @@ async function setupFamily(db, tag, password) {
   ).rows[0].id;
   const parentId = (
     await db.query(
-      `INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified)
-       VALUES ($1,$2,$3,'Parent',true,true) RETURNING id`,
-      [email, passwordHash, familyId]
+      pinHash
+        ? `INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified, parent_pin_hash)
+           VALUES ($1,$2,$3,'Parent',true,true,$4) RETURNING id`
+        : `INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified)
+           VALUES ($1,$2,$3,'Parent',true,true) RETURNING id`,
+      pinHash ? [email, passwordHash, familyId, pinHash] : [email, passwordHash, familyId]
     )
   ).rows[0].id;
   const childId = (
@@ -162,7 +167,7 @@ test('unlock activates parent session and allows parent API (one consume)', asyn
     return;
   }
   const tag = Date.now();
-  const fixture = await setupFamily(db, tag, `unlock-${tag}`);
+  const fixture = await setupFamily(db, tag, `unlock-${tag}`, { parentPin: '4321' });
   await enableAdultPrivilegeFlag(db);
   const { createApp } = require('../app');
   const { baseUrl, close } = await listenApp(createApp);
@@ -177,7 +182,7 @@ test('unlock activates parent session and allows parent API (one consume)', asyn
         Cookie: cookieHeader(childCookies),
         'X-CSRF-Token': csrfToken,
       },
-      body: JSON.stringify({ unlockMethod: 'biometric' }),
+      body: JSON.stringify({ unlockMethod: 'pin', pin: '4321' }),
     });
     const unlockText = await unlockRes.text();
     assert.equal(unlockRes.status, 200, unlockText);
@@ -206,7 +211,7 @@ test('unlock activates parent session and allows parent API (one consume)', asyn
         Cookie: cookieHeader(parentJar),
         'X-CSRF-Token': unlockBody.csrfToken,
       },
-      body: JSON.stringify({ unlockMethod: 'biometric' }),
+      body: JSON.stringify({ unlockMethod: 'pin', pin: '4321' }),
     });
     assert.equal(secondUnlock.status, 200);
     assert.equal((await secondUnlock.json()).alreadyParent, true);
@@ -229,7 +234,7 @@ test('failed unlock leaves child session intact', async (t) => {
     return;
   }
   const tag = Date.now();
-  const fixture = await setupFamily(db, tag, `fail-${tag}`);
+  const fixture = await setupFamily(db, tag, `fail-${tag}`, { parentPin: '4321' });
   await enableAdultPrivilegeFlag(db);
   const { createApp } = require('../app');
   const { baseUrl, close } = await listenApp(createApp);
@@ -249,13 +254,81 @@ test('failed unlock leaves child session intact', async (t) => {
         Cookie: cookieHeader(childCookies),
         'X-CSRF-Token': csrfToken,
       },
-      body: JSON.stringify({ unlockMethod: 'biometric' }),
+      body: JSON.stringify({ unlockMethod: 'pin', pin: '4321' }),
     });
     assert.equal(unlockRes.status, 401);
     const me = await fetch(`${baseUrl}/api/auth/me`, {
       headers: { Cookie: cookieHeader(childCookies) },
     });
     assert.equal((await me.json()).type, 'child');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('biometric unlockMethod rejected without server-verifiable proof', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const tag = Date.now();
+  const fixture = await setupFamily(db, tag, `bio-${tag}`, { parentPin: '4321' });
+  await enableAdultPrivilegeFlag(db);
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, fixture.password);
+    const { childCookies, csrfToken } = await childSessionWithHandoff(baseUrl, fixture, parentLogin);
+
+    const unlockRes = await fetch(`${baseUrl}/api/family/adult-privilege/unlock`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(childCookies),
+        'X-CSRF-Token': csrfToken,
+      },
+      body: JSON.stringify({ unlockMethod: 'biometric' }),
+    });
+    assert.equal(unlockRes.status, 401);
+    assert.equal((await unlockRes.json()).code, 'ADULT_VERIFICATION_REQUIRED');
+    const me = await fetch(`${baseUrl}/api/auth/me`, {
+      headers: { Cookie: cookieHeader(childCookies) },
+    });
+    assert.equal((await me.json()).type, 'child');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('unlock without family PIN returns ADULT_PIN_SETUP_REQUIRED', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const tag = Date.now();
+  const fixture = await setupFamily(db, tag, `nopin-${tag}`);
+  await enableAdultPrivilegeFlag(db);
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+  try {
+    const parentLogin = await loginParent(baseUrl, fixture.email, fixture.password);
+    const { childCookies, csrfToken } = await childSessionWithHandoff(baseUrl, fixture, parentLogin);
+
+    const unlockRes = await fetch(`${baseUrl}/api/family/adult-privilege/unlock`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(childCookies),
+        'X-CSRF-Token': csrfToken,
+      },
+      body: JSON.stringify({ unlockMethod: 'pin', pin: '4321' }),
+    });
+    assert.equal(unlockRes.status, 403);
+    assert.equal((await unlockRes.json()).code, 'ADULT_PIN_SETUP_REQUIRED');
   } finally {
     await close();
     await db.cleanup();
@@ -269,7 +342,7 @@ test('revoked parent refresh blocks unlock after handoff still present', async (
     return;
   }
   const tag = Date.now();
-  const fixture = await setupFamily(db, tag, `rev-${tag}`);
+  const fixture = await setupFamily(db, tag, `rev-${tag}`, { parentPin: '4321' });
   await enableAdultPrivilegeFlag(db);
   const { createApp } = require('../app');
   const { baseUrl, close } = await listenApp(createApp);
@@ -290,7 +363,7 @@ test('revoked parent refresh blocks unlock after handoff still present', async (
         Cookie: cookieHeader(childCookies),
         'X-CSRF-Token': csrfToken,
       },
-      body: JSON.stringify({ unlockMethod: 'biometric' }),
+      body: JSON.stringify({ unlockMethod: 'pin', pin: '4321' }),
     });
     assert.equal(unlockRes.status, 401);
     const me = await fetch(`${baseUrl}/api/auth/me`, {

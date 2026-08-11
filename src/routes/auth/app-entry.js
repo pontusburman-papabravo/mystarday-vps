@@ -15,7 +15,6 @@ router.get('/app-entry', optionalAuth, async (req, res, next) => {
   try {
     const input = await buildAppEntryInput(req, res, {
       intentChildId: req.query?.intent_child_id || req.query?.child_id,
-      launchContext: req.query?.launch_context,
     });
     const familyId = input.familyId;
     const orchestratorActive = await isFamilyDeviceEntryEnabled(familyId);
@@ -43,7 +42,6 @@ router.get('/app-entry', optionalAuth, async (req, res, next) => {
         ? await parentPinDb.familyAnyParentHasPin(familyId)
         : undefined,
       adultVerificationRequired: orchestratorActive && Boolean(input.allowedParents?.length),
-      launchContext: input.launchContext,
     });
   } catch (err) {
     next(err);

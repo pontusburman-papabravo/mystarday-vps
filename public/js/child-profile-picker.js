@@ -151,11 +151,7 @@
       }
     }
 
-    const launchContext = isSwitch ? 'profile_switch' : 'cold_start';
-    const res = await fetch(
-      '/api/auth/app-entry?launch_context=' + encodeURIComponent(launchContext),
-      { credentials: 'include' }
-    );
+    const res = await fetch('/api/auth/app-entry', { credentials: 'include' });
     const body = await res.json().catch(function () { return {}; });
     storeEntryMeta(body);
     _pinRequired = body.pinRequiredForParents === true;

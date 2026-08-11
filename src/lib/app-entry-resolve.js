@@ -3,14 +3,10 @@
 /**
  * Fas 2A — pure entry decision engine (no navigation, storage, or network).
  * Device role ≠ view context ≠ credential context.
+ *
+ * GET /api/auth/app-entry is authoritative COLD START entry only.
+ * Multi-profile shared devices always resolve to profile-picker.
  */
-
-const {
-  LAUNCH_CONTEXTS,
-  normalizeLaunchContext,
-  shouldForceSharedProfilePicker,
-  mayResumeChildSessionOnShared,
-} = require('./app-entry-launch-context');
 
 const DESTINATIONS = Object.freeze({
   PARENT_HOME: 'parent-home',
@@ -165,13 +161,11 @@ function resolveChildModeTarget(trustedDevice, allowedIds) {
  * @param {Array<{id:string}>} input.allowedChildren
  * @param {Array<{id:string}>} [input.allowedParents]
  * @param {object|null} [input.deepLink] — { childId? }
- * @param {'cold_start'|'foreground_resume'|'profile_switch'} [input.launchContext]
  */
 function resolveAppEntry(input) {
   const state = input || {};
   const allowedIds = normalizeAllowedChildren(state.allowedChildren);
   const allowedParentCount = Array.isArray(state.allowedParents) ? state.allowedParents.length : 0;
-  const launchContext = normalizeLaunchContext(state.launchContext);
   const trustedDevice = state.trustedDevice;
   const parentSession = state.parentSession;
   const childSession = state.childSession;
@@ -244,12 +238,6 @@ function resolveAppEntry(input) {
     }
   }
 
-  if (deviceMode === 'shared' && isParentPrivilegeActive(state)) {
-    if (!shouldForceSharedProfilePicker(launchContext, allowedIds.length, allowedParentCount)) {
-      return parentHomeDecision('shared', 'shared_device_parent_privilege_active');
-    }
-  }
-
   let targetChildId = deepLinkChildId;
 
   if (!targetChildId && deviceMode === 'parent' && isChildSessionValid(childSession)) {
@@ -286,22 +274,15 @@ function resolveAppEntry(input) {
         if (!sessionCheck.ok) {
           return failClosedPicker('shared', sessionCheck.reason);
         }
-        if (
-          mayResumeChildSessionOnShared(launchContext, allowedIds.length, allowedParentCount)
-          && isChildSessionValid(childSession)
-        ) {
-          targetChildId = childSession.childId;
-        } else {
-          return buildResult({
-            destination: DESTINATIONS.PROFILE_PICKER,
-            deviceMode: 'shared',
-            viewContext: 'picker',
-            credentialContext: 'none',
-            childId: null,
-            reason: 'shared_device_picker_required',
-            serverAction: SERVER_ACTIONS.SELECT_CHILD,
-          });
-        }
+        return buildResult({
+          destination: DESTINATIONS.PROFILE_PICKER,
+          deviceMode: 'shared',
+          viewContext: 'picker',
+          credentialContext: 'none',
+          childId: null,
+          reason: 'shared_device_picker_required',
+          serverAction: SERVER_ACTIONS.SELECT_CHILD,
+        });
       } else {
         targetChildId = shared.childId;
       }
@@ -332,5 +313,4 @@ module.exports = {
   SERVER_ACTIONS,
   isParentPrivilegeActive,
   isParentSessionAuthenticated,
-  LAUNCH_CONTEXTS,
 };

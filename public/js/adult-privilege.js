@@ -214,9 +214,8 @@
     });
   }
 
-  function postUnlock(unlockMethod, pin) {
-    const payload = { unlockMethod: unlockMethod || 'biometric' };
-    if (unlockMethod === 'pin' && pin) payload.pin = pin;
+  function postUnlock(pin) {
+    const payload = { unlockMethod: 'pin', pin: pin };
     return fetchJson('/api/family/adult-privilege/unlock', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -236,8 +235,22 @@
     });
   }
 
+  function runPinGateOrRejectSetup() {
+    return refreshStatus().then(function (statusResult) {
+      if (statusResult.body && statusResult.body.pinRequiredForUnlock === false) {
+        return Promise.reject(new Error('ADULT_PIN_SETUP_REQUIRED'));
+      }
+      return runPinGate();
+    }).then(function (pinResult) {
+      if (!pinResult.ok || !pinResult.pin) {
+        return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+      }
+      return pinResult.pin;
+    });
+  }
+
   /**
-   * Escalate child → parent: biometric (native) then server unlock + /me verify.
+   * Escalate child → parent: adult PIN gate then server unlock + /me verify.
    * @returns {Promise<{ok:boolean, parent?:object, code?:string}>}
    */
   function requestEscalation(options) {
@@ -265,44 +278,22 @@
     setState(STATES.UNLOCKING);
     track('adult_privilege_unlock_started');
 
-    const usePin = opts.unlockMethod === 'pin' || opts.preferPin === true;
-    const skipBiometric = opts.skipBiometric === true || usePin;
-
-    let gatePromise;
-    if (usePin) {
-      gatePromise = runPinGate().then(function (pinResult) {
-        if (!pinResult.ok || !pinResult.pin) {
-          return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
-        }
-        return postUnlock('pin', pinResult.pin);
-      });
-    } else {
-      const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
-      gatePromise = bioPromise
-        .then(function () {
-          return postUnlock('biometric');
-        })
-        .catch(function (err) {
-          const msg = err && err.message ? String(err.message) : '';
-          if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1 && !opts.preferPin) {
-            return runPinGate().then(function (pinResult) {
-              if (!pinResult.ok || !pinResult.pin) {
-                return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
-              }
-              return postUnlock('pin', pinResult.pin);
-            });
-          }
-          return Promise.reject(err);
-        });
-    }
+    const gatePromise = runPinGateOrRejectSetup().then(function (pin) {
+      return postUnlock(pin);
+    });
 
     return gatePromise
       .catch(function (err) {
         const msg = err && err.message ? String(err.message) : String(err || '');
-        if (msg.indexOf('BIOMETRIC_CANCEL') !== -1 || msg.indexOf('PIN_CANCEL') !== -1) {
+        if (msg.indexOf('PIN_CANCEL') !== -1) {
           setState(STATES.LOCKED);
           track('adult_privilege_unlock_failed');
-          return { ok: false, code: msg.indexOf('PIN') !== -1 ? 'PIN_CANCEL' : 'BIOMETRIC_CANCEL' };
+          return { ok: false, code: 'PIN_CANCEL' };
+        }
+        if (msg.indexOf('ADULT_PIN_SETUP_REQUIRED') !== -1) {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
         }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
@@ -330,12 +321,12 @@
     return refreshStatus();
   }
 
-  function postSelectParent(unlockMethod, pin, parentId) {
+  function postSelectParent(pin, parentId) {
     const payload = {
       parent_id: parentId,
-      unlock_method: unlockMethod || 'biometric',
+      unlock_method: 'pin',
+      pin: pin,
     };
-    if (unlockMethod === 'pin' && pin) payload.pin = pin;
     return fetchJson('/api/auth/trusted-device/select-parent', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -369,7 +360,7 @@
   }
 
   /**
-   * Netflix picker → adult profile: same biometric/PIN gate as header Vuxen 🔒.
+   * Netflix picker → adult profile: adult PIN gate (server-verifiable).
    * @returns {Promise<{ok:boolean, parent?:object, redirect?:string, code?:string}>}
    */
   function requestTrustedProfileUnlock(options) {
@@ -394,44 +385,22 @@
     setState(STATES.UNLOCKING);
     track('adult_privilege_unlock_started');
 
-    const usePin = opts.unlockMethod === 'pin' || opts.preferPin === true;
-    const skipBiometric = opts.skipBiometric === true || usePin;
-
-    let gatePromise;
-    if (usePin) {
-      gatePromise = runPinGate().then(function (pinResult) {
-        if (!pinResult.ok || !pinResult.pin) {
-          return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
-        }
-        return postSelectParent('pin', pinResult.pin, parentId);
-      });
-    } else {
-      const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
-      gatePromise = bioPromise
-        .then(function () {
-          return postSelectParent('biometric', null, parentId);
-        })
-        .catch(function (err) {
-          const msg = err && err.message ? String(err.message) : '';
-          if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1 && !opts.preferPin) {
-            return runPinGate().then(function (pinResult) {
-              if (!pinResult.ok || !pinResult.pin) {
-                return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
-              }
-              return postSelectParent('pin', pinResult.pin, parentId);
-            });
-          }
-          return Promise.reject(err);
-        });
-    }
+    const gatePromise = runPinGateOrRejectSetup().then(function (pin) {
+      return postSelectParent(pin, parentId);
+    });
 
     return gatePromise
       .catch(function (err) {
         const msg = err && err.message ? String(err.message) : String(err || '');
-        if (msg.indexOf('BIOMETRIC_CANCEL') !== -1 || msg.indexOf('PIN_CANCEL') !== -1) {
+        if (msg.indexOf('PIN_CANCEL') !== -1) {
           setState(STATES.LOCKED);
           track('adult_privilege_unlock_failed');
-          return { ok: false, code: msg.indexOf('PIN') !== -1 ? 'PIN_CANCEL' : 'BIOMETRIC_CANCEL' };
+          return { ok: false, code: 'PIN_CANCEL' };
+        }
+        if (msg.indexOf('ADULT_PIN_SETUP_REQUIRED') !== -1) {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
         }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
