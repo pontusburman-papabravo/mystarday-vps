@@ -1,7 +1,8 @@
 'use strict';
 
 const db = require('./db');
-const { getActiveChildAccess } = require('../../db/parent-access');
+const trusted = require('./trusted-device');
+const { getActiveChildAccess, isParentEligibleForFamilyDevice } = require('../../db/parent-access');
 
 const VALID_MEMBER_TYPES = new Set(['child', 'parent']);
 
@@ -61,8 +62,34 @@ async function canManageChildAvatar(parentId, childId) {
   return ['primary', 'shared'].includes(access.role);
 }
 
+/**
+ * Profile picker cold start: trusted shared/child device may load family avatars
+ * without a parent/child JWT (same allowlist as app-entry).
+ */
+async function canViewMemberAvatarViaTrustedDevice(req, memberType, memberId) {
+  const raw = req.cookies?.[trusted.COOKIE_NAME];
+  if (!raw || !memberId || !VALID_MEMBER_TYPES.has(memberType)) return false;
+
+  const row = await trusted.verifyTrustedDeviceRaw(raw);
+  if (!row || (row.device_mode !== 'shared' && row.device_mode !== 'child')) {
+    return false;
+  }
+
+  const ctx = await trusted.getTrustedDeviceContext(raw);
+  if (!ctx.ok) return false;
+
+  if (memberType === 'child') {
+    return (ctx.allowed_children || []).some((c) => c.id === memberId);
+  }
+  if (memberType === 'parent') {
+    return isParentEligibleForFamilyDevice(memberId, ctx.family_id);
+  }
+  return false;
+}
+
 module.exports = {
   canViewMemberAvatar,
+  canViewMemberAvatarViaTrustedDevice,
   canManageChildAvatar,
   VALID_MEMBER_TYPES,
 };

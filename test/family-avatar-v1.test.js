@@ -34,6 +34,11 @@ describe('family avatar v1 — member-avatar priority', () => {
     assert.match(src, /kind: 'initials'/);
     assert.match(src, /has_avatar/);
   });
+
+  it('avatar-authz exposes trusted-device picker access helper', () => {
+    const authz = require('../src/lib/avatar-authz');
+    assert.equal(typeof authz.canViewMemberAvatarViaTrustedDevice, 'function');
+  });
 });
 
 describe('family avatar v1 — ADR', () => {
@@ -85,6 +90,7 @@ describe('family avatar v1 — cache & error policy', () => {
     assert.match(AVATAR_CACHE_CONTROL, /must-revalidate/);
     const src = fs.readFileSync(path.join(__dirname, '../src/routes/avatars.js'), 'utf8');
     assert.match(src, /Vary.*Cookie/);
+    assert.match(src, /canViewMemberAvatarViaTrustedDevice/);
     const authzIdx = src.indexOf('canViewMemberAvatar');
     const etagIdx = src.indexOf('if-none-match');
     assert.ok(authzIdx >= 0 && etagIdx > authzIdx, 'authz must run before If-None-Match');
@@ -382,6 +388,91 @@ test('GET /api/me/family exposes parent avatar_src to logged-in child', async (t
       headers: { Cookie: cookieHeader(childCookies) },
     });
     assert.notEqual(avatarRes.status, 403, 'child must reach avatar authz, not CHILD_PARENT_API_BLOCKED');
+    if (isObjectStorageConfigured() && usesLocalStorage()) {
+      assert.equal(avatarRes.status, 200);
+      assert.match(avatarRes.headers.get('content-type') || '', /^image\//);
+    }
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('GET /api/avatars/parent allows trusted shared device without parent JWT', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { FLAG_KEY: TRUSTED_FLAG } = require('../src/lib/trusted-device-flags');
+  const { FLAG_KEY: ENTRY_FLAG } = require('../src/lib/family-device-entry-flags');
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    for (const key of [TRUSTED_FLAG, ENTRY_FLAG]) {
+      await db.query(
+        `INSERT INTO feature_flag (key, enabled, description)
+         VALUES ($1, true, 'test')
+         ON CONFLICT (key) DO UPDATE SET enabled = true`,
+        [key]
+      );
+    }
+
+    const session = await registerAndLogin(http.baseUrl, { name: 'Picker Parent' });
+    const parentId = (await db.query(
+      'SELECT id FROM parent WHERE LOWER(email) = $1',
+      [session.email.toLowerCase()]
+    )).rows[0].id;
+
+    await db.query(
+      `UPDATE parent SET avatar_storage_key = $2, avatar_updated_at = NOW()
+       WHERE id = $1`,
+      [parentId, 'avatars-private/test/picker-parent.jpg']
+    );
+
+    await createChild(http.baseUrl, session, { name: 'Barn', emoji: '⭐', pin: '8642' });
+
+    const enrollRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/shared`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(session.cookies),
+        'X-CSRF-Token': session.csrfToken,
+      },
+      body: JSON.stringify({ platform: 'web', label: 'Picker avatar test' }),
+    });
+    assert.equal(enrollRes.status, 201, await enrollRes.text());
+    let deviceCookies = {};
+    for (const header of getSetCookieHeaders(enrollRes)) {
+      deviceCookies = mergeCookies(deviceCookies, [header]);
+    }
+
+    const entryRes = await fetch(`${http.baseUrl}/api/auth/app-entry`, {
+      headers: { Cookie: cookieHeader({ trusted_device: deviceCookies.trusted_device }) },
+    });
+    assert.equal(entryRes.status, 200);
+    const entry = await entryRes.json();
+    const parent = (entry.allowedParents || []).find((p) => p.id === parentId);
+    assert.ok(parent, 'parent on picker allowlist');
+    assert.equal(parent.has_avatar, true);
+    assert.match(parent.avatar_src, /^\/api\/avatars\/parent\//);
+
+    const { putPrivateObject } = require('../src/lib/avatar-storage');
+    const { isObjectStorageConfigured, usesLocalStorage } = require('../src/lib/object-storage');
+    if (isObjectStorageConfigured() && usesLocalStorage()) {
+      await putPrivateObject({
+        storageKey: 'avatars-private/test/picker-parent.jpg',
+        buffer: Buffer.from('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=', 'base64'),
+        contentType: 'image/jpeg',
+      });
+    }
+
+    const avatarRes = await fetch(`${http.baseUrl}/api/avatars/parent/${parentId}`, {
+      headers: { Cookie: cookieHeader({ trusted_device: deviceCookies.trusted_device }) },
+    });
+    assert.notEqual(avatarRes.status, 403);
     if (isObjectStorageConfigured() && usesLocalStorage()) {
       assert.equal(avatarRes.status, 200);
       assert.match(avatarRes.headers.get('content-type') || '', /^image\//);

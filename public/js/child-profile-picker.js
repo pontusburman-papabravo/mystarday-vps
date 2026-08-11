@@ -35,18 +35,33 @@
     el.classList.toggle('hidden', !msg);
   }
 
-  function childAvatarHtml(child) {
-    if (child.has_avatar && child.avatar_src) {
-      return '<img class="cpp-avatar-img" src="' + escHtml(child.avatar_src) + '" alt="">';
-    }
-    return '<span class="cpp-avatar" aria-hidden="true">' + escHtml(child.emoji || '⭐') + '</span>';
-  }
+  const FALLBACK_EMOJI = '😊';
 
-  function parentAvatarHtml(parent) {
-    if (parent.has_avatar && parent.avatar_src) {
-      return '<img class="cpp-avatar-img" src="' + escHtml(parent.avatar_src) + '" alt="">';
+  function profileAvatarHtml(member, memberType) {
+    const fallback = memberType === 'parent'
+      ? FALLBACK_EMOJI
+      : (member.emoji || FALLBACK_EMOJI);
+    if (window.MemberAvatar && typeof MemberAvatar.renderMemberAvatar === 'function') {
+      return (
+        '<span class="cpp-avatar-wrap">' +
+        MemberAvatar.renderMemberAvatar(member, 64, {
+          memberType: memberType,
+          displayEmoji: fallback,
+        }) +
+        '</span>'
+      );
     }
-    return '<span class="cpp-avatar cpp-avatar-adult" aria-hidden="true">🔒</span>';
+    if (member.has_avatar && member.avatar_src) {
+      return (
+        '<span class="cpp-avatar-wrap">' +
+        '<img src="' + escHtml(member.avatar_src) + '" alt="" ' +
+        'onerror="this.outerHTML=\'<span class=\\\'cfh-person-emoji\\\' aria-hidden=\\\'true\\\'>' +
+        escHtml(fallback) + '</span>\'">' +
+        '</span>'
+      );
+    }
+    return '<span class="cpp-avatar-wrap"><span class="cfh-person-emoji" aria-hidden="true">' +
+      escHtml(fallback) + '</span></span>';
   }
 
   function renderCards(children, parents) {
@@ -59,7 +74,7 @@
         '<button type="button" class="cpp-profile-card cpp-profile-card-child" role="listitem" data-profile-kind="child" data-child-id="' +
         escHtml(child.id) +
         '" aria-label="' + escHtml(name) + '">' +
-        childAvatarHtml(child) +
+        profileAvatarHtml(child, 'child') +
         '<span class="cpp-profile-name">' + escHtml(name) + '</span>' +
         '</button>'
       );
@@ -71,7 +86,7 @@
         '<button type="button" class="cpp-profile-card cpp-profile-card-parent" role="listitem" data-profile-kind="parent" data-parent-id="' +
         escHtml(parent.id) +
         '" aria-label="' + escHtml(name) + ', vuxen">' +
-        parentAvatarHtml(parent) +
+        profileAvatarHtml(parent, 'parent') +
         '<span class="cpp-profile-name">' + escHtml(name) + '</span>' +
         '<span class="cpp-profile-hint">Vuxen</span>' +
         '</button>'

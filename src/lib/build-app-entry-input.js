@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const trusted = require('./trusted-device');
+const { avatarApiFields } = require('./avatar-api');
 const { isTrustedDeviceEnabled } = require('./trusted-device-flags');
 const { evaluateHandoffForRequest } = require('./parent-session-handoff');
 const { isEscalatedParentExpired } = require('./adult-privilege-escalation');
@@ -18,6 +19,7 @@ function mapAllowedChildren(rows) {
     name: c.name,
     emoji: c.emoji,
     username: c.username,
+    ...avatarApiFields(c, 'child'),
   }));
 }
 

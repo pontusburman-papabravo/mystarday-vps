@@ -96,6 +96,18 @@ describe('Fas 4A — client contracts', () => {
     assert.doesNotMatch(js, /fetch\('\/api\/auth\/trusted-device\/select-parent'/);
   });
 
+  it('profile picker shows two profiles per row', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-profile-picker.html'), 'utf8');
+    assert.match(html, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  });
+
+  it('profile picker uses smiley fallback for missing adult photo', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
+    assert.match(js, /MemberAvatar\.renderMemberAvatar/);
+    assert.match(js, /😊/);
+    assert.doesNotMatch(js, /🔒/);
+  });
+
   it('trusted bootstrap does not sync widget binding on profile pick', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/trusted-device-bootstrap.js'), 'utf8');
     assert.doesNotMatch(src, /syncBinding/);

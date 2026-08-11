@@ -2,7 +2,11 @@
 
 const express = require('express');
 const { optionalAuth } = require('../middleware/auth');
-const { canViewMemberAvatar, VALID_MEMBER_TYPES } = require('../lib/avatar-authz');
+const {
+  canViewMemberAvatar,
+  canViewMemberAvatarViaTrustedDevice,
+  VALID_MEMBER_TYPES,
+} = require('../lib/avatar-authz');
 const { avatarVersion } = require('../lib/avatar-api');
 const { getChildAvatarRow, getParentAvatarRow } = require('../lib/avatar-service');
 const { getPrivateObjectMeta } = require('../lib/avatar-storage');
@@ -27,11 +31,9 @@ router.get('/:memberType/:memberId', optionalAuth, async (req, res) => {
     if (!VALID_MEMBER_TYPES.has(memberType)) {
       return res.status(404).end();
     }
-    if (!req.user) {
-      return res.status(404).end();
-    }
-
-    const allowed = await canViewMemberAvatar(req.user, memberType, memberId);
+    const allowed = req.user
+      ? await canViewMemberAvatar(req.user, memberType, memberId)
+      : await canViewMemberAvatarViaTrustedDevice(req, memberType, memberId);
     if (!allowed) {
       return res.status(404).end();
     }

@@ -28,7 +28,13 @@ router.get('/app-entry', optionalAuth, async (req, res, next) => {
       dailyUxActive,
       decision,
       allowedChildren: orchestratorActive
-        ? input.allowedChildren.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji }))
+        ? input.allowedChildren.map((c) => ({
+          id: c.id,
+          name: c.name,
+          emoji: c.emoji,
+          has_avatar: c.has_avatar,
+          avatar_src: c.avatar_src,
+        }))
         : undefined,
       allowedParents: orchestratorActive && input.allowedParents?.length
         ? input.allowedParents.map((p) => ({
