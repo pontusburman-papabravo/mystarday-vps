@@ -6,6 +6,9 @@
   'use strict';
 
   const FLAG_CACHE_KEY = 'stjarndag_adult_privilege_v1';
+  const PIN_REQUIRED_KEY = 'stjarndag_entry_pin_required_for_parents';
+  const DAILY_UX_KEY = 'stjarndag_family_device_daily_ux_v1';
+  const ORCH_ACTIVE_KEY = 'stjarndag_family_device_entry_v1';
   const STATES = {
     LOCKED: 'locked',
     UNLOCKING: 'unlocking',
@@ -235,6 +238,55 @@
     });
   }
 
+  function storePickerPinMeta(body) {
+    if (!body || typeof body !== 'object') return;
+    try {
+      sessionStorage.setItem(PIN_REQUIRED_KEY, body.pinRequiredForParents === true ? '1' : '0');
+      if (body.dailyUxActive === true) {
+        sessionStorage.setItem(DAILY_UX_KEY, '1');
+      }
+      if (body.orchestratorActive === true) {
+        sessionStorage.setItem(ORCH_ACTIVE_KEY, '1');
+      }
+    } catch (_) { /* ignore */ }
+  }
+
+  function isPickerPinConfigured() {
+    try {
+      return sessionStorage.getItem(PIN_REQUIRED_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function ensurePickerPinMeta() {
+    try {
+      if (sessionStorage.getItem(PIN_REQUIRED_KEY) !== null) {
+        return Promise.resolve({ ok: true });
+      }
+    } catch (_) { /* ignore */ }
+    return fetchJson('/api/auth/app-entry', { method: 'GET' }).then(function (out) {
+      if (out.body) storePickerPinMeta(out.body);
+      return { ok: out.res.ok, body: out.body };
+    }).catch(function () {
+      return { ok: false };
+    });
+  }
+
+  function runPickerPinGateOrRejectSetup() {
+    return ensurePickerPinMeta().then(function () {
+      if (!isPickerPinConfigured()) {
+        return Promise.reject(new Error('ADULT_PIN_SETUP_REQUIRED'));
+      }
+      return runPinGate();
+    }).then(function (pinResult) {
+      if (!pinResult.ok || !pinResult.pin) {
+        return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+      }
+      return pinResult.pin;
+    });
+  }
+
   function runPinGateOrRejectSetup() {
     return refreshStatus().then(function (statusResult) {
       if (statusResult.body && statusResult.body.pinRequiredForUnlock === false) {
@@ -369,14 +421,6 @@
     if (!parentId) {
       return Promise.resolve({ ok: false, code: 'PARENT_ID_REQUIRED' });
     }
-    if (!featureEnabled) {
-      return refreshStatus().then(function () {
-        if (!featureEnabled) {
-          return { ok: false, code: 'ADULT_PRIVILEGE_DISABLED' };
-        }
-        return requestTrustedProfileUnlock(opts);
-      });
-    }
     if (unlockInFlight) {
       return Promise.resolve({ ok: false, code: 'ADULT_PRIVILEGE_IN_FLIGHT' });
     }
@@ -385,7 +429,7 @@
     setState(STATES.UNLOCKING);
     track('adult_privilege_unlock_started');
 
-    const gatePromise = runPinGateOrRejectSetup().then(function (pin) {
+    const gatePromise = runPickerPinGateOrRejectSetup().then(function (pin) {
       return postSelectParent(pin, parentId);
     });
 
@@ -419,6 +463,7 @@
     refreshStatus: refreshStatus,
     requestEscalation: requestEscalation,
     requestTrustedProfileUnlock: requestTrustedProfileUnlock,
+    storePickerPinMeta: storePickerPinMeta,
     expirePrivilegeIfDue: expirePrivilegeIfDue,
     resetToLocked: resetToLocked,
     initFromSession: initFromSession,

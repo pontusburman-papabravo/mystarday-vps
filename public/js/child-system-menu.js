@@ -34,10 +34,8 @@
       if (el) el.style.display = 'none';
     });
     const switchEl = document.getElementById('switchChildBtn');
-    if (switchEl) {
-      if (dailyUx) {
-        switchEl.style.display = 'none';
-      } else if (allowed > 1) {
+    if (switchEl && !dailyUx) {
+      if (allowed > 1) {
         switchEl.style.display = '';
       } else {
         switchEl.style.display = 'none';

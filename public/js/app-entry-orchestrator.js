@@ -60,6 +60,9 @@
 
   function storeEntryResponseMeta(body) {
     if (!body || typeof body !== 'object') return;
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.storeEntryMeta === 'function') {
+      ProfileSwitchChrome.storeEntryMeta(body);
+    }
     try {
       if (body.dailyUxActive === true) {
         sessionStorage.setItem(DAILY_UX_KEY, '1');
@@ -68,6 +71,11 @@
       }
       if (Array.isArray(body.allowedChildren)) {
         sessionStorage.setItem(ALLOWED_COUNT_KEY, String(body.allowedChildren.length));
+      }
+      if (body.pinRequiredForParents === true) {
+        sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '1');
+      } else if (body.pinRequiredForParents === false) {
+        sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '0');
       }
     } catch (_) { /* ignore */ }
   }

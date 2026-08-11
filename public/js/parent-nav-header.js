@@ -195,6 +195,9 @@
     if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
       ParentMagicAuto.ensureTopChrome();
     }
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+      ProfileSwitchChrome.apply();
+    }
     return bar;
   }
 

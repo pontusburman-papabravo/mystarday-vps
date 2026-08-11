@@ -453,6 +453,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/adult-biometric-client.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/app-entry-orchestrator.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/profile-switch-chrome.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/family-device-entry-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-installation-id.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-client.js?v=' + RELEASE_TAG + '"><\/script>',
@@ -469,6 +470,7 @@ function injectPlatformHtml(body, reqPath, req) {
     headParts.push('<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">');
   }
   headParts.push(
+    '<link rel="stylesheet" href="/css/profile-switch-chrome.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/icon-system.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/stjarnadag-icons-v4.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.9">',

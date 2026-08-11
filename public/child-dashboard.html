@@ -13,6 +13,7 @@
   </script>
   <script src="/js/platform.js?v=1.0.0"></script>
   <link rel="stylesheet" href="/css/child-app-boot.css?v=1.0.0">
+  <link rel="stylesheet" href="/css/profile-switch-chrome.css?v=1.0.0">
     <meta property="og:title" content="Min Stjärndag — Förenkla vardagen för hela familjen">
     <meta property="og:description" content="Skapa och följ dagliga scheman, aktiviteter och belöningar">
     <meta property="og:type" content="website">
@@ -2337,9 +2338,9 @@
         </button>
         <button onclick="window.print()" id="printBtn" class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" title="Skriv ut">🖨️</button>
         <button onclick="toggleChildDarkMode()" id="childDarkBtn" class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" title="Mörkt läge">🌙</button>
-        <button type="button" onclick="switchChildMember()" id="switchChildBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-colors" title="Byt barn eller familjemedlem">
+        <button type="button" onclick="switchChildMember()" id="switchChildBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-colors" title="Byt profil" aria-label="Byt profil">
           <span aria-hidden="true">🔄</span>
-          <span>Byt barn</span>
+          <span>Byt profil</span>
         </button>
         <button type="button" onclick="childLogout()" id="logoutBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-red-500/30 text-white rounded-lg text-xs font-semibold transition-colors" title="Avsluta barnläge (kan öppna vuxenvy om förälder var inloggad)">
           <span aria-hidden="true">🚪</span>
@@ -2657,7 +2658,8 @@
   <script src="/js/child-customization-entries.js?v=1.0.1"></script>
   <script src="/js/child-settings-view.js?v=1.0.0"></script>
   <script src="/js/child-capabilities.js?v=1.0.0"></script>
-  <script src="/js/child-trusted-chrome.js?v=1.0.0"></script>
+  <script src="/js/profile-switch-chrome.js?v=1.0.0"></script>
+  <script src="/js/child-trusted-chrome.js?v=1.1.0"></script>
   <script src="/js/child-placements.js?v=1.0.0"></script>
   <script src="/js/child-worlds-nav.js?v=1.1.0"></script>
   <script src="/js/child-today-i18n-bootstrap.js?v=1.0.0"></script>
