@@ -15,8 +15,7 @@
   ];
 
   const PARENT_ACTIONS = [
-    { id: 'adult_unlock', labelKey: 'settings.adultUnlock', hintKey: 'settings.adultUnlockHint', dailyUxOnly: true },
-    { id: 'switch_child', labelKey: 'settings.switchChild', hintKey: 'settings.switchChildHint' },
+    { id: 'switch_profile', labelKey: 'settings.switchProfile', hintKey: 'settings.switchProfileHint' },
   ];
 
   let _rendered = false;
@@ -86,18 +85,11 @@
 
   function parentActionsHtml() {
     const dailyUx = isDailyUxActive();
-    const allowed = getAllowedChildCount();
-    const actions = PARENT_ACTIONS.filter(function (action) {
-      if (action.dailyUxOnly && !dailyUx) return false;
-      if (action.id === 'switch_child' && dailyUx && allowed <= 1) return false;
-      return true;
-    });
+    if (!dailyUx) return '';
+    const actions = PARENT_ACTIONS;
     return actions.map(function (action) {
       const label = t(action.labelKey);
-      let hint = t(action.hintKey);
-      if (action.id === 'switch_child' && isDailyUxMultiChild()) {
-        hint = t('settings.switchChildDailyHint');
-      }
+      const hint = t(action.hintKey);
       return (
         '<button type="button" class="csv-action-btn csv-action-btn-parent" data-parent-action="' + esc(action.id) + '">' +
           '<span class="csv-action-copy">' +
@@ -165,30 +157,8 @@
     }
   }
 
-  function navigateAfterAdultUnlock() {
-    window.location.href = '/home';
-  }
-
-  function runAdultUnlock() {
-    if (!window.AdultPrivilege || typeof AdultPrivilege.requestEscalation !== 'function') {
-      if (window.ParentalGate && ParentalGate.show) {
-        ParentalGate.show(navigateAfterAdultUnlock);
-      }
-      return;
-    }
-    AdultPrivilege.requestEscalation().then(function (result) {
-      if (result && result.ok) {
-        navigateAfterAdultUnlock();
-      }
-    });
-  }
-
   function runParentAction(actionId) {
-    if (actionId === 'adult_unlock') {
-      runAdultUnlock();
-      return;
-    }
-    if (actionId === 'switch_child' && typeof window.switchChildMember === 'function') {
+    if (actionId === 'switch_profile' && typeof window.switchChildMember === 'function') {
       window.switchChildMember();
     }
   }
@@ -214,11 +184,7 @@
         const run = function () {
           runParentAction(actionId);
         };
-        if (actionId === 'switch_child' && isDailyUxMultiChild()) {
-          run();
-          return;
-        }
-        if (actionId === 'adult_unlock') {
+        if (actionId === 'switch_profile') {
           run();
           return;
         }

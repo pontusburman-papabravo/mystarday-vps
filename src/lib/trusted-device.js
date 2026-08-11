@@ -188,6 +188,23 @@ async function listFamilyChildrenForDevice(familyId, enrollingParentId) {
   }));
 }
 
+async function listParentsForSharedDevice(familyId) {
+  const result = await db.query(
+    `SELECT id, family_id, email, name, avatar_storage_key, avatar_updated_at
+     FROM parent
+     WHERE family_id = $1 AND is_admin = false
+     ORDER BY created_at ASC`,
+    [familyId]
+  );
+  return result.rows.map((p) => ({
+    id: p.id,
+    name: p.name || (p.email ? String(p.email).split('@')[0] : 'Vuxen'),
+    familyId: p.family_id,
+    type: 'parent',
+    ...avatarApiFields(p, 'parent'),
+  }));
+}
+
 async function verifyTrustedDeviceRaw(raw) {
   if (!raw || typeof raw !== 'string') return null;
   const row = await deviceDb.findByTokenHash(hashToken(raw));
@@ -433,6 +450,91 @@ async function selectChildOnTrustedDevice(req, res, rawToken, childId) {
   return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_select_child');
 }
 
+async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options) {
+  const opts = options || {};
+  const row = await verifyTrustedDeviceRaw(rawToken);
+  if (!row) {
+    return { ok: false, code: 'TRUSTED_DEVICE_INVALID' };
+  }
+  const enabled = await isTrustedDeviceEnabled(row.family_id);
+  if (!enabled) {
+    return { ok: false, code: 'TRUSTED_DEVICE_DISABLED' };
+  }
+  if (row.device_mode !== 'shared' && row.device_mode !== 'child') {
+    return { ok: false, code: 'DEVICE_MODE_NOT_SHARED' };
+  }
+
+  const parentRes = await db.query(
+    `SELECT id, email, family_id, is_admin, name, onboarding_completed
+     FROM parent WHERE id = $1 AND family_id = $2 AND is_admin = false`,
+    [parentId, row.family_id]
+  );
+  const parentRow = parentRes.rows[0];
+  if (!parentRow) {
+    return { ok: false, code: 'PARENT_ACCESS_DENIED' };
+  }
+
+  const parentPinDb = require('../../db/parent-pin');
+  const familyHasPin = await parentPinDb.familyAnyParentHasPin(row.family_id);
+  if (familyHasPin) {
+    const pin = String(opts.pin || '');
+    if (!/^\d{4}$/.test(pin)) {
+      return { ok: false, code: 'PARENT_PIN_INVALID' };
+    }
+    const pinResult = await parentPinDb.verifyParentPin({
+      familyId: row.family_id,
+      parentId,
+      pin,
+    });
+    if (!pinResult.ok) {
+      return { ok: false, code: 'PARENT_PIN_INVALID' };
+    }
+  }
+
+  const { signParentAccessWithOptionalLease } = require('./adult-privilege-escalation');
+  const signed = signParentAccessWithOptionalLease(parentRow, {
+    deviceMode: row.device_mode,
+  });
+
+  const rawRefresh = await createRefreshToken({
+    userId: parentRow.id,
+    userType: 'parent',
+    familyId: parentRow.family_id,
+    trustedDeviceId: row.id,
+  });
+  const refreshRow = await lookupRefreshTokenRow(rawRefresh);
+  if (refreshRow?.id) {
+    await deviceDb.setLastRefreshTokenId(row.id, refreshRow.id);
+  }
+
+  setRefreshCookie(res, rawRefresh);
+  setAccessCookie(res, signed.accessToken, signed.expiresInSecs);
+  setTrustedDeviceCookie(res, rawToken);
+  await deviceDb.touchLastSeen(row.id);
+
+  const analytics = require('../../db/analytics');
+  analytics.track(row.family_id, 'parent_session_started', {
+    source: opts.source || 'trusted_device_select_parent',
+    session_mode: 'select',
+    device_mode: row.device_mode,
+  });
+
+  return {
+    ok: true,
+    parent: {
+      id: parentRow.id,
+      type: 'parent',
+      familyId: parentRow.family_id,
+      email: parentRow.email || null,
+      name: parentRow.name || null,
+      onboarding_completed: parentRow.onboarding_completed,
+    },
+    device_id: row.id,
+    device_mode: row.device_mode,
+    privilegeLeaseUntil: signed.privilegeLeaseUntil,
+  };
+}
+
 async function restoreParentSessionFromDevice(res, rawToken) {
   const row = await verifyTrustedDeviceRaw(rawToken);
   if (!row) {
@@ -514,6 +616,8 @@ module.exports = {
   restoreParentSessionFromDevice,
   getTrustedDeviceContext,
   selectChildOnTrustedDevice,
+  selectParentOnTrustedDevice,
+  listParentsForSharedDevice,
   verifyTrustedDeviceRaw,
   getEnrollingParentRow,
   setTrustedDeviceCookie,

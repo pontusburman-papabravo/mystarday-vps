@@ -146,16 +146,16 @@ test('family device entry matrix A–K', async (t) => {
 
     const usernameA = (await db.query('SELECT username FROM child WHERE id = $1', [childA])).rows[0].username;
 
-    await t.test('A: shared + 1 child → child-home (not child-login path)', async () => {
+    await t.test('A: shared + 1 child + 1 parent → profile-picker (Netflix)', async () => {
       const onlyParent = await registerAndLogin(http.baseUrl);
-      const onlyChild = await createChild(http.baseUrl, onlyParent, { name: 'Solo', emoji: '⭐' });
+      await createChild(http.baseUrl, onlyParent, { name: 'Solo', emoji: '⭐' });
       const deviceCookies = await enrollShared(http, onlyParent);
       const { status, body } = await fetchAppEntry(http.baseUrl, trustedOnlyCookies(deviceCookies));
       assert.equal(status, 200);
       assert.equal(body.orchestratorActive, true);
-      assert.equal(body.decision.destination, 'child-home');
-      assert.equal(body.decision.childId, onlyChild);
-      assert.equal(body.decision.path, '/child/today');
+      assert.equal(body.decision.destination, 'profile-picker');
+      assert.equal(body.decision.path, '/child/profile-picker');
+      assert.ok(Array.isArray(body.allowedParents) && body.allowedParents.length >= 1);
       assert.notEqual(body.decision.path, '/child-login');
     });
 
@@ -187,7 +187,7 @@ test('family device entry matrix A–K', async (t) => {
       assert.equal(body.decision.path, '/child/profile-picker');
     });
 
-    await t.test('D: shared + default child → that child home', async () => {
+    await t.test('D: shared + default child + parent → profile-picker (default not auto-skipped)', async () => {
       const deviceCookies = await enrollShared(http, parent);
       await db.query(
         `UPDATE family_trusted_device SET default_child_id = $1
@@ -196,8 +196,8 @@ test('family device entry matrix A–K', async (t) => {
         [childB, parent.email]
       );
       const { body } = await fetchAppEntry(http.baseUrl, trustedOnlyCookies(deviceCookies));
-      assert.equal(body.decision.destination, 'child-home');
-      assert.equal(body.decision.childId, childB);
+      assert.equal(body.decision.destination, 'profile-picker');
+      assert.equal(body.decision.path, '/child/profile-picker');
     });
 
     await t.test('F: child device → bound child', async () => {
@@ -245,7 +245,7 @@ test('family device entry matrix A–K', async (t) => {
       assert.notEqual(body.decision.destination, 'child-home');
     });
 
-    await t.test('I: child JWT mismatch resolved child → fail closed', async () => {
+    await t.test('I: active child session resumes child-home despite multi-profile device', async () => {
       const p5 = await registerAndLogin(http.baseUrl);
       const ca = await createChild(http.baseUrl, p5, { name: 'CA', emoji: 'A' });
       const cb = await createChild(http.baseUrl, p5, { name: 'CB', emoji: 'B' });
@@ -260,9 +260,10 @@ test('family device entry matrix A–K', async (t) => {
       );
       const childCookies = await childLoginFromParent(http, { ...p5, cookies: deviceCookies }, uA);
       const { body } = await fetchAppEntry(http.baseUrl, childCookies);
-      assert.equal(body.decision.failClosed, true);
-      assert.equal(body.decision.destination, 'profile-picker');
-      assert.equal(body.decision.reason, 'child_session_mismatch');
+      assert.equal(body.decision.failClosed, false);
+      assert.equal(body.decision.destination, 'child-home');
+      assert.equal(body.decision.childId, ca);
+      assert.equal(body.decision.credentialContext, 'child');
     });
 
     await t.test('K: deep-link child out of scope → fail closed', async () => {

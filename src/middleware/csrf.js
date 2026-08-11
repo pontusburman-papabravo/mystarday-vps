@@ -40,6 +40,7 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/auth/refresh',
   '/auth/trusted-device/restore',
   '/auth/trusted-device/select-child',
+  '/auth/trusted-device/select-parent',
   '/widget/bindings',
   '/widget/complete-action',
   '/widget/switch-child',

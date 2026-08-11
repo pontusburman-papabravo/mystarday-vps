@@ -107,3 +107,75 @@ test('select-child on shared device creates handoff without parent session cooki
     await db.cleanup();
   }
 });
+
+test('select-parent on shared device issues parent session with privilege lease', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    await enableFlags(db);
+    const session = await registerAndLogin(http.baseUrl);
+    await createChild(http.baseUrl, session, { name: 'Alma', emoji: '🦊' });
+
+    const enrollRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/shared`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(session.cookies),
+        'X-CSRF-Token': session.csrfToken,
+      },
+      body: JSON.stringify({ platform: 'web', label: 'Shared tablet' }),
+    });
+    assert.equal(enrollRes.status, 201);
+
+    let deviceCookies = { ...session.cookies };
+    for (const header of getSetCookieHeaders(enrollRes)) {
+      deviceCookies = mergeCookies(deviceCookies, [header]);
+    }
+    delete deviceCookies.access_token;
+    delete deviceCookies.refresh_token;
+
+    const parentRow = await db.query(
+      'SELECT id FROM parent WHERE email = $1',
+      [session.email]
+    );
+    const parentId = parentRow.rows[0].id;
+
+    const selectRes = await fetch(`${http.baseUrl}/api/auth/trusted-device/select-parent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(deviceCookies),
+      },
+      body: JSON.stringify({ parent_id: parentId }),
+    });
+    const selectText = await selectRes.text();
+    assert.equal(selectRes.status, 200, selectText);
+    const selectBody = JSON.parse(selectText);
+    assert.equal(selectBody.ok, true);
+    assert.equal(selectBody.redirect, '/home');
+    assert.ok(selectBody.privilegeLeaseUntil);
+
+    let parentCookies = { ...deviceCookies };
+    for (const header of getSetCookieHeaders(selectRes)) {
+      parentCookies = mergeCookies(parentCookies, [header]);
+    }
+
+    const meRes = await fetch(`${http.baseUrl}/api/auth/me`, {
+      headers: { Cookie: cookieHeader(parentCookies) },
+    });
+    const meBody = await meRes.json();
+    assert.equal(meRes.status, 200);
+    assert.equal(meBody.type, 'parent');
+    assert.equal(meBody.id, parentId);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});

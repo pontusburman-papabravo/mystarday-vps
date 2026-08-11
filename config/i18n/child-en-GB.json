@@ -482,6 +482,8 @@
     "switchChild": "Switch child",
     "switchChildHint": "Needs parent PIN",
     "switchChildDailyHint": "Choose another child on this device",
+    "switchProfile": "Switch profile",
+    "switchProfileHint": "Choose child or adult",
     "adultUnlock": "Adult mode",
     "adultUnlockHint": "Needs parent PIN or biometrics",
     "theme": "Theme",
