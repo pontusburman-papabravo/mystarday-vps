@@ -190,6 +190,12 @@
     }
     if (window.ParentMagicPageHub) {
       ParentMagicPageHub.refresh(_page, magic);
+      if (_page === 'settings' && ParentMagicPageHub.ensureSettingsChrome) {
+        ParentMagicPageHub.ensureSettingsChrome();
+      }
+    }
+    if (magic && _page === 'settings' && window.NativeTabBar && NativeTabBar.remount) {
+      NativeTabBar.remount();
     }
   }
 

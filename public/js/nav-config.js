@@ -208,6 +208,7 @@
     '/upgrade',
     '/child-settings',
     '/skattkammaren',
+    '/settings',
   ];
 
   function isLibraryPath(pathname) {
@@ -217,6 +218,12 @@
   function isParentShellPath(pathname) {
     const p = normalizePath(pathname);
     if (activeNavItem(p)) return true;
+    if (SETTINGS_NAV.paths) {
+      for (let s = 0; s < SETTINGS_NAV.paths.length; s++) {
+        const sp = SETTINGS_NAV.paths[s];
+        if (p === sp || p.indexOf(sp + '/') === 0) return true;
+      }
+    }
     for (let i = 0; i < PARENT_SHELL_PATHS.length; i++) {
       const hp = PARENT_SHELL_PATHS[i];
       if (p === hp || p.indexOf(hp + '/') === 0) return true;

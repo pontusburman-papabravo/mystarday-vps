@@ -195,6 +195,7 @@ async function listParentsForSharedDevice(familyId) {
     name: p.name || (p.email ? String(p.email).split('@')[0] : 'Vuxen'),
     familyId: p.family_id,
     type: 'parent',
+    hasAppPin: p.has_app_pin === true,
     ...avatarApiFields(p, 'parent'),
   }));
 }
@@ -487,6 +488,11 @@ async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options
   const familyHasPin = await parentPinDb.familyAnyParentHasPin(row.family_id);
   if (!familyHasPin) {
     return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
+  }
+
+  const hasOwnPin = await parentPinDb.parentHasPin(parentId);
+  if (!hasOwnPin) {
+    return { ok: false, code: 'PARENT_PIN_NOT_SET' };
   }
 
   const unlockMethod = String(opts.unlockMethod || '').toLowerCase();

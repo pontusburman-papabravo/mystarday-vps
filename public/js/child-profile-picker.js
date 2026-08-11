@@ -46,6 +46,19 @@
     el.classList.toggle('hidden', !msg);
   }
 
+  function wireParentBackupLink() {
+    const link = document.getElementById('cppParentBackupLink');
+    if (!link || link.dataset.wired === '1') return;
+    link.dataset.wired = '1';
+    link.addEventListener('click', function () {
+      if (window.Auth && typeof Auth.redirectToParentBackupLogin === 'function') {
+        Auth.redirectToParentBackupLogin('/home');
+        return;
+      }
+      window.location.href = '/login?parent=1&next=' + encodeURIComponent('/home');
+    });
+  }
+
   function childAvatarHtml(child) {
     if (child.has_avatar && child.avatar_src) {
       return '<img class="cpp-avatar-img" src="' + escHtml(child.avatar_src) + '" alt="">';
@@ -78,9 +91,11 @@
 
     const parentCards = (parents || []).map(function (parent) {
       const name = parent.name || 'Vuxen';
+      const hasAppPin = parent.hasAppPin === true;
       return (
         '<button type="button" class="cpp-profile-card cpp-profile-card-parent" role="listitem" data-profile-kind="parent" data-parent-id="' +
         escHtml(parent.id) +
+        '" data-parent-has-app-pin="' + (hasAppPin ? '1' : '0') +
         '" aria-label="' + escHtml(name) + ', vuxen">' +
         parentAvatarHtml(parent) +
         '<span class="cpp-profile-name">' + escHtml(name) + '</span>' +
@@ -122,6 +137,16 @@
     if (btn) btn.disabled = true;
     showError('');
 
+    const hasAppPin = btn && btn.getAttribute('data-parent-has-app-pin') === '1';
+    if (!hasAppPin) {
+      if (window.Auth && typeof Auth.redirectToParentBackupLogin === 'function') {
+        Auth.redirectToParentBackupLogin('/home');
+        return;
+      }
+      window.location.href = '/login?parent=1&next=' + encodeURIComponent('/home');
+      return;
+    }
+
     if (!window.AdultPrivilege || typeof AdultPrivilege.requestTrustedProfileUnlock !== 'function') {
       showError('Kunde inte låsa upp vuxenläge. Försök igen.');
       if (btn) btn.disabled = false;
@@ -131,9 +156,15 @@
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (!result || !result.ok) {
       if (result && result.code === 'PARENT_PIN_INVALID') {
-        showError('Fel PIN. Ange din vuxen-PIN (app-lås), inte barnets PIN eller lösenord.');
+        showError('Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.');
+      } else if (result && result.code === 'PARENT_PIN_NOT_SET') {
+        showError('Den här vuxenprofilen har ingen app-lås-PIN än. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
       } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
-        showError('En vuxen behöver ställa in app-lås-PIN under Inställningar först.');
+        showError('En vuxen behöver ställa in app-lås-PIN — eller logga in med e-post eller Apple/Google via knappen nedan.');
+      } else if (result && result.code === 'ADULT_PRIVILEGE_VERIFY_FAILED') {
+        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      } else if (result && result.code === 'PARENT_ACCESS_DENIED') {
+        showError('Du har inte behörighet att logga in som den här vuxenprofilen.');
       } else if (result && result.status === 429) {
         showError('För många försök. Vänta en stund och försök igen.');
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {
@@ -203,6 +234,7 @@
         : 'Tryck på din profil';
     }
     renderCards(children, parents);
+    wireParentBackupLink();
   }
 
   if (document.readyState === 'loading') {

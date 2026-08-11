@@ -138,7 +138,8 @@ router.post('/trusted-device/select-parent', attachTrustedPinRateLimitScope, par
         : result.code === 'TRUSTED_DEVICE_DISABLED' ? 403
           : result.code === 'PARENT_PIN_INVALID' ? 401
             : result.code === 'ADULT_PIN_SETUP_REQUIRED' ? 403
-              : result.code === 'ADULT_VERIFICATION_REQUIRED' ? 401
+              : result.code === 'PARENT_PIN_NOT_SET' ? 403
+                : result.code === 'ADULT_VERIFICATION_REQUIRED' ? 401
                 : 401;
       return res.status(status).json({ code: result.code });
     }

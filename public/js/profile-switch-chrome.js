@@ -128,6 +128,15 @@
     btn.setAttribute('aria-label', labelText());
   }
 
+  function hasParentSessionHint() {
+    if (typeof Auth !== 'undefined' && Auth.isLoggedIn && Auth.isLoggedIn()) return true;
+    try {
+      return document.cookie.indexOf('access_token=') !== -1;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function ensureParentBtn() {
     const selector = '[data-profile-switch-parent]';
     const existing = document.querySelector(selector);
@@ -135,7 +144,7 @@
       if (existing) existing.remove();
       return;
     }
-    if (typeof Auth !== 'undefined' && Auth.isLoggedIn && !Auth.isLoggedIn()) {
+    if (!hasParentSessionHint()) {
       if (existing) existing.remove();
       return;
     }
@@ -170,6 +179,9 @@
   async function refreshFromServer() {
     if (!isDailyUxActive()) return;
     try {
+      if (typeof Auth !== 'undefined' && Auth.hydrateParentSessionFromCookies) {
+        await Auth.hydrateParentSessionFromCookies();
+      }
       const res = await fetch('/api/auth/app-entry', { credentials: 'include' });
       const body = await res.json().catch(function () { return {}; });
       storeEntryMeta(body);
@@ -183,6 +195,8 @@
     refreshFromServer();
   }
 
+  document.addEventListener('stjarndag-parent-nav-layout', apply);
+  document.addEventListener('stjarndag-magic-navigated', apply);
   document.addEventListener('child-worlds-configured', apply);
 
   if (document.readyState === 'loading') {
