@@ -583,6 +583,7 @@ const CACHE_NAME = 'stjarndag-v838';
 // stjarndag-v820: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v824: Fas 4A trusted daily child UX
 // stjarndag-v823: Fas 3B adult privilege lease + PIN fallback + lifecycle
+// stjarndag-v838: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
