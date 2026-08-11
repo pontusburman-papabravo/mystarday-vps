@@ -191,7 +191,13 @@
   }
 
   function resetPageState(pageId) {
-    if (pageId !== 'settings' && global.ParentMagicPageHub && global.ParentMagicPageHub.resetSettingsState) {
+    if (pageId === 'settings') {
+      if (global.ParentMagicPageHub && global.ParentMagicPageHub.resetSettingsState) {
+        global.ParentMagicPageHub.resetSettingsState();
+      }
+      return;
+    }
+    if (global.ParentMagicPageHub && global.ParentMagicPageHub.resetSettingsState) {
       global.ParentMagicPageHub.resetSettingsState();
     }
   }
@@ -281,12 +287,6 @@
       applyBodyFromPage(doc, pageId);
       resetPageState(pageId);
 
-      const hubMount = global.document.getElementById('parentMagicPageMount');
-      if (hubMount) {
-        hubMount.innerHTML = '';
-        hubMount.classList.add('hidden');
-      }
-
       if (!swapMain(doc)) throw new Error('swap_main_failed');
 
       if (global.ParentMagicAuto) ParentMagicAuto.prepareDom();
@@ -303,6 +303,10 @@
         await ParentMagicPageBoot.ensureScripts(SHARED_SCRIPTS);
         await ParentMagicPageBoot.ensureScripts(PAGE_SCRIPTS[pageId] || []);
         await ParentMagicPageBoot.run(pageId);
+      }
+
+      if (pageId === 'settings' && global.ParentMagicPageHub && global.ParentMagicPageHub.ensureSettingsChrome) {
+        await global.ParentMagicPageHub.ensureSettingsChrome();
       }
 
       let url = path;

@@ -43,7 +43,12 @@
     const el = document.getElementById('cppError');
     if (!el) return;
     el.textContent = msg || '';
-    el.classList.toggle('hidden', !msg);
+    const on = !!msg;
+    el.classList.toggle('visible', on);
+    el.classList.remove('hidden');
+    if (on && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   function wireParentBackupLink() {
@@ -154,10 +159,22 @@
     }
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
+    if (result && result.ok) {
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      window.location.replace(result.redirect || '/home');
+      return;
+    }
+
+    if (result && result.code === 'PARENT_PIN_INVALID') {
+      showError('Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.');
+      if (btn) btn.disabled = false;
+      return;
+    }
+
     if (!result || !result.ok) {
-      if (result && result.code === 'PARENT_PIN_INVALID') {
-        showError('Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.');
-      } else if (result && result.code === 'PARENT_PIN_NOT_SET') {
+      if (result && result.code === 'PARENT_PIN_NOT_SET') {
         showError('Den här vuxenprofilen har ingen app-lås-PIN än. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
       } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
         showError('En vuxen behöver ställa in app-lås-PIN — eller logga in med e-post eller Apple/Google via knappen nedan.');
@@ -175,10 +192,6 @@
       if (btn) btn.disabled = false;
       return;
     }
-    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-      DeviceMode.enterParent();
-    }
-    window.location.replace(result.redirect || '/home');
   }
 
   async function bootstrap() {
