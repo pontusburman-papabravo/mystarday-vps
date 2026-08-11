@@ -191,6 +191,75 @@ describe('adult-privilege client state machine', () => {
     assert.ok(inflight <= 1);
   });
 
+  it('trusted profile picker unlock does not require adult-privilege status auth', async () => {
+    let statusCalls = 0;
+    let selectCalls = 0;
+    const sandbox = {
+      window: {
+        analytics: { track: () => {} },
+        Auth: {
+          getCsrfToken: () => 'csrf',
+          setCsrfToken: () => {},
+        },
+        AdultPinGateUI: {
+          collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
+        },
+        DeviceMode: { enterParent: () => {} },
+        sessionStorage: {
+          _m: { stjarndag_entry_pin_required_for_parents: '1' },
+          getItem(k) {
+            return this._m[k] || null;
+          },
+          setItem(k, v) {
+            this._m[k] = v;
+          },
+        },
+      },
+      fetch: (url) => {
+        if (String(url).includes('/adult-privilege/status')) {
+          statusCalls += 1;
+          return Promise.resolve({
+            ok: false,
+            status: 401,
+            text: () => Promise.resolve(JSON.stringify({ ok: false })),
+          });
+        }
+        if (String(url).includes('/trusted-device/select-parent')) {
+          selectCalls += 1;
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  ok: true,
+                  user: { id: 'p1', type: 'parent' },
+                  redirect: '/home',
+                  csrfToken: 'c',
+                })
+              ),
+          });
+        }
+        if (String(url).includes('/auth/me')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(JSON.stringify({ type: 'parent' })),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+      },
+    };
+    sandbox.sessionStorage = sandbox.window.sessionStorage;
+    sandbox.DeviceMode = sandbox.window.DeviceMode;
+    sandbox.globalThis = sandbox.window;
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(statusCalls, 0, 'picker unlock must not call adult-privilege status');
+    assert.equal(selectCalls, 1);
+  });
+
   it('resetToLocked clears active UI state', () => {
     const sandbox = {
       window: {

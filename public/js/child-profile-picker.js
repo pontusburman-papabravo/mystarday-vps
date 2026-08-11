@@ -16,9 +16,11 @@
   }
 
   function storeEntryMeta(body) {
+    if (window.AdultPrivilege && typeof AdultPrivilege.storePickerPinMeta === 'function') {
+      AdultPrivilege.storePickerPinMeta(body);
+    }
     if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.storeEntryMeta === 'function') {
       ProfileSwitchChrome.storeEntryMeta(body);
-      return;
     }
     try {
       if (body && body.dailyUxActive) {
@@ -28,6 +30,11 @@
       }
       if (body && Array.isArray(body.allowedChildren)) {
         sessionStorage.setItem(ALLOWED_COUNT_KEY, String(body.allowedChildren.length));
+      }
+      if (body && body.pinRequiredForParents === true) {
+        sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '1');
+      } else if (body && body.pinRequiredForParents === false) {
+        sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '0');
       }
     } catch (_) { /* ignore */ }
   }
@@ -124,9 +131,11 @@
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (!result || !result.ok) {
       if (result && result.code === 'PARENT_PIN_INVALID') {
-        showError('Fel PIN. Försök igen.');
+        showError('Fel PIN. Ange din vuxen-PIN (app-lås), inte barnets PIN eller lösenord.');
       } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
-        showError('En vuxen behöver ställa in app-lås-PIN först.');
+        showError('En vuxen behöver ställa in app-lås-PIN under Inställningar först.');
+      } else if (result && result.status === 429) {
+        showError('För många försök. Vänta en stund och försök igen.');
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {
         showError('');
       } else {

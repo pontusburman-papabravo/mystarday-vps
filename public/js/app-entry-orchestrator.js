@@ -72,6 +72,11 @@
       if (Array.isArray(body.allowedChildren)) {
         sessionStorage.setItem(ALLOWED_COUNT_KEY, String(body.allowedChildren.length));
       }
+      if (body.pinRequiredForParents === true) {
+        sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '1');
+      } else if (body.pinRequiredForParents === false) {
+        sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '0');
+      }
     } catch (_) { /* ignore */ }
   }
 
