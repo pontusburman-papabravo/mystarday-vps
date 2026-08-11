@@ -174,6 +174,10 @@
       ? ParentMagicAuto.resolvePage(window.location.pathname)
       : null);
     if (resolved) _page = resolved;
+    if (window.ParentMagicPageHub && ParentMagicPageHub.isSettingsDomPage
+        && ParentMagicPageHub.isSettingsDomPage()) {
+      _page = 'settings';
+    }
   }
 
   function refresh() {

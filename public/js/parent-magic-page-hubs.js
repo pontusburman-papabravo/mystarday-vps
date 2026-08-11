@@ -342,6 +342,17 @@
       || hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications';
   }
 
+  function isSettingsDomPage() {
+    const page = document.body && document.body.getAttribute('data-magic-page');
+    if (page === 'settings') return true;
+    return (window.location.pathname || '').replace(/\/$/, '') === '/settings';
+  }
+
+  function resolveHubPage(page) {
+    if (isSettingsDomPage()) return 'settings';
+    return page;
+  }
+
   function showSettingsRootMenu() {
     resetSettingsState();
     tagSettingsSections();
@@ -429,10 +440,8 @@
 
   async function ensureSettingsChrome() {
     const page = document.body.getAttribute('data-magic-page');
-    if (page !== 'settings') return;
-    if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
-      try { await Auth.hydrateParentSessionFromCookies(); } catch (_) { /* ignore */ }
-    }
+    if (page !== 'settings' && !isSettingsDomPage()) return;
+
     const magic = window.ParentMagicShell && ParentMagicShell.isMagic && ParentMagicShell.isMagic();
     if (!magic) return;
 
@@ -447,6 +456,14 @@
         openFromHash();
       }
       if (mountEl) mountEl.classList.remove('hidden');
+    }
+
+    if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
+      try { await Auth.hydrateParentSessionFromCookies(); } catch (_) { /* ignore */ }
+    }
+
+    if (!hasDeepLink) {
+      showSettingsRootMenu();
     }
 
     if (window.ParentNavHeader && typeof ParentNavHeader.ensure === 'function') {
@@ -469,10 +486,14 @@
 
   function refresh(page, magic, opts) {
     opts = opts || {};
+    page = resolveHubPage(page);
     const el = mount();
     if (!el) return;
 
     if (!magic || !(window.ParentMagicShell && ParentMagicShell.isMagic())) {
+      if (isSettingsDomPage()) {
+        return;
+      }
       el.innerHTML = '';
       el.classList.add('hidden');
       resetSettingsState();
@@ -521,6 +542,8 @@
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);
+    } else if (isSettingsDomPage()) {
+      showSettingsRootMenu();
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -581,6 +604,7 @@
     ensureSettingsChrome: ensureSettingsChrome,
     showSettingsRootMenu: showSettingsRootMenu,
     hasSettingsDeepLink: hasSettingsDeepLink,
+    isSettingsDomPage: isSettingsDomPage,
     applyHubCopy: applyHubCopy,
   };
 

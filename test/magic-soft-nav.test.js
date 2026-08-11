@@ -155,7 +155,13 @@ describe('magic soft navigation', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     assert.match(css, /magic-settings-in-group \[data-magic-settings-content\]:not\(\.hidden\)/);
     assert.match(css, /parent-magic-page-settings:not\(\.magic-settings-in-group\) main > \.flex-1\.overflow-auto/);
-    assert.match(css, /data-magic-page="settings":not\(\.magic-settings-in-group\)/);
+    assert.match(css, /#parentMagicPageMount:not\(:empty\)/);
+  });
+
+  it('settings page uses manual i18n boot to avoid double refresh races', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
+    assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /reinforceSettingsMenu/);
   });
 
   it('settings is a parent shell path for bottom nav', () => {
@@ -180,6 +186,7 @@ describe('magic soft navigation', () => {
     assert.match(hubs, /ensureSettingsChrome/);
     assert.match(hubs, /showSettingsRootMenu/);
     assert.match(hubs, /hasSettingsDeepLink/);
+    assert.match(hubs, /isSettingsDomPage/);
     assert.match(hubs, /stjarndag-magic-navigated/);
     assert.match(router, /pageId === 'settings'[\s\S]*ensureSettingsChrome/);
     assert.doesNotMatch(router, /hubMount\.innerHTML = ''/);

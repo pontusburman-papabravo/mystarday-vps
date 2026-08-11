@@ -285,6 +285,12 @@ body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group)
   display: none !important;
 }
 
+/* Settings root menu must stay visible when mount has content */
+body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group) #parentMagicPageMount:not(:empty) {
+  display: block !important;
+  visibility: visible !important;
+}
+
 body.parent-magic-view.magic-settings-in-group [data-magic-settings-content]:not(.hidden) {
   display: block !important;
 }
