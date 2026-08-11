@@ -200,6 +200,7 @@ describe('adult-privilege client state machine', () => {
         Auth: {
           getCsrfToken: () => 'csrf',
           setCsrfToken: () => {},
+          setAuth: () => {},
         },
         AdultPinGateUI: {
           collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
@@ -216,6 +217,19 @@ describe('adult-privilege client state machine', () => {
         },
       },
       fetch: (url) => {
+        if (String(url).includes('/auth/app-entry')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  pinRequiredForParents: true,
+                  orchestratorActive: true,
+                })
+              ),
+          });
+        }
         if (String(url).includes('/adult-privilege/status')) {
           statusCalls += 1;
           return Promise.resolve({
@@ -271,5 +285,17 @@ describe('adult-privilege client state machine', () => {
     const AdultPrivilege = loadAdultPrivilege(sandbox);
     AdultPrivilege.resetToLocked();
     assert.equal(AdultPrivilege.getState(), 'locked');
+  });
+
+  it('picker pin meta always refreshes from app-entry', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege.js'), 'utf8');
+    assert.match(src, /function ensurePickerPinMeta/);
+    assert.doesNotMatch(src, /sessionStorage\.getItem\(PIN_REQUIRED_KEY\) !== null/);
+  });
+
+  it('allowed parents on family device require parent_pin_hash', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'db/parent-access.js'), 'utf8');
+    assert.match(src, /getAllowedParentsForFamilyDevice[\s\S]*parent_pin_hash IS NOT NULL/);
+    assert.match(src, /isParentEligibleForFamilyDevice[\s\S]*parent_pin_hash IS NOT NULL/);
   });
 });

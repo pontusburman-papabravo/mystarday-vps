@@ -131,9 +131,15 @@
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (!result || !result.ok) {
       if (result && result.code === 'PARENT_PIN_INVALID') {
-        showError('Fel PIN. Ange din vuxen-PIN (app-lås), inte barnets PIN eller lösenord.');
+        showError('Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.');
+      } else if (result && result.code === 'PARENT_PIN_NOT_SET') {
+        showError('Den här vuxenprofilen har ingen app-lås-PIN än. Logga in som vuxen på en annan enhet och ställ in PIN under Inställningar.');
       } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
         showError('En vuxen behöver ställa in app-lås-PIN under Inställningar först.');
+      } else if (result && result.code === 'ADULT_PRIVILEGE_VERIFY_FAILED') {
+        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      } else if (result && result.code === 'PARENT_ACCESS_DENIED') {
+        showError('Du har inte behörighet att logga in som den här vuxenprofilen.');
       } else if (result && result.status === 429) {
         showError('För många försök. Vänta en stund och försök igen.');
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {

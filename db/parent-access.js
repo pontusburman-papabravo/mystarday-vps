@@ -114,6 +114,7 @@ async function getAllowedParentsForFamilyDevice(familyId) {
      FROM parent p
      WHERE p.family_id = $1
        AND p.is_admin = false
+       AND p.parent_pin_hash IS NOT NULL
        AND EXISTS (
          SELECT 1 FROM parent_child pc
          WHERE pc.parent_id = p.id
@@ -137,6 +138,7 @@ async function isParentEligibleForFamilyDevice(parentId, familyId) {
      WHERE p.id = $1
        AND p.family_id = $2
        AND p.is_admin = false
+       AND p.parent_pin_hash IS NOT NULL
        AND pc.revoked_at IS NULL
        AND pc.role = ANY($3::text[])
      LIMIT 1`,

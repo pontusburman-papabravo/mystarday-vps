@@ -489,6 +489,11 @@ async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options
     return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
   }
 
+  const hasOwnPin = await parentPinDb.parentHasPin(parentId);
+  if (!hasOwnPin) {
+    return { ok: false, code: 'PARENT_PIN_NOT_SET' };
+  }
+
   const unlockMethod = String(opts.unlockMethod || '').toLowerCase();
   if (unlockMethod !== 'pin') {
     return { ok: false, code: 'ADULT_VERIFICATION_REQUIRED' };

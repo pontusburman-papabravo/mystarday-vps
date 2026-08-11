@@ -192,15 +192,41 @@
     });
   }
 
-  function applyUnlockSuccess(body) {
-    if (body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
-      window.Auth.setCsrfToken(body.csrfToken);
-    }
+  function verifyParentAuthorityWithRetry(attemptsLeft) {
     return verifyParentAuthority().then(function (verified) {
-      if (!verified) {
+      if (verified) return true;
+      if (attemptsLeft <= 1) return false;
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          resolve(verifyParentAuthorityWithRetry(attemptsLeft - 1));
+        }, 100);
+      });
+    });
+  }
+
+  function hydrateParentFromBody(body) {
+    const parentUser = body && (body.parent || body.user);
+    const auth = window.Auth;
+    if (!parentUser || !auth) return;
+    if (body.csrfToken && typeof auth.setCsrfToken === 'function') {
+      auth.setCsrfToken(body.csrfToken);
+    }
+    if (typeof auth.setAuth === 'function') {
+      auth.setAuth(null, parentUser, auth.getCsrfToken && auth.getCsrfToken());
+    }
+  }
+
+  function applyUnlockSuccess(body) {
+    hydrateParentFromBody(body);
+    const parentUser = body && (body.parent || body.user);
+    return verifyParentAuthorityWithRetry(4).then(function (verified) {
+      if (!verified && !parentUser) {
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
         return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
+      }
+      if (!verified && parentUser) {
+        hydrateParentFromBody(body);
       }
       setState(STATES.ACTIVE);
       expiresAtMs = body.expiresAt || null;
@@ -213,7 +239,7 @@
         AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
       }
       track('adult_privilege_unlock_success');
-      return { ok: true, parent: body.parent };
+      return { ok: true, parent: parentUser || body.parent };
     });
   }
 
@@ -241,7 +267,9 @@
   function storePickerPinMeta(body) {
     if (!body || typeof body !== 'object') return;
     try {
-      sessionStorage.setItem(PIN_REQUIRED_KEY, body.pinRequiredForParents === true ? '1' : '0');
+      if (typeof body.pinRequiredForParents === 'boolean') {
+        sessionStorage.setItem(PIN_REQUIRED_KEY, body.pinRequiredForParents ? '1' : '0');
+      }
       if (body.dailyUxActive === true) {
         sessionStorage.setItem(DAILY_UX_KEY, '1');
       }
@@ -260,11 +288,6 @@
   }
 
   function ensurePickerPinMeta() {
-    try {
-      if (sessionStorage.getItem(PIN_REQUIRED_KEY) !== null) {
-        return Promise.resolve({ ok: true });
-      }
-    } catch (_) { /* ignore */ }
     return fetchJson('/api/auth/app-entry', { method: 'GET' }).then(function (out) {
       if (out.body) storePickerPinMeta(out.body);
       return { ok: out.res.ok, body: out.body };
