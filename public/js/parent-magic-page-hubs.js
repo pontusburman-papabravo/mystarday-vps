@@ -210,6 +210,7 @@
     clearSettingsHash();
     hideSettingsGroup();
     refresh('settings', true, { skipHash: true });
+    if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
   }
 
   function showSettingsGroup(groupId) {
@@ -221,6 +222,7 @@
     });
     const backBar = document.getElementById('magicSettingsBackBar');
     if (backBar) backBar.innerHTML = renderSettingsBackBar();
+    if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
     if (groupId === 'appearance') updateThemePickerUi();
     if (groupId === 'app' && global.SettingsWidgets && typeof SettingsWidgets.mount === 'function') {
       const widgetMount = document.getElementById('widgetSettingsSection');
@@ -383,7 +385,38 @@
       }, 120);
       return true;
     }
+    if (hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications') {
+      showSettingsGroup('app');
+      setTimeout(function () {
+        const el = document.getElementById('notifForm') || document.getElementById('pushSection');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+      return true;
+    }
     return false;
+  }
+
+  function ensureSettingsChrome() {
+    const page = document.body.getAttribute('data-magic-page');
+    if (page !== 'settings') return;
+    const magic = window.ParentMagicShell && ParentMagicShell.isMagic && ParentMagicShell.isMagic();
+    if (!magic) return;
+    tagSettingsSections();
+    const mountEl = mount();
+    const menuMissing = !mountEl || mountEl.classList.contains('hidden') || !mountEl.innerHTML.trim();
+    if (menuMissing && !_activeSettingsGroup) {
+      refresh('settings', true, { skipHash: true });
+    }
+    if (!_activeSettingsGroup) {
+      openFromHash();
+    }
+    if (window.SettingsNativeNav && SettingsNativeNav.sync) {
+      SettingsNativeNav.sync();
+    }
+    if (window.NativeTabBar && NativeTabBar.remount) {
+      NativeTabBar.remount();
+    }
+    window.dispatchEvent(new CustomEvent('stjarndag-parent-nav-layout'));
   }
 
   function refresh(page, magic, opts) {
@@ -479,6 +512,7 @@
     showSettingsGroup: showSettingsGroup,
     returnToSettingsMenu: returnToSettingsMenu,
     clearSettingsHash: clearSettingsHash,
+    ensureSettingsChrome: ensureSettingsChrome,
     applyHubCopy: applyHubCopy,
   };
 

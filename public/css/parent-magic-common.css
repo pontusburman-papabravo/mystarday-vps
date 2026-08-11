@@ -275,7 +275,13 @@ body.parent-magic-view:not(.magic-settings-in-group) [data-magic-settings-conten
 }
 
 /* Settings: hide legacy scroll list until a magic group is opened */
-body.parent-magic-view.parent-magic-page-settings:not(.magic-settings-in-group) main > .flex-1.overflow-auto {
+body.parent-magic-view.parent-magic-page-settings:not(.magic-settings-in-group) main > .flex-1.overflow-auto,
+body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group) main > .flex-1.overflow-auto {
+  display: none !important;
+}
+
+/* Settings menu/back chrome when page id is known before shell class is applied */
+body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group) [data-magic-settings-content] {
   display: none !important;
 }
 

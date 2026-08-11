@@ -745,6 +745,9 @@
       });
 
       if (window.ParentMagicShell) await ParentMagicShell.init('settings');
+      if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
+        ParentMagicPageHub.ensureSettingsChrome();
+      }
       if (window.SettingsNativeNav && SettingsNativeNav.init) SettingsNativeNav.init();
     });
 

@@ -155,6 +155,28 @@ describe('magic soft navigation', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
     assert.match(css, /magic-settings-in-group \[data-magic-settings-content\]:not\(\.hidden\)/);
     assert.match(css, /parent-magic-page-settings:not\(\.magic-settings-in-group\) main > \.flex-1\.overflow-auto/);
+    assert.match(css, /data-magic-page="settings":not\(\.magic-settings-in-group\)/);
+  });
+
+  it('settings is a parent shell path for bottom nav', () => {
+    const nav = fs.readFileSync(path.join(ROOT, 'public/js/nav-config.js'), 'utf8');
+    assert.match(nav, /PARENT_SHELL_PATHS[\s\S]*'\/settings'/);
+    assert.match(nav, /SETTINGS_NAV\.paths/);
+  });
+
+  it('settings native nav supports mobile web escape hatch', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/settings-native-nav.js'), 'utf8');
+    assert.match(src, /isMobileWeb/);
+    assert.match(src, /shouldShowEscapeHatch/);
+    assert.match(src, /stjarndag-magic-navigated/);
+  });
+
+  it('settings page re-syncs chrome after magic init', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
+    const hubs = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
+    assert.match(html, /ensureSettingsChrome/);
+    assert.match(hubs, /ensureSettingsChrome/);
+    assert.match(hubs, /hash === 'aviseringar'/);
   });
 
   it('settings uses full page load (not soft-nav) due to inline init', () => {
