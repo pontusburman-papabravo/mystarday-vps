@@ -61,10 +61,21 @@ describe('Fas 4A — client contracts', () => {
     assert.ok(pickerIdx > 0 && logoutIdx > 0 && pickerIdx < logoutIdx, 'trusted path must run before logout');
   });
 
-  it('child-trusted-chrome hides logout and gates switch by allowed count', () => {
+  it('child-trusted-chrome hides logout and delegates profile switch to ProfileSwitchChrome', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-trusted-chrome.js'), 'utf8');
     assert.match(src, /logoutBtn.*display.*none/s);
-    assert.match(src, /allowed > 1/);
+    assert.match(src, /ProfileSwitchChrome\.apply/);
+  });
+
+  it('profile-switch-chrome exposes Byt profil on multi-profile daily UX', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/profile-switch-chrome.js'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-dashboard.html'), 'utf8');
+    assert.match(src, /PROFILE_COUNT_KEY/);
+    assert.match(src, /profile-switch-float-btn/);
+    assert.match(src, /data-profile-switch-parent/);
+    assert.match(src, /settings\.switchProfile/);
+    assert.match(html, /Byt profil/);
+    assert.match(html, /profile-switch-chrome\.js/);
   });
 
   it('child-system-menu shows Vuxen lock on daily UX', () => {

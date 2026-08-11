@@ -5,6 +5,9 @@
   'use strict';
 
   function isDailyUxActive() {
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.isDailyUxActive === 'function') {
+      return ProfileSwitchChrome.isDailyUxActive();
+    }
     if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.isDailyUxActive === 'function') {
       return AppEntryOrchestrator.isDailyUxActive();
     }
@@ -34,6 +37,11 @@
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.style.display = 'none';
 
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+      ProfileSwitchChrome.apply();
+      return;
+    }
+
     const switchBtn = document.getElementById('switchChildBtn');
     const allowed = getAllowedChildCount();
     if (switchBtn) {
@@ -49,12 +57,13 @@
 
   async function refreshAllowedCountFromServer() {
     if (!isDailyUxActive()) return;
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.refreshFromServer === 'function') {
+      await ProfileSwitchChrome.refreshFromServer();
+      return;
+    }
     try {
       const res = await fetch('/api/auth/app-entry', { credentials: 'include' });
       const body = await res.json().catch(function () { return {}; });
-      if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.fetchEntryDecision === 'function') {
-        /* meta stored by fetchEntryDecision on next cold start; mirror here */
-      }
       if (Array.isArray(body.allowedChildren)) {
         sessionStorage.setItem('stjarndag_entry_allowed_count', String(body.allowedChildren.length));
       }

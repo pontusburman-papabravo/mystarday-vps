@@ -48,7 +48,7 @@
   ];
 
   const CHILD_SYSTEM_ACTIONS = [
-    { id: 'switch_child', label: 'Byt barn', action: 'switchChild', requiresParentalGate: true },
+    { id: 'switch_child', label: 'Byt profil', action: 'switchChild', requiresParentalGate: true },
   ];
 
   function hasFeatureAccess(access, featureSlug) {

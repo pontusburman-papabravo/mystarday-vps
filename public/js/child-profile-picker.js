@@ -16,6 +16,10 @@
   }
 
   function storeEntryMeta(body) {
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.storeEntryMeta === 'function') {
+      ProfileSwitchChrome.storeEntryMeta(body);
+      return;
+    }
     try {
       if (body && body.dailyUxActive) {
         sessionStorage.setItem(DAILY_UX_KEY, '1');

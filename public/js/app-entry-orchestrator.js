@@ -60,6 +60,9 @@
 
   function storeEntryResponseMeta(body) {
     if (!body || typeof body !== 'object') return;
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.storeEntryMeta === 'function') {
+      ProfileSwitchChrome.storeEntryMeta(body);
+    }
     try {
       if (body.dailyUxActive === true) {
         sessionStorage.setItem(DAILY_UX_KEY, '1');
