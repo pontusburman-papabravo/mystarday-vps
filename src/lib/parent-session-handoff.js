@@ -125,6 +125,82 @@ async function revokeHandoffsForUser({ userId, userType }) {
 /**
  * Create handoff from current parent httpOnly refresh cookie (child login).
  */
+/**
+ * Dormant parent refresh + handoff when child session starts from trusted device
+ * (no parent access/refresh cookies on the request).
+ */
+async function createHandoffFromTrustedDeviceEnroller(req, res, { parentId, familyId, trustedDeviceId }) {
+  if (!parentId || !familyId) return false;
+  if (!await parentHasActiveFamilyAccess(parentId, familyId)) return false;
+
+  await revokeHandoffsForParent(parentId);
+
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+    const inserted = await insertRefreshTokenRow(client, {
+      userId: parentId,
+      userType: 'parent',
+      familyId,
+    });
+
+    const opaque = crypto.randomBytes(32).toString('base64url');
+    const tokenHash = hashOpaque(opaque);
+    const refreshExpires = new Date(inserted.row.expires_at);
+    const ttlCap = new Date(Date.now() + HANDOFF_TTL_MS);
+    const expiresAt = refreshExpires < ttlCap ? refreshExpires : ttlCap;
+
+    await client.query(
+      `INSERT INTO parent_session_handoff (
+         token_hash, parent_id, family_id, refresh_token_id, expires_at, created_ip, user_agent
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        tokenHash,
+        parentId,
+        familyId,
+        inserted.row.id,
+        expiresAt,
+        req?.ip || null,
+        (req?.headers?.['user-agent'] || '').slice(0, 500) || null,
+      ]
+    );
+    await client.query('COMMIT');
+
+    res.cookie(HANDOFF_COOKIE, opaque, handoffCookieOptions(HANDOFF_TTL_MS));
+    return { ok: true, refreshTokenId: inserted.row.id };
+  } catch (err) {
+    try {
+      await client.query('ROLLBACK');
+    } catch {
+      /* ignore */
+    }
+    console.error('[HANDOFF] trusted device enroller handoff failed:', err.message);
+    return false;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Ensure opaque handoff exists before swapping to a child session.
+ * Reuses valid handoff; else parent cookies; else trusted-device enroller parent.
+ */
+async function ensureHandoffForChildSession(req, res, deviceRow) {
+  const evaluated = await evaluateHandoffForRequest(req, res);
+  if (evaluated.ok) return true;
+
+  if (await createHandoffFromParentCookies(req, res)) return true;
+
+  if (!deviceRow?.created_by_parent_id || !deviceRow?.family_id) return false;
+
+  const created = await createHandoffFromTrustedDeviceEnroller(req, res, {
+    parentId: deviceRow.created_by_parent_id,
+    familyId: deviceRow.family_id,
+    trustedDeviceId: deviceRow.id,
+  });
+  return created === true || (created && created.ok === true);
+}
+
 async function createHandoffFromParentCookies(req, res) {
   const parentAccess = req.cookies?.access_token;
   const parentRefresh = req.cookies?.refresh_token;
@@ -503,6 +579,8 @@ module.exports = {
   clearHandoffCookie,
   isLegacyBase64SessionCookie,
   createHandoffFromParentCookies,
+  createHandoffFromTrustedDeviceEnroller,
+  ensureHandoffForChildSession,
   evaluateHandoffForRequest,
   validateHandoffForRequest,
   logHandoffLogoutDiagnostics,

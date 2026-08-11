@@ -15,6 +15,7 @@
   ];
 
   const PARENT_ACTIONS = [
+    { id: 'adult_unlock', labelKey: 'settings.adultUnlock', hintKey: 'settings.adultUnlockHint', dailyUxOnly: true },
     { id: 'switch_child', labelKey: 'settings.switchChild', hintKey: 'settings.switchChildHint' },
   ];
 
@@ -25,6 +26,24 @@
     const d = document.createElement('div');
     d.textContent = str == null ? '' : String(str);
     return d.innerHTML;
+  }
+
+  function isDailyUxActive() {
+    return window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
+      ? ChildTrustedChrome.isDailyUxActive()
+      : false;
+  }
+
+  function getAllowedChildCount() {
+    if (!isDailyUxActive()) return 0;
+    if (window.ChildTrustedChrome && ChildTrustedChrome.getAllowedChildCount) {
+      return ChildTrustedChrome.getAllowedChildCount();
+    }
+    return 0;
+  }
+
+  function isDailyUxMultiChild() {
+    return isDailyUxActive() && getAllowedChildCount() > 1;
   }
 
   function headerKickerHtml() {
@@ -42,7 +61,7 @@
 
   function childActionsHtml() {
     const actions = CHILD_ACTIONS.filter(function (action) {
-      if (action.id === 'logout' && window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive()) {
+      if (action.id === 'logout' && isDailyUxActive()) {
         return false;
       }
       return true;
@@ -66,19 +85,19 @@
   }
 
   function parentActionsHtml() {
-    const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
-      ? ChildTrustedChrome.isDailyUxActive()
-      : false;
-    const allowed = dailyUx && window.ChildTrustedChrome && ChildTrustedChrome.getAllowedChildCount
-      ? ChildTrustedChrome.getAllowedChildCount()
-      : 2;
+    const dailyUx = isDailyUxActive();
+    const allowed = getAllowedChildCount();
     const actions = PARENT_ACTIONS.filter(function (action) {
+      if (action.dailyUxOnly && !dailyUx) return false;
       if (action.id === 'switch_child' && dailyUx && allowed <= 1) return false;
       return true;
     });
     return actions.map(function (action) {
       const label = t(action.labelKey);
-      const hint = t(action.hintKey);
+      let hint = t(action.hintKey);
+      if (action.id === 'switch_child' && isDailyUxMultiChild()) {
+        hint = t('settings.switchChildDailyHint');
+      }
       return (
         '<button type="button" class="csv-action-btn csv-action-btn-parent" data-parent-action="' + esc(action.id) + '">' +
           '<span class="csv-action-copy">' +
@@ -146,7 +165,29 @@
     }
   }
 
+  function navigateAfterAdultUnlock() {
+    window.location.href = '/home';
+  }
+
+  function runAdultUnlock() {
+    if (!window.AdultPrivilege || typeof AdultPrivilege.requestEscalation !== 'function') {
+      if (window.ParentalGate && ParentalGate.show) {
+        ParentalGate.show(navigateAfterAdultUnlock);
+      }
+      return;
+    }
+    AdultPrivilege.requestEscalation().then(function (result) {
+      if (result && result.ok) {
+        navigateAfterAdultUnlock();
+      }
+    });
+  }
+
   function runParentAction(actionId) {
+    if (actionId === 'adult_unlock') {
+      runAdultUnlock();
+      return;
+    }
     if (actionId === 'switch_child' && typeof window.switchChildMember === 'function') {
       window.switchChildMember();
     }
@@ -173,6 +214,14 @@
         const run = function () {
           runParentAction(actionId);
         };
+        if (actionId === 'switch_child' && isDailyUxMultiChild()) {
+          run();
+          return;
+        }
+        if (actionId === 'adult_unlock') {
+          run();
+          return;
+        }
         if (window.ParentalGate && ParentalGate.requireParentMode) {
           ParentalGate.requireParentMode(run);
         } else {

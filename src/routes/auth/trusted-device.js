@@ -83,11 +83,12 @@ router.post('/trusted-device/select-child', async (req, res, next) => {
     if (!childId) {
       return res.status(400).json({ code: 'CHILD_ID_REQUIRED' });
     }
-    const result = await trusted.selectChildOnTrustedDevice(res, raw, childId);
+    const result = await trusted.selectChildOnTrustedDevice(req, res, raw, childId);
     if (!result.ok) {
       const status = result.code === 'CHILD_ACCESS_DENIED' ? 403
         : result.code === 'TRUSTED_DEVICE_DISABLED' ? 403
-          : 401;
+          : result.code === 'PARENT_HANDOFF_CREATE_FAILED' ? 409
+            : 401;
       return res.status(status).json({ code: result.code });
     }
     return res.json({

@@ -19,12 +19,15 @@ function loadAdultPrivilege(sandbox) {
 }
 
 describe('adult-privilege client state machine', () => {
-  it('biometric unavailable does not call unlock', async () => {
+  it('biometric unavailable falls back to PIN gate without unlock until PIN entered', async () => {
     let unlockCalls = 0;
     const sandbox = {
       window: {
         analytics: { track: () => {} },
         Auth: { getCsrfToken: () => 'csrf' },
+        AdultPinGateUI: {
+          collectAdultPin: () => Promise.resolve({ ok: false, code: 'PIN_CANCEL' }),
+        },
         sessionStorage: {
           _m: {},
           getItem(k) {
@@ -67,7 +70,7 @@ describe('adult-privilege client state machine', () => {
     await AdultPrivilege.refreshStatus();
     const result = await AdultPrivilege.requestEscalation();
     assert.equal(result.ok, false);
-    assert.equal(result.code, 'BIOMETRIC_UNAVAILABLE');
+    assert.equal(result.code, 'PIN_CANCEL');
     assert.equal(unlockCalls, 0);
     assert.equal(AdultPrivilege.getState(), 'locked');
   });

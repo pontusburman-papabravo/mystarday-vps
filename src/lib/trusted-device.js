@@ -16,6 +16,7 @@ const {
 const { parseDuration } = require('../routes/auth/session');
 const { isTrustedDeviceEnabled } = require('./trusted-device-flags');
 const { avatarApiFields } = require('./avatar-api');
+const { ensureHandoffForChildSession } = require('./parent-session-handoff');
 
 const COOKIE_NAME = 'trusted_device';
 const TOKEN_BYTES = 32;
@@ -268,12 +269,17 @@ async function issueParentSessionForDevice(res, row, rawToken, source) {
   };
 }
 
-async function issueChildSessionForDevice(res, row, rawToken, childId, source) {
+async function issueChildSessionForDevice(req, res, row, rawToken, childId, source) {
   if (!childId) {
     return { ok: false, code: 'CHILD_NOT_FOUND' };
   }
   if (!(await creatorHasChildAccess(row, childId))) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
+  }
+  const handoffOk = await ensureHandoffForChildSession(req, res, row);
+  if (!handoffOk) {
+    console.error('[TRUSTED_DEVICE] handoff create failed before child session', row?.id, source);
+    return { ok: false, code: 'PARENT_HANDOFF_CREATE_FAILED' };
   }
   const childRes = await db.query(
     `SELECT id, family_id, username, name FROM child WHERE id = $1 AND family_id = $2`,
@@ -408,7 +414,7 @@ async function getTrustedDeviceContext(rawToken) {
   };
 }
 
-async function selectChildOnTrustedDevice(res, rawToken, childId) {
+async function selectChildOnTrustedDevice(req, res, rawToken, childId) {
   const row = await verifyTrustedDeviceRaw(rawToken);
   if (!row) {
     return { ok: false, code: 'TRUSTED_DEVICE_INVALID' };
@@ -424,7 +430,7 @@ async function selectChildOnTrustedDevice(res, rawToken, childId) {
   if (!allowed.some((c) => c.id === childId)) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }
-  return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_select_child');
+  return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_select_child');
 }
 
 async function restoreParentSessionFromDevice(res, rawToken) {
@@ -479,14 +485,24 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
         allowed_count_bucket: allowedCountBucket(allowed.length),
       };
     }
-    return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_restore');
+    return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_restore');
   }
 
   const childId = opts.preferredChildId || row.last_active_child_id || row.default_child_id;
   if (row.device_mode === 'child' && childId !== row.default_child_id) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }
-  return issueChildSessionForDevice(res, row, rawToken, childId, 'trusted_device_restore');
+  return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_restore');
+}
+
+async function revokeDeviceForFamily(deviceId, familyId) {
+  const row = await deviceDb.findById(deviceId);
+  const revoked = await deviceDb.revokeForFamily(deviceId, familyId);
+  if (revoked && row?.created_by_parent_id) {
+    const { revokeHandoffsForParent } = require('./parent-session-handoff');
+    await revokeHandoffsForParent(row.created_by_parent_id);
+  }
+  return revoked;
 }
 
 module.exports = {
@@ -502,7 +518,7 @@ module.exports = {
   getEnrollingParentRow,
   setTrustedDeviceCookie,
   clearTrustedDeviceCookie,
-  revokeDeviceForFamily: deviceDb.revokeForFamily,
+  revokeDeviceForFamily,
   listDevicesForFamily: deviceDb.listActiveForFamily,
   revokeAllForFamily: deviceDb.revokeAllForFamilyWithTokens,
   allowedCountBucket,

@@ -41,13 +41,18 @@ describe('barnets_samling — Mitt settings tab', () => {
     assert.match(src, /settings\.logoutConfirm/);
     assert.match(src, /data-parent-action="/);
     assert.match(src, /id: 'switch_child'/);
+    assert.match(src, /id: 'adult_unlock'/);
+    assert.match(src, /isDailyUxMultiChild/);
     assert.match(src, /ParentalGate\.requireParentMode/);
     assert.doesNotMatch(src, /CHILD_SYSTEM_ACTIONS/);
     assert.doesNotMatch(src, /data-parent-action="logout"/);
     assert.doesNotMatch(src, /data-parent-action="dark_mode"/);
-    const runChildBlock = src.slice(src.indexOf('function runChildAction'), src.indexOf('function runParentAction'));
+    const runChildBlock = src.slice(src.indexOf('function runChildAction'), src.indexOf('function navigateAfterAdultUnlock'));
     assert.doesNotMatch(runChildBlock, /ParentalGate/);
     const bindParentBlock = src.slice(src.indexOf('function bindParentActions'), src.indexOf('function refresh'));
+    assert.match(bindParentBlock, /isDailyUxMultiChild/);
+    assert.match(bindParentBlock, /actionId === 'switch_child'/);
+    assert.match(bindParentBlock, /actionId === 'adult_unlock'/);
     assert.match(bindParentBlock, /ParentalGate\.requireParentMode/);
   });
 

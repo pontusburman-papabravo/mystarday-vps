@@ -124,8 +124,8 @@
   }
 
   function runPinGate() {
-    if (window.AdultPinGateUI && typeof AdultPinGateUI.collectAdultPin === 'function') {
-      return AdultPinGateUI.collectAdultPin();
+    if (window.AdultPinGateUI && typeof window.AdultPinGateUI.collectAdultPin === 'function') {
+      return window.AdultPinGateUI.collectAdultPin();
     }
     return Promise.resolve({ ok: false, code: 'PIN_UI_UNAVAILABLE' });
   }
@@ -278,9 +278,22 @@
       });
     } else {
       const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
-      gatePromise = bioPromise.then(function () {
-        return postUnlock('biometric');
-      });
+      gatePromise = bioPromise
+        .then(function () {
+          return postUnlock('biometric');
+        })
+        .catch(function (err) {
+          const msg = err && err.message ? String(err.message) : '';
+          if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1 && !opts.preferPin) {
+            return runPinGate().then(function (pinResult) {
+              if (!pinResult.ok || !pinResult.pin) {
+                return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+              }
+              return postUnlock('pin', pinResult.pin);
+            });
+          }
+          return Promise.reject(err);
+        });
     }
 
     return gatePromise
@@ -290,11 +303,6 @@
           setState(STATES.LOCKED);
           track('adult_privilege_unlock_failed');
           return { ok: false, code: msg.indexOf('PIN') !== -1 ? 'PIN_CANCEL' : 'BIOMETRIC_CANCEL' };
-        }
-        if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1) {
-          setState(STATES.LOCKED);
-          track('adult_privilege_unlock_failed');
-          return { ok: false, code: 'BIOMETRIC_UNAVAILABLE' };
         }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');

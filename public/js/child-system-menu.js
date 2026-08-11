@@ -117,7 +117,20 @@
     if (dailyUx) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        onSystemIconClick();
+        function goHome() {
+          window.location.href = '/home';
+        }
+        if (window.AdultPrivilege && typeof AdultPrivilege.requestEscalation === 'function') {
+          AdultPrivilege.requestEscalation().then(function (result) {
+            if (result && result.ok) goHome();
+          });
+          return;
+        }
+        if (window.ParentalGate && ParentalGate.requireParentMode) {
+          ParentalGate.requireParentMode(goHome);
+        } else {
+          goHome();
+        }
       });
       wrap.appendChild(btn);
       header.appendChild(wrap);

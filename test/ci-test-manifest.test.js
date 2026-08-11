@@ -22,6 +22,7 @@ const CRITICAL_INTEGRATION = [
   'test/adult-privilege.integration.test.js',
   'test/trusted-device-child.integration.test.js',
   'test/r43-shared-device.integration.test.js',
+  'test/trusted-device-handoff.integration.test.js',
   'test/r44-adult-child-access.integration.test.js',
   'test/r4-final-security-blockers.integration.test.js',
   'test/r45-widget-completion.integration.test.js',
