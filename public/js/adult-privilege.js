@@ -330,6 +330,118 @@
     return refreshStatus();
   }
 
+  function postSelectParent(unlockMethod, pin, parentId) {
+    const payload = {
+      parent_id: parentId,
+      unlock_method: unlockMethod || 'biometric',
+    };
+    if (unlockMethod === 'pin' && pin) payload.pin = pin;
+    return fetchJson('/api/auth/trusted-device/select-parent', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }).then(function (out) {
+      if (!out.res.ok || !out.body.ok) {
+        const code = out.body.code || 'TRUSTED_SELECT_PARENT_FAILED';
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: code, status: out.res.status };
+      }
+      if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
+        window.Auth.setCsrfToken(out.body.csrfToken);
+      }
+      return applyUnlockSuccess({
+        csrfToken: out.body.csrfToken,
+        parent: out.body.user || out.body.parent,
+        expiresAt: out.body.privilegeLeaseUntil,
+        privilegeLeaseUntil: out.body.privilegeLeaseUntil,
+        policy: out.body.policy,
+      }).then(function (result) {
+        if (result.ok) {
+          return {
+            ok: true,
+            parent: result.parent,
+            redirect: out.body.redirect || '/home',
+          };
+        }
+        return result;
+      });
+    });
+  }
+
+  /**
+   * Netflix picker → adult profile: same biometric/PIN gate as header Vuxen 🔒.
+   * @returns {Promise<{ok:boolean, parent?:object, redirect?:string, code?:string}>}
+   */
+  function requestTrustedProfileUnlock(options) {
+    const opts = options || {};
+    const parentId = opts.parentId;
+    if (!parentId) {
+      return Promise.resolve({ ok: false, code: 'PARENT_ID_REQUIRED' });
+    }
+    if (!featureEnabled) {
+      return refreshStatus().then(function () {
+        if (!featureEnabled) {
+          return { ok: false, code: 'ADULT_PRIVILEGE_DISABLED' };
+        }
+        return requestTrustedProfileUnlock(opts);
+      });
+    }
+    if (unlockInFlight) {
+      return Promise.resolve({ ok: false, code: 'ADULT_PRIVILEGE_IN_FLIGHT' });
+    }
+
+    unlockInFlight = true;
+    setState(STATES.UNLOCKING);
+    track('adult_privilege_unlock_started');
+
+    const usePin = opts.unlockMethod === 'pin' || opts.preferPin === true;
+    const skipBiometric = opts.skipBiometric === true || usePin;
+
+    let gatePromise;
+    if (usePin) {
+      gatePromise = runPinGate().then(function (pinResult) {
+        if (!pinResult.ok || !pinResult.pin) {
+          return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+        }
+        return postSelectParent('pin', pinResult.pin, parentId);
+      });
+    } else {
+      const bioPromise = skipBiometric ? Promise.resolve() : runBiometricGate();
+      gatePromise = bioPromise
+        .then(function () {
+          return postSelectParent('biometric', null, parentId);
+        })
+        .catch(function (err) {
+          const msg = err && err.message ? String(err.message) : '';
+          if (msg.indexOf('BIOMETRIC_UNAVAILABLE') !== -1 && !opts.preferPin) {
+            return runPinGate().then(function (pinResult) {
+              if (!pinResult.ok || !pinResult.pin) {
+                return Promise.reject(new Error(pinResult.code || 'PIN_CANCEL'));
+              }
+              return postSelectParent('pin', pinResult.pin, parentId);
+            });
+          }
+          return Promise.reject(err);
+        });
+    }
+
+    return gatePromise
+      .catch(function (err) {
+        const msg = err && err.message ? String(err.message) : String(err || '');
+        if (msg.indexOf('BIOMETRIC_CANCEL') !== -1 || msg.indexOf('PIN_CANCEL') !== -1) {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: msg.indexOf('PIN') !== -1 ? 'PIN_CANCEL' : 'BIOMETRIC_CANCEL' };
+        }
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
+      })
+      .finally(function () {
+        unlockInFlight = false;
+      });
+  }
+
   window.AdultPrivilege = {
     STATES: STATES,
     getState: getState,
@@ -337,6 +449,7 @@
     isPrivilegeActive: isPrivilegeActive,
     refreshStatus: refreshStatus,
     requestEscalation: requestEscalation,
+    requestTrustedProfileUnlock: requestTrustedProfileUnlock,
     expirePrivilegeIfDue: expirePrivilegeIfDue,
     resetToLocked: resetToLocked,
     initFromSession: initFromSession,

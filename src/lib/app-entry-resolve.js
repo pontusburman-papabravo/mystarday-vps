@@ -5,6 +5,13 @@
  * Device role ≠ view context ≠ credential context.
  */
 
+const {
+  LAUNCH_CONTEXTS,
+  normalizeLaunchContext,
+  shouldForceSharedProfilePicker,
+  mayResumeChildSessionOnShared,
+} = require('./app-entry-launch-context');
+
 const DESTINATIONS = Object.freeze({
   PARENT_HOME: 'parent-home',
   CHILD_HOME: 'child-home',
@@ -158,12 +165,13 @@ function resolveChildModeTarget(trustedDevice, allowedIds) {
  * @param {Array<{id:string}>} input.allowedChildren
  * @param {Array<{id:string}>} [input.allowedParents]
  * @param {object|null} [input.deepLink] — { childId? }
- * @param {'parent'|'child'|null} [input.localDeviceModeHint] — ignored for authority (server wins)
+ * @param {'cold_start'|'foreground_resume'|'profile_switch'} [input.launchContext]
  */
 function resolveAppEntry(input) {
   const state = input || {};
   const allowedIds = normalizeAllowedChildren(state.allowedChildren);
   const allowedParentCount = Array.isArray(state.allowedParents) ? state.allowedParents.length : 0;
+  const launchContext = normalizeLaunchContext(state.launchContext);
   const trustedDevice = state.trustedDevice;
   const parentSession = state.parentSession;
   const childSession = state.childSession;
@@ -237,7 +245,9 @@ function resolveAppEntry(input) {
   }
 
   if (deviceMode === 'shared' && isParentPrivilegeActive(state)) {
-    return parentHomeDecision('shared', 'shared_device_parent_privilege_active');
+    if (!shouldForceSharedProfilePicker(launchContext, allowedIds.length, allowedParentCount)) {
+      return parentHomeDecision('shared', 'shared_device_parent_privilege_active');
+    }
   }
 
   let targetChildId = deepLinkChildId;
@@ -276,7 +286,10 @@ function resolveAppEntry(input) {
         if (!sessionCheck.ok) {
           return failClosedPicker('shared', sessionCheck.reason);
         }
-        if (isChildSessionValid(childSession)) {
+        if (
+          mayResumeChildSessionOnShared(launchContext, allowedIds.length, allowedParentCount)
+          && isChildSessionValid(childSession)
+        ) {
           targetChildId = childSession.childId;
         } else {
           return buildResult({
@@ -284,6 +297,7 @@ function resolveAppEntry(input) {
             deviceMode: 'shared',
             viewContext: 'picker',
             credentialContext: 'none',
+            childId: null,
             reason: 'shared_device_picker_required',
             serverAction: SERVER_ACTIONS.SELECT_CHILD,
           });
@@ -318,4 +332,5 @@ module.exports = {
   SERVER_ACTIONS,
   isParentPrivilegeActive,
   isParentSessionAuthenticated,
+  LAUNCH_CONTEXTS,
 };

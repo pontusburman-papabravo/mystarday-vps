@@ -180,24 +180,53 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.notEqual(r.destination, DESTINATIONS.PARENT_HOME);
   });
 
-  it('shared: parent privilege active → parent-home', () => {
+  it('shared: parent privilege active on foreground_resume → parent-home', () => {
     const r = resolveAppEntry({
       parentPrivilegeActive: true,
       parentSession: { authenticated: true, privilegeActive: true },
       childSession: null,
       trustedDevice: td('shared'),
       allowedChildren: [{ id: A }],
+      launchContext: 'foreground_resume',
     });
     assertParentHome(r, 'shared');
   });
 
-  it('shared + multiple children + active child session → child home (resume profile)', () => {
+  it('shared: parent privilege active on cold_start multi-profile → profile-picker', () => {
+    const r = resolveAppEntry({
+      parentPrivilegeActive: true,
+      parentSession: { authenticated: true, privilegeActive: true },
+      childSession: null,
+      trustedDevice: td('shared'),
+      allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-uuid' }],
+      launchContext: 'cold_start',
+    });
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.viewContext, 'picker');
+  });
+
+  it('shared + multiple children + child session cold_start → profile-picker', () => {
     const r = resolveAppEntry({
       parentSession: null,
       childSession: { valid: true, childId: A },
       trustedDevice: td('shared', { defaultChildId: B }),
       allowedChildren: [{ id: A }, { id: B }],
       allowedParents: [{ id: 'parent-uuid' }],
+      launchContext: 'cold_start',
+    });
+    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
+    assert.equal(r.reason, 'shared_device_picker_required');
+  });
+
+  it('shared + multiple children + child session foreground_resume → child home', () => {
+    const r = resolveAppEntry({
+      parentSession: null,
+      childSession: { valid: true, childId: A },
+      trustedDevice: td('shared', { defaultChildId: B }),
+      allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-uuid' }],
+      launchContext: 'foreground_resume',
     });
     assert.equal(r.failClosed, false);
     assertChildHome(r, A, 'shared');

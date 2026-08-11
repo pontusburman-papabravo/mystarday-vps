@@ -153,7 +153,7 @@ test('select-parent on shared device issues parent session with privilege lease'
         'Content-Type': 'application/json',
         Cookie: cookieHeader(deviceCookies),
       },
-      body: JSON.stringify({ parent_id: parentId }),
+      body: JSON.stringify({ parent_id: parentId, unlock_method: 'biometric' }),
     });
     const selectText = await selectRes.text();
     assert.equal(selectRes.status, 200, selectText);

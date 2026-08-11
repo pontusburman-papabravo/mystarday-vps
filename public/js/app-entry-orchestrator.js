@@ -152,11 +152,13 @@
     return isActive();
   }
 
-  async function fetchEntryDecision(intentChildId) {
-    let url = '/api/auth/app-entry';
+  async function fetchEntryDecision(intentChildId, launchContext) {
+    const params = new URLSearchParams();
     if (intentChildId) {
-      url += '?intent_child_id=' + encodeURIComponent(intentChildId);
+      params.set('intent_child_id', intentChildId);
     }
+    params.set('launch_context', launchContext || 'cold_start');
+    const url = '/api/auth/app-entry?' + params.toString();
     const res = await fetch(url, { credentials: 'include' });
     const body = await res.json().catch(function () { return {}; });
     if (!res.ok) {
@@ -277,7 +279,10 @@
         window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
       } catch (_) { /* ignore */ }
 
-      const fetched = await fetchEntryDecision(opts.intentChildId || null);
+      const fetched = await fetchEntryDecision(
+        opts.intentChildId || null,
+        opts.launchContext || 'cold_start'
+      );
       if (!fetched.ok) {
         return { ok: false, code: fetched.code || 'FETCH_FAILED' };
       }
@@ -316,7 +321,12 @@
   }
 
   async function bootstrapOnEntryPage() {
-    const result = await runColdStart({ source: 'entry_page' });
+    const params = new URLSearchParams(window.location.search || '');
+    const isSwitch = params.get('switch') === '1';
+    const result = await runColdStart({
+      source: 'entry_page',
+      launchContext: isSwitch ? 'profile_switch' : 'cold_start',
+    });
     if (result.ok) return result;
     if (result.code === 'ORCHESTRATOR_OFF') {
       window.__DEFER_SESSION_GATE_FOR_ENTRY__ = false;

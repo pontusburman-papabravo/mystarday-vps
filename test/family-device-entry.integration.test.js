@@ -166,7 +166,7 @@ test('family device entry matrix A–K', async (t) => {
       const uB = (await db.query('SELECT username FROM child WHERE id = $1', [soloB])).rows[0].username;
       const deviceCookies = await enrollShared(http, pB);
       const childCookies = await childLoginFromParent(http, { ...pB, cookies: deviceCookies }, uB);
-      const { body } = await fetchAppEntry(http.baseUrl, childCookies);
+      const { body } = await fetchAppEntry(http.baseUrl, childCookies, 'launch_context=foreground_resume');
       assert.equal(body.decision.destination, 'child-home');
       assert.notEqual(body.decision.destination, 'parent-home');
       assert.equal(body.decision.credentialContext, 'child');
@@ -245,22 +245,37 @@ test('family device entry matrix A–K', async (t) => {
       assert.notEqual(body.decision.destination, 'child-home');
     });
 
-    await t.test('I: active child session resumes child-home despite multi-profile device', async () => {
+    await t.test('I: cold_start + child JWT on multi-profile → profile-picker', async () => {
       const p5 = await registerAndLogin(http.baseUrl);
       const ca = await createChild(http.baseUrl, p5, { name: 'CA', emoji: 'A' });
-      const cb = await createChild(http.baseUrl, p5, { name: 'CB', emoji: 'B' });
+      await createChild(http.baseUrl, p5, { name: 'CB', emoji: 'B' });
       await setChildPin(db, ca);
       const uA = (await db.query('SELECT username FROM child WHERE id = $1', [ca])).rows[0].username;
       const deviceCookies = await enrollShared(http, p5);
-      const crypto = require('crypto');
-      const hash = crypto.createHash('sha256').update(deviceCookies.trusted_device).digest('hex');
-      await db.query(
-        `UPDATE family_trusted_device SET default_child_id = $1 WHERE token_hash = $2`,
-        [cb, hash]
-      );
       const childCookies = await childLoginFromParent(http, { ...p5, cookies: deviceCookies }, uA);
-      const { body } = await fetchAppEntry(http.baseUrl, childCookies);
+      const { body } = await fetchAppEntry(
+        http.baseUrl,
+        childCookies,
+        'launch_context=cold_start'
+      );
       assert.equal(body.decision.failClosed, false);
+      assert.equal(body.decision.destination, 'profile-picker');
+      assert.equal(body.decision.path, '/child/profile-picker');
+    });
+
+    await t.test('I2: foreground_resume + child JWT on multi-profile → child-home', async () => {
+      const p5b = await registerAndLogin(http.baseUrl);
+      const ca = await createChild(http.baseUrl, p5b, { name: 'CA2', emoji: 'A' });
+      await createChild(http.baseUrl, p5b, { name: 'CB2', emoji: 'B' });
+      await setChildPin(db, ca);
+      const uA = (await db.query('SELECT username FROM child WHERE id = $1', [ca])).rows[0].username;
+      const deviceCookies = await enrollShared(http, p5b);
+      const childCookies = await childLoginFromParent(http, { ...p5b, cookies: deviceCookies }, uA);
+      const { body } = await fetchAppEntry(
+        http.baseUrl,
+        childCookies,
+        'launch_context=foreground_resume'
+      );
       assert.equal(body.decision.destination, 'child-home');
       assert.equal(body.decision.childId, ca);
       assert.equal(body.decision.credentialContext, 'child');

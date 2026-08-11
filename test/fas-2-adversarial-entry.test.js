@@ -29,18 +29,32 @@ describe('Fas 2 adversarial — resolver fail-closed', () => {
     assert.equal(r.reason, 'deep_link_child_out_of_scope');
   });
 
-  it('child JWT on multi-profile shared device resumes active profile (no silent swap)', () => {
+  it('child JWT on multi-profile shared cold_start → profile-picker (no silent resume)', () => {
     const r = resolveAppEntry({
       trustedDevice: { valid: true, deviceMode: 'shared', defaultChildId: B },
       allowedChildren: [{ id: A }, { id: B }],
       allowedParents: [{ id: 'parent-1' }],
       childSession: { valid: true, childId: A },
       parentSession: null,
+      launchContext: 'cold_start',
+    });
+    assert.equal(r.failClosed, false);
+    assert.equal(r.destination, 'profile-picker');
+    assert.equal(r.reason, 'shared_device_picker_required');
+  });
+
+  it('child JWT on multi-profile shared foreground_resume → resumes active child', () => {
+    const r = resolveAppEntry({
+      trustedDevice: { valid: true, deviceMode: 'shared', defaultChildId: B },
+      allowedChildren: [{ id: A }, { id: B }],
+      allowedParents: [{ id: 'parent-1' }],
+      childSession: { valid: true, childId: A },
+      parentSession: null,
+      launchContext: 'foreground_resume',
     });
     assert.equal(r.failClosed, false);
     assert.equal(r.destination, 'child-home');
     assert.equal(r.childId, A);
-    assert.notEqual(r.childId, B);
   });
 
   it('handoff authenticated without privilege → not parent-home on shared', () => {

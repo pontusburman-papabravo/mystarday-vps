@@ -90,11 +90,15 @@ describe('Fas 4A — client contracts', () => {
     assert.doesNotMatch(html, /device-mode\.js/);
   });
 
-  it('profile picker supports Netflix adults via select-parent', () => {
+  it('profile picker uses AdultPrivilege for adult unlock', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
-    assert.match(js, /allowedParents/);
-    assert.match(js, /\/api\/auth\/trusted-device\/select-parent/);
-    assert.match(js, /cpp-profile-card-parent/);
+    assert.match(js, /AdultPrivilege\.requestTrustedProfileUnlock/);
+    assert.doesNotMatch(js, /fetch\('\/api\/auth\/trusted-device\/select-parent'/);
+  });
+
+  it('trusted bootstrap does not sync widget binding on profile pick', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/trusted-device-bootstrap.js'), 'utf8');
+    assert.doesNotMatch(src, /syncBinding/);
   });
 });
 

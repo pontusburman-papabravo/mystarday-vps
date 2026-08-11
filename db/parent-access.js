@@ -102,10 +102,56 @@ async function getActiveChildAccess(parentId, childId) {
   return result.rows[0] || null;
 }
 
+const TRUSTED_DEVICE_PARENT_ROLES = ['primary', 'shared'];
+
+/**
+ * Adults eligible for Netflix-style profile picker on a family trusted device.
+ * Requires an active primary/shared parent_child link (pedagog-only excluded).
+ */
+async function getAllowedParentsForFamilyDevice(familyId) {
+  const result = await db.query(
+    `SELECT p.id, p.family_id, p.email, p.name, p.avatar_storage_key, p.avatar_updated_at
+     FROM parent p
+     WHERE p.family_id = $1
+       AND p.is_admin = false
+       AND EXISTS (
+         SELECT 1 FROM parent_child pc
+         WHERE pc.parent_id = p.id
+           AND pc.revoked_at IS NULL
+           AND pc.role = ANY($2::text[])
+       )
+     ORDER BY p.created_at ASC`,
+    [familyId, TRUSTED_DEVICE_PARENT_ROLES]
+  );
+  return result.rows;
+}
+
+/**
+ * Verify a parent may be selected on a trusted family device profile picker.
+ */
+async function isParentEligibleForFamilyDevice(parentId, familyId) {
+  const result = await db.query(
+    `SELECT p.id
+     FROM parent p
+     INNER JOIN parent_child pc ON pc.parent_id = p.id
+     WHERE p.id = $1
+       AND p.family_id = $2
+       AND p.is_admin = false
+       AND pc.revoked_at IS NULL
+       AND pc.role = ANY($3::text[])
+     LIMIT 1`,
+    [parentId, familyId, TRUSTED_DEVICE_PARENT_ROLES]
+  );
+  return Boolean(result.rows[0]);
+}
+
 module.exports = {
   getParentRoles,
   getChildrenForParent,
   getPedagogChildIds,
   syncAccountType,
   getActiveChildAccess,
+  getAllowedParentsForFamilyDevice,
+  isParentEligibleForFamilyDevice,
+  TRUSTED_DEVICE_PARENT_ROLES,
 };

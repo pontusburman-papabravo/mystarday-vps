@@ -106,64 +106,35 @@
     }
   }
 
-  async function collectParentPin() {
-    if (window.AdultPinGateUI && typeof AdultPinGateUI.collectAdultPin === 'function') {
-      return AdultPinGateUI.collectAdultPin();
-    }
-    return { ok: false, code: 'PIN_UI_UNAVAILABLE' };
-  }
-
   async function onPickParent(parentId, btn) {
     if (!parentId) return;
     if (btn) btn.disabled = true;
     showError('');
 
-    let pin = null;
-    if (_pinRequired) {
-      const pinResult = await collectParentPin();
-      if (!pinResult.ok || !pinResult.pin) {
-        if (btn) btn.disabled = false;
-        return;
-      }
-      pin = pinResult.pin;
+    if (!window.AdultPrivilege || typeof AdultPrivilege.requestTrustedProfileUnlock !== 'function') {
+      showError('Kunde inte låsa upp vuxenläge. Försök igen.');
+      if (btn) btn.disabled = false;
+      return;
     }
 
-    try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (window.Auth && typeof Auth.getCsrfToken === 'function') {
-        const csrf = Auth.getCsrfToken();
-        if (csrf) headers['X-CSRF-Token'] = csrf;
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
+    if (!result || !result.ok) {
+      if (result && result.code === 'PARENT_PIN_INVALID') {
+        showError('Fel PIN. Försök igen.');
+      } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
+        showError('En vuxen behöver ställa in app-lås-PIN först.');
+      } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {
+        showError('');
+      } else {
+        showError('Kunde inte logga in som vuxen. Försök igen.');
       }
-      const res = await fetch('/api/auth/trusted-device/select-parent', {
-        method: 'POST',
-        credentials: 'include',
-        headers: headers,
-        body: JSON.stringify({ parent_id: parentId, pin: pin }),
-      });
-      const body = await res.json().catch(function () { return {}; });
-      if (!res.ok || !body.ok) {
-        if (body.code === 'PARENT_PIN_INVALID') {
-          showError('Fel PIN. Försök igen.');
-        } else {
-          showError('Kunde inte logga in som vuxen. Försök igen.');
-        }
-        if (btn) btn.disabled = false;
-        return;
-      }
-      if (body.csrfToken && window.Auth && typeof Auth.setCsrfToken === 'function') {
-        Auth.setCsrfToken(body.csrfToken);
-      }
-      if (window.Auth && typeof Auth.setAuth === 'function' && body.user) {
-        Auth.setAuth(body.user, null);
-      }
-      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-        DeviceMode.enterParent();
-      }
-      window.location.replace(body.redirect || '/home');
-    } catch (_) {
-      showError('Nätverksfel. Försök igen.');
       if (btn) btn.disabled = false;
+      return;
     }
+    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+      DeviceMode.enterParent();
+    }
+    window.location.replace(result.redirect || '/home');
   }
 
   async function bootstrap() {
@@ -180,7 +151,11 @@
       }
     }
 
-    const res = await fetch('/api/auth/app-entry', { credentials: 'include' });
+    const launchContext = isSwitch ? 'profile_switch' : 'cold_start';
+    const res = await fetch(
+      '/api/auth/app-entry?launch_context=' + encodeURIComponent(launchContext),
+      { credentials: 'include' }
+    );
     const body = await res.json().catch(function () { return {}; });
     storeEntryMeta(body);
     _pinRequired = body.pinRequiredForParents === true;

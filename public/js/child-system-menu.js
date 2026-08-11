@@ -35,9 +35,9 @@
     });
     const switchEl = document.getElementById('switchChildBtn');
     if (switchEl) {
-      if (dailyUx && allowed <= 1) {
+      if (dailyUx) {
         switchEl.style.display = 'none';
-      } else if (dailyUx && allowed > 1) {
+      } else if (allowed > 1) {
         switchEl.style.display = '';
       } else {
         switchEl.style.display = 'none';
@@ -149,11 +149,11 @@
     menu.setAttribute('role', 'menu');
 
     menu.innerHTML = ChildCapabilities.CHILD_SYSTEM_ACTIONS.filter(function (action) {
-      if (action.id !== 'switch_child') return true;
       const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
         ? ChildTrustedChrome.isDailyUxActive()
         : false;
-      if (!dailyUx) return true;
+      if (dailyUx && action.id === 'switch_child') return false;
+      if (action.id !== 'switch_child') return true;
       const allowed = window.ChildTrustedChrome.getAllowedChildCount
         ? ChildTrustedChrome.getAllowedChildCount()
         : 0;
