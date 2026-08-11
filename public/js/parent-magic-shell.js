@@ -180,7 +180,19 @@
     }
   }
 
+  let _refreshDepth = 0;
+
   function refresh() {
+    if (_refreshDepth > 0) return;
+    _refreshDepth += 1;
+    try {
+      refreshInner();
+    } finally {
+      _refreshDepth -= 1;
+    }
+  }
+
+  function refreshInner() {
     syncPageFromDom();
     const magic = isMagic();
     if (window.NativeDebug) {
@@ -202,10 +214,7 @@
       }
     }
     if (window.ParentMagicPageHub) {
-      ParentMagicPageHub.refresh(_page, magic);
-      if (_page === 'settings' && ParentMagicPageHub.ensureSettingsChrome) {
-        ParentMagicPageHub.ensureSettingsChrome();
-      }
+      ParentMagicPageHub.refresh(_page, magic, { preserveNavigation: true });
     }
     if (magic && _page === 'settings' && window.NativeTabBar && NativeTabBar.remount) {
       NativeTabBar.remount();

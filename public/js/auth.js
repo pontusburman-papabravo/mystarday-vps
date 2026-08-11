@@ -702,7 +702,7 @@ const Auth = {
   },
 
   /**
-   * Full logout then parent login (e-post/lösenord/Apple/Google) — backup when PIN fails or is forgotten.
+   * Full logout then parent login (email/password/Apple/Google) — backup when PIN fails or is forgotten.
    * @param {string} [nextPath] — safe relative path after login (default /home)
    */
   async redirectToParentBackupLogin(nextPath) {
@@ -1511,7 +1511,7 @@ const Auth = {
     if (opts.allowBackupLogin !== false) {
       const forgotBtn = document.createElement('button');
       forgotBtn.type = 'button';
-      forgotBtn.textContent = pgT('parentGate.forgotPinBackup') || 'Glömt PIN? Logga in med e-post eller Apple/Google';
+      forgotBtn.textContent = pgT('parentGate.forgotPinBackup') || 'Forgot PIN? Sign in with email or Apple/Google';
       forgotBtn.style.cssText = [
         'display:block;margin:8px auto 0;min-height:44px;padding:8px 12px;',
         'font-size:0.8rem;font-weight:600;color:#5A6178;background:none;border:none;',

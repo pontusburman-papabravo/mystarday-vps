@@ -766,13 +766,14 @@
 
       await shellBootPromise;
       if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
-        await ParentMagicPageHub.ensureSettingsChrome();
+        await ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
       }
       function reinforceSettingsMenu() {
         if (!window.ParentMagicPageHub) return;
         if (ParentMagicPageHub.hasSettingsDeepLink && ParentMagicPageHub.hasSettingsDeepLink()) return;
+        if (ParentMagicPageHub.getActiveSettingsGroup && ParentMagicPageHub.getActiveSettingsGroup()) return;
         if (ParentMagicPageHub.ensureSettingsChrome) {
-          ParentMagicPageHub.ensureSettingsChrome();
+          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
           return;
         }
         if (ParentMagicPageHub.showSettingsRootMenu) {

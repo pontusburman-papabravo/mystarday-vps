@@ -20,13 +20,92 @@ function loadHubsInSandbox(sandbox) {
   return sandbox.ParentMagicPageHub;
 }
 
-function makeSettingsDom() {
+function makeEl(id, opts) {
+  opts = opts || {};
+  const hidden = !!opts.hidden;
+  const attrs = Object.assign({}, opts.attrs || {});
+  const el = {
+    id: id,
+    tagName: opts.tagName || 'section',
+    innerHTML: opts.innerHTML || '',
+    _attrs: attrs,
+    _classes: new Set(hidden ? ['hidden'] : []),
+    classList: null,
+    closest: function (tag) {
+      if (tag === 'section' && this.tagName === 'section') return this;
+      return opts.parentSection || null;
+    },
+    getAttribute: function (k) { return this._attrs[k] || null; },
+    setAttribute: function (k, v) { this._attrs[k] = String(v); },
+    removeAttribute: function (k) { delete this._attrs[k]; },
+    hasAttribute: function (k) { return Object.prototype.hasOwnProperty.call(this._attrs, k); },
+    querySelector: function () { return null; },
+    querySelectorAll: function () { return []; },
+  };
+  el.classList = {
+    add: function (c) { el._classes.add(c); },
+    remove: function (c) { el._classes.delete(c); },
+    contains: function (c) { return el._classes.has(c); },
+    toggle: function (c, on) {
+      if (on === undefined) {
+        if (el._classes.has(c)) el._classes.delete(c);
+        else el._classes.add(c);
+      } else if (on) el._classes.add(c);
+      else el._classes.delete(c);
+    },
+  };
+  return el;
+}
+
+function makeMountEl() {
+  const el = makeEl('parentMagicPageMount', { hidden: true, tagName: 'div' });
+  let html = '';
+  Object.defineProperty(el, 'innerHTML', {
+    get: function () { return html; },
+    set: function (v) { html = String(v || ''); },
+    configurable: true,
+  });
+  el.querySelector = function (sel) {
+    if (!html || html.indexOf('data-settings-group=') === -1) return null;
+    if (sel.indexOf('data-settings-group') !== -1 || sel.indexOf('magic-settings-menu') !== -1) {
+      return { getAttribute: function () { return 'profile'; } };
+    }
+    return null;
+  };
+  return el;
+}
+
+function makeSettingsDom(extraIds) {
   const noop = function () {};
+  const elements = Object.assign({
+    parentMagicPageMount: makeMountEl(),
+    magicSettingsBackBar: makeEl('magicSettingsBackBar', { tagName: 'div' }),
+    familySection: makeEl('familySection', { tagName: 'section' }),
+    nativeAccountActions: makeEl('nativeAccountActions', { hidden: true, tagName: 'section' }),
+    coParentInviteSection: makeEl('coParentInviteSection', { hidden: true, tagName: 'section' }),
+    pedagogInviteSection: makeEl('pedagogInviteSection', { hidden: true, tagName: 'section' }),
+    familyName: makeEl('familyName', {
+      tagName: 'input',
+      parentSection: null,
+    }),
+  }, extraIds || {});
+  elements.familyName.closest = function (tag) {
+    if (tag === 'section') return elements.familySection;
+    return null;
+  };
+
   const body = {
     _classes: new Set(['parent-magic-view', 'parent-magic-page-settings']),
     classList: null,
     getAttribute: function (k) { return k === 'data-magic-page' ? 'settings' : null; },
-    querySelectorAll: function () { return []; },
+    querySelectorAll: function (sel) {
+      if (sel === '[data-magic-settings-content]') {
+        return Object.values(elements).filter(function (el) {
+          return el.hasAttribute('data-magic-settings-content');
+        });
+      }
+      return [];
+    },
   };
   body.classList = {
     add: function (c) { body._classes.add(c); },
@@ -34,30 +113,14 @@ function makeSettingsDom() {
     contains: function (c) { return body._classes.has(c); },
     toggle: function (c, on) { if (on) body._classes.add(c); else body._classes.delete(c); },
   };
-  const mount = {
-    id: 'parentMagicPageMount',
-    className: 'hidden',
-    innerHTML: '',
-    classList: {
-      _c: new Set(['hidden']),
-      add: function (c) { this._c.add(c); },
-      remove: function (c) { this._c.delete(c); },
-      contains: function (c) { return this._c.has(c); },
-      toggle: function () {},
-    },
-    querySelector: function () { return null; },
-  };
-  const scroll = {
-    querySelectorAll: function () { return []; },
-  };
+
   const sandbox = {
     body: body,
-    mount: mount,
+    elements: elements,
     location: { pathname: '/settings', hash: '' },
     ParentMagicShell: { isMagic: function () { return true; } },
     console: { error: noop, warn: noop },
     escHtml: function (s) { return String(s); },
-    pt: function (k) { return k; },
     cpt: function () { return ''; },
     IconSystem: { has: function () { return false; } },
     dispatchEvent: noop,
@@ -69,16 +132,9 @@ function makeSettingsDom() {
   };
   sandbox.document = {
     body: body,
-    getElementById: function (id) {
-      if (id === 'parentMagicPageMount') return mount;
-      if (id === 'magicSettingsBackBar') return { innerHTML: '' };
-      return null;
-    },
-    querySelector: function (sel) {
-      if (sel === 'main[data-settings-root] .flex-1.overflow-auto') return scroll;
-      return null;
-    },
-    querySelectorAll: function () { return []; },
+    getElementById: function (id) { return elements[id] || null; },
+    querySelector: function () { return null; },
+    querySelectorAll: body.querySelectorAll.bind(body),
     addEventListener: noop,
   };
   sandbox.window = sandbox;
@@ -113,7 +169,7 @@ describe('settings magic fail-safe contracts', () => {
     const ok = hub.showSettingsRootMenu();
     assert.equal(ok, false);
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), false);
-    assert.equal(sandbox.mount.classList.contains('hidden'), true);
+    assert.equal(sandbox.elements.parentMagicPageMount.classList.contains('hidden'), true);
   });
 
   it('CASE 3 hub throw path exposes legacy fallback helper', () => {
@@ -123,7 +179,7 @@ describe('settings magic fail-safe contracts', () => {
     const hub = loadHubsInSandbox(sandbox);
     hub.showLegacySettingsFallback('forced test failure');
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), false);
-    assert.equal(sandbox.mount.classList.contains('hidden'), true);
+    assert.equal(sandbox.elements.parentMagicPageMount.classList.contains('hidden'), true);
   });
 
   it('CASE 4 settings shell boots before family/notifications API block', () => {
@@ -133,6 +189,7 @@ describe('settings magic fail-safe contracts', () => {
     assert.ok(domIdx >= 0 && shellIdx > domIdx, 'early shell boot must be registered on DOMContentLoaded');
     assert.ok(shellIdx < familyIdx, 'shell boot must start before /api/family await');
     assert.match(SETTINGS_HTML, /await shellBootPromise/);
+    assert.match(SETTINGS_HTML, /preserveNavigation:\s*true/);
   });
 
   it('CASE 5 returnToSettingsMenu restores root hub menu', () => {
@@ -155,6 +212,96 @@ describe('settings magic fail-safe contracts', () => {
 
   it('parent shell syncs settings page id from DOM', () => {
     assert.match(SHELL, /isSettingsDomPage/);
-    assert.match(SHELL, /_page = 'settings'/);
+    assert.match(SHELL, /preserveNavigation:\s*true/);
+  });
+
+  it('parent shell refresh is re-entrancy guarded against layout-event loops', () => {
+    assert.match(SHELL, /_refreshDepth/);
+    assert.match(SHELL, /refreshInner/);
+  });
+
+  it('settings-account.js does not shadow window.pt with a recursive global helper', () => {
+    const account = fs.readFileSync(path.join(ROOT, 'public/js/settings-account.js'), 'utf8');
+    assert.doesNotMatch(account, /^function pt\(/m);
+    assert.match(account, /settingsAccountPt/);
+    assert.match(account, /_parentAppPt/);
+    assert.doesNotMatch(account, /window\.pt\(key, params\)/);
+  });
+});
+
+describe('settings magic fail-safe behavior (DOM sandbox)', () => {
+  it('normal hub render marks ready and shows menu cards', () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    const ok = hub.showSettingsRootMenu();
+    assert.equal(ok, true);
+    assert.equal(sandbox.body.classList.contains('magic-settings-ready'), true);
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="family"/);
+    assert.equal(sandbox.elements.parentMagicPageMount.classList.contains('hidden'), false);
+  });
+
+  it('fallback restores only magic-owned visibility — originally hidden sections stay hidden', () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    hub.showSettingsRootMenu();
+    hub.showLegacySettingsFallback('test ownership');
+    assert.equal(sandbox.elements.nativeAccountActions.classList.contains('hidden'), true);
+    assert.equal(sandbox.elements.coParentInviteSection.classList.contains('hidden'), true);
+    assert.equal(sandbox.elements.pedagogInviteSection.classList.contains('hidden'), true);
+    assert.equal(sandbox.elements.familySection.hasAttribute('data-magic-settings-content'), false);
+    assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
+  });
+
+  it('late ensureSettingsChrome preserves an open Familj group', async () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    hub.showSettingsRootMenu();
+    hub.showSettingsGroup('family');
+    assert.equal(hub.getActiveSettingsGroup(), 'family');
+    await hub.ensureSettingsChrome({ preserveNavigation: true });
+    assert.equal(hub.getActiveSettingsGroup(), 'family');
+    assert.equal(sandbox.body.classList.contains('magic-settings-in-group'), true);
+    assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
+  });
+
+  it('returnToSettingsMenu after group opens root menu once', () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    hub.showSettingsRootMenu();
+    hub.showSettingsGroup('family');
+    hub.returnToSettingsMenu();
+    assert.equal(hub.getActiveSettingsGroup(), null);
+    assert.equal(sandbox.body.classList.contains('magic-settings-in-group'), false);
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="profile"/);
+  });
+
+  it('early hub copy uses Swedish fallback instead of raw i18n keys', () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    hub.showSettingsRootMenu();
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /Inställningar/);
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /Profil/);
+    assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /settings\.groups\./);
+    assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /settings\.title/);
+  });
+
+  it('tagSettingsSections keeps an open group visible after re-tag', () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    hub.showSettingsRootMenu();
+    hub.showSettingsGroup('family');
+    hub.tagSettingsSections();
+    assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
+    assert.equal(hub.getActiveSettingsGroup(), 'family');
+  });
+
+  it('missing ParentMagicPageHub leaves legacy path available via fallback helper', () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    hub.showSettingsRootMenu();
+    sandbox.ParentMagicPageHub = null;
+    hub.showLegacySettingsFallback('hub unavailable');
+    assert.equal(sandbox.body.classList.contains('magic-settings-ready'), false);
+    assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
   });
 });
