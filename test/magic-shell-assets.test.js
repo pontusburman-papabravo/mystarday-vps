@@ -36,12 +36,11 @@ describe('magic shell assets on all parent pages', () => {
     assert.match(src, /syncLegacyNavHide/);
   });
 
-  it('settings hub resets group menu on each entry', () => {
+  it('settings hub fail-safe ready gate', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-page-hubs.js'), 'utf8');
-    assert.match(src, /showSettingsRootMenu/);
-    assert.match(src, /hasSettingsDeepLink/);
-    assert.match(src, /isSettingsDomPage/);
-    assert.match(src, /resolveHubPage/);
+    assert.match(src, /magic-settings-ready/);
+    assert.match(src, /showLegacySettingsFallback/);
+    assert.match(src, /settingsHubHasUsableContent/);
     assert.doesNotMatch(src, /restoreGroup/);
     assert.match(src, /page === 'settings'/);
   });

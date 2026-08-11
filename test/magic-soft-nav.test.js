@@ -153,14 +153,19 @@ describe('magic soft navigation', () => {
 
   it('settings group CSS respects .hidden when showing one group', () => {
     const css = fs.readFileSync(path.join(ROOT, 'public/css/parent-magic-common.css'), 'utf8');
-    assert.match(css, /magic-settings-in-group \[data-magic-settings-content\]:not\(\.hidden\)/);
-    assert.match(css, /parent-magic-page-settings:not\(\.magic-settings-in-group\) main > \.flex-1\.overflow-auto/);
+    assert.match(css, /magic-settings-ready\.magic-settings-in-group \[data-magic-settings-content\]:not\(\.hidden\)/);
+    assert.match(css, /magic-settings-ready\.parent-magic-page-settings:not\(\.magic-settings-in-group\) main > \.flex-1\.overflow-auto/);
     assert.match(css, /#parentMagicPageMount:not\(:empty\)/);
+    assert.doesNotMatch(
+      css,
+      /body\.parent-magic-view\[data-magic-page="settings"\]:not\(\.magic-settings-in-group\) main > \.flex-1\.overflow-auto/
+    );
   });
 
   it('settings page uses manual i18n boot to avoid double refresh races', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
     assert.match(html, /data-i18n-manual-init="true"/);
+    assert.match(html, /bootSettingsShellEarly/);
     assert.match(html, /reinforceSettingsMenu/);
   });
 
@@ -184,9 +189,8 @@ describe('magic soft navigation', () => {
     const shell = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-shell.js'), 'utf8');
     assert.match(html, /ensureSettingsChrome/);
     assert.match(hubs, /ensureSettingsChrome/);
-    assert.match(hubs, /showSettingsRootMenu/);
-    assert.match(hubs, /hasSettingsDeepLink/);
-    assert.match(hubs, /isSettingsDomPage/);
+    assert.match(hubs, /magic-settings-ready/);
+    assert.match(hubs, /showLegacySettingsFallback/);
     assert.match(hubs, /stjarndag-magic-navigated/);
     assert.match(router, /pageId === 'settings'[\s\S]*ensureSettingsChrome/);
     assert.doesNotMatch(router, /hubMount\.innerHTML = ''/);

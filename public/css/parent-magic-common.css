@@ -270,38 +270,34 @@ body.parent-magic-view.magic-settings-in-group .magic-page-hero-wrap {
   display: none;
 }
 
-body.parent-magic-view:not(.magic-settings-in-group) [data-magic-settings-content] {
+/* Legacy section tags: hide only after hub successfully rendered (magic-settings-ready) */
+body.parent-magic-view.magic-settings-ready:not(.magic-settings-in-group) [data-magic-settings-content] {
   display: none !important;
 }
 
-/* Settings: hide legacy scroll list until a magic group is opened */
-body.parent-magic-view.parent-magic-page-settings:not(.magic-settings-in-group) main > .flex-1.overflow-auto,
-body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group) main > .flex-1.overflow-auto {
+/* Settings: hide legacy scroll list ONLY after replacement hub is ready */
+body.parent-magic-view.magic-settings-ready.parent-magic-page-settings:not(.magic-settings-in-group) main > .flex-1.overflow-auto,
+body.parent-magic-view.magic-settings-ready[data-magic-page="settings"]:not(.magic-settings-in-group) main > .flex-1.overflow-auto {
   display: none !important;
 }
 
-/* Settings menu/back chrome when page id is known before shell class is applied */
-body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group) [data-magic-settings-content] {
-  display: none !important;
-}
-
-/* Settings root menu must stay visible when mount has content */
-body.parent-magic-view[data-magic-page="settings"]:not(.magic-settings-in-group) #parentMagicPageMount:not(:empty) {
+/* Hub mount visible once populated and ready */
+body.parent-magic-view.magic-settings-ready[data-magic-page="settings"]:not(.magic-settings-in-group) #parentMagicPageMount:not(:empty) {
   display: block !important;
   visibility: visible !important;
 }
 
-body.parent-magic-view.magic-settings-in-group [data-magic-settings-content]:not(.hidden) {
+body.parent-magic-view.magic-settings-ready.magic-settings-in-group [data-magic-settings-content]:not(.hidden) {
   display: block !important;
 }
 
-body.parent-magic-view.magic-settings-in-group .magic-settings-back-bar {
+body.parent-magic-view.magic-settings-ready.magic-settings-in-group .magic-settings-back-bar {
   display: block;
 }
 
 /* Hide legacy settings blocks (prenumeration etc.) when a magic group is open */
-body.parent-magic-view.magic-settings-in-group .flex-1.overflow-auto > section:not([data-magic-settings-content]),
-body.parent-magic-view.magic-settings-in-group .flex-1.overflow-auto > hr {
+body.parent-magic-view.magic-settings-ready.magic-settings-in-group .flex-1.overflow-auto > section:not([data-magic-settings-content]),
+body.parent-magic-view.magic-settings-ready.magic-settings-in-group .flex-1.overflow-auto > hr {
   display: none !important;
 }
 

@@ -634,6 +634,22 @@
       Auth.requireAuth();
       showNativeAccountActions();
 
+      // Shell/menu must not wait for family, notifications, or newsletter APIs.
+      const shellBootPromise = (async function bootSettingsShellEarly() {
+        if (!window.ParentMagicShell) return false;
+        await ParentMagicShell.init('settings');
+        if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
+          return ParentMagicPageHub.ensureSettingsChrome();
+        }
+        return false;
+      })().catch(function (err) {
+        console.warn('[settings] early shell boot failed', err);
+        if (window.ParentMagicPageHub && ParentMagicPageHub.showLegacySettingsFallback) {
+          ParentMagicPageHub.showLegacySettingsFallback('early shell boot failed');
+        }
+        return false;
+      });
+
       let me;
       try {
         me = await Auth.api('/api/auth/me');
@@ -748,19 +764,24 @@
         Theme.setColorBlind(cbSelect.value);
       });
 
-      if (window.ParentMagicShell) await ParentMagicShell.init('settings');
+      await shellBootPromise;
       if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
         await ParentMagicPageHub.ensureSettingsChrome();
       }
       function reinforceSettingsMenu() {
-        if (!window.ParentMagicPageHub || !ParentMagicPageHub.showSettingsRootMenu) return;
+        if (!window.ParentMagicPageHub) return;
         if (ParentMagicPageHub.hasSettingsDeepLink && ParentMagicPageHub.hasSettingsDeepLink()) return;
-        ParentMagicPageHub.showSettingsRootMenu();
+        if (ParentMagicPageHub.ensureSettingsChrome) {
+          ParentMagicPageHub.ensureSettingsChrome();
+          return;
+        }
+        if (ParentMagicPageHub.showSettingsRootMenu) {
+          ParentMagicPageHub.showSettingsRootMenu();
+        }
       }
       reinforceSettingsMenu();
       requestAnimationFrame(reinforceSettingsMenu);
       setTimeout(reinforceSettingsMenu, 0);
-      setTimeout(reinforceSettingsMenu, 300);
       if (window.SettingsNativeNav && SettingsNativeNav.init) SettingsNativeNav.init();
     });
 
