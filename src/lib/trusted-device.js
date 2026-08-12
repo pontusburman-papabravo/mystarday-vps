@@ -465,7 +465,7 @@ async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options
   if (!enabled) {
     return { ok: false, code: 'TRUSTED_DEVICE_DISABLED' };
   }
-  if (row.device_mode !== 'shared' && row.device_mode !== 'child') {
+  if (row.device_mode !== 'shared' && row.device_mode !== 'child' && row.device_mode !== 'parent') {
     return { ok: false, code: 'DEVICE_MODE_NOT_SHARED' };
   }
 

@@ -84,7 +84,7 @@ async function buildAppEntryInput(req, res, options) {
           lastActiveChildId: row?.last_active_child_id || null,
         };
         allowedChildren = mapAllowedChildren(ctx.allowed_children);
-        if (row?.device_mode === 'shared' || row?.device_mode === 'child') {
+        if (row?.device_mode === 'shared' || row?.device_mode === 'child' || row?.device_mode === 'parent') {
           allowedParents = await trusted.listParentsForSharedDevice(ctx.family_id);
         }
       }

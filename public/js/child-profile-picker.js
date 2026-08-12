@@ -137,6 +137,75 @@
     }
   }
 
+  function fetchJsonLocal(url, options) {
+    const opts = options || {};
+    opts.credentials = 'same-origin';
+    return fetch(url, opts).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        return { res: res, body: body };
+      });
+    });
+  }
+
+  async function resolveActiveParentId() {
+    try {
+      if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
+        await Auth.hydrateParentSessionFromCookies();
+      }
+      const out = await fetchJsonLocal('/api/auth/me', { method: 'GET' });
+      if (!out.res.ok || !out.body || out.body.type !== 'parent' || !out.body.id) {
+        return null;
+      }
+      if (window.Auth && typeof Auth.setAuth === 'function') {
+        if (typeof Auth.ensureCsrfToken === 'function') {
+          await Auth.ensureCsrfToken();
+        }
+        Auth.setAuth(null, out.body, Auth.getCsrfToken && Auth.getCsrfToken());
+      }
+      return out.body.id;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function enterParentDeviceMode() {
+    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+      DeviceMode.enterParent();
+      return;
+    }
+    try {
+      localStorage.setItem('stjarndag_device_mode', 'parent');
+    } catch (_) { /* ignore */ }
+  }
+
+  /**
+   * Multi-profile shared devices cold-start back to profile-picker unless we pin parent-home first.
+   */
+  function commitParentViewFromPicker(redirectPath) {
+    enterParentDeviceMode();
+    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.markDecisionApplied === 'function') {
+      AppEntryOrchestrator.markDecisionApplied({
+        destination: 'parent-home',
+        viewContext: 'parent',
+        credentialContext: 'parent',
+        deviceMode: 'shared',
+        childId: null,
+        reason: 'profile_picker_parent_resume',
+        path: '/dashboard',
+      });
+    }
+    window.location.replace(redirectPath || '/dashboard');
+  }
+
+  async function resumeParentIfSessionMatches(parentId) {
+    const activeParentId = await resolveActiveParentId();
+    if (!activeParentId || activeParentId !== parentId) {
+      return false;
+    }
+    commitParentViewFromPicker('/dashboard');
+    return true;
+  }
+
   async function onPickParent(parentId, btn) {
     if (!parentId) return;
     if (btn) btn.disabled = true;
@@ -152,6 +221,10 @@
       return;
     }
 
+    if (await resumeParentIfSessionMatches(parentId)) {
+      return;
+    }
+
     if (!window.AdultPrivilege || typeof AdultPrivilege.requestTrustedProfileUnlock !== 'function') {
       showError('Kunde inte låsa upp vuxenläge. Försök igen.');
       if (btn) btn.disabled = false;
@@ -160,10 +233,7 @@
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (result && result.ok) {
-      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-        DeviceMode.enterParent();
-      }
-      window.location.replace(result.redirect || '/home');
+      commitParentViewFromPicker(result.redirect || '/dashboard');
       return;
     }
 
@@ -182,6 +252,10 @@
         showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
       } else if (result && result.code === 'PARENT_ACCESS_DENIED') {
         showError('Du har inte behörighet att logga in som den här vuxenprofilen.');
+      } else if (result && result.code === 'DEVICE_MODE_NOT_SHARED') {
+        showError('Kunde inte logga in som vuxen på den här enheten. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
+      } else if (result && result.code === 'TRUSTED_DEVICE_MISSING') {
+        showError('Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.');
       } else if (result && result.status === 429) {
         showError('För många försök. Vänta en stund och försök igen.');
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {
