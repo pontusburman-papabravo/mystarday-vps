@@ -217,20 +217,54 @@
     }
   }
 
-  function pauseAuthRefreshForTrustedSelect() {
-    const auth = window.Auth;
-    if (!auth) return;
-    if (auth._refreshTimer) {
-      clearTimeout(auth._refreshTimer);
-      auth._refreshTimer = null;
+  function logSelectParentStage(stage, detail) {
+    if (window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.logStage === 'function') {
+      window.TrustedSelectParentDiag.logStage(stage, detail);
     }
   }
 
-  function selectParentResponseSucceeded(out) {
+  function isSelectParentContractOk(out) {
     if (!out || !out.res || !out.res.ok) return false;
     const body = out.body || {};
     if (body.ok === true) return true;
     return !!(body.user || body.parent);
+  }
+
+  function fetchSelectParentJson(url, options) {
+    const opts = options || {};
+    opts.credentials = 'same-origin';
+    opts.headers = opts.headers || {};
+    if (!opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+    if (window.Auth && typeof window.Auth.getCsrfToken === 'function') {
+      const csrf = window.Auth.getCsrfToken();
+      if (csrf) opts.headers['X-CSRF-Token'] = csrf;
+    }
+    const doFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : fetch;
+    return doFetch(url, opts).then(function (res) {
+      return res.text().then(function (text) {
+        let body = {};
+        let jsonParseOk = true;
+        try {
+          body = text ? JSON.parse(text) : {};
+        } catch (_) {
+          jsonParseOk = false;
+          body = {};
+        }
+        const safeKeys = window.TrustedSelectParentDiag && window.TrustedSelectParentDiag.safeKeys
+          ? window.TrustedSelectParentDiag.safeKeys(body)
+          : [];
+        logSelectParentStage('select-parent:fetch-resolved', {
+          status: res.status,
+          responseOk: res.ok,
+          contentType: res.headers && res.headers.get ? res.headers.get('content-type') : null,
+          bodyTextLength: text ? text.length : 0,
+          jsonParseOk: jsonParseOk,
+          bodyKeys: safeKeys,
+          url: (typeof window !== 'undefined' && window.location) ? window.location.pathname : null,
+        });
+        return { res: res, body: body };
+      });
+    });
   }
 
   function applyUnlockSuccess(body, options) {
@@ -432,28 +466,52 @@
   }
 
   function recoverTrustedParentSession(parentId) {
+    logSelectParentStage('select-parent:recovery-start', {
+      parentId: parentId,
+      url: (typeof window !== 'undefined' && window.location) ? window.location.pathname : null,
+    });
     return fetchJson('/api/auth/me', { method: 'GET' }).then(function (out) {
       if (!out.res.ok || !out.body || out.body.type !== 'parent' || !out.body.id) {
+        logSelectParentStage('select-parent:recovery-result', {
+          ok: false,
+          code: 'TRUSTED_SELECT_PARENT_FAILED',
+          meType: out.body && out.body.type,
+        });
         return { ok: false, code: 'TRUSTED_SELECT_PARENT_FAILED' };
       }
       if (parentId && out.body.id !== parentId) {
+        logSelectParentStage('select-parent:recovery-result', {
+          ok: false,
+          code: 'PARENT_ACCESS_DENIED',
+          meParentId: out.body.id,
+          selectedParentId: parentId,
+        });
         return { ok: false, code: 'PARENT_ACCESS_DENIED' };
       }
-      return applyUnlockSuccess({
+      hydrateParentFromBody({ parent: out.body });
+      setState(STATES.ACTIVE);
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      track('adult_privilege_unlock_success');
+      const result = {
+        ok: true,
         parent: out.body,
-        csrfToken: window.Auth && typeof window.Auth.getCsrfToken === 'function'
-          ? window.Auth.getCsrfToken()
-          : null,
-      }, { trustedProfileUnlock: true }).then(function (result) {
-        if (!result.ok) return result;
-        return {
-          ok: true,
-          parent: result.parent,
-          redirect: '/dashboard',
-          recovered: true,
-        };
+        redirect: '/dashboard',
+        recovered: true,
+      };
+      logSelectParentStage('select-parent:recovery-result', {
+        ok: true,
+        recovered: true,
+        meParentId: out.body.id,
       });
-    }).catch(function () {
+      return result;
+    }).catch(function (err) {
+      logSelectParentStage('select-parent:recovery-result', {
+        ok: false,
+        code: 'ADULT_PRIVILEGE_NETWORK',
+        message: String(err && err.message || err),
+      });
       return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK' };
     });
   }
@@ -464,47 +522,66 @@
       unlock_method: 'pin',
       pin: pin,
     };
-    pauseAuthRefreshForTrustedSelect();
-    return fetchJson('/api/auth/trusted-device/select-parent', {
+    logSelectParentStage('select-parent:start', {
+      parentId: parentId,
+      url: (typeof window !== 'undefined' && window.location) ? window.location.pathname : null,
+    });
+    return fetchSelectParentJson('/api/auth/trusted-device/select-parent', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).then(function (out) {
-      if (!selectParentResponseSucceeded(out)) {
-        const code = (out.body && out.body.code) || 'TRUSTED_SELECT_PARENT_FAILED';
-        if (out.res && out.res.ok) {
-          return recoverTrustedParentSession(parentId);
+      if (isSelectParentContractOk(out)) {
+        if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
+          window.Auth.setCsrfToken(out.body.csrfToken);
         }
-        setState(STATES.LOCKED);
-        track('adult_privilege_unlock_failed');
-        return { ok: false, code: code, status: out.res.status };
-      }
-      if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
-        window.Auth.setCsrfToken(out.body.csrfToken);
-      }
-      let unlockBody;
-      try {
-        unlockBody = {
+        return applyUnlockSuccess({
           csrfToken: out.body.csrfToken,
           parent: out.body.user || out.body.parent,
           expiresAt: out.body.privilegeLeaseUntil,
           privilegeLeaseUntil: out.body.privilegeLeaseUntil,
           policy: out.body.policy,
-        };
-      } catch (err) {
+        }, { trustedProfileUnlock: true }).then(function (result) {
+          if (result.ok) {
+            const success = {
+              ok: true,
+              parent: result.parent,
+              redirect: '/dashboard',
+            };
+            logSelectParentStage('select-parent:final-result', { ok: true, via: 'contract' });
+            return success;
+          }
+          logSelectParentStage('select-parent:contract-evaluated', {
+            ok: false,
+            code: result.code || 'ADULT_PRIVILEGE_VERIFY_FAILED',
+          });
+          if (out.res.ok) {
+            return recoverTrustedParentSession(parentId);
+          }
+          return result;
+        });
+      }
+
+      logSelectParentStage('select-parent:contract-evaluated', {
+        ok: false,
+        status: out.res.status,
+        responseOk: out.res.ok,
+        bodyKeys: window.TrustedSelectParentDiag ? window.TrustedSelectParentDiag.safeKeys(out.body) : [],
+      });
+
+      if (out.res.ok) {
         return recoverTrustedParentSession(parentId);
       }
-      return applyUnlockSuccess(unlockBody, { trustedProfileUnlock: true }).then(function (result) {
-        if (result.ok) {
-          return {
-            ok: true,
-            parent: result.parent,
-            redirect: '/dashboard',
-          };
-        }
-        return recoverTrustedParentSession(parentId);
-      }).catch(function () {
-        return recoverTrustedParentSession(parentId);
+
+      const code = (out.body && out.body.code) || 'TRUSTED_SELECT_PARENT_FAILED';
+      setState(STATES.LOCKED);
+      track('adult_privilege_unlock_failed');
+      logSelectParentStage('select-parent:final-result', { ok: false, code: code, status: out.res.status });
+      return { ok: false, code: code, status: out.res.status };
+    }).catch(function (err) {
+      logSelectParentStage('select-parent:fetch-rejected', {
+        message: String(err && err.message || err),
       });
+      throw err;
     });
   }
 
@@ -545,10 +622,7 @@
         }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
-        return recoverTrustedParentSession(parentId).then(function (recovered) {
-          if (recovered && recovered.ok) return recovered;
-          return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
-        });
+        return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
       })
       .finally(function () {
         unlockInFlight = false;

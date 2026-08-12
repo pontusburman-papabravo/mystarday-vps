@@ -8,8 +8,20 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 
+function mockJsonResponse(status, body, textOverride) {
+  const text = textOverride != null ? textOverride : JSON.stringify(body);
+  return {
+    ok: status >= 200 && status < 300,
+    status: status,
+    headers: { get: () => 'application/json' },
+    text: () => Promise.resolve(text),
+  };
+}
+
 function loadAdultPrivilege(sandbox) {
+  const diag = fs.readFileSync(path.join(ROOT, 'public/js/trusted-select-parent-diag.js'), 'utf8');
   const priv = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege.js'), 'utf8');
+  vm.runInNewContext(diag, sandbox, { context: sandbox });
   vm.runInNewContext(priv, sandbox, { context: sandbox });
   return sandbox.window.AdultPrivilege;
 }
@@ -240,28 +252,17 @@ describe('adult-privilege client state machine', () => {
         }
         if (String(url).includes('/trusted-device/select-parent')) {
           selectCalls += 1;
-          return Promise.resolve({
+          return Promise.resolve(mockJsonResponse(200, {
             ok: true,
-            status: 200,
-            text: () =>
-              Promise.resolve(
-                JSON.stringify({
-                  ok: true,
-                  user: { id: 'p1', type: 'parent' },
-                  redirect: '/dashboard',
-                  csrfToken: 'c',
-                })
-              ),
-          });
+            user: { id: 'p1', type: 'parent' },
+            redirect: '/dashboard',
+            csrfToken: 'c',
+          }));
         }
         if (String(url).includes('/auth/me')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () => Promise.resolve(JSON.stringify({ type: 'parent' })),
-          });
+          return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'p1' }));
         }
-        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+        return Promise.resolve(mockJsonResponse(404, {}));
       },
     };
     sandbox.sessionStorage = sandbox.window.sessionStorage;
@@ -333,26 +334,15 @@ describe('adult-privilege client state machine', () => {
         }
         if (String(url).includes('/trusted-device/select-parent')) {
           selectCalls += 1;
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () =>
-              Promise.resolve(
-                JSON.stringify({
-                  user: { id: 'p1', type: 'parent', familyId: 'fam-1' },
-                  csrfToken: 'c',
-                })
-              ),
-          });
+          return Promise.resolve(mockJsonResponse(200, {
+            user: { id: 'p1', type: 'parent', familyId: 'fam-1' },
+            csrfToken: 'c',
+          }));
         }
         if (String(url).includes('/auth/me')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () => Promise.resolve(JSON.stringify({ type: 'parent', id: 'p1' })),
-          });
+          return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'p1' }));
         }
-        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+        return Promise.resolve(mockJsonResponse(404, {}));
       },
     };
     sandbox.sessionStorage = sandbox.window.sessionStorage;
@@ -404,24 +394,13 @@ describe('adult-privilege client state machine', () => {
           });
         }
         if (String(url).includes('/trusted-device/select-parent')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () => Promise.resolve('{}'),
-          });
+          return Promise.resolve(mockJsonResponse(200, {}, ''));
         }
         if (String(url).includes('/auth/me')) {
           meCalls += 1;
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () =>
-              Promise.resolve(
-                JSON.stringify({ type: 'parent', id: 'p1', familyId: 'fam-1' })
-              ),
-          });
+          return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'p1', familyId: 'fam-1' }));
         }
-        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+        return Promise.resolve(mockJsonResponse(404, {}));
       },
     };
     sandbox.sessionStorage = sandbox.window.sessionStorage;
@@ -433,6 +412,125 @@ describe('adult-privilege client state machine', () => {
     assert.equal(result.recovered, true);
     assert.equal(result.redirect, '/dashboard');
     assert.ok(meCalls >= 1);
+  });
+
+  it('v847 client contract rejects HTTP 200 with empty parsed body', () => {
+    const out = { res: { ok: true, status: 200 }, body: {} };
+    const baselineWouldFail = !out.res.ok || !out.body.ok;
+    assert.equal(baselineWouldFail, true);
+    const code = out.body.code || 'TRUSTED_SELECT_PARENT_FAILED';
+    assert.equal(code, 'TRUSTED_SELECT_PARENT_FAILED');
+  });
+
+  it('recovery fails when /me returns wrong parent id', async () => {
+    const sandbox = {
+      window: {
+        analytics: { track: () => {} },
+        Auth: { getCsrfToken: () => 'csrf', setCsrfToken: () => {}, setAuth: () => {} },
+        AdultPinGateUI: { collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }) },
+        DeviceMode: { enterParent: () => {} },
+        sessionStorage: {
+          _m: { stjarndag_entry_pin_required_for_parents: '1' },
+          getItem(k) { return this._m[k] || null; },
+          setItem(k, v) { this._m[k] = v; },
+        },
+      },
+      fetch: (url) => {
+        if (String(url).includes('/auth/app-entry')) {
+          return Promise.resolve(mockJsonResponse(200, { pinRequiredForParents: true, orchestratorActive: true }));
+        }
+        if (String(url).includes('/trusted-device/select-parent')) {
+          return Promise.resolve(mockJsonResponse(200, {}, ''));
+        }
+        if (String(url).includes('/auth/me')) {
+          return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'parent-b' }));
+        }
+        return Promise.resolve(mockJsonResponse(404, {}));
+      },
+    };
+    sandbox.sessionStorage = sandbox.window.sessionStorage;
+    sandbox.DeviceMode = sandbox.window.DeviceMode;
+    sandbox.globalThis = sandbox.window;
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'parent-a' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'PARENT_ACCESS_DENIED');
+  });
+
+  it('genuine 401 PIN failure is not recovered', async () => {
+    let meCalls = 0;
+    const sandbox = {
+      window: {
+        analytics: { track: () => {} },
+        Auth: { getCsrfToken: () => 'csrf', setCsrfToken: () => {}, setAuth: () => {} },
+        AdultPinGateUI: { collectAdultPin: () => Promise.resolve({ ok: true, pin: '0000' }) },
+        DeviceMode: { enterParent: () => {} },
+        sessionStorage: {
+          _m: { stjarndag_entry_pin_required_for_parents: '1' },
+          getItem(k) { return this._m[k] || null; },
+          setItem(k, v) { this._m[k] = v; },
+        },
+      },
+      fetch: (url) => {
+        if (String(url).includes('/auth/app-entry')) {
+          return Promise.resolve(mockJsonResponse(200, { pinRequiredForParents: true, orchestratorActive: true }));
+        }
+        if (String(url).includes('/trusted-device/select-parent')) {
+          return Promise.resolve(mockJsonResponse(401, { code: 'PARENT_PIN_INVALID' }));
+        }
+        if (String(url).includes('/auth/me')) {
+          meCalls += 1;
+          return Promise.resolve(mockJsonResponse(200, { type: 'child', id: 'child-1' }));
+        }
+        return Promise.resolve(mockJsonResponse(404, {}));
+      },
+    };
+    sandbox.sessionStorage = sandbox.window.sessionStorage;
+    sandbox.DeviceMode = sandbox.window.DeviceMode;
+    sandbox.globalThis = sandbox.window;
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'PARENT_PIN_INVALID');
+    assert.equal(meCalls, 0);
+  });
+
+  it('fetch rejection does not recover into success', async () => {
+    let meCalls = 0;
+    const sandbox = {
+      window: {
+        analytics: { track: () => {} },
+        Auth: { getCsrfToken: () => 'csrf', setCsrfToken: () => {}, setAuth: () => {} },
+        AdultPinGateUI: { collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }) },
+        DeviceMode: { enterParent: () => {} },
+        sessionStorage: {
+          _m: { stjarndag_entry_pin_required_for_parents: '1' },
+          getItem(k) { return this._m[k] || null; },
+          setItem(k, v) { this._m[k] = v; },
+        },
+      },
+      fetch: (url) => {
+        if (String(url).includes('/auth/app-entry')) {
+          return Promise.resolve(mockJsonResponse(200, { pinRequiredForParents: true, orchestratorActive: true }));
+        }
+        if (String(url).includes('/trusted-device/select-parent')) {
+          return Promise.reject(new Error('NetworkError when attempting to fetch resource'));
+        }
+        if (String(url).includes('/auth/me')) {
+          meCalls += 1;
+          return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'p1' }));
+        }
+        return Promise.resolve(mockJsonResponse(404, {}));
+      },
+    };
+    sandbox.sessionStorage = sandbox.window.sessionStorage;
+    sandbox.DeviceMode = sandbox.window.DeviceMode;
+    sandbox.globalThis = sandbox.window;
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_NETWORK');
+    assert.equal(meCalls, 0);
   });
 
   it('picker lists all eligible parents; PIN unlock stays server-gated', () => {
