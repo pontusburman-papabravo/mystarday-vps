@@ -308,7 +308,7 @@ async function initAccountSection() {
     const unlinkAppleBtn = document.getElementById('unlinkAppleBtn');
     if (unlinkAppleBtn) {
       unlinkAppleBtn.addEventListener('click', async () => {
-        const pw = promsettingsAccountPt(settingsAccountPt('settings.account.unlinkApplePrompt'));
+        const pw = prompt(settingsAccountPt('settings.account.unlinkApplePrompt'));
         if (!pw) return;
         const msg = document.getElementById('unlinkAppleMsg');
         unlinkAppleBtn.disabled = true;
@@ -361,7 +361,7 @@ async function initAccountSection() {
     const unlinkGoogleBtn = document.getElementById('unlinkGoogleBtn');
     if (unlinkGoogleBtn) {
       unlinkGoogleBtn.addEventListener('click', async () => {
-        const pw = promsettingsAccountPt(settingsAccountPt('settings.account.unlinkGooglePrompt'));
+        const pw = prompt(settingsAccountPt('settings.account.unlinkGooglePrompt'));
         if (!pw) return;
         const msg = document.getElementById('unlinkGoogleMsg');
         unlinkGoogleBtn.disabled = true;
