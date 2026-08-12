@@ -21,8 +21,8 @@
       step: stage,
       detail: detail || null,
       ts: Date.now(),
-      native: !!(window.Platform && Platform.isNative && Platform.isNative()),
-      ios: !!(window.Platform && Platform.isIOS && Platform.isIOS()),
+      native: !!(window.Platform && window.Platform.isNative && window.Platform.isNative()),
+      ios: !!(window.Platform && window.Platform.isIOS && window.Platform.isIOS()),
     };
     try {
       fetch('/api/client-log', {
