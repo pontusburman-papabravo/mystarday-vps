@@ -229,6 +229,57 @@ describe('settings magic fail-safe contracts', () => {
   });
 });
 
+describe('settings-account pt() behavioral regression', () => {
+  const ACCOUNT = fs.readFileSync(path.join(ROOT, 'public/js/settings-account.js'), 'utf8');
+  const ACCOUNT_TRANSLATOR = (() => {
+    const start = ACCOUNT.indexOf('const _parentAppPt');
+    const end = ACCOUNT.indexOf('// ── Render the "Konto & inloggning" section');
+    assert.ok(start >= 0 && end > start, 'settings-account translator block missing');
+    return ACCOUNT.slice(start, end);
+  })();
+  const OLD_PT_IMPL = [
+    'function pt(key, params) {',
+    '  return (typeof window.pt === \'function\') ? window.pt(key, params) : key;',
+    '}',
+  ].join('\n');
+
+  function makeBrowserSandbox() {
+    const sandbox = {
+      console: { error() {}, warn() {} },
+      I18n: {
+        t(key) {
+          return key === 'settings.account.title' ? 'Konto & inloggning' : key;
+        },
+      },
+    };
+    sandbox.window = sandbox;
+    sandbox.global = sandbox;
+    sandbox.window.pt = function parentPt(key) {
+      return sandbox.I18n.t(key);
+    };
+    return sandbox;
+  }
+
+  it('old global pt() pattern recurses through window.pt and throws', () => {
+    const sandbox = makeBrowserSandbox();
+    vm.runInNewContext(OLD_PT_IMPL, sandbox, { filename: 'old-settings-account-pt.js' });
+    assert.throws(
+      () => sandbox.pt('settings.account.title'),
+      /Maximum call stack size exceeded/
+    );
+  });
+
+  it('committed settings-account translator preserves window.pt and settingsAccountPt works', () => {
+    const sandbox = makeBrowserSandbox();
+    const parentPt = sandbox.window.pt;
+    vm.runInNewContext(ACCOUNT_TRANSLATOR, sandbox, { filename: 'settings-account-translator.js' });
+    assert.equal(sandbox.window.pt, parentPt, 'settings-account translator must not replace window.pt');
+    assert.equal(typeof sandbox.settingsAccountPt, 'function');
+    assert.equal(sandbox.settingsAccountPt('settings.account.title'), 'Konto & inloggning');
+    assert.doesNotThrow(() => sandbox.settingsAccountPt('settings.account.title'));
+  });
+});
+
 describe('settings magic fail-safe behavior (DOM sandbox)', () => {
   it('normal hub render marks ready and shows menu cards', () => {
     const sandbox = makeSettingsDom();
