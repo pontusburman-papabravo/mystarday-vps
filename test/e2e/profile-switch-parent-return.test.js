@@ -100,7 +100,14 @@ async function bootstrapBrowserParent(page, baseUrl, session, deviceCookies) {
     const res = await fetch('/api/auth/me', { credentials: 'include' });
     if (!res.ok) return false;
     const me = await res.json();
-    return me && me.type === 'parent' && !!me.id;
+    if (!me || me.type !== 'parent' || !me.id) return false;
+    if (window.Auth && typeof Auth.setAuth === 'function') {
+      if (typeof Auth.ensureCsrfToken === 'function') {
+        await Auth.ensureCsrfToken();
+      }
+      Auth.setAuth(null, me, Auth.getCsrfToken && Auth.getCsrfToken());
+    }
+    return true;
   });
   assert.equal(meOk, true, 'browser must have authenticated parent session from injected cookies');
 }
@@ -152,20 +159,35 @@ async function openProfilePickerSwitch(page) {
   }, { timeout: 20000 });
 }
 
+function isParentShellPath(pathname) {
+  const p = (pathname || '').replace(/\/$/, '') || '/';
+  return p === '/dashboard' || p === '/home' || p === '/';
+}
+
 async function tapAdultCard(page) {
   const card = await page.$('.cpp-profile-card-parent');
   assert.ok(card, 'adult profile card must exist');
   await card.click();
 }
 
-async function waitForParentShell(page) {
-  await page.waitForFunction(() => {
-    const p = window.location.pathname;
-    const err = document.getElementById('cppError');
-    const errOn = err && err.classList.contains('visible');
-    if (errOn) return true;
-    return p !== '/child/profile-picker' && p !== '/login' && p.indexOf('/child-login') !== 0;
-  }, { timeout: 20000 });
+async function tapAdultCardAndAwaitParentShell(page) {
+  const card = await page.$('.cpp-profile-card-parent');
+  assert.ok(card, 'adult profile card must exist');
+
+  const navDone = page.waitForFunction(
+    () => {
+      const p = window.location.pathname;
+      const err = document.getElementById('cppError');
+      const errOn = err && err.classList.contains('visible');
+      if (errOn) return true;
+      const norm = p.replace(/\/$/, '') || '/';
+      return norm === '/dashboard' || norm === '/home' || norm === '/';
+    },
+    { timeout: 20000 }
+  );
+
+  await card.click();
+  await navDone;
 }
 
 async function assertLeftPickerWithoutGenericError(page) {
@@ -173,6 +195,10 @@ async function assertLeftPickerWithoutGenericError(page) {
     path: window.location.pathname,
     error: (document.getElementById('cppError') || {}).textContent || '',
     errorVisible: !!(document.getElementById('cppError') && document.getElementById('cppError').classList.contains('visible')),
+    decisionApplied: (() => {
+      try { return sessionStorage.getItem('stjarndag_entry_decision_applied'); } catch (_) { return null; }
+    })(),
+    deviceMode: localStorage.getItem('stjarndag_device_mode'),
   }));
   if (state.errorVisible) {
     assert.notEqual(
@@ -182,7 +208,7 @@ async function assertLeftPickerWithoutGenericError(page) {
     );
   }
   assert.equal(state.errorVisible, false, state.error);
-  assert.notEqual(state.path, '/child/profile-picker', `still on picker: ${state.path}`);
+  assert.ok(isParentShellPath(state.path), `expected parent shell, got ${state.path} (deviceMode=${state.deviceMode}, decisionApplied=${state.decisionApplied})`);
 }
 
 describe('profile switch parent return E2E', () => {
@@ -202,8 +228,7 @@ describe('profile switch parent return E2E', () => {
       const page = await newPage(browser, 'mobile');
       await loginParentWithTrustedDevice(page, ctx.baseUrl, session, deviceCookies);
       await openProfilePickerSwitch(page);
-      await tapAdultCard(page);
-      await waitForParentShell(page);
+      await tapAdultCardAndAwaitParentShell(page);
       await assertLeftPickerWithoutGenericError(page);
     } finally {
       if (browser) await browser.close();
@@ -228,8 +253,7 @@ describe('profile switch parent return E2E', () => {
       const page = await newPage(browser, 'mobile');
       await loginParentWithTrustedDevice(page, ctx.baseUrl, session, deviceCookies);
       await openProfilePickerSwitch(page);
-      await tapAdultCard(page);
-      await waitForParentShell(page);
+      await tapAdultCardAndAwaitParentShell(page);
       await assertLeftPickerWithoutGenericError(page);
     } finally {
       if (browser) await browser.close();

@@ -283,6 +283,73 @@ test('profile switch repro: parent session + select-parent', async (t) => {
       assert.equal(out.status, 200, JSON.stringify(out.body));
       assert.equal(out.body.ok, true);
     });
+
+    await t.test('variant 4: parent A session cannot unlock parent B with A PIN', async () => {
+      const primary = await registerAndLogin(http.baseUrl, { name: 'Parent A' });
+      const childId = await createChild(http.baseUrl, primary, { name: 'Barn', emoji: '⭐' });
+      const deviceCookies = await enrollShared(http, primary);
+
+      const parentARow = await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [
+        primary.email.toLowerCase(),
+      ]);
+      const parentAId = parentARow.rows[0].id;
+      await setParentPin(db, parentAId, '1111');
+
+      const coparentEmail = `coparent-ps-${Date.now()}@example.com`;
+      const inviteRes = await fetch(`${http.baseUrl}/api/family/invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookieHeader(primary.cookies),
+          'X-CSRF-Token': primary.csrfToken,
+        },
+        body: JSON.stringify({
+          name: 'Parent B',
+          email: coparentEmail,
+          child_ids: [childId],
+        }),
+      });
+      assert.equal(inviteRes.status, 201, await inviteRes.text());
+
+      const tokenRow = await db.query(
+        `SELECT token FROM family_invite WHERE LOWER(email) = $1 AND accepted = false ORDER BY created_at DESC LIMIT 1`,
+        [coparentEmail.toLowerCase()]
+      );
+      const acceptRes = await fetch(`${http.baseUrl}/api/family/invite/accept-new`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tokenRow.rows[0].token, password: 'coparent-pass-12' }),
+      });
+      assert.equal(acceptRes.status, 201, await acceptRes.text());
+
+      const parentBRow = await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [
+        coparentEmail.toLowerCase(),
+      ]);
+      const parentBId = parentBRow.rows[0].id;
+      await setParentPin(db, parentBId, '2222');
+
+      const cookiesWithParentAJwt = { ...deviceCookies, ...primary.cookies };
+      const meRes = await fetch(`${http.baseUrl}/api/auth/me`, {
+        headers: { Cookie: cookieHeader(cookiesWithParentAJwt) },
+      });
+      const me = await meRes.json();
+      assert.equal(me.id, parentAId);
+
+      const wrongPin = await postSelectParent(http.baseUrl, cookiesWithParentAJwt, parentBId, {
+        unlock_method: 'pin',
+        pin: '1111',
+      });
+      assert.equal(wrongPin.status, 401);
+      assert.equal(wrongPin.body.code, 'PARENT_PIN_INVALID');
+
+      const rightPin = await postSelectParent(http.baseUrl, cookiesWithParentAJwt, parentBId, {
+        unlock_method: 'pin',
+        pin: '2222',
+      });
+      assert.equal(rightPin.status, 200, JSON.stringify(rightPin.body));
+      assert.equal(rightPin.body.ok, true);
+      assert.equal(rightPin.body.user.id, parentBId);
+    });
   } finally {
     await http.close();
     await db.cleanup();

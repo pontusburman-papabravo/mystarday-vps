@@ -152,12 +152,6 @@
       if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
         await Auth.hydrateParentSessionFromCookies();
       }
-      if (window.Auth && typeof Auth.getUser === 'function') {
-        const cached = Auth.getUser();
-        if (cached && cached.type === 'parent' && cached.id) {
-          return cached.id;
-        }
-      }
       const out = await fetchJsonLocal('/api/auth/me', { method: 'GET' });
       if (!out.res.ok || !out.body || out.body.type !== 'parent' || !out.body.id) {
         return null;
@@ -184,13 +178,31 @@
     } catch (_) { /* ignore */ }
   }
 
+  /**
+   * Multi-profile shared devices cold-start back to profile-picker unless we pin parent-home first.
+   */
+  function commitParentViewFromPicker(redirectPath) {
+    enterParentDeviceMode();
+    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.markDecisionApplied === 'function') {
+      AppEntryOrchestrator.markDecisionApplied({
+        destination: 'parent-home',
+        viewContext: 'parent',
+        credentialContext: 'parent',
+        deviceMode: 'shared',
+        childId: null,
+        reason: 'profile_picker_parent_resume',
+        path: '/dashboard',
+      });
+    }
+    window.location.replace(redirectPath || '/dashboard');
+  }
+
   async function resumeParentIfSessionMatches(parentId) {
     const activeParentId = await resolveActiveParentId();
     if (!activeParentId || activeParentId !== parentId) {
       return false;
     }
-    enterParentDeviceMode();
-    window.location.replace('/home');
+    commitParentViewFromPicker('/dashboard');
     return true;
   }
 
@@ -221,8 +233,7 @@
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (result && result.ok) {
-      enterParentDeviceMode();
-      window.location.replace(result.redirect || '/home');
+      commitParentViewFromPicker(result.redirect || '/dashboard');
       return;
     }
 

@@ -105,6 +105,8 @@ describe('Fas 4A — client contracts', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
     assert.match(js, /resumeParentIfSessionMatches/);
     assert.match(js, /resolveActiveParentId/);
+    assert.match(js, /commitParentViewFromPicker/);
+    assert.match(js, /markDecisionApplied/);
   });
 
   it('profile picker uses 2-column mobile grid', () => {
