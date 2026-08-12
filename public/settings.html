@@ -73,7 +73,7 @@
   <!-- Consent Manager (GA4 + Meta Pixel + GDPR) -->
   <script src="/js/app-consent.js?v=2.12.0"></script>
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="settings">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="settings" data-i18n-manual-init="true">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
@@ -634,6 +634,22 @@
       Auth.requireAuth();
       showNativeAccountActions();
 
+      // Shell/menu must not wait for family, notifications, or newsletter APIs.
+      const shellBootPromise = (async function bootSettingsShellEarly() {
+        if (!window.ParentMagicShell) return false;
+        await ParentMagicShell.init('settings');
+        if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
+          return ParentMagicPageHub.ensureSettingsChrome();
+        }
+        return false;
+      })().catch(function (err) {
+        console.warn('[settings] early shell boot failed', err);
+        if (window.ParentMagicPageHub && ParentMagicPageHub.showLegacySettingsFallback) {
+          ParentMagicPageHub.showLegacySettingsFallback('early shell boot failed');
+        }
+        return false;
+      });
+
       let me;
       try {
         me = await Auth.api('/api/auth/me');
@@ -748,10 +764,25 @@
         Theme.setColorBlind(cbSelect.value);
       });
 
-      if (window.ParentMagicShell) await ParentMagicShell.init('settings');
+      await shellBootPromise;
       if (window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
-        await ParentMagicPageHub.ensureSettingsChrome();
+        await ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
       }
+      function reinforceSettingsMenu() {
+        if (!window.ParentMagicPageHub) return;
+        if (ParentMagicPageHub.hasSettingsDeepLink && ParentMagicPageHub.hasSettingsDeepLink()) return;
+        if (ParentMagicPageHub.getActiveSettingsGroup && ParentMagicPageHub.getActiveSettingsGroup()) return;
+        if (ParentMagicPageHub.ensureSettingsChrome) {
+          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+          return;
+        }
+        if (ParentMagicPageHub.showSettingsRootMenu) {
+          ParentMagicPageHub.showSettingsRootMenu();
+        }
+      }
+      reinforceSettingsMenu();
+      requestAnimationFrame(reinforceSettingsMenu);
+      setTimeout(reinforceSettingsMenu, 0);
       if (window.SettingsNativeNav && SettingsNativeNav.init) SettingsNativeNav.init();
     });
 

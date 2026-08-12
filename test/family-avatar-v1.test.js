@@ -48,8 +48,9 @@ describe('family avatar v1 — settings magic group', () => {
   it('tags settingsAvatarSection for Profil & konto group', () => {
     const hubs = fs.readFileSync(path.join(__dirname, '../public/js/parent-magic-page-hubs.js'), 'utf8');
     assert.match(hubs, /tagChild\('settingsAvatarSection',\s*'profile'\)/);
-    assert.match(hubs, /restoreGroup/);
-    assert.match(hubs, /if \(restoreGroup\)/);
+    assert.match(hubs, /showSettingsGroup/);
+    assert.match(hubs, /returnToSettingsMenu[\s\S]*showSettingsRootMenu/);
+    assert.match(hubs, /magic-settings-ready/);
   });
 });
 

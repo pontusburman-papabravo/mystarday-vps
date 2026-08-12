@@ -4,8 +4,26 @@
 (function () {
   'use strict';
 
+  const SETTINGS_HUB_COPY_FALLBACK = {
+    'settings.title': 'Inställningar',
+    'settings.shellLead': 'Profil, familj och app — grupperat som i mockupen',
+    'settings.groups.profile.title': 'Profil & konto',
+    'settings.groups.profile.sub': 'Inloggning, PIN och konto',
+    'settings.groups.family.title': 'Familj',
+    'settings.groups.family.sub': 'Lägg till vuxen, namn och pedagoger',
+    'settings.groups.appearance.title': 'Utseende',
+    'settings.groups.appearance.sub': 'Mörkt eller ljust tema',
+    'settings.groups.app.title': 'App',
+    'settings.groups.app.sub': 'Notiser, push och integritet',
+    'settings.appearance.backToSettings': '← Tillbaka till inställningar',
+  };
+
   function pt(key, params) {
-    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+    if (typeof window.pt === 'function') {
+      const translated = window.pt(key, params);
+      if (translated && translated !== key) return translated;
+    }
+    return SETTINGS_HUB_COPY_FALLBACK[key] || key;
   }
 
   const SETTINGS_GROUPS = [
@@ -219,8 +237,7 @@
 
   function returnToSettingsMenu() {
     clearSettingsHash();
-    hideSettingsGroup();
-    refresh('settings', true, { skipHash: true });
+    showSettingsRootMenu();
     if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
   }
 
@@ -233,6 +250,7 @@
     });
     const backBar = document.getElementById('magicSettingsBackBar');
     if (backBar) backBar.innerHTML = renderSettingsBackBar();
+    markSettingsHubReady();
     if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
     if (groupId === 'appearance') updateThemePickerUi();
     if (groupId === 'app' && global.SettingsWidgets && typeof SettingsWidgets.mount === 'function') {
@@ -336,17 +354,231 @@
     bindThemePickerDelegation();
   }
 
+  function hasSettingsDeepLink() {
+    const hash = (window.location.hash || '').replace('#', '');
+    return hash === 'prenumeration' || hash === 'profil' || hash === 'profile'
+      || hash === 'widgetSettingsSection' || hash === 'widget'
+      || hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications';
+  }
+
+  const SETTINGS_HUB_MENU_SELECTOR = '.magic-settings-menu [data-settings-group]';
+
+  function isSettingsDomPage() {
+    const page = document.body && document.body.getAttribute('data-magic-page');
+    if (page === 'settings') return true;
+    return (window.location.pathname || '').replace(/\/$/, '') === '/settings';
+  }
+
+  function resolveHubPage(page) {
+    if (isSettingsDomPage()) return 'settings';
+    return page;
+  }
+
+  function clearSettingsHubReady() {
+    document.body.classList.remove('magic-settings-ready');
+  }
+
+  function markSettingsHubReady() {
+    document.body.classList.add('magic-settings-ready');
+  }
+
+  function settingsHubHasMenuCards(el) {
+    if (!el) return false;
+    if (!el.innerHTML || !el.innerHTML.trim()) return false;
+    return !!el.querySelector(SETTINGS_HUB_MENU_SELECTOR);
+  }
+
+  function settingsHubHasUsableContent(el) {
+    if (!el) return false;
+    if (el.classList.contains('hidden')) return false;
+    return settingsHubHasMenuCards(el);
+  }
+
+  function recordMagicHiddenOwned(el) {
+    if (!el || el.hasAttribute('data-magic-hidden-owned')) return;
+    el.setAttribute('data-magic-hidden-owned', el.classList.contains('hidden') ? '1' : '0');
+  }
+
+  function restoreMagicOwnedVisibility() {
+    document.querySelectorAll('[data-magic-settings-content]').forEach(function (el) {
+      const owned = el.getAttribute('data-magic-hidden-owned');
+      if (owned === '1') {
+        el.classList.add('hidden');
+      } else if (owned === '0') {
+        el.classList.remove('hidden');
+      }
+      el.removeAttribute('data-magic-hidden-owned');
+      el.removeAttribute('data-magic-settings-content');
+    });
+  }
+
+  function showLegacySettingsFallback(reason) {
+    clearSettingsHubReady();
+    document.body.classList.remove('magic-settings-in-group');
+    _activeSettingsGroup = null;
+    const el = mount();
+    if (el) {
+      el.innerHTML = '';
+      el.classList.add('hidden');
+    }
+    restoreMagicOwnedVisibility();
+    if (reason) {
+      console.error('[settings-magic] showing legacy settings fallback:', reason);
+    }
+  }
+
+  function getActiveSettingsGroup() {
+    return _activeSettingsGroup;
+  }
+
+  function isSettingsHubNavigationActive() {
+    return !!_activeSettingsGroup || document.body.classList.contains('magic-settings-in-group');
+  }
+
+  function isSettingsRootHubReady() {
+    const mountEl = mount();
+    return document.body.classList.contains('magic-settings-ready')
+      && !!mountEl
+      && !mountEl.classList.contains('hidden')
+      && settingsHubHasUsableContent(mountEl)
+      && !isSettingsHubNavigationActive();
+  }
+
+  function isSettingsGroupHubReady(groupId) {
+    if (!groupId) return false;
+    return document.body.classList.contains('magic-settings-ready')
+      && document.body.classList.contains('magic-settings-in-group')
+      && _activeSettingsGroup === groupId;
+  }
+
+  async function runSettingsChromeHelpers(opts) {
+    opts = opts || {};
+    if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
+      try { await Auth.hydrateParentSessionFromCookies(); } catch (_) { /* ignore */ }
+    }
+    if (window.ParentNavHeader && typeof ParentNavHeader.ensure === 'function') {
+      ParentNavHeader.ensure();
+    }
+    if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
+      ParentMagicAuto.ensureTopChrome();
+    }
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+      ProfileSwitchChrome.apply();
+    }
+    if (window.SettingsNativeNav && SettingsNativeNav.sync) {
+      SettingsNativeNav.sync();
+    }
+    if (window.NativeTabBar && NativeTabBar.remount) {
+      NativeTabBar.remount();
+    }
+    if (opts.emitLayout) {
+      window.dispatchEvent(new CustomEvent('stjarndag-parent-nav-layout'));
+    }
+  }
+
+  function refreshSettingsChromeHelpers() {
+    return runSettingsChromeHelpers({ emitLayout: false });
+  }
+
+  function refreshSettingsHubCopy() {
+    const el = mount();
+    if (!el) return;
+    const activeGroup = _activeSettingsGroup;
+    if (activeGroup && document.body.classList.contains('magic-settings-in-group')) {
+      if (!settingsHubHasUsableContent(el)) {
+        el.innerHTML = renderSettingsMenu();
+        bindSettingsEvents(el);
+      }
+      const backBar = document.getElementById('magicSettingsBackBar');
+      if (backBar) backBar.innerHTML = renderSettingsBackBar();
+      return;
+    }
+    if (!settingsHubHasUsableContent(el)) return;
+    el.innerHTML = renderSettingsMenu();
+    bindSettingsEvents(el);
+    const backBar = document.getElementById('magicSettingsBackBar');
+    if (backBar) backBar.innerHTML = '';
+  }
+
+  function reopenSettingsGroup(groupId) {
+    if (!groupId) return false;
+    try {
+      tagSettingsSections();
+      const el = mount();
+      if (!el) throw new Error('parentMagicPageMount missing');
+      if (!settingsHubHasUsableContent(el)) {
+        el.innerHTML = renderSettingsMenu();
+        bindSettingsEvents(el);
+      }
+      showSettingsGroup(groupId);
+      el.classList.remove('hidden');
+      return true;
+    } catch (err) {
+      showLegacySettingsFallback(err && err.message ? err.message : String(err));
+      return false;
+    }
+  }
+
+  function renderSettingsHubRootMenu() {
+    resetSettingsState();
+    tagSettingsSections();
+    const el = mount();
+    if (!el) {
+      throw new Error('parentMagicPageMount missing');
+    }
+    el.innerHTML = renderSettingsMenu();
+    bindSettingsEvents(el);
+    const backBar = document.getElementById('magicSettingsBackBar');
+    if (backBar) backBar.innerHTML = '';
+    if (!settingsHubHasMenuCards(el)) {
+      throw new Error('settings hub rendered without menu cards');
+    }
+    el.classList.remove('hidden');
+    markSettingsHubReady();
+    return true;
+  }
+
+  function showSettingsRootMenu() {
+    try {
+      return renderSettingsHubRootMenu();
+    } catch (err) {
+      showLegacySettingsFallback(err && err.message ? err.message : String(err));
+      return false;
+    }
+  }
+
+  function renderSettingsHubDeepLink() {
+    tagSettingsSections();
+    const el = mount();
+    if (!el) {
+      throw new Error('parentMagicPageMount missing');
+    }
+    el.innerHTML = renderSettingsMenu();
+    bindSettingsEvents(el);
+    const backBar = document.getElementById('magicSettingsBackBar');
+    if (backBar) backBar.innerHTML = '';
+    if (!_activeSettingsGroup) {
+      openFromHash();
+    }
+    if (!_activeSettingsGroup) {
+      throw new Error('settings deep link did not open a group');
+    }
+    el.classList.remove('hidden');
+    markSettingsHubReady();
+    return true;
+  }
+
   function tagSettingsSections() {
-    const restoreGroup = _activeSettingsGroup;
     bindThemePickerDelegation();
     ensureAppearanceSection();
     function tagChild(childId, groupId) {
       const child = document.getElementById(childId);
       if (!child) return;
-      const sec = child.closest('section');
-      if (!sec) return;
-      sec.setAttribute('data-magic-settings-content', groupId);
-      sec.classList.add('hidden');
+      const target = child.closest('section') || child;
+      if (!target) return;
+      recordMagicHiddenOwned(target);
+      target.setAttribute('data-magic-settings-content', groupId);
+      target.classList.add('hidden');
     }
     tagChild('magicAppearanceSection', 'appearance');
     tagChild('settingsAvatarSection', 'profile');
@@ -367,8 +599,11 @@
     tagChild('consentSection', 'app');
     tagChild('dataExportSection', 'app');
     tagChild('deletionSection', 'app');
-    if (restoreGroup) {
-      showSettingsGroup(restoreGroup);
+    if (_activeSettingsGroup) {
+      document.querySelectorAll('[data-magic-settings-content]').forEach(function (el) {
+        const show = el.getAttribute('data-magic-settings-content') === _activeSettingsGroup;
+        el.classList.toggle('hidden', !show);
+      });
     }
   }
 
@@ -413,72 +648,92 @@
     return false;
   }
 
-  async function ensureSettingsChrome() {
-    const page = document.body.getAttribute('data-magic-page');
-    if (page !== 'settings') return;
-    if (window.Auth && typeof Auth.hydrateParentSessionFromCookies === 'function') {
-      try { await Auth.hydrateParentSessionFromCookies(); } catch (_) { /* ignore */ }
-    }
+  async function ensureSettingsChrome(opts) {
+    opts = opts || {};
+    const preserveNavigation = opts.preserveNavigation !== false;
+    const forceRoot = opts.forceRoot === true;
+
+    if (!isSettingsDomPage()) return false;
+
     const magic = window.ParentMagicShell && ParentMagicShell.isMagic && ParentMagicShell.isMagic();
-    if (!magic) return;
+    if (!magic) {
+      showLegacySettingsFallback('parent magic mode inactive');
+      return false;
+    }
 
-    tagSettingsSections();
+    const activeGroup = _activeSettingsGroup;
+    if (preserveNavigation && !forceRoot) {
+      if (activeGroup && isSettingsGroupHubReady(activeGroup)) {
+        refreshSettingsHubCopy();
+        await refreshSettingsChromeHelpers();
+        return true;
+      }
+      if (!hasSettingsDeepLink() && !activeGroup && isSettingsRootHubReady()) {
+        refreshSettingsHubCopy();
+        await refreshSettingsChromeHelpers();
+        return true;
+      }
+      if (activeGroup) {
+        const ok = reopenSettingsGroup(activeGroup);
+        if (ok) await refreshSettingsChromeHelpers();
+        return ok;
+      }
+    }
+
+    const hasDeepLink = hasSettingsDeepLink();
+    let ok = false;
+    try {
+      if (!hasDeepLink) {
+        ok = renderSettingsHubRootMenu();
+      } else {
+        ok = renderSettingsHubDeepLink();
+      }
+    } catch (err) {
+      showLegacySettingsFallback(err && err.message ? err.message : String(err));
+      return false;
+    }
+
+    if (!ok) {
+      return false;
+    }
+
     const mountEl = mount();
-    const hash = (window.location.hash || '').replace('#', '');
-    const hasDeepLink = hash === 'prenumeration' || hash === 'profil' || hash === 'profile'
-      || hash === 'widgetSettingsSection' || hash === 'widget'
-      || hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications';
-
-    if (!hasDeepLink && !_activeSettingsGroup) {
-      resetSettingsState();
+    if (!settingsHubHasUsableContent(mountEl) && !hasDeepLink) {
+      showLegacySettingsFallback('hub empty after session hydrate');
+      return false;
+    }
+    if (hasDeepLink && !_activeSettingsGroup) {
+      showLegacySettingsFallback('deep link group missing after hydrate');
+      return false;
     }
 
-    const menuMissing = !mountEl || mountEl.classList.contains('hidden') || !mountEl.innerHTML.trim();
-    if ((menuMissing || !_activeSettingsGroup) && !hasDeepLink) {
-      refresh('settings', true, { skipHash: true });
-    } else if (hasDeepLink && !_activeSettingsGroup) {
-      openFromHash();
-    } else if (hasDeepLink && _activeSettingsGroup) {
-      openFromHash();
-    }
-
-    if (mountEl) mountEl.classList.remove('hidden');
-
-    if (window.ParentNavHeader && typeof ParentNavHeader.ensure === 'function') {
-      ParentNavHeader.ensure();
-    }
-    if (window.ParentMagicAuto && ParentMagicAuto.ensureTopChrome) {
-      ParentMagicAuto.ensureTopChrome();
-    }
-    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
-      ProfileSwitchChrome.apply();
-    }
-    if (window.SettingsNativeNav && SettingsNativeNav.sync) {
-      SettingsNativeNav.sync();
-    }
-    if (window.NativeTabBar && NativeTabBar.remount) {
-      NativeTabBar.remount();
-    }
-    window.dispatchEvent(new CustomEvent('stjarndag-parent-nav-layout'));
+    await runSettingsChromeHelpers({ emitLayout: false });
+    return true;
   }
 
   function refresh(page, magic, opts) {
     opts = opts || {};
+    page = resolveHubPage(page);
     const el = mount();
     if (!el) return;
 
     if (!magic || !(window.ParentMagicShell && ParentMagicShell.isMagic())) {
+      if (isSettingsDomPage()) {
+        showLegacySettingsFallback('refresh while parent magic inactive');
+        return;
+      }
       el.innerHTML = '';
       el.classList.add('hidden');
       resetSettingsState();
-      document.querySelectorAll('[data-magic-settings-content]').forEach(function (sec) {
-        sec.classList.remove('hidden');
-      });
+      restoreMagicOwnedVisibility();
       return;
     }
 
     if (page !== 'settings') {
       resetSettingsState();
+      if (!isSettingsDomPage()) {
+        clearSettingsHubReady();
+      }
     }
 
     el.classList.remove('hidden');
@@ -492,13 +747,27 @@
       el.innerHTML = '';
       el.classList.add('hidden');
     } else if (page === 'settings') {
-      resetSettingsState();
-      tagSettingsSections();
-      el.innerHTML = renderSettingsMenu();
-      bindSettingsEvents(el);
-      const backBar = document.getElementById('magicSettingsBackBar');
-      if (backBar) backBar.innerHTML = '';
-      if (!opts.skipHash) openFromHash();
+      const preserveNavigation = opts.preserveNavigation !== false;
+      const forceRoot = opts.forceRoot === true;
+      if (preserveNavigation && !forceRoot && isSettingsHubNavigationActive()) {
+        reopenSettingsGroup(_activeSettingsGroup);
+        return;
+      }
+      if (opts.skipHash || !hasSettingsDeepLink()) {
+        if (!forceRoot && preserveNavigation && isSettingsRootHubReady()) {
+          refreshSettingsHubCopy();
+          return;
+        }
+        if (!showSettingsRootMenu()) {
+          return;
+        }
+      } else {
+        try {
+          renderSettingsHubDeepLink();
+        } catch (err) {
+          showLegacySettingsFallback(err && err.message ? err.message : String(err));
+        }
+      }
     } else if (page === 'planning') {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -512,6 +781,8 @@
     } else if (PAGE_HEROES[page]) {
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);
+    } else if (isSettingsDomPage()) {
+      showSettingsRootMenu();
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -531,9 +802,15 @@
     applyHubCopy();
     if (window.ParentMagicShell && ParentMagicShell.isMagic()) {
       const page = document.body.getAttribute('data-magic-page');
-      if (page) refresh(page, true);
-      if (page === 'settings' && window.ParentMagicPageHub && window.ParentMagicPageHub.ensureSettingsChrome) {
-        window.ParentMagicPageHub.ensureSettingsChrome();
+      if (page === 'settings' && window.ParentMagicPageHub) {
+        if (ParentMagicPageHub.refreshSettingsHubCopy) {
+          ParentMagicPageHub.refreshSettingsHubCopy();
+        }
+        if (ParentMagicPageHub.ensureSettingsChrome) {
+          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+        }
+      } else if (page) {
+        refresh(page, true);
       }
     }
   });
@@ -541,16 +818,22 @@
     applyHubCopy();
     if (window.ParentMagicShell && ParentMagicShell.isMagic()) {
       const page = document.body.getAttribute('data-magic-page');
-      if (page) refresh(page, true);
-      if (page === 'settings' && window.ParentMagicPageHub && window.ParentMagicPageHub.ensureSettingsChrome) {
-        window.ParentMagicPageHub.ensureSettingsChrome();
+      if (page === 'settings' && window.ParentMagicPageHub) {
+        if (ParentMagicPageHub.refreshSettingsHubCopy) {
+          ParentMagicPageHub.refreshSettingsHubCopy();
+        }
+        if (ParentMagicPageHub.ensureSettingsChrome) {
+          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+        }
+      } else if (page) {
+        refresh(page, true);
       }
     }
   });
   window.addEventListener('stjarndag-magic-navigated', function (e) {
     const pageId = e && e.detail && e.detail.pageId;
-    if (pageId === 'settings' && window.ParentMagicPageHub && window.ParentMagicPageHub.ensureSettingsChrome) {
-      window.ParentMagicPageHub.ensureSettingsChrome();
+    if (pageId === 'settings' && window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
+      ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
     }
   });
 
@@ -568,6 +851,18 @@
     returnToSettingsMenu: returnToSettingsMenu,
     clearSettingsHash: clearSettingsHash,
     ensureSettingsChrome: ensureSettingsChrome,
+    showSettingsRootMenu: showSettingsRootMenu,
+    showLegacySettingsFallback: showLegacySettingsFallback,
+    markSettingsHubReady: markSettingsHubReady,
+    clearSettingsHubReady: clearSettingsHubReady,
+    settingsHubHasUsableContent: settingsHubHasUsableContent,
+    settingsHubHasMenuCards: settingsHubHasMenuCards,
+    getActiveSettingsGroup: getActiveSettingsGroup,
+    isSettingsHubNavigationActive: isSettingsHubNavigationActive,
+    refreshSettingsHubCopy: refreshSettingsHubCopy,
+    restoreMagicOwnedVisibility: restoreMagicOwnedVisibility,
+    hasSettingsDeepLink: hasSettingsDeepLink,
+    isSettingsDomPage: isSettingsDomPage,
     applyHubCopy: applyHubCopy,
   };
 

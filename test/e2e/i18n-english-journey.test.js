@@ -8,6 +8,7 @@ const path = require('path');
 const { createE2eContext } = require('./helpers/e2e-context');
 const { seedEnglishJourneyFamily } = require('./helpers/seed-family');
 const { ensureFeedbackFormularLive } = require('./helpers/i18n-flags');
+const { fillFeedbackFieldStable } = require('./helpers/feedback-form');
 const { detectSwedishSystemCopy } = require('./helpers/swedish-copy');
 const { skipUnlessI18nStack } = require('./helpers/prerequisites');
 const {
@@ -278,6 +279,13 @@ describe('i18n English journey — global feedback FAB', () => {
 
       await page.click('#globalFeedbackBtn');
       await page.waitForSelector('#globalFeedbackModal:not(.hidden)', { timeout: 5000 });
+      // openModal() focuses #globalFeedbackTitle after 100ms — wait before typing.
+      await page.waitForFunction(() => {
+        const modal = document.getElementById('globalFeedbackModal');
+        const title = document.getElementById('globalFeedbackTitle');
+        return modal && !modal.classList.contains('hidden')
+          && title && document.activeElement === title;
+      }, { timeout: 3000 });
 
       const modalCopy = await page.evaluate(() => {
         return {
@@ -298,8 +306,10 @@ describe('i18n English journey — global feedback FAB', () => {
       assert.match(modalCopy.messagePh, /What happened/i);
       assert.match(modalCopy.submit, /Send report/i);
 
-      await page.type('#globalFeedbackTitle', 'E2E feedback title');
-      await page.type('#globalFeedbackMessage', 'Automated i18n E2E feedback body text.');
+      const expectedTitle = 'E2E feedback title';
+      const expectedMessage = 'Automated i18n E2E feedback body text.';
+      await fillFeedbackFieldStable(page, '#globalFeedbackTitle', expectedTitle, 'feedback title');
+      await fillFeedbackFieldStable(page, '#globalFeedbackMessage', expectedMessage, 'feedback message');
       await page.click('#globalFeedbackSubmit');
 
       await page.waitForFunction(() => {
