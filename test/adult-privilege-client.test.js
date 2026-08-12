@@ -248,7 +248,7 @@ describe('adult-privilege client state machine', () => {
                 JSON.stringify({
                   ok: true,
                   user: { id: 'p1', type: 'parent' },
-                  redirect: '/home',
+                  redirect: '/dashboard',
                   csrfToken: 'c',
                 })
               ),
@@ -293,6 +293,148 @@ describe('adult-privilege client state machine', () => {
     assert.doesNotMatch(src, /sessionStorage\.getItem\(PIN_REQUIRED_KEY\) !== null/);
   });
 
+  it('trusted profile unlock treats HTTP 200 + user as success without body.ok', async () => {
+    let selectCalls = 0;
+    const sandbox = {
+      window: {
+        analytics: { track: () => {} },
+        Auth: {
+          getCsrfToken: () => 'csrf',
+          setCsrfToken: () => {},
+          setAuth: () => {},
+        },
+        AdultPinGateUI: {
+          collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
+        },
+        DeviceMode: { enterParent: () => {} },
+        sessionStorage: {
+          _m: { stjarndag_entry_pin_required_for_parents: '1' },
+          getItem(k) {
+            return this._m[k] || null;
+          },
+          setItem(k, v) {
+            this._m[k] = v;
+          },
+        },
+      },
+      fetch: (url) => {
+        if (String(url).includes('/auth/app-entry')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  pinRequiredForParents: true,
+                  orchestratorActive: true,
+                })
+              ),
+          });
+        }
+        if (String(url).includes('/trusted-device/select-parent')) {
+          selectCalls += 1;
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  user: { id: 'p1', type: 'parent', familyId: 'fam-1' },
+                  csrfToken: 'c',
+                })
+              ),
+          });
+        }
+        if (String(url).includes('/auth/me')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(JSON.stringify({ type: 'parent', id: 'p1' })),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+      },
+    };
+    sandbox.sessionStorage = sandbox.window.sessionStorage;
+    sandbox.DeviceMode = sandbox.window.DeviceMode;
+    sandbox.globalThis = sandbox.window;
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(result.redirect, '/dashboard');
+    assert.equal(selectCalls, 1);
+  });
+
+  it('trusted profile unlock recovers via /me when select-parent body is empty on HTTP 200', async () => {
+    let meCalls = 0;
+    const sandbox = {
+      window: {
+        analytics: { track: () => {} },
+        Auth: {
+          getCsrfToken: () => 'csrf',
+          setCsrfToken: () => {},
+          setAuth: () => {},
+        },
+        AdultPinGateUI: {
+          collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
+        },
+        DeviceMode: { enterParent: () => {} },
+        sessionStorage: {
+          _m: { stjarndag_entry_pin_required_for_parents: '1' },
+          getItem(k) {
+            return this._m[k] || null;
+          },
+          setItem(k, v) {
+            this._m[k] = v;
+          },
+        },
+      },
+      fetch: (url) => {
+        if (String(url).includes('/auth/app-entry')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  pinRequiredForParents: true,
+                  orchestratorActive: true,
+                })
+              ),
+          });
+        }
+        if (String(url).includes('/trusted-device/select-parent')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve('{}'),
+          });
+        }
+        if (String(url).includes('/auth/me')) {
+          meCalls += 1;
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({ type: 'parent', id: 'p1', familyId: 'fam-1' })
+              ),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
+      },
+    };
+    sandbox.sessionStorage = sandbox.window.sessionStorage;
+    sandbox.DeviceMode = sandbox.window.DeviceMode;
+    sandbox.globalThis = sandbox.window;
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(result.recovered, true);
+    assert.equal(result.redirect, '/dashboard');
+    assert.ok(meCalls >= 1);
+  });
+
   it('picker lists all eligible parents; PIN unlock stays server-gated', () => {
     const access = fs.readFileSync(path.join(ROOT, 'db/parent-access.js'), 'utf8');
     const picker = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
@@ -304,5 +446,7 @@ describe('adult-privilege client state machine', () => {
     assert.match(picker, /data-parent-has-app-pin/);
     assert.match(picker, /redirectToParentBackupLogin/);
     assert.match(trusted, /PARENT_PIN_NOT_SET/);
+    assert.match(picker, /TRUSTED_SELECT_PARENT_FAILED/);
+    assert.match(picker, /ADULT_PRIVILEGE_NETWORK/);
   });
 });

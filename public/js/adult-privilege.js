@@ -217,9 +217,40 @@
     }
   }
 
-  function applyUnlockSuccess(body) {
+  function pauseAuthRefreshForTrustedSelect() {
+    const auth = window.Auth;
+    if (!auth) return;
+    if (auth._refreshTimer) {
+      clearTimeout(auth._refreshTimer);
+      auth._refreshTimer = null;
+    }
+  }
+
+  function selectParentResponseSucceeded(out) {
+    if (!out || !out.res || !out.res.ok) return false;
+    const body = out.body || {};
+    if (body.ok === true) return true;
+    return !!(body.user || body.parent);
+  }
+
+  function applyUnlockSuccess(body, options) {
+    const opts = options || {};
     hydrateParentFromBody(body);
     const parentUser = body && (body.parent || body.user);
+    if (opts.trustedProfileUnlock && parentUser) {
+      setState(STATES.ACTIVE);
+      expiresAtMs = body.expiresAt || null;
+      privilegeLeaseUntilMs = body.privilegeLeaseUntil || body.expiresAt || null;
+      devicePolicy = body.policy || devicePolicy;
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      if (window.AdultPrivilegeLifecycle) {
+        AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
+      }
+      track('adult_privilege_unlock_success');
+      return Promise.resolve({ ok: true, parent: parentUser });
+    }
     return verifyParentAuthorityWithRetry(4).then(function (verified) {
       if (!verified && !parentUser) {
         setState(STATES.LOCKED);
@@ -400,18 +431,49 @@
     return refreshStatus();
   }
 
+  function recoverTrustedParentSession(parentId) {
+    return fetchJson('/api/auth/me', { method: 'GET' }).then(function (out) {
+      if (!out.res.ok || !out.body || out.body.type !== 'parent' || !out.body.id) {
+        return { ok: false, code: 'TRUSTED_SELECT_PARENT_FAILED' };
+      }
+      if (parentId && out.body.id !== parentId) {
+        return { ok: false, code: 'PARENT_ACCESS_DENIED' };
+      }
+      return applyUnlockSuccess({
+        parent: out.body,
+        csrfToken: window.Auth && typeof window.Auth.getCsrfToken === 'function'
+          ? window.Auth.getCsrfToken()
+          : null,
+      }, { trustedProfileUnlock: true }).then(function (result) {
+        if (!result.ok) return result;
+        return {
+          ok: true,
+          parent: result.parent,
+          redirect: '/dashboard',
+          recovered: true,
+        };
+      });
+    }).catch(function () {
+      return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK' };
+    });
+  }
+
   function postSelectParent(pin, parentId) {
     const payload = {
       parent_id: parentId,
       unlock_method: 'pin',
       pin: pin,
     };
+    pauseAuthRefreshForTrustedSelect();
     return fetchJson('/api/auth/trusted-device/select-parent', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).then(function (out) {
-      if (!out.res.ok || !out.body.ok) {
-        const code = out.body.code || 'TRUSTED_SELECT_PARENT_FAILED';
+      if (!selectParentResponseSucceeded(out)) {
+        const code = (out.body && out.body.code) || 'TRUSTED_SELECT_PARENT_FAILED';
+        if (out.res && out.res.ok) {
+          return recoverTrustedParentSession(parentId);
+        }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
         return { ok: false, code: code, status: out.res.status };
@@ -419,21 +481,29 @@
       if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
         window.Auth.setCsrfToken(out.body.csrfToken);
       }
-      return applyUnlockSuccess({
-        csrfToken: out.body.csrfToken,
-        parent: out.body.user || out.body.parent,
-        expiresAt: out.body.privilegeLeaseUntil,
-        privilegeLeaseUntil: out.body.privilegeLeaseUntil,
-        policy: out.body.policy,
-      }).then(function (result) {
+      let unlockBody;
+      try {
+        unlockBody = {
+          csrfToken: out.body.csrfToken,
+          parent: out.body.user || out.body.parent,
+          expiresAt: out.body.privilegeLeaseUntil,
+          privilegeLeaseUntil: out.body.privilegeLeaseUntil,
+          policy: out.body.policy,
+        };
+      } catch (err) {
+        return recoverTrustedParentSession(parentId);
+      }
+      return applyUnlockSuccess(unlockBody, { trustedProfileUnlock: true }).then(function (result) {
         if (result.ok) {
           return {
             ok: true,
             parent: result.parent,
-            redirect: out.body.redirect || '/home',
+            redirect: '/dashboard',
           };
         }
-        return result;
+        return recoverTrustedParentSession(parentId);
+      }).catch(function () {
+        return recoverTrustedParentSession(parentId);
       });
     });
   }
@@ -475,7 +545,10 @@
         }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
-        return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
+        return recoverTrustedParentSession(parentId).then(function (recovered) {
+          if (recovered && recovered.ok) return recovered;
+          return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
+        });
       })
       .finally(function () {
         unlockInFlight = false;

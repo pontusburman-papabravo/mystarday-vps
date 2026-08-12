@@ -256,6 +256,12 @@
         showError('Kunde inte logga in som vuxen på den här enheten. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
       } else if (result && result.code === 'TRUSTED_DEVICE_MISSING') {
         showError('Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.');
+      } else if (result && result.code === 'TRUSTED_DEVICE_INVALID') {
+        showError('Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.');
+      } else if (result && result.code === 'TRUSTED_SELECT_PARENT_FAILED') {
+        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      } else if (result && result.code === 'ADULT_PRIVILEGE_NETWORK') {
+        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
       } else if (result && result.status === 429) {
         showError('För många försök. Vänta en stund och försök igen.');
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {

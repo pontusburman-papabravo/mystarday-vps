@@ -148,7 +148,7 @@ router.post('/trusted-device/select-parent', attachTrustedPinRateLimitScope, par
     return res.json({
       ok: true,
       user: result.parent,
-      redirect: '/home',
+      redirect: '/dashboard',
       session_mode: 'select',
       device_mode: result.device_mode,
       privilegeLeaseUntil: result.privilegeLeaseUntil,
