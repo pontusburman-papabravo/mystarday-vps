@@ -101,6 +101,18 @@ describe('Fas 4A — client contracts', () => {
     assert.doesNotMatch(html, /device-mode\.js/);
   });
 
+  it('profile picker resumes authenticated parent without select-parent', () => {
+    const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
+    assert.match(js, /resumeParentIfSessionMatches/);
+    assert.match(js, /resolveActiveParentId/);
+  });
+
+  it('profile picker uses 2-column mobile grid', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/child-profile-picker.html'), 'utf8');
+    assert.match(html, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+    assert.doesNotMatch(html, /auto-fill,\s*minmax\(min\(100%/);
+  });
+
   it('profile picker uses AdultPrivilege for adult unlock', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
     assert.match(js, /AdultPrivilege\.requestTrustedProfileUnlock/);
