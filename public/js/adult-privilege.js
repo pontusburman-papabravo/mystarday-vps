@@ -505,6 +505,7 @@
         recovered: true,
         meParentId: out.body.id,
       });
+      logSelectParentStage('select-parent:final-result', { ok: true, via: 'recovery' });
       return result;
     }).catch(function (err) {
       logSelectParentStage('select-parent:recovery-result', {
