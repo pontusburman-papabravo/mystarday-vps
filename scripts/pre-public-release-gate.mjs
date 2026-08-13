@@ -48,6 +48,7 @@ const {
   checkProdGlobalFlags,
   founderReadOnlyAcceptance,
   prodPilotPolicy,
+  runProdPilotGateCheck,
   deviceQaAttestation,
   localDatabaseIsNotProd,
 } = require('./lib/pre-public-release-gate/prod.cjs');
@@ -432,15 +433,15 @@ async function main() {
   }
 
   const founder = await founderReadOnlyAcceptance(process.env);
-  const pilot = prodPilotPolicy(process.env);
+  const pilot = await runProdPilotGateCheck(process.env);
   sections.prod_acceptance = {
     title: 'Prod acceptance',
     status: [founder, pilot].some((c) => c.status === STATUS.BLOCKER) ? STATUS.BLOCKER : STATUS.PASS,
     optional: true,
-    summary: 'Optional founder read-only login; not required for public-runtime GO.',
+    summary: 'Optional founder read-only login; family-device prod pilot when PRE_PUBLIC_GATE_PROD_PILOT=1.',
     checks: [
       { id: 'founder_readonly', ...founder },
-      { id: 'prod_pilot_policy', ...pilot },
+      { id: 'family_device_prod_pilot', ...pilot },
     ],
   };
 

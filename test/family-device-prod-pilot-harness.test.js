@@ -181,6 +181,16 @@ test('pilot harness: cleanup finally deletes disposable families', () => {
   assert.match(core, /countPilotOverrides/);
 });
 
+test('pilot core: report.ok requires verified cleanup', () => {
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  assert.match(core, /report\.cleanup\?\.ok === true/);
+  assert.match(core, /SELECT_PARENT_PIN_SERVER/);
+  assert.match(core, /parentId: fixture\.parentId/);
+});
+
 test('pilot harness: does not mutate global feature_flag enable', () => {
   const dbPilot = fs.readFileSync(
     path.join(__dirname, '../scripts/ops/family-device-pilot-db.cjs'),

@@ -55,7 +55,7 @@ async function main() {
     AUTOMATED_PILOT_SHA: deployedSha,
     DISPOSABLE_FAMILY_CLEANED: report.cleanup?.ok ? 'PASS' : 'FAIL',
     DISPOSABLE_CLEANUP: report.cleanup?.ok ? 'PASS' : 'FAIL',
-    SHARED_ONE_CHILD_SERVER: report.scenarios?.SHARED_ONE_CHILD_SERVER || 'FAIL',
+    SELECT_PARENT_PIN_SERVER: report.scenarios?.SELECT_PARENT_PIN_SERVER || 'FAIL',
     SHARED_MULTI_CHILD_SERVER: report.scenarios?.SHARED_MULTI_CHILD_SERVER || 'FAIL',
     PARENT_DEVICE_SERVER: report.scenarios?.PARENT_DEVICE_SERVER || 'FAIL',
     CHILD_DEVICE_SERVER: report.scenarios?.CHILD_DEVICE_SERVER || 'FAIL',

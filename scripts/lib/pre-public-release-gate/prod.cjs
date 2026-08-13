@@ -195,17 +195,99 @@ async function founderReadOnlyAcceptance(env = process.env) {
 
 /**
  * Self-cleaning family-device prod pilot — OFF by default.
- * Requires PRE_PUBLIC_GATE_PROD_PILOT=1 plus the existing family-device pilot env.
- * Widget flags are never enabled by that harness's global path (family override only);
- * this gate still refuses to invoke it unless explicitly requested.
+ * When PRE_PUBLIC_GATE_PROD_PILOT=1 and pilot env is complete, runs disposable prod acceptance.
  */
+async function runProdPilotGateCheck(env = process.env) {
+  if (env.PRE_PUBLIC_GATE_PROD_PILOT !== '1') {
+    return {
+      status: STATUS.PASS,
+      evidence: {
+        mutated: false,
+        note: 'Prod pilot not requested. Set PRE_PUBLIC_GATE_PROD_PILOT=1 for automated prod evidence.',
+      },
+    };
+  }
+
+  const { assertProdPilotEnvironment } = require('../../src/lib/family-device-pilot-guard');
+  try {
+    assertProdPilotEnvironment(env);
+  } catch (err) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: {
+        reason: err.code || 'pilot_env_incomplete',
+        hint: 'Need FAMILY_DEVICE_PILOT_CONFIRM=1, SMOKE_BASE_URL, FAMILY_DEVICE_PILOT_ALLOWED_BASES, DATABASE_URL',
+      },
+    };
+  }
+
+  if (!env.DATABASE_URL) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: { reason: 'DATABASE_URL missing for prod pilot' },
+    };
+  }
+
+  const { spawnSync } = require('node:child_process');
+  const path = require('node:path');
+  const root = path.join(__dirname, '..', '..', '..');
+
+  const result = spawnSync('npm', ['run', 'family-device:prod-pilot'], {
+    cwd: root,
+    env: { ...env },
+    encoding: 'utf8',
+    timeout: 600_000,
+  });
+
+  const stdout = result.stdout || '';
+  const stderr = result.stderr || '';
+  let parsed = null;
+  const jsonStart = stdout.lastIndexOf('{');
+  if (jsonStart >= 0) {
+    try {
+      parsed = JSON.parse(stdout.slice(jsonStart));
+    } catch {
+      parsed = null;
+    }
+  }
+
+  if (result.status === 0 && parsed?.FAMILY_DEVICE_AUTOMATED_PROD_PILOT === 'PASS') {
+    return {
+      status: STATUS.PASS,
+      evidence: {
+        mutated: true,
+        disposableOnly: true,
+        deployedSha: parsed.DEPLOYED_SHA,
+        cleanup: parsed.DISPOSABLE_CLEANUP,
+        scenarios: {
+          SHARED_ONE_CHILD: parsed.SHARED_ONE_CHILD_SERVER,
+          SELECT_PARENT_PIN: parsed.SELECT_PARENT_PIN_SERVER,
+        },
+      },
+    };
+  }
+
+  return {
+    status: STATUS.BLOCKER,
+    evidence: {
+      exitCode: result.status,
+      signal: result.signal,
+      pilot: parsed?.FAMILY_DEVICE_AUTOMATED_PROD_PILOT || 'FAIL',
+      cleanup: parsed?.DISPOSABLE_CLEANUP,
+      globalFlagsChanged: parsed?.GLOBAL_FLAGS_CHANGED,
+      error: redact((stderr || stdout).slice(0, 400)),
+    },
+  };
+}
+
+/** @deprecated use runProdPilotGateCheck — kept for static policy tests */
 function prodPilotPolicy(env = process.env) {
   if (env.PRE_PUBLIC_GATE_PROD_PILOT === '1') {
     return {
       status: STATUS.NOT_VERIFIED,
       evidence: {
-        reason: 'explicit_pilot_requested_but_not_auto_run',
-        note: 'Run `npm run family-device:prod-pilot` separately. This gate does not mutate prod.',
+        reason: 'explicit_pilot_requested',
+        note: 'Gate runs family-device:prod-pilot when PRE_PUBLIC_GATE_PROD_PILOT=1 and env complete.',
       },
     };
   }
@@ -256,6 +338,7 @@ module.exports = {
   checkProdGlobalFlags,
   founderReadOnlyAcceptance,
   prodPilotPolicy,
+  runProdPilotGateCheck,
   localDatabaseIsNotProd,
   deviceQaAttestation,
   redact,

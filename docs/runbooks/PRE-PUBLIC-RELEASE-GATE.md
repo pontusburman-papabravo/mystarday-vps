@@ -87,6 +87,20 @@ PRE_PUBLIC_GATE_ANDROID_DEVICE_QA=PASS
 
 `--skip-test-gate` marks CI health NOT_VERIFIED and **cannot GO**.
 
+### Family-device prod pilot (optional prod evidence)
+
+When admin/QA credentials and prod DB access exist, the gate can run the disposable prod pilot:
+
+```bash
+PRE_PUBLIC_GATE_PROD_PILOT=1
+FAMILY_DEVICE_PILOT_CONFIRM=1
+SMOKE_BASE_URL=https://example.test
+FAMILY_DEVICE_PILOT_ALLOWED_BASES=https://example.test
+DATABASE_URL=postgresql://...   # prod — disposable fd-pilot-* families only
+```
+
+Runs `npm run family-device:prod-pilot` (family-level overrides only; **never** global flag enable). Without these vars, prod acceptance stays optional and does not block public-runtime GO.
+
 ## Widget
 
 Do not set `native_widget_enabled` or `widget_completion_enabled`. Do not run WidgetKit/Android widget acceptance as part of this rollout.
