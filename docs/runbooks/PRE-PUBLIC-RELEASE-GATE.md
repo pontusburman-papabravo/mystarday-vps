@@ -69,7 +69,7 @@ SMOKE_BASE_URL=<live-origin>
 This enables read-only:
 
 - `GET /api/admin/feature-flags` — global flags must be OFF
-- `GET /api/admin/release-readiness` — `{ authzHardeningEnabled, rateLimitEnabled }`
+- `GET /api/admin/release-readiness` — `{ authzHardeningEnabled, rateLimitEnabled, activityTimerV2Disabled, activityTimerV2Available }`
 
 Fallback (no admin creds):
 
@@ -77,6 +77,32 @@ Fallback (no admin creds):
 PRE_PUBLIC_GATE_FLAG_DATABASE_URL=postgresql://...   # read-only SELECT
 PRE_PUBLIC_GATE_PROD_ENV='{"AUTHZ_HARDENING_ENABLED":"","RATE_LIMIT_ENABLED":""}'
 ```
+
+### Activity Timer prod pilot (optional, separate command)
+
+Disposable `at-pilot-*@example.com` family — never mass-enables timers. Self-cleaning with snapshot/restore.
+
+```bash
+ACTIVITY_TIMER_PILOT_CONFIRM=1 \
+ACTIVITY_TIMER_PILOT_ALLOWED_BASES=https://example.test \
+SMOKE_BASE_URL=https://example.test \
+npm run activity-timer:prod-pilot
+```
+
+Gate advisory hook: `PRE_PUBLIC_GATE_ACTIVITY_TIMER_PILOT=1` (does not auto-run; run pilot separately).
+
+The **activity_timer** section also checks prod `activityTimerV2Available` via the same admin credentials as kill-switches.
+
+**Public-runtime production evidence (REQUIRED for timer rollout certification):**
+
+1. Automated timer UI/browser contracts green in CI (`test:gate` + matrix)
+2. Admin `release-readiness`: `activityTimerV2Disabled=false`, `activityTimerV2Available=true`
+3. Disposable self-cleaning `at-pilot-*` prod pilot green (`npm run activity-timer:prod-pilot`)
+4. Cleanup verified; no timer mass-enable; per-child master default remains OFF
+
+**Legacy Puppeteer VPS smoke (`scripts/activity-timer-prod-acceptance-gate.mjs`) is ADVISORY only.**
+
+Do **not** install desktop/GUI libraries (e.g. `libatk-1.0.so.0`) on the production application server merely to make certification green. Missing Puppeteer deps on prod VPS must **not** block Activity Timer public-runtime readiness. Run optional visual smoke from a CI/QA runner with browser dependencies instead.
 
 ### Native-store only (advisory for public-runtime)
 

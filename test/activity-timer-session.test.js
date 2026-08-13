@@ -212,4 +212,28 @@ describe('activity-timer-session (localStorage)', () => {
     ATS.clearSessionsForDailyLogItem('c1', '2026-07-03', 'item-1');
     assert.equal(store.size, 0);
   });
+
+  test('siblings do not share timer state (different childId)', () => {
+    const { ATS } = loadActivityTimerSession();
+    ATS.startSession('child-a', '2026-07-03', 'item-1', 60);
+    assert.equal(ATS.resolveStatus(ATS.getSession('child-a', '2026-07-03', 'item-1'), 60), 'running');
+    assert.equal(ATS.resolveStatus(ATS.getSession('child-b', '2026-07-03', 'item-1'), 60), 'idle');
+  });
+
+  test('old schedule date does not leak timer to new day', () => {
+    const { ATS } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-02', 'item-1', 60);
+    assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-07-03', 'item-1'), 60), 'idle');
+    assert.equal(ATS.getSession('c1', '2026-07-02', 'item-1')?.status, 'running');
+  });
+
+  test('pruneSessions removes stale daily_log_item keys', () => {
+    const { ATS, store } = loadActivityTimerSession();
+    ATS.startSession('c1', '2026-07-03', 'keep-item', 30);
+    ATS.startSession('c1', '2026-07-03', 'drop-item', 30);
+    assert.equal(store.size, 2);
+    ATS.pruneSessions('c1', '2026-07-03', ['keep-item']);
+    assert.ok(store.has('activity_timer_session:c1:2026-07-03:keep-item'));
+    assert.equal(store.has('activity_timer_session:c1:2026-07-03:drop-item'), false);
+  });
 });

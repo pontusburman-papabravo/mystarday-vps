@@ -218,6 +218,98 @@ function prodPilotPolicy(env = process.env) {
   };
 }
 
+/**
+ * Read-only prod Activity Timer rollout via admin GET /api/admin/release-readiness.
+ * BLOCKER when ACTIVITY_TIMER_V2_DISABLED=true in prod (timer unavailable for marketing).
+ */
+async function checkProdActivityTimerRuntime(env = process.env) {
+  const base = (env.SMOKE_BASE_URL || env.PROD_BASE || '').replace(/\/$/, '');
+  const adminEmail = env.PRE_PUBLIC_GATE_ADMIN_EMAIL;
+  const adminPassword = env.PRE_PUBLIC_GATE_ADMIN_PASSWORD;
+  if (!base || !adminEmail || !adminPassword) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: {
+        reason: 'admin_credentials_missing',
+        hint: 'Set PRE_PUBLIC_GATE_ADMIN_EMAIL/PASSWORD + SMOKE_BASE_URL for activityTimerV2Available',
+      },
+    };
+  }
+
+  try {
+    const login = await api(base, '/api/auth/login', {
+      method: 'POST',
+      body: { email: adminEmail, password: adminPassword },
+    });
+    if (login.status !== 200) {
+      return {
+        status: STATUS.BLOCKER,
+        evidence: { reason: 'admin_login_failed', http: login.status, base },
+      };
+    }
+    const jar = mergeJar({}, login.setCookie);
+    const readiness = await api(base, '/api/admin/release-readiness', { jar });
+    if (readiness.status !== 200 || !readiness.json) {
+      return {
+        status: STATUS.NOT_VERIFIED,
+        evidence: { reason: 'release_readiness_unreadable', http: readiness.status, base },
+      };
+    }
+
+    const { activityTimerV2Disabled, activityTimerV2Available } = readiness.json;
+    if (activityTimerV2Disabled === true || activityTimerV2Available === false) {
+      return {
+        status: STATUS.BLOCKER,
+        evidence: {
+          source: 'admin_api',
+          base,
+          activityTimerV2Disabled,
+          activityTimerV2Available,
+          reason: 'ACTIVITY_TIMER_V2_DISABLED in prod',
+        },
+      };
+    }
+
+    return {
+      status: STATUS.PASS,
+      evidence: {
+        source: 'admin_api',
+        base,
+        activityTimerV2Disabled: false,
+        activityTimerV2Available: true,
+      },
+    };
+  } catch (err) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: { reason: 'admin_api_error', error: redact(err.message) },
+    };
+  }
+}
+
+/**
+ * Self-cleaning Activity Timer prod pilot — OFF by default.
+ * Requires PRE_PUBLIC_GATE_ACTIVITY_TIMER_PILOT=1; run npm run activity-timer:prod-pilot separately.
+ */
+function activityTimerProdPilotPolicy(env = process.env) {
+  if (env.PRE_PUBLIC_GATE_ACTIVITY_TIMER_PILOT === '1') {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: {
+        reason: 'explicit_activity_timer_pilot_requested_but_not_auto_run',
+        note: 'Run `npm run activity-timer:prod-pilot` separately. This gate does not mutate prod.',
+      },
+    };
+  }
+  return {
+    status: STATUS.PASS,
+    evidence: {
+      mutated: false,
+      note: 'Activity Timer prod pilot not requested. Default is zero writes.',
+    },
+  };
+}
+
 function localDatabaseIsNotProd(databaseUrl) {
   const meta = sanitizeDbMeta(databaseUrl);
   return Boolean(meta.isLocal);
@@ -256,6 +348,8 @@ module.exports = {
   checkProdGlobalFlags,
   founderReadOnlyAcceptance,
   prodPilotPolicy,
+  checkProdActivityTimerRuntime,
+  activityTimerProdPilotPolicy,
   localDatabaseIsNotProd,
   deviceQaAttestation,
   redact,

@@ -137,7 +137,8 @@ async function checkProdKillSwitchesViaAdmin(env = process.env) {
       };
     }
 
-    const { authzHardeningEnabled, rateLimitEnabled } = readiness.json;
+    const { authzHardeningEnabled, rateLimitEnabled, activityTimerV2Disabled, activityTimerV2Available } =
+      readiness.json;
     const problems = [];
     if (authzHardeningEnabled === false) problems.push('prod authzHardeningEnabled=false');
     if (rateLimitEnabled === false) problems.push('prod rateLimitEnabled=false');
@@ -149,6 +150,8 @@ async function checkProdKillSwitchesViaAdmin(env = process.env) {
         base,
         authzHardeningEnabled,
         rateLimitEnabled,
+        activityTimerV2Disabled,
+        activityTimerV2Available,
         problems,
       },
     };

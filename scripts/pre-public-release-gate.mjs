@@ -48,6 +48,8 @@ const {
   checkProdGlobalFlags,
   founderReadOnlyAcceptance,
   prodPilotPolicy,
+  checkProdActivityTimerRuntime,
+  activityTimerProdPilotPolicy,
   deviceQaAttestation,
   localDatabaseIsNotProd,
 } = require('./lib/pre-public-release-gate/prod.cjs');
@@ -107,6 +109,8 @@ Optional env (read-only):
   PRE_PUBLIC_GATE_FLAG_DATABASE_URL   SELECT feature_flag (read-only transaction)
   PRE_PUBLIC_GATE_ADMIN_EMAIL/PASSWORD + SMOKE_BASE_URL
     — GET /api/admin/feature-flags + GET /api/admin/release-readiness
+      (authzHardeningEnabled, rateLimitEnabled, activityTimerV2Available)
+  PRE_PUBLIC_GATE_ACTIVITY_TIMER_PILOT=1   optional — run npm run activity-timer:prod-pilot separately
   FOUNDER_QA_EMAIL/PASSWORD + SMOKE_BASE_URL   read-only login smoke
   PRE_PUBLIC_GATE_PROD_ENV             JSON fallback for prod kill-switch env
   PRE_PUBLIC_GATE_IOS_DEVICE_QA=PASS   native-store profile only (advisory for public-runtime)
@@ -130,6 +134,16 @@ function remainingManual(report) {
     items.push(
       'Prod kill-switches: set PRE_PUBLIC_GATE_ADMIN_EMAIL/PASSWORD + SMOKE_BASE_URL for GET /api/admin/release-readiness.'
     );
+  }
+
+  const atRuntime = report.sections.activity_timer?.checks?.find((c) => c.id === 'prod_runtime');
+  if (atRuntime?.status === STATUS.NOT_VERIFIED) {
+    items.push(
+      'Activity Timer prod runtime: same admin credentials expose activityTimerV2Available on GET /api/admin/release-readiness.'
+    );
+  }
+  if (atRuntime?.status === STATUS.BLOCKER) {
+    items.push('Activity Timer blocked in prod: ACTIVITY_TIMER_V2_DISABLED=true — remove kill switch before marketing.');
   }
 
   if (profile === PROFILES.NATIVE_STORE) {
@@ -233,6 +247,25 @@ function buildAndroidSection(profile, testRuns) {
     summary: isPublicRuntime
       ? 'Source hardening + contracts. Signing and physical device QA are advisory for public-runtime.'
       : 'Source hardening + AAB/Play contracts + signing + physical device QA required.',
+    checks,
+  };
+}
+
+async function buildActivityTimerSection(testRuns) {
+  const area = AREAS.activity_timer;
+  const mapped = mapFilesToAreaStatus(area, testRuns);
+  const prodRuntime = await checkProdActivityTimerRuntime(process.env);
+  const pilot = activityTimerProdPilotPolicy(process.env);
+  const checks = [
+    { id: 'automated_tests', ...mapped },
+    { id: 'prod_runtime', ...prodRuntime },
+    { id: 'prod_pilot_policy', ...pilot, advisory: true },
+  ];
+  return {
+    title: area.title,
+    status: worstStatus([mapped.status, prodRuntime.status]),
+    summary:
+      '24-scenario matrix + prod activityTimerV2Available via release-readiness. Disposable at-pilot prod pilot is separate runtime evidence. Legacy Puppeteer VPS smoke is advisory — missing GUI libs on prod app server must not block GO.',
     checks,
   };
 }
@@ -419,6 +452,10 @@ async function main() {
     }
     if (key === 'ios_native') {
       sections.ios_native = buildIosSection(args.profile, testRuns);
+      continue;
+    }
+    if (key === 'activity_timer') {
+      sections.activity_timer = await buildActivityTimerSection(testRuns);
       continue;
     }
 

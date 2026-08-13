@@ -56,6 +56,12 @@ const KILL_SWITCH_SOURCE = Object.freeze([
     mustMatch: /RATE_LIMIT_ENABLED\s*!==\s*'false'/,
     secureDefault: 'ON unless env === "false"',
   },
+  {
+    id: 'ACTIVITY_TIMER_V2_DISABLED',
+    file: 'src/lib/activity-timer-rollout.js',
+    mustMatch: /ACTIVITY_TIMER_V2_DISABLED\s*===\s*'true'/,
+    secureDefault: 'Available unless env === "true"',
+  },
 ]);
 
 const MAINTENANCE_FLAG = 'maintenance';
