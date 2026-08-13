@@ -105,7 +105,7 @@
         if (out.body.policy) {
           devicePolicy = out.body.policy;
           if (window.AdultPrivilegeLifecycle) {
-            AdultPrivilegeLifecycle.onPolicyUpdate(devicePolicy, privilegeLeaseUntilMs);
+            window.AdultPrivilegeLifecycle.onPolicyUpdate(devicePolicy, privilegeLeaseUntilMs);
           }
         }
         return { ok: true, body: out.body };
@@ -138,7 +138,7 @@
     if (expireInFlight) return Promise.resolve({ ok: false, code: 'EXPIRE_IN_FLIGHT' });
     if (!featureEnabled) return Promise.resolve({ ok: false, code: 'DISABLED' });
     if (devicePolicy && window.AdultPrivilegeLeasePolicy
-      && !AdultPrivilegeLeasePolicy.shouldAutoExpireOnBackground(devicePolicy.deviceMode)
+      && !window.AdultPrivilegeLeasePolicy.shouldAutoExpireOnBackground(devicePolicy.deviceMode)
       && reason === 'background') {
       return Promise.resolve({ ok: true, noop: true });
     }
@@ -166,9 +166,9 @@
         setState(STATES.LOCKED);
         privilegeLeaseUntilMs = null;
         expiresAtMs = null;
-        if (window.AdultPrivilegeLifecycle) AdultPrivilegeLifecycle.onPrivilegeCleared();
-        if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
-          DeviceMode.enterChild();
+        if (window.AdultPrivilegeLifecycle) window.AdultPrivilegeLifecycle.onPrivilegeCleared();
+        if (window.DeviceMode && typeof window.DeviceMode.enterChild === 'function') {
+          window.DeviceMode.enterChild();
         }
         track('adult_privilege_expired');
         return { ok: true, child: out.body.child };
@@ -217,6 +217,57 @@
     }
   }
 
+  function logSelectParentStage(stage, detail) {
+    if (window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.logStage === 'function') {
+      window.TrustedSelectParentDiag.logStage(stage, detail);
+    }
+  }
+
+  function isSelectParentContractOk(out) {
+    return !!(out && out.res && out.res.ok && out.body && out.body.ok === true);
+  }
+
+  function fetchSelectParentJson(url, options) {
+    const opts = options || {};
+    opts.credentials = 'same-origin';
+    opts.headers = opts.headers || {};
+    if (!opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
+    if (window.Auth && typeof window.Auth.getCsrfToken === 'function') {
+      const csrf = window.Auth.getCsrfToken();
+      if (csrf) opts.headers['X-CSRF-Token'] = csrf;
+    }
+    const doFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : fetch;
+    return doFetch(url, opts).then(function (res) {
+      return res.text().then(function (text) {
+        let body = {};
+        let jsonParseOk = true;
+        try {
+          body = text ? JSON.parse(text) : {};
+        } catch (_) {
+          jsonParseOk = false;
+          body = {};
+        }
+        const safeKeys = window.TrustedSelectParentDiag && window.TrustedSelectParentDiag.safeKeys
+          ? window.TrustedSelectParentDiag.safeKeys(body)
+          : [];
+        logSelectParentStage('select-parent:fetch-resolved', {
+          status: res.status,
+          responseOk: res.ok,
+          contentType: res.headers && res.headers.get ? res.headers.get('content-type') : null,
+          bodyTextLength: text ? text.length : 0,
+          jsonParseOk: jsonParseOk,
+          bodyKeys: safeKeys,
+          url: (typeof window !== 'undefined' && window.location) ? window.location.pathname : null,
+        });
+        return { res: res, body: body };
+      });
+    }).catch(function (err) {
+      const transportErr = new Error(err && err.message ? String(err.message) : 'fetch_failed');
+      transportErr.stage = 'transport';
+      throw transportErr;
+    });
+  }
+
   function applyUnlockSuccess(body) {
     hydrateParentFromBody(body);
     const parentUser = body && (body.parent || body.user);
@@ -233,11 +284,11 @@
       expiresAtMs = body.expiresAt || null;
       privilegeLeaseUntilMs = body.privilegeLeaseUntil || body.expiresAt || null;
       devicePolicy = body.policy || devicePolicy;
-      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-        DeviceMode.enterParent();
+      if (window.DeviceMode && typeof window.DeviceMode.enterParent === 'function') {
+        window.DeviceMode.enterParent();
       }
       if (window.AdultPrivilegeLifecycle) {
-        AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
+        window.AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
       }
       track('adult_privilege_unlock_success');
       return { ok: true, parent: parentUser || body.parent };
@@ -387,7 +438,7 @@
     setState(STATES.LOCKED);
     expiresAtMs = null;
     privilegeLeaseUntilMs = null;
-    if (window.AdultPrivilegeLifecycle) AdultPrivilegeLifecycle.onPrivilegeCleared();
+    if (window.AdultPrivilegeLifecycle) window.AdultPrivilegeLifecycle.onPrivilegeCleared();
   }
 
   function initFromSession() {
@@ -396,7 +447,7 @@
     } catch (_) {
       return Promise.resolve();
     }
-    if (window.AdultPrivilegeLifecycle) AdultPrivilegeLifecycle.start();
+    if (window.AdultPrivilegeLifecycle) window.AdultPrivilegeLifecycle.start();
     return refreshStatus();
   }
 
@@ -406,16 +457,28 @@
       unlock_method: 'pin',
       pin: pin,
     };
-    return fetchJson('/api/auth/trusted-device/select-parent', {
+    logSelectParentStage('select-parent:start', {
+      parentId: parentId,
+      url: (typeof window !== 'undefined' && window.location) ? window.location.pathname : null,
+    });
+    return fetchSelectParentJson('/api/auth/trusted-device/select-parent', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).then(function (out) {
-      if (!out.res.ok || !out.body.ok) {
-        const code = out.body.code || 'TRUSTED_SELECT_PARENT_FAILED';
+      if (!isSelectParentContractOk(out)) {
+        logSelectParentStage('select-parent:contract-evaluated', {
+          ok: false,
+          status: out.res.status,
+          responseOk: out.res.ok,
+          bodyKeys: window.TrustedSelectParentDiag ? window.TrustedSelectParentDiag.safeKeys(out.body) : [],
+        });
+        const code = (out.body && out.body.code) || 'TRUSTED_SELECT_PARENT_FAILED';
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
+        logSelectParentStage('select-parent:final-result', { ok: false, code: code, status: out.res.status });
         return { ok: false, code: code, status: out.res.status };
       }
+
       if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
         window.Auth.setCsrfToken(out.body.csrfToken);
       }
@@ -427,14 +490,36 @@
         policy: out.body.policy,
       }).then(function (result) {
         if (result.ok) {
+          logSelectParentStage('select-parent:final-result', { ok: true, via: 'contract' });
           return {
             ok: true,
             parent: result.parent,
-            redirect: out.body.redirect || '/home',
+            redirect: out.body.redirect || '/dashboard',
           };
         }
+        logSelectParentStage('select-parent:post-success-failed', {
+          code: result.code || 'ADULT_PRIVILEGE_VERIFY_FAILED',
+        });
+        logSelectParentStage('select-parent:final-result', {
+          ok: false,
+          code: result.code || 'ADULT_PRIVILEGE_VERIFY_FAILED',
+        });
         return result;
       });
+    }).catch(function (err) {
+      const msg = String(err && err.message || err);
+      if (err && err.stage === 'transport') {
+        logSelectParentStage('select-parent:fetch-rejected', { message: msg });
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        logSelectParentStage('select-parent:final-result', { ok: false, code: 'ADULT_PRIVILEGE_NETWORK' });
+        return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK' };
+      }
+      logSelectParentStage('select-parent:post-success-failed', { message: msg });
+      setState(STATES.LOCKED);
+      track('adult_privilege_unlock_failed');
+      logSelectParentStage('select-parent:final-result', { ok: false, code: 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED' });
+      return { ok: false, code: 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED' };
     });
   }
 
@@ -473,9 +558,14 @@
           track('adult_privilege_unlock_failed');
           return { ok: false, code: 'ADULT_PIN_SETUP_REQUIRED' };
         }
+        if (err && err.stage === 'transport') {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
+        }
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
-        return { ok: false, code: 'ADULT_PRIVILEGE_NETWORK', error: msg };
+        return { ok: false, code: 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED', error: msg };
       })
       .finally(function () {
         unlockInFlight = false;

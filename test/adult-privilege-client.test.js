@@ -8,10 +8,97 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 
-function loadAdultPrivilege(sandbox) {
+function mockJsonResponse(status, body, textOverride) {
+  const text = textOverride != null ? textOverride : JSON.stringify(body);
+  return {
+    ok: status >= 200 && status < 300,
+    status: status,
+    headers: { get: () => 'application/json' },
+    text: () => Promise.resolve(text),
+  };
+}
+
+function loadAdultPrivilege(sandbox, options) {
+  const opts = options || {};
+  const diag = fs.readFileSync(path.join(ROOT, 'public/js/trusted-select-parent-diag.js'), 'utf8');
+  if (opts.withLifecycle) {
+    const lifecycle = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege-lifecycle.js'), 'utf8');
+    vm.runInNewContext(lifecycle, sandbox, { context: sandbox });
+  }
   const priv = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege.js'), 'utf8');
+  vm.runInNewContext(diag, sandbox, { context: sandbox });
   vm.runInNewContext(priv, sandbox, { context: sandbox });
   return sandbox.window.AdultPrivilege;
+}
+
+function makeTrustedUnlockSandbox(fetchImpl, extraWindow) {
+  const sandbox = {
+    window: Object.assign({
+      analytics: { track: () => {} },
+      Auth: {
+        getCsrfToken: () => 'csrf',
+        setCsrfToken: () => {},
+        setAuth: () => {},
+      },
+      AdultPinGateUI: {
+        collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
+      },
+      DeviceMode: { enterParent: () => {} },
+      document: {
+        visibilityState: 'visible',
+        addEventListener: () => {},
+      },
+      addEventListener: () => {},
+      sessionStorage: {
+        _m: { stjarndag_entry_pin_required_for_parents: '1' },
+        getItem(k) { return this._m[k] || null; },
+        setItem(k, v) { this._m[k] = v; },
+      },
+      TrustedSelectParentDiag: {
+        logStage: () => {},
+        safeKeys: (body) => (body && typeof body === 'object' ? Object.keys(body) : []),
+      },
+    }, extraWindow || {}),
+    fetch: fetchImpl,
+    setTimeout: setTimeout,
+    clearTimeout: clearTimeout,
+  };
+  if (sandbox.window.Capacitor) {
+    sandbox.Capacitor = sandbox.window.Capacitor;
+  }
+  if (sandbox.window.document) {
+    sandbox.document = sandbox.window.document;
+  }
+  sandbox.sessionStorage = sandbox.window.sessionStorage;
+  sandbox.DeviceMode = sandbox.window.DeviceMode;
+  sandbox.globalThis = sandbox.window;
+  return sandbox;
+}
+
+function defaultTrustedFetch(overrides) {
+  const impl = overrides || {};
+  return (url) => {
+    if (String(url).includes('/auth/app-entry')) {
+      return Promise.resolve(mockJsonResponse(200, {
+        pinRequiredForParents: true,
+        orchestratorActive: true,
+      }));
+    }
+    if (String(url).includes('/trusted-device/select-parent')) {
+      if (impl.selectParent) return impl.selectParent(url);
+      return Promise.resolve(mockJsonResponse(200, {
+        ok: true,
+        user: { id: 'p1', type: 'parent' },
+        redirect: '/dashboard',
+        csrfToken: 'c',
+      }));
+    }
+    if (String(url).includes('/auth/me')) {
+      if (impl.me) return impl.me(url);
+      return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'p1' }));
+    }
+    return Promise.resolve(mockJsonResponse(404, {}));
+  };
 }
 
 describe('adult-privilege client state machine', () => {
@@ -194,79 +281,16 @@ describe('adult-privilege client state machine', () => {
   it('trusted profile picker unlock does not require adult-privilege status auth', async () => {
     let statusCalls = 0;
     let selectCalls = 0;
-    const sandbox = {
-      window: {
-        analytics: { track: () => {} },
-        Auth: {
-          getCsrfToken: () => 'csrf',
-          setCsrfToken: () => {},
-          setAuth: () => {},
-        },
-        AdultPinGateUI: {
-          collectAdultPin: () => Promise.resolve({ ok: true, pin: '4321' }),
-        },
-        DeviceMode: { enterParent: () => {} },
-        sessionStorage: {
-          _m: { stjarndag_entry_pin_required_for_parents: '1' },
-          getItem(k) {
-            return this._m[k] || null;
-          },
-          setItem(k, v) {
-            this._m[k] = v;
-          },
-        },
-      },
-      fetch: (url) => {
-        if (String(url).includes('/auth/app-entry')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () =>
-              Promise.resolve(
-                JSON.stringify({
-                  pinRequiredForParents: true,
-                  orchestratorActive: true,
-                })
-              ),
-          });
-        }
-        if (String(url).includes('/adult-privilege/status')) {
-          statusCalls += 1;
-          return Promise.resolve({
-            ok: false,
-            status: 401,
-            text: () => Promise.resolve(JSON.stringify({ ok: false })),
-          });
-        }
-        if (String(url).includes('/trusted-device/select-parent')) {
-          selectCalls += 1;
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () =>
-              Promise.resolve(
-                JSON.stringify({
-                  ok: true,
-                  user: { id: 'p1', type: 'parent' },
-                  redirect: '/home',
-                  csrfToken: 'c',
-                })
-              ),
-          });
-        }
-        if (String(url).includes('/auth/me')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            text: () => Promise.resolve(JSON.stringify({ type: 'parent' })),
-          });
-        }
-        return Promise.resolve({ ok: false, status: 404, text: () => Promise.resolve('{}') });
-      },
-    };
-    sandbox.sessionStorage = sandbox.window.sessionStorage;
-    sandbox.DeviceMode = sandbox.window.DeviceMode;
-    sandbox.globalThis = sandbox.window;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/adult-privilege/status')) {
+        statusCalls += 1;
+        return Promise.resolve(mockJsonResponse(401, { ok: false }));
+      }
+      if (String(url).includes('/trusted-device/select-parent')) {
+        selectCalls += 1;
+      }
+      return defaultTrustedFetch()(url);
+    });
     const AdultPrivilege = loadAdultPrivilege(sandbox);
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
     assert.equal(result.ok, true);
@@ -293,6 +317,109 @@ describe('adult-privilege client state machine', () => {
     assert.doesNotMatch(src, /sessionStorage\.getItem\(PIN_REQUIRED_KEY\) !== null/);
   });
 
+  it('trusted profile unlock succeeds with canonical ok:true contract and /me verify', async () => {
+    let meCalls = 0;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        meCalls += 1;
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(result.redirect, '/dashboard');
+    assert.ok(meCalls >= 1, 'verify gate must call /api/auth/me');
+  });
+
+  it('HTTP 200 without body.ok is a contract failure, not success', async () => {
+    let meCalls = 0;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.resolve(mockJsonResponse(200, {
+          user: { id: 'p1', type: 'parent' },
+          csrfToken: 'c',
+        }));
+      }
+      if (String(url).includes('/auth/me')) {
+        meCalls += 1;
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'TRUSTED_SELECT_PARENT_FAILED');
+    assert.equal(meCalls, 0);
+  });
+
+  it('real iPhone flow: select-parent 200 + lifecycle sync handle unlocks successfully', async () => {
+    const sandbox = makeTrustedUnlockSandbox(defaultTrustedFetch(), {
+      Capacitor: {
+        isNativePlatform: () => true,
+        Plugins: {
+          App: {
+            addListener() {
+              return { remove() {} };
+            },
+          },
+        },
+      },
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox, { withLifecycle: true });
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(result.redirect, '/dashboard');
+    assert.equal(AdultPrivilege.getState(), 'active');
+  });
+
+  it('post-success lifecycle failure is not classified as ADULT_PRIVILEGE_NETWORK', async () => {
+    const sandbox = makeTrustedUnlockSandbox(defaultTrustedFetch(), {
+      AdultPrivilegeLifecycle: {
+        start() {},
+        onPrivilegeActivated() {
+          throw new Error('lifecycle activation failed');
+        },
+      },
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.notEqual(result.code, 'ADULT_PRIVILEGE_NETWORK');
+    assert.equal(result.code, 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED');
+  });
+
+  it('genuine fetch failure maps to ADULT_PRIVILEGE_NETWORK', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.reject(new Error('NetworkError when attempting to fetch resource'));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_NETWORK');
+  });
+
+  it('genuine 401 PIN failure is not recovered', async () => {
+    let meCalls = 0;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.resolve(mockJsonResponse(401, { code: 'PARENT_PIN_INVALID' }));
+      }
+      if (String(url).includes('/auth/me')) {
+        meCalls += 1;
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'PARENT_PIN_INVALID');
+    assert.equal(meCalls, 0);
+  });
+
   it('picker lists all eligible parents; PIN unlock stays server-gated', () => {
     const access = fs.readFileSync(path.join(ROOT, 'db/parent-access.js'), 'utf8');
     const picker = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
@@ -304,5 +431,8 @@ describe('adult-privilege client state machine', () => {
     assert.match(picker, /data-parent-has-app-pin/);
     assert.match(picker, /redirectToParentBackupLogin/);
     assert.match(trusted, /PARENT_PIN_NOT_SET/);
+    assert.match(picker, /TRUSTED_SELECT_PARENT_FAILED/);
+    assert.match(picker, /ADULT_PRIVILEGE_NETWORK/);
+    assert.match(picker, /ADULT_PRIVILEGE_POST_SUCCESS_FAILED/);
   });
 });

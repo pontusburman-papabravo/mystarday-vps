@@ -162,7 +162,7 @@ test('select-parent on shared device issues parent session with privilege lease'
     assert.equal(selectRes.status, 200, selectText);
     const selectBody = JSON.parse(selectText);
     assert.equal(selectBody.ok, true);
-    assert.equal(selectBody.redirect, '/home');
+    assert.equal(selectBody.redirect, '/dashboard');
     assert.ok(selectBody.privilegeLeaseUntil);
 
     let parentCookies = { ...deviceCookies };

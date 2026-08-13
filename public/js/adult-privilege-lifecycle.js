@@ -70,10 +70,15 @@
     }
     const App = window.Capacitor.Plugins && window.Capacitor.Plugins.App;
     if (!App || typeof App.addListener !== 'function') return;
-    App.addListener('appStateChange', function (state) {
-      if (state && state.isActive) onForeground();
-      else onBackground();
-    }).catch(function () { /* ignore */ });
+    try {
+      const handle = App.addListener('appStateChange', function (state) {
+        if (state && state.isActive) onForeground();
+        else onBackground();
+      });
+      if (handle && typeof handle.then === 'function') {
+        handle.catch(function () { /* ignore async registration failure */ });
+      }
+    } catch (_) { /* ignore sync registration failure — auth transition must not abort */ }
   }
 
   function start() {
@@ -99,6 +104,7 @@
       onForeground: onForeground,
       onBackground: onBackground,
       clearTimer: clearTimer,
+      bindCapacitorApp: bindCapacitorApp,
     },
   };
 })();
