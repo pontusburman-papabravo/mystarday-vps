@@ -44,9 +44,18 @@ async function setupTestDb(options = {}) {
       if (!skipMigrate) {
         execSync('npm run migrate', {
           cwd: REPO_ROOT,
-          env: { ...process.env, DATABASE_URL: url },
+          env: { ...process.env, DATABASE_URL: url, NODE_ENV: 'test' },
           stdio: 'pipe',
         });
+        // Snapshot DBs may have _migrations without feature_flag INSERT data — local repair only.
+        if (url.includes('localhost') || url.includes('127.0.0.1')) {
+          try {
+            const { repairMissingFeatureFlagSeeds } = require('../../scripts/lib/pre-public-release-gate/local-flag-repair.cjs');
+            await repairMissingFeatureFlagSeeds(url);
+          } catch (repairErr) {
+            if (repairErr.code !== 'REPAIR_REFUSED') throw repairErr;
+          }
+        }
       }
       migrationsAppliedForUrl = url;
     }

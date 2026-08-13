@@ -1,5 +1,5 @@
 // System administration: stats, app configuration, feature flags, contact messages, push notifications, system messages.
-// Owns: stats, feature-flags, app-config, contact-messages, system-messages, push, login-stats.
+// Owns: stats, feature-flags, release-readiness, app-config, contact-messages, system-messages, push, login-stats.
 // Does NOT own: app-mode, families (see family.js), children (see child.js), activities (see schedule.js), rewards (see reward.js).
 
 const express = require('express');
@@ -275,6 +275,20 @@ router.get('/export-emails', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN] Export emails error:', err);
     res.status(500).json({ error: 'Kunde inte exportera mailadresser' });
+  }
+});
+
+// ─── GET /api/admin/release-readiness ────────────────────
+// Read-only effective kill-switch status for release gates. No secrets or raw env.
+router.get('/release-readiness', async (req, res) => {
+  try {
+    const authzHardeningEnabled = process.env.AUTHZ_HARDENING_ENABLED !== 'false';
+    const rateLimitEnabled = process.env.RATE_LIMIT_ENABLED !== 'false';
+    console.log(`[ADMIN] Release readiness read by admin ${req.user.id}`);
+    res.json({ authzHardeningEnabled, rateLimitEnabled });
+  } catch (err) {
+    console.error('[ADMIN] Release readiness error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta release-readiness' });
   }
 });
 
