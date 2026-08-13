@@ -262,6 +262,8 @@
         showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
       } else if (result && result.code === 'ADULT_PRIVILEGE_NETWORK') {
         showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      } else if (result && result.code === 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED') {
+        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
       } else if (result && result.status === 429) {
         showError('För många försök. Vänta en stund och försök igen.');
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {
