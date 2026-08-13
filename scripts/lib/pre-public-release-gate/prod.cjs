@@ -259,4 +259,6 @@ module.exports = {
   localDatabaseIsNotProd,
   deviceQaAttestation,
   redact,
+  api,
+  mergeJar,
 };

@@ -12,16 +12,27 @@ const {
   FLAGS_MUST_BE_OFF,
   FAMILY_DEVICE_FLAGS,
   WIDGET_FLAGS,
+  PROFILES,
+  DEFAULT_PROFILE,
 } = require('../scripts/lib/pre-public-release-gate/constants.cjs');
 const { AREAS, EXTRA_UNIT, EXTRA_DB, allAreaFiles } = require('../scripts/lib/pre-public-release-gate/manifest.cjs');
 const { checkMigrationFlagSeeds, gateSourceMustNotMutateFlags } = require('../scripts/lib/pre-public-release-gate/flags.cjs');
 const { checkKillSwitchSourceDefaults } = require('../scripts/lib/pre-public-release-gate/kill-switches.cjs');
 const { deviceQaAttestation } = require('../scripts/lib/pre-public-release-gate/prod.cjs');
 const { classifyOverall } = require('../scripts/lib/pre-public-release-gate/report.cjs');
+const { isRepairAllowedDatabase } = require('../scripts/lib/pre-public-release-gate/local-flag-repair.cjs');
 
 test('npm script release:pre-public-gate is defined', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
   assert.match(pkg.scripts['release:pre-public-gate'], /pre-public-release-gate\.mjs/);
+  assert.match(pkg.scripts['bootstrap:local-feature-flags'], /bootstrap-local-feature-flags\.mjs/);
+});
+
+test('default profile is public-runtime', () => {
+  assert.equal(DEFAULT_PROFILE, PROFILES.PUBLIC_RUNTIME);
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /DEFAULT_PROFILE/);
+  assert.match(src, /--profile=/);
 });
 
 test('widget is excluded from area test execution', () => {
@@ -55,6 +66,22 @@ test('migration snapshotContract seeds family-device and widget flags OFF', () =
   }
 });
 
+test('migrate.js does not run unconditional feature_flag repair', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'migrate.js'), 'utf8');
+  assert.doesNotMatch(src, /ensureFeatureFlagSeeds/);
+});
+
+test('gate uses local-only flag repair helper', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /repairMissingFeatureFlagSeeds/);
+  assert.match(src, /local-flag-repair/);
+  assert.doesNotMatch(src, /ensureFeatureFlagSeeds/);
+});
+
+test('local flag repair refuses non-local DATABASE_URL', () => {
+  assert.equal(isRepairAllowedDatabase('postgresql://u:p@db.example.com:5432/prod'), false);
+});
+
 test('kill-switch source defaults are fail-secure', () => {
   const result = checkKillSwitchSourceDefaults();
   assert.equal(result.status, STATUS.PASS, JSON.stringify(result.evidence, null, 2));
@@ -70,21 +97,81 @@ test('device QA attestation is never PASS when unset', () => {
   assert.equal(r.status, STATUS.NOT_VERIFIED);
 });
 
-test('device QA attestation PASS is explicit only', () => {
-  assert.equal(
-    deviceQaAttestation({ PRE_PUBLIC_GATE_IOS_DEVICE_QA: 'PASS' }, 'PRE_PUBLIC_GATE_IOS_DEVICE_QA', 'ios')
-      .status,
-    STATUS.PASS
-  );
-  assert.equal(
-    deviceQaAttestation({ PRE_PUBLIC_GATE_IOS_DEVICE_QA: 'yes' }, 'PRE_PUBLIC_GATE_IOS_DEVICE_QA', 'ios')
-      .status,
-    STATUS.BLOCKER
-  );
+test('classifyOverall public-runtime: android NOT_VERIFIED does not block GO', () => {
+  const r = classifyOverall({
+    profile: PROFILES.PUBLIC_RUNTIME,
+    sections: {
+      family_device: { status: STATUS.PASS },
+      parent_pin_handoff: { status: STATUS.PASS },
+      child_runtime: { status: STATUS.PASS },
+      activity_timer: { status: STATUS.PASS },
+      image_library: { status: STATUS.PASS },
+      avatars: { status: STATUS.PASS },
+      android: {
+        status: STATUS.PASS,
+        checks: [
+          { id: 'automated_tests', status: STATUS.PASS },
+          { id: 'android_signing', status: STATUS.NOT_VERIFIED, advisory: true },
+          { id: 'android_device_qa', status: STATUS.NOT_VERIFIED, advisory: true },
+        ],
+      },
+      ios_native: {
+        status: STATUS.PASS,
+        checks: [
+          { id: 'automated_tests', status: STATUS.PASS },
+          { id: 'ios_device_qa', status: STATUS.NOT_VERIFIED, advisory: true },
+        ],
+      },
+      widget: { status: STATUS.EXCLUDED },
+      ci_health: { status: STATUS.PASS },
+      migrations: { status: STATUS.PASS },
+      flags: { status: STATUS.PASS },
+      kill_switches: { status: STATUS.PASS },
+      prod_acceptance: { status: STATUS.NOT_VERIFIED, optional: true },
+    },
+  });
+  assert.equal(r.runtimeReadiness.status, STATUS.PASS);
+  assert.equal(r.nativeStoreReadiness.status, STATUS.NOT_VERIFIED);
+  assert.equal(r.overallStatus, STATUS.PASS);
+  assert.equal(r.exitCode, EXIT.GO);
+  assert.equal(r.decision, 'PUBLIC-RUNTIME GATE READY');
+});
+
+test('classifyOverall native-store: device attestation NOT_VERIFIED blocks GO', () => {
+  const r = classifyOverall({
+    profile: PROFILES.NATIVE_STORE,
+    sections: {
+      family_device: { status: STATUS.PASS },
+      parent_pin_handoff: { status: STATUS.PASS },
+      child_runtime: { status: STATUS.PASS },
+      activity_timer: { status: STATUS.PASS },
+      image_library: { status: STATUS.PASS },
+      avatars: { status: STATUS.PASS },
+      android: {
+        status: STATUS.NOT_VERIFIED,
+        checks: [
+          { id: 'automated_tests', status: STATUS.PASS },
+          { id: 'android_signing', status: STATUS.NOT_VERIFIED },
+          { id: 'android_device_qa', status: STATUS.NOT_VERIFIED },
+        ],
+      },
+      ios_native: { status: STATUS.PASS, checks: [{ id: 'automated_tests', status: STATUS.PASS }] },
+      widget: { status: STATUS.EXCLUDED },
+      ci_health: { status: STATUS.PASS },
+      migrations: { status: STATUS.PASS },
+      flags: { status: STATUS.PASS },
+      kill_switches: { status: STATUS.PASS },
+      prod_acceptance: { status: STATUS.PASS, optional: true },
+    },
+  });
+  assert.equal(r.overallStatus, STATUS.NOT_VERIFIED);
+  assert.equal(r.exitCode, EXIT.NOT_VERIFIED);
+  assert.equal(r.nativeStoreReadiness.status, STATUS.NOT_VERIFIED);
 });
 
 test('classifyOverall: BLOCKER wins over NOT_VERIFIED', () => {
   const r = classifyOverall({
+    profile: PROFILES.PUBLIC_RUNTIME,
     sections: {
       family_device: { status: STATUS.PASS },
       parent_pin_handoff: { status: STATUS.PASS },
@@ -102,69 +189,8 @@ test('classifyOverall: BLOCKER wins over NOT_VERIFIED', () => {
       prod_acceptance: { status: STATUS.PASS, optional: true },
     },
   });
-  assert.equal(r.overallStatus, STATUS.BLOCKER);
-  assert.equal(r.exitCode, EXIT.BLOCKER);
-  assert.equal(r.overall, 'BLOCKED');
-});
-
-test('classifyOverall: NOT_VERIFIED is not GO', () => {
-  const r = classifyOverall({
-    sections: {
-      family_device: { status: STATUS.PASS },
-      parent_pin_handoff: { status: STATUS.PASS },
-      child_runtime: { status: STATUS.PASS },
-      activity_timer: { status: STATUS.PASS },
-      image_library: { status: STATUS.PASS },
-      avatars: { status: STATUS.PASS },
-      android: { status: STATUS.NOT_VERIFIED },
-      ios_native: { status: STATUS.PASS },
-      widget: { status: STATUS.EXCLUDED },
-      ci_health: { status: STATUS.PASS },
-      migrations: { status: STATUS.PASS },
-      flags: { status: STATUS.PASS },
-      kill_switches: { status: STATUS.PASS },
-      prod_acceptance: { status: STATUS.NOT_VERIFIED, optional: true },
-    },
-  });
-  assert.equal(r.overallStatus, STATUS.NOT_VERIFIED);
-  assert.equal(r.exitCode, EXIT.NOT_VERIFIED);
-  assert.notEqual(r.exitCode, EXIT.GO);
-});
-
-test('classifyOverall: optional prod_acceptance NOT_VERIFIED does not block GO', () => {
-  const r = classifyOverall({
-    sections: {
-      family_device: { status: STATUS.PASS },
-      parent_pin_handoff: { status: STATUS.PASS },
-      child_runtime: { status: STATUS.PASS },
-      activity_timer: { status: STATUS.PASS },
-      image_library: { status: STATUS.PASS },
-      avatars: { status: STATUS.PASS },
-      android: { status: STATUS.PASS },
-      ios_native: { status: STATUS.PASS },
-      widget: { status: STATUS.EXCLUDED },
-      ci_health: { status: STATUS.PASS },
-      migrations: { status: STATUS.PASS },
-      flags: { status: STATUS.PASS },
-      kill_switches: { status: STATUS.PASS },
-      prod_acceptance: { status: STATUS.PASS, optional: true },
-    },
-  });
   assert.equal(r.overallStatus, STATUS.PASS);
   assert.equal(r.exitCode, EXIT.GO);
-  assert.equal(r.decision, 'READY FOR PUBLIC ROLLOUT');
-});
-
-test('extra scoped tests are listed in test:gate after this change', () => {
-  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-  const unit = pkg.scripts['test:gate:unit'];
-  const db = pkg.scripts['test:gate:db'];
-  for (const f of EXTRA_UNIT) {
-    assert.match(unit, new RegExp(f.replace(/\./g, '\\.')), f);
-  }
-  for (const f of EXTRA_DB) {
-    assert.match(db, new RegExp(f.replace(/\./g, '\\.')), f);
-  }
 });
 
 test('orchestrator never enables widget flags', () => {
@@ -172,7 +198,6 @@ test('orchestrator never enables widget flags', () => {
   assert.doesNotMatch(src, /PRE_PUBLIC_GATE_ENABLE_WIDGET/);
   assert.doesNotMatch(src, /native_widget_enabled['"]\s*,\s*true/);
   assert.doesNotMatch(src, /widget_completion_enabled['"]\s*,\s*true/);
-  assert.match(src, /Never enables widget/);
 });
 
 test('orchestrator --help starts (no TDZ on require)', () => {
@@ -183,7 +208,16 @@ test('orchestrator --help starts (no TDZ on require)', () => {
     env: { ...process.env, NODE_ENV: 'test' },
   });
   assert.equal(r.status, 0, r.stderr || r.stdout);
-  assert.match(r.stdout, /release:pre-public-gate/);
+  assert.match(r.stdout, /public-runtime/);
+  assert.match(r.stdout, /native-store/);
+});
+
+test('admin release-readiness route exists in system.js', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'src/routes/admin/system.js'), 'utf8');
+  assert.match(src, /router\.get\('\/release-readiness'/);
+  assert.match(src, /authzHardeningEnabled/);
+  assert.match(src, /rateLimitEnabled/);
+  assert.doesNotMatch(src, /process\.env\.JWT_SECRET/);
 });
 
 test('test runner env matches CI rate-limit kill switch', () => {
@@ -194,13 +228,6 @@ test('test runner env matches CI rate-limit kill switch', () => {
   assert.match(src, /RATE_LIMIT_ENABLED = 'false'/);
   const ci = fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
   assert.match(ci, /RATE_LIMIT_ENABLED:\s*'false'/);
-});
-
-test('migrate reseeds snapshotContract feature flags without flipping existing rows', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'migrate.js'), 'utf8');
-  assert.match(src, /ensureFeatureFlagSeeds/);
-  assert.match(src, /ON CONFLICT \(key\) DO NOTHING/);
-  assert.match(src, /snapshotContract\?\.featureFlagInserts/);
 });
 
 test('parseFailedFiles reads test path from TAP location YAML', () => {

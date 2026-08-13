@@ -1,6 +1,13 @@
 'use strict';
 
-const { STATUS, EXIT, REPORT_SECTIONS } = require('./constants.cjs');
+const {
+  STATUS,
+  EXIT,
+  REPORT_SECTIONS,
+  PUBLIC_RUNTIME_SECTIONS,
+  NATIVE_STORE_SECTIONS,
+  PROFILES,
+} = require('./constants.cjs');
 
 function worstStatus(statuses) {
   if (statuses.includes(STATUS.BLOCKER)) return STATUS.BLOCKER;
@@ -18,28 +25,72 @@ function sectionStatus(section) {
   return worstStatus(checks.map((c) => c.status));
 }
 
+function votingChecks(section, { includeAdvisory = false } = {}) {
+  const checks = section?.checks || [];
+  if (includeAdvisory) return checks;
+  return checks.filter((c) => !c.advisory);
+}
+
+function sectionStatusFromChecks(section, opts) {
+  const checks = votingChecks(section, opts);
+  if (!checks.length) return sectionStatus(section);
+  return worstStatus(checks.map((c) => c.status));
+}
+
+function readinessBlock(status, profile) {
+  let decision;
+  if (status === STATUS.PASS) {
+    decision =
+      profile === PROFILES.NATIVE_STORE ? 'NATIVE-STORE READY' : 'PUBLIC-RUNTIME GATE READY';
+  } else if (status === STATUS.BLOCKER) {
+    decision = 'BLOCKED';
+  } else {
+    decision = profile === PROFILES.NATIVE_STORE ? 'NOT_VERIFIED' : 'NOT VERIFIED';
+  }
+  return { status, decision };
+}
+
 /**
- * GO requires every non-excluded section to be PASS.
- * Widget is EXCLUDED and does not vote except via flags.kill_switches/flags (widget OFF).
+ * Classify overall readiness for a release profile.
+ *
+ * public-runtime: runtime sections only — native store may be NOT_VERIFIED without blocking GO.
+ * native-store: runtime + native sections must pass.
  */
 function classifyOverall(report) {
-  const voting = [];
-  for (const key of REPORT_SECTIONS) {
-    const section = report.sections[key];
-    if (!section) {
-      voting.push(STATUS.NOT_VERIFIED);
-      continue;
+  const profile = report.profile || PROFILES.PUBLIC_RUNTIME;
+  const sections = report.sections || {};
+
+  const runtimeStatuses = PUBLIC_RUNTIME_SECTIONS.map((key) => {
+    const section = sections[key];
+    if (!section) return STATUS.NOT_VERIFIED;
+    if (section.optional && section.status !== STATUS.BLOCKER) return STATUS.PASS;
+    return sectionStatus(section);
+  });
+  const runtimeReadinessStatus = worstStatus(runtimeStatuses);
+
+  const nativeStatuses = NATIVE_STORE_SECTIONS.map((key) => {
+    const section = sections[key];
+    if (!section) return STATUS.NOT_VERIFIED;
+    if (profile === PROFILES.PUBLIC_RUNTIME) {
+      return sectionStatusFromChecks(section, { includeAdvisory: true });
     }
-    if (section.status === STATUS.EXCLUDED) continue;
-    if (section.optional && section.status !== STATUS.BLOCKER) continue;
-    voting.push(sectionStatus(section));
+    return sectionStatus(section);
+  });
+  const nativeStoreReadinessStatus = worstStatus(nativeStatuses);
+
+  let overallStatus;
+  if (profile === PROFILES.NATIVE_STORE) {
+    overallStatus = worstStatus([runtimeReadinessStatus, nativeStoreReadinessStatus]);
+  } else {
+    overallStatus = runtimeReadinessStatus;
   }
 
-  const overallStatus = worstStatus(voting);
   const overall = overallStatus === STATUS.PASS ? 'PASS' : 'BLOCKED';
   const decision =
     overallStatus === STATUS.PASS
-      ? 'READY FOR PUBLIC ROLLOUT'
+      ? profile === PROFILES.NATIVE_STORE
+        ? 'NATIVE-STORE READY'
+        : 'PUBLIC-RUNTIME GATE READY'
       : overallStatus === STATUS.BLOCKER
         ? 'NOT READY — blockers present'
         : 'NOT READY — unverified required checks';
@@ -48,7 +99,18 @@ function classifyOverall(report) {
   if (overallStatus === STATUS.PASS) exitCode = EXIT.GO;
   else if (overallStatus === STATUS.BLOCKER) exitCode = EXIT.BLOCKER;
 
-  return { overall, overallStatus, decision, exitCode };
+  const runtimeReadiness = readinessBlock(runtimeReadinessStatus, PROFILES.PUBLIC_RUNTIME);
+  const nativeStoreReadiness = readinessBlock(nativeStoreReadinessStatus, PROFILES.NATIVE_STORE);
+
+  return {
+    profile,
+    overall,
+    overallStatus,
+    decision,
+    exitCode,
+    runtimeReadiness,
+    nativeStoreReadiness,
+  };
 }
 
 function collectBlockers(report) {
@@ -58,7 +120,7 @@ function collectBlockers(report) {
       blockers.push({ section: key, evidence: section.evidence || section.checks });
     }
     for (const check of section.checks || []) {
-      if (check.status === STATUS.BLOCKER) {
+      if (check.status === STATUS.BLOCKER && !check.advisory) {
         blockers.push({ section: key, check: check.id, evidence: check.evidence });
       }
     }
@@ -68,14 +130,19 @@ function collectBlockers(report) {
 
 function collectUnverified(report) {
   const items = [];
+  const profile = report.profile || PROFILES.PUBLIC_RUNTIME;
   for (const [key, section] of Object.entries(report.sections || {})) {
-    if (section.status === STATUS.NOT_VERIFIED) {
-      items.push({ section: key, evidence: section.evidence || section.checks });
-    }
+    const isNativeSection = NATIVE_STORE_SECTIONS.includes(key);
     for (const check of section.checks || []) {
-      if (check.status === STATUS.NOT_VERIFIED) {
-        items.push({ section: key, check: check.id, evidence: check.evidence });
+      if (check.status !== STATUS.NOT_VERIFIED) continue;
+      if (profile === PROFILES.PUBLIC_RUNTIME && (check.advisory || isNativeSection)) {
+        items.push({ section: key, check: check.id, advisory: true, evidence: check.evidence });
+        continue;
       }
+      items.push({ section: key, check: check.id, evidence: check.evidence });
+    }
+    if (section.status === STATUS.NOT_VERIFIED && !isNativeSection) {
+      items.push({ section: key, evidence: section.evidence || section.checks });
     }
   }
   return items;
@@ -84,9 +151,15 @@ function collectUnverified(report) {
 function humanSummary(report) {
   const lines = [];
   lines.push('# PRE-PUBLIC RELEASE GATE');
+  lines.push(`Profile: ${report.profile}`);
   lines.push(`Base SHA: ${report.baseSha}`);
   lines.push(`Candidate SHA: ${report.candidateSha}`);
   lines.push(`Overall: ${report.overall} (${report.overallStatus})`);
+  lines.push(`Runtime readiness: ${report.runtimeReadiness?.status} — ${report.runtimeReadiness?.decision}`);
+  lines.push(
+    `Native store readiness: ${report.nativeStoreReadiness?.status} — ${report.nativeStoreReadiness?.decision}`
+  );
+  lines.push(`Widget: ${report.widget}`);
   lines.push(`Decision: ${report.decision}`);
   lines.push(`Exit: ${report.exitCode}`);
   lines.push('');
@@ -96,7 +169,8 @@ function humanSummary(report) {
     if (section.excluded) lines.push('EXCLUDED — PAUSED');
     if (section.summary) lines.push(`evidence: ${section.summary}`);
     for (const check of section.checks || []) {
-      lines.push(`- ${check.id}: ${check.status}`);
+      const tag = check.advisory ? ' (advisory)' : '';
+      lines.push(`- ${check.id}: ${check.status}${tag}`);
     }
     lines.push('');
   }
@@ -113,6 +187,7 @@ function humanSummary(report) {
 module.exports = {
   worstStatus,
   sectionStatus,
+  sectionStatusFromChecks,
   classifyOverall,
   collectBlockers,
   collectUnverified,

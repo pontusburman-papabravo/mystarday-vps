@@ -207,7 +207,12 @@ function gateSourceMustNotMutateFlags(gateDir) {
   const dir = gateDir || path.join(ROOT, 'scripts/lib/pre-public-release-gate');
   const files = fs
     .readdirSync(dir)
-    .filter((f) => (f.endsWith('.cjs') || f.endsWith('.mjs')) && f !== 'flags.cjs');
+    .filter(
+      (f) =>
+        (f.endsWith('.cjs') || f.endsWith('.mjs')) &&
+        f !== 'flags.cjs' &&
+        f !== 'local-flag-repair.cjs'
+    );
   const entry = path.join(ROOT, 'scripts/pre-public-release-gate.mjs');
   const srcs = [
     ...files.map((f) => ({

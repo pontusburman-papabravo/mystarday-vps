@@ -77,6 +77,30 @@ const REPORT_SECTIONS = Object.freeze([
   'prod_acceptance',
 ]);
 
+/** Sections that vote for public-runtime GO. Widget + prod_acceptance excluded. */
+const PUBLIC_RUNTIME_SECTIONS = Object.freeze([
+  'family_device',
+  'parent_pin_handoff',
+  'child_runtime',
+  'activity_timer',
+  'image_library',
+  'avatars',
+  'ci_health',
+  'migrations',
+  'flags',
+  'kill_switches',
+]);
+
+/** Sections that vote for native-store readiness (in addition to runtime). */
+const NATIVE_STORE_SECTIONS = Object.freeze(['android', 'ios_native']);
+
+const PROFILES = Object.freeze({
+  PUBLIC_RUNTIME: 'public-runtime',
+  NATIVE_STORE: 'native-store',
+});
+
+const DEFAULT_PROFILE = PROFILES.PUBLIC_RUNTIME;
+
 module.exports = {
   STATUS,
   EXIT,
@@ -87,4 +111,8 @@ module.exports = {
   KILL_SWITCH_SOURCE,
   MAINTENANCE_FLAG,
   REPORT_SECTIONS,
+  PUBLIC_RUNTIME_SECTIONS,
+  NATIVE_STORE_SECTIONS,
+  PROFILES,
+  DEFAULT_PROFILE,
 };

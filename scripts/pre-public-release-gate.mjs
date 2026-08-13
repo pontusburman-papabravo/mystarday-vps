@@ -3,12 +3,14 @@
  * Pre-public release gate — rollout-safe readiness check.
  *
  *   npm run release:pre-public-gate
+ *   npm run release:pre-public-gate -- --profile=native-store
  *
- * Exit 0 = GO (every required section PASS).
+ * Exit 0 = GO (profile-specific required sections PASS).
  * Exit 1 = BLOCKER.
  * Exit 2 = no blocker, but required checks remain NOT_VERIFIED.
  *
- * Default: zero live writes. Widget flags are asserted OFF and never enabled.
+ * Default profile: public-runtime (web/server rollout — no store binary required).
+ * Widget flags are asserted OFF and never enabled.
  */
 
 import { execSync } from 'node:child_process';
@@ -23,17 +25,18 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const { loadEnvFile } = require('../src/lib/load-env.js');
 loadEnvFile();
 
-const { STATUS, EXIT, WIDGET_EXCLUSION } = require('./lib/pre-public-release-gate/constants.cjs');
+const { STATUS, EXIT, WIDGET_EXCLUSION, PROFILES, DEFAULT_PROFILE } = require('./lib/pre-public-release-gate/constants.cjs');
 const { AREAS, EXTRA_UNIT, EXTRA_DB, MIGRATION_UNIT, MIGRATION_DB } = require('./lib/pre-public-release-gate/manifest.cjs');
 const {
   checkMigrationFlagSeeds,
   queryGlobalFlags,
   gateSourceMustNotMutateFlags,
 } = require('./lib/pre-public-release-gate/flags.cjs');
+const { repairMissingFeatureFlagSeeds, isRepairAllowedDatabase } = require('./lib/pre-public-release-gate/local-flag-repair.cjs');
 const {
   checkKillSwitchSourceDefaults,
   checkLocalProcessKillSwitches,
-  checkProdEnvKillSwitches,
+  checkProdKillSwitches,
 } = require('./lib/pre-public-release-gate/kill-switches.cjs');
 const {
   runNodeTest,
@@ -48,7 +51,7 @@ const {
   deviceQaAttestation,
   localDatabaseIsNotProd,
 } = require('./lib/pre-public-release-gate/prod.cjs');
-const { classifyOverall, collectBlockers, collectUnverified, humanSummary } = require('./lib/pre-public-release-gate/report.cjs');
+const { classifyOverall, collectBlockers, collectUnverified, humanSummary, worstStatus } = require('./lib/pre-public-release-gate/report.cjs');
 
 function parseArgs(argv) {
   const out = {
@@ -56,6 +59,7 @@ function parseArgs(argv) {
     jsonOut: path.join(ROOT, 'artifacts/pre-public-release-gate.json'),
     jsonStdout: false,
     help: false,
+    profile: DEFAULT_PROFILE,
   };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
@@ -63,6 +67,12 @@ function parseArgs(argv) {
     else if (a === '--json') out.jsonStdout = true;
     else if (a === '--json-out') out.jsonOut = argv[++i];
     else if (a === '--help' || a === '-h') out.help = true;
+    else if (a.startsWith('--profile=')) out.profile = a.slice('--profile='.length);
+    else if (a === '--profile') out.profile = argv[++i];
+  }
+  if (![PROFILES.PUBLIC_RUNTIME, PROFILES.NATIVE_STORE].includes(out.profile)) {
+    console.error(`Unknown profile: ${out.profile}. Use public-runtime or native-store.`);
+    process.exit(EXIT.BLOCKER);
   }
   return out;
 }
@@ -80,59 +90,174 @@ function printHelp() {
 release:pre-public-gate — public rollout readiness
 
   npm run release:pre-public-gate
-  npm run release:pre-public-gate -- --skip-test-gate   # marks CI health NOT_VERIFIED (cannot GO)
-  npm run release:pre-public-gate -- --json             # JSON only on stdout
-  npm run release:pre-public-gate -- --json-out <path>
+  npm run release:pre-public-gate -- --profile=public-runtime   (default)
+  npm run release:pre-public-gate -- --profile=native-store
+  npm run release:pre-public-gate -- --skip-test-gate
+  npm run release:pre-public-gate -- --json
 
 Exit: 0 GO · 1 BLOCKER · 2 NOT_VERIFIED
+
+Profiles:
+  public-runtime  — web/server rollout; native store signing/device QA is advisory only
+  native-store    — requires Android/iOS store release evidence
 
 Never mutates live. Never enables widget or family-device global flags.
 
 Optional env (read-only):
   PRE_PUBLIC_GATE_FLAG_DATABASE_URL   SELECT feature_flag (read-only transaction)
   PRE_PUBLIC_GATE_ADMIN_EMAIL/PASSWORD + SMOKE_BASE_URL
+    — GET /api/admin/feature-flags + GET /api/admin/release-readiness
   FOUNDER_QA_EMAIL/PASSWORD + SMOKE_BASE_URL   read-only login smoke
-  PRE_PUBLIC_GATE_PROD_ENV             JSON of prod kill-switch env values
+  PRE_PUBLIC_GATE_PROD_ENV             JSON fallback for prod kill-switch env
+  PRE_PUBLIC_GATE_IOS_DEVICE_QA=PASS   native-store profile only (advisory for public-runtime)
+  PRE_PUBLIC_GATE_ANDROID_DEVICE_QA=PASS
 `);
 }
 
 function remainingManual(report) {
   const items = [];
+  const profile = report.profile || DEFAULT_PROFILE;
+
   const prodFlags = report.sections.flags?.checks?.find((c) => c.id === 'prod_global_flags');
   if (prodFlags?.status === STATUS.NOT_VERIFIED) {
     items.push(
-      'Prod global feature_flag rows: provide PRE_PUBLIC_GATE_FLAG_DATABASE_URL (read-only) or admin API credentials and re-run. Confirm family-device + widget flags are OFF in live.'
+      'Prod global feature_flag rows: provide PRE_PUBLIC_GATE_FLAG_DATABASE_URL (read-only) or admin API credentials and re-run.'
     );
   }
-  const prodKill = report.sections.kill_switches?.checks?.find((c) => c.id === 'prod_env');
+
+  const prodKill = report.sections.kill_switches?.checks?.find((c) => c.id === 'prod_kill_switches');
   if (prodKill?.status === STATUS.NOT_VERIFIED) {
     items.push(
-      'Prod kill-switch env: confirm AUTHZ_HARDENING_ENABLED is not false and RATE_LIMIT_ENABLED is not false on the VPS, then set PRE_PUBLIC_GATE_PROD_ENV JSON and re-run.'
+      'Prod kill-switches: set PRE_PUBLIC_GATE_ADMIN_EMAIL/PASSWORD + SMOKE_BASE_URL for GET /api/admin/release-readiness.'
     );
   }
-  const founder = report.sections.prod_acceptance?.checks?.find((c) => c.id === 'founder_readonly');
-  if (founder?.status === STATUS.NOT_VERIFIED) {
-    items.push(
-      'Founder QA read-only login: set FOUNDER_QA_EMAIL, FOUNDER_QA_PASSWORD, SMOKE_BASE_URL for live session smoke (no writes).'
-    );
+
+  if (profile === PROFILES.NATIVE_STORE) {
+    if (report.sections.android?.checks?.some((c) => c.id === 'android_signing' && c.status === STATUS.NOT_VERIFIED && !c.advisory)) {
+      items.push('Android Play upload signing secrets required for native-store profile.');
+    }
+    if (report.sections.ios_native?.checks?.some((c) => c.id === 'ios_device_qa' && c.status !== STATUS.PASS && !c.advisory)) {
+      items.push('Physical iOS QA: set PRE_PUBLIC_GATE_IOS_DEVICE_QA=PASS after TestFlight evidence.');
+    }
+    if (report.sections.android?.checks?.some((c) => c.id === 'android_device_qa' && c.status !== STATUS.PASS && !c.advisory)) {
+      items.push('Physical Android QA: set PRE_PUBLIC_GATE_ANDROID_DEVICE_QA=PASS after Play internal build evidence.');
+    }
   }
-  if (report.sections.android?.checks?.some((c) => c.id === 'android_signing' && c.status === STATUS.NOT_VERIFIED)) {
-    items.push(
-      'Android Play upload signing: ANDROID_KEYSTORE_PATH + ANDROID_KEYSTORE_PASSWORD + ANDROID_KEY_ALIAS + GOOGLE_WEB_CLIENT_ID must be present on the build machine (not this gate VM).'
-    );
-  }
-  if (report.sections.ios_native?.checks?.some((c) => c.id === 'ios_device_qa' && c.status !== STATUS.PASS)) {
-    items.push(
-      'Physical iOS: cold start, select-parent PIN, profile switch, child schedule on a real iPhone WebView/TestFlight. Then set PRE_PUBLIC_GATE_IOS_DEVICE_QA=PASS.'
-    );
-  }
-  if (report.sections.android?.checks?.some((c) => c.id === 'android_device_qa' && c.status !== STATUS.PASS)) {
-    items.push(
-      'Physical Android: same family-device + child runtime path on a mid-range Android WebView/Play internal build. Then set PRE_PUBLIC_GATE_ANDROID_DEVICE_QA=PASS.'
-    );
-  }
-  items.push('Widget: EXCLUDED — paused. Do not run physical WidgetKit/Android widget QA as part of this rollout.');
+
+  items.push('Widget: EXCLUDED — paused. Do not run WidgetKit/Android widget acceptance as part of this rollout.');
   return items;
+}
+
+async function runLocalMigrateAndRepair() {
+  if (!process.env.DATABASE_URL) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: { reason: 'DATABASE_URL missing; cannot migrate or query local flags' },
+    };
+  }
+  if (!localDatabaseIsNotProd(process.env.DATABASE_URL)) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: {
+        reason: 'refusing to migrate non-local DATABASE_URL',
+        note: 'Use PRE_PUBLIC_GATE_FLAG_DATABASE_URL for read-only prod flag SELECT.',
+      },
+    };
+  }
+
+  const migrate = runNpmScript('migrate', { label: 'local_migrate', extraEnv: { NODE_ENV: 'test' } });
+  if (migrate.status !== STATUS.PASS) return migrate;
+
+  let repair = { status: STATUS.PASS, evidence: { skipped: true, reason: 'not_needed' } };
+  if (isRepairAllowedDatabase(process.env.DATABASE_URL, { ...process.env, NODE_ENV: 'test' })) {
+    try {
+      const result = await repairMissingFeatureFlagSeeds(process.env.DATABASE_URL);
+      repair = {
+        status: STATUS.PASS,
+        evidence: { ...result, note: 'Local-only snapshotContract repair (ON CONFLICT DO NOTHING)' },
+      };
+    } catch (err) {
+      if (err.code === 'REPAIR_REFUSED') {
+        repair = { status: STATUS.BLOCKER, evidence: { reason: err.message, code: err.code } };
+      } else {
+        repair = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'repair_failed', error: err.message } };
+      }
+    }
+  } else {
+    repair = {
+      status: STATUS.BLOCKER,
+      evidence: { reason: 'local_flag_repair_refused', note: 'DATABASE_URL is not local/test-safe' },
+    };
+  }
+
+  const combinedStatus = repair.status === STATUS.BLOCKER ? STATUS.BLOCKER : migrate.status;
+  return {
+    status: combinedStatus,
+    evidence: { migrate: migrate.evidence, repair: repair.evidence },
+  };
+}
+
+function buildAndroidSection(profile, testRuns) {
+  const area = AREAS.android;
+  const mapped = mapFilesToAreaStatus(area, testRuns);
+  const hardening = runNodeScript('scripts/verify-android-release-hardening.mjs', {
+    label: 'android_hardening',
+  });
+  const signing = runNodeScript('scripts/assert-android-release-signing.mjs', {
+    label: 'android_signing',
+    allowNonZeroAs: profile === PROFILES.PUBLIC_RUNTIME ? STATUS.NOT_VERIFIED : STATUS.NOT_VERIFIED,
+  });
+  const device = deviceQaAttestation(
+    process.env,
+    'PRE_PUBLIC_GATE_ANDROID_DEVICE_QA',
+    'physical Android mid-range WebView'
+  );
+
+  const isPublicRuntime = profile === PROFILES.PUBLIC_RUNTIME;
+  const signingCheck = { id: 'android_signing', ...signing, advisory: isPublicRuntime };
+  const deviceCheck = { id: 'android_device_qa', ...device, advisory: isPublicRuntime };
+  const checks = [
+    { id: 'automated_tests', ...mapped },
+    { id: 'android_hardening', ...hardening },
+    signingCheck,
+    deviceCheck,
+  ];
+
+  const voting = isPublicRuntime
+    ? [mapped.status, hardening.status]
+    : [mapped.status, hardening.status, signing.status, device.status];
+
+  return {
+    title: area.title,
+    status: worstStatus(voting),
+    summary: isPublicRuntime
+      ? 'Source hardening + contracts. Signing and physical device QA are advisory for public-runtime.'
+      : 'Source hardening + AAB/Play contracts + signing + physical device QA required.',
+    checks,
+  };
+}
+
+function buildIosSection(profile, testRuns) {
+  const area = AREAS.ios_native;
+  const mapped = mapFilesToAreaStatus(area, testRuns);
+  const device = deviceQaAttestation(
+    process.env,
+    'PRE_PUBLIC_GATE_IOS_DEVICE_QA',
+    'physical iPhone WebView / TestFlight'
+  );
+  const isPublicRuntime = profile === PROFILES.PUBLIC_RUNTIME;
+  const deviceCheck = { id: 'ios_device_qa', ...device, advisory: isPublicRuntime };
+  const checks = [{ id: 'automated_tests', ...mapped }, deviceCheck];
+  const voting = isPublicRuntime ? [mapped.status] : [mapped.status, device.status];
+
+  return {
+    title: area.title,
+    status: worstStatus(voting),
+    summary: isPublicRuntime
+      ? 'ATT/localization source contracts. Physical iPhone QA is advisory for public-runtime.'
+      : 'ATT/localization contracts + physical iPhone QA required.',
+    checks,
+  };
 }
 
 async function main() {
@@ -150,24 +275,7 @@ async function main() {
 
   const mutateGuard = gateSourceMustNotMutateFlags();
   const seed = checkMigrationFlagSeeds();
-
-  let migrate = { status: STATUS.PASS, evidence: { skipped: true, reason: 'non_local_database' } };
-  if (localDatabaseIsNotProd(process.env.DATABASE_URL)) {
-    migrate = runNpmScript('migrate', { label: 'local_migrate' });
-  } else if (!process.env.DATABASE_URL) {
-    migrate = {
-      status: STATUS.NOT_VERIFIED,
-      evidence: { reason: 'DATABASE_URL missing; cannot migrate or query local flags' },
-    };
-  } else {
-    migrate = {
-      status: STATUS.NOT_VERIFIED,
-      evidence: {
-        reason: 'refusing to migrate non-local DATABASE_URL',
-        note: 'Use PRE_PUBLIC_GATE_FLAG_DATABASE_URL for read-only prod flag SELECT.',
-      },
-    };
-  }
+  const migrate = await runLocalMigrateAndRepair();
 
   const localDbUrl = process.env.DATABASE_URL;
   const localFlags = await queryGlobalFlags(localDbUrl, { label: 'local_database' });
@@ -177,7 +285,7 @@ async function main() {
     localFlags.evidence?.reason === 'flag_rows_missing'
   ) {
     localFlags.status = STATUS.BLOCKER;
-    localFlags.evidence.reason = 'flag_rows_missing_after_migrate';
+    localFlags.evidence.reason = 'flag_rows_missing_after_local_repair';
   }
   const prodFlags = await checkProdGlobalFlags(process.env);
 
@@ -187,7 +295,7 @@ async function main() {
     checks: [
       { id: 'gate_does_not_mutate_flags', ...mutateGuard },
       { id: 'migration_seeds_off', ...seed },
-      { id: 'local_migrate', ...migrate },
+      { id: 'local_migrate_and_repair', ...migrate },
       { id: 'local_global_flags', ...localFlags },
       { id: 'prod_global_flags', ...prodFlags },
     ],
@@ -197,22 +305,16 @@ async function main() {
     : [prodFlags, localFlags, migrate].some((c) => c.status === STATUS.NOT_VERIFIED)
       ? STATUS.NOT_VERIFIED
       : STATUS.PASS;
-  if (seed.status === STATUS.PASS && mutateGuard.status === STATUS.PASS && localFlags.status === STATUS.PASS && prodFlags.status === STATUS.NOT_VERIFIED) {
-    sections.flags.status = STATUS.NOT_VERIFIED;
-    sections.flags.summary = 'Code/local flags OFF; live global flags not verified.';
-  } else if (sections.flags.status === STATUS.PASS) {
-    sections.flags.summary = 'Family-device and widget global flags are OFF in migrations, local DB, and prod.';
-  }
 
   const ksSource = checkKillSwitchSourceDefaults();
   const ksLocal = checkLocalProcessKillSwitches();
-  const ksProd = checkProdEnvKillSwitches();
+  const ksProd = await checkProdKillSwitches(process.env);
   sections.kill_switches = {
     title: 'Kill switches',
     checks: [
       { id: 'source_defaults', ...ksSource },
       { id: 'local_process', ...ksLocal },
-      { id: 'prod_env', ...ksProd },
+      { id: 'prod_kill_switches', ...ksProd },
     ],
   };
   sections.kill_switches.status = [ksSource, ksProd].some((c) => c.status === STATUS.BLOCKER)
@@ -220,10 +322,6 @@ async function main() {
     : ksProd.status === STATUS.NOT_VERIFIED
       ? STATUS.NOT_VERIFIED
       : STATUS.PASS;
-  sections.kill_switches.summary =
-    ksSource.status === STATUS.PASS
-      ? 'Authz + rate-limit source defaults are fail-secure (ON unless env=false). Prod env unverified unless PRE_PUBLIC_GATE_PROD_ENV is set.'
-      : 'Kill-switch source default regression.';
 
   const credentials = runNpmScript('check:credentials', { label: 'credentials' });
   const extrasUnit = runNodeTest(EXTRA_UNIT, { concurrency: 4, label: 'extra_unit' });
@@ -279,10 +377,10 @@ async function main() {
       : [migUnit, migDb, migrate].some((c) => c.status === STATUS.NOT_VERIFIED)
         ? STATUS.NOT_VERIFIED
         : STATUS.PASS,
-    summary: 'Immutable files, destructive-SQL contract, rollback gate, IAP safety, flag seeds. Local migrate only.',
+    summary: 'Immutable files, destructive-SQL contract, rollback gate, IAP safety, flag seeds. Local migrate + local-only repair.',
     checks: [
       { id: 'flag_seeds', ...seed },
-      { id: 'local_migrate', ...migrate },
+      { id: 'local_migrate_and_repair', ...migrate },
       { id: 'migration_unit', ...migUnit },
       { id: 'migration_db', ...migDb },
     ],
@@ -315,81 +413,31 @@ async function main() {
       continue;
     }
 
-    const mapped = mapFilesToAreaStatus(area, testRuns);
-    const checks = [{ id: 'automated_tests', ...mapped }];
-
     if (key === 'android') {
-      const hardening = runNodeScript('scripts/verify-android-release-hardening.mjs', {
-        label: 'android_hardening',
-      });
-      const signing = runNodeScript('scripts/assert-android-release-signing.mjs', {
-        label: 'android_signing',
-        allowNonZeroAs: STATUS.NOT_VERIFIED,
-      });
-      const device = deviceQaAttestation(
-        process.env,
-        'PRE_PUBLIC_GATE_ANDROID_DEVICE_QA',
-        'physical Android mid-range WebView'
-      );
-      checks.push({ id: 'android_hardening', ...hardening });
-      checks.push({ id: 'android_signing', ...signing });
-      checks.push({ id: 'android_device_qa', ...device });
-      const statuses = [mapped.status, hardening.status, device.status];
-      sections.android = {
-        title: area.title,
-        status: statuses.includes(STATUS.BLOCKER)
-          ? STATUS.BLOCKER
-          : statuses.includes(STATUS.NOT_VERIFIED)
-            ? STATUS.NOT_VERIFIED
-            : STATUS.PASS,
-        summary:
-          'Source hardening + AAB/Play contracts. Physical device QA requires PRE_PUBLIC_GATE_ANDROID_DEVICE_QA=PASS.',
-        checks,
-      };
+      sections.android = buildAndroidSection(args.profile, testRuns);
       continue;
     }
-
     if (key === 'ios_native') {
-      const device = deviceQaAttestation(
-        process.env,
-        'PRE_PUBLIC_GATE_IOS_DEVICE_QA',
-        'physical iPhone WebView / TestFlight'
-      );
-      checks.push({ id: 'ios_device_qa', ...device });
-      const statuses = [mapped.status, device.status];
-      sections.ios_native = {
-        title: area.title,
-        status: statuses.includes(STATUS.BLOCKER)
-          ? STATUS.BLOCKER
-          : statuses.includes(STATUS.NOT_VERIFIED)
-            ? STATUS.NOT_VERIFIED
-            : STATUS.PASS,
-        summary:
-          'ATT/no-ATT/localization contracts. Physical iPhone QA requires PRE_PUBLIC_GATE_IOS_DEVICE_QA=PASS.',
-        checks,
-      };
+      sections.ios_native = buildIosSection(args.profile, testRuns);
       continue;
     }
 
+    const mapped = mapFilesToAreaStatus(area, testRuns);
     sections[key] = {
       title: area.title,
       status: mapped.status,
       summary: `${area.covers.join('; ')}. Tests: ${(area.unit.length + area.db.length)} files.`,
-      checks,
+      checks: [{ id: 'automated_tests', ...mapped }],
     };
   }
 
   const founder = await founderReadOnlyAcceptance(process.env);
   const pilot = prodPilotPolicy(process.env);
-  const prodAcceptanceBlocker = [founder, pilot].some((c) => c.status === STATUS.BLOCKER);
   sections.prod_acceptance = {
     title: 'Prod acceptance',
-    status: prodAcceptanceBlocker ? STATUS.BLOCKER : STATUS.PASS,
+    status: [founder, pilot].some((c) => c.status === STATUS.BLOCKER) ? STATUS.BLOCKER : STATUS.PASS,
     optional: true,
-    summary:
-      founder.status === STATUS.PASS
-        ? 'Read-only founder QA login succeeded; no writes.'
-        : 'Optional. Missing founder/prod credentials is not a blocker; see remaining manual work.',
+    summary: 'Optional founder read-only login; not required for public-runtime GO.',
     checks: [
       { id: 'founder_readonly', ...founder },
       { id: 'prod_pilot_policy', ...pilot },
@@ -397,12 +445,13 @@ async function main() {
   };
 
   const report = {
-    schema: 'stjarndag.pre_public_release_gate.v1',
+    schema: 'stjarndag.pre_public_release_gate.v2',
     generatedAt: new Date().toISOString(),
+    profile: args.profile,
     baseSha,
     candidateSha,
-    exactCommand: 'NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run release:pre-public-gate',
-    widget: 'EXCLUDED — PAUSED',
+    exactCommand: `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run release:pre-public-gate -- --profile=${args.profile}`,
+    widget: 'EXCLUDED_PAUSED',
     sections,
     remainingManualWork: [],
   };
