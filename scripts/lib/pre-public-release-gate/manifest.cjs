@@ -108,19 +108,29 @@ const IMAGE_LIBRARY_UNIT = [
   'test/family-image-library.test.js',
   'test/i18n-library-images.test.js',
   'test/bildstod-core.test.js',
+  'test/activity-visual-priority.test.js',
+  'test/image-avatar-readiness.test.js',
+  'test/upload.test.js',
 ];
 
 const IMAGE_LIBRARY_DB = [
   'test/family-images-authz.test.js',
   'test/pictograms-api.test.js',
+  'test/family-image-upload.integration.test.js',
+  'test/family-image-library.integration.test.js',
 ];
 
 const AVATAR_UNIT = [
   'test/avatar-upload-fix.test.js',
   'test/family-ui-avatar-menu-fix.test.js',
+  'test/avatar-crop-a11y.test.js',
+  'test/image-avatar-readiness.test.js',
 ];
 
-const AVATAR_DB = ['test/family-avatar-v1.test.js'];
+const AVATAR_DB = [
+  'test/family-avatar-v1.test.js',
+  'test/avatar-upload.integration.test.js',
+];
 
 const ANDROID_UNIT = [
   'test/android-aab-release-gate.test.js',
@@ -203,13 +213,21 @@ const AREAS = Object.freeze({
     title: 'Image library',
     unit: IMAGE_LIBRARY_UNIT,
     db: IMAGE_LIBRARY_DB,
-    covers: ['Bildarkiv / egna aktivitetsbilder'],
+    covers: [
+      'activity image upload + MIME/content validation',
+      'family image library CRUD + attach + delete fallback',
+      'visual priority image → pictogram → emoji',
+    ],
   },
   avatars: {
     title: 'Avatars',
     unit: AVATAR_UNIT,
     db: AVATAR_DB,
-    covers: ['child avatar', 'parent avatar'],
+    covers: [
+      'child + parent avatar upload/replace/remove',
+      'authenticated delivery + cache bust',
+      'crop modal a11y + profile picker fallback',
+    ],
   },
   android: {
     title: 'Android',
