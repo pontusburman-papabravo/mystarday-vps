@@ -171,6 +171,14 @@ async function main() {
 
   const localDbUrl = process.env.DATABASE_URL;
   const localFlags = await queryGlobalFlags(localDbUrl, { label: 'local_database' });
+  if (
+    migrate.status === STATUS.PASS &&
+    localFlags.status === STATUS.NOT_VERIFIED &&
+    localFlags.evidence?.reason === 'flag_rows_missing'
+  ) {
+    localFlags.status = STATUS.BLOCKER;
+    localFlags.evidence.reason = 'flag_rows_missing_after_migrate';
+  }
   const prodFlags = await checkProdGlobalFlags(process.env);
 
   sections.flags = {

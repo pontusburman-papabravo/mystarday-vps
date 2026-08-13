@@ -185,3 +185,38 @@ test('orchestrator --help starts (no TDZ on require)', () => {
   assert.equal(r.status, 0, r.stderr || r.stdout);
   assert.match(r.stdout, /release:pre-public-gate/);
 });
+
+test('test runner env matches CI rate-limit kill switch', () => {
+  const src = fs.readFileSync(
+    path.join(ROOT, 'scripts/lib/pre-public-release-gate/run-checks.cjs'),
+    'utf8'
+  );
+  assert.match(src, /RATE_LIMIT_ENABLED = 'false'/);
+  const ci = fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(ci, /RATE_LIMIT_ENABLED:\s*'false'/);
+});
+
+test('migrate reseeds snapshotContract feature flags without flipping existing rows', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'migrate.js'), 'utf8');
+  assert.match(src, /ensureFeatureFlagSeeds/);
+  assert.match(src, /ON CONFLICT \(key\) DO NOTHING/);
+  assert.match(src, /snapshotContract\?\.featureFlagInserts/);
+});
+
+test('parseFailedFiles reads test path from TAP location YAML', () => {
+  const { parseFailedFiles } = require('../scripts/lib/pre-public-release-gate/run-checks.cjs');
+  const tap = `
+    not ok 5 - P1-5: no unlock_method fail-closed without family PIN
+      ---
+      duration_ms: 1
+      location: '/workspace/test/trusted-profile-p1-remediation.integration.test.js:289:1'
+      failureType: 'testCodeFailure'
+      ...
+not ok 358 - P1 remediation: trusted profile picker security matrix
+`;
+  const parsed = parseFailedFiles(tap);
+  assert.ok(
+    parsed.failed.includes('test/trusted-profile-p1-remediation.integration.test.js'),
+    JSON.stringify(parsed)
+  );
+});

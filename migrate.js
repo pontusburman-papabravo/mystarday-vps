@@ -72,6 +72,10 @@ async function migrate() {
     // 3. Run migrations from migrations/ folder
     await runFolderMigrations(client);
 
+    // 4. Re-seed feature_flag rows declared on already-applied migrations.
+    //    Snapshot DBs can have _migrations rows without the INSERT data.
+    await ensureFeatureFlagSeeds(client);
+
     console.log('Migrations complete.');
   } finally {
     try {
@@ -150,6 +154,43 @@ async function runFolderMigrations(client) {
     } catch (err) {
       await client.query('ROLLBACK');
       throw new Error(`Migration failed (${name}): ${err.message}`);
+    }
+  }
+}
+
+/**
+ * Idempotent: INSERT missing feature_flag rows from snapshotContract.featureFlagInserts.
+ * ON CONFLICT DO NOTHING — never flips an existing flag (including live ON).
+ */
+async function ensureFeatureFlagSeeds(client) {
+  const exists = await client.query(`SELECT to_regclass('public.feature_flag') AS t`);
+  if (!exists.rows[0]?.t) return;
+
+  const migrationsDir = path.join(__dirname, 'migrations');
+  if (!fs.existsSync(migrationsDir)) return;
+  const files = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.js')).sort();
+
+  for (const file of files) {
+    let migration;
+    try {
+      migration = require(path.join(migrationsDir, file));
+    } catch {
+      continue;
+    }
+    const inserts = migration.snapshotContract?.featureFlagInserts;
+    if (!Array.isArray(inserts) || !inserts.length) continue;
+    for (const row of inserts) {
+      if (!row || !row.key) continue;
+      await client.query(
+        `INSERT INTO feature_flag (key, enabled, description)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (key) DO NOTHING`,
+        [
+          row.key,
+          Boolean(row.enabled),
+          `seeded from ${migration.name || file}`,
+        ]
+      );
     }
   }
 }

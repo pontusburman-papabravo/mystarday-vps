@@ -12,6 +12,9 @@ function testEnv(extra = {}) {
   const env = { ...process.env, ...extra };
   env.NODE_ENV = 'test';
   env.REQUIRE_EMAIL_VERIFICATION = 'false';
+  // Match CI (.github/workflows/ci.yml): limiter must be off before the first
+  // `require('../src/middleware/rateLimiter')` in the process.
+  env.RATE_LIMIT_ENABLED = 'false';
   const nvmBin = path.join(process.env.HOME || '', '.nvm/versions/node/v20.20.2/bin');
   if (nvmBin && fs.existsSync(nvmBin)) {
     env.PATH = `${nvmBin}${path.delimiter}${env.PATH || ''}`;
@@ -28,9 +31,16 @@ function nodeBin() {
 function parseFailedFiles(output) {
   const failed = new Set();
   const passed = new Set();
-  const fileRe = /(?:^|\s)(test\/[^\s:]+\.test\.js)/g;
+  const fileRe = /(?:^|\s)(test\/[^\s:'"]+\.test\.js)/g;
   for (const line of output.split('\n')) {
-    const isFail = /^\s*not ok\b/.test(line) || line.includes('not ok ');
+    const loc = line.match(/location:\s*'([^']+\/test\/[^']+\.test\.js)/);
+    if (loc) {
+      const rel = loc[1].replace(/^.*\/(test\/)/, 'test/');
+      if (/not ok|failureType|AssertionError/.test(output.slice(Math.max(0, output.indexOf(line) - 400), output.indexOf(line) + 200))) {
+        failed.add(rel);
+      }
+    }
+    const isFail = /^\s*not ok\b/.test(line) || line.startsWith('not ok ');
     const isPass = /^\s*ok \d+/.test(line) && !/not ok/.test(line);
     let m;
     const re = new RegExp(fileRe);
@@ -38,14 +48,12 @@ function parseFailedFiles(output) {
       if (isFail) failed.add(m[1]);
       else if (isPass) passed.add(m[1]);
     }
-    if (line.startsWith('# Subtest: ') && line.includes('test/')) {
-      const sub = line.replace('# Subtest: ', '').trim();
-      const fileMatch = sub.match(/test\/[^\s]+\.test\.js/);
-      if (fileMatch) {
-        /* file-level subtest — status comes from following ok/not ok */
-        passed.add(fileMatch[0]);
-      }
-    }
+  }
+  // YAML location blocks sit under a failing test; harvest every test/*.test.js in failure YAML.
+  const failChunks = output.split(/\nnot ok /);
+  for (const chunk of failChunks.slice(1)) {
+    const m = chunk.match(/\/(test\/[^\s:'"]+\.test\.js)/);
+    if (m) failed.add(m[1]);
   }
   for (const f of failed) passed.delete(f);
   return { failed: [...failed], passed: [...passed] };

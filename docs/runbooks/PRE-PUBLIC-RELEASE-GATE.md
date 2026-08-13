@@ -34,6 +34,8 @@ JSON is written to `artifacts/pre-public-release-gate.json` (gitignored).
 7. Widget flags OFF — never enabled.
 8. Optional founder QA **read-only** login if `FOUNDER_QA_*` + `SMOKE_BASE_URL` are set.
 
+Spawned tests use `RATE_LIMIT_ENABLED=false` (same as CI) so PIN limiters do not leak across files. Local `migrate` also re-inserts missing `feature_flag` rows from `snapshotContract` with `ON CONFLICT DO NOTHING` (never flips an existing flag).
+
 ## Optional env for a true GO
 
 Without these, the gate exits **2** (NOT_VERIFIED), which is correct — not a false green.
