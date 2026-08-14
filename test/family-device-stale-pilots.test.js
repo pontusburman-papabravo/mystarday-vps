@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { setupTestDb } = require('./helpers/setup.js');
-const db = require('../src/lib/db');
+const dbModule = require('../src/lib/db');
 const {
   cleanupStaleFdPilotFamilies,
   countGlobalStaleFdPilotRows,
@@ -20,51 +20,55 @@ const { assertFamilyDevicePilotDisposableEmail } = require('../src/lib/family-de
 process.env.FAMILY_DEVICE_PILOT_CONFIRM = '1';
 
 test('stale fd-pilot lifecycle', async (t) => {
-  const wrapper = await setupTestDb();
-  if (wrapper.skip) {
+  const db = await setupTestDb();
+  if (db.skip) {
     t.skip('No real DATABASE_URL');
     return;
   }
 
-  await t.test('dry-run reports rows without deleting', async () => {
-    const fixture = await createDisposableFamilyDeviceQaFamily(db, { childCount: 1 });
-    await enablePilotOverrides(db, fixture.familyId, fixture.email, 'stale-pilot-test');
-    try {
-      const dry = await cleanupStaleFdPilotFamilies(db, { apply: false });
-      assert.equal(dry.dryRun, true);
-      assert.ok(dry.families >= 1);
-      assert.ok(dry.overrides >= 1);
-      const still = await countGlobalStaleFdPilotRows(db);
-      assert.ok(still.families >= 1);
-    } finally {
-      await deletePilotFamily(db, fixture.familyId, fixture.email);
-    }
-  });
+  try {
+    await t.test('dry-run reports rows without deleting', async () => {
+      const fixture = await createDisposableFamilyDeviceQaFamily(dbModule, { childCount: 1 });
+      await enablePilotOverrides(dbModule, fixture.familyId, fixture.email, 'stale-pilot-test');
+      try {
+        const dry = await cleanupStaleFdPilotFamilies(dbModule, { apply: false });
+        assert.equal(dry.dryRun, true);
+        assert.ok(dry.families >= 1);
+        assert.ok(dry.overrides >= 1);
+        const still = await countGlobalStaleFdPilotRows(dbModule);
+        assert.ok(still.families >= 1);
+      } finally {
+        await deletePilotFamily(dbModule, fixture.familyId, fixture.email);
+      }
+    });
 
-  await t.test('apply deletes only fd-pilot-*@example.com families', async () => {
-    const fixture = await createDisposableFamilyDeviceQaFamily(db, { childCount: 1 });
-    await enablePilotOverrides(db, fixture.familyId, fixture.email, 'stale-pilot-test');
-    const applied = await cleanupStaleFdPilotFamilies(db, { apply: true });
-    assert.equal(applied.dryRun, false);
-    assert.ok(applied.deleted >= 1);
-    assert.equal(applied.ok, true);
-    const after = await countGlobalStaleFdPilotRows(db);
-    assert.equal(after.families, 0);
-    assert.equal(after.overrides, 0);
-  });
+    await t.test('apply deletes only fd-pilot-*@example.com families', async () => {
+      const fixture = await createDisposableFamilyDeviceQaFamily(dbModule, { childCount: 1 });
+      await enablePilotOverrides(dbModule, fixture.familyId, fixture.email, 'stale-pilot-test');
+      const applied = await cleanupStaleFdPilotFamilies(dbModule, { apply: true });
+      assert.equal(applied.dryRun, false);
+      assert.ok(applied.deleted >= 1);
+      assert.equal(applied.ok, true);
+      const after = await countGlobalStaleFdPilotRows(dbModule);
+      assert.equal(after.families, 0);
+      assert.equal(after.overrides, 0);
+    });
 
-  await t.test('concurrent lock is exclusive', async () => {
-    const clientA = await db.getClient();
-    const clientB = await db.getClient();
-    try {
-      assert.equal(await tryAcquireStalePilotLock(db, clientA), true);
-      assert.equal(await tryAcquireStalePilotLock(db, clientB), false);
-    } finally {
-      await releaseStalePilotLock(db, clientA).catch(() => {});
-      clientA.release();
-      clientB.release();
-    }
-  });
+    await t.test('concurrent lock is exclusive', async () => {
+      const clientA = await dbModule.getClient();
+      const clientB = await dbModule.getClient();
+      try {
+        assert.equal(await tryAcquireStalePilotLock(dbModule, clientA), true);
+        assert.equal(await tryAcquireStalePilotLock(dbModule, clientB), false);
+      } finally {
+        await releaseStalePilotLock(dbModule, clientA).catch(() => {});
+        clientA.release();
+        clientB.release();
+      }
+    });
+  } finally {
+    await db.cleanup();
+  }
 });
 
 test('stale fd-pilot cleanup: rejects non-disposable lookalike emails', () => {
