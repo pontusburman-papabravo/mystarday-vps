@@ -193,9 +193,9 @@ test('Fas 2C parent trusted device matrix', async (t) => {
       assert.equal(r.serverAction, 'restore-parent');
     });
 
-    await t.test('H: shared device cold restore requires picker when child + adult profiles', async () => {
+    await t.test('H: shared device with one child restores child directly (parent is switch target)', async () => {
       const session = await registerAndLogin(http.baseUrl);
-      await createChild(http.baseUrl, session, { name: 'Only', emoji: '🦊' });
+      const childId = await createChild(http.baseUrl, session, { name: 'Only', emoji: '🦊' });
       const enrollRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/shared`, {
         method: 'POST',
         headers: {
@@ -217,8 +217,9 @@ test('Fas 2C parent trusted device matrix', async (t) => {
       });
       const body = JSON.parse(await restoreRes.text());
       assert.equal(restoreRes.status, 200);
-      assert.equal(body.ok, false);
-      assert.equal(body.code, 'SHARED_PICKER_REQUIRED');
+      assert.equal(body.ok, true);
+      assert.equal(body.user?.type, 'child');
+      assert.equal(body.user?.id, childId);
     });
 
     await t.test('I: child device semantics unchanged', async () => {
