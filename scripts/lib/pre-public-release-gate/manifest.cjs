@@ -100,9 +100,14 @@ const ACTIVITY_TIMER_UNIT = [
   'test/activity-timer-v2-ui.test.js',
   'test/activity-timer-click-layout.test.js',
   'test/library-activity-timer-bridge.test.js',
+  'test/activity-timer-global-readiness-matrix.test.js',
+  'test/activity-timer-prod-pilot-harness.test.js',
 ];
 
-const ACTIVITY_TIMER_DB = ['test/activity-timer-child-api.integration.test.js'];
+const ACTIVITY_TIMER_DB = [
+  'test/activity-timer-child-api.integration.test.js',
+  'test/activity-timer-readiness.integration.test.js',
+];
 
 const IMAGE_LIBRARY_UNIT = [
   'test/family-image-library.test.js',
@@ -166,11 +171,16 @@ const EXTRA_UNIT = [
   'test/activity-timer-v2-ui.test.js',
   'test/activity-timer-click-layout.test.js',
   'test/library-activity-timer-bridge.test.js',
+  'test/activity-timer-global-readiness-matrix.test.js',
+  'test/activity-timer-prod-pilot-harness.test.js',
   'test/substep-icon-nullable.test.js',
   'test/dashboard-post-schema-handoff.test.js',
 ];
 
-const EXTRA_DB = ['test/child-substep-progression.integration.test.js'];
+const EXTRA_DB = [
+  'test/child-substep-progression.integration.test.js',
+  'test/activity-timer-readiness.integration.test.js',
+];
 
 const AREAS = Object.freeze({
   family_device: {
@@ -207,7 +217,22 @@ const AREAS = Object.freeze({
     title: 'Activity timer',
     unit: ACTIVITY_TIMER_UNIT,
     db: ACTIVITY_TIMER_DB,
-    covers: ['activity timer'],
+    covers: [
+      'master OFF/ON + duration',
+      'start/pause/resume/stop/finish',
+      'refresh paused state',
+      'Klar before finish + completion cleanup',
+      'timed substeps + parent timer hidden',
+      'no-duration activity',
+      'sibling/profile/date isolation',
+      'stale storage prune',
+      'iPhone/Android viewport contracts',
+      'Wake Lock graceful degradation',
+      'rapid action idempotency',
+      'ACTIVITY_TIMER_V2_DISABLED kill switch',
+      'prod runtime via release-readiness',
+      'disposable prod pilot (opt-in only)',
+    ],
   },
   image_library: {
     title: 'Image library',

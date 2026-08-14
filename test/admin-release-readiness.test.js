@@ -98,7 +98,12 @@ test('GET /api/admin/release-readiness returns effective kill-switch booleans fo
     const body = await res.json();
     assert.equal(body.authzHardeningEnabled, true);
     assert.equal(body.rateLimitEnabled, true);
-    assert.equal(Object.keys(body).sort().join(','), 'authzHardeningEnabled,rateLimitEnabled');
+    assert.equal(body.activityTimerV2Disabled, false);
+    assert.equal(body.activityTimerV2Available, true);
+    assert.equal(
+      Object.keys(body).sort().join(','),
+      'activityTimerV2Available,activityTimerV2Disabled,authzHardeningEnabled,rateLimitEnabled'
+    );
   } finally {
     process.env.AUTHZ_HARDENING_ENABLED = prevAuthz;
     process.env.RATE_LIMIT_ENABLED = prevRate;
@@ -137,9 +142,49 @@ test('GET /api/admin/release-readiness reflects disabled kill switches', async (
     const body = await res.json();
     assert.equal(body.authzHardeningEnabled, false);
     assert.equal(body.rateLimitEnabled, false);
+    assert.equal(typeof body.activityTimerV2Disabled, 'boolean');
+    assert.equal(body.activityTimerV2Available, !body.activityTimerV2Disabled);
   } finally {
     process.env.AUTHZ_HARDENING_ENABLED = prevAuthz;
     process.env.RATE_LIMIT_ENABLED = prevRate;
+    await new Promise((resolve) => server.close(resolve));
+    mock.restore();
+  }
+});
+
+test('GET /api/admin/release-readiness reflects ACTIVITY_TIMER_V2_DISABLED kill switch', async () => {
+  const mock = injectMockDb();
+  const prev = process.env.ACTIVITY_TIMER_V2_DISABLED;
+  process.env.ACTIVITY_TIMER_V2_DISABLED = 'true';
+
+  const systemPath = require.resolve('../src/routes/admin/system');
+  delete require.cache[systemPath];
+  const rolloutPath = require.resolve('../src/lib/activity-timer-rollout');
+  delete require.cache[rolloutPath];
+  const systemRouter = require('../src/routes/admin/system');
+
+  const app = express();
+  app.use((req, _res, next) => {
+    req.user = { type: 'parent', id: 'admin-1', isAdmin: true };
+    next();
+  });
+  app.use(systemRouter);
+
+  const server = await new Promise((resolve, reject) => {
+    const s = app.listen(0, () => resolve(s));
+    s.on('error', reject);
+  });
+
+  try {
+    const port = server.address().port;
+    const res = await fetch(`http://127.0.0.1:${port}/release-readiness`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.activityTimerV2Disabled, true);
+    assert.equal(body.activityTimerV2Available, false);
+  } finally {
+    process.env.ACTIVITY_TIMER_V2_DISABLED = prev;
+    delete require.cache[rolloutPath];
     await new Promise((resolve) => server.close(resolve));
     mock.restore();
   }

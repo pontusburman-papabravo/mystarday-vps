@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 /**
- * Activity Timer — live acceptance (founder/Journey QA family).
- * Run on VPS with .env loaded (JOURNEY_QA_PARENT_*); no secrets in stdout.
+ * Activity Timer — ADVISORY legacy visual smoke (founder/Journey QA family + Puppeteer).
+ *
+ * NOT a public-runtime gate blocker. Production runtime evidence is the disposable
+ * `npm run activity-timer:prod-pilot` harness (API-only, self-cleaning at-pilot-*).
+ * Do not install GUI/browser libs on the prod app server for this script.
+ * Run from a CI/QA runner with Puppeteer deps when optional visual smoke is desired.
  *
  *   set -a && source .env && set +a && node scripts/activity-timer-prod-acceptance-gate.mjs
  */

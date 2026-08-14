@@ -284,8 +284,15 @@ router.get('/release-readiness', async (req, res) => {
   try {
     const authzHardeningEnabled = process.env.AUTHZ_HARDENING_ENABLED !== 'false';
     const rateLimitEnabled = process.env.RATE_LIMIT_ENABLED !== 'false';
+    const { isRolloutDisabled } = require('../../lib/activity-timer-rollout');
+    const activityTimerV2Disabled = isRolloutDisabled();
     console.log(`[ADMIN] Release readiness read by admin ${req.user.id}`);
-    res.json({ authzHardeningEnabled, rateLimitEnabled });
+    res.json({
+      authzHardeningEnabled,
+      rateLimitEnabled,
+      activityTimerV2Disabled,
+      activityTimerV2Available: !activityTimerV2Disabled,
+    });
   } catch (err) {
     console.error('[ADMIN] Release readiness error:', err);
     res.status(500).json({ error: 'Kunde inte hämta release-readiness' });
