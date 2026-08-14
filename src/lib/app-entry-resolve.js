@@ -5,7 +5,7 @@
  * Device role ≠ view context ≠ credential context.
  *
  * GET /api/auth/app-entry is authoritative COLD START entry only.
- * Multi-profile shared devices always resolve to profile-picker.
+ * Shared devices with 2+ allowed children resolve to profile-picker; one child goes direct to child-home.
  */
 
 const DESTINATIONS = Object.freeze({
@@ -130,12 +130,11 @@ function assertChildSessionCompatible(childSession, targetChildId, allowedIds) {
 function resolveSharedChildTarget(trustedDevice, allowedIds, options) {
   const opts = options || {};
   const parentCount = opts.allowedParentCount || 0;
-  const totalProfiles = allowedIds.length + parentCount;
 
   if (allowedIds.length === 0 && parentCount === 0) {
     return { kind: 'setup' };
   }
-  if (totalProfiles > 1) {
+  if (allowedIds.length > 1) {
     return { kind: 'picker' };
   }
   if (allowedIds.length === 1) {

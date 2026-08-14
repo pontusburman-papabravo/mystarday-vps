@@ -72,6 +72,7 @@ async function provisionFamily(db, baseUrl, childCount, track5xx, track429Fixtur
     password: fixture.password,
     parentPin: fixture.parentPin,
     familyId: fixture.familyId,
+    parentId: fixture.parentId,
     children: fixture.children,
     session: { jar, csrf: sessionCsrf },
   };
@@ -190,6 +191,15 @@ async function selectChild(baseUrl, jar, childId, track5xx) {
     method: 'POST',
     jar,
     body: { child_id: childId },
+    track5xx,
+  });
+}
+
+async function selectParent(baseUrl, jar, parentId, body, track5xx) {
+  return apiFetch(baseUrl, '/api/auth/trusted-device/select-parent', {
+    method: 'POST',
+    jar,
+    body: { parent_id: parentId, ...body },
     track5xx,
   });
 }
@@ -489,6 +499,44 @@ async function runFamilyDeviceProdPilot(opts) {
       }
     }
 
+    // H — select-parent: wrong PIN then correct PIN (child → parent on shared device)
+    {
+      const pinFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
+      families.push(pinFam);
+      await enablePilotForFamily(opts.db, opts.baseUrl, pinFam, track5xx, track429);
+      await enablePilotOverrides(
+        opts.db,
+        pinFam.familyId,
+        pinFam.email,
+        'family-device-prod-pilot',
+        ['adult_privilege_v1']
+      );
+      await enrollShared(opts.baseUrl, pinFam, track5xx, track429);
+      const tdJar = jarWithTrustedDevice(pinFam.session.jar);
+      await selectChild(opts.baseUrl, tdJar, pinFam.children[0].id, track5xx);
+      const wrongPin = await selectParent(
+        opts.baseUrl,
+        tdJar,
+        pinFam.parentId,
+        { unlockMethod: 'pin', pin: '0000' },
+        track5xx
+      );
+      const okPin = await selectParent(
+        opts.baseUrl,
+        tdJar,
+        pinFam.parentId,
+        { unlockMethod: 'pin', pin: pinFam.parentPin },
+        track5xx
+      );
+      const meAfter = await apiFetch(opts.baseUrl, '/api/auth/me', { jar: tdJar, track5xx });
+      const pass =
+        wrongPin.status === 401 &&
+        okPin.status === 200 &&
+        okPin.body?.ok === true &&
+        meAfter.body?.type === 'parent';
+      report.scenarios.SELECT_PARENT_PIN_SERVER = pass ? 'PASS' : 'FAIL';
+    }
+
     const keys = Object.keys(report.scenarios).filter(
       (k) =>
         k.endsWith('_SERVER') ||
@@ -497,7 +545,7 @@ async function runFamilyDeviceProdPilot(opts) {
         k === 'OFFLINE_IDENTITY' ||
         k === 'WIDGET_SERVER_SCOPE'
     );
-    report.ok =
+    report.scenariosPass =
       keys.every((k) => report.scenarios[k] === 'PASS') &&
       track5xx.length === 0 &&
       track429Fixture.length === 0 &&
@@ -513,7 +561,7 @@ async function runFamilyDeviceProdPilot(opts) {
         }
       }
       if (!report.cleanup.error) {
-        const { countPilotOverrides } = require('./family-device-pilot-db.cjs');
+        const { countPilotOverrides, countGlobalStaleFdPilotRows } = require('./family-device-pilot-db.cjs');
         let leftover = 0;
         for (const fam of families) {
           leftover += await countPilotOverrides(opts.db, fam.familyId);
@@ -523,8 +571,15 @@ async function runFamilyDeviceProdPilot(opts) {
             opts.db.query('SELECT 1 FROM family WHERE id = $1', [fam.familyId]).then((r) => r.rows.length)
           )
         );
+        const stale = await countGlobalStaleFdPilotRows(opts.db);
+        report.staleFdPilotFamilies = stale.families;
+        report.staleFdPilotOverrides = stale.overrides;
         report.cleanup = {
-          ok: leftover === 0 && existsChecks.every((n) => n === 0),
+          ok:
+            leftover === 0 &&
+            existsChecks.every((n) => n === 0) &&
+            stale.families === 0 &&
+            stale.overrides === 0,
         };
       }
       globalAfter = await snapshotGlobalPilotFlags(opts.db);
@@ -532,6 +587,14 @@ async function runFamilyDeviceProdPilot(opts) {
       report.GLOBAL_FLAGS_CHANGED = report.globalFlagsChanged ? 'YES' : 'NO';
       report.FOUNDER_CREDENTIALS_USED = report.founderCredentialsUsed ? 'YES' : 'NO';
     }
+  }
+
+  if (!opts.dryRun) {
+    report.ok =
+      Boolean(report.scenariosPass) &&
+      report.cleanup?.ok === true &&
+      !report.globalFlagsChanged &&
+      report.scenarios.SHARED_ONE_CHILD_SERVER === 'PASS';
   }
 
   return report;

@@ -179,6 +179,28 @@ test('pilot harness: cleanup finally deletes disposable families', () => {
   assert.match(core, /finally\s*\{/);
   assert.match(core, /deletePilotFamily/);
   assert.match(core, /countPilotOverrides/);
+  assert.match(core, /countGlobalStaleFdPilotRows/);
+  assert.match(core, /stale\.families === 0/);
+});
+
+test('pilot core: report.ok requires verified cleanup and SHARED_ONE_CHILD', () => {
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  assert.match(core, /report\.cleanup\?\.ok === true/);
+  assert.match(core, /SELECT_PARENT_PIN_SERVER/);
+  assert.match(core, /SHARED_ONE_CHILD_SERVER === 'PASS'/);
+  assert.match(core, /parentId: fixture\.parentId/);
+});
+
+test('pilot harness JSON: both SHARED_ONE_CHILD and SELECT_PARENT_PIN visible', () => {
+  const mjs = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot.mjs'),
+    'utf8'
+  );
+  assert.match(mjs, /SHARED_ONE_CHILD_SERVER:/);
+  assert.match(mjs, /SELECT_PARENT_PIN_SERVER:/);
 });
 
 test('pilot harness: does not mutate global feature_flag enable', () => {

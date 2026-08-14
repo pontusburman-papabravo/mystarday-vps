@@ -600,7 +600,7 @@ async function restoreChildSessionFromDevice(req, res, rawToken, options) {
       childId = null;
     }
 
-    if (profileCounts.totalProfiles > 1) {
+    if (allowed.length > 1) {
       if (!childId) {
         return {
           ok: false,

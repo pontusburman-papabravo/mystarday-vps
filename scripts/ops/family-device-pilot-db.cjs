@@ -60,6 +60,111 @@ async function countPilotOverrides(db, familyId) {
   return rows[0]?.n ?? 0;
 }
 
+const STALE_PILOT_EMAIL_SQL = `LOWER(p.email) ~ '^fd-pilot-[0-9]{10,}@example\\.com$'`;
+
+async function listStaleFdPilotFamilies(db) {
+  const { rows } = await db.query(
+    `SELECT DISTINCT f.id AS family_id, p.email
+     FROM family f
+     JOIN parent p ON p.family_id = f.id
+     WHERE ${STALE_PILOT_EMAIL_SQL}
+     ORDER BY p.email ASC`
+  );
+  return rows;
+}
+
+async function countGlobalStaleFdPilotRows(db) {
+  const families = await listStaleFdPilotFamilies(db);
+  if (!families.length) {
+    return { families: 0, overrides: 0, rows: [] };
+  }
+  const ids = families.map((r) => r.family_id);
+  const { rows } = await db.query(
+    `SELECT COUNT(*)::int AS n FROM family_feature_override
+     WHERE family_id = ANY($1::uuid[]) AND feature_key = ANY($2::text[])`,
+    [ids, PILOT_FLAG_KEYS]
+  );
+  return {
+    families: families.length,
+    overrides: rows[0]?.n ?? 0,
+    rows: families,
+  };
+}
+
+/** Advisory lock — blocks concurrent stale cleanup while a prod pilot runs. */
+const STALE_PILOT_LOCK_KEY = 90498901;
+
+async function tryAcquireStalePilotLock(db, client) {
+  const conn = client || db;
+  const { rows } = await conn.query('SELECT pg_try_advisory_lock($1) AS ok', [STALE_PILOT_LOCK_KEY]);
+  return rows[0]?.ok === true;
+}
+
+async function releaseStalePilotLock(db, client) {
+  const conn = client || db;
+  await conn.query('SELECT pg_advisory_unlock($1)', [STALE_PILOT_LOCK_KEY]);
+}
+
+async function withStalePilotLock(db, fn) {
+  const client = await db.getClient();
+  try {
+    const locked = await tryAcquireStalePilotLock(db, client);
+    if (!locked) {
+      return { locked: false, result: null };
+    }
+    const result = await fn(client);
+    return { locked: true, result };
+  } finally {
+    await releaseStalePilotLock(db, client).catch(() => {});
+    client.release();
+  }
+}
+
+async function cleanupStaleFdPilotFamilies(db, { apply = false, activeFamilyIds = [] } = {}) {
+  const stale = await listStaleFdPilotFamilies(db);
+  const active = new Set((activeFamilyIds || []).map(String));
+  const targets = stale.filter((row) => !active.has(String(row.family_id)));
+
+  if (!apply) {
+    const overrideCounts = targets.length
+      ? (
+          await db.query(
+            `SELECT COUNT(*)::int AS n FROM family_feature_override
+             WHERE family_id = ANY($1::uuid[]) AND feature_key = ANY($2::text[])`,
+            [targets.map((r) => r.family_id), PILOT_FLAG_KEYS]
+          )
+        ).rows[0]?.n ?? 0
+      : 0;
+    return {
+      dryRun: true,
+      families: targets.length,
+      overrides: overrideCounts,
+      deleted: 0,
+      rows: targets,
+    };
+  }
+
+  let deleted = 0;
+  const errors = [];
+  for (const row of targets) {
+    try {
+      await deletePilotFamily(db, row.family_id, row.email);
+      deleted += 1;
+    } catch (err) {
+      errors.push({ family_id: row.family_id, error: err.message });
+    }
+  }
+  const after = await countGlobalStaleFdPilotRows(db);
+  return {
+    dryRun: false,
+    families: after.families,
+    overrides: after.overrides,
+    deleted,
+    errors,
+    ok: after.families === 0 && after.overrides === 0 && errors.length === 0,
+  };
+}
+
 async function revokeAllTrustedDevices(db, familyId) {
   await db.query(
     `UPDATE family_trusted_device SET revoked_at = NOW()
@@ -133,6 +238,12 @@ module.exports = {
   enablePilotOverrides,
   disablePilotOverrides,
   countPilotOverrides,
+  listStaleFdPilotFamilies,
+  countGlobalStaleFdPilotRows,
+  tryAcquireStalePilotLock,
+  releaseStalePilotLock,
+  withStalePilotLock,
+  cleanupStaleFdPilotFamilies,
   revokeAllTrustedDevices,
   deletePilotFamily,
 };
