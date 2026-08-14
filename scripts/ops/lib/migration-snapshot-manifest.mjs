@@ -52,6 +52,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810290000000_standard_library_v11_foundation': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

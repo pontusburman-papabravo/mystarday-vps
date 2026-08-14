@@ -254,6 +254,34 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(result.ok, true, JSON.stringify(result.drift));
   });
 
+  test('standard_library_v11_foundation migration passes with schema-only contract', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const { loadMigrationSnapshotContract } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810290000000_standard_library_v11_foundation';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract);
+    assert.equal(contract.schemaOnly, true);
+    assert.equal(contract.backwardCompatible, true);
+    assert.equal(contract.featureFlagInserts?.length || 0, 0);
+
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810280000000_family_device_daily_ux_v1'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables._migrations.row_count += 1;
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
   test('family_feature_override migration rejects unexpected feature_flag insert', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const before = {
