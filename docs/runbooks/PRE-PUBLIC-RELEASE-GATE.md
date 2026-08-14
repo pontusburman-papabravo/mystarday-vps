@@ -6,6 +6,28 @@ Widget is **paused and out of scope**. This gate asserts widget flags stay **OFF
 
 ## Command
 
+**Canonical (required for certification):** GitHub Actions workflow `Pre-public release gate` (`.github/workflows/pre-public-release-gate.yml`).
+
+- `workflow_dispatch` with `target_sha` **must equal current `origin/main` exactly** — historical SHAs are refused before prod credentials are used.
+- Run only **after** that main SHA is deployed and public + localhost `/health` report the same `git_sha`.
+- `profile`: `public-runtime` (default) or `native-store`.
+- Runs on clean CI Postgres — **never** on the live VPS app host (prod app DB URL breaks disposable suites).
+- Requires GitHub environment `pre-public-release-gate`:
+  - **Secrets:** `PRE_PUBLIC_GATE_ADMIN_EMAIL`, `PRE_PUBLIC_GATE_ADMIN_PASSWORD`
+  - **Variable (required):** `SMOKE_BASE_URL` (live prod origin for read-only admin API checks)
+
+**Do not certify an older deployed SHA** (e.g. a prior merge) once `main` has moved — merge #998 and later commits require certifying the **new** main HEAD after deploy.
+
+Example dispatch (replace `<current-main-sha>` with `git rev-parse origin/main` at run time):
+
+```bash
+gh workflow run "Pre-public release gate" \
+  -f target_sha=<current-main-sha> \
+  -f profile=public-runtime
+```
+
+Local/dev (diagnostics only — prod evidence needs admin env above):
+
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 # Override deploy-mode env injection per AGENTS.md (test mode + REQUIRE_EMAIL_VERIFICATION=false)
@@ -58,12 +80,14 @@ npm run bootstrap:local-feature-flags
 
 Refuses non-local `DATABASE_URL`. Also runs automatically after local migrate in the gate and in test DB bootstrap (`test/helpers/setup.js`).
 
-## Optional env for public-runtime GO
+## Required env for GitHub canonical certification
+
+Configure in GitHub environment **`pre-public-release-gate`** (all required for workflow dispatch):
 
 ```bash
 PRE_PUBLIC_GATE_ADMIN_EMAIL=...
 PRE_PUBLIC_GATE_ADMIN_PASSWORD=...
-SMOKE_BASE_URL=<live-origin>
+SMOKE_BASE_URL=<live-origin>   # environment variable — required
 ```
 
 This enables read-only:
