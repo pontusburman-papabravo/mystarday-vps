@@ -73,11 +73,21 @@ const ActivitySchema = z.object({
 
 const ScheduleSectionSchema = z.enum(['morgon', 'dag', 'kvall']);
 
+/** 24-hour HH:MM — 00:00 through 23:59 (matches default_schedule_item semantics). */
+const HH_MM_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+const ScheduleTimeSchema = z.union([
+  z.string().regex(HH_MM_PATTERN, 'must be HH:MM in 24-hour format (00:00–23:59)'),
+  z.null(),
+]).optional();
+
 const ScheduleItemSchema = z.object({
   activity_id: CanonicalIdSchema,
   section: ScheduleSectionSchema,
   variant_key: CanonicalIdSchema.optional(),
   is_optional: z.boolean().optional(),
+  start_time: ScheduleTimeSchema,
+  end_time: ScheduleTimeSchema,
 }).strict();
 
 const ScheduleSchema = z.object({
@@ -108,6 +118,8 @@ module.exports = {
   SubStepSchema,
   ActivityVariantSchema,
   ActivitySchema,
+  HH_MM_PATTERN,
+  ScheduleTimeSchema,
   ScheduleItemSchema,
   ScheduleSchema,
   StandardLibraryManifestSchema,

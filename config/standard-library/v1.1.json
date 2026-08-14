@@ -1,5 +1,5 @@
 {
-  "format": "\u006dystarday-standard-library",
+  "format": "mystarday-standard-library",
   "schema_version": 1,
   "content_version": "1.1",
   "required_locales": [
@@ -489,59 +489,74 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:00"
         },
         {
           "activity_id": "get_dressed",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:05"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:20"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:35"
         },
         {
           "activity_id": "outerwear",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:40"
         },
         {
           "activity_id": "leave_home",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:45"
         },
         {
           "activity_id": "preschool",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "08:00",
+          "end_time": "15:00"
         },
         {
           "activity_id": "snack",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "15:30"
         },
         {
           "activity_id": "free_time",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "16:00"
         },
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "17:30"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:00"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:10"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:20"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:45"
         }
       ]
     },
@@ -558,35 +573,44 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "06:45"
         },
         {
           "activity_id": "get_dressed",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "06:50"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:05"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:20"
         },
         {
           "activity_id": "pack_school_bag",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:25"
         },
         {
           "activity_id": "outerwear",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:30"
         },
         {
           "activity_id": "leave_home",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:35"
         },
         {
           "activity_id": "school",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "08:00",
+          "end_time": "15:00"
         },
         {
           "activity_id": "after_school",
@@ -594,41 +618,50 @@
         },
         {
           "activity_id": "snack",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "15:30"
         },
         {
           "activity_id": "free_time",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "16:00"
         },
         {
           "activity_id": "homework",
           "section": "dag",
+          "start_time": "16:30",
           "is_optional": true
         },
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "18:00"
         },
         {
           "activity_id": "shower",
           "section": "kvall",
+          "start_time": "19:00",
           "is_optional": true
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:25"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:30"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:45"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:30"
         }
       ]
     },
@@ -645,52 +678,64 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "08:30"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "08:45"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:15"
         },
         {
           "activity_id": "free_time",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "09:30"
         },
         {
           "activity_id": "excursion",
           "section": "dag",
+          "start_time": "11:00",
           "is_optional": true
         },
         {
           "activity_id": "lunch",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "12:30"
         },
         {
           "activity_id": "family_activity",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "14:00"
         },
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "18:00"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:30"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:40"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:50"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:15"
         }
       ]
     },
@@ -707,19 +752,23 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:00"
         },
         {
           "activity_id": "get_dressed",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:05"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:15"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "07:30"
         }
       ]
     },
@@ -736,32 +785,39 @@
       "items": [
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "18:00"
         },
         {
           "activity_id": "shower",
           "section": "kvall",
+          "start_time": "19:00",
           "is_optional": true
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:25"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:30"
         },
         {
           "activity_id": "calm_time",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:40"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:50"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:15"
         }
       ]
     },
@@ -778,59 +834,73 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "08:30"
         },
         {
           "activity_id": "get_dressed",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "08:40"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:00"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:20"
         },
         {
           "activity_id": "free_time",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "09:30"
         },
         {
           "activity_id": "snack",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "11:00"
         },
         {
           "activity_id": "lunch",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "12:30"
         },
         {
           "activity_id": "excursion",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "13:30"
         },
         {
           "activity_id": "craft_or_game",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "16:00"
         },
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "17:30"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:30"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:40"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:50"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:15"
         }
       ]
     },
@@ -847,63 +917,78 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:00"
         },
         {
           "activity_id": "get_dressed",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:10"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:30"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:50"
         },
         {
           "activity_id": "swim_water",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "10:30"
         },
         {
           "activity_id": "lunch",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "12:30"
         },
         {
           "activity_id": "outdoor_play",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "13:30"
         },
         {
           "activity_id": "ice_cream_or_snack",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "15:30"
         },
         {
           "activity_id": "free_time",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "16:00"
         },
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "18:00"
         },
         {
           "activity_id": "evening_activity",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:00"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:15"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:25"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:35"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "21:00"
         }
       ]
     },
@@ -920,59 +1005,73 @@
       "items": [
         {
           "activity_id": "wake_up",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "08:30"
         },
         {
           "activity_id": "get_dressed",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "08:40"
         },
         {
           "activity_id": "breakfast",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:00"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "morgon"
+          "section": "morgon",
+          "start_time": "09:20"
         },
         {
           "activity_id": "christmas_craft",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "10:00"
         },
         {
           "activity_id": "free_time",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "11:30"
         },
         {
           "activity_id": "lunch",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "12:30"
         },
         {
           "activity_id": "family_activity",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "14:00"
         },
         {
           "activity_id": "christmas_cozy_snack",
-          "section": "dag"
+          "section": "dag",
+          "start_time": "15:30"
         },
         {
           "activity_id": "dinner",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "18:00"
         },
         {
           "activity_id": "brush_teeth",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:30"
         },
         {
           "activity_id": "pajamas",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:40"
         },
         {
           "activity_id": "bedtime_reading",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "19:50"
         },
         {
           "activity_id": "sleep",
-          "section": "kvall"
+          "section": "kvall",
+          "start_time": "20:15"
         }
       ]
     }

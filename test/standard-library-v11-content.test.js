@@ -89,6 +89,139 @@ const FORBIDDEN_SOCIAL_STRINGS = [
   /stretching/i,
 ];
 
+/** Frozen v1.1 schedule item contract — order, times, sections, optional flags. */
+const FROZEN_SCHEDULE_CONTRACT = {
+  morning_routine: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '07:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'get_dressed', section: 'morgon', start_time: '07:05', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '07:15', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '07:30', end_time: null, is_optional: false, variant_key: null },
+  ],
+  preschool_weekday: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '07:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'get_dressed', section: 'morgon', start_time: '07:05', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '07:20', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '07:35', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'outerwear', section: 'morgon', start_time: '07:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'leave_home', section: 'morgon', start_time: '07:45', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'preschool', section: 'dag', start_time: '08:00', end_time: '15:00', is_optional: false, variant_key: null },
+    { activity_id: 'snack', section: 'dag', start_time: '15:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'free_time', section: 'dag', start_time: '16:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'dinner', section: 'kvall', start_time: '17:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '19:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '19:10', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '19:20', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '19:45', end_time: null, is_optional: false, variant_key: null },
+  ],
+  school_weekday: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '06:45', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'get_dressed', section: 'morgon', start_time: '06:50', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '07:05', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '07:20', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pack_school_bag', section: 'morgon', start_time: '07:25', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'outerwear', section: 'morgon', start_time: '07:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'leave_home', section: 'morgon', start_time: '07:35', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'school', section: 'dag', start_time: '08:00', end_time: '15:00', is_optional: false, variant_key: null },
+    { activity_id: 'after_school', section: 'dag', start_time: null, end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'snack', section: 'dag', start_time: '15:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'free_time', section: 'dag', start_time: '16:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'homework', section: 'dag', start_time: '16:30', end_time: null, is_optional: true, variant_key: null },
+    { activity_id: 'dinner', section: 'kvall', start_time: '18:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'shower', section: 'kvall', start_time: '19:00', end_time: null, is_optional: true, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '19:25', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '19:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '19:45', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '20:30', end_time: null, is_optional: false, variant_key: null },
+  ],
+  weekend: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '08:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '08:45', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '09:15', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'free_time', section: 'dag', start_time: '09:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'excursion', section: 'dag', start_time: '11:00', end_time: null, is_optional: true, variant_key: null },
+    { activity_id: 'lunch', section: 'dag', start_time: '12:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'family_activity', section: 'dag', start_time: '14:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'dinner', section: 'kvall', start_time: '18:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '19:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '19:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '19:50', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '20:15', end_time: null, is_optional: false, variant_key: null },
+  ],
+  evening_routine: [
+    { activity_id: 'dinner', section: 'kvall', start_time: '18:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'shower', section: 'kvall', start_time: '19:00', end_time: null, is_optional: true, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '19:25', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '19:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'calm_time', section: 'kvall', start_time: '19:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '19:50', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '20:15', end_time: null, is_optional: false, variant_key: null },
+  ],
+  school_break: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '08:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'get_dressed', section: 'morgon', start_time: '08:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '09:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '09:20', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'free_time', section: 'dag', start_time: '09:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'snack', section: 'dag', start_time: '11:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'lunch', section: 'dag', start_time: '12:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'excursion', section: 'dag', start_time: '13:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'craft_or_game', section: 'dag', start_time: '16:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'dinner', section: 'kvall', start_time: '17:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '19:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '19:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '19:50', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '20:15', end_time: null, is_optional: false, variant_key: null },
+  ],
+  summer_break: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '09:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'get_dressed', section: 'morgon', start_time: '09:10', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '09:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '09:50', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'swim_water', section: 'dag', start_time: '10:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'lunch', section: 'dag', start_time: '12:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'outdoor_play', section: 'dag', start_time: '13:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'ice_cream_or_snack', section: 'dag', start_time: '15:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'free_time', section: 'dag', start_time: '16:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'dinner', section: 'kvall', start_time: '18:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'evening_activity', section: 'kvall', start_time: '19:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '20:15', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '20:25', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '20:35', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '21:00', end_time: null, is_optional: false, variant_key: null },
+  ],
+  christmas_break: [
+    { activity_id: 'wake_up', section: 'morgon', start_time: '08:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'get_dressed', section: 'morgon', start_time: '08:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'breakfast', section: 'morgon', start_time: '09:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'morgon', start_time: '09:20', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'christmas_craft', section: 'dag', start_time: '10:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'free_time', section: 'dag', start_time: '11:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'lunch', section: 'dag', start_time: '12:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'family_activity', section: 'dag', start_time: '14:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'christmas_cozy_snack', section: 'dag', start_time: '15:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'dinner', section: 'kvall', start_time: '18:00', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'brush_teeth', section: 'kvall', start_time: '19:30', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'pajamas', section: 'kvall', start_time: '19:40', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'bedtime_reading', section: 'kvall', start_time: '19:50', end_time: null, is_optional: false, variant_key: null },
+    { activity_id: 'sleep', section: 'kvall', start_time: '20:15', end_time: null, is_optional: false, variant_key: null },
+  ],
+};
+
+function normalizeScheduleItem(item) {
+  return {
+    activity_id: item.activity_id,
+    section: item.section,
+    start_time: item.start_time ?? null,
+    end_time: item.end_time ?? null,
+    is_optional: item.is_optional === true,
+    variant_key: item.variant_key ?? null,
+  };
+}
+
+function scheduleItemsContract(schedule) {
+  return schedule.items.map(normalizeScheduleItem);
+}
+
 function activityById(manifest, id) {
   return manifest.activities.find((a) => a.activity_id === id);
 }
@@ -274,15 +407,53 @@ describe('standard library v1.1 canonical content', () => {
     }
   });
 
+  it('has exactly 98 canonical schedule items', () => {
+    const total = manifest.schedules.reduce((n, s) => n + s.items.length, 0);
+    assert.equal(total, 98);
+  });
+
+  it('matches frozen schedule item contract for every schedule', () => {
+    for (const scheduleId of REQUIRED_SCHEDULE_IDS) {
+      const schedule = scheduleById(manifest, scheduleId);
+      const expected = FROZEN_SCHEDULE_CONTRACT[scheduleId];
+      assert.ok(expected, `missing frozen contract for ${scheduleId}`);
+      assert.deepEqual(
+        scheduleItemsContract(schedule),
+        expected,
+        `schedule item contract mismatch: ${scheduleId}`
+      );
+    }
+  });
+
+  it('after_school in school_weekday has no invented start or end time', () => {
+    const item = scheduleById(manifest, 'school_weekday').items.find(
+      (i) => i.activity_id === 'after_school'
+    );
+    assert.equal(item.start_time ?? null, null);
+    assert.equal(item.end_time ?? null, null);
+  });
+
+  it('preschool and school interval items use 08:00–15:00', () => {
+    const preschool = scheduleById(manifest, 'preschool_weekday').items.find(
+      (i) => i.activity_id === 'preschool'
+    );
+    const school = scheduleById(manifest, 'school_weekday').items.find(
+      (i) => i.activity_id === 'school'
+    );
+    assert.deepEqual(
+      { start_time: preschool.start_time, end_time: preschool.end_time },
+      { start_time: '08:00', end_time: '15:00' }
+    );
+    assert.deepEqual(
+      { start_time: school.start_time, end_time: school.end_time },
+      { start_time: '08:00', end_time: '15:00' }
+    );
+  });
+
   it('morning_routine has four morning steps without done activity', () => {
     const schedule = scheduleById(manifest, 'morning_routine');
     assert.equal(schedule.items.length, 4);
-    assert.deepEqual(schedule.items.map((i) => i.activity_id), [
-      'wake_up',
-      'get_dressed',
-      'breakfast',
-      'brush_teeth',
-    ]);
+    assert.deepEqual(scheduleItemsContract(schedule), FROZEN_SCHEDULE_CONTRACT.morning_routine);
   });
 });
 

@@ -439,4 +439,53 @@ describe('standard library sync foundation', () => {
     assert.equal(store.activities.some((a) => a.name === 'Legacy admin row'), true);
     assert.equal(store.activities.filter((a) => !a.canonical_id).length, 1);
   });
+
+  it('buildDesiredStateFromManifest preserves canonical schedule times', () => {
+    const manifest = cloneManifest();
+    const desired = buildDesiredStateFromManifest(manifest);
+    const byKey = (scheduleId, activityId) =>
+      desired.scheduleItems.find(
+        (item) => item.schedule_canonical_id === scheduleId && item.activity_canonical_id === activityId
+      );
+
+    const preschool = byKey('preschool_weekday', 'preschool');
+    assert.equal(preschool.start_time, '08:00');
+    assert.equal(preschool.end_time, '15:00');
+
+    const school = byKey('school_weekday', 'school');
+    assert.equal(school.start_time, '08:00');
+    assert.equal(school.end_time, '15:00');
+
+    const morningBrush = byKey('morning_routine', 'brush_teeth');
+    assert.equal(morningBrush.start_time, '07:30');
+    assert.equal(morningBrush.end_time, null);
+
+    const afterSchool = byKey('school_weekday', 'after_school');
+    assert.equal(afterSchool.start_time, null);
+    assert.equal(afterSchool.end_time, null);
+  });
+
+  it('sync round-trip stores schedule item start_time and end_time', async () => {
+    const store = createMockSyncStore();
+    const client = createMockSyncClient(store);
+    const manifest = cloneManifest();
+
+    await syncStandardLibrary(client, { manifest });
+
+    const preschoolSchedule = store.schedules.find((s) => s.canonical_id === 'preschool_weekday');
+    const preschoolItem = store.scheduleItems.find(
+      (item) => item.default_schedule_id === preschoolSchedule.id
+        && store.activities.find((a) => a.id === item.default_activity_template_id)?.canonical_id === 'preschool'
+    );
+    assert.equal(preschoolItem.start_time, '08:00');
+    assert.equal(preschoolItem.end_time, '15:00');
+
+    const schoolSchedule = store.schedules.find((s) => s.canonical_id === 'school_weekday');
+    const afterSchoolItem = store.scheduleItems.find(
+      (item) => item.default_schedule_id === schoolSchedule.id
+        && store.activities.find((a) => a.id === item.default_activity_template_id)?.canonical_id === 'after_school'
+    );
+    assert.equal(afterSchoolItem.start_time, null);
+    assert.equal(afterSchoolItem.end_time, null);
+  });
 });
