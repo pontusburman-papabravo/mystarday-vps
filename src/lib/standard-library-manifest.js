@@ -86,6 +86,17 @@ function validateBrushTeethTimer(activity, errors) {
   }
 }
 
+function validateWashHandsTimer(activity, errors) {
+  if (activity.activity_id !== 'wash_hands') return;
+  const washStep = activity.sub_steps.find((step) => step.step_id === 'wash_hands.wash');
+  if (!washStep) return;
+  if (washStep.duration_seconds !== 20) {
+    errors.push(
+      'activities[wash_hands].sub_steps[wash_hands.wash].duration_seconds: must be 20 when step exists'
+    );
+  }
+}
+
 function validateManifestSemantics(manifest) {
   const errors = [];
   const activityIds = new Set();
@@ -115,6 +126,7 @@ function validateManifestSemantics(manifest) {
     }
 
     validateBrushTeethTimer(activity, errors);
+    validateWashHandsTimer(activity, errors);
   }
 
   for (const [index, schedule] of manifest.schedules.entries()) {
