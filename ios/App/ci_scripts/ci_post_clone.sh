@@ -3,21 +3,32 @@
 set -e
 
 cd "$CI_PRIMARY_REPOSITORY_PATH"
+export XCODE_CLOUD_STAGE=ci_post_clone
+. "$CI_PRIMARY_REPOSITORY_PATH/scripts/lib/xcode-cloud-stage.sh"
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 
 echo "📦 Installing Node.js and CocoaPods"
-brew install node@20 cocoapods
+xcode_cloud_run brew_install brew install node@20 cocoapods
+
+# node@20 is keg-only — link may fail silently without explicit PATH.
+NODE20_PREFIX="$(brew --prefix node@20 2>/dev/null || true)"
+if [ -n "$NODE20_PREFIX" ] && [ -d "$NODE20_PREFIX/bin" ]; then
+  export PATH="$NODE20_PREFIX/bin:$PATH"
+fi
 brew link node@20 --overwrite --force 2>/dev/null || true
 
+xcode_cloud_run node_version node --version
+xcode_cloud_run npm_version npm --version
+
 echo "📦 Installing npm dependencies"
-npm config set maxsockets 3
-npm ci --legacy-peer-deps --include=dev
+xcode_cloud_run npm_config npm config set maxsockets 3
+xcode_cloud_run npm_ci npm ci --legacy-peer-deps --include=dev
 
 echo "🔄 Syncing Capacitor iOS (copy assets, patch Podfile, pod install)"
-npm run cap:sync:ios
+xcode_cloud_npm cap_sync_ios run cap:sync:ios
 
 echo "🔍 Verify no Google Sign-In pods"
-node scripts/verify-ios-no-google-pods.mjs
+xcode_cloud_node verify_no_google_pods scripts/verify-ios-no-google-pods.mjs
 
 echo "✅ ci_post_clone complete"

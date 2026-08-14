@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 /**
  * WidgetRoutine uses App Intents + iOS 17 SwiftUI; minimum 17.0 (main app may stay 14).
+ * Idempotent: exit 0 when WidgetRoutine Debug/Release are already 17.0.
  */
 import fs from 'fs';
 import path from 'path';
 
+const TARGET_VERSION = '17.0';
 const pbxPath = path.join(process.cwd(), 'ios', 'App', 'App.xcodeproj', 'project.pbxproj');
-if (!fs.existsSync(pbxPath)) process.exit(0);
+
+if (!fs.existsSync(pbxPath)) {
+  process.exit(0);
+}
 
 let pbx = fs.readFileSync(pbxPath, 'utf8');
 if (!pbx.includes('R45D01011FED79650016851 /* WidgetRoutine */')) {
@@ -14,24 +19,43 @@ if (!pbx.includes('R45D01011FED79650016851 /* WidgetRoutine */')) {
   process.exit(0);
 }
 
-const widgetBlockRe =
-  /(R45D0200[01]1FED79650016851 \/\* (?:Debug|Release) \*\/ = \{[\s\S]*?INFOPLIST_FILE = WidgetRoutine\/Info\.plist;\n\s*IPHONEOS_DEPLOYMENT_TARGET = )[\d.]+;/g;
+const widgetDeployRe =
+  /INFOPLIST_FILE = WidgetRoutine\/Info\.plist;\n\t\t\t\tIPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);/g;
 
-let count = 0;
-const next = pbx.replace(widgetBlockRe, (match, prefix) => {
-  count += 1;
-  return `${prefix}17.0;`;
-});
-
-if (count === 0) {
-  console.error('[widget-deployment] Could not patch WidgetRoutine IPHONEOS_DEPLOYMENT_TARGET');
+const matches = [...pbx.matchAll(widgetDeployRe)];
+if (matches.length === 0) {
+  console.error(
+    '[widget-deployment] FAIL: WidgetRoutine build settings missing IPHONEOS_DEPLOYMENT_TARGET'
+  );
   process.exit(1);
 }
 
-if (next === pbx) {
-  console.log('[widget-deployment] WidgetRoutine already at iOS 17.0');
+const needsPatch = matches.filter((m) => m[1] !== TARGET_VERSION);
+if (needsPatch.length === 0) {
+  console.log(`[widget-deployment] WidgetRoutine already at iOS ${TARGET_VERSION}`);
   process.exit(0);
 }
 
+const patchRe =
+  /(INFOPLIST_FILE = WidgetRoutine\/Info\.plist;\n\t\t\t\tIPHONEOS_DEPLOYMENT_TARGET = )([\d.]+);/g;
+
+let patched = 0;
+const next = pbx.replace(patchRe, (match, prefix, current) => {
+  if (current === TARGET_VERSION) {
+    return match;
+  }
+  patched += 1;
+  return `${prefix}${TARGET_VERSION};`;
+});
+
+if (patched === 0) {
+  console.error(
+    '[widget-deployment] FAIL: WidgetRoutine deployment target not 17.0 and patch was a no-op'
+  );
+  process.exit(1);
+}
+
 fs.writeFileSync(pbxPath, next);
-console.log('[widget-deployment] WidgetRoutine IPHONEOS_DEPLOYMENT_TARGET = 17.0');
+console.log(
+  `[widget-deployment] WidgetRoutine IPHONEOS_DEPLOYMENT_TARGET = ${TARGET_VERSION} (${patched} config(s))`
+);
