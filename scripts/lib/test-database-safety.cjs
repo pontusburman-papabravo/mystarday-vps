@@ -7,7 +7,6 @@
 
 const { createRequire } = require('module');
 const {
-  assertDisposableDatabaseName,
   databaseNameFromUrl,
   isDisposableTestDatabaseName,
 } = require('../../test/helpers/database-branch-guard.js');
@@ -31,6 +30,21 @@ function normalizeDatabaseUrl(url) {
   }
 }
 
+/** host + port + database — credentials/user are NOT part of physical identity. */
+function physicalDatabaseKey(url) {
+  if (!url || typeof url !== 'string') return '';
+  try {
+    const parsed = new URL(url.trim());
+    const db = decodeURIComponent((parsed.pathname || '').replace(/^\//, '') || '');
+    const host = (parsed.hostname || '').toLowerCase();
+    const port = parsed.port || '5432';
+    if (!host || !db) return '';
+    return `${host}:${port}/${db}`;
+  } catch {
+    return '';
+  }
+}
+
 function identityHashSafe(url) {
   try {
     return databaseIdentityHash(url);
@@ -47,16 +61,43 @@ function sanitizeMeta(url) {
   } catch {
     host = 'invalid';
   }
-  return { host, database, identity_hash: identityHashSafe(url) };
+  return {
+    host,
+    database,
+    physical: physicalDatabaseKey(url),
+    identity_hash: identityHashSafe(url),
+  };
+}
+
+/**
+ * Original application DB target (A), never the post-validation mapped DATABASE_URL (C).
+ */
+function resolveApplicationDatabaseUrl(env = process.env) {
+  const explicit = String(env.APPLICATION_DATABASE_URL || '').trim();
+  if (explicit) return explicit;
+
+  const databaseUrl = String(env.DATABASE_URL || '').trim();
+  const testUrl = String(env.TEST_DATABASE_URL || '').trim();
+  if (!databaseUrl) return '';
+
+  if (
+    env.TEST_DATABASE_VALIDATED === '1'
+    && testUrl
+    && physicalDatabaseKey(databaseUrl) === physicalDatabaseKey(testUrl)
+  ) {
+    return '';
+  }
+
+  return databaseUrl;
 }
 
 /**
  * @param {NodeJS.ProcessEnv} [env]
- * @returns {{ testDatabaseUrl: string, meta: object }}
+ * @returns {{ testDatabaseUrl: string, meta: object, applicationDatabaseUrl: string }}
  */
 function assertDestructiveTestDatabaseAllowed(env = process.env) {
   const testUrl = String(env.TEST_DATABASE_URL || '').trim();
-  const appUrl = String(env.DATABASE_URL || '').trim();
+  const applicationUrl = resolveApplicationDatabaseUrl(env);
   const reasons = [];
 
   if (!testUrl) {
@@ -83,10 +124,10 @@ function assertDestructiveTestDatabaseAllowed(env = process.env) {
     reasons.push('protected_database_name');
   }
 
-  if (appUrl && normalizeDatabaseUrl(appUrl) === normalizeDatabaseUrl(testUrl)) {
-    if (!isDisposableTestDatabaseName(testDbName)) {
-      reasons.push('test_url_equals_application_database_url');
-    }
+  const appPhysical = applicationUrl ? physicalDatabaseKey(applicationUrl) : '';
+  const testPhysical = physicalDatabaseKey(testUrl);
+  if (appPhysical && testPhysical && appPhysical === testPhysical) {
+    reasons.push('test_url_same_physical_database_as_application');
   }
 
   if (!isDisposableTestDatabaseName(testDbName)) {
@@ -99,11 +140,10 @@ function assertDestructiveTestDatabaseAllowed(env = process.env) {
     reasons.push('matches_expected_prod_identity_hash'); // pragma: allowlist secret
   }
 
-  if (appUrl) {
-    const appHash = identityHashSafe(appUrl);
-    if (expectedHash && appHash === expectedHash && normalizeDatabaseUrl(appUrl) !== normalizeDatabaseUrl(testUrl)) {
-      // Application is configured for prod — test URL must be explicitly disposable and distinct.
-      if (!testDbName || testDbName === databaseNameFromUrl(appUrl)) {
+  if (applicationUrl) {
+    const appHash = identityHashSafe(applicationUrl);
+    if (expectedHash && appHash === expectedHash && appPhysical !== testPhysical) {
+      if (!testDbName || testDbName === databaseNameFromUrl(applicationUrl)) {
         reasons.push('application_database_is_prod_identity');
       }
     }
@@ -118,13 +158,14 @@ function assertDestructiveTestDatabaseAllowed(env = process.env) {
     err.reasons = reasons;
     err.meta = {
       test: sanitizeMeta(testUrl),
-      application: appUrl ? sanitizeMeta(appUrl) : null,
+      application: applicationUrl ? sanitizeMeta(applicationUrl) : null,
     };
     throw err;
   }
 
   return {
     testDatabaseUrl: testUrl,
+    applicationDatabaseUrl: applicationUrl,
     meta: sanitizeMeta(testUrl),
   };
 }
@@ -146,13 +187,30 @@ function tryAssertDestructiveTestDatabaseAllowed(env = process.env) {
 
 function buildDestructiveTestChildEnv(env = process.env, extra = {}) {
   const merged = { ...env, ...extra };
-  const { testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(merged);
-  return {
+  const originalApplicationUrl = String(
+    merged.APPLICATION_DATABASE_URL || merged.DATABASE_URL || ''
+  ).trim();
+
+  const validationEnv = { ...merged };
+  if (originalApplicationUrl) {
+    validationEnv.APPLICATION_DATABASE_URL = originalApplicationUrl;
+  }
+
+  const { testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(validationEnv);
+
+  const out = {
     ...merged,
     TEST_DATABASE_URL: testDatabaseUrl,
     DATABASE_URL: testDatabaseUrl,
+    TEST_DATABASE_VALIDATED: '1',
     NODE_ENV: 'test', // pragma: allowlist secret
   };
+
+  if (originalApplicationUrl) {
+    out.APPLICATION_DATABASE_URL = originalApplicationUrl;
+  }
+
+  return out;
 }
 
 function gateDestructiveTestDatabaseCheck(env = process.env) {
@@ -184,6 +242,8 @@ module.exports = {
   buildDestructiveTestChildEnv,
   gateDestructiveTestDatabaseCheck,
   normalizeDatabaseUrl,
+  physicalDatabaseKey,
+  resolveApplicationDatabaseUrl,
   sanitizeMeta,
   identityHashSafe,
 };

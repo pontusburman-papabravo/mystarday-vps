@@ -19,6 +19,10 @@ const REPO_ROOT = path.join(__dirname, '../..');
  * Runs fail-closed safety assertion before lock, migrate, pool, or TRUNCATE.
  */
 async function setupTestDb(options = {}) {
+  if (!process.env.APPLICATION_DATABASE_URL && process.env.DATABASE_URL) {
+    process.env.APPLICATION_DATABASE_URL = process.env.DATABASE_URL;
+  }
+
   let testDatabaseUrl;
   try {
     ({ testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(process.env));
@@ -28,6 +32,7 @@ async function setupTestDb(options = {}) {
   }
 
   process.env.DATABASE_URL = testDatabaseUrl;
+  process.env.TEST_DATABASE_VALIDATED = '1';
 
   if (isMockDatabaseUrl(testDatabaseUrl)) {
     return {

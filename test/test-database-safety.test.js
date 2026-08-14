@@ -45,17 +45,18 @@ test('2. TEST_DATABASE_URL equals application DATABASE_URL (prod) => REFUSE', ()
     })
   );
   assert.equal(result.ok, false);
-  assert.ok(result.reasons.includes('test_url_equals_application_database_url'));
+  assert.ok(result.reasons.includes('test_url_same_physical_database_as_application'));
 });
 
-test('2b. TEST_DATABASE_URL equals DATABASE_URL when both disposable => ALLOW', () => {
+test('2b. same physical DB with different PostgreSQL user => REFUSE', () => {
   const result = tryAssertDestructiveTestDatabaseAllowed(
     baseEnv({
-      DATABASE_URL: DISPOSABLE_LOCAL,
-      TEST_DATABASE_URL: DISPOSABLE_LOCAL,
+      DATABASE_URL: 'postgresql://app:secret@localhost:5432/stjarndag',
+      TEST_DATABASE_URL: 'postgresql://test:secret@localhost:5432/stjarndag',
     })
   );
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, false);
+  assert.ok(result.reasons.includes('test_url_same_physical_database_as_application'));
 });
 
 test('3. localhost prod + APP_DEPLOY_PRODUCTION=1 => REFUSE', () => { // pragma: allowlist secret
@@ -184,6 +185,7 @@ test('buildDestructiveTestChildEnv maps validated TEST_DATABASE_URL to DATABASE_
   const child = buildDestructiveTestChildEnv(baseEnv({ TEST_DATABASE_URL: DISPOSABLE_LOCAL }));
   assert.equal(child.DATABASE_URL, DISPOSABLE_LOCAL);
   assert.equal(child.TEST_DATABASE_URL, DISPOSABLE_LOCAL);
+  assert.equal(child.TEST_DATABASE_VALIDATED, '1');
   assert.equal(child.NODE_ENV, 'test');
 });
 
@@ -227,4 +229,80 @@ test('migrate with NODE_ENV=test refuses prod DATABASE_URL without disposable TE
       }),
     (err) => /REFUSED_PRODUCTION_DATABASE_FOR_TESTS|TEST_DATABASE_URL is required/.test(String(err.stderr)) // pragma: allowlist secret
   );
+});
+
+test('13. canonical CI direct npm run migrate: TEST_DATABASE_URL only => PASS', () => {
+  const testUrl = process.env.TEST_DATABASE_URL || DISPOSABLE_LOCAL;
+  if (!testUrl.includes('stjarndag_test')) {
+    return;
+  }
+  execSync('npm run migrate', {
+    cwd: ROOT,
+    env: {
+      PATH: process.env.PATH,
+      NODE_ENV: 'test',
+      TEST_DATABASE_URL: testUrl,
+      TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+    },
+    stdio: 'pipe',
+  });
+});
+
+test('14. same physical DB different user => REFUSE', () => {
+  const result = tryAssertDestructiveTestDatabaseAllowed(
+    baseEnv({
+      APPLICATION_DATABASE_URL: 'postgresql://app:secret@localhost:5432/stjarndag',
+      TEST_DATABASE_URL: 'postgresql://test:secret@localhost:5432/stjarndag',
+    })
+  );
+  assert.equal(result.ok, false);
+  assert.ok(result.reasons.includes('test_url_same_physical_database_as_application'));
+});
+
+test('15. same physical disposable-looking DB before validation => REFUSE', () => {
+  const result = tryAssertDestructiveTestDatabaseAllowed(
+    baseEnv({
+      DATABASE_URL: DISPOSABLE_LOCAL,
+      TEST_DATABASE_URL: DISPOSABLE_LOCAL,
+    })
+  );
+  assert.equal(result.ok, false);
+  assert.ok(result.reasons.includes('test_url_same_physical_database_as_application'));
+});
+
+test('16. post-validation child context allows mapped DATABASE_URL', () => {
+  const child = buildDestructiveTestChildEnv(
+    baseEnv({
+      APPLICATION_DATABASE_URL: PROD_LOCAL,
+      TEST_DATABASE_URL: DISPOSABLE_LOCAL,
+    })
+  );
+  assert.equal(child.DATABASE_URL, DISPOSABLE_LOCAL);
+  assert.equal(child.APPLICATION_DATABASE_URL, PROD_LOCAL);
+  assert.doesNotThrow(() => assertDestructiveTestDatabaseAllowed(child));
+});
+
+test('17. VPS-like env: prod .env DATABASE_URL, test mode, no TEST_DATABASE_URL => REFUSE before migrate', () => {
+  assert.throws(
+    () =>
+      execSync('node migrate.js', {
+        cwd: ROOT,
+        env: {
+          PATH: process.env.PATH,
+          NODE_ENV: 'test',
+          DATABASE_URL: PROD_LOCAL,
+          TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+        },
+        stdio: 'pipe',
+      }),
+    (err) => /REFUSED_PRODUCTION_DATABASE_FOR_TESTS|TEST_DATABASE_URL is required/.test(String(err.stderr)) // pragma: allowlist secret
+  );
+});
+
+test('physicalDatabaseKey ignores username', () => {
+  const { physicalDatabaseKey } = require('../scripts/lib/test-database-safety.cjs');
+  const a = physicalDatabaseKey('postgresql://app:secret@localhost:5432/stjarndag');
+  const b = physicalDatabaseKey('postgresql://test:secret@localhost:5432/stjarndag');
+  assert.equal(a, b);
+  assert.equal(a, 'localhost:5432/stjarndag');
 });
