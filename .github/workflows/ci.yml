@@ -73,4 +73,4 @@ jobs:
         run: npm run test:gate
 
       - name: Migration rollback gate (G3c)
-        run: node --test test/migration-rollback-gate.test.js
+        run: node -r ./test/helpers/apply-test-database-env.js --test test/migration-rollback-gate.test.js

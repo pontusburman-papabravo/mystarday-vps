@@ -14,9 +14,9 @@ const {
  * Creates DB, runs fn(testUrl), drops DB in finally (even on failure).
  */
 async function withMigrationGateDatabase(t, fn) {
-  const baseUrl = process.env.DATABASE_URL;
+  const baseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
   if (isMockDatabaseUrl(baseUrl)) {
-    t.skip('DATABASE_URL not set or mock');
+    t.skip('TEST_DATABASE_URL / DATABASE_URL not set or mock');
     return;
   }
 
