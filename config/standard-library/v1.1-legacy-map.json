@@ -1,0 +1,290 @@
+{
+  "format": "mystarday-standard-library-legacy-map",
+  "schema_version": 1,
+  "content_version": "1.1",
+  "activities": [
+    {
+      "match": { "legacy_name": "Vakna", "package_component": null },
+      "canonical_id": "wake_up",
+      "classification": "SAFE_EXPLICIT_MAPPING",
+      "reason": "Legacy display name maps to canonical wake_up"
+    },
+    {
+      "match": { "legacy_name": "Klä på sig", "package_component": null },
+      "canonical_id": "get_dressed",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Klä på dig", "package_component": null },
+      "canonical_id": "get_dressed",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Vakna & klä på sig", "package_component": null },
+      "canonical_id": "get_dressed",
+      "classification": "SAFE_EXPLICIT_MAPPING",
+      "reason": "Combined legacy label; canonical morning step is get_dressed"
+    },
+    {
+      "match": { "legacy_name": "Toalett", "package_component": null },
+      "canonical_id": "toilet",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Frukost", "package_component": null },
+      "canonical_id": "breakfast",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Äta frukost", "package_component": null },
+      "canonical_id": "breakfast",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Borsta tänderna", "package_component": null },
+      "canonical_id": "brush_teeth",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Borsta tänderna (kväll)", "package_component": null },
+      "canonical_id": "brush_teeth",
+      "classification": "SAFE_EXPLICIT_MAPPING",
+      "reason": "Evening label; same canonical brush_teeth activity"
+    },
+    {
+      "match": { "legacy_name": "Tvätta händerna", "package_component": null },
+      "canonical_id": "wash_hands",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Packa skolväska", "package_component": null },
+      "canonical_id": "pack_school_bag",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Ytterkläder", "package_component": null },
+      "canonical_id": "outerwear",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Lämna hemmet", "package_component": null },
+      "canonical_id": "leave_home",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Gå till skolan", "package_component": null },
+      "canonical_id": "leave_home",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Förskola", "package_component": null },
+      "canonical_id": "preschool",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Skola", "package_component": null },
+      "canonical_id": "school",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Efter skolan", "package_component": null },
+      "canonical_id": "after_school",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Mellanmål", "package_component": null },
+      "canonical_id": "snack",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Lunch", "package_component": null },
+      "canonical_id": "lunch",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Middag", "package_component": null },
+      "canonical_id": "dinner",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Ledig tid", "package_component": null },
+      "canonical_id": "free_time",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Fri lek", "package_component": null },
+      "canonical_id": "free_time",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Läxa", "package_component": null },
+      "canonical_id": "homework",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Läxor", "package_component": null },
+      "canonical_id": "homework",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Duscha", "package_component": null },
+      "canonical_id": "shower",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Pyjamas", "package_component": null },
+      "canonical_id": "pajamas",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Lugnt moment", "package_component": null },
+      "canonical_id": "calm_time",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Godnattsaga", "package_component": null },
+      "canonical_id": "bedtime_reading",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Läggdagsläsning", "package_component": null },
+      "canonical_id": "bedtime_reading",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Läsa", "package_component": null },
+      "canonical_id": "bedtime_reading",
+      "classification": "SAFE_EXPLICIT_MAPPING",
+      "reason": "Legacy evening reading label"
+    },
+    {
+      "match": { "legacy_name": "Sova", "package_component": null },
+      "canonical_id": "sleep",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Utflykt", "package_component": null },
+      "canonical_id": "excursion",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Familjeaktivitet", "package_component": null },
+      "canonical_id": "family_activity",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Hantverk eller spel", "package_component": null },
+      "canonical_id": "craft_or_game",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Pyssel", "package_component": null },
+      "canonical_id": "craft_or_game",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Bad", "package_component": null },
+      "canonical_id": "swim_water",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Simma", "package_component": null },
+      "canonical_id": "swim_water",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Utomhuslek", "package_component": null },
+      "canonical_id": "outdoor_play",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Glass eller mellanmål", "package_component": null },
+      "canonical_id": "ice_cream_or_snack",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Kvällsaktivitet", "package_component": null },
+      "canonical_id": "evening_activity",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Julpyssel", "package_component": null },
+      "canonical_id": "christmas_craft",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Julmys och fika", "package_component": null },
+      "canonical_id": "christmas_cozy_snack",
+      "classification": "SAFE_EXPLICIT_MAPPING"
+    },
+    {
+      "match": { "legacy_name": "Borsta tänderna", "package_component": "teacch" },
+      "canonical_id": "brush_teeth",
+      "classification": "TEACCH_OVERLAY",
+      "treatment": "preserve_legacy_row_no_canonical_assignment",
+      "reason": "TEACCH seven_questions overlay; canonical identity is brush_teeth only"
+    },
+    {
+      "match": { "legacy_name": "Äta frukost", "package_component": "teacch" },
+      "canonical_id": "breakfast",
+      "classification": "TEACCH_OVERLAY",
+      "treatment": "preserve_legacy_row_no_canonical_assignment",
+      "reason": "TEACCH overlay; canonical identity is breakfast"
+    },
+    {
+      "match": { "legacy_name": "Sätta på skor", "package_component": "teacch" },
+      "canonical_id": null,
+      "classification": "TEACCH_OVERLAY",
+      "treatment": "preserve_legacy_row_no_canonical_assignment",
+      "reason": "TEACCH-only routine; no separate canonical activity identity"
+    }
+  ],
+  "schedules": [
+    {
+      "match": { "legacy_name": "Förskola vardag" },
+      "canonical_schedule_id": "preschool_weekday",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Skola vardag" },
+      "canonical_schedule_id": "school_weekday",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Helg" },
+      "canonical_schedule_id": "weekend",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Morgonrutin" },
+      "canonical_schedule_id": "morning_routine",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Kort morgon" },
+      "canonical_schedule_id": "morning_routine",
+      "classification": "SAFE_EXPLICIT_MAPPING",
+      "reason": "Legacy alias superseded by morning_routine canonical schedule"
+    },
+    {
+      "match": { "legacy_name": "Kvällsrutin" },
+      "canonical_schedule_id": "evening_routine",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Lov" },
+      "canonical_schedule_id": "school_break",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Sommarlov" },
+      "canonical_schedule_id": "summer_break",
+      "classification": "EXACT"
+    },
+    {
+      "match": { "legacy_name": "Jullov" },
+      "canonical_schedule_id": "christmas_break",
+      "classification": "EXACT"
+    }
+  ]
+}

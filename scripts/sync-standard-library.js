@@ -71,9 +71,19 @@ async function main() {
       manifestPath: opts.manifestPath || undefined,
     });
     if (!result.ok) {
-      console.error('[sync:standard-library] Manifest validation failed:');
-      for (const error of result.validationErrors) {
-        console.error(`  - ${error}`);
+      if (result.validationErrors?.length) {
+        console.error('[sync:standard-library] Manifest validation failed:');
+        for (const error of result.validationErrors) {
+          console.error(`  - ${error}`);
+        }
+        process.exit(1);
+      }
+      if (result.conflictErrors?.length) {
+        console.error('[sync:standard-library] Canonical conflict(s) detected:');
+        for (const error of result.conflictErrors) {
+          console.error(`  - ${error}`);
+        }
+        process.exit(1);
       }
       process.exit(1);
     }

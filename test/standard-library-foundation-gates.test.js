@@ -14,6 +14,7 @@ const baselineSql = fs.readFileSync(path.join(ROOT, 'db/baseline-schema.sql'), '
 const STANDARD_LIBRARY_UNIT_TESTS = [
   'test/standard-library-manifest.test.js',
   'test/standard-library-sync.test.js',
+  'test/standard-library-backfill.test.js',
   'test/standard-library-foundation-gates.test.js',
 ];
 
@@ -54,11 +55,13 @@ describe('standard library foundation gates', () => {
     }
   });
 
-  it('exposes validate and sync scripts without wiring sync into build', () => {
+  it('exposes validate, sync, and backfill scripts without wiring sync into build', () => {
     assert.equal(pkg.scripts['validate:standard-library'], 'node scripts/validate-standard-library.js');
     assert.equal(pkg.scripts['sync:standard-library'], 'node scripts/sync-standard-library.js');
+    assert.equal(pkg.scripts['backfill:standard-library'], 'node scripts/backfill-standard-library.js');
     assert.doesNotMatch(pkg.scripts.build, /sync:standard-library/);
     assert.doesNotMatch(pkg.scripts.build, /validate:standard-library/);
+    assert.doesNotMatch(pkg.scripts.build, /backfill:standard-library/);
   });
 
   it('baseline includes PR1 canonical columns on affected tables', () => {
