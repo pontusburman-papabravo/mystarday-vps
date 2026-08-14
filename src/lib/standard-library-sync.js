@@ -659,10 +659,32 @@ async function syncStandardLibrary(client, options = {}) {
   const current = await readCurrentCanonicalState(client);
   const plan = computeSyncPlan(desired, current);
 
+  const conflictErrors = [];
+  if (plan.summary.activities.conflicts > 0) {
+    conflictErrors.push(
+      `${plan.summary.activities.conflicts} duplicate default_activity_template canonical_id conflict(s)`
+    );
+  }
+  if (plan.summary.schedules.conflicts > 0) {
+    conflictErrors.push(
+      `${plan.summary.schedules.conflicts} duplicate default_schedule canonical_id conflict(s)`
+    );
+  }
+  if (conflictErrors.length > 0) {
+    return {
+      ok: false,
+      validationErrors: [],
+      conflictErrors,
+      summary: plan.summary,
+      dryRun: !!options.dryRun,
+    };
+  }
+
   if (options.dryRun) {
     return {
       ok: true,
       validationErrors: [],
+      conflictErrors: [],
       summary: plan.summary,
       dryRun: true,
     };
@@ -680,6 +702,7 @@ async function syncStandardLibrary(client, options = {}) {
   return {
     ok: true,
     validationErrors: [],
+    conflictErrors: [],
     summary: plan.summary,
     dryRun: false,
   };

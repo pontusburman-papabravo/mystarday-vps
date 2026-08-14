@@ -488,4 +488,46 @@ describe('standard library sync foundation', () => {
     assert.equal(afterSchoolItem.start_time, null);
     assert.equal(afterSchoolItem.end_time, null);
   });
+
+  it('fails closed when duplicate canonical_id rows exist', async () => {
+    const store = createMockSyncStore();
+    store.activities.push(
+      {
+        id: randomUUID(),
+        canonical_id: 'wake_up',
+        name: 'Vakna A',
+        name_i18n: { sv: 'Vakna A', 'en-GB': 'Wake A' },
+        icon_key: 'wake_up',
+        icon: '🛏️',
+        star_value: 1,
+        duration_seconds: null,
+        sub_steps: [],
+        variants: [],
+        seven_questions: {},
+        deprecated: false,
+        sort_order: 0,
+      },
+      {
+        id: randomUUID(),
+        canonical_id: 'wake_up',
+        name: 'Vakna B',
+        name_i18n: { sv: 'Vakna B', 'en-GB': 'Wake B' },
+        icon_key: 'wake_up',
+        icon: '🛏️',
+        star_value: 1,
+        duration_seconds: null,
+        sub_steps: [],
+        variants: [],
+        seven_questions: {},
+        deprecated: false,
+        sort_order: 1,
+      }
+    );
+    const client = createMockSyncClient(store);
+    const manifest = cloneManifest();
+    const result = await syncStandardLibrary(client, { manifest, dryRun: true });
+    assert.equal(result.ok, false);
+    assert.ok(result.conflictErrors.length > 0);
+    assert.equal(countWriteQueries(store), 0);
+  });
 });
