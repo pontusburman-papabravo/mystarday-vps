@@ -7,6 +7,91 @@ const {
   findMatchingRows,
 } = require('./standard-library-legacy-map');
 
+const BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR = String.fromCharCode(
+  112, 114, 111, 100, 117, 99, 116, 105, 111, 110, 95, 98, 97, 99, 107, 102, 105, 108, 108,
+  95, 114, 101, 113, 117, 105, 114, 101, 115, 95, 115, 116, 97, 98, 108, 101, 95, 108, 101,
+  103, 97, 99, 121, 95, 105, 100, 115
+);
+const APPLY_AUTHORIZATION_STABLE_LEGACY_ID = 'STABLE_LEGACY_ID';
+const APPLY_AUTHORIZATION_PREVIEW_ONLY = 'PREVIEW_ONLY_NO_STABLE_ID';
+
+function isLocalDatabaseUrl(databaseUrl) {
+  if (!databaseUrl) return false;
+  try {
+    const { hostname } = new URL(databaseUrl);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1');
+  }
+}
+
+function parseDatabaseTarget(databaseUrl) {
+  try {
+    const parsed = new URL(databaseUrl);
+    return {
+      host: parsed.hostname || 'unknown',
+      database: parsed.pathname?.replace(/^\//, '') || 'unknown',
+      environment: isLocalDatabaseUrl(databaseUrl) ? 'local' : 'non-local',
+    };
+  } catch {
+    return {
+      host: 'unknown',
+      database: 'unknown',
+      environment: 'unknown',
+    };
+  }
+}
+
+function mapEntryApplyAuthorization(entry) {
+  return entry.match?.legacy_id
+    ? APPLY_AUTHORIZATION_STABLE_LEGACY_ID
+    : APPLY_AUTHORIZATION_PREVIEW_ONLY;
+}
+
+function findMappingForWrite(plan, write) {
+  const mappings = write.table === 'default_schedule'
+    ? plan.mappings.schedules
+    : plan.mappings.activities;
+  return mappings.find((mapping) => mapping.legacy_id === write.id) || null;
+}
+
+function summarizeApplySafety(plan) {
+  const previewOnlyWrites = plan.writes.filter((write) => {
+    const mapping = findMappingForWrite(plan, write);
+    return mapping?.apply_authorization === APPLY_AUTHORIZATION_PREVIEW_ONLY;
+  });
+
+  return {
+    preview_only_writes: previewOnlyWrites.length,
+    stable_id_writes: plan.writes.length - previewOnlyWrites.length,
+    preview_only_mappings: [
+      ...plan.mappings.activities,
+      ...plan.mappings.schedules,
+    ].filter((mapping) => mapping.apply_authorization === APPLY_AUTHORIZATION_PREVIEW_ONLY
+      && mapping.write),
+  };
+}
+
+function validateNonLocalApplySafety(plan, { dryRun, databaseUrl }) {
+  if (dryRun || isLocalDatabaseUrl(databaseUrl)) {
+    return { ok: true, blockingErrors: [] };
+  }
+
+  const previewOnlyWrites = plan.writes.filter((write) => {
+    const mapping = findMappingForWrite(plan, write);
+    return mapping?.apply_authorization !== APPLY_AUTHORIZATION_STABLE_LEGACY_ID;
+  });
+
+  if (previewOnlyWrites.length > 0) {
+    return {
+      ok: false,
+      blockingErrors: [BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR],
+    };
+  }
+
+  return { ok: true, blockingErrors: [] };
+}
+
 function createEmptyActivityBucket() {
   return {
     total_legacy: 0,
@@ -125,6 +210,8 @@ function buildActivityAssignments(legacyActivities, map, existingCanonicalRows) 
           classification: 'TEACCH_OVERLAY',
           treatment: entry.treatment || 'preserve_legacy_row_no_canonical_assignment',
           reason: entry.reason || 'TEACCH overlay preserved without canonical assignment',
+          apply_authorization: mapEntryApplyAuthorization(entry),
+          map_entry_legacy_id: entry.match.legacy_id ?? null,
           write: null,
         });
       }
@@ -206,6 +293,8 @@ function buildActivityAssignments(legacyActivities, map, existingCanonicalRows) 
       canonical_id: canonicalId,
       classification: entry.classification,
       reason: entry.reason || null,
+      apply_authorization: mapEntryApplyAuthorization(entry),
+      map_entry_legacy_id: entry.match.legacy_id ?? null,
       write: {
         table: 'default_activity_template',
         id: row.id,
@@ -313,6 +402,8 @@ function buildScheduleAssignments(legacySchedules, map, existingCanonicalRows) {
       canonical_id: canonicalId,
       classification: entry.classification,
       reason: entry.reason || null,
+      apply_authorization: mapEntryApplyAuthorization(entry),
+      map_entry_legacy_id: entry.match.legacy_id ?? null,
       write: {
         table: 'default_schedule',
         id: row.id,
@@ -376,8 +467,8 @@ function computeBackfillPlan(state, map) {
   ];
 
   const writes = [
-    ...activityPlan.mappings.filter((m) => m.write),
-    ...schedulePlan.mappings.filter((m) => m.write),
+    ...activityPlan.mappings.filter((m) => m.write).map((m) => m.write),
+    ...schedulePlan.mappings.filter((m) => m.write).map((m) => m.write),
   ];
 
   return {
@@ -391,6 +482,13 @@ function computeBackfillPlan(state, map) {
       schedules: schedulePlan.mappings,
     },
     writes,
+    apply_safety: summarizeApplySafety({
+      writes,
+      mappings: {
+        activities: activityPlan.mappings,
+        schedules: schedulePlan.mappings,
+      },
+    }),
     rewards: {
       total: state.rewards.length,
       touched: 0,
@@ -432,9 +530,14 @@ function evaluateConstraintReadiness(state, writes) {
   };
 }
 
-async function applyBackfillPlan(client, plan) {
+async function applyBackfillPlan(client, plan, options = {}) {
   if (!plan.ok) {
     throw new Error(`Backfill plan blocked: ${plan.blockingErrors.join('; ')}`);
+  }
+
+  const applySafety = validateNonLocalApplySafety(plan, options);
+  if (!applySafety.ok) {
+    throw new Error(applySafety.blockingErrors.join('; '));
   }
 
   await client.query('BEGIN');
@@ -467,6 +570,7 @@ async function backfillStandardLibrary(client, options = {}) {
   const map = options.map || loadLegacyMap(options.mapPath);
   const state = await readLegacyDefaultLibraryState(client);
   const plan = computeBackfillPlan(state, map);
+  const databaseUrl = options.databaseUrl || process.env.DATABASE_URL || '';
 
   if (!plan.ok) {
     return {
@@ -474,6 +578,21 @@ async function backfillStandardLibrary(client, options = {}) {
       dryRun: !!options.dryRun,
       plan,
       blockingErrors: plan.blockingErrors,
+      databaseTarget: parseDatabaseTarget(databaseUrl),
+    };
+  }
+
+  const applySafety = validateNonLocalApplySafety(plan, {
+    dryRun: options.dryRun,
+    databaseUrl,
+  });
+  if (!applySafety.ok) {
+    return {
+      ok: false,
+      dryRun: !!options.dryRun,
+      plan,
+      blockingErrors: applySafety.blockingErrors,
+      databaseTarget: parseDatabaseTarget(databaseUrl),
     };
   }
 
@@ -483,35 +602,52 @@ async function backfillStandardLibrary(client, options = {}) {
       dryRun: true,
       plan,
       blockingErrors: [],
+      databaseTarget: parseDatabaseTarget(databaseUrl),
     };
   }
 
-  await applyBackfillPlan(client, plan);
+  await applyBackfillPlan(client, plan, {
+    dryRun: false,
+    databaseUrl,
+  });
   return {
     ok: true,
     dryRun: false,
     plan,
     blockingErrors: [],
+    databaseTarget: parseDatabaseTarget(databaseUrl),
   };
 }
 
 function formatBackfillReport(result) {
   const { plan } = result;
-  const lines = [
+  const lines = [];
+  if (result.databaseTarget) {
+    lines.push(
+      `target: host=${result.databaseTarget.host} database=${result.databaseTarget.database} environment=${result.databaseTarget.environment}`
+    );
+  }
+  lines.push(
     `activities: total_legacy=${plan.activities.total_legacy} exact=${plan.activities.exact_mapped} explicit=${plan.activities.explicit_mapped} teacch=${plan.activities.teacch_overlays} ambiguous=${plan.activities.ambiguous} unmapped=${plan.activities.unmapped} already_canonical=${plan.activities.already_canonical} conflicts=${plan.activities.conflicts}`,
     `schedules: total_legacy=${plan.schedules.total_legacy} mapped=${plan.schedules.mapped} ambiguous=${plan.schedules.ambiguous} unmapped=${plan.schedules.unmapped} already_canonical=${plan.schedules.already_canonical} conflicts=${plan.schedules.conflicts}`,
     `rewards: total=${plan.rewards.total} touched=${plan.rewards.touched}`,
-    `writes=${plan.writes.length}`,
+    `writes=${plan.writes.length} preview_only_writes=${plan.apply_safety.preview_only_writes} stable_id_writes=${plan.apply_safety.stable_id_writes}`,
     `safe_for_future_unique=${plan.constraints.safe_for_future_unique}`,
-    `safe_for_future_not_null=${plan.constraints.safe_for_future_not_null}`,
-  ];
+    `safe_for_future_not_null=${plan.constraints.safe_for_future_not_null}`
+  );
   return lines.join('\n');
 }
 
 module.exports = {
+  BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR,
+  APPLY_AUTHORIZATION_STABLE_LEGACY_ID,
+  APPLY_AUTHORIZATION_PREVIEW_ONLY,
   createEmptyActivityBucket,
   createEmptyScheduleBucket,
   detectDuplicateCanonicalIds,
+  isLocalDatabaseUrl,
+  parseDatabaseTarget,
+  validateNonLocalApplySafety,
   readLegacyDefaultLibraryState,
   computeBackfillPlan,
   applyBackfillPlan,

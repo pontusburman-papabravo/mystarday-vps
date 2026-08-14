@@ -8,6 +8,8 @@ const {
   applyBackfillPlan,
   backfillStandardLibrary,
   detectDuplicateCanonicalIds,
+  BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR,
+  APPLY_AUTHORIZATION_PREVIEW_ONLY,
 } = require('../src/lib/standard-library-backfill');
 const { loadLegacyMap } = require('../src/lib/standard-library-legacy-map');
 const {
@@ -210,10 +212,21 @@ describe('standard library backfill mapping', () => {
       scheduleItems: [],
       rewards: [],
     };
+    let snapshot = null;
     const client = {
       async query(sql) {
         const text = String(sql).replace(/\s+/g, ' ').trim();
-        if (text === 'BEGIN' || text === 'ROLLBACK') return { rows: [] };
+        if (text === 'BEGIN') {
+          snapshot = structuredClone(state);
+          return { rows: [] };
+        }
+        if (text === 'ROLLBACK') {
+          if (snapshot) {
+            state.activities = snapshot.activities;
+            snapshot = null;
+          }
+          return { rows: [] };
+        }
         if (text === 'COMMIT') throw new Error('injected failure');
         if (text.includes('FROM default_activity_template')) return { rows: state.activities };
         if (text.includes('FROM default_schedule') && !text.includes('item')) return { rows: [] };
@@ -227,7 +240,10 @@ describe('standard library backfill mapping', () => {
       },
     };
     const plan = computeBackfillPlan(state, loadLegacyMap());
-    await assert.rejects(() => applyBackfillPlan(client, plan), /injected failure/);
+    await assert.rejects(
+      () => applyBackfillPlan(client, plan, { databaseUrl: 'postgresql://localhost/stjarndag' }),
+      /injected failure/
+    );
     assert.equal(state.activities[0].canonical_id, null);
   });
 });
@@ -559,6 +575,170 @@ describe('standard library backfill DB integration', () => {
   });
 });
 
+describe('non-local apply safety (stable legacy IDs)', () => {
+  const map = loadLegacyMap();
+  const nonLocalUrl = 'postgresql://user:secret@db.example.com:5432/backfill_target';
+  const localUrl = 'postgresql://user:secret@localhost:5432/stjarndag';
+
+  function createMinimalState(activityId = randomUUID()) {
+    return {
+      activities: [{
+        id: activityId,
+        name: 'Vakna',
+        package_component: null,
+        sort_order: 1,
+        canonical_id: null,
+      }],
+      schedules: [],
+      scheduleItems: [],
+      rewards: [],
+    };
+  }
+
+  function createStableIdMap(activityId) {
+    return {
+      format: 'my' + 'starday-standard-library-legacy-map',
+      schema_version: 1,
+      content_version: '1.1',
+      activities: [{
+        match: { legacy_id: activityId, legacy_name: 'Vakna' },
+        canonical_id: 'wake_up',
+        classification: 'SAFE_EXPLICIT_MAPPING',
+      }],
+      schedules: [],
+    };
+  }
+
+  it('1: local apply with explicit name mapping is allowed for fixture simulation', async () => {
+    const state = createMinimalState();
+    const client = createBackfillMockClient(state);
+    const result = await backfillStandardLibrary(client, {
+      dryRun: false,
+      map,
+      databaseUrl: localUrl,
+    });
+    assert.equal(result.ok, true);
+    assert.equal(state.activities[0].canonical_id, 'wake_up');
+    assert.ok(state.writes?.length > 0);
+  });
+
+  it('2: non-local dry-run with name-only mapping is allowed preview with zero writes', async () => {
+    const state = createMinimalState();
+    const client = createBackfillMockClient(state);
+    const result = await backfillStandardLibrary(client, {
+      dryRun: true,
+      map,
+      databaseUrl: nonLocalUrl,
+    });
+    assert.equal(result.ok, true);
+    assert.equal(result.plan.apply_safety.preview_only_writes, 1);
+    assert.equal(state.writes?.length || 0, 0);
+    const mapping = result.plan.mappings.activities.find((m) => m.legacy_name === 'Vakna');
+    assert.equal(mapping.apply_authorization, APPLY_AUTHORIZATION_PREVIEW_ONLY);
+  });
+
+  it('3: non-local apply with name-only mapping fails closed', async () => {
+    const state = createMinimalState();
+    const client = createBackfillMockClient(state);
+    const result = await backfillStandardLibrary(client, {
+      dryRun: false,
+      map,
+      databaseUrl: nonLocalUrl,
+    });
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.blockingErrors, [BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR]);
+    assert.equal(state.activities[0].canonical_id, null);
+    assert.equal(state.writes?.length || 0, 0);
+  });
+
+  it('4: non-local apply with stable explicit legacy IDs is permitted', async () => {
+    const activityId = randomUUID();
+    const state = createMinimalState(activityId);
+    const client = createBackfillMockClient(state);
+    const result = await backfillStandardLibrary(client, {
+      dryRun: false,
+      map: createStableIdMap(activityId),
+      databaseUrl: nonLocalUrl,
+    });
+    assert.equal(result.ok, true);
+    assert.equal(state.activities[0].canonical_id, 'wake_up');
+    assert.equal(result.plan.apply_safety.preview_only_writes, 0);
+  });
+
+  it('5: mixed stable-ID and name-only mapping in non-local apply fails entire run', async () => {
+    const wakeId = randomUUID();
+    const snackId = randomUUID();
+    const mixedMap = {
+      format: 'my' + 'starday-standard-library-legacy-map',
+      schema_version: 1,
+      content_version: '1.1',
+      activities: [
+        {
+          match: { legacy_id: wakeId, legacy_name: 'Vakna' },
+          canonical_id: 'wake_up',
+          classification: 'SAFE_EXPLICIT_MAPPING',
+        },
+        {
+          match: { legacy_name: 'Mellanmål', package_component: null },
+          canonical_id: 'snack',
+          classification: 'SAFE_EXPLICIT_MAPPING',
+        },
+      ],
+      schedules: [],
+    };
+    const state = {
+      activities: [
+        { id: wakeId, name: 'Vakna', package_component: null, sort_order: 1, canonical_id: null },
+        { id: snackId, name: 'Mellanmål', package_component: null, sort_order: 2, canonical_id: null },
+      ],
+      schedules: [],
+      scheduleItems: [],
+      rewards: [],
+    };
+    const client = createBackfillMockClient(state);
+    const result = await backfillStandardLibrary(client, {
+      dryRun: false,
+      map: mixedMap,
+      databaseUrl: nonLocalUrl,
+    });
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.blockingErrors, [BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR]);
+    assert.equal(state.activities[0].canonical_id, null);
+    assert.equal(state.activities[1].canonical_id, null);
+  });
+
+  it('6: non-local apply failure happens before mutation / transaction remains zero-write', async () => {
+    const state = createMinimalState();
+    let beginCalled = false;
+    const client = {
+      async query(sql, params = []) {
+        const text = String(sql).replace(/\s+/g, ' ').trim();
+        if (text === 'BEGIN') {
+          beginCalled = true;
+          return { rows: [] };
+        }
+        if (text.includes('FROM default_activity_template') && !text.includes('default_schedule_item')) {
+          return { rows: state.activities };
+        }
+        if (text.includes('FROM default_schedule') && !text.includes('default_schedule_item')) {
+          return { rows: state.schedules };
+        }
+        if (text.includes('FROM default_schedule_item dsi')) return { rows: state.scheduleItems };
+        if (text.includes('FROM default_reward')) return { rows: state.rewards };
+        throw new Error(`unexpected query: ${text}`);
+      },
+    };
+    const result = await backfillStandardLibrary(client, {
+      dryRun: false,
+      map,
+      databaseUrl: nonLocalUrl,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(beginCalled, false);
+    assert.equal(state.writes?.length || 0, 0);
+  });
+});
+
 describe('standard library backfill CLI contract', () => {
   const { execFileSync } = require('child_process');
   const path = require('path');
@@ -585,11 +765,12 @@ describe('standard library backfill CLI contract', () => {
     }
   }
 
-  it('--help documents dry-run default and apply confirmation', () => {
+  it('--help documents dry-run default, apply confirmation, and stable IDs', () => {
     const out = run('scripts/backfill-standard-library.js', ['--help']);
     assert.equal(out.exitCode, 0);
     assert.match(out.status, /--dry-run/i);
     assert.match(out.status, /STANDARD_LIBRARY_BACKFILL_CONFIRM/i);
+    assert.match(out.status, /stable legacy row UUID/i);
   });
 
   it('exits 2 without DATABASE_URL', () => {

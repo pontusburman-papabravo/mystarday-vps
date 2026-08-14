@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const {
   backfillStandardLibrary,
   formatBackfillReport,
+  parseDatabaseTarget,
 } = require('../src/lib/standard-library-backfill');
 
 const HELP_TEXT = `Controlled canonical backfill for legacy default_* library rows.
@@ -23,6 +24,10 @@ Environment:
   DATABASE_URL                           Required.
   STANDARD_LIBRARY_BACKFILL_CONFIRM=1    Required for --apply against non-local DB.
 
+Non-local --apply additionally requires every canonical_id mutation to be
+authorized by a stable legacy row UUID in the legacy map. Name/package_component
+rules may be used for preview only (PREVIEW_ONLY_NO_STABLE_ID).
+
 Exit codes:
   0  Success (dry-run or apply completed)
   1  Blocked mappings / validation failure (no writes on --apply)
@@ -32,6 +37,7 @@ Notes:
   - Never runs automatically during deploy.
   - Identity after backfill is canonical_id only; name matching is one-time here.
   - Does not touch family activity_template rows or default_reward rows.
+  - Reports database target as host/database/environment (no credentials).
 `;
 
 function parseArgs(argv) {
@@ -89,9 +95,15 @@ async function main() {
 
   const client = await pool.connect();
   try {
+    const target = parseDatabaseTarget(process.env.DATABASE_URL);
+    console.log(
+      `[backfill:standard-library] target: host=${target.host} database=${target.database} environment=${target.environment}`
+    );
+
     const result = await backfillStandardLibrary(client, {
       dryRun: opts.dryRun,
       mapPath: opts.mapPath || undefined,
+      databaseUrl: process.env.DATABASE_URL,
     });
 
     const mode = result.dryRun ? 'DRY-RUN' : 'APPLY';
