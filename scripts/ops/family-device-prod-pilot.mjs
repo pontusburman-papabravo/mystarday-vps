@@ -16,7 +16,6 @@ const { loadEnvFile } = require('../../src/lib/load-env');
 loadEnvFile();
 
 const db = require('../../src/lib/db');
-const config = require('../../src/lib/config');
 const { assertProdPilotEnvironment, redactSecrets } = require('../../src/lib/family-device-pilot-guard');
 const { runFamilyDeviceProdPilot } = require('./family-device-prod-pilot-core.cjs');
 
@@ -35,9 +34,14 @@ async function main() {
   const report = await runFamilyDeviceProdPilot({
     db,
     baseUrl,
-    jwtSecret: config.jwt.secret,
     dryRun,
   });
+
+  if (report.lockBusy) {
+    console.log(JSON.stringify({ ok: false, code: report.code || 'PILOT_LOCK_BUSY', FAMILY_DEVICE_AUTOMATED_PROD_PILOT: 'FAIL' }, null, 2));
+    await db.pool.end();
+    process.exit(3);
+  }
 
   let pilotHarnessSha = 'local';
   try {
@@ -65,7 +69,7 @@ async function main() {
     WRONG_CHILD: report.scenarios?.WRONG_CHILD || 'FAIL',
     DEEP_LINK: report.scenarios?.DEEP_LINK || 'FAIL',
     OFFLINE_IDENTITY: report.scenarios?.OFFLINE_IDENTITY || 'FAIL',
-    WIDGET_SERVER_SCOPE: report.scenarios?.WIDGET_SERVER_SCOPE || 'FAIL',
+    WIDGET_OVERRIDE_WRITES: report.widgetOverrideWrites || 0,
     UNEXPECTED_429_DURING_FIXTURE_SETUP: report.unexpected429DuringFixtureSetup?.length || 0,
     UNEXPECTED_429: report.unexpected429?.length || 0,
     UNEXPECTED_5XX: report.unexpected5xx?.length || 0,
@@ -79,6 +83,7 @@ async function main() {
       report.cleanup?.ok &&
       !report.globalFlagsChanged &&
       (report.unexpected429DuringFixtureSetup?.length || 0) === 0 &&
+      (report.widgetOverrideWrites || 0) === 0 &&
       report.scenarios?.SHARED_ONE_CHILD_SERVER === 'PASS'
         ? 'PASS'
         : 'FAIL',

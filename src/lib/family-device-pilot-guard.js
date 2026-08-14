@@ -5,14 +5,22 @@ const { isFounderQaParentEmail, normalizeEmail } = require('./founder-qa-family-
 /** Disposable prod pilot families — never founder or RC-1 fixture. */
 const PILOT_EMAIL_RE = /^fd-pilot-\d{10,}@example\.com$/i;
 
-const PILOT_FLAG_KEYS = [
+/** Family Device prod pilot — widgets PAUSED; never enable widget flags here. */
+const FAMILY_DEVICE_PILOT_FLAG_KEYS = Object.freeze([
   'trusted_device_v1',
   'family_device_entry_v1',
   'adult_privilege_v1',
   'family_device_daily_ux_v1',
-  'native_widget_enabled',
-  'widget_completion_enabled',
-];
+]);
+
+/** Widget flags — excluded from Family Device pilot/readiness while widgets are paused. */
+const WIDGET_PILOT_FLAG_KEYS = Object.freeze(['native_widget_enabled', 'widget_completion_enabled']);
+
+/** @deprecated use FAMILY_DEVICE_PILOT_FLAG_KEYS */
+const PILOT_FLAG_KEYS = FAMILY_DEVICE_PILOT_FLAG_KEYS;
+
+const FIXTURE_FAMILY_NAME = 'FD Pilot QA (disposable)';
+const FIXTURE_PARENT_NAME = 'FD Pilot Parent';
 
 function isFamilyDevicePilotDisposableEmail(email) {
   return PILOT_EMAIL_RE.test(normalizeEmail(email));
@@ -32,6 +40,102 @@ function assertFamilyDevicePilotDisposableEmail(email) {
   }
 }
 
+function assertFamilyDevicePilotFlagKey(key) {
+  if (!FAMILY_DEVICE_PILOT_FLAG_KEYS.includes(key)) {
+    const err = new Error(`Family Device pilot refused flag key: ${key}`);
+    err.code = 'FD_PILOT_FLAG_NOT_ALLOWED';
+    throw err;
+  }
+  if (WIDGET_PILOT_FLAG_KEYS.includes(key)) {
+    const err = new Error(`Family Device pilot refused widget flag: ${key}`);
+    err.code = 'FD_PILOT_WIDGET_FLAG_FORBIDDEN';
+    throw err;
+  }
+}
+
+/**
+ * Fail-closed ownership proof for destructive stale cleanup.
+ * @returns {Promise<{ status: 'ELIGIBLE'|'REFUSED'|'AMBIGUOUS_PILOT_OWNERSHIP', reason?: string, family_id: string, email?: string, family_name?: string, parent_name?: string, parent_count?: number }>}
+ */
+async function classifyDisposablePilotFixtureOwnership(db, familyId) {
+  const famRes = await db.query('SELECT id, name FROM family WHERE id = $1', [familyId]);
+  if (!famRes.rows.length) {
+    return { status: 'REFUSED', reason: 'family_not_found', family_id: familyId };
+  }
+  const family = famRes.rows[0];
+  const { rows: parents } = await db.query(
+    'SELECT id, email, name FROM parent WHERE family_id = $1 ORDER BY created_at ASC NULLS LAST, id ASC',
+    [familyId]
+  );
+
+  if (family.name !== FIXTURE_FAMILY_NAME) {
+    return {
+      status: 'REFUSED',
+      reason: 'wrong_family_marker',
+      family_id: familyId,
+      family_name: family.name,
+      parent_count: parents.length,
+    };
+  }
+
+  if (parents.length !== 1) {
+    return {
+      status: 'AMBIGUOUS_PILOT_OWNERSHIP',
+      reason: parents.length === 0 ? 'no_parents' : 'multiple_parents',
+      family_id: familyId,
+      family_name: family.name,
+      parent_count: parents.length,
+    };
+  }
+
+  const parent = parents[0];
+  if (parent.name !== FIXTURE_PARENT_NAME) {
+    return {
+      status: 'REFUSED',
+      reason: 'wrong_parent_marker',
+      family_id: familyId,
+      email: normalizeEmail(parent.email),
+      family_name: family.name,
+      parent_name: parent.name,
+      parent_count: 1,
+    };
+  }
+
+  if (!isFamilyDevicePilotDisposableEmail(parent.email)) {
+    return {
+      status: 'REFUSED',
+      reason: 'email_not_disposable',
+      family_id: familyId,
+      email: normalizeEmail(parent.email),
+      family_name: family.name,
+      parent_name: parent.name,
+      parent_count: 1,
+    };
+  }
+
+  if (isFounderQaParentEmail(parent.email)) {
+    return {
+      status: 'REFUSED',
+      reason: 'founder_parent',
+      family_id: familyId,
+      email: normalizeEmail(parent.email),
+      family_name: family.name,
+      parent_name: parent.name,
+      parent_count: 1,
+    };
+  }
+
+  return {
+    status: 'ELIGIBLE',
+    reason: 'canonical_fixture',
+    family_id: familyId,
+    email: normalizeEmail(parent.email),
+    family_name: family.name,
+    parent_name: parent.name,
+    parent_count: 1,
+  };
+}
+
 /**
  * @param {import('../lib/db')} db
  * @param {string} familyId
@@ -39,24 +143,15 @@ function assertFamilyDevicePilotDisposableEmail(email) {
  */
 async function assertFamilyDevicePilotFamily(db, familyId, expectedEmail) {
   assertFamilyDevicePilotDisposableEmail(expectedEmail);
-  const { rows } = await db.query(
-    `SELECT email FROM parent WHERE family_id = $1`,
-    [familyId]
-  );
-  if (!rows.length) {
-    const err = new Error('Family Device pilot: family has no parents');
-    err.code = 'FD_PILOT_FAMILY_EMPTY';
+  const verdict = await classifyDisposablePilotFixtureOwnership(db, familyId);
+  if (verdict.status !== 'ELIGIBLE') {
+    const err = new Error(`Family Device pilot refused family ownership: ${verdict.reason || verdict.status}`);
+    err.code = verdict.status === 'AMBIGUOUS_PILOT_OWNERSHIP' ? 'AMBIGUOUS_PILOT_OWNERSHIP' : 'FD_PILOT_FAMILY_REFUSED';
     throw err;
   }
-  const match = rows.some((r) => normalizeEmail(r.email) === normalizeEmail(expectedEmail));
-  if (!match) {
+  if (normalizeEmail(verdict.email) !== normalizeEmail(expectedEmail)) {
     const err = new Error('Family Device pilot: family/email mismatch');
     err.code = 'FD_PILOT_FAMILY_MISMATCH';
-    throw err;
-  }
-  if (rows.some((r) => isFounderQaParentEmail(r.email))) {
-    const err = new Error('Family Device pilot refused: founder family');
-    err.code = 'FD_PILOT_FOUNDER_FAMILY';
     throw err;
   }
 }
@@ -110,8 +205,14 @@ function redactSecrets(text) {
 module.exports = {
   PILOT_EMAIL_RE,
   PILOT_FLAG_KEYS,
+  FAMILY_DEVICE_PILOT_FLAG_KEYS,
+  WIDGET_PILOT_FLAG_KEYS,
+  FIXTURE_FAMILY_NAME,
+  FIXTURE_PARENT_NAME,
   isFamilyDevicePilotDisposableEmail,
   assertFamilyDevicePilotDisposableEmail,
+  assertFamilyDevicePilotFlagKey,
+  classifyDisposablePilotFixtureOwnership,
   assertFamilyDevicePilotFamily,
   resolvePilotBaseUrl,
   assertProdPilotEnvironment,
