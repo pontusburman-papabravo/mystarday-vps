@@ -12,6 +12,15 @@ const { requireFeature } = require('../middleware/feature-gate');
 const { syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
 const { insertFamilyActivityFromDefault } = require('../lib/standard-library-copy');
+const {
+  CanonicalCopyError,
+  CANONICAL_VARIANT_REQUIRED,
+  CANONICAL_VARIANT_INVALID,
+  CANONICAL_SOURCE_INVALID,
+  CANONICAL_DUPLICATE_IDENTITY,
+  CANONICAL_SCHEDULE_NOT_FOUND,
+  copyCanonicalScheduleToFamily,
+} = require('../lib/canonical-library-copy');
 const { getFamilyLocale } = require('../lib/onboarding-locale');
 const {
   CONTENT_SCOPE,
@@ -427,113 +436,32 @@ router.get('/schedules', async (req, res) => {
 // Copies a standard schedule to a child's weekly schedule for selected days.
 router.post('/schedules/:id/copy', async (req, res) => {
   try {
-    const { child_id, days, overwrite } = req.body;
+    const { child_id, days, overwrite, optional_selections, variants } = req.body;
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
     if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ error: 'days[] krävs (t.ex. [1,2,3,4,5])' });
 
-    // Verify parent owns this child
     const childAccess = await db.query(
       'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
       [req.user.id, child_id]
     );
     if (childAccess.rows.length === 0) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     const familyId = childAccess.rows[0].family_id;
-
-    // Fetch the standard schedule items
-    const scheduleResult = await db.query(
-      'SELECT id, name FROM default_schedule WHERE id = $1',
-      [req.params.id]
-    );
-    if (scheduleResult.rows.length === 0) return res.status(404).json({ error: 'Standardschemat hittades inte' });
-    const scheduleName = scheduleResult.rows[0].name;
-
-    const items = await db.query(
-      `SELECT dsi.name, dsi.icon, dsi.section, dsi.star_value, dsi.start_time, dsi.end_time, dsi.sort_order, dsi.sub_steps
-       FROM default_schedule_item dsi
-       WHERE dsi.default_schedule_id = $1
-       ORDER BY CASE dsi.section WHEN 'morgon' THEN 0 WHEN 'dag' THEN 1 WHEN 'kvall' THEN 2 ELSE 3 END, dsi.sort_order ASC`,
-      [req.params.id]
-    );
-    if (items.rows.length === 0) return res.status(404).json({ error: 'Schemat har inga aktiviteter' });
-
-    const validDays = days.map(d => parseInt(d, 10)).filter(d => !isNaN(d) && d >= 0 && d <= 6);
-    if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar' });
+    const locale = await getFamilyLocale(familyId);
 
     const client = await db.getClient();
     try {
-      await client.query('BEGIN');
+      const result = await copyCanonicalScheduleToFamily(client, {
+        familyId,
+        childId: child_id,
+        defaultScheduleId: req.params.id,
+        days,
+        overwrite: !!overwrite,
+        optionalSelections: optional_selections ?? null,
+        variants: variants ?? null,
+        locale,
+      });
 
-      // For each item, ensure the family has a matching activity_template
-      const activityTemplateMap = {};
-      for (const item of items.rows) {
-        const existing = await client.query(
-          `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
-          [familyId, item.name]
-        );
-
-        if (existing.rows.length > 0) {
-          activityTemplateMap[item.name] = existing.rows[0].id;
-        } else {
-          const newTemplate = await client.query(
-            `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, source)
-             VALUES ($1, $2, $3, $4, false, $5, 'admin') RETURNING id`,
-            [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
-          );
-          const templateId = newTemplate.rows[0].id;
-          activityTemplateMap[item.name] = templateId;
-
-          // Create sub-steps if any
-          const subSteps = item.sub_steps || [];
-          if (Array.isArray(subSteps) && subSteps.length > 0) {
-            for (let i = 0; i < subSteps.length; i++) {
-              await client.query(
-                `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                 VALUES ($1, $2, $3, $4)`,
-                [templateId, subSteps[i].name, subSteps[i].icon || null, i]
-              );
-            }
-          }
-        }
-      }
-
-      // Now create weekly schedules for each day
-      const filledDays = [];
-      for (const dow of validDays) {
-        let scheduleId;
-        const existingSchedule = await client.query(
-          'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
-          [child_id, dow]
-        );
-
-        if (existingSchedule.rows.length > 0) {
-          if (!overwrite) continue;
-          scheduleId = existingSchedule.rows[0].id;
-          await client.query('DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1', [scheduleId]);
-        } else {
-          const newSched = await client.query(
-            'INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, $2, $3) RETURNING id',
-            [child_id, dow, dow]
-          );
-          scheduleId = newSched.rows[0].id;
-        }
-
-        for (const item of items.rows) {
-          const templateId = activityTemplateMap[item.name];
-          if (!templateId) continue;
-
-          await client.query(
-            `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [scheduleId, templateId, item.start_time || null, item.end_time || null, item.sort_order || 0, item.section || 'dag']
-          );
-        }
-        filledDays.push(dow);
-      }
-
-      await client.query('COMMIT');
-
-      // Sync daily logs for each filled day
-      for (const dow of filledDays) {
+      for (const dow of result.filledDays) {
         try {
           await syncDailyLogWithSchedule(child_id, dow);
         } catch (syncErr) {
@@ -541,24 +469,25 @@ router.post('/schedules/:id/copy', async (req, res) => {
         }
       }
 
-      // Broadcast SCHEDULE_UPDATED so dashboards refresh automatically
       broadcast(familyId, 'SCHEDULE_UPDATED', { childId: child_id });
 
       const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
-      const dayStr = filledDays.map(d => dayNames[d]).join(', ');
+      const dayStr = result.filledDays.map((d) => dayNames[d]).join(', ');
 
       res.status(201).json({
-        message: `"${scheduleName}" kopierat till ${filledDays.length} dag(ar): ${dayStr}`,
-        filled_days: filledDays,
-        activities_created: Object.keys(activityTemplateMap).length,
+        message: `"${result.scheduleName}" kopierat till ${result.filledDays.length} dag(ar): ${dayStr}`,
+        filled_days: result.filledDays,
+        activities_created: result.activitiesCreated,
+        schedule_canonical_id: result.scheduleCanonicalId,
       });
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
     } finally {
       client.release();
     }
   } catch (err) {
+    if (err instanceof CanonicalCopyError) {
+      const status = err.code === CANONICAL_SCHEDULE_NOT_FOUND ? 404 : 422;
+      return res.status(status).json({ error: err.code, ...err.details });
+    }
     console.error('[STANDARD-LIBRARY] Schedule copy error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
