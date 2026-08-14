@@ -7,6 +7,7 @@ const {
   readManifestFile,
   DEFAULT_MANIFEST_PATH,
 } = require('../src/lib/standard-library-manifest');
+const { ScheduleTimeSchema } = require('../src/lib/standard-library-manifest-schema');
 
 function cloneManifest() {
   return structuredClone(readManifestFile(DEFAULT_MANIFEST_PATH));
@@ -175,5 +176,63 @@ describe('standard library manifest contract', () => {
     const manifest = cloneManifest();
     findActivity(manifest, 'wash_hands').sub_steps.find((s) => s.step_id === 'wash_hands.wash').duration_seconds = 15;
     expectInvalid(manifest, /wash_hands\.wash.*20/i);
+  });
+});
+
+describe('standard library schedule time schema', () => {
+  const validTimes = ['00:00', '07:05', '15:30', '23:59'];
+  const invalidTimes = ['7:05', '07:5', '24:00', '12:60', 'abc', ''];
+
+  for (const time of validTimes) {
+    it(`accepts valid time ${time}`, () => {
+      const result = ScheduleTimeSchema.safeParse(time);
+      assert.equal(result.success, true, JSON.stringify(result.error?.issues));
+    });
+  }
+
+  for (const time of invalidTimes) {
+    it(`rejects invalid time ${time || '(empty string)'}`, () => {
+      const result = ScheduleTimeSchema.safeParse(time);
+      assert.equal(result.success, false);
+    });
+  }
+
+  it('accepts null and undefined for optional schedule times', () => {
+    assert.equal(ScheduleTimeSchema.safeParse(null).success, true);
+    assert.equal(ScheduleTimeSchema.safeParse(undefined).success, true);
+  });
+
+  it('valid manifest schedule item accepts omitted start_time and end_time', () => {
+    const manifest = cloneManifest();
+    const afterSchool = findSchedule(manifest, 'school_weekday').items.find(
+      (i) => i.activity_id === 'after_school'
+    );
+    delete afterSchool.start_time;
+    delete afterSchool.end_time;
+    expectValid(manifest);
+  });
+
+  it('invalid start_time on schedule item fails', () => {
+    const manifest = cloneManifest();
+    findSchedule(manifest, 'morning_routine').items[0].start_time = '7:05';
+    expectInvalid(manifest, /start_time|HH:MM/i);
+  });
+
+  it('invalid end_time on schedule item fails', () => {
+    const manifest = cloneManifest();
+    findSchedule(manifest, 'preschool_weekday').items.find(
+      (i) => i.activity_id === 'preschool'
+    ).end_time = '25:00';
+    expectInvalid(manifest, /end_time|HH:MM/i);
+  });
+
+  it('null start_time and end_time on schedule item passes', () => {
+    const manifest = cloneManifest();
+    const afterSchool = findSchedule(manifest, 'school_weekday').items.find(
+      (i) => i.activity_id === 'after_school'
+    );
+    afterSchool.start_time = null;
+    afterSchool.end_time = null;
+    expectValid(manifest);
   });
 });
