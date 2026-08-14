@@ -36,6 +36,11 @@ function main() {
     mode: args.mode,
     repoRoot: path.resolve(args.repoRoot),
   });
+  if (result.toleratedLiveDataDrift?.length) {
+    console.error(
+      JSON.stringify({ tolerated_live_data_drift: result.toleratedLiveDataDrift }, null, 2)
+    );
+  }
   if (!result.ok) {
     console.error(
       JSON.stringify(
