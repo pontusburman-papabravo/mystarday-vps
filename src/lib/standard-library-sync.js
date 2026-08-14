@@ -163,8 +163,23 @@ function buildDesiredStateFromManifest(manifest) {
   };
 }
 
+function stableJson(value) {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJson(item)).join(',')}]`;
+  }
+  if (typeof value === 'object') {
+    const keys = Object.keys(value).sort();
+    const body = keys
+      .map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`)
+      .join(',');
+    return `{${body}}`;
+  }
+  return JSON.stringify(value);
+}
+
 function stableValue(value) {
-  return JSON.stringify(value ?? null);
+  return stableJson(value ?? null);
 }
 
 function pickFields(row, fields) {

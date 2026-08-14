@@ -223,6 +223,53 @@ describe('standard library sync foundation', () => {
     assert.doesNotMatch(source, /LOWER\s*\(\s*name\s*\)/i);
   });
 
+  it('treats JSONB field order differences as equivalent when diffing', () => {
+    const activityBase = {
+      canonical_id: 'brush_teeth',
+      name: 'Borsta',
+      name_i18n: { sv: 'Borsta', 'en-GB': 'Brush' },
+      icon_key: 'brush_teeth',
+      icon: '🪥',
+      star_value: 1,
+      duration_seconds: null,
+      variants: [],
+      seven_questions: {},
+      deprecated: false,
+      sort_order: 0,
+    };
+    const desiredActivity = {
+      ...activityBase,
+      sub_steps: [{
+        step_id: 'brush_teeth.brush',
+        name: 'Borsta',
+        name_i18n: { sv: 'Borsta', 'en-GB': 'Brush' },
+        icon_key: null,
+        icon: null,
+        duration_seconds: 120,
+        sort_order: 0,
+      }],
+    };
+    const currentActivity = {
+      id: '1',
+      ...activityBase,
+      sub_steps: [{
+        icon: null,
+        name: 'Borsta',
+        step_id: 'brush_teeth.brush',
+        icon_key: null,
+        name_i18n: { sv: 'Borsta', 'en-GB': 'Brush' },
+        sort_order: 0,
+        duration_seconds: 120,
+      }],
+    };
+    const plan = computeSyncPlan(
+      { activities: [desiredActivity], schedules: [], scheduleItems: [] },
+      { activities: [currentActivity], schedules: [], scheduleItems: [] }
+    );
+    assert.equal(plan.summary.activities.unchanged, 1);
+    assert.equal(plan.summary.activities.updates, 0);
+  });
+
   it('invalid manifest performs no DB writes', async () => {
     const store = createMockSyncStore();
     const client = createMockSyncClient(store);
