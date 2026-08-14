@@ -10,7 +10,10 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { Pool } = require('pg');
 const { acquireDbTestLock, isMockDatabaseUrl } = require('./db-test-lock.js');
-const { assertDestructiveTestDatabaseAllowed } = require('../../scripts/lib/test-database-safety.cjs');
+const {
+  assertDestructiveTestDatabaseAllowed,
+  resolveApplicationDatabaseUrl,
+} = require('../../scripts/lib/test-database-safety.cjs');
 
 const REPO_ROOT = path.join(__dirname, '../..');
 
@@ -19,8 +22,9 @@ const REPO_ROOT = path.join(__dirname, '../..');
  * Runs fail-closed safety assertion before lock, migrate, pool, or TRUNCATE.
  */
 async function setupTestDb(options = {}) {
-  if (!process.env.APPLICATION_DATABASE_URL && process.env.DATABASE_URL) {
-    process.env.APPLICATION_DATABASE_URL = process.env.DATABASE_URL;
+  const applicationUrl = resolveApplicationDatabaseUrl(process.env);
+  if (applicationUrl && !process.env.APPLICATION_DATABASE_URL) {
+    process.env.APPLICATION_DATABASE_URL = applicationUrl;
   }
 
   let testDatabaseUrl;

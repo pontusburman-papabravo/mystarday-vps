@@ -187,9 +187,7 @@ function tryAssertDestructiveTestDatabaseAllowed(env = process.env) {
 
 function buildDestructiveTestChildEnv(env = process.env, extra = {}) {
   const merged = { ...env, ...extra };
-  const originalApplicationUrl = String(
-    merged.APPLICATION_DATABASE_URL || merged.DATABASE_URL || ''
-  ).trim();
+  const originalApplicationUrl = resolveApplicationDatabaseUrl(merged);
 
   const validationEnv = { ...merged };
   if (originalApplicationUrl) {

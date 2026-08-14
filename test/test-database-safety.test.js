@@ -282,6 +282,14 @@ test('16. post-validation child context allows mapped DATABASE_URL', () => {
   assert.doesNotThrow(() => assertDestructiveTestDatabaseAllowed(child));
 });
 
+test('16b. re-entry after canonical CI mapping does not treat mapped DATABASE_URL as application', () => {
+  const first = buildDestructiveTestChildEnv(
+    baseEnv({ TEST_DATABASE_URL: DISPOSABLE_LOCAL })
+  );
+  assert.doesNotThrow(() => buildDestructiveTestChildEnv(first));
+  assert.doesNotThrow(() => assertDestructiveTestDatabaseAllowed(first));
+});
+
 test('17. VPS-like env: prod .env DATABASE_URL, test mode, no TEST_DATABASE_URL => REFUSE before migrate', () => {
   assert.throws(
     () =>
