@@ -499,14 +499,14 @@ async function runFamilyDeviceProdPilotUnderLock(opts) {
         opts.baseUrl,
         tdJar,
         pinFam.parentId,
-        { unlockMethod: 'pin', pin: '0000' },
+        { unlock_method: 'pin', pin: '0000' },
         track5xx
       );
       const okPin = await selectParent(
         opts.baseUrl,
         tdJar,
         pinFam.parentId,
-        { unlockMethod: 'pin', pin: pinFam.parentPin },
+        { unlock_method: 'pin', pin: pinFam.parentPin },
         track5xx
       );
       const meAfter = await apiFetch(opts.baseUrl, '/api/auth/me', { jar: tdJar, track5xx });

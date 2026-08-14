@@ -197,6 +197,20 @@ test('pilot core: report.ok requires verified cleanup and SHARED_ONE_CHILD', () 
   assert.doesNotMatch(core, /WIDGET_SERVER_SCOPE/);
 });
 
+test('pilot harness Scenario H: select-parent uses canonical unlock_method payload', () => {
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  const scenarioH = core.match(
+    /\/\/ H — select-parent:[\s\S]*?report\.scenarios\.SELECT_PARENT_PIN_SERVER/
+  )?.[0];
+  assert.ok(scenarioH, 'Scenario H block must exist');
+  assert.match(scenarioH, /selectParent\([\s\S]*unlock_method:\s*'pin'/);
+  assert.doesNotMatch(scenarioH, /unlockMethod:\s*'pin'/);
+  assert.match(scenarioH, /\/api\/auth\/trusted-device\/select-parent|selectParent\(/);
+});
+
 test('pilot harness JSON: both SHARED_ONE_CHILD and SELECT_PARENT_PIN visible; widgets excluded', () => {
   const mjs = fs.readFileSync(
     path.join(__dirname, '../scripts/ops/family-device-prod-pilot.mjs'),
