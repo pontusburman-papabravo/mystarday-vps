@@ -1,0 +1,162 @@
+name: Pre-public release gate
+
+# Canonical public-runtime certification — clean CI Postgres + read-only prod evidence.
+# Wrong runner: live VPS app host uses prod DB — gate needs disposable CI Postgres.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: 'Exact commit SHA to certify (40 hex chars)'
+        required: true
+        type: string
+      profile:
+        description: 'Gate profile'
+        required: true
+        type: choice
+        default: public-runtime
+        options:
+          - public-runtime
+          - native-store
+
+concurrency:
+  group: pre-public-release-gate
+  cancel-in-progress: false
+
+jobs:
+  certify:
+    name: Pre-public gate (${{ inputs.profile }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: pre-public-release-gate
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: stjarndag_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/stjarndag_test
+      REQUIRE_EMAIL_VERIFICATION: 'false'
+      JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
+      NODE_ENV: test # pragma: allowlist secret
+      TEST_SKIP_MIGRATE: '1'
+      RATE_LIMIT_ENABLED: 'false'
+
+    steps:
+      - name: Validate target SHA input
+        run: |
+          set -euo pipefail
+          TARGET="${{ inputs.target_sha }}"
+          if ! [[ "$TARGET" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid target_sha: $TARGET"
+            exit 1
+          fi
+          echo "Certifying exact SHA: $TARGET"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_sha }}
+          fetch-depth: 0
+
+      - name: Fetch origin/main for baseSha reporting
+        run: git fetch origin main
+
+      - name: Assert checkout matches target SHA
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$(git rev-parse HEAD)"
+          TARGET="${{ inputs.target_sha }}"
+          if [ "$HEAD_SHA" != "$TARGET" ]; then
+            echo "Checkout SHA mismatch: HEAD=$HEAD_SHA expected=$TARGET"
+            exit 1
+          fi
+          echo "candidateSha=$HEAD_SHA"
+          echo "origin/main=$(git rev-parse origin/main)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --include=dev
+
+      - name: Build Tailwind CSS
+        run: npm run css:build
+
+      - name: Verify committed CSS matches build
+        run: git diff --exit-code public/css/tailwind.build.css public/sw.js
+
+      - name: Verify prod read-only credential secrets are configured
+        env:
+          PRE_PUBLIC_GATE_ADMIN_EMAIL: ${{ secrets.PRE_PUBLIC_GATE_ADMIN_EMAIL }}
+          PRE_PUBLIC_GATE_ADMIN_PASSWORD: ${{ secrets.PRE_PUBLIC_GATE_ADMIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PRE_PUBLIC_GATE_ADMIN_EMAIL:-}" ] || [ -z "${PRE_PUBLIC_GATE_ADMIN_PASSWORD:-}" ]; then
+            echo "Missing pre-public-release-gate environment secrets:"
+            echo "  PRE_PUBLIC_GATE_ADMIN_EMAIL"
+            echo "  PRE_PUBLIC_GATE_ADMIN_PASSWORD"
+            echo "Configure read-only admin credentials in GitHub environment pre-public-release-gate."
+            exit 1
+          fi
+          echo "Prod read-only admin credentials: configured"
+
+      - name: Run pre-public release gate
+        env:
+          PRE_PUBLIC_GATE_ADMIN_EMAIL: ${{ secrets.PRE_PUBLIC_GATE_ADMIN_EMAIL }}
+          PRE_PUBLIC_GATE_ADMIN_PASSWORD: ${{ secrets.PRE_PUBLIC_GATE_ADMIN_PASSWORD }}
+          SMOKE_BASE_URL: ${{ vars.SMOKE_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SMOKE_BASE_URL:-}" ]; then
+            echo "Set SMOKE_BASE_URL in pre-public-release-gate environment variables"
+            exit 1
+          fi
+          npm run release:pre-public-gate -- --profile=${{ inputs.profile }} --json
+
+      - name: Gate verdict summary
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ ! -f artifacts/pre-public-release-gate.json ]; then
+            echo "Gate report missing"
+            exit 1
+          fi
+          node -e "
+          const r = require('./artifacts/pre-public-release-gate.json');
+          const summary = {
+            profile: r.profile,
+            candidateSha: r.candidateSha,
+            baseSha: r.baseSha,
+            overall: r.overall,
+            overallStatus: r.overallStatus,
+            exitCode: r.exitCode,
+            runtimeReadiness: r.runtimeReadiness,
+            widget: r.widget,
+            ci_health: r.sections?.ci_health?.status,
+            migrations: r.sections?.migrations?.status,
+            flags: r.sections?.flags?.status,
+            kill_switches: r.sections?.kill_switches?.status,
+          };
+          console.log(JSON.stringify(summary, null, 2));
+          " >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload gate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-public-release-gate-${{ inputs.target_sha }}
+          path: artifacts/pre-public-release-gate.json
+          if-no-files-found: error

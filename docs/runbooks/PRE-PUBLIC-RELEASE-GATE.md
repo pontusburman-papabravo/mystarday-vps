@@ -6,6 +6,17 @@ Widget is **paused and out of scope**. This gate asserts widget flags stay **OFF
 
 ## Command
 
+**Canonical (required for certification):** GitHub Actions workflow `Pre-public release gate` (`.github/workflows/pre-public-release-gate.yml`).
+
+- `workflow_dispatch` with exact `target_sha` (40 hex) and `profile` (`public-runtime` default).
+- Runs on clean CI Postgres — **never** on the live VPS app host (prod app DB URL breaks disposable suites).
+- Requires GitHub environment `pre-public-release-gate` secrets:
+  - `PRE_PUBLIC_GATE_ADMIN_EMAIL`
+  - `PRE_PUBLIC_GATE_ADMIN_PASSWORD`
+  - Optional variable `SMOKE_BASE_URL` (live prod origin for read-only admin API checks).
+
+Local/dev (diagnostics only — prod evidence needs admin env above):
+
 ```bash
 export PATH="$HOME/.nvm/versions/node/v20.20.2/bin:$PATH"
 # Override deploy-mode env injection per AGENTS.md (test mode + REQUIRE_EMAIL_VERIFICATION=false)

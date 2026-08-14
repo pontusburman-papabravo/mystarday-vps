@@ -230,6 +230,19 @@ test('test runner env matches CI rate-limit kill switch', () => {
   assert.match(ci, /RATE_LIMIT_ENABLED:\s*'false'/);
 });
 
+test('pre-public-release-gate workflow runs in clean CI with prod read-only creds', () => {
+  const wf = fs.readFileSync(path.join(ROOT, '.github/workflows/pre-public-release-gate.yml'), 'utf8');
+  assert.match(wf, /workflow_dispatch/);
+  assert.match(wf, /target_sha/);
+  assert.match(wf, /postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.match(wf, /RATE_LIMIT_ENABLED:\s*'false'/);
+  assert.match(wf, /TEST_SKIP_MIGRATE:\s*'1'/);
+  assert.match(wf, /release:pre-public-gate/);
+  assert.match(wf, /PRE_PUBLIC_GATE_ADMIN_EMAIL/);
+  assert.match(wf, /environment: pre-public-release-gate/);
+  assert.match(wf, /Wrong runner: live VPS app host/);
+});
+
 test('parseFailedFiles reads test path from TAP location YAML', () => {
   const { parseFailedFiles } = require('../scripts/lib/pre-public-release-gate/run-checks.cjs');
   const tap = `
