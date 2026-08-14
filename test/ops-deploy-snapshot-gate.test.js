@@ -60,10 +60,6 @@ describe('deploy database URL contract', () => {
 describe('migration-aware snapshot compare', () => {
   const baseTables = () => ({
     family: { exists: true, row_count: 10, row_fingerprint_sha256: 'f1' },
-    child: { exists: true, row_count: 12, row_fingerprint_sha256: 'c1' },
-    daily_log: { exists: true, row_count: 100, row_fingerprint_sha256: 'dl1' },
-    reward: { exists: true, row_count: 5, row_fingerprint_sha256: 'r1' },
-    reward_redemption: { exists: true, row_count: 3, row_fingerprint_sha256: 'rr1' },
     _migrations: { exists: true, row_count: 5, row_fingerprint_sha256: 'm1' },
     feature_flag: {
       exists: true,
@@ -164,25 +160,41 @@ describe('migration-aware snapshot compare', () => {
     assert.ok(result.drift.some((d) => d.table === 'family'));
   });
 
-  test('zero migrations tolerate live row-count drift in post-migration compare', async () => {
+  test('already applied migration (no new names) tolerates live business-table writes', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const before = {
       database_identity_hash: 'abc',
       applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
-      tables: baseTables(),
+      tables: {
+        ...baseTables(),
+        weekly_schedule_item: {
+          exists: true,
+          row_count: 18998,
+          row_fingerprint_sha256: 'wsi-before',
+        },
+        daily_log_item: {
+          exists: true,
+          row_count: 164525,
+          row_fingerprint_sha256: 'dli-before',
+        },
+      },
     };
     const after = structuredClone(before);
     after.tables.family.row_count = 9;
+    after.tables.weekly_schedule_item.row_count = 18984;
+    after.tables.weekly_schedule_item.row_fingerprint_sha256 = 'wsi-after';
+    after.tables.daily_log_item.row_count = 164524;
+    after.tables.daily_log_item.row_fingerprint_sha256 = 'dli-after';
 
     const result = compareDbSnapshots(before, after, {
       mode: 'post-migration',
       repoRoot: REPO_ROOT,
     });
     assert.equal(result.ok, true, JSON.stringify(result.drift));
-    assert.ok(result.toleratedLiveDataDrift?.some((d) => d.table === 'family' && d.field === 'row_count'));
+    assert.equal(result.newMigrationNames.length, 0);
   });
 
-  test('zero migrations tolerate live row-count drift in post-deploy-runtime compare', async () => {
+  test('zero new migrations + database identity change fails', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const before = {
       database_identity_hash: 'abc',
@@ -190,77 +202,17 @@ describe('migration-aware snapshot compare', () => {
       tables: baseTables(),
     };
     const after = structuredClone(before);
-    after.tables.reward.row_count = 42;
-
-    const result = compareDbSnapshots(before, after, {
-      mode: 'post-deploy-runtime',
-      repoRoot: REPO_ROOT,
-    });
-    assert.equal(result.ok, true, JSON.stringify(result.drift));
-    assert.ok(result.toleratedLiveDataDrift?.some((d) => d.table === 'reward'));
-  });
-
-  test('zero migrations still fail on schema existence drift', async () => {
-    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
-    const before = {
-      database_identity_hash: 'abc',
-      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
-      tables: baseTables(),
-    };
-    const after = structuredClone(before);
-    after.tables.family = { exists: false };
+    after.database_identity_hash = 'def';
 
     const result = compareDbSnapshots(before, after, {
       mode: 'post-migration',
       repoRoot: REPO_ROOT,
     });
     assert.equal(result.ok, false);
-    assert.ok(result.drift.some((d) => d.issue === 'existence_mismatch' && d.table === 'family'));
-    assert.equal(result.toleratedLiveDataDrift?.length || 0, 0);
+    assert.ok(result.drift.some((d) => d.field === 'database_identity_hash'));
   });
 
-  test('run 31797036689 zero-migration incident tolerates concurrent prod data drift', async () => {
-    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
-    const before = {
-      database_identity_hash: 'abc',
-      applied_migration_names: ['1810290000000_standard_library_v11_foundation'],
-      tables: {
-        ...baseTables(),
-        weekly_schedule_item: {
-          exists: true,
-          row_count: 18998,
-          row_fingerprint_sha256: '37557d0f110fb8a6b42a16cccd7d9c4b4e121cfb15e839fce4845d67e087ea2d',
-        },
-        daily_log_item: {
-          exists: true,
-          row_count: 164525,
-          row_fingerprint_sha256: 'e518a99b7638430e880ec2f2a3acff098ca57193e3a9b55398926b1d341db583',
-        },
-      },
-    };
-    const after = structuredClone(before);
-    after.tables.weekly_schedule_item.row_count = 18984;
-    after.tables.weekly_schedule_item.row_fingerprint_sha256 =
-      '4e7e89cb56bb1d5ec937be9f01d2dfe86c1b25228eadefd883b1a33e42102c05';
-    after.tables.daily_log_item.row_count = 164524;
-    after.tables.daily_log_item.row_fingerprint_sha256 =
-      '0c4aec7108607616461813b531ae0b4c4a5a894f65a908464973a0584444f718';
-
-    const result = compareDbSnapshots(before, after, {
-      mode: 'post-migration',
-      repoRoot: REPO_ROOT,
-    });
-    assert.equal(result.ok, true, JSON.stringify(result.drift));
-    assert.ok(
-      result.toleratedLiveDataDrift?.some((d) => d.table === 'weekly_schedule_item' && d.field === 'row_count')
-    );
-    assert.ok(
-      result.toleratedLiveDataDrift?.some((d) => d.table === 'daily_log_item' && d.field === 'row_count')
-    );
-    assert.equal(result.drift.length, 0);
-  });
-
-  test('multiple business tables with row-count drift pass generically without allowlist', async () => {
+  test('zero new migrations + migration history decrease fails', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const before = {
       database_identity_hash: 'abc',
@@ -268,16 +220,126 @@ describe('migration-aware snapshot compare', () => {
       tables: baseTables(),
     };
     const after = structuredClone(before);
-    after.tables.child.row_count = 99;
-    after.tables.reward_redemption.row_count = 7;
-    after.tables.daily_log.row_count = 500;
+    after.tables._migrations.row_count = 4;
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'migration_count_decreased'));
+  });
+
+  test('zero new migrations + migration history change fails', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: [
+        '1810150000000_activation_first_success_v1_flag',
+        '1810160000000_family_feature_override',
+      ],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names = ['1810150000000_activation_first_success_v1_flag'];
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'migration_history_changed'));
+  });
+
+  test('zero new migrations + feature flag enabled change fails', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.tables.feature_flag.flag_rows = after.tables.feature_flag.flag_rows.map((r) =>
+      r.key === 'legacy_flag' ? { ...r, enabled: true } : r
+    );
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'enabled_changed'));
+  });
+
+  test('zero new migrations + feature flag insert fails', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.tables.feature_flag.flag_rows.push({ key: 'rogue_flag', enabled: false });
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'unexpected_insert'));
+  });
+
+  test('zero new migrations + feature flag delete fails', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.tables.feature_flag.flag_rows = after.tables.feature_flag.flag_rows.filter(
+      (r) => r.key !== 'legacy_flag'
+    );
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'unexpected_delete'));
+  });
+
+  test('zero new migrations does not duplicate drift entries for live writes', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810150000000_activation_first_success_v1_flag'],
+      tables: {
+        ...baseTables(),
+        weekly_schedule_item: {
+          exists: true,
+          row_count: 18998,
+          row_fingerprint_sha256: 'wsi-before',
+        },
+        daily_log_item: {
+          exists: true,
+          row_count: 164525,
+          row_fingerprint_sha256: 'dli-before',
+        },
+      },
+    };
+    const after = structuredClone(before);
+    after.tables.weekly_schedule_item.row_count = 18984;
+    after.tables.weekly_schedule_item.row_fingerprint_sha256 = 'wsi-after';
+    after.tables.daily_log_item.row_count = 164524;
+    after.tables.daily_log_item.row_fingerprint_sha256 = 'dli-after';
 
     const result = compareDbSnapshots(before, after, {
       mode: 'post-migration',
       repoRoot: REPO_ROOT,
     });
     assert.equal(result.ok, true, JSON.stringify(result.drift));
-    assert.equal(result.toleratedLiveDataDrift?.length, 3);
+    assert.equal(result.drift.length, 0);
   });
 
   test('multiple migrations in one deploy aggregate flag inserts', async () => {
