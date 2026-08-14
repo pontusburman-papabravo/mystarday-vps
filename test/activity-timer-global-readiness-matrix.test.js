@@ -115,14 +115,14 @@ const SCENARIO_MATRIX = Object.freeze([
   {
     id: 19,
     scenario: 'iPhone viewport',
-    coverage: ['test/activity-timer-click-layout.test.js', 'scripts/ops/activity-timer-prod-pilot-core.cjs'],
-    sourceMustMatch: [/iphone-390x844|390, height: 844|390x844/],
+    coverage: ['test/activity-timer-click-layout.test.js', 'scripts/r2-activity-timer-mobile-smoke.mjs'],
+    sourceMustMatch: [/iphone-390x844|390, height: 844/],
   },
   {
     id: 20,
     scenario: 'Android viewport',
-    coverage: ['test/activity-timer-click-layout.test.js', 'scripts/ops/activity-timer-prod-pilot-core.cjs'],
-    sourceMustMatch: [/android-412x915|412, height: 915|412x915/],
+    coverage: ['test/activity-timer-click-layout.test.js', 'scripts/r2-activity-timer-mobile-smoke.mjs'],
+    sourceMustMatch: [/android-412x915|412, height: 915/],
   },
   {
     id: 21,
