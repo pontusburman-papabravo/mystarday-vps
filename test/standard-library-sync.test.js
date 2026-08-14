@@ -16,6 +16,20 @@ function cloneManifest() {
   return structuredClone(readManifestFile(DEFAULT_MANIFEST_PATH));
 }
 
+function findActivity(manifest, activityId) {
+  return manifest.activities.find((a) => a.activity_id === activityId);
+}
+
+function manifestCounts(manifest) {
+  const desired = buildDesiredStateFromManifest(manifest);
+  return {
+    activities: desired.activities.length,
+    schedules: desired.schedules.length,
+    scheduleItems: desired.scheduleItems.length,
+    total: desired.activities.length + desired.schedules.length + desired.scheduleItems.length,
+  };
+}
+
 function createMockSyncStore() {
   return {
     activities: [],
@@ -274,7 +288,7 @@ describe('standard library sync foundation', () => {
     const store = createMockSyncStore();
     const client = createMockSyncClient(store);
     const manifest = cloneManifest();
-    delete manifest.activities[0].name_i18n.sv;
+    delete findActivity(manifest, 'brush_teeth').name_i18n.sv;
 
     const result = await syncStandardLibrary(client, { manifest });
     assert.equal(result.ok, false);
@@ -297,21 +311,23 @@ describe('standard library sync foundation', () => {
     const store = createMockSyncStore();
     const client = createMockSyncClient(store);
     const manifest = cloneManifest();
+    const counts = manifestCounts(manifest);
 
     const result = await syncStandardLibrary(client, { manifest });
     assert.equal(result.ok, true);
-    assert.equal(result.summary.activities.inserts, 2);
-    assert.equal(result.summary.schedules.inserts, 1);
-    assert.equal(result.summary.schedule_items.inserts, 2);
-    assert.equal(store.activities.length, 2);
-    assert.equal(store.schedules.length, 1);
-    assert.equal(store.scheduleItems.length, 2);
+    assert.equal(result.summary.activities.inserts, counts.activities);
+    assert.equal(result.summary.schedules.inserts, counts.schedules);
+    assert.equal(result.summary.schedule_items.inserts, counts.scheduleItems);
+    assert.equal(store.activities.length, counts.activities);
+    assert.equal(store.schedules.length, counts.schedules);
+    assert.equal(store.scheduleItems.length, counts.scheduleItems);
   });
 
   it('second identical sync is unchanged/no-op', async () => {
     const store = createMockSyncStore();
     const client = createMockSyncClient(store);
     const manifest = cloneManifest();
+    const counts = manifestCounts(manifest);
 
     await syncStandardLibrary(client, { manifest });
     const writesAfterFirst = countWriteQueries(store);
@@ -319,7 +335,7 @@ describe('standard library sync foundation', () => {
     const second = await syncStandardLibrary(client, { manifest });
     assert.equal(second.summary.totals.inserts, 0);
     assert.equal(second.summary.totals.updates, 0);
-    assert.equal(second.summary.totals.unchanged, 5);
+    assert.equal(second.summary.totals.unchanged, counts.total);
     assert.equal(countWriteQueries(store), writesAfterFirst);
   });
 
@@ -329,13 +345,14 @@ describe('standard library sync foundation', () => {
     const manifest = cloneManifest();
 
     await syncStandardLibrary(client, { manifest });
-    manifest.activities[0].name_i18n.sv = 'Borsta tänderna uppdaterad';
-    manifest.activities[0].name_i18n['en-GB'] = 'Brush teeth updated';
+    const brush = findActivity(manifest, 'brush_teeth');
+    brush.name_i18n.sv = 'Borsta tänderna uppdaterad';
+    brush.name_i18n['en-GB'] = 'Brush teeth updated';
 
     const second = await syncStandardLibrary(client, { manifest });
     assert.equal(second.summary.activities.updates, 1);
     assert.equal(second.summary.activities.inserts, 0);
-    assert.equal(store.activities.length, 2);
+    assert.equal(store.activities.length, manifestCounts(manifest).activities);
     assert.equal(store.activities.find((a) => a.canonical_id === 'brush_teeth').name, 'Borsta tänderna uppdaterad');
   });
 
@@ -346,7 +363,7 @@ describe('standard library sync foundation', () => {
 
     await syncStandardLibrary(client, { manifest });
     const firstId = store.activities.find((a) => a.canonical_id === 'brush_teeth').id;
-    manifest.activities[0].name_i18n.sv = 'Helt nytt namn';
+    findActivity(manifest, 'brush_teeth').name_i18n.sv = 'Helt nytt namn';
 
     await syncStandardLibrary(client, { manifest });
     const secondId = store.activities.find((a) => a.canonical_id === 'brush_teeth').id;
@@ -389,12 +406,14 @@ describe('standard library sync foundation', () => {
     const manifest = cloneManifest();
 
     await syncStandardLibrary(client, { manifest });
-    const brush = store.activities.find((a) => a.canonical_id === 'brush_teeth');
+    const wakeUp = store.activities.find((a) => a.canonical_id === 'wake_up');
     const morning = store.schedules.find((s) => s.canonical_id === 'morning_routine');
-    const firstItem = store.scheduleItems.find((item) => item.sort_order === 0);
+    const firstItem = store.scheduleItems.find(
+      (item) => item.default_schedule_id === morning.id && item.sort_order === 0
+    );
 
     assert.equal(firstItem.default_schedule_id, morning.id);
-    assert.equal(firstItem.default_activity_template_id, brush.id);
+    assert.equal(firstItem.default_activity_template_id, wakeUp.id);
     assert.equal(firstItem.section, 'morgon');
   });
 

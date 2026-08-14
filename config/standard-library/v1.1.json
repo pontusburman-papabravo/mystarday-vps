@@ -2,8 +2,51 @@
   "format": "\u006dystarday-standard-library",
   "schema_version": 1,
   "content_version": "1.1",
-  "required_locales": ["sv", "en-GB"],
+  "required_locales": [
+    "sv",
+    "en-GB"
+  ],
   "activities": [
+    {
+      "activity_id": "wake_up",
+      "name_i18n": {
+        "sv": "Vakna",
+        "en-GB": "Wake up"
+      },
+      "icon_key": "wake_up",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "get_dressed",
+      "name_i18n": {
+        "sv": "Klä på dig",
+        "en-GB": "Get dressed"
+      },
+      "icon_key": "dress",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "toilet",
+      "name_i18n": {
+        "sv": "Toalett",
+        "en-GB": "Toilet"
+      },
+      "icon_key": "toilet",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "breakfast",
+      "name_i18n": {
+        "sv": "Frukost",
+        "en-GB": "Breakfast"
+      },
+      "icon_key": "breakfast",
+      "default_stars": 1,
+      "sub_steps": []
+    },
     {
       "activity_id": "brush_teeth",
       "name_i18n": {
@@ -14,14 +57,146 @@
       "default_stars": 1,
       "sub_steps": [
         {
+          "step_id": "brush_teeth.get_toothpaste",
+          "name_i18n": {
+            "sv": "Ta tandkrämen",
+            "en-GB": "Get the toothpaste"
+          }
+        },
+        {
+          "step_id": "brush_teeth.apply_toothpaste",
+          "name_i18n": {
+            "sv": "Lägg tandkräm på tandborsten",
+            "en-GB": "Put toothpaste on the toothbrush"
+          }
+        },
+        {
           "step_id": "brush_teeth.brush",
           "name_i18n": {
-            "sv": "Borsta",
-            "en-GB": "Brush"
+            "sv": "Borsta tänderna",
+            "en-GB": "Brush your teeth"
           },
           "duration_seconds": 120
+        },
+        {
+          "step_id": "brush_teeth.spit",
+          "name_i18n": {
+            "sv": "Spotta ut tandkrämen",
+            "en-GB": "Spit out the toothpaste"
+          }
+        },
+        {
+          "step_id": "brush_teeth.put_away",
+          "name_i18n": {
+            "sv": "Ställ tillbaka tandborsten",
+            "en-GB": "Put the toothbrush back"
+          }
         }
       ]
+    },
+    {
+      "activity_id": "wash_hands",
+      "name_i18n": {
+        "sv": "Tvätta händerna",
+        "en-GB": "Wash hands"
+      },
+      "icon_key": "wash_hands",
+      "default_stars": 1,
+      "sub_steps": [
+        {
+          "step_id": "wash_hands.water_on",
+          "name_i18n": {
+            "sv": "Sätt på vattnet",
+            "en-GB": "Turn on the water"
+          }
+        },
+        {
+          "step_id": "wash_hands.wet",
+          "name_i18n": {
+            "sv": "Blöt händerna",
+            "en-GB": "Wet your hands"
+          }
+        },
+        {
+          "step_id": "wash_hands.soap",
+          "name_i18n": {
+            "sv": "Ta tvål",
+            "en-GB": "Get soap"
+          }
+        },
+        {
+          "step_id": "wash_hands.wash",
+          "name_i18n": {
+            "sv": "Tvätta händerna",
+            "en-GB": "Wash your hands"
+          },
+          "duration_seconds": 20
+        },
+        {
+          "step_id": "wash_hands.rinse",
+          "name_i18n": {
+            "sv": "Skölj händerna",
+            "en-GB": "Rinse your hands"
+          }
+        },
+        {
+          "step_id": "wash_hands.dry",
+          "name_i18n": {
+            "sv": "Torka händerna",
+            "en-GB": "Dry your hands"
+          }
+        }
+      ]
+    },
+    {
+      "activity_id": "pack_school_bag",
+      "name_i18n": {
+        "sv": "Packa skolväskan",
+        "en-GB": "Pack school bag"
+      },
+      "icon_key": "pack_bag",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "outerwear",
+      "name_i18n": {
+        "sv": "Ytterkläder",
+        "en-GB": "Outerwear"
+      },
+      "icon_key": "coat",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "leave_home",
+      "name_i18n": {
+        "sv": "Lämna hemmet",
+        "en-GB": "Leave home"
+      },
+      "icon_key": "walk",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "preschool",
+      "name_i18n": {
+        "sv": "Förskola",
+        "en-GB": "Preschool"
+      },
+      "icon_key": "group",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "school",
+      "name_i18n": {
+        "sv": "Skola",
+        "en-GB": "School"
+      },
+      "icon_key": "school",
+      "default_stars": 1,
+      "sub_steps": []
     },
     {
       "activity_id": "after_school",
@@ -29,8 +204,9 @@
         "sv": "Efter skolan",
         "en-GB": "After school"
       },
-      "icon_key": "school",
+      "icon_key": "recess",
       "default_stars": 1,
+      "sub_steps": [],
       "variants": [
         {
           "variant_key": "after_school_club",
@@ -40,10 +216,31 @@
           },
           "sub_steps": [
             {
-              "step_id": "after_school.after_school_club.check_in",
+              "step_id": "after_school.after_school_club.arrive",
               "name_i18n": {
-                "sv": "Checka in",
-                "en-GB": "Check in"
+                "sv": "Gå in på fritids",
+                "en-GB": "Go into after-school club"
+              }
+            },
+            {
+              "step_id": "after_school.after_school_club.snack",
+              "name_i18n": {
+                "sv": "Äta mellanmål",
+                "en-GB": "Have a snack"
+              }
+            },
+            {
+              "step_id": "after_school.after_school_club.activity",
+              "name_i18n": {
+                "sv": "Göra en aktivitet",
+                "en-GB": "Do an activity"
+              }
+            },
+            {
+              "step_id": "after_school.after_school_club.wait_pickup",
+              "name_i18n": {
+                "sv": "Vänta på hämtning",
+                "en-GB": "Wait to be picked up"
               }
             }
           ]
@@ -51,23 +248,452 @@
         {
           "variant_key": "after_school_home",
           "name_i18n": {
-            "sv": "Hemma",
-            "en-GB": "At home"
+            "sv": "Åka hem",
+            "en-GB": "Go home"
           },
           "sub_steps": [
             {
-              "step_id": "after_school.after_school_home.snack",
+              "step_id": "after_school.after_school_home.leave_school",
               "name_i18n": {
-                "sv": "Mellanmål",
-                "en-GB": "Snack"
+                "sv": "Lämna skolan",
+                "en-GB": "Leave school"
+              }
+            },
+            {
+              "step_id": "after_school.after_school_home.travel",
+              "name_i18n": {
+                "sv": "Åka hem",
+                "en-GB": "Travel home"
+              }
+            },
+            {
+              "step_id": "after_school.after_school_home.arrive",
+              "name_i18n": {
+                "sv": "Komma hem",
+                "en-GB": "Arrive home"
+              }
+            },
+            {
+              "step_id": "after_school.after_school_home.bag_away",
+              "name_i18n": {
+                "sv": "Häng av väskan",
+                "en-GB": "Put bag away"
               }
             }
           ]
         }
       ]
+    },
+    {
+      "activity_id": "snack",
+      "name_i18n": {
+        "sv": "Mellanmål",
+        "en-GB": "Snack"
+      },
+      "icon_key": "snack",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "lunch",
+      "name_i18n": {
+        "sv": "Lunch",
+        "en-GB": "Lunch"
+      },
+      "icon_key": "lunch",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "dinner",
+      "name_i18n": {
+        "sv": "Middag",
+        "en-GB": "Dinner"
+      },
+      "icon_key": "dinner",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "free_time",
+      "name_i18n": {
+        "sv": "Ledig tid",
+        "en-GB": "Free time"
+      },
+      "icon_key": "toy",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "homework",
+      "name_i18n": {
+        "sv": "Läxa",
+        "en-GB": "Homework"
+      },
+      "icon_key": "homework",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "shower",
+      "name_i18n": {
+        "sv": "Duscha",
+        "en-GB": "Shower"
+      },
+      "icon_key": "shower",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "pajamas",
+      "name_i18n": {
+        "sv": "Pyjamas",
+        "en-GB": "Pyjamas"
+      },
+      "icon_key": "pajamas",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "calm_time",
+      "name_i18n": {
+        "sv": "Lugnt moment",
+        "en-GB": "Calm time"
+      },
+      "icon_key": "quiet",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "bedtime_reading",
+      "name_i18n": {
+        "sv": "Sagostund",
+        "en-GB": "Bedtime reading"
+      },
+      "icon_key": "read_book",
+      "default_stars": 1,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "sleep",
+      "name_i18n": {
+        "sv": "Sova",
+        "en-GB": "Sleep"
+      },
+      "icon_key": "sleep",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "excursion",
+      "name_i18n": {
+        "sv": "Utflykt",
+        "en-GB": "Excursion"
+      },
+      "icon_key": "outside",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "family_activity",
+      "name_i18n": {
+        "sv": "Familjeaktivitet",
+        "en-GB": "Family activity"
+      },
+      "icon_key": "sibling",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "craft_or_game",
+      "name_i18n": {
+        "sv": "Pyssel eller spel",
+        "en-GB": "Craft or game"
+      },
+      "icon_key": "art",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "swim_water",
+      "name_i18n": {
+        "sv": "Simma eller bada",
+        "en-GB": "Swim or paddle"
+      },
+      "icon_key": "bath",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "outdoor_play",
+      "name_i18n": {
+        "sv": "Leka utomhus",
+        "en-GB": "Outdoor play"
+      },
+      "icon_key": "playground",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "ice_cream_or_snack",
+      "name_i18n": {
+        "sv": "Glass eller fika",
+        "en-GB": "Ice cream or snack"
+      },
+      "icon_key": "snack",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "evening_activity",
+      "name_i18n": {
+        "sv": "Kvällsaktivitet",
+        "en-GB": "Evening activity"
+      },
+      "icon_key": "evening_routine",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "christmas_craft",
+      "name_i18n": {
+        "sv": "Julpyssel",
+        "en-GB": "Christmas craft"
+      },
+      "icon_key": "art",
+      "default_stars": 0,
+      "sub_steps": []
+    },
+    {
+      "activity_id": "christmas_cozy_snack",
+      "name_i18n": {
+        "sv": "Julmys och fika",
+        "en-GB": "Christmas cosy snack"
+      },
+      "icon_key": "eat",
+      "default_stars": 0,
+      "sub_steps": []
     }
   ],
   "schedules": [
+    {
+      "schedule_id": "preschool_weekday",
+      "name_i18n": {
+        "sv": "Förskola vardag",
+        "en-GB": "Preschool weekday"
+      },
+      "description_i18n": {
+        "sv": "En vardag med förskola, eftermiddag och kvällsrutin.",
+        "en-GB": "A weekday with preschool, afternoon and evening routine."
+      },
+      "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "get_dressed",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "outerwear",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "leave_home",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "preschool",
+          "section": "dag"
+        },
+        {
+          "activity_id": "snack",
+          "section": "dag"
+        },
+        {
+          "activity_id": "free_time",
+          "section": "dag"
+        },
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
+        }
+      ]
+    },
+    {
+      "schedule_id": "school_weekday",
+      "name_i18n": {
+        "sv": "Skola vardag",
+        "en-GB": "School weekday"
+      },
+      "description_i18n": {
+        "sv": "En skoldag med morgon, skola, efter skolan och kvällsrutin.",
+        "en-GB": "A school day with morning, school, after school and evening routine."
+      },
+      "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "get_dressed",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "pack_school_bag",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "outerwear",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "leave_home",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "school",
+          "section": "dag"
+        },
+        {
+          "activity_id": "after_school",
+          "section": "dag"
+        },
+        {
+          "activity_id": "snack",
+          "section": "dag"
+        },
+        {
+          "activity_id": "free_time",
+          "section": "dag"
+        },
+        {
+          "activity_id": "homework",
+          "section": "dag",
+          "is_optional": true
+        },
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "shower",
+          "section": "kvall",
+          "is_optional": true
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
+        }
+      ]
+    },
+    {
+      "schedule_id": "weekend",
+      "name_i18n": {
+        "sv": "Helg",
+        "en-GB": "Weekend"
+      },
+      "description_i18n": {
+        "sv": "En lugn helgdag med frukost, lek och kvällsrutin.",
+        "en-GB": "A calm weekend day with breakfast, play and evening routine."
+      },
+      "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "free_time",
+          "section": "dag"
+        },
+        {
+          "activity_id": "excursion",
+          "section": "dag",
+          "is_optional": true
+        },
+        {
+          "activity_id": "lunch",
+          "section": "dag"
+        },
+        {
+          "activity_id": "family_activity",
+          "section": "dag"
+        },
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
+        }
+      ]
+    },
     {
       "schedule_id": "morning_routine",
       "name_i18n": {
@@ -75,18 +701,278 @@
         "en-GB": "Morning routine"
       },
       "description_i18n": {
-        "sv": "Kort morgon med borstning",
-        "en-GB": "Short morning with brushing"
+        "sv": "En kort morgonsekvens med vakna, kläder, frukost och tandborstning.",
+        "en-GB": "A short morning sequence with wake up, clothes, breakfast and brushing teeth."
       },
       "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "get_dressed",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        }
+      ]
+    },
+    {
+      "schedule_id": "evening_routine",
+      "name_i18n": {
+        "sv": "Kvällsrutin",
+        "en-GB": "Evening routine"
+      },
+      "description_i18n": {
+        "sv": "En kvällssekvens med middag, hygien och läggdags.",
+        "en-GB": "An evening sequence with dinner, hygiene and bedtime."
+      },
+      "items": [
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "shower",
+          "section": "kvall",
+          "is_optional": true
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "calm_time",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
+        }
+      ]
+    },
+    {
+      "schedule_id": "school_break",
+      "name_i18n": {
+        "sv": "Lov",
+        "en-GB": "School break"
+      },
+      "description_i18n": {
+        "sv": "En lovdag med lugna aktiviteter och tydliga måltider.",
+        "en-GB": "A school break day with calm activities and clear mealtimes."
+      },
+      "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "get_dressed",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
         {
           "activity_id": "brush_teeth",
           "section": "morgon"
         },
         {
-          "activity_id": "after_school",
-          "section": "dag",
-          "variant_key": "after_school_club"
+          "activity_id": "free_time",
+          "section": "dag"
+        },
+        {
+          "activity_id": "snack",
+          "section": "dag"
+        },
+        {
+          "activity_id": "lunch",
+          "section": "dag"
+        },
+        {
+          "activity_id": "excursion",
+          "section": "dag"
+        },
+        {
+          "activity_id": "craft_or_game",
+          "section": "dag"
+        },
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
+        }
+      ]
+    },
+    {
+      "schedule_id": "summer_break",
+      "name_i18n": {
+        "sv": "Sommarlov",
+        "en-GB": "Summer break"
+      },
+      "description_i18n": {
+        "sv": "En sommardag med bad, utomhuslek och kvällsrutin.",
+        "en-GB": "A summer day with swimming, outdoor play and evening routine."
+      },
+      "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "get_dressed",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "swim_water",
+          "section": "dag"
+        },
+        {
+          "activity_id": "lunch",
+          "section": "dag"
+        },
+        {
+          "activity_id": "outdoor_play",
+          "section": "dag"
+        },
+        {
+          "activity_id": "ice_cream_or_snack",
+          "section": "dag"
+        },
+        {
+          "activity_id": "free_time",
+          "section": "dag"
+        },
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "evening_activity",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
+        }
+      ]
+    },
+    {
+      "schedule_id": "christmas_break",
+      "name_i18n": {
+        "sv": "Jullov",
+        "en-GB": "Christmas break"
+      },
+      "description_i18n": {
+        "sv": "En juldag med pyssel, familjetid och kvällsrutin.",
+        "en-GB": "A Christmas break day with crafts, family time and evening routine."
+      },
+      "items": [
+        {
+          "activity_id": "wake_up",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "get_dressed",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "breakfast",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "christmas_craft",
+          "section": "dag"
+        },
+        {
+          "activity_id": "free_time",
+          "section": "dag"
+        },
+        {
+          "activity_id": "lunch",
+          "section": "dag"
+        },
+        {
+          "activity_id": "family_activity",
+          "section": "dag"
+        },
+        {
+          "activity_id": "christmas_cozy_snack",
+          "section": "dag"
+        },
+        {
+          "activity_id": "dinner",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "brush_teeth",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "pajamas",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "bedtime_reading",
+          "section": "kvall"
+        },
+        {
+          "activity_id": "sleep",
+          "section": "kvall"
         }
       ]
     }
