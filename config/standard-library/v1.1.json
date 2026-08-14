@@ -1,0 +1,94 @@
+{
+  "format": "\u006dystarday-standard-library",
+  "schema_version": 1,
+  "content_version": "1.1",
+  "required_locales": ["sv", "en-GB"],
+  "activities": [
+    {
+      "activity_id": "brush_teeth",
+      "name_i18n": {
+        "sv": "Borsta tänderna",
+        "en-GB": "Brush teeth"
+      },
+      "icon_key": "brush_teeth",
+      "default_stars": 1,
+      "sub_steps": [
+        {
+          "step_id": "brush_teeth.brush",
+          "name_i18n": {
+            "sv": "Borsta",
+            "en-GB": "Brush"
+          },
+          "duration_seconds": 120
+        }
+      ]
+    },
+    {
+      "activity_id": "after_school",
+      "name_i18n": {
+        "sv": "Efter skolan",
+        "en-GB": "After school"
+      },
+      "icon_key": "school",
+      "default_stars": 1,
+      "variants": [
+        {
+          "variant_key": "after_school_club",
+          "name_i18n": {
+            "sv": "Fritids",
+            "en-GB": "After-school club"
+          },
+          "sub_steps": [
+            {
+              "step_id": "after_school.after_school_club.check_in",
+              "name_i18n": {
+                "sv": "Checka in",
+                "en-GB": "Check in"
+              }
+            }
+          ]
+        },
+        {
+          "variant_key": "after_school_home",
+          "name_i18n": {
+            "sv": "Hemma",
+            "en-GB": "At home"
+          },
+          "sub_steps": [
+            {
+              "step_id": "after_school.after_school_home.snack",
+              "name_i18n": {
+                "sv": "Mellanmål",
+                "en-GB": "Snack"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "schedules": [
+    {
+      "schedule_id": "morning_routine",
+      "name_i18n": {
+        "sv": "Morgonrutin",
+        "en-GB": "Morning routine"
+      },
+      "description_i18n": {
+        "sv": "Kort morgon med borstning",
+        "en-GB": "Short morning with brushing"
+      },
+      "items": [
+        {
+          "activity_id": "brush_teeth",
+          "section": "morgon"
+        },
+        {
+          "activity_id": "after_school",
+          "section": "dag",
+          "variant_key": "after_school_club"
+        }
+      ]
+    }
+  ]
+}

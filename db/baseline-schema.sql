@@ -118,7 +118,16 @@ CREATE TABLE IF NOT EXISTS activity_template (
   schema_type VARCHAR(32),
   sort_order INTEGER DEFAULT 0,
   source VARCHAR(32),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  seven_questions JSONB NOT NULL DEFAULT '{}'::jsonb,
+  icon_key VARCHAR(64),
+  duration_seconds INTEGER,
+  image_url TEXT,
+  for_dig_goal_slug VARCHAR(64),
+  source_default_activity_id UUID,
+  source_canonical_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT activity_template_duration_seconds_range
+    CHECK (duration_seconds IS NULL OR (duration_seconds >= 5 AND duration_seconds <= 3600))
 );
 
 CREATE TABLE IF NOT EXISTS activity_sub_step (
@@ -126,7 +135,10 @@ CREATE TABLE IF NOT EXISTS activity_sub_step (
   activity_template_id UUID NOT NULL REFERENCES activity_template(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
   icon VARCHAR(64) DEFAULT '⭐',
-  sort_order INTEGER DEFAULT 0
+  sort_order INTEGER DEFAULT 0,
+  duration_seconds INTEGER,
+  CONSTRAINT activity_sub_step_duration_seconds_range
+    CHECK (duration_seconds IS NULL OR (duration_seconds >= 5 AND duration_seconds <= 3600))
 );
 
 CREATE TABLE IF NOT EXISTS weekly_schedule (
@@ -472,7 +484,17 @@ CREATE TABLE IF NOT EXISTS default_activity_template (
   category_name VARCHAR(64),
   schema_type VARCHAR(32),
   template_group VARCHAR(32),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  seven_questions JSONB NOT NULL DEFAULT '{}'::jsonb,
+  package_component VARCHAR(32),
+  canonical_id TEXT,
+  name_i18n JSONB,
+  icon_key VARCHAR(64),
+  duration_seconds INTEGER,
+  variants JSONB NOT NULL DEFAULT '[]'::jsonb,
+  deprecated BOOLEAN NOT NULL DEFAULT false,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT default_activity_template_duration_seconds_range
+    CHECK (duration_seconds IS NULL OR (duration_seconds >= 5 AND duration_seconds <= 3600))
 );
 
 CREATE TABLE IF NOT EXISTS default_reward (
@@ -489,6 +511,10 @@ CREATE TABLE IF NOT EXISTS default_schedule (
   description TEXT,
   icon VARCHAR(64),
   sort_order INTEGER DEFAULT 0,
+  canonical_id TEXT,
+  name_i18n JSONB,
+  description_i18n JSONB,
+  deprecated BOOLEAN NOT NULL DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -503,8 +529,28 @@ CREATE TABLE IF NOT EXISTS default_schedule_item (
   start_time VARCHAR(8),
   end_time VARCHAR(8),
   sort_order INTEGER DEFAULT 0,
-  sub_steps JSONB DEFAULT '[]'::jsonb
+  sub_steps JSONB DEFAULT '[]'::jsonb,
+  is_optional BOOLEAN NOT NULL DEFAULT false,
+  variant_key TEXT
 );
+
+ALTER TABLE activity_template
+  DROP CONSTRAINT IF EXISTS activity_template_source_default_activity_id_fkey;
+ALTER TABLE activity_template
+  ADD CONSTRAINT activity_template_source_default_activity_id_fkey
+  FOREIGN KEY (source_default_activity_id) REFERENCES default_activity_template(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_default_activity_template_canonical_id
+  ON default_activity_template (canonical_id)
+  WHERE canonical_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_default_schedule_canonical_id
+  ON default_schedule (canonical_id)
+  WHERE canonical_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_activity_template_for_dig_goal
+  ON activity_template (family_id, for_dig_goal_slug)
+  WHERE for_dig_goal_slug IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS welcome_email_template (
   id INTEGER PRIMARY KEY DEFAULT 1,

@@ -32,6 +32,7 @@ const CRITICAL_INTEGRATION = [
   'test/fas-5-widget-family-device.integration.test.js',
   'test/r45-closure-blockers.integration.test.js',
   'test/iap-webhook-ordering.integration.test.js',
+  'test/standard-library-v11-foundation.test.js',
 ];
 
 const CRITICAL_UNIT = [
@@ -39,6 +40,9 @@ const CRITICAL_UNIT = [
   'test/safe-url-fetch.test.js',
   'test/parent-session-backup-security.test.js',
   'test/ci-test-manifest.test.js',
+  'test/standard-library-foundation-gates.test.js',
+  'test/standard-library-manifest.test.js',
+  'test/standard-library-sync.test.js',
   'test/family-device-prod-pilot-harness.test.js',
   'test/r4-runtime-release-gates.test.js',
   'test/android-aab-release-gate.test.js',
