@@ -179,6 +179,45 @@ test('pilot harness: cleanup finally deletes disposable families', () => {
   assert.match(core, /finally\s*\{/);
   assert.match(core, /deletePilotFamily/);
   assert.match(core, /countPilotOverrides/);
+  assert.match(core, /countGlobalStaleFdPilotRows/);
+  assert.match(core, /stale\.families === 0/);
+});
+
+test('pilot core: report.ok requires verified cleanup and SHARED_ONE_CHILD', () => {
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  assert.match(core, /withFamilyDevicePilotLock/);
+  assert.match(core, /report\.cleanup\?\.ok === true/);
+  assert.match(core, /SELECT_PARENT_PIN_SERVER/);
+  assert.match(core, /SHARED_ONE_CHILD_SERVER === 'PASS'/);
+  assert.match(core, /widgetOverrideWrites === 0/);
+  assert.match(core, /parentId: fixture\.parentId/);
+  assert.doesNotMatch(core, /WIDGET_SERVER_SCOPE/);
+});
+
+test('pilot harness JSON: both SHARED_ONE_CHILD and SELECT_PARENT_PIN visible; widgets excluded', () => {
+  const mjs = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot.mjs'),
+    'utf8'
+  );
+  assert.match(mjs, /SHARED_ONE_CHILD_SERVER:/);
+  assert.match(mjs, /SELECT_PARENT_PIN_SERVER:/);
+  assert.match(mjs, /WIDGET_OVERRIDE_WRITES/);
+  assert.doesNotMatch(mjs, /WIDGET_SERVER_SCOPE/);
+  assert.match(mjs, /PILOT_LOCK_BUSY/);
+});
+
+test('pilot guard: Family Device allowlist excludes widget flags', () => {
+  const {
+    FAMILY_DEVICE_PILOT_FLAG_KEYS,
+    WIDGET_PILOT_FLAG_KEYS,
+  } = require('../src/lib/family-device-pilot-guard');
+  for (const key of WIDGET_PILOT_FLAG_KEYS) {
+    assert.ok(!FAMILY_DEVICE_PILOT_FLAG_KEYS.includes(key), key);
+  }
+  assert.equal(FAMILY_DEVICE_PILOT_FLAG_KEYS.length, 4);
 });
 
 test('pilot harness: does not mutate global feature_flag enable', () => {

@@ -1,7 +1,6 @@
 'use strict';
 
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 const { createCookieJar, readJson } = require('./family-device-pilot-http.cjs');
 const {
   enablePilotOverrides,
@@ -9,18 +8,20 @@ const {
   deletePilotFamily,
   snapshotGlobalPilotFlags,
   globalFlagsUnchanged,
+  withFamilyDevicePilotLock,
+  countWidgetOverrides,
 } = require('./family-device-pilot-db.cjs');
 const {
   assertFamilyDevicePilotDisposableEmail,
   isFamilyDevicePilotDisposableEmail,
   redactSecrets,
+  FAMILY_DEVICE_PILOT_FLAG_KEYS,
 } = require('../../src/lib/family-device-pilot-guard');
 const { createDisposableFamilyDeviceQaFamily } = require('./family-device-qa-fixture.cjs');
 const { makeDisposableEmail } = require('./family-device-pilot-guard-helpers.cjs');
 const { isFounderQaParentEmail } = require('../../src/lib/founder-qa-family-guard');
-const { PILOT_FLAG_KEYS } = require('../../src/lib/family-device-pilot-guard');
 
-const PILOT_TRUSTED_DEVICE_KEYS = PILOT_FLAG_KEYS.filter((k) => k !== 'adult_privilege_v1');
+const PILOT_TRUSTED_DEVICE_KEYS = FAMILY_DEVICE_PILOT_FLAG_KEYS.filter((k) => k !== 'adult_privilege_v1');
 
 async function apiFetch(baseUrl, path, { method = 'GET', jar, csrf, body, track5xx, track429, authBearer } = {}) {
   const headers = {};
@@ -72,6 +73,7 @@ async function provisionFamily(db, baseUrl, childCount, track5xx, track429Fixtur
     password: fixture.password,
     parentPin: fixture.parentPin,
     familyId: fixture.familyId,
+    parentId: fixture.parentId,
     children: fixture.children,
     session: { jar, csrf: sessionCsrf },
   };
@@ -102,6 +104,10 @@ async function assertTrustedDeviceEnabledOnServer(baseUrl, session, track5xx, tr
 
 async function enablePilotForFamily(db, baseUrl, fam, track5xx, track429, keys = PILOT_TRUSTED_DEVICE_KEYS) {
   await enablePilotOverrides(db, fam.familyId, fam.email, 'family-device-prod-pilot', keys);
+  const widgetWrites = await countWidgetOverrides(db, fam.familyId);
+  if (widgetWrites > 0) {
+    throw new Error('widget_override_write_forbidden');
+  }
   await assertTrustedDeviceEnabledOnServer(baseUrl, fam.session, track5xx, track429);
 }
 
@@ -194,6 +200,15 @@ async function selectChild(baseUrl, jar, childId, track5xx) {
   });
 }
 
+async function selectParent(baseUrl, jar, parentId, body, track5xx) {
+  return apiFetch(baseUrl, '/api/auth/trusted-device/select-parent', {
+    method: 'POST',
+    jar,
+    body: { parent_id: parentId, ...body },
+    track5xx,
+  });
+}
+
 async function childLoginHandoff(baseUrl, session, username, pin, track5xx) {
   return apiFetch(baseUrl, '/api/auth/child-login', {
     method: 'POST',
@@ -204,16 +219,36 @@ async function childLoginHandoff(baseUrl, session, username, pin, track5xx) {
   });
 }
 
-function decodeWidgetChildId(token, secret) {
-  const decoded = jwt.verify(token, secret);
-  if (decoded.type !== 'widget_binding') throw new Error('invalid_binding_token');
-  return decoded.child_id;
+/**
+ * @param {{ db: object, baseUrl: string, dryRun?: boolean }} opts
+ */
+async function runFamilyDeviceProdPilot(opts) {
+  if (opts.dryRun) {
+    return {
+      ok: true,
+      dryRun: true,
+      scenarios: {},
+      cleanup: { ok: true },
+    };
+  }
+
+  const lockResult = await withFamilyDevicePilotLock(opts.db, async () => runFamilyDeviceProdPilotUnderLock(opts));
+  if (!lockResult.locked) {
+    return {
+      ok: false,
+      lockBusy: true,
+      code: lockResult.code || 'PILOT_LOCK_BUSY',
+      scenarios: {},
+      cleanup: { ok: false },
+    };
+  }
+  return lockResult.result;
 }
 
 /**
- * @param {{ db: object, baseUrl: string, jwtSecret?: string, dryRun?: boolean }} opts
+ * Runs only while FD_PILOT_OPS_LOCK_KEY is held on a dedicated DB session.
  */
-async function runFamilyDeviceProdPilot(opts) {
+async function runFamilyDeviceProdPilotUnderLock(opts) {
   const track5xx = [];
   const track429 = [];
   const track429Fixture = [];
@@ -227,6 +262,7 @@ async function runFamilyDeviceProdPilot(opts) {
     publicSignupUsedForFixture: false,
     fixtureCreationMethod: 'db_ops',
     wrongChildWrites: 0,
+    widgetOverrideWrites: 0,
     globalFlagsChanged: false,
     founderCredentialsUsed: false,
     disposableFamilies: [],
@@ -237,12 +273,6 @@ async function runFamilyDeviceProdPilot(opts) {
   let globalAfter = null;
 
   try {
-    if (opts.dryRun) {
-      report.ok = true;
-      report.dryRun = true;
-      return report;
-    }
-
     globalBefore = await snapshotGlobalPilotFlags(opts.db);
 
     const single = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
@@ -255,6 +285,7 @@ async function runFamilyDeviceProdPilot(opts) {
         throw new Error('founder_email_in_fixture');
       }
       await enablePilotForFamily(opts.db, opts.baseUrl, fam, track5xx, track429);
+      report.widgetOverrideWrites += await countWidgetOverrides(opts.db, fam.familyId);
       await reloginParentIfNeeded(opts.baseUrl, fam, track5xx, track429);
       report.disposableFamilies.push({ family_id: fam.familyId, email_domain: 'example.com' });
     }
@@ -449,44 +480,42 @@ async function runFamilyDeviceProdPilot(opts) {
       report.scenarios.OFFLINE_IDENTITY = pass ? 'PASS' : 'FAIL';
     }
 
-    // J — widget server scope
+    // H — select-parent: wrong PIN then correct PIN (child → parent on shared device)
     {
-      const secret = opts.jwtSecret;
-      if (!secret) {
-        report.scenarios.WIDGET_SERVER_SCOPE = 'FAIL';
-      } else {
-        const wJar = jarWithTrustedDevice(multi.session.jar);
-        await enrollShared(opts.baseUrl, multi, track5xx, track429);
-        const childA = multi.children[0].id;
-        const childB = multi.children[1].id;
-        const bind = await apiFetch(opts.baseUrl, '/api/widget/bindings', {
-          method: 'POST',
-          jar: multi.session.jar,
-          csrf: multi.session.csrf,
-          body: {
-            installation_id: `pilot-${Date.now()}`,
-            platform: 'ios',
-            child_id: childA,
-          },
-          track5xx,
-        });
-        const token = bind.body?.binding_token;
-        let pass = bind.status === 201 && token;
-        if (pass) {
-          pass = decodeWidgetChildId(token, secret) === childA;
-          await selectChild(opts.baseUrl, wJar, childB, track5xx);
-          const authRes = await apiFetch(opts.baseUrl, '/api/widget/context', {
-            authBearer: token,
-            track5xx,
-          });
-          pass =
-            pass &&
-            authRes.status === 200 &&
-            authRes.body.active_child?.id === childA &&
-            decodeWidgetChildId(token, secret) === childA;
-        }
-        report.scenarios.WIDGET_SERVER_SCOPE = pass ? 'PASS' : 'FAIL';
-      }
+      const pinFam = await provisionFamily(opts.db, opts.baseUrl, 1, track5xx, track429Fixture);
+      families.push(pinFam);
+      await enablePilotForFamily(opts.db, opts.baseUrl, pinFam, track5xx, track429);
+      await enablePilotOverrides(
+        opts.db,
+        pinFam.familyId,
+        pinFam.email,
+        'family-device-prod-pilot',
+        ['adult_privilege_v1']
+      );
+      await enrollShared(opts.baseUrl, pinFam, track5xx, track429);
+      const tdJar = jarWithTrustedDevice(pinFam.session.jar);
+      await selectChild(opts.baseUrl, tdJar, pinFam.children[0].id, track5xx);
+      const wrongPin = await selectParent(
+        opts.baseUrl,
+        tdJar,
+        pinFam.parentId,
+        { unlockMethod: 'pin', pin: '0000' },
+        track5xx
+      );
+      const okPin = await selectParent(
+        opts.baseUrl,
+        tdJar,
+        pinFam.parentId,
+        { unlockMethod: 'pin', pin: pinFam.parentPin },
+        track5xx
+      );
+      const meAfter = await apiFetch(opts.baseUrl, '/api/auth/me', { jar: tdJar, track5xx });
+      const pass =
+        wrongPin.status === 401 &&
+        okPin.status === 200 &&
+        okPin.body?.ok === true &&
+        meAfter.body?.type === 'parent';
+      report.scenarios.SELECT_PARENT_PIN_SERVER = pass ? 'PASS' : 'FAIL';
     }
 
     const keys = Object.keys(report.scenarios).filter(
@@ -494,14 +523,14 @@ async function runFamilyDeviceProdPilot(opts) {
         k.endsWith('_SERVER') ||
         k === 'WRONG_CHILD' ||
         k === 'DEEP_LINK' ||
-        k === 'OFFLINE_IDENTITY' ||
-        k === 'WIDGET_SERVER_SCOPE'
+        k === 'OFFLINE_IDENTITY'
     );
-    report.ok =
+    report.scenariosPass =
       keys.every((k) => report.scenarios[k] === 'PASS') &&
       track5xx.length === 0 &&
       track429Fixture.length === 0 &&
-      !report.publicSignupUsedForFixture;
+      !report.publicSignupUsedForFixture &&
+      report.widgetOverrideWrites === 0;
   } finally {
     if (!opts.dryRun) {
       for (const fam of families) {
@@ -513,7 +542,7 @@ async function runFamilyDeviceProdPilot(opts) {
         }
       }
       if (!report.cleanup.error) {
-        const { countPilotOverrides } = require('./family-device-pilot-db.cjs');
+        const { countPilotOverrides, countGlobalStaleFdPilotRows } = require('./family-device-pilot-db.cjs');
         let leftover = 0;
         for (const fam of families) {
           leftover += await countPilotOverrides(opts.db, fam.familyId);
@@ -523,8 +552,15 @@ async function runFamilyDeviceProdPilot(opts) {
             opts.db.query('SELECT 1 FROM family WHERE id = $1', [fam.familyId]).then((r) => r.rows.length)
           )
         );
+        const stale = await countGlobalStaleFdPilotRows(opts.db);
+        report.staleFdPilotFamilies = stale.families;
+        report.staleFdPilotOverrides = stale.overrides;
         report.cleanup = {
-          ok: leftover === 0 && existsChecks.every((n) => n === 0),
+          ok:
+            leftover === 0 &&
+            existsChecks.every((n) => n === 0) &&
+            stale.families === 0 &&
+            stale.overrides === 0,
         };
       }
       globalAfter = await snapshotGlobalPilotFlags(opts.db);
@@ -532,6 +568,15 @@ async function runFamilyDeviceProdPilot(opts) {
       report.GLOBAL_FLAGS_CHANGED = report.globalFlagsChanged ? 'YES' : 'NO';
       report.FOUNDER_CREDENTIALS_USED = report.founderCredentialsUsed ? 'YES' : 'NO';
     }
+  }
+
+  if (!opts.dryRun) {
+    report.ok =
+      Boolean(report.scenariosPass) &&
+      report.cleanup?.ok === true &&
+      !report.globalFlagsChanged &&
+      report.widgetOverrideWrites === 0 &&
+      report.scenarios.SHARED_ONE_CHILD_SERVER === 'PASS';
   }
 
   return report;

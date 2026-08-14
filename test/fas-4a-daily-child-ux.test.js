@@ -34,7 +34,7 @@ describe('Fas 4A — daily child UX paths', () => {
     assert.equal(pub.path, '/child/today');
   });
 
-  it('shared single child + one parent resolves profile-picker (Netflix)', () => {
+  it('shared single child + one parent resolves child-home (parent via explicit switch)', () => {
     const resolved = resolveAppEntry({
       trustedDevice: { valid: true, deviceMode: 'shared' },
       allowedChildren: [{ id: 'solo-child-id' }],
@@ -43,8 +43,8 @@ describe('Fas 4A — daily child UX paths', () => {
       parentSession: null,
     });
     const pub = toPublicEntryDecision(resolved, { dailyUxActive: true });
-    assert.equal(pub.destination, 'profile-picker');
-    assert.equal(pub.path, '/child/profile-picker');
+    assert.equal(pub.destination, 'child-home');
+    assert.equal(pub.path, '/child/today');
   });
 });
 

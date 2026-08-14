@@ -119,7 +119,7 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.equal(r.credentialContext, 'none');
   });
 
-  it('shared + one child + one parent → profile-picker', () => {
+  it('shared + one child + one parent → child-home (parent is explicit switch target)', () => {
     const r = resolveAppEntry({
       parentSession: null,
       childSession: null,
@@ -127,8 +127,7 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
       allowedChildren: [{ id: A }],
       allowedParents: [{ id: 'parent-uuid' }],
     });
-    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
-    assert.equal(r.viewContext, 'picker');
+    assertChildHome(r, A, 'shared');
   });
 
   it('shared + multiple children without default → profile-picker', () => {
@@ -180,7 +179,7 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
     assert.notEqual(r.destination, DESTINATIONS.PARENT_HOME);
   });
 
-  it('shared: parent privilege active on cold start → profile-picker when multi-profile', () => {
+  it('shared: parent privilege active on cold start → child-home when single child', () => {
     const r = resolveAppEntry({
       parentPrivilegeActive: true,
       parentSession: { authenticated: true, privilegeActive: true },
@@ -189,8 +188,7 @@ describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
       allowedChildren: [{ id: A }],
       allowedParents: [{ id: 'parent-uuid' }],
     });
-    assert.equal(r.destination, DESTINATIONS.PROFILE_PICKER);
-    assert.equal(r.viewContext, 'picker');
+    assertChildHome(r, A, 'shared');
   });
 
   it('shared: parent privilege active on cold_start multi-profile → profile-picker', () => {

@@ -146,20 +146,21 @@ test('family device entry matrix A–K', async (t) => {
 
     const usernameA = (await db.query('SELECT username FROM child WHERE id = $1', [childA])).rows[0].username;
 
-    await t.test('A: shared + 1 child + 1 parent → profile-picker (Netflix)', async () => {
+    await t.test('A: shared + 1 child + 1 parent → child-home (parent is explicit switch)', async () => {
       const onlyParent = await registerAndLogin(http.baseUrl);
-      await createChild(http.baseUrl, onlyParent, { name: 'Solo', emoji: '⭐' });
+      const soloChild = await createChild(http.baseUrl, onlyParent, { name: 'Solo', emoji: '⭐' });
       const deviceCookies = await enrollShared(http, onlyParent);
       const { status, body } = await fetchAppEntry(http.baseUrl, trustedOnlyCookies(deviceCookies));
       assert.equal(status, 200);
       assert.equal(body.orchestratorActive, true);
-      assert.equal(body.decision.destination, 'profile-picker');
-      assert.equal(body.decision.path, '/child/profile-picker');
+      assert.equal(body.decision.destination, 'child-home');
+      assert.equal(body.decision.childId, soloChild);
+      assert.equal(body.decision.path, '/child/today');
       assert.ok(Array.isArray(body.allowedParents) && body.allowedParents.length >= 1);
       assert.notEqual(body.decision.path, '/child-login');
     });
 
-    await t.test('B: shared + parent handoff + child JWT → profile-picker (multi-profile cold entry)', async () => {
+    await t.test('B: shared + 1 child + child JWT → child-home (single-child direct start)', async () => {
       const pB = await registerAndLogin(http.baseUrl);
       const soloB = await createChild(http.baseUrl, pB, { name: 'SoloB', emoji: '🦊' });
       await setChildPin(db, soloB);
@@ -167,9 +168,10 @@ test('family device entry matrix A–K', async (t) => {
       const deviceCookies = await enrollShared(http, pB);
       const childCookies = await childLoginFromParent(http, { ...pB, cookies: deviceCookies }, uB);
       const { body } = await fetchAppEntry(http.baseUrl, childCookies);
-      assert.equal(body.decision.destination, 'profile-picker');
+      assert.equal(body.decision.destination, 'child-home');
+      assert.equal(body.decision.childId, soloB);
       assert.notEqual(body.decision.destination, 'parent-home');
-      assert.equal(body.decision.credentialContext, 'none');
+      assert.equal(body.decision.credentialContext, 'child');
     });
 
     await t.test('C: shared + multiple children without default → picker', async () => {

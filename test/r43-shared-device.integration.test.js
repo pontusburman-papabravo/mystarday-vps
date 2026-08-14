@@ -115,7 +115,7 @@ test('shared trusted device: picker then select-child sessions', async (t) => {
   }
 });
 
-test('shared device with one child requires profile picker on cold restore (child + adult profiles)', async (t) => {
+test('shared device with one child restores child session directly (parents are switch targets)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -155,10 +155,9 @@ test('shared device with one child requires profile picker on cold restore (chil
     });
     const body = JSON.parse(await restoreRes.text());
     assert.equal(restoreRes.status, 200);
-    assert.equal(body.ok, false);
-    assert.equal(body.code, 'SHARED_PICKER_REQUIRED');
-    assert.equal(body.allowed_children.length, 1);
-    assert.equal(body.allowed_children[0].id, onlyChild);
+    assert.equal(body.ok, true);
+    assert.equal(body.user?.type, 'child');
+    assert.equal(body.user?.id, onlyChild);
   } finally {
     await http.close();
     await db.cleanup();
