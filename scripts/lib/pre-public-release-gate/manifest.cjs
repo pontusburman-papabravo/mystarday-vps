@@ -45,6 +45,8 @@ const FAMILY_DEVICE_DB = [
   'test/profile-switch-parent-return.integration.test.js',
   'test/family-device-shared-one-child-cold-start.integration.test.js',
   'test/family-device-schedule-parity-profile-switch.integration.test.js',
+  'test/family-device-stale-pilots.test.js',
+  'test/family-device-pilot-concurrency.integration.test.js',
   'test/r43-shared-device.integration.test.js',
   'test/r44-adult-child-access.integration.test.js',
   'test/r4-final-security-blockers.integration.test.js',
