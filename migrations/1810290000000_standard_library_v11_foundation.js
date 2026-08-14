@@ -7,6 +7,11 @@
 module.exports = {
   name: '1810290000000_standard_library_v11_foundation',
 
+  snapshotContract: {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
+
   up: async (client) => {
     await client.query(`
       ALTER TABLE default_activity_template
