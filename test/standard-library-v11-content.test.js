@@ -73,6 +73,8 @@ const FORBIDDEN_SOCIAL_STRINGS = [
   /gör dig redo/i,
   /förbered dig/i,
   /gör det/i,
+  /göra en aktivitet/i,
+  /do an activity/i,
   /kom ihåg allt/i,
   /var duktig/i,
   /säg hej/i,
