@@ -350,4 +350,27 @@ describe('standard library sync foundation', () => {
     assert.equal(firstItem.default_activity_template_id, brush.id);
     assert.equal(firstItem.section, 'morgon');
   });
+
+  it('does not deprecate unrelated legacy rows without canonical_id', async () => {
+    const store = createMockSyncStore();
+    store.activities.push({
+      id: randomUUID(),
+      canonical_id: null,
+      name: 'Legacy admin row',
+      icon: '📌',
+      star_value: 1,
+      sort_order: 99,
+      sub_steps: [],
+      variants: [],
+      seven_questions: {},
+      deprecated: false,
+    });
+    const client = createMockSyncClient(store);
+    const manifest = cloneManifest();
+
+    const result = await syncStandardLibrary(client, { manifest });
+    assert.equal(result.summary.activities.deprecated, 0);
+    assert.equal(store.activities.some((a) => a.name === 'Legacy admin row'), true);
+    assert.equal(store.activities.filter((a) => !a.canonical_id).length, 1);
+  });
 });

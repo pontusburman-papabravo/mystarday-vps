@@ -13,8 +13,9 @@ Reads config/standard-library/v1.1.json, validates the manifest, computes a
 canonical_id-based diff, and optionally writes to Postgres.
 
 Options:
-  --dry-run    Validate + diff only. No database writes.
-  --help, -h   Show this help.
+  --dry-run         Validate + diff only. No database writes.
+  --manifest <path> Optional manifest path (default: config/standard-library/v1.1.json).
+  --help, -h        Show this help.
 
 Environment:
   DATABASE_URL  Required for actual sync or dry-run diff against the database.
@@ -31,11 +32,14 @@ Notes:
 `;
 
 function parseArgs(argv) {
-  const opts = { dryRun: false, help: false };
-  for (const arg of argv.slice(2)) {
+  const opts = { dryRun: false, help: false, manifestPath: null };
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
     if (arg === '--dry-run') opts.dryRun = true;
     else if (arg === '--help' || arg === '-h') opts.help = true;
-    else {
+    else if (arg === '--manifest' && argv[i + 1]) {
+      opts.manifestPath = argv[++i];
+    } else {
       console.error(`Unknown option: ${arg}`);
       process.exit(2);
     }
@@ -62,7 +66,10 @@ async function main() {
 
   const client = await pool.connect();
   try {
-    const result = await syncStandardLibrary(client, { dryRun: opts.dryRun });
+    const result = await syncStandardLibrary(client, {
+      dryRun: opts.dryRun,
+      manifestPath: opts.manifestPath || undefined,
+    });
     if (!result.ok) {
       console.error('[sync:standard-library] Manifest validation failed:');
       for (const error of result.validationErrors) {

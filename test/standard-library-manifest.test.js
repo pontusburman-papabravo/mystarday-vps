@@ -82,6 +82,18 @@ describe('standard library manifest contract', () => {
     expectInvalid(manifest, /duplicate global step_id/i);
   });
 
+  it('duplicate nested variant step_id across variants fails', () => {
+    const manifest = cloneManifest();
+    manifest.activities[1].variants[1].sub_steps.push({
+      step_id: 'after_school.after_school_club.check_in',
+      name_i18n: {
+        sv: 'Dublett',
+        'en-GB': 'Duplicate',
+      },
+    });
+    expectInvalid(manifest, /duplicate global step_id/i);
+  });
+
   it('nested/variant step_id with multiple dots works', () => {
     const manifest = cloneManifest();
     manifest.activities[1].variants[0].sub_steps.push({
@@ -122,6 +134,12 @@ describe('standard library manifest contract', () => {
   it('bad section fails', () => {
     const manifest = cloneManifest();
     manifest.schedules[0].items[0].section = 'natt';
+    expectInvalid(manifest, /section/i);
+  });
+
+  it('section eftermiddag fails', () => {
+    const manifest = cloneManifest();
+    manifest.schedules[0].items[0].section = 'eftermiddag';
     expectInvalid(manifest, /section/i);
   });
 

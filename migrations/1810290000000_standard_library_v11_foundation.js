@@ -19,13 +19,13 @@ module.exports = {
     `);
 
     await client.query(`
-      ALTER TABLE default_activity_template
-        DROP CONSTRAINT IF EXISTS default_activity_template_duration_seconds_range
-    `);
-    await client.query(`
-      ALTER TABLE default_activity_template
-        ADD CONSTRAINT default_activity_template_duration_seconds_range
-        CHECK (duration_seconds IS NULL OR (duration_seconds >= 5 AND duration_seconds <= 3600))
+      DO $$ BEGIN
+        ALTER TABLE default_activity_template
+          ADD CONSTRAINT default_activity_template_duration_seconds_range
+          CHECK (duration_seconds IS NULL OR (duration_seconds >= 5 AND duration_seconds <= 3600));
+      EXCEPTION
+        WHEN duplicate_object THEN NULL;
+      END $$;
     `);
 
     await client.query(`
