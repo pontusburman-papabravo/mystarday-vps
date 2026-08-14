@@ -27,10 +27,12 @@ function sleep(ms) {
 
 /**
  * Acquire the global DB test lock. Returns release() for cleanup.
- * No-op when DATABASE_URL is missing or mock.
+ * No-op when url is missing or mock.
+ *
+ * @param {string} [databaseUrl] Validated TEST_DATABASE_URL from setupTestDb.
  */
-async function acquireDbTestLock() {
-  const url = process.env.DATABASE_URL;
+async function acquireDbTestLock(databaseUrl) {
+  const url = databaseUrl || process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
   if (isMockDatabaseUrl(url)) {
     return async () => {};
   }

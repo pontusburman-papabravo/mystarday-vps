@@ -9,19 +9,20 @@ const { STATUS } = require('./constants.cjs');
 const ROOT = path.join(__dirname, '../../..');
 
 function testEnv(extra = {}) {
-  const env = { ...process.env, ...extra };
-  env.NODE_ENV = 'test';
-  env.REQUIRE_EMAIL_VERIFICATION = 'false';
+  const merged = { ...process.env, ...extra };
+  merged.NODE_ENV = 'test';
+  merged.REQUIRE_EMAIL_VERIFICATION = 'false';
   // Match CI (.github/workflows/ci.yml): limiter must be off before the first
   // `require('../src/middleware/rateLimiter')` in the process.
-  env.RATE_LIMIT_ENABLED = 'false';
+  merged.RATE_LIMIT_ENABLED = 'false';
   const nvmBin = path.join(process.env.HOME || '', '.nvm/versions/node/v20.20.2/bin');
   if (nvmBin && fs.existsSync(nvmBin)) {
-    env.PATH = `${nvmBin}${path.delimiter}${env.PATH || ''}`;
+    merged.PATH = `${nvmBin}${path.delimiter}${merged.PATH || ''}`;
   }
-  delete env.RESEND_API_KEY;
-  delete env.RESEND_API_KEY_WEEKLY;
-  return env;
+  delete merged.RESEND_API_KEY;
+  delete merged.RESEND_API_KEY_WEEKLY;
+  const { buildDestructiveTestChildEnv } = require('../lib/test-database-safety.cjs');
+  return buildDestructiveTestChildEnv(merged);
 }
 
 function nodeBin() {

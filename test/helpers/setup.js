@@ -1,7 +1,7 @@
 /**
  * Test setup helpers.
  * Provides mock DB injection so tests run without a live connection.
- * For tests that need real DB access, use setupTestDb() with DATABASE_URL.
+ * For tests that need real DB access, use setupTestDb() with TEST_DATABASE_URL.
  */
 
 'use strict';
@@ -10,23 +10,26 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { Pool } = require('pg');
 const { acquireDbTestLock, isMockDatabaseUrl } = require('./db-test-lock.js');
+const { assertDestructiveTestDatabaseAllowed } = require('../../scripts/lib/test-database-safety.cjs');
 
 const REPO_ROOT = path.join(__dirname, '../..');
-let migrationsAppliedForUrl = null;
 
 /**
- * Connect to a real DATABASE_URL, run migrations once per URL, optionally
- * truncate public tables (except _migrations), and return query + cleanup.
- *
- * Returns { skip: true } when DATABASE_URL is missing or mock — integration
- * tests should call t.skip() in that case.
- *
- * Holds a PostgreSQL advisory lock for the test lifetime so parallel test
- * files cannot migrate/truncate/wipe the shared schema concurrently.
+ * Connect to validated TEST_DATABASE_URL only — never application DATABASE_URL.
+ * Runs fail-closed safety assertion before lock, migrate, pool, or TRUNCATE.
  */
 async function setupTestDb(options = {}) {
-  const url = process.env.DATABASE_URL;
-  if (isMockDatabaseUrl(url)) {
+  let testDatabaseUrl;
+  try {
+    ({ testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(process.env));
+  } catch (err) {
+    err.message = `[setupTestDb] ${err.message}`;
+    throw err;
+  }
+
+  process.env.DATABASE_URL = testDatabaseUrl;
+
+  if (isMockDatabaseUrl(testDatabaseUrl)) {
     return {
       skip: true,
       query: null,
@@ -36,36 +39,36 @@ async function setupTestDb(options = {}) {
     };
   }
 
-  const releaseLock = await acquireDbTestLock();
+  const releaseLock = await acquireDbTestLock(testDatabaseUrl);
 
   try {
-    if (migrationsAppliedForUrl !== url) {
+    assertDestructiveTestDatabaseAllowed(process.env);
+
+    const { buildDestructiveTestChildEnv } = require('../../scripts/lib/test-database-safety.cjs');
+
+    if (global.__setupTestDbMigrationsAppliedForUrl !== testDatabaseUrl) {
       const skipMigrate = process.env.TEST_SKIP_MIGRATE === '1' || process.env.TEST_SKIP_MIGRATE === 'true';
       if (!skipMigrate) {
         execSync('npm run migrate', {
           cwd: REPO_ROOT,
-          env: { ...process.env, DATABASE_URL: url, NODE_ENV: 'test' },
+          env: buildDestructiveTestChildEnv(process.env),
           stdio: 'pipe',
         });
-        // Snapshot DBs may have _migrations without feature_flag INSERT data — local repair only.
-        if (url.includes('localhost') || url.includes('127.0.0.1')) {
-          try {
-            const { repairMissingFeatureFlagSeeds } = require('../../scripts/lib/pre-public-release-gate/local-flag-repair.cjs');
-            await repairMissingFeatureFlagSeeds(url);
-          } catch (repairErr) {
-            if (repairErr.code !== 'REPAIR_REFUSED') throw repairErr;
-          }
-        }
+        const { repairMissingFeatureFlagSeeds } = require('../../scripts/lib/pre-public-release-gate/local-flag-repair.cjs');
+        await repairMissingFeatureFlagSeeds(testDatabaseUrl);
       }
-      migrationsAppliedForUrl = url;
+      global.__setupTestDbMigrationsAppliedForUrl = testDatabaseUrl;
     }
 
+    assertDestructiveTestDatabaseAllowed(process.env);
+
     const pool = new Pool({
-      connectionString: url,
-      ssl: url.includes('localhost') ? false : { rejectUnauthorized: false },
+      connectionString: testDatabaseUrl,
+      ssl: testDatabaseUrl.includes('localhost') ? false : { rejectUnauthorized: false },
     });
 
     async function truncatePublicTables() {
+      assertDestructiveTestDatabaseAllowed(process.env);
       const { rows } = await pool.query(`
         SELECT tablename
         FROM pg_tables
@@ -113,12 +116,8 @@ async function setupTestDb(options = {}) {
 /**
  * Inject a mock db module into require.cache before loading any module
  * that depends on src/lib/db.
- *
- * Returns a control object with setRows/setQuery to configure mock behavior,
- * and a restore() to undo the injection.
  */
 function injectMockDb() {
-  // Must set DATABASE_URL before any module tries to load db.js
   if (!process.env.DATABASE_URL) {
     process.env.DATABASE_URL = 'REDACTED/mock_test';
   }
@@ -163,10 +162,6 @@ function injectMockDb() {
   };
 }
 
-/**
- * Fake Express res object for middleware testing.
- * Captures the first status/json call so you can assert on it.
- */
 function makeFakeRes() {
   let statusCode;
   let body;
@@ -187,9 +182,6 @@ function makeFakeRes() {
   return res;
 }
 
-/**
- * Run Express middleware and return { next, status, body }.
- */
 function runMiddleware(middleware, req) {
   return new Promise((resolve) => {
     let statusCode;

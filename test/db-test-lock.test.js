@@ -6,13 +6,17 @@ const { Client } = require('pg');
 const { acquireDbTestLock, isMockDatabaseUrl, LOCK_KEY } = require('./helpers/db-test-lock.js');
 
 test('acquireDbTestLock releases advisory lock on cleanup', async (t) => {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.TEST_DATABASE_URL;
   if (isMockDatabaseUrl(url)) {
-    t.skip('No real DATABASE_URL');
+    t.skip('No real TEST_DATABASE_URL');
+    return;
+  }
+  if (process.env.TEST_DB_DESTRUCTIVE_CONFIRM !== '1') {
+    t.skip('TEST_DB_DESTRUCTIVE_CONFIRM=1 required');
     return;
   }
 
-  const release = await acquireDbTestLock();
+  const release = await acquireDbTestLock(url);
   const probe = new Client({
     connectionString: url,
     ssl: url.includes('localhost') ? false : { rejectUnauthorized: false },
