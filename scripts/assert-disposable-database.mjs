@@ -10,14 +10,16 @@ const require = createRequire(import.meta.url);
 const {
   assertMigrationsMatchFilesystem,
 } = require('../test/helpers/database-branch-guard.js');
-const { assertDestructiveTestDatabaseAllowed } = require('./lib/test-database-safety.cjs');
+const { buildDestructiveTestChildEnv } = require('./lib/test-database-safety.cjs');
 
 const { Pool } = pg;
 
 async function main() {
   let testDatabaseUrl;
   try {
-    ({ testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(process.env));
+    const childEnv = buildDestructiveTestChildEnv(process.env);
+    testDatabaseUrl = childEnv.TEST_DATABASE_URL;
+    Object.assign(process.env, childEnv);
   } catch (err) {
     console.error(`[assert-disposable-database] ${err.code || 'REFUSED'}: ${err.message}`);
     process.exit(1);
