@@ -243,6 +243,64 @@ test('pre-public-release-gate workflow runs in clean CI with prod read-only cred
   assert.match(wf, /Wrong runner: live VPS app host/);
 });
 
+function workflowStepOrder(workflowYaml) {
+  const names = [];
+  for (const line of workflowYaml.split('\n')) {
+    const m = line.match(/^\s*- name: (.+)$/);
+    if (m) names.push(m[1].trim());
+  }
+  return names;
+}
+
+test('pre-public-release-gate workflow security contract', () => {
+  const wf = fs.readFileSync(path.join(ROOT, '.github/workflows/pre-public-release-gate.yml'), 'utf8');
+  const runbook = fs.readFileSync(path.join(ROOT, 'docs/runbooks/PRE-PUBLIC-RELEASE-GATE.md'), 'utf8');
+  const steps = workflowStepOrder(wf);
+
+  // 1–2. Historical / non-main target SHA refused (must equal origin/main exactly).
+  assert.match(wf, /target_sha must equal current origin\/main/);
+  assert.match(wf, /historical SHAs are not accepted/);
+  assert.match(wf, /git fetch origin main/);
+  assert.match(wf, /git rev-parse origin\/main/);
+  assert.match(wf, /if \[ "\$TARGET" != "\$MAIN_SHA" \]/);
+
+  // 3. Exact current origin/main is the only accepted target (equality, not ancestry).
+  assert.doesNotMatch(wf, /merge-base|is-ancestor|rev-list.*\.\./);
+
+  // 4. Equality re-checked immediately before prod credential use.
+  const preSecretIdx = steps.indexOf('Assert target_sha equals current origin/main (pre-secret boundary)');
+  const reassertIdx = steps.indexOf('Re-assert target_sha equals origin/main before prod credentials');
+  const secretsIdx = steps.indexOf('Verify prod read-only credential secrets are configured');
+  const gateIdx = steps.indexOf('Run pre-public release gate');
+  assert.ok(preSecretIdx >= 0, steps.join(' | '));
+  assert.ok(reassertIdx > preSecretIdx);
+  assert.ok(secretsIdx > reassertIdx);
+  assert.ok(gateIdx > reassertIdx);
+  assert.match(wf, /Re-assert target_sha equals origin\/main before prod credentials/);
+  assert.match(wf, /abort before prod credential use/);
+
+  // 5. No skip-test-gate bypass in canonical workflow.
+  assert.doesNotMatch(wf, /--skip-test-gate/);
+
+  // 6. Disposable CI Postgres only.
+  assert.match(wf, /postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.doesNotMatch(wf, /PRE_PUBLIC_GATE_FLAG_DATABASE_URL/);
+
+  // 7. Gate never enables widget / family-device flags (orchestrator + constants).
+  const gateSrc = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(gateSrc, /Never mutates live/);
+  assert.match(gateSrc, /Never enables widget or family-device global flags/);
+  assert.doesNotMatch(gateSrc, /--skip-test-gate set; Cannot GO/); // skip path exists but workflow must not use it
+  const constants = require('../scripts/lib/pre-public-release-gate/constants.cjs');
+  assert.ok(constants.WIDGET_EXCLUSION?.reason?.includes('OFF'));
+
+  // 8. SMOKE_BASE_URL required in workflow + runbook for canonical certification.
+  assert.match(wf, /Missing pre-public-release-gate environment variable: SMOKE_BASE_URL/);
+  assert.match(runbook, /Variable \(required\):.*SMOKE_BASE_URL/s);
+  assert.match(runbook, /SMOKE_BASE_URL.*required/s);
+  assert.doesNotMatch(runbook, /Optional variable `SMOKE_BASE_URL`/);
+});
+
 test('parseFailedFiles reads test path from TAP location YAML', () => {
   const { parseFailedFiles } = require('../scripts/lib/pre-public-release-gate/run-checks.cjs');
   const tap = `
