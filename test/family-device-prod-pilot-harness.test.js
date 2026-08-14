@@ -197,6 +197,40 @@ test('pilot core: report.ok requires verified cleanup and SHARED_ONE_CHILD', () 
   assert.doesNotMatch(core, /WIDGET_SERVER_SCOPE/);
 });
 
+test('pilot harness Scenario H: select-parent uses canonical unlock_method payload', () => {
+  const core = fs.readFileSync(
+    path.join(__dirname, '../scripts/ops/family-device-prod-pilot-core.cjs'),
+    'utf8'
+  );
+  const scenarioH = core.match(
+    /\/\/ H — select-parent:[\s\S]*?report\.scenarios\.SELECT_PARENT_PIN_SERVER/
+  )?.[0];
+  assert.ok(scenarioH, 'Scenario H block must exist');
+
+  const selectParentCalls = scenarioH.match(/selectParent\(/g) || [];
+  assert.equal(selectParentCalls.length, 2, 'Scenario H must call selectParent exactly twice');
+
+  const unlockMethodSnake = scenarioH.match(/unlock_method:\s*'pin'/g) || [];
+  assert.equal(unlockMethodSnake.length, 2, 'Scenario H must send unlock_method on both calls');
+
+  const unlockMethodCamel = scenarioH.match(/unlockMethod:\s*'pin'/g) || [];
+  assert.equal(unlockMethodCamel.length, 0, 'Scenario H must not send camelCase unlockMethod');
+
+  assert.match(
+    scenarioH,
+    /const wrongPin = await selectParent\([\s\S]*?\{ unlock_method: 'pin', pin: '0000' \}/
+  );
+  assert.match(
+    scenarioH,
+    /const okPin = await selectParent\([\s\S]*?\{ unlock_method: 'pin', pin: pinFam\.parentPin \}/
+  );
+
+  const selectParentHelper = core.match(/async function selectParent[\s\S]*?^}/m)?.[0];
+  assert.ok(selectParentHelper, 'selectParent helper must exist');
+  assert.match(selectParentHelper, /body:\s*\{\s*parent_id:\s*parentId/);
+  assert.match(selectParentHelper, /\/api\/auth\/trusted-device\/select-parent/);
+});
+
 test('pilot harness JSON: both SHARED_ONE_CHILD and SELECT_PARENT_PIN visible; widgets excluded', () => {
   const mjs = fs.readFileSync(
     path.join(__dirname, '../scripts/ops/family-device-prod-pilot.mjs'),
