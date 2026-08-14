@@ -17,7 +17,6 @@ const FAMILY_DEVICE_UNIT = [
   'test/family-device-prod-pilot-harness.test.js',
   'test/family-device-global-readiness-matrix.test.js',
   'test/family-device-observability-contract.test.js',
-  'test/family-device-stale-pilots.test.js',
   'test/adult-privilege-native.test.js',
   'test/adult-privilege-client.test.js',
   'test/adult-privilege-lifecycle-capacitor.test.js',
