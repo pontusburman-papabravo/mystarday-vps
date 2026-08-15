@@ -49,7 +49,7 @@
     "migration:export": "node scripts/migration-export-cli.js",
     "migration:harvest": "node scripts/migration-harvest-cli.js",
     "migration:harvest:gdpr": "node scripts/migration-harvest-cli.js --gdpr-only --missing-gdpr --resume",
-    "test": "node --test test/*.test.js",
+    "test": "node -r ./test/helpers/apply-test-database-env.js --test test/*.test.js",
     "test:full": "node scripts/run-full-npm-test.js",
     "check:engine-shadow": "node scripts/check-engine-shadow-logic.mjs",
     "test:engine": "node --test test/engine-golden.test.js test/engine-shadow-logic.test.js test/first-success-api.test.js test/engine-coach-authority.test.js",

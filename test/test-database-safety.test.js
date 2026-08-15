@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
@@ -313,4 +313,72 @@ test('physicalDatabaseKey ignores username', () => {
   const b = physicalDatabaseKey('postgresql://test:secret@localhost:5432/stjarndag');
   assert.equal(a, b);
   assert.equal(a, 'localhost:5432/stjarndag');
+});
+
+test('raw npm test refuses VPS-like prod DATABASE_URL without TEST_DATABASE_URL', () => {
+  const r = spawnSync('npm', ['test', '--', 'test/route-inventory.test.js'], {
+    cwd: ROOT,
+    env: {
+      PATH: process.env.PATH,
+      NODE_ENV: 'test', // pragma: allowlist secret
+      DATABASE_URL: PROD_LOCAL,
+      TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+    },
+    shell: true,
+    encoding: 'utf8',
+  });
+  assert.notEqual(r.status, 0, `expected non-zero exit, got ${r.status}`);
+  assert.match(
+    `${r.stdout}${r.stderr}`,
+    /REFUSED_PRODUCTION_DATABASE_FOR_TESTS|TEST_DATABASE_URL is required/ // pragma: allowlist secret
+  );
+});
+
+test('migration gate helper refuses prod DATABASE_URL without TEST_DATABASE_URL', () => {
+  const script = `
+    const assert = require('assert');
+    const { withMigrationGateDatabase } = require('./test/helpers/migration-gate-database.js');
+    (async () => {
+      let entered = false;
+      try {
+        await withMigrationGateDatabase(
+          { skip(msg) { throw new Error('unexpected skip: ' + msg); } },
+          async () => { entered = true; }
+        );
+        assert.fail('expected refusal');
+      } catch (err) {
+        assert.equal(err.code, 'REFUSED_PRODUCTION_DATABASE_FOR_TESTS'); // pragma: allowlist secret
+        assert.equal(entered, false);
+        process.exit(0);
+      }
+    })().catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+  `;
+  const r = spawnSync(process.execPath, ['-e', script], {
+    cwd: ROOT,
+    env: {
+      PATH: process.env.PATH,
+      NODE_ENV: 'test', // pragma: allowlist secret
+      DATABASE_URL: PROD_LOCAL,
+      TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+    },
+    encoding: 'utf8',
+  });
+  assert.equal(r.status, 0, `${r.stdout}${r.stderr}`);
+});
+
+test('backup-restore integration setup refuses application DATABASE_URL anchor', () => {
+  const { tryAssertDestructiveTestDatabaseAllowed, REFUSED_CODE } = require(
+    '../scripts/lib/test-database-safety.cjs'
+  );
+  const result = tryAssertDestructiveTestDatabaseAllowed({
+    NODE_ENV: 'test', // pragma: allowlist secret
+    DATABASE_URL: PROD_LOCAL,
+    TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, REFUSED_CODE);
+  assert.equal(result.reason, 'missing_test_database_url');
 });

@@ -343,7 +343,7 @@ async function main() {
   const seed = checkMigrationFlagSeeds();
   const migrate = await runLocalMigrateAndRepair();
 
-  const localDbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+  const localDbUrl = process.env.TEST_DATABASE_URL;
   const localFlags = await queryGlobalFlags(localDbUrl, { label: 'local_database' });
   if (
     migrate.status === STATUS.PASS &&

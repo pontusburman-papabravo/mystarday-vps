@@ -9,6 +9,10 @@
  */
 
 const { Client } = require('pg');
+const {
+  assertDestructiveTestDatabaseAllowed,
+  REFUSED_CODE,
+} = require('../../scripts/lib/test-database-safety.cjs');
 
 const LOCK_KEY = 77901234;
 const LOCK_WAIT_MS = Number(process.env.DB_TEST_LOCK_WAIT_MS || 120_000);
@@ -25,6 +29,28 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function resolveLockDatabaseUrl(databaseUrl) {
+  if (databaseUrl) {
+    if (isMockDatabaseUrl(databaseUrl)) {
+      return null;
+    }
+    return databaseUrl;
+  }
+
+  const testUrl = String(process.env.TEST_DATABASE_URL || '').trim();
+  if (!testUrl) {
+    const { testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(process.env);
+    return testDatabaseUrl;
+  }
+
+  if (isMockDatabaseUrl(testUrl)) {
+    return null;
+  }
+
+  const { testDatabaseUrl } = assertDestructiveTestDatabaseAllowed(process.env);
+  return testDatabaseUrl;
+}
+
 /**
  * Acquire the global DB test lock. Returns release() for cleanup.
  * No-op when url is missing or mock.
@@ -32,8 +58,8 @@ function sleep(ms) {
  * @param {string} [databaseUrl] Validated TEST_DATABASE_URL from setupTestDb.
  */
 async function acquireDbTestLock(databaseUrl) {
-  const url = databaseUrl || process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
-  if (isMockDatabaseUrl(url)) {
+  const url = resolveLockDatabaseUrl(databaseUrl);
+  if (!url) {
     return async () => {};
   }
 

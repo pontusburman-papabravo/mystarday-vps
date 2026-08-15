@@ -25,13 +25,10 @@ function runMigrate(url) {
     buildDestructiveTestChildEnv,
     resolveApplicationDatabaseUrl,
   } = require('../../scripts/lib/test-database-safety.cjs');
-  const anchorUrl =
-    resolveApplicationDatabaseUrl(process.env)
-    || process.env.TEST_DATABASE_URL
-    || process.env.DATABASE_URL;
+  const anchorUrl = resolveApplicationDatabaseUrl(process.env);
   const childEnv = buildDestructiveTestChildEnv(process.env, {
     TEST_DATABASE_URL: url,
-    APPLICATION_DATABASE_URL: anchorUrl,
+    ...(anchorUrl ? { APPLICATION_DATABASE_URL: anchorUrl } : {}),
   });
   execSync('npm run migrate', {
     cwd: REPO_ROOT,

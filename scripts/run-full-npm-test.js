@@ -25,13 +25,17 @@ function parseTapSummary(output) {
 }
 
 function runFullNpmTest() {
-  const result = spawnSync('node', ['--test', 'test/*.test.js'], {
-    cwd: ROOT,
-    env: process.env,
-    shell: true,
-    encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024,
-  });
+  const result = spawnSync(
+    'node',
+    ['-r', './test/helpers/apply-test-database-env.js', '--test', 'test/*.test.js'],
+    {
+      cwd: ROOT,
+      env: process.env,
+      shell: true,
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    }
+  );
 
   const output = `${result.stdout || ''}${result.stderr || ''}`;
   const summary = parseTapSummary(output);

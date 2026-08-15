@@ -113,14 +113,28 @@ describe('verify-backup-restore lifecycle contract', () => {
 });
 
 describe('verify-backup-restore integration (disposable postgres)', () => {
+  test('integration refuses without validated TEST_DATABASE_URL', () => {
+    const { tryAssertDestructiveTestDatabaseAllowed, REFUSED_CODE } = require(
+      '../scripts/lib/test-database-safety.cjs'
+    );
+    const result = tryAssertDestructiveTestDatabaseAllowed({
+      NODE_ENV: 'test', // pragma: allowlist secret
+      DATABASE_URL: 'postgresql://app:secret@localhost:5432/mystarday',
+      TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, REFUSED_CODE);
+    assert.equal(result.reason, 'missing_test_database_url');
+  });
+
   test('external mode uses precreated empty DB without second CREATE', async (t) => {
-    const baseUrl = process.env.DATABASE_URL;
+    const baseUrl = process.env.TEST_DATABASE_URL;
     if (isMockDatabaseUrl(baseUrl) || !baseUrl) {
-      t.skip('DATABASE_URL not set');
+      t.skip('TEST_DATABASE_URL not set');
       return;
     }
-    if (!baseUrl.includes('localhost') && !baseUrl.includes('127.0.0.1')) {
-      t.skip('localhost only');
+    if (process.env.TEST_DB_DESTRUCTIVE_CONFIRM !== '1') {
+      t.skip('TEST_DB_DESTRUCTIVE_CONFIRM=1 required');
       return;
     }
     try {
@@ -175,13 +189,13 @@ describe('verify-backup-restore integration (disposable postgres)', () => {
   });
 
   test('managed lifecycle create+restore on disposable DB', async (t) => {
-    const baseUrl = process.env.DATABASE_URL;
+    const baseUrl = process.env.TEST_DATABASE_URL;
     if (isMockDatabaseUrl(baseUrl) || !baseUrl) {
-      t.skip('DATABASE_URL not set');
+      t.skip('TEST_DATABASE_URL not set');
       return;
     }
-    if (!baseUrl.includes('localhost') && !baseUrl.includes('127.0.0.1')) {
-      t.skip('localhost only');
+    if (process.env.TEST_DB_DESTRUCTIVE_CONFIRM !== '1') {
+      t.skip('TEST_DB_DESTRUCTIVE_CONFIRM=1 required');
       return;
     }
     try {
@@ -192,7 +206,7 @@ describe('verify-backup-restore integration (disposable postgres)', () => {
     }
 
     const { acquireDbTestLock } = require('./helpers/db-test-lock.js');
-    const releaseLock = await acquireDbTestLock();
+    const releaseLock = await acquireDbTestLock(baseUrl);
     const adminUrl = new URL(baseUrl);
     adminUrl.pathname = '/postgres';
     const srcDb = `integrity_restore_src_${Date.now()}`;
@@ -228,6 +242,8 @@ describe('verify-backup-restore integration (disposable postgres)', () => {
           env: {
             ...process.env,
             DATABASE_URL: baseUrl,
+            TEST_DATABASE_URL: baseUrl,
+            TEST_DB_DESTRUCTIVE_CONFIRM: '1',
             DATABASE_ADMIN_URL: adminUrl.toString(),
             DISPOSABLE_DB_PREFIX: 'integrity_restore_',
           },
