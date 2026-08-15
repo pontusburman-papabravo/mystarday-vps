@@ -112,7 +112,10 @@
           });
         return inflightFamily;
       }
-      inflightFamily = Auth.api('/api/family')
+      const apiFn = (window.SharedFamilyFetch && SharedFamilyFetch.fetch)
+        ? function () { return SharedFamilyFetch.fetch(Auth.api.bind(Auth)); }
+        : function () { return Auth.api('/api/family'); };
+      inflightFamily = apiFn()
         .then(function (data) {
           familyCache = data;
           window.__familyWarmData = data;
@@ -129,6 +132,14 @@
     function prefetchFamily() {
       if (familyCache || inflightFamily || window.__familyWarmFetch) return;
       if (!window.Auth || typeof Auth.api !== 'function') return;
+      if (window.SharedFamilyFetch) {
+        window.__familyWarmFetch = SharedFamilyFetch.fetch(Auth.api.bind(Auth))
+          .catch(function () {
+            window.__familyWarmFetch = null;
+            return null;
+          });
+        return;
+      }
       window.__familyWarmFetch = Auth.api('/api/family')
         .then(function (data) {
           familyCache = data;
@@ -147,9 +158,52 @@
       if (window.FamilyMuseum) FamilyMuseum.mount('familyMuseumMount');
     }
 
+    function showFamilyLoadError(err, onRetry) {
+      const banner = document.getElementById('familyLoadError');
+      if (!banner) return;
+      const ApiErr = window.ApiErrorClassification || {};
+      const retryMs = ApiErr.getRetryAfterMs ? ApiErr.getRetryAfterMs(err) : null;
+      const retrySec = retryMs ? Math.ceil(retryMs / 1000) : null;
+      const message = (err && err.message) ? String(err.message) : fpt('family.errors.loadFamily');
+      banner.innerHTML =
+        '<p class="font-semibold text-navy dark:text-white mb-1">' + fpt('family.errors.rateLimitTitle') + '</p>' +
+        '<p class="text-sm text-text-soft mb-3">' + message + '</p>' +
+        '<button type="button" id="familyLoadRetryBtn" class="min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-semibold">' +
+        (retrySec ? fpt('family.errors.rateLimitRetryIn', { seconds: retrySec }) : fpt('family.errors.rateLimitRetry')) +
+        '</button>';
+      banner.classList.remove('hidden');
+      banner.setAttribute('aria-live', 'polite');
+      const btn = document.getElementById('familyLoadRetryBtn');
+      if (!btn || typeof onRetry !== 'function') return;
+      btn.disabled = !!retryMs;
+      if (retryMs) {
+        window.setTimeout(function () {
+          btn.disabled = false;
+          btn.textContent = fpt('family.errors.rateLimitRetry');
+        }, retryMs);
+      }
+      btn.onclick = function () {
+        if (btn.disabled) return;
+        banner.classList.add('hidden');
+        onRetry();
+      };
+    }
+
+    function hideFamilyLoadError() {
+      const banner = document.getElementById('familyLoadError');
+      if (banner) banner.classList.add('hidden');
+    }
+
     // ─── Init ────────────────────────────────────────────
-    async function init() {
+    async function init(options) {
+      options = options || {};
       if (initInFlight) return initInFlight;
+      if (!options.force && familyData && familyCache) {
+        renderAll(familyCache);
+        setFamilyLoading(false);
+        hideFamilyLoadError();
+        return;
+      }
       initInFlight = (async function () {
         try {
           if (window.I18n && typeof I18n.init === 'function') {
@@ -162,8 +216,10 @@
           } else {
             setFamilyLoading(true);
           }
+          hideFamilyLoadError();
           familyData = await fetchFamily();
           renderAll(familyData);
+          hideFamilyLoadError();
           initFamilyDnD();
           if (window.FamilyMuseum) FamilyMuseum.mount('familyMuseumMount');
 
@@ -176,7 +232,12 @@
             return;
           }
         } catch (err) {
-          showToast(fpt('family.errors.loadFamily') + ' ' + err.message, true);
+          if (familyCache) {
+            renderAll(familyCache);
+            showToast(fpt('family.errors.loadFamily') + ' ' + err.message, true);
+          } else {
+            showFamilyLoadError(err, function () { init({ force: true }); });
+          }
         } finally {
           setFamilyLoading(false);
           initInFlight = null;
@@ -1329,6 +1390,11 @@ window.FamilyPage = { prefetch: prefetchFamily, rerenderI18n: rerenderFamilyI18n
 
 window.addEventListener('stjarndag-magic-navigated', function (e) {
   if (!e.detail || e.detail.pageId !== 'family') return;
+  if (familyData && familyCache) {
+    renderAll(familyCache);
+    setFamilyLoading(false);
+    return;
+  }
   init();
 });
 

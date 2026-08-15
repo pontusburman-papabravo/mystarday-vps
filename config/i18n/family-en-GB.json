@@ -40,6 +40,9 @@
   },
   "errors": {
     "loadFamily": "Could not load family information:",
+    "rateLimitTitle": "Family information could not be loaded right now",
+    "rateLimitRetry": "Try again",
+    "rateLimitRetryIn": "Try again in {{seconds}} s",
     "sessionExpired": "Your session has expired. Signing you in again…",
     "addChild": "Could not add child:",
     "approveRedemption": "Could not approve",

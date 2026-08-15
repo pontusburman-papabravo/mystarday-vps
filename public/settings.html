@@ -25,6 +25,9 @@
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.14.0"></script>
+  <script src="/js/api-error-classification.js?v=2.18.0"></script>
+  <script src="/js/shared-family-fetch.js?v=2.18.0"></script>
+  <script src="/js/settings-page-bootstrap.js?v=2.18.0"></script>
   <script src="/js/pwa-install.js?v=2.14.0"></script>
   <script src="/js/push-manager.js?v=2.14.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
@@ -651,22 +654,44 @@
       });
 
       let me;
-      try {
-        me = await Auth.api('/api/auth/me');
-        if (me && typeof Auth.setAuth === 'function' && !Auth.isLoggedIn()) {
-          await Auth.ensureCsrfToken();
-          Auth.setAuth(null, me, Auth.getCsrfToken());
-        }
-        const fam = await Auth.api('/api/family');
+      const session = await SettingsPageBootstrap.validateSession(Auth.api.bind(Auth));
+      if (session.redirectLogin) {
+        window.location.href = '/login';
+        return;
+      }
+      me = session.me;
+      if (me && typeof Auth.setAuth === 'function' && !Auth.isLoggedIn()) {
+        await Auth.ensureCsrfToken();
+        Auth.setAuth(null, me, Auth.getCsrfToken());
+      }
+
+      async function applyFamilyToSettings(fam) {
         document.getElementById('familyName').value = fam.name || '';
         document.getElementById('soundEnabled').checked = fam.sound_enabled !== false;
-
         familyChildren = fam.children || [];
-
         initPedagogInviteSection();
-        if (window.bootSettingsCoParent) bootSettingsCoParent();
+        if (window.bootSettingsCoParent) bootSettingsCoParent(me, fam);
+      }
 
-        if (me && me.account_type === 'dual') {
+      async function retrySettingsFamilyLoad() {
+        const familyResult = await SettingsPageBootstrap.loadFamilyData(Auth.api.bind(Auth));
+        if (familyResult.ok && familyResult.fam) {
+          await applyFamilyToSettings(familyResult.fam);
+          return;
+        }
+        if (familyResult.err) {
+          SettingsPageBootstrap.showFamilyLoadError(familyResult.err, retrySettingsFamilyLoad);
+        }
+      }
+
+      const familyResult = await SettingsPageBootstrap.loadFamilyData(Auth.api.bind(Auth));
+      if (familyResult.ok && familyResult.fam) {
+        await applyFamilyToSettings(familyResult.fam);
+      } else if (familyResult.err) {
+        SettingsPageBootstrap.showFamilyLoadError(familyResult.err, retrySettingsFamilyLoad);
+      }
+
+      if (me && me.account_type === 'dual') {
           const viewSection = document.getElementById('viewSwitchSection');
           viewSection.classList.remove('hidden');
           if (me.preferred_view_mode === 'pedagog') {
@@ -700,18 +725,11 @@
           await bootSettingsParentI18n(me);
         }
 
-        const currentUser = Auth.getUser();
-
-        if (!currentUser || !currentUser.isAdmin) {
-          document.getElementById('emailEnabledLabel').style.display = 'none';
-        }
-      } catch (error) {
-        console.error('Settings auth/bootstrap failed:', error);
-        window.location.href = '/login';
-        return;
-      }
-
       const currentUser = Auth.getUser();
+
+      if (!currentUser || !currentUser.isAdmin) {
+        document.getElementById('emailEnabledLabel').style.display = 'none';
+      }
 
       await Promise.allSettled([
         (async () => {

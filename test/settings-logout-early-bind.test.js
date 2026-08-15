@@ -18,8 +18,8 @@ describe('settings logout early bind', () => {
     const domIdx = SETTINGS_HTML.indexOf("document.addEventListener('DOMContentLoaded'");
     const block = SETTINGS_HTML.slice(domIdx, domIdx + 1200);
     assert.match(SETTINGS_HTML, /bindCriticalAccountActions\(\);\s*\n\s*function showNativeAccountActions/);
-    const awaitApiPos = block.indexOf("await Auth.api('/api/auth/me')");
-    assert.ok(awaitApiPos > 0, 'settings API load must follow early bind');
+    const sessionPos = block.indexOf('SettingsPageBootstrap.validateSession');
+    assert.ok(sessionPos > 0, 'settings session validation must follow early bind');
   });
 
   it('loads notification prefs in allSettled without redirecting on failure', () => {
