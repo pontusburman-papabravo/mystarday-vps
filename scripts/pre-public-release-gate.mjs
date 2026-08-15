@@ -51,8 +51,8 @@ const {
   checkProdActivityTimerRuntime,
   activityTimerProdPilotPolicy,
   deviceQaAttestation,
-  localDatabaseIsNotProd,
 } = require('./lib/pre-public-release-gate/prod.cjs');
+const { gateDestructiveTestDatabaseCheck } = require('./lib/test-database-safety.cjs');
 const { classifyOverall, collectBlockers, collectUnverified, humanSummary, worstStatus } = require('./lib/pre-public-release-gate/report.cjs');
 
 function parseArgs(argv) {
@@ -163,32 +163,36 @@ function remainingManual(report) {
 }
 
 async function runLocalMigrateAndRepair() {
-  if (!process.env.DATABASE_URL) {
+  const safety = gateDestructiveTestDatabaseCheck(process.env);
+  if (safety.status !== 'PASS') {
     return {
-      status: STATUS.NOT_VERIFIED,
-      evidence: { reason: 'DATABASE_URL missing; cannot migrate or query local flags' },
-    };
-  }
-  if (!localDatabaseIsNotProd(process.env.DATABASE_URL)) {
-    return {
-      status: STATUS.NOT_VERIFIED,
+      status: STATUS.BLOCKER,
       evidence: {
-        reason: 'refusing to migrate non-local DATABASE_URL',
-        note: 'Use PRE_PUBLIC_GATE_FLAG_DATABASE_URL for read-only prod flag SELECT.',
+        code: safety.evidence?.code || 'REFUSED_PRODUCTION_DATABASE_FOR_TESTS', // pragma: allowlist secret
+        reason: safety.evidence?.reason || 'destructive_test_database_refused',
+        reasons: safety.evidence?.reasons,
+        meta: safety.evidence?.meta,
+        note: 'Set disposable TEST_DATABASE_URL + TEST_DB_DESTRUCTIVE_CONFIRM=1. prod DATABASE_URL must never be the test database.',
       },
     };
   }
 
-  const migrate = runNpmScript('migrate', { label: 'local_migrate', extraEnv: { NODE_ENV: 'test' } });
+  const { testDatabaseUrl } = safety.evidence;
+  const { buildDestructiveTestChildEnv } = require('./lib/test-database-safety.cjs');
+
+  const migrate = runNpmScript('migrate', {
+    label: 'local_migrate',
+    extraEnv: buildDestructiveTestChildEnv(process.env, { NODE_ENV: 'test' }), // pragma: allowlist secret
+  });
   if (migrate.status !== STATUS.PASS) return migrate;
 
   let repair = { status: STATUS.PASS, evidence: { skipped: true, reason: 'not_needed' } };
-  if (isRepairAllowedDatabase(process.env.DATABASE_URL, { ...process.env, NODE_ENV: 'test' })) {
+  if (isRepairAllowedDatabase(testDatabaseUrl, process.env)) {
     try {
-      const result = await repairMissingFeatureFlagSeeds(process.env.DATABASE_URL);
+      const result = await repairMissingFeatureFlagSeeds(testDatabaseUrl, { env: process.env });
       repair = {
         status: STATUS.PASS,
-        evidence: { ...result, note: 'Local-only snapshotContract repair (ON CONFLICT DO NOTHING)' },
+        evidence: { ...result, note: 'Validated disposable test DB repair (ON CONFLICT DO NOTHING)' },
       };
     } catch (err) {
       if (err.code === 'REPAIR_REFUSED') {
@@ -200,14 +204,14 @@ async function runLocalMigrateAndRepair() {
   } else {
     repair = {
       status: STATUS.BLOCKER,
-      evidence: { reason: 'local_flag_repair_refused', note: 'DATABASE_URL is not local/test-safe' },
+      evidence: { reason: 'local_flag_repair_refused', note: 'TEST_DATABASE_URL is not a validated disposable test database' },
     };
   }
 
   const combinedStatus = repair.status === STATUS.BLOCKER ? STATUS.BLOCKER : migrate.status;
   return {
     status: combinedStatus,
-    evidence: { migrate: migrate.evidence, repair: repair.evidence },
+    evidence: { migrate: migrate.evidence, repair: repair.evidence, testDatabaseUrl },
   };
 }
 
@@ -303,6 +307,35 @@ async function main() {
   const baseSha = gitSha('origin/main') || gitSha('main');
   const candidateSha = gitSha('HEAD');
 
+  const destructiveDbSafety = gateDestructiveTestDatabaseCheck(process.env);
+  if (destructiveDbSafety.status !== 'PASS') {
+    const report = {
+      profile: args.profile,
+      candidateSha,
+      baseSha,
+      overallStatus: STATUS.BLOCKER,
+      exitCode: EXIT.BLOCKER,
+      decision: 'BLOCKER — destructive test database refused',
+      destructiveDbSafety,
+      sections: {
+        ci_health: {
+          title: 'CI / test health',
+          status: STATUS.BLOCKER,
+          summary: 'Refused before migrate/test:gate — prod or unvalidated DATABASE_URL cannot be used for tests.',
+          checks: [{ id: 'destructive_test_database', ...destructiveDbSafety }],
+        },
+      },
+    };
+    fs.mkdirSync(path.dirname(args.jsonOut), { recursive: true });
+    fs.writeFileSync(args.jsonOut, JSON.stringify(report, null, 2));
+    console.error(
+      `[pre-public-release-gate] ${destructiveDbSafety.evidence?.code || 'REFUSED_PRODUCTION_DATABASE_FOR_TESTS'}: ` + // pragma: allowlist secret
+        `${destructiveDbSafety.evidence?.reason || 'destructive test database refused'}`
+    );
+    if (args.jsonStdout) console.log(JSON.stringify(report, null, 2));
+    process.exit(EXIT.BLOCKER);
+  }
+
   const sections = {};
   const testRuns = [];
 
@@ -310,7 +343,7 @@ async function main() {
   const seed = checkMigrationFlagSeeds();
   const migrate = await runLocalMigrateAndRepair();
 
-  const localDbUrl = process.env.DATABASE_URL;
+  const localDbUrl = process.env.TEST_DATABASE_URL;
   const localFlags = await queryGlobalFlags(localDbUrl, { label: 'local_database' });
   if (
     migrate.status === STATUS.PASS &&

@@ -14,6 +14,7 @@ const DISPOSABLE_DB_NAME_PATTERNS = [
   /^stjarndag_migrate_gate_\d+_\d+$/i,
   /^integrity_restore_[a-z0-9_]+$/i,
   /^stjarndag_clean_\d+$/i,
+  /^test_[a-z0-9_]+$/i,
 ];
 
 function databaseNameFromUrl(url) {

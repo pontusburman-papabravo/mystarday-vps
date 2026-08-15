@@ -21,9 +21,18 @@ function makePool(url) {
 }
 
 function runMigrate(url) {
+  const {
+    buildDestructiveTestChildEnv,
+    resolveApplicationDatabaseUrl,
+  } = require('../../scripts/lib/test-database-safety.cjs');
+  const anchorUrl = resolveApplicationDatabaseUrl(process.env);
+  const childEnv = buildDestructiveTestChildEnv(process.env, {
+    TEST_DATABASE_URL: url,
+    ...(anchorUrl ? { APPLICATION_DATABASE_URL: anchorUrl } : {}),
+  });
   execSync('npm run migrate', {
     cwd: REPO_ROOT,
-    env: { ...process.env, DATABASE_URL: url },
+    env: childEnv,
     stdio: 'pipe',
   });
 }

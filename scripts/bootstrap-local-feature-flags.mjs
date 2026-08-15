@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Explicit local/test repair for missing feature_flag rows.
- * Refuses non-local DATABASE_URL — fail closed.
+ * Requires validated disposable TEST_DATABASE_URL — fail closed.
  *
- *   npm run bootstrap:local-feature-flags
+ *   TEST_DATABASE_URL=postgresql://.../stjarndag_test TEST_DB_DESTRUCTIVE_CONFIRM=1 npm run bootstrap:local-feature-flags
  */
 
 import { createRequire } from 'node:module';
@@ -22,7 +22,7 @@ const {
 } = require('./lib/pre-public-release-gate/local-flag-repair.cjs');
 
 async function main() {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.TEST_DATABASE_URL;
   assertRepairAllowed(databaseUrl, process.env);
   const result = await repairMissingFeatureFlagSeeds(databaseUrl, { env: process.env });
   console.log(JSON.stringify(result, null, 2));

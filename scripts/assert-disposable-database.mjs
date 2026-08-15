@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fail closed when DATABASE_URL points at a non-disposable DB or _migrations
+ * Fail closed when TEST_DATABASE_URL points at a non-disposable DB or _migrations
  * contains rows from another git branch.
  */
 import { createRequire } from 'node:module';
@@ -8,23 +8,26 @@ import pg from 'pg';
 
 const require = createRequire(import.meta.url);
 const {
-  assertDisposableDatabaseUrl,
   assertMigrationsMatchFilesystem,
 } = require('../test/helpers/database-branch-guard.js');
+const { buildDestructiveTestChildEnv } = require('./lib/test-database-safety.cjs');
 
 const { Pool } = pg;
 
 async function main() {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    console.error('assert-disposable-database: DATABASE_URL is not set');
+  let testDatabaseUrl;
+  try {
+    const childEnv = buildDestructiveTestChildEnv(process.env);
+    testDatabaseUrl = childEnv.TEST_DATABASE_URL;
+    Object.assign(process.env, childEnv);
+  } catch (err) {
+    console.error(`[assert-disposable-database] ${err.code || 'REFUSED'}: ${err.message}`);
     process.exit(1);
   }
 
-  const dbName = assertDisposableDatabaseUrl(url);
   const pool = new Pool({
-    connectionString: url,
-    ssl: url.includes('localhost') ? false : { rejectUnauthorized: false },
+    connectionString: testDatabaseUrl,
+    ssl: testDatabaseUrl.includes('localhost') ? false : { rejectUnauthorized: false },
   });
   try {
     const client = await pool.connect();
@@ -42,7 +45,7 @@ async function main() {
     await pool.end();
   }
 
-  console.error(`[assert-disposable-database] OK disposable=${dbName}`);
+  console.error(`[assert-disposable-database] OK disposable=${new URL(testDatabaseUrl).pathname.replace(/^\//, '')}`);
 }
 
 main().catch((err) => {

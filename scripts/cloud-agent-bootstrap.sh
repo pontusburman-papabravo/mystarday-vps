@@ -58,5 +58,13 @@ try {
   // Database already exists on recycled VMs.
 }
 
+const testDb = 'stjarndag_test';
+try {
+  execFileSync('sudo', ['-u', 'postgres', 'createdb', '-O', user, testDb], { stdio: 'inherit' });
+} catch {
+  // Test database already exists on recycled VMs.
+}
+
 console.log('cloud-agent-bootstrap: role and database ready');
+console.log(`cloud-agent-bootstrap: disposable test DB ${testDb} (set TEST_DATABASE_URL to match)`);
 NODE

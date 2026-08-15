@@ -55,29 +55,29 @@ Without `./scripts/cloud-agent-bootstrap.sh`, `npm run migrate` fails on fresh V
 ### Required env to run the server / tests
 ```
 export DATABASE_URL="postgresql://<user>:<pass>@localhost:5432/stjarndag"
+export TEST_DATABASE_URL="postgresql://<user>:<pass>@localhost:5432/stjarndag_test"
+export TEST_DB_DESTRUCTIVE_CONFIRM=1
 export JWT_SECRET="<any-dev-string-at-least-32-chars-long>"
 export REQUIRE_EMAIL_VERIFICATION="false"   # lets new accounts log in without email verification
 ```
-On Cursor Cloud, `DATABASE_URL` and `JWT_SECRET` are already injected as secrets — you do **not** set them manually. You only need to add `REQUIRE_EMAIL_VERIFICATION=false`. `NODE_ENV` is unfortunately injected at the deploy-mode value (see the gotcha above), so for **local dev you must override it explicitly** — run the dev server with `NODE_ENV=development …` and the test suite with `NODE_ENV=test …`. Do not rely on it being unset.
-
-The injected `DATABASE_URL` points at `localhost:5432` but uses a specific role/db name (not literally `stjarndag`). The local Postgres role + database must match whatever that secret contains. If a fresh VM is missing them, run `./scripts/cloud-agent-bootstrap.sh` (also included in the recommended Update Script above), then `npm run migrate`.
+On Cursor Cloud, `DATABASE_URL` and `JWT_SECRET` are already injected as secrets — you do **not** set them manually. For **integration tests / test:gate**, also set disposable `TEST_DATABASE_URL` (e.g. `…/stjarndag_test`) and `TEST_DB_DESTRUCTIVE_CONFIRM=1`. `./scripts/cloud-agent-bootstrap.sh` creates the `stjarndag_test` database alongside the app database. Never point tests at application `DATABASE_URL` — `setupTestDb()` refuses prod identities even on localhost (VPS-safe). Override injected deploy-mode Node runtime when running tests (see Run / lint / test below). <!-- pragma: allowlist secret -->
 
 All third-party integrations (Resend email, Cloudflare R2, Stripe, RevenueCat, Web Push, APNs/FCM, Facebook, Sentry) are **optional** and degrade gracefully without keys. Set `EMAIL_ENABLED=false` to silence email sends — but **do not set it when running the test suite** (the welcome-mailer tests expect email enabled).
 
 ### Run / lint / test
 - Run dev server: `NODE_ENV=development REQUIRE_EMAIL_VERIFICATION=false npm run dev` (= `node server.js`, listens on `PORT` or 3000). Health check: `GET /health`. There is no hot-reload/watcher — restart the process after server-side changes. For manual UI testing, also add `EMAIL_ENABLED=false` so registrations don't trigger real Resend emails.
 - Lint: `npm run lint` (the `src/` + `server.js` Node lint) is clean — 0 errors, ~90 warnings. `npm run lint:public` (CI gate over `public/js`+`public/admin`) uses a committed warning budget in `config/lint-public-budget.json` via `scripts/lint-public.mjs`. After cleaning warnings, ratchet down with `npm run lint:public:sync-budget`. Do not raise the budget without `--force-raise` and a PR note.
-- Test: run the curated CI gate with `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run test:gate` (this is all CI runs). To avoid any real outbound email, **unset `RESEND_API_KEY`** for the run (`env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY …`); `@example.com` recipients are auto-suppressed regardless. Full `npm test` (~1026 tests) is deterministic when `DATABASE_URL` points at a real Postgres — DB integration files serialize via a PostgreSQL advisory lock in `test/helpers/db-test-lock.js`.
+- Test: run the curated CI gate with `NODE_ENV=test TEST_DB_DESTRUCTIVE_CONFIRM=1 REQUIRE_EMAIL_VERIFICATION=false npm run test:gate` (CI supplies disposable `TEST_DATABASE_URL` only — not application `DATABASE_URL`). To avoid any real outbound email, **unset `RESEND_API_KEY`** for the run (`env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY …`); `@example.com` recipients are auto-suppressed regardless. Full `npm test` requires the same disposable test DB env. DB integration files serialize via a PostgreSQL advisory lock in `test/helpers/db-test-lock.js`.
 
 ### Known caveats
-- **Do not run `npm test` on the production VPS** with a live `RESEND_API_KEY` — integration tests POST to public routes and can send admin emails (e.g. `anna@example.com` pedagogintresse). Run tests only in dev/CI.
+- **Do not run `npm test` on the prod VPS** with a live `RESEND_API_KEY` — integration tests POST to public routes and can send admin emails (e.g. `anna@example.com` pedagogintresse). Run tests only in dev/CI.
 - Admin v2 deploy checklist: `docs/admin-v2/ADMIN-V2-DELIVERY.md` (migrations `1807800000000`, `1807900000000`).
 - CI (`.github/workflows/ci.yml`) currently fails at the `npm ci` step because it does **not** pass `--legacy-peer-deps`; that is a pre-existing repo/CI issue, not an environment problem.
-- The **global standard library** (`default_schedule`, `default_activity_template`, `default_reward`) is empty in a fresh local DB — it is harvested from production via `npm run harvest:library` + `npm run import:library` (needs prod admin creds). Consequence: the onboarding wizard's "schedule template" step fails locally with *"Inga aktiviteter hittades för valt schema"*. Per-family activities ARE seeded at registration (the family gets ~56 activities), so the core activity/reward/star loop works without the global library; only the prebuilt template picker is affected.
+- The **global standard library** (`default_schedule`, `default_activity_template`, `default_reward`) is empty in a fresh local DB — it is harvested from live via `npm run harvest:library` + `npm run import:library` (needs prod admin creds). Consequence: the onboarding wizard's "schedule template" step fails locally with *"Inga aktiviteter hittades för valt schema"*. Per-family activities ARE seeded at registration (the family gets ~56 activities), so the core activity/reward/star loop works without the global library; only the prebuilt template picker is affected.
 
-### Production deploy & ops (mystarday)
+### Prod deploy & ops
 
-Agents **must** use these values (also `.cursor/rules/mystarday-deploy.mdc`):
+Agents **must** use these values (also `.cursor/rules/deploy-ops.mdc`):
 
 | | |
 |--|--|

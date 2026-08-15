@@ -78,8 +78,18 @@ test('gate uses local-only flag repair helper', () => {
   assert.doesNotMatch(src, /ensureFeatureFlagSeeds/);
 });
 
+test('gate uses validated disposable test database helper', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /gateDestructiveTestDatabaseCheck/);
+  assert.match(src, /test-database-safety/);
+  assert.doesNotMatch(src, /localDatabaseIsNotProd/);
+});
+
 test('local flag repair refuses non-local DATABASE_URL', () => {
-  assert.equal(isRepairAllowedDatabase('postgresql://u:p@db.example.com:5432/prod'), false);
+  assert.equal(isRepairAllowedDatabase('postgresql://u:p@db.example.com:5432/prod', {
+    NODE_ENV: 'test',
+    TEST_DB_DESTRUCTIVE_CONFIRM: '1',
+  }), false);
 });
 
 test('kill-switch source defaults are fail-secure', () => {
@@ -227,6 +237,8 @@ test('test runner env matches CI rate-limit kill switch', () => {
   );
   assert.match(src, /RATE_LIMIT_ENABLED = 'false'/);
   const ci = fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(ci, /TEST_DATABASE_URL: postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.match(ci, /TEST_DB_DESTRUCTIVE_CONFIRM:\s*'1'/);
   assert.match(ci, /RATE_LIMIT_ENABLED:\s*'false'/);
 });
 
@@ -234,7 +246,9 @@ test('pre-public-release-gate workflow runs in clean CI with prod read-only cred
   const wf = fs.readFileSync(path.join(ROOT, '.github/workflows/pre-public-release-gate.yml'), 'utf8');
   assert.match(wf, /workflow_dispatch/);
   assert.match(wf, /target_sha/);
-  assert.match(wf, /postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.match(wf, /TEST_DATABASE_URL: postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.match(wf, /TEST_DB_DESTRUCTIVE_CONFIRM:\s*'1'/);
+  assert.doesNotMatch(wf, /^\s+DATABASE_URL: postgresql/m);
   assert.match(wf, /RATE_LIMIT_ENABLED:\s*'false'/);
   assert.match(wf, /TEST_SKIP_MIGRATE:\s*'1'/);
   assert.match(wf, /release:pre-public-gate/);
@@ -283,7 +297,9 @@ test('pre-public-release-gate workflow security contract', () => {
   assert.doesNotMatch(wf, /--skip-test-gate/);
 
   // 6. Disposable CI Postgres only.
-  assert.match(wf, /postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.match(wf, /TEST_DATABASE_URL: postgresql:\/\/test:test@localhost:5432\/stjarndag_test/);
+  assert.match(wf, /TEST_DB_DESTRUCTIVE_CONFIRM:\s*'1'/);
+  assert.doesNotMatch(wf, /^\s+DATABASE_URL: postgresql/m);
   assert.doesNotMatch(wf, /PRE_PUBLIC_GATE_FLAG_DATABASE_URL/);
 
   // 7. Gate never enables widget / family-device flags (orchestrator + constants).

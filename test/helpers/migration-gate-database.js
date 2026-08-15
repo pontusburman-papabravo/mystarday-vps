@@ -8,20 +8,43 @@ const {
   generateDisposableDatabaseName,
   assertMigrationsMatchFilesystem,
 } = require('./database-branch-guard.js');
+const {
+  assertDestructiveTestDatabaseAllowed,
+  REFUSED_CODE,
+} = require('../../scripts/lib/test-database-safety.cjs');
 
 /**
  * Run a migration-gate test against a dedicated disposable database.
  * Creates DB, runs fn(testUrl), drops DB in finally (even on failure).
  */
 async function withMigrationGateDatabase(t, fn) {
-  const baseUrl = process.env.DATABASE_URL;
-  if (isMockDatabaseUrl(baseUrl)) {
-    t.skip('DATABASE_URL not set or mock');
+  const testUrlRaw = String(process.env.TEST_DATABASE_URL || '').trim();
+  if (!testUrlRaw) {
+    try {
+      assertDestructiveTestDatabaseAllowed(process.env);
+    } catch (err) {
+      err.message = `[migration-gate-db] ${err.message}`;
+      if (!err.code) err.code = REFUSED_CODE;
+      throw err;
+    }
+  }
+
+  if (isMockDatabaseUrl(testUrlRaw)) {
+    t.skip('TEST_DATABASE_URL not set or mock');
     return;
   }
 
+  let baseUrl;
+  try {
+    ({ testDatabaseUrl: baseUrl } = assertDestructiveTestDatabaseAllowed(process.env));
+  } catch (err) {
+    err.message = `[migration-gate-db] ${err.message}`;
+    if (!err.code) err.code = REFUSED_CODE;
+    throw err;
+  }
+
   const dbName = generateDisposableDatabaseName('stjarndag_migrate_gate');
-  const releaseLock = await acquireDbTestLock();
+  const releaseLock = await acquireDbTestLock(baseUrl);
   let testUrl;
   try {
     testUrl = await createDisposableDatabase(baseUrl, dbName);

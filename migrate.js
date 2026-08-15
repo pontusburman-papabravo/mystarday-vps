@@ -26,6 +26,12 @@ const path = require('path');
 const { loadEnvFile, diagnoseDatabaseUrl } = require('./src/lib/load-env');
 
 const envLoaded = loadEnvFile();
+
+if (process.env.NODE_ENV === 'test') { // pragma: allowlist secret
+  const { buildDestructiveTestChildEnv } = require('./scripts/lib/test-database-safety.cjs');
+  Object.assign(process.env, buildDestructiveTestChildEnv(process.env));
+}
+
 const dbDiag = diagnoseDatabaseUrl(process.env.DATABASE_URL);
 if (!dbDiag.ok) {
   console.error('ERROR:', dbDiag.message);
