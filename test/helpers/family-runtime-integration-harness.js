@@ -100,11 +100,35 @@ function createDomElement(id, opts) {
   });
   el.setAttribute = function (k, v) { el._attrs[k] = String(v); };
   el.getAttribute = function (k) { return el._attrs[k] || null; };
+  el.hasAttribute = function (k) { return Object.prototype.hasOwnProperty.call(el._attrs, k); };
   el.querySelector = function () { return null; };
   el.querySelectorAll = function () { return []; };
-  el.addEventListener = function () {};
-  el.closest = function () { return null; };
+  el._listeners = {};
+  el.addEventListener = function (type, fn) {
+    if (!el._listeners[type]) el._listeners[type] = [];
+    el._listeners[type].push(fn);
+  };
+  el.dispatchEvent = function (evt) {
+    (el._listeners[evt.type] || []).slice().forEach(function (fn) { fn(evt); });
+    return true;
+  };
+  el.closest = function (sel) {
+    if (sel === 'a.tab-item' && el.tagName === 'A' && el._classes.has('tab-item')) return el;
+    if (sel === 'a[href^="/"]' && el.tagName === 'A') return el;
+    return el.parentNode && el.parentNode.closest ? el.parentNode.closest(sel) : null;
+  };
   return el;
+}
+
+function findById(root, id) {
+  if (!root) return null;
+  if (root.id === id) return root;
+  const kids = root._children || [];
+  for (let i = 0; i < kids.length; i++) {
+    const found = findById(kids[i], id);
+    if (found) return found;
+  }
+  return null;
 }
 
 function createFamilyElements() {
@@ -214,7 +238,9 @@ function loadFamilyRuntime(sandbox, tracker, dom) {
       appendChild: function () {},
     },
     scripts: [],
-    getElementById: function (id) { return dom.elements[id] || null; },
+    getElementById: function (id) {
+      return findById(dom.main, id) || findById(dom.body, id) || dom.elements[id] || null;
+    },
     createElement: function (tag) { return createDomElement('dyn-' + tag, { tagName: tag }); },
     querySelector: function (sel) {
       if (sel === 'main') return dom.main;
@@ -255,9 +281,19 @@ function buildSoftNavHtml(pageId) {
   };
 }
 
+function createDashboardShellDom() {
+  const body = createDomElement('body', { tagName: 'body' });
+  body.querySelectorAll = function () { return []; };
+  const main = createDomElement('main', { tagName: 'main', className: 'dashboard-main' });
+  body.appendChild(main);
+  const sidebar = createDomElement('sidebar', { tagName: 'nav' });
+  body.appendChild(sidebar);
+  return { elements: {}, body: body, main: main };
+}
+
 function createRouterSoftNavHarness(initialPayload) {
   const tracker = createApiTracker(initialPayload);
-  const dom = createFamilyDom();
+  const dom = createDashboardShellDom();
   const loadedScripts = new Set();
   const eventListeners = { 'stjarndag-magic-navigated': [] };
 
@@ -281,6 +317,15 @@ function createRouterSoftNavHarness(initialPayload) {
   sandbox.global = sandbox;
   vm.createContext(sandbox);
 
+  function applyHistoryUrl(url) {
+    if (!url) return;
+    const path = String(url).split('?')[0];
+    sandbox.location.pathname = path;
+    sandbox.location.href = path;
+  }
+  sandbox.history.pushState = function (_state, _title, url) { applyHistoryUrl(url); };
+  sandbox.history.replaceState = function (_state, _title, url) { applyHistoryUrl(url); };
+
   let locationHref = '/dashboard';
   sandbox.location = {
     pathname: '/dashboard',
@@ -303,10 +348,6 @@ function createRouterSoftNavHarness(initialPayload) {
 
   installFamilyRuntimeMocks(sandbox, tracker);
 
-  const dashboardMain = createDomElement('main', { tagName: 'main', className: 'dashboard-main' });
-  dom.body.appendChild(dashboardMain);
-  dom.main = dashboardMain;
-
   sandbox.document = {
     readyState: 'complete',
     body: dom.body,
@@ -316,7 +357,9 @@ function createRouterSoftNavHarness(initialPayload) {
       appendChild: function () {},
     },
     scripts: [],
-    getElementById: function (id) { return dom.elements[id] || null; },
+    getElementById: function (id) {
+      return findById(dom.main, id) || findById(dom.body, id) || dom.elements[id] || null;
+    },
     createElement: function (tag) {
       const el = createDomElement('dyn-' + tag, { tagName: tag });
       if (tag === 'script') {
@@ -335,9 +378,15 @@ function createRouterSoftNavHarness(initialPayload) {
     },
     querySelectorAll: function (sel) {
       if (sel === 'body > nav') return [];
+      if (sel === '.native-tab-bar') return sandbox.__tabBar ? [sandbox.__tabBar] : [];
       return [];
     },
-    addEventListener: function () {},
+    addEventListener: function (type, fn, opts) {
+      const capture = opts === true || (opts && opts.capture);
+      const key = type + (capture ? ':capture' : ':bubble');
+      if (!eventListeners[key]) eventListeners[key] = [];
+      eventListeners[key].push(fn);
+    },
   };
 
   sandbox.fetch = async function (href) {
@@ -381,6 +430,11 @@ function createRouterSoftNavHarness(initialPayload) {
   };
 
   loadModule(sandbox, 'public/js/parent-magic-router.js');
+  const realNavigateTo = sandbox.ParentMagicRouter.navigateTo.bind(sandbox.ParentMagicRouter);
+  sandbox.ParentMagicRouter.navigateTo = function (href, opts) {
+    sandbox.__lastNavigate = realNavigateTo(href, opts);
+    return sandbox.__lastNavigate;
+  };
 
   const originalFetch = sandbox.fetch;
   sandbox.fetch = async function (href) {
@@ -392,19 +446,73 @@ function createRouterSoftNavHarness(initialPayload) {
   async function navigateTo(path) {
     const startIdx = tracker.log.length;
     const ok = await sandbox.ParentMagicRouter.navigateTo(path);
+    const liveBanner = sandbox.document.getElementById('familyLoadError');
+    const liveSkeleton = sandbox.document.getElementById('familyLoadingSkeleton');
+    const liveSections = sandbox.document.getElementById('familyDataSections');
     return {
       ok: ok,
       startIdx: startIdx,
       familyCalls: tracker.countSince('/api/family', startIdx),
       hooks: sandbox.__FamilyRuntimeTestHooks,
-      banner: dom.elements.familyLoadError,
+      banner: liveBanner || dom.elements.familyLoadError,
+      skeleton: liveSkeleton,
+      dataSections: liveSections,
       sandbox: sandbox,
       tracker: tracker,
       dom: dom,
     };
   }
 
-  return { navigateTo: navigateTo, tracker: tracker, sandbox: sandbox, dom: dom };
+  async function tapFamilyTab() {
+    const link = createDomElement('family-tab', { tagName: 'a', className: 'tab-item' });
+    link._classes.add('tab-item');
+    link.setAttribute('href', '/family');
+    const evt = {
+      type: 'click',
+      target: link,
+      defaultPrevented: false,
+      metaKey: false,
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false,
+      preventDefault: function () { evt.defaultPrevented = true; },
+      stopPropagation: function () { evt._stopped = true; },
+    };
+    const startIdx = tracker.log.length;
+    sandbox.__lastNavigate = null;
+    const capture = (eventListeners['click:capture'] || []).slice();
+    for (let i = 0; i < capture.length; i++) {
+      capture[i](evt);
+    }
+    if (!evt._stopped) {
+      sandbox.__tabBarClick(evt);
+    }
+    if (sandbox.__lastNavigate) {
+      await sandbox.__lastNavigate;
+    } else {
+      for (let i = 0; i < 40 && sandbox.location.pathname !== '/family'; i++) {
+        await new Promise(function (resolve) { setImmediate(resolve); });
+      }
+    }
+    return {
+      familyCalls: tracker.countSince('/api/family', startIdx),
+      hooks: sandbox.__FamilyRuntimeTestHooks,
+      skeleton: sandbox.document.getElementById('familyLoadingSkeleton'),
+      dataSections: sandbox.document.getElementById('familyDataSections'),
+      defaultPrevented: evt.defaultPrevented,
+    };
+  }
+
+  sandbox.__tabBarClick = function (e) {
+    if (e.defaultPrevented) return;
+    const href = '/family';
+    if (sandbox.ParentMagicRouter.shouldSoftNav() && sandbox.ParentMagicRouter.isSoftNavPath(href)) {
+      e.preventDefault();
+      sandbox.ParentMagicRouter.navigateTo(href);
+    }
+  };
+
+  return { navigateTo: navigateTo, tapFamilyTab: tapFamilyTab, tracker: tracker, sandbox: sandbox, dom: dom };
 }
 
 async function runSharedFetchConcurrent(payload) {
@@ -532,6 +640,115 @@ async function runRouterPostMutationRefresh() {
   };
 }
 
+function familyDomSnapshot(sandbox, dom) {
+  const skeleton = sandbox.document.getElementById('familyLoadingSkeleton')
+    || (dom && dom.elements.familyLoadingSkeleton);
+  const sections = sandbox.document.getElementById('familyDataSections')
+    || (dom && dom.elements.familyDataSections);
+  return {
+    skeletonHidden: !!(skeleton && skeleton.classList.contains('hidden')),
+    dataVisible: !!(sections && !sections.classList.contains('hidden')),
+  };
+}
+
+async function runFamilyHardLoad(payload) {
+  const tracker = createApiTracker(payload || { id: 'fam-1', name: 'Hard load', children: [] });
+  const sandbox = { console, setTimeout, clearTimeout };
+  sandbox.window = sandbox;
+  sandbox.global = sandbox;
+  vm.createContext(sandbox);
+  const dom = createFamilyDom();
+  sandbox.document = {
+    body: dom.body,
+    getElementById: function (id) { return findById(dom.body, id) || dom.elements[id] || null; },
+    createElement: function (tag) { return createDomElement('dyn-' + tag, { tagName: tag }); },
+    querySelector: function () { return null; },
+    querySelectorAll: function () { return []; },
+    addEventListener: function () {},
+  };
+  installFamilyRuntimeMocks(sandbox, tracker);
+  sandbox.authGuard = async function () { return { preferred_locale: 'sv-SE' }; };
+  loadModule(sandbox, 'public/js/api-error-classification.js');
+  loadModule(sandbox, 'public/js/shared-family-fetch.js');
+  loadModule(sandbox, 'public/js/family.js');
+  await new Promise(function (resolve) { setImmediate(resolve); });
+  await new Promise(function (resolve) { setImmediate(resolve); });
+  const hooks = sandbox.__FamilyRuntimeTestHooks;
+  const vis = familyDomSnapshot(sandbox, dom);
+  return {
+    hooks: hooks,
+    tracker: tracker,
+    familyCalls: tracker.count('/api/family'),
+    pageBootOwnsThisLoad: hooks.pageBootOwnsThisLoad,
+    skeletonHidden: vis.skeletonHidden,
+    dataVisible: vis.dataVisible,
+    sandbox: sandbox,
+    dom: dom,
+  };
+}
+
+async function runFamilyHardLoadAsyncPageBootRace(payload) {
+  const tracker = createApiTracker(payload || { id: 'fam-1', name: 'Race load', children: [] });
+  const sandbox = { console, setTimeout, clearTimeout };
+  sandbox.window = sandbox;
+  sandbox.global = sandbox;
+  vm.createContext(sandbox);
+  const dom = createFamilyDom();
+  sandbox.document = {
+    body: dom.body,
+    getElementById: function (id) { return findById(dom.body, id) || dom.elements[id] || null; },
+    createElement: function (tag) { return createDomElement('dyn-' + tag, { tagName: tag }); },
+    querySelector: function () { return null; },
+    querySelectorAll: function () { return []; },
+    addEventListener: function () {},
+  };
+  installFamilyRuntimeMocks(sandbox, tracker);
+  let resolveAuth;
+  sandbox.authGuard = function () {
+    return new Promise(function (resolve) { resolveAuth = resolve; });
+  };
+  loadModule(sandbox, 'public/js/api-error-classification.js');
+  loadModule(sandbox, 'public/js/shared-family-fetch.js');
+  loadModule(sandbox, 'public/js/family.js');
+  const hooks = sandbox.__FamilyRuntimeTestHooks;
+  loadModule(sandbox, 'public/js/parent-magic-page-boot.js');
+  await sandbox.ParentMagicPageBoot.run('family');
+  resolveAuth({ preferred_locale: 'sv-SE' });
+  await new Promise(function (resolve) { setImmediate(resolve); });
+  await new Promise(function (resolve) { setImmediate(resolve); });
+  const vis = familyDomSnapshot(sandbox, dom);
+  return {
+    hooks: hooks,
+    tracker: tracker,
+    familyCalls: tracker.count('/api/family'),
+    pageBootOwnsThisLoad: hooks.pageBootOwnsThisLoad,
+    pageBootPresentDuringAwait: !!sandbox.ParentMagicPageBoot,
+    skeletonHidden: vis.skeletonHidden,
+    dataVisible: vis.dataVisible,
+    name: hooks.getState().familyData && hooks.getState().familyData.name,
+  };
+}
+
+async function runNativeTabFamilyFlow() {
+  const harness = createRouterSoftNavHarness({ id: 'fam-1', name: 'First tab', children: [] });
+  const first = await harness.tapFamilyTab();
+  const firstName = first.hooks.getState().familyData && first.hooks.getState().familyData.name;
+  const reclick = await harness.tapFamilyTab();
+  harness.tracker.setPayload({ id: 'fam-1', name: 'After leave', children: [] });
+  await harness.navigateTo('/planning');
+  const revisit = await harness.tapFamilyTab();
+  const revisitName = revisit.hooks.getState().familyData && revisit.hooks.getState().familyData.name;
+  const again = await harness.tapFamilyTab();
+  return {
+    first: first,
+    reclick: reclick,
+    revisit: revisit,
+    again: again,
+    firstName: firstName,
+    revisitName: revisitName,
+  };
+}
+
 function loadParentMagicRouterSandbox() {
   const sandbox = {
     console,
@@ -574,6 +791,9 @@ module.exports = {
   runRouterRevisitFamily,
   runRouterFamilySoftNav429ThenRetry,
   runRouterPostMutationRefresh,
+  runFamilyHardLoad,
+  runFamilyHardLoadAsyncPageBootRace,
+  runNativeTabFamilyFlow,
   loadParentMagicRouterSandbox,
   createApiTracker,
   createRouterSoftNavHarness,

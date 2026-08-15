@@ -197,15 +197,6 @@
     window.location.replace(redirectPath || '/dashboard');
   }
 
-  async function resumeParentIfSessionMatches(parentId) {
-    const activeParentId = await resolveActiveParentId();
-    if (!activeParentId || activeParentId !== parentId) {
-      return false;
-    }
-    commitParentViewFromPicker('/dashboard');
-    return true;
-  }
-
   async function onPickParent(parentId, btn) {
     if (!parentId) return;
     if (btn) btn.disabled = true;
@@ -221,10 +212,8 @@
       return;
     }
 
-    if (await resumeParentIfSessionMatches(parentId)) {
-      return;
-    }
-
+    // Shared picker → adult is a security boundary. A matching /api/auth/me
+    // parent cookie is not authorization for a new child→adult transition.
     if (!window.AdultPrivilege || typeof AdultPrivilege.requestTrustedProfileUnlock !== 'function') {
       showError('Kunde inte låsa upp vuxenläge. Försök igen.');
       if (btn) btn.disabled = false;
@@ -332,9 +321,19 @@
     wireParentBackupLink();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootstrap);
-  } else {
-    bootstrap();
+  if (typeof window !== 'undefined' && window.__exposePickerRuntimeForTests) {
+    window.__PickerRuntimeTestHooks = {
+      onPickParent: onPickParent,
+      onPickChild: onPickChild,
+      resolveActiveParentId: resolveActiveParentId,
+    };
+  }
+
+  if (!window.__exposePickerRuntimeForTests) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootstrap);
+    } else {
+      bootstrap();
+    }
   }
 })();

@@ -101,12 +101,13 @@ describe('Fas 4A — client contracts', () => {
     assert.doesNotMatch(html, /device-mode\.js/);
   });
 
-  it('profile picker resumes authenticated parent without select-parent', () => {
+  it('profile picker requires AdultPrivilege unlock for Vuxen on shared device', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
-    assert.match(js, /resumeParentIfSessionMatches/);
-    assert.match(js, /resolveActiveParentId/);
+    assert.doesNotMatch(js, /resumeParentIfSessionMatches/);
+    assert.match(js, /requestTrustedProfileUnlock/);
     assert.match(js, /commitParentViewFromPicker/);
     assert.match(js, /markDecisionApplied/);
+    assert.match(js, /matching \/api\/auth\/me/);
   });
 
   it('profile picker uses 2-column mobile grid', () => {

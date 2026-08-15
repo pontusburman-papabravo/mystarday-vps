@@ -109,6 +109,7 @@
     nav.addEventListener('click', function (e) {
       const link = e.target.closest('a.tab-item');
       if (!link) return;
+      if (e.defaultPrevented) return;
       if (isNativeShell() && Platform.haptics && Platform.haptics.light) {
         Platform.haptics.light();
       }

@@ -1329,9 +1329,23 @@
     const todayLabel = document.getElementById('todayLabel');
     if (todayLabel) todayLabel.textContent = today.charAt(0).toUpperCase() + today.slice(1);
 
-if (window.ParentMagicPageBoot) {
-  ParentMagicPageBoot.register('family', init);
-}
+    // Capture ownership at module execution — do not re-read the global after
+    // await. Soft-nav loads family.js after ParentMagicPageBoot exists; hard
+    // /family documents execute family.js before the injected page-boot script.
+    var pageBootOwnsThisLoad = !!(window.ParentMagicPageBoot
+      && typeof window.ParentMagicPageBoot.register === 'function');
+
+    function registerFamilyInitWithPageBoot() {
+      if (window.ParentMagicPageBoot && typeof ParentMagicPageBoot.register === 'function') {
+        ParentMagicPageBoot.register('family', init);
+        return true;
+      }
+      return false;
+    }
+
+    if (pageBootOwnsThisLoad) {
+      registerFamilyInitWithPageBoot();
+    }
 
 (async function familyI18nBoot() {
   if (typeof window.authGuard === 'function') {
@@ -1341,10 +1355,9 @@ if (window.ParentMagicPageBoot) {
       await window.initParentAppI18n(user.preferred_locale);
     }
   }
-  // Hard-load only: soft navigation runs init via ParentMagicPageBoot.run before
-  // stjarndag-magic-navigated; calling init here as well duplicates GET /api/family.
-  if (!window.ParentMagicPageBoot) {
-    init();
+  if (!pageBootOwnsThisLoad) {
+    await init();
+    registerFamilyInitWithPageBoot();
   }
   if (window.ParentMagicShell) ParentMagicShell.init('family');
 })();
@@ -1356,6 +1369,7 @@ if (typeof window !== 'undefined' && window.__exposeFamilyRuntimeForTests) {
     init: init,
     fetchFamily: fetchFamily,
     showFamilyLoadError: showFamilyLoadError,
+    pageBootOwnsThisLoad: pageBootOwnsThisLoad,
     getState: function () {
       return { familyData: familyData, familyCache: familyCache };
     },
