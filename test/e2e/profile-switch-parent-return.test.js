@@ -170,11 +170,20 @@ async function tapAdultCard(page) {
   await card.click();
 }
 
-async function tapAdultCardAndAwaitParentShell(page) {
-  const card = await page.$('.cpp-profile-card-parent');
-  assert.ok(card, 'adult profile card must exist');
+async function enterAdultPinDigits(page, pin) {
+  await page.waitForSelector('#adult-pin-gate-overlay', { timeout: 10000 });
+  for (const digit of pin) {
+    await page.evaluate((d) => {
+      const btns = [...document.querySelectorAll('#adult-pin-gate-overlay button')];
+      const btn = btns.find((b) => b.textContent.trim() === d);
+      if (!btn) throw new Error('digit button missing ' + d);
+      btn.click();
+    }, digit);
+  }
+}
 
-  const navDone = page.waitForFunction(
+async function awaitParentShellOrPickerError(page) {
+  await page.waitForFunction(
     () => {
       const p = window.location.pathname;
       const err = document.getElementById('cppError');
@@ -185,9 +194,12 @@ async function tapAdultCardAndAwaitParentShell(page) {
     },
     { timeout: 20000 }
   );
+}
 
-  await card.click();
-  await navDone;
+async function tapAdultCardUnlockAndAwaitParentShell(page, pin) {
+  await tapAdultCard(page);
+  await enterAdultPinDigits(page, pin);
+  await awaitParentShellOrPickerError(page);
 }
 
 async function assertLeftPickerWithoutGenericError(page) {
@@ -212,7 +224,7 @@ async function assertLeftPickerWithoutGenericError(page) {
 }
 
 describe('profile switch parent return E2E', () => {
-  it('Test A: authenticated parent → Byt profil → adult restores without generic error', async (t) => {
+  it('Test A: authenticated parent cookie → Byt profil → Vuxen still requires AdultPrivilege PIN', async (t) => {
     const ctx = await createE2eContext();
     if (ctx.skip) {
       t.skip(ctx.reason);
@@ -228,7 +240,7 @@ describe('profile switch parent return E2E', () => {
       const page = await newPage(browser, 'mobile');
       await loginParentWithTrustedDevice(page, ctx.baseUrl, session, deviceCookies);
       await openProfilePickerSwitch(page);
-      await tapAdultCardAndAwaitParentShell(page);
+      await tapAdultCardUnlockAndAwaitParentShell(page, '4321');
       await assertLeftPickerWithoutGenericError(page);
     } finally {
       if (browser) await browser.close();
@@ -236,7 +248,7 @@ describe('profile switch parent return E2E', () => {
     }
   });
 
-  it('Test B: change PIN → Byt profil → adult restores without generic error', async (t) => {
+  it('Test B: change PIN → Byt profil → Vuxen requires the new AdultPrivilege PIN', async (t) => {
     const ctx = await createE2eContext();
     if (ctx.skip) {
       t.skip(ctx.reason);
@@ -253,7 +265,7 @@ describe('profile switch parent return E2E', () => {
       const page = await newPage(browser, 'mobile');
       await loginParentWithTrustedDevice(page, ctx.baseUrl, session, deviceCookies);
       await openProfilePickerSwitch(page);
-      await tapAdultCardAndAwaitParentShell(page);
+      await tapAdultCardUnlockAndAwaitParentShell(page, '9876');
       await assertLeftPickerWithoutGenericError(page);
     } finally {
       if (browser) await browser.close();
@@ -285,22 +297,7 @@ describe('profile switch parent return E2E', () => {
       await loginParentWithTrustedDevice(page, ctx.baseUrl, session, deviceCookies);
       await activateChildSessionViaApi(page, ctx.baseUrl, session, deviceCookies, childUsername, '2580');
       await openProfilePickerSwitch(page);
-      await tapAdultCard(page);
-
-      await page.waitForSelector('#adult-pin-gate-overlay', { timeout: 10000 });
-      for (const digit of '4321') {
-        await page.evaluate((d) => {
-          const btns = [...document.querySelectorAll('#adult-pin-gate-overlay button')];
-          const btn = btns.find((b) => b.textContent.trim() === d);
-          if (!btn) throw new Error('digit button missing ' + d);
-          btn.click();
-        }, digit);
-      }
-
-      await page.waitForFunction(() => {
-        const p = window.location.pathname;
-        return p === '/home' || p === '/dashboard' || p === '/' || p.indexOf('/family/') === 0;
-      }, { timeout: 20000 });
+      await tapAdultCardUnlockAndAwaitParentShell(page, '4321');
       const err = await page.evaluate(() => (document.getElementById('cppError') || {}).textContent || '');
       assert.equal(err, '');
     } finally {
@@ -334,14 +331,7 @@ describe('profile switch parent return E2E', () => {
       await activateChildSessionViaApi(page, ctx.baseUrl, session, deviceCookies, childUsername, '2580');
       await openProfilePickerSwitch(page);
       await tapAdultCard(page);
-      await page.waitForSelector('#adult-pin-gate-overlay', { timeout: 10000 });
-      for (const digit of '0000') {
-        await page.evaluate((d) => {
-          const btns = [...document.querySelectorAll('#adult-pin-gate-overlay button')];
-          const btn = btns.find((b) => b.textContent.trim() === d);
-          if (btn) btn.click();
-        }, digit);
-      }
+      await enterAdultPinDigits(page, '0000');
 
       await page.waitForFunction(() => {
         const err = document.getElementById('cppError');

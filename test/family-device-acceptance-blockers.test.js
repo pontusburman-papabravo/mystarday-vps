@@ -134,6 +134,16 @@ describe('Family Device acceptance — shared adult PIN boundary', () => {
     assert.doesNotMatch(pickerSrc, /resumeParentIfSessionMatches/);
     assert.match(pickerSrc, /requestTrustedProfileUnlock/);
   });
+
+  it('BACKGROUND_FOREGROUND lease/grace remains AdultPrivilege-owned, not cookie identity', () => {
+    const policy = require('../src/lib/adult-privilege-lease-policy');
+    assert.equal(policy.leaseApplies('parent'), false);
+    assert.equal(policy.leaseApplies('shared'), true);
+    assert.ok(policy.PARENT_DEVICE_BACKGROUND_GRACE_MS > 0);
+    assert.ok(policy.backgroundGraceMs('parent') > 0);
+    const pickerSrc = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
+    assert.doesNotMatch(pickerSrc, /resumeParentIfSessionMatches/);
+  });
 });
 
 describe('Family Device acceptance — #1007 preserved', () => {
