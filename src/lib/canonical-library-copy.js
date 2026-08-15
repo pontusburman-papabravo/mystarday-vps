@@ -131,6 +131,19 @@ function itemVariantKey(defaultActivity) {
   return defaultActivity.item_variant_key ?? null;
 }
 
+function activityHasVariants(defaultActivity) {
+  return parseVariantsJson(defaultActivity.variants).length > 0;
+}
+
+function buildActivityCacheKey(defaultActivity, { locale, variants }) {
+  const defaultActivityId = defaultActivity.default_activity_id;
+  if (!activityHasVariants(defaultActivity)) {
+    return String(defaultActivityId);
+  }
+  const { chosenVariantKey } = resolveActivitySnapshot(defaultActivity, { locale, variants });
+  return `${defaultActivityId}:${chosenVariantKey}`;
+}
+
 async function loadCanonicalScheduleSource(client, { defaultScheduleId, canonicalScheduleId }) {
   const params = [];
   let where = '';
@@ -218,10 +231,20 @@ async function validateCanonicalScheduleSource(client, schedule, manifestIndex) 
   const activitiesRes = await client.query(
     `SELECT id, canonical_id FROM default_activity_template WHERE canonical_id IS NOT NULL`
   );
-  const dupes = detectDuplicateCanonicalIds(activitiesRes.rows);
-  if (dupes.size > 0) {
+  const activityDupes = detectDuplicateCanonicalIds(activitiesRes.rows);
+  if (activityDupes.size > 0) {
     throw new CanonicalCopyError(CANONICAL_DUPLICATE_IDENTITY, {
-      duplicate_canonical_ids: [...dupes],
+      duplicate_canonical_ids: [...activityDupes],
+    });
+  }
+
+  const schedulesRes = await client.query(
+    `SELECT id, canonical_id FROM default_schedule WHERE canonical_id IS NOT NULL`
+  );
+  const scheduleDupes = detectDuplicateCanonicalIds(schedulesRes.rows);
+  if (scheduleDupes.size > 0) {
+    throw new CanonicalCopyError(CANONICAL_DUPLICATE_IDENTITY, {
+      duplicate_canonical_ids: [...scheduleDupes],
     });
   }
 }
@@ -316,7 +339,7 @@ async function insertFamilyActivitySnapshot(client, {
        VALUES ($1, $2, $3, $4, $5)`,
       [
         templateId,
-        step.name,
+        pickLocaleString(step.name_i18n, locale, step.name),
         step.icon || null,
         step.sort_order ?? i,
         step.duration_seconds ?? null,
@@ -339,19 +362,26 @@ async function ensureFamilyActivityTemplate(client, {
   sortOrder,
   activityCache,
 }) {
-  const cacheKey = defaultActivity.default_activity_id;
+  const cacheKey = buildActivityCacheKey(defaultActivity, { locale, variants });
   if (activityCache.has(cacheKey)) {
     return activityCache.get(cacheKey);
   }
 
-  let templateId = await findFamilyActivityByProvenance(
-    client,
-    familyId,
-    defaultActivity.default_activity_id,
-    activityCanonicalId(defaultActivity)
-  );
-
+  let templateId = null;
   let created = false;
+
+  // Variant-bearing canonical activities may share provenance across variants.
+  // Never reuse a persisted family snapshot across separate copy operations by
+  // provenance alone — each resolved variant gets its own family snapshot.
+  if (!activityHasVariants(defaultActivity)) {
+    templateId = await findFamilyActivityByProvenance(
+      client,
+      familyId,
+      defaultActivity.default_activity_id,
+      activityCanonicalId(defaultActivity)
+    );
+  }
+
   if (!templateId) {
     const inserted = await insertFamilyActivitySnapshot(client, {
       familyId,
@@ -541,7 +571,7 @@ async function copyCanonicalScheduleToFamily(client, options) {
       }
 
       for (const item of filteredItems) {
-        const cached = activityCache.get(item.default_activity_id);
+        const cached = activityCache.get(buildActivityCacheKey(item, { locale, variants }));
         if (!cached?.templateId) continue;
         await client.query(
           `INSERT INTO weekly_schedule_item (
@@ -570,7 +600,7 @@ async function copyCanonicalScheduleToFamily(client, options) {
       activitiesCreated,
       itemsCopied: filteredItems.length,
       activityTemplateIds: Object.fromEntries(
-        [...activityCache.entries()].map(([defaultActivityId, entry]) => [defaultActivityId, entry.templateId])
+        [...activityCache.entries()].map(([cacheKey, entry]) => [cacheKey, entry.templateId])
       ),
     };
   } catch (err) {

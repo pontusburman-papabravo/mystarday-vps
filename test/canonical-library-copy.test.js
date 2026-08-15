@@ -17,9 +17,50 @@ const { setupTestDb } = require('./helpers/setup.js');
 const {
   seedCanonicalLibrary,
   createTestFamilyWithChild,
+  createSecondChildInFamily,
+  getAfterSchoolScheduleSnapshot,
+  getSubstepNames,
+  countFamilyWrites,
   findScheduleIdByCanonical,
   findDefaultActivityByCanonical,
 } = require('./helpers/canonical-library-fixture.js');
+
+const SV_BRUSH_SUBSTEPS = [
+  'Ta tandkrämen',
+  'Lägg tandkräm på tandborsten',
+  'Borsta tänderna',
+  'Spotta ut tandkrämen',
+  'Ställ tillbaka tandborsten',
+];
+
+const EN_BRUSH_SUBSTEPS = [
+  'Get the toothpaste',
+  'Put toothpaste on the toothbrush',
+  'Brush your teeth',
+  'Spit out the toothpaste',
+  'Put the toothbrush back',
+];
+
+const SV_CLUB_SUBSTEPS = [
+  'Gå in på fritids',
+  'Äta mellanmål',
+  'Leka på fritids',
+  'Vänta på hämtning',
+];
+
+const EN_CLUB_SUBSTEPS = [
+  'Go into after-school club',
+  'Have a snack',
+  'Play at after-school club',
+  'Wait to be picked up',
+];
+
+const EN_HOME_SUBSTEPS = [
+  'Leave school',
+  'Travel home',
+  'Arrive home',
+  'Put bag away',
+];
 
 describe('canonical library copy engine — unit', () => {
   it('optional contract: omitted selections include optional items (legacy default)', () => {
@@ -156,6 +197,9 @@ describe('canonical library copy engine — DB integration', () => {
       );
       assert.equal(brushSub.rows.length, 1, 'brush_teeth.brush 120s timer expected');
 
+      const brushSubNames = await getSubstepNames(db, brushFamily.rows[0].id);
+      assert.deepEqual(brushSubNames, SV_BRUSH_SUBSTEPS, 'SV brush_teeth substeps');
+
       await copyCanonicalDefaultActivityToFamily(client, {
         familyId,
         canonicalActivityId: 'wash_hands',
@@ -225,27 +269,19 @@ describe('canonical library copy engine — DB integration', () => {
       );
       assert.ok(!noHomework.rows.some((r) => r.source_canonical_id === 'homework'));
 
-      // K/L: after_school club/home snapshots
-      const clubTemplate = await db.query(
-        `SELECT name, source_canonical_id FROM activity_template
-         WHERE family_id = $1 AND source_canonical_id = 'after_school'`,
-        [familyId]
-      );
-      assert.equal(clubTemplate.rows[0].name, 'Fritids');
-      const clubSteps = await db.query(
-        `SELECT COUNT(*)::int AS count FROM activity_sub_step WHERE activity_template_id = (
-           SELECT id FROM activity_template WHERE family_id = $1 AND source_canonical_id = 'after_school' LIMIT 1
-         )`,
-        [familyId]
-      );
-      assert.ok(clubSteps.rows[0].count >= 4);
+      // K/L: after_school club/home snapshots via schedule item references
+      const clubSnapshot = await getAfterSchoolScheduleSnapshot(db, childId, 2);
+      assert.ok(clubSnapshot);
+      assert.equal(clubSnapshot.name, 'Fritids');
+      assert.equal(clubSnapshot.source_canonical_id, 'after_school');
+      const clubSteps = await getSubstepNames(db, clubSnapshot.template_id);
+      assert.deepEqual(clubSteps, SV_CLUB_SUBSTEPS);
 
-      const homeTemplate = await db.query(
-        `SELECT name FROM activity_template
-         WHERE family_id = $1 AND source_canonical_id = 'after_school'`,
-        [family3]
-      );
-      assert.equal(homeTemplate.rows[0].name, 'Åka hem');
+      const homeSnapshot = await getAfterSchoolScheduleSnapshot(db, child3, 1);
+      assert.ok(homeSnapshot);
+      assert.equal(homeSnapshot.name, 'Åka hem');
+      assert.equal(homeSnapshot.source_canonical_id, 'after_school');
+      assert.notEqual(clubSnapshot.template_id, homeSnapshot.template_id);
 
       // M: unresolved after_school variant fails before write
       const { familyId: family5, childId: child5 } = await createTestFamilyWithChild(db);
@@ -410,7 +446,7 @@ describe('canonical library copy engine — DB integration', () => {
       );
       assert.equal(firstCount.rows[0].count, secondCount.rows[0].count);
 
-      // Locale: en-GB variant snapshot
+      // Locale: en-GB variant snapshot + localized substeps
       const { familyId: familyEn, childId: childEn } = await createTestFamilyWithChild(db);
       await db.query(`UPDATE family SET preferred_locale = 'en-GB' WHERE id = $1`, [familyEn]);
       await copyCanonicalScheduleToFamily(client, {
@@ -421,11 +457,33 @@ describe('canonical library copy engine — DB integration', () => {
         variants: { after_school: 'after_school_club' },
         locale: 'en-GB',
       });
-      const enClub = await db.query(
-        `SELECT name FROM activity_template WHERE family_id = $1 AND source_canonical_id = 'after_school'`,
+      const enClubSnapshot = await getAfterSchoolScheduleSnapshot(db, childEn, 1);
+      assert.equal(enClubSnapshot.name, 'After-school club');
+      assert.deepEqual(await getSubstepNames(db, enClubSnapshot.template_id), EN_CLUB_SUBSTEPS);
+
+      await copyCanonicalDefaultActivityToFamily(client, {
+        familyId: familyEn,
+        canonicalActivityId: 'brush_teeth',
+        locale: 'en-GB',
+      });
+      const enBrush = await db.query(
+        `SELECT id FROM activity_template WHERE family_id = $1 AND source_canonical_id = 'brush_teeth'`,
         [familyEn]
       );
-      assert.equal(enClub.rows[0].name, 'After-school club');
+      assert.deepEqual(await getSubstepNames(db, enBrush.rows[0].id), EN_BRUSH_SUBSTEPS);
+
+      const { familyId: familyEnHome, childId: childEnHome } = await createTestFamilyWithChild(db);
+      await copyCanonicalScheduleToFamily(client, {
+        familyId: familyEnHome,
+        childId: childEnHome,
+        canonicalScheduleId: 'school_weekday',
+        days: [2],
+        variants: { after_school: 'after_school_home' },
+        locale: 'en-GB',
+      });
+      const enHomeSnapshot = await getAfterSchoolScheduleSnapshot(db, childEnHome, 2);
+      assert.equal(enHomeSnapshot.name, 'Go home');
+      assert.deepEqual(await getSubstepNames(db, enHomeSnapshot.template_id), EN_HOME_SUBSTEPS);
 
       // T: original family data untouched (family8 user row still exists)
       const userRow = await db.query(
@@ -434,6 +492,200 @@ describe('canonical library copy engine — DB integration', () => {
         [family8]
       );
       assert.equal(userRow.rows[0].count, 1);
+    } finally {
+      client.release();
+      await db.cleanup();
+    }
+  });
+});
+
+describe('canonical library copy engine — variant collision regressions', () => {
+  test('same family supports club→home, home→club, club→home→club without mutating earlier snapshots', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const client = await db.pool.connect();
+    try {
+      await db.truncate();
+      await seedCanonicalLibrary(client);
+      const afterSchoolDefault = await findDefaultActivityByCanonical(db, 'after_school');
+      const schoolScheduleId = await findScheduleIdByCanonical(db, 'school_weekday');
+
+      const { familyId, childId: childA } = await createTestFamilyWithChild(db);
+      const childB = await createSecondChildInFamily(db, familyId);
+      const childC = await createSecondChildInFamily(db, familyId, 'Cecilia');
+
+      // A: club → home (same family, different children)
+      await copyCanonicalScheduleToFamily(client, {
+        familyId,
+        childId: childA,
+        canonicalScheduleId: 'school_weekday',
+        days: [1],
+        variants: { after_school: 'after_school_club' },
+        locale: 'sv-SE',
+      });
+      const clubFirst = await getAfterSchoolScheduleSnapshot(db, childA, 1);
+      assert.equal(clubFirst.name, 'Fritids');
+      assert.equal(clubFirst.source_canonical_id, 'after_school');
+      assert.equal(clubFirst.source_default_activity_id, afterSchoolDefault.id);
+
+      await copyCanonicalScheduleToFamily(client, {
+        familyId,
+        childId: childB,
+        canonicalScheduleId: 'school_weekday',
+        days: [2],
+        variants: { after_school: 'after_school_home' },
+        locale: 'sv-SE',
+      });
+      const homeSecond = await getAfterSchoolScheduleSnapshot(db, childB, 2);
+      assert.equal(homeSecond.name, 'Åka hem');
+      assert.notEqual(clubFirst.template_id, homeSecond.template_id);
+
+      const clubStill = await getAfterSchoolScheduleSnapshot(db, childA, 1);
+      assert.equal(clubStill.template_id, clubFirst.template_id);
+      assert.equal(clubStill.name, 'Fritids');
+      assert.deepEqual(await getSubstepNames(db, clubStill.template_id), SV_CLUB_SUBSTEPS);
+
+      // B: home → club (fresh family)
+      const { familyId: family2, childId: child2A } = await createTestFamilyWithChild(db);
+      const child2B = await createSecondChildInFamily(db, family2);
+      await copyCanonicalScheduleToFamily(client, {
+        familyId: family2,
+        childId: child2A,
+        canonicalScheduleId: 'school_weekday',
+        days: [3],
+        variants: { after_school: 'after_school_home' },
+        locale: 'sv-SE',
+      });
+      const homeFirst = await getAfterSchoolScheduleSnapshot(db, child2A, 3);
+      assert.equal(homeFirst.name, 'Åka hem');
+
+      await copyCanonicalScheduleToFamily(client, {
+        familyId: family2,
+        childId: child2B,
+        canonicalScheduleId: 'school_weekday',
+        days: [4],
+        variants: { after_school: 'after_school_club' },
+        locale: 'sv-SE',
+      });
+      const clubSecond = await getAfterSchoolScheduleSnapshot(db, child2B, 4);
+      assert.equal(clubSecond.name, 'Fritids');
+      assert.notEqual(homeFirst.template_id, clubSecond.template_id);
+
+      const homeStill = await getAfterSchoolScheduleSnapshot(db, child2A, 3);
+      assert.equal(homeStill.template_id, homeFirst.template_id);
+      assert.equal(homeStill.name, 'Åka hem');
+
+      // C: club → home → club (same family, three children / copies)
+      await copyCanonicalScheduleToFamily(client, {
+        familyId,
+        childId: childC,
+        days: [5],
+        canonicalScheduleId: 'school_weekday',
+        variants: { after_school: 'after_school_home' },
+        locale: 'sv-SE',
+      });
+      const homeThird = await getAfterSchoolScheduleSnapshot(db, childC, 5);
+      assert.equal(homeThird.name, 'Åka hem');
+
+      await copyCanonicalScheduleToFamily(client, {
+        familyId,
+        childId: childC,
+        days: [6],
+        canonicalScheduleId: 'school_weekday',
+        variants: { after_school: 'after_school_club' },
+        overwrite: true,
+        locale: 'sv-SE',
+      });
+      const clubFourth = await getAfterSchoolScheduleSnapshot(db, childC, 6);
+      assert.equal(clubFourth.name, 'Fritids');
+      assert.notEqual(homeThird.template_id, clubFourth.template_id);
+
+      assert.equal((await getAfterSchoolScheduleSnapshot(db, childA, 1)).name, 'Fritids');
+      assert.equal((await getAfterSchoolScheduleSnapshot(db, childB, 2)).name, 'Åka hem');
+      assert.equal((await getAfterSchoolScheduleSnapshot(db, childC, 5)).name, 'Åka hem');
+
+      const afterSchoolTemplates = await db.query(
+        `SELECT DISTINCT at.id, at.name
+         FROM activity_template at
+         WHERE at.family_id = $1 AND at.source_canonical_id = 'after_school'
+         ORDER BY at.name ASC`,
+        [familyId]
+      );
+      assert.ok(afterSchoolTemplates.rows.some((r) => r.name === 'Fritids'));
+      assert.ok(afterSchoolTemplates.rows.some((r) => r.name === 'Åka hem'));
+      assert.ok(afterSchoolTemplates.rows.length >= 2);
+      assert.ok(schoolScheduleId);
+    } finally {
+      client.release();
+      await db.cleanup();
+    }
+  });
+});
+
+describe('canonical library copy engine — duplicate schedule identity', () => {
+  test('duplicate default_schedule canonical_id fails closed on both entry paths with zero family writes', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+
+    const client = await db.pool.connect();
+    try {
+      await db.truncate();
+      await seedCanonicalLibrary(client);
+      const morningScheduleId = await findScheduleIdByCanonical(db, 'morning_routine');
+      assert.ok(morningScheduleId);
+
+      await db.query(
+        `INSERT INTO default_schedule (name, canonical_id, deprecated, sort_order, name_i18n)
+         SELECT 'Dupe morning', 'morning_routine', deprecated, sort_order, name_i18n
+         FROM default_schedule WHERE id = $1`,
+        [morningScheduleId]
+      );
+
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const beforeWrites = await countFamilyWrites(db, familyId);
+      assert.deepEqual(beforeWrites, {
+        activityTemplates: 0,
+        activitySubSteps: 0,
+        weeklySchedules: 0,
+        weeklyScheduleItems: 0,
+      });
+
+      await assert.rejects(
+        () => copyCanonicalScheduleToFamily(client, {
+          familyId,
+          childId,
+          canonicalScheduleId: 'morning_routine',
+          days: [1],
+          locale: 'sv-SE',
+        }),
+        (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_DUPLICATE_IDENTITY
+      );
+
+      await assert.rejects(
+        () => copyCanonicalScheduleToFamily(client, {
+          familyId,
+          childId,
+          defaultScheduleId: morningScheduleId,
+          days: [1],
+          locale: 'sv-SE',
+        }),
+        (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_DUPLICATE_IDENTITY
+      );
+
+      const afterWrites = await countFamilyWrites(db, familyId);
+      assert.deepEqual(afterWrites, beforeWrites);
+
+      await db.query(
+        `DELETE FROM default_schedule WHERE canonical_id = 'morning_routine' AND id != $1`,
+        [morningScheduleId]
+      );
     } finally {
       client.release();
       await db.cleanup();
