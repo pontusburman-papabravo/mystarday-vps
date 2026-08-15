@@ -19,10 +19,10 @@ describe('Native startup + family fast path', () => {
     assert.match(theme, /location\.replace\(loggedIn \? '\/dashboard' : '\/login'\)/);
   });
 
-  it('platform-html injects early native redirect before paint', () => {
+  it('platform-html injects early native redirect to authoritative entry surface', () => {
     const html = read('src/middleware/platform-html.js');
-    assert.match(html, /stjarndag_user/);
-    assert.match(html, /location\.replace\(li\?"\/dashboard":"\/login"\)/);
+    assert.doesNotMatch(html, /stjarndag_user/);
+    assert.match(html, /location\.replace\("\/home"\)/);
   });
 
   it('family init shows cached data immediately', () => {

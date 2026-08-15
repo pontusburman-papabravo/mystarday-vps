@@ -74,6 +74,13 @@
         if (d && d.destination === 'child-home' && d.path) {
           return d.path;
         }
+        if (d && d.destination === 'profile-picker' && d.path) {
+          return d.path;
+        }
+      }
+      if (window.AppEntryOrchestrator && AppEntryOrchestrator.isDailyUxActive
+        && AppEntryOrchestrator.isDailyUxActive()) {
+        return '/child/profile-picker';
       }
       return '/child-login';
     }

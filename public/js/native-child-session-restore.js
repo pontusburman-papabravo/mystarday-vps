@@ -60,6 +60,9 @@
 
   function childLoginFallbackUrl() {
     if (shouldRunNativeChildBootstrap() && readLoopHops() >= LOOP_GUARD_MAX) {
+      if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.legacyChildPinFallbackPath === 'function') {
+        return AppEntryOrchestrator.legacyChildPinFallbackPath() + (AppEntryOrchestrator.isDailyUxActive && AppEntryOrchestrator.isDailyUxActive() ? '?switch=1' : '?picker=1');
+      }
       return '/child-login?picker=1';
     }
     return '/child-login';
@@ -132,6 +135,15 @@
       }
 
       if (!meResult.ok || !meResult.me) {
+        if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.redirectAuthoritativeEntryOrLegacy === 'function') {
+          const authEntry = await AppEntryOrchestrator.redirectAuthoritativeEntryOrLegacy({
+            force: options.force === true,
+            source: 'native_restore',
+          });
+          if (authEntry && authEntry.handled) {
+            return { ok: false, code: authEntry.code === 'OK' ? 'ORCHESTRATOR_NAV' : authEntry.code || 'ORCHESTRATOR_NAV' };
+          }
+        }
         if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.runColdStart === 'function') {
           const orch = await AppEntryOrchestrator.runColdStart({
             force: options.force === true,

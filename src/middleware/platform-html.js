@@ -425,8 +425,7 @@ function injectPlatformHtml(body, reqPath, req) {
       'if(c&&c.isNativePlatform&&c.isNativePlatform()){' +
       'var np=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
       'if(np==="/"||np==="/index.html"||np==="/en"||np==="/en.html"){' +
-      'var li=false;try{li=!!localStorage.getItem("stjarndag_user");}catch(e){}' +
-      'location.replace(li?"/dashboard":"/login");return;}' +
+      'location.replace("/home");return;}' +
       'window.WEBVIEW_SERVER_URL=location.origin;' +
       'var el=document.documentElement;el.classList.add("is-native");' +
       'if(c.getPlatform&&c.getPlatform()==="android"){' +

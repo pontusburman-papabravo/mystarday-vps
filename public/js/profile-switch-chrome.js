@@ -8,6 +8,15 @@
   const PROFILE_COUNT_KEY = 'stjarndag_entry_profile_count';
   const ALLOWED_COUNT_KEY = 'stjarndag_entry_allowed_count';
   const FLOAT_BTN_ID = 'profileSwitchFloatBtn';
+  const RETURN_CHILD_BTN_ID = 'profileReturnToChildBtn';
+
+  function returnToChildLabel() {
+    if (typeof window.childT === 'function') {
+      const t = childT('settings.returnToChild');
+      if (t) return t;
+    }
+    return 'Tillbaka till barn';
+  }
 
   function isDailyUxActive() {
     if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.isDailyUxActive === 'function') {
@@ -137,6 +146,42 @@
     }
   }
 
+  function ensureReturnToChildBtn() {
+    const existing = document.getElementById(RETURN_CHILD_BTN_ID);
+    const show = isDailyUxActive()
+      && isParentShellPath()
+      && window.AdultPrivilege
+      && typeof AdultPrivilege.isPrivilegeActive === 'function'
+      && AdultPrivilege.isPrivilegeActive();
+    if (!show) {
+      if (existing) existing.remove();
+      return;
+    }
+    let btn = existing;
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = RETURN_CHILD_BTN_ID;
+      btn.className = 'profile-return-child-btn';
+      btn.addEventListener('click', function () {
+        if (window.AdultPrivilege && typeof AdultPrivilege.returnToChildExperience === 'function') {
+          AdultPrivilege.returnToChildExperience();
+        }
+      });
+      const bar = document.querySelector('[data-parent-nav-header]');
+      if (bar) {
+        bar.appendChild(btn);
+      } else {
+        btn.classList.add('profile-return-child-fallback');
+        document.body.appendChild(btn);
+      }
+    }
+    const label = returnToChildLabel();
+    btn.innerHTML = '<span aria-hidden="true">👶</span><span>' + label + '</span>';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+  }
+
   function ensureParentBtn() {
     const selector = '[data-profile-switch-parent]';
     const existing = document.querySelector(selector);
@@ -173,6 +218,7 @@
     if (!isDailyUxActive()) return;
     syncLegacyHeaderBtn();
     ensureFloatingBtn();
+    ensureReturnToChildBtn();
     ensureParentBtn();
   }
 
@@ -213,5 +259,6 @@
     storeEntryMeta: storeEntryMeta,
     apply: apply,
     refreshFromServer: refreshFromServer,
+    returnToChildLabel: returnToChildLabel,
   };
 })();

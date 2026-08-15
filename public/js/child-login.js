@@ -1362,7 +1362,52 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Fresh load — clear name_pin flag so picker mode is reported correctly on revisit.
   try { sessionStorage.removeItem('child_login_mode'); } catch (_) { /* ignore */ }
 
-  // Build keypad buttons
+  const url = new URL(window.location.href);
+  const addChildParam = url.searchParams.get('addChild');
+  const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
+  const resumeAddChild = addChildParam === '1' || pendingAddChild;
+  const forcePicker = url.searchParams.get('picker') === '1' || sessionStorage.getItem('cl_force_picker') === '1';
+
+  if (forcePicker && window.AppEntryOrchestrator && AppEntryOrchestrator.isDailyUxActive
+    && AppEntryOrchestrator.isDailyUxActive()) {
+    window.location.replace('/child/profile-picker?switch=1');
+    return;
+  }
+
+  if (!resumeAddChild && window.AppEntryOrchestrator
+    && typeof AppEntryOrchestrator.redirectAuthoritativeEntryOrLegacy === 'function') {
+    const authEntry = await AppEntryOrchestrator.redirectAuthoritativeEntryOrLegacy({
+      source: 'child_login_init',
+      forceReapply: forcePicker,
+    });
+    if (authEntry && authEntry.handled) {
+      return;
+    }
+  }
+
+  if (await resumeActiveChildSessionIfPresent({ forcePicker: forcePicker, resumeAddChild: resumeAddChild })) {
+    return;
+  }
+
+  if (!forcePicker && !resumeAddChild && window.AppEntryOrchestrator) {
+    if (AppEntryOrchestrator.isDecisionApplied && AppEntryOrchestrator.isDecisionApplied()) {
+      return;
+    }
+    if (AppEntryOrchestrator.shouldBlockLegacyChildPinFlow
+      && AppEntryOrchestrator.shouldBlockLegacyChildPinFlow()) {
+      return;
+    }
+    const entryBoot = await AppEntryOrchestrator.bootstrapOnEntryPage();
+    if (entryBoot && entryBoot.ok) return;
+  }
+
+  if (window.AppEntryOrchestrator && AppEntryOrchestrator.shouldBlockLegacyChildPinFlow
+    && AppEntryOrchestrator.shouldBlockLegacyChildPinFlow()) {
+    window.location.replace(AppEntryOrchestrator.legacyChildPinFallbackPath());
+    return;
+  }
+
+  // Build keypad buttons — legacy untrusted path only
   buildKeypad();
   bindPinInput();
 
@@ -1375,24 +1420,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderPinDots();
   syncPinInput();
   updatePinBackButtons();
-
-  const url = new URL(window.location.href);
-  const addChildParam = url.searchParams.get('addChild');
-  const pendingAddChild = sessionStorage.getItem('cl_add_child_pending');
-  const resumeAddChild = addChildParam === '1' || pendingAddChild;
-  const forcePicker = url.searchParams.get('picker') === '1' || sessionStorage.getItem('cl_force_picker') === '1';
-
-  if (await resumeActiveChildSessionIfPresent({ forcePicker: forcePicker, resumeAddChild: resumeAddChild })) {
-    return;
-  }
-
-  if (!forcePicker && !resumeAddChild && window.AppEntryOrchestrator) {
-    if (AppEntryOrchestrator.isDecisionApplied && AppEntryOrchestrator.isDecisionApplied()) {
-      return;
-    }
-    const entryBoot = await AppEntryOrchestrator.bootstrapOnEntryPage();
-    if (entryBoot && entryBoot.ok) return;
-  }
 
   if (url.searchParams.get('shared_device') === '1' && window.TrustedDeviceBootstrap) {
     let pickerChildren = null;
