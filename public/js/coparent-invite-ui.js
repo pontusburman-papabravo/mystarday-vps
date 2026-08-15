@@ -124,10 +124,7 @@
     if (!section || !list || !global.Auth || !global.Auth.api) return;
 
     try {
-      const fam = global.SharedFamilyFetch && global.SharedFamilyFetch.getCached
-        ? global.SharedFamilyFetch.getCached()
-        : null;
-      const resolved = fam || await (global.SharedFamilyFetch
+      const resolved = await (global.SharedFamilyFetch
         ? global.SharedFamilyFetch.fetch(global.Auth.api.bind(global.Auth))
         : global.Auth.api('/api/family'));
       const children = (resolved && resolved.children) ? resolved.children : [];

@@ -25,25 +25,16 @@ describe('Native startup + family fast path', () => {
     assert.match(html, /location\.replace\("\/home"\)/);
   });
 
-  it('family init shows cached data immediately', () => {
+  it('family init shows cached data immediately after successful fetch', () => {
     const family = read('public/js/family.js');
-    assert.match(family, /applyWarmFamilyData/);
-    assert.match(family, /__familyWarmData/);
+    assert.match(family, /familyCache = data/);
     assert.match(family, /setFamilyLoading\(false\)/);
-    assert.match(family, /function renderAll\(data\) \{[\s\S]*familyData = data;/);
-    const rolesIdx = family.indexOf('const ROLES = [');
-    const initCallIdx = family.indexOf('familyI18nBoot');
-    assert.ok(rolesIdx >= 0 && initCallIdx > rolesIdx, 'ROLES must be defined before familyI18nBoot runs');
+    assert.doesNotMatch(family, /__familyWarmData/);
+    assert.doesNotMatch(family, /prefetchFamily/);
   });
 
-  it('dashboard warms family API after auth', () => {
-    const dash = read('public/js/dashboard.js');
-    assert.match(dash, /ParentMagicRouter\.warmFamilyFetch/);
-  });
-
-  it('parent-magic-router exports warmFamilyFetch', () => {
+  it('parent-magic-router does not warm-prefetch family on navigate', () => {
     const router = read('public/js/parent-magic-router.js');
-    assert.match(router, /warmFamilyFetch: warmFamilyFetch/);
-    assert.match(router, /__familyWarmData/);
+    assert.doesNotMatch(router, /warmFamilyFetch/);
   });
 });

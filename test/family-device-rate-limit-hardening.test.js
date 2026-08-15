@@ -12,6 +12,7 @@ const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const harness = require('./helpers/family-bootstrap-call-harness');
+const runtime = require('./helpers/family-runtime-integration-harness');
 
 function loadBrowserModule(relativePath, sandbox) {
   if (!sandbox) {
@@ -153,7 +154,61 @@ describe('P1 — shared /api/family coalescing', () => {
     assert.equal(calls, 1);
     assert.equal(a.id, 'fam');
     assert.equal(b.id, 'fam');
-    assert.equal(win.SharedFamilyFetch.getCached().id, 'fam');
+  });
+});
+
+describe('P1 — actual runtime integration (source modules)', () => {
+  it('SOFT_NAV_SUCCESS: Family init performs exactly one GET /api/family', async () => {
+    const result = await runtime.runFamilyInit({ id: 'fam-1', name: 'Loaded', children: [] });
+    assert.equal(result.tracker.count('/api/family'), 1);
+    assert.equal(result.hooks.getState().familyData.name, 'Loaded');
+  });
+
+  it('SOFT_NAV_429: 429 shows recoverable error without null-success payload', async () => {
+    const err429 = Object.assign(new Error('För många förfrågningar'), {
+      status: 429,
+      body: { retry_after: 1 },
+    });
+    const fail = await runtime.runFamilyInitFailure(err429);
+    assert.equal(fail.tracker.count('/api/family'), 1);
+    assert.equal(fail.hooks.getState().familyData, null);
+    assert.equal(fail.banner.classList.contains('hidden'), false);
+    assert.notEqual(fail.sandbox.location.href, '/login');
+  });
+
+  it('SOFT_NAV_429 retry performs a new request and loads payload', async () => {
+    const result = await runtime.runFamilyInit429ThenRetry();
+    assert.equal(result.retryCalls, 2);
+    assert.equal(result.state.familyData.name, 'After retry');
+  });
+
+  it('CONCURRENT_DEDUPE: SharedFamilyFetch serves one physical request', async () => {
+    const result = await runtime.runSharedFetchConcurrent({ id: 'fam-1', children: [] });
+    assert.equal(result.tracker.count('/api/family'), 1);
+    assert.equal(result.a.id, 'fam-1');
+    assert.equal(result.b.id, 'fam-1');
+  });
+
+  it('LATER_REFRESH: settled fetch allows a second physical GET with new payload', async () => {
+    const result = await runtime.runSharedFetchSequentialRefresh(
+      { id: 'fam-1', name: 'A', children: [] },
+      { id: 'fam-1', name: 'B', children: [] }
+    );
+    assert.equal(result.first.name, 'A');
+    assert.equal(result.second.name, 'B');
+    assert.equal(result.tracker.count('/api/family'), 2);
+  });
+
+  it('POST_MUTATION_REFRESH: second init() fetches fresh server payload', async () => {
+    const result = await runtime.runFamilyPostMutationRefresh();
+    assert.equal(result.tracker.count('/api/family'), 2);
+    assert.equal(result.hooks.getState().familyData.name, 'After mutation');
+  });
+
+  it('ParentMagicRouter no longer speculatively warm-prefetches /api/family on navigate', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.doesNotMatch(router, /warmFamilyFetch\(\)/);
+    assert.doesNotMatch(router, /FamilyPage\.prefetch/);
   });
 });
 
@@ -165,11 +220,16 @@ describe('P1 — executable API call measurement', () => {
     assert.equal(after.family, 1, 'SharedFamilyFetch coalesces concurrent hard-load consumers');
   });
 
-  it('FAMILY_SOFT_NAV: warm + prefetch + init coalesce with helpers', async () => {
-    const before = await harness.simulateFamilySoftNav(false);
-    const after = await harness.simulateFamilySoftNav(true);
-    assert.equal(before.family, 1, 'legacy soft-nav warm path still single inflight promise');
-    assert.equal(after.family, 1, 'soft-nav with SharedFamilyFetch stays at one /api/family');
+  it('FAMILY_SOFT_NAV: Family init issues one GET /api/family', async () => {
+    const after = await harness.simulateFamilySoftNav();
+    assert.equal(after.family, 1);
+  });
+
+  it('LATER_FAMILY_REFRESH: second fetch after settlement hits server again', async () => {
+    const refresh = await harness.simulateLaterFamilyRefresh();
+    assert.equal(refresh.family, 2);
+    assert.equal(refresh.first, 'A');
+    assert.equal(refresh.second, 'B');
   });
 
   it('SETTINGS_BOOT: duplicate coparent refetch removed when preloaded', async () => {
@@ -195,10 +255,10 @@ describe('P1 — family soft-nav helper loading contract', () => {
     assert.ok(sharedIdx >= 0 && familyJsIdx > sharedIdx, 'SharedFamilyFetch before family.js');
   });
 
-  it('soft-nav family path has Retry-After classification available', () => {
+  it('soft-nav family path loads ApiErrorClassification before family.js', () => {
     const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
     assert.match(router, /api-error-classification\.js/);
-    assert.match(router, /SharedFamilyFetch\.fetch/);
+    assert.match(router, /shared-family-fetch\.js/);
     const win = loadBrowserModule('public/js/api-error-classification.js');
     assert.equal(win.ApiErrorClassification.getRetryAfterMs({ status: 429, body: { retry_after: 30 } }), 30000);
   });

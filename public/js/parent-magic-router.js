@@ -217,37 +217,12 @@
     });
   }
 
-  function warmFamilyFetch() {
-    if (global.__familyWarmFetch || !global.Auth || typeof global.Auth.api !== 'function') return;
-    if (global.SharedFamilyFetch && typeof global.SharedFamilyFetch.fetch === 'function') {
-      global.__familyWarmFetch = global.SharedFamilyFetch.fetch(global.Auth.api.bind(global.Auth))
-        .catch(function () {
-          global.__familyWarmFetch = null;
-          return null;
-        });
-      return;
-    }
-    global.__familyWarmFetch = global.Auth.api('/api/family')
-      .then(function (data) {
-        global.__familyWarmData = data;
-        return data;
-      })
-      .catch(function () {
-        global.__familyWarmFetch = null;
-        return null;
-      });
-  }
-
   async function navigateTo(href, options) {
     options = options || {};
     if (_navigating) return false;
 
     const path = normalizePath(href);
     const pageId = SOFT_PATHS[path];
-    if (path === '/family') {
-      warmFamilyFetch();
-      if (global.FamilyPage && global.FamilyPage.prefetch) global.FamilyPage.prefetch();
-    }
     if (!pageId) {
       global.location.href = href;
       return false;
@@ -395,7 +370,6 @@
     isSoftNavPath: isSoftNavPath,
     isFullLoadPath: isFullLoadPath,
     shouldSoftNav: shouldSoftNav,
-    warmFamilyFetch: warmFamilyFetch,
     SOFT_PATHS: SOFT_PATHS,
   };
 

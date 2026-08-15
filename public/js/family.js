@@ -80,12 +80,6 @@
       return role.labelKey ? fpt(role.labelKey) : role.label || role.value;
     }
 
-    function applyWarmFamilyData() {
-      if (!familyCache && window.__familyWarmData) {
-        familyCache = window.__familyWarmData;
-      }
-    }
-
     function setFamilyLoading(loading) {
       const skeleton = document.getElementById('familyLoadingSkeleton');
       const dataSections = document.getElementById('familyDataSections');
@@ -97,28 +91,12 @@
 
     function fetchFamily() {
       if (inflightFamily) return inflightFamily;
-      if (window.__familyWarmFetch) {
-        inflightFamily = window.__familyWarmFetch
-          .then(function (data) {
-            familyCache = data;
-            window.__familyWarmFetch = null;
-            inflightFamily = null;
-            return data;
-          })
-          .catch(function (err) {
-            window.__familyWarmFetch = null;
-            inflightFamily = null;
-            throw err;
-          });
-        return inflightFamily;
-      }
       const apiFn = (window.SharedFamilyFetch && SharedFamilyFetch.fetch)
         ? function () { return SharedFamilyFetch.fetch(Auth.api.bind(Auth)); }
         : function () { return Auth.api('/api/family'); };
       inflightFamily = apiFn()
         .then(function (data) {
           familyCache = data;
-          window.__familyWarmData = data;
           inflightFamily = null;
           return data;
         })
@@ -127,29 +105,6 @@
           throw err;
         });
       return inflightFamily;
-    }
-
-    function prefetchFamily() {
-      if (familyCache || inflightFamily || window.__familyWarmFetch) return;
-      if (!window.Auth || typeof Auth.api !== 'function') return;
-      if (window.SharedFamilyFetch) {
-        window.__familyWarmFetch = SharedFamilyFetch.fetch(Auth.api.bind(Auth))
-          .catch(function () {
-            window.__familyWarmFetch = null;
-            return null;
-          });
-        return;
-      }
-      window.__familyWarmFetch = Auth.api('/api/family')
-        .then(function (data) {
-          familyCache = data;
-          window.__familyWarmData = data;
-          return data;
-        })
-        .catch(function () {
-          window.__familyWarmFetch = null;
-          return null;
-        });
     }
 
     function rerenderFamilyI18n() {
@@ -214,24 +169,12 @@
     async function init(options) {
       options = options || {};
       if (initInFlight) return initInFlight;
-      if (!options.force && familyData && familyCache) {
-        renderAll(familyCache);
-        setFamilyLoading(false);
-        hideFamilyLoadError();
-        return;
-      }
       initInFlight = (async function () {
         try {
           if (window.I18n && typeof I18n.init === 'function') {
             await I18n.init();
           }
-          applyWarmFamilyData();
-          if (familyCache) {
-            renderAll(familyCache);
-            setFamilyLoading(false);
-          } else {
-            setFamilyLoading(true);
-          }
+          setFamilyLoading(true);
           hideFamilyLoadError();
           familyData = await fetchFamily();
           renderAll(familyData);
@@ -1402,17 +1345,23 @@ if (window.ParentMagicPageBoot) {
   if (window.ParentMagicShell) ParentMagicShell.init('family');
 })();
 
-window.FamilyPage = { prefetch: prefetchFamily, rerenderI18n: rerenderFamilyI18n };
+window.FamilyPage = { rerenderI18n: rerenderFamilyI18n };
 
 window.addEventListener('stjarndag-magic-navigated', function (e) {
   if (!e.detail || e.detail.pageId !== 'family') return;
-  if (familyData && familyCache) {
-    renderAll(familyCache);
-    setFamilyLoading(false);
-    return;
-  }
   init();
 });
+
+if (typeof window !== 'undefined' && window.__exposeFamilyRuntimeForTests) {
+  window.__FamilyRuntimeTestHooks = {
+    init: init,
+    fetchFamily: fetchFamily,
+    showFamilyLoadError: showFamilyLoadError,
+    getState: function () {
+      return { familyData: familyData, familyCache: familyCache };
+    },
+  };
+}
 
 document.addEventListener('parent-i18n-ready', rerenderFamilyI18n);
 document.addEventListener('locale-changed', rerenderFamilyI18n);
