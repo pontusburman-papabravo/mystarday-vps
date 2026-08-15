@@ -309,6 +309,20 @@ router.post('/adult-privilege/expire', requireAuth, requireAdultPrivilegeFlag, a
       forcePicker: deviceMode === 'shared' && !preferredChildId,
     });
     if (!restored.ok) {
+      if (restored.code === 'SHARED_PICKER_REQUIRED') {
+        res.clearCookie('access_token', { path: '/' });
+        res.clearCookie('refresh_token', { path: '/' });
+        const csrfToken = generateCsrfToken(res);
+        return res.json({
+          ok: true,
+          state: 'locked',
+          privilegeActive: false,
+          code: 'SHARED_PICKER_REQUIRED',
+          redirect: '/child/profile-picker',
+          csrfToken,
+          policy,
+        });
+      }
       return res.status(403).json({ ok: false, code: restored.code || 'CHILD_RESTORE_FAILED', policy });
     }
 

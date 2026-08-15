@@ -116,7 +116,11 @@
       try {
         sessionStorage.setItem('shared_device_picker_children', JSON.stringify(body.allowed_children));
       } catch (_) { /* ignore */ }
-      window.location.replace('/child-login?shared_device=1');
+      if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.legacyChildPinFallbackPath === 'function') {
+        window.location.replace(AppEntryOrchestrator.legacyChildPinFallbackPath());
+      } else {
+        window.location.replace('/child-login?shared_device=1');
+      }
       return { ok: false, code: 'REDIRECT_PICKER' };
     }
     track('child_context_restore_failed', {

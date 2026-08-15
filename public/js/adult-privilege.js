@@ -142,7 +142,7 @@
       && reason === 'background') {
       return Promise.resolve({ ok: true, noop: true });
     }
-    if (state !== STATES.ACTIVE && reason !== 'lease_timer') {
+    if (state !== STATES.ACTIVE && reason !== 'lease_timer' && reason !== 'explicit_return') {
       return Promise.resolve({ ok: false, code: 'NOT_ACTIVE' });
     }
     if (privilegeLeaseUntilMs && Date.now() < privilegeLeaseUntilMs && reason === 'lease_timer') {
@@ -167,11 +167,20 @@
         privilegeLeaseUntilMs = null;
         expiresAtMs = null;
         if (window.AdultPrivilegeLifecycle) window.AdultPrivilegeLifecycle.onPrivilegeCleared();
+        if (out.body.code === 'SHARED_PICKER_REQUIRED') {
+          track('adult_privilege_expired');
+          return {
+            ok: true,
+            pickerRequired: true,
+            redirect: out.body.redirect || '/child/profile-picker',
+            code: out.body.code,
+          };
+        }
         if (window.DeviceMode && typeof window.DeviceMode.enterChild === 'function') {
           window.DeviceMode.enterChild();
         }
         track('adult_privilege_expired');
-        return { ok: true, child: out.body.child };
+        return { ok: true, child: out.body.child, device_mode: out.body.device_mode };
       })
       .catch(function () {
         return { ok: false, code: 'NETWORK' };
@@ -289,6 +298,9 @@
       }
       if (window.AdultPrivilegeLifecycle) {
         window.AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
+      }
+      if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+        ProfileSwitchChrome.apply();
       }
       track('adult_privilege_unlock_success');
       return { ok: true, parent: parentUser || body.parent };
@@ -572,6 +584,58 @@
       });
   }
 
+  function navigateAfterChildRestore(result) {
+    if (result.child && window.Auth && typeof window.Auth.setAuth === 'function') {
+      window.Auth.setAuth(null, result.child, window.Auth.getCsrfToken && window.Auth.getCsrfToken());
+    }
+    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.markDecisionApplied === 'function') {
+      AppEntryOrchestrator.markDecisionApplied({
+        destination: 'child-home',
+        viewContext: 'child',
+        credentialContext: 'child',
+        childId: result.child && result.child.id,
+        deviceMode: result.device_mode || 'shared',
+        reason: 'explicit_return_to_child',
+        path: '/child/today',
+      });
+    }
+    if (window.DeviceMode && typeof window.DeviceMode.enterChild === 'function') {
+      window.DeviceMode.enterChild();
+    }
+    window.location.replace('/child/today');
+  }
+
+  /**
+   * Explicit Family Device action: parent mode → child experience.
+   * Uses existing expire + trusted restore — no second auth system.
+   */
+  function returnToChildExperience() {
+    if (!featureEnabled) {
+      return refreshStatus().then(function () {
+        if (!featureEnabled) return { ok: false, code: 'DISABLED' };
+        return returnToChildExperience();
+      });
+    }
+    if (state !== STATES.ACTIVE) {
+      return Promise.resolve({ ok: false, code: 'NOT_ACTIVE' });
+    }
+    return expirePrivilegeIfDue('explicit_return').then(function (result) {
+      if (!result.ok) return result;
+      if (result.pickerRequired) {
+        if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.clearOrchestratorSessionState === 'function') {
+          AppEntryOrchestrator.clearOrchestratorSessionState();
+        }
+        if (window.DeviceMode && typeof window.DeviceMode.enterChild === 'function') {
+          window.DeviceMode.enterChild();
+        }
+        window.location.replace(result.redirect || '/child/profile-picker');
+        return result;
+      }
+      navigateAfterChildRestore(result);
+      return result;
+    });
+  }
+
   window.AdultPrivilege = {
     STATES: STATES,
     getState: getState,
@@ -580,6 +644,7 @@
     refreshStatus: refreshStatus,
     requestEscalation: requestEscalation,
     requestTrustedProfileUnlock: requestTrustedProfileUnlock,
+    returnToChildExperience: returnToChildExperience,
     storePickerPinMeta: storePickerPinMeta,
     expirePrivilegeIfDue: expirePrivilegeIfDue,
     resetToLocked: resetToLocked,

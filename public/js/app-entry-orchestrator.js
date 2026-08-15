@@ -324,6 +324,75 @@
     }
   }
 
+  /**
+   * Trusted Family Device cold start — server app-entry is authoritative.
+   * When orchestratorActive, never fall through to legacy child-login PIN.
+   * @returns {Promise<{handled:boolean, code?:string, decision?:object}>}
+   */
+  async function redirectAuthoritativeEntryOrLegacy(options) {
+    const opts = options || {};
+    try {
+      window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
+    } catch (_) { /* ignore */ }
+
+    const fetched = await fetchEntryDecision(opts.intentChildId || null);
+    if (!fetched.ok) {
+      return { handled: false, code: fetched.code || 'FETCH_FAILED' };
+    }
+    if (!fetched.orchestratorActive) {
+      return { handled: false, code: 'ORCHESTRATOR_OFF' };
+    }
+
+    const decision = fetched.decision;
+    const failClosedLogin =
+      decision.destination === 'parent-login' &&
+      (decision.failClosed === true || decision.reason === 'trusted_device_revoked');
+
+    if (failClosedLogin || decision.destination === 'device-setup') {
+      if (!opts.skipRedirect && decision.path) {
+        markDecisionApplied(decision);
+        navigateOnce(decision.path);
+      }
+      return { handled: true, code: decision.reason || decision.destination, decision: decision };
+    }
+
+    if (decision.destination === 'parent-login') {
+      if (!opts.skipRedirect && decision.path) {
+        markDecisionApplied(decision);
+        navigateOnce(decision.path);
+      }
+      return { handled: true, code: 'PARENT_LOGIN', decision: decision };
+    }
+
+    const cold = await runColdStart({
+      intentChildId: opts.intentChildId,
+      skipRedirect: opts.skipRedirect,
+      forceReapply: opts.forceReapply === true,
+      source: opts.source || 'authoritative_entry',
+    });
+
+    if (cold.ok) {
+      return { handled: true, code: cold.code || 'OK', decision: cold.decision || decision };
+    }
+
+    if (!opts.skipRedirect && decision.path) {
+      markDecisionApplied(decision);
+      navigateOnce(decision.path);
+    }
+    return { handled: true, code: cold.code || 'COLD_START_FAILED', decision: decision };
+  }
+
+  function shouldBlockLegacyChildPinFlow() {
+    return isActive();
+  }
+
+  function legacyChildPinFallbackPath() {
+    if (isDailyUxActive()) {
+      return '/child/profile-picker';
+    }
+    return '/child-login?shared_device=1&entry_picker=1';
+  }
+
   async function bootstrapOnEntryPage() {
     const result = await runColdStart({
       source: 'entry_page',
@@ -351,10 +420,12 @@
   window.AppEntryOrchestrator = {
     fetchEntryDecision: fetchEntryDecision,
     runColdStart: runColdStart,
+    redirectAuthoritativeEntryOrLegacy: redirectAuthoritativeEntryOrLegacy,
     bootstrapOnEntryPage: bootstrapOnEntryPage,
     applyAfterDeviceSetup: applyAfterDeviceSetup,
     isActive: isActive,
     shouldUseOrchestrator: shouldUseOrchestrator,
+    shouldBlockLegacyChildPinFlow: shouldBlockLegacyChildPinFlow,
     shouldDeferSessionGate: shouldDeferSessionGate,
     isDecisionApplied: isDecisionApplied,
     getAppliedDecision: getAppliedDecision,
@@ -363,6 +434,7 @@
     validateDecision: validateDecision,
     isDailyUxActive: isDailyUxActive,
     getAllowedChildCount: getAllowedChildCount,
+    legacyChildPinFallbackPath: legacyChildPinFallbackPath,
     clearOrchestratorSessionState: clearOrchestratorSessionState,
   };
 })();
