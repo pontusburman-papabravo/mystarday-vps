@@ -28,6 +28,8 @@
   <link rel="stylesheet" href="/css/family-museum.css?v=1">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/api-error-classification.js?v=2.18.0"></script>
+  <script src="/js/shared-family-fetch.js?v=2.18.0"></script>
   <script src="/js/pwa-install.js?v=2.12.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
@@ -157,6 +159,8 @@
           <div class="rounded-2xl h-[72px] bg-white/10 dark:bg-white/5 animate-pulse"></div>
           <div class="rounded-2xl h-[72px] bg-white/10 dark:bg-white/5 animate-pulse"></div>
         </div>
+
+        <div id="familyLoadError" class="hidden max-w-lg rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700/40 px-4 py-3" role="alert"></div>
 
         <div id="familyDataSections" class="space-y-6 hidden">
         <section id="familyChildrenSection">

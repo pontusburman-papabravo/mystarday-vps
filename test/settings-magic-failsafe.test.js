@@ -185,9 +185,9 @@ describe('settings magic fail-safe contracts', () => {
   it('CASE 4 settings shell boots before family/notifications API block', () => {
     const domIdx = SETTINGS_HTML.indexOf("document.addEventListener('DOMContentLoaded'");
     const shellIdx = SETTINGS_HTML.indexOf('bootSettingsShellEarly');
-    const familyIdx = SETTINGS_HTML.indexOf("await Auth.api('/api/family')");
+    const familyIdx = SETTINGS_HTML.indexOf('SettingsPageBootstrap.loadFamilyData');
     assert.ok(domIdx >= 0 && shellIdx > domIdx, 'early shell boot must be registered on DOMContentLoaded');
-    assert.ok(shellIdx < familyIdx, 'shell boot must start before /api/family await');
+    assert.ok(shellIdx < familyIdx, 'shell boot must start before family data load');
     assert.match(SETTINGS_HTML, /await shellBootPromise/);
     assert.match(SETTINGS_HTML, /preserveNavigation:\s*true/);
   });

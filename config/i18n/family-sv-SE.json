@@ -40,6 +40,9 @@
   },
   "errors": {
     "loadFamily": "Kunde inte ladda familjeinformation:",
+    "rateLimitTitle": "Familjeinformation kunde inte laddas just nu",
+    "rateLimitRetry": "Försök igen",
+    "rateLimitRetryIn": "Försök igen om {{seconds}} s",
     "sessionExpired": "Din session har löpt ut. Du loggas in igen…",
     "addChild": "Kunde inte lägga till barn:",
     "approveRedemption": "Kunde inte godkänna",

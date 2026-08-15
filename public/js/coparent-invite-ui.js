@@ -124,8 +124,10 @@
     if (!section || !list || !global.Auth || !global.Auth.api) return;
 
     try {
-      const fam = await global.Auth.api('/api/family');
-      const children = (fam && fam.children) ? fam.children : [];
+      const resolved = await (global.SharedFamilyFetch
+        ? global.SharedFamilyFetch.fetch(global.Auth.api.bind(global.Auth))
+        : global.Auth.api('/api/family'));
+      const children = (resolved && resolved.children) ? resolved.children : [];
       list.innerHTML = '';
       if (children.length === 0) {
         section.classList.add('hidden');
@@ -262,11 +264,13 @@
     }
   }
 
-  async function bootSettingsCoParent() {
+  async function bootSettingsCoParent(meArg, famArg) {
     if (!global.Auth || !global.Auth.api) return;
     try {
-      const me = await global.Auth.api('/api/auth/me');
-      const fam = await global.Auth.api('/api/family');
+      const me = meArg || await global.Auth.api('/api/auth/me');
+      const fam = famArg || (global.SharedFamilyFetch
+        ? await global.SharedFamilyFetch.fetch(global.Auth.api.bind(global.Auth))
+        : await global.Auth.api('/api/family'));
       initSettingsSection(me, fam);
       if (global.ParentMagicPageHub && global.ParentMagicPageHub.tagSettingsSections) {
         global.ParentMagicPageHub.tagSettingsSections();

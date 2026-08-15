@@ -1,0 +1,391 @@
+'use strict';
+
+/**
+ * P1 — Family Device rate-limit + false-logout hardening regression tests.
+ */
+
+const { describe, it, test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+const ROOT = path.join(__dirname, '..');
+const harness = require('./helpers/family-bootstrap-call-harness');
+const runtime = require('./helpers/family-runtime-integration-harness');
+
+function loadBrowserModule(relativePath, sandbox) {
+  if (!sandbox) {
+    sandbox = { console, setTimeout, clearTimeout };
+    sandbox.window = sandbox;
+    sandbox.global = sandbox;
+    vm.createContext(sandbox);
+  }
+  const code = fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
+  vm.runInContext(code, sandbox, { filename: relativePath });
+  return sandbox.window;
+}
+
+function loadSettingsBootstrapStack() {
+  const sandbox = { console, setTimeout, clearTimeout };
+  sandbox.window = sandbox;
+  sandbox.global = sandbox;
+  vm.createContext(sandbox);
+  loadBrowserModule('public/js/api-error-classification.js', sandbox);
+  loadBrowserModule('public/js/shared-family-fetch.js', sandbox);
+  loadBrowserModule('public/js/settings-page-bootstrap.js', sandbox);
+  return sandbox.window;
+}
+
+describe('P1 — api-error-classification', () => {
+  it('treats 401/403 as auth session failure only', () => {
+    const win = loadBrowserModule('public/js/api-error-classification.js');
+    const Api = win.ApiErrorClassification;
+    assert.equal(Api.isAuthSessionFailure({ status: 401 }), true);
+    assert.equal(Api.isAuthSessionFailure({ status: 403 }), true);
+    assert.equal(Api.isAuthSessionFailure({ status: 429 }), false);
+    assert.equal(Api.isAuthSessionFailure({ status: 500 }), false);
+  });
+
+  it('treats 429/5xx/network as transient', () => {
+    const win = loadBrowserModule('public/js/api-error-classification.js');
+    const Api = win.ApiErrorClassification;
+    assert.equal(Api.isTransientApiFailure({ status: 429 }), true);
+    assert.equal(Api.isTransientApiFailure({ status: 503 }), true);
+    assert.equal(Api.isTransientApiFailure({ name: 'TypeError', message: 'Failed to fetch' }), true);
+    assert.equal(Api.isTransientApiFailure({ status: 401 }), false);
+  });
+
+  it('reads retry_after from error body', () => {
+    const win = loadBrowserModule('public/js/api-error-classification.js');
+    const Api = win.ApiErrorClassification;
+    assert.equal(Api.getRetryAfterMs({ status: 429, body: { retry_after: 45 } }), 45000);
+    assert.equal(Api.getRetryAfterMs({ status: 429 }), 60000);
+  });
+});
+
+describe('P1 — settings bootstrap must not false-logout on transient errors', () => {
+  it('settings.html no longer uses blanket catch redirect to /login for family load', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
+    assert.match(html, /SettingsPageBootstrap\.validateSession/);
+    assert.match(html, /SettingsPageBootstrap\.loadFamilyData/);
+    assert.doesNotMatch(html, /catch \(error\)[\s\S]{0,120}window\.location\.href = '\/login'/);
+  });
+
+  it('VALID SESSION + /api/auth/me 200 + /api/family 429 → NO login redirect', async () => {
+    const win = loadSettingsBootstrapStack();
+    const Boot = win.SettingsPageBootstrap;
+
+    let redirect = false;
+    const me = { id: 'p1', type: 'parent', email: 'qa@example.com' };
+    const apiFn = async (url) => {
+      if (url === '/api/auth/me') return me;
+      if (url === '/api/family') {
+        throw Object.assign(new Error('För många förfrågningar. Vänta en minut och försök igen.'), {
+          status: 429,
+          body: { retry_after: 60 },
+        });
+      }
+      throw new Error('unexpected:' + url);
+    };
+
+    const session = await Boot.validateSession(apiFn);
+    if (session.redirectLogin) redirect = true;
+    assert.equal(session.ok, true);
+    assert.equal(session.me && session.me.id, 'p1');
+
+    const family = await Boot.loadFamilyData(apiFn);
+    assert.equal(family.ok, false);
+    assert.equal(family.transient, true);
+    assert.equal(redirect, false);
+  });
+
+  it('VALID SESSION + /api/family 500 → NO login redirect', async () => {
+    const win = loadSettingsBootstrapStack();
+    const Boot = win.SettingsPageBootstrap;
+
+    const apiFn = async (url) => {
+      if (url === '/api/auth/me') return { id: 'p1', type: 'parent' };
+      if (url === '/api/family') {
+        throw Object.assign(new Error('Serverfel'), { status: 500 });
+      }
+      throw new Error('unexpected');
+    };
+
+    const session = await Boot.validateSession(apiFn);
+    assert.equal(session.redirectLogin, false);
+    const family = await Boot.loadFamilyData(apiFn);
+    assert.equal(family.ok, false);
+    assert.equal(family.transient, true);
+  });
+
+  it('INVALID auth session 401 → redirectLogin', async () => {
+    const sandbox = { console, setTimeout, clearTimeout };
+    sandbox.window = sandbox;
+    sandbox.global = sandbox;
+    vm.createContext(sandbox);
+    loadBrowserModule('public/js/api-error-classification.js', sandbox);
+    loadBrowserModule('public/js/settings-page-bootstrap.js', sandbox);
+    const Boot = sandbox.window.SettingsPageBootstrap;
+
+    const session = await Boot.validateSession(async (url) => {
+      if (url === '/api/auth/me') {
+        throw Object.assign(new Error('Unauthorized'), { status: 401 });
+      }
+      throw new Error('unexpected');
+    });
+    assert.equal(session.redirectLogin, true);
+    assert.equal(session.ok, false);
+  });
+});
+
+describe('P1 — shared /api/family coalescing', () => {
+  it('SharedFamilyFetch dedupes concurrent /api/family calls', async () => {
+    const win = loadBrowserModule('public/js/shared-family-fetch.js');
+    let calls = 0;
+    const apiFn = async () => {
+      calls += 1;
+      return { id: 'fam', children: [] };
+    };
+    const [a, b] = await Promise.all([
+      win.SharedFamilyFetch.fetch(apiFn),
+      win.SharedFamilyFetch.fetch(apiFn),
+    ]);
+    assert.equal(calls, 1);
+    assert.equal(a.id, 'fam');
+    assert.equal(b.id, 'fam');
+  });
+});
+
+describe('P1 — actual runtime integration (source modules)', () => {
+  it('SOFT_NAV_SUCCESS: direct Family init performs exactly one GET /api/family', async () => {
+    const result = await runtime.runFamilyInit({ id: 'fam-1', name: 'Loaded', children: [] });
+    assert.equal(result.tracker.count('/api/family'), 1);
+    assert.equal(result.hooks.getState().familyData.name, 'Loaded');
+  });
+
+  it('CASE 1 FIRST_FAMILY_SOFT_NAV: navigateTo(/family) performs exactly one GET /api/family', async () => {
+    const result = await runtime.runRouterFirstFamilySoftNav({ id: 'fam-1', name: 'Loaded', children: [] });
+    assert.equal(result.ok, true);
+    assert.equal(result.familyCalls, 1, 'ParentMagicRouter soft-nav must not double-fetch /api/family');
+    assert.equal(result.hooks.getState().familyData.name, 'Loaded');
+  });
+
+  it('CASE 2 REVISIT_FAMILY: second navigateTo(/family) performs one fresh GET /api/family', async () => {
+    const result = await runtime.runRouterRevisitFamily();
+    assert.equal(result.ok, true);
+    assert.equal(result.familyCalls, 1, 'revisit must fetch fresh payload once');
+    assert.equal(result.hooks.getState().familyData.name, 'Fresh revisit');
+  });
+
+  it('CASE 3 FAMILY_SOFT_NAV_429: navigateTo(/family) with 429 shows recoverable error', async () => {
+    const err429 = Object.assign(new Error('För många förfrågningar'), {
+      status: 429,
+      body: { retry_after: 1 },
+    });
+    const harness = runtime.createRouterSoftNavHarness({ error: err429 });
+    harness.sandbox.location = { pathname: '/dashboard', origin: 'http://localhost', href: '/dashboard', replace: function () {} };
+    const result = await harness.navigateTo('/family');
+    assert.equal(result.ok, true);
+    assert.equal(result.familyCalls, 1);
+    assert.equal(result.hooks.getState().familyData, null);
+    assert.equal(result.banner.classList.contains('hidden'), false);
+    assert.notEqual(harness.sandbox.location.href, '/login');
+  });
+
+  it('CASE 4 RETRY: after soft-nav 429, retry performs one new GET and loads payload', async () => {
+    const result = await runtime.runRouterFamilySoftNav429ThenRetry();
+    assert.equal(result.fail.familyCalls, 1);
+    assert.equal(result.retryCalls, 1);
+    assert.equal(result.state.familyData.name, 'After retry');
+  });
+
+  it('CASE 5 POST_MUTATION_REFRESH: init() after successful soft-nav fetches fresh payload once', async () => {
+    const result = await runtime.runRouterPostMutationRefresh();
+    assert.equal(result.refreshCalls, 1);
+    assert.equal(result.state.familyData.name, 'After mutation');
+  });
+
+  it('SOFT_NAV_429: 429 shows recoverable error without null-success payload', async () => {
+    const err429 = Object.assign(new Error('För många förfrågningar'), {
+      status: 429,
+      body: { retry_after: 1 },
+    });
+    const fail = await runtime.runFamilyInitFailure(err429);
+    assert.equal(fail.tracker.count('/api/family'), 1);
+    assert.equal(fail.hooks.getState().familyData, null);
+    assert.equal(fail.banner.classList.contains('hidden'), false);
+    assert.notEqual(fail.sandbox.location.href, '/login');
+  });
+
+  it('SOFT_NAV_429 retry performs a new request and loads payload', async () => {
+    const result = await runtime.runFamilyInit429ThenRetry();
+    assert.equal(result.retryCalls, 2);
+    assert.equal(result.state.familyData.name, 'After retry');
+  });
+
+  it('CONCURRENT_DEDUPE: SharedFamilyFetch serves one physical request', async () => {
+    const result = await runtime.runSharedFetchConcurrent({ id: 'fam-1', children: [] });
+    assert.equal(result.tracker.count('/api/family'), 1);
+    assert.equal(result.a.id, 'fam-1');
+    assert.equal(result.b.id, 'fam-1');
+  });
+
+  it('LATER_REFRESH: settled fetch allows a second physical GET with new payload', async () => {
+    const result = await runtime.runSharedFetchSequentialRefresh(
+      { id: 'fam-1', name: 'A', children: [] },
+      { id: 'fam-1', name: 'B', children: [] }
+    );
+    assert.equal(result.first.name, 'A');
+    assert.equal(result.second.name, 'B');
+    assert.equal(result.tracker.count('/api/family'), 2);
+  });
+
+  it('POST_MUTATION_REFRESH: second init() fetches fresh server payload', async () => {
+    const result = await runtime.runFamilyPostMutationRefresh();
+    assert.equal(result.tracker.count('/api/family'), 2);
+    assert.equal(result.hooks.getState().familyData.name, 'After mutation');
+  });
+
+  it('ParentMagicRouter no longer speculatively warm-prefetches /api/family on navigate', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.doesNotMatch(router, /warmFamilyFetch\(\)/);
+    assert.doesNotMatch(router, /FamilyPage\.prefetch/);
+  });
+
+  it('family.js no longer re-inits on stjarndag-magic-navigated (PageBoot owns soft-nav)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
+    assert.doesNotMatch(src, /addEventListener\('stjarndag-magic-navigated'[\s\S]{0,120}init\(\)/);
+    assert.match(src, /if \(!window\.ParentMagicPageBoot\)/);
+  });
+});
+
+describe('P1 — executable API call measurement', () => {
+  it('FAMILY_HARD_LOAD: legacy burst vs coalesced current path', async () => {
+    const before = await harness.simulateLegacyFamilyHardLoad();
+    const after = await harness.simulateFamilyHardLoad();
+    assert.equal(before.family, 2, 'legacy hard load duplicated concurrent /api/family');
+    assert.equal(after.family, 1, 'SharedFamilyFetch coalesces concurrent hard-load consumers');
+  });
+
+  it('FAMILY_SOFT_NAV: real router navigateTo issues one GET /api/family', async () => {
+    const after = await runtime.runRouterFirstFamilySoftNav({ id: 'fam-1', name: 'Soft nav', children: [] });
+    assert.equal(after.familyCalls, 1);
+  });
+
+  it('LATER_FAMILY_REFRESH: second fetch after settlement hits server again', async () => {
+    const refresh = await harness.simulateLaterFamilyRefresh();
+    assert.equal(refresh.family, 2);
+    assert.equal(refresh.first, 'A');
+    assert.equal(refresh.second, 'B');
+  });
+
+  it('SETTINGS_BOOT: duplicate coparent refetch removed when preloaded', async () => {
+    const before = await harness.simulateSettingsBoot(false, true);
+    const after = await harness.simulateSettingsBoot(true, false);
+    assert.equal(before.me, 2, 'legacy settings+coparent duplicated /api/auth/me');
+    assert.equal(before.family, 2, 'legacy settings+coparent duplicated /api/family');
+    assert.equal(after.me, 1, 'settings bootstrap keeps single /api/auth/me');
+    assert.equal(after.family, 1, 'coparent reuses preloaded family payload');
+  });
+});
+
+describe('P1 — family soft-nav helper loading contract', () => {
+  it('parent-magic-router PAGE_SCRIPTS.family loads helpers before family.js', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    const familyBlock = router.match(/family:\s*\[([\s\S]*?)\]/);
+    assert.ok(familyBlock, 'family PAGE_SCRIPTS block');
+    const block = familyBlock[0];
+    const apiIdx = block.indexOf('api-error-classification.js');
+    const sharedIdx = block.indexOf('shared-family-fetch.js');
+    const familyJsIdx = block.indexOf('family.js');
+    assert.ok(apiIdx >= 0 && sharedIdx > apiIdx, 'ApiErrorClassification before SharedFamilyFetch');
+    assert.ok(sharedIdx >= 0 && familyJsIdx > sharedIdx, 'SharedFamilyFetch before family.js');
+  });
+
+  it('soft-nav family path loads ApiErrorClassification before family.js', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(router, /api-error-classification\.js/);
+    assert.match(router, /shared-family-fetch\.js/);
+    const win = loadBrowserModule('public/js/api-error-classification.js');
+    assert.equal(win.ApiErrorClassification.getRetryAfterMs({ status: 429, body: { retry_after: 30 } }), 30000);
+  });
+});
+
+describe('P1 — dynamic error text XSS safety', () => {
+  it('settings retry UI renders API error message as text, not HTML', () => {
+    const sandbox = { console, setTimeout, clearTimeout };
+    sandbox.window = sandbox;
+    sandbox.global = sandbox;
+    vm.createContext(sandbox);
+    const banner = {
+      className: 'hidden',
+      classList: { add: function () {}, remove: function () {} },
+      setAttribute: function () {},
+      appendChild: function (node) { this.children = (this.children || []).concat(node); },
+      removeChild: function () {},
+      firstChild: null,
+      children: [],
+    };
+    sandbox.document = {
+      getElementById: function (id) { return id === 'settingsFamilyLoadError' ? banner : null; },
+      createElement: function (tag) {
+        return { tagName: tag, className: '', id: '', textContent: '', classList: { add: function () {} } };
+      },
+      querySelector: function () { return { insertBefore: function () {} }; },
+      body: { insertBefore: function () {} },
+    };
+    loadBrowserModule('public/js/api-error-classification.js', sandbox);
+    loadBrowserModule('public/js/settings-page-bootstrap.js', sandbox);
+    const payload = '<img src=x onerror=alert(1)>';
+    sandbox.SettingsPageBootstrap.showFamilyLoadError({ message: payload, status: 500 }, function () {});
+    const messageNode = banner.children[1];
+    assert.equal(messageNode.textContent, payload);
+    assert.equal(banner.innerHTML || '', '', 'dynamic message must not be assigned via innerHTML');
+  });
+
+  it('family.js showFamilyLoadError uses textContent for dynamic message', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
+    assert.match(src, /body\.textContent = message/);
+    assert.doesNotMatch(src, /showFamilyLoadError[\s\S]{0,400}innerHTML[\s\S]{0,120}message/);
+  });
+});
+
+describe('P1 — settings + coparent wiring contract', () => {
+  it('settings passes preloaded me/fam into bootSettingsCoParent', () => {
+    const settings = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
+    const coparent = fs.readFileSync(path.join(ROOT, 'public/js/coparent-invite-ui.js'), 'utf8');
+    assert.match(settings, /bootSettingsCoParent\(me, fam\)/);
+    assert.match(coparent, /bootSettingsCoParent\(meArg, famArg\)/);
+    assert.match(coparent, /SharedFamilyFetch/);
+  });
+});
+
+describe('P1 — family page 429 UX contract', () => {
+  it('family.html exposes retry banner hook', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
+    assert.match(html, /id="familyLoadError"/);
+  });
+
+  it('family.js uses retry banner instead of toast-only on first load failure', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
+    assert.match(src, /showFamilyLoadError/);
+    assert.match(src, /familyLoadRetryBtn/);
+  });
+});
+
+describe('P1 — Family Device hardening preserved', () => {
+  it('trusted entry before legacy child PIN remains', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/child-login.js'), 'utf8');
+    const initStart = src.indexOf("document.addEventListener('DOMContentLoaded'");
+    const init = src.slice(initStart, initStart + 4500);
+    assert.ok(init.indexOf('redirectAuthoritativeEntryOrLegacy') < init.indexOf('buildKeypad()'));
+  });
+
+  it('Tillbaka till barn + adult privilege route preserved', () => {
+    const chrome = fs.readFileSync(path.join(ROOT, 'public/js/profile-switch-chrome.js'), 'utf8');
+    const route = fs.readFileSync(path.join(ROOT, 'src/routes/family/adult-privilege.js'), 'utf8');
+    assert.match(chrome, /Tillbaka till barn/);
+    assert.match(route, /SHARED_PICKER_REQUIRED/);
+  });
+});

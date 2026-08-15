@@ -133,9 +133,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (window.ParentMagicPageHub && typeof ParentMagicPageHub.applyHubCopy === 'function') {
     ParentMagicPageHub.applyHubCopy();
   }
-  if (window.ParentMagicRouter && ParentMagicRouter.warmFamilyFetch) {
-    ParentMagicRouter.warmFamilyFetch();
-  }
   const androidFlat = document.documentElement.classList.contains('is-native-android');
   const csrfPromise = androidFlat && window.Auth
     ? Auth.ensureCsrfToken()
