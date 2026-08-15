@@ -81,7 +81,7 @@ describe('magic soft navigation', () => {
     assert.match(planning, /stjarndag-magic-navigated/);
     assert.match(rewards, /stjarndag-magic-navigated/);
     assert.match(family, /ParentMagicPageBoot\.register\('family', init\)/);
-    assert.match(family, /if \(!window\.ParentMagicPageBoot\)/);
+    assert.match(family, /pageBootOwnsThisLoad/);
     assert.doesNotMatch(family, /addEventListener\('stjarndag-magic-navigated'[\s\S]{0,120}init\(\)/);
   });
 

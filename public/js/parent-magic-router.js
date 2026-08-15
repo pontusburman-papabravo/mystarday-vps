@@ -58,7 +58,7 @@
       '/js/family-chest-setting.js?v=1.0.0',
       '/js/custody-settings.js?v=4',
       '/js/family-hub.js?v=1.0.0',
-      '/js/family.js?v=2.16.0',
+      '/js/family.js?v=2.17.0',
       '/js/coparent-invite-ui.js?v=1',
     ],
     planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.6.1'],
@@ -347,6 +347,7 @@
     if (link.hasAttribute('download')) return;
 
     e.preventDefault();
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
     navigateTo(href);
   }
 

@@ -256,7 +256,7 @@ describe('P1 — actual runtime integration (source modules)', () => {
   it('family.js no longer re-inits on stjarndag-magic-navigated (PageBoot owns soft-nav)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
     assert.doesNotMatch(src, /addEventListener\('stjarndag-magic-navigated'[\s\S]{0,120}init\(\)/);
-    assert.match(src, /if \(!window\.ParentMagicPageBoot\)/);
+    assert.match(src, /pageBootOwnsThisLoad/);
   });
 });
 
