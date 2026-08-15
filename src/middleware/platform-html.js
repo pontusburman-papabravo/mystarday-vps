@@ -12,6 +12,7 @@ const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
 const MAGIC_VERSION = '29'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
+  '/home',
   '/dashboard',
   '/daily-log',
   '/schedule',
@@ -292,6 +293,7 @@ function isAndroidWebViewRequest(req) {
 function isAndroidDashboardPath(reqPath) {
   const p = normalizeHtmlPath(reqPath);
   return p === '/' ||
+    p === '/home' ||
     p === '/dashboard' ||
     p === '/parent' ||
     p.indexOf('/dashboard/') === 0 ||

@@ -6,6 +6,7 @@
   'use strict';
 
   const PARENT_ONLY_PATHS = [
+    '/home',
     '/dashboard',
     '/schedule',
     '/settings',
