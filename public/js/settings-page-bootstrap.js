@@ -77,16 +77,29 @@
     const message = (err && err.message)
       ? String(err.message)
       : 'Kunde inte ladda familjeinställningar just nu.';
-    banner.innerHTML =
-      '<p class="font-semibold mb-1">Familjeinställningar kunde inte laddas</p>' +
-      '<p class="text-text-soft mb-2">' + message + '</p>' +
-      '<button type="button" id="settingsFamilyLoadRetryBtn" class="min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-semibold">' +
-      (retrySec ? ('Försök igen om ' + retrySec + ' s') : 'Försök igen') +
-      '</button>';
+
+    while (banner.firstChild) banner.removeChild(banner.firstChild);
+
+    const title = global.document.createElement('p');
+    title.className = 'font-semibold mb-1';
+    title.textContent = 'Familjeinställningar kunde inte laddas';
+
+    const body = global.document.createElement('p');
+    body.className = 'text-text-soft mb-2';
+    body.textContent = message;
+
+    const btn = global.document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'settingsFamilyLoadRetryBtn';
+    btn.className = 'min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-semibold';
+    btn.textContent = retrySec ? ('Försök igen om ' + retrySec + ' s') : 'Försök igen';
+
+    banner.appendChild(title);
+    banner.appendChild(body);
+    banner.appendChild(btn);
     banner.classList.remove('hidden');
 
-    const btn = global.document.getElementById('settingsFamilyLoadRetryBtn');
-    if (!btn || typeof onRetry !== 'function') return;
+    if (typeof onRetry !== 'function') return;
 
     let timer = null;
     function enableRetry() {

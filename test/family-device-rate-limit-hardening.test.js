@@ -11,6 +11,7 @@ const path = require('path');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
+const harness = require('./helpers/family-bootstrap-call-harness');
 
 function loadBrowserModule(relativePath, sandbox) {
   if (!sandbox) {
@@ -156,41 +157,99 @@ describe('P1 — shared /api/family coalescing', () => {
   });
 });
 
-describe('P1 — API call pressure inventory (static estimate)', () => {
-  const FLOW = [
-    { step: 'app-entry cold start', calls: ['GET /api/auth/app-entry'] },
-    { step: 'profile picker meta', calls: ['GET /api/auth/app-entry'] },
-    { step: 'select child', calls: ['POST /api/auth/trusted-device/select-child', 'GET /api/auth/me'] },
-    { step: 'switch profile', calls: ['POST /api/auth/logout (switchChild)', 'GET /api/auth/app-entry'] },
-    { step: 'Vuxen unlock', calls: ['GET /api/family/adult-privilege/status', 'POST /api/family/adult-privilege/unlock', 'GET /api/auth/me'] },
-    { step: 'dashboard boot', calls: ['GET /api/auth/me', 'GET /api/family/dashboard-stats', 'GET /api/family/readiness', 'GET /api/family/activation-config'] },
-    { step: 'Familj page (before fix)', calls: ['GET /api/auth/me', 'GET /api/family', 'GET /api/family (warm)', 'GET /api/family/museum'] },
-    { step: 'Inställningar (before fix)', calls: ['GET /api/auth/me', 'GET /api/family', 'GET /api/auth/me', 'GET /api/family'] },
-  ];
-
-  it('documents EXPECTED vs BEFORE/AFTER estimates', () => {
-    const beforeFamily = 4;
-    const afterFamily = 2;
-    const beforeSettings = 4;
-    const afterSettings = 2;
-    const flowTotalBefore = FLOW.reduce((n, row) => n + row.calls.length, 0);
-    const savings = (beforeFamily - afterFamily) + (beforeSettings - afterSettings);
-    assert.ok(flowTotalBefore >= 20);
-    assert.equal(savings, 4);
+describe('P1 — executable API call measurement', () => {
+  it('FAMILY_HARD_LOAD: legacy burst vs coalesced current path', async () => {
+    const before = await harness.simulateLegacyFamilyHardLoad();
+    const after = await harness.simulateFamilyHardLoad();
+    assert.equal(before.family, 2, 'legacy hard load duplicated concurrent /api/family');
+    assert.equal(after.family, 1, 'SharedFamilyFetch coalesces concurrent hard-load consumers');
   });
 
-  it('settings + coparent no longer duplicate family fetch in source', () => {
+  it('FAMILY_SOFT_NAV: warm + prefetch + init coalesce with helpers', async () => {
+    const before = await harness.simulateFamilySoftNav(false);
+    const after = await harness.simulateFamilySoftNav(true);
+    assert.equal(before.family, 1, 'legacy soft-nav warm path still single inflight promise');
+    assert.equal(after.family, 1, 'soft-nav with SharedFamilyFetch stays at one /api/family');
+  });
+
+  it('SETTINGS_BOOT: duplicate coparent refetch removed when preloaded', async () => {
+    const before = await harness.simulateSettingsBoot(false, true);
+    const after = await harness.simulateSettingsBoot(true, false);
+    assert.equal(before.me, 2, 'legacy settings+coparent duplicated /api/auth/me');
+    assert.equal(before.family, 2, 'legacy settings+coparent duplicated /api/family');
+    assert.equal(after.me, 1, 'settings bootstrap keeps single /api/auth/me');
+    assert.equal(after.family, 1, 'coparent reuses preloaded family payload');
+  });
+});
+
+describe('P1 — family soft-nav helper loading contract', () => {
+  it('parent-magic-router PAGE_SCRIPTS.family loads helpers before family.js', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    const familyBlock = router.match(/family:\s*\[([\s\S]*?)\]/);
+    assert.ok(familyBlock, 'family PAGE_SCRIPTS block');
+    const block = familyBlock[0];
+    const apiIdx = block.indexOf('api-error-classification.js');
+    const sharedIdx = block.indexOf('shared-family-fetch.js');
+    const familyJsIdx = block.indexOf('family.js');
+    assert.ok(apiIdx >= 0 && sharedIdx > apiIdx, 'ApiErrorClassification before SharedFamilyFetch');
+    assert.ok(sharedIdx >= 0 && familyJsIdx > sharedIdx, 'SharedFamilyFetch before family.js');
+  });
+
+  it('soft-nav family path has Retry-After classification available', () => {
+    const router = fs.readFileSync(path.join(ROOT, 'public/js/parent-magic-router.js'), 'utf8');
+    assert.match(router, /api-error-classification\.js/);
+    assert.match(router, /SharedFamilyFetch\.fetch/);
+    const win = loadBrowserModule('public/js/api-error-classification.js');
+    assert.equal(win.ApiErrorClassification.getRetryAfterMs({ status: 429, body: { retry_after: 30 } }), 30000);
+  });
+});
+
+describe('P1 — dynamic error text XSS safety', () => {
+  it('settings retry UI renders API error message as text, not HTML', () => {
+    const sandbox = { console, setTimeout, clearTimeout };
+    sandbox.window = sandbox;
+    sandbox.global = sandbox;
+    vm.createContext(sandbox);
+    const banner = {
+      className: 'hidden',
+      classList: { add: function () {}, remove: function () {} },
+      setAttribute: function () {},
+      appendChild: function (node) { this.children = (this.children || []).concat(node); },
+      removeChild: function () {},
+      firstChild: null,
+      children: [],
+    };
+    sandbox.document = {
+      getElementById: function (id) { return id === 'settingsFamilyLoadError' ? banner : null; },
+      createElement: function (tag) {
+        return { tagName: tag, className: '', id: '', textContent: '', classList: { add: function () {} } };
+      },
+      querySelector: function () { return { insertBefore: function () {} }; },
+      body: { insertBefore: function () {} },
+    };
+    loadBrowserModule('public/js/api-error-classification.js', sandbox);
+    loadBrowserModule('public/js/settings-page-bootstrap.js', sandbox);
+    const payload = '<img src=x onerror=alert(1)>';
+    sandbox.SettingsPageBootstrap.showFamilyLoadError({ message: payload, status: 500 }, function () {});
+    const messageNode = banner.children[1];
+    assert.equal(messageNode.textContent, payload);
+    assert.equal(banner.innerHTML || '', '', 'dynamic message must not be assigned via innerHTML');
+  });
+
+  it('family.js showFamilyLoadError uses textContent for dynamic message', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
+    assert.match(src, /body\.textContent = message/);
+    assert.doesNotMatch(src, /showFamilyLoadError[\s\S]{0,400}innerHTML[\s\S]{0,120}message/);
+  });
+});
+
+describe('P1 — settings + coparent wiring contract', () => {
+  it('settings passes preloaded me/fam into bootSettingsCoParent', () => {
     const settings = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
     const coparent = fs.readFileSync(path.join(ROOT, 'public/js/coparent-invite-ui.js'), 'utf8');
     assert.match(settings, /bootSettingsCoParent\(me, fam\)/);
     assert.match(coparent, /bootSettingsCoParent\(meArg, famArg\)/);
     assert.match(coparent, /SharedFamilyFetch/);
-  });
-
-  it('WHY_100_PER_MIN_CAN_BE_REACHED: rapid tab hops + duplicate family/me bootstraps', () => {
-    const perHopEstimate = 12;
-    const hopsToLimit = Math.ceil(100 / perHopEstimate);
-    assert.ok(hopsToLimit <= 10, 'profile switching across ~10 parent tabs can approach limit before dedupe');
   });
 });
 

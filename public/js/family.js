@@ -165,16 +165,32 @@
       const retryMs = ApiErr.getRetryAfterMs ? ApiErr.getRetryAfterMs(err) : null;
       const retrySec = retryMs ? Math.ceil(retryMs / 1000) : null;
       const message = (err && err.message) ? String(err.message) : fpt('family.errors.loadFamily');
-      banner.innerHTML =
-        '<p class="font-semibold text-navy dark:text-white mb-1">' + fpt('family.errors.rateLimitTitle') + '</p>' +
-        '<p class="text-sm text-text-soft mb-3">' + message + '</p>' +
-        '<button type="button" id="familyLoadRetryBtn" class="min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-semibold">' +
-        (retrySec ? fpt('family.errors.rateLimitRetryIn', { seconds: retrySec }) : fpt('family.errors.rateLimitRetry')) +
-        '</button>';
+
+      while (banner.firstChild) banner.removeChild(banner.firstChild);
+
+      const title = document.createElement('p');
+      title.className = 'font-semibold text-navy dark:text-white mb-1';
+      title.textContent = fpt('family.errors.rateLimitTitle');
+
+      const body = document.createElement('p');
+      body.className = 'text-sm text-text-soft mb-3';
+      body.textContent = message;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'familyLoadRetryBtn';
+      btn.className = 'min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-semibold';
+      btn.textContent = retrySec
+        ? fpt('family.errors.rateLimitRetryIn', { seconds: retrySec })
+        : fpt('family.errors.rateLimitRetry');
+
+      banner.appendChild(title);
+      banner.appendChild(body);
+      banner.appendChild(btn);
       banner.classList.remove('hidden');
       banner.setAttribute('aria-live', 'polite');
-      const btn = document.getElementById('familyLoadRetryBtn');
-      if (!btn || typeof onRetry !== 'function') return;
+
+      if (typeof onRetry !== 'function') return;
       btn.disabled = !!retryMs;
       if (retryMs) {
         window.setTimeout(function () {

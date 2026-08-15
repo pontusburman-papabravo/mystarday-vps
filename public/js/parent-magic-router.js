@@ -50,6 +50,8 @@
     ],
     'for-dig': ['/js/for-dig.js?v=2.11'],
     family: [
+      '/js/api-error-classification.js?v=2.18.0',
+      '/js/shared-family-fetch.js?v=2.18.0',
       '/js/family-invite-scan.js?v=1',
       '/js/settings-account.js?v=2.18.0',
       '/js/family-museum.js?v=1.1.0',
@@ -217,6 +219,14 @@
 
   function warmFamilyFetch() {
     if (global.__familyWarmFetch || !global.Auth || typeof global.Auth.api !== 'function') return;
+    if (global.SharedFamilyFetch && typeof global.SharedFamilyFetch.fetch === 'function') {
+      global.__familyWarmFetch = global.SharedFamilyFetch.fetch(global.Auth.api.bind(global.Auth))
+        .catch(function () {
+          global.__familyWarmFetch = null;
+          return null;
+        });
+      return;
+    }
     global.__familyWarmFetch = global.Auth.api('/api/family')
       .then(function (data) {
         global.__familyWarmData = data;

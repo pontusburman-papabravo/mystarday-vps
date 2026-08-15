@@ -44,7 +44,8 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://test:test@localhost:5432/stjarndag_test
+      TEST_DATABASE_URL: postgresql://test:test@localhost:5432/stjarndag_test
+      TEST_DB_DESTRUCTIVE_CONFIRM: '1'
       REQUIRE_EMAIL_VERIFICATION: 'false'
       EMAIL_ENABLED: 'false' # pragma: allowlist secret
       JWT_SECRET: test-secret-at-least-32-chars-long-for-ci # pragma: allowlist secret
