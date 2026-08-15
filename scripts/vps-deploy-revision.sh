@@ -21,6 +21,35 @@ fi
 
 cd "$VPS_APP_PATH"
 
+# Inlined — must not source from the stale deployed worktree before target checkout.
+sync_deploy_sha_env() {
+  local sha="$1"
+  local env_file="${APP_ENV_FILE:-${VPS_APP_PATH}/.env}"
+  if [ ! -f "$env_file" ]; then
+    return 0
+  fi
+  local tmp
+  tmp="$(mktemp)"
+  if grep -qE '^DEPLOY_SHA=' "$env_file" 2>/dev/null; then
+    sed "s/^DEPLOY_SHA=.*/DEPLOY_SHA=${sha}/" "$env_file" >"$tmp"
+  else
+    cp "$env_file" "$tmp"
+    printf '\nDEPLOY_SHA=%s\n' "$sha" >>"$tmp"
+  fi
+  mv "$tmp" "$env_file"
+}
+
+sync_deploy_identity() {
+  local sha="$1"
+  if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "sync_deploy_identity: invalid SHA: ${sha:-<empty>}" >&2
+    return 1
+  fi
+  mkdir -p "${VPS_APP_PATH}/data"
+  echo "$sha" >"${VPS_APP_PATH}/data/deployed-sha"
+  sync_deploy_sha_env "$sha"
+}
+
 ROLLBACK_SHA=""
 HEALTH_CHECK_RESULT="pending"
 DEPLOY_OUTCOME="DEPLOY_PASS"
@@ -68,6 +97,8 @@ rollback_to_sha() {
     echo "Rollback checkout failed — HEAD does not match ${sha}"
     return 1
   fi
+  echo "→ sync release identity to rollback SHA"
+  sync_deploy_identity "$sha"
   export NPM_CONFIG_MIN_RELEASE_AGE=0
   npm ci --legacy-peer-deps
   if [ -n "${VPS_RESTART_CMD:-}" ]; then
@@ -106,29 +137,6 @@ fi
 
 echo "→ Checkout target revision"
 git checkout --detach "$TARGET_SHA"
-
-mkdir -p data
-echo "$TARGET_SHA" > data/deployed-sha
-
-sync_deploy_sha_env() {
-  local sha="$1"
-  local env_file="${APP_ENV_FILE:-${VPS_APP_PATH}/.env}"
-  if [ ! -f "$env_file" ]; then
-    return 0
-  fi
-  local backup="${env_file}.bak.deploy-sha"
-  cp -p "$env_file" "$backup"
-  if grep -qE '^DEPLOY_SHA=' "$env_file" 2>/dev/null; then
-    local tmp
-    tmp="$(mktemp)"
-    sed "s/^DEPLOY_SHA=.*/DEPLOY_SHA=${sha}/" "$env_file" > "$tmp"
-    mv "$tmp" "$env_file"
-  else
-    printf '\nDEPLOY_SHA=%s\n' "$sha" >> "$env_file"
-  fi
-}
-
-sync_deploy_sha_env "$TARGET_SHA"
 
 DEPLOYED_SHA="$(git rev-parse HEAD)"
 if [ "$DEPLOYED_SHA" != "$TARGET_SHA" ]; then
@@ -287,6 +295,9 @@ if ! node "${OPS_DIR}/compare-db-snapshots.mjs" --before "${PRE_SNAPSHOT}" --aft
   maybe_rollback_code "post_migration_compare" "$PREV_SHA"
   exit 1
 fi
+
+echo "→ commit release identity before restart"
+sync_deploy_identity "$TARGET_SHA"
 
 echo "→ restart app"
 if [ -n "${VPS_RESTART_CMD:-}" ]; then

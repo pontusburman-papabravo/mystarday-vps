@@ -20,7 +20,10 @@ test('vps-deploy-revision.sh requires DEPLOY_SHA and validates format', () => {
   assert.match(script, /DEPLOY_SUMMARY/);
   assert.match(script, /requested_sha=/);
   assert.match(script, /rollback_sha=/);
-  assert.match(script, /data\/deployed-sha/);
+  assert.match(script, /sync_deploy_identity/);
+  assert.match(script, /sync_deploy_sha_env\(\)/);
+  assert.doesNotMatch(script, /source "\$\{VPS_APP_PATH\}\/scripts\/ops\/lib\/sync-deploy-identity\.sh"/);
+  assert.match(script, /commit release identity before restart/);
   assert.match(script, /git rev-parse HEAD/);
   assert.doesNotMatch(script, /npm install/);
 });
