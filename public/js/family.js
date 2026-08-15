@@ -1341,16 +1341,15 @@ if (window.ParentMagicPageBoot) {
       await window.initParentAppI18n(user.preferred_locale);
     }
   }
-  init();
+  // Hard-load only: soft navigation runs init via ParentMagicPageBoot.run before
+  // stjarndag-magic-navigated; calling init here as well duplicates GET /api/family.
+  if (!window.ParentMagicPageBoot) {
+    init();
+  }
   if (window.ParentMagicShell) ParentMagicShell.init('family');
 })();
 
 window.FamilyPage = { rerenderI18n: rerenderFamilyI18n };
-
-window.addEventListener('stjarndag-magic-navigated', function (e) {
-  if (!e.detail || e.detail.pageId !== 'family') return;
-  init();
-});
 
 if (typeof window !== 'undefined' && window.__exposeFamilyRuntimeForTests) {
   window.__FamilyRuntimeTestHooks = {

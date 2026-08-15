@@ -158,10 +158,52 @@ describe('P1 — shared /api/family coalescing', () => {
 });
 
 describe('P1 — actual runtime integration (source modules)', () => {
-  it('SOFT_NAV_SUCCESS: Family init performs exactly one GET /api/family', async () => {
+  it('SOFT_NAV_SUCCESS: direct Family init performs exactly one GET /api/family', async () => {
     const result = await runtime.runFamilyInit({ id: 'fam-1', name: 'Loaded', children: [] });
     assert.equal(result.tracker.count('/api/family'), 1);
     assert.equal(result.hooks.getState().familyData.name, 'Loaded');
+  });
+
+  it('CASE 1 FIRST_FAMILY_SOFT_NAV: navigateTo(/family) performs exactly one GET /api/family', async () => {
+    const result = await runtime.runRouterFirstFamilySoftNav({ id: 'fam-1', name: 'Loaded', children: [] });
+    assert.equal(result.ok, true);
+    assert.equal(result.familyCalls, 1, 'ParentMagicRouter soft-nav must not double-fetch /api/family');
+    assert.equal(result.hooks.getState().familyData.name, 'Loaded');
+  });
+
+  it('CASE 2 REVISIT_FAMILY: second navigateTo(/family) performs one fresh GET /api/family', async () => {
+    const result = await runtime.runRouterRevisitFamily();
+    assert.equal(result.ok, true);
+    assert.equal(result.familyCalls, 1, 'revisit must fetch fresh payload once');
+    assert.equal(result.hooks.getState().familyData.name, 'Fresh revisit');
+  });
+
+  it('CASE 3 FAMILY_SOFT_NAV_429: navigateTo(/family) with 429 shows recoverable error', async () => {
+    const err429 = Object.assign(new Error('För många förfrågningar'), {
+      status: 429,
+      body: { retry_after: 1 },
+    });
+    const harness = runtime.createRouterSoftNavHarness({ error: err429 });
+    harness.sandbox.location = { pathname: '/dashboard', origin: 'http://localhost', href: '/dashboard', replace: function () {} };
+    const result = await harness.navigateTo('/family');
+    assert.equal(result.ok, true);
+    assert.equal(result.familyCalls, 1);
+    assert.equal(result.hooks.getState().familyData, null);
+    assert.equal(result.banner.classList.contains('hidden'), false);
+    assert.notEqual(harness.sandbox.location.href, '/login');
+  });
+
+  it('CASE 4 RETRY: after soft-nav 429, retry performs one new GET and loads payload', async () => {
+    const result = await runtime.runRouterFamilySoftNav429ThenRetry();
+    assert.equal(result.fail.familyCalls, 1);
+    assert.equal(result.retryCalls, 1);
+    assert.equal(result.state.familyData.name, 'After retry');
+  });
+
+  it('CASE 5 POST_MUTATION_REFRESH: init() after successful soft-nav fetches fresh payload once', async () => {
+    const result = await runtime.runRouterPostMutationRefresh();
+    assert.equal(result.refreshCalls, 1);
+    assert.equal(result.state.familyData.name, 'After mutation');
   });
 
   it('SOFT_NAV_429: 429 shows recoverable error without null-success payload', async () => {
@@ -210,6 +252,12 @@ describe('P1 — actual runtime integration (source modules)', () => {
     assert.doesNotMatch(router, /warmFamilyFetch\(\)/);
     assert.doesNotMatch(router, /FamilyPage\.prefetch/);
   });
+
+  it('family.js no longer re-inits on stjarndag-magic-navigated (PageBoot owns soft-nav)', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
+    assert.doesNotMatch(src, /addEventListener\('stjarndag-magic-navigated'[\s\S]{0,120}init\(\)/);
+    assert.match(src, /if \(!window\.ParentMagicPageBoot\)/);
+  });
 });
 
 describe('P1 — executable API call measurement', () => {
@@ -220,9 +268,9 @@ describe('P1 — executable API call measurement', () => {
     assert.equal(after.family, 1, 'SharedFamilyFetch coalesces concurrent hard-load consumers');
   });
 
-  it('FAMILY_SOFT_NAV: Family init issues one GET /api/family', async () => {
-    const after = await harness.simulateFamilySoftNav();
-    assert.equal(after.family, 1);
+  it('FAMILY_SOFT_NAV: real router navigateTo issues one GET /api/family', async () => {
+    const after = await runtime.runRouterFirstFamilySoftNav({ id: 'fam-1', name: 'Soft nav', children: [] });
+    assert.equal(after.familyCalls, 1);
   });
 
   it('LATER_FAMILY_REFRESH: second fetch after settlement hits server again', async () => {

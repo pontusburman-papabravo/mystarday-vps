@@ -80,8 +80,9 @@ describe('magic soft navigation', () => {
     const family = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
     assert.match(planning, /stjarndag-magic-navigated/);
     assert.match(rewards, /stjarndag-magic-navigated/);
-    assert.match(family, /stjarndag-magic-navigated/);
-    assert.match(family, /pageId !== 'family'/);
+    assert.match(family, /ParentMagicPageBoot\.register\('family', init\)/);
+    assert.match(family, /if \(!window\.ParentMagicPageBoot\)/);
+    assert.doesNotMatch(family, /addEventListener\('stjarndag-magic-navigated'[\s\S]{0,120}init\(\)/);
   });
 
   it('schedule boot guards logoutBtn missing in magic view', () => {
