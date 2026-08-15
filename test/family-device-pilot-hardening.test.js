@@ -287,6 +287,11 @@ describe('P1-2 — native cold-start authority', () => {
     assert.match(out, /app-entry-orchestrator\.js/);
   });
 
+  it('GET /home is registered in Express (see native-home-route-hotfix.test.js)', () => {
+    const routes = fs.readFileSync(path.join(ROOT, 'src/routes/index.js'), 'utf8');
+    assert.match(routes, /app\.get\(['"]\/home['"]/);
+  });
+
   test('trusted one-child app-entry from cookie-only cold jar', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {

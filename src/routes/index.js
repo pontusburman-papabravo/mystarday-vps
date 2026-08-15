@@ -129,6 +129,12 @@ function registerRoutes(app) {
 
   const { join } = require('path');
   const childDashboardHtml = join(__dirname, '../../public', 'child-dashboard.html');
+  const dashboardHtml = join(__dirname, '../../public', 'dashboard.html');
+
+  // Native authoritative entry surface — same parent shell as /dashboard (no home.html duplicate).
+  app.get('/home', (req, res) => {
+    res.sendFile(dashboardHtml);
+  });
 
   // Barnmeny v2 — must register before /child/:childId A/B router in static-routes
   app.get('/child/today', (req, res) => res.sendFile(childDashboardHtml));
