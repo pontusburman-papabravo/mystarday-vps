@@ -13,16 +13,65 @@ Each dump has sidecars: `.sha256`, `.meta.json`.
 
 Status file: `/var/lib/app-db-backups/backup-status.json` (no credentials).
 
-## Install (VPS, one-time)
+## First VPS rollout (strict order)
 
-```bash
-cd "${VPS_APP_PATH:?set VPS_APP_PATH}"
-sudo APP_OPS_APP_ENV="${VPS_APP_PATH}/.env" bash scripts/ops/install-vps-ops-environment.sh
-```
+Do **not** skip or reorder these steps. Timers stay **stopped** until step 6.
 
-This installs deploy-ops env, disposable-db sudo helper, backup directory, and systemd timers.
+1. **Install** (units + `enable`, timers **not** started):
 
-## Manual daily backup
+   ```bash
+   cd "${VPS_APP_PATH:?set VPS_APP_PATH}"
+   sudo APP_OPS_APP_ENV="${VPS_APP_PATH}/.env" bash scripts/ops/install-vps-ops-environment.sh
+   ```
+
+   Confirms: deploy-ops env, disposable-db sudo helper, backup directory, systemd units installed, both timers **enabled but inactive**.
+
+2. **Manual daily backup** (no prune yet):
+
+   ```bash
+   cd "${VPS_APP_PATH:?set VPS_APP_PATH}"
+   set -a && source /etc/deploy-ops/deploy-ops.env && source .env && set +a
+   node scripts/ops/daily-db-backup.mjs --skip-prune
+   ```
+
+3. **Verify** the new backup end-to-end:
+
+   - Dump file exists under `/var/lib/app-db-backups/` (`app-daily-*.dump`)
+   - Checksum: `sha256sum -c /var/lib/app-db-backups/app-daily-….dump.sha256`
+   - Metadata: matching `app-daily-….dump.meta.json` with `status: VERIFIED`
+   - Status: `cat /var/lib/app-db-backups/backup-status.json` — `last_daily_backup_status` OK
+   - Restore rehearsal: journal shows disposable DB created, restore + sanity OK, cleanup OK (no `disposable_db_cleanup_failed`)
+
+4. **Retention dry-run** (no deletes):
+
+   ```bash
+   node scripts/ops/prune-backups.mjs
+   ```
+
+   Default is dry-run (`dry_run=1`). Do **not** pass `--apply` yet.
+
+5. **Inspect dry-run output** — confirm `WOULD_DELETE` / `WOULD_KEEP` lists are sane (legacy `predeploy_*` retained until policy is understood).
+
+6. **Start timers** (only after steps 2–5 pass):
+
+   ```bash
+   sudo systemctl start app-db-backup.timer app-weekly-restore-test.timer
+   ```
+
+7. **Verify both timers active**:
+
+   ```bash
+   systemctl is-active app-db-backup.timer app-weekly-restore-test.timer
+   systemctl status app-db-backup.timer app-weekly-restore-test.timer
+   ```
+
+8. **Remove legacy cron** (only after step 7):
+
+   ```bash
+   crontab -l | grep -v stjarndag-daily-backup | crontab -
+   ```
+
+## Manual daily backup (routine)
 
 ```bash
 cd "${VPS_APP_PATH:?set VPS_APP_PATH}"
@@ -30,7 +79,7 @@ set -a && source /etc/deploy-ops/deploy-ops.env && source .env && set +a
 node scripts/ops/daily-db-backup.mjs
 ```
 
-Dry-run retention only:
+Dry-run retention only (no backup):
 
 ```bash
 node scripts/ops/daily-db-backup.mjs --dry-run-prune
@@ -92,14 +141,6 @@ Dry-run:
 node scripts/ops/prune-backups.mjs
 node scripts/ops/prune-backups.mjs --apply
 ```
-
-## Remove legacy cron (after new timer verified)
-
-```bash
-crontab -l | grep -v stjarndag-daily-backup | crontab -
-```
-
-Only after: manual daily backup OK, restore test OK, `systemctl status app-db-backup.timer` active.
 
 ## Monitoring
 

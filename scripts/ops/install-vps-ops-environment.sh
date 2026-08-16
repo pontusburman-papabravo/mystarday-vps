@@ -101,9 +101,9 @@ if [ -d "$SYSTEMD_SRC" ]; then
     fi
   done
   systemctl daemon-reload
-  systemctl enable --now app-db-backup.timer app-weekly-restore-test.timer 2>/dev/null || true
-  echo "install-vps-ops-environment: systemd timers enabled and started" >&2
+  systemctl enable app-db-backup.timer app-weekly-restore-test.timer 2>/dev/null || true
+  echo "install-vps-ops-environment: systemd timers installed and enabled (not started)" >&2
+  echo "install-vps-ops-environment: follow docs/runbooks/BACKUP-RESTORE-RUNBOOK.md before systemctl start" >&2
 fi
 
 echo "install-vps-ops-environment: OK (sudo disposable-db only; no DATABASE_ADMIN_URL)" >&2
-echo "install-vps-ops-environment: remove legacy cron stjarndag-daily-backup only after daily backup verified" >&2

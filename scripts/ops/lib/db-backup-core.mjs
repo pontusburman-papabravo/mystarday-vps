@@ -204,8 +204,10 @@ export async function withBackupLock(backupDir, fn, operation = 'backup') {
   try {
     return await fn();
   } finally {
-    releaseBackupLock(lock);
-    unregisterLockCleanup(lock);
+    if (backupLockShutdownMode !== 'signal') {
+      releaseBackupLock(lock);
+      unregisterLockCleanup(lock);
+    }
   }
 }
 
@@ -288,20 +290,56 @@ export function releaseBackupLock(lock) {
 const activeLocks = new Set();
 let lockCleanupInstalled = false;
 
+/** @type {'none' | 'signal' | 'normal'} */
+let backupLockShutdownMode = 'none';
+
+/** Exit codes for signal-induced termination (128 + signum). */
+export const BACKUP_SIGNAL_EXIT_CODES = {
+  SIGHUP: 129,
+  SIGINT: 130,
+  SIGTERM: 143,
+};
+
+function releaseAllHeldLocks() {
+  for (const held of [...activeLocks]) {
+    releaseBackupLock(held);
+    activeLocks.delete(held);
+  }
+}
+
+/**
+ * Terminate on operator/system signals without releasing the backup lock.
+ * The lock is reclaimed later via stale-PID detection so a successor cannot
+ * run the protected operation while this process is still winding down.
+ * @param {NodeJS.Signals} signal
+ */
+export function terminateBackupProcessOnSignal(signal) {
+  backupLockShutdownMode = 'signal';
+  const code = BACKUP_SIGNAL_EXIT_CODES[signal] ?? 128;
+  process.exit(code);
+}
+
+/** @internal Test-only reset for backup lock shutdown mode. */
+export function setBackupLockShutdownModeForTests(mode) {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('setBackupLockShutdownModeForTests is test-only');
+  }
+  backupLockShutdownMode = mode;
+}
+
 function registerLockCleanup(lock) {
   activeLocks.add(lock);
   if (lockCleanupInstalled) return;
   lockCleanupInstalled = true;
-  const cleanupAll = () => {
-    for (const held of [...activeLocks]) {
-      releaseBackupLock(held);
-      activeLocks.delete(held);
-    }
-  };
-  process.on('exit', cleanupAll);
+
+  process.on('exit', () => {
+    if (backupLockShutdownMode === 'signal') return;
+    releaseAllHeldLocks();
+  });
+
   for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
-    process.on(sig, () => {
-      cleanupAll();
+    process.once(sig, () => {
+      terminateBackupProcessOnSignal(sig);
     });
   }
 }

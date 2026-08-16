@@ -192,4 +192,64 @@ describe('backup lock', () => {
 
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  test('withBackupLock finally skips lock release in signal shutdown mode', async () => {
+    const fs = require('node:fs');
+    const os = require('node:os');
+    const path = require('node:path');
+    const {
+      withBackupLock,
+      setBackupLockShutdownModeForTests,
+      BACKUP_LOCK_FILENAME,
+    } = await import('../scripts/ops/lib/db-backup-core.mjs');
+
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'backup-lock-finally-'));
+    fs.chmodSync(dir, 0o700);
+    const lockPath = path.join(dir, BACKUP_LOCK_FILENAME);
+
+    try {
+      await withBackupLock(dir, async () => {
+        setBackupLockShutdownModeForTests('signal');
+      });
+      assert.equal(fs.existsSync(lockPath), true);
+    } finally {
+      setBackupLockShutdownModeForTests('none');
+      if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('terminateBackupProcessOnSignal retains lock and exits with signal code', async () => {
+    const fs = require('node:fs');
+    const os = require('node:os');
+    const path = require('node:path');
+    const {
+      acquireBackupLock,
+      releaseBackupLock,
+      terminateBackupProcessOnSignal,
+      BACKUP_SIGNAL_EXIT_CODES,
+    } = await import('../scripts/ops/lib/db-backup-core.mjs');
+
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'backup-lock-signal-unit-'));
+    fs.chmodSync(dir, 0o700);
+    const lockPath = path.join(dir, '.app-backup.lock');
+    const lock = acquireBackupLock(lockPath, 'unit-test');
+
+    const originalExit = process.exit;
+    /** @type {number | undefined} */
+    let exitCode;
+    process.exit = (code) => {
+      exitCode = code;
+    };
+
+    try {
+      terminateBackupProcessOnSignal('SIGTERM');
+      assert.equal(exitCode, BACKUP_SIGNAL_EXIT_CODES.SIGTERM);
+      assert.equal(fs.existsSync(lockPath), true);
+    } finally {
+      process.exit = originalExit;
+      releaseBackupLock(lock);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
