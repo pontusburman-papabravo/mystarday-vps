@@ -121,13 +121,16 @@ describe('activity timer — dead Start regression', () => {
     assert.deepEqual(order, ['start-handled']);
   });
 
-  it('plays finish sound and screen flash when timer reaches zero', () => {
+  it('plays calm single finish chime when timer reaches zero (no alarm loop)', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /function startFinishCelebration/);
-    assert.match(src, /FINISH_CELEBRATION_MS = 15000/);
+    assert.match(src, /function playFinishChime/);
+    assert.match(src, /FINISH_CHIME_MS = 480/);
+    assert.match(src, /FINISH_VISUAL_MS = 2500/);
+    assert.doesNotMatch(src, /FINISH_CELEBRATION_MS/);
+    assert.doesNotMatch(src, /setInterval[\s\S]{0,80}playEndChime|setInterval[\s\S]{0,80}playFinishChime/);
+    assert.match(src, /end_sound_played/);
     assert.match(src, /activity-timer-celebration--on/);
-    assert.doesNotMatch(src, /activity-timer-finish-flash/);
-    assert.match(src, /playEndChime\(true\)/);
   });
 
   it('hides parent timer when timed substeps exist', () => {

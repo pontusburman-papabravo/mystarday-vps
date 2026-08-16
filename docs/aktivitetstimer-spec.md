@@ -1,13 +1,13 @@
-# Aktivitetstimer — kort spec (v0.3.1)
+# Aktivitetstimer — release contract (V2)
 
 | | |
 |--|--|
-| **Status** | Accepted — v0.4 helskärm (founder dark launch via `activity_timer_v2`) |
-| **Git** | [docs/aktivitetstimer-spec.md](https://github.com/pontusburman-papabravo/[REDACTED]-vps/blob/main/docs/aktivitetstimer-spec.md) <!-- pragma: allowlist secret --> |
+| **Status** | **V2 release-ready** — frozen contract for rollout gate |
+| **Supersedes** | v0.3 inline timer, v0.4 without pause; contradictory "Paus v1: nej" |
 | **POS** | 04 C-04 (barnvy), 06A (mobil barn-UI), 15 B (a11y, reducerad rörelse, ej blockande) |
-| **Skiljer sig från** | `visual_timer` (schemafönster start–slut), `how_long` (text i De sju frågorna) |
-| **Relaterat** | [bildstod-app-plan.md](./bildstod-app-plan.md), [paket-v1.2-spec.md](./paket-v1.2-spec.md) |
-| **Changelog** | v0.4 — helskärmsvy, paus/fortsätt/stopp/börja om, timglas-CSS, founder dark launch (`activity_timer_v2`). v0.3.1 — … |
+| **Kill switch** | `ACTIVITY_TIMER_V2_DISABLED=true` (server env) |
+| **Rollout** | Per-child master `activity_timers_enabled` — **not** global allowlist for customers |
+| **Tests** | `test/activity-timer-v2-release-readiness.test.js` (32 scenarios) |
 
 ---
 
@@ -29,10 +29,10 @@ Förälder vill säga *"borsta tänder i 2 minuter"* (eller 45 sekunder) och bar
 | Barnvy | Progress-ring runt timglas + `M:SS` eller `0:SS` |
 | Före start | Visa full tid (`2:00`, `0:45`), inte `--:--` |
 | Start | Barn trycker **Starta timer** — **ingen** auto-start v1 |
-| Paus | **v0.4:** Pausa/Fortsätt fryser `paused_remaining_seconds`. v1 inline: ingen paus. |
-| Helskärm | **v0.4:** Start öppnar overlay; kryss stänger bara vyn; timer fortsätter via `ends_at`. |
-| Stopp / Börja om | **v0.4:** Stopp → rensa session (IDLE). Börja om → ny `running` med full tid. |
-| Slut vid 0 | Stanna på `0:00`, **Färdig!** + ljud + lätt haptic |
+| Paus | **V2:** Pausa/Fortsätt fryser `paused_remaining_seconds`. Stopp → IDLE. Börja om → ny `running`. |
+| Helskärm | **V2:** Start öppnar overlay; kryss stänger bara vyn; timer fortsätter via `ends_at`. |
+| Stopp / Börja om | **V2:** Stopp → rensa session (IDLE). Börja om → ny `running` med full tid. |
+| Slut vid 0 | Stanna på `0:00`, **Färdig!** + **en** kort ton (≤500 ms) + lätt haptic — **ingen** upprepad alarm-loop |
 | Klar före 0 | Avsluta utan slutsignal; **rensa session** (se nedan) |
 | Blockerar inte | Ingen modal; **Klar** alltid tillgänglig (nödutgång) |
 | Minsta tid | **5 sekunder** (`duration_seconds >= 5`) |
@@ -215,7 +215,9 @@ DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
 | FINISHED | `0:00` + **Färdig!** + **[Klar]** (primär) + *↻ Starta igen* (sekundär, mindre) |
 | DONE_EARLY | timer borta, aktivitet bockad |
 
-**Paus v1:** nej.
+**Paus V2:** Pausa/Fortsätt i helskärms-overlay. Stopp rensar session.
+
+**Delsteg:** Om timed substeps finns (`duration_seconds >= 5` per steg) → **ingen** parent-activity-timer; varje delsteg har egen session (`daily_log_item_id` + `sub_step_id`).
 
 **Omstart:** efter 0:00 — **Starta igen** (diskret länk under Klar). Efter **Klar** — ingen omstart i barnvy.
 
@@ -236,11 +238,14 @@ DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
 ```
 
 - **Aldrig** negativ tid.  
-- **Ljud (normativt):** max **500 ms**, **låg volym**, **en ton**, spelas **en gång** per session — aldrig upprepas vid re-render. `prefers-reduced-motion` → hoppa över ljud.  
-- **Haptic:** lätt vid 0.  
+- **Ljud (normativt V2):** max **480 ms**, **låg volym**, **en sinus-ton**, spelas **en gång** per session via `end_sound_played` — aldrig upprepas vid re-render eller reload. `prefers-reduced-motion` → hoppa över visuell burst, behåll valfri tyst haptic.  
+- **Haptic:** lätt (light) vid 0 — en gång.  
+- **Visuell celebration:** kort, dismissible tap-to-close (≈2.5 s), ingen blink/puls/skakning.  
 - **Klar** är visuellt primär; **Starta igen** sekundär (textlänk, inte lika stor knapp).
 
 **Klar före 0:** **ta bort** `localStorage`-session, inget ljud, ingen Färdig!.
+
+**Klar efter 0:** rensa session + anropa befintlig completion (`toggleItem` / `toggleSubStep`) — timer når **inte** 0 automatiskt till completion.
 
 ---
 
@@ -314,8 +319,8 @@ Ingen server-side timer-state.
 | `duration_seconds` 5–3600 eller `null` | Separat `timer_enabled`-fält |
 | `localStorage` + `daily_log_item_id` | `sessionStorage`, nyckel på `activity_id` |
 | Klar rensar session | Timer kvar efter Klar |
-| Progress-ring töms medurs | Paus |
-| Ljudspec 500 ms | Push/larm |
+| Progress-ring töms medurs | ~~Paus~~ (V2 har paus) |
+| Ljudspec ≤500 ms, en ton | Push/larm, upprepad alarm-loop |
 | Starta igen (sekundär) | Auto-start vid NU |
 | Ersätter inte `visual_timer` | Schema-cirkel oförändrad |
 
@@ -345,7 +350,7 @@ Ingen server-side timer-state.
 |-------|--------|
 | Auto-start vid NU? | Nej v1 |
 | Timer på SEDAN? | Nej v1 |
-| Paus? | Nej v1 |
+| Paus? | **Ja V2** (helskärm) |
 | Timer på/av per aktivitet | `duration_seconds` null vs ≥ 5 |
 | Lagring | `localStorage` |
 | Session-nyckel | `daily_log_item_id` (+ child + datum) |

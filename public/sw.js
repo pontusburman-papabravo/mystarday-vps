@@ -265,7 +265,7 @@
 // stjarndag-v817: widget reconnect — binding intent id, stale configure guard
 // stjarndag-v835: profile picker adult unlock without JWT status gate
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
-const CACHE_NAME = 'stjarndag-v853';
+const CACHE_NAME = 'stjarndag-v854';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -590,6 +590,7 @@ const CACHE_NAME = 'stjarndag-v853';
 // stjarndag-v844: settings magic-settings-ready fail-safe — legacy visible until hub renders
 // stjarndag-v846: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v847: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v854: Activity Timer V2 — calm single finish chime, substep Klar via toggleSubStep
 // stjarndag-v853: Family Device acceptance — deterministic Family boot + shared adult PIN gate
 // stjarndag-v852: Family Device P1 delta — in-flight-only family fetch, no warm-prefetch swallow
 // stjarndag-v851: Family Device P1 — false-logout fix + shared /api/family coalescing
