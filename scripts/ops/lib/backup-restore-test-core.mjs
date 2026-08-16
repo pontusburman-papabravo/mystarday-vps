@@ -122,6 +122,10 @@ export async function runBackupRestoreTest(opts, env = process.env) {
     targetUrl = verified.targetUrl;
   }
 
+  let counts = {};
+  let cleanupFailed = false;
+  let cleanupError = null;
+
   try {
     const restore = spawnSync(
       'pg_restore',
@@ -140,7 +144,7 @@ export async function runBackupRestoreTest(opts, env = process.env) {
         )
       : {};
 
-    const counts = await runSqlSanityChecks(targetUrl, baselineCounts);
+    counts = await runSqlSanityChecks(targetUrl, baselineCounts);
 
     if (baselineSnapshot) {
       const restoredSnapshot = await captureDbIntegritySnapshot(targetUrl, {
@@ -154,13 +158,6 @@ export async function runBackupRestoreTest(opts, env = process.env) {
         throw new Error('RESTORE_SNAPSHOT_DRIFT');
       }
     }
-
-    return {
-      targetDb,
-      lifecycle,
-      counts,
-      verified: true,
-    };
   } finally {
     if (created) {
       try {
@@ -168,11 +165,24 @@ export async function runBackupRestoreTest(opts, env = process.env) {
           protectedName,
           lifecycle: lifecycle === 'managed' ? 'managed' : 'sudo',
         });
-      } catch {
-        // log at caller — do not mask restore failure
+      } catch (cleanupErr) {
+        cleanupFailed = true;
+        cleanupError = cleanupErr.message;
+        console.error(
+          `[restore-test] disposable_db_cleanup_failed target=${targetDb} error=${cleanupErr.message}`
+        );
       }
     }
   }
+
+  return {
+    targetDb,
+    lifecycle,
+    counts,
+    verified: true,
+    cleanupFailed,
+    cleanupError,
+  };
 }
 
 /**

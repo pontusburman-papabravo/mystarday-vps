@@ -6,8 +6,7 @@ import {
   PREDEPLOY_MIN_KEEP,
   PREDEPLOY_MAX_AGE_DAYS,
   DUMP_SUFFIX,
-  CHECKSUM_SUFFIX,
-  META_SUFFIX,
+  relatedBackupArtifacts,
 } from './db-backup-core.mjs';
 
 const PROTECTED_PREFIXES = ['incident_', 'pre_cutover_', 'manual_keep_'];
@@ -134,13 +133,6 @@ export function planBackupPrune(backupDir, opts = {}) {
       keep: keepPaths.size,
     },
   };
-}
-
-/**
- * @param {string} dumpPath
- */
-export function relatedBackupArtifacts(dumpPath) {
-  return [dumpPath, `${dumpPath}${CHECKSUM_SUFFIX}`, `${dumpPath}${META_SUFFIX}`];
 }
 
 /**

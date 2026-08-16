@@ -96,7 +96,7 @@ node scripts/ops/prune-backups.mjs --apply
 ## Remove legacy cron (after new timer verified)
 
 ```bash
-crontab -l | grep -v stjarnday-daily-backup | crontab -
+crontab -l | grep -v stjarndag-daily-backup | crontab -
 ```
 
 Only after: manual daily backup OK, restore test OK, `systemctl status app-db-backup.timer` active.
@@ -117,4 +117,4 @@ Set `BACKUP_OFFSITE_ENABLED=1` and `BACKUP_OFFSITE_TARGET` when object storage i
 
 ## Quarterly DR
 
-Document each quarterly DR test in `docs/PRODUCTION-BACKUP-RESTORE-REHEARSAL-*.md`. <!-- pragma: allowlist secret -->
+Document each quarterly DR test in the backup-restore rehearsal notes under `docs/` (see existing `*-BACKUP-RESTORE-REHEARSAL-*.md` files).

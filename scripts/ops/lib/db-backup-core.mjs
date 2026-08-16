@@ -18,6 +18,9 @@ export const DUMP_SUFFIX = '.dump';
 export const CHECKSUM_SUFFIX = '.sha256';
 export const META_SUFFIX = '.meta.json';
 
+/** Max age before a lock without live owner is considered stale (crash recovery). */
+export const BACKUP_LOCK_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
 export const DAILY_RETENTION_DAYS = 30;
 export const PREDEPLOY_MIN_KEEP = 7;
 export const PREDEPLOY_MAX_AGE_DAYS = 30;
@@ -85,9 +88,43 @@ export function parseBackupTimestamp(compactTs) {
 }
 
 function parseLegacyPredeployTimestamp(raw) {
-  const normalized = raw.replace(/-/g, ':').replace(/T(\d{2}):(\d{2}):(\d{2})/, 'T$1:$2:$3');
-  const d = new Date(normalized.endsWith('Z') ? normalized : `${normalized}Z`);
+  const tsPart = String(raw).split('_')[0];
+  const m = tsPart.match(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/);
+  if (!m) return null;
+  const iso = `${m[1]}T${m[2]}:${m[3]}:${m[4]}.${m[5]}Z`;
+  const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+export { parseLegacyPredeployTimestamp };
+
+/**
+ * Canonical sidecar path for a dump file.
+ * @param {string} dumpPath
+ */
+export function backupMetaPathForDump(dumpPath) {
+  return `${dumpPath}${META_SUFFIX}`;
+}
+
+/**
+ * Legacy meta path used by pre-refactor backups (base.meta.json without .dump).
+ * @param {string} dumpPath
+ */
+export function legacyBackupMetaPathForDump(dumpPath) {
+  if (!dumpPath.endsWith(DUMP_SUFFIX)) return null;
+  return `${dumpPath.slice(0, -DUMP_SUFFIX.length)}${META_SUFFIX}`;
+}
+
+/**
+ * Resolve readable meta path (canonical first, then legacy).
+ * @param {string} dumpPath
+ */
+export function resolveBackupMetaPath(dumpPath) {
+  const canonical = backupMetaPathForDump(dumpPath);
+  if (fs.existsSync(canonical)) return canonical;
+  const legacy = legacyBackupMetaPathForDump(dumpPath);
+  if (legacy && fs.existsSync(legacy)) return legacy;
+  return canonical;
 }
 
 export function ensureDirSecure(dirPath) {
@@ -152,41 +189,125 @@ export function verifyPgRestoreList(dumpPath, requiredTables = BACKUP_ARCHIVE_RE
 }
 
 /**
- * Exclusive backup lock via O_EXCL lock file (flock-equivalent for single-host jobs).
+ * Crash-safe backup lock: stale locks from dead PIDs or exceeded max age are reclaimed.
  * @param {string} backupDir
  * @param {() => T | Promise<T>} fn
+ * @param {string} [operation]
  * @returns {Promise<T>}
  * @template T
  */
-export async function withBackupLock(backupDir, fn) {
+export async function withBackupLock(backupDir, fn, operation = 'backup') {
   ensureDirSecure(backupDir);
   const lockPath = path.join(backupDir, BACKUP_LOCK_FILENAME);
-  let lockFd;
-  try {
-    lockFd = fs.openSync(lockPath, 'wx');
-    fs.writeSync(lockFd, `${process.pid}\n`);
-  } catch (err) {
-    if (err && err.code === 'EEXIST') throw new Error('BACKUP_LOCK_HELD');
-    throw err;
-  }
-
+  const lock = acquireBackupLock(lockPath, operation);
+  registerLockCleanup(lock);
   try {
     return await fn();
   } finally {
-    try {
-      fs.closeSync(lockFd);
-    } catch {
-      // ignore
+    releaseBackupLock(lock);
+    unregisterLockCleanup(lock);
+  }
+}
+
+function isProcessAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    return err && err.code === 'EPERM';
+  }
+}
+
+function readLockPayload(lockPath) {
+  try {
+    const raw = fs.readFileSync(lockPath, 'utf8').trim();
+    if (!raw) return null;
+    const asNum = Number(raw);
+    if (!Number.isNaN(asNum) && String(asNum) === raw) {
+      return { pid: asNum, startedAt: 0, operation: 'legacy' };
     }
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function isLockStale(payload) {
+  if (!payload || !payload.pid) return true;
+  if (payload.startedAt && Date.now() - payload.startedAt > BACKUP_LOCK_MAX_AGE_MS) {
+    return true;
+  }
+  return !isProcessAlive(payload.pid);
+}
+
+/**
+ * @param {string} lockPath
+ * @param {string} operation
+ */
+export function acquireBackupLock(lockPath, operation = 'backup') {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
     try {
-      if (fs.existsSync(lockPath)) {
-        const owner = fs.readFileSync(lockPath, 'utf8').trim();
-        if (owner === String(process.pid)) fs.unlinkSync(lockPath);
+      const fd = fs.openSync(lockPath, 'wx');
+      const payload = { pid: process.pid, startedAt: Date.now(), operation };
+      fs.writeFileSync(fd, `${JSON.stringify(payload)}\n`);
+      fs.closeSync(fd);
+      return { lockPath, pid: process.pid };
+    } catch (err) {
+      if (!err || err.code !== 'EEXIST') throw err;
+      const existing = readLockPayload(lockPath);
+      if (!isLockStale(existing)) {
+        throw new Error('BACKUP_LOCK_HELD');
       }
-    } catch {
-      // ignore
+      try {
+        fs.unlinkSync(lockPath);
+      } catch {
+        // concurrent reclaim — retry
+      }
     }
   }
+  throw new Error('BACKUP_LOCK_HELD');
+}
+
+/**
+ * @param {{ lockPath: string, pid: number } | null} lock
+ */
+export function releaseBackupLock(lock) {
+  if (!lock) return;
+  try {
+    if (!fs.existsSync(lock.lockPath)) return;
+    const payload = readLockPayload(lock.lockPath);
+    if (payload?.pid === lock.pid) {
+      fs.unlinkSync(lock.lockPath);
+    }
+  } catch {
+    // best effort
+  }
+}
+
+const activeLocks = new Set();
+let lockCleanupInstalled = false;
+
+function registerLockCleanup(lock) {
+  activeLocks.add(lock);
+  if (lockCleanupInstalled) return;
+  lockCleanupInstalled = true;
+  const cleanupAll = () => {
+    for (const held of [...activeLocks]) {
+      releaseBackupLock(held);
+      activeLocks.delete(held);
+    }
+  };
+  process.on('exit', cleanupAll);
+  for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(sig, () => {
+      cleanupAll();
+    });
+  }
+}
+
+function unregisterLockCleanup(lock) {
+  activeLocks.delete(lock);
 }
 
 function cleanupPartial(partialPath) {
@@ -246,7 +367,7 @@ export async function createDatabaseBackup(opts) {
   const baseName = buildBackupBaseName(type, { deploySha });
   const partialPath = path.join(backupDir, `${baseName}${DUMP_SUFFIX}${PARTIAL_SUFFIX}`);
   const dumpPath = path.join(backupDir, `${baseName}${DUMP_SUFFIX}`);
-  const metaPath = path.join(backupDir, `${baseName}${META_SUFFIX}`);
+  const metaPath = backupMetaPathForDump(dumpPath);
 
   cleanupPartial(partialPath);
 
@@ -350,6 +471,17 @@ export function cleanupStalePartialFiles(backupDir, maxAgeHours = 48) {
     }
   }
   return removed;
+}
+
+export function relatedBackupArtifacts(dumpPath) {
+  const paths = new Set([
+    dumpPath,
+    `${dumpPath}${CHECKSUM_SUFFIX}`,
+    backupMetaPathForDump(dumpPath),
+  ]);
+  const legacyMeta = legacyBackupMetaPathForDump(dumpPath);
+  if (legacyMeta) paths.add(legacyMeta);
+  return [...paths];
 }
 
 export {

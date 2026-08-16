@@ -174,28 +174,32 @@ export async function runPreDeployBackupGate(opts) {
   const folderMigrations = listPendingMigrations(repoRoot);
   const pending = folderMigrations.filter((name) => !applied.includes(name));
 
-  return withBackupLock(backupDir, async () => {
-    const result = await createDatabaseBackup({
-      type: 'predeploy',
-      databaseUrl,
-      backupDir,
-      deploySha,
-      repoRoot,
-      snapshot,
-      pendingMigrations: pending,
-      appliedMigrationsCount: applied.length,
-      env,
-    });
+  return withBackupLock(
+    backupDir,
+    async () => {
+      const result = await createDatabaseBackup({
+        type: 'predeploy',
+        databaseUrl,
+        backupDir,
+        deploySha,
+        repoRoot,
+        snapshot,
+        pendingMigrations: pending,
+        appliedMigrationsCount: applied.length,
+        env,
+      });
 
-    return {
-      skipped: false,
-      dumpPath: result.dumpPath,
-      metaPath: result.metaPath,
-      metadata: result.metadata,
-      snapshot,
-      pendingMigrations: pending,
-    };
-  });
+      return {
+        skipped: false,
+        dumpPath: result.dumpPath,
+        metaPath: result.metaPath,
+        metadata: result.metadata,
+        snapshot,
+        pendingMigrations: pending,
+      };
+    },
+    'predeploy'
+  );
 }
 
 export { sanitizeIdentityForLog };

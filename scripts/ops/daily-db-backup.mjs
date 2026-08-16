@@ -49,10 +49,6 @@ async function main() {
   const backupDir = process.env.APP_DB_BACKUP_DIR;
   if (!backupDir) throw new Error('APP_DB_BACKUP_DIR_MISSING');
 
-  const snapshot = await captureDbIntegritySnapshot(databaseUrl, {
-    label: 'daily-pre-backup',
-  });
-
   let backupResult;
   let restoreResult = null;
   let offsiteResult = { skipped: true };
@@ -60,68 +56,84 @@ async function main() {
   let finalStatus = 'FAILED';
 
   try {
-    backupResult = await withBackupLock(backupDir, async () => {
-      cleanupStalePartialFiles(backupDir);
-      return createDatabaseBackup({
-        type: 'daily',
-        databaseUrl,
-        backupDir,
-        snapshot,
-        env: process.env,
-      });
-    });
+    await withBackupLock(
+      backupDir,
+      async () => {
+        const snapshot = await captureDbIntegritySnapshot(databaseUrl, {
+          label: 'daily-pre-backup',
+        });
 
-    logField({
-      backup_type: 'daily',
-      backup_filename: backupResult.metadata.backup_file,
-      size_bytes: backupResult.metadata.backup_file_bytes,
-      pg_dump_status: 'ok',
-      archive_verify_status: 'ok',
-      checksum_status: 'ok',
-    });
+        cleanupStalePartialFiles(backupDir);
+        backupResult = await createDatabaseBackup({
+          type: 'daily',
+          databaseUrl,
+          backupDir,
+          snapshot,
+          env: process.env,
+        });
 
-    const targetDb = buildRestoreTestDbName();
-    restoreResult = await runBackupRestoreTest(
-      {
-        backupFile: backupResult.dumpPath,
-        targetDb,
-        baselineSnapshot: snapshot,
+        logField({
+          backup_type: 'daily',
+          backup_filename: backupResult.metadata.backup_file,
+          size_bytes: backupResult.metadata.backup_file_bytes,
+          pg_dump_status: 'ok',
+          archive_verify_status: 'ok',
+          checksum_status: 'ok',
+        });
+
+        const targetDb = buildRestoreTestDbName();
+        restoreResult = await runBackupRestoreTest(
+          {
+            backupFile: backupResult.dumpPath,
+            targetDb,
+            baselineSnapshot: snapshot,
+          },
+          process.env
+        );
+
+        if (restoreResult.cleanupFailed) {
+          logField({
+            restore_cleanup_status: 'failed',
+            restore_cleanup_error: restoreResult.cleanupError,
+          });
+        }
+
+        logField({
+          restore_status: 'ok',
+          restore_target: targetDb,
+          sanity_check_status: 'ok',
+        });
+
+        const meta = {
+          ...backupResult.metadata,
+          status: 'VERIFIED',
+          restore_test_at_utc: new Date().toISOString(),
+          restore_test_counts: restoreResult.counts,
+        };
+        fs.writeFileSync(backupResult.metaPath, JSON.stringify(meta, null, 2), { mode: 0o600 });
+
+        offsiteResult = await uploadOffsiteBackupIfConfigured(
+          {
+            dumpPath: backupResult.dumpPath,
+            metaPath: backupResult.metaPath,
+            checksumPath: backupResult.checksumPath,
+          },
+          process.env
+        );
+
+        if (!args.skipPrune) {
+          pruneResult = executeBackupPrune(backupDir, { dryRun: args.dryRunPrune });
+          logField({
+            pruned_count: pruneResult.deleted?.length || 0,
+            prune_dry_run: args.dryRunPrune ? '1' : '0',
+          });
+        }
+
+        finalStatus = 'VERIFIED';
       },
-      process.env
+      'daily'
     );
 
-    logField({
-      restore_status: 'ok',
-      restore_target: targetDb,
-      sanity_check_status: 'ok',
-    });
-
-    const meta = {
-      ...backupResult.metadata,
-      status: 'VERIFIED',
-      restore_test_at_utc: new Date().toISOString(),
-      restore_test_counts: restoreResult.counts,
-    };
-    fs.writeFileSync(backupResult.metaPath, JSON.stringify(meta, null, 2), { mode: 0o600 });
-
-    offsiteResult = await uploadOffsiteBackupIfConfigured(
-      {
-        dumpPath: backupResult.dumpPath,
-        metaPath: backupResult.metaPath,
-        checksumPath: backupResult.checksumPath,
-      },
-      process.env
-    );
-
-    if (!args.skipPrune) {
-      pruneResult = executeBackupPrune(backupDir, { dryRun: args.dryRunPrune });
-      logField({
-        pruned_count: pruneResult.deleted?.length || 0,
-        prune_dry_run: args.dryRunPrune ? '1' : '0',
-      });
-    }
-
-    finalStatus = 'VERIFIED';
     writeBackupStatus({
       last_daily_backup_at: new Date().toISOString(),
       last_daily_backup_status: 'VERIFIED',
