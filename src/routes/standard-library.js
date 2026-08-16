@@ -17,7 +17,6 @@ const {
   mapCanonicalCopyErrorToHttp,
 } = require('../lib/standard-library-family-seed');
 const {
-  CanonicalCopyError,
   copyCanonicalScheduleToFamily,
 } = require('../lib/canonical-library-copy');
 const { getFamilyLocale } = require('../lib/onboarding-locale');
@@ -509,10 +508,8 @@ router.post('/schedules/:id/copy', async (req, res) => {
       client.release();
     }
   } catch (err) {
-    if (err instanceof CanonicalCopyError) {
-      const status = err.code === CANONICAL_SCHEDULE_NOT_FOUND ? 404 : 422;
-      return res.status(status).json({ error: err.code, ...err.details });
-    }
+    const mapped = mapCanonicalCopyErrorToHttp(err);
+    if (mapped) return res.status(mapped.status).json(mapped.body);
     console.error('[STANDARD-LIBRARY] Schedule copy error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }

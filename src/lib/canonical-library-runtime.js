@@ -29,7 +29,11 @@ const TEMPLATE_GROUP_TO_CANONICAL_SCHEDULE = Object.freeze({
   dag: 'preschool_weekday',
 });
 
-/** Legacy default_schedule.name → canonical schedule id (v1.1-legacy-map schedules) */
+/**
+ * Compatibility INPUT adapter only — maps legacy external labels to frozen canonical_id.
+ * Never used in SQL; DB resolution after mapping uses canonical_id / defaultScheduleId only.
+ * @see config/standard-library/v1.1-legacy-map.json schedules section
+ */
 const LEGACY_SCHEDULE_NAME_TO_CANONICAL = Object.freeze({
   'Förskola vardag': 'preschool_weekday',
   'Skola vardag': 'school_weekday',

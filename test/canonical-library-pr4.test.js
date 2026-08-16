@@ -2,19 +2,29 @@
 
 const { describe, it, test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { setupTestDb } = require('./helpers/setup.js');
 const {
   seedCanonicalLibrary,
   createTestFamilyWithChild,
   getSubstepNames,
+  findScheduleIdByCanonical,
 } = require('./helpers/canonical-library-fixture.js');
-const { seedChildDefaultSchedule } = require('../src/lib/seed-child-default-schedule.js');
 const { seedFamilyStarterActivitiesFromCanonicalDb } = require('../src/lib/standard-library-family-seed.js');
-const { copyStandardScheduleToChild } = require('../src/lib/canonical-library-runtime.js');
+const {
+  copyStandardScheduleToChild,
+  resolveCanonicalScheduleId,
+  CanonicalCopyError,
+  CANONICAL_SOURCE_INVALID,
+  CANONICAL_DUPLICATE_IDENTITY,
+  LEGACY_SCHEDULE_NAME_TO_CANONICAL,
+} = require('../src/lib/canonical-library-runtime.js');
 
 describe('canonical library PR4 — consolidated creation flows', () => {
   let db;
   let seeded = false;
+  let seedChildDefaultSchedule;
 
   test('setup canonical library fixture', async (t) => {
     db = await setupTestDb();
@@ -22,6 +32,10 @@ describe('canonical library PR4 — consolidated creation flows', () => {
       t.skip('No real DATABASE_URL');
       return;
     }
+
+    delete require.cache[require.resolve('../src/lib/db')];
+    delete require.cache[require.resolve('../src/lib/seed-child-default-schedule.js')];
+    ({ seedChildDefaultSchedule } = require('../src/lib/seed-child-default-schedule.js'));
 
     await db.truncate();
     const client = await db.pool.connect();
@@ -34,7 +48,7 @@ describe('canonical library PR4 — consolidated creation flows', () => {
   });
 
   test('seedChildDefaultSchedule copies canonical preschool schedule with provenance', async (t) => {
-    if (!seeded) {
+    if (!seeded || !seedChildDefaultSchedule) {
       t.skip('Canonical library not seeded');
       return;
     }
@@ -70,7 +84,7 @@ describe('canonical library PR4 — consolidated creation flows', () => {
   });
 
   test('seedChildDefaultSchedule resolves school_weekday with after_school_home default', async (t) => {
-    if (!seeded) {
+    if (!seeded || !seedChildDefaultSchedule) {
       t.skip('Canonical library not seeded');
       return;
     }
@@ -220,6 +234,199 @@ describe('canonical library PR4 — consolidated creation flows', () => {
         [washTpl.rows[0].id]
       );
       assert.equal(washStep.rows[0]?.duration_seconds, 20);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  });
+
+  describe('legacy schedule label input adapter (compatibility boundary)', () => {
+    it('A: known legacy schedule label resolves to canonical_id', () => {
+      assert.equal(
+        resolveCanonicalScheduleId({ legacyScheduleName: 'Skola vardag' }),
+        'school_weekday'
+      );
+      assert.equal(
+        resolveCanonicalScheduleId({ legacyScheduleName: 'Förskola vardag' }),
+        'preschool_weekday'
+      );
+      assert.equal(
+        resolveCanonicalScheduleId({ templateGroup: 'helg' }),
+        'weekend'
+      );
+    });
+
+    test('B: legacy label copy survives arbitrary default_schedule.name rename', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      await db.query(
+        `UPDATE default_schedule SET name = 'Renamed display only'
+         WHERE canonical_id = 'preschool_weekday'`
+      );
+
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const tx = await db.pool.connect();
+      try {
+        await tx.query('BEGIN');
+        const result = await copyStandardScheduleToChild(tx, {
+          familyId,
+          childId,
+          days: [1],
+          overwrite: true,
+          locale: 'sv-SE',
+          legacyScheduleName: 'Förskola vardag',
+          externalTransaction: true,
+        });
+        await tx.query('COMMIT');
+        assert.equal(result.scheduleCanonicalId, 'preschool_weekday');
+        assert.ok(result.filledDays.length > 0);
+      } finally {
+        tx.release();
+      }
+    });
+
+    test('C: duplicate canonical schedule IDs fail closed via runtime adapter', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      const preschoolId = await findScheduleIdByCanonical(db, 'preschool_weekday');
+      assert.ok(preschoolId);
+
+      await db.query(
+        `INSERT INTO default_schedule (name, canonical_id, sort_order)
+         VALUES ('Duplicate preschool', 'preschool_weekday', 999)`
+      );
+
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const tx = await db.pool.connect();
+      try {
+        await assert.rejects(
+          () => copyStandardScheduleToChild(tx, {
+            familyId,
+            childId,
+            days: [1],
+            locale: 'sv-SE',
+            legacyScheduleName: 'Förskola vardag',
+          }),
+          (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_DUPLICATE_IDENTITY
+        );
+      } finally {
+        tx.release();
+      }
+
+      await db.query(
+        `DELETE FROM default_schedule WHERE name = 'Duplicate preschool' AND id != $1`,
+        [preschoolId]
+      );
+    });
+
+    it('D: unknown legacy label fails closed without name SQL fallback', () => {
+      assert.equal(resolveCanonicalScheduleId({ legacyScheduleName: 'Totally Unknown Schedule' }), null);
+      assert.equal(resolveCanonicalScheduleId({ legacyScheduleName: 'skola vardag' }), null);
+      assert.ok(!LEGACY_SCHEDULE_NAME_TO_CANONICAL['skola vardag']);
+    });
+
+    test('D2: unknown legacy label schedule copy rejects with CANONICAL_SOURCE_INVALID', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const tx = await db.pool.connect();
+      try {
+        await assert.rejects(
+          () => copyStandardScheduleToChild(tx, {
+            familyId,
+            childId,
+            days: [1],
+            locale: 'sv-SE',
+            legacyScheduleName: 'Nonexistent Legacy Label',
+          }),
+          (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_SOURCE_INVALID
+        );
+      } finally {
+        tx.release();
+      }
+    });
+
+    it('E: canonical-library-runtime adapter has no SQL name identity lookup', () => {
+      const runtimeSrc = fs.readFileSync(
+        path.join(__dirname, '../src/lib/canonical-library-runtime.js'),
+        'utf8'
+      );
+      assert.doesNotMatch(runtimeSrc, /LOWER\s*\(\s*name\s*\)/i);
+      assert.doesNotMatch(runtimeSrc, /WHERE\s+.*name\s*=\s*\$/i);
+      assert.match(runtimeSrc, /compatibility INPUT adapter/i);
+    });
+  });
+
+  test('no unintended default timers on non-timer activities in registration seed path', async (t) => {
+    if (!seeded) {
+      t.skip('Canonical library not seeded');
+      return;
+    }
+
+    const noTimerCanonicalIds = [
+      'reading',
+      'homework',
+      'free_time',
+      'calm_time',
+      'breakfast',
+      'lunch',
+      'dinner',
+      'snack',
+      'sleep',
+      'family_activity',
+    ];
+
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const familyRes = await client.query(
+        `INSERT INTO family (name, timezone, preferred_locale)
+         VALUES ('Timer guard QA', 'Europe/Stockholm', 'sv-SE') RETURNING id`
+      );
+      const familyId = familyRes.rows[0].id;
+      const categoryMap = {
+        forskola: (await client.query(
+          'INSERT INTO category (family_id, name, sort_order, is_default) VALUES ($1, $2, 0, true) RETURNING id',
+          [familyId, 'Förskola']
+        )).rows[0].id,
+      };
+      await seedFamilyStarterActivitiesFromCanonicalDb(client, familyId, categoryMap, 'sv-SE');
+      await client.query('COMMIT');
+
+      for (const canonicalId of noTimerCanonicalIds) {
+        const tpl = await db.query(
+          `SELECT id, duration_seconds FROM activity_template
+           WHERE family_id = $1 AND source_canonical_id = $2 LIMIT 1`,
+          [familyId, canonicalId]
+        );
+        if (tpl.rows.length === 0) continue;
+        assert.equal(
+          tpl.rows[0].duration_seconds,
+          null,
+          `expected no activity-level timer for ${canonicalId}`
+        );
+        const timedSubsteps = await db.query(
+          `SELECT name, duration_seconds FROM activity_sub_step
+           WHERE activity_template_id = $1 AND duration_seconds IS NOT NULL`,
+          [tpl.rows[0].id]
+        );
+        assert.equal(
+          timedSubsteps.rows.length,
+          0,
+          `expected no substep timers for ${canonicalId}, got ${JSON.stringify(timedSubsteps.rows)}`
+        );
+      }
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
