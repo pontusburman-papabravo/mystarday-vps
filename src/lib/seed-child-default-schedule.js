@@ -5,7 +5,6 @@ const {
   LEGACY_SCHEDULE_NAME_TO_CANONICAL,
   CanonicalCopyError,
   CANONICAL_SCHEDULE_NOT_FOUND,
-  CANONICAL_SOURCE_INVALID,
 } = require('./canonical-library-runtime');
 const { getFamilyLocale } = require('./onboarding-locale');
 
@@ -81,10 +80,7 @@ async function seedChildDefaultSchedule({ childId, familyId, birthday }) {
     return { seeded: true, defaultScheduleName };
   } catch (err) {
     await client.query('ROLLBACK');
-    if (
-      err instanceof CanonicalCopyError
-      && (err.code === CANONICAL_SCHEDULE_NOT_FOUND || err.code === CANONICAL_SOURCE_INVALID)
-    ) {
+    if (err instanceof CanonicalCopyError && err.code === CANONICAL_SCHEDULE_NOT_FOUND) {
       return { seeded: false, defaultScheduleName };
     }
     throw err;

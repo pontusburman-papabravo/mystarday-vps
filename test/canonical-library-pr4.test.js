@@ -242,6 +242,58 @@ describe('canonical library PR4 — consolidated creation flows', () => {
     }
   });
 
+  test('seedChildDefaultSchedule returns seeded:false only for missing canonical schedule row', async (t) => {
+    if (!seeded || !seedChildDefaultSchedule) {
+      t.skip('Canonical library not seeded');
+      return;
+    }
+
+    const preschoolId = await findScheduleIdByCanonical(db, 'preschool_weekday');
+    assert.ok(preschoolId);
+    await db.query(`UPDATE default_schedule SET canonical_id = NULL WHERE id = $1`, [preschoolId]);
+    try {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const result = await seedChildDefaultSchedule({
+        childId,
+        familyId,
+        birthday: '2022-01-01',
+      });
+      assert.equal(result.seeded, false);
+      assert.equal(result.defaultScheduleName, 'Förskola vardag');
+    } finally {
+      await db.query(
+        `UPDATE default_schedule SET canonical_id = 'preschool_weekday' WHERE id = $1`,
+        [preschoolId]
+      );
+    }
+  });
+
+  test('seedChildDefaultSchedule throws on duplicate canonical schedule identity (not silent success)', async (t) => {
+    if (!seeded || !seedChildDefaultSchedule) {
+      t.skip('Canonical library not seeded');
+      return;
+    }
+
+    const preschoolId = await findScheduleIdByCanonical(db, 'preschool_weekday');
+    assert.ok(preschoolId);
+    await db.query(
+      `INSERT INTO default_schedule (name, canonical_id, sort_order)
+       VALUES ('Duplicate preschool seed', 'preschool_weekday', 998)`
+    );
+    try {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      await assert.rejects(
+        () => seedChildDefaultSchedule({ childId, familyId, birthday: '2019-01-01' }),
+        (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_DUPLICATE_IDENTITY
+      );
+    } finally {
+      await db.query(
+        `DELETE FROM default_schedule WHERE name = 'Duplicate preschool seed' AND id != $1`,
+        [preschoolId]
+      );
+    }
+  });
+
   describe('legacy schedule label input adapter (compatibility boundary)', () => {
     it('A: known legacy schedule label resolves to canonical_id', () => {
       assert.equal(
