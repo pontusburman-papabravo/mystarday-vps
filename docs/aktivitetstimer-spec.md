@@ -32,7 +32,7 @@ Förälder vill säga *"borsta tänder i 2 minuter"* (eller 45 sekunder) och bar
 | Paus | **V2:** Pausa/Fortsätt fryser `paused_remaining_seconds`. Stopp → IDLE. Börja om → ny `running`. |
 | Helskärm | **V2:** Start öppnar overlay; kryss stänger bara vyn; timer fortsätter via `ends_at`. |
 | Stopp / Börja om | **V2:** Stopp → rensa session (IDLE). Börja om → ny `running` med full tid. |
-| Slut vid 0 | Stanna på `0:00`, **Färdig!** + **en** kort ton (≤500 ms) + lätt haptic — **ingen** upprepad alarm-loop |
+| Slut vid 0 | Stanna på `0:00`, **Färdig!** + **en** klockliknande klang (~2,5 s) + lätt haptic — **ingen** upprepad alarm-loop |
 | Klar före 0 | Avsluta utan slutsignal; **rensa session** (se nedan) |
 | Blockerar inte | Ingen modal; **Klar** alltid tillgänglig (nödutgång) |
 | Minsta tid | **5 sekunder** (`duration_seconds >= 5`) |
@@ -143,7 +143,7 @@ duration_seconds    (snapshot vid start — pågående session påverkas inte av
 status              idle | running | finished
 started_at          (ISO 8601, null om ej startad)
 ended_at            (ISO 8601, när 0 nåtts)
-end_sound_played    (boolean — ljud max en gång per session)
+end_sound_played    (boolean — slutljud max en gång per session; ingen replay vid reload)
 ```
 
 Vid **Klar** (före eller efter 0): session **tas bort** helt (`localStorage.removeItem`) — ingen `cancelled_at`.
@@ -170,7 +170,7 @@ Spara `started_at` + `duration_seconds` + `status: running` i `localStorage`.
 
 `remaining = duration_seconds - (now - started_at)` i verklig tid.
 
-- Om `remaining <= 0` → **FINISHED** (0:00, slutljud max en gång per session).  
+- Om `remaining <= 0` → **FINISHED** (0:00, klockliknande slutljud ~2,5 s max en gång per session via `end_sound_played`).  
 - Om aktiviteten är **klar** i API → rensa session (se Klar nedan).
 
 ### När **Klar** trycks (normativt) ⭐
@@ -227,6 +227,8 @@ DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
 
 ## Vid 0:00
 
+> **Superseded (aug 2026):** Tidigare V2-utkast nämnde ≤480 ms / kort sinus-ton. Gällande frysning: ~2,5 s klockliknande slutljud enligt tabellen nedan.
+
 ```
       ◜⏳◝
        0:00
@@ -238,9 +240,10 @@ DONE_EARLY    session BORTTAGEN   FINISHED   ended_at, 0:00, Färdig!
 ```
 
 - **Aldrig** negativ tid.  
-- **Ljud (normativt V2):** max **480 ms**, **låg volym**, **en sinus-ton**, spelas **en gång** per session via `end_sound_played` — aldrig upprepas vid re-render eller reload. `prefers-reduced-motion` → hoppa över visuell burst, behåll valfri tyst haptic.  
-- **Haptic:** lätt (light) vid 0 — en gång.  
-- **Visuell celebration:** kort, dismissible tap-to-close (≈2.5 s), ingen blink/puls/skakning.  
+- **Ljud (normativt V2, frysning aug 2026):** **klockliknande / ringing-clock** — tydlig nog att märkas, **ca 2,5 sekunders** total hörbar envelope (`FINISH_BELL_MS = 2500`), deterministisk flerpartials-klang (ingen `setInterval`-loop). Spelas **exakt en gång** vid naturlig noll via `end_sound_played`. **Aldrig** upprepad alarm-loop eller återkommande 15-sekundersalarm. Ingen replay vid re-render/reload när `end_sound_played=true`. **Inget** slutljud vid **Klar före 0**. `prefers-reduced-motion` → hoppa över visuell burst; **behåll** ljud + lätt haptic.  
+- **Haptic:** lätt (light) vid naturlig noll — **en gång**; aldrig upprepad.  
+- **Naturlig noll:** stannar på 0:00 / **Färdig!**; **ingen** auto-completion — explicit **Klar** krävs (`toggleItem` / `toggleSubStep`).  
+- **Visuell celebration:** kort, dismissible tap-to-close (≈2,5 s), ingen blink/puls/skakning.  
 - **Klar** är visuellt primär; **Starta igen** sekundär (textlänk, inte lika stor knapp).
 
 **Klar före 0:** **ta bort** `localStorage`-session, inget ljud, ingen Färdig!.
@@ -320,7 +323,7 @@ Ingen server-side timer-state.
 | `localStorage` + `daily_log_item_id` | `sessionStorage`, nyckel på `activity_id` |
 | Klar rensar session | Timer kvar efter Klar |
 | Progress-ring töms medurs | ~~Paus~~ (V2 har paus) |
-| Ljudspec ≤500 ms, en ton | Push/larm, upprepad alarm-loop |
+| Slutljud ~2,5 s, klockliknande, en gång | Push/larm, upprepad alarm-loop, 15 s-alarm |
 | Starta igen (sekundär) | Auto-start vid NU |
 | Ersätter inte `visual_timer` | Schema-cirkel oförändrad |
 
@@ -333,7 +336,7 @@ Ingen server-side timer-state.
 3. 45 s → barn ser `0:45` + Start.  
 4. Start → knapp borta direkt; dubbeltryck = en session.  
 5. Lås skärm 30 s under 2-min timer → korrekt återstående (verklig tid).  
-6. 0:00 → Färdig! + ljud en gång (≤500 ms); aldrig negativ tid.  
+6. 0:00 → Färdig! + klockliknande slutljud en gång (~2,5 s); aldrig negativ tid; **ingen** auto-completion.  
 7. **Klar** vid 1:30 → inget ljud; **localStorage-session borta**; reload visar ingen pågående timer.  
 8. Förälder ändrar duration under RUNNING → pågående oförändrad.  
 9. Aktivitet försvinner från NU → session rensad.  
@@ -358,7 +361,8 @@ Ingen server-side timer-state.
 | Klockändring | Systemklocka; hjälpmedel, inte exakt |
 | Pictogram | `wait` / `timer_*`; emoji ⏳ fallback |
 | Ring | Töms medurs |
-| Ljud | ≤500 ms, låg volym, en ton, en gång |
+| Ljud | ~2,5 s, klockliknande, låg volym, en gång (`FINISH_BELL_MS`) |
+| Haptic vid 0 | Lätt, en gång |
 | Reduced motion | Ingen kontinuerlig animation; 1 Hz diskret OK |
 | Klar före 0 | Rensa session — ingen `cancelled_at` |
 
