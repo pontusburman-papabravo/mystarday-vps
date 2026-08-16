@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily database backup timer (03:15 local)
+Documentation=file:__APP_ROOT__/docs/runbooks/BACKUP-RESTORE-RUNBOOK.md
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+Unit=app-db-backup.service
+
+[Install]
+WantedBy=timers.target
