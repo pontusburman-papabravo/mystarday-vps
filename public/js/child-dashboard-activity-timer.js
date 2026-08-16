@@ -132,18 +132,43 @@
     } catch { /* ignore */ }
   }
 
+  function onTimerForeground() {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+    syncScreenWakeLock();
+    if (typeof global.ChildActivityTimer !== 'undefined'
+      && typeof global.ChildActivityTimer.tickAll === 'function') {
+      global.ChildActivityTimer.tickAll();
+    }
+  }
+
+  function bindCapacitorTimerResume() {
+    if (typeof global.Capacitor === 'undefined' || !global.Capacitor
+      || typeof global.Capacitor.isNativePlatform !== 'function'
+      || !global.Capacitor.isNativePlatform()) {
+      return;
+    }
+    const App = global.Capacitor.Plugins && global.Capacitor.Plugins.App;
+    if (!App || typeof App.addListener !== 'function') return;
+    try {
+      const handle = App.addListener('appStateChange', function (state) {
+        if (state && state.isActive) onTimerForeground();
+      });
+      if (handle && typeof handle.then === 'function') {
+        handle.catch(function () { /* ignore */ });
+      }
+    } catch { /* ignore */ }
+  }
+
   function bindWakeLockLifecycle() {
     if (_wakeLockBound || typeof document === 'undefined') return;
     _wakeLockBound = true;
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible') {
-        syncScreenWakeLock();
-        if (typeof global.ChildActivityTimer !== 'undefined'
-          && typeof global.ChildActivityTimer.tickAll === 'function') {
-          global.ChildActivityTimer.tickAll();
-        }
-      }
+      if (document.visibilityState === 'visible') onTimerForeground();
     });
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('pageshow', onTimerForeground);
+    }
+    bindCapacitorTimerResume();
   }
 
   function syncScreenWakeLock() {
@@ -282,8 +307,14 @@
     return renderTimerWrap(itemId, step.id, st, true);
   }
 
-  const FINISH_CHIME_MS = 480;
+  const FINISH_BELL_MS = 2500;
   const FINISH_VISUAL_MS = 2500;
+  const FINISH_BELL_PARTIALS = [
+    { freq: 523.25, gain: 1.0, decaySec: 2.35, delaySec: 0 },
+    { freq: 659.25, gain: 0.55, decaySec: 2.05, delaySec: 0.01 },
+    { freq: 783.99, gain: 0.35, decaySec: 1.75, delaySec: 0.018 },
+    { freq: 1046.5, gain: 0.22, decaySec: 1.45, delaySec: 0.026 },
+  ];
   let _finishCelebrationActive = false;
   let _finishCelebrationEndTimer = null;
   let _finishCelebrationLayer = null;
@@ -298,34 +329,39 @@
     } catch { /* ignore */ }
   }
 
-  /** One short, low-volume finish tone (≤500 ms). Never loops. */
+  /** One bell-like finish (~2.5 s). Deterministic partials — never loops. */
   function playFinishChime() {
     try {
       const Ctx = global.AudioContext || global.webkitAudioContext;
       if (!Ctx) return;
       const ctx = new Ctx();
-      const peak = 0.14;
-      const startTone = function () {
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now);
-        g.gain.setValueAtTime(0.001, now);
-        g.gain.linearRampToValueAtTime(peak, now + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
-        osc.connect(g);
-        g.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + FINISH_CHIME_MS / 1000);
+      const peak = 0.12;
+      const startBell = function () {
+        const t0 = ctx.currentTime;
+        FINISH_BELL_PARTIALS.forEach(function (partial) {
+          const osc = ctx.createOscillator();
+          const g = ctx.createGain();
+          const start = t0 + partial.delaySec;
+          const attackEnd = start + 0.018;
+          const end = start + partial.decaySec;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(partial.freq, start);
+          g.gain.setValueAtTime(0.001, start);
+          g.gain.linearRampToValueAtTime(peak * partial.gain, attackEnd);
+          g.gain.exponentialRampToValueAtTime(0.001, end);
+          osc.connect(g);
+          g.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(end + 0.04);
+        });
         window.setTimeout(function () {
           try { ctx.close(); } catch { /* ignore */ }
-        }, FINISH_CHIME_MS + 80);
+        }, FINISH_BELL_MS + 120);
       };
       if (ctx.state === 'suspended' && ctx.resume) {
-        ctx.resume().then(startTone).catch(function () { ctx.close(); });
+        ctx.resume().then(startBell).catch(function () { ctx.close(); });
       } else {
-        startTone();
+        startBell();
       }
     } catch { /* ignore */ }
   }
@@ -798,10 +834,11 @@
     if (global.ActivityHourglassUI) ActivityHourglassUI.preload();
     wireDelegation();
     ensureOverlay();
-    const timed = (items || []).filter(itemHasTimer);
-    const ids = timed.map(function (i) { return i.id; });
     if (me && currentDate && global.ActivityTimerSession) {
-      ActivityTimerSession.pruneSessions(me.id, currentDate, ids);
+      const activeDailyLogItemIds = (items || [])
+        .map(function (i) { return i && i.id; })
+        .filter(Boolean);
+      ActivityTimerSession.pruneSessions(me.id, currentDate, activeDailyLogItemIds);
     }
     if (_tickInterval) clearInterval(_tickInterval);
     _tickInterval = setInterval(tickAll, 1000);
