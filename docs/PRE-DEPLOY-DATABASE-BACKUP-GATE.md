@@ -116,16 +116,17 @@ Run rehearsal:
 
 ---
 
-## Retention (policy — no aggressive auto-delete in gate)
+## Retention (policy — automated after verified daily backup)
 
-- Keep last **N** verified backups (recommend N ≥ 7 on VPS)  
-- Keep daily backups **30** days where disk allows  
-- **Never** delete the only verified backup  
-- Prune only after a **new** backup passes `pg_restore --list` + checksum  
-- Log deleted filenames  
-- Mark incident backups (manual) — exclude from auto-prune  
+- Daily backups: **30 days** (`app-daily-*`)
+- Pre-deploy: keep at least **7**; prune older than **30 days** when safe (`app-predeploy-*` and legacy `predeploy_*`)
+- **Never** delete the only verified backup
+- Prune only after a **new verified daily backup** (or manual `prune-backups.mjs --apply`)
+- Log deleted filenames; mark incident backups (`incident_*`, `manual_keep_*`) — exclude from auto-prune
 
-Pre-deploy gate checks **free disk** before `pg_dump`; it does **not** auto-prune.
+Daily backup: `scripts/ops/daily-db-backup.mjs` via `app-db-backup.timer` (03:15). Runbook: `docs/runbooks/BACKUP-RESTORE-RUNBOOK.md`.
+
+Pre-deploy gate checks **free disk** before `pg_dump`; it does **not** auto-prune during deploy.
 
 ---
 
@@ -206,4 +207,4 @@ PostgreSQL runs under `env -i` with fixed `PATH=/usr/bin:/bin`, `HOME=/var/lib/p
 | Migrate | Yes (after gate) | — |
 | Post snapshot compare | Yes | — |
 | Full restore rehearsal | No | Required before major releases |
-| Retention pruning | No | Ops cron (documented) |
+| Retention pruning | After verified daily backup | Manual dry-run: `prune-backups.mjs` |

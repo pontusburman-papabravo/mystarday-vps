@@ -89,4 +89,21 @@ ENV
 chmod 640 "$OPS_ENV"
 chown root:"$APP_GROUP" "$OPS_ENV"
 
+SYSTEMD_SRC="${REPO_ROOT}/ops/systemd"
+APP_ROOT="$(cd "$(dirname "$APP_ENV")" && pwd)"
+if [ -d "$SYSTEMD_SRC" ]; then
+  for unit in app-db-backup.service app-db-backup.timer \
+    app-weekly-restore-test.service app-weekly-restore-test.timer; do
+    if [ -f "${SYSTEMD_SRC}/${unit}" ]; then
+      sed "s|__APP_ROOT__|${APP_ROOT}|g" "${SYSTEMD_SRC}/${unit}" \
+        >"/etc/systemd/system/${unit}"
+      chmod 0644 "/etc/systemd/system/${unit}"
+    fi
+  done
+  systemctl daemon-reload
+  systemctl enable app-db-backup.timer app-weekly-restore-test.timer 2>/dev/null || true
+  echo "install-vps-ops-environment: systemd timers installed and enabled (not started)" >&2
+  echo "install-vps-ops-environment: follow docs/runbooks/BACKUP-RESTORE-RUNBOOK.md before systemctl start" >&2
+fi
+
 echo "install-vps-ops-environment: OK (sudo disposable-db only; no DATABASE_ADMIN_URL)" >&2

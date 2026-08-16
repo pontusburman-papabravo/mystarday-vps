@@ -1,0 +1,18 @@
+[Unit]
+Description=Daily database backup and restore verification
+Documentation=file:__APP_ROOT__/docs/runbooks/BACKUP-RESTORE-RUNBOOK.md
+After=postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+WorkingDirectory=__APP_ROOT__
+EnvironmentFile=-/etc/deploy-ops/deploy-ops.env
+EnvironmentFile=-__APP_ROOT__/.env
+ExecStart=/usr/bin/node __APP_ROOT__/scripts/ops/daily-db-backup.mjs
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

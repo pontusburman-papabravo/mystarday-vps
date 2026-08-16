@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly historical backup restore test (Sunday 04:30)
+Documentation=file:__APP_ROOT__/docs/runbooks/BACKUP-RESTORE-RUNBOOK.md
+
+[Timer]
+OnCalendar=Sun *-*-* 04:30:00
+Persistent=true
+Unit=app-weekly-restore-test.service
+
+[Install]
+WantedBy=timers.target

@@ -1,18 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
-import { execFileSync, spawnSync } from 'node:child_process';
 import pg from 'pg';
 import { databaseIdentityHash, parseDatabaseUrlSafe, sanitizeIdentityForLog } from './database-identity.mjs';
 import { captureDbIntegritySnapshot } from './db-integrity-snapshot-core.mjs';
-import { BACKUP_ARCHIVE_REQUIRED_TABLES } from './snapshot-tables.mjs';
 import { readEmergencyOverrideMarker, logEmergencyOverride } from './emergency-override.mjs';
 import {
   assertBackupToolchain,
   assertBackupDirectorySafe,
   assertWritableDirectory,
 } from './backup-prerequisites.mjs';
+import { createDatabaseBackup, withBackupLock } from './db-backup-core.mjs';
 
 const { Pool } = pg;
 const require = createRequire(import.meta.url);
@@ -29,7 +27,7 @@ export function assertBackupPolicy(env = process.env) {
   }
   const prodDeploy = isProductionDeployMode(env);
   if (!prodDeploy) {
-    return { productionDeploy: false, skipGate: env.BACKUP_REQUIRED !== '1' };
+    return { prodDeploy: false, skipGate: env.BACKUP_REQUIRED !== '1' };
   }
   if (env.BACKUP_REQUIRED !== '1') {
     throw new Error('BACKUP_REQUIRED=1 is mandatory for prod deploy');
@@ -43,7 +41,7 @@ export function assertBackupPolicy(env = process.env) {
   if (!env.PROD_MIN_DATABASE_BYTES) {
     throw new Error('PROD_MIN_DATABASE_BYTES must be set for prod backup gate');
   }
-  return { productionDeploy: true, skipGate: false };
+  return { prodDeploy: true, skipGate: false };
 }
 
 export function isBlockedProductionDatabaseName(dbName) {
@@ -105,46 +103,6 @@ async function validatePreBackupGuards(databaseUrl, snapshot, env) {
   }
 
   return { database: id.database };
-}
-
-function ensureDirSecure(dirPath) {
-  fs.mkdirSync(dirPath, { recursive: true, mode: 0o700 });
-  const stat = fs.statSync(dirPath);
-  if ((stat.mode & 0o077) !== 0) {
-    throw new Error('BACKUP_DIR_INSECURE_PERMISSIONS');
-  }
-}
-
-function checkDiskSpace(dirPath, requiredBytes) {
-  try {
-    const out = execFileSync('df', ['-B1', dirPath], { encoding: 'utf8' });
-    const line = out.trim().split('\n').pop();
-    const parts = line.split(/\s+/);
-    const available = Number(parts[3]);
-    if (!Number.isFinite(available) || available < requiredBytes) {
-      throw new Error('INSUFFICIENT_DISK_SPACE');
-    }
-  } catch (err) {
-    if (err.message === 'INSUFFICIENT_DISK_SPACE') throw err;
-    throw new Error('DISK_CHECK_FAILED');
-  }
-}
-
-function sha256File(filePath) {
-  const hash = crypto.createHash('sha256');
-  hash.update(fs.readFileSync(filePath));
-  return hash.digest('hex');
-}
-
-function verifyPgRestoreList(dumpPath, requiredTables) {
-  const list = execFileSync('pg_restore', ['--list', dumpPath], { encoding: 'utf8' });
-  for (const table of requiredTables) {
-    const pattern = new RegExp(`TABLE DATA public ${table}\\b`);
-    if (!pattern.test(list)) {
-      throw new Error(`BACKUP_MISSING_TABLE:${table}`);
-    }
-  }
-  return list.split('\n').filter(Boolean).length;
 }
 
 function listPendingMigrations(repoRoot) {
@@ -216,71 +174,32 @@ export async function runPreDeployBackupGate(opts) {
   const folderMigrations = listPendingMigrations(repoRoot);
   const pending = folderMigrations.filter((name) => !applied.includes(name));
 
-  ensureDirSecure(backupDir);
-  const ts = new Date().toISOString().replace(/[:.]/g, '-');
-  const baseName = `predeploy_${ts}_${deploySha.slice(0, 12)}`;
-  const dumpPath = path.join(backupDir, `${baseName}.dump`);
-  const metaPath = path.join(backupDir, `${baseName}.meta.json`);
+  return withBackupLock(
+    backupDir,
+    async () => {
+      const result = await createDatabaseBackup({
+        type: 'predeploy',
+        databaseUrl,
+        backupDir,
+        deploySha,
+        repoRoot,
+        snapshot,
+        pendingMigrations: pending,
+        appliedMigrationsCount: applied.length,
+        env,
+      });
 
-  const identity = sanitizeIdentityForLog(databaseUrl);
-  const minFree = Number(env.BACKUP_MIN_FREE_BYTES || 2_000_000_000);
-  checkDiskSpace(backupDir, minFree);
-
-  const pgDump = spawnSync(
-    'pg_dump',
-    ['-Fc', '-f', dumpPath, '--no-owner', '--no-acl', databaseUrl],
-    { encoding: 'utf8' }
+      return {
+        skipped: false,
+        dumpPath: result.dumpPath,
+        metaPath: result.metaPath,
+        metadata: result.metadata,
+        snapshot,
+        pendingMigrations: pending,
+      };
+    },
+    'predeploy'
   );
-  if (pgDump.status !== 0) {
-    throw new Error(`PG_DUMP_FAILED:${pgDump.stderr || pgDump.stdout}`);
-  }
-  if (!fs.existsSync(dumpPath)) throw new Error('BACKUP_FILE_MISSING');
-  const stat = fs.statSync(dumpPath);
-  if (stat.size === 0) throw new Error('BACKUP_FILE_EMPTY');
-
-  const checksum = sha256File(dumpPath);
-  const archiveEntries = verifyPgRestoreList(dumpPath, BACKUP_ARCHIVE_REQUIRED_TABLES);
-
-  let pgVersion = 'unknown';
-  try {
-    pgVersion = execFileSync('psql', [databaseUrl, '-tAc', 'SHOW server_version'], {
-      encoding: 'utf8',
-    }).trim();
-  } catch {
-    pgVersion = 'unknown';
-  }
-
-  const metadata = {
-    version: 1,
-    created_at_utc: new Date().toISOString(),
-    deploy_candidate_sha: deploySha,
-    git_sha_at_backup: deploySha,
-    database_identity: identity,
-    postgres_server_version: pgVersion,
-    database_size_bytes: snapshot.database_size_bytes,
-    backup_file_bytes: stat.size,
-    backup_file_sha256: checksum,
-    backup_file_path: dumpPath,
-    pg_restore_list_entries: archiveEntries,
-    applied_migrations_count: applied.length,
-    pending_migrations: pending,
-    pre_backup_snapshot_label: snapshot.label,
-    family_row_count: snapshot.tables?.family?.row_count ?? null,
-  };
-
-  fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2), { mode: 0o600 });
-  try {
-    fs.chmodSync(dumpPath, 0o600);
-  } catch {
-    // best effort on some filesystems
-  }
-
-  return {
-    skipped: false,
-    dumpPath,
-    metaPath,
-    metadata,
-    snapshot,
-    pendingMigrations: pending,
-  };
 }
+
+export { sanitizeIdentityForLog };
