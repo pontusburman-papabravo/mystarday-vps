@@ -197,4 +197,12 @@ describe('Activity Timer × Standard Library cross-contract', () => {
     assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-08-04', 'log-item-a'), 120), 'paused');
     assert.equal(ATS.resolveStatus(ATS.getSession('c1', '2026-08-04', 'log-item-b'), 120), 'running');
   });
+
+  test('cleanup', async (t) => {
+    if (!db) {
+      t.skip('No db');
+      return;
+    }
+    await db.cleanup();
+  });
 });
