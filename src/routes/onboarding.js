@@ -37,6 +37,10 @@ const {
 } = require('../lib/onboarding-locale');
 const { t } = require('../lib/i18n');
 const { getStarterPlanDisplayName } = require('../../config/starter-plan-meta');
+const {
+  copyStandardScheduleToChild,
+  mapCanonicalCopyErrorToHttp,
+} = require('../lib/canonical-library-runtime');
 
 const router = express.Router();
 router.use(requireParent);
@@ -328,7 +332,99 @@ router.post('/schedule', async (req, res) => {
       return sendOnboardingError(res, 403, lang, 'NO_CHILD_ACCESS');
     }
     const familyId = childAccess.family_id;
+    const hasCustomItems = Array.isArray(custom_items) && custom_items.length > 0;
 
+    if (!hasCustomItems) {
+      const client = await db.getClient();
+      let schedulesCreated = 0;
+      try {
+        await client.query('BEGIN');
+        await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [child_id]);
+
+        const beforeCount = await client.query(
+          'SELECT COUNT(*)::int AS count FROM weekly_schedule WHERE child_id = $1',
+          [child_id]
+        );
+
+        const callerVariants = req.body.variants && typeof req.body.variants === 'object'
+          ? req.body.variants
+          : null;
+        const daysToSeed = SCHOOL_GROUPS.has(template_group) ? WEEKDAYS : ALL_DAYS;
+        await copyStandardScheduleToChild(client, {
+          familyId,
+          childId: child_id,
+          days: daysToSeed,
+          overwrite: true,
+          locale: lang,
+          templateGroup: template_group,
+          callerVariants,
+          allowNonInteractiveAfterSchoolDefault: template_group === 'skola' && !callerVariants?.after_school,
+          externalTransaction: true,
+        });
+
+        const afterCount = await client.query(
+          'SELECT COUNT(*)::int AS count FROM weekly_schedule WHERE child_id = $1',
+          [child_id]
+        );
+        schedulesCreated = Math.max(0, afterCount.rows[0].count - beforeCount.rows[0].count);
+
+        await client.query('COMMIT');
+
+        try {
+          const childInfo = await db.query('SELECT timezone FROM child WHERE id = $1', [child_id]);
+          const tz = childInfo.rows[0]?.timezone || 'Europe/Stockholm';
+          const todayDow = new Date().toLocaleDateString('en-US', { timeZone: tz, weekday: 'short' });
+          const dowMap = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+          await syncDailyLogWithSchedule(child_id, dowMap[todayDow]);
+        } catch (dlErr) {
+          console.error('[ONBOARDING] Daily log sync after schedule change failed:', dlErr.message);
+        }
+
+        const { recordActivationMilestone } = require('../lib/activation-p0');
+        let schemaNewlyRecorded = false;
+        try {
+          const schemaResult = await recordActivationMilestone(req.user.familyId, 'schema_saved', {
+            metadata: {
+              template_group,
+              source: 'onboarding_schedule',
+              plan_edited_before_save: plan_edited_before_save === true,
+              activity_count: Number.isFinite(Number(activity_count)) ? Number(activity_count) : undefined,
+            },
+          });
+          schemaNewlyRecorded = schemaResult.newlyRecorded;
+        } catch (err) {
+          console.error('[ONBOARDING] activation schema_saved error:', err.message);
+        }
+
+        const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
+        await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
+          console.error('[ONBOARDING] mark onboarding complete after schema:', err.message);
+        });
+        require('../lib/journey/ingest').ingestMilestoneAsync({
+          familyId,
+          milestone: 'routine_ready',
+        });
+
+        return res.json({
+          success: true,
+          schedules_created: schedulesCreated,
+          template_group,
+          weekdays_only: SCHOOL_GROUPS.has(template_group),
+          meta_milestones: schemaNewlyRecorded
+            ? { tutorial_completion: true, flow: 'manual' }
+            : {},
+        });
+      } catch (err) {
+        await client.query('ROLLBACK');
+        const mapped = mapCanonicalCopyErrorToHttp(err);
+        if (mapped) return res.status(mapped.status).json(mapped.body);
+        throw err;
+      } finally {
+        client.release();
+      }
+    }
+
+    // Legacy path: ACT-1 starter plans with edited custom_items (user snapshot, not pure canonical).
     // Map template_group key to default_schedule name (admin-maintained curated schedules)
     const GROUP_TO_SCHEDULE = {
       forskola: 'Förskola vardag',
@@ -602,147 +698,32 @@ router.post('/weekend-schedule', async (req, res) => {
     }
     const familyId = childAccess.family_id;
 
-    // Look up the "Helg" default schedule
-    const helgRow = await db.query(
-      `SELECT id FROM default_schedule WHERE name = 'Helg' LIMIT 1`
-    );
-    if (helgRow.rows.length === 0) {
-      return sendOnboardingError(res, 400, lang, 'WEEKEND_NOT_FOUND');
-    }
-    const helgSchedId = helgRow.rows[0].id;
-
-    // Fetch all items for the Helg schedule
-    const helgItems = await db.query(
-      `SELECT name, icon, section, star_value, sort_order, start_time, end_time, sub_steps
-       FROM default_schedule_item
-       WHERE default_schedule_id = $1
-       ORDER BY ${SECTION_ORDER_SQL}`,
-      [helgSchedId]
-    );
-    if (helgItems.rows.length === 0) {
-      return sendOnboardingError(res, 400, lang, 'WEEKEND_EMPTY');
-    }
-
     const client = await db.getClient();
     let schedulesCreated = 0;
     try {
       await client.query('BEGIN');
+      await client.query('SELECT id FROM child WHERE id = $1 FOR UPDATE', [child_id]);
 
-      // Ensure categories exist
-      const sectionToCategoryName = { morgon: 'Morgon', dag: 'Dag', kvall: 'Kväll', natt: 'Natt' };
-      const categorySortOrder = { morgon: 0, dag: 1, kvall: 2, natt: 3 };
-      const categoryMap = {};
-
-      const existingCats = await client.query(
-        'SELECT id, name FROM category WHERE family_id = $1',
-        [familyId]
+      const beforeCount = await client.query(
+        'SELECT COUNT(*)::int AS count FROM weekly_schedule WHERE child_id = $1 AND day_of_week IN (0, 6)',
+        [child_id]
       );
-      for (const ec of existingCats.rows) {
-        categoryMap[ec.name] = ec.id;
-      }
 
-      const sectionsUsed = [...new Set(helgItems.rows.map(r => r.section))];
-      for (const sec of sectionsUsed) {
-        const catName = sectionToCategoryName[sec] || 'Dag';
-        if (!categoryMap[catName]) {
-          const catResult = await client.query(
-            `INSERT INTO category (family_id, name, sort_order, is_default)
-             VALUES ($1, $2, $3, true) RETURNING id`,
-            [familyId, catName, categorySortOrder[sec] ?? 99]
-          );
-          categoryMap[catName] = catResult.rows[0].id;
-        }
-      }
+      await copyStandardScheduleToChild(client, {
+        familyId,
+        childId: child_id,
+        days: [0, 6],
+        overwrite: true,
+        locale: lang,
+        templateGroup: 'helg',
+        externalTransaction: true,
+      });
 
-      // Ensure activity_template records exist (upsert by name+family)
-      const templateMap = {};
-      for (const item of helgItems.rows) {
-        const catName = sectionToCategoryName[item.section] || 'Dag';
-        const catId = categoryMap[catName];
-
-        const existing = await client.query(
-          `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
-          [familyId, item.name]
-        );
-        if (existing.rows.length > 0) {
-          templateMap[item.name] = existing.rows[0].id;
-
-          // Backfill sub-steps if template exists but has none
-          const subSteps = item.sub_steps || [];
-          if (Array.isArray(subSteps) && subSteps.length > 0) {
-            const existingSubs = await client.query(
-              'SELECT COUNT(*) AS cnt FROM activity_sub_step WHERE activity_template_id = $1',
-              [existing.rows[0].id]
-            );
-            if (parseInt(existingSubs.rows[0].cnt, 10) === 0) {
-              for (let si = 0; si < subSteps.length; si++) {
-                await client.query(
-                  `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                   VALUES ($1, $2, $3, $4)`,
-                  [existing.rows[0].id, subSteps[si].name, subSteps[si].icon || null, si]
-                );
-              }
-            }
-          }
-        } else {
-          const inserted = await client.query(
-            `INSERT INTO activity_template (family_id, category_id, name, icon, star_value, sort_order, source)
-             VALUES ($1, $2, $3, $4, $5, $6, 'admin') RETURNING id`,
-            [familyId, catId, item.name, item.icon, item.star_value, item.sort_order]
-          );
-          const newTemplateId = inserted.rows[0].id;
-          templateMap[item.name] = newTemplateId;
-
-          const subSteps = item.sub_steps || [];
-          if (Array.isArray(subSteps) && subSteps.length > 0) {
-            for (let si = 0; si < subSteps.length; si++) {
-              await client.query(
-                `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                 VALUES ($1, $2, $3, $4)`,
-                [newTemplateId, subSteps[si].name, subSteps[si].icon || null, si]
-              );
-            }
-          }
-        }
-      }
-
-      // Create weekend schedule for Saturday (6) and Sunday (0)
-      const weekendDays = [0, 6]; // Sunday and Saturday
-      for (const dow of weekendDays) {
-        const existingSched = await client.query(
-          'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
-          [child_id, dow]
-        );
-
-        let scheduleId;
-        if (existingSched.rows.length > 0) {
-          scheduleId = existingSched.rows[0].id;
-          await client.query(
-            'DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1',
-            [scheduleId]
-          );
-        } else {
-          const schedResult = await client.query(
-            `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order)
-             VALUES ($1, $2, $3) RETURNING id`,
-            [child_id, dow, dow]
-          );
-          scheduleId = schedResult.rows[0].id;
-          schedulesCreated++;
-        }
-
-        let sortIdx = 0;
-        for (const item of helgItems.rows) {
-          const tplId = templateMap[item.name];
-          if (!tplId) continue;
-          await client.query(
-            `INSERT INTO weekly_schedule_item
-               (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [scheduleId, tplId, item.start_time || null, item.end_time || null, sortIdx++, item.section]
-          );
-        }
-      }
+      const afterCount = await client.query(
+        'SELECT COUNT(*)::int AS count FROM weekly_schedule WHERE child_id = $1 AND day_of_week IN (0, 6)',
+        [child_id]
+      );
+      schedulesCreated = Math.max(0, afterCount.rows[0].count - beforeCount.rows[0].count);
 
       await client.query('COMMIT');
 
@@ -763,6 +744,8 @@ router.post('/weekend-schedule', async (req, res) => {
       res.json({ success: true, schedules_created: schedulesCreated });
     } catch (err) {
       await client.query('ROLLBACK');
+      const mapped = mapCanonicalCopyErrorToHttp(err);
+      if (mapped) return res.status(mapped.status).json(mapped.body);
       throw err;
     } finally {
       client.release();

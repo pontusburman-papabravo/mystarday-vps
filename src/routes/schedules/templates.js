@@ -13,6 +13,13 @@ const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { CreateScheduleTemplateSchema } = require('../../lib/schemas');
 const { getChildAccess } = require('../../middleware/authz');
+const {
+  materializeStandardScheduleActivities,
+  mapCanonicalCopyErrorToHttp,
+  LEGACY_SCHEDULE_NAME_TO_CANONICAL,
+  NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
+} = require('../../lib/canonical-library-runtime');
+const { getFamilyLocale } = require('../../lib/onboarding-locale');
 
 const router = express.Router();
 router.use(requireParent);
@@ -107,20 +114,35 @@ router.post('/from-standard/:standardId', async (req, res) => {
 
     const familyId = req.user.familyId;
 
-    const schedResult = await db.query('SELECT id, name FROM default_schedule WHERE id = $1', [req.params.standardId]);
-    if (schedResult.rows.length === 0) return res.status(404).json({ error: 'Standardschemat hittades inte' });
-
-    const items = await db.query(
-      `SELECT dsi.name, dsi.icon, dsi.section, dsi.star_value, dsi.start_time, dsi.end_time, dsi.sort_order, dsi.sub_steps
-       FROM default_schedule_item dsi
-       WHERE dsi.default_schedule_id = $1
-       ORDER BY CASE dsi.section WHEN 'morgon' THEN 0 WHEN 'dag' THEN 1 WHEN 'kvall' THEN 2 ELSE 3 END, dsi.sort_order ASC`,
+    const schedResult = await db.query(
+      'SELECT id, name, canonical_id FROM default_schedule WHERE id = $1',
       [req.params.standardId]
     );
+    if (schedResult.rows.length === 0) return res.status(404).json({ error: 'Standardschemat hittades inte' });
 
+    const scheduleRow = schedResult.rows[0];
+    const canonicalScheduleId = scheduleRow.canonical_id
+      || LEGACY_SCHEDULE_NAME_TO_CANONICAL[scheduleRow.name]
+      || null;
+    if (!canonicalScheduleId) {
+      return res.status(400).json({ error: 'Standardschemat saknar canonical identitet.' });
+    }
+
+    const locale = await getFamilyLocale(familyId);
     const client = await db.getClient();
     try {
       await client.query('BEGIN');
+
+      const prepared = await materializeStandardScheduleActivities(client, {
+        familyId,
+        defaultScheduleId: scheduleRow.id,
+        canonicalScheduleId,
+        locale,
+        callerVariants: canonicalScheduleId === 'school_weekday'
+          ? { after_school: NON_INTERACTIVE_AFTER_SCHOOL_VARIANT }
+          : null,
+        allowNonInteractiveAfterSchoolDefault: canonicalScheduleId === 'school_weekday',
+      });
 
       const maxResult = await client.query(
         `SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_sort
@@ -129,7 +151,6 @@ router.post('/from-standard/:standardId', async (req, res) => {
       );
       const sortOrder = parseInt(maxResult.rows[0].next_sort, 10);
 
-      // day_of_week=0 is a placeholder for family-level templates (not tied to a specific day).
       const templateResult = await client.query(
         `INSERT INTO weekly_schedule (family_id, name, sort_order, day_of_week)
          VALUES ($1, $2, $3, 0)
@@ -138,52 +159,33 @@ router.post('/from-standard/:standardId', async (req, res) => {
       );
       const templateId = templateResult.rows[0].id;
 
-      for (const item of items.rows) {
-        let tplId = null;
-        const existing = await client.query(
-          `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
-          [familyId, item.name]
+      for (const item of prepared.filteredItems) {
+        const tplId = prepared.templateIdForItem(item);
+        if (!tplId) continue;
+        await client.query(
+          `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            templateId,
+            tplId,
+            item.start_time || null,
+            item.end_time || null,
+            item.sort_order || 0,
+            item.section || 'dag',
+          ]
         );
-
-        if (existing.rows.length > 0) {
-          tplId = existing.rows[0].id;
-        } else {
-          const newTpl = await client.query(
-            `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, source)
-             VALUES ($1, $2, $3, $4, false, $5, 'admin') RETURNING id`,
-            [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
-          );
-          tplId = newTpl.rows[0].id;
-
-          const subSteps = item.sub_steps || [];
-          if (Array.isArray(subSteps) && subSteps.length > 0) {
-            for (let i = 0; i < subSteps.length; i++) {
-              await client.query(
-                `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                 VALUES ($1, $2, $3, $4)`,
-                [tplId, subSteps[i].name, subSteps[i].icon || null, i]
-              );
-            }
-          }
-        }
-
-        if (tplId) {
-          await client.query(
-            `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [templateId, tplId, item.start_time || null, item.end_time || null, item.sort_order || 0, item.section || 'dag']
-          );
-        }
       }
 
       await client.query('COMMIT');
 
       res.status(201).json({
         ...templateResult.rows[0],
-        item_count: items.rows.length,
+        item_count: prepared.filteredItems.length,
       });
     } catch (err) {
       await client.query('ROLLBACK');
+      const mapped = mapCanonicalCopyErrorToHttp(err);
+      if (mapped) return res.status(mapped.status).json(mapped.body);
       throw err;
     } finally {
       client.release();

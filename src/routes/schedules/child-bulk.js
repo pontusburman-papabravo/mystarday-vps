@@ -12,6 +12,12 @@ const { syncDailyLogWithSchedule, syncDailyLogForSpecialDay } = require('../../l
 const { broadcast } = require('../../lib/sse-broadcast');
 const { validate } = require('../../middleware/validate');
 const { CopyDaySchema, CopyToChildSchema, ApplyDateRangeSchema } = require('../../lib/schemas');
+const {
+  materializeStandardScheduleActivities,
+  LEGACY_SCHEDULE_NAME_TO_CANONICAL,
+  NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
+} = require('../../lib/canonical-library-runtime');
+const { getFamilyLocale } = require('../../lib/onboarding-locale');
 
 const router = express.Router({ mergeParams: true });
 router.use(requireParent);
@@ -643,50 +649,35 @@ async function resolveCategoryDateRangeItems(client, familyId, categoryId) {
 
 async function resolveStandardScheduleDateRangeItems(client, familyId, standardScheduleId) {
   const scheduleResult = await client.query(
-    'SELECT id, name FROM default_schedule WHERE id = $1',
+    'SELECT id, name, canonical_id FROM default_schedule WHERE id = $1',
     [standardScheduleId]
   );
   if (!scheduleResult.rows.length) return null;
 
-  const items = await client.query(
-    `SELECT dsi.name, dsi.icon, dsi.section, dsi.star_value, dsi.start_time, dsi.end_time, dsi.sort_order, dsi.sub_steps
-     FROM default_schedule_item dsi
-     WHERE dsi.default_schedule_id = $1
-     ORDER BY CASE dsi.section WHEN 'morgon' THEN 0 WHEN 'dag' THEN 1 WHEN 'kvall' THEN 2 ELSE 3 END, dsi.sort_order ASC`,
-    [standardScheduleId]
-  );
-  if (!items.rows.length) return null;
+  const scheduleRow = scheduleResult.rows[0];
+  const canonicalScheduleId = scheduleRow.canonical_id
+    || LEGACY_SCHEDULE_NAME_TO_CANONICAL[scheduleRow.name]
+    || null;
+  if (!canonicalScheduleId) return null;
 
-  const resolved = [];
-  for (const item of items.rows) {
-    const existing = await client.query(
-      `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
-      [familyId, item.name]
-    );
+  const locale = await getFamilyLocale(familyId);
+  const prepared = await materializeStandardScheduleActivities(client, {
+    familyId,
+    defaultScheduleId: scheduleRow.id,
+    canonicalScheduleId,
+    locale,
+    callerVariants: canonicalScheduleId === 'school_weekday'
+      ? { after_school: NON_INTERACTIVE_AFTER_SCHOOL_VARIANT }
+      : null,
+    allowNonInteractiveAfterSchoolDefault: canonicalScheduleId === 'school_weekday',
+  });
 
-    let templateId;
-    if (existing.rows.length > 0) {
-      templateId = existing.rows[0].id;
-    } else {
-      const newTemplate = await client.query(
-        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, source)
-         VALUES ($1, $2, $3, $4, false, $5, 'admin') RETURNING id`,
-        [familyId, item.name, item.icon, item.star_value, item.sort_order || 0]
-      );
-      templateId = newTemplate.rows[0].id;
-      const subSteps = item.sub_steps || [];
-      if (Array.isArray(subSteps)) {
-        for (let i = 0; i < subSteps.length; i++) {
-          await client.query(
-            `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-             VALUES ($1, $2, $3, $4)`,
-            [templateId, subSteps[i].name, subSteps[i].icon || null, i]
-          );
-        }
-      }
-    }
+  if (!prepared.filteredItems.length) return null;
 
-    resolved.push({
+  return prepared.filteredItems.map((item) => {
+    const templateId = prepared.templateIdForItem(item);
+    if (!templateId) return null;
+    return {
       activity_template_id: templateId,
       name: item.name,
       icon: item.icon,
@@ -695,9 +686,8 @@ async function resolveStandardScheduleDateRangeItems(client, familyId, standardS
       end_time: item.end_time || null,
       sort_order: item.sort_order || 0,
       section: item.section || 'dag',
-    });
-  }
-  return resolved;
+    };
+  }).filter(Boolean);
 }
 
 async function resolveFamilyTemplateDateRangeItems(client, familyId, templateId) {
