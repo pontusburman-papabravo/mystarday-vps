@@ -282,9 +282,9 @@
     return renderTimerWrap(itemId, step.id, st, true);
   }
 
-  const FINISH_CELEBRATION_MS = 15000;
+  const FINISH_CHIME_MS = 480;
+  const FINISH_VISUAL_MS = 2500;
   let _finishCelebrationActive = false;
-  let _finishSoundInterval = null;
   let _finishCelebrationEndTimer = null;
   let _finishCelebrationLayer = null;
 
@@ -298,37 +298,29 @@
     } catch { /* ignore */ }
   }
 
-  function playEndChime(loud) {
+  /** One short, low-volume finish tone (≤500 ms). Never loops. */
+  function playFinishChime() {
     try {
       const Ctx = global.AudioContext || global.webkitAudioContext;
       if (!Ctx) return;
       const ctx = new Ctx();
-      const peak = loud ? 0.48 : 0.12;
-      const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
+      const peak = 0.14;
       const startTone = function () {
         const now = ctx.currentTime;
-        const master = ctx.createGain();
-        master.gain.setValueAtTime(peak, now);
-        master.gain.exponentialRampToValueAtTime(0.001, now + 1.05);
-        master.connect(ctx.destination);
-
-        notes.forEach(function (freq, i) {
-          const osc = ctx.createOscillator();
-          const g = ctx.createGain();
-          const t0 = now + i * 0.1;
-          osc.type = i % 2 === 0 ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(freq, t0);
-          g.gain.setValueAtTime(0.001, t0);
-          g.gain.linearRampToValueAtTime(0.85, t0 + 0.02);
-          g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.22);
-          osc.connect(g);
-          g.connect(master);
-          osc.start(t0);
-          osc.stop(t0 + 0.24);
-        });
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now);
+        g.gain.setValueAtTime(0.001, now);
+        g.gain.linearRampToValueAtTime(peak, now + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + FINISH_CHIME_MS / 1000);
         window.setTimeout(function () {
           try { ctx.close(); } catch { /* ignore */ }
-        }, 1200);
+        }, FINISH_CHIME_MS + 80);
       };
       if (ctx.state === 'suspended' && ctx.resume) {
         ctx.resume().then(startTone).catch(function () { ctx.close(); });
@@ -364,10 +356,6 @@
       _finishCelebrationLayer.hidden = true;
       _finishCelebrationLayer.classList.remove('activity-timer-celebration--on');
     }
-    if (_finishSoundInterval) {
-      clearInterval(_finishSoundInterval);
-      _finishSoundInterval = null;
-    }
     if (_finishCelebrationEndTimer) {
       clearTimeout(_finishCelebrationEndTimer);
       _finishCelebrationEndTimer = null;
@@ -375,22 +363,15 @@
   }
 
   function startFinishCelebration() {
-    if (reducedMotion()) {
-      playEndChime(true);
-      if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
-      return;
-    }
+    playFinishChime();
+    if (global.Platform && global.Platform.haptics) global.Platform.haptics.light();
+    if (reducedMotion()) return;
     stopFinishCelebration();
     _finishCelebrationActive = true;
     const layer = ensureFinishCelebrationLayer();
     layer.hidden = false;
     layer.classList.add('activity-timer-celebration--on');
-    playEndChime(true);
-    if (global.Platform && global.Platform.haptics) global.Platform.haptics.medium();
-    _finishSoundInterval = setInterval(function () {
-      playEndChime(true);
-    }, 1400);
-    _finishCelebrationEndTimer = setTimeout(stopFinishCelebration, FINISH_CELEBRATION_MS);
+    _finishCelebrationEndTimer = setTimeout(stopFinishCelebration, FINISH_VISUAL_MS);
   }
 
   function playFinishEffects() {
@@ -703,7 +684,11 @@
     closeOverlay();
     syncScreenWakeLock();
     if (subStepId) {
-      if (typeof global.renderSubStepList === 'function') renderSubStepList(itemId);
+      if (typeof global.toggleSubStep === 'function') {
+        global.toggleSubStep({ stopPropagation: function () {} }, itemId, subStepId, false);
+      } else if (typeof global.renderSubStepList === 'function') {
+        renderSubStepList(itemId);
+      }
       return;
     }
     const wrap = document.getElementById(wrapDomId(itemId, null));
