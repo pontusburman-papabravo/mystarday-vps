@@ -6,6 +6,7 @@ const {
   mergeCookies,
 } = require('./http.js');
 const { FLAG_KEYS } = require('../../src/lib/activation-flags');
+const { seedCanonicalLibrary } = require('./canonical-library-fixture.js');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -136,40 +137,27 @@ async function completeItemRaw(baseUrl, childCookies, csrfToken, itemId) {
   return { status: res.status, body: text ? JSON.parse(text) : null, text };
 }
 
-async function seedMinimalDefaultSchedule(db, scheduleName, itemName = 'Vakna') {
-  let defaultSched = await db.query('SELECT id FROM default_schedule WHERE name = $1', [scheduleName]);
-  if (defaultSched.rows.length === 0) {
-    const ins = await db.query(
-      `INSERT INTO default_schedule (name, sort_order) VALUES ($1, 0) RETURNING id`,
-      [scheduleName]
-    );
-    await db.query(
-      `INSERT INTO default_schedule_item
-         (default_schedule_id, name, icon, section, star_value, sort_order)
-       VALUES ($1, $2, '🛏️', 'morgon', 1, 0)`,
-      [ins.rows[0].id, itemName]
-    );
-    return ins.rows[0].id;
-  }
-  const items = await db.query(
-    'SELECT id FROM default_schedule_item WHERE default_schedule_id = $1 LIMIT 1',
-    [defaultSched.rows[0].id]
+async function ensureCanonicalStandardLibrary(db) {
+  const row = await db.query(
+    `SELECT COUNT(*)::int AS count FROM default_schedule WHERE canonical_id IS NOT NULL`
   );
-  if (items.rows.length === 0) {
-    await db.query(
-      `INSERT INTO default_schedule_item
-         (default_schedule_id, name, icon, section, star_value, sort_order)
-       VALUES ($1, $2, '🛏️', 'morgon', 1, 0)`,
-      [defaultSched.rows[0].id, itemName]
-    );
+  if (row.rows[0].count >= 8) return;
+  const client = await db.pool.connect();
+  try {
+    await seedCanonicalLibrary(client);
+  } finally {
+    client.release();
   }
-  return defaultSched.rows[0].id;
+}
+
+async function seedMinimalDefaultSchedule(db, scheduleName, itemName = 'Vakna') {
+  await ensureCanonicalStandardLibrary(db);
+  const defaultSched = await db.query('SELECT id FROM default_schedule WHERE name = $1 LIMIT 1', [scheduleName]);
+  return defaultSched.rows[0]?.id ?? null;
 }
 
 async function seedSchoolWeekdaySchedules(db) {
-  await seedMinimalDefaultSchedule(db, 'Förskola vardag', 'Vakna');
-  await seedMinimalDefaultSchedule(db, 'Skola vardag', 'Vakna skola');
-  await seedMinimalDefaultSchedule(db, 'Helg', 'Helg vakna');
+  await ensureCanonicalStandardLibrary(db);
 }
 
 async function familyIdByEmail(db, email) {
@@ -356,6 +344,7 @@ module.exports = {
   getDailyLog,
   completeItemRaw,
   seedMinimalDefaultSchedule,
+  ensureCanonicalStandardLibrary,
   seedSchoolWeekdaySchedules,
   familyIdByEmail,
   activationRow,

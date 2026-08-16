@@ -20,6 +20,7 @@ const { RegisterSchema } = require('../../lib/schemas');
 const { resolvePreAuthLocale } = require('../../lib/locale');
 const { resolveAuthApiLocale, authApiMessage } = require('../../lib/auth-api-messages');
 const { loadDefaultContent } = require('../../lib/default-content');
+const { seedFamilyStarterActivitiesFromCanonicalDb } = require('../../lib/standard-library-family-seed');
 const { lookupDefaultRewardIdForSeed } = require('../../lib/reward-provenance');
 const { t } = require('../../lib/i18n');
 const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection');
@@ -221,40 +222,53 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         categoryMap[cat.key] = catResult.rows[0].id;
       }
 
-      // Seed activities: admin DB templates (sv-SE only) or locale default content.
-      if (groupedActivities) {
-        for (const act of groupedActivities) {
-          const catId = categoryMap[act.grp];
-          if (!catId) continue;
-          const timeGroup = resolveTimeGroup(act.category_name);
-          const combinedSort = resolveTimeOffset(act.category_name) + (act.sort_order ?? 0);
-          const tplResult = await client.query(
-            'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, \'admin\') RETURNING id',
-            [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.grp, combinedSort]
-          );
+      // Seed activities: canonical DB snapshots (sv-SE) or locale default content fallback.
+      let activitiesSeededFromCanonical = false;
+      if (familyLocale === 'sv-SE') {
+        const canonicalCount = await client.query(
+          `SELECT COUNT(*)::int AS count FROM default_activity_template WHERE canonical_id IS NOT NULL`
+        );
+        if (canonicalCount.rows[0].count > 0) {
+          await seedFamilyStarterActivitiesFromCanonicalDb(client, familyId, categoryMap, familyLocale);
+          activitiesSeededFromCanonical = true;
+        }
+      }
 
-          // Create sub-steps from default_activity_template.sub_steps JSONB
-          const subSteps = act.sub_steps || [];
-          if (Array.isArray(subSteps) && subSteps.length > 0) {
-            for (let si = 0; si < subSteps.length; si++) {
-              await client.query(
-                `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-                 VALUES ($1, $2, $3, $4)`,
-                [tplResult.rows[0].id, subSteps[si].name, subSteps[si].icon || null, si]
-              );
+      if (!activitiesSeededFromCanonical) {
+        if (groupedActivities) {
+          for (const act of groupedActivities) {
+            const catId = categoryMap[act.grp];
+            if (!catId) continue;
+            const timeGroup = resolveTimeGroup(act.category_name);
+            const combinedSort = resolveTimeOffset(act.category_name) + (act.sort_order ?? 0);
+            const tplResult = await client.query(
+              'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, \'admin\') RETURNING id',
+              [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.grp, combinedSort]
+            );
+
+            // Create sub-steps from default_activity_template.sub_steps JSONB
+            const subSteps = act.sub_steps || [];
+            if (Array.isArray(subSteps) && subSteps.length > 0) {
+              for (let si = 0; si < subSteps.length; si++) {
+                await client.query(
+                  `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
+                   VALUES ($1, $2, $3, $4)`,
+                  [tplResult.rows[0].id, subSteps[si].name, subSteps[si].icon || null, si]
+                );
+              }
             }
           }
-        }
-      } else {
-        for (const act of defaultActivities) {
-          const catId = categoryMap[act.schema_type];
-          if (!catId) continue;
-          const timeGroup = resolveTimeGroup(act.category);
-          const combinedSort = resolveTimeOffset(act.category) + (act.sort_order ?? 0);
-          await client.query(
-            'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, \'admin\')',
-            [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.schema_type, combinedSort]
-          );
+        } else {
+          for (const act of defaultActivities) {
+            const catId = categoryMap[act.schema_type];
+            if (!catId) continue;
+            const timeGroup = resolveTimeGroup(act.category);
+            const combinedSort = resolveTimeOffset(act.category) + (act.sort_order ?? 0);
+            await client.query(
+              'INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source) VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8, \'admin\')',
+              [familyId, act.name, act.icon, catId, act.star_value, timeGroup, act.schema_type, combinedSort]
+            );
+          }
         }
       }
 

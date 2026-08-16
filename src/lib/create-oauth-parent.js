@@ -4,6 +4,7 @@ const db = require('./db');
 const { sendWelcomeEmail } = require('./welcome-mailer');
 const { registerContact } = require('./email');
 const { createNewsletterSubscription } = require('./newsletter-subscribe');
+const { seedFamilyStarterActivitiesFromCanonicalDb } = require('./standard-library-family-seed');
 
 const DEFAULT_ACTIVITIES = [
   { name: 'Vakna', icon: '🛏️', category: 'Morgon', star_value: 1, sort_order: 0, schema_type: 'forskola' },
@@ -50,6 +51,14 @@ async function seedDefaultActivities(client, familyId) {
       [familyId, cat.name, cat.sort_order]
     );
     categoryMap[cat.key] = catResult.rows[0].id;
+  }
+
+  const canonicalCount = await client.query(
+    `SELECT COUNT(*)::int AS count FROM default_activity_template WHERE canonical_id IS NOT NULL`
+  );
+  if (canonicalCount.rows[0].count > 0) {
+    await seedFamilyStarterActivitiesFromCanonicalDb(client, familyId, categoryMap, 'sv-SE');
+    return;
   }
 
   for (const act of DEFAULT_ACTIVITIES) {

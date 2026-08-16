@@ -433,6 +433,121 @@ async function loadCanonicalDefaultActivity(client, canonicalId, manifestIndex) 
   return row;
 }
 
+/**
+ * Validate canonical schedule source and materialize family activity snapshots.
+ * Caller owns transaction boundaries. Does not write weekly_schedule rows.
+ */
+async function prepareCanonicalScheduleFamilyActivities(client, options) {
+  const {
+    familyId,
+    defaultScheduleId = null,
+    canonicalScheduleId = null,
+    optionalSelections = null,
+    variants = null,
+    locale = 'sv-SE',
+    manifest = null,
+  } = options;
+
+  if (!familyId) {
+    throw new CanonicalCopyError(CANONICAL_SOURCE_INVALID, { reason: 'familyId required' });
+  }
+
+  const resolvedManifest = manifest || loadAndValidateStandardLibraryManifest();
+  const manifestIndex = buildManifestIndex(resolvedManifest);
+
+  const schedule = await loadCanonicalScheduleSource(client, {
+    defaultScheduleId,
+    canonicalScheduleId,
+  });
+  await validateCanonicalScheduleSource(client, schedule, manifestIndex);
+
+  const items = await loadCanonicalScheduleItems(client, schedule.id);
+  validateScheduleItems(items, manifestIndex);
+
+  const filteredItems = items.filter((item) => shouldIncludeOptionalItem(item, optionalSelections));
+
+  for (const item of filteredItems) {
+    resolveActivitySnapshot(item, { locale, variants });
+  }
+
+  const activityCache = new Map();
+  let activitiesCreated = 0;
+  for (const item of filteredItems) {
+    const { created } = await ensureFamilyActivityTemplate(client, {
+      familyId,
+      defaultActivity: item,
+      locale,
+      variants,
+      sortOrder: item.sort_order || 0,
+      activityCache,
+    });
+    if (created) activitiesCreated += 1;
+  }
+
+  function templateIdForItem(item) {
+    return activityCache.get(buildActivityCacheKey(item, { locale, variants }))?.templateId ?? null;
+  }
+
+  return {
+    schedule,
+    filteredItems,
+    activityCache,
+    activitiesCreated,
+    scheduleCanonicalId: schedule.canonical_id,
+    scheduleName: pickLocaleString(schedule.name_i18n, locale, schedule.name),
+    templateIdForItem,
+  };
+}
+
+async function copyCanonicalActivityFromDefaultId(client, options) {
+  const {
+    familyId,
+    defaultActivityId,
+    locale = 'sv-SE',
+    variants = null,
+    sortOrder = 0,
+    manifest = null,
+    externalTransaction = false,
+  } = options;
+
+  if (!familyId || !defaultActivityId) {
+    throw new CanonicalCopyError(CANONICAL_SOURCE_INVALID, {
+      reason: 'familyId and defaultActivityId required',
+    });
+  }
+
+  const row = await client.query(
+    `SELECT id, canonical_id FROM default_activity_template WHERE id = $1`,
+    [defaultActivityId]
+  );
+  if (row.rows.length === 0 || !row.rows[0].canonical_id) {
+    throw new CanonicalCopyError(CANONICAL_SOURCE_INVALID, {
+      reason: 'default activity missing canonical_id',
+      defaultActivityId,
+    });
+  }
+
+  return copyCanonicalDefaultActivityToFamily(client, {
+    familyId,
+    canonicalActivityId: row.rows[0].canonical_id,
+    locale,
+    variants,
+    sortOrder,
+    manifest,
+    externalTransaction,
+  });
+}
+
+async function familyHasCanonicalActivity(client, familyId, canonicalActivityId) {
+  const res = await client.query(
+    `SELECT id FROM activity_template
+     WHERE family_id = $1 AND source_canonical_id = $2
+     LIMIT 1`,
+    [familyId, canonicalActivityId]
+  );
+  return res.rows.length > 0;
+}
+
 async function copyCanonicalDefaultActivityToFamily(client, options) {
   const {
     familyId,
@@ -441,6 +556,7 @@ async function copyCanonicalDefaultActivityToFamily(client, options) {
     variants = null,
     sortOrder = 0,
     manifest = null,
+    externalTransaction = false,
   } = options;
 
   const resolvedManifest = manifest || loadAndValidateStandardLibraryManifest();
@@ -462,6 +578,19 @@ async function copyCanonicalDefaultActivityToFamily(client, options) {
     manifestIndex
   );
   resolveActivitySnapshot(defaultActivity, { locale, variants });
+
+  if (externalTransaction) {
+    const activityCache = new Map();
+    const { templateId, created } = await ensureFamilyActivityTemplate(client, {
+      familyId,
+      defaultActivity,
+      locale,
+      variants,
+      sortOrder,
+      activityCache,
+    });
+    return { ok: true, templateId, created, canonicalActivityId };
+  }
 
   await client.query('BEGIN');
   try {
@@ -500,6 +629,7 @@ async function copyCanonicalScheduleToFamily(client, options) {
     variants = null,
     locale = 'sv-SE',
     manifest = null,
+    externalTransaction = false,
   } = options;
 
   if (!familyId || !childId) {
@@ -514,42 +644,8 @@ async function copyCanonicalScheduleToFamily(client, options) {
     throw new CanonicalCopyError(CANONICAL_SOURCE_INVALID, { reason: 'no valid days' });
   }
 
-  const resolvedManifest = manifest || loadAndValidateStandardLibraryManifest();
-  const manifestIndex = buildManifestIndex(resolvedManifest);
-
-  const schedule = await loadCanonicalScheduleSource(client, {
-    defaultScheduleId,
-    canonicalScheduleId,
-  });
-  await validateCanonicalScheduleSource(client, schedule, manifestIndex);
-
-  const items = await loadCanonicalScheduleItems(client, schedule.id);
-  validateScheduleItems(items, manifestIndex);
-
-  const filteredItems = items.filter((item) => shouldIncludeOptionalItem(item, optionalSelections));
-
-  // Validate variants before any writes.
-  for (const item of filteredItems) {
-    resolveActivitySnapshot(item, { locale, variants });
-  }
-
-  await client.query('BEGIN');
-  try {
-    const activityCache = new Map();
-    let activitiesCreated = 0;
-
-    for (const item of filteredItems) {
-      const { created } = await ensureFamilyActivityTemplate(client, {
-        familyId,
-        defaultActivity: item,
-        locale,
-        variants,
-        sortOrder: item.sort_order || 0,
-        activityCache,
-      });
-      if (created) activitiesCreated += 1;
-    }
-
+  async function writeScheduleDays(prepared) {
+    const { filteredItems, templateIdForItem, activitiesCreated } = prepared;
     const filledDays = [];
     for (const dow of validDays) {
       let scheduleId;
@@ -571,15 +667,15 @@ async function copyCanonicalScheduleToFamily(client, options) {
       }
 
       for (const item of filteredItems) {
-        const cached = activityCache.get(buildActivityCacheKey(item, { locale, variants }));
-        if (!cached?.templateId) continue;
+        const templateId = templateIdForItem(item);
+        if (!templateId) continue;
         await client.query(
           `INSERT INTO weekly_schedule_item (
              weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section
            ) VALUES ($1, $2, $3, $4, $5, $6)`,
           [
             scheduleId,
-            cached.templateId,
+            templateId,
             item.start_time || null,
             item.end_time || null,
             item.sort_order || 0,
@@ -590,19 +686,44 @@ async function copyCanonicalScheduleToFamily(client, options) {
       filledDays.push(dow);
     }
 
-    await client.query('COMMIT');
-
     return {
       ok: true,
-      scheduleCanonicalId: schedule.canonical_id,
-      scheduleName: pickLocaleString(schedule.name_i18n, locale, schedule.name),
+      scheduleCanonicalId: prepared.scheduleCanonicalId,
+      scheduleName: prepared.scheduleName,
       filledDays,
       activitiesCreated,
       itemsCopied: filteredItems.length,
       activityTemplateIds: Object.fromEntries(
-        [...activityCache.entries()].map(([cacheKey, entry]) => [cacheKey, entry.templateId])
+        filteredItems.map((item) => [
+          buildActivityCacheKey(item, { locale, variants }),
+          templateIdForItem(item),
+        ]).filter(([, id]) => id)
       ),
     };
+  }
+
+  async function runCopy() {
+    const prepared = await prepareCanonicalScheduleFamilyActivities(client, {
+      familyId,
+      defaultScheduleId,
+      canonicalScheduleId,
+      optionalSelections,
+      variants,
+      locale,
+      manifest,
+    });
+    return writeScheduleDays(prepared);
+  }
+
+  if (externalTransaction) {
+    return runCopy();
+  }
+
+  await client.query('BEGIN');
+  try {
+    const result = await runCopy();
+    await client.query('COMMIT');
+    return result;
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -620,4 +741,8 @@ module.exports = {
   shouldIncludeOptionalItem,
   copyCanonicalScheduleToFamily,
   copyCanonicalDefaultActivityToFamily,
+  copyCanonicalActivityFromDefaultId,
+  prepareCanonicalScheduleFamilyActivities,
+  familyHasCanonicalActivity,
+  buildActivityCacheKey,
 };

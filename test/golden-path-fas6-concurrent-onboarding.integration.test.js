@@ -102,8 +102,13 @@ test('Fas6 D — parallel schedule save: single weekly row per day, stable retry
       [childId]
     );
     for (const row of itemsPerDay.rows) {
-      assert.equal(row.n, 1, `day ${row.day_of_week} should have one schedule item`);
+      assert.ok(row.n > 0, `day ${row.day_of_week} should have schedule items`);
     }
+    const itemCounts = itemsPerDay.rows.map((r) => r.n);
+    assert.ok(
+      itemCounts.every((n) => n === itemCounts[0]),
+      'parallel save must not produce inconsistent item counts per weekday'
+    );
 
     const familyId = await familyIdByEmail(db, session.email);
     const act = await db.query(

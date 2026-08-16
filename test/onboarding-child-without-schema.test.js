@@ -12,6 +12,7 @@ const {
   findResumableChildWithoutSchema,
   childHasScheduleItems,
 } = require('../src/lib/onboarding-child-resume');
+const { seedCanonicalLibrary } = require('./helpers/canonical-library-fixture.js');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -114,34 +115,12 @@ test('POST /api/onboarding/child resumes child_without_schema instead of 409', a
     assert.ok(resumed.pin);
     assert.notEqual(resumed.pin, created.pin);
 
-    // Seed a minimal default schedule so schedule POST can succeed if library present.
-    const schedName = 'Förskola vardag';
-    let defaultSched = await db.query('SELECT id FROM default_schedule WHERE name = $1', [schedName]);
-    if (defaultSched.rows.length === 0) {
-      const ins = await db.query(
-        `INSERT INTO default_schedule (name, sort_order) VALUES ($1, 0) RETURNING id`,
-        [schedName]
-      );
-      await db.query(
-        `INSERT INTO default_schedule_item
-           (default_schedule_id, name, icon, section, star_value, sort_order)
-         VALUES ($1, 'Vakna', '🛏️', 'morgon', 1, 0)`,
-        [ins.rows[0].id]
-      );
-      defaultSched = ins;
-    } else {
-      const items = await db.query(
-        'SELECT id FROM default_schedule_item WHERE default_schedule_id = $1 LIMIT 1',
-        [defaultSched.rows[0].id]
-      );
-      if (items.rows.length === 0) {
-        await db.query(
-          `INSERT INTO default_schedule_item
-             (default_schedule_id, name, icon, section, star_value, sort_order)
-           VALUES ($1, 'Vakna', '🛏️', 'morgon', 1, 0)`,
-          [defaultSched.rows[0].id]
-        );
-      }
+    // Seed canonical Standard Library so schedule POST uses shared copy engine.
+    const client = await db.pool.connect();
+    try {
+      await seedCanonicalLibrary(client);
+    } finally {
+      client.release();
     }
 
     const scheduleRes = await fetch(`${http.baseUrl}/api/onboarding/schedule`, {

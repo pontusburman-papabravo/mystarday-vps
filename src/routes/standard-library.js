@@ -11,14 +11,13 @@ const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
 const { syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { broadcast } = require('../lib/sse-broadcast');
-const { insertFamilyActivityFromDefault } = require('../lib/standard-library-copy');
+const {
+  copyStandardActivityToFamily,
+  familyHasCanonicalActivity,
+  mapCanonicalCopyErrorToHttp,
+} = require('../lib/standard-library-family-seed');
 const {
   CanonicalCopyError,
-  CANONICAL_VARIANT_REQUIRED,
-  CANONICAL_VARIANT_INVALID,
-  CANONICAL_SOURCE_INVALID,
-  CANONICAL_DUPLICATE_IDENTITY,
-  CANONICAL_SCHEDULE_NOT_FOUND,
   copyCanonicalScheduleToFamily,
 } = require('../lib/canonical-library-copy');
 const { getFamilyLocale } = require('../lib/onboarding-locale');
@@ -41,26 +40,26 @@ router.use(requireFeature('standardbibliotek'));
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT id, name, icon, star_value, sort_order, sub_steps
+      `SELECT id, name, icon, star_value, sort_order, sub_steps, canonical_id
        FROM default_activity_template
        ORDER BY sort_order ASC, name ASC`
     );
 
-    // Check which default activities the family already has (by name match)
     const familyActivities = await db.query(
-      `SELECT LOWER(name) as lname FROM activity_template WHERE family_id = $1`,
+      `SELECT source_canonical_id FROM activity_template
+       WHERE family_id = $1 AND source_canonical_id IS NOT NULL`,
       [req.user.familyId]
     );
-    const existingNames = new Set(familyActivities.rows.map(a => a.lname));
+    const existingCanonical = new Set(familyActivities.rows.map((a) => a.source_canonical_id));
 
-    const activities = result.rows.map(a => ({
+    const activities = result.rows.map((a) => ({
       id: a.id,
       name: a.name,
       icon: a.icon,
       star_value: a.star_value,
       sort_order: a.sort_order,
       sub_steps: a.sub_steps || [],
-      already_copied: existingNames.has(a.name.toLowerCase()),
+      already_copied: a.canonical_id ? existingCanonical.has(a.canonical_id) : false,
     }));
 
     const locale = await getFamilyLocale(req.user.familyId);
@@ -83,27 +82,28 @@ router.post('/activities/copy-batch', async (req, res) => {
     // Fetch all requested default activities
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
     const defaults = await db.query(
-      `SELECT id, name, icon, star_value, sub_steps, seven_questions FROM default_activity_template WHERE id IN (${placeholders})`,
+      `SELECT id, name, icon, star_value, sub_steps, seven_questions, canonical_id
+       FROM default_activity_template WHERE id IN (${placeholders})`,
       ids
     );
     if (defaults.rows.length === 0) {
       return res.status(404).json({ error: 'Inga av de valda aktiviteterna hittades.' });
     }
 
-    // Check which ones are already in the family
-    const existing = await db.query(
-      `SELECT LOWER(name) as lname FROM activity_template WHERE family_id = $1`,
-      [req.user.familyId]
-    );
-    const existingNames = new Set(existing.rows.map(a => a.lname));
-
-    const toCopy = defaults.rows.filter(a => !existingNames.has(a.name.toLowerCase()));
+    const locale = await getFamilyLocale(req.user.familyId);
+    const toCopy = [];
+    for (const act of defaults.rows) {
+      if (!act.canonical_id) {
+        return res.status(400).json({ error: 'Aktiviteten saknar canonical identitet.' });
+      }
+      const exists = await familyHasCanonicalActivity(db, req.user.familyId, act.canonical_id);
+      if (!exists) toCopy.push(act);
+    }
 
     if (toCopy.length === 0) {
       return res.status(409).json({ error: 'Alla valda aktiviteter finns redan i ditt bibliotek.' });
     }
 
-    // Get max sort_order for existing activities
     const maxSort = await db.query(
       `SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM activity_template WHERE family_id = $1`,
       [req.user.familyId]
@@ -115,12 +115,21 @@ router.post('/activities/copy-batch', async (req, res) => {
       await client.query('BEGIN');
 
       for (const act of toCopy) {
-        await insertFamilyActivityFromDefault(client, req.user.familyId, act, nextOrder++);
+        await copyStandardActivityToFamily(client, {
+          familyId: req.user.familyId,
+          defaultActivityId: act.id,
+          canonicalActivityId: act.canonical_id,
+          locale,
+          sortOrder: nextOrder++,
+          externalTransaction: true,
+        });
       }
 
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');
+      const mapped = mapCanonicalCopyErrorToHttp(err);
+      if (mapped) return res.status(mapped.status).json(mapped.body);
       throw err;
     } finally {
       client.release();
@@ -144,7 +153,8 @@ router.post('/activities/:id/copy', async (req, res) => {
     const { id } = req.params;
 
     const defaultAct = await db.query(
-      `SELECT id, name, icon, star_value, sub_steps, seven_questions FROM default_activity_template WHERE id = $1`,
+      `SELECT id, name, icon, star_value, sub_steps, seven_questions, canonical_id
+       FROM default_activity_template WHERE id = $1`,
       [id]
     );
     if (defaultAct.rows.length === 0) {
@@ -152,17 +162,15 @@ router.post('/activities/:id/copy', async (req, res) => {
     }
 
     const act = defaultAct.rows[0];
+    if (!act.canonical_id) {
+      return res.status(400).json({ error: 'Aktiviteten saknar canonical identitet.' });
+    }
 
-    // Check if family already has this activity by name
-    const existing = await db.query(
-      `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2)`,
-      [req.user.familyId, act.name]
-    );
-    if (existing.rows.length > 0) {
+    const locale = await getFamilyLocale(req.user.familyId);
+    if (await familyHasCanonicalActivity(db, req.user.familyId, act.canonical_id)) {
       return res.status(409).json({ error: `Du har redan "${act.name}" i ditt bibliotek.` });
     }
 
-    // Get next sort_order
     const maxSort = await db.query(
       `SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM activity_template WHERE family_id = $1`,
       [req.user.familyId]
@@ -173,11 +181,20 @@ router.post('/activities/:id/copy', async (req, res) => {
     try {
       await client.query('BEGIN');
 
-      await insertFamilyActivityFromDefault(client, req.user.familyId, act, nextOrder);
+      await copyStandardActivityToFamily(client, {
+        familyId: req.user.familyId,
+        defaultActivityId: act.id,
+        canonicalActivityId: act.canonical_id,
+        locale,
+        sortOrder: nextOrder,
+        externalTransaction: true,
+      });
 
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');
+      const mapped = mapCanonicalCopyErrorToHttp(err);
+      if (mapped) return res.status(mapped.status).json(mapped.body);
       throw err;
     } finally {
       client.release();
@@ -197,8 +214,9 @@ router.post('/:group/copy', async (req, res) => {
   try {
     // Fetch all default activities
     const activities = await db.query(
-      `SELECT id, name, icon, star_value, sub_steps, seven_questions
+      `SELECT id, name, icon, star_value, sub_steps, seven_questions, canonical_id
        FROM default_activity_template
+       WHERE canonical_id IS NOT NULL
        ORDER BY sort_order ASC`
     );
 
@@ -206,19 +224,17 @@ router.post('/:group/copy', async (req, res) => {
       return res.status(404).json({ error: 'Inga aktiviteter hittades.' });
     }
 
-    // Check which are already in the family
-    const existing = await db.query(
-      `SELECT LOWER(name) as lname FROM activity_template WHERE family_id = $1`,
-      [req.user.familyId]
-    );
-    const existingNames = new Set(existing.rows.map(a => a.lname));
-    const toCopy = activities.rows.filter(a => !existingNames.has(a.name.toLowerCase()));
+    const locale = await getFamilyLocale(req.user.familyId);
+    const toCopy = [];
+    for (const act of activities.rows) {
+      const exists = await familyHasCanonicalActivity(db, req.user.familyId, act.canonical_id);
+      if (!exists) toCopy.push(act);
+    }
 
     if (toCopy.length === 0) {
       return res.status(409).json({ error: 'Alla aktiviteter finns redan i ditt bibliotek.' });
     }
 
-    // Get max sort_order
     const maxSort = await db.query(
       `SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM activity_template WHERE family_id = $1`,
       [req.user.familyId]
@@ -230,12 +246,21 @@ router.post('/:group/copy', async (req, res) => {
       await client.query('BEGIN');
 
       for (const act of toCopy) {
-        await insertFamilyActivityFromDefault(client, req.user.familyId, act, nextOrder++);
+        await copyStandardActivityToFamily(client, {
+          familyId: req.user.familyId,
+          defaultActivityId: act.id,
+          canonicalActivityId: act.canonical_id,
+          locale,
+          sortOrder: nextOrder++,
+          externalTransaction: true,
+        });
       }
 
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');
+      const mapped = mapCanonicalCopyErrorToHttp(err);
+      if (mapped) return res.status(mapped.status).json(mapped.body);
       throw err;
     } finally {
       client.release();

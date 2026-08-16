@@ -14,6 +14,38 @@ const {
   normalizeSection,
   belongsToSection,
 } = require('./merge-schedule-section');
+const {
+  materializeStandardScheduleActivities,
+  copyStandardActivityToFamily,
+  familyHasCanonicalActivity,
+  LEGACY_SCHEDULE_NAME_TO_CANONICAL,
+  NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
+} = require('./canonical-library-runtime');
+const { getFamilyLocale } = require('./onboarding-locale');
+
+/** Explicit legacy bridge: För dig goal display labels → canonical activity_id */
+const FOR_DIG_LEGACY_ACTIVITY_TO_CANONICAL = Object.freeze({
+  'klä på sig': 'get_dressed',
+  'borsta tänderna (morgon)': 'brush_teeth',
+  'borsta tänder': 'brush_teeth',
+  'äta frukost': 'breakfast',
+  'frukost': 'breakfast',
+  'packa väska': 'pack_school_bag',
+  'packa skolväskan': 'pack_school_bag',
+  'läxor': 'homework',
+});
+
+function resolveLegacyScheduleNameCanonical(scheduleName) {
+  if (!scheduleName) return null;
+  if (LEGACY_SCHEDULE_NAME_TO_CANONICAL[scheduleName]) {
+    return LEGACY_SCHEDULE_NAME_TO_CANONICAL[scheduleName];
+  }
+  const wanted = normalizeName(scheduleName);
+  for (const [key, value] of Object.entries(LEGACY_SCHEDULE_NAME_TO_CANONICAL)) {
+    if (normalizeName(key) === wanted) return value;
+  }
+  return null;
+}
 
 function lookupStarOverride(starOverrides, name) {
   if (!starOverrides || typeof starOverrides !== 'object') return null;
@@ -333,24 +365,23 @@ async function verifyChildAccess(parentId, childId) {
 
 async function copySchedule(client, familyId, childId, scheduleName, days, targetSection, goalSlug, starOverrides) {
   const section = normalizeSection(targetSection);
-  const scheduleResult = await client.query(
-    'SELECT id, name FROM default_schedule WHERE LOWER(name) = LOWER($1) LIMIT 1',
-    [scheduleName]
-  );
-  if (scheduleResult.rows.length === 0) {
+  const canonicalScheduleId = resolveLegacyScheduleNameCanonical(scheduleName);
+  if (!canonicalScheduleId) {
     throw libraryUnavailableError(`schedule:${scheduleName}`);
   }
 
-  const scheduleId = scheduleResult.rows[0].id;
-  const items = await client.query(
-    `SELECT dsi.name, dsi.icon, dsi.section, dsi.star_value, dsi.start_time, dsi.end_time, dsi.sort_order, dsi.sub_steps
-     FROM default_schedule_item dsi
-     WHERE dsi.default_schedule_id = $1
-     ORDER BY CASE dsi.section WHEN 'morgon' THEN 0 WHEN 'dag' THEN 1 WHEN 'kvall' THEN 2 ELSE 3 END, dsi.sort_order ASC`,
-    [scheduleId]
-  );
+  const locale = await getFamilyLocale(familyId);
+  const prepared = await materializeStandardScheduleActivities(client, {
+    familyId,
+    canonicalScheduleId,
+    locale,
+    callerVariants: canonicalScheduleId === 'school_weekday'
+      ? { after_school: NON_INTERACTIVE_AFTER_SCHOOL_VARIANT }
+      : null,
+    allowNonInteractiveAfterSchoolDefault: canonicalScheduleId === 'school_weekday',
+  });
 
-  const sectionItems = items.rows.filter((item) => normalizeSection(item.section) === section);
+  const sectionItems = prepared.filteredItems.filter((item) => normalizeSection(item.section) === section);
   if (sectionItems.length === 0) {
     throw libraryUnavailableError(`schedule_section_empty:${scheduleName}:${section}`);
   }
@@ -365,46 +396,23 @@ async function copySchedule(client, familyId, childId, scheduleName, days, targe
   const activityTemplateMap = {};
   const touchedTemplateIds = [];
   for (const item of sectionItems) {
+    const templateId = prepared.templateIdForItem(item);
+    if (!templateId) continue;
     const stars = starValueForItem(item, starOverrides);
-    const existing = await client.query(
-      `SELECT id FROM activity_template WHERE family_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1`,
-      [familyId, item.name]
-    );
+    activityTemplateMap[item.name] = templateId;
 
-    if (existing.rows.length > 0) {
-      const templateId = existing.rows[0].id;
-      activityTemplateMap[item.name] = templateId;
-      if (goalSlug) {
-        const updated = await client.query(
-          `UPDATE activity_template
-           SET for_dig_goal_slug = $1,
-               star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
-           WHERE id = $2 AND family_id = $3
-           RETURNING id`,
-          [goalSlug, templateId, familyId, hasStarOverrides(starOverrides), stars]
-        );
-        if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
-      }
-    } else {
-      const newTemplate = await client.query(
-        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, for_dig_goal_slug)
-         VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING id`,
-        [familyId, item.name, item.icon, stars, item.sort_order || 0, goalSlug || null]
+    if (goalSlug) {
+      const updated = await client.query(
+        `UPDATE activity_template
+         SET for_dig_goal_slug = $1,
+             star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
+         WHERE id = $2 AND family_id = $3
+         RETURNING id`,
+        [goalSlug, templateId, familyId, hasStarOverrides(starOverrides), stars]
       );
-      const templateId = newTemplate.rows[0].id;
-      activityTemplateMap[item.name] = templateId;
+      if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
+    } else {
       touchedTemplateIds.push(templateId);
-
-      const subSteps = item.sub_steps || [];
-      if (Array.isArray(subSteps) && subSteps.length > 0) {
-        for (let i = 0; i < subSteps.length; i++) {
-          await client.query(
-            `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-             VALUES ($1, $2, $3, $4)`,
-            [templateId, subSteps[i].name, subSteps[i].icon || null, i]
-          );
-        }
-      }
     }
   }
 
@@ -488,75 +496,149 @@ async function copySchedule(client, familyId, childId, scheduleName, days, targe
     }
   }
 
-  return { scheduleId, scheduleName, filledDays, activityTemplateMap, touchedTemplateIds, targetSection: section };
+  return {
+    scheduleId: prepared.schedule?.id ?? null,
+    scheduleName,
+    filledDays,
+    activityTemplateMap,
+    touchedTemplateIds,
+    targetSection: section,
+  };
 }
 
 async function copyActivities(client, familyId, activityNames, goalSlug, starOverrides) {
-  const defaults = await client.query(
-    `SELECT id, name, icon, star_value, sub_steps FROM default_activity_template ORDER BY sort_order ASC`
-  );
-  if (defaults.rows.length === 0) {
-    throw libraryUnavailableError('activities_empty');
+  const locale = await getFamilyLocale(familyId);
+  const canonicalNames = [];
+  const legacyNames = [];
+
+  for (const name of activityNames || []) {
+    const canonicalId = FOR_DIG_LEGACY_ACTIVITY_TO_CANONICAL[normalizeName(name)];
+    if (canonicalId) {
+      canonicalNames.push({ name, canonicalId });
+    } else {
+      legacyNames.push(name);
+    }
   }
 
-  const matched = findByNames(defaults.rows, activityNames);
-  if (matched.length === 0) {
-    throw libraryUnavailableError('activities_no_match');
-  }
+  const matched = [];
+  const touchedTemplateIds = [];
+  let copied = 0;
+  let skipped = 0;
 
-  const existingRows = await client.query(
-    `SELECT id, LOWER(name) AS lname FROM activity_template WHERE family_id = $1`,
-    [familyId]
-  );
-  const existingByName = new Map(existingRows.rows.map((a) => [a.lname, a.id]));
-
-  const toCopy = matched.filter((a) => !existingByName.has(normalizeName(a.name)));
   const maxSort = await client.query(
     `SELECT COALESCE(MAX(sort_order), -1) AS max_order FROM activity_template WHERE family_id = $1`,
     [familyId]
   );
   let nextOrder = parseInt(maxSort.rows[0].max_order, 10) + 1;
-  const touchedTemplateIds = [];
 
-  for (const act of toCopy) {
-    const stars = starValueForItem(act, starOverrides);
-    const newTemplate = await client.query(
-      `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, for_dig_goal_slug)
-       VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING id`,
-      [familyId, act.name, act.icon, stars, nextOrder++, goalSlug || null]
+  for (const entry of canonicalNames) {
+    const defaults = await client.query(
+      `SELECT id, name, icon, star_value, sub_steps, canonical_id
+       FROM default_activity_template WHERE canonical_id = $1 LIMIT 1`,
+      [entry.canonicalId]
     );
-    const templateId = newTemplate.rows[0].id;
-    touchedTemplateIds.push(templateId);
-    const subSteps = act.sub_steps || [];
-    if (Array.isArray(subSteps) && subSteps.length > 0) {
-      for (let i = 0; i < subSteps.length; i++) {
-        await client.query(
-          `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
-           VALUES ($1, $2, $3, $4)`,
-          [templateId, subSteps[i].name, subSteps[i].icon || null, i]
-        );
-      }
+    if (defaults.rows.length === 0) continue;
+    const act = defaults.rows[0];
+    matched.push(act);
+
+    const exists = await familyHasCanonicalActivity(client, familyId, entry.canonicalId);
+    let templateId;
+    if (!exists) {
+      const result = await copyStandardActivityToFamily(client, {
+        familyId,
+        defaultActivityId: act.id,
+        canonicalActivityId: entry.canonicalId,
+        locale,
+        sortOrder: nextOrder++,
+        externalTransaction: true,
+      });
+      templateId = result.templateId;
+      copied += 1;
+      touchedTemplateIds.push(templateId);
+    } else {
+      const existing = await client.query(
+        `SELECT id FROM activity_template
+         WHERE family_id = $1 AND source_canonical_id = $2 LIMIT 1`,
+        [familyId, entry.canonicalId]
+      );
+      templateId = existing.rows[0]?.id;
+      skipped += 1;
+    }
+
+    if (templateId && goalSlug) {
+      const stars = starValueForItem(act, starOverrides);
+      const updated = await client.query(
+        `UPDATE activity_template
+         SET for_dig_goal_slug = $1,
+             star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
+         WHERE id = $2 AND family_id = $3
+         RETURNING id`,
+        [goalSlug, templateId, familyId, hasStarOverrides(starOverrides), stars]
+      );
+      if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
     }
   }
 
-  for (const act of matched) {
-    const existingId = existingByName.get(normalizeName(act.name));
-    if (!existingId || !goalSlug) continue;
-    const stars = starValueForItem(act, starOverrides);
-    const updated = await client.query(
-      `UPDATE activity_template
-       SET for_dig_goal_slug = $1,
-           star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
-       WHERE id = $2 AND family_id = $3
-       RETURNING id`,
-      [goalSlug, existingId, familyId, hasStarOverrides(starOverrides), stars]
+  if (legacyNames.length > 0) {
+    const defaults = await client.query(
+      `SELECT id, name, icon, star_value, sub_steps FROM default_activity_template ORDER BY sort_order ASC`
     );
-    if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
+    const legacyMatched = findByNames(defaults.rows, legacyNames);
+    matched.push(...legacyMatched);
+
+    const existingRows = await client.query(
+      `SELECT id, LOWER(name) AS lname FROM activity_template WHERE family_id = $1`,
+      [familyId]
+    );
+    const existingByName = new Map(existingRows.rows.map((a) => [a.lname, a.id]));
+
+    const toCopy = legacyMatched.filter((a) => !existingByName.has(normalizeName(a.name)));
+    for (const act of toCopy) {
+      const stars = starValueForItem(act, starOverrides);
+      const newTemplate = await client.query(
+        `INSERT INTO activity_template (family_id, name, icon, star_value, is_favorite, sort_order, for_dig_goal_slug)
+         VALUES ($1, $2, $3, $4, false, $5, $6) RETURNING id`,
+        [familyId, act.name, act.icon, stars, nextOrder++, goalSlug || null]
+      );
+      const templateId = newTemplate.rows[0].id;
+      touchedTemplateIds.push(templateId);
+      copied += 1;
+      const subSteps = act.sub_steps || [];
+      if (Array.isArray(subSteps) && subSteps.length > 0) {
+        for (let i = 0; i < subSteps.length; i++) {
+          await client.query(
+            `INSERT INTO activity_sub_step (activity_template_id, name, icon, sort_order)
+             VALUES ($1, $2, $3, $4)`,
+            [templateId, subSteps[i].name, subSteps[i].icon || null, i]
+          );
+        }
+      }
+    }
+
+    for (const act of legacyMatched) {
+      const existingId = existingByName.get(normalizeName(act.name));
+      if (!existingId || !goalSlug) continue;
+      const stars = starValueForItem(act, starOverrides);
+      const updated = await client.query(
+        `UPDATE activity_template
+         SET for_dig_goal_slug = $1,
+             star_value = CASE WHEN $4::boolean THEN $5 ELSE star_value END
+         WHERE id = $2 AND family_id = $3
+         RETURNING id`,
+        [goalSlug, existingId, familyId, hasStarOverrides(starOverrides), stars]
+      );
+      if (updated.rows[0]) touchedTemplateIds.push(updated.rows[0].id);
+    }
+    skipped += legacyMatched.length - toCopy.length;
+  }
+
+  if (matched.length === 0) {
+    throw libraryUnavailableError('activities_no_match');
   }
 
   return {
-    copied: toCopy.length,
-    skipped: matched.length - toCopy.length,
+    copied,
+    skipped,
     matched: matched.length,
     touchedTemplateIds,
     matchedActivities: matched,
