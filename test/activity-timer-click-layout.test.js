@@ -121,11 +121,11 @@ describe('activity timer — dead Start regression', () => {
     assert.deepEqual(order, ['start-handled']);
   });
 
-  it('plays calm single finish chime when timer reaches zero (no alarm loop)', () => {
+  it('plays bell-like single finish (~2.5 s) when timer reaches zero (no alarm loop)', () => {
     const src = read('public/js/child-dashboard-activity-timer.js');
     assert.match(src, /function startFinishCelebration/);
     assert.match(src, /function playFinishChime/);
-    assert.match(src, /FINISH_CHIME_MS = 480/);
+    assert.match(src, /FINISH_BELL_MS = 2500/);
     assert.match(src, /FINISH_VISUAL_MS = 2500/);
     assert.doesNotMatch(src, /FINISH_CELEBRATION_MS/);
     assert.doesNotMatch(src, /setInterval[\s\S]{0,80}playEndChime|setInterval[\s\S]{0,80}playFinishChime/);
