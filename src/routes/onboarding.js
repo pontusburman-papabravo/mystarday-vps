@@ -817,29 +817,26 @@ router.get('/rewards-preview', async (req, res) => {
 // Returns all available template groups with activity counts from default_schedule.
 // Uses default_schedule tables (reliable) instead of default_activity_template groups
 // which were cleared by migration 050.
-const SCHEDULE_TO_GROUP = {
-  'Förskola vardag': 'forskola',
-  'Skola vardag':    'skola',
-  'Helg':            'helg',
-  'Kort morgon':     'morgon',
-  'Kvällsrutin':     'kvall',
-};
+const CANONICAL_TO_TEMPLATE_GROUP = Object.fromEntries(
+  Object.entries(TEMPLATE_GROUP_TO_CANONICAL_SCHEDULE).map(([group, canonicalId]) => [canonicalId, group])
+);
 
 router.get('/template-groups', async (req, res) => {
   const lang = await getFamilyLocale(req.user.familyId);
   try {
     const templateGroupMeta = getTemplateGroupMeta(lang);
     const result = await db.query(
-      `SELECT ds.name AS schedule_name, COUNT(dsi.id) AS count
+      `SELECT ds.canonical_id, COUNT(dsi.id) AS count
        FROM default_schedule ds
        LEFT JOIN default_schedule_item dsi ON dsi.default_schedule_id = ds.id
-       GROUP BY ds.name, ds.sort_order
+       WHERE ds.canonical_id IS NOT NULL
+       GROUP BY ds.canonical_id, ds.sort_order
        ORDER BY ds.sort_order ASC`
     );
 
     const groups = result.rows
       .map(r => {
-        const grpKey = SCHEDULE_TO_GROUP[r.schedule_name];
+        const grpKey = CANONICAL_TO_TEMPLATE_GROUP[r.canonical_id];
         if (!grpKey || !templateGroupMeta[grpKey]) return null;
         const activityCount = parseInt(r.count, 10);
         if (!activityCount) return null;
@@ -883,25 +880,18 @@ router.get('/schedule-preview', async (req, res) => {
       return sendOnboardingError(res, 400, lang, 'INVALID_TEMPLATE');
     }
 
-    // Map template_group to default_schedule name (same as schedule creation endpoint)
-    const GROUP_TO_SCHEDULE = {
-      forskola: 'Förskola vardag',
-      skola:    'Skola vardag',
-      helg:     'Helg',
-      morgon:   'Kort morgon',
-      kvall:    'Kvällsrutin',
-      dag:      'Förskola vardag',
-    };
-    const schedName = GROUP_TO_SCHEDULE[group] || 'Förskola vardag';
+    const canonicalScheduleId = resolveCanonicalScheduleId({ templateGroup: group });
+    if (!canonicalScheduleId) {
+      return sendOnboardingError(res, 404, lang, 'NO_ACTIVITIES');
+    }
 
-    // Fetch items from default_schedule_item (reliable, not affected by migration 050)
     const result = await db.query(
       `SELECT dsi.name, dsi.icon, dsi.section AS category_name
        FROM default_schedule_item dsi
        JOIN default_schedule ds ON ds.id = dsi.default_schedule_id
-       WHERE ds.name = $1
+       WHERE ds.canonical_id = $1
        ORDER BY ${sectionOrderClause('dsi')}`,
-      [schedName]
+      [canonicalScheduleId]
     );
 
     res.json({ activities: result.rows, schemaType: group, template: group });

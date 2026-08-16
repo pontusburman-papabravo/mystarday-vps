@@ -336,6 +336,131 @@ describe('canonical library PR5 — final acceptance', () => {
     });
   });
 
+  describe('preview / execution parity (adversarial)', () => {
+    test('onboarding schedule-preview survives default_schedule.name rename', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      await db.query(
+        `UPDATE default_schedule SET name = 'Renamed onboarding preview'
+         WHERE canonical_id = 'morning_routine'`
+      );
+
+      const result = await db.query(
+        `SELECT dsi.name
+         FROM default_schedule_item dsi
+         JOIN default_schedule ds ON ds.id = dsi.default_schedule_id
+         WHERE ds.canonical_id = $1`,
+        ['morning_routine']
+      );
+      assert.ok(result.rows.length > 0);
+    });
+
+    test('getGoalActivationPreview fails closed on duplicate schedule identity', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      const eveningId = await findScheduleIdByCanonical(db, 'evening_routine');
+      await db.query(
+        `INSERT INTO default_schedule (name, canonical_id, sort_order)
+         VALUES ('Dup evening preview', 'evening_routine', 995)`
+      );
+
+      try {
+        await assert.rejects(
+          () => getGoalActivationPreview('trygga-kvallar', { locale: 'sv-SE' }),
+          (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_DUPLICATE_IDENTITY
+        );
+      } finally {
+        await db.query(
+          `DELETE FROM default_schedule WHERE name = 'Dup evening preview' AND id != $1`,
+          [eveningId]
+        );
+      }
+    });
+
+    test('getGoalActivationPreview fails closed on duplicate activity identity', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      const getDressed = await findDefaultActivityByCanonical(db, 'get_dressed');
+      assert.ok(getDressed);
+      await db.query(
+        `INSERT INTO default_activity_template (name, icon, star_value, sort_order, canonical_id)
+         VALUES ('Dup get dressed', '👕', 1, 994, 'get_dressed')`
+      );
+
+      try {
+        await assert.rejects(
+          () => getGoalActivationPreview('sjalvstandighet', { locale: 'sv-SE' }),
+          (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_DUPLICATE_IDENTITY
+        );
+      } finally {
+        await db.query(
+          `DELETE FROM default_activity_template WHERE name = 'Dup get dressed' AND id != $1`,
+          [getDressed.id]
+        );
+      }
+    });
+  });
+
+  describe('family snapshot — brush_teeth timer', () => {
+    test('brush substep duration_seconds stays 120 after canonical master mutates', async (t) => {
+      if (!seeded) {
+        t.skip('Canonical library not seeded');
+        return;
+      }
+
+      const client = await db.pool.connect();
+      try {
+        const { familyId, childId } = await createTestFamilyWithChild(db);
+        await copyCanonicalScheduleToFamily(client, {
+          familyId,
+          childId,
+          canonicalScheduleId: 'morning_routine',
+          days: [1],
+          locale: 'sv-SE',
+        });
+
+        const brushTpl = await db.query(
+          `SELECT at.id FROM activity_template at
+           JOIN weekly_schedule_item wsi ON wsi.activity_template_id = at.id
+           JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+           WHERE ws.child_id = $1 AND at.source_canonical_id = 'brush_teeth' LIMIT 1`,
+          [childId]
+        );
+        assert.ok(brushTpl.rows[0]);
+
+        const before = await db.query(
+          `SELECT duration_seconds FROM activity_sub_step
+           WHERE activity_template_id = $1 AND name = 'Borsta tänderna'`,
+          [brushTpl.rows[0].id]
+        );
+        assert.equal(before.rows[0]?.duration_seconds, 120);
+
+        await db.query(
+          `UPDATE default_activity_template SET sub_steps = '[]'::jsonb
+           WHERE canonical_id = 'brush_teeth'`
+        );
+
+        const after = await db.query(
+          `SELECT duration_seconds FROM activity_sub_step
+           WHERE activity_template_id = $1 AND name = 'Borsta tänderna'`,
+          [brushTpl.rows[0].id]
+        );
+        assert.equal(after.rows[0]?.duration_seconds, 120);
+      } finally {
+        client.release();
+      }
+    });
+  });
+
   describe('canonical runtime name identity audit', () => {
     it('for-dig-activate has no default_schedule display-name SQL identity', () => {
       const src = fs.readFileSync(
@@ -353,6 +478,7 @@ describe('canonical library PR5 — final acceptance', () => {
       );
       assert.match(src, /default_schedule WHERE canonical_id = \$1/);
       assert.match(src, /NON_CANONICAL_SNAPSHOT/);
+      assert.doesNotMatch(src, /WHERE ds\.name = \$1/);
     });
 
     it('canonical-library-runtime has no SQL name identity', () => {

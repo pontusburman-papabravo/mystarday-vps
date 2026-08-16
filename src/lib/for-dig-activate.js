@@ -21,6 +21,8 @@ const {
   LEGACY_SCHEDULE_NAME_TO_CANONICAL,
   NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
   CanonicalCopyError,
+  CANONICAL_DUPLICATE_IDENTITY,
+  CANONICAL_SOURCE_INVALID,
 } = require('./canonical-library-runtime');
 const { pickLocaleString, previewCanonicalScheduleSection } = require('./canonical-library-copy');
 const { getFamilyLocale } = require('./onboarding-locale');
@@ -790,6 +792,9 @@ async function getGoalActivationPreview(goalSlug, options = {}) {
       return { type: 'schedule', items };
     } catch (err) {
       if (err instanceof CanonicalCopyError) {
+        if (err.code === CANONICAL_DUPLICATE_IDENTITY || err.code === CANONICAL_SOURCE_INVALID) {
+          throw err;
+        }
         return { type: 'schedule', items: [] };
       }
       throw err;
@@ -807,9 +812,14 @@ async function getGoalActivationPreview(goalSlug, options = {}) {
       if (canonicalId) {
         const row = await db.query(
           `SELECT name, name_i18n, icon, star_value
-           FROM default_activity_template WHERE canonical_id = $1 LIMIT 1`,
+           FROM default_activity_template WHERE canonical_id = $1`,
           [canonicalId]
         );
+        if (row.rows.length > 1) {
+          throw new CanonicalCopyError(CANONICAL_DUPLICATE_IDENTITY, {
+            duplicate_canonical_ids: [canonicalId],
+          });
+        }
         if (row.rows[0]) {
           const act = row.rows[0];
           items.push({
