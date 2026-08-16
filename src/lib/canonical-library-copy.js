@@ -2,6 +2,7 @@
 
 const { loadAndValidateStandardLibraryManifest } = require('./standard-library-manifest');
 const { shouldCopySevenQuestions } = require('./standard-library-copy');
+const { normalizeSection } = require('./merge-schedule-section');
 
 const CANONICAL_VARIANT_REQUIRED = 'CANONICAL_VARIANT_REQUIRED';
 const CANONICAL_VARIANT_INVALID = 'CANONICAL_VARIANT_INVALID';
@@ -499,6 +500,48 @@ async function prepareCanonicalScheduleFamilyActivities(client, options) {
   };
 }
 
+/**
+ * Read-only canonical schedule section preview — same variant/locale resolution as copy engine.
+ * Does not write family rows. Used by För dig activation preview (PR5).
+ */
+async function previewCanonicalScheduleSection(client, options) {
+  const {
+    canonicalScheduleId,
+    section,
+    locale = 'sv-SE',
+    variants = null,
+    manifest = null,
+  } = options;
+
+  if (!canonicalScheduleId) {
+    throw new CanonicalCopyError(CANONICAL_SOURCE_INVALID, {
+      reason: 'canonicalScheduleId required',
+    });
+  }
+
+  const resolvedManifest = manifest || loadAndValidateStandardLibraryManifest();
+  const manifestIndex = buildManifestIndex(resolvedManifest);
+
+  const schedule = await loadCanonicalScheduleSource(client, { canonicalScheduleId });
+  await validateCanonicalScheduleSource(client, schedule, manifestIndex);
+
+  const items = await loadCanonicalScheduleItems(client, schedule.id);
+  validateScheduleItems(items, manifestIndex);
+
+  const targetSection = normalizeSection(section);
+  return items
+    .filter((item) => normalizeSection(item.section) === targetSection)
+    .map((item) => {
+      const snapshot = resolveActivitySnapshot(item, { locale, variants });
+      return {
+        name: snapshot.name,
+        icon: item.icon,
+        star_value: item.star_value,
+        section: item.section,
+      };
+    });
+}
+
 async function copyCanonicalActivityFromDefaultId(client, options) {
   const {
     familyId,
@@ -743,6 +786,8 @@ module.exports = {
   copyCanonicalDefaultActivityToFamily,
   copyCanonicalActivityFromDefaultId,
   prepareCanonicalScheduleFamilyActivities,
+  previewCanonicalScheduleSection,
   familyHasCanonicalActivity,
   buildActivityCacheKey,
+  resolveActivitySnapshot,
 };

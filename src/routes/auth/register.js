@@ -223,6 +223,8 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       }
 
       // Seed activities: canonical DB snapshots (sv-SE) or locale default content fallback.
+      // When canonical rows exist, they are the sole Standard Library authority for sv-SE.
+      // en-GB / empty-DB paths use config/default-content/* — explicit LEGACY_BOOTSTRAP only.
       let activitiesSeededFromCanonical = false;
       if (familyLocale === 'sv-SE') {
         const canonicalCount = await client.query(

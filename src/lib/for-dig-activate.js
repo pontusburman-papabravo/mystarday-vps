@@ -20,7 +20,11 @@ const {
   familyHasCanonicalActivity,
   LEGACY_SCHEDULE_NAME_TO_CANONICAL,
   NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
+  CanonicalCopyError,
+  CANONICAL_DUPLICATE_IDENTITY,
+  CANONICAL_SOURCE_INVALID,
 } = require('./canonical-library-runtime');
+const { pickLocaleString, previewCanonicalScheduleSection } = require('./canonical-library-copy');
 const { getFamilyLocale } = require('./onboarding-locale');
 
 /** Explicit legacy bridge: För dig goal display labels → canonical activity_id */
@@ -206,7 +210,8 @@ async function buildActivationPlanPreview({ parentId, childIds, goalSlug }) {
     verifiedChildren.push(child);
   }
 
-  const preview = await getGoalActivationPreview(goalSlug);
+  const locale = await getFamilyLocale(verifiedChildren[0].family_id);
+  const preview = await getGoalActivationPreview(goalSlug, { locale });
   const childNames = verifiedChildren.map((c) => c.name);
   const headline = goal.headline || goal.title;
   const promise = buildPromiseLine(goal, childNames);
@@ -760,35 +765,82 @@ async function copyRewards(client, familyId, rewardNames, starOverrides) {
   return { copied: toCopy.length, skipped: matched.length - toCopy.length, matched: matched.length };
 }
 
-async function getGoalActivationPreview(goalSlug) {
+async function getGoalActivationPreview(goalSlug, options = {}) {
+  const { locale = 'sv-SE' } = options;
   const goal = getGoalBySlug(goalSlug);
   if (!goal) return null;
 
   if (goal.scheduleName) {
-    const scheduleResult = await db.query(
-      'SELECT id FROM default_schedule WHERE LOWER(name) = LOWER($1) LIMIT 1',
-      [goal.scheduleName]
-    );
-    if (scheduleResult.rows.length === 0) {
+    const canonicalScheduleId = resolveLegacyScheduleNameCanonical(goal.scheduleName);
+    if (!canonicalScheduleId) {
       return { type: 'schedule', items: [] };
     }
+
     const section = resolveScheduleSection(goal);
-    const items = await db.query(
-      `SELECT name, icon, star_value, section
-       FROM default_schedule_item
-       WHERE default_schedule_id = $1
-         AND LOWER(COALESCE(NULLIF(section, ''), 'dag')) = $2
-       ORDER BY sort_order ASC`,
-      [scheduleResult.rows[0].id, section]
-    );
-    return { type: 'schedule', items: items.rows };
+    const variants = canonicalScheduleId === 'school_weekday'
+      ? { after_school: NON_INTERACTIVE_AFTER_SCHOOL_VARIANT }
+      : null;
+
+    const client = await db.pool.connect();
+    try {
+      const items = await previewCanonicalScheduleSection(client, {
+        canonicalScheduleId,
+        section,
+        locale,
+        variants,
+      });
+      return { type: 'schedule', items };
+    } catch (err) {
+      if (err instanceof CanonicalCopyError) {
+        if (err.code === CANONICAL_DUPLICATE_IDENTITY || err.code === CANONICAL_SOURCE_INVALID) {
+          throw err;
+        }
+        return { type: 'schedule', items: [] };
+      }
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   if (goal.activityNames && goal.activityNames.length > 0) {
-    const defaults = await db.query(
-      'SELECT name, icon, star_value FROM default_activity_template ORDER BY sort_order ASC'
-    );
-    return { type: 'activities', items: findByNames(defaults.rows, goal.activityNames) };
+    const items = [];
+    const legacyNames = [];
+
+    for (const name of goal.activityNames) {
+      const canonicalId = FOR_DIG_LEGACY_ACTIVITY_TO_CANONICAL[normalizeName(name)];
+      if (canonicalId) {
+        const row = await db.query(
+          `SELECT name, name_i18n, icon, star_value
+           FROM default_activity_template WHERE canonical_id = $1`,
+          [canonicalId]
+        );
+        if (row.rows.length > 1) {
+          throw new CanonicalCopyError(CANONICAL_DUPLICATE_IDENTITY, {
+            duplicate_canonical_ids: [canonicalId],
+          });
+        }
+        if (row.rows[0]) {
+          const act = row.rows[0];
+          items.push({
+            name: pickLocaleString(act.name_i18n, locale, act.name),
+            icon: act.icon,
+            star_value: act.star_value,
+          });
+        }
+      } else {
+        legacyNames.push(name);
+      }
+    }
+
+    if (legacyNames.length > 0) {
+      const defaults = await db.query(
+        'SELECT name, icon, star_value FROM default_activity_template ORDER BY sort_order ASC'
+      );
+      items.push(...findByNames(defaults.rows, legacyNames));
+    }
+
+    return { type: 'activities', items };
   }
 
   if (goal.rewardNames && goal.rewardNames.length > 0) {
