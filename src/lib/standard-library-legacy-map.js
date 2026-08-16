@@ -15,9 +15,17 @@ const CLASSIFICATIONS = [
   'EXACT',
   'SAFE_EXPLICIT_MAPPING',
   'TEACCH_OVERLAY',
+  'LEGACY_ROW_PRESERVE',
+  'NON_STANDARD_CONTENT',
   'AMBIGUOUS',
   'UNMAPPED',
 ];
+
+const PRESERVE_CLASSIFICATIONS = new Set([
+  'TEACCH_OVERLAY',
+  'LEGACY_ROW_PRESERVE',
+  'NON_STANDARD_CONTENT',
+]);
 
 const MatchRuleSchema = z.object({
   legacy_id: z.string().uuid().optional(),
@@ -65,7 +73,43 @@ function parseLegacyMap(raw) {
 }
 
 function loadLegacyMap(mapPath = DEFAULT_LEGACY_MAP_PATH) {
-  return parseLegacyMap(readLegacyMapFile(mapPath));
+  const parsed = parseLegacyMap(readLegacyMapFile(mapPath));
+  validateLegacyMapDeterminism(parsed);
+  return parsed;
+}
+
+function validateLegacyMapDeterminism(map) {
+  const seenActivityIds = new Map();
+  const seenScheduleIds = new Map();
+
+  for (const entry of map.activities) {
+    const legacyId = entry.match?.legacy_id;
+    if (!legacyId) continue;
+    if (seenActivityIds.has(legacyId)) {
+      throw new Error(`duplicate activity legacy_id in map: ${legacyId}`);
+    }
+    seenActivityIds.set(legacyId, entry);
+  }
+
+  for (const entry of map.schedules) {
+    const legacyId = entry.match?.legacy_id;
+    if (!legacyId) continue;
+    if (seenScheduleIds.has(legacyId)) {
+      throw new Error(`duplicate schedule legacy_id in map: ${legacyId}`);
+    }
+    seenScheduleIds.set(legacyId, entry);
+  }
+}
+
+function sortMapEntriesForProcessing(entries) {
+  return [
+    ...entries.filter((entry) => entry.match?.legacy_id),
+    ...entries.filter((entry) => !entry.match?.legacy_id),
+  ];
+}
+
+function isPreserveClassification(classification) {
+  return PRESERVE_CLASSIFICATIONS.has(classification);
 }
 
 function packageComponentMatches(rowValue, ruleValue) {
@@ -96,12 +140,16 @@ module.exports = {
   DEFAULT_LEGACY_MAP_PATH,
   MAP_FORMAT,
   CLASSIFICATIONS,
+  PRESERVE_CLASSIFICATIONS,
   LegacyMapSchema,
   ActivityMapEntrySchema,
   ScheduleMapEntrySchema,
   readLegacyMapFile,
   parseLegacyMap,
   loadLegacyMap,
+  validateLegacyMapDeterminism,
+  sortMapEntriesForProcessing,
+  isPreserveClassification,
   activityRowMatches,
   scheduleRowMatches,
   findMatchingRows,

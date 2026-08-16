@@ -5,6 +5,8 @@ const {
   activityRowMatches,
   scheduleRowMatches,
   findMatchingRows,
+  sortMapEntriesForProcessing,
+  isPreserveClassification,
 } = require('./standard-library-legacy-map');
 
 const BACKFILL_REQUIRES_STABLE_LEGACY_IDS_ERROR = String.fromCharCode(
@@ -98,6 +100,8 @@ function createEmptyActivityBucket() {
     exact_mapped: 0,
     explicit_mapped: 0,
     teacch_overlays: 0,
+    legacy_row_preserves: 0,
+    non_standard_preserves: 0,
     ambiguous: 0,
     unmapped: 0,
     already_canonical: 0,
@@ -196,20 +200,22 @@ function buildActivityAssignments(legacyActivities, map, existingCanonicalRows) 
     }
   }
 
-  for (const entry of map.activities) {
-    if (entry.classification === 'TEACCH_OVERLAY') {
+  for (const entry of sortMapEntriesForProcessing(map.activities)) {
+    if (isPreserveClassification(entry.classification)) {
       const matches = findMatchingRows(legacyRows, entry.match, activityRowMatches)
         .filter((row) => !claimedLegacyIds.has(row.id));
       for (const row of matches) {
         claimedLegacyIds.add(row.id);
-        bucket.teacch_overlays += 1;
+        if (entry.classification === 'TEACCH_OVERLAY') bucket.teacch_overlays += 1;
+        else if (entry.classification === 'LEGACY_ROW_PRESERVE') bucket.legacy_row_preserves += 1;
+        else bucket.non_standard_preserves += 1;
         mappings.push({
           legacy_id: row.id,
           legacy_name: row.name,
           canonical_id: entry.canonical_id ?? null,
-          classification: 'TEACCH_OVERLAY',
+          classification: entry.classification,
           treatment: entry.treatment || 'preserve_legacy_row_no_canonical_assignment',
-          reason: entry.reason || 'TEACCH overlay preserved without canonical assignment',
+          reason: entry.reason || 'Legacy row preserved without canonical assignment',
           apply_authorization: mapEntryApplyAuthorization(entry),
           map_entry_legacy_id: entry.match.legacy_id ?? null,
           write: null,
@@ -340,7 +346,7 @@ function buildScheduleAssignments(legacySchedules, map, existingCanonicalRows) {
     }
   }
 
-  for (const entry of map.schedules) {
+  for (const entry of sortMapEntriesForProcessing(map.schedules)) {
     const matches = findMatchingRows(legacyRows, entry.match, scheduleRowMatches)
       .filter((row) => !claimedLegacyIds.has(row.id));
 
