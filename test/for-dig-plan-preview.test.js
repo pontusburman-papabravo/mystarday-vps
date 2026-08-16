@@ -42,6 +42,9 @@ test('buildActivationPlanPreview for samarbete-hemma includes Jenny decision poi
     if (sql.includes('FROM child c') && sql.includes('parent_child')) {
       return { rows: [{ id: childId, family_id: familyId, name: 'Astrid' }] };
     }
+    if (sql.includes('preferred_locale FROM family')) {
+      return { rows: [{ preferred_locale: 'sv-SE' }] };
+    }
     if (sql.includes('weekly_schedule_item')) {
       return { rows: [] };
     }
@@ -101,26 +104,66 @@ test('findByNames uses exact normalized match only', () => {
 test('buildActivationPlanPreview for trygga-kvallar uses section-scoped decisions', async () => {
   const parentId = '00000000-0000-4000-8000-000000000010';
   const childId = '00000000-0000-4000-8000-000000000011';
+  const familyId = '00000000-0000-4000-8000-000000000012';
 
   const db = require('../src/lib/db');
   const originalQuery = db.query.bind(db);
+  const originalPoolConnect = db.pool.connect.bind(db.pool);
+  db.pool.connect = async () => ({
+    query: db.query.bind(db),
+    release: () => {},
+  });
   db.query = async (sql, params) => {
     if (sql.includes('FROM child c') && sql.includes('parent_child')) {
-      return { rows: [{ id: childId, family_id: 'f1', name: 'Astrid' }] };
+      return { rows: [{ id: childId, family_id: familyId, name: 'Astrid' }] };
+    }
+    if (sql.includes('preferred_locale FROM family')) {
+      return { rows: [{ preferred_locale: 'sv-SE' }] };
     }
     if (sql.includes('weekly_schedule_item') && sql.includes('COALESCE')) {
       return { rows: [{ '?column?': 1 }] };
     }
-    if (sql.includes('default_schedule_item')) {
+    if (sql.includes('FROM default_schedule ds') && sql.includes('canonical_id')) {
       return {
-        rows: [
-          { name: 'Kvällsrutin', icon: '🌙', star_value: 2, section: 'kvall' },
-          { name: 'Borsta tänder', icon: '🪥', star_value: 1, section: 'kvall' },
-        ],
+        rows: [{
+          id: 'sch-1',
+          name: 'Kvällsrutin',
+          canonical_id: 'evening_routine',
+          deprecated: false,
+          name_i18n: { sv: 'Kvällsrutin' },
+        }],
       };
     }
-    if (sql.includes('FROM default_schedule')) {
-      return { rows: [{ id: 'sch-1' }] };
+    if (sql.includes('default_activity_template WHERE canonical_id IS NOT NULL')) {
+      return { rows: [{ id: 10, canonical_id: 'brush_teeth' }] };
+    }
+    if (sql.includes('default_schedule WHERE canonical_id IS NOT NULL')) {
+      return { rows: [{ id: 'sch-1', canonical_id: 'evening_routine' }] };
+    }
+    if (sql.includes('FROM default_schedule_item dsi')) {
+      return {
+        rows: [{
+          id: 1,
+          section: 'kvall',
+          sort_order: 0,
+          start_time: null,
+          end_time: null,
+          is_optional: false,
+          item_variant_key: null,
+          default_activity_id: 10,
+          activity_canonical_id: 'brush_teeth',
+          name: 'Borsta tänder',
+          name_i18n: { sv: 'Borsta tänder' },
+          icon: '🪥',
+          icon_key: null,
+          star_value: 1,
+          duration_seconds: null,
+          sub_steps: [],
+          variants: null,
+          seven_questions: null,
+          activity_deprecated: false,
+        }],
+      };
     }
     return originalQuery(sql, params);
   };
@@ -137,6 +180,7 @@ test('buildActivationPlanPreview for trygga-kvallar uses section-scoped decision
     assert.ok(plan.decisions.some((d) => d.text.includes('Övriga sektioner behålls')));
   } finally {
     db.query = originalQuery;
+    db.pool.connect = originalPoolConnect;
   }
 });
 

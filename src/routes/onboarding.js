@@ -40,6 +40,8 @@ const { getStarterPlanDisplayName } = require('../../config/starter-plan-meta');
 const {
   copyStandardScheduleToChild,
   mapCanonicalCopyErrorToHttp,
+  TEMPLATE_GROUP_TO_CANONICAL_SCHEDULE,
+  resolveCanonicalScheduleId,
 } = require('../lib/canonical-library-runtime');
 
 const router = express.Router();
@@ -424,22 +426,26 @@ router.post('/schedule', async (req, res) => {
       }
     }
 
-    // Legacy path: ACT-1 starter plans with edited custom_items (user snapshot, not pure canonical).
-    // Map template_group key to default_schedule name (admin-maintained curated schedules)
+    // Legacy path: ACT-1 starter plans with edited custom_items (NON_CANONICAL_SNAPSHOT).
+    // User-edited snapshot content — name dedupe on activity_template is intentional here.
+    // Base schedule rows are loaded by canonical_id only (never display name identity).
     const GROUP_TO_SCHEDULE = {
       forskola: 'Förskola vardag',
-      skola:    'Skola vardag',
-      helg:     'Helg',
-      morgon:   'Kort morgon',
-      kvall:    'Kvällsrutin',
-      dag:      'Förskola vardag', // "dag" has no dedicated schedule; use Förskola as sensible default
+      skola: 'Skola vardag',
+      helg: 'Helg',
+      morgon: 'Kort morgon',
+      kvall: 'Kvällsrutin',
+      dag: 'Förskola vardag',
     };
+    const canonicalScheduleId = resolveCanonicalScheduleId({ templateGroup: template_group });
+    if (!canonicalScheduleId) {
+      return sendOnboardingError(res, 400, lang, 'NO_ACTIVITIES');
+    }
     const defaultScheduleName = GROUP_TO_SCHEDULE[template_group] || 'Förskola vardag';
 
-    // Look up the matching default_schedule
     const defaultSchedRow = await db.query(
-      `SELECT id FROM default_schedule WHERE name = $1 LIMIT 1`,
-      [defaultScheduleName]
+      `SELECT id FROM default_schedule WHERE canonical_id = $1 LIMIT 1`,
+      [canonicalScheduleId]
     );
     if (defaultSchedRow.rows.length === 0) {
       return sendOnboardingError(res, 400, lang, 'NO_ACTIVITIES');
@@ -1171,9 +1177,14 @@ router.get('/starter-plan/preview', async (req, res) => {
       return sendOnboardingError(res, 400, lang, 'SCHEDULE_NAME_REQUIRED');
     }
 
+    const canonicalScheduleId = resolveCanonicalScheduleId({ legacyScheduleName: scheduleName });
+    if (!canonicalScheduleId) {
+      return sendOnboardingError(res, 404, lang, 'TEMPLATE_NOT_FOUND');
+    }
+
     const sched = await db.query(
-      'SELECT id FROM default_schedule WHERE name = $1 LIMIT 1',
-      [scheduleName]
+      'SELECT id FROM default_schedule WHERE canonical_id = $1 LIMIT 1',
+      [canonicalScheduleId]
     );
     if (sched.rows.length === 0) {
       return sendOnboardingError(res, 404, lang, 'TEMPLATE_NOT_FOUND');
