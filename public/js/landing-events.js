@@ -60,6 +60,8 @@
   function init() {
     bindCta('[data-track="hero_signup_click"]', 'hero_signup_click');
     bindCta('[data-track="hero_how_it_works_click"]', 'hero_how_it_works_click');
+    bindCta('[data-track="product_spotlight_signup_click"]', 'product_spotlight_signup_click');
+    bindCta('[data-track="product_spotlight_how_it_works_click"]', 'product_spotlight_how_it_works_click');
     bindCta('[data-track="problem_how_it_works_click"]', 'problem_how_it_works_click');
     bindCta('[data-track="treasure_demo_click"]', 'treasure_demo_click');
     bindCta('[data-track="founder_signup_click"]', 'founder_signup_click');
