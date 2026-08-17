@@ -103,10 +103,17 @@ describe('signup-slim checkpoint', () => {
     assert.match(src, /resolveAgeBand/);
     assert.match(src, /autoSaveSlimAndFinish/);
     assert.match(src, /onboarding\.starter\.slimSuccessTitle/);
+    assert.match(src, /hourglassOfferTitle/);
+    assert.match(src, /enableHourglassForChild/);
+    assert.match(src, /activity_timers_enabled:\s*true/);
     assert.match(src, /\/dashboard/);
     assert.match(src, /signup_power_path_selected/);
     assert.match(src, /onboarding\.starter\.powerPathLead/);
     assert.match(src, /isSlimFastPath/);
+    assert.doesNotMatch(src, /slimSkipHourglass/);
+    assert.doesNotMatch(src, /hourglassOfferDismissed/);
+    assert.match(src, /id="slimGoHome"[^]*hourglassBlock/s);
+    assert.match(src, /hourglassBlock[^]*id="slimCustomize"/s);
   });
 
   it('onboarding-activation disables handoff only on slim fast path', () => {
