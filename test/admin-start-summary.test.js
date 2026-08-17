@@ -191,10 +191,14 @@ test('fetchKeyMetrics does not query Meta attribution', () => {
   assert.doesNotMatch(src, /metaSignups/);
 });
 
-test('fetchRecommendations refreshes live activation advisor copy', () => {
+test('fetchRecommendations reads persisted alerts without live collectMetrics', () => {
   const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
-  assert.match(src, /buildRecommendations/);
-  assert.match(src, /refreshActiveAlertCopy/);
+  const fnStart = src.indexOf('async function fetchRecommendations');
+  const fnEnd = src.indexOf('async function fetchActivityFeed', fnStart);
+  const fnBody = fnEnd > fnStart ? src.slice(fnStart, fnEnd) : src.slice(fnStart);
+  assert.match(fnBody, /listActive\(5\)/);
+  assert.doesNotMatch(fnBody, /buildRecommendations/);
+  assert.doesNotMatch(fnBody, /collectMetrics/);
   assert.doesNotMatch(src, /UNION ALL SELECT id FROM professional_interest/);
 });
 

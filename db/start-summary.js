@@ -186,12 +186,8 @@ async function fetchMessageSummary() {
   };
 }
 
+/** Read persisted alerts only — live advisor refresh runs on the daily scheduler. */
 async function fetchRecommendations() {
-  const { buildRecommendations } = require('../src/lib/activation-advisor');
-  const proposals = await buildRecommendations();
-  await Promise.all(proposals.map((p) => adminOperationalAlerts.refreshActiveAlertCopy(p)));
-  await Promise.all(proposals.map((p) => adminOperationalAlerts.insertAlertIfMissing(p)));
-  await adminOperationalAlerts.syncActivationAlerts(proposals.map((p) => p.slug));
   const operationalRows = await adminOperationalAlerts.listActive(5);
   return adminOperationalAlerts.toRecommendationCards(operationalRows);
 }
