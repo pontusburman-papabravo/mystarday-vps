@@ -266,8 +266,8 @@
 // stjarndag-v835: profile picker adult unlock without JWT status gate
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
-// stjarndag-v857: Om oss page + landing nav visibility fix
-const CACHE_NAME = 'stjarndag-v857';
+// stjarndag-v858: product spotlight + Om oss page + landing nav fix
+const CACHE_NAME = 'stjarndag-v858';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
