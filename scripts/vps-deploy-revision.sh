@@ -192,13 +192,13 @@ DEPLOY_DATA_DIR="${VPS_APP_PATH}/data/deploy"
 mkdir -p "${DEPLOY_DATA_DIR}/snapshots"
 
 # Ops-only deploy gate config (not loaded by Node app systemd unit) # pragma: allowlist secret
+# Later files override earlier (e.g. ~/deploy-ops.env may lower PROD_MIN_* without root).
 for _ops_env in /etc/deploy-ops/deploy-ops.env "${HOME}/deploy-ops.env"; do
   if [ -f "${_ops_env}" ]; then
     set -a
     # shellcheck disable=SC1090
     . "${_ops_env}"
     set +a
-    break
   fi
 done
 unset _ops_env

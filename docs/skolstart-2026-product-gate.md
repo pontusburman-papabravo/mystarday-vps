@@ -1,9 +1,9 @@
 # Skolstart 2026 — Product Experience Gate <!-- pragma: allowlist secret -->
 
-**Date:** 2026-08-17  
-**Branch:** `cursor/skolstart-2026-launch-readiness-d1e5`  
-**Prod SHA (audited):** `663e25d2c1ba9ceef216d0af14289068f8c96563`  
-**Method:** Code + integration tests + prod read-only audit (2026-08-17) + physical QA records in repo
+**Date:** 2026-08-17 (updated after Family Device global rollout)  
+**Main SHA:** `7fc83f4077ef5bd4aabfdcc0addbf999f5616c84`  
+**Prod SHA:** `8a2771694a4078e755f3cf733066cf2e5df743cb`  
+**Method:** Code + integration tests + prod audit + automated prod pilot + founder physical smoke (2026-08-17)
 
 ---
 
@@ -13,11 +13,11 @@
 |----------|------|--------|
 | 1 | Onboarding | **YELLOW** → **GREEN** after this PR (NU/NÄSTA default fix) |
 | 2 | Ready-made routines | **GREEN** |
-| 3 | Family Device | **RED** (flags OFF; code ready) |
-| 4 | Visual timer | **YELLOW** (opt-in, discoverable in settings) |
-| 5 | Ease of use | **YELLOW** (Family Device blocker for shared-phone promise) |
+| 3 | Family Device | **GREEN** (global rollout 2026-08-17; physical smoke PASS) |
+| 4 | Visual timer | **YELLOW** (opt-in; discoverability PR #1018 pending) |
+| 5 | Ease of use | **GREEN** |
 
-**Marketing without Family Device rollout:** GO for routines, NU/NÄSTA, stars. **NO_GO** for “slip onödiga inloggningar på familjens mobil” until flags ON.
+**Marketing:** GO for routines, NU/NÄSTA, stars, shared-phone (qualified copy). Timer remains QUALIFIED until discoverability PR merges.
 
 ---
 
@@ -54,26 +54,28 @@
 
 **Quality:** Frozen contract tests (`standard-library-v11-content.test.js`). Parent can recognize morning/school/evening — not “configure another system.”
 
-### FAMILY DEVICE — RED (code GREEN, prod OFF)
+### FAMILY DEVICE — GREEN (global rollout complete)
 
 | Gate item | Status |
 |-----------|--------|
 | A. Source tests green | **PASS** — 40+ integration/contract tests in `test:gate` |
 | B. Auth/adult privilege tests | **PASS** |
-| C. Child/adult boundary | **CODE TESTED** |
-| D. One-child family | **CODE + API pilot harness** |
-| E. Multi-child family | **CODE + API pilot harness** |
-| F. Force-close/reopen | **CODE TESTED**; general native session **PHYSICALLY TESTED** (Aug 2026) — not FD flags ON |
-| G. Parent return | **CODE TESTED** (`profile-switch-parent-return`) |
-| H. Native | **CODE TESTED**; **no FD-specific physical sign-off** |
-| I. Web/PWA | **CODE TESTED** |
-| J. P0/P1 open defects | None in code review |
-| K. Existing users safe | Flags OFF → legacy child-login path unchanged |
-| L. Rollback documented | See rollout plan below |
+| C. Child/adult boundary | **PASS** — prod pilot + founder physical smoke |
+| D. One-child family | **PASS** — `SHARED_ONE_CHILD_SERVER` prod pilot |
+| E. Multi-child family | **PASS** — `SHARED_MULTI_CHILD_SERVER` prod pilot + founder 2-child smoke |
+| F. Force-close/reopen | **PASS** — founder physical smoke 2026-08-17 |
+| G. Parent return | **PASS** — `ADULT_PRIVILEGE_SERVER` + founder physical smoke |
+| H. Native | **PASS** — founder phone (Capacitor WebView) |
+| I. Web/PWA | **PASS** — prod pilot |
+| J. P0/P1 open defects | None |
+| K. Existing users safe | Legacy `/child-login` + PIN unchanged on non-trusted devices |
+| L. Rollback documented | See rollout record below |
 
-**Prod flags (all `false`):** `trusted_device_v1`, `family_device_entry_v1`, `family_device_daily_ux_v1`, `adult_privilege_v1`
+**Prod global flags (2026-08-17, all `true`):** `trusted_device_v1`, `family_device_entry_v1`, `family_device_daily_ux_v1`, `adult_privilege_v1`
 
-**Physical evidence gap:** `docs/ACTIVATION-FIRST-SUCCESS-PHYSICAL-QA-RESULT.md` (force-close, child session) does **not** cover trusted-device cold start with flags ON. `native-app-test-checklist.md` §12 (shared device) unchecked.
+**Widget flags unchanged:** `native_widget_enabled`, `widget_completion_enabled` remain `false`.
+
+**Physical evidence:** Founder family phone smoke PASS (enrollment, force-close/reopen, child flow, adult return, multi-child switch).
 
 ### VISUAL TIMER — YELLOW
 
@@ -121,7 +123,7 @@ Contract tests + large card mode + reduced-motion on celebrations/timer. No colo
 |------------|---------|-----|---------|
 | Onboarding slim | **PASS** | **PASS** (same WebView) | **PASS** |
 | Standard library | **PASS** | **PASS** | **PASS** |
-| Family Device | **FAIL** (flags OFF) | **FAIL** | **FAIL** |
+| Family Device | **PASS** | **PASS** | **PASS** |
 | Timer | **QUALIFIED** | **QUALIFIED** | **QUALIFIED** |
 | Child view | **PASS** | **PASS** | **QUALIFIED** (child-first cold launch fixed v770) |
 | Adult return | **PASS** (PIN) | **PASS** (PIN + biometric native) | **PASS** |
@@ -153,7 +155,7 @@ Contract tests + large card mode + reduced-motion on celebrations/timer. No colo
 | Schedules preserved | Yes |
 | Onboarding not repeated | `onboarding_completed=true` |
 | Timer settings retained | Per-child column |
-| Family Device benefit | **Only after rollout** — today same as legacy PIN |
+| Family Device benefit | **LIVE** — trusted shared phone → child day or profile picker; adult area PIN/biometric protected |
 
 ---
 
@@ -161,41 +163,28 @@ Contract tests + large card mode + reduced-motion on celebrations/timer. No colo
 
 ### Decision
 
-**FAMILY_DEVICE_GLOBAL_ROLLOUT = NO_GO** until Pontus approves global flag enable + short physical smoke (3 actions below).
+**FAMILY_DEVICE_GLOBAL_ROLLOUT = PASS** (2026-08-17)
 
-**Rationale:** Code and automated gates are ready; prod flags OFF; no physical sign-off with all four flags ON on shared family phone.
+**Evidence:** Pontus physical smoke PASS on founder phone; automated prod pilot PASS on deployed SHA `8a277169`; health remained healthy after staged flag enable.
 
-### Rollout plan (after approval)
+### Rollout record (2026-08-17)
 
-**Current state:** All four flags `false` globally, no family overrides in prod audit.
+**Pre-rollout state:** All four flags `false` globally.
 
-**Target state (global ON, in order):**
+**Enabled in order (verified after each step):**
 
 1. `trusted_device_v1` = true  
 2. `family_device_entry_v1` = true  
 3. `family_device_daily_ux_v1` = true (requires entry)  
 4. `adult_privilege_v1` = true  
 
-**Do NOT enable:** `native_widget_enabled`, `widget_completion_enabled` (pre-public gate).
+**Widgets not enabled:** `native_widget_enabled`, `widget_completion_enabled` remain `false`.
 
-**SQL (run on prod after backup):**
-
-```sql
-UPDATE feature_flag SET enabled = true WHERE key IN (
-  'trusted_device_v1',
-  'family_device_entry_v1',
-  'family_device_daily_ux_v1',
-  'adult_privilege_v1'
-);
-```
-
-**Staged alternative (safer):** Per-family override via admin for 5–10 internal/pilot families first (`family_feature_override`), then global SQL above.
-
-**Verification after enable:**
+**Post-rollout verification:**
 
 ```bash
-# Disposable prod pilot (API) — set SMOKE_BASE_URL to approved prod origin
-FAMILY_DEVICE_PILOT_CONFIRM=1 npm run family-device:prod-pilot
+FAMILY_DEVICE_PILOT_CONFIRM=1 FAMILY_DEVICE_PILOT_ALLOWED_BASES=<prod-origin> npm run family-device:prod-pilot
+# Result: FAMILY_DEVICE_AUTOMATED_PROD_PILOT=PASS (all scenarios, CROSS_FAMILY_ACCESS=0)
 ```
 
 **Rollback:**
@@ -230,7 +219,7 @@ Revoked trusted devices remain revoked; families fall back to legacy `/child-log
 | 1 | Kom igång snabbt med färdiga rutiner | **GO** | Slim 3-step + canonical 8 schedules; auto-seed by age |
 | 2 | Barnet ser vad som händer nu och härnäst | **GO** (post-fix) | `show_now_next=true` after schedule save; NU/NÄSTA zones |
 | 3 | Visuellt timglas hjälper barnet se tid kvar | **QUALIFIED** | Opt-in per child; not default |
-| 4 | På familjens egen mobil slipper ni onödiga inloggningar | **NO_GO** | All FD flags OFF in prod |
+| 4 | På familjens egen mobil slipper ni onödiga inloggningar | **QUALIFIED** | Global FD ON; use: *"På familjens egen mobil kan barnet komma tillbaka till sin dag utan att logga in på nytt varje gång."* Adult area remains PIN/biometric protected; unknown devices unchanged |
 | 5 | Barnet kan följa sin dag och samla stjärnor själv | **GO** | Core child path; PIN login today |
 
 ---
@@ -246,12 +235,7 @@ Revoked trusted devices remain revoked; families fall back to legacy `/child-log
 
 ## Pontus involvement
 
-Repository-side work is complete pending merge.
+Family Device global rollout complete. Remaining approvals:
 
-**Pontus only needs to approve:**
-
-1. **Family Device global rollout** (or staged pilot) — single approval  
-2. **Merge + deploy** this PR  
-3. **Marketing launch** (newsletter/Meta) — copy in `docs/marketing/SKOLSTART_2026_LAUNCH.md`
-
-**Optional 5-minute physical smoke** only if enabling Family Device flags.
+1. **Marketing launch** (newsletter/Meta) — copy in `docs/marketing/SKOLSTART_2026_LAUNCH.md` (do not send until explicit go)
+2. **Timer discoverability PR #1018** — optional merge when ready
