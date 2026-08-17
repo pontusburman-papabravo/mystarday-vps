@@ -1,9 +1,9 @@
 # Skolstart 2026 — Product Experience Gate <!-- pragma: allowlist secret -->
 
-**Date:** 2026-08-17 (updated after Family Device global rollout)  
-**Main SHA:** `7fc83f4077ef5bd4aabfdcc0addbf999f5616c84`  
-**Prod SHA:** `8a2771694a4078e755f3cf733066cf2e5df743cb`  
-**Method:** Code + integration tests + prod audit + automated prod pilot + founder physical smoke (2026-08-17)
+**Date:** 2026-08-17 (final school-start readiness)  
+**Main SHA:** `75ef48c38e3815efda675ecb447ec7abad01ef01`  
+**Prod SHA:** `75ef48c38e3815efda675ecb447ec7abad01ef01`  
+**Method:** CI + GHA deploy + prod pilot + founder physical smoke (Family Device)
 
 ---
 
@@ -14,10 +14,10 @@
 | 1 | Onboarding | **YELLOW** → **GREEN** after this PR (NU/NÄSTA default fix) |
 | 2 | Ready-made routines | **GREEN** |
 | 3 | Family Device | **GREEN** (global rollout 2026-08-17; physical smoke PASS) |
-| 4 | Visual timer | **YELLOW** (opt-in; discoverability PR #1018 pending) |
+| 4 | Visual timer | **GREEN** (#1018 merged; optional offer on slim success) |
 | 5 | Ease of use | **GREEN** |
 
-**Marketing:** GO for routines, NU/NÄSTA, stars, shared-phone (qualified copy). Timer remains QUALIFIED until discoverability PR merges.
+**Marketing:** Product ready for school-start launch decision. Timer and Family Device use qualified copy (opt-in / trusted phone).
 
 ---
 
@@ -77,17 +77,15 @@
 
 **Physical evidence:** Founder family phone smoke PASS (enrollment, force-close/reopen, child flow, adult return, multi-child switch).
 
-### VISUAL TIMER — YELLOW
+### VISUAL TIMER — GREEN
 
 | Check | Result |
 |-------|--------|
 | Code live | `activityTimerV2Available: true`, kill switch off |
-| Default for new child | **OFF** (`activity_timers_enabled=false`) |
-| Enable path | Child settings → “Aktivitetstimer” toggle; onboarding preset `time_and_order` if parent uses legacy activity guide |
+| Default for new child | **OFF** (`activity_timers_enabled=false`) — unchanged |
+| Enable path | Slim success screen: optional ⏳ block + one-tap **Aktivera timglas**; primary CTA remains **Gå till Hem** |
 | Child UX | Hourglass metaphor in `child-dashboard-activity-timer.js`; reduced-motion honored |
-| Discoverability | **P1** — parent must find child settings; not surfaced in slim onboarding success screen |
-
-**Qualified marketing:** “Visuellt timglas” only with “kan aktiveras per barn” qualifier.
+| Discoverability | **PASS** — visible after first schedule save; no mandatory decision or "Inte nu" skip |
 
 ### CHILD EXPERIENCE — GREEN
 
@@ -218,7 +216,7 @@ Revoked trusted devices remain revoked; families fall back to legacy `/child-log
 |---|---------|--------|----------|
 | 1 | Kom igång snabbt med färdiga rutiner | **GO** | Slim 3-step + canonical 8 schedules; auto-seed by age |
 | 2 | Barnet ser vad som händer nu och härnäst | **GO** (post-fix) | `show_now_next=true` after schedule save; NU/NÄSTA zones |
-| 3 | Visuellt timglas hjälper barnet se tid kvar | **QUALIFIED** | Opt-in per child; not default |
+| 3 | Visuellt timglas hjälper barnet se tid kvar | **QUALIFIED** | Opt-in per child; one-tap enable on slim success after first schedule |
 | 4 | På familjens egen mobil slipper ni onödiga inloggningar | **QUALIFIED** | Global FD ON; use: *"På familjens egen mobil kan barnet komma tillbaka till sin dag utan att logga in på nytt varje gång."* Adult area remains PIN/biometric protected; unknown devices unchanged |
 | 5 | Barnet kan följa sin dag och samla stjärnor själv | **GO** | Core child path; PIN login today |
 
@@ -235,7 +233,8 @@ Revoked trusted devices remain revoked; families fall back to legacy `/child-log
 
 ## Pontus involvement
 
-Family Device global rollout complete. Remaining approvals:
+Family Device global rollout complete. Timer discoverability live (#1018). GHA deploy pipeline verified (run `32030923982` SUCCESS).
+
+Remaining approvals:
 
 1. **Marketing launch** (newsletter/Meta) — copy in `docs/marketing/SKOLSTART_2026_LAUNCH.md` (do not send until explicit go)
-2. **Timer discoverability PR #1018** — optional merge when ready
