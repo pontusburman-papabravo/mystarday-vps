@@ -1857,6 +1857,84 @@ body.landing-menu-open {
   text-align: center;
 }
 
+/* ── Product spotlight (HTML copy + showcase image) ─────────── */
+.landing-product-spotlight {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
+.landing-product-spotlight__grid {
+  display: grid;
+  grid-template-columns: 42fr 58fr;
+  gap: 2.5rem 3rem;
+  align-items: center;
+}
+
+.landing-product-spotlight__copy .section-title {
+  max-width: 22ch;
+}
+
+.landing-product-spotlight__body {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+
+.landing-product-spotlight__body:last-of-type {
+  margin-bottom: 1.75rem;
+}
+
+.landing-product-spotlight__figure {
+  margin: 0;
+}
+
+.landing-product-spotlight__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 40px rgba(28, 35, 64, 0.1);
+}
+
+.landing-product-spotlight__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
+.landing-product-spotlight__ctas--mobile {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .landing-product-spotlight__grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .landing-product-spotlight__copy {
+    order: 1;
+  }
+
+  .landing-product-spotlight__copy .section-title {
+    max-width: none;
+  }
+
+  .landing-product-spotlight__figure {
+    order: 2;
+  }
+
+  .landing-product-spotlight__ctas--desktop {
+    display: none;
+  }
+
+  .landing-product-spotlight__ctas--mobile {
+    display: flex;
+    order: 3;
+  }
+}
+
 /* ── Sommarhälsning (founder letter) ─────────────────────── */
 .landing-sommar {
   padding-top: 2.5rem;

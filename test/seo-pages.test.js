@@ -187,6 +187,11 @@ test('landing homepage has skolstart 2026 module and guide link', () => {
   assert.match(html, /Bildschema-app för barn/);
   assert.match(html, /href="\/resurser\/bildschema-skolstart-hosten"/);
   assert.doesNotMatch(html, /id="sommarhalsning"/);
+  assert.match(html, /id="nytt-i-appen"/);
+  assert.match(html, /Nytt i .*Stjärndag/);
+  assert.match(html, /Mindre att hålla i huvudet/);
+  assert.match(html, /app-product-showcase-2026\.png/);
+  assert.match(html, /data-track="product_spotlight_signup_click"/);
   assert.match(html, /Särskilt bra för barn som behöver tydlighet/);
 });
 
