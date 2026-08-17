@@ -1,6 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
- * v820: Fas 2C parent trusted device enroll/restore
+ * v856: Skolstart 2026 — homepage module, meta copy, guider-länk
  * v819: Fas 2B app-entry-orchestrator + session-gate entry wiring
  * v772: aktivitetstimer i dagsvy (Morgon/Dag/Kväll) — Starta timer synlig
  * v771: aktivitetstimer v2 polish — timglas, overlay animation
@@ -266,7 +266,7 @@
 // stjarndag-v835: profile picker adult unlock without JWT status gate
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
-const CACHE_NAME = 'stjarndag-v855';
+const CACHE_NAME = 'stjarndag-v856';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -596,6 +596,7 @@ const CACHE_NAME = 'stjarndag-v855';
 // stjarndag-v852: Family Device P1 delta — in-flight-only family fetch, no warm-prefetch swallow
 // stjarndag-v851: Family Device P1 — false-logout fix + shared /api/family coalescing
 // stjarndag-v850: lifecycle Capacitor addListener compat + select-parent error stages
+// stjarndag-v856: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

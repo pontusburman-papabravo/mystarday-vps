@@ -467,12 +467,12 @@
       "description": "Helgrutin"
     },
     "previewFallback": {
-      "forskola": ["Vakna", "Klä på sig", "Frukost", "Förskola", "Leka", "Middag", "Godnattsaga"],
-      "skola": ["Vakna", "Frukost", "Packa väska", "Skola", "Läxor", "Middag", "Läsa"],
-      "morgon": ["Vakna", "Klä på sig", "Tänderna", "Frukost", "Packa väska"],
-      "dag": ["Förskola / Skola", "Leka ute", "Mellanmål", "Fritidsaktivitet", "Läxor / Pyssel"],
-      "kvall": ["Middag", "Tänderna", "Pyjamas", "Godnattsaga", "Sova"],
-      "helg": ["Sova ut", "Frukost", "Leka fritt", "Utflykt", "Familjaktivitet", "Middag"]
+      "forskola": ["Vakna", "Klä på dig", "Frukost", "Förskola", "Leka", "Middag", "Sagostund"],
+      "skola": ["Vakna", "Frukost", "Packa väska", "Skola", "Läxor", "Middag", "Sagostund"],
+      "morgon": ["Vakna", "Klä på dig", "Borsta tänderna", "Frukost", "Packa väska"],
+      "dag": ["Förskola", "Leka ute", "Mellanmål", "Lunch", "Pyssel"],
+      "kvall": ["Middag", "Borsta tänderna", "Pyjamas", "Sagostund", "Sova"],
+      "helg": ["Vakna", "Frukost", "Leka fritt", "Utflykt", "Familjaktivitet", "Middag"]
     }
   },
   "sections": {
