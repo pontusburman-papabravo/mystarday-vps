@@ -112,10 +112,8 @@ describe('signup-slim checkpoint', () => {
     assert.match(src, /isSlimFastPath/);
     assert.doesNotMatch(src, /slimSkipHourglass/);
     assert.doesNotMatch(src, /hourglassOfferDismissed/);
-    const goHomeIdx = src.indexOf('id="slimGoHome"');
-    const hourglassIdx = src.indexOf('id="slimEnableHourglass"');
-    assert.ok(goHomeIdx > -1 && hourglassIdx > -1, 'success screen has home and hourglass controls');
-    assert.ok(goHomeIdx < hourglassIdx, 'Go Home is primary and appears before optional hourglass offer');
+    assert.match(src, /id="slimGoHome"[^]*hourglassBlock/s);
+    assert.match(src, /hourglassBlock[^]*id="slimCustomize"/s);
   });
 
   it('onboarding-activation disables handoff only on slim fast path', () => {
