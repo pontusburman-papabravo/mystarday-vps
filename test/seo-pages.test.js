@@ -23,7 +23,7 @@ const { listenApp } = require('./helpers/http');
 const ROOT = path.join(__dirname, '..');
 
 test('SEO indexable paths include public marketing pages', () => {
-  for (const p of ['/', '/register', '/skattkammaren', '/pricing-info', '/pedagoger-och-terapeuter', '/faq', '/kontakt']) {
+  for (const p of ['/', '/register', '/skattkammaren', '/pricing-info', '/pedagoger-och-terapeuter', '/faq', '/kontakt', '/om-oss']) {
     assert.ok(SEO_INDEXABLE_PATHS.has(p), p);
     assert.equal(isSeoIndexable(p), true);
   }
@@ -73,10 +73,24 @@ test('sitemap reflects index strategy', () => {
   assert.match(xml, /\/pricing-info<\/loc>/);
   assert.match(xml, /\/faq<\/loc>/);
   assert.match(xml, /\/kontakt<\/loc>/);
+  assert.match(xml, /\/om-oss<\/loc>/);
   assert.match(xml, /\/en<\/loc>/);
   assert.doesNotMatch(xml, /\/login<\/loc>/);
   assert.doesNotMatch(xml, /\/child-login<\/loc>/);
   assert.match(xml, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
+});
+
+test('om-oss page is indexable with route and founder story', () => {
+  assert.equal(isSeoIndexable('/om-oss'), true);
+  const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
+  assert.match(route, /router\.get\('\/om-oss'/);
+  const html = fs.readFileSync(path.join(ROOT, 'public/om-oss.html'), 'utf8');
+  assert.match(html, /En app skapad hemma/);
+  assert.match(html, /Mindre att hålla i huvudet/);
+  assert.match(html, /pontus-fjall\.jpg/);
+  assert.match(html, /public-site-header/);
+  const index = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(index, /href="\/om-oss">Om oss</);
 });
 
 test('faq and kontakt pages are indexable with canonical', () => {
@@ -348,6 +362,7 @@ test('SEO indexable HTML pages use absolute canonical URLs', () => {
     '/': 'public/index.html',
     '/faq': 'public/faq.html',
     '/kontakt': 'public/kontakt.html',
+    '/om-oss': 'public/om-oss.html',
     '/pricing-info': 'public/pricing-info.html',
     '/skattkammaren': 'public/skattkammaren.html',
     '/bildschema-app': 'public/bildschema-app.html',

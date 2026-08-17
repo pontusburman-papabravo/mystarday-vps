@@ -32,6 +32,16 @@ router.get('/kontakt', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'kontakt.html'));
 });
 
+// About page (founder story)
+router.get('/om-oss', (req, res) => {
+  const htmlPath = path.join(__dirname, '../../public', 'om-oss.html');
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectSiteUrl(html);
+  html = injectBrandPlaceholders(html);
+  html = injectSupportEmail(html);
+  res.type('html').send(html);
+});
+
 // Service incident information (linked from landing banner)
 router.get('/viktig-information', (req, res) => {
   const htmlPath = path.join(__dirname, '../../public', 'viktig-information.html');

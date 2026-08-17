@@ -13,6 +13,8 @@ test('public route serves kontakt and faq pages', () => {
   assert.match(src, /kontakt\.html/);
   assert.match(src, /router\.get\('\/faq'/);
   assert.match(src, /faq\.html/);
+  assert.match(src, /router\.get\('\/om-oss'/);
+  assert.match(src, /om-oss\.html/);
 });
 
 test('landing route serves program catalog API', () => {

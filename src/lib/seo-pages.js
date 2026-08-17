@@ -18,6 +18,7 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/pricing-info',
   '/faq',
   '/kontakt',
+  '/om-oss',
   '/privacy',
   '/terms',
   '/en',
