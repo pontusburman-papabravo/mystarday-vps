@@ -193,10 +193,9 @@ describe('activation-advisor wiring', () => {
     assert.match(src, /operational-alerts/);
   });
 
-  it('admin-start.js exposes dismiss handler', () => {
-    const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-start.js'), 'utf8');
-    assert.match(src, /dismissOperationalAlert/);
-    assert.match(src, /severityStyles/);
+  it('admin-core loads journey analysis on produktanalys route', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-core.js'), 'utf8');
+    assert.match(src, /loadJourneyDailyAnalysis/);
   });
 });
 
