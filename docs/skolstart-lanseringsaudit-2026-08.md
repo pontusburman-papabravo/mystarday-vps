@@ -54,13 +54,15 @@ Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — å
 }
 ```
 
-### Standard Library (prod DB)
+### Standard Library (prod DB, verifierat 2026-08-17)
 
-| Mått | Värde |
-|------|-------|
-| Aktiviteter | 56 |
-| Scheman | 8 |
-| Schema-poster | 98 |
+| Mått | Värde | Kommentar |
+|------|-------|-----------|
+| **Kanoniska aktiviteter** | **31** | `canonical_id IS NOT NULL` — matchar manifest `config/standard-library/v1.1.json` |
+| Legacy/preserved rader | 25 | `canonical_id IS NULL` (t.ex. "Bada/Duscha", "Film / Pyssel") — ej del av v1.1-manifest |
+| **Totalt i `default_activity_template`** | 56 | = 31 + 25; **marknadsför inte som "56 standardaktiviteter"** |
+| **Kanoniska scheman** | **8** | |
+| **Schema-poster** | **98** | |
 
 **Scheman:** Förskola vardag, Helg, Jullov, Kvällsrutin, Lov, Morgonrutin, **Skola vardag**, Sommarlov.
 
@@ -119,7 +121,7 @@ Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — å
 - "Färdiga rutiner för morgon, skola och kväll"
 - "Barnet ser vad som händer nu och vad som kommer sen"
 - "Stjärnor som belöning när aktiviteter blir klara"
-- "Visuellt schema som minskar tjat hemma"
+- "Tydligt visuellt schema som kan göra det lättare för barnet att följa rutinen själv"
 - "Särskilt bra för barn som behöver tydlighet och förutsägbarhet" (utan medicinska påståenden)
 
 ### REQUIRES_ROLLOUT_BEFORE_CAMPAIGN
@@ -154,6 +156,20 @@ Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — å
 **Kampanj-UTM-förslag:** `utm_source=meta&utm_medium=paid&utm_campaign=skolstart2026&utm_content=<vinkel>`
 
 **Gap:** Ingen dedikerad client-event `funnel_schedule_selected` — men server-side `schema_saved` täcker steget tillräckligt för kampanjutvärdering.
+
+### Prod-baseline (read-only, 2026-08-17)
+
+| Steg | Källa | All-time n | Konvertering |
+|------|-------|------------|--------------|
+| Registrering påbörjad | `funnel_signup_started` | 261 | — |
+| Första barn skapat | `funnel_first_child_created` | 189 | **72,4 %** från signup |
+| Senaste kohort (vecka 2026-08-11) | activation-funnel | signup 16 → child 15 | **93,8 %** (litet n) |
+
+**Meta-mätning (terminologi):**
+
+- **Webb/PWA:** Meta Pixel (`fbq`) via `marketing-events.js` — `CompleteRegistration`, `Lead` (marketing consent)
+- **Native iOS/Android:** Meta App Events SDK via Capacitor `meta-app-events.js` — **inte** Pixel; undviker dubbelräkning
+- **App-install på native:** AutoLog/App Events efter consent — inte web-pixel
 
 ---
 

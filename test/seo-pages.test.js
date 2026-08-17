@@ -184,6 +184,7 @@ test('landing homepage has skolstart 2026 module and guide link', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
   assert.match(html, /id="skolstart"/);
   assert.match(html, /Skolstart 2026/);
+  assert.match(html, /Bildschema-app för barn/);
   assert.match(html, /href="\/resurser\/bildschema-skolstart-hosten"/);
   assert.doesNotMatch(html, /id="sommarhalsning"/);
   assert.match(html, /Särskilt bra för barn som behöver tydlighet/);
