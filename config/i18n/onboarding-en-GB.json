@@ -468,11 +468,11 @@
     },
     "previewFallback": {
       "forskola": ["Wake up", "Get dressed", "Breakfast", "Nursery", "Play", "Dinner", "Bedtime story"],
-      "skola": ["Wake up", "Breakfast", "Pack bag", "School", "Homework", "Dinner", "Reading"],
+      "skola": ["Wake up", "Breakfast", "Pack bag", "School", "Homework", "Dinner", "Bedtime story"],
       "morgon": ["Wake up", "Get dressed", "Brush teeth", "Breakfast", "Pack bag"],
-      "dag": ["Nursery / School", "Play outside", "Snack", "After-school activity", "Homework / crafts"],
+      "dag": ["Nursery", "Play outside", "Snack", "Lunch", "Crafts"],
       "kvall": ["Dinner", "Brush teeth", "Pyjamas", "Bedtime story", "Sleep"],
-      "helg": ["Sleep in", "Breakfast", "Free play", "Day out", "Family activity", "Dinner"]
+      "helg": ["Wake up", "Breakfast", "Free play", "Day out", "Family activity", "Dinner"]
     }
   },
   "sections": {

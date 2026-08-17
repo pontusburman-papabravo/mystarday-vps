@@ -42,6 +42,12 @@ describe('onboarding activity guide — parent defaults', () => {
     assert.match(src, /activity_timers_enabled/);
   });
 
+  it('onboarding route applies NU/NÄSTA defaults after schedule when child UX unset', () => {
+    const src = read('src/routes/onboarding.js');
+    assert.match(src, /applyOnboardingDefaultChildUxIfUnset/);
+    assert.match(src, /ACTIVITY_GUIDE_PRESETS\.one_at_a_time/);
+  });
+
   it('finalizeSchemaAndGoHandoff routes to activity guide before handoff', () => {
     const src = read('public/js/onboarding.js');
     assert.match(src, /OnboardingActivityGuide\.goToActivityGuideStep/);

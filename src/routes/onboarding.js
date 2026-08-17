@@ -314,6 +314,53 @@ const SCHOOL_GROUPS = new Set(['forskola', 'skola', 'dag']);
 const WEEKDAYS = [1, 2, 3, 4, 5]; // Mon–Fri (JS Date convention: 0=Sun, 6=Sat)
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
+const ACTIVITY_GUIDE_PRESETS = {
+  free_order: {
+    require_sequential_completion: false,
+    show_now_next: false,
+    activity_timers_enabled: false,
+  },
+  one_at_a_time: {
+    require_sequential_completion: true,
+    show_now_next: true,
+    activity_timers_enabled: false,
+  },
+  time_and_order: {
+    require_sequential_completion: true,
+    show_now_next: true,
+    activity_timers_enabled: true,
+  },
+};
+
+/** ACT-1 slim/starter paths skip the activity-guide screen — enable NU/NÄSTA by default. */
+async function applyOnboardingDefaultChildUxIfUnset(childId) {
+  const row = await db.query(
+    `SELECT show_now_next, require_sequential_completion
+     FROM child WHERE id = $1`,
+    [childId]
+  );
+  const child = row.rows[0];
+  if (!child) return false;
+  if (child.show_now_next === true || child.require_sequential_completion === true) {
+    return false;
+  }
+  const preset = ACTIVITY_GUIDE_PRESETS.one_at_a_time;
+  await db.query(
+    `UPDATE child SET
+       require_sequential_completion = $1,
+       show_now_next = $2,
+       activity_timers_enabled = $3
+     WHERE id = $4`,
+    [
+      preset.require_sequential_completion,
+      preset.show_now_next,
+      preset.activity_timers_enabled,
+      childId,
+    ]
+  );
+  return true;
+}
+
 // ─── POST /api/onboarding/schedule ───────────────────────
 // Body: { child_id, template_group: 'forskola'|'skola'|'morgon'|'helg'|'kvall'|'dag' }
 // Seeds weekly_schedule from admin-maintained default_schedule tables.
@@ -405,6 +452,10 @@ router.post('/schedule', async (req, res) => {
         require('../lib/journey/ingest').ingestMilestoneAsync({
           familyId,
           milestone: 'routine_ready',
+        });
+
+        await applyOnboardingDefaultChildUxIfUnset(child_id).catch((err) => {
+          console.error('[ONBOARDING] default child UX after schedule:', err.message);
         });
 
         return res.json({
@@ -664,6 +715,10 @@ router.post('/schedule', async (req, res) => {
       require('../lib/journey/ingest').ingestMilestoneAsync({
         familyId,
         milestone: 'routine_ready',
+      });
+
+      await applyOnboardingDefaultChildUxIfUnset(child_id).catch((err) => {
+        console.error('[ONBOARDING] default child UX after schedule:', err.message);
       });
 
       res.json({
@@ -938,24 +993,6 @@ router.post('/child-view', async (req, res) => {
     return sendOnboardingError(res, 500, lang, 'VIEW_SAVE_FAILED');
   }
 });
-
-const ACTIVITY_GUIDE_PRESETS = {
-  free_order: {
-    require_sequential_completion: false,
-    show_now_next: false,
-    activity_timers_enabled: false,
-  },
-  one_at_a_time: {
-    require_sequential_completion: true,
-    show_now_next: true,
-    activity_timers_enabled: false,
-  },
-  time_and_order: {
-    require_sequential_completion: true,
-    show_now_next: true,
-    activity_timers_enabled: true,
-  },
-};
 
 // ─── POST /api/onboarding/child-activity-guide ───────────
 // Parent picks how the child completes daily activities (onboarding defaults).
