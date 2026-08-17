@@ -41,6 +41,9 @@
     introText: '',
     usedAi: false,
     selectedEmoji: '🌟',
+    childId: null,
+    hourglassEnabled: false,
+    hourglassOfferDismissed: false,
   };
 
   function ot(key, params) {
@@ -440,6 +443,7 @@
       });
       const childData = await childRes.json();
       if (!childRes.ok) throw new Error(childData.error || ot('onboarding.starter.childCreateFailed'));
+      state.childId = childData.id;
 
       const schedRes = await api('/api/onboarding/schedule', {
         method: 'POST',
@@ -500,6 +504,18 @@
     window.location.href = targetHref;
   }
 
+  async function enableHourglassForChild() {
+    if (!state.childId || state.hourglassEnabled) return true;
+    const res = await api('/api/children/' + encodeURIComponent(state.childId), {
+      method: 'PUT',
+      body: JSON.stringify({ activity_timers_enabled: true }),
+    });
+    const data = await res.json().catch(function () { return {}; });
+    if (!res.ok) throw new Error(data.error || ot('onboarding.starter.hourglassEnableFailed'));
+    state.hourglassEnabled = true;
+    return true;
+  }
+
   function showSlimSuccessAndGoHome() {
     const container = document.getElementById('starterPlanQuestions');
     const preview = document.getElementById('starterPlanPreview');
@@ -507,16 +523,50 @@
     if (preview) {
       preview.classList.remove('hidden');
       const childName = state.answers.child_name || ot('onboarding.common.childFallback');
+      const hourglassBlock = (!state.hourglassOfferDismissed && !state.hourglassEnabled)
+        ? [
+          '  <div class="mt-5 p-4 rounded-xl bg-cream border border-gold/25 text-left" id="slimHourglassOffer">',
+          '    <p class="text-navy font-heading font-semibold text-sm mb-1">' + esc(ot('onboarding.starter.hourglassOfferTitle')) + '</p>',
+          '    <p class="text-text-soft text-sm mb-3">' + esc(ot('onboarding.starter.hourglassOfferBody')) + '</p>',
+          '    <button type="button" id="slimEnableHourglass" class="w-full bg-navy hover:bg-navy-dark text-white font-semibold py-3 rounded-xl min-h-[44px]">' + esc(ot('onboarding.starter.hourglassEnableBtn')) + '</button>',
+          '    <button type="button" id="slimSkipHourglass" class="w-full text-sm font-semibold text-text-soft py-3 mt-1 min-h-[44px]">' + esc(ot('onboarding.starter.hourglassSkipBtn')) + '</button>',
+          '  </div>',
+        ].join('')
+        : (state.hourglassEnabled
+          ? '  <p class="text-sm text-navy font-medium mt-4" id="slimHourglassEnabledMsg">' + esc(ot('onboarding.starter.hourglassEnabledMsg')) + '</p>'
+          : '');
       preview.innerHTML = [
         '<div class="text-center py-6">',
         '  <div class="text-5xl mb-3" aria-hidden="true">✨</div>',
         '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">' + esc(ot('onboarding.starter.slimSuccessTitle')) + '</h2>',
         '  <p class="text-text-soft text-sm mb-1">' + esc(ot('onboarding.starter.previewForChild', { childName: childName, count: state.previewItems.length })) + '</p>',
         '  <p class="text-navy text-sm font-medium mt-4">' + esc(ot('onboarding.starter.slimSuccessTonight')) + '</p>',
+        hourglassBlock,
         '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">' + esc(ot('onboarding.starter.goHome')) + '</button>',
         '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-navy py-3 mt-2 min-h-[44px]">' + esc(ot('onboarding.starter.customizeFirst')) + '</button>',
         '</div>',
       ].join('');
+
+      const hourglassBtn = document.getElementById('slimEnableHourglass');
+      if (hourglassBtn) {
+        hourglassBtn.addEventListener('click', function () {
+          const btn = document.getElementById('slimEnableHourglass');
+          if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.hourglassEnabling'); }
+          enableHourglassForChild().then(function () {
+            showSlimSuccessAndGoHome();
+          }).catch(function (err) {
+            showError(err.message || ot('onboarding.starter.hourglassEnableFailed'));
+            if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.hourglassEnableBtn'); }
+          });
+        });
+      }
+      const skipHourglassBtn = document.getElementById('slimSkipHourglass');
+      if (skipHourglassBtn) {
+        skipHourglassBtn.addEventListener('click', function () {
+          state.hourglassOfferDismissed = true;
+          showSlimSuccessAndGoHome();
+        });
+      }
 
       document.getElementById('slimGoHome').addEventListener('click', function () {
         const btn = document.getElementById('slimGoHome');

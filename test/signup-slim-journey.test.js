@@ -103,6 +103,9 @@ describe('signup-slim checkpoint', () => {
     assert.match(src, /resolveAgeBand/);
     assert.match(src, /autoSaveSlimAndFinish/);
     assert.match(src, /onboarding\.starter\.slimSuccessTitle/);
+    assert.match(src, /hourglassOfferTitle/);
+    assert.match(src, /enableHourglassForChild/);
+    assert.match(src, /activity_timers_enabled:\s*true/);
     assert.match(src, /\/dashboard/);
     assert.match(src, /signup_power_path_selected/);
     assert.match(src, /onboarding\.starter\.powerPathLead/);
