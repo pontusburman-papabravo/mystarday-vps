@@ -15,9 +15,17 @@ const CLASSIFICATIONS = [
   'EXACT',
   'SAFE_EXPLICIT_MAPPING',
   'TEACCH_OVERLAY',
+  'LEGACY_ROW_PRESERVE',
+  'NON_STANDARD_CONTENT',
   'AMBIGUOUS',
   'UNMAPPED',
 ];
+
+const PRESERVE_CLASSIFICATIONS = new Set([
+  'TEACCH_OVERLAY',
+  'LEGACY_ROW_PRESERVE',
+  'NON_STANDARD_CONTENT',
+]);
 
 const MatchRuleSchema = z.object({
   legacy_id: z.string().uuid().optional(),
@@ -65,7 +73,43 @@ function parseLegacyMap(raw) {
 }
 
 function loadLegacyMap(mapPath = DEFAULT_LEGACY_MAP_PATH) {
-  return parseLegacyMap(readLegacyMapFile(mapPath));
+  const parsed = parseLegacyMap(readLegacyMapFile(mapPath));
+  validateLegacyMapDeterminism(parsed);
+  return parsed;
+}
+
+function validateLegacyMapDeterminism(map) {
+  const seenActivityIds = new Map();
+  const seenScheduleIds = new Map();
+
+  for (const entry of map.activities) {
+    const legacyId = entry.match?.legacy_id;
+    if (!legacyId) continue;
+    if (seenActivityIds.has(legacyId)) {
+      throw new Error(`duplicate activity legacy_id in map: ${legacyId}`);
+    }
+    seenActivityIds.set(legacyId, entry);
+  }
+
+  for (const entry of map.schedules) {
+    const legacyId = entry.match?.legacy_id;
+    if (!legacyId) continue;
+    if (seenScheduleIds.has(legacyId)) {
+      throw new Error(`duplicate schedule legacy_id in map: ${legacyId}`);
+    }
+    seenScheduleIds.set(legacyId, entry);
+  }
+}
+
+function sortMapEntriesForProcessing(entries) {
+  return [
+    ...entries.filter((entry) => entry.match?.legacy_id),
+    ...entries.filter((entry) => !entry.match?.legacy_id),
+  ];
+}
+
+function isPreserveClassification(classification) {
+  return PRESERVE_CLASSIFICATIONS.has(classification);
 }
 
 function packageComponentMatches(rowValue, ruleValue) {
@@ -75,7 +119,9 @@ function packageComponentMatches(rowValue, ruleValue) {
 }
 
 function activityRowMatches(row, match) {
-  if (match.legacy_id && row.id !== match.legacy_id) return false;
+  if (match.legacy_id) {
+    return row.id === match.legacy_id;
+  }
   if (match.legacy_name !== undefined && row.name !== match.legacy_name) return false;
   if (!packageComponentMatches(row.package_component, match.package_component)) return false;
   if (match.sort_order !== undefined && row.sort_order !== match.sort_order) return false;
@@ -83,9 +129,27 @@ function activityRowMatches(row, match) {
 }
 
 function scheduleRowMatches(row, match) {
-  if (match.legacy_id && row.id !== match.legacy_id) return false;
+  if (match.legacy_id) {
+    return row.id === match.legacy_id;
+  }
   if (match.legacy_name !== undefined && row.name !== match.legacy_name) return false;
   return true;
+}
+
+function activityMetadataMismatch(row, match) {
+  if (!match?.legacy_id || row.id !== match.legacy_id) return false;
+  if (match.legacy_name !== undefined && row.name !== match.legacy_name) return true;
+  if (match.package_component !== undefined
+    && !packageComponentMatches(row.package_component, match.package_component)) {
+    return true;
+  }
+  return false;
+}
+
+function scheduleMetadataMismatch(row, match) {
+  if (!match?.legacy_id || row.id !== match.legacy_id) return false;
+  if (match.legacy_name !== undefined && row.name !== match.legacy_name) return true;
+  return false;
 }
 
 function findMatchingRows(rows, match, matcher) {
@@ -96,13 +160,19 @@ module.exports = {
   DEFAULT_LEGACY_MAP_PATH,
   MAP_FORMAT,
   CLASSIFICATIONS,
+  PRESERVE_CLASSIFICATIONS,
   LegacyMapSchema,
   ActivityMapEntrySchema,
   ScheduleMapEntrySchema,
   readLegacyMapFile,
   parseLegacyMap,
   loadLegacyMap,
+  validateLegacyMapDeterminism,
+  sortMapEntriesForProcessing,
+  isPreserveClassification,
   activityRowMatches,
   scheduleRowMatches,
+  activityMetadataMismatch,
+  scheduleMetadataMismatch,
   findMatchingRows,
 };
