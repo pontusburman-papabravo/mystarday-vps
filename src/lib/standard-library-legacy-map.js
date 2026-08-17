@@ -119,7 +119,9 @@ function packageComponentMatches(rowValue, ruleValue) {
 }
 
 function activityRowMatches(row, match) {
-  if (match.legacy_id && row.id !== match.legacy_id) return false;
+  if (match.legacy_id) {
+    return row.id === match.legacy_id;
+  }
   if (match.legacy_name !== undefined && row.name !== match.legacy_name) return false;
   if (!packageComponentMatches(row.package_component, match.package_component)) return false;
   if (match.sort_order !== undefined && row.sort_order !== match.sort_order) return false;
@@ -127,9 +129,27 @@ function activityRowMatches(row, match) {
 }
 
 function scheduleRowMatches(row, match) {
-  if (match.legacy_id && row.id !== match.legacy_id) return false;
+  if (match.legacy_id) {
+    return row.id === match.legacy_id;
+  }
   if (match.legacy_name !== undefined && row.name !== match.legacy_name) return false;
   return true;
+}
+
+function activityMetadataMismatch(row, match) {
+  if (!match?.legacy_id || row.id !== match.legacy_id) return false;
+  if (match.legacy_name !== undefined && row.name !== match.legacy_name) return true;
+  if (match.package_component !== undefined
+    && !packageComponentMatches(row.package_component, match.package_component)) {
+    return true;
+  }
+  return false;
+}
+
+function scheduleMetadataMismatch(row, match) {
+  if (!match?.legacy_id || row.id !== match.legacy_id) return false;
+  if (match.legacy_name !== undefined && row.name !== match.legacy_name) return true;
+  return false;
 }
 
 function findMatchingRows(rows, match, matcher) {
@@ -152,5 +172,7 @@ module.exports = {
   isPreserveClassification,
   activityRowMatches,
   scheduleRowMatches,
+  activityMetadataMismatch,
+  scheduleMetadataMismatch,
   findMatchingRows,
 };

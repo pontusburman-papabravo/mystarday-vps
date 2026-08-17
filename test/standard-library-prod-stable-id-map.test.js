@@ -128,6 +128,8 @@ describe('prod stable legacy UUID map', () => {
       m.classification === 'NON_STANDARD_CONTENT' || m.classification === 'LEGACY_ROW_PRESERVE'
     );
     assert.equal(preserved.length, 22);
+    assert.equal(preserved.filter((m) => m.classification === 'LEGACY_ROW_PRESERVE').length, 6);
+    assert.equal(preserved.filter((m) => m.classification === 'NON_STANDARD_CONTENT').length, 16);
     assert.ok(preserved.every((m) => m.write === null));
   });
 
