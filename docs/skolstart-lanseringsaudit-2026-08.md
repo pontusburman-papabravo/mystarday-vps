@@ -1,11 +1,10 @@
 # Skolstart 2026 — lanseringsaudit <!-- pragma: allowlist secret -->
 
-**Datum:** 2026-08-17  
-**Auditor:** Cloud Agent (autonom)  
-**CURRENT_MAIN_SHA:** `663e25d2c1ba9ceef216d0af14289068f8c96563`  
-**PROD_SHA:** `663e25d2c1ba9ceef216d0af14289068f8c96563` (via `GET /health`)  
-**PROD_HEALTH:** healthy (version 2.3.1, cache stjarndag-v855 pre-deploy)  
-**REVISION_DRIFT:** none — main matches prod
+**Datum:** 2026-08-17 (uppdaterad efter Family Device global rollout)  
+**MAIN_SHA:** `7fc83f4077ef5bd4aabfdcc0addbf999f5616c84`  
+**PROD_SHA:** `8a2771694a4078e755f3cf733066cf2e5df743cb` (via `GET /health`)  
+**PROD_HEALTH:** healthy (version 2.3.1, cache stjarndag-v856)  
+**REVISION_DRIFT:** main ahead of prod by deploy-ops hotfix only (#1017); FD code identical
 
 Audit-metod: prod admin API + VPS read-only DB + live HTTP/curl + founder admin login + repo cross-check.
 
@@ -20,7 +19,7 @@ Audit-metod: prod admin API + VPS read-only DB + live HTTP/curl + founder admin 
 | Färdiga rutiner för skoldagen | **GO** — prod har 8 standardscheman inkl. "Skola vardag" och "Morgonrutin"; nya barn får auto-seed baserat på ålder |
 | Barnet ser vad som händer härnäst (Nu/Nästa) | **GO** — kärnflöde för alla användare |
 | Stjärnor / Skattkammaren | **GO** — kärnflöde |
-| Enklare för hela familjen (delad telefon) | **NO_GO** — alla Family Device-flaggor OFF i prod |
+| Enklare för hela familjen (delad telefon) | **QUALIFIED** — alla Family Device-flaggor ON globalt (2026-08-17); fysisk smoke PASS |
 | Visuell timer | **QUALIFIED** — teknik live (`activityTimerV2Available: true`) men per-barn opt-in, inte default |
 
 Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — åtgärdat i denna PR (modul, meta, internlänkar).
@@ -29,14 +28,16 @@ Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — å
 
 ## A. Produktmatris
 
-### Globala feature flags (prod 2026-08-17)
+### Globala feature flags (prod 2026-08-17, efter rollout)
 
 | Flagga | Enabled |
 |--------|---------|
-| `trusted_device_v1` | false |
-| `family_device_entry_v1` | false |
-| `family_device_daily_ux_v1` | false |
-| `adult_privilege_v1` | false |
+| `trusted_device_v1` | **true** |
+| `family_device_entry_v1` | **true** |
+| `family_device_daily_ux_v1` | **true** |
+| `adult_privilege_v1` | **true** |
+| `native_widget_enabled` | false |
+| `widget_completion_enabled` | false |
 | `activation_signup_slim_v1` | true |
 | `activation_first_success_v1` | false |
 | `growth_home_v1` | true |
@@ -126,7 +127,7 @@ Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — å
 
 ### REQUIRES_ROLLOUT_BEFORE_CAMPAIGN
 
-- "Mindre krångel när hela familjen använder samma telefon" → kräver `trusted_device_v1` + `family_device_entry_v1` + `family_device_daily_ux_v1` ON
+- "Mindre krångel när hela familjen använder samma telefon" → **QUALIFIED** (global FD ON 2026-08-17); använd kvalificerad copy, inte "noll inloggning"
 
 ### QUALIFIED (säg med förtydligande)
 
@@ -175,20 +176,15 @@ Webb och SEO var tekniskt starka men **saknade skolstart på startsidan** — å
 
 ## Produktionsåtgärder som kräver Pontus
 
-### ACTION 1 — Family Device rollout (valfritt, om delad-telefon-budskap önskas)
+### ACTION 1 — Family Device rollout — **KLAR (2026-08-17)**
 
-- **Syfte:** Aktivera "enklare för hela familjen"
-- **Nuvarande:** Alla fyra flaggor `false`
-- **Krävs:** Sätt `trusted_device_v1`, `family_device_entry_v1`, `family_device_daily_ux_v1`, `adult_privilege_v1` till `true` enligt `docs/family-device-architecture.md` runbook
-- **Risk:** Medium — ny entry-orchestrator för alla användare
-- **Rollback:** Sätt flaggor tillbaka till `false`
-- **Verifiering:** Founder QA cold-start på delad enhet
+- **Status:** Global rollout PASS; alla fyra flaggor `true`; fysisk smoke PASS; prod pilot PASS
+- **Marknadsbudskap:** Använd kvalificerad formulering (se `docs/skolstart-2026-product-gate.md` claim #4)
+- **Rollback vid behov:** Sätt flaggor tillbaka till `false` (SQL i product gate-dokumentet)
 
-### ACTION 2 — Deploy denna PR
+### ACTION 2 — Deploy skolstart-PR — **KLAR**
 
-- **Syfte:** Skolstart-modul + meta live
-- **Risk:** Låg (copy/CSS only)
-- **Verifiering:** Efter deploy: kontrollera att `/` innehåller `skolstart`
+- **Status:** Prod SHA `8a277169`; skolstart-modul + meta live
 
 ### ACTION 3 — Skicka nyhetsbrev / publicera Meta
 
