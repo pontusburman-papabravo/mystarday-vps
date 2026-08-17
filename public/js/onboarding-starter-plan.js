@@ -43,7 +43,6 @@
     selectedEmoji: '🌟',
     childId: null,
     hourglassEnabled: false,
-    hourglassOfferDismissed: false,
   };
 
   function ot(key, params) {
@@ -523,27 +522,24 @@
     if (preview) {
       preview.classList.remove('hidden');
       const childName = state.answers.child_name || ot('onboarding.common.childFallback');
-      const hourglassBlock = (!state.hourglassOfferDismissed && !state.hourglassEnabled)
+      const hourglassBlock = !state.hourglassEnabled
         ? [
-          '  <div class="mt-5 p-4 rounded-xl bg-cream border border-gold/25 text-left" id="slimHourglassOffer">',
-          '    <p class="text-navy font-heading font-semibold text-sm mb-1">' + esc(ot('onboarding.starter.hourglassOfferTitle')) + '</p>',
+          '  <div class="mt-5 p-4 rounded-xl bg-cream/80 border border-gold/20 text-left" id="slimHourglassOffer">',
+          '    <p class="text-navy font-heading font-semibold text-sm mb-1"><span aria-hidden="true">⏳</span> ' + esc(ot('onboarding.starter.hourglassOfferTitle')) + '</p>',
           '    <p class="text-text-soft text-sm mb-3">' + esc(ot('onboarding.starter.hourglassOfferBody')) + '</p>',
-          '    <button type="button" id="slimEnableHourglass" class="w-full bg-navy hover:bg-navy-dark text-white font-semibold py-3 rounded-xl min-h-[44px]">' + esc(ot('onboarding.starter.hourglassEnableBtn')) + '</button>',
-          '    <button type="button" id="slimSkipHourglass" class="w-full text-sm font-semibold text-text-soft py-3 mt-1 min-h-[44px]">' + esc(ot('onboarding.starter.hourglassSkipBtn')) + '</button>',
+          '    <button type="button" id="slimEnableHourglass" class="w-full border-2 border-navy text-navy hover:bg-navy hover:text-white font-semibold py-2.5 rounded-xl min-h-[44px] transition-colors">' + esc(ot('onboarding.starter.hourglassEnableBtn')) + '</button>',
           '  </div>',
         ].join('')
-        : (state.hourglassEnabled
-          ? '  <p class="text-sm text-navy font-medium mt-4" id="slimHourglassEnabledMsg">' + esc(ot('onboarding.starter.hourglassEnabledMsg')) + '</p>'
-          : '');
+        : '  <p class="text-sm text-navy font-medium mt-4" id="slimHourglassEnabledMsg">' + esc(ot('onboarding.starter.hourglassEnabledMsg')) + '</p>';
       preview.innerHTML = [
         '<div class="text-center py-6">',
         '  <div class="text-5xl mb-3" aria-hidden="true">✨</div>',
         '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">' + esc(ot('onboarding.starter.slimSuccessTitle')) + '</h2>',
         '  <p class="text-text-soft text-sm mb-1">' + esc(ot('onboarding.starter.previewForChild', { childName: childName, count: state.previewItems.length })) + '</p>',
         '  <p class="text-navy text-sm font-medium mt-4">' + esc(ot('onboarding.starter.slimSuccessTonight')) + '</p>',
-        hourglassBlock,
         '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">' + esc(ot('onboarding.starter.goHome')) + '</button>',
-        '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-navy py-3 mt-2 min-h-[44px]">' + esc(ot('onboarding.starter.customizeFirst')) + '</button>',
+        hourglassBlock,
+        '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-text-soft py-3 mt-4 min-h-[44px]">' + esc(ot('onboarding.starter.customizeFirst')) + '</button>',
         '</div>',
       ].join('');
 
@@ -558,13 +554,6 @@
             showError(err.message || ot('onboarding.starter.hourglassEnableFailed'));
             if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.hourglassEnableBtn'); }
           });
-        });
-      }
-      const skipHourglassBtn = document.getElementById('slimSkipHourglass');
-      if (skipHourglassBtn) {
-        skipHourglassBtn.addEventListener('click', function () {
-          state.hourglassOfferDismissed = true;
-          showSlimSuccessAndGoHome();
         });
       }
 

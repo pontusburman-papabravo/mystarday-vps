@@ -291,7 +291,6 @@
     "hourglassOfferTitle": "Visual hourglass",
     "hourglassOfferBody": "Help your child see how much time is left in an activity.",
     "hourglassEnableBtn": "Enable hourglass",
-    "hourglassSkipBtn": "Not now",
     "hourglassEnabling": "Enabling…",
     "hourglassEnabledMsg": "Hourglass is enabled for your child.",
     "hourglassEnableFailed": "Could not enable hourglass",

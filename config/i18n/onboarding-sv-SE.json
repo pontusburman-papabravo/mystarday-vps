@@ -291,7 +291,6 @@
     "hourglassOfferTitle": "Visuellt timglas",
     "hourglassOfferBody": "Hjälp barnet se hur lång tid som är kvar i en aktivitet.",
     "hourglassEnableBtn": "Aktivera timglas",
-    "hourglassSkipBtn": "Inte nu",
     "hourglassEnabling": "Aktiverar…",
     "hourglassEnabledMsg": "Timglas är aktiverat för barnet.",
     "hourglassEnableFailed": "Kunde inte aktivera timglas",
