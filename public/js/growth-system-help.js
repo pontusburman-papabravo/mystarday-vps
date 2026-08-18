@@ -111,9 +111,35 @@
     }
   }
 
+  function buildTechnicalContext(surface, data) {
+    const ctx = {
+      surface: surface || detectSurface(),
+      blocking_step: data && data.blockingStep,
+      help_type: data && data.help && data.help.helpType,
+      route: window.location.pathname || '',
+      locale: locale(),
+      timestamp: new Date().toISOString(),
+    };
+    try {
+      if (window.Platform && Platform.getInfo) {
+        const info = Platform.getInfo();
+        if (info && info.platform) ctx.platform = String(info.platform);
+      }
+    } catch (_) {}
+    try {
+      if (navigator && navigator.userAgent) {
+        ctx.user_agent = navigator.userAgent.slice(0, 500);
+      }
+    } catch (_) {}
+    try {
+      if (window.CACHE_NAME) ctx.sw_version = String(window.CACHE_NAME);
+    } catch (_) {}
+    return ctx;
+  }
+
   function buildCardHtml(help, surface) {
     if (!help) return '';
-    const supportLabel = isEnglish() ? 'I need help from the team' : 'Jag behöver hjälp';
+    const reportLabel = isEnglish() ? 'Report a problem' : 'Rapportera problem';
     return (
       '<div class="help-journey-tip help-journey-tip--coach growth-system-help-card" ' +
       'data-blocking-step="' + esc(help.blockingStep || '') + '" data-surface="' + esc(surface) + '">' +
@@ -121,10 +147,8 @@
       '<p class="help-journey-tip-headline">' + esc(help.headline) + '</p>' +
       '<p class="help-journey-tip-body">' + esc(help.body) + '</p>' +
       '<button type="button" class="help-journey-tip-cta growth-system-help-cta">' + esc(help.ctaLabel) + '</button>' +
-      (help.showSupportRequest
-        ? '<button type="button" class="growth-system-help-support mt-2 w-full text-xs text-slate-500 underline">' +
-          esc(supportLabel) + '</button>'
-        : '') +
+      '<button type="button" class="growth-system-help-report mt-2 w-full text-xs text-slate-500 underline">' +
+        esc(reportLabel) + '</button>' +
       '</div>'
     );
   }
@@ -133,7 +157,7 @@
     const card = mount.querySelector('.growth-system-help-card');
     if (!card) return;
     const cta = card.querySelector('.growth-system-help-cta');
-    const support = card.querySelector('.growth-system-help-support');
+    const report = card.querySelector('.growth-system-help-report');
     if (cta) {
       cta.addEventListener('click', async function () {
         await postJson('/api/growth/system-help/engage', {
@@ -145,13 +169,17 @@
         if (typeof window.__hbClose === 'function') window.__hbClose();
       });
     }
-    if (support) {
-      support.addEventListener('click', async function () {
-        await postJson('/api/growth/system-help/support-request', { surface: surface });
-        support.textContent = isEnglish()
-          ? 'Thanks — we have registered your request.'
-          : 'Tack — vi har registrerat din förfrågan.';
-        support.disabled = true;
+    if (report) {
+      report.addEventListener('click', async function () {
+        const context = buildTechnicalContext(surface, data);
+        await postJson('/api/growth/system-help/support-request', {
+          surface: surface,
+          context: context,
+        });
+        report.textContent = isEnglish()
+          ? 'Thanks — we received your report with technical details.'
+          : 'Tack — vi har tagit emot rapporten med teknisk kontext.';
+        report.disabled = true;
       });
     }
   }
@@ -207,5 +235,6 @@
     refreshHelpPanel: refreshHelpPanel,
     enrichHandoff: enrichHandoff,
     buildCardHtml: buildCardHtml,
+    buildTechnicalContext: buildTechnicalContext,
   };
 })();

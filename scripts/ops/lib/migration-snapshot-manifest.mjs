@@ -67,9 +67,7 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
   '1810300000000_family_system_help_state': {
     backwardCompatible: true,
     schemaOnly: true,
-    featureFlagInserts: [
-      { key: 'growth_system_help_v1', enabled: false },
-    ],
+    featureFlagInserts: [{ key: 'growth_system_help_v1', enabled: false }],
   },
 };
 

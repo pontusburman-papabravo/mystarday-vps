@@ -136,6 +136,55 @@ function computeProgressionOutcome(shownAt, milestoneAt) {
   return null;
 }
 
+const REPORT_CONTEXT_KEYS = [
+  'surface', 'blocking_step', 'help_type', 'route', 'locale', 'platform',
+  'app_version', 'sw_version', 'build_sha', 'user_agent', 'timestamp',
+];
+
+const REPORT_CONTEXT_MAX = {
+  surface: 64,
+  blocking_step: 64,
+  help_type: 64,
+  route: 200,
+  locale: 16,
+  platform: 64,
+  app_version: 64,
+  sw_version: 64,
+  build_sha: 64,
+  user_agent: 500,
+  timestamp: 64,
+};
+
+function sanitizeReportContext(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const safe = {};
+  for (const key of REPORT_CONTEXT_KEYS) {
+    if (raw[key] == null || typeof raw[key] === 'object') continue;
+    const max = REPORT_CONTEXT_MAX[key] || 200;
+    safe[key] = String(raw[key]).slice(0, max);
+  }
+  return safe;
+}
+
+function formatSupportReportMessage(row, context) {
+  const lines = [
+    '[Systemhjälp — Rapportera problem]',
+    '',
+    `Blocking step: ${row.blocking_step || '—'}`,
+    `Help type: ${row.help_type || '—'}`,
+    `Surface: ${context.surface || '—'}`,
+    `Route: ${context.route || '—'}`,
+    `Locale: ${context.locale || '—'}`,
+    `Platform: ${context.platform || '—'}`,
+    `App version: ${context.app_version || '—'}`,
+    `SW version: ${context.sw_version || '—'}`,
+    `Build: ${context.build_sha || '—'}`,
+    `User agent: ${context.user_agent || '—'}`,
+    `Timestamp: ${context.timestamp || new Date().toISOString()}`,
+  ];
+  return lines.join('\n');
+}
+
 /**
  * @param {string} familyId
  * @param {{ surface?: string, locale?: string }} [opts]
@@ -207,11 +256,49 @@ async function recordEngaged(familyId, meta = {}) {
 async function recordSupportRequested(familyId, meta = {}) {
   const row = await helpDb.markSupportRequested(familyId);
   if (!row) return null;
+  const context = sanitizeReportContext(meta.context || {});
+  if (meta.surface && !context.surface) {
+    context.surface = String(meta.surface).slice(0, 64);
+  }
+  if (row.blocking_step && !context.blocking_step) {
+    context.blocking_step = row.blocking_step;
+  }
+  if (row.help_type && !context.help_type) {
+    context.help_type = row.help_type;
+  }
   analytics.track(familyId, 'system_help_support_requested', {
     blocking_step: row.blocking_step,
     help_type: row.help_type,
-    surface: meta.surface || null,
+    surface: meta.surface || context.surface || null,
+    ...context,
   }).catch(() => {});
+
+  if (meta.parentEmail) {
+    const db = require('./db');
+    const message = formatSupportReportMessage(row, context);
+    const metadata = {
+      source: 'growth_system_help_v1',
+      family_id: familyId,
+      blocking_step: row.blocking_step,
+      help_type: row.help_type,
+      ...context,
+    };
+    try {
+      await db.query(
+        `INSERT INTO contact_message (name, email, message, message_type, family_id, metadata)
+         VALUES ($1, $2, $3, 'bug', $4, $5::jsonb)`,
+        [
+          (meta.parentName || 'Förälder').slice(0, 120),
+          String(meta.parentEmail).slice(0, 255),
+          message.slice(0, 8000),
+          familyId,
+          JSON.stringify(metadata),
+        ]
+      );
+    } catch (err) {
+      console.error('[GROWTH-SYSTEM-HELP] support contact_message failed:', err.message);
+    }
+  }
   return row;
 }
 
@@ -290,4 +377,6 @@ module.exports = {
   maybeRecordProgression,
   finalizeNoProgressOutcomes,
   computeProgressionOutcome,
+  sanitizeReportContext,
+  formatSupportReportMessage,
 };
