@@ -91,7 +91,8 @@ async function evaluateStatus(familyId, featureKey) {
   const override = await familyOverrides.getActiveOverride(familyId, featureKey);
   const effective =
     featureKey === 'activation_first_success_v1' ||
-    featureKey === 'family_journey_hem_pilot_v1'
+    featureKey === 'family_journey_hem_pilot_v1' ||
+    featureKey === 'growth_system_help_v1'
       ? await isActivationFlagEnabled(featureKey, familyId)
       : await isFeatureEnabledForFamily(featureKey, familyId);
   return {

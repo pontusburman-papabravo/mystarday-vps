@@ -14,6 +14,7 @@ const OVERRIDE_FEATURE_KEYS = new Set([
   'family_device_entry_v1',
   'adult_privilege_v1',
   'family_device_daily_ux_v1',
+  'growth_system_help_v1',
 ]);
 
 function isOverrideFeatureKey(featureKey) {

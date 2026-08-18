@@ -123,6 +123,7 @@ router.post('/support-request', requireParent, limiter, async (req, res) => {
     const familyId = req.user.familyId;
     const parsed = z.object({
       surface: SurfaceSchema.optional(),
+      context: z.record(z.string(), z.unknown()).optional(),
     }).safeParse(req.body || {});
     if (!parsed.success) {
       return res.status(400).json({ ok: false, error: 'invalid_body' });
@@ -135,7 +136,12 @@ router.post('/support-request', requireParent, limiter, async (req, res) => {
       return res.status(403).json({ ok: false, reason: eligibility.reason });
     }
 
-    const row = await recordSupportRequested(familyId, { surface: parsed.data.surface });
+    const row = await recordSupportRequested(familyId, {
+      surface: parsed.data.surface,
+      context: parsed.data.context,
+      parentEmail: req.user.email,
+      parentName: req.user.name,
+    });
     res.json({ ok: Boolean(row) });
   } catch (err) {
     console.error('[GROWTH-SYSTEM-HELP] support-request error:', err);

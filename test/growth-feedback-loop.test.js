@@ -99,6 +99,13 @@ describe('growth feedback loop contracts', () => {
     assert.match(read('public/dashboard.html'), /growth-referral-cta\.js/);
   });
 
+  it('client surfaces include report-problem path', () => {
+    const client = read('public/js/growth-system-help.js');
+    assert.match(client, /Rapportera problem/);
+    assert.match(client, /buildTechnicalContext/);
+    assert.match(client, /support-request/);
+  });
+
   it('English waitlist sends UTM + consent', () => {
     const client = read('public/js/landing-waitlist.js');
     assert.match(client, /utm_source/);
