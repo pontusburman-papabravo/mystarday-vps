@@ -155,7 +155,7 @@ API:
 - `GET /api/admin/growth/stuck-cohorts`
 - `GET /api/admin/growth/stuck-cohorts/summary`
 
-UI: Admin → Experiment → **Fastnade familjer**.
+UI: Admin → Experiment → **Fastnade familjer** is a **manual work queue** (why, stuck duration, last activity, next step). Always readable (`requireAdmin`). `growth_stuck_cohorts_v1` is reserved for **future intervention/send**, not the list. **No send endpoints.**
 
 ---
 
@@ -204,7 +204,7 @@ Generic share remains clean `/register` without forcing `?ref=`.
 |-----|---------|---------|
 | `growth_feedback_v1` | OFF | Feedback surface + API eligibility |
 | `growth_referral_cta_v1` | OFF | Personal referral CTA |
-| `growth_stuck_cohorts_v1` | OFF | Admin cohort API |
+| `growth_stuck_cohorts_v1` | OFF | Future intervention/send only — does not gate admin reads |
 | `growth_waitlist_funnel_v1` | OFF | Reserved for waitlist funnel ops UI |
 | `referral_program` | OFF (existing) | Register capture + qualify |
 
@@ -258,7 +258,7 @@ env -u RESEND_API_KEY -u RESEND_API_KEY_WEEKLY \
 
 ## 13. Rollback
 
-1. Set flags OFF: `growth_feedback_v1`, `growth_referral_cta_v1`, `growth_stuck_cohorts_v1`  
+1. Set flags OFF: `growth_feedback_v1`, `growth_referral_cta_v1` (customer surfaces). Admin stuck preview is not flag-gated; it has no send path. 
 2. Optional: drop tables via migration `down` (safe if unused)  
 3. Revert SW to previous `CACHE_NAME` if static rollback needed  
 

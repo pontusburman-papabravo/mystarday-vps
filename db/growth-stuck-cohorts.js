@@ -2,26 +2,15 @@
 
 const db = require('../src/lib/db');
 const { excludeInternalQaWhere } = require('../config/internal-qa-families');
-
-const COHORTS = Object.freeze({
-  onboarding_incomplete: 'onboarding_incomplete',
-  schema_no_child_login: 'schema_no_child_login',
-  login_no_completion: 'login_no_completion',
-  completion_no_return: 'completion_no_return',
-  core_flow_errors: 'core_flow_errors',
-});
-
-const FOLLOW_UP = Object.freeze({
-  onboarding_incomplete: 'preview_handoff_nudge',
-  schema_no_child_login: 'preview_child_login_help',
-  login_no_completion: 'preview_first_star_guide',
-  completion_no_return: 'preview_return_nudge',
-  core_flow_errors: 'preview_support_outreach',
-});
+const {
+  COHORTS,
+  FOLLOW_UP,
+  mapGrowthStuckFamily,
+} = require('../src/lib/growth-stuck-work-queue');
 
 /**
  * List stuck families across activation cohorts (48h–14d).
- * Preview-only — no auto-send. Excludes QA/test families by default.
+ * Admin work queue — no auto-send. Excludes QA/test families by default.
  *
  * @param {{
  *   cohort?: string,
@@ -122,40 +111,23 @@ async function listGrowthStuckCohorts(opts = {}) {
      FROM classified
      WHERE blocking_step IS NOT NULL
        AND ($4::text IS NULL OR blocking_step = $4)
-     ORDER BY created_at DESC
+     ORDER BY
+       CASE blocking_step
+         WHEN 'schema_no_child_login' THEN COALESCE(schema_saved_at, created_at)
+         WHEN 'login_no_completion' THEN COALESCE(child_access_completed_at, created_at)
+         WHEN 'completion_no_return' THEN COALESCE(first_completion_at, created_at)
+         WHEN 'core_flow_errors' THEN COALESCE(last_event_at, created_at)
+         ELSE created_at
+       END ASC
      LIMIT $3`,
     [minAgeHours, maxAgeDays, limit, cohortFilter]
   );
 
-  return rows.map((row) => ({
-    familyId: row.family_id,
-    familyName: row.family_name,
-    createdAt: row.created_at,
-    locale: row.locale || null,
-    platform: row.acquisition_platform || null,
-    blockingStep: row.blocking_step,
-    lastEventType: row.last_event_type || null,
-    lastEventAt: row.last_event_at || null,
-    acquisition: {
-      source: row.acquisition_source || null,
-      medium: row.acquisition_medium || null,
-      campaign: row.acquisition_campaign || null,
-      referralCode: row.acquisition_referral_code || null,
-    },
-    milestones: {
-      childCreatedAt: row.child_created_at,
-      schemaSavedAt: row.schema_saved_at,
-      childAccessAt: row.child_access_completed_at,
-      firstCompletionAt: row.first_completion_at,
-      p0ActivatedAt: row.p0_activated_at,
-    },
-    recommendedFollowUp: FOLLOW_UP[row.blocking_step] || 'preview_manual_review',
-    autoSendAllowed: false,
-  }));
+  return rows.map((row) => mapGrowthStuckFamily(row));
 }
 
 /**
- * Segment counts for admin preview (no PII beyond counts).
+ * Segment counts for admin work queue (no PII beyond counts).
  */
 async function summarizeGrowthStuckCohorts(opts = {}) {
   const families = await listGrowthStuckCohorts({ ...opts, limit: 500 });
