@@ -15,6 +15,7 @@ const { FLAG_KEYS: JOURNEY_FLAGS, isFlagEnabled } = require('../journey/flags');
 const { resolveFamilyLocale } = require('../locale');
 const { t } = require('../i18n');
 const { applyDeferralOverlay } = require('./step-deferrals');
+const { isDeferrableActivationAction } = require('./defer-constants');
 const db = require('../db');
 
 const I18N_PREFIX = 'home.firstSuccess.actions.';
@@ -49,7 +50,9 @@ const I18N_PREFIX = 'home.firstSuccess.actions.';
 async function buildCanonicalNextAction(familyId, options = {}) {
   const enabled = await isActivationFlagEnabled(FLAG_KEYS.firstSuccessV1, familyId);
   if (!enabled) {
-    return { enabled: false, show_primary_coach: false, next_action: null, reason: ['flag_off'], journey_phase: null, blocking_issue: null, cta_label: null, cta_target: null, headline: null, body: null, deferred: false };
+    return attachCanDefer({
+      enabled: false, show_primary_coach: false, next_action: null, reason: ['flag_off'], journey_phase: null, blocking_issue: null, cta_label: null, cta_target: null, headline: null, body: null, deferred: false,
+    });
   }
 
   const [state, milestones, phase, localeRow] = await Promise.all([
@@ -63,10 +66,13 @@ async function buildCanonicalNextAction(familyId, options = {}) {
   const deferOpts = options.skipDeferral ? null : { now: options.now };
 
   function finalize(payload) {
+    let result;
     if (!deferOpts || !payload?.enabled) {
-      return payload?.deferred === undefined ? { ...payload, deferred: false } : payload;
+      result = payload?.deferred === undefined ? { ...payload, deferred: false } : payload;
+    } else {
+      result = applyDeferralOverlay(payload, state?.step_deferrals, deferOpts);
     }
-    return applyDeferralOverlay(payload, state?.step_deferrals, deferOpts);
+    return attachCanDefer(result);
   }
 
   if (milestones.first_success || state?.p0_activated_at) {
@@ -298,8 +304,26 @@ async function tryEngineAdapter(familyId) {
   }
 }
 
+/**
+ * Server-side defer eligibility — browser must not duplicate the allowlist.
+ * @param {object|null|undefined} payload
+ */
+function attachCanDefer(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+  const canDefer = Boolean(
+    payload.enabled
+    && payload.next_action
+    && payload.next_action !== 'none'
+    && payload.authority !== 'journey_retention'
+    && !payload.deferred
+    && isDeferrableActivationAction(payload.next_action)
+  );
+  return { ...payload, can_defer: canDefer };
+}
+
 module.exports = {
   buildCanonicalNextAction,
   pickMilestoneAction,
   mapExperienceToAction,
+  attachCanDefer,
 };

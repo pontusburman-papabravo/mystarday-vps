@@ -58,6 +58,16 @@
   "firstSuccess": {
     "coachAria": "Nästa steg för första lyckade rutin",
     "pinHint": "Barnet använder sin PIN. Du kan återställa föräldarläge när barnet är klart.",
+    "recovery": {
+      "fetchErrorHeadline": "Vi kunde inte hämta nästa steg",
+      "fetchErrorBody": "Det verkar vara tillfälligt. Försök igen, eller fortsätt utan guiden just nu.",
+      "retry": "Försök igen",
+      "continueWithoutGuide": "Fortsätt utan guide",
+      "defer": "Gör det senare",
+      "deferError": "Kunde inte spara valet just nu. Försök igen.",
+      "retrying": "Försöker igen…",
+      "deferring": "Sparar…"
+    },
     "actions": {
       "create_child": {
         "headline": "Skapa barnets profil",

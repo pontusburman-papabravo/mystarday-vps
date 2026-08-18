@@ -58,6 +58,16 @@
   "firstSuccess": {
     "coachAria": "Next step toward your first successful routine",
     "pinHint": "Your child uses their PIN. You can restore parent mode when they are done.",
+    "recovery": {
+      "fetchErrorHeadline": "We couldn't load your next step",
+      "fetchErrorBody": "This looks temporary. Try again, or continue without the guide for now.",
+      "retry": "Try again",
+      "continueWithoutGuide": "Continue without guide",
+      "defer": "Do it later",
+      "deferError": "Couldn't save your choice right now. Try again.",
+      "retrying": "Trying again…",
+      "deferring": "Saving…"
+    },
     "actions": {
       "create_child": {
         "headline": "Create your child's profile",
