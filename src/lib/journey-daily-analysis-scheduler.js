@@ -64,6 +64,19 @@ async function runJourneyDailyAnalysisJob() {
       console.log('[journey-daily-analysis] Starting daily run…');
       const report = await runDailyAnalysis();
       await persistReport(report);
+      try {
+        const { runActivationAdvisor } = require('./activation-advisor');
+        const advisor = await runActivationAdvisor();
+        console.log(
+          '[activation-advisor] Refreshed after journey run —',
+          advisor.recommendations.length,
+          'alerts,',
+          advisor.pruned,
+          'pruned'
+        );
+      } catch (advisorErr) {
+        console.error('[activation-advisor] Scheduler refresh failed:', advisorErr.message);
+      }
       console.log(
         '[journey-daily-analysis] Done —',
         report.summary?.measurementPoints,

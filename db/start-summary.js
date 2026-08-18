@@ -136,6 +136,60 @@ async function fetchKeyMetrics() {
   };
 }
 
+async function fetchRecentFamilies(limit = 5) {
+  const { rows } = await db.query(
+    `SELECT id, name, created_at
+     FROM family
+     WHERE archived_at IS NULL
+     ORDER BY created_at DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name || 'Namnlös',
+    createdAt: row.created_at,
+  }));
+}
+
+/** Slim metrics for Start — families + att göra only (no activation funnel). */
+async function fetchStartOverview() {
+  const [signupRow, stuckRow, messageCounts] = await Promise.all([
+    db.query(
+      `SELECT
+         COUNT(*) FILTER (
+           WHERE created_at >= NOW() - INTERVAL '7 days'
+         )::int AS signups_7d,
+         COUNT(*) FILTER (
+           WHERE created_at >= NOW() - INTERVAL '14 days'
+             AND created_at < NOW() - INTERVAL '7 days'
+         )::int AS signups_prev_7d,
+         COUNT(*) FILTER (
+           WHERE created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+         )::int AS signups_today,
+         COUNT(*)::int AS total
+       FROM family
+       WHERE archived_at IS NULL`
+    ),
+    fetchStuckOnboardingCounts(),
+    contactMessages.getMessageCounts(),
+  ]);
+
+  const week = signupRow.rows[0] || {};
+  const signups7d = week.signups_7d || 0;
+  const counts = messageCounts || {};
+
+  return {
+    signupsToday: week.signups_today || 0,
+    signups7d,
+    signupsDelta: signups7d - (week.signups_prev_7d || 0),
+    totalFamilies: week.total || 0,
+    stuckOnboarding: stuckRow.stuck_product || 0,
+    unreadMessages: parseInt(counts.meddelanden_unread_count, 10) || 0,
+    messagesNeedFollowUp: parseInt(counts.meddelanden_needs_follow_up_count, 10) || 0,
+  };
+}
+
 async function newFamiliesMetric() {
   const { rows } = await db.query(
     `SELECT
@@ -186,12 +240,8 @@ async function fetchMessageSummary() {
   };
 }
 
+/** Read persisted alerts only — live advisor refresh runs on the daily scheduler. */
 async function fetchRecommendations() {
-  const { buildRecommendations } = require('../src/lib/activation-advisor');
-  const proposals = await buildRecommendations();
-  await Promise.all(proposals.map((p) => adminOperationalAlerts.refreshActiveAlertCopy(p)));
-  await Promise.all(proposals.map((p) => adminOperationalAlerts.insertAlertIfMissing(p)));
-  await adminOperationalAlerts.syncActivationAlerts(proposals.map((p) => p.slug));
   const operationalRows = await adminOperationalAlerts.listActive(5);
   return adminOperationalAlerts.toRecommendationCards(operationalRows);
 }
@@ -262,35 +312,24 @@ async function fetchActivityFeed(limit = 8) {
   }));
 }
 
-const QUICK_ACTIONS = [
+const START_QUICK_ACTIONS = [
   { label: 'Familjer', route: '#familjer' },
   { label: 'Ärenden', route: '#arenden' },
-  { label: 'Paketintresse', route: '#paketintresse' },
-  { label: 'Pedagogintresse', route: '#pedagogintresse' },
   { label: 'Produktanalys', route: '#produktanalys' },
   { label: 'Nyhetsbrev', route: '#nyhetsbrev' },
 ];
 
 async function buildStartSummary() {
-  const [
-    keyMetrics,
-    messages,
-    activity,
-    recommendations,
-  ] = await Promise.all([
-    fetchKeyMetrics(),
-    fetchMessageSummary(),
-    fetchActivityFeed(8),
-    fetchRecommendations(),
+  const [overview, recentFamilies] = await Promise.all([
+    fetchStartOverview(),
+    fetchRecentFamilies(5),
   ]);
 
   return {
     generatedAt: new Date().toISOString(),
-    keyMetrics,
-    messages,
-    activity,
-    recommendations,
-    quickActions: QUICK_ACTIONS,
+    overview,
+    recentFamilies,
+    quickActions: START_QUICK_ACTIONS,
   };
 }
 
@@ -300,9 +339,11 @@ module.exports = {
   newFamiliesMetric,
   fetchStuckOnboardingCounts,
   fetchKeyMetrics,
+  fetchStartOverview,
+  fetchRecentFamilies,
   fetchMessageSummary,
   fetchActivityFeed,
   fetchRecommendations,
   buildStartSummary,
-  QUICK_ACTIONS,
+  START_QUICK_ACTIONS,
 };

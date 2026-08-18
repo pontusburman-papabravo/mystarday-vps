@@ -111,6 +111,7 @@
       if (name === 'emaillog' && typeof loadEmailLog === 'function') loadEmailLog();
       if (name === 'analytics' && typeof loadAnalytics === 'function') {
         loadAnalytics();
+        if (typeof loadJourneyDailyAnalysis === 'function') loadJourneyDailyAnalysis();
         if (typeof syncProduktanalysWorkspace === 'function') syncProduktanalysWorkspace('produktanalys');
       }
       if (name === 'anvandning' && typeof loadLoginStats === 'function') {
