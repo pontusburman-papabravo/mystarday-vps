@@ -7,6 +7,11 @@
 module.exports = {
   name: '1810300000000_user_observability_indexes',
 
+  snapshotContract: {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
+
   up: async (client) => {
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_analytics_events_actor_activity
