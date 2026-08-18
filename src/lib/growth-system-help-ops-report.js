@@ -94,6 +94,31 @@ async function queryTechErrorsSince(since) {
   return rows[0]?.c ?? 0;
 }
 
+async function queryNewSupportReports(previousId, latestId) {
+  const prev = Number(previousId) || 0;
+  const latest = Number(latestId) || 0;
+  if (latest <= prev) return [];
+
+  const { rows } = await db.query(
+    `SELECT
+       cm.id,
+       cm.name,
+       cm.email,
+       cm.created_at,
+       cm.family_id,
+       cm.metadata,
+       f.name AS family_name
+     FROM contact_message cm
+     LEFT JOIN family f ON f.id = cm.family_id
+     WHERE cm.message LIKE $1
+       AND cm.id > $2
+       AND cm.id <= $3
+     ORDER BY cm.id ASC`,
+    [`${SUPPORT_MESSAGE_PREFIX}%`, prev, latest]
+  );
+  return rows;
+}
+
 async function queryCompletedOutcomes(outcomeWindowEnd) {
   const { rows } = await db.query(
     `SELECT
@@ -339,6 +364,31 @@ function formatDeltaLine(deltas) {
     .join(', ');
 }
 
+function adminIncidentsUrl() {
+  const base = String(config.email?.baseUrl || process.env.APP_URL || '').replace(/\/$/, '');
+  return base ? `${base}/admin#incidenter` : '/admin#incidenter';
+}
+
+function formatSupportReportBlock(report) {
+  const meta = report.metadata && typeof report.metadata === 'object'
+    ? report.metadata
+    : {};
+  const lines = [
+    `  #${report.id} — ${report.name || '—'} <${report.email || '—'}>`,
+    `    tid (UTC): ${report.created_at instanceof Date
+      ? report.created_at.toISOString()
+      : (report.created_at || '—')}`,
+    `    familj: ${report.family_name || '—'} (${report.family_id || '—'})`,
+  ];
+  if (meta.blocking_step) lines.push(`    blocking_step: ${meta.blocking_step}`);
+  if (meta.help_type) lines.push(`    help_type: ${meta.help_type}`);
+  if (meta.surface) lines.push(`    surface: ${meta.surface}`);
+  if (meta.route) lines.push(`    route: ${meta.route}`);
+  if (meta.platform) lines.push(`    platform: ${meta.platform}`);
+  lines.push(`    admin: ${adminIncidentsUrl()} (sök #${report.id})`);
+  return lines.join('\n');
+}
+
 function buildEmailBody({ metrics, decision, rollbackPerformed }) {
   const lines = [
     'Systemhjälp v1 — ops-rapport',
@@ -357,6 +407,16 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
     `Support-rapporter (24h): ${metrics.support_reports_24h}`,
     `Support-rapporter (totalt): ${metrics.support_reports_total}`,
     `support_requested/shown: ${(metrics.support_rate * 100).toFixed(1)}%`,
+  ];
+
+  if (metrics.new_support_reports?.length) {
+    lines.push('', 'Nya support-rapporter:');
+    for (const report of metrics.new_support_reports) {
+      lines.push(formatSupportReportBlock(report));
+    }
+  }
+
+  lines.push(
     '',
     'Outcome-kohort (72h-fönster avslutat):',
     `  färdiga outcomes: ${metrics.outcome_cohort.completed_outcomes}`,
@@ -369,8 +429,8 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
     'Hjälp-state:',
     `  familjer med shown: ${metrics.help_state.families_shown}`,
     `  familjer med engaged: ${metrics.help_state.families_engaged}`,
-    `  no_progress (state): ${metrics.help_state.families_no_progress}`,
-  ];
+    `  no_progress (state): ${metrics.help_state.families_no_progress}`
+  );
 
   const deltaLine = formatDeltaLine(decision.deltas);
   if (deltaLine) {
@@ -396,13 +456,19 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
   return lines.join('\n');
 }
 
-function buildEmailSubject({ decision, rollbackPerformed }) {
+function buildEmailSubject({ decision, rollbackPerformed, metrics }) {
   if (rollbackPerformed) {
     return '[Systemhjälp] ROLLBACK — global flagga OFF';
   }
   switch (decision.emailKind) {
-    case 'support_report':
+    case 'support_report': {
+      const latest = metrics?.new_support_reports?.[metrics.new_support_reports.length - 1];
+      if (latest?.name || latest?.email) {
+        const who = [latest.name, latest.email ? `<${latest.email}>` : null].filter(Boolean).join(' ');
+        return `[Systemhjälp] Ny support-rapport — ${who}`;
+      }
       return '[Systemhjälp] Ny support-rapport';
+    }
     case 'warning':
       return '[Systemhjälp] VARNING — tröskel närmar sig';
     case 'outcome_summary':
@@ -492,9 +558,21 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
     metrics.override_count = 0;
   }
 
+  if (
+    previousState
+    && metrics.latest_support_message_id > (previousState.latest_support_message_id || 0)
+  ) {
+    metrics.new_support_reports = await queryNewSupportReports(
+      previousState.latest_support_message_id || 0,
+      metrics.latest_support_message_id
+    );
+  } else {
+    metrics.new_support_reports = [];
+  }
+
   let sent = false;
   if (decision.shouldSend && !dryRun) {
-    const subject = buildEmailSubject({ decision, rollbackPerformed });
+    const subject = buildEmailSubject({ decision, rollbackPerformed, metrics });
     const body = buildEmailBody({ metrics, decision, rollbackPerformed });
     await sendEmail({
       to: reportEmail(),
@@ -534,9 +612,11 @@ module.exports = {
   SUPPORT_MESSAGE_PREFIX,
   reportEmail,
   collectMetrics,
+  queryNewSupportReports,
   evaluateReportDecision,
   buildEmailBody,
   buildEmailSubject,
+  formatSupportReportBlock,
   runGrowthSystemHelpOpsReport,
   performRollback,
   loadPreviousState,
