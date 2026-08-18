@@ -364,6 +364,14 @@ async function finalizeNoProgressOutcomes(now = new Date()) {
   return count;
 }
 
+async function recordSystemHelpApiError(familyId, route, err) {
+  if (!familyId) return;
+  analytics.track(familyId, 'system_help_api_error', {
+    route: String(route || 'unknown').slice(0, 64),
+    message: String(err?.message || 'error').slice(0, 200),
+  }).catch(() => {});
+}
+
 module.exports = {
   FLAG_KEY,
   SURFACES,
@@ -374,6 +382,7 @@ module.exports = {
   recordShown,
   recordEngaged,
   recordSupportRequested,
+  recordSystemHelpApiError,
   maybeRecordProgression,
   finalizeNoProgressOutcomes,
   computeProgressionOutcome,

@@ -14,9 +14,17 @@ const { FLAG_KEY } = require('./growth-system-help');
 
 const STATE_KEY = 'growth_system_help_ops_report_state';
 const SUPPORT_MESSAGE_PREFIX = '[Systemhjälp — Rapportera problem]';
+const OUTCOME_WINDOW_MS = 72 * 60 * 60 * 1000;
+const TECH_ERROR_EVENT = 'system_help_api_error';
 
 const EVENT_TYPES = Object.freeze([
   'system_help_shown',
+  'system_help_engaged',
+  'system_help_support_requested',
+  'system_help_progressed',
+]);
+
+const SUMMARY_EVENT_TYPES = Object.freeze([
   'system_help_engaged',
   'system_help_support_requested',
   'system_help_progressed',
@@ -27,19 +35,39 @@ function reportEmail() {
   return (raw && raw.trim()) || config.email.from;
 }
 
-function rollbackSupportThreshold() {
-  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_SUPPORT_24H);
+function rollbackSupportMinReports() {
+  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_SUPPORT_MIN_REPORTS);
   return Number.isFinite(n) && n > 0 ? n : 3;
 }
 
-function noProgressRollbackMinShown() {
-  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_NO_PROGRESS_MIN_SHOWN);
+function rollbackSupportMinShown() {
+  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_SUPPORT_MIN_SHOWN);
+  return Number.isFinite(n) && n > 0 ? n : 10;
+}
+
+function rollbackSupportRate() {
+  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_SUPPORT_RATE);
+  return Number.isFinite(n) && n > 0 && n <= 1 ? n : 0.2;
+}
+
+function noProgressRollbackMinOutcomes() {
+  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_NO_PROGRESS_MIN_OUTCOMES);
   return Number.isFinite(n) && n > 0 ? n : 10;
 }
 
 function noProgressRollbackRate() {
   const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_NO_PROGRESS_RATE);
   return Number.isFinite(n) && n > 0 && n <= 1 ? n : 0.8;
+}
+
+function techErrorRollbackThreshold() {
+  const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_TECH_ERRORS_1H);
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function outcomeSummaryMinCompleted() {
+  const n = Number(process.env.GROWTH_SYSTEM_HELP_OUTCOME_SUMMARY_MIN);
+  return Number.isFinite(n) && n > 0 ? n : 10;
 }
 
 async function queryEventCounts(since = null) {
@@ -57,16 +85,62 @@ async function queryEventCounts(since = null) {
   return counts;
 }
 
+async function queryTechErrorsSince(since) {
+  const { rows } = await db.query(
+    `SELECT count(*)::int AS c FROM analytics_events
+     WHERE event_type = $1 AND created_at > $2`,
+    [TECH_ERROR_EVENT, since]
+  );
+  return rows[0]?.c ?? 0;
+}
+
+async function queryCompletedOutcomes(outcomeWindowEnd) {
+  const { rows } = await db.query(
+    `SELECT
+       count(*) FILTER (
+         WHERE system_help_shown_at IS NOT NULL
+           AND system_help_shown_at <= $1
+           AND progression_outcome IS NOT NULL
+       )::int AS completed_outcomes,
+       count(*) FILTER (
+         WHERE system_help_shown_at IS NOT NULL
+           AND system_help_shown_at <= $1
+           AND progression_outcome = 'no_progress'
+       )::int AS no_progress_outcomes,
+       count(*) FILTER (
+         WHERE progression_outcome IN ('progressed_24h', 'progressed_72h')
+       )::int AS progressed_outcomes
+     FROM family_system_help_state`,
+    [outcomeWindowEnd]
+  );
+  return rows[0] || {
+    completed_outcomes: 0,
+    no_progress_outcomes: 0,
+    progressed_outcomes: 0,
+  };
+}
+
 async function collectMetrics(now = new Date()) {
   const since24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const since72h = new Date(now.getTime() - 72 * 60 * 60 * 1000);
+  const since1h = new Date(now.getTime() - 60 * 60 * 1000);
+  const outcomeWindowEnd = new Date(now.getTime() - OUTCOME_WINDOW_MS);
 
-  const [globalFlag, overrides, totals, last24h, last72h, support, supportLatest, helpState, outcomes72h] = await Promise.all([
+  const [
+    globalFlag,
+    overrides,
+    totals,
+    last24h,
+    support,
+    supportLatest,
+    helpState,
+    completedOutcomes,
+    techErrors1h,
+    supportReportsTotal,
+  ] = await Promise.all([
     db.query('SELECT enabled, updated_at FROM feature_flag WHERE key = $1 LIMIT 1', [FLAG_KEY]),
     db.query('SELECT count(*)::int AS c FROM family_feature_override WHERE feature_key = $1', [FLAG_KEY]),
     queryEventCounts(),
     queryEventCounts(since24h),
-    queryEventCounts(since72h),
     db.query(
       `SELECT count(*)::int AS open_count,
               count(*) FILTER (WHERE created_at > $2 AND status IS DISTINCT FROM 'archived')::int AS reports_24h
@@ -87,18 +161,17 @@ async function collectMetrics(now = new Date()) {
          count(*) FILTER (WHERE progression_outcome = 'no_progress')::int AS families_no_progress
        FROM family_system_help_state`
     ),
+    queryCompletedOutcomes(outcomeWindowEnd),
+    queryTechErrorsSince(since1h),
     db.query(
-      `SELECT count(*)::int AS c
-       FROM family_system_help_state
-       WHERE progression_outcome = 'no_progress'
-         AND updated_at > $1`,
-      [since72h]
+      `SELECT count(*)::int AS c FROM contact_message
+       WHERE message LIKE $1 AND status IS DISTINCT FROM 'archived'`,
+      [`${SUPPORT_MESSAGE_PREFIX}%`]
     ),
   ]);
 
-  const progressed24h = (last24h.system_help_progressed || 0);
-  const shown24h = (last24h.system_help_shown || 0);
-  const noProgressRecent = outcomes72h.rows[0]?.c ?? 0;
+  const shown = totals.system_help_shown || 0;
+  const supportRequested = totals.system_help_support_requested || 0;
 
   return {
     collected_at: now.toISOString(),
@@ -107,20 +180,26 @@ async function collectMetrics(now = new Date()) {
     override_count: overrides.rows[0]?.c ?? 0,
     analytics_totals: totals,
     analytics_24h: last24h,
-    analytics_72h: last72h,
     support_open_count: support.rows[0]?.open_count ?? 0,
     support_reports_24h: support.rows[0]?.reports_24h ?? 0,
+    support_reports_total: supportReportsTotal.rows[0]?.c ?? 0,
     latest_support_message_id: supportLatest.rows[0]?.latest_id ?? 0,
     help_state: helpState.rows[0] || {
       families_shown: 0,
       families_engaged: 0,
       families_no_progress: 0,
     },
-    outcome_signals: {
-      shown_24h: shown24h,
-      progressed_24h: progressed24h,
-      no_progress_marked_72h: noProgressRecent,
+    outcome_cohort: {
+      window_hours: 72,
+      completed_outcomes: completedOutcomes.completed_outcomes,
+      no_progress_outcomes: completedOutcomes.no_progress_outcomes,
+      progressed_outcomes: completedOutcomes.progressed_outcomes,
+      no_progress_rate: completedOutcomes.completed_outcomes > 0
+        ? completedOutcomes.no_progress_outcomes / completedOutcomes.completed_outcomes
+        : 0,
     },
+    support_rate: shown > 0 ? supportRequested / shown : 0,
+    tech_errors_1h: techErrors1h,
   };
 }
 
@@ -137,6 +216,16 @@ function diffCounts(current, previous) {
   return { delta, any };
 }
 
+function hasMeaningfulActivityDelta(delta) {
+  return SUMMARY_EVENT_TYPES.some((k) => (delta[k] || 0) > 0);
+}
+
+function hasShownOnlyDelta(delta) {
+  const shownDelta = delta.system_help_shown || 0;
+  if (shownDelta <= 0) return false;
+  return !hasMeaningfulActivityDelta(delta);
+}
+
 /**
  * Pure decision logic — unit tested.
  * @param {{ metrics: object, previousState: object|null, now?: Date }} input
@@ -150,16 +239,14 @@ function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
       shouldSend: false,
       shouldRollback: false,
       seedOnly: true,
+      emailKind: null,
       deltas: Object.fromEntries(EVENT_TYPES.map((k) => [k, 0])),
       alerts,
       reasons: ['initial_baseline_seed'],
     };
   }
 
-  const { delta, any: hasActivityDelta } = diffCounts(
-    metrics.analytics_totals,
-    previousState.analytics_totals
-  );
+  const { delta } = diffCounts(metrics.analytics_totals, previousState.analytics_totals);
 
   const newSupportId = metrics.latest_support_message_id > (previousState.latest_support_message_id || 0);
   if (newSupportId) {
@@ -167,35 +254,81 @@ function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
     reasons.push('new_support_report');
   }
 
-  if (hasActivityDelta) {
-    reasons.push('analytics_delta');
+  if (metrics.tech_errors_1h >= techErrorRollbackThreshold()) {
+    alerts.push({ level: 'critical', code: 'technical_api_errors' });
+    reasons.push('technical_api_errors');
   }
 
-  if (metrics.support_reports_24h >= rollbackSupportThreshold()) {
-    alerts.push({ level: 'critical', code: 'support_spike_24h' });
-    reasons.push('support_spike_24h');
-  }
+  const shown = metrics.analytics_totals.system_help_shown || 0;
+  const supportRate = metrics.support_rate || 0;
+  const supportReports = metrics.support_reports_total || 0;
 
-  const shown24h = metrics.outcome_signals?.shown_24h ?? 0;
-  const noProgress72h = metrics.outcome_signals?.no_progress_marked_72h ?? 0;
-  if (
-    shown24h >= noProgressRollbackMinShown()
-    && noProgress72h / Math.max(shown24h, 1) >= noProgressRollbackRate()
+  const supportRollbackReady =
+    supportReports >= rollbackSupportMinReports()
+    && shown >= rollbackSupportMinShown()
+    && supportRate >= rollbackSupportRate();
+
+  if (supportRollbackReady) {
+    alerts.push({ level: 'critical', code: 'support_signal_rollback' });
+    reasons.push('support_signal_rollback');
+  } else if (
+    supportReports >= rollbackSupportMinReports() - 1
+    || (shown >= rollbackSupportMinShown() && supportRate >= rollbackSupportRate() * 0.75)
   ) {
+    alerts.push({ level: 'warn', code: 'support_signal_warning' });
+    reasons.push('support_signal_warning');
+  }
+
+  const completed = metrics.outcome_cohort?.completed_outcomes || 0;
+  const noProgressRate = metrics.outcome_cohort?.no_progress_rate || 0;
+  const noProgressRollbackReady =
+    completed >= noProgressRollbackMinOutcomes()
+    && noProgressRate >= noProgressRollbackRate();
+
+  if (noProgressRollbackReady) {
     alerts.push({ level: 'critical', code: 'high_no_progress_rate' });
     reasons.push('high_no_progress_rate');
   }
 
+  const firstOutcomeSummary =
+    completed >= outcomeSummaryMinCompleted()
+    && !previousState.outcome_summary_sent;
+
+  if (firstOutcomeSummary) {
+    reasons.push('first_outcome_summary');
+  }
+
+  const meaningfulSummary = hasMeaningfulActivityDelta(delta);
+
+  if (meaningfulSummary) {
+    reasons.push('activity_summary');
+  }
+
   const shouldRollback = alerts.some((a) => a.level === 'critical');
-  const shouldSend = hasActivityDelta || newSupportId || shouldRollback;
+  const shouldSend = Boolean(
+    newSupportId
+    || shouldRollback
+    || alerts.some((a) => a.level === 'warn')
+    || firstOutcomeSummary
+    || meaningfulSummary
+  );
+
+  let emailKind = null;
+  if (shouldRollback) emailKind = 'rollback';
+  else if (newSupportId) emailKind = 'support_report';
+  else if (alerts.some((a) => a.level === 'warn')) emailKind = 'warning';
+  else if (firstOutcomeSummary) emailKind = 'outcome_summary';
+  else if (meaningfulSummary) emailKind = 'activity_summary';
 
   return {
     shouldSend,
     shouldRollback,
     seedOnly: false,
+    emailKind,
     deltas: delta,
     alerts,
     reasons,
+    firstOutcomeSummary,
   };
 }
 
@@ -220,13 +353,23 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
     'Analytics (senaste 24h):',
     ...EVENT_TYPES.map((k) => `  ${k}: ${metrics.analytics_24h[k] ?? 0}`),
     '',
-    `Öppna support-rapporter (systemhjälp): ${metrics.support_open_count}`,
-    `Nya support-rapporter (24h): ${metrics.support_reports_24h}`,
+    `Support-rapporter (öppna): ${metrics.support_open_count}`,
+    `Support-rapporter (24h): ${metrics.support_reports_24h}`,
+    `Support-rapporter (totalt): ${metrics.support_reports_total}`,
+    `support_requested/shown: ${(metrics.support_rate * 100).toFixed(1)}%`,
+    '',
+    'Outcome-kohort (72h-fönster avslutat):',
+    `  färdiga outcomes: ${metrics.outcome_cohort.completed_outcomes}`,
+    `  no_progress: ${metrics.outcome_cohort.no_progress_outcomes}`,
+    `  progressed: ${metrics.outcome_cohort.progressed_outcomes}`,
+    `  no_progress-andel: ${(metrics.outcome_cohort.no_progress_rate * 100).toFixed(1)}%`,
+    '',
+    `Tekniska API-fel (1h): ${metrics.tech_errors_1h}`,
     '',
     'Hjälp-state:',
     `  familjer med shown: ${metrics.help_state.families_shown}`,
     `  familjer med engaged: ${metrics.help_state.families_engaged}`,
-    `  no_progress: ${metrics.help_state.families_no_progress}`,
+    `  no_progress (state): ${metrics.help_state.families_no_progress}`,
   ];
 
   const deltaLine = formatDeltaLine(decision.deltas);
@@ -253,21 +396,22 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
   return lines.join('\n');
 }
 
-function buildEmailSubject({ metrics, decision, rollbackPerformed }) {
+function buildEmailSubject({ decision, rollbackPerformed }) {
   if (rollbackPerformed) {
     return '[Systemhjälp] ROLLBACK — global flagga OFF';
   }
-  if (decision.alerts.some((a) => a.code === 'support_spike_24h')) {
-    return '[Systemhjälp] VARNING — många support-rapporter (24h)';
+  switch (decision.emailKind) {
+    case 'support_report':
+      return '[Systemhjälp] Ny support-rapport';
+    case 'warning':
+      return '[Systemhjälp] VARNING — tröskel närmar sig';
+    case 'outcome_summary':
+      return '[Systemhjälp] Första outcome-sammanställning';
+    case 'activity_summary':
+      return '[Systemhjälp] Aktivitetssammanfattning';
+    default:
+      return '[Systemhjälp] Ops-rapport';
   }
-  const deltaLine = formatDeltaLine(decision.deltas);
-  if (deltaLine) {
-    return `[Systemhjälp] Ny aktivitet — ${deltaLine}`;
-  }
-  if (decision.alerts.some((a) => a.code === 'new_support_report')) {
-    return '[Systemhjälp] Ny support-rapport';
-  }
-  return '[Systemhjälp] Ops-rapport';
 }
 
 async function loadPreviousState() {
@@ -287,6 +431,7 @@ async function saveState(metrics, extra = {}) {
     latest_support_message_id: metrics.latest_support_message_id,
     last_report_at: extra.last_report_at || null,
     last_rollback_at: extra.last_rollback_at || null,
+    outcome_summary_sent: extra.outcome_summary_sent ?? false,
   };
   await appSettings.upsertSetting(STATE_KEY, payload);
   return payload;
@@ -313,7 +458,9 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
 
   if (decision.seedOnly) {
     if (!dryRun) {
-      await saveState(metrics);
+      await saveState(metrics, {
+        outcome_summary_sent: (metrics.outcome_cohort?.completed_outcomes || 0) >= outcomeSummaryMinCompleted(),
+      });
     }
     return {
       sent: false,
@@ -325,7 +472,9 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
 
   if (!metrics.global_enabled && !decision.shouldRollback) {
     if (!dryRun) {
-      await saveState(metrics);
+      await saveState(metrics, {
+        outcome_summary_sent: previousState?.outcome_summary_sent || false,
+      });
     }
     return {
       sent: false,
@@ -345,7 +494,7 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
 
   let sent = false;
   if (decision.shouldSend && !dryRun) {
-    const subject = buildEmailSubject({ metrics, decision, rollbackPerformed });
+    const subject = buildEmailSubject({ decision, rollbackPerformed });
     const body = buildEmailBody({ metrics, decision, rollbackPerformed });
     await sendEmail({
       to: reportEmail(),
@@ -360,6 +509,11 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
     await saveState(metrics, {
       last_report_at: sent ? now.toISOString() : previousState?.last_report_at || null,
       last_rollback_at: rollbackPerformed ? now.toISOString() : previousState?.last_rollback_at || null,
+      outcome_summary_sent: Boolean(
+        previousState?.outcome_summary_sent
+        || decision.firstOutcomeSummary
+        || (metrics.outcome_cohort?.completed_outcomes || 0) >= outcomeSummaryMinCompleted()
+      ),
     });
   }
 
@@ -376,6 +530,7 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
 module.exports = {
   STATE_KEY,
   EVENT_TYPES,
+  TECH_ERROR_EVENT,
   SUPPORT_MESSAGE_PREFIX,
   reportEmail,
   collectMetrics,
@@ -386,4 +541,6 @@ module.exports = {
   performRollback,
   loadPreviousState,
   saveState,
+  hasMeaningfulActivityDelta,
+  hasShownOnlyDelta,
 };

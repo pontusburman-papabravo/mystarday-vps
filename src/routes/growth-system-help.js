@@ -17,6 +17,7 @@ const {
   recordShown,
   recordEngaged,
   recordSupportRequested,
+  recordSystemHelpApiError,
   SURFACES,
 } = require('../lib/growth-system-help');
 
@@ -52,6 +53,7 @@ router.get('/context', requireParent, limiter, async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('[GROWTH-SYSTEM-HELP] context error:', err);
+    await recordSystemHelpApiError(req.user?.familyId, 'context', err);
     res.status(500).json({ eligible: false, reason: 'error' });
   }
 });
@@ -84,6 +86,7 @@ router.post('/shown', requireParent, limiter, async (req, res) => {
     res.json({ ok: Boolean(row) });
   } catch (err) {
     console.error('[GROWTH-SYSTEM-HELP] shown error:', err);
+    await recordSystemHelpApiError(req.user?.familyId, 'shown', err);
     res.status(500).json({ ok: false, error: 'error' });
   }
 });
@@ -114,6 +117,7 @@ router.post('/engage', requireParent, limiter, async (req, res) => {
     res.json({ ok: Boolean(row), ctaAction: eligibility.help?.ctaAction || null });
   } catch (err) {
     console.error('[GROWTH-SYSTEM-HELP] engage error:', err);
+    await recordSystemHelpApiError(req.user?.familyId, 'engage', err);
     res.status(500).json({ ok: false, error: 'error' });
   }
 });
@@ -145,6 +149,7 @@ router.post('/support-request', requireParent, limiter, async (req, res) => {
     res.json({ ok: Boolean(row) });
   } catch (err) {
     console.error('[GROWTH-SYSTEM-HELP] support-request error:', err);
+    await recordSystemHelpApiError(req.user?.familyId, 'support-request', err);
     res.status(500).json({ ok: false, error: 'error' });
   }
 });
