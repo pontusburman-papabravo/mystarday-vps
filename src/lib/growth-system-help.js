@@ -294,10 +294,12 @@ async function recordSupportRequested(familyId, meta = {}) {
       help_type: row.help_type,
       ...context,
     };
+    let contactMessageId = null;
     try {
-      await db.query(
+      const insertResult = await db.query(
         `INSERT INTO contact_message (name, email, message, message_type, family_id, metadata)
-         VALUES ($1, $2, $3, 'bug', $4, $5::jsonb)`,
+         VALUES ($1, $2, $3, 'bug', $4, $5::jsonb)
+         RETURNING id`,
         [
           (meta.parentName || 'Förälder').slice(0, 120),
           String(meta.parentEmail).slice(0, 255),
@@ -306,8 +308,25 @@ async function recordSupportRequested(familyId, meta = {}) {
           JSON.stringify(metadata),
         ]
       );
+      contactMessageId = insertResult.rows[0]?.id || null;
     } catch (err) {
       console.error('[GROWTH-SYSTEM-HELP] support contact_message failed:', err.message);
+    }
+
+    if (contactMessageId) {
+      const { notifySupportReportSaved } = require('./growth-system-help-support-notify');
+      try {
+        await notifySupportReportSaved({
+          contactMessageId,
+          familyId,
+          parentName: meta.parentName,
+          parentEmail: meta.parentEmail,
+          row,
+          context,
+        });
+      } catch (err) {
+        console.error('[GROWTH-SYSTEM-HELP] support notify failed:', err.message);
+      }
     }
   }
   return row;
