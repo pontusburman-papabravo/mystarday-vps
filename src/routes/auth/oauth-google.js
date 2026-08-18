@@ -55,7 +55,7 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
 
     const existingByGoogle = await parentDb.getParentByGoogleUserId(googleUserId);
     if (existingByGoogle) {
-      return completeLogin(req, res, existingByGoogle, 'parent');
+      return completeLogin(req, res, existingByGoogle, 'parent', { authSource: 'google_login' });
     }
 
     const existingByEmail = await parentDb.getParentByEmail(email);
@@ -69,7 +69,7 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
       if (!existingByEmail.google_user_id) {
         await parentDb.linkGoogleUserId(existingByEmail.id, googleUserId);
       }
-      return completeLogin(req, res, existingByEmail, 'parent');
+      return completeLogin(req, res, existingByEmail, 'parent', { authSource: 'google_login' });
     }
 
     const displayName = googleDisplayName(payload, email);
@@ -90,7 +90,7 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
       googleUserId,
       attribution,
     });
-    return completeLogin(req, res, newParent, 'parent', { isNewAccount: true });
+    return completeLogin(req, res, newParent, 'parent', { isNewAccount: true, authSource: 'google_login' });
   } catch (err) {
     console.error('[AUTH] Google Sign In error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

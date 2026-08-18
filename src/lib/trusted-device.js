@@ -271,11 +271,15 @@ async function issueParentSessionForDevice(res, row, rawToken, source) {
 
   await deviceDb.touchLastSeen(row.id);
 
-  const analytics = require('../../db/analytics');
-  analytics.track(row.family_id, 'parent_session_started', {
+  const { trackSessionStarted } = require('./session-telemetry');
+  trackSessionStarted(row.family_id, 'parent_session_started', {
+    actorType: 'parent',
+    actorId: parent.id,
+    trustedDeviceId: row.id,
+    deviceMode: row.device_mode,
+    platform: row.platform,
     source: source || 'trusted_device_restore_parent',
-    session_mode: 'resume',
-    device_mode: row.device_mode,
+    sessionMode: 'resume',
   });
 
   return {
@@ -291,7 +295,7 @@ async function issueParentSessionForDevice(res, row, rawToken, source) {
   };
 }
 
-async function issueChildSessionForDevice(req, res, row, rawToken, childId, source) {
+async function issueChildSessionForDevice(req, res, row, rawToken, childId, source, sessionMode = 'resume') {
   if (!childId) {
     return { ok: false, code: 'CHILD_NOT_FOUND' };
   }
@@ -344,11 +348,15 @@ async function issueChildSessionForDevice(req, res, row, rawToken, childId, sour
   await deviceDb.touchLastSeen(row.id);
   await deviceDb.setLastActiveChild(row.id, child.id);
 
-  const analytics = require('../../db/analytics');
-  analytics.track(row.family_id, 'child_session_started', {
+  const { trackSessionStarted } = require('./session-telemetry');
+  trackSessionStarted(row.family_id, 'child_session_started', {
+    actorType: 'child',
+    actorId: child.id,
+    trustedDeviceId: row.id,
+    deviceMode: row.device_mode,
+    platform: row.platform,
     source: source || 'trusted_device_restore',
-    session_mode: 'resume',
-    device_mode: row.device_mode,
+    sessionMode,
   });
 
   return {
@@ -452,7 +460,7 @@ async function selectChildOnTrustedDevice(req, res, rawToken, childId) {
   if (!allowed.some((c) => c.id === childId)) {
     return { ok: false, code: 'CHILD_ACCESS_DENIED' };
   }
-  return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_select_child');
+  return issueChildSessionForDevice(req, res, row, rawToken, childId, 'trusted_device_select_child', 'select');
 }
 
 async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options) {
@@ -534,11 +542,15 @@ async function selectParentOnTrustedDevice(req, res, rawToken, parentId, options
   setTrustedDeviceCookie(res, rawToken);
   await deviceDb.touchLastSeen(row.id);
 
-  const analytics = require('../../db/analytics');
-  analytics.track(row.family_id, 'parent_session_started', {
+  const { trackSessionStarted } = require('./session-telemetry');
+  trackSessionStarted(row.family_id, 'parent_session_started', {
+    actorType: 'parent',
+    actorId: parentRow.id,
+    trustedDeviceId: row.id,
+    deviceMode: row.device_mode,
+    platform: row.platform,
     source: opts.source || 'trusted_device_select_parent',
-    session_mode: 'select',
-    device_mode: row.device_mode,
+    sessionMode: 'select',
   });
 
   return {

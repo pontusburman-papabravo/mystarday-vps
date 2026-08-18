@@ -14,6 +14,7 @@ const { loginLimiter } = require('../../middleware/rateLimiter');
 const { getParentRoles, getChildrenForParent, syncAccountType } = require('../../../db/parent-access');
 const { mapChildForFamilyApi, mapParentForFamilyApi, avatarApiFields } = require('../../lib/avatar-api');
 const { recordLoginEvent } = require('../../lib/login-event');
+const { trackSessionStarted, resolveRequestPlatform } = require('../../lib/session-telemetry');
 const { isEmailAllowlisted, familyHasMagicViewAccess } = require('../../lib/magic-view-access');
 const { isEnglishChildExperienceEnabled } = require('../../lib/i18n-flags');
 const { resolveChildUiLocale } = require('../../lib/child-ui-locale');
@@ -104,6 +105,16 @@ router.post('/login', loginLimiter, validate(LoginSchema), async (req, res) => {
     // Record login event for analytics
     const loginRole = parent.is_admin ? 'admin' : 'parent';
     recordLoginEvent({ userId: parent.id, role: loginRole, familyId: parent.family_id }).catch(() => {});
+
+    trackSessionStarted(parent.family_id, 'parent_session_started', {
+      actorType: 'parent',
+      actorId: parent.id,
+      trustedDeviceId: null,
+      deviceMode: null,
+      platform: resolveRequestPlatform(req),
+      source: 'password_login',
+      sessionMode: 'fresh',
+    });
 
     const accessToken = jwt.sign(
       {

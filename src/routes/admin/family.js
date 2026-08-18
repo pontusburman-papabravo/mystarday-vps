@@ -8,6 +8,7 @@ const { hashPassword, comparePassword } = require('../../lib/hash');
 const crypto = require('crypto');
 const { sendEmail } = require('../../lib/email');
 const { maskEmail } = require('../../lib/log-redact');
+const userObservability = require('../../../db/user-observability');
 
 const router = express.Router();
 
@@ -85,6 +86,7 @@ router.get('/families-grouped', async (req, res) => {
       ORDER BY f.created_at DESC
     `);
 
+    await userObservability.enrichFamiliesGrouped(familyResult.rows);
     res.json(familyResult.rows);
   } catch (err) {
     console.error('[ADMIN] Families grouped error:', err);

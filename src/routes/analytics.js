@@ -10,6 +10,7 @@
 const express = require('express');
 const { optionalAuth } = require('../middleware/auth');
 const analytics = require('../../db/analytics');
+const { enrichActorMetadata } = require('../lib/session-telemetry');
 const { maybeMarkWinBackReturnedFromEngagement } = require('../lib/win-back-return-tracker');
 
 const router = express.Router();
@@ -223,7 +224,7 @@ router.post('/event', optionalAuth, async (req, res) => {
     const familyId = req.user?.familyId || (typeof session_id === 'string' ? session_id : null);
     if (!familyId) return;
 
-    analytics.track(familyId, event_type, metadata);
+    analytics.track(familyId, event_type, enrichActorMetadata(metadata, req.user));
     // N7: win-back attribution requires an authenticated familyId — an unauthenticated
     // session_id nonce is client-supplied and would let anyone spoof `returned_at`.
     if (req.user?.familyId) {
