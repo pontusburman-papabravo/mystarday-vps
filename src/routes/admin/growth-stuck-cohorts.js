@@ -5,8 +5,8 @@
  * GET /api/admin/growth/stuck-cohorts
  * GET /api/admin/growth/stuck-cohorts/summary
  *
- * Admin-only read preview. Not gated by growth_stuck_cohorts_v1 — that flag
- * remains a reserved kill switch for future outreach, not for viewing lists.
+ * Admin work-queue read path. Always available to requireAdmin.
+ * growth_stuck_cohorts_v1 is reserved for future intervention/send — not this list.
  */
 
 const express = require('express');
@@ -59,7 +59,7 @@ router.get('/growth/stuck-cohorts', async (req, res) => {
       cohort: cohort || 'all',
       count: families.length,
       autoSendAllowed: false,
-      note: 'Preview only — human approval required before any outreach.',
+      note: 'Work queue — manual next step only. No auto-send.',
       families,
     });
   } catch (err) {

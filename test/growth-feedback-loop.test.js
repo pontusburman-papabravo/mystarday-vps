@@ -63,11 +63,13 @@ describe('growth feedback loop contracts', () => {
     assert.match(route, /autoSendAllowed: false/);
   });
 
-  it('admin stuck UI is preview-only and does not treat the dark-launch flag as a dead end', () => {
+  it('admin stuck UI is a manual work queue and does not treat the dark-launch flag as a dead end', () => {
     const ui = read('public/admin/admin-growth-stuck.js');
-    assert.match(ui, /Ingen automatisk utskickning/);
+    assert.match(ui, /Manuell arbetskö/);
+    assert.match(ui, /manualNextStep/);
+    assert.match(ui, /openFamilyHub/);
     assert.doesNotMatch(ui, /flagga av/);
-    assert.match(ui, /preview_handoff_nudge/);
+    assert.doesNotMatch(ui, /sendEmail|broadcast/i);
   });
 
   it('analytics allowlist includes growth loop events', () => {

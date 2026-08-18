@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
 const { injectMockDb } = require('./helpers/setup.js');
+const { mapGrowthStuckFamily } = require('../src/lib/growth-stuck-work-queue');
 
 const {
   normalizeAttributionInput,
@@ -275,6 +276,10 @@ describe('admin stuck cohort preview API', () => {
       assert.equal(list.maxAgeDays, 14);
       assert.equal(list.count, 1);
       assert.equal(list.families[0].blockingStep, 'onboarding_incomplete');
+      assert.equal(list.families[0].whyStuck, 'Onboarding startad men inte slutförd.');
+      assert.equal(list.families[0].manualNextStep.includes('spara schema'), true);
+      assert.equal(list.families[0].lastActivityType, 'activation_onboarding_started');
+      assert.equal(typeof list.families[0].stuckHours, 'number');
       assert.equal(list.families[0].recommendedFollowUp, 'preview_handoff_nudge');
       assert.equal(list.families[0].autoSendAllowed, false);
 
@@ -288,6 +293,80 @@ describe('admin stuck cohort preview API', () => {
       await new Promise((resolve) => server.close(resolve));
       mock.restore();
     }
+  });
+});
+
+describe('stuck family work-queue mapper', () => {
+  const now = new Date('2026-08-18T08:00:00Z');
+
+  it('onboarding never started: why + duration from created_at + schema next step', () => {
+    const mapped = mapGrowthStuckFamily({
+      family_id: 'f1',
+      family_name: 'A',
+      created_at: '2026-08-15T08:00:00Z',
+      blocking_step: 'onboarding_incomplete',
+      last_event_type: null,
+      last_event_at: null,
+      last_login_at: null,
+    }, now);
+    assert.equal(mapped.whyStuck, 'Onboarding aldrig startad.');
+    assert.equal(mapped.stuckHours, 72);
+    assert.equal(mapped.autoSendAllowed, false);
+    assert.match(mapped.manualNextStep, /spara schema/);
+    assert.equal(mapped.recommendedFollowUp, 'preview_handoff_nudge');
+  });
+
+  it('schema without child login uses schema_saved_at as stuck-since', () => {
+    const mapped = mapGrowthStuckFamily({
+      family_id: 'f2',
+      family_name: 'B',
+      created_at: '2026-08-10T08:00:00Z',
+      blocking_step: 'schema_no_child_login',
+      schema_saved_at: '2026-08-16T08:00:00Z',
+      last_event_type: 'activation_onboarding_started',
+      last_event_at: '2026-08-16T09:00:00Z',
+    }, now);
+    assert.equal(mapped.stuckHours, 48);
+    assert.match(mapped.whyStuck, /inget barn har loggat in/);
+    assert.match(mapped.manualNextStep, /barninloggning/);
+  });
+
+  it('prefers more recent login over older analytics event', () => {
+    const mapped = mapGrowthStuckFamily({
+      family_id: 'f3',
+      family_name: 'C',
+      created_at: '2026-08-10T08:00:00Z',
+      blocking_step: 'login_no_completion',
+      child_access_completed_at: '2026-08-14T08:00:00Z',
+      last_event_type: 'activation_onboarding_started',
+      last_event_at: '2026-08-12T08:00:00Z',
+      last_login_at: '2026-08-17T08:00:00Z',
+    }, now);
+    assert.equal(mapped.lastActivityType, 'login');
+    assert.equal(mapped.stuckHours, 96);
+    assert.match(mapped.manualNextStep, /första stjärnan/);
+  });
+
+  it('completion without return and core-flow errors keep autoSendAllowed false', () => {
+    const ret = mapGrowthStuckFamily({
+      family_id: 'f4',
+      created_at: '2026-08-04T08:00:00Z',
+      blocking_step: 'completion_no_return',
+      first_completion_at: '2026-08-08T08:00:00Z',
+    }, now);
+    assert.match(ret.manualNextStep, /inget auto-mejl/);
+    assert.equal(ret.autoSendAllowed, false);
+
+    const err = mapGrowthStuckFamily({
+      family_id: 'f5',
+      created_at: '2026-08-10T08:00:00Z',
+      blocking_step: 'core_flow_errors',
+      last_event_type: 'child_pin_lockout',
+      last_event_at: '2026-08-17T20:00:00Z',
+    }, now);
+    assert.match(err.whyStuck, /Tekniskt fel/);
+    assert.match(err.manualNextStep, /felsök/);
+    assert.equal(err.autoSendAllowed, false);
   });
 });
 
