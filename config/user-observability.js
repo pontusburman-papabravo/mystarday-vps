@@ -33,9 +33,36 @@ const INTERVAL_MAP = Object.freeze({
   '30d': "INTERVAL '30 days'",
 });
 
+/** Trusted-device access friction — conservative attribution only (see TRUSTED_DEVICE_FRICTION_EVENT_SQL). */
+const TRUSTED_DEVICE_FRICTION_EVENT_TYPES = Object.freeze([
+  'child_context_restore_failed',
+  'child_access_denied',
+  'device_access_revoked',
+]);
+
+/**
+ * SQL predicate on analytics_events alias `ae` — TD/device-access friction only.
+ * Excludes generic login failures without TD attribution.
+ */
+const TRUSTED_DEVICE_FRICTION_EVENT_SQL = `(
+  ae.event_type = 'child_context_restore_failed'
+  OR (
+    ae.event_type = 'child_access_denied'
+    AND COALESCE(ae.metadata->>'source', '') IN (
+      'shared_device_select', 'cold_start', 'picker', 'entry_orchestrator'
+    )
+  )
+  OR (
+    ae.event_type = 'device_access_revoked'
+    AND COALESCE(ae.metadata->>'scope', '') IN ('this_device', 'other_device')
+  )
+)`;
+
 module.exports = {
   SESSION_EVENT_TYPES,
   ACTIVITY_ANALYTICS_EVENT_TYPES,
   ALL_ACTIVITY_EVENT_TYPES,
   INTERVAL_MAP,
+  TRUSTED_DEVICE_FRICTION_EVENT_TYPES,
+  TRUSTED_DEVICE_FRICTION_EVENT_SQL,
 };

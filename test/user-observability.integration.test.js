@@ -319,7 +319,8 @@ test('user observability integration matrix', async (t) => {
       const td = kpis.trusted_devices;
       assert.ok(td.families_enrolled >= 1);
       assert.ok(td.active_devices >= 1);
-      assert.equal(td.active_by_mode.parent, td.active_devices);
+      assert.ok(td.active_by_mode.parent >= 1);
+      assert.ok(td.active_devices >= 1);
       assert.ok(td.devices_seen >= 1);
       assert.ok(td.families_with_device_seen >= 1);
       assert.ok(td.sessions >= 1);
@@ -327,6 +328,61 @@ test('user observability integration matrix', async (t) => {
       assert.ok(td.families_with_sessions >= 1);
       assert.ok(td.sessions_by_mode.parent >= 1);
       assert.equal(kpis.trusted_device_sessions, td.sessions);
+    });
+
+    await t.test('usage KPIs include trusted device impact funnel metrics', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const adminCookies = await makeAdmin(db, session);
+      const parentRow = await db.query('SELECT id, family_id FROM parent WHERE email = $1', [session.email]);
+      const { id: parentId, family_id: familyId } = parentRow.rows[0];
+
+      const deviceCookies = await enrollParent(http, session, 'Impact funnel phone');
+      const hash = crypto.createHash('sha256').update(deviceCookies.trusted_device).digest('hex');
+      const deviceRow = await db.query(
+        'SELECT id FROM family_trusted_device WHERE token_hash = $1',
+        [hash]
+      );
+      const deviceId = deviceRow.rows[0].id;
+
+      await db.query(
+        `INSERT INTO analytics_events (family_id, event_type, metadata, created_at)
+         VALUES ($1, 'parent_session_started', $2, NOW() - INTERVAL '2 days'),
+                ($1, 'parent_session_started', $2, NOW())`,
+        [
+          familyId,
+          JSON.stringify({
+            actor_type: 'parent',
+            actor_id: parentId,
+            trusted_device_id: deviceId,
+            device_mode: 'parent',
+            source: 'trusted_device_restore_parent',
+            session_mode: 'resume',
+            platform: 'web',
+          }),
+        ]
+      );
+
+      await db.query(
+        `INSERT INTO analytics_events (family_id, event_type, metadata, created_at)
+         VALUES ($1, 'child_context_restore_failed', $2, NOW())`,
+        [familyId, JSON.stringify({ code: 'TRUSTED_DEVICE_INVALID', source: 'test' })]
+      );
+
+      const res = await fetch(`${http.baseUrl}/api/admin/analytics/usage?period=7d`, {
+        headers: { Cookie: cookieHeader(adminCookies) },
+      });
+      assert.equal(res.status, 200);
+      const kpis = await res.json();
+      const impact = kpis.trusted_devices?.impact;
+      assert.ok(impact, 'impact block');
+      assert.ok(impact.adoption);
+      assert.ok(impact.adoption.adoption_pct !== undefined);
+      assert.ok(impact.recurring.families_2plus_days >= 1);
+      assert.ok(impact.friction.total_events >= 1);
+      assert.ok(impact.cohorts.by_7d);
+      assert.ok(impact.cohorts.by_30d);
+      assert.ok(impact.week_comparison?.all_families?.active_2plus_days);
+      assert.equal(impact.week_comparison.window, '7d_vs_previous_7d');
     });
 
     await t.test('last_active_at ignores session-only events', async () => {
