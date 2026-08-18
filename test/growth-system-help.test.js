@@ -166,6 +166,40 @@ describe('growth-system-help migration', () => {
     assert.match(migration, /growth_system_help_v1/);
     assert.match(migration, /progressed_24h/);
     assert.match(migration, /support_requested_at/);
+    assert.match(migration, /snapshotContract/);
+    assert.match(migration, /featureFlagInserts/);
+  });
+});
+
+describe('growth-system-help support report', () => {
+  const {
+    sanitizeReportContext,
+    formatSupportReportMessage,
+  } = require('../src/lib/growth-system-help');
+
+  it('sanitizes technical context for support reports', () => {
+    const ctx = sanitizeReportContext({
+      surface: 'help_panel',
+      blocking_step: 'schema_no_child_login',
+      route: '/dashboard',
+      locale: 'sv-SE',
+      evil: '<script>',
+      nested: { nope: true },
+    });
+    assert.equal(ctx.surface, 'help_panel');
+    assert.equal(ctx.blocking_step, 'schema_no_child_login');
+    assert.equal(ctx.evil, undefined);
+    assert.equal(ctx.nested, undefined);
+  });
+
+  it('formats support report message with technical context', () => {
+    const msg = formatSupportReportMessage(
+      { blocking_step: 'login_no_completion', help_type: 'first_star_help' },
+      { surface: 'help_panel', route: '/daily-log', locale: 'sv-SE' }
+    );
+    assert.match(msg, /Rapportera problem/);
+    assert.match(msg, /login_no_completion/);
+    assert.match(msg, /\/daily-log/);
   });
 });
 
