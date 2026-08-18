@@ -724,6 +724,31 @@
 
   // ─── Journey tip (signup slim) ─────────────────────────────────────────────
   let tipModuleLoading = false;
+  let systemHelpModuleLoading = false;
+
+  function ensureSystemHelpModule(cb) {
+    if (window.GrowthSystemHelp) {
+      cb();
+      return;
+    }
+    if (systemHelpModuleLoading) {
+      document.addEventListener('growth-system-help-ready', cb, { once: true });
+      return;
+    }
+    systemHelpModuleLoading = true;
+    const s = document.createElement('script');
+    s.src = '/js/growth-system-help.js';
+    s.onload = function () {
+      systemHelpModuleLoading = false;
+      document.dispatchEvent(new Event('growth-system-help-ready'));
+      cb();
+    };
+    s.onerror = function () {
+      systemHelpModuleLoading = false;
+      cb();
+    };
+    document.head.appendChild(s);
+  }
 
   function ensureTipModule(cb) {
     if (window.HelpJourneyTip) {
@@ -751,8 +776,19 @@
   function refreshJourneyTip() {
     const mount = document.getElementById('hbJourneyTipMount');
     if (!mount) return;
-    ensureTipModule(function () {
-      if (window.HelpJourneyTip) HelpJourneyTip.refresh(mount);
+    ensureSystemHelpModule(function () {
+      if (window.GrowthSystemHelp && typeof GrowthSystemHelp.refreshHelpPanel === 'function') {
+        GrowthSystemHelp.refreshHelpPanel(mount).then(function (data) {
+          if (data && data.eligible) return;
+          ensureTipModule(function () {
+            if (window.HelpJourneyTip) HelpJourneyTip.refresh(mount);
+          });
+        });
+        return;
+      }
+      ensureTipModule(function () {
+        if (window.HelpJourneyTip) HelpJourneyTip.refresh(mount);
+      });
     });
   }
 
