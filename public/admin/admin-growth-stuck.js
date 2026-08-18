@@ -40,10 +40,12 @@
           '</div>'
         );
       });
+      const total = data.total || 0;
+      const totalLabel = total === 1 ? '1 familj' : total + ' familjer';
       el.innerHTML =
         '<p class="text-sm text-slate-600 mb-3">Preview 48h–14d. Ingen automatisk utskickning. Totalt: ' +
-        (data.total || 0) +
-        ' familjer (QA dolda).</p><div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">' +
+        totalLabel +
+        ' (QA dolda).</p><div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">' +
         parts.join('') +
         '</div>';
     } catch (err) {
