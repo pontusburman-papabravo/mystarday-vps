@@ -36,7 +36,6 @@ router.post('/activation/defer', requireNotPedagogOnly, async (req, res) => {
 
     const current = await buildCanonicalNextAction(familyId, {
       includeEngineAdapter: true,
-      parentId,
       skipDeferral: true,
     });
 

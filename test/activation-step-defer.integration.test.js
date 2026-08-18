@@ -13,6 +13,8 @@ const { buildCanonicalNextAction } = require('../src/lib/activation/canonical-ne
 const { FLAG_KEYS } = require('../src/lib/activation-flags');
 const { DEFER_DURATION_MS } = require('../src/lib/activation/defer-constants');
 const { patchState } = require('../db/family-activation-state');
+const familyMilestones = require('../db/family-milestones');
+const { applyDeferralOverlay } = require('../src/lib/activation/step-deferrals');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -38,6 +40,36 @@ async function enableFirstSuccessFlag(db) {
 
 async function disableFirstSuccessFlag(db) {
   await db.query(`UPDATE feature_flag SET enabled = false WHERE key = $1`, [FLAG_KEY]);
+}
+
+async function enableRetentionHomeFlag(db) {
+  await db.query(
+    `INSERT INTO feature_flag (key, enabled, description) VALUES ($1, true, 'test')
+     ON CONFLICT (key) DO UPDATE SET enabled = true`,
+    ['journey_retention_home_v1']
+  );
+}
+
+async function disableRetentionHomeFlag(db) {
+  await db.query(`UPDATE feature_flag SET enabled = false WHERE key = $1`, [
+    'journey_retention_home_v1',
+  ]);
+}
+
+async function setupPostFirstSuccessRetentionChildAccess(db, baseUrl, session) {
+  const familyId = await familyIdForSession(db, session);
+  await createChild(baseUrl, session, { name: 'Retention Kid' });
+  await familyMilestones.insertMilestone({
+    familyId,
+    milestone: 'first_success',
+    source: 'system',
+  });
+  await familyMilestones.insertMilestone({
+    familyId,
+    milestone: 'routine_ready',
+    source: 'system',
+  });
+  return familyId;
 }
 
 async function insertFamily(db) {
@@ -542,6 +574,132 @@ describe('activation step defer (#1023 PR A)', () => {
       assert.ok(body.deferred_until);
     } finally {
       await http.close();
+      await disableFirstSuccessFlag(db);
+      await db.cleanup();
+    }
+  });
+
+  test('A16: stale Activation child_access defer does not suppress retention coach', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real TEST_DATABASE_URL');
+      return;
+    }
+    try {
+      await enableFirstSuccessFlag(db);
+      await enableRetentionHomeFlag(db);
+      const http = await listenApp(loadCreateApp());
+      try {
+        const session = await registerAndLogin(http.baseUrl);
+        const familyId = await setupPostFirstSuccessRetentionChildAccess(
+          db,
+          http.baseUrl,
+          session
+        );
+        const parentId = (
+          await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [
+            session.email.toLowerCase(),
+          ])
+        ).rows[0].id;
+        const now = new Date('2026-08-18T10:00:00.000Z');
+        await db.query(
+          `UPDATE family_activation_state
+           SET step_deferrals = $2::jsonb
+           WHERE family_id = $1`,
+          [
+            familyId,
+            JSON.stringify({
+              child_access: {
+                deferred_at: now.toISOString(),
+                until: new Date(now.getTime() + DEFER_DURATION_MS).toISOString(),
+              },
+            }),
+          ]
+        );
+
+        const canonical = await buildCanonicalNextAction(familyId, { parentId, now });
+        assert.equal(canonical.authority, 'journey_retention');
+        assert.equal(canonical.next_action, 'child_access');
+        assert.equal(canonical.show_primary_coach, true);
+        assert.equal(canonical.deferred, false);
+        assert.equal(canonical.deferred_until, undefined);
+
+        const overlayOnly = applyDeferralOverlay(
+          {
+            enabled: true,
+            authority: 'journey_retention',
+            next_action: 'child_access',
+            show_primary_coach: true,
+            reason: ['ROUTINE_READY_NO_CHILD_ACCESS'],
+          },
+          {
+            child_access: {
+              deferred_at: now.toISOString(),
+              until: new Date(now.getTime() + DEFER_DURATION_MS).toISOString(),
+            },
+          },
+          { now }
+        );
+        assert.equal(overlayOnly.show_primary_coach, true);
+        assert.equal(overlayOnly.deferred, false);
+        assert.equal(overlayOnly.deferred_until, undefined);
+      } finally {
+        await http.close();
+      }
+    } finally {
+      await disableRetentionHomeFlag(db);
+      await disableFirstSuccessFlag(db);
+      await db.cleanup();
+    }
+  });
+
+  test('A17: POST defer rejected after first_success retention (step_deferrals unchanged)', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real TEST_DATABASE_URL');
+      return;
+    }
+    try {
+      await enableFirstSuccessFlag(db);
+      await enableRetentionHomeFlag(db);
+      const http = await listenApp(loadCreateApp());
+      try {
+        const session = await registerAndLogin(http.baseUrl);
+        const familyId = await setupPostFirstSuccessRetentionChildAccess(
+          db,
+          http.baseUrl,
+          session
+        );
+        const parentId = (
+          await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [
+            session.email.toLowerCase(),
+          ])
+        ).rows[0].id;
+
+        const retention = await buildCanonicalNextAction(familyId, { parentId });
+        assert.equal(retention.authority, 'journey_retention');
+        assert.ok(['child_access', 'await_first_completion'].includes(retention.next_action));
+
+        const before = await db.query(
+          'SELECT step_deferrals FROM family_activation_state WHERE family_id = $1',
+          [familyId]
+        );
+        const beforeDeferrals = before.rows[0]?.step_deferrals || {};
+
+        const res = await deferViaApi(http.baseUrl, session, retention.next_action);
+        assert.equal(res.status, 409);
+        assert.equal(res.body.code, 'ACTIVATION_NO_STEP');
+
+        const after = await db.query(
+          'SELECT step_deferrals FROM family_activation_state WHERE family_id = $1',
+          [familyId]
+        );
+        assert.deepEqual(after.rows[0]?.step_deferrals || {}, beforeDeferrals);
+      } finally {
+        await http.close();
+      }
+    } finally {
+      await disableRetentionHomeFlag(db);
       await disableFirstSuccessFlag(db);
       await db.cleanup();
     }

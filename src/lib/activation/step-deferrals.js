@@ -31,7 +31,8 @@ function applyDeferralOverlay(payload, stepDeferrals, options = {}) {
   if (!payload?.enabled || !payload.next_action || payload.next_action === 'none') {
     return { ...payload, deferred: false };
   }
-  if (payload.show_primary_coach === false && payload.authority === 'journey_retention') {
+  // Activation defer never overlays Journey Retention (reuses child_access / await_first_completion).
+  if (payload.authority === 'journey_retention') {
     return { ...payload, deferred: false };
   }
   const active = getActiveDeferral(stepDeferrals, payload.next_action, now);
