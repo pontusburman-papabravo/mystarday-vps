@@ -82,14 +82,29 @@ function buildSessionMetadata({
 }
 
 function enrichActorMetadata(metadata, user) {
-  if (!user?.id) return sanitizeMetadata(metadata);
-  const actorType = user.type === 'child' ? 'child' : 'parent';
-  const base = { ...(metadata || {}) };
-  if (!base.actor_type) base.actor_type = actorType;
-  if (!base.actor_id && UUID_RE.test(user.id)) base.actor_id = user.id;
-  if (!base.trusted_device_id && user.trustedDeviceId && UUID_RE.test(user.trustedDeviceId)) {
-    base.trusted_device_id = user.trustedDeviceId;
+  const base = sanitizeMetadata(metadata);
+
+  if (!user?.id) {
+    delete base.actor_type;
+    delete base.actor_id;
+    delete base.trusted_device_id;
+    return base;
   }
+
+  const actorType = user.type === 'child' ? 'child' : 'parent';
+  base.actor_type = actorType;
+  if (UUID_RE.test(user.id)) {
+    base.actor_id = user.id;
+  } else {
+    delete base.actor_id;
+  }
+
+  if (user.trustedDeviceId && UUID_RE.test(user.trustedDeviceId)) {
+    base.trusted_device_id = user.trustedDeviceId;
+  } else {
+    delete base.trusted_device_id;
+  }
+
   return sanitizeMetadata(base);
 }
 

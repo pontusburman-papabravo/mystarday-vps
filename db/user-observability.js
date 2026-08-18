@@ -10,7 +10,6 @@ const { classifySessionSource } = require('../src/lib/session-telemetry');
 const {
   SESSION_EVENT_TYPES,
   ACTIVITY_ANALYTICS_EVENT_TYPES,
-  ALL_ACTIVITY_EVENT_TYPES,
   INTERVAL_MAP,
 } = require('../config/user-observability');
 
@@ -55,11 +54,49 @@ async function fetchAuthByFamilyIds(familyIds) {
   return map;
 }
 
-async function fetchAnalyticsRollups(familyIds) {
+async function fetchSessionRollups(familyIds) {
   if (!familyIds.length) return new Map();
 
-  const sessionTypes = SESSION_EVENT_TYPES;
-  const activityTypes = ALL_ACTIVITY_EVENT_TYPES;
+  const { rows } = await db.query(
+    `SELECT DISTINCT ON (actor_type, actor_id)
+       actor_type,
+       actor_id,
+       family_id,
+       created_at AS last_session_started_at,
+       metadata AS last_session_metadata
+     FROM (
+       SELECT
+         ae.family_id,
+         ae.metadata->>'actor_id' AS actor_id,
+         ae.metadata->>'actor_type' AS actor_type,
+         ae.created_at,
+         ae.metadata
+       FROM analytics_events ae
+       WHERE ae.family_id = ANY($1::uuid[])
+         AND ae.event_type = ANY($2::text[])
+         AND ae.metadata->>'actor_id' IS NOT NULL
+         AND ae.metadata->>'actor_type' IN ('parent', 'child')
+     ) sessions
+     ORDER BY actor_type, actor_id, created_at DESC`,
+    [familyIds, SESSION_EVENT_TYPES]
+  );
+
+  const map = new Map();
+  for (const row of rows) {
+    const meta = row.last_session_metadata || {};
+    map.set(actorKey(row.actor_type, row.actor_id), {
+      family_id: row.family_id,
+      last_session_started_at: row.last_session_started_at,
+      last_session_source: classifySessionSource(meta),
+      last_session_device_id: meta.trusted_device_id || null,
+      last_session_device_mode: meta.device_mode || null,
+    });
+  }
+  return map;
+}
+
+async function fetchActivityRollups(familyIds) {
+  if (!familyIds.length) return new Map();
 
   const { rows } = await db.query(
     `WITH raw AS (
@@ -72,8 +109,7 @@ async function fetchAnalyticsRollups(familyIds) {
            ELSE NULL
          END AS actor_type,
          ae.event_type,
-         ae.created_at,
-         ae.metadata
+         ae.created_at
        FROM analytics_events ae
        WHERE ae.family_id = ANY($1::uuid[])
          AND ae.created_at >= NOW() - INTERVAL '30 days'
@@ -81,68 +117,89 @@ async function fetchAnalyticsRollups(familyIds) {
      ),
      filtered AS (
        SELECT * FROM raw WHERE actor_id IS NOT NULL AND actor_type IS NOT NULL
-     ),
-     latest_session AS (
-       SELECT DISTINCT ON (actor_type, actor_id)
-         actor_type, actor_id, family_id, created_at AS last_session_started_at, metadata
-       FROM filtered
-       WHERE event_type = ANY($3::text[])
-       ORDER BY actor_type, actor_id, created_at DESC
-     ),
-     agg AS (
-       SELECT
-         actor_type,
-         actor_id,
-         family_id,
-         MAX(created_at) FILTER (
-           WHERE event_type = ANY($4::text[])
-         ) AS last_active_at,
-         COUNT(DISTINCT date_trunc('day', created_at AT TIME ZONE 'Europe/Stockholm'))
-           FILTER (WHERE event_type = ANY($4::text[]))::int AS active_days_30d,
-         COUNT(*) FILTER (
-           WHERE event_type IN ('feature_daily_log', 'feature_schedule_edit')
-             AND actor_type = 'parent'
-         )::int AS parent_view_events_30d,
-         COUNT(*) FILTER (
-           WHERE event_type = 'feature_schedule_edit' AND actor_type = 'parent'
-         )::int AS schedule_edits_30d,
-         COUNT(*) FILTER (
-           WHERE event_type = 'widget_completion_succeeded'
-         )::int AS widget_completions_30d
-       FROM filtered
-       GROUP BY actor_type, actor_id, family_id
      )
      SELECT
-       a.actor_type,
-       a.actor_id,
-       a.family_id,
-       a.last_active_at,
-       a.active_days_30d,
-       a.parent_view_events_30d,
-       a.schedule_edits_30d,
-       a.widget_completions_30d,
-       ls.last_session_started_at,
-       ls.metadata AS last_session_metadata
-     FROM agg a
-     LEFT JOIN latest_session ls
-       ON ls.actor_type = a.actor_type AND ls.actor_id = a.actor_id`,
-    [familyIds, activityTypes, sessionTypes, activityTypes]
+       actor_type,
+       actor_id,
+       family_id,
+       MAX(created_at) AS last_active_at,
+       COUNT(*) FILTER (
+         WHERE event_type IN ('feature_daily_log', 'feature_schedule_edit')
+           AND actor_type = 'parent'
+       )::int AS parent_view_events_30d,
+       COUNT(*) FILTER (
+         WHERE event_type = 'feature_schedule_edit' AND actor_type = 'parent'
+       )::int AS schedule_edits_30d,
+       COUNT(*) FILTER (
+         WHERE event_type = 'widget_completion_succeeded'
+       )::int AS widget_completions_30d
+     FROM filtered
+     GROUP BY actor_type, actor_id, family_id`,
+    [familyIds, ACTIVITY_ANALYTICS_EVENT_TYPES]
   );
 
   const map = new Map();
   for (const row of rows) {
-    const meta = row.last_session_metadata || {};
     map.set(actorKey(row.actor_type, row.actor_id), {
       family_id: row.family_id,
       last_active_at: row.last_active_at,
-      last_session_started_at: row.last_session_started_at,
-      last_session_source: classifySessionSource(meta),
-      last_session_device_id: meta.trusted_device_id || null,
-      last_session_device_mode: meta.device_mode || null,
-      active_days_30d: row.active_days_30d || 0,
       parent_view_events_30d: row.parent_view_events_30d || 0,
       schedule_edits_30d: row.schedule_edits_30d || 0,
       widget_completions_30d: row.widget_completions_30d || 0,
+    });
+  }
+  return map;
+}
+
+async function fetchActiveDaysUnion(familyIds) {
+  if (!familyIds.length) return new Map();
+
+  const { rows } = await db.query(
+    `WITH activity_days AS (
+       SELECT
+         COALESCE(ae.metadata->>'actor_id', ae.metadata->>'child_id') AS actor_id,
+         CASE
+           WHEN ae.metadata->>'actor_type' IN ('parent', 'child') THEN ae.metadata->>'actor_type'
+           WHEN ae.metadata ? 'child_id' THEN 'child'
+           ELSE NULL
+         END AS actor_type,
+         ae.family_id,
+         date_trunc('day', ae.created_at AT TIME ZONE 'Europe/Stockholm') AS day
+       FROM analytics_events ae
+       WHERE ae.family_id = ANY($1::uuid[])
+         AND ae.created_at >= NOW() - INTERVAL '30 days'
+         AND ae.event_type = ANY($2::text[])
+     ),
+     completion_days AS (
+       SELECT
+         c.id::text AS actor_id,
+         'child' AS actor_type,
+         c.family_id,
+         date_trunc('day', dli.completed_at AT TIME ZONE 'Europe/Stockholm') AS day
+       FROM daily_log_item dli
+       JOIN daily_log dl ON dl.id = dli.daily_log_id
+       JOIN child c ON c.id = dl.child_id
+       WHERE c.family_id = ANY($1::uuid[])
+         AND dli.completed = true
+         AND dli.completed_at >= NOW() - INTERVAL '30 days'
+     ),
+     union_days AS (
+       SELECT actor_type, actor_id, family_id, day FROM activity_days
+       WHERE actor_id IS NOT NULL AND actor_type IS NOT NULL
+       UNION
+       SELECT actor_type, actor_id, family_id, day FROM completion_days
+     )
+     SELECT actor_type, actor_id, family_id, COUNT(DISTINCT day)::int AS active_days_30d
+     FROM union_days
+     GROUP BY actor_type, actor_id, family_id`,
+    [familyIds, ACTIVITY_ANALYTICS_EVENT_TYPES]
+  );
+
+  const map = new Map();
+  for (const row of rows) {
+    map.set(actorKey(row.actor_type, row.actor_id), {
+      family_id: row.family_id,
+      active_days_30d: row.active_days_30d || 0,
     });
   }
   return map;
@@ -155,8 +212,7 @@ async function fetchCompletionRollups(familyIds) {
        c.id AS actor_id,
        c.family_id,
        MAX(dli.completed_at) AS last_completion_at,
-       COUNT(*)::int AS activity_completions_30d,
-       COUNT(DISTINCT date_trunc('day', dli.completed_at AT TIME ZONE 'Europe/Stockholm'))::int AS completion_active_days_30d
+       COUNT(*)::int AS activity_completions_30d
      FROM daily_log_item dli
      JOIN daily_log dl ON dl.id = dli.daily_log_id
      JOIN child c ON c.id = dl.child_id
@@ -172,7 +228,6 @@ async function fetchCompletionRollups(familyIds) {
       family_id: row.family_id,
       last_completion_at: row.last_completion_at,
       activity_completions_30d: row.activity_completions_30d || 0,
-      completion_active_days_30d: row.completion_active_days_30d || 0,
     });
   }
   return map;
@@ -215,46 +270,45 @@ async function fetchDevicesByFamilyIds(familyIds) {
   return byFamily;
 }
 
-function mergeActorStats(authMap, analyticsMap, completionMap, deviceLabelById) {
+function mergeActorStats(authMap, sessionMap, activityMap, activeDaysMap, completionMap, deviceLabelById) {
   const keys = new Set([
     ...authMap.keys(),
-    ...analyticsMap.keys(),
+    ...sessionMap.keys(),
+    ...activityMap.keys(),
+    ...activeDaysMap.keys(),
     ...completionMap.keys(),
   ]);
   const merged = new Map();
   for (const key of keys) {
     const auth = authMap.get(key) || {};
-    const analytics = analyticsMap.get(key) || {};
+    const session = sessionMap.get(key) || {};
+    const activity = activityMap.get(key) || {};
+    const activeDays = activeDaysMap.get(key) || {};
     const completion = completionMap.get(key) || {};
     const [actorType] = key.split(':');
 
     const lastActiveCandidates = [
-      analytics.last_active_at,
+      activity.last_active_at,
       completion.last_completion_at,
     ].filter(Boolean);
     const lastActiveAt = lastActiveCandidates.length
       ? new Date(Math.max(...lastActiveCandidates.map((d) => new Date(d).getTime())))
       : null;
 
-    const activeDays = Math.max(
-      analytics.active_days_30d || 0,
-      completion.completion_active_days_30d || 0
-    );
-
-    const deviceId = analytics.last_session_device_id;
+    const deviceId = session.last_session_device_id;
     merged.set(key, {
       last_active_at: lastActiveAt,
       last_authenticated_at: auth.last_authenticated_at || null,
-      last_session_started_at: analytics.last_session_started_at || null,
-      last_session_source: analytics.last_session_source || null,
+      last_session_started_at: session.last_session_started_at || null,
+      last_session_source: session.last_session_source || null,
       last_session_device_id: deviceId,
       last_session_device_label: deviceId ? (deviceLabelById.get(deviceId) || null) : null,
-      last_session_device_mode: analytics.last_session_device_mode || null,
-      active_days_30d: activeDays,
-      parent_view_events_30d: actorType === 'parent' ? (analytics.parent_view_events_30d || 0) : 0,
-      schedule_edits_30d: actorType === 'parent' ? (analytics.schedule_edits_30d || 0) : 0,
+      last_session_device_mode: session.last_session_device_mode || null,
+      active_days_30d: activeDays.active_days_30d || 0,
+      parent_view_events_30d: actorType === 'parent' ? (activity.parent_view_events_30d || 0) : 0,
+      schedule_edits_30d: actorType === 'parent' ? (activity.schedule_edits_30d || 0) : 0,
       activity_completions_30d: completion.activity_completions_30d || 0,
-      widget_completions_30d: analytics.widget_completions_30d || 0,
+      widget_completions_30d: activity.widget_completions_30d || 0,
     });
   }
   return merged;
@@ -270,9 +324,11 @@ async function getBatchForFamilies(familyIds) {
     return { byFamilyId: new Map() };
   }
 
-  const [authMap, analyticsMap, completionMap, devicesByFamily] = await Promise.all([
+  const [authMap, sessionMap, activityMap, activeDaysMap, completionMap, devicesByFamily] = await Promise.all([
     fetchAuthByFamilyIds(ids),
-    fetchAnalyticsRollups(ids),
+    fetchSessionRollups(ids),
+    fetchActivityRollups(ids),
+    fetchActiveDaysUnion(ids),
     fetchCompletionRollups(ids),
     fetchDevicesByFamilyIds(ids),
   ]);
@@ -284,7 +340,14 @@ async function getBatchForFamilies(familyIds) {
     }
   }
 
-  const actorStats = mergeActorStats(authMap, analyticsMap, completionMap, deviceLabelById);
+  const actorStats = mergeActorStats(
+    authMap,
+    sessionMap,
+    activityMap,
+    activeDaysMap,
+    completionMap,
+    deviceLabelById
+  );
   const byFamilyId = new Map();
 
   for (const familyId of ids) {
@@ -298,7 +361,9 @@ async function getBatchForFamilies(familyIds) {
   for (const [key, stats] of actorStats) {
     const [actorType, actorId] = key.split(':');
     const familyId = authMap.get(key)?.family_id
-      || analyticsMap.get(key)?.family_id
+      || sessionMap.get(key)?.family_id
+      || activityMap.get(key)?.family_id
+      || activeDaysMap.get(key)?.family_id
       || completionMap.get(key)?.family_id;
     if (!familyId || !byFamilyId.has(familyId)) continue;
     const bucket = actorType === 'child' ? 'children' : 'parents';
@@ -463,4 +528,5 @@ module.exports = {
   enrichFamiliesGrouped,
   computeUsageKpis,
   getUsageTrends,
+  fetchActiveDaysUnion,
 };

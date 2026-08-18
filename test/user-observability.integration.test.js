@@ -274,6 +274,120 @@ test('user observability integration matrix', async (t) => {
       assert.ok(kpis.active_people >= 1);
     });
 
+    await t.test('last_active_at ignores session-only events', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const adminCookies = await makeAdmin(db, session);
+      const parentRow = await db.query('SELECT id, family_id FROM parent WHERE email = $1', [session.email]);
+      const { id: parentId, family_id: familyId } = parentRow.rows[0];
+
+      await db.query('DELETE FROM analytics_events WHERE family_id = $1', [familyId]);
+      await db.query(
+        `INSERT INTO analytics_events (family_id, event_type, metadata, created_at)
+         VALUES ($1, 'parent_session_started', $2, NOW())`,
+        [
+          familyId,
+          JSON.stringify({
+            actor_type: 'parent',
+            actor_id: parentId,
+            source: 'trusted_device_restore_parent',
+            session_mode: 'resume',
+            platform: 'web',
+          }),
+        ]
+      );
+
+      const res = await fetch(`${http.baseUrl}/api/admin/families-grouped`, {
+        headers: { Cookie: cookieHeader(adminCookies) },
+      });
+      const families = await res.json();
+      const family = families.find((f) => f.id === familyId);
+      const parent = (family.parents || []).find((p) => p.id === parentId);
+      assert.ok(parent.observability.last_session_started_at);
+      assert.equal(parent.observability.last_active_at, null);
+    });
+
+    await t.test('active_days_30d unions analytics activity days and completion days', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const adminCookies = await makeAdmin(db, session);
+      const parentRow = await db.query('SELECT family_id FROM parent WHERE email = $1', [session.email]);
+      const familyId = parentRow.rows[0].family_id;
+      const childId = await createChild(http.baseUrl, session, { name: 'DaysUnion', emoji: '📅' });
+
+      const base = new Date();
+      for (const offset of [3, 2, 1]) {
+        const d = new Date(base);
+        d.setDate(d.getDate() - offset);
+        await db.query(
+          `INSERT INTO analytics_events (family_id, event_type, metadata, created_at)
+           VALUES ($1, 'feature_child_view', $2, $3)`,
+          [
+            familyId,
+            JSON.stringify({ actor_type: 'child', actor_id: childId }),
+            d.toISOString(),
+          ]
+        );
+      }
+
+      const log = await db.query(
+        `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE) RETURNING id`,
+        [childId]
+      );
+      for (const offset of [5, 4]) {
+        const d = new Date(base);
+        d.setDate(d.getDate() - offset);
+        await db.query(
+          `INSERT INTO daily_log_item (daily_log_id, name, section, sort_order, star_value, completed, completed_at)
+           VALUES ($1, $2, 'morgon', 0, 1, true, $3)`,
+          [log.rows[0].id, `Task-${offset}`, d.toISOString()]
+        );
+      }
+
+      const { fetchActiveDaysUnion } = require('../db/user-observability');
+      const map = await fetchActiveDaysUnion([familyId]);
+      const stats = map.get(`child:${childId}`);
+      assert.ok(stats);
+      assert.equal(stats.active_days_30d, 5, 'expected union of 3 analytics days + 2 completion days');
+
+      const res = await fetch(`${http.baseUrl}/api/admin/families-grouped`, {
+        headers: { Cookie: cookieHeader(adminCookies) },
+      });
+      const families = await res.json();
+      const family = families.find((f) => f.id === familyId);
+      const child = (family.children || []).find((c) => c.id === childId);
+      assert.equal(child.observability.active_days_30d, 5);
+    });
+
+    await t.test('client analytics cannot spoof actor_id on authenticated event', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const parentRow = await db.query('SELECT id, family_id FROM parent WHERE email = $1', [session.email]);
+      const { id: parentId, family_id: familyId } = parentRow.rows[0];
+      const spoofed = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+      const eventRes = await fetch(`${http.baseUrl}/api/analytics/event`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookieHeader(session.cookies),
+          'X-CSRF-Token': session.csrfToken,
+        },
+        body: JSON.stringify({
+          event_type: 'feature_daily_log',
+          metadata: { actor_type: 'child', actor_id: spoofed },
+        }),
+      });
+      assert.equal(eventRes.status, 204);
+
+      await new Promise((r) => setTimeout(r, 100));
+      const row = await db.query(
+        `SELECT metadata FROM analytics_events
+         WHERE family_id = $1 AND event_type = 'feature_daily_log'
+         ORDER BY created_at DESC LIMIT 1`,
+        [familyId]
+      );
+      assert.equal(row.rows[0].metadata.actor_id, parentId);
+      assert.equal(row.rows[0].metadata.actor_type, 'parent');
+    });
+
     await t.test('revoked trusted device appears with revoked status in families-grouped', async () => {
       const session = await registerAndLogin(http.baseUrl);
       const adminCookies = await makeAdmin(db, session);

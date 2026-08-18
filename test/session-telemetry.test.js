@@ -56,6 +56,33 @@ describe('session-telemetry', () => {
     assert.equal(meta.trusted_device_id, DEVICE_ID);
   });
 
+  it('enrichActorMetadata overwrites client-supplied actor_id for authenticated user', () => {
+    const spoofed = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    const meta = enrichActorMetadata(
+      { actor_type: 'parent', actor_id: spoofed, trusted_device_id: spoofed },
+      { id: CHILD_ID, type: 'child' }
+    );
+    assert.equal(meta.actor_type, 'child');
+    assert.equal(meta.actor_id, CHILD_ID);
+    assert.equal(meta.trusted_device_id, undefined);
+  });
+
+  it('enrichActorMetadata strips actor identity from unauthenticated client metadata', () => {
+    const meta = enrichActorMetadata(
+      {
+        actor_type: 'parent',
+        actor_id: PARENT_ID,
+        trusted_device_id: DEVICE_ID,
+        source: 'landing',
+      },
+      null
+    );
+    assert.equal(meta.actor_type, undefined);
+    assert.equal(meta.actor_id, undefined);
+    assert.equal(meta.trusted_device_id, undefined);
+    assert.equal(meta.source, 'landing');
+  });
+
   it('classifySessionSource distinguishes trusted device from password', () => {
     assert.equal(classifySessionSource({ trusted_device_id: DEVICE_ID }), 'trusted_device');
     assert.equal(classifySessionSource({ source: 'password_login' }), 'password_login');
