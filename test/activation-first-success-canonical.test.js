@@ -362,8 +362,10 @@ describe('client authority — single primary coach', () => {
   it('hub refreshes legacy coaches after primary render', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/activation-first-success-hub.js'), 'utf8');
     assert.match(src, /refreshLegacyCoachMounts/);
-    assert.match(src, /EngineCoach\.load/);
-    assert.match(src, /JourneyCoach\.pollCoach/);
+    assert.match(src, /window\.EngineCoach/);
+    assert.match(src, /engine\.load/);
+    assert.match(src, /window\.JourneyCoach/);
+    assert.match(src, /pollCoach/);
   });
 });
 
