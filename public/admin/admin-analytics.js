@@ -334,6 +334,37 @@ function buildAnalyticsHTML() {
           <p class="text-text-soft text-sm col-span-full">Laddar KPI:er…</p>
         </div>
 
+        <div class="bg-white rounded-2xl border border-sky p-6 space-y-6">
+          <div>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">📱 Trusted devices — aggregerat</h4>
+            <p class="text-text-soft text-xs">Registrerade enheter (bestånd) och aktivitet i vald period — utan att öppna enskilda familjer.</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Bestånd (just nu)</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="trustedDeviceStockCards">
+              <p class="text-text-soft text-sm col-span-full">Laddar…</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Aktiva enheter per läge</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="trustedDeviceModeStockCards">
+              <p class="text-text-soft text-sm col-span-full">Laddar…</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Aktivitet i period</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="trustedDeviceActivityCards">
+              <p class="text-text-soft text-sm col-span-full">Laddar…</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Sessioner per läge</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="trustedDeviceModeSessionCards">
+              <p class="text-text-soft text-sm col-span-full">Laddar…</p>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h4 class="text-base font-heading font-bold text-navy mb-1">Trend — aktiva personer &amp; sessioner</h4>
           <p class="text-text-soft text-xs mb-4">Daglig deduplicering per actor_id. Autentiseringar visas separat.</p>
@@ -710,11 +741,23 @@ async function loadUsageTab() {
 
 async function loadUsageKpis(period) {
   const container = document.getElementById('usageKpiCards');
+  const stockContainer = document.getElementById('trustedDeviceStockCards');
+  const modeStockContainer = document.getElementById('trustedDeviceModeStockCards');
+  const activityContainer = document.getElementById('trustedDeviceActivityCards');
+  const modeSessionContainer = document.getElementById('trustedDeviceModeSessionCards');
   if (!container) return;
-  container.innerHTML = '<p class="text-text-soft text-sm col-span-full">Laddar…</p>';
+  const loading = '<p class="text-text-soft text-sm col-span-full">Laddar…</p>';
+  container.innerHTML = loading;
+  if (stockContainer) stockContainer.innerHTML = loading;
+  if (modeStockContainer) modeStockContainer.innerHTML = loading;
+  if (activityContainer) activityContainer.innerHTML = loading;
+  if (modeSessionContainer) modeSessionContainer.innerHTML = loading;
   try {
     const kpis = await Auth.api(`/api/admin/analytics/usage?period=${encodeURIComponent(period)}`);
     const periodLabel = { '24h': '24h', '7d': '7d', '30d': '30d' }[period] || period;
+    const td = kpis.trusted_devices || {};
+    const modeStock = td.active_by_mode || {};
+    const modeSessions = td.sessions_by_mode || {};
     const cards = [
       { icon: '👨‍👩‍👧', title: `Aktiva familjer (${periodLabel})`, value: kpis.active_families },
       { icon: '👤', title: `Aktiva personer (${periodLabel})`, value: kpis.active_people },
@@ -725,8 +768,59 @@ async function loadUsageKpis(period) {
       { icon: '✅', title: `Aktiviteter klarmarkerade (${periodLabel})`, value: kpis.activity_completions },
       { icon: '🧩', title: `Widget-klarmarkeringar (${periodLabel})`, value: kpis.widget_completions },
     ];
-    container.innerHTML = cards.map((c) => `
-      <div class="bg-white rounded-2xl border border-sky p-4 flex flex-col gap-2">
+    container.innerHTML = cards.map((c) => renderUsageKpiCard(c)).join('');
+
+    if (stockContainer) {
+      const stockCards = [
+        { icon: '👨‍👩‍👧', title: 'Familjer med aktiv enhet', value: td.families_enrolled },
+        { icon: '📱', title: 'Aktiva enheter totalt', value: td.active_devices },
+        { icon: '🚫', title: 'Återkallade enheter', value: td.revoked_devices },
+        { icon: '🔢', title: 'Unika enheter i sessioner', value: td.distinct_devices_in_sessions, hint: `Period: ${periodLabel}` },
+      ];
+      stockContainer.innerHTML = stockCards.map((c) => renderUsageKpiCard(c)).join('');
+    }
+
+    if (modeStockContainer) {
+      const modeCards = [
+        { icon: '🧑', title: 'Parent-läge', value: modeStock.parent },
+        { icon: '👶', title: 'Child-läge', value: modeStock.child },
+        { icon: '👨‍👩‍👧', title: 'Shared-läge', value: modeStock.shared },
+      ];
+      modeStockContainer.innerHTML = modeCards.map((c) => renderUsageKpiCard(c)).join('');
+    }
+
+    if (activityContainer) {
+      const activityCards = [
+        { icon: '👁', title: `Enheter sedda (${periodLabel})`, value: td.devices_seen },
+        { icon: '🏠', title: `Familjer med enhet sedd (${periodLabel})`, value: td.families_with_device_seen },
+        { icon: '🔄', title: `Familjer med TD-session (${periodLabel})`, value: td.families_with_sessions },
+        { icon: '📲', title: `TD-sessioner (${periodLabel})`, value: td.sessions || kpis.trusted_device_sessions },
+      ];
+      activityContainer.innerHTML = activityCards.map((c) => renderUsageKpiCard(c)).join('');
+    }
+
+    if (modeSessionContainer) {
+      const sessionModeCards = [
+        { icon: '🧑', title: `Sessioner parent (${periodLabel})`, value: modeSessions.parent },
+        { icon: '👶', title: `Sessioner child (${periodLabel})`, value: modeSessions.child },
+        { icon: '👨‍👩‍👧', title: `Sessioner shared (${periodLabel})`, value: modeSessions.shared },
+      ];
+      modeSessionContainer.innerHTML = sessionModeCards.map((c) => renderUsageKpiCard(c)).join('');
+    }
+  } catch (err) {
+    console.error('[Analytics] loadUsageKpis error:', err);
+    const errHtml = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda användnings-KPI:er</p>';
+    container.innerHTML = errHtml;
+    if (stockContainer) stockContainer.innerHTML = errHtml;
+    if (modeStockContainer) modeStockContainer.innerHTML = errHtml;
+    if (activityContainer) activityContainer.innerHTML = errHtml;
+    if (modeSessionContainer) modeSessionContainer.innerHTML = errHtml;
+  }
+}
+
+function renderUsageKpiCard(c) {
+  return `
+      <div class="bg-lavender/30 rounded-2xl border border-sky/60 p-4 flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <span class="text-xl">${c.icon}</span>
           <span class="text-xs font-semibold text-text-soft leading-tight">${esc(c.title)}</span>
@@ -734,11 +828,7 @@ async function loadUsageKpis(period) {
         <div class="text-2xl font-heading font-bold text-navy">${Number(c.value || 0).toLocaleString('sv-SE')}</div>
         ${c.hint ? `<p class="text-[10px] text-text-soft">${esc(c.hint)}</p>` : ''}
       </div>
-    `).join('');
-  } catch (err) {
-    console.error('[Analytics] loadUsageKpis error:', err);
-    container.innerHTML = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda användnings-KPI:er</p>';
-  }
+    `;
 }
 
 async function loadUsageTrendChart() {

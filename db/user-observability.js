@@ -389,12 +389,93 @@ async function enrichFamiliesGrouped(rows) {
   return rows;
 }
 
+async function fetchTrustedDeviceAggregateKpis(periodKey = '24h') {
+  const interval = INTERVAL_MAP[periodKey] || INTERVAL_MAP['24h'];
+  const sessionTypes = SESSION_EVENT_TYPES;
+
+  const { rows } = await db.query(
+    `WITH bounds AS (SELECT NOW() - ${interval} AS since),
+     registry AS (
+       SELECT
+         COUNT(*) FILTER (WHERE revoked_at IS NULL)::int AS active_devices,
+         COUNT(*) FILTER (WHERE revoked_at IS NOT NULL)::int AS revoked_devices,
+         COUNT(DISTINCT family_id) FILTER (WHERE revoked_at IS NULL)::int AS families_enrolled,
+         COUNT(*) FILTER (WHERE revoked_at IS NULL AND device_mode = 'parent')::int AS active_parent_mode,
+         COUNT(*) FILTER (WHERE revoked_at IS NULL AND device_mode = 'child')::int AS active_child_mode,
+         COUNT(*) FILTER (WHERE revoked_at IS NULL AND device_mode = 'shared')::int AS active_shared_mode,
+         COUNT(*) FILTER (
+           WHERE revoked_at IS NULL AND last_seen_at >= (SELECT since FROM bounds)
+         )::int AS devices_seen,
+         COUNT(DISTINCT family_id) FILTER (
+           WHERE revoked_at IS NULL AND last_seen_at >= (SELECT since FROM bounds)
+         )::int AS families_with_device_seen
+       FROM family_trusted_device
+     ),
+     session_stats AS (
+       SELECT
+         COUNT(*)::int AS sessions,
+         COUNT(DISTINCT ae.metadata->>'trusted_device_id') FILTER (
+           WHERE ae.metadata->>'trusted_device_id' IS NOT NULL
+         )::int AS distinct_devices_in_sessions,
+         COUNT(DISTINCT ae.family_id)::int AS families_with_sessions,
+         COUNT(*) FILTER (WHERE ae.metadata->>'device_mode' = 'parent')::int AS sessions_parent_mode,
+         COUNT(*) FILTER (WHERE ae.metadata->>'device_mode' = 'child')::int AS sessions_child_mode,
+         COUNT(*) FILTER (WHERE ae.metadata->>'device_mode' = 'shared')::int AS sessions_shared_mode
+       FROM analytics_events ae, bounds b
+       WHERE ae.event_type = ANY($1::text[])
+         AND ae.created_at >= b.since
+         AND ae.metadata->>'trusted_device_id' IS NOT NULL
+     )
+     SELECT
+       r.active_devices,
+       r.revoked_devices,
+       r.families_enrolled,
+       r.active_parent_mode,
+       r.active_child_mode,
+       r.active_shared_mode,
+       r.devices_seen,
+       r.families_with_device_seen,
+       s.sessions,
+       s.distinct_devices_in_sessions,
+       s.families_with_sessions,
+       s.sessions_parent_mode,
+       s.sessions_child_mode,
+       s.sessions_shared_mode
+     FROM registry r
+     CROSS JOIN session_stats s`,
+    [sessionTypes]
+  );
+
+  const row = rows[0] || {};
+  return {
+    families_enrolled: parseInt(row.families_enrolled, 10) || 0,
+    active_devices: parseInt(row.active_devices, 10) || 0,
+    revoked_devices: parseInt(row.revoked_devices, 10) || 0,
+    active_by_mode: {
+      parent: parseInt(row.active_parent_mode, 10) || 0,
+      child: parseInt(row.active_child_mode, 10) || 0,
+      shared: parseInt(row.active_shared_mode, 10) || 0,
+    },
+    devices_seen: parseInt(row.devices_seen, 10) || 0,
+    families_with_device_seen: parseInt(row.families_with_device_seen, 10) || 0,
+    sessions: parseInt(row.sessions, 10) || 0,
+    distinct_devices_in_sessions: parseInt(row.distinct_devices_in_sessions, 10) || 0,
+    families_with_sessions: parseInt(row.families_with_sessions, 10) || 0,
+    sessions_by_mode: {
+      parent: parseInt(row.sessions_parent_mode, 10) || 0,
+      child: parseInt(row.sessions_child_mode, 10) || 0,
+      shared: parseInt(row.sessions_shared_mode, 10) || 0,
+    },
+  };
+}
+
 async function computeUsageKpis(periodKey = '24h') {
   const interval = INTERVAL_MAP[periodKey] || INTERVAL_MAP['24h'];
   const sessionTypes = SESSION_EVENT_TYPES;
   const activityTypes = ACTIVITY_ANALYTICS_EVENT_TYPES;
 
-  const { rows } = await db.query(
+  const [usageResult, trustedDevices] = await Promise.all([
+    db.query(
     `WITH bounds AS (SELECT NOW() - ${interval} AS since),
      session_events AS (
        SELECT
@@ -460,10 +541,12 @@ async function computeUsageKpis(periodKey = '24h') {
        (SELECT COUNT(*)::int FROM auths) AS classic_authentications,
        (SELECT COUNT(*)::int FROM completion_events) AS activity_completions,
        (SELECT COUNT(*)::int FROM activity_events WHERE event_type = 'widget_completion_succeeded') AS widget_completions`,
-    [sessionTypes, activityTypes]
-  );
+      [sessionTypes, activityTypes]
+    ),
+    fetchTrustedDeviceAggregateKpis(periodKey),
+  ]);
 
-  const row = rows[0] || {};
+  const row = usageResult.rows[0] || {};
   return {
     period: periodKey,
     active_families: parseInt(row.active_families, 10) || 0,
@@ -474,6 +557,7 @@ async function computeUsageKpis(periodKey = '24h') {
     classic_authentications: parseInt(row.classic_authentications, 10) || 0,
     activity_completions: parseInt(row.activity_completions, 10) || 0,
     widget_completions: parseInt(row.widget_completions, 10) || 0,
+    trusted_devices: trustedDevices,
   };
 }
 
@@ -527,6 +611,7 @@ module.exports = {
   getBatchForFamilies,
   enrichFamiliesGrouped,
   computeUsageKpis,
+  fetchTrustedDeviceAggregateKpis,
   getUsageTrends,
   fetchActiveDaysUnion,
 };
