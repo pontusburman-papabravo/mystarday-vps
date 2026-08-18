@@ -10,6 +10,7 @@ const {
   buildCanonicalNextAction,
   pickMilestoneAction,
   mapExperienceToAction,
+  attachCanDefer,
 } = require('../src/lib/activation/canonical-next-action');
 const { FLAG_KEYS } = require('../src/lib/activation-flags');
 const familyMilestones = require('../db/family-milestones');
@@ -260,6 +261,85 @@ describe('first_success — derived milestone path', () => {
   });
 });
 
+describe('canonical next-action — can_defer', () => {
+  it('attachCanDefer true for allowlisted activation action', () => {
+    const payload = attachCanDefer({
+      enabled: true,
+      next_action: 'save_schedule',
+      authority: 'journey',
+      show_primary_coach: true,
+      deferred: false,
+    });
+    assert.equal(payload.can_defer, true);
+  });
+
+  it('attachCanDefer false for journey_retention', () => {
+    const payload = attachCanDefer({
+      enabled: true,
+      next_action: 'child_access',
+      authority: 'journey_retention',
+      show_primary_coach: true,
+      deferred: false,
+    });
+    assert.equal(payload.can_defer, false);
+  });
+
+  it('attachCanDefer false when deferred', () => {
+    const payload = attachCanDefer({
+      enabled: true,
+      next_action: 'save_schedule',
+      authority: 'journey',
+      deferred: true,
+    });
+    assert.equal(payload.can_defer, false);
+  });
+
+  it('returns can_defer on live payload when flag ON', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+    try {
+      await enableFirstSuccessFlag(db);
+      const familyId = await insertFamily(db);
+      await db.query(
+        `INSERT INTO family_activation_state (family_id, signup_at) VALUES ($1, now())`,
+        [familyId]
+      );
+      const payload = await buildCanonicalNextAction(familyId);
+      assert.equal(payload.can_defer, true);
+      assert.equal(payload.next_action, 'create_child');
+    } finally {
+      await disableFirstSuccessFlag(db);
+      await db.cleanup();
+    }
+  });
+});
+
+describe('home.firstSuccess recovery i18n', () => {
+  const RECOVERY_KEYS = [
+    'fetchErrorHeadline',
+    'fetchErrorBody',
+    'retry',
+    'continueWithoutGuide',
+    'defer',
+    'deferError',
+    'retrying',
+    'deferring',
+  ];
+  for (const lang of ['sv-SE', 'en-GB']) {
+    for (const part of RECOVERY_KEYS) {
+      it(`${lang} home.firstSuccess.recovery.${part}`, () => {
+        const key = `home.firstSuccess.recovery.${part}`;
+        const value = t(lang, key);
+        assert.notEqual(value, key, `missing translation for ${key}`);
+        assert.ok(value.length > 0);
+      });
+    }
+  }
+});
+
 describe('GET /api/family/next-action route', () => {
   it('is mounted on family router', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/index.js'), 'utf8');
@@ -282,8 +362,10 @@ describe('client authority — single primary coach', () => {
   it('hub refreshes legacy coaches after primary render', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/activation-first-success-hub.js'), 'utf8');
     assert.match(src, /refreshLegacyCoachMounts/);
-    assert.match(src, /EngineCoach\.load/);
-    assert.match(src, /JourneyCoach\.pollCoach/);
+    assert.match(src, /window\.EngineCoach/);
+    assert.match(src, /engine\.load/);
+    assert.match(src, /window\.JourneyCoach/);
+    assert.match(src, /pollCoach/);
   });
 });
 
