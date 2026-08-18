@@ -10,6 +10,10 @@
 const db = require('../src/lib/db');
 const config = require('../src/lib/config');
 
+function queryWith(client) {
+  return client ? client.query.bind(client) : db.query.bind(db);
+}
+
 // ─── Lockout thresholds ───────────────────────────────────
 // Exponential backoff schedule:
 //   ≥ MAX_ATTEMPTS: baseLockoutMinutes (default 1min)
@@ -86,8 +90,14 @@ async function recordFailedAttempt(childId, ipAddress) {
 /**
  * Reset attempt counter and lockout for a child (parent unlocks).
  */
-async function clearLockout(childId) {
-  await db.query(
+/**
+ * Reset attempt counter and lockout for a child (parent unlock or PIN change).
+ * @param {string} childId
+ * @param {import('pg').PoolClient} [client] Optional transaction client for atomic updates.
+ */
+async function clearLockout(childId, client) {
+  const q = queryWith(client);
+  await q(
     `UPDATE pin_lockout SET attempt_count = 0, locked_until = NULL WHERE child_id = $1`,
     [childId]
   );
@@ -159,8 +169,12 @@ async function recordNotification(childId, familyId, channel) {
  * event_type: 'attempt_failed' | 'attempt_success' | 'lockout' | 'lockout_cleared' |
  *             'parent_notified' | 'email_suppressed' | 'pin_reset'
  */
-async function auditLog(childId, familyId, eventType, ipAddress, metadata = {}) {
-  await db.query(
+/**
+ * @param {import('pg').PoolClient} [client] Optional transaction client.
+ */
+async function auditLog(childId, familyId, eventType, ipAddress, metadata = {}, client) {
+  const q = queryWith(client);
+  await q(
     `INSERT INTO pin_audit_log (child_id, family_id, event_type, ip_address, metadata)
      VALUES ($1, $2, $3, $4, $5)`,
     [childId, familyId, eventType, ipAddress || null, JSON.stringify(metadata)]

@@ -861,8 +861,9 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
 
     // Fetch child's name so we can check (name + PIN) combination uniqueness.
     const pinFp = pinFingerprint(pin);
-    const childRow = await db.query('SELECT name FROM child WHERE id = $1', [req.params.id]);
+    const childRow = await db.query('SELECT name, family_id FROM child WHERE id = $1', [req.params.id]);
     const childName = childRow.rows[0]?.name || '';
+    const familyId = childRow.rows[0]?.family_id;
 
     // Check (name + PIN) uniqueness globally — exclude current child (updating their own PIN is fine).
     const pinExists = await db.query(
@@ -874,7 +875,31 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
     }
 
     const pinHash = await hashPassword(pin);
-    await db.query('UPDATE child SET pin = $1, pin_fingerprint = $2 WHERE id = $3', [pinHash, pinFp, req.params.id]);
+    const childId = req.params.id;
+
+    const client = await db.getClient();
+    try {
+      await client.query('BEGIN');
+      await client.query(
+        'UPDATE child SET pin = $1, pin_fingerprint = $2 WHERE id = $3',
+        [pinHash, pinFp, childId]
+      );
+      await pinLockout.clearLockout(childId, client);
+      await pinLockout.auditLog(
+        childId,
+        familyId,
+        'lockout_cleared',
+        req.ip || null,
+        { cleared_by: 'parent_pin_change', parent_id: req.user.id },
+        client
+      );
+      await client.query('COMMIT');
+    } catch (txnErr) {
+      await client.query('ROLLBACK');
+      throw txnErr;
+    } finally {
+      client.release();
+    }
 
     res.json({ message: 'PIN-koden har ändrats!' });
   } catch (err) {
