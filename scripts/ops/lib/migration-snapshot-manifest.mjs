@@ -56,6 +56,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810300000000_family_activation_step_deferrals': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**
