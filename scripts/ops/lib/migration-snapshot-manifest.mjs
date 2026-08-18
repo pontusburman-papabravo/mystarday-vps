@@ -60,6 +60,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810300000000_user_observability_indexes': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**
