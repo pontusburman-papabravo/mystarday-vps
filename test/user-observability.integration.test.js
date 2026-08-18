@@ -274,6 +274,61 @@ test('user observability integration matrix', async (t) => {
       assert.ok(kpis.active_people >= 1);
     });
 
+    await t.test('usage KPIs include trusted device aggregates at multiple levels', async () => {
+      const session = await registerAndLogin(http.baseUrl);
+      const adminCookies = await makeAdmin(db, session);
+      const parentRow = await db.query('SELECT id, family_id FROM parent WHERE email = $1', [session.email]);
+      const { id: parentId, family_id: familyId } = parentRow.rows[0];
+
+      const deviceCookies = await enrollParent(http, session, 'Aggregate KPI phone');
+      const hash = crypto.createHash('sha256').update(deviceCookies.trusted_device).digest('hex');
+      const deviceRow = await db.query(
+        'SELECT id FROM family_trusted_device WHERE token_hash = $1',
+        [hash]
+      );
+      const deviceId = deviceRow.rows[0].id;
+
+      await db.query(
+        `UPDATE family_trusted_device SET last_seen_at = NOW() WHERE id = $1`,
+        [deviceId]
+      );
+
+      await db.query(
+        `INSERT INTO analytics_events (family_id, event_type, metadata)
+         VALUES ($1, 'parent_session_started', $2)`,
+        [
+          familyId,
+          JSON.stringify({
+            actor_type: 'parent',
+            actor_id: parentId,
+            trusted_device_id: deviceId,
+            device_mode: 'parent',
+            source: 'trusted_device_restore_parent',
+            session_mode: 'resume',
+            platform: 'web',
+          }),
+        ]
+      );
+
+      const res = await fetch(`${http.baseUrl}/api/admin/analytics/usage?period=24h`, {
+        headers: { Cookie: cookieHeader(adminCookies) },
+      });
+      assert.equal(res.status, 200);
+      const kpis = await res.json();
+      assert.ok(kpis.trusted_devices, 'trusted_devices aggregate block');
+      const td = kpis.trusted_devices;
+      assert.ok(td.families_enrolled >= 1);
+      assert.ok(td.active_devices >= 1);
+      assert.equal(td.active_by_mode.parent, td.active_devices);
+      assert.ok(td.devices_seen >= 1);
+      assert.ok(td.families_with_device_seen >= 1);
+      assert.ok(td.sessions >= 1);
+      assert.ok(td.distinct_devices_in_sessions >= 1);
+      assert.ok(td.families_with_sessions >= 1);
+      assert.ok(td.sessions_by_mode.parent >= 1);
+      assert.equal(kpis.trusted_device_sessions, td.sessions);
+    });
+
     await t.test('last_active_at ignores session-only events', async () => {
       const session = await registerAndLogin(http.baseUrl);
       const adminCookies = await makeAdmin(db, session);
