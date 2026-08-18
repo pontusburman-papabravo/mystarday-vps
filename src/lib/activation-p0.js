@@ -97,6 +97,15 @@ async function updateActivationState(familyId, milestone, options = {}) {
     });
   }
 
+  if (Object.keys(patch).length > 0) {
+    try {
+      const { maybeRecordProgression } = require('./growth-system-help');
+      await maybeRecordProgression(familyId, at);
+    } catch (progressErr) {
+      console.error('[ACTIVATION-P0] system help progression failed:', progressErr.message);
+    }
+  }
+
   return next;
 }
 

@@ -1,5 +1,5 @@
 /**
- * Admin — stuck-family work queue (manual next step, no auto-send).
+ * Admin — stuck-family diagnostics (recommended system help, no auto-send).
  */
 (function () {
   'use strict';
@@ -72,7 +72,7 @@
       const total = data.total || 0;
       const totalLabel = total === 1 ? '1 familj' : total + ' familjer';
       el.innerHTML =
-        '<p class="text-sm text-slate-600 mb-3">Manuell arbetskö 48h–14d. Totalt: ' +
+        '<p class="text-sm text-slate-600 mb-3">Diagnostik 48h–14d. Totalt: ' +
         totalLabel +
         ' (QA dolda). Automation/utskick är avstängd.</p><div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">' +
         parts.join('') +
@@ -119,8 +119,7 @@
             '<td class="py-3 pr-2">' + escapeHtml(f.whyStuck || '') + '</td>' +
             '<td class="py-3 pr-2 whitespace-nowrap">' + escapeHtml(formatStuckDuration(f.stuckHours)) + '</td>' +
             '<td class="py-3 pr-2">' + escapeHtml(activityLabel(f)) + '</td>' +
-            '<td class="py-3 pr-2">' + escapeHtml(f.manualNextStep || '') +
-            ' <span class="text-xs text-text-soft">manuellt</span></td>' +
+            '<td class="py-3 pr-2">' + escapeHtml(f.recommendedSystemHelp || f.manualNextStep || '') + '</td>' +
             '</tr>'
           );
         })

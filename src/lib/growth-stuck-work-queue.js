@@ -32,13 +32,17 @@ const WHY_STUCK = Object.freeze({
   core_flow_errors: 'Tekniskt fel i kärnflödet (PIN, login eller API) senaste 14 dagarna.',
 });
 
-const MANUAL_NEXT_STEP = Object.freeze({
-  onboarding_incomplete: 'Öppna familjen och se var onboarding stannade. Hjälp till att spara schema.',
-  schema_no_child_login: 'Öppna familjen och hjälp till barninloggning (PIN, enhet).',
-  login_no_completion: 'Öppna barnets schema och hjälp till första stjärnan.',
-  completion_no_return: 'Kolla om schemat fortfarande stämmer. Manuell återkomst — inget auto-mejl.',
-  core_flow_errors: 'Läs senaste felet (PIN/login/API) och felsök i familjekortet.',
+/** In-product system help the app should offer (admin diagnostics mirror). */
+const RECOMMENDED_SYSTEM_HELP = Object.freeze({
+  onboarding_incomplete: 'Visa onboarding-hjälp: fortsätt spara schema.',
+  schema_no_child_login: 'Visa barninloggningshjälp i handoff / hjälppanelen.',
+  login_no_completion: 'Visa första-stjärna-guide i schema / hjälppanelen.',
+  completion_no_return: 'Visa återkomst-hjälp i schema — inget auto-mejl.',
+  core_flow_errors: 'Visa PIN/login-felsökning i hjälppanelen.',
 });
+
+/** @deprecated Use RECOMMENDED_SYSTEM_HELP — kept for API field name manualNextStep. */
+const MANUAL_NEXT_STEP = RECOMMENDED_SYSTEM_HELP;
 
 function asDate(value) {
   if (!value) return null;
@@ -122,7 +126,8 @@ function mapGrowthStuckFamily(row, now = new Date()) {
       p0ActivatedAt: row.p0_activated_at,
     },
     recommendedFollowUp: FOLLOW_UP[row.blocking_step] || 'preview_manual_review',
-    manualNextStep: MANUAL_NEXT_STEP[row.blocking_step] || 'Öppna familjen och gör en manuell genomgång.',
+    recommendedSystemHelp: RECOMMENDED_SYSTEM_HELP[row.blocking_step] || 'Systemhjälp: manuell genomgång i appen.',
+    manualNextStep: RECOMMENDED_SYSTEM_HELP[row.blocking_step] || 'Systemhjälp: manuell genomgång i appen.',
     autoSendAllowed: false,
   };
 }
@@ -131,6 +136,7 @@ module.exports = {
   COHORTS,
   FOLLOW_UP,
   WHY_STUCK,
+  RECOMMENDED_SYSTEM_HELP,
   MANUAL_NEXT_STEP,
   stuckSinceAt,
   mapGrowthStuckFamily,

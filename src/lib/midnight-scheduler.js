@@ -132,6 +132,16 @@ async function runMidnightJob() {
     } catch (err) {
       console.error('[MIDNIGHT-SCHEDULER] Contact message auto-archive failed:', err.message);
     }
+
+    try {
+      const { finalizeNoProgressOutcomes } = require('./growth-system-help');
+      const count = await finalizeNoProgressOutcomes();
+      if (count > 0) {
+        console.log(`[MIDNIGHT-SCHEDULER] Marked ${count} system-help rows as no_progress`);
+      }
+    } catch (err) {
+      console.error('[MIDNIGHT-SCHEDULER] System help no_progress failed:', err.message);
+    }
   } finally {
     if (lockAcquired) {
       await client.query('SELECT pg_advisory_unlock($1)', [MIDNIGHT_SCHEDULER_LOCK_ID]).catch(() => {});

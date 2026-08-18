@@ -97,6 +97,7 @@ function registerRoutes(app) {
   app.use('/api/market', require('./market'));
   app.use('/api/feedback', require('./feedback'));
   app.use('/api/growth/feedback', require('./growth-feedback'));
+  app.use('/api/growth/system-help', require('./growth-system-help'));
   app.use('/api/consent', require('./consent'));
   app.use('/api/reminders', require('./reminders'));
   app.use('/api/push', require('./push'));
