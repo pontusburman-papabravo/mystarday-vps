@@ -1,6 +1,116 @@
 // Admin Families: family cards, impersonation, archive, contact messages, action handlers
     // ─── Families (Grouped Cards) ─────────────────────────────
 
+    function formatObsTimestamp(iso) {
+      if (!iso) return '—';
+      try {
+        const d = new Date(iso);
+        const now = new Date();
+        if (d.toDateString() === now.toDateString()) {
+          return 'idag ' + d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+        }
+        return d.toLocaleDateString('sv-SE', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch {
+        return '—';
+      }
+    }
+
+    function formatSessionSource(source) {
+      const map = {
+        trusted_device: 'Trusted device',
+        password_login: 'Lösenord',
+        apple_login: 'Apple',
+        google_login: 'Google',
+        child_login: 'Barn-PIN',
+        unknown: 'Okänd',
+      };
+      return map[source] || source || '—';
+    }
+
+    function renderActorObservability(obs, opts) {
+      const o = obs || {};
+      const showAuth = !opts || opts.showAuth !== false;
+      const showParentStats = opts && opts.showParentStats;
+      const parts = [
+        `<span title="Senast meningsfull aktivitet">Aktiv: ${esc(formatObsTimestamp(o.last_active_at))}</span>`,
+      ];
+      if (showAuth) {
+        parts.push(`<span title="Senaste riktiga autentisering">Auth: ${esc(formatObsTimestamp(o.last_authenticated_at))}</span>`);
+      }
+      parts.push(
+        `<span title="Senaste sessionstart">Session: ${esc(formatObsTimestamp(o.last_session_started_at))}</span>`,
+        `<span title="Sessionskälla">${esc(formatSessionSource(o.last_session_source))}</span>`
+      );
+      if (o.last_session_device_label) {
+        parts.push(`<span title="Senaste enhet">📱 ${esc(o.last_session_device_label)}</span>`);
+      }
+      parts.push(`<span title="Aktiva dagar senaste 30 dagar">${o.active_days_30d || 0} akt.d</span>`);
+      if (showParentStats) {
+        parts.push(
+          `<span title="Föräldervy 30d">Föräldervy: ${o.parent_view_events_30d || 0}</span>`,
+          `<span title="Schemaändringar 30d">Schema: ${o.schedule_edits_30d || 0}</span>`
+        );
+      } else {
+        parts.push(`<span title="Klarmarkeringar 30d">✅ ${o.activity_completions_30d || 0}</span>`);
+        if (o.widget_completions_30d) {
+          parts.push(`<span title="Widget-klarmarkeringar 30d">Widget: ${o.widget_completions_30d}</span>`);
+        }
+      }
+      return `<div class="flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-text-soft mt-1 leading-relaxed">${parts.join(' · ')}</div>`;
+    }
+
+    function renderDevicesSection(family) {
+      const devices = family.trusted_devices || [];
+      if (!devices.length) return '';
+      const modeLabels = { parent: 'Parent', child: 'Child', shared: 'Shared' };
+      const rows = devices.map((d) => {
+        const modeLabel = modeLabels[d.device_mode] || d.device_mode || '—';
+        const profile = d.last_active_child_name
+          ? `${d.last_active_child_emoji || ''} ${d.last_active_child_name}`.trim()
+          : '—';
+        const status = d.status === 'revoked'
+          ? '<span class="text-red-600 font-semibold">Återkallad</span>'
+          : '<span class="text-green-700 font-semibold">Aktiv</span>';
+        return `<tr class="border-b border-lavender/40">
+          <td class="py-2 pr-2">${esc(d.label || 'Namnlös enhet')}</td>
+          <td class="py-2 pr-2">${esc(modeLabel)}</td>
+          <td class="py-2 pr-2">${esc(formatObsTimestamp(d.last_seen_at))}</td>
+          <td class="py-2 pr-2">${esc(profile)}</td>
+          <td class="py-2">${status}</td>
+        </tr>`;
+      }).join('');
+      return `
+        <div class="px-4 md:px-6 py-3 border-t border-lavender">
+          <button type="button" onclick="toggleFamilyDevices('${family.id}')" class="flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-gold transition-colors">
+            📱 Enheter (${devices.length}) <span id="devicesChevron-${family.id}">▼</span>
+          </button>
+          <div id="familyDevices-${family.id}" style="display:none; margin-top:10px;" class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-text-soft uppercase tracking-wide border-b border-lavender">
+                  <th class="pb-2 pr-2 font-semibold">Enhet</th>
+                  <th class="pb-2 pr-2 font-semibold">Läge</th>
+                  <th class="pb-2 pr-2 font-semibold">Senast sedd</th>
+                  <th class="pb-2 pr-2 font-semibold">Senaste profil</th>
+                  <th class="pb-2 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+
+    function toggleFamilyDevices(familyId) {
+      const panel = document.getElementById('familyDevices-' + familyId);
+      const chevron = document.getElementById('devicesChevron-' + familyId);
+      if (!panel) return;
+      const open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : 'block';
+      if (chevron) chevron.textContent = open ? '▼' : '▲';
+    }
+    window.toggleFamilyDevices = toggleFamilyDevices;
+
     async function loadFamilies() {
       const container = document.getElementById('familiesContainer');
       if (!container) return;
@@ -117,6 +227,7 @@
                 ${authBadges ? `<span class="flex flex-wrap gap-0.5">${authBadges}</span>` : ''}
               </div>
               <p class="text-text-soft text-xs mt-0.5">${esc(p.name || '')}</p>
+              ${renderActorObservability(p.observability, { showAuth: true, showParentStats: true })}
             </div>
             <div class="flex flex-wrap gap-1 shrink-0 action-btns">
               ${approveBtn}${lockBtn}${adminToggleBtn}${resetPwBtn}${changeEmailBtn}${unlinkAppleBtn}${auditBtn}${deleteBtn}
@@ -134,6 +245,7 @@
                 <span class="text-navy font-medium text-sm">${esc(c.name)}</span>
                 <span class="text-text-soft text-xs ml-1">(${esc(c.username)})</span>
                 ${birthday ? `<span class="text-text-soft text-xs ml-2">${esc(birthday)}</span>` : ''}
+                ${renderActorObservability(c.observability, { showAuth: false })}
               </div>
             </div>
             <div class="flex flex-wrap gap-1 shrink-0 action-btns">
@@ -204,6 +316,7 @@
                 <div id="msgHistory-${family.id}" class="mt-3 space-y-1.5"></div>
               </div>
             </div>
+            ${renderDevicesSection(family)}
             <!-- Package components (§9.10.6) -->
             <div class="px-4 md:px-6 py-3 border-t border-lavender" style="background:rgba(245,166,35,0.06);">
               <button type="button" onclick="toggleFamilyComponents('${family.id}')" class="flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-gold transition-colors">

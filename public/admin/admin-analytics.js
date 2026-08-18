@@ -98,6 +98,7 @@ async function switchTab(tabName) {
   else if (tabName === 'warnings') await loadWarnings();
   else if (tabName === 'retention') await loadRetention();
   else if (tabName === 'trends') await loadTrends();
+  else if (tabName === 'usage') await loadUsageTab();
   else if (tabName === 'newsletter') await loadNewsletter();
   else if (tabName === 'activation') {
     await loadActivationWeeklyReport();
@@ -118,6 +119,7 @@ function buildAnalyticsHTML() {
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="warnings">⚠️ Varningsflaggor</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="retention">📈 Retention</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="trends">📉 Trender</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="usage">📊 Användning</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="newsletter">📧 Nyhetsbrev</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="activation">⭐ Aktivering</button>
       </div>
@@ -309,6 +311,33 @@ function buildAnalyticsHTML() {
           <p class="text-xs text-text-soft mt-4">
             🟢 >60% retention &nbsp; 🟡 30–60% &nbsp; 🔴 &lt;30% &nbsp; — = inga familjer i kohortera
           </p>
+        </div>
+      </div>
+
+      <!-- ── USAGE (person-level observability) ───────────── -->
+      <div id="section-usage" class="analytics-section hidden space-y-8">
+        <div>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">📊 Användning</h3>
+          <p class="text-text-soft text-sm mb-2">
+            Person- och sessionsnivå — <strong class="text-navy">autentisering ≠ aktiv användare</strong>.
+            Trusted-device-återställning räknas som session, inte som ny inloggning.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2" id="usagePeriodBtns">
+          <button type="button" data-period="24h" class="usage-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy transition-colors">24 timmar</button>
+          <button type="button" data-period="7d" class="usage-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors">7 dagar</button>
+          <button type="button" data-period="30d" class="usage-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors">30 dagar</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="usageKpiCards">
+          <p class="text-text-soft text-sm col-span-full">Laddar KPI:er…</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-sky p-6">
+          <h4 class="text-base font-heading font-bold text-navy mb-1">Trend — aktiva personer &amp; sessioner</h4>
+          <p class="text-text-soft text-xs mb-4">Daglig deduplicering per actor_id. Autentiseringar visas separat.</p>
+          <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="usageTrendChart"></canvas></div>
         </div>
       </div>
 
@@ -650,6 +679,129 @@ async function loadNewsletter() {
     document.getElementById('newsletterTableBody').dataset.loaded = 'true';
   } catch (err) {
     console.error('[Analytics] loadNewsletter error:', err);
+  }
+}
+
+// ─── Usage tab (person-level observability) ───────────────
+
+let usagePeriod = '24h';
+let usageTabInitialized = false;
+
+async function loadUsageTab() {
+  if (!usageTabInitialized) {
+    usageTabInitialized = true;
+    document.querySelectorAll('.usage-period-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        usagePeriod = btn.dataset.period || '24h';
+        document.querySelectorAll('.usage-period-btn').forEach((b) => {
+          if (b.dataset.period === usagePeriod) {
+            b.className = 'usage-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy transition-colors';
+          } else {
+            b.className = 'usage-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors';
+          }
+        });
+        loadUsageKpis(usagePeriod);
+      });
+    });
+  }
+
+  await Promise.all([loadUsageKpis(usagePeriod), loadUsageTrendChart()]);
+}
+
+async function loadUsageKpis(period) {
+  const container = document.getElementById('usageKpiCards');
+  if (!container) return;
+  container.innerHTML = '<p class="text-text-soft text-sm col-span-full">Laddar…</p>';
+  try {
+    const kpis = await Auth.api(`/api/admin/analytics/usage?period=${encodeURIComponent(period)}`);
+    const periodLabel = { '24h': '24h', '7d': '7d', '30d': '30d' }[period] || period;
+    const cards = [
+      { icon: '👨‍👩‍👧', title: `Aktiva familjer (${periodLabel})`, value: kpis.active_families },
+      { icon: '👤', title: `Aktiva personer (${periodLabel})`, value: kpis.active_people },
+      { icon: '🧑', title: `Aktiva föräldrar (${periodLabel})`, value: kpis.active_parents },
+      { icon: '👶', title: `Aktiva barn (${periodLabel})`, value: kpis.active_children },
+      { icon: '📱', title: `Trusted-device-sessioner (${periodLabel})`, value: kpis.trusted_device_sessions },
+      { icon: '🔐', title: `Klassiska autentiseringar (${periodLabel})`, value: kpis.classic_authentications, hint: 'login_event — inte samma som aktiv användare' },
+      { icon: '✅', title: `Aktiviteter klarmarkerade (${periodLabel})`, value: kpis.activity_completions },
+      { icon: '🧩', title: `Widget-klarmarkeringar (${periodLabel})`, value: kpis.widget_completions },
+    ];
+    container.innerHTML = cards.map((c) => `
+      <div class="bg-white rounded-2xl border border-sky p-4 flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">${c.icon}</span>
+          <span class="text-xs font-semibold text-text-soft leading-tight">${esc(c.title)}</span>
+        </div>
+        <div class="text-2xl font-heading font-bold text-navy">${Number(c.value || 0).toLocaleString('sv-SE')}</div>
+        ${c.hint ? `<p class="text-[10px] text-text-soft">${esc(c.hint)}</p>` : ''}
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('[Analytics] loadUsageKpis error:', err);
+    container.innerHTML = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda användnings-KPI:er</p>';
+  }
+}
+
+async function loadUsageTrendChart() {
+  const canvas = document.getElementById('usageTrendChart');
+  if (!canvas) return;
+  try {
+    const data = await Auth.api('/api/admin/analytics/usage-trends?days=14');
+    const trends = data.trends || [];
+    destroyChart('usageTrendChart');
+    chartInstances['usageTrendChart'] = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: trends.map((t) => String(t.day).slice(5)),
+        datasets: [
+          {
+            label: 'Aktiva personer',
+            data: trends.map((t) => t.active_people),
+            borderColor: '#1B2340',
+            backgroundColor: '#1B234020',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Föräldrar',
+            data: trends.map((t) => t.active_parents),
+            borderColor: '#6366F1',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Barn',
+            data: trends.map((t) => t.active_children),
+            borderColor: '#10B981',
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Trusted-device-sessioner',
+            data: trends.map((t) => t.trusted_device_sessions),
+            borderColor: '#F5A623',
+            borderDash: [4, 4],
+            tension: 0.3,
+            fill: false,
+          },
+          {
+            label: 'Autentiseringar (login_event)',
+            data: trends.map((t) => t.classic_authentications),
+            borderColor: '#EF4444',
+            borderDash: [2, 2],
+            tension: 0.3,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      },
+    });
+  } catch (err) {
+    console.error('[Analytics] loadUsageTrendChart error:', err);
   }
 }
 
