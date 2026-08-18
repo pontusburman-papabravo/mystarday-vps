@@ -41,6 +41,9 @@ router.use('/', require('./first-success'));
 // ─── Canonical next-action (Journey authority, flag-gated) ───────────────────
 router.use('/', require('./next-action'));
 
+// ─── Activation defer (#1023 PR A) ───────────────────────────────────────────
+router.use('/', require('./activation-defer'));
+
 // ─── R4.7 growth (dismiss snooze, weekly highlight) ────────────────────────
 router.use('/', require('./growth'));
 
