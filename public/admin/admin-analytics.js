@@ -337,10 +337,14 @@ function buildAnalyticsHTML() {
         <div class="bg-white rounded-2xl border border-sky p-6 space-y-6">
           <div>
             <h4 class="text-base font-heading font-bold text-navy mb-1">📱 Trusted devices</h4>
-            <p class="text-text-soft text-xs">Adoption, återkommande användning och produktutfall — utan att öppna enskilda familjer.</p>
+            <p class="text-text-soft text-xs">Adoption, TD-aktiva dagar och samtidiga utfall i samma period (inte kausal ordning). Jämförelse 7d vs föregående 7d för uthållighet.</p>
           </div>
           <div id="trustedDeviceImpactHeadlines" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <p class="text-text-soft text-sm col-span-full">Laddar…</p>
+          </div>
+          <div id="trustedDeviceWeekComparison" class="space-y-3 hidden">
+            <p class="text-xs font-semibold text-navy uppercase tracking-wide">Uthållighet — senaste 7d vs föregående 7d</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="trustedDeviceWeekComparisonPanels"></div>
           </div>
           <div id="trustedDeviceImpactCohorts" class="grid grid-cols-1 lg:grid-cols-2 gap-4 hidden"></div>
           <details class="rounded-2xl border border-sky/60 bg-lavender/20 p-4">
@@ -751,6 +755,8 @@ async function loadUsageTab() {
 async function loadUsageKpis(period) {
   const container = document.getElementById('usageKpiCards');
   const impactContainer = document.getElementById('trustedDeviceImpactHeadlines');
+  const weekComparisonRoot = document.getElementById('trustedDeviceWeekComparison');
+  const weekComparisonPanels = document.getElementById('trustedDeviceWeekComparisonPanels');
   const cohortContainer = document.getElementById('trustedDeviceImpactCohorts');
   const stockContainer = document.getElementById('trustedDeviceStockCards');
   const modeStockContainer = document.getElementById('trustedDeviceModeStockCards');
@@ -760,6 +766,8 @@ async function loadUsageKpis(period) {
   const loading = '<p class="text-text-soft text-sm col-span-full">Laddar…</p>';
   container.innerHTML = loading;
   if (impactContainer) impactContainer.innerHTML = loading;
+  if (weekComparisonPanels) weekComparisonPanels.innerHTML = loading;
+  if (weekComparisonRoot) weekComparisonRoot.classList.add('hidden');
   if (cohortContainer) {
     cohortContainer.innerHTML = '';
     cohortContainer.classList.add('hidden');
@@ -799,42 +807,50 @@ async function loadUsageKpis(period) {
           detail: `${adoption.td_families || 0} TD-familjer av ${adoption.active_families || 0} aktiva (${periodLabel})`,
         },
         {
-          label: `Återkommande 2+ dagar (${periodLabel})`,
+          label: `TD aktiv ≥2 dagar (${periodLabel})`,
           value: fmtPct(recurring.families_2plus_pct),
-          detail: `${recurring.families_2plus_days || 0} familjer med TD-session på ≥2 dagar`,
+          detail: `${recurring.families_2plus_days || 0} TD-familjer · unika Stockholm-dagar`,
         },
         {
-          label: `Återkommande 3+ dagar (${periodLabel})`,
+          label: `TD aktiv ≥3 dagar (${periodLabel})`,
           value: fmtPct(recurring.families_3plus_pct),
-          detail: `${recurring.families_3plus_days || 0} familjer`,
+          detail: `${recurring.families_3plus_days || 0} TD-familjer`,
         },
         {
-          label: 'Återkommande 7+ dagar (30d)',
+          label: 'TD aktiv ≥7 dagar / 30d',
           value: fmtPct(recurring.families_7plus_pct_30d),
-          detail: `${recurring.families_7plus_days_30d || 0} familjer — alltid 30d-fönster`,
+          detail: `${recurring.families_7plus_days_30d || 0} TD-familjer — alltid 30d-fönster`,
         },
         {
-          label: `TD → aktivitet klar (${periodLabel})`,
+          label: `TD-familjer med aktivitet klar (${periodLabel})`,
           value: fmtPct(outcomes.td_completion_pct),
-          detail: `${outcomes.td_families_with_child_completion || 0} TD-familjer med klarmarkering`,
+          detail: `${outcomes.td_families_with_child_completion || 0} familjer (samma period, ej kausal ordning)`,
         },
         {
-          label: `TD → Successful Routine Day (${periodLabel})`,
+          label: `TD-familjer med Successful Routine Day (${periodLabel})`,
           value: fmtPct(outcomes.td_routine_day_pct),
           detail: `${outcomes.td_families_with_routine_day || 0} familjer — alla schemaposter klara minst en dag`,
         },
         {
-          label: `TD → First Star-signal (${periodLabel})`,
+          label: `TD-familjer med First Star-signal (${periodLabel})`,
           value: fmtPct(outcomes.td_first_star_pct),
           detail: `${outcomes.td_families_with_first_star_signal || 0} familjer — first_completion / milestone`,
         },
         {
-          label: `Auth fallback/fel (${periodLabel})`,
+          label: `TD auth fallback/fel (${periodLabel})`,
           value: fmtPct(friction.friction_pct_of_td_attempts),
-          detail: `${friction.total_events || 0} friktionshändelser · ${friction.classic_auth_td_enrolled_families || 0} TD-familjer med klassisk auth`,
+          detail: `${friction.total_events || 0} TD-attribuerade friktioner · ${friction.td_sessions || 0} lyckade TD-sessioner`,
         },
       ];
       impactContainer.innerHTML = headlineCards.map((c) => renderImpactHeadlineCard(c)).join('');
+    }
+
+    if (weekComparisonRoot && weekComparisonPanels && impact.week_comparison) {
+      weekComparisonRoot.classList.remove('hidden');
+      weekComparisonPanels.innerHTML = [
+        renderWeekComparisonPanel('Alla familjer', impact.week_comparison.all_families),
+        renderWeekComparisonPanel('Nya familjer (7d-kohort)', impact.week_comparison.new_families),
+      ].join('');
     }
 
     if (cohortContainer && impact.cohorts) {
@@ -903,6 +919,40 @@ function fmtPct(value) {
   return `${Number(value).toLocaleString('sv-SE', { maximumFractionDigits: 1 })}%`;
 }
 
+function fmtDelta(deltaPp) {
+  if (deltaPp === null || deltaPp === undefined || Number.isNaN(deltaPp)) return '—';
+  const rounded = Math.round(Number(deltaPp) * 10) / 10;
+  if (rounded > 0) return `↑ ${rounded} pp mot föregående 7d`;
+  if (rounded < 0) return `↓ ${Math.abs(rounded)} pp mot föregående 7d`;
+  return '→ oförändrat mot föregående 7d';
+}
+
+function renderWeekComparisonPanel(title, metrics) {
+  const m = metrics || {};
+  const rows = [
+    ['Aktiva ≥2 dagar', m.active_2plus_days],
+    ['Aktiva ≥3 dagar', m.active_3plus_days],
+    ['Successful Routine Day', m.routine_day],
+  ];
+  return `
+    <div class="rounded-2xl border border-sky/60 bg-white p-4">
+      <p class="text-sm font-heading font-bold text-navy mb-3">${esc(title)}</p>
+      <div class="space-y-3">
+        ${rows.map(([label, metric]) => {
+          const x = metric || {};
+          return `<div class="flex flex-col gap-0.5 border-b border-lavender/40 pb-2 last:border-0 last:pb-0">
+            <div class="flex justify-between gap-3 text-xs">
+              <span class="text-text-soft">${esc(label)}</span>
+              <span class="font-semibold text-navy">${esc(fmtPct(x.pct))}</span>
+            </div>
+            <div class="text-[10px] text-text-soft">${esc(fmtDelta(x.delta_pp))} · ${Number(x.count || 0).toLocaleString('sv-SE')} / ${Number(x.denominator || 0).toLocaleString('sv-SE')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function renderImpactHeadlineCard(c) {
   return `
     <div class="rounded-2xl border border-gold/40 bg-gold-light/40 p-4 flex flex-col gap-1 min-h-[88px]">
@@ -919,10 +969,10 @@ function renderCohortPanel(title, data, ageLabel) {
     ['Aktiva familjer', d.active_families || 0],
     ['TD-familjer', d.td_families || 0],
     ['Adoption', fmtPct(d.adoption_pct)],
-    ['Återkommande 2+ dagar', fmtPct(d.recurring_2plus_pct)],
-    ['TD → aktivitet', fmtPct(d.completion_pct)],
-    ['TD → routine day', fmtPct(d.routine_day_pct)],
-    ['TD → First Star', fmtPct(d.first_star_pct)],
+    ['TD aktiv ≥2 dagar', fmtPct(d.recurring_2plus_pct)],
+    ['TD-familjer m. aktivitet', fmtPct(d.completion_pct)],
+    ['TD-familjer m. routine day', fmtPct(d.routine_day_pct)],
+    ['TD-familjer m. First Star', fmtPct(d.first_star_pct)],
   ];
   return `
     <div class="rounded-2xl border border-sky/60 bg-white p-4">

@@ -12,6 +12,7 @@ const {
   ACTIVITY_ANALYTICS_EVENT_TYPES,
   INTERVAL_MAP,
   TRUSTED_DEVICE_FRICTION_EVENT_TYPES,
+  TRUSTED_DEVICE_FRICTION_EVENT_SQL,
 } = require('../config/user-observability');
 
 function pctRate(numerator, denominator) {
@@ -23,6 +24,160 @@ function pctRate(numerator, denominator) {
 
 function parseCount(row, key) {
   return parseInt(row?.[key], 10) || 0;
+}
+
+function buildComparisonMetric(currentCount, currentDenom, previousCount, previousDenom) {
+  const pct = pctRate(currentCount, currentDenom);
+  const previous_pct = pctRate(previousCount, previousDenom);
+  let delta_pp = null;
+  if (pct !== null && previous_pct !== null) {
+    delta_pp = Math.round((pct - previous_pct) * 10) / 10;
+  }
+  return {
+    count: currentCount,
+    denominator: currentDenom,
+    pct,
+    previous_pct,
+    delta_pp,
+  };
+}
+
+async function fetchPersistencyWindowStats(since, until, familyFilterSql) {
+  const sessionTypes = SESSION_EVENT_TYPES;
+  const activityTypes = ACTIVITY_ANALYTICS_EVENT_TYPES;
+
+  const { rows } = await db.query(
+    `WITH bounds AS (
+       SELECT $1::timestamptz AS since, $2::timestamptz AS until
+     ),
+     scoped_families AS (
+       SELECT f.id AS family_id, f.created_at
+       FROM family f, bounds b
+       WHERE f.archived_at IS NULL
+         AND ${familyFilterSql}
+     ),
+     signals AS (
+       SELECT ae.family_id, ae.created_at
+       FROM analytics_events ae
+       JOIN scoped_families sf ON sf.family_id = ae.family_id
+       CROSS JOIN bounds b
+       WHERE ae.event_type = ANY($3::text[])
+         AND ae.metadata->>'actor_id' IS NOT NULL
+         AND ae.created_at >= b.since AND ae.created_at < b.until
+       UNION ALL
+       SELECT ae.family_id, ae.created_at
+       FROM analytics_events ae
+       JOIN scoped_families sf ON sf.family_id = ae.family_id
+       CROSS JOIN bounds b
+       WHERE ae.event_type = ANY($4::text[])
+         AND COALESCE(ae.metadata->>'actor_id', ae.metadata->>'child_id') IS NOT NULL
+         AND ae.created_at >= b.since AND ae.created_at < b.until
+       UNION ALL
+       SELECT c.family_id, dli.completed_at AS created_at
+       FROM daily_log_item dli
+       JOIN daily_log dl ON dl.id = dli.daily_log_id
+       JOIN child c ON c.id = dl.child_id
+       JOIN scoped_families sf ON sf.family_id = c.family_id
+       CROSS JOIN bounds b
+       WHERE dli.completed = true
+         AND dli.completed_at >= b.since AND dli.completed_at < b.until
+     ),
+     family_days AS (
+       SELECT
+         s.family_id,
+         COUNT(DISTINCT date_trunc('day', s.created_at AT TIME ZONE 'Europe/Stockholm'))::int AS active_days
+       FROM signals s
+       GROUP BY s.family_id
+     ),
+     routine_day_families AS (
+       SELECT DISTINCT c.family_id
+       FROM daily_log dl
+       JOIN child c ON c.id = dl.child_id
+       JOIN scoped_families sf ON sf.family_id = c.family_id
+       CROSS JOIN bounds b
+       WHERE dl.date >= (b.since AT TIME ZONE 'Europe/Stockholm')::date
+         AND dl.date < (b.until AT TIME ZONE 'Europe/Stockholm')::date
+         AND EXISTS (SELECT 1 FROM daily_log_item dli WHERE dli.daily_log_id = dl.id)
+         AND NOT EXISTS (
+           SELECT 1 FROM daily_log_item dli
+           WHERE dli.daily_log_id = dl.id AND dli.completed IS NOT TRUE
+         )
+     )
+     SELECT
+       (SELECT COUNT(*)::int FROM family_days) AS active_families,
+       (SELECT COUNT(*)::int FROM family_days WHERE active_days >= 2) AS families_2plus_days,
+       (SELECT COUNT(*)::int FROM family_days WHERE active_days >= 3) AS families_3plus_days,
+       (SELECT COUNT(*)::int FROM routine_day_families) AS families_with_routine_day`,
+    [since, until, sessionTypes, activityTypes]
+  );
+  const row = rows[0] || {};
+  return {
+    active_families: parseCount(row, 'active_families'),
+    families_2plus_days: parseCount(row, 'families_2plus_days'),
+    families_3plus_days: parseCount(row, 'families_3plus_days'),
+    families_with_routine_day: parseCount(row, 'families_with_routine_day'),
+  };
+}
+
+async function fetchPersistencyWeekComparison() {
+  const now = new Date();
+  const currentSince = new Date(now.getTime() - 7 * 86_400_000);
+  const previousSince = new Date(now.getTime() - 14 * 86_400_000);
+
+  const [currentAll, previousAll, currentNew, previousNew] = await Promise.all([
+    fetchPersistencyWindowStats(currentSince, now, 'TRUE'),
+    fetchPersistencyWindowStats(previousSince, currentSince, 'TRUE'),
+    fetchPersistencyWindowStats(currentSince, now, 'f.created_at >= NOW() - INTERVAL \'7 days\''),
+    fetchPersistencyWindowStats(
+      previousSince,
+      currentSince,
+      'f.created_at >= NOW() - INTERVAL \'14 days\' AND f.created_at < NOW() - INTERVAL \'7 days\''
+    ),
+  ]);
+
+  return {
+    window: '7d_vs_previous_7d',
+    all_families: {
+      active_2plus_days: buildComparisonMetric(
+        currentAll.families_2plus_days,
+        currentAll.active_families,
+        previousAll.families_2plus_days,
+        previousAll.active_families
+      ),
+      active_3plus_days: buildComparisonMetric(
+        currentAll.families_3plus_days,
+        currentAll.active_families,
+        previousAll.families_3plus_days,
+        previousAll.active_families
+      ),
+      routine_day: buildComparisonMetric(
+        currentAll.families_with_routine_day,
+        currentAll.active_families,
+        previousAll.families_with_routine_day,
+        previousAll.active_families
+      ),
+    },
+    new_families: {
+      active_2plus_days: buildComparisonMetric(
+        currentNew.families_2plus_days,
+        currentNew.active_families,
+        previousNew.families_2plus_days,
+        previousNew.active_families
+      ),
+      active_3plus_days: buildComparisonMetric(
+        currentNew.families_3plus_days,
+        currentNew.active_families,
+        previousNew.families_3plus_days,
+        previousNew.active_families
+      ),
+      routine_day: buildComparisonMetric(
+        currentNew.families_with_routine_day,
+        currentNew.active_families,
+        previousNew.families_with_routine_day,
+        previousNew.active_families
+      ),
+    },
+  };
 }
 
 function actorKey(actorType, actorId) {
@@ -485,9 +640,10 @@ async function fetchTrustedDeviceImpactKpis(periodKey = '24h') {
   const interval = INTERVAL_MAP[periodKey] || INTERVAL_MAP['24h'];
   const sessionTypes = SESSION_EVENT_TYPES;
   const activityTypes = ACTIVITY_ANALYTICS_EVENT_TYPES;
-  const frictionTypes = TRUSTED_DEVICE_FRICTION_EVENT_TYPES;
+  const frictionSql = TRUSTED_DEVICE_FRICTION_EVENT_SQL;
 
-  const { rows } = await db.query(
+  const [impactResult, weekComparison] = await Promise.all([
+    db.query(
     `WITH bounds AS (SELECT NOW() - ${interval} AS since),
      bounds_30d AS (SELECT NOW() - INTERVAL '30 days' AS since_30d),
      family_ages AS (
@@ -590,8 +746,8 @@ async function fetchTrustedDeviceImpactKpis(periodKey = '24h') {
      friction_events AS (
        SELECT ae.event_type, COUNT(*)::int AS n
        FROM analytics_events ae, bounds b
-       WHERE ae.event_type = ANY($3::text[])
-         AND ae.created_at >= b.since
+       WHERE ae.created_at >= b.since
+         AND ${frictionSql}
        GROUP BY ae.event_type
      ),
      friction_total AS (
@@ -653,10 +809,12 @@ async function fetchTrustedDeviceImpactKpis(periodKey = '24h') {
        (SELECT families FROM classic_auth_td_enrolled) AS classic_auth_td_enrolled_families,
        (SELECT COALESCE(jsonb_object_agg(event_type, n), '{}'::jsonb) FROM friction_events) AS friction_by_type,
        (SELECT COALESCE(jsonb_agg(row_to_json(cm)), '[]'::jsonb) FROM cohort_metrics cm) AS cohort_rows`,
-    [sessionTypes, activityTypes, frictionTypes]
-  );
+    [sessionTypes, activityTypes]
+    ),
+    fetchPersistencyWeekComparison(),
+  ]);
 
-  const row = rows[0] || {};
+  const row = impactResult.rows[0] || {};
   const activeFamilies = parseCount(row, 'active_families');
   const tdFamilies = parseCount(row, 'td_families');
   const recurring2 = parseCount(row, 'recurring_2plus_days');
@@ -735,6 +893,7 @@ async function fetchTrustedDeviceImpactKpis(periodKey = '24h') {
       by_7d: cohortFromRows('is_new_7d'),
       by_30d: cohortFromRows('is_new_30d'),
     },
+    week_comparison: weekComparison,
   };
 }
 
@@ -886,6 +1045,7 @@ module.exports = {
   computeUsageKpis,
   fetchTrustedDeviceAggregateKpis,
   fetchTrustedDeviceImpactKpis,
+  fetchPersistencyWeekComparison,
   getUsageTrends,
   fetchActiveDaysUnion,
 };

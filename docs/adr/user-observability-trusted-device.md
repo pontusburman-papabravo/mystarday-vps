@@ -72,7 +72,7 @@ Hence three separate timestamps and admin copy: **Autentisering ≠ aktiv använ
 
 ### Trusted device impact KPIs (`trusted_devices.impact`)
 
-Admin **Användning** tab exposes adoption %, recurring family-days (2+/3+/7+), product outcomes among TD families (completion, full routine day, first-star signal), friction events vs TD sessions, and new vs established family cohorts. See `fetchTrustedDeviceImpactKpis` in `db/user-observability.js`.
+Admin **Användning** tab exposes adoption %, TD active family-days (2+/3+/7+), co-occurring outcomes among TD families (not causal), TD-attributed friction only, new vs established cohorts, and 7d vs previous-7d persistency comparison. TD friction counts `child_context_restore_failed`, attributed `child_access_denied`, and `device_access_revoked` — generic login failures are excluded. See `fetchTrustedDeviceImpactKpis` in `db/user-observability.js`.
 
 ## Privacy
 

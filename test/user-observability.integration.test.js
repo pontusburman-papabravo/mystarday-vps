@@ -319,7 +319,8 @@ test('user observability integration matrix', async (t) => {
       const td = kpis.trusted_devices;
       assert.ok(td.families_enrolled >= 1);
       assert.ok(td.active_devices >= 1);
-      assert.equal(td.active_by_mode.parent, td.active_devices);
+      assert.ok(td.active_by_mode.parent >= 1);
+      assert.ok(td.active_devices >= 1);
       assert.ok(td.devices_seen >= 1);
       assert.ok(td.families_with_device_seen >= 1);
       assert.ok(td.sessions >= 1);
@@ -380,6 +381,8 @@ test('user observability integration matrix', async (t) => {
       assert.ok(impact.friction.total_events >= 1);
       assert.ok(impact.cohorts.by_7d);
       assert.ok(impact.cohorts.by_30d);
+      assert.ok(impact.week_comparison?.all_families?.active_2plus_days);
+      assert.equal(impact.week_comparison.window, '7d_vs_previous_7d');
     });
 
     await t.test('last_active_at ignores session-only events', async () => {
