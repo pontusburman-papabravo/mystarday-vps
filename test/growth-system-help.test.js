@@ -122,6 +122,28 @@ describe('growth-system-help route contract', () => {
   });
 });
 
+describe('growth-system-help scope errors', () => {
+  const {
+    isSystemHelpScopeError,
+    mapSystemHelpRouteError,
+  } = require('../src/lib/growth-system-help');
+
+  it('treats FK violations as scope errors (no ops telemetry)', () => {
+    const err = Object.assign(new Error('fk'), { code: '23503' });
+    assert.equal(isSystemHelpScopeError(err), true);
+    const mapped = mapSystemHelpRouteError(err, { isContext: true });
+    assert.equal(mapped.status, 404);
+    assert.equal(mapped.recordError, false);
+    assert.equal(mapped.body.reason, 'family_not_found');
+  });
+
+  it('maps unknown errors to 500 with telemetry', () => {
+    const mapped = mapSystemHelpRouteError(new Error('db down'), { isContext: false });
+    assert.equal(mapped.status, 500);
+    assert.equal(mapped.recordError, true);
+  });
+});
+
 describe('growth-system-help outcome semantics', () => {
   it('never downgrades progressed_24h to progressed_72h or no_progress', () => {
     const rank = (outcome) => {

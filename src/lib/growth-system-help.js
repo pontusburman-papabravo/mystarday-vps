@@ -190,9 +190,17 @@ function formatSupportReportMessage(row, context) {
  * @param {{ surface?: string, locale?: string }} [opts]
  */
 async function evaluateSystemHelp(familyId, opts = {}) {
+  if (!familyId) {
+    return { eligible: false, reason: 'invalid_session' };
+  }
+
   const enabled = await isActivationFlagEnabled(FLAG_KEY, familyId);
   if (!enabled) {
     return { eligible: false, reason: 'flag_off' };
+  }
+
+  if (!(await helpDb.isActiveFamily(familyId))) {
+    return { eligible: false, reason: 'family_not_found' };
   }
 
   const facts = await helpDb.loadFamilyStuckFacts(familyId);
@@ -219,6 +227,9 @@ async function evaluateSystemHelp(familyId, opts = {}) {
 
   const helpType = help.helpType;
   const stuckDetectedAt = stuck.stuckSinceAt || new Date();
+  if (!(await helpDb.isActiveFamily(familyId))) {
+    return { eligible: false, reason: 'family_not_found' };
+  }
   await helpDb.upsertDetected(familyId, stuck.blockingStep, helpType, stuckDetectedAt);
 
   return {
@@ -365,11 +376,40 @@ async function finalizeNoProgressOutcomes(now = new Date()) {
 }
 
 async function recordSystemHelpApiError(familyId, route, err) {
-  if (!familyId) return;
+  if (!familyId || isSystemHelpScopeError(err)) return;
   analytics.track(familyId, 'system_help_api_error', {
     route: String(route || 'unknown').slice(0, 64),
     message: String(err?.message || 'error').slice(0, 200),
   }).catch(() => {});
+}
+
+const PG_SCOPE_ERROR_CODES = new Set(['23503']);
+
+function isSystemHelpScopeError(err) {
+  return Boolean(err && PG_SCOPE_ERROR_CODES.has(err.code));
+}
+
+/**
+ * Map route errors — scope/validation → 4xx without ops telemetry.
+ * @param {Error} err
+ * @param {{ isContext?: boolean }} opts
+ */
+function mapSystemHelpRouteError(err, opts = {}) {
+  const isContext = Boolean(opts.isContext);
+  if (isSystemHelpScopeError(err)) {
+    return {
+      status: 404,
+      body: isContext
+        ? { eligible: false, reason: 'family_not_found' }
+        : { ok: false, reason: 'family_not_found' },
+      recordError: false,
+    };
+  }
+  return {
+    status: 500,
+    body: isContext ? { eligible: false, reason: 'error' } : { ok: false, error: 'error' },
+    recordError: true,
+  };
 }
 
 module.exports = {
@@ -383,6 +423,8 @@ module.exports = {
   recordEngaged,
   recordSupportRequested,
   recordSystemHelpApiError,
+  isSystemHelpScopeError,
+  mapSystemHelpRouteError,
   maybeRecordProgression,
   finalizeNoProgressOutcomes,
   computeProgressionOutcome,

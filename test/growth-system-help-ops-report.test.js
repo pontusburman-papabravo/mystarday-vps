@@ -170,13 +170,21 @@ describe('growth-system-help-ops-report', () => {
     assert.equal(decision.shouldRollback, false);
   });
 
-  it('rolls back immediately on technical api errors', () => {
+  it('rolls back after multiple technical api errors in window', () => {
     const decision = evaluateReportDecision({
-      metrics: baseMetrics({ tech_errors_1h: 1 }),
+      metrics: baseMetrics({ tech_errors_1h: 3 }),
       previousState: previousState(),
     });
     assert.equal(decision.shouldRollback, true);
     assert.ok(decision.alerts.some((a) => a.code === 'technical_api_errors'));
+  });
+
+  it('does not rollback on a single technical api error', () => {
+    const decision = evaluateReportDecision({
+      metrics: baseMetrics({ tech_errors_1h: 1 }),
+      previousState: previousState(),
+    });
+    assert.equal(decision.shouldRollback, false);
   });
 
   it('sends first outcome summary email', () => {
@@ -199,7 +207,7 @@ describe('growth-system-help-ops-report', () => {
 
   it('formats rollback subject', () => {
     const decision = evaluateReportDecision({
-      metrics: baseMetrics({ tech_errors_1h: 2 }),
+      metrics: baseMetrics({ tech_errors_1h: 3 }),
       previousState: previousState(),
     });
     const subject = buildEmailSubject({ decision, rollbackPerformed: true });

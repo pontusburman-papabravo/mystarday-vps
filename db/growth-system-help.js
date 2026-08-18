@@ -2,6 +2,14 @@
 
 const db = require('../src/lib/db');
 
+async function isActiveFamily(familyId) {
+  const { rows } = await db.query(
+    `SELECT 1 FROM family WHERE id = $1 AND archived_at IS NULL LIMIT 1`,
+    [familyId]
+  );
+  return rows.length > 0;
+}
+
 async function getState(familyId) {
   const { rows } = await db.query(
     `SELECT family_id, blocking_step, help_type, stuck_detected_at,
@@ -192,6 +200,7 @@ async function loadFamilyStuckFacts(familyId) {
 }
 
 module.exports = {
+  isActiveFamily,
   getState,
   upsertDetected,
   markShown,

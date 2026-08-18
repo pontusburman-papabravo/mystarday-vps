@@ -62,7 +62,7 @@ function noProgressRollbackRate() {
 
 function techErrorRollbackThreshold() {
   const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_TECH_ERRORS_1H);
-  return Number.isFinite(n) && n > 0 ? n : 1;
+  return Number.isFinite(n) && n > 0 ? n : 3;
 }
 
 function outcomeSummaryMinCompleted() {

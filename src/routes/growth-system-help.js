@@ -18,6 +18,7 @@ const {
   recordEngaged,
   recordSupportRequested,
   recordSystemHelpApiError,
+  mapSystemHelpRouteError,
   SURFACES,
 } = require('../lib/growth-system-help');
 
@@ -36,9 +37,29 @@ const limiter = rateLimit({
 
 const SurfaceSchema = z.enum(Object.values(SURFACES));
 
+function invalidSessionContext() {
+  return { eligible: false, reason: 'invalid_session' };
+}
+
+function invalidSessionMutation() {
+  return { ok: false, reason: 'invalid_session' };
+}
+
+function sendRouteError(res, err, { familyId, route, isContext }) {
+  const mapped = mapSystemHelpRouteError(err, { isContext });
+  if (mapped.recordError) {
+    console.error(`[GROWTH-SYSTEM-HELP] ${route} error:`, err);
+    recordSystemHelpApiError(familyId, route, err);
+  }
+  return res.status(mapped.status).json(mapped.body);
+}
+
 router.get('/context', requireParent, limiter, async (req, res) => {
   try {
     const familyId = req.user.familyId;
+    if (!familyId) {
+      return res.status(401).json(invalidSessionContext());
+    }
     const parsed = z.object({
       surface: SurfaceSchema.optional(),
       locale: z.string().max(16).optional(),
@@ -50,17 +71,28 @@ router.get('/context', requireParent, limiter, async (req, res) => {
       surface: parsed.data.surface || SURFACES.help_panel,
       locale: parsed.data.locale,
     });
-    res.json(result);
+    if (result.reason === 'invalid_session') {
+      return res.status(401).json(invalidSessionContext());
+    }
+    if (result.reason === 'family_not_found') {
+      return res.status(404).json(result);
+    }
+    return res.json(result);
   } catch (err) {
-    console.error('[GROWTH-SYSTEM-HELP] context error:', err);
-    await recordSystemHelpApiError(req.user?.familyId, 'context', err);
-    res.status(500).json({ eligible: false, reason: 'error' });
+    return sendRouteError(res, err, {
+      familyId: req.user?.familyId,
+      route: 'context',
+      isContext: true,
+    });
   }
 });
 
 router.post('/shown', requireParent, limiter, async (req, res) => {
   try {
     const familyId = req.user.familyId;
+    if (!familyId) {
+      return res.status(401).json(invalidSessionMutation());
+    }
     const parsed = z.object({
       surface: SurfaceSchema.optional(),
       blocking_step: z.string().max(64).optional(),
@@ -72,6 +104,12 @@ router.post('/shown', requireParent, limiter, async (req, res) => {
     const eligibility = await evaluateSystemHelp(familyId, {
       surface: parsed.data.surface || SURFACES.help_panel,
     });
+    if (eligibility.reason === 'invalid_session') {
+      return res.status(401).json(invalidSessionMutation());
+    }
+    if (eligibility.reason === 'family_not_found') {
+      return res.status(404).json({ ok: false, reason: eligibility.reason });
+    }
     if (!eligibility.eligible) {
       return res.status(403).json({ ok: false, reason: eligibility.reason });
     }
@@ -83,17 +121,18 @@ router.post('/shown', requireParent, limiter, async (req, res) => {
     }
 
     const row = await recordShown(familyId, { surface: parsed.data.surface });
-    res.json({ ok: Boolean(row) });
+    return res.json({ ok: Boolean(row) });
   } catch (err) {
-    console.error('[GROWTH-SYSTEM-HELP] shown error:', err);
-    await recordSystemHelpApiError(req.user?.familyId, 'shown', err);
-    res.status(500).json({ ok: false, error: 'error' });
+    return sendRouteError(res, err, { familyId: req.user?.familyId, route: 'shown' });
   }
 });
 
 router.post('/engage', requireParent, limiter, async (req, res) => {
   try {
     const familyId = req.user.familyId;
+    if (!familyId) {
+      return res.status(401).json(invalidSessionMutation());
+    }
     const parsed = z.object({
       surface: SurfaceSchema.optional(),
       blocking_step: z.string().max(64).optional(),
@@ -106,6 +145,12 @@ router.post('/engage', requireParent, limiter, async (req, res) => {
     const eligibility = await evaluateSystemHelp(familyId, {
       surface: parsed.data.surface || SURFACES.help_panel,
     });
+    if (eligibility.reason === 'invalid_session') {
+      return res.status(401).json(invalidSessionMutation());
+    }
+    if (eligibility.reason === 'family_not_found') {
+      return res.status(404).json({ ok: false, reason: eligibility.reason });
+    }
     if (!eligibility.eligible) {
       return res.status(403).json({ ok: false, reason: eligibility.reason });
     }
@@ -114,17 +159,18 @@ router.post('/engage', requireParent, limiter, async (req, res) => {
       surface: parsed.data.surface,
       cta_action: parsed.data.cta_action,
     });
-    res.json({ ok: Boolean(row), ctaAction: eligibility.help?.ctaAction || null });
+    return res.json({ ok: Boolean(row), ctaAction: eligibility.help?.ctaAction || null });
   } catch (err) {
-    console.error('[GROWTH-SYSTEM-HELP] engage error:', err);
-    await recordSystemHelpApiError(req.user?.familyId, 'engage', err);
-    res.status(500).json({ ok: false, error: 'error' });
+    return sendRouteError(res, err, { familyId: req.user?.familyId, route: 'engage' });
   }
 });
 
 router.post('/support-request', requireParent, limiter, async (req, res) => {
   try {
     const familyId = req.user.familyId;
+    if (!familyId) {
+      return res.status(401).json(invalidSessionMutation());
+    }
     const parsed = z.object({
       surface: SurfaceSchema.optional(),
       context: z.record(z.string(), z.unknown()).optional(),
@@ -136,6 +182,12 @@ router.post('/support-request', requireParent, limiter, async (req, res) => {
     const eligibility = await evaluateSystemHelp(familyId, {
       surface: parsed.data.surface || SURFACES.help_panel,
     });
+    if (eligibility.reason === 'invalid_session') {
+      return res.status(401).json(invalidSessionMutation());
+    }
+    if (eligibility.reason === 'family_not_found') {
+      return res.status(404).json({ ok: false, reason: eligibility.reason });
+    }
     if (!eligibility.eligible) {
       return res.status(403).json({ ok: false, reason: eligibility.reason });
     }
@@ -146,11 +198,12 @@ router.post('/support-request', requireParent, limiter, async (req, res) => {
       parentEmail: req.user.email,
       parentName: req.user.name,
     });
-    res.json({ ok: Boolean(row) });
+    return res.json({ ok: Boolean(row) });
   } catch (err) {
-    console.error('[GROWTH-SYSTEM-HELP] support-request error:', err);
-    await recordSystemHelpApiError(req.user?.familyId, 'support-request', err);
-    res.status(500).json({ ok: false, error: 'error' });
+    return sendRouteError(res, err, {
+      familyId: req.user?.familyId,
+      route: 'support-request',
+    });
   }
 });
 
