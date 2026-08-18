@@ -8,6 +8,7 @@ const {
   evaluateReportDecision,
   buildEmailSubject,
   buildEmailBody,
+  formatSupportReportBlock,
   hasShownOnlyDelta,
 } = require('../src/lib/growth-system-help-ops-report');
 
@@ -214,6 +215,55 @@ describe('growth-system-help-ops-report', () => {
     const body = buildEmailBody({ metrics: baseMetrics(), decision, rollbackPerformed: true });
     assert.match(subject, /ROLLBACK/);
     assert.match(body, /Outcome-kohort/);
+  });
+
+  it('includes reporter details in support report email', () => {
+    const decision = evaluateReportDecision({
+      metrics: baseMetrics({ latest_support_message_id: 47 }),
+      previousState: previousState(),
+    });
+    const metrics = baseMetrics({
+      latest_support_message_id: 47,
+      new_support_reports: [{
+        id: 47,
+        name: 'Test Förälder',
+        email: 'test@example.com',
+        created_at: '2026-08-18T15:13:20.550Z',
+        family_id: '11111111-1111-1111-1111-111111111111',
+        family_name: 'Testfamiljen',
+        metadata: {
+          blocking_step: 'no_child',
+          help_type: 'onboarding',
+          surface: 'help_panel',
+          route: '/onboarding',
+          platform: 'web',
+        },
+      }],
+    });
+    const subject = buildEmailSubject({ decision, rollbackPerformed: false, metrics });
+    const body = buildEmailBody({ metrics, decision, rollbackPerformed: false });
+    assert.match(subject, /Test Förälder/);
+    assert.match(subject, /test@example.com/);
+    assert.match(body, /Nya support-rapporter:/);
+    assert.match(body, /#47 — Test Förälder <test@example.com>/);
+    assert.match(body, /Testfamiljen/);
+    assert.match(body, /blocking_step: no_child/);
+    assert.match(body, /admin:.*#incidenter/);
+  });
+
+  it('formats support report block with metadata', () => {
+    const block = formatSupportReportBlock({
+      id: 12,
+      name: 'Anna',
+      email: 'anna@example.com',
+      created_at: '2026-08-18T12:00:00.000Z',
+      family_id: 'abc',
+      family_name: 'Familjen A',
+      metadata: { blocking_step: 'no_schedule', platform: 'ios' },
+    });
+    assert.match(block, /#12 — Anna <anna@example.com>/);
+    assert.match(block, /blocking_step: no_schedule/);
+    assert.match(block, /platform: ios/);
   });
 
   it('covers all tracked event types', () => {
