@@ -4,6 +4,9 @@
  * Admin — growth stuck cohorts (preview segments, no auto-send).
  * GET /api/admin/growth/stuck-cohorts
  * GET /api/admin/growth/stuck-cohorts/summary
+ *
+ * Admin work-queue read path. Always available to requireAdmin.
+ * growth_stuck_cohorts_v1 is reserved for future intervention/send — not this list.
  */
 
 const express = require('express');
@@ -12,30 +15,19 @@ const {
   summarizeGrowthStuckCohorts,
   COHORTS,
 } = require('../../../db/growth-stuck-cohorts');
-const { isActivationFlagEnabled } = require('../../lib/activation-flags');
 
 const router = express.Router();
 
-async function requireFlag(_req, res, next) {
-  try {
-    const on = await isActivationFlagEnabled('growth_stuck_cohorts_v1');
-    if (!on) {
-      return res.status(503).json({
-        error: 'growth_stuck_cohorts_v1 är avstängd',
-        autoSendAllowed: false,
-      });
-    }
-    next();
-  } catch (err) {
-    next(err);
-  }
+function parseWindow(query) {
+  const maxAgeDays = Math.min(Math.max(parseInt(query.maxAgeDays, 10) || 14, 1), 90);
+  const minAgeHours = Math.min(Math.max(parseInt(query.minAgeHours, 10) || 48, 1), 168);
+  const includeInternalQa = query.includeQa === '1' || query.includeQa === 'true';
+  return { maxAgeDays, minAgeHours, includeInternalQa };
 }
 
-router.get('/growth/stuck-cohorts/summary', requireFlag, async (req, res) => {
+router.get('/growth/stuck-cohorts/summary', async (req, res) => {
   try {
-    const maxAgeDays = Math.min(Math.max(parseInt(req.query.maxAgeDays, 10) || 14, 1), 90);
-    const minAgeHours = Math.min(Math.max(parseInt(req.query.minAgeHours, 10) || 48, 1), 168);
-    const includeInternalQa = req.query.includeQa === '1' || req.query.includeQa === 'true';
+    const { maxAgeDays, minAgeHours, includeInternalQa } = parseWindow(req.query);
     const summary = await summarizeGrowthStuckCohorts({
       maxAgeDays,
       minAgeHours,
@@ -48,12 +40,10 @@ router.get('/growth/stuck-cohorts/summary', requireFlag, async (req, res) => {
   }
 });
 
-router.get('/growth/stuck-cohorts', requireFlag, async (req, res) => {
+router.get('/growth/stuck-cohorts', async (req, res) => {
   try {
-    const maxAgeDays = Math.min(Math.max(parseInt(req.query.maxAgeDays, 10) || 14, 1), 90);
-    const minAgeHours = Math.min(Math.max(parseInt(req.query.minAgeHours, 10) || 48, 1), 168);
+    const { maxAgeDays, minAgeHours, includeInternalQa } = parseWindow(req.query);
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
-    const includeInternalQa = req.query.includeQa === '1' || req.query.includeQa === 'true';
     const cohort = typeof req.query.cohort === 'string' ? req.query.cohort : null;
     const families = await listGrowthStuckCohorts({
       maxAgeDays,
@@ -69,7 +59,7 @@ router.get('/growth/stuck-cohorts', requireFlag, async (req, res) => {
       cohort: cohort || 'all',
       count: families.length,
       autoSendAllowed: false,
-      note: 'Preview only — human approval required before any outreach.',
+      note: 'Work queue — manual next step only. No auto-send.',
       families,
     });
   } catch (err) {

@@ -18,6 +18,7 @@ const FLAG_KEYS = {
   handoffFilm: 'activation_onboarding_handoff_film_v1',
   growthFeedback: 'growth_feedback_v1',
   growthReferralCta: 'growth_referral_cta_v1',
+  /** Future stuck-family intervention/send only — never gates admin cohort reads. */
   growthStuckCohorts: 'growth_stuck_cohorts_v1',
   growthWaitlistFunnel: 'growth_waitlist_funnel_v1',
   firstSuccessV1: 'activation_first_success_v1',
