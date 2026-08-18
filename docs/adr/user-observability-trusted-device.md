@@ -70,6 +70,10 @@ Hence three separate timestamps and admin copy: **Autentisering ≠ aktiv använ
 | Indexes | `migrations/1810300000000_user_observability_indexes.js` |
 | Admin UI | `public/admin/admin-families.js`, `public/admin/admin-analytics.js` |
 
+### Trusted device impact KPIs (`trusted_devices.impact`)
+
+Admin **Användning** tab exposes adoption %, recurring family-days (2+/3+/7+), product outcomes among TD families (completion, full routine day, first-star signal), friction events vs TD sessions, and new vs established family cohorts. See `fetchTrustedDeviceImpactKpis` in `db/user-observability.js`.
+
 ## Privacy
 
 - Analytics metadata: internal UUIDs only; no email, name, tokens, PINs.
