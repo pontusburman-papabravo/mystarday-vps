@@ -8,6 +8,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../../lib/config');
 const { recordLoginEvent } = require('../../lib/login-event');
+const { trackSessionStarted, resolveRequestPlatform } = require('../../lib/session-telemetry');
 const {
   createRefreshToken,
   setRefreshCookie,
@@ -46,6 +47,17 @@ async function completeLogin(req, res, parent, userType, meta = {}) {
 
   // Record login event for analytics
   recordLoginEvent({ userId: parent.id, role: userType, familyId: parent.family_id }).catch(() => {});
+
+  const authSource = meta.authSource || meta.oauthProvider || 'parent_login';
+  trackSessionStarted(parent.family_id, 'parent_session_started', {
+    actorType: 'parent',
+    actorId: parent.id,
+    trustedDeviceId: null,
+    deviceMode: null,
+    platform: resolveRequestPlatform(req),
+    source: authSource,
+    sessionMode: 'fresh',
+  });
 
   const accessToken = jwt.sign(
     {

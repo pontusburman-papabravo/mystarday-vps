@@ -262,10 +262,15 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
       scopeKey: require('../../../db/family-milestones').scopeKeyForChild(child.id),
     });
 
-    const analytics = require('../../../db/analytics');
-    analytics.track(child.family_id, 'child_session_started', {
-      child_id: child.id,
+    const { trackSessionStarted, resolveRequestPlatform } = require('../../lib/session-telemetry');
+    trackSessionStarted(child.family_id, 'child_session_started', {
+      actorType: 'child',
+      actorId: child.id,
+      trustedDeviceId: null,
+      deviceMode: null,
+      platform: resolveRequestPlatform(req),
       source: 'child_login',
+      sessionMode: 'fresh',
     });
     const { maybeTrackChildLogin } = require('../../lib/first-star-mode-analytics');
     await maybeTrackChildLogin({ familyId: child.family_id, childId: child.id });

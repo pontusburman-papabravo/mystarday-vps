@@ -254,4 +254,31 @@ router.get('/analytics/activation-weekly-report', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/analytics/usage ───────────────────────
+// Person-level usage KPIs (authentication ≠ activity). period=24h|7d|30d
+router.get('/analytics/usage', async (req, res) => {
+  try {
+    const userObservability = require('../../../db/user-observability');
+    const period = ['24h', '7d', '30d'].includes(req.query.period) ? req.query.period : '24h';
+    const kpis = await userObservability.computeUsageKpis(period);
+    res.json(kpis);
+  } catch (err) {
+    console.error('[ADMIN analytics] usage error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta användnings-KPI:er' });
+  }
+});
+
+// ─── GET /api/admin/analytics/usage-trends ────────────────
+router.get('/analytics/usage-trends', async (req, res) => {
+  try {
+    const userObservability = require('../../../db/user-observability');
+    const days = Math.min(30, Math.max(7, parseInt(req.query.days, 10) || 14));
+    const trends = await userObservability.getUsageTrends(days);
+    res.json({ days, trends });
+  } catch (err) {
+    console.error('[ADMIN analytics] usage-trends error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta användningstrender' });
+  }
+});
+
 module.exports = router;

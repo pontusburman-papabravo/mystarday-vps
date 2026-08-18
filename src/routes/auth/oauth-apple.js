@@ -49,7 +49,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
     const existingByApple = await parentDb.getParentByAppleUserId(appleUserId);
     if (existingByApple) {
       console.log('[APPLE] existing user found', { parentId: existingByApple.id });
-      return completeLogin(req, res, existingByApple, 'parent');
+      return completeLogin(req, res, existingByApple, 'parent', { authSource: 'apple_login' });
     }
 
     // SCENARIO 3 — Account exists: email found → login or password conflict
@@ -67,7 +67,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
           await parentDb.linkAppleUserId(existingByEmail.id, appleUserId, appleEmail);
         }
         console.log('[APPLE] existing user by email', { parentId: existingByEmail.id });
-        return completeLogin(req, res, existingByEmail, 'parent');
+        return completeLogin(req, res, existingByEmail, 'parent', { authSource: 'apple_login' });
       }
     }
 
@@ -96,7 +96,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
       attribution,
     });
 
-    return completeLogin(req, res, newParent, 'parent', { isNewAccount: true });
+    return completeLogin(req, res, newParent, 'parent', { isNewAccount: true, authSource: 'apple_login' });
 
   } catch (err) {
     console.error('[AUTH] Apple Sign In error:', err);
