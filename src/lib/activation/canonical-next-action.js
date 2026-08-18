@@ -14,6 +14,7 @@ const { loadRegistry } = require('../journey/registry');
 const { FLAG_KEYS: JOURNEY_FLAGS, isFlagEnabled } = require('../journey/flags');
 const { resolveFamilyLocale } = require('../locale');
 const { t } = require('../i18n');
+const { applyDeferralOverlay } = require('./step-deferrals');
 const db = require('../db');
 
 const I18N_PREFIX = 'home.firstSuccess.actions.';
@@ -41,12 +42,14 @@ const I18N_PREFIX = 'home.firstSuccess.actions.';
  * @param {object} [options]
  * @param {boolean} [options.includeEngineAdapter]
  * @param {string} [options.parentId]
+ * @param {boolean} [options.skipDeferral]
+ * @param {Date} [options.now]
  * @returns {Promise<CanonicalNextAction>}
  */
 async function buildCanonicalNextAction(familyId, options = {}) {
   const enabled = await isActivationFlagEnabled(FLAG_KEYS.firstSuccessV1, familyId);
   if (!enabled) {
-    return { enabled: false, show_primary_coach: false, next_action: null, reason: ['flag_off'], journey_phase: null, blocking_issue: null, cta_label: null, cta_target: null, headline: null, body: null };
+    return { enabled: false, show_primary_coach: false, next_action: null, reason: ['flag_off'], journey_phase: null, blocking_issue: null, cta_label: null, cta_target: null, headline: null, body: null, deferred: false };
   }
 
   const [state, milestones, phase, localeRow] = await Promise.all([
@@ -57,6 +60,14 @@ async function buildCanonicalNextAction(familyId, options = {}) {
   ]);
   const lang = resolveFamilyLocale(localeRow.rows[0]?.preferred_locale);
   const funnelStep = getActivationFunnelStep(state);
+  const deferOpts = options.skipDeferral ? null : { now: options.now };
+
+  function finalize(payload) {
+    if (!deferOpts || !payload?.enabled) {
+      return payload?.deferred === undefined ? { ...payload, deferred: false } : payload;
+    }
+    return applyDeferralOverlay(payload, state?.step_deferrals, deferOpts);
+  }
 
   if (milestones.first_success || state?.p0_activated_at) {
     const parentId = options.parentId;
@@ -70,18 +81,18 @@ async function buildCanonicalNextAction(familyId, options = {}) {
         const decision = await buildRetentionHomeDecision(familyId, parentId);
         if (decision) {
           const fields = await retentionToCanonicalFields(decision, familyId);
-          return {
+          return finalize({
             enabled: true,
             authority: 'journey_retention',
             funnel_step: funnelStep,
             journey_phase: phase,
             blocking_issue: null,
             ...fields,
-          };
+          });
         }
       }
     }
-    return {
+    return finalize({
       enabled: true,
       show_primary_coach: false,
       next_action: 'none',
@@ -94,12 +105,12 @@ async function buildCanonicalNextAction(familyId, options = {}) {
       body: null,
       authority: 'journey',
       funnel_step: funnelStep,
-    };
+    });
   }
 
   const milestoneAction = pickMilestoneAction(state, milestones, lang);
   if (milestoneAction) {
-    return {
+    return finalize({
       enabled: true,
       show_primary_coach: true,
       authority: 'journey',
@@ -107,13 +118,13 @@ async function buildCanonicalNextAction(familyId, options = {}) {
       journey_phase: phase,
       blocking_issue: null,
       ...milestoneAction,
-    };
+    });
   }
 
   const journeyContext = await buildContextForFamily(familyId);
   const journeyPick = await pickFromJourneyContext(journeyContext, lang, familyId);
   if (journeyPick) {
-    return {
+    return finalize({
       enabled: true,
       show_primary_coach: true,
       authority: 'journey',
@@ -122,13 +133,13 @@ async function buildCanonicalNextAction(familyId, options = {}) {
       blocking_issue: journeyContext.blocking_experience || null,
       journey_context: summarizeContext(journeyContext),
       ...journeyPick,
-    };
+    });
   }
 
   if (options.includeEngineAdapter) {
     const adapter = await tryEngineAdapter(familyId);
     if (adapter) {
-      return {
+      return finalize({
         enabled: true,
         show_primary_coach: true,
         authority: 'engine_adapter',
@@ -137,11 +148,11 @@ async function buildCanonicalNextAction(familyId, options = {}) {
         blocking_issue: null,
         engine_adapter: adapter.meta,
         ...adapter.action,
-      };
+      });
     }
   }
 
-  return {
+  return finalize({
     enabled: true,
     show_primary_coach: false,
     next_action: 'none',
@@ -154,7 +165,7 @@ async function buildCanonicalNextAction(familyId, options = {}) {
     body: null,
     authority: 'journey',
     funnel_step: funnelStep,
-  };
+  });
 }
 
 /**
