@@ -33,9 +33,20 @@ const INTERVAL_MAP = Object.freeze({
   '30d': "INTERVAL '30 days'",
 });
 
+/** Trusted-device access friction — allowlisted client/server-adjacent signals. */
+const TRUSTED_DEVICE_FRICTION_EVENT_TYPES = Object.freeze([
+  'child_context_restore_failed',
+  'child_login_failed',
+  'adult_login_failed',
+  'child_access_denied',
+  'device_access_revoked',
+  'adult_privilege_unlock_failed',
+]);
+
 module.exports = {
   SESSION_EVENT_TYPES,
   ACTIVITY_ANALYTICS_EVENT_TYPES,
   ALL_ACTIVITY_EVENT_TYPES,
   INTERVAL_MAP,
+  TRUSTED_DEVICE_FRICTION_EVENT_TYPES,
 };
