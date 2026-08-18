@@ -176,6 +176,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'system_help_engaged',
   'system_help_support_requested',
   'system_help_progressed',
+  'system_help_api_error',
   'waitlist_signup',
   'waitlist_launch_invite',
   'waitlist_account_signup',
