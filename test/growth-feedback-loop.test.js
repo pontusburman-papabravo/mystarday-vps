@@ -59,8 +59,15 @@ describe('growth feedback loop contracts', () => {
     assert.match(db, /schema_no_child_login/);
     assert.match(db, /completion_no_return/);
     const route = read('src/routes/admin/growth-stuck-cohorts.js');
-    assert.match(route, /growth_stuck_cohorts_v1/);
+    assert.doesNotMatch(route, /isActivationFlagEnabled|är avstängd|status\(503\)/);
     assert.match(route, /autoSendAllowed: false/);
+  });
+
+  it('admin stuck UI is preview-only and does not treat the dark-launch flag as a dead end', () => {
+    const ui = read('public/admin/admin-growth-stuck.js');
+    assert.match(ui, /Ingen automatisk utskickning/);
+    assert.doesNotMatch(ui, /flagga av/);
+    assert.match(ui, /preview_handoff_nudge/);
   });
 
   it('analytics allowlist includes growth loop events', () => {

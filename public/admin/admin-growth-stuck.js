@@ -12,6 +12,19 @@
     core_flow_errors: 'Tekniska fel i kärnflödet',
   };
 
+  const FOLLOW_UP_LABELS = {
+    preview_handoff_nudge: 'Hjälp att slutföra onboarding',
+    preview_child_login_help: 'Hjälp med barninloggning',
+    preview_first_star_guide: 'Guide till första stjärnan',
+    preview_return_nudge: 'Påminnelse att komma tillbaka',
+    preview_support_outreach: 'Supportuppföljning',
+    preview_manual_review: 'Manuell genomgång',
+  };
+
+  function followUpLabel(key) {
+    return FOLLOW_UP_LABELS[key] || key || 'Manuell genomgång';
+  }
+
   async function loadGrowthStuckSummary() {
     const el = document.getElementById('growthStuckSummary');
     if (!el) return;
@@ -20,19 +33,21 @@
       const data = await Auth.api('/api/admin/growth/stuck-cohorts/summary');
       const parts = Object.keys(COHORT_LABELS).map(function (key) {
         const n = (data.counts && data.counts[key]) || 0;
-        return '<div class="stat-card"><div class="stat-value">' + n + '</div><div class="stat-label">' +
-          COHORT_LABELS[key] + '</div></div>';
+        return (
+          '<div class="bg-white rounded-2xl border-2 border-lavender p-4">' +
+          '<p class="text-3xl font-heading font-bold text-navy">' + n + '</p>' +
+          '<p class="text-sm text-text-soft mt-1">' + COHORT_LABELS[key] + '</p>' +
+          '</div>'
+        );
       });
       el.innerHTML =
-        '<p class="text-sm text-slate-600 mb-3">Preview only — autoSendAllowed=' +
-        String(data.autoSendAllowed) +
-        '. Total: ' +
+        '<p class="text-sm text-slate-600 mb-3">Preview 48h–14d. Ingen automatisk utskickning. Totalt: ' +
         (data.total || 0) +
-        '</p><div class="stats-grid">' +
+        ' familjer (QA dolda).</p><div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">' +
         parts.join('') +
         '</div>';
     } catch (err) {
-      el.textContent = err.message || 'Kunde inte ladda kohorter (flagga av?).';
+      el.textContent = err.message || 'Kunde inte ladda kohorter.';
     }
   }
 
@@ -51,15 +66,16 @@
       tbody.innerHTML = data.families
         .map(function (f) {
           const acq = f.acquisition || {};
+          const step = COHORT_LABELS[f.blockingStep] || f.blockingStep || '';
           return (
             '<tr>' +
             '<td>' + escapeHtml(f.familyName || f.familyId) + '</td>' +
-            '<td>' + escapeHtml(f.blockingStep || '') + '</td>' +
+            '<td>' + escapeHtml(step) + '</td>' +
             '<td>' + escapeHtml(f.lastEventType || '—') + '</td>' +
             '<td>' + escapeHtml(f.locale || '—') + '</td>' +
             '<td>' + escapeHtml(f.platform || '—') + '</td>' +
             '<td>' + escapeHtml(acq.source || '—') + '</td>' +
-            '<td>' + escapeHtml(f.recommendedFollowUp || '') +
+            '<td>' + escapeHtml(followUpLabel(f.recommendedFollowUp)) +
             ' <span class="badge">manual</span></td>' +
             '</tr>'
           );
@@ -67,7 +83,7 @@
         .join('');
     } catch (err) {
       tbody.innerHTML =
-        '<tr><td colspan="7">' + escapeHtml(err.message || 'Fel') + '</td></tr>';
+        '<tr><td colspan="7">' + escapeHtml(err.message || 'Kunde inte hämta fastnade familjer') + '</td></tr>';
     }
   }
 
