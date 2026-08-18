@@ -166,8 +166,12 @@ describe('growth-system-help migration', () => {
     assert.match(migration, /growth_system_help_v1/);
     assert.match(migration, /progressed_24h/);
     assert.match(migration, /support_requested_at/);
-    assert.match(migration, /snapshotContract/);
-    assert.match(migration, /featureFlagInserts/);
+    const manifest = fs.readFileSync(
+      path.join(__dirname, '../scripts/ops/lib/migration-snapshot-manifest.mjs'),
+      'utf8'
+    );
+    assert.match(manifest, /1810300000000_family_system_help_state/);
+    assert.match(manifest, /growth_system_help_v1/);
   });
 });
 
