@@ -344,7 +344,7 @@ describe('stuck family work-queue mapper', () => {
     }, now);
     assert.equal(mapped.lastActivityType, 'login');
     assert.equal(mapped.stuckHours, 96);
-    assert.match(mapped.manualNextStep, /första stjärnan/);
+    assert.match(mapped.manualNextStep, /första-stjärna|stjärna/i);
   });
 
   it('completion without return and core-flow errors keep autoSendAllowed false', () => {

@@ -188,6 +188,23 @@
     }
   }
 
+  function maybeEnrichHandoff(el) {
+    if (!el || el.classList.contains('hidden')) return;
+    function run() {
+      if (window.GrowthSystemHelp && typeof GrowthSystemHelp.enrichHandoff === 'function') {
+        GrowthSystemHelp.enrichHandoff(el);
+      }
+    }
+    if (window.GrowthSystemHelp) {
+      run();
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = '/js/growth-system-help.js';
+    s.onload = run;
+    document.head.appendChild(s);
+  }
+
   async function resolveVisibility(el) {
     if (!el) return;
 
@@ -220,6 +237,7 @@
           }).catch(function () {});
         }
       }
+      maybeEnrichHandoff(el);
       return;
     }
 
@@ -238,6 +256,7 @@
             el.classList.toggle('hidden', !contextWantsHandoff(ctx));
             if (!contextWantsHandoff(ctx)) return;
             bindEvents(el);
+            maybeEnrichHandoff(el);
             return;
           }
         }
@@ -251,6 +270,7 @@
 
     el.classList.remove('hidden');
     bindEvents(el);
+    maybeEnrichHandoff(el);
   }
 
   function init() {

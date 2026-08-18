@@ -8,7 +8,7 @@
   const MOUNT_ID = 'activationFirstSuccessCoachMount';
   const CACHE_MS = 45 * 1000;
   const FETCH_TIMEOUT_MS = 15000;
-  const SESSION_SUPPRESS_KEY = 'msd_afs_continue_without_guide';
+  const SESSION_SUPPRESS_PREFIX = 'msd_afs_continue_without_guide:';
   const DEFER_DURATION_HOURS = 12;
 
   let cache = { at: 0, data: null, flagOn: false };
@@ -40,9 +40,34 @@
     track(eventType, meta);
   }
 
+  function sessionSuppressStorageKey() {
+    try {
+      if (window.Auth && typeof window.Auth.getFamilyId === 'function') {
+        const familyId = window.Auth.getFamilyId();
+        if (familyId) return SESSION_SUPPRESS_PREFIX + familyId;
+      }
+    } catch (_) { /* ignore */ }
+    return SESSION_SUPPRESS_PREFIX + 'session';
+  }
+
+  function authSessionStillValid() {
+    return Boolean(
+      window.Auth
+      && typeof window.Auth.isLoggedIn === 'function'
+      && window.Auth.isLoggedIn()
+    );
+  }
+
+  function resultForFailedAuthRefresh() {
+    if (!authSessionStillValid()) {
+      return { ok: false, authFailed: true };
+    }
+    return { ok: false, blocked: classifyBlocked('server', 401) };
+  }
+
   function isSessionSuppressed() {
     try {
-      return sessionStorage.getItem(SESSION_SUPPRESS_KEY) === '1';
+      return sessionStorage.getItem(sessionSuppressStorageKey()) === '1';
     } catch (_) {
       return false;
     }
@@ -50,7 +75,7 @@
 
   function setSessionSuppressed() {
     try {
-      sessionStorage.setItem(SESSION_SUPPRESS_KEY, '1');
+      sessionStorage.setItem(sessionSuppressStorageKey(), '1');
     } catch (_) { /* private mode */ }
   }
 
@@ -296,7 +321,7 @@
     return renderCoach(payload);
   }
 
-  async function fetchNextAction(force, options) {
+  async function fetchNextActionResult(force, options) {
     const opts = options || {};
     const now = Date.now();
     if (!force && !blockedState && cache.data && now - cache.at < CACHE_MS) {
@@ -323,7 +348,7 @@
 
         if (res.status === 401) {
           if (opts.skipAuthRecovery) {
-            return { ok: false, authFailed: true };
+            return resultForFailedAuthRefresh();
           }
           if (window.Auth && typeof window.Auth.silentRefresh === 'function') {
             const refreshed = await window.Auth.silentRefresh();
@@ -333,7 +358,7 @@
                 return { ok: false, stale: true };
               }
               if (retryRes.status === 401) {
-                return { ok: false, authFailed: true };
+                return resultForFailedAuthRefresh();
               }
               if (retryRes.status === 403) {
                 let body403 = {};
@@ -364,7 +389,7 @@
               return { ok: true, payload: retryData };
             }
           }
-          return { ok: false, authFailed: true };
+          return resultForFailedAuthRefresh();
         }
 
         if (res.status === 403) {
@@ -418,6 +443,14 @@
     return fetchInFlight;
   }
 
+  async function fetchNextAction(force) {
+    const result = await fetchNextActionResult(force);
+    if (result.ok && result.payload) {
+      return result.payload;
+    }
+    return null;
+  }
+
   async function onRetry(retryBtn) {
     if (retryInFlight) return;
     retryInFlight = true;
@@ -436,7 +469,7 @@
     }));
 
     try {
-      const result = await fetchNextAction(true);
+      const result = await fetchNextActionResult(true);
       if (result.stale) return;
       if (result.authFailed) {
         blockedState.retrying = false;
@@ -616,7 +649,7 @@
       return { ok: false, reason: 'blocked', blocked: blockedState };
     }
 
-    const result = await fetchNextAction(options && options.force);
+    const result = await fetchNextActionResult(options && options.force);
     if (result.stale) {
       return { ok: false, reason: 'stale' };
     }

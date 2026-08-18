@@ -80,6 +80,8 @@ function createSandbox(overrides) {
   const apiCalls = [];
   let nextActionCalls = 0;
   let deferCalls = 0;
+  let familyId = (overrides && overrides.familyId) || 'family-test-a';
+  let loggedIn = overrides && overrides.loggedIn === false ? false : true;
 
   const win = {
       analytics: {
@@ -89,7 +91,9 @@ function createSandbox(overrides) {
       },
       Auth: {
         silentRefresh: async () => true,
-        logout: () => {},
+        logout: () => { loggedIn = false; },
+        getFamilyId: () => familyId,
+        isLoggedIn: () => loggedIn,
       },
       pt: (key) => key,
       escHtml: (s) => String(s || ''),
@@ -140,6 +144,9 @@ function createSandbox(overrides) {
   if (overrides && overrides.silentRefresh) {
     win.Auth.silentRefresh = overrides.silentRefresh;
   }
+  if (overrides && overrides.setFamilyId) {
+    win.setFamilyId = (id) => { familyId = id; };
+  }
 
   const sandbox = {
     window: win,
@@ -156,9 +163,11 @@ function createSandbox(overrides) {
 
   return {
     Hub: win.ActivationFirstSuccessHub,
+    win,
     mount,
     tracked,
     apiCalls,
+    setFamilyId(id) { familyId = id; },
     get nextActionCalls() { return nextActionCalls; },
     get deferCalls() { return deferCalls; },
   };
@@ -280,15 +289,28 @@ describe('activation first-success recovery client (#1023)', () => {
     assert.equal(result.ok, true);
   });
 
-  it('9: failed auth refresh → no blocked card', async () => {
+  it('9 AUTH-A: failed auth refresh with session cleared → no blocked card', async () => {
     const ctx = createSandbox({
       silentRefresh: async () => false,
+      loggedIn: false,
       nextAction: () => mockJsonResponse(401, {}),
     });
     const result = await ctx.Hub.load();
     assert.equal(result.reason, 'auth');
     assert.ok(!ctx.Hub.isBlocked());
     assert.equal(ctx.mount.innerHTML, '');
+  });
+
+  it('9 AUTH-B: failed auth refresh transient → blocked recovery card', async () => {
+    const ctx = createSandbox({
+      silentRefresh: async () => false,
+      loggedIn: true,
+      nextAction: () => mockJsonResponse(401, {}),
+    });
+    const result = await ctx.Hub.load();
+    assert.equal(result.reason, 'blocked');
+    assert.ok(ctx.Hub.isBlocked());
+    assert.match(ctx.mount.innerHTML, /activation-fs-retry/);
   });
 
   it('10: 403 PEDAGOG_ONLY does NOT show blocked or auth failure card', async () => {
@@ -581,6 +603,63 @@ describe('activation first-success recovery client (#1023)', () => {
     const shown = ctx.tracked.filter((e) => e.event === 'activation_first_success_next_action_shown');
     assert.equal(shown.length, 1);
   });
+
+  it('public fetchNextAction returns canonical payload (not result envelope)', async () => {
+    const ctx = createSandbox({
+      payload: {
+        enabled: true,
+        show_primary_coach: true,
+        next_action: 'child_access',
+        can_defer: true,
+        headline: 'H',
+        body: 'B',
+        cta_label: 'C',
+      },
+    });
+    const payload = await ctx.Hub.fetchNextAction();
+    assert.ok(payload);
+    assert.equal(payload.next_action, 'child_access');
+    assert.equal(payload && payload.payload, undefined);
+    assert.equal(payload && payload.ok, undefined);
+  });
+
+  it('dashboard handoff contract hides duplicate UI for child_access', async () => {
+    const ctx = createSandbox({
+      payload: {
+        enabled: true,
+        show_primary_coach: true,
+        next_action: 'child_access',
+        can_defer: true,
+      },
+    });
+    const payload = await ctx.Hub.fetchNextAction();
+    const shouldHideHandoff = Boolean(
+      payload
+      && payload.enabled
+      && payload.show_primary_coach
+      && (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion')
+    );
+    assert.equal(shouldHideHandoff, true);
+  });
+
+  it('family-scoped session suppress does not leak across families', async () => {
+    const ctx = createSandbox({
+      familyId: 'family-a',
+      nextAction: () => mockJsonResponse(500, {}),
+    });
+    await ctx.Hub.load();
+    ctx.mount._continueFn();
+    assert.ok(ctx.Hub.isSessionSuppressed());
+
+    ctx.setFamilyId('family-b');
+    ctx.Hub.clearCache();
+    const familyB = await ctx.Hub.load();
+    assert.notEqual(familyB.sessionSuppressed, true);
+    assert.equal(familyB.reason, 'blocked');
+
+    ctx.setFamilyId('family-a');
+    assert.ok(ctx.Hub.isSessionSuppressed());
+  });
 });
 
 describe('AC5 idempotency evidence (#1023)', () => {
@@ -630,6 +709,8 @@ describe('hub source contracts', () => {
     assert.match(src, /isSessionSuppressed/);
     assert.match(src, /blockedState/);
     assert.match(src, /cache\.data\.deferred/);
+    assert.match(src, /fetchNextActionResult/);
+    assert.match(src, /getFamilyId/);
   });
 
   it('no hard-coded Swedish recovery strings in hub', () => {

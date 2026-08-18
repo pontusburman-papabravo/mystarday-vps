@@ -599,6 +599,7 @@ const CACHE_NAME = 'stjarndag-v860';
 // stjarndag-v850: lifecycle Capacitor addListener compat + select-parent error stages
 // stjarndag-v856: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v859: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v860: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -836,6 +837,7 @@ const STATIC_ASSETS = [
   '/js/sse-client.js',
   '/js/child-dashboard-sse.js',
   '/js/help-bubble.js',
+  '/js/growth-system-help.js',
   '/js/help-journey-tip.js',
   '/js/feature-check.js',
   '/js/platform.js',
