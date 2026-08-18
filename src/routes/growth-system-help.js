@@ -12,6 +12,7 @@ const express = require('express');
 const { z } = require('zod');
 const rateLimit = require('express-rate-limit');
 const { requireParent } = require('../middleware/auth');
+const db = require('../lib/db');
 const {
   evaluateSystemHelp,
   recordShown,
@@ -192,11 +193,12 @@ router.post('/support-request', requireParent, limiter, async (req, res) => {
       return res.status(403).json({ ok: false, reason: eligibility.reason });
     }
 
+    const parentRow = await db.query('SELECT name FROM parent WHERE id = $1', [req.user.id]);
     const row = await recordSupportRequested(familyId, {
       surface: parsed.data.surface,
       context: parsed.data.context,
       parentEmail: req.user.email,
-      parentName: req.user.name,
+      parentName: parentRow.rows[0]?.name || null,
     });
     return res.json({ ok: Boolean(row) });
   } catch (err) {
