@@ -168,3 +168,25 @@ describe('growth-system-help migration', () => {
     assert.match(migration, /support_requested_at/);
   });
 });
+
+describe('growth-system-help deploy snapshot contract', () => {
+  it('declares migration snapshot registry entry for deploy gate', async () => {
+    const { loadMigrationSnapshotContract, expectedFeatureFlagInserts } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810300000000_family_system_help_state';
+    const contract = loadMigrationSnapshotContract(name);
+    assert.equal(contract?.backwardCompatible, true);
+    assert.equal(contract?.schemaOnly, true);
+    const inserts = expectedFeatureFlagInserts([name]);
+    assert.deepEqual(inserts, [
+      { key: 'growth_system_help_v1', enabled: false, migration: name },
+    ]);
+  });
+
+  it('allowlists growth_system_help_v1 for per-family overrides', () => {
+    const familyOverrides = require('../db/family-feature-overrides');
+    const { FLAG_KEYS } = require('../src/lib/activation-flags');
+    assert.equal(familyOverrides.isOverrideFeatureKey(FLAG_KEYS.growthSystemHelp), true);
+  });
+});
