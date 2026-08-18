@@ -109,6 +109,7 @@
     "test:native-child-cold-launch-harness": "node scripts/native-child-cold-launch-harness.cjs",
     "test:activation-first-success-browser": "node scripts/activation-first-success-browser-harness.mjs",
     "feature:family-override": "node scripts/feature-family-override.mjs",
+    "growth:system-help-ops-report": "node scripts/growth-system-help-ops-report.mjs",
     "family-device:prod-pilot": "node scripts/ops/family-device-prod-pilot.mjs",
     "ios:release:prepare": "node scripts/ios-release-prepare.mjs",
     "release:pre-public-gate": "node scripts/pre-public-release-gate.mjs",
