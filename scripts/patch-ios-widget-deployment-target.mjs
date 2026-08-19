@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * WidgetRoutine uses App Intents + iOS 17 SwiftUI; minimum 17.0 (main app may stay 14).
+ * WidgetRoutine uses App Intents + iOS 17 SwiftUI; minimum 17.0 (main app minimum 15.0).
  * Idempotent: exit 0 when WidgetRoutine Debug/Release are already 17.0.
  */
 import fs from 'fs';

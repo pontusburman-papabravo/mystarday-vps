@@ -5,6 +5,7 @@ set -e
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 export XCODE_CLOUD_STAGE=ci_post_clone
 . "$CI_PRIMARY_REPOSITORY_PATH/scripts/lib/xcode-cloud-stage.sh"
+. "$CI_PRIMARY_REPOSITORY_PATH/scripts/lib/xcode-cloud-archive-gate.sh"
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 
@@ -25,8 +26,15 @@ echo "📦 Installing npm dependencies"
 xcode_cloud_run npm_config npm config set maxsockets 3
 xcode_cloud_run npm_ci npm ci --legacy-peer-deps --include=dev
 
+xcode_cloud_require_archive_meta_token
+
 echo "🔄 Syncing Capacitor iOS (copy assets, patch Podfile, pod install)"
 xcode_cloud_npm cap_sync_ios run cap:sync:ios
+
+if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
+  echo "🔍 Pre-build Meta/native release verification (post_clone)"
+  xcode_cloud_node verify_meta_native_release scripts/verify-meta-native-release.mjs --ios
+fi
 
 echo "🔍 Verify no Google Sign-In pods"
 xcode_cloud_node verify_no_google_pods scripts/verify-ios-no-google-pods.mjs

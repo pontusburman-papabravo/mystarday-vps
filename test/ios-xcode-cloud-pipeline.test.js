@@ -23,6 +23,15 @@ test('ci_pre_xcodebuild does not re-run cap:sync:ios (idempotent with post_clone
   assert.doesNotMatch(sh, /xcode_cloud_npm cap_sync_ios|npm run cap:sync:ios|run cap:sync:ios/);
   assert.match(sh, /verify-ios-apple-sign-in-patch\.mjs/);
   assert.match(sh, /verify-ios-no-google-pods\.mjs/);
+  assert.match(sh, /verify-meta-native-release\.mjs --ios/);
+});
+
+test('cap:sync:ios includes main deployment target and widget release-hold patches', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const chain = pkg.scripts['cap:sync:ios'];
+  assert.match(chain, /patch-ios-main-deployment-target\.mjs/);
+  assert.match(chain, /patch-ios-widget-release-hold\.mjs/);
+  assert.match(chain, /verify-ios-widget-release-hold\.mjs/);
 });
 
 test('cap:sync:ios includes widget deployment target patch before verify steps', () => {

@@ -71,7 +71,7 @@ function upsertWidgetParentInProjectConfigs(source, settingLine) {
       );
     } else {
       const next = inner.replace(
-        /(IPHONEOS_DEPLOYMENT_TARGET = 14\.0;\n)/,
+        /(IPHONEOS_DEPLOYMENT_TARGET = [\d.]+;\n)/,
         `$1\t\t\t\t${settingLine}\n`
       );
       if (next === inner) {
