@@ -89,8 +89,10 @@ if (!fs.existsSync(mainActivityPatch)) {
   fail('scripts/patch-android-main-activity.mjs missing');
 } else {
   const patchSrc = fs.readFileSync(mainActivityPatch, 'utf8');
-  if (!patchSrc.includes('BuildConfig.DEBUG')) {
-    fail('patch-android-main-activity.mjs must gate WebView debugging on BuildConfig.DEBUG');
+  if (patchSrc.includes('BuildConfig')) {
+    fail('patch-android-main-activity.mjs must not use BuildConfig — not available in Capacitor namespace');
+  } else if (!patchSrc.includes('ApplicationInfo.FLAG_DEBUGGABLE')) {
+    fail('patch-android-main-activity.mjs must gate WebView debugging on ApplicationInfo.FLAG_DEBUGGABLE');
   } else {
     ok('MainActivity WebView debugging DEBUG-only patch script');
   }
@@ -103,11 +105,13 @@ if (fs.existsSync(path.join(ROOT, 'android', 'app', 'build.gradle'))) {
     const mainActivity = mainActivityPathFromNs(nsMatch[1]);
     if (fs.existsSync(mainActivity)) {
       const mainSrc = fs.readFileSync(mainActivity, 'utf8');
-      if (!mainSrc.includes('BuildConfig.DEBUG')) {
-        fail('MainActivity.java missing BuildConfig.DEBUG guard — run patch-android-main-activity.mjs');
+      if (mainSrc.includes('BuildConfig')) {
+        fail('MainActivity.java must not use BuildConfig — run patch-android-main-activity.mjs');
+      } else if (!mainSrc.includes('ApplicationInfo.FLAG_DEBUGGABLE')) {
+        fail('MainActivity.java missing ApplicationInfo.FLAG_DEBUGGABLE guard — run patch-android-main-activity.mjs');
       } else if (
         /setWebContentsDebuggingEnabled\s*\(\s*true\s*\)/.test(mainSrc) &&
-        !mainSrc.includes('if (BuildConfig.DEBUG)')
+        !mainSrc.includes('getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE')
       ) {
         fail('MainActivity.java enables WebView debugging in release configuration');
       }
