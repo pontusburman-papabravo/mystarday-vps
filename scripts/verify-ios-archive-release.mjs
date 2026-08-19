@@ -29,6 +29,10 @@ const FORBIDDEN_PATH_MARKERS = [
   'AppTrackingTransparency.framework',
   'CapacitorPluginAppTrackingTransparency',
   'AppTrackingTransparencyPlugin',
+  'FBSDKCoreKit.framework',
+  'FBAEMKit.framework',
+  'FBSDKCoreKit_Basics.framework',
+  'CapacitorFacebookEvents',
 ];
 
 const MACHO_MAGICS = new Set([
@@ -265,6 +269,29 @@ function scanBundlePaths(appBundle, localFail) {
   return !hit;
 }
 
+function scanMetaNativeAbsence(appBundle, localFail, localOk) {
+  const metaMarkers = [
+    'FBSDKCoreKit.framework',
+    'FBAEMKit.framework',
+    'FBSDKCoreKit_Basics.framework',
+    'CapacitorFacebookEvents',
+  ];
+  let hit = false;
+  for (const rel of walkFiles(appBundle).map((f) => relAppPath(appBundle, f))) {
+    for (const marker of metaMarkers) {
+      if (rel.toLowerCase().includes(marker.toLowerCase())) {
+        localFail(`Meta native SDK artifact present: ${rel} (${marker})`);
+        hit = true;
+      }
+    }
+  }
+  if (!hit) {
+    localOk('No Meta native SDK frameworks in archived app bundle');
+    console.log('IOS META NATIVE SDK: ABSENT');
+  }
+  return !hit;
+}
+
 function inspectMachOBinary(binaryPath, relPath, releaseMode, hasOtool, hasStrings, localFail) {
   let clean = true;
 
@@ -438,27 +465,6 @@ export function verifyArchiveAt(
     console.log('FINAL ARCHIVE ATT USAGE DESCRIPTION: ABSENT');
   }
 
-  const autoLog = plutilExtract(infoPlist, 'FacebookAutoLogAppEventsEnabled');
-  const advId = plutilExtract(infoPlist, 'FacebookAdvertiserIDCollectionEnabled');
-  if (autoLog !== 'false' && autoLog !== '0') {
-    localFail(`FacebookAutoLogAppEventsEnabled not false (${autoLog || 'missing'})`);
-  } else {
-    localOk('FacebookAutoLogAppEventsEnabled false');
-  }
-  if (advId !== 'false' && advId !== '0') {
-    localFail(`FacebookAdvertiserIDCollectionEnabled not false (${advId || 'missing'})`);
-  } else {
-    localOk('FacebookAdvertiserIDCollectionEnabled false');
-    console.log('META ADVERTISER ID COLLECTION: DISABLED');
-  }
-
-  const clientToken = plutilExtract(infoPlist, 'FacebookClientToken');
-  if (!clientToken || clientToken.length < 8) {
-    localFail('FacebookClientToken missing or too short in archived app');
-  } else {
-    localOk(`FacebookClientToken present (length ${clientToken.length}, value redacted)`);
-  }
-
   const widgetAppex = path.join(appBundle, 'PlugIns', 'WidgetRoutine.appex');
   const hasWidget = fs.existsSync(widgetAppex);
   if (includeWidget) {
@@ -475,10 +481,11 @@ export function verifyArchiveAt(
   }
 
   scanBundlePaths(appBundle, localFail);
+  const metaNativeClean = scanMetaNativeAbsence(appBundle, localFail, localOk);
   scanPrivacyManifests(appBundle, releaseMode, localFail, localOk);
   scanAllMachOBinaries(appBundle, releaseMode, localFail, localOk);
 
-  return { failed: localFailed, releaseMode };
+  return { failed: localFailed || !metaNativeClean, releaseMode };
 }
 
 function main() {
@@ -501,7 +508,7 @@ function main() {
   }
 
   if (releaseMode) {
-    console.log('META ADVERTISER TRACKING: PRE-BUILD VERIFIED DISABLED');
+    console.log('IOS 1.4 NO-TRACKING: Meta native SDK not shipped');
   }
   console.log('[verify-ios-archive-release] NO-TRACKING RELEASE GATE: PASS');
   process.exit(0);

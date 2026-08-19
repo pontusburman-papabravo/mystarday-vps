@@ -57,7 +57,6 @@ def capacitor_pods
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorCamera', :path => '../../node_modules/@capacitor/camera'
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
-  pod 'CapacitorFacebookEvents', :path => '../../node_modules/capacitor-facebook-events'
 end
 
 target 'App' do

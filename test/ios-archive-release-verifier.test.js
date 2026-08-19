@@ -45,6 +45,7 @@ function writeFakeMachO(filePath, payload = 'main-binary') {
 function makeFixtureArchive({
   withWidget = false,
   withAttPlist = false,
+  withMetaFramework = false,
   execMarker = '',
   attFrameworkPath = false,
   nestedFrameworkMarker = null,
@@ -57,9 +58,6 @@ function makeFixtureArchive({
 
   const plistEntries = [
     ['CFBundleExecutable', 'App', 'string'],
-    ['FacebookAutoLogAppEventsEnabled', 'false', 'bool'],
-    ['FacebookAdvertiserIDCollectionEnabled', 'false', 'bool'],
-    ['FacebookClientToken', '12345678901234567890', 'string'],
   ];
   if (withAttPlist) {
     plistEntries.push(['NSUserTrackingUsageDescription', 'track', 'string']);
@@ -73,6 +71,12 @@ function makeFixtureArchive({
       path.join(appDir, 'Frameworks', 'AppTrackingTransparency.framework'),
       { recursive: true }
     );
+  }
+
+  if (withMetaFramework) {
+    const fwDir = path.join(appDir, 'Frameworks', 'FBSDKCoreKit.framework');
+    fs.mkdirSync(fwDir, { recursive: true });
+    writeFakeMachO(path.join(fwDir, 'FBSDKCoreKit'), 'meta-sdk-binary');
   }
 
   if (nestedFrameworkMarker) {
@@ -225,10 +229,34 @@ describe('verify-ios-archive-release', () => {
     assert.match(r.stderr + r.stdout, /NSPrivacyCollectedDataTypeTracking=true/);
   });
 
-  it('passes clean privacy manifest with NSPrivacyTracking=false', () => {
+  it('fails when FBSDKCoreKit.framework is packaged', () => {
+    const { archive, cleanup } = makeFixtureArchive({ withMetaFramework: true });
+    const r = runArchiveVerify(archive);
+    cleanup();
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr + r.stdout, /FBSDKCoreKit|Meta native SDK/i);
+  });
+
+  it('fails when PrivacyInfo.xcprivacy in FBSDKCoreKit declares tracking', () => {
     const { archive, cleanup } = makeFixtureArchive({
       privacyManifest: {
         dir: 'Frameworks/FBSDKCoreKit.framework',
+        xml: `<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0"><dict>
+<key>NSPrivacyTracking</key><true/>
+</dict></plist>`,
+      },
+    });
+    const r = runArchiveVerify(archive);
+    cleanup();
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr + r.stdout, /NSPrivacyTracking=true|Meta native SDK/i);
+  });
+
+  it('passes clean privacy manifest in non-Meta framework', () => {
+    const { archive, cleanup } = makeFixtureArchive({
+      privacyManifest: {
+        dir: 'Frameworks/Capacitor.framework',
         xml: `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0"><dict>
 <key>NSPrivacyTracking</key><false/>
@@ -244,6 +272,7 @@ describe('verify-ios-archive-release', () => {
     cleanup();
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
     assert.match(r.stdout, /PRIVACY MANIFEST TRACKING SCAN: PASS/);
+    assert.match(r.stdout, /IOS META NATIVE SDK: ABSENT/);
   });
 
   it('fails when main executable contains ATT API marker (strings available)', () => {
@@ -267,15 +296,17 @@ describe('ios-xcode-cloud-pipeline archive gates', () => {
     assert.match(sh, /verify-ios-archive-release\.mjs/);
   });
 
-  it('archive path requires META_CLIENT_TOKEN in post_clone and pre_xcodebuild', () => {
+  it('iOS archive pipeline does not require META_CLIENT_TOKEN', () => {
     const post = fs.readFileSync(path.join(ROOT, 'ios/App/ci_scripts/ci_post_clone.sh'), 'utf8');
     const pre = fs.readFileSync(path.join(ROOT, 'ios/App/ci_scripts/ci_pre_xcodebuild.sh'), 'utf8');
+    const gate = fs.readFileSync(path.join(ROOT, 'scripts/lib/xcode-cloud-archive-gate.sh'), 'utf8');
     assert.match(post, /xcode-cloud-archive-gate\.sh/);
     assert.match(pre, /xcode-cloud-archive-gate\.sh/);
     assert.match(post, /verify-meta-native-release\.mjs --ios/);
     assert.match(pre, /verify-meta-native-release\.mjs --ios/);
     assert.match(pre, /patch-ios-xcode-cloud-build-number\.mjs/);
-    assert.doesNotMatch(post + pre, /META_CLIENT_TOKEN=/);
+    assert.doesNotMatch(gate, /exit 1/);
+    assert.doesNotMatch(post + pre, /META_CLIENT_TOKEN is required/);
   });
 
   it('cap:sync:ios still runs exactly once in post_clone', () => {

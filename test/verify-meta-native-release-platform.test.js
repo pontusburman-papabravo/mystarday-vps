@@ -8,7 +8,6 @@ const { spawnSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 const SCRIPT = path.join(ROOT, 'scripts', 'verify-meta-native-release.mjs');
-const IOS_PLIST = path.join(ROOT, 'ios', 'App', 'App', 'Info.plist');
 const ANDROID_ROOT = path.join(ROOT, 'android');
 const ANDROID_STRINGS = path.join(
   ROOT,
@@ -23,30 +22,13 @@ const ANDROID_STRINGS = path.join(
 const ANDROID_MANIFEST = path.join(ROOT, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
 
 const VALID_TOKEN = '12345678901234567890';
-const TOKEN_KEY_BLOCK = `\t<key>FacebookClientToken</key>\n\t<string>${VALID_TOKEN}</string>\n`;
 
-function runVerify(args = []) {
+function runVerify(args = [], env = {}) {
   return spawnSync(process.execPath, [SCRIPT, ...args], {
     cwd: ROOT,
     encoding: 'utf8',
+    env: { ...process.env, ...env },
   });
-}
-
-function injectIosClientToken(plistXml) {
-  if (plistXml.includes('<key>FacebookClientToken</key>')) {
-    return plistXml.replace(
-      /<key>FacebookClientToken<\/key>\s*<string>[^<]*<\/string>/,
-      `<key>FacebookClientToken</key>\n\t<string>${VALID_TOKEN}</string>`
-    );
-  }
-  return plistXml.replace(
-    /<key>FacebookAppID<\/key>\n\t<string>27941105858861495<\/string>/,
-    `<key>FacebookAppID</key>\n\t<string>27941105858861495</string>\n${TOKEN_KEY_BLOCK.trimStart()}`
-  );
-}
-
-function stripIosClientToken(plistXml) {
-  return plistXml.replace(/\t<key>FacebookClientToken<\/key>\s*<string>[^<]*<\/string>\s*\n?/g, '');
 }
 
 function writeAndroidFixture({ clientToken = VALID_TOKEN, appId = '27941105858861495' } = {}) {
@@ -79,47 +61,31 @@ function removeAndroidTree() {
 }
 
 describe('verify-meta-native-release platform scoping', () => {
-  let originalPlist;
-
-  before(() => {
-    originalPlist = fs.readFileSync(IOS_PLIST, 'utf8');
-  });
-
   after(() => {
-    fs.writeFileSync(IOS_PLIST, originalPlist);
     removeAndroidTree();
   });
 
-  it('--ios succeeds without android/ when iOS Meta state is valid', () => {
+  it('--ios succeeds without android/ and without META_CLIENT_TOKEN', () => {
     removeAndroidTree();
     assert.equal(fs.existsSync(ANDROID_ROOT), false);
-    fs.writeFileSync(IOS_PLIST, injectIosClientToken(originalPlist));
-    const r = runVerify(['--ios']);
+    const r = runVerify(['--ios'], { META_CLIENT_TOKEN: '' });
     if (r.status !== 0) {
       throw new Error((r.stdout || '') + (r.stderr || ''));
     }
     assert.match(r.stdout, /Platform: iOS/);
     assert.doesNotMatch(r.stdout, /Platform: Android/);
     assert.doesNotMatch(r.stderr || r.stdout, /strings\.xml not found/);
+    assert.doesNotMatch(r.stderr + r.stdout, /FacebookClientToken/);
   });
 
-  it('--ios fails when iOS FacebookClientToken is missing', () => {
-    removeAndroidTree();
-    fs.writeFileSync(IOS_PLIST, stripIosClientToken(originalPlist));
-    const r = runVerify(['--ios']);
-    assert.notEqual(r.status, 0);
-    assert.match(r.stderr + r.stdout, /FacebookClientToken/);
-  });
-
-  it('--android does not require generated iOS client token checks', () => {
-    fs.writeFileSync(IOS_PLIST, stripIosClientToken(originalPlist));
+  it('--android does not require iOS Meta native checks', () => {
     writeAndroidFixture();
     const r = runVerify(['--android']);
     if (r.status !== 0) {
       throw new Error((r.stdout || '') + (r.stderr || ''));
     }
     assert.match(r.stdout, /Platform: Android/);
-    assert.doesNotMatch(r.stdout, /iOS no-ATT/);
+    assert.doesNotMatch(r.stdout, /no-Meta-native gates verified/);
   });
 
   it('--android fails for missing or invalid facebook_client_token', () => {
@@ -131,7 +97,6 @@ describe('verify-meta-native-release platform scoping', () => {
 
   it('no platform flag still verifies both (fails when android/ missing)', () => {
     removeAndroidTree();
-    fs.writeFileSync(IOS_PLIST, injectIosClientToken(originalPlist));
     const r = runVerify([]);
     assert.notEqual(r.status, 0);
     assert.match(r.stderr + r.stdout, /strings\.xml|Android/);
@@ -152,5 +117,7 @@ describe('verify-meta-native-release platform scoping', () => {
     );
     const prep = fs.readFileSync(path.join(ROOT, 'scripts/ios-release-prepare.mjs'), 'utf8');
     assert.match(prep, /verify-meta-native-release\.mjs --ios/);
+    assert.doesNotMatch(prep, /requires META_CLIENT_TOKEN/);
+    assert.doesNotMatch(prep, /if \(!process\.env\.META_CLIENT_TOKEN/);
   });
 });

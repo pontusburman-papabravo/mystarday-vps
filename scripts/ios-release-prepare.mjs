@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fail-closed iOS release prepare — requires META_CLIENT_TOKEN before cap sync + verifiers.
+ * Fail-closed iOS release prepare — cap sync + verifiers (no META_CLIENT_TOKEN on iOS 1.4).
  */
 import { execSync } from 'child_process';
 import fs from 'fs';
@@ -8,11 +8,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-
-if (!process.env.META_CLIENT_TOKEN || !String(process.env.META_CLIENT_TOKEN).trim()) {
-  console.error('\n❌ ios:release:prepare requires META_CLIENT_TOKEN (Facebook native app token).\n');
-  process.exit(1);
-}
 
 const iosPodfile = path.join(ROOT, 'ios', 'App', 'Podfile');
 if (!fs.existsSync(iosPodfile)) {

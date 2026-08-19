@@ -58,6 +58,12 @@ if (ATT_POD.test(content)) {
   console.log('Removed CapacitorPluginAppTrackingTransparency from iOS Podfile (no ATT / no IDFA).');
 }
 
+const META_POD = /^\s*pod 'CapacitorFacebookEvents'.*\n/m;
+if (META_POD.test(content)) {
+  content = content.replace(META_POD, '');
+  console.log('Removed CapacitorFacebookEvents from iOS Podfile (iOS 1.4 NO-TRACKING — no Meta native SDK).');
+}
+
 const hasQuotedFix = content.includes('CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER');
 const hasSandboxFix = content.includes('ENABLE_USER_SCRIPT_SANDBOXING');
 const hasSaveFix = content.includes('user_project.save');

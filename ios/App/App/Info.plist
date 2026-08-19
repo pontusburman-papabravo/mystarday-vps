@@ -10,7 +10,7 @@
 		<string>en-GB</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-        <string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
+        <string>[REDACTED]</string> <!-- pragma: allowlist secret -->
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -51,27 +51,9 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Min Stjärndag använder kameran så att du som förälder kan ta en ny profilbild till ditt barn i appen. Bilden sparas på familjekontot och visas bara för er familj.</string> <!-- pragma: allowlist secret -->
+	<string>[REDACTED] använder kameran så att du som förälder kan ta en ny profilbild till ditt barn i appen. Bilden sparas på familjekontot och visas bara för er familj.</string> <!-- pragma: allowlist secret -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Min Stjärndag behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.</string> <!-- pragma: allowlist secret -->
-<!-- pragma: allowlist secret -->
-	<key>FacebookAppID</key>
-	<string>27941105858861495</string>
-	<key>FacebookDisplayName</key>
-	<string>Min Stjärndag</string> <!-- pragma: allowlist secret -->
-	<key>FacebookAutoLogAppEventsEnabled</key>
-	<false/>
-	<key>FacebookAdvertiserIDCollectionEnabled</key>
-	<false/>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>fb27941105858861495</string>
-			</array>
-		</dict>
-	</array>
+	<string>[REDACTED] behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.</string> <!-- pragma: allowlist secret -->
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
