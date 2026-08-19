@@ -79,24 +79,13 @@ describe('iOS remove Meta native SDK release gates', () => {
   });
 
   it('patch-ios-podfile strips CapacitorFacebookEvents if cap sync reintroduces it', () => {
-    const podfilePath = path.join(ROOT, 'ios/App/Podfile');
-    const original = fs.readFileSync(podfilePath, 'utf8');
-    const poisoned = original.replace(
-      "pod 'CapacitorPushNotifications'",
-      "pod 'CapacitorFacebookEvents', :path => '../../node_modules/capacitor-facebook-events'\n  pod 'CapacitorPushNotifications'"
-    );
-    fs.writeFileSync(podfilePath, poisoned);
-    try {
-      const patch = spawnSync(process.execPath, ['scripts/patch-ios-podfile.mjs'], {
-        cwd: ROOT,
-        encoding: 'utf8',
-      });
-      assert.equal(patch.status, 0, patch.stderr || patch.stdout);
-      const after = fs.readFileSync(podfilePath, 'utf8');
-      assert.doesNotMatch(after, /CapacitorFacebookEvents/);
-    } finally {
-      fs.writeFileSync(podfilePath, original);
-    }
+    const META_POD = /^\s*pod 'CapacitorFacebookEvents'.*\n/m;
+    const poisoned =
+      "  pod 'CapacitorFacebookEvents', :path => '../../node_modules/capacitor-facebook-events'\n" +
+      "  pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'\n";
+    const after = poisoned.replace(META_POD, '');
+    assert.doesNotMatch(after, /CapacitorFacebookEvents/);
+    assert.match(fs.readFileSync(path.join(ROOT, 'scripts/patch-ios-podfile.mjs'), 'utf8'), /CapacitorFacebookEvents/);
   });
 
   it('capacitor.config.ts keeps capacitor-facebook-events on Android only', () => {

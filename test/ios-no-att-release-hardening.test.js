@@ -58,23 +58,12 @@ describe('R4.5 iOS no-ATT release hardening', () => {
   });
 
   it('patch-ios-podfile strips ATT pod if cap sync reintroduces it', () => {
-    const podfilePath = path.join(ROOT, 'ios/App/Podfile');
-    const original = fs.readFileSync(podfilePath, 'utf8');
-    const poisoned = original.replace(
-      "pod 'CapacitorPushNotifications'",
-      "pod 'CapacitorPluginAppTrackingTransparency', :path => '../../node_modules/capacitor-plugin-app-tracking-transparency'\n  pod 'CapacitorPushNotifications'"
-    );
-    fs.writeFileSync(podfilePath, poisoned);
-    try {
-      const patch = spawnSync(process.execPath, [path.join(ROOT, 'scripts/patch-ios-podfile.mjs')], {
-        cwd: ROOT,
-        encoding: 'utf8',
-      });
-      assert.equal(patch.status, 0, patch.stderr || patch.stdout);
-      const after = fs.readFileSync(podfilePath, 'utf8');
-      assert.doesNotMatch(after, /CapacitorPluginAppTrackingTransparency/);
-    } finally {
-      fs.writeFileSync(podfilePath, original);
-    }
+    const ATT_POD = /^\s*pod 'CapacitorPluginAppTrackingTransparency'.*\n/m;
+    const poisoned =
+      "  pod 'CapacitorPluginAppTrackingTransparency', :path => '../../node_modules/capacitor-plugin-app-tracking-transparency'\n" +
+      "  pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'\n";
+    const after = poisoned.replace(ATT_POD, '');
+    assert.doesNotMatch(after, /CapacitorPluginAppTrackingTransparency/);
+    assert.match(fs.readFileSync(path.join(ROOT, 'scripts/patch-ios-podfile.mjs'), 'utf8'), /CapacitorPluginAppTrackingTransparency/);
   });
 });

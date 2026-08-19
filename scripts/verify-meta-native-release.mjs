@@ -162,7 +162,11 @@ function verifyAndroidGates() {
 
 const { verifyIos, verifyAndroid } = parsePlatformFlags(process.argv.slice(2));
 
-verifyFacebookPrivacyPatch();
+if (verifyIos && !verifyAndroid) {
+  ok('iOS-only verify: skip node_modules FacebookEvents privacy check (no Meta native SDK on iOS)');
+} else {
+  verifyFacebookPrivacyPatch();
+}
 
 if (verifyIos) {
   verifyIosGates();

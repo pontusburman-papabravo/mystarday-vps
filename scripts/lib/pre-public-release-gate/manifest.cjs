@@ -153,7 +153,7 @@ const ANDROID_UNIT = [
 ];
 
 const IOS_UNIT = [
-  'test/ios-att-tracking.test.js',
+  'test/ios-remove-meta-native-sdk.test.js',
   'test/ios-no-att-release-hardening.test.js',
   'test/ios-swedish-localization.test.js',
 ];
