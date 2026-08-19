@@ -1,9 +1,8 @@
 'use strict';
 
 /**
- * English parent/auth (english_app) — go live for all families.
+ * English i18n (parent + child) — go live for all families.
  * Prod already has english_app_global_enabled ON (skolstart audit 2026-08-17).
- * english_child_experience stays dev until Child Core device QA (ADR-021, i18n plan).
  */
 
 module.exports = {
@@ -12,14 +11,14 @@ module.exports = {
   up: async (client) => {
     await client.query(`
       UPDATE features SET status = 'live', updated_at = NOW()
-      WHERE slug = 'english_app'
+      WHERE slug IN ('english_app', 'english_child_experience')
     `);
   },
 
   down: async (client) => {
     await client.query(`
       UPDATE features SET status = 'dev', updated_at = NOW()
-      WHERE slug = 'english_app'
+      WHERE slug IN ('english_app', 'english_child_experience')
     `);
   },
 };

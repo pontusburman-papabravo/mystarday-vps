@@ -315,7 +315,7 @@ test('english_language_offer OFF keeps English access when global ON', async (t)
   }
 });
 
-test('child experience still requires english_child_experience when global ON', async (t) => {
+test('child experience gated when feature status dev (rollback path)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -346,6 +346,36 @@ test('child experience still requires english_child_experience when global ON', 
       await pg.query('DELETE FROM family_features WHERE family_id = $1', [familyId]);
       await pg.query('DELETE FROM family WHERE id = $1', [familyId]);
     }
+    await db.cleanup();
+  }
+});
+
+test('child experience live: en-GB family gets child_en without family_features row', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  const { isEnglishChildExperienceEnabled } = require('../src/lib/i18n-flags');
+  const { resolveChildUiLocale } = require('../src/lib/child-ui-locale');
+  let familyId;
+
+  try {
+    await pg.query(
+      `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
+       VALUES
+         ('english_app', 'English app', 'Parent/auth en-GB', 'live', '{i18n}', 'high', 5, 8),
+         ('english_child_experience', 'English child pack', 'child_en', 'live', '{i18n}', 'high', 5, 8)
+       ON CONFLICT (slug) DO UPDATE SET status = 'live', updated_at = NOW()`
+    );
+    await setGlobalFlag(pg, true);
+    familyId = await createFamily(pg, 'en-GB');
+
+    assert.equal(await isEnglishChildExperienceEnabled(familyId), true);
+    assert.equal(resolveChildUiLocale('en-GB', true), 'en-GB');
+  } finally {
+    if (familyId) await pg.query('DELETE FROM family WHERE id = $1', [familyId]);
     await db.cleanup();
   }
 });
