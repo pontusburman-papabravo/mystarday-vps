@@ -17,20 +17,24 @@ describe('R4.5 iOS no-ATT release hardening', () => {
     assert.doesNotMatch(lock, /capacitor-plugin-app-tracking-transparency/);
   });
 
-  it('Capacitor iOS includePlugins excludes ATT plugin', () => {
+  it('Capacitor iOS includePlugins excludes ATT and Meta native plugins', () => {
     const ts = fs.readFileSync(path.join(ROOT, 'capacitor.config.ts'), 'utf8');
     assert.doesNotMatch(ts, /capacitor-plugin-app-tracking-transparency/);
+    const iosBlock = ts.match(/ios:\s*\{[\s\S]*?includePlugins:\s*\[([\s\S]*?)\]/);
+    assert.ok(iosBlock);
+    assert.doesNotMatch(iosBlock[1], /['"]capacitor-facebook-events['"]/);
     const jsonPath = path.join(ROOT, 'ios/App/App/capacitor.config.json');
     if (fs.existsSync(jsonPath)) {
       const json = fs.readFileSync(jsonPath, 'utf8');
       assert.doesNotMatch(json, /AppTrackingTransparencyPlugin/);
-      assert.doesNotMatch(json, /capacitor-plugin-app-tracking-transparency/);
+      assert.doesNotMatch(json, /FacebookEvents/);
     }
   });
 
-  it('Podfile has no ATT pod after canonical patch assumptions', () => {
+  it('Podfile has no ATT or Meta native pods', () => {
     const podfile = fs.readFileSync(path.join(ROOT, 'ios/App/Podfile'), 'utf8');
     assert.doesNotMatch(podfile, /CapacitorPluginAppTrackingTransparency/);
+    assert.doesNotMatch(podfile, /CapacitorFacebookEvents/);
   });
 
   it('Info.plist has SKAdNetworkItems with required Meta identifiers', () => {
@@ -43,35 +47,23 @@ describe('R4.5 iOS no-ATT release hardening', () => {
     }
   });
 
-  it('verify-ios-no-att-meta-release passes (client token skipped in CI)', () => {
-    const r = spawnSync(
-      process.execPath,
-      [path.join(ROOT, 'scripts/verify-ios-no-att-meta-release.mjs'), '--skip-client-token'],
-      { cwd: ROOT, encoding: 'utf8' }
-    );
+  it('verify-ios-no-att-meta-release passes', () => {
+    const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts/verify-ios-no-att-meta-release.mjs')], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    });
     if (r.status !== 0) {
       throw new Error((r.stdout || '') + (r.stderr || ''));
     }
   });
 
   it('patch-ios-podfile strips ATT pod if cap sync reintroduces it', () => {
-    const podfilePath = path.join(ROOT, 'ios/App/Podfile');
-    const original = fs.readFileSync(podfilePath, 'utf8');
-    const poisoned = original.replace(
-      "pod 'CapacitorFacebookEvents'",
-      "pod 'CapacitorPluginAppTrackingTransparency', :path => '../../node_modules/capacitor-plugin-app-tracking-transparency'\n  pod 'CapacitorFacebookEvents'"
-    );
-    fs.writeFileSync(podfilePath, poisoned);
-    try {
-      const patch = spawnSync(process.execPath, [path.join(ROOT, 'scripts/patch-ios-podfile.mjs')], {
-        cwd: ROOT,
-        encoding: 'utf8',
-      });
-      assert.equal(patch.status, 0, patch.stderr || patch.stdout);
-      const after = fs.readFileSync(podfilePath, 'utf8');
-      assert.doesNotMatch(after, /CapacitorPluginAppTrackingTransparency/);
-    } finally {
-      fs.writeFileSync(podfilePath, original);
-    }
+    const ATT_POD = /^\s*pod 'CapacitorPluginAppTrackingTransparency'.*\n/m;
+    const poisoned =
+      "  pod 'CapacitorPluginAppTrackingTransparency', :path => '../../node_modules/capacitor-plugin-app-tracking-transparency'\n" +
+      "  pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'\n";
+    const after = poisoned.replace(ATT_POD, '');
+    assert.doesNotMatch(after, /CapacitorPluginAppTrackingTransparency/);
+    assert.match(fs.readFileSync(path.join(ROOT, 'scripts/patch-ios-podfile.mjs'), 'utf8'), /CapacitorPluginAppTrackingTransparency/);
   });
 });

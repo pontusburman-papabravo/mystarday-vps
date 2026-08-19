@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 /**
  * Pre-upload gate for Meta App Events native release.
- * Confirms privacy patch + client token presence WITHOUT printing secret values.
+ * iOS 1.4: verifies NO Meta native SDK (Android still requires Meta token + SDK).
  *
- * Usage (after cap:sync with META_CLIENT_TOKEN set):
+ * Usage:
  *   node scripts/verify-meta-native-release.mjs           # both platforms (default)
- *   node scripts/verify-meta-native-release.mjs --ios   # iOS only (no android/ required)
- *   node scripts/verify-meta-native-release.mjs --android # Android only
- *   node scripts/verify-meta-native-release.mjs --ios --android  # both explicitly
- *
- * Exit 0 = safe to proceed to Archive / AAB upload.
- * Exit 1 = STOP — do not ship.
+ *   node scripts/verify-meta-native-release.mjs --ios   # iOS no-Meta-native gates
+ *   node scripts/verify-meta-native-release.mjs --android # Android Meta gates
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,13 +18,12 @@ const ROOT = path.resolve(__dirname, '..');
 
 const USAGE = `Usage: node scripts/verify-meta-native-release.mjs [--ios] [--android]
 
-  --ios      Verify iOS Meta/privacy gates only (no android/ tree required)
+  --ios      Verify iOS NO-TRACKING gates (no Meta native SDK in shipped app)
   --android  Verify Android Meta/privacy gates only
   (no flags) Verify both platforms (backward compatible)
 
 Unknown arguments are rejected (fail-closed).`;
 
-const IOS_PLIST = path.join(ROOT, 'ios', 'App', 'App', 'Info.plist');
 const ANDROID_STRINGS = path.join(
   ROOT,
   'android',
@@ -40,7 +35,6 @@ const ANDROID_STRINGS = path.join(
   'strings.xml'
 );
 const ANDROID_MANIFEST = path.join(ROOT, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
-const APP_DELEGATE = path.join(ROOT, 'ios', 'App', 'App', 'AppDelegate.swift');
 
 let failed = false;
 
@@ -83,31 +77,6 @@ function secretPresent(label, value) {
   return true;
 }
 
-function readPlistString(plistPath, key) {
-  if (!fs.existsSync(plistPath)) {
-    fail(`Info.plist not found at ${path.relative(ROOT, plistPath)}`);
-    return '';
-  }
-  const r = spawnSync(
-    'plutil',
-    ['-extract', key, 'raw', '-o', '-', plistPath],
-    { encoding: 'utf8' }
-  );
-  if (r.status === 0 && r.stdout) {
-    return r.stdout.trim();
-  }
-  // Fallback: regex parse (no plutil on some CI)
-  const xml = fs.readFileSync(plistPath, 'utf8');
-  const re = new RegExp(`<key>${key}</key>\\s*<string>([^<]*)</string>`);
-  const m = xml.match(re);
-  if (m) {
-    return m[1].trim();
-  }
-  const boolRe = new RegExp(`<key>${key}</key>\\s*<(true|false)\\/>`);
-  const bm = xml.match(boolRe);
-  return bm ? bm[1] : '';
-}
-
 function readAndroidString(stringsPath, name) {
   if (!fs.existsSync(stringsPath)) {
     fail(`strings.xml not found — run npm run cap:sync:android`);
@@ -117,54 +86,6 @@ function readAndroidString(stringsPath, name) {
   const re = new RegExp(`<string name="${name}">([^<]*)</string>`);
   const m = xml.match(re);
   return m ? m[1].trim() : '';
-}
-
-function checkIosPrivacyDefaults() {
-  if (!fs.existsSync(IOS_PLIST)) {
-    fail('iOS project missing');
-    return;
-  }
-  const plist = fs.readFileSync(IOS_PLIST, 'utf8');
-  if (!/FacebookAutoLogAppEventsEnabled<\/key>\s*<false\/>/.test(plist)) {
-    fail('iOS FacebookAutoLogAppEventsEnabled is not false');
-  } else {
-    ok('iOS AutoLog default false in Info.plist');
-  }
-  if (!/FacebookAdvertiserIDCollectionEnabled<\/key>\s*<false\/>/.test(plist)) {
-    fail('iOS FacebookAdvertiserIDCollectionEnabled is not false');
-  } else {
-    ok('iOS AdvertiserID default false in Info.plist');
-  }
-
-  if (fs.existsSync(APP_DELEGATE)) {
-    const delegate = fs.readFileSync(APP_DELEGATE, 'utf8');
-    const coordinatorPath = path.join(ROOT, 'ios', 'App', 'App', 'AttTrackingCoordinator.swift');
-    if (!delegate.includes('AttTrackingCoordinator.shared')) {
-      fail('AppDelegate missing AttTrackingCoordinator integration');
-    } else {
-      ok('AppDelegate uses AttTrackingCoordinator');
-    }
-    if (!fs.existsSync(coordinatorPath)) {
-      fail('AttTrackingCoordinator.swift missing from iOS target');
-    } else {
-      ok('AttTrackingCoordinator.swift present');
-    }
-    const plistContent = fs.readFileSync(IOS_PLIST, 'utf8');
-    if (plistContent.includes('NSUserTrackingUsageDescription')) {
-      fail('Info.plist must not declare NSUserTrackingUsageDescription (no cross-app tracking)');
-    } else {
-      ok('Info.plist has no ATT usage description');
-    }
-    const becomeActive = delegate.slice(
-      delegate.indexOf('func applicationDidBecomeActive'),
-      delegate.indexOf('func applicationWillTerminate')
-    );
-    if (!becomeActive.includes('isAutoLogAppEventsEnabled')) {
-      fail('AppDelegate activateApp not gated by isAutoLogAppEventsEnabled');
-    } else {
-      ok('AppDelegate activateApp gated by consent');
-    }
-  }
 }
 
 function checkAndroidPrivacyDefaults() {
@@ -207,7 +128,7 @@ function verifyFacebookPrivacyPatch() {
 }
 
 function verifyIosGates() {
-  console.log('[verify-meta-native-release] Platform: iOS');
+  console.log('[verify-meta-native-release] Platform: iOS (NO Meta native SDK)');
 
   const noAtt = spawnSync(
     process.execPath,
@@ -215,24 +136,12 @@ function verifyIosGates() {
     { cwd: ROOT, encoding: 'utf8' }
   );
   if (noAtt.status !== 0) {
-    fail('iOS no-ATT / SKAdNetwork release verification failed');
+    fail('iOS no-ATT / no-Meta-native release verification failed');
     if (noAtt.stderr) process.stderr.write(noAtt.stderr);
     if (noAtt.stdout) process.stdout.write(noAtt.stdout);
   } else {
-    ok('iOS no-ATT / SKAdNetwork gates verified');
+    ok('iOS no-ATT / no-Meta-native / SKAdNetwork gates verified');
   }
-
-  const iosToken = readPlistString(IOS_PLIST, 'FacebookClientToken');
-  secretPresent('iOS FacebookClientToken', iosToken);
-
-  const iosAppId = readPlistString(IOS_PLIST, 'FacebookAppID');
-  if (iosAppId !== '27941105858861495') {
-    fail(`iOS FacebookAppID unexpected: ${iosAppId || '(empty)'}`);
-  } else {
-    ok('iOS FacebookAppID matches');
-  }
-
-  checkIosPrivacyDefaults();
 }
 
 function verifyAndroidGates() {
@@ -253,7 +162,11 @@ function verifyAndroidGates() {
 
 const { verifyIos, verifyAndroid } = parsePlatformFlags(process.argv.slice(2));
 
-verifyFacebookPrivacyPatch();
+if (verifyIos && !verifyAndroid) {
+  ok('iOS-only verify: skip node_modules FacebookEvents privacy check (no Meta native SDK on iOS)');
+} else {
+  verifyFacebookPrivacyPatch();
+}
 
 if (verifyIos) {
   verifyIosGates();
@@ -273,5 +186,10 @@ const scope =
 console.log(
   `[verify-meta-native-release] All gates passed (${scope}). Proceed to device smoke, then store upload.`
 );
-console.log('[verify-meta-native-release] Meta Dashboard: keep IAP/subscription/trial auto-log OFF.');
+if (verifyIos) {
+  console.log('[verify-meta-native-release] iOS 1.4: Meta native SDK must stay absent from archive.');
+}
+if (verifyAndroid) {
+  console.log('[verify-meta-native-release] Meta Dashboard: keep IAP/subscription/trial auto-log OFF.');
+}
 process.exit(0);

@@ -32,7 +32,7 @@ const config: CapacitorConfig = {
       '@capacitor/camera',
       '@capacitor/push-notifications',
       '@revenuecat/purchases-capacitor',
-      'capacitor-facebook-events',
+      // Meta App Events native SDK is Android-only for iOS 1.4 NO-TRACKING release.
       'capacitor-widget-bridge',
       'capacitor-adult-biometric',
     ],

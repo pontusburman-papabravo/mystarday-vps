@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * Release gate: no ATT / no IDFA, Meta privacy defaults, SKAdNetwork present.
- * Does not print META_CLIENT_TOKEN or FacebookClientToken values.
+ * Release gate: iOS 1.4 NO-TRACKING — no ATT, no Meta native SDK, SKAdNetwork retained.
  *
- * Usage: node scripts/verify-ios-no-att-meta-release.mjs [--skip-client-token]
+ * Usage: node scripts/verify-ios-no-att-meta-release.mjs
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,6 +21,7 @@ const PATHS = {
   skadConfig: path.join(ROOT, 'config', 'meta-skadnetwork.json'),
   appDelegate: path.join(ROOT, 'ios', 'App', 'App', 'AppDelegate.swift'),
   coordinator: path.join(ROOT, 'ios', 'App', 'App', 'AttTrackingCoordinator.swift'),
+  pbxproj: path.join(ROOT, 'ios', 'App', 'App.xcodeproj', 'project.pbxproj'),
 };
 
 const FORBIDDEN_SUBSTRINGS = [
@@ -32,9 +32,22 @@ const FORBIDDEN_SUBSTRINGS = [
   'ATTrackingManager',
   'requestTrackingAuthorization',
   'AppTrackingTransparency.framework',
+  'CapacitorFacebookEvents',
+  'FBSDKCoreKit',
+  'FBAEMKit',
+  'import FBSDKCoreKit',
+  'ApplicationDelegate.shared',
+  'AppEvents.shared',
+  'AttTrackingCoordinator',
 ];
 
-const skipClientToken = process.argv.includes('--skip-client-token');
+const FORBIDDEN_PLIST_KEYS = [
+  'FacebookAppID',
+  'FacebookDisplayName',
+  'FacebookClientToken',
+  'FacebookAutoLogAppEventsEnabled',
+  'FacebookAdvertiserIDCollectionEnabled',
+];
 
 let failed = false;
 
@@ -63,12 +76,12 @@ function assertNoForbidden(haystack, label) {
   }
 }
 
-// npm dependency absent
+// npm ATT dependency absent
 const pkg = readUtf8(PATHS.packageJson, 'package.json');
 if (pkg && pkg.includes('capacitor-plugin-app-tracking-transparency')) {
   fail('package.json still lists capacitor-plugin-app-tracking-transparency');
 } else if (pkg) {
-  ok('npm dependency absent from package.json');
+  ok('npm ATT dependency absent from package.json');
 }
 
 const lock = readUtf8(PATHS.packageLock, 'package-lock.json');
@@ -80,17 +93,27 @@ if (lock && lock.includes('capacitor-plugin-app-tracking-transparency')) {
 
 const capTs = readUtf8(PATHS.capacitorTs, 'capacitor.config.ts');
 if (capTs) {
-  assertNoForbidden(capTs, 'capacitor.config.ts');
-  if (!failed) ok('capacitor.config.ts has no ATT plugin registration');
+  const iosPluginsBlock = capTs.match(/ios:\s*\{[\s\S]*?includePlugins:\s*\[([\s\S]*?)\]/);
+  const iosPlugins = iosPluginsBlock ? iosPluginsBlock[1] : '';
+  if (/['"]capacitor-facebook-events['"]/.test(iosPlugins)) {
+    fail('capacitor.config.ts still includes capacitor-facebook-events in iOS includePlugins');
+  } else {
+    ok('capacitor.config.ts excludes capacitor-facebook-events from iOS includePlugins');
+  }
+  if (/capacitor-plugin-app-tracking-transparency/.test(capTs)) {
+    fail('capacitor.config.ts references capacitor-plugin-app-tracking-transparency');
+  }
 }
 
 if (fs.existsSync(PATHS.capacitorJson)) {
   const capJson = fs.readFileSync(PATHS.capacitorJson, 'utf8');
   assertNoForbidden(capJson, 'ios/App/App/capacitor.config.json');
-  if (!capJson.includes('capacitor-widget-bridge')) {
+  if (capJson.includes('FacebookEvents')) {
+    fail('capacitor.config.json still registers FacebookEvents plugin');
+  } else if (!capJson.includes('capacitor-widget-bridge')) {
     fail('capacitor.config.json missing capacitor-widget-bridge (widget regression)');
   } else if (!failed) {
-    ok('iOS Capacitor config has no ATT plugin');
+    ok('iOS Capacitor config has no Meta native plugin');
   }
 } else {
   ok('capacitor.config.json absent until cap sync ios (canonical source: capacitor.config.ts)');
@@ -99,7 +122,7 @@ if (fs.existsSync(PATHS.capacitorJson)) {
 const podfile = readUtf8(PATHS.podfile, 'Podfile');
 if (podfile) {
   assertNoForbidden(podfile, 'Podfile');
-  if (!failed) ok('Podfile has no ATT pod');
+  if (!failed) ok('Podfile has no ATT or Meta native pods');
 }
 
 const plist = readUtf8(PATHS.infoPlist, 'Info.plist');
@@ -109,16 +132,12 @@ if (plist) {
   } else {
     ok('NSUserTrackingUsageDescription absent');
   }
-  if (!/FacebookAutoLogAppEventsEnabled<\/key>\s*<false\/>/.test(plist)) {
-    fail('FacebookAutoLogAppEventsEnabled is not false');
-  } else {
-    ok('FacebookAutoLogAppEventsEnabled false');
+  for (const key of FORBIDDEN_PLIST_KEYS) {
+    if (plist.includes(`<key>${key}</key>`)) {
+      fail(`Info.plist still declares ${key} (Meta native SDK config)`);
+    }
   }
-  if (!/FacebookAdvertiserIDCollectionEnabled<\/key>\s*<false\/>/.test(plist)) {
-    fail('FacebookAdvertiserIDCollectionEnabled is not false');
-  } else {
-    ok('FacebookAdvertiserIDCollectionEnabled false');
-  }
+  if (!failed) ok('Facebook SDK plist keys absent');
   if (!plist.includes('<key>SKAdNetworkItems</key>')) {
     fail('Info.plist missing SKAdNetworkItems — run patch-ios-skadnetwork.mjs');
   } else {
@@ -141,43 +160,39 @@ if (plist && requiredIds.length) {
     }
     seen.add(id);
   }
-  const idRe = /<key>SKAdNetworkIdentifier<\/key>\s*<string>([^<]+)<\/string>/g;
-  const plistIds = [];
-  let m;
-  while ((m = idRe.exec(inner)) !== null) {
-    const v = m[1].trim().toLowerCase();
-    if (plistIds.includes(v)) {
-      fail(`duplicate SKAdNetwork identifier in Info.plist: ${v}`);
-    }
-    plistIds.push(v);
-  }
   if (!failed) ok(`required Meta SKAdNetwork identifiers present (${requiredIds.length})`);
 }
 
-for (const [label, filePath] of [
-  ['AppDelegate.swift', PATHS.appDelegate],
-  ['AttTrackingCoordinator.swift', PATHS.coordinator],
-]) {
-  const src = readUtf8(filePath, label);
-  if (src) {
-    assertNoForbidden(src, label);
-    if (!failed) ok(`${label} has no ATT APIs`);
+const delegate = readUtf8(PATHS.appDelegate, 'AppDelegate.swift');
+if (delegate) {
+  assertNoForbidden(delegate, 'AppDelegate.swift');
+  if (!delegate.includes('ApplicationDelegateProxy.shared')) {
+    fail('AppDelegate.swift missing Capacitor URL/deep-link handling');
+  } else if (!failed) {
+    ok('AppDelegate.swift is Capacitor-only (no Meta native SDK)');
   }
 }
 
-// Client token presence without printing value
-if (plist && !skipClientToken) {
-  const tokenMatch = plist.match(/<key>FacebookClientToken<\/key>\s*<string>([^<]*)<\/string>/);
-  const token = tokenMatch ? tokenMatch[1].trim() : '';
-  if (!token || token.length < 8) {
-    fail(
-      'FacebookClientToken missing or too short — set META_CLIENT_TOKEN before release cap:sync:ios'
-    );
-  } else {
-    ok(`FacebookClientToken present (length ${token.length}, value redacted)`);
-  }
-} else if (plist && skipClientToken) {
-  ok('FacebookClientToken check skipped (--skip-client-token)');
+if (fs.existsSync(PATHS.coordinator)) {
+  fail('AttTrackingCoordinator.swift must be removed for iOS 1.4 NO-TRACKING');
+} else {
+  ok('AttTrackingCoordinator.swift absent');
+}
+
+const pbx = readUtf8(PATHS.pbxproj, 'project.pbxproj');
+if (pbx && pbx.includes('AttTrackingCoordinator.swift')) {
+  fail('project.pbxproj still references AttTrackingCoordinator.swift');
+} else if (pbx) {
+  ok('project.pbxproj has no AttTrackingCoordinator target reference');
+}
+
+const capSync = pkg ? JSON.parse(pkg).scripts['cap:sync:ios'] || '' : '';
+if (capSync.includes('patch-ios-facebook-sdk.mjs')) {
+  fail('cap:sync:ios still runs patch-ios-facebook-sdk.mjs');
+} else if (capSync.includes('patch-ios-remove-meta-native.mjs')) {
+  ok('cap:sync:ios runs patch-ios-remove-meta-native.mjs');
+} else if (pkg) {
+  fail('cap:sync:ios missing patch-ios-remove-meta-native.mjs');
 }
 
 console.log('');

@@ -231,27 +231,20 @@ describe('MetaAppEvents privacy gate', () => {
     );
   });
 
-  it('9) native defaults in repo are privacy-safe without JS', () => {
+  it('9) iOS ships no Meta native SDK; Android privacy patches remain', () => {
     const plist = fs.readFileSync(path.join(ROOT, 'ios/App/App/Info.plist'), 'utf8');
-    assert.match(plist, /FacebookAutoLogAppEventsEnabled<\/key>\s*<false\/>/);
-    assert.match(plist, /FacebookAdvertiserIDCollectionEnabled<\/key>\s*<false\/>/);
+    assert.doesNotMatch(plist, /<key>FacebookAppID<\/key>/);
+    assert.doesNotMatch(plist, /<key>FacebookClientToken<\/key>/);
 
     const delegate = fs.readFileSync(path.join(ROOT, 'ios/App/App/AppDelegate.swift'), 'utf8');
-    const coordinator = fs.readFileSync(path.join(ROOT, 'ios/App/App/AttTrackingCoordinator.swift'), 'utf8');
-    assert.match(delegate, /AttTrackingCoordinator\.shared\.applyStartupPrivacyDefaults/);
-    assert.match(delegate, /AttTrackingCoordinator\.shared\.applyMetaSettingsForCurrentAttStatus/);
-    assert.match(coordinator, /msd_meta_marketing_consent/);
-    assert.match(coordinator, /applyMetaSettingsForCurrentAttStatus/);
-    // Must not call activateApp() outside the consent gate.
-    const becomeActive = delegate.slice(
-      delegate.indexOf('func applicationDidBecomeActive'),
-      delegate.indexOf('func applicationWillTerminate')
-    );
-    assert.match(becomeActive, /isAutoLogAppEventsEnabled/);
-    assert.equal((becomeActive.match(/activateApp\(\)/g) || []).length, 1);
+    assert.doesNotMatch(delegate, /FBSDKCoreKit/);
+    assert.doesNotMatch(delegate, /AttTrackingCoordinator/);
+    assert.match(delegate, /ApplicationDelegateProxy\.shared/);
+    assert.equal(fs.existsSync(path.join(ROOT, 'ios/App/App/AttTrackingCoordinator.swift')), false);
 
-    const iosPatch = fs.readFileSync(path.join(ROOT, 'scripts/patch-ios-facebook-sdk.mjs'), 'utf8');
-    assert.match(iosPatch, /FacebookAutoLogAppEventsEnabled', false/);
+    const pkg = fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8');
+    assert.match(pkg, /patch-ios-remove-meta-native\.mjs/);
+    assert.doesNotMatch(pkg, /patch-ios-facebook-sdk\.mjs/);
 
     const androidPatch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-facebook-sdk.mjs'), 'utf8');
     assert.match(androidPatch, /AutoLogAppEventsEnabled', 'false'/);

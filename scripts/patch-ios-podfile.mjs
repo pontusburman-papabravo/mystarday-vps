@@ -13,6 +13,10 @@ import path from 'path';
 
 const podfilePath = path.join(process.cwd(), 'ios', 'App', 'Podfile');
 
+const PODFILE_PLATFORM = '15.0';
+const PODFILE_PLATFORM_LINE = `platform :ios, '${PODFILE_PLATFORM}'`;
+const PODFILE_PLATFORM_RE = /^platform :ios, ['"][\d.]+['"]/m;
+
 const POST_INSTALL_BLOCK = `
   installer.pods_project.build_configurations.each do |config|
     config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
@@ -56,6 +60,21 @@ const ATT_POD =
 if (ATT_POD.test(content)) {
   content = content.replace(ATT_POD, '');
   console.log('Removed CapacitorPluginAppTrackingTransparency from iOS Podfile (no ATT / no IDFA).');
+}
+
+const META_POD = /^\s*pod 'CapacitorFacebookEvents'.*\n/m;
+if (META_POD.test(content)) {
+  content = content.replace(META_POD, '');
+  console.log('Removed CapacitorFacebookEvents from iOS Podfile (iOS 1.4 NO-TRACKING — no Meta native SDK).');
+}
+
+if (!PODFILE_PLATFORM_RE.test(content)) {
+  console.error('[patch-ios-podfile] Could not find platform :ios line in Podfile.');
+  process.exit(1);
+}
+if (!content.includes(PODFILE_PLATFORM_LINE)) {
+  content = content.replace(PODFILE_PLATFORM_RE, PODFILE_PLATFORM_LINE);
+  console.log(`[patch-ios-podfile] Set Podfile platform to iOS ${PODFILE_PLATFORM}.`);
 }
 
 const hasQuotedFix = content.includes('CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER');

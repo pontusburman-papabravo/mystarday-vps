@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Merge Meta-required SKAdNetwork identifiers into ios/App/App/Info.plist.
- * Run after patch-ios-info-plist.mjs / patch-ios-facebook-sdk.mjs on every cap:sync:ios.
+ * Run after patch-ios-info-plist.mjs / patch-ios-remove-meta-native.mjs on every cap:sync:ios.
  *
  * Source of truth: config/meta-skadnetwork.json (Meta official SKAdNetwork doc URL inside).
  */
