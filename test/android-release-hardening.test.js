@@ -10,8 +10,22 @@ const ROOT = path.join(__dirname, '..');
 describe('R4.5 Android release hardening', () => {
   it('MainActivity patch enables WebView debugging only in DEBUG builds', () => {
     const patch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-main-activity.mjs'), 'utf8');
-    assert.match(patch, /BuildConfig\.DEBUG/);
-    assert.match(patch, /if \(BuildConfig\.DEBUG\)[\s\S]*setWebContentsDebuggingEnabled\(true\)/);
+    assert.match(patch, /ApplicationInfo\.FLAG_DEBUGGABLE/);
+    assert.match(
+      patch,
+      /getApplicationInfo\(\)\.flags & ApplicationInfo\.FLAG_DEBUGGABLE[\s\S]*setWebContentsDebuggingEnabled\(true\)/
+    );
+  });
+
+  it('MainActivity patch must not reference BuildConfig (compile blocker in release AAB)', () => {
+    const patch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-main-activity.mjs'), 'utf8');
+    assert.doesNotMatch(patch, /BuildConfig/);
+    const verify = fs.readFileSync(
+      path.join(ROOT, 'scripts/verify-android-release-hardening.mjs'),
+      'utf8'
+    );
+    assert.match(verify, /BuildConfig[\s\S]*fail|fail[\s\S]*BuildConfig/);
+    assert.match(verify, /ApplicationInfo\.FLAG_DEBUGGABLE/);
   });
 
   it('Meta Android privacy patch never ties Advertising ID to marketing consent', () => {

@@ -17,11 +17,18 @@ function ok(msg) {
   console.log(`[verify-android-release-hardening] OK: ${msg}`);
 }
 
+const DEBUG_GUARD = 'ApplicationInfo.FLAG_DEBUGGABLE';
+
 const patchMain = path.join(ROOT, 'scripts', 'patch-android-main-activity.mjs');
 const patchSrc = fs.readFileSync(patchMain, 'utf8');
-if (!patchSrc.includes('BuildConfig.DEBUG')) {
-  fail('patch-android-main-activity.mjs must gate WebView debugging on BuildConfig.DEBUG');
-} else if (patchSrc.includes('setWebContentsDebuggingEnabled(true);') && !patchSrc.includes('if (BuildConfig.DEBUG)')) {
+if (patchSrc.includes('BuildConfig')) {
+  fail('patch-android-main-activity.mjs must not use BuildConfig — not available in Capacitor namespace');
+} else if (!patchSrc.includes(DEBUG_GUARD)) {
+  fail('patch-android-main-activity.mjs must gate WebView debugging on ApplicationInfo.FLAG_DEBUGGABLE');
+} else if (
+  patchSrc.includes('setWebContentsDebuggingEnabled(true);') &&
+  !patchSrc.includes('getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE')
+) {
   fail('patch-android-main-activity.mjs enables WebView debugging unconditionally');
 } else {
   ok('MainActivity patch is DEBUG-only');
@@ -44,11 +51,13 @@ if (fs.existsSync(gradlePath)) {
     );
     if (fs.existsSync(main)) {
       const mainSrc = fs.readFileSync(main, 'utf8');
-      if (!mainSrc.includes('BuildConfig.DEBUG')) {
-        fail('MainActivity.java missing BuildConfig.DEBUG guard — run cap:sync:android');
+      if (mainSrc.includes('BuildConfig')) {
+        fail('MainActivity.java must not use BuildConfig — run cap:sync:android');
+      } else if (!mainSrc.includes(DEBUG_GUARD)) {
+        fail('MainActivity.java missing ApplicationInfo.FLAG_DEBUGGABLE guard — run cap:sync:android');
       } else if (
         /setWebContentsDebuggingEnabled\s*\(\s*true\s*\)/.test(mainSrc) &&
-        !mainSrc.includes('if (BuildConfig.DEBUG)')
+        !mainSrc.includes('getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE')
       ) {
         fail('MainActivity.java enables WebView debugging outside DEBUG guard');
       } else {

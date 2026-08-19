@@ -17,6 +17,7 @@ function mainActivityPath(namespace) {
 function buildMainActivitySource(namespace) {
   return `package ${namespace};
 
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
@@ -26,7 +27,7 @@ public class MainActivity extends BridgeActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // chrome://inspect only in debug builds — never in Play release.
-    if (BuildConfig.DEBUG) {
+    if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
   }
@@ -57,7 +58,7 @@ if (!fs.existsSync(main)) {
 
 const current = fs.readFileSync(main, 'utf8');
 if (current === expected) {
-  console.log('MainActivity.java already gates WebView debugging on BuildConfig.DEBUG');
+  console.log('MainActivity.java already gates WebView debugging on ApplicationInfo.FLAG_DEBUGGABLE');
 } else {
   fs.writeFileSync(main, expected);
   console.log('Patched MainActivity.java → WebView debugging DEBUG-only');
