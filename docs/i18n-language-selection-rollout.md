@@ -43,8 +43,8 @@ Whitelisted in `src/routes/analytics.js`: `language_choice_viewed`, `language_se
 
 | Flag | Role |
 |------|------|
-| `english_app` | Parent/auth en-GB surfaces for existing families; auto-granted on active en-GB choice |
-| `english_child_experience` | Separate gate for `child_en` pack (Child Core track) — **default OFF** |
+| `english_app` | Parent/auth en-GB surfaces — **live** for all families (migration `1810310000000`); auto-granted on active en-GB choice |
+| `english_child_experience` | English child pack (`child_en`) — **live** for all en-GB families (migration `1810310000000`) |
 | `engelsk_landingssida` | Public `/en` marketing landing only |
 | `english_language_offer` | Global kill switch (`feature_flag`) for existing-family offer only; registration choice unaffected |
 | `english_app_global_enabled` | Global English availability — all families may **select** en-GB when ON (default OFF); does not auto-change locale (ADR-021) |

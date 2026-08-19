@@ -2,7 +2,7 @@
 
 /**
  * English rollout flags — central gate for parent/auth en-GB (ADR-017, ADR-021).
- * See migration 1810000000002_english_i18n_feature_flags.
+ * Features seeded in 1810000000002; promoted live in 1810310000000_english_app_live.
  */
 
 const { hasAccess } = require('../../db/features');
@@ -41,8 +41,9 @@ async function canSelectEnglishLocale(familyId) {
 }
 
 /**
- * child_en is gated separately until the English child UX rollout is complete.
- * Requires parent English access AND english_child_experience for the family.
+ * Whether the family may use the English child pack (child_en).
+ * Feature is live for all families; child UI still requires en-GB family locale
+ * (see resolveChildUiLocale / experiencePackIdForLocale).
  * @param {string|null|undefined} familyId
  * @returns {Promise<boolean>}
  */
