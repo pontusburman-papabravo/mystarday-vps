@@ -27,6 +27,15 @@ async function setGlobalEnglishFlag(pg, enabled) {
   );
 }
 
+/** Rollback-path tests: english_app is live in prod; force dev to exercise global-OFF gate. */
+async function seedEnglishAppDevGate(pg) {
+  await pg.query(
+    `INSERT INTO features (slug, name, description, status, tags, priority, complexity, estimated_hours)
+     VALUES ('english_app', 'English app', 'Parent/auth en-GB', 'dev', '{i18n}', 'high', 5, 8)
+     ON CONFLICT (slug) DO UPDATE SET status = 'dev', updated_at = NOW()`
+  );
+}
+
 describe('login-locale client helper', () => {
   test('login.html loads helper before auth handlers', () => {
     const fs = require('fs');
@@ -198,6 +207,7 @@ describe('login locale integration', () => {
     const pg = require('../src/lib/db');
 
     try {
+      await seedEnglishAppDevGate(pg);
       await setGlobalEnglishFlag(pg, false);
       const email = uniqueEmail();
       await fetch(`${http.baseUrl}/api/auth/register`, {
