@@ -10,10 +10,11 @@ const { spawnSync } = require('node:child_process');
 const ROOT = path.join(__dirname, '..');
 const VERIFY_SCRIPT = path.join(ROOT, 'scripts', 'verify-ios-archive-release.mjs');
 
-function runArchiveVerify(archivePath) {
-  return spawnSync(process.execPath, [VERIFY_SCRIPT, '--archive', archivePath], {
+function runArchiveVerify(archivePath, extraArgs = [], extraEnv = {}) {
+  return spawnSync(process.execPath, [VERIFY_SCRIPT, '--archive', archivePath, ...extraArgs], {
     cwd: ROOT,
     encoding: 'utf8',
+    env: { ...process.env, ...extraEnv },
   });
 }
 
@@ -61,13 +62,44 @@ function makeFixtureArchive({ withWidget = false, withAttPlist = false, execMark
   return { archive, cleanup: () => fs.rmSync(dir, { recursive: true, force: true }) };
 }
 
+function hasOtool() {
+  const r = spawnSync('which', ['otool'], { encoding: 'utf8' });
+  return r.status === 0 && (r.stdout || '').trim().length > 0;
+}
+
 describe('verify-ios-archive-release', () => {
-  it('passes clean fixture without widget or ATT', () => {
+  it('passes clean fixture without widget or ATT (non-release mode)', () => {
     const { archive, cleanup } = makeFixtureArchive();
     const r = runArchiveVerify(archive);
     cleanup();
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
     assert.match(r.stdout, /NO-TRACKING RELEASE GATE: PASS/);
+    assert.doesNotMatch(r.stdout, /FINAL ARCHIVE ATT FRAMEWORK: ABSENT/);
+    assert.doesNotMatch(r.stdout, /FINAL ARCHIVE ATT API LINKAGE: ABSENT/);
+    assert.doesNotMatch(r.stdout, /META ADVERTISER TRACKING: DISABLED/);
+  });
+
+  it('release mode fails when otool is unavailable', () => {
+    if (hasOtool()) {
+      return;
+    }
+    const { archive, cleanup } = makeFixtureArchive();
+    const r = runArchiveVerify(archive, ['--release'], { CI_XCODEBUILD_ACTION: '' });
+    cleanup();
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr + r.stdout, /otool is required for release archive verification/);
+    assert.doesNotMatch(r.stdout, /NO-TRACKING RELEASE GATE: PASS/);
+  });
+
+  it('release mode via CI_XCODEBUILD_ACTION=archive fails when otool is unavailable', () => {
+    if (hasOtool()) {
+      return;
+    }
+    const { archive, cleanup } = makeFixtureArchive();
+    const r = runArchiveVerify(archive, [], { CI_XCODEBUILD_ACTION: 'archive' });
+    cleanup();
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr + r.stdout, /otool is required for release archive verification/);
   });
 
   it('fails when NSUserTrackingUsageDescription is present', () => {
@@ -86,7 +118,11 @@ describe('verify-ios-archive-release', () => {
     assert.match(r.stderr + r.stdout, /WidgetRoutine/);
   });
 
-  it('fails when executable contains ATT API marker', () => {
+  it('fails when executable contains ATT API marker (strings available)', () => {
+    const stringsCheck = spawnSync('which', ['strings'], { encoding: 'utf8' });
+    if (stringsCheck.status !== 0 || !(stringsCheck.stdout || '').trim()) {
+      return;
+    }
     const { archive, cleanup } = makeFixtureArchive({ execMarker: 'ATTrackingManager' });
     const r = runArchiveVerify(archive);
     cleanup();

@@ -5,6 +5,12 @@
  *
  * Usage:
  *   node scripts/verify-ios-archive-release.mjs --archive /path/to/App.xcarchive
+ *
+ * Release mode (mandatory otool + strings) activates when:
+ *   - CI_XCODEBUILD_ACTION=archive (Xcode Cloud post-build), or
+ *   - --release flag (explicit; for local macOS release verification)
+ *
+ * Unit tests use default non-release mode without --release and without CI_XCODEBUILD_ACTION=archive.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -33,6 +39,7 @@ function ok(msg) {
 
 function parseArgs(argv) {
   let archivePath = '';
+  let releaseMode = false;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--archive') {
@@ -40,19 +47,28 @@ function parseArgs(argv) {
       i += 1;
     } else if (arg.startsWith('--archive=')) {
       archivePath = arg.slice('--archive='.length);
+    } else if (arg === '--release') {
+      releaseMode = true;
     } else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: node scripts/verify-ios-archive-release.mjs --archive <path>');
+      console.log(
+        'Usage: node scripts/verify-ios-archive-release.mjs --archive <path> [--release]'
+      );
       process.exit(0);
     } else {
       console.error(`[verify-ios-archive-release] Unknown argument: ${arg}`);
       process.exit(1);
     }
   }
-  return archivePath;
+  return { archivePath, releaseMode };
 }
 
 function run(cmd, args) {
   return spawnSync(cmd, args, { encoding: 'utf8' });
+}
+
+function toolAvailable(cmd) {
+  const which = run('which', [cmd]);
+  return which.status === 0 && (which.stdout || '').trim().length > 0;
 }
 
 function plutilExtract(plistPath, key) {
@@ -92,7 +108,77 @@ function findMainAppBundle(archivePath) {
   return main;
 }
 
-export function verifyArchiveAt(archivePath, { includeWidget = false } = {}) {
+function inspectBinaryLinkage(execPath, releaseMode, localFail, localOk) {
+  const hasOtool = toolAvailable('otool');
+  if (!hasOtool) {
+    if (releaseMode) {
+      localFail('otool is required for release archive verification (AppTrackingTransparency framework check)');
+      return false;
+    }
+    localOk('otool unavailable — framework linkage check skipped (non-release test mode)');
+    return false;
+  }
+
+  const otool = run('otool', ['-L', execPath]);
+  if (otool.status !== 0) {
+    localFail(`otool -L failed: ${(otool.stderr || otool.stdout || '').trim()}`);
+    return false;
+  }
+
+  const linkage = otool.stdout || '';
+  if (linkage.includes('AppTrackingTransparency')) {
+    localFail('Main executable links AppTrackingTransparency.framework');
+    if (releaseMode) {
+      console.log('FINAL ARCHIVE ATT FRAMEWORK: PRESENT');
+    }
+    return false;
+  }
+
+  localOk('AppTrackingTransparency.framework not linked');
+  if (releaseMode) {
+    console.log('FINAL ARCHIVE ATT FRAMEWORK: ABSENT');
+  }
+  return true;
+}
+
+function inspectBinarySymbols(execPath, releaseMode, localFail, localOk) {
+  const hasStrings = toolAvailable('strings');
+  if (!hasStrings) {
+    if (releaseMode) {
+      localFail('strings is required for release archive verification (ATT API/symbol check)');
+      return false;
+    }
+    localOk('strings unavailable — ATT symbol scan skipped (non-release test mode)');
+    return false;
+  }
+
+  const strings = run('strings', [execPath]);
+  if (strings.status !== 0) {
+    localFail(`strings failed on main executable: ${(strings.stderr || strings.stdout || '').trim()}`);
+    return false;
+  }
+
+  const blob = strings.stdout || '';
+  const hits = FORBIDDEN_EXECUTABLE_MARKERS.filter((m) => blob.includes(m));
+  if (hits.length > 0) {
+    localFail(`Forbidden ATT symbols in executable: ${hits.join(', ')}`);
+    if (releaseMode) {
+      console.log('FINAL ARCHIVE ATT API LINKAGE: PRESENT');
+    }
+    return false;
+  }
+
+  localOk('No ATT API markers in main executable');
+  if (releaseMode) {
+    console.log('FINAL ARCHIVE ATT API LINKAGE: ABSENT');
+  }
+  return true;
+}
+
+export function verifyArchiveAt(
+  archivePath,
+  { includeWidget = false, releaseMode = false } = {}
+) {
   let localFailed = false;
   const localFail = (msg) => {
     console.error(`[verify-ios-archive-release] FAIL: ${msg}`);
@@ -104,18 +190,18 @@ export function verifyArchiveAt(archivePath, { includeWidget = false } = {}) {
 
   if (!archivePath || !fs.existsSync(archivePath)) {
     localFail(`Archive path missing or not found: ${archivePath || '(empty)'}`);
-    return { failed: true };
+    return { failed: true, releaseMode };
   }
 
   const appBundle = findMainAppBundle(archivePath);
   if (!appBundle) {
-    return { failed: true };
+    return { failed: true, releaseMode };
   }
 
   const infoPlist = path.join(appBundle, 'Info.plist');
   if (!fs.existsSync(infoPlist)) {
     localFail('Info.plist missing in archived app');
-    return { failed: true };
+    return { failed: true, releaseMode };
   }
 
   if (plistHasKey(infoPlist, 'NSUserTrackingUsageDescription')) {
@@ -166,71 +252,36 @@ export function verifyArchiveAt(archivePath, { includeWidget = false } = {}) {
   const execPath = path.join(appBundle, execName);
   if (!execName || !fs.existsSync(execPath)) {
     localFail(`Main executable missing: ${execName || '(empty CFBundleExecutable)'}`);
-    return { failed: true };
+    return { failed: true, releaseMode };
   }
 
-  const whichOtool = run('which', ['otool']);
-  const hasOtool = whichOtool.status === 0 && (whichOtool.stdout || '').trim().length > 0;
-  if (!hasOtool) {
-    localOk('otool unavailable — skipping framework linkage check (macOS Xcode Cloud only)');
-    console.log('FINAL ARCHIVE ATT FRAMEWORK: ABSENT');
-  } else {
-    const otool = run('otool', ['-L', execPath]);
-    if (otool.status !== 0) {
-      localFail(`otool -L failed: ${(otool.stderr || otool.stdout || '').trim()}`);
-    } else {
-      const linkage = otool.stdout || '';
-      if (linkage.includes('AppTrackingTransparency')) {
-        localFail('Main executable links AppTrackingTransparency.framework');
-        console.log('FINAL ARCHIVE ATT FRAMEWORK: PRESENT');
-      } else {
-        localOk('AppTrackingTransparency.framework not linked');
-        console.log('FINAL ARCHIVE ATT FRAMEWORK: ABSENT');
-      }
-    }
-  }
+  inspectBinaryLinkage(execPath, releaseMode, localFail, localOk);
+  inspectBinarySymbols(execPath, releaseMode, localFail, localOk);
 
-  const whichStrings = run('which', ['strings']);
-  const hasStrings = whichStrings.status === 0 && (whichStrings.stdout || '').trim().length > 0;
-  if (!hasStrings) {
-    localOk('strings unavailable — skipping ATT symbol scan (macOS Xcode Cloud only)');
-    console.log('FINAL ARCHIVE ATT API LINKAGE: ABSENT');
-  } else {
-    const strings = run('strings', [execPath]);
-    if (strings.status !== 0) {
-      localFail(`strings failed on main executable: ${(strings.stderr || strings.stdout || '').trim()}`);
-    } else {
-      const blob = strings.stdout || '';
-      const hits = FORBIDDEN_EXECUTABLE_MARKERS.filter((m) => blob.includes(m));
-      if (hits.length > 0) {
-        localFail(`Forbidden ATT symbols in executable: ${hits.join(', ')}`);
-        console.log('FINAL ARCHIVE ATT API LINKAGE: PRESENT');
-      } else {
-        localOk('No ATT API markers in main executable');
-        console.log('FINAL ARCHIVE ATT API LINKAGE: ABSENT');
-      }
-    }
-  }
-
-  console.log('META ADVERTISER TRACKING: DISABLED');
-  return { failed: localFailed };
+  return { failed: localFailed, releaseMode };
 }
 
 function main() {
-  const archivePath = parseArgs(process.argv.slice(2));
+  const { archivePath, releaseMode: releaseFlag } = parseArgs(process.argv.slice(2));
   if (!archivePath) {
     console.error('[verify-ios-archive-release] --archive path required');
     process.exit(1);
   }
 
+  const releaseMode =
+    releaseFlag || String(process.env.CI_XCODEBUILD_ACTION || '').trim() === 'archive';
   const includeWidget = process.env.IOS_INCLUDE_WIDGET === '1';
-  const result = verifyArchiveAt(path.resolve(archivePath), { includeWidget });
+  const result = verifyArchiveAt(path.resolve(archivePath), { includeWidget, releaseMode });
   failed = result.failed;
 
   console.log('');
   if (failed) {
     console.error('[verify-ios-archive-release] NO-TRACKING RELEASE GATE: FAIL');
     process.exit(1);
+  }
+
+  if (releaseMode) {
+    console.log('META ADVERTISER TRACKING: PRE-BUILD VERIFIED DISABLED');
   }
   console.log('[verify-ios-archive-release] NO-TRACKING RELEASE GATE: PASS');
   process.exit(0);
