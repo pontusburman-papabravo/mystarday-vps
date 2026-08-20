@@ -2,7 +2,7 @@
 
 **Version:** 0.1 · **Date:** August 2026  
 **Purpose:** IE-specific legal/compliance additions on top of EEA baseline documents (`/en/eea/*`).  
-**Status:** Draft — items marked **`LEGAL_REVIEW_REQUIRED`** must be resolved before `market_ie_open ON`.
+**Status:** Internal draft — see [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](../LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md)
 
 ---
 
@@ -10,9 +10,9 @@
 
 | Item | Draft text (public notice) | Status |
 |------|------------------------------|--------|
-| Lead authority | Integritetsskyddsmyndigheten (IMY), Sweden — expected lead SA for cross-border processing | **`LEGAL_REVIEW_REQUIRED`** — counsel confirm (see `LEGAL_REVIEW_REQUIRED.md` C-A) |
-| Concerned authority (IE users) | Data Protection Commission (DPC), Ireland | Standard GDPR — Irish users may lodge complaints with DPC |
-| Complaint right | Right to lodge complaint with DPC (and IMY where applicable) | Counsel wording |
+| Lead authority | Integritetsskyddsmyndigheten (IMY), Sweden | **Accepted** (LDRA-C-A) |
+| Concerned authority (IE users) | Data Protection Commission (DPC), Ireland | Irish users may lodge complaints with DPC |
+| Complaint right | Right to lodge complaint with DPC | Standard GDPR |
 | DPC contact | https://www.dataprotection.ie | Public link |
 
 ---
@@ -21,7 +21,8 @@
 
 | Item | Value | Status |
 |------|-------|--------|
-| Controller | Papa Bravo AB (Sweden) — EU-established | Article 27 representative expected **N/A** — counsel confirm (see `LEGAL_REVIEW_REQUIRED.md` C-B) |
+| Controller | Papa Bravo AB (Sweden) — EU-established | **Accepted** |
+| Article 27 representative | Not required (EU establishment) | **Accepted N/A** (LDRA-C-B) |
 | Contact point | `/en/contact` | Operational |
 
 ---
@@ -31,8 +32,8 @@
 | Topic | Product fact | Status |
 |-------|--------------|--------|
 | Pricing currency | EUR default for IE (`market-config.js`) | Commercial track |
-| IAP merchant | Apple App Store / Google Play via RevenueCat | **`LEGAL_REVIEW_REQUIRED`** Terms § payment & withdrawal (A6) |
-| Free trial / subscription copy | EN paywall strings — commercial track | **`LEGAL_REVIEW_REQUIRED`** (A6) |
+| IAP merchant | Apple App Store / Google Play via RevenueCat | **Accepted** (LDRA-A6) — Terms §7 |
+| Free trial / subscription copy | EN paywall strings — commercial track | Commercial track verifies |
 | October 2026 SE billing | Sweden payment rollout separate from IE launch | Document in launch control |
 
 ---
@@ -41,10 +42,10 @@
 
 | Topic | Status |
 |-------|--------|
-| Article 8 / consent scope | **`LEGAL_REVIEW_REQUIRED`** — which child-processing activities rely on consent such that Article 8 and Ireland’s age-16 threshold applies? (A1) |
-| Parental consent model (parent registers, child PIN) | Covered under A1 — adequacy for Irish DPC expectations |
-| Children's privacy notice plain language | Draft at `/en/eea/child-privacy` |
-| Optional wellbeing notes (`pedagog_notes`) | **`LEGAL_REVIEW_REQUIRED`** Article 9 risk (A2) |
+| Article 8 / consent scope | **Accepted** (LDRA-A1) — parent contract model; narrow Art. 8 scope |
+| Parental consent model | Parent registers, child PIN — documented in child privacy notice |
+| Children's privacy notice | `/en/eea/child-privacy` |
+| Optional wellbeing notes | **Accepted MEDIUM risk** (LDRA-A2) — disclose, no ad use |
 
 ---
 
@@ -55,7 +56,7 @@
 | Web GA4 / Meta / Google Ads | Opt-in cookie banner | No child event payloads in code |
 | Push notifications | Parent opt-in | Parent device |
 | Email newsletter | Opt-in | Parent email |
-| Win-back email | **`LEGAL_REVIEW_REQUIRED`** classification (B2) | May include child first name |
+| Win-back email | LDRA-B2 accepted | May include child first name |
 
 See [`marketing-child-data-assessment.md`](./marketing-child-data-assessment.md).
 
@@ -65,23 +66,21 @@ See [`marketing-child-data-assessment.md`](./marketing-child-data-assessment.md)
 
 | Item | Status |
 |------|--------|
-| Core hosting regions | EEA Privacy states aim for EU/EEA where applicable; exact Neon + VPS regions **`LEGAL_REVIEW_REQUIRED`** (A3) |
-| US processors (Resend, RC, optional analytics) | Transfer register + DPF/SCC/TIA **`LEGAL_REVIEW_REQUIRED`** (A4) |
+| Core hosting regions | **Open** (LDRA-A3) — verify Neon + VPS before `live` |
+| US processors | **Open** (LDRA-A4) — document DPF/SCC/TIA before `live` |
 
 ---
 
 ## 7. Public document overlay map
 
-When IE launches, public pages should include (after counsel sign-off):
+When IE launches (after internal sign-off):
 
 | Base document | IE overlay section |
 |---------------|-------------------|
-| `/en/eea/privacy` | § Supervisory authority (DPC) · § IE contact · § Transfers summary |
-| `/en/eea/terms` | § Irish consumer law / digital content · § EUR/IAP |
-| `/en/eea/child-privacy` | § Irish children wording review |
+| `/en/eea/privacy` | § Supervisory authority (DPC) · § IMY/DPC model · § Transfers summary |
+| `/en/eea/terms` | § Irish consumer / digital content · § EUR/IAP |
+| `/en/eea/child-privacy` | § Parent-managed child model |
 | `/en/tracking-choices` | No IE-specific change expected |
-
-Until overlay signed, IE users see EEA baseline + this internal overlay pending publication.
 
 ---
 
@@ -89,7 +88,7 @@ Until overlay signed, IE users see EEA baseline + this internal overlay pending 
 
 **Do not enable `market_ie_open` until:**
 
-- [ ] All **`LEGAL_REVIEW_REQUIRED`** Priority A rows closed or accepted
-- [ ] Short confirmations C-A and C-B closed
-- [ ] [`LEGAL_REVIEW_REQUIRED.md`](../LEGAL_REVIEW_REQUIRED.md) Priority A queue empty or accepted
+- [ ] LDRA-A3 + A4 closed (processor/transfer verification)
+- [ ] Internal sign-off on [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md)
+- [ ] `resolveLegalRoutes()` flipped to `live` (separate PR)
 - [ ] Commercial/store + Ireland RC complete

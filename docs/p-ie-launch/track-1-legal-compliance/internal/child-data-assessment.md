@@ -17,9 +17,9 @@ Children do **not** register independently; no child email collection.
 
 | Topic | Code / product fact | Assessment |
 |-------|---------------------|------------|
-| Target age | Family routine tool; no hard minimum age gate in registration | **`LEGAL_REVIEW_REQUIRED`:** which child-processing activities rely on consent such that Article 8 and Ireland’s age-16 threshold applies? (see A1) |
+| Target age | Family routine tool; no hard minimum age gate | **LDRA-A1 accepted:** Art. 8 consent threshold (16 in IE) applies only where we rely on **consent** for ISS offered directly to the child. Core processing = **contract** on parent account. |
 | Parent as account holder | Parent registers, accepts terms, can delete entire family | Parent is contractual counterparty |
-| Child assent | No separate child click-through acceptance flow | Covered under A1 — adequacy for Irish DPC expectations |
+| Child assent | No separate child click-through acceptance flow | Parent-managed model documented in child privacy notice |
 
 ---
 
@@ -34,7 +34,7 @@ Children do **not** register independently; no child email collection.
 | Routine completions | Yes | Core function |
 | Stars / rewards | Yes | Core function |
 | Health/diagnosis | Not requested in child UI | |
-| Mood/sleep/behaviour | Optional, **parent/pedagog** forms in reports | `pedagog_notes`, `child_observation` — not child-entered |
+| Mood/sleep/behaviour | Optional, **parent/pedagog** forms in reports | LDRA-A2 — parent-entered, not child forms |
 
 ---
 
@@ -60,7 +60,7 @@ Children do **not** register independently; no child email collection.
 | Erasure | Parent deletes account → all children deleted |
 | Information | Child privacy notice `/en/eea/child-privacy` (plain language) |
 
-**`LEGAL_REVIEW_REQUIRED`:** Whether child may exercise rights directly in IE and how to respond.
+Direct child requests (without parent): respond case-by-case; parent is primary account holder. Document in DSAR runbook.
 
 ---
 
@@ -73,7 +73,7 @@ Children do **not** register independently; no child email collection.
 | Detrimental use | No streak punishment paywalls in scope doc |
 | Parental controls | Parent manages all child config |
 | Profiling / targeted ads | No child ad profiling in code |
-| Nudge techniques | **`LEGAL_REVIEW_REQUIRED`** review of celebrations/gamification for vulnerable children |
+| Nudge techniques | LDRA-C6 — POS review of celebrations/gamification |
 | Connected toys / geolocation | N/A |
 
 ---
@@ -82,6 +82,6 @@ Children do **not** register independently; no child email collection.
 
 | Decision | Rationale |
 |----------|-----------|
-| **Proceed with external child-data review** | Processing is parent-mediated and minimised, but Ireland launch requires counsel sign-off on age/consent model and optional wellbeing notes |
+| **Accepted for Ireland launch prep** (LDRA-A1, A2) | Processing is parent-mediated and minimised; lawful bases documented; MEDIUM residual risk accepted |
 
-**Not a blocker for completing draft documents** — blocker for **`market_ie_open ON`**.
+**Blocker for `market_ie_open ON`:** commercial + RC + launch control — not external counsel.

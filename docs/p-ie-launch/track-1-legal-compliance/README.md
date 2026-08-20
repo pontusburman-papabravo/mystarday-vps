@@ -1,8 +1,10 @@
 # P-IE-LAUNCH — Track 1: Legal & Compliance Reality Build
 
-**Status:** Draft internal package (code-derived, August 2026)  
+**Status:** Internal compliance package (code-derived, August 2026)  
 **Scope:** Ireland launch legal/compliance — **no product changes, no gates, no deploy**  
 **Source of truth for behaviour:** live deployed codebase + deployed architecture (not aspirational policy)
+
+**Sign-off model:** Internal risk acceptance — **not externally legally verified**. See [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md).
 
 ---
 
@@ -17,13 +19,15 @@
 | Child Privacy Notice | `/en/eea/child-privacy` | `public/en/eea-child-privacy.html` |
 | Tracking / privacy choices | `/en/tracking-choices` | `public/en/tracking-choices.html` |
 
-Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: placeholder` until legal sign-off flips to `live` in a later PR).
+Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: placeholder` until **internal sign-off** flips to `live` in a later PR).
 
 ### Internal registers (`internal/`)
 
 | Register | File |
 |----------|------|
 | Implementation baseline (code facts) | [`implementation-baseline.md`](./implementation-baseline.md) |
+| **Legal decisions & risk acceptance** | [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md) |
+| **Self-signoff report** | [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md) |
 | DPIA | [`internal/dpia.md`](./internal/dpia.md) |
 | Child Data Assessment | [`internal/child-data-assessment.md`](./internal/child-data-assessment.md) |
 | Lawful Basis Register | [`internal/lawful-basis-register.md`](./internal/lawful-basis-register.md) |
@@ -36,7 +40,6 @@ Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: place
 | DSAR runbook | [`internal/runbooks/dsar.md`](./internal/runbooks/dsar.md) |
 | Account deletion runbook | [`internal/runbooks/account-deletion.md`](./internal/runbooks/account-deletion.md) |
 | Breach notification runbook | [`internal/runbooks/breach-notification.md`](./internal/runbooks/breach-notification.md) |
-| **External review queue** | [`LEGAL_REVIEW_REQUIRED.md`](./LEGAL_REVIEW_REQUIRED.md) |
 
 ---
 
@@ -44,29 +47,36 @@ Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: place
 
 1. **Reality first** — describe what the app actually does today (verified in code).
 2. **Minimal launch package** — complete enough for Ireland RC prep, not a generic policy library.
-3. **`LEGAL_REVIEW_REQUIRED`** — any legal conclusion not derivable from code is explicitly flagged for external counsel.
+3. **Internal risk acceptance** — interpretive legal questions documented in [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md) with residual risk levels; external counsel optional.
 4. **No gates / no deploy** — documents only; `market_ie_open` stays OFF.
 
 ---
 
-## Known code ↔ policy gaps (documented)
+## Known gaps
 
-| Gap | Code reality | Status |
-|-----|--------------|--------|
-| Child wellbeing fields | Optional `pedagog_notes` mood/sleep/behaviour | Not mentioned in Swedish privacy (parent-entered, not child forms) — counsel A2 |
+| Gap | Status |
+|-----|--------|
+| Processor/hosting verification (LDRA-A3) | **Open** — ops before `live` |
+| Transfer mechanisms filed (LDRA-A4) | **Open** — ops before `live` |
+| Child wellbeing fields in Swedish privacy | Optional future SE update — LDRA-A2 accepted |
 
-EEA English documents in this track reflect **code reality**. Swedish `/privacy` cookie section aligned with consent-gated analytics in this PR.
+EEA English documents reflect **code reality**. Swedish `/privacy` cookies and hosting claim aligned in this PR.
 
 ---
 
-## Sign-off checklist (before `market_ie_open ON`)
+## Internal sign-off checklist
 
-- [ ] External counsel review of [`LEGAL_REVIEW_REQUIRED.md`](./LEGAL_REVIEW_REQUIRED.md) items closed or accepted
-- [ ] Public docs reviewed; `resolveLegalRoutes()` status `placeholder` → `live` (separate PR)
-- [ ] Processor DPAs / transfer mechanisms filed
-- [ ] DPC / Irish consumer law overlay signed (`ie-country-overlay.md`)
-- [ ] Commercial/store track (EUR, stores, RevenueCat) complete
-- [ ] Ireland RC on physical devices
+Track 1 is launch-ready when:
+
+- [ ] No **HIGH** unresolved risks in [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md)
+- [ ] LDRA-A3 processor/hosting facts verified and filed
+- [ ] LDRA-A4 transfer mechanisms documented
+- [ ] Public docs match verified implementation
+- [ ] Child lawful bases documented
+- [ ] Irish IAP disclosures match paywall (commercial track)
+- [ ] Founder/controller sign-off on [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md)
+- [ ] `resolveLegalRoutes()` `placeholder` → `live` (separate PR — **not** in Track 1)
+- [ ] Commercial/store track + Ireland RC complete before `market_ie_open ON`
 
 ---
 

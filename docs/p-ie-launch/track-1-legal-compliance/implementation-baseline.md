@@ -1,6 +1,6 @@
 # Implementation baseline — verified from code (August 2026)
 
-This document is the **single internal fact sheet** for Track 1 legal/compliance writing. Facts below are derived from repository code unless marked `LEGAL_REVIEW_REQUIRED`.
+This document is the **single internal fact sheet** for Track 1 legal/compliance writing. Facts below are derived from repository code unless marked **LDRA open** (see [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md)).
 
 ---
 
@@ -102,7 +102,7 @@ This document is the **single internal fact sheet** for Track 1 legal/compliance
 | **Meta (Facebook Pixel)** | Marketing measurement (optional) | Consent-gated | `cookie-banner.js` |
 | **Google Ads** | Ads conversion (optional) | Consent-gated; `AW-7601142474` | `marketing-events.js` |
 
-`LEGAL_REVIEW_REQUIRED`: signed DPAs, sub-processor lists, and exact hosting regions for Neon, VPS, Resend, Cloudflare, RevenueCat, Google, Meta, Apple.
+**LDRA-A3 open:** signed DPAs, sub-processor lists, and exact hosting regions for Neon, VPS, Resend, Cloudflare, RevenueCat, Google, Meta, Apple.
 
 ---
 
@@ -144,7 +144,7 @@ Child in-app WebView: consent banner on `/en/*` public pages; logged-in app sett
 | `contact_message` | Support/legal correspondence |
 | `analytics_daily_snapshots` | Aggregated metrics (no family_id) |
 
-`LEGAL_REVIEW_REQUIRED`: statutory retention for contact/support logs and whether anonymised snapshots require mention in public notice.
+**LDRA-B3:** statutory retention for contact/support logs and whether aggregate snapshots require mention in public notice — disclosed as exceptions in EEA privacy.
 
 ---
 
@@ -176,7 +176,7 @@ Child in-app WebView: consent banner on `/en/*` public pages; logged-in app sett
 - Native: Apple/Google IAP via RevenueCat webhook → `family` subscription fields
 - Web: no Stripe checkout (removed); subscription enforcement via `src/lib/subscription.js`
 
-`LEGAL_REVIEW_REQUIRED`: Irish consumer contract terms for digital subscriptions, cooling-off, and App Store/Play as merchant of record wording.
+**LDRA-A6 accepted:** Irish consumer/IAP disclosures in EEA Terms §7 (Apple/Google MoR, EUR pricing, store-managed renewal/cancellation). CCPC digital content guidance applied internally — not externally legally verified.
 
 ---
 

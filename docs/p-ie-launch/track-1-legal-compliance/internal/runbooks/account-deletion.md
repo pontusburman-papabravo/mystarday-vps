@@ -37,11 +37,11 @@ Cookies cleared: `access_token`, `refresh_token`, `token`.
 
 | Data | Reason |
 |------|--------|
-| `admin_audit_log` | Admin audit |
-| `contact_message` | Support/legal retention |
+| `admin_audit_log` | Admin audit (LDRA-B3) |
+| `contact_message` | Support retention (LDRA-B3) |
 | `analytics_daily_snapshots` | Aggregated, no family_id |
 
-Disclose in privacy notice. **`LEGAL_REVIEW_REQUIRED`** statutory periods.
+Disclosed in privacy notices.
 
 ---
 
@@ -49,8 +49,8 @@ Disclose in privacy notice. **`LEGAL_REVIEW_REQUIRED`** statutory periods.
 
 If user cannot log in:
 
-1. Verify identity **`LEGAL_REVIEW_REQUIRED`** procedure.
-2. Founder/admin manual deletion **`LEGAL_REVIEW_REQUIRED`** — no self-service admin delete documented in Track 1.
+1. Verify identity (reply from registered email).
+2. Founder manual deletion — no self-service admin delete in Track 1.
 3. Confirm email when complete.
 
 ---
@@ -60,8 +60,8 @@ If user cannot log in:
 | Check | How |
 |-------|-----|
 | Login fails | Attempt `/api/auth/login` |
-| Family gone | DB query on prod **`LEGAL_REVIEW_REQUIRED`** access policy |
-| IAP | **`LEGAL_REVIEW_REQUIRED`** RevenueCat customer cleanup |
+| Family gone | DB query on prod (founder access only) |
+| IAP | RevenueCat customer cleanup — LDRA-C5 (verify RC API on delete) |
 
 ---
 

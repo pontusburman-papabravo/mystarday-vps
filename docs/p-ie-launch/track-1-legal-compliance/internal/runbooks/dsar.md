@@ -9,10 +9,10 @@
 | Channel | Action |
 |---------|--------|
 | `/en/contact` form | Primary |
-| Email to controller **`LEGAL_REVIEW_REQUIRED`** dedicated privacy inbox | Route to privacy owner |
+| Email to controller (privacy owner) | Route to founder |
 | In-app | Direct user to Settings or contact |
 
-**SLA:** **`LEGAL_REVIEW_REQUIRED`** (typically 30 days GDPR / 1 month)
+**SLA:** 30 days (GDPR Art. 12 — one month)
 
 ---
 
@@ -21,7 +21,7 @@
 | User type | Verification |
 |-----------|--------------|
 | Logged-in parent | Session + optional password re-auth for sensitive requests |
-| Non-account email request | **`LEGAL_REVIEW_REQUIRED`** — verify ownership before export |
+| Non-account email request | Verify ownership (reply from registered email, or ID check for erasure) |
 
 Do not disclose child data to third parties without parent verification.
 
@@ -44,9 +44,9 @@ Document in response: export may not include server logs, support tickets (`cont
 
 1. Confirm account email matches requester.
 2. Query family_id from `parent`.
-3. Run export path or admin tooling **`LEGAL_REVIEW_REQUIRED`** — no ad-hoc SQL on prod without founder approval.
-4. Redact other family members if multi-parent **`LEGAL_REVIEW_REQUIRED`** policy.
-5. Deliver encrypted channel **`LEGAL_REVIEW_REQUIRED`**.
+3. Run export path or admin tooling — no ad-hoc SQL on prod without founder approval.
+4. Redact other family members if multi-parent (policy: export is family-scoped to requesting parent).
+5. Deliver via encrypted channel (password-protected ZIP or secure link).
 
 ---
 
@@ -65,10 +65,10 @@ Document in response: export may not include server logs, support tickets (`cont
 
 ## 6. Log DSAR
 
-**`LEGAL_REVIEW_REQUIRED`:** Maintain internal register (date, requester, type, outcome, deadline).
+Maintain internal register (date, requester, type, outcome, deadline) — LDRA-C2.
 
 ---
 
 ## 7. Escalation
 
-Privacy counsel if: child direct request, legal hold, law enforcement, or cross-border complexity.
+Engage external counsel if: child direct request without parent, legal hold, law enforcement, or cross-border complexity beyond internal playbook.
