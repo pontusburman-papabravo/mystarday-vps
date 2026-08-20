@@ -5,6 +5,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const contactMessages = require('../../../db/contact-messages');
+const { getMarketRegistrationStatus } = require('../../lib/market-region');
 
 const router = express.Router();
 
@@ -309,6 +310,18 @@ router.get('/feature-flags', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN] Feature flags error:', err);
     res.status(500).json({ error: 'Kunde inte hämta funktionsflaggor' });
+  }
+});
+
+// ─── GET /api/admin/market-registration-status ───────────
+// Structured open/closed state for staged country launches (P-EEA).
+router.get('/market-registration-status', async (req, res) => {
+  try {
+    const markets = await getMarketRegistrationStatus();
+    res.json({ markets });
+  } catch (err) {
+    console.error('[ADMIN] market-registration-status error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta marknadsportar' });
   }
 });
 

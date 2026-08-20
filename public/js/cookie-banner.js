@@ -25,6 +25,45 @@
   const LS_KEY   = 'cookie_consent';      // localStorage-nyckel
   const CC_COOKIE = 'cc_consent';         // cookie-namn (1 år)
 
+  function isEnglishPublicPath() {
+    return /^\/en(\/|$)/.test(window.location.pathname || '');
+  }
+
+  function cookieBannerCopy() {
+    if (isEnglishPublicPath()) {
+      return {
+        ariaLabel: 'Cookie settings',
+        intro: 'We use cookies for analytics, marketing and personalisation on our website.',
+        manage: 'Manage settings',
+        manageHide: 'Hide settings',
+        deny: 'Reject all',
+        accept: 'Accept all',
+        save: 'Save my choices',
+        categories: [
+          { id: 'necessary', icon: '🔒', label: 'Necessary', desc: 'Required for the site to work.', locked: true, checked: true },
+          { id: 'analytics', icon: '📊', label: 'Analytics', desc: 'Helps us understand how the site is used (GA4).', locked: false },
+          { id: 'marketing', icon: '📢', label: 'Marketing', desc: 'Shows relevant ads and measures campaigns.', locked: false },
+          { id: 'personalization', icon: '🎯', label: 'Personalisation', desc: 'Adapts content and recommendations.', locked: false },
+        ],
+      };
+    }
+    return {
+      ariaLabel: 'Cookie-inställningar',
+      intro: 'Vi använder cookies för analys, marknadsföring och personalisering på vår webbplats.',
+      manage: 'Hantera inställningar',
+      manageHide: 'Dölj inställningar',
+      deny: 'Avvisa alla',
+      accept: 'Godkänn alla',
+      save: 'Spara mina val',
+      categories: [
+        { id: 'necessary', icon: '🔒', label: 'Nödvändiga', desc: 'Krävs för att sidan ska fungera.', locked: true, checked: true },
+        { id: 'analytics', icon: '📊', label: 'Analys & Statistik', desc: 'Hjälper oss förstå hur sidan används (GA4).', locked: false },
+        { id: 'marketing', icon: '📢', label: 'Marknadsföring', desc: 'Visar relevanta annonser och mäter kampanjer.', locked: false },
+        { id: 'personalization', icon: '🎯', label: 'Personalisering', desc: 'Anpassar innehåll och rekommendationer.', locked: false },
+      ],
+    };
+  }
+
   // ─── Google Consent Mode v2 — default (allt nekat) ────────────────────────
   window.dataLayer = window.dataLayer || [];
   function gtag() { window.dataLayer.push(arguments); }
@@ -236,11 +275,12 @@
     injectStyles();
 
     const existing = existingConsent || {};
+    const copy = cookieBannerCopy();
 
     const banner = document.createElement('div');
     banner.id = BANNER_ID;
     banner.setAttribute('role', 'dialog');
-    banner.setAttribute('aria-label', 'Cookie-inställningar');
+    banner.setAttribute('aria-label', copy.ariaLabel);
 
     const inner = document.createElement('div');
     inner.className = 'cb-inner';
@@ -248,7 +288,7 @@
     // Text
     const text = document.createElement('p');
     text.className = 'cb-text';
-    text.textContent = 'Vi använder cookies för analys, marknadsföring och personalisering på vår webbplats.';
+    text.textContent = copy.intro;
     inner.appendChild(text);
 
     // Knapprad
@@ -257,17 +297,17 @@
 
     const manageBtn = document.createElement('button');
     manageBtn.className = 'cb-btn cb-btn-manage';
-    manageBtn.textContent = 'Hantera inställningar';
+    manageBtn.textContent = copy.manage;
     manageBtn.type = 'button';
 
     const denyBtn = document.createElement('button');
     denyBtn.className = 'cb-btn cb-btn-deny';
-    denyBtn.textContent = 'Avvisa alla';
+    denyBtn.textContent = copy.deny;
     denyBtn.type = 'button';
 
     const acceptBtn = document.createElement('button');
     acceptBtn.className = 'cb-btn cb-btn-accept';
-    acceptBtn.textContent = 'Godkänn alla';
+    acceptBtn.textContent = copy.accept;
     acceptBtn.type = 'button';
 
     btnRow.appendChild(manageBtn);
@@ -279,40 +319,12 @@
     const settings = document.createElement('div');
     settings.id = SETTINGS_ID;
 
-    const categories = [
-      {
-        id:    'necessary',
-        icon:  '🔒',
-        label: 'Nödvändiga',
-        desc:  'Krävs för att sidan ska fungera.',
-        locked: true,
-        checked: true,
-      },
-      {
-        id:    'analytics',
-        icon:  '📊',
-        label: 'Analys & Statistik',
-        desc:  'Hjälper oss förstå hur sidan används (GA4).',
-        locked: false,
-        checked: !!existing.analytics,
-      },
-      {
-        id:    'marketing',
-        icon:  '📢',
-        label: 'Marknadsföring',
-        desc:  'Visar relevanta annonser och mäter kampanjer.',
-        locked: false,
-        checked: !!existing.marketing,
-      },
-      {
-        id:    'personalization',
-        icon:  '🎯',
-        label: 'Personalisering',
-        desc:  'Anpassar innehåll och rekommendationer.',
-        locked: false,
-        checked: !!existing.personalization,
-      },
-    ];
+    const categories = copy.categories.map(function (cat) {
+      return {
+        ...cat,
+        checked: cat.id === 'necessary' ? true : !!existing[cat.id],
+      };
+    });
 
     categories.forEach(function (cat) {
       const row = document.createElement('div');
@@ -372,7 +384,7 @@
     const saveBtn = document.createElement('button');
     saveBtn.className = 'cb-btn-save';
     saveBtn.type = 'button';
-    saveBtn.textContent = 'Spara mina val';
+    saveBtn.textContent = copy.save;
     saveRow.appendChild(saveBtn);
     settings.appendChild(saveRow);
 
@@ -385,8 +397,8 @@
     manageBtn.addEventListener('click', function () {
       settings.classList.toggle('cb-open');
       manageBtn.textContent = settings.classList.contains('cb-open')
-        ? 'Dölj inställningar'
-        : 'Hantera inställningar';
+        ? copy.manageHide
+        : copy.manage;
     });
 
     denyBtn.addEventListener('click', function () {

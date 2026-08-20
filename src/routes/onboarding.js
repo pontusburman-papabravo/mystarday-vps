@@ -25,6 +25,7 @@ const {
 } = require('../lib/schemas');
 const { getOrGenerateDailyLog, syncDailyLogWithSchedule } = require('../lib/daily-log-generator');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
+const { fetchFamilyTimezone } = require('../lib/family-timezone');
 const { avatarApiFields } = require('../lib/avatar-api');
 const { SECTION_ORDER_SQL, sectionOrderClause } = require('../lib/default-schedule-order');
 const {
@@ -222,11 +223,12 @@ router.post('/child', requireParent, requireFeature('child_creation_wizard'), va
           suggestions: dupInside.suggestions,
         });
       }
+      const familyTimezone = await fetchFamilyTimezone(client, req.user.familyId);
       const childResult = await client.query(
         `INSERT INTO child (family_id, name, emoji, birthday, timezone, view_mode, view_type, pin, username, pin_fingerprint)
-         VALUES ($1, $2, $3, $4, 'Europe/Stockholm', 'auto', 'now_next_later', $5, $6, $7)
+         VALUES ($1, $2, $3, $4, $5, 'auto', 'now_next_later', $6, $7, $8)
          RETURNING id, name, emoji, birthday, view_type, username, avatar_storage_key, avatar_updated_at, created_at`,
-        [req.user.familyId, childName, emoji, childBirthday, pinHash, username, pinFp]
+        [req.user.familyId, childName, emoji, childBirthday, familyTimezone, pinHash, username, pinFp]
       );
       const child = childResult.rows[0];
 

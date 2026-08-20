@@ -99,7 +99,16 @@
     document.head.appendChild(style);
   }
 
-  let gateMap = { SE: true, EU: false, UK: false, US: false, OTHER: false };
+  let gateMap = {
+    SE: true,
+    IE: false,
+    NO: false,
+    DK: false,
+    EU: false,
+    UK: false,
+    US: false,
+    OTHER: false,
+  };
 
   async function loadGates() {
     try {
@@ -108,6 +117,9 @@
       const data = await res.json();
       gateMap = {
         SE: data.market_se_open !== false,
+        IE: data.market_ie_open === true,
+        NO: data.market_no_open === true,
+        DK: data.market_dk_open === true,
         EU: data.market_eu_open === true,
         UK: data.market_uk_open === true,
         US: data.market_us_open === true,
@@ -118,6 +130,9 @@
 
   function isCountryOpen(code) {
     if (code === 'SE') return gateMap.SE;
+    if (code === 'IE') return gateMap.IE;
+    if (code === 'NO') return gateMap.NO;
+    if (code === 'DK') return gateMap.DK;
     if (code === 'GB') return gateMap.UK;
     if (code === 'US') return gateMap.US;
     if (code === 'ZZ') return gateMap.OTHER;
@@ -128,6 +143,9 @@
   function closedMarketMessage(code) {
     if (!code || isCountryOpen(code)) return '';
     if (window.I18n) {
+      if (code === 'IE') return I18n.t('market.choice.closedIe');
+      if (code === 'NO') return I18n.t('market.choice.closedNo');
+      if (code === 'DK') return I18n.t('market.choice.closedDk');
       if (code === 'GB') return I18n.t('market.choice.closedUk');
       if (code === 'US') return I18n.t('market.choice.closedUs');
       if (code === 'ZZ') return I18n.t('market.choice.closedOther');

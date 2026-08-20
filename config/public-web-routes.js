@@ -19,6 +19,12 @@ const PUBLIC_WEB_ROUTES = [
 
 const EN_ONLY_STATIC = [
   { path: '/en/how-it-works', file: 'en-how-it-works.html' },
+  { path: '/en/eea/privacy', file: 'en/eea-privacy.html' },
+  { path: '/en/eea/terms', file: 'en/eea-terms.html' },
+  { path: '/en/eea/child-privacy', file: 'en/eea-child-privacy.html' },
+  { path: '/en/uk/privacy', file: 'en/uk-privacy.html' },
+  { path: '/en/uk/terms', file: 'en/uk-terms.html' },
+  { path: '/en/tracking-choices', file: 'en/tracking-choices.html' },
 ];
 
 function allEnglishPaths() {

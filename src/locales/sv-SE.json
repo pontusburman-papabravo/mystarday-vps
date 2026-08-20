@@ -52,6 +52,9 @@
       "hint": "",
       "required": "Välj land för att fortsätta",
       "closedEu": "My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.",
+      "closedIe": "My Starday är inte tillgängligt i Irland ännu.",
+      "closedNo": "My Starday är inte tillgängligt i Norge ännu.",
+      "closedDk": "My Starday är inte tillgängligt i Danmark ännu.",
       "closedUk": "My Starday är inte tillgängligt i Storbritannien ännu.",
       "closedUs": "My Starday är inte tillgängligt i USA ännu.",
       "closedOther": "My Starday är inte tillgängligt i ditt land ännu."
@@ -411,6 +414,9 @@
         "familyNameRequired": "Namn krävs för att skapa ett familjkonto",
         "marketClosed": {
           "MARKET_SE_CLOSED": "Registrering från Sverige är tillfälligt stängd.",
+          "MARKET_IE_CLOSED": "My Starday är inte tillgängligt i Irland ännu.",
+          "MARKET_NO_CLOSED": "My Starday är inte tillgängligt i Norge ännu.",
+          "MARKET_DK_CLOSED": "My Starday är inte tillgängligt i Danmark ännu.",
           "MARKET_EU_CLOSED": "My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.",
           "MARKET_UK_CLOSED": "My Starday is not available in the United Kingdom yet.",
           "MARKET_US_CLOSED": "My Starday is not available in the United States yet.",
@@ -1006,6 +1012,27 @@
       "day5Body": "Kolla Skattkammaren — vad drömmer {{childName}} om? 🎁",
       "day6Body": "Vill du dela ansvaret med någon? 👥",
       "day7Body": "Grattis! Hur har veckan varit?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Något gick fel.",
+          "rewardIdRequired": "reward_id krävs",
+          "childNotFound": "Barn hittades inte",
+          "rewardNotFound": "Belöning hittades inte",
+          "requestNotFound": "Begäran hittades inte",
+          "pendingOnlyApprove": "Kan bara godkänna väntande begäran",
+          "pendingOnlyDeny": "Kan bara neka väntande begäran",
+          "childIdRequired": "child_id krävs",
+          "reasonRequired": "Anledning krävs",
+          "starCountRange": "Antal stjärnor måste vara 1–100"
+        }
+      },
+      "success": {
+        "goalSet": "Mål satt!"
+      }
     }
   },
   "api": {
