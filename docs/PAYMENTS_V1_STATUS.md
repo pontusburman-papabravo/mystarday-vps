@@ -1,6 +1,6 @@
 # PAYMENTS V1 — Implementation status
 
-Last verified HEAD: `security-patch` commit on `cursor/payments-v1-premium-a1b7` (see PR #1050)
+Last verified HEAD: `a9704d61` on `cursor/payments-v1-premium-a1b7` (PR #1050)
 
 ## Done
 
