@@ -56,14 +56,28 @@ UK and US registration are **closed by default** until legal/readiness gates pas
 
 | feature_flag | Default | Effect |
 |--------------|---------|--------|
+| `market_se_open` | ON | Sweden (explicit gate; fail-safe if row missing) |
+| `market_ie_open` | OFF | Ireland — staged EEA expansion (first wave after SE) |
+| `market_no_open` | OFF | Norway — reserved for later wave |
+| `market_dk_open` | OFF | Denmark — reserved for later wave |
+| `market_eu_open` | OFF | Other EU/EEA countries (bulk fallback) |
 | `market_uk_open` | OFF | Blocks new `GB` registrations |
 | `market_us_open` | OFF | Blocks new `US` registrations |
+| `market_other_open` | OFF | Blocks `ZZ` / unknown |
 
-EU/SE/OTHER registrations remain open. English beta in Sweden does **not** open UK/US.
+**Staged override:** Per-country gates (IE, NO, DK) take precedence over `market_eu_open`. Example: IE can open while bulk EU remains closed.
 
-### 4. Legal document routing (future)
+**Note:** `market_region = EU` is the **legacy technical bucket** for EU/EEA/CH — not renamed to EEA in code. Legal rules may depend on `country_code` inside that bucket (e.g. IE vs SE).
 
-Privacy/terms/consent versions are keyed by **`market_region`**, not `preferred_locale` alone.
+EU/SE registrations remain open via `market_se_open`. English beta in Sweden does **not** open UK/US/IE.
+
+See `docs/international-expansion-v1-engineering-spec.md` for implementation detail.
+
+### 4. Legal document routing
+
+Privacy/terms/consent versions are keyed by **`country_code` + `market_region`**, not `preferred_locale` alone.
+
+Implementation: `src/lib/legal-routing.js`, `GET /api/market/legal-routes`.
 
 Example:
 
@@ -71,7 +85,10 @@ Example:
 preferred_locale = en-GB
 country_code     = SE
 market_region    = EU
-→ English UI + EU/Swedish-market legal documents
+→ English UI + English EEA legal routes (/en/eea/*), not UK
+
+country_code     = IE
+→ English EEA legal routes (placeholder until IE overlay copy ships)
 ```
 
 ### 5. Child consent model (principle)
@@ -83,9 +100,11 @@ market_region    = EU
 ### 6. Launch order (locked)
 
 1. **Sweden + English language beta** — same EU market; tests translation without new jurisdiction
-2. **EU/EES** — collect concrete `country_code`; shared GDPR base + national matrix
-3. **United Kingdom** — separate release (`market_uk_open`, UK privacy, Children’s Code, DPIA)
-4. **United States** — separate release after COPPA review (`market_us_open`)
+2. **Ireland (staged)** — first explicit EEA country gate (`market_ie_open`); en-GB; compliance gate before ON
+3. **Norway / Denmark** — later per-country gates (`market_no_open`, `market_dk_open`)
+4. **Other EU/EES** — `market_eu_open` bulk when ready
+5. **United Kingdom** — separate release (`market_uk_open`, UK privacy, Children's Code, DPIA)
+6. **United States** — separate release after COPPA review (`market_us_open`)
 
 ### 7. Translation coverage rule
 

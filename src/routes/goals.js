@@ -34,9 +34,20 @@ const {
   UUIDParam,
 } = require('../lib/schemas');
 const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { parentApiMessage } = require('../lib/parent-api-messages');
 const { localizeRewardRow, localizeRewardItems } = require('../lib/family-content-display');
 const { resolveChildContentLocaleForFamily } = require('../lib/child-ui-locale');
 const { sendChildTreasureError } = require('../lib/child-treasure-api-errors');
+
+async function parentGoalsError(res, familyId, key, status = 500, params = {}) {
+  const locale = await getFamilyPreferredLocale(familyId);
+  return res.status(status).json({ error: parentApiMessage(locale, `errors.goals.${key}`, params) });
+}
+
+async function parentGoalsSuccess(res, familyId, key, extra = {}) {
+  const locale = await getFamilyPreferredLocale(familyId);
+  return res.json({ message: parentApiMessage(locale, `success.${key}`), ...extra });
+}
 
 // ─── SSE helper: look up family_id for a child ───────────
 async function getChildFamilyId(childId) {
@@ -137,7 +148,7 @@ parentRouter.get('/goals', async (req, res) => {
     res.json({ goals });
   } catch (err) {
     console.error('[GOALS] List error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -150,18 +161,18 @@ parentRouter.put('/goals/:childId', validate(SetGoalSchema), async (req, res) =>
   try {
     const { childId } = req.params;
     const { reward_id } = req.body;
-    if (!reward_id) return res.status(400).json({ error: 'reward_id krävs' });
+    if (!reward_id) return parentGoalsError(res, req.user.familyId, 'rewardIdRequired', 400);
 
     // Verify child belongs to this parent's family
     const childCheck = await getChildAccess(req.user.id, childId);
-    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!childCheck) return parentGoalsError(res, req.user.familyId, 'childNotFound', 404);
 
     // Verify reward belongs to this family
     const rewardCheck = await db.query(
       'SELECT id, name FROM reward WHERE id = $1 AND family_id = $2 AND is_active = true',
       [reward_id, childCheck.family_id]
     );
-    if (rewardCheck.rows.length === 0) return res.status(404).json({ error: 'Belöning hittades inte' });
+    if (rewardCheck.rows.length === 0) return parentGoalsError(res, req.user.familyId, 'rewardNotFound', 404);
 
     const client = await db.getClient();
     try {
@@ -185,7 +196,7 @@ parentRouter.put('/goals/:childId', validate(SetGoalSchema), async (req, res) =>
         [childId, reward_id, req.user.id]
       );
       await client.query('COMMIT');
-      res.json({ message: 'Mål satt!', goal_id: result.rows[0].id });
+      return parentGoalsSuccess(res, req.user.familyId, 'goalSet', { goal_id: result.rows[0].id });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -194,7 +205,7 @@ parentRouter.put('/goals/:childId', validate(SetGoalSchema), async (req, res) =>
     }
   } catch (err) {
     console.error('[GOALS] Set error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -206,7 +217,7 @@ parentRouter.get('/goals/:childId/pending', async (req, res) => {
   try {
     const { childId } = req.params;
     const childCheck = await getChildAccess(req.user.id, childId);
-    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!childCheck) return parentGoalsError(res, req.user.familyId, 'childNotFound', 404);
 
     const result = await db.query(
       `SELECT crgcr.id, crgcr.status, crgcr.created_at,
@@ -222,7 +233,7 @@ parentRouter.get('/goals/:childId/pending', async (req, res) => {
     res.json({ request: result.rows[0] || null });
   } catch (err) {
     console.error('[GOALS] Pending check error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -240,8 +251,8 @@ parentRouter.put('/goal-change-requests/:id/approve', async (req, res) => {
        WHERE crgcr.id = $1 AND pc.parent_id = $2 AND pc.revoked_at IS NULL`,
       [req.params.id, req.user.id]
     );
-    if (cr.rows.length === 0) return res.status(404).json({ error: 'Begäran hittades inte' });
-    if (cr.rows[0].status !== 'pending') return res.status(400).json({ error: 'Kan bara godkänna väntande begäran' });
+    if (cr.rows.length === 0) return parentGoalsError(res, req.user.familyId, 'requestNotFound', 404);
+    if (cr.rows[0].status !== 'pending') return parentGoalsError(res, req.user.familyId, 'pendingOnlyApprove', 400);
 
     const { child_id, to_reward_id } = cr.rows[0];
     const client = await db.getClient();
@@ -276,7 +287,7 @@ parentRouter.put('/goal-change-requests/:id/approve', async (req, res) => {
     }
   } catch (err) {
     console.error('[GOALS] Approve change request error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -292,8 +303,8 @@ parentRouter.put('/goal-change-requests/:id/deny', async (req, res) => {
        WHERE crgcr.id = $1 AND pc.parent_id = $2 AND pc.revoked_at IS NULL`,
       [req.params.id, req.user.id]
     );
-    if (cr.rows.length === 0) return res.status(404).json({ error: 'Begäran hittades inte' });
-    if (cr.rows[0].status !== 'pending') return res.status(400).json({ error: 'Kan bara neka väntande begäran' });
+    if (cr.rows.length === 0) return parentGoalsError(res, req.user.familyId, 'requestNotFound', 404);
+    if (cr.rows[0].status !== 'pending') return parentGoalsError(res, req.user.familyId, 'pendingOnlyDeny', 400);
     await db.query(
       `UPDATE child_reward_goal_change_request
        SET status = 'denied', resolved_by = $1, updated_at = NOW()
@@ -303,7 +314,7 @@ parentRouter.put('/goal-change-requests/:id/deny', async (req, res) => {
     res.json({ message: 'Målbyte nekat.' });
   } catch (err) {
     console.error('[GOALS] Deny change request error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -315,16 +326,16 @@ parentRouter.put('/goal-change-requests/:id/deny', async (req, res) => {
 parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res) => {
   try {
     const { child_id, star_count, reason, image_url } = req.body;
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
-    if (!reason || !reason.trim()) return res.status(400).json({ error: 'Anledning krävs' });
+    if (!child_id) return parentGoalsError(res, req.user.familyId, 'childIdRequired', 400);
+    if (!reason || !reason.trim()) return parentGoalsError(res, req.user.familyId, 'reasonRequired', 400);
     const count = parseInt(star_count, 10);
     if (isNaN(count) || count < 1 || count > 100) {
-      return res.status(400).json({ error: 'Antal stjärnor måste vara 1–100' });
+      return parentGoalsError(res, req.user.familyId, 'starCountRange', 400);
     }
 
     // Verify child belongs to this parent
     const childCheck = await getChildAccess(req.user.id, child_id);
-    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!childCheck) return parentGoalsError(res, req.user.familyId, 'childNotFound', 404);
 
     await db.query(
       `INSERT INTO manual_star_grant (child_id, granted_by, star_count, reason, image_url)
@@ -352,7 +363,7 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
     }).catch((err) => console.error('[GOALS] STAR_GRANTED broadcast failed:', err.message));
   } catch (err) {
     console.error('[GOALS] Manual stars error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -363,7 +374,7 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
 parentRouter.get('/manual-stars/:childId', async (req, res) => {
   try {
     const childCheck = await getChildAccess(req.user.id, req.params.childId);
-    if (!childCheck) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!childCheck) return parentGoalsError(res, req.user.familyId, 'childNotFound', 404);
 
     const result = await db.query(
       `SELECT msg.id, msg.star_count, msg.reason, msg.image_url, msg.created_at,
@@ -377,7 +388,7 @@ parentRouter.get('/manual-stars/:childId', async (req, res) => {
     res.json({ grants: result.rows });
   } catch (err) {
     console.error('[GOALS] Manual stars list error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -403,7 +414,7 @@ parentRouter.get('/redemption-history', async (req, res) => {
     res.json({ history: result.rows });
   } catch (err) {
     console.error('[GOALS] Redemption history error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 
@@ -447,7 +458,7 @@ parentRouter.get('/pending-requests', async (req, res) => {
     });
   } catch (err) {
     console.error('[GOALS] Pending requests error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    return parentGoalsError(res, req.user.familyId, 'generic');
   }
 });
 

@@ -59,6 +59,7 @@
       }
       if (name === 'prenumeration' && typeof loadSubscriptionSettings === 'function') {
         loadSubscriptionSettings();
+        if (typeof loadMarketRegistrationStatus === 'function') loadMarketRegistrationStatus();
         if (typeof syncPrenumerationWorkspace === 'function') {
           syncPrenumerationWorkspace(route && route.canonicalKey);
         }

@@ -18,6 +18,9 @@ const MARKET_REGIONS = Object.freeze({
 
 const GATE_KEYS = Object.freeze({
   SE: 'market_se_open',
+  IE: 'market_ie_open',
+  NO: 'market_no_open',
+  DK: 'market_dk_open',
   EU: 'market_eu_open',
   UK: 'market_uk_open',
   US: 'market_us_open',
@@ -27,6 +30,9 @@ const GATE_KEYS = Object.freeze({
 /** Default when feature_flag row is missing (fail-safe: only Sweden open). */
 const GATE_DEFAULTS = Object.freeze({
   market_se_open: true,
+  market_ie_open: false,
+  market_no_open: false,
+  market_dk_open: false,
   market_eu_open: false,
   market_uk_open: false,
   market_us_open: false,
@@ -39,6 +45,17 @@ const KNOWN_COUNTRY_CODES = new Set([
   'US',
   'ZZ',
 ]);
+
+/** Countries with explicit per-country gates (staged EEA rollout). */
+const COUNTRY_SPECIFIC_GATE_KEYS = Object.freeze({
+  SE: GATE_KEYS.SE,
+  IE: GATE_KEYS.IE,
+  NO: GATE_KEYS.NO,
+  DK: GATE_KEYS.DK,
+  GB: GATE_KEYS.UK,
+  US: GATE_KEYS.US,
+  ZZ: GATE_KEYS.OTHER,
+});
 
 function normalizeCountryCode(input) {
   if (input == null || input === '') return null;
@@ -63,7 +80,7 @@ function isKnownRegistrationCountryCode(countryCode) {
 
 function gateKeyForCountry(countryCode) {
   const code = normalizeCountryCode(countryCode) || 'SE';
-  if (code === 'SE') return GATE_KEYS.SE;
+  if (COUNTRY_SPECIFIC_GATE_KEYS[code]) return COUNTRY_SPECIFIC_GATE_KEYS[code];
   const region = deriveMarketRegion(code);
   if (region === MARKET_REGIONS.EU) return GATE_KEYS.EU;
   if (region === MARKET_REGIONS.UK) return GATE_KEYS.UK;
@@ -88,7 +105,7 @@ async function readMarketGateFlag(key) {
 
 /**
  * Whether new registration is allowed for this country.
- * Gates are per market segment; Sweden is the only default-open market.
+ * Per-country gates (IE/NO/DK) override the aggregate EU gate.
  */
 async function isMarketOpenForRegistration(countryCode) {
   const key = gateKeyForCountry(countryCode);
@@ -97,6 +114,9 @@ async function isMarketOpenForRegistration(countryCode) {
 
 function marketClosedCode(countryCode) {
   const code = normalizeCountryCode(countryCode) || 'SE';
+  if (code === 'IE') return 'MARKET_IE_CLOSED';
+  if (code === 'NO') return 'MARKET_NO_CLOSED';
+  if (code === 'DK') return 'MARKET_DK_CLOSED';
   const region = deriveMarketRegion(code);
   if (region === MARKET_REGIONS.UK) return 'MARKET_UK_CLOSED';
   if (region === MARKET_REGIONS.US) return 'MARKET_US_CLOSED';
@@ -107,6 +127,9 @@ function marketClosedCode(countryCode) {
 
 const MARKET_CLOSED_MESSAGES = Object.freeze({
   MARKET_SE_CLOSED: 'Registrering från Sverige är tillfälligt stängd.',
+  MARKET_IE_CLOSED: 'My Starday is not available in Ireland yet.',
+  MARKET_NO_CLOSED: 'My Starday is not available in Norway yet.',
+  MARKET_DK_CLOSED: 'My Starday is not available in Denmark yet.',
   MARKET_EU_CLOSED: 'My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.',
   MARKET_UK_CLOSED: 'My Starday is not available in the United Kingdom yet.',
   MARKET_US_CLOSED: 'My Starday is not available in the United States yet.',
@@ -136,10 +159,44 @@ function resolveRegistrationCountry({
   };
 }
 
+/** @typedef {{ code: string, label: string, gateKey: string, marketRegion: string }} MarketRegistrationStatusRow */
+
+const MARKET_STATUS_COUNTRIES = Object.freeze([
+  { code: 'SE', label: 'Sweden' },
+  { code: 'IE', label: 'Ireland' },
+  { code: 'NO', label: 'Norway' },
+  { code: 'DK', label: 'Denmark' },
+  { code: 'GB', label: 'United Kingdom' },
+  { code: 'US', label: 'United States' },
+]);
+
+/**
+ * Effective registration gate state for admin/ops dashboards.
+ * @returns {Promise<MarketRegistrationStatusRow[]>}
+ */
+async function getMarketRegistrationStatus() {
+  const rows = await Promise.all(
+    MARKET_STATUS_COUNTRIES.map(async (entry) => {
+      const gateKey = gateKeyForCountry(entry.code);
+      const open = await readMarketGateFlag(gateKey);
+      return {
+        code: entry.code,
+        label: entry.label,
+        gateKey,
+        marketRegion: deriveMarketRegion(entry.code),
+        open,
+      };
+    })
+  );
+  return rows;
+}
+
 module.exports = {
   MARKET_REGIONS,
   GATE_KEYS,
   GATE_DEFAULTS,
+  COUNTRY_SPECIFIC_GATE_KEYS,
+  MARKET_STATUS_COUNTRIES,
   normalizeCountryCode,
   deriveMarketRegion,
   isKnownRegistrationCountryCode,
@@ -148,4 +205,5 @@ module.exports = {
   marketClosedCode,
   marketClosedMessage,
   resolveRegistrationCountry,
+  getMarketRegistrationStatus,
 };

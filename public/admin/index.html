@@ -1538,6 +1538,24 @@
         
         <div id="prenumerationSection" class="mb-8 hidden">
           <h3 class="text-2xl font-heading font-bold text-navy mb-2">Prenumeration &amp; IAP</h3>
+          <div id="marketGatesPanel" class="bg-white rounded-2xl border-2 border-lavender p-4 mb-6 max-w-3xl overflow-x-auto">
+            <h4 class="text-lg font-heading font-bold text-navy mb-2">Marknadsportar (registrering)</h4>
+            <p id="marketGatesHint" class="text-sm text-text-soft mb-3">Staged country gates — IE förblir stängd tills P-IE-LAUNCH.</p>
+            <table class="w-full text-left">
+              <thead>
+                <tr class="text-xs uppercase text-text-soft border-b border-lavender">
+                  <th class="py-2 pr-3">Land</th>
+                  <th class="py-2 pr-3">Namn</th>
+                  <th class="py-2 pr-3">Flagga</th>
+                  <th class="py-2 pr-3">Region</th>
+                  <th class="py-2 pr-3">Status</th>
+                </tr>
+              </thead>
+              <tbody id="marketGatesTableBody">
+                <tr><td colspan="5" class="py-4 text-sm text-text-soft">Laddar…</td></tr>
+              </tbody>
+            </table>
+          </div>
           <div id="prenumerationWorkspaceTabs"></div>
           <div id="prenumerationSettingsPanels">
           <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl">
@@ -2227,6 +2245,7 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-family-hub.js?v=1.1.0"></script>
   <script src="/admin/admin-command-palette.js?v=1.1.0"></script>
   <script src="/admin/admin-subscription-settings.js?v=1.0.2"></script>
+  <script src="/admin/admin-market-gates.js?v=1.0.0"></script>
   <script src="/admin/admin-library.js?v=2.1.1"></script>
 
   <script src="/admin/admin-retention.js"></script>
