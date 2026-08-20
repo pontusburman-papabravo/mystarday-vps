@@ -8,14 +8,18 @@
 
 ## Executive summary
 
-Track 1 is **substantially launch-usable** under internal risk acceptance. Eight of nine priority decisions are **accepted** with documented interpretation and product alignment (including **LDRA-A2 Article 9 guardrails**). **Two operational blockers remain open** (processor/hosting verification and transfer mechanism documentation) before we flip `resolveLegalRoutes()` to `live`.
+Track 1 **interna compliance sign-off är godkänd** av controller (20 Aug 2026, verifierat mot `4f5859d2`). Dokumenterade residualrisker accepterade. **Två ops-blockers kvarstår** (LDRA-A3, A4) innan `resolveLegalRoutes()` → `live`.
 
 We do **not** claim legal approval. Public documents carry honest v0.1 disclaimers.
 
-**Founder sign-off:** Ready **after this A2 guardrail pass** — conditional on A3 + A4 before `legal-routing=live`.
+**Founder sign-off:** ✅ **Approved** — internal risk acceptance only; not external legal verification.
 
-**`market_ie_open`** — still OFF (store + RC + launch control independent).  
-**`resolveLegalRoutes()`** — still `placeholder` (flip in separate PR after A3/A4 close).
+**Gates efter sign-off:**
+
+| Gate | Status |
+|------|--------|
+| `resolveLegalRoutes()` → `live` | Blocked until **A3 + A4 closed** (separate PR) |
+| `market_ie_open ON` | Blocked until **Commercial/Store + Ireland RC + Launch Control** |
 
 ---
 
@@ -29,7 +33,7 @@ We do **not** claim legal approval. Public documents carry honest v0.1 disclaime
 | 4 | Child lawful bases documented | ✅ | [`lawful-basis-register.md`](./internal/lawful-basis-register.md) + A2 Art. 9 guardrails |
 | 5 | Irish IAP disclosures match flow | ✅ | EEA Terms §7; RevenueCat/native only |
 
-**Overall:** **Conditional pass** — founder sign-off eligible after A2 guardrails; `live` flip still requires A3/A4 ops verification.
+**Overall:** ✅ **Founder sign-off complete** — Track 1 internally accepted. `live` flip requires A3/A4; `market_ie_open` requires commercial/RC/launch control.
 
 ---
 
@@ -104,9 +108,13 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 
 ## Sign-off
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| Controller representative | _Eligible for founder sign-off after A2 guardrail merge_ | | |
+| Role | Name | Date | Record |
+|------|------|------|--------|
+| Controller representative | Papa Bravo AB (founder) | 2026-08-20 | **Approved** — internal compliance sign-off; documented residual risks accepted. Verified A2 on `4f5859d2`. |
 | Engineering (code baseline) | Track 1 agent pass | 2026-08-20 | Code-derived docs complete |
+
+### Founder acceptance statement
+
+> Ja — jag godkänner Track 1:s interna compliance sign-off och accepterar de dokumenterade residualriskerna. A3 och A4 ska vara stängda innan `resolveLegalRoutes()` sätts till live. `market_ie_open` ska fortsatt vara OFF tills Commercial/Store, Ireland RC och Launch Control är godkända. Detta är intern riskacceptans och inte ett påstående om extern juridisk verifiering.
 
 This report does **not** constitute legal advice.

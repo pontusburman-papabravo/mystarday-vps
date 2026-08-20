@@ -2,7 +2,7 @@
 
 **Project:** P-IE-LAUNCH Track 1  
 **Controller:** Papa Bravo AB (Sweden)  
-**Status:** Internal compliance sign-off — **not externally legally verified**  
+**Status:** Founder sign-off complete (2026-08-20, `4f5859d2`) — **not externally legally verified**  
 **Purpose:** Document our interpretation, product decisions, and accepted residual risk for Ireland launch prep.
 
 ---

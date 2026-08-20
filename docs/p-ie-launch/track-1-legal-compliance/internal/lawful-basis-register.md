@@ -53,4 +53,4 @@ Optional `pedagog_notes` / `child_observation` (mood, sleep, behaviour, free tex
 
 ## Sign-off
 
-Internal acceptance per [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md). Not externally legally verified.
+**Sign-off:** Founder approved 2026-08-20 — see [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md). Not externally legally verified.

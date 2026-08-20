@@ -64,7 +64,7 @@ Source: [`implementation-baseline.md`](../implementation-baseline.md)
 | **Proceed to `resolveLegalRoutes()` live** | LDRA-A3 + A4 closed + founder sign-off |
 | **Proceed to `market_ie_open ON`** | Above + commercial track + RC |
 
-**Sign-off:** See [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md)
+**Sign-off:** Founder approved 2026-08-20 — see [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md)
 
 ---
 

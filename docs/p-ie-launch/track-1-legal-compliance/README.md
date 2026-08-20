@@ -1,6 +1,6 @@
 # P-IE-LAUNCH — Track 1: Legal & Compliance Reality Build
 
-**Status:** Internal compliance package (code-derived, August 2026)  
+**Status:** Founder sign-off complete (20 Aug 2026, commit `4f5859d2`) — **not externally legally verified**. A3/A4 remain open before `resolveLegalRoutes()` → `live`.  
 **Scope:** Ireland launch legal/compliance — **no product changes, no gates, no deploy**  
 **Source of truth for behaviour:** live deployed codebase + deployed architecture (not aspirational policy)
 
@@ -68,13 +68,13 @@ EEA English documents reflect **code reality**. Swedish `/privacy` cookies and h
 
 Track 1 is launch-ready when:
 
-- [ ] No **HIGH** unresolved risks in [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md)
+- [x] No **HIGH** unresolved risks in [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md)
 - [ ] LDRA-A3 processor/hosting facts verified and filed
 - [ ] LDRA-A4 transfer mechanisms documented
-- [ ] Public docs match verified implementation
-- [ ] Child lawful bases documented
-- [ ] Irish IAP disclosures match paywall (commercial track)
-- [ ] Founder/controller sign-off on [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md)
+- [x] Public docs match verified implementation
+- [x] Child lawful bases documented
+- [x] Irish IAP disclosures match paywall (commercial track)
+- [x] Founder/controller sign-off on [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md) (20 Aug 2026)
 - [ ] `resolveLegalRoutes()` `placeholder` → `live` (separate PR — **not** in Track 1)
 - [ ] Commercial/store track + Ireland RC complete before `market_ie_open ON`
 
