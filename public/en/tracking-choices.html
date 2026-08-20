@@ -1,21 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en/tracking-choices">
+  <link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta property="og:title" content="Your privacy choices — My Starday">
+  <meta property="og:description" content="How My Starday uses cookies, analytics and marketing tags — and how you can control them.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="__SITE_URL__/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="__SITE_URL__/og-image.png">
   <title>Your privacy choices — My Starday</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1.25rem; color: #1B2340; line-height: 1.6; }
-    h1 { font-size: 1.5rem; }
-    a { color: #B8860B; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #F5A623; --gold-light: #FFF3D6; --navy: #1B2340; --navy-soft: #2A3458;
+      --text: #1B2340; --text-soft: #5A6178; --white: #FFFFFF; --bg: #FAFBFF;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+    nav { padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(250,251,255,0.95); border-bottom: 1px solid rgba(27,35,64,0.08); }
+    .logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .logo-star { width: 32px; height: 32px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; }
+    .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--navy); }
+    .back-link { font-size: 0.9rem; color: var(--navy); text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; background: var(--gold-light); }
+    .back-link:hover { background: var(--gold); color: white; }
+
+    .content { max-width: 740px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+    .content h1 { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem; }
+    .updated { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 1.5rem; }
+
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin: 2.5rem 0 0.8rem; }
+    h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin: 1.5rem 0 0.5rem; }
+    p { color: var(--text-soft); margin-bottom: 1rem; font-size: 0.98rem; }
+    ul { color: var(--text-soft); font-size: 0.98rem; padding-left: 1.5rem; margin-bottom: 1rem; }
+    ul li { margin-bottom: 0.4rem; }
+    a { color: var(--gold); font-weight: 600; }
+    a:hover { text-decoration: underline; }
+
+    .review-notice { background: var(--gold-light); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; border-left: 4px solid var(--gold); font-size: 0.92rem; color: var(--navy); }
+    .review-notice strong { display: block; margin-bottom: 0.35rem; }
+
+    .highlight-box { background: var(--gold-light); border-radius: 16px; padding: 1.5rem; margin: 2rem 0; border-left: 4px solid var(--gold); }
+    .highlight-box p { color: var(--navy); margin: 0; font-weight: 500; }
+
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.92rem; }
+    th, td { text-align: left; padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(27,35,64,0.1); vertical-align: top; }
+    th { color: var(--navy); font-family: 'Outfit', sans-serif; font-weight: 700; }
+    td { color: var(--text-soft); }
+
+    footer { padding: 2rem; text-align: center; font-size: 0.82rem; color: var(--text-soft); background: var(--gold-light); }
+    footer a { color: var(--navy); text-decoration: none; font-weight: 500; }
   </style>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="My Starday">
+  <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/public-lang-switcher.js?v=2"></script>
 </head>
 <body>
-  <h1>Your privacy choices</h1>
-  <p>We use necessary technologies to make My Starday work securely.</p>
-  <p>With your permission, we may also use optional analytics to understand how our service is used and improve it. Optional analytics and marketing are not required for the core service.</p>
-  <p>When you are signed in, manage your choices in <strong>Settings → Privacy</strong>. On our public website, use the cookie banner or footer link to update your choices.</p>
-  <p>We do not send child routine or completion data to advertising platforms.</p>
-  <p><a href="/en">← Back to My Starday</a></p>
+  <nav>
+    <a href="/en" class="logo">
+      <div class="logo-star">&#9733;</div>
+      <span class="logo-text">My Starday</span>
+    </a>
+    <a href="/en" class="back-link">&#8592; Back</a>
+  </nav>
+
+  <div class="content">
+    <h1>Your privacy choices</h1>
+    <p class="updated">How we use cookies and similar technologies · review-notice version 0.1</p>
+
+    <div class="review-notice" role="status">
+      <strong>Internal compliance sign-off</strong>
+      This page describes how tracking works in the My Starday product today. It is not externally legally verified. For broader privacy information, see our EEA privacy notice.
+    </div>
+
+    <div class="highlight-box">
+      <p>Necessary cookies and session storage are always on so My Starday can work securely. Optional analytics and marketing are <strong>off by default</strong> until you choose to turn them on. We never send child routine or completion data to advertising platforms.</p>
+    </div>
+
+    <h2>Always on — necessary for the service</h2>
+    <p>These are required whether you are browsing our public website or signed in to the app. You cannot switch them off without breaking login and security.</p>
+    <ul>
+      <li><strong>Session and login cookies</strong> — keep you signed in and protect your account (httpOnly access and refresh tokens)</li>
+      <li><strong>Security and functionality storage</strong> — always granted in Google Consent Mode (<code>security_storage</code>, <code>functionality_storage</code> on the public website)</li>
+      <li><strong>Settings you choose</strong> — for example theme or display preferences stored locally</li>
+    </ul>
+    <p>The core app — schedules, stars, child PIN login, and family data — works without optional analytics or marketing.</p>
+
+    <h2>Optional — only if you opt in</h2>
+    <p>On our <strong>public website</strong> (pages like the English landing page), a cookie banner asks for your permission before optional tracking starts. Until you choose otherwise, analytics and marketing consent stay <strong>denied</strong>. You can reject all, accept all, or pick individual categories.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>What it does</th>
+          <th>Technologies</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Analytics</strong></td>
+          <td>Helps us understand how the website is used so we can improve it. Page views are not sent until you allow analytics.</td>
+          <td>Google Analytics 4 (<code>G-8PYNFJH1EQ</code>) via Google Consent Mode v2 (<code>analytics_storage</code>)</td>
+          <td>Off</td>
+        </tr>
+        <tr>
+          <td><strong>Marketing</strong></td>
+          <td>Measures ad campaigns and may support remarketing on the website. Loads only after marketing consent.</td>
+          <td>Meta Pixel (<code>2130511090854218</code>) and Google Ads (<code>AW-7601142474</code>) via Consent Mode (<code>ad_storage</code>, <code>ad_user_data</code>, <code>ad_personalization</code>)</td>
+          <td>Off</td>
+        </tr>
+        <tr>
+          <td><strong>Personalisation</strong></td>
+          <td>Adapts content and recommendations on the website when enabled.</td>
+          <td>Google Consent Mode (<code>personalization_storage</code>)</td>
+          <td>Off</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Your website choices are saved in <code>localStorage</code> (<code>cookie_consent</code>) and a first-party <code>cc_consent</code> cookie so we remember them for up to one year.</p>
+
+    <h2>When you are signed in</h2>
+    <p>Inside the app, optional tracking is managed separately through your account consent, not the public cookie banner. Go to <strong>Settings → Privacy</strong> (the “Samtycke &amp; Integritet” section) to review or change:</p>
+    <ul>
+      <li>Analytics &amp; improvement (<code>analytics_storage</code>)</li>
+      <li>Marketing (<code>ad_storage</code>)</li>
+      <li>Data to platforms (<code>ad_user_data</code>)</li>
+      <li>Personalisation (<code>ad_personalization</code>)</li>
+    </ul>
+    <p>Choices are stored on our servers via <code>POST /api/consent</code> and applied through the same Google Consent Mode v2 and Meta Pixel rules: nothing optional runs until you grant it.</p>
+
+    <h2>How to change your choices</h2>
+    <h3>On the public website</h3>
+    <ul>
+      <li>Use the <strong>cookie banner</strong> when it appears on your first visit</li>
+      <li>Re-open it any time from the footer link “Cookie settings” (calls <code>CookieBanner.open()</code>)</li>
+      <li>Choose <strong>Reject all</strong> to keep optional tracking off, or <strong>Save my choices</strong> to pick categories individually</li>
+    </ul>
+
+    <h3>In the signed-in app</h3>
+    <ul>
+      <li>Open <strong>Settings → Privacy</strong> and tap <strong>Change consent settings</strong></li>
+    </ul>
+
+    <h3>Native iOS and Android apps</h3>
+    <p>The web-style cookie banner is not shown inside the native app shell. Consent is handled through the in-app Settings flow above.</p>
+
+    <h2>What we never send to ad platforms</h2>
+    <p>Even if you turn on marketing consent, we do <strong>not</strong> send child routine data, activity completions, star history, schedules, or other in-app family content to Meta, Google Ads, or similar advertising platforms. Marketing tags on the website measure site visits and campaign performance — not what a child checked off in their day.</p>
+
+    <h2>More information</h2>
+    <ul>
+      <li><a href="/en/eea/privacy">EEA privacy notice</a></li>
+      <li><a href="/en/eea/child-privacy">Privacy for children</a></li>
+      <li><a href="/en/contact">Contact us</a></li>
+    </ul>
+    <p>Questions about your choices? Use the contact form and we will help.</p>
+  </div>
+
+  <footer>
+    <p>My Starday &mdash; <a href="/en">Home</a> &bull; <a href="/en/eea/privacy">Privacy notice</a> &bull; <a href="/en/eea/child-privacy">Child privacy</a> &bull; <a href="/en/contact">Contact</a></p>
+  </footer>
+  <script src="/js/sw-register.js?v=2.12.0"></script>
 </body>
 </html>

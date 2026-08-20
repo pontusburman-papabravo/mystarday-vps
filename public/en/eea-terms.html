@@ -1,23 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EEA Terms of Service — My Starday</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1.25rem; color: #1B2340; line-height: 1.6; }
-    .banner { background: #FFF3D6; border-left: 4px solid #F5A623; padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 2rem; }
-    h1 { font-size: 1.75rem; }
-    a { color: #B8860B; }
-  </style>
+  <link rel="alternate" hreflang="sv" href="__SITE_URL__/terms">
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en/eea/terms">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta property="og:title" content="EEA Terms of Service — My Starday">
+    <meta property="og:description" content="Terms of service for families using My Starday in the European Economic Area">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="__SITE_URL__/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="__SITE_URL__/og-image.png">
+    <title>EEA Terms of Service — My Starday</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #F5A623; --gold-light: #FFF3D6; --navy: #1B2340; --navy-soft: #2A3458;
+            --text: #1B2340; --text-soft: #5A6178; --white: #FFFFFF; --bg: #FAFBFF;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+        nav { padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(250,251,255,0.95); border-bottom: 1px solid rgba(27,35,64,0.08); }
+        .logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .logo-star { width: 32px; height: 32px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; }
+        .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--navy); }
+        .back-link { font-size: 0.9rem; color: var(--navy); text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; background: var(--gold-light); }
+        .back-link:hover { background: var(--gold); color: white; }
+
+        .content { max-width: 740px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+        .content h1 { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem; }
+        .updated { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 3rem; }
+
+        h2 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin: 2.5rem 0 0.8rem; }
+        p { color: var(--text-soft); margin-bottom: 1rem; font-size: 0.98rem; }
+        ul { color: var(--text-soft); font-size: 0.98rem; padding-left: 1.5rem; margin-bottom: 1rem; }
+        ul li { margin-bottom: 0.4rem; }
+        a { color: var(--gold); font-weight: 600; }
+        a:hover { text-decoration: underline; }
+
+        .highlight-box { background: var(--gold-light); border-radius: 16px; padding: 1.5rem; margin: 2rem 0; border-left: 4px solid var(--gold); }
+        .highlight-box p { color: var(--navy); margin: 0; font-weight: 500; }
+
+        .legal-aside { font-size: 0.88rem; color: var(--text-soft); font-style: italic; border-left: 3px solid rgba(27,35,64,0.12); padding-left: 1rem; margin: 1.25rem 0 1.5rem; }
+
+        footer { padding: 2rem; text-align: center; font-size: 0.82rem; color: var(--text-soft); background: var(--gold-light); }
+        footer a { color: var(--navy); text-decoration: none; font-weight: 500; }
+    </style>
+  <!-- PWA / Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="My Starday">
+  <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
+  <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/public-lang-switcher.js?v=2"></script>
 </head>
 <body>
-  <div class="banner" role="status">
-    <strong>Legal review in progress.</strong> This EEA Terms placeholder is not final legal text.
-  </div>
-  <h1>EEA Terms of Service (draft)</h1>
-  <p>My Starday is preparing English-language terms for families in the European Economic Area.</p>
-  <p>Until the final terms are published, please contact us via the <a href="/en/contact">contact form</a>.</p>
-  <p><a href="/en">← Back to My Starday</a></p>
+    <nav>
+        <a href="/en" class="logo">
+            <div class="logo-star">&#9733;</div>
+            <span class="logo-text">My Starday</span>
+        </a>
+        <a href="/en" class="back-link">&#8592; Back</a>
+    </nav>
+
+    <div class="content">
+        <h1>EEA Terms of Service</h1>
+        <p class="updated">Version 0.1 · August 2026 · Internal compliance sign-off — not externally legally verified</p>
+
+        <div class="highlight-box">
+            <p>Thank you for using My Starday. These terms are written to be clear and fair — not to hide behind legal jargon. If you have questions, please <a href="/en/contact">contact us</a>.</p>
+        </div>
+
+        <p>These Terms of Service (&ldquo;Terms&rdquo;) apply to your use of My Starday when you are located in the European Economic Area (EEA), including Ireland when that market opens. They are a contract between you and <strong>Papa Bravo AB</strong>, the company that provides the service.</p>
+        <p>By creating an account or continuing to use My Starday, you agree to these Terms and to our <a href="/en/eea/privacy">EEA Privacy Notice</a>. If you do not agree, please do not use the service.</p>
+
+        <h2>1. About the service</h2>
+        <p>My Starday is a digital service for families who want structured daily schedules, star rewards for progress, and a dedicated child view where children can follow their activities. The service is intended for parents, carers, and their children.</p>
+        <p>Each family needs at least one adult (parent or carer) with an account. Children sign in to the child view with a PIN chosen by the adult account holder. My Starday is designed for personal, non-commercial family use.</p>
+
+        <h2>2. Account and security</h2>
+        <p>You are responsible for keeping your account and credentials secure:</p>
+        <ul>
+            <li>Choose a strong password and do not share it with others</li>
+            <li>Protect your email address — it is used to recover access to your account</li>
+            <li>The child-view PIN should be known only to the child and their parent or carer</li>
+            <li>Do not use the service in any way that violates applicable law in your country</li>
+        </ul>
+        <p>You are responsible for all activity under your account, including if someone else uses it with or without your permission. If you suspect unauthorised access, please <a href="/en/contact">contact us</a> promptly.</p>
+
+        <h2>3. Children and data</h2>
+        <p>My Starday processes information about children. We follow GDPR and the principle of data minimisation. As the parent or carer who registers the account, you are responsible for:</p>
+        <ul>
+            <li>Creating and managing child profiles in the service</li>
+            <li>Ensuring you have the authority to register children in your care</li>
+            <li>Deciding whether to share reports or time-limited links with professionals such as educators or therapists</li>
+            <li>Helping children understand how the service works, including our <a href="/en/eea/child-privacy">child privacy notice</a></li>
+        </ul>
+        <p>Children are identified in the service by first name (or nickname) and a chosen emoji only — we do not collect surnames, national ID numbers, or contact details for children. We do not use children&rsquo;s data for advertising or for purposes unrelated to running the service.</p>
+        <p>For full details on what we collect, how we use it, and your rights, see our <a href="/en/eea/privacy">EEA Privacy Notice</a>. To remove a child&rsquo;s data, delete the child profile or delete your entire account as described below.</p>
+
+        <h2>4. User content</h2>
+        <p>Schedules, rewards, activities, observations, and other content you add to My Starday belong to you (or your family). You grant Papa Bravo AB permission to store and display that content for as long as your account is active, solely so we can provide the service.</p>
+        <p>We do not copy, sell, or use your family content for marketing. You are responsible for ensuring that content you upload or create does not infringe anyone else&rsquo;s rights or break applicable law.</p>
+
+        <h2>5. Acceptable use</h2>
+        <p>My Starday is for personal, private use within your family. The following is not permitted:</p>
+        <ul>
+            <li>Commercial use of the service without a written agreement with Papa Bravo AB</li>
+            <li>Manipulating schedules, stars, or rewards except through the app&rsquo;s normal flows</li>
+            <li>Using automated tools, scrapers, or bots against the service</li>
+            <li>Uploading, publishing, or sharing content that is illegal, harmful, abusive, or infringing</li>
+            <li>Attempting to bypass security, access other users&rsquo; accounts, or disrupt the service</li>
+        </ul>
+        <p>We may suspend or terminate accounts that violate these rules or applicable law.</p>
+
+        <h2>6. Termination and deletion</h2>
+        <p>You may delete your account at any time. In the app, go to <strong>Settings &rarr; Delete account</strong> and confirm with your password (or verification via Apple or Google sign-in, if you use those methods).</p>
+        <p><strong>Important:</strong> Deletion is immediate and permanent. The following are removed and cannot be recovered:</p>
+        <ul>
+            <li>Your parent account (including name and email address)</li>
+            <li>All child profiles linked to your family</li>
+            <li>All schedules, routines, and activities</li>
+            <li>All daily logs and activity history</li>
+            <li>All stars, rewards, and redemptions</li>
+            <li>Any educator observations or shared report links</li>
+            <li>Family invitations and linked co-parent access</li>
+        </ul>
+        <p>We may also suspend or close an account if it is used in breach of these Terms or applicable law. Where required by law, we will explain the reason and any options available to you.</p>
+
+        <h2>7. Payments and subscriptions</h2>
+        <p>Some features of My Starday may require a paid subscription. On iOS and Android, subscriptions and in-app purchases are processed by <strong>Apple App Store</strong> or <strong>Google Play</strong> through our subscription partner <strong>RevenueCat</strong>. We do not collect or store credit or debit card numbers — payment details are handled entirely by Apple or Google under their own terms and privacy policies.</p>
+        <p>Prices are shown in the app before you confirm a purchase. For users in Ireland and other EEA markets, prices may be displayed in euros (EUR) where applicable. Subscription renewals, cancellations, refunds, and billing disputes on native apps are managed through your Apple or Google account settings, subject to their platform rules.</p>
+        <p>Some families may have free or complimentary access (for example, early supporters or promotional access). If your account has free access, no payment is required for the included features during that period.</p>
+        <p class="legal-aside">Subscriptions on iOS and Android are sold through Apple App Store or Google Play (merchant of record). Prices, auto-renewal, cancellation, and refunds are managed in your store account settings, as described above. Digital content and service rules under Irish and EU consumer law may limit withdrawal once you begin using the service.</p>
+
+        <h2>8. Changes to these Terms</h2>
+        <p>We may update these Terms when needed — for example, because of legal changes, new features, or clarifications. If a change is material (such as how we handle personal data or paid features), we will notify you by email or in-app notice before it takes effect where required by law.</p>
+        <p>The &ldquo;Version&rdquo; date at the top of this page shows when these Terms were last updated. Continued use of My Starday after an update means you accept the revised Terms, unless applicable law gives you additional rights to object or withdraw.</p>
+
+        <h2>9. Liability</h2>
+        <p>My Starday is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo;. We work to keep the service stable and secure, but we cannot guarantee uninterrupted or error-free operation at all times.</p>
+        <p>To the fullest extent permitted by applicable law, Papa Bravo AB is not liable for:</p>
+        <ul>
+            <li>Loss of data caused by events outside our reasonable control (for example, power outages or natural disasters)</li>
+            <li>Harm caused by sharing your password, child PIN, or account access with unauthorised people</li>
+            <li>Indirect or consequential loss, loss of opportunity, or lost data, except where mandatory consumer law in your country requires otherwise</li>
+        </ul>
+        <p>Nothing in these Terms limits liability that cannot be limited under mandatory EEA consumer protection law. Your statutory rights as a consumer remain unaffected.</p>
+        <p>You agree to use My Starday in accordance with these Terms and applicable law in your country of residence within the EEA.</p>
+
+        <h2>10. Contact</h2>
+        <p>Questions about these Terms or My Starday in general? Please reach out:</p>
+        <p><a href="/en/contact">Contact form</a></p>
+        <p>Service provider: Papa Bravo AB</p>
+    </div>
+
+    <footer>
+        <p>My Starday &mdash; <a href="/en">Home</a> &bull; <a href="/en/eea/terms">EEA Terms</a> &bull; <a href="/en/eea/privacy">EEA Privacy</a> &bull; <a href="/en/eea/child-privacy">Child privacy</a> &bull; <a href="/en/contact">Contact</a></p>
+    </footer>
+  <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
+  <script src="/js/sw-register.js?v=2.12.0"></script>
 </body>
 </html>
