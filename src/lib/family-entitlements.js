@@ -104,17 +104,20 @@ function pickWinner(rows, nowMs) {
 /**
  * @param {string} familyId
  * @param {Date} [now]
+ * @param {{ client?: import('pg').PoolClient | null }} [opts]
  */
-async function resolveFamilyEntitlements(familyId, now = new Date()) {
+async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) {
   if (!familyId) {
     return { premium: emptyPremium(), payment_start_at: null };
   }
 
+  const { client = null } = opts;
+  const q = client ? client.query.bind(client) : db.query.bind(db);
   const nowMs = now.getTime();
   const [rows, paymentStartAt, familyRow] = await Promise.all([
-    entitlementsDb.listActiveByFamily(familyId),
+    entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client }),
     getPaymentStartAt(),
-    db.query('SELECT id, created_at, is_lifetime_free FROM family WHERE id = $1', [familyId])
+    q('SELECT id, created_at, is_lifetime_free FROM family WHERE id = $1', [familyId])
       .then((r) => r.rows[0] || null),
   ]);
 
@@ -127,6 +130,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date()) {
     !rows.some((r) => r.source === 'grandfathered' && !r.revoked_at)
   ) {
     const inserted = await entitlementsDb.upsertGrandfathered(familyId, {
+      client,
       metadata: { lazy_backfill: true },
     });
     if (inserted) workingRows = [...workingRows, inserted];
@@ -240,7 +244,7 @@ async function syncAllLegacyMirrors(familyId, premium, opts = {}) {
 
 /** After mutating entitlement source rows, sync legacy mirrors from resolver winner. */
 async function syncMirrorsFromResolver(familyId, opts = {}) {
-  const { premium } = await resolveFamilyEntitlements(familyId);
+  const { premium } = await resolveFamilyEntitlements(familyId, new Date(), opts);
   await syncAllLegacyMirrors(familyId, premium, opts);
   return premium;
 }

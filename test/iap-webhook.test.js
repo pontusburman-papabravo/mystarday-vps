@@ -12,7 +12,7 @@ const {
   verifyWebhookSignature,
 } = require('../src/lib/revenuecat-webhook-verify');
 const { resolveSubscriptionStatus } = require('../src/lib/revenuecat-webhook-process');
-const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
+const { applyIapWebhookTestEnv, TEST_APP_ID, POST_PAYMENT_START_TEST_CREATED_AT } = require('./support/iap-webhook-test-env');
 
 applyIapWebhookTestEnv();
 
@@ -120,9 +120,9 @@ function makeRes() {
 async function seedTestFamily(db, { subscriptionStatus = 'active', rcCustomerId = null } = {}) {
   const familyId = crypto.randomUUID();
   await db.query(
-    `INSERT INTO family (id, name, is_lifetime_free, subscription_status, rc_customer_id)
-     VALUES ($1, 'Webhook Test Family', false, $2, $3)`,
-    [familyId, subscriptionStatus, rcCustomerId]
+    `INSERT INTO family (id, name, is_lifetime_free, subscription_status, rc_customer_id, created_at)
+     VALUES ($1, 'Webhook Test Family', false, $2, $3, $4::timestamptz)`,
+    [familyId, subscriptionStatus, rcCustomerId, POST_PAYMENT_START_TEST_CREATED_AT]
   );
   return familyId;
 }

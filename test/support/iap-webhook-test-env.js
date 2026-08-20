@@ -11,4 +11,7 @@ function applyIapWebhookTestEnv() {
 
 const TEST_APP_ID = 'com.test.app';
 
-module.exports = { applyIapWebhookTestEnv, TEST_APP_ID };
+/** After PAYMENTS V1 payment_start_at — avoids lazy grandfather overriding store IAP tests. */
+const POST_PAYMENT_START_TEST_CREATED_AT = '2026-11-01T12:00:00+01:00';
+
+module.exports = { applyIapWebhookTestEnv, TEST_APP_ID, POST_PAYMENT_START_TEST_CREATED_AT };

@@ -12,6 +12,7 @@ const {
 } = require('../../config/revenuecat-iap');
 const { appendPaymentAudit } = require('./payment-audit');
 const { applyStoreEntitlementFromWebhook } = require('./family-entitlements');
+const { STORE_PRODUCT_MONTHLY, STORE_PRODUCT_YEARLY } = require('../../config/iap-product-contract');
 const {
   parseEventTimestampMs,
   compareToStoredState,
@@ -27,6 +28,16 @@ const GRANDFATHER_CHECK_SQL = `
 `;
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function planFromProductId(productId) {
+  if (!productId) return null;
+  if (productId === STORE_PRODUCT_YEARLY) return 'yearly';
+  if (productId === STORE_PRODUCT_MONTHLY) return 'monthly';
+  const id = String(productId);
+  if (id.includes('yearly')) return 'yearly';
+  if (id.includes('monthly')) return 'monthly';
+  return null;
+}
 
 const INSERT_WEBHOOK_LOG_SQL = `
   INSERT INTO iap_webhook_log (
@@ -444,7 +455,7 @@ async function processRevenueCatEvent(db, event) {
       familyId: family.id,
       source: event.store ? String(event.store).toLowerCase().includes('play') ? 'google' : 'apple' : null,
       store: event.store || null,
-      plan: scope.productId || null,
+      plan: planFromProductId(scope.productId || event.product_id || null),
       eventType: `rc_${String(eventType).toLowerCase()}`,
       status: newStatus,
       externalEventId: String(eventId),

@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const crypto = require('crypto');
 const { setupTestDb } = require('./helpers/setup.js');
 const { processRevenueCatEvent, findFamilyForAppUserIds } = require('../src/lib/revenuecat-webhook-process');
-const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
+const { applyIapWebhookTestEnv, TEST_APP_ID, POST_PAYMENT_START_TEST_CREATED_AT } = require('./support/iap-webhook-test-env');
 const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
 
 applyIapWebhookTestEnv();
@@ -18,9 +18,9 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 async function seedFamily(db, status = 'active') {
   const familyId = crypto.randomUUID();
   await db.query(
-    `INSERT INTO family (id, name, is_lifetime_free, subscription_status)
-     VALUES ($1, 'Ordering test', false, $2)`,
-    [familyId, status]
+    `INSERT INTO family (id, name, is_lifetime_free, subscription_status, created_at)
+     VALUES ($1, 'Ordering test', false, $2, $3::timestamptz)`,
+    [familyId, status, POST_PAYMENT_START_TEST_CREATED_AT]
   );
   return familyId;
 }
