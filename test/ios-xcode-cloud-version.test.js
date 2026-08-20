@@ -43,7 +43,7 @@ describe('ios-xcode-cloud-version', () => {
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
     const updated = fs.readFileSync(fixturePbx, 'utf8');
     assert.match(updated, /MARKETING_VERSION = 2\.0\.1;/g);
-    assert.doesNotMatch(updated, /MARKETING_VERSION = 1\.4;/);
+    assert.doesNotMatch(updated, /MARKETING_VERSION = 1\.4\.1;/);
   });
 
   it('rejects malformed version', () => {
@@ -53,10 +53,10 @@ describe('ios-xcode-cloud-version', () => {
   });
 
   it('fails on inconsistent marketing versions', () => {
-    const bad = original.replace('MARKETING_VERSION = 1.4;', 'MARKETING_VERSION = 9.9;', 1);
+    const bad = original.replace('MARKETING_VERSION = 1.4.1;', 'MARKETING_VERSION = 9.9;', 1);
     const badPath = path.join(fixtureDir, 'bad.pbxproj');
     fs.writeFileSync(badPath, bad);
-    const r = runVersion('1.4', { IOS_XCODE_PROJECT_PATH: badPath });
+    const r = runVersion('1.4.1', { IOS_XCODE_PROJECT_PATH: badPath });
     assert.notEqual(r.status, 0);
     assert.match(r.stderr + r.stdout, /inconsistent/);
   });
@@ -64,9 +64,9 @@ describe('ios-xcode-cloud-version', () => {
   it('same version is successful no-op', () => {
     fs.writeFileSync(fixturePbx, original);
     const env = { IOS_XCODE_PROJECT_PATH: fixturePbx };
-    const r = runVersion('1.4', env);
+    const r = runVersion('1.4.1', env);
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
-    assert.match(r.stdout, /already 1\.4/);
+    assert.match(r.stdout, /already 1\.4\.1/);
   });
 
   it('does not modify CURRENT_PROJECT_VERSION', () => {
