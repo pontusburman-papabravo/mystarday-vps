@@ -2,7 +2,7 @@
 
 **Controller:** Papa Bravo AB · **Version:** 0.1 · **Date:** August 2026
 
-Assumption: primary storage and VPS processing intended within **EU/EEA** (per existing Swedish privacy). Third-country transfers occur primarily via **optional marketing/analytics** and **US-based SaaS processors**.
+Assumption: core application data is intended for EU/EEA hosting where applicable; exact Neon and VPS regions under verification (see A3). Third-country transfers occur primarily via **optional marketing/analytics** and **US-based SaaS processors**.
 
 ---
 

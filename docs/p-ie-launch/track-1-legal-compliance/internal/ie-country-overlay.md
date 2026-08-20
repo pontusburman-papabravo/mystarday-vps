@@ -10,8 +10,9 @@
 
 | Item | Draft text (public notice) | Status |
 |------|------------------------------|--------|
-| Lead authority for IE residents | Data Protection Commission (DPC), Ireland | **`LEGAL_REVIEW_REQUIRED`** — confirm lead authority vs cross-border one-stop-shop with Swedish IMY |
-| Complaint right | Right to lodge complaint with DPC | Standard GDPR — counsel wording |
+| Lead authority | Integritetsskyddsmyndigheten (IMY), Sweden — expected lead SA for cross-border processing | **`LEGAL_REVIEW_REQUIRED`** — counsel confirm (see `LEGAL_REVIEW_REQUIRED.md` C-A) |
+| Concerned authority (IE users) | Data Protection Commission (DPC), Ireland | Standard GDPR — Irish users may lodge complaints with DPC |
+| Complaint right | Right to lodge complaint with DPC (and IMY where applicable) | Counsel wording |
 | DPC contact | https://www.dataprotection.ie | Public link |
 
 ---
@@ -20,7 +21,7 @@
 
 | Item | Value | Status |
 |------|-------|--------|
-| Controller | Papa Bravo AB (Sweden) | **`LEGAL_REVIEW_REQUIRED`** — whether EU Article 27 representative is required in Ireland/EEA |
+| Controller | Papa Bravo AB (Sweden) — EU-established | Article 27 representative expected **N/A** — counsel confirm (see `LEGAL_REVIEW_REQUIRED.md` C-B) |
 | Contact point | `/en/contact` | Operational |
 
 ---
@@ -30,8 +31,8 @@
 | Topic | Product fact | Status |
 |-------|--------------|--------|
 | Pricing currency | EUR default for IE (`market-config.js`) | Commercial track |
-| IAP merchant | Apple App Store / Google Play via RevenueCat | **`LEGAL_REVIEW_REQUIRED`** Terms § payment & withdrawal |
-| Free trial / subscription copy | EN paywall strings — commercial track | **`LEGAL_REVIEW_REQUIRED`** |
+| IAP merchant | Apple App Store / Google Play via RevenueCat | **`LEGAL_REVIEW_REQUIRED`** Terms § payment & withdrawal (A6) |
+| Free trial / subscription copy | EN paywall strings — commercial track | **`LEGAL_REVIEW_REQUIRED`** (A6) |
 | October 2026 SE billing | Sweden payment rollout separate from IE launch | Document in launch control |
 
 ---
@@ -40,10 +41,10 @@
 
 | Topic | Status |
 |-------|--------|
-| Age of digital consent in Ireland | **`LEGAL_REVIEW_REQUIRED`** |
-| Parental consent model (parent registers, child PIN) | **`LEGAL_REVIEW_REQUIRED`** acceptability for DPC |
+| Article 8 / consent scope | **`LEGAL_REVIEW_REQUIRED`** — which child-processing activities rely on consent such that Article 8 and Ireland’s age-16 threshold applies? (A1) |
+| Parental consent model (parent registers, child PIN) | Covered under A1 — adequacy for Irish DPC expectations |
 | Children's privacy notice plain language | Draft at `/en/eea/child-privacy` |
-| Optional wellbeing notes (`pedagog_notes`) | **`LEGAL_REVIEW_REQUIRED`** if health-adjacent |
+| Optional wellbeing notes (`pedagog_notes`) | **`LEGAL_REVIEW_REQUIRED`** Article 9 risk (A2) |
 
 ---
 
@@ -54,7 +55,7 @@
 | Web GA4 / Meta / Google Ads | Opt-in cookie banner | No child event payloads in code |
 | Push notifications | Parent opt-in | Parent device |
 | Email newsletter | Opt-in | Parent email |
-| Win-back email | **`LEGAL_REVIEW_REQUIRED`** classification | May include child first name |
+| Win-back email | **`LEGAL_REVIEW_REQUIRED`** classification (B2) | May include child first name |
 
 See [`marketing-child-data-assessment.md`](./marketing-child-data-assessment.md).
 
@@ -64,8 +65,8 @@ See [`marketing-child-data-assessment.md`](./marketing-child-data-assessment.md)
 
 | Item | Status |
 |------|--------|
-| Primary hosting EU/EEA | Stated in privacy; **`LEGAL_REVIEW_REQUIRED`** confirm Neon region + VPS location |
-| US processors (Resend, RC, optional analytics) | Transfer register + SCCs **`LEGAL_REVIEW_REQUIRED`** |
+| Core hosting regions | EEA Privacy states aim for EU/EEA where applicable; exact Neon + VPS regions **`LEGAL_REVIEW_REQUIRED`** (A3) |
+| US processors (Resend, RC, optional analytics) | Transfer register + DPF/SCC/TIA **`LEGAL_REVIEW_REQUIRED`** (A4) |
 
 ---
 
@@ -88,6 +89,7 @@ Until overlay signed, IE users see EEA baseline + this internal overlay pending 
 
 **Do not enable `market_ie_open` until:**
 
-- [ ] All **`LEGAL_REVIEW_REQUIRED`** rows in this overlay closed
-- [ ] [`LEGAL_REVIEW_REQUIRED.md`](../LEGAL_REVIEW_REQUIRED.md) queue empty or accepted
+- [ ] All **`LEGAL_REVIEW_REQUIRED`** Priority A rows closed or accepted
+- [ ] Short confirmations C-A and C-B closed
+- [ ] [`LEGAL_REVIEW_REQUIRED.md`](../LEGAL_REVIEW_REQUIRED.md) Priority A queue empty or accepted
 - [ ] Commercial/store + Ireland RC complete

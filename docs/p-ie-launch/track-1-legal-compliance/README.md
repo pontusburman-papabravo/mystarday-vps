@@ -49,15 +49,13 @@ Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: place
 
 ---
 
-## Known code ↔ policy gaps (documented, not fixed in Track 1)
+## Known code ↔ policy gaps (documented)
 
-| Gap | Code reality | Swedish public policy today |
-|-----|--------------|----------------------------|
-| Marketing/analytics cookies | Optional GA4, Meta Pixel, Google Ads via `cookie-banner.js` (consent-gated) | `public/privacy.html` states “no tracking cookies” |
-| Payment | RevenueCat + Apple/Google IAP (no card data in app DB) | Privacy says “we do not handle payments directly” (still true for card data) |
-| Child wellbeing fields | Optional `pedagog_notes` mood/sleep/behaviour | Not mentioned in Swedish privacy (parent-entered, not child forms) |
+| Gap | Code reality | Status |
+|-----|--------------|--------|
+| Child wellbeing fields | Optional `pedagog_notes` mood/sleep/behaviour | Not mentioned in Swedish privacy (parent-entered, not child forms) — counsel A2 |
 
-EEA English documents in this track reflect **code reality**. Aligning Swedish `/privacy` is out of scope for P-IE-LAUNCH Track 1.
+EEA English documents in this track reflect **code reality**. Swedish `/privacy` cookie section aligned with consent-gated analytics in this PR.
 
 ---
 

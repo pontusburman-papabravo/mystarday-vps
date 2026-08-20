@@ -17,9 +17,9 @@ Children do **not** register independently; no child email collection.
 
 | Topic | Code / product fact | Assessment |
 |-------|---------------------|------------|
-| Target age | Family routine tool; no hard minimum age gate in registration | **`LEGAL_REVIEW_REQUIRED`:** Irish age of digital consent (typically 16) vs reliance on parental authority |
+| Target age | Family routine tool; no hard minimum age gate in registration | **`LEGAL_REVIEW_REQUIRED`:** which child-processing activities rely on consent such that Article 8 and Ireland’s age-16 threshold applies? (see A1) |
 | Parent as account holder | Parent registers, accepts terms, can delete entire family | Parent is contractual counterparty |
-| Child assent | No separate child click-through acceptance flow | **`LEGAL_REVIEW_REQUIRED`:** adequacy for Irish DPC expectations |
+| Child assent | No separate child click-through acceptance flow | Covered under A1 — adequacy for Irish DPC expectations |
 
 ---
 

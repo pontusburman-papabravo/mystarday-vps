@@ -40,7 +40,7 @@ Source: [`implementation-baseline.md`](../implementation-baseline.md)
 | Push token misuse | Low | Medium | Tokens tied to parent account; deleted on account delete | Platform processor trust |
 | Analytics re-identification via family_id | Low | Medium | Events keyed to family UUID; deleted on erasure; metadata whitelist | Aggregate snapshots remain |
 | Processor breach (Neon, Resend, etc.) | Low | High | Processor DPAs, encryption in transit | **`LEGAL_REVIEW_REQUIRED`** DPA audit |
-| Marketing tags without consent | Medium | Medium | Default denied; GCM v2 + cookie banner | Swedish `/privacy` text out of date (not IE path) |
+| Marketing tags without consent | Medium | Medium | Default denied; GCM v2 + cookie banner | Swedish `/privacy` cookie section aligned (Aug 2026) |
 | Account deletion incomplete | Low | High | Explicit delete list incl. `analytics_events` | `admin_audit_log`, `contact_message` retained |
 | OAuth email relay (Apple Hide My Email) | Low | Low | Store relay for transactional email only | Documented in privacy notice |
 

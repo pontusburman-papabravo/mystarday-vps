@@ -144,7 +144,7 @@
             <li><strong>Session cookies and refresh tokens</strong> &mdash; to keep you signed in securely (httpOnly cookies; refresh tokens hashed in our database)</li>
             <li><strong>Push device tokens</strong> &mdash; when you enable notifications (web push endpoint, or APNs/FCM on native apps)</li>
             <li><strong>In-app notification history</strong> &mdash; pruned after seven days</li>
-            <li><strong>Product analytics events</strong> &mdash; anonymised event types keyed by a family UUID (see below)</li>
+            <li><strong>Product analytics events</strong> &mdash; pseudonymised product analytics linked to a family identifier, with allowlisted metadata (see below)</li>
             <li><strong>Newsletter opt-in</strong> &mdash; if you subscribe separately to marketing email</li>
         </ul>
 
@@ -164,7 +164,7 @@
         <p>We use the following service providers who process data on our instructions under GDPR Article 28:</p>
         <ul>
             <li><strong>Neon</strong> &mdash; PostgreSQL database hosting (all application data described above)</li>
-            <li><strong>Self-hosted VPS within the EU/EEA</strong> &mdash; web application, API, and static assets</li>
+            <li><strong>Self-hosted VPS</strong> &mdash; web application, API, and static assets (hosting region under verification)</li>
             <li><strong>Resend</strong> &mdash; transactional email to parent addresses</li>
             <li><strong>Cloudflare R2</strong> (when configured) &mdash; uploaded avatar and object storage</li>
             <li><strong>Apple</strong> &mdash; Sign in with Apple, APNs push, and App Store in-app purchases (via RevenueCat)</li>
@@ -190,7 +190,7 @@
         <p>Your consent choice is stored for up to one year in the <code>cc_consent</code> cookie and in <code>localStorage</code>. You can change your choices at any time via the cookie banner or on <a href="/en/tracking-choices">Your privacy choices</a>. When signed in, you can also manage choices under <strong>Settings &rarr; Privacy</strong>.</p>
 
         <h2>Product analytics</h2>
-        <p>We record certain product events server-side in an <code>analytics_events</code> table, keyed by a family UUID with event type and non-identifying metadata. These events help us understand how the product is used. They are deleted when you delete your account. Aggregated daily snapshots (without family identifiers) may be retained for operational metrics.</p>
+        <p>We record certain product events server-side in an <code>analytics_events</code> table as pseudonymised product analytics linked to a family identifier, with allowlisted event types and metadata. These events help us understand how the product is used. They are deleted when you delete your account. Aggregated daily snapshots (without family identifiers) may be retained for operational metrics.</p>
 
         <h2>Retention</h2>
         <ul>
@@ -223,7 +223,7 @@
         </ul>
 
         <h2>Security</h2>
-        <p>Data is hosted within the EU/EEA. We use encrypted connections (HTTPS) and industry-standard practices. Passwords and PINs are stored using bcrypt hashing. Child-scoped API access is enforced on the server. Destructive parent actions require CSRF protection.</p>
+        <p>We aim to host core application data in the EU/EEA where applicable. Some service providers may process data outside the EEA; international transfers and applicable safeguards are described below and are being verified before Ireland launch. We use encrypted connections (HTTPS) and industry-standard practices. Passwords and PINs are stored using bcrypt hashing. Child-scoped API access is enforced on the server. Destructive parent actions require CSRF protection.</p>
 
         <h2>Your rights under GDPR</h2>
         <p>If you are in the EEA, you have the following rights regarding your personal data:</p>
@@ -241,7 +241,7 @@
         <h2>Ireland</h2>
         <p>If you are in Ireland, you have the right to lodge a complaint with the <strong>Data Protection Commission (DPC)</strong>, the Irish supervisory authority for data protection. Visit <a href="https://www.dataprotection.ie/" rel="noopener noreferrer">dataprotection.ie</a> for contact details and guidance.</p>
         <div class="review-notice" style="margin-top: 1rem;">
-            <p>Determination of lead supervisory authority for cross-border processing is pending external legal review.</p>
+            <p>Papa Bravo AB is established in Sweden. We expect Integritetsskyddsmyndigheten (IMY) to be the lead supervisory authority for cross-border processing, with the DPC as a concerned supervisory authority for users in Ireland. External legal review will confirm this model.</p>
         </div>
 
         <h2>Related documents</h2>
