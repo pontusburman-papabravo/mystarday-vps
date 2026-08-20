@@ -1,47 +1,61 @@
 # Transfer Register (international transfers)
 
-**Controller:** Papa Bravo AB · **Version:** 0.1 · **Date:** August 2026
-
-Core application data is intended for EU/EEA hosting where applicable; exact Neon and VPS regions under verification (**LDRA-A3**). Third-country transfers occur via **optional marketing/analytics** (consent-gated) and **US-based SaaS processors**.
-
----
-
-| Transfer | From | To (country) | Data categories | Mechanism | Status |
-|----------|------|--------------|-----------------|-----------|--------|
-| Database hosting (Neon) | EEA users | **Open** | All account data | SCCs if non-EEA; verify region | LDRA-A3 |
-| Email (Resend) | EEA | Likely US | Email, name | DPA + SCC / DPF | LDRA-A4 |
-| Avatars (Cloudflare R2) | EEA | **Open** if enabled | Profile images | Cloudflare DPA | LDRA-A3/A4 |
-| RevenueCat webhooks | EEA | US (typical) | Subscription IDs, events | RevenueCat DPA + SCC/DPF | LDRA-A4 |
-| Google Analytics 4 (consent) | EEA | US | Online identifiers, usage | Consent + SCC/TIA | LDRA-A4 — opt-in only |
-| Google Ads (consent) | EEA | US | Ad cookies | Consent + SCC/TIA | LDRA-A4 — opt-in only |
-| Meta Pixel (consent) | EEA | US | Ad cookies | Consent + SCC/TIA | LDRA-A4 — opt-in only |
-| Apple APNs / Sign in | EEA | Global Apple infra | Auth, push tokens | Apple terms + SCC where applicable | LDRA-A4 |
-| Google FCM / Sign in | EEA | Global Google infra | Auth, push tokens | Google terms + SCC where applicable | LDRA-A4 |
-| Professional share link recipient | EEA | Any (recipient choice) | Parent-selected child stats | Parent-initiated user-directed transfer | LDRA-B4 accepted |
+**Controller:** Papa Bravo AB · **Version:** 0.2 · **Verified:** 2026-08-20  
+**Scope:** Active prod VPS services on `188.66.60.93` + consent-gated client-side tags
 
 ---
 
-## Transfer Impact Assessments (TIA)
+## EEA storage — no third-country transfer
 
-| Processor | TIA required? | Status |
-|-----------|---------------|--------|
-| Google Analytics / Ads | Yes if US transfer | **Open** — file before `live` |
-| Meta Pixel | Yes if US transfer | **Open** |
-| RevenueCat | Yes | **Open** |
-| Resend | Yes | **Open** |
+| Processing | From | To | Data | Mechanism | Evidence |
+|------------|------|-----|------|-----------|----------|
+| Application database | EEA users | **VPS PostgreSQL, Stockholm SE** | All account data at rest | Data remains in EU/EEA; no transfer | VPS SSH `localhost:5432` |
+| VPS runtime | EEA users | **Inleed VPS, Stockholm SE** | Memory, logs, sessions | EU/EEA hosting | ipinfo.io AS206170 |
+| Cloudflare R2 avatars | EEA users | **EU R2 jurisdiction bucket** | Profile images | EU jurisdictional restriction + Cloudflare DPA; objects stored in EU jurisdiction per bucket config | `R2_JURISDICTION=eu`; [R2 data location](https://developers.cloudflare.com/r2/reference/data-location/) |
 
 ---
 
-## Mitigations in product (code)
+## Active third-country transfers — documented mechanisms
 
-- Marketing/analytics tags **not loaded** until consent (`cookie-banner.js` default denied).
-- No child routine data sent to ad platforms (implementation review — see child data assessment).
-- Family delete removes `analytics_events` for that family.
+| Transfer | Processor | To | Data categories | Mechanism | Consent / basis | Official source |
+|----------|-----------|-----|-----------------|-----------|-----------------|-----------------|
+| Transactional email | Resend | **US** | Parent email, name | **DPA + EU SCCs** (incorporated on signup) | Contract (Art. 6(1)(b)) | [resend.com/legal/dpa](https://resend.com/legal/dpa) |
+| Google Sign-In (web) | Google | **US / global** | OAuth tokens, email/name from Google | **Google API Terms** + **DPF/SCC** per [Google transfer frameworks](https://policies.google.com/privacy/frameworks) | Contract + user OAuth action | [developers.google.com/terms](https://developers.google.com/terms) |
+| Sign in with Apple / APNs | Apple | **Global (incl. US)** | Auth IDs, push tokens | **Apple SCCs** for EEA-origin transfers; Developer Program terms | Contract + user action / push opt-in | [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
+| GA4 (optional) | Google | **US** | Client IDs, page events | **Google Ads/Analytics DPT + SCCs**; **consent** (Art. 6(1)(a)) | Opt-in only (`cookie-banner.js` default deny) | [Google Ads DPT](https://www.google.com/analytics/terms/dpa/dataprocessingamendment_20200816.html) |
+| Google Ads (optional) | Google | **US** | Ad cookies, conversions | Same Google business DPT + SCCs; **consent** | Opt-in only | Same as GA4 DPT |
+| Meta Pixel (optional) | Meta | **US** | Ad cookies, page events | **Meta Data Processing Terms + EU Data Transfer Addendum (SCCs)**; **consent** | Opt-in only | [Meta DPA](https://www.facebook.com/legal/terms/dataprocessing), [EU transfer addendum](https://www.facebook.com/legal/EU_data_transfer_addendum) |
+| Professional share link | Recipient (any country) | **User-selected** | Parent-selected child stats | **Parent-initiated** disclosure; recipient becomes independent controller | Parent action (Art. 6 + transparency) | LDRA-B4 |
+
+---
+
+## Inactive / pre-documented for enablement
+
+| Transfer | Status | Mechanism when enabled |
+|----------|--------|------------------------|
+| RevenueCat webhooks | **Inactive** on prod VPS (no API key) | [RevenueCat DPA](https://www.revenuecat.com/dpa) + EU SCCs (Section 5 of DPA) |
+| Google FCM | **Inactive** (no `FCM_SERVER_KEY`) | Google business DPT + SCCs when configured |
+| Neon database | **Not used in prod** | N/A unless prod architecture changes |
+
+---
+
+## Transfer impact assessment (internal summary)
+
+| Processor | TIA needed? | Internal conclusion |
+|-----------|-------------|---------------------|
+| Resend | Yes (US) | Vendor DPA + SCCs; transactional necessity; no marketing use |
+| Google Sign-In | Yes (US) | Vendor DPF/SCC framework; limited OAuth fields stored |
+| Apple APNs | Yes (global) | Apple SCCs; push tokens only; deleted on logout/delete |
+| GA4 / Google Ads | Yes (US) | Consent-gated; off by default; vendor DPT + SCCs |
+| Meta Pixel | Yes (US) | Consent-gated; off by default; Meta DPA + EU SCC addendum |
+| R2 EU | No third-country transfer for stored objects | EU jurisdiction bucket |
+
+No launch-relevant active service remains with unknown transfer mechanism.
+
+**LDRA-A4:** Closed on documented vendor mechanisms for all **active** third-country processors (2026-08-20).
 
 ---
 
 ## Public disclosure
 
-EEA Privacy Notice includes processor list and transfer summary — `/en/eea/privacy`.
-
-Close **LDRA-A4** before `resolveLegalRoutes()` → `live`.
+EEA Privacy Notice processor list should reflect: local EU/EEA database on VPS, Cloudflare R2 EU, Resend US (SCC), optional US analytics/marketing (consent), Apple/Google platform services.

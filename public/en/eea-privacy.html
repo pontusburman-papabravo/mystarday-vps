@@ -162,20 +162,20 @@
         <p><strong>Child routine and completion data is not sent to advertising platforms.</strong> Marketing scripts (Google Analytics 4, Meta Pixel, Google Ads) load only after you opt in via the cookie banner. Server-side product analytics use an allowlisted set of event types and do not include child completion payloads in marketing tools.</p>
 
         <h2>Processors and subprocessors</h2>
-        <p>We use the following service providers who process data on our instructions under GDPR Article 28:</p>
+        <p>We use the following service providers who process data on our instructions under GDPR Article 28 (verified August 2026):</p>
         <ul>
-            <li><strong>Neon</strong> &mdash; PostgreSQL database hosting (all application data described above)</li>
-            <li><strong>Self-hosted VPS</strong> &mdash; web application, API, and static assets (hosting region under verification)</li>
-            <li><strong>Resend</strong> &mdash; transactional email to parent addresses</li>
-            <li><strong>Cloudflare R2</strong> (when configured) &mdash; uploaded avatar and object storage</li>
-            <li><strong>Apple</strong> &mdash; Sign in with Apple, APNs push, and App Store in-app purchases (via RevenueCat)</li>
-            <li><strong>Google</strong> &mdash; Google Sign-In, FCM push, and Play billing (via RevenueCat)</li>
-            <li><strong>RevenueCat</strong> &mdash; subscription entitlement sync for native in-app purchases</li>
-            <li><strong>Google Analytics 4</strong> (optional, consent-gated) &mdash; website usage measurement</li>
-            <li><strong>Meta (Facebook Pixel)</strong> (optional, consent-gated) &mdash; marketing measurement</li>
-            <li><strong>Google Ads</strong> (optional, consent-gated) &mdash; conversion measurement</li>
+            <li><strong>Self-hosted PostgreSQL on VPS</strong> &mdash; primary application database (all account, family, schedule, and reward data at rest). Hosted on our VPS in <strong>Stockholm, Sweden (EU/EEA)</strong>.</li>
+            <li><strong>Inleed / Yelles AB</strong> &mdash; VPS infrastructure provider for the web application, API, and static assets (Stockholm, Sweden, EU/EEA).</li>
+            <li><strong>Resend</strong> &mdash; transactional email to parent addresses (United States; transfers covered by Resend&rsquo;s DPA including EU Standard Contractual Clauses).</li>
+            <li><strong>Cloudflare R2</strong> &mdash; uploaded profile photos and object storage in an <strong>EU jurisdiction</strong> bucket (Cloudflare Customer DPA).</li>
+            <li><strong>Apple</strong> &mdash; Sign in with Apple and APNs push delivery (global Apple infrastructure; EEA transfers per Apple&rsquo;s privacy terms including SCCs).</li>
+            <li><strong>Google</strong> &mdash; Google Sign-In on web (United States / global Google infrastructure; Google API terms and transfer safeguards including DPF/SCCs where applicable).</li>
+            <li><strong>Google Analytics 4</strong> (optional, consent-gated) &mdash; website usage measurement (United States when enabled; Google data processing terms + SCCs; off by default).</li>
+            <li><strong>Meta (Facebook Pixel)</strong> (optional, consent-gated) &mdash; marketing measurement (United States when enabled; Meta Data Processing Terms + EU transfer addendum; off by default).</li>
+            <li><strong>Google Ads</strong> (optional, consent-gated) &mdash; conversion measurement (United States when enabled; off by default).</li>
         </ul>
-        <p>Exact data processing agreements, sub-processor lists, and hosting regions for each provider are being verified and will be updated here when confirmed.</p>
+        <p><strong>Not currently active on prod VPS:</strong> Neon database hosting (our live database runs on the VPS above, not Neon). RevenueCat subscription sync and Google FCM push are configured in code but not enabled on our prod server until native in-app purchase rollout; when enabled, RevenueCat will process subscription entitlement data under its DPA including EU SCCs, and store billing remains via Apple App Store / Google Play.</p>
+        <p>Vendor data processing agreements and transfer mechanisms are documented in our internal compliance registers. This notice reflects verified prod VPS configuration as of August 2026.</p>
 
         <h2>Push notifications</h2>
         <p>If you enable push notifications, we store a device token linked to your account to deliver notifications to the correct device. Tokens are removed when you log out or when the platform reports the token is invalid (for example, after uninstalling the app). You can disable notifications in <strong>Settings &rarr; Push notifications</strong> or in your device system settings.</p>

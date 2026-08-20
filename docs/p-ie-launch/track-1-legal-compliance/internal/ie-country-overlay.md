@@ -66,8 +66,8 @@ See [`marketing-child-data-assessment.md`](./marketing-child-data-assessment.md)
 
 | Item | Status |
 |------|--------|
-| Core hosting regions | **Open** (LDRA-A3) — verify Neon + VPS before `live` |
-| US processors | **Open** (LDRA-A4) — document DPF/SCC/TIA before `live` |
+| Core hosting regions | ✅ **Verified** (LDRA-A3 closed 2026-08-20) — VPS PostgreSQL + Inleed hosting, Stockholm SE; R2 EU jurisdiction |
+| US processors | ✅ **Documented** (LDRA-A4 closed 2026-08-20) — Resend, Apple, Google Sign-In, optional consent-gated GA4/Ads/Meta |
 
 ---
 
@@ -88,7 +88,7 @@ When IE launches (after internal sign-off):
 
 **Do not enable `market_ie_open` until:**
 
-- [ ] LDRA-A3 + A4 closed (processor/transfer verification)
+- [x] LDRA-A3 + A4 closed (processor/transfer verification — 2026-08-20)
 - [ ] Internal sign-off on [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md)
 - [ ] `resolveLegalRoutes()` flipped to `live` (separate PR)
 - [ ] Commercial/store + Ireland RC complete

@@ -39,7 +39,7 @@ Source: [`implementation-baseline.md`](../implementation-baseline.md)
 | Professional share link leakage | Medium | High | Expiry, optional PIN, parent-initiated only, revoke | User education in privacy notice |
 | Push token misuse | Low | Medium | Tokens tied to parent account; deleted on account delete | Platform processor trust |
 | Analytics re-identification via family_id | Low | Medium | Pseudonymised family UUID; deleted on erasure; metadata whitelist | LDRA-B1 accepted |
-| Processor breach (Neon, Resend, etc.) | Low | High | Processor DPAs, encryption in transit | **LDRA-A3 open** until DPAs filed |
+| Processor breach (VPS PostgreSQL, Resend, R2, etc.) | Low | High | Processor DPAs, encryption in transit, EEA primary storage | **LDRA-A3 closed** — DPAs linked in processor register |
 | Marketing tags without consent | Medium | Medium | Default denied; GCM v2 + cookie banner | SE + EEA privacy aligned |
 | Account deletion incomplete | Low | High | Explicit delete list incl. `analytics_events` | `admin_audit_log`, `contact_message` retained (disclosed) |
 | OAuth email relay (Apple Hide My Email) | Low | Low | Store relay for transactional email only | Documented in privacy notice |
@@ -61,7 +61,7 @@ Source: [`implementation-baseline.md`](../implementation-baseline.md)
 | Outcome | Condition |
 |---------|-----------|
 | **Proceed to internal sign-off** | This draft complete |
-| **Proceed to `resolveLegalRoutes()` live** | LDRA-A3 + A4 closed + founder sign-off |
+| **Proceed to `resolveLegalRoutes()` live** | LDRA-A3 + A4 closed ✅ + founder sign-off ✅ — separate PR to flip routing |
 | **Proceed to `market_ie_open ON`** | Above + commercial track + RC |
 
 **Sign-off:** Founder approved 2026-08-20 — see [`TRACK-1-SELF-SIGNOFF-REPORT.md`](../TRACK-1-SELF-SIGNOFF-REPORT.md)

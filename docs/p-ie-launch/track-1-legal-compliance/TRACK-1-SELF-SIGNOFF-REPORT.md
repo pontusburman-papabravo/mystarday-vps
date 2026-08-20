@@ -8,7 +8,7 @@
 
 ## Executive summary
 
-Track 1 **interna compliance sign-off är godkänd** av controller (20 Aug 2026, verifierat mot `4f5859d2`). Dokumenterade residualrisker accepterade. **Två ops-blockers kvarstår** (LDRA-A3, A4) innan `resolveLegalRoutes()` → `live`.
+Track 1 **interna compliance sign-off är godkänd** av controller (20 Aug 2026, verifierat mot `4f5859d2`). **LDRA-A3 och A4 stängda** (20 Aug 2026) efter read-only prod-verifiering via VPS SSH + vendor documentation. Dokumenterade residualrisker accepterade.
 
 We do **not** claim legal approval. Public documents carry honest v0.1 disclaimers.
 
@@ -18,7 +18,7 @@ We do **not** claim legal approval. Public documents carry honest v0.1 disclaime
 
 | Gate | Status |
 |------|--------|
-| `resolveLegalRoutes()` → `live` | Blocked until **A3 + A4 closed** (separate PR) |
+| `resolveLegalRoutes()` → `live` | **Eligible** — A3 + A4 closed; separate PR to flip routing (not in this task) |
 | `market_ie_open ON` | Blocked until **Commercial/Store + Ireland RC + Launch Control** |
 
 ---
@@ -27,13 +27,13 @@ We do **not** claim legal approval. Public documents carry honest v0.1 disclaime
 
 | # | Criterion | Status | Evidence |
 |---|-----------|--------|----------|
-| 1 | No HIGH unresolved risks | ✅ | Highest open = MEDIUM (A3, A4, A1, A2) |
-| 2 | Public statements match implementation | ✅ | EEA docs code-derived; SE cookies + hosting softened this PR |
-| 3 | Processor/hosting/transfer facts verified | ⏳ **Open** | LDRA-A3, A4 — ops task before `live` |
+| 1 | No HIGH unresolved risks | ✅ | Highest accepted = MEDIUM (A1, A2 interpretive) |
+| 2 | Public statements match implementation | ✅ | EEA privacy processor section synced with prod verification |
+| 3 | Processor/hosting/transfer facts verified | ✅ | LDRA-A3 + A4 closed 2026-08-20 — VPS SSH + vendor docs |
 | 4 | Child lawful bases documented | ✅ | [`lawful-basis-register.md`](./internal/lawful-basis-register.md) + A2 Art. 9 guardrails |
-| 5 | Irish IAP disclosures match flow | ✅ | EEA Terms §7; RevenueCat/native only |
+| 5 | Irish IAP disclosures match flow | ✅ | EEA Terms §7; RevenueCat/native only (RC API inactive on prod until commercial track) |
 
-**Overall:** ✅ **Founder sign-off complete** — Track 1 internally accepted. `live` flip requires A3/A4; `market_ie_open` requires commercial/RC/launch control.
+**Overall:** ✅ **Track 1 internally complete** for legal/compliance docs. `live` flip is a separate product PR. `market_ie_open` requires commercial/RC/launch control.
 
 ---
 
@@ -43,8 +43,8 @@ We do **not** claim legal approval. Public documents carry honest v0.1 disclaime
 |----|-------|---------------|----------------|--------|
 | A1 | Child processing / Art. 8 | MEDIUM | NO | ✅ Accepted |
 | A2 | Article 9 / wellbeing guardrails | MEDIUM | NO | ✅ Accepted (guardrails documented) |
-| A3 | Processors + hosting regions | MEDIUM | **YES** | ⏳ Open |
-| A4 | International transfers | MEDIUM | **YES** | ⏳ Open |
+| A3 | Processors + hosting regions | LOW | NO | ✅ **Closed** 2026-08-20 |
+| A4 | International transfers | LOW | NO | ✅ **Closed** 2026-08-20 |
 | A5 | Public document accuracy | LOW | NO | ✅ Accepted |
 | A6 | Irish consumer / IAP | LOW | NO | ✅ Accepted |
 | C-A | IMY lead / DPC concerned | LOW | NO | ✅ Accepted |
@@ -54,28 +54,67 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 
 ---
 
+## A3 / A4 verification summary (2026-08-20)
+
+**Evidence source:** VPS SSH read-only probe (`deploy@188.66.60.93`), `GET /health`, ipinfo.io AS206170, vendor official documentation (links in registers).
+
+| Check | Result |
+|-------|--------|
+| Prod database | **Self-hosted PostgreSQL** on `localhost:5432` — **Stockholm, SE** — **not Neon** |
+| VPS hosting | **Inleed / Yelles AB** (AS206170), Stockholm, Sweden (EU/EEA) |
+| Cloudflare R2 | **Active:** `UPLOAD_STORAGE=r2`, `R2_JURISDICTION=eu` |
+| Resend | **Active** (`RESEND_API_KEY`, `EMAIL_ENABLED=true`) |
+| RevenueCat | **Inactive** (no `REVENUECAT_API_KEY`; `iap_webhook_ready: false`) |
+| Google Sign-In | **Active** (`GOOGLE_WEB_CLIENT_ID`) |
+| Apple APNs / Sign in | **Active** (`APNS_*`, `APPLE_CLIENT_ID`) |
+| FCM | **Inactive** (no `FCM_SERVER_KEY`) |
+| GA4 / Meta / Google Ads | **Consent-gated** in client code (default deny) |
+| Facebook cross-post | **Inactive** (no `FACEBOOK_PAGE_*`) |
+
+**Human portal check required:** **None** — Neon not used in prod; all active processors documented from vendor public terms.
+
+---
+
+## Active processor matrix (prod VPS)
+
+| Processor | Active | Location | GDPR role | Transfer mechanism |
+|-----------|--------|----------|-----------|-------------------|
+| Self-hosted PostgreSQL (VPS) | ✅ | Stockholm SE (EEA) | Controller-hosted | N/A — EEA storage |
+| Inleed / Yelles AB (VPS) | ✅ | Stockholm SE (EEA) | Infrastructure sub-processor | EEA hosting |
+| Cloudflare R2 | ✅ | EU jurisdiction bucket | Processor (Art. 28) | EU storage — no third-country transfer for stored objects |
+| Resend | ✅ | US (processor HQ) | Processor | DPA + EU SCCs |
+| Apple (Sign in + APNs) | ✅ | Global (incl. US) | Platform / push processor | Apple SCCs (Privacy Policy) |
+| Google Sign-In | ✅ | US / global | OAuth processor | Google API Terms + DPF/SCCs |
+| Google GA4 | ⚡ consent | US | Processor when enabled | Google DPT + SCCs; opt-in only |
+| Google Ads | ⚡ consent | US | Processor when enabled | Google DPT + SCCs; opt-in only |
+| Meta Pixel | ⚡ consent | US | Processor when enabled | Meta DPA + EU transfer addendum |
+| RevenueCat | ❌ | — | — | Pre-documented for enablement; not active on prod |
+| Neon | ❌ | — | — | Not prod architecture |
+| Google FCM | ❌ | — | — | Not configured on prod |
+
+---
+
 ## Copy fixes completed (this PR)
 
 | Item | Fix |
 |------|-----|
-| EEA hosting claim | Softened — no “hosted within EU/EEA” until verified |
+| EEA hosting claim | Verified — EU/EEA VPS + local PostgreSQL; R2 EU jurisdiction |
 | `analytics_events` | Pseudonymised / family-linked — not “anonymised” |
 | IMY/DPC model | Documented as internal decision (not counsel queue) |
 | SE `/privacy` cookies | Aligned with consent-gated GA4/Meta/Ads |
 | SE `/privacy` hosting | Softened EU/EES claim (same PR) |
 | Counsel mandatory wording | Removed from Track 1 model |
-| A2 Art. 9 guardrails | Contract not claimed for health data; Ireland V1 non-health positioning; enhanced free-text protection |
+| A2 Art. 9 guardrails | Contract not claimed for health data; Ireland V1 non-health positioning |
+| A3/A4 ops verification | Processor + transfer registers v0.2; EEA privacy processors synced |
 
 ---
 
-## Known remaining gaps (non-blocking or ops)
+## Known remaining gaps (non-blocking)
 
 | Gap | Risk | Action |
 |-----|------|--------|
-| Neon prod region not filed | MEDIUM | Verify dashboard + update processor register |
-| VPS exact location | MEDIUM | Confirm deploy host jurisdiction |
-| DPA links not in repo | MEDIUM | Collect vendor DPAs to internal folder |
-| Transfer mechanisms not filed | MEDIUM | Update transfer register per vendor |
+| RevenueCat server integration inactive | LOW (pre-launch commercial) | Enable `REVENUECAT_API_KEY` + webhook on commercial track |
+| DPA PDFs not stored in repo | LOW | Optional: archive signed/vendor PDFs internally |
 | Swedish privacy — wellbeing fields | LOW | Optional future SE policy update |
 | Penetration test | LOW | Separate security track |
 | DPO formal appointment | LOW | Accepted N/A at current scale |
@@ -86,7 +125,7 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 
 | URL | Version | Internal sign-off | External legal |
 |-----|---------|-------------------|----------------|
-| `/en/eea/privacy` | 0.1 | ✅ Code-aligned | Not claimed |
+| `/en/eea/privacy` | 0.1 | ✅ Prod-verified processors | Not claimed |
 | `/en/eea/terms` | 0.1 | ✅ IAP section aligned | Not claimed |
 | `/en/eea/child-privacy` | 0.1 | ✅ Parent-managed model | Not claimed |
 | `/en/tracking-choices` | 0.1 | ✅ Consent model accurate | Not claimed |
@@ -95,12 +134,11 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 
 ---
 
-## Recommended next steps (post-merge Track 1)
+## Recommended next steps
 
-1. **Ops:** Close LDRA-A3 + A4 (verify Neon region, VPS, file DPAs + transfer mechanisms).
-2. **Product PR:** Flip `resolveLegalRoutes()` `placeholder` → `live` after A3/A4 closed.
-3. **Commercial track:** Confirm IE paywall strings match Terms §7.
-4. **RC + launch control:** Physical device pass; then `market_ie_open ON` as last gate.
+1. **Product PR:** Flip `resolveLegalRoutes()` `placeholder` → `live` (A3/A4 now closed).
+2. **Commercial track:** Enable RevenueCat API + confirm IE paywall strings match Terms §7.
+3. **RC + launch control:** Physical device pass; then `market_ie_open ON` as last gate.
 
 **Do not** engage external counsel unless a HIGH-risk item opens or regulator contact occurs.
 
@@ -111,7 +149,7 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 | Role | Name | Date | Record |
 |------|------|------|--------|
 | Controller representative | Papa Bravo AB (founder) | 2026-08-20 | **Approved** — internal compliance sign-off; documented residual risks accepted. Verified A2 on `4f5859d2`. |
-| Engineering (code baseline) | Track 1 agent pass | 2026-08-20 | Code-derived docs complete |
+| Engineering (code baseline) | Track 1 agent pass | 2026-08-20 | A3/A4 closed on VPS verification + vendor docs |
 
 ### Founder acceptance statement
 

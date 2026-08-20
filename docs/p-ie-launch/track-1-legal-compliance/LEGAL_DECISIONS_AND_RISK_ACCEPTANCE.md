@@ -34,8 +34,10 @@ Track 1 is **launch-ready** when all of the following are true:
 4. **Child-data lawful bases explicitly documented** per activity (LDRA-A1, lawful-basis-register).
 5. **Irish consumer/subscription disclosures match actual IAP flow** (LDRA-A6, commercial track).
 
-`resolveLegalRoutes()` may move from `placeholder` → `live` after **internal sign-off** (separate PR).  
+`resolveLegalRoutes()` may move from `placeholder` → `live` after **internal sign-off** (separate PR) **and** LDRA-A3 + A4 closed.  
 `market_ie_open` remains OFF until store + RC + launch control complete — independent of legal docs.
+
+**Founder acceptance:** 2026-08-20 — residual risks documented in this file accepted. See [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md).
 
 ---
 
@@ -75,10 +77,10 @@ Track 1 is **launch-ready** when all of the following are true:
 |--|--|
 | **Official source** | GDPR Art. 28; processor accountability |
 | **Our interpretation** | We must know **actual** processing locations and have Article 28 arrangements (DPA or equivalent terms) with each processor. Public docs must not overstate EU hosting until verified. |
-| **Product decision** | Before launch: verify and file in [`processor-register.md`](./internal/processor-register.md): Neon prod region, VPS location (deploy host), Resend, Cloudflare R2 (if enabled), RevenueCat, Google, Meta, Apple. Update public privacy processor section with verified facts only. |
-| **Residual risk** | **MEDIUM** until verification complete |
-| **Launch blocker** | **YES** (operational verification — not external counsel) |
-| **Revisit trigger** | New processor; region migration; Neon/VPS provider change |
+| **Product decision** | Verified 2026-08-20 via VPS SSH (read-only): prod database is **self-hosted PostgreSQL on localhost** on VPS `188.66.60.93` (Inleed / Yelles AB, Stockholm SE) — **not Neon**. R2 **active** with `UPLOAD_STORAGE=r2`, `R2_JURISDICTION=eu`. Active processors: Resend, Cloudflare R2 EU, Apple (Sign in + APNs), Google Sign-In, optional consent-gated GA4/Ads/Meta. **Inactive on prod:** Neon, RevenueCat API/webhook, FCM, Facebook cross-post. Filed in [`processor-register.md`](./internal/processor-register.md); EEA privacy processor section updated. |
+| **Residual risk** | **LOW** (verified facts filed; RevenueCat inactive until commercial track enables API key) |
+| **Launch blocker** | **NO** — closed 2026-08-20 |
+| **Revisit trigger** | New processor; region migration; Neon adoption; VPS provider change; RevenueCat enablement |
 
 ---
 
@@ -87,11 +89,11 @@ Track 1 is **launch-ready** when all of the following are true:
 | | |
 |--|--|
 | **Official source** | GDPR Chapter V; Schrems II; EU-US Data Privacy Framework; SCCs |
-| **Our interpretation** | US-based processors (Resend, RevenueCat, optional GA4/Meta/Google Ads, Apple/Google global infra) require a documented transfer mechanism. Consent-gated marketing/analytics are **optional** and off by default. Transactional processors are necessary for service delivery. |
-| **Product decision** | Document mechanism per processor in [`transfer-register.md`](./internal/transfer-register.md) (DPF participant, SCCs in DPA, or adequacy). No marketing transfers without consent. TIA summary for high-volume US analytics if enabled. |
-| **Residual risk** | **MEDIUM** until mechanisms filed |
-| **Launch blocker** | **YES** (internal documentation task) |
-| **Revisit trigger** | New third-country processor; DPF invalidation; processor drops SCCs; enabling new US analytics without transfer record |
+| **Our interpretation** | US-based processors (Resend, optional GA4/Meta/Google Ads, Apple/Google global infra) require a documented transfer mechanism. Consent-gated marketing/analytics are **optional** and off by default. Transactional processors are necessary for service delivery. EEA storage (VPS PostgreSQL, R2 EU jurisdiction) does not constitute a third-country transfer. |
+| **Product decision** | Documented mechanism per **active** processor in [`transfer-register.md`](./internal/transfer-register.md) from vendor official sources (Resend DPA + EU SCCs; Cloudflare Customer DPA + EU R2 jurisdiction; Google business DPT + DPF/SCCs; Meta DPA + EU transfer addendum; Apple Privacy Policy SCCs). RevenueCat DPA pre-documented for enablement only (inactive on prod). No launch-relevant active service remains unknown. |
+| **Residual risk** | **LOW** (mechanisms filed for all active transfers) |
+| **Launch blocker** | **NO** — closed 2026-08-20 |
+| **Revisit trigger** | New third-country processor; DPF invalidation; processor drops SCCs; RevenueCat enablement; enabling new US analytics without transfer record |
 
 ---
 
@@ -183,9 +185,9 @@ Tracked in runbooks; not launch blockers unless they become HIGH:
 |----|--------|-------------|------|-------|
 | A1 | Accepted | Internal | 2026-08-20 | Lawful basis register updated |
 | A2 | Accepted | Internal | 2026-08-20 | Art. 9 guardrails documented; contract not claimed for special-category health data |
-| A3 | **Open** | — | — | Blocker until regions + DPAs filed |
-| A4 | **Open** | — | — | Blocker until transfer mechanisms filed |
-| A5 | Accepted | Internal | 2026-08-20 | Pending A3/A4 facts in public docs |
+| A3 | **Closed** | Internal | 2026-08-20 | VPS SSH verified: local PostgreSQL Stockholm SE; R2 EU active; processor register v0.2 |
+| A4 | **Closed** | Internal | 2026-08-20 | Transfer register v0.2 — vendor DPA/SCC/DPF links for all active processors |
+| A5 | Accepted | Internal | 2026-08-20 | EEA privacy processor section synced with A3 verification |
 | A6 | Accepted | Internal | 2026-08-20 | Commercial track confirms paywall |
 | C-A | Accepted | Internal | 2026-08-20 | |
 | C-B | Accepted | Internal | 2026-08-20 | |

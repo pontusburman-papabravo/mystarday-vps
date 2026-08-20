@@ -89,20 +89,24 @@ This document is the **single internal fact sheet** for Track 1 legal/compliance
 
 ## Processors & subprocessors (operational)
 
-| Processor | Role | Data touched | Code / config reference |
-|-----------|------|--------------|-------------------------|
-| **Neon** | PostgreSQL hosting | All application DB | `DATABASE_URL`, `src/lib/db.js` |
-| **VPS (self-hosted)** | App/API static assets | All traffic, `.env` secrets | deploy rules, `AGENTS.md` |
-| **Resend** | Transactional email | Parent email, name in templates | `src/lib/email.js` |
-| **Cloudflare R2** (optional) | Avatar/object storage | Uploaded images | Cloudflare R2 env config, avatar service |
-| **Apple** | Sign in with Apple, APNs, App Store IAP | Auth identifiers, push tokens, purchase receipts via RC | `src/routes/auth/oauth-apple.js`, native |
-| **Google** | Google Sign-In, FCM, Play billing via RC | Auth identifiers, push tokens | OAuth routes, native |
-| **RevenueCat** | IAP entitlement sync | `rc_customer_id`, subscription events | `src/routes/iap-webhook-handler.js` |
-| **Google Analytics 4** | Web analytics (optional) | Consent-gated page/events; `G-8PYNFJH1EQ` | `public/js/marketing-events.js`, `cookie-banner.js` |
-| **Meta (Facebook Pixel)** | Marketing measurement (optional) | Consent-gated | `cookie-banner.js` |
-| **Google Ads** | Ads conversion (optional) | Consent-gated; `AW-7601142474` | `marketing-events.js` |
+**Verified prod (2026-08-20):** VPS SSH read-only. Prod uses **local PostgreSQL on VPS** — not Neon.
 
-**LDRA-A3 open:** signed DPAs, sub-processor lists, and exact hosting regions for Neon, VPS, Resend, Cloudflare, RevenueCat, Google, Meta, Apple.
+| Processor | Role | Active in prod | Data touched | Location (verified) | Code / config reference |
+|-----------|------|----------------|--------------|---------------------|-------------------------|
+| **Self-hosted PostgreSQL** | Primary database | ✅ | All application DB | Stockholm SE (`localhost:5432` on VPS) | `DATABASE_URL`, `src/lib/db.js` |
+| **Inleed / Yelles AB (VPS)** | App/API hosting | ✅ | All traffic, runtime secrets | Stockholm SE (EU/EEA) | deploy rules, `AGENTS.md` |
+| **Resend** | Transactional email | ✅ | Parent email, name in templates | US (processor) | `src/lib/email.js` |
+| **Cloudflare R2** | Avatar/object storage | ✅ | Uploaded images | EU jurisdiction (`R2_JURISDICTION=eu`) | R2 env config |
+| **Apple** | Sign in with Apple, APNs | ✅ | Auth identifiers, push tokens | Global (incl. US) | `src/routes/auth/oauth-apple.js`, native |
+| **Google** | Google Sign-In | ✅ | OAuth identifiers | US / global | OAuth routes |
+| **Google FCM** | Android push | ❌ | — | — | No `FCM_SERVER_KEY` on prod |
+| **RevenueCat** | IAP entitlement sync | ❌ | — | — | No `REVENUECAT_API_KEY`; health `iap_webhook_ready: false` |
+| **Google Analytics 4** | Web analytics (optional) | ⚡ consent | Consent-gated page/events | US when enabled | `cookie-banner.js` |
+| **Meta (Facebook Pixel)** | Marketing measurement (optional) | ⚡ consent | Consent-gated | US when enabled | `cookie-banner.js` |
+| **Google Ads** | Ads conversion (optional) | ⚡ consent | Consent-gated | US when enabled | `marketing-events.js` |
+| **Neon** | PostgreSQL (dev/legacy docs) | ❌ | — | — | Not prod `DATABASE_URL` |
+
+**LDRA-A3 closed:** [`processor-register.md`](./internal/processor-register.md) v0.2 (2026-08-20).
 
 ---
 

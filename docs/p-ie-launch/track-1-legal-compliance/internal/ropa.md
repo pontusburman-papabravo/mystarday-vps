@@ -19,14 +19,14 @@
 
 | Ref | Activity | Purpose | Categories of data subjects | Key data | Recipients | Transfers | Retention | Security |
 |-----|----------|---------|----------------------------|----------|------------|-----------|-----------|----------|
-| P-01 | Account registration & login | Provide service | Parents | Email, name, auth credentials | Processors (Neon, Resend) | See transfer register | Until delete | HTTPS, bcrypt |
-| P-02 | Child profile management | Child routine UX | Children | Nickname, emoji, PIN, optional avatar/birthday | Neon, R2 | See transfer register | Until delete | Authz, PIN lockout |
-| P-03 | Routines & rewards | Core product | Children, parents | Schedules, logs, stars | Neon | See LDRA-A3 | Until delete | Role-based access |
-| P-04 | Push notifications | Alerts to parents | Parents | Push tokens | Apple APNs, Google FCM | LDRA-A4 | Until logout/delete | Token hygiene |
-| P-05 | Transactional email | Account comms | Parents | Email, name | Resend | LDRA-A4 | Until delete | TLS |
+| P-01 | Account registration & login | Provide service | Parents | Email, name, auth credentials | VPS PostgreSQL, Resend | See transfer register | Until delete | HTTPS, bcrypt |
+| P-02 | Child profile management | Child routine UX | Children | Nickname, emoji, PIN, optional avatar/birthday | VPS PostgreSQL, R2 EU | See transfer register | Until delete | Authz, PIN lockout |
+| P-03 | Routines & rewards | Core product | Children, parents | Schedules, logs, stars | VPS PostgreSQL | EEA storage (A3 verified) | Until delete | Role-based access |
+| P-04 | Push notifications | Alerts to parents | Parents | Push tokens | Apple APNs (FCM inactive on prod) | LDRA-A4 documented | Until logout/delete | Token hygiene |
+| P-05 | Transactional email | Account comms | Parents | Email, name | Resend | LDRA-A4 documented | Until delete | TLS |
 | P-06 | Optional marketing/analytics cookies | Site measurement | Web visitors | Cookie IDs, page events | Google, Meta | LDRA-A4 (consent) | Consent store 1y | Consent default deny |
-| P-07 | Product analytics | Improve product | Families (UUID) | event_type, metadata | Neon | EEA storage (verify A3) | Until family delete | No IP in beacon route |
-| P-08 | IAP subscriptions | Paid access | Parents | rc_customer_id, status | RevenueCat, Apple, Google | LDRA-A4 | Until delete + statutory |
+| P-07 | Product analytics | Improve product | Families (UUID) | event_type, metadata | VPS PostgreSQL | EEA storage (A3 verified) | Until family delete | No IP in beacon route |
+| P-08 | IAP subscriptions | Paid access | Parents | rc_customer_id, status | RevenueCat (inactive on prod), Apple, Google | LDRA-A4 pre-documented | Until delete + statutory |
 | P-09 | Professional share links | Parent-chosen disclosure | Children (via parent) | Selected stats | Anyone with link | May leave EEA if recipient abroad | 7d default | PIN optional |
 | P-10 | Support & contact | Customer support | Users | Email, message | Internal, email | LDRA-B3 | See retention schedule | Access control |
 | P-11 | Account export | GDPR access/portability | Parents | Full family export ZIP | Parent device only | N/A | Ephemeral download | Rate limit 24h |

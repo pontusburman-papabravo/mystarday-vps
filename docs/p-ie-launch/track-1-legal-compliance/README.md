@@ -1,7 +1,7 @@
 # P-IE-LAUNCH — Track 1: Legal & Compliance Reality Build
 
-**Status:** Founder sign-off complete (20 Aug 2026, commit `4f5859d2`) — **not externally legally verified**. A3/A4 remain open before `resolveLegalRoutes()` → `live`.  
-**Scope:** Ireland launch legal/compliance — **no product changes, no gates, no deploy**  
+**Status:** Founder sign-off complete (20 Aug 2026). **LDRA-A3 + A4 closed** (20 Aug 2026, VPS verification). **Not externally legally verified.**  
+**Scope:** Ireland launch legal/compliance — **no product behaviour changes, no gates, no deploy** in this track  
 **Source of truth for behaviour:** live deployed codebase + deployed architecture (not aspirational policy)
 
 **Sign-off model:** Internal risk acceptance — **not externally legally verified**. See [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md).
@@ -56,8 +56,9 @@ Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: place
 
 | Gap | Status |
 |-----|--------|
-| Processor/hosting verification (LDRA-A3) | **Open** — ops before `live` |
-| Transfer mechanisms filed (LDRA-A4) | **Open** — ops before `live` |
+| Processor/hosting verification (LDRA-A3) | ✅ **Closed** 2026-08-20 — VPS SSH verified |
+| Transfer mechanisms filed (LDRA-A4) | ✅ **Closed** 2026-08-20 — vendor DPA/SCC links filed |
+| RevenueCat prod enablement | **Open** — commercial track (not A3/A4 blocker) |
 | Child wellbeing fields in Swedish privacy | Optional future SE update — LDRA-A2 Art. 9 guardrails apply in product regardless |
 
 EEA English documents reflect **code reality**. Swedish `/privacy` cookies and hosting claim aligned in this PR.
@@ -69,8 +70,8 @@ EEA English documents reflect **code reality**. Swedish `/privacy` cookies and h
 Track 1 is launch-ready when:
 
 - [x] No **HIGH** unresolved risks in [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md)
-- [ ] LDRA-A3 processor/hosting facts verified and filed
-- [ ] LDRA-A4 transfer mechanisms documented
+- [x] LDRA-A3 processor/hosting facts verified and filed
+- [x] LDRA-A4 transfer mechanisms documented
 - [x] Public docs match verified implementation
 - [x] Child lawful bases documented
 - [x] Irish IAP disclosures match paywall (commercial track)
