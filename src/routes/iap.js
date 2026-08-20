@@ -25,7 +25,7 @@ const {
   PREMIUM_PRICE_YEARLY_SEK,
 } = require('../../config/iap-product-contract');
 const { envBillingUiDisabled } = require('../lib/billing-ui');
-const { resolveFamilyEntitlements, applyStoreEntitlementFromWebhook } = require('../lib/family-entitlements');
+const { reconcileStoreEntitlementFromRevenueCat } = require('../lib/iap-reconcile');
 
 router.get('/config', requireParent, async (req, res) => {
   const platform = String(req.query.platform || '').toLowerCase() === 'android' ? 'android' : 'ios';
@@ -81,38 +81,28 @@ router.get('/config', requireParent, async (req, res) => {
 router.post('/sync', requireParent, async (req, res) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
-    const {
-      productId,
-      expirationAtMs,
-      periodType,
-      store,
-      environment,
-    } = req.body || {};
-
-    const subscriptionStatus = expirationAtMs && Number(expirationAtMs) > Date.now()
-      ? (String(periodType || '').toUpperCase() === 'TRIAL' ? 'active' : 'active')
-      : 'expired';
-
-    const eventType = 'SYNC';
-    await applyStoreEntitlementFromWebhook(familyId, {
-      subscriptionStatus: subscriptionStatus === 'active' && String(periodType || '').toUpperCase() === 'TRIAL'
-        ? 'active'
-        : subscriptionStatus,
-      eventType,
-      event: {
-        id: `sync_${Date.now()}`,
-        store: store || null,
-        environment: environment || null,
-        period_type: periodType || null,
-      },
-      productId: productId || STORE_PRODUCT_MONTHLY,
-      expirationAtMs: expirationAtMs || null,
-    });
-
-    const resolved = await resolveFamilyEntitlements(familyId);
+    const resolved = await reconcileStoreEntitlementFromRevenueCat(familyId);
     res.json({ ok: true, ...resolved });
   } catch (err) {
     console.error('[IAP] sync error:', err.message);
+    if (err.code === 'RC_NOT_CONFIGURED') {
+      return res.status(503).json({
+        error: 'Prenumerationsverifiering är inte tillgänglig just nu',
+        code: 'RC_NOT_CONFIGURED',
+      });
+    }
+    if (err.code === 'RC_VERIFY_FAILED') {
+      return res.status(502).json({
+        error: 'Kunde inte verifiera prenumeration hos RevenueCat',
+        code: 'RC_VERIFY_FAILED',
+      });
+    }
+    if (err.code === 'RC_NO_SUBSCRIBER' || err.code === 'RC_NO_PRODUCT') {
+      return res.status(502).json({
+        error: 'Kunde inte läsa prenumerationsstatus',
+        code: err.code,
+      });
+    }
     res.status(500).json({ error: 'Kunde inte synka prenumeration' });
   }
 });

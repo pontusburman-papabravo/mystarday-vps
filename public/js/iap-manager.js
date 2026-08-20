@@ -208,21 +208,13 @@
       null;
   }
 
-  async function syncBackendEntitlement(customerInfo) {
+  async function syncBackendEntitlement() {
     if (typeof fetch !== 'function') return;
-    var entId = (_config && _config.entitlementId) || 'basic';
-    var ent = customerInfo && customerInfo.entitlements &&
-      customerInfo.entitlements.active && customerInfo.entitlements.active[entId];
-    var body = ent ? {
-      productId: ent.productIdentifier,
-      expirationAtMs: ent.expirationDateMillis || (ent.expirationDate ? Date.parse(ent.expirationDate) : null),
-      periodType: ent.periodType,
-    } : { expirationAtMs: Date.now() - 1000 };
     await fetch('/api/iap/sync', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({}),
     }).catch(function () {});
   }
 

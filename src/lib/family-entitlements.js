@@ -238,6 +238,13 @@ async function syncAllLegacyMirrors(familyId, premium, opts = {}) {
   await syncSubscriptionComponentsMirror(familyId, premium, opts);
 }
 
+/** After mutating entitlement source rows, sync legacy mirrors from resolver winner. */
+async function syncMirrorsFromResolver(familyId, opts = {}) {
+  const { premium } = await resolveFamilyEntitlements(familyId);
+  await syncAllLegacyMirrors(familyId, premium, opts);
+  return premium;
+}
+
 async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null } = {}) {
   const paymentStartAt = await getPaymentStartAt();
   if (!isFamilyBeforePaymentStart(familyCreatedAt, paymentStartAt)) {
@@ -294,19 +301,18 @@ async function applyStoreEntitlementFromWebhook(familyId, {
     return { skipped: true, reason: 'grandfathered' };
   }
 
-  const storeSource = mapStoreFromEvent(event);
   if (subscriptionStatus === 'expired') {
     await entitlementsDb.revokeStoreEntitlement(familyId, { client });
-    const premium = emptyPremium();
-    await syncAllLegacyMirrors(familyId, premium, { client });
-    return { revoked: true };
+    const premium = await syncMirrorsFromResolver(familyId, { client });
+    return { revoked: true, premium };
   }
 
+  const storeSource = mapStoreFromEvent(event);
   const status = mapStoreStatus(subscriptionStatus, eventType, event);
   const expiresAt = expirationAtMs ? new Date(Number(expirationAtMs)) : null;
   const plan = planFromProductId(productId);
 
-  const row = await entitlementsDb.upsertStoreEntitlement(familyId, {
+  await entitlementsDb.upsertStoreEntitlement(familyId, {
     source: storeSource,
     status,
     expiresAt,
@@ -320,8 +326,7 @@ async function applyStoreEntitlementFromWebhook(familyId, {
     },
   }, { client });
 
-  const premium = buildPremiumFromRow(row);
-  await syncAllLegacyMirrors(familyId, premium, { client });
+  const premium = await syncMirrorsFromResolver(familyId, { client });
   return { applied: true, premium };
 }
 
@@ -337,15 +342,14 @@ async function grantAdminPremium(familyId, {
     return { skipped: true, reason: 'grandfathered_immutable' };
   }
 
-  const row = await entitlementsDb.upsertAdminGrant(familyId, {
+  await entitlementsDb.upsertAdminGrant(familyId, {
     expiresAt,
     permanent,
     sourceReference,
     metadata: { admin_id: adminId, reason },
   }, { client });
 
-  const premium = buildPremiumFromRow(row);
-  await syncAllLegacyMirrors(familyId, premium, { client });
+  const premium = await syncMirrorsFromResolver(familyId, { client });
   await appendPaymentAudit({
     familyId,
     source: 'admin',
@@ -364,6 +368,7 @@ module.exports = {
   syncLegacyFamilyMirror,
   syncSubscriptionComponentsMirror,
   syncAllLegacyMirrors,
+  syncMirrorsFromResolver,
   grantGrandfatheredOnCreate,
   grantAdminPremium,
   applyStoreEntitlementFromWebhook,

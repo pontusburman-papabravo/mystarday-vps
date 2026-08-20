@@ -6,8 +6,7 @@ const { appendPaymentAudit } = require('./payment-audit');
 const { getGiftSettings } = require('./payment-settings');
 const {
   resolveFamilyEntitlements,
-  syncAllLegacyMirrors,
-  buildPremiumFromRow,
+  syncMirrorsFromResolver,
 } = require('./family-entitlements');
 const entitlementsDb = require('../../db/family-entitlements');
 
@@ -205,7 +204,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
       [card.id, familyId]
     );
 
-    const entRow = await entitlementsDb.upsertGiftEntitlement(familyId, {
+    await entitlementsDb.upsertGiftEntitlement(familyId, {
       startsAt,
       expiresAt,
       sourceReference: card.id,
@@ -216,8 +215,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
       },
     }, { client });
 
-    const premium = buildPremiumFromRow(entRow);
-    await syncAllLegacyMirrors(familyId, premium, { client });
+    const premium = await syncMirrorsFromResolver(familyId, { client });
 
     await appendPaymentAudit({
       familyId,

@@ -1,19 +1,35 @@
 # PAYMENTS V1 — Implementation status
 
+Last verified HEAD: `security-patch` commit on `cursor/payments-v1-premium-a1b7` (see PR #1050)
+
 ## Done
 
 - Canonical `family_entitlements` + `payment_audit_log` migrations with idempotent grandfather backfill
 - `resolveFamilyEntitlements()` single resolver with precedence: grandfathered → admin → store → gift → none
 - Legacy mirror sync (`family.subscription_status`, `family_subscriptions.components`) — not source of truth
+- Entitlement mutations sync mirrors via `syncMirrorsFromResolver()` (resolver winner, not assumed empty state)
 - Registration/OAuth signup uses `payment_start_at` cutoff (founder count removed from access)
 - RevenueCat webhook writes canonical store rows + audit (skips grandfathered families)
 - Yearly SKU enabled in `iap-product-contract.js` + `/api/iap/config`
-- `/api/iap/sync` post-purchase reconciliation
+- **`POST /api/iap/sync` — trusted reconciliation only** (`src/lib/iap-reconcile.js`): server fetches RevenueCat subscriber; client body ignored; fail-closed without RC secret / verify errors
 - `/api/subscription/entitlements` + enriched `/api/subscription/status`
-- Limited-account API gate (`requirePremiumApi`) + `/paywall` + `/limited-account`
+- Limited-account API gate (`requirePremiumApi`) for **parents and children** + `/paywall` + `/limited-account`
 - Gift schema migration + `/api/gifts/redeem` with stacking queue start + rate limiting
 - Native settings: restore purchases + manage subscription (removed “via webbläsaren” copy)
-- Release-blocking tests in `test/payments-v1-entitlements.test.js`
+- Release-blocking tests in `test/payments-v1-entitlements.test.js` including:
+  - P0 fabricated client sync cannot grant Premium
+  - P1 store expiry + active admin → mirrors stay active
+  - P1 child product API returns 402 without Premium
+
+## Security patch (PR #1050 — required before store config)
+
+| ID | Issue | Fix |
+|----|-------|-----|
+| P0 | `/api/iap/sync` trusted client subscription claims | Reconcile from RevenueCat API only |
+| P1 | Store expiry wrote `emptyPremium()` mirrors | `syncMirrorsFromResolver()` after mutations |
+| P1 | Child sessions bypassed `requirePremiumApi` | Child limited-account allowlist + premium check on product routes |
+
+**Do not merge, deploy, or configure App Store / Play / RevenueCat until this patch is merged and CI green.**
 
 ## In progress
 
@@ -39,10 +55,11 @@ See spec §46 and `PAYMENTS_STORE_COMPLIANCE.md`.
 
 ## Known risks
 
-- Global `requirePremiumApi` may need path allowlist tuning as new parent APIs ship
+- Global `requirePremiumApi` may need path allowlist tuning as new parent/child APIs ship
 - Gift checkout without verified external compliance must stay disabled until sign-off
 - Default `payment_start_at` (2026-10-01) grandfathers all families created before that date
+- `/api/iap/sync` requires `REVENUECAT_SECRET_API_KEY` — returns 503 when unset (fail closed)
 
 ## Next action
 
-Complete Stripe gift-only checkout behind `gift_cards_sales_enabled` after compliance doc sign-off; run sandbox IAP purchase → webhook → `/api/iap/sync` end-to-end on device.
+After security patch CI green: sandbox IAP purchase → webhook → trusted `/api/iap/sync` end-to-end on device. Do **not** start store dashboard configuration before P0–P1 fixes land.

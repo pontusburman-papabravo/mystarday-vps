@@ -17,26 +17,11 @@
     show(el);
   }
 
-  async function syncBackendFromCustomerInfo(customerInfo) {
-    if (!customerInfo || !window.Auth || !Auth.api) return;
-    var entId = 'basic';
-    var ent = customerInfo.entitlements && customerInfo.entitlements.active && customerInfo.entitlements.active[entId];
-    if (!ent) {
-      await Auth.api('/api/iap/sync', {
-        method: 'POST',
-        body: JSON.stringify({ expirationAtMs: Date.now() - 1000 }),
-      }).catch(function () {});
-      return;
-    }
+  async function syncBackendFromCustomerInfo() {
+    if (!window.Auth || !Auth.api) return;
     await Auth.api('/api/iap/sync', {
       method: 'POST',
-      body: JSON.stringify({
-        productId: ent.productIdentifier,
-        expirationAtMs: ent.expirationDateMillis || ent.expirationDate,
-        periodType: ent.periodType,
-        store: customerInfo.managementURL ? 'APP_STORE' : 'PLAY_STORE',
-        environment: customerInfo.requestDate ? 'LIVE' : null,
-      }),
+      body: JSON.stringify({}),
     }).catch(function () {});
   }
 
