@@ -62,9 +62,21 @@ getMarketConfig()     →  timezone, currency, locale defaults, legal routes
 | timezone | `Europe/Dublin` | `Europe/Stockholm` |
 | currency | EUR | SEK |
 | defaultLocale | en-GB | sv-SE |
+| localeSupported | true | true |
 | legal | English EEA routes (placeholder) | sv-SE → `/privacy`, `/terms` |
 
-Future (not implemented): NO (`nb-NO`, NOK), DK (`da-DK`, DKK), GB (`en-GB`, GBP, UK region).
+**Region fallbacks** when no explicit country row exists:
+
+| market_region | timezone | Notes |
+|---------------|----------|-------|
+| EU | `Europe/Stockholm` | Bulk EU/EEA (e.g. DE) |
+| UK | `Europe/London` | |
+| US | `America/New_York` | |
+| OTHER | `UTC` | Fail-safe — not EU defaults |
+
+**Locale fields:** `locale` reflects caller input (pre-auth defaults to `sv-SE`). `defaultLocale` is the market preference when none is chosen — they may differ (IE omits locale → `locale=sv-SE`, `defaultLocale=en-GB`). Registration requires explicit language choice.
+
+NO/DK rows include `defaultLocale: nb-NO` / `da-DK` with **`localeSupported: false`** — metadata for future waves, not launch-ready UI.
 
 ---
 

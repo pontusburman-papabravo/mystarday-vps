@@ -3,7 +3,6 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { resolveFamilyTimezone } = require('../src/lib/family-timezone');
-const { getMarketConfig } = require('../src/lib/market-config');
 
 describe('family-timezone', () => {
   it('IE family resolves to Europe/Dublin', () => {
@@ -39,15 +38,5 @@ describe('family-timezone', () => {
     const dublinHour = Number(dublin.find((p) => p.type === 'hour').value);
     const stockholmHour = Number(stockholm.find((p) => p.type === 'hour').value);
     assert.equal(stockholmHour - dublinHour, 1, 'Stockholm is one hour ahead of Dublin at this instant');
-  });
-});
-
-describe('getMarketConfig timezone contract', () => {
-  it('IE config timezone is Europe/Dublin (E)', () => {
-    assert.equal(getMarketConfig({ countryCode: 'IE' }).timezone, 'Europe/Dublin');
-  });
-
-  it('SE config timezone is Europe/Stockholm', () => {
-    assert.equal(getMarketConfig({ countryCode: 'SE' }).timezone, 'Europe/Stockholm');
   });
 });

@@ -304,3 +304,25 @@ test('registration-gates API exposes market_ie_open', async (t) => {
     await db.cleanup();
   }
 });
+
+test('GET /api/market/config IE without locale keeps defaultLocale en-GB (pre-auth locale sv-SE)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const res = await fetch(`${http.baseUrl}/api/market/config?country_code=IE`);
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.countryCode, 'IE');
+    assert.equal(body.defaultLocale, 'en-GB');
+    assert.equal(body.locale, 'sv-SE');
+    assert.equal(body.localeSupported, true);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
