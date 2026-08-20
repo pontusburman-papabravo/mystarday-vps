@@ -1,6 +1,6 @@
 # PAYMENTS V1 — Implementation status
 
-Last verified HEAD: `a9704d61` on `cursor/payments-v1-premium-a1b7` (PR #1050)
+Last verified HEAD: `3b8f48b3` on `cursor/payments-v1-premium-a1b7` (PR #1050)
 
 ## Done
 
