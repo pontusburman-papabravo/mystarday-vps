@@ -43,7 +43,7 @@ function resolveLegalRoutes(input = {}) {
     terms: '/en/eea/terms',
     childPrivacy: '/en/eea/child-privacy',
     tracking: '/en/tracking-choices',
-    status: countryCode === 'IE' ? 'placeholder' : 'draft',
+    status: countryCode === 'IE' ? 'live' : 'draft',
   };
 }
 
