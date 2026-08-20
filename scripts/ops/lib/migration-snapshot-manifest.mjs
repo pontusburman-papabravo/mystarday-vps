@@ -69,6 +69,14 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     schemaOnly: true,
     featureFlagInserts: [{ key: 'growth_system_help_v1', enabled: false }],
   },
+  '1810320000000_market_country_gates': {
+    backwardCompatible: true,
+    featureFlagInserts: [
+      { key: 'market_ie_open', enabled: false },
+      { key: 'market_no_open', enabled: false },
+      { key: 'market_dk_open', enabled: false },
+    ],
+  },
 };
 
 /**
