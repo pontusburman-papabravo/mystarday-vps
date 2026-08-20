@@ -58,7 +58,7 @@ Routing: `src/lib/legal-routing.js` · IE + en-GB → EEA family (`status: place
 |-----|--------|
 | Processor/hosting verification (LDRA-A3) | **Open** — ops before `live` |
 | Transfer mechanisms filed (LDRA-A4) | **Open** — ops before `live` |
-| Child wellbeing fields in Swedish privacy | Optional future SE update — LDRA-A2 accepted |
+| Child wellbeing fields in Swedish privacy | Optional future SE update — LDRA-A2 Art. 9 guardrails apply in product regardless |
 
 EEA English documents reflect **code reality**. Swedish `/privacy` cookies and hosting claim aligned in this PR.
 

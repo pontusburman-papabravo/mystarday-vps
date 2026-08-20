@@ -8,9 +8,11 @@
 
 ## Executive summary
 
-Track 1 is **substantially launch-usable** under internal risk acceptance. Seven of nine priority decisions are **accepted** with documented interpretation and product alignment. **Two operational blockers remain open** (processor/hosting verification and transfer mechanism documentation) before we flip `resolveLegalRoutes()` to `live`.
+Track 1 is **substantially launch-usable** under internal risk acceptance. Eight of nine priority decisions are **accepted** with documented interpretation and product alignment (including **LDRA-A2 Article 9 guardrails**). **Two operational blockers remain open** (processor/hosting verification and transfer mechanism documentation) before we flip `resolveLegalRoutes()` to `live`.
 
 We do **not** claim legal approval. Public documents carry honest v0.1 disclaimers.
+
+**Founder sign-off:** Ready **after this A2 guardrail pass** — conditional on A3 + A4 before `legal-routing=live`.
 
 **`market_ie_open`** — still OFF (store + RC + launch control independent).  
 **`resolveLegalRoutes()`** — still `placeholder` (flip in separate PR after A3/A4 close).
@@ -24,10 +26,10 @@ We do **not** claim legal approval. Public documents carry honest v0.1 disclaime
 | 1 | No HIGH unresolved risks | ✅ | Highest open = MEDIUM (A3, A4, A1, A2) |
 | 2 | Public statements match implementation | ✅ | EEA docs code-derived; SE cookies + hosting softened this PR |
 | 3 | Processor/hosting/transfer facts verified | ⏳ **Open** | LDRA-A3, A4 — ops task before `live` |
-| 4 | Child lawful bases documented | ✅ | [`lawful-basis-register.md`](./internal/lawful-basis-register.md) |
+| 4 | Child lawful bases documented | ✅ | [`lawful-basis-register.md`](./internal/lawful-basis-register.md) + A2 Art. 9 guardrails |
 | 5 | Irish IAP disclosures match flow | ✅ | EEA Terms §7; RevenueCat/native only |
 
-**Overall:** **Conditional pass** — ready for counsel-free path after A3/A4 ops verification.
+**Overall:** **Conditional pass** — founder sign-off eligible after A2 guardrails; `live` flip still requires A3/A4 ops verification.
 
 ---
 
@@ -36,7 +38,7 @@ We do **not** claim legal approval. Public documents carry honest v0.1 disclaime
 | ID | Topic | Residual risk | Launch blocker | Status |
 |----|-------|---------------|----------------|--------|
 | A1 | Child processing / Art. 8 | MEDIUM | NO | ✅ Accepted |
-| A2 | Special-category wellbeing | MEDIUM | NO | ✅ Accepted |
+| A2 | Article 9 / wellbeing guardrails | MEDIUM | NO | ✅ Accepted (guardrails documented) |
 | A3 | Processors + hosting regions | MEDIUM | **YES** | ⏳ Open |
 | A4 | International transfers | MEDIUM | **YES** | ⏳ Open |
 | A5 | Public document accuracy | LOW | NO | ✅ Accepted |
@@ -58,6 +60,7 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 | SE `/privacy` cookies | Aligned with consent-gated GA4/Meta/Ads |
 | SE `/privacy` hosting | Softened EU/EES claim (same PR) |
 | Counsel mandatory wording | Removed from Track 1 model |
+| A2 Art. 9 guardrails | Contract not claimed for health data; Ireland V1 non-health positioning; enhanced free-text protection |
 
 ---
 
@@ -103,7 +106,7 @@ Full rationale: [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](./LEGAL_DECISIONS_AND
 
 | Role | Name | Date | Signature |
 |------|------|------|-----------|
-| Controller representative | _Pending founder sign-off_ | | |
+| Controller representative | _Eligible for founder sign-off after A2 guardrail merge_ | | |
 | Engineering (code baseline) | Track 1 agent pass | 2026-08-20 | Code-derived docs complete |
 
 This report does **not** constitute legal advice.

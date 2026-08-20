@@ -45,7 +45,7 @@
 | Article 8 / consent scope | **Accepted** (LDRA-A1) — parent contract model; narrow Art. 8 scope |
 | Parental consent model | Parent registers, child PIN — documented in child privacy notice |
 | Children's privacy notice | `/en/eea/child-privacy` |
-| Optional wellbeing notes | **Accepted MEDIUM risk** (LDRA-A2) — disclose, no ad use |
+| Optional wellbeing notes | **Art. 9 guardrails** (LDRA-A2) — not health-data positioning; enhanced protection for voluntary sensitive free text |
 
 ---
 

@@ -21,7 +21,7 @@ Legend: **C** = Contract · **L** = Legitimate interests · **CO** = Consent · 
 | 10 | Newsletter / marketing email | Email, opt-in token | Parents | **CO** | `email_subscriptions` | |
 | 11 | Win-back email | Parent email, child first name in template | Lapsed parents | **L** | Re-engagement; can opt out | B2 |
 | 12 | Professional share link | Selected child stats, optional PIN | Children (disclosed by parent) | **C** + parent action | Parent-initiated disclosure | B4 |
-| 13 | Pedagog notes / observations | Mood, sleep, meals, notes | Children | **C** | Optional parent/pedagog feature; sensitive-adjacent | A2 |
+| 13 | Pedagog notes / observations | Mood, sleep, meals, notes, free text | Children | **C** (routine notes only) | Optional parent/pedagog feature — **not** positioned as health-data collection | A2 |
 | 14 | IAP / subscriptions | rc_customer_id, entitlement status | Parents | **C** | Access to paid features | A6 |
 | 15 | Support contact form | Name, email, message | Any visitor | **L** / **C** | Respond to inquiry | B3 |
 | 16 | Security logging | IP in some forms (waitlist/professional interest) | Visitors | **L** | Abuse prevention | |
@@ -37,6 +37,17 @@ Legend: **C** = Contract · **L** = Legitimate interests · **CO** = Consent · 
 | 9 | Internal product analytics | B1 | Family UUID pseudonymisation, whitelist, delete on erasure — MEDIUM risk accepted |
 | 11 | Win-back emails | B2 | Service re-engagement with opt-out — MEDIUM risk accepted |
 | 15–17 | Support / audit retention | B3 | Disclosed exceptions — LOW risk accepted |
+
+---
+
+## Article 9 guardrails (LDRA-A2)
+
+Optional `pedagog_notes` / `child_observation` (mood, sleep, behaviour, free text):
+
+- **Ireland V1:** Product does **not** solicit diagnoses, medical information, or other special-category data.
+- **If content is Article 9 health data:** Art. 6 contract **alone** is not sufficient — an Art. 9(2) exception would be required before treating such collection as lawful.
+- **Voluntary free-text health content:** Enhanced protection — never analytics, marketing, profiling, or AI inference.
+- **Before any feature explicitly collects health data:** Separate Art. 9 decision + Art. 9(2) exception required.
 
 ---
 

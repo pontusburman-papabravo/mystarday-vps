@@ -58,12 +58,14 @@ Track 1 is **launch-ready** when all of the following are true:
 
 | | |
 |--|--|
-| **Official source** | GDPR Art. 9; EDPB guidance on health data |
-| **Our interpretation** | Optional `pedagog_notes` / `child_observation` fields (mood, sleep, behaviour, free text) are **parent/pedagog-entered**, not child forms. They may be **health-adjacent** but are routine/wellbeing notes in a family app context, not medical records or diagnosis. Strict Art. 9 classification is **interpretive**. We treat them as **sensitive**, minimise fields, and do not use for advertising or profiling. |
-| **Product decision** | Keep optional; disclose in EEA privacy notice; lawful basis **contract** (parent-initiated feature) + transparency. No automated inference or third-party sharing. Monitor for user-entered clinical content in free text. |
-| **Residual risk** | **MEDIUM** |
-| **Launch blocker** | **NO** (accepted with disclosure + minimisation) |
-| **Revisit trigger** | Diagnosis/ICD fields; sharing with health providers as processor; AI analysis of wellbeing data; school bulk deployment with health reporting |
+| **Official source** | GDPR Art. 9(1) and Art. 9(2); EU Commission guidance on processing special categories ([Art. 9 overview](https://commission.europa.eu/law/law-topic/data-protection/rules-business-and-organisations/legal-grounds-processing-data/sensitive-data/what-personal-data-considered-sensitive_en)); EDPB guidance on broad interpretation of “data concerning health” (mood, sleep, behaviour, and especially free text may reveal physical or mental health through context or combination) |
+| **Our interpretation** | Optional `pedagog_notes` / `child_observation` fields (mood, sleep, behaviour, free text) are **parent/pedagog-entered**, not child forms. Such data **may** constitute Article 9 health data depending on content and context. **Contract (Art. 6(1)(b)) alone is not sufficient lawful basis if the data is special-category health data** — an Article 9(2) exception would also be required (e.g. explicit consent or another specific ground). We do **not** resolve that exception for Ireland V1 because the product is **not positioned as a health-data feature**. |
+| **Product decision (Ireland V1 guardrails)** | 1. **Do not solicit** diagnoses, medical information, medication, or other special-category data in product UI or copy. 2. **Do not add** fields whose primary purpose is health-data collection before a separate Article 9 decision and Article 9(2) exception is documented. 3. If a user **voluntarily** enters health-related content in free text, treat it as **sensitive data with enhanced protection**: never use for analytics, marketing, profiling, or AI inference; no third-party sharing beyond core service processors under existing DPAs. 4. Disclose optional observations in EEA privacy notice with this limitation. 5. Product positioning remains **routine/pedagogical support**, not medical or clinical records. |
+| **Residual risk** | **MEDIUM** (user-entered free text cannot be fully controlled) |
+| **Launch blocker** | **NO** — provided guardrails above are documented and honoured in product |
+| **Revisit trigger** | New fields for diagnosis/medication/clinical scores; AI analysis of wellbeing text; sharing with health providers as a health-data workflow; school bulk deployment with health reporting; any feature that **explicitly** collects health data → requires separate Art. 9 decision + Art. 9(2) exception before ship |
+
+**Guardrail summary:** We accept MEDIUM residual risk on optional adult-entered notes **without** claiming contract covers Article 9 health data. Ireland V1 avoids health-data positioning; enhanced protection applies if users write sensitive content anyway.
 
 ---
 
@@ -180,7 +182,7 @@ Tracked in runbooks; not launch blockers unless they become HIGH:
 | ID | Status | Accepted by | Date | Notes |
 |----|--------|-------------|------|-------|
 | A1 | Accepted | Internal | 2026-08-20 | Lawful basis register updated |
-| A2 | Accepted | Internal | 2026-08-20 | MEDIUM risk retained |
+| A2 | Accepted | Internal | 2026-08-20 | Art. 9 guardrails documented; contract not claimed for special-category health data |
 | A3 | **Open** | — | — | Blocker until regions + DPAs filed |
 | A4 | **Open** | — | — | Blocker until transfer mechanisms filed |
 | A5 | Accepted | Internal | 2026-08-20 | Pending A3/A4 facts in public docs |

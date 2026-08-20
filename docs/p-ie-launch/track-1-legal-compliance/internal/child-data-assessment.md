@@ -34,7 +34,7 @@ Children do **not** register independently; no child email collection.
 | Routine completions | Yes | Core function |
 | Stars / rewards | Yes | Core function |
 | Health/diagnosis | Not requested in child UI | |
-| Mood/sleep/behaviour | Optional, **parent/pedagog** forms in reports | LDRA-A2 — parent-entered, not child forms |
+| Mood/sleep/behaviour | Optional, **parent/pedagog** forms in reports | LDRA-A2 — Art. 9 guardrails; not health-data positioning; enhanced protection if user writes sensitive content |
 
 ---
 
@@ -82,6 +82,6 @@ Direct child requests (without parent): respond case-by-case; parent is primary 
 
 | Decision | Rationale |
 |----------|-----------|
-| **Accepted for Ireland launch prep** (LDRA-A1, A2) | Processing is parent-mediated and minimised; lawful bases documented; MEDIUM residual risk accepted |
+| **Accepted for Ireland launch prep** (LDRA-A1, A2) | Parent-mediated model; Art. 9 guardrails on optional observations; MEDIUM residual risk on voluntary free text |
 
 **Blocker for `market_ie_open ON`:** commercial + RC + launch control — not external counsel.

@@ -27,7 +27,7 @@ Source: [`implementation-baseline.md`](../implementation-baseline.md)
 | Parent gate | Child accounts created/managed by parent; child login PIN-only |
 | Optional sensitive-adjacent data | `pedagog_notes` may contain mood/sleep/behaviour — **parent/pedagog entered**, not child forms |
 
-**LDRA-A2 accepted:** wellbeing notes treated as sensitive-adjacent; contract basis; no advertising use; MEDIUM risk retained.
+**LDRA-A2 guardrails:** Optional wellbeing notes are not positioned as health-data collection. If content constitutes Article 9 health data, contract basis alone is insufficient — see [`LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md`](../LEGAL_DECISIONS_AND_RISK_ACCEPTANCE.md) A2. Voluntary sensitive free text receives enhanced protection (no analytics/marketing/profiling/AI).
 
 ---
 
