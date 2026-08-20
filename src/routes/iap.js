@@ -97,7 +97,7 @@ router.post('/sync', requireParent, async (req, res) => {
         code: 'RC_VERIFY_FAILED',
       });
     }
-    if (err.code === 'RC_NO_SUBSCRIBER' || err.code === 'RC_NO_PRODUCT') {
+    if (err.code === 'RC_NO_SUBSCRIBER' || err.code === 'RC_NO_PRODUCT' || err.code === 'RC_PRODUCT_NOT_ALLOWED') {
       return res.status(502).json({
         error: 'Kunde inte läsa prenumerationsstatus',
         code: err.code,

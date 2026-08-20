@@ -359,6 +359,39 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     }
   });
 
+  await t.test('P1 reconcile rejects unknown RevenueCat product (allowlist)', async () => {
+    reloadDbBoundModules();
+    const { reconcileStoreEntitlementFromRevenueCat } = require('../src/lib/iap-reconcile');
+    const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00');
+    const future = new Date(Date.now() + 30 * 86400000).toISOString();
+    const unknownProduct = 'legacy.rc_basic_monthly';
+
+    await assert.rejects(
+      () => reconcileStoreEntitlementFromRevenueCat(family.id, {
+        apiKey: 'test-rc-secret',
+        fetchSubscriber: async () => ({
+          entitlements: {
+            basic: {
+              expires_date: future,
+              product_identifier: unknownProduct,
+            },
+          },
+          subscriptions: {
+            [unknownProduct]: {
+              expires_date: future,
+              store: 'APP_STORE',
+              period_type: 'NORMAL',
+            },
+          },
+        }),
+      }),
+      (err) => err && err.code === 'RC_PRODUCT_NOT_ALLOWED',
+    );
+
+    const { premium } = await resolveFamilyEntitlements(family.id);
+    assert.equal(premium.active, false);
+  });
+
   await t.test('P1 store expiry keeps admin entitlement and legacy mirrors', async () => {
     const family = await createFamilyDirect(db, '2026-11-05T00:00:00+02:00');
     const expFuture = Date.now() + 7 * 86400000;

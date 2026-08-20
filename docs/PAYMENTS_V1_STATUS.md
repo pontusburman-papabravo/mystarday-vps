@@ -20,6 +20,7 @@ Last verified HEAD: `a9704d61` on `cursor/payments-v1-premium-a1b7` (PR #1050)
   - P0 fabricated client sync cannot grant Premium
   - P1 store expiry + active admin → mirrors stay active
   - P1 child product API returns 402 without Premium
+  - P1 reconcile unknown RC product → no Premium (`RC_PRODUCT_NOT_ALLOWED`)
 
 ## Security patch (PR #1050 — required before store config)
 
@@ -28,6 +29,7 @@ Last verified HEAD: `a9704d61` on `cursor/payments-v1-premium-a1b7` (PR #1050)
 | P0 | `/api/iap/sync` trusted client subscription claims | Reconcile from RevenueCat API only |
 | P1 | Store expiry wrote `emptyPremium()` mirrors | `syncMirrorsFromResolver()` after mutations |
 | P1 | Child sessions bypassed `requirePremiumApi` | Child limited-account allowlist + premium check on product routes |
+| P1 | Reconcile accepted non-allowlisted RC product | `isAllowedProductId()` (webhook parity); `RC_PRODUCT_NOT_ALLOWED` |
 
 **Do not merge, deploy, or configure App Store / Play / RevenueCat until this patch is merged and CI green.**
 
@@ -62,4 +64,4 @@ See spec §46 and `PAYMENTS_STORE_COMPLIANCE.md`.
 
 ## Next action
 
-After security patch CI green: sandbox IAP purchase → webhook → trusted `/api/iap/sync` end-to-end on device. Do **not** start store dashboard configuration before P0–P1 fixes land.
+Security patch landed at `a9704d61`. Re-run full PR CI/E2E before store dashboard work. After CI green: sandbox IAP purchase → webhook → trusted `/api/iap/sync` on device.
