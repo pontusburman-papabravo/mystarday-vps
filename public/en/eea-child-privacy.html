@@ -1,23 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="alternate" hreflang="en" href="__SITE_URL__/en/eea/child-privacy">
+  <link rel="alternate" hreflang="x-default" href="__SITE_URL__/">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Child privacy — My Starday</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta property="og:title" content="Your privacy — My Starday">
+  <meta property="og:description" content="A simple explanation of how My Starday looks after your information — for children and parents.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="__SITE_URL__/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="__SITE_URL__/og-image.png">
+  <title>Your privacy — My Starday</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1.25rem; color: #1B2340; line-height: 1.6; }
-    .banner { background: #FFF3D6; border-left: 4px solid #F5A623; padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 2rem; }
-    h1 { font-size: 1.5rem; }
-    a { color: #B8860B; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #F5A623; --gold-light: #FFF3D6; --navy: #1B2340; --navy-soft: #2A3458;
+      --text: #1B2340; --text-soft: #5A6178; --white: #FFFFFF; --bg: #FAFBFF;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+
+    nav { padding: 1.2rem 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(250,251,255,0.95); border-bottom: 1px solid rgba(27,35,64,0.08); }
+    .logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .logo-star { width: 32px; height: 32px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; }
+    .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--navy); }
+    .back-link { font-size: 0.9rem; color: var(--navy); text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; background: var(--gold-light); }
+    .back-link:hover { background: var(--gold); color: white; }
+
+    .content { max-width: 740px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+    .content h1 { font-size: 2.4rem; font-weight: 800; color: var(--navy); margin-bottom: 0.5rem; }
+    .updated { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 1.5rem; }
+
+    h2 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin: 2.5rem 0 0.8rem; }
+    p { color: var(--text-soft); margin-bottom: 1rem; font-size: 0.98rem; }
+    ul { color: var(--text-soft); font-size: 0.98rem; padding-left: 1.5rem; margin-bottom: 1rem; }
+    ul li { margin-bottom: 0.4rem; }
+    a { color: var(--gold); font-weight: 600; }
+    a:hover { text-decoration: underline; }
+
+    .review-notice { background: var(--gold-light); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; border-left: 4px solid var(--gold); font-size: 0.92rem; color: var(--navy); }
+    .review-notice strong { display: block; margin-bottom: 0.35rem; }
+
+    .highlight-box { background: var(--gold-light); border-radius: 16px; padding: 1.5rem; margin: 2rem 0; border-left: 4px solid var(--gold); }
+    .highlight-box p { color: var(--navy); margin: 0; font-weight: 500; }
+
+    .kid-note { font-size: 1.05rem; color: var(--navy); line-height: 1.75; }
+
+    footer { padding: 2rem; text-align: center; font-size: 0.82rem; color: var(--text-soft); background: var(--gold-light); }
+    footer a { color: var(--navy); text-decoration: none; font-weight: 500; }
   </style>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#F5A623">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="My Starday">
+  <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/public-lang-switcher.js?v=2"></script>
 </head>
 <body>
-  <div class="banner" role="status">
-    <strong>Legal review in progress.</strong> Child-facing privacy copy will be published before Ireland launch.
+  <nav>
+    <a href="/en" class="logo">
+      <div class="logo-star">&#9733;</div>
+      <span class="logo-text">My Starday</span>
+    </a>
+    <a href="/en" class="back-link">&#8592; Back</a>
+  </nav>
+
+  <div class="content">
+    <h1>Your privacy in My Starday</h1>
+    <p class="updated">For children and parents · review-notice version 0.1</p>
+
+    <div class="review-notice" role="status">
+      <strong>Internal compliance sign-off</strong>
+      This page is written in plain language for families. It reflects how the product works today but is not externally legally verified. A fuller privacy notice for parents is linked below.
+    </div>
+
+    <div class="highlight-box">
+      <p>My Starday helps with everyday routines — like brushing teeth, getting dressed, and earning stars. We keep only what we need to make that work. We do not sell your information, and we do not use your routines to show you adverts.</p>
+    </div>
+
+    <p class="kid-note">Parents and carers: you can read this page aloud to your child. The words are meant for children around 6–12, but the details are true for everyone in the family.</p>
+
+    <h2>Who sets things up?</h2>
+    <p>A grown-up in your family — usually a parent or carer — creates the My Starday account. They choose your activities, your schedule, and your rewards. You get to use the app with your own PIN.</p>
+
+    <h2>How do you sign in?</h2>
+    <p>Children sign in with a <strong>PIN</strong> (a short secret number), not with an email address. Your PIN helps keep your account yours. If you forget it, ask your grown-up for help.</p>
+
+    <h2>What do we remember about you?</h2>
+    <p>We keep things that help the app work for you:</p>
+    <ul>
+      <li>Your <strong>first name or nickname</strong> — so the app can greet you</li>
+      <li>An <strong>emoji</strong> you pick — so you can recognise your profile</li>
+      <li>Your <strong>schedule</strong> — the activities for your day</li>
+      <li>Your <strong>stars</strong> — what you have earned and spent</li>
+    </ul>
+    <p>We do <strong>not</strong> ask for your full name, your address, your phone number, or other details that would identify you outside the app. We do not collect health information about you.</p>
+
+    <h2>Why do we keep schedules and stars?</h2>
+    <p>So you can see what to do next, tick things off when you are done, and save up stars for rewards. That is the whole point of My Starday — to make mornings and evenings a little calmer and clearer.</p>
+
+    <h2>Your grown-up is in charge</h2>
+    <p>Your parent or carer can change your profile, update your schedule, or <strong>delete everything</strong> — the whole family account and all its data — at any time from their settings. When they delete the account, your information is removed for good.</p>
+
+    <h2>What we never do</h2>
+    <ul>
+      <li>We do <strong>not</strong> sell information about children or families</li>
+      <li>We do <strong>not</strong> use your routine completions or star history to show personalised adverts</li>
+      <li>We do <strong>not</strong> share your day-to-day activity with advertising companies</li>
+    </ul>
+
+    <h2>Questions?</h2>
+    <p>If something feels confusing or worrying, talk to your grown-up first. They can read the full privacy notice or contact us:</p>
+    <ul>
+      <li><a href="/en/eea/privacy">Privacy notice for parents (EEA)</a></li>
+      <li><a href="/en/contact">Contact us</a></li>
+    </ul>
   </div>
-  <h1>Your privacy in My Starday (draft)</h1>
-  <p>My Starday remembers some things so it can work for you — like your activities, stars and routines. Your parent or carer helps manage your account.</p>
-  <p>We do not sell information about children and we do not use routine completions for personalised adverts.</p>
-  <p><a href="/en/contact">Contact us</a> · <a href="/en">Back</a></p>
+
+  <footer>
+    <p>My Starday &mdash; <a href="/en">Home</a> &bull; <a href="/en/eea/privacy">Privacy notice</a> &bull; <a href="/en/tracking-choices">Your privacy choices</a> &bull; <a href="/en/contact">Contact</a></p>
+  </footer>
+  <script src="/js/sw-register.js?v=2.12.0"></script>
 </body>
 </html>
