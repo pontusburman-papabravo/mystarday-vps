@@ -43,12 +43,13 @@ function reloadDbBoundModules() {
   }
 }
 
-async function createFamilyDirect(db, createdAtIso) {
+async function createFamilyDirect(db, createdAtIso, countryCode = 'SE') {
+  const marketRegion = countryCode === 'GB' ? 'UK' : (countryCode === 'US' ? 'US' : 'EU');
   const { rows } = await db.query(
-    `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at)
-     VALUES ('Testfamilj', 'none', false, $1::timestamptz)
-     RETURNING id, created_at`,
-    [createdAtIso]
+    `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at, country_code, market_region)
+     VALUES ('Testfamilj', 'none', false, $1::timestamptz, $2, $3)
+     RETURNING id, created_at, country_code`,
+    [createdAtIso, countryCode, marketRegion]
   );
   return rows[0];
 }
@@ -100,8 +101,27 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
   await setPaymentStart('2026-10-01T00:00:00+02:00');
 
   await t.test('1 family before cutoff → grandfathered forever', async () => {
-    const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00');
-    await grantGrandfatheredOnCreate(family.id, family.created_at);
+    const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'SE');
+    await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'SE' });
+    const { premium } = await resolveFamilyEntitlements(family.id);
+    assert.equal(premium.active, true);
+    assert.equal(premium.is_grandfathered, true);
+    assert.equal(premium.source, 'grandfathered');
+  });
+
+  await t.test('1b IE family before Swedish cutoff → not grandfathered', async () => {
+    const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'IE');
+    const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'IE' });
+    assert.equal(row, null);
+    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
+    assert.equal(premium.active, false);
+    assert.equal(requires_paywall, true);
+  });
+
+  await t.test('1c explicit IE grandfather row remains premium', async () => {
+    const entitlementsDb = require('../db/family-entitlements');
+    const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'IE');
+    await entitlementsDb.upsertGrandfathered(family.id, { metadata: { manual_migration: true } });
     const { premium } = await resolveFamilyEntitlements(family.id);
     assert.equal(premium.active, true);
     assert.equal(premium.is_grandfathered, true);
@@ -109,7 +129,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
   });
 
   await t.test('2 family after cutoff → no access before valid entitlement', async () => {
-    const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00');
+    const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00', 'SE');
     await syncAllLegacyMirrors(family.id, emptyPremium());
     const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
     assert.equal(premium.active, false);

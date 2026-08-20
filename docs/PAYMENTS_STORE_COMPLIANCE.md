@@ -18,9 +18,24 @@ Max ~2 pages. **Do not enable paid gift sales or in-app external purchase CTAs u
 ## Verified in repo (not store consoles)
 
 - Server-side entitlement resolver is canonical; RevenueCat client is not access source of truth
-- Grandfathered families cannot lose access via webhook
+- Grandfathered families cannot lose access via webhook; **grandfathering is SE-only** (`payment_start_at` cutoff does not apply to IE/NO/DK/GB)
 - No Stripe subscription checkout reintroduced
 - Gift purchase checkout disabled until PSP + compliance verified (`/api/gifts/settings.checkout_available: false`)
+
+### Product contract (configure identically in Apple, Google, RevenueCat)
+
+Authoritative IDs: `config/iap-product-contract.js` (`APPLE_PRODUCT_*`, `GOOGLE_PRODUCT_*`).
+
+**RevenueCat:** entitlement `basic` · offering `default` · packages `$rc_monthly` / `$rc_annual`.
+
+**Portal target prices (runtime UI uses store-localized prices, not these literals):**
+
+| Market | Monthly | Yearly | Trial |
+|--------|---------|--------|-------|
+| Sweden | 59 SEK | 590 SEK | 14-day intro (one per subscription group) |
+| Ireland | €5.99 | €59.99 | 14-day intro on both base plans |
+
+**Rollout (must stay closed until portal E2E):** `market_ie_open` OFF · paid rollout OFF · sandbox allowlist required · no web Premium checkout.
 
 ## External checks before go/no-go
 

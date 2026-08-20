@@ -7,8 +7,8 @@ const db = require('./db');
 const entitlementsDb = require('../../db/family-entitlements');
 const familySubscriptions = require('../../db/family-subscriptions');
 const { PREMIUM_ENTITLEMENT_KEY, PREMIUM_V1_COMPONENTS } = require('../../config/entitlements');
-const { STORE_PRODUCT_MONTHLY, STORE_PRODUCT_YEARLY } = require('../../config/iap-product-contract');
-const { getPaymentStartAt, isFamilyBeforePaymentStart } = require('./payment-settings');
+const { STORE_PRODUCT_MONTHLY, STORE_PRODUCT_YEARLY, planFromStoreProductId } = require('../../config/iap-product-contract');
+const { getPaymentStartAt, isFamilyEligibleForGrandfathering } = require('./payment-settings');
 const { appendPaymentAudit } = require('./payment-audit');
 
 const STORE_SOURCES = new Set(['apple', 'google']);
@@ -52,12 +52,7 @@ function isRowActive(row, nowMs) {
 }
 
 function planFromProductId(productId) {
-  if (!productId) return null;
-  if (productId === STORE_PRODUCT_YEARLY) return 'yearly';
-  if (productId === STORE_PRODUCT_MONTHLY) return 'monthly';
-  if (String(productId).includes('yearly')) return 'yearly';
-  if (String(productId).includes('monthly')) return 'monthly';
-  return null;
+  return planFromStoreProductId(productId);
 }
 
 function buildPremiumFromRow(row) {
@@ -117,16 +112,22 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   const [rows, paymentStartAt, familyRow] = await Promise.all([
     entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client }),
     getPaymentStartAt(),
-    q('SELECT id, created_at, is_lifetime_free FROM family WHERE id = $1', [familyId])
+    q('SELECT id, created_at, is_lifetime_free, country_code FROM family WHERE id = $1', [familyId])
       .then((r) => r.rows[0] || null),
   ]);
 
   let workingRows = rows;
 
-  // Lazy grandfather for pre-cutoff families missing row (should not happen post-migration)
+  const familyCountryCode = familyRow?.country_code || 'SE';
+
+  // Lazy grandfather for pre-cutoff SE families missing row (should not happen post-migration)
   if (
     familyRow &&
-    isFamilyBeforePaymentStart(familyRow.created_at, paymentStartAt) &&
+    isFamilyEligibleForGrandfathering({
+      countryCode: familyCountryCode,
+      createdAt: familyRow.created_at,
+      paymentStartAt,
+    }) &&
     !rows.some((r) => r.source === 'grandfathered' && !r.revoked_at)
   ) {
     const inserted = await entitlementsDb.upsertGrandfathered(familyId, {
@@ -139,7 +140,15 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   const winner = pickWinner(workingRows, nowMs);
   const premium = winner ? buildPremiumFromRow(winner) : emptyPremium();
 
-  if (!premium.active && familyRow && isFamilyBeforePaymentStart(familyRow.created_at, paymentStartAt)) {
+  if (
+    !premium.active &&
+    familyRow &&
+    isFamilyEligibleForGrandfathering({
+      countryCode: familyCountryCode,
+      createdAt: familyRow.created_at,
+      paymentStartAt,
+    })
+  ) {
     // Safety net — cutoff families must never lose access
     return {
       premium: {
@@ -160,7 +169,11 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
     premium,
     payment_start_at: paymentStartAt.toISOString(),
     requires_paywall: !premium.active && familyRow &&
-      !isFamilyBeforePaymentStart(familyRow.created_at, paymentStartAt),
+      !isFamilyEligibleForGrandfathering({
+        countryCode: familyCountryCode,
+        createdAt: familyRow.created_at,
+        paymentStartAt,
+      }),
   };
 }
 
@@ -249,9 +262,13 @@ async function syncMirrorsFromResolver(familyId, opts = {}) {
   return premium;
 }
 
-async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null } = {}) {
+async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null, countryCode = 'SE' } = {}) {
   const paymentStartAt = await getPaymentStartAt();
-  if (!isFamilyBeforePaymentStart(familyCreatedAt, paymentStartAt)) {
+  if (!isFamilyEligibleForGrandfathering({
+    countryCode,
+    createdAt: familyCreatedAt,
+    paymentStartAt,
+  })) {
     return null;
   }
   const row = await entitlementsDb.upsertGrandfathered(familyId, { client, metadata: { on_create: true } });

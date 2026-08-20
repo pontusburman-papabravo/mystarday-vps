@@ -21,7 +21,11 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
 }
 
-const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
+const {
+  STORE_PRODUCT_MONTHLY,
+  GOOGLE_PRODUCT_MONTHLY,
+  GOOGLE_PRODUCT_YEARLY,
+} = require('../config/iap-product-contract');
 const WEBHOOK_AUTH = 'Bearer revenuecat-static-webhook-secret';
 const SIGNING_SECRET = 'revenuecat-hmac-signing-secret';
 
@@ -163,6 +167,99 @@ describe('resolveSubscriptionStatus', () => {
   test('EXPIRATION revokes access', () => {
     assert.equal(resolveSubscriptionStatus('EXPIRATION', past), 'expired');
   });
+});
+
+test('IAP webhook: Google base-plan product_id accepted (PLAY_STORE)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  process.env.REVENUECAT_WEBHOOK_SECRET = WEBHOOK_AUTH;
+  delete process.env.REVENUECAT_WEBHOOK_SIGNING_SECRET;
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const familyId = await seedTestFamily(db, { subscriptionStatus: 'none' });
+
+    const body = buildEventPayload({
+      type: 'INITIAL_PURCHASE',
+      app_user_id: familyId,
+      product_id: GOOGLE_PRODUCT_MONTHLY,
+      event: { store: 'PLAY_STORE' },
+    });
+    const res = await fetch(`${http.baseUrl}/api/iap/webhook`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: WEBHOOK_AUTH,
+      },
+      body,
+    });
+    assert.equal(res.status, 200);
+    const json = await res.json();
+    assert.equal(json.processed, true);
+
+    const ent = await db.query(
+      `SELECT metadata->>'product_id' AS product_id, source, status
+       FROM family_entitlements
+       WHERE family_id = $1 AND revoked_at IS NULL
+       ORDER BY granted_at DESC LIMIT 1`,
+      [familyId]
+    );
+    assert.equal(ent.rows[0].product_id, GOOGLE_PRODUCT_MONTHLY);
+    assert.equal(ent.rows[0].source, 'google');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('IAP webhook: unknown product_id fails closed (200 skipped)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  process.env.REVENUECAT_WEBHOOK_SECRET = WEBHOOK_AUTH;
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const familyId = await seedTestFamily(db, { subscriptionStatus: 'none' });
+
+    const body = buildEventPayload({
+      type: 'INITIAL_PURCHASE',
+      app_user_id: familyId,
+      product_id: 'com.example.unknown:monthly',
+    });
+    const res = await fetch(`${http.baseUrl}/api/iap/webhook`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: WEBHOOK_AUTH,
+      },
+      body,
+    });
+    assert.equal(res.status, 200);
+    const json = await res.json();
+    assert.equal(json.received, true);
+    assert.equal(json.skipped, 'invalid_product_id');
+
+    const { rows } = await db.query(
+      'SELECT subscription_status FROM family WHERE id = $1',
+      [familyId]
+    );
+    assert.equal(rows[0].subscription_status, 'none');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
 });
 
 test('IAP webhook: valid static auth updates subscription_status', async (t) => {

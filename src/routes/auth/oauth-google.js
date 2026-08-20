@@ -10,6 +10,10 @@ const { appleLoginLimiter } = require('../../middleware/rateLimiter');
 const parentDb = require('../../../db/parent');
 const { verifyGoogleIdToken } = require('../../lib/google-auth');
 const { createParentFromOAuth } = require('../../lib/create-oauth-parent');
+const {
+  resolveNewAccountRegistrationContext,
+  assertRegistrationMarketOpen,
+} = require('../../lib/registration-market-context');
 const { completeLogin } = require('./session');
 
 const router = express.Router();
@@ -73,6 +77,18 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
     }
 
     const displayName = googleDisplayName(payload, email);
+    const registrationCtx = resolveNewAccountRegistrationContext(req, req.body);
+    if (!registrationCtx.ok) {
+      return res.status(registrationCtx.status).json(registrationCtx.body);
+    }
+    const marketGate = await assertRegistrationMarketOpen(
+      registrationCtx.countryResolved.country_code,
+      registrationCtx.familyLocale
+    );
+    if (!marketGate.ok) {
+      return res.status(marketGate.status).json(marketGate.body);
+    }
+
     const attribution = {
       utm_source: req.body.utm_source,
       utm_medium: req.body.utm_medium,
@@ -89,6 +105,13 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
       email,
       googleUserId,
       attribution,
+      familyLocale: registrationCtx.familyLocale,
+      countryCode: registrationCtx.countryResolved.country_code,
+      marketRegion: registrationCtx.countryResolved.market_region,
+      timezone: registrationCtx.marketConfig.timezone,
+      localeSelectionSource: registrationCtx.localeSelectionSource,
+      englishBetaOfferState: registrationCtx.englishBetaOfferState,
+      countrySelectionSource: registrationCtx.countryResolved.country_selection_source,
     });
     return completeLogin(req, res, newParent, 'parent', { isNewAccount: true, authSource: 'google_login' });
   } catch (err) {

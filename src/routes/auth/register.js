@@ -142,7 +142,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // PAYMENTS V1 — grandfather by payment_start_at cutoff (not founder count).
       const { grantGrandfatheredOnCreate, syncAllLegacyMirrors, emptyPremium } = require('../../lib/family-entitlements');
-      const { getPaymentStartAt, isFamilyBeforePaymentStart } = require('../../lib/payment-settings');
+      const { getPaymentStartAt, isFamilyEligibleForGrandfathering } = require('../../lib/payment-settings');
       const paymentStartAt = await getPaymentStartAt();
 
       // Create family — no DB trial for post-cutoff cohort (store trial via RevenueCat only).
@@ -173,7 +173,11 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       );
       const familyId = familyResult.rows[0].id;
       const familyCreatedAt = familyResult.rows[0].created_at;
-      const isPreCutoff = isFamilyBeforePaymentStart(familyCreatedAt, paymentStartAt);
+      const isPreCutoff = isFamilyEligibleForGrandfathering({
+        countryCode: countryResolved.country_code,
+        createdAt: familyCreatedAt,
+        paymentStartAt,
+      });
 
       if (familyLocale === 'en-GB') {
         await enableEnglishAppForFamily(familyId, { client });
@@ -334,7 +338,10 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       await createNewsletterSubscription(client, parentId, normalizedEmail);
 
-      const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client });
+      const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
+        client,
+        countryCode: countryResolved.country_code,
+      });
       if (!grandfatherRow) {
         await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
       }

@@ -5,9 +5,13 @@
  */
 const appSettings = require('../../db/app-settings');
 const appConfig = require('../../db/app-config');
+const { normalizeCountryCode } = require('./market-region');
 
 const PAYMENT_START_AT_KEY = 'payment_start_at';
 const DEFAULT_PAYMENT_START_AT = '2026-10-01T00:00:00+02:00';
+
+/** Swedish payment_start_at grandfathering applies to SE families only (not worldwide). */
+const GRANDFATHER_ELIGIBLE_COUNTRY_CODES = Object.freeze(new Set(['SE']));
 
 const GIFT_DEFAULTS = Object.freeze({
   gift_cards_enabled: true,
@@ -71,13 +75,29 @@ function isFamilyBeforePaymentStart(familyCreatedAt, paymentStartAt) {
   return created.getTime() < cutoff.getTime();
 }
 
+/**
+ * Country-scoped grandfather eligibility for Swedish payment_start_at cutoff.
+ * Existing explicit grandfather entitlement rows are never revoked elsewhere.
+ *
+ * @param {{ countryCode?: string|null, createdAt: Date|string, paymentStartAt: Date|string }} input
+ */
+function isFamilyEligibleForGrandfathering({ countryCode, createdAt, paymentStartAt }) {
+  const cc = normalizeCountryCode(countryCode) || 'SE';
+  if (!GRANDFATHER_ELIGIBLE_COUNTRY_CODES.has(cc)) {
+    return false;
+  }
+  return isFamilyBeforePaymentStart(createdAt, paymentStartAt);
+}
+
 module.exports = {
   PAYMENT_START_AT_KEY,
   DEFAULT_PAYMENT_START_AT,
   GIFT_DEFAULTS,
+  GRANDFATHER_ELIGIBLE_COUNTRY_CODES,
   getPaymentStartAt,
   setPaymentStartAt,
   getGiftSettings,
   setGiftSetting,
   isFamilyBeforePaymentStart,
+  isFamilyEligibleForGrandfathering,
 };

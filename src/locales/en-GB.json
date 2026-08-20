@@ -1047,5 +1047,35 @@
       "deletionPending": "Your account has been marked for deletion. You have 30 days to change your mind.",
       "alreadyPending": "Your account is already marked for deletion."
     }
+  },
+  "paywall": {
+    "title": "Welcome",
+    "subtitle": "Premium gives your family full access to routines, stars, and schedules.",
+    "webNoticeTitle": "Activate Premium in the app",
+    "webNoticeBody": "Premium is purchased through the App Store or Google Play — not on the web.",
+    "downloadIphone": "Download for iPhone",
+    "downloadAndroid": "Download for Android",
+    "yearlyBadge": "Recommended",
+    "yearlyPrice": "{{price}}/year",
+    "yearlySavings": "Save compared with paying monthly",
+    "yearlyTermsKnownTrial": "{{trialDays}}-day free trial · then {{price}}/year · renews automatically",
+    "yearlyTermsNoTrial": "{{price}}/year · renews automatically",
+    "monthlyPrice": "{{price}}/month",
+    "monthlyBlurb": "Flexible monthly subscription for your family.",
+    "monthlyTermsKnownTrial": "{{trialDays}}-day free trial · then {{price}}/month · renews automatically",
+    "monthlyTermsNoTrial": "{{price}}/month · renews automatically",
+    "legal": "You can cancel a free trial before billing under App Store or Google Play rules. Manage or cancel in your store subscription settings.",
+    "giftCard": "I have a gift card",
+    "giftCodeLabel": "Gift code",
+    "giftRedeem": "Redeem gift card",
+    "limitedAccount": "Continue with limited account",
+    "statusOpening": "Opening checkout…",
+    "statusSuccess": "Premium is active! Welcome back.",
+    "statusCancelled": "Purchase cancelled.",
+    "statusFailed": "Purchase failed. Please try again.",
+    "statusUnavailable": "Prices could not be loaded right now. Please try again later.",
+    "statusNotNative": "Purchases are not available here. Please use the app.",
+    "giftSuccess": "Gift card redeemed!",
+    "giftFailed": "Could not redeem the code."
   }
 }

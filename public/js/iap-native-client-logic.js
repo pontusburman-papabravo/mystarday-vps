@@ -78,12 +78,52 @@
       if (byPkg) return byPkg;
     }
     if (productId) {
-      const byProduct = packages.find(
-        (p) => p.product && (p.product.identifier === productId || p.product.productIdentifier === productId)
-      );
+      const target = String(productId);
+      const byProduct = packages.find((p) => {
+        if (!p.product) return false;
+        const identifiers = [
+          p.product.identifier,
+          p.product.productIdentifier,
+        ].filter(Boolean).map(String);
+        return identifiers.some((id) => id === target || id.endsWith(`:${target.split(':').pop()}`));
+      });
       if (byProduct) return byProduct;
     }
     return packages[0] || null;
+  }
+
+  function extractPackageDisplay(pkg) {
+    if (!pkg || !pkg.product) return null;
+    const product = pkg.product;
+    const intro = product.introPrice || product.introductoryPrice || null;
+    return {
+      identifier: product.identifier || product.productIdentifier || null,
+      priceString: product.priceString || null,
+      currencyCode: product.currencyCode || null,
+      subscriptionPeriod: product.subscriptionPeriod || null,
+      introPriceString: intro && intro.priceString ? intro.priceString : null,
+      introPeriod: intro && intro.period ? intro.period : null,
+    };
+  }
+
+  function resolveOfferingTierDisplays(offering, configPackages) {
+    if (!offering || !configPackages) return null;
+    const monthlyPkg = pickPackageFromOffering(
+      offering,
+      configPackages.monthly && configPackages.monthly.revenueCatPackageId,
+      configPackages.monthly && configPackages.monthly.storeProductId
+    );
+    const yearlyPkg = pickPackageFromOffering(
+      offering,
+      configPackages.yearly && configPackages.yearly.revenueCatPackageId,
+      configPackages.yearly && configPackages.yearly.storeProductId
+    );
+    const monthly = extractPackageDisplay(monthlyPkg);
+    const yearly = extractPackageDisplay(yearlyPkg);
+    if (!monthly || !monthly.priceString || !yearly || !yearly.priceString) {
+      return null;
+    }
+    return { monthly, yearly };
   }
 
   return {
@@ -95,5 +135,7 @@
     mapPurchaseError,
     hasEntitlement,
     pickPackageFromOffering,
+    extractPackageDisplay,
+    resolveOfferingTierDisplays,
   };
 });
