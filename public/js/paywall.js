@@ -9,7 +9,7 @@
   function show(el) { if (el) el.classList.remove('hidden'); }
   function hide(el) { if (el) el.classList.add('hidden'); }
   function setStatus(msg, isError) {
-    var el = document.getElementById('paywallStatus');
+    const el = document.getElementById('paywallStatus');
     if (!el) return;
     el.textContent = msg;
     el.classList.toggle('text-red-600', !!isError);
@@ -37,7 +37,7 @@
       return;
     }
     setStatus('Öppnar betalning…', false);
-    var result = await IAPManager.purchasePackage(tier);
+    const result = await IAPManager.purchasePackage(tier);
     if (!result.ok) {
       if (result.code === 'PURCHASE_CANCELLED' || result.code === 'userCancelled') {
         setStatus('Köpet avbröts.', false);
@@ -57,7 +57,7 @@
     await Auth.requireAuth();
 
     try {
-      var status = await Auth.api('/api/subscription/status');
+      const status = await Auth.api('/api/subscription/status');
       if (status.premium && status.premium.active) {
         window.location.href = '/dashboard';
         return;
@@ -82,11 +82,11 @@
       show(document.getElementById('giftRedeemPanel'));
     });
     document.getElementById('giftRedeemBtn')?.addEventListener('click', async function () {
-      var input = document.getElementById('giftCodeInput');
-      var msg = document.getElementById('giftRedeemMsg');
+      const input = document.getElementById('giftCodeInput');
+      const msg = document.getElementById('giftRedeemMsg');
       if (!input || !input.value.trim()) return;
       try {
-        var res = await Auth.api('/api/gifts/redeem', {
+        const res = await Auth.api('/api/gifts/redeem', {
           method: 'POST',
           body: JSON.stringify({ code: input.value.trim() }),
         });

@@ -51,8 +51,8 @@
         cta: { href: '#manage-subscription', label: 'Hantera abonnemang' },
       };
     }
-    var storeLabel = premium.store === 'google' ? 'Google Play' : 'Apple';
-    var planLabel = premium.plan === 'yearly' ? 'årsabonnemang' : 'månadsabonnemang';
+    const storeLabel = premium.store === 'google' ? 'Google Play' : 'Apple';
+    const planLabel = premium.plan === 'yearly' ? 'årsabonnemang' : 'månadsabonnemang';
     return {
       title: 'Premium – ' + planLabel + ' via ' + storeLabel,
       body: premium.expires_at ? ('Gäller till ' + formatDate(premium.expires_at)) : '',
@@ -63,7 +63,7 @@
   async function openManageSubscription() {
     if (!window.IAPManager) return;
     await IAPManager.init();
-    var purchases = window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Purchases;
+    const purchases = window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.Purchases;
     if (purchases && purchases.showManageSubscriptions) {
       await purchases.showManageSubscriptions();
       return;
@@ -76,15 +76,15 @@
   }
 
   async function renderSubscription() {
-    var mount = document.getElementById('subscriptionMount');
+    const mount = document.getElementById('subscriptionMount');
     if (!mount) return;
 
     try {
-      var status = await Auth.api('/api/subscription/status');
-      var premium = status.premium || {};
-      var copy = describePremium(premium);
+      const status = await Auth.api('/api/subscription/status');
+      const premium = status.premium || {};
+      const copy = describePremium(premium);
 
-      var html =
+      let html =
         '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
         '<p class="text-sm font-semibold text-navy mb-1">' + copy.title + '</p>' +
         '<p class="text-sm text-text-soft mb-4">' + copy.body + '</p>';
@@ -111,7 +111,7 @@
       mount.innerHTML = html;
 
       document.getElementById('restorePurchasesBtn')?.addEventListener('click', async function () {
-        var result = await IAPManager.restorePurchases();
+        const result = await IAPManager.restorePurchases();
         if (result.ok && result.active) {
           await Auth.api('/api/iap/sync', { method: 'POST', body: JSON.stringify({}) }).catch(function () {});
           await renderSubscription();
@@ -138,7 +138,7 @@
 
   function scrollToHash() {
     if (window.location.hash !== '#prenumeration') return;
-    var el = document.getElementById('prenumeration');
+    const el = document.getElementById('prenumeration');
     if (el) {
       setTimeout(function () {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
