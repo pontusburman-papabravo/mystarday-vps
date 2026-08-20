@@ -5,6 +5,7 @@
  */
 
 const familySubscriptions = require('../../db/family-subscriptions');
+const { hasPremiumAccess } = require('../lib/family-entitlements');
 
 /**
  * Redirect HTML navigations when the family lacks a subscription component.
@@ -21,6 +22,13 @@ function gateComponentHtml(componentName, fallbackPath = '/upgrade') {
     }
 
     try {
+      if (componentName === 'basic_app') {
+        const hasPremium = await hasPremiumAccess(familyId);
+        if (hasPremium) return next();
+        const sep = fallbackPath.includes('?') ? '&' : '?';
+        return res.redirect(`${fallbackPath}${sep}component=${encodeURIComponent(componentName)}`);
+      }
+
       const has = await familySubscriptions.hasComponent(familyId, componentName);
       if (has) return next();
 
@@ -50,6 +58,17 @@ function requireComponent(componentName) {
     const familyId = req.user.familyId || req.user.family_id;
 
     try {
+      if (componentName === 'basic_app') {
+        const hasPremium = await hasPremiumAccess(familyId);
+        if (hasPremium) return next();
+        return res.status(403).json({
+          error: 'Premium krävs',
+          code: 'PREMIUM_REQUIRED',
+          component: componentName,
+          upgrade_url: '/paywall',
+        });
+      }
+
       const sub = await familySubscriptions.getByFamilyId(familyId);
 
       // No subscription record — legacy families: basic_app only

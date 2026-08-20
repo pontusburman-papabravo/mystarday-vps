@@ -16,16 +16,21 @@ const {
   IOS_BUNDLE_ID,
   ANDROID_PACKAGE_NAME,
   STORE_PRODUCT_MONTHLY,
+  STORE_PRODUCT_YEARLY,
   OFFERING_ID,
   PACKAGE_MONTHLY,
+  PACKAGE_YEARLY,
   WEBHOOK_PRODUCT_IDS,
+  PREMIUM_PRICE_MONTHLY_SEK,
+  PREMIUM_PRICE_YEARLY_SEK,
 } = require('../../config/iap-product-contract');
 const { envBillingUiDisabled } = require('../lib/billing-ui');
+const { resolveFamilyEntitlements, applyStoreEntitlementFromWebhook } = require('../lib/family-entitlements');
 
 router.get('/config', requireParent, async (req, res) => {
   const platform = String(req.query.platform || '').toLowerCase() === 'android' ? 'android' : 'ios';
   const familyId = req.user.familyId || req.user.family_id;
-  const eligibility = await getNativePurchaseEligibility(familyId);
+  const eligibility = await getNativePurchaseEligibility(familyId, { checkGlobalRollout: true });
 
   const apiKeyConfigured = !!(getPublicSdkKeyForPlatform(platform));
   const apiKey = eligibility.allowed && apiKeyConfigured
@@ -38,6 +43,10 @@ router.get('/config', requireParent, async (req, res) => {
     apiKey,
     platform,
     productId: STORE_PRODUCT_MONTHLY,
+    products: {
+      monthly: STORE_PRODUCT_MONTHLY,
+      yearly: STORE_PRODUCT_YEARLY,
+    },
     webhookProductIds: WEBHOOK_PRODUCT_IDS,
     entitlementId: getEntitlementId() || ENTITLEMENT_ID,
     offeringId: OFFERING_ID,
@@ -45,6 +54,16 @@ router.get('/config', requireParent, async (req, res) => {
       monthly: {
         revenueCatPackageId: PACKAGE_MONTHLY,
         storeProductId: STORE_PRODUCT_MONTHLY,
+        price_sek: PREMIUM_PRICE_MONTHLY_SEK,
+        trial_days: 14,
+      },
+      yearly: {
+        revenueCatPackageId: PACKAGE_YEARLY,
+        storeProductId: STORE_PRODUCT_YEARLY,
+        price_sek: PREMIUM_PRICE_YEARLY_SEK,
+        trial_days: 14,
+        recommended: true,
+        savings_sek: (PREMIUM_PRICE_MONTHLY_SEK * 12) - PREMIUM_PRICE_YEARLY_SEK,
       },
     },
     bundleIds: {
@@ -57,6 +76,45 @@ router.get('/config', requireParent, async (req, res) => {
     killSwitchBillingUi: envBillingUiDisabled(),
     webPurchaseSupported: false,
   });
+});
+
+router.post('/sync', requireParent, async (req, res) => {
+  try {
+    const familyId = req.user.familyId || req.user.family_id;
+    const {
+      productId,
+      expirationAtMs,
+      periodType,
+      store,
+      environment,
+    } = req.body || {};
+
+    const subscriptionStatus = expirationAtMs && Number(expirationAtMs) > Date.now()
+      ? (String(periodType || '').toUpperCase() === 'TRIAL' ? 'active' : 'active')
+      : 'expired';
+
+    const eventType = 'SYNC';
+    await applyStoreEntitlementFromWebhook(familyId, {
+      subscriptionStatus: subscriptionStatus === 'active' && String(periodType || '').toUpperCase() === 'TRIAL'
+        ? 'active'
+        : subscriptionStatus,
+      eventType,
+      event: {
+        id: `sync_${Date.now()}`,
+        store: store || null,
+        environment: environment || null,
+        period_type: periodType || null,
+      },
+      productId: productId || STORE_PRODUCT_MONTHLY,
+      expirationAtMs: expirationAtMs || null,
+    });
+
+    const resolved = await resolveFamilyEntitlements(familyId);
+    res.json({ ok: true, ...resolved });
+  } catch (err) {
+    console.error('[IAP] sync error:', err.message);
+    res.status(500).json({ error: 'Kunde inte synka prenumeration' });
+  }
 });
 
 module.exports = router;

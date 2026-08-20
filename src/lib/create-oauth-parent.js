@@ -94,19 +94,19 @@ async function createParentFromOAuth(opts) {
     await client.query('BEGIN');
 
     const familyName = `${displayName}s familj`;
-    const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
-    const familyCount = countResult.rows[0].count;
-    const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('./payment-policy');
-    const founderLimit = await getFounderFamilyLimitWithClient(client);
-    const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
+    const { grantGrandfatheredOnCreate, syncAllLegacyMirrors, emptyPremium } = require('./family-entitlements');
+    const { getPaymentStartAt, isFamilyBeforePaymentStart } = require('./payment-settings');
+    const paymentStartAt = await getPaymentStartAt();
 
     const familyResult = await client.query(
       `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free)
-       VALUES ($1, 'none', CASE WHEN $2 THEN NULL ELSE NOW() + INTERVAL '14 days' END, $2)
-       RETURNING id`,
-      [familyName, isLifetimeFree]
+       VALUES ($1, 'none', NULL, false)
+       RETURNING id, created_at`,
+      [familyName]
     );
     const familyId = familyResult.rows[0].id;
+    const familyCreatedAt = familyResult.rows[0].created_at;
+    const isPreCutoff = isFamilyBeforePaymentStart(familyCreatedAt, paymentStartAt);
 
     const parentResult = await client.query(
       `INSERT INTO parent (family_id, email, password_hash, name, verified,
@@ -123,20 +123,10 @@ async function createParentFromOAuth(opts) {
     await client.query('INSERT INTO notification_preference (parent_id) VALUES ($1)', [parent.id]);
     await createNewsletterSubscription(client, parent.id, parent.email);
 
-    const subTier = isLifetimeFree ? 'lifetime_free' : 'trial';
-    const trialExpiresAt = subTier === 'trial'
-      ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-      : null;
-    await client.query(
-      `INSERT INTO family_subscriptions (family_id, tier, trial_expires_at, components)
-       VALUES ($1, $2, $3, $4)`,
-      [
-        familyId,
-        subTier,
-        trialExpiresAt,
-        JSON.stringify([{ component: 'basic_app', granted_at: new Date().toISOString(), expires_at: null }]),
-      ]
-    );
+    const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client });
+    if (!grandfatherRow) {
+      await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
+    }
 
     await client.query('COMMIT');
     await runOAuthSignupSideEffects(familyId, parent, displayName, email, attribution);

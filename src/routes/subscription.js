@@ -13,7 +13,10 @@ const packageInterest = require('../../db/package-interest');
 const appSettings = require('../../db/app-settings');
 const { isBillingUiEnabled } = require('../lib/billing-ui');
 const analytics = require('../../db/analytics');
-const { getFamilyAccess, toChildPackageAccess } = require('../lib/package-access');
+const {
+  getFamilyAccess,
+  toChildPackageAccess,
+} = require('../lib/package-access');
 const { getAllMergedPreviewPackages } = require('../lib/preview-package-config');
 const {
   INTEREST_COMPONENTS,
@@ -21,6 +24,7 @@ const {
   PACKAGE_LABELS,
 } = require('../lib/package-interest-constants');
 const { COMPONENT_PRICE_MAP } = require('../../config/subscription-components');
+const { resolveFamilyEntitlements } = require('../lib/family-entitlements');
 
 const router = express.Router();
 
@@ -127,50 +131,61 @@ router.post('/interest', requireParent, validate(InterestBodySchema), async (req
 router.get('/status', requireParent, async (req, res) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
-    const sub = await familySubscriptions.getByFamilyId(familyId);
+    const [{ premium, requires_paywall, payment_start_at }, sub] = await Promise.all([
+      resolveFamilyEntitlements(familyId),
+      familySubscriptions.getByFamilyId(familyId),
+    ]);
     const payment_enabled = await appSettings.getPaymentEnabled();
     const billing_ui_enabled = await isBillingUiEnabled();
     const price = await appSettings.getBasicPrice();
-
-    if (!sub) {
-      return res.json({
-        tier: 'lifetime_free',
-        trial_days_remaining: null,
-        trial_expired: false,
-        components: [{ component: 'basic_app', expires_at: null }],
-        payment_enabled,
-        billing_ui_enabled,
-        iap_enabled: payment_enabled,
-        upgrade_url: billing_ui_enabled ? '/upgrade' : null,
-        price_monthly_sek: billing_ui_enabled ? (price || 59) : null,
-      });
-    }
-
-    let trialDaysRemaining = null;
-    let trialExpired = false;
-    if (sub.tier === 'trial' && sub.trial_expires_at) {
-      const diff = new Date(sub.trial_expires_at) - new Date();
-      trialDaysRemaining = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-      trialExpired = diff <= 0;
-    }
+    const {
+      PREMIUM_PRICE_MONTHLY_SEK,
+      PREMIUM_PRICE_YEARLY_SEK,
+      STORE_PRODUCT_MONTHLY,
+      STORE_PRODUCT_YEARLY,
+    } = require('../../config/iap-product-contract');
 
     res.json({
-      tier: sub.tier,
-      trial_days_remaining: trialDaysRemaining,
-      trial_expired: trialExpired,
-      trial_expires_at: sub.trial_expires_at || null,
-      components: sub.components || [],
+      tier: premium.is_grandfathered ? 'lifetime_free' : (premium.active ? (premium.trial ? 'trial' : 'paid') : 'expired'),
+      premium,
+      requires_paywall: !!requires_paywall,
+      payment_start_at,
+      trial_days_remaining: premium.trial && premium.expires_at
+        ? Math.max(0, Math.ceil((new Date(premium.expires_at) - new Date()) / 86400000))
+        : null,
+      trial_expired: premium.trial && premium.expires_at ? new Date(premium.expires_at) <= new Date() : false,
+      trial_expires_at: premium.trial ? premium.expires_at : (sub?.trial_expires_at || null),
+      components: sub?.components || [],
       payment_enabled,
       billing_ui_enabled,
       iap_enabled: payment_enabled,
-      upgrade_url: billing_ui_enabled ? '/upgrade' : null,
-      price_monthly_sek: billing_ui_enabled
-        ? (price || COMPONENT_PRICE_MAP.basic_app?.price_monthly_sek || 59)
-        : null,
+      upgrade_url: requires_paywall ? '/paywall' : (billing_ui_enabled ? '/settings#prenumeration' : null),
+      limited_account_url: '/limited-account',
+      price_monthly_sek: PREMIUM_PRICE_MONTHLY_SEK || price || 59,
+      price_yearly_sek: PREMIUM_PRICE_YEARLY_SEK || 590,
+      products: {
+        monthly: STORE_PRODUCT_MONTHLY,
+        yearly: STORE_PRODUCT_YEARLY,
+      },
+      web_purchase_supported: false,
     });
   } catch (err) {
     console.error('[SUBSCRIPTION] status error:', err);
     res.status(500).json({ error: 'Kunde inte hämta prenumerationsstatus' });
+  }
+});
+
+/**
+ * GET /api/subscription/entitlements — canonical Premium resolver payload.
+ */
+router.get('/entitlements', requireParent, async (req, res) => {
+  try {
+    const familyId = req.user.familyId || req.user.family_id;
+    const resolved = await resolveFamilyEntitlements(familyId);
+    res.json(resolved);
+  } catch (err) {
+    console.error('[SUBSCRIPTION] entitlements error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta tillgång' });
   }
 });
 

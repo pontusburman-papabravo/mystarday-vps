@@ -116,6 +116,7 @@ function registerRoutes(app) {
 
   // RevenueCat IAP config (native clients only)
   app.use('/api/iap', require('./iap'));
+  app.use('/api/gifts', require('./gifts'));
 
   // Professional share-link reports (authenticated parent API)
   app.use('/api/reports', require('./reports'));
@@ -170,6 +171,22 @@ function registerRoutes(app) {
     'planning', 'rewards', 'family-child', 'print-schema',
   ];
   app.get('/upgrade', async (req, res) => {
+    res.redirect(302, '/paywall');
+  });
+
+  app.get('/paywall', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'paywall.html'));
+  });
+
+  app.get('/limited-account', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'limited-account.html'));
+  });
+
+  app.get('/gift-cards', (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'gift-cards.html'));
+  });
+
+  app.get('/upgrade-legacy', async (req, res) => {
     const billingOk = await isBillingUiEnabled();
     if (!billingOk) return res.redirect(302, '/dashboard');
     res.redirect(302, '/settings#prenumeration');

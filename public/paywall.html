@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Premium</title>
+  <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+  <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
+  <script src="/js/platform.js?v=2026-07-03-auth"></script>
+  <script src="/js/theme.js?v=2.12.0"></script>
+  <script src="/js/auth.js?v=2.23.0"></script>
+  <script src="/js/iap-native-client-logic.js?v=1"></script>
+  <script src="/js/iap-manager.js?v=1"></script>
+  <script src="/js/paywall.js?v=1" defer></script>
+</head>
+<body class="bg-cream min-h-screen text-navy font-body safe-top safe-bottom">
+  <main class="max-w-lg mx-auto px-4 py-8">
+    <header class="mb-6 text-center">
+      <h1 class="text-2xl font-heading font-bold">Välkommen</h1>
+      <p class="text-sm text-text-soft mt-2">Premium ger er familj full tillgång till rutiner, stjärnor och scheman.</p>
+    </header>
+
+    <div id="paywallWebNotice" class="hidden mb-6 rounded-2xl border border-gold/40 bg-white p-4 text-sm">
+      <p class="font-semibold mb-2">Aktivera Premium i appen</p>
+      <p class="text-text-soft mb-3">Ordinarie Premium köps via App Store eller Google Play — inte på webben.</p>
+      <div class="flex flex-col gap-2">
+        <a href="https://apps.apple.com/app/id6738260000" class="inline-flex justify-center rounded-xl bg-navy text-white py-3 font-semibold">Ladda ner för iPhone</a>
+        <a href="https://play.google.com/store/apps" class="inline-flex justify-center rounded-xl bg-navy text-white py-3 font-semibold">Ladda ner för Android</a>
+      </div>
+    </div>
+
+    <section id="paywallPlans" class="space-y-4">
+      <button id="planYearlyBtn" type="button" class="w-full text-left rounded-2xl border-2 border-gold bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-gold font-bold">Rekommenderat</p>
+            <p class="text-xl font-heading font-bold">590 kr/år</p>
+            <p class="text-sm text-text-soft">Spara 118 kr jämfört med månadsbetalning</p>
+          </div>
+          <span class="text-2xl">⭐</span>
+        </div>
+        <p class="text-sm mt-3">14 dagar gratis · därefter 590 kr/år · förnyas automatiskt</p>
+      </button>
+
+      <button id="planMonthlyBtn" type="button" class="w-full text-left rounded-2xl border border-navy/10 bg-white p-5">
+        <p class="text-lg font-heading font-bold">59 kr/mån</p>
+        <p class="text-sm text-text-soft mt-1">Ungefär som en kopp kaffe – för stöd i vardagen hela månaden.</p>
+        <p class="text-sm mt-3">14 dagar gratis · därefter 59 kr/mån · förnyas automatiskt</p>
+      </button>
+    </section>
+
+    <p id="paywallLegal" class="text-xs text-text-soft mt-4 leading-relaxed">
+      Provperioden kan avslutas före debitering enligt App Store eller Google Plays regler.
+      Uppsägning sker i respektive butiks prenumerationsinställningar.
+    </p>
+
+    <div class="mt-6 space-y-3">
+      <button id="giftCardBtn" type="button" class="w-full rounded-xl border border-navy/15 py-3 font-semibold">Jag har ett presentkort</button>
+      <button id="paywallCloseBtn" type="button" class="w-full rounded-xl py-3 text-text-soft">Fortsätt med begränsat konto</button>
+    </div>
+
+    <div id="giftRedeemPanel" class="hidden mt-6 rounded-2xl bg-white border border-navy/10 p-4">
+      <label class="block text-sm font-semibold mb-2" for="giftCodeInput">Presentkod</label>
+      <input id="giftCodeInput" class="w-full rounded-xl border px-3 py-3 mb-3" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
+      <button id="giftRedeemBtn" type="button" class="w-full rounded-xl bg-gold text-navy font-bold py-3">Lös in presentkort</button>
+      <p id="giftRedeemMsg" class="text-sm mt-2 hidden"></p>
+    </div>
+
+    <p id="paywallStatus" class="text-sm text-center mt-4 hidden"></p>
+  </main>
+</body>
+</html>

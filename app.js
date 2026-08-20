@@ -148,6 +148,9 @@ function createApp() {
   app.use('/api/admin', adminApiLimiter);
   app.use('/api', childParentApiBlock, childRoutineMutationLimiter, apiLimiter);
 
+  const { requirePremiumApi } = require('./src/middleware/require-premium');
+  app.use('/api', requirePremiumApi());
+
   // Maintenance must run before routes so API traffic is blocked during downtime.
   app.use(checkMaintenanceMode);
 

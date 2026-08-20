@@ -208,6 +208,24 @@
       null;
   }
 
+  async function syncBackendEntitlement(customerInfo) {
+    if (typeof fetch !== 'function') return;
+    var entId = (_config && _config.entitlementId) || 'basic';
+    var ent = customerInfo && customerInfo.entitlements &&
+      customerInfo.entitlements.active && customerInfo.entitlements.active[entId];
+    var body = ent ? {
+      productId: ent.productIdentifier,
+      expirationAtMs: ent.expirationDateMillis || (ent.expirationDate ? Date.parse(ent.expirationDate) : null),
+      periodType: ent.periodType,
+    } : { expirationAtMs: Date.now() - 1000 };
+    await fetch('/api/iap/sync', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).catch(function () {});
+  }
+
   async function purchaseMonthly() {
     return purchasePackage('monthly');
   }
@@ -249,6 +267,7 @@
       var ent = _config.entitlementId || 'basic';
       var has = Logic.hasEntitlement(result.customerInfo, ent);
       _cachedEntitlementActive = has;
+      await syncBackendEntitlement(result.customerInfo);
       if (!has) {
         return { ok: false, code: Logic.PURCHASE_ERROR.NO_ENTITLEMENT };
       }
@@ -277,6 +296,7 @@
       var ent = _config.entitlementId || 'basic';
       var has = Logic.hasEntitlement(result.customerInfo, ent);
       _cachedEntitlementActive = has;
+      await syncBackendEntitlement(result.customerInfo);
       return { ok: true, active: has };
     } catch (err) {
       return { ok: false, code: Logic.mapPurchaseError(err) };
@@ -348,6 +368,7 @@
     canPurchase: canPurchase,
     getCurrentOffering: getCurrentOffering,
     purchaseMonthly: purchaseMonthly,
+    purchaseYearly: function () { return purchasePackage('yearly'); },
     purchasePackage: purchasePackage,
     restorePurchases: restorePurchases,
     refreshEntitlementCache: refreshEntitlementCache,

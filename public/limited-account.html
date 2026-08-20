@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Konto</title>
+  <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+  <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
+  <script src="/js/platform.js?v=2026-07-03-auth"></script>
+  <script src="/js/theme.js?v=2.12.0"></script>
+  <script src="/js/auth.js?v=2.23.0"></script>
+  <script src="/js/paywall.js?v=1" defer></script>
+</head>
+<body class="bg-cream min-h-screen text-navy font-body safe-top safe-bottom">
+  <main class="max-w-lg mx-auto px-4 py-8">
+    <h1 class="text-2xl font-heading font-bold mb-2">Begränsat konto</h1>
+    <p class="text-sm text-text-soft mb-6">Er familj har inget aktivt Premium just nu. All er data finns kvar — aktivera Premium för att fortsätta använda appen.</p>
+
+    <div class="space-y-3">
+      <a href="/paywall" class="block text-center rounded-xl bg-gold text-navy font-bold py-3">Aktivera Premium</a>
+      <a href="/settings" class="block text-center rounded-xl border border-navy/15 py-3 font-semibold">Kontoinställningar</a>
+      <a href="/villkor" class="block text-center rounded-xl border border-navy/15 py-3">Villkor</a>
+      <a href="/integritet" class="block text-center rounded-xl border border-navy/15 py-3">Integritet</a>
+      <button id="limitedLogoutBtn" type="button" class="w-full rounded-xl py-3 text-text-soft">Logga ut</button>
+    </div>
+  </main>
+  <script>
+    document.getElementById('limitedLogoutBtn')?.addEventListener('click', function () {
+      if (window.Auth && Auth.logout) Auth.logout();
+      else window.location.href = '/login';
+    });
+  </script>
+</body>
+</html>
