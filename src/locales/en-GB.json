@@ -52,6 +52,9 @@
       "hint": "",
       "required": "Choose a country to continue",
       "closedEu": "My Starday is not available in your country yet. We will let you know when we open more EU markets.",
+      "closedIe": "My Starday is not available in Ireland yet.",
+      "closedNo": "My Starday is not available in Norway yet.",
+      "closedDk": "My Starday is not available in Denmark yet.",
       "closedUk": "My Starday is not available in the United Kingdom yet.",
       "closedUs": "My Starday is not available in the United States yet.",
       "closedOther": "My Starday is not available in your country yet."
@@ -411,6 +414,9 @@
         "familyNameRequired": "Name is required to create a family account",
         "marketClosed": {
           "MARKET_SE_CLOSED": "Registration from Sweden is temporarily closed.",
+          "MARKET_IE_CLOSED": "My Starday is not available in Ireland yet.",
+          "MARKET_NO_CLOSED": "My Starday is not available in Norway yet.",
+          "MARKET_DK_CLOSED": "My Starday is not available in Denmark yet.",
           "MARKET_EU_CLOSED": "My Starday is not available in your country yet. We will notify you when we open more EU countries.",
           "MARKET_UK_CLOSED": "My Starday is not available in the United Kingdom yet.",
           "MARKET_US_CLOSED": "My Starday is not available in the United States yet.",
@@ -1006,6 +1012,27 @@
       "day5Body": "Check the treasure chamber — what does {{childName}} dream of? 🎁",
       "day6Body": "Want to share responsibility with someone? 👥",
       "day7Body": "Congratulations! How was the week?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Something went wrong.",
+          "rewardIdRequired": "reward_id is required",
+          "childNotFound": "Child not found",
+          "rewardNotFound": "Reward not found",
+          "requestNotFound": "Request not found",
+          "pendingOnlyApprove": "Can only approve a pending request",
+          "pendingOnlyDeny": "Can only deny a pending request",
+          "childIdRequired": "child_id is required",
+          "reasonRequired": "Reason is required",
+          "starCountRange": "Star count must be between 1 and 100"
+        }
+      },
+      "success": {
+        "goalSet": "Goal set!"
+      }
     }
   },
   "api": {
