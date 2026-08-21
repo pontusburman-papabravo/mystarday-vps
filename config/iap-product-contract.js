@@ -4,7 +4,8 @@
  * Canonical IAP product contract — PAYMENTS V1 (monthly + yearly auto-renewing).
  * Single source of truth for server, client config API, webhook allowlist defaults, and tests.
  *
- * Apple (App Store Connect): *.subscription.monthly / *.subscription.yearly
+ * Apple (App Store Connect): *.subscription.monthly / *.subscription.yearly.v2
+ * (retired *.subscription.yearly — permanently reserved in ASC after deletion)
  *
  * Google Play (subscription + base plans — RevenueCat colon format):
  *   *.subscription.premium:monthly / *.subscription.premium:yearly
@@ -20,7 +21,7 @@ const ANDROID_PACKAGE_NAME = APP_APPLICATION_ID;
 
 /** Apple App Store Connect product identifiers */
 const APPLE_PRODUCT_MONTHLY = `${APP_APPLICATION_ID}.subscription.monthly`;
-const APPLE_PRODUCT_YEARLY = `${APP_APPLICATION_ID}.subscription.yearly`;
+const APPLE_PRODUCT_YEARLY = `${APP_APPLICATION_ID}.subscription.yearly.v2`;
 
 /** Google Play subscription product + base plans */
 const GOOGLE_SUBSCRIPTION_PRODUCT = `${APP_APPLICATION_ID}.subscription.premium`;
@@ -55,8 +56,8 @@ const PREMIUM_PRICE_YEARLY_SEK = 590;
 const PREMIUM_PRICE_MONTHLY_EUR_TARGET = 5.99;
 const PREMIUM_PRICE_YEARLY_EUR_TARGET = 59.99;
 
-/** @deprecated alias — use APPLE_PRODUCT_YEARLY */
-const STORE_PRODUCT_YEARLY_DEPRECATED = APPLE_PRODUCT_YEARLY;
+/** @deprecated retired ASC product ID — permanently reserved; use APPLE_PRODUCT_YEARLY */
+const STORE_PRODUCT_YEARLY_DEPRECATED = `${APP_APPLICATION_ID}.subscription.yearly`;
 /** @deprecated alias — use PACKAGE_YEARLY */
 const PACKAGE_YEARLY_DEPRECATED = PACKAGE_YEARLY;
 const RC_PRODUCT_ALIAS_DEPRECATED = 'rc_basic_monthly';
