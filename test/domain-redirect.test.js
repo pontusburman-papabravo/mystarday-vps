@@ -79,3 +79,29 @@ test('mystarday.eu is not in legacy .se redirect set', () => { // pragma: allowl
 test('EU redirect domains are exported for ops/tests', () => {
   assert.deepEqual([...EU_REDIRECT_DOMAINS].sort(), ['mystarday.eu', 'www.mystarday.eu']); // pragma: allowlist secret
 });
+
+test('redirect contract: .eu and www hosts preserve path and query on 301 to .app', () => {
+  const contractUrl = '/foo?x=1';
+  for (const host of ['[REDACTED].eu', 'www.[REDACTED].eu']) { // pragma: allowlist secret
+    const { status, location, nextCalled } = runRedirect(host, contractUrl);
+    assert.equal(nextCalled, false, `${host} should redirect`);
+    assert.equal(status, 301, `${host} must use permanent redirect`);
+    assert.equal(location, `https://${APP_DOMAIN}${contractUrl}`);
+  }
+});
+
+test('redirect contract: www .app apex canonicalizes to bare .app on 301', () => {
+  const contractUrl = '/foo?x=1';
+  const { status, location, nextCalled } = runRedirect(`www.${APP_DOMAIN}`, contractUrl);
+  assert.equal(nextCalled, false);
+  assert.equal(status, 301);
+  assert.equal(location, `https://${APP_DOMAIN}${contractUrl}`);
+});
+
+test('redirect contract: bare .app apex is served without redirect loop', () => {
+  const contractUrl = '/foo?x=1';
+  const { status, location, nextCalled } = runRedirect(APP_DOMAIN, contractUrl);
+  assert.equal(nextCalled, true);
+  assert.equal(status, undefined);
+  assert.equal(location, undefined);
+});
