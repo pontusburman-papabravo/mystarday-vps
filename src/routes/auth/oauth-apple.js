@@ -81,7 +81,9 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
       : (firstName?.trim() || (typeof name === 'string' && name.trim()) || appleEmail?.split('@')[0] || 'Förälder');
 
     console.log('[APPLE] creating new user');
-    const registrationCtx = resolveNewAccountRegistrationContext(req, req.body);
+    const registrationCtx = resolveNewAccountRegistrationContext(req, req.body, {
+      requireExplicitCountry: true,
+    });
     if (!registrationCtx.ok) {
       return res.status(registrationCtx.status).json(registrationCtx.body);
     }

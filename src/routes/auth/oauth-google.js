@@ -77,7 +77,9 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
     }
 
     const displayName = googleDisplayName(payload, email);
-    const registrationCtx = resolveNewAccountRegistrationContext(req, req.body);
+    const registrationCtx = resolveNewAccountRegistrationContext(req, req.body, {
+      requireExplicitCountry: true,
+    });
     if (!registrationCtx.ok) {
       return res.status(registrationCtx.status).json(registrationCtx.body);
     }

@@ -178,6 +178,10 @@
     }
     dismissGoogleLinking();
 
+    if (pageKind() === 'register' && window.CountryChoice && !CountryChoice.requireSelection()) {
+      return;
+    }
+
     const btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');
     setGoogleBtnLoading(btn, true);
     if (window.AppEntry && typeof AppEntry.trackAuthMethod === 'function') {
@@ -199,15 +203,16 @@
             undefined,
         }
       );
+      const payload = (window.OAuthRegistrationPayload && OAuthRegistrationPayload.withOAuthRegistrationFields)
+        ? OAuthRegistrationPayload.withOAuthRegistrationFields(googleBody)
+        : ((window.LoginLocale && LoginLocale.withLoginLocale)
+          ? LoginLocale.withLoginLocale(googleBody)
+          : googleBody);
       const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(
-          (window.LoginLocale && LoginLocale.withLoginLocale)
-            ? LoginLocale.withLoginLocale(googleBody)
-            : googleBody
-        ),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(function () { return {}; });
 

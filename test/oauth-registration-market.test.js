@@ -138,6 +138,26 @@ function getGoogleHandler() {
   return stack[stack.length - 1].handle;
 }
 
+test('New Google OAuth without country_code rejected (fail closed)', async () => {
+  const handler = getGoogleHandler();
+  const req = {
+    body: { idToken: 'valid-token' },
+    ip: '127.0.0.1',
+    headers: {},
+  };
+  let statusCode = 200;
+  let body = null;
+  const res = {
+    status(code) { statusCode = code; return this; },
+    json(payload) { body = payload; },
+  };
+
+  await handler(req, res);
+  assert.equal(statusCode, 400);
+  assert.equal(body.code, 'COUNTRY_REQUIRED');
+  assert.equal(mockCreateParent, null);
+});
+
 test('IE Google new signup blocked while market_ie_open=false', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
@@ -256,6 +276,29 @@ function getAppleHandler() {
   const stack = layer.route.stack;
   return stack[stack.length - 1].handle;
 }
+
+test('New Apple OAuth without country_code rejected (fail closed)', async () => {
+  setupAppleMocks();
+  mockParentByApple = null;
+
+  const handler = getAppleHandler();
+  const req = {
+    body: { idToken: 'valid-token' },
+    ip: '127.0.0.1',
+    headers: {},
+  };
+  let statusCode = 200;
+  let body = null;
+  const res = {
+    status(code) { statusCode = code; return this; },
+    json(payload) { body = payload; },
+  };
+
+  await handler(req, res);
+  assert.equal(statusCode, 400);
+  assert.equal(body.code, 'COUNTRY_REQUIRED');
+  assert.equal(mockCreateParent, null);
+});
 
 test('IE Apple new signup blocked while market_ie_open=false', async () => {
   setupAppleMocks();

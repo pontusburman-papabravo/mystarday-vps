@@ -19,8 +19,10 @@ const { getMarketConfig } = require('./market-config');
 /**
  * @param {import('express').Request} req
  * @param {Record<string, unknown>} [body]
+ * @param {{ requireExplicitCountry?: boolean }} [opts]
  */
-function resolveNewAccountRegistrationContext(req, body = {}) {
+function resolveNewAccountRegistrationContext(req, body = {}, opts = {}) {
+  const { requireExplicitCountry = false } = opts;
   const preAuthLang = resolveAuthApiLocale(req);
   const countryCodeRaw = body.country_code;
   const preferredLocaleRaw = body.preferred_locale || body.landing_locale || body.language;
@@ -32,6 +34,17 @@ function resolveNewAccountRegistrationContext(req, body = {}) {
       acceptLanguage: req.headers['accept-language'],
     })
     : resolvePreAuthLocale({ explicit: 'sv-SE' });
+
+  if (requireExplicitCountry && (!countryCodeRaw || !String(countryCodeRaw).trim())) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        error: authApiMessage(familyLocale, 'errors.countryRequired'),
+        code: 'COUNTRY_REQUIRED',
+      },
+    };
+  }
 
   const countryResolved = resolveRegistrationCountry({
     countryCodeRaw,
