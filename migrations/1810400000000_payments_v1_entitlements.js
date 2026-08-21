@@ -92,7 +92,7 @@ module.exports = {
       ON CONFLICT (key) DO NOTHING
     `, [DEFAULT_PAYMENT_START_AT]);
 
-    // Idempotent grandfather backfill
+    // Idempotent grandfather backfill — SE-only (Swedish payment_start_at cutoff)
     const backfill = await client.query(`
       INSERT INTO family_entitlements (
         family_id, entitlement_key, source, source_reference, status,
@@ -107,9 +107,14 @@ module.exports = {
         f.created_at,
         NULL,
         NOW(),
-        jsonb_build_object('backfill', true, 'payment_start_at', $1::text)
+        jsonb_build_object(
+          'backfill', true,
+          'payment_start_at', $1::text,
+          'country_code', COALESCE(f.country_code, 'SE')
+        )
       FROM family f
       WHERE f.created_at < $2::timestamptz
+        AND COALESCE(f.country_code, 'SE') = 'SE'
         AND NOT EXISTS (
           SELECT 1 FROM family_entitlements fe
           WHERE fe.family_id = f.id
