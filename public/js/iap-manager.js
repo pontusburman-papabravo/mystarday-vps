@@ -8,15 +8,16 @@
 (function () {
   'use strict';
 
-  var Logic = typeof IapNativeClientLogic !== 'undefined' ? IapNativeClientLogic : null;
+  const Logic = typeof IapNativeClientLogic !== 'undefined' ? IapNativeClientLogic : null;
 
-  var _initialized = false;
-  var _initPromise = null;
-  var _config = null;
-  var _purchaseInFlight = false;
-  var _cachedEntitlementActive = null;
-  var _lastRcFamilyId = null;
-  var _configureDone = false;
+  let _initialized = false;
+  let _initPromise = null;
+  let _config = null;
+  let _purchaseInFlight = false;
+  let _cachedEntitlementActive = null;
+  let _lastRcFamilyId = null;
+  let _configureDone = false;
+  let _isNative = null;
 
   function isNative() {
     if (_isNative !== null) return _isNative;
@@ -29,15 +30,15 @@
 
   function platformName() {
     if (typeof window !== 'undefined' && window.Platform && typeof window.Platform.getPlatform === 'function') {
-      var p = window.Platform.getPlatform();
+      const p = window.Platform.getPlatform();
       if (p === 'android') return 'android';
     }
     return 'ios';
   }
 
   async function fetchConfig() {
-    var platform = platformName();
-    var res = await fetch('/api/iap/config?platform=' + encodeURIComponent(platform), {
+    const platform = platformName();
+    const res = await fetch('/api/iap/config?platform=' + encodeURIComponent(platform), {
       credentials: 'include',
     });
     if (!res.ok) {
@@ -47,7 +48,7 @@
   }
 
   function getPurchasesPlugin() {
-    var cap = typeof window !== 'undefined' ? window.Capacitor : null;
+    const cap = typeof window !== 'undefined' ? window.Capacitor : null;
     if (!cap || !cap.Plugins || !cap.Plugins.Purchases) {
       return null;
     }
@@ -73,9 +74,9 @@
 
   async function loginRevenueCat(familyId) {
     if (!familyId) return;
-    var normalized = String(familyId).toLowerCase();
+    const normalized = String(familyId).toLowerCase();
     try {
-      var purchases = getPurchasesPlugin();
+      const purchases = getPurchasesPlugin();
       if (!purchases) return;
       if (_lastRcFamilyId && _lastRcFamilyId !== normalized) {
         await purchases.logOut();
@@ -90,7 +91,7 @@
 
   async function logoutRevenueCat() {
     try {
-      var purchases = getPurchasesPlugin();
+      const purchases = getPurchasesPlugin();
       if (!purchases) return;
       await purchases.logOut();
     } catch (err) {
@@ -121,7 +122,7 @@
           return;
         }
 
-        var purchases = getPurchasesPlugin();
+        const purchases = getPurchasesPlugin();
         if (!purchases) {
           _initialized = true;
           return;
@@ -131,7 +132,7 @@
           _configureDone = true;
         }
 
-        var familyId = getFamilyId();
+        const familyId = getFamilyId();
         if (familyId) {
           await loginRevenueCat(familyId);
         }
@@ -153,10 +154,10 @@
       return false;
     }
     try {
-      var purchases = getPurchasesPlugin();
+      const purchases = getPurchasesPlugin();
       if (!purchases) return null;
-      var info = await purchases.getCustomerInfo();
-      var ent = _config.entitlementId || 'basic';
+      const info = await purchases.getCustomerInfo();
+      const ent = _config.entitlementId || 'basic';
       _cachedEntitlementActive = Logic ? Logic.hasEntitlement(info.customerInfo || info, ent) : false;
       return _cachedEntitlementActive;
     } catch (err) {
@@ -170,7 +171,7 @@
 
     if (familyInfo && familyInfo.is_lifetime_free === true) return true;
     try {
-      var user = window.Auth && window.Auth.getUser ? window.Auth.getUser() : null;
+      const user = window.Auth && window.Auth.getUser ? window.Auth.getUser() : null;
       if (user && user.is_lifetime_free === true) return true;
     } catch (_) {}
 
@@ -179,7 +180,7 @@
       return true;
     }
 
-    var active = await refreshEntitlementCache();
+    const active = await refreshEntitlementCache();
     if (active === null) return true;
     return active === true;
   }
@@ -192,17 +193,17 @@
 
   function canPurchase() {
     if (!Logic) return false;
-    var ctx = logicCtx();
+    const ctx = logicCtx();
     return Logic.canShowNativePurchaseUi(ctx) && _initialized;
   }
 
   async function getCurrentOffering() {
     if (!_initialized) await init();
     if (!canPurchase()) return null;
-    var purchases = getPurchasesPlugin();
+    const purchases = getPurchasesPlugin();
     if (!purchases) return null;
-    var offerings = await purchases.getOfferings();
-    var offeringId = (_config && _config.offeringId) || 'default';
+    const offerings = await purchases.getOfferings();
+    const offeringId = (_config && _config.offeringId) || 'default';
     return (offerings && offerings.current) ||
       (offerings && offerings.all && offerings.all[offeringId]) ||
       null;
@@ -226,7 +227,7 @@
     if (!Logic) {
       return { ok: false, code: 'not_configured' };
     }
-    var gate = Logic.canStartPurchase({
+    const gate = Logic.canStartPurchase({
       purchaseInFlight: _purchaseInFlight,
       configReady: _config && _config.configReady,
       nativePurchasesEnabled: _config && _config.nativePurchasesEnabled,
@@ -237,27 +238,30 @@
 
     _purchaseInFlight = true;
     try {
-      var offering = await getCurrentOffering();
+      const offering = await getCurrentOffering();
       if (!offering) {
         return { ok: false, code: Logic.PURCHASE_ERROR.NO_OFFERING };
       }
-      var pkgMeta = (_config.packages && _config.packages[tier]) || _config.packages.monthly;
-      var pkg = Logic.pickPackageFromOffering(
+      const pkgMeta = _config.packages && _config.packages[tier];
+      if (!pkgMeta) {
+        return { ok: false, code: Logic.PURCHASE_ERROR.NO_OFFERING };
+      }
+      const pkg = Logic.pickPackageFromOffering(
         offering,
-        pkgMeta && pkgMeta.revenueCatPackageId,
-        pkgMeta && pkgMeta.storeProductId
+        pkgMeta.revenueCatPackageId,
+        pkgMeta.storeProductId
       );
       if (!pkg) {
         return { ok: false, code: Logic.PURCHASE_ERROR.NO_OFFERING };
       }
 
-      var purchases = getPurchasesPlugin();
+      const purchases = getPurchasesPlugin();
       if (!purchases) {
         return { ok: false, code: Logic.PURCHASE_ERROR.NOT_CONFIGURED };
       }
-      var result = await purchases.purchasePackage({ aPackage: pkg });
-      var ent = _config.entitlementId || 'basic';
-      var has = Logic.hasEntitlement(result.customerInfo, ent);
+      const result = await purchases.purchasePackage({ aPackage: pkg });
+      const ent = _config.entitlementId || 'basic';
+      const has = Logic.hasEntitlement(result.customerInfo, ent);
       _cachedEntitlementActive = has;
       await syncBackendEntitlement(result.customerInfo);
       if (!has) {
@@ -280,13 +284,13 @@
     }
     _purchaseInFlight = true;
     try {
-      var purchases = getPurchasesPlugin();
+      const purchases = getPurchasesPlugin();
       if (!purchases) {
         return { ok: false, code: Logic.PURCHASE_ERROR.NOT_CONFIGURED };
       }
-      var result = await purchases.restorePurchases();
-      var ent = _config.entitlementId || 'basic';
-      var has = Logic.hasEntitlement(result.customerInfo, ent);
+      const result = await purchases.restorePurchases();
+      const ent = _config.entitlementId || 'basic';
+      const has = Logic.hasEntitlement(result.customerInfo, ent);
       _cachedEntitlementActive = has;
       await syncBackendEntitlement(result.customerInfo);
       return { ok: true, active: has };
@@ -299,7 +303,7 @@
 
   async function onAuthLogin(detail) {
     if (!isNative()) return;
-    var familyId = (detail && detail.familyId) || getFamilyId();
+    const familyId = (detail && detail.familyId) || getFamilyId();
     if (!familyId) return;
     _config = await fetchConfig();
     if (!_config || !_config.nativePurchasesEnabled) {

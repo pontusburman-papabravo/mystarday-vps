@@ -94,4 +94,65 @@ describe('iap native client logic', () => {
     assert.equal(displays.monthly.priceString, '€5.99');
     assert.equal(displays.yearly.priceString, '€59.99');
   });
+
+  test('pickPackageFromOffering returns null when yearly requested but only monthly exists', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: GOOGLE_PRODUCT_MONTHLY, priceString: '€5.99' },
+        },
+      ],
+    };
+    const yearly = Logic.pickPackageFromOffering(offering, '$rc_annual', GOOGLE_PRODUCT_YEARLY);
+    assert.equal(yearly, null);
+  });
+
+  test('pickPackageFromOffering returns null when monthly requested but only yearly exists', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_annual',
+          product: { identifier: GOOGLE_PRODUCT_YEARLY, priceString: '€59.99' },
+        },
+      ],
+    };
+    const monthly = Logic.pickPackageFromOffering(offering, '$rc_monthly', GOOGLE_PRODUCT_MONTHLY);
+    assert.equal(monthly, null);
+  });
+
+  test('pickPackageFromOffering returns exact tier when both exist', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: GOOGLE_PRODUCT_MONTHLY, priceString: '€5.99' },
+        },
+        {
+          identifier: '$rc_annual',
+          product: { identifier: GOOGLE_PRODUCT_YEARLY, priceString: '€59.99' },
+        },
+      ],
+    };
+    const monthly = Logic.pickPackageFromOffering(offering, '$rc_monthly', GOOGLE_PRODUCT_MONTHLY);
+    const yearly = Logic.pickPackageFromOffering(offering, '$rc_annual', GOOGLE_PRODUCT_YEARLY);
+    assert.equal(monthly.identifier, '$rc_monthly');
+    assert.equal(yearly.identifier, '$rc_annual');
+  });
+
+  test('resolveOfferingTierDisplays fails closed when yearly tier missing', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: GOOGLE_PRODUCT_MONTHLY, priceString: '€5.99' },
+        },
+      ],
+    };
+    const displays = Logic.resolveOfferingTierDisplays(offering, {
+      monthly: { revenueCatPackageId: '$rc_monthly', storeProductId: GOOGLE_PRODUCT_MONTHLY },
+      yearly: { revenueCatPackageId: '$rc_annual', storeProductId: GOOGLE_PRODUCT_YEARLY },
+    });
+    assert.equal(displays, null);
+  });
 });

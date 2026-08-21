@@ -73,6 +73,7 @@
   function pickPackageFromOffering(offering, packageId, productId) {
     if (!offering || !offering.availablePackages) return null;
     const packages = offering.availablePackages;
+    const hasTarget = Boolean(packageId || productId);
     if (packageId) {
       const byPkg = packages.find((p) => p.identifier === packageId);
       if (byPkg) return byPkg;
@@ -89,6 +90,7 @@
       });
       if (byProduct) return byProduct;
     }
+    if (hasTarget) return null;
     return packages[0] || null;
   }
 

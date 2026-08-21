@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var Logic = typeof IapNativeClientLogic !== 'undefined' ? IapNativeClientLogic : null;
+  const Logic = typeof IapNativeClientLogic !== 'undefined' ? IapNativeClientLogic : null;
 
   function isNative() {
     return (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) ||
@@ -19,7 +19,7 @@
   }
 
   function setStatus(msg, isError) {
-    var el = document.getElementById('paywallStatus');
+    const el = document.getElementById('paywallStatus');
     if (!el) return;
     el.textContent = msg;
     el.classList.toggle('text-red-600', !!isError);
@@ -33,20 +33,20 @@
     document.documentElement.lang = (I18n.lang || 'sv-SE').toLowerCase().startsWith('en') ? 'en' : 'sv';
   }
 
-  function tierTermsKey(hasIntro) {
-    return hasIntro ? 'TermsKnownTrial' : 'TermsNoTrial';
+  function tierTermsKey(hasTrialOffer) {
+    return hasTrialOffer ? 'TermsConditionalTrial' : 'TermsNoTrial';
   }
 
   function renderTierPrices(displays, config) {
-    var monthlyTrialDays = (config.packages && config.packages.monthly && config.packages.monthly.trial_days) || null;
-    var yearlyTrialDays = (config.packages && config.packages.yearly && config.packages.yearly.trial_days) || null;
-    var monthlyHasIntro = !!(displays.monthly && displays.monthly.introPriceString);
-    var yearlyHasIntro = !!(displays.yearly && displays.yearly.introPriceString);
+    const monthlyTrialDays = (config.packages && config.packages.monthly && config.packages.monthly.trial_days) || null;
+    const yearlyTrialDays = (config.packages && config.packages.yearly && config.packages.yearly.trial_days) || null;
+    const monthlyHasTrialOffer = !!(displays.monthly && displays.monthly.introPriceString) || !!monthlyTrialDays;
+    const yearlyHasTrialOffer = !!(displays.yearly && displays.yearly.introPriceString) || !!yearlyTrialDays;
 
-    var yearlyPriceEl = document.getElementById('planYearlyPrice');
-    var yearlyTermsEl = document.getElementById('planYearlyTerms');
-    var monthlyPriceEl = document.getElementById('planMonthlyPrice');
-    var monthlyTermsEl = document.getElementById('planMonthlyTerms');
+    const yearlyPriceEl = document.getElementById('planYearlyPrice');
+    const yearlyTermsEl = document.getElementById('planYearlyTerms');
+    const monthlyPriceEl = document.getElementById('planMonthlyPrice');
+    const monthlyTermsEl = document.getElementById('planMonthlyTerms');
 
     if (yearlyPriceEl) {
       yearlyPriceEl.textContent = t('paywall.yearlyPrice', { price: displays.yearly.priceString });
@@ -55,13 +55,13 @@
       monthlyPriceEl.textContent = t('paywall.monthlyPrice', { price: displays.monthly.priceString });
     }
     if (yearlyTermsEl) {
-      yearlyTermsEl.textContent = t('paywall.yearly' + tierTermsKey(yearlyHasIntro), {
+      yearlyTermsEl.textContent = t('paywall.yearly' + tierTermsKey(yearlyHasTrialOffer), {
         price: displays.yearly.priceString,
         trialDays: yearlyTrialDays || 14,
       });
     }
     if (monthlyTermsEl) {
-      monthlyTermsEl.textContent = t('paywall.monthly' + tierTermsKey(monthlyHasIntro), {
+      monthlyTermsEl.textContent = t('paywall.monthly' + tierTermsKey(monthlyHasTrialOffer), {
         price: displays.monthly.priceString,
         trialDays: monthlyTrialDays || 14,
       });
@@ -70,7 +70,7 @@
 
   function disablePurchaseButtons() {
     ['planYearlyBtn', 'planMonthlyBtn'].forEach(function (id) {
-      var btn = document.getElementById(id);
+      const btn = document.getElementById(id);
       if (btn) {
         btn.disabled = true;
         btn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -87,23 +87,26 @@
       return false;
     }
 
-    var offering = await IAPManager.getCurrentOffering();
+    const offering = await IAPManager.getCurrentOffering();
     if (!offering || !Logic) {
       disablePurchaseButtons();
       setStatus(t('paywall.statusUnavailable'), true);
       return false;
     }
 
-    var configRes = await fetch('/api/iap/config?platform=' + encodeURIComponent(
-      (window.Platform && Platform.getPlatform && Platform.getPlatform() === 'android') ? 'android' : 'ios'
-    ), { credentials: 'include' });
+    const platform = (window.Platform && Platform.getPlatform && Platform.getPlatform() === 'android')
+      ? 'android'
+      : 'ios';
+    const configRes = await fetch('/api/iap/config?platform=' + encodeURIComponent(platform), {
+      credentials: 'include',
+    });
     if (!configRes.ok) {
       disablePurchaseButtons();
       setStatus(t('paywall.statusUnavailable'), true);
       return false;
     }
-    var config = await configRes.json();
-    var displays = Logic.resolveOfferingTierDisplays(offering, config.packages);
+    const config = await configRes.json();
+    const displays = Logic.resolveOfferingTierDisplays(offering, config.packages);
     if (!displays) {
       disablePurchaseButtons();
       setStatus(t('paywall.statusUnavailable'), true);
@@ -112,8 +115,8 @@
 
     renderTierPrices(displays, config);
     if (config.storeLinks) {
-      var apple = document.getElementById('paywallAppleLink');
-      var play = document.getElementById('paywallPlayLink');
+      const apple = document.getElementById('paywallAppleLink');
+      const play = document.getElementById('paywallPlayLink');
       if (apple && config.storeLinks.apple) apple.href = config.storeLinks.apple;
       if (play && config.storeLinks.play) play.href = config.storeLinks.play;
     }
@@ -140,7 +143,7 @@
       return;
     }
     setStatus(t('paywall.statusOpening'), false);
-    var result = await IAPManager.purchasePackage(tier);
+    const result = await IAPManager.purchasePackage(tier);
     if (!result.ok) {
       if (result.code === 'PURCHASE_CANCELLED' || result.code === 'userCancelled' || result.code === 'user_cancelled') {
         setStatus(t('paywall.statusCancelled'), false);
@@ -165,7 +168,7 @@
     }
 
     try {
-      var status = await Auth.api('/api/subscription/status');
+      const status = await Auth.api('/api/subscription/status');
       if (status.premium && status.premium.active) {
         window.location.href = '/dashboard';
         return;
@@ -176,12 +179,12 @@
       show(document.getElementById('paywallWebNotice'));
       hide(document.getElementById('paywallPlans'));
       try {
-        var cfgRes = await fetch('/api/iap/config?platform=ios', { credentials: 'include' });
+        const cfgRes = await fetch('/api/iap/config?platform=ios', { credentials: 'include' });
         if (cfgRes.ok) {
-          var cfg = await cfgRes.json();
+          const cfg = await cfgRes.json();
           if (cfg.storeLinks) {
-            var apple = document.getElementById('paywallAppleLink');
-            var play = document.getElementById('paywallPlayLink');
+            const apple = document.getElementById('paywallAppleLink');
+            const play = document.getElementById('paywallPlayLink');
             if (apple && cfg.storeLinks.apple) apple.href = cfg.storeLinks.apple;
             if (play && cfg.storeLinks.play) play.href = cfg.storeLinks.play;
           }
@@ -204,11 +207,11 @@
       show(document.getElementById('giftRedeemPanel'));
     });
     document.getElementById('giftRedeemBtn')?.addEventListener('click', async function () {
-      var input = document.getElementById('giftCodeInput');
-      var msg = document.getElementById('giftRedeemMsg');
+      const input = document.getElementById('giftCodeInput');
+      const msg = document.getElementById('giftRedeemMsg');
       if (!input || !input.value.trim()) return;
       try {
-        var res = await Auth.api('/api/gifts/redeem', {
+        const res = await Auth.api('/api/gifts/redeem', {
           method: 'POST',
           body: JSON.stringify({ code: input.value.trim() }),
         });
