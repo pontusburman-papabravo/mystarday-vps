@@ -18,7 +18,7 @@ const { getAllowedProductIds } = require('../config/revenuecat-iap');
 describe('iap product contract', () => {
   it('Apple product IDs unchanged', () => {
     assert.equal(APPLE_PRODUCT_MONTHLY, `${APP_APPLICATION_ID}.subscription.monthly`);
-    assert.equal(APPLE_PRODUCT_YEARLY, `${APP_APPLICATION_ID}.subscription.yearly`);
+    assert.equal(APPLE_PRODUCT_YEARLY, `${APP_APPLICATION_ID}.subscription.yearly.v2`);
   });
 
   it('Google uses subscription:base_plan RevenueCat identifiers', () => {
