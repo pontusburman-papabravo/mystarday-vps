@@ -70,28 +70,28 @@
     return !!(active && active[entitlementId]);
   }
 
+  function packageProductIdentifiers(product) {
+    if (!product) return [];
+    return [product.identifier, product.productIdentifier].filter(Boolean).map(String);
+  }
+
+  function packageMatchesProduct(product, expectedProductId) {
+    if (!expectedProductId) return true;
+    const target = String(expectedProductId);
+    return packageProductIdentifiers(product).some((id) => id === target);
+  }
+
   function pickPackageFromOffering(offering, packageId, productId) {
     if (!offering || !offering.availablePackages) return null;
-    const packages = offering.availablePackages;
-    const hasTarget = Boolean(packageId || productId);
-    if (packageId) {
-      const byPkg = packages.find((p) => p.identifier === packageId);
-      if (byPkg) return byPkg;
-    }
-    if (productId) {
-      const target = String(productId);
-      const byProduct = packages.find((p) => {
-        if (!p.product) return false;
-        const identifiers = [
-          p.product.identifier,
-          p.product.productIdentifier,
-        ].filter(Boolean).map(String);
-        return identifiers.some((id) => id === target || id.endsWith(`:${target.split(':').pop()}`));
-      });
-      if (byProduct) return byProduct;
-    }
-    if (hasTarget) return null;
-    return packages[0] || null;
+    if (!packageId && !productId) return null;
+
+    const match = offering.availablePackages.find((pkg) => {
+      if (packageId && pkg.identifier !== packageId) return false;
+      if (productId && !packageMatchesProduct(pkg.product, productId)) return false;
+      return true;
+    });
+
+    return match || null;
   }
 
   function extractPackageDisplay(pkg) {

@@ -4,6 +4,8 @@ const { describe, test } = require('node:test');
 const assert = require('node:assert/strict');
 const Logic = require('../public/js/iap-native-client-logic');
 const {
+  APPLE_PRODUCT_MONTHLY,
+  APPLE_PRODUCT_YEARLY,
   GOOGLE_PRODUCT_MONTHLY,
   GOOGLE_PRODUCT_YEARLY,
 } = require('../config/iap-product-contract');
@@ -154,5 +156,141 @@ describe('iap native client logic', () => {
       yearly: { revenueCatPackageId: '$rc_annual', storeProductId: GOOGLE_PRODUCT_YEARLY },
     });
     assert.equal(displays, null);
+  });
+
+  test('pickPackageFromOffering returns null when no packageId and no productId', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: GOOGLE_PRODUCT_MONTHLY, priceString: '€5.99' },
+        },
+      ],
+    };
+    assert.equal(Logic.pickPackageFromOffering(offering, null, null), null);
+    assert.equal(Logic.pickPackageFromOffering(offering, undefined, undefined), null);
+  });
+
+  test('pickPackageFromOffering never selects unrelated first package in array', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: 'other_package',
+          product: { identifier: 'some.other.subscription:monthly' },
+        },
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: GOOGLE_PRODUCT_MONTHLY },
+        },
+      ],
+    };
+    const monthly = Logic.pickPackageFromOffering(offering, '$rc_monthly', GOOGLE_PRODUCT_MONTHLY);
+    assert.equal(monthly.identifier, '$rc_monthly');
+
+    const missing = Logic.pickPackageFromOffering(offering, '$rc_annual', GOOGLE_PRODUCT_YEARLY);
+    assert.equal(missing, null);
+  });
+
+  test('pickPackageFromOffering rejects unrelated Google monthly suffix match', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: 'some.other.subscription:monthly' },
+        },
+      ],
+    };
+    assert.equal(
+      Logic.pickPackageFromOffering(offering, '$rc_monthly', GOOGLE_PRODUCT_MONTHLY),
+      null
+    );
+  });
+
+  test('pickPackageFromOffering rejects unrelated Google yearly suffix match', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_annual',
+          product: { identifier: 'some.other.subscription:yearly' },
+        },
+      ],
+    };
+    assert.equal(
+      Logic.pickPackageFromOffering(offering, '$rc_annual', GOOGLE_PRODUCT_YEARLY),
+      null
+    );
+  });
+
+  test('pickPackageFromOffering rejects $rc_monthly mapped to canonical yearly product', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: GOOGLE_PRODUCT_YEARLY },
+        },
+      ],
+    };
+    assert.equal(
+      Logic.pickPackageFromOffering(offering, '$rc_monthly', GOOGLE_PRODUCT_MONTHLY),
+      null
+    );
+  });
+
+  test('pickPackageFromOffering rejects $rc_annual mapped to canonical monthly product', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_annual',
+          product: { identifier: GOOGLE_PRODUCT_MONTHLY },
+        },
+      ],
+    };
+    assert.equal(
+      Logic.pickPackageFromOffering(offering, '$rc_annual', GOOGLE_PRODUCT_YEARLY),
+      null
+    );
+  });
+
+  test('pickPackageFromOffering rejects correct package id with unrelated store product', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: 'com.example.unrelated.monthly' },
+        },
+      ],
+    };
+    assert.equal(
+      Logic.pickPackageFromOffering(offering, '$rc_monthly', GOOGLE_PRODUCT_MONTHLY),
+      null
+    );
+  });
+
+  test('pickPackageFromOffering accepts exact Apple monthly mapping', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_monthly',
+          product: { identifier: APPLE_PRODUCT_MONTHLY },
+        },
+      ],
+    };
+    const pkg = Logic.pickPackageFromOffering(offering, '$rc_monthly', APPLE_PRODUCT_MONTHLY);
+    assert.equal(pkg.identifier, '$rc_monthly');
+    assert.equal(pkg.product.identifier, APPLE_PRODUCT_MONTHLY);
+  });
+
+  test('pickPackageFromOffering accepts exact Apple yearly mapping', () => {
+    const offering = {
+      availablePackages: [
+        {
+          identifier: '$rc_annual',
+          product: { productIdentifier: APPLE_PRODUCT_YEARLY },
+        },
+      ],
+    };
+    const pkg = Logic.pickPackageFromOffering(offering, '$rc_annual', APPLE_PRODUCT_YEARLY);
+    assert.equal(pkg.identifier, '$rc_annual');
+    assert.equal(pkg.product.productIdentifier, APPLE_PRODUCT_YEARLY);
   });
 });
