@@ -82,7 +82,7 @@ test('EU redirect domains are exported for ops/tests', () => {
 
 test('redirect contract: .eu and www hosts preserve path and query on 301 to .app', () => {
   const contractUrl = '/foo?x=1';
-  for (const host of ['[REDACTED].eu', 'www.[REDACTED].eu']) { // pragma: allowlist secret
+  for (const host of EU_REDIRECT_DOMAINS) {
     const { status, location, nextCalled } = runRedirect(host, contractUrl);
     assert.equal(nextCalled, false, `${host} should redirect`);
     assert.equal(status, 301, `${host} must use permanent redirect`);
