@@ -5,7 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
+const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
+const { normalizeCountryCode } = require('../lib/market-region');
 const {
   getPublicSdkKeyForPlatform,
   getEntitlementId,
@@ -31,6 +33,12 @@ router.get('/config', requireParent, async (req, res) => {
   const familyId = req.user.familyId || req.user.family_id;
   const eligibility = await getNativePurchaseEligibility(familyId, { checkGlobalRollout: true });
 
+  const { rows: familyRows } = await db.query(
+    'SELECT country_code FROM family WHERE id = $1',
+    [familyId]
+  );
+  const countryCode = normalizeCountryCode(familyRows[0]?.country_code) || 'SE';
+
   const apiKeyConfigured = !!(getPublicSdkKeyForPlatform(platform));
   const apiKey = eligibility.allowed && apiKeyConfigured
     ? getPublicSdkKeyForPlatform(platform)
@@ -40,6 +48,7 @@ router.get('/config', requireParent, async (req, res) => {
 
   res.json({
     apiKey,
+    country_code: countryCode,
     platform,
     productId: storeProducts.monthly,
     products: storeProducts,

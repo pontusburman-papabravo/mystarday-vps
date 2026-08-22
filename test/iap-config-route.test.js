@@ -49,6 +49,7 @@ test('GET /api/iap/config returns contract without secrets', async (t) => {
     const body = await res.json();
     assert.equal(body.entitlementId, 'basic');
     assert.equal(body.nativePurchasesEnabled, true);
+    assert.equal(body.country_code, 'SE');
     assert.equal(body.apiKey, 'appl_test_public_key');
     assert.equal(body.productId, STORE_PRODUCT_MONTHLY);
     assert.deepEqual(body.products, {
@@ -116,6 +117,37 @@ test('GET /api/iap/config returns Google base-plan IDs for android', async (t) =
     else process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = prevFlag;
     if (prevAndroid === undefined) delete process.env.REVENUECAT_ANDROID_PUBLIC_SDK_KEY;
     else process.env.REVENUECAT_ANDROID_PUBLIC_SDK_KEY = prevAndroid;
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('GET /api/iap/config returns family country_code from server (IE)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const session = await registerAndLogin(http.baseUrl);
+    const { rows } = await db.query(
+      `SELECT p.family_id FROM parent p WHERE LOWER(p.email) = $1`,
+      [session.email.toLowerCase()]
+    );
+    const familyId = rows[0].family_id;
+    await db.query(`UPDATE family SET country_code = 'IE' WHERE id = $1`, [familyId]);
+
+    const res = await fetch(`${http.baseUrl}/api/iap/config?platform=ios`, {
+      headers: { Cookie: cookieHeader(session.cookies) },
+    });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.country_code, 'IE');
+  } finally {
     await http.close();
     await db.cleanup();
   }

@@ -10,16 +10,35 @@
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.23.0"></script>
-  <script src="/js/iap-native-client-logic.js?v=1"></script>
+  <script src="/js/legal-routes.js?v=1"></script>
+  <script src="/js/iap-native-client-logic.js?v=2"></script>
   <script src="/js/iap-manager.js?v=1"></script>
-  <script src="/js/paywall.js?v=2" defer></script>
+  <script src="/js/paywall.js?v=3" defer></script>
 </head>
 <body class="bg-cream min-h-screen text-navy font-body safe-top safe-bottom">
   <main class="max-w-lg mx-auto px-4 py-8">
     <header class="mb-6 text-center">
-      <h1 id="paywallTitle" class="text-2xl font-heading font-bold" data-i18n="paywall.title">Välkommen</h1>
-      <p id="paywallSubtitle" class="text-sm text-text-soft mt-2" data-i18n="paywall.subtitle">Premium ger er familj full tillgång till rutiner, stjärnor och scheman.</p>
+      <div class="w-16 h-16 bg-gradient-to-br from-amber-100 to-yellow-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md">
+        <span class="text-3xl" aria-hidden="true">⭐</span>
+      </div>
+      <h1 id="paywallTitle" class="text-2xl font-heading font-bold" data-i18n="paywall.title">My Starday Premium</h1>
+      <p id="paywallSubtitle" class="text-sm text-text-soft mt-2" data-i18n="paywall.subtitle">Full tillgång för hela familjen</p>
     </header>
+
+    <ul id="paywallBenefits" class="mb-6 space-y-2 text-sm text-navy">
+      <li class="flex items-start gap-2">
+        <span class="text-gold font-bold mt-0.5" aria-hidden="true">✓</span>
+        <span data-i18n="paywall.benefit1">Alla rutiner och scheman</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="text-gold font-bold mt-0.5" aria-hidden="true">✓</span>
+        <span data-i18n="paywall.benefit2">Stjärnor och familjens funktioner</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="text-gold font-bold mt-0.5" aria-hidden="true">✓</span>
+        <span data-i18n="paywall.benefit3">All er data finns kvar</span>
+      </li>
+    </ul>
 
     <div id="paywallWebNotice" class="hidden mb-6 rounded-2xl border border-gold/40 bg-white p-4 text-sm">
       <p id="paywallWebNoticeTitle" class="font-semibold mb-2" data-i18n="paywall.webNoticeTitle">Aktivera Premium i appen</p>
@@ -30,32 +49,68 @@
       </div>
     </div>
 
-    <section id="paywallPlans" class="space-y-4">
-      <button id="planYearlyBtn" type="button" class="w-full text-left rounded-2xl border-2 border-gold bg-white p-5 shadow-sm">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <p id="planYearlyBadge" class="text-xs uppercase tracking-wide text-gold font-bold" data-i18n="paywall.yearlyBadge">Rekommenderat</p>
+    <div id="paywallLoading" class="hidden mb-4 rounded-2xl bg-white border border-navy/10 p-5 animate-pulse">
+      <p class="text-sm text-text-soft text-center" data-i18n="paywall.loadingPrices">Hämtar priser…</p>
+      <div class="mt-4 space-y-3">
+        <div class="h-20 rounded-xl bg-navy/5"></div>
+        <div class="h-16 rounded-xl bg-navy/5"></div>
+      </div>
+    </div>
+
+    <section id="paywallPlans" class="space-y-3">
+      <button id="planYearlyBtn" type="button" aria-pressed="true"
+        class="w-full text-left rounded-2xl border-2 border-gold bg-white p-5 shadow-sm transition-colors">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p id="planYearlyBadge" class="text-xs uppercase tracking-wide text-gold font-bold mb-1" data-i18n="paywall.yearlyBadge">Rekommenderat</p>
             <p id="planYearlyPrice" class="text-xl font-heading font-bold">&nbsp;</p>
-            <p id="planYearlySavings" class="text-sm text-text-soft" data-i18n="paywall.yearlySavings">Spara jämfört med månadsbetalning</p>
+            <p id="planYearlyTerms" class="text-sm text-text-soft mt-2">&nbsp;</p>
           </div>
-          <span class="text-2xl">⭐</span>
+          <span id="planYearlyCheck" class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-gold bg-gold flex items-center justify-center" aria-hidden="true">
+            <span class="text-white text-xs font-bold">✓</span>
+          </span>
         </div>
-        <p id="planYearlyTerms" class="text-sm mt-3">&nbsp;</p>
       </button>
 
-      <button id="planMonthlyBtn" type="button" class="w-full text-left rounded-2xl border border-navy/10 bg-white p-5">
-        <p id="planMonthlyPrice" class="text-lg font-heading font-bold">&nbsp;</p>
-        <p id="planMonthlyBlurb" class="text-sm text-text-soft mt-1" data-i18n="paywall.monthlyBlurb">Flexibelt månadsabonnemang för er familj.</p>
-        <p id="planMonthlyTerms" class="text-sm mt-3">&nbsp;</p>
+      <button id="planMonthlyBtn" type="button" aria-pressed="false"
+        class="w-full text-left rounded-2xl border border-navy/10 bg-white p-5 transition-colors">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p id="planMonthlyPrice" class="text-lg font-heading font-bold">&nbsp;</p>
+            <p id="planMonthlyTerms" class="text-sm text-text-soft mt-2">&nbsp;</p>
+          </div>
+          <span id="planMonthlyCheck" class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-navy/20 flex items-center justify-center" aria-hidden="true"></span>
+        </div>
       </button>
     </section>
 
-    <p id="paywallLegal" class="text-xs text-text-soft mt-4 leading-relaxed" data-i18n="paywall.legal">
+    <div id="paywallNativeActions" class="hidden mt-6 space-y-3">
+      <button id="paywallPurchaseBtn" type="button" disabled
+        class="w-full rounded-xl bg-gold text-navy font-heading font-bold py-3.5 text-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        data-i18n="paywall.continue">Fortsätt</button>
+
+      <button id="paywallRestoreBtn" type="button"
+        class="w-full text-sm font-semibold text-navy underline py-2"
+        data-i18n="paywall.restore">Återställ köp</button>
+    </div>
+
+    <div id="paywallSubscriptionInfo" class="hidden mt-4">
+      <p id="paywallAutoRenew" class="text-xs text-text-soft leading-relaxed" data-i18n="paywall.autoRenewApple">
+        Prenumerationen förnyas automatiskt om den inte sägs upp. Betalningen hanteras av App Store.
+        Du kan hantera eller säga upp prenumerationen i ditt Apple-konto.
+      </p>
+      <div class="flex items-center justify-center gap-4 mt-3 text-xs">
+        <a id="paywallTermsLink" href="/terms" data-legal-terms-link class="font-semibold text-navy underline" data-i18n="paywall.termsLink">Villkor</a>
+        <a id="paywallPrivacyLink" href="/privacy" data-legal-privacy-link class="font-semibold text-navy underline" data-i18n="paywall.privacyLink">Integritet</a>
+      </div>
+    </div>
+
+    <p id="paywallWebLegal" class="text-xs text-text-soft mt-4 leading-relaxed hidden" data-i18n="paywall.legal">
       Provperioden kan avslutas före debitering enligt App Store eller Google Plays regler.
       Uppsägning sker i respektive butiks prenumerationsinställningar.
     </p>
 
-    <div class="mt-6 space-y-3">
+    <div id="paywallWebActions" class="mt-6 space-y-3">
       <button id="giftCardBtn" type="button" class="w-full rounded-xl border border-navy/15 py-3 font-semibold" data-i18n="paywall.giftCard">Jag har ett presentkort</button>
       <button id="paywallCloseBtn" type="button" class="w-full rounded-xl py-3 text-text-soft" data-i18n="paywall.limitedAccount">Fortsätt med begränsat konto</button>
     </div>
@@ -67,7 +122,7 @@
       <p id="giftRedeemMsg" class="text-sm mt-2 hidden"></p>
     </div>
 
-    <p id="paywallStatus" class="text-sm text-center mt-4 hidden"></p>
+    <p id="paywallStatus" class="text-sm text-center mt-4 hidden" role="status" aria-live="polite"></p>
   </main>
 </body>
 </html>

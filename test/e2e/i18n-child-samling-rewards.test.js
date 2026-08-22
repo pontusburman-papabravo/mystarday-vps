@@ -68,7 +68,11 @@ async function readChildSessionApis(page, baseUrl) {
 
 async function waitForChildShellReady(page) {
   await page.waitForFunction(() => {
-    return /\/child(\/today|-dashboard)/.test(window.location.pathname)
+    const onChildShell = (function (pathname) {
+      const p = (pathname || '').replace(/\/$/, '');
+      return p === '/child-dashboard' || p.indexOf('/child/') === 0;
+    })(window.location.pathname);
+    return onChildShell
       && window.ChildLayerRouter
       && typeof window.showTab === 'function'
       && window.ChildWorlds
@@ -76,76 +80,135 @@ async function waitForChildShellReady(page) {
       && ChildWorlds.isConfigured()
       && document.documentElement.getAttribute('data-barnets-samling') === 'on';
   }, { timeout: 45000 });
+
+  await page.waitForFunction(() => {
+    return typeof window.getChildUiLocale === 'function'
+      && getChildUiLocale() === 'en-GB';
+  }, { timeout: 45000 });
+
+  await page.waitForFunction(() => {
+    const nav = document.getElementById('childBottomNav');
+    return nav && nav.getAttribute('data-nav-ready') === 'true';
+  }, { timeout: 45000 });
+}
+
+async function waitForDailyLogSettled(page) {
+  await page.waitForFunction(() => {
+    const schedule = document.getElementById('scheduleView');
+    if (!schedule) return false;
+    if (document.getElementById('firstStarChromeMount')) return true;
+    return !!(
+      schedule.querySelector('.first-star-mission-wrap')
+      || schedule.querySelector('[data-item-id]')
+      || (schedule.textContent || '').trim().length > 20
+    );
+  }, { timeout: 45000 });
+}
+
+async function dismissFirstStarMode(page) {
+  await page.waitForFunction(() => !!window.ChildFirstStarMode, { timeout: 15000 });
+  await page.evaluate(() => {
+    if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
+      ChildFirstStarMode.exit();
+    }
+  });
+  await page.waitForFunction(() => {
+    return !window.ChildFirstStarMode || !ChildFirstStarMode.isActive();
+  }, { timeout: 15000 });
+}
+
+function collectionViewReady() {
+  const view = document.getElementById('collectionView');
+  const loading = document.getElementById('collectionViewLoading');
+  const title = view && view.querySelector('.bsp-title');
+  const active = view
+    && (view.getAttribute('data-active') === 'true' || !view.classList.contains('hidden'));
+  if (!active || !title) return false;
+  if (loading) {
+    const loadingStyle = window.getComputedStyle(loading);
+    const loadingVisible = !loading.classList.contains('hidden')
+      && loadingStyle.display !== 'none'
+      && loadingStyle.visibility !== 'hidden';
+    if (loadingVisible) return false;
+  }
+  return /my collection/i.test((title.textContent || '').trim());
 }
 
 async function openCollectionView(page) {
-  await page.waitForFunction(() => {
-    return window.ChildLayerRouter
-      && typeof window.getChildUiLocale === 'function'
-      && getChildUiLocale() === 'en-GB';
-  }, { timeout: 45000 });
+  await waitForDailyLogSettled(page);
+  await dismissFirstStarMode(page);
 
-  await page.evaluate(() => {
-    if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
-      ChildFirstStarMode.exit();
-    }
-    if (window.ChildLayerRouter && ChildLayerRouter.navigateToLayer) {
-      ChildLayerRouter.navigateToLayer('collection');
-    } else if (typeof window.showTab === 'function') {
-      window.showTab('collection');
-    }
-    if (window.ChildSamlingView && ChildSamlingView.refresh) {
-      ChildSamlingView.refresh({ force: true });
-    }
-  });
+  const viewTimeout = process.env.CI ? 90000 : 60000;
+  const perAttemptTimeout = Math.floor(viewTimeout / 2);
 
-  await page.waitForFunction(() => {
-    const view = document.getElementById('collectionView');
-    const loading = document.getElementById('collectionViewLoading');
-    const title = view && view.querySelector('.bsp-title');
-    if (!view || view.classList.contains('hidden')) return false;
-    if (loading) {
-      const loadingStyle = window.getComputedStyle(loading);
-      const loadingVisible = !loading.classList.contains('hidden')
-        && loadingStyle.display !== 'none'
-        && loadingStyle.visibility !== 'hidden';
-      if (loadingVisible) return false;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await page.evaluate(() => {
+      if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
+        ChildFirstStarMode.exit();
+      }
+      const navBtn = document.querySelector('#childBottomNav [data-child-world="collection"]');
+      if (navBtn) navBtn.click();
+      if (window.ChildLayerRouter && ChildLayerRouter.navigateToLayer) {
+        ChildLayerRouter.navigateToLayer('collection');
+      } else if (typeof window.showTab === 'function') {
+        window.showTab('collection');
+      }
+      if (window.ChildSamlingView && ChildSamlingView.refresh) {
+        ChildSamlingView.refresh({ force: true });
+      }
+    });
+
+    try {
+      await page.waitForFunction(collectionViewReady, { timeout: perAttemptTimeout });
+      return;
+    } catch (err) {
+      if (attempt === 1) throw err;
+      await dismissFirstStarMode(page);
     }
-    if (!title) return false;
-    return /my collection/i.test((title.textContent || '').trim());
-  }, { timeout: 60000 });
+  }
 }
 
 async function openTreasureView(page) {
-  await page.waitForFunction(() => {
-    return window.ChildLayerRouter
-      && typeof window.getChildUiLocale === 'function'
-      && getChildUiLocale() === 'en-GB';
-  }, { timeout: 45000 });
+  await dismissFirstStarMode(page);
 
-  await page.evaluate(() => {
-    if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
-      ChildFirstStarMode.exit();
+  const viewTimeout = process.env.CI ? 60000 : 30000;
+  const perAttemptTimeout = Math.floor(viewTimeout / 2);
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await page.evaluate(() => {
+      if (window.ChildFirstStarMode && ChildFirstStarMode.isActive()) {
+        ChildFirstStarMode.exit();
+      }
+      const navBtn = document.querySelector('#childBottomNav [data-child-world="treasure"]');
+      if (navBtn) navBtn.click();
+      if (window.ChildLayerRouter && ChildLayerRouter.navigateToLayer) {
+        ChildLayerRouter.navigateToLayer('treasure');
+      } else if (typeof window.showTab === 'function') {
+        window.showTab('rewards');
+      }
+      if (window.ChildTreasureView && ChildTreasureView.refresh) {
+        ChildTreasureView.refresh({ force: true });
+      } else if (typeof window.loadRewards === 'function') {
+        window.rewardsLoaded = false;
+        window.loadRewards({ skipHub: true, force: true });
+      }
+    });
+
+    try {
+      await page.waitForFunction(() => {
+        const view = document.getElementById('rewardsView');
+        const title = document.querySelector('.btp-hero-title');
+        const active = view
+          && (view.getAttribute('data-active') === 'true' || !view.classList.contains('hidden'));
+        if (!active || !title) return false;
+        return /treasure chest/i.test((title.textContent || '').trim());
+      }, { timeout: perAttemptTimeout });
+      return;
+    } catch (err) {
+      if (attempt === 1) throw err;
+      await dismissFirstStarMode(page);
     }
-    if (window.ChildLayerRouter && ChildLayerRouter.navigateToLayer) {
-      ChildLayerRouter.navigateToLayer('treasure');
-    } else if (typeof window.showTab === 'function') {
-      window.showTab('rewards');
-    }
-    if (window.ChildTreasureView && ChildTreasureView.refresh) {
-      ChildTreasureView.refresh({ force: true });
-    } else if (typeof window.loadRewards === 'function') {
-      window.rewardsLoaded = false;
-      window.loadRewards({ skipHub: true, force: true });
-    }
-  });
-  await page.waitForFunction(() => {
-    const view = document.getElementById('rewardsView');
-    const title = document.querySelector('.btp-hero-title');
-    if (!view || view.classList.contains('hidden')) return false;
-    if (!title) return false;
-    return /treasure chest/i.test((title.textContent || '').trim());
-  }, { timeout: 30000 });
+  }
 }
 
 describe('i18n child samling + rewards E2E', () => {
