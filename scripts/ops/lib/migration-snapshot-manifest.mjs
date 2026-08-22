@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
-/** @type {Record<string, { backwardCompatible?: boolean, schemaOnly?: boolean, featureFlagInserts?: { key: string, enabled: boolean }[] }>} */
+/** @type {Record<string, { backwardCompatible?: boolean, schemaOnly?: boolean, allowedBusinessTableFingerprintChanges?: string[], featureFlagInserts?: { key: string, enabled: boolean }[] }>} */
 export const MIGRATION_SNAPSHOT_REGISTRY = {
   '1810140000000_family_acquisition_attribution': {
     backwardCompatible: true,
@@ -77,6 +77,13 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
       { key: 'market_dk_open', enabled: false },
     ],
   },
+  '1810400000000_payments_v1_entitlements': {
+    backwardCompatible: true,
+    allowedBusinessTableFingerprintChanges: ['family'],
+  },
+  '1810410000000_payments_v1_gift_cards': {
+    backwardCompatible: true,
+  },
 };
 
 /**
@@ -138,6 +145,23 @@ export function aggregateMigrationContracts(migrationNames, repoRoot) {
  * @param {string[]} migrationNames
  * @param {string} [repoRoot]
  */
+/**
+ * Tables whose row_fingerprint_sha256 may change when listed on a newly-applied migration contract.
+ * @param {string[]} migrationNames
+ * @param {string} [repoRoot]
+ */
+export function allowedBusinessTableFingerprintChanges(migrationNames, repoRoot) {
+  const allowed = new Set();
+  for (const name of migrationNames) {
+    const c = loadMigrationSnapshotContract(name, repoRoot);
+    if (!c?.allowedBusinessTableFingerprintChanges) continue;
+    for (const table of c.allowedBusinessTableFingerprintChanges) {
+      allowed.add(table);
+    }
+  }
+  return allowed;
+}
+
 export function expectedFeatureFlagInserts(migrationNames, repoRoot) {
   const inserts = [];
   for (const name of migrationNames) {

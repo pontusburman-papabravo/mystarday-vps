@@ -465,6 +465,116 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(result.ok, false);
     assert.ok(result.drift.some((d) => d.issue === 'unexpected_insert'));
   });
+
+  test('payments_v1_entitlements contract is found', async () => {
+    const { loadMigrationSnapshotContract } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810400000000_payments_v1_entitlements';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract);
+    assert.equal(contract.backwardCompatible, true);
+    assert.notEqual(contract.schemaOnly, true);
+    assert.deepEqual(contract.allowedBusinessTableFingerprintChanges, ['family']);
+  });
+
+  test('payments_v1_gift_cards contract is found', async () => {
+    const { loadMigrationSnapshotContract } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810410000000_payments_v1_gift_cards';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract);
+    assert.equal(contract.backwardCompatible, true);
+    assert.notEqual(contract.schemaOnly, true);
+    assert.equal(contract.allowedBusinessTableFingerprintChanges, undefined);
+  });
+
+  test('payments_v1_entitlements allows declared family fingerprint change', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810400000000_payments_v1_entitlements';
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810320000000_market_country_gates'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables._migrations.row_count += 1;
+    after.tables.family.row_fingerprint_sha256 = 'f-after-lifetime-free-backfill';
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
+  test('payments_v1_entitlements still fails family row_count change', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810400000000_payments_v1_entitlements';
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810320000000_market_country_gates'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables.family.row_count = 11;
+    after.tables.family.row_fingerprint_sha256 = 'f-after-lifetime-free-backfill';
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.table === 'family' && d.field === 'row_count'));
+  });
+
+  test('payments_v1_entitlements still fails undeclared table fingerprint change', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810400000000_payments_v1_entitlements';
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810320000000_market_country_gates'],
+      tables: {
+        ...baseTables(),
+        parent: { exists: true, row_count: 20, row_fingerprint_sha256: 'p1' },
+      },
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables.family.row_fingerprint_sha256 = 'f-after-lifetime-free-backfill';
+    after.tables.parent.row_fingerprint_sha256 = 'p2';
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(
+      result.drift.some((d) => d.table === 'parent' && d.field === 'row_fingerprint_sha256')
+    );
+  });
+
+  test('payments_v1_gift_cards passes with no business-table drift', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810410000000_payments_v1_gift_cards';
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810400000000_payments_v1_entitlements'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables._migrations.row_count += 1;
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
 });
 
 describe('deploy rollback policy', () => {
