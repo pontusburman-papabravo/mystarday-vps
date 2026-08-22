@@ -57,9 +57,18 @@
     el.setAttribute('data-i18n', key);
   }
 
-  async function syncLegalLinks() {
-    if (!window.LegalRoutes || !LegalRoutes.syncRegisterLegalLinks) return;
-    await LegalRoutes.syncRegisterLegalLinks();
+  async function applyPaywallLegalLinks(countryCode) {
+    if (!window.LegalRoutes || !LegalRoutes.fetchLegalRoutes || !countryCode) return null;
+    const locale = (window.I18n && I18n.getCurrentLang && I18n.getCurrentLang()) || 'sv-SE';
+    try {
+      const routes = await LegalRoutes.fetchLegalRoutes(countryCode, locale);
+      if (LegalRoutes.applyToRegisterLinks) {
+        LegalRoutes.applyToRegisterLinks(routes);
+      }
+      return routes;
+    } catch (_) {
+      return null;
+    }
   }
 
   function renderTierPrices(displays, config) {
@@ -224,6 +233,7 @@
       return false;
     }
     const config = await configRes.json();
+    await applyPaywallLegalLinks(config.country_code);
     const displays = Logic.resolveOfferingTierDisplays(offering, config.packages);
     if (!displays) {
       showLoadingPrices(false);
@@ -339,6 +349,7 @@
       const cfgRes = await fetch('/api/iap/config?platform=ios', { credentials: 'include' });
       if (!cfgRes.ok) return;
       const cfg = await cfgRes.json();
+      await applyPaywallLegalLinks(cfg.country_code);
       if (cfg.storeLinks) {
         const apple = document.getElementById('paywallAppleLink');
         const play = document.getElementById('paywallPlayLink');
@@ -361,7 +372,6 @@
     }
 
     applyAutoRenewCopy();
-    await syncLegalLinks();
 
     try {
       const status = await Auth.api('/api/subscription/status');

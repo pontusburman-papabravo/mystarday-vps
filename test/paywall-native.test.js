@@ -77,12 +77,17 @@ describe('paywall native subscription screen', () => {
     assert.match(paywallHtml, /id="giftCardBtn"/);
   });
 
-  test('H: legal links use canonical resolver without hardcoded SE country', () => {
+  test('H: legal links use authenticated config.country_code (not registration sessionStorage)', () => {
     assert.doesNotMatch(paywallJs, /fetchLegalRoutes\(['"]SE['"]/);
+    assert.doesNotMatch(paywallJs, /syncRegisterLegalLinks/);
+    assert.doesNotMatch(paywallJs, /sd_country_code/);
+    assert.doesNotMatch(paywallJs, /CountryChoice/);
     assert.match(paywallHtml, /data-legal-terms-link/);
     assert.match(paywallHtml, /data-legal-privacy-link/);
     assert.match(paywallHtml, /legal-routes\.js/);
-    assert.match(paywallJs, /LegalRoutes\.syncRegisterLegalLinks/);
+    assert.match(paywallJs, /LegalRoutes\.fetchLegalRoutes/);
+    assert.match(paywallJs, /applyPaywallLegalLinks\(config\.country_code\)/);
+    assert.match(paywallJs, /applyPaywallLegalLinks\(cfg\.country_code\)/);
     assert.match(paywallHtml, /id="paywallAutoRenew"/);
 
     const ieRoutes = resolveLegalRoutes({ countryCode: 'IE', marketRegion: 'EU', locale: 'en-GB' });
