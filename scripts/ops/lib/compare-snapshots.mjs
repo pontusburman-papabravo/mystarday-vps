@@ -5,6 +5,7 @@
  */
 import {
   aggregateMigrationContracts,
+  allowedBusinessTableFingerprintChanges,
   expectedFeatureFlagInserts,
 } from './migration-snapshot-manifest.mjs';
 
@@ -156,6 +157,9 @@ export function compareDbSnapshots(before, after, options = {}) {
     }
 
     const expectedFlags = expectedFeatureFlagInserts(names, options.repoRoot);
+    const allowedFingerprintChanges = hasNewMigrations
+      ? allowedBusinessTableFingerprintChanges(names, options.repoRoot)
+      : new Set();
     const ffBefore = before.tables?.feature_flag;
     const ffAfter = after.tables?.feature_flag;
     if (ffBefore?.exists && ffAfter?.exists) {
@@ -180,7 +184,8 @@ export function compareDbSnapshots(before, after, options = {}) {
       if (
         b.row_fingerprint_sha256 &&
         a.row_fingerprint_sha256 &&
-        b.row_fingerprint_sha256 !== a.row_fingerprint_sha256
+        b.row_fingerprint_sha256 !== a.row_fingerprint_sha256 &&
+        !allowedFingerprintChanges.has(table)
       ) {
         drift.push({
           table,
