@@ -166,6 +166,13 @@ test('IE child inherits Europe/Dublin from family (F)', async (t) => {
     const parentId = parent.rows[0].id;
     const familyId = parent.rows[0].family_id;
 
+    const { grantAdminPremium } = require('../src/lib/family-entitlements');
+    await grantAdminPremium(familyId, {
+      permanent: true,
+      adminId: null,
+      reason: 'eea-launch timezone test — IE is paywall cohort post grandfather scope fix',
+    });
+
     const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

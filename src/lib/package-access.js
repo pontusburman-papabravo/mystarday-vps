@@ -8,6 +8,7 @@ const familySubscriptions = require('../../db/family-subscriptions');
 const packageInterest = require('../../db/package-interest');
 const featuresDb = require('../../db/features');
 const db = require('./db');
+const { resolveFamilyEntitlements } = require('./family-entitlements');
 const {
   ALL_COMPONENTS,
   PACKAGE_FEATURES,
@@ -165,14 +166,19 @@ async function getFamilyAccess(familyId, user = null, session = {}) {
   const rolloutFlags = getRolloutFlags(rollout_mode);
   const view = resolveViewMode(user, session);
 
-  const sub = await familySubscriptions.getByFamilyId(familyId);
+  const [{ premium }, sub] = await Promise.all([
+    resolveFamilyEntitlements(familyId),
+    familySubscriptions.getByFamilyId(familyId),
+  ]);
   const rawComponents = sub?.components || [];
 
-  // Families without subscription row are legacy lifetime_free with basic_app only
+  // basic_app follows canonical Premium resolver — not stale component rows.
   const components = {};
   for (const slug of ALL_COMPONENTS) {
-    if (!sub && slug === 'basic_app') {
-      components[slug] = { has: true, state: 'active' };
+    if (slug === 'basic_app') {
+      components[slug] = premium.active
+        ? { has: true, state: 'active', expires_at: premium.expires_at || null }
+        : { has: false, state: 'disabled' };
     } else {
       components[slug] = resolveComponentEntry(slug, rawComponents);
     }
@@ -202,6 +208,17 @@ async function getFamilyAccess(familyId, user = null, session = {}) {
     preview,
     archive,
     interest,
+    premium: {
+      active: premium.active,
+      label: premium.label,
+      source: premium.source,
+      status: premium.status,
+      is_grandfathered: premium.is_grandfathered,
+      expires_at: premium.expires_at,
+      trial: premium.trial,
+      plan: premium.plan,
+      limited_account: premium.limited_account,
+    },
   };
 }
 

@@ -527,6 +527,9 @@
         showError('appleRegisterError', t('auth.login.apple.unavailable'));
         return;
       }
+      if (window.CountryChoice && !CountryChoice.requireSelection()) {
+        return;
+      }
       document.getElementById('appleRegisterError').classList.add('hidden');
       if (diag) diag.log('register_step_1');
 
@@ -547,11 +550,15 @@
           return;
         }
 
+        const applePayload = (window.OAuthRegistrationPayload && OAuthRegistrationPayload.withOAuthRegistrationFields)
+          ? OAuthRegistrationPayload.withOAuthRegistrationFields({ idToken: result.idToken, name: result.name })
+          : { idToken: result.idToken, name: result.name };
+
         const res = await fetch('/api/auth/apple', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ idToken: result.idToken, name: result.name }),
+          body: JSON.stringify(applePayload),
         });
         const data = await res.json().catch(() => ({}));
 
@@ -582,6 +589,8 @@
     }
   </script>
   <!-- Support bubble for logged-out users -->
+  <script src="/js/login-locale.js?v=2"></script>
+  <script src="/js/oauth-registration-payload.js?v=1"></script>
   <script src="/js/google-auth-ui.js?v=2026-07-11" defer></script>
   <script src="/js/support-bubble.js?v=2.13.0"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->

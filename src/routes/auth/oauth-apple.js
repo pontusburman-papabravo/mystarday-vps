@@ -11,6 +11,10 @@ const { appleLoginLimiter } = require('../../middleware/rateLimiter');
 const parentDb = require('../../../db/parent');
 const { verifyAppleIdToken } = require('../../lib/apple-auth');
 const { createParentFromOAuth } = require('../../lib/create-oauth-parent');
+const {
+  resolveNewAccountRegistrationContext,
+  assertRegistrationMarketOpen,
+} = require('../../lib/registration-market-context');
 const { completeLogin } = require('./session');
 
 const router = express.Router();
@@ -77,6 +81,20 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
       : (firstName?.trim() || (typeof name === 'string' && name.trim()) || appleEmail?.split('@')[0] || 'Förälder');
 
     console.log('[APPLE] creating new user');
+    const registrationCtx = resolveNewAccountRegistrationContext(req, req.body, {
+      requireExplicitCountry: true,
+    });
+    if (!registrationCtx.ok) {
+      return res.status(registrationCtx.status).json(registrationCtx.body);
+    }
+    const marketGate = await assertRegistrationMarketOpen(
+      registrationCtx.countryResolved.country_code,
+      registrationCtx.familyLocale
+    );
+    if (!marketGate.ok) {
+      return res.status(marketGate.status).json(marketGate.body);
+    }
+
     const attribution = {
       utm_source: req.body.utm_source,
       utm_medium: req.body.utm_medium,
@@ -94,6 +112,13 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
       appleUserId,
       appleEmail,
       attribution,
+      familyLocale: registrationCtx.familyLocale,
+      countryCode: registrationCtx.countryResolved.country_code,
+      marketRegion: registrationCtx.countryResolved.market_region,
+      timezone: registrationCtx.marketConfig.timezone,
+      localeSelectionSource: registrationCtx.localeSelectionSource,
+      englishBetaOfferState: registrationCtx.englishBetaOfferState,
+      countrySelectionSource: registrationCtx.countryResolved.country_selection_source,
     });
 
     return completeLogin(req, res, newParent, 'parent', { isNewAccount: true, authSource: 'apple_login' });

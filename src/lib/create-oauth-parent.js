@@ -5,6 +5,9 @@ const { sendWelcomeEmail } = require('./welcome-mailer');
 const { registerContact } = require('./email');
 const { createNewsletterSubscription } = require('./newsletter-subscribe');
 const { seedFamilyStarterActivitiesFromCanonicalDb } = require('./standard-library-family-seed');
+const { loadDefaultContent } = require('./default-content');
+const { enableEnglishAppForFamily } = require('./i18n-enable-english');
+const { buildAutoFamilyName } = require('./registration-market-context');
 
 const DEFAULT_ACTIVITIES = [
   { name: 'Vakna', icon: '🛏️', category: 'Morgon', star_value: 1, sort_order: 0, schema_type: 'forskola' },
@@ -42,10 +45,14 @@ const CATEGORY_TO_TIME_GROUP = {
 /**
  * @param {import('pg').PoolClient} client
  * @param {string} familyId
+ * @param {string} familyLocale
  */
-async function seedDefaultActivities(client, familyId) {
+async function seedDefaultActivities(client, familyId, familyLocale = 'sv-SE') {
   const categoryMap = {};
-  for (const cat of TEMPLATE_CATEGORIES) {
+  const defaultContent = loadDefaultContent(familyLocale);
+  const templateCategories = defaultContent.templateCategories || TEMPLATE_CATEGORIES;
+
+  for (const cat of templateCategories) {
     const catResult = await client.query(
       'INSERT INTO category (family_id, name, sort_order, is_default) VALUES ($1, $2, $3, true) RETURNING id',
       [familyId, cat.name, cat.sort_order]
@@ -53,19 +60,24 @@ async function seedDefaultActivities(client, familyId) {
     categoryMap[cat.key] = catResult.rows[0].id;
   }
 
-  const canonicalCount = await client.query(
-    `SELECT COUNT(*)::int AS count FROM default_activity_template WHERE canonical_id IS NOT NULL`
-  );
-  if (canonicalCount.rows[0].count > 0) {
-    await seedFamilyStarterActivitiesFromCanonicalDb(client, familyId, categoryMap, 'sv-SE');
-    return;
+  if (familyLocale === 'sv-SE') {
+    const canonicalCount = await client.query(
+      `SELECT COUNT(*)::int AS count FROM default_activity_template WHERE canonical_id IS NOT NULL`
+    );
+    if (canonicalCount.rows[0].count > 0) {
+      await seedFamilyStarterActivitiesFromCanonicalDb(client, familyId, categoryMap, familyLocale);
+      return;
+    }
   }
 
-  for (const act of DEFAULT_ACTIVITIES) {
+  const activities = defaultContent.activities || DEFAULT_ACTIVITIES;
+  const { resolveTimeGroup, resolveTimeOffset } = require('./default-content');
+
+  for (const act of activities) {
     const catId = categoryMap[act.schema_type];
     if (!catId) continue;
-    const timeGroup = CATEGORY_TO_TIME_GROUP[act.category] || 'morgon';
-    const timeOffset = TIME_CATEGORY_OFFSET[act.category] ?? 400;
+    const timeGroup = resolveTimeGroup ? resolveTimeGroup(act.category) : (CATEGORY_TO_TIME_GROUP[act.category] || 'morgon');
+    const timeOffset = resolveTimeOffset ? resolveTimeOffset(act.category) : (TIME_CATEGORY_OFFSET[act.category] ?? 400);
     const combinedSort = timeOffset + (act.sort_order ?? 0);
     await client.query(
       `INSERT INTO activity_template (family_id, name, icon, category_id, star_value, is_favorite, time_group, schema_type, sort_order, source)
@@ -77,7 +89,22 @@ async function seedDefaultActivities(client, familyId) {
 
 /**
  * Create family + verified parent from OAuth (Apple or Google).
- * @param {{ displayName: string, email: string, appleUserId?: string|null, appleEmail?: string|null, googleUserId?: string|null, attribution?: object|null }} opts
+ * @param {{
+ *   displayName: string,
+ *   email: string,
+ *   appleUserId?: string|null,
+ *   appleEmail?: string|null,
+ *   googleUserId?: string|null,
+ *   attribution?: object|null,
+ *   familyLocale: string,
+ *   countryCode: string,
+ *   marketRegion: string,
+ *   timezone: string,
+ *   localeSelectionSource: string,
+ *   englishBetaOfferState: string,
+ *   countrySelectionSource: string,
+ *   familyName?: string|null,
+ * }} opts
  */
 async function createParentFromOAuth(opts) {
   const {
@@ -87,26 +114,48 @@ async function createParentFromOAuth(opts) {
     appleEmail = null,
     googleUserId = null,
     attribution = null,
+    familyLocale,
+    countryCode,
+    marketRegion,
+    timezone,
+    localeSelectionSource,
+    englishBetaOfferState,
+    countrySelectionSource,
+    familyName = null,
   } = opts;
   const client = await db.getClient();
 
   try {
     await client.query('BEGIN');
 
-    const familyName = `${displayName}s familj`;
-    const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
-    const familyCount = countResult.rows[0].count;
-    const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('./payment-policy');
-    const founderLimit = await getFounderFamilyLimitWithClient(client);
-    const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
+    const finalFamilyName = familyName || buildAutoFamilyName(displayName, familyLocale);
+    const { grantGrandfatheredOnCreate, syncAllLegacyMirrors, emptyPremium } = require('./family-entitlements');
 
     const familyResult = await client.query(
-      `INSERT INTO family (name, subscription_status, trial_ends_at, is_lifetime_free)
-       VALUES ($1, 'none', CASE WHEN $2 THEN NULL ELSE NOW() + INTERVAL '14 days' END, $2)
-       RETURNING id`,
-      [familyName, isLifetimeFree]
+      `INSERT INTO family (
+         name, timezone, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale,
+         locale_selected_at, locale_selection_source, english_beta_offer_state,
+         country_code, market_region, country_selected_at, country_selection_source
+       )
+       VALUES ($1, $2, 'none', NULL, false, $3, NOW(), $4, $5, $6, $7, NOW(), $8)
+       RETURNING id, created_at`,
+      [
+        finalFamilyName,
+        timezone,
+        familyLocale,
+        localeSelectionSource,
+        englishBetaOfferState,
+        countryCode,
+        marketRegion,
+        countrySelectionSource,
+      ]
     );
     const familyId = familyResult.rows[0].id;
+    const familyCreatedAt = familyResult.rows[0].created_at;
+
+    if (familyLocale === 'en-GB') {
+      await enableEnglishAppForFamily(familyId, { client });
+    }
 
     const parentResult = await client.query(
       `INSERT INTO parent (family_id, email, password_hash, name, verified,
@@ -119,24 +168,17 @@ async function createParentFromOAuth(opts) {
     );
     const parent = parentResult.rows[0];
 
-    await seedDefaultActivities(client, familyId);
+    await seedDefaultActivities(client, familyId, familyLocale);
     await client.query('INSERT INTO notification_preference (parent_id) VALUES ($1)', [parent.id]);
     await createNewsletterSubscription(client, parent.id, parent.email);
 
-    const subTier = isLifetimeFree ? 'lifetime_free' : 'trial';
-    const trialExpiresAt = subTier === 'trial'
-      ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-      : null;
-    await client.query(
-      `INSERT INTO family_subscriptions (family_id, tier, trial_expires_at, components)
-       VALUES ($1, $2, $3, $4)`,
-      [
-        familyId,
-        subTier,
-        trialExpiresAt,
-        JSON.stringify([{ component: 'basic_app', granted_at: new Date().toISOString(), expires_at: null }]),
-      ]
-    );
+    const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
+      client,
+      countryCode,
+    });
+    if (!grandfatherRow) {
+      await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
+    }
 
     await client.query('COMMIT');
     await runOAuthSignupSideEffects(familyId, parent, displayName, email, attribution);
@@ -152,7 +194,6 @@ async function createParentFromOAuth(opts) {
 async function runOAuthSignupSideEffects(familyId, parent, displayName, email, attributionInput = null) {
   require('./analytics-tracker').trackSignupStarted(familyId);
 
-  // Optional attribution from OAuth body — never blocks signup
   if (attributionInput) {
     try {
       const {

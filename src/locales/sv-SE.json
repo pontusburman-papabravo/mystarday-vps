@@ -411,6 +411,7 @@
         "unknownUserType": "Okänd användartyp",
         "registrationClosed": "Registrering är för närvarande stängd",
         "invalidCountry": "Ogiltigt land",
+        "countryRequired": "Välj land innan du skapar konto",
         "familyNameRequired": "Namn krävs för att skapa ett familjkonto",
         "marketClosed": {
           "MARKET_SE_CLOSED": "Registrering från Sverige är tillfälligt stängd.",
@@ -1047,5 +1048,37 @@
       "deletionPending": "Kontot har markerats för radering. Du har 30 dagar att ångra dig.",
       "alreadyPending": "Kontot är redan markerat för radering."
     }
+  },
+  "paywall": {
+    "title": "Välkommen",
+    "subtitle": "Premium ger er familj full tillgång till rutiner, stjärnor och scheman.",
+    "webNoticeTitle": "Aktivera Premium i appen",
+    "webNoticeBody": "Ordinarie Premium köps via App Store eller Google Play — inte på webben.",
+    "downloadIphone": "Ladda ner för iPhone",
+    "downloadAndroid": "Ladda ner för Android",
+    "yearlyBadge": "Rekommenderat",
+    "yearlyPrice": "{{price}}/år",
+    "yearlySavings": "Spara jämfört med månadsbetalning",
+    "yearlyTermsKnownTrial": "{{trialDays}} dagar gratis · därefter {{price}}/år · förnyas automatiskt",
+    "yearlyTermsConditionalTrial": "14 dagars gratis provperiod för berättigade nya prenumeranter · därefter {{price}}/år · förnyas automatiskt",
+    "yearlyTermsNoTrial": "{{price}}/år · förnyas automatiskt",
+    "monthlyPrice": "{{price}}/mån",
+    "monthlyBlurb": "Flexibelt månadsabonnemang för er familj.",
+    "monthlyTermsKnownTrial": "{{trialDays}} dagar gratis · därefter {{price}}/mån · förnyas automatiskt",
+    "monthlyTermsConditionalTrial": "14 dagars gratis provperiod för berättigade nya prenumeranter · därefter {{price}}/mån · förnyas automatiskt",
+    "monthlyTermsNoTrial": "{{price}}/mån · förnyas automatiskt",
+    "legal": "Provperioden kan avslutas före debitering enligt App Store eller Google Plays regler. Uppsägning sker i respektive butiks prenumerationsinställningar.",
+    "giftCard": "Jag har ett presentkort",
+    "giftCodeLabel": "Presentkod",
+    "giftRedeem": "Lös in presentkort",
+    "limitedAccount": "Fortsätt med begränsat konto",
+    "statusOpening": "Öppnar betalning…",
+    "statusSuccess": "Premium är aktiverat! Välkommen in.",
+    "statusCancelled": "Köpet avbröts.",
+    "statusFailed": "Köpet misslyckades. Försök igen.",
+    "statusUnavailable": "Priser kunde inte laddas just nu. Försök igen senare.",
+    "statusNotNative": "Köp är inte tillgängligt här. Prova i appen.",
+    "giftSuccess": "Presentkortet är inlöst!",
+    "giftFailed": "Kunde inte lösa in koden."
   }
 }

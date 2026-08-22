@@ -119,9 +119,30 @@ function getGoogleHandler() {
   return stack[stack.length - 1].handle;
 }
 
-test('POST /google creates parent when email is new', async () => {
+test('POST /google rejects new signup without country_code', async () => {
   const handler = getGoogleHandler();
-  const req = { body: { idToken: 'valid-token' }, ip: '127.0.0.1' };
+  const req = { body: { idToken: 'valid-token' }, ip: '127.0.0.1', headers: {} };
+  let statusCode = 200;
+  let body = null;
+  const res = {
+    status(code) { statusCode = code; return this; },
+    json(payload) { body = payload; },
+  };
+
+  await handler(req, res);
+
+  assert.equal(statusCode, 400);
+  assert.equal(body.code, 'COUNTRY_REQUIRED');
+  assert.equal(mockCreateParent, null);
+});
+
+test('POST /google creates parent when email is new with country_code', async () => {
+  const handler = getGoogleHandler();
+  const req = {
+    body: { idToken: 'valid-token', country_code: 'SE', preferred_locale: 'sv-SE' },
+    ip: '127.0.0.1',
+    headers: {},
+  };
   let statusCode = 200;
   let body = null;
   const res = {

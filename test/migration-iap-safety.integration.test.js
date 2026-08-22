@@ -19,6 +19,7 @@ const {
   familyStableBusinessChecksum,
 } = require('./helpers/disposable-postgres.js');
 const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
+const { POST_PAYMENT_START_TEST_CREATED_AT } = require('./support/iap-webhook-test-env');
 
 const STOP_BEFORE = '1810000000016_iap_event_ordering_audit';
 async function filterExistingTables(client, names) {
@@ -52,11 +53,11 @@ async function seedPre0016Data(client) {
   const lifetimeFamily = crypto.randomUUID();
 
   await client.query(
-    `INSERT INTO family (id, name, is_lifetime_free, subscription_status, rc_customer_id)
-     VALUES ($1, 'Active IAP', false, 'active', 'rc_active_1'),
-            ($2, 'Expired IAP', false, 'expired', 'rc_expired_1'),
-            ($3, 'Lifetime', true, 'none', NULL)`,
-    [activeFamily, expiredFamily, lifetimeFamily]
+    `INSERT INTO family (id, name, is_lifetime_free, subscription_status, rc_customer_id, created_at)
+     VALUES ($1, 'Active IAP', false, 'active', 'rc_active_1', $4::timestamptz),
+            ($2, 'Expired IAP', false, 'expired', 'rc_expired_1', $4::timestamptz),
+            ($3, 'Lifetime', true, 'none', NULL, $4::timestamptz)`,
+    [activeFamily, expiredFamily, lifetimeFamily, POST_PAYMENT_START_TEST_CREATED_AT]
   );
 
   await client.query(
@@ -190,14 +191,14 @@ describe('migration IAP safety (disposable DBs)', () => {
         await seedPre0016Data(client);
         const { rows: fam } = await client.query('SELECT id FROM family WHERE is_lifetime_free = false LIMIT 1');
         const familyId = fam[0].id;
-        const parentRes = await client.query(
-          `INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified)
-           VALUES ($1, 'hash', $2, 'Parent', true, true) RETURNING id`,
-          [`p-${Date.now()}@example.com`, familyId]
+        const parentRes =         await client.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified, created_at)
+           VALUES ($1, 'hash', $2, 'Parent', true, true, $3::timestamptz) RETURNING id`,
+          [`p-${Date.now()}@example.com`, familyId, POST_PAYMENT_START_TEST_CREATED_AT]
         );
         await client.query(
-          `INSERT INTO child (family_id, name, emoji, username) VALUES ($1, 'Barn', '⭐', $2)`,
-          [familyId, `child-${Date.now()}`]
+          `INSERT INTO child (family_id, name, emoji, username, created_at) VALUES ($1, 'Barn', '⭐', $2, $3::timestamptz)`,
+          [familyId, `child-${Date.now()}`, POST_PAYMENT_START_TEST_CREATED_AT]
         );
         await client.query(
           `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, (SELECT id FROM child WHERE family_id = $2 LIMIT 1), 'primary')`,

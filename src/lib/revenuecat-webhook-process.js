@@ -10,13 +10,34 @@ const {
   isSandboxTestFamily,
   getNonRenewingSubscriptionProductIds,
 } = require('../../config/revenuecat-iap');
+const { appendPaymentAudit } = require('./payment-audit');
+const { applyStoreEntitlementFromWebhook } = require('./family-entitlements');
+const { STORE_PRODUCT_MONTHLY, STORE_PRODUCT_YEARLY } = require('../../config/iap-product-contract');
 const {
   parseEventTimestampMs,
   compareToStoredState,
   isDestructiveStatus,
 } = require('./revenuecat-event-ordering');
 
+const GRANDFATHER_CHECK_SQL = `
+  SELECT 1 FROM family_entitlements
+  WHERE family_id = $1
+    AND source = 'grandfathered'
+    AND revoked_at IS NULL
+  LIMIT 1
+`;
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function planFromProductId(productId) {
+  if (!productId) return null;
+  if (productId === STORE_PRODUCT_YEARLY) return 'yearly';
+  if (productId === STORE_PRODUCT_MONTHLY) return 'monthly';
+  const id = String(productId);
+  if (id.includes('yearly')) return 'yearly';
+  if (id.includes('monthly')) return 'monthly';
+  return null;
+}
 
 const INSERT_WEBHOOK_LOG_SQL = `
   INSERT INTO iap_webhook_log (
@@ -44,6 +65,7 @@ const HANDLED_EVENT_TYPES = new Set([
   'PRODUCT_CHANGE',
   'SUBSCRIPTION_EXTENDED',
   'REFUND_REVERSED',
+  'REFUND',
   'NON_RENEWING_PURCHASE',
   'CANCELLATION',
   'EXPIRATION',
@@ -75,6 +97,8 @@ function resolveSubscriptionStatus(eventType, expirationAtMs, nowMs = Date.now()
     case 'SUBSCRIPTION_EXTENDED':
     case 'REFUND_REVERSED':
       return 'active';
+    case 'REFUND':
+      return 'expired';
     case 'NON_RENEWING_PURCHASE':
       return 'active';
     case 'CANCELLATION':
@@ -303,24 +327,25 @@ async function processRevenueCatEvent(db, event) {
     }
   }
 
-  if (family.is_lifetime_free) {
-    const client = await db.getClient();
+  const gfCheck = await db.query(GRANDFATHER_CHECK_SQL, [family.id]);
+  if (gfCheck.rows.length > 0 || family.is_lifetime_free) {
+    const skipClient = await db.getClient();
     try {
-      await client.query('BEGIN');
-      const insertResult = await insertWebhookLog(client, event, eventType, family.id, {
-        skipReason: 'lifetime_free',
+      await skipClient.query('BEGIN');
+      const insertResult = await insertWebhookLog(skipClient, event, eventType, family.id, {
+        skipReason: 'grandfathered',
         processingOutcome: 'skipped_policy',
       }, eventTimestampMs, environment);
-      await client.query('COMMIT');
+      await skipClient.query('COMMIT');
       if (insertResult.rowCount === 0) {
-        return { duplicate: true, skipped: true, familyId: family.id, reason: 'lifetime_free' };
+        return { duplicate: true, skipped: true, familyId: family.id, reason: 'grandfathered' };
       }
-      return { duplicate: false, skipped: true, familyId: family.id, reason: 'lifetime_free' };
+      return { duplicate: false, skipped: true, familyId: family.id, reason: 'grandfathered' };
     } catch (err) {
-      await client.query('ROLLBACK');
+      await skipClient.query('ROLLBACK');
       throw err;
     } finally {
-      client.release();
+      skipClient.release();
     }
   }
 
@@ -417,6 +442,29 @@ async function processRevenueCatEvent(db, event) {
       `UPDATE family SET ${updateFields.join(', ')} WHERE id = $${params.length}`,
       params
     );
+
+    await applyStoreEntitlementFromWebhook(family.id, {
+      subscriptionStatus: newStatus,
+      eventType,
+      event,
+      productId: scope.productId || event.product_id || null,
+      expirationAtMs: event.expiration_at_ms,
+    }, { client });
+
+    await appendPaymentAudit({
+      familyId: family.id,
+      source: event.store ? String(event.store).toLowerCase().includes('play') ? 'google' : 'apple' : null,
+      store: event.store || null,
+      plan: planFromProductId(scope.productId || event.product_id || null),
+      eventType: `rc_${String(eventType).toLowerCase()}`,
+      status: newStatus,
+      externalEventId: String(eventId),
+      correlationId: String(eventId),
+      metadata: {
+        product_id: scope.productId || event.product_id || null,
+        environment,
+      },
+    }, client);
 
     await client.query('COMMIT');
     return {

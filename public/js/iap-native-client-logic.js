@@ -70,20 +70,62 @@
     return !!(active && active[entitlementId]);
   }
 
+  function packageProductIdentifiers(product) {
+    if (!product) return [];
+    return [product.identifier, product.productIdentifier].filter(Boolean).map(String);
+  }
+
+  function packageMatchesProduct(product, expectedProductId) {
+    if (!expectedProductId) return true;
+    const target = String(expectedProductId);
+    return packageProductIdentifiers(product).some((id) => id === target);
+  }
+
   function pickPackageFromOffering(offering, packageId, productId) {
     if (!offering || !offering.availablePackages) return null;
-    const packages = offering.availablePackages;
-    if (packageId) {
-      const byPkg = packages.find((p) => p.identifier === packageId);
-      if (byPkg) return byPkg;
+    if (!packageId && !productId) return null;
+
+    const match = offering.availablePackages.find((pkg) => {
+      if (packageId && pkg.identifier !== packageId) return false;
+      if (productId && !packageMatchesProduct(pkg.product, productId)) return false;
+      return true;
+    });
+
+    return match || null;
+  }
+
+  function extractPackageDisplay(pkg) {
+    if (!pkg || !pkg.product) return null;
+    const product = pkg.product;
+    const intro = product.introPrice || product.introductoryPrice || null;
+    return {
+      identifier: product.identifier || product.productIdentifier || null,
+      priceString: product.priceString || null,
+      currencyCode: product.currencyCode || null,
+      subscriptionPeriod: product.subscriptionPeriod || null,
+      introPriceString: intro && intro.priceString ? intro.priceString : null,
+      introPeriod: intro && intro.period ? intro.period : null,
+    };
+  }
+
+  function resolveOfferingTierDisplays(offering, configPackages) {
+    if (!offering || !configPackages) return null;
+    const monthlyPkg = pickPackageFromOffering(
+      offering,
+      configPackages.monthly && configPackages.monthly.revenueCatPackageId,
+      configPackages.monthly && configPackages.monthly.storeProductId
+    );
+    const yearlyPkg = pickPackageFromOffering(
+      offering,
+      configPackages.yearly && configPackages.yearly.revenueCatPackageId,
+      configPackages.yearly && configPackages.yearly.storeProductId
+    );
+    const monthly = extractPackageDisplay(monthlyPkg);
+    const yearly = extractPackageDisplay(yearlyPkg);
+    if (!monthly || !monthly.priceString || !yearly || !yearly.priceString) {
+      return null;
     }
-    if (productId) {
-      const byProduct = packages.find(
-        (p) => p.product && (p.product.identifier === productId || p.product.productIdentifier === productId)
-      );
-      if (byProduct) return byProduct;
-    }
-    return packages[0] || null;
+    return { monthly, yearly };
   }
 
   return {
@@ -95,5 +137,7 @@
     mapPurchaseError,
     hasEntitlement,
     pickPackageFromOffering,
+    extractPackageDisplay,
+    resolveOfferingTierDisplays,
   };
 });

@@ -140,17 +140,12 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     try {
       await client.query('BEGIN');
 
-      // Determine is_lifetime_free: first N families (admin founder limit) get it automatically.
-      // Count + insert in same transaction to prevent race condition.
-      // Families beyond #200 require a paid subscription.
-      const countResult = await client.query('SELECT COUNT(*)::int AS count FROM family');
-      const familyCount = countResult.rows[0].count;
-      const { getFounderFamilyLimitWithClient, qualifiesForLifetimeFree } = require('../../lib/payment-policy');
-      const founderLimit = await getFounderFamilyLimitWithClient(client);
-      const isLifetimeFree = qualifiesForLifetimeFree(familyCount, founderLimit);
+      // PAYMENTS V1 — grandfather by payment_start_at cutoff (not founder count).
+      const { grantGrandfatheredOnCreate, syncAllLegacyMirrors, emptyPremium } = require('../../lib/family-entitlements');
+      const { getPaymentStartAt, isFamilyEligibleForGrandfathering } = require('../../lib/payment-settings');
+      const paymentStartAt = await getPaymentStartAt();
 
-      // Create family — subscription_status defaults to 'none' (CHECK constraint).
-      // Trial access is tracked via trial_ends_at + family_subscriptions table.
+      // Create family — no DB trial for post-cutoff cohort (store trial via RevenueCat only).
       const marketConfig = getMarketConfig({
         countryCode: countryResolved.country_code,
         marketRegion: countryResolved.market_region,
@@ -163,12 +158,11 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
            locale_selected_at, locale_selection_source, english_beta_offer_state,
            country_code, market_region, country_selected_at, country_selection_source
          )
-         VALUES ($1, $2, 'none', NOW() + INTERVAL '14 days', $3, $4, NOW(), $5, $6, $7, $8, NOW(), $9)
-         RETURNING id`,
+         VALUES ($1, $2, 'none', NULL, false, $3, NOW(), $4, $5, $6, $7, NOW(), $8)
+         RETURNING id, created_at`,
         [
           finalFamilyName,
           marketConfig.timezone,
-          isLifetimeFree,
           familyLocale,
           localeSelectionSource,
           englishBetaOfferState,
@@ -178,12 +172,18 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         ]
       );
       const familyId = familyResult.rows[0].id;
+      const familyCreatedAt = familyResult.rows[0].created_at;
+      const isPreCutoff = isFamilyEligibleForGrandfathering({
+        countryCode: countryResolved.country_code,
+        createdAt: familyCreatedAt,
+        paymentStartAt,
+      });
 
       if (familyLocale === 'en-GB') {
         await enableEnglishAppForFamily(familyId, { client });
       }
 
-      console.log(`[AUTH] Family #${familyCount + 1} created — lifetime_free: ${isLifetimeFree} (limit ${founderLimit})`);
+      console.log(`[AUTH] Family created — payment_start cutoff: ${isPreCutoff ? 'grandfathered' : 'paywall cohort'}`);
 
       // New parents always start unverified. They get a 24h grace period to log in
       // while they verify their email. After 24h, login is blocked until verified.
@@ -338,15 +338,13 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       await createNewsletterSubscription(client, parentId, normalizedEmail);
 
-      // Create component-based subscription (14-day trial + basic_app)
-      await client.query(
-        `INSERT INTO family_subscriptions (family_id, tier, trial_expires_at, components)
-         VALUES ($1, 'trial', NOW() + INTERVAL '14 days', $2)`,
-        [
-          familyId,
-          JSON.stringify([{ component: 'basic_app', granted_at: new Date().toISOString(), expires_at: null }]),
-        ]
-      );
+      const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
+        client,
+        countryCode: countryResolved.country_code,
+      });
+      if (!grandfatherRow) {
+        await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
+      }
 
       await client.query('COMMIT');
 
