@@ -109,10 +109,9 @@
   }
 
   function resolveTrialTermsKey(display, configuredTrialDays) {
-    if (display && display.introPriceString) {
-      return 'KnownTrial';
-    }
-    if (configuredTrialDays && configuredTrialDays > 0) {
+    const hasIntroOffer = !!(display && display.introPriceString);
+    const hasConfiguredTrial = !!(configuredTrialDays && configuredTrialDays > 0);
+    if (hasIntroOffer || hasConfiguredTrial) {
       return 'ConditionalTrial';
     }
     return 'NoTrial';

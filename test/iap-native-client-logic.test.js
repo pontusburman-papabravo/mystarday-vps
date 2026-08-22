@@ -296,12 +296,15 @@ describe('iap native client logic', () => {
 
   test('resolveTrialTermsKey uses conditional wording when only trial_days configured', () => {
     assert.equal(Logic.resolveTrialTermsKey({ priceString: '59 kr' }, 14), 'ConditionalTrial');
-    assert.equal(Logic.resolveTrialTermsKey({ priceString: '59 kr' }, 14), 'ConditionalTrial');
     assert.notEqual(Logic.resolveTrialTermsKey({ priceString: '59 kr' }, 14), 'KnownTrial');
   });
 
-  test('resolveTrialTermsKey uses known trial when intro price present', () => {
+  test('resolveTrialTermsKey uses conditional wording when intro price present', () => {
     assert.equal(
+      Logic.resolveTrialTermsKey({ priceString: '59 kr', introPriceString: '0 kr' }, 14),
+      'ConditionalTrial'
+    );
+    assert.notEqual(
       Logic.resolveTrialTermsKey({ priceString: '59 kr', introPriceString: '0 kr' }, 14),
       'KnownTrial'
     );

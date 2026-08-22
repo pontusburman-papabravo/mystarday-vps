@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const Logic = require('../public/js/iap-native-client-logic');
+const { resolveLegalRoutes } = require('../src/lib/legal-routing');
 
 const ROOT = path.join(__dirname, '..');
 const paywallJs = fs.readFileSync(path.join(ROOT, 'public/js/paywall.js'), 'utf8');
@@ -46,16 +47,18 @@ describe('paywall native subscription screen', () => {
     assert.doesNotMatch(managerSrc, /packages\[0\]/);
   });
 
-  test('E: configured trial_days alone uses ConditionalTrial, not KnownTrial', () => {
-    const conditional = Logic.resolveTrialTermsKey(null, 14);
-    assert.equal(conditional, 'ConditionalTrial');
-
-    const known = Logic.resolveTrialTermsKey({ introPriceString: '0,00 kr' }, 14);
-    assert.equal(known, 'KnownTrial');
-
-    const noTrial = Logic.resolveTrialTermsKey(null, 0);
-    assert.equal(noTrial, 'NoTrial');
-
+  test('E: trial offer metadata always uses ConditionalTrial (never KnownTrial)', () => {
+    assert.equal(Logic.resolveTrialTermsKey(null, 14), 'ConditionalTrial');
+    assert.equal(
+      Logic.resolveTrialTermsKey({ introPriceString: '0,00 kr' }, 14),
+      'ConditionalTrial'
+    );
+    assert.equal(Logic.resolveTrialTermsKey({ introPriceString: '0,00 kr' }, null), 'ConditionalTrial');
+    assert.equal(Logic.resolveTrialTermsKey(null, 0), 'NoTrial');
+    assert.notEqual(
+      Logic.resolveTrialTermsKey({ introPriceString: '0,00 kr' }, 14),
+      'KnownTrial'
+    );
     assert.match(paywallJs, /Logic\.resolveTrialTermsKey/);
     assert.doesNotMatch(paywallJs, /tierTermsKey/);
   });
@@ -74,12 +77,21 @@ describe('paywall native subscription screen', () => {
     assert.match(paywallHtml, /id="giftCardBtn"/);
   });
 
-  test('H: terms and privacy links present with legal-routes resolver', () => {
+  test('H: legal links use canonical resolver without hardcoded SE country', () => {
+    assert.doesNotMatch(paywallJs, /fetchLegalRoutes\(['"]SE['"]/);
     assert.match(paywallHtml, /data-legal-terms-link/);
     assert.match(paywallHtml, /data-legal-privacy-link/);
     assert.match(paywallHtml, /legal-routes\.js/);
-    assert.match(paywallJs, /LegalRoutes\.fetchLegalRoutes/);
+    assert.match(paywallJs, /LegalRoutes\.syncRegisterLegalLinks/);
     assert.match(paywallHtml, /id="paywallAutoRenew"/);
+
+    const ieRoutes = resolveLegalRoutes({ countryCode: 'IE', marketRegion: 'EU', locale: 'en-GB' });
+    assert.match(ieRoutes.terms, /\/en\/eea\/terms/);
+    assert.match(ieRoutes.privacy, /\/en\/eea\/privacy/);
+
+    const seRoutes = resolveLegalRoutes({ countryCode: 'SE', marketRegion: 'EU', locale: 'sv-SE' });
+    assert.equal(seRoutes.terms, '/terms');
+    assert.equal(seRoutes.privacy, '/privacy');
   });
 
   test('I: purchase cannot double-submit', () => {
@@ -108,8 +120,12 @@ describe('paywall native subscription screen', () => {
 });
 
 describe('resolveTrialTermsKey', () => {
-  test('intro price from store means known trial eligibility', () => {
+  test('introPriceString alone must not return KnownTrial', () => {
     assert.equal(
+      Logic.resolveTrialTermsKey({ introPriceString: 'Free' }, 14),
+      'ConditionalTrial'
+    );
+    assert.notEqual(
       Logic.resolveTrialTermsKey({ introPriceString: 'Free' }, 14),
       'KnownTrial'
     );

@@ -58,19 +58,8 @@
   }
 
   async function syncLegalLinks() {
-    if (!window.LegalRoutes || !LegalRoutes.fetchLegalRoutes) return;
-    const locale = (window.I18n && I18n.getCurrentLang && I18n.getCurrentLang()) || 'sv-SE';
-    try {
-      const routes = await LegalRoutes.fetchLegalRoutes('SE', locale);
-      if (routes.terms) {
-        const terms = document.getElementById('paywallTermsLink');
-        if (terms) terms.setAttribute('href', routes.terms);
-      }
-      if (routes.privacy) {
-        const privacy = document.getElementById('paywallPrivacyLink');
-        if (privacy) privacy.setAttribute('href', routes.privacy);
-      }
-    } catch (_) { /* fallback hrefs remain */ }
+    if (!window.LegalRoutes || !LegalRoutes.syncRegisterLegalLinks) return;
+    await LegalRoutes.syncRegisterLegalLinks();
   }
 
   function renderTierPrices(displays, config) {
