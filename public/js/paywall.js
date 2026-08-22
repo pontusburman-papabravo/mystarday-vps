@@ -7,6 +7,11 @@
   let purchaseInProgress = false;
   let pricesReady = false;
 
+  function isPaywallPage() {
+    const path = (window.location.pathname || '').replace(/\/$/, '') || '/';
+    return path === '/paywall';
+  }
+
   function isNative() {
     return (typeof Platform !== 'undefined' && Platform.isNative && Platform.isNative()) ||
       (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
@@ -445,6 +450,8 @@
       }
     });
   }
+
+  if (!isPaywallPage()) return;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initPaywall);
