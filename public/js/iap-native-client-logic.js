@@ -108,6 +108,16 @@
     };
   }
 
+  function resolveTrialTermsKey(display, configuredTrialDays) {
+    if (display && display.introPriceString) {
+      return 'KnownTrial';
+    }
+    if (configuredTrialDays && configuredTrialDays > 0) {
+      return 'ConditionalTrial';
+    }
+    return 'NoTrial';
+  }
+
   function resolveOfferingTierDisplays(offering, configPackages) {
     if (!offering || !configPackages) return null;
     const monthlyPkg = pickPackageFromOffering(
@@ -138,6 +148,7 @@
     hasEntitlement,
     pickPackageFromOffering,
     extractPackageDisplay,
+    resolveTrialTermsKey,
     resolveOfferingTierDisplays,
   };
 });
