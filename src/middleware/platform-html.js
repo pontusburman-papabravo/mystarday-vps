@@ -454,6 +454,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/adult-biometric-client.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/app-entry-orchestrator.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/parent-backup-login-intent.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/profile-switch-chrome.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/family-device-entry-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-installation-id.js?v=' + RELEASE_TAG + '"><\/script>',

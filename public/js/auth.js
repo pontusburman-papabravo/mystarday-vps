@@ -549,6 +549,87 @@ const Auth = {
   /**
    * Redirect to appropriate dashboard based on user type.
    */
+  _getLoginNextUrlFromLocation() {
+    try {
+      const next = new URLSearchParams(window.location.search).get('next');
+      if (!next || !next.startsWith('/') || next.startsWith('//')) return null;
+      return next;
+    } catch (_) {
+      return null;
+    }
+  },
+
+  _isParentLoginUrl() {
+    try {
+      return new URLSearchParams(window.location.search).get('parent') === '1';
+    } catch (_) {
+      return false;
+    }
+  },
+
+  /**
+   * Common post-parent-auth redirect — email, Apple, and Google must use this.
+   * Backup-login intent may begin explicit parent resume before navigation.
+   * @returns {boolean} true when navigation was handled
+   */
+  completeParentAuthRedirect(user) {
+    const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
+    try {
+      const pending = sessionStorage.getItem('cl_add_child_pending');
+      if (pending === 'new') {
+        if (diag && diag.logPost) {
+          diag.logPost('step_6_redirect_start', { target: '/onboarding?flow=add-child', via: 'add_child_pending' });
+        }
+        sessionStorage.removeItem('cl_add_child_pending');
+        sessionStorage.removeItem('cl_add_child_next');
+        if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+          DeviceMode.enterParent();
+        }
+        window.location.replace('/onboarding?flow=add-child');
+        return true;
+      }
+    } catch (_) { /* ignore */ }
+
+    const parentFlow = this._isParentLoginUrl();
+    const intentApi = window.ParentBackupLoginIntent;
+
+    if (parentFlow && user && user.type === 'parent' && intentApi && typeof intentApi.consumeIntent === 'function') {
+      const intent = intentApi.consumeIntent();
+      if (intent) {
+        const path = intentApi.canonicalizeParentPath(intent.requestedPath);
+        if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.beginExplicitParentResume === 'function') {
+          AppEntryOrchestrator.beginExplicitParentResume(path);
+        }
+        if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+          DeviceMode.enterParent();
+        }
+        if (diag && diag.logPost) {
+          diag.logPost('step_6_redirect_start', { target: path, via: 'backup_login_explicit_resume' });
+        }
+        window.location.replace(path);
+        return true;
+      }
+    } else if (parentFlow && user && user.type !== 'parent' && intentApi && typeof intentApi.clearIntent === 'function') {
+      intentApi.clearIntent();
+    }
+
+    const nextUrl = this._getLoginNextUrlFromLocation();
+    if (nextUrl) {
+      if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: nextUrl, via: 'next_param' });
+      if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+        DeviceMode.enterParent();
+      }
+      window.location.replace(nextUrl);
+      return true;
+    }
+
+    if (diag && diag.logPost) {
+      diag.logPost('step_6_redirect_start', { target: '(via Auth.redirectToDashboard)', via: 'default' });
+    }
+    setTimeout(function () { Auth.redirectToDashboard(); }, 300);
+    return true;
+  },
+
   redirectToDashboard() {
     const user = this.getUser();
     const diag = typeof window !== 'undefined' ? window.AppleSignInDiagnostics : null;
@@ -675,6 +756,9 @@ const Auth = {
       sessionStorage.setItem('cl_force_picker', '1');
     } catch { /* ignore */ }
 
+    if (window.ParentBackupLoginIntent && typeof ParentBackupLoginIntent.clearIntent === 'function') {
+      ParentBackupLoginIntent.clearIntent();
+    }
     if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
       DeviceMode.enterChild();
     }
@@ -683,6 +767,9 @@ const Auth = {
   },
 
   _redirectAfterLogoutClear(childFlow) {
+    if (window.ParentBackupLoginIntent && typeof ParentBackupLoginIntent.clearIntent === 'function') {
+      ParentBackupLoginIntent.clearIntent();
+    }
     this._fullClear();
     if (childFlow) {
       window.location.href = '/child-login';
@@ -706,10 +793,17 @@ const Auth = {
    * @param {string} [nextPath] — safe relative path after login (default /home)
    */
   async redirectToParentBackupLogin(nextPath) {
-    const next = (nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//'))
-      ? nextPath
-      : '/home';
-    const loginUrl = '/login?parent=1&next=' + encodeURIComponent(next);
+    const intentApi = window.ParentBackupLoginIntent;
+    const canonical = intentApi && typeof intentApi.canonicalizeParentPath === 'function'
+      ? intentApi.canonicalizeParentPath(nextPath)
+      : ((nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')) ? nextPath : '/dashboard');
+    if (intentApi && typeof intentApi.storeIntent === 'function') {
+      intentApi.storeIntent(canonical);
+    } else if (window.AppEntryOrchestrator
+      && typeof AppEntryOrchestrator.clearOrchestratorSessionState === 'function') {
+      AppEntryOrchestrator.clearOrchestratorSessionState();
+    }
+    const loginUrl = '/login?parent=1&next=' + encodeURIComponent(canonical);
 
     await this._persistAuthEntryLocaleContext();
     await this.snapshotKnownChildrenBeforeLogout();

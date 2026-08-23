@@ -8,9 +8,11 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('parent backup login (e-post/Apple/Google)', () => {
-  it('Auth exposes redirectToParentBackupLogin with logout + parent login URL', () => {
+  it('redirectToParentBackupLogin clears orchestrator and stores backup intent', () => {
     const auth = fs.readFileSync(path.join(ROOT, 'public/js/auth.js'), 'utf8');
     assert.match(auth, /redirectToParentBackupLogin/);
+    assert.match(auth, /storeIntent/);
+    assert.match(auth, /clearOrchestratorSessionState/);
     assert.match(auth, /\/login\?parent=1&next=/);
     assert.match(auth, /\/api\/auth\/logout/);
   });
