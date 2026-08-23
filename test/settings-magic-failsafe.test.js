@@ -122,7 +122,11 @@ function makeSettingsDom(extraIds) {
     console: { error: noop, warn: noop },
     escHtml: function (s) { return String(s); },
     cpt: function () { return ''; },
-    IconSystem: { has: function () { return false; } },
+    Auth: {
+      api: async function () {
+        return { subscription_ui_visible: false };
+      },
+    },
     dispatchEvent: noop,
     CustomEvent: function (name) { this.type = name; },
     addEventListener: noop,
@@ -162,11 +166,11 @@ describe('settings magic fail-safe contracts', () => {
     assert.match(HUBS, /renderSettingsHubRootMenu/);
   });
 
-  it('CASE 2 hub missing mount falls back to legacy settings', () => {
+  it('CASE 2 hub missing mount falls back to legacy settings', async () => {
     const sandbox = makeSettingsDom();
     sandbox.document.getElementById = function () { return null; };
     const hub = loadHubsInSandbox(sandbox);
-    const ok = hub.showSettingsRootMenu();
+    const ok = await hub.showSettingsRootMenu();
     assert.equal(ok, false);
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), false);
     assert.equal(sandbox.elements.parentMagicPageMount.classList.contains('hidden'), true);
@@ -281,10 +285,10 @@ describe('settings-account pt() behavioral regression', () => {
 });
 
 describe('settings magic fail-safe behavior (DOM sandbox)', () => {
-  it('normal hub render marks ready and shows menu cards', () => {
+  it('normal hub render marks ready and shows menu cards', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    const ok = hub.showSettingsRootMenu();
+    const ok = await hub.showSettingsRootMenu();
     assert.equal(ok, true);
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), true);
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="family"/);
@@ -315,10 +319,10 @@ describe('settings magic fail-safe behavior (DOM sandbox)', () => {
     assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
   });
 
-  it('returnToSettingsMenu after group opens root menu once', () => {
+  it('returnToSettingsMenu after group opens root menu once', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     hub.showSettingsGroup('family');
     hub.returnToSettingsMenu();
     assert.equal(hub.getActiveSettingsGroup(), null);
@@ -326,20 +330,20 @@ describe('settings magic fail-safe behavior (DOM sandbox)', () => {
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="profile"/);
   });
 
-  it('early hub copy uses Swedish fallback instead of raw i18n keys', () => {
+  it('early hub copy uses Swedish fallback instead of raw i18n keys', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /Inställningar/);
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /Profil/);
     assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /settings\.groups\./);
     assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /settings\.title/);
   });
 
-  it('tagSettingsSections keeps an open group visible after re-tag', () => {
+  it('tagSettingsSections keeps an open group visible after re-tag', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     hub.showSettingsGroup('family');
     hub.tagSettingsSections();
     assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);

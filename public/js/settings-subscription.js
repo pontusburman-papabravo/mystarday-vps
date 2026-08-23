@@ -1,5 +1,5 @@
 /**
- * settings-subscription.js — Prenumeration section on /settings#prenumeration (PAYMENTS V1).
+ * settings-subscription.js — Premium / prenumeration UI (legacy settings + Magic settings hub).
  */
 (function () {
   'use strict';
@@ -75,14 +75,33 @@
     }
   }
 
-  async function renderSubscription() {
-    const mount = document.getElementById('subscriptionMount');
-    if (!mount) return;
+  function resolveMount(mountEl) {
+    if (mountEl) return mountEl;
+    return document.getElementById('subscriptionMount');
+  }
+
+  async function renderSubscription(mountEl) {
+    const mount = resolveMount(mountEl);
+    if (!mount) return { visible: false };
 
     try {
       const status = await Auth.api('/api/subscription/status');
+      if (status.subscription_ui_visible !== true) {
+        mount.innerHTML = '';
+        const section = mount.closest('section');
+        if (section) section.classList.add('hidden');
+        return { visible: false, status: status };
+      }
+
+      const section = mount.closest('section');
+      if (section) section.classList.remove('hidden');
+
       const premium = status.premium || {};
       const copy = describePremium(premium);
+      const nativePurchaseEligible = status.native_purchase_eligible === true;
+      const billingUiEnabled = status.billing_ui_enabled === true;
+      const showNativeIapActions = isNative() && nativePurchaseEligible
+        && window.IAPManager && typeof IAPManager.canPurchase === 'function';
 
       let html =
         '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
@@ -96,13 +115,13 @@
           copy.cta.label + '</a>';
       }
 
-      if (isNative() && window.IAPManager && IAPManager.canPurchase && IAPManager.canPurchase()) {
+      if (showNativeIapActions && IAPManager.canPurchase()) {
         html +=
-          '<div class="mt-4 flex flex-col gap--2">' +
+          '<div class="mt-4 flex flex-col gap-2">' +
           '<button type="button" id="restorePurchasesBtn" class="text-sm font-semibold text-navy underline text-left">Återställ köp</button>' +
           '<button type="button" id="manageSubscriptionBtn" class="text-sm font-semibold text-navy underline text-left">Hantera abonnemang</button>' +
           '</div>';
-      } else if (!premium.active) {
+      } else if (!premium.active && billingUiEnabled && !isNative()) {
         html +=
           '<p class="text-sm text-text-soft mt-4">Premium aktiveras i iPhone- eller Android-appen.</p>' +
           '<a href="/paywall" class="inline-flex mt-3 px-5 py-2.5 bg-navy text-white rounded-xl font-heading font-bold">Så här aktiverar du Premium</a>';
@@ -111,10 +130,11 @@
       mount.innerHTML = html;
 
       document.getElementById('restorePurchasesBtn')?.addEventListener('click', async function () {
+        await IAPManager.init();
         const result = await IAPManager.restorePurchases();
         if (result.ok && result.active) {
           await Auth.api('/api/iap/sync', { method: 'POST', body: JSON.stringify({}) }).catch(function () {});
-          await renderSubscription();
+          await renderSubscription(mount);
           return;
         }
         alert(result.ok && !result.active ? 'Inga köp hittades att återställa.' : 'Kunde inte återställa köp.');
@@ -128,11 +148,14 @@
           openManageSubscription().catch(function () {});
         }
       });
+
+      return { visible: true, status: status };
     } catch (err) {
       mount.innerHTML =
         '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
         '<p class="text-sm text-text-soft">Kunde inte ladda prenumerationsstatus.</p>';
       console.error('[settings-subscription]', err);
+      return { visible: true, error: err };
     }
   }
 
@@ -146,13 +169,20 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
+  window.SettingsSubscription = {
+    describePremium: describePremium,
+    render: renderSubscription,
+  };
+
+  if (typeof document !== 'undefined' && typeof document.getElementById === 'function') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        renderSubscription();
+        scrollToHash();
+      });
+    } else {
       renderSubscription();
       scrollToHash();
-    });
-  } else {
-    renderSubscription();
-    scrollToHash();
+    }
   }
 })();

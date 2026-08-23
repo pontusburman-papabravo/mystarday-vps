@@ -14,9 +14,11 @@ describe('meny v2.3 — billing UI gate', () => {
     assert.match(src, /isBillingUiEnabled/);
   });
 
-  it('subscription status exposes billing_ui_enabled', () => {
+  it('subscription status exposes billing_ui_enabled and subscription_ui_visible', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/subscription.js'), 'utf8');
     assert.match(src, /billing_ui_enabled/);
+    assert.match(src, /subscription_ui_visible/);
+    assert.match(src, /native_purchase_eligible/);
   });
 
   it('pricing-info route is public access page (not billing-gated)', () => {
@@ -25,16 +27,10 @@ describe('meny v2.3 — billing UI gate', () => {
     assert.doesNotMatch(src, /isBillingUiEnabled/);
   });
 
-  it('settings-subscription uses billing_ui_enabled not rollout alone', () => {
+  it('settings-subscription uses subscription_ui_visible server gate', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/settings-subscription.js'), 'utf8');
-    assert.match(src, /billing_ui_enabled/);
-    assert.doesNotMatch(src, /rollout_mode[\s\S]*payment_enabled/);
-  });
-
-  it('settings-subscription gates billing UI when disabled', () => {
-    const sub = fs.readFileSync(path.join(ROOT, 'public/js/settings-subscription.js'), 'utf8');
-    assert.match(sub, /billing_ui_enabled/);
-    assert.doesNotMatch(sub, /rollout_mode[\s\S]*payment_enabled/);
+    assert.match(src, /subscription_ui_visible/);
+    assert.match(src, /native_purchase_eligible/);
   });
 });
 

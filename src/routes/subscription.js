@@ -25,6 +25,7 @@ const {
 } = require('../lib/package-interest-constants');
 const { COMPONENT_PRICE_MAP } = require('../../config/subscription-components');
 const { resolveFamilyEntitlements } = require('../lib/family-entitlements');
+const { resolveSubscriptionUiVisibility } = require('../lib/subscription-ui-visibility');
 
 const router = express.Router();
 
@@ -137,6 +138,7 @@ router.get('/status', requireParent, async (req, res) => {
     ]);
     const payment_enabled = await appSettings.getPaymentEnabled();
     const billing_ui_enabled = await isBillingUiEnabled();
+    const uiVisibility = await resolveSubscriptionUiVisibility(familyId, premium);
     const price = await appSettings.getBasicPrice();
     const {
       PREMIUM_PRICE_MONTHLY_SEK,
@@ -158,6 +160,8 @@ router.get('/status', requireParent, async (req, res) => {
       components: sub?.components || [],
       payment_enabled,
       billing_ui_enabled,
+      subscription_ui_visible: uiVisibility.subscription_ui_visible,
+      native_purchase_eligible: uiVisibility.native_purchase_eligible,
       iap_enabled: payment_enabled,
       upgrade_url: requires_paywall ? '/paywall' : (billing_ui_enabled ? '/settings#prenumeration' : null),
       limited_account_url: '/limited-account',
