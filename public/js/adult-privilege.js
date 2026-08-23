@@ -167,6 +167,9 @@
         privilegeLeaseUntilMs = null;
         expiresAtMs = null;
         if (window.AdultPrivilegeLifecycle) window.AdultPrivilegeLifecycle.onPrivilegeCleared();
+        if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.rejectExplicitParentResume === 'function') {
+          AppEntryOrchestrator.rejectExplicitParentResume();
+        }
         if (out.body.code === 'SHARED_PICKER_REQUIRED') {
           track('adult_privilege_expired');
           return {
@@ -315,9 +318,16 @@
     }).then(function (out) {
       if (!out.res.ok || !out.body.ok) {
         const code = out.body.code || 'ADULT_PRIVILEGE_UNLOCK_FAILED';
-        if (code === 'PARENT_HANDOFF_EXPIRED') setState(STATES.EXPIRED);
-        else if (code === 'PARENT_HANDOFF_INVALID' || code === 'PARENT_HANDOFF_USED') {
+        if (code === 'PARENT_HANDOFF_EXPIRED') {
+          setState(STATES.EXPIRED);
+          if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.rejectExplicitParentResume === 'function') {
+            AppEntryOrchestrator.rejectExplicitParentResume();
+          }
+        } else if (code === 'PARENT_HANDOFF_INVALID' || code === 'PARENT_HANDOFF_USED') {
           setState(STATES.REVOKED);
+          if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.rejectExplicitParentResume === 'function') {
+            AppEntryOrchestrator.rejectExplicitParentResume();
+          }
         } else {
           setState(STATES.LOCKED);
         }

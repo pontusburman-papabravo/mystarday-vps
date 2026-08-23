@@ -10,8 +10,12 @@
   const DAILY_UX_KEY = 'stjarndag_family_device_daily_ux_v1';
   const ALLOWED_COUNT_KEY = 'stjarndag_entry_allowed_count';
   const APPLIED_KEY = 'stjarndag_entry_decision_applied';
+  const EXPLICIT_PARENT_RESUME_KEY = 'stjarndag_explicit_parent_resume_v1';
   const NAV_GUARD_KEY = 'stjarndag_entry_nav_guard';
   const SERVER_ACTION_KEY = 'stjarndag_entry_server_action_done';
+
+  const EXPLICIT_PARENT_RESUME_REASON = 'profile_picker_parent_resume';
+  const EXPLICIT_PARENT_PENDING_TTL_MS = 60 * 1000;
 
   let _coldStartPromise = null;
 
@@ -19,6 +23,7 @@
     try {
       sessionStorage.removeItem(DECISION_KEY);
       sessionStorage.removeItem(APPLIED_KEY);
+      sessionStorage.removeItem(EXPLICIT_PARENT_RESUME_KEY);
       sessionStorage.removeItem(NAV_GUARD_KEY);
       sessionStorage.removeItem(SERVER_ACTION_KEY);
       sessionStorage.setItem(ACTIVE_FLAG_KEY, '0');
@@ -121,11 +126,230 @@
     }
   }
 
+  function isExplicitParentResumeDecision(decision) {
+    if (!decision || typeof decision !== 'object') return false;
+    if (decision.explicitParentResume === true) return true;
+    return decision.destination === 'parent-home'
+      && decision.viewContext === 'parent'
+      && decision.reason === EXPLICIT_PARENT_RESUME_REASON;
+  }
+
+  function readExplicitParentResumeMarker() {
+    const raw = readJson(EXPLICIT_PARENT_RESUME_KEY);
+    if (!raw || typeof raw !== 'object') return null;
+    return raw;
+  }
+
+  function writeExplicitParentResumeMarker(marker) {
+    writeJson(EXPLICIT_PARENT_RESUME_KEY, marker);
+  }
+
+  function clearExplicitParentResumeMarker() {
+    try {
+      sessionStorage.removeItem(EXPLICIT_PARENT_RESUME_KEY);
+    } catch (_) { /* ignore */ }
+  }
+
+  function isExplicitParentResumeMarkerExpired(marker) {
+    if (!marker || !marker.expiresAt) return false;
+    return Date.now() > marker.expiresAt;
+  }
+
+  function rejectExplicitParentResume() {
+    clearExplicitParentResumeMarker();
+    const decision = getAppliedDecision();
+    if (decision && isExplicitParentResumeDecision(decision)) {
+      try {
+        sessionStorage.removeItem(DECISION_KEY);
+        sessionStorage.removeItem(APPLIED_KEY);
+      } catch (_) { /* ignore */ }
+    }
+  }
+
+  /**
+   * Normalize authoritative lease timestamps from server contract.
+   * - finite Number => epoch ms
+   * - numeric string => Number(value)
+   * - ISO/date string => Date.parse(value)
+   * - invalid/missing => null (never Date.parse(number))
+   */
+  function normalizeTimestampMs(value) {
+    if (value == null || value === '') return null;
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      if (/^\d+$/.test(trimmed)) {
+        const num = Number(trimmed);
+        return Number.isFinite(num) ? num : null;
+      }
+      const parsed = Date.parse(trimmed);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
+  function beginExplicitParentResume(redirectPath) {
+    const now = Date.now();
+    writeExplicitParentResumeMarker({
+      status: 'pending',
+      at: now,
+      expiresAt: now + EXPLICIT_PARENT_PENDING_TTL_MS,
+      path: redirectPath || '/dashboard',
+    });
+    try {
+      window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
+    } catch (_) { /* ignore */ }
+  }
+
+  /** @returns {boolean} false when no valid future authoritative lease — fail closed */
+  function markExplicitParentResumeVerified(path, leaseUntil) {
+    const now = Date.now();
+    const expiresAt = normalizeTimestampMs(leaseUntil);
+    if (expiresAt == null || expiresAt <= now) {
+      return false;
+    }
+    writeExplicitParentResumeMarker({
+      status: 'verified',
+      at: now,
+      expiresAt: expiresAt,
+      path: path || '/dashboard',
+    });
+    setActiveFlag(true);
+    return true;
+  }
+
+  function isExplicitParentResumePending() {
+    const marker = readExplicitParentResumeMarker();
+    if (!marker || marker.status !== 'pending') return false;
+    if (isExplicitParentResumeMarkerExpired(marker)) {
+      rejectExplicitParentResume();
+      return false;
+    }
+    return true;
+  }
+
+  function isExplicitParentResumeVerified() {
+    const marker = readExplicitParentResumeMarker();
+    if (!marker || marker.status !== 'verified') return false;
+    if (isExplicitParentResumeMarkerExpired(marker)) {
+      rejectExplicitParentResume();
+      return false;
+    }
+    const decision = getAppliedDecision();
+    return !!(decision && isExplicitParentResumeDecision(decision));
+  }
+
+  function buildExplicitParentResumeDecision(redirectPath) {
+    return {
+      destination: 'parent-home',
+      viewContext: 'parent',
+      credentialContext: 'parent',
+      deviceMode: 'shared',
+      childId: null,
+      reason: EXPLICIT_PARENT_RESUME_REASON,
+      explicitParentResume: true,
+      path: redirectPath || '/dashboard',
+    };
+  }
+
+  /** Verified explicit parent resume only — never true from marker alone. */
+  function isExplicitParentResumeActive() {
+    return isExplicitParentResumeVerified();
+  }
+
+  function beginExplicitParentResumeTransition(redirectPath) {
+    beginExplicitParentResume(redirectPath);
+    return buildExplicitParentResumeDecision(redirectPath);
+  }
+
+  /** @deprecated Use beginExplicitParentResumeTransition — picker sets pending only. */
+  function commitExplicitParentResume(redirectPath) {
+    return beginExplicitParentResumeTransition(redirectPath);
+  }
+
+  async function verifyExplicitParentResumeAuthority() {
+    try {
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!meRes.ok) {
+        return { ok: false, code: 'ME_FAILED', status: meRes.status };
+      }
+      const me = await meRes.json().catch(function () { return {}; });
+      if (!me || me.type !== 'parent') {
+        return { ok: false, code: 'NOT_PARENT' };
+      }
+
+      const statusRes = await fetch('/api/family/adult-privilege/status', { credentials: 'include' });
+      if (!statusRes.ok) {
+        return { ok: false, code: 'STATUS_FAILED', status: statusRes.status };
+      }
+      const status = await statusRes.json().catch(function () { return {}; });
+      if (!status.ok) {
+        return { ok: false, code: status.code || 'STATUS_NOT_OK' };
+      }
+      if (!(status.privilegeActive === true || status.state === 'active')) {
+        return { ok: false, code: 'PRIVILEGE_INACTIVE' };
+      }
+      return {
+        ok: true,
+        leaseUntil: status.privilegeLeaseUntil || status.expiresAt || null,
+      };
+    } catch (_) {
+      return { ok: false, code: 'NETWORK' };
+    }
+  }
+
+  async function resolveExplicitParentResumeIfNeeded() {
+    const marker = readExplicitParentResumeMarker();
+    if (!marker) return null;
+
+    if (isExplicitParentResumeMarkerExpired(marker)) {
+      rejectExplicitParentResume();
+      return { rejected: true, code: 'MARKER_EXPIRED' };
+    }
+
+    if (marker.status === 'verified' && isExplicitParentResumeVerified()) {
+      return {
+        ok: true,
+        code: 'EXPLICIT_PARENT_RESUME',
+        decision: getAppliedDecision(),
+      };
+    }
+
+    if (marker.status !== 'pending') {
+      rejectExplicitParentResume();
+      return { rejected: true, code: 'MARKER_INVALID' };
+    }
+
+    const verified = await verifyExplicitParentResumeAuthority();
+    if (!verified.ok) {
+      rejectExplicitParentResume();
+      return { rejected: true, code: verified.code || 'VERIFY_FAILED' };
+    }
+
+    if (!markExplicitParentResumeVerified(marker.path, verified.leaseUntil)) {
+      rejectExplicitParentResume();
+      return { rejected: true, code: 'LEASE_INVALID' };
+    }
+    const decision = buildExplicitParentResumeDecision(marker.path);
+    markDecisionApplied(decision);
+    return {
+      ok: true,
+      code: 'EXPLICIT_PARENT_RESUME',
+      decision: decision,
+    };
+  }
+
   function markDecisionApplied(decision) {
     writeJson(DECISION_KEY, decision);
     try {
       sessionStorage.setItem(APPLIED_KEY, '1');
     } catch (_) { /* ignore */ }
+    if (decision && decision.destination !== 'parent-home' && !isExplicitParentResumeDecision(decision)) {
+      rejectExplicitParentResume();
+    }
     applyDeviceModeCache(decision);
     window.__DEFER_SESSION_GATE_FOR_ENTRY__ = false;
     if (window.SessionGate && typeof SessionGate.run === 'function') {
@@ -151,6 +375,7 @@
   }
 
   function shouldDeferSessionGate() {
+    if (isExplicitParentResumePending()) return true;
     if (!isActive()) return false;
     if (window.__DEFER_SESSION_GATE_FOR_ENTRY__ && !isDecisionApplied()) return true;
     return false;
@@ -269,17 +494,29 @@
     window.location.replace(path);
   }
 
+  function resolveAlreadyAppliedColdStart() {
+    if (isDecisionApplied()) {
+      return {
+        ok: true,
+        code: 'ALREADY_APPLIED',
+        decision: getAppliedDecision(),
+      };
+    }
+    return null;
+  }
+
   async function runColdStart(options) {
     const opts = options || {};
     if (_coldStartPromise) return _coldStartPromise;
 
     _coldStartPromise = (async function () {
-      if (!opts.forceReapply && isDecisionApplied()) {
-        return {
-          ok: true,
-          code: 'ALREADY_APPLIED',
-          decision: getAppliedDecision(),
-        };
+      if (!opts.forceReapply) {
+        const explicit = await resolveExplicitParentResumeIfNeeded();
+        if (explicit && explicit.ok) {
+          return explicit;
+        }
+        const applied = resolveAlreadyAppliedColdStart();
+        if (applied) return applied;
       }
 
       try {
@@ -431,6 +668,14 @@
     getAppliedDecision: getAppliedDecision,
     getAppliedViewContext: getAppliedViewContext,
     markDecisionApplied: markDecisionApplied,
+    beginExplicitParentResume: beginExplicitParentResume,
+    beginExplicitParentResumeTransition: beginExplicitParentResumeTransition,
+    commitExplicitParentResume: commitExplicitParentResume,
+    isExplicitParentResumeActive: isExplicitParentResumeActive,
+    isExplicitParentResumePending: isExplicitParentResumePending,
+    rejectExplicitParentResume: rejectExplicitParentResume,
+    verifyExplicitParentResumeAuthority: verifyExplicitParentResumeAuthority,
+    resolveExplicitParentResumeIfNeeded: resolveExplicitParentResumeIfNeeded,
     validateDecision: validateDecision,
     isDailyUxActive: isDailyUxActive,
     getAllowedChildCount: getAllowedChildCount,

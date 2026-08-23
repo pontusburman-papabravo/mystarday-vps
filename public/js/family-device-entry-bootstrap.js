@@ -23,6 +23,12 @@
       window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
     } catch (_) { /* ignore */ }
     await AppEntryOrchestrator.runColdStart({ source: 'parent_entry_bootstrap' });
+    try {
+      window.__DEFER_SESSION_GATE_FOR_ENTRY__ = false;
+    } catch (_) { /* ignore */ }
+    if (window.SessionGate && typeof SessionGate.run === 'function') {
+      SessionGate.run();
+    }
   }
 
   if (document.readyState === 'loading') {
