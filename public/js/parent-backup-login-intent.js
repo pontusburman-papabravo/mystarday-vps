@@ -5,6 +5,8 @@
 (function () {
   'use strict';
 
+  if (window.ParentBackupLoginIntent) return;
+
   const BACKUP_INTENT_KEY = 'stjarndag_parent_backup_login_intent_v1';
   const ORIGIN_SHARED_PROFILE_PICKER = 'shared_profile_picker';
   const CANONICAL_PARENT_PATH = '/dashboard';
