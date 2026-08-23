@@ -285,8 +285,9 @@
 
   function returnToSettingsMenu() {
     clearSettingsHash();
-    showSettingsRootMenu();
-    if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
+    return launchSettingsHubAsync(showSettingsRootMenu()).then(function () {
+      if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
+    });
   }
 
   function showSettingsGroup(groupId) {
@@ -476,6 +477,15 @@
     if (reason) {
       console.error('[settings-magic] showing legacy settings fallback:', reason);
     }
+  }
+
+  function handleSettingsHubAsyncFailure(err) {
+    showLegacySettingsFallback(err && err.message ? err.message : String(err));
+  }
+
+  function launchSettingsHubAsync(promise) {
+    if (!promise || typeof promise.then !== 'function') return promise;
+    return promise.catch(handleSettingsHubAsyncFailure);
   }
 
   function getActiveSettingsGroup() {
@@ -717,17 +727,17 @@
     const activeGroup = _activeSettingsGroup;
     if (preserveNavigation && !forceRoot) {
       if (activeGroup && isSettingsGroupHubReady(activeGroup)) {
-        refreshSettingsHubCopy();
+        await refreshSettingsHubCopy();
         await refreshSettingsChromeHelpers();
         return true;
       }
       if (!hasSettingsDeepLink() && !activeGroup && isSettingsRootHubReady()) {
-        refreshSettingsHubCopy();
+        await refreshSettingsHubCopy();
         await refreshSettingsChromeHelpers();
         return true;
       }
       if (activeGroup) {
-        const ok = reopenSettingsGroup(activeGroup);
+        const ok = await reopenSettingsGroup(activeGroup);
         if (ok) await refreshSettingsChromeHelpers();
         return ok;
       }
@@ -762,6 +772,26 @@
 
     await runSettingsChromeHelpers({ emitLayout: false });
     return true;
+  }
+
+  async function refreshSettingsPage(opts) {
+    opts = opts || {};
+    const preserveNavigation = opts.preserveNavigation !== false;
+    const forceRoot = opts.forceRoot === true;
+    if (preserveNavigation && !forceRoot && isSettingsHubNavigationActive()) {
+      await reopenSettingsGroup(_activeSettingsGroup);
+      return;
+    }
+    if (opts.skipHash || !hasSettingsDeepLink()) {
+      if (!forceRoot && preserveNavigation && isSettingsRootHubReady()) {
+        await refreshSettingsHubCopy();
+        return;
+      }
+      const ok = await showSettingsRootMenu();
+      if (!ok) return;
+    } else {
+      await renderSettingsHubDeepLink();
+    }
   }
 
   function refresh(page, magic, opts) {
@@ -800,27 +830,7 @@
       el.innerHTML = '';
       el.classList.add('hidden');
     } else if (page === 'settings') {
-      const preserveNavigation = opts.preserveNavigation !== false;
-      const forceRoot = opts.forceRoot === true;
-      if (preserveNavigation && !forceRoot && isSettingsHubNavigationActive()) {
-        reopenSettingsGroup(_activeSettingsGroup);
-        return;
-      }
-      if (opts.skipHash || !hasSettingsDeepLink()) {
-        if (!forceRoot && preserveNavigation && isSettingsRootHubReady()) {
-          refreshSettingsHubCopy();
-          return;
-        }
-        if (!showSettingsRootMenu()) {
-          return;
-        }
-      } else {
-        try {
-          renderSettingsHubDeepLink();
-        } catch (err) {
-          showLegacySettingsFallback(err && err.message ? err.message : String(err));
-        }
-      }
+      return launchSettingsHubAsync(refreshSettingsPage(opts));
     } else if (page === 'planning') {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -835,7 +845,7 @@
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);
     } else if (isSettingsDomPage()) {
-      showSettingsRootMenu();
+      return launchSettingsHubAsync(showSettingsRootMenu());
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -857,10 +867,10 @@
       const page = document.body.getAttribute('data-magic-page');
       if (page === 'settings' && window.ParentMagicPageHub) {
         if (ParentMagicPageHub.refreshSettingsHubCopy) {
-          ParentMagicPageHub.refreshSettingsHubCopy();
+          launchSettingsHubAsync(ParentMagicPageHub.refreshSettingsHubCopy());
         }
         if (ParentMagicPageHub.ensureSettingsChrome) {
-          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+          launchSettingsHubAsync(ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true }));
         }
       } else if (page) {
         refresh(page, true);
@@ -873,10 +883,10 @@
       const page = document.body.getAttribute('data-magic-page');
       if (page === 'settings' && window.ParentMagicPageHub) {
         if (ParentMagicPageHub.refreshSettingsHubCopy) {
-          ParentMagicPageHub.refreshSettingsHubCopy();
+          launchSettingsHubAsync(ParentMagicPageHub.refreshSettingsHubCopy());
         }
         if (ParentMagicPageHub.ensureSettingsChrome) {
-          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+          launchSettingsHubAsync(ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true }));
         }
       } else if (page) {
         refresh(page, true);
@@ -886,7 +896,7 @@
   window.addEventListener('stjarndag-magic-navigated', function (e) {
     const pageId = e && e.detail && e.detail.pageId;
     if (pageId === 'settings' && window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
-      ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+      launchSettingsHubAsync(ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true }));
     }
   });
 
