@@ -13,7 +13,7 @@ const { getNativePurchaseEligibility } = require('./iap-native-purchase-gate');
  */
 async function resolveSubscriptionUiVisibility(familyId, premium) {
   const billing_ui_enabled = await isBillingUiEnabled();
-  const nativePurchase = await getNativePurchaseEligibility(familyId);
+  const nativePurchase = await getNativePurchaseEligibility(familyId, { checkGlobalRollout: true });
   const native_purchase_eligible = nativePurchase.allowed === true;
   const premiumActive = !!(premium && premium.active);
   const subscription_ui_visible = billing_ui_enabled || native_purchase_eligible || premiumActive;

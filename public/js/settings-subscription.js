@@ -100,8 +100,14 @@
       const copy = describePremium(premium);
       const nativePurchaseEligible = status.native_purchase_eligible === true;
       const billingUiEnabled = status.billing_ui_enabled === true;
-      const showNativeIapActions = isNative() && nativePurchaseEligible
-        && window.IAPManager && typeof IAPManager.canPurchase === 'function';
+      const nativeEligibleOnDevice = isNative() && nativePurchaseEligible
+        && window.IAPManager && typeof IAPManager.init === 'function'
+        && typeof IAPManager.canPurchase === 'function';
+      let iapPurchaseReady = false;
+      if (nativeEligibleOnDevice) {
+        await IAPManager.init();
+        iapPurchaseReady = IAPManager.canPurchase();
+      }
 
       let html =
         '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
@@ -115,7 +121,7 @@
           copy.cta.label + '</a>';
       }
 
-      if (showNativeIapActions && IAPManager.canPurchase()) {
+      if (iapPurchaseReady) {
         html +=
           '<div class="mt-4 flex flex-col gap-2">' +
           '<button type="button" id="restorePurchasesBtn" class="text-sm font-semibold text-navy underline text-left">Återställ köp</button>' +

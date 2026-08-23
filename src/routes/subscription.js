@@ -11,7 +11,6 @@ const { validate } = require('../middleware/validate');
 const familySubscriptions = require('../../db/family-subscriptions');
 const packageInterest = require('../../db/package-interest');
 const appSettings = require('../../db/app-settings');
-const { isBillingUiEnabled } = require('../lib/billing-ui');
 const analytics = require('../../db/analytics');
 const {
   getFamilyAccess,
@@ -137,8 +136,8 @@ router.get('/status', requireParent, async (req, res) => {
       familySubscriptions.getByFamilyId(familyId),
     ]);
     const payment_enabled = await appSettings.getPaymentEnabled();
-    const billing_ui_enabled = await isBillingUiEnabled();
     const uiVisibility = await resolveSubscriptionUiVisibility(familyId, premium);
+    const billing_ui_enabled = uiVisibility.billing_ui_enabled;
     const price = await appSettings.getBasicPrice();
     const {
       PREMIUM_PRICE_MONTHLY_SEK,

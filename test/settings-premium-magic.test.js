@@ -61,6 +61,30 @@ describe('subscription UI visibility — server contract', () => {
     restoreEnv();
   });
 
+  it('B2: normal family + billing UI on + payment enabled → native_purchase_eligible', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+    const familyId = '66666666-6666-4666-8666-666666666666';
+    delete process.env.BILLING_UI_DISABLED;
+    process.env.REVENUECAT_SANDBOX_FAMILY_IDS = '11111111-1111-4111-8111-111111111111';
+    process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
+    const appSettings = require('../db/app-settings');
+    await appSettings.setPaymentEnabled(true);
+    try {
+      const vis = await resolveSubscriptionUiVisibility(familyId, { active: false });
+      assert.equal(vis.billing_ui_enabled, true);
+      assert.equal(vis.native_purchase_eligible, true);
+      assert.equal(vis.subscription_ui_visible, true);
+    } finally {
+      await appSettings.setPaymentEnabled(false);
+      restoreEnv();
+      await db.cleanup();
+    }
+  });
+
   it('C: active premium makes subscription UI visible even when billing UI is off', async () => {
     process.env.BILLING_UI_DISABLED = 'true';
     const familyId = '44444444-4444-4444-8444-444444444444';
@@ -182,8 +206,99 @@ describe('settings premium magic — client wiring', () => {
   it('settings-subscription gates on subscription_ui_visible', () => {
     assert.match(SUB, /subscription_ui_visible/);
     assert.match(SUB, /native_purchase_eligible/);
+    assert.match(SUB, /await IAPManager\.init\(\)/);
+    assert.match(SUB, /iapPurchaseReady/);
     assert.doesNotMatch(SUB, /REVENUECAT_SANDBOX_FAMILY_IDS/);
     assert.doesNotMatch(SUB, /localStorage/);
+  });
+
+  it('subscription-ui-visibility aligns with IAP config global rollout gate', () => {
+    const vis = fs.readFileSync(path.join(ROOT, 'src/lib/subscription-ui-visibility.js'), 'utf8');
+    assert.match(vis, /checkGlobalRollout:\s*true/);
+  });
+});
+
+function loadSettingsSubscriptionHarness(options) {
+  const callOrder = [];
+  const mountEl = {
+    innerHTML: '',
+    closest() {
+      return { classList: { add() {}, remove() {} } };
+    },
+  };
+  const sandbox = {
+    console,
+    document: {
+      readyState: 'loading',
+      getElementById(id) {
+        return id === 'subscriptionMount' ? mountEl : null;
+      },
+      addEventListener() {},
+    },
+    Auth: {
+      api: async () => options.status,
+    },
+    Platform: {
+      isNative() {
+        return options.native !== false;
+      },
+    },
+    IAPManager: {
+      init: async () => {
+        callOrder.push('init');
+        if (options.initDelayMs) {
+          await new Promise((resolve) => setTimeout(resolve, options.initDelayMs));
+        }
+      },
+      canPurchase() {
+        callOrder.push('canPurchase');
+        return options.canPurchase !== false;
+      },
+      restorePurchases: async () => ({ ok: false }),
+    },
+  };
+  sandbox.window = sandbox;
+  sandbox.global = sandbox;
+  vm.createContext(sandbox);
+  const code = fs.readFileSync(path.join(ROOT, 'public/js/settings-subscription.js'), 'utf8');
+  vm.runInContext(code, sandbox, { filename: 'settings-subscription.js' });
+  return { sandbox, mountEl, callOrder };
+}
+
+describe('settings premium — IAP init sequencing', () => {
+  it('eligible native family awaits IAPManager.init before canPurchase', async () => {
+    const { sandbox, mountEl, callOrder } = loadSettingsSubscriptionHarness({
+      native: true,
+      canPurchase: true,
+      status: {
+        subscription_ui_visible: true,
+        native_purchase_eligible: true,
+        billing_ui_enabled: true,
+        premium: { active: false },
+      },
+    });
+    const result = await sandbox.SettingsSubscription.render(mountEl);
+    assert.equal(result.visible, true);
+    assert.deepEqual(callOrder, ['init', 'canPurchase']);
+    assert.match(mountEl.innerHTML, /Återställ köp/);
+    assert.match(mountEl.innerHTML, /Hantera abonnemang/);
+  });
+
+  it('ineligible native family does not call IAPManager.init', async () => {
+    const { sandbox, mountEl, callOrder } = loadSettingsSubscriptionHarness({
+      native: true,
+      canPurchase: true,
+      status: {
+        subscription_ui_visible: true,
+        native_purchase_eligible: false,
+        billing_ui_enabled: true,
+        premium: { active: true, is_grandfathered: true },
+      },
+    });
+    const result = await sandbox.SettingsSubscription.render(mountEl);
+    assert.equal(result.visible, true);
+    assert.deepEqual(callOrder, []);
+    assert.doesNotMatch(mountEl.innerHTML, /Återställ köp/);
   });
 });
 
@@ -192,8 +307,11 @@ test('I: native purchase gate contract unchanged for non-sandbox family', async 
   const prevFlag = process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED;
   process.env.REVENUECAT_SANDBOX_FAMILY_IDS = '11111111-1111-4111-8111-111111111111';
   process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
-  const r = await getNativePurchaseEligibility('22222222-2222-4222-8222-222222222222');
-  assert.deepEqual(r, { allowed: false, reason: 'not_sandbox_family' });
+  const familyId = '22222222-2222-4222-8222-222222222222';
+  const withoutRollout = await getNativePurchaseEligibility(familyId);
+  assert.deepEqual(withoutRollout, { allowed: false, reason: 'not_sandbox_family' });
+  const iapConfig = fs.readFileSync(path.join(ROOT, 'src/routes/iap.js'), 'utf8');
+  assert.match(iapConfig, /checkGlobalRollout:\s*true/);
   if (prevSandbox === undefined) delete process.env.REVENUECAT_SANDBOX_FAMILY_IDS;
   else process.env.REVENUECAT_SANDBOX_FAMILY_IDS = prevSandbox;
   if (prevFlag === undefined) delete process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED;
