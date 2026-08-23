@@ -15,6 +15,8 @@
     'settings.groups.appearance.sub': 'Mörkt eller ljust tema',
     'settings.groups.app.title': 'App',
     'settings.groups.app.sub': 'Notiser, push och integritet',
+    'settings.groups.premium.title': 'Premium & prenumeration',
+    'settings.groups.premium.sub': 'Hantera Premium, köp och återställ köp',
     'settings.appearance.backToSettings': '← Tillbaka till inställningar',
   };
 
@@ -26,12 +28,24 @@
     return SETTINGS_HUB_COPY_FALLBACK[key] || key;
   }
 
-  const SETTINGS_GROUPS = [
+  const SETTINGS_GROUPS_BASE = [
     { id: 'profile', icon: 'profil', iconClass: 'profile', titleKey: 'settings.groups.profile.title', subKey: 'settings.groups.profile.sub' },
     { id: 'family', icon: 'familj', iconClass: 'family', titleKey: 'settings.groups.family.title', subKey: 'settings.groups.family.sub' },
     { id: 'appearance', icon: 'info', iconClass: 'app', titleKey: 'settings.groups.appearance.title', subKey: 'settings.groups.appearance.sub' },
     { id: 'app', icon: 'notiser', iconClass: 'app', titleKey: 'settings.groups.app.title', subKey: 'settings.groups.app.sub' },
   ];
+
+  const PREMIUM_SETTINGS_GROUP = {
+    id: 'premium',
+    icon: 'trofe',
+    iconClass: 'app',
+    titleKey: 'settings.groups.premium.title',
+    subKey: 'settings.groups.premium.sub',
+  };
+
+  let _subscriptionUiVisible = false;
+  let _subscriptionVisibilityLoaded = false;
+  let _subscriptionVisibilityPromise = null;
 
   const PAGE_HEROES = {
     planning: { icon: 'schema', titleKey: 'settings.heroes.planning.title', subKey: 'settings.heroes.planning.sub' },
@@ -195,6 +209,40 @@
     el.classList.remove('hidden');
   }
 
+  function getSettingsGroups() {
+    const groups = SETTINGS_GROUPS_BASE.slice();
+    if (_subscriptionUiVisible) {
+      groups.push(PREMIUM_SETTINGS_GROUP);
+    }
+    return groups;
+  }
+
+  async function refreshSubscriptionMenuVisibility() {
+    if (!window.Auth || typeof Auth.api !== 'function') {
+      _subscriptionUiVisible = false;
+      _subscriptionVisibilityLoaded = true;
+      return false;
+    }
+    if (_subscriptionVisibilityPromise) {
+      return _subscriptionVisibilityPromise;
+    }
+    _subscriptionVisibilityPromise = Auth.api('/api/subscription/status')
+      .then(function (status) {
+        _subscriptionUiVisible = status && status.subscription_ui_visible === true;
+        _subscriptionVisibilityLoaded = true;
+        return _subscriptionUiVisible;
+      })
+      .catch(function () {
+        _subscriptionUiVisible = false;
+        _subscriptionVisibilityLoaded = true;
+        return false;
+      })
+      .finally(function () {
+        _subscriptionVisibilityPromise = null;
+      });
+    return _subscriptionVisibilityPromise;
+  }
+
   function renderSettingsMenu() {
     let switchCard = '';
     if (window.ProfileSwitchChrome && ProfileSwitchChrome.shouldShow && ProfileSwitchChrome.shouldShow()) {
@@ -213,7 +261,7 @@
       '</div></div>' +
       '<div class="magic-settings-menu">' +
       switchCard +
-      SETTINGS_GROUPS.map(function (g) {
+      getSettingsGroups().map(function (g) {
         return '<button type="button" class="magic-settings-group-card magic-3d-card" data-settings-group="' + g.id + '">' +
           '<span class="magic-settings-group-icon ' + g.iconClass + '" aria-hidden="true">' + pageIcon(g.icon, 28) + '</span>' +
           '<span class="magic-settings-group-text"><strong>' + escHtml(pt(g.titleKey)) + '</strong>' +
@@ -237,8 +285,9 @@
 
   function returnToSettingsMenu() {
     clearSettingsHash();
-    showSettingsRootMenu();
-    if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
+    return launchSettingsHubAsync(showSettingsRootMenu()).then(function () {
+      if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
+    });
   }
 
   function showSettingsGroup(groupId) {
@@ -253,6 +302,9 @@
     markSettingsHubReady();
     if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
     if (groupId === 'appearance') updateThemePickerUi();
+    if (groupId === 'premium' && window.SettingsSubscription && typeof SettingsSubscription.render === 'function') {
+      SettingsSubscription.render(document.getElementById('subscriptionMount'));
+    }
     if (groupId === 'app' && global.SettingsWidgets && typeof SettingsWidgets.mount === 'function') {
       const widgetMount = document.getElementById('widgetSettingsSection');
       if (widgetMount) SettingsWidgets.mount(widgetMount);
@@ -427,6 +479,15 @@
     }
   }
 
+  function handleSettingsHubAsyncFailure(err) {
+    showLegacySettingsFallback(err && err.message ? err.message : String(err));
+  }
+
+  function launchSettingsHubAsync(promise) {
+    if (!promise || typeof promise.then !== 'function') return promise;
+    return promise.catch(handleSettingsHubAsyncFailure);
+  }
+
   function getActiveSettingsGroup() {
     return _activeSettingsGroup;
   }
@@ -480,10 +541,13 @@
     return runSettingsChromeHelpers({ emitLayout: false });
   }
 
-  function refreshSettingsHubCopy() {
+  async function refreshSettingsHubCopy() {
     const el = mount();
     if (!el) return;
     const activeGroup = _activeSettingsGroup;
+    if (!_subscriptionVisibilityLoaded) {
+      await refreshSubscriptionMenuVisibility();
+    }
     if (activeGroup && document.body.classList.contains('magic-settings-in-group')) {
       if (!settingsHubHasUsableContent(el)) {
         el.innerHTML = renderSettingsMenu();
@@ -500,9 +564,10 @@
     if (backBar) backBar.innerHTML = '';
   }
 
-  function reopenSettingsGroup(groupId) {
+  async function reopenSettingsGroup(groupId) {
     if (!groupId) return false;
     try {
+      await refreshSubscriptionMenuVisibility();
       tagSettingsSections();
       const el = mount();
       if (!el) throw new Error('parentMagicPageMount missing');
@@ -519,8 +584,9 @@
     }
   }
 
-  function renderSettingsHubRootMenu() {
+  async function renderSettingsHubRootMenu() {
     resetSettingsState();
+    await refreshSubscriptionMenuVisibility();
     tagSettingsSections();
     const el = mount();
     if (!el) {
@@ -538,16 +604,17 @@
     return true;
   }
 
-  function showSettingsRootMenu() {
+  async function showSettingsRootMenu() {
     try {
-      return renderSettingsHubRootMenu();
+      return await renderSettingsHubRootMenu();
     } catch (err) {
       showLegacySettingsFallback(err && err.message ? err.message : String(err));
       return false;
     }
   }
 
-  function renderSettingsHubDeepLink() {
+  async function renderSettingsHubDeepLink() {
+    await refreshSubscriptionMenuVisibility();
     tagSettingsSections();
     const el = mount();
     if (!el) {
@@ -586,7 +653,7 @@
     tagChild('accountSection', 'profile');
     tagChild('parentPinSection', 'profile');
     tagChild('legacyPasswordSection', 'profile');
-    tagChild('prenumeration', 'profile');
+    tagChild('prenumeration', 'premium');
     tagChild('settingsLegalSection', 'app');
     tagChild('familyName', 'family');
     tagChild('viewSwitchSection', 'family');
@@ -618,11 +685,7 @@
   function openFromHash() {
     const hash = (window.location.hash || '').replace('#', '');
     if (hash === 'prenumeration') {
-      showSettingsGroup('profile');
-      setTimeout(function () {
-        const el = document.getElementById('prenumeration');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 120);
+      showSettingsGroup('premium');
       return true;
     }
     if (hash === 'profil' || hash === 'profile') {
@@ -664,17 +727,17 @@
     const activeGroup = _activeSettingsGroup;
     if (preserveNavigation && !forceRoot) {
       if (activeGroup && isSettingsGroupHubReady(activeGroup)) {
-        refreshSettingsHubCopy();
+        await refreshSettingsHubCopy();
         await refreshSettingsChromeHelpers();
         return true;
       }
       if (!hasSettingsDeepLink() && !activeGroup && isSettingsRootHubReady()) {
-        refreshSettingsHubCopy();
+        await refreshSettingsHubCopy();
         await refreshSettingsChromeHelpers();
         return true;
       }
       if (activeGroup) {
-        const ok = reopenSettingsGroup(activeGroup);
+        const ok = await reopenSettingsGroup(activeGroup);
         if (ok) await refreshSettingsChromeHelpers();
         return ok;
       }
@@ -684,9 +747,9 @@
     let ok = false;
     try {
       if (!hasDeepLink) {
-        ok = renderSettingsHubRootMenu();
+        ok = await renderSettingsHubRootMenu();
       } else {
-        ok = renderSettingsHubDeepLink();
+        ok = await renderSettingsHubDeepLink();
       }
     } catch (err) {
       showLegacySettingsFallback(err && err.message ? err.message : String(err));
@@ -709,6 +772,26 @@
 
     await runSettingsChromeHelpers({ emitLayout: false });
     return true;
+  }
+
+  async function refreshSettingsPage(opts) {
+    opts = opts || {};
+    const preserveNavigation = opts.preserveNavigation !== false;
+    const forceRoot = opts.forceRoot === true;
+    if (preserveNavigation && !forceRoot && isSettingsHubNavigationActive()) {
+      await reopenSettingsGroup(_activeSettingsGroup);
+      return;
+    }
+    if (opts.skipHash || !hasSettingsDeepLink()) {
+      if (!forceRoot && preserveNavigation && isSettingsRootHubReady()) {
+        await refreshSettingsHubCopy();
+        return;
+      }
+      const ok = await showSettingsRootMenu();
+      if (!ok) return;
+    } else {
+      await renderSettingsHubDeepLink();
+    }
   }
 
   function refresh(page, magic, opts) {
@@ -747,27 +830,7 @@
       el.innerHTML = '';
       el.classList.add('hidden');
     } else if (page === 'settings') {
-      const preserveNavigation = opts.preserveNavigation !== false;
-      const forceRoot = opts.forceRoot === true;
-      if (preserveNavigation && !forceRoot && isSettingsHubNavigationActive()) {
-        reopenSettingsGroup(_activeSettingsGroup);
-        return;
-      }
-      if (opts.skipHash || !hasSettingsDeepLink()) {
-        if (!forceRoot && preserveNavigation && isSettingsRootHubReady()) {
-          refreshSettingsHubCopy();
-          return;
-        }
-        if (!showSettingsRootMenu()) {
-          return;
-        }
-      } else {
-        try {
-          renderSettingsHubDeepLink();
-        } catch (err) {
-          showLegacySettingsFallback(err && err.message ? err.message : String(err));
-        }
-      }
+      return launchSettingsHubAsync(refreshSettingsPage(opts));
     } else if (page === 'planning') {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -782,7 +845,7 @@
       el.innerHTML = renderGenericHero(PAGE_HEROES[page]);
       bindPlanningBack(el);
     } else if (isSettingsDomPage()) {
-      showSettingsRootMenu();
+      return launchSettingsHubAsync(showSettingsRootMenu());
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');
@@ -804,10 +867,10 @@
       const page = document.body.getAttribute('data-magic-page');
       if (page === 'settings' && window.ParentMagicPageHub) {
         if (ParentMagicPageHub.refreshSettingsHubCopy) {
-          ParentMagicPageHub.refreshSettingsHubCopy();
+          launchSettingsHubAsync(ParentMagicPageHub.refreshSettingsHubCopy());
         }
         if (ParentMagicPageHub.ensureSettingsChrome) {
-          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+          launchSettingsHubAsync(ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true }));
         }
       } else if (page) {
         refresh(page, true);
@@ -820,10 +883,10 @@
       const page = document.body.getAttribute('data-magic-page');
       if (page === 'settings' && window.ParentMagicPageHub) {
         if (ParentMagicPageHub.refreshSettingsHubCopy) {
-          ParentMagicPageHub.refreshSettingsHubCopy();
+          launchSettingsHubAsync(ParentMagicPageHub.refreshSettingsHubCopy());
         }
         if (ParentMagicPageHub.ensureSettingsChrome) {
-          ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+          launchSettingsHubAsync(ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true }));
         }
       } else if (page) {
         refresh(page, true);
@@ -833,7 +896,7 @@
   window.addEventListener('stjarndag-magic-navigated', function (e) {
     const pageId = e && e.detail && e.detail.pageId;
     if (pageId === 'settings' && window.ParentMagicPageHub && ParentMagicPageHub.ensureSettingsChrome) {
-      ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true });
+      launchSettingsHubAsync(ParentMagicPageHub.ensureSettingsChrome({ preserveNavigation: true }));
     }
   });
 
@@ -860,6 +923,9 @@
     getActiveSettingsGroup: getActiveSettingsGroup,
     isSettingsHubNavigationActive: isSettingsHubNavigationActive,
     refreshSettingsHubCopy: refreshSettingsHubCopy,
+    refreshSubscriptionMenuVisibility: refreshSubscriptionMenuVisibility,
+    getSettingsGroups: getSettingsGroups,
+    isSubscriptionMenuVisible: function () { return _subscriptionUiVisible; },
     restoreMagicOwnedVisibility: restoreMagicOwnedVisibility,
     hasSettingsDeepLink: hasSettingsDeepLink,
     isSettingsDomPage: isSettingsDomPage,

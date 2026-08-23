@@ -75,7 +75,8 @@ function makeMountEl() {
   return el;
 }
 
-function makeSettingsDom(extraIds) {
+function makeSettingsDom(extraIds, options) {
+  options = options || {};
   const noop = function () {};
   const elements = Object.assign({
     parentMagicPageMount: makeMountEl(),
@@ -117,12 +118,17 @@ function makeSettingsDom(extraIds) {
   const sandbox = {
     body: body,
     elements: elements,
-    location: { pathname: '/settings', hash: '' },
+    location: Object.assign({ pathname: '/settings', hash: '' }, options.location || {}),
     ParentMagicShell: { isMagic: function () { return true; } },
     console: { error: noop, warn: noop },
     escHtml: function (s) { return String(s); },
     cpt: function () { return ''; },
-    IconSystem: { has: function () { return false; } },
+    Auth: {
+      api: options.authApi || async function () {
+        return { subscription_ui_visible: false };
+      },
+    },
+    SettingsSubscription: options.settingsSubscription || null,
     dispatchEvent: noop,
     CustomEvent: function (name) { this.type = name; },
     addEventListener: noop,
@@ -139,6 +145,9 @@ function makeSettingsDom(extraIds) {
   };
   sandbox.window = sandbox;
   sandbox.global = sandbox;
+  if (sandbox.SettingsSubscription) {
+    sandbox.window.SettingsSubscription = sandbox.SettingsSubscription;
+  }
   return sandbox;
 }
 
@@ -162,11 +171,11 @@ describe('settings magic fail-safe contracts', () => {
     assert.match(HUBS, /renderSettingsHubRootMenu/);
   });
 
-  it('CASE 2 hub missing mount falls back to legacy settings', () => {
+  it('CASE 2 hub missing mount falls back to legacy settings', async () => {
     const sandbox = makeSettingsDom();
     sandbox.document.getElementById = function () { return null; };
     const hub = loadHubsInSandbox(sandbox);
-    const ok = hub.showSettingsRootMenu();
+    const ok = await hub.showSettingsRootMenu();
     assert.equal(ok, false);
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), false);
     assert.equal(sandbox.elements.parentMagicPageMount.classList.contains('hidden'), true);
@@ -281,10 +290,10 @@ describe('settings-account pt() behavioral regression', () => {
 });
 
 describe('settings magic fail-safe behavior (DOM sandbox)', () => {
-  it('normal hub render marks ready and shows menu cards', () => {
+  it('normal hub render marks ready and shows menu cards', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    const ok = hub.showSettingsRootMenu();
+    const ok = await hub.showSettingsRootMenu();
     assert.equal(ok, true);
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), true);
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="family"/);
@@ -315,44 +324,150 @@ describe('settings magic fail-safe behavior (DOM sandbox)', () => {
     assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
   });
 
-  it('returnToSettingsMenu after group opens root menu once', () => {
+  it('returnToSettingsMenu after group opens root menu once', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     hub.showSettingsGroup('family');
-    hub.returnToSettingsMenu();
+    await hub.returnToSettingsMenu();
     assert.equal(hub.getActiveSettingsGroup(), null);
     assert.equal(sandbox.body.classList.contains('magic-settings-in-group'), false);
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="profile"/);
   });
 
-  it('early hub copy uses Swedish fallback instead of raw i18n keys', () => {
+  it('early hub copy uses Swedish fallback instead of raw i18n keys', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /Inställningar/);
     assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /Profil/);
     assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /settings\.groups\./);
     assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /settings\.title/);
   });
 
-  it('tagSettingsSections keeps an open group visible after re-tag', () => {
+  it('tagSettingsSections keeps an open group visible after re-tag', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     hub.showSettingsGroup('family');
     hub.tagSettingsSections();
     assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
     assert.equal(hub.getActiveSettingsGroup(), 'family');
   });
 
-  it('missing ParentMagicPageHub leaves legacy path available via fallback helper', () => {
+  it('missing ParentMagicPageHub leaves legacy path available via fallback helper', async () => {
     const sandbox = makeSettingsDom();
     const hub = loadHubsInSandbox(sandbox);
-    hub.showSettingsRootMenu();
+    await hub.showSettingsRootMenu();
     sandbox.ParentMagicPageHub = null;
     hub.showLegacySettingsFallback('hub unavailable');
     assert.equal(sandbox.body.classList.contains('magic-settings-ready'), false);
     assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
+  });
+});
+
+describe('settings async contract regression (PR 1061)', () => {
+  it('async ownership: refresh awaits settings work and does not treat Promise as boolean', () => {
+    assert.match(HUBS, /async function refreshSettingsPage/);
+    assert.match(HUBS, /const ok = await reopenSettingsGroup\(activeGroup\)/);
+    assert.match(HUBS, /const ok = await showSettingsRootMenu\(\)/);
+    assert.doesNotMatch(HUBS, /if\s*\(\s*!showSettingsRootMenu\(\)\s*\)/);
+    assert.match(HUBS, /launchSettingsHubAsync\(refreshSettingsPage\(opts\)\)/);
+  });
+
+  it('A: delayed /api/subscription/status still renders settings root menu without fallback race', async () => {
+    const sandbox = makeSettingsDom(null, {
+      authApi: async function () {
+        await new Promise(function (resolve) { setTimeout(resolve, 40); });
+        return { subscription_ui_visible: true };
+      },
+    });
+    const hub = loadHubsInSandbox(sandbox);
+    const ok = await hub.showSettingsRootMenu();
+    assert.equal(ok, true);
+    assert.equal(sandbox.body.classList.contains('magic-settings-ready'), true);
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="premium"/);
+    assert.equal(sandbox.elements.parentMagicPageMount.classList.contains('hidden'), false);
+  });
+
+  it('B: rejected /api/subscription/status hides Premium without unhandled rejection', async () => {
+    const sandbox = makeSettingsDom(null, {
+      authApi: async function () {
+        throw new Error('subscription status failed');
+      },
+    });
+    const hub = loadHubsInSandbox(sandbox);
+    const rejections = [];
+    function onRejection() { rejections.push(1); }
+    process.on('unhandledRejection', onRejection);
+    try {
+      const ok = await hub.showSettingsRootMenu();
+      assert.equal(ok, true);
+      assert.equal(sandbox.body.classList.contains('magic-settings-ready'), true);
+      assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="premium"/);
+      assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="family"/);
+      await new Promise(function (resolve) { setTimeout(resolve, 20); });
+      assert.equal(rejections.length, 0);
+    } finally {
+      process.removeListener('unhandledRejection', onRejection);
+    }
+  });
+
+  it('C: /settings#prenumeration opens premium group after async visibility resolves', async () => {
+    const subscriptionMount = makeEl('subscriptionMount', { tagName: 'div' });
+    const sandbox = makeSettingsDom({
+      prenumeration: makeEl('prenumeration', { tagName: 'section' }),
+      subscriptionMount: subscriptionMount,
+    }, {
+      location: { pathname: '/settings', hash: '#prenumeration' },
+      authApi: async function () {
+        await new Promise(function (resolve) { setTimeout(resolve, 30); });
+        return { subscription_ui_visible: true };
+      },
+      settingsSubscription: {
+        render: async function (mount) {
+          if (mount) mount.innerHTML = '<p id="subscriptionVisible">visible</p>';
+        },
+      },
+    });
+    const hub = loadHubsInSandbox(sandbox);
+    const ok = await hub.ensureSettingsChrome({ preserveNavigation: false });
+    assert.equal(ok, true);
+    assert.equal(hub.getActiveSettingsGroup(), 'premium');
+    assert.equal(sandbox.body.classList.contains('magic-settings-in-group'), true);
+    assert.match(subscriptionMount.innerHTML, /subscriptionVisible/);
+  });
+
+  it('D: repeated settings refresh preserves active group without root/group race', async () => {
+    const sandbox = makeSettingsDom();
+    const hub = loadHubsInSandbox(sandbox);
+    await hub.showSettingsRootMenu();
+    hub.showSettingsGroup('family');
+    const first = hub.refresh('settings', true, { preserveNavigation: true });
+    const second = hub.refresh('settings', true, { preserveNavigation: true });
+    if (first) await first;
+    if (second) await second;
+    assert.equal(hub.getActiveSettingsGroup(), 'family');
+    assert.equal(sandbox.body.classList.contains('magic-settings-in-group'), true);
+    assert.equal(sandbox.elements.familySection.classList.contains('hidden'), false);
+  });
+
+  it('E: back from Premium renders stable root menu once', async () => {
+    const sandbox = makeSettingsDom({
+      prenumeration: makeEl('prenumeration', { tagName: 'section' }),
+    }, {
+      authApi: async function () {
+        return { subscription_ui_visible: true };
+      },
+    });
+    const hub = loadHubsInSandbox(sandbox);
+    await hub.showSettingsRootMenu();
+    hub.showSettingsGroup('premium');
+    await hub.returnToSettingsMenu();
+    assert.equal(hub.getActiveSettingsGroup(), null);
+    assert.equal(sandbox.body.classList.contains('magic-settings-in-group'), false);
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="profile"/);
+    assert.match(sandbox.elements.parentMagicPageMount.innerHTML, /data-settings-group="premium"/);
+    assert.doesNotMatch(sandbox.elements.parentMagicPageMount.innerHTML, /magic-settings-back-bar/);
   });
 });
