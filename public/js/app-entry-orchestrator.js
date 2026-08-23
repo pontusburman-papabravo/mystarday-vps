@@ -10,8 +10,11 @@
   const DAILY_UX_KEY = 'stjarndag_family_device_daily_ux_v1';
   const ALLOWED_COUNT_KEY = 'stjarndag_entry_allowed_count';
   const APPLIED_KEY = 'stjarndag_entry_decision_applied';
+  const EXPLICIT_PARENT_RESUME_KEY = 'stjarndag_explicit_parent_resume_v1';
   const NAV_GUARD_KEY = 'stjarndag_entry_nav_guard';
   const SERVER_ACTION_KEY = 'stjarndag_entry_server_action_done';
+
+  const EXPLICIT_PARENT_RESUME_REASON = 'profile_picker_parent_resume';
 
   let _coldStartPromise = null;
 
@@ -19,6 +22,7 @@
     try {
       sessionStorage.removeItem(DECISION_KEY);
       sessionStorage.removeItem(APPLIED_KEY);
+      sessionStorage.removeItem(EXPLICIT_PARENT_RESUME_KEY);
       sessionStorage.removeItem(NAV_GUARD_KEY);
       sessionStorage.removeItem(SERVER_ACTION_KEY);
       sessionStorage.setItem(ACTIVE_FLAG_KEY, '0');
@@ -121,11 +125,72 @@
     }
   }
 
+  function isExplicitParentResumeDecision(decision) {
+    if (!decision || typeof decision !== 'object') return false;
+    if (decision.explicitParentResume === true) return true;
+    return decision.destination === 'parent-home'
+      && decision.viewContext === 'parent'
+      && decision.reason === EXPLICIT_PARENT_RESUME_REASON;
+  }
+
+  function markExplicitParentResume(decision) {
+    try {
+      sessionStorage.setItem(EXPLICIT_PARENT_RESUME_KEY, '1');
+    } catch (_) { /* ignore */ }
+    setActiveFlag(true);
+  }
+
+  function clearExplicitParentResume() {
+    try {
+      sessionStorage.removeItem(EXPLICIT_PARENT_RESUME_KEY);
+    } catch (_) { /* ignore */ }
+  }
+
+  function hasExplicitParentResumeMarker() {
+    try {
+      return sessionStorage.getItem(EXPLICIT_PARENT_RESUME_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function buildExplicitParentResumeDecision(redirectPath) {
+    return {
+      destination: 'parent-home',
+      viewContext: 'parent',
+      credentialContext: 'parent',
+      deviceMode: 'shared',
+      childId: null,
+      reason: EXPLICIT_PARENT_RESUME_REASON,
+      explicitParentResume: true,
+      path: redirectPath || '/dashboard',
+    };
+  }
+
+  function isExplicitParentResumeActive() {
+    if (!hasExplicitParentResumeMarker()) return false;
+    const decision = getAppliedDecision();
+    if (decision && isExplicitParentResumeDecision(decision)) return true;
+    // Marker alone must survive picker → dashboard navigation.
+    return true;
+  }
+
+  function commitExplicitParentResume(redirectPath) {
+    const decision = buildExplicitParentResumeDecision(redirectPath);
+    markDecisionApplied(decision);
+    return decision;
+  }
+
   function markDecisionApplied(decision) {
     writeJson(DECISION_KEY, decision);
     try {
       sessionStorage.setItem(APPLIED_KEY, '1');
     } catch (_) { /* ignore */ }
+    if (isExplicitParentResumeDecision(decision)) {
+      markExplicitParentResume(decision);
+    } else if (decision && decision.destination !== 'parent-home') {
+      clearExplicitParentResume();
+    }
     applyDeviceModeCache(decision);
     window.__DEFER_SESSION_GATE_FOR_ENTRY__ = false;
     if (window.SessionGate && typeof SessionGate.run === 'function') {
@@ -269,17 +334,41 @@
     window.location.replace(path);
   }
 
+  function resolveAlreadyAppliedColdStart() {
+    if (isExplicitParentResumeActive()) {
+      let decision = getAppliedDecision();
+      if (!decision || !isExplicitParentResumeDecision(decision)) {
+        decision = buildExplicitParentResumeDecision('/dashboard');
+        writeJson(DECISION_KEY, decision);
+        try {
+          sessionStorage.setItem(APPLIED_KEY, '1');
+        } catch (_) { /* ignore */ }
+        applyDeviceModeCache(decision);
+      }
+      return {
+        ok: true,
+        code: 'EXPLICIT_PARENT_RESUME',
+        decision: decision,
+      };
+    }
+    if (isDecisionApplied()) {
+      return {
+        ok: true,
+        code: 'ALREADY_APPLIED',
+        decision: getAppliedDecision(),
+      };
+    }
+    return null;
+  }
+
   async function runColdStart(options) {
     const opts = options || {};
     if (_coldStartPromise) return _coldStartPromise;
 
     _coldStartPromise = (async function () {
-      if (!opts.forceReapply && isDecisionApplied()) {
-        return {
-          ok: true,
-          code: 'ALREADY_APPLIED',
-          decision: getAppliedDecision(),
-        };
+      if (!opts.forceReapply) {
+        const applied = resolveAlreadyAppliedColdStart();
+        if (applied) return applied;
       }
 
       try {
@@ -295,9 +384,17 @@
       }
 
       const decision = fetched.decision;
+      if (!opts.forceReapply && isExplicitParentResumeActive()) {
+        return resolveAlreadyAppliedColdStart();
+      }
+
       const actionResult = await executeServerAction(decision);
       if (!actionResult.ok) {
         return { ok: false, code: 'SERVER_ACTION_FAILED', decision: decision };
+      }
+
+      if (!opts.forceReapply && isExplicitParentResumeActive()) {
+        return resolveAlreadyAppliedColdStart();
       }
 
       markDecisionApplied(decision);
@@ -431,6 +528,9 @@
     getAppliedDecision: getAppliedDecision,
     getAppliedViewContext: getAppliedViewContext,
     markDecisionApplied: markDecisionApplied,
+    commitExplicitParentResume: commitExplicitParentResume,
+    isExplicitParentResumeActive: isExplicitParentResumeActive,
+    clearExplicitParentResume: clearExplicitParentResume,
     validateDecision: validateDecision,
     isDailyUxActive: isDailyUxActive,
     getAllowedChildCount: getAllowedChildCount,

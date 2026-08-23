@@ -57,6 +57,18 @@ function createPickerSandbox(options) {
   };
   sandbox.AppEntryOrchestrator = {
     markDecisionApplied: function (d) { sandbox.__decision = d; },
+    commitExplicitParentResume: function (target) {
+      sandbox.__decision = {
+        destination: 'parent-home',
+        viewContext: 'parent',
+        credentialContext: 'parent',
+        deviceMode: 'shared',
+        childId: null,
+        reason: 'profile_picker_parent_resume',
+        explicitParentResume: true,
+        path: target || '/dashboard',
+      };
+    },
   };
   sandbox.AdultPrivilege = {
     isPrivilegeActive: function () { return opts.privilegeActive === true; },
