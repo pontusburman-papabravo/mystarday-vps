@@ -113,26 +113,82 @@ describe('explicit parent resume — orchestrator VM sequence', () => {
     assert.equal(env.sandbox.sessionStorage.getItem(MARKER_KEY), null);
   });
 
-  test('D: expired privilege clears marker and resumes child-first routing', async () => {
+  test('D: numeric lease expiry clears marker and resumes child-first routing', async () => {
+    const leaseUntil = Date.now() + 15 * 60 * 1000;
     const entryBody = childHomeAppEntryBody(CHILD_ID);
     const env = loadOrchestratorSandbox({
       pathname: '/dashboard',
       deviceMode: 'parent',
       appEntryBody: entryBody,
       privilegeActive: true,
-      leaseUntil: new Date(Date.now() - 1000).toISOString(),
+      leaseUntil,
     });
     const orch = env.sandbox.AppEntryOrchestrator;
     orch.beginExplicitParentResume('/dashboard');
-    await orch.resolveExplicitParentResumeIfNeeded();
+    const resolved = await orch.resolveExplicitParentResumeIfNeeded();
+    assert.equal(resolved.ok, true);
     assert.equal(orch.isExplicitParentResumeActive(), true);
 
-    env.sandbox.AppEntryOrchestrator.rejectExplicitParentResume();
+    const marker = readMarker(env);
+    assert.equal(marker.status, 'verified');
+    assert.equal(marker.expiresAt, leaseUntil);
+    assert.notEqual(marker.expiresAt, Date.now() + 30 * 60 * 1000);
+
+    env.advanceTime(16 * 60 * 1000);
     assert.equal(orch.isExplicitParentResumeActive(), false);
+    assert.equal(env.sandbox.sessionStorage.getItem(MARKER_KEY), null);
+    assert.equal(orch.getAppliedDecision(), null);
 
     const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap', skipRedirect: true });
     assert.notEqual(cold.code, 'EXPLICIT_PARENT_RESUME');
     assert.equal(cold.decision.destination, 'child-home');
+  });
+
+  test('D2: numeric-string epoch lease is honored', async () => {
+    const leaseUntil = Date.now() + 15 * 60 * 1000;
+    const env = loadOrchestratorSandbox({
+      pathname: '/dashboard',
+      deviceMode: 'parent',
+      privilegeActive: true,
+      leaseUntil: String(leaseUntil),
+    });
+    const orch = env.sandbox.AppEntryOrchestrator;
+    orch.beginExplicitParentResume('/dashboard');
+    await orch.resolveExplicitParentResumeIfNeeded();
+    assert.equal(readMarker(env).expiresAt, leaseUntil);
+  });
+
+  test('D3: invalid or missing lease fails closed at verification', async () => {
+    const entryBody = childHomeAppEntryBody(CHILD_ID);
+    for (const leaseUntil of [null, undefined, '', 'not-a-date', Date.now() - 1000]) {
+      const env = loadOrchestratorSandbox({
+        pathname: '/dashboard',
+        appEntryBody: entryBody,
+        privilegeActive: true,
+        leaseUntil,
+      });
+      const orch = env.sandbox.AppEntryOrchestrator;
+      orch.beginExplicitParentResume('/dashboard');
+      const resolved = await orch.resolveExplicitParentResumeIfNeeded();
+      assert.equal(resolved.rejected, true, `leaseUntil=${String(leaseUntil)}`);
+      assert.equal(env.sandbox.sessionStorage.getItem(MARKER_KEY), null);
+      assert.equal(orch.isExplicitParentResumeActive(), false);
+    }
+  });
+
+  test('D4: ISO lease string remains supported', async () => {
+    const leaseUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const expectedMs = Date.parse(leaseUntil);
+    const env = loadOrchestratorSandbox({
+      pathname: '/dashboard',
+      deviceMode: 'parent',
+      privilegeActive: true,
+      leaseUntil,
+    });
+    const orch = env.sandbox.AppEntryOrchestrator;
+    orch.beginExplicitParentResume('/dashboard');
+    await orch.resolveExplicitParentResumeIfNeeded();
+    assert.equal(readMarker(env).expiresAt, expectedMs);
   });
 
   test('E: revoked/locked authority rejects pending marker', async () => {
@@ -209,8 +265,11 @@ describe('explicit parent resume — client wiring contracts', () => {
     assert.match(src, /verifyExplicitParentResumeAuthority/);
     assert.match(src, /resolveExplicitParentResumeIfNeeded/);
     assert.match(src, /rejectExplicitParentResume/);
+    assert.match(src, /normalizeTimestampMs/);
     assert.match(src, /status:\s*'pending'/);
     assert.match(src, /status:\s*'verified'/);
+    assert.doesNotMatch(src, /EXPLICIT_PARENT_VERIFIED_FALLBACK/);
+    assert.doesNotMatch(src, /30 \* 60 \* 1000/);
   });
 
   test('session gate defers while pending and honors verified resume', () => {

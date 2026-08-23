@@ -16,7 +16,6 @@
 
   const EXPLICIT_PARENT_RESUME_REASON = 'profile_picker_parent_resume';
   const EXPLICIT_PARENT_PENDING_TTL_MS = 60 * 1000;
-  const EXPLICIT_PARENT_VERIFIED_FALLBACK_TTL_MS = 30 * 60 * 1000;
 
   let _coldStartPromise = null;
 
@@ -167,6 +166,31 @@
     }
   }
 
+  /**
+   * Normalize authoritative lease timestamps from server contract.
+   * - finite Number => epoch ms
+   * - numeric string => Number(value)
+   * - ISO/date string => Date.parse(value)
+   * - invalid/missing => null (never Date.parse(number))
+   */
+  function normalizeTimestampMs(value) {
+    if (value == null || value === '') return null;
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      if (/^\d+$/.test(trimmed)) {
+        const num = Number(trimmed);
+        return Number.isFinite(num) ? num : null;
+      }
+      const parsed = Date.parse(trimmed);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
   function beginExplicitParentResume(redirectPath) {
     const now = Date.now();
     writeExplicitParentResumeMarker({
@@ -180,14 +204,12 @@
     } catch (_) { /* ignore */ }
   }
 
+  /** @returns {boolean} false when no valid future authoritative lease — fail closed */
   function markExplicitParentResumeVerified(path, leaseUntil) {
     const now = Date.now();
-    let expiresAt = now + EXPLICIT_PARENT_VERIFIED_FALLBACK_TTL_MS;
-    if (leaseUntil) {
-      const parsed = Date.parse(leaseUntil);
-      if (Number.isFinite(parsed) && parsed > now) {
-        expiresAt = parsed;
-      }
+    const expiresAt = normalizeTimestampMs(leaseUntil);
+    if (expiresAt == null || expiresAt <= now) {
+      return false;
     }
     writeExplicitParentResumeMarker({
       status: 'verified',
@@ -196,6 +218,7 @@
       path: path || '/dashboard',
     });
     setActiveFlag(true);
+    return true;
   }
 
   function isExplicitParentResumePending() {
@@ -306,7 +329,10 @@
       return { rejected: true, code: verified.code || 'VERIFY_FAILED' };
     }
 
-    markExplicitParentResumeVerified(marker.path, verified.leaseUntil);
+    if (!markExplicitParentResumeVerified(marker.path, verified.leaseUntil)) {
+      rejectExplicitParentResume();
+      return { rejected: true, code: 'LEASE_INVALID' };
+    }
     const decision = buildExplicitParentResumeDecision(marker.path);
     markDecisionApplied(decision);
     return {

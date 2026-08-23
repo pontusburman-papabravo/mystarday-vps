@@ -16,12 +16,35 @@ function createMemoryStorage() {
   };
 }
 
+function createFakeDate(initialNow) {
+  const RealDate = Date;
+  let fakeNow = typeof initialNow === 'number' ? initialNow : RealDate.now();
+  function FakeDate(...args) {
+    if (args.length === 0) {
+      return new RealDate(fakeNow);
+    }
+    return new RealDate(...args);
+  }
+  FakeDate.now = function () { return fakeNow; };
+  FakeDate.parse = RealDate.parse;
+  FakeDate.UTC = RealDate.UTC;
+  FakeDate.prototype = RealDate.prototype;
+  return {
+    FakeDate,
+    advanceTime(ms) { fakeNow += ms; },
+    getNow() { return fakeNow; },
+    setNow(ms) { fakeNow = ms; },
+  };
+}
+
 function parentAuthorityFetchMock(options) {
   const opts = options || {};
   const meType = opts.meType || 'parent';
   const privilegeActive = opts.privilegeActive !== false;
   const privilegeState = opts.privilegeState || (privilegeActive ? 'active' : 'locked');
-  const leaseUntil = opts.leaseUntil || new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const leaseUntil = Object.prototype.hasOwnProperty.call(opts, 'leaseUntil')
+    ? opts.leaseUntil
+    : Date.now() + 15 * 60 * 1000;
   const appEntryBody = opts.appEntryBody || null;
 
   return async function fetchMock(url, init, fetchCalls) {
@@ -67,6 +90,7 @@ function loadOrchestratorSandbox(options) {
   const opts = options || {};
   const redirects = [];
   const fetchCalls = [];
+  const clock = createFakeDate(opts.initialNow);
   const fetchImpl = typeof opts.fetch === 'function'
     ? opts.fetch
     : parentAuthorityFetchMock(opts);
@@ -76,6 +100,7 @@ function loadOrchestratorSandbox(options) {
     clearTimeout,
     Promise,
     URLSearchParams,
+    Date: clock.FakeDate,
     fetch: async function (url, init) {
       fetchCalls.push({ url: String(url), init: init || {} });
       return fetchImpl(url, init, fetchCalls);
@@ -112,7 +137,14 @@ function loadOrchestratorSandbox(options) {
   vm.createContext(sandbox);
   const code = fs.readFileSync(path.join(ROOT, 'public/js/app-entry-orchestrator.js'), 'utf8');
   vm.runInContext(code, sandbox, { filename: 'app-entry-orchestrator.js' });
-  return { sandbox, redirects, fetchCalls };
+  return {
+    sandbox,
+    redirects,
+    fetchCalls,
+    advanceTime: clock.advanceTime,
+    getNow: clock.getNow,
+    setNow: clock.setNow,
+  };
 }
 
 function childHomeAppEntryBody(childId) {
@@ -138,6 +170,7 @@ function childHomeAppEntryBody(childId) {
 
 module.exports = {
   createMemoryStorage,
+  createFakeDate,
   loadOrchestratorSandbox,
   parentAuthorityFetchMock,
   childHomeAppEntryBody,
