@@ -125,6 +125,9 @@
 
   async function onPickChild(childId, btn) {
     if (!childId || !window.TrustedDeviceBootstrap) return;
+    if (window.ParentBackupLoginIntent && typeof ParentBackupLoginIntent.clearIntent === 'function') {
+      ParentBackupLoginIntent.clearIntent();
+    }
     if (btn) btn.disabled = true;
     showError('');
     const result = await TrustedDeviceBootstrap.pickSharedChild(childId, {

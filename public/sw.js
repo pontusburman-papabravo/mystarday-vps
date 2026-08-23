@@ -267,7 +267,7 @@
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
 // stjarndag-v858: product spotlight + Om oss page + landing nav fix
-const CACHE_NAME = 'stjarndag-v866';
+const CACHE_NAME = 'stjarndag-v867';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -606,6 +606,7 @@ const CACHE_NAME = 'stjarndag-v866';
 // stjarndag-v864: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v865: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v866: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v867: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -682,6 +683,7 @@ const STATIC_ASSETS = [
   '/js/child-login.js',
   '/js/child-profile-picker.js',
   '/js/app-entry-orchestrator.js',
+  '/js/parent-backup-login-intent.js',
   '/js/profile-switch-chrome.js',
   '/css/profile-switch-chrome.css',
   '/js/family-device-entry-bootstrap.js',

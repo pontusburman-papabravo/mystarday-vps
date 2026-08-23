@@ -41,6 +41,8 @@
   <link rel="stylesheet" href="/css/app-entry.css?v=284">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.23.0"></script>
+  <script src="/js/app-entry-orchestrator.js?v=1.0.0"></script>
+  <script src="/js/parent-backup-login-intent.js?v=1"></script>
   <script src="/js/auth-entry-failsafe.js?v=3"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/login-locale.js?v=2"></script>
@@ -442,25 +444,10 @@
     }
 
     function redirectAfterParentLogin() {
-      var diag = window.AppleSignInDiagnostics;
-      var pending = sessionStorage.getItem('cl_add_child_pending');
-      if (pending === 'new') {
-        if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: '/onboarding?flow=add-child', via: 'add_child_pending' });
-        sessionStorage.removeItem('cl_add_child_pending');
-        sessionStorage.removeItem('cl_add_child_next');
-        if (window.DeviceMode) DeviceMode.enterParent();
-        window.location.href = '/onboarding?flow=add-child';
+      var user = Auth.getUser();
+      if (Auth.completeParentAuthRedirect && Auth.completeParentAuthRedirect(user)) {
         return;
       }
-      var nextUrl = getLoginNextUrl();
-      if (nextUrl) {
-        if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: nextUrl, via: 'next_param' });
-        if (window.DeviceMode) DeviceMode.enterParent();
-        window.location.href = nextUrl;
-        return;
-      }
-      if (diag && diag.logPost) diag.logPost('step_6_redirect_start', { target: '(via Auth.redirectToDashboard)', via: 'default' });
-      setTimeout(function () { Auth.redirectToDashboard(); }, 300);
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -571,6 +558,9 @@
       const childLoginFooterLink = document.getElementById('childLoginFooterLink');
       if (childLoginFooterLink) {
         childLoginFooterLink.addEventListener('click', function () {
+          if (window.ParentBackupLoginIntent && typeof ParentBackupLoginIntent.clearIntent === 'function') {
+            ParentBackupLoginIntent.clearIntent();
+          }
           if (window.DeviceMode && typeof DeviceMode.enterChild === 'function') {
             DeviceMode.enterChild();
           }

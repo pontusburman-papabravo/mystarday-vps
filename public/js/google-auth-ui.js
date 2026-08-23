@@ -20,7 +20,9 @@
       MarketingEvents.trackSignup('google');
     }
     if (data.user.onboarding_completed === false) {
-      window.location.href = '/onboarding';
+      window.location.replace('/onboarding');
+    } else if (Auth.completeParentAuthRedirect && Auth.completeParentAuthRedirect(data.user)) {
+      return;
     } else {
       Auth.redirectToDashboard();
     }
@@ -124,7 +126,9 @@
       closeGoogleLinkModal();
       dismissGoogleLinking();
       if (loginData.user && loginData.user.onboarding_completed === false) {
-        window.location.href = '/onboarding';
+        window.location.replace('/onboarding');
+      } else if (Auth.completeParentAuthRedirect && Auth.completeParentAuthRedirect(loginData.user)) {
+        return;
       } else {
         Auth.redirectToDashboard();
       }

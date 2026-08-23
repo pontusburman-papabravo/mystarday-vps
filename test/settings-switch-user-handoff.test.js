@@ -41,7 +41,7 @@ describe('settings switch user → child picker handoff', () => {
   it('Auth.logout web redirect goes to / or /login, not child-login picker', () => {
     const redirectFn = AUTH_JS.slice(
       AUTH_JS.indexOf('_redirectAfterLogoutClear(childFlow)'),
-      AUTH_JS.indexOf('_redirectAfterLogoutClear(childFlow)') + 700
+      AUTH_JS.indexOf('_redirectAfterLogoutClear(childFlow)') + 900
     );
     assert.match(redirectFn, /childFlow\)\s*\{[\s\S]*\/child-login/);
     assert.match(redirectFn, /window\.location\.replace\('\/'\)/);
