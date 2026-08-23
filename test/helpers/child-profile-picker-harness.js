@@ -57,17 +57,12 @@ function createPickerSandbox(options) {
   };
   sandbox.AppEntryOrchestrator = {
     markDecisionApplied: function (d) { sandbox.__decision = d; },
+    beginExplicitParentResume: function (target) {
+      sandbox.__pendingResume = true;
+      sandbox.__pendingPath = target || '/dashboard';
+    },
     commitExplicitParentResume: function (target) {
-      sandbox.__decision = {
-        destination: 'parent-home',
-        viewContext: 'parent',
-        credentialContext: 'parent',
-        deviceMode: 'shared',
-        childId: null,
-        reason: 'profile_picker_parent_resume',
-        explicitParentResume: true,
-        path: target || '/dashboard',
-      };
+      sandbox.AppEntryOrchestrator.beginExplicitParentResume(target);
     },
   };
   sandbox.AdultPrivilege = {
@@ -121,6 +116,7 @@ async function pickParent(options) {
     redirects: env.redirects,
     enteredParent: env.sandbox.__enteredParent === true,
     decision: env.sandbox.__decision || null,
+    pendingResume: env.sandbox.__pendingResume === true,
     btnDisabled: btn.disabled,
   };
 }

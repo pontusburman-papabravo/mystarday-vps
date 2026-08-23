@@ -184,19 +184,10 @@
   function commitParentViewFromPicker(redirectPath) {
     enterParentDeviceMode();
     const target = redirectPath || '/dashboard';
-    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.commitExplicitParentResume === 'function') {
+    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.beginExplicitParentResume === 'function') {
+      AppEntryOrchestrator.beginExplicitParentResume(target);
+    } else if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.commitExplicitParentResume === 'function') {
       AppEntryOrchestrator.commitExplicitParentResume(target);
-    } else if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.markDecisionApplied === 'function') {
-      AppEntryOrchestrator.markDecisionApplied({
-        destination: 'parent-home',
-        viewContext: 'parent',
-        credentialContext: 'parent',
-        deviceMode: 'shared',
-        childId: null,
-        reason: 'profile_picker_parent_resume',
-        explicitParentResume: true,
-        path: target,
-      });
     }
     window.location.replace(target);
   }

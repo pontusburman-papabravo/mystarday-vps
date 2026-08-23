@@ -15,6 +15,8 @@
   const SERVER_ACTION_KEY = 'stjarndag_entry_server_action_done';
 
   const EXPLICIT_PARENT_RESUME_REASON = 'profile_picker_parent_resume';
+  const EXPLICIT_PARENT_PENDING_TTL_MS = 60 * 1000;
+  const EXPLICIT_PARENT_VERIFIED_FALLBACK_TTL_MS = 30 * 60 * 1000;
 
   let _coldStartPromise = null;
 
@@ -133,25 +135,88 @@
       && decision.reason === EXPLICIT_PARENT_RESUME_REASON;
   }
 
-  function markExplicitParentResume(decision) {
-    try {
-      sessionStorage.setItem(EXPLICIT_PARENT_RESUME_KEY, '1');
-    } catch (_) { /* ignore */ }
-    setActiveFlag(true);
+  function readExplicitParentResumeMarker() {
+    const raw = readJson(EXPLICIT_PARENT_RESUME_KEY);
+    if (!raw || typeof raw !== 'object') return null;
+    return raw;
   }
 
-  function clearExplicitParentResume() {
+  function writeExplicitParentResumeMarker(marker) {
+    writeJson(EXPLICIT_PARENT_RESUME_KEY, marker);
+  }
+
+  function clearExplicitParentResumeMarker() {
     try {
       sessionStorage.removeItem(EXPLICIT_PARENT_RESUME_KEY);
     } catch (_) { /* ignore */ }
   }
 
-  function hasExplicitParentResumeMarker() {
+  function isExplicitParentResumeMarkerExpired(marker) {
+    if (!marker || !marker.expiresAt) return false;
+    return Date.now() > marker.expiresAt;
+  }
+
+  function rejectExplicitParentResume() {
+    clearExplicitParentResumeMarker();
+    const decision = getAppliedDecision();
+    if (decision && isExplicitParentResumeDecision(decision)) {
+      try {
+        sessionStorage.removeItem(DECISION_KEY);
+        sessionStorage.removeItem(APPLIED_KEY);
+      } catch (_) { /* ignore */ }
+    }
+  }
+
+  function beginExplicitParentResume(redirectPath) {
+    const now = Date.now();
+    writeExplicitParentResumeMarker({
+      status: 'pending',
+      at: now,
+      expiresAt: now + EXPLICIT_PARENT_PENDING_TTL_MS,
+      path: redirectPath || '/dashboard',
+    });
     try {
-      return sessionStorage.getItem(EXPLICIT_PARENT_RESUME_KEY) === '1';
-    } catch (_) {
+      window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
+    } catch (_) { /* ignore */ }
+  }
+
+  function markExplicitParentResumeVerified(path, leaseUntil) {
+    const now = Date.now();
+    let expiresAt = now + EXPLICIT_PARENT_VERIFIED_FALLBACK_TTL_MS;
+    if (leaseUntil) {
+      const parsed = Date.parse(leaseUntil);
+      if (Number.isFinite(parsed) && parsed > now) {
+        expiresAt = parsed;
+      }
+    }
+    writeExplicitParentResumeMarker({
+      status: 'verified',
+      at: now,
+      expiresAt: expiresAt,
+      path: path || '/dashboard',
+    });
+    setActiveFlag(true);
+  }
+
+  function isExplicitParentResumePending() {
+    const marker = readExplicitParentResumeMarker();
+    if (!marker || marker.status !== 'pending') return false;
+    if (isExplicitParentResumeMarkerExpired(marker)) {
+      rejectExplicitParentResume();
       return false;
     }
+    return true;
+  }
+
+  function isExplicitParentResumeVerified() {
+    const marker = readExplicitParentResumeMarker();
+    if (!marker || marker.status !== 'verified') return false;
+    if (isExplicitParentResumeMarkerExpired(marker)) {
+      rejectExplicitParentResume();
+      return false;
+    }
+    const decision = getAppliedDecision();
+    return !!(decision && isExplicitParentResumeDecision(decision));
   }
 
   function buildExplicitParentResumeDecision(redirectPath) {
@@ -167,18 +232,88 @@
     };
   }
 
+  /** Verified explicit parent resume only — never true from marker alone. */
   function isExplicitParentResumeActive() {
-    if (!hasExplicitParentResumeMarker()) return false;
-    const decision = getAppliedDecision();
-    if (decision && isExplicitParentResumeDecision(decision)) return true;
-    // Marker alone must survive picker → dashboard navigation.
-    return true;
+    return isExplicitParentResumeVerified();
   }
 
+  function beginExplicitParentResumeTransition(redirectPath) {
+    beginExplicitParentResume(redirectPath);
+    return buildExplicitParentResumeDecision(redirectPath);
+  }
+
+  /** @deprecated Use beginExplicitParentResumeTransition — picker sets pending only. */
   function commitExplicitParentResume(redirectPath) {
-    const decision = buildExplicitParentResumeDecision(redirectPath);
+    return beginExplicitParentResumeTransition(redirectPath);
+  }
+
+  async function verifyExplicitParentResumeAuthority() {
+    try {
+      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!meRes.ok) {
+        return { ok: false, code: 'ME_FAILED', status: meRes.status };
+      }
+      const me = await meRes.json().catch(function () { return {}; });
+      if (!me || me.type !== 'parent') {
+        return { ok: false, code: 'NOT_PARENT' };
+      }
+
+      const statusRes = await fetch('/api/family/adult-privilege/status', { credentials: 'include' });
+      if (!statusRes.ok) {
+        return { ok: false, code: 'STATUS_FAILED', status: statusRes.status };
+      }
+      const status = await statusRes.json().catch(function () { return {}; });
+      if (!status.ok) {
+        return { ok: false, code: status.code || 'STATUS_NOT_OK' };
+      }
+      if (!(status.privilegeActive === true || status.state === 'active')) {
+        return { ok: false, code: 'PRIVILEGE_INACTIVE' };
+      }
+      return {
+        ok: true,
+        leaseUntil: status.privilegeLeaseUntil || status.expiresAt || null,
+      };
+    } catch (_) {
+      return { ok: false, code: 'NETWORK' };
+    }
+  }
+
+  async function resolveExplicitParentResumeIfNeeded() {
+    const marker = readExplicitParentResumeMarker();
+    if (!marker) return null;
+
+    if (isExplicitParentResumeMarkerExpired(marker)) {
+      rejectExplicitParentResume();
+      return { rejected: true, code: 'MARKER_EXPIRED' };
+    }
+
+    if (marker.status === 'verified' && isExplicitParentResumeVerified()) {
+      return {
+        ok: true,
+        code: 'EXPLICIT_PARENT_RESUME',
+        decision: getAppliedDecision(),
+      };
+    }
+
+    if (marker.status !== 'pending') {
+      rejectExplicitParentResume();
+      return { rejected: true, code: 'MARKER_INVALID' };
+    }
+
+    const verified = await verifyExplicitParentResumeAuthority();
+    if (!verified.ok) {
+      rejectExplicitParentResume();
+      return { rejected: true, code: verified.code || 'VERIFY_FAILED' };
+    }
+
+    markExplicitParentResumeVerified(marker.path, verified.leaseUntil);
+    const decision = buildExplicitParentResumeDecision(marker.path);
     markDecisionApplied(decision);
-    return decision;
+    return {
+      ok: true,
+      code: 'EXPLICIT_PARENT_RESUME',
+      decision: decision,
+    };
   }
 
   function markDecisionApplied(decision) {
@@ -186,10 +321,8 @@
     try {
       sessionStorage.setItem(APPLIED_KEY, '1');
     } catch (_) { /* ignore */ }
-    if (isExplicitParentResumeDecision(decision)) {
-      markExplicitParentResume(decision);
-    } else if (decision && decision.destination !== 'parent-home') {
-      clearExplicitParentResume();
+    if (decision && decision.destination !== 'parent-home' && !isExplicitParentResumeDecision(decision)) {
+      rejectExplicitParentResume();
     }
     applyDeviceModeCache(decision);
     window.__DEFER_SESSION_GATE_FOR_ENTRY__ = false;
@@ -216,6 +349,7 @@
   }
 
   function shouldDeferSessionGate() {
+    if (isExplicitParentResumePending()) return true;
     if (!isActive()) return false;
     if (window.__DEFER_SESSION_GATE_FOR_ENTRY__ && !isDecisionApplied()) return true;
     return false;
@@ -335,22 +469,6 @@
   }
 
   function resolveAlreadyAppliedColdStart() {
-    if (isExplicitParentResumeActive()) {
-      let decision = getAppliedDecision();
-      if (!decision || !isExplicitParentResumeDecision(decision)) {
-        decision = buildExplicitParentResumeDecision('/dashboard');
-        writeJson(DECISION_KEY, decision);
-        try {
-          sessionStorage.setItem(APPLIED_KEY, '1');
-        } catch (_) { /* ignore */ }
-        applyDeviceModeCache(decision);
-      }
-      return {
-        ok: true,
-        code: 'EXPLICIT_PARENT_RESUME',
-        decision: decision,
-      };
-    }
     if (isDecisionApplied()) {
       return {
         ok: true,
@@ -367,6 +485,10 @@
 
     _coldStartPromise = (async function () {
       if (!opts.forceReapply) {
+        const explicit = await resolveExplicitParentResumeIfNeeded();
+        if (explicit && explicit.ok) {
+          return explicit;
+        }
         const applied = resolveAlreadyAppliedColdStart();
         if (applied) return applied;
       }
@@ -384,17 +506,9 @@
       }
 
       const decision = fetched.decision;
-      if (!opts.forceReapply && isExplicitParentResumeActive()) {
-        return resolveAlreadyAppliedColdStart();
-      }
-
       const actionResult = await executeServerAction(decision);
       if (!actionResult.ok) {
         return { ok: false, code: 'SERVER_ACTION_FAILED', decision: decision };
-      }
-
-      if (!opts.forceReapply && isExplicitParentResumeActive()) {
-        return resolveAlreadyAppliedColdStart();
       }
 
       markDecisionApplied(decision);
@@ -528,9 +642,14 @@
     getAppliedDecision: getAppliedDecision,
     getAppliedViewContext: getAppliedViewContext,
     markDecisionApplied: markDecisionApplied,
+    beginExplicitParentResume: beginExplicitParentResume,
+    beginExplicitParentResumeTransition: beginExplicitParentResumeTransition,
     commitExplicitParentResume: commitExplicitParentResume,
     isExplicitParentResumeActive: isExplicitParentResumeActive,
-    clearExplicitParentResume: clearExplicitParentResume,
+    isExplicitParentResumePending: isExplicitParentResumePending,
+    rejectExplicitParentResume: rejectExplicitParentResume,
+    verifyExplicitParentResumeAuthority: verifyExplicitParentResumeAuthority,
+    resolveExplicitParentResumeIfNeeded: resolveExplicitParentResumeIfNeeded,
     validateDecision: validateDecision,
     isDailyUxActive: isDailyUxActive,
     getAllowedChildCount: getAllowedChildCount,

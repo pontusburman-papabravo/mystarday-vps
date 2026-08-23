@@ -2,7 +2,8 @@
 
 /**
  * Regression: explicit adult profile selection on shared devices must survive
- * picker → dashboard navigation without cold-start app-entry overwriting parent-home.
+ * picker → dashboard navigation without cold-start app-entry overwriting parent-home,
+ * while stale markers must never outlive server authority.
  */
 
 const { test, describe } = require('node:test');
@@ -13,7 +14,10 @@ const { setupTestDb } = require('./helpers/setup.js');
 const { cookieHeader, listenApp, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
 const { hashPassword } = require('../src/lib/hash');
-const { loadOrchestratorSandbox } = require('./helpers/app-entry-orchestrator-harness.js');
+const {
+  loadOrchestratorSandbox,
+  childHomeAppEntryBody,
+} = require('./helpers/app-entry-orchestrator-harness.js');
 const { pickParent } = require('./helpers/child-profile-picker-harness.js');
 const { FLAG_KEY: TRUSTED_FLAG } = require('../src/lib/trusted-device-flags');
 const { FLAG_KEY: ENTRY_FLAG } = require('../src/lib/family-device-entry-flags');
@@ -29,49 +33,21 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 const ROOT = path.join(__dirname, '..');
 const ADULT_FLAG = 'adult_privilege_v1';
 const CHILD_ID = '00000000-0000-4000-8000-0000000000c1';
+const MARKER_KEY = 'stjarndag_explicit_parent_resume_v1';
 
-async function enableFlags(db) {
-  for (const key of [TRUSTED_FLAG, ENTRY_FLAG, DAILY_UX_FLAG, ADULT_FLAG]) {
-    await db.query(
-      `INSERT INTO feature_flag (key, enabled, description)
-       VALUES ($1, true, 'test')
-       ON CONFLICT (key) DO UPDATE SET enabled = true`,
-      [key]
-    );
-  }
-}
-
-function childHomeAppEntryBody() {
-  return {
-    orchestratorActive: true,
-    dailyUxActive: true,
-    allowedChildren: [{ id: CHILD_ID, name: 'Astrid' }, { id: 'child-2', name: 'Anna' }],
-    allowedParents: [{ id: 'parent-1', name: 'Parent' }],
-    pinRequiredForParents: true,
-    decision: {
-      destination: 'child-home',
-      viewContext: 'child',
-      credentialContext: 'child',
-      deviceMode: 'shared',
-      childId: CHILD_ID,
-      reason: 'trusted_device_child_home',
-      serverAction: 'restore-child',
-      path: '/child/today',
-    },
-  };
+function readMarker(env) {
+  const raw = env.sandbox.sessionStorage.getItem(MARKER_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
 describe('explicit parent resume — orchestrator VM sequence', () => {
-  test('picker commit then dashboard bootstrap stays parent (no child redirect)', async () => {
+  test('A: pending marker + verified authority -> dashboard stays parent', async () => {
+    const entryBody = childHomeAppEntryBody(CHILD_ID);
     const env = loadOrchestratorSandbox({
       pathname: '/dashboard',
       deviceMode: 'parent',
-      fetch(url) {
-        return {
-          ok: true,
-          json: async () => childHomeAppEntryBody(),
-        };
-      },
+      appEntryBody: entryBody,
+      privilegeActive: true,
     });
     const orch = env.sandbox.AppEntryOrchestrator;
 
@@ -84,43 +60,44 @@ describe('explicit parent resume — orchestrator VM sequence', () => {
       reason: 'trusted_device_child_home',
       path: '/child/today',
     });
-    assert.equal(env.sandbox.DeviceMode.isChildMode(), true);
 
-    orch.commitExplicitParentResume('/dashboard');
-    assert.equal(orch.isExplicitParentResumeActive(), true);
-    assert.equal(env.sandbox.DeviceMode.isChildMode(), false);
+    orch.beginExplicitParentResume('/dashboard');
+    assert.equal(orch.isExplicitParentResumePending(), true);
+    assert.equal(orch.isExplicitParentResumeActive(), false, 'pending alone is not active');
 
     const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap' });
     assert.equal(cold.ok, true);
     assert.equal(cold.code, 'EXPLICIT_PARENT_RESUME');
     assert.equal(cold.decision.destination, 'parent-home');
-    assert.equal(env.redirects.length, 0, 'must not redirect back to child after explicit adult pick');
-    assert.equal(env.fetchCalls.length, 0, 'must not re-fetch app-entry when explicit parent resume is active');
+    assert.equal(env.redirects.length, 0);
+    assert.equal(orch.isExplicitParentResumeActive(), true);
+    assert.equal(readMarker(env).status, 'verified');
+    const appEntryCalls = env.fetchCalls.filter((c) => c.url.indexOf('/api/auth/app-entry') !== -1);
+    assert.equal(appEntryCalls.length, 0, 'verified explicit resume must not re-fetch app-entry');
   });
 
-  test('fresh shared cold start without marker still resolves child-home from server', async () => {
+  test('B: fresh shared cold start without marker still resolves child-home', async () => {
     const env = loadOrchestratorSandbox({
       pathname: '/dashboard',
-      fetch(url) {
-        return {
-          ok: true,
-          json: async () => childHomeAppEntryBody(),
-        };
-      },
+      appEntryBody: childHomeAppEntryBody(CHILD_ID),
     });
     const orch = env.sandbox.AppEntryOrchestrator;
     const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap', skipRedirect: true });
     assert.equal(cold.ok, true);
     assert.equal(cold.decision.destination, 'child-home');
-    assert.ok(env.fetchCalls.length >= 1, 'cold start should fetch authoritative app-entry');
-    assert.equal(env.fetchCalls[0].url, '/api/auth/app-entry');
+    assert.ok(env.fetchCalls.some((c) => c.url.indexOf('/api/auth/app-entry') !== -1));
     assert.equal(orch.isExplicitParentResumeActive(), false);
   });
 
-  test('explicit return-to-child clears marker so dashboard cannot stay parent', async () => {
-    const env = loadOrchestratorSandbox({ pathname: '/dashboard', deviceMode: 'parent' });
+  test('C: explicit return-to-child clears marker and parent decision', async () => {
+    const env = loadOrchestratorSandbox({
+      pathname: '/dashboard',
+      deviceMode: 'parent',
+      privilegeActive: true,
+    });
     const orch = env.sandbox.AppEntryOrchestrator;
-    orch.commitExplicitParentResume('/dashboard');
+    orch.beginExplicitParentResume('/dashboard');
+    await orch.resolveExplicitParentResumeIfNeeded();
     assert.equal(orch.isExplicitParentResumeActive(), true);
 
     orch.markDecisionApplied({
@@ -133,53 +110,123 @@ describe('explicit parent resume — orchestrator VM sequence', () => {
       path: '/child/today',
     });
     assert.equal(orch.isExplicitParentResumeActive(), false);
+    assert.equal(env.sandbox.sessionStorage.getItem(MARKER_KEY), null);
   });
 
-  test('marker without decision payload is reconstructed on dashboard bootstrap', async () => {
+  test('D: expired privilege clears marker and resumes child-first routing', async () => {
+    const entryBody = childHomeAppEntryBody(CHILD_ID);
     const env = loadOrchestratorSandbox({
       pathname: '/dashboard',
       deviceMode: 'parent',
-      fetch(url) {
-        return {
-          ok: true,
-          json: async () => childHomeAppEntryBody(),
-        };
-      },
+      appEntryBody: entryBody,
+      privilegeActive: true,
+      leaseUntil: new Date(Date.now() - 1000).toISOString(),
     });
     const orch = env.sandbox.AppEntryOrchestrator;
-    env.sandbox.sessionStorage.setItem('stjarndag_explicit_parent_resume_v1', '1');
-    env.sandbox.sessionStorage.removeItem('stjarndag_entry_decision_v1');
-    env.sandbox.sessionStorage.removeItem('stjarndag_entry_decision_applied');
+    orch.beginExplicitParentResume('/dashboard');
+    await orch.resolveExplicitParentResumeIfNeeded();
+    assert.equal(orch.isExplicitParentResumeActive(), true);
+
+    env.sandbox.AppEntryOrchestrator.rejectExplicitParentResume();
+    assert.equal(orch.isExplicitParentResumeActive(), false);
+
+    const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap', skipRedirect: true });
+    assert.notEqual(cold.code, 'EXPLICIT_PARENT_RESUME');
+    assert.equal(cold.decision.destination, 'child-home');
+  });
+
+  test('E: revoked/locked authority rejects pending marker', async () => {
+    const entryBody = childHomeAppEntryBody(CHILD_ID);
+    const env = loadOrchestratorSandbox({
+      pathname: '/dashboard',
+      appEntryBody: entryBody,
+      privilegeActive: false,
+      privilegeState: 'revoked',
+    });
+    const orch = env.sandbox.AppEntryOrchestrator;
+    orch.beginExplicitParentResume('/dashboard');
+
+    const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap', skipRedirect: true });
+    assert.notEqual(cold.code, 'EXPLICIT_PARENT_RESUME');
+    assert.equal(cold.decision.destination, 'child-home');
+    assert.equal(env.sandbox.sessionStorage.getItem(MARKER_KEY), null);
+  });
+
+  test('F: forged stale marker with child /api/auth/me is rejected', async () => {
+    const entryBody = childHomeAppEntryBody(CHILD_ID);
+    const env = loadOrchestratorSandbox({
+      pathname: '/dashboard',
+      appEntryBody: entryBody,
+      meType: 'child',
+      privilegeActive: false,
+    });
+    const orch = env.sandbox.AppEntryOrchestrator;
+    env.sandbox.sessionStorage.setItem(MARKER_KEY, JSON.stringify({
+      status: 'pending',
+      at: Date.now(),
+      expiresAt: Date.now() + 60000,
+      path: '/dashboard',
+    }));
+
+    const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap', skipRedirect: true });
+    assert.notEqual(cold.code, 'EXPLICIT_PARENT_RESUME');
+    assert.equal(cold.decision.destination, 'child-home');
+    assert.equal(env.sandbox.sessionStorage.getItem(MARKER_KEY), null);
+  });
+
+  test('G: marker without decision payload requires verification, not blind reconstruct', async () => {
+    const entryBody = childHomeAppEntryBody(CHILD_ID);
+    const env = loadOrchestratorSandbox({
+      pathname: '/dashboard',
+      appEntryBody: entryBody,
+      privilegeActive: true,
+    });
+    const orch = env.sandbox.AppEntryOrchestrator;
+    env.sandbox.sessionStorage.setItem(MARKER_KEY, JSON.stringify({
+      status: 'pending',
+      at: Date.now(),
+      expiresAt: Date.now() + 60000,
+      path: '/dashboard',
+    }));
 
     const cold = await orch.runColdStart({ source: 'parent_entry_bootstrap' });
     assert.equal(cold.code, 'EXPLICIT_PARENT_RESUME');
     assert.equal(cold.decision.destination, 'parent-home');
-    assert.equal(env.redirects.length, 0);
+    assert.ok(env.fetchCalls.some((c) => c.url.indexOf('/api/auth/me') !== -1));
+    assert.ok(env.fetchCalls.some((c) => c.url.indexOf('/api/family/adult-privilege/status') !== -1));
   });
 });
 
 describe('explicit parent resume — client wiring contracts', () => {
-  test('picker uses commitExplicitParentResume', () => {
+  test('picker uses beginExplicitParentResume (pending transition only)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
-    assert.match(src, /commitExplicitParentResume/);
-    assert.match(src, /explicitParentResume:\s*true/);
+    assert.match(src, /beginExplicitParentResume/);
+    assert.doesNotMatch(src, /markDecisionApplied\(\{[\s\S]*profile_picker_parent_resume/);
   });
 
-  test('orchestrator exports explicit parent resume helpers', () => {
+  test('orchestrator verifies authority before honoring explicit resume', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/app-entry-orchestrator.js'), 'utf8');
-    assert.match(src, /EXPLICIT_PARENT_RESUME_KEY/);
-    assert.match(src, /commitExplicitParentResume/);
-    assert.match(src, /EXPLICIT_PARENT_RESUME/);
+    assert.match(src, /verifyExplicitParentResumeAuthority/);
+    assert.match(src, /resolveExplicitParentResumeIfNeeded/);
+    assert.match(src, /rejectExplicitParentResume/);
+    assert.match(src, /status:\s*'pending'/);
+    assert.match(src, /status:\s*'verified'/);
   });
 
-  test('session gate honors explicit parent resume before child redirect', () => {
+  test('session gate defers while pending and honors verified resume', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/session-gate.js'), 'utf8');
+    assert.match(src, /isExplicitParentResumePending/);
     assert.match(src, /isExplicitParentResumeActive/);
+  });
+
+  test('adult privilege expiry clears explicit parent resume marker', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/adult-privilege.js'), 'utf8');
+    assert.match(src, /rejectExplicitParentResume/);
   });
 });
 
 describe('explicit parent resume — HTTP + picker sequence', () => {
-  test('shared child context → select-parent → explicit resume blocks cold-start child overwrite', async (t) => {
+  test('A HTTP: child -> select-parent -> me parent -> dashboard stays parent', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -215,25 +262,23 @@ describe('explicit parent resume — HTTP + picker sequence', () => {
       const childPinHash = await hashPassword('2580');
       await db.query('UPDATE child SET pin = $1 WHERE id = $2', [childPinHash, childRow.rows[0].id]);
 
+      let cookies = { ...session.cookies, ...deviceCookies };
       const childLoginRes = await fetch(`${http.baseUrl}/api/auth/child-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Cookie: cookieHeader({ ...session.cookies, ...deviceCookies }),
+          Cookie: cookieHeader(cookies),
           'X-CSRF-Token': session.csrfToken,
         },
         body: JSON.stringify({ username: childUsername, pin: '2580' }),
       });
       assert.equal(childLoginRes.status, 200, await childLoginRes.text());
-      let cookies = { ...session.cookies, ...deviceCookies };
       for (const header of getSetCookieHeaders(childLoginRes)) {
         cookies = mergeCookies(cookies, [header]);
       }
-
-      const meChild = await fetch(`${http.baseUrl}/api/auth/me`, {
+      assert.equal((await (await fetch(`${http.baseUrl}/api/auth/me`, {
         headers: { Cookie: cookieHeader(cookies) },
-      });
-      assert.equal((await meChild.json()).type, 'child');
+      })).json()).type, 'child');
 
       const selectParent = await fetch(`${http.baseUrl}/api/auth/trusted-device/select-parent`, {
         method: 'POST',
@@ -249,36 +294,39 @@ describe('explicit parent resume — HTTP + picker sequence', () => {
       for (const header of getSetCookieHeaders(selectParent)) {
         cookies = mergeCookies(cookies, [header]);
       }
+      assert.equal((await (await fetch(`${http.baseUrl}/api/auth/me`, {
+        headers: { Cookie: cookieHeader(cookies) },
+      })).json()).type, 'parent');
 
-      const meParent = await fetch(`${http.baseUrl}/api/auth/me`, {
+      const statusRes = await fetch(`${http.baseUrl}/api/family/adult-privilege/status`, {
         headers: { Cookie: cookieHeader(cookies) },
       });
-      assert.equal((await meParent.json()).type, 'parent');
+      const statusBody = await statusRes.json();
+      assert.equal(statusRes.status, 200);
+      assert.equal(statusBody.privilegeActive, true);
 
-      const entryRes = await fetch(`${http.baseUrl}/api/auth/app-entry`, {
+      const entryBody = await (await fetch(`${http.baseUrl}/api/auth/app-entry`, {
         headers: { Cookie: cookieHeader(cookies) },
-      });
-      const entryBody = await entryRes.json();
-      assert.equal(entryRes.status, 200);
-      assert.notEqual(entryBody.decision.destination, 'parent-home',
-        'cold-start app-entry must remain child-first on shared devices');
+      })).json();
+      assert.notEqual(entryBody.decision.destination, 'parent-home');
 
       const picker = await pickParent({ hasAppPin: true, parentId });
       assert.equal(picker.redirects[0], '/dashboard');
-      assert.equal(picker.decision.explicitParentResume, true);
-      assert.equal(picker.decision.reason, 'profile_picker_parent_resume');
+      assert.equal(picker.pendingResume, true);
 
       const env = loadOrchestratorSandbox({
         pathname: '/dashboard',
         deviceMode: 'parent',
-        fetch() {
-          return { ok: true, json: async () => entryBody };
-        },
+        privilegeActive: true,
+        appEntryBody: entryBody,
       });
-      env.sandbox.sessionStorage._m = {
-        ...picker.decision && {},
-      };
-      env.sandbox.AppEntryOrchestrator.commitExplicitParentResume('/dashboard');
+      env.sandbox.sessionStorage.setItem(MARKER_KEY, JSON.stringify({
+        status: 'pending',
+        at: Date.now(),
+        expiresAt: Date.now() + 60000,
+        path: '/dashboard',
+      }));
+
       const cold = await env.sandbox.AppEntryOrchestrator.runColdStart({ source: 'parent_entry_bootstrap' });
       assert.equal(cold.code, 'EXPLICIT_PARENT_RESUME');
       assert.equal(env.redirects.length, 0);
@@ -288,6 +336,17 @@ describe('explicit parent resume — HTTP + picker sequence', () => {
     }
   });
 });
+
+async function enableFlags(db) {
+  for (const key of [TRUSTED_FLAG, ENTRY_FLAG, DAILY_UX_FLAG, ADULT_FLAG]) {
+    await db.query(
+      `INSERT INTO feature_flag (key, enabled, description)
+       VALUES ($1, true, 'test')
+       ON CONFLICT (key) DO UPDATE SET enabled = true`,
+      [key]
+    );
+  }
+}
 
 async function enrollShared(http, session) {
   const enrollRes = await fetch(`${http.baseUrl}/api/family/trusted-devices/shared`, {

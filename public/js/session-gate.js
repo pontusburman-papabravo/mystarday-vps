@@ -45,6 +45,10 @@
   }
 
   function isChildViewAuthoritative() {
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.isExplicitParentResumePending
+      && AppEntryOrchestrator.isExplicitParentResumePending()) {
+      return false;
+    }
     if (window.AppEntryOrchestrator && AppEntryOrchestrator.isExplicitParentResumeActive
       && AppEntryOrchestrator.isExplicitParentResumeActive()) {
       return false;
@@ -62,6 +66,10 @@
   }
 
   function resolveRedirect(pathname) {
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.isExplicitParentResumePending
+      && AppEntryOrchestrator.isExplicitParentResumePending()) {
+      return null;
+    }
     if (window.AppEntryOrchestrator && AppEntryOrchestrator.isExplicitParentResumeActive
       && AppEntryOrchestrator.isExplicitParentResumeActive()) {
       return null;
@@ -97,6 +105,10 @@
   }
 
   function run() {
+    if (window.AppEntryOrchestrator && AppEntryOrchestrator.isExplicitParentResumePending
+      && AppEntryOrchestrator.isExplicitParentResumePending()) {
+      return;
+    }
     if (window.AppEntryOrchestrator && AppEntryOrchestrator.shouldDeferSessionGate
       && AppEntryOrchestrator.shouldDeferSessionGate()) {
       return;

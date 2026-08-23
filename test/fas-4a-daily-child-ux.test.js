@@ -106,7 +106,7 @@ describe('Fas 4A — client contracts', () => {
     assert.doesNotMatch(js, /resumeParentIfSessionMatches/);
     assert.match(js, /requestTrustedProfileUnlock/);
     assert.match(js, /commitParentViewFromPicker/);
-    assert.match(js, /markDecisionApplied/);
+    assert.match(js, /beginExplicitParentResume/);
     assert.match(js, /matching \/api\/auth\/me/);
   });
 

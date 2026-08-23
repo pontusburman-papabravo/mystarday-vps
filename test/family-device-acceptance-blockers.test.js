@@ -118,7 +118,8 @@ describe('Family Device acceptance — shared adult PIN boundary', () => {
     });
     assert.equal(result.unlockCalls.length, 1);
     assert.equal(result.enteredParent, true);
-    assert.equal(result.decision && result.decision.destination, 'parent-home');
+    assert.equal(result.pendingResume, true);
+    assert.equal(result.redirects[0], '/dashboard');
   });
 
   it('CHILD_PINLESS: child pick does not request adult unlock', async () => {

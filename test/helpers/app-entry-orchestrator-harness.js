@@ -16,10 +16,60 @@ function createMemoryStorage() {
   };
 }
 
+function parentAuthorityFetchMock(options) {
+  const opts = options || {};
+  const meType = opts.meType || 'parent';
+  const privilegeActive = opts.privilegeActive !== false;
+  const privilegeState = opts.privilegeState || (privilegeActive ? 'active' : 'locked');
+  const leaseUntil = opts.leaseUntil || new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const appEntryBody = opts.appEntryBody || null;
+
+  return async function fetchMock(url, init, fetchCalls) {
+    const u = String(url);
+    if (u.indexOf('/api/auth/me') !== -1) {
+      if (meType === 'unauthorized') {
+        return { ok: false, status: 401, json: async () => ({ error: 'unauthorized' }) };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ type: meType, id: opts.parentId || 'parent-1' }),
+      };
+    }
+    if (u.indexOf('/api/family/adult-privilege/status') !== -1) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          privilegeActive: privilegeActive,
+          state: privilegeState,
+          privilegeLeaseUntil: privilegeActive ? leaseUntil : null,
+        }),
+      };
+    }
+    if (u.indexOf('/api/auth/app-entry') !== -1) {
+      if (typeof opts.appEntryFetch === 'function') {
+        return opts.appEntryFetch(url, init, fetchCalls);
+      }
+      if (appEntryBody) {
+        return { ok: true, status: 200, json: async () => appEntryBody };
+      }
+    }
+    if (u.indexOf('/api/auth/trusted-device/restore') !== -1) {
+      return { ok: true, status: 200, json: async () => ({ ok: true }) };
+    }
+    throw new Error('unexpected fetch ' + url);
+  };
+}
+
 function loadOrchestratorSandbox(options) {
   const opts = options || {};
   const redirects = [];
   const fetchCalls = [];
+  const fetchImpl = typeof opts.fetch === 'function'
+    ? opts.fetch
+    : parentAuthorityFetchMock(opts);
   const sandbox = {
     console,
     setTimeout,
@@ -28,10 +78,7 @@ function loadOrchestratorSandbox(options) {
     URLSearchParams,
     fetch: async function (url, init) {
       fetchCalls.push({ url: String(url), init: init || {} });
-      if (typeof opts.fetch === 'function') {
-        return opts.fetch(url, init, fetchCalls);
-      }
-      throw new Error('unexpected fetch ' + url);
+      return fetchImpl(url, init, fetchCalls);
     },
   };
   sandbox.window = sandbox;
@@ -68,7 +115,30 @@ function loadOrchestratorSandbox(options) {
   return { sandbox, redirects, fetchCalls };
 }
 
+function childHomeAppEntryBody(childId) {
+  const id = childId || '00000000-0000-4000-8000-0000000000c1';
+  return {
+    orchestratorActive: true,
+    dailyUxActive: true,
+    allowedChildren: [{ id, name: 'Astrid' }, { id: 'child-2', name: 'Anna' }],
+    allowedParents: [{ id: 'parent-1', name: 'Parent' }],
+    pinRequiredForParents: true,
+    decision: {
+      destination: 'child-home',
+      viewContext: 'child',
+      credentialContext: 'child',
+      deviceMode: 'shared',
+      childId: id,
+      reason: 'trusted_device_child_home',
+      serverAction: 'restore-child',
+      path: '/child/today',
+    },
+  };
+}
+
 module.exports = {
   createMemoryStorage,
   loadOrchestratorSandbox,
+  parentAuthorityFetchMock,
+  childHomeAppEntryBody,
 };
