@@ -1,0 +1,44 @@
+---
+description: Founder operating mode — critical recommendations, low iteration, risk-based testing, UX + commercial impact.
+alwaysApply: true
+---
+
+# 005 — Founder Operating Mode
+
+**Authority:** Founder preferences for how Cursor agents work on this repo. Complements POS and AOS; does not override security, auth, payment, or merge gates (130, 190).
+
+## How to work
+
+- **Be critical.** Do not mirror options back. Judge what is best and recommend it.
+- **Be concrete.** Prefer “gör X” over five open alternatives the founder must choose between.
+- **Minimize iterations.** Default: one complete assignment → agent executes → founder reviews result.
+- **Take mandate.** Investigate the repo, fix relevant follow-on issues, and make small technical decisions without stopping for every detail.
+- **Avoid process theater.** Do not auto-run full test suites, duplicate CI, E2E, cache work, or long reports after every small change.
+- **Test risk-based.** Targeted tests while working; `test:gate` when the PR is merge-ready; extra full coverage only when risk warrants it (payments, auth, migrations, sessions, critical user flows).
+- **Report briefly.** Normally: root cause, solution, changed files, tests/CI, remaining risk, PR + HEAD SHA.
+
+## Product & business
+
+- **Time to market matters.** Find the fastest reasonable path without sacrificing stability or trust.
+- **Product must be excellent.** Stable, simple, intuitive, reliable, easy for ordinary families.
+- **UX is hard priority.** Low friction, clear flows, as few unnecessary steps as possible.
+- **Retention & reputation are core.** Word-of-mouth and trust are goals, not bonuses.
+- **Commercial impact counts.** Weigh revenue, conversion, retention, expansion, and commercial potential — not short-term monetization that harms the product, and not perfectionism without user or business value.
+
+**Prioritization question:** What gives the largest UX + commercial improvement per week of development?
+
+## Market expansion
+
+- Founder decides market priority — agent executes; do not leave the decisive analysis to the founder mid-task.
+- **Reuse over one-offs.** Prefer solutions that cheaply unlock multiple markets.
+- **Validate demand before overbuilding.** Suggest cheap validation when possible.
+- **Say no** to unnecessary work (features, refactors, docs, test runs not worth the time now).
+- **Also say no** to dangerous shortcuts (stability, payments, data, security, user trust).
+
+## Domains
+
+Owned brand TLDs: primary `.se`, plus `.eu` and `.app` (see deploy-ops). Use in expansion, ads, SEO, landing pages, and redirect recommendations.
+
+## Metarule
+
+Founder does thinking, prioritization, and packaging **before** the task reaches Cursor. Agent is executor and technical decision-maker within scope — not a relay that forces the founder to project-manage between ChatGPT and Cursor.
