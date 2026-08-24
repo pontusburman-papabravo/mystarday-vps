@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '29'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '30'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -94,17 +94,29 @@ function injectParentMagicRouter(body, reqPath) {
   return body.slice(0, tailIdx) + routerScripts + body.slice(tailIdx);
 }
 
+function bumpNativeRuntimeAssetVersions(body) {
+  if (typeof body !== 'string') return body;
+  return body
+    .replace(/\/js\/icon-system\.js\?v=[^"']+/g, '/js/icon-system.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/parent-magic-page-hubs\.js\?v=[^"']+/g, '/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/settings-native-nav\.js\?v=[^"']+/g, '/js/settings-native-nav.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/app-entry-orchestrator\.js\?v=[^"']+/g, '/js/app-entry-orchestrator.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/parent-nav-header\.js\?v=[^"']+/g, '/js/parent-nav-header.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/journey-context-client\.js\?v=[^"']+/g, '/js/journey-context-client.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/child-profile-picker\.js\?v=[^"']+/g, '/js/child-profile-picker.js?v=' + MAGIC_VERSION);
+}
+
 function bumpMagicAssetVersions(body, reqPath) {
   if (typeof body !== 'string' || !body.includes('<html')) return body;
   const path = normalizeHtmlPath(reqPath);
-  if (!isMagicPath(path)) return body;
-  return body
+  if (!isMagicPath(path)) return bumpNativeRuntimeAssetVersions(body);
+  return bumpNativeRuntimeAssetVersions(body
     .replace(/\/css\/app-view-toggle\.css\?v=\d+/g, '/css/app-view-toggle.css?v=' + MAGIC_VERSION)
     .replace(/\/css\/parent-magic-common\.css\?v=\d+/g, '/css/parent-magic-common.css?v=' + MAGIC_VERSION)
     .replace(/\/css\/dashboard-magic\.css\?v=\d+/g, '/css/dashboard-magic.css?v=' + MAGIC_VERSION)
     .replace(/\/css\/dashboard-warmth\.css\?v=[^"']+/g, '/css/dashboard-warmth.css?v=' + MAGIC_VERSION)
     .replace(/\/js\/parent-magic-auto\.js\?v=[^"']+/g, '/js/parent-magic-auto.js?v=' + MAGIC_VERSION)
-    .replace(/\/js\/app-view-mode\.js\?v=[^"']+/g, '/js/app-view-mode.js?v=' + MAGIC_VERSION);
+    .replace(/\/js\/app-view-mode\.js\?v=[^"']+/g, '/js/app-view-mode.js?v=' + MAGIC_VERSION));
 }
 
 /** Ensure magic CSS/JS even when HTML already embeds parent-magic-shell.js (planning, rewards, …). */
@@ -423,6 +435,7 @@ function injectPlatformHtml(body, reqPath, req) {
   body = injectNoindexMeta(body, reqPath);
   if (body.includes(INJECT_MARKER)) {
     body = injectParentMagicStack(body, reqPath, req);
+    body = bumpNativeRuntimeAssetVersions(body);
     return applyAndroidWebViewHardening(injectDebug ? ensureNativeDebugAssets(body) : body, reqPath, req);
   }
 
@@ -461,7 +474,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/adult-privilege-lifecycle.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-biometric-client.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<script src="/js/app-entry-orchestrator.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/app-entry-orchestrator.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-backup-login-intent.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/profile-switch-chrome.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/family-device-entry-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
@@ -470,7 +483,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/widget-bridge-provision.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-install-prompt.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<script src="/js/settings-native-nav.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/settings-native-nav.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/meta-app-events.js?v=' + RELEASE_TAG + '"><\/script>',
@@ -505,7 +518,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/parent-share-flow.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/native-tab-bar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/parent-nav-sidebar.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
-    '<script src="/js/parent-nav-header.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
+    '<script src="/js/parent-nav-header.js?v=' + MAGIC_VERSION + '" defer><\/script>\n' +
     '<script src="/js/billing-ui.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
     '<script src="/js/iap-native-client-logic.js?v=' + RELEASE_TAG + '"><\/script>\n' +
     '<script src="/js/iap-manager.js?v=' + RELEASE_TAG + '" defer><\/script>\n' +
@@ -523,6 +536,7 @@ function injectPlatformHtml(body, reqPath, req) {
   }
 
   body = injectParentMagicStack(body, reqPath, req);
+  body = bumpNativeRuntimeAssetVersions(body);
   body = injectDebug ? ensureNativeDebugAssets(body) : body;
   return applyAndroidWebViewHardening(body, reqPath, req);
 }
@@ -586,3 +600,5 @@ module.exports.buildAndroidHardeningBeacon = buildAndroidHardeningBeacon;
 module.exports.applyAndroidWebViewHardening = applyAndroidWebViewHardening;
 module.exports.injectPlatformHtml = injectPlatformHtml;
 module.exports.injectParentMagicHtml = injectParentMagicHtml;
+module.exports.bumpNativeRuntimeAssetVersions = bumpNativeRuntimeAssetVersions;
+module.exports.MAGIC_VERSION = MAGIC_VERSION;

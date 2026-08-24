@@ -14,7 +14,7 @@ describe('platform-html magic asset versions', () => {
     assert.match(src, /parent-magic-auto\.js\?v=/);
     assert.match(src, /app-view-toggle\.css\?v=/);
     assert.match(src, /dashboard-magic\.css\?v=/);
-    assert.match(src, /MAGIC_VERSION = '29'/);
+    assert.match(src, /MAGIC_VERSION = '30'/);
   });
 
   it('dashboard HTML references bumped parent-magic-auto', () => {
