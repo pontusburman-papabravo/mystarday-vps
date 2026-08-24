@@ -263,6 +263,44 @@
     }
   }
 
+  function parseRetryAfterSec(res) {
+    const header = res && res.headers ? res.headers.get('Retry-After') : null;
+    const parsed = parseInt(header, 10);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+    const bodyRetry = res && res._body && res._body.retry_after;
+    const bodyParsed = parseInt(bodyRetry, 10);
+    if (Number.isFinite(bodyParsed) && bodyParsed > 0) return bodyParsed;
+    return 60;
+  }
+
+  function showBootstrapError(message, retrySec) {
+    const grid = document.getElementById('cppGrid');
+    if (grid) {
+      grid.innerHTML = '<button type="button" id="cppRetryBtn" class="cpp-fallback-link cpp-fallback-btn">Försök igen</button>';
+      const retryBtn = grid.querySelector('#cppRetryBtn');
+      if (retryBtn) retryBtn.addEventListener('click', bootstrap);
+    }
+    showError(message);
+    const sub = document.getElementById('cppSub');
+    if (sub && retrySec) {
+      sub.textContent = 'Försök igen om ' + retrySec + ' s';
+    }
+  }
+
+  async function fetchAppEntry() {
+    const res = await fetch('/api/auth/app-entry', { credentials: 'include' });
+    const body = await res.json().catch(function () { return {}; });
+    body._httpStatus = res.status;
+    if (!res.ok) {
+      const err = new Error(body.error || ('HTTP ' + res.status));
+      err.status = res.status;
+      err.body = body;
+      err.retryAfterSec = parseRetryAfterSec({ headers: res.headers, _body: body });
+      throw err;
+    }
+    return body;
+  }
+
   async function bootstrap() {
     window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
     const params = new URLSearchParams(window.location.search);
@@ -277,8 +315,19 @@
       }
     }
 
-    const res = await fetch('/api/auth/app-entry', { credentials: 'include' });
-    const body = await res.json().catch(function () { return {}; });
+    let body;
+    try {
+      body = await fetchAppEntry();
+    } catch (err) {
+      if (err && err.status === 429) {
+        const retrySec = err.retryAfterSec || 60;
+        showBootstrapError('För många förfrågningar. Vänta en minut och försök igen.', retrySec);
+        return;
+      }
+      showBootstrapError('Profilerna kunde inte laddas just nu. Kontrollera nätverket och försök igen.', null);
+      return;
+    }
+
     storeEntryMeta(body);
     _pinRequired = body.pinRequiredForParents === true;
 
@@ -287,7 +336,7 @@
       legacy.classList.toggle('hidden', body.dailyUxActive === true);
     }
 
-    if (!body.orchestratorActive) {
+    if (body.orchestratorActive !== true) {
       window.location.replace('/child-login?shared_device=1');
       return;
     }
@@ -297,7 +346,7 @@
     const totalProfiles = children.length + parents.length;
 
     if (totalProfiles === 0) {
-      showError('Inga profiler är tillgängliga på den här enheten.');
+      showBootstrapError('Inga profiler är tillgängliga på den här enheten.', null);
       return;
     }
     if (totalProfiles === 1 && children.length === 1 && !isSwitch) {
@@ -321,6 +370,7 @@
 
   if (typeof window !== 'undefined' && window.__exposePickerRuntimeForTests) {
     window.__PickerRuntimeTestHooks = {
+      bootstrap: bootstrap,
       onPickParent: onPickParent,
       onPickChild: onPickChild,
       resolveActiveParentId: resolveActiveParentId,
