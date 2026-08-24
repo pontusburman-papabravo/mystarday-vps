@@ -19,15 +19,23 @@
   }
 
   function describePremium(premium) {
+    const locale = (window.I18n && typeof I18n.getLocale === 'function')
+      ? I18n.getLocale()
+      : 'sv-SE';
+    const isEn = String(locale).toLowerCase().indexOf('en') === 0;
     if (!premium || !premium.active) {
       return {
-        title: 'Ingen aktiv Premium',
-        body: 'Aktivera Premium för full tillgång till appen.',
-        cta: { href: '/paywall', label: 'Aktivera Premium' },
+        title: isEn ? 'No active Premium' : 'Ingen aktiv Premium',
+        body: isEn ? 'Activate Premium for full access to the app.' : 'Aktivera Premium för full tillgång till appen.',
+        cta: { href: '/paywall', label: isEn ? 'Activate Premium' : 'Aktivera Premium' },
       };
     }
     if (premium.is_grandfathered) {
-      return { title: 'Premium permanent', body: 'Er familj har permanent Premium.', cta: null };
+      return {
+        title: isEn ? 'Premium included permanently' : 'Premium ingår permanent',
+        body: isEn ? 'Your family has full access at no cost.' : 'Din familj har full tillgång utan kostnad.',
+        cta: null,
+      };
     }
     if (premium.trial) {
       return {

@@ -96,6 +96,13 @@
         btn.disabled = true;
         const usage = btn.getAttribute('data-usage');
         const childId = btn.getAttribute('data-child');
+        if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+          const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({ usage: usage });
+          if (!pinOk) {
+            btn.disabled = false;
+            return;
+          }
+        }
         const body = {
           usage: usage,
           platform: detectPlatform(),

@@ -145,6 +145,14 @@ function ensureMagicShellAssets(body, reqPath) {
 
   scriptsToEnsure.forEach(function (item) {
     if (body.includes(item.needle)) return;
+    const hubsIdx = body.indexOf('parent-magic-page-hubs.js');
+    if (hubsIdx !== -1) {
+      const lineStart = body.lastIndexOf('<script', hubsIdx);
+      if (lineStart !== -1) {
+        body = body.slice(0, lineStart) + item.tag + body.slice(lineStart);
+        return;
+      }
+    }
     const shellIdx = body.indexOf('parent-magic-shell.js');
     if (shellIdx !== -1) {
       const lineStart = body.lastIndexOf('<script', shellIdx);

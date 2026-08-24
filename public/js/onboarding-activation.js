@@ -69,7 +69,11 @@
     }
   }
 
-  function startChildHandoff(source) {
+  async function startChildHandoff(source) {
+    if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+      const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({ childHandoff: true });
+      if (!pinOk) return;
+    }
     const resumeActive = window.OnboardingHandoffResume &&
       typeof OnboardingHandoffResume.isActive === 'function' &&
       OnboardingHandoffResume.isActive();
@@ -79,7 +83,6 @@
       trackEvent('child_view_opened', { child_id: childId, source: src });
     }
     openChildLogin();
-    return Promise.resolve();
   }
 
   function confirmHandoffSkip(onConfirm) {

@@ -207,8 +207,11 @@
     "confirmPin": "Bekräfta PIN-kod",
     "changeLater": "Du kan ändra din PIN senare under Familjen & inställningar.",
     "pinRequiredOrEmpty": "Ange en 4-siffrig PIN-kod eller lämna fälten tomma",
+    "pinRequiredForHandoff": "Sätt en 4-siffrig PIN innan barnet kan ta över enheten.",
     "pinMismatch": "PIN-koderna matchar inte",
-    "saveFailed": "Kunde inte spara PIN-koden"
+    "saveFailed": "Kunde inte spara PIN-koden",
+    "handoffRequired": "På en delad enhet behöver du en vuxen-PIN innan barnet kan logga in.",
+    "saveAndContinue": "Spara och fortsätt"
   },
   "invite": {
     "inviteLater": "Bjud in medförälder senare",

@@ -115,6 +115,10 @@
   }
 
   async function completeSetup(body) {
+    if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+      const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({ usage: body.usage });
+      if (!pinOk) return;
+    }
     const payload = Object.assign({}, body, { platform: detectPlatform() });
     const res = await window.apiFetch('/api/family/trusted-devices/this-device/setup', {
       method: 'POST',

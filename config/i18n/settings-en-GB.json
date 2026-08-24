@@ -7,7 +7,8 @@
     "profile": { "title": "Profile & account", "sub": "Login, PIN and account" },
     "family": { "title": "Family", "sub": "Add adult, names and educators" },
     "appearance": { "title": "Appearance", "sub": "Dark or light theme" },
-    "app": { "title": "App", "sub": "Notifications, push and privacy" }
+    "app": { "title": "App", "sub": "Notifications, push and privacy" },
+    "premium": { "title": "Subscription", "sub": "Premium, purchases and payments" }
   },
   "appearance": {
     "dark": "Dark",

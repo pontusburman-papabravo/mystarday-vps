@@ -15,8 +15,8 @@
     'settings.groups.appearance.sub': 'Mörkt eller ljust tema',
     'settings.groups.app.title': 'App',
     'settings.groups.app.sub': 'Notiser, push och integritet',
-    'settings.groups.premium.title': 'Premium & prenumeration',
-    'settings.groups.premium.sub': 'Hantera Premium, köp och återställ köp',
+    'settings.groups.premium.title': 'Prenumeration',
+    'settings.groups.premium.sub': 'Premium, köp och betalning',
     'settings.appearance.backToSettings': '← Tillbaka till inställningar',
   };
 
@@ -153,11 +153,19 @@
   }
 
   function pageIcon(iconKey, size) {
+    const iconSize = size || (window.IconSystem && IconSystem.SIZES ? IconSystem.SIZES.hero : 48);
     if (window.IconSystem && IconSystem.has(iconKey)) {
+      if (size && size <= 32 && typeof IconSystem.hub === 'function') {
+        return IconSystem.hub(iconKey);
+      }
       return IconSystem.render(iconKey, {
-        size: size || IconSystem.SIZES.hero,
+        size: iconSize,
         className: 'app-icon app-icon--hero',
       });
+    }
+    if (iconKey && /^[a-z0-9-]+$/.test(iconKey)) {
+      return '<img src="/img/stjarnadag-icons-v4/hub/' + iconKey + '.svg" class="app-icon app-icon--hero" width="' +
+        iconSize + '" height="' + iconSize + '" alt="" decoding="async" aria-hidden="true">';
     }
     return iconKey;
   }
