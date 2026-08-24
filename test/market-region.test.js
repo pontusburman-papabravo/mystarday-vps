@@ -52,6 +52,11 @@ describe('gateKeyForCountry', () => {
     assert.equal(deriveMarketRegion('IE'), MARKET_REGIONS.EU);
   });
 
+  it('FI uses market_fi_open', () => {
+    assert.equal(gateKeyForCountry('FI'), GATE_KEYS.FI);
+    assert.equal(deriveMarketRegion('FI'), MARKET_REGIONS.EU);
+  });
+
   it('NO uses market_no_open', () => {
     assert.equal(gateKeyForCountry('NO'), GATE_KEYS.NO);
   });

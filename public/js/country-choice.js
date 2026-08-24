@@ -46,11 +46,12 @@
       ? getCountries()
       : [{ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }];
 
-    const featured = countries.filter((c) => c.group === 'featured' || ['SE', 'GB', 'US', 'ZZ'].includes(c.code));
-    const eu = countries.filter((c) => !featured.includes(c));
+    const featured = countries.filter((c) => c.group === 'featured' || ['SE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
+    const eu = countries.filter((c) => !['SE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
 
     let options = `<option value="">${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
     options += `<option value="SE">${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
+    options += `<option value="FI">${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
     if (eu.length) {
       options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
       eu.forEach((c) => {
@@ -102,6 +103,7 @@
   let gateMap = {
     SE: true,
     IE: false,
+    FI: false,
     NO: false,
     DK: false,
     EU: false,
@@ -118,6 +120,7 @@
       gateMap = {
         SE: data.market_se_open !== false,
         IE: data.market_ie_open === true,
+        FI: data.market_fi_open === true,
         NO: data.market_no_open === true,
         DK: data.market_dk_open === true,
         EU: data.market_eu_open === true,
@@ -131,6 +134,7 @@
   function isCountryOpen(code) {
     if (code === 'SE') return gateMap.SE;
     if (code === 'IE') return gateMap.IE;
+    if (code === 'FI') return gateMap.FI;
     if (code === 'NO') return gateMap.NO;
     if (code === 'DK') return gateMap.DK;
     if (code === 'GB') return gateMap.UK;
@@ -144,6 +148,7 @@
     if (!code || isCountryOpen(code)) return '';
     if (window.I18n) {
       if (code === 'IE') return I18n.t('market.choice.closedIe');
+      if (code === 'FI') return I18n.t('market.choice.closedFi');
       if (code === 'NO') return I18n.t('market.choice.closedNo');
       if (code === 'DK') return I18n.t('market.choice.closedDk');
       if (code === 'GB') return I18n.t('market.choice.closedUk');
