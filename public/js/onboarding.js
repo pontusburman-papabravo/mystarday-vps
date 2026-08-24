@@ -229,7 +229,7 @@ function focusScheduleSection() {
 
 function renderTemplateGroupsLoadFailed(grid, step1Btn) {
   const failedMsg = tOnboarding('onboarding.child.templatesLoadFailed');
-  const retryLabel = tOnboarding('onboarding.child.templatesRetryBtn') || 'Försök igen';
+  const retryLabel = tOnboarding('onboarding.child.templatesRetryBtn');
   grid.innerHTML =
     '<div class="col-span-full py-4 space-y-3">' +
     '<p class="text-sm text-text-soft">' + escapeHtml(failedMsg) + '</p>' +
