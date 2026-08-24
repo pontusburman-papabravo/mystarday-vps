@@ -37,7 +37,7 @@ alwaysApply: true
 
 ## Domains
 
-Owned brand TLDs: primary `.se`, plus `.eu` and `.app` (see deploy-ops). Use in expansion, ads, SEO, landing pages, and redirect recommendations.
+- **Owned brand domains:** `mystarday.se`, `mystarday.eu`, `mystarday.app`. Do not assume one is globally primary. Recommend canonical domain and market/domain usage based on brand, UX, SEO, commercial strategy, international expansion, and technical simplicity. Prefer a simple coherent domain strategy over country-specific fragmentation. <!-- pragma: allowlist secret -->
 
 ## Metarule
 
