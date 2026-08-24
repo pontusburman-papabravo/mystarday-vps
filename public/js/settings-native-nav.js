@@ -46,6 +46,12 @@
 
   function ensureBackToHome() {
     if (!shouldShowEscapeHatch()) return;
+    const inGroup = global.document.body.classList.contains('magic-settings-in-group');
+    if (inGroup) {
+      const existing = global.document.getElementById(WRAP_ID);
+      if (existing) existing.remove();
+      return;
+    }
     if (global.document.getElementById('nativeSettingsBackLink')) return;
 
     const scroll = settingsScrollRoot();

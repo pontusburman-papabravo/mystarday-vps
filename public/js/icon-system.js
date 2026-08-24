@@ -8,6 +8,7 @@
 
   const BASE_V4 = '/img/stjarnadag-icons-v4/';
   const BASE_QA_V4 = '/img/stjarnadag-quick-actions-v4/';
+  const HUB_ASSET_VERSION = '2';
 
   /** Bottom-nav destinations with unique v4 geometry + active/inactive assets. */
   const NAV_V4_KEYS = {
@@ -148,7 +149,7 @@
       return navUrl(navKey, !!opts.active);
     }
     if (isHubV4(name)) {
-      return BASE_V4 + 'hub/' + name + '.svg';
+      return BASE_V4 + 'hub/' + name + '.svg?v=' + HUB_ASSET_VERSION;
     }
     const childKey = resolveChildKey(name);
     if (childKey) {
@@ -249,6 +250,7 @@
     BASE: BASE_V4,
     BASE_V4: BASE_V4,
     BASE_QA_V4: BASE_QA_V4,
+    HUB_ASSET_VERSION: HUB_ASSET_VERSION,
     NAV_V4_KEYS: NAV_V4_KEYS,
     NAV_ALIASES: NAV_ALIASES,
     CHROME_V4_KEYS: CHROME_V4_KEYS,

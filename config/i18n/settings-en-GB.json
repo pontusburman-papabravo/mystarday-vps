@@ -1,7 +1,7 @@
 {
   "pageTitle": "Settings — {{brand}}",
   "title": "Settings",
-  "shellLead": "Profile, family and app — grouped for easy access",
+  "shellLead": "Profile, family and app",
   "familySettings": "Family settings",
   "groups": {
     "profile": { "title": "Profile & account", "sub": "Login, PIN and account" },

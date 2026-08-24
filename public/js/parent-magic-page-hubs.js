@@ -1,12 +1,13 @@
 /**
- * parent-magic-page-hubs.js — Mockup heroes for schedule / family / settings.
+ * parent-magic-page-hubs.js — Magic page heroes for schedule / family / settings.
  */
 (function () {
   'use strict';
 
   const SETTINGS_HUB_COPY_FALLBACK = {
     'settings.title': 'Inställningar',
-    'settings.shellLead': 'Profil, familj och app — grupperat som i mockupen',
+    'settings.shellLead': 'Profil, familj och app',
+    'settings.shellLeadEn': 'Profile, family and app',
     'settings.groups.profile.title': 'Profil & konto',
     'settings.groups.profile.sub': 'Inloggning, PIN och konto',
     'settings.groups.family.title': 'Familj',
@@ -164,10 +165,11 @@
       });
     }
     if (iconKey && /^[a-z0-9-]+$/.test(iconKey)) {
-      return '<img src="/img/stjarnadag-icons-v4/hub/' + iconKey + '.svg" class="app-icon app-icon--hero" width="' +
+      const bust = (window.IconSystem && IconSystem.HUB_ASSET_VERSION) || '1';
+      return '<img src="/img/stjarnadag-icons-v4/hub/' + iconKey + '.svg?v=' + bust + '" class="app-icon app-icon--hero" width="' +
         iconSize + '" height="' + iconSize + '" alt="" decoding="async" aria-hidden="true">';
     }
-    return iconKey;
+    return '';
   }
 
   function renderGenericHero(cfg) {
@@ -252,8 +254,12 @@
   }
 
   function renderSettingsMenu() {
+    const hasTopProfileSwitch = window.ProfileSwitchChrome
+      && ProfileSwitchChrome.shouldShow
+      && ProfileSwitchChrome.shouldShow()
+      && document.querySelector('[data-profile-switch-parent]');
     let switchCard = '';
-    if (window.ProfileSwitchChrome && ProfileSwitchChrome.shouldShow && ProfileSwitchChrome.shouldShow()) {
+    if (!hasTopProfileSwitch && window.ProfileSwitchChrome && ProfileSwitchChrome.shouldShow && ProfileSwitchChrome.shouldShow()) {
       const switchLabel = ProfileSwitchChrome.labelText ? ProfileSwitchChrome.labelText() : 'Byt profil';
       switchCard =
         '<button type="button" class="magic-settings-group-card magic-3d-card" data-profile-switch-settings="1">' +
