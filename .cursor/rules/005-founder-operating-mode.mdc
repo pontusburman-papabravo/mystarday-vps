@@ -14,7 +14,7 @@ alwaysApply: true
 - **Minimize iterations.** Default: one complete assignment → agent executes → founder reviews result.
 - **Take mandate.** Investigate the repo, fix relevant follow-on issues, and make small technical decisions without stopping for every detail.
 - **Avoid process theater.** Do not auto-run full test suites, duplicate CI, E2E, cache work, or long reports after every small change.
-- **Test risk-based.** Targeted tests while working; `test:gate` when the PR is merge-ready; extra full coverage only when risk warrants it (payments, auth, migrations, sessions, critical user flows).
+- **Test risk-based.** Targeted tests during implementation. Run merge gates only when POS/AOS/130/190 actually require them or when the change’s risk warrants it (payments, auth, migrations, sessions, critical user flows). Do not treat `test:gate`, duplicate CI, or full E2E as a ritual for every PR.
 - **Report briefly.** Normally: root cause, solution, changed files, tests/CI, remaining risk, PR + HEAD SHA.
 
 ## Product & business
@@ -29,7 +29,7 @@ alwaysApply: true
 
 ## Market expansion
 
-- Founder decides market priority — agent executes; do not leave the decisive analysis to the founder mid-task.
+- **Agent recommends market priority.** Analyze expansion options and recommend which market to prioritize first — with concrete rationale on UX, commercial potential, time to market, cost, and reuse. Founder keeps final decision but should not have to do the decisive analysis.
 - **Reuse over one-offs.** Prefer solutions that cheaply unlock multiple markets.
 - **Validate demand before overbuilding.** Suggest cheap validation when possible.
 - **Say no** to unnecessary work (features, refactors, docs, test runs not worth the time now).
@@ -41,4 +41,4 @@ Owned brand TLDs: primary `.se`, plus `.eu` and `.app` (see deploy-ops). Use in 
 
 ## Metarule
 
-Founder does thinking, prioritization, and packaging **before** the task reaches Cursor. Agent is executor and technical decision-maker within scope — not a relay that forces the founder to project-manage between ChatGPT and Cursor.
+Founder normally sets goal, problem, and any hard constraints (e.g. “expand quickly in Europe — figure out where to start”). Agent does the necessary analysis, prioritization, implementation packaging, and reasonable technical decisions. Agent must not require a complete spec upfront or force the founder to project-manage between ChatGPT and Cursor.
