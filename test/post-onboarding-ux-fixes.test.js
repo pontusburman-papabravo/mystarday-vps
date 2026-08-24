@@ -89,7 +89,7 @@ describe('post-onboarding UX fixes — subscription terminology & icon', () => {
     vm.runInNewContext(read('public/js/icon-system.js'), sandbox, { filename: 'icon-system.js' });
     assert.equal(sandbox.IconSystem.has('trofe'), true);
     const html = sandbox.IconSystem.hub('trofe');
-    assert.match(html, /<img[^>]+src="\/img\/stjarnadag-icons-v4\/hub\/trofe\.svg"/);
+    assert.match(html, /<img[^>]+src="\/img\/stjarnadag-icons-v4\/hub\/trofe\.svg(\?v=\d+)?"/);
     assert.match(html, /width="44"/);
   });
 });
