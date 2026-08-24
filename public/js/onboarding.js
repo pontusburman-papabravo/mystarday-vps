@@ -216,6 +216,67 @@ function buildEmojiGrid() {
 // ────────────────────────────────────────────────────────────────────────────
 // TEMPLATE GROUP GRID (dynamic from admin library)
 // ────────────────────────────────────────────────────────────────────────────
+let templateGroupsLoading = false;
+
+function focusScheduleSection() {
+  const grid = document.getElementById('templateGroupGrid');
+  const target = grid ? (grid.closest('div') || grid) : null;
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+  if (typeof target.focus === 'function') target.focus({ preventScroll: true });
+}
+
+function renderTemplateGroupsLoadFailed(grid, step1Btn) {
+  const failedMsg = tOnboarding('onboarding.child.templatesLoadFailed');
+  const retryLabel = tOnboarding('onboarding.child.templatesRetryBtn') || 'Försök igen';
+  grid.innerHTML =
+    '<div class="col-span-full py-4 space-y-3">' +
+    '<p class="text-sm text-text-soft">' + escapeHtml(failedMsg) + '</p>' +
+    '<button type="button" id="templateGroupsRetryBtn" class="text-sm font-semibold text-navy underline">' +
+    escapeHtml(retryLabel) + '</button></div>';
+  const retryBtn = document.getElementById('templateGroupsRetryBtn');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', function () {
+      if (!templateGroupsLoading) loadTemplateGroups();
+    });
+  }
+  if (step1Btn) step1Btn.disabled = true;
+}
+
+async function loadTemplateGroups() {
+  const grid = document.getElementById('templateGroupGrid');
+  const step1Btn = document.getElementById('step1Btn');
+  if (!grid) return;
+
+  templateGroupsLoading = true;
+  grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">' +
+    escapeHtml(tOnboarding('onboarding.child.templatesLoading')) + '</p>';
+  if (step1Btn) step1Btn.disabled = true;
+
+  try {
+    const tRes = await window.apiFetch('/api/onboarding/template-groups');
+    if (tRes.ok) {
+      templateGroups = await tRes.json();
+    } else {
+      templateGroups = [];
+    }
+  } catch {
+    templateGroups = [];
+  }
+
+  templateGroupsLoading = false;
+  const usableGroups = (templateGroups || []).filter(function (g) { return g && g.activity_count > 0; });
+  if (usableGroups.length === 0) {
+    templateGroups = [];
+    renderTemplateGroupsLoadFailed(grid, step1Btn);
+    return;
+  }
+  templateGroups = usableGroups;
+  buildTemplateGroupGrid(templateGroups);
+  if (step1Btn) step1Btn.disabled = false;
+}
+
 function buildTemplateGroupGrid(groups) {
   const grid = document.getElementById('templateGroupGrid');
   grid.innerHTML = '';
@@ -562,7 +623,11 @@ document.getElementById('step1Btn').addEventListener('click', async () => {
     if (Platform && Platform.isIOS()) emoji = ensureDefaultEmoji();
     if (!emoji && !hasAvatar) { showError(errorEl, tOnboarding('onboarding.child.emojiRequired')); return; }
   }
-  if (!selectedDayPref) { showError(errorEl, tOnboarding('onboarding.child.scheduleRequired')); return; }
+  if (!selectedDayPref) {
+    showError(errorEl, tOnboarding('onboarding.child.scheduleRequired'));
+    focusScheduleSection();
+    return;
+  }
 
   const btn = document.getElementById('step1Btn');
   setLoading(btn, tOnboarding('onboarding.child.creatingChild'));
@@ -1596,25 +1661,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   showVerificationBanner(me);
 
   // Load template groups from admin library (for step 1 schema selection)
-  try {
-    const tRes = await window.apiFetch('/api/onboarding/template-groups');
-    if (tRes.ok) {
-      templateGroups = await tRes.json();
-    }
-  } catch { /* leave empty — do not fake selectable templates */ }
-  const usableGroups = (templateGroups || []).filter((g) => g && g.activity_count > 0);
-  if (usableGroups.length === 0) {
-    templateGroups = [];
-    const grid = document.getElementById('templateGroupGrid');
-    if (grid) {
-      grid.innerHTML = '<p class="text-sm text-text-soft col-span-full py-4">' + escapeHtml(tOnboarding('onboarding.child.templatesLoadFailed')) + '</p>';
-    }
-    const step1Btn = document.getElementById('step1Btn');
-    if (step1Btn) step1Btn.disabled = true;
-  } else {
-    templateGroups = usableGroups;
-    buildTemplateGroupGrid(templateGroups);
-  }
+  await loadTemplateGroups();
 
   // Load rewards from admin library (for step 4)
   try {

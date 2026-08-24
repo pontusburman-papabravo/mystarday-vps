@@ -17,6 +17,7 @@ const LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/notifications/',
   '/api/feedback/',
   '/api/market/',
+  '/api/onboarding/',
   '/api/public/',
   '/api/landing',
   '/api/i18n',
