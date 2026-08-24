@@ -59,8 +59,7 @@
     const anchor = scroll || main;
     if (!anchor) return;
 
-    const inGroup = global.document.body.classList.contains('magic-settings-in-group');
-    const showMenu = inGroup;
+    const showMenu = false;
 
     const wrap = global.document.createElement('div');
     wrap.id = WRAP_ID;
