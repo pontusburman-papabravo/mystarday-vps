@@ -509,6 +509,9 @@ function goToStep(n) {
 
   window.scrollTo(0, 0);
 
+  if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.prepareOnboardingHandoffStep === 'function') {
+    ParentPinHandoffGate.prepareOnboardingHandoffStep(n);
+  }
 }
 
 /** Resume ACT-1 funnel after schema save or child access (avoids auth redirect loop). */
@@ -1060,6 +1063,13 @@ function wireDeferredStep6Options() {
 }
 
 async function redirectToChildHandoffAfterComplete() {
+  if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+    const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({
+      childHandoff: true,
+      preferOnboardingBlock: true,
+    });
+    if (!pinOk) return;
+  }
   document.getElementById('step6').classList.remove('active');
   document.getElementById('loadingStep').classList.remove('hidden');
   setTimeout(function () {
@@ -1071,14 +1081,43 @@ async function redirectToChildHandoffAfterComplete() {
   }, 900);
 }
 
-async function saveOnboardingParentPinIfProvided() {
+async function onboardingHandoffNeedsParentPin() {
+  if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.fetchHasParentPin === 'function') {
+    return !(await ParentPinHandoffGate.fetchHasParentPin());
+  }
+  return false;
+}
+
+async function saveOnboardingParentPinIfProvided(options) {
+  const requirePin = options && options.requirePin === true;
   const block = document.getElementById('onboardingParentPinBlock');
   const errorEl = document.getElementById('onboardingParentPinError');
-  if (!block || block.classList.contains('hidden')) return true;
+  if (!block || block.classList.contains('hidden')) {
+    if (requirePin) {
+      if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.prepareOnboardingStep6PinBlock === 'function') {
+        ParentPinHandoffGate.prepareOnboardingStep6PinBlock();
+      }
+      if (errorEl) {
+        errorEl.textContent = tOnboarding('onboarding.parentPin.pinRequiredForHandoff');
+        errorEl.classList.remove('hidden');
+      }
+      return false;
+    }
+    return true;
+  }
 
   const pin = readOnboardingParentPin('ppObD');
   const confirm = readOnboardingParentPin('ppObC');
-  if (!pin && !confirm) return true;
+  if (!pin && !confirm) {
+    if (requirePin) {
+      if (errorEl) {
+        errorEl.textContent = tOnboarding('onboarding.parentPin.pinRequiredForHandoff');
+        errorEl.classList.remove('hidden');
+      }
+      return false;
+    }
+    return true;
+  }
 
   if (errorEl) errorEl.classList.add('hidden');
 
@@ -1110,6 +1149,9 @@ async function saveOnboardingParentPinIfProvided() {
       }
       return false;
     }
+    if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.invalidateCache === 'function') {
+      ParentPinHandoffGate.invalidateCache();
+    }
     return true;
   } catch (err) {
     if (errorEl) {
@@ -1134,7 +1176,16 @@ async function initJourneyOnboardingCta() {
 }
 
 async function finishOnboardingWithJourneyHandoff(btn, errorEl) {
-  if (!(await saveOnboardingParentPinIfProvided())) {
+  if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+    const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({
+      childHandoff: true,
+      preferOnboardingBlock: true,
+    });
+    if (!pinOk) {
+      setLoading(btn, tOnboarding('onboarding.complete.letChildStartPlain'), false);
+      return;
+    }
+  } else if (!(await saveOnboardingParentPinIfProvided({ requirePin: true }))) {
     setLoading(btn, tOnboarding('onboarding.complete.letChildStartPlain'), false);
     return;
   }
@@ -1183,7 +1234,16 @@ document.getElementById('step6Btn').addEventListener('click', async () => {
 
   setLoading(btn, tOnboarding('onboarding.common.finishing'));
 
-  if (!(await saveOnboardingParentPinIfProvided())) {
+  if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+    const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({
+      childHandoff: true,
+      preferOnboardingBlock: true,
+    });
+    if (!pinOk) {
+      setLoading(btn, tOnboarding('onboarding.complete.letChildStart'), false);
+      return;
+    }
+  } else if (!(await saveOnboardingParentPinIfProvided({ requirePin: true }))) {
     setLoading(btn, tOnboarding('onboarding.complete.letChildStart'), false);
     return;
   }
@@ -1404,7 +1464,15 @@ window.skipInvite = async function() {
   const errorEl = document.getElementById('step6Error');
   errorEl.classList.add('hidden');
 
-  if (!(await saveOnboardingParentPinIfProvided())) return;
+  if (window.ParentPinHandoffGate && typeof ParentPinHandoffGate.ensureBeforeChildHandoff === 'function') {
+    const pinOk = await ParentPinHandoffGate.ensureBeforeChildHandoff({
+      childHandoff: true,
+      preferOnboardingBlock: true,
+    });
+    if (!pinOk) return;
+  } else if (!(await saveOnboardingParentPinIfProvided({ requirePin: true }))) {
+    return;
+  }
 
   try {
     const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });

@@ -62,7 +62,7 @@ function buildPremiumFromRow(row) {
   const isGrandfathered = row.source === 'grandfathered';
 
   let label = 'Premium';
-  if (isGrandfathered) label = 'Premium permanent';
+  if (isGrandfathered) label = 'Premium ingår permanent';
   else if (row.source === 'gift') label = 'Premium – presentkort';
   else if (trial) label = 'Premium – gratis provperiod';
   else if (row.source === 'apple') label = plan === 'yearly' ? 'Premium – årsabonnemang via Apple' : 'Premium – månadsabonnemang via Apple';

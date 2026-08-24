@@ -97,7 +97,8 @@ describe('subscription UI visibility — server contract', () => {
   it('D: grandfathered premium shows UI without activate CTA copy', () => {
     const sub = loadSubscriptionModule();
     assert.match(sub, /is_grandfathered/);
-    assert.match(sub, /Premium permanent/);
+    assert.match(sub, /Premium ingår permanent/);
+    assert.match(sub, /Din familj har full tillgång utan kostnad\./);
     assert.match(sub, /cta: null/);
   });
 });

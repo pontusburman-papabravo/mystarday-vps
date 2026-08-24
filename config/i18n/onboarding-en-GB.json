@@ -207,8 +207,11 @@
     "confirmPin": "Confirm PIN",
     "changeLater": "You can change your PIN later under Family & settings.",
     "pinRequiredOrEmpty": "Enter a 4-digit PIN or leave the fields empty",
+    "pinRequiredForHandoff": "Set a 4-digit PIN before your child can take over the device.",
     "pinMismatch": "The PINs do not match",
-    "saveFailed": "Could not save PIN"
+    "saveFailed": "Could not save PIN",
+    "handoffRequired": "On a shared device you need an adult PIN before your child can sign in.",
+    "saveAndContinue": "Save and continue"
   },
   "invite": {
     "inviteLater": "Invite co-parent later",
