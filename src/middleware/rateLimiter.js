@@ -61,6 +61,7 @@ const API_BOOTSTRAP_PREFIXES = [
   '/auth/refresh',
   '/auth/csrf-token',
   '/auth/login-picker-children',
+  '/auth/app-entry',
   '/auth/me',
   '/auth/logout',
   '/family/parent-pin-status-picker',

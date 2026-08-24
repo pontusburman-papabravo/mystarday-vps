@@ -33,13 +33,34 @@
     return action.icon || '';
   }
 
+  let _unreadInflight = null;
+  let _unreadFetchedAt = 0;
+  const UNREAD_COALESCE_MS = 5000;
+
   function fetchUnreadBadge(link) {
     if (!link || typeof fetch !== 'function') return;
-    fetch('/api/notifications/unread-count', { credentials: 'include' })
+    const now = Date.now();
+    if (_unreadInflight) {
+      _unreadInflight.then(function (data) { applyUnreadBadge(link, data); }).catch(function () {});
+      return;
+    }
+    if (now - _unreadFetchedAt < UNREAD_COALESCE_MS) return;
+    _unreadInflight = fetch('/api/notifications/unread-count', { credentials: 'include' })
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (data) {
-        if (!data) return;
-        const count = parseInt(data.count, 10) || 0;
+        _unreadFetchedAt = Date.now();
+        applyUnreadBadge(link, data);
+        return data;
+      })
+      .catch(function () {})
+      .finally(function () {
+        _unreadInflight = null;
+      });
+  }
+
+  function applyUnreadBadge(link, data) {
+    if (!link || !data) return;
+    const count = parseInt(data.count, 10) || 0;
         let badge = link.querySelector('.parent-nav-notif-badge');
         if (count <= 0) {
           if (badge) badge.hidden = true;
@@ -55,10 +76,8 @@
         }
         badge.textContent = count > 9 ? '9+' : String(count);
         badge.hidden = false;
-        link.setAttribute('data-has-unread', '1');
-        link.innerHTML = iconMarkup({ icon: 'notiser', id: 'notifications' }, { notiserActive: true });
-      })
-      .catch(function () {});
+    link.setAttribute('data-has-unread', '1');
+    link.innerHTML = iconMarkup({ icon: 'notiser', id: 'notifications' }, { notiserActive: true });
   }
 
   function buildActionElement(action) {

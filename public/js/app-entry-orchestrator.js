@@ -18,6 +18,7 @@
   const EXPLICIT_PARENT_PENDING_TTL_MS = 60 * 1000;
 
   let _coldStartPromise = null;
+  let _entryFetchPromise = null;
 
   function clearOrchestratorSessionState() {
     try {
@@ -386,26 +387,38 @@
   }
 
   async function fetchEntryDecision(intentChildId) {
-    const params = new URLSearchParams();
-    if (intentChildId) {
-      params.set('intent_child_id', intentChildId);
+    const cacheKey = intentChildId || '';
+    if (_entryFetchPromise && _entryFetchPromise.key === cacheKey) {
+      return _entryFetchPromise.promise;
     }
-    const url = '/api/auth/app-entry' + (params.toString() ? '?' + params.toString() : '');
-    const res = await fetch(url, { credentials: 'include' });
-    const body = await res.json().catch(function () { return {}; });
-    if (!res.ok) {
-      return { ok: false, status: res.status, body: body };
-    }
-    setActiveFlag(body.orchestratorActive === true);
-    storeEntryResponseMeta(body);
-    if (body.orchestratorActive !== true) {
-      clearOrchestratorSessionState();
-      return { ok: true, orchestratorActive: false, body: body };
-    }
-    if (!validateDecision(body.decision)) {
-      return { ok: false, code: 'INVALID_DECISION' };
-    }
-    return { ok: true, orchestratorActive: true, decision: body.decision, body: body };
+    const promise = (async function () {
+      const params = new URLSearchParams();
+      if (intentChildId) {
+        params.set('intent_child_id', intentChildId);
+      }
+      const url = '/api/auth/app-entry' + (params.toString() ? '?' + params.toString() : '');
+      const res = await fetch(url, { credentials: 'include' });
+      const body = await res.json().catch(function () { return {}; });
+      if (!res.ok) {
+        return { ok: false, status: res.status, body: body };
+      }
+      setActiveFlag(body.orchestratorActive === true);
+      storeEntryResponseMeta(body);
+      if (body.orchestratorActive !== true) {
+        clearOrchestratorSessionState();
+        return { ok: true, orchestratorActive: false, body: body };
+      }
+      if (!validateDecision(body.decision)) {
+        return { ok: false, code: 'INVALID_DECISION' };
+      }
+      return { ok: true, orchestratorActive: true, decision: body.decision, body: body };
+    })().finally(function () {
+      if (_entryFetchPromise && _entryFetchPromise.key === cacheKey) {
+        _entryFetchPromise = null;
+      }
+    });
+    _entryFetchPromise = { key: cacheKey, promise: promise };
+    return promise;
   }
 
   async function executeServerAction(decision) {

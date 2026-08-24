@@ -9,6 +9,7 @@
   let cachedContext = null;
   let cachedAt = 0;
   let journeyEnabled = null;
+  let inflightFetch = null;
 
   function stampContext(ctx) {
     if (!ctx || typeof ctx !== 'object') return ctx;
@@ -22,41 +23,65 @@
   function clearCache() {
     cachedContext = null;
     cachedAt = 0;
+    journeyEnabled = null;
+    inflightFetch = null;
+  }
+
+  async function fetchContextFromApi() {
+    const res = await window.apiFetch('/api/me/journey-context');
+    if (res.status === 503) {
+      journeyEnabled = false;
+      clearCache();
+      return null;
+    }
+    if (!res.ok) return isCacheFresh() ? cachedContext : null;
+    cachedContext = stampContext(await res.json());
+    cachedAt = Date.now();
+    journeyEnabled = true;
+    return cachedContext;
   }
 
   async function isJourneyApiEnabled() {
     if (journeyEnabled !== null) return journeyEnabled;
-    try {
-      const res = await window.apiFetch('/api/me/journey-context');
-      journeyEnabled = res.status !== 503;
-      if (journeyEnabled && res.ok) {
-        cachedContext = stampContext(await res.json());
-        cachedAt = Date.now();
-      }
-      return journeyEnabled;
-    } catch (_) {
-      journeyEnabled = false;
-      return false;
+    if (isCacheFresh()) {
+      journeyEnabled = true;
+      return true;
     }
+    if (inflightFetch) {
+      await inflightFetch;
+      return journeyEnabled !== null ? journeyEnabled : false;
+    }
+    inflightFetch = fetchContextFromApi()
+      .then(function (ctx) {
+        if (journeyEnabled === null) {
+          journeyEnabled = ctx !== null;
+        }
+        return journeyEnabled;
+      })
+      .catch(function () {
+        journeyEnabled = false;
+        return false;
+      })
+      .finally(function () {
+        inflightFetch = null;
+      });
+    return inflightFetch;
   }
 
   async function fetchContext(force) {
     if (!force && isCacheFresh()) return cachedContext;
-    try {
-      const res = await window.apiFetch('/api/me/journey-context');
-      if (res.status === 503) {
-        journeyEnabled = false;
-        clearCache();
-        return null;
-      }
-      if (!res.ok) return isCacheFresh() ? cachedContext : null;
-      cachedContext = stampContext(await res.json());
-      cachedAt = Date.now();
-      journeyEnabled = true;
+    if (!force && inflightFetch) {
+      await inflightFetch;
       return cachedContext;
-    } catch (_) {
-      return isCacheFresh() ? cachedContext : null;
     }
+    inflightFetch = fetchContextFromApi()
+      .catch(function () {
+        return isCacheFresh() ? cachedContext : null;
+      })
+      .finally(function () {
+        inflightFetch = null;
+      });
+    return inflightFetch;
   }
 
   async function postEvent(intent, childId, dailyLogItemId, metadata) {
@@ -97,12 +122,12 @@
   }
 
   window.JourneyContextClient = {
-    isJourneyApiEnabled,
-    fetchContext,
-    postEvent,
-    fetchRegistry,
-    getCachedContext,
-    clearCache,
-    CACHE_TTL_MS,
+    isJourneyApiEnabled: isJourneyApiEnabled,
+    fetchContext: fetchContext,
+    postEvent: postEvent,
+    fetchRegistry: fetchRegistry,
+    getCachedContext: getCachedContext,
+    clearCache: clearCache,
+    CACHE_TTL_MS: CACHE_TTL_MS,
   };
 })();
