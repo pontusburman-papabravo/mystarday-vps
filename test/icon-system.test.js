@@ -112,7 +112,11 @@ describe('icon-system v4 only', () => {
     );
     assert.equal(
       IconSystem.url('kalender'),
-      '/img/stjarnadag-icons-v4/hub/kalender.svg'
+      '/img/stjarnadag-icons-v4/hub/kalender.svg?v=' + IconSystem.HUB_ASSET_VERSION
+    );
+    assert.equal(
+      IconSystem.url('trofe'),
+      '/img/stjarnadag-icons-v4/hub/trofe.svg?v=' + IconSystem.HUB_ASSET_VERSION
     );
     assert.equal(
       IconSystem.url('beloning'),

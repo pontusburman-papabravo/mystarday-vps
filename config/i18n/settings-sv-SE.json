@@ -1,7 +1,7 @@
 {
   "pageTitle": "Inställningar — {{brand}}",
   "title": "Inställningar",
-  "shellLead": "Profil, familj och app — grupperat som i mockupen",
+  "shellLead": "Profil, familj och app",
   "familySettings": "Familjeinställningar",
   "groups": {
     "profile": { "title": "Profil & konto", "sub": "Inloggning, PIN och konto" },
