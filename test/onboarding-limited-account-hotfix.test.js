@@ -97,6 +97,61 @@ async function runLimitedFirstRunBootstrap(http, session) {
   return childBody;
 }
 
+async function runLimitedFirstRunBootstrapBeforeComplete(http, session) {
+  const headers = parentHeaders(session);
+
+  const childRes = await fetch(`${http.baseUrl}/api/onboarding/child`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ name: 'LimitedBarn', emoji: '🌟' }),
+  });
+  const childBody = await childRes.json();
+  assert.equal(childRes.status, 201, JSON.stringify(childBody));
+
+  const scheduleRes = await fetch(`${http.baseUrl}/api/onboarding/schedule`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ child_id: childBody.id, template_group: 'forskola' }),
+  });
+  assert.equal(scheduleRes.status, 200, await scheduleRes.text());
+
+  const rewardRes = await fetch(`${http.baseUrl}/api/onboarding/reward`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ name: 'Glass', icon: '🍦', star_cost: 50 }),
+  });
+  assert.equal(rewardRes.status, 201, await rewardRes.text());
+
+  const viewRes = await fetch(`${http.baseUrl}/api/onboarding/child-view`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ child_id: childBody.id, view_type: 'timeline' }),
+  });
+  assert.equal(viewRes.status, 200, await viewRes.text());
+
+  return childBody;
+}
+
+async function getLimitedBootstrapFinishedAt(db, familyId) {
+  const result = await db.query(
+    `SELECT step_deferrals->>'limited_onboarding_finished_at' AS finished_at,
+            schema_saved_at
+     FROM family_activation_state
+     WHERE family_id = $1`,
+    [familyId]
+  );
+  return result.rows[0] || null;
+}
+
+function patchModuleExport(modulePath, exportName, wrapperFactory) {
+  const mod = require(modulePath);
+  const original = mod[exportName];
+  mod[exportName] = wrapperFactory(original);
+  return () => {
+    mod[exportName] = original;
+  };
+}
+
 test('limited onboarding authorization integration A–J', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
@@ -257,6 +312,106 @@ test('limited onboarding authorization integration A–J', async (t) => {
       const body = await res.json();
       assert.equal(body.code, 'PREMIUM_REQUIRED');
     });
+
+    await t.test('L: complete retry-safe when markParentOnboardingComplete fails once', async () => {
+      const retrySession = await registerAndLogin(limitedHttp.baseUrl);
+      const child = await runLimitedFirstRunBootstrapBeforeComplete(limitedHttp, retrySession);
+      const appDb = require('../src/lib/db');
+      const familyRow = await appDb.query(
+        'SELECT family_id FROM parent WHERE email = $1',
+        [retrySession.email]
+      );
+      const familyId = familyRow.rows[0].family_id;
+      const beforeState = await getLimitedBootstrapFinishedAt(db, familyId);
+      assert.ok(beforeState?.schema_saved_at, 'schema_saved_at required before complete');
+      assert.equal(beforeState.finished_at, null);
+
+      let parentCalls = 0;
+      const restoreParent = patchModuleExport(
+        '../src/lib/mark-parent-onboarding-complete',
+        'markParentOnboardingComplete',
+        (original) => async (...args) => {
+          parentCalls += 1;
+          if (parentCalls === 1) throw new Error('simulated markParentOnboardingComplete failure');
+          return original(...args);
+        }
+      );
+
+      try {
+        const failRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/complete`, {
+          method: 'POST',
+          headers: parentHeaders(retrySession),
+        });
+        assert.equal(failRes.status, 500, await failRes.text());
+
+        const afterFail = await getLimitedBootstrapFinishedAt(db, familyId);
+        assert.equal(afterFail.finished_at, null);
+
+        const retryRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/complete`, {
+          method: 'POST',
+          headers: parentHeaders(retrySession),
+        });
+        assert.equal(retryRes.status, 200, await retryRes.text());
+
+        const afterSuccess = await getLimitedBootstrapFinishedAt(db, familyId);
+        assert.ok(afterSuccess?.finished_at, 'limited_onboarding_finished_at should be set after success');
+
+        const blocked = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
+          method: 'POST',
+          headers: parentHeaders(retrySession),
+          body: JSON.stringify({ name: 'ExtraBarn', emoji: '🐻' }),
+        });
+        assert.equal(blocked.status, 402);
+      } finally {
+        restoreParent();
+      }
+
+      assert.ok(child.id);
+    });
+
+    await t.test('M: complete retry-safe when bootstrap marker write fails once', async () => {
+      const retrySession = await registerAndLogin(limitedHttp.baseUrl);
+      await runLimitedFirstRunBootstrapBeforeComplete(limitedHttp, retrySession);
+      const appDb = require('../src/lib/db');
+      const familyRow = await appDb.query(
+        'SELECT family_id FROM parent WHERE email = $1',
+        [retrySession.email]
+      );
+      const familyId = familyRow.rows[0].family_id;
+
+      let bootstrapCalls = 0;
+      const restoreBootstrap = patchModuleExport(
+        '../src/lib/limited-onboarding-access',
+        'markLimitedOnboardingBootstrapFinished',
+        (original) => async (...args) => {
+          bootstrapCalls += 1;
+          if (bootstrapCalls === 1) throw new Error('simulated bootstrap marker failure');
+          return original(...args);
+        }
+      );
+
+      try {
+        const failRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/complete`, {
+          method: 'POST',
+          headers: parentHeaders(retrySession),
+        });
+        assert.equal(failRes.status, 500, await failRes.text());
+
+        const afterFail = await getLimitedBootstrapFinishedAt(db, familyId);
+        assert.equal(afterFail.finished_at, null);
+
+        const retryRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/complete`, {
+          method: 'POST',
+          headers: parentHeaders(retrySession),
+        });
+        assert.equal(retryRes.status, 200, await retryRes.text());
+
+        const afterSuccess = await getLimitedBootstrapFinishedAt(db, familyId);
+        assert.ok(afterSuccess?.finished_at);
+      } finally {
+        restoreBootstrap();
+      }
+    });
   } finally {
     if (limitedHttp) await limitedHttp.close();
     await setPaymentStart(savedPaymentStart, db);
@@ -305,6 +460,18 @@ describe('limited onboarding authorization — policy regression', () => {
     const { LIMITED_ACCOUNT_ALLOWED_PREFIXES } = require('../src/middleware/require-premium');
     assert.ok(!LIMITED_ACCOUNT_ALLOWED_PREFIXES.includes('/api/onboarding/'));
     assert.ok(!LIMITED_ACCOUNT_ALLOWED_PREFIXES.some((p) => p.startsWith('/api/onboarding')));
+  });
+
+  it('complete writes bootstrap marker only after parent onboarding complete', () => {
+    const src = read('src/routes/onboarding.js');
+    const block = src.slice(
+      src.indexOf("router.post('/complete'"),
+      src.indexOf("// ─── ACT-1 starter plan")
+    );
+    const parentIdx = block.indexOf('await markParentOnboardingComplete');
+    const bootstrapIdx = block.indexOf('await markLimitedOnboardingBootstrapFinished');
+    assert.ok(parentIdx >= 0 && bootstrapIdx >= 0);
+    assert.ok(parentIdx < bootstrapIdx, 'parent completion must run before bootstrap marker');
   });
 
   it('bootstrap finished uses activation state markers', () => {

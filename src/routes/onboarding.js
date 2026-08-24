@@ -1146,12 +1146,15 @@ router.post('/complete', async (req, res) => {
     const {
       markLimitedOnboardingBootstrapFinished,
     } = require('../lib/limited-onboarding-access');
+    const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
     const { premium, requires_paywall } = await resolveFamilyEntitlements(req.user.familyId);
+
+    await markParentOnboardingComplete(req.user.id, req.user.familyId);
+
     if (requires_paywall && !premium.active) {
       await markLimitedOnboardingBootstrapFinished(req.user.familyId);
     }
-    const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
-    await markParentOnboardingComplete(req.user.id, req.user.familyId);
+
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] complete error:', err);
