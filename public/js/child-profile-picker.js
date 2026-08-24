@@ -336,8 +336,13 @@
       legacy.classList.toggle('hidden', body.dailyUxActive === true);
     }
 
-    if (body.orchestratorActive !== true) {
+    if (body.orchestratorActive === false) {
       window.location.replace('/child-login?shared_device=1');
+      return;
+    }
+
+    if (body.orchestratorActive !== true) {
+      showBootstrapError('Profilerna kunde inte laddas just nu. Försök igen.', null);
       return;
     }
 
