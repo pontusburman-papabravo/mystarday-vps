@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * P1 hotfix — limited/unpaid families must complete onboarding; template retry UX.
+ * P1 limited onboarding authorization — narrow first-run exception + client retry UX contracts.
  */
 const { describe, it, test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -25,33 +25,243 @@ function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
-async function setPaymentStart(iso) {
-  const appSettings = require('../db/app-settings');
-  await appSettings.upsertSetting('payment_start_at', iso);
-  delete require.cache[require.resolve('../app')];
-  delete require.cache[require.resolve('../src/lib/db')];
+async function setPaymentStart(iso, db) {
+  for (const key of Object.keys(require.cache)) {
+    if (
+      key.includes(`${ROOT}/src/`)
+      || key.endsWith(`${ROOT}/app.js`)
+      || key.includes(`${ROOT}/db/`)
+    ) {
+      delete require.cache[key];
+    }
+  }
+  await db.query(
+    `INSERT INTO app_settings (key, value, updated_at)
+     VALUES ($1, $2::jsonb, NOW())
+     ON CONFLICT (key) DO UPDATE SET value = $2::jsonb, updated_at = NOW()`,
+    ['payment_start_at', JSON.stringify(iso)]
+  );
+  const { setPaymentStartAt } = require('../src/lib/payment-settings');
+  await setPaymentStartAt(iso);
 }
 
-describe('onboarding limited-account hotfix — middleware allowlist', () => {
-  const {
-    isLimitedAccountPath,
-    isChildLimitedAccountPath,
-    LIMITED_ACCOUNT_ALLOWED_PREFIXES,
-    CHILD_LIMITED_ACCOUNT_ALLOWED_PREFIXES,
-  } = require('../src/middleware/require-premium');
+function parentHeaders(session) {
+  return {
+    Cookie: cookieHeader(session.cookies),
+    'X-CSRF-Token': session.csrfToken,
+    'Content-Type': 'application/json',
+  };
+}
 
-  it('includes /api/onboarding/ in LIMITED_ACCOUNT_ALLOWED_PREFIXES', () => {
-    assert.ok(LIMITED_ACCOUNT_ALLOWED_PREFIXES.includes('/api/onboarding/'));
-    assert.equal(isLimitedAccountPath('/api/onboarding/template-groups'), true);
-    assert.equal(isLimitedAccountPath('/api/onboarding/child'), true);
-    assert.equal(isLimitedAccountPath('/api/onboarding/schedule'), true);
-    assert.equal(isLimitedAccountPath('/api/children'), false);
-  });
+async function runLimitedFirstRunBootstrap(http, session) {
+  const headers = parentHeaders(session);
 
-  it('E: child limited allowlist unchanged — onboarding not whitelisted for child', () => {
-    assert.ok(!CHILD_LIMITED_ACCOUNT_ALLOWED_PREFIXES.includes('/api/onboarding/'));
-    assert.equal(isChildLimitedAccountPath('/api/onboarding/template-groups'), false);
+  const groupsRes = await fetch(`${http.baseUrl}/api/onboarding/template-groups`, { headers });
+  assert.equal(groupsRes.status, 200, await groupsRes.text());
+
+  const childRes = await fetch(`${http.baseUrl}/api/onboarding/child`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ name: 'LimitedBarn', emoji: '🌟' }),
   });
+  const childBody = await childRes.json();
+  assert.equal(childRes.status, 201, JSON.stringify(childBody));
+
+  const scheduleRes = await fetch(`${http.baseUrl}/api/onboarding/schedule`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ child_id: childBody.id, template_group: 'forskola' }),
+  });
+  assert.equal(scheduleRes.status, 200, await scheduleRes.text());
+
+  const rewardRes = await fetch(`${http.baseUrl}/api/onboarding/reward`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ name: 'Glass', icon: '🍦', star_cost: 50 }),
+  });
+  assert.equal(rewardRes.status, 201, await rewardRes.text());
+
+  const viewRes = await fetch(`${http.baseUrl}/api/onboarding/child-view`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ child_id: childBody.id, view_type: 'timeline' }),
+  });
+  assert.equal(viewRes.status, 200, await viewRes.text());
+
+  const completeRes = await fetch(`${http.baseUrl}/api/onboarding/complete`, {
+    method: 'POST',
+    headers,
+  });
+  assert.equal(completeRes.status, 200, await completeRes.text());
+
+  return childBody;
+}
+
+test('limited onboarding authorization integration A–J', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real TEST_DATABASE_URL');
+    return;
+  }
+
+  await ensureCanonicalStandardLibrary(db);
+  const savedPaymentStart = '2026-10-01T00:00:00+02:00';
+  let limitedHttp;
+
+  try {
+    await setPaymentStart('2020-01-01T00:00:00+02:00', db);
+    const { getPaymentStartAt } = require('../src/lib/payment-settings');
+    const cutoff = await getPaymentStartAt();
+    assert.ok(cutoff.getFullYear() <= 2020, `expected paywall cutoff 2020, got ${cutoff.toISOString()}`);
+    const { createApp } = require('../app');
+    limitedHttp = await listenApp(createApp);
+
+    await t.test('H: unauthenticated onboarding → 401', async () => {
+      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/template-groups`);
+      assert.equal(res.status, 401);
+    });
+
+    const session = await registerAndLogin(limitedHttp.baseUrl);
+    const headers = parentHeaders(session);
+
+    await t.test('A: first-run GET template-groups → 200', async () => {
+      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/template-groups`, { headers });
+      assert.equal(res.status, 200, await res.text());
+    });
+
+    await t.test('B: first-run POST child → allowed', async () => {
+      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ name: 'LimitedBarn', emoji: '🌟' }),
+      });
+      const text = await res.text();
+      assert.notEqual(res.status, 402, text);
+      assert.equal(res.status, 201, text);
+      const body = JSON.parse(text);
+      session._childId = body.id;
+      session._childUsername = body.username;
+      session._childPin = body.pin;
+    });
+
+    await t.test('C: first-run POST schedule → allowed', async () => {
+      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/schedule`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ child_id: session._childId, template_group: 'forskola' }),
+      });
+      const text = await res.text();
+      assert.notEqual(res.status, 402, text);
+      assert.equal(res.status, 200, text);
+    });
+
+    await t.test('D: full first-run client sequence succeeds without Premium', async () => {
+      const fresh = await registerAndLogin(limitedHttp.baseUrl);
+      const child = await runLimitedFirstRunBootstrap(limitedHttp, fresh);
+      assert.ok(child.id);
+    });
+
+    await t.test('E: completed limited parent cannot POST second child', async () => {
+      const finished = await registerAndLogin(limitedHttp.baseUrl);
+      await runLimitedFirstRunBootstrap(limitedHttp, finished);
+      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
+        method: 'POST',
+        headers: parentHeaders(finished),
+        body: JSON.stringify({ name: 'ExtraBarn', emoji: '🐻' }),
+      });
+      assert.equal(res.status, 402);
+      const body = await res.json();
+      assert.equal(body.code, 'PREMIUM_REQUIRED');
+    });
+
+    await t.test('F: completed limited parent cannot mutate via onboarding reward/schedule', async () => {
+      const finished = await registerAndLogin(limitedHttp.baseUrl);
+      const child = await runLimitedFirstRunBootstrap(limitedHttp, finished);
+      const h = parentHeaders(finished);
+
+      const scheduleRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/schedule`, {
+        method: 'POST',
+        headers: h,
+        body: JSON.stringify({ child_id: child.id, template_group: 'morgon' }),
+      });
+      assert.equal(scheduleRes.status, 402);
+
+      const rewardRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/reward`, {
+        method: 'POST',
+        headers: h,
+        body: JSON.stringify({ name: 'Extra', icon: '🎁', star_cost: 25 }),
+      });
+      assert.equal(rewardRes.status, 402);
+    });
+
+    await t.test('G: premium parent onboarding child flow remains allowed', async () => {
+      const premiumSession = await registerAndLogin(limitedHttp.baseUrl);
+      const appDb = require('../src/lib/db');
+      const familyRow = await appDb.query(
+        'SELECT family_id FROM parent WHERE email = $1',
+        [premiumSession.email]
+      );
+      const { grantAdminPremium } = require('../src/lib/family-entitlements');
+      await grantAdminPremium(familyRow.rows[0].family_id, {
+        permanent: true,
+        reason: 'test premium onboarding',
+      });
+
+      const first = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
+        method: 'POST',
+        headers: parentHeaders(premiumSession),
+        body: JSON.stringify({ name: 'PremiumBarn1', emoji: '⭐' }),
+      });
+      const firstText = await first.text();
+      assert.equal(first.status, 201, firstText);
+      const firstBody = JSON.parse(firstText);
+
+      await fetch(`${limitedHttp.baseUrl}/api/onboarding/schedule`, {
+        method: 'POST',
+        headers: parentHeaders(premiumSession),
+        body: JSON.stringify({ child_id: firstBody.id, template_group: 'forskola' }),
+      });
+
+      const second = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
+        method: 'POST',
+        headers: parentHeaders(premiumSession),
+        body: JSON.stringify({ name: 'PremiumBarn2', emoji: '🌟' }),
+      });
+      const secondText = await second.text();
+      assert.notEqual(second.status, 402, secondText);
+      assert.equal(second.status, 201, secondText);
+    });
+
+    await t.test('I: child JWT cannot access parent onboarding routes', async () => {
+      const familyRow = await db.query('SELECT family_id FROM parent WHERE email = $1', [session.email]);
+      const childToken = jwt.sign(
+        {
+          id: session._childId,
+          type: 'child',
+          familyId: familyRow.rows[0].family_id,
+          username: session._childUsername,
+        },
+        config.jwt.secret,
+        { expiresIn: '1h' }
+      );
+      const childRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/template-groups`, {
+        headers: { Cookie: cookieHeader({ access_token: childToken }) },
+      });
+      assert.notEqual(childRes.status, 200);
+      assert.ok([402, 403].includes(childRes.status));
+    });
+
+    await t.test('J: unrelated limited-account API remains 402', async () => {
+      const res = await fetch(`${limitedHttp.baseUrl}/api/children`, { headers });
+      assert.equal(res.status, 402);
+      const body = await res.json();
+      assert.equal(body.code, 'PREMIUM_REQUIRED');
+    });
+  } finally {
+    if (limitedHttp) await limitedHttp.close();
+    await setPaymentStart(savedPaymentStart, db);
+    await db.cleanup();
+  }
 });
 
 describe('onboarding limited-account hotfix — client contracts', () => {
@@ -90,102 +300,27 @@ describe('onboarding limited-account hotfix — client contracts', () => {
   });
 });
 
-test('limited unpaid parent — onboarding API integration A–E', async (t) => {
-  const db = await setupTestDb();
-  if (db.skip) {
-    t.skip('No real TEST_DATABASE_URL');
-    return;
-  }
+describe('limited onboarding authorization — policy regression', () => {
+  it('K: no blanket /api/onboarding/ in LIMITED_ACCOUNT_ALLOWED_PREFIXES', () => {
+    const { LIMITED_ACCOUNT_ALLOWED_PREFIXES } = require('../src/middleware/require-premium');
+    assert.ok(!LIMITED_ACCOUNT_ALLOWED_PREFIXES.includes('/api/onboarding/'));
+    assert.ok(!LIMITED_ACCOUNT_ALLOWED_PREFIXES.some((p) => p.startsWith('/api/onboarding')));
+  });
 
-  await ensureCanonicalStandardLibrary(db);
-  const savedPaymentStart = '2026-10-01T00:00:00+02:00';
-  let limitedHttp;
-
-  try {
-    await setPaymentStart('2020-01-01T00:00:00+02:00');
-    const { createApp } = require('../app');
-    limitedHttp = await listenApp(createApp);
-
-    const unauthRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/template-groups`);
-    assert.equal(unauthRes.status, 401, 'onboarding remains parent-auth protected');
-
-    const session = await registerAndLogin(limitedHttp.baseUrl);
-    const parentHeaders = {
-      Cookie: cookieHeader(session.cookies),
-      'X-CSRF-Token': session.csrfToken,
-      'Content-Type': 'application/json',
-    };
-
-    await t.test('A: GET /api/onboarding/template-groups passes premium gate', async () => {
-      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/template-groups`, {
-        headers: parentHeaders,
-      });
-      const text = await res.text();
-      assert.notEqual(res.status, 402, text);
-      assert.equal(res.status, 200, text);
-      const body = JSON.parse(text);
-      assert.ok(Array.isArray(body));
-    });
-
-    await t.test('B: POST /api/onboarding/child not blocked by premium middleware', async () => {
-      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
-        method: 'POST',
-        headers: parentHeaders,
-        body: JSON.stringify({ name: 'LimitedBarn', emoji: '🌟' }),
-      });
-      const text = await res.text();
-      assert.notEqual(res.status, 402, text);
-      assert.equal(res.status, 201, text);
-      const body = JSON.parse(text);
-      assert.ok(body.id);
-      session._childId = body.id;
-      session._childUsername = body.username;
-      session._childPin = body.pin;
-    });
-
-    await t.test('C: POST /api/onboarding/schedule not blocked by premium middleware', async () => {
-      const childId = session._childId;
-      assert.ok(childId, 'child from test B required');
-      const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/schedule`, {
-        method: 'POST',
-        headers: parentHeaders,
-        body: JSON.stringify({ child_id: childId, template_group: 'forskola' }),
-      });
-      const text = await res.text();
-      assert.notEqual(res.status, 402, text);
-      assert.equal(res.status, 200, text);
-    });
-
-    await t.test('D: unrelated premium API still returns 402', async () => {
-      const res = await fetch(`${limitedHttp.baseUrl}/api/children`, {
-        headers: parentHeaders,
-      });
-      assert.equal(res.status, 402);
-      const body = await res.json();
-      assert.equal(body.code, 'PREMIUM_REQUIRED');
-    });
-
-    await t.test('E: child JWT still cannot access parent onboarding routes', async () => {
-      const familyRow = await db.query('SELECT family_id FROM parent WHERE email = $1', [session.email]);
-      const childToken = jwt.sign(
-        {
-          id: session._childId,
-          type: 'child',
-          familyId: familyRow.rows[0].family_id,
-          username: session._childUsername,
-        },
-        config.jwt.secret,
-        { expiresIn: '1h' }
-      );
-      const childRes = await fetch(`${limitedHttp.baseUrl}/api/onboarding/template-groups`, {
-        headers: { Cookie: cookieHeader({ access_token: childToken }) },
-      });
-      assert.notEqual(childRes.status, 200);
-      assert.ok([402, 403].includes(childRes.status), `unexpected status ${childRes.status}`);
-    });
-  } finally {
-    if (limitedHttp) await limitedHttp.close();
-    await setPaymentStart(savedPaymentStart);
-    await db.cleanup();
-  }
+  it('bootstrap finished uses activation state markers', () => {
+    const {
+      isLimitedOnboardingReadPath,
+      isLimitedBootstrapFinished,
+    } = require('../src/lib/limited-onboarding-access');
+    assert.equal(isLimitedBootstrapFinished({ schema_saved_at: new Date() }), false);
+    assert.equal(
+      isLimitedBootstrapFinished({
+        schema_saved_at: new Date(),
+        step_deferrals: { limited_onboarding_finished_at: new Date().toISOString() },
+      }),
+      true
+    );
+    assert.equal(isLimitedOnboardingReadPath('/api/onboarding/template-groups'), true);
+    assert.equal(isLimitedOnboardingReadPath('/api/onboarding/child'), false);
+  });
 });
