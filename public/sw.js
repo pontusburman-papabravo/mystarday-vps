@@ -611,6 +611,7 @@ const CACHE_NAME = 'stjarndag-v872';
 // stjarndag-v869: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v870: Premium settings — align native_purchase_eligible with IAP config + init before canPurchase
 // stjarndag-v871: Settings hub async contract — await subscription visibility before boolean checks
+// stjarndag-v872: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
