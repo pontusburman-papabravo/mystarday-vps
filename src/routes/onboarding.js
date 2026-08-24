@@ -1142,8 +1142,19 @@ router.post('/child-access-complete', async (req, res) => {
 router.post('/complete', async (req, res) => {
   const lang = await getFamilyLocale(req.user.familyId);
   try {
+    const { resolveFamilyEntitlements } = require('../lib/family-entitlements');
+    const {
+      markLimitedOnboardingBootstrapFinished,
+    } = require('../lib/limited-onboarding-access');
     const { markParentOnboardingComplete } = require('../lib/mark-parent-onboarding-complete');
+    const { premium, requires_paywall } = await resolveFamilyEntitlements(req.user.familyId);
+
     await markParentOnboardingComplete(req.user.id, req.user.familyId);
+
+    if (requires_paywall && !premium.active) {
+      await markLimitedOnboardingBootstrapFinished(req.user.familyId);
+    }
+
     res.json({ success: true });
   } catch (err) {
     console.error('[ONBOARDING] complete error:', err);

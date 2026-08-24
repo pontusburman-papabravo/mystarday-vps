@@ -4,6 +4,7 @@
  * Limited-account gate — post payment_start families without Premium get restricted API access.
  */
 const { resolveFamilyEntitlements } = require('../lib/family-entitlements');
+const { isLimitedOnboardingRequestAllowed } = require('../lib/limited-onboarding-access');
 
 const LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/auth/',
@@ -71,6 +72,15 @@ function requirePremiumApi() {
       if (isChildLimitedAccountPath(path)) return next();
     } else if (isLimitedAccountPath(path)) {
       return next();
+    }
+
+    if (!isChild && path.startsWith('/api/onboarding/')) {
+      try {
+        if (await isLimitedOnboardingRequestAllowed(req)) return next();
+      } catch (err) {
+        console.error('[REQUIRE-PREMIUM] limited onboarding check failed:', err.message);
+        return res.status(503).json({ error: 'Tillfälligt fel, försök igen' });
+      }
     }
 
     const familyId = req.user.familyId || req.user.family_id;
