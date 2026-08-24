@@ -5,6 +5,7 @@
  */
 const { resolveFamilyEntitlements } = require('../lib/family-entitlements');
 const { isLimitedOnboardingRequestAllowed } = require('../lib/limited-onboarding-access');
+const { isLimitedParentSecurityRequestAllowed } = require('../lib/limited-parent-security-access');
 
 const LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/auth/',
@@ -83,6 +84,10 @@ function requirePremiumApi() {
       }
     }
 
+    if (!isChild && isLimitedParentSecurityRequestAllowed(req)) {
+      return next();
+    }
+
     const familyId = req.user.familyId || req.user.family_id;
     try {
       const { premium } = await resolveFamilyEntitlements(familyId);
@@ -108,4 +113,5 @@ module.exports = {
   isChildLimitedAccountPath,
   LIMITED_ACCOUNT_ALLOWED_PREFIXES,
   CHILD_LIMITED_ACCOUNT_ALLOWED_PREFIXES,
+  isLimitedParentSecurityRequestAllowed,
 };
