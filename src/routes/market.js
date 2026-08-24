@@ -21,10 +21,11 @@ const router = express.Router();
 router.get('/registration-gates', async (req, res) => {
   try {
     const [
-      se, ie, no, dk, eu, uk, us, other,
+      se, ie, fi, no, dk, eu, uk, us, other,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
+      isMarketOpenForRegistration('FI'),
       isMarketOpenForRegistration('NO'),
       isMarketOpenForRegistration('DK'),
       isMarketOpenForRegistration('DE'),
@@ -35,6 +36,7 @@ router.get('/registration-gates', async (req, res) => {
     res.json({
       market_se_open: se,
       market_ie_open: ie,
+      market_fi_open: fi,
       market_no_open: no,
       market_dk_open: dk,
       market_eu_open: eu,

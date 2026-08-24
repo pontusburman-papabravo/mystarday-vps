@@ -77,6 +77,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
       { key: 'market_dk_open', enabled: false },
     ],
   },
+  '1810330000000_market_fi_open': {
+    backwardCompatible: true,
+    featureFlagInserts: [{ key: 'market_fi_open', enabled: false }],
+  },
   '1810400000000_payments_v1_entitlements': {
     backwardCompatible: true,
     allowedBusinessTableFingerprintChanges: ['family'],

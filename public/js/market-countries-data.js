@@ -10,6 +10,14 @@ window.MarketCountries = {
       "group": "featured"
     },
     {
+      "code": "FI",
+      "labels": {
+        "sv-SE": "Finland",
+        "en-GB": "Finland"
+      },
+      "group": "featured"
+    },
+    {
       "code": "AT",
       "labels": {
         "sv-SE": "Österrike",
@@ -63,13 +71,6 @@ window.MarketCountries = {
       "labels": {
         "sv-SE": "Estland",
         "en-GB": "Estonia"
-      }
-    },
-    {
-      "code": "FI",
-      "labels": {
-        "sv-SE": "Finland",
-        "en-GB": "Finland"
       }
     },
     {
