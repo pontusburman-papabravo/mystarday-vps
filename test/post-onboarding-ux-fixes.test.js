@@ -82,14 +82,19 @@ describe('post-onboarding UX fixes — subscription terminology & icon', () => {
     assert.ok(SETTINGS_HTML.indexOf('icon-system.js') < SETTINGS_HTML.indexOf('parent-magic-page-hubs.js'));
   });
 
-  it('8b: IconSystem resolves trofe hub asset to valid img markup', () => {
+  it('8b: IconSystem resolves trofe hub asset to inline SVG markup (P1 physical QA remediation)', () => {
+    // Superseded 2026-08-25: physical iOS QA showed the external-image chain
+    // (URL -> SW -> network -> WKWebView image decode) stayed unreliable for
+    // this one icon even with a correct 200/Content-Type/cache setup, so
+    // trofe now renders as inline <svg> — see test/trofe-inline-svg.test.js.
     const sandbox = { window: {}, console };
     sandbox.window = sandbox;
     sandbox.global = sandbox;
     vm.runInNewContext(read('public/js/icon-system.js'), sandbox, { filename: 'icon-system.js' });
     assert.equal(sandbox.IconSystem.has('trofe'), true);
     const html = sandbox.IconSystem.hub('trofe');
-    assert.match(html, /<img[^>]+src="\/img\/stjarnadag-icons-v4\/hub\/trofe\.svg(\?v=\d+)?"/);
+    assert.match(html, /^<svg[\s>]/);
+    assert.doesNotMatch(html, /<img/);
     assert.match(html, /width="44"/);
   });
 });

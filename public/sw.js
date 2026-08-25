@@ -267,7 +267,7 @@
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
 // stjarndag-v858: product spotlight + Om oss page + landing nav fix
-const CACHE_NAME = 'stjarndag-v877';
+const CACHE_NAME = 'stjarndag-v878';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -612,6 +612,11 @@ const CACHE_NAME = 'stjarndag-v877';
 // stjarndag-v870: Premium settings — align native_purchase_eligible with IAP config + init before canPurchase
 // stjarndag-v871: Settings hub async contract — await subscription visibility before boolean checks
 // stjarndag-v872: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v878: P1 physical QA remediation — trofe icon now renders as INLINE <svg>
+//   in icon-system.js (no <img src>, no fetch, no SW/network/image-decode dependency);
+//   removed the now-unnecessary trofe.svg SW precache entry (v877) since Settings
+//   Prenumeration no longer requests that asset at all. trofe.svg stays on disk in
+//   case another consumer ever needs it as a real image.
 // stjarndag-v877: P1 UI polish (blocker fix) — precache exact versioned trofe.svg?v=4
 //   URL (cache.match() is an exact-URL match incl. query string; a bare/unversioned
 //   precache entry never matches the real runtime request) so a cold/transient-offline
@@ -686,12 +691,6 @@ const STATIC_ASSETS = [
   '/js/theme.js',
   '/js/i18n.js',
   '/js/offline-queue.js',
-  // cache.match(request) is an EXACT URL match (query string included) — this
-  // MUST be the same versioned URL IconSystem.url('trofe') actually renders
-  // (icon-system.js HUB_ASSET_VERSION), or a cold/offline WKWebView load can
-  // request a URL this precache entry never matches. Kept in sync by
-  // test/trofe-icon-runtime-serving.test.js, which fails CI on drift.
-  '/img/stjarnadag-icons-v4/hub/trofe.svg?v=4',
   '/js/offline-store.js',   // IndexedDB wrapper for offline schema/profil/belöningar
   '/js/sw-register.js',
   '/js/mobile-nav.js',

@@ -17,10 +17,26 @@ const config: CapacitorConfig = {
   appId: 'se.mystarday.app',
   appName: 'Min Stjärndag',
   webDir: 'public',
+  // WKWebView/Android WebView background behind the web document, used by the
+  // native bridge (CAPBridgeViewController on iOS) whenever the current
+  // document has not painted anything yet — e.g. the brief window between
+  // window.location.replace() unloading the picker and the destination
+  // page's first paint. Without this, iOS defaults to UIColor.systemBackground
+  // (white), which is the native white flash seen on physical iOS during
+  // child->adult profile-switch navigation (2026-08-25 physical QA). Matches
+  // the app's canonical parent-magic dark background (#07071a — see
+  // parent-magic-common.css / platform-html.js early-magic style).
+  // Requires `npx cap sync ios` + a new native build to take effect on
+  // device — this is compiled into the app bundle, not delivered by the
+  // web deploy.
+  backgroundColor: '#07071a',
   server: isDev
     ? { url: 'http://localhost:3000', cleartext: true }
     : { url: 'https://mystarday.se', androidScheme: 'https' },
   ios: {
+    // Explicit iOS override (same value) — CAPBridgeViewController reads
+    // this before falling back to the global backgroundColor above.
+    backgroundColor: '#07071a',
     contentInset: 'automatic',
     allowsLinkPreview: false,
     scrollEnabled: true,
