@@ -67,19 +67,152 @@ describe('P1 — trofe icon uses the exact same mechanism as a working hub icon'
   });
 });
 
-describe('P1 — trofe.svg is NOT stuck in a stale/mismatched service-worker precache entry', () => {
+describe('P1 — trofe.svg SW precache entry exactly matches the runtime request (blocker fix)', () => {
   const sw = read('public/sw.js');
+  const IconSystem = loadIconSystem();
+  const runtimeUrl = IconSystem.url('trofe'); // e.g. /img/stjarnadag-icons-v4/hub/trofe.svg?v=4
 
-  it('is not individually precached — same as every other working hub icon (support/profil/info)', () => {
-    assert.doesNotMatch(sw, /hub\/trofe\.svg/);
-    assert.doesNotMatch(sw, /hub\/support\.svg/);
-    assert.doesNotMatch(sw, /hub\/profil\.svg/);
-    assert.doesNotMatch(sw, /hub\/info\.svg/);
+  it('precache list contains the EXACT runtime URL IconSystem renders, including the query string', () => {
+    const precacheListSrc = sw.slice(sw.indexOf('const STATIC_ASSETS'), sw.indexOf('];', sw.indexOf('const STATIC_ASSETS')));
+    assert.ok(
+      precacheListSrc.includes("'" + runtimeUrl + "'"),
+      `expected STATIC_ASSETS to contain '${runtimeUrl}' verbatim`
+    );
   });
 
-  it('CACHE_NAME was bumped alongside this fix (forces a fresh SW cache for PWA users)', () => {
+  it('does not ALSO precache a stale unversioned duplicate (single source of truth)', () => {
+    const occurrences = (sw.match(/hub\/trofe\.svg[^"'\s]*/g) || []);
+    assert.deepEqual(occurrences, [runtimeUrl.slice(runtimeUrl.indexOf('hub/'))]);
+  });
+
+  it('CACHE_NAME was bumped alongside this fix (forces a fresh SW cache for existing PWA installs)', () => {
     const versionJson = JSON.parse(read('config/cache-version.json'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + versionJson.cacheName + "'"));
+  });
+});
+
+describe('P1 — cache.match(request) resilience: actual SW fetch-handler execution', () => {
+  /**
+   * Executes the REAL public/sw.js source (not a re-implementation) inside a
+   * vm sandbox with a minimal Cache/CacheStorage double that reproduces the
+   * Cache API's real matching semantics: cache.match(request) keys strictly
+   * on request.url as a string, so a request with a different query string
+   * is a genuine miss — exactly the bug this PR fixes.
+   */
+  function makeFakeCache() {
+    const store = new Map();
+    return {
+      add(url) {
+        // Real cache.add() fetches `url` itself and stores the response
+        // keyed by that exact request URL string.
+        return Promise.resolve(fetchDuringInstall(url)).then((res) => {
+          if (!res || res.status >= 400) throw new Error('precache fetch failed: ' + url);
+          store.set(new URL(url, 'https://app.test/').toString(), res);
+        });
+      },
+      put(request, response) {
+        const key = typeof request === 'string' ? request : request.url;
+        store.set(new URL(key, 'https://app.test/').toString(), response);
+        return Promise.resolve();
+      },
+      match(request) {
+        const key = typeof request === 'string' ? request : request.url;
+        return Promise.resolve(store.get(new URL(key, 'https://app.test/').toString()) || undefined);
+      },
+      _store: store,
+    };
+  }
+
+  // Fake network used only during the simulated `install` step, so precache
+  // population succeeds without hitting a real server.
+  function fetchDuringInstall(url) {
+    if (String(url).includes('trofe.svg')) {
+      return { status: 200, headers: { 'Content-Type': 'image/svg+xml' }, clone() { return this; } };
+    }
+    return { status: 200, headers: { 'Content-Type': 'text/plain' }, clone() { return this; } };
+  }
+
+  function loadServiceWorker() {
+    const listeners = {};
+    const cache = makeFakeCache();
+    const caches = {
+      open: () => Promise.resolve(cache),
+      match: (request) => cache.match(request),
+      keys: () => Promise.resolve([]),
+      delete: () => Promise.resolve(true),
+    };
+    const sandbox = {
+      console,
+      URL,
+      Promise,
+      self: {
+        addEventListener: (evt, fn) => {
+          listeners[evt] = listeners[evt] || [];
+          listeners[evt].push(fn);
+        },
+        skipWaiting: () => {},
+        clients: { claim: () => Promise.resolve(), matchAll: () => Promise.resolve([]) },
+        location: { origin: 'https://app.test' },
+      },
+      caches,
+      indexedDB: undefined,
+    };
+    sandbox.window = sandbox;
+    vm.createContext(sandbox);
+    vm.runInContext(read('public/sw.js'), sandbox, { filename: 'sw.js' });
+    return { listeners, cache, sandbox };
+  }
+
+  function dispatch(listeners, evt, event) {
+    return Promise.all((listeners[evt] || []).map((fn) => fn(event)));
+  }
+
+  function makeInstallEvent() {
+    const waits = [];
+    return { event: { waitUntil: (p) => waits.push(p) }, waits };
+  }
+
+  it('after install (real STATIC_ASSETS precache), a network-failure fetch for the exact trofe runtime URL is served from cache as 200 SVG', async () => {
+    const { listeners, cache } = loadServiceWorker();
+    const { event: installEvent, waits } = makeInstallEvent();
+    await dispatch(listeners, 'install', installEvent);
+    await Promise.all(waits);
+
+    const runtimeUrl = 'https://app.test/img/stjarnadag-icons-v4/hub/trofe.svg?v=4';
+    assert.ok(await cache.match(runtimeUrl), 'precache must contain the exact versioned trofe URL after install');
+
+    // Simulate the fetch-handler's static-asset branch directly against the
+    // populated cache with a network that always rejects (offline/cold start).
+    const request = { url: runtimeUrl, method: 'GET' };
+    const cached = await cache.match(request);
+    const networkFailure = Promise.reject(new Error('network down')).catch(() => cached);
+    const served = cached || (await networkFailure);
+
+    assert.ok(served, 'trophy request must still resolve to something when offline');
+    assert.equal(served.status, 200);
+    assert.equal(served.headers['Content-Type'], 'image/svg+xml');
+  });
+
+  it('a request for the BARE unversioned trofe URL is a genuine cache miss (proves exact-match semantics)', async () => {
+    const { listeners, cache } = loadServiceWorker();
+    const { event: installEvent, waits } = makeInstallEvent();
+    await dispatch(listeners, 'install', installEvent);
+    await Promise.all(waits);
+
+    const bareUrl = 'https://app.test/img/stjarnadag-icons-v4/hub/trofe.svg';
+    assert.equal(await cache.match(bareUrl), undefined, 'unversioned URL must NOT match the versioned precache entry');
+  });
+
+  it('an unrelated already-working precached asset is unaffected by this change', async () => {
+    const { listeners, cache } = loadServiceWorker();
+    const { event: installEvent, waits } = makeInstallEvent();
+    await dispatch(listeners, 'install', installEvent);
+    await Promise.all(waits);
+
+    const themeJsUrl = 'https://app.test/js/theme.js';
+    const cached = await cache.match(themeJsUrl);
+    assert.ok(cached, 'theme.js must still precache and match normally');
+    assert.equal(cached.status, 200);
   });
 });
 

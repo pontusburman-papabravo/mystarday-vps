@@ -300,14 +300,18 @@ describe('P1 physical QA hotfix — trofe icon runtime path', () => {
     assert.match(fn, /return '';/);
   });
 
-  it('trofe.svg is NOT individually precached (matches every other hub icon)', () => {
-    // P1 UI polish (2026-08-25): an ad hoc unversioned precache entry for
-    // trofe.svg was the actual mismatch — runtime always requests the
-    // cache-busted ?v=N URL, so the precached (unversioned) entry never
-    // matched and could serve/hold a stale response. No other hub icon is
-    // precached individually; trofe now follows that same proven path.
+  it('trofe.svg is precached at the EXACT versioned runtime URL, not the bare filename', () => {
+    // P1 UI polish (2026-08-25, blocker fix): cache.match(request) is an exact
+    // URL match including the query string. An earlier fix removed a stale
+    // UNVERSIONED precache entry (which never matched the real ?v=N request),
+    // but that alone does not guarantee the icon survives a cold/transient-
+    // offline load. This asserts the precache entry is the real runtime URL.
     const sw = read('public/sw.js');
-    assert.doesNotMatch(sw, /hub\/trofe\.svg/);
+    const icon = read('public/js/icon-system.js');
+    const versionMatch = icon.match(/HUB_ASSET_VERSION = '(\d+)'/);
+    assert.ok(versionMatch, 'HUB_ASSET_VERSION must be present in icon-system.js');
+    assert.match(sw, new RegExp('hub/trofe\\.svg\\?v=' + versionMatch[1]));
+    assert.doesNotMatch(sw, /hub\/trofe\.svg'/, 'must not precache the bare/unversioned filename');
     assert.match(sw, /stjarndag-v\d+/);
   });
 });
