@@ -49,7 +49,8 @@
       "submit": "Logga in",
       "parentLogin": "Är du förälder?",
       "parentLoginLink": "Logga in här",
-      "adultLogin": "Logga in som vuxen"
+      "adultLogin": "Logga in som vuxen",
+      "adultLoginShort": "Vuxen"
     },
     "verify": {
       "title": "Verifiera din e-post",

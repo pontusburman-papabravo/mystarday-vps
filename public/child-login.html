@@ -203,13 +203,17 @@
   </div>
   <!-- end layout -->
 
-  <!-- Adult escape (rollback safety): persistent + reachable on every step incl.
-       single-child direct-PIN. Clears child session and requires explicit adult
-       login — no parent auth/DeviceMode set here, never opens the dashboard. -->
-  <div class="cl-adult-escape" style="position:relative;z-index:1;text-align:center;margin-top:6px;">
+  <!-- Adult escape (rollback safety): position:fixed so it is ALWAYS within the
+       viewport. The body (.child-login-magic-bg) is overflow:hidden and
+       .child-login-layout is min-height:100vh, so an in-flow footer would fall below
+       the fold and be unreachable. Fixed + safe-area keeps it reachable on every
+       step (profiles, PIN, single-child direct-PIN), small iPhone heights and notch.
+       Clears child session and requires explicit adult login — no parent auth/
+       DeviceMode set here, never opens the dashboard. -->
+  <div class="cl-adult-escape" style="position:fixed;top:calc(env(safe-area-inset-top, 0px) + 10px);right:calc(env(safe-area-inset-right, 0px) + 12px);z-index:20;">
     <button type="button" id="clAdultEscapeBtn" class="cl-adult-escape-btn"
-      style="background:none;border:none;color:rgba(255,255,255,0.62);text-decoration:underline;font-size:0.82rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:8px 12px;min-height:44px;"
-      data-i18n="auth.childLogin.adultLogin"></button>
+      style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 14px;border:1px solid rgba(255,255,255,0.28);border-radius:999px;background:rgba(15,26,61,0.62);color:rgba(255,255,255,0.92);font-size:0.82rem;font-weight:600;font-family:'Outfit',sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);"
+      data-i18n="auth.childLogin.adultLoginShort" data-i18n-aria-label="auth.childLogin.adultLogin"></button>
   </div>
 
   <!-- Help link footer -->

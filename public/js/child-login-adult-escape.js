@@ -17,14 +17,40 @@
 
   const ADULT_LOGIN_NEXT = '/dashboard';
 
+  // Single-flight guard: once an escape is started, further taps are ignored until
+  // navigation happens or the operation actually fails (avoids a double redirect /
+  // duplicate backup-login requests on a fast double-tap).
+  let inFlight = false;
+
   /**
+   * @param {object} [btn] optional button element to disable while in flight.
    * @returns {boolean} true when the canonical escape (child-session clearing +
-   *   explicit adult login) was invoked.
+   *   explicit adult login) was invoked this call.
    */
-  function goAdultLogin() {
+  function goAdultLogin(btn) {
+    if (inFlight) return false;
+    inFlight = true;
+    if (btn) btn.disabled = true;
+
+    function release() {
+      inFlight = false;
+      if (btn) btn.disabled = false;
+    }
+
     const auth = window.Auth;
     if (auth && typeof auth.redirectToParentBackupLogin === 'function') {
-      auth.redirectToParentBackupLogin(ADULT_LOGIN_NEXT);
+      let ret;
+      try {
+        ret = auth.redirectToParentBackupLogin(ADULT_LOGIN_NEXT);
+      } catch (_) {
+        release(); // synchronous failure → allow a retry
+        return false;
+      }
+      // Success navigates away (page unloads). Only release on rejection so the
+      // adult can retry if the backup-login request failed.
+      if (ret && typeof ret.then === 'function') {
+        ret.then(null, release);
+      }
       return true;
     }
     // Defensive fallback only if Auth is unavailable: navigate to the EXISTING
@@ -42,7 +68,7 @@
     btn.dataset.wired = '1';
     btn.addEventListener('click', function (e) {
       if (e && typeof e.preventDefault === 'function') e.preventDefault();
-      goAdultLogin();
+      goAdultLogin(btn);
     });
   }
 

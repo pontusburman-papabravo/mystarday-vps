@@ -275,6 +275,7 @@
       "parentLogin": "Are you a parent?",
       "parentLoginLink": "Log in here",
       "adultLogin": "Log in as an adult",
+      "adultLoginShort": "Adult",
       "forgotPassword": "Forgotten password?",
       "emptyNoChildren": "No children registered yet.",
       "nameHint": "Type your name to log in",
