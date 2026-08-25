@@ -101,6 +101,10 @@ function bumpNativeRuntimeAssetVersions(body) {
     .replace(/\/js\/parent-magic-page-hubs\.js\?v=[^"']+/g, '/js/parent-magic-page-hubs.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/settings-native-nav\.js\?v=[^"']+/g, '/js/settings-native-nav.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/app-entry-orchestrator\.js\?v=[^"']+/g, '/js/app-entry-orchestrator.js?v=' + MAGIC_VERSION)
+    // adult-privilege.js changes with the atomic child→adult work — it must bust the
+    // native/WebView cache like the orchestrator/picker (regex is specific to
+    // adult-privilege.js and does not match -lease-policy.js / -lifecycle.js).
+    .replace(/\/js\/adult-privilege\.js\?v=[^"']+/g, '/js/adult-privilege.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/parent-nav-header\.js\?v=[^"']+/g, '/js/parent-nav-header.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/journey-context-client\.js\?v=[^"']+/g, '/js/journey-context-client.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/child-profile-picker\.js\?v=[^"']+/g, '/js/child-profile-picker.js?v=' + MAGIC_VERSION);
