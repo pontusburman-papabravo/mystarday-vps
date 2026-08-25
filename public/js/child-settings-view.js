@@ -83,10 +83,23 @@
     }).join('');
   }
 
+  function globalProfileSwitchAlreadyShown() {
+    // profile-switch-chrome.js already renders a global "Byt profil"
+    // control (header button or, in Barnets samling, a floating button)
+    // whenever it decides to — same shouldShow() gate. Rendering the Mitt
+    // tab's own switch_profile action on top of that duplicates the same
+    // action in the same session.
+    return !!(window.ProfileSwitchChrome
+      && typeof ProfileSwitchChrome.shouldShow === 'function'
+      && ProfileSwitchChrome.shouldShow());
+  }
+
   function parentActionsHtml() {
     const dailyUx = isDailyUxActive();
     if (!dailyUx) return '';
-    const actions = PARENT_ACTIONS;
+    const actions = globalProfileSwitchAlreadyShown()
+      ? PARENT_ACTIONS.filter(function (action) { return action.id !== 'switch_profile'; })
+      : PARENT_ACTIONS;
     return actions.map(function (action) {
       const label = t(action.labelKey);
       const hint = t(action.hintKey);
