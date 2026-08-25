@@ -90,6 +90,7 @@ function defaultTrustedFetch(overrides) {
         ok: true,
         user: { id: 'p1', type: 'parent' },
         redirect: '/dashboard',
+        privilegeLeaseUntil: Date.now() + 15 * 60 * 1000,
         csrfToken: 'c',
       }));
     }
@@ -440,6 +441,50 @@ describe('adult-privilege client state machine', () => {
     const sandbox = makeTrustedUnlockSandbox((url) => {
       if (String(url).includes('/auth/me')) {
         return Promise.resolve(mockJsonResponse(200, { type: 'child', id: 'kid' }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+  });
+
+  it('strict: exact-parent verify failure commits NO local Auth parent state (fail closed)', async () => {
+    const setAuthCalls = [];
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        // Wrong parent — must never satisfy the strict gate.
+        return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'other-parent' }));
+      }
+      return defaultTrustedFetch()(url);
+    }, {
+      Auth: {
+        getCsrfToken: () => 'csrf',
+        setCsrfToken: () => {},
+        setAuth: (child, parent) => { setAuthCalls.push({ child: child, parent: parent }); },
+      },
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+    const committedParent = setAuthCalls.some((c) => c.parent);
+    assert.equal(committedParent, false, 'no parent identity may be hydrated on strict failure');
+  });
+
+  it('strict: verified parent but missing/invalid authoritative lease fails closed', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        // Exact parent verifies via /me, but the server returned no usable lease.
+        return Promise.resolve(mockJsonResponse(200, {
+          ok: true,
+          user: { id: 'p1', type: 'parent' },
+          redirect: '/dashboard',
+          csrfToken: 'c',
+        }));
       }
       return defaultTrustedFetch()(url);
     });

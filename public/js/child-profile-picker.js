@@ -171,35 +171,25 @@
     }
   }
 
-  function enterParentDeviceMode() {
-    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-      DeviceMode.enterParent();
-      return;
-    }
-    try {
-      localStorage.setItem('stjarndag_device_mode', 'parent');
-    } catch (_) { /* ignore */ }
-  }
-
   /**
-   * Multi-profile shared devices cold-start back to profile-picker unless we pin parent-home first.
+   * Atomic handoff: only navigate once a *verified* resume + parent-home decision are
+   * committed from the authoritative lease. No upfront device-mode mutation and no
+   * fallback to the old pending/navigate-then-verify path — if the verified commit
+   * fails the caller keeps the user on the picker. markDecisionApplied() switches
+   * DeviceMode to parent on success, so we never mutate it early here.
+   * @returns {boolean} true only when navigation was committed.
    */
   function commitParentViewFromPicker(redirectPath, leaseUntil) {
-    enterParentDeviceMode();
     const target = redirectPath || '/dashboard';
     const orch = window.AppEntryOrchestrator;
-    // Atomic handoff: the selected parent is already server-verified (select-parent
-    // + /me id match) with an authoritative lease, so commit a *verified* resume and
-    // pre-apply the parent-home decision. The destination page then trusts it without
-    // re-running the /me + /status race that produced the child→adult picker loop.
-    let committed = false;
-    if (orch && typeof orch.commitVerifiedParentResume === 'function') {
-      committed = orch.commitVerifiedParentResume(target, leaseUntil);
+    if (!orch || typeof orch.commitVerifiedParentResume !== 'function') {
+      return false;
     }
-    if (!committed && orch && typeof orch.beginExplicitParentResume === 'function') {
-      orch.beginExplicitParentResume(target);
+    if (!orch.commitVerifiedParentResume(target, leaseUntil)) {
+      return false;
     }
     window.location.replace(target);
+    return true;
   }
 
   async function onPickParent(parentId, btn) {
@@ -227,7 +217,12 @@
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (result && result.ok) {
-      commitParentViewFromPicker(result.redirect || '/dashboard', result.privilegeLeaseUntil);
+      const navigated = commitParentViewFromPicker(result.redirect || '/dashboard', result.privilegeLeaseUntil);
+      if (navigated) return;
+      // Verified commit failed (missing/invalid authoritative lease). Fail closed:
+      // stay on the picker, show a recoverable error, re-enable the profile button.
+      showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      if (btn) btn.disabled = false;
       return;
     }
 

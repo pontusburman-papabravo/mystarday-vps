@@ -19,6 +19,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadOrchestratorSandbox } = require('./helpers/app-entry-orchestrator-harness');
+const { pickParent } = require('./helpers/child-profile-picker-harness');
 
 function pickerAppEntryBody() {
   return {
@@ -81,13 +82,45 @@ describe('atomic parent resume — child→adult switch cannot loop back to pick
     assert.equal(pickerRedirects.length, 0, 'must NOT bounce back to the profile picker');
   });
 
-  it('fail closed: an invalid/expired lease never produces a verified resume', () => {
-    const h = loadOrchestratorSandbox({ pathname: '/dashboard', deviceMode: 'child' });
-    const Orch = h.sandbox.window.AppEntryOrchestrator;
+  it('fail closed (A): invalid/missing/expired lease → no verified, no pending, no parent DeviceMode', () => {
+    for (const badLease of [null, undefined, '', 'not-a-timestamp', 0]) {
+      const h = loadOrchestratorSandbox({ pathname: '/dashboard', deviceMode: 'child' });
+      const Orch = h.sandbox.window.AppEntryOrchestrator;
+      assert.equal(Orch.commitVerifiedParentResume('/dashboard', badLease), false, 'lease ' + badLease);
+      assert.equal(Orch.isExplicitParentResumeActive(), false, 'not active for ' + badLease);
+      assert.equal(Orch.isExplicitParentResumePending(), false, 'no dangling pending marker for ' + badLease);
+      assert.equal(h.sandbox.window.DeviceMode.isChildMode(), true, 'device mode untouched for ' + badLease);
+      assert.equal(h.redirects.length, 0, 'no navigation for ' + badLease);
+    }
+    // Expired (past) lease is likewise rejected without a pending marker.
+    const h2 = loadOrchestratorSandbox({ pathname: '/dashboard', deviceMode: 'child' });
+    const Orch2 = h2.sandbox.window.AppEntryOrchestrator;
+    assert.equal(Orch2.commitVerifiedParentResume('/dashboard', h2.getNow() - 1000), false);
+    assert.equal(Orch2.isExplicitParentResumePending(), false);
+    assert.equal(Orch2.isExplicitParentResumeActive(), false);
+  });
+});
 
-    assert.equal(Orch.commitVerifiedParentResume('/dashboard', h.getNow() - 1000), false);
-    assert.equal(Orch.commitVerifiedParentResume('/dashboard', null), false);
-    assert.equal(Orch.commitVerifiedParentResume('/dashboard', 'not-a-timestamp'), false);
-    assert.equal(Orch.isExplicitParentResumeActive(), false);
+describe('atomic parent resume — picker never navigates on an unusable lease', () => {
+  it('B: unlock ok:true but missing/invalid lease → stay on picker, no nav, button re-enabled', async () => {
+    const r = await pickParent({
+      hasAppPin: true,
+      parentId: 'parent-1',
+      unlockResult: { ok: true, redirect: '/dashboard', privilegeLeaseUntil: null },
+    });
+    assert.equal(r.redirects.length, 0, 'no navigation on an unusable lease');
+    assert.equal(r.committedVerified, false, 'no verified resume committed');
+    assert.equal(r.pendingResume, false, 'no dangling pending marker');
+    assert.equal(r.enteredParent, false, 'no early parent DeviceMode mutation');
+    assert.equal(r.btnDisabled, false, 'selected profile button re-enabled');
+  });
+
+  it('D: valid exact parent + valid future lease → one commit, one navigation', async () => {
+    const r = await pickParent({ hasAppPin: true, parentId: 'parent-1' });
+    assert.equal(r.redirects.length, 1, 'exactly one navigation');
+    assert.equal(r.redirects[0], '/dashboard');
+    assert.equal(r.committedVerified, true);
+    assert.equal(r.pendingResume, false);
+    assert.equal(r.enteredParent, true, 'parent DeviceMode applied via the verified commit');
   });
 });

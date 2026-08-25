@@ -286,26 +286,42 @@
     });
   }
 
+  function isUsablePrivilegeLease(value) {
+    let ms = null;
+    if (typeof value === 'number') {
+      ms = Number.isFinite(value) ? value : null;
+    } else if (typeof value === 'string' && /^\d+$/.test(value.trim())) {
+      ms = Number(value.trim());
+    }
+    return ms != null && ms > Date.now();
+  }
+
   function applyUnlockSuccess(body, opts) {
     const options = opts || {};
-    hydrateParentFromBody(body);
+    const strict = options.requireVerified === true;
     const parentUser = body && (body.parent || body.user);
-    const attempts = options.requireVerified ? 5 : 4;
+    // Strict (picker) path commits NO local parent identity before verification.
+    // Non-strict (handoff) path keeps its optimistic local hydration for back-compat.
+    if (!strict) {
+      hydrateParentFromBody(body);
+    }
+    const attempts = strict ? 5 : 4;
     return verifyParentAuthorityWithRetry(attempts, options.expectedParentId).then(function (verified) {
-      // Strict (picker) path: never a client-only "success". If the server session
-      // is not confirmed as the exact selected parent, fail closed so the picker
-      // stays put and shows an error instead of navigating into a picker loop.
-      if (!verified && options.requireVerified) {
+      if (strict) {
+        // Fail closed: exact /me verification AND a usable authoritative lease are
+        // both required, and no local parent/Auth/AdultPrivilege state is committed
+        // until both pass — a strict failure leaves no parent identity behind.
+        if (!verified || !isUsablePrivilegeLease(body.privilegeLeaseUntil)) {
+          setState(STATES.LOCKED);
+          track('adult_privilege_unlock_failed');
+          return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
+        }
+        hydrateParentFromBody(body);
+      } else if (!verified && !parentUser) {
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
         return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
-      }
-      if (!verified && !parentUser) {
-        setState(STATES.LOCKED);
-        track('adult_privilege_unlock_failed');
-        return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
-      }
-      if (!verified && parentUser) {
+      } else if (!verified && parentUser) {
         hydrateParentFromBody(body);
       }
       setState(STATES.ACTIVE);

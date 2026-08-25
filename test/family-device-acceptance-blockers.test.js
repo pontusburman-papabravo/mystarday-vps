@@ -83,7 +83,7 @@ describe('Family Device acceptance — shared adult PIN boundary', () => {
     const result = await picker.pickParent({
       parentId: 'parent-1',
       meParentId: 'parent-1',
-      unlockResult: { ok: true, redirect: '/dashboard' },
+      unlockResult: { ok: true, redirect: '/dashboard', privilegeLeaseUntil: Date.now() + 15 * 60 * 1000 },
     });
     assert.equal(result.unlockCalls.length, 1);
     assert.equal(result.unlockCalls[0].parentId, 'parent-1');
@@ -114,11 +114,13 @@ describe('Family Device acceptance — shared adult PIN boundary', () => {
   it('SHARED_CORRECT_PIN: parent access after AdultPrivilege unlock', async () => {
     const result = await picker.pickParent({
       parentId: 'parent-1',
-      unlockResult: { ok: true, redirect: '/dashboard' },
+      unlockResult: { ok: true, redirect: '/dashboard', privilegeLeaseUntil: Date.now() + 15 * 60 * 1000 },
     });
     assert.equal(result.unlockCalls.length, 1);
     assert.equal(result.enteredParent, true);
-    assert.equal(result.pendingResume, true);
+    // Atomic: a *verified* resume is committed (no dangling pending marker).
+    assert.equal(result.committedVerified, true);
+    assert.equal(result.pendingResume, false);
     assert.equal(result.redirects[0], '/dashboard');
   });
 

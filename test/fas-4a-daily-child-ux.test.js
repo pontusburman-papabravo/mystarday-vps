@@ -106,7 +106,9 @@ describe('Fas 4A — client contracts', () => {
     assert.doesNotMatch(js, /resumeParentIfSessionMatches/);
     assert.match(js, /requestTrustedProfileUnlock/);
     assert.match(js, /commitParentViewFromPicker/);
-    assert.match(js, /beginExplicitParentResume/);
+    // Atomic contract: verified commit, not the old pending/navigate-then-verify.
+    assert.match(js, /commitVerifiedParentResume/);
+    assert.doesNotMatch(js, /beginExplicitParentResume/);
     assert.match(js, /matching \/api\/auth\/me/);
   });
 

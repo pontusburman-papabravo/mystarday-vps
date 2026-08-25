@@ -275,11 +275,16 @@
    * @returns {boolean} true when a valid future lease produced a verified resume.
    */
   function commitVerifiedParentResume(redirectPath, leaseUntil) {
-    beginExplicitParentResume(redirectPath);
-    if (!markExplicitParentResumeVerified(redirectPath, leaseUntil)) {
+    const target = redirectPath || '/dashboard';
+    // Fail closed: validate the authoritative lease BEFORE writing any marker.
+    // markExplicitParentResumeVerified() returns false without writing when the
+    // lease is missing/expired/malformed, so the atomic path NEVER leaves a
+    // dangling `pending` marker (or any applied parent decision) behind.
+    if (!markExplicitParentResumeVerified(target, leaseUntil)) {
+      rejectExplicitParentResume();
       return false;
     }
-    markDecisionApplied(buildExplicitParentResumeDecision(redirectPath));
+    markDecisionApplied(buildExplicitParentResumeDecision(target));
     return true;
   }
 
