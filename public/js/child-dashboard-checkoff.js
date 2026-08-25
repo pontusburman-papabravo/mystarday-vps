@@ -31,6 +31,16 @@
     return showMoodRating && moodInputMode && moodInputMode !== 'off';
   }
 
+  // The ALL_DONE celebration overlay (child-today-focus.js) is the single
+  // primary reaction when the last activity completes the day — the rating
+  // modal must not open on top of it. Non-last check-offs are unaffected.
+  function dayJustBecameAllDone() {
+    if (!window.ChildTodayFocus || typeof ChildTodayFocus.getLastState !== 'function') return false;
+    const state = ChildTodayFocus.getLastState();
+    const states = ChildTodayFocus.IDAG_STATES;
+    return !!(state && states && state.state === states.ALL_DONE);
+  }
+
   function setRatingModalMode(mode) {
     const sliderBlock = document.getElementById('ratingSliderBlock');
     const cardsBlock = document.getElementById('ratingCardsBlock');
@@ -269,7 +279,10 @@
           newNowCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }, 150);
-      if (!isCurrentlyDone && shouldShowMoodModal() && feedbackFor !== 'parent' && feedbackFor !== 'none') {
+      if (
+        !isCurrentlyDone && shouldShowMoodModal() && feedbackFor !== 'parent' && feedbackFor !== 'none' &&
+        !dayJustBecameAllDone()
+      ) {
         openRatingModal(itemId, icon, name);
       }
     } catch {
