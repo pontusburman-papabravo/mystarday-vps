@@ -6,6 +6,7 @@
   "groups": {
     "profile": { "title": "Profil & konto", "sub": "Inloggning, PIN och konto" },
     "family": { "title": "Familj", "sub": "Lägg till vuxen, namn och pedagoger" },
+    "device": { "title": "Den här enheten", "sub": "Barnmobil, vuxenmobil eller delad mobil" },
     "appearance": { "title": "Utseende", "sub": "Mörkt eller ljust tema" },
     "app": { "title": "App", "sub": "Notiser, push och integritet" },
     "premium": { "title": "Prenumeration", "sub": "Premium, köp och betalning" }
