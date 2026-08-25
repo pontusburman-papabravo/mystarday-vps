@@ -203,6 +203,15 @@
   </div>
   <!-- end layout -->
 
+  <!-- Adult escape (rollback safety): persistent + reachable on every step incl.
+       single-child direct-PIN. Clears child session and requires explicit adult
+       login — no parent auth/DeviceMode set here, never opens the dashboard. -->
+  <div class="cl-adult-escape" style="position:relative;z-index:1;text-align:center;margin-top:6px;">
+    <button type="button" id="clAdultEscapeBtn" class="cl-adult-escape-btn"
+      style="background:none;border:none;color:rgba(255,255,255,0.62);text-decoration:underline;font-size:0.82rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:8px 12px;min-height:44px;"
+      data-i18n="auth.childLogin.adultLogin"></button>
+  </div>
+
   <!-- Help link footer -->
   <div class="cl-help-link" style="position:relative;z-index:1;">
     <span data-i18n="auth.childLogin.needHelp"></span>
@@ -214,6 +223,7 @@
   <script src="/js/member-avatar.js?v=1"></script>
   <script src="/js/dom-utils.js?v=2.13.0"></script>
   <script src="/js/child-login.js?v=286"></script>
+  <script src="/js/child-login-adult-escape.js?v=1"></script>
 
   <!-- Animated stars + clouds (same pattern as login-magic.js) -->
   <script>
