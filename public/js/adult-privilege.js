@@ -286,6 +286,10 @@
     });
   }
 
+  // Verified-but-not-yet-committed picker unlock payload (see the atomic transition
+  // block below). Never carries mutated local parent state.
+  let _pendingParentCommit = null;
+
   function isUsablePrivilegeLease(value) {
     let ms = null;
     if (typeof value === 'number') {
@@ -296,32 +300,20 @@
     return ms != null && ms > Date.now();
   }
 
-  function applyUnlockSuccess(body, opts) {
-    const options = opts || {};
-    const strict = options.requireVerified === true;
+  // Handoff (child-menu) path only: navigates directly to /home, so it hydrates
+  // local parent state up front. The picker (child→adult) path does NOT use this —
+  // it verifies first and commits local state only after the orchestrator commit
+  // (see verifyTrustedParentBeforeCommit / commitPendingParentUnlock below).
+  function applyUnlockSuccess(body) {
+    hydrateParentFromBody(body);
     const parentUser = body && (body.parent || body.user);
-    // Strict (picker) path commits NO local parent identity before verification.
-    // Non-strict (handoff) path keeps its optimistic local hydration for back-compat.
-    if (!strict) {
-      hydrateParentFromBody(body);
-    }
-    const attempts = strict ? 5 : 4;
-    return verifyParentAuthorityWithRetry(attempts, options.expectedParentId).then(function (verified) {
-      if (strict) {
-        // Fail closed: exact /me verification AND a usable authoritative lease are
-        // both required, and no local parent/Auth/AdultPrivilege state is committed
-        // until both pass — a strict failure leaves no parent identity behind.
-        if (!verified || !isUsablePrivilegeLease(body.privilegeLeaseUntil)) {
-          setState(STATES.LOCKED);
-          track('adult_privilege_unlock_failed');
-          return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
-        }
-        hydrateParentFromBody(body);
-      } else if (!verified && !parentUser) {
+    return verifyParentAuthorityWithRetry(4).then(function (verified) {
+      if (!verified && !parentUser) {
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
         return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
-      } else if (!verified && parentUser) {
+      }
+      if (!verified && parentUser) {
         hydrateParentFromBody(body);
       }
       setState(STATES.ACTIVE);
@@ -339,6 +331,70 @@
       }
       track('adult_privilege_unlock_success');
       return { ok: true, parent: parentUser || body.parent };
+    });
+  }
+
+  // ── Atomic child→adult (picker) transition ──────────────────────────────────
+  // Verification and the local commit are SEPARATE. verifyTrustedParentBeforeCommit
+  // performs exact /me (type=parent + selected parent id) + usable authoritative
+  // lease, and ONLY stashes the verified payload — it mutates NO local parent state
+  // (no Auth, no ACTIVE, no DeviceMode, no lifecycle/chrome). The single local commit
+  // boundary is the orchestrator's commitVerifiedParentResume() (applied parent-home);
+  // commitPendingParentUnlock() then applies local AdultPrivilege/Auth state AFTER
+  // that commit, exception-safe. If the commit fails, discardPendingParentUnlock()
+  // leaves no parent state behind.
+
+  function stashPendingParentUnlock(body) {
+    _pendingParentCommit = {
+      parent: (body && (body.parent || body.user)) || null,
+      csrfToken: (body && body.csrfToken) || null,
+      privilegeLeaseUntil: (body && body.privilegeLeaseUntil) || null,
+      policy: (body && body.policy) || null,
+    };
+  }
+
+  function discardPendingParentUnlock() {
+    _pendingParentCommit = null;
+    setState(STATES.LOCKED);
+    expiresAtMs = null;
+    privilegeLeaseUntilMs = null;
+  }
+
+  function commitPendingParentUnlock() {
+    const pending = _pendingParentCommit;
+    _pendingParentCommit = null;
+    if (!pending) return { ok: false, code: 'NO_PENDING_PARENT_COMMIT' };
+    // Post-commit ONLY. The orchestrator already applied parent-home (incl. parent
+    // DeviceMode). Apply local AdultPrivilege/Auth state; optional lifecycle/chrome
+    // hooks are best-effort and MUST NOT fail an already-committed transition or
+    // leave mixed state.
+    hydrateParentFromBody({ parent: pending.parent, csrfToken: pending.csrfToken });
+    setState(STATES.ACTIVE);
+    expiresAtMs = pending.privilegeLeaseUntil || null;
+    privilegeLeaseUntilMs = pending.privilegeLeaseUntil || null;
+    devicePolicy = pending.policy || devicePolicy;
+    if (window.AdultPrivilegeLifecycle) {
+      try {
+        window.AdultPrivilegeLifecycle.onPrivilegeActivated(devicePolicy, privilegeLeaseUntilMs);
+      } catch (_) { /* best effort — transition already committed */ }
+    }
+    if (window.ProfileSwitchChrome && typeof ProfileSwitchChrome.apply === 'function') {
+      try {
+        ProfileSwitchChrome.apply();
+      } catch (_) { /* best effort — transition already committed */ }
+    }
+    track('adult_privilege_unlock_success');
+    return { ok: true };
+  }
+
+  function verifyTrustedParentBeforeCommit(body, expectedParentId) {
+    return verifyParentAuthorityWithRetry(5, expectedParentId).then(function (verified) {
+      if (!verified || !isUsablePrivilegeLease(body.privilegeLeaseUntil)) {
+        discardPendingParentUnlock();
+        return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
+      }
+      stashPendingParentUnlock(body);
+      return { ok: true };
     });
   }
 
@@ -489,6 +545,7 @@
   }
 
   function resetToLocked() {
+    _pendingParentCommit = null;
     setState(STATES.LOCKED);
     expiresAtMs = null;
     privilegeLeaseUntilMs = null;
@@ -536,21 +593,19 @@
       if (out.body.csrfToken && window.Auth && typeof window.Auth.setCsrfToken === 'function') {
         window.Auth.setCsrfToken(out.body.csrfToken);
       }
-      return applyUnlockSuccess({
+      // Verify only (exact parent + usable lease). NO local parent state is mutated
+      // here — the commit boundary is the orchestrator's commitVerifiedParentResume().
+      return verifyTrustedParentBeforeCommit({
         csrfToken: out.body.csrfToken,
         parent: out.body.user || out.body.parent,
-        expiresAt: out.body.privilegeLeaseUntil,
         privilegeLeaseUntil: out.body.privilegeLeaseUntil,
         policy: out.body.policy,
-      }, {
-        requireVerified: true,
-        expectedParentId: parentId,
-      }).then(function (result) {
+      }, parentId).then(function (result) {
         if (result.ok) {
           logSelectParentStage('select-parent:final-result', { ok: true, via: 'contract' });
           return {
             ok: true,
-            parent: result.parent,
+            parent: out.body.user || out.body.parent,
             redirect: out.body.redirect || '/dashboard',
             privilegeLeaseUntil: out.body.privilegeLeaseUntil || null,
           };
@@ -690,6 +745,8 @@
     refreshStatus: refreshStatus,
     requestEscalation: requestEscalation,
     requestTrustedProfileUnlock: requestTrustedProfileUnlock,
+    commitPendingParentUnlock: commitPendingParentUnlock,
+    discardPendingParentUnlock: discardPendingParentUnlock,
     returnToChildExperience: returnToChildExperience,
     storePickerPinMeta: storePickerPinMeta,
     expirePrivilegeIfDue: expirePrivilegeIfDue,

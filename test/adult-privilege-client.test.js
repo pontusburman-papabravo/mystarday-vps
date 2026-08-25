@@ -371,10 +371,13 @@ describe('adult-privilege client state machine', () => {
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
     assert.equal(result.ok, true);
     assert.equal(result.redirect, '/dashboard');
+    // Atomic contract: verify-only — NOT active until the commit boundary.
+    assert.equal(AdultPrivilege.getState(), 'unlocking');
+    AdultPrivilege.commitPendingParentUnlock();
     assert.equal(AdultPrivilege.getState(), 'active');
   });
 
-  it('post-success lifecycle failure is not classified as ADULT_PRIVILEGE_NETWORK', async () => {
+  it('lifecycle exception AFTER commit does not fail the (already committed) transition', async () => {
     const sandbox = makeTrustedUnlockSandbox(defaultTrustedFetch(), {
       AdultPrivilegeLifecycle: {
         start() {},
@@ -384,10 +387,14 @@ describe('adult-privilege client state machine', () => {
       },
     });
     const AdultPrivilege = loadAdultPrivilege(sandbox);
+    // Verify-only success (lifecycle is NOT run here).
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
-    assert.equal(result.ok, false);
-    assert.notEqual(result.code, 'ADULT_PRIVILEGE_NETWORK');
-    assert.equal(result.code, 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED');
+    assert.equal(result.ok, true);
+    // Post-commit: the throwing lifecycle hook must be swallowed and the transition
+    // stays committed/active — no mixed failed state.
+    const commit = AdultPrivilege.commitPendingParentUnlock();
+    assert.equal(commit.ok, true);
+    assert.equal(AdultPrivilege.getState(), 'active');
   });
 
   it('genuine fetch failure maps to ADULT_PRIVILEGE_NETWORK', async () => {

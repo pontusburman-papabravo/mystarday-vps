@@ -182,11 +182,30 @@
   function commitParentViewFromPicker(redirectPath, leaseUntil) {
     const target = redirectPath || '/dashboard';
     const orch = window.AppEntryOrchestrator;
+    const priv = window.AdultPrivilege;
+    function discardPending() {
+      if (priv && typeof priv.discardPendingParentUnlock === 'function') {
+        priv.discardPendingParentUnlock();
+      }
+    }
     if (!orch || typeof orch.commitVerifiedParentResume !== 'function') {
+      discardPending();
       return false;
     }
+    // SINGLE commit boundary: verified resume + applied parent-home. This re-validates
+    // the authoritative lease AT COMMIT TIME (covers the lease valid-at-verify /
+    // expired-at-commit race). On failure: no navigation, no local parent state.
     if (!orch.commitVerifiedParentResume(target, leaseUntil)) {
+      discardPending();
       return false;
+    }
+    // Post-commit ONLY: apply local AdultPrivilege/Auth state. Exception-safe — a
+    // lifecycle/chrome failure must not turn an already-committed transition into a
+    // failure or leave mixed state.
+    if (priv && typeof priv.commitPendingParentUnlock === 'function') {
+      try {
+        priv.commitPendingParentUnlock();
+      } catch (_) { /* transition already committed */ }
     }
     window.location.replace(target);
     return true;
