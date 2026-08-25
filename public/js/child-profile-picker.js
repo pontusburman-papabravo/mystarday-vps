@@ -184,13 +184,20 @@
   /**
    * Multi-profile shared devices cold-start back to profile-picker unless we pin parent-home first.
    */
-  function commitParentViewFromPicker(redirectPath) {
+  function commitParentViewFromPicker(redirectPath, leaseUntil) {
     enterParentDeviceMode();
     const target = redirectPath || '/dashboard';
-    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.beginExplicitParentResume === 'function') {
-      AppEntryOrchestrator.beginExplicitParentResume(target);
-    } else if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.commitExplicitParentResume === 'function') {
-      AppEntryOrchestrator.commitExplicitParentResume(target);
+    const orch = window.AppEntryOrchestrator;
+    // Atomic handoff: the selected parent is already server-verified (select-parent
+    // + /me id match) with an authoritative lease, so commit a *verified* resume and
+    // pre-apply the parent-home decision. The destination page then trusts it without
+    // re-running the /me + /status race that produced the child→adult picker loop.
+    let committed = false;
+    if (orch && typeof orch.commitVerifiedParentResume === 'function') {
+      committed = orch.commitVerifiedParentResume(target, leaseUntil);
+    }
+    if (!committed && orch && typeof orch.beginExplicitParentResume === 'function') {
+      orch.beginExplicitParentResume(target);
     }
     window.location.replace(target);
   }
@@ -220,7 +227,7 @@
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (result && result.ok) {
-      commitParentViewFromPicker(result.redirect || '/dashboard');
+      commitParentViewFromPicker(result.redirect || '/dashboard', result.privilegeLeaseUntil);
       return;
     }
 

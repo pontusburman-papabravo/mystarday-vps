@@ -115,9 +115,15 @@
       });
   }
 
-  function verifyParentAuthority() {
+  function verifyParentAuthority(expectedParentId) {
     return fetchJson('/api/auth/me', { method: 'GET' }).then(function (out) {
       if (!out.res.ok || !out.body || out.body.type !== 'parent') {
+        return false;
+      }
+      // Atomic picker handoff: the server session must be EXACTLY the selected
+      // parent, never merely "some parent". Guards against a stale/other parent
+      // cookie satisfying the gate for the wrong profile.
+      if (expectedParentId && String(out.body.id) !== String(expectedParentId)) {
         return false;
       }
       return true;
@@ -205,13 +211,13 @@
     });
   }
 
-  function verifyParentAuthorityWithRetry(attemptsLeft) {
-    return verifyParentAuthority().then(function (verified) {
+  function verifyParentAuthorityWithRetry(attemptsLeft, expectedParentId) {
+    return verifyParentAuthority(expectedParentId).then(function (verified) {
       if (verified) return true;
       if (attemptsLeft <= 1) return false;
       return new Promise(function (resolve) {
         setTimeout(function () {
-          resolve(verifyParentAuthorityWithRetry(attemptsLeft - 1));
+          resolve(verifyParentAuthorityWithRetry(attemptsLeft - 1, expectedParentId));
         }, 100);
       });
     });
@@ -280,10 +286,20 @@
     });
   }
 
-  function applyUnlockSuccess(body) {
+  function applyUnlockSuccess(body, opts) {
+    const options = opts || {};
     hydrateParentFromBody(body);
     const parentUser = body && (body.parent || body.user);
-    return verifyParentAuthorityWithRetry(4).then(function (verified) {
+    const attempts = options.requireVerified ? 5 : 4;
+    return verifyParentAuthorityWithRetry(attempts, options.expectedParentId).then(function (verified) {
+      // Strict (picker) path: never a client-only "success". If the server session
+      // is not confirmed as the exact selected parent, fail closed so the picker
+      // stays put and shows an error instead of navigating into a picker loop.
+      if (!verified && options.requireVerified) {
+        setState(STATES.LOCKED);
+        track('adult_privilege_unlock_failed');
+        return { ok: false, code: 'ADULT_PRIVILEGE_VERIFY_FAILED' };
+      }
       if (!verified && !parentUser) {
         setState(STATES.LOCKED);
         track('adult_privilege_unlock_failed');
@@ -510,6 +526,9 @@
         expiresAt: out.body.privilegeLeaseUntil,
         privilegeLeaseUntil: out.body.privilegeLeaseUntil,
         policy: out.body.policy,
+      }, {
+        requireVerified: true,
+        expectedParentId: parentId,
       }).then(function (result) {
         if (result.ok) {
           logSelectParentStage('select-parent:final-result', { ok: true, via: 'contract' });
@@ -517,6 +536,7 @@
             ok: true,
             parent: result.parent,
             redirect: out.body.redirect || '/dashboard',
+            privilegeLeaseUntil: out.body.privilegeLeaseUntil || null,
           };
         }
         logSelectParentStage('select-parent:post-success-failed', {

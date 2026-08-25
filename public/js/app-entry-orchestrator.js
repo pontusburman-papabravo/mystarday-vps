@@ -266,6 +266,23 @@
     return buildExplicitParentResumeDecision(redirectPath);
   }
 
+  /**
+   * Atomic child→adult handoff: the picker has already server-verified the exact
+   * selected parent (trusted-device/select-parent + /api/auth/me id match) and holds
+   * the authoritative lease from that response. Commit the resume as *verified* and
+   * pre-apply the parent-home decision so the destination page does NOT re-run the
+   * /me + /status verification race that otherwise bounces back to the picker.
+   * @returns {boolean} true when a valid future lease produced a verified resume.
+   */
+  function commitVerifiedParentResume(redirectPath, leaseUntil) {
+    beginExplicitParentResume(redirectPath);
+    if (!markExplicitParentResumeVerified(redirectPath, leaseUntil)) {
+      return false;
+    }
+    markDecisionApplied(buildExplicitParentResumeDecision(redirectPath));
+    return true;
+  }
+
   /** @deprecated Use beginExplicitParentResumeTransition — picker sets pending only. */
   function commitExplicitParentResume(redirectPath) {
     return beginExplicitParentResumeTransition(redirectPath);
@@ -684,6 +701,7 @@
     beginExplicitParentResume: beginExplicitParentResume,
     beginExplicitParentResumeTransition: beginExplicitParentResumeTransition,
     commitExplicitParentResume: commitExplicitParentResume,
+    commitVerifiedParentResume: commitVerifiedParentResume,
     isExplicitParentResumeActive: isExplicitParentResumeActive,
     isExplicitParentResumePending: isExplicitParentResumePending,
     rejectExplicitParentResume: rejectExplicitParentResume,

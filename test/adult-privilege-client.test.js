@@ -420,6 +420,56 @@ describe('adult-privilege client state machine', () => {
     assert.equal(meCalls, 0);
   });
 
+  it('atomic: select-parent ok but /me returns a DIFFERENT parent → verify fails, no success', async () => {
+    let meCalls = 0;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        meCalls += 1;
+        return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'other-parent' }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.ok(meCalls >= 1, 'strict picker path must verify /api/auth/me');
+  });
+
+  it('atomic: select-parent ok but /me never confirms parent → verify fails (no client-only success)', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        return Promise.resolve(mockJsonResponse(200, { type: 'child', id: 'kid' }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+  });
+
+  it('atomic: successful unlock returns the authoritative lease for the verified resume', async () => {
+    const lease = Date.now() + 15 * 60 * 1000;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.resolve(mockJsonResponse(200, {
+          ok: true,
+          user: { id: 'p1', type: 'parent' },
+          redirect: '/dashboard',
+          privilegeLeaseUntil: lease,
+          csrfToken: 'c',
+        }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(result.privilegeLeaseUntil, lease);
+  });
+
   it('picker lists all eligible parents; PIN unlock stays server-gated', () => {
     const access = fs.readFileSync(path.join(ROOT, 'db/parent-access.js'), 'utf8');
     const picker = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
