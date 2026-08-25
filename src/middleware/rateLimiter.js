@@ -46,6 +46,67 @@ function isChildRoutineBurstPath(req) {
 }
 
 /**
+ * Read-only dashboard/settings bootstrap paths fetched in parallel on every
+ * /dashboard, /settings and profile-picker page load. These are the exact
+ * paths observed mass-429ing in prod after repeated child<->parent profile
+ * switching (2026-08-25 incident): a single dashboard load fires 20-30 of
+ * these GETs at once, and 2-3 reloads within 60s exhausted the shared
+ * 100 req/min apiLimiter bucket. They get their own, higher-ceiling bucket
+ * via apiReadLimiter instead — see that limiter below.
+ */
+const DASHBOARD_READ_EXACT_PATHS = [
+  '/family',
+  '/children',
+  '/family/dashboard-stats',
+  '/family/readiness',
+  '/family/next-action',
+  '/family/first-success',
+  '/family/activation-config',
+  '/family/star-history',
+  '/family/custody/context',
+  '/family/locale-context',
+  '/rewards/pending-requests',
+  '/widget/native-status',
+  '/notifications/unread-count',
+  '/messages/unread',
+  '/subscription/status',
+  '/iap/config',
+  '/dagens-nyhet/banner',
+  '/reports/active-count',
+  '/growth/feedback/eligible',
+  '/account/referral',
+];
+
+// Only these two have nested sub-resources that must also move to the read
+// bucket (/for-dig/goals, /for-dig/installs, ... and /me/journey-context/registry).
+// Every other entry above is an exact-path match only — no broad /family/*
+// or /me/* prefix sweep, so unlisted mutation/rarely-called GET paths under
+// those prefixes stay on the standard 100/min apiLimiter unchanged.
+const DASHBOARD_READ_PREFIX_PATHS = ['/for-dig', '/me/journey-context'];
+
+function isDashboardReadPath(req) {
+  const p = req.path || '';
+  if (DASHBOARD_READ_EXACT_PATHS.includes(p)) return true;
+  return DASHBOARD_READ_PREFIX_PATHS.some((prefix) => p === prefix || p.startsWith(prefix + '/'));
+}
+
+/**
+ * True when this request is eligible for the separate authenticated-parent
+ * read bucket: GET/HEAD, authenticated parent (not child, not admin), and a
+ * known read-heavy dashboard/settings bootstrap path. Mutations (POST/PUT/
+ * PATCH/DELETE) and non-parent traffic always stay on the standard apiLimiter.
+ */
+function isDashboardReadBurstRequest(req) {
+  return (
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    !!(req.user && req.user.id) &&
+    req.user.type !== 'child' &&
+    !req.user.isAdmin &&
+    isDashboardReadPath(req)
+  );
+}
+
+/**
  * Auth / barnväljare bootstrap paths — each has its own route limiter where needed,
  * or is a cheap session probe. Exempt from the 30 req/min unauthenticated apiLimiter
  * so add-child + login flows do not block /api/auth/login after many /me probes.
@@ -315,12 +376,42 @@ const apiLimiter = rateLimit({
       isApiBootstrapPath(req) ||
       req.path === '/events' ||
       req.path.startsWith('/events') ||
-      req.originalUrl?.startsWith('/api/events');
+      req.originalUrl?.startsWith('/api/events') ||
+      // Dashboard/settings read bursts are metered by apiReadLimiter instead —
+      // do not double-count them against the mutation-capable 100/min bucket.
+      isDashboardReadBurstRequest(req);
     if (baseSkip) return true;
     return false;
   },
   handler: (req, res, next, options) => {
     onLimitReached(req, res, options, 'api');
+    const retryAfterSec = Math.ceil(options.windowMs / 1000);
+    res
+      .set('Retry-After', String(retryAfterSec))
+      .status(429)
+      .json({
+        error: 'För många förfrågningar. Vänta en minut och försök igen.',
+        retry_after: retryAfterSec,
+      });
+  },
+});
+
+/**
+ * Authenticated-parent read-only bucket: 300 req/min per parent, separate from
+ * apiLimiter's 100/min. Only ever applies to GET/HEAD on the known dashboard/
+ * settings bootstrap paths for a logged-in parent (see isDashboardReadBurstRequest).
+ * Everything else (mutations, child/admin traffic, any other path) is skipped
+ * here and falls through to the standard apiLimiter unchanged.
+ */
+const apiReadLimiter = rateLimit({
+  windowMs: config.rateLimits.apiAuthenticatedRead.windowMs,
+  max: ENABLED ? config.rateLimits.apiAuthenticatedRead.max : 0,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `parent-read:${req.user?.id}`,
+  skip: (req) => !ENABLED || !isDashboardReadBurstRequest(req),
+  handler: (req, res, next, options) => {
+    onLimitReached(req, res, options, 'api_read');
     const retryAfterSec = Math.ceil(options.windowMs / 1000);
     res
       .set('Retry-After', String(retryAfterSec))
@@ -472,6 +563,7 @@ module.exports = {
   childLoginLimiter,
   registrationLimiter,
   apiLimiter,
+  apiReadLimiter,
   adminApiLimiter,
   inviteLimiter,
   forgotPasswordLimiter,
@@ -481,6 +573,8 @@ module.exports = {
   resendWebhookLimiter,
   parentPinLimiter,
   isChildRoutineBurstPath,
+  isDashboardReadPath,
+  isDashboardReadBurstRequest,
   childRoutineMutationLimiter,
   CHILD_ROUTINE_MUTATION_MAX_PER_MIN,
 };
