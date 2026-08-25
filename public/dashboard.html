@@ -1275,9 +1275,12 @@
   <!-- Help button (always visible) -->
   <!-- Help button: above mobile nav (bottom-20=80px), on desktop above feedback btn (bottom-[76px]) -->
   <button id="helpBtn" onclick="toggleHelpPanel()"
-    class="fixed bottom-20 right-4 z-[900] w-11 h-11 bg-navy text-white rounded-full shadow-lg flex items-center justify-center text-lg hover:bg-navy-soft transition-colors md:bottom-[76px] md:right-5"
+    class="fixed bottom-20 right-4 z-[900] w-11 h-11 bg-navy text-white rounded-full shadow-lg flex items-center justify-center text-lg font-bold hover:bg-navy-soft transition-colors md:bottom-[76px] md:right-5"
     title="Hur funkar det?">
-    ❓
+    <!-- Plain "?" glyph, not the ❓ emoji — iOS renders ❓ in its own red/white
+         emoji presentation regardless of text-white, which reads as a broken
+         red badge next to the orange feedback FAB. -->
+    ?
   </button>
 
   <!-- Help / FAQ Panel -->

@@ -396,9 +396,12 @@
   root.id = 'helpBubbleRoot';
 
   root.innerHTML = `
-    <!-- Help bubble trigger button -->
+    <!-- Help bubble trigger button. Plain "?" glyph, not the ❓ emoji — iOS
+         renders ❓ in its own red/white emoji presentation regardless of the
+         button's white text color, which reads as a broken red badge next
+         to the orange feedback FAB. -->
     <button id="hbBtn" onclick="window.__hbToggle()" title="Hjälp" aria-label="Öppna hjälp">
-      ❓
+      ?
     </button>
 
     <!-- Help panel backdrop + panel -->
@@ -452,6 +455,7 @@
       align-items: center;
       justify-content: center;
       font-size: 18px;
+      font-weight: 700;
       box-shadow: 0 4px 16px rgba(27,35,64,0.3);
       transition: background 0.2s, transform 0.15s;
     }

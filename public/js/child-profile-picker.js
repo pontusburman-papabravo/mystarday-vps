@@ -186,6 +186,37 @@
    * DeviceMode to parent on success, so we never mutate it early here.
    * @returns {boolean} true only when navigation was committed.
    */
+  /**
+   * Branded full-screen transition cue shown for the brief moment between a
+   * committed parent resume and the browser actually unloading this document
+   * for window.location.replace(). Purely cosmetic — appended once, never
+   * removed here (navigation unloads it); the destination page shows its own
+   * matching overlay (platform-html.js buildTransitionBootScript) until its
+   * real content is ready. Never touches auth/session/commit state.
+   */
+  function showParentTransitionBootOverlay() {
+    try {
+      if (document.getElementById('parentTransitionBootOverlay')) return;
+      const style = document.createElement('style');
+      style.id = 'parentTransitionBootOverlayStyle';
+      style.textContent =
+        '@keyframes parentTransitionBootSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.2)}100%{transform:rotate(360deg) scale(1)}}' +
+        '#parentTransitionBootOverlay{position:fixed;inset:0;z-index:999999;background:#07071a;color:#f4f4ff;' +
+        'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;' +
+        'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}' +
+        '#parentTransitionBootOverlay .ptb-star{font-size:40px;animation:parentTransitionBootSpin 1.2s ease-in-out infinite}' +
+        '#parentTransitionBootOverlay .ptb-text{font-size:15px;font-weight:600}';
+      document.head.appendChild(style);
+      const overlay = document.createElement('div');
+      overlay.id = 'parentTransitionBootOverlay';
+      overlay.setAttribute('aria-live', 'polite');
+      overlay.innerHTML =
+        '<div class="ptb-star" aria-hidden="true">\u2B50</div>' +
+        '<div class="ptb-text">Öppnar föräldraläge…</div>';
+      document.body.appendChild(overlay);
+    } catch (_) { /* best-effort visual only — never block navigation */ }
+  }
+
   function commitParentViewFromPicker(redirectPath, leaseUntil) {
     const target = redirectPath || '/dashboard';
     const orch = window.AppEntryOrchestrator;
@@ -220,6 +251,7 @@
       } catch (_) { /* transition already committed */ }
     }
     diag('navigation:requested', { target: target });
+    showParentTransitionBootOverlay();
     window.location.replace(target);
     return true;
   }

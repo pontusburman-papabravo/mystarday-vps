@@ -8,7 +8,7 @@
 
   const BASE_V4 = '/img/stjarnadag-icons-v4/';
   const BASE_QA_V4 = '/img/stjarnadag-quick-actions-v4/';
-  const HUB_ASSET_VERSION = '3';
+  const HUB_ASSET_VERSION = '4';
 
   /** Bottom-nav destinations with unique v4 geometry + active/inactive assets. */
   const NAV_V4_KEYS = {
