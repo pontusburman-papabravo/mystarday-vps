@@ -267,7 +267,7 @@
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
 // stjarndag-v858: product spotlight + Om oss page + landing nav fix
-const CACHE_NAME = 'stjarndag-v875';
+const CACHE_NAME = 'stjarndag-v876';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -612,6 +612,9 @@ const CACHE_NAME = 'stjarndag-v875';
 // stjarndag-v870: Premium settings — align native_purchase_eligible with IAP config + init before canPurchase
 // stjarndag-v871: Settings hub async contract — await subscription visibility before boolean checks
 // stjarndag-v872: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v876: P1 UI polish — trofe icon: drop stale unversioned SW precache entry
+//   (runtime always requests ?v=N; other hub icons are never precached individually,
+//   this one-off entry was the actual mismatch) + HUB_ASSET_VERSION 3->4, MAGIC_VERSION 31->32.
 // stjarndag-v874: P1 physical QA — rate-limit/bootstrap dedup, profile picker errors, trofe icon cache bust
 // stjarndag-v873: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v875: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
@@ -679,7 +682,6 @@ const STATIC_ASSETS = [
   '/js/theme.js',
   '/js/i18n.js',
   '/js/offline-queue.js',
-  '/img/stjarnadag-icons-v4/hub/trofe.svg',
   '/js/offline-store.js',   // IndexedDB wrapper for offline schema/profil/belöningar
   '/js/sw-register.js',
   '/js/mobile-nav.js',

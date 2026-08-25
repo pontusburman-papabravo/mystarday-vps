@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '31'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '32'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -44,6 +44,56 @@ function isMagicPath(p) {
   return PARENT_MAGIC_PATHS.has(p) || p.indexOf('/family/child/') === 0;
 }
 
+/**
+ * Transition-boot overlay: covers the gap between a verified child->adult
+ * profile-switch commit (picker's window.location.replace) and this
+ * destination page's own real render. Read-only against the SAME
+ * sessionStorage marker app-entry-orchestrator.js already writes
+ * (stjarndag_explicit_parent_resume_v1) — no new write path, no change to
+ * commitVerifiedParentResume/AdultPrivilege/app-entry/session/DeviceMode.
+ * Paints on top of the parent-magic-early dark background above, so the
+ * native WebView never shows its white background during this gap.
+ * Shown at most once per commit (keyed by the marker's own `at` timestamp)
+ * so revisiting/reloading the page later in the same lease window is silent.
+ * Cleared by the real "content ready" signal (dashboard-home-hub.js render())
+ * or, as a fallback for any other destination, the browser's native `load`
+ * event — never a setTimeout/fake delay.
+ */
+function buildTransitionBootCss() {
+  return (
+    'html.parent-transition-boot::before{content:"\\2B50";position:fixed;inset:0;z-index:999999;' +
+    'background:#07071a;color:#f4f4ff;display:flex;align-items:center;justify-content:center;' +
+    'padding-bottom:64px;font-size:40px;animation:parentTransitionBootSpin 1.2s ease-in-out infinite}' +
+    'html.parent-transition-boot::after{content:"Öppnar föräldraläge…";position:fixed;left:0;right:0;top:62%;' +
+    'z-index:1000000;text-align:center;color:#f4f4ff;font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}' +
+    '@keyframes parentTransitionBootSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.2)}100%{transform:rotate(360deg) scale(1)}}'
+  );
+}
+
+function buildTransitionBootScript() {
+  return (
+    '(function(){try{' +
+    'var raw=sessionStorage.getItem("stjarndag_explicit_parent_resume_v1");' +
+    'if(!raw)return;' +
+    'var marker=JSON.parse(raw);' +
+    'if(!marker||marker.status!=="verified")return;' +
+    'if(!marker.expiresAt||Date.now()>marker.expiresAt)return;' +
+    'var shownKey="stjarndag_parent_transition_boot_shown_v1";' +
+    'if(sessionStorage.getItem(shownKey)===String(marker.at))return;' +
+    'sessionStorage.setItem(shownKey,String(marker.at));' +
+    'document.documentElement.classList.add("parent-transition-boot");' +
+    'var cleared=false;' +
+    'window.__stjarndagClearParentTransitionBoot=function(){' +
+    'if(cleared)return;cleared=true;' +
+    'document.documentElement.classList.remove("parent-transition-boot");' +
+    '};' +
+    'window.addEventListener("load",function(){' +
+    'try{window.__stjarndagClearParentTransitionBoot();}catch(e){}' +
+    '});' +
+    '}catch(e){}})();'
+  );
+}
+
 function buildEarlyMagicScriptTag() {
   const magicPathsJson = JSON.stringify([...PARENT_MAGIC_PATHS]);
   return (
@@ -51,7 +101,8 @@ function buildEarlyMagicScriptTag() {
     'html.parent-magic-early body nav#sidebar,html.parent-magic-early body nav.w-full.md\\:w-64,' +
     'html.parent-magic-early body .md\\:hidden.bg-navy.sticky,html.parent-magic-early body .mobile-topbar{display:none!important}' +
     'html.parent-magic-early body .bg-sky,html.parent-magic-early body .bg-cream{background:transparent!important}' +
-    'html.parent-magic-early.parent-theme-light,html.parent-magic-early.parent-theme-light body{background:#ffffff!important;color:#1a1633!important}</style>' +
+    'html.parent-magic-early.parent-theme-light,html.parent-magic-early.parent-theme-light body{background:#ffffff!important;color:#1a1633!important}' +
+    buildTransitionBootCss() + '</style>' +
     '<script id="parent-magic-early-boot">(function(){try{var p=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
     'var pages=' + magicPathsJson + ';' +
     'if(pages.indexOf(p)<0&&p.indexOf("/family/child/")!==0)return;' +
@@ -60,7 +111,9 @@ function buildEarlyMagicScriptTag() {
     'var light=localStorage.getItem("stjarndag_parent_theme")==="light";' +
     'document.documentElement.classList.add(light?"parent-theme-light":"parent-theme-dark");' +
     'var tc=document.querySelector(\'meta[name="theme-color"]\');' +
-    'if(tc)tc.setAttribute("content",light?"#f4f1ff":"#07071a");}catch(e){}})();<\/script>'
+    'if(tc)tc.setAttribute("content",light?"#f4f1ff":"#07071a");}catch(e){}})();' +
+    buildTransitionBootScript() +
+    '<\/script>'
   );
 }
 
@@ -610,3 +663,6 @@ module.exports.injectPlatformHtml = injectPlatformHtml;
 module.exports.injectParentMagicHtml = injectParentMagicHtml;
 module.exports.bumpNativeRuntimeAssetVersions = bumpNativeRuntimeAssetVersions;
 module.exports.MAGIC_VERSION = MAGIC_VERSION;
+module.exports.buildEarlyMagicScriptTag = buildEarlyMagicScriptTag;
+module.exports.buildTransitionBootCss = buildTransitionBootCss;
+module.exports.buildTransitionBootScript = buildTransitionBootScript;

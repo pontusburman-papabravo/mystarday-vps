@@ -332,6 +332,13 @@
     const mount = document.getElementById('parentHomeHubMount');
     if (!mount) return false;
 
+    // Real content is about to render — clear the profile-switch transition
+    // overlay (platform-html.js buildTransitionBootScript) now rather than
+    // waiting for the generic window 'load' fallback.
+    if (typeof window.__stjarndagClearParentTransitionBoot === 'function') {
+      try { window.__stjarndagClearParentTransitionBoot(); } catch (_) { /* ignore */ }
+    }
+
     if (!shouldUse()) {
       document.body.classList.remove('parent-magic-dashboard');
       mount.classList.add('hidden');

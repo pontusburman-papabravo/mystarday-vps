@@ -300,9 +300,14 @@ describe('P1 physical QA hotfix — trofe icon runtime path', () => {
     assert.match(fn, /return '';/);
   });
 
-  it('trofe.svg is precached in service worker', () => {
+  it('trofe.svg is NOT individually precached (matches every other hub icon)', () => {
+    // P1 UI polish (2026-08-25): an ad hoc unversioned precache entry for
+    // trofe.svg was the actual mismatch — runtime always requests the
+    // cache-busted ?v=N URL, so the precached (unversioned) entry never
+    // matched and could serve/hold a stale response. No other hub icon is
+    // precached individually; trofe now follows that same proven path.
     const sw = read('public/sw.js');
-    assert.match(sw, /hub\/trofe\.svg/);
+    assert.doesNotMatch(sw, /hub\/trofe\.svg/);
     assert.match(sw, /stjarndag-v\d+/);
   });
 });
