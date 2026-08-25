@@ -12,6 +12,8 @@
     'settings.groups.profile.sub': 'Inloggning, PIN och konto',
     'settings.groups.family.title': 'Familj',
     'settings.groups.family.sub': 'Lägg till vuxen, namn och pedagoger',
+    'settings.groups.device.title': 'Den här enheten',
+    'settings.groups.device.sub': 'Barnmobil, vuxenmobil eller delad mobil',
     'settings.groups.appearance.title': 'Utseende',
     'settings.groups.appearance.sub': 'Mörkt eller ljust tema',
     'settings.groups.app.title': 'App',
@@ -32,6 +34,7 @@
   const SETTINGS_GROUPS_BASE = [
     { id: 'profile', icon: 'profil', iconClass: 'profile', titleKey: 'settings.groups.profile.title', subKey: 'settings.groups.profile.sub' },
     { id: 'family', icon: 'familj', iconClass: 'family', titleKey: 'settings.groups.family.title', subKey: 'settings.groups.family.sub' },
+    { id: 'device', icon: 'support', iconClass: 'app', titleKey: 'settings.groups.device.title', subKey: 'settings.groups.device.sub' },
     { id: 'appearance', icon: 'info', iconClass: 'app', titleKey: 'settings.groups.appearance.title', subKey: 'settings.groups.appearance.sub' },
     { id: 'app', icon: 'notiser', iconClass: 'app', titleKey: 'settings.groups.app.title', subKey: 'settings.groups.app.sub' },
   ];
@@ -316,6 +319,9 @@
     markSettingsHubReady();
     if (window.SettingsNativeNav && SettingsNativeNav.sync) SettingsNativeNav.sync();
     if (groupId === 'appearance') updateThemePickerUi();
+    if (groupId === 'device' && window.SettingsThisDevice && typeof SettingsThisDevice.init === 'function') {
+      SettingsThisDevice.init();
+    }
     if (groupId === 'premium' && window.SettingsSubscription && typeof SettingsSubscription.render === 'function') {
       SettingsSubscription.render(document.getElementById('subscriptionMount'));
     }
@@ -423,6 +429,7 @@
   function hasSettingsDeepLink() {
     const hash = (window.location.hash || '').replace('#', '');
     return hash === 'prenumeration' || hash === 'profil' || hash === 'profile'
+      || hash === 'this-device' || hash === 'device' || hash === 'thisDeviceSection'
       || hash === 'widgetSettingsSection' || hash === 'widget'
       || hash === 'aviseringar' || hash === 'notiser' || hash === 'notifications';
   }
@@ -667,6 +674,7 @@
     tagChild('accountSection', 'profile');
     tagChild('parentPinSection', 'profile');
     tagChild('legacyPasswordSection', 'profile');
+    tagChild('thisDeviceSection', 'device');
     tagChild('prenumeration', 'premium');
     tagChild('settingsLegalSection', 'app');
     tagChild('familyName', 'family');
@@ -704,6 +712,10 @@
     }
     if (hash === 'profil' || hash === 'profile') {
       showSettingsGroup('profile');
+      return true;
+    }
+    if (hash === 'this-device' || hash === 'device' || hash === 'thisDeviceSection') {
+      showSettingsGroup('device');
       return true;
     }
     if (hash === 'widgetSettingsSection' || hash === 'widget') {
