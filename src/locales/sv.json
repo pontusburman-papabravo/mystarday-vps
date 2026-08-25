@@ -48,7 +48,9 @@
       "pinPlaceholder": "4 siffror",
       "submit": "Logga in",
       "parentLogin": "Är du förälder?",
-      "parentLoginLink": "Logga in här"
+      "parentLoginLink": "Logga in här",
+      "adultLogin": "Logga in som vuxen",
+      "adultLoginShort": "Vuxen"
     },
     "verify": {
       "title": "Verifiera din e-post",

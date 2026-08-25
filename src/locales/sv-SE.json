@@ -274,6 +274,8 @@
       "submit": "Logga in",
       "parentLogin": "Är du förälder?",
       "parentLoginLink": "Logga in här",
+      "adultLogin": "Logga in som vuxen",
+      "adultLoginShort": "Vuxen",
       "forgotPassword": "Glömt lösenord?",
       "emptyNoChildren": "Inga barn registrerade ännu.",
       "nameHint": "Skriv barnets namn för att logga in",
