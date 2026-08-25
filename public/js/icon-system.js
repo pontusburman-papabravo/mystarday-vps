@@ -87,6 +87,49 @@
     childNav: 32,
   };
 
+  /**
+   * Icons rendered as INLINE <svg> markup instead of <img src>. Used for
+   * icons where the external-asset chain (URL -> service worker -> network
+   * fetch -> WKWebView image decode) has proven unreliable on native iOS
+   * even with a correct HTTP 200 image/svg+xml response, correct
+   * Content-Type, and correct SW precache (2026-08-25 physical QA:
+   * Settings -> Prenumeration kept showing a broken-image placeholder for
+   * `trofe` regardless). Inline SVG removes that entire chain for this one
+   * icon — geometry copied verbatim from
+   * public/img/stjarnadag-icons-v4/hub/trofe.svg, which stays on disk for
+   * any other consumer. Every other icon key is unaffected.
+   */
+  const INLINE_SVG_ICONS = {
+    trofe: {
+      viewBox: '0 0 32 32',
+      label: 'Trofé',
+      markup:
+        '<path d="M10.2 8.8h11.6v5.4c0 3.8-2.6 6.8-5.8 6.8s-5.8-3-5.8-6.8V8.8Z" stroke="#B9B5AE" stroke-width="2.5" stroke-linejoin="round"/>' +
+        '<path d="M8.2 10.2H6.2a2 2 0 0 0-2 2v1.2a2 2 0 0 0 2 2h2M23.8 10.2h2a2 2 0 0 1 2 2v1.2a2 2 0 0 1-2 2h-2" stroke="#B9B5AE" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<path d="M12.8 24.8h6.4M16 20.8v4" stroke="#8FA9A5" stroke-width="2.2" stroke-linecap="round"/>',
+    },
+  };
+
+  function hasInlineSvg(name) {
+    return !!(name && INLINE_SVG_ICONS[name]);
+  }
+
+  function renderInlineSvg(name, opts) {
+    const spec = INLINE_SVG_ICONS[name];
+    const size = opts.size || SIZES.nav;
+    const cls = opts.className || 'app-icon';
+    const decorative = opts.decorative !== false;
+    const ariaAttrs = decorative
+      ? ' aria-hidden="true"'
+      : ' role="img" aria-label="' + (opts.alt != null ? String(opts.alt) : spec.label) + '"';
+    return (
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + spec.viewBox + '" fill="none"' +
+      ' width="' + size + '" height="' + size + '" class="' + cls + '"' + ariaAttrs + '>' +
+      spec.markup +
+      '</svg>'
+    );
+  }
+
   function resolveNavKey(name) {
     if (!name) return null;
     if (NAV_V4_KEYS[name]) return name;
@@ -160,6 +203,9 @@
 
   function render(name, opts) {
     opts = opts || {};
+    if (hasInlineSvg(name)) {
+      return renderInlineSvg(name, opts);
+    }
     const src = url(name, opts);
     if (!src) {
       return opts.fallback != null ? String(opts.fallback) : '';
