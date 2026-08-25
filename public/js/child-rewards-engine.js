@@ -180,6 +180,12 @@
     if (isBarnetsSamlingPresentation() || isWorldSceneActive()) return;
     const view = document.getElementById('rewardsView') || document.getElementById('skattkammarView');
     if (!view || !_goalData || !_goalData.goal) return;
+    // The classic (non-treasure-v10) Skattkammaren hero (.skatt-hero-v10,
+    // rendered by renderSkattkammaren in child-dashboard-rewards.js) already
+    // shows this same goal's star count, progress bar and label inline —
+    // mounting this card on top of it duplicated the same goal progress
+    // twice in the same view for every family without treasure-v10 active.
+    if (view.querySelector('.skatt-hero-v10')) return;
     const existing = document.getElementById('childGoalProgressMount');
     if (existing) existing.remove();
     const wrap = document.createElement('div');
