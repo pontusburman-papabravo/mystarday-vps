@@ -5,6 +5,8 @@ const deviceDb = require('../../db/family-trusted-device');
 const authz = require('../middleware/authz');
 const { getChildrenForParent } = require('../../db/parent-access');
 const { isTrustedDeviceEnabled } = require('./trusted-device-flags');
+const { isFamilyDeviceEntryEnabled } = require('./family-device-entry-flags');
+const { isFamilyDeviceDailyUxEnabled } = require('./family-device-daily-ux-flags');
 const { avatarApiFields } = require('./avatar-api');
 
 const USAGE_PARENT = 'parent_phone';
@@ -91,11 +93,49 @@ async function buildThisDevicePayload({ row, parentId, allowedChildren }) {
   };
 }
 
+/**
+ * Diagnostics-only (P1): capture family id + the three effective Family Device
+ * flags for THIS request, independent of whichever one gates `enabled` below, so
+ * a "Barnenhet är inte aktiverat" report can be correlated without guessing.
+ * No PIN/token/cookie values are logged. Never throws — a diagnostic failure must
+ * never affect the real response.
+ */
+async function logThisDeviceDiag(familyId, extra) {
+  let entryEnabled = null;
+  let dailyUxEnabled = null;
+  let resolverError = null;
+  try {
+    entryEnabled = await isFamilyDeviceEntryEnabled(familyId);
+  } catch (err) {
+    resolverError = 'family_device_entry_v1: ' + (err && err.message);
+  }
+  try {
+    dailyUxEnabled = await isFamilyDeviceDailyUxEnabled(familyId);
+  } catch (err) {
+    resolverError = (resolverError ? resolverError + '; ' : '') + 'family_device_daily_ux_v1: ' + (err && err.message);
+  }
+  try {
+    console.log('[THIS-DEVICE-DIAG]', JSON.stringify(Object.assign({
+      family_id: familyId || null,
+      family_id_type: typeof familyId,
+      effective_family_device_entry_v1: entryEnabled,
+      effective_family_device_daily_ux_v1: dailyUxEnabled,
+      resolver_error: resolverError,
+      ts: Date.now(),
+    }, extra || {})));
+  } catch (_) { /* diagnostics must never throw */ }
+}
+
 async function getThisDeviceState(req) {
   const familyId = req.user.familyId;
   const parentId = req.user.id;
   const enabled = await isTrustedDeviceEnabled(familyId);
   const allowedChildren = enabled ? await listAllowedChildrenForParent(parentId) : [];
+
+  await logThisDeviceDiag(familyId, {
+    effective_trusted_device_v1: enabled,
+    trusted_device_lookup: 'not_checked_yet',
+  });
 
   if (!enabled) {
     return {
@@ -108,6 +148,10 @@ async function getThisDeviceState(req) {
 
   const raw = req.cookies?.[trusted.COOKIE_NAME];
   const row = await resolveThisDeviceRow(raw, familyId);
+  await logThisDeviceDiag(familyId, {
+    effective_trusted_device_v1: enabled,
+    trusted_device_lookup: !raw ? 'no_trusted_device_cookie' : (row ? 'row_found' : 'row_not_found_or_family_mismatch'),
+  });
   if (!row) {
     return {
       enabled: true,

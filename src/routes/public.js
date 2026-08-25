@@ -160,10 +160,14 @@ router.get('/app-config', (req, res) => {
 });
 
 // ─── POST /api/client-log ─────────────────────────────────
-// Lightweight client diagnostics (no PII). Used by Apple Sign In step logging.
+// Lightweight client diagnostics (no PII). Used by Apple Sign In step logging and
+// the trusted_profile_unlock correlated child->adult flow timeline (P1 diagnostics).
+// Raised from 120: a single profile-switch attempt now emits ~15-20 correlated
+// stages, so a short physical-QA session (several repro attempts) can exceed the
+// prior budget and silently drop diagnostics right when they're needed most.
 const clientLogLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: process.env.RATE_LIMIT_ENABLED === 'false' ? 0 : 120,
+  max: process.env.RATE_LIMIT_ENABLED === 'false' ? 0 : 600,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => `clientlog:${req.ip}`,

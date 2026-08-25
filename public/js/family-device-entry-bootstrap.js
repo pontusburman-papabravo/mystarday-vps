@@ -14,7 +14,15 @@
     return PARENT_ENTRY_PATHS.indexOf(normalizePath()) !== -1;
   }
 
+  /** Diagnostics-only (P1): no PIN/token/cookie values, ever. */
+  function diag(stage, detail) {
+    if (window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.logStage === 'function') {
+      window.TrustedSelectParentDiag.logStage(stage, detail);
+    }
+  }
+
   async function bootstrapFamilyDeviceEntry() {
+    diag('destination:page_loaded', { path: normalizePath(), isParentEntrySurface: isParentEntrySurface() });
     if (!isParentEntrySurface()) return;
     if (!window.AppEntryOrchestrator || typeof AppEntryOrchestrator.runColdStart !== 'function') {
       return;
