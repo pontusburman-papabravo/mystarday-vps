@@ -20,6 +20,13 @@
   let _coldStartPromise = null;
   let _entryFetchPromise = null;
 
+  /** Diagnostics-only (P1): no PIN/token/cookie values, ever. */
+  function diag(stage, detail) {
+    if (window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.logStage === 'function') {
+      window.TrustedSelectParentDiag.logStage(stage, detail);
+    }
+  }
+
   function clearOrchestratorSessionState() {
     try {
       sessionStorage.removeItem(DECISION_KEY);
@@ -276,15 +283,22 @@
    */
   function commitVerifiedParentResume(redirectPath, leaseUntil) {
     const target = redirectPath || '/dashboard';
+    diag('orch:commit_start', { target: target, leaseUntil: leaseUntil || null, now: Date.now() });
     // Fail closed: validate the authoritative lease BEFORE writing any marker.
     // markExplicitParentResumeVerified() returns false without writing when the
     // lease is missing/expired/malformed, so the atomic path NEVER leaves a
     // dangling `pending` marker (or any applied parent decision) behind.
     if (!markExplicitParentResumeVerified(target, leaseUntil)) {
+      diag('orch:commit_lease_rejected', { target: target, leaseUntil: leaseUntil || null, now: Date.now() });
       rejectExplicitParentResume();
       return false;
     }
+    const deviceModeBefore = window.DeviceMode && typeof DeviceMode.isChildMode === 'function' ? DeviceMode.isChildMode() : null;
+    diag('orch:devicemode_before', { isChildMode: deviceModeBefore });
     markDecisionApplied(buildExplicitParentResumeDecision(target));
+    const deviceModeAfter = window.DeviceMode && typeof DeviceMode.isChildMode === 'function' ? DeviceMode.isChildMode() : null;
+    diag('orch:devicemode_after', { isChildMode: deviceModeAfter });
+    diag('orch:commit_applied', { target: target });
     return true;
   }
 
@@ -295,20 +309,28 @@
 
   async function verifyExplicitParentResumeAuthority() {
     try {
+      diag('destination:me_start', {});
       const meRes = await fetch('/api/auth/me', { credentials: 'include' });
       if (!meRes.ok) {
+        diag('destination:me_end', { ok: false, status: meRes.status });
         return { ok: false, code: 'ME_FAILED', status: meRes.status };
       }
       const me = await meRes.json().catch(function () { return {}; });
+      diag('destination:me_end', { ok: true, type: (me && me.type) || null, returnedId: (me && me.id) || null });
       if (!me || me.type !== 'parent') {
         return { ok: false, code: 'NOT_PARENT' };
       }
 
+      diag('destination:status_start', {});
       const statusRes = await fetch('/api/family/adult-privilege/status', { credentials: 'include' });
       if (!statusRes.ok) {
+        diag('destination:status_end', { ok: false, status: statusRes.status });
         return { ok: false, code: 'STATUS_FAILED', status: statusRes.status };
       }
       const status = await statusRes.json().catch(function () { return {}; });
+      diag('destination:status_end', {
+        ok: status.ok, privilegeActive: status.privilegeActive, state: status.state,
+      });
       if (!status.ok) {
         return { ok: false, code: status.code || 'STATUS_NOT_OK' };
       }
@@ -320,20 +342,26 @@
         leaseUntil: status.privilegeLeaseUntil || status.expiresAt || null,
       };
     } catch (_) {
+      diag('destination:verify_authority_exception', {});
       return { ok: false, code: 'NETWORK' };
     }
   }
 
   async function resolveExplicitParentResumeIfNeeded() {
     const marker = readExplicitParentResumeMarker();
+    diag('destination:resume_marker_state', {
+      present: !!marker, status: marker && marker.status, expiresAt: (marker && marker.expiresAt) || null,
+    });
     if (!marker) return null;
 
     if (isExplicitParentResumeMarkerExpired(marker)) {
+      diag('destination:marker_expired', { expiresAt: marker.expiresAt, now: Date.now() });
       rejectExplicitParentResume();
       return { rejected: true, code: 'MARKER_EXPIRED' };
     }
 
     if (marker.status === 'verified' && isExplicitParentResumeVerified()) {
+      diag('destination:resume_reused', { path: marker.path });
       return {
         ok: true,
         code: 'EXPLICIT_PARENT_RESUME',
@@ -342,22 +370,30 @@
     }
 
     if (marker.status !== 'pending') {
+      diag('destination:resume_rejected', { code: 'MARKER_INVALID', status: marker.status });
       rejectExplicitParentResume();
       return { rejected: true, code: 'MARKER_INVALID' };
     }
 
+    diag('destination:verify_authority_start', { path: marker.path });
     const verified = await verifyExplicitParentResumeAuthority();
+    diag('destination:verify_authority_result', {
+      ok: verified.ok, code: verified.code || null, leaseUntil: verified.leaseUntil || null,
+    });
     if (!verified.ok) {
+      diag('destination:resume_rejected', { code: verified.code || 'VERIFY_FAILED' });
       rejectExplicitParentResume();
       return { rejected: true, code: verified.code || 'VERIFY_FAILED' };
     }
 
     if (!markExplicitParentResumeVerified(marker.path, verified.leaseUntil)) {
+      diag('destination:resume_rejected', { code: 'LEASE_INVALID', leaseUntil: verified.leaseUntil || null });
       rejectExplicitParentResume();
       return { rejected: true, code: 'LEASE_INVALID' };
     }
     const decision = buildExplicitParentResumeDecision(marker.path);
     markDecisionApplied(decision);
+    diag('destination:resume_verified', { path: marker.path });
     return {
       ok: true,
       code: 'EXPLICIT_PARENT_RESUME',
@@ -545,9 +581,13 @@
     if (_coldStartPromise) return _coldStartPromise;
 
     _coldStartPromise = (async function () {
+      diag('destination:cold_start_begin', {
+        path: window.location.pathname, source: opts.source || null, forceReapply: !!opts.forceReapply,
+      });
       if (!opts.forceReapply) {
         const explicit = await resolveExplicitParentResumeIfNeeded();
         if (explicit && explicit.ok) {
+          diag('destination:cold_start_resume_used', { code: explicit.code });
           return explicit;
         }
         const applied = resolveAlreadyAppliedColdStart();
@@ -558,6 +598,10 @@
         window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
       } catch (_) { /* ignore */ }
 
+      // Any /api/auth/app-entry call reaching this point happened AFTER the
+      // explicit-parent-resume short-circuit above did not apply (missing/rejected/
+      // expired marker) — exactly the "app-entry call after PIN" symptom under review.
+      diag('destination:app_entry_refetch', { path: window.location.pathname, source: opts.source || null });
       const fetched = await fetchEntryDecision(opts.intentChildId || null);
       if (!fetched.ok) {
         return { ok: false, code: fetched.code || 'FETCH_FAILED' };
@@ -567,12 +611,16 @@
       }
 
       const decision = fetched.decision;
+      if (decision.destination === 'profile-picker') {
+        diag('destination:redirect_to_picker', { path: decision.path, reason: decision.reason || null });
+      }
       const actionResult = await executeServerAction(decision);
       if (!actionResult.ok) {
         return { ok: false, code: 'SERVER_ACTION_FAILED', decision: decision };
       }
 
       markDecisionApplied(decision);
+      diag('destination:decision_applied', { destination: decision.destination, path: decision.path });
 
       if (opts.skipRedirect) {
         return { ok: true, decision: decision };

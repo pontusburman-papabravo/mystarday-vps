@@ -105,6 +105,7 @@ function bumpNativeRuntimeAssetVersions(body) {
     // native/WebView cache like the orchestrator/picker (regex is specific to
     // adult-privilege.js and does not match -lease-policy.js / -lifecycle.js).
     .replace(/\/js\/adult-privilege\.js\?v=[^"']+/g, '/js/adult-privilege.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/trusted-select-parent-diag\.js\?v=[^"']+/g, '/js/trusted-select-parent-diag.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/parent-nav-header\.js\?v=[^"']+/g, '/js/parent-nav-header.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/journey-context-client\.js\?v=[^"']+/g, '/js/journey-context-client.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/child-profile-picker\.js\?v=[^"']+/g, '/js/child-profile-picker.js?v=' + MAGIC_VERSION);
@@ -475,6 +476,9 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege-lease-policy.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-pin-gate-ui.js?v=' + RELEASE_TAG + '"><\/script>',
+    // Diagnostics-only: also load on destination pages (not just the picker) so the
+    // child->adult flow can log a correlated timeline (picker -> ... -> destination).
+    '<script src="/js/trusted-select-parent-diag.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege-lifecycle.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-biometric-client.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege.js?v=' + RELEASE_TAG + '"><\/script>',

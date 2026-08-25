@@ -9,6 +9,13 @@
 
   let _pinRequired = false;
 
+  /** Diagnostics-only (P1): no PIN/token/cookie values, ever. */
+  function diag(stage, detail) {
+    if (window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.logStage === 'function') {
+      window.TrustedSelectParentDiag.logStage(stage, detail);
+    }
+  }
+
   function escHtml(s) {
     const d = document.createElement('div');
     d.textContent = s == null ? '' : String(s);
@@ -183,22 +190,27 @@
     const target = redirectPath || '/dashboard';
     const orch = window.AppEntryOrchestrator;
     const priv = window.AdultPrivilege;
-    function discardPending() {
+    function discardPending(reason) {
       if (priv && typeof priv.discardPendingParentUnlock === 'function') {
-        priv.discardPendingParentUnlock();
+        priv.discardPendingParentUnlock(reason);
       }
     }
+    diag('commit:start', { target: target, hasLease: !!leaseUntil });
     if (!orch || typeof orch.commitVerifiedParentResume !== 'function') {
-      discardPending();
+      diag('commit:discarded', { reason: 'orchestrator_unavailable' });
+      discardPending('orchestrator_unavailable');
       return false;
     }
     // SINGLE commit boundary: verified resume + applied parent-home. This re-validates
     // the authoritative lease AT COMMIT TIME (covers the lease valid-at-verify /
     // expired-at-commit race). On failure: no navigation, no local parent state.
+    diag('commit:lease_at_commit', { leaseUntil: leaseUntil || null, now: Date.now() });
     if (!orch.commitVerifiedParentResume(target, leaseUntil)) {
-      discardPending();
+      diag('commit:discarded', { reason: 'commit_rejected', leaseUntil: leaseUntil || null });
+      discardPending('commit_rejected');
       return false;
     }
+    diag('commit:applied', { target: target });
     // Post-commit ONLY: apply local AdultPrivilege/Auth state. Exception-safe — a
     // lifecycle/chrome failure must not turn an already-committed transition into a
     // failure or leave mixed state.
@@ -207,6 +219,7 @@
         priv.commitPendingParentUnlock();
       } catch (_) { /* transition already committed */ }
     }
+    diag('navigation:requested', { target: target });
     window.location.replace(target);
     return true;
   }
@@ -215,6 +228,15 @@
     if (!parentId) return;
     if (btn) btn.disabled = true;
     showError('');
+
+    // Diagnostics-only (P1): begin a correlated flow id for this attempt. It is
+    // persisted in sessionStorage and survives the navigation to the destination
+    // page, producing one timeline: picker -> select-parent -> /me -> lease ->
+    // commit -> navigation -> destination.
+    if (window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.beginFlow === 'function') {
+      window.TrustedSelectParentDiag.beginFlow();
+    }
+    diag('picker:parent_card_tapped', { parentId: parentId });
 
     const hasAppPin = btn && btn.getAttribute('data-parent-has-app-pin') === '1';
     if (!hasAppPin) {
@@ -235,6 +257,7 @@
     }
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
+    diag('picker:unlock_result', { ok: !!(result && result.ok), code: result && result.code });
     if (result && result.ok) {
       const navigated = commitParentViewFromPicker(result.redirect || '/dashboard', result.privilegeLeaseUntil);
       if (navigated) return;
@@ -326,6 +349,14 @@
     window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
     const params = new URLSearchParams(window.location.search);
     const isSwitch = params.get('switch') === '1';
+
+    // Diagnostics-only (P1): if a flow id is still present, the picker is being
+    // shown again mid/after a previous select-parent attempt for THIS device —
+    // exactly the "picker shown again before parent home" symptom under review.
+    const activeFlowId = window.TrustedSelectParentDiag && typeof window.TrustedSelectParentDiag.getFlowId === 'function'
+      ? window.TrustedSelectParentDiag.getFlowId()
+      : null;
+    diag('picker:bootstrap', { hadActiveFlowId: !!activeFlowId, isSwitch: isSwitch });
 
     if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.bootstrapOnEntryPage === 'function' && !isSwitch) {
       const boot = await AppEntryOrchestrator.bootstrapOnEntryPage();
