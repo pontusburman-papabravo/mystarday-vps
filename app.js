@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 
 const requestIdMiddleware = require('./src/middleware/requestId');
 const securityHeadersMiddleware = require('./src/middleware/securityHeaders');
-const { globalLimiter, apiLimiter, adminApiLimiter, childRoutineMutationLimiter } = require('./src/middleware/rateLimiter');
+const { globalLimiter, apiLimiter, apiReadLimiter, adminApiLimiter, childRoutineMutationLimiter } = require('./src/middleware/rateLimiter');
 const { optionalAuth, restoreParentSession } = require('./src/middleware/auth');
 const { loadLocales, getLocale, getAvailableLanguages } = require('./src/lib/i18n');
 const {
@@ -146,7 +146,7 @@ function createApp() {
 
   const { childParentApiBlock } = require('./src/middleware/child-parent-api-block');
   app.use('/api/admin', adminApiLimiter);
-  app.use('/api', childParentApiBlock, childRoutineMutationLimiter, apiLimiter);
+  app.use('/api', childParentApiBlock, childRoutineMutationLimiter, apiReadLimiter, apiLimiter);
 
   const { requirePremiumApi } = require('./src/middleware/require-premium');
   app.use('/api', requirePremiumApi());

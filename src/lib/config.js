@@ -67,6 +67,14 @@ module.exports = {
       windowMs: parseInt(process.env.API_UNAUTH_RATE_LIMIT_WINDOW_MS) || 60_000,
       max: parseInt(process.env.API_UNAUTH_RATE_LIMIT_MAX) || 30,
     },
+    // Authenticated parent read-only dashboard/settings bootstrap: 300 req/min per parent.
+    // Separate bucket from apiAuthenticated so legitimate parallel GET bursts on
+    // dashboard/settings page loads (repeated profile switching) don't exhaust the
+    // shared 100/min mutation-capable bucket. See docs/ops-incident-runbook.md.
+    apiAuthenticatedRead: {
+      windowMs: parseInt(process.env.API_AUTH_READ_RATE_LIMIT_WINDOW_MS) || 60_000,
+      max: parseInt(process.env.API_AUTH_READ_RATE_LIMIT_MAX) || 300,
+    },
     // Login: 5 failed attempts per IP per 15 min (brute-force protection)
     login: {
       windowMs: parseInt(process.env.LOGIN_RATE_LIMIT_WINDOW_MS) || 15 * 60_000,
