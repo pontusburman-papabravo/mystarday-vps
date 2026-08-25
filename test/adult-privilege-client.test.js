@@ -90,6 +90,7 @@ function defaultTrustedFetch(overrides) {
         ok: true,
         user: { id: 'p1', type: 'parent' },
         redirect: '/dashboard',
+        privilegeLeaseUntil: Date.now() + 15 * 60 * 1000,
         csrfToken: 'c',
       }));
     }
@@ -370,10 +371,13 @@ describe('adult-privilege client state machine', () => {
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
     assert.equal(result.ok, true);
     assert.equal(result.redirect, '/dashboard');
+    // Atomic contract: verify-only — NOT active until the commit boundary.
+    assert.equal(AdultPrivilege.getState(), 'unlocking');
+    AdultPrivilege.commitPendingParentUnlock();
     assert.equal(AdultPrivilege.getState(), 'active');
   });
 
-  it('post-success lifecycle failure is not classified as ADULT_PRIVILEGE_NETWORK', async () => {
+  it('lifecycle exception AFTER commit does not fail the (already committed) transition', async () => {
     const sandbox = makeTrustedUnlockSandbox(defaultTrustedFetch(), {
       AdultPrivilegeLifecycle: {
         start() {},
@@ -383,10 +387,14 @@ describe('adult-privilege client state machine', () => {
       },
     });
     const AdultPrivilege = loadAdultPrivilege(sandbox);
+    // Verify-only success (lifecycle is NOT run here).
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
-    assert.equal(result.ok, false);
-    assert.notEqual(result.code, 'ADULT_PRIVILEGE_NETWORK');
-    assert.equal(result.code, 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED');
+    assert.equal(result.ok, true);
+    // Post-commit: the throwing lifecycle hook must be swallowed and the transition
+    // stays committed/active — no mixed failed state.
+    const commit = AdultPrivilege.commitPendingParentUnlock();
+    assert.equal(commit.ok, true);
+    assert.equal(AdultPrivilege.getState(), 'active');
   });
 
   it('genuine fetch failure maps to ADULT_PRIVILEGE_NETWORK', async () => {
@@ -418,6 +426,100 @@ describe('adult-privilege client state machine', () => {
     assert.equal(result.ok, false);
     assert.equal(result.code, 'PARENT_PIN_INVALID');
     assert.equal(meCalls, 0);
+  });
+
+  it('atomic: select-parent ok but /me returns a DIFFERENT parent → verify fails, no success', async () => {
+    let meCalls = 0;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        meCalls += 1;
+        return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'other-parent' }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.ok(meCalls >= 1, 'strict picker path must verify /api/auth/me');
+  });
+
+  it('atomic: select-parent ok but /me never confirms parent → verify fails (no client-only success)', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        return Promise.resolve(mockJsonResponse(200, { type: 'child', id: 'kid' }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+  });
+
+  it('strict: exact-parent verify failure commits NO local Auth parent state (fail closed)', async () => {
+    const setAuthCalls = [];
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/auth/me')) {
+        // Wrong parent — must never satisfy the strict gate.
+        return Promise.resolve(mockJsonResponse(200, { type: 'parent', id: 'other-parent' }));
+      }
+      return defaultTrustedFetch()(url);
+    }, {
+      Auth: {
+        getCsrfToken: () => 'csrf',
+        setCsrfToken: () => {},
+        setAuth: (child, parent) => { setAuthCalls.push({ child: child, parent: parent }); },
+      },
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+    const committedParent = setAuthCalls.some((c) => c.parent);
+    assert.equal(committedParent, false, 'no parent identity may be hydrated on strict failure');
+  });
+
+  it('strict: verified parent but missing/invalid authoritative lease fails closed', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        // Exact parent verifies via /me, but the server returned no usable lease.
+        return Promise.resolve(mockJsonResponse(200, {
+          ok: true,
+          user: { id: 'p1', type: 'parent' },
+          redirect: '/dashboard',
+          csrfToken: 'c',
+        }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+  });
+
+  it('atomic: successful unlock returns the authoritative lease for the verified resume', async () => {
+    const lease = Date.now() + 15 * 60 * 1000;
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.resolve(mockJsonResponse(200, {
+          ok: true,
+          user: { id: 'p1', type: 'parent' },
+          redirect: '/dashboard',
+          privilegeLeaseUntil: lease,
+          csrfToken: 'c',
+        }));
+      }
+      return defaultTrustedFetch()(url);
+    });
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true);
+    assert.equal(result.privilegeLeaseUntil, lease);
   });
 
   it('picker lists all eligible parents; PIN unlock stays server-gated', () => {

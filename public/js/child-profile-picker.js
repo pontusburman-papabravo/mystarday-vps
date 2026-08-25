@@ -171,28 +171,44 @@
     }
   }
 
-  function enterParentDeviceMode() {
-    if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
-      DeviceMode.enterParent();
-      return;
-    }
-    try {
-      localStorage.setItem('stjarndag_device_mode', 'parent');
-    } catch (_) { /* ignore */ }
-  }
-
   /**
-   * Multi-profile shared devices cold-start back to profile-picker unless we pin parent-home first.
+   * Atomic handoff: only navigate once a *verified* resume + parent-home decision are
+   * committed from the authoritative lease. No upfront device-mode mutation and no
+   * fallback to the old pending/navigate-then-verify path — if the verified commit
+   * fails the caller keeps the user on the picker. markDecisionApplied() switches
+   * DeviceMode to parent on success, so we never mutate it early here.
+   * @returns {boolean} true only when navigation was committed.
    */
-  function commitParentViewFromPicker(redirectPath) {
-    enterParentDeviceMode();
+  function commitParentViewFromPicker(redirectPath, leaseUntil) {
     const target = redirectPath || '/dashboard';
-    if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.beginExplicitParentResume === 'function') {
-      AppEntryOrchestrator.beginExplicitParentResume(target);
-    } else if (window.AppEntryOrchestrator && typeof AppEntryOrchestrator.commitExplicitParentResume === 'function') {
-      AppEntryOrchestrator.commitExplicitParentResume(target);
+    const orch = window.AppEntryOrchestrator;
+    const priv = window.AdultPrivilege;
+    function discardPending() {
+      if (priv && typeof priv.discardPendingParentUnlock === 'function') {
+        priv.discardPendingParentUnlock();
+      }
+    }
+    if (!orch || typeof orch.commitVerifiedParentResume !== 'function') {
+      discardPending();
+      return false;
+    }
+    // SINGLE commit boundary: verified resume + applied parent-home. This re-validates
+    // the authoritative lease AT COMMIT TIME (covers the lease valid-at-verify /
+    // expired-at-commit race). On failure: no navigation, no local parent state.
+    if (!orch.commitVerifiedParentResume(target, leaseUntil)) {
+      discardPending();
+      return false;
+    }
+    // Post-commit ONLY: apply local AdultPrivilege/Auth state. Exception-safe — a
+    // lifecycle/chrome failure must not turn an already-committed transition into a
+    // failure or leave mixed state.
+    if (priv && typeof priv.commitPendingParentUnlock === 'function') {
+      try {
+        priv.commitPendingParentUnlock();
+      } catch (_) { /* transition already committed */ }
     }
     window.location.replace(target);
+    return true;
   }
 
   async function onPickParent(parentId, btn) {
@@ -220,7 +236,12 @@
 
     const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: parentId });
     if (result && result.ok) {
-      commitParentViewFromPicker(result.redirect || '/dashboard');
+      const navigated = commitParentViewFromPicker(result.redirect || '/dashboard', result.privilegeLeaseUntil);
+      if (navigated) return;
+      // Verified commit failed (missing/invalid authoritative lease). Fail closed:
+      // stay on the picker, show a recoverable error, re-enable the profile button.
+      showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      if (btn) btn.disabled = false;
       return;
     }
 

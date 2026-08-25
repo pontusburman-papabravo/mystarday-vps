@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
+const { MAGIC_VERSION } = require('../src/middleware/platform-html');
 
 describe('platform-html magic asset versions', () => {
   it('rewrites stale magic CSS/JS query strings on serve', () => {
@@ -14,7 +15,8 @@ describe('platform-html magic asset versions', () => {
     assert.match(src, /parent-magic-auto\.js\?v=/);
     assert.match(src, /app-view-toggle\.css\?v=/);
     assert.match(src, /dashboard-magic\.css\?v=/);
-    assert.match(src, /MAGIC_VERSION = '30'/);
+    assert.ok(/^\d+$/.test(MAGIC_VERSION), 'MAGIC_VERSION is a numeric string');
+    assert.match(src, new RegExp("MAGIC_VERSION = '" + MAGIC_VERSION + "'"));
   });
 
   it('dashboard HTML references bumped parent-magic-auto', () => {

@@ -328,9 +328,9 @@ describe('parent backup login — picker + wiring', () => {
     assert.match(auth, /clearOrchestratorSessionState/);
   });
 
-  test('I: PIN route still uses beginExplicitParentResume', () => {
+  test('I: PIN route commits a verified resume atomically (no pending fallback)', () => {
     const picker = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
-    assert.match(picker, /beginExplicitParentResume/);
-    assert.doesNotMatch(picker, /hasAppPin[\s\S]{0,200}beginExplicitParentResume/);
+    assert.match(picker, /commitVerifiedParentResume/);
+    assert.doesNotMatch(picker, /beginExplicitParentResume/);
   });
 });

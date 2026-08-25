@@ -254,9 +254,11 @@ describe('explicit parent resume — orchestrator VM sequence', () => {
 });
 
 describe('explicit parent resume — client wiring contracts', () => {
-  test('picker uses beginExplicitParentResume (pending transition only)', () => {
+  test('picker commits a verified resume atomically — no pending fallback, no navigate-then-verify', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-picker.js'), 'utf8');
-    assert.match(src, /beginExplicitParentResume/);
+    assert.match(src, /commitVerifiedParentResume/);
+    // Atomic path must NOT fall back to the pending/navigate-then-verify model.
+    assert.doesNotMatch(src, /beginExplicitParentResume/);
     assert.doesNotMatch(src, /markDecisionApplied\(\{[\s\S]*profile_picker_parent_resume/);
   });
 
@@ -371,7 +373,9 @@ describe('explicit parent resume — HTTP + picker sequence', () => {
 
       const picker = await pickParent({ hasAppPin: true, parentId });
       assert.equal(picker.redirects[0], '/dashboard');
-      assert.equal(picker.pendingResume, true);
+      // Atomic path commits a *verified* resume (no dangling pending marker).
+      assert.equal(picker.committedVerified, true);
+      assert.equal(picker.pendingResume, false);
 
       const env = loadOrchestratorSandbox({
         pathname: '/dashboard',

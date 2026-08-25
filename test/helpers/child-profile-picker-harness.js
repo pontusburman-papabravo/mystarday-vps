@@ -64,13 +64,37 @@ function createPickerSandbox(options) {
     commitExplicitParentResume: function (target) {
       sandbox.AppEntryOrchestrator.beginExplicitParentResume(target);
     },
+    // Atomic verified commit: mirrors the real orchestrator — validate the
+    // authoritative lease, and only on success apply the parent-home decision +
+    // parent DeviceMode (via markDecisionApplied). Fail closed with NO pending marker.
+    commitVerifiedParentResume: function (target, leaseUntil) {
+      const ms = typeof leaseUntil === 'number'
+        ? leaseUntil
+        : (typeof leaseUntil === 'string' && /^\d+$/.test(String(leaseUntil).trim())
+          ? Number(String(leaseUntil).trim()) : NaN);
+      if (!Number.isFinite(ms) || ms <= Date.now()) {
+        return false;
+      }
+      sandbox.__committedVerified = true;
+      sandbox.__decision = {
+        destination: 'parent-home',
+        viewContext: 'parent',
+        reason: 'profile_picker_parent_resume',
+        explicitParentResume: true,
+        path: target || '/dashboard',
+      };
+      if (sandbox.DeviceMode && typeof sandbox.DeviceMode.enterParent === 'function') {
+        sandbox.DeviceMode.enterParent();
+      }
+      return true;
+    },
   };
   sandbox.AdultPrivilege = {
     isPrivilegeActive: function () { return opts.privilegeActive === true; },
     requestTrustedProfileUnlock: async function (args) {
       unlockCalls.push(args);
       if (opts.unlockResult) return opts.unlockResult;
-      return { ok: true, redirect: '/dashboard' };
+      return { ok: true, redirect: '/dashboard', privilegeLeaseUntil: Date.now() + 15 * 60 * 1000 };
     },
   };
   sandbox.TrustedDeviceBootstrap = {
@@ -117,6 +141,7 @@ async function pickParent(options) {
     enteredParent: env.sandbox.__enteredParent === true,
     decision: env.sandbox.__decision || null,
     pendingResume: env.sandbox.__pendingResume === true,
+    committedVerified: env.sandbox.__committedVerified === true,
     btnDisabled: btn.disabled,
   };
 }
