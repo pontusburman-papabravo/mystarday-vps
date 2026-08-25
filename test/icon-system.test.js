@@ -88,6 +88,25 @@ describe('icon-system v4 only', () => {
     assert.ok(fs.existsSync(path.join(ROOT, 'public/img/stjarnadag-icons-v4/chrome/notiser.svg')));
   });
 
+  it('generated hub icon URL (incl. trofe/Prenumeration) maps to an existing file — cache-bust cannot 404', () => {
+    const IconSystem = loadIconSystem();
+    const hubKeys = [
+      'kalender', 'historik', 'rapport', 'redigera', 'kopiera-aktivitet', 'pedagog',
+      'support', 'profil', 'info', 'barn', 'statistik', 'skattkammaren', 'trofe', 'dag',
+    ];
+    for (const key of hubKeys) {
+      const url = IconSystem.url(key);
+      assert.ok(url, 'no URL generated for hub key ' + key);
+      // Derive the on-disk asset from the *generated* URL (strip the ?v= cache-bust).
+      const filePart = String(url).split('?')[0].replace(/^\//, '');
+      const filePath = path.join(ROOT, 'public', filePart);
+      assert.ok(
+        fs.existsSync(filePath),
+        'generated URL ' + url + ' has no matching file at ' + filePath
+      );
+    }
+  });
+
   it('IconSystem resolves v4 URLs only (nav, chrome, hub, quick actions)', () => {
     const IconSystem = loadIconSystem();
     assert.equal(

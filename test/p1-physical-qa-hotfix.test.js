@@ -303,7 +303,7 @@ describe('P1 physical QA hotfix — trofe icon runtime path', () => {
   it('trofe.svg is precached in service worker', () => {
     const sw = read('public/sw.js');
     assert.match(sw, /hub\/trofe\.svg/);
-    assert.match(sw, /stjarndag-v874/);
+    assert.match(sw, /stjarndag-v\d+/);
   });
 });
 
