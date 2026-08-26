@@ -13,7 +13,7 @@ const {
 } = require('./retention-home-comms');
 
 /** @typedef {'email'|'push'} CommunicationChannel */
-/** @typedef {'legacy_win_back'|'legacy_activation_email'|'legacy_activation_nudge'|'legacy_child_handoff_reminder'|'legacy_retention_push'|'retention_email'|'retention_push'} CommunicationIntent */
+/** @typedef {'legacy_win_back'|'legacy_activation_email'|'legacy_activation_nudge'|'legacy_child_handoff_reminder'|'legacy_retention_push'|'retention_email'|'retention_push'|'stuck_intervention'} CommunicationIntent */
 
 const EMAIL_ALLOWED_STATES = new Set([
   'SETTING_UP',
@@ -35,6 +35,7 @@ const LEGACY_WIN_BACK_INTENTS = new Set(['legacy_win_back', 'win_back']);
 const LEGACY_ACTIVATION_EMAIL_INTENTS = new Set(['legacy_activation_email', 'activation_program_email']);
 const LEGACY_NUDGE_INTENTS = new Set(['legacy_activation_nudge', 'activation_nudge']);
 const LEGACY_HANDOFF_REMINDER_INTENTS = new Set(['legacy_child_handoff_reminder', 'child_handoff_reminder']);
+const STUCK_INTERVENTION_INTENTS = new Set(['stuck_intervention']);
 const RETENTION_PUSH_INTENTS = new Set(['legacy_retention_push', 'retention_push']);
 
 function normalizeIntent(intent) {
@@ -81,6 +82,11 @@ async function hasRetentionEmailCooldown(familyId, client = db) {
        SELECT 1 FROM family_activation_state s
        WHERE s.family_id = $1
          AND s.activation_nudge_sent_at > NOW() - INTERVAL '30 days'
+     ) OR EXISTS (
+       SELECT 1 FROM family_growth_intervention gi
+       WHERE gi.family_id = $1
+         AND gi.status = 'sent'
+         AND gi.sent_at > NOW() - INTERVAL '30 days'
      ) AS blocked`,
     [familyId]
   );
@@ -142,6 +148,15 @@ async function evaluateCommunicationGate(familyId, opts = {}) {
     }
     if (!EMAIL_ALLOWED_STATES.has(state) || !['SETTING_UP', 'FIRST_USE'].includes(state)) {
       return { allowed: false, reason: 'handoff_reminder_only_early_states', state, phase };
+    }
+  }
+
+  if (STUCK_INTERVENTION_INTENTS.has(intent)) {
+    if (state === 'CHURNED') {
+      return { allowed: false, reason: 'churned_no_stuck_intervention', state, phase };
+    }
+    if (!EMAIL_ALLOWED_STATES.has(state)) {
+      return { allowed: false, reason: 'stuck_intervention_state_blocked', state, phase };
     }
   }
 

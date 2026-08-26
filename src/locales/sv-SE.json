@@ -849,11 +849,20 @@
       "footer": "Vill ni inte ha guiden fungerar appen som vanligt — allt ni redan satt upp finns kvar."
     },
     "activationNudge": {
-      "subject": "Er rutin väntar — testa tillsammans ikväll ⭐",
-      "greeting": "Hej {{name}}!",
-      "body1": "Ni har redan ett schema. Det som återstår är att <strong>testa rutinen tillsammans</strong> — låt barnet logga in och samla den första stjärnan.",
-      "body2": "Det tar ungefär två minuter. Ingen stress.",
-      "button": "Öppna Hem →"
+      "withSchema": {
+        "subject": "Er rutin väntar — testa tillsammans ikväll ⭐",
+        "greeting": "Hej {{name}}!",
+        "body1": "Ni har redan ett schema. Det som återstår är att <strong>testa rutinen tillsammans</strong> — låt barnet logga in och samla den första stjärnan.",
+        "body2": "Det tar ungefär två minuter. Ingen stress.",
+        "button": "Öppna Hem →"
+      },
+      "noSchema": {
+        "subject": "Kom igång med er rutin — tar bara några minuter ⭐",
+        "greeting": "Hej {{name}}!",
+        "body1": "Ni har registrerat er — bra start! Nästa steg är att <strong>sätta upp ert schema</strong> så barnet vet vad som händer i vardagen.",
+        "body2": "Det tar ungefär fem minuter. Allt ni redan gjort finns kvar om ni vill fortsätta senare.",
+        "button": "Fortsätt onboarding →"
+      }
     },
     "newsletterConfirm": {
       "subject": "Du prenumererar på nyhetsbrev från {{brand}}",

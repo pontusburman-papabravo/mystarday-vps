@@ -188,6 +188,9 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'waitlist_child_created',
   'waitlist_first_success',
   'activation_nudge_sent',
+  'stuck_intervention_previewed',
+  'stuck_intervention_sent',
+  'stuck_intervention_skipped',
   'retention_reengagement_push_sent',
   // FEAT-1 boendeschema
   'custody_home_selected',

@@ -8,7 +8,7 @@
 const { LEGACY_GENERIC_PARENT_ROLE_SQL } = require('./family-role-legacy');
 const db = require('./db');
 const config = require('./config');
-const { sendActivationNudgeEmail } = require('./email');
+const { sendActivationNudgeEmail, resolveActivationNudgeVariant } = require('./email');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('./activation-flags');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const { resolveCommunicationLocale } = require('./communication-locale');
@@ -19,7 +19,8 @@ const CHECK_INTERVAL_MS = 60 * 60 * 1000; // hourly
 
 const NUDGE_CANDIDATE_SQL = `
   SELECT s.family_id, p.email, p.name AS parent_name,
-         COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
+         COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale,
+         s.schema_saved_at
   FROM family_activation_state s
   JOIN family f ON f.id = s.family_id
   JOIN parent p ON p.family_id = s.family_id AND ${LEGACY_GENERIC_PARENT_ROLE_SQL}
@@ -35,10 +36,12 @@ const NUDGE_CANDIDATE_SQL = `
   ORDER BY s.signup_at ASC
   LIMIT 50`;
 
-function resolveNudgeCtaUrl() {
+function resolveNudgeCtaUrl(schemaSavedAt) {
   const base = String(process.env.APP_URL || config.email?.baseUrl || '').replace(/\/$/, '');
-  if (!base || base.includes('[REDACTED]')) return '/dashboard';
-  return `${base}/dashboard`;
+  if (!base || base.includes('[REDACTED]')) {
+    return schemaSavedAt ? '/dashboard' : '/onboarding';
+  }
+  return schemaSavedAt ? `${base}/dashboard` : `${base}/onboarding`;
 }
 
 let _timer = null;
@@ -84,15 +87,18 @@ async function runActivationNudgeJob() {
         );
         if (claimed.rows.length === 0) continue;
 
+        const variant = resolveActivationNudgeVariant(row.schema_saved_at);
         await sendActivationNudgeEmail({
           to: row.email,
           parentName: row.parent_name,
-          ctaUrl: resolveNudgeCtaUrl(),
+          ctaUrl: resolveNudgeCtaUrl(row.schema_saved_at),
           locale: resolveCommunicationLocale(row.preferred_locale),
+          variant,
         });
 
         require('../../db/analytics').track(row.family_id, 'activation_nudge_sent', {
           channel: 'email',
+          variant,
         });
 
         console.log('[ACTIVATION-NUDGE] Sent to family', row.family_id);

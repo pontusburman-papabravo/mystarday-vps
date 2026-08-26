@@ -56,7 +56,18 @@ async function registerContact(_email, _name, _source = 'signup') {
 /**
  * Send an email via Resend.
  */
-async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKeyProfile, unsubscribeUrl, headers: extraHeaders }) {
+async function sendEmail({
+  to,
+  subject,
+  body: textBody,
+  html,
+  from,
+  tags,
+  apiKeyProfile,
+  unsubscribeUrl,
+  headers: extraHeaders,
+  idempotencyKey,
+}) {
   const recipients = normalizeRecipients(to);
   if (recipients.length > 0 && recipients.every(isTestMailbox)) {
     console.log(`[EMAIL] Suppressed (test mailbox): to=${maskToField(to)}, subject="${subject}"`);
@@ -88,6 +99,9 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
 
   const listHeaders = buildListUnsubscribeHeaders(unsubscribeUrl);
   const headers = { ...(extraHeaders || {}), ...(listHeaders || {}) };
+  if (idempotencyKey) {
+    headers['Idempotency-Key'] = String(idempotencyKey).slice(0, 256);
+  }
 
   try {
     const res = await fetch(RESEND_API_URL, {
@@ -455,28 +469,57 @@ async function sendChildHandoffReminderEmail({ to, parentName, ctaUrl, locale = 
   });
 }
 
-async function sendActivationNudgeEmail({ to, parentName, ctaUrl, locale = 'sv-SE' }) {
+/** @typedef {'no_schema'|'with_schema'} ActivationNudgeVariant */
+
+function activationNudgeCopyKeys(variant) {
+  const suffix = variant === 'with_schema' ? 'withSchema' : 'noSchema';
+  return {
+    subject: `email.activationNudge.${suffix}.subject`,
+    greeting: `email.activationNudge.${suffix}.greeting`,
+    body1: `email.activationNudge.${suffix}.body1`,
+    body2: `email.activationNudge.${suffix}.body2`,
+    button: `email.activationNudge.${suffix}.button`,
+  };
+}
+
+function resolveActivationNudgeVariant(schemaSavedAt) {
+  return schemaSavedAt ? 'with_schema' : 'no_schema';
+}
+
+async function sendActivationNudgeEmail({
+  to,
+  parentName,
+  ctaUrl,
+  locale = 'sv-SE',
+  variant = 'no_schema',
+}) {
   const lang = validateLocale(locale);
+  const resolvedVariant = variant === 'with_schema' ? 'with_schema' : 'no_schema';
+  const keys = activationNudgeCopyKeys(resolvedVariant);
   const firstName = escapeFirstName(parentName) || t(lang, 'email.common.genericParent');
-  const url = ctaUrl || `${(process.env.APP_URL || '').replace(/\/$/, '')}/dashboard`;
+  const base = String(process.env.APP_URL || '').replace(/\/$/, '');
+  const defaultUrl = resolvedVariant === 'with_schema'
+    ? `${base}/dashboard`
+    : `${base}/onboarding`;
+  const url = ctaUrl || defaultUrl || (resolvedVariant === 'with_schema' ? '/dashboard' : '/onboarding');
   const safeUrl = escapeHtml(url);
   return sendEmail({
     to,
-    subject: t(lang, 'email.activationNudge.subject'),
+    subject: t(lang, keys.subject),
     html: `
       <div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1B2340;">
-        <h2 style="color:#1B2340;">${t(lang, 'email.activationNudge.greeting', { name: firstName })}</h2>
+        <h2 style="color:#1B2340;">${t(lang, keys.greeting, { name: firstName })}</h2>
         <p style="color:#5A6178;line-height:1.6;">
-          ${t(lang, 'email.activationNudge.body1')}
+          ${t(lang, keys.body1)}
         </p>
         <p style="color:#5A6178;line-height:1.6;">
-          ${t(lang, 'email.activationNudge.body2')}
+          ${t(lang, keys.body2)}
         </p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${safeUrl}"
              style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
                     border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
-            ${t(lang, 'email.activationNudge.button')}
+            ${t(lang, keys.button)}
           </a>
         </div>
       </div>
@@ -537,6 +580,8 @@ module.exports = {
   sendWinBackEmail,
   sendChildHandoffReminderEmail,
   sendActivationNudgeEmail,
+  activationNudgeCopyKeys,
+  resolveActivationNudgeVariant,
   sendActivationProgramInviteEmail,
   sendPedagogInviteEmail,
   sendNewsletterSubscriptionConfirmation,
