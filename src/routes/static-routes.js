@@ -11,13 +11,15 @@ const router = express.Router();
 
 function sendAssetLinks(_req, res) {
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
+  // Short TTL — kept in sync with app.js's inline copy of this route (whichever
+  // registers first wins; see route-inventory duplicate entry for this path).
+  res.setHeader('Cache-Control', 'public, max-age=300');
   res.json(buildAssetLinks());
 }
 
 function sendAppleAppSiteAssociation(_req, res) {
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.setHeader('Cache-Control', 'public, max-age=300');
   res.json(buildAppleAppSiteAssociation());
 }
 

@@ -86,13 +86,17 @@ function createApp() {
 
   function sendAssetLinks(_req, res) {
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    // Short TTL — an intermediate reverse-proxy cache in front of this app has
+    // been observed serving a stale copy of this path for up to the full TTL
+    // after deploys that change the paths list. Keep this short so App Links /
+    // Universal Links config changes propagate quickly.
+    res.setHeader('Cache-Control', 'public, max-age=300');
     res.json(buildAssetLinks());
   }
 
   function sendAppleAppSiteAssociation(_req, res) {
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'public, max-age=300');
     res.json(buildAppleAppSiteAssociation());
   }
 
