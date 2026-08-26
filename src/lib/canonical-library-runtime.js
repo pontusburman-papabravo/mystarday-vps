@@ -17,6 +17,7 @@ const {
   copyCanonicalActivityFromDefaultId,
   prepareCanonicalScheduleFamilyActivities,
   familyHasCanonicalActivity,
+  pickLocaleString,
 } = require('./canonical-library-copy');
 
 /** Onboarding template_group → frozen v1.1 schedule canonical_id */
@@ -82,13 +83,29 @@ function resolveVariantsForScheduleCopy({ canonicalScheduleId, callerVariants, a
   return null;
 }
 
-function mapCanonicalCopyErrorToHttp(err) {
+/**
+ * Localizes the raw variant_options (name_i18n per key) attached to a variant error
+ * into {key, label} pairs the client can render directly without owning its own
+ * copy of the Standard Library variant names.
+ */
+function localizeVariantOptions(details, locale) {
+  if (!Array.isArray(details?.variant_options)) return details;
+  return {
+    ...details,
+    variant_options: details.variant_options.map((v) => ({
+      key: v.variant_key,
+      label: pickLocaleString(v.name_i18n, locale, v.variant_key),
+    })),
+  };
+}
+
+function mapCanonicalCopyErrorToHttp(err, locale = 'sv-SE') {
   if (!(err instanceof CanonicalCopyError)) return null;
   switch (err.code) {
     case CANONICAL_VARIANT_REQUIRED:
-      return { status: 400, body: { error: 'Variant krävs för efter skolan.', code: err.code, details: err.details } };
+      return { status: 400, body: { error: 'Variant krävs för efter skolan.', code: err.code, details: localizeVariantOptions(err.details, locale) } };
     case CANONICAL_VARIANT_INVALID:
-      return { status: 400, body: { error: 'Ogiltig variant för efter skolan.', code: err.code, details: err.details } };
+      return { status: 400, body: { error: 'Ogiltig variant för efter skolan.', code: err.code, details: localizeVariantOptions(err.details, locale) } };
     case CANONICAL_DUPLICATE_IDENTITY:
       return { status: 409, body: { error: 'Standardbiblioteket har duplicerad identitet.', code: err.code, details: err.details } };
     case CANONICAL_SCHEDULE_NOT_FOUND:

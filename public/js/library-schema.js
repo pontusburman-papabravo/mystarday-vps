@@ -506,14 +506,14 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
   const childOptions = schemaChildren.map(c =>
     `<label class="flex items-center gap-3 cursor-pointer py-1">
        <input type="radio" name="copySchedChild" value="${c.id}" class="w-5 h-5 accent-gold">
-       <span class="text-sm font-semibold text-navy">${c.emoji || '🧒'} ${escHtml(c.name)}</span>
+       <span class="text-sm font-semibold text-navy dark:text-white">${c.emoji || '🧒'} ${escHtml(c.name)}</span>
      </label>`
   ).join('');
 
   const dayCheckboxes = [1,2,3,4,5,6,0].map(d =>
     `<label class="flex items-center gap-2 cursor-pointer">
        <input type="checkbox" class="copy-sched-day w-5 h-5 accent-gold" value="${d}">
-       <span class="text-sm text-navy">${dayNames[d]}</span>
+       <span class="text-sm text-navy dark:text-white">${dayNames[d]}</span>
      </label>`
   ).join('');
 
@@ -521,44 +521,48 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
     <div id="scheduleCopyModal" class="fixed inset-0 bg-black/50 flex items-start overflow-y-auto justify-center z-50 p-4">
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy">📥 Kopiera "${scheduleName}"</h3>
-          <button onclick="closeScheduleCopyModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+          <h3 class="text-lg font-heading font-bold text-navy dark:text-white">📥 Kopiera "${scheduleName}"</h3>
+          <button onclick="closeScheduleCopyModal()" class="text-text-soft hover:text-navy dark:hover:text-white text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
           <div>
-            <p class="text-sm font-semibold text-navy mb-2">Välj barn:</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Välj barn:</p>
             <div class="space-y-1">${childOptions}</div>
           </div>
-          <div class="rounded-xl border-2 border-lavender bg-sky/40 p-3">
+          <div class="rounded-xl border-2 border-lavender bg-sky/40 dark:bg-navy dark:border-navy-soft p-3">
             <label class="flex items-start gap-3 cursor-pointer">
               <input type="checkbox" id="copySchedUsePeriod" class="w-5 h-5 mt-0.5 accent-gold flex-shrink-0" onchange="toggleScheduleCopyPeriod()">
               <span>
-                <span class="block text-sm font-semibold text-navy">Begränsa till period</span>
-                <span class="block text-xs text-text-soft mt-0.5">T.ex. lov eller läslov — schemat gäller varje dag mellan datumen.</span>
+                <span class="block text-sm font-semibold text-navy dark:text-white">Begränsa till period</span>
+                <span class="block text-xs text-text-soft dark:text-lavender mt-0.5">T.ex. lov eller läslov — schemat gäller varje dag mellan datumen.</span>
               </span>
             </label>
             <div id="copySchedPeriodFields" class="hidden mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label for="copySchedPeriodStart" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
-                <input type="date" id="copySchedPeriodStart" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm text-navy">
+                <label for="copySchedPeriodStart" class="block text-xs font-semibold text-navy dark:text-white mb-1">Startdatum</label>
+                <input type="date" id="copySchedPeriodStart" class="w-full px-3 py-2 border-2 border-lavender dark:border-navy-soft rounded-xl text-sm text-navy dark:bg-navy dark:text-white">
               </div>
               <div>
-                <label for="copySchedPeriodEnd" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
-                <input type="date" id="copySchedPeriodEnd" class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm text-navy">
+                <label for="copySchedPeriodEnd" class="block text-xs font-semibold text-navy dark:text-white mb-1">Slutdatum</label>
+                <input type="date" id="copySchedPeriodEnd" class="w-full px-3 py-2 border-2 border-lavender dark:border-navy-soft rounded-xl text-sm text-navy dark:bg-navy dark:text-white">
               </div>
             </div>
           </div>
           <div id="copySchedDayPicker">
-            <p class="text-sm font-semibold text-navy mb-2">Vilka dagar?</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Vilka dagar?</p>
             <div class="flex flex-wrap gap-3">${dayCheckboxes}</div>
           </div>
           <label class="flex items-center gap-3 cursor-pointer">
             <input type="checkbox" id="copySchedOverwrite" class="w-5 h-5 accent-gold">
-            <span class="text-sm text-text-soft">Skriv över befintligt schema</span>
+            <span class="text-sm text-text-soft dark:text-lavender">Skriv över befintligt schema</span>
           </label>
-          <div id="scheduleCopyError" class="text-red-500 text-sm hidden"></div>
+          <div id="copySchedVariantPicker" class="hidden rounded-xl border-2 border-gold bg-gold-light/30 dark:bg-navy p-3">
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Hur ser eftermiddagen ut efter skolan?</p>
+            <div id="copySchedVariantOptions" class="space-y-1"></div>
+          </div>
+          <div id="scheduleCopyError" class="text-red-500 dark:text-red-300 text-sm hidden"></div>
           <div class="flex gap-3">
-            <button onclick="closeScheduleCopyModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
+            <button onclick="closeScheduleCopyModal()" class="flex-1 px-4 py-3 border-2 border-lavender dark:border-navy-soft dark:text-white rounded-xl font-semibold hover:border-navy dark:hover:border-white transition-colors">Avbryt</button>
             <button onclick="executeScheduleCopy('${scheduleId}', '${_copySource}')" id="scheduleCopyBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Kopiera</button>
           </div>
         </div>
@@ -583,6 +587,32 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
 function closeScheduleCopyModal() {
   const modal = document.getElementById('scheduleCopyModal');
   if (modal) modal.remove();
+}
+
+// ─── Variant picker (e.g. "Fritids" vs "Åka hem" for "Efter skolan") ────
+// Some canonical Standard Library activities have multiple variants. The
+// server rejects a copy with CANONICAL_VARIANT_REQUIRED (+ localized
+// variant_options) when none was chosen — render a picker from that error
+// instead of leaving the user stuck on an unexplained message.
+function showVariantPicker(pickerEl, optionsEl, details) {
+  if (!pickerEl || !optionsEl || !Array.isArray(details?.variant_options) || !details.variant_options.length) return false;
+  pickerEl.dataset.activityId = details.activity_id || '';
+  optionsEl.innerHTML = details.variant_options.map((opt, i) =>
+    `<label class="flex items-center gap-3 cursor-pointer py-1">
+       <input type="radio" name="${pickerEl.id}Radio" value="${escHtml(opt.key)}" class="w-5 h-5 accent-gold" ${i === 0 ? 'checked' : ''}>
+       <span class="text-sm font-semibold text-navy dark:text-white">${escHtml(opt.label)}</span>
+     </label>`
+  ).join('');
+  pickerEl.classList.remove('hidden');
+  return true;
+}
+
+function readVariantSelection(pickerEl) {
+  if (!pickerEl || pickerEl.classList.contains('hidden')) return null;
+  const activityId = pickerEl.dataset.activityId;
+  const radio = pickerEl.querySelector('input:checked');
+  if (!activityId || !radio) return null;
+  return { [activityId]: radio.value };
 }
 
 async function executeScheduleCopy(scheduleId, source) {
@@ -668,6 +698,9 @@ async function executeScheduleCopy(scheduleId, source) {
     return;
   }
 
+  const variantPicker = document.getElementById('copySchedVariantPicker');
+  const variants = readVariantSelection(variantPicker);
+
   try {
     // Use correct endpoint based on source type
     const endpoint = resolvedSource === 'family'
@@ -679,12 +712,18 @@ async function executeScheduleCopy(scheduleId, source) {
         child_id: childRadio.value,
         days,
         overwrite: document.getElementById('copySchedOverwrite').checked,
+        ...(variants ? { variants } : {}),
       }),
     });
     const data = await res.json();
     if (res.ok) {
       showToast(data.message || 'Schemat har kopierats!');
       closeScheduleCopyModal();
+    } else if (data.code === 'CANONICAL_VARIANT_REQUIRED' && showVariantPicker(variantPicker, document.getElementById('copySchedVariantOptions'), data.details)) {
+      errEl.textContent = 'Välj alternativet ovan och klicka på Kopiera igen.';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Kopiera';
     } else {
       errEl.textContent = data.error || 'Kunde inte kopiera';
       errEl.classList.remove('hidden');
@@ -710,20 +749,20 @@ function openCopyScheduleModal(childId, childName) {
 
   let sourcesHtml = '';
   if (otherChildren.length > 0) {
-    sourcesHtml += '<p class="text-sm font-semibold text-navy mb-2">Från annat barn:</p>';
+    sourcesHtml += '<p class="text-sm font-semibold text-navy dark:text-white mb-2">Från annat barn:</p>';
     sourcesHtml += otherChildren.map(c =>
       `<label class="flex items-center gap-3 cursor-pointer py-1">
          <input type="radio" name="copySource" value="child:${c.id}" class="w-5 h-5 accent-gold" onchange="onCopySourceChange(this.value)">
-         <span class="text-sm font-semibold text-navy">${c.emoji || '🧒'} ${escHtml(c.name)}</span>
+         <span class="text-sm font-semibold text-navy dark:text-white">${c.emoji || '🧒'} ${escHtml(c.name)}</span>
        </label>`
     ).join('');
   }
   if (standardSchedules.length > 0) {
-    sourcesHtml += '<p class="text-sm font-semibold text-navy mb-2 mt-3">Från standardbiblioteket:</p>';
+    sourcesHtml += '<p class="text-sm font-semibold text-navy dark:text-white mb-2 mt-3">Från standardbiblioteket:</p>';
     sourcesHtml += standardSchedules.map(s =>
       `<label class="flex items-center gap-3 cursor-pointer py-1">
          <input type="radio" name="copySource" value="schedule:${s.id}" class="w-5 h-5 accent-gold" onchange="onCopySourceChange(this.value)">
-         <span class="text-sm text-navy">${s.icon || '📋'} ${escHtml(s.name)}</span>
+         <span class="text-sm text-navy dark:text-white">${s.icon || '📋'} ${escHtml(s.name)}</span>
        </label>`
     ).join('');
   }
@@ -731,7 +770,7 @@ function openCopyScheduleModal(childId, childName) {
   const dayCheckboxes = [1,2,3,4,5,6,0].map(d =>
     `<label class="flex items-center gap-2 cursor-pointer">
        <input type="checkbox" class="copy-from-day w-5 h-5 accent-gold" value="${d}" ${d >= 1 && d <= 5 ? 'checked' : ''}>
-       <span class="text-sm text-navy">${dayNames[d]}</span>
+       <span class="text-sm text-navy dark:text-white">${dayNames[d]}</span>
      </label>`
   ).join('');
 
@@ -739,22 +778,26 @@ function openCopyScheduleModal(childId, childName) {
     <div id="copyFromModal" class="fixed inset-0 bg-black/50 flex items-start overflow-y-auto justify-center z-50 p-4">
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy">📋 Kopiera schema till ${escHtml(childName)}</h3>
-          <button onclick="closeCopyFromModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
+          <h3 class="text-lg font-heading font-bold text-navy dark:text-white">📋 Kopiera schema till ${escHtml(childName)}</h3>
+          <button onclick="closeCopyFromModal()" class="text-text-soft hover:text-navy dark:hover:text-white text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
           <div>${sourcesHtml}</div>
           <div id="copyFromDayPicker" class="hidden">
-            <p class="text-sm font-semibold text-navy mb-2">Vilka dagar?</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Vilka dagar?</p>
             <div class="flex flex-wrap gap-3">${dayCheckboxes}</div>
           </div>
           <label id="copyFromOverwriteRow" class="hidden flex items-center gap-3 cursor-pointer">
             <input type="checkbox" id="copyFromOverwrite" class="w-5 h-5 accent-gold">
-            <span class="text-sm text-text-soft">Skriv över befintligt schema</span>
+            <span class="text-sm text-text-soft dark:text-lavender">Skriv över befintligt schema</span>
           </label>
-          <div id="copyFromError" class="text-red-500 text-sm hidden"></div>
+          <div id="copyFromVariantPicker" class="hidden rounded-xl border-2 border-gold bg-gold-light/30 dark:bg-navy p-3">
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Hur ser eftermiddagen ut efter skolan?</p>
+            <div id="copyFromVariantOptions" class="space-y-1"></div>
+          </div>
+          <div id="copyFromError" class="text-red-500 dark:text-red-300 text-sm hidden"></div>
           <div class="flex gap-3 pt-2">
-            <button onclick="closeCopyFromModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
+            <button onclick="closeCopyFromModal()" class="flex-1 px-4 py-3 border-2 border-lavender dark:border-navy-soft dark:text-white rounded-xl font-semibold hover:border-navy dark:hover:border-white transition-colors">Avbryt</button>
             <button onclick="executeCopyFrom('${childId}')" id="copyFromBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Kopiera</button>
           </div>
         </div>
@@ -805,17 +848,26 @@ async function executeCopyFrom(targetChildId) {
     return;
   }
 
+  const variantPicker = document.getElementById('copyFromVariantPicker');
+  const variants = readVariantSelection(variantPicker);
+
   try {
     if (type === 'schedule') {
       // Copy from standard schedule with day selection
       const res = await window.apiFetch(`/api/standard-library/schedules/${id}/copy`, {
         method: 'POST',
-        body: JSON.stringify({ child_id: targetChildId, days, overwrite }),
+        body: JSON.stringify({ child_id: targetChildId, days, overwrite, ...(variants ? { variants } : {}) }),
       });
       const data = await res.json();
       if (res.ok) {
         showToast(data.message || 'Schemat har kopierats!');
         closeCopyFromModal();
+      } else if (data.code === 'CANONICAL_VARIANT_REQUIRED' && showVariantPicker(variantPicker, document.getElementById('copyFromVariantOptions'), data.details)) {
+        document.getElementById('copyFromError').textContent = 'Välj alternativet ovan och klicka på Kopiera igen.';
+        document.getElementById('copyFromError').classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Kopiera';
+        return;
       } else {
         throw new Error(data.error);
       }
