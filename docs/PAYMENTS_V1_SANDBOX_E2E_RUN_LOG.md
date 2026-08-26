@@ -1,8 +1,14 @@
 # PAYMENTS V1 — Sandbox E2E Run Log
 
-**Frozen code SHA:** `385aff36ce248cff9e40a8d06b0d65a8ca310cfb`  
-**PR:** #1050  
-**Rule:** Do not merge until iOS + Android are both PASS.
+**Status: NOT YET RUN.** This template is intentionally blank — no sandbox purchase has
+been executed against a real device/build. Do not mark any row PASS without a real,
+reproducible result. `docs/PAYMENTS_V1_STATUS.md` and the final verdict in any
+payments readiness report must keep sandbox E2E as **pending** until this file is
+filled in with real evidence.
+
+**PR:** #1050 (merged to `main` — backend/webhook/entitlement code is shipped).
+**Rule:** Do not enable `app_settings.payment_enabled` / remove `BILLING_UI_DISABLED`
+in the live app until iOS + Android are both PASS below.
 
 **Setup rule:** Use a **new post-cutoff test family per platform** (separate Family ID for iOS and Android). Default `payment_start_at`: `2026-10-01T00:00:00+02:00` — family `created_at` must be **after** that cutoff and must **not** be grandfathered before purchase.
 
@@ -252,10 +258,11 @@ ORDER BY granted_at;
 | Audit verified | PASS / FAIL |
 | Idempotency verified | PASS / FAIL |
 
-### Merge decision for PR #1050
+### Decision to enable billing
 
 **GO / NO-GO**
 
-PR #1050 remains draft and must not be merged if either platform is FAIL.
+PR #1050 is merged, but do not flip `app_settings.payment_enabled = true` or remove
+`BILLING_UI_DISABLED` in the live app if either platform below is FAIL or not yet run.
 
 Gift checkout is outside this gate and remains disabled.

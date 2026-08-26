@@ -57,6 +57,9 @@ def capacitor_pods
   pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
   pod 'CapacitorCamera', :path => '../../node_modules/@capacitor/camera'
   pod 'CapacitorPushNotifications', :path => '../../node_modules/@capacitor/push-notifications'
+  pod 'RevenuecatPurchasesCapacitor', :path => '../../node_modules/@revenuecat/purchases-capacitor'
+  pod 'CapacitorWidgetBridge', :path => '../../plugins/capacitor-widget-bridge'
+  pod 'CapacitorAdultBiometric', :path => '../../plugins/capacitor-adult-biometric'
 end
 
 target 'App' do
