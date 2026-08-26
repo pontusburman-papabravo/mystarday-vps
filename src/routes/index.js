@@ -186,6 +186,15 @@ function registerRoutes(app) {
     res.sendFile(join(__dirname, '../../public', 'gift-cards.html'));
   });
 
+  // App Store / Google Play review screenshot aid — non-purchasable static
+  // preview of the paywall design. Admin-only; never linked from app nav.
+  // Does not fetch /api/iap/config, does not load a RevenueCat SDK key, and
+  // has no click handler that can reach IAPManager.purchasePackage/restore.
+  const { requireAdmin } = require('../middleware/auth');
+  app.get('/review/subscription-preview', requireAdmin, (req, res) => {
+    res.sendFile(join(__dirname, '../../public', 'review-subscription-preview.html'));
+  });
+
   app.get('/upgrade-legacy', async (req, res) => {
     const billingOk = await isBillingUiEnabled();
     if (!billingOk) return res.redirect(302, '/dashboard');
