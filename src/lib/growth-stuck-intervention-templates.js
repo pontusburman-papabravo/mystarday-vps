@@ -10,7 +10,7 @@ const { escapeFirstName, escapeHtml } = require('./email-html');
 
 const BODY_VERSION = 'v1';
 
-const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v2';
+const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v3';
 
 const INTERVENTION_KEYS = Object.freeze({
   onboarding_incomplete: 'onboarding_incomplete',
@@ -131,12 +131,13 @@ const TEMPLATES = Object.freeze({
       const html = wrapFounderHtml(`
         <p>Hej ${name},</p>
         <p>Jag heter Pontus och är den som byggt ${product}.</p>
-        <p>Jag såg att ni redan satt upp ett schema — bra jobbat! Det som ofta återstår är att <strong>låta barnet testa appen</strong> och logga in med sitt PIN.</p>
-        <p>Öppna ${product} på barnets enhet och välj <strong>Barnets inloggning</strong>. Det tar oftast bara ett par minuter tillsammans — barnet ser sitt schema och kan samla den första stjärnan när en aktivitet är klar.</p>
+        <p>Jag såg att ni redan satt upp ett schema — bra jobbat! Det som ofta återstår är att <strong>låta barnet testa appen</strong> och se sitt schema.</p>
+        <p>Öppna ${product} på barnets enhet. Om enheten redan är kopplad till familjen öppnas barnets vy direkt. Annars hjälper appen er att koppla enheten första gången.</p>
+        <p>Det tar oftast bara ett par minuter tillsammans — barnet kan samla den första stjärnan när en aktivitet är klar.</p>
         ${founderPrimaryCta(childLogin, openAppLabel)}
-        ${webFallbackParagraph('/child-login', 'Öppna barnets inloggning i webbläsaren')}
-        <p>Behöver ni hitta PIN-koden eller QR-koden igen? Öppna ${product} på din telefon och gå till <strong>Hem</strong> i föräldravyn.</p>
-        <p>Om något strular — till exempel PIN eller inloggning — svara gärna på det här mejlet så hjälper jag.</p>
+        ${webFallbackParagraph('/child-login', 'Öppna i webbläsaren')}
+        <p style="font-size:13px;color:#5A6178;">Om appen ber er koppla barnets enhet första gången, följ instruktionerna i appen.</p>
+        <p>Om något strular svara gärna på det här mejlet så hjälper jag.</p>
       `);
       return {
         subject,
