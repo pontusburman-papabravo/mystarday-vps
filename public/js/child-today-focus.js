@@ -12,8 +12,8 @@
   };
 
   const DECAL_EMPTY = '/images/child/decals/today-empty-v1@2x.webp';
-  const DECAL_CELEBRATION = '/images/child/decals/today-celebration-frame-v1@2x.webp';
   const CELEBRATION_MS = 2000;
+  const CELEBRATION_EMOJI = '⭐';
 
   let _childName = '';
   let _lastState = null;
@@ -172,13 +172,18 @@
     overlay.id = 'ctfCelebrationOverlay';
     overlay.className = 'ctf-celebration-overlay' +
       (prefersReducedMotion() ? ' ctf-celebration--reduced' : '');
+    // One fixed star + a fixed, instantly-readable message — no illustrated
+    // frame, no randomized copy. The child should understand "I finished
+    // the day" within half a second, not decode a decorative asset.
     overlay.innerHTML =
+      '<div class="ctf-celebration-frame" role="presentation">' +
+        '<span class="ctf-celebration-emoji" aria-hidden="true">' + CELEBRATION_EMOJI + '</span>' +
+        '<p class="ctf-celebration-headline">' + ctf('celebration.greatWork') + '</p>' +
+        '<p class="ctf-celebration-message">' + ctf('today.allDoneToday') + '</p>' +
+      '</div>' +
       '<button type="button" class="ctf-celebration-skip" aria-label="' + ctf('today.skipCelebration') + '">' +
         ctf('today.skipCelebration') +
-      '</button>' +
-      '<div class="ctf-celebration-frame" role="presentation">' +
-        '<img src="' + DECAL_CELEBRATION + '" alt="" decoding="async" width="320" height="320" />' +
-      '</div>';
+      '</button>';
     document.body.appendChild(overlay);
 
     const skip = overlay.querySelector('.ctf-celebration-skip');

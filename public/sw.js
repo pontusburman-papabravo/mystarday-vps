@@ -267,7 +267,8 @@
 // stjarndag-v845: settings magic hub — fix settings-account pt shadowing + navigation preserve
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
 // stjarndag-v858: product spotlight + Om oss page + landing nav fix
-const CACHE_NAME = 'stjarndag-v878';
+// stjarndag-v879: opaque celebration-overlay backdrop (Idag ALL_DONE) — no longer shows the status bar text through it
+const CACHE_NAME = 'stjarndag-v879';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -797,7 +798,6 @@ const STATIC_ASSETS = [
   '/images/child/world/rooms/museum@2x.webp',
   '/images/child/world/rooms/shop@2x.webp',
   '/images/child/decals/today-empty-v1@2x.webp',
-  '/images/child/decals/today-celebration-frame-v1@2x.webp',
   '/images/child/world/garden/scene-bg.webp',
   '/images/child/world/garden/scene-bg-430.webp',
   '/images/child/world/garden/scene-bg-860.webp',
