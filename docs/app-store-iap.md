@@ -4,7 +4,9 @@ Min Stjärndag supports in-app purchases (IAP) on **iOS and Android** via **Reve
 
 > **Stripe removed (Fas 5, 2026-06):** historical web/Stripe integration is archived in [`ARKIVERAT-STRIPE.md`](ARKIVERAT-STRIPE.md).
 >
-> **PAYMENTS V1 landed via [PR #1050](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1050) — merged.** <!-- pragma: allowlist secret --> The founder-count "lifetime free" model (`src/lib/payment-policy.js`, `hasActiveSubscription()`) is superseded by the canonical entitlement resolver described below. `src/lib/subscription.js`'s `hasActiveSubscription()` still exists but is **not used by any middleware** — do not add new callers.
+> **PAYMENTS V1 landed via [PR #1050](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1050) — merged.** <!-- pragma: allowlist secret -->
+>
+> The founder-count "lifetime free" model (`src/lib/payment-policy.js`, `hasActiveSubscription()`) is superseded by the canonical entitlement resolver described below. `src/lib/subscription.js`'s `hasActiveSubscription()` still exists but is **not used by any middleware** — do not add new callers.
 >
 > **Current state: payments are READY BUT OFF.** `app_settings.payment_enabled = false` and `BILLING_UI_DISABLED=true` in the live app. See §8.
 
