@@ -28,7 +28,7 @@ describe('growth-stuck-intervention templates', () => {
     assert.equal(interventionKeyForCohort('core_flow_errors'), null);
   });
 
-  it('builds app-first schema_without_child_access email with universal-link CTA', () => {
+  it('builds trusted-device schema_without_child_access email with universal-link CTA', () => {
     const prev = process.env.APP_URL;
     process.env.APP_URL = 'https://example.test'; // pragma: allowlist secret
     try {
@@ -38,14 +38,18 @@ describe('growth-stuck-intervention templates', () => {
       assert.ok(built);
       assert.match(built.subject, /barnet/i);
       assert.match(built.html, /Pontus Burman/);
-      assert.match(built.html, /Barnets inloggning/);
+      assert.match(built.html, /kopplad till familjen/);
+      assert.match(built.html, /koppla enheten första gången/);
       assert.match(built.html, /Öppna .* på barnets enhet/);
+      assert.match(built.html, /följ instruktionerna i appen/);
       assert.match(built.html, /href="https:\/\/example\.test\/child-login"/);
       assert.match(built.html, /Öppna .*<\/a>/);
       assert.match(built.html, /webbläsaren/);
-      assert.match(built.html, /Hem<\/strong> i föräldravyn/);
+      assert.doesNotMatch(built.html, /PIN/);
+      assert.doesNotMatch(built.html, /QR/);
+      assert.doesNotMatch(built.html, /Barnets inloggning/);
       assert.doesNotMatch(built.html, /👉.*example\.test/);
-      assert.equal(built.bodyVersion, 'v2');
+      assert.equal(built.bodyVersion, 'v3');
       assert.equal(built.ctaLabel, `Öppna ${require('../src/lib/config').email?.fromName || 'appen'}`);
       assert.match(built.from, /Pontus Burman/);
       assert.equal(built.ctaUrl, 'https://example.test/child-login');
