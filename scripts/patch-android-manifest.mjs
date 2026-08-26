@@ -38,6 +38,29 @@ const PERMISSIONS = [
 
 const INTENT_FILTER_MARKER = 'android.intent.action.VIEW';
 
+// RevenueCat requires the purchasing Activity's launchMode to be "standard" or
+// "singleTop" — backgrounding the app during Google Play's payment verification
+// (e.g. bank redirect) with "singleTask" can incorrectly cancel the purchase.
+// https://www.revenuecat.com/docs/getting-started/installation/android
+// Capacitor's default template ships MainActivity with launchMode="singleTask"
+// for deep-link handling; "singleTop" keeps the same single-instance/onNewIntent
+// behavior for App Links while satisfying RevenueCat's requirement.
+const REVENUECAT_COMPATIBLE_LAUNCH_MODES = new Set(['standard', 'singleTop']);
+const MAIN_ACTIVITY_LAUNCH_MODE_RE = /(<activity\s[^>]*android:name="\.MainActivity"[^>]*android:launchMode=")([^"]+)(")/;
+
+function patchMainActivityLaunchMode(content) {
+  const match = content.match(MAIN_ACTIVITY_LAUNCH_MODE_RE);
+  if (!match) {
+    return { content, changed: false, note: 'MainActivity launchMode attribute not found (nothing to patch)' };
+  }
+  const currentMode = match[2];
+  if (REVENUECAT_COMPATIBLE_LAUNCH_MODES.has(currentMode)) {
+    return { content, changed: false, note: `MainActivity launchMode already RevenueCat-compatible (${currentMode})` };
+  }
+  const updated = content.replace(MAIN_ACTIVITY_LAUNCH_MODE_RE, '$1singleTop$3');
+  return { content: updated, changed: true, note: `MainActivity launchMode changed from "${currentMode}" to "singleTop" (RevenueCat requirement)` };
+}
+
 function buildAppLinkIntentFilter() {
   const dataLines = APP_LINK_PATHS.map(
     (prefix) =>
@@ -100,10 +123,15 @@ if (!fs.existsSync(manifestPath)) {
 const before = fs.readFileSync(manifestPath, 'utf8');
 const result = patchManifest(before);
 
-if (!result.changed) {
+const launchModeResult = patchMainActivityLaunchMode(result.content);
+console.log(launchModeResult.note);
+const finalContent = launchModeResult.content;
+const anyChanged = result.changed || launchModeResult.changed;
+
+if (!anyChanged) {
   console.log('AndroidManifest.xml already patched.');
 } else {
-  fs.writeFileSync(manifestPath, result.content);
+  fs.writeFileSync(manifestPath, finalContent);
   console.log('Patched AndroidManifest.xml');
 }
 

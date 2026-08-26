@@ -26,7 +26,9 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 
 | Variabel | Värde | Kommentar |
 |----------|-------|-----------|
-| `REVENUECAT_API_KEY` | (från RevenueCat Dashboard) | Publika nyckeln — exponeras via `/api/iap/config` |
+| `REVENUECAT_IOS_PUBLIC_SDK_KEY` | (från RevenueCat Dashboard, iOS-app) | Publik nyckel — exponeras via `/api/iap/config?platform=ios` |
+| `REVENUECAT_ANDROID_PUBLIC_SDK_KEY` | (från RevenueCat Dashboard, Android-app) | Publik nyckel — exponeras via `/api/iap/config?platform=android` |
+| `REVENUECAT_SECRET_API_KEY` | (från RevenueCat Dashboard) | Server-hemlighet — **läses aldrig ut till klient**; används för `/api/iap/sync`-reconcile |
 | `REVENUECAT_WEBHOOK_SECRET` | (från RevenueCat Dashboard) | Authorization-header-värde för webhook (exakt match) |
 | `APNS_KEY_ID` | `RTJ37525AU` | 10-teckens Key ID från Apple Developer → Keys |
 | `APNS_TEAM_ID` | `PQ7M3B7VW5` | Apple Team ID |
@@ -35,7 +37,8 @@ Kontrollera att samtliga nedan är satta i Render → Environment-variabler inna
 | `APNS_SANDBOX` | `false` | `true` endast vid testflight; `false` för produktion |
 | `VAPID_PUBLIC_KEY` | (web-push VAPID publik nyckel) | För PWA push-notiser |
 | `VAPID_PRIVATE_KEY` | (web-push VAPID hemlig nyckel) | Backend-användning |
-| `PAYMENT_ENABLED` | `false` | IAP via RevenueCat (ingen web-Stripe) |
+| `BILLING_UI_DISABLED` | `true` while payments stay OFF | Hard kill switch (env) — overrides everything below; forces `nativePurchasesEnabled=false` for all families regardless of the DB setting |
+| _(DB, not env)_ `app_settings.payment_enabled` | `false` while payments stay OFF | The actual rollout switch — toggled via `PUT /api/admin/subscription-settings`, **not** an env var. `PAYMENT_ENABLED` is not read by the app; do not set it expecting an effect. |
 | `RESEND_API_KEY` | (från Resend Dashboard) | Transaktionsmail (verifiering, inbjudningar, nyhetsbrev, välkomst m.m.) |
 | `RESEND_API_KEY_WEEKLY` | (valfritt, separat Resend-nyckel) | Veckosammanfattning söndag 21:00. Fallback till `RESEND_API_KEY` om ej satt. Återkalla bara denna nyckel för att stoppa söndagsmail utan att påverka övrigt. |
 | `EMAIL_FROM` | `info@mystarday.se` | Avsändaradress (måste vara verifierad domän i Resend) |

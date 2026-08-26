@@ -84,6 +84,24 @@ if (fs.existsSync(capSettings)) {
   }
 }
 
+const manifestPath = path.join(ROOT, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+if (fs.existsSync(manifestPath)) {
+  const manifest = fs.readFileSync(manifestPath, 'utf8');
+  const launchModeMatch = manifest.match(
+    /<activity\s[^>]*android:name="\.MainActivity"[^>]*android:launchMode="([^"]+)"/
+  );
+  if (!launchModeMatch) {
+    fail('MainActivity launchMode attribute not found in AndroidManifest.xml');
+  } else if (!['standard', 'singleTop'].includes(launchModeMatch[1])) {
+    fail(
+      `MainActivity launchMode="${launchModeMatch[1]}" is incompatible with RevenueCat purchases ` +
+        '(requires "standard" or "singleTop") — run patch-android-manifest.mjs'
+    );
+  } else {
+    ok(`MainActivity launchMode is RevenueCat-compatible (${launchModeMatch[1]})`);
+  }
+}
+
 const mainActivityPatch = path.join(ROOT, 'scripts', 'patch-android-main-activity.mjs');
 if (!fs.existsSync(mainActivityPatch)) {
   fail('scripts/patch-android-main-activity.mjs missing');
