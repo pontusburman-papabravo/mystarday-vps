@@ -2,6 +2,7 @@
 
 const db = require('../src/lib/db');
 const { excludeInternalQaWhere } = require('../config/internal-qa-families');
+const interventionDb = require('./family-growth-intervention');
 const {
   COHORTS,
   FOLLOW_UP,
@@ -123,7 +124,22 @@ async function listGrowthStuckCohorts(opts = {}) {
     [minAgeHours, maxAgeDays, limit, cohortFilter]
   );
 
-  return rows.map((row) => mapGrowthStuckFamily(row));
+  const families = rows.map((row) => mapGrowthStuckFamily(row));
+  const historyMap = await interventionDb.getLatestSentForFamilies(
+    families.map((f) => f.familyId)
+  );
+  for (const family of families) {
+    const sent = historyMap.get(family.familyId);
+    if (sent) {
+      family.commsHistory.lastStuckIntervention = {
+        interventionKey: sent.intervention_key,
+        cohort: sent.cohort,
+        sentAt: sent.sent_at,
+        subjectSnapshot: sent.subject_snapshot,
+      };
+    }
+  }
+  return families;
 }
 
 /**
