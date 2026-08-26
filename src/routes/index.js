@@ -149,6 +149,9 @@ function registerRoutes(app) {
     res.sendFile(join(__dirname, '../../public', 'child-profile-picker.html'));
   });
 
+  // Semantic deep link: open child experience (email CTA, Universal/App Links)
+  app.use('/', require('./open-child'));
+
   // ─── PWA + child view routes ─────────────────────────────────
   app.use('/', require('./static-routes'));
 

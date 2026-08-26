@@ -14,6 +14,7 @@ const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const {
   buildInterventionEmail,
   interventionKeyForCohort,
+  INTERVENTION_KEYS,
 } = require('./growth-stuck-intervention-templates');
 const interventionDb = require('../../db/family-growth-intervention');
 const analytics = require('../../db/analytics');
@@ -45,6 +46,8 @@ function formatBlockerMessage(code, detail = {}) {
       return 'Utskick pågår redan (pending claim) — vänta någon minut';
     case 'family_activated':
       return 'Familjen är aktiverad — inget stuck-mejl behövs';
+    case 'intervention_goal_met':
+      return 'Barnåtkomst är redan etablerad — inget stuck-mejl behövs';
     case 'no_longer_stuck':
       return 'Familjen ligger inte längre i stuck-fönstret (48h–14d)';
     case 'unsupported_cohort':
@@ -78,6 +81,7 @@ async function loadStuckFamilyRow(familyId) {
          s.first_completion_at,
          s.p0_activated_at,
          s.activation_nudge_sent_at,
+         s.child_handoff_reminder_sent_at,
          (
            SELECT ae.event_type
            FROM analytics_events ae
@@ -114,7 +118,8 @@ async function loadStuckFamilyRow(familyId) {
        GROUP BY
          f.id, f.name, f.created_at, f.archived_at, f.preferred_locale,
          s.child_created_at, s.schema_saved_at, s.child_access_completed_at,
-         s.first_completion_at, s.p0_activated_at, s.activation_nudge_sent_at
+         s.first_completion_at, s.p0_activated_at, s.activation_nudge_sent_at,
+         s.child_handoff_reminder_sent_at
      ),
      classified AS (
        SELECT
@@ -177,6 +182,14 @@ function isFamilyActivated(row) {
   return false;
 }
 
+function isInterventionGoalMet(interventionKey, row) {
+  if (!row) return false;
+  if (interventionKey === INTERVENTION_KEYS.schema_without_child_access) {
+    return Boolean(row.child_access_completed_at);
+  }
+  return isFamilyActivated(row);
+}
+
 async function evaluateStuckIntervention(familyId) {
   const blockers = [];
   const row = await loadStuckFamilyRow(familyId);
@@ -186,15 +199,19 @@ async function evaluateStuckIntervention(familyId) {
     return { eligible: false, blockers, family: null };
   }
 
-  if (isFamilyActivated(row)) {
-    blockers.push({ code: 'family_activated', message: formatBlockerMessage('family_activated') });
+  const interventionKey = interventionKeyForCohort(row.blocking_step);
+
+  if (interventionKey && isInterventionGoalMet(interventionKey, row)) {
+    const code = interventionKey === INTERVENTION_KEYS.schema_without_child_access
+      ? 'intervention_goal_met'
+      : 'family_activated';
+    blockers.push({ code, message: formatBlockerMessage(code) });
   }
 
   if (!row.blocking_step) {
     blockers.push({ code: 'no_longer_stuck', message: formatBlockerMessage('no_longer_stuck') });
   }
 
-  const interventionKey = interventionKeyForCohort(row.blocking_step);
   if (row.blocking_step && !interventionKey) {
     blockers.push({
       code: 'unsupported_cohort',
@@ -307,6 +324,7 @@ async function evaluateStuckIntervention(familyId) {
       : null,
     commsHistory: {
       activationNudgeSentAt: row.activation_nudge_sent_at || null,
+      childHandoffReminderSentAt: row.child_handoff_reminder_sent_at || null,
       lastStuckIntervention: latestIntervention
         ? {
             interventionKey: latestIntervention.intervention_key,
@@ -513,4 +531,6 @@ module.exports = {
   skipStuckIntervention,
   formatBlockerMessage,
   loadStuckFamilyRow,
+  isFamilyActivated,
+  isInterventionGoalMet,
 };
