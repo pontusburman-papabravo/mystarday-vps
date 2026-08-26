@@ -56,7 +56,18 @@ async function registerContact(_email, _name, _source = 'signup') {
 /**
  * Send an email via Resend.
  */
-async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKeyProfile, unsubscribeUrl, headers: extraHeaders }) {
+async function sendEmail({
+  to,
+  subject,
+  body: textBody,
+  html,
+  from,
+  tags,
+  apiKeyProfile,
+  unsubscribeUrl,
+  headers: extraHeaders,
+  idempotencyKey,
+}) {
   const recipients = normalizeRecipients(to);
   if (recipients.length > 0 && recipients.every(isTestMailbox)) {
     console.log(`[EMAIL] Suppressed (test mailbox): to=${maskToField(to)}, subject="${subject}"`);
@@ -88,6 +99,9 @@ async function sendEmail({ to, subject, body: textBody, html, from, tags, apiKey
 
   const listHeaders = buildListUnsubscribeHeaders(unsubscribeUrl);
   const headers = { ...(extraHeaders || {}), ...(listHeaders || {}) };
+  if (idempotencyKey) {
+    headers['Idempotency-Key'] = String(idempotencyKey).slice(0, 256);
+  }
 
   try {
     const res = await fetch(RESEND_API_URL, {

@@ -56,11 +56,51 @@ describe('growth-stuck-intervention eligibility messages', () => {
       /12 tim/
     );
     assert.match(formatBlockerMessage('already_sent', { interventionKey: 'schema_without_child_access' }), /redan skickad/);
+    assert.match(formatBlockerMessage('send_in_progress'), /pågår redan/);
     assert.match(formatBlockerMessage('email_disabled'), /avstängd/);
   });
 
   it('uses 72h growth email cooldown constant', () => {
     assert.equal(GROWTH_EMAIL_COOLDOWN_HOURS, 72);
+  });
+});
+
+describe('growth-stuck-intervention delivery contract', () => {
+  it('claims pending before sendEmail and marks sent only after provider success', () => {
+    const intervention = fs.readFileSync(
+      path.join(ROOT, 'src/lib/growth-stuck-intervention.js'),
+      'utf8'
+    );
+    assert.match(intervention, /claimPendingIntervention/);
+    assert.match(intervention, /markInterventionSent/);
+    assert.doesNotMatch(intervention, /BEGIN[\s\S]*sendEmail[\s\S]*COMMIT/);
+    assert.match(intervention, /idempotencyKey/);
+  });
+
+  it('uses ON CONFLICT for conflict-safe pending claims', () => {
+    const dbModule = fs.readFileSync(
+      path.join(ROOT, 'db/family-growth-intervention.js'),
+      'utf8'
+    );
+    assert.match(dbModule, /ON CONFLICT \(family_id, intervention_key\)/);
+    assert.match(dbModule, /DO NOTHING/);
+    assert.match(dbModule, /markInterventionSent/);
+    assert.match(dbModule, /markInterventionFailed/);
+    assert.match(dbModule, /markInterventionUnknown/);
+  });
+
+  it('passes Resend idempotency key from family + intervention', () => {
+    const email = fs.readFileSync(path.join(ROOT, 'src/lib/email.js'), 'utf8');
+    assert.match(email, /Idempotency-Key/);
+    const dbModule = require('../db/family-growth-intervention');
+    const key = dbModule.buildIdempotencyKey(
+      '11111111-1111-1111-1111-111111111111',
+      'schema_without_child_access'
+    );
+    assert.equal(
+      key,
+      'stuck-intervention/11111111-1111-1111-1111-111111111111/schema_without_child_access'
+    );
   });
 });
 

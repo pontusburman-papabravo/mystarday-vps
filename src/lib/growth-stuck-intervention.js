@@ -41,6 +41,8 @@ function formatBlockerMessage(code, detail = {}) {
       return 'EMAIL_ENABLED=false på servern';
     case 'already_sent':
       return `Stuck-intervention "${detail.interventionKey}" redan skickad`;
+    case 'send_in_progress':
+      return 'Utskick pågår redan (pending claim) — vänta någon minut';
     case 'family_activated':
       return 'Familjen är aktiverad — inget stuck-mejl behövs';
     case 'no_longer_stuck':
@@ -225,6 +227,18 @@ async function evaluateStuckIntervention(familyId) {
         sentAt: existing.sent_at,
       });
     }
+
+    const pending = await interventionDb.getPendingIntervention(familyId, interventionKey);
+    if (pending?.claimed_at) {
+      const pendingHours = hoursSince(pending.claimed_at);
+      if (pendingHours == null || pendingHours * 60 < interventionDb.PENDING_STALE_MINUTES) {
+        blockers.push({
+          code: 'send_in_progress',
+          message: formatBlockerMessage('send_in_progress'),
+          claimedAt: pending.claimed_at,
+        });
+      }
+    }
   }
 
   const nudgeHours = hoursSince(row.activation_nudge_sent_at);
@@ -324,83 +338,144 @@ async function sendStuckIntervention(familyId, adminParentId) {
     return { ok: false, ...evaluated };
   }
 
-  const client = await db.getClient();
-  try {
-    await client.query('BEGIN');
+  const idempotencyKey = interventionDb.buildIdempotencyKey(
+    familyId,
+    evaluated.interventionKey
+  );
 
-    const claimed = await interventionDb.insertSentIntervention({
+  const claimed = await interventionDb.claimPendingIntervention({
+    familyId,
+    cohort: evaluated.cohort,
+    interventionKey: evaluated.interventionKey,
+    sentBy: adminParentId,
+    subjectSnapshot: evaluated.emailPreview.subject,
+    bodyVersion: evaluated.emailPreview.bodyVersion,
+    idempotencyKey,
+  });
+
+  if (!claimed) {
+    const existing = await interventionDb.getSentIntervention(
       familyId,
+      evaluated.interventionKey
+    );
+    const pending = await interventionDb.getPendingIntervention(
+      familyId,
+      evaluated.interventionKey
+    );
+    const blockers = [];
+    if (existing) {
+      blockers.push({
+        code: 'already_sent',
+        message: formatBlockerMessage('already_sent', {
+          interventionKey: evaluated.interventionKey,
+        }),
+        sentAt: existing.sent_at,
+      });
+    } else if (pending) {
+      blockers.push({
+        code: 'send_in_progress',
+        message: formatBlockerMessage('send_in_progress'),
+        claimedAt: pending.claimed_at,
+      });
+    } else {
+      blockers.push({
+        code: 'already_sent',
+        message: formatBlockerMessage('already_sent', {
+          interventionKey: evaluated.interventionKey,
+        }),
+      });
+    }
+    return {
+      ok: false,
+      eligible: false,
+      blockers,
+      family: evaluated.family,
       cohort: evaluated.cohort,
       interventionKey: evaluated.interventionKey,
-      sentBy: adminParentId,
-      subjectSnapshot: evaluated.emailPreview.subject,
-      bodyVersion: evaluated.emailPreview.bodyVersion,
-    }, client);
+      commsHistory: evaluated.commsHistory,
+    };
+  }
 
-    if (!claimed) {
-      await client.query('ROLLBACK');
-      const existing = await interventionDb.getSentIntervention(
-        familyId,
-        evaluated.interventionKey
-      );
-      return {
-        ok: false,
-        eligible: false,
-        blockers: [{
-          code: 'already_sent',
-          message: formatBlockerMessage('already_sent', {
-            interventionKey: evaluated.interventionKey,
-          }),
-          sentAt: existing?.sent_at || null,
-        }],
-        family: evaluated.family,
-        cohort: evaluated.cohort,
-        interventionKey: evaluated.interventionKey,
-        commsHistory: evaluated.commsHistory,
-      };
-    }
-
-    await sendEmail({
+  let emailResult;
+  try {
+    emailResult = await sendEmail({
       to: evaluated.recipientEmail,
       subject: evaluated.emailPreview.subject,
       html: evaluated.emailPreview.html,
       from: evaluated.emailPreview.from || config.email.from,
+      idempotencyKey: claimed.idempotency_key || idempotencyKey,
     });
+  } catch (err) {
+    await interventionDb.markInterventionFailed(claimed.id, err.message);
+    throw err;
+  }
 
-    await client.query('COMMIT');
-
-    analytics.track(familyId, 'stuck_intervention_sent', {
-      intervention_key: evaluated.interventionKey,
-      cohort: evaluated.cohort,
-      body_version: evaluated.emailPreview.bodyVersion,
-      channel: 'email',
-    });
-
+  if (!emailResult?.success) {
+    await interventionDb.markInterventionFailed(
+      claimed.id,
+      emailResult?.error || 'email_send_failed'
+    );
     return {
-      ok: true,
-      eligible: true,
-      blockers: [],
-      interventionId: claimed.id,
-      sentAt: claimed.sent_at,
+      ok: false,
+      eligible: false,
+      blockers: [{
+        code: 'email_send_failed',
+        message: emailResult?.error || 'Mejlet kunde inte skickas',
+      }],
+      family: evaluated.family,
       cohort: evaluated.cohort,
       interventionKey: evaluated.interventionKey,
-      subject: claimed.subject_snapshot,
-      commsHistory: {
-        activationNudgeSentAt: evaluated.commsHistory.activationNudgeSentAt,
-        lastStuckIntervention: {
-          interventionKey: claimed.intervention_key,
-          cohort: claimed.cohort,
-          sentAt: claimed.sent_at,
-          subjectSnapshot: claimed.subject_snapshot,
-        },
-      },
+      commsHistory: evaluated.commsHistory,
     };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
   }
+
+  const sent = await interventionDb.markInterventionSent(claimed.id);
+  if (!sent) {
+    await interventionDb.markInterventionUnknown(
+      claimed.id,
+      'mark_sent_after_provider_success'
+    );
+    return {
+      ok: false,
+      eligible: false,
+      blockers: [{
+        code: 'delivery_state_unknown',
+        message: 'Mejl skickat men leveransstatus oklar — kontrollera innan nytt försök',
+      }],
+      interventionId: claimed.id,
+      family: evaluated.family,
+      cohort: evaluated.cohort,
+      interventionKey: evaluated.interventionKey,
+      commsHistory: evaluated.commsHistory,
+    };
+  }
+
+  analytics.track(familyId, 'stuck_intervention_sent', {
+    intervention_key: evaluated.interventionKey,
+    cohort: evaluated.cohort,
+    body_version: evaluated.emailPreview.bodyVersion,
+    channel: 'email',
+  });
+
+  return {
+    ok: true,
+    eligible: true,
+    blockers: [],
+    interventionId: sent.id,
+    sentAt: sent.sent_at,
+    cohort: evaluated.cohort,
+    interventionKey: evaluated.interventionKey,
+    subject: sent.subject_snapshot,
+    commsHistory: {
+      activationNudgeSentAt: evaluated.commsHistory.activationNudgeSentAt,
+      lastStuckIntervention: {
+        interventionKey: sent.intervention_key,
+        cohort: sent.cohort,
+        sentAt: sent.sent_at,
+        subjectSnapshot: sent.subject_snapshot,
+      },
+    },
+  };
 }
 
 async function skipStuckIntervention(familyId, adminParentId, skipReason) {
