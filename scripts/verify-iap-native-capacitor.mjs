@@ -59,4 +59,28 @@ if (fs.existsSync(iapMgr)) {
   }
 }
 
+const pbxproj = path.join(ROOT, 'ios', 'App', 'App.xcodeproj', 'project.pbxproj');
+if (fs.existsSync(pbxproj)) {
+  const src = fs.readFileSync(pbxproj, 'utf8');
+  // In-App Purchase has no valid .entitlements key (Apple: "commonly hallucinated
+  // entitlements" — com.apple.developer.in-app-purchase / com.apple.InAppPurchase do
+  // not exist as entitlement plist keys). The App target must instead carry the
+  // Xcode "SystemCapabilities" bookkeeping entry that Signing & Capabilities writes.
+  if (!/com\.apple\.InAppPurchase\s*=\s*\{\s*enabled\s*=\s*1;/.test(src)) {
+    fail('project.pbxproj missing In-App Purchase SystemCapabilities entry on App target');
+  } else {
+    ok('project.pbxproj declares In-App Purchase capability on App target');
+  }
+}
+
+const entitlements = path.join(ROOT, 'ios', 'App', 'App', 'App.entitlements');
+if (fs.existsSync(entitlements)) {
+  const src = fs.readFileSync(entitlements, 'utf8');
+  if (/in-app-purchase|InAppPurchase|storekit-external-purchase/i.test(src)) {
+    fail('App.entitlements must not contain an in-app-purchase or external-purchase entitlement key (not valid / not requested)');
+  } else {
+    ok('App.entitlements has no hallucinated or external-purchase IAP entitlement keys');
+  }
+}
+
 process.exit(failed ? 1 : 0);
