@@ -174,6 +174,7 @@ const MARKET_STATUS_COUNTRIES = Object.freeze([
   { code: 'DK', label: 'Denmark' },
   { code: 'GB', label: 'United Kingdom' },
   { code: 'US', label: 'United States' },
+  { code: 'ZZ', label: 'Other' },
 ]);
 
 /**
