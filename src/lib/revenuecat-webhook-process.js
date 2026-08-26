@@ -58,6 +58,34 @@ const INSERT_WEBHOOK_LOG_SQL = `
   RETURNING revenuecat_event_id
 `;
 
+// RevenueCat's webhook contract has NO "REVOCATION" and NO "REFUND" event `type`.
+// (Verified against https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields
+// — the full type enum is: TEST, INITIAL_PURCHASE, RENEWAL, CANCELLATION, UNCANCELLATION,
+// NON_RENEWING_PURCHASE, SUBSCRIPTION_PAUSED, EXPIRATION, BILLING_ISSUE, PRODUCT_CHANGE,
+// SUBSCRIPTION_EXTENDED, REFUND_REVERSED, TRANSFER, and non-purchase event families.)
+//
+// A store-side refund/revocation is instead represented via the REASON on an existing
+// event type:
+//   - CANCELLATION with cancel_reason = 'CUSTOMER_SUPPORT' — a refund of the *current*
+//     period was issued. Auto-renew may still be on; the subscription can remain
+//     active until `expiration_at_ms` (RevenueCat: "check current subscription status").
+//   - EXPIRATION with expiration_reason = 'CUSTOMER_SUPPORT' — the refund/revocation
+//     actually removed access. This is the event that must expire the store entitlement.
+//   - REFUND_REVERSED — a prior refund was clawed back/reversed (chargeback reversal);
+//     access is restored.
+// CUSTOMER_SUPPORT is supported identically on App Store and Google Play — Apple and
+// Google do not need different handling here.
+//
+// isDestructiveStatus() below routes CANCELLATION/EXPIRATION through the exact same
+// fail-closed, idempotent, ordering-protected code path as every other event type —
+// there is no separate "revocation" branch to keep in sync or accidentally miss.
+const REFUND_OR_REVOCATION_REASON = 'CUSTOMER_SUPPORT';
+
+function isRefundOrRevocationReason(event) {
+  return event?.cancel_reason === REFUND_OR_REVOCATION_REASON
+    || event?.expiration_reason === REFUND_OR_REVOCATION_REASON;
+}
+
 const HANDLED_EVENT_TYPES = new Set([
   'INITIAL_PURCHASE',
   'RENEWAL',
@@ -65,7 +93,6 @@ const HANDLED_EVENT_TYPES = new Set([
   'PRODUCT_CHANGE',
   'SUBSCRIPTION_EXTENDED',
   'REFUND_REVERSED',
-  'REFUND',
   'NON_RENEWING_PURCHASE',
   'CANCELLATION',
   'EXPIRATION',
@@ -97,8 +124,6 @@ function resolveSubscriptionStatus(eventType, expirationAtMs, nowMs = Date.now()
     case 'SUBSCRIPTION_EXTENDED':
     case 'REFUND_REVERSED':
       return 'active';
-    case 'REFUND':
-      return 'expired';
     case 'NON_RENEWING_PURCHASE':
       return 'active';
     case 'CANCELLATION':
@@ -463,6 +488,9 @@ async function processRevenueCatEvent(db, event) {
       metadata: {
         product_id: scope.productId || event.product_id || null,
         environment,
+        cancel_reason: event.cancel_reason || null,
+        expiration_reason: event.expiration_reason || null,
+        is_refund_or_revocation: isRefundOrRevocationReason(event),
       },
     }, client);
 
@@ -487,6 +515,8 @@ module.exports = {
   processRevenueCatEvent,
   validateEventScope,
   isUuid,
+  isRefundOrRevocationReason,
+  REFUND_OR_REVOCATION_REASON,
   INSERT_WEBHOOK_LOG_SQL,
   HANDLED_EVENT_TYPES,
 };
