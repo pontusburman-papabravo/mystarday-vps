@@ -132,6 +132,11 @@ describe('GET /review/subscription-preview — access control', () => {
       assert.doesNotMatch(body, /sk_[A-Za-z0-9]/);
       assert.doesNotMatch(body, /rcsk_[A-Za-z0-9]/);
       assert.doesNotMatch(body, /apiKey\s*[:=]\s*["'][^"']+["']/);
+      // The developer-only footer must not appear in the actual served response.
+      assert.doesNotMatch(
+        body,
+        /App Review preview — static, non-purchasable\. No RevenueCat SDK is loaded on this page\./
+      );
     } finally {
       await http.close();
       await db.cleanup();
@@ -179,6 +184,11 @@ describe('review-subscription-preview.js — static safety proof (no purchase pa
 
 describe('review-subscription-preview.html — markup safety proof', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/review-subscription-preview.html'), 'utf8');
+  // Only <body> content (with HTML comments stripped) is what actually renders
+  // on screen and could appear in a screenshot — the safety documentation in
+  // <!-- --> comments and <head> is invisible to a screenshot/browser render.
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/);
+  const visibleBody = (bodyMatch ? bodyMatch[1] : '').replace(/<!--[\s\S]*?-->/g, '');
 
   test('does not include paywall.js, iap-manager.js, or iap-native-client-logic.js as explicit script tags', () => {
     assert.doesNotMatch(html, /src="\/js\/paywall\.js/);
@@ -199,6 +209,28 @@ describe('review-subscription-preview.html — markup safety proof', () => {
   test('CTA and restore controls are disabled with aria-disabled and not keyboard-focusable', () => {
     assert.match(html, /id="paywallPurchaseBtn"[^>]*disabled[^>]*aria-disabled="true"[^>]*tabindex="-1"/);
     assert.match(html, /id="paywallRestoreBtn"[^>]*disabled[^>]*aria-disabled="true"[^>]*tabindex="-1"/);
+  });
+
+  test('the developer-only footer disclaimer is not rendered in the visible page', () => {
+    assert.doesNotMatch(
+      visibleBody,
+      /App Review preview — static, non-purchasable\. No RevenueCat SDK is loaded on this page\./
+    );
+  });
+
+  test('no "preview"/"sandbox"/"test"/"non-purchasable"/"admin"/RevenueCat wording appears in the visible screenshot UI', () => {
+    assert.doesNotMatch(visibleBody, /\bpreview\b/i);
+    assert.doesNotMatch(visibleBody, /\bsandbox\b/i);
+    assert.doesNotMatch(visibleBody, /\bnon-purchasable\b/i);
+    assert.doesNotMatch(visibleBody, /\badmin\b/i);
+    assert.doesNotMatch(visibleBody, /RevenueCat/i);
+    // A bare "test" match would also hit i18n keys like "test-secret" fixtures
+    // elsewhere, so scope this specifically to standalone word usage in copy.
+    assert.doesNotMatch(visibleBody, /\btest\b/i);
+  });
+
+  test('default (Apple) legal disclosure does not mention Google Play', () => {
+    assert.doesNotMatch(visibleBody, /Google Play/i);
   });
 });
 

@@ -45,6 +45,14 @@
     el.setAttribute('data-i18n', key);
   }
 
+  function applyStoreLegalCopy() {
+    var el = document.getElementById('paywallReviewLegal');
+    if (!el) return;
+    var key = storeParam() === 'google' ? 'paywall.legalGoogleOnly' : 'paywall.legalAppleOnly';
+    el.textContent = t(key);
+    el.setAttribute('data-i18n', key);
+  }
+
   function renderReferencePrices() {
     var yearlyPriceEl = document.getElementById('planYearlyPrice');
     var yearlyTermsEl = document.getElementById('planYearlyTerms');
@@ -83,6 +91,7 @@
       applyStaticI18n();
     }
     applyAutoRenewCopy();
+    applyStoreLegalCopy();
     renderReferencePrices();
   }
 

@@ -1091,6 +1091,8 @@
     "termsLink": "Terms",
     "privacyLink": "Privacy",
     "legal": "You can cancel a free trial before billing under App Store or Google Play rules. Manage or cancel in your store subscription settings.",
+    "legalAppleOnly": "You can cancel a free trial before billing. Manage or cancel in the App Store subscription settings.",
+    "legalGoogleOnly": "You can cancel a free trial before billing. Manage or cancel in the Google Play subscription settings.",
     "giftCard": "I have a gift card",
     "giftCodeLabel": "Gift code",
     "giftRedeem": "Redeem gift card",
