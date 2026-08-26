@@ -28,16 +28,31 @@ describe('growth-stuck-intervention templates', () => {
     assert.equal(interventionKeyForCohort('core_flow_errors'), null);
   });
 
-  it('builds founder-style schema_without_child_access email', () => {
-    const built = buildInterventionEmail(INTERVENTION_KEYS.schema_without_child_access, {
-      parentName: 'Anna',
-    });
-    assert.ok(built);
-    assert.match(built.subject, /barnet/i);
-    assert.match(built.html, /Pontus Burman/);
-    assert.match(built.html, /child-login|\/child-login/);
-    assert.equal(built.bodyVersion, 'v1');
-    assert.match(built.from, /Pontus Burman/);
+  it('builds app-first schema_without_child_access email with universal-link CTA', () => {
+    const prev = process.env.APP_URL;
+    process.env.APP_URL = 'https://example.test'; // pragma: allowlist secret
+    try {
+      const built = buildInterventionEmail(INTERVENTION_KEYS.schema_without_child_access, {
+        parentName: 'Anna',
+      });
+      assert.ok(built);
+      assert.match(built.subject, /barnet/i);
+      assert.match(built.html, /Pontus Burman/);
+      assert.match(built.html, /Barnets inloggning/);
+      assert.match(built.html, /Öppna .* på barnets enhet/);
+      assert.match(built.html, /href="https:\/\/example\.test\/child-login"/);
+      assert.match(built.html, /Öppna .*<\/a>/);
+      assert.match(built.html, /webbläsaren/);
+      assert.match(built.html, /Hem<\/strong> i föräldravyn/);
+      assert.doesNotMatch(built.html, /👉.*example\.test/);
+      assert.equal(built.bodyVersion, 'v2');
+      assert.equal(built.ctaLabel, `Öppna ${require('../src/lib/config').email?.fromName || 'appen'}`);
+      assert.match(built.from, /Pontus Burman/);
+      assert.equal(built.ctaUrl, 'https://example.test/child-login');
+    } finally {
+      if (prev === undefined) delete process.env.APP_URL;
+      else process.env.APP_URL = prev;
+    }
   });
 
   it('builds distinct subjects per intervention key', () => {
