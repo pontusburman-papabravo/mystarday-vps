@@ -42,6 +42,7 @@ async function listGrowthStuckCohorts(opts = {}) {
          s.first_completion_at,
          s.p0_activated_at,
          s.activation_nudge_sent_at,
+         s.child_handoff_reminder_sent_at,
          a.source AS acquisition_source,
          a.medium AS acquisition_medium,
          a.campaign AS acquisition_campaign,
@@ -88,6 +89,7 @@ async function listGrowthStuckCohorts(opts = {}) {
          f.id, f.name, f.created_at, f.preferred_locale,
          s.child_created_at, s.schema_saved_at, s.child_access_completed_at,
          s.first_completion_at, s.p0_activated_at, s.activation_nudge_sent_at,
+         s.child_handoff_reminder_sent_at,
          a.source, a.medium, a.campaign, a.platform, a.referral_code
      ),
      classified AS (

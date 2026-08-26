@@ -42,6 +42,7 @@
     try {
       const p = (window.location.pathname || '').replace(/\/$/, '') || '/';
       if (p === '/login' || p === '/child-login' || p.indexOf('/child-login') === 0
+        || p === '/open/child' || p.indexOf('/open/child') === 0
         || p === '/child/profile-picker') {
         window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
       }

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Öppna barnupplevelsen</title>
+  <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+  <script src="/js/platform.js?v=1.0.0"></script>
+  <script src="/js/auth.js?v=2.23.0"></script>
+  <script src="/js/device-mode.js?v=1.0.0"></script>
+  <script src="/js/child-session-context.js?v=1.0.0"></script>
+  <script src="/js/trusted-device-client.js?v=1.0.0"></script>
+  <script src="/js/app-entry-analytics.js?v=284"></script>
+  <script src="/js/app-entry-orchestrator.js?v=819"></script>
+  <script src="/js/trusted-device-bootstrap.js?v=1.0.0"></script>
+  <script src="/js/open-child-entry.js?v=1"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: linear-gradient(165deg, #1B2340 0%, #2a3560 45%, #1B2340 100%);
+      min-height: 100dvh;
+      color: #fff;
+      margin: 0;
+      padding: max(24px, env(safe-area-inset-top)) 20px max(32px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .btn-primary {
+      display: block;
+      width: 100%;
+      background: #F5A623;
+      color: #1B2340;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    .btn-secondary {
+      display: inline-block;
+      margin: 8px 6px 0;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .muted { color: rgba(255,255,255,0.72); font-size: 14px; line-height: 1.55; }
+    .hidden { display: none !important; }
+    .spinner {
+      width: 28px; height: 28px; margin: 12px auto;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #F5A623;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <main class="card" id="openChildCard">
+    <div id="openChildLoading">
+      <p style="font-size: 32px; margin: 0 0 8px;">⭐</p>
+      <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 8px;">Öppnar barnupplevelsen</h1>
+      <p class="muted" style="margin: 0;">Ett ögonblick…</p>
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
+
+    <div id="openChildFallback" class="hidden">
+      <p style="font-size: 32px; margin: 0 0 8px;">⭐</p>
+      <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 12px;">Öppna appen</h1>
+      <p class="muted" style="margin: 0 0 20px;">
+        Om enheten redan är kopplad till familjen öppnas barnets vy direkt.
+        Annars hjälper appen er att koppla enheten första gången.
+      </p>
+      <button type="button" class="btn-primary" id="openChildContinueBtn">Fortsätt i webbläsaren</button>
+      <p class="muted" style="margin: 20px 0 8px;">Ingen app installerad?</p>
+      <div>
+        <a class="btn-secondary" id="openChildAppleStore" href="__APPLE_STORE_URL__" rel="noopener noreferrer">App Store</a>
+        <a class="btn-secondary" id="openChildPlayStore" href="__PLAY_STORE_URL__" rel="noopener noreferrer">Google Play</a>
+      </div>
+    </div>
+
+    <p id="openChildError" class="muted hidden" role="alert" style="margin-top: 16px;"></p>
+  </main>
+</body>
+</html>

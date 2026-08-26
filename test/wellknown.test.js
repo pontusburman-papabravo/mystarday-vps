@@ -22,4 +22,5 @@ test('buildAssetLinks android_app when fingerprint set', () => {
 test('buildAppleAppSiteAssociation has applinks', () => {
   const aasa = buildAppleAppSiteAssociation();
   assert.ok(aasa.applinks.details[0].paths.length > 0);
+  assert.ok(aasa.applinks.details[0].paths.some((p) => String(p).includes('/open/child')));
 });
