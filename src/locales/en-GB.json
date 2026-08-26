@@ -53,6 +53,7 @@
       "required": "Choose a country to continue",
       "closedEu": "My Starday is not available in your country yet. We will let you know when we open more EU markets.",
       "closedIe": "My Starday is not available in Ireland yet.",
+      "closedFi": "My Starday is not available in Finland yet.",
       "closedNo": "My Starday is not available in Norway yet.",
       "closedDk": "My Starday is not available in Denmark yet.",
       "closedUk": "My Starday is not available in the United Kingdom yet.",
@@ -418,6 +419,7 @@
         "marketClosed": {
           "MARKET_SE_CLOSED": "Registration from Sweden is temporarily closed.",
           "MARKET_IE_CLOSED": "My Starday is not available in Ireland yet.",
+          "MARKET_FI_CLOSED": "My Starday is not available in Finland yet.",
           "MARKET_NO_CLOSED": "My Starday is not available in Norway yet.",
           "MARKET_DK_CLOSED": "My Starday is not available in Denmark yet.",
           "MARKET_EU_CLOSED": "My Starday is not available in your country yet. We will notify you when we open more EU countries.",

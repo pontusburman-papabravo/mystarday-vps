@@ -53,6 +53,14 @@ describe('getMarketConfig timezone contract', () => {
     assert.equal(getMarketConfig({ countryCode: 'IE' }).timezone, 'Europe/Dublin');
   });
 
+  it('FI config timezone is Europe/Helsinki with EUR', () => {
+    const cfg = getMarketConfig({ countryCode: 'FI' });
+    assert.equal(cfg.timezone, 'Europe/Helsinki');
+    assert.equal(cfg.currency, 'EUR');
+    assert.equal(cfg.defaultLocale, 'en-GB');
+    assert.equal(cfg.localeSupported, true);
+  });
+
   it('SE config timezone is Europe/Stockholm', () => {
     assert.equal(getMarketConfig({ countryCode: 'SE' }).timezone, 'Europe/Stockholm');
   });

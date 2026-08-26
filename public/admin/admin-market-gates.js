@@ -4,13 +4,17 @@
 async function loadMarketRegistrationStatus() {
   const container = document.getElementById('marketGatesTableBody');
   const hint = document.getElementById('marketGatesHint');
+  const countryStats = document.getElementById('marketCountryStatsBody');
   if (!container) return;
 
   try {
-    const data = await Auth.api('/api/admin/market-registration-status');
+    const [data, analytics] = await Promise.all([
+      Auth.api('/api/admin/market-registration-status'),
+      Auth.api('/api/admin/locale-analytics').catch(() => null),
+    ]);
     const markets = data.markets || [];
     if (hint) {
-      hint.textContent = 'Toggle via befintlig flagg-API: PUT /api/admin/feature-flags/:key med { enabled: true|false }. market_ie_open förblir OFF tills P-IE-LAUNCH.';
+      hint.textContent = 'Toggle via befintlig flagg-API: PUT /api/admin/feature-flags/:key med { enabled: true|false }. market_fi_open förblir OFF tills P-FI-LAUNCH.';
     }
     container.innerHTML = markets.map((m) => `
       <tr>
@@ -25,6 +29,22 @@ async function loadMarketRegistrationStatus() {
         </td>
       </tr>
     `).join('');
+
+    if (countryStats && analytics && Array.isArray(analytics.families_by_country)) {
+      const highlight = new Set(['SE', 'IE', 'FI', 'NO', 'DK', 'GB', 'US']);
+      const rows = analytics.families_by_country
+        .filter((row) => highlight.has(row.country_code))
+        .sort((a, b) => b.count - a.count);
+      countryStats.innerHTML = rows.length
+        ? rows.map((row) => `
+          <tr>
+            <td class="py-2 pr-3 font-mono text-sm">${row.country_code}</td>
+            <td class="py-2 pr-3 text-sm">${row.market_region}</td>
+            <td class="py-2 pr-3 text-sm font-semibold">${row.count}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="3" class="py-4 text-sm text-text-soft">Inga familjer ännu</td></tr>';
+    }
   } catch (err) {
     console.error('[Admin:market-gates] Load failed:', err);
     if (container) {

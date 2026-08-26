@@ -19,6 +19,7 @@ const MARKET_REGIONS = Object.freeze({
 const GATE_KEYS = Object.freeze({
   SE: 'market_se_open',
   IE: 'market_ie_open',
+  FI: 'market_fi_open',
   NO: 'market_no_open',
   DK: 'market_dk_open',
   EU: 'market_eu_open',
@@ -31,6 +32,7 @@ const GATE_KEYS = Object.freeze({
 const GATE_DEFAULTS = Object.freeze({
   market_se_open: true,
   market_ie_open: false,
+  market_fi_open: false,
   market_no_open: false,
   market_dk_open: false,
   market_eu_open: false,
@@ -50,6 +52,7 @@ const KNOWN_COUNTRY_CODES = new Set([
 const COUNTRY_SPECIFIC_GATE_KEYS = Object.freeze({
   SE: GATE_KEYS.SE,
   IE: GATE_KEYS.IE,
+  FI: GATE_KEYS.FI,
   NO: GATE_KEYS.NO,
   DK: GATE_KEYS.DK,
   GB: GATE_KEYS.UK,
@@ -115,6 +118,7 @@ async function isMarketOpenForRegistration(countryCode) {
 function marketClosedCode(countryCode) {
   const code = normalizeCountryCode(countryCode) || 'SE';
   if (code === 'IE') return 'MARKET_IE_CLOSED';
+  if (code === 'FI') return 'MARKET_FI_CLOSED';
   if (code === 'NO') return 'MARKET_NO_CLOSED';
   if (code === 'DK') return 'MARKET_DK_CLOSED';
   const region = deriveMarketRegion(code);
@@ -128,6 +132,7 @@ function marketClosedCode(countryCode) {
 const MARKET_CLOSED_MESSAGES = Object.freeze({
   MARKET_SE_CLOSED: 'Registrering från Sverige är tillfälligt stängd.',
   MARKET_IE_CLOSED: 'My Starday is not available in Ireland yet.',
+  MARKET_FI_CLOSED: 'My Starday är inte tillgängligt i Finland ännu.',
   MARKET_NO_CLOSED: 'My Starday is not available in Norway yet.',
   MARKET_DK_CLOSED: 'My Starday is not available in Denmark yet.',
   MARKET_EU_CLOSED: 'My Starday är inte tillgängligt i ditt land ännu. Vi meddelar när vi öppnar fler EU-länder.',
@@ -164,6 +169,7 @@ function resolveRegistrationCountry({
 const MARKET_STATUS_COUNTRIES = Object.freeze([
   { code: 'SE', label: 'Sweden' },
   { code: 'IE', label: 'Ireland' },
+  { code: 'FI', label: 'Finland' },
   { code: 'NO', label: 'Norway' },
   { code: 'DK', label: 'Denmark' },
   { code: 'GB', label: 'United Kingdom' },
