@@ -92,17 +92,28 @@ describe('activation nudge scheduler (PR 5)', () => {
     assert.doesNotMatch(src, /child_handoff_reminder_sent_at IS NULL/);
   });
 
-  it('CTA points to Hem dashboard (slim signup)', () => {
+  it('CTA points to onboarding without schema, Hem with schema', () => {
     const { resolveNudgeCtaUrl } = require('../src/lib/activation-nudge-scheduler');
     const prev = process.env.APP_URL;
     process.env.APP_URL = 'https://example.test';
     try {
-      const url = resolveNudgeCtaUrl();
-      assert.equal(url, 'https://example.test/dashboard');
+      assert.equal(resolveNudgeCtaUrl(null), 'https://example.test/onboarding');
+      assert.equal(resolveNudgeCtaUrl(new Date()), 'https://example.test/dashboard');
     } finally {
       if (prev === undefined) delete process.env.APP_URL;
       else process.env.APP_URL = prev;
     }
+  });
+
+  it('nudge email uses separate copy for no_schema vs with_schema', () => {
+    const email = fs.readFileSync(path.join(ROOT, 'src/lib/email.js'), 'utf8');
+    assert.match(email, /activationNudgeCopyKeys/);
+    assert.match(email, /resolveActivationNudgeVariant/);
+    const sv = fs.readFileSync(path.join(ROOT, 'src/locales/sv-SE.json'), 'utf8');
+    assert.match(sv, /"noSchema"/);
+    assert.match(sv, /"withSchema"/);
+    assert.match(sv, /Ni har redan ett schema/);
+    assert.match(sv, /sätta upp ert schema/);
   });
 
   it('enable migration turns activation_nudge_v1 ON', () => {
@@ -112,13 +123,6 @@ describe('activation nudge scheduler (PR 5)', () => {
     );
     assert.match(mig, /activation_nudge_v1/);
     assert.match(mig, /enabled = EXCLUDED.enabled|enabled = true/);
-  });
-
-  it('nudge email uses localized activation copy', () => {
-    const email = fs.readFileSync(path.join(ROOT, 'src/lib/email.js'), 'utf8');
-    assert.match(email, /email\.activationNudge\.subject/);
-    assert.match(email, /email\.activationNudge\.body1/);
-    assert.match(email, /locale = 'sv-SE'/);
   });
 });
 

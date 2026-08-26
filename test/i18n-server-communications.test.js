@@ -46,7 +46,8 @@ describe('i18n server communications', () => {
       'email.winBack.subject',
       'email.rewardRedemption.subject',
       'email.weeklySummary.subject',
-      'email.activationNudge.subject',
+      'email.activationNudge.withSchema.subject',
+      'email.activationNudge.noSchema.subject',
       'email.newsletterConfirm.subject',
     ];
     const params = {

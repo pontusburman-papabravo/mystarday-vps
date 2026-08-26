@@ -849,11 +849,20 @@
       "footer": "If you do not want the guide the app works as usual — everything you set up is still there."
     },
     "activationNudge": {
-      "subject": "Your routine is waiting — try it together tonight ⭐",
-      "greeting": "Hi {{name}}!",
-      "body1": "You already have a schedule. What's left is to <strong>try the routine together</strong> — let your child sign in and collect the first star.",
-      "body2": "It takes about two minutes. No pressure.",
-      "button": "Open Home →"
+      "withSchema": {
+        "subject": "Your routine is waiting — try it together tonight ⭐",
+        "greeting": "Hi {{name}}!",
+        "body1": "You already have a schedule. What's left is to <strong>try the routine together</strong> — let your child sign in and collect the first star.",
+        "body2": "It takes about two minutes. No pressure.",
+        "button": "Open Home →"
+      },
+      "noSchema": {
+        "subject": "Get started with your routine — just a few minutes ⭐",
+        "greeting": "Hi {{name}}!",
+        "body1": "You've signed up — great start! The next step is to <strong>set up your schedule</strong> so your child knows what to expect each day.",
+        "body2": "It takes about five minutes. Everything you've already done is still there if you want to continue later.",
+        "button": "Continue onboarding →"
+      }
     },
     "newsletterConfirm": {
       "subject": "You are subscribed to newsletters from {{brand}}",

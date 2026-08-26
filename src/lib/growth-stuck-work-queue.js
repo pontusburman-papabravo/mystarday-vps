@@ -129,6 +129,10 @@ function mapGrowthStuckFamily(row, now = new Date()) {
     recommendedSystemHelp: RECOMMENDED_SYSTEM_HELP[row.blocking_step] || 'Systemhjälp: manuell genomgång i appen.',
     manualNextStep: RECOMMENDED_SYSTEM_HELP[row.blocking_step] || 'Systemhjälp: manuell genomgång i appen.',
     autoSendAllowed: false,
+    commsHistory: {
+      activationNudgeSentAt: row.activation_nudge_sent_at || null,
+      lastStuckIntervention: null,
+    },
   };
 }
 
