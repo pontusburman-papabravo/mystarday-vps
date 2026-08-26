@@ -10,6 +10,8 @@ const { escapeFirstName, escapeHtml } = require('./email-html');
 
 const BODY_VERSION = 'v1';
 
+const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v2';
+
 const INTERVENTION_KEYS = Object.freeze({
   onboarding_incomplete: 'onboarding_incomplete',
   schema_without_child_access: 'schema_without_child_access',
@@ -59,6 +61,27 @@ function wrapFounderHtml(bodyHtml) {
     </div>`;
 }
 
+function founderPrimaryCta(ctaUrl, ctaLabel) {
+  const safeUrl = escapeHtml(ctaUrl);
+  return `
+    <div style="text-align:center;margin:28px 0;">
+      <a href="${safeUrl}"
+         style="display:inline-block;background:#F5A623;color:white;padding:14px 36px;
+                border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;">
+        ${escapeHtml(ctaLabel)}
+      </a>
+    </div>`;
+}
+
+function webFallbackParagraph(path, linkText) {
+  const base = appBaseUrl();
+  const url = base ? `${base}${path}` : path;
+  return `<p style="font-size:13px;color:#5A6178;margin-top:8px;">
+    Ingen app installerad?
+    <a href="${escapeHtml(url)}" style="color:#5A6178;text-decoration:underline;">${escapeHtml(linkText)}</a>.
+  </p>`;
+}
+
 function wrapProductHtml(bodyHtml, ctaUrl, ctaLabel) {
   const safeUrl = escapeHtml(ctaUrl);
   return `
@@ -97,33 +120,30 @@ const TEMPLATES = Object.freeze({
     },
   },
   [INTERVENTION_KEYS.schema_without_child_access]: {
-    bodyVersion: BODY_VERSION,
+    bodyVersion: SCHEMA_CHILD_ACCESS_BODY_VERSION,
     fromFounder: true,
     build({ parentName }) {
       const name = greetingName(parentName);
-      const loginUrl = escapeHtml(childLoginUrl());
-      const dashUrl = escapeHtml(dashboardUrl());
       const product = escapeHtml(productName());
+      const openAppLabel = `Öppna ${productName()}`;
+      const childLogin = childLoginUrl();
       const subject = 'Nästa steg tar bara någon minut — så kommer barnet igång';
       const html = wrapFounderHtml(`
         <p>Hej ${name},</p>
         <p>Jag heter Pontus och är den som byggt ${product}.</p>
         <p>Jag såg att ni redan satt upp ett schema — bra jobbat! Det som ofta återstår är att <strong>låta barnet testa appen</strong> och logga in med sitt PIN.</p>
-        <p>Det tar oftast bara ett par minuter tillsammans. Barnet ser sitt schema och kan samla den första stjärnan när en aktivitet är klar.</p>
-        <p style="margin:24px 0;">
-          <a href="${loginUrl}" style="color:#F5A623;font-weight:700;text-decoration:none;">👉 Barnets inloggning: ${loginUrl}</a>
-        </p>
-        <p>Behöver ni hitta PIN eller QR-koden igen? Den finns under Hem i föräldravyn:</p>
-        <p style="margin:12px 0;">
-          <a href="${dashUrl}" style="color:#1B2340;font-weight:600;text-decoration:none;">${dashUrl}</a>
-        </p>
+        <p>Öppna ${product} på barnets enhet och välj <strong>Barnets inloggning</strong>. Det tar oftast bara ett par minuter tillsammans — barnet ser sitt schema och kan samla den första stjärnan när en aktivitet är klar.</p>
+        ${founderPrimaryCta(childLogin, openAppLabel)}
+        ${webFallbackParagraph('/child-login', 'Öppna barnets inloggning i webbläsaren')}
+        <p>Behöver ni hitta PIN-koden eller QR-koden igen? Öppna ${product} på din telefon och gå till <strong>Hem</strong> i föräldravyn.</p>
         <p>Om något strular — till exempel PIN eller inloggning — svara gärna på det här mejlet så hjälper jag.</p>
       `);
       return {
         subject,
         html,
         from: founderFromHeader(),
-        ctaUrl: childLoginUrl(),
+        ctaUrl: childLogin,
+        ctaLabel: openAppLabel,
       };
     },
   },
