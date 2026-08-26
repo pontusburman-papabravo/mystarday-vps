@@ -88,6 +88,14 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
   '1810410000000_payments_v1_gift_cards': {
     backwardCompatible: true,
   },
+  '1810420000000_family_growth_intervention': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
+  '1810420000001_family_growth_intervention_delivery': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

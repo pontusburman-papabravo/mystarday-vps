@@ -490,6 +490,21 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(contract.allowedBusinessTableFingerprintChanges, undefined);
   });
 
+  test('family_growth_intervention migrations have schema-only deploy contracts', async () => {
+    const { loadMigrationSnapshotContract } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    for (const name of [
+      '1810420000000_family_growth_intervention',
+      '1810420000001_family_growth_intervention_delivery',
+    ]) {
+      const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+      assert.ok(contract, name);
+      assert.equal(contract.backwardCompatible, true);
+      assert.equal(contract.schemaOnly, true);
+    }
+  });
+
   test('payments_v1_entitlements allows declared family fingerprint change', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const name = '1810400000000_payments_v1_entitlements';
