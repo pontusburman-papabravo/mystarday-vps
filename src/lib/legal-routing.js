@@ -37,13 +37,14 @@ function resolveLegalRoutes(input = {}) {
     };
   }
 
-  // English UI — EEA baseline (IE overlay uses same route family until IE-COUNTRY-OVERLAY copy ships)
+  // English UI — EEA baseline (IE + FI overlays use same route family until country-specific copy ships)
+  const LIVE_EEA_COUNTRY_CODES = new Set(['IE', 'FI']);
   return {
     privacy: '/en/eea/privacy',
     terms: '/en/eea/terms',
     childPrivacy: '/en/eea/child-privacy',
     tracking: '/en/tracking-choices',
-    status: countryCode === 'IE' ? 'live' : 'draft',
+    status: LIVE_EEA_COUNTRY_CODES.has(countryCode) ? 'live' : 'draft',
   };
 }
 
