@@ -2,7 +2,13 @@
 
 const { APP_APPLICATION_ID } = require('./iap-product-contract');
 
-const APPLE_APP_STORE_ID = process.env.APPLE_APP_STORE_ID || '6738260000';
+/**
+ * Live App Store short link (also used by public/js/landing-login-choice.js).
+ * Only override with APPLE_APP_STORE_ID when a verified numeric App Store id
+ * is available — an unverified numeric id can 404 ("App ej tillgänglig").
+ */
+const APPLE_APP_STORE_SHORT_URL = 'https://apple.co/4v2ESuH';
+const APPLE_APP_STORE_ID = process.env.APPLE_APP_STORE_ID || '';
 
 function androidPackageName() {
   if (process.env.ANDROID_PACKAGE_NAME) return process.env.ANDROID_PACKAGE_NAME;
@@ -14,7 +20,8 @@ function getPlayStoreUrl() {
 }
 
 function getAppleAppStoreUrl() {
-  return `https://apps.apple.com/app/id${APPLE_APP_STORE_ID}`;
+  if (APPLE_APP_STORE_ID) return `https://apps.apple.com/app/id${APPLE_APP_STORE_ID}`;
+  return APPLE_APP_STORE_SHORT_URL;
 }
 
 module.exports = {
@@ -22,4 +29,5 @@ module.exports = {
   getAppleAppStoreUrl,
   androidPackageName,
   APPLE_APP_STORE_ID,
+  APPLE_APP_STORE_SHORT_URL,
 };
