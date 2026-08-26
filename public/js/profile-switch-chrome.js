@@ -146,13 +146,15 @@
     }
   }
 
+  function isAdultPrivilegeActive() {
+    return !!(window.AdultPrivilege
+      && typeof AdultPrivilege.isPrivilegeActive === 'function'
+      && AdultPrivilege.isPrivilegeActive());
+  }
+
   function ensureReturnToChildBtn() {
     const existing = document.getElementById(RETURN_CHILD_BTN_ID);
-    const show = isDailyUxActive()
-      && isParentShellPath()
-      && window.AdultPrivilege
-      && typeof AdultPrivilege.isPrivilegeActive === 'function'
-      && AdultPrivilege.isPrivilegeActive();
+    const show = isDailyUxActive() && isParentShellPath() && isAdultPrivilegeActive();
     if (!show) {
       if (existing) existing.remove();
       return;
@@ -185,7 +187,11 @@
   function ensureParentBtn() {
     const selector = '[data-profile-switch-parent]';
     const existing = document.querySelector(selector);
-    if (!shouldShow() || !isParentShellPath()) {
+    // While an adult has temporarily escalated privilege from a child session,
+    // "Tillbaka till barn" (ensureReturnToChildBtn) is the one canonical action —
+    // showing the general "Byt profil" picker alongside it creates two controls
+    // with overlapping, ambiguous outcomes (resume this child vs. pick anyone).
+    if (!shouldShow() || !isParentShellPath() || isAdultPrivilegeActive()) {
       if (existing) existing.remove();
       return;
     }

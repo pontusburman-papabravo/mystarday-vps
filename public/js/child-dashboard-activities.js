@@ -418,8 +418,15 @@ function renderActivities(data, trueStarBalance) {
   // Initialize SortableJS on section containers (if reorder is allowed)
   setTimeout(() => initChildSortable(), 50);
 
-  // Celebration (today only — when all activities are completed)
-  if (isToday && completed === total && total > 0) {
+  // Celebration (today only — when all activities are completed).
+  // Skipped in today-focus-mode: ChildTodayFocus.updateFromDailyLog() (called
+  // above) already owns the ALL_DONE state and shows its own one-time
+  // celebration overlay — rendering this legacy card + confetti as well
+  // produced a duplicate "all done" box/frame on top of it (070-frontend:
+  // no duplicated DOM logic across dashboard/schedule). Kept as a fallback
+  // for the rare case ChildTodayFocus failed to load (today-focus-mode
+  // class never got added, so isTodayFocusLayer() is false).
+  if (isToday && completed === total && total > 0 && !isTodayFocusLayer()) {
     const celebEmojis = ['🌟', '🎉', '⭐', '🏆', '🎈', '🌈', '🥳'];
     const mainEmoji = celebEmojis[Math.floor(Math.random() * celebEmojis.length)];
     const messages = Array.from({ length: 7 }, function (_, i) {

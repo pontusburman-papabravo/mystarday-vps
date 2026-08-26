@@ -165,11 +165,14 @@ body.child-magic-view.child-home-active {
   background: #1a1035;
 }
 
-/* Klassisk vy: visa legacy-flikar */
-body:not(.child-magic-view) #childLayerNav {
+/* Klassisk vy (V1, ej barnmeny v2): visa legacy-flikar.
+   V2 äger navigeringen när child-worlds-v2/child-has-bottom-nav är satt —
+   denna regel ska inte tvinga fram den gamla toppmenyn ovanpå
+   #childBottomNav i så fall (dubbel nav). */
+body:not(.child-magic-view):not(.child-worlds-v2):not(.child-has-bottom-nav) #childLayerNav {
   display: block !important;
 }
 
-body:not(.child-magic-view) #childLayerNav[aria-hidden="true"] {
+body:not(.child-magic-view):not(.child-worlds-v2):not(.child-has-bottom-nav) #childLayerNav[aria-hidden="true"] {
   display: block !important;
 }

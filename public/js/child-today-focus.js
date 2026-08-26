@@ -316,6 +316,7 @@
     renameTab: renameTab,
     renderScheduleEmpty: renderScheduleEmpty,
     resolveIdagState: resolveIdagState,
+    getLastState: function () { return _lastState; },
     IDAG_STATES: IDAG_STATES,
     // Legacy aliases — goal bar now lives in Skattkammaren
     updateGoal: function () {},
