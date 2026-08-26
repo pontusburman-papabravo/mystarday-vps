@@ -131,6 +131,7 @@ function mapGrowthStuckFamily(row, now = new Date()) {
     autoSendAllowed: false,
     commsHistory: {
       activationNudgeSentAt: row.activation_nudge_sent_at || null,
+      childHandoffReminderSentAt: row.child_handoff_reminder_sent_at || null,
       lastStuckIntervention: null,
     },
   };

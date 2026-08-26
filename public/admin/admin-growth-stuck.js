@@ -66,13 +66,16 @@
   function commsLabel(family) {
     const hist = family.commsHistory || {};
     const parts = [];
+    if (hist.childHandoffReminderSentAt) {
+      parts.push('Handoff-mejl ' + formatShortDate(hist.childHandoffReminderSentAt));
+    }
     if (hist.activationNudgeSentAt) {
       parts.push('Nudge ' + formatShortDate(hist.activationNudgeSentAt));
     }
     if (hist.lastStuckIntervention && hist.lastStuckIntervention.sentAt) {
       parts.push('Stuck-mejl ' + formatShortDate(hist.lastStuckIntervention.sentAt));
     }
-    if (!parts.length) return 'Ingen stuck-intervention';
+    if (!parts.length) return 'Ingen tidigare growth-mejl';
     return parts.join(' · ');
   }
 
@@ -151,6 +154,12 @@
       if (data.cohort) meta.push(COHORT_LABELS[data.cohort] || data.cohort);
       if (data.interventionKey) {
         meta.push(INTERVENTION_LABELS[data.interventionKey] || data.interventionKey);
+      }
+      if (data.emailPreview && data.emailPreview.bodyVersion) {
+        meta.push('body ' + data.emailPreview.bodyVersion);
+      }
+      if (data.commsHistory && data.commsHistory.childHandoffReminderSentAt) {
+        meta.push('Handoff-mejl ' + formatShortDate(data.commsHistory.childHandoffReminderSentAt));
       }
       document.getElementById('growthStuckPreviewMeta').textContent = meta.join(' · ') || '—';
 

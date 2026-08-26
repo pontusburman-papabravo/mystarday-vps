@@ -39,6 +39,8 @@ function buildAppleAppSiteAssociation() {
           '/reset-password*',
           '/register*',
           '/invite/*',
+          '/open/child',
+          '/open/child*',
           '/child-login*',
           '/child-dashboard*',
           '/child/today*',

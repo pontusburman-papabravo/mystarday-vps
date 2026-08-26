@@ -7,10 +7,15 @@
 
 const config = require('./config');
 const { escapeFirstName, escapeHtml } = require('./email-html');
+const { openChildEntryUrl, OPEN_CHILD_ENTRY_PATH } = require('./open-child-entry');
 
 const BODY_VERSION = 'v1';
 
-const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v3';
+const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v4';
+
+/** Future semantic intents (not used in this PR):
+ *  onboarding_incomplete → parent onboarding resume (/onboarding or /open/onboarding)
+ *  started_but_stalled → parent home resume (/home or /dashboard) */
 
 const INTERVENTION_KEYS = Object.freeze({
   onboarding_incomplete: 'onboarding_incomplete',
@@ -34,6 +39,10 @@ function onboardingUrl() {
 function childLoginUrl() {
   const base = appBaseUrl();
   return base ? `${base}/child-login` : '/child-login';
+}
+
+function semanticChildEntryUrl() {
+  return openChildEntryUrl();
 }
 
 function dashboardUrl() {
@@ -126,7 +135,7 @@ const TEMPLATES = Object.freeze({
       const name = greetingName(parentName);
       const product = escapeHtml(productName());
       const openAppLabel = `Öppna ${productName()}`;
-      const childLogin = childLoginUrl();
+      const childEntry = semanticChildEntryUrl();
       const subject = 'Nästa steg tar bara någon minut — så kommer barnet igång';
       const html = wrapFounderHtml(`
         <p>Hej ${name},</p>
@@ -134,8 +143,8 @@ const TEMPLATES = Object.freeze({
         <p>Jag såg att ni redan satt upp ett schema — bra jobbat! Det som ofta återstår är att <strong>låta barnet testa appen</strong> och se sitt schema.</p>
         <p>Öppna ${product} på barnets enhet. Om enheten redan är kopplad till familjen öppnas barnets vy direkt. Annars hjälper appen er att koppla enheten första gången.</p>
         <p>Det tar oftast bara ett par minuter tillsammans — barnet kan samla den första stjärnan när en aktivitet är klar.</p>
-        ${founderPrimaryCta(childLogin, openAppLabel)}
-        ${webFallbackParagraph('/child-login', 'Öppna i webbläsaren')}
+        ${founderPrimaryCta(childEntry, openAppLabel)}
+        ${webFallbackParagraph(OPEN_CHILD_ENTRY_PATH, 'Fortsätt i webbläsaren')}
         <p style="font-size:13px;color:#5A6178;">Om appen ber er koppla barnets enhet första gången, följ instruktionerna i appen.</p>
         <p>Om något strular svara gärna på det här mejlet så hjälper jag.</p>
       `);
@@ -143,7 +152,7 @@ const TEMPLATES = Object.freeze({
         subject,
         html,
         from: founderFromHeader(),
-        ctaUrl: childLogin,
+        ctaUrl: childEntry,
         ctaLabel: openAppLabel,
       };
     },
