@@ -219,6 +219,70 @@ describe('admin-market-gates.js — toggle ON / OFF via existing feature-flag en
   });
 });
 
+describe('admin-market-gates.js — checkboxes stay usable after a toggle (regression)', () => {
+  test('after a successful toggle + server reload, no checkbox is left disabled', async () => {
+    const mod = loadModule();
+    const checkbox = fakeCheckbox({
+      gateKey: 'market_ie_open',
+      countryCode: 'IE',
+      countryLabel: 'Irland',
+      currentEnabled: false,
+      nextChecked: true,
+    });
+
+    await mod.handleMarketGateToggle(checkbox);
+
+    const renderedHtml = mod.elements.marketGatesTableBody.innerHTML;
+    assert.doesNotMatch(
+      renderedHtml,
+      /disabled/,
+      'every toggle must be re-enabled once the post-save reload has rendered'
+    );
+
+    // And a second, unrelated toggle must actually be clickable — not silently ignored
+    // by a guard that never got cleared.
+    const secondCheckbox = fakeCheckbox({
+      gateKey: 'market_fi_open',
+      countryCode: 'FI',
+      countryLabel: 'Finland',
+      currentEnabled: false,
+      nextChecked: true,
+    });
+    await mod.handleMarketGateToggle(secondCheckbox);
+    const putCalls = mod.calls.api.filter((c) => c.method === 'PUT');
+    assert.equal(putCalls.length, 2, 'the second, independent toggle must not be blocked by a stuck in-flight guard');
+    assert.equal(putCalls[1].url, '/api/admin/feature-flags/market_fi_open');
+  });
+
+  test('after an API error + server reload, no checkbox is left disabled', async () => {
+    const apiImpl = async (url, options = {}) => {
+      if ((options.method || 'GET').toUpperCase() === 'PUT') {
+        throw Object.assign(new Error('Kunde inte uppdatera funktionsflagga'), { status: 500 });
+      }
+      if (url === '/api/admin/market-registration-status') return { markets: MARKETS_FIXTURE };
+      if (url === '/api/admin/locale-analytics') return { families_by_country: [] };
+      throw new Error(`unexpected ${url}`);
+    };
+    const mod = loadModule({ apiImpl });
+    const checkbox = fakeCheckbox({
+      gateKey: 'market_ie_open',
+      countryCode: 'IE',
+      countryLabel: 'Irland',
+      currentEnabled: false,
+      nextChecked: true,
+    });
+
+    await mod.handleMarketGateToggle(checkbox);
+
+    const renderedHtml = mod.elements.marketGatesTableBody.innerHTML;
+    assert.doesNotMatch(
+      renderedHtml,
+      /disabled/,
+      'every toggle must be re-enabled once the post-failure reload has rendered'
+    );
+  });
+});
+
 describe('admin-market-gates.js — API error handling (no half-saved state)', () => {
   test('PUT failure shows a clear error message and reloads actual server status instead of trusting the click', async () => {
     const apiImpl = async (url, options = {}) => {

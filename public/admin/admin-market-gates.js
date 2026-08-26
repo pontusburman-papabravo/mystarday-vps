@@ -133,17 +133,19 @@ async function handleMarketGateToggle(checkboxEl) {
       method: 'PUT',
       body: JSON.stringify({ enabled: nextEnabled }),
     });
+    // Clear the in-flight guard BEFORE the reload renders — otherwise every row would
+    // re-render with disabled="" baked in and stay disabled until a manual page refresh.
+    marketGatesToggleInFlight = false;
     // Never trust the optimistic client state — always reload the full table from the
     // server so the UI shows exactly what the database now says for every row.
     await loadMarketRegistrationStatus();
   } catch (err) {
     console.error('[Admin:market-gates] Toggle failed:', err);
+    marketGatesToggleInFlight = false;
     alert(`Kunde inte uppdatera ${countryLabel} (${gateKey}): ${err.message || 'okänt fel'}\n\nÅterställer till aktuell serverstatus.`);
     // Reload from server rather than a local revert — guarantees no half-saved state,
     // even if the PUT partially succeeded server-side before the error surfaced.
     await loadMarketRegistrationStatus();
-  } finally {
-    marketGatesToggleInFlight = false;
   }
 }
 
