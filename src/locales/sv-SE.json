@@ -1091,6 +1091,8 @@
     "termsLink": "Villkor",
     "privacyLink": "Integritet",
     "legal": "Provperioden kan avslutas före debitering enligt App Store eller Google Plays regler. Uppsägning sker i respektive butiks prenumerationsinställningar.",
+    "legalAppleOnly": "Provperioden kan avslutas före debitering. Uppsägning och hantering sker i App Stores prenumerationsinställningar.",
+    "legalGoogleOnly": "Provperioden kan avslutas före debitering. Uppsägning och hantering sker i Google Plays prenumerationsinställningar.",
     "giftCard": "Jag har ett presentkort",
     "giftCodeLabel": "Presentkod",
     "giftRedeem": "Lös in presentkort",
