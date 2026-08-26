@@ -283,18 +283,35 @@ describe('canonical library copy engine — DB integration', () => {
       assert.equal(homeSnapshot.source_canonical_id, 'after_school');
       assert.notEqual(clubSnapshot.template_id, homeSnapshot.template_id);
 
-      // M: unresolved after_school variant fails before write
+      // M: unresolved after_school variant fails before write, and surfaces
+      // the pickable options so callers (e.g. the copy-to-child UI) can ask
+      // the user instead of dead-ending on an unexplained error.
       const { familyId: family5, childId: child5 } = await createTestFamilyWithChild(db);
+      let variantRequiredError = null;
       await assert.rejects(
-        () => copyCanonicalScheduleToFamily(client, {
-          familyId: family5,
-          childId: child5,
-          canonicalScheduleId: 'school_weekday',
-          days: [1],
-          locale: 'sv-SE',
-        }),
+        async () => {
+          try {
+            await copyCanonicalScheduleToFamily(client, {
+              familyId: family5,
+              childId: child5,
+              canonicalScheduleId: 'school_weekday',
+              days: [1],
+              locale: 'sv-SE',
+            });
+          } catch (err) {
+            variantRequiredError = err;
+            throw err;
+          }
+        },
         (err) => err instanceof CanonicalCopyError && err.code === CANONICAL_VARIANT_REQUIRED
       );
+      assert.equal(variantRequiredError.details.activity_id, 'after_school');
+      assert.deepEqual(
+        variantRequiredError.details.variant_options.map((v) => v.variant_key).sort(),
+        ['after_school_club', 'after_school_home']
+      );
+      const clubOption = variantRequiredError.details.variant_options.find((v) => v.variant_key === 'after_school_club');
+      assert.equal(clubOption.name_i18n.sv, 'Fritids');
       const noSchedule = await db.query(
         `SELECT COUNT(*)::int AS count FROM weekly_schedule WHERE child_id = $1`,
         [child5]
