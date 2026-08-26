@@ -63,13 +63,14 @@ describe('growth feedback loop contracts', () => {
     assert.match(route, /autoSendAllowed: false/);
   });
 
-  it('admin stuck UI is diagnostics with recommended system help', () => {
+  it('admin stuck UI is manual work queue with preview/send (no automation)', () => {
     const ui = read('public/admin/admin-growth-stuck.js');
-    assert.match(ui, /Diagnostik/);
-    assert.match(ui, /recommendedSystemHelp|manualNextStep/);
+    assert.match(ui, /Manuellt utskick|Förhandsgranska/);
+    assert.match(ui, /commsLabel|commsHistory/);
     assert.match(ui, /openFamilyHub/);
+    assert.match(ui, /intervention\/preview/);
+    assert.doesNotMatch(ui, /setInterval|scheduler/i);
     assert.doesNotMatch(ui, /flagga av/);
-    assert.doesNotMatch(ui, /sendEmail|broadcast/i);
   });
 
   it('analytics allowlist includes growth loop events', () => {
@@ -79,6 +80,9 @@ describe('growth feedback loop contracts', () => {
       'referral_copied',
       'referral_landing',
       'growth_feedback_shown',
+      'stuck_intervention_previewed',
+      'stuck_intervention_sent',
+      'stuck_intervention_skipped',
       'growth_feedback_dismissed',
       'growth_feedback_submitted',
       'system_help_shown',
