@@ -71,12 +71,18 @@ describe('child art assets — manifest + files', () => {
     assert.doesNotMatch(pipeline, /\/assets\/worlds\/garden\//);
   });
 
-  it('today focus wires decal assets', () => {
+  it('today focus wires the empty-day decal only — celebration is emoji + text, no illustrated frame', () => {
     const focus = fs.readFileSync(path.join(ROOT, 'public/js/child-today-focus.js'), 'utf8');
     const css = fs.readFileSync(path.join(ROOT, 'public/css/child-today-focus.css'), 'utf8');
     assert.match(focus, /today-empty-v1@2x\.webp/);
-    assert.match(focus, /today-celebration-frame-v1@2x\.webp/);
+    // The celebration overlay must not reference the (removed) unrelated
+    // decorative frame decal — it renders a single emoji + fixed copy instead.
+    assert.doesNotMatch(focus, /today-celebration-frame/);
+    assert.doesNotMatch(focus, /<img[^>]*ctfCelebrationOverlay/);
+    assert.match(focus, /ctf-celebration-emoji/);
+    assert.match(focus, /ctf-celebration-headline/);
     assert.match(css, /\.ctf-empty-illus/);
     assert.match(css, /\.ctf-celebration-frame/);
+    assert.doesNotMatch(css, /\.ctf-celebration-frame img/);
   });
 });

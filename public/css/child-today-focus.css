@@ -170,28 +170,54 @@
 }
 
 .ctf-celebration-frame {
-  max-width: min(18rem, 82vw);
+  max-width: min(20rem, 82vw);
   pointer-events: none;
+  text-align: center;
+  padding: 0 20px;
 }
 
-.ctf-celebration-frame img {
+.ctf-celebration-emoji {
   display: block;
-  width: 100%;
-  height: auto;
+  font-size: 5rem;
+  line-height: 1;
+  margin-bottom: 12px;
+  animation: ctfCelebrationPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ctf-celebration-headline {
+  margin: 0 0 4px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ctf-celebration-message {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ctf-celebration--reduced .ctf-celebration-emoji {
+  animation: none;
 }
 
 .ctf-celebration-skip {
+  /* Secondary/discreet — the star + headline are the primary message,
+     this is just an early-exit affordance, not competing for attention. */
   position: absolute;
   top: max(12px, env(safe-area-inset-top));
   right: max(12px, env(safe-area-inset-right));
   min-height: 44px;
   padding: 0 14px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1B2340;
-  font-size: 0.8rem;
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -205,8 +231,16 @@
   to { opacity: 0; }
 }
 
+@keyframes ctfCelebrationPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ctf-celebration-overlay {
+    animation: none;
+  }
+  .ctf-celebration-emoji {
     animation: none;
   }
 }

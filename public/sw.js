@@ -798,7 +798,6 @@ const STATIC_ASSETS = [
   '/images/child/world/rooms/museum@2x.webp',
   '/images/child/world/rooms/shop@2x.webp',
   '/images/child/decals/today-empty-v1@2x.webp',
-  '/images/child/decals/today-celebration-frame-v1@2x.webp',
   '/images/child/world/garden/scene-bg.webp',
   '/images/child/world/garden/scene-bg-430.webp',
   '/images/child/world/garden/scene-bg-860.webp',
