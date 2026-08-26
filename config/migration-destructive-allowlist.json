@@ -16,6 +16,7 @@
     "1810230000000_refresh_token_orphan_trusted_cleanup.js": "DELETE refresh_token rows for child sessions tied to revoked/missing trusted_device_id only — fail-safe R4 lineage cleanup; no parent tokens; no child rows with NULL trusted_device_id.",
     "1810300000000_family_system_help_state.js": "ON DELETE CASCADE on family_id FK only — system help state rows must disappear with GDPR family deletion. down() drops table + flag row only. No DROP/TRUNCATE in up().",
     "1810400000000_payments_v1_entitlements.js": "ON DELETE CASCADE on family_id FK for family_entitlements; payment_audit_log uses ON DELETE SET NULL for family/admin refs. Grandfather backfill INSERT only. down() drops new tables + config keys — reviewed PAYMENTS V1 Phase A.",
-    "1810410000000_payments_v1_gift_cards.js": "ON DELETE CASCADE on gift_orders→gift_cards; SET NULL on family redemption refs. Schema-only gift tables + indexes in up(). down() drops gift tables — reviewed PAYMENTS V1 Phase D."
+    "1810410000000_payments_v1_gift_cards.js": "ON DELETE CASCADE on gift_orders→gift_cards; SET NULL on family redemption refs. Schema-only gift tables + indexes in up(). down() drops gift tables — reviewed PAYMENTS V1 Phase D.",
+    "1810420000000_family_growth_intervention.js": "ON DELETE CASCADE on family_id FK only — intervention log rows must disappear with GDPR family deletion. down() drops table only. No DROP/TRUNCATE in up()."
   }
 }

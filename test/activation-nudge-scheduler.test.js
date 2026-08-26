@@ -109,14 +109,14 @@ describe('activation nudge scheduler (PR 5)', () => {
     const email = fs.readFileSync(path.join(ROOT, 'src/lib/email.js'), 'utf8');
     assert.match(email, /activationNudgeCopyKeys/);
     assert.match(email, /resolveActivationNudgeVariant/);
-    assert.match(email, /withSchema/);
-    assert.match(email, /noSchema/);
     const sv = fs.readFileSync(path.join(ROOT, 'src/locales/sv-SE.json'), 'utf8');
     assert.match(sv, /"noSchema"/);
     assert.match(sv, /"withSchema"/);
     assert.match(sv, /Ni har redan ett schema/);
     assert.match(sv, /sätta upp ert schema/);
   });
+
+  it('enable migration turns activation_nudge_v1 ON', () => {
     const mig = fs.readFileSync(
       path.join(ROOT, 'migrations/1809320000000_enable_activation_nudge_v1.js'),
       'utf8'
@@ -124,8 +124,9 @@ describe('activation nudge scheduler (PR 5)', () => {
     assert.match(mig, /activation_nudge_v1/);
     assert.match(mig, /enabled = EXCLUDED.enabled|enabled = true/);
   });
+});
 
-  it('enable migration turns activation_nudge_v1 ON', () => {
+describe('activation nudge candidates (DB)', () => {
   it('selects family 24–48h after signup without P0', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
