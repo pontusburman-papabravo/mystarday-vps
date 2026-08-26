@@ -268,7 +268,8 @@
 // stjarndag-v855: aktivitetstimer v2 — substep session restore + 2.5s bell finish
 // stjarndag-v858: product spotlight + Om oss page + landing nav fix
 // stjarndag-v879: opaque celebration-overlay backdrop (Idag ALL_DONE) — no longer shows the status bar text through it
-const CACHE_NAME = 'stjarndag-v879';
+// stjarndag-v880: Finland web launch prep — market_fi_open gate, staged registration (not yet opened)
+const CACHE_NAME = 'stjarndag-v880';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

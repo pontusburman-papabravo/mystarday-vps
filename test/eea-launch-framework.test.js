@@ -123,6 +123,80 @@ test('market_eu_open OFF + market_ie_open ON still accepts IE (D)', async (t) =>
   }
 });
 
+test('market_fi_open OFF denies FI registration', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  await setMarketFlag(pg, 'market_fi_open', false);
+  await setMarketFlag(pg, 'market_eu_open', false);
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, body } = await registerCountry(http.baseUrl, 'FI');
+    assert.equal(res.status, 403, JSON.stringify(body));
+    assert.equal(body.code, 'MARKET_FI_CLOSED');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('market_fi_open ON accepts FI registration with Europe/Helsinki', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  await setMarketFlag(pg, 'market_fi_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, email } = await registerCountry(http.baseUrl, 'FI');
+    assert.equal(res.status, 201, res.text);
+
+    const fam = await pg.query(
+      `SELECT country_code, timezone FROM family f
+       JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].country_code, 'FI');
+    assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');
+  } finally {
+    await setMarketFlag(pg, 'market_fi_open', false);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('market_eu_open OFF + market_fi_open ON still accepts FI', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  await setMarketFlag(pg, 'market_fi_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, text } = await registerCountry(http.baseUrl, 'FI');
+    assert.equal(res.status, 201, text);
+  } finally {
+    await setMarketFlag(pg, 'market_fi_open', false);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('SE registration keeps Europe/Stockholm timezone (G)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
@@ -303,9 +377,11 @@ test('registration-gates API exposes market_ie_open', async (t) => {
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(typeof body.market_ie_open, 'boolean');
+    assert.equal(typeof body.market_fi_open, 'boolean');
     assert.equal(typeof body.market_no_open, 'boolean');
     assert.equal(typeof body.market_dk_open, 'boolean');
     assert.equal(body.market_ie_open, false, 'market_ie_open must default OFF');
+    assert.equal(body.market_fi_open, false, 'market_fi_open must default OFF');
   } finally {
     await http.close();
     await db.cleanup();

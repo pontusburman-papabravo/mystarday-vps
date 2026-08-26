@@ -446,3 +446,55 @@ test('IE OAuth family is not Swedish-grandfathered before payment_start_at', asy
   await setMarketFlag(db, 'market_ie_open', false);
   await db.cleanup();
 });
+
+test('FI OAuth family is not Swedish-grandfathered before payment_start_at', async () => {
+  const db = await setupTestDb();
+  if (db.skip) return;
+
+  await setMarketFlag(db, 'market_fi_open', true);
+  const appSettings = require('../db/app-settings');
+  await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+
+  for (const mod of [
+    '../src/lib/db',
+    '../db/app-settings',
+    '../src/lib/payment-settings',
+    '../src/lib/family-entitlements',
+    '../src/lib/create-oauth-parent',
+  ]) {
+    delete require.cache[require.resolve(mod)];
+  }
+
+  const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
+  const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+
+  const email = `fi-oauth-${Date.now()}@example.com`;
+  const parent = await createParentFromOAuth({
+    displayName: 'FI OAuth Parent',
+    email,
+    googleUserId: `google-fi-${Date.now()}`,
+    familyLocale: 'en-GB',
+    countryCode: 'FI',
+    marketRegion: 'EU',
+    timezone: 'Europe/Helsinki',
+    localeSelectionSource: 'registration',
+    englishBetaOfferState: 'registration_decided',
+    countrySelectionSource: 'registration',
+  });
+
+  const { premium, requires_paywall } = await resolveFamilyEntitlements(parent.family_id);
+  assert.equal(premium.active, false);
+  assert.equal(premium.is_grandfathered, false);
+  assert.equal(requires_paywall, true);
+
+  const fam = await db.query(
+    'SELECT country_code, preferred_locale, timezone FROM family WHERE id = $1',
+    [parent.family_id]
+  );
+  assert.equal(fam.rows[0].country_code, 'FI');
+  assert.equal(fam.rows[0].preferred_locale, 'en-GB');
+  assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');
+
+  await setMarketFlag(db, 'market_fi_open', false);
+  await db.cleanup();
+});

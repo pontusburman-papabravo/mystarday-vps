@@ -128,6 +128,15 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
+  await t.test('1d FI family before Swedish cutoff → not grandfathered', async () => {
+    const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'FI');
+    const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'FI' });
+    assert.equal(row, null);
+    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
+    assert.equal(premium.active, false);
+    assert.equal(requires_paywall, true);
+  });
+
   await t.test('2 family after cutoff → no access before valid entitlement', async () => {
     const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00', 'SE');
     await syncAllLegacyMirrors(family.id, emptyPremium());
