@@ -100,10 +100,12 @@ function resolveActivitySnapshot(defaultActivity, { locale, variants }) {
   const chosenVariantKey = variants?.[canonicalId] ?? itemVariantKey(defaultActivity);
 
   if (variantList.length > 0) {
+    const variantOptions = variantList.map((v) => ({ variant_key: v.variant_key, name_i18n: v.name_i18n || null }));
     if (!chosenVariantKey) {
       throw new CanonicalCopyError(CANONICAL_VARIANT_REQUIRED, {
         activity_id: canonicalId,
         allowed_variants: variantList.map((v) => v.variant_key),
+        variant_options: variantOptions,
       });
     }
     const variant = variantList.find((v) => v.variant_key === chosenVariantKey);
@@ -112,6 +114,7 @@ function resolveActivitySnapshot(defaultActivity, { locale, variants }) {
         activity_id: canonicalId,
         variant_key: chosenVariantKey,
         allowed_variants: variantList.map((v) => v.variant_key),
+        variant_options: variantOptions,
       });
     }
     return {

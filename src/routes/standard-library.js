@@ -459,6 +459,7 @@ router.get('/schedules', async (req, res) => {
 // ─── POST /api/standard-library/schedules/:id/copy ───────
 // Copies a standard schedule to a child's weekly schedule for selected days.
 router.post('/schedules/:id/copy', async (req, res) => {
+  let locale = 'sv-SE';
   try {
     const { child_id, days, overwrite, optional_selections, variants } = req.body;
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
@@ -470,7 +471,7 @@ router.post('/schedules/:id/copy', async (req, res) => {
     );
     if (childAccess.rows.length === 0) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
     const familyId = childAccess.rows[0].family_id;
-    const locale = await getFamilyLocale(familyId);
+    locale = await getFamilyLocale(familyId);
 
     const client = await db.getClient();
     try {
@@ -508,7 +509,7 @@ router.post('/schedules/:id/copy', async (req, res) => {
       client.release();
     }
   } catch (err) {
-    const mapped = mapCanonicalCopyErrorToHttp(err);
+    const mapped = mapCanonicalCopyErrorToHttp(err, locale);
     if (mapped) return res.status(mapped.status).json(mapped.body);
     console.error('[STANDARD-LIBRARY] Schedule copy error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

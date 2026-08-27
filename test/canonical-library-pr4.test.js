@@ -15,7 +15,9 @@ const { seedFamilyStarterActivitiesFromCanonicalDb } = require('../src/lib/stand
 const {
   copyStandardScheduleToChild,
   resolveCanonicalScheduleId,
+  mapCanonicalCopyErrorToHttp,
   CanonicalCopyError,
+  CANONICAL_VARIANT_REQUIRED,
   CANONICAL_SOURCE_INVALID,
   CANONICAL_DUPLICATE_IDENTITY,
   LEGACY_SCHEDULE_NAME_TO_CANONICAL,
@@ -493,5 +495,43 @@ describe('canonical library PR4 — consolidated creation flows', () => {
       return;
     }
     await db.cleanup();
+  });
+});
+
+// No DB needed — mapCanonicalCopyErrorToHttp is a pure error-shape mapper.
+// Regression coverage for the "Skola vardag" copy dialog getting stuck on
+// CANONICAL_VARIANT_REQUIRED with no way to pick "Fritids"/"Åka hem": the
+// mapper must turn raw variant_key + name_i18n pairs into a localized
+// {key,label} list the client can render as a picker.
+describe('mapCanonicalCopyErrorToHttp — variant picker localization', () => {
+  const variantRequiredError = () => new CanonicalCopyError(CANONICAL_VARIANT_REQUIRED, {
+    activity_id: 'after_school',
+    allowed_variants: ['after_school_club', 'after_school_home'],
+    variant_options: [
+      { variant_key: 'after_school_club', name_i18n: { sv: 'Fritids', 'en-GB': 'After-school club' } },
+      { variant_key: 'after_school_home', name_i18n: { sv: 'Åka hem', 'en-GB': 'Go home' } },
+    ],
+  });
+
+  it('localizes variant_options to Swedish labels by default', () => {
+    const mapped = mapCanonicalCopyErrorToHttp(variantRequiredError());
+    assert.equal(mapped.status, 400);
+    assert.equal(mapped.body.code, CANONICAL_VARIANT_REQUIRED);
+    assert.deepEqual(mapped.body.details.variant_options, [
+      { key: 'after_school_club', label: 'Fritids' },
+      { key: 'after_school_home', label: 'Åka hem' },
+    ]);
+  });
+
+  it('localizes variant_options to English when the family locale is en-GB', () => {
+    const mapped = mapCanonicalCopyErrorToHttp(variantRequiredError(), 'en-GB');
+    assert.deepEqual(mapped.body.details.variant_options, [
+      { key: 'after_school_club', label: 'After-school club' },
+      { key: 'after_school_home', label: 'Go home' },
+    ]);
+  });
+
+  it('returns null for non-canonical errors (unchanged passthrough behavior)', () => {
+    assert.equal(mapCanonicalCopyErrorToHttp(new Error('boom')), null);
   });
 });
