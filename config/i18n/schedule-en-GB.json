@@ -524,5 +524,84 @@
     "monthTitle": "{{name}} — Month overview",
     "monthHint": "Green dots = days with scheduled activities. Tap a day to see the schedule.",
     "monthEmpty": "No activities in the weekly schedule yet."
+  },
+  "addMenu": {
+    "trigger": "➕ Add",
+    "title": "What do you want to add?",
+    "optionActivity": "Activity",
+    "optionActivityHint": "Add an activity to one or more weekdays",
+    "optionTemplate": "From a template",
+    "optionTemplateHint": "Use one of your templates or a ready-made schedule",
+    "optionCopyDay": "Copy day",
+    "optionCopyDayHint": "Copy one day's content to other days",
+    "cancel": "Cancel",
+    "back": "← Back",
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving…",
+    "done": "Done",
+    "saveFailed": "Couldn't save. Please try again.",
+    "weekdayPickerTitle": "Choose weekday(s)",
+    "weekdaysAll": "All days",
+    "weekdaysWeekday": "Weekdays",
+    "weekdaysWeekend": "Weekend",
+    "selectAtLeastOneDay": "Choose at least one weekday",
+    "activity": {
+      "title": "Add activity",
+      "pickActivity": "1. Choose activity",
+      "pickActivityPlaceholder": "Search activity…",
+      "pickDays": "2. Choose weekday(s)",
+      "pickSection": "3. Choose part of the day",
+      "pickTime": "Time (optional)",
+      "selectActivityFirst": "Choose an activity",
+      "added": "\"{{name}}\" added on {{count}} day(s)"
+    },
+    "template": {
+      "title": "From a template",
+      "tabMine": "My templates",
+      "tabStandard": "Ready-made",
+      "noneMine": "You don't have any templates yet.",
+      "noneStandard": "No ready-made schedules found.",
+      "loading": "Loading templates…",
+      "loadFailed": "Couldn't load templates",
+      "pickTemplate": "1. Choose template",
+      "pickDays": "2. Choose weekday(s)",
+      "pickMode": "3. How should the template be added?",
+      "applied": "\"{{name}}\" applied on {{count}} day(s)"
+    },
+    "copyDay": {
+      "title": "Copy day",
+      "pickSourceDay": "1. Copy from",
+      "pickTargetDays": "2. Copy to",
+      "pickMode": "3. How should the day be copied?",
+      "sourceEqualsTargetWarning": "The source day is also selected as a target — that day is left unchanged.",
+      "copied": "Day copied to {{count}} day(s)"
+    },
+    "mode": {
+      "merge": "Add",
+      "mergeHint": "Keeps what's already there and adds the content.",
+      "replaceSections": "Replace affected parts",
+      "replaceSectionsHint": "Only replaces the parts of the day the template contains.",
+      "replaceSectionsExample": "The evening's existing activities are replaced. Morning and day are not affected.",
+      "replaceDay": "Replace the whole day",
+      "replaceDayHint": "Replaces everything already on the selected days."
+    },
+    "confirmReplaceDay": {
+      "title": "Replace the whole day?",
+      "bodyOne": "This replaces everything already on {{day}}.",
+      "bodyMany": "This replaces everything already on the selected days.",
+      "confirmBtn": "Replace",
+      "cancelBtn": "Cancel"
+    },
+    "saveAsTemplate": {
+      "menuLabel": "💾 Save as template",
+      "title": "Save the day as a template",
+      "nameLabel": "Template name",
+      "namePlaceholder": "E.g. Weekday morning",
+      "nameRequired": "Enter a name for the template",
+      "emptyDay": "The day is empty — nothing to save as a template.",
+      "saved": "Template \"{{name}}\" saved under My templates",
+      "hint": "The template is a copy. Editing it later won't change {{day}}'s schedule."
+    }
   }
 }

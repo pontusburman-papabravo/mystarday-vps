@@ -126,6 +126,8 @@ const STRICT_FILES = [
   'public/js/schedule-custody.js',
   'public/js/schedule-family-grid.js',
   'public/js/dashboard-activity-modal.js',
+  'public/js/schedule-apply-client.js',
+  'public/js/schedule-add-menu.js',
   'public/schedule.html',
   'config/i18n/print-schema-en-GB.json',
   'public/js/print-schema-core.js',

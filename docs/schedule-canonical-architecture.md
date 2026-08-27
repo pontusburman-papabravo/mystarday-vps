@@ -329,7 +329,7 @@ has committed. Nothing is broadcast before commit.
 - **Full once-task/effective-schedule read-model unification** — documented boundary in
   `effective-schedule.js`, not implemented in Phase 1A (§8.3).
 
-## Phase 1B — status: BACKEND COMPLETE, FRONTEND NOT YET BUILT
+## Phase 1B — status: BACKEND + FRONTEND COMPLETE (this pass), Phase 1C retires legacy paths
 
 Phase 1B's product goal is a single "+ Lägg till" primary action on Weekly Schedule exposing
 Aktivitet / Från mall / Kopiera dag, backed entirely by canonical Phase 1A/1B services, with no
@@ -388,17 +388,84 @@ copy-vs-live-link proof) and `test/schedule-apply-routes.test.js` (HTTP integrat
 routes, operation_id replay + conflict, cross-family denial). Full existing Phase 1A suite
 re-run green after the `runIdempotentScheduleCommand` extraction.
 
-### What is explicitly NOT built yet (honest scope boundary)
+### Frontend (this pass) — new files
 
-No frontend UI exists yet for any of this. Specifically **not implemented**: the "+ Lägg till"
-button/menu itself; the Från-mall step flow (Mina mallar / Färdiga mallar tabs, day-shortcut
-chips, mode confirmation copy); the Aktivitet picker UI; the Kopiera dag picker UI; the day
-action menu (Kopiera dagen / Spara som mall / Töm dagen); the activity action menu (Redigera /
-Kopiera till annan dag / Ta bort); the frontend `operation_id`-per-gesture adapter (§1B.9,
-§1B.18); sv-SE/en-GB copy for any of the above; mobile/accessibility verification at ~375px.
-Legacy UI (Fyll vecka, Tilldela schema, assign-schedule, old library copy dialog) is untouched
-and remains the only way parents can reach this functionality today.
+- `public/js/schedule-apply-client.js` — thin client adapter (§1B.18) owning request shaping
+  and the `operation_id` lifecycle (`createOperationTracker()`: same id while a command's
+  fingerprint is unchanged — safe retry; new id the instant any field changes — §1B.9/§12).
+  Backend remains authoritative for merge/replace semantics, transactions, duplicate handling,
+  and family/child integrity; this module never re-implements any of that.
+- `public/js/schedule-add-menu.js` — the "+ Lägg till" entry button, the primary menu
+  (Aktivitet / Från mall / Kopiera dag), all three step flows, the destructive `replace_day`
+  confirmation, and "Spara dagen som mall". Reads `currentChildId`/`currentDay`/`allTemplates`/
+  `loadTemplates`/`loadScheduleForDay` from `schedule.js`'s shared script-level scope — the same
+  pattern already used by `schedule-special-days.js`/`schedule-activity-modals.js`. No schedule
+  mutation SQL or merge/replace logic lives here.
+- `config/i18n/schedule-sv-SE.json` / `schedule-en-GB.json` — new `addMenu` namespace with
+  full sv-SE/en-GB parity (enforced by `test/i18n-schedule-surfaces.test.js`).
+- `scripts/audit-hardcoded-swedish.js` — both new files added to the STRICT tier (0 hits).
 
-This PR delivers the backend foundation only. It is intentionally kept as a draft and is
-**not merged or deployed** — building the UI on top of this foundation is the next increment
-within Phase 1B, not a new phase.
+### Frontend integration points (minimal, additive edits to existing files)
+
+- `public/schedule.html`: added the `+ Lägg till` button next to the existing `Fyll vecka`
+  button (same toolbar row, same visibility mechanism — see below); added the two new
+  `<script>` tags, loaded after `schedule.js`/`schedule-views.js`.
+- `public/js/schedule.js`: added one new button — "💾 Spara som mall" — into the **existing**
+  per-day action row (alongside the legacy Kopiera dag / Kopiera till veckor / Kopiera till
+  barn / Ta bort dag buttons), per §10 ("extend the existing day menu, don't create a second
+  competing one"). No existing button, function, or behaviour was changed or removed.
+- `+ Lägg till` button visibility is NOT reimplemented — a `MutationObserver` mirrors the
+  `hidden` class of the existing `#fillWeekBtn` (already correctly wired to "is a single
+  child's week editor currently open" across calendar-view changes, child switches, etc. in
+  `schedule.js`/`schedule-cal-nav.js`), so no calendar/view-mode logic was touched.
+
+### Apply-mode UX (§6/§7)
+
+Three labelled options, never backend words, in every "Från mall" / "Kopiera dag" step:
+`Lägg till` (merge, default) → `Ersätt berörda delar` (replace_sections) → `Ersätt hela dagen`
+(replace_day, never preselected). Selecting `replace_day` and pressing save always routes
+through an explicit confirmation screen (`confirmReplaceDay()`) with day-specific text, an
+`Ersätt` action button and an `Avbryt` cancel — never a generic "OK", never colour-only.
+Cancelling performs zero mutation (confirmed in `test/schedule-add-menu.test.js` and manual
+verification).
+
+### Multi-child decision (§1B.8/§15)
+
+Every new flow operates on `currentChildId` only — the child already open in the editor.
+`applyScheduleSourceToTargets` (multi-child) is **not** wired into any new UI: it still lacks a
+promised true cross-child atomicity contract (each child is its own DB transaction — see
+"Not exposed as a public route" earlier in this document), so exposing a multi-child "Alla
+barn" option here would risk exactly the partial-success UX the task explicitly forbids. No
+"Alla barn" control exists anywhere in this pass.
+
+### Mobile / accessibility
+
+Every interactive control in the new flow uses one shared `TOUCH_BTN` class
+(`min-h-[44px] min-w-[44px]`) — weekday chips, mode radios, tab buttons, save/cancel, the
+destructive confirmation buttons. No control depends on hover, drag, or long-press. Selection
+state is conveyed via an explicit `✓`/`●` glyph and `aria-pressed`/`aria-checked`, not colour
+alone. `Escape` closes the modal; `role="dialog"` + `aria-modal="true"` are set. Manually
+verified at 375px width and desktop width — see "Manual UI verification" below.
+
+### Known follow-up (not a blocker, minor rough edge found during manual verification)
+
+The "Färdiga mallar" tab calls `GET /api/standard-library/schedules`, which is gated by the
+pre-existing `requireFeature('standardbibliotek')` middleware (unchanged, unrelated to this
+PR). For a family without that feature, the request 403s and the tab falls back to its
+"no schedules found" empty state — functionally safe (no crash, no misleading data) but the
+empty-state copy doesn't currently distinguish "feature not available" from "genuinely no
+matches". Left as a Phase 1C-adjacent polish item since it doesn't affect any family that
+already has standard-library access (the majority case) and does not violate any DoD item.
+
+### Manual UI verification
+
+Performed via the `computerUse` subagent against a local dev server (fresh test family/child,
+no live/deployed data touched), at both desktop width and 375px mobile width. See the PR
+description for the full step list and screenshots. Summary: `+ Lägg till` button discoverable
+next to `Fyll vecka`; all three flows (Aktivitet, Från mall, Kopiera dag) work end to end
+including weekday shortcuts and the mode selector; the `replace_day` destructive confirmation
+appeared correctly before any mutation and `Avbryt` performed no mutation; "Spara dagen som
+mall" saved successfully with a confirmation toast; at 375px every modal remained fully usable
+with no horizontal overflow or clipping. No JavaScript errors were raised by the new code (the
+one console error observed — the expected 403 above — is pre-existing backend gating, not a
+bug introduced here).
