@@ -35,9 +35,10 @@ test('patch-android-widget.mjs patches plugin strings', () => {
   assert.match(src, /widget_api_base_url/);
 });
 
-test('cap:sync:android invokes patch-android-widget', () => {
+test('cap:sync:android no longer invokes patch-android-widget (widget paused for this release)', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-  assert.match(pkg.scripts['cap:sync:android'], /patch-android-widget\.mjs/);
+  assert.doesNotMatch(pkg.scripts['cap:sync:android'], /patch-android-widget\.mjs/);
+  assert.doesNotMatch(pkg.scripts['cap:sync:android'], /verify-widget-bridge-native\.mjs/);
 });
 
 test('WidgetCompleteReceiver uses idempotency and secure POST', () => {

@@ -43,8 +43,33 @@
   gtag('js', new Date());
   gtag('config', GA4_ID, { send_page_view: false }); // we send after consent update
 
+  // ─── Native detection ───────────────────────────────────────────────────────
+  // Meta Pixel is a WEB-only tracking mechanism. Inside the Capacitor native
+  // iOS/Android WebView it must never load or initialize — native Meta App
+  // Events (see meta-app-events.js, itself gated on marketing consent + the
+  // native FacebookEvents plugin) is the only Meta integration point on native,
+  // and that plugin is currently excluded from the release build entirely
+  // (Meta App Events is paused — see capacitor.config.ts).
+  function isNativeApp() {
+    try {
+      if (window.Platform && typeof Platform.isNative === 'function') return !!Platform.isNative();
+      return !!(
+        window.Capacitor &&
+        typeof Capacitor.isNativePlatform === 'function' &&
+        Capacitor.isNativePlatform()
+      );
+    } catch (_) {
+      return false;
+    }
+  }
+
   // ─── Meta Pixel stub (pre-consent) ──────────────────────────────────────────
-  if (!window.fbq) {
+  if (isNativeApp()) {
+    // Never load fbevents.js and never initialize the real Pixel on native.
+    // `fbq` stays a permanently inert no-op so any bare `fbq(...)` call
+    // elsewhere in the app (e.g. applyConsent() below) never throws.
+    if (!window.fbq) window.fbq = function () {};
+  } else if (!window.fbq) {
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;
       n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};

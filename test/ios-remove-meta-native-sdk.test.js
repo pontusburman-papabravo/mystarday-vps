@@ -88,13 +88,13 @@ describe('iOS remove Meta native SDK release gates', () => {
     assert.match(fs.readFileSync(path.join(ROOT, 'scripts/patch-ios-podfile.mjs'), 'utf8'), /CapacitorFacebookEvents/);
   });
 
-  it('capacitor.config.ts keeps capacitor-facebook-events on Android only', () => {
+  it('capacitor.config.ts excludes capacitor-facebook-events on both platforms (Meta paused)', () => {
     const ts = fs.readFileSync(path.join(ROOT, 'capacitor.config.ts'), 'utf8');
     const iosBlock = ts.match(/ios:\s*\{[\s\S]*?includePlugins:\s*\[([\s\S]*?)\]/);
     assert.ok(iosBlock, 'ios includePlugins block');
     assert.doesNotMatch(iosBlock[1], /['"]capacitor-facebook-events['"]/);
     const androidBlock = ts.match(/android:\s*\{[\s\S]*?includePlugins:\s*\[([\s\S]*?)\]/);
     assert.ok(androidBlock, 'android includePlugins block');
-    assert.match(androidBlock[1], /['"]capacitor-facebook-events['"]/);
+    assert.doesNotMatch(androidBlock[1], /['"]capacitor-facebook-events['"]/);
   });
 });

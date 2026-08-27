@@ -110,10 +110,15 @@ if (fs.existsSync(PATHS.capacitorJson)) {
   assertNoForbidden(capJson, 'ios/App/App/capacitor.config.json');
   if (capJson.includes('FacebookEvents')) {
     fail('capacitor.config.json still registers FacebookEvents plugin');
-  } else if (!capJson.includes('capacitor-widget-bridge')) {
-    fail('capacitor.config.json missing capacitor-widget-bridge (widget regression)');
   } else if (!failed) {
     ok('iOS Capacitor config has no Meta native plugin');
+  }
+  // Widget is PAUSED for this release alongside Meta — the WidgetBridge JS plugin
+  // must not be registered in the generated iOS Capacitor config either.
+  if (capJson.includes('capacitor-widget-bridge') || capJson.includes('WidgetBridge')) {
+    fail('capacitor.config.json still registers the WidgetBridge plugin (widget is paused for this release)');
+  } else {
+    ok('iOS Capacitor config has no WidgetBridge plugin (widget paused)');
   }
 } else {
   ok('capacitor.config.json absent until cap sync ios (canonical source: capacitor.config.ts)');
