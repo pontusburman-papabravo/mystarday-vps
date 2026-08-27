@@ -42,28 +42,37 @@ const config: CapacitorConfig = {
     scrollEnabled: true,
     // Google Sign-In is Android-only (platform.js). Excluding it avoids bundling
     // GoogleSignIn/GTMAppAuth/GTMSessionFetcher without Apple-required privacy manifests.
+    //
+    // Meta App Events native SDK is not included on either platform (NO-TRACKING release).
+    // Home-screen widget is PAUSED for this release: `capacitor-widget-bridge` is excluded
+    // from includePlugins so the WidgetBridge Capacitor plugin is not compiled into the App
+    // target. WidgetRoutine's own Xcode extension target is separately excluded from the
+    // archive via scripts/patch-ios-widget-release-hold.mjs. Widget source stays in the repo
+    // (plugins/capacitor-widget-bridge/, ios/App/WidgetRoutine/) for when the feature resumes.
     includePlugins: [
       '@capacitor-community/apple-sign-in',
       '@capacitor/app',
       '@capacitor/camera',
       '@capacitor/push-notifications',
       '@revenuecat/purchases-capacitor',
-      // Meta App Events native SDK is Android-only for iOS 1.4 NO-TRACKING release.
-      'capacitor-widget-bridge',
       'capacitor-adult-biometric',
     ],
   },
   android: {
     // Apple Sign In is iOS-only. Excluding it keeps the Android APK lean and avoids
     // shipping an unused auth plugin in Play review builds.
+    //
+    // Meta App Events (`capacitor-facebook-events`) and the home-screen widget
+    // (`capacitor-widget-bridge`) are PAUSED for this release — excluded here so neither
+    // native SDK/resources/manifest metadata is bundled into the AAB. Source for both stays
+    // in the repo (node_modules/capacitor-facebook-events via npm dependency,
+    // plugins/capacitor-widget-bridge/) for when either feature resumes.
     includePlugins: [
       '@capacitor/app',
       '@capacitor/camera',
       '@capacitor/push-notifications',
       '@codetrix-studio/capacitor-google-auth',
       '@revenuecat/purchases-capacitor',
-      'capacitor-facebook-events',
-      'capacitor-widget-bridge',
       'capacitor-adult-biometric',
     ],
   },
