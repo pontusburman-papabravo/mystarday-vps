@@ -96,6 +96,14 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810430000000_schedule_apply_operation': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
+  '1810430000001_schedule_apply_operation_fingerprint': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

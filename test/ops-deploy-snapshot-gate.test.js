@@ -505,6 +505,28 @@ describe('migration-aware snapshot compare', () => {
     }
   });
 
+  test('schedule_apply_operation migrations have schema-only deploy contracts (Phase 1A post-merge hotfix)', async () => {
+    // Regression for the merge #1093 deploy failure: these two migrations were missing from
+    // the registry, so the deploy-time post-migration snapshot compare failed with
+    // migration_contract_missing and the deploy stopped before restarting the service
+    // (no user-facing outage — see docs/schedule-canonical-architecture.md "Deployment").
+    const { loadMigrationSnapshotContract, aggregateMigrationContracts } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const names = [
+      '1810430000000_schedule_apply_operation',
+      '1810430000001_schedule_apply_operation_fingerprint',
+    ];
+    for (const name of names) {
+      const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+      assert.ok(contract, name);
+      assert.equal(contract.backwardCompatible, true);
+      assert.equal(contract.schemaOnly, true);
+    }
+    const { missing } = aggregateMigrationContracts(names, REPO_ROOT);
+    assert.deepEqual(missing, []);
+  });
+
   test('payments_v1_entitlements allows declared family fingerprint change', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const name = '1810400000000_payments_v1_entitlements';
