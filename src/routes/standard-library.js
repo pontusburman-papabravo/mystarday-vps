@@ -16,9 +16,7 @@ const {
   familyHasCanonicalActivity,
   mapCanonicalCopyErrorToHttp,
 } = require('../lib/standard-library-family-seed');
-const {
-  copyCanonicalScheduleToFamily,
-} = require('../lib/canonical-library-copy');
+const { applyScheduleSourceToChildPlan, ScheduleApplyError } = require('../lib/schedule-apply');
 const { getFamilyLocale } = require('../lib/onboarding-locale');
 const {
   CONTENT_SCOPE,
@@ -458,10 +456,19 @@ router.get('/schedules', async (req, res) => {
 
 // ─── POST /api/standard-library/schedules/:id/copy ───────
 // Copies a standard schedule to a child's weekly schedule for selected days.
+//
+// Routed through the canonical schedule-apply service (src/lib/schedule-apply.js, Phase 1A) —
+// the same day-write primitive family_template apply uses (see src/routes/schedules/templates.js).
+// `overwrite` compatibility mapping matches the family-template route: days without an existing
+// schedule are filled (merge into empty day); days with an existing schedule are only touched
+// when overwrite=true (full replace_day), never merged, matching the pre-Phase-1A behaviour of
+// copyCanonicalScheduleToFamily's writeScheduleDays loop this replaces. Every day that WILL be
+// mutated is submitted as one single-child plan (`applyScheduleSourceToChildPlan`) so a mixed
+// merge/replace_day request executes as ONE transaction — see templates.js for the same pattern.
 router.post('/schedules/:id/copy', async (req, res) => {
   let locale = 'sv-SE';
   try {
-    const { child_id, days, overwrite, optional_selections, variants } = req.body;
+    const { child_id, days, overwrite, optional_selections, variants, operation_id: rawOperationId } = req.body;
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
     if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ error: 'days[] krävs (t.ex. [1,2,3,4,5])' });
 
@@ -473,42 +480,72 @@ router.post('/schedules/:id/copy', async (req, res) => {
     const familyId = childAccess.rows[0].family_id;
     locale = await getFamilyLocale(familyId);
 
-    const client = await db.getClient();
-    try {
-      const result = await copyCanonicalScheduleToFamily(client, {
+    const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
+    if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar' });
+
+    const existingByDay = await db.query(
+      'SELECT day_of_week FROM weekly_schedule WHERE child_id = $1 AND day_of_week = ANY($2::int[])',
+      [child_id, validDays]
+    );
+    const daysWithExisting = new Set(existingByDay.rows.map((r) => r.day_of_week));
+    const planTargets = validDays
+      .filter((d) => !daysWithExisting.has(d) || overwrite)
+      .map((d) => ({ dayOfWeek: d, mode: daysWithExisting.has(d) ? 'replace_day' : 'merge' }));
+
+    let filledDays = [];
+    let activitiesCreated = 0;
+    let scheduleCanonicalId = null;
+    let scheduleName = null;
+
+    if (planTargets.length > 0) {
+      const result = await applyScheduleSourceToChildPlan({
         familyId,
         childId: child_id,
-        defaultScheduleId: req.params.id,
-        days,
-        overwrite: !!overwrite,
-        optionalSelections: optional_selections ?? null,
-        variants: variants ?? null,
+        sourceType: 'standard_schedule',
+        sourceId: req.params.id,
+        targets: planTargets,
         locale,
+        variants: variants ?? null,
+        optionalSelections: optional_selections ?? null,
+        operationId: rawOperationId || null,
       });
-
-      for (const dow of result.filledDays) {
-        try {
-          await syncDailyLogWithSchedule(child_id, dow);
-        } catch (syncErr) {
-          console.error('[STANDARD-LIBRARY] Sync error (non-fatal):', syncErr.message);
-        }
-      }
-
-      broadcast(familyId, 'SCHEDULE_UPDATED', { childId: child_id });
-
-      const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
-      const dayStr = result.filledDays.map((d) => dayNames[d]).join(', ');
-
-      res.status(201).json({
-        message: `"${result.scheduleName}" kopierat till ${result.filledDays.length} dag(ar): ${dayStr}`,
-        filled_days: result.filledDays,
-        activities_created: result.activitiesCreated,
-        schedule_canonical_id: result.scheduleCanonicalId,
-      });
-    } finally {
-      client.release();
+      filledDays = [...result.applied_days].sort((a, b) => a - b);
+      activitiesCreated = result.source.activities_created || 0;
+      scheduleCanonicalId = result.source.canonical_id;
+      scheduleName = result.source.name;
     }
+
+    if (!scheduleName) {
+      // No day was actually written (e.g. overwrite=false and every requested day already
+      // has a schedule) — fetch the name for the response message without materializing.
+      const nameRes = await db.query('SELECT name, canonical_id FROM default_schedule WHERE id = $1', [req.params.id]);
+      scheduleName = nameRes.rows[0]?.name || null;
+      scheduleCanonicalId = scheduleCanonicalId || nameRes.rows[0]?.canonical_id || null;
+    }
+
+    for (const dow of filledDays) {
+      try {
+        await syncDailyLogWithSchedule(child_id, dow);
+      } catch (syncErr) {
+        console.error('[STANDARD-LIBRARY] Sync error (non-fatal):', syncErr.message);
+      }
+    }
+
+    broadcast(familyId, 'SCHEDULE_UPDATED', { childId: child_id });
+
+    const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
+    const dayStr = filledDays.map((d) => dayNames[d]).join(', ');
+
+    res.status(201).json({
+      message: `"${scheduleName}" kopierat till ${filledDays.length} dag(ar): ${dayStr}`,
+      filled_days: filledDays,
+      activities_created: activitiesCreated,
+      schedule_canonical_id: scheduleCanonicalId,
+    });
   } catch (err) {
+    if (err instanceof ScheduleApplyError) {
+      return res.status(err.httpStatus).json({ error: err.message, code: err.code, details: err.details });
+    }
     const mapped = mapCanonicalCopyErrorToHttp(err, locale);
     if (mapped) return res.status(mapped.status).json(mapped.body);
     console.error('[STANDARD-LIBRARY] Schedule copy error:', err);

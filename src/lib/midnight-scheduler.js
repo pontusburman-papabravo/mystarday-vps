@@ -80,6 +80,15 @@ async function runMidnightJob() {
       console.error('[MIDNIGHT-SCHEDULER] Notification prune failed:', err.message);
     }
 
+    // Prune schedule_apply_operation idempotency records older than 30 days (§7 retention)
+    try {
+      const { cleanupExpiredScheduleApplyOperations } = require('./schedule-apply');
+      const { deleted } = await cleanupExpiredScheduleApplyOperations();
+      if (deleted > 0) console.log(`[MIDNIGHT-SCHEDULER] Pruned ${deleted} old schedule-apply idempotency records`);
+    } catch (err) {
+      console.error('[MIDNIGHT-SCHEDULER] Schedule-apply idempotency prune failed:', err.message);
+    }
+
     // Lock published pedagog notes whose calendar day has passed (family TZ)
     try {
       const { lockPublishedNotesPastDate } = require('./pedagog-note-lock');

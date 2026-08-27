@@ -1,6 +1,14 @@
 /**
  * Child-scoped fill-week: insert a template schedule into multiple days at once.
  * Does NOT handle: CRUD, bulk copy/swap, item management, templates.
+ *
+ * LEGACY / ISOLATED (Phase 1A, see docs/schedule-canonical-architecture.md "Legacy fill-week"):
+ * this route uses `activity_category` (via `/api/categories` + `/api/activities`) as an
+ * implicit schedule source. `activity_category` is explicitly NOT a canonical schedule source
+ * type (only `family_template` and `standard_schedule` are — see src/lib/schedule-apply.js) and
+ * must not become one. This endpoint is preserved as-is for existing clients but is intentionally
+ * NOT routed through the canonical schedule-apply service, and no new code should depend on
+ * category-as-schedule semantics going forward.
  */
 
 const express = require('express');
