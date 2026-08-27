@@ -22,12 +22,15 @@ public class WidgetOpenAppReceiver extends BroadcastReceiver {
         }
         Intent launch = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         launch.setPackage(context.getPackageName());
-        // NEW_TASK alone already reuses the existing task via taskAffinity
-        // matching (independent of MainActivity's launchMode). CLEAR_TOP is
-        // added defensively so a widget tap always surfaces MainActivity
-        // itself — never a second stacked instance — regardless of OEM
-        // Android variants or future launchMode changes (e.g. the
-        // RevenueCat-required singleTop, see scripts/patch-android-manifest.mjs).
+        // NEW_TASK finds/creates a task by taskAffinity (MainActivity has no
+        // custom affinity, so it targets the app's one default task); the
+        // target Activity's launchMode (singleTop — see
+        // scripts/patch-android-manifest.mjs, required by RevenueCat) still
+        // governs how that task's back stack itself behaves once reached.
+        // CLEAR_TOP additionally drops any activity above MainActivity in
+        // that task's back stack before delivering the intent, so a widget
+        // tap prefers reusing the existing app task and surfacing
+        // MainActivity rather than layering a new instance on top.
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         try {
             context.startActivity(launch);
