@@ -502,6 +502,69 @@ describe('adult-privilege client state machine', () => {
     assert.equal(AdultPrivilege.getState(), 'locked');
   });
 
+  // Regression: Android 1.4.3 physical QA — verified parent + correct PIN on a
+  // device_mode:'parent' trusted device (permanent escalation, no lease by server
+  // policy — see src/lib/adult-privilege-lease-policy.js leaseApplies()) was
+  // rejected with ADULT_PRIVILEGE_VERIFY_FAILED ("PIN godkändes men sessionen
+  // kunde inte startas") purely because privilegeLeaseUntil is intentionally null
+  // for that device_mode. shared/child modes (where a lease IS required) must
+  // keep failing closed on a missing lease — see the test above.
+  //
+  // AdultPrivilegeLeasePolicy here is a plain mirror of the real
+  // public/js/adult-privilege-lease-policy.js (covered directly by
+  // test/adult-privilege-lease-policy.test.js), passed only to these two tests
+  // (not the shared sandbox default): adult-privilege-lifecycle.js's
+  // scheduleLeaseCheck() only arms a real background setTimeout(delay=leaseUntil)
+  // when window.AdultPrivilegeLeasePolicy is present, so adding it file-wide would
+  // arm a real ~15-minute timer in the unrelated "real iPhone flow" test above
+  // (which loads the real lifecycle module) and hang the test runner.
+  const LEASE_POLICY_STUB = {
+    AdultPrivilegeLeasePolicy: {
+      leaseApplies: (mode) => mode === 'shared' || mode === 'child' || mode == null,
+    },
+  };
+
+  it('device_mode "parent": no lease required — verified parent + null lease still succeeds', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.resolve(mockJsonResponse(200, {
+          ok: true,
+          user: { id: 'p1', type: 'parent' },
+          redirect: '/dashboard',
+          device_mode: 'parent',
+          privilegeLeaseUntil: null,
+          csrfToken: 'c',
+        }));
+      }
+      return defaultTrustedFetch()(url);
+    }, LEASE_POLICY_STUB);
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.parent && result.parent.id, 'p1');
+  });
+
+  it('device_mode "shared" with null lease still fails closed (no regression from the parent-mode fix)', async () => {
+    const sandbox = makeTrustedUnlockSandbox((url) => {
+      if (String(url).includes('/trusted-device/select-parent')) {
+        return Promise.resolve(mockJsonResponse(200, {
+          ok: true,
+          user: { id: 'p1', type: 'parent' },
+          redirect: '/dashboard',
+          device_mode: 'shared',
+          privilegeLeaseUntil: null,
+          csrfToken: 'c',
+        }));
+      }
+      return defaultTrustedFetch()(url);
+    }, LEASE_POLICY_STUB);
+    const AdultPrivilege = loadAdultPrivilege(sandbox);
+    const result = await AdultPrivilege.requestTrustedProfileUnlock({ parentId: 'p1' });
+    assert.equal(result.ok, false);
+    assert.equal(result.code, 'ADULT_PRIVILEGE_VERIFY_FAILED');
+    assert.equal(AdultPrivilege.getState(), 'locked');
+  });
+
   it('atomic: successful unlock returns the authoritative lease for the verified resume', async () => {
     const lease = Date.now() + 15 * 60 * 1000;
     const sandbox = makeTrustedUnlockSandbox((url) => {

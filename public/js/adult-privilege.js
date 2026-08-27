@@ -433,9 +433,18 @@
 
   function verifyTrustedParentBeforeCommit(body, expectedParentId) {
     return verifyParentAuthorityWithRetry(5, expectedParentId).then(function (verified) {
-      const leaseOk = isUsablePrivilegeLease(body.privilegeLeaseUntil);
+      // device_mode 'parent' is a permanent (non-leased) escalation by server policy
+      // (adult-privilege-lease-policy.js leaseApplies() — mirrored client-side via
+      // AdultPrivilegeLeasePolicy). The server intentionally omits privilegeLeaseUntil
+      // for that mode, so requiring a usable lease there would fail closed on every
+      // correct PIN. Fail-safe default (policy module unavailable) still requires a lease.
+      const leaseRequired = !window.AdultPrivilegeLeasePolicy
+        || typeof window.AdultPrivilegeLeasePolicy.leaseApplies !== 'function'
+        || window.AdultPrivilegeLeasePolicy.leaseApplies(body.deviceMode);
+      const leaseOk = !leaseRequired || isUsablePrivilegeLease(body.privilegeLeaseUntil);
       logSelectParentStage('verify:result', {
-        verified: !!verified, leaseOk: leaseOk, privilegeLeaseUntil: body.privilegeLeaseUntil || null,
+        verified: !!verified, leaseOk: leaseOk, leaseRequired: leaseRequired,
+        privilegeLeaseUntil: body.privilegeLeaseUntil || null, deviceMode: body.deviceMode || null,
       });
       if (!verified || !leaseOk) {
         discardPendingParentUnlock(!verified ? 'me_verify_failed' : 'lease_unusable');
@@ -651,6 +660,7 @@
         csrfToken: out.body.csrfToken,
         parent: out.body.user || out.body.parent,
         privilegeLeaseUntil: out.body.privilegeLeaseUntil,
+        deviceMode: out.body.device_mode,
         policy: out.body.policy,
       }, parentId).then(function (result) {
         if (result.ok) {
