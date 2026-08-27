@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Ensure Sign in with Apple entitlements are wired in the Xcode project.
+ * Ensure Sign in with Apple + Associated Domains entitlements are wired in the
+ * Xcode project.
  * Without com.apple.developer.applesignin → ASAuthorizationError 1000 on device.
+ * Without com.apple.developer.associated-domains → Universal Links (/open/child)
+ * never open the app; iOS silently falls back to Safari.
  *
  * Usage: node scripts/patch-ios-entitlements.mjs
  */
@@ -13,6 +16,7 @@ const pbxPath = path.join(process.cwd(), 'ios', 'App', 'App.xcodeproj', 'project
 const ENTITLEMENTS_SETTING = 'CODE_SIGN_ENTITLEMENTS = App/App.entitlements;';
 const FILE_REF_ID = '504EC3191FED79650016851F';
 const FILE_REF_LINE = `\t\t${FILE_REF_ID} /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };`;
+const ASSOCIATED_DOMAIN = 'applinks:mystarday.se'; // pragma: allowlist secret
 
 const ENTITLEMENTS_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -22,13 +26,32 @@ const ENTITLEMENTS_XML = `<?xml version="1.0" encoding="UTF-8"?>
 \t<array>
 \t\t<string>Default</string>
 \t</array>
+\t<key>com.apple.developer.associated-domains</key>
+\t<array>
+\t\t<string>${ASSOCIATED_DOMAIN}</string>
+\t</array>
 </dict>
 </plist>
 `;
 
 if (!fs.existsSync(entitlementsPath)) {
   fs.writeFileSync(entitlementsPath, ENTITLEMENTS_XML);
-  console.log('Created ios/App/App/App.entitlements (Sign in with Apple).');
+  console.log('Created ios/App/App/App.entitlements (Sign in with Apple + Associated Domains).');
+} else {
+  const existing = fs.readFileSync(entitlementsPath, 'utf8');
+  if (!existing.includes('com.apple.developer.associated-domains')) {
+    const patched = existing.replace(
+      '</dict>',
+      `\t<key>com.apple.developer.associated-domains</key>\n\t<array>\n\t\t<string>${ASSOCIATED_DOMAIN}</string>\n\t</array>\n</dict>`
+    );
+    fs.writeFileSync(entitlementsPath, patched);
+    console.log('Patched ios/App/App/App.entitlements: added com.apple.developer.associated-domains.');
+  } else if (!existing.includes(ASSOCIATED_DOMAIN)) {
+    console.error(
+      `App.entitlements has com.apple.developer.associated-domains but missing "${ASSOCIATED_DOMAIN}" — fix manually.`
+    );
+    process.exit(1);
+  }
 }
 
 if (!fs.existsSync(pbxPath)) {
