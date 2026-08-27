@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 /**
  * Pre-upload gate for Meta App Events native release.
- * iOS 1.4: verifies NO Meta native SDK (Android still requires Meta token + SDK).
+ *
+ * Both platforms currently ship with NO Meta native SDK — Meta App Events is
+ * PAUSED for this release (see capacitor.config.ts comments). iOS never included
+ * the plugin; Android now also excludes `capacitor-facebook-events` from
+ * includePlugins, so this gate asserts ABSENCE of Meta SDK/resources/manifest
+ * metadata on both platforms rather than requiring a client token.
  *
  * Usage:
  *   node scripts/verify-meta-native-release.mjs           # both platforms (default)
  *   node scripts/verify-meta-native-release.mjs --ios   # iOS no-Meta-native gates
- *   node scripts/verify-meta-native-release.mjs --android # Android Meta gates
+ *   node scripts/verify-meta-native-release.mjs --android # Android no-Meta-native gates
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,14 +24,14 @@ const ROOT = path.resolve(__dirname, '..');
 const USAGE = `Usage: node scripts/verify-meta-native-release.mjs [--ios] [--android]
 
   --ios      Verify iOS NO-TRACKING gates (no Meta native SDK in shipped app)
-  --android  Verify Android Meta/privacy gates only
+  --android  Verify Android NO-META-native gate (no Meta native SDK in shipped AAB)
   (no flags) Verify both platforms (backward compatible)
 
 Unknown arguments are rejected (fail-closed).`;
 
+const ANDROID_ROOT = path.join(ROOT, 'android');
 const ANDROID_STRINGS = path.join(
-  ROOT,
-  'android',
+  ANDROID_ROOT,
   'app',
   'src',
   'main',
@@ -34,7 +39,19 @@ const ANDROID_STRINGS = path.join(
   'values',
   'strings.xml'
 );
-const ANDROID_MANIFEST = path.join(ROOT, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+const ANDROID_MANIFEST = path.join(ANDROID_ROOT, 'app', 'src', 'main', 'AndroidManifest.xml');
+const ANDROID_APP_BUILD_GRADLE = path.join(ANDROID_ROOT, 'app', 'build.gradle');
+const ANDROID_CAPACITOR_SETTINGS = path.join(ANDROID_ROOT, 'capacitor.settings.gradle');
+
+const FORBIDDEN_MANIFEST_META_DATA = [
+  'com.facebook.sdk.ApplicationId',
+  'com.facebook.sdk.ClientToken',
+  'com.facebook.sdk.AutoInitEnabled',
+  'com.facebook.sdk.AutoLogAppEventsEnabled',
+  'com.facebook.sdk.AdvertiserIDCollectionEnabled',
+];
+
+const FORBIDDEN_STRING_NAMES = ['facebook_app_id', 'facebook_client_token', 'fb_login_protocol_scheme'];
 
 let failed = false;
 
@@ -67,63 +84,73 @@ function parsePlatformFlags(argv) {
   return { verifyIos, verifyAndroid };
 }
 
-function secretPresent(label, value) {
-  const trimmed = String(value || '').trim();
-  if (!trimmed || trimmed.length < 8) {
-    fail(`${label} missing or too short — re-run cap:sync with META_CLIENT_TOKEN set`);
-    return false;
+function checkAndroidCapacitorConfigExcludesMeta() {
+  const capTsPath = path.join(ROOT, 'capacitor.config.ts');
+  if (!fs.existsSync(capTsPath)) {
+    fail('capacitor.config.ts missing');
+    return;
   }
-  ok(`${label} present (length ${trimmed.length}, value redacted)`);
-  return true;
+  const capTs = fs.readFileSync(capTsPath, 'utf8');
+  const androidBlock = capTs.match(/android:\s*\{[\s\S]*?includePlugins:\s*\[([\s\S]*?)\]/);
+  const plugins = androidBlock ? androidBlock[1] : '';
+  if (/['"]capacitor-facebook-events['"]/.test(plugins)) {
+    fail('capacitor.config.ts still includes capacitor-facebook-events in Android includePlugins');
+  } else {
+    ok('capacitor.config.ts excludes capacitor-facebook-events from Android includePlugins');
+  }
 }
 
-function readAndroidString(stringsPath, name) {
-  if (!fs.existsSync(stringsPath)) {
-    fail(`strings.xml not found — run npm run cap:sync:android`);
-    return '';
-  }
-  const xml = fs.readFileSync(stringsPath, 'utf8');
-  const re = new RegExp(`<string name="${name}">([^<]*)</string>`);
-  const m = xml.match(re);
-  return m ? m[1].trim() : '';
-}
-
-function checkAndroidPrivacyDefaults() {
+function checkAndroidManifestHasNoMeta() {
   if (!fs.existsSync(ANDROID_MANIFEST)) {
-    fail('AndroidManifest.xml missing — run cap:sync:android');
+    ok('android/ not generated yet (run npm run cap:sync:android to fully verify) — no Meta manifest metadata possible');
     return;
   }
   const manifest = fs.readFileSync(ANDROID_MANIFEST, 'utf8');
-  if (
-    !manifest.includes('com.facebook.sdk.AutoLogAppEventsEnabled') ||
-    !/AutoLogAppEventsEnabled" android:value="false"/.test(manifest)
-  ) {
-    fail('Android AutoLogAppEventsEnabled is not false in manifest');
-  } else {
-    ok('Android AutoLog default false in AndroidManifest.xml');
+  let clean = true;
+  for (const key of FORBIDDEN_MANIFEST_META_DATA) {
+    if (manifest.includes(key)) {
+      fail(`AndroidManifest.xml still declares ${key} (Meta native SDK metadata)`);
+      clean = false;
+    }
   }
-  if (
-    !manifest.includes('com.facebook.sdk.AdvertiserIDCollectionEnabled') ||
-    !/AdvertiserIDCollectionEnabled" android:value="false"/.test(manifest)
-  ) {
-    fail('Android AdvertiserIDCollectionEnabled is not false in manifest');
-  } else {
-    ok('Android AdvertiserID default false in AndroidManifest.xml');
-  }
+  if (clean) ok('AndroidManifest.xml has no Meta native SDK meta-data entries');
 }
 
-function verifyFacebookPrivacyPatch() {
-  const privacy = spawnSync(
-    process.execPath,
-    [path.join(ROOT, 'scripts', 'verify-capacitor-facebook-events-privacy.mjs')],
-    { cwd: ROOT, encoding: 'utf8' }
-  );
-  if (privacy.status !== 0) {
-    fail('capacitor-facebook-events privacy patch verification failed');
-    if (privacy.stderr) process.stderr.write(privacy.stderr);
-    if (privacy.stdout) process.stdout.write(privacy.stdout);
+function checkAndroidStringsHaveNoMeta() {
+  if (!fs.existsSync(ANDROID_STRINGS)) {
+    ok('android/ not generated yet (run npm run cap:sync:android to fully verify) — no Meta strings possible');
+    return;
+  }
+  const strings = fs.readFileSync(ANDROID_STRINGS, 'utf8');
+  let clean = true;
+  for (const name of FORBIDDEN_STRING_NAMES) {
+    if (new RegExp(`<string name="${name}">`).test(strings)) {
+      fail(`strings.xml still declares ${name} (Meta native SDK string)`);
+      clean = false;
+    }
+  }
+  if (clean) ok('strings.xml has no Meta native SDK strings');
+}
+
+function checkAndroidBuildHasNoFacebookSdk() {
+  if (!fs.existsSync(ANDROID_APP_BUILD_GRADLE)) {
+    ok('android/app/build.gradle not generated yet — no Facebook SDK dependency possible');
   } else {
-    ok('Facebook plugin privacy patch verified');
+    const gradle = fs.readFileSync(ANDROID_APP_BUILD_GRADLE, 'utf8');
+    if (/com\.facebook\.android|facebook-android-sdk/i.test(gradle)) {
+      fail('android/app/build.gradle references a Facebook/Meta native SDK dependency');
+    } else {
+      ok('android/app/build.gradle has no Facebook/Meta native SDK dependency');
+    }
+  }
+
+  if (fs.existsSync(ANDROID_CAPACITOR_SETTINGS)) {
+    const settings = fs.readFileSync(ANDROID_CAPACITOR_SETTINGS, 'utf8');
+    if (/capacitor-facebook-events/i.test(settings)) {
+      fail('android/capacitor.settings.gradle still includes the capacitor-facebook-events module');
+    } else {
+      ok('android/capacitor.settings.gradle excludes the capacitor-facebook-events module');
+    }
   }
 }
 
@@ -145,28 +172,14 @@ function verifyIosGates() {
 }
 
 function verifyAndroidGates() {
-  console.log('[verify-meta-native-release] Platform: Android');
-
-  const androidToken = readAndroidString(ANDROID_STRINGS, 'facebook_client_token');
-  secretPresent('Android facebook_client_token', androidToken);
-
-  const androidAppId = readAndroidString(ANDROID_STRINGS, 'facebook_app_id');
-  if (androidAppId !== '27941105858861495') {
-    fail(`Android facebook_app_id unexpected: ${androidAppId || '(empty)'}`);
-  } else {
-    ok('Android facebook_app_id matches');
-  }
-
-  checkAndroidPrivacyDefaults();
+  console.log('[verify-meta-native-release] Platform: Android (NO-META-native gate — Meta paused for this release)');
+  checkAndroidCapacitorConfigExcludesMeta();
+  checkAndroidManifestHasNoMeta();
+  checkAndroidStringsHaveNoMeta();
+  checkAndroidBuildHasNoFacebookSdk();
 }
 
 const { verifyIos, verifyAndroid } = parsePlatformFlags(process.argv.slice(2));
-
-if (verifyIos && !verifyAndroid) {
-  ok('iOS-only verify: skip node_modules FacebookEvents privacy check (no Meta native SDK on iOS)');
-} else {
-  verifyFacebookPrivacyPatch();
-}
 
 if (verifyIos) {
   verifyIosGates();
@@ -177,19 +190,13 @@ if (verifyAndroid) {
 
 console.log('');
 if (failed) {
-  console.error('[verify-meta-native-release] STOP — fix issues before Archive / Play upload.');
+  console.error('[verify-meta-native-release] STOP — Meta native SDK must stay out of the release. Fix before Archive / Play upload.');
   process.exit(1);
 }
 
 const scope =
   verifyIos && verifyAndroid ? 'iOS + Android' : verifyIos ? 'iOS' : 'Android';
 console.log(
-  `[verify-meta-native-release] All gates passed (${scope}). Proceed to device smoke, then store upload.`
+  `[verify-meta-native-release] All gates passed (${scope}). Meta native SDK is absent from this release build.`
 );
-if (verifyIos) {
-  console.log('[verify-meta-native-release] iOS 1.4: Meta native SDK must stay absent from archive.');
-}
-if (verifyAndroid) {
-  console.log('[verify-meta-native-release] Meta Dashboard: keep IAP/subscription/trial auto-log OFF.');
-}
 process.exit(0);
