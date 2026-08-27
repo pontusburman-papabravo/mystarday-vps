@@ -1,12 +1,36 @@
 # Schedule domain — canonical command/query architecture (Phase 1A)
 
-**Status:** implemented (Phase 1A) + hardened per PR #1093 review.
-**Baseline:** `main` @ `80bc241a7fbf122ec7afa43d141d6598f83b75dd` (initial), rebased onto
-`53b3fe3dce4db1adc83f3dd9d56f33f64ec8d089` for the hardening pass.
+**Status: PHASE 1A COMPLETE — merged, deployed, and verified.**
+
+- Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
+  merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
+- Post-merge deploy hotfix via PR [#1094](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1094) <!-- pragma: allowlist secret -->
+  (missing deploy snapshot-contract registrations for the two new migrations — see "Deployment"
+  below) — merge commit `745eae8c0745f892bc85b543dd48726002be0be2` on `main`.
+- Deployed to the live app at `main` SHA `5f012d0d18049744ef00e91f75a536d179187376`
+  (`DEPLOY_SUMMARY status=success outcome=DEPLOY_PASS health_check_result=ok`).
+- Verified: both migrations applied on the deployed database with the expected schema
+  (including `command_fingerprint`), `/health` green, no application startup errors, no
+  schedule/daily-log error spike in `journalctl -u mystarday`, feature/payment/market flags <!-- pragma: allowlist secret -->
+  unchanged (deploy gate's own business-table drift check passed).
+
+**Baseline:** `main` @ `80bc241a7fbf122ec7afa43d141d6598f83b75dd` (initial), rebased twice for
+review follow-ups, final pre-merge HEAD `edaf2351eac4fa365bf75c958627c687174044eb` on top of
+`main` @ `7a5d7229112a98f175d5c5c1a1fec658a3cf54ee`.
 
 This is the short architecture note required by the Phase 1A task brief (§34). It documents
 the canonical command service, the canonical effective-schedule resolver, apply modes,
 precedence, legacy adapters, and the deferred Phase 1B/2/Special Period boundary.
+
+The rules below are **locked** for Phase 1B and later unless post-merge verification reveals a
+real regression: canonical command service; canonical effective-schedule resolver; source types
+`family_template`/`standard_schedule`; `merge` default; `replace_sections`; explicit
+`replace_day`; duplicate identity `activity_template_id + section + start_time + end_time`;
+canonical sections `morgon -> dag -> kvall -> natt`; idempotency with command fingerprint;
+advisory-lock concurrency protection; single-child multi-day transactional atomicity;
+child/family invariant inside the canonical service; custody-aware weekly resolution;
+special-day > weekly base precedence; date exclusions; the once-task boundary (intentionally
+separate); `activity_category` remains legacy, not canonical; no Special Period yet.
 
 ## Why
 
@@ -261,6 +285,23 @@ childId=B" (family_template), "standard_schedule cannot be applied cross-family 
 same mistake" (standard_schedule), and "applyScheduleSourceToChild (simple wrapper) also
 enforces the invariant". The pre-existing revoked-parent/cross-family integration coverage in
 `test/schedules-revoked-parent.integration.test.js` continues to pass unmodified.
+
+## Deployment (post-merge verification, PR #1094 hotfix)
+
+The `schedule_apply_operation` migrations are additive/schema-only (new table, new column;
+no existing table's data touched), but the repo's deploy pipeline
+(`scripts/vps-deploy-revision.sh` → `scripts/ops/lib/compare-snapshots.mjs`) requires **every**
+migration applied during a deploy to declare a snapshot contract in
+`scripts/ops/lib/migration-snapshot-manifest.mjs`, so it can fail-closed on unexpected
+business-table drift. Both migrations were initially missing from that registry, which failed
+the first post-merge deploy attempt at the **post-migrate snapshot compare** step —
+`migration_contract_missing` for both. This did **not** cause an outage: the deploy tool applies
+migrations before restarting the app service and stopped before restart, so the running app kept
+serving the previous release the whole time (confirmed via `/health` `git_sha` during the
+incident). Fixed in PR #1094 by registering both migrations as `{ backwardCompatible: true,
+schemaOnly: true }` — the same shape already used for other new-table migrations like
+`1810420000000_family_growth_intervention`. Locked with a regression test in
+`test/ops-deploy-snapshot-gate.test.js`.
 
 ## Broadcast / live refresh (§24)
 
