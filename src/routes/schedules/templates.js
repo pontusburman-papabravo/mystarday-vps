@@ -20,7 +20,7 @@ const {
   NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
 } = require('../../lib/canonical-library-runtime');
 const { getFamilyLocale } = require('../../lib/onboarding-locale');
-const { applyScheduleSourceToChild, ScheduleApplyError } = require('../../lib/schedule-apply');
+const { applyScheduleSourceToChildPlan, ScheduleApplyError } = require('../../lib/schedule-apply');
 
 const router = express.Router();
 router.use(requireParent);
@@ -258,9 +258,11 @@ router.delete('/:templateId', async (req, res) => {
 // Compatibility contract preserved for existing clients: `overwrite` (default false) keeps its
 // exact old meaning — days that already have a schedule are SKIPPED unless overwrite=true, in
 // which case that day is fully replaced (never merged). Days without an existing schedule are
-// filled either way (merge into an empty day == replace_day into an empty day). Because these
-// two groups need different canonical apply `mode`s, they are applied as up to two canonical
-// commands rather than one — see docs/schedule-canonical-architecture.md "Legacy route mapping".
+// filled either way (merge into an empty day == replace_day into an empty day). Skipped days are
+// simply left out of the plan; every day that WILL be mutated is submitted as one single-child
+// plan (`applyScheduleSourceToChildPlan`) so mixed merge/replace_day requests (e.g. days=[1,2,3]
+// with day 2 already populated and overwrite=true) execute as ONE transaction — a failure on any
+// target day rolls back every target day in the same request, never a partial apply.
 router.post('/:templateId/apply', async (req, res) => {
   try {
     const { child_id, days, overwrite, operation_id: rawOperationId } = req.body;
@@ -286,35 +288,22 @@ router.post('/:templateId/apply', async (req, res) => {
       [child_id, validDays]
     );
     const daysWithExisting = new Set(existingByDay.rows.map((r) => r.day_of_week));
-    const daysToReplace = overwrite ? validDays.filter((d) => daysWithExisting.has(d)) : [];
-    const daysToFill = validDays.filter((d) => !daysWithExisting.has(d));
+    const planTargets = validDays
+      .filter((d) => !daysWithExisting.has(d) || overwrite)
+      .map((d) => ({ dayOfWeek: d, mode: daysWithExisting.has(d) ? 'replace_day' : 'merge' }));
 
-    const filledDays = [];
-    if (daysToFill.length > 0) {
-      const result = await applyScheduleSourceToChild({
+    let filledDays = [];
+    if (planTargets.length > 0) {
+      const result = await applyScheduleSourceToChildPlan({
         familyId: req.user.familyId,
         childId: child_id,
         sourceType: 'family_template',
         sourceId: req.params.templateId,
-        days: daysToFill,
-        mode: 'merge',
-        operationId: rawOperationId ? `${rawOperationId}:fill` : null,
+        targets: planTargets,
+        operationId: rawOperationId || null,
       });
-      filledDays.push(...result.applied_days);
+      filledDays = [...result.applied_days].sort((a, b) => a - b);
     }
-    if (daysToReplace.length > 0) {
-      const result = await applyScheduleSourceToChild({
-        familyId: req.user.familyId,
-        childId: child_id,
-        sourceType: 'family_template',
-        sourceId: req.params.templateId,
-        days: daysToReplace,
-        mode: 'replace_day',
-        operationId: rawOperationId ? `${rawOperationId}:replace` : null,
-      });
-      filledDays.push(...result.applied_days);
-    }
-    filledDays.sort((a, b) => a - b);
 
     for (const dow of filledDays) {
       try {

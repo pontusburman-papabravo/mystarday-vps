@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Canonical schedule APPLY (command-side) service — Phase 1A.
+ * Canonical schedule APPLY (command-side) service — Phase 1A (hardened per PR #1093 review).
  *
  * Single authoritative place that mutates a child's recurring weekly_schedule from a
  * reusable schedule source (family_template or standard_schedule). Replaces the two
@@ -10,8 +10,8 @@
  *   - src/lib/canonical-library-copy.js `copyCanonicalScheduleToFamily()` (writeScheduleDays)
  *
  * See docs/schedule-canonical-architecture.md for the full design note (precedence,
- * duplicate-identity rule, idempotency, transaction boundaries, and what is intentionally
- * deferred to Phase 1B/2).
+ * duplicate-identity rule, idempotency + concurrency, transaction boundaries, and what is
+ * intentionally deferred to Phase 1B/2).
  *
  * Does NOT own: activity_category / fill-week legacy semantics (src/routes/schedules/fill-week.js
  * remains an isolated legacy path, see docs note), special_day_schedule / apply-date-range
@@ -19,6 +19,7 @@
  * (daily_log_item.is_once_task — untouched, see docs note on the read-side boundary).
  */
 
+const crypto = require('crypto');
 const db = require('./db');
 const { CANONICAL_SECTIONS, normalizeSection } = require('./schedule-sections');
 const {
@@ -28,6 +29,9 @@ const {
 const SOURCE_TYPES = Object.freeze(['family_template', 'standard_schedule']);
 const APPLY_MODES = Object.freeze(['merge', 'replace_sections', 'replace_day']);
 const IDEMPOTENCY_RETENTION_DAYS = 30;
+// Advisory-lock namespace hash — keeps this domain's locks isolated from any other
+// pg_advisory_xact_lock user in the codebase (two-int form: namespace + identity hash).
+const ADVISORY_LOCK_NAMESPACE = 'schedule_apply_operation';
 
 class ScheduleApplyError extends Error {
   /**
@@ -56,6 +60,43 @@ function duplicateKey(item) {
 }
 
 /**
+ * Deterministic, key-sorted JSON serialization (stable regardless of property insertion order).
+ * Used only for command-fingerprint hashing — never for storage/transport of the value itself.
+ */
+function stableStringify(value) {
+  if (value === null || value === undefined) return 'null';
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
+  if (typeof value === 'object') {
+    const keys = Object.keys(value).sort();
+    return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(value[k])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * Command fingerprint (§3A) — a deterministic hash of every input that materially defines
+ * what a canonical apply command will materialize. Two requests with the same operationId +
+ * childId but a DIFFERENT fingerprint are a client bug (reused idempotency key for a different
+ * command) and must be rejected, never silently replayed.
+ */
+function computeCommandFingerprint({
+  childId, familyId, sourceType, sourceId, targets, custodyHomeId, locale, variants, optionalSelections,
+}) {
+  const normalizedTargets = [...targets]
+    .map((t) => ({ dayOfWeek: t.dayOfWeek, mode: t.mode }))
+    .sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+  const payload = {
+    childId, familyId, sourceType, sourceId,
+    targets: normalizedTargets,
+    custodyHomeId: custodyHomeId || null,
+    locale: locale || null,
+    variants: variants || null,
+    optionalSelections: optionalSelections || null,
+  };
+  return crypto.createHash('sha256').update(stableStringify(payload)).digest('hex');
+}
+
+/**
  * Validate + normalize the `days` input: integers only, range 0–6, de-duplicated,
  * deterministically ordered (§5.6).
  * @param {unknown} days
@@ -79,6 +120,44 @@ function normalizeDays(days) {
 function assertValidMode(mode) {
   if (!APPLY_MODES.includes(mode)) {
     throw new ScheduleApplyError('VALIDATION_ERROR', 400, `Ogiltigt läge: ${mode} (merge | replace_sections | replace_day)`);
+  }
+}
+
+/**
+ * Normalize + validate a per-day application plan: unique days, valid mode per day,
+ * deterministically ordered by day_of_week (§5.6, and required for the fingerprint to be
+ * stable regardless of caller-supplied ordering).
+ * @param {Array<{ dayOfWeek: number, mode?: string }>} targets
+ */
+function normalizePlanTargets(targets) {
+  if (!Array.isArray(targets) || targets.length === 0) {
+    throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'targets[] krävs (minst en dag)');
+  }
+  const byDay = new Map();
+  for (const target of targets) {
+    const dayOfWeek = Number(target?.dayOfWeek);
+    if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+      throw new ScheduleApplyError('VALIDATION_ERROR', 400, `Ogiltig veckodag: ${target?.dayOfWeek} (giltigt intervall 0–6)`);
+    }
+    const mode = target?.mode || 'merge';
+    assertValidMode(mode);
+    if (byDay.has(dayOfWeek)) {
+      throw new ScheduleApplyError('VALIDATION_ERROR', 400, `Veckodag ${dayOfWeek} förekommer flera gånger i planen`);
+    }
+    byDay.set(dayOfWeek, { dayOfWeek, mode });
+  }
+  return [...byDay.values()].sort((a, b) => a.dayOfWeek - b.dayOfWeek);
+}
+
+/**
+ * §4 — family/child integrity invariant enforced INSIDE the canonical transaction.
+ * The domain service must never be capable of a cross-family write even if a future
+ * caller's route-level authz has a bug; this is the last line of defense, not the only one.
+ */
+async function assertChildBelongsToFamily(client, { childId, familyId }) {
+  const res = await client.query('SELECT family_id FROM child WHERE id = $1', [childId]);
+  if (res.rows.length === 0 || res.rows[0].family_id !== familyId) {
+    throw new ScheduleApplyError('CHILD_NOT_IN_FAMILY', 403, 'Barnet tillhör inte den angivna familjen', { childId });
   }
 }
 
@@ -253,22 +332,42 @@ async function insertItems(client, scheduleId, items) {
   return count;
 }
 
-async function loadIdempotentResult(client, { operationId, childId }) {
-  if (!operationId) return null;
-  const res = await client.query(
-    `SELECT result_json FROM schedule_apply_operation WHERE operation_id = $1 AND child_id = $2`,
-    [operationId, childId]
-  );
-  return res.rows[0]?.result_json || null;
-}
-
-async function storeIdempotentResult(client, { operationId, childId, familyId, result }) {
+/**
+ * §3B — acquire a transaction-scoped Postgres advisory lock on the (operationId, childId)
+ * identity. Blocks until any other in-flight transaction holding the same lock has
+ * committed or rolled back (the lock auto-releases at end of transaction — no manual
+ * unlock needed, no risk of a leaked lock on crash). This turns "SELECT ledger; mutate;
+ * INSERT ... ON CONFLICT DO NOTHING" (racy: two concurrent transactions can both miss the
+ * row) into "acquire lock; SELECT ledger (now safe — no concurrent writer can be mid-flight);
+ * mutate or replay; INSERT ledger; COMMIT (release lock)".
+ *
+ * No external infrastructure — this is pure Postgres, and the lock is automatically
+ * scoped/released by the surrounding BEGIN/COMMIT/ROLLBACK.
+ */
+async function acquireIdempotencyLock(client, { operationId, childId }) {
   if (!operationId) return;
   await client.query(
-    `INSERT INTO schedule_apply_operation (operation_id, child_id, family_id, result_json)
-     VALUES ($1, $2, $3, $4)
+    `SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))`,
+    [ADVISORY_LOCK_NAMESPACE, `${operationId}:${childId}`]
+  );
+}
+
+async function loadIdempotencyRecord(client, { operationId, childId }) {
+  if (!operationId) return null;
+  const res = await client.query(
+    `SELECT command_fingerprint, result_json FROM schedule_apply_operation WHERE operation_id = $1 AND child_id = $2`,
+    [operationId, childId]
+  );
+  return res.rows[0] || null;
+}
+
+async function storeIdempotentResult(client, { operationId, childId, familyId, fingerprint, result }) {
+  if (!operationId) return;
+  await client.query(
+    `INSERT INTO schedule_apply_operation (operation_id, child_id, family_id, command_fingerprint, result_json)
+     VALUES ($1, $2, $3, $4, $5)
      ON CONFLICT (operation_id, child_id) DO NOTHING`,
-    [operationId, childId, familyId, JSON.stringify(result)]
+    [operationId, childId, familyId, fingerprint, JSON.stringify(result)]
   );
 }
 
@@ -286,16 +385,133 @@ async function cleanupExpiredScheduleApplyOperations(retentionDays = IDEMPOTENCY
 }
 
 /**
- * Canonical single-child schedule application command (§35 `applyScheduleSourceToChild`).
+ * Canonical single-child schedule application command — PLAN form (§2 of the hardening
+ * review). Accepts a per-day mode plan and executes it as ONE transaction, so a legacy
+ * route request that mixes "fill empty days" (merge) and "overwrite populated days"
+ * (replace_day) in a single user gesture remains atomic end to end: if any target day
+ * fails, EVERY target day (including previously-succeeded ones in this same call) rolls
+ * back — there is no intermediate commit.
  *
- * Transactionally atomic across all requested days (§5.6/§23): if any day fails, the
- * whole command rolls back. Idempotent when `operationId` is supplied (§7): a retried
- * call with the same operationId + childId returns the stored result without re-mutating
- * the database. Post-commit side effects (daily-log sync, SSE broadcast) are best-effort
- * and documented as such (§23/§24).
+ * Idempotent + concurrency-safe when `operationId` is supplied (§3): the transaction takes
+ * a Postgres advisory lock scoped to (operationId, childId) before touching the ledger, so
+ * two concurrent identical requests execute strictly one-after-the-other, never both
+ * mutating. A replay is only honoured when the stored command fingerprint matches this
+ * call's fingerprint exactly; a mismatched fingerprint under the same operationId is a
+ * deterministic 409 IDEMPOTENCY_KEY_REUSED with NO mutation.
+ *
+ * Family/child integrity (§4) is validated inside this transaction — `assertChildBelongsToFamily`
+ * — so this service cannot perform a cross-family write even if a future caller's
+ * route-level authorization has a bug.
  *
  * @param {object} params
- * @param {{ id: string }} params.actor
+ * @param {string} params.familyId
+ * @param {string} params.childId
+ * @param {'family_template'|'standard_schedule'} params.sourceType
+ * @param {string} params.sourceId
+ * @param {Array<{ dayOfWeek: number, mode?: 'merge'|'replace_sections'|'replace_day' }>} params.targets
+ * @param {string} [params.operationId]
+ * @param {{ custodyHomeId?: string }} [params.custodyContext]
+ * @param {string} [params.locale]
+ * @param {object|null} [params.variants]
+ * @param {object|null} [params.optionalSelections]
+ */
+async function applyScheduleSourceToChildPlan(params) {
+  const {
+    familyId,
+    childId,
+    sourceType,
+    sourceId,
+    targets,
+    operationId = null,
+    custodyContext = null,
+    locale = 'sv-SE',
+    variants = null,
+    optionalSelections = null,
+  } = params;
+
+  if (!familyId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'familyId krävs');
+  if (!childId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'childId krävs');
+  const planTargets = normalizePlanTargets(targets);
+  const custodyHomeId = custodyContext?.custodyHomeId || null;
+
+  const fingerprint = computeCommandFingerprint({
+    childId, familyId, sourceType, sourceId, targets: planTargets, custodyHomeId, locale, variants, optionalSelections,
+  });
+
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+
+    // §4 — family/child integrity, enforced before ANY other work, including idempotency
+    // replay: even a replay must never happen against a child that is not (or is no longer)
+    // in the caller's family.
+    await assertChildBelongsToFamily(client, { childId, familyId });
+
+    // §3B — serialize concurrent identical requests via a transaction-scoped advisory lock.
+    await acquireIdempotencyLock(client, { operationId, childId });
+
+    const existingRecord = await loadIdempotencyRecord(client, { operationId, childId });
+    if (existingRecord) {
+      if (existingRecord.command_fingerprint !== fingerprint) {
+        throw new ScheduleApplyError(
+          'IDEMPOTENCY_KEY_REUSED', 409,
+          'operation_id har redan använts för ett annat kommando',
+          { operation_id: operationId }
+        );
+      }
+      await client.query('COMMIT');
+      return { ...existingRecord.result_json, replayed: true };
+    }
+
+    const { items: sourceItems, sourceMeta } = await resolveScheduleSource(client, {
+      familyId, sourceType, sourceId, locale, variants, optionalSelections,
+    });
+
+    if (sourceItems.length === 0) {
+      throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Källan innehöll inga aktiviteter — inget tillämpat.');
+    }
+
+    const perDay = [];
+    for (const { dayOfWeek, mode } of planTargets) {
+      const dayResult = await applyScheduleItemsToDay(client, {
+        childId, dayOfWeek, items: sourceItems, mode, custodyHomeId,
+      });
+      perDay.push({ day_of_week: dayOfWeek, mode, ...dayResult });
+    }
+
+    const result = {
+      operation_id: operationId,
+      child_id: childId,
+      family_id: familyId,
+      source: sourceMeta,
+      applied_days: perDay.map((d) => d.day_of_week),
+      changed_days: perDay.filter((d) => d.itemsAdded > 0).map((d) => d.day_of_week),
+      skipped_days: [],
+      duplicate_items_skipped: perDay.reduce((sum, d) => sum + d.itemsSkippedDuplicate, 0),
+      replaced_sections: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.sectionsReplaced])),
+      day_modes: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.mode])),
+      replayed: false,
+    };
+
+    await storeIdempotentResult(client, { operationId, childId, familyId, fingerprint, result });
+
+    await client.query('COMMIT');
+    return result;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Simple same-mode-for-all-days wrapper around `applyScheduleSourceToChildPlan` (§35
+ * `applyScheduleSourceToChild`). Prefer `applyScheduleSourceToChildPlan` directly when a
+ * single legacy route request needs different modes for different days in one atomic
+ * transaction (e.g. "fill empty days, overwrite populated days" in one user gesture).
+ *
+ * @param {object} params
  * @param {string} params.familyId
  * @param {string} params.childId
  * @param {'family_template'|'standard_schedule'} params.sourceType
@@ -309,76 +525,14 @@ async function cleanupExpiredScheduleApplyOperations(retentionDays = IDEMPOTENCY
  * @param {object|null} [params.optionalSelections]
  */
 async function applyScheduleSourceToChild(params) {
-  const {
-    familyId,
-    childId,
-    sourceType,
-    sourceId,
-    days,
-    mode = 'merge',
-    operationId = null,
-    custodyContext = null,
-    locale = 'sv-SE',
-    variants = null,
-    optionalSelections = null,
-  } = params;
-
-  if (!familyId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'familyId krävs');
-  if (!childId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'childId krävs');
+  const { days, mode = 'merge', ...rest } = params;
   assertValidMode(mode);
   const validDays = normalizeDays(days);
-  const custodyHomeId = custodyContext?.custodyHomeId || null;
-
-  const client = await db.getClient();
-  try {
-    await client.query('BEGIN');
-
-    const cached = await loadIdempotentResult(client, { operationId, childId });
-    if (cached) {
-      await client.query('COMMIT');
-      return { ...cached, replayed: true };
-    }
-
-    const { items: sourceItems, sourceMeta } = await resolveScheduleSource(client, {
-      familyId, sourceType, sourceId, locale, variants, optionalSelections,
-    });
-
-    if (sourceItems.length === 0) {
-      throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Källan innehöll inga aktiviteter — inget tillämpat.');
-    }
-
-    const perDay = [];
-    for (const dayOfWeek of validDays) {
-      const dayResult = await applyScheduleItemsToDay(client, {
-        childId, dayOfWeek, items: sourceItems, mode, custodyHomeId,
-      });
-      perDay.push({ day_of_week: dayOfWeek, ...dayResult });
-    }
-
-    const result = {
-      operation_id: operationId,
-      child_id: childId,
-      family_id: familyId,
-      source: sourceMeta,
-      mode,
-      applied_days: perDay.map((d) => d.day_of_week),
-      changed_days: perDay.filter((d) => d.itemsAdded > 0).map((d) => d.day_of_week),
-      skipped_days: [],
-      duplicate_items_skipped: perDay.reduce((sum, d) => sum + d.itemsSkippedDuplicate, 0),
-      replaced_sections: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.sectionsReplaced])),
-      replayed: false,
-    };
-
-    await storeIdempotentResult(client, { operationId, childId, familyId, result });
-
-    await client.query('COMMIT');
-    return result;
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  const result = await applyScheduleSourceToChildPlan({
+    ...rest,
+    targets: validDays.map((dayOfWeek) => ({ dayOfWeek, mode })),
+  });
+  return { ...result, mode };
 }
 
 /**
@@ -389,7 +543,8 @@ async function applyScheduleSourceToChild(params) {
  * HTTP request is unsafe at that pool size).
  *
  * Preflight (authorization + validation) runs for ALL targets BEFORE any mutation, so an
- * unauthorized child in the batch causes NOTHING to be written for ANY child (§6).
+ * unauthorized child in the batch causes NOTHING to be written for ANY child (§6). The
+ * canonical service ALSO re-validates family/child integrity per-child (§4, defense in depth).
  *
  * @param {object} params
  * @param {Array<{ childId: string, days: number[] }>} params.targets
@@ -432,10 +587,13 @@ module.exports = {
   APPLY_MODES,
   CANONICAL_SECTIONS,
   duplicateKey,
+  computeCommandFingerprint,
   normalizeDays,
+  normalizePlanTargets,
   resolveScheduleSource,
   applyScheduleItemsToDay,
   applyScheduleSourceToChild,
+  applyScheduleSourceToChildPlan,
   applyScheduleSourceToTargets,
   cleanupExpiredScheduleApplyOperations,
   IDEMPOTENCY_RETENTION_DAYS,

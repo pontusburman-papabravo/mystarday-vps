@@ -154,7 +154,26 @@ test('standard-library schedule copy route (canonical apply, Phase 1A)', async (
     );
     assert.equal(itemsAfter.rows[0].n, itemsBefore.rows[0].n, 'replace_day must not duplicate items on re-apply');
 
-    // 5) Cross-family child is denied.
+    // 5) Mixed request (days 1+2 already populated, day 4 empty) with overwrite=true must
+    // execute as ONE atomic canonical plan (PR #1093 hardening) — all three days succeed.
+    const mixed = await fetch(`${baseUrl}/api/standard-library/schedules/${scheduleId}/copy`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ child_id: childId, days: [1, 2, 4], overwrite: true }),
+    });
+    const mixedBody = await mixed.json();
+    assert.equal(mixed.status, 201, JSON.stringify(mixedBody));
+    assert.deepEqual(mixedBody.filled_days, [1, 2, 4]);
+    for (const dow of [1, 2, 4]) {
+      const count = await db.query(
+        `SELECT COUNT(*)::int AS n FROM weekly_schedule_item wsi
+         JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+         WHERE ws.child_id = $1 AND ws.day_of_week = $2`,
+        [childId, dow]
+      );
+      assert.ok(count.rows[0].n > 0, `day ${dow} must have items after the mixed atomic apply`);
+    }
+
+    // 6) Cross-family child is denied.
     const otherFamily = await db.query(
       `INSERT INTO family (name, timezone, is_lifetime_free) VALUES ('Other', 'Europe/Stockholm', true) RETURNING id`
     );

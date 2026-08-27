@@ -15,9 +15,9 @@
  * Retention: operations are cleaned up after 30 days by
  * cleanupExpiredScheduleApplyOperations() in src/lib/schedule-apply.js — no unbounded growth.
  *
- * Rollback: DROP TABLE is safe — losing idempotency records only means a retried request
- * after the drop is re-executed as a fresh operation (protected by the same merge/duplicate
- * rules); it cannot resurrect deleted schedule data.
+ * Rollback: removing this table (see down()) is safe — losing idempotency records only means
+ * a retried request after that is re-executed as a fresh operation (protected by the same
+ * merge/duplicate rules); it cannot resurrect deleted schedule data.
  */
 
 module.exports = {
