@@ -328,3 +328,77 @@ has committed. Nothing is broadcast before commit.
   as a public route" above) before exposing it.
 - **Full once-task/effective-schedule read-model unification** — documented boundary in
   `effective-schedule.js`, not implemented in Phase 1A (§8.3).
+
+## Phase 1B — status: BACKEND COMPLETE, FRONTEND NOT YET BUILT
+
+Phase 1B's product goal is a single "+ Lägg till" primary action on Weekly Schedule exposing
+Aktivitet / Från mall / Kopiera dag, backed entirely by canonical Phase 1A/1B services, with no
+backend jargon exposed to the parent. This section is deliberately explicit about what exists
+today versus what remains, so this is not mistaken for a finished feature.
+
+### What is implemented and tested
+
+**New canonical commands** in `src/lib/schedule-apply.js` (all share the same hardened
+transaction/idempotency/family-integrity skeleton via a new internal
+`runIdempotentScheduleCommand()` helper — `applyScheduleSourceToChildPlan` was refactored onto
+it too, with its full existing test suite re-run green to prove no regression):
+
+- `applyActivityToChild()` — "Aktivitet" (§1B.1, §1B.20 decision record below).
+- `copyScheduleDay()` — "Kopiera dag" (§1B.4, §1B.21) — reads a source child/day directly and
+  applies via `applyScheduleItemsToDay`; never creates a temporary template; the source day is
+  read-only and therefore never modified.
+- `saveWeeklyDayAsFamilyTemplate()` — "Spara dagen som mall" (§1B.5, §1B.22) — creates a brand
+  new `family_template` row (never repurposes the child's own `weekly_schedule` row); the
+  created template is an explicit copy, never live-linked back to the source day (locked with a
+  regression test that edits the saved template afterward and asserts the source day is
+  unaffected).
+
+**§1B.20 decision record — direct-activity source:** `activity_template` was **not** added to
+`SOURCE_TYPES`. A "source" is a reusable, materializable collection resolved via
+`resolveScheduleSource` (`family_template` / `standard_schedule`); a single already-existing
+family activity needs no resolution/materialization, so `applyActivityToChild()` is a separate
+command that calls `applyScheduleItemsToDay` directly. This keeps "reusable template content"
+and "one activity, right now" as distinct, non-blurred concepts, per the explicit instruction not
+to widen `SOURCE_TYPES` for convenience.
+
+**§1B.21 decision record — copy-day source:** no temporary template is persisted. `copyScheduleDay()`
+reads `weekly_schedule_item` rows for the source child/day directly (with the same family
+ownership check as every other command) and writes through the same `applyScheduleItemsToDay`
+primitive as every other command — one write path, still.
+
+**New route** `src/routes/schedules/apply.js`, mounted into the existing `childRouter`
+(`/api/children/:childId/schedules/...`):
+
+| Route | Command | Notes |
+|---|---|---|
+| `POST .../apply-source` | `applyScheduleSourceToChildPlan` | `source: { type, id }` maps directly to `family_template`/`standard_schedule`; frontend never sends/sees those names — see "user-facing labels" below |
+| `POST .../apply-activity` | `applyActivityToChild` | default `mode: 'merge'` |
+| `POST .../copy-recurring-day` | `copyScheduleDay` | **not** named `/copy-day` — that legacy path already exists in `child-bulk.js` (always-replace, no idempotency) and is intentionally left untouched per the strangler pattern (§1B.13); this is a deliberately distinct path, not a collision |
+| `POST .../save-as-template` | `saveWeeklyDayAsFamilyTemplate` | |
+
+All four routes accept an optional `operation_id` and are protected by the SAME two-layer
+authorization as every Phase 1A route (route-layer `getChildAccess` + in-service
+`assertChildBelongsToFamily`). A conflicting `operation_id` reuse (different payload) returns
+`409` with **no** mutation — proven end-to-end over HTTP in
+`test/schedule-apply-routes.test.js`.
+
+**Tests:** `test/schedule-apply-phase1b.test.js` (19 tests — direct-activity apply, copy-day
+including cross-child-in-family and cross-family denial, save-as-template including the
+copy-vs-live-link proof) and `test/schedule-apply-routes.test.js` (HTTP integration — all four
+routes, operation_id replay + conflict, cross-family denial). Full existing Phase 1A suite
+re-run green after the `runIdempotentScheduleCommand` extraction.
+
+### What is explicitly NOT built yet (honest scope boundary)
+
+No frontend UI exists yet for any of this. Specifically **not implemented**: the "+ Lägg till"
+button/menu itself; the Från-mall step flow (Mina mallar / Färdiga mallar tabs, day-shortcut
+chips, mode confirmation copy); the Aktivitet picker UI; the Kopiera dag picker UI; the day
+action menu (Kopiera dagen / Spara som mall / Töm dagen); the activity action menu (Redigera /
+Kopiera till annan dag / Ta bort); the frontend `operation_id`-per-gesture adapter (§1B.9,
+§1B.18); sv-SE/en-GB copy for any of the above; mobile/accessibility verification at ~375px.
+Legacy UI (Fyll vecka, Tilldela schema, assign-schedule, old library copy dialog) is untouched
+and remains the only way parents can reach this functionality today.
+
+This PR delivers the backend foundation only. It is intentionally kept as a draft and is
+**not merged or deployed** — building the UI on top of this foundation is the next increment
+within Phase 1B, not a new phase.

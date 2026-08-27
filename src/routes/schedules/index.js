@@ -7,7 +7,9 @@
  *   ├── child-crud.js    — list/create/delete schedules, once-tasks
  *   ├── child-bulk.js    — copy-day, copy-to-child, copy-to-weeks, apply-date-range,
  *   │                     copy-item-to-day, copy-item-to-child, swap-day
- *   └── fill-week.js     — fill-week (insert template into multiple days)
+ *   ├── fill-week.js     — fill-week (insert template into multiple days)
+ *   └── apply.js         — Phase 1B canonical apply: apply-source, apply-activity,
+ *                          copy-day, save-as-template (see docs/schedule-canonical-architecture.md)
  *
  * scheduleRouter (/api/schedules/:scheduleId/items)
  *   └── items.js         — list/add/update/delete/reorder items
@@ -21,6 +23,7 @@ const authz = require('../../middleware/authz');
 const childCrudRouter = require('./child-crud');
 const childBulkRouter = require('./child-bulk');
 const fillWeekRouter = require('./fill-week');
+const applyRouter = require('./apply');
 const itemsRouter = require('./items');
 const templatesRouter = require('./templates');
 
@@ -36,6 +39,8 @@ childRouter.use('/', childCrudRouter);             // GET /, POST /, DELETE /:sc
 childRouter.use('/', childBulkRouter);            // POST /copy-day, /copy-to-child, /copy-to-weeks,
                                                    // POST /copy-item-to-day, /copy-item-to-child, /swap-day
 childRouter.use('/', fillWeekRouter);             // POST /fill-week
+childRouter.use('/', applyRouter);                // POST /apply-source, /apply-activity,
+                                                   // /copy-recurring-day, /save-as-template
 
 // Schedule-item routes
 scheduleRouter.use('/', itemsRouter);             // GET /, POST /, PUT /reorder, PUT /:itemId, DELETE /:itemId
