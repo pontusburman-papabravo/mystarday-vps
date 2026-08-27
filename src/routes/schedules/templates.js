@@ -20,6 +20,7 @@ const {
   NON_INTERACTIVE_AFTER_SCHOOL_VARIANT,
 } = require('../../lib/canonical-library-runtime');
 const { getFamilyLocale } = require('../../lib/onboarding-locale');
+const { applyScheduleSourceToChild, ScheduleApplyError } = require('../../lib/schedule-apply');
 
 const router = express.Router();
 router.use(requireParent);
@@ -252,9 +253,17 @@ router.delete('/:templateId', async (req, res) => {
 });
 
 // POST /api/schedule-templates/:templateId/apply — apply template to a child for given days
+//
+// Routed through the canonical schedule-apply service (src/lib/schedule-apply.js, Phase 1A).
+// Compatibility contract preserved for existing clients: `overwrite` (default false) keeps its
+// exact old meaning — days that already have a schedule are SKIPPED unless overwrite=true, in
+// which case that day is fully replaced (never merged). Days without an existing schedule are
+// filled either way (merge into an empty day == replace_day into an empty day). Because these
+// two groups need different canonical apply `mode`s, they are applied as up to two canonical
+// commands rather than one — see docs/schedule-canonical-architecture.md "Legacy route mapping".
 router.post('/:templateId/apply', async (req, res) => {
   try {
-    const { child_id, days, overwrite } = req.body;
+    const { child_id, days, overwrite, operation_id: rawOperationId } = req.body;
     if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
     if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ error: 'days[] krävs (t.ex. [1,2,3,4,5])' });
 
@@ -269,60 +278,43 @@ router.post('/:templateId/apply', async (req, res) => {
     const childAccess = await getChildAccess(req.user.id, child_id);
     if (!childAccess) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
 
-    const templateItems = await db.query(
-      `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-              at.name, at.icon, at.star_value
-       FROM weekly_schedule_item wsi
-       LEFT JOIN activity_template at ON at.id = wsi.activity_template_id
-       WHERE wsi.weekly_schedule_id = $1
-       ORDER BY wsi.sort_order ASC`,
-      [req.params.templateId]
-    );
-
     const validDays = days.map(d => parseInt(d, 10)).filter(d => !isNaN(d) && d >= 0 && d <= 6);
     if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar' });
 
-    const client = await db.getClient();
+    const existingByDay = await db.query(
+      'SELECT day_of_week FROM weekly_schedule WHERE child_id = $1 AND day_of_week = ANY($2::int[])',
+      [child_id, validDays]
+    );
+    const daysWithExisting = new Set(existingByDay.rows.map((r) => r.day_of_week));
+    const daysToReplace = overwrite ? validDays.filter((d) => daysWithExisting.has(d)) : [];
+    const daysToFill = validDays.filter((d) => !daysWithExisting.has(d));
+
     const filledDays = [];
-    try {
-      await client.query('BEGIN');
-
-      for (const dow of validDays) {
-        const existing = await client.query(
-          'SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2',
-          [child_id, dow]
-        );
-
-        let scheduleId;
-        if (existing.rows.length > 0) {
-          if (!overwrite) continue;
-          scheduleId = existing.rows[0].id;
-          await client.query('DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1', [scheduleId]);
-        } else {
-          const newSched = await client.query(
-            'INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, $2, $3) RETURNING id',
-            [child_id, dow, dow]
-          );
-          scheduleId = newSched.rows[0].id;
-        }
-
-        for (const item of templateItems.rows) {
-          await client.query(
-            `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [scheduleId, item.activity_template_id, item.start_time || null, item.end_time || null, item.sort_order || 0, item.section || 'dag']
-          );
-        }
-        filledDays.push(dow);
-      }
-
-      await client.query('COMMIT');
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
+    if (daysToFill.length > 0) {
+      const result = await applyScheduleSourceToChild({
+        familyId: req.user.familyId,
+        childId: child_id,
+        sourceType: 'family_template',
+        sourceId: req.params.templateId,
+        days: daysToFill,
+        mode: 'merge',
+        operationId: rawOperationId ? `${rawOperationId}:fill` : null,
+      });
+      filledDays.push(...result.applied_days);
     }
+    if (daysToReplace.length > 0) {
+      const result = await applyScheduleSourceToChild({
+        familyId: req.user.familyId,
+        childId: child_id,
+        sourceType: 'family_template',
+        sourceId: req.params.templateId,
+        days: daysToReplace,
+        mode: 'replace_day',
+        operationId: rawOperationId ? `${rawOperationId}:replace` : null,
+      });
+      filledDays.push(...result.applied_days);
+    }
+    filledDays.sort((a, b) => a - b);
 
     for (const dow of filledDays) {
       try {
@@ -339,6 +331,9 @@ router.post('/:templateId/apply', async (req, res) => {
       filled_days: filledDays,
     });
   } catch (err) {
+    if (err instanceof ScheduleApplyError) {
+      return res.status(err.httpStatus).json({ error: err.message, code: err.code, details: err.details });
+    }
     console.error('[SCHEDULE-TEMPLATES] Apply error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }

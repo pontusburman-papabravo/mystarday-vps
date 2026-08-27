@@ -14,6 +14,30 @@ const db = require('./db');
 const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
 const { STOCKHOLM_TZ } = require('./stockholm-time');
+const { resolveEffectiveSchedule, BASE_TYPES } = require('./effective-schedule');
+
+/**
+ * Resolve the base schedule (special day if populated, else custody-aware weekly, with
+ * date exclusions applied) for one child/date via the canonical effective-schedule resolver
+ * (Phase 1A). Returns items already shaped for batchInsertDailyLogItems.
+ *
+ * Behavioural note (audited, see docs/schedule-canonical-architecture.md "Daily-log
+ * integration"): before this refactor, the FIRST-EVER generation of a daily log for a date
+ * (this function's only callers) copied weekly_schedule_item rows directly and did not check
+ * schedule_date_exclusion — only the later syncDailyLogWithSchedule() sync path did. Routing
+ * first-time generation through the same resolver used everywhere else closes that gap: an
+ * exclusion created before a date's log has ever been generated is now honoured immediately,
+ * matching the documented precedence in resolveEffectiveSchedule and §16. This is covered by a
+ * regression test (test/effective-schedule.test.js "exclusion honoured on first generation").
+ */
+async function resolveBaseItemsForLog(q, childId, dateStr, timezone) {
+  const effective = await resolveEffectiveSchedule(childId, dateStr, { client: q, timezone });
+  return {
+    baseType: effective.source.base_type,
+    baseId: effective.source.base_id,
+    items: effective.items,
+  };
+}
 
 /** SQL fragment: household order (child override when set, else parent sort_order). */
 const DAILY_LOG_ITEM_SECTION_ORDER_SQL = `CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END`;
@@ -146,83 +170,34 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
     );
 
     // BUG-10 FIX: If log exists but has 0 items, check if a schedule now exists
-    // and populate items from it. Checks special day schedules first.
+    // and populate items from it. Uses the canonical effective-schedule resolver
+    // (special day first, then custody-aware weekly — see resolveBaseItemsForLog above).
     if (items.rows.length === 0) {
       const childInfo = await q.query('SELECT id, timezone FROM child WHERE id = $1', [childId]);
       const tz = (childInfo.rows[0] && childInfo.rows[0].timezone) || 'Europe/Stockholm';
 
-      // Check special day schedule first
-      const specialResult = await q.query(
-        `SELECT sds.id FROM special_day_schedule sds WHERE sds.child_id = $1 AND sds.date = $2`,
-        [childId, dateStr]
-      );
-      if (specialResult.rows.length > 0) {
-        const specialDayId = specialResult.rows[0].id;
-        const specialItems = await q.query(
-          `SELECT sdsi.activity_template_id, sdsi.name, sdsi.icon,
-                  sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section,
-                  at.image_url
-           FROM special_day_schedule_item sdsi
-           LEFT JOIN activity_template at ON at.id = sdsi.activity_template_id
-           WHERE sdsi.special_day_schedule_id = $1
-           ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
-          [specialDayId]
-        );
-        if (specialItems.rows.length > 0) {
-          // Batch insert all items in one query instead of N round-trips
-          await batchInsertDailyLogItems(q, log.id, specialItems.rows);
-          const populatedItems = await q.query(
-            `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
-                    COALESCE(dli.image_url, at.image_url) AS image_url,
-              at.icon_key AS icon_key,
-              at.duration_seconds AS duration_seconds,
-                    dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
-                    dli.sort_order, dli.child_sort_order, dli.section,
-                    COALESCE(at.feedback_for, 'both') AS feedback_for
-             FROM daily_log_item dli
-             LEFT JOIN activity_template at ON at.id = dli.activity_template_id
-             WHERE dli.daily_log_id = $1
-             ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
-            [log.id]
-          );
-          return { log, items: populatedItems.rows, generated: true, from_special_day: true };
+      const base = await resolveBaseItemsForLog(q, childId, dateStr, tz);
+      if (base.items.length > 0) {
+        // Batch insert all items in one query instead of N round-trips
+        await batchInsertDailyLogItems(q, log.id, base.items);
+        if (base.baseType === BASE_TYPES.WEEKLY) {
+          await q.query('UPDATE daily_log SET generated_from = $1 WHERE id = $2', [base.baseId, log.id]);
         }
-      }
-
-      // Fall back to weekly schedule
-      const scheduleId = await resolveWeeklyScheduleId(q, childId, dateStr, tz);
-      if (scheduleId) {
-        const scheduleItems = await q.query(
-          `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-                  at.name, at.icon, at.image_url, at.star_value
-           FROM weekly_schedule_item wsi
-           JOIN activity_template at ON at.id = wsi.activity_template_id
-           WHERE wsi.weekly_schedule_id = $1
-           ORDER BY CASE wsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, wsi.sort_order ASC`,
-          [scheduleId]
+        const populatedItems = await q.query(
+          `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
+                  COALESCE(dli.image_url, at.image_url) AS image_url,
+            at.icon_key AS icon_key,
+            at.duration_seconds AS duration_seconds,
+                  dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
+                  dli.sort_order, dli.child_sort_order, dli.section,
+                  COALESCE(at.feedback_for, 'both') AS feedback_for
+           FROM daily_log_item dli
+           LEFT JOIN activity_template at ON at.id = dli.activity_template_id
+           WHERE dli.daily_log_id = $1
+           ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
+          [log.id]
         );
-        if (scheduleItems.rows.length > 0) {
-          // Batch insert all items in one query
-          await batchInsertDailyLogItems(q, log.id, scheduleItems.rows);
-          // Update generated_from reference
-          await q.query('UPDATE daily_log SET generated_from = $1 WHERE id = $2', [scheduleId, log.id]);
-          // Re-fetch populated items
-          const populatedItems = await q.query(
-            `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
-                    COALESCE(dli.image_url, at.image_url) AS image_url,
-              at.icon_key AS icon_key,
-              at.duration_seconds AS duration_seconds,
-                    dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
-                    dli.sort_order, dli.child_sort_order, dli.section,
-                    COALESCE(at.feedback_for, 'both') AS feedback_for
-             FROM daily_log_item dli
-             LEFT JOIN activity_template at ON at.id = dli.activity_template_id
-             WHERE dli.daily_log_id = $1
-             ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
-            [log.id]
-          );
-          return { log, items: populatedItems.rows, generated: true };
-        }
+        return { log, items: populatedItems.rows, generated: true, from_special_day: base.baseType === BASE_TYPES.SPECIAL_DAY };
       }
     }
 
@@ -242,90 +217,25 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
   // ── 3. Get day of week for dateStr ───────────────────────
   const dayOfWeek = getDayOfWeek(dateStr, timezone);
 
-  // ── 4a. Check for special day schedule override ──────────
-  const specialDayResult = await q.query(
-    `SELECT sds.id
-     FROM special_day_schedule sds
-     WHERE sds.child_id = $1 AND sds.date = $2`,
-    [childId, dateStr]
-  );
-
-  if (specialDayResult.rows.length > 0) {
-    const specialDayId = specialDayResult.rows[0].id;
-
-    const specialItems = await q.query(
-      `SELECT sdsi.activity_template_id, sdsi.name, sdsi.icon,
-              sdsi.start_time, sdsi.end_time, sdsi.star_value, sdsi.sort_order, sdsi.section,
-              at.image_url
-       FROM special_day_schedule_item sdsi
-       LEFT JOIN activity_template at ON at.id = sdsi.activity_template_id
-       WHERE sdsi.special_day_schedule_id = $1
-       ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
-      [specialDayId]
-    );
-
-    if (specialItems.rows.length > 0) {
-      const logResult = await q.query(
-        `INSERT INTO daily_log (child_id, date, is_paused, generated_from)
-         VALUES ($1, $2, false, NULL)
-         ON CONFLICT (child_id, date) DO UPDATE SET generated_from = NULL
-         RETURNING id, child_id, date, is_paused, generated_from, created_at`,
-        [childId, dateStr]
-      );
-      const log = logResult.rows[0];
-
-      // Batch insert all items in one query
-      await batchInsertDailyLogItems(q, log.id, specialItems.rows);
-
-      const items = await q.query(
-        `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
-                COALESCE(dli.image_url, at.image_url) AS image_url,
-              at.icon_key AS icon_key,
-              at.duration_seconds AS duration_seconds,
-                dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
-                dli.sort_order, dli.child_sort_order, dli.section,
-                dli.parent_note, dli.child_note,
-                COALESCE(at.feedback_for, 'both') AS feedback_for
-         FROM daily_log_item dli
-         LEFT JOIN activity_template at ON at.id = dli.activity_template_id
-         WHERE dli.daily_log_id = $1
-         ORDER BY CASE dli.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, COALESCE(dli.child_sort_order, dli.sort_order) ASC, dli.sort_order ASC, dli.start_time ASC NULLS LAST`,
-        [log.id]
-      );
-
-      return { log, items: items.rows, generated: true, from_special_day: true };
-    }
-    // Empty special day row — fall through to weekly schedule below
-  }
-
-  // ── 4b. Find weekly schedule for that day_of_week (custody-aware) ─
-  const scheduleId = await resolveWeeklyScheduleId(q, childId, dateStr, timezone);
+  // ── 4. Resolve base schedule (special day if populated, else custody-aware weekly,
+  //      exclusions applied) via the canonical effective-schedule resolver ──────────
+  const base = await resolveBaseItemsForLog(q, childId, dateStr, timezone);
 
   // ── 5. Create the daily_log record ───────────────────────
-
+  const generatedFrom = base.baseType === BASE_TYPES.WEEKLY ? base.baseId : null;
   const logResult = await q.query(
     `INSERT INTO daily_log (child_id, date, is_paused, generated_from)
      VALUES ($1, $2, false, $3)
      ON CONFLICT (child_id, date) DO UPDATE SET generated_from = EXCLUDED.generated_from
      RETURNING id, child_id, date, is_paused, generated_from, created_at`,
-    [childId, dateStr, scheduleId]
+    [childId, dateStr, generatedFrom]
   );
   const log = logResult.rows[0];
 
   // ── 6. Copy schedule items → daily_log_items (snapshot) ──
-  if (scheduleId) {
-    const scheduleItems = await q.query(
-      `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-              at.name, at.icon, at.image_url, at.star_value
-       FROM weekly_schedule_item wsi
-       JOIN activity_template at ON at.id = wsi.activity_template_id
-       WHERE wsi.weekly_schedule_id = $1
-       ORDER BY CASE wsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, wsi.sort_order ASC`,
-      [scheduleId]
-    );
-
+  if (base.items.length > 0) {
     // Batch insert all items in one query instead of N round-trips
-    await batchInsertDailyLogItems(q, log.id, scheduleItems.rows);
+    await batchInsertDailyLogItems(q, log.id, base.items);
   }
 
   // ── 7. Return fresh log + items ───────────────────────────
@@ -342,7 +252,7 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
     [log.id]
   );
 
-  return { log, items: items.rows, generated: true };
+  return { log, items: items.rows, generated: true, from_special_day: base.baseType === BASE_TYPES.SPECIAL_DAY };
 }
 
 /**
