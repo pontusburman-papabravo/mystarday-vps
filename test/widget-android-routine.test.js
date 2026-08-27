@@ -53,6 +53,20 @@ test('WidgetOpenAppReceiver opens child today without completion deep link', () 
   assert.doesNotMatch(src, /complete-action/);
 });
 
+test('WidgetOpenAppReceiver always reuses the existing MainActivity task (no duplicate instance)', () => {
+  const src = fs.readFileSync(path.join(WIDGET_JAVA, 'WidgetOpenAppReceiver.java'), 'utf8');
+  // FLAG_ACTIVITY_NEW_TASK alone already reuses the existing task via
+  // taskAffinity matching, independent of MainActivity's launchMode
+  // (singleTask vs singleTop — see scripts/patch-android-manifest.mjs).
+  // CLEAR_TOP is a defensive addition so a widget tap can never surface a
+  // second stacked instance of the app.
+  const launchCalls = src.match(/\.addFlags\(Intent\.FLAG_ACTIVITY_NEW_TASK[^)]*\)/g) || [];
+  assert.ok(launchCalls.length >= 2, 'expected both the primary launch and the fallback launcher intent to set flags');
+  for (const call of launchCalls) {
+    assert.match(call, /FLAG_ACTIVITY_CLEAR_TOP/);
+  }
+});
+
 test('verify-widget-bridge-native checks Android widget layout', () => {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/verify-widget-bridge-native.mjs'), 'utf8');
   assert.match(src, /RoutineWidgetProvider/);

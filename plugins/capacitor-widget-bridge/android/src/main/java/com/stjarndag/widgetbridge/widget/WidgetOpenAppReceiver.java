@@ -22,14 +22,20 @@ public class WidgetOpenAppReceiver extends BroadcastReceiver {
         }
         Intent launch = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         launch.setPackage(context.getPackageName());
-        launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // NEW_TASK alone already reuses the existing task via taskAffinity
+        // matching (independent of MainActivity's launchMode). CLEAR_TOP is
+        // added defensively so a widget tap always surfaces MainActivity
+        // itself — never a second stacked instance — regardless of OEM
+        // Android variants or future launchMode changes (e.g. the
+        // RevenueCat-required singleTop, see scripts/patch-android-manifest.mjs).
+        launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         try {
             context.startActivity(launch);
         } catch (Exception ignored) {
             // Main activity may not handle VIEW — fall back to launcher
             Intent fallback = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
             if (fallback != null) {
-                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(fallback);
             }
         }
