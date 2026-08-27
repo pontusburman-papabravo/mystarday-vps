@@ -29,6 +29,7 @@ const APP_LINK_PATHS = [
   '/invite',
   '/child-login',
   '/child-dashboard',
+  '/open/child',
 ];
 
 const PERMISSIONS = [
