@@ -228,6 +228,31 @@
     return Boolean(day && day.custody && day.custody.isMyDay === false);
   }
 
+  /**
+   * Phase 1B custody hardening — explicit safe accessor for the currently-visible custody
+   * home id, used by canonical apply commands (schedule-apply-client.js) instead of parsing
+   * scheduleQuery()'s query string. Returns null when custody is inactive OR when the active
+   * variant has no resolved home yet (matches getCreateExtras()'s existing fallback — the
+   * legacy week_variant-only path is intentionally not surfaced here since the canonical
+   * backend commands only accept custody_home_id, never week_variant).
+   * @returns {string|null}
+   */
+  function getActiveHomeId() {
+    if (!state.active) return null;
+    const home = state.variantHomes[state.editVariant];
+    return (home && home.id) ? home.id : null;
+  }
+
+  /**
+   * Canonical write-context accessor for the new Phase 1B "+ Lägg till" flows — "what the
+   * parent sees is what the parent edits". Reuses getCreateExtras()'s existing state/logic
+   * rather than duplicating it; only the name/intent is new. {} when custody is inactive.
+   * @returns {{ custody_home_id?: string, week_variant?: string }}
+   */
+  function getWriteContext() {
+    return getCreateExtras();
+  }
+
   function getEditVariantLabel() {
     const label = state.variantLabels[state.editVariant];
     if (label && label !== PERIOD_FALLBACK.a && label !== PERIOD_FALLBACK.b) {
@@ -241,6 +266,8 @@
     styleDayTabs: styleDayTabs,
     scheduleQuery: scheduleQuery,
     getCreateExtras: getCreateExtras,
+    getActiveHomeId: getActiveHomeId,
+    getWriteContext: getWriteContext,
     isDayHidden: isDayHidden,
     getEditVariantLabel: getEditVariantLabel,
     isActive: function () { return state.active; },

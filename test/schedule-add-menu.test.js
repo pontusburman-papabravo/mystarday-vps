@@ -154,6 +154,48 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.ok(fs.existsSync(path.join(ROOT, 'public/assign-schedule.html')), 'assign-schedule.html must still exist');
   });
 
+  it('Phase 1B custody hardening §3/§4: every submit path reads the active custody home and forwards it', () => {
+    const src = read(MODULE);
+    assert.match(src, /function activeCustodyHomeId/);
+    assert.match(src, /ScheduleCustody\.getActiveHomeId\(\)/);
+
+    // Each submit function computes custodyHomeId once and forwards it to BOTH the operation
+    // fingerprint (so switching custody home never reuses a stale operation_id, §5) AND the
+    // client call body (so the request actually targets that home, §4/§8-11).
+    for (const [startMarker, endMarker] of [
+      ['async function doSubmitTemplate', 'async function openCopyDay'],
+    ]) {
+      const body = src.slice(src.indexOf(startMarker), endMarker ? src.indexOf(endMarker) : undefined);
+      assert.match(body, /const custodyHomeId = activeCustodyHomeId\(\)/, `${startMarker} must read activeCustodyHomeId()`);
+      assert.match(body, /forCommand\(\{[^]*?custodyHomeId[^]*?\}\)/, `${startMarker} fingerprint must include custodyHomeId`);
+      assert.match(body, /custodyHomeId,?\s*\}\);/, `${startMarker} client call must forward custodyHomeId`);
+    }
+
+    const submitActivityBody = src.slice(src.indexOf('const days = [...activityState.days];'), src.indexOf('setPending(\'samActivitySaveBtn\', false);'));
+    assert.match(submitActivityBody, /const custodyHomeId = activeCustodyHomeId\(\)/);
+    assert.match(submitActivityBody, /forCommand\(\{[^]*?custodyHomeId[^]*?\}\)/);
+    assert.match(submitActivityBody, /operationId, custodyHomeId,?\s*\}\);/);
+
+    const submitCopyDayBody = src.slice(src.indexOf('async function doSubmitCopyDay'), src.indexOf('setPending(\'samCopyDaySaveBtn\', false);'));
+    assert.match(submitCopyDayBody, /const custodyHomeId = activeCustodyHomeId\(\)/);
+    assert.match(submitCopyDayBody, /forCommand\(\{[^]*?custodyHomeId[^]*?\}\)/);
+
+    const submitSaveAsTemplateBody = src.slice(src.indexOf('async function submitSaveAsTemplate'), src.indexOf('async function openDay') > -1 ? src.indexOf('async function openDay') : undefined);
+    assert.match(submitSaveAsTemplateBody, /const custodyHomeId = activeCustodyHomeId\(\)/);
+    assert.match(submitSaveAsTemplateBody, /forCommand\(\{[^]*?custodyHomeId[^]*?\}\)/);
+  });
+
+  it('Phase 1B custody hardening §4: HTTP client accepts custodyHomeId and only sends custody_home_id when truthy', () => {
+    const src = read(CLIENT_MODULE);
+    for (const fn of ['applyActivity', 'applyTemplate', 'copyDay', 'saveDayAsTemplate']) {
+      const start = src.indexOf(`${fn}(childId`);
+      assert.ok(start > -1, `${fn} must exist in the client`);
+      const body = src.slice(start, start + 700);
+      assert.match(body, /custodyHomeId/, `${fn} must accept custodyHomeId`);
+      assert.match(body, /custodyHomeId \? \{ custody_home_id: custodyHomeId \} : \{\}/, `${fn} must only send custody_home_id when active`);
+    }
+  });
+
   it('no hardcoded Swedish/English literal user copy — every label goes through pt()/i18n keys', () => {
     const src = read(MODULE);
     // Only inspect non-comment code lines — doc comments legitimately name the Swedish

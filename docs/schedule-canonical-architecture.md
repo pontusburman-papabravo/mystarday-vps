@@ -329,7 +329,7 @@ has committed. Nothing is broadcast before commit.
 - **Full once-task/effective-schedule read-model unification** — documented boundary in
   `effective-schedule.js`, not implemented in Phase 1A (§8.3).
 
-## Phase 1B — status: BACKEND + FRONTEND COMPLETE (this pass), Phase 1C retires legacy paths
+## Phase 1B — status: BACKEND + FRONTEND + CUSTODY HARDENING COMPLETE (this pass), Phase 1C retires legacy paths
 
 Phase 1B's product goal is a single "+ Lägg till" primary action on Weekly Schedule exposing
 Aktivitet / Från mall / Kopiera dag, backed entirely by canonical Phase 1A/1B services, with no
@@ -437,6 +437,71 @@ promised true cross-child atomicity contract (each child is its own DB transacti
 "Not exposed as a public route" earlier in this document), so exposing a multi-child "Alla
 barn" option here would risk exactly the partial-success UX the task explicitly forbids. No
 "Alla barn" control exists anywhere in this pass.
+
+### Custody hardening (PR #1095 review) — active custody home propagation
+
+New recurring schedule mutations inherit the active `custody_home_id` from the Weekly Schedule
+editor; **what the parent sees is what the parent edits.** The four Phase 1B "+ Lägg till"
+commands did not originally propagate the active custody/boendeschema context — a parent
+editing "hos mamma" could have the mutation land on the generic (no-home) `weekly_schedule`
+row instead of the visible custody variant. Fixed end-to-end:
+
+- **Frontend accessor** — `ScheduleCustody.getActiveHomeId()` (new) returns the currently
+  edited home's id, or `null` when custody is inactive; `ScheduleCustody.getWriteContext()`
+  (new) is a canonically-named alias that reuses the existing `getCreateExtras()` state rather
+  than a second custody model or query-string parsing. `schedule-add-menu.js` calls
+  `activeCustodyHomeId()` (a thin local wrapper) once per submit and forwards the result to
+  BOTH the operation-id fingerprint and the client call.
+- **HTTP contract** — `public/js/schedule-apply-client.js`'s four methods (`applyActivity`,
+  `applyTemplate`, `copyDay`, `saveDayAsTemplate`) accept `custodyHomeId` and only add
+  `custody_home_id` to the request body when it is truthy — a non-custody child's request is
+  byte-for-byte identical to before. The four routes in `src/routes/schedules/apply.js` shape
+  `custody_home_id` into `custodyContext: { custodyHomeId }` before calling the canonical
+  service; no custody SQL lives at the route layer.
+- **operation_id fingerprint** — `custodyHomeId` is now part of every operation-tracker
+  fingerprint (`schedule-add-menu.js`) and every server-side `fingerprintPayload`
+  (`schedule-apply.js`). Switching from "hos mamma" to "hos pappa" between clicks produces a
+  NEW `operation_id`/fingerprint — it can never silently replay against the wrong home.
+- **Server-side validation** — `resolveCustodyWriteContext()` (new, `src/lib/schedule-apply.js`)
+  runs inside `runIdempotentScheduleCommand`, immediately after the existing
+  `assertChildBelongsToFamily` check and before any mutation or idempotency-ledger lookup. It
+  reuses the SAME two helpers the legacy custody-aware create route already uses
+  (`db/custody.getHomeInFamily` for family ownership, `src/lib/custody-schedule-write.
+  resolveScheduleWriteFields` to resolve the paired `week_variant` from the child's own
+  `custody_pattern`) — no second custody-ownership model. A foreign-family or unknown
+  `custody_home_id` throws `ScheduleApplyError('CUSTODY_HOME_INVALID', 403, …)`, rolling back
+  the transaction with zero writes.
+- **Why `week_variant` matters too, not just `custody_home_id`** — `weekly_schedule` has a
+  unique index on `(child_id, day_of_week, COALESCE(week_variant, 'legacy'))`. A row written
+  with `custody_home_id` set but `week_variant` left `NULL` would collide with every OTHER
+  home's row for the same child+day (they would all resolve to the same `'legacy'` index key).
+  `resolveCustodyWriteContext()` resolves both columns together — exactly like the existing
+  `POST /api/children/:childId/schedules` create route already does — so home A and home B can
+  coexist as two separate rows for the same child+day. `findOrCreateWeeklyScheduleRow()` writes
+  `week_variant` on INSERT only; all reads still match on `custody_home_id` alone, which already
+  uniquely identifies the row.
+- **Per-command custody scoping**: `applyActivityToChild`/`applyScheduleSourceToChildPlan` write
+  only to the active home's row (never the generic row, never the other home). `copyScheduleDay`
+  reads the source day AND writes the target day(s) using the SAME active home — "copy what I
+  see" matches "what gets applied" (§10); cross-child copy still independently re-validates both
+  the source and target child belong to the family. `saveWeeklyDayAsFamilyTemplate` reads the
+  custody-scoped source day but the resulting `family_template` row is always custody-neutral
+  (`custody_home_id`/`child_id` both `NULL`) — a template is a reusable copy, not tied to a home.
+- **No-custody regression** — every code path above is a no-op when `custody_home_id` is
+  omitted/falsy; a family without custody sees identical behaviour to before this pass.
+- **Tests**: `test/schedule-apply-custody.test.js` (10 — per-command custody scoping incl.
+  `replace_day` non-interference across homes, copy-day home isolation, save-as-template
+  custody-neutral template, foreign-family/unknown `custody_home_id` denial with no writes,
+  no-custody regression, cross-family copy-day target denial even with a valid home id);
+  `test/schedule-apply-routes.test.js` (extended — HTTP-level custody_home_id forwarding for
+  all four routes + foreign-family denial); `test/schedule-add-menu.test.js` /
+  `test/schedule-custody.test.js` (extended — frontend accessor exists and is used by every
+  submit path, fingerprint includes `custodyHomeId`, client only sends `custody_home_id` when
+  truthy). All pre-existing custody test suites (`test/custody-*.test.js`,
+  `test/schedule-custody.test.js`, `test/dashboard-custody.test.js`) re-run green — one
+  pre-existing, unrelated failure in `test/custody-api-integration.test.js` (confirmed present
+  on the branch before this change too) is a known flaky assertion in the legacy
+  `child-crud.js` create-route test, untouched by this pass.
 
 ### Mobile / accessibility
 

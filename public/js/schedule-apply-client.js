@@ -62,8 +62,14 @@
     createOperationTracker,
     newOperationId,
 
-    /** §1B.1 "Aktivitet" — direct-activity apply (applyActivityToChild). */
-    applyActivity(childId, { activityTemplateId, days, section, startTime, endTime, mode, operationId }) {
+    /**
+     * §1B.1 "Aktivitet" — direct-activity apply (applyActivityToChild).
+     * `custodyHomeId` (Phase 1B custody hardening): the active custody home from the Weekly
+     * Schedule editor's `ScheduleCustody` state, when custody is active — "what the parent
+     * sees is what the parent edits". Omitted entirely when falsy so a non-custody child's
+     * request is byte-for-byte identical to before (§12).
+     */
+    applyActivity(childId, { activityTemplateId, days, section, startTime, endTime, mode, operationId, custodyHomeId }) {
       return postJson(`/api/children/${childId}/schedules/apply-activity`, {
         activity_template_id: activityTemplateId,
         days,
@@ -72,36 +78,40 @@
         end_time: endTime || null,
         mode: mode || 'merge',
         operation_id: operationId || null,
+        ...(custodyHomeId ? { custody_home_id: custodyHomeId } : {}),
       });
     },
 
     /** §1B.2 "Från mall" — family_template / standard_schedule (applyScheduleSourceToChildPlan). */
-    applyTemplate(childId, { sourceType, sourceId, days, mode, operationId }) {
+    applyTemplate(childId, { sourceType, sourceId, days, mode, operationId, custodyHomeId }) {
       return postJson(`/api/children/${childId}/schedules/apply-source`, {
         source: { type: sourceType, id: sourceId },
         days,
         mode: mode || 'merge',
         operation_id: operationId || null,
+        ...(custodyHomeId ? { custody_home_id: custodyHomeId } : {}),
       });
     },
 
     /** §1B.4/§1B.8 "Kopiera dag" — single target child (copyScheduleDay). */
-    copyDay(childId, { sourceChildId, sourceDayOfWeek, targetDays, mode, operationId }) {
+    copyDay(childId, { sourceChildId, sourceDayOfWeek, targetDays, mode, operationId, custodyHomeId }) {
       return postJson(`/api/children/${childId}/schedules/copy-recurring-day`, {
         source_child_id: sourceChildId || childId,
         source_day_of_week: sourceDayOfWeek,
         target_days: targetDays,
         mode: mode || 'merge',
         operation_id: operationId || null,
+        ...(custodyHomeId ? { custody_home_id: custodyHomeId } : {}),
       });
     },
 
     /** §1B.5 "Spara dagen som mall" (saveWeeklyDayAsFamilyTemplate). */
-    saveDayAsTemplate(childId, { dayOfWeek, templateName, operationId }) {
+    saveDayAsTemplate(childId, { dayOfWeek, templateName, operationId, custodyHomeId }) {
       return postJson(`/api/children/${childId}/schedules/save-as-template`, {
         day_of_week: dayOfWeek,
         template_name: templateName,
         operation_id: operationId || null,
+        ...(custodyHomeId ? { custody_home_id: custodyHomeId } : {}),
       });
     },
   };

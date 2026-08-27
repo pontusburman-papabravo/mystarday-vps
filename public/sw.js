@@ -271,7 +271,8 @@
 // stjarndag-v880: Finland web launch prep — market_fi_open gate, staged registration (not yet opened)
 // stjarndag-v885: fix child->adult picker unlock false failure on device_mode:'parent' (no lease required)
 // stjarndag-v886: Phase 1B — Weekly Schedule "+ Lägg till" (schedule-add-menu.js, schedule-apply-client.js)
-const CACHE_NAME = 'stjarndag-v886';
+// stjarndag-v887: Phase 1B custody hardening — propagate active custody_home_id
+const CACHE_NAME = 'stjarndag-v887';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

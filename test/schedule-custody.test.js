@@ -29,4 +29,14 @@ describe('schedule-custody (Phase 4.5c)', () => {
     assert.match(src, /Hos ' \+ day\.custody\.label/);
     assert.match(src, /isMyDay/);
   });
+
+  it('Phase 1B custody hardening: exposes an explicit getActiveHomeId()/getWriteContext() accessor, reusing getCreateExtras() state', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/schedule-custody.js'), 'utf8');
+    assert.match(src, /function getActiveHomeId/);
+    assert.match(src, /function getWriteContext/);
+    // getWriteContext must reuse getCreateExtras()'s existing state rather than duplicating it.
+    assert.match(src, /function getWriteContext\(\) \{\s*return getCreateExtras\(\);\s*\}/);
+    assert.match(src, /getActiveHomeId: getActiveHomeId/);
+    assert.match(src, /getWriteContext: getWriteContext/);
+  });
 });

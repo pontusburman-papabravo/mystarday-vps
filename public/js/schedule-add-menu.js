@@ -38,6 +38,17 @@
     return window.ScheduleCore ? ScheduleCore.dayShort(dow) : String(dow);
   }
 
+  /**
+   * Phase 1B custody hardening — "what the parent sees is what the parent edits". Every
+   * canonical mutation below reads the SAME active custody home the Weekly Schedule editor
+   * (schedule-custody.js) is currently showing, via its explicit accessor. Returns null when
+   * custody is inactive (§12 — no custody_home_id is ever required for a non-custody child,
+   * and no "choose home" step appears in this menu).
+   */
+  function activeCustodyHomeId() {
+    return window.ScheduleCustody ? ScheduleCustody.getActiveHomeId() : null;
+  }
+
   const opTracker = window.ScheduleApplyClient ? ScheduleApplyClient.createOperationTracker() : null;
 
   // ── Modal shell (one shared container, step-based) ─────────────────────────
@@ -279,15 +290,17 @@
       return;
     }
     const days = [...activityState.days];
+    const custodyHomeId = activeCustodyHomeId();
     const operationId = opTracker ? opTracker.forCommand({
       cmd: 'apply-activity', childId: currentChildId, activityTemplateId: activityState.templateId,
       days: [...days].sort(), section: activityState.section, startTime: activityState.startTime, endTime: activityState.endTime,
+      custodyHomeId,
     }) : null;
 
     setPending('samActivitySaveBtn', true);
     const { ok, data } = await ScheduleApplyClient.applyActivity(currentChildId, {
       activityTemplateId: activityState.templateId, days, section: activityState.section,
-      startTime: activityState.startTime || null, endTime: activityState.endTime || null, operationId,
+      startTime: activityState.startTime || null, endTime: activityState.endTime || null, operationId, custodyHomeId,
     });
     setPending('samActivitySaveBtn', false);
 
@@ -421,14 +434,15 @@
 
   async function doSubmitTemplate(days) {
     const sourceType = templateState.tab === 'mine' ? 'family_template' : 'standard_schedule';
+    const custodyHomeId = activeCustodyHomeId();
     const operationId = opTracker ? opTracker.forCommand({
       cmd: 'apply-template', childId: currentChildId, sourceType, sourceId: templateState.selected.id,
-      days: [...days].sort(), mode: templateState.mode,
+      days: [...days].sort(), mode: templateState.mode, custodyHomeId,
     }) : null;
 
     setPending('samTemplateSaveBtn', true);
     const { ok, data } = await ScheduleApplyClient.applyTemplate(currentChildId, {
-      sourceType, sourceId: templateState.selected.id, days, mode: templateState.mode, operationId,
+      sourceType, sourceId: templateState.selected.id, days, mode: templateState.mode, operationId, custodyHomeId,
     });
     setPending('samTemplateSaveBtn', false);
 
@@ -516,14 +530,15 @@
   }
 
   async function doSubmitCopyDay(targetDays) {
+    const custodyHomeId = activeCustodyHomeId();
     const operationId = opTracker ? opTracker.forCommand({
       cmd: 'copy-day', childId: currentChildId, sourceDay: copyDayState.sourceDay,
-      targetDays: [...targetDays].sort(), mode: copyDayState.mode,
+      targetDays: [...targetDays].sort(), mode: copyDayState.mode, custodyHomeId,
     }) : null;
 
     setPending('samCopyDaySaveBtn', true);
     const { ok, data } = await ScheduleApplyClient.copyDay(currentChildId, {
-      sourceDayOfWeek: copyDayState.sourceDay, targetDays, mode: copyDayState.mode, operationId,
+      sourceDayOfWeek: copyDayState.sourceDay, targetDays, mode: copyDayState.mode, operationId, custodyHomeId,
     });
     setPending('samCopyDaySaveBtn', false);
 
@@ -569,13 +584,14 @@
       errEl.classList.remove('hidden');
       return;
     }
+    const custodyHomeId = activeCustodyHomeId();
     const operationId = opTracker ? opTracker.forCommand({
-      cmd: 'save-as-template', childId: currentChildId, dayOfWeek: currentDay, templateName: name,
+      cmd: 'save-as-template', childId: currentChildId, dayOfWeek: currentDay, templateName: name, custodyHomeId,
     }) : null;
 
     setPending('samSaveTemplateBtn', true);
     const { ok, data } = await ScheduleApplyClient.saveDayAsTemplate(currentChildId, {
-      dayOfWeek: currentDay, templateName: name, operationId,
+      dayOfWeek: currentDay, templateName: name, operationId, custodyHomeId,
     });
     setPending('samSaveTemplateBtn', false);
 

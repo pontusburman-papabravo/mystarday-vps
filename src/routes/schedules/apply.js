@@ -34,6 +34,17 @@ function parseDays(rawDays) {
   return days.length > 0 ? days : null;
 }
 
+/**
+ * §6 (Phase 1B custody hardening) — shape the untrusted `custody_home_id` request field into
+ * the `custodyContext` shape the canonical service expects. No raw custody SQL lives at the
+ * route layer — ownership validation happens inside the canonical service
+ * (`assertCustodyHomeBelongsToFamily`, src/lib/schedule-apply.js) before any mutation.
+ */
+function custodyContextFromBody(body) {
+  const custodyHomeId = body?.custody_home_id;
+  return custodyHomeId ? { custodyHomeId } : null;
+}
+
 function handleApplyError(err, res) {
   if (err instanceof ScheduleApplyError) {
     return res.status(err.httpStatus).json({ error: err.message, code: err.code, details: err.details });
@@ -69,6 +80,7 @@ router.post('/apply-source', async (req, res) => {
       sourceId: source.id,
       targets: validDays.map((dayOfWeek) => ({ dayOfWeek, mode: mode || 'merge' })),
       operationId: operationId || null,
+      custodyContext: custodyContextFromBody(req.body),
       locale,
       variants: variants ?? null,
       optionalSelections: optionalSelections ?? null,
@@ -119,6 +131,7 @@ router.post('/apply-activity', async (req, res) => {
       endTime: endTime || null,
       mode: mode || 'merge',
       operationId: operationId || null,
+      custodyContext: custodyContextFromBody(req.body),
     });
 
     for (const dow of result.applied_days) {
@@ -180,6 +193,9 @@ router.post('/copy-recurring-day', async (req, res) => {
       targetDays: validTargetDays,
       mode: mode || 'merge',
       operationId: operationId || null,
+      // §10 — for the current single-child Phase 1B UI, source and target share the same
+      // active custody home (the editor's currently-visible variant); see docs "Copy day".
+      custodyContext: custodyContextFromBody(req.body),
     });
 
     for (const dow of result.applied_days) {
@@ -217,6 +233,10 @@ router.post('/save-as-template', async (req, res) => {
       dayOfWeek: parseInt(dayOfWeek, 10),
       templateName,
       operationId: operationId || null,
+      // §11 — reads the custody-scoped source day when active; the resulting template
+      // itself remains custody-neutral (saveWeeklyDayAsFamilyTemplate never writes
+      // custody_home_id onto the created weekly_schedule template row).
+      custodyContext: custodyContextFromBody(req.body),
     });
 
     res.status(201).json(result);
