@@ -45,7 +45,9 @@ describe('R4.5 Android release hardening', () => {
 
   it('canonical Android versionCode is monotonic for R4.5 release', () => {
     const v = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8'));
-    assert.ok(v.versionCode >= 12, 'versionCode must be > prior acceptance build 11 unless Play max is lower');
-    assert.equal(v.versionName, '1.4.0');
+    // 1.4.0 (versionCode 12) is already published on Google Play — versionCode
+    // must strictly increase for any new AAB, and can never be reused.
+    assert.ok(v.versionCode >= 13, 'versionCode must be > published Play version 12 (1.4.0)');
+    assert.equal(v.versionName, '1.4.3');
   });
 });
