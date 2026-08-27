@@ -17,12 +17,12 @@ describe('i18n store beta build versions', () => {
     assert.match(pbx, /MARKETING_VERSION = 1\.4\.3;/);
   });
 
-  it('Android versionCode 12 for 1.4 native release (1.4.0)', () => {
+  it('Android versionCode 13 for 1.4.3 native release (1.4.0/versionCode 12 already published)', () => {
     const ver = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8')
     );
-    assert.equal(ver.versionCode, 12);
-    assert.equal(ver.versionName, '1.4.0');
+    assert.equal(ver.versionCode, 13);
+    assert.equal(ver.versionName, '1.4.3');
   });
 
   it('beta phase documentation exists', () => {
