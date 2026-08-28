@@ -360,7 +360,21 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
      ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
     [scheduleId]
   );
-  const scheduleItems = sdsiResult.rows;
+  let scheduleItems = sdsiResult.rows;
+
+  // Phase 3 hardening — an empty explicit Special Day is NOT "clear the day": per the locked
+  // contract (docs "Empty Special Day contract") it falls through to whatever Special
+  // Period/weekly base is otherwise effective for this date. Before this fix, an empty
+  // scheduleItems here meant "remove everything" below, incorrectly emptying an already-
+  // generated log instead of falling back — a duplicate-precedence bug (this function was
+  // re-deciding "what's the desired state" instead of delegating to the canonical resolver for
+  // the empty case). Delegate to resolveEffectiveSchedule() for the fallback set; its shape
+  // (activity_template_id/name/icon/image_url/start_time/end_time/star_value/sort_order/section)
+  // already matches what the reconciliation logic below expects.
+  if (scheduleItems.length === 0) {
+    const effective = await resolveEffectiveSchedule(childId, scheduleDate, { client: q });
+    scheduleItems = effective.items;
+  }
 
   // Get current daily log items
   const dliResult = await q.query(
@@ -477,6 +491,20 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   );
   if (logResult.rows.length === 0) return { synced: false, reason: 'no_log' };
   const logId = logResult.rows[0].id;
+
+  // Phase 3 hardening — this function is called after a WEEKLY schedule mutation, but weekly
+  // may not even be the currently effective base for syncDate: a populated explicit Special Day
+  // or an active Special Period could be governing it instead (see docs
+  // "resolveEffectiveSchedule() — the canonical precedence" / "Phase 3 caller audit"). Blindly
+  // re-syncing weekly content into that date's log would incorrectly inject/overwrite content
+  // that resolveEffectiveSchedule() says should not be there. Delegate the "is weekly even
+  // authoritative for this date" question to the canonical resolver instead of re-deciding it
+  // here — this is a duplicate-precedence bug fix, not a new precedence rule.
+  const effective = await resolveEffectiveSchedule(childId, syncDate, { client: q, timezone: tz });
+  if (effective.source.base_type !== BASE_TYPES.WEEKLY && effective.source.base_type !== BASE_TYPES.NONE) {
+    console.log(`[DAILY-LOG-SYNC] child=${childId} date=${syncDate}: skipped — base_type=${effective.source.base_type} is authoritative, not weekly`);
+    return { synced: false, reason: 'not_weekly_base' };
+  }
 
   // Get weekly schedule items for the day of week (custody-aware)
   const scheduleId = await resolveWeeklyScheduleId(q, childId, syncDate, tz);

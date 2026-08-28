@@ -4,6 +4,7 @@
 **Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1C COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 2 COMPLETE — merged, deployed, and verified.**
+**Status: PHASE 3 IN REVIEW** (PR pending — not merged, not deployed).
 
 - Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
   merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
@@ -1059,43 +1060,317 @@ final-precedence-contract locking.
 
 ## Phase 3 — resolver precedence contract + response-shape finalization
 
-**Status: PHASE 3 KICKOFF** (branch created, no functional code changed yet — draft PR pending
-a detailed scope brief).
+**Status: PHASE 3 IN REVIEW** (PR pending — not merged, not deployed).
 
-Branch: `cursor/phase-3-resolver-precedence-775b`.
+Phase 3 characterizes and locks `resolveEffectiveSchedule()`'s existing behavior as a stable,
+documented, tested public contract, and fixes two real duplicate-precedence bugs found by
+auditing every live-code caller/reader of schedule state. It does **not** redesign Phase 2
+semantics — every locked rule below matches what Phase 1A/1B/1C/2 already shipped and verified
+in the live app; the only *behavior* changes are the two bug fixes in
+"Duplicate-precedence audit", both of which are additive safety guards (they make the code skip
+an incorrect action it was previously taking, never introduce a new precedence rule).
 
-### Boundary inherited from Phase 1A/2
+### Truth table (required before any code change — characterized against Phase 2's live code
+first; all rows passed as-is, confirming the contract below matches shipped behavior)
 
-Phase 2 explicitly deferred the following to Phase 3 (see "Special Day integration & Phase 3
-boundary" and "Phase 3 boundary" above):
+| # | Weekly | Period | Mode | Special Day | Exclusion | Expected `base_type` | Expected items |
+|---|---|---|---|---|---|---|---|
+| 1 | A | — | — | — | — | `weekly` | `[A]` |
+| 2 | — | — | — | — | — | `none` | `[]` |
+| 3 | custody home A | — | — | — | — | `weekly` | home A's items |
+| 4 | custody home B | — | — | — | — | `weekly` | home B's items |
+| 5 | A | B | `merge` | — | — | `special_period` | `[A, B]` |
+| 6 | morgon A, kväll B(old) | kväll C | `replace_sections` | — | — | `special_period` | `[A, C]` |
+| 7 | A | B | `replace_day` | — | — | `special_period` | `[B]` |
+| 8 | A | — | — | populated `[X]` | — | `special_day` | `[X]` |
+| 9 | A | B | any | populated `[X]` | — | `special_day` | `[X]` |
+| 10 | A | — | — | empty | — | `weekly` | `[A]` |
+| 11 | A | B | `merge` | empty | — | `special_period` | `[A, B]` |
+| 12 | A | — | — | — | excl A | `weekly` | `[]` |
+| 13 | A | B | `merge` | — | excl B | `special_period` | `[A]` |
+| 14 | morgon A, kväll B(old) | kväll C | `replace_sections` | — | excl C | `special_period` | `[A]` (B never resurrected) |
+| 15 | A | B | `replace_day` | — | excl B | `special_period` | `[]` (no fallback to weekly) |
+| 16 | A | — | — | populated `[X]` | excl X | `special_day` | `[X]` (exclusion ignored) |
+| 17 | A | — | — (period ended) | — | — | `weekly` | `[A]` |
+| 18 | A | (period deleted) | — | — | — | `weekly` | `[A]` |
+| 19 | A | (period deleted) | — | populated `[X]` | — | `special_day` | `[X]` (survives delete) |
 
-- **Final resolver precedence contract** — `resolveEffectiveSchedule()`'s current precedence
-  (explicit non-empty Special Day → active Special Period composed with custody-aware weekly →
-  custody-aware weekly) is functionally correct and fully tested for Phase 1A/1B/1C/2's known
-  cases, but has not yet been locked as a documented, exhaustive public contract covering every
-  edge case (e.g. multiple candidate periods should never coexist for one child given the
-  overlap invariant, but the contract doesn't yet explicitly enumerate and test unusual
-  combinations like a period ending exactly on a custody handoff day, or interactions with
-  future domain additions).
-- **Final response-shape contract** — `source.base_type`/`base_id`/`apply_mode` were extended
-  minimally in Phase 2 to distinguish `weekly`/`special_day`/`special_period`; Phase 3 owns
-  deciding and documenting the definitive, versioned public shape (e.g. whether callers should
-  be able to depend on `source.period_name`, whether `excluded_activity_template_ids` remains
-  in the shape long-term, etc.) rather than the "minimal extension per phase" approach used so
-  far.
-- **Broader resolver cleanup** — `effective-schedule.js` has grown incrementally across three
-  phases (Phase 1A → 1B custody-awareness → Phase 2 period composition); Phase 3 owns evaluating
-  whether that accretion needs restructuring now that the domain is stable, without changing
-  observable behavior.
+All 19 rows plus the merge-duplicate-identity rule, canonical section order, and the once-task
+boundary are exercised as automated tests in `test/effective-schedule-truth-table.test.js`
+(pass/fail per row, matching this table exactly) — see "Tests" below for the full list.
 
-### Non-goals (carried forward, not reopened by Phase 3 unless a contradiction is found)
+### Final precedence contract (locked)
 
-Weekly Schedule redesign, widget/Meta/payment work, market flags, the once-task race, multi-child
-atomic scheduling, real Undo, Phase 4 "Visa ▾" chrome cleanup, physical deletion of any legacy
-endpoint, Calendar UI redesign beyond what Phase 2 already shipped.
+```
+resolveEffectiveSchedule(childId, dateStr, options?)
 
-### Next step
+1. IF a populated (>=1 item) explicit special_day_schedule row exists for dateStr:
+     → return it. base_type = 'special_day'. Weekly and Period are both ignored.
+     → schedule_date_exclusion is NOT applied.
+2. ELSE IF a schedule_period covers dateStr:
+     → resolve custody-aware Weekly Schedule for dateStr
+     → compose it with the period's items per apply_mode (merge / replace_sections / replace_day)
+     → apply schedule_date_exclusion to the COMPOSED result
+     → return it. base_type = 'special_period'.
+3. ELSE:
+     → resolve custody-aware Weekly Schedule for dateStr
+     → apply schedule_date_exclusion to it
+     → return it. base_type = 'weekly' (or 'none' if no weekly row exists for dateStr).
+```
 
-Awaiting a detailed Phase 3 scope brief (mirroring the level of detail Phase 1A/1B/1C/2 each
-received) before implementing. This section will be replaced with the actual Phase 3 design once
-that brief arrives — nothing here should be treated as a locked decision yet.
+An empty (0-item) explicit `special_day_schedule` row is **not** step 1's "populated" case — it
+falls through to step 2/3 exactly as if it didn't exist. This is a deliberate, locked product
+rule (not "show an intentionally empty day" — that would be a distinct future concept, not
+introduced here).
+
+### Final response-shape contract (locked)
+
+```
+{
+  child_id: string,
+  date: string,          // YYYY-MM-DD, exactly the dateStr passed in
+  day_of_week: number,   // 0-6, computed from dateStr + resolved timezone
+
+  source: {
+    base_type: 'none' | 'weekly' | 'special_period' | 'special_day',
+    base_id: string | null,
+    apply_mode?: 'merge' | 'replace_sections' | 'replace_day',  // present only when base_type === 'special_period'
+  },
+
+  items: object[],                          // canonical section order, stable within-section order
+
+  excluded_activity_template_ids: string[], // raw schedule_date_exclusion rows for this date;
+                                             // NOT filtered by whether they applied — see below
+
+  metadata: { timezone: string },
+}
+```
+
+No new fields were added in Phase 3 — the shape was already exactly this since Phase 2's
+correction pass; Phase 3 only locks it as the permanent public contract. No caller was found
+that special-cases `base_type` to a `special_day`/`weekly`-only set — `test/schedule-period.test.js`
+and `test/effective-schedule-truth-table.test.js` exercise `special_period` end to end through
+every live-code caller.
+
+### `base_type` semantics (locked)
+
+| `base_type` | `base_id` | `apply_mode` present? | Meaning |
+|---|---|---|---|
+| `weekly` | `weekly_schedule.id` | no | The custody-aware recurring weekly row is authoritative for this date. |
+| `special_period` | `schedule_period.id` | yes | An active Special Period is composed with the weekly base for this date. |
+| `special_day` | `special_day_schedule.id` | no | A populated explicit Special Day is the full, unfiltered override for this date. |
+| `none` | `null` | no | No weekly row exists for this day-of-week/custody-home and no period/special day applies. |
+
+No ambiguous combinations exist: exactly one `base_type` is returned per call, and `apply_mode`
+is present if and only if `base_type === 'special_period'`. `period_id` was deliberately never
+introduced as a separate field — `base_id` already means "the period's id" whenever
+`base_type === 'special_period'`.
+
+### `excluded_activity_template_ids` semantics
+
+This field always reflects every `schedule_date_exclusion` row that exists for `(childId,
+dateStr)`, regardless of whether it currently matches an item in the effective result (e.g. an
+exclusion for an activity that isn't in this date's weekly/period set at all still appears here
+— it is not filtered to "exclusions that actually removed something"). No caller was found that
+depends on a different semantic; kept as-is per "do not introduce fields/behavior changes
+without a current caller need."
+
+### Item-level provenance — audited, not added
+
+No current caller needs to know whether an individual item in `items` originated from Weekly or
+from the active Period (Calendar's "Ta bort bara idag" always targets an `activity_template_id`
++ date via `schedule_date_exclusion`, which already works correctly regardless of origin — see
+the exclusion contract above). Item shape is therefore left unchanged; no provenance field was
+added, per "do not over-engineer."
+
+### Custody contract (locked)
+
+Custody determines **only** the Weekly Schedule base (`resolveWeeklyScheduleId()` — unchanged
+since Phase 1A/1B). Special Period, explicit Special Day, and date exclusions are all
+child/date-scoped, never custody-home-scoped — none of `schedule_period`,
+`special_day_schedule`, or `schedule_date_exclusion` has a `custody_home_id` column, and none
+should. Conceptually: resolve the custody-correct weekly base first, then apply the child/date
+exception layers (period composition, explicit override, exclusions) on top — exactly the
+precedence contract above. Both custody variants are exercised in
+`test/effective-schedule-truth-table.test.js` ("Row 3/4") and `test/schedule-period.test.js`
+("F23/F24").
+
+### Once-task / date-addition boundary (locked, kept as-is)
+
+`resolveEffectiveSchedule()` is a **planning-state resolver only** — it deliberately never
+returns once-tasks (`daily_log_item.is_once_task = true`). The stable contract is:
+
+```
+effective planning state (resolveEffectiveSchedule)
+  +
+daily-log-owned once-task overlay (created/read directly against daily_log_item)
+  =
+execution/day state (what the child/parent actually sees for "today")
+```
+
+This boundary is kept exactly as-is in Phase 3 — folding once-task reads into the resolver would
+require it to read `daily_log`, risking circular dependencies (the resolver is itself the input
+to daily-log generation), regeneration duplication, and history/execution state leaking into a
+pure planning-state read. `test/effective-schedule-truth-table.test.js`'s once-task-boundary test
+proves both halves: the resolver never surfaces a once-task, and an existing once-task survives
+a weekly daily-log sync untouched (never duplicated, never removed).
+
+### Caller inventory (§15 — every reader of schedule state)
+
+| Caller | Purpose | Uses `source`? | Uses `items`? | Reimplements precedence? | Safe? | Action |
+|---|---|---|---|---|---|---|
+| `daily-log-generator.js` `resolveBaseItemsForLog()` (→ `getOrGenerateDailyLog()`, all first-time daily-log generation) | First-ever generation of a day's log | yes (`base_type` decides `generated_from`) | yes | no — delegates fully | yes | none |
+| `daily-log-generator.js` `syncDailyLogWithSchedule()` (15+ call sites: `schedules/apply.js`, `schedules/items.js`, `schedules/templates.js`, `schedules/fill-week.js`, `schedules/child-bulk.js`, `standard-library.js`, `special-day-schedules.js`, `onboarding.js`, `for-dig-activate.js`) | Re-sync an already-generated log after a WEEKLY mutation | **now yes** (Phase 3 fix) | yes | **partially — fixed in Phase 3** | **yes, after fix** | fixed (see below) |
+| `daily-log-generator.js` `syncDailyLogForSpecialDay()` (`special-day-schedules.js`, `schedules/child-bulk.js`) | Re-sync an already-generated log after a SPECIAL DAY mutation | **now yes, only for the empty-day fallback case** (Phase 3 fix) | yes | **partially — fixed in Phase 3** | **yes, after fix** | fixed (see below) |
+| `daily-log-generator.js` `syncDailyLogsForTemplateChange()` (`activities.js`, `family-images.js`) | Re-sync when an activity_template's name/icon/star_value changes | no (delegates to `syncDailyLogWithSchedule`) | n/a | no | yes, transitively via the fix above | none |
+| `daily-log-generator.js` `generateLogsForAllChildren()` (`midnight-scheduler.js`) | Nightly batch generation for all children | no (delegates to `getOrGenerateDailyLog`) | n/a | no | yes | none |
+| `custody-handoff-scheduler.js`, `canonical-child-next-activity.js`, `first-star-starter.js`, `children.js`, `family/core.js`, `daily-logs/parent.js`, `daily-logs/child-self.js`, `schedules/child-crud.js` | Various — child dashboard, next-activity, handoff notifications, activation | no | yes | no — all call `getOrGenerateDailyLog()` | yes | none |
+| `calendar.js` `GET /calendar-week` | Parent Calendar week grid (`public/calendar.html`) | no | yes, but from its **own independent read**, not the resolver | **yes — genuine duplicate precedence, and it predates/misses Special Period entirely** | **no for un-generated future dates with an active period** | **found, documented, NOT fixed this phase — see below** |
+| `authz.js` `getSpecialDayAccess()` | Ownership check only (parent owns this `special_day_schedule` row via child) | no | no | no | yes | none |
+| `special-day-schedules.js`, `schedules/child-bulk.js` direct `special_day_schedule` queries | Existence checks before a write (e.g. "does a special day already exist for this date") | no | no | no | yes (write-path only) | none |
+| `family/account.js`, `family-export.js` | GDPR account deletion / data export | no | no (bulk delete/export, not "what's effective") | no | yes | none |
+| Tests (`effective-schedule*.test.js`, `schedule-period*.test.js`) | Characterization/regression | yes | yes | no | yes | none |
+
+### Duplicate-precedence audit (§16) — findings, decisions, and fixes
+
+**Found and FIXED in this phase (both in `src/lib/daily-log-generator.js`):**
+
+1. **`syncDailyLogWithSchedule()` did not check whether weekly was even the authoritative base
+   for the date it was about to sync.** It is called after a weekly-schedule mutation to keep an
+   *already-generated* log fresh, but it blindly injected/updated weekly items into that date's
+   log even if a populated explicit Special Day or an active Special Period was actually
+   governing that date — silently corrupting a period/special-day-governed log with unrelated
+   weekly content. **Fix:** it now calls `resolveEffectiveSchedule()` first and skips entirely
+   (`{ synced: false, reason: 'not_weekly_base' }`) unless `base_type` is `weekly` or `none`.
+   Classification: B (should delegate) — now does.
+2. **`syncDailyLogForSpecialDay()` treated "the special day just became empty" as "clear
+   everything from the log,"** instead of the locked contract's "an empty explicit Special Day
+   falls through to Period/Weekly." Before the fix, deleting the last item of a special day that
+   already had a generated log would incorrectly leave that log empty rather than reverting to
+   the period/weekly content that should now be effective. **Fix:** when the special day's item
+   set is empty, it now calls `resolveEffectiveSchedule()` for that date and reconciles the log
+   against THAT result instead of an empty set. Classification: B (should delegate) — now does
+   for the case that mattered; the non-empty case (the day has real content, which per precedence
+   always wins outright) is unchanged and does not need to delegate.
+
+Both fixes are proven by dedicated regression tests in
+`test/effective-schedule-truth-table.test.js` ("BUGFIX:" tests) and were verified not to
+regress any of the ~50 existing daily-log tests, all Phase 1A/1B/1C/2 suites, or the custody
+suites (see "Tests" below).
+
+**Found, classified, and deliberately NOT fixed in this phase — flagged for a future pass:**
+
+3. **`GET /calendar-week` (`src/routes/calendar.js`) independently re-decides special-day vs.
+   weekly precedence, and has no awareness of Special Period at all.** Its per-day logic is:
+   `daily_log` (if one has been generated) → else `special_day_schedule` (if populated) → else
+   the raw custody-aware weekly template. For any date that has **not yet had a daily_log
+   generated** (typically a future date, since logs are generated lazily on first
+   view/midnight), an active Special Period is silently invisible in the Calendar week grid —
+   it falls through to the raw weekly template instead. Once a log IS generated for that date
+   (via any of the canonical paths above), the Calendar correctly shows the log's content,
+   which already reflects the period. So the gap is specifically: **future/un-visited dates
+   inside an active period, viewed via the Calendar week grid before their log exists.**
+   Classification: **B (should delegate to `resolveEffectiveSchedule()`)**, but this was **not**
+   fixed in Phase 3 because:
+   - it lives entirely inside the parent Calendar UI-facing endpoint, which Phase 3 is
+     explicitly scoped to leave untouched ("Phase 3 should not change: Calendar UI... unless a
+     response-shape bug requires a tiny caller adaptation" — this is a functional gap, not a
+     response-shape compatibility issue);
+   - a correct fix must also integrate with `calendar.js`'s custody-UI-specific rendering
+     (`loadCustodyContext`/`resolveCustodyDateSync`/`templateActivitiesForDay`, which produce
+     richer UI metadata — home labels/colors/"isMyDay" banners — than
+     `resolveEffectiveSchedule()` returns), making this a real, scoped piece of work rather than
+     a one-line swap;
+   - this gap predates Phase 3 (it existed the moment Phase 2 shipped Special Period, and was
+     already flagged as a known limitation in this doc's Phase 2 section: "already displays
+     special-day badges by checking `special_day_schedule` directly (not via
+     `resolveEffectiveSchedule()`)") — Phase 3's job was to find and document it precisely, not
+     to silently absorb an unbounded UI-adjacent fix into a contract-hardening phase.
+
+   **Recommended follow-up (not started):** teach `calendar.js`'s per-day branch to check for an
+   active Special Period (via `loadPeriodForDate`-equivalent or `resolveEffectiveSchedule()`
+   itself) for un-generated dates, composing it with the existing custody-aware weekly lookup the
+   same way the resolver does, while preserving the custody UI metadata (`custody`/`weekBanner`)
+   this endpoint already returns. This is scoped, well-understood, and low-risk to implement —
+   but is a Calendar UI-endpoint change and was intentionally left for a dedicated pass rather
+   than folded into Phase 3's contract-locking scope.
+
+**Everything else audited (`getSpecialDayAccess()`, legacy `apply-date-range`'s existence checks,
+GDPR export/delete) is either category A (legitimate specialized read — authz/bulk-ops, never
+answers "what's effective") or D (out of the precedence question entirely) — no changes needed.**
+
+### Error behavior (§22 — hardened)
+
+- **`loadDateExclusions()`** previously swallowed **every** query error (bare `catch`) into "no
+  exclusions" — silently turning a real DB failure into an incorrect, over-inclusive schedule.
+  `schedule_date_exclusion` is created in `migrate.js`'s core bootstrap (`CREATE TABLE IF NOT
+  EXISTS`), which always completes before the app serves requests, so in a healthy deployment
+  this table is guaranteed to exist for every live query. Hardened to only swallow Postgres
+  `42P01` (`undefined_table`) — the one legitimate "still bootstrapping" case — and rethrow
+  everything else.
+- **`loadPeriodForDate()`** had no error handling at all (correct — a real query error should
+  propagate, not be silently absorbed) but used an arbitrary `LIMIT 1` with no `ORDER BY`. §20
+  hardened this to a deterministic `ORDER BY start_date ASC, id ASC`, and added a loud
+  `console.error` if more than one candidate row is ever found (which the write-side child-scoped
+  advisory-lock overlap invariant should make unreachable) — a live-app data anomaly is now
+  visible instead of silently picking an unpredictable row.
+- `resolveEffectiveSchedule()`'s unknown-child behavior (`CHILD_NOT_FOUND`) is unchanged from
+  Phase 1A.
+
+### Performance (§23 — audited, no changes)
+
+Per date resolved, the query count is bounded and known: 1 (child timezone, skipped if
+`options.timezone` is passed) + 1 (special day existence) + up to 1 (special day items, only if
+the row exists) + 1 (custody-aware weekly schedule id resolution — itself a small bounded number
+of queries inside `resolveWeeklyScheduleId()`, unchanged since Phase 1A/1B) + 1 (weekly items,
+only if a schedule id was found) + 1 (date exclusions) + 1 (period existence) + up to 1 (period
+items, only if a period covers the date) — no N+1 loop inside a single date resolution. Batch
+callers (`generateLogsForAllChildren()`) already call this once per child per date sequentially,
+which is the existing, accepted cost model since Phase 1A — no caching was added, per "do not
+build caching unless measured need exists."
+
+### Migration / backward compatibility (§21)
+
+**No new migration.** Phase 3 is read-contract hardening, caller-fix, tests, and docs only — the
+two `daily-log-generator.js` fixes add a read-only guard call and a fallback read, no schema
+change.
+
+### Static assets / cache (§37)
+
+**No SW cache bump.** No `public/` files were touched — this phase is backend (`src/lib/`)
+plus tests plus docs only.
+
+### Tests
+
+- `test/effective-schedule-truth-table.test.js` (new, 16 sub-tests covering all 19 truth-table
+  rows plus merge-duplicate-identity, canonical section order, the once-task boundary, and both
+  daily-log-generator bug-fix regressions end to end through `getOrGenerateDailyLog()`/
+  `syncDailyLogWithSchedule()`/`syncDailyLogForSpecialDay()`).
+- Full existing suites re-run green and unaffected: `test/effective-schedule.test.js`,
+  `test/schedule-period.test.js`, `test/schedule-period-routes.test.js`,
+  `test/schedule-period-frontend.test.js`, `test/daily-log-generator.test.js`,
+  `test/daily-log-sync-once-task.test.js`, `test/daily-log-race-contract.test.js`,
+  `test/custody-daily-log-resilience.test.js`, `test/child-daily-log-order*.test.js`,
+  `test/daily-log-child-order.test.js`, `test/daily-log-reorder.test.js`,
+  `test/daily-log-nav-fix.test.js`, `test/daily-logs-authz-contract.test.js`, all Phase
+  1A/1B/1C suites (`schedule-apply*.test.js`, `schedule-custody.test.js`,
+  `schedule-phase1c-retirement.test.js`), all custody suites, and the i18n parity suites.
+- `npm run lint`, `npm run lint:public`, `npm run check:css` all green (no diff produced by
+  `check:css` — confirms no static asset drift). Full `npm run test:gate` green.
+
+### Non-goals confirmed untouched
+
+Weekly Schedule UI, Calendar UI (the one genuine gap found is documented above, not fixed),
+Specialperiod UI, Library UI, Planering hub — no visual redesign. No new migration. No i18n
+changes (no new user-facing strings). Widget/Meta/payment/RevenueCat/market flags, Android/iOS
+release flows, real Undo, multi-child atomic scheduling, the once-task race, physical deletion
+of legacy endpoints, Weekly Schedule redesign, and Phase 4 chrome — all untouched, per the
+explicit out-of-scope list.
+
+### Phase 4 boundary
+
+Phase 4 owns final product/IA polish: `Visa ▾`, advanced controls, navigation cleanup, potential
+Daily Log relocation, PDF placement, remaining visual simplification, accessibility/chrome
+polish — **plus, as newly surfaced by this phase's caller audit, the Calendar week-grid Special
+Period awareness gap documented above**, which is now a concrete, scoped, well-understood item
+ready to be picked up whenever Calendar-adjacent work is next in scope.

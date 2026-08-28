@@ -117,6 +117,13 @@ async function loadWeeklyItems(q, childId, dateStr, timezone) {
 }
 
 /**
+ * §20 — the write-side overlap invariant (child-scoped advisory lock in schedule-period.js)
+ * guarantees at most one schedule_period can cover any given date for a child, so this query
+ * should never see more than one candidate row. It is still made deterministic (rather than an
+ * arbitrary LIMIT 1) and defensively logs — never silently picks an unpredictable row — if that
+ * invariant is ever somehow violated (e.g. direct DB tampering, a future write-path bug), so a
+ * live-app anomaly is visible instead of silently hidden.
+ *
  * @param {import('pg').Pool|import('pg').PoolClient} q
  * @returns {Promise<{ periodId: string, name: string, applyMode: string, items: object[] }|null>}
  */
@@ -124,10 +131,18 @@ async function loadPeriodForDate(q, childId, dateStr) {
   const periodRes = await q.query(
     `SELECT id, name, apply_mode FROM schedule_period
      WHERE child_id = $1 AND start_date <= $2 AND end_date >= $2
-     LIMIT 1`,
+     ORDER BY start_date ASC, id ASC`,
     [childId, dateStr]
   );
   if (periodRes.rows.length === 0) return null;
+
+  if (periodRes.rows.length > 1) {
+    // The write-side invariant should make this unreachable — surface it loudly rather than
+    // silently picking one, since it means the overlap guarantee has somehow been violated.
+    console.error(
+      `[EFFECTIVE-SCHEDULE] INVARIANT VIOLATION: child ${childId} has ${periodRes.rows.length} overlapping schedule_period rows for ${dateStr} — expected at most 1. Using the earliest-starting period deterministically; overlap should be investigated.`
+    );
+  }
 
   const period = periodRes.rows[0];
   const itemsRes = await q.query(
@@ -185,6 +200,15 @@ function composePeriodWithWeekly(weeklyItems, periodItems, applyMode) {
   return [...weeklyItems, ...toAdd];
 }
 
+/**
+ * §22 — schedule_date_exclusion is created in migrate.js's core bootstrap (CREATE TABLE IF NOT
+ * EXISTS), which always runs before the app starts serving requests, so in a healthy deployment
+ * this table is guaranteed to exist for every live query. The only legitimate "missing table"
+ * case is Postgres error 42P01 (undefined_table) during an exceptionally narrow bootstrap
+ * window; any other error (connection failure, permissions, a real query bug) must NOT be
+ * silently swallowed into "no exclusions" — that would turn a real DB failure into an
+ * incorrect (over-inclusive) schedule without anyone noticing.
+ */
 async function loadDateExclusions(q, childId, dateStr) {
   try {
     const res = await q.query(
@@ -192,9 +216,9 @@ async function loadDateExclusions(q, childId, dateStr) {
       [childId, dateStr]
     );
     return new Set(res.rows.map((r) => r.activity_template_id));
-  } catch {
-    // Table may not exist yet during a migration window — never fail the read path for this.
-    return new Set();
+  } catch (err) {
+    if (err && err.code === '42P01') return new Set(); // undefined_table — pre-bootstrap window only
+    throw err;
   }
 }
 
