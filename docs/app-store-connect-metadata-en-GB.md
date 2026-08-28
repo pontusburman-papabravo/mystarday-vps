@@ -3,6 +3,8 @@
 > **Beta listing copy** for English-speaking families in **Sweden only**.
 > App name: **My Starday**. Do not imply UK/US/EU availability outside Sweden.
 
+> **⚠️ EULA fix (2026-08-28):** The Terms of Use line below links to **Apple's Standard EULA** (`https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`) — we use the standard agreement, not a custom one, and our own `/terms` page (platform-neutral, also covers Android) must not be described as Apple's EULA. Update this **Description** under the current iOS app version in App Store Connect (not the app-level *App Information* tab), for the English (UK) localization, and resubmit the same build. See `docs/app-store-connect-metadata.md` for the primary (Swedish) fix and `docs/app-store-review-notes.md` for the reviewer reply.
+
 ---
 
 ## App Information
@@ -35,7 +37,7 @@ Suitable for families with children aged 3–10.
 
 **English Beta (Sweden):** English UI is rolling out gradually. Swedish remains the default. Report language issues in Settings → Feedback.
 
-Terms of Use (EULA): [APP_URL]/terms
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Privacy Policy: [APP_URL]/privacy
 
 ---
