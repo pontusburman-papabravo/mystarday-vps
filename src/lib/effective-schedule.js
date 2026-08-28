@@ -21,11 +21,14 @@
  *      as an opaque full-day override — that was Phase 2's first-draft design and was wrong
  *      for merge/replace_sections (a "kväll" period must never erase "morgon"/"dag").
  *   3. otherwise, custody-aware recurring weekly schedule (resolveWeeklyScheduleId).
- *   4. date exclusions (schedule_date_exclusion) are applied to the WEEKLY portion of the
- *      result in every case (steps 2 and 3) — including under an active period, per the
- *      product decision that a date-specific exception follows the EFFECTIVE date, not a
- *      hidden weekly base the parent never sees (§ "date exclusions" in docs). They never
- *      apply to an explicit special day (step 1), matching pre-Phase-2 behaviour.
+ *   4. date exclusions (schedule_date_exclusion) are applied to the COMPOSED EFFECTIVE RESULT
+ *      of steps 2/3 — i.e. AFTER a Special Period (if any) has already been composed with the
+ *      weekly base — never only to the weekly portion. "Ta bort den här aktiviteten bara idag"
+ *      must be able to remove an item regardless of whether that item came from weekly or from
+ *      an active period; the period/weekly source content itself is never mutated by an
+ *      exclusion (§ "date exclusions" in docs). Exclusions never apply to an explicit special
+ *      day (step 1), matching pre-Phase-2 behaviour — a populated Special Day remains a full,
+ *      un-filtered explicit override.
  *
  * Deliberately deferred (§8.3): once-tasks (daily_log_item.is_once_task = true) are NOT
  * merged into `items` here. They are a daily_log-owned overlay with their own lifecycle
@@ -148,9 +151,11 @@ async function loadPeriodForDate(q, childId, dateStr) {
 /**
  * Compose a period's items with the (already exclusion-filtered) weekly base, per apply_mode.
  * Mirrors applyScheduleItemsToDay()/applyScheduleItemsToSpecialDay()'s three write-side modes,
- * but as a pure READ-side composition — nothing is written here.
+ * but as a pure READ-side composition — nothing is written here. Date exclusions are applied
+ * by the caller AFTER this composition, to the composed result — never to weeklyItems here —
+ * so an exclusion can remove a period-sourced item, not only a weekly one.
  *
- * @param {object[]} weeklyItems — already filtered by date exclusions
+ * @param {object[]} weeklyItems
  * @param {object[]} periodItems
  * @param {'merge'|'replace_sections'|'replace_day'} applyMode
  */
@@ -191,6 +196,18 @@ async function loadDateExclusions(q, childId, dateStr) {
     // Table may not exist yet during a migration window — never fail the read path for this.
     return new Set();
   }
+}
+
+/**
+ * Apply date exclusions to the already-composed effective item list (weekly alone, or
+ * weekly+period composed). schedule_date_exclusion keys on a non-null activity_template_id
+ * (§6) — a denormalized item with a null activity_template_id (e.g. some explicit
+ * special-day/period items) can never match an exclusion row, so it is never accidentally
+ * dropped by this filter.
+ */
+function applyDateExclusions(items, excluded) {
+  if (excluded.size === 0) return items;
+  return items.filter((item) => item.activity_template_id == null || !excluded.has(item.activity_template_id));
 }
 
 /**
@@ -239,22 +256,24 @@ async function resolveEffectiveSchedule(childId, dateStr, options = {}) {
     };
   }
 
-  // Step 2/3 — custody-aware weekly base, with date exclusions applied to it in every case
-  // (product decision: an exclusion follows the effective date, not a hidden weekly base —
-  // see docs "Phase 2 — date exclusions"). This is the base a Special Period composes with.
+  // Step 2/3 — custody-aware weekly base, optionally composed with an active Special Period,
+  // THEN date exclusions are applied to that already-composed effective result exactly once
+  // (§ "date exclusions" in docs) — never only to the weekly portion, so an exclusion can
+  // remove an item regardless of whether it originated from weekly or from the period. Neither
+  // the weekly schedule nor the period's own definition (schedule_period / schedule_period_item)
+  // is ever mutated by this — the exclusion is a pure date-specific overlay on the read result.
   const weekly = await loadWeeklyItems(q, childId, dateStr, timezone);
   const excluded = await loadDateExclusions(q, childId, dateStr);
-  const weeklyItemsAfterExclusions = weekly.items.filter((item) => !excluded.has(item.activity_template_id));
 
   const period = await loadPeriodForDate(q, childId, dateStr);
   if (period) {
-    const composed = composePeriodWithWeekly(weeklyItemsAfterExclusions, period.items, period.applyMode);
+    const composed = composePeriodWithWeekly(weekly.items, period.items, period.applyMode);
     return {
       child_id: childId,
       date: dateStr,
       day_of_week: dayOfWeek,
       source: { base_type: BASE_TYPES.SPECIAL_PERIOD, base_id: period.periodId, apply_mode: period.applyMode },
-      items: sortByCanonicalSection(composed),
+      items: sortByCanonicalSection(applyDateExclusions(composed, excluded)),
       excluded_activity_template_ids: [...excluded],
       metadata: { timezone },
     };
@@ -268,7 +287,7 @@ async function resolveEffectiveSchedule(childId, dateStr, options = {}) {
       base_type: weekly.scheduleId ? BASE_TYPES.WEEKLY : BASE_TYPES.NONE,
       base_id: weekly.scheduleId,
     },
-    items: sortByCanonicalSection(weeklyItemsAfterExclusions),
+    items: sortByCanonicalSection(applyDateExclusions(weekly.items, excluded)),
     excluded_activity_template_ids: [...excluded],
     metadata: { timezone },
   };

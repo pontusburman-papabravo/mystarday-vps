@@ -419,6 +419,101 @@ test('Phase 2 — schedule_period canonical service + resolver composition', asy
       assert.ok(neighborDay.items.some((i) => i.activity_template_id === periodActivity), 'the period must remain intact on the neighboring date');
     });
 
+    await t.test('E20b: excluding a PERIOD-sourced item under merge removes it, weekly item remains (the bug this hardening fixes)', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'Frukost');
+      const periodActivity = await seedActivity(db, familyId, 'Simskola');
+      await seedWeeklyDay(db, childId, 1, [{ activityId: weeklyActivity, section: 'morgon' }]); // Monday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity, section: 'kvall' }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Simlov', startDate: '2027-04-12', endDate: '2027-04-12', // a Monday
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'merge',
+      });
+
+      // Exclude the PERIOD's own item — before this fix, exclusions were only ever applied to
+      // the weekly portion BEFORE composition, so a period item could never be removed "bara
+      // idag".
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-04-12', $2)`, [childId, periodActivity]);
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-04-12');
+      assert.ok(!resolved.items.some((i) => i.activity_template_id === periodActivity), 'the excluded PERIOD item must be absent from the effective result');
+      assert.ok(resolved.items.some((i) => i.activity_template_id === weeklyActivity), 'the weekly item must remain — only the period item was excluded');
+
+      // The period definition itself must be untouched — a neighboring date (same period,
+      // 1-day period here so re-use the create call to prove the row is unaffected instead).
+      const periodRow = await db.query(`SELECT COUNT(*)::int AS n FROM schedule_period_item WHERE period_id = (SELECT id FROM schedule_period WHERE child_id = $1)`, [childId]);
+      assert.equal(periodRow.rows[0].n, 1, 'the exclusion must never mutate schedule_period_item — it is a pure date overlay');
+    });
+
+    await t.test('E20c: replace_sections — exclusion removes the period-supplied section item, the OLD weekly item for that section does not reappear', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const morningActivity = await seedActivity(db, familyId, 'Frukost');
+      const oldEveningActivity = await seedActivity(db, familyId, 'Läsa');
+      const newEveningActivity = await seedActivity(db, familyId, 'Lovkväll');
+      await seedWeeklyDay(db, childId, 3, [ // a Wednesday
+        { activityId: morningActivity, section: 'morgon' },
+        { activityId: oldEveningActivity, section: 'kvall' },
+      ]);
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: newEveningActivity, section: 'kvall' }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Kvällslov', startDate: '2027-04-14', endDate: '2027-04-14',
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_sections',
+      });
+
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-04-14', $2)`, [childId, newEveningActivity]);
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-04-14');
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [morningActivity], 'morgon must remain; the excluded period item (kvall) must be gone; the OLD weekly kvall item must NOT reappear');
+    });
+
+    await t.test('E20d: replace_day — excluding the only period item yields an EMPTY effective result, base_type stays special_period, weekly does not leak back in', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'Frukost');
+      const periodActivity = await seedActivity(db, familyId, 'Lovdag');
+      await seedWeeklyDay(db, childId, 4, [{ activityId: weeklyActivity, section: 'morgon' }]); // Thursday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Heldagslov', startDate: '2027-04-15', endDate: '2027-04-15',
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_day',
+      });
+
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-04-15', $2)`, [childId, periodActivity]);
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-04-15');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD, 'base_type must remain special_period even though the effective result is empty');
+      assert.deepEqual(resolved.items, [], 'result must be an EMPTY list — must not fall back to weekly merely because the only period item was excluded');
+    });
+
+    await t.test('E20e: a populated explicit Special Day is unaffected by a matching date exclusion (legacy semantics preserved)', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const explicitActivity = await seedActivity(db, familyId, 'Julafton');
+      const sd = await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2027-04-16') RETURNING id`, [childId]);
+      await db.query(
+        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Julafton', 'morgon', 0)`,
+        [sd.rows[0].id, explicitActivity]
+      );
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-04-16', $2)`, [childId, explicitActivity]);
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-04-16');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_DAY);
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [explicitActivity], 'a matching date exclusion must NOT filter a populated explicit Special Day — legacy behaviour preserved');
+    });
+
+    await t.test('E20f: with no active period, existing weekly-only exclusion behaviour is unchanged', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const keptActivity = await seedActivity(db, familyId, 'Frukost');
+      const excludedActivity = await seedActivity(db, familyId, 'Läsa');
+      await seedWeeklyDay(db, childId, 6, [ // Saturday, no period
+        { activityId: keptActivity, section: 'morgon' },
+        { activityId: excludedActivity, section: 'kvall' },
+      ]);
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-04-17', $2)`, [childId, excludedActivity]);
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-04-17');
+      assert.equal(resolved.source.base_type, BASE_TYPES.WEEKLY);
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [keptActivity]);
+    });
+
     await t.test('E22: once-task remains additive and does not appear in / interact with resolveEffectiveSchedule() under a period', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const periodActivity = await seedActivity(db, familyId, 'Lovaktivitet');

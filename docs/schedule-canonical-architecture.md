@@ -699,7 +699,11 @@ for the changed precached JS/HTML assets).
 the **corrected** Phase 2 design. An earlier prototype pass materialized periods as ordinary
 `special_day_schedule` rows; that approach was found to be architecturally incorrect (see
 "What the first prototype got wrong" below) and was replaced before this PR was considered
-mergeable — none of that earlier storage model shipped to `main`.
+mergeable — none of that earlier storage model shipped to `main`. A subsequent hardening pass
+then found and fixed one remaining correctness gap in the corrected resolver: date exclusions
+were still being applied to the weekly base BEFORE period composition, so a period-sourced item
+could never be excluded "bara idag" — see "Date exclusion & once-task overlays under a period"
+below for the fix.
 
 Phase 2 introduces `schedule_period` as a first-class domain entity for date-range exceptions,
 replacing the "N unrelated `special_day_schedule` rows with no shared identity" approach the
@@ -790,15 +794,17 @@ helpers (`loadPeriodForDate()`, `composePeriodWithWeekly()`) and its precedence 
    `test/schedule-period.test.js` "G25"/"G25b" — including the new case of an empty explicit day
    falling through to an *active period*, not just to weekly).
 2. Else, if a `schedule_period` covers the date → **compose** the period's stored items with the
-   custody-aware weekly base (date exclusions already applied) according to the period's
-   `apply_mode`:
+   custody-aware weekly base according to the period's `apply_mode`, THEN apply date exclusions
+   to that composed result (see "Date exclusion" below — exclusions run strictly after
+   composition, never before it):
    - **`merge`** (default) — weekly items for every section are kept; period items are appended,
      subject to the same canonical duplicate-identity rule (`activity_template_id` + section +
      start/end time) every other canonical apply mode already uses.
    - **`replace_sections`** — only the sections present in the period's item set are fully
      replaced; every other section's weekly items pass through untouched.
    - **`replace_day`** — the period's items are the entire result; no weekly item survives.
-3. Else → the existing custody-aware weekly base (minus date exclusions), unchanged from Phase 1A.
+3. Else → the existing custody-aware weekly base, with date exclusions applied, unchanged from
+   Phase 1A.
 
 `source.base_type` in the response is now one of `'special_day'` / `'special_period'` /
 `'weekly'` / `'none'`; for `'special_period'` the response also carries `source.base_id`
@@ -858,11 +864,31 @@ Verified with real concurrency, not just sequential assertions
 
 ### Date exclusion & once-task overlays under a period
 
-- **`schedule_date_exclusion`** — reused unchanged (no new exclusion model). It now applies to
-  the **effective composed result**, not secretly only to the weekly base: if an item present in
-  the effective output (whether it came from weekly or from the period) is excluded for that
-  date, it disappears from the result for that date only; neighboring dates and the period
-  definition itself are untouched (`test/schedule-period.test.js` "E20/E21").
+- **`schedule_date_exclusion`** — reused unchanged (no new exclusion model, no schema change).
+  It is applied to the **composed effective result** — i.e. AFTER `composePeriodWithWeekly()`,
+  not before it — so it can remove an item regardless of whether that item originated from
+  weekly or from an active period. If an item present in the effective output is excluded for
+  that date, it disappears from the result for that date only; the period definition
+  (`schedule_period`/`schedule_period_item`) and the weekly schedule are never mutated by this —
+  it is a pure date-specific read-side overlay (`test/schedule-period.test.js` "E20/E21",
+  "E20b"–"E20f").
+  - **Hardening note:** an earlier pass of this resolver applied exclusions to the weekly items
+    BEFORE composing the period, which meant a period-sourced item could never be removed "bara
+    idag" — this was corrected before merge; exclusions now run exactly once, strictly after
+    composition, for every branch (weekly-only and period-composed).
+  - Works correctly under every apply mode: `merge` (excluding a period item leaves the weekly
+    item; excluding a weekly item leaves the period item), `replace_sections` (excluding the
+    period's item for a replaced section does **not** resurrect the old weekly item for that
+    section — the section was already replaced, the exclusion just removes what's left of it),
+    `replace_day` (excluding the period's only item yields an **empty** effective result for
+    that date — `source.base_type` stays `'special_period'`; weekly never leaks back in merely
+    because the period's content was excluded).
+  - A populated **explicit Special Day never has exclusions applied to it** — that precedence
+    branch returns before this filter runs at all, exactly matching pre-Phase-2 behaviour
+    (`test/schedule-period.test.js` "E20e").
+  - `schedule_date_exclusion.activity_template_id` is `NOT NULL` in the schema, and the filter
+    additionally guards `item.activity_template_id == null` defensively, so a denormalized item
+    with no linked `activity_template_id` can never be accidentally excluded.
 - **Once-tasks (`daily_log_item.is_once_task`)** — still a pure daily-log overlay, still
   intentionally outside `resolveEffectiveSchedule()`'s returned items (pre-existing, documented
   boundary from Phase 1A) — unchanged by Phase 2, verified still additive and non-interacting
@@ -938,17 +964,21 @@ designed for that, and it was out of scope for this correction pass).
 
 ### Tests
 
-- `test/schedule-period.test.js` — 30 tests: CRUD (create/list/update name-only/update
+- `test/schedule-period.test.js` — 35 tests: CRUD (create/list/update name-only/update
   dates/update source/update mode/delete/get-by-id), validation (invalid range, max range, cross-
   family child, foreign-family template, invalid source type, overlap + adjacent-non-overlap
   allowed), composition (merge/replace_sections/replace_day, each proving weekly sections outside
   the period's coverage survive untouched), Special Day independence (wins, survives update AND
-  delete, neighboring dates unaffected), overlays (date exclusion under a period, once-task
-  boundary unaffected), custody (period overrides either home's weekly base; correct base returns
-  after delete; no `custody_home_id` column exists), empty-special-day fallback (with and without
-  an active period), range-boundary safety (day before/after unaffected), concurrency (overlapping
-  creates, non-overlapping creates, update-vs-create race, concurrent same-`operation_id` replay),
-  and legacy-route-still-loads compatibility.
+  delete, neighboring dates unaffected), overlays — date exclusion under a period for BOTH a
+  weekly-sourced item and a period-sourced item, exclusion behaviour under `replace_sections`
+  (old weekly item does not resurrect) and `replace_day` (empty result, `base_type` stays
+  `special_period`), a populated explicit Special Day ignoring a matching exclusion, exclusion
+  behaviour unchanged with no active period, and the once-task boundary — custody (period
+  overrides either home's weekly base; correct base returns after delete; no `custody_home_id`
+  column exists), empty-special-day fallback (with and without an active period), range-boundary
+  safety (day before/after unaffected), concurrency (overlapping creates, non-overlapping
+  creates, update-vs-create race, concurrent same-`operation_id` replay), and
+  legacy-route-still-loads compatibility.
 - `test/schedule-period-routes.test.js` — HTTP integration: create → idempotent replay → list →
   get-by-id → patch (name-only) → overlap-reject (409) → delete → get-after-delete (404) →
   cross-family-deny (403) → missing-source (400) → end-to-end proof over HTTP that a `merge`
