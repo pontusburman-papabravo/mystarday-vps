@@ -8,6 +8,14 @@
 const LIMITED_PARENT_SECURITY_ROUTES = Object.freeze({
   'GET /api/family/parent-pin-status': true,
   'POST /api/family/set-pin': true,
+  // A limited (non-Premium) parent can set their own PIN (above) but was unable to
+  // verify it — the child-side session type already allows this exact path (see
+  // CHILD_LIMITED_ACCOUNT_ALLOWED_PREFIXES in require-premium.js), but a parent-type
+  // session hitting the same PIN-gate overlay (parental-gate.js / login-magic.js) got
+  // a 402 PREMIUM_REQUIRED instead of the PIN result, surfaced to the user as a
+  // generic "wrong PIN" message with no way to unlock parent mode short of a full
+  // logout/login. Discovered during physical-device App Store sandbox E2E testing.
+  'POST /api/family/verify-pin': true,
 });
 
 function normalizePathname(path) {
