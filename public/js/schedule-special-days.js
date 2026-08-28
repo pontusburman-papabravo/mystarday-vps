@@ -78,20 +78,23 @@ async function renderSpecialDaysCalendar() {
           <p class="text-xs text-text-soft mt-0.5">${spt('schedule.specialDays.headerHint')}</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap justify-end">
-          <button type="button" onclick="openSchedulePeriodModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap">${spt('schedule.specialDays.holidayPeriodBtn')}</button>
+          <button type="button" onclick="openSchedulePeriodModal()" class="min-h-[44px] px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap">${spt('schedule.specialDays.holidayPeriodBtn')}</button>
           <button onclick="sdNavMonth(-1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">‹</button>
           <span class="font-heading font-bold text-navy min-w-[140px] text-center">${spt('schedule.months.' + sdCalMonth)} ${sdCalYear}</span>
           <button onclick="sdNavMonth(1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">›</button>
         </div>
       </div>
 
-      <!-- Lovperiod CTA -->
-      <div class="mb-4 p-4 bg-sky/60 border-2 border-lavender rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <p class="text-sm font-semibold text-navy">${spt('schedule.specialDays.periodCardTitle')}</p>
-          <p class="text-xs text-text-soft mt-0.5">${spt('schedule.specialDays.periodHint')}</p>
+      <!-- Specialperioder (Phase 2) — real first-class period list, managed by period id -->
+      <div class="mb-4 p-4 bg-sky/60 border-2 border-lavender rounded-2xl">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+          <div>
+            <p class="text-sm font-semibold text-navy">${spt('schedule.specialDays.periodCardTitle')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${spt('schedule.specialDays.periodHint')}</p>
+          </div>
+          <button type="button" onclick="openSchedulePeriodModal()" class="min-h-[44px] px-4 py-2.5 bg-navy hover:bg-navy-soft text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap self-start sm:self-auto">${spt('schedule.specialDays.addHolidayPeriod')}</button>
         </div>
-        <button type="button" onclick="openSchedulePeriodModal()" class="px-4 py-2.5 bg-navy hover:bg-navy-soft text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap self-start sm:self-auto">${spt('schedule.specialDays.addHolidayPeriod')}</button>
+        <div id="schedulePeriodsListMount"></div>
       </div>
 
       <!-- Legend -->
@@ -152,6 +155,7 @@ async function renderSpecialDaysCalendar() {
   `;
 
   document.getElementById('scheduleContent').innerHTML = html;
+  if (typeof window.renderSchedulePeriodsList === 'function') window.renderSchedulePeriodsList();
 }
 
 function sdNavMonth(delta) {

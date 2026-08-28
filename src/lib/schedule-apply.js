@@ -954,4 +954,9 @@ module.exports = {
   saveWeeklyDayAsFamilyTemplate,
   cleanupExpiredScheduleApplyOperations,
   IDEMPOTENCY_RETENTION_DAYS,
+  // Phase 2 reuse — the generic transaction/idempotency/family-integrity skeleton (§ "Reuse
+  // Phase 1A/1B patterns where sensible"). schedule-period.js reuses this rather than
+  // duplicating BEGIN/advisory-lock/fingerprint/COMMIT logic for period commands.
+  runIdempotentScheduleCommand,
+  assertChildBelongsToFamily,
 };

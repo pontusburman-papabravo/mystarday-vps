@@ -274,7 +274,9 @@
 // stjarndag-v887: Phase 1B custody hardening — propagate active custody_home_id
 // stjarndag-v888: Phase 1C — retire legacy Weekly Schedule entry points (Fyll vecka, legacy Kopiera dag, Library demotion)
 // stjarndag-v889: Phase 1C custody hardening — day-tab "+" and section "+ Aktivitet" now custody-safe
-const CACHE_NAME = 'stjarndag-v889';
+// stjarndag-v890: Phase 2 — first-class Special Period (schedule_period), lovperiod modal now canonical
+// stjarndag-v891: Phase 2 architecture correction — period composition, explicit Special Day independence, real period CRUD UI
+const CACHE_NAME = 'stjarndag-v891';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
