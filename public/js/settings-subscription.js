@@ -68,6 +68,22 @@
     };
   }
 
+  /**
+   * Branded toast feedback (see toast.js) instead of a bare browser alert() —
+   * falls back to alert() only if toast.js hasn't been loaded on the page.
+   */
+  function notify(msg, isError) {
+    if (isError && typeof window.showToast === 'function') {
+      window.showToast(msg, true);
+      return;
+    }
+    if (!isError && typeof window.showSuccessToast === 'function') {
+      window.showSuccessToast(msg);
+      return;
+    }
+    alert(msg);
+  }
+
   async function openManageSubscription() {
     if (!window.IAPManager) return;
     await IAPManager.init();
@@ -156,10 +172,10 @@
           await renderSubscription(mount);
           // Restoring while Premium is already active leaves the card looking
           // unchanged — without this, the button appears to do nothing.
-          alert('Köpet är återställt. Premium är aktivt.');
+          notify('Köpet är återställt. Premium är aktivt.', false);
           return;
         }
-        alert(result.ok && !result.active ? 'Inga köp hittades att återställa.' : 'Kunde inte återställa köp.');
+        notify(result.ok && !result.active ? 'Inga köp hittades att återställa.' : 'Kunde inte återställa köp.', true);
       });
       document.getElementById('manageSubscriptionBtn')?.addEventListener('click', function () {
         openManageSubscription().catch(function () {});
