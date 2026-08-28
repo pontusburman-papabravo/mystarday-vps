@@ -97,13 +97,13 @@
       monthlyPriceEl.textContent = t('paywall.monthlyPrice', { price: displays.monthly.priceString });
     }
     if (yearlyTermsEl) {
-      yearlyTermsEl.textContent = t('paywall.yearly' + yearlyTermsKey, {
+      yearlyTermsEl.textContent = t('paywall.yearlyTerms' + yearlyTermsKey, {
         price: displays.yearly.priceString,
         trialDays: yearlyTrialDays || 14,
       });
     }
     if (monthlyTermsEl) {
-      monthlyTermsEl.textContent = t('paywall.monthly' + monthlyTermsKey, {
+      monthlyTermsEl.textContent = t('paywall.monthlyTerms' + monthlyTermsKey, {
         price: displays.monthly.priceString,
         trialDays: monthlyTrialDays || 14,
       });

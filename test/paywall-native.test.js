@@ -10,6 +10,8 @@ const { resolveLegalRoutes } = require('../src/lib/legal-routing');
 const ROOT = path.join(__dirname, '..');
 const paywallJs = fs.readFileSync(path.join(ROOT, 'public/js/paywall.js'), 'utf8');
 const paywallHtml = fs.readFileSync(path.join(ROOT, 'public/paywall.html'), 'utf8');
+const svLocale = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/locales/sv-SE.json'), 'utf8'));
+const enLocale = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/locales/en-GB.json'), 'utf8'));
 
 describe('paywall native subscription screen', () => {
   test('A: web mode hides native purchase UI and shows web notice', () => {
@@ -121,6 +123,35 @@ describe('paywall native subscription screen', () => {
     assert.match(paywallHtml, /paywall\.loadingPrices/);
     assert.match(paywallJs, /showLoadingPrices\(true\)/);
     assert.match(paywallJs, /setPurchaseCtaEnabled\(false\)/);
+  });
+
+  // Regression: renderTierPrices() built 'paywall.yearly' + termsKey / 'paywall.monthly' +
+  // termsKey (missing the 'Terms' infix that every actual locale key uses —
+  // paywall.yearlyTermsConditionalTrial / paywall.monthlyTermsConditionalTrial etc.).
+  // Result: the raw i18n key rendered on screen instead of the subscription terms
+  // sentence, discovered during physical-device App Store sandbox E2E testing.
+  test('plan terms text uses the yearlyTerms/monthlyTerms key prefix (not yearly/monthly alone)', () => {
+    assert.match(paywallJs, /t\('paywall\.yearlyTerms' \+ yearlyTermsKey/);
+    assert.match(paywallJs, /t\('paywall\.monthlyTerms' \+ monthlyTermsKey/);
+    assert.doesNotMatch(paywallJs, /t\('paywall\.yearly' \+ yearlyTermsKey/);
+    assert.doesNotMatch(paywallJs, /t\('paywall\.monthly' \+ monthlyTermsKey/);
+  });
+
+  test('every possible resolveTrialTermsKey() result resolves to a real locale key (sv-SE + en-GB)', () => {
+    const possibleSuffixes = ['ConditionalTrial', 'KnownTrial', 'NoTrial'];
+    for (const suffix of possibleSuffixes) {
+      for (const prefix of ['yearlyTerms', 'monthlyTerms']) {
+        const key = `${prefix}${suffix}`;
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(svLocale.paywall || {}, key),
+          `sv-SE.json paywall.${key} must exist`
+        );
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(enLocale.paywall || {}, key),
+          `en-GB.json paywall.${key} must exist`
+        );
+      }
+    }
   });
 });
 
