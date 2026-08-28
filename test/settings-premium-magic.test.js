@@ -204,6 +204,14 @@ describe('settings premium magic — client wiring', () => {
     assert.match(HUBS, /settings\.groups\.app\.title/);
   });
 
+  // Regression: restoring purchases while Premium is already active left the
+  // subscription card visually unchanged with zero feedback, making the button
+  // look broken ("nothing happens"). A success alert was missing entirely — only
+  // the failure paths showed one.
+  it('restore purchases shows success feedback (not silent) when already active', () => {
+    assert.match(SUB, /Köpet är återställt\. Premium är aktivt\./);
+  });
+
   it('settings-subscription gates on subscription_ui_visible', () => {
     assert.match(SUB, /subscription_ui_visible/);
     assert.match(SUB, /native_purchase_eligible/);
@@ -283,6 +291,40 @@ describe('settings premium — IAP init sequencing', () => {
     assert.deepEqual(callOrder, ['init', 'canPurchase']);
     assert.match(mountEl.innerHTML, /Återställ köp/);
     assert.match(mountEl.innerHTML, /Hantera abonnemang/);
+  });
+
+  // Regression: an active native (Apple/Google) subscription rendered "Hantera
+  // abonnemang" twice — once as the primary CTA link (from describePremium()'s
+  // default active-plan branch) and once as the manageSubscriptionBtn button in
+  // the iapPurchaseReady block below it, both pointing at the exact same action.
+  // Discovered during physical-device App Store sandbox E2E testing, right after
+  // a real sandbox purchase completed.
+  it('active native (apple) subscription renders "Hantera abonnemang" exactly once', async () => {
+    const { sandbox, mountEl } = loadSettingsSubscriptionHarness({
+      native: true,
+      canPurchase: true,
+      status: {
+        subscription_ui_visible: true,
+        native_purchase_eligible: true,
+        billing_ui_enabled: false,
+        premium: {
+          active: true,
+          source: 'apple',
+          status: 'active',
+          plan: 'yearly',
+          is_grandfathered: false,
+          trial: false,
+          expires_at: '2026-08-29T14:37:57.000Z',
+        },
+      },
+    });
+    const result = await sandbox.SettingsSubscription.render(mountEl);
+    assert.equal(result.visible, true);
+    const manageMatches = mountEl.innerHTML.match(/Hantera abonnemang/g) || [];
+    assert.equal(manageMatches.length, 1, `expected exactly one "Hantera abonnemang", got ${manageMatches.length}`);
+    assert.doesNotMatch(mountEl.innerHTML, /id="subscriptionPrimaryCta"/);
+    assert.match(mountEl.innerHTML, /id="manageSubscriptionBtn"/);
+    assert.match(mountEl.innerHTML, /Återställ köp/);
   });
 
   it('ineligible native family does not call IAPManager.init', async () => {
