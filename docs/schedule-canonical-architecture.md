@@ -1,7 +1,8 @@
-# Schedule domain — canonical command/query architecture (Phase 1A + 1B)
+# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C)
 
 **Status: PHASE 1A COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
+**Status: PHASE 1C COMPLETE — merged, deployed, and verified.**
 
 - Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
   merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
@@ -566,7 +567,38 @@ bug introduced here).
 
 ## Phase 1C — retire legacy Weekly Schedule entry points (strangler, not deletion)
 
-**Status: PHASE 1C IN REVIEW** (PR pending — not merged, not deployed).
+**Status: PHASE 1C COMPLETE — merged, deployed, and verified.**
+
+- Merged via PR [#1098](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1098) — <!-- pragma: allowlist secret -->
+  ("Fas 1C — Retire legacy Weekly Schedule entry points"), final reviewed HEAD
+  `9a15f3b959fe0a21b41268f6317ef7b10e912665` — merge commit
+  `f82602cf7aebbab6ef9518ae08e4d7e4bf8032b8` on `main`.
+- Deployed to the live app at `main` SHA `f82602cf7aebbab6ef9518ae08e4d7e4bf8032b8`
+  (`Deploy to VPS` GitHub Actions run: success).
+- Verified: `/health` green (`git_sha` matches, `cache_version: stjarndag-v889`), clean server
+  restart with no startup errors, no new migration (none expected/introduced by Phase 1C).
+- Live-app smoke test on an isolated, immediately-deleted sandbox family (never touched a real
+  customer family): Weekly Schedule loads, "+ Lägg till" visible, "Fyll vecka" fully absent from
+  the toolbar, Aktivitet/Från mall/Kopiera dag/Spara dagen som mall all work, day action row
+  shows exactly one "Kopiera dag" control plus a working "Fler alternativ" disclosure, the
+  day-tab "+" and section "+ Aktivitet" both open the canonical Aktivitet modal with
+  day/section correctly preselected, two-home custody isolation holds (confirmed both in the UI
+  and directly in the database — `custody_home_id`/`week_variant` correctly scoped, no leakage,
+  persists across switches), Planering hub keeps Veckoschema/Kalender primary and Tilldela
+  schema secondary-only, Library template management still works with demoted (secondary-style)
+  apply CTAs, and `/assign-schedule` remains reachable (not a 404). Verified at desktop and
+  375px. No drift observed in IAP/payment/market flags or auth behavior — this PR's diff touches
+  only `public/js/schedule-*.js`, `public/js/library-*.js`, `public/schedule.html`, `public/sw.js`,
+  `config/cache-version.json`, docs, and one test file.
+- Retained legacy compatibility surfaces confirmed still present: `fill-week` backend route,
+  `/assign-schedule` page + routes, `child-bulk.js` (`copy-day`, `copy-to-weeks`,
+  `copy-to-child`, `swap-day`), `schedule-templates.js` apply, `standard-library.js` copy — none
+  deleted.
+
+**Explicit follow-ups (not Phase 1C blockers, tracked for a later phase):** custody hardening
+for "Kopiera till veckor" / "Kopiera till barn" / the drag-and-drop Swap gesture; real
+server-side Undo; multi-child atomic apply; Phase 4 "Visa ▾" chrome cleanup; physical deletion
+of legacy endpoints.
 
 Phase 1C is a **strangler/retirement** pass, not a new-feature pass. Its job: after Phase 1B
 was verified live and deployed, remove or demote the old primary UI paths that compete with the
