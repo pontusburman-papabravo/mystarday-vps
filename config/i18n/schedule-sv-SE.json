@@ -524,5 +524,84 @@
     "monthTitle": "{{name}} — Månadsöversikt",
     "monthHint": "Gröna prickar = dagar med schemalagda aktiviteter. Klicka på en dag för att se schemat.",
     "monthEmpty": "Inga aktiviteter inlagda i veckoschemat ännu."
+  },
+  "addMenu": {
+    "trigger": "➕ Lägg till",
+    "title": "Vad vill du lägga till?",
+    "optionActivity": "Aktivitet",
+    "optionActivityHint": "Lägg till en aktivitet på en eller flera veckodagar",
+    "optionTemplate": "Från mall",
+    "optionTemplateHint": "Använd en av dina mallar eller ett färdigt schema",
+    "optionCopyDay": "Kopiera dag",
+    "optionCopyDayHint": "Kopiera en dags innehåll till andra dagar",
+    "cancel": "Avbryt",
+    "back": "← Tillbaka",
+    "close": "Stäng",
+    "save": "Spara",
+    "saving": "Sparar…",
+    "done": "Klart",
+    "saveFailed": "Det gick inte att spara. Försök igen.",
+    "weekdayPickerTitle": "Välj veckodag(ar)",
+    "weekdaysAll": "Alla dagar",
+    "weekdaysWeekday": "Vardagar",
+    "weekdaysWeekend": "Helg",
+    "selectAtLeastOneDay": "Välj minst en veckodag",
+    "activity": {
+      "title": "Lägg till aktivitet",
+      "pickActivity": "1. Välj aktivitet",
+      "pickActivityPlaceholder": "Sök aktivitet…",
+      "pickDays": "2. Välj veckodag(ar)",
+      "pickSection": "3. Välj del av dagen",
+      "pickTime": "Tid (valfritt)",
+      "selectActivityFirst": "Välj en aktivitet",
+      "added": "\"{{name}}\" tillagt på {{count}} dag(ar)"
+    },
+    "template": {
+      "title": "Från mall",
+      "tabMine": "Mina mallar",
+      "tabStandard": "Färdiga mallar",
+      "noneMine": "Du har inga egna mallar ännu.",
+      "noneStandard": "Inga färdiga scheman hittades.",
+      "loading": "Laddar mallar…",
+      "loadFailed": "Kunde inte ladda mallar",
+      "pickTemplate": "1. Välj mall",
+      "pickDays": "2. Välj veckodag(ar)",
+      "pickMode": "3. Hur ska mallen läggas till?",
+      "applied": "\"{{name}}\" tillämpat på {{count}} dag(ar)"
+    },
+    "copyDay": {
+      "title": "Kopiera dag",
+      "pickSourceDay": "1. Kopiera från",
+      "pickTargetDays": "2. Kopiera till",
+      "pickMode": "3. Hur ska dagen kopieras?",
+      "sourceEqualsTargetWarning": "Källdagen är också vald som mål — den dagen lämnas oförändrad.",
+      "copied": "Dagen kopierad till {{count}} dag(ar)"
+    },
+    "mode": {
+      "merge": "Lägg till",
+      "mergeHint": "Behåller det som redan finns och lägger till innehållet.",
+      "replaceSections": "Ersätt berörda delar",
+      "replaceSectionsHint": "Ersätter bara de delar av dagen som mallen innehåller.",
+      "replaceSectionsExample": "Kvällens befintliga aktiviteter ersätts. Morgon och dag påverkas inte.",
+      "replaceDay": "Ersätt hela dagen",
+      "replaceDayHint": "Ersätter allt som redan finns på de valda dagarna."
+    },
+    "confirmReplaceDay": {
+      "title": "Ersätt hela dagen?",
+      "bodyOne": "Detta ersätter allt som redan finns på {{day}}.",
+      "bodyMany": "Detta ersätter allt som redan finns på de valda dagarna.",
+      "confirmBtn": "Ersätt",
+      "cancelBtn": "Avbryt"
+    },
+    "saveAsTemplate": {
+      "menuLabel": "💾 Spara som mall",
+      "title": "Spara dagen som mall",
+      "nameLabel": "Namn på mallen",
+      "namePlaceholder": "T.ex. Vardagsmorgon",
+      "nameRequired": "Ange ett namn för mallen",
+      "emptyDay": "Dagen är tom — inget att spara som mall.",
+      "saved": "Mallen \"{{name}}\" sparad under Mina mallar",
+      "hint": "Mallen är en kopia. Att ändra mallen senare ändrar inte {{day}}s schema."
+    }
   }
 }

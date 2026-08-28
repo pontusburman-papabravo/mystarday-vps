@@ -769,6 +769,7 @@ function renderSchedule() {
         <button onclick="openCopyDayModal()" class="px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 ${spt('schedule.editor.copyDay')}</button>
         <button onclick="openCopyWeeksModal()" class="px-4 py-2 bg-sky hover:bg-blue-100 text-navy rounded-xl text-sm font-semibold">📆 ${spt('schedule.editor.copyToWeeks')}</button>
         <button onclick="openCopyChildModal()" class="px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold">👶 ${spt('schedule.editor.copyToChild')}</button>
+        ${window.ScheduleAddMenu ? `<button onclick="ScheduleAddMenu.openSaveAsTemplate()" class="px-4 py-2 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl text-sm font-semibold">${spt('schedule.addMenu.saveAsTemplate.menuLabel')}</button>` : ''}
         <button onclick="confirmDeleteSchedule()" class="px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ ${spt('schedule.editor.deleteDay')}</button>
       </div>
     </div>${sHtml}`;

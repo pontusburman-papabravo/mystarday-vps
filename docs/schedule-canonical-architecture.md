@@ -328,3 +328,209 @@ has committed. Nothing is broadcast before commit.
   as a public route" above) before exposing it.
 - **Full once-task/effective-schedule read-model unification** — documented boundary in
   `effective-schedule.js`, not implemented in Phase 1A (§8.3).
+
+## Phase 1B — status: BACKEND + FRONTEND + CUSTODY HARDENING COMPLETE (this pass), Phase 1C retires legacy paths
+
+Phase 1B's product goal is a single "+ Lägg till" primary action on Weekly Schedule exposing
+Aktivitet / Från mall / Kopiera dag, backed entirely by canonical Phase 1A/1B services, with no
+backend jargon exposed to the parent. This section is deliberately explicit about what exists
+today versus what remains, so this is not mistaken for a finished feature.
+
+### What is implemented and tested
+
+**New canonical commands** in `src/lib/schedule-apply.js` (all share the same hardened
+transaction/idempotency/family-integrity skeleton via a new internal
+`runIdempotentScheduleCommand()` helper — `applyScheduleSourceToChildPlan` was refactored onto
+it too, with its full existing test suite re-run green to prove no regression):
+
+- `applyActivityToChild()` — "Aktivitet" (§1B.1, §1B.20 decision record below).
+- `copyScheduleDay()` — "Kopiera dag" (§1B.4, §1B.21) — reads a source child/day directly and
+  applies via `applyScheduleItemsToDay`; never creates a temporary template; the source day is
+  read-only and therefore never modified.
+- `saveWeeklyDayAsFamilyTemplate()` — "Spara dagen som mall" (§1B.5, §1B.22) — creates a brand
+  new `family_template` row (never repurposes the child's own `weekly_schedule` row); the
+  created template is an explicit copy, never live-linked back to the source day (locked with a
+  regression test that edits the saved template afterward and asserts the source day is
+  unaffected).
+
+**§1B.20 decision record — direct-activity source:** `activity_template` was **not** added to
+`SOURCE_TYPES`. A "source" is a reusable, materializable collection resolved via
+`resolveScheduleSource` (`family_template` / `standard_schedule`); a single already-existing
+family activity needs no resolution/materialization, so `applyActivityToChild()` is a separate
+command that calls `applyScheduleItemsToDay` directly. This keeps "reusable template content"
+and "one activity, right now" as distinct, non-blurred concepts, per the explicit instruction not
+to widen `SOURCE_TYPES` for convenience.
+
+**§1B.21 decision record — copy-day source:** no temporary template is persisted. `copyScheduleDay()`
+reads `weekly_schedule_item` rows for the source child/day directly (with the same family
+ownership check as every other command) and writes through the same `applyScheduleItemsToDay`
+primitive as every other command — one write path, still.
+
+**New route** `src/routes/schedules/apply.js`, mounted into the existing `childRouter`
+(`/api/children/:childId/schedules/...`):
+
+| Route | Command | Notes |
+|---|---|---|
+| `POST .../apply-source` | `applyScheduleSourceToChildPlan` | `source: { type, id }` maps directly to `family_template`/`standard_schedule`; frontend never sends/sees those names — see "user-facing labels" below |
+| `POST .../apply-activity` | `applyActivityToChild` | default `mode: 'merge'` |
+| `POST .../copy-recurring-day` | `copyScheduleDay` | **not** named `/copy-day` — that legacy path already exists in `child-bulk.js` (always-replace, no idempotency) and is intentionally left untouched per the strangler pattern (§1B.13); this is a deliberately distinct path, not a collision |
+| `POST .../save-as-template` | `saveWeeklyDayAsFamilyTemplate` | |
+
+All four routes accept an optional `operation_id` and are protected by the SAME two-layer
+authorization as every Phase 1A route (route-layer `getChildAccess` + in-service
+`assertChildBelongsToFamily`). A conflicting `operation_id` reuse (different payload) returns
+`409` with **no** mutation — proven end-to-end over HTTP in
+`test/schedule-apply-routes.test.js`.
+
+**Tests:** `test/schedule-apply-phase1b.test.js` (19 tests — direct-activity apply, copy-day
+including cross-child-in-family and cross-family denial, save-as-template including the
+copy-vs-live-link proof) and `test/schedule-apply-routes.test.js` (HTTP integration — all four
+routes, operation_id replay + conflict, cross-family denial). Full existing Phase 1A suite
+re-run green after the `runIdempotentScheduleCommand` extraction.
+
+### Frontend (this pass) — new files
+
+- `public/js/schedule-apply-client.js` — thin client adapter (§1B.18) owning request shaping
+  and the `operation_id` lifecycle (`createOperationTracker()`: same id while a command's
+  fingerprint is unchanged — safe retry; new id the instant any field changes — §1B.9/§12).
+  Backend remains authoritative for merge/replace semantics, transactions, duplicate handling,
+  and family/child integrity; this module never re-implements any of that.
+- `public/js/schedule-add-menu.js` — the "+ Lägg till" entry button, the primary menu
+  (Aktivitet / Från mall / Kopiera dag), all three step flows, the destructive `replace_day`
+  confirmation, and "Spara dagen som mall". Reads `currentChildId`/`currentDay`/`allTemplates`/
+  `loadTemplates`/`loadScheduleForDay` from `schedule.js`'s shared script-level scope — the same
+  pattern already used by `schedule-special-days.js`/`schedule-activity-modals.js`. No schedule
+  mutation SQL or merge/replace logic lives here.
+- `config/i18n/schedule-sv-SE.json` / `schedule-en-GB.json` — new `addMenu` namespace with
+  full sv-SE/en-GB parity (enforced by `test/i18n-schedule-surfaces.test.js`).
+- `scripts/audit-hardcoded-swedish.js` — both new files added to the STRICT tier (0 hits).
+
+### Frontend integration points (minimal, additive edits to existing files)
+
+- `public/schedule.html`: added the `+ Lägg till` button next to the existing `Fyll vecka`
+  button (same toolbar row, same visibility mechanism — see below); added the two new
+  `<script>` tags, loaded after `schedule.js`/`schedule-views.js`.
+- `public/js/schedule.js`: added one new button — "💾 Spara som mall" — into the **existing**
+  per-day action row (alongside the legacy Kopiera dag / Kopiera till veckor / Kopiera till
+  barn / Ta bort dag buttons), per §10 ("extend the existing day menu, don't create a second
+  competing one"). No existing button, function, or behaviour was changed or removed.
+- `+ Lägg till` button visibility is NOT reimplemented — a `MutationObserver` mirrors the
+  `hidden` class of the existing `#fillWeekBtn` (already correctly wired to "is a single
+  child's week editor currently open" across calendar-view changes, child switches, etc. in
+  `schedule.js`/`schedule-cal-nav.js`), so no calendar/view-mode logic was touched.
+
+### Apply-mode UX (§6/§7)
+
+Three labelled options, never backend words, in every "Från mall" / "Kopiera dag" step:
+`Lägg till` (merge, default) → `Ersätt berörda delar` (replace_sections) → `Ersätt hela dagen`
+(replace_day, never preselected). Selecting `replace_day` and pressing save always routes
+through an explicit confirmation screen (`confirmReplaceDay()`) with day-specific text, an
+`Ersätt` action button and an `Avbryt` cancel — never a generic "OK", never colour-only.
+Cancelling performs zero mutation (confirmed in `test/schedule-add-menu.test.js` and manual
+verification).
+
+### Multi-child decision (§1B.8/§15)
+
+Every new flow operates on `currentChildId` only — the child already open in the editor.
+`applyScheduleSourceToTargets` (multi-child) is **not** wired into any new UI: it still lacks a
+promised true cross-child atomicity contract (each child is its own DB transaction — see
+"Not exposed as a public route" earlier in this document), so exposing a multi-child "Alla
+barn" option here would risk exactly the partial-success UX the task explicitly forbids. No
+"Alla barn" control exists anywhere in this pass.
+
+### Custody hardening (PR #1095 review) — active custody home propagation
+
+New recurring schedule mutations inherit the active `custody_home_id` from the Weekly Schedule
+editor; **what the parent sees is what the parent edits.** The four Phase 1B "+ Lägg till"
+commands did not originally propagate the active custody/boendeschema context — a parent
+editing "hos mamma" could have the mutation land on the generic (no-home) `weekly_schedule`
+row instead of the visible custody variant. Fixed end-to-end:
+
+- **Frontend accessor** — `ScheduleCustody.getActiveHomeId()` (new) returns the currently
+  edited home's id, or `null` when custody is inactive; `ScheduleCustody.getWriteContext()`
+  (new) is a canonically-named alias that reuses the existing `getCreateExtras()` state rather
+  than a second custody model or query-string parsing. `schedule-add-menu.js` calls
+  `activeCustodyHomeId()` (a thin local wrapper) once per submit and forwards the result to
+  BOTH the operation-id fingerprint and the client call.
+- **HTTP contract** — `public/js/schedule-apply-client.js`'s four methods (`applyActivity`,
+  `applyTemplate`, `copyDay`, `saveDayAsTemplate`) accept `custodyHomeId` and only add
+  `custody_home_id` to the request body when it is truthy — a non-custody child's request is
+  byte-for-byte identical to before. The four routes in `src/routes/schedules/apply.js` shape
+  `custody_home_id` into `custodyContext: { custodyHomeId }` before calling the canonical
+  service; no custody SQL lives at the route layer.
+- **operation_id fingerprint** — `custodyHomeId` is now part of every operation-tracker
+  fingerprint (`schedule-add-menu.js`) and every server-side `fingerprintPayload`
+  (`schedule-apply.js`). Switching from "hos mamma" to "hos pappa" between clicks produces a
+  NEW `operation_id`/fingerprint — it can never silently replay against the wrong home.
+- **Server-side validation** — `resolveCustodyWriteContext()` (new, `src/lib/schedule-apply.js`)
+  runs inside `runIdempotentScheduleCommand`, immediately after the existing
+  `assertChildBelongsToFamily` check and before any mutation or idempotency-ledger lookup. It
+  reuses the SAME two helpers the legacy custody-aware create route already uses
+  (`db/custody.getHomeInFamily` for family ownership, `src/lib/custody-schedule-write.
+  resolveScheduleWriteFields` to resolve the paired `week_variant` from the child's own
+  `custody_pattern`) — no second custody-ownership model. A foreign-family or unknown
+  `custody_home_id` throws `ScheduleApplyError('CUSTODY_HOME_INVALID', 403, …)`, rolling back
+  the transaction with zero writes.
+- **Why `week_variant` matters too, not just `custody_home_id`** — `weekly_schedule` has a
+  unique index on `(child_id, day_of_week, COALESCE(week_variant, 'legacy'))`. A row written
+  with `custody_home_id` set but `week_variant` left `NULL` would collide with every OTHER
+  home's row for the same child+day (they would all resolve to the same `'legacy'` index key).
+  `resolveCustodyWriteContext()` resolves both columns together — exactly like the existing
+  `POST /api/children/:childId/schedules` create route already does — so home A and home B can
+  coexist as two separate rows for the same child+day. `findOrCreateWeeklyScheduleRow()` writes
+  `week_variant` on INSERT only; all reads still match on `custody_home_id` alone, which already
+  uniquely identifies the row.
+- **Per-command custody scoping**: `applyActivityToChild`/`applyScheduleSourceToChildPlan` write
+  only to the active home's row (never the generic row, never the other home). `copyScheduleDay`
+  reads the source day AND writes the target day(s) using the SAME active home — "copy what I
+  see" matches "what gets applied" (§10); cross-child copy still independently re-validates both
+  the source and target child belong to the family. `saveWeeklyDayAsFamilyTemplate` reads the
+  custody-scoped source day but the resulting `family_template` row is always custody-neutral
+  (`custody_home_id`/`child_id` both `NULL`) — a template is a reusable copy, not tied to a home.
+- **No-custody regression** — every code path above is a no-op when `custody_home_id` is
+  omitted/falsy; a family without custody sees identical behaviour to before this pass.
+- **Tests**: `test/schedule-apply-custody.test.js` (10 — per-command custody scoping incl.
+  `replace_day` non-interference across homes, copy-day home isolation, save-as-template
+  custody-neutral template, foreign-family/unknown `custody_home_id` denial with no writes,
+  no-custody regression, cross-family copy-day target denial even with a valid home id);
+  `test/schedule-apply-routes.test.js` (extended — HTTP-level custody_home_id forwarding for
+  all four routes + foreign-family denial); `test/schedule-add-menu.test.js` /
+  `test/schedule-custody.test.js` (extended — frontend accessor exists and is used by every
+  submit path, fingerprint includes `custodyHomeId`, client only sends `custody_home_id` when
+  truthy). All pre-existing custody test suites (`test/custody-*.test.js`,
+  `test/schedule-custody.test.js`, `test/dashboard-custody.test.js`) re-run green — one
+  pre-existing, unrelated failure in `test/custody-api-integration.test.js` (confirmed present
+  on the branch before this change too) is a known flaky assertion in the legacy
+  `child-crud.js` create-route test, untouched by this pass.
+
+### Mobile / accessibility
+
+Every interactive control in the new flow uses one shared `TOUCH_BTN` class
+(`min-h-[44px] min-w-[44px]`) — weekday chips, mode radios, tab buttons, save/cancel, the
+destructive confirmation buttons. No control depends on hover, drag, or long-press. Selection
+state is conveyed via an explicit `✓`/`●` glyph and `aria-pressed`/`aria-checked`, not colour
+alone. `Escape` closes the modal; `role="dialog"` + `aria-modal="true"` are set. Manually
+verified at 375px width and desktop width — see "Manual UI verification" below.
+
+### Known follow-up (not a blocker, minor rough edge found during manual verification)
+
+The "Färdiga mallar" tab calls `GET /api/standard-library/schedules`, which is gated by the
+pre-existing `requireFeature('standardbibliotek')` middleware (unchanged, unrelated to this
+PR). For a family without that feature, the request 403s and the tab falls back to its
+"no schedules found" empty state — functionally safe (no crash, no misleading data) but the
+empty-state copy doesn't currently distinguish "feature not available" from "genuinely no
+matches". Left as a Phase 1C-adjacent polish item since it doesn't affect any family that
+already has standard-library access (the majority case) and does not violate any DoD item.
+
+### Manual UI verification
+
+Performed via the `computerUse` subagent against a local dev server (fresh test family/child,
+no live/deployed data touched), at both desktop width and 375px mobile width. See the PR
+description for the full step list and screenshots. Summary: `+ Lägg till` button discoverable
+next to `Fyll vecka`; all three flows (Aktivitet, Från mall, Kopiera dag) work end to end
+including weekday shortcuts and the mode selector; the `replace_day` destructive confirmation
+appeared correctly before any mutation and `Avbryt` performed no mutation; "Spara dagen som
+mall" saved successfully with a confirmation toast; at 375px every modal remained fully usable
+with no horizontal overflow or clipping. No JavaScript errors were raised by the new code (the
+one console error observed — the expected 403 above — is pre-existing backend gating, not a
+bug introduced here).

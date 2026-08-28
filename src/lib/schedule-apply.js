@@ -21,6 +21,8 @@
 
 const crypto = require('crypto');
 const db = require('./db');
+const custodyDb = require('../../db/custody');
+const { resolveScheduleWriteFields } = require('./custody-schedule-write');
 const { CANONICAL_SECTIONS, normalizeSection } = require('./schedule-sections');
 const {
   materializeStandardScheduleActivities,
@@ -75,25 +77,17 @@ function stableStringify(value) {
 
 /**
  * Command fingerprint (§3A) — a deterministic hash of every input that materially defines
- * what a canonical apply command will materialize. Two requests with the same operationId +
- * childId but a DIFFERENT fingerprint are a client bug (reused idempotency key for a different
- * command) and must be rejected, never silently replayed.
+ * what a canonical command will materialize. Two requests with the same operationId + childId
+ * but a DIFFERENT fingerprint are a client bug (reused idempotency key for a different command)
+ * and must be rejected, never silently replayed. Callers pass a plain payload object containing
+ * every field that affects the command's output; this function only hashes it deterministically.
  */
-function computeCommandFingerprint({
-  childId, familyId, sourceType, sourceId, targets, custodyHomeId, locale, variants, optionalSelections,
-}) {
-  const normalizedTargets = [...targets]
-    .map((t) => ({ dayOfWeek: t.dayOfWeek, mode: t.mode }))
-    .sort((a, b) => a.dayOfWeek - b.dayOfWeek);
-  const payload = {
-    childId, familyId, sourceType, sourceId,
-    targets: normalizedTargets,
-    custodyHomeId: custodyHomeId || null,
-    locale: locale || null,
-    variants: variants || null,
-    optionalSelections: optionalSelections || null,
-  };
+function computeCommandFingerprint(payload) {
   return crypto.createHash('sha256').update(stableStringify(payload)).digest('hex');
+}
+
+function sortedTargets(targets) {
+  return [...targets].map((t) => ({ dayOfWeek: t.dayOfWeek, mode: t.mode })).sort((a, b) => a.dayOfWeek - b.dayOfWeek);
 }
 
 /**
@@ -159,6 +153,52 @@ async function assertChildBelongsToFamily(client, { childId, familyId }) {
   if (res.rows.length === 0 || res.rows[0].family_id !== familyId) {
     throw new ScheduleApplyError('CHILD_NOT_IN_FAMILY', 403, 'Barnet tillhör inte den angivna familjen', { childId });
   }
+}
+
+/**
+ * §7 (Phase 1B custody hardening) — a `custodyHomeId` is untrusted client input ("what the
+ * parent sees is what the parent edits" only holds if the server actually verifies the home
+ * the client claims to be editing).
+ *
+ * Reuses the SAME two helpers the existing (legacy) custody-aware create route already uses
+ * (`src/routes/schedules/child-crud.js` POST /) instead of inventing a second custody model:
+ *   - `db/custody.getHomeInFamily` — family ownership of the home
+ *   - `src/lib/custody-schedule-write.resolveScheduleWriteFields` — resolves the home against
+ *     this CHILD's own custody_pattern to get back the paired `week_variant`
+ *
+ * The paired `week_variant` matters beyond authorization: `weekly_schedule` has a unique index
+ * on (child_id, day_of_week, COALESCE(week_variant, 'legacy')) — a custody-scoped row written
+ * with `custody_home_id` set but `week_variant` left NULL would collide with every other home's
+ * row for the same child+day (they'd all resolve to the same 'legacy' index key). Writing both
+ * columns together, exactly like the legacy create route does, is what lets home A and home B
+ * coexist as separate rows for the same child+day.
+ *
+ * No-op (returns nulls) when `custodyHomeId` is falsy — §12, a non-custody child must behave
+ * exactly as before, custody_home_id is never required.
+ *
+ * @returns {Promise<{ custodyHomeId: string|null, weekVariant: string|null }>}
+ */
+async function resolveCustodyWriteContext(client, { custodyHomeId, familyId, childId }) {
+  if (!custodyHomeId) return { custodyHomeId: null, weekVariant: null };
+
+  const home = await custodyDb.getHomeInFamily(custodyHomeId, familyId, client);
+  if (!home) {
+    throw new ScheduleApplyError('CUSTODY_HOME_INVALID', 403, 'Boendet hittades inte i familjen', { custodyHomeId });
+  }
+
+  const pattern = await custodyDb.getPattern(childId, client);
+  if (!pattern) {
+    // Home exists in the family, but this child has no configured custody_pattern to resolve
+    // a week_variant from. Scope by custody_home_id alone — matches the legacy route's
+    // behaviour for a child without a pattern (§12 edge case, not the common custody-active path).
+    return { custodyHomeId, weekVariant: null };
+  }
+
+  const resolved = resolveScheduleWriteFields(pattern, { custody_home_id: custodyHomeId });
+  if (resolved.error) {
+    throw new ScheduleApplyError('CUSTODY_HOME_INVALID', 403, resolved.error, { custodyHomeId });
+  }
+  return { custodyHomeId: resolved.custodyHomeId, weekVariant: resolved.weekVariant || null };
 }
 
 /**
@@ -246,8 +286,14 @@ async function resolveScheduleSource(client, options) {
  * given, the row is scoped to that home (§5.7); otherwise this preserves the exact
  * pre-Phase-1A query used by both legacy write loops (child_id + day_of_week only —
  * custody columns are ignored, matching current live behaviour for these callers).
+ *
+ * `weekVariant` (from `resolveCustodyWriteContext`) is written alongside `custodyHomeId` on
+ * INSERT ONLY — it is what lets two different homes' rows for the same child+day coexist
+ * under the `idx_weekly_schedule_child_dow_variant` unique index (see that function's doc
+ * comment). The SELECT still matches on `custody_home_id` alone, which already uniquely
+ * identifies the row.
  */
-async function findOrCreateWeeklyScheduleRow(client, { childId, dayOfWeek, custodyHomeId }) {
+async function findOrCreateWeeklyScheduleRow(client, { childId, dayOfWeek, custodyHomeId, weekVariant = null }) {
   const selectSql = custodyHomeId
     ? `SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2 AND custody_home_id = $3`
     : `SELECT id FROM weekly_schedule WHERE child_id = $1 AND day_of_week = $2`;
@@ -259,9 +305,9 @@ async function findOrCreateWeeklyScheduleRow(client, { childId, dayOfWeek, custo
   }
 
   const insertSql = custodyHomeId
-    ? `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, custody_home_id) VALUES ($1, $2, $3, $4) RETURNING id`
+    ? `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, custody_home_id, week_variant) VALUES ($1, $2, $3, $4, $5) RETURNING id`
     : `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, $2, $3) RETURNING id`;
-  const insertParams = custodyHomeId ? [childId, dayOfWeek, dayOfWeek, custodyHomeId] : [childId, dayOfWeek, dayOfWeek];
+  const insertParams = custodyHomeId ? [childId, dayOfWeek, dayOfWeek, custodyHomeId, weekVariant] : [childId, dayOfWeek, dayOfWeek];
 
   const inserted = await client.query(insertSql, insertParams);
   return { scheduleId: inserted.rows[0].id, created: true };
@@ -273,15 +319,15 @@ async function findOrCreateWeeklyScheduleRow(client, { childId, dayOfWeek, custo
  * weekly_schedule_item rows for a canonical apply command.
  *
  * @param {import('pg').PoolClient} client
- * @param {{ childId: string, dayOfWeek: number, items: object[], mode: string, custodyHomeId?: string|null }} params
+ * @param {{ childId: string, dayOfWeek: number, items: object[], mode: string, custodyHomeId?: string|null, weekVariant?: string|null }} params
  */
-async function applyScheduleItemsToDay(client, { childId, dayOfWeek, items, mode, custodyHomeId = null }) {
+async function applyScheduleItemsToDay(client, { childId, dayOfWeek, items, mode, custodyHomeId = null, weekVariant = null }) {
   if (!Array.isArray(items) || items.length === 0) {
     // §5.5 — never silently turn a malformed/empty source into a day wipe.
     throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Källan innehöll inga aktiviteter — inget tillämpat.');
   }
 
-  const { scheduleId, created } = await findOrCreateWeeklyScheduleRow(client, { childId, dayOfWeek, custodyHomeId });
+  const { scheduleId, created } = await findOrCreateWeeklyScheduleRow(client, { childId, dayOfWeek, custodyHomeId, weekVariant });
 
   if (mode === 'replace_day') {
     await client.query('DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1', [scheduleId]);
@@ -385,6 +431,73 @@ async function cleanupExpiredScheduleApplyOperations(retentionDays = IDEMPOTENCY
 }
 
 /**
+ * Shared transaction skeleton for every canonical single-child command in this module
+ * (§4 family/child integrity, §3 idempotency + concurrency). ONE place implements:
+ *   BEGIN → assert child belongs to family → acquire advisory lock on (operationId, childId)
+ *   → replay-or-execute → store ledger → COMMIT (or ROLLBACK on any failure).
+ *
+ * `execute(client)` performs the actual mutation and returns the result object to store/return.
+ * Extracted in the Phase 1B hardening pass so applyScheduleSourceToChildPlan, applyActivityToChild,
+ * and copyScheduleDay all share one hardened implementation instead of three copies.
+ *
+ * @param {object} params
+ * @param {string} params.familyId
+ * @param {string} params.childId
+ * @param {string|null} params.operationId
+ * @param {string|null} [params.custodyHomeId] — validated against `familyId` before any other
+ *   work (§7 Phase 1B custody hardening); pass whichever custody home this command's target
+ *   OR source day is scoped to (callers with two custody-relevant days, e.g. copyScheduleDay,
+ *   currently use ONE active home for both source and target — see §10/§1B.10 in the docs).
+ * @param {object} params.fingerprintPayload — every input that materially defines the command
+ * @param {(client: import('pg').PoolClient, custodyWriteContext: { custodyHomeId: string|null, weekVariant: string|null }) => Promise<object>} params.execute
+ */
+async function runIdempotentScheduleCommand({ familyId, childId, operationId = null, custodyHomeId = null, fingerprintPayload, execute }) {
+  const fingerprint = computeCommandFingerprint(fingerprintPayload);
+  const client = await db.getClient();
+  try {
+    await client.query('BEGIN');
+
+    // §4 — family/child integrity, enforced before ANY other work, including idempotency
+    // replay: even a replay must never happen against a child that is not (or is no longer)
+    // in the caller's family.
+    await assertChildBelongsToFamily(client, { childId, familyId });
+
+    // §7 — custody_home_id is untrusted client input; resolve+verify it against this family
+    // AND this child's own custody_pattern (also resolves the paired week_variant needed to
+    // satisfy the weekly_schedule unique index — see resolveCustodyWriteContext's doc comment)
+    // before any mutation. No-op (and no behaviour change) when custody is inactive/not supplied.
+    const custodyWriteContext = await resolveCustodyWriteContext(client, { custodyHomeId, familyId, childId });
+
+    // §3B — serialize concurrent identical requests via a transaction-scoped advisory lock.
+    await acquireIdempotencyLock(client, { operationId, childId });
+
+    const existingRecord = await loadIdempotencyRecord(client, { operationId, childId });
+    if (existingRecord) {
+      if (existingRecord.command_fingerprint !== fingerprint) {
+        throw new ScheduleApplyError(
+          'IDEMPOTENCY_KEY_REUSED', 409,
+          'operation_id har redan använts för ett annat kommando',
+          { operation_id: operationId }
+        );
+      }
+      await client.query('COMMIT');
+      return { ...existingRecord.result_json, replayed: true };
+    }
+
+    const result = await execute(client, custodyWriteContext);
+    await storeIdempotentResult(client, { operationId, childId, familyId, fingerprint, result });
+
+    await client.query('COMMIT');
+    return { ...result, replayed: false };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/**
  * Canonical single-child schedule application command — PLAN form (§2 of the hardening
  * review). Accepts a per-day mode plan and executes it as ONE transaction, so a legacy
  * route request that mixes "fill empty days" (merge) and "overwrite populated days"
@@ -434,75 +547,316 @@ async function applyScheduleSourceToChildPlan(params) {
   const planTargets = normalizePlanTargets(targets);
   const custodyHomeId = custodyContext?.custodyHomeId || null;
 
-  const fingerprint = computeCommandFingerprint({
-    childId, familyId, sourceType, sourceId, targets: planTargets, custodyHomeId, locale, variants, optionalSelections,
-  });
-
-  const client = await db.getClient();
-  try {
-    await client.query('BEGIN');
-
-    // §4 — family/child integrity, enforced before ANY other work, including idempotency
-    // replay: even a replay must never happen against a child that is not (or is no longer)
-    // in the caller's family.
-    await assertChildBelongsToFamily(client, { childId, familyId });
-
-    // §3B — serialize concurrent identical requests via a transaction-scoped advisory lock.
-    await acquireIdempotencyLock(client, { operationId, childId });
-
-    const existingRecord = await loadIdempotencyRecord(client, { operationId, childId });
-    if (existingRecord) {
-      if (existingRecord.command_fingerprint !== fingerprint) {
-        throw new ScheduleApplyError(
-          'IDEMPOTENCY_KEY_REUSED', 409,
-          'operation_id har redan använts för ett annat kommando',
-          { operation_id: operationId }
-        );
-      }
-      await client.query('COMMIT');
-      return { ...existingRecord.result_json, replayed: true };
-    }
-
-    const { items: sourceItems, sourceMeta } = await resolveScheduleSource(client, {
-      familyId, sourceType, sourceId, locale, variants, optionalSelections,
-    });
-
-    if (sourceItems.length === 0) {
-      throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Källan innehöll inga aktiviteter — inget tillämpat.');
-    }
-
-    const perDay = [];
-    for (const { dayOfWeek, mode } of planTargets) {
-      const dayResult = await applyScheduleItemsToDay(client, {
-        childId, dayOfWeek, items: sourceItems, mode, custodyHomeId,
+  return runIdempotentScheduleCommand({
+    familyId,
+    childId,
+    operationId,
+    custodyHomeId,
+    fingerprintPayload: {
+      command: 'apply_schedule_source', childId, familyId, sourceType, sourceId,
+      targets: sortedTargets(planTargets), custodyHomeId, locale, variants, optionalSelections,
+    },
+    execute: async (client, custodyWriteContext) => {
+      const { items: sourceItems, sourceMeta } = await resolveScheduleSource(client, {
+        familyId, sourceType, sourceId, locale, variants, optionalSelections,
       });
-      perDay.push({ day_of_week: dayOfWeek, mode, ...dayResult });
-    }
 
-    const result = {
-      operation_id: operationId,
-      child_id: childId,
-      family_id: familyId,
-      source: sourceMeta,
-      applied_days: perDay.map((d) => d.day_of_week),
-      changed_days: perDay.filter((d) => d.itemsAdded > 0).map((d) => d.day_of_week),
-      skipped_days: [],
-      duplicate_items_skipped: perDay.reduce((sum, d) => sum + d.itemsSkippedDuplicate, 0),
-      replaced_sections: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.sectionsReplaced])),
-      day_modes: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.mode])),
-      replayed: false,
-    };
+      if (sourceItems.length === 0) {
+        throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Källan innehöll inga aktiviteter — inget tillämpat.');
+      }
 
-    await storeIdempotentResult(client, { operationId, childId, familyId, fingerprint, result });
+      const perDay = [];
+      for (const { dayOfWeek, mode } of planTargets) {
+        const dayResult = await applyScheduleItemsToDay(client, {
+          childId, dayOfWeek, items: sourceItems, mode,
+          custodyHomeId: custodyWriteContext.custodyHomeId, weekVariant: custodyWriteContext.weekVariant,
+        });
+        perDay.push({ day_of_week: dayOfWeek, mode, ...dayResult });
+      }
 
-    await client.query('COMMIT');
-    return result;
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
+      return {
+        operation_id: operationId,
+        child_id: childId,
+        family_id: familyId,
+        source: sourceMeta,
+        applied_days: perDay.map((d) => d.day_of_week),
+        changed_days: perDay.filter((d) => d.itemsAdded > 0).map((d) => d.day_of_week),
+        skipped_days: [],
+        duplicate_items_skipped: perDay.reduce((sum, d) => sum + d.itemsSkippedDuplicate, 0),
+        replaced_sections: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.sectionsReplaced])),
+        day_modes: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.mode])),
+      };
+    },
+  });
+}
+
+/**
+ * Direct-activity command (Phase 1B §1B.20). Adds ONE existing family activity to one or more
+ * weekdays on a child's recurring schedule.
+ *
+ * Decision record (§1B.20): `activity_template` was deliberately NOT added to `SOURCE_TYPES`.
+ * A schedule "source" (§10) is a reusable, materializable collection of items resolved via
+ * `resolveScheduleSource` (family_template / standard_schedule); a single already-existing
+ * family activity needs no resolution or materialization — it is applied directly through the
+ * same `applyScheduleItemsToDay` primitive every other command uses, via the same
+ * `runIdempotentScheduleCommand` transaction/idempotency/family-integrity skeleton. Modelling it
+ * as a separate command (rather than stretching the source-type concept) keeps "reusable
+ * template/standard content" and "one activity, right now" as distinct, non-blurred concepts.
+ *
+ * @param {object} params
+ * @param {string} params.familyId
+ * @param {string} params.childId
+ * @param {string} params.activityTemplateId — must belong to `familyId`
+ * @param {number[]} params.days
+ * @param {string} [params.section] — one of CANONICAL_SECTIONS, defaults to 'dag'
+ * @param {string|null} [params.startTime]
+ * @param {string|null} [params.endTime]
+ * @param {'merge'|'replace_sections'|'replace_day'} [params.mode] — defaults to 'merge' (§1B.1)
+ * @param {string} [params.operationId]
+ * @param {{ custodyHomeId?: string }} [params.custodyContext]
+ */
+async function applyActivityToChild(params) {
+  const {
+    familyId, childId, activityTemplateId, days, section = 'dag',
+    startTime = null, endTime = null, mode = 'merge', operationId = null, custodyContext = null,
+  } = params;
+
+  if (!familyId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'familyId krävs');
+  if (!childId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'childId krävs');
+  if (!activityTemplateId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'activityTemplateId krävs');
+  assertValidMode(mode);
+  const validDays = normalizeDays(days);
+  const normalizedSection = normalizeSection(section);
+  const custodyHomeId = custodyContext?.custodyHomeId || null;
+
+  return runIdempotentScheduleCommand({
+    familyId,
+    childId,
+    operationId,
+    custodyHomeId,
+    fingerprintPayload: {
+      command: 'apply_activity', childId, familyId, activityTemplateId,
+      days: validDays, section: normalizedSection, startTime, endTime, mode, custodyHomeId,
+    },
+    execute: async (client, custodyWriteContext) => {
+      const activity = await client.query(
+        'SELECT id FROM activity_template WHERE id = $1 AND family_id = $2',
+        [activityTemplateId, familyId]
+      );
+      if (activity.rows.length === 0) {
+        throw new ScheduleApplyError('SOURCE_NOT_FOUND', 404, 'Aktiviteten hittades inte');
+      }
+
+      const items = [{
+        activity_template_id: activityTemplateId, section: normalizedSection,
+        start_time: startTime, end_time: endTime, sort_order: 0,
+      }];
+
+      const perDay = [];
+      for (const dayOfWeek of validDays) {
+        const dayResult = await applyScheduleItemsToDay(client, {
+          childId, dayOfWeek, items, mode,
+          custodyHomeId: custodyWriteContext.custodyHomeId, weekVariant: custodyWriteContext.weekVariant,
+        });
+        perDay.push({ day_of_week: dayOfWeek, ...dayResult });
+      }
+
+      return {
+        operation_id: operationId,
+        child_id: childId,
+        family_id: familyId,
+        source: { source_type: 'direct_activity', activity_template_id: activityTemplateId },
+        applied_days: perDay.map((d) => d.day_of_week),
+        changed_days: perDay.filter((d) => d.itemsAdded > 0).map((d) => d.day_of_week),
+        duplicate_items_skipped: perDay.reduce((sum, d) => sum + d.itemsSkippedDuplicate, 0),
+        replaced_sections: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.sectionsReplaced])),
+      };
+    },
+  });
+}
+
+/**
+ * Copy-day command (Phase 1B §1B.21). Reads one source child/day's recurring items and applies
+ * them to one or more target days — for the same child or a different child in the same family.
+ * Does NOT create a temporary template (§1B.21) — reads `weekly_schedule_item` directly and
+ * writes through `applyScheduleItemsToDay`, the same primitive every other command uses.
+ *
+ * The source day is read-only here and therefore never modified by this command, regardless of
+ * mode or outcome (§1B.4 "source day itself is not modified").
+ *
+ * Single target child per call, matching the locked single-child atomicity contract (§1B.8) —
+ * copying one source day to multiple children is a separate, not-yet-built multi-child
+ * operation (see `applyScheduleSourceToTargets` follow-up note).
+ *
+ * @param {object} params
+ * @param {string} params.familyId
+ * @param {string} params.sourceChildId — must belong to `familyId`
+ * @param {number} params.sourceDayOfWeek
+ * @param {string} params.targetChildId — must belong to `familyId` (may equal sourceChildId)
+ * @param {number[]} params.targetDays
+ * @param {'merge'|'replace_sections'|'replace_day'} [params.mode]
+ * @param {string} [params.operationId]
+ * @param {{ custodyHomeId?: string }} [params.custodyContext] — applies to the TARGET side only;
+ *   the source day is read using the same custody scoping so "copy what I see" matches "what
+ *   gets applied".
+ */
+async function copyScheduleDay(params) {
+  const {
+    familyId, sourceChildId, sourceDayOfWeek, targetChildId, targetDays,
+    mode = 'merge', operationId = null, custodyContext = null,
+  } = params;
+
+  if (!familyId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'familyId krävs');
+  if (!sourceChildId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'sourceChildId krävs');
+  if (!targetChildId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'targetChildId krävs');
+  if (!Number.isInteger(sourceDayOfWeek) || sourceDayOfWeek < 0 || sourceDayOfWeek > 6) {
+    throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'Ogiltig källdag');
   }
+  assertValidMode(mode);
+  const validTargetDays = normalizeDays(targetDays);
+  const custodyHomeId = custodyContext?.custodyHomeId || null;
+
+  return runIdempotentScheduleCommand({
+    familyId,
+    childId: targetChildId,
+    operationId,
+    custodyHomeId,
+    fingerprintPayload: {
+      command: 'copy_schedule_day', familyId, sourceChildId, sourceDayOfWeek, targetChildId,
+      targetDays: validTargetDays, mode, custodyHomeId,
+    },
+    execute: async (client, custodyWriteContext) => {
+      // Source child may differ from the target child — validate it belongs to the same
+      // family too (§4/§22: never trust a bare id, even for a read).
+      if (sourceChildId !== targetChildId) {
+        await assertChildBelongsToFamily(client, { childId: sourceChildId, familyId });
+      }
+
+      const selectSql = custodyHomeId
+        ? `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section
+           FROM weekly_schedule_item wsi JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+           WHERE ws.child_id = $1 AND ws.day_of_week = $2 AND ws.custody_home_id = $3
+           ORDER BY wsi.sort_order ASC`
+        : `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section
+           FROM weekly_schedule_item wsi JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+           WHERE ws.child_id = $1 AND ws.day_of_week = $2
+           ORDER BY wsi.sort_order ASC`;
+      const selectParams = custodyHomeId ? [sourceChildId, sourceDayOfWeek, custodyHomeId] : [sourceChildId, sourceDayOfWeek];
+      const sourceItemsRes = await client.query(selectSql, selectParams);
+      const sourceItems = sourceItemsRes.rows.map((r) => ({ ...r, section: normalizeSection(r.section) }));
+
+      if (sourceItems.length === 0) {
+        throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Källdagen är tom — inget att kopiera.');
+      }
+
+      const perDay = [];
+      for (const dayOfWeek of validTargetDays) {
+        const dayResult = await applyScheduleItemsToDay(client, {
+          childId: targetChildId, dayOfWeek, items: sourceItems, mode,
+          custodyHomeId: custodyWriteContext.custodyHomeId, weekVariant: custodyWriteContext.weekVariant,
+        });
+        perDay.push({ day_of_week: dayOfWeek, ...dayResult });
+      }
+
+      return {
+        operation_id: operationId,
+        child_id: targetChildId,
+        family_id: familyId,
+        source: { source_type: 'copy_day', source_child_id: sourceChildId, source_day_of_week: sourceDayOfWeek },
+        applied_days: perDay.map((d) => d.day_of_week),
+        changed_days: perDay.filter((d) => d.itemsAdded > 0).map((d) => d.day_of_week),
+        duplicate_items_skipped: perDay.reduce((sum, d) => sum + d.itemsSkippedDuplicate, 0),
+        replaced_sections: Object.fromEntries(perDay.map((d) => [d.day_of_week, d.sectionsReplaced])),
+      };
+    },
+  });
+}
+
+/**
+ * Save-day-as-template command (Phase 1B §1B.22). Copies one child's recurring day into a NEW
+ * family template (a `weekly_schedule` row with `child_id IS NULL`, per §2 TEMPLATE). This is an
+ * explicit, one-time COPY — the created template is never live-linked back to the source day:
+ * editing the template later (via the existing template item CRUD) does not touch the child's
+ * weekly schedule, and vice versa, because they are two independent sets of
+ * `weekly_schedule_item` rows from the moment of creation onward. Section, time, and order are
+ * preserved exactly. No child-specific `weekly_schedule` row is repurposed as a template — a
+ * brand-new row is always created.
+ *
+ * @param {object} params
+ * @param {string} params.familyId
+ * @param {string} params.childId — the day's owner; must belong to `familyId`
+ * @param {number} params.dayOfWeek
+ * @param {string} params.templateName
+ * @param {string} [params.operationId]
+ * @param {{ custodyHomeId?: string }} [params.custodyContext]
+ */
+async function saveWeeklyDayAsFamilyTemplate(params) {
+  const { familyId, childId, dayOfWeek, templateName, operationId = null, custodyContext = null } = params;
+
+  if (!familyId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'familyId krävs');
+  if (!childId) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'childId krävs');
+  if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+    throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'Ogiltig veckodag');
+  }
+  const name = (templateName || '').trim();
+  if (!name) throw new ScheduleApplyError('VALIDATION_ERROR', 400, 'Mallens namn krävs');
+  const custodyHomeId = custodyContext?.custodyHomeId || null;
+
+  return runIdempotentScheduleCommand({
+    familyId,
+    childId,
+    operationId,
+    custodyHomeId,
+    fingerprintPayload: { command: 'save_day_as_template', familyId, childId, dayOfWeek, name, custodyHomeId },
+    execute: async (client) => {
+      const selectSql = custodyHomeId
+        ? `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section
+           FROM weekly_schedule_item wsi JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+           WHERE ws.child_id = $1 AND ws.day_of_week = $2 AND ws.custody_home_id = $3
+           ORDER BY wsi.sort_order ASC`
+        : `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section
+           FROM weekly_schedule_item wsi JOIN weekly_schedule ws ON ws.id = wsi.weekly_schedule_id
+           WHERE ws.child_id = $1 AND ws.day_of_week = $2
+           ORDER BY wsi.sort_order ASC`;
+      const selectParams = custodyHomeId ? [childId, dayOfWeek, custodyHomeId] : [childId, dayOfWeek];
+      const sourceItemsRes = await client.query(selectSql, selectParams);
+
+      if (sourceItemsRes.rows.length === 0) {
+        throw new ScheduleApplyError('EMPTY_SOURCE', 400, 'Dagen är tom — inget att spara som mall.');
+      }
+
+      const maxSort = await client.query(
+        `SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_sort FROM weekly_schedule WHERE family_id = $1 AND child_id IS NULL`,
+        [familyId]
+      );
+      const templateRes = await client.query(
+        `INSERT INTO weekly_schedule (family_id, name, sort_order, day_of_week, child_id)
+         VALUES ($1, $2, $3, 0, NULL) RETURNING id, name, created_at`,
+        [familyId, name, parseInt(maxSort.rows[0].next_sort, 10)]
+      );
+      const templateId = templateRes.rows[0].id;
+
+      let itemCount = 0;
+      for (const item of sourceItemsRes.rows) {
+        await client.query(
+          `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, start_time, end_time, sort_order, section)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [templateId, item.activity_template_id, item.start_time, item.end_time, item.sort_order, normalizeSection(item.section)]
+        );
+        itemCount++;
+      }
+
+      return {
+        operation_id: operationId,
+        template_id: templateId,
+        template_name: templateRes.rows[0].name,
+        family_id: familyId,
+        source_child_id: childId,
+        source_day_of_week: dayOfWeek,
+        item_count: itemCount,
+      };
+    },
+  });
 }
 
 /**
@@ -595,6 +949,9 @@ module.exports = {
   applyScheduleSourceToChild,
   applyScheduleSourceToChildPlan,
   applyScheduleSourceToTargets,
+  applyActivityToChild,
+  copyScheduleDay,
+  saveWeeklyDayAsFamilyTemplate,
   cleanupExpiredScheduleApplyOperations,
   IDEMPOTENCY_RETENTION_DAYS,
 };
