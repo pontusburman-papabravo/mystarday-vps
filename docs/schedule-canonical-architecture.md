@@ -1,9 +1,9 @@
-# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C + 2)
+# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C + 2 + 3)
 
 **Status: PHASE 1A COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1C COMPLETE — merged, deployed, and verified.**
-**Status: PHASE 2 IN REVIEW** (PR pending — not merged, not deployed).
+**Status: PHASE 2 COMPLETE — merged, deployed, and verified.**
 
 - Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
   merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
@@ -695,15 +695,44 @@ for the changed precached JS/HTML assets).
 
 ## Phase 2 — Calendar + first-class Special Period domain
 
-**Status: PHASE 2 IN REVIEW** (PR pending — not merged, not deployed). This section documents
-the **corrected** Phase 2 design. An earlier prototype pass materialized periods as ordinary
-`special_day_schedule` rows; that approach was found to be architecturally incorrect (see
-"What the first prototype got wrong" below) and was replaced before this PR was considered
-mergeable — none of that earlier storage model shipped to `main`. A subsequent hardening pass
-then found and fixed one remaining correctness gap in the corrected resolver: date exclusions
-were still being applied to the weekly base BEFORE period composition, so a period-sourced item
-could never be excluded "bara idag" — see "Date exclusion & once-task overlays under a period"
-below for the fix.
+**Status: PHASE 2 COMPLETE — merged, deployed, and verified.**
+
+- Merged via PR [#1101](https://github.com/pontusburman-papabravo/[REDACTED]-vps/pull/1101) — <!-- pragma: allowlist secret -->
+  ("Fas 2 — Calendar + first-class Special Period domain (architecture-corrected)"), final
+  reviewed HEAD `f49c563ff041b4fc1d1423f7a57f90561832f4ad` — merge commit
+  `5ecb8612e26054a74d644f3d4c287442c33b4e72` on `main`.
+- Deployed to the live app at `main` SHA `5ecb8612e26054a74d644f3d4c287442c33b4e72`
+  (`Deploy to VPS` GitHub Actions run: success; migration `1810440000000_schedule_period`
+  applied, pre/post-migrate and post-deploy snapshot compares all reported "no unexpected
+  drift").
+- Verified: `/health` green (`git_sha` matches the deployed merge commit exactly,
+  `cache_version: stjarndag-v891` — unchanged, no static assets touched by the hardening
+  commit), clean server restart with no startup errors, no schedule/period-related error spike
+  in `journalctl -u mystarday` (the few log lines observed post-deploy were pre-existing, <!-- pragma: allowlist secret -->
+  unrelated issues — a push-registration constraint warning and a stale Android WebView client
+  cache error — neither touches `schedule_period`, `effective-schedule.js`, or any Phase 2 file).
+- Database verified directly on the deployed instance: `schedule_period` and
+  `schedule_period_item` exist with the expected constraints (CASCADE FKs to `child`/`family`,
+  `apply_mode`/`source_type`/date-range CHECKs) and indexes; `special_day_schedule.period_id`
+  does **not** exist, confirming the corrected structural separation shipped as designed; no
+  customer data was read or mutated during this check.
+- Live-app smoke test on an isolated, immediately-deleted sandbox family (never touched a real
+  customer family) on `https://mystarday.se`: Specialperioder list loads and starts empty, <!-- pragma: allowlist secret -->
+  create period (name/dates/family-template source/merge mode with all three modes visible and
+  explained) succeeds with a success toast and the period appears in the list, "Redigera"
+  reopens the modal fully pre-filled by id (no re-entered dates), delete shows the explicit
+  "Ta bort"/"Avbryt" confirmation (never a bare browser `confirm()`) and removes the period back
+  to the empty-list state. No console/JS errors observed. Test family fully deleted afterward;
+  verified zero remaining `schedule_period`/`schedule_period_item` rows repo-wide post-cleanup.
+
+This section documents the **corrected** Phase 2 design. An earlier prototype pass materialized
+periods as ordinary `special_day_schedule` rows; that approach was found to be architecturally
+incorrect (see "What the first prototype got wrong" below) and was replaced before merge — none
+of that earlier storage model shipped to `main`. A subsequent hardening pass then found and
+fixed one remaining correctness gap in the corrected resolver: date exclusions were still being
+applied to the weekly base BEFORE period composition, so a period-sourced item could never be
+excluded "bara idag" — see "Date exclusion & once-task overlays under a period" below for the
+fix. Both corrections shipped together in the merged PR.
 
 Phase 2 introduces `schedule_period` as a first-class domain entity for date-range exceptions,
 replacing the "N unrelated `special_day_schedule` rows with no shared identity" approach the
@@ -1027,3 +1056,46 @@ Calendar UI redesign beyond the period list/create/edit/delete surface, Weekly S
 widget/Meta/payment work, market flags, the once-task race, multi-child atomic scheduling, real
 Undo, Phase 4 "Visa ▾" chrome cleanup, physical deletion of any legacy endpoint, and full Phase 3
 final-precedence-contract locking.
+
+## Phase 3 — resolver precedence contract + response-shape finalization
+
+**Status: PHASE 3 KICKOFF** (branch created, no functional code changed yet — draft PR pending
+a detailed scope brief).
+
+Branch: `cursor/phase-3-resolver-precedence-775b`.
+
+### Boundary inherited from Phase 1A/2
+
+Phase 2 explicitly deferred the following to Phase 3 (see "Special Day integration & Phase 3
+boundary" and "Phase 3 boundary" above):
+
+- **Final resolver precedence contract** — `resolveEffectiveSchedule()`'s current precedence
+  (explicit non-empty Special Day → active Special Period composed with custody-aware weekly →
+  custody-aware weekly) is functionally correct and fully tested for Phase 1A/1B/1C/2's known
+  cases, but has not yet been locked as a documented, exhaustive public contract covering every
+  edge case (e.g. multiple candidate periods should never coexist for one child given the
+  overlap invariant, but the contract doesn't yet explicitly enumerate and test unusual
+  combinations like a period ending exactly on a custody handoff day, or interactions with
+  future domain additions).
+- **Final response-shape contract** — `source.base_type`/`base_id`/`apply_mode` were extended
+  minimally in Phase 2 to distinguish `weekly`/`special_day`/`special_period`; Phase 3 owns
+  deciding and documenting the definitive, versioned public shape (e.g. whether callers should
+  be able to depend on `source.period_name`, whether `excluded_activity_template_ids` remains
+  in the shape long-term, etc.) rather than the "minimal extension per phase" approach used so
+  far.
+- **Broader resolver cleanup** — `effective-schedule.js` has grown incrementally across three
+  phases (Phase 1A → 1B custody-awareness → Phase 2 period composition); Phase 3 owns evaluating
+  whether that accretion needs restructuring now that the domain is stable, without changing
+  observable behavior.
+
+### Non-goals (carried forward, not reopened by Phase 3 unless a contradiction is found)
+
+Weekly Schedule redesign, widget/Meta/payment work, market flags, the once-task race, multi-child
+atomic scheduling, real Undo, Phase 4 "Visa ▾" chrome cleanup, physical deletion of any legacy
+endpoint, Calendar UI redesign beyond what Phase 2 already shipped.
+
+### Next step
+
+Awaiting a detailed Phase 3 scope brief (mirroring the level of detail Phase 1A/1B/1C/2 each
+received) before implementing. This section will be replaced with the actual Phase 3 design once
+that brief arrives — nothing here should be treated as a locked decision yet.
