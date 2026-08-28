@@ -765,12 +765,17 @@ function renderSchedule() {
           <span class="text-xs text-purple-400 ml-1">💡 ${spt('schedule.actions.dragCopyHint')}</span>
         </p>
       </div>
-      <div class="flex gap-2 flex-wrap">
-        <button onclick="openCopyDayModal()" class="px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 ${spt('schedule.editor.copyDay')}</button>
-        <button onclick="openCopyWeeksModal()" class="px-4 py-2 bg-sky hover:bg-blue-100 text-navy rounded-xl text-sm font-semibold">📆 ${spt('schedule.editor.copyToWeeks')}</button>
-        <button onclick="openCopyChildModal()" class="px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold">👶 ${spt('schedule.editor.copyToChild')}</button>
-        ${window.ScheduleAddMenu ? `<button onclick="ScheduleAddMenu.openSaveAsTemplate()" class="px-4 py-2 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl text-sm font-semibold">${spt('schedule.addMenu.saveAsTemplate.menuLabel')}</button>` : ''}
-        <button onclick="confirmDeleteSchedule()" class="px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ ${spt('schedule.editor.deleteDay')}</button>
+      <div class="flex gap-2 flex-wrap items-start">
+        <button onclick="${window.ScheduleAddMenu ? 'ScheduleAddMenu.openCopyDay()' : 'openCopyDayModal()'}" class="min-h-[44px] px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 ${spt('schedule.editor.copyDay')}</button>
+        ${window.ScheduleAddMenu ? `<button onclick="ScheduleAddMenu.openSaveAsTemplate()" class="min-h-[44px] px-4 py-2 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl text-sm font-semibold">${spt('schedule.addMenu.saveAsTemplate.menuLabel')}</button>` : ''}
+        <button onclick="confirmDeleteSchedule()" class="min-h-[44px] px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ ${spt('schedule.editor.deleteDay')}</button>
+        <details class="relative">
+          <summary class="min-h-[44px] px-4 py-2 bg-white border-2 border-lavender text-navy rounded-xl text-sm font-semibold cursor-pointer list-none flex items-center gap-1">⋯ ${spt('schedule.editor.moreOptions')}</summary>
+          <div class="absolute right-0 mt-2 z-10 flex flex-col gap-2 bg-white border-2 border-lavender rounded-xl p-2 shadow-lg min-w-[220px]">
+            <button onclick="openCopyWeeksModal()" class="min-h-[44px] px-4 py-2 bg-sky hover:bg-blue-100 text-navy rounded-xl text-sm font-semibold text-left">📆 ${spt('schedule.editor.copyToWeeks')}</button>
+            <button onclick="openCopyChildModal()" class="min-h-[44px] px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold text-left">👶 ${spt('schedule.editor.copyToChild')}</button>
+          </div>
+        </details>
       </div>
     </div>${sHtml}`;
   initDragDrop();

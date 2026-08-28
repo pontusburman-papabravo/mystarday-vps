@@ -563,3 +563,93 @@ mall" saved successfully with a confirmation toast; at 375px every modal remaine
 with no horizontal overflow or clipping. No JavaScript errors were raised by the new code (the
 one console error observed — the expected 403 above — is pre-existing backend gating, not a
 bug introduced here).
+
+## Phase 1C — retire legacy Weekly Schedule entry points (strangler, not deletion)
+
+**Status: PHASE 1C IN REVIEW** (PR pending — not merged, not deployed).
+
+Phase 1C is a **strangler/retirement** pass, not a new-feature pass. Its job: after Phase 1B
+was verified live and deployed, remove or demote the old primary UI paths that compete with the
+canonical model below, so a parent no longer faces multiple ways to do the same recurring-week
+planning job. Backend endpoints are retained wherever removal was not proven safe — "the old
+path disappears from normal user behaviour without requiring immediate physical deletion of
+all old code" (per the task brief's own strangler rule).
+
+**Canonical, protected, unchanged by this phase:**
+`+ Lägg till` → `Aktivitet` / `Från mall` / `Kopiera dag`, plus the day action `Spara dagen som
+mall`. `merge` default / `replace_sections` / `replace_day` + confirmation. Custody: active
+`custody_home_id` continues to scope every canonical mutation (Phase 1B custody hardening,
+above — unchanged).
+
+### Legacy-retirement table
+
+| Legacy path | Old user job | Canonical replacement | UI status | Backend status |
+|---|---|---|---|---|
+| `#fillWeekBtn` "📆 Fyll vecka" toolbar button (`public/schedule.html`) | Bulk-fill multiple weekdays from an activity category, or blank | `+ Lägg till → Från mall` (multi-day, merge/replace_sections/replace_day, custody-scoped) | **Retired** — element converted to an invisible `<span>` state marker (same `id`, no `onclick`, no label); nothing on the page can trigger it anymore | Retained — `POST /api/children/:id/schedules/fill-week` (`src/routes/schedules/fill-week.js`) and `openFillWeekModal()`/`submitFillWeek()` (`schedule-insert-fill.js`) untouched, now unreachable from normal navigation. `#fillWeekModal` markup left in place (harmless, unreachable) rather than risk a larger deletion in this pass |
+| Day-row "📋 Kopiera dag" button (`public/js/schedule.js` day action row) | Copy the current day → other days, **always replacing** target content, no custody scoping | `+ Lägg till → Kopiera dag` | **Rewired** — `onclick` now calls `ScheduleAddMenu.openCopyDay()` (pre-fills the current day as source); the legacy `openCopyDayModal()`/`submitCopyDay()`/`#copyDayModal` remain ONLY as a defensive fallback if `ScheduleAddMenu` fails to load (never expected in practice) | Retained — `POST /api/children/:id/schedules/copy-day` (`child-bulk.js`) untouched; no longer called by this button in the normal path |
+| Day-tab drag-and-drop "Copy" (`public/js/schedule-dnd.js` `doDayDndCopy`) | Same job as above, via a drag gesture | Same | **Rewired in place** — now calls `ScheduleApplyClient.copyDay(...)` (canonical, idempotent, custody-scoped) with `mode: 'replace_day'` explicitly, preserving the gesture's exact pre-existing always-replace behaviour (a drag-drop has no mode-picker step, so silently defaulting to `merge` would surprise users — see §6 "if legacy semantics differ, preserve them under the same button") | Retained but no longer called from this gesture |
+| "📆 Kopiera till veckor" / "👶 Kopiera till barn" (day action row) | Copy one day across future weeks / to another child — genuinely distinct advanced jobs, no canonical equivalent (cross-child copy is explicitly Phase-1C-out-of-scope "multi-child atomic scheduling") | None (kept as advanced features) | **Demoted** — moved from two always-visible coloured buttons into a `<details>`/`<summary>` "⋯ Fler alternativ" disclosure in the day action row, so the primary row shows one clear copy-day control instead of three competing ones | Retained unmodified — `POST .../copy-to-weeks`, `POST .../copy-to-child` (`child-bulk.js`) |
+| Day-tab drag-and-drop "Swap" (`schedule-dnd.js` `doDayDndSwap`) | Swap two weekdays' content — distinct job, no canonical equivalent | None | Unchanged (not in the smoke-tested "copy" risk path) | Retained — `POST .../swap-day` |
+| Planning hub "Tilldela schema" card (`public/js/planning-hub.js`) → `/assign-schedule` | Category-based day-by-day schedule assignment, standalone page | `/schedule → + Lägg till → Från mall` | **Already non-primary** — confirmed via audit: it lives in the secondary `OTHER_LINKS`/"Övrigt" section, never in the primary `PLAN_LINKS`/"Planera vardagen" grid. No code change required; locked in with a regression test (`test/schedule-phase1c-retirement.test.js` "B5/B7") | Retained — `/assign-schedule` page + its routes (`POST .../schedules`, `POST .../apply-date-range`) untouched, reachable for deep links / manual QA access |
+| Library "📥 Kopiera till barn" CTAs — family template card + standard schedule card (`public/js/library-schema.js`) | Apply a family/standard template directly to a child's week from the Bibliotek page | `/schedule → + Lägg till → Från mall` | **Demoted** — visual treatment changed from a primary gold CTA (`bg-gold`) to a secondary outline button (`bg-white border-2 border-lavender`); the dialog (`openScheduleCopyDialog`/`executeScheduleCopy`) and its routes are unchanged | Retained — `POST /api/schedule-templates/:id/apply`, `POST /api/standard-library/schedules/:id/copy`, `POST .../apply-date-range` all unchanged |
+| Library "📥 Kopiera schema" detail CTA (`public/js/library-magic-schedules.js`, standard-library magic detail view) | Same job, from the "Färdiga mallar" magic detail screen | Same | **Demoted** — CSS class changed from `library-magic-btn-primary` to `library-magic-btn-secondary` | Same routes, unchanged |
+| Library "📋 Kopiera från…" per-child button (`library-schema.js`) | Copy another child's/standard schedule onto a child, from Bibliotek | Same | Already secondary-styled (`bg-lavender`, not gold) before this phase — left unchanged | `POST .../copy-to-child`, `POST .../standard-library/schedules/:id/copy` unchanged |
+
+### Explicitly deferred custody-safety gaps (not fixed this phase — documented, not silently ignored)
+
+A few remaining visible controls still do not propagate `custody_home_id`, and fixing them
+would require **new backend custody-context support** on routes that never had it (a bigger
+increment than "retire competing UI", and outside this phase's explicit strangler scope):
+
+- Per-day-tab small "+" quick-insert (`schedule-insert-fill.js` `openInsertDayModal` →
+  `doInsertDayFromTemplate` / `doInsertDayFromStandardSchedule`) — applies a family template or
+  standard schedule to ONE empty day via the legacy `POST /api/schedule-templates/:id/apply` /
+  `POST /api/standard-library/schedules/:id/copy` routes directly, with no `custodyContext`.
+  Tertiary control (small icon under each weekday tab), fully overlapping "Från mall" for the
+  single-day case.
+- "Kopiera till veckor" / "Kopiera till barn" (demoted above, but still functional) — their
+  backend routes (`child-bulk.js`) have no `custodyContext` parameter at all.
+- Legacy per-section "+ Aktivitet" (`schedule-core.js` → `openAddModal` → recurrence flow,
+  `schedule-activity-modals.js`) — creates/ensures a `weekly_schedule` row via
+  `POST /api/children/:id/schedules` without `ScheduleCustody.getCreateExtras()`.
+
+**Why deferred, not silently left broken:** each of these would need either (a) a new
+`custodyContext` parameter threaded through `child-bulk.js`/`templates.js`/`standard-library.js`
+routes and their own family/child validation (real backend engineering, not UI retirement), or
+(b) a rewrite that duplicates canonical logic outside `schedule-apply.js` (exactly what Phase 1A
+was created to eliminate). Tracked here explicitly as follow-up work, per the task's own
+constraint that Phase 1C "is NOT a mass endpoint-deletion phase" and must not turn into "a broad
+activity-editor redesign" or new Phase 4 chrome. The two HIGH-RISK, EXPLICITLY-FLAGGED items
+found in Phase 1B's own live-deploy smoke verification (legacy day-row "Kopiera dag" button and
+the day-tab drag-and-drop copy gesture) ARE fixed in this phase (table above) — those were the
+paths a real custody-active parent would routinely reach for "copy day," unlike the lower-traffic
+paths listed here.
+
+### Locked decisions carried forward from this phase
+
+- `activity_category` remains legacy — never added to canonical `SOURCE_TYPES`
+  (`['family_template', 'standard_schedule']`, unchanged).
+- `family_template` and `standard_schedule` remain the only two canonical schedule sources —
+  Phase 1C removes competing **UI**, never the domain source types themselves.
+- Calendar, Special Days, Special Period, Daily Log, and the "Visa ▾" Phase 4 chrome cleanup are
+  untouched — none of that domain was in scope for this phase.
+
+### Tests
+
+`test/schedule-phase1c-retirement.test.js` (27 tests, source-pattern characterization — same
+style as `test/schedule-add-menu.test.js`): Fyll vecka retirement + fill-week backend/route
+retention + no new `activity_category` source; assign-schedule secondary placement +
+reachability; legacy copy-day button/DnD rewiring + custody propagation; day-action-row
+de-duplication + touch targets; canonical `+ Lägg till` flow regression; custody safety of every
+rewired path; legacy backend route retention (`child-bulk.js`, `fill-week.js` still export
+routers); Library CTA demotion (styling only, routes/dialogs unchanged) + content-management
+jobs preserved; i18n parity for the new `schedule.editor.moreOptions` key (already present in
+both locales) + hardcoded-Swedish audit still green.
+
+Full Phase 1A/1B regression suites (`test/schedule-apply*.test.js`, `test/effective-schedule.
+test.js`, `test/standard-library-schedule-copy.test.js`, `test/schedule-add-menu.test.js`,
+`test/schedule-custody.test.js`) and Planning/Library suites (`test/planning-hub-10-10.test.js`,
+`test/planning-back-nav.test.js`, `test/library-bottom-nav.test.js`,
+`test/assign-schedule-date-range.test.js`) all re-run green after these edits. `npm run lint`,
+`npm run lint:public`, and `npm run check:css` all green (SW cache bumped to `stjarndag-v888`
+for the changed precached JS/HTML assets).
