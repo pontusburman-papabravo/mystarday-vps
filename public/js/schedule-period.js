@@ -1,7 +1,16 @@
 /**
  * Schedule period overlay (lov / semester) for /schedule special-days view.
- * Applies a library or family template as special-day overrides for a date range
- * via POST /api/children/:childId/schedules/apply-date-range.
+ *
+ * Phase 2: applies a library or family template as special-day overrides for a date range via
+ * the canonical POST /api/children/:childId/schedule-periods (src/lib/schedule-period.js),
+ * which gives the period real identity (schedule_period row) instead of the legacy
+ * apply-date-range route's N-unrelated-date-rows behaviour — while still materializing into the
+ * exact same special_day_schedule table every other read path (Calendar, resolveEffectiveSchedule)
+ * already reads, so nothing new needs to understand "periods" to see the result.
+ *
+ * The legacy POST /api/children/:childId/schedules/apply-date-range route is retained,
+ * unmodified, for backend compatibility (other callers, e.g. assign-schedule.html and
+ * library-schema.js's period toggle) — this UI simply no longer calls it.
  */
 (function () {
 
@@ -175,22 +184,26 @@ function spt(key, params) {
     if (btn) { btn.disabled = true; btn.textContent = 'Sparar…'; }
 
     try {
+      const label = getSelectedSchemaLabel() || spt('schedule.period.vacationGroup');
+      const sourceType = source.standard_schedule_id ? 'standard_schedule' : 'family_template';
+      const sourceId = source.standard_schedule_id || source.schedule_template_id;
       const body = {
+        name: label,
         start_date: start,
         end_date: end,
-        overwrite: true,
-        note: getSelectedSchemaLabel() || null,
-        ...source,
+        source: { type: sourceType, id: sourceId },
+        apply_mode: 'replace_day',
+        operation_id: window.ScheduleApplyClient ? ScheduleApplyClient.newOperationId() : null,
       };
 
       const res = await window.apiFetch(
-        `/api/children/${currentChildId}/schedules/apply-date-range`,
+        `/api/children/${currentChildId}/schedule-periods`,
         { method: 'POST', body: JSON.stringify(body) }
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || spt('schedule.period.saveFailed'));
 
-      showToast(data.message || spt('schedule.period.savedToast', { start, end }));
+      showToast(spt('schedule.period.savedToast', { start, end }));
       closeSchedulePeriodModal();
 
       if (typeof window.loadSpecialDays === 'function') await window.loadSpecialDays(currentChildId);
@@ -234,19 +247,42 @@ function spt(key, params) {
     if (btn) { btn.disabled = true; btn.textContent = 'Tar bort…'; }
 
     try {
-      const listRes = await window.apiFetch(
-        `/api/children/${currentChildId}/special-days?from=${encodeURIComponent(start)}&to=${encodeURIComponent(end)}`
-      );
-      if (!listRes.ok) throw new Error(spt('schedule.period.couldNotRead'));
-      const days = await listRes.json();
-
-      for (const day of days) {
-        const dateStr = (day.date || '').slice(0, 10);
-        if (!dateStr) continue;
-        await window.apiFetch(`/api/children/${currentChildId}/special-days/${dateStr}`, { method: 'DELETE' });
+      // Prefer deleting the canonical schedule_period (one call removes every date it
+      // generated). Falls back to the legacy per-date deletion for date ranges that predate
+      // Phase 2 or were created through a different entry point (e.g. assign-schedule.html),
+      // which never got a schedule_period row.
+      const periodsRes = await window.apiFetch(`/api/children/${currentChildId}/schedule-periods`);
+      let matchedPeriod = null;
+      if (periodsRes.ok) {
+        const { periods } = await periodsRes.json();
+        matchedPeriod = (periods || []).find((p) => p.start_date === start && p.end_date === end) || null;
       }
 
-      showToast(days.length ? spt('schedule.period.deleted') : spt('schedule.period.deletedNone'));
+      let removedCount;
+      if (matchedPeriod) {
+        const delRes = await window.apiFetch(
+          `/api/children/${currentChildId}/schedule-periods/${matchedPeriod.id}`,
+          { method: 'DELETE' }
+        );
+        const delData = await delRes.json();
+        if (!delRes.ok) throw new Error(delData.error || spt('schedule.period.couldNotRead'));
+        removedCount = (delData.removed_dates || []).length;
+      } else {
+        const listRes = await window.apiFetch(
+          `/api/children/${currentChildId}/special-days?from=${encodeURIComponent(start)}&to=${encodeURIComponent(end)}`
+        );
+        if (!listRes.ok) throw new Error(spt('schedule.period.couldNotRead'));
+        const days = await listRes.json();
+
+        for (const day of days) {
+          const dateStr = (day.date || '').slice(0, 10);
+          if (!dateStr) continue;
+          await window.apiFetch(`/api/children/${currentChildId}/special-days/${dateStr}`, { method: 'DELETE' });
+        }
+        removedCount = days.length;
+      }
+
+      showToast(removedCount ? spt('schedule.period.deleted') : spt('schedule.period.deletedNone'));
       closeSchedulePeriodModal();
 
       if (typeof window.loadSpecialDays === 'function') await window.loadSpecialDays(currentChildId);

@@ -1,8 +1,9 @@
-# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C)
+# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C + 2)
 
 **Status: PHASE 1A COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1C COMPLETE — merged, deployed, and verified.**
+**Status: PHASE 2 IN REVIEW** (PR pending — not merged, not deployed).
 
 - Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
   merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
@@ -691,3 +692,231 @@ test.js`, `test/standard-library-schedule-copy.test.js`, `test/schedule-add-menu
 `test/assign-schedule-date-range.test.js`) all re-run green after these edits. `npm run lint`,
 `npm run lint:public`, and `npm run check:css` all green (SW cache bumped to `stjarndag-v888`
 for the changed precached JS/HTML assets).
+
+## Phase 2 — Calendar + first-class Special Period domain
+
+**Status: PHASE 2 IN REVIEW** (PR pending — not merged, not deployed).
+
+Phase 2 introduces `schedule_period` as a first-class domain entity for date-range exceptions,
+replacing the previous "N unrelated `special_day_schedule` rows with no shared identity"
+approach the legacy `apply-date-range` route and "Lovperiod" UI used. It does **not** reopen
+Phase 1A/1B/1C architecture, redesign Weekly Schedule, or create a second resolver.
+
+Conceptual model (unchanged, now explicit):
+
+| Surface | Owns |
+|---|---|
+| Bibliotek | what exists (content) |
+| Veckoschema | the normal recurring week |
+| Kalender | exceptions on specific dates/date ranges |
+| Daglig logg | what actually happened |
+
+### Current-state audit (before any migration)
+
+A full audit of the existing date-specific domain (`special_day_schedule`,
+`schedule_date_exclusion`, once-tasks, `apply-date-range`, `resolveEffectiveSchedule`, Calendar,
+Special Days UI, custody interaction) found:
+
+- **`special_day_schedule`/`special_day_schedule_item`** (baseline schema, no incremental
+  migration) — one row per child+date, full-day override. An empty row (0 items) is an
+  explicit, product-intentional "scheduled day off" and **falls through to weekly** in
+  `resolveEffectiveSchedule()` (§8.1 in that file) — Phase 2 preserves this exactly, unchanged.
+  Neither table has a `custody_home_id` column.
+- **`schedule_date_exclusion`** — `(child_id, date, activity_template_id)` PK, hides ONE
+  recurring item on ONE date, applied only against the weekly base in
+  `resolveEffectiveSchedule()`. Not custody-scoped. **Unchanged by Phase 2.**
+- **Once-tasks (`daily_log_item.is_once_task`)** — log-overlay mechanism, explicitly excluded
+  from `resolveEffectiveSchedule()` already (documented deferral, pre-existing). **Unchanged by
+  Phase 2** — no new date-addition entity was introduced (see "Non-goals" below); this remains
+  a known, pre-existing domain smell tracked for a later phase, not fixed here.
+- **`apply-date-range`** (`src/routes/schedules/child-bulk.js`) — the legacy route that
+  materializes one `special_day_schedule` row per date in a range, with **no shared identity**
+  across those rows (cannot "edit the period" or "delete the period" as one operation — only
+  delete individual dates). Does not call any `schedule-apply.js` primitive. **Retained,
+  unmodified**, for other callers (`assign-schedule.html`, `library-schema.js`'s period toggle).
+- **`resolveEffectiveSchedule()`** (Phase 1A) — precedence is: non-empty special day → else
+  custody-aware weekly (minus date exclusions). No period/date-range awareness; only ever
+  resolves ONE `dateStr` per call.
+- **Calendar (`src/routes/calendar.js` + `public/calendar.html`)** — read-only week grid;
+  already displays special-day badges by checking `special_day_schedule` directly (not via
+  `resolveEffectiveSchedule()`); had no period/date-range creation UI.
+- **Special Days UI** — a view mode inside `/schedule` (`schedule-special-days.js`,
+  `schedule-period.js`), not a separate page. The existing "Lovperiod" modal already called
+  `apply-date-range`.
+- **Custody** — special days and exclusions are child-global today (no `custody_home_id`
+  column on either table); only the **weekly** base is custody-aware.
+
+Full citations for every point above are in the PR description and `git log` for this phase's
+commits; not duplicated here to keep this doc from growing unbounded.
+
+### `schedule_period` — the new first-class entity
+
+Migration `1810440000000_schedule_period.js`:
+
+```sql
+CREATE TABLE schedule_period (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  family_id UUID NOT NULL REFERENCES family(id) ON DELETE CASCADE,
+  child_id UUID NOT NULL REFERENCES child(id) ON DELETE CASCADE,
+  name VARCHAR(200) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  source_type VARCHAR(32) NOT NULL,   -- 'family_template' | 'standard_schedule'
+  source_id UUID NOT NULL,
+  apply_mode VARCHAR(32) NOT NULL DEFAULT 'replace_day',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (end_date >= start_date),
+  CHECK (source_type IN ('family_template', 'standard_schedule')),
+  CHECK (apply_mode IN ('merge', 'replace_sections', 'replace_day'))
+);
+
+ALTER TABLE special_day_schedule ADD COLUMN period_id UUID REFERENCES schedule_period(id) ON DELETE SET NULL;
+```
+
+- **`activity_category` was deliberately NOT added as a period source** — same `SOURCE_TYPES`
+  (`family_template`/`standard_schedule`) every other canonical command uses
+  (`src/lib/schedule-apply.js`), reused via the exported `resolveScheduleSource()` — no second
+  schedule-source resolver was written.
+- **Overlap rule** — overlapping active periods for the same child are **forbidden**, checked
+  deterministically inside the same transaction (`assertNoOverlap()`,
+  `src/lib/schedule-period.js`). Chose an application-level `SELECT ... FOR UPDATE`-style check
+  over a Postgres `btree_gist` exclusion constraint, to avoid introducing a new extension for one
+  table; documented as "best effort under the existing advisory-lock serialization", not a
+  hard DB-level guarantee across every possible concurrent operation_id — a known, documented
+  limitation, not a silent gap.
+- **Materialization keeps period identity** — `special_day_schedule.period_id` links every
+  generated date back to the period that created it, so "edit the period" / "delete the period"
+  are real single operations (`updateSchedulePeriod()` / `deleteSchedulePeriod()`), not "find and
+  touch N unrelated date rows".
+
+### Canonical command service — `src/lib/schedule-period.js`
+
+`createSchedulePeriod()` / `updateSchedulePeriod()` / `deleteSchedulePeriod()` /
+`listSchedulePeriods()`. Reuses (does not duplicate) Phase 1A/1B canonical logic:
+
+- `resolveScheduleSource()` — same family_template/standard_schedule resolution
+  `applyScheduleSourceToChildPlan()` uses.
+- `runIdempotentScheduleCommand()` — the exact same transaction/advisory-lock/fingerprint/
+  family-check skeleton every Phase 1A/1B command uses (exported from `schedule-apply.js` for
+  this reuse); `custodyHomeId` is always `null` for period commands, so its custody-resolution
+  step is a guaranteed no-op (see "Custody" below).
+- `duplicateKey()` / `normalizeSection()` — same merge/duplicate-identity rule as weekly apply.
+
+`applyScheduleItemsToSpecialDay()` mirrors `applyScheduleItemsToDay()`'s three apply modes
+(merge/replace_sections/replace_day) exactly, but targets `special_day_schedule_item` (which
+stores denormalized name/icon/star_value, structurally different from `weekly_schedule_item`) —
+a parallel implementation was unavoidable for that reason, but the mode **semantics** are
+identical everywhere in this domain.
+
+Default `apply_mode` for a period is `replace_day` (not `merge`, unlike weekly Aktivitet/Från
+mall) — the legacy `apply-date-range` behaviour this replaces has always overwritten the day,
+and a Special Period's whole product point is "things are different during this interval", so
+this preserves existing parent expectations rather than introducing a new default for the same
+job.
+
+### Custody decision
+
+**A Special Period is NOT custody-home-scoped.** This continues the existing, unmodified
+`special_day_schedule`/`schedule_date_exclusion` behaviour (neither has ever had a
+`custody_home_id` column) rather than introducing a new assumption: a date-specific exception
+follows the child+date and overrides whichever custody home would otherwise be effective on
+that date, so parents never have to create the same period twice (once per home). Verified with
+a two-home custody test: a period materialized for a date where two different `weekly_schedule`
+rows exist (one per home) overrides BOTH — `resolveEffectiveSchedule()` returns the period's
+content regardless of which home's weekly row would otherwise have won (see
+`test/schedule-period.test.js` "F18/F19/F20").
+
+### Special Day integration & Phase 3 boundary
+
+`resolveEffectiveSchedule()` (Phase 1A) is **unchanged** — no second resolver, no new precedence
+rule. A materialized period date is a `special_day_schedule` row like any other, so the
+EXISTING "non-empty special day wins outright" rule already makes an explicit Special Day edit
+on one date inside an active period override it for that one date (proven in
+`test/schedule-period.test.js` "D14/D15") — because it is literally the same row being
+overwritten, not a new interaction to design. Phase 3 owns:
+
+- Making `resolveEffectiveSchedule()`'s response shape period-aware (e.g. a `base_type:
+  'special_period'` distinct from `'special_day'`) without changing precedence order.
+- Any further, more nuanced Special Day vs Period interaction rules product research surfaces.
+
+Avoided the failure mode "ship a UI that creates Special Periods which runtime completely
+ignores" — every read path that already understands `special_day_schedule`
+(`resolveEffectiveSchedule()`, `calendar.js`) sees a materialized period immediately, with zero
+changes to those files.
+
+### Date-addition / date-exclusion — unchanged
+
+- `schedule_date_exclusion` ("remove this recurring activity on this date only") — **untouched**.
+- Once-tasks (`daily_log_item.is_once_task`, "add one activity on one date") — **untouched**; no
+  new `schedule_date_addition`/`calendar_date_item` table was introduced. This remains a known,
+  pre-existing domain smell (a log-overlay mechanism doing a job that arguably belongs to a
+  cleaner date-addition entity) explicitly tracked as follow-up work, not fixed in this phase —
+  introducing a new table for it without a validated need/migration path would have contradicted
+  this phase's own "do not add columns/tables blindly" instruction.
+
+### API
+
+New routes, mounted at their own top-level path (mirrors the existing
+`special-day-schedules.js` pattern rather than nesting under `/schedules`, since periods are a
+Calendar/date-range concept, not a weekly-editor one):
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/api/children/:childId/schedule-periods` | list, most recent `start_date` first |
+| POST | `/api/children/:childId/schedule-periods` | `{ name, start_date, end_date, source: { type, id }, apply_mode?, operation_id? }` |
+| PATCH | `/api/children/:childId/schedule-periods/:periodId` | any subset of the above fields; `name`-only changes never re-materialize |
+| DELETE | `/api/children/:childId/schedule-periods/:periodId` | removes the period AND every date it materialized |
+
+All four accept an optional `operation_id` for idempotent retries, reusing the exact same
+`schedule_apply_operation` ledger table Phase 1A/1B commands use — no new idempotency
+infrastructure. `src/routes/schedules/periods.js` is thin: authz + request shaping only, no
+mutation SQL.
+
+### UI
+
+Adapted the **existing** "Lovperiod" modal (`public/js/schedule-period.js`, inside the
+`/schedule` Specialdagar view — no new page, no Weekly Schedule redesign) to call the new
+canonical `POST/DELETE /schedule-periods` instead of the legacy `apply-date-range`/per-date
+`DELETE /special-days/:date` loop:
+
+- `applySchedulePeriod()` now sends `{ name, start_date, end_date, source, apply_mode:
+  'replace_day', operation_id }` to the canonical endpoint.
+- `removeSchedulePeriod()` first looks up whether a `schedule_period` row exists matching the
+  entered start/end dates and, if found, deletes it by id (cleaning up both the period row and
+  its materialized dates in one call); otherwise falls back to the legacy per-date deletion
+  (dates created before Phase 2, or via a different entry point like `assign-schedule.html`,
+  which never get a `schedule_period` row).
+
+**Known UI limitation (not a blocker, documented not hidden):** the modal's date inputs always
+reset to a default "today + 6 days" range on open (pre-existing behaviour, unchanged) rather
+than reflecting an existing period's actual stored dates. If a parent reopens the modal to
+delete a period without re-entering that period's exact original dates, `removeSchedulePeriod()`
+falls back to the legacy per-date path, which correctly reverts the schedule but leaves the
+now-orphaned `schedule_period` metadata row behind (harmless — it materializes nothing, appears
+in no read path, but is not physically deleted). A fuller period-management UI (a list of
+existing periods to select from, rather than re-typing dates) is deferred — the **backend** has
+complete CRUD ready for that UI whenever it is built.
+
+### Tests
+
+`test/schedule-period.test.js` (21 — create/update/delete/list, invalid range rejection, range
+too long, cross-family denial, foreign-family source denial, overlap rejection + non-overlap
+allowed, range-boundary safety, all three apply modes, Special Day override regression, once-
+task/date-exclusion regression, two-home custody neutrality, legacy compatibility, idempotent
+replay). `test/schedule-period-routes.test.js` (1 HTTP integration test covering the full
+create → replay → list → patch → overlap-reject → delete → cross-family-deny → missing-source
+flow). `test/schedule-period-frontend.test.js` (4, source-pattern — canonical delegation, no
+legacy route call, fallback preserved). Migration contract tests
+(`test/migration-destructive-contract.test.js`, `test/migration-files-immutable.test.js`,
+`test/ops-deploy-snapshot-gate.test.js`, `test/migration-rollback-gate.test.js`) green. Full
+Phase 1A/1B/1C regression suites, custody suites, and `test/route-inventory.test.js` (updated
+snapshot for the 4 new routes) all green. `npm run lint`, `npm run lint:public`, and `npm run
+check:css` green. Full `npm run test:gate` green. SW cache bumped to `stjarndag-v890`.
+
+### Non-goals confirmed untouched
+
+Calendar UI redesign beyond the minimal Lovperiod-modal adaptation, Weekly Schedule
+redesign, widget/Meta/payment work, market flags, the once-task race, multi-child atomic
+scheduling, real Undo, Phase 4 "Visa ▾" chrome cleanup, physical deletion of any legacy
+endpoint, and full Phase 3 final-precedence locking.

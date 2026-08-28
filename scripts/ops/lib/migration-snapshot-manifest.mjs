@@ -104,6 +104,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810440000000_schedule_period': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

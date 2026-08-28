@@ -66,6 +66,9 @@ function registerRoutes(app) {
   app.use('/api/children/:childId/special-days', specialDays.childRouter);
   app.use('/api/special-day-schedules/:scheduleId/items', specialDays.scheduleRouter);
 
+  // Phase 2 — Special Period routes (Calendar's period CRUD; see schedules/periods.js)
+  app.use('/api/children/:childId/schedule-periods', require('./schedules/periods'));
+
   // Daily log routes (parent-scoped)
   const dailyLogs = require('./daily-logs');
   app.use('/api/children', dailyLogs.childRouter);
