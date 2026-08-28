@@ -6,6 +6,11 @@ reproducible result. `docs/PAYMENTS_V1_STATUS.md` and the final verdict in any
 payments readiness report must keep sandbox E2E as **pending** until this file is
 filled in with real evidence.
 
+**How to run the iOS test:** see
+[`docs/runbooks/IOS-PAYMENTS-SANDBOX-E2E-RUNBOOK.md`](runbooks/IOS-PAYMENTS-SANDBOX-E2E-RUNBOOK.md)
+for the step-by-step physical-device procedure (before/on-device/backend/after). This file is
+only the evidence log — fill it in after following that runbook.
+
 **PR:** #1050 (merged to `main` — backend/webhook/entitlement code is shipped).
 **Rule:** Do not enable `app_settings.payment_enabled` / remove `BILLING_UI_DISABLED`
 in the live app until iOS + Android are both PASS below.
