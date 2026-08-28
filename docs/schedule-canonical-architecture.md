@@ -1,6 +1,7 @@
-# Schedule domain — canonical command/query architecture (Phase 1A)
+# Schedule domain — canonical command/query architecture (Phase 1A + 1B)
 
 **Status: PHASE 1A COMPLETE — merged, deployed, and verified.**
+**Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
 
 - Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
   merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
@@ -13,6 +14,34 @@
   (including `command_fingerprint`), `/health` green, no application startup errors, no
   schedule/daily-log error spike in `journalctl -u mystarday`, feature/payment/market flags <!-- pragma: allowlist secret -->
   unchanged (deploy gate's own business-table drift check passed).
+
+## Phase 1B merge + deploy record
+
+- Merged via PR [#1095](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1095) — <!-- pragma: allowlist secret -->
+  ("Fas 1B — New Weekly Schedule \"+ Lägg till\" flow"), reviewed HEAD
+  `87042154b8f446564ffea05ae32eca4dfeecb8cd` rebased onto `main`
+  `63031d0b89cc791b99040209161706d337eb3c5d` (a real, unrelated SW-cache-version bump
+  collision was resolved by sequencing the version bumps — no Phase 1B logic changed) —
+  merge commit `8527174c5030d92088f4a15991615b51fbd5a9c0` on `main`.
+- Deployed to the live app at `main` SHA `8527174c5030d92088f4a15991615b51fbd5a9c0`
+  (`Deploy to VPS` GitHub Actions run: success).
+- Verified: `/health` green (`git_sha` matches the deployed merge commit, `cache_version:
+  stjarndag-v887`), clean server restart with no startup errors, no schedule/custody error
+  spike in `journalctl -u mystarday` (one unrelated pre-existing `[ONCE-TASKS] Create error` <!-- pragma: allowlist secret -->
+  duplicate-key race from the legacy once-task route — `src/routes/schedules/child-crud.js`,
+  untouched by Phase 1B, already gracefully handled with a 500 + friendly error, not a crash),
+  IAP/English-market flags unchanged from pre-deploy.
+- Post-deploy smoke test on an isolated, immediately-deleted sandbox family (never touched a
+  real customer family): Weekly Schedule loads, "+ Lägg till" visible, Aktivitet / Från mall /
+  Kopiera dag / Spara dagen som mall all work end to end, `replace_day` shows the explicit
+  Ersätt/Avbryt confirmation (not a generic "OK"), and two-home custody isolation holds — an
+  activity added to "Hos mamma" (home A) does not leak into "Hos pappa" (home B) and persists
+  correctly when switching back, confirmed both in the UI and directly in the database
+  (`custody_home_id`/`week_variant` correctly scoped per home; the saved template row stayed
+  custody-neutral). The pre-existing legacy per-day-card "Kopiera dag" button (not part of
+  Phase 1B, untouched) was separately observed to still write to the generic (no-home)
+  `weekly_schedule` row as it always has — a known, out-of-scope limitation of that legacy
+  control, not a Phase 1B regression.
 
 **Baseline:** `main` @ `80bc241a7fbf122ec7afa43d141d6598f83b75dd` (initial), rebased twice for
 review follow-ups, final pre-merge HEAD `edaf2351eac4fa365bf75c958627c687174044eb` on top of
@@ -329,7 +358,7 @@ has committed. Nothing is broadcast before commit.
 - **Full once-task/effective-schedule read-model unification** — documented boundary in
   `effective-schedule.js`, not implemented in Phase 1A (§8.3).
 
-## Phase 1B — status: BACKEND + FRONTEND + CUSTODY HARDENING COMPLETE (this pass), Phase 1C retires legacy paths
+## Phase 1B — status: COMPLETE, merged and deployed (see "Phase 1B merge + deploy record" above). Phase 1C (legacy retirement) not started.
 
 Phase 1B's product goal is a single "+ Lägg till" primary action on Weekly Schedule exposing
 Aktivitet / Från mall / Kopiera dag, backed entirely by canonical Phase 1A/1B services, with no
