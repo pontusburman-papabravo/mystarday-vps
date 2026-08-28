@@ -4,6 +4,8 @@
 > Fyll i eventuella varianter (ditt land/reglering) vid behov.
 > Svensk text — översätt till engelska vid sidan av Apple Store Review.
 
+> **⚠️ Åtgärd krävs i App Store Connect (2026-08-28):** Apple avslog inlämningen — "does not include a functional link to the Terms of Use (EULA) in the app metadata that appears on the app's App Store product page." Beskrivningen nedan har nu en Användarvillkor-länk längst ner. Klistra in den uppdaterade **Description** i App Store Connect → App Information → *Description* (och i en-GB-versionen, se `app-store-connect-metadata-en-GB.md`) och skicka in på nytt. Detta är en ren metadata-ändring i App Store Connect — kräver ingen ny build. Se `docs/app-store-review-notes.md` för svarstext till Apple.
+
 ---
 
 ## App Information
@@ -36,6 +38,9 @@ Barn loggar in med en egen PIN-kod och möts av en färgglad, stjärnbaserad vy.
 - Offline-läge — funkar även utan internet
 
 Passar för familjer med barn i åldrarna 3–10 år.
+
+Användarvillkor (EULA): [REDACTED]/terms
+Integritetspolicy: [REDACTED]/privacy
 
 ---
 

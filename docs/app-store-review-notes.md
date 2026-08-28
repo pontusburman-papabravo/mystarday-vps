@@ -1,7 +1,33 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-08-07 | iOS build 30 (R4.5 no-ATT Meta attribution hardening)
+> Last updated: 2026-08-28 | Metadata rejection — missing Terms of Use (EULA) link
+
+---
+
+## Metadata rejection — missing Terms of Use (EULA) link (2026-08-28)
+
+**Rejection:** *"The submission offers auto-renewable subscriptions but does not include a functional link to the Terms of Use (EULA) in the app metadata that appears on the app's App Store product page."*
+
+**Root cause:** This is the first submission with Apple subscription products live in App Store Connect (see `docs/PAYMENTS_V1_STATUS.md` — in-app billing UI is still off, but the ASC subscription group/products now exist, which triggers Apple's EULA-link requirement on the product page). The **App Description** pasted into App Store Connect never included a link to the app's Terms of Use, and no custom EULA is set in App Store Connect → App Information → License Agreement, so reviewers found neither.
+
+**Fix — App Store Connect metadata only, no new build required:**
+1. In App Store Connect → App Information → **Description**, use the updated text in `docs/app-store-connect-metadata.md` (sv) / `docs/app-store-connect-metadata-en-GB.md` (en-GB). Both now end with a plain-text line: `Användarvillkor (EULA): [REDACTED]/terms` (`Terms of Use (EULA): [REDACTED]/terms` in English).
+2. Leave **License Agreement** on the default **Standard Apple EULA** — we are not using a custom EULA, so per Apple's message the link in the Description satisfies the requirement.
+3. Re-submit for review (metadata-only change; no binary rebuild needed).
+
+**Paste into App Review Information → Notes (or as a reply to the rejection):**
+```
+Thank you for flagging this. We use Apple's standard End User License Agreement (EULA) — we are not using a custom license agreement.
+
+We have added a direct link to our Terms of Use to the App Description on the app's product page:
+[REDACTED]/terms
+
+Our Privacy Policy is also linked from the same Description and from the Privacy Policy URL field:
+[REDACTED]/privacy
+
+Please let us know if any further changes are needed.
+```
 
 ---
 

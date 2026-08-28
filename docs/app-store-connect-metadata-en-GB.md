@@ -35,6 +35,9 @@ Suitable for families with children aged 3–10.
 
 **English Beta (Sweden):** English UI is rolling out gradually. Swedish remains the default. Report language issues in Settings → Feedback.
 
+Terms of Use (EULA): [APP_URL]/terms
+Privacy Policy: [APP_URL]/privacy
+
 ---
 
 ## Keywords
