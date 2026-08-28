@@ -553,7 +553,7 @@ function renderDayTabs() {
         <span class="font-normal text-[10px] opacity-75">${dateLabel}</span>
         ${todayDot}
       </button>
-      <button onclick="openInsertDayModal(${d})" title="${spt('schedule.actions.addSchedule')}"
+      <button onclick="${window.ScheduleAddMenu ? `ScheduleAddMenu.openActivityForDay(${d})` : `openInsertDayModal(${d})`}" title="${spt('schedule.actions.addSchedule')}"
         class="w-6 h-6 rounded-full bg-white border border-lavender hover:border-gold hover:bg-gold-light text-text-soft hover:text-gold flex items-center justify-center transition-colors insert-day-btn text-sm font-bold leading-none"
         aria-label="${spt('schedule.actions.addScheduleFor', { day: dayShort(d) })}">+</button>
     </div>`;

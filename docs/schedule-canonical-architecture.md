@@ -594,36 +594,40 @@ above — unchanged).
 | Library "📥 Kopiera till barn" CTAs — family template card + standard schedule card (`public/js/library-schema.js`) | Apply a family/standard template directly to a child's week from the Bibliotek page | `/schedule → + Lägg till → Från mall` | **Demoted** — visual treatment changed from a primary gold CTA (`bg-gold`) to a secondary outline button (`bg-white border-2 border-lavender`); the dialog (`openScheduleCopyDialog`/`executeScheduleCopy`) and its routes are unchanged | Retained — `POST /api/schedule-templates/:id/apply`, `POST /api/standard-library/schedules/:id/copy`, `POST .../apply-date-range` all unchanged |
 | Library "📥 Kopiera schema" detail CTA (`public/js/library-magic-schedules.js`, standard-library magic detail view) | Same job, from the "Färdiga mallar" magic detail screen | Same | **Demoted** — CSS class changed from `library-magic-btn-primary` to `library-magic-btn-secondary` | Same routes, unchanged |
 | Library "📋 Kopiera från…" per-child button (`library-schema.js`) | Copy another child's/standard schedule onto a child, from Bibliotek | Same | Already secondary-styled (`bg-lavender`, not gold) before this phase — left unchanged | `POST .../copy-to-child`, `POST .../standard-library/schedules/:id/copy` unchanged |
+| Per-day-tab small "+" quick-insert (`schedule.js` `insert-day-btn`) | "Lägg till en aktivitet på denna veckodag" (also offered apply-template/apply-standard/blank-day sub-options via `openInsertDayModal`) | `+ Lägg till → Aktivitet` | **Rewired** — `onclick` now calls `ScheduleAddMenu.openActivityForDay(dayOfWeek)` (new, minimal), which pre-selects the tapped day inside the EXISTING canonical Aktivitet modal without navigating the background view away from the day the parent was viewing. `openInsertDayModal()` retained ONLY as a defensive fallback if `ScheduleAddMenu` fails to load | Retained — `POST /api/schedule-templates/:id/apply`, `POST /api/standard-library/schedules/:id/copy`, `POST /api/children/:id/schedules` (blank-day path) all untouched; no longer called by this control in the normal path |
+| Legacy per-section "+ Aktivitet" (`schedule-core.js`/`schedule-views.js` → `openAddModal(sectionKey)`, `schedule-activity-modals.js`) | "Lägg till aktivitet i den här delen av dagen" | `+ Lägg till → Aktivitet` | **Rewired** — the single shared `openAddModal(sectionKey)` definition now calls `ScheduleAddMenu.openActivityForDay(currentDay, sectionKey)` and returns immediately, retiring all three call sites (normal/list/timeline views) in one change. Legacy `#addActivityModal` + its recurrence flow retained ONLY as a defensive fallback | Retained — `POST /api/children/:id/schedules` (ensure-day-row) + recurrence-flow routes untouched; no longer reachable via this control in the normal path |
 
-### Explicitly deferred custody-safety gaps (not fixed this phase — documented, not silently ignored)
+### Custody safety — final state
 
-A few remaining visible controls still do not propagate `custody_home_id`, and fixing them
-would require **new backend custody-context support** on routes that never had it (a bigger
-increment than "retire competing UI", and outside this phase's explicit strangler scope):
+**All visible recurring Weekly Schedule mutation entry points are routed through custody-safe
+canonical behavior.** Both remaining gaps from the previous pass (day-tab "+" quick-insert and
+the legacy per-section "+ Aktivitet") are now fixed by converging on
+`ScheduleAddMenu.openActivityForDay(dayOfWeek, section)` (new, minimal — added to
+`public/js/schedule-add-menu.js`), which only ever prepares `activityState` (the requested day
+and/or section) and then reuses the EXISTING `openActivity()` render path — the actual write
+still happens exclusively through the pre-existing `submitActivity()`, which already calls
+`activeCustodyHomeId()` and forwards `custody_home_id` on every save (Phase 1B custody
+hardening, unchanged). No new mutation path, no new backend route, no duplicated activity-picker
+code was introduced — exactly "canonical UI must own the write."
 
-- Per-day-tab small "+" quick-insert (`schedule-insert-fill.js` `openInsertDayModal` →
-  `doInsertDayFromTemplate` / `doInsertDayFromStandardSchedule`) — applies a family template or
-  standard schedule to ONE empty day via the legacy `POST /api/schedule-templates/:id/apply` /
-  `POST /api/standard-library/schedules/:id/copy` routes directly, with no `custodyContext`.
-  Tertiary control (small icon under each weekday tab), fully overlapping "Från mall" for the
-  single-day case.
-- "Kopiera till veckor" / "Kopiera till barn" (demoted above, but still functional) — their
-  backend routes (`child-bulk.js`) have no `custodyContext` parameter at all.
-- Legacy per-section "+ Aktivitet" (`schedule-core.js` → `openAddModal` → recurrence flow,
-  `schedule-activity-modals.js`) — creates/ensures a `weekly_schedule` row via
-  `POST /api/children/:id/schedules` without `ScheduleCustody.getCreateExtras()`.
+Legacy backend routes those two controls used to call directly (`schedule-templates.js` apply,
+`standard-library.js` copy, the blank-day-create path in `child-crud.js`, and the recurrence-flow
+routes behind `#addActivityModal`) remain retained, unmodified, compatibility-only — nothing was
+deleted. `openInsertDayModal()` and the legacy body of `openAddModal()` are kept solely as
+defensive fallbacks for the never-expected case `ScheduleAddMenu` fails to load.
 
-**Why deferred, not silently left broken:** each of these would need either (a) a new
-`custodyContext` parameter threaded through `child-bulk.js`/`templates.js`/`standard-library.js`
-routes and their own family/child validation (real backend engineering, not UI retirement), or
-(b) a rewrite that duplicates canonical logic outside `schedule-apply.js` (exactly what Phase 1A
-was created to eliminate). Tracked here explicitly as follow-up work, per the task's own
-constraint that Phase 1C "is NOT a mass endpoint-deletion phase" and must not turn into "a broad
-activity-editor redesign" or new Phase 4 chrome. The two HIGH-RISK, EXPLICITLY-FLAGGED items
-found in Phase 1B's own live-deploy smoke verification (legacy day-row "Kopiera dag" button and
-the day-tab drag-and-drop copy gesture) ARE fixed in this phase (table above) — those were the
-paths a real custody-active parent would routinely reach for "copy day," unlike the lower-traffic
-paths listed here.
+**Still out of scope for this phase** (genuinely distinct advanced jobs with no canonical
+equivalent, not "add an activity/apply a template" duplicates): "Kopiera till veckor" / "Kopiera
+till barn" (demoted into the day-action-row "Fler alternativ" overflow above, but their backend
+routes in `child-bulk.js` still have no `custodyContext` parameter) and the day-tab
+drag-and-drop "Swap" gesture. Cross-child copy in particular maps to the explicitly-out-of-scope
+"multi-child atomic scheduling" domain. These were reviewed and are NOT primary "add activity /
+apply schedule" duplicates the way the two fixed controls were — they are deliberately kept as
+advanced/secondary functionality pending a future phase's backend custody-context work.
+
+The legacy day-row "Kopiera dag" button and the day-tab drag-and-drop copy gesture — the two
+HIGH-RISK items explicitly flagged in Phase 1B's own live-deploy smoke verification — were fixed
+in the previous pass (table above).
 
 ### Locked decisions carried forward from this phase
 
@@ -636,15 +640,17 @@ paths listed here.
 
 ### Tests
 
-`test/schedule-phase1c-retirement.test.js` (27 tests, source-pattern characterization — same
+`test/schedule-phase1c-retirement.test.js` (33 tests, source-pattern characterization — same
 style as `test/schedule-add-menu.test.js`): Fyll vecka retirement + fill-week backend/route
 retention + no new `activity_category` source; assign-schedule secondary placement +
 reachability; legacy copy-day button/DnD rewiring + custody propagation; day-action-row
 de-duplication + touch targets; canonical `+ Lägg till` flow regression; custody safety of every
-rewired path; legacy backend route retention (`child-bulk.js`, `fill-week.js` still export
-routers); Library CTA demotion (styling only, routes/dialogs unchanged) + content-management
-jobs preserved; i18n parity for the new `schedule.editor.moreOptions` key (already present in
-both locales) + hardcoded-Swedish audit still green.
+rewired path (day-row Kopiera dag, DnD copy, day-tab "+", section "+ Aktivitet" — all delegate to
+canonical entry points, none introduce a second mutation path); legacy backend route retention
+(`child-bulk.js`, `fill-week.js` still export routers); Library CTA demotion (styling only,
+routes/dialogs unchanged) + content-management jobs preserved; i18n parity for the new
+`schedule.editor.moreOptions` key (already present in both locales) + hardcoded-Swedish audit
+still green.
 
 Full Phase 1A/1B regression suites (`test/schedule-apply*.test.js`, `test/effective-schedule.
 test.js`, `test/standard-library-schedule-copy.test.js`, `test/schedule-add-menu.test.js`,

@@ -212,6 +212,30 @@
     showModal();
   }
 
+  /**
+   * Phase 1C custody-safety hardening — the ONE canonical entry point every remaining "quick
+   * add" shortcut on this page now converges on. Opens the exact same Aktivitet flow as
+   * "+ Lägg till → Aktivitet" (same modal, same merge default, same
+   * runIdempotentScheduleCommand/custody scoping server-side — nothing new is introduced here),
+   * with the requested day/section preselected so the parent never has to re-enter context the
+   * page already knows (§7).
+   *
+   * `dayOfWeek` intentionally does NOT touch the page's own `currentDay` (the day the parent is
+   * currently viewing) — tapping "+" under a DIFFERENT weekday tab than the one currently open
+   * must preselect THAT day inside the modal without navigating the background view away from
+   * where the parent was, matching the exact non-disruptive convenience the legacy
+   * openInsertDayModal(dow)/openAddModal(section) controls already offered.
+   *
+   * @param {number} [dayOfWeek] — defaults to the currently-viewed day when omitted
+   * @param {string} [section] — defaults to 'dag' when omitted
+   */
+  async function openActivityForDay(dayOfWeek, section) {
+    await openActivity();
+    if (typeof dayOfWeek === 'number') activityState.days = new Set([dayOfWeek]);
+    if (section) activityState.section = section;
+    renderActivityStep();
+  }
+
   function renderActivityStep() {
     const templates = (allTemplates || []);
     const q = activityState.query.toLowerCase();
@@ -611,6 +635,7 @@
     openMenu: openAddMenu,
     close: closeAddMenu,
     openActivity,
+    openActivityForDay,
     filterActivity,
     selectActivity,
     selectActivitySection,

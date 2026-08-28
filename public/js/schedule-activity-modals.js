@@ -68,7 +68,19 @@ async function copyAndAddStdActivity(stdAct) {
     renderTemplateList(document.getElementById('templateSearch').value);
   }
 }
+// Phase 1C custody-safety hardening — every "+ Aktivitet" section-header button on this page
+// (schedule-core.js normal view, schedule-views.js list/timeline views) calls this ONE function,
+// so guarding it here retires the legacy modal (and its custody-unsafe
+// POST /api/children/:id/schedules ensure-day-row write inside the recurrence submit flow) from
+// every call site at once. Delegates to the exact same canonical Aktivitet flow "+ Lägg till"
+// already uses — same modal, same merge default, same custody scoping — with the current day
+// and requested section preselected (§3/§7). The legacy body below is kept ONLY as a defensive
+// fallback if ScheduleAddMenu somehow failed to load.
 function openAddModal(sectionKey) {
+  if (window.ScheduleAddMenu && typeof ScheduleAddMenu.openActivityForDay === 'function') {
+    ScheduleAddMenu.openActivityForDay(typeof currentDay === 'number' ? currentDay : undefined, sectionKey || 'dag');
+    return;
+  }
   selectedTemplateId = null;
   document.getElementById('addActivityError').classList.add('hidden');
   document.getElementById('addStartTime').value = ''; document.getElementById('addEndTime').value = '';

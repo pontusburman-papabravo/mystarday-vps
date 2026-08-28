@@ -176,6 +176,57 @@ describe('Phase 1C — F. Custody safety of remaining visible controls', () => {
     const dndSrc = read(DND_JS);
     assert.match(dndSrc, /custodyHomeId/);
   });
+
+  // ── Final custody hardening: day-tab "+" and section "+ Aktivitet" ─────────────────────
+  // These were the two remaining visible controls documented as deferred in the previous pass.
+  // Both are now rewired to converge on ScheduleAddMenu.openActivityForDay(), which only ever
+  // reaches the write path through the EXISTING submitActivity() — the same function
+  // "+ Lägg till → Aktivitet" already used, which already calls activeCustodyHomeId() and
+  // forwards custody_home_id on every save. No new mutation path was introduced.
+
+  it('1/13: day-tab "+" delegates to the canonical Aktivitet flow, not the legacy insert-day modal', () => {
+    const src = read(SCHEDULE_JS);
+    const dayTabButton = src.slice(src.indexOf('insert-day-btn') - 400, src.indexOf('insert-day-btn') + 50);
+    assert.match(dayTabButton, /ScheduleAddMenu\.openActivityForDay\(\$\{d}\)/, 'the day-tab + must call the canonical flow when ScheduleAddMenu is loaded');
+  });
+
+  it('2: day-tab "+" preselects the tapped day (not necessarily the currently-viewed day)', () => {
+    const addMenuSrc = read('public/js/schedule-add-menu.js');
+    const fnBody = addMenuSrc.slice(addMenuSrc.indexOf('async function openActivityForDay'), addMenuSrc.indexOf('async function openActivityForDay') + 500);
+    assert.match(fnBody, /activityState\.days = new Set\(\[dayOfWeek\]\)/);
+  });
+
+  it('3/14: section "+ Aktivitet" (openAddModal) delegates to the canonical Aktivitet flow, not the legacy addActivityModal', () => {
+    const src = read('public/js/schedule-activity-modals.js');
+    const fnBody = src.slice(src.indexOf('function openAddModal'), src.indexOf('function openAddModal') + 600);
+    assert.match(fnBody, /ScheduleAddMenu\.openActivityForDay\(/);
+    assert.match(fnBody, /return;/, 'must return before reaching any legacy modal DOM manipulation');
+  });
+
+  it('4/5: section "+ Aktivitet" preselects both the current day AND the requested section', () => {
+    const src = read('public/js/schedule-activity-modals.js');
+    const fnBody = src.slice(src.indexOf('function openAddModal'), src.indexOf('function openAddModal') + 600);
+    assert.match(fnBody, /ScheduleAddMenu\.openActivityForDay\(typeof currentDay === 'number' \? currentDay : undefined, sectionKey \|\| 'dag'\)/);
+  });
+
+  it('6: no direct legacy mutation request remains reachable behind either visible control on the normal (ScheduleAddMenu loaded) path', () => {
+    // openInsertDayModal's own body still contains the legacy fetches (kept as a defensive
+    // fallback, see its own doc comment) — the important guarantee is that the ACTUAL visible
+    // "+" buttons never reach it while ScheduleAddMenu is present, asserted above. Confirm the
+    // guard is unconditional (no feature flag, always active when ScheduleAddMenu exists).
+    const activityModalsSrc = read('public/js/schedule-activity-modals.js');
+    const openAddModalBody = activityModalsSrc.slice(activityModalsSrc.indexOf('function openAddModal'), activityModalsSrc.indexOf('function closeAddModal'));
+    const guardIdx = openAddModalBody.indexOf('window.ScheduleAddMenu');
+    const returnIdx = openAddModalBody.indexOf('return;');
+    assert.ok(guardIdx > -1 && returnIdx > guardIdx, 'the canonical-delegation guard must come before any legacy DOM/state mutation');
+  });
+
+  it('7-12/regression: openActivityForDay never calls a mutation route directly — it only ever prepares activityState for the existing submitActivity()', () => {
+    const addMenuSrc = read('public/js/schedule-add-menu.js');
+    const fnBody = addMenuSrc.slice(addMenuSrc.indexOf('async function openActivityForDay'), addMenuSrc.indexOf('async function openActivityForDay') + 500);
+    assert.doesNotMatch(fnBody, /apiFetch|ScheduleApplyClient\.(applyActivity|applyTemplate|copyDay)/, 'openActivityForDay must never mutate directly — submitActivity() (already custody-safe) owns every write');
+    assert.match(fnBody, /await openActivity\(\)/, 'must reuse the exact same canonical Aktivitet open path, not a parallel implementation');
+  });
 });
 
 describe('Phase 1C — G. Legacy backend compatibility retained', () => {
