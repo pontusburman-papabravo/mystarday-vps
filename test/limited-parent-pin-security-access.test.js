@@ -74,6 +74,20 @@ describe('limited parent security access — exact path helper', () => {
       }),
       true
     );
+    // Regression: a limited (non-Premium) parent could SET their PIN (above) but
+    // not VERIFY it — verify-pin was missing from this allowlist, so the same
+    // parental-gate.js / login-magic.js PIN overlay that works for a child session
+    // returned 402 PREMIUM_REQUIRED for a parent-type session, surfaced to the user
+    // as a generic "wrong PIN" message with no way to unlock parent mode short of a
+    // full logout/login. Discovered during physical-device App Store sandbox E2E.
+    assert.equal(
+      isLimitedParentSecurityRequestAllowed({
+        method: 'POST',
+        originalUrl: '/api/family/verify-pin',
+        user: { type: 'parent' },
+      }),
+      true
+    );
     assert.equal(
       isLimitedParentSecurityRequestAllowed({
         method: 'GET',
@@ -160,6 +174,31 @@ test('limited parent PIN security access integration A–I', async (t) => {
       const gate = read('public/js/parent-pin-handoff-gate.js');
       assert.match(gate, /has_pin === true/);
       assert.match(gate, /fetchHasParentPin/);
+    });
+
+    await t.test('D2: limited parent can VERIFY the PIN they just set (regression)', async () => {
+      const res = await fetch(`${http.baseUrl}/api/family/verify-pin`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ pin: '4821' }),
+      });
+      const text = await res.text();
+      assert.equal(res.status, 200, text);
+      const body = JSON.parse(text);
+      assert.equal(body.ok, true);
+      assert.ok(body.gateToken, 'expected a gateToken on successful verify');
+    });
+
+    await t.test('D3: limited parent gets a real 401 (not 402) for a wrong PIN', async () => {
+      const res = await fetch(`${http.baseUrl}/api/family/verify-pin`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ pin: '0000' }),
+      });
+      const text = await res.text();
+      assert.equal(res.status, 401, text);
+      const body = JSON.parse(text);
+      assert.equal(body.ok, false);
     });
 
     await t.test('E: unrelated /api/family premium mutation → 402', async () => {
