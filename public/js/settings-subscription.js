@@ -122,7 +122,12 @@
         '<p class="text-sm font-semibold text-navy mb-1">' + copy.title + '</p>' +
         '<p class="text-sm text-text-soft mb-4">' + copy.body + '</p>';
 
-      if (copy.cta) {
+      // The iapPurchaseReady block below already renders its own "Hantera abonnemang"
+      // button (manageSubscriptionBtn). Skip the primary CTA link when it would be
+      // the exact same action, otherwise "Hantera abonnemang" renders twice for every
+      // active native subscription (discovered during App Store sandbox E2E testing).
+      const ctaDuplicatesManageButton = iapPurchaseReady && copy.cta && copy.cta.href === '#manage-subscription';
+      if (copy.cta && !ctaDuplicatesManageButton) {
         html +=
           '<a href="' + copy.cta.href + '" id="subscriptionPrimaryCta" ' +
           'class="inline-flex items-center gap-2 px-5 py-2.5 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">' +
@@ -149,6 +154,9 @@
         if (result.ok && result.active) {
           await Auth.api('/api/iap/sync', { method: 'POST', body: JSON.stringify({}) }).catch(function () {});
           await renderSubscription(mount);
+          // Restoring while Premium is already active leaves the card looking
+          // unchanged — without this, the button appears to do nothing.
+          alert('Köpet är återställt. Premium är aktivt.');
           return;
         }
         alert(result.ok && !result.active ? 'Inga köp hittades att återställa.' : 'Kunde inte återställa köp.');
