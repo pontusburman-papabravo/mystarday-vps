@@ -108,7 +108,8 @@ test('Phase 2 canonical schedule-period routes', async (t) => {
     });
     const createBody = await create.json();
     assert.equal(create.status, 201, JSON.stringify(createBody));
-    assert.deepEqual(createBody.applied_dates, ['2027-06-01', '2027-06-02', '2027-06-03']);
+    assert.equal(createBody.items_added, 1);
+    assert.equal(createBody.apply_mode, 'merge', 'default apply_mode over HTTP must be merge, not the legacy destructive replace_day');
     const periodId = createBody.period_id;
 
     // Retry with the SAME operation_id must replay, not duplicate.
@@ -128,6 +129,16 @@ test('Phase 2 canonical schedule-period routes', async (t) => {
     const listBody = await listAfterCreate.json();
     assert.equal(listBody.periods.length, 1, 'a replayed create must not duplicate the period row');
     assert.equal(listBody.periods[0].id, periodId);
+
+    // 3b) GET by id — full detail load for the edit UI (no re-entering dates required).
+    const getById = await fetch(`${baseUrl}/api/children/${childId}/schedule-periods/${periodId}`, { headers });
+    const getByIdBody = await getById.json();
+    assert.equal(getById.status, 200, JSON.stringify(getByIdBody));
+    assert.equal(getByIdBody.name, 'Sommarlov');
+    assert.equal(getByIdBody.start_date, '2027-06-01');
+    assert.equal(getByIdBody.end_date, '2027-06-03');
+    assert.equal(getByIdBody.apply_mode, 'merge');
+    assert.equal(getByIdBody.items.length, 1);
 
     // 4) PATCH — rename only, no re-materialization
     const patch = await fetch(`${baseUrl}/api/children/${childId}/schedule-periods/${periodId}`, {
@@ -149,22 +160,24 @@ test('Phase 2 canonical schedule-period routes', async (t) => {
     });
     assert.equal(overlap.status, 409, await overlap.text());
 
-    // 6) DELETE — removes the period and its materialized special days
+    // 6) DELETE — removes the period and its stored item set (cascade), never touches
+    // special_day_schedule (periods never write there in the revised design).
     const del = await fetch(`${baseUrl}/api/children/${childId}/schedule-periods/${periodId}`, {
       method: 'DELETE', headers,
     });
     const delBody = await del.json();
     assert.equal(del.status, 200, JSON.stringify(delBody));
-    assert.deepEqual(delBody.removed_dates, ['2027-06-01', '2027-06-02', '2027-06-03']);
+    assert.equal(delBody.period_id, periodId);
 
-    const sdCheck = await db.query(
-      `SELECT COUNT(*)::int AS n FROM special_day_schedule WHERE child_id = $1 AND date BETWEEN '2027-06-01' AND '2027-06-03'`,
-      [childId]
-    );
-    assert.equal(sdCheck.rows[0].n, 0, 'materialized special days must be removed with the period');
+    const periodItemCheck = await db.query(`SELECT COUNT(*)::int AS n FROM schedule_period_item WHERE period_id = $1`, [periodId]);
+    assert.equal(periodItemCheck.rows[0].n, 0, 'period items must cascade-delete with the period');
 
     const listAfterDelete = await fetch(`${baseUrl}/api/children/${childId}/schedule-periods`, { headers });
     assert.deepEqual((await listAfterDelete.json()).periods, []);
+
+    // 6b) GET by id after delete is a deterministic 404.
+    const getAfterDelete = await fetch(`${baseUrl}/api/children/${childId}/schedule-periods/${periodId}`, { headers });
+    assert.equal(getAfterDelete.status, 404);
 
     // 7) Cross-family child is denied at the route layer.
     const otherFamily = await db.query(
@@ -189,6 +202,33 @@ test('Phase 2 canonical schedule-period routes', async (t) => {
       body: JSON.stringify({ name: 'No source', start_date: '2027-06-01', end_date: '2027-06-01' }),
     });
     assert.equal(missingSource.status, 400, await missingSource.text());
+
+    // 9) A period never masquerades as a full special_day_schedule override for merge/
+    // replace_sections — proven end-to-end over HTTP via the effective-schedule resolver.
+    const { resolveEffectiveSchedule, BASE_TYPES } = require('../src/lib/effective-schedule');
+    const morningActivity = (await db.query(
+      `INSERT INTO activity_template (family_id, name, icon, star_value, sort_order) VALUES ($1,'Frukost','🍳',1,0) RETURNING id`, [familyId]
+    )).rows[0].id;
+    await db.query(
+      `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, 2, 2) RETURNING id`, [childId]
+    ).then(async (r) => {
+      await db.query(
+        `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1,$2,0,'morgon')`,
+        [r.rows[0].id, morningActivity]
+      );
+    });
+    const create2 = await fetch(`${baseUrl}/api/children/${childId}/schedule-periods`, {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        name: 'Kvällslov', start_date: '2027-07-06', end_date: '2027-07-06', // a Tuesday
+        source: { type: 'family_template', id: templateId }, apply_mode: 'merge',
+      }),
+    });
+    assert.equal(create2.status, 201, await create2.text());
+    const resolved = await resolveEffectiveSchedule(childId, '2027-07-06');
+    assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+    const sections = resolved.items.map((i) => i.section);
+    assert.ok(sections.includes('morgon'), 'weekly morgon must survive under an HTTP-created merge period ("en kvällsmall får inte påverka morgonen")');
   } finally {
     await close();
     await db.cleanup();

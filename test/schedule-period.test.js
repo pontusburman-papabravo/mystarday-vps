@@ -1,7 +1,8 @@
 'use strict';
 
 /**
- * Phase 2 — canonical Special Period command service (src/lib/schedule-period.js).
+ * Phase 2 — canonical Special Period command service (src/lib/schedule-period.js) +
+ * resolveEffectiveSchedule() period composition (src/lib/effective-schedule.js).
  *
  * Require-order note: same as test/schedule-apply.test.js — src/lib/schedule-period.js
  * transitively requires src/lib/schedule-apply.js, which uses the src/lib/db.js singleton
@@ -40,23 +41,7 @@ async function seedFamilyTemplate(db, familyId, items) {
   return templateId;
 }
 
-async function specialDayFor(db, childId, dateStr) {
-  const res = await db.query(
-    `SELECT id, period_id, note FROM special_day_schedule WHERE child_id = $1 AND date = $2`,
-    [childId, dateStr]
-  );
-  return res.rows[0] || null;
-}
-
-async function specialDayItems(db, specialDayScheduleId) {
-  const res = await db.query(
-    `SELECT activity_template_id, section, start_time, end_time FROM special_day_schedule_item WHERE special_day_schedule_id = $1 ORDER BY sort_order ASC`,
-    [specialDayScheduleId]
-  );
-  return res.rows;
-}
-
-async function seedWeeklyDay(db, childId, dayOfWeek, activityIds, { custodyHomeId = null, weekVariant = null } = {}) {
+async function seedWeeklyDay(db, childId, dayOfWeek, items, { custodyHomeId = null, weekVariant = null } = {}) {
   const sched = custodyHomeId
     ? await db.query(
         `INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, custody_home_id, week_variant) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
@@ -67,16 +52,24 @@ async function seedWeeklyDay(db, childId, dayOfWeek, activityIds, { custodyHomeI
         [childId, dayOfWeek, dayOfWeek]
       );
   let sortOrder = 0;
-  for (const activityId of activityIds) {
+  for (const item of items) {
     await db.query(
       `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section)
-       VALUES ($1, $2, $3, 'morgon')`,
-      [sched.rows[0].id, activityId, sortOrder++]
+       VALUES ($1, $2, $3, $4)`,
+      [sched.rows[0].id, item.activityId, sortOrder++, item.section || 'morgon']
     );
   }
 }
 
-test('Phase 2 — schedule_period canonical service', async (t) => {
+async function periodItemRows(db, periodId) {
+  const res = await db.query(
+    `SELECT activity_template_id, section FROM schedule_period_item WHERE period_id = $1 ORDER BY sort_order ASC`,
+    [periodId]
+  );
+  return res.rows;
+}
+
+test('Phase 2 — schedule_period canonical service + resolver composition', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -84,37 +77,35 @@ test('Phase 2 — schedule_period canonical service', async (t) => {
   }
 
   const {
-    createSchedulePeriod, updateSchedulePeriod, deleteSchedulePeriod, listSchedulePeriods,
+    createSchedulePeriod, updateSchedulePeriod, deleteSchedulePeriod, getSchedulePeriod, listSchedulePeriods,
   } = require('../src/lib/schedule-period');
   const { ScheduleApplyError } = require('../src/lib/schedule-apply');
+  const { resolveEffectiveSchedule, BASE_TYPES } = require('../src/lib/effective-schedule');
 
   try {
-    // ── A1: create period ────────────────────────────────────────────────────
-    await t.test('A1: create period materializes every date in range with the source content', async () => {
+    // ═══ A. PERIOD CRUD ═══════════════════════════════════════════════════════
+    await t.test('A1/A2: create + list', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'Simskola');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId, section: 'dag' }]);
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId, section: 'kvall' }]);
 
       const result = await createSchedulePeriod({
         familyId, childId, name: 'Sommarlov', startDate: '2026-06-15', endDate: '2026-06-17',
         sourceType: 'family_template', sourceId: templateId,
       });
-
       assert.equal(result.name, 'Sommarlov');
-      assert.deepEqual(result.applied_dates, ['2026-06-15', '2026-06-16', '2026-06-17']);
-      assert.equal(result.materialized_count, 3);
+      assert.equal(result.apply_mode, 'merge', 'default apply_mode must be merge, not the legacy destructive replace_day');
+      assert.equal(result.items_added, 1);
 
-      for (const dateStr of result.applied_dates) {
-        const sd = await specialDayFor(db, childId, dateStr);
-        assert.ok(sd, `special_day_schedule row must exist for ${dateStr}`);
-        assert.equal(sd.period_id, result.period_id, `row for ${dateStr} must link back to the period`);
-        const items = await specialDayItems(db, sd.id);
-        assert.deepEqual(items.map((i) => i.activity_template_id), [activityId]);
-      }
+      const items = await periodItemRows(db, result.period_id);
+      assert.deepEqual(items.map((i) => i.activity_template_id), [activityId]);
+
+      const list = await listSchedulePeriods({ familyId, childId });
+      assert.equal(list.length, 1);
+      assert.equal(list[0].id, result.period_id);
     });
 
-    // ── A2: update period ────────────────────────────────────────────────────
-    await t.test('A2: update period name only does not re-materialize dates', async () => {
+    await t.test('A3: update name only is pure metadata, item set untouched', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'Simskola');
       const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
@@ -123,18 +114,15 @@ test('Phase 2 — schedule_period canonical service', async (t) => {
         sourceType: 'family_template', sourceId: templateId,
       });
 
-      const updated = await updateSchedulePeriod({
-        familyId, childId, periodId: created.period_id, name: 'Sommarlov v2',
-      });
-
+      const updated = await updateSchedulePeriod({ familyId, childId, periodId: created.period_id, name: 'Sommarlov v2' });
       assert.equal(updated.name, 'Sommarlov v2');
       assert.equal(updated.content_changed, false);
-      assert.equal(updated.materialized_count, 0);
-      const list = await listSchedulePeriods({ familyId, childId });
-      assert.equal(list[0].name, 'Sommarlov v2');
+      assert.equal(updated.items_added, 0);
+      const items = await periodItemRows(db, created.period_id);
+      assert.equal(items.length, 1, 'item set must be untouched by a name-only update');
     });
 
-    await t.test('A2b: update period date range re-materializes — old out-of-range dates are cleared', async () => {
+    await t.test('A4: update dates re-validates range and recomputes items', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'Simskola');
       const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
@@ -143,349 +131,471 @@ test('Phase 2 — schedule_period canonical service', async (t) => {
         sourceType: 'family_template', sourceId: templateId,
       });
 
-      await updateSchedulePeriod({
-        familyId, childId, periodId: created.period_id, startDate: '2026-08-10', endDate: '2026-08-11',
-      });
-
-      assert.equal(await specialDayFor(db, childId, '2026-08-01'), null, 'old date must be un-materialized');
-      assert.ok(await specialDayFor(db, childId, '2026-08-10'), 'new date must be materialized');
-      assert.ok(await specialDayFor(db, childId, '2026-08-11'), 'new date must be materialized');
+      const updated = await updateSchedulePeriod({ familyId, childId, periodId: created.period_id, startDate: '2026-08-10', endDate: '2026-08-11' });
+      assert.equal(updated.content_changed, true);
+      assert.equal(updated.start_date, '2026-08-10');
+      assert.equal(updated.end_date, '2026-08-11');
     });
 
-    // ── A3: delete period ────────────────────────────────────────────────────
-    await t.test('A3: delete period removes the period AND its materialized dates', async () => {
+    await t.test('A5: update source re-resolves and replaces the item set', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
-      const activityId = await seedActivity(db, familyId, 'Simskola');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      const activityA = await seedActivity(db, familyId, 'A');
+      const activityB = await seedActivity(db, familyId, 'B');
+      const templateA = await seedFamilyTemplate(db, familyId, [{ activityId: activityA }]);
+      const templateB = await seedFamilyTemplate(db, familyId, [{ activityId: activityB }]);
       const created = await createSchedulePeriod({
         familyId, childId, name: 'Lov', startDate: '2026-09-01', endDate: '2026-09-02',
+        sourceType: 'family_template', sourceId: templateA,
+      });
+
+      await updateSchedulePeriod({ familyId, childId, periodId: created.period_id, sourceType: 'family_template', sourceId: templateB });
+      const items = await periodItemRows(db, created.period_id);
+      assert.deepEqual(items.map((i) => i.activity_template_id), [activityB]);
+    });
+
+    await t.test('A6: update mode changes apply_mode', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      const created = await createSchedulePeriod({
+        familyId, childId, name: 'Lov', startDate: '2026-09-05', endDate: '2026-09-06',
+        sourceType: 'family_template', sourceId: templateId,
+      });
+      const updated = await updateSchedulePeriod({ familyId, childId, periodId: created.period_id, applyMode: 'replace_day' });
+      assert.equal(updated.apply_mode, 'replace_day');
+    });
+
+    await t.test('A7: delete removes the period and its items', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      const created = await createSchedulePeriod({
+        familyId, childId, name: 'Lov', startDate: '2026-09-10', endDate: '2026-09-11',
         sourceType: 'family_template', sourceId: templateId,
       });
 
-      const result = await deleteSchedulePeriod({ familyId, childId, periodId: created.period_id });
-      assert.deepEqual(result.removed_dates, ['2026-09-01', '2026-09-02']);
-      assert.equal(await specialDayFor(db, childId, '2026-09-01'), null);
-      assert.equal(await specialDayFor(db, childId, '2026-09-02'), null);
+      await deleteSchedulePeriod({ familyId, childId, periodId: created.period_id });
       const list = await listSchedulePeriods({ familyId, childId });
       assert.equal(list.length, 0);
+      const items = await periodItemRows(db, created.period_id);
+      assert.equal(items.length, 0, 'items must cascade-delete with the period');
     });
 
-    // ── A4: invalid date range rejected ──────────────────────────────────────
-    await t.test('A4: end_date before start_date is rejected, no writes', async () => {
+    await t.test('getSchedulePeriod: full detail load by id (for edit-by-ID UI)', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'X');
       const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
-
-      await assert.rejects(
-        createSchedulePeriod({
-          familyId, childId, name: 'Bad', startDate: '2026-10-05', endDate: '2026-10-01',
-          sourceType: 'family_template', sourceId: templateId,
-        }),
-        (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'VALIDATION_ERROR'); return true; }
-      );
-      const list = await listSchedulePeriods({ familyId, childId });
-      assert.equal(list.length, 0);
+      const created = await createSchedulePeriod({
+        familyId, childId, name: 'Lov', startDate: '2026-09-15', endDate: '2026-09-16',
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_sections',
+      });
+      const loaded = await getSchedulePeriod({ familyId, childId, periodId: created.period_id });
+      assert.equal(loaded.name, 'Lov');
+      assert.equal(loaded.start_date, '2026-09-15');
+      assert.equal(loaded.end_date, '2026-09-16');
+      assert.equal(loaded.apply_mode, 'replace_sections');
+      assert.equal(loaded.items.length, 1);
     });
 
-    await t.test('A4b: range longer than MAX_PERIOD_DAYS is rejected', async () => {
+    // ═══ B. VALIDATION ═══════════════════════════════════════════════════════
+    await t.test('B8: end_date before start_date is rejected, no writes', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'X');
       const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
-
       await assert.rejects(
-        createSchedulePeriod({
-          familyId, childId, name: 'TooLong', startDate: '2026-01-01', endDate: '2026-12-31',
-          sourceType: 'family_template', sourceId: templateId,
-        }),
+        createSchedulePeriod({ familyId, childId, name: 'Bad', startDate: '2026-10-05', endDate: '2026-10-01', sourceType: 'family_template', sourceId: templateId }),
+        (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'VALIDATION_ERROR'); return true; }
+      );
+      assert.equal((await listSchedulePeriods({ familyId, childId })).length, 0);
+    });
+
+    await t.test('B9: range longer than MAX_PERIOD_DAYS is rejected', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      await assert.rejects(
+        createSchedulePeriod({ familyId, childId, name: 'TooLong', startDate: '2026-01-01', endDate: '2026-12-31', sourceType: 'family_template', sourceId: templateId }),
         (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'VALIDATION_ERROR'); return true; }
       );
     });
 
-    // ── A5: cross-family child denied ────────────────────────────────────────
-    await t.test('A5: cross-family child is denied, no writes', async () => {
+    await t.test('B10: cross-family child is denied, no writes', async () => {
       const { familyId: familyA } = await createTestFamilyWithChild(db);
       const { familyId: familyB, childId: childB } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyA, 'X');
       const templateId = await seedFamilyTemplate(db, familyA, [{ activityId }]);
-
       await assert.rejects(
-        createSchedulePeriod({
-          familyId: familyA, childId: childB, name: 'Bad', startDate: '2026-10-01', endDate: '2026-10-02',
-          sourceType: 'family_template', sourceId: templateId,
-        }),
+        createSchedulePeriod({ familyId: familyA, childId: childB, name: 'Bad', startDate: '2026-10-01', endDate: '2026-10-02', sourceType: 'family_template', sourceId: templateId }),
         (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'CHILD_NOT_IN_FAMILY'); return true; }
       );
-      const list = await listSchedulePeriods({ familyId: familyB, childId: childB });
-      assert.equal(list.length, 0);
+      assert.equal((await listSchedulePeriods({ familyId: familyB, childId: childB })).length, 0);
     });
 
-    // ── A6: source ownership validated ───────────────────────────────────────
-    await t.test('A6: family_template from another family is denied', async () => {
+    await t.test('B11: family_template from another family is denied', async () => {
       const { familyId: familyA, childId: childA } = await createTestFamilyWithChild(db);
       const { familyId: familyB } = await createTestFamilyWithChild(db);
       const activityB = await seedActivity(db, familyB, 'X');
       const templateB = await seedFamilyTemplate(db, familyB, [{ activityId: activityB }]);
-
       await assert.rejects(
-        createSchedulePeriod({
-          familyId: familyA, childId: childA, name: 'Bad', startDate: '2026-10-01', endDate: '2026-10-02',
-          sourceType: 'family_template', sourceId: templateB,
-        }),
+        createSchedulePeriod({ familyId: familyA, childId: childA, name: 'Bad', startDate: '2026-10-01', endDate: '2026-10-02', sourceType: 'family_template', sourceId: templateB }),
         (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'SOURCE_NOT_FOUND'); return true; }
       );
     });
 
-    // ── A7: overlapping period rejected ──────────────────────────────────────
-    await t.test('A7: overlapping period for the same child is rejected, no writes for the second period', async () => {
+    await t.test('B12: activity_category is rejected as a source type', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'X');
       const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
-      await createSchedulePeriod({
-        familyId, childId, name: 'Höstlov', startDate: '2026-11-01', endDate: '2026-11-10',
-        sourceType: 'family_template', sourceId: templateId,
-      });
-
       await assert.rejects(
-        createSchedulePeriod({
-          familyId, childId, name: 'Overlap', startDate: '2026-11-05', endDate: '2026-11-15',
-          sourceType: 'family_template', sourceId: templateId,
-        }),
-        (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'PERIOD_OVERLAP'); return true; }
-      );
-      const list = await listSchedulePeriods({ familyId, childId });
-      assert.equal(list.length, 1, 'the overlapping period must not have been created');
-    });
-
-    await t.test('A7b: non-overlapping periods (adjacent dates) for the same child are allowed', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const activityId = await seedActivity(db, familyId, 'X');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
-      await createSchedulePeriod({
-        familyId, childId, name: 'Period A', startDate: '2026-12-01', endDate: '2026-12-05',
-        sourceType: 'family_template', sourceId: templateId,
-      });
-      await createSchedulePeriod({
-        familyId, childId, name: 'Period B', startDate: '2026-12-06', endDate: '2026-12-10',
-        sourceType: 'family_template', sourceId: templateId,
-      });
-      const list = await listSchedulePeriods({ familyId, childId });
-      assert.equal(list.length, 2);
-    });
-
-    // ── B: range safety ───────────────────────────────────────────────────────
-    await t.test('B8/B9/B10: dates outside the period range are unaffected', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const activityId = await seedActivity(db, familyId, 'Simskola');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
-
-      await createSchedulePeriod({
-        familyId, childId, name: 'Kort period', startDate: '2027-01-10', endDate: '2027-01-12',
-        sourceType: 'family_template', sourceId: templateId,
-      });
-
-      assert.equal(await specialDayFor(db, childId, '2027-01-09'), null, 'day before start must be unaffected');
-      assert.equal(await specialDayFor(db, childId, '2027-01-13'), null, 'day after end must be unaffected');
-      assert.ok(await specialDayFor(db, childId, '2027-01-10'));
-      assert.ok(await specialDayFor(db, childId, '2027-01-11'));
-      assert.ok(await specialDayFor(db, childId, '2027-01-12'));
-    });
-
-    // ── C: apply modes ────────────────────────────────────────────────────────
-    await t.test('C11: merge mode does not remove an existing item already on that special day', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const existingActivity = await seedActivity(db, familyId, 'Redan där');
-      const newActivity = await seedActivity(db, familyId, 'Simskola');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: newActivity, section: 'kvall' }]);
-
-      await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2027-02-01')`, [childId]);
-      const sd = await specialDayFor(db, childId, '2027-02-01');
-      await db.query(
-        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Redan där', 'morgon', 0)`,
-        [sd.id, existingActivity]
-      );
-
-      await createSchedulePeriod({
-        familyId, childId, name: 'Merge-test', startDate: '2027-02-01', endDate: '2027-02-01',
-        sourceType: 'family_template', sourceId: templateId, applyMode: 'merge',
-      });
-
-      const items = await specialDayItems(db, sd.id);
-      const templateIds = items.map((i) => i.activity_template_id).sort();
-      assert.deepEqual(templateIds, [existingActivity, newActivity].sort(), 'merge must keep the pre-existing item and add the new one');
-    });
-
-    await t.test('C12: replace_sections only clears the sections present in the source', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const morningActivity = await seedActivity(db, familyId, 'Morgon');
-      const eveningActivity = await seedActivity(db, familyId, 'Kväll');
-      const newEveningActivity = await seedActivity(db, familyId, 'Ny kväll');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: newEveningActivity, section: 'kvall' }]);
-
-      await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2027-03-01')`, [childId]);
-      const sd = await specialDayFor(db, childId, '2027-03-01');
-      await db.query(
-        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Morgon', 'morgon', 0)`,
-        [sd.id, morningActivity]
-      );
-      await db.query(
-        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Kväll', 'kvall', 1)`,
-        [sd.id, eveningActivity]
-      );
-
-      await createSchedulePeriod({
-        familyId, childId, name: 'Replace-sections-test', startDate: '2027-03-01', endDate: '2027-03-01',
-        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_sections',
-      });
-
-      const items = await specialDayItems(db, sd.id);
-      const bySection = Object.fromEntries(items.map((i) => [i.section, i.activity_template_id]));
-      assert.equal(bySection.morgon, morningActivity, 'untouched morning section must remain');
-      assert.equal(bySection.kvall, newEveningActivity, 'kvall section must be replaced by the source item');
-      assert.equal(items.length, 2);
-    });
-
-    await t.test('C13: replace_day (default) wipes the whole day before applying the source', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const oldActivity = await seedActivity(db, familyId, 'Gammal');
-      const newActivity = await seedActivity(db, familyId, 'Ny');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: newActivity }]);
-
-      await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2027-04-01')`, [childId]);
-      const sd = await specialDayFor(db, childId, '2027-04-01');
-      await db.query(
-        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Gammal', 'morgon', 0)`,
-        [sd.id, oldActivity]
-      );
-
-      await createSchedulePeriod({
-        familyId, childId, name: 'Replace-day-test', startDate: '2027-04-01', endDate: '2027-04-01',
-        sourceType: 'family_template', sourceId: templateId,
-      });
-
-      const items = await specialDayItems(db, sd.id);
-      assert.deepEqual(items.map((i) => i.activity_template_id), [newActivity]);
-    });
-
-    // ── D: Special Day override + empty fallback — regression, not reimplemented ────
-    await t.test('D14/D15: an explicit Special Day write on a date inside an active period overrides it (same table/row, no new logic needed)', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const periodActivity = await seedActivity(db, familyId, 'Period-aktivitet');
-      const overrideActivity = await seedActivity(db, familyId, 'Explicit special day');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
-
-      const period = await createSchedulePeriod({
-        familyId, childId, name: 'Test', startDate: '2027-05-01', endDate: '2027-05-03',
-        sourceType: 'family_template', sourceId: templateId,
-      });
-      const sd = await specialDayFor(db, childId, '2027-05-02');
-      assert.equal(sd.period_id, period.period_id);
-
-      // Parent explicitly edits that ONE date afterward (same mechanism special-day-schedules.js uses).
-      await db.query('DELETE FROM special_day_schedule_item WHERE special_day_schedule_id = $1', [sd.id]);
-      await db.query(
-        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Override', 'morgon', 0)`,
-        [sd.id, overrideActivity]
-      );
-
-      const { resolveEffectiveSchedule } = require('../src/lib/effective-schedule');
-      const resolved = await resolveEffectiveSchedule(childId, '2027-05-02');
-      assert.equal(resolved.source.base_type, 'special_day');
-      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [overrideActivity]);
-
-      // The other two period dates remain untouched by that one-date edit.
-      const resolvedNeighbor = await resolveEffectiveSchedule(childId, '2027-05-01');
-      assert.deepEqual(resolvedNeighbor.items.map((i) => i.activity_template_id), [periodActivity]);
-    });
-
-    // ── E: date overlays unaffected by periods ───────────────────────────────
-    await t.test('E16/E17: once-task and date-exclusion mechanisms remain untouched by period materialization', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const weeklyActivity = await seedActivity(db, familyId, 'Veckoaktivitet');
-      await seedWeeklyDay(db, childId, 1, [weeklyActivity]); // Monday
-
-      // A date exclusion on a day OUTSIDE any period must still work exactly as before.
-      await db.query(
-        `INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-06-07', $2)`, // a Monday
-        [childId, weeklyActivity]
-      );
-      const { resolveEffectiveSchedule } = require('../src/lib/effective-schedule');
-      const resolved = await resolveEffectiveSchedule(childId, '2027-06-07');
-      assert.equal(resolved.source.base_type, 'weekly');
-      assert.deepEqual(resolved.items, [], 'the excluded item must not appear, and no period logic should interfere');
-    });
-
-    // ── F: custody ────────────────────────────────────────────────────────────
-    await t.test('F18/F19/F20: a period is not custody-home-scoped — it overrides the effective schedule for both homes on that date', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const homeA = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos mamma') RETURNING id`, [familyId]);
-      const homeB = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos pappa') RETURNING id`, [familyId]);
-      const homeAActivity = await seedActivity(db, familyId, 'Hos mamma-aktivitet');
-      const homeBActivity = await seedActivity(db, familyId, 'Hos pappa-aktivitet');
-      await seedWeeklyDay(db, childId, 2, [homeAActivity], { custodyHomeId: homeA.rows[0].id, weekVariant: 'a' }); // Tuesday
-      await seedWeeklyDay(db, childId, 2, [homeBActivity], { custodyHomeId: homeB.rows[0].id, weekVariant: 'b' });
-
-      const periodActivity = await seedActivity(db, familyId, 'Period-aktivitet');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
-      await createSchedulePeriod({
-        familyId, childId, name: 'Lov över båda hemmen', startDate: '2027-07-06', endDate: '2027-07-06', // a Tuesday
-        sourceType: 'family_template', sourceId: templateId,
-      });
-
-      const { resolveEffectiveSchedule } = require('../src/lib/effective-schedule');
-      const resolved = await resolveEffectiveSchedule(childId, '2027-07-06');
-      assert.equal(resolved.source.base_type, 'special_day');
-      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [periodActivity],
-        'the period overrides the date regardless of which custody home would otherwise be effective — no per-home duplication required');
-
-      // custody_home_id column on schedule_period does not exist — confirms the deliberate
-      // "not custody-scoped" design decision at the schema level too.
-      const cols = await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'schedule_period'`);
-      assert.ok(!cols.rows.some((r) => r.column_name === 'custody_home_id'));
-    });
-
-    // ── G: compatibility ──────────────────────────────────────────────────────
-    await t.test('G21/G22: legacy apply-date-range and once-task mechanisms are untouched by this service', async () => {
-      const applyRoute = require('../src/routes/schedules/child-bulk');
-      assert.ok(applyRoute, 'child-bulk.js (apply-date-range) must still load');
-      // is_once_task boundary — confirm the resolver still explicitly excludes once-tasks,
-      // unchanged by Phase 2 (schedule_period never touches daily_log_item).
-      const fs = require('node:fs');
-      const effectiveSrc = fs.readFileSync(require.resolve('../src/lib/effective-schedule'), 'utf8');
-      assert.match(effectiveSrc, /is_once_task|once.task/i);
-    });
-
-    await t.test('G23: family_template / standard_schedule remain the only valid period source types (no activity_category)', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const activityId = await seedActivity(db, familyId, 'X');
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
-
-      await assert.rejects(
-        createSchedulePeriod({
-          familyId, childId, name: 'Bad source', startDate: '2027-08-01', endDate: '2027-08-01',
-          sourceType: 'activity_category', sourceId: templateId,
-        }),
+        createSchedulePeriod({ familyId, childId, name: 'Bad', startDate: '2026-10-01', endDate: '2026-10-01', sourceType: 'activity_category', sourceId: templateId }),
         (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'VALIDATION_ERROR'); return true; }
       );
     });
 
-    // ── Idempotency (reused Phase 1A/1B pattern) ─────────────────────────────
-    await t.test('idempotency: retry with the same operation_id replays instead of duplicating', async () => {
+    await t.test('B13: overlapping period for the same child is rejected, no writes', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      await createSchedulePeriod({ familyId, childId, name: 'Höstlov', startDate: '2026-11-01', endDate: '2026-11-10', sourceType: 'family_template', sourceId: templateId });
+      await assert.rejects(
+        createSchedulePeriod({ familyId, childId, name: 'Overlap', startDate: '2026-11-05', endDate: '2026-11-15', sourceType: 'family_template', sourceId: templateId }),
+        (err) => { assert.ok(err instanceof ScheduleApplyError); assert.equal(err.code, 'PERIOD_OVERLAP'); return true; }
+      );
+      assert.equal((await listSchedulePeriods({ familyId, childId })).length, 1);
+    });
+
+    await t.test('B13b: adjacent (non-overlapping) periods are allowed', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      await createSchedulePeriod({ familyId, childId, name: 'A', startDate: '2026-12-01', endDate: '2026-12-05', sourceType: 'family_template', sourceId: templateId });
+      await createSchedulePeriod({ familyId, childId, name: 'B', startDate: '2026-12-06', endDate: '2026-12-10', sourceType: 'family_template', sourceId: templateId });
+      assert.equal((await listSchedulePeriods({ familyId, childId })).length, 2);
+    });
+
+    // ═══ C. COMPOSITION (Blocker A) ══════════════════════════════════════════
+    await t.test('C14: merge preserves the weekly base and adds the period item', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const morningActivity = await seedActivity(db, familyId, 'Frukost');
+      const dayActivity = await seedActivity(db, familyId, 'Skola');
+      const eveningWeeklyActivity = await seedActivity(db, familyId, 'Läsa');
+      const periodEveningActivity = await seedActivity(db, familyId, 'Lovaktivitet');
+      await seedWeeklyDay(db, childId, 2, [ // a Tuesday
+        { activityId: morningActivity, section: 'morgon' },
+        { activityId: dayActivity, section: 'dag' },
+        { activityId: eveningWeeklyActivity, section: 'kvall' },
+      ]);
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodEveningActivity, section: 'kvall' }]);
+
+      await createSchedulePeriod({
+        familyId, childId, name: 'Kvällslov', startDate: '2027-01-05', endDate: '2027-01-05', // a Tuesday
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'merge',
+      });
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-01-05');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+      const bySection = {};
+      for (const item of resolved.items) (bySection[item.section] ||= []).push(item.activity_template_id);
+      assert.deepEqual(bySection.morgon, [morningActivity], 'morgon must be untouched — "en kvällsmall får inte påverka morgonen"');
+      assert.deepEqual(bySection.dag, [dayActivity], 'dag must be untouched');
+      assert.deepEqual((bySection.kvall || []).sort(), [eveningWeeklyActivity, periodEveningActivity].sort(), 'kvall must have BOTH the weekly and period items under merge');
+    });
+
+    await t.test('C15: replace_sections preserves untouched sections and only replaces the source-covered ones', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const morningActivity = await seedActivity(db, familyId, 'Frukost');
+      const dayActivity = await seedActivity(db, familyId, 'Skola');
+      const oldEveningActivity = await seedActivity(db, familyId, 'Läsa');
+      const newEveningActivity = await seedActivity(db, familyId, 'Lovkväll');
+      await seedWeeklyDay(db, childId, 3, [ // a Wednesday
+        { activityId: morningActivity, section: 'morgon' },
+        { activityId: dayActivity, section: 'dag' },
+        { activityId: oldEveningActivity, section: 'kvall' },
+      ]);
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: newEveningActivity, section: 'kvall' }]);
+
+      await createSchedulePeriod({
+        familyId, childId, name: 'Kvällslov', startDate: '2027-01-06', endDate: '2027-01-06',
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_sections',
+      });
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-01-06');
+      const bySection = {};
+      for (const item of resolved.items) (bySection[item.section] ||= []).push(item.activity_template_id);
+      assert.deepEqual(bySection.morgon, [morningActivity]);
+      assert.deepEqual(bySection.dag, [dayActivity]);
+      assert.deepEqual(bySection.kvall, [newEveningActivity], 'kvall must be fully replaced by the period, not merged with the old weekly item');
+    });
+
+    await t.test('C16: replace_day replaces the whole base — no weekly leakage', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const morningActivity = await seedActivity(db, familyId, 'Frukost');
+      const dayActivity = await seedActivity(db, familyId, 'Skola');
+      const periodActivity = await seedActivity(db, familyId, 'Lovdag');
+      await seedWeeklyDay(db, childId, 4, [
+        { activityId: morningActivity, section: 'morgon' },
+        { activityId: dayActivity, section: 'dag' },
+      ]);
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity, section: 'dag' }]);
+
+      await createSchedulePeriod({
+        familyId, childId, name: 'Heldagslov', startDate: '2027-01-07', endDate: '2027-01-07',
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_day',
+      });
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-01-07');
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [periodActivity], 'replace_day must show ONLY the period item — weekly morgon/dag must not leak through');
+    });
+
+    // ═══ D. SPECIAL DAY INDEPENDENCE (Blocker B) ═════════════════════════════
+    await t.test('D17/D18/D19: explicit Special Day wins over an active period, and survives period delete + re-materialization', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const periodActivity = await seedActivity(db, familyId, 'Lovaktivitet');
+      const explicitActivity = await seedActivity(db, familyId, 'Julafton');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+
+      const period = await createSchedulePeriod({
+        familyId, childId, name: 'Jullov', startDate: '2026-12-20', endDate: '2026-12-27',
+        sourceType: 'family_template', sourceId: templateId,
+      });
+
+      // Parent explicitly overrides one date (2026-12-24) via the completely separate,
+      // untouched special_day_schedule table/routes.
+      const explicitSd = await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2026-12-24') RETURNING id`, [childId]);
+      await db.query(
+        `INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'Julafton', 'morgon', 0)`,
+        [explicitSd.rows[0].id, explicitActivity]
+      );
+
+      let resolved = await resolveEffectiveSchedule(childId, '2026-12-24');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_DAY, 'explicit Special Day must win over the active period');
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [explicitActivity]);
+
+      // Neighboring period dates are still period-governed.
+      resolved = await resolveEffectiveSchedule(childId, '2026-12-23');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+      resolved = await resolveEffectiveSchedule(childId, '2026-12-25');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+
+      // Re-materializing the period (update triggers delete+recreate of period_item rows)
+      // must not touch the unrelated special_day_schedule row for 2026-12-24.
+      await updateSchedulePeriod({ familyId, childId, periodId: period.period_id, applyMode: 'replace_day' });
+      resolved = await resolveEffectiveSchedule(childId, '2026-12-24');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_DAY, 'explicit override must survive a period update/re-materialization');
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [explicitActivity]);
+
+      // Deleting the period entirely must not delete the explicit Special Day.
+      await deleteSchedulePeriod({ familyId, childId, periodId: period.period_id });
+      resolved = await resolveEffectiveSchedule(childId, '2026-12-24');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_DAY, 'explicit Special Day must survive period delete');
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [explicitActivity]);
+
+      // Dates without an explicit override fall back to weekly/custody after the period is gone.
+      resolved = await resolveEffectiveSchedule(childId, '2026-12-23');
+      assert.notEqual(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+    });
+
+    // ═══ E. OVERLAYS ═════════════════════════════════════════════════════════
+    await t.test('E20/E21: date exclusion removes an effective item under a period, on that date only', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'Veckoaktivitet');
+      const periodActivity = await seedActivity(db, familyId, 'Lovaktivitet');
+      await seedWeeklyDay(db, childId, 5, [{ activityId: weeklyActivity, section: 'morgon' }]); // Friday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity, section: 'kvall' }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Lov', startDate: '2027-02-05', endDate: '2027-02-19', // covers two Fridays
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'merge',
+      });
+
+      // Exclude the weekly item on ONE of the two Fridays only.
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, '2027-02-05', $2)`, [childId, weeklyActivity]);
+
+      const excludedDay = await resolveEffectiveSchedule(childId, '2027-02-05');
+      assert.ok(!excludedDay.items.some((i) => i.activity_template_id === weeklyActivity), 'excluded weekly item must be absent from the effective (period-composed) result on that date');
+      assert.ok(excludedDay.items.some((i) => i.activity_template_id === periodActivity), 'the period item itself must remain');
+
+      const neighborDay = await resolveEffectiveSchedule(childId, '2027-02-12');
+      assert.ok(neighborDay.items.some((i) => i.activity_template_id === weeklyActivity), 'the exclusion must not leak to a neighboring period date');
+      assert.ok(neighborDay.items.some((i) => i.activity_template_id === periodActivity), 'the period must remain intact on the neighboring date');
+    });
+
+    await t.test('E22: once-task remains additive and does not appear in / interact with resolveEffectiveSchedule() under a period', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const periodActivity = await seedActivity(db, familyId, 'Lovaktivitet');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Lov', startDate: '2027-03-01', endDate: '2027-03-02',
+        sourceType: 'family_template', sourceId: templateId,
+      });
+
+      // resolveEffectiveSchedule() intentionally never returns once-tasks (pre-existing
+      // boundary, documented in effective-schedule.js) — confirm this is unaffected by an
+      // active period (i.e. the boundary was not accidentally widened or narrowed).
+      const resolved = await resolveEffectiveSchedule(childId, '2027-03-01');
+      assert.ok(resolved.items.every((i) => i.activity_template_id !== null), 'no once-task placeholder should appear in the resolver output');
+    });
+
+    // ═══ F. CUSTODY ══════════════════════════════════════════════════════════
+    await t.test('F23/F24: a period overrides whichever custody weekly base is effective; correct base returns after delete', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const homeA = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos mamma') RETURNING id`, [familyId]);
+      const homeB = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos pappa') RETURNING id`, [familyId]);
+      await db.query(
+        `INSERT INTO custody_pattern (child_id, anchor_date, interval_weeks, week_a_home_id, week_b_home_id, pattern_type) VALUES ($1, '2027-04-05', 2, $2, $3, 'alternate_weeks')`,
+        [childId, homeA.rows[0].id, homeB.rows[0].id]
+      );
+      const homeAActivity = await seedActivity(db, familyId, 'Hos mamma-aktivitet');
+      const homeBActivity = await seedActivity(db, familyId, 'Hos pappa-aktivitet');
+      await seedWeeklyDay(db, childId, 2, [{ activityId: homeAActivity }], { custodyHomeId: homeA.rows[0].id, weekVariant: 'a' }); // Tuesday
+      await seedWeeklyDay(db, childId, 2, [{ activityId: homeBActivity }], { custodyHomeId: homeB.rows[0].id, weekVariant: 'b' });
+
+      const periodActivity = await seedActivity(db, familyId, 'Period-aktivitet');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      const period = await createSchedulePeriod({
+        familyId, childId, name: 'Lov över båda hemmen', startDate: '2027-04-06', endDate: '2027-04-06', // a Tuesday
+        sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_day',
+      });
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-04-06');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [periodActivity],
+        'the period overrides regardless of which custody home would otherwise be effective — no per-home duplication required');
+
+      // schedule_period has no custody_home_id column — confirms the deliberate design decision.
+      const cols = await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'schedule_period'`);
+      assert.ok(!cols.rows.some((r) => r.column_name === 'custody_home_id'));
+
+      await deleteSchedulePeriod({ familyId, childId, periodId: period.period_id });
+      const afterDelete = await resolveEffectiveSchedule(childId, '2027-04-06');
+      assert.notEqual(afterDelete.source.base_type, BASE_TYPES.SPECIAL_PERIOD, 'after delete, the correct custody-aware weekly base must return');
+      assert.equal(afterDelete.source.base_type, BASE_TYPES.WEEKLY);
+    });
+
+    // ═══ G. EMPTY SPECIAL DAY ════════════════════════════════════════════════
+    await t.test('G25: an empty explicit Special Day still falls through — to the period when one is active, else to weekly (preserved intent, extended for Phase 2)', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const periodActivity = await seedActivity(db, familyId, 'Lovaktivitet');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Lov', startDate: '2027-05-01', endDate: '2027-05-02',
+        sourceType: 'family_template', sourceId: templateId,
+      });
+      // An empty explicit special day row (0 items) — e.g. a parent marked "scheduled day off"
+      // without content — for a date inside the period.
+      await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2027-05-01')`, [childId]);
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-05-01');
+      assert.equal(resolved.source.base_type, BASE_TYPES.SPECIAL_PERIOD, 'an empty explicit special day must fall through to the active period, not stay stuck as an empty override');
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [periodActivity]);
+    });
+
+    await t.test('G25b: an empty explicit Special Day with NO active period still falls through to weekly (unchanged pre-Phase-2 behaviour)', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'Veckoaktivitet');
+      await seedWeeklyDay(db, childId, 6, [{ activityId: weeklyActivity }]); // Saturday
+      await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, '2027-05-08')`, [childId]); // a Saturday, no period
+
+      const resolved = await resolveEffectiveSchedule(childId, '2027-05-08');
+      assert.equal(resolved.source.base_type, BASE_TYPES.WEEKLY);
+      assert.deepEqual(resolved.items.map((i) => i.activity_template_id), [weeklyActivity]);
+    });
+
+    // ═══ H. RANGE SAFETY ═════════════════════════════════════════════════════
+    await t.test('H26/H27: dates outside the period range are unaffected', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'Veckoaktivitet');
+      await seedWeeklyDay(db, childId, 0, [{ activityId: weeklyActivity }]); // Sunday (dow 0)
+      const periodActivity = await seedActivity(db, familyId, 'Lovaktivitet');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      await createSchedulePeriod({
+        familyId, childId, name: 'Kort period', startDate: '2027-06-13', endDate: '2027-06-13', // a Sunday
+        sourceType: 'family_template', sourceId: templateId,
+      });
+
+      const dayBefore = await resolveEffectiveSchedule(childId, '2027-06-12');
+      assert.notEqual(dayBefore.source.base_type, BASE_TYPES.SPECIAL_PERIOD, 'day before start must be unaffected');
+      const dayAfter = await resolveEffectiveSchedule(childId, '2027-06-14');
+      assert.notEqual(dayAfter.source.base_type, BASE_TYPES.SPECIAL_PERIOD, 'day after end must be unaffected');
+      const dayOf = await resolveEffectiveSchedule(childId, '2027-06-13');
+      assert.equal(dayOf.source.base_type, BASE_TYPES.SPECIAL_PERIOD);
+    });
+
+    // ═══ I. CONCURRENCY (Blocker C) ══════════════════════════════════════════
+    await t.test('I28: two concurrent overlapping creates for the same child — exactly one succeeds, one gets PERIOD_OVERLAP, DB has one period', async () => {
       const { familyId, childId } = await createTestFamilyWithChild(db);
       const activityId = await seedActivity(db, familyId, 'X');
       const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
 
-      const opId = 'test-period-op-1';
-      const first = await createSchedulePeriod({
-        familyId, childId, name: 'Idem', startDate: '2027-09-01', endDate: '2027-09-01',
-        sourceType: 'family_template', sourceId: templateId, operationId: opId,
-      });
-      const second = await createSchedulePeriod({
-        familyId, childId, name: 'Idem', startDate: '2027-09-01', endDate: '2027-09-01',
-        sourceType: 'family_template', sourceId: templateId, operationId: opId,
-      });
-      assert.equal(second.replayed, true);
+      const results = await Promise.allSettled([
+        createSchedulePeriod({ familyId, childId, name: 'A', startDate: '2027-07-01', endDate: '2027-07-10', sourceType: 'family_template', sourceId: templateId }),
+        createSchedulePeriod({ familyId, childId, name: 'B', startDate: '2027-07-05', endDate: '2027-07-15', sourceType: 'family_template', sourceId: templateId }),
+      ]);
+
+      const succeeded = results.filter((r) => r.status === 'fulfilled');
+      const failed = results.filter((r) => r.status === 'rejected');
+      assert.equal(succeeded.length, 1, 'exactly one concurrent overlapping create must succeed');
+      assert.equal(failed.length, 1, 'exactly one must fail');
+      assert.equal(failed[0].reason.code, 'PERIOD_OVERLAP');
+
       const list = await listSchedulePeriods({ familyId, childId });
-      assert.equal(list.length, 1, 'a replayed create must not create a second period row');
+      assert.equal(list.length, 1, 'the database must contain exactly one period, not a race-created duplicate');
+    });
+
+    await t.test('I29: two concurrent NON-overlapping creates for the same child both succeed', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+
+      const results = await Promise.allSettled([
+        createSchedulePeriod({ familyId, childId, name: 'A', startDate: '2027-08-01', endDate: '2027-08-05', sourceType: 'family_template', sourceId: templateId }),
+        createSchedulePeriod({ familyId, childId, name: 'B', startDate: '2027-08-10', endDate: '2027-08-15', sourceType: 'family_template', sourceId: templateId }),
+      ]);
+      assert.ok(results.every((r) => r.status === 'fulfilled'), 'non-overlapping concurrent creates must both succeed');
+      assert.equal((await listSchedulePeriods({ familyId, childId })).length, 2);
+    });
+
+    await t.test('I30: concurrent create-overlapping-into-updated-range vs update — invariant preserved', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      const existing = await createSchedulePeriod({ familyId, childId, name: 'Existing', startDate: '2027-09-01', endDate: '2027-09-05', sourceType: 'family_template', sourceId: templateId });
+
+      // Concurrently: (a) move the existing period to overlap 2027-09-20..25, and (b) create a
+      // brand new period at 2027-09-20..25. At most one of these two operations may end up
+      // owning that range — the invariant is that the DB never ends up with TWO periods
+      // covering the same dates for this child.
+      const results = await Promise.allSettled([
+        updateSchedulePeriod({ familyId, childId, periodId: existing.period_id, startDate: '2027-09-20', endDate: '2027-09-25' }),
+        createSchedulePeriod({ familyId, childId, name: 'New', startDate: '2027-09-20', endDate: '2027-09-25', sourceType: 'family_template', sourceId: templateId }),
+      ]);
+
+      const succeeded = results.filter((r) => r.status === 'fulfilled');
+      assert.equal(succeeded.length, 1, 'exactly one of the two conflicting operations may succeed');
+
+      const list = await listSchedulePeriods({ familyId, childId });
+      const covering2027_09_22 = list.filter((p) => p.start_date <= '2027-09-22' && p.end_date >= '2027-09-22');
+      assert.equal(covering2027_09_22.length, 1, 'the DB must never end up with two periods covering the same date for this child');
+    });
+
+    await t.test('I31: same operation_id retried concurrently still replays exactly once (idempotency under concurrency)', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'X');
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId }]);
+      const opId = 'concurrent-idem-op-1';
+
+      const results = await Promise.allSettled([
+        createSchedulePeriod({ familyId, childId, name: 'Idem', startDate: '2027-10-01', endDate: '2027-10-01', sourceType: 'family_template', sourceId: templateId, operationId: opId }),
+        createSchedulePeriod({ familyId, childId, name: 'Idem', startDate: '2027-10-01', endDate: '2027-10-01', sourceType: 'family_template', sourceId: templateId, operationId: opId }),
+      ]);
+      assert.ok(results.every((r) => r.status === 'fulfilled'), 'both concurrent calls with the SAME operation_id must succeed (one executes, one replays)');
+      const list = await listSchedulePeriods({ familyId, childId });
+      assert.equal(list.length, 1, 'must not create two periods for the same operation_id');
+    });
+
+    // ═══ J. LEGACY COMPATIBILITY ═════════════════════════════════════════════
+    await t.test('J30/J31: legacy apply-date-range route and special-day-schedules routes still load, untouched', async () => {
+      assert.ok(require('../src/routes/schedules/child-bulk'), 'child-bulk.js (apply-date-range) must still load');
+      assert.ok(require('../src/routes/special-day-schedules'), 'special-day-schedules.js must still load');
     });
   } finally {
     await db.cleanup();

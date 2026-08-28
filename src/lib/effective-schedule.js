@@ -1,27 +1,41 @@
 'use strict';
 
 /**
- * Canonical effective-schedule QUERY (read-side) service — Phase 1A.
+ * Canonical effective-schedule QUERY (read-side) service — Phase 1A, extended in Phase 2.
  *
  * Single authoritative place that answers: "given a child and a calendar date, what
  * planning state is effective for that date?" — centralizing the precedence that was
  * previously duplicated inline across src/lib/daily-log-generator.js (three near-identical
  * SQL blocks) and src/routes/schedules/items.js (its own exclusion filter).
  *
- * PRECEDENCE (current product semantics — see docs/schedule-canonical-architecture.md):
+ * PRECEDENCE (current product semantics — see docs/schedule-canonical-architecture.md "Phase 2"):
  *   1. explicit special-day full override (special_day_schedule), IF it has >=1 items.
- *      An explicit special day with ZERO items falls back to weekly (§8.1 — this is
- *      current live behaviour and is preserved, not changed).
- *   2. otherwise custody-aware recurring weekly schedule (resolveWeeklyScheduleId).
- *   3. date exclusions (schedule_date_exclusion) are applied ONLY to the weekly base
- *      (§16) — they do not apply to an explicit special day, matching current behaviour.
+ *      An explicit special day with ZERO items falls through to step 2 (§8.1 — falling
+ *      through to weekly specifically is preserved when no period is active; falling
+ *      through to a period when one covers the date is new in Phase 2, matching "empty
+ *      special day = the date's otherwise-normal effective content", not hardcoded to
+ *      always mean weekly).
+ *   2. otherwise, IF a schedule_period covers this date, COMPOSE it with the custody-aware
+ *      weekly base according to its apply_mode (merge / replace_sections / replace_day —
+ *      see composePeriodWithWeekly() below). A period is never represented to this resolver
+ *      as an opaque full-day override — that was Phase 2's first-draft design and was wrong
+ *      for merge/replace_sections (a "kväll" period must never erase "morgon"/"dag").
+ *   3. otherwise, custody-aware recurring weekly schedule (resolveWeeklyScheduleId).
+ *   4. date exclusions (schedule_date_exclusion) are applied to the WEEKLY portion of the
+ *      result in every case (steps 2 and 3) — including under an active period, per the
+ *      product decision that a date-specific exception follows the EFFECTIVE date, not a
+ *      hidden weekly base the parent never sees (§ "date exclusions" in docs). They never
+ *      apply to an explicit special day (step 1), matching pre-Phase-2 behaviour.
  *
  * Deliberately deferred (§8.3): once-tasks (daily_log_item.is_once_task = true) are NOT
  * merged into `items` here. They are a daily_log-owned overlay with their own lifecycle
  * (created directly against daily_log_item, never regenerated from weekly_schedule).
  * Folding them into this resolver would require the resolver to read/write daily_log,
- * which risks duplicating once-tasks on every read — out of scope for Phase 1A. Once-task
- * boundary is documented here so Phase 1B can build a single merged read model on top.
+ * which risks duplicating once-tasks on every read — out of scope for Phase 1A/2. Once-task
+ * boundary is documented here so a later phase can build a single merged read model on top.
+ * A once-task write is unaffected by an active period: it is still created directly against
+ * that date's daily_log, coexisting with whatever base (weekly or period-composed) this
+ * resolver produces for that date — it does not "freeze" the day.
  */
 
 const db = require('./db');
@@ -29,7 +43,19 @@ const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
 const { normalizeSection, sortByCanonicalSection } = require('./schedule-sections');
 
-const BASE_TYPES = Object.freeze({ SPECIAL_DAY: 'special_day', WEEKLY: 'weekly', NONE: 'none' });
+const BASE_TYPES = Object.freeze({
+  SPECIAL_DAY: 'special_day',
+  SPECIAL_PERIOD: 'special_period',
+  WEEKLY: 'weekly',
+  NONE: 'none',
+});
+
+/** Same duplicate-identity rule schedule-apply.js's duplicateKey() uses (kept local here to
+ * avoid a read-service → write-service dependency — effective-schedule.js has never required
+ * schedule-apply.js and this keeps that boundary). */
+function itemDuplicateKey(item) {
+  return [item.activity_template_id, normalizeSection(item.section), item.start_time || '', item.end_time || ''].join('::');
+}
 
 /**
  * @param {import('pg').Pool|import('pg').PoolClient} q
@@ -87,6 +113,73 @@ async function loadWeeklyItems(q, childId, dateStr, timezone) {
   };
 }
 
+/**
+ * @param {import('pg').Pool|import('pg').PoolClient} q
+ * @returns {Promise<{ periodId: string, name: string, applyMode: string, items: object[] }|null>}
+ */
+async function loadPeriodForDate(q, childId, dateStr) {
+  const periodRes = await q.query(
+    `SELECT id, name, apply_mode FROM schedule_period
+     WHERE child_id = $1 AND start_date <= $2 AND end_date >= $2
+     LIMIT 1`,
+    [childId, dateStr]
+  );
+  if (periodRes.rows.length === 0) return null;
+
+  const period = periodRes.rows[0];
+  const itemsRes = await q.query(
+    `SELECT spi.activity_template_id, spi.name, spi.icon, at.image_url,
+            spi.start_time, spi.end_time, spi.star_value, spi.sort_order, spi.section
+     FROM schedule_period_item spi
+     LEFT JOIN activity_template at ON at.id = spi.activity_template_id
+     WHERE spi.period_id = $1
+     ORDER BY spi.sort_order ASC`,
+    [period.id]
+  );
+
+  return {
+    periodId: period.id,
+    name: period.name,
+    applyMode: period.apply_mode,
+    items: itemsRes.rows.map((r) => ({ ...r, section: normalizeSection(r.section) })),
+  };
+}
+
+/**
+ * Compose a period's items with the (already exclusion-filtered) weekly base, per apply_mode.
+ * Mirrors applyScheduleItemsToDay()/applyScheduleItemsToSpecialDay()'s three write-side modes,
+ * but as a pure READ-side composition — nothing is written here.
+ *
+ * @param {object[]} weeklyItems — already filtered by date exclusions
+ * @param {object[]} periodItems
+ * @param {'merge'|'replace_sections'|'replace_day'} applyMode
+ */
+function composePeriodWithWeekly(weeklyItems, periodItems, applyMode) {
+  if (applyMode === 'replace_day') {
+    // The period's whole product point for this mode is "the day is different" — the weekly
+    // base (and therefore date exclusions, which only ever apply to it) is fully superseded.
+    return [...periodItems];
+  }
+
+  if (applyMode === 'replace_sections') {
+    const periodSections = new Set(periodItems.map((i) => normalizeSection(i.section)));
+    const keptWeekly = weeklyItems.filter((i) => !periodSections.has(normalizeSection(i.section)));
+    return [...keptWeekly, ...periodItems];
+  }
+
+  // 'merge' (default) — weekly items stay, period items are appended unless a duplicate
+  // (same activity_template_id + section + times) already exists in the weekly result.
+  const existingKeys = new Set(weeklyItems.map(itemDuplicateKey));
+  const toAdd = [];
+  for (const item of periodItems) {
+    const key = itemDuplicateKey(item);
+    if (existingKeys.has(key)) continue;
+    existingKeys.add(key);
+    toAdd.push(item);
+  }
+  return [...weeklyItems, ...toAdd];
+}
+
 async function loadDateExclusions(q, childId, dateStr) {
   try {
     const res = await q.query(
@@ -128,6 +221,10 @@ async function resolveEffectiveSchedule(childId, dateStr, options = {}) {
 
   const dayOfWeek = getDayOfWeek(dateStr, timezone);
 
+  // Step 1 — explicit Special Day (non-empty) wins outright, unconditionally. It lives in its
+  // own table (special_day_schedule) and is never written to by a Special Period (Phase 2) —
+  // so this check, and its precedence over everything below, is completely unaffected by
+  // whether a period also covers this date.
   const special = await loadSpecialDayItems(q, childId, dateStr);
   if (special && !special.empty) {
     return {
@@ -142,9 +239,26 @@ async function resolveEffectiveSchedule(childId, dateStr, options = {}) {
     };
   }
 
+  // Step 2/3 — custody-aware weekly base, with date exclusions applied to it in every case
+  // (product decision: an exclusion follows the effective date, not a hidden weekly base —
+  // see docs "Phase 2 — date exclusions"). This is the base a Special Period composes with.
   const weekly = await loadWeeklyItems(q, childId, dateStr, timezone);
   const excluded = await loadDateExclusions(q, childId, dateStr);
-  const items = weekly.items.filter((item) => !excluded.has(item.activity_template_id));
+  const weeklyItemsAfterExclusions = weekly.items.filter((item) => !excluded.has(item.activity_template_id));
+
+  const period = await loadPeriodForDate(q, childId, dateStr);
+  if (period) {
+    const composed = composePeriodWithWeekly(weeklyItemsAfterExclusions, period.items, period.applyMode);
+    return {
+      child_id: childId,
+      date: dateStr,
+      day_of_week: dayOfWeek,
+      source: { base_type: BASE_TYPES.SPECIAL_PERIOD, base_id: period.periodId, apply_mode: period.applyMode },
+      items: sortByCanonicalSection(composed),
+      excluded_activity_template_ids: [...excluded],
+      metadata: { timezone },
+    };
+  }
 
   return {
     child_id: childId,
@@ -154,7 +268,7 @@ async function resolveEffectiveSchedule(childId, dateStr, options = {}) {
       base_type: weekly.scheduleId ? BASE_TYPES.WEEKLY : BASE_TYPES.NONE,
       base_id: weekly.scheduleId,
     },
-    items: sortByCanonicalSection(items),
+    items: sortByCanonicalSection(weeklyItemsAfterExclusions),
     excluded_activity_template_ids: [...excluded],
     metadata: { timezone },
   };

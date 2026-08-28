@@ -9,23 +9,31 @@
  * command service (src/lib/schedule-period.js). No schedule-mutation SQL lives here — see
  * docs/schedule-canonical-architecture.md "Phase 2" for the domain model and rationale.
  *
+ * A period never writes into special_day_schedule/daily_log (see schedule-period.js's header
+ * comment) — there is therefore no per-date resync to perform here, unlike the legacy
+ * apply-date-range route. The broadcast below is enough for open clients to refetch; any
+ * already-generated daily_log for an affected date is picked up on next natural regeneration,
+ * matching how a weekly-schedule edit today has always behaved for an already-generated log.
+ *
  * Every write route accepts an optional `operation_id` for idempotent retries, reusing the
- * exact same schedule_apply_operation ledger + advisory-lock pattern Phase 1A/1B commands use
- * (via runIdempotentScheduleCommand(), see schedule-period.js). Family/child integrity is
- * enforced a second time inside the canonical service itself — this route layer's
- * `getChildAccess` check is the actor/role authorization layer, not the only guard.
+ * exact same schedule_apply_operation ledger Phase 1A/1B commands use (via
+ * runIdempotentScheduleCommand(), see schedule-period.js) PLUS a separate child-scoped
+ * advisory lock that makes the overlap invariant concurrency-safe (see that file's
+ * acquirePeriodChildLock()). Family/child integrity is enforced a second time inside the
+ * canonical service itself — this route layer's `getChildAccess`/`requireChildAccess` check is
+ * the actor/role authorization layer, not the only guard.
  */
 
 const express = require('express');
 const { requireParent } = require('../../middleware/auth');
 const authz = require('../../middleware/authz');
-const { syncDailyLogForSpecialDay } = require('../../lib/daily-log-generator');
 const { broadcast } = require('../../lib/sse-broadcast');
 const { getFamilyLocale } = require('../../lib/onboarding-locale');
 const {
   createSchedulePeriod,
   updateSchedulePeriod,
   deleteSchedulePeriod,
+  getSchedulePeriod,
   listSchedulePeriods,
 } = require('../../lib/schedule-period');
 const { ScheduleApplyError } = require('../../lib/schedule-apply');
@@ -41,18 +49,6 @@ function handlePeriodError(err, res) {
   return null;
 }
 
-async function syncMaterializedDates(childId, dates) {
-  for (const dateStr of dates) {
-    try {
-      const sd = await require('../../lib/db').query(
-        'SELECT id FROM special_day_schedule WHERE child_id = $1 AND date = $2',
-        [childId, dateStr]
-      );
-      if (sd.rows.length > 0) await syncDailyLogForSpecialDay(sd.rows[0].id, dateStr, childId);
-    } catch { /* best-effort — matches existing apply-date-range non-fatal sync pattern */ }
-  }
-}
-
 // GET /api/children/:childId/schedule-periods
 router.get('/', async (req, res) => {
   try {
@@ -64,6 +60,25 @@ router.get('/', async (req, res) => {
   } catch (err) {
     if (handlePeriodError(err, res)) return;
     console.error('[SCHEDULE-PERIOD] list error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// GET /api/children/:childId/schedule-periods/:periodId — full detail for the edit UI to
+// preload by id (name/dates/source/apply_mode/items), so the parent never re-enters dates to
+// locate a period (§18/§19).
+router.get('/:periodId', async (req, res) => {
+  try {
+    const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
+    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+
+    const period = await getSchedulePeriod({
+      familyId: child.family_id, childId: req.params.childId, periodId: req.params.periodId,
+    });
+    res.json(period);
+  } catch (err) {
+    if (handlePeriodError(err, res)) return;
+    console.error('[SCHEDULE-PERIOD] get error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });
@@ -90,12 +105,11 @@ router.post('/', async (req, res) => {
       childId: req.params.childId,
       name, startDate, endDate,
       sourceType: source.type, sourceId: source.id,
-      applyMode: applyMode || 'replace_day',
+      applyMode: applyMode || 'merge',
       operationId: operationId || null,
       locale, variants: variants ?? null, optionalSelections: optionalSelections ?? null,
     });
 
-    await syncMaterializedDates(req.params.childId, result.applied_dates);
     broadcast(child.family_id, 'SCHEDULE_UPDATED', {
       childId: req.params.childId,
       date_range: { start_date: result.start_date, end_date: result.end_date },
@@ -135,13 +149,10 @@ router.patch('/:periodId', async (req, res) => {
       locale, variants: variants ?? null, optionalSelections: optionalSelections ?? null,
     });
 
-    if (result.content_changed) {
-      await syncMaterializedDates(req.params.childId, result.applied_dates);
-      broadcast(child.family_id, 'SCHEDULE_UPDATED', {
-        childId: req.params.childId,
-        date_range: { start_date: result.start_date, end_date: result.end_date },
-      });
-    }
+    broadcast(child.family_id, 'SCHEDULE_UPDATED', {
+      childId: req.params.childId,
+      date_range: { start_date: result.start_date, end_date: result.end_date },
+    });
 
     res.status(200).json(result);
   } catch (err) {
@@ -165,12 +176,6 @@ router.delete('/:periodId', async (req, res) => {
       operationId: operationId || null,
     });
 
-    // Note: unlike create/update, there is no "resync date to weekly after removing a special
-    // day" helper today — an already-generated daily_log for one of these dates stays as-is
-    // (matches existing apply-date-range/special-day deletion behaviour elsewhere in the repo;
-    // out of scope to introduce a new resync primitive in this phase). Live clients still get a
-    // fresh view on next load via the broadcast below and resolveEffectiveSchedule() correctly
-    // falling back to weekly for any date whose special_day_schedule row no longer exists.
     broadcast(child.family_id, 'SCHEDULE_UPDATED', { childId: req.params.childId, period_deleted: result.period_id });
 
     res.status(200).json(result);

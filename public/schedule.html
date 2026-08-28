@@ -1042,14 +1042,19 @@
     </div>
   </div>
 
-  <!-- Lovperiod / schema för datumintervall -->
+  <!-- Specialperiod (Lovperiod) — create/edit by period id, Phase 2 canonical -->
   <div id="schedulePeriodModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
-        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.period.modalTitle">Lovperiod</h3>
+        <h3 id="schedulePeriodModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="schedule.period.modalTitle">Ny specialperiod</h3>
         <button type="button" onclick="closeSchedulePeriodModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.period.modalBody">Byt till ett annat schema mellan två datum. Skol- eller veckoschemat gäller igen utanför perioden.</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.period.modalBody">Byt till ett annat schema mellan två datum. Veckoschemat gäller igen utanför perioden.</p>
+
+      <div class="mb-3">
+        <label for="schedulePeriodName" class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.period.nameLabel">Namn</label>
+        <input type="text" id="schedulePeriodName" maxlength="200" data-i18n-placeholder="schedule.period.namePlaceholder" placeholder="T.ex. Sommarlov" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <div>
@@ -1070,12 +1075,39 @@
         <p class="text-xs text-text-soft mt-1.5" data-i18n-html="schedule.period.schemaTip">Tips: välj <strong>Lov</strong> för sportlov, höstlov eller annan ledighet.</p>
       </div>
 
+      <div class="mb-4">
+        <p id="schedulePeriodModeLabel" class="block text-xs font-semibold text-navy mb-1.5" data-i18n="schedule.period.modeLabel">Hur ska perioden läggas till?</p>
+        <div class="flex flex-col gap-2" role="radiogroup" aria-labelledby="schedulePeriodModeLabel">
+          <button type="button" data-period-mode="merge" onclick="setSchedulePeriodMode('merge')" class="min-h-[44px] w-full flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-left text-sm transition-colors" role="radio">
+            <span class="mode-check w-4 flex-shrink-0 text-gold font-bold" aria-hidden="true"></span>
+            <span>
+              <span class="font-semibold text-navy" data-i18n="schedule.period.modeMerge">Lägg till</span>
+              <span class="block text-xs text-text-soft" data-i18n="schedule.period.modeMergeHint">Behåller det vanliga schemat och lägger till periodens innehåll</span>
+            </span>
+          </button>
+          <button type="button" data-period-mode="replace_sections" onclick="setSchedulePeriodMode('replace_sections')" class="min-h-[44px] w-full flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-left text-sm transition-colors" role="radio">
+            <span class="mode-check w-4 flex-shrink-0 text-gold font-bold" aria-hidden="true"></span>
+            <span>
+              <span class="font-semibold text-navy" data-i18n="schedule.period.modeReplaceSections">Ersätt berörda delar</span>
+              <span class="block text-xs text-text-soft" data-i18n="schedule.period.modeReplaceSectionsHint">Bara de delar av dagen (morgon/dag/kväll/natt) som finns i periodens schema ersätts</span>
+            </span>
+          </button>
+          <button type="button" data-period-mode="replace_day" onclick="setSchedulePeriodMode('replace_day')" class="min-h-[44px] w-full flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-left text-sm transition-colors" role="radio">
+            <span class="mode-check w-4 flex-shrink-0 text-gold font-bold" aria-hidden="true"></span>
+            <span>
+              <span class="font-semibold text-navy" data-i18n="schedule.period.modeReplaceDay">Ersätt hela dagen</span>
+              <span class="block text-xs text-text-soft" data-i18n="schedule.period.modeReplaceDayHint">Hela det vanliga schemat ersätts för alla dagar i perioden</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
       <div id="schedulePeriodError" class="text-red-500 text-sm hidden mb-3"></div>
 
       <div class="flex flex-col gap-2">
-        <button type="button" id="schedulePeriodApplyBtn" onclick="applySchedulePeriod()" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.period.saveBtn">Spara lovperiod</button>
-        <button type="button" id="schedulePeriodRemoveBtn" onclick="removeSchedulePeriod()" class="w-full px-4 py-3 border-2 border-lavender hover:border-navy text-navy rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.period.resetBtn">Återställ till veckoschema</button>
-        <button type="button" onclick="closeSchedulePeriodModal()" class="w-full px-4 py-3 text-text-soft text-sm font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button type="button" id="schedulePeriodApplyBtn" onclick="submitSchedulePeriod()" class="min-h-[44px] w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.period.saveBtn">Spara period</button>
+        <button type="button" id="schedulePeriodRemoveBtn" onclick="confirmDeleteSchedulePeriod()" class="hidden min-h-[44px] w-full px-4 py-3 border-2 border-red-200 hover:border-red-400 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.period.deleteBtn">🗑 Ta bort period</button>
+        <button type="button" onclick="closeSchedulePeriodModal()" class="min-h-[44px] w-full px-4 py-3 text-text-soft text-sm font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
       </div>
     </div>
   </div>

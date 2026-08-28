@@ -114,7 +114,10 @@ describe('en-GB terminology (glossary)', () => {
 
   it('kept terms remain unchanged', () => {
     assert.equal(t('en-GB', 'schedule.modals.addActivity.onceTitle'), 'One-off activity');
-    assert.equal(t('en-GB', 'schedule.period.modalTitle'), 'Holiday period');
+    // Phase 2 (first-class Special Period): schedule.period.modalTitle now reads the same
+    // create/edit modal's CREATE-mode title (schedule.period.editTitle covers edit mode) —
+    // intentionally renamed as part of building real period CRUD UI, not a terminology drift.
+    assert.equal(t('en-GB', 'schedule.period.modalTitle'), 'New special period');
     assert.equal(t('en-GB', 'schedule.period.resetBtn'), 'Reset to weekly schedule');
     assert.equal(t('en-GB', 'schedule.chrome.viewSbs'), '👥 Compare children');
   });
