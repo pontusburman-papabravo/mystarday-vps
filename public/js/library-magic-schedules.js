@@ -214,7 +214,10 @@
       + '<div class="library-magic-timeline">' + (timeline || '<p class="library-magic-empty">' + escHtml(pt('schedule.emptySection')) + '</p>') + '</div>'
       + '<div class="library-magic-detail-actions">'
       + '<button type="button" class="library-magic-btn-secondary" data-schedule-action="preview-back">' + escHtml(pt('library.standard.back')) + '</button>'
-      + '<button type="button" class="library-magic-btn-primary" data-schedule-action="copy" data-schedule-id="' + schedule.id + '" data-schedule-name="' + escHtml(schedule.name) + '">' + escHtml(pt('library.standard.copySchedule')) + '</button>'
+      // Phase 1C: demoted from -primary — recurring-schedule application now primarily
+      // happens from Weekly Schedule via "+ Lägg till → Från mall" (merge/replace_sections/
+      // replace_day + custody scoping); this dialog stays as a secondary shortcut.
+      + '<button type="button" class="library-magic-btn-secondary" data-schedule-action="copy" data-schedule-id="' + schedule.id + '" data-schedule-name="' + escHtml(schedule.name) + '">' + escHtml(pt('library.standard.copySchedule')) + '</button>'
       + '</div></div>';
   }
 

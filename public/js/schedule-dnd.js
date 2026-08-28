@@ -257,11 +257,22 @@
       dayDndDst = null;
     }
   }
+  // Phase 1C: rewired from the legacy /copy-day route (child-bulk.js — always-replace, no
+  // custody scoping) to the canonical copy-recurring-day command, so this drag gesture is
+  // custody-safe like every other Phase 1B/1C recurring mutation ("what the parent sees is
+  // what the parent edits"). Kept mode: 'replace_day' to preserve this gesture's existing
+  // always-replace behavior exactly — a drag-and-drop drop has no mode-picker step, so
+  // silently switching its default to merge would surprise users; see docs
+  // "Phase 1C legacy retirement table" for the full rationale.
   async function doDayDndCopy(src, dst) {
-    const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`, { method: 'POST', body: JSON.stringify({ from_day: src, to_days: [dst] }) });
-    const data = await res.json();
-    if (res.ok) { showToast(spt('schedule.dnd.dayCopiedTo', { src: DAYS[src], dst: DAYS[dst] })); if(currentDay===dst) await loadScheduleForDay(); }
-    else showToast(data.error||spt('schedule.errors.generic'), true);
+    if (!window.ScheduleApplyClient) return; // defensive — should always be loaded on this page
+    const custodyHomeId = window.ScheduleCustody ? ScheduleCustody.getActiveHomeId() : null;
+    const { ok, data } = await ScheduleApplyClient.copyDay(currentChildId, {
+      sourceDayOfWeek: src, targetDays: [dst], mode: 'replace_day',
+      operationId: ScheduleApplyClient.newOperationId(), custodyHomeId,
+    });
+    if (ok) { showToast(spt('schedule.dnd.dayCopiedTo', { src: DAYS[src], dst: DAYS[dst] })); if(currentDay===dst) await loadScheduleForDay(); }
+    else showToast((data && data.error) || spt('schedule.errors.generic'), true);
   }
   async function doDayDndSwap(a, b) {
     const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/swap-day`, { method: 'POST', body: JSON.stringify({ day_a: a, day_b: b }) });

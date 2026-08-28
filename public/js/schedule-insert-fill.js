@@ -82,6 +82,10 @@ function renderInsertDaySchemaList() {
   list.innerHTML = html;
 }
 
+// Phase 1C custody-safety hardening — the per-day-tab "+" no longer calls this function in the
+// normal path (its onclick now delegates to ScheduleAddMenu.openActivityForDay(dow), the
+// canonical, custody-safe Aktivitet flow). Kept ONLY as a defensive fallback for the
+// (never-expected) case ScheduleAddMenu fails to load — see schedule.js's day-tab render.
 async function openInsertDayModal(dow) {
   if (!currentChildId) { showToast(spt('schedule.insert.pickChild'), true); return; }
   insertDayTarget = dow;

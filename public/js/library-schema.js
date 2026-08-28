@@ -152,8 +152,13 @@ function renderFamilyTemplates() {
         </div>
       </div>
       <div class="px-4 py-3 flex flex-col gap-2">
+        <!-- Phase 1C: demoted from a primary gold CTA — recurring-schedule application now
+             primarily happens from Weekly Schedule via "+ Lägg till → Från mall" (which also
+             offers merge/replace_sections/replace_day and custody scoping this dialog lacks).
+             Kept as a secondary/outline action, not removed — content management (this card)
+             stays here; applying it to a week is the canonical flow's job. -->
         <button onclick="openCopyFamilyTemplateDialog('${t.id}', '${escHtml(t.name)}')"
-          class="w-full px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
+          class="w-full px-4 py-2.5 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl font-semibold text-sm transition-colors">
           📥 Kopiera till barn
         </button>
         <div class="flex gap-2">
@@ -399,8 +404,9 @@ function renderStandardScheduleCards() {
           ${sectionsHtml}
         </div>
         <div class="px-4 py-3 border-t border-lavender bg-sky/30 space-y-2">
+          <!-- Phase 1C: demoted from a primary gold CTA — see rationale in renderFamilyTemplates() above. -->
           <button onclick="openScheduleCopyDialog('${s.id}', '${escHtml(s.name)}')"
-            class="w-full px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
+            class="w-full px-4 py-2.5 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl font-semibold text-sm transition-colors">
             📥 Kopiera till barn
           </button>
           ${_libIsAdmin ? `<a href="/admin#lib-schedules" target="_blank"
