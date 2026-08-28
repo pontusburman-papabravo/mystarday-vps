@@ -318,28 +318,238 @@ test('Phase 3 — effective-schedule precedence truth table (characterization + 
       assert.equal(afterSync.rows.length, 1, 'once-task must survive a weekly daily-log sync — never duplicated, never removed');
     });
 
-    // ═══ DUPLICATE-PRECEDENCE BUG FIX #1: weekly sync must not override an active period/Special Day ═══
-    await t.test('BUGFIX: syncDailyLogWithSchedule() must not inject weekly content into a date governed by an active Special Period', async () => {
-      const { familyId, childId } = await createTestFamilyWithChild(db);
-      const weeklyActivity = await seedActivity(db, familyId, 'WeeklyStray');
-      const periodActivity = await seedActivity(db, familyId, 'PeriodContent');
-      await seedWeeklyDay(db, childId, 2, [{ activityId: weeklyActivity }]); // Tuesday
-      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
-      const dateStr = '2027-12-07'; // a Tuesday
-      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_day' });
+    // ═══ FINAL CORRECTION — syncDailyLogWithSchedule() must reconcile against
+    // resolveEffectiveSchedule().items for EVERY base_type except a populated explicit Special
+    // Day, never skip a Special Period date wholesale (§1-§9, §10 A-I, §11). ═══════════════════
 
-      // Generate today's log — it must be period-governed (replace_day → only PeriodContent).
+    await t.test('A: weekly-only — mutating a weekly item and re-syncing updates the log correctly (existing behavior preserved)', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const activityId = await seedActivity(db, familyId, 'Frukost');
+      await seedWeeklyDay(db, childId, 1, [{ activityId, section: 'morgon' }]); // Monday
+      const dateStr = '2028-01-03'; // a Monday
+      const { log } = await getOrGenerateDailyLog(childId, dateStr);
+
+      await db.query(`UPDATE activity_template SET name = 'Frukost v2' WHERE id = $1`, [activityId]);
+      const result = await syncDailyLogWithSchedule(childId, 1, undefined, dateStr);
+      assert.equal(result.synced, true);
+
+      const afterSync = await db.query(`SELECT name FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      assert.deepEqual(afterSync.rows.map((r) => r.name), ['Frukost v2']);
+    });
+
+    await t.test('B: period merge (CRITICAL) — mutating the weekly item updates it, the period item is untouched, no duplicate, nothing lost', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'A');
+      const periodActivity = await seedActivity(db, familyId, 'B');
+      await seedWeeklyDay(db, childId, 2, [{ activityId: weeklyActivity, section: 'morgon' }]); // Tuesday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity, section: 'kvall' }]);
+      const dateStr = '2028-01-04'; // a Tuesday
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'merge' });
+
+      const { log, items } = await getOrGenerateDailyLog(childId, dateStr);
+      assert.deepEqual(items.map((i) => i.activity_template_id).sort(), [periodActivity, weeklyActivity].sort(), 'daily log must contain A + B on first generation');
+
+      await db.query(`UPDATE activity_template SET name = 'A v2' WHERE id = $1`, [weeklyActivity]);
+      const result = await syncDailyLogWithSchedule(childId, 2, undefined, dateStr);
+      assert.equal(result.synced, true, 'a period date must NEVER be skipped wholesale');
+
+      const afterSync = await db.query(`SELECT activity_template_id, name FROM daily_log_item WHERE daily_log_id = $1 ORDER BY sort_order`, [log.id]);
+      assert.equal(afterSync.rows.length, 2, 'exactly 2 rows — no duplicate B, nothing lost');
+      const byId = new Map(afterSync.rows.map((r) => [r.activity_template_id, r.name]));
+      assert.equal(byId.get(weeklyActivity), 'A v2', 'A must reflect the new weekly value');
+      assert.ok(byId.has(periodActivity), 'B (the period item) must remain, untouched by the weekly mutation');
+    });
+
+    await t.test('C: period merge — removing the weekly item from weekly removes it from the log (if not completed); period content preserved', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'A');
+      const periodActivity = await seedActivity(db, familyId, 'B');
+      const weeklyRow = await db.query(
+        'INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, 3::smallint, 3::integer) RETURNING id',
+        [childId]
+      );
+      await db.query(
+        `INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'morgon')`,
+        [weeklyRow.rows[0].id, weeklyActivity]
+      );
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity, section: 'kvall' }]);
+      const dateStr = '2028-01-05'; // a Wednesday
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'merge' });
+      const { log } = await getOrGenerateDailyLog(childId, dateStr);
+
+      await db.query(`DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1`, [weeklyRow.rows[0].id]);
+      const result = await syncDailyLogWithSchedule(childId, 3, undefined, dateStr);
+      assert.equal(result.synced, true);
+
+      const afterSync = await db.query(`SELECT activity_template_id FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      assert.deepEqual(afterSync.rows.map((r) => r.activity_template_id), [periodActivity], 'A removed (not completed), B (period content) preserved');
+    });
+
+    await t.test('D: replace_sections — removing/mutating the untouched weekly section behaves correctly; the replaced section never resurrects', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const morningA = await seedActivity(db, familyId, 'A');
+      const eveningOld = await seedActivity(db, familyId, 'B');
+      const eveningNew = await seedActivity(db, familyId, 'C');
+      const weeklyRow = await db.query(
+        'INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, 4::smallint, 4::integer) RETURNING id',
+        [childId]
+      );
+      await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'morgon')`, [weeklyRow.rows[0].id, morningA]);
+      const eveningItemRow = await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 1, 'kvall') RETURNING id`, [weeklyRow.rows[0].id, eveningOld]);
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: eveningNew, section: 'kvall' }]);
+      const dateStr = '2028-01-06'; // a Thursday
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_sections' });
+      const { log } = await getOrGenerateDailyLog(childId, dateStr);
+
+      // Mutate/remove the (already-replaced, thus irrelevant) weekly evening item.
+      await db.query(`DELETE FROM weekly_schedule_item WHERE id = $1`, [eveningItemRow.rows[0].id]);
+      let result = await syncDailyLogWithSchedule(childId, 4, undefined, dateStr);
+      assert.equal(result.synced, true);
+      let afterSync = await db.query(`SELECT activity_template_id FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      assert.deepEqual(afterSync.rows.map((r) => r.activity_template_id).sort(), [eveningNew, morningA].sort(), 'B must never appear — replace_sections already replaced kvall');
+
+      // Now mutate the untouched morgon item — it must update normally.
+      await db.query(`UPDATE activity_template SET name = 'A v2' WHERE id = $1`, [morningA]);
+      result = await syncDailyLogWithSchedule(childId, 4, undefined, dateStr);
+      assert.equal(result.synced, true);
+      afterSync = await db.query(`SELECT activity_template_id, name FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      const byId = new Map(afterSync.rows.map((r) => [r.activity_template_id, r.name]));
+      assert.equal(byId.get(morningA), 'A v2');
+      assert.ok(byId.has(eveningNew), 'C (period replacement) must remain');
+    });
+
+    await t.test('E: replace_day — mutating the (discarded) weekly item never injects it into the log', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'A');
+      const periodActivity = await seedActivity(db, familyId, 'B');
+      await seedWeeklyDay(db, childId, 5, [{ activityId: weeklyActivity }]); // Friday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      const dateStr = '2028-01-07'; // a Friday
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'replace_day' });
       const { log, items } = await getOrGenerateDailyLog(childId, dateStr);
       assert.deepEqual(items.map((i) => i.activity_template_id), [periodActivity]);
 
-      // Simulate an unrelated weekly-schedule edit for this day-of-week triggering a re-sync
-      // (this is exactly what routes like schedules/items.js do after a weekly mutation).
-      const result = await syncDailyLogWithSchedule(childId, 2, undefined, dateStr);
-      assert.equal(result.synced, false);
-      assert.equal(result.reason, 'not_weekly_base', 'the sync must recognize the period is authoritative and skip, not inject weekly content');
-
+      await db.query(`UPDATE activity_template SET name = 'A v2' WHERE id = $1`, [weeklyActivity]);
+      const result = await syncDailyLogWithSchedule(childId, 5, undefined, dateStr);
+      assert.equal(result.synced, true);
       const afterSync = await db.query(`SELECT activity_template_id FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
-      assert.deepEqual(afterSync.rows.map((r) => r.activity_template_id), [periodActivity], 'the log must remain exactly the period content — weekly must never have been injected');
+      assert.deepEqual(afterSync.rows.map((r) => r.activity_template_id), [periodActivity], 'still B only — no A injection under replace_day');
+    });
+
+    await t.test('F: exclusion — an excluded period item must not be re-added by a weekly-triggered sync', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'A');
+      const periodActivity = await seedActivity(db, familyId, 'B');
+      await seedWeeklyDay(db, childId, 6, [{ activityId: weeklyActivity }]); // Saturday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      const dateStr = '2028-01-08'; // a Saturday
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'merge' });
+      const { log } = await getOrGenerateDailyLog(childId, dateStr);
+      await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, $2, $3)`, [childId, dateStr, periodActivity]);
+
+      // Re-sync must reconcile the log down to the effective (exclusion-applied) set.
+      const result = await syncDailyLogWithSchedule(childId, 6, undefined, dateStr);
+      assert.equal(result.synced, true);
+      const afterSync = await db.query(`SELECT activity_template_id FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      assert.deepEqual(afterSync.rows.map((r) => r.activity_template_id), [weeklyActivity], 'B (excluded) must not be re-added — A only');
+    });
+
+    await t.test('G: populated explicit Special Day — weekly mutation must not touch the log; sync skips with explicit_special_day', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'A');
+      const explicitActivity = await seedActivity(db, familyId, 'X');
+      await seedWeeklyDay(db, childId, 0, [{ activityId: weeklyActivity }]); // Sunday
+      const dateStr = '2028-01-09'; // a Sunday
+      await seedExplicitSpecialDay(db, childId, dateStr, [{ activityId: explicitActivity }]);
+      const { log, items } = await getOrGenerateDailyLog(childId, dateStr);
+      assert.deepEqual(items.map((i) => i.activity_template_id), [explicitActivity]);
+
+      await db.query(`UPDATE activity_template SET name = 'A v2' WHERE id = $1`, [weeklyActivity]);
+      const result = await syncDailyLogWithSchedule(childId, 0, undefined, dateStr);
+      assert.equal(result.synced, false);
+      assert.equal(result.reason, 'explicit_special_day');
+      const afterSync = await db.query(`SELECT activity_template_id FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      assert.deepEqual(afterSync.rows.map((r) => r.activity_template_id), [explicitActivity], 'X unchanged — weekly A never injected');
+    });
+
+    await t.test('H: custody + period — generated log matches resolveEffectiveSchedule(); a weekly mutation to the currently-effective home updates correctly, period content preserved', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const homeA = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'A') RETURNING id`, [familyId]);
+      const homeB = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'B') RETURNING id`, [familyId]);
+      await db.query(
+        `INSERT INTO custody_pattern (child_id, anchor_date, interval_weeks, week_a_home_id, week_b_home_id, pattern_type) VALUES ($1, '2028-01-03', 2, $2, $3, 'alternate_weeks')`,
+        [childId, homeA.rows[0].id, homeB.rows[0].id]
+      );
+      const activityA = await seedActivity(db, familyId, 'HomeA');
+      const periodActivity = await seedActivity(db, familyId, 'PeriodContent');
+      await seedWeeklyDay(db, childId, 1, [{ activityId: activityA }], { custodyHomeId: homeA.rows[0].id, weekVariant: 'a' }); // Monday, anchor week = A
+      const dateStr = '2028-01-03'; // a Monday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'merge' });
+
+      const resolved = await resolveEffectiveSchedule(childId, dateStr);
+      const { log, items } = await getOrGenerateDailyLog(childId, dateStr);
+      assert.deepEqual(items.map((i) => i.activity_template_id).sort(), resolved.items.map((i) => i.activity_template_id).sort(), 'generated log must match resolveEffectiveSchedule() exactly');
+
+      await db.query(`UPDATE activity_template SET name = 'HomeA v2' WHERE id = $1`, [activityA]);
+      const result = await syncDailyLogWithSchedule(childId, 1, undefined, dateStr);
+      assert.equal(result.synced, true);
+      const afterSync = await db.query(`SELECT activity_template_id, name FROM daily_log_item WHERE daily_log_id = $1`, [log.id]);
+      const byId = new Map(afterSync.rows.map((r) => [r.activity_template_id, r.name]));
+      assert.equal(byId.get(activityA), 'HomeA v2', 'the correct custody-home weekly contribution must update');
+      assert.ok(byId.has(periodActivity), 'period contribution must be preserved');
+    });
+
+    await t.test('I: once-task survives a weekly-triggered sync on a period-backed log exactly once', async () => {
+      const { familyId, childId } = await createTestFamilyWithChild(db);
+      const weeklyActivity = await seedActivity(db, familyId, 'A');
+      const periodActivity = await seedActivity(db, familyId, 'B');
+      await seedWeeklyDay(db, childId, 2, [{ activityId: weeklyActivity }]); // Tuesday
+      const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity }]);
+      const dateStr = '2028-01-11'; // a Tuesday
+      await createSchedulePeriod({ familyId, childId, name: 'P', startDate: dateStr, endDate: dateStr, sourceType: 'family_template', sourceId: templateId, applyMode: 'merge' });
+      const { log } = await getOrGenerateDailyLog(childId, dateStr);
+      await db.query(
+        `INSERT INTO daily_log_item (daily_log_id, is_once_task, name, icon, star_value, sort_order, section) VALUES ($1, true, 'Engångsaktivitet', '⭐', 1, 99, 'dag')`,
+        [log.id]
+      );
+
+      const result = await syncDailyLogWithSchedule(childId, 2, undefined, dateStr);
+      assert.equal(result.synced, true);
+      const onceTaskRows = await db.query(`SELECT id FROM daily_log_item WHERE daily_log_id = $1 AND is_once_task = true`, [log.id]);
+      assert.equal(onceTaskRows.rows.length, 1, 'once-task must survive exactly once — never duplicated, never removed');
+    });
+
+    // ═══ §11 CANONICAL PARITY — after any weekly-triggered sync, the log's non-once-task,
+    // non-completed items must correspond exactly to resolveEffectiveSchedule().items ═════════
+    await t.test('Canonical parity: post-sync daily log matches resolveEffectiveSchedule().items for weekly / merge / replace_sections / replace_day', async () => {
+      const scenarios = [
+        { dow: 3, applyMode: null, date: '2028-01-12' }, // weekly only, Wednesday
+        { dow: 4, applyMode: 'merge', date: '2028-01-13' }, // Thursday
+        { dow: 5, applyMode: 'replace_sections', date: '2028-01-14' }, // Friday
+        { dow: 6, applyMode: 'replace_day', date: '2028-01-15' }, // Saturday
+      ];
+      for (const scenario of scenarios) {
+        const { familyId, childId } = await createTestFamilyWithChild(db);
+        const weeklyActivity = await seedActivity(db, familyId, 'A');
+        await seedWeeklyDay(db, childId, scenario.dow, [{ activityId: weeklyActivity, section: 'morgon' }]);
+        if (scenario.applyMode) {
+          const periodActivity = await seedActivity(db, familyId, 'B');
+          const templateId = await seedFamilyTemplate(db, familyId, [{ activityId: periodActivity, section: scenario.applyMode === 'replace_sections' ? 'morgon' : 'kvall' }]);
+          await createSchedulePeriod({ familyId, childId, name: 'P', startDate: scenario.date, endDate: scenario.date, sourceType: 'family_template', sourceId: templateId, applyMode: scenario.applyMode });
+        }
+        const { log } = await getOrGenerateDailyLog(childId, scenario.date);
+        await db.query(`UPDATE activity_template SET name = 'touched' WHERE id = $1`, [weeklyActivity]);
+        await syncDailyLogWithSchedule(childId, scenario.dow, undefined, scenario.date);
+
+        const resolved = await resolveEffectiveSchedule(childId, scenario.date);
+        const logItems = await db.query(`SELECT activity_template_id FROM daily_log_item WHERE daily_log_id = $1 AND is_once_task = false`, [log.id]);
+        assert.deepEqual(
+          logItems.rows.map((r) => r.activity_template_id).sort(),
+          resolved.items.map((i) => i.activity_template_id).sort(),
+          `parity failed for applyMode=${scenario.applyMode}`
+        );
+      }
     });
 
     // ═══ DUPLICATE-PRECEDENCE BUG FIX #2: emptying a Special Day must fall back, not empty the log ═══

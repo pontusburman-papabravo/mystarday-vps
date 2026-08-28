@@ -35,9 +35,10 @@ describe('custody-schedule-resolve', () => {
     assert.equal(weekVariantForHomeId(weeksSchedule, null), null);
   });
 
-  it('daily-log-generator still imports resolveWeeklyScheduleId', () => {
+  it('daily-log-generator delegates custody-aware resolution to resolveEffectiveSchedule() (Phase 3 — no longer imports resolveWeeklyScheduleId directly)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/lib/daily-log-generator.js'), 'utf8');
-    assert.match(src, /resolveWeeklyScheduleId/);
+    assert.match(src, /resolveEffectiveSchedule/);
+    assert.doesNotMatch(src, /resolveWeeklyScheduleId/, 'custody resolution must live only in effective-schedule.js, not be re-imported here');
     assert.doesNotMatch(src, /custody-resolver/);
     assert.doesNotMatch(src, /getWeekVariantForDate/);
   });

@@ -1185,8 +1185,10 @@ added, per "do not over-engineer."
 
 ### Custody contract (locked)
 
-Custody determines **only** the Weekly Schedule base (`resolveWeeklyScheduleId()` — unchanged
-since Phase 1A/1B). Special Period, explicit Special Day, and date exclusions are all
+Custody determines **only** the Weekly Schedule base (`resolveWeeklyScheduleId()`, called
+exclusively from `effective-schedule.js` since Phase 3 — see "Duplicate-precedence audit" below
+for why `daily-log-generator.js` no longer imports it directly). Special Period, explicit
+Special Day, and date exclusions are all
 child/date-scoped, never custody-home-scoped — none of `schedule_period`,
 `special_day_schedule`, or `schedule_date_exclusion` has a `custody_home_id` column, and none
 should. Conceptually: resolve the custody-correct weekly base first, then apply the child/date
@@ -1220,8 +1222,8 @@ a weekly daily-log sync untouched (never duplicated, never removed).
 | Caller | Purpose | Uses `source`? | Uses `items`? | Reimplements precedence? | Safe? | Action |
 |---|---|---|---|---|---|---|
 | `daily-log-generator.js` `resolveBaseItemsForLog()` (→ `getOrGenerateDailyLog()`, all first-time daily-log generation) | First-ever generation of a day's log | yes (`base_type` decides `generated_from`) | yes | no — delegates fully | yes | none |
-| `daily-log-generator.js` `syncDailyLogWithSchedule()` (15+ call sites: `schedules/apply.js`, `schedules/items.js`, `schedules/templates.js`, `schedules/fill-week.js`, `schedules/child-bulk.js`, `standard-library.js`, `special-day-schedules.js`, `onboarding.js`, `for-dig-activate.js`) | Re-sync an already-generated log after a WEEKLY mutation | **now yes** (Phase 3 fix) | yes | **partially — fixed in Phase 3** | **yes, after fix** | fixed (see below) |
-| `daily-log-generator.js` `syncDailyLogForSpecialDay()` (`special-day-schedules.js`, `schedules/child-bulk.js`) | Re-sync an already-generated log after a SPECIAL DAY mutation | **now yes, only for the empty-day fallback case** (Phase 3 fix) | yes | **partially — fixed in Phase 3** | **yes, after fix** | fixed (see below) |
+| `daily-log-generator.js` `syncDailyLogWithSchedule()` (15+ call sites: `schedules/apply.js`, `schedules/items.js`, `schedules/templates.js`, `schedules/fill-week.js`, `schedules/child-bulk.js`, `standard-library.js`, `special-day-schedules.js`, `onboarding.js`, `for-dig-activate.js`) | Re-sync an already-generated log, triggered by a WEEKLY mutation | yes (Phase 3 fix) | yes — reconciles the log against `resolveEffectiveSchedule().items` directly, for EVERY `base_type` except a populated `special_day` | no, since Phase 3 fix — canonical effective-items reconciliation, not a weekly-only guarded sync | yes, after fix | fixed (see below) |
+| `daily-log-generator.js` `syncDailyLogForSpecialDay()` (`special-day-schedules.js`, `schedules/child-bulk.js`) | Re-sync an already-generated log after a SPECIAL DAY mutation | yes, only for the empty-day fallback case (Phase 3 fix) | yes | no, for the case that mattered — fixed in Phase 3 | yes, after fix | fixed (see below) |
 | `daily-log-generator.js` `syncDailyLogsForTemplateChange()` (`activities.js`, `family-images.js`) | Re-sync when an activity_template's name/icon/star_value changes | no (delegates to `syncDailyLogWithSchedule`) | n/a | no | yes, transitively via the fix above | none |
 | `daily-log-generator.js` `generateLogsForAllChildren()` (`midnight-scheduler.js`) | Nightly batch generation for all children | no (delegates to `getOrGenerateDailyLog`) | n/a | no | yes | none |
 | `custody-handoff-scheduler.js`, `canonical-child-next-activity.js`, `first-star-starter.js`, `children.js`, `family/core.js`, `daily-logs/parent.js`, `daily-logs/child-self.js`, `schedules/child-crud.js` | Various — child dashboard, next-activity, handoff notifications, activation | no | yes | no — all call `getOrGenerateDailyLog()` | yes | none |
@@ -1236,13 +1238,25 @@ a weekly daily-log sync untouched (never duplicated, never removed).
 **Found and FIXED in this phase (both in `src/lib/daily-log-generator.js`):**
 
 1. **`syncDailyLogWithSchedule()` did not check whether weekly was even the authoritative base
-   for the date it was about to sync.** It is called after a weekly-schedule mutation to keep an
+   for the date it was about to sync, AND independently re-derived its desired item set from raw
+   `weekly_schedule`/`weekly_schedule_item`/`schedule_date_exclusion` queries rather than the
+   canonical resolver.** It is called after a weekly-schedule mutation to keep an
    *already-generated* log fresh, but it blindly injected/updated weekly items into that date's
    log even if a populated explicit Special Day or an active Special Period was actually
    governing that date — silently corrupting a period/special-day-governed log with unrelated
-   weekly content. **Fix:** it now calls `resolveEffectiveSchedule()` first and skips entirely
-   (`{ synced: false, reason: 'not_weekly_base' }`) unless `base_type` is `weekly` or `none`.
-   Classification: B (should delegate) — now does.
+   weekly content, or (in an earlier draft of this same fix) skipping every Special Period date
+   entirely and leaving the Weekly *contribution* of a `merge`/`replace_sections` period stale.
+   **Final fix:** the desired item set is now **always** `resolveEffectiveSchedule(childId,
+   syncDate).items` — the one exception is a populated explicit `special_day`, which is skipped
+   outright (`{ synced: false, reason: 'explicit_special_day' }`) because a weekly mutation must
+   never rewrite a log that's fully overridden by an explicit Special Day. For every other
+   `base_type` (`weekly`, `special_period` under any `apply_mode`, `none`), the function
+   reconciles the existing `daily_log_item` rows against `effective.items` using the exact same
+   add/remove/update loops it always used — it never re-implements custody, period composition,
+   or exclusion filtering itself; `resolveWeeklyScheduleId()` and the direct
+   `weekly_schedule_item`/`schedule_date_exclusion` queries were removed as now-dead duplicate
+   reads. Classification: B (should delegate) — now fully does, for both the "which base is
+   authoritative" question and the "what's the desired item set" question.
 2. **`syncDailyLogForSpecialDay()` treated "the special day just became empty" as "clear
    everything from the log,"** instead of the locked contract's "an empty explicit Special Day
    falls through to Period/Weekly." Before the fix, deleting the last item of a special day that
@@ -1253,10 +1267,21 @@ a weekly daily-log sync untouched (never duplicated, never removed).
    for the case that mattered; the non-empty case (the day has real content, which per precedence
    always wins outright) is unchanged and does not need to delegate.
 
+**§9 identity audit:** `daily_log_item` has a unique index on `(daily_log_id,
+activity_template_id) WHERE activity_template_id IS NOT NULL` — the execution/history layer
+intentionally collapses to at most **one row per activity_template_id per log**, regardless of
+section/start_time/end_time. This is a pre-existing execution-layer constraint (unchanged by
+Phase 3), coarser than the canonical planning-side duplicate-identity rule
+(`activity_template_id` + section + start/end time) used inside
+`composePeriodWithWeekly()` — which is exactly why that composition step already de-duplicates
+to that finer grain BEFORE `syncDailyLogWithSchedule()` ever sees the result. The reconciliation
+correctly continues to key on `activity_template_id` alone, matching the storage-layer grain it
+has always used; no identity semantics were changed.
+
 Both fixes are proven by dedicated regression tests in
-`test/effective-schedule-truth-table.test.js` ("BUGFIX:" tests) and were verified not to
-regress any of the ~50 existing daily-log tests, all Phase 1A/1B/1C/2 suites, or the custody
-suites (see "Tests" below).
+`test/effective-schedule-truth-table.test.js` (tests "A"–"I" plus the canonical-parity test) and
+were verified not to regress any of the ~50 existing daily-log tests, all Phase 1A/1B/1C/2
+suites, or the custody suites (see "Tests" below).
 
 **Found, classified, and deliberately NOT fixed in this phase — flagged for a future pass:**
 
@@ -1342,10 +1367,33 @@ plus tests plus docs only.
 
 ### Tests
 
-- `test/effective-schedule-truth-table.test.js` (new, 16 sub-tests covering all 19 truth-table
-  rows plus merge-duplicate-identity, canonical section order, the once-task boundary, and both
-  daily-log-generator bug-fix regressions end to end through `getOrGenerateDailyLog()`/
-  `syncDailyLogWithSchedule()`/`syncDailyLogForSpecialDay()`).
+- `test/effective-schedule-truth-table.test.js` (25 sub-tests): all 19 truth-table rows,
+  merge-duplicate-identity, canonical section order, the once-task boundary, the
+  `syncDailyLogForSpecialDay()` empty-day-fallback regression, a `getOrGenerateDailyLog()`
+  first-generation parity check, and the full required `syncDailyLogWithSchedule()` regression
+  matrix (A–I) plus a canonical-parity test across weekly/merge/replace_sections/replace_day:
+  - **A** weekly-only mutation still syncs correctly (pre-existing behavior preserved).
+  - **B** period `merge` — mutating the weekly item updates it, the period item is untouched,
+    no duplicate, nothing lost (the exact case the first draft of this fix got wrong).
+  - **C** period `merge` — removing the weekly item removes it from the log (if not completed),
+    period content preserved.
+  - **D** `replace_sections` — mutating/removing the (already-replaced) weekly item never
+    resurrects it; mutating the untouched section updates normally.
+  - **E** `replace_day` — mutating the discarded weekly item never injects it into the log.
+  - **F** an excluded period item is never re-added by a weekly-triggered sync.
+  - **G** a populated explicit Special Day is untouched by a weekly mutation; sync skips with
+    `reason: 'explicit_special_day'`.
+  - **H** custody + period — generated log matches `resolveEffectiveSchedule()` exactly; a
+    weekly mutation to the currently-effective custody home updates correctly, period content
+    preserved.
+  - **I** a once-task on a period-backed log survives a weekly-triggered sync exactly once.
+  - **Canonical parity** — for weekly/merge/replace_sections/replace_day, the post-sync
+    non-once-task daily-log items match `resolveEffectiveSchedule().items` exactly.
+- `test/custody-feat1b.test.js` and `test/custody-schedule-resolve.test.js` updated: both
+  previously asserted `daily-log-generator.js` directly imports `resolveWeeklyScheduleId()`
+  (true before this fix); now assert it delegates custody-aware resolution to
+  `resolveEffectiveSchedule()` instead, and no longer imports `resolveWeeklyScheduleId()`
+  directly (the direct import/queries were dead duplicate reads, removed per §8).
 - Full existing suites re-run green and unaffected: `test/effective-schedule.test.js`,
   `test/schedule-period.test.js`, `test/schedule-period-routes.test.js`,
   `test/schedule-period-frontend.test.js`, `test/daily-log-generator.test.js`,
@@ -1354,7 +1402,8 @@ plus tests plus docs only.
   `test/daily-log-child-order.test.js`, `test/daily-log-reorder.test.js`,
   `test/daily-log-nav-fix.test.js`, `test/daily-logs-authz-contract.test.js`, all Phase
   1A/1B/1C suites (`schedule-apply*.test.js`, `schedule-custody.test.js`,
-  `schedule-phase1c-retirement.test.js`), all custody suites, and the i18n parity suites.
+  `schedule-phase1c-retirement.test.js`), all custody suites (109 tests), and the i18n parity
+  suites.
 - `npm run lint`, `npm run lint:public`, `npm run check:css` all green (no diff produced by
   `check:css` — confirms no static asset drift). Full `npm run test:gate` green.
 
