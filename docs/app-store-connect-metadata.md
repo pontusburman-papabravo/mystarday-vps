@@ -4,6 +4,12 @@
 > Fyll i eventuella varianter (ditt land/reglering) vid behov.
 > Svensk text — översätt till engelska vid sidan av Apple Store Review.
 
+> **⚠️ Åtgärd krävs i App Store Connect (2026-08-28, korrigerad):** Apple avslog inlämningen — "does not include a functional link to the Terms of Use (EULA) in the app metadata that appears on the app's App Store product page." Vi använder **Apples Standard EULA** (ingen custom license agreement), så länken nedan går till Apples egen standard-EULA-URL — **inte** till våra egna `/terms` (som är plattformsneutrala och även gäller Android/Google Play; de ska inte kallas Apples EULA).
+>
+> **Var i App Store Connect:** Description ligger **inte** under den appövergripande *App Information*-fliken. Öppna appen → i sidomenyn under din plattform (iOS App), välj **den aktuella versionen** → uppdatera fältet **Description** där, för **varje aktiv lokalisering** (minst svenska och English (UK) — se `app-store-connect-metadata-en-GB.md`). Skapa **ingen** Custom License Agreement — behåll **Standard Apple License Agreement**. Skicka därefter in **samma build/submission** till review igen — ingen ny binary krävs. Se `docs/app-store-review-notes.md` för svarstext till Apple.
+>
+> **Ej i scope här:** våra egna `/terms` (Användarvillkor) behöver en separat uppdatering inför betalningslanseringen (de kan fortfarande antyda att appen är kostnadsfri) — det är en egen uppgift, inte del av denna metadata-fix, och ändras inte i denna PR.
+
 ---
 
 ## App Information
@@ -36,6 +42,9 @@ Barn loggar in med en egen PIN-kod och möts av en färgglad, stjärnbaserad vy.
 - Offline-läge — funkar även utan internet
 
 Passar för familjer med barn i åldrarna 3–10 år.
+
+Användarvillkor (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Integritetspolicy: [REDACTED]/privacy
 
 ---
 

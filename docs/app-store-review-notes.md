@@ -1,7 +1,42 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-08-07 | iOS build 30 (R4.5 no-ATT Meta attribution hardening)
+> Last updated: 2026-08-28 | Metadata rejection — missing Terms of Use (EULA) link (corrected)
+
+---
+
+## Metadata rejection — missing Terms of Use (EULA) link (2026-08-28, corrected)
+
+**Rejection:** *"The submission offers auto-renewable subscriptions but does not include a functional link to the Terms of Use (EULA) in the app metadata that appears on the app's App Store product page."*
+
+**Root cause:** This is the first submission with Apple subscription products live in App Store Connect (see `docs/PAYMENTS_V1_STATUS.md` — in-app billing UI is still off, but the ASC subscription group/products now exist, which triggers Apple's EULA-link requirement on the product page). The **App Description** pasted into App Store Connect never included a link to any Terms of Use / EULA, and no custom EULA is set in App Store Connect → License Agreement, so App Review found neither.
+
+**Correction (2026-08-28):** An earlier version of this fix linked the Description to our own `/terms` page and labelled it "EULA." That was wrong and has been corrected:
+- We use **Apple's Standard EULA** — not a custom license agreement — so the Description must link to **Apple's own standard EULA URL**, not to our app's Terms of Use.
+- Our own `/terms` page is **platform-neutral** (it also governs the Android/Google Play app) and must never be presented as Apple's EULA. `/terms` is unchanged by this fix and is **not** referenced from the App Description for this purpose.
+
+**Fix — App Store Connect metadata only, no new build required:**
+1. In App Store Connect, open the app and, in the sidebar, select the **current iOS app version** (Description is version-specific, localizable metadata — it does **not** live under the app-level *App Information* tab).
+2. Update the **Description** field for **every active localization** — at minimum **Swedish** and **English (UK)** — using the text in `docs/app-store-connect-metadata.md` (sv) / `docs/app-store-connect-metadata-en-GB.md` (en-GB). Both now end with a plain-text line pointing to Apple's own EULA: `Användarvillkor (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/` (`Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/` in English).
+3. Do **not** create a Custom License Agreement — keep **Standard Apple License Agreement** (License Agreement stays untouched/default).
+4. Re-submit the **same build/submission** for review (metadata-only change; no new binary required).
+
+**Paste into App Review Information → Notes (or as a reply to the rejection):**
+```
+Thank you for flagging this.
+
+We use Apple's Standard End User License Agreement (EULA), not a custom license agreement.
+
+We have now added a functional link to Apple's Standard EULA to the App Description on the App Store product page for all applicable localizations:
+
+https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
+Our Privacy Policy is also available in the App Store metadata.
+
+The issue was metadata-only and no binary changes were required.
+
+Thank you for reviewing the updated submission.
+```
 
 ---
 
