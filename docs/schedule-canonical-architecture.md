@@ -1454,7 +1454,35 @@ ready to be picked up whenever Calendar-adjacent work is next in scope.
 
 ## Phase 4 — final Planning IA + Calendar coherence + UX polish
 
-**Status: PHASE 4 READY FOR MERGE** (PR #1106 — draft, not merged, not deployed).
+**Status: PHASE 4 COMPLETE — merged, deployed, and production verified** (2026-08-29). <!-- pragma: allowlist secret -->
+
+| Field | Value |
+|---|---|
+| PR | #1106 — Fas 4 Final Planning IA + Calendar coherence + UX polish |
+| Final PR HEAD | `a3683cc37a63b204cfe3ee21df108551d11bbe3b` |
+| Merge commit (main) | `44bfaf85acc935f37db3a1d54abb547df8fc48a2` |
+| Deployed SHA (`/health`) | `44bfaf85acc935f37db3a1d54abb547df8fc48a2` |
+| Cache version | `stjarndag-v895` |
+| Deploy workflow | GitHub Actions `Deploy to VPS` run `33246200138` — success |
+| Migration | None |
+| CI at merge | Run `#5635` — success; E2E i18n English journey `#336` — success |
+
+**Live smoke (isolated disposable family, deleted afterward):** <!-- pragma: allowlist secret -->
+
+- Calendar canonical: weekly-only ✓ · period merge ✓ · `replace_sections` ✓ · `replace_day` ✓ · explicit Special Day ✓ · empty Special Day fallthrough ✓
+- Daily-log overlay: completion overlay ✓ · stale-log protection (removed planning never resurrects) ✓
+- Once-task: additive execution-only item ✓ · canonical planning unchanged ✓
+- Planering hub IA: Veckoschema/Kalender primary · Bibliotek under content · Boendeschema conditional · Daglig logg/PDF/Tilldela secondary ✓ (desktop + ~375px)
+- Weekly toolbar: `Schema` / `Visa ▾` / `+ Lägg till` primary · `Visa ▾` contains Listläge/Tidsvy/Jämför barn/Specialdagar/Skapa PDF ✓
+- Calendar bridge: `Hantera specialdagar & lov` visible and navigable ✓
+- Library: standard-schedule copy CTA secondary/outline (`Kopiera schema`) ✓
+- App Store 2.2: English option plain "English" · no Beta badge on login/settings surfaces ✓
+- VPS logs: no new CALENDAR / EFFECTIVE-SCHEDULE / custody / daily-log error spike in post-deploy window
+- Custody + period + log overlay: covered by `test:gate` (`test/calendar-week-canonical.test.js`, `test/custody-calendar.test.js`); not re-run on prod (requires `custody_schedule_beta` flag on isolated family)
+
+**Planering program:** COMPLETE. There is no Phase 5 — later work is normal product backlog / maintenance, not continuation of this architecture program.
+
+---
 
 Phase 4 is the final Planering phase: information architecture, navigation, Calendar coherence,
 progressive disclosure, and legacy-chrome demotion. The backend/domain model is stable as of
