@@ -132,9 +132,9 @@ describe('P0.1 account deletion authorization', () => {
   test('primary + co-parent: caller delete-account removes only caller', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const primary = await registerAndLogin(http.baseUrl, { name: 'Primary' });
       const familyId = await lookupFamilyId(db, primary.email);
@@ -146,8 +146,9 @@ describe('P0.1 account deletion authorization', () => {
       const before = await familyStateSnapshot(db, familyId);
 
       const delRes = await deleteAccount(http.baseUrl, primary);
-      assert.equal(delRes.status, 200, await delRes.text());
-      const body = await delRes.json();
+      const text = await delRes.text();
+      assert.equal(delRes.status, 200, text);
+      const body = JSON.parse(text);
       assert.equal(body.mode, 'self');
 
       const after = await familyStateSnapshot(db, familyId);
@@ -170,9 +171,9 @@ describe('P0.1 account deletion authorization', () => {
   test('last authorized adult: delete-account removes entire family', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const primary = await registerAndLogin(http.baseUrl, { name: 'Solo' });
       const familyId = await lookupFamilyId(db, primary.email);
@@ -181,8 +182,9 @@ describe('P0.1 account deletion authorization', () => {
       assert.ok(before.familyExists);
 
       const delRes = await deleteAccount(http.baseUrl, primary);
-      assert.equal(delRes.status, 200, await delRes.text());
-      const body = await delRes.json();
+      const text = await delRes.text();
+      assert.equal(delRes.status, 200, text);
+      const body = JSON.parse(text);
       assert.equal(body.mode, 'family');
 
       const after = await familyStateSnapshot(db, familyId);
@@ -198,9 +200,9 @@ describe('P0.1 account deletion authorization', () => {
   test('pedagog-only parent denied with zero mutation', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const tag = `ped-p01-${Date.now()}`;
       const password = `pw-${tag}`;
@@ -236,9 +238,9 @@ describe('P0.1 account deletion authorization', () => {
   test('revoked adult denied with zero mutation', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const primary = await registerAndLogin(http.baseUrl, { name: 'Primary' });
       const familyId = await lookupFamilyId(db, primary.email);
@@ -268,9 +270,9 @@ describe('P0.1 account deletion authorization', () => {
   test('unauthenticated delete-account denied', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const res = await fetch(`${http.baseUrl}/api/family/delete-account`, { method: 'DELETE' });
       assert.equal(res.status, 401);
@@ -283,9 +285,9 @@ describe('P0.1 account deletion authorization', () => {
   test('legacy delete-immediate returns 410', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const session = await registerAndLogin(http.baseUrl);
       const familyId = await lookupFamilyId(db, session.email);
@@ -311,9 +313,9 @@ describe('P0.1 account deletion authorization', () => {
   test('child session cannot delete-account', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const parent = await registerAndLogin(http.baseUrl, { name: 'Parent' });
       const familyId = await lookupFamilyId(db, parent.email);
@@ -356,9 +358,9 @@ describe('P0.1 account deletion authorization', () => {
   test('unrelated family unchanged when another family deletes self', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
-    const { createApp } = require('../app');
     let http;
     try {
+      const { createApp } = require('../app');
       http = await listenApp(createApp);
       const familyA = await registerAndLogin(http.baseUrl, { name: 'Family A' });
       const familyAId = await lookupFamilyId(db, familyA.email);
