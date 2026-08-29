@@ -49,6 +49,15 @@ describe('Phase 4 — Weekly Schedule chrome (advanced views under disclosure)',
     assert.match(fillWeekMatch[0], /class="hidden"/, 'fillWeekBtn must remain a hidden state marker, never a second visible mutation entry');
   });
 
+  it('Kalender links to Weekly Schedule\'s Specialdagar tab as an explicit secondary bridge for create/edit/delete (Calendar itself is read-only)', () => {
+    const html = read('public/calendar.html');
+    assert.match(html, /id="calendarManageSpecialDaysLink"/);
+    assert.match(html, /href="\/schedule\?view=special-days"/);
+    const src = read('public/js/calendar-page.js');
+    assert.match(src, /function updateManageSpecialDaysLink/);
+    assert.match(src, /view=special-days/);
+  });
+
   it('the disclosure reuses the existing overflow <details>/<summary> pattern (min-h-[44px] touch targets, no new component)', () => {
     const html = read('public/schedule.html');
     const detailsMatch = html.match(/<details class="relative">\s*<summary class="view-btn[\s\S]*?<\/details>/);

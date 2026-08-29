@@ -93,6 +93,7 @@
     "pageTitle": "Kalender — {{brand}}",
     "legacyTitle": "Kalender",
     "legacySub": "Se ditt barns schema vecka för vecka",
+    "manageSpecialDays": "🌟 Hantera specialdagar & lov",
     "loading": "Laddar kalender…",
     "errorGeneric": "Något gick fel. Försök igen.",
     "retry": "Försök igen",

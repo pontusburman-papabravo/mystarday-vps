@@ -93,6 +93,7 @@
     "pageTitle": "Calendar — {{brand}}",
     "legacyTitle": "Calendar",
     "legacySub": "See your child's schedule week by week",
+    "manageSpecialDays": "🌟 Manage special days & holidays",
     "loading": "Loading calendar…",
     "errorGeneric": "Something went wrong. Try again.",
     "retry": "Try again",
