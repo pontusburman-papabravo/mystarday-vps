@@ -4,7 +4,7 @@
 **Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1C COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 2 COMPLETE — merged, deployed, and verified.**
-**Status: PHASE 3 IN REVIEW** (PR pending — not merged, not deployed).
+**Status: PHASE 3 COMPLETE — merged, deployed, and verified.**
 
 - Merged via PR [#1093](https://github.com/pontusburman-papabravo/mystarday-vps/pull/1093) — <!-- pragma: allowlist secret -->
   merge commit `9512ec6cc1c6cf7fa3f9baab8199ac3af9f0f34f` on `main`.
@@ -1060,7 +1060,35 @@ final-precedence-contract locking.
 
 ## Phase 3 — resolver precedence contract + response-shape finalization
 
-**Status: PHASE 3 IN REVIEW** (PR pending — not merged, not deployed).
+**Status: PHASE 3 COMPLETE — merged, deployed, and verified.**
+
+- Merged via PR [#1105](https://github.com/pontusburman-papabravo/[REDACTED]-vps/pull/1105) — <!-- pragma: allowlist secret -->
+  ("Fas 3 — Lock effective-schedule precedence contract"), final reviewed HEAD
+  `eb8c09ce475f99054a7d184df4ad3ca7c68380de` — merge commit
+  `60ea7a3bf97351ba4df4dd9f370c11457c25583e` on `main`.
+- Deployed to the live app at `main` SHA `60ea7a3bf97351ba4df4dd9f370c11457c25583e`
+  (`Deploy to VPS` GitHub Actions run: success; no schema migration — `pending_migrations=0`
+  before the deploy's `migrate` step ran, post-migrate snapshot compare reported "no unexpected
+  drift").
+- Verified: `/health` green (`git_sha` matches the deployed merge commit exactly,
+  `cache_version: stjarndag-v891` — unchanged, no static assets touched by Phase 3), clean
+  server restart with no startup errors, no schedule/daily-log-related error spike in the
+  live-app service journal.
+- Live-app smoke test on an isolated, immediately-deleted sandbox family (never touched a real
+  customer family), exercising the exact observable backend/runtime behavior
+  Phase 3 changed (`resolveEffectiveSchedule()` and `syncDailyLogWithSchedule()`/
+  `syncDailyLogForSpecialDay()`): (A) weekly-only mutation reconciles correctly; (B) period
+  `merge` — mutating the weekly item updates it, the period item stays untouched, no duplicate
+  (the exact scenario the first draft of the daily-log fix got wrong); (C)–(D) `replace_sections`
+  / `replace_day` — the replaced/discarded weekly content never resurfaces after a weekly
+  mutation; (E) a populated explicit Special Day is untouched by a weekly mutation, sync skips
+  with `reason: 'explicit_special_day'`; (F) emptying an explicit Special Day falls through to
+  the composed Period+Weekly result instead of leaving the log empty; (G) the generated log for a
+  period date with an active exclusion matches `resolveEffectiveSchedule()` exactly; (H) a
+  once-task on a period-backed log survives a weekly-triggered sync exactly once. All 8
+  scenarios passed on the first run. Test family (and a second, incidentally-created one from an
+  unrelated test-script bug in scenario H's seeding, unrelated to product code) fully deleted
+  afterward; verified zero families/rows remaining.
 
 Phase 3 characterizes and locks `resolveEffectiveSchedule()`'s existing behavior as a stable,
 documented, tested public contract, and fixes two real duplicate-precedence bugs found by
