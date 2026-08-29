@@ -1,0 +1,37 @@
+---
+description: Store compliance — Apple/Google submission readiness must never be inferred from test/build status alone.
+globs: docs/release/**,scripts/release-compliance-gate.mjs,scripts/lib/release-compliance/**,config/release-compliance-gate.json
+alwaysApply: false
+---
+
+# 151 — Store Compliance (Apple / Google Release Readiness)
+
+**Owner docs:** [`docs/release/RELEASE_GATE_MODEL.md`](../../docs/release/RELEASE_GATE_MODEL.md) · [`STORE_SUBMISSION_CHECKLIST.md`](../../docs/release/STORE_SUBMISSION_CHECKLIST.md) · [`STORE_POLICY_SOURCES.md`](../../docs/release/STORE_POLICY_SOURCES.md)
+
+## Rule
+
+When asked whether the app is ready to submit to Apple or Google, the answer must **not** be based on test/build status alone.
+
+Before answering, the agent must:
+
+1. Run or assess **Gate A — technical release readiness** (`npm run release:pre-public-gate`).
+2. Run or assess **Gate B — store policy & legal compliance** (`npm run release:compliance`).
+3. Identify the **manual App Store Connect / Play Console checks** that remain (`docs/release/STORE_SUBMISSION_CHECKLIST.md`).
+4. Flag any policy risk found — do not silently drop a `FAIL` or `MANUAL_REVIEW_REQUIRED` finding from the summary.
+5. Distinguish explicitly between:
+   - **CODE READY** — `PASS` only with a fresh Gate A `PASS` on current HEAD; `NOT_VERIFIED` when Gate A artifact is missing/stale (never report `false`).
+   - **STORE READY** — Gate B status; `FAIL` only for verified **BLOCKER** dispositions (not ambiguous hits or closed-market placeholders).
+   - **SUBMISSION READY** — always `NOT_VERIFIED` from repo automation; human must complete the checklist.
+6. Treat **REVIEW** disposition hits and closed-market **NOT_APPLICABLE** surfaces as non-blockers — surface them, do not collapse into `FAIL`.
+
+**"Tests green" must never be equated with "ready for App Review."** A green `test:gate` says nothing about beta labeling, EULA links, Data Safety answers, or review-account state.
+
+## Policy currency
+
+At every Apple/Google submission decision, the current official store policy must be checked — see [`STORE_POLICY_SOURCES.md`](../../docs/release/STORE_POLICY_SOURCES.md). Memorized/training-data policy knowledge is not sufficient for a go/no-go call; policies change over time and this repo's checks encode structure, not the current legal text.
+
+## Forbidden
+
+- Reporting "ready to submit" without running or citing both `release:pre-public-gate` and `release:compliance`.
+- Treating `MANUAL_REVIEW_REQUIRED` as equivalent to `PASS`.
+- Answering a store-readiness question from training-data policy recall alone, without pointing to `STORE_POLICY_SOURCES.md` for live verification.
