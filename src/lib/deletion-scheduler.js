@@ -72,7 +72,7 @@ async function runDeletionJob() {
  * Execute due pending_deletion using the same administrative-authority
  * rules as DELETE /api/family/delete-account.
  */
-async function executeCascadeDelete({ id: parentId, email, family_id, deletion_requested_at }) {
+async function executeCascadeDelete({ id: parentId, email, family_id }) {
   const client = await db.getClient();
 
   try {

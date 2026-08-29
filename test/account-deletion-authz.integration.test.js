@@ -405,7 +405,6 @@ describe('P0.1 account deletion authorization', () => {
         headers: { Cookie: cookieHeader(childCookies) },
       });
       const delText = await delRes.text();
-      console.log('P0.1 CHILD SESSION DELETE', delRes.status, delText);
       assert.ok(delRes.status === 401 || delRes.status === 403, delText);
       const after = await familyStateSnapshot(db, familyId);
       assert.deepEqual(after, before);
