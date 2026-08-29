@@ -10,6 +10,11 @@ import {
   riskHints,
   riskToRecommendedLevel,
 } from './risk.mjs';
+import {
+  buildVerificationPlan,
+  collectLocalExecutionTests,
+  verificationPlanToRecommendedLevel,
+} from './verification-plan.mjs';
 
 /**
  * Route changed files to domains, tests, and verification level.
@@ -29,7 +34,6 @@ export function routeChangedFiles(root, options = {}) {
   const domainTestIndex = buildDomainTestIndex(root, domains);
   const domainSet = new Set();
   const reasons = [];
-  const riskPathHints = [];
   const unknownFiles = [];
 
   for (const file of changedFiles) {
@@ -41,11 +45,7 @@ export function routeChangedFiles(root, options = {}) {
       unknownFiles.push(file);
       const bucket = classifyUnknownFile(file, globalCore.unknownPolicy);
       reasons.push(`unknown:${file}→${bucket}`);
-      if (bucket === 'critical' || bucket === 'shared_core' || bucket === 'unmapped') {
-        riskPathHints.push(file);
-      }
       if (bucket === 'non_critical') {
-        // safe broaden — attach smoke only, no skip
         reasons.push(`safe_broaden:${file}`);
       }
     }
@@ -60,51 +60,37 @@ export function routeChangedFiles(root, options = {}) {
   );
   reasons.push(...riskReasons);
 
-  let recommendedLevel = riskToRecommendedLevel(riskClass, globalCore);
-
-  // Unknown critical/shared/unmapped → never below L3 recommendation when any such file exists
   const hasUnsafeUnknown = unknownFiles.some((f) => {
     const b = classifyUnknownFile(f, globalCore.unknownPolicy);
     return b === 'critical' || b === 'shared_core' || b === 'unmapped';
   });
   if (hasUnsafeUnknown) {
-    const floor = globalCore.unknownPolicy.unknownCriticalRecommendLevel || 'L3';
-    recommendedLevel = maxLevel(recommendedLevel, floor);
-    reasons.push(`unknown_fail_safe→${floor}`);
+    reasons.push(`unknown_fail_safe→${globalCore.unknownPolicy.unknownCriticalRecommendLevel || 'L3'}`);
   }
 
-  /** @type {string[]} */
-  let tests = [];
-  if (recommendedLevel === 'L1') {
-    tests = [...(globalCore.l1SmokeTests || [])];
-    for (const d of domainList) {
-      // L1: cap per-domain to first 3 tests for speed
-      tests.push(...(domainTestIndex[d] || []).slice(0, 3));
-    }
-  } else if (recommendedLevel === 'L2') {
-    for (const d of domainList) {
-      tests.push(...(domainTestIndex[d] || []));
-    }
-    if (!tests.length) {
-      tests = [...(globalCore.l1SmokeTests || [])];
-      reasons.push('L2_fallback_to_smoke_no_domain_tests');
-    }
-  } else {
-    reasons.push(`L3_use:${entry.l3Command}`);
-    tests = [];
+  const verificationPlan = buildVerificationPlan({
+    riskClass,
+    globalCore,
+    entry,
+    domainList,
+    domainTestIndex,
+    hasUnsafeUnknown,
+  });
+
+  if (verificationPlan.L2.l2NotResolved) {
+    reasons.push('L2_NOT_RESOLVED');
   }
 
-  tests = dedupeTests(tests);
-
-  if (hasUnsafeUnknown && recommendedLevel !== 'L3') {
-    reasons.push('NOTE:unsafe_unknown_present_consider_L3');
-  }
+  const recommendedLevel = verificationPlanToRecommendedLevel(verificationPlan);
+  const tests = collectLocalExecutionTests(verificationPlan);
 
   return {
     changedFiles,
+    riskClass,
     riskHints: [riskHints(riskClass, globalCore)],
     domains: domainList,
     recommendedLevel,
+    verificationPlan,
     tests,
     reason: reasons,
     meta: {
@@ -149,16 +135,6 @@ export function resolveDomainGate(root, domainIds, options = {}) {
  */
 export function dedupeTests(tests) {
   return [...new Set(tests)].sort();
-}
-
-const LEVEL_RANK = { L1: 1, L2: 2, L3: 3, L4: 4, L5: 5, L6: 6 };
-
-/**
- * @param {string} a
- * @param {string} b
- */
-function maxLevel(a, b) {
-  return (LEVEL_RANK[b] || 0) > (LEVEL_RANK[a] || 0) ? b : a;
 }
 
 export { loadRoutingConfig, buildDomainTestIndex };

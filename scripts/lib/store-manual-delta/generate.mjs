@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { matchAnyGlob, matchGlob } from '../test-routing/config.mjs';
+import { evaluateGateA, evaluateGateBC, resolveDeltaStatus } from './gate-status.mjs';
 
 /**
  * @param {string} root
@@ -23,6 +24,7 @@ export function generateStoreManualDelta(root, options = {}) {
 
   const selected = [];
   const reasons = [];
+  let hasAlwaysManualTrigger = false;
 
   for (const item of config.items) {
     if (!platforms.includes(item.platform)) continue;
@@ -30,11 +32,17 @@ export function generateStoreManualDelta(root, options = {}) {
     if (include) {
       selected.push(item);
       reasons.push({ id: item.id, why });
+      if (item.triggers?.alwaysManual) hasAlwaysManualTrigger = true;
     }
   }
 
   const unknownPaths = changedPaths.filter((p) => !isCoveredByAnyItem(p, config.items));
-  const needsManualReview = unknownPaths.length > 0 || selected.some((i) => i.triggers?.alwaysManual);
+  const { status, gateReasons } = resolveDeltaStatus({
+    gateA,
+    gateBC,
+    unknownPaths,
+    hasAlwaysManualTrigger,
+  });
 
   const byPlatform = {};
   for (const p of platforms) {
@@ -43,6 +51,9 @@ export function generateStoreManualDelta(root, options = {}) {
       ? items.map((i) => ({ id: i.id, label: i.label, section: i.section }))
       : null;
   }
+
+  const gateAEval = evaluateGateA(gateA);
+  const gateBCEval = evaluateGateBC(gateBC);
 
   return {
     profile,
@@ -53,11 +64,42 @@ export function generateStoreManualDelta(root, options = {}) {
     items: selected.map((i) => ({ id: i.id, platform: i.platform, label: i.label, section: i.section })),
     reasons,
     unknownPaths,
-    status: needsManualReview || unknownPaths.length ? 'MANUAL_REVIEW_REQUIRED' : 'DELTA_READY',
+    status,
+    gateReasons,
     checklistSource: config.checklistSource,
-    gateAStatus: gateA?.decision || gateA?.overallStatus || 'NOT_VERIFIED',
-    gateBCStatus: gateBC?.policyGate || gateBC?.overallStatus || 'NOT_VERIFIED',
+    gateAStatus: gateA?.overallStatus || gateA?.status || 'NOT_VERIFIED',
+    gateBCStatus: gateBC?.overallStatus || gateBC?.gateB?.status || 'NOT_VERIFIED',
+    gates: {
+      A: { status: gateA?.overallStatus || gateA?.status || 'NOT_VERIFIED', verified: gateAEval.verified, blocked: gateAEval.blocked },
+      B: { status: gateBC?.gateB?.status || 'NOT_VERIFIED', verified: gateBCEval.verified, blocked: gateBCEval.blocked },
+      C: { status: gateBC?.gateC?.status || 'NOT_VERIFIED' },
+    },
   };
+}
+
+/**
+ * Verify every configured item anchor exists in canonical checklist.
+ * @param {string} root
+ */
+export function validateChecklistAnchors(root) {
+  const configPath = path.join(root, 'config/store-manual-delta.json');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const checklistPath = path.join(root, config.checklistSource);
+  const checklist = fs.readFileSync(checklistPath, 'utf8');
+  const missing = [];
+
+  for (const item of config.items) {
+    const anchor = item.checklistAnchor;
+    if (!anchor) {
+      missing.push({ id: item.id, reason: 'missing_checklistAnchor' });
+      continue;
+    }
+    if (!checklist.includes(anchor)) {
+      missing.push({ id: item.id, anchor, reason: 'anchor_not_in_checklist' });
+    }
+  }
+
+  return { ok: missing.length === 0, missing, itemCount: config.items.length };
 }
 
 /**
@@ -77,9 +119,6 @@ function shouldIncludeItem(item, changedPaths, ctx) {
     const hit = changedPaths.filter((p) => t.paths.some((g) => matchGlob(p, g)));
     if (hit.length) return { include: true, why: `paths:${hit.join(',')}` };
   }
-  if (t.alwaysManual && changedPaths.length) {
-    return { include: true, why: 'always_manual_with_changes' };
-  }
   return { include: false, why: 'no_trigger' };
 }
 
@@ -96,7 +135,7 @@ function isCoveredByAnyItem(p, items) {
  * @param {string} rel
  */
 function loadJsonIfExists(root, rel) {
-  const full = path.join(root, rel);
+  const full = path.isAbsolute(rel) ? rel : path.join(root, rel);
   if (!fs.existsSync(full)) return null;
   try {
     return JSON.parse(fs.readFileSync(full, 'utf8'));
@@ -126,6 +165,11 @@ export function formatStoreManualDelta(delta) {
   if (delta.unknownPaths?.length) {
     lines.push('UNKNOWN PATHS — MANUAL REVIEW REQUIRED');
     for (const p of delta.unknownPaths) lines.push(`  · ${p}`);
+    lines.push('');
+  }
+  if (delta.gateReasons?.length) {
+    lines.push('GATE REASONS');
+    for (const r of delta.gateReasons) lines.push(`  · ${r}`);
     lines.push('');
   }
   lines.push(`Status: ${delta.status}`);

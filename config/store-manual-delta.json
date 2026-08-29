@@ -8,6 +8,7 @@
       "platform": "apple",
       "section": "Apple pre-submission",
       "label": "Select build in App Store Connect",
+      "checklistAnchor": "Confirm the correct build/version was actually submitted",
       "triggers": { "native": true, "alwaysOnNativeRelease": true }
     },
     {
@@ -15,6 +16,7 @@
       "platform": "apple",
       "section": "Auth / review access",
       "label": "Verify review account works on fresh build",
+      "checklistAnchor": "Review account works",
       "triggers": { "paths": ["src/routes/auth/**", "public/login.html", "public/child-login.html", "docs/app-store-demo-konto.md"], "auth": true }
     },
     {
@@ -22,6 +24,7 @@
       "platform": "apple",
       "section": "Metadata",
       "label": "Confirm screenshots match current app if UI changed",
+      "checklistAnchor": "Screenshots match the current app",
       "triggers": { "paths": ["public/**", "assets/**"], "ui": true }
     },
     {
@@ -29,6 +32,7 @@
       "platform": "apple",
       "section": "Privacy",
       "label": "Confirm App Privacy answers in App Store Connect",
+      "checklistAnchor": "App Store \"App Privacy\" answers match code",
       "triggers": { "paths": ["src/lib/**", "public/js/analytics*", "public/js/meta*", "docs/meta-app-events.md"], "privacy": true, "alwaysManual": true }
     },
     {
@@ -36,6 +40,7 @@
       "platform": "apple",
       "section": "Legal",
       "label": "Confirm EULA/Terms metadata in App Store Connect",
+      "checklistAnchor": "EULA/Terms correct",
       "triggers": { "paths": ["src/lib/legal-routing.js", "public/terms*", "public/privacy*"], "legal": true }
     },
     {
@@ -43,6 +48,7 @@
       "platform": "apple",
       "section": "Subscriptions / IAP",
       "label": "Confirm IAP/subscription products match app",
+      "checklistAnchor": "IAP/subscription metadata",
       "triggers": { "paths": ["src/routes/iap.js", "config/iap-product-contract.js", "public/js/iap*", "public/js/paywall*"], "iap": true }
     },
     {
@@ -50,6 +56,7 @@
       "platform": "apple",
       "section": "Subscriptions / IAP",
       "label": "Verify Restore Purchases on device",
+      "checklistAnchor": "Restore purchases",
       "triggers": { "paths": ["public/js/iap*", "src/routes/iap.js"], "iap": true }
     },
     {
@@ -57,6 +64,7 @@
       "platform": "apple",
       "section": "Apple pre-submission",
       "label": "Verify account deletion end-to-end on review build",
+      "checklistAnchor": "Account deletion",
       "triggers": { "paths": ["src/routes/family/account.js", "public/js/settings*"], "auth": true }
     },
     {
@@ -64,6 +72,7 @@
       "platform": "apple",
       "section": "Metadata",
       "label": "Update Review Notes for gated/flagged features",
+      "checklistAnchor": "Review Notes describe gated features",
       "triggers": { "paths": ["docs/app-store-review-notes.md", "src/lib/market-region.js", "config/**"], "featureFlags": true }
     },
     {
@@ -71,6 +80,7 @@
       "platform": "apple",
       "section": "Apple pre-submission",
       "label": "Confirm backend services live during review window",
+      "checklistAnchor": "All backend services are live during review",
       "triggers": { "alwaysOnNativeRelease": true }
     },
     {
@@ -78,6 +88,7 @@
       "platform": "google",
       "section": "Google pre-submission",
       "label": "Confirm correct production vs testing track",
+      "checklistAnchor": "Production vs testing tracks correct",
       "triggers": { "native": true, "alwaysOnNativeRelease": true }
     },
     {
@@ -85,6 +96,7 @@
       "platform": "google",
       "section": "Privacy",
       "label": "Confirm Play Data Safety answers match code",
+      "checklistAnchor": "Data Safety matches actual code",
       "triggers": { "paths": ["src/lib/**", "android/**", "docs/meta-app-events.md"], "privacy": true, "alwaysManual": true }
     },
     {
@@ -92,6 +104,7 @@
       "platform": "google",
       "section": "Auth / review access",
       "label": "Verify app access / reviewer credentials in Play Console",
+      "checklistAnchor": "App access / reviewer access",
       "triggers": { "paths": ["src/routes/auth/**", "docs/app-store-demo-konto.md"], "auth": true }
     },
     {
@@ -99,6 +112,7 @@
       "platform": "google",
       "section": "Google pre-submission",
       "label": "Confirm store listing screenshots match build",
+      "checklistAnchor": "Screenshots/store listing",
       "triggers": { "paths": ["public/**", "assets/play-store/**"], "ui": true }
     },
     {
@@ -106,6 +120,7 @@
       "platform": "google",
       "section": "Google pre-submission",
       "label": "Confirm target API level meets Play minimum",
+      "checklistAnchor": "Target API level",
       "triggers": { "paths": ["android/**", "assets/play-store/android-sdk.json"], "native": true }
     },
     {
@@ -113,6 +128,7 @@
       "platform": "google",
       "section": "Subscriptions / IAP",
       "label": "Confirm subscription/base plan state matches READY BUT OFF docs",
+      "checklistAnchor": "Subscription/base plan/offer state",
       "triggers": { "paths": ["config/iap-product-contract.js", "docs/PAYMENTS_V1_STATUS.md"], "iap": true }
     },
     {
@@ -120,6 +136,7 @@
       "platform": "google",
       "section": "Google pre-submission",
       "label": "Confirm permissions declarations in Play Console",
+      "checklistAnchor": "Permissions declarations",
       "triggers": { "paths": ["android/**", "scripts/patch-android-manifest.mjs"], "native": true }
     },
     {
@@ -127,6 +144,7 @@
       "platform": "google",
       "section": "Google pre-submission",
       "label": "Verify account deletion path + Data Safety declaration",
+      "checklistAnchor": "Account deletion requirements",
       "triggers": { "paths": ["src/routes/family/account.js"], "auth": true }
     }
   ],

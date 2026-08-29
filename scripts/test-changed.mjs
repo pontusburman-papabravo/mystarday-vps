@@ -10,6 +10,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routeChangedFiles } from './lib/test-routing/route.mjs';
+import { collectLocalExecutionTests, resolveExecutionOutcome } from './lib/test-routing/verification-plan.mjs';
 import { runTests } from './lib/test-routing/run.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -50,9 +51,24 @@ test:changed — L1 changed-files router (config/test-routing.json)
   npm run test:changed -- --files path/a.js path/b.js
   npm run test:changed -- --min-risk R3 --json
 
-Output: JSON plan by default with --json, else human summary.
-Unknown critical/shared paths never map to "no test needed".
+Cumulative verification plan (L1+L2+L3+releaseReview) — not a single level.
+Execute runs local L1/L2; exit 1=local fail, 2=L3/release still required, 0=all local done.
 `);
+}
+
+function summarizePlan(plan) {
+  const vp = plan.verificationPlan;
+  console.log('L1 CHANGED-FILES ROUTER');
+  console.log(`Changed: ${plan.changedFiles.length} file(s)`);
+  console.log(`Domains: ${plan.domains.join(', ') || '(none)'}`);
+  console.log(`Risk: ${plan.riskClass} → ${plan.recommendedLevel} (display)`);
+  console.log('Verification plan:');
+  console.log(`  L1 required=${vp.L1.required} tests=${vp.L1.tests.length}`);
+  console.log(`  L2 required=${vp.L2.required} domains=${vp.L2.domains.join(',') || '(none)'} tests=${vp.L2.tests.length}${vp.L2.l2NotResolved ? ' L2_NOT_RESOLVED' : ''}`);
+  console.log(`  L3 required=${vp.L3.required} command=${vp.L3.command}`);
+  console.log(`  releaseReview=${vp.releaseReview}`);
+  for (const r of plan.reason.slice(0, 12)) console.log(`  · ${r}`);
+  if (plan.reason.length > 12) console.log(`  · … +${plan.reason.length - 12} more`);
 }
 
 function main() {
@@ -73,35 +89,49 @@ function main() {
   if (args.json) {
     console.log(JSON.stringify(plan, null, 2));
   } else {
-    console.log('L1 CHANGED-FILES ROUTER');
-    console.log(`Changed: ${plan.changedFiles.length} file(s)`);
-    console.log(`Domains: ${plan.domains.join(', ') || '(none)'}`);
-    console.log(`Risk: ${plan.meta.riskClass} → ${plan.recommendedLevel}`);
-    console.log(`Tests: ${plan.tests.length} file(s)`);
-    if (plan.recommendedLevel === 'L3') {
-      console.log(`L3: run ${plan.meta.l3Command}`);
-    }
-    for (const r of plan.reason.slice(0, 12)) console.log(`  · ${r}`);
-    if (plan.reason.length > 12) console.log(`  · … +${plan.reason.length - 12} more`);
+    summarizePlan(plan);
   }
 
   if (!args.execute) {
     process.exit(0);
   }
 
-  if (plan.recommendedLevel === 'L3') {
-    console.error(`Execute skipped: recommendedLevel=L3 — run ${plan.meta.l3Command}`);
-    process.exit(2);
+  const localTests = collectLocalExecutionTests(plan.verificationPlan);
+  const started = Date.now();
+  let runResult = { ok: true, skipped: true, tests: [] };
+
+  if (localTests.length) {
+    runResult = runTests(ROOT, localTests);
+  } else if (plan.verificationPlan.L1.required || plan.verificationPlan.L2.required) {
+    runResult = { ok: true, skipped: false, tests: [], reason: 'no_local_tests_resolved' };
   }
 
-  const started = Date.now();
-  const result = runTests(ROOT, plan.tests);
-  const payload = { ...plan, execution: { ...result, wallMs: Date.now() - started } };
-  if (args.json) console.log(JSON.stringify(payload.execution, null, 2));
-  else {
-    console.log(`\nExecution: ${result.ok ? 'PASS' : 'FAIL'} (${payload.execution.wallMs}ms)`);
+  const outcome = resolveExecutionOutcome(plan.verificationPlan, runResult);
+  const execution = {
+    ...runResult,
+    wallMs: Date.now() - started,
+    localTests,
+    outcome: outcome.status,
+    l3Required: outcome.l3Required,
+    releaseReviewRequired: outcome.releaseReviewRequired,
+    l3Command: outcome.l3Command,
+  };
+
+  if (args.json) {
+    console.log(JSON.stringify({ execution }, null, 2));
+  } else {
+    if (outcome.status === 'LOCAL_FAIL') {
+      console.log(`\nExecution: LOCAL_FAIL (${execution.wallMs}ms)`);
+    } else if (outcome.status === 'L3_REQUIRED') {
+      console.log(`\nExecution: LOCAL_PASS (${execution.wallMs}ms) — L3_REQUIRED: run ${outcome.l3Command}`);
+    } else if (outcome.status === 'RELEASE_REVIEW_REQUIRED') {
+      console.log(`\nExecution: LOCAL_PASS (${execution.wallMs}ms) — RELEASE_REVIEW_REQUIRED`);
+    } else {
+      console.log(`\nExecution: LOCAL_PASS (${execution.wallMs}ms)`);
+    }
   }
-  process.exit(result.ok ? 0 : 1);
+
+  process.exit(outcome.exitCode);
 }
 
 main();
