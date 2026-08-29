@@ -9,15 +9,7 @@ const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
-const {
-  deletionConsequenceForCaller,
-  lockFamilyDeletionAuthority,
-  hardDeleteFamilyData,
-  removeParentFromFamily,
-  cleanupFamilyAvatarsAfterCommit,
-  cleanupParentAvatarAfterCommit,
-  invalidateParentSessions,
-} = require('../../lib/family-deletion');
+const familyDeletion = require('../../lib/family-deletion');
 
 const router = express.Router();
 
@@ -32,9 +24,10 @@ function clearSessionCookies(res) {
 // deletion only for the last authorized administrative adult.
 router.delete('/delete-account', requireParent, requireNotPedagogOnly, async (req, res) => {
   const client = await db.getClient();
-  let familyIdForAvatarCleanup = null;
-  let parentIdForAvatarCleanup = null;
+  let capturedAvatarKeys = [];
   let deletionMode = null;
+  let committed = false;
+  let selfParentId = null;
 
   try {
     const parentRow = await client.query(
@@ -49,28 +42,30 @@ router.delete('/delete-account', requireParent, requireNotPedagogOnly, async (re
     const familyId = parentRow.rows[0].family_id;
 
     await client.query('BEGIN');
-    await lockFamilyDeletionAuthority(client, familyId);
-    const impact = await deletionConsequenceForCaller(client, parentId, familyId);
+    await familyDeletion.lockFamilyDeletionAuthority(client, familyId);
+    const impact = await familyDeletion.deletionConsequenceForCaller(client, parentId, familyId);
     if (impact.mode === 'denied') {
       await client.query('ROLLBACK');
       return res.status(403).json({ error: 'Åtkomst nekad. Kontot har inte behörighet att radera familjedata.' });
     }
 
     if (impact.mode === 'family') {
-      deletionMode = 'family';
-      familyIdForAvatarCleanup = familyId;
-      await hardDeleteFamilyData(client, familyId);
+      capturedAvatarKeys = await familyDeletion.collectFamilyAvatarStorageKeys(client, familyId);
+      await familyDeletion.hardDeleteFamilyData(client, familyId);
     } else {
-      deletionMode = 'self';
-      parentIdForAvatarCleanup = parentId;
-      await removeParentFromFamily(client, {
+      const parentKey = await familyDeletion.collectParentAvatarStorageKey(client, parentId);
+      capturedAvatarKeys = parentKey ? [parentKey] : [];
+      await familyDeletion.removeParentFromFamily(client, {
         parentId,
         familyId,
         revokedBy: parentId,
       });
+      selfParentId = parentId;
     }
 
     await client.query('COMMIT');
+    committed = true;
+    deletionMode = impact.mode;
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     console.error('[FAMILY] delete-account error:', err);
@@ -84,18 +79,17 @@ router.delete('/delete-account', requireParent, requireNotPedagogOnly, async (re
     client.release();
   }
 
-  if (deletionMode === 'family') {
-    await cleanupFamilyAvatarsAfterCommit(familyIdForAvatarCleanup);
-  } else if (deletionMode === 'self') {
-    await cleanupParentAvatarAfterCommit(parentIdForAvatarCleanup);
-    await invalidateParentSessions(parentIdForAvatarCleanup, req.user.familyId);
+  if (committed) {
+    await familyDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
+    if (deletionMode === 'self') {
+      await familyDeletion.invalidateParentSessions(selfParentId, req.user.familyId);
+    }
+    clearSessionCookies(res);
+    return res.json({
+      success: true,
+      mode: deletionMode,
+    });
   }
-
-  clearSessionCookies(res);
-  res.json({
-    success: true,
-    mode: deletionMode,
-  });
 });
 
 module.exports = router;

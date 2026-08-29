@@ -13,6 +13,8 @@ const { cookieHeader, listenApp, getSetCookieHeaders, mergeCookies } = require('
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
 const { hashPassword } = require('../src/lib/hash');
 const { routeChangedFiles } = require('../scripts/lib/test-routing/route.mjs');
+const familyDeletion = require('../src/lib/family-deletion');
+const avatarStorage = require('../src/lib/avatar-storage');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -247,6 +249,37 @@ describe('P0.1 account deletion authorization', () => {
     }
   });
 
+  test('empty family with another legitimate holder: caller self-leaves', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'EmptyPrimary' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const passwordHash = await hashPassword('empty-hold-12');
+      await db.query(
+        `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed)
+         VALUES ($1, $2, $3, 'Holder', true, true)`,
+        [`empty-hold-${Date.now()}@example.com`, passwordHash, familyId]
+      );
+      const fam = await fetchFamily(http.baseUrl, primary);
+      assert.equal(fam.deletion_impact.mode, 'self');
+      const delRes = await deleteAccount(http.baseUrl, primary);
+      const text = await delRes.text();
+      assert.equal(delRes.status, 200, text);
+      assert.equal(JSON.parse(text).mode, 'self');
+      const after = await familyStateSnapshot(db, familyId);
+      assert.equal(after.familyExists, true);
+      assert.equal(after.childIds.length, 0);
+      assert.equal(after.parentIds.length, 1);
+    } finally {
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
   test('pedagog-only parent denied with zero mutation', async (t) => {
     const db = await setupTestDb();
     if (db.skip) return t.skip('No real DATABASE_URL');
@@ -308,6 +341,38 @@ describe('P0.1 account deletion authorization', () => {
       );
       const before = await familyStateSnapshot(db, familyId);
       const delRes = await deleteAccount(http.baseUrl, coparent);
+      assert.equal(delRes.status, 403, await delRes.text());
+      const after = await familyStateSnapshot(db, familyId);
+      assert.deepEqual(after, before);
+    } finally {
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('revoked last adult with child is denied and does not wipe family', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'OrphanRevoked' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const childId = await createChild(http.baseUrl, primary, { name: 'Kvar', emoji: '⭐' });
+      const primaryId = (
+        await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [primary.email.toLowerCase()])
+      ).rows[0].id;
+      await db.query(
+        `UPDATE parent_child SET revoked_at = NOW(), revoked_by = $2 WHERE parent_id = $1 AND child_id = $3`,
+        [primaryId, primaryId, childId]
+      );
+      const fam = await fetchFamily(http.baseUrl, primary);
+      assert.equal(fam.deletion_impact.mode, 'denied');
+      const before = await familyStateSnapshot(db, familyId);
+      assert.equal(before.childIds.length, 1);
+      assert.equal(activeAdminLinks(before).length, 0);
+      const delRes = await deleteAccount(http.baseUrl, primary);
       assert.equal(delRes.status, 403, await delRes.text());
       const after = await familyStateSnapshot(db, familyId);
       assert.deepEqual(after, before);
@@ -752,16 +817,135 @@ describe('P0.1 account deletion authorization', () => {
 });
 
 describe('P0.1 avatar rollback safety', () => {
-  test('family deletion cleans avatars after DB commit', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/account.js'), 'utf8');
-    assert.match(src, /await client\.query\('COMMIT'\)/);
-    assert.match(src, /cleanupFamilyAvatarsAfterCommit/);
-    assert.doesNotMatch(src, /await deleteAvatarsForFamily\([\s\S]*COMMIT/s);
+  test('family deletion captures keys then deletes those objects after commit', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'AvatarFam' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const childId = await createChild(http.baseUrl, primary, { name: 'AvatarKid', emoji: '🌟' });
+      const parentId = (
+        await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [primary.email.toLowerCase()])
+      ).rows[0].id;
+      const childKey = `avatars-private/p01-family-child-${childId}.jpg`;
+      const parentKey = `avatars-private/p01-family-parent-${parentId}.jpg`;
+      await db.query('UPDATE child SET avatar_storage_key = $2 WHERE id = $1', [childId, childKey]);
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [parentId, parentKey]);
+      const captured = await familyDeletion.collectFamilyAvatarStorageKeys(db, familyId);
+      assert.deepEqual([...captured].sort(), [childKey, parentKey].sort());
+      const delRes = await deleteAccount(http.baseUrl, primary);
+      assert.equal(delRes.status, 200, await delRes.text());
+      const after = await familyStateSnapshot(db, familyId);
+      assert.equal(after.familyExists, false);
+      assert.deepEqual([...deleted].sort(), [childKey, parentKey].sort());
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      if (http) await http.close();
+      await db.cleanup();
+    }
   });
 
-  test('self-removal cleans parent avatar after DB commit', () => {
+  test('self-removal captures caller parent key then deletes that object after commit', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'AvatarSelf' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const childId = await createChild(http.baseUrl, primary, { name: 'StayKid', emoji: '⭐' });
+      const coparent = await inviteAndAcceptCoParent(http.baseUrl, db, primary, childId);
+      const primaryId = (
+        await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [primary.email.toLowerCase()])
+      ).rows[0].id;
+      const stayId = (
+        await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [coparent.email.toLowerCase()])
+      ).rows[0].id;
+      const callerKey = `avatars-private/p01-self-parent-${primaryId}.jpg`;
+      const stayKey = `avatars-private/p01-self-stay-${stayId}.jpg`;
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [primaryId, callerKey]);
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [stayId, stayKey]);
+      const captured = await familyDeletion.collectParentAvatarStorageKey(db, primaryId);
+      assert.equal(captured, callerKey);
+      const delRes = await deleteAccount(http.baseUrl, primary);
+      assert.equal(delRes.status, 200, await delRes.text());
+      const after = await familyStateSnapshot(db, familyId);
+      assert.equal(after.familyExists, true);
+      assert.ok(after.parentIds.includes(stayId));
+      assert.deepEqual(deleted, [callerKey]);
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('DB rollback after key capture does not delete storage objects', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    const origHardDelete = familyDeletion.hardDeleteFamilyData;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    familyDeletion.hardDeleteFamilyData = async () => {
+      throw new Error('forced family delete failure');
+    };
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'AvatarRollback' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const childId = await createChild(http.baseUrl, primary, { name: 'KeepKid', emoji: '🌟' });
+      const parentId = (
+        await db.query('SELECT id FROM parent WHERE LOWER(email) = $1', [primary.email.toLowerCase()])
+      ).rows[0].id;
+      const childKey = `avatars-private/p01-rollback-child-${childId}.jpg`;
+      const parentKey = `avatars-private/p01-rollback-parent-${parentId}.jpg`;
+      await db.query('UPDATE child SET avatar_storage_key = $2 WHERE id = $1', [childId, childKey]);
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [parentId, parentKey]);
+      const before = await familyStateSnapshot(db, familyId);
+      const captured = await familyDeletion.collectFamilyAvatarStorageKeys(db, familyId);
+      assert.deepEqual([...captured].sort(), [childKey, parentKey].sort());
+      const delRes = await deleteAccount(http.baseUrl, primary);
+      assert.equal(delRes.status, 500, await delRes.text());
+      const after = await familyStateSnapshot(db, familyId);
+      assert.deepEqual(after, before);
+      assert.deepEqual(deleted, []);
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      familyDeletion.hardDeleteFamilyData = origHardDelete;
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('family deletion route collects keys before COMMIT and cleans after', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/routes/family/account.js'), 'utf8');
-    assert.match(src, /cleanupParentAvatarAfterCommit/);
+    assert.match(src, /collectFamilyAvatarStorageKeys/);
+    assert.match(src, /await client\.query\('COMMIT'\)/);
+    assert.match(src, /cleanupAvatarStorageKeysAfterCommit/);
+    const collectIdx = src.indexOf('collectFamilyAvatarStorageKeys');
+    const commitIdx = src.indexOf("await client.query('COMMIT')");
+    const cleanupIdx = src.indexOf('cleanupAvatarStorageKeysAfterCommit');
+    assert.ok(collectIdx > 0 && collectIdx < commitIdx);
+    assert.ok(cleanupIdx > commitIdx);
   });
 });
 

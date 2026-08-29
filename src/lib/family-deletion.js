@@ -1,6 +1,6 @@
 'use strict';
 
-const { deleteAvatarsForFamily, deleteAvatarForParentRecord } = require('./avatar-service');
+const avatarStorage = require('./avatar-storage');
 const { revokeAllActiveLinksForParent } = require('../../db/parent-child-links');
 const { revokeAllRefreshTokens } = require('./refresh-tokens');
 const {
@@ -45,7 +45,7 @@ async function callerHasAdministrativeAuthority(client, parentId, familyId) {
 
 /**
  * Family parents who are not pedagog-only (no active links, or at least one
- * primary/shared). Used when the family has no administrative child links yet.
+ * primary/shared). Used only when the family has zero children.
  * @param {{ query: Function }} executor
  */
 async function listNonPedagogFamilyParentIds(executor, familyId, excludeParentId = null) {
@@ -82,6 +82,14 @@ async function listNonPedagogFamilyParentIds(executor, familyId, excludeParentId
  * @param {{ query: Function }} executor
  * @returns {Promise<{ mode: 'self' | 'family' | 'denied' }>}
  */
+async function countFamilyChildren(executor, familyId) {
+  const { rows } = await executor.query(
+    'SELECT COUNT(*)::int AS n FROM child WHERE family_id = $1',
+    [familyId]
+  );
+  return rows[0]?.n || 0;
+}
+
 async function deletionConsequenceForCaller(executor, parentId, familyId) {
   const adults = await listAuthorizedAdministrativeAdultIds(executor, familyId);
   if (adults.includes(parentId)) {
@@ -89,6 +97,9 @@ async function deletionConsequenceForCaller(executor, parentId, familyId) {
     return { mode: otherAdults.length === 0 ? 'family' : 'self' };
   }
   if (adults.length > 0) {
+    return { mode: 'denied' };
+  }
+  if (await countFamilyChildren(executor, familyId) > 0) {
     return { mode: 'denied' };
   }
   const holders = await listNonPedagogFamilyParentIds(executor, familyId);
@@ -232,25 +243,53 @@ async function removeParentFromFamily(client, { parentId, familyId, revokedBy })
 }
 
 /**
- * Best-effort avatar cleanup after successful commit.
- * @param {string} familyId
+ * Capture avatar object keys before destructive row deletes. Must run on the
+ * same transaction client so COMMIT/ROLLBACK still owns the rows.
+ * @param {import('pg').PoolClient} client
+ * @returns {Promise<string[]>}
  */
-async function cleanupFamilyAvatarsAfterCommit(familyId) {
-  try {
-    await deleteAvatarsForFamily(familyId);
-  } catch (err) {
-    console.warn('[FAMILY] post-commit avatar cleanup failed for family', familyId, err.message);
-  }
+async function collectFamilyAvatarStorageKeys(client, familyId) {
+  const { rows: childRows } = await client.query(
+    `SELECT avatar_storage_key FROM child
+     WHERE family_id = $1 AND avatar_storage_key IS NOT NULL`,
+    [familyId]
+  );
+  const { rows: parentRows } = await client.query(
+    `SELECT avatar_storage_key FROM parent
+     WHERE family_id = $1 AND avatar_storage_key IS NOT NULL`,
+    [familyId]
+  );
+  const keys = new Set();
+  for (const row of childRows) keys.add(row.avatar_storage_key);
+  for (const row of parentRows) keys.add(row.avatar_storage_key);
+  return [...keys];
 }
 
 /**
- * @param {string} parentId
+ * @param {import('pg').PoolClient} client
+ * @returns {Promise<string|null>}
  */
-async function cleanupParentAvatarAfterCommit(parentId) {
+async function collectParentAvatarStorageKey(client, parentId) {
+  const { rows } = await client.query(
+    `SELECT avatar_storage_key FROM parent
+     WHERE id = $1 AND avatar_storage_key IS NOT NULL`,
+    [parentId]
+  );
+  return rows[0]?.avatar_storage_key || null;
+}
+
+/**
+ * Best-effort object delete after successful COMMIT. Failure is logged.
+ * @param {string[]} keys
+ */
+async function cleanupAvatarStorageKeysAfterCommit(keys) {
+  const list = (keys || []).filter(Boolean);
   try {
-    await deleteAvatarForParentRecord(parentId);
+    for (const key of list) {
+      await avatarStorage.deletePrivateObject(key);
+    }
   } catch (err) {
-    console.warn('[FAMILY] post-commit avatar cleanup failed for parent', parentId, err.message);
+    console.warn('[FAMILY] post-commit avatar cleanup failed', err.message);
   }
 }
 
@@ -269,7 +308,8 @@ module.exports = {
   lockFamilyDeletionAuthority,
   hardDeleteFamilyData,
   removeParentFromFamily,
-  cleanupFamilyAvatarsAfterCommit,
-  cleanupParentAvatarAfterCommit,
+  collectFamilyAvatarStorageKeys,
+  collectParentAvatarStorageKey,
+  cleanupAvatarStorageKeysAfterCommit,
   invalidateParentSessions,
 };

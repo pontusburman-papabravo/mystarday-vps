@@ -55,11 +55,14 @@ describe('family avatar v1 — settings magic group', () => {
 });
 
 describe('family avatar v1 — lifecycle cleanup', () => {
-  it('delete-account path cleans avatars after successful commit', () => {
+  it('delete-account path cleans captured avatar keys after successful commit', () => {
     const account = fs.readFileSync(path.join(__dirname, '../src/routes/family/account.js'), 'utf8');
     const deletion = fs.readFileSync(path.join(__dirname, '../src/lib/family-deletion.js'), 'utf8');
-    assert.match(account, /cleanupFamilyAvatarsAfterCommit/);
-    assert.match(deletion, /deleteAvatarsForFamily/);
+    assert.match(account, /collectFamilyAvatarStorageKeys/);
+    assert.match(account, /cleanupAvatarStorageKeysAfterCommit/);
+    assert.match(deletion, /collectFamilyAvatarStorageKeys/);
+    assert.match(deletion, /avatarStorage\.deletePrivateObject/);
+    assert.doesNotMatch(account, /deleteAvatarsForFamily/);
   });
 });
 
