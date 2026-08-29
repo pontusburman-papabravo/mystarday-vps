@@ -1,0 +1,5 @@
+{
+  "workflowPath": ".github/workflows/ci.yml",
+  "requiredJobs": ["test"],
+  "source": "gh-cli"
+}

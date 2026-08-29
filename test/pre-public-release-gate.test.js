@@ -220,6 +220,7 @@ test('orchestrator --help starts (no TDZ on require)', () => {
   assert.equal(r.status, 0, r.stderr || r.stdout);
   assert.match(r.stdout, /public-runtime/);
   assert.match(r.stdout, /native-store/);
+  assert.match(r.stdout, /--ci-evidence-file/);
 });
 
 test('admin release-readiness route exists in system.js', () => {

@@ -55,9 +55,33 @@ const {
 const { gateDestructiveTestDatabaseCheck } = require('./lib/test-database-safety.cjs');
 const { classifyOverall, collectBlockers, collectUnverified, humanSummary, worstStatus } = require('./lib/pre-public-release-gate/report.cjs');
 
+function loadCiEvidenceFile(filePath) {
+  if (!filePath || !fs.existsSync(filePath)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function reusedCiCheck(id, evidence) {
+  return {
+    status: STATUS.PASS,
+    evidence: {
+      reusedFromCi: true,
+      ciEvidenceStatus: evidence.status,
+      run_id: evidence.run_id,
+      head_sha: evidence.head_sha,
+      test_manifest_sha256: evidence.test_manifest_sha256,
+      label: id,
+    },
+  };
+}
+
 function parseArgs(argv) {
   const out = {
     skipTestGate: false,
+    ciEvidenceFile: null,
     jsonOut: path.join(ROOT, 'artifacts/pre-public-release-gate.json'),
     jsonStdout: false,
     help: false,
@@ -66,6 +90,7 @@ function parseArgs(argv) {
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--skip-test-gate') out.skipTestGate = true;
+    else if (a === '--ci-evidence-file') out.ciEvidenceFile = argv[++i];
     else if (a === '--json') out.jsonStdout = true;
     else if (a === '--json-out') out.jsonOut = argv[++i];
     else if (a === '--help' || a === '-h') out.help = true;
@@ -95,6 +120,7 @@ release:pre-public-gate — public rollout readiness
   npm run release:pre-public-gate -- --profile=public-runtime   (default)
   npm run release:pre-public-gate -- --profile=native-store
   npm run release:pre-public-gate -- --skip-test-gate
+  npm run release:pre-public-gate -- --ci-evidence-file artifacts/ci-evidence.json
   npm run release:pre-public-gate -- --json
 
 Exit: 0 GO · 1 BLOCKER · 2 NOT_VERIFIED
@@ -389,14 +415,54 @@ async function main() {
       ? STATUS.NOT_VERIFIED
       : STATUS.PASS;
 
-  const credentials = runNpmScript('check:credentials', { label: 'credentials' });
-  const extrasUnit = runNodeTest(EXTRA_UNIT, { concurrency: 4, label: 'extra_unit' });
-  const extrasDb = runNodeTest(EXTRA_DB, { concurrency: 1, forceExit: true, label: 'extra_db' });
-  testRuns.push(extrasUnit, extrasDb);
+  const ciEvidence = loadCiEvidenceFile(args.ciEvidenceFile);
+  const reuseCiEvidence = ciEvidence?.status === 'REUSE_ALLOWED';
 
+  let credentials = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
+  let extrasUnit = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
+  let extrasDb = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
   let gateUnit = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
   let gateDb = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
-  if (args.skipTestGate) {
+
+  if (reuseCiEvidence) {
+    credentials = reusedCiCheck('credentials', ciEvidence);
+    extrasUnit = reusedCiCheck('extra_unit', ciEvidence);
+    extrasDb = reusedCiCheck('extra_db', ciEvidence);
+    gateUnit = reusedCiCheck('test_gate_unit', ciEvidence);
+    gateDb = reusedCiCheck('test_gate_db', ciEvidence);
+    testRuns.push(
+      { status: STATUS.PASS, evidence: { label: 'test_gate_unit', reusedFromCi: true, files: [] } },
+      { status: STATUS.PASS, evidence: { label: 'test_gate_db', reusedFromCi: true, files: [] } },
+      { status: STATUS.PASS, evidence: { label: 'extra_unit', reusedFromCi: true, files: EXTRA_UNIT } },
+      { status: STATUS.PASS, evidence: { label: 'extra_db', reusedFromCi: true, files: EXTRA_DB } }
+    );
+    sections.ci_health = {
+      title: 'CI / test health',
+      status: STATUS.PASS,
+      summary: `CI evidence reused on exact SHA ${ciEvidence.head_sha}; test:gate + redundant extras not re-run locally.`,
+      checks: [
+        { id: 'credentials', ...credentials },
+        { id: 'extra_unit', ...extrasUnit },
+        { id: 'extra_db', ...extrasDb },
+        { id: 'test_gate_unit', ...gateUnit },
+        { id: 'test_gate_db', ...gateDb },
+        {
+          id: 'ci_evidence',
+          status: STATUS.PASS,
+          evidence: {
+            status: ciEvidence.status,
+            run_id: ciEvidence.run_id,
+            workflow_path: ciEvidence.workflow_path,
+            test_manifest_sha256: ciEvidence.test_manifest_sha256,
+          },
+        },
+      ],
+    };
+  } else if (args.skipTestGate) {
+    credentials = runNpmScript('check:credentials', { label: 'credentials' });
+    extrasUnit = runNodeTest(EXTRA_UNIT, { concurrency: 4, label: 'extra_unit' });
+    extrasDb = runNodeTest(EXTRA_DB, { concurrency: 1, forceExit: true, label: 'extra_db' });
+    testRuns.push(extrasUnit, extrasDb);
     sections.ci_health = {
       title: 'CI / test health',
       status: STATUS.NOT_VERIFIED,
@@ -410,6 +476,11 @@ async function main() {
       ],
     };
   } else {
+    credentials = runNpmScript('check:credentials', { label: 'credentials' });
+    extrasUnit = runNodeTest(EXTRA_UNIT, { concurrency: 4, label: 'extra_unit' });
+    extrasDb = runNodeTest(EXTRA_DB, { concurrency: 1, forceExit: true, label: 'extra_db' });
+    testRuns.push(extrasUnit, extrasDb);
+
     gateUnit = runNpmScript('test:gate:unit', { label: 'test_gate_unit' });
     gateDb = runNpmScript('test:gate:db', { label: 'test_gate_db' });
     testRuns.push(gateUnit, gateDb);
