@@ -124,6 +124,7 @@ export function evaluateCiEvidence(input) {
     if (!workflowCheck.ok) {
       return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, workflowCheck.reason, {
         step: workflowCheck.step,
+        job: workflowCheck.job,
         expectedIncludes: workflowCheck.expectedIncludes,
         actualRun: workflowCheck.actualRun,
       });

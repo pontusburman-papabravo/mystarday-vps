@@ -13,7 +13,7 @@ const {
 } = require('../scripts/lib/ci-evidence/manifest.mjs');
 const { validateCiEvidenceForGateReuse } = require('../scripts/lib/ci-evidence/gate-reuse.mjs');
 const { verifyWorkflowStepContracts } = require('../scripts/lib/ci-evidence/workflow-contract.mjs');
-const { buildPreflightReport, formatHumanReport } = require('../scripts/release-preflight.mjs');
+const { buildPreflightReport, formatHumanReport, deriveCiReuseFromGateA } = require('../scripts/release-preflight.mjs');
 const { EXTRA_UNIT, EXTRA_DB } = require('../scripts/lib/pre-public-release-gate/manifest.cjs');
 const { mapFilesToAreaStatus } = require('../scripts/lib/pre-public-release-gate/run-checks.cjs');
 const { STATUS } = require('../scripts/lib/pre-public-release-gate/constants.cjs');
@@ -29,6 +29,8 @@ const REQUIRED_STEP_CONTRACTS = [
   { job: 'test', stepName: 'Migration rollback gate (G3c)', runIncludes: 'migration-rollback-gate' },
 ];
 const SAMPLE_WORKFLOW_YAML = `
+jobs:
+  test:
     steps:
       - name: Credential leak guard
         run: npm run check:credentials
@@ -187,6 +189,8 @@ describe('ci-evidence evaluate', () => {
     const result = evaluateCiEvidence(
       baseInput({
         workflowYaml: `
+jobs:
+  test:
     steps:
       - name: Credential leak guard
         run: npm run check:credentials
@@ -289,22 +293,51 @@ describe('ci-evidence gate reuse hardening', () => {
     assert.equal(seen.status, STATUS.PASS);
   });
 
-  test('verifyWorkflowStepContracts rejects gutted Test step', () => {
+  test('verifyWorkflowStepContracts rejects gutted Test step in required job', () => {
     const bad = verifyWorkflowStepContracts(
       `
+jobs:
+  test:
     steps:
       - name: Test
         run: echo "tests temporarily disabled"
 `,
-      [{ stepName: 'Test', runIncludes: 'test:gate' }]
+      [{ job: 'test', stepName: 'Test', runIncludes: 'test:gate' }]
     );
     assert.equal(bad.ok, false);
     assert.equal(bad.reason, 'workflow_step_run_mismatch');
+    assert.equal(bad.job, 'test');
+  });
+
+  test('verifyWorkflowStepContracts is job-scoped — wrong job cannot satisfy contract', () => {
+    const yaml = `
+jobs:
+  other:
+    steps:
+      - name: Test
+        run: npm run test:gate
+  test:
+    steps:
+      - name: Credential leak guard
+        run: npm run check:credentials
+      - name: Test
+        run: echo "tests disabled"
+      - name: Migration rollback gate (G3c)
+        run: node --test test/migration-rollback-gate.test.js
+`;
+    const result = evaluateCiEvidence(
+      baseInput({
+        workflowYaml: yaml,
+      })
+    );
+    assert.equal(result.status, EVIDENCE_STATUS.REUSE_FORBIDDEN);
+    assert.equal(result.reason, 'workflow_step_run_mismatch');
+    assert.equal(result.job, 'test');
   });
 });
 
 describe('release-preflight report', () => {
-  test('reuse path marks CODE PASS and lists skipped checks', () => {
+  test('reuse path uses Gate A ciReuse as source of truth', () => {
     const report = buildPreflightReport({
       headSha: HEAD_SHA,
       fullMode: false,
@@ -313,17 +346,85 @@ describe('release-preflight report', () => {
         run_id: '999',
         head_sha: HEAD_SHA,
       },
-      gateA: { overallStatus: 'PASS', exitCode: 0, profile: 'public-runtime' },
+      gateA: {
+        overallStatus: 'PASS',
+        exitCode: 0,
+        profile: 'public-runtime',
+        ciReuse: {
+          requested: true,
+          revalidatedStatus: 'REUSE_ALLOWED',
+          actuallyReused: true,
+          runId: '999',
+        },
+      },
       compliance: { overallStatus: 'PASS', exitCode: 0 },
       timings: { totalMs: 12000 },
-      skippedChecks: ['test:gate:unit', 'test:gate:db'],
     });
     assert.equal(report.final, 'READY');
     assert.equal(report.sections.code.status, 'PASS');
     assert.equal(report.ciEvidenceReused, true);
+    assert.deepEqual(report.skippedChecks, [
+      'check:credentials',
+      'test:gate:unit',
+      'test:gate:db',
+      'EXTRA_UNIT',
+      'EXTRA_DB',
+    ]);
     const human = formatHumanReport(report);
     assert.match(human, /CI evidence reused/);
     assert.match(human, /run_id: 999/);
+  });
+
+  test('initial REUSE_ALLOWED but Gate A actuallyReused false → no false reuse claim', () => {
+    const report = buildPreflightReport({
+      headSha: HEAD_SHA,
+      fullMode: false,
+      ciEvidence: {
+        status: EVIDENCE_STATUS.REUSE_ALLOWED,
+        run_id: '999',
+        head_sha: HEAD_SHA,
+      },
+      gateA: {
+        overallStatus: 'PASS',
+        exitCode: 0,
+        profile: 'public-runtime',
+        ciReuse: {
+          requested: true,
+          revalidatedStatus: 'REUSE_FORBIDDEN',
+          actuallyReused: false,
+          fallback: 'local_test_gate',
+        },
+      },
+      compliance: { overallStatus: 'PASS', exitCode: 0 },
+      timings: { totalMs: 120000 },
+    });
+    assert.equal(report.final, 'READY');
+    assert.equal(report.sections.code.status, 'PASS');
+    assert.equal(report.ciEvidenceReused, false);
+    assert.equal(report.sections.code.testGateVerifiedOnExactSha, false);
+    assert.deepEqual(report.skippedChecks, []);
+    const human = formatHumanReport(report);
+    assert.doesNotMatch(human, /CI evidence reused/);
+    assert.match(human, /Gate A revalidated: REUSE_FORBIDDEN/);
+    assert.match(human, /local test:gate verification/);
+  });
+
+  test('deriveCiReuseFromGateA ignores initial evidence object', () => {
+    const state = deriveCiReuseFromGateA(
+      {
+        overallStatus: 'PASS',
+        exitCode: 0,
+        ciReuse: {
+          requested: true,
+          revalidatedStatus: 'NOT_VERIFIED',
+          actuallyReused: false,
+          fallback: 'local_test_gate',
+        },
+      },
+      false
+    );
+    assert.equal(state.ciEvidenceReused, false);
+    assert.deepEqual(state.skippedChecks, []);
   });
 
   test('NOT_VERIFIED CI evidence forces BLOCKED final when gate A not pass', () => {

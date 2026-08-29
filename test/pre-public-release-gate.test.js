@@ -203,6 +203,12 @@ test('classifyOverall: BLOCKER wins over NOT_VERIFIED', () => {
   assert.equal(r.exitCode, EXIT.GO);
 });
 
+test('orchestrator reports ciReuse on Gate A JSON', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /ciReuse/);
+  assert.match(src, /actuallyReused/);
+  assert.match(src, /revalidatedStatus/);
+});
 test('orchestrator revalidates CI evidence instead of trusting JSON file', () => {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
   assert.match(src, /validateCiEvidenceForGateReuse/);

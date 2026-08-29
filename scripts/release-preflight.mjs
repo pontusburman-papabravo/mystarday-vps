@@ -123,6 +123,51 @@ function buildFinalStatus(codeStatus, releaseSpecificStatus, storePolicyStatus) 
   return FINAL.READY;
 }
 
+const SKIPPED_ON_CI_REUSE = [
+  'check:credentials',
+  'test:gate:unit',
+  'test:gate:db',
+  'EXTRA_UNIT',
+  'EXTRA_DB',
+];
+
+/**
+ * Gate A is the source of truth for whether CI evidence was actually reused.
+ * @param {object|null} gateA
+ * @param {boolean} fullMode
+ */
+export function deriveCiReuseFromGateA(gateA, fullMode) {
+  if (fullMode) {
+    return {
+      ciEvidenceReused: false,
+      skippedChecks: [],
+      runId: null,
+      testGateVerifiedOnExactSha: false,
+      ciReuse: gateA?.ciReuse || null,
+    };
+  }
+
+  const ciReuse = gateA?.ciReuse;
+  if (!ciReuse?.requested) {
+    return {
+      ciEvidenceReused: false,
+      skippedChecks: [],
+      runId: null,
+      testGateVerifiedOnExactSha: gateA?.overallStatus === 'PASS' && gateA?.exitCode === 0,
+      ciReuse: ciReuse || null,
+    };
+  }
+
+  const actuallyReused = ciReuse.actuallyReused === true;
+  return {
+    ciEvidenceReused: actuallyReused,
+    skippedChecks: actuallyReused ? [...SKIPPED_ON_CI_REUSE] : [],
+    runId: actuallyReused ? ciReuse.runId || null : null,
+    testGateVerifiedOnExactSha: actuallyReused,
+    ciReuse,
+  };
+}
+
 export function buildPreflightReport({
   headSha,
   fullMode,
@@ -130,13 +175,18 @@ export function buildPreflightReport({
   gateA,
   compliance,
   timings,
-  skippedChecks = [],
 }) {
-  const codeReuse = ciEvidence?.status === EVIDENCE_STATUS.REUSE_ALLOWED && !fullMode;
+  const reuseState = deriveCiReuseFromGateA(gateA, fullMode);
+  const codeReuse = reuseState.ciEvidenceReused;
   const gateAClass = classifyGateA(gateA);
   const complianceClass = classifyCompliance(compliance);
 
-  const codeStatus = gateAClass.status === 'BLOCKER' ? 'BLOCKER' : codeReuse || gateAClass.status === 'PASS' ? 'PASS' : gateAClass.status;
+  const codeStatus =
+    gateAClass.status === 'BLOCKER'
+      ? 'BLOCKER'
+      : codeReuse || gateAClass.status === 'PASS'
+        ? 'PASS'
+        : gateAClass.status;
   const releaseSpecificStatus =
     gateAClass.status === 'BLOCKER' ? 'BLOCKER' : gateAClass.status === 'NOT_VERIFIED' ? 'NOT_VERIFIED' : 'PASS';
 
@@ -147,14 +197,18 @@ export function buildPreflightReport({
     mode: fullMode ? 'full' : 'standard',
     ciEvidence: ciEvidence || null,
     ciEvidenceReused: codeReuse,
-    skippedChecks,
+    skippedChecks: reuseState.skippedChecks,
+    ciReuse: reuseState.ciReuse,
     timings,
     sections: {
       code: {
         status: codeStatus,
         ciEvidenceReused: codeReuse,
-        runId: ciEvidence?.run_id || null,
-        testGateVerifiedOnExactSha: codeReuse || gateAClass.status === 'PASS',
+        runId: reuseState.runId,
+        testGateVerifiedOnExactSha: reuseState.testGateVerifiedOnExactSha,
+        verification: codeReuse
+          ? 'ci_evidence_reused'
+          : reuseState.ciReuse?.fallback || (gateAClass.status === 'PASS' ? 'local_test_gate' : null),
       },
       releaseSpecific: {
         status: releaseSpecificStatus,
@@ -184,7 +238,10 @@ export function formatHumanReport(report) {
     lines.push('CI evidence reused');
     if (code.runId) lines.push(`run_id: ${code.runId}`);
     lines.push('test:gate: verified on exact SHA');
-  } else if (report.ciEvidence?.status === EVIDENCE_STATUS.NOT_VERIFIED) {
+  } else if (report.ciReuse?.requested && report.ciReuse?.actuallyReused === false) {
+    lines.push(`CI reuse requested; Gate A revalidated: ${report.ciReuse.revalidatedStatus}`);
+    lines.push('local test:gate verification');
+  } else if (report.ciEvidence?.status === EVIDENCE_STATUS.NOT_VERIFIED && !report.ciReuse?.requested) {
     lines.push('CI EVIDENCE: NOT_VERIFIED');
     lines.push('LOCAL TESTING REQUIRED');
   } else if (report.mode === 'full') {
@@ -217,7 +274,6 @@ export async function runReleasePreflight(options = {}) {
   const timings = { phases: {} };
 
   let ciEvidence = null;
-  let skippedChecks = [];
 
   if (!options.full && !args.full) {
     const t0 = Date.now();
@@ -230,7 +286,6 @@ export async function runReleasePreflight(options = {}) {
   const gateAArgs = ['--profile', args.profile, '--json-out', args.gateAJsonOut];
   if (ciEvidence?.status === EVIDENCE_STATUS.REUSE_ALLOWED && !args.full && !options.full) {
     gateAArgs.push('--ci-evidence-file', args.ciEvidenceOut);
-    skippedChecks = ['check:credentials', 'test:gate:unit', 'test:gate:db', 'EXTRA_UNIT', 'EXTRA_DB'];
   }
 
   const t1 = Date.now();
@@ -255,7 +310,6 @@ export async function runReleasePreflight(options = {}) {
     gateA,
     compliance,
     timings,
-    skippedChecks,
   });
 
   report.process = {

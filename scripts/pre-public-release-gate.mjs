@@ -419,7 +419,8 @@ async function main() {
   const testManifest = loadTestManifest(ROOT);
   let ciEvidence = null;
   let reuseCiEvidence = false;
-  if (args.ciEvidenceFile) {
+  const ciReuseRequested = Boolean(args.ciEvidenceFile);
+  if (ciReuseRequested) {
     ciEvidence = validateCiEvidenceForGateReuse({
       root: ROOT,
       candidateSha,
@@ -596,6 +597,17 @@ async function main() {
     ],
   };
 
+  const ciReuse = ciReuseRequested
+    ? {
+        requested: true,
+        revalidatedStatus: ciEvidence?.status || 'NOT_VERIFIED',
+        actuallyReused: reuseCiEvidence,
+        ...(reuseCiEvidence
+          ? { runId: ciEvidence?.run_id || null }
+          : { fallback: 'local_test_gate' }),
+      }
+    : null;
+
   const report = {
     schema: 'stjarndag.pre_public_release_gate.v2',
     generatedAt: new Date().toISOString(),
@@ -604,6 +616,7 @@ async function main() {
     candidateSha,
     exactCommand: `NODE_ENV=test REQUIRE_EMAIL_VERIFICATION=false npm run release:pre-public-gate -- --profile=${args.profile}`,
     widget: 'EXCLUDED_PAUSED',
+    ciReuse,
     sections,
     remainingManualWork: [],
   };
