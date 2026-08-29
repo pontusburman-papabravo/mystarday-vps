@@ -14,17 +14,22 @@ Canonical verification levels for repos using the global process core.
 ## L1 — Changed-files router
 
 - Config: `config/test-routing.json` + `config/process/global-core.json` + project overlay
-- Unknown **critical/shared** paths → recommend **L3** (fail-safe; never "no test needed")
+- Unknown **critical/shared/unmapped** paths → **R3 / HIGH** + **L3** (fail-safe; never "no test needed")
 - Unknown non-critical docs → L1 smoke broaden
 - Output: machine-readable JSON (`changedFiles`, `domains`, `riskHints`, `recommendedLevel`, `tests`, `reason`)
 
-## L2 — Domain gates (8 domains)
+## L2 — Domain gates
+
+Broad domains (8) plus Parent Experience overlays:
 
 ```
 auth-security · payments-iap · i18n-markets-legal · planning-schedule
 child-experience · parent-experience · db-migrations · native-platform
+family-authz · account-deletion · child-access · push-recipients · for-dig
+parent-home · family-ui · settings · notifications · rewards
 ```
 
+- L1 uses **explicit `l1Tests`** per domain (not arbitrary test array order)
 - Overlapping test files are deduplicated at execution time
 - Wall-clock timing reported per domain (no hard SLO yet)
 
@@ -54,7 +59,7 @@ Outside normal agent loop. Use for release confidence or after large refactors.
 | R0 Trivial | L1 |
 | R1 Normal | L1 + relevant L2 |
 | R2 Cross-cutting | L1 + multi-domain L2 + L3 |
-| R3 Critical | Broad L2 + L3 + explicit release review |
+| R3 Critical | L1 + broad L2 + L3 + explicit release review |
 
 Path-based suggestion via `config/process/global-core.json`. Explicit `--min-risk` cannot be auto-downgraded.
 

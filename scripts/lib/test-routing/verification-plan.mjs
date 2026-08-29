@@ -1,4 +1,5 @@
 import { dedupeTests } from './route.mjs';
+import { riskHints } from './risk.mjs';
 
 /**
  * Build cumulative verification plan from risk class and routing context.
@@ -11,16 +12,33 @@ export function buildVerificationPlan(params) {
     entry,
     domainList,
     domainTestIndex,
+    domainL1Index,
     hasUnsafeUnknown,
+    classifierFailed,
   } = params;
+
+  if (classifierFailed) {
+    return failClosedPlan(entry, 'classifier_failure', globalCore);
+  }
 
   const spec = globalCore.riskClasses?.[riskClass] || {};
   const defaultLevels = new Set(spec.defaultVerification || ['L1']);
+  const hints = riskHints(riskClass, globalCore);
 
-  const l1Tests = [...(globalCore.l1SmokeTests || [])];
+  const smokeTests = globalCore.l1SmokeTests || [];
+  const domainFocusedL1 = [];
+  const domainsMissingFocusedL1 = [];
+
   for (const d of domainList) {
-    l1Tests.push(...(domainTestIndex[d] || []).slice(0, 3));
+    const explicit = domainL1Index?.[d] || [];
+    if (explicit.length) {
+      domainFocusedL1.push(...explicit);
+    } else {
+      domainsMissingFocusedL1.push(d);
+    }
   }
+
+  const l1Tests = [...smokeTests, ...domainFocusedL1];
 
   const l2Tests = [];
   for (const d of domainList) {
@@ -29,23 +47,56 @@ export function buildVerificationPlan(params) {
 
   const l1Required = defaultLevels.has('L1');
   const l2Required = defaultLevels.has('L2');
-  const l3Required = defaultLevels.has('L3') || hasUnsafeUnknown;
+  let l3Required = defaultLevels.has('L3') || hasUnsafeUnknown;
   const releaseReview = defaultLevels.has('RELEASE_REVIEW');
 
+  const dedupedL1 = dedupeTests(l1Required ? l1Tests : (globalCore.l1SmokeTests || []));
+  const dedupedL2 = dedupeTests(l2Tests);
+
   let l2NotResolved = false;
-  if (l2Required && dedupeTests(l2Tests).length === 0) {
+  if (l2Required && dedupedL2.length === 0) {
     l2NotResolved = true;
+  }
+
+  let l1NotResolved = false;
+  if (l1Required && dedupedL1.length === 0) {
+    l1NotResolved = true;
+  }
+
+  const isHigh = riskClass === 'R3';
+  if (
+    isHigh
+    && l1Required
+    && domainList.length > 0
+    && domainsMissingFocusedL1.length > 0
+  ) {
+    return failClosedPlan(entry, 'high_missing_domain_l1', globalCore, {
+      smokeTests,
+      domainFocusedL1,
+      domainsMissingFocusedL1,
+    });
+  }
+  if (isHigh && l1Required && l1NotResolved) {
+    return failClosedPlan(entry, 'high_missing_l1', globalCore);
+  }
+  if (isHigh && l2Required && l2NotResolved) {
+    return failClosedPlan(entry, 'high_missing_l2', globalCore);
+  }
+
+  if (l2NotResolved && l2Required) {
+    l3Required = true;
   }
 
   const plan = {
     L1: {
       required: l1Required,
-      tests: dedupeTests(l1Required ? l1Tests : (globalCore.l1SmokeTests || [])),
+      tests: dedupedL1,
+      ...(l1NotResolved ? { l1NotResolved: true } : {}),
     },
     L2: {
       required: l2Required,
       domains: [...domainList],
-      tests: dedupeTests(l2Tests),
+      tests: dedupedL2,
       ...(l2NotResolved ? { l2NotResolved: true } : {}),
     },
     L3: {
@@ -53,13 +104,42 @@ export function buildVerificationPlan(params) {
       command: entry.l3Command,
     },
     releaseReview,
+    independentReview: hints.independentReview,
+    rollbackConsideration: hints.rollbackConsideration,
+    dbInvariants: hints.dbInvariants,
   };
 
-  if (l2NotResolved && l2Required) {
-    plan.L3.required = true;
-  }
-
   return plan;
+}
+
+/**
+ * Fail-closed plan: escalate to full L3 gate.
+ * @param {object} entry
+ * @param {string} reason
+ */
+function failClosedPlan(entry, reason, globalCore = {}, l1Context = {}) {
+  const smoke = l1Context.smokeTests ?? globalCore.l1SmokeTests ?? [];
+  const domainFocused = l1Context.domainFocusedL1 ?? [];
+  const tests = dedupeTests([...smoke, ...domainFocused]);
+  return {
+    L1: {
+      required: true,
+      tests,
+      l1NotResolved: tests.length === 0,
+      ...(l1Context.domainsMissingFocusedL1?.length
+        ? { domainsMissingFocusedL1: [...l1Context.domainsMissingFocusedL1] }
+        : {}),
+      failClosed: true,
+    },
+    L2: { required: true, domains: [], tests: [], l2NotResolved: true, failClosed: true },
+    L3: { required: true, command: entry.l3Command, failClosed: true },
+    releaseReview: true,
+    independentReview: true,
+    rollbackConsideration: true,
+    dbInvariants: true,
+    failClosed: true,
+    failClosedReason: reason,
+  };
 }
 
 /**

@@ -69,8 +69,38 @@ jobs:
       - name: Assert test database schema matches branch
         run: node scripts/assert-disposable-database.mjs
 
+      - name: Classify PR test routing
+        id: route
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          TEST_ROUTING_MANUAL_RISK: ${{ contains(github.event.pull_request.labels.*.name, 'risk:high') && 'HIGH' || contains(github.event.pull_request.labels.*.name, 'risk:medium') && 'MEDIUM' || contains(github.event.pull_request.labels.*.name, 'risk:low') && 'LOW' || '' }}
+        run: node scripts/ci-test-route.mjs --json
+
+      - name: Run L1 focused contract tests
+        if: github.event_name == 'pull_request' && steps.route.outputs.l1_required == 'true'
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          TEST_ROUTING_MANUAL_RISK: ${{ contains(github.event.pull_request.labels.*.name, 'risk:high') && 'HIGH' || contains(github.event.pull_request.labels.*.name, 'risk:medium') && 'MEDIUM' || contains(github.event.pull_request.labels.*.name, 'risk:low') && 'LOW' || '' }}
+        run: node scripts/ci-run-routed-tests.mjs --level L1
+
+      - name: Run L2 domain regression tests
+        if: github.event_name == 'pull_request' && steps.route.outputs.l2_required == 'true'
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          TEST_ROUTING_MANUAL_RISK: ${{ contains(github.event.pull_request.labels.*.name, 'risk:high') && 'HIGH' || contains(github.event.pull_request.labels.*.name, 'risk:medium') && 'MEDIUM' || contains(github.event.pull_request.labels.*.name, 'risk:low') && 'LOW' || '' }}
+        run: node scripts/ci-run-routed-tests.mjs --level L2
+
       - name: Test
+        if: github.event_name != 'pull_request' || steps.route.outputs.l3_required == 'true'
         run: npm run test:gate
+
+      - name: Test (PR skipped L3 — classifier determined full gate not required)
+        if: github.event_name == 'pull_request' && steps.route.outputs.l3_required != 'true'
+        run: echo "L3 skipped — automatic risk ${steps.route.outputs.final_risk} does not require full gate"
 
       - name: Migration rollback gate (G3c)
         run: node -r ./test/helpers/apply-test-database-env.js --test test/migration-rollback-gate.test.js

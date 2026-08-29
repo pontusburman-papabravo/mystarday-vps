@@ -20,9 +20,11 @@ const {
   matchGlob,
   mapFileToDomains,
   classifyUnknownFile,
+  loadRoutingConfig,
+  buildDomainTestIndex,
 } = require('../scripts/lib/test-routing/config.mjs');
 
-const { classifyRisk, riskToRecommendedLevel } = require('../scripts/lib/test-routing/risk.mjs');
+const { classifyRisk, riskToRecommendedLevel, resolveFinalRisk, riskClassToTier } = require('../scripts/lib/test-routing/risk.mjs');
 const { routeChangedFiles, resolveDomainGate, dedupeTests } = require('../scripts/lib/test-routing/route.mjs');
 const {
   buildVerificationPlan,
@@ -118,13 +120,18 @@ test('R2 cumulative plan includes L1, multi-domain L2, and L3', () => {
   assert.ok(plan.verificationPlan.L2.tests.length > 0);
 });
 
-test('R3 cumulative plan includes L2, L3, and releaseReview', () => {
-  const plan = routeChangedFiles(ROOT, { files: ['src/routes/auth/login.js'] });
+test('R3 cumulative plan includes L1, L2, L3, and releaseReview', () => {
+  // push-recipients has explicit domain l1Tests; automatic R3 auth paths fail closed without them.
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/push.js'], minRisk: 'R3' });
   assert.equal(plan.riskClass, 'R3');
-  assert.equal(plan.verificationPlan.L1.required, false);
+  assert.equal(plan.verificationPlan.L1.required, true);
   assert.equal(plan.verificationPlan.L2.required, true);
   assert.equal(plan.verificationPlan.L3.required, true);
   assert.equal(plan.verificationPlan.releaseReview, true);
+  assert.equal(plan.verificationPlan.independentReview, true);
+  assert.equal(plan.verificationPlan.rollbackConsideration, true);
+  assert.equal(plan.verificationPlan.dbInvariants, true);
+  assert.ok(plan.verificationPlan.L1.tests.length > 0);
   assert.ok(plan.verificationPlan.L2.tests.length > 0);
 });
 
@@ -139,12 +146,14 @@ test('explicit --min-risk R3 keeps L2 required on docs-only', () => {
   assert.equal(plan.verificationPlan.releaseReview, true);
 });
 
-test('unknown critical path fail-safe plan with L2_NOT_RESOLVED', () => {
+test('unknown critical path fail-safe escalates to R3 with L3', () => {
   const plan = routeChangedFiles(ROOT, { files: ['server.js'] });
+  assert.equal(plan.riskClass, 'R3');
+  assert.equal(plan.riskTier, 'HIGH');
   assert.equal(plan.verificationPlan.L3.required, true);
   assert.equal(plan.verificationPlan.L2.l2NotResolved, true);
   assert.ok(plan.reason.includes('L2_NOT_RESOLVED'));
-  assert.ok(plan.verificationPlan.L1.tests.length > 0, 'L1 smoke still present for R1 unknown critical');
+  assert.ok(plan.verificationPlan.L1.tests.length > 0, 'L1 smoke still present');
 });
 
 test('resolveExecutionOutcome: local fail exits 1', () => {
@@ -338,8 +347,338 @@ test('buildVerificationPlan R2 sets L3 when L2 not resolved', () => {
     entry: { l3Command: 'npm run test:gate' },
     domainList: [],
     domainTestIndex: {},
+    domainL1Index: {},
     hasUnsafeUnknown: false,
   });
   assert.equal(plan.L2.l2NotResolved, true);
   assert.equal(plan.L3.required, true);
+});
+
+// ─── Phase -1: Parent Experience routing alignment ─────────
+
+test('known LOW path (docs-only) → R0/LOW without L3', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['docs/process/GLOBAL_CORE.md'] });
+  assert.equal(plan.automaticRisk, 'R0');
+  assert.equal(plan.riskTier, 'LOW');
+  assert.equal(plan.verificationPlan.L3.required, false);
+});
+
+test('MEDIUM domain (single parent-home) → L1 + L2 without L3', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['public/js/idag-state.js'] });
+  assert.equal(plan.riskClass, 'R1');
+  assert.equal(plan.verificationPlan.L1.required, true);
+  assert.equal(plan.verificationPlan.L2.required, true);
+  assert.equal(plan.verificationPlan.L3.required, false);
+  assert.ok(plan.domains.includes('parent-home'));
+});
+
+test('HIGH auth path → L1 + L2 + L3', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/auth/login.js'] });
+  assert.equal(plan.riskClass, 'R3');
+  assert.equal(plan.verificationPlan.L1.required, true);
+  assert.equal(plan.verificationPlan.L2.required, true);
+  assert.equal(plan.verificationPlan.L3.required, true);
+});
+
+test('HIGH deletion path → account-deletion + family-authz domains', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/family/account.js'] });
+  assert.equal(plan.riskClass, 'R3');
+  assert.ok(plan.domains.includes('account-deletion'));
+  assert.ok(plan.domains.includes('family-authz') || plan.domains.includes('auth-security'));
+  assert.equal(plan.verificationPlan.L1.required, true);
+  assert.equal(plan.verificationPlan.L2.required, true);
+  assert.equal(plan.verificationPlan.L3.required, true);
+});
+
+test('deletion path maps to account-deletion domain', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/family/account.js'] });
+  assert.ok(plan.domains.includes('account-deletion'));
+});
+
+test('authz path maps to family-authz domain', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/middleware/authz.js'] });
+  assert.ok(plan.domains.includes('family-authz'));
+});
+
+test('push child-recipient path → push-recipients domain', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/push.js'] });
+  assert.ok(plan.domains.includes('push-recipients'));
+});
+
+test('for-dig path → for-dig domain', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/for-dig.js'] });
+  assert.ok(plan.domains.includes('for-dig'));
+});
+
+test('parent home path → parent-home domain', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['public/js/home-readiness.js'] });
+  assert.ok(plan.domains.includes('parent-home'));
+});
+
+test('manual risk may raise automatic LOW to HIGH', () => {
+  const plan = routeChangedFiles(ROOT, {
+    files: ['docs/process/GLOBAL_CORE.md'],
+    manualRisk: 'HIGH',
+  });
+  assert.equal(plan.automaticRisk, 'R0');
+  assert.equal(plan.finalRisk, 'R3');
+  assert.equal(plan.manualApplied, true);
+  assert.equal(plan.verificationPlan.L3.required, true);
+});
+
+test('manual risk may not lower automatic HIGH', () => {
+  const plan = routeChangedFiles(ROOT, {
+    files: ['src/routes/auth/login.js'],
+    manualRisk: 'LOW',
+  });
+  assert.equal(plan.automaticRisk, 'R3');
+  assert.equal(plan.finalRisk, 'R3');
+  assert.equal(plan.manualRejected, true);
+});
+
+test('resolveFinalRisk: AUTO=HIGH MANUAL=LOW → FINAL=HIGH', () => {
+  const { finalRisk, manualRejected } = resolveFinalRisk('R3', 'LOW', {});
+  assert.equal(finalRisk, 'R3');
+  assert.equal(manualRejected, true);
+});
+
+test('resolveFinalRisk: AUTO=LOW MANUAL=HIGH → FINAL=HIGH', () => {
+  const { finalRisk, manualApplied } = resolveFinalRisk('R0', 'HIGH', { riskSemantics: { HIGH: 'R3' } });
+  assert.equal(finalRisk, 'R3');
+  assert.equal(manualApplied, true);
+});
+
+test('unknown shared-core path → HIGH/R3 fail-safe', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/lib/unknown-new-module.js'] });
+  assert.equal(plan.riskClass, 'R3');
+  assert.equal(plan.verificationPlan.L3.required, true);
+});
+
+test('L1 uses explicit domain l1Tests not arbitrary slice order', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/middleware/authz.js'] });
+  const l1 = plan.verificationPlan.L1.tests;
+  assert.ok(l1.includes('test/authz.test.js'));
+  assert.ok(l1.includes('test/revoked-access-contract.test.js'));
+});
+
+test('L2 domain tests are deterministic (sorted deduped)', () => {
+  const a = routeChangedFiles(ROOT, { files: ['public/js/home-readiness.js'] });
+  const b = routeChangedFiles(ROOT, { files: ['public/js/home-readiness.js'] });
+  assert.deepEqual(a.verificationPlan.L2.tests, b.verificationPlan.L2.tests);
+  const sorted = [...a.verificationPlan.L2.tests].sort();
+  assert.deepEqual(a.verificationPlan.L2.tests, sorted);
+});
+
+test('duplicate tests deduplicated across domains', () => {
+  const gate = resolveDomainGate(ROOT, ['family-authz', 'account-deletion']);
+  const all = Object.values(gate.perDomain).flat();
+  assert.equal(gate.tests.length, new Set(all).size);
+});
+
+test('HIGH missing required L1 → fail closed to L3', () => {
+  const plan = buildVerificationPlan({
+    riskClass: 'R3',
+    globalCore: {
+      riskClasses: {
+        R3: {
+          defaultVerification: ['L1', 'L2', 'L3', 'RELEASE_REVIEW'],
+          independentReview: true,
+          rollbackConsideration: true,
+          dbInvariants: true,
+        },
+      },
+      l1SmokeTests: [],
+    },
+    entry: { l3Command: 'npm run test:gate' },
+    domainList: ['account-deletion'],
+    domainTestIndex: { 'account-deletion': ['test/x.test.js'] },
+    domainL1Index: { 'account-deletion': [] },
+    hasUnsafeUnknown: false,
+  });
+  assert.equal(plan.failClosed, true);
+  assert.equal(plan.failClosedReason, 'high_missing_domain_l1');
+  assert.equal(plan.L3.required, true);
+});
+
+test('HIGH missing domain-focused L1 fails closed even when global smoke exists', () => {
+  const plan = buildVerificationPlan({
+    riskClass: 'R3',
+    globalCore: {
+      riskClasses: {
+        R3: {
+          defaultVerification: ['L1', 'L2', 'L3', 'RELEASE_REVIEW'],
+          independentReview: true,
+          rollbackConsideration: true,
+          dbInvariants: true,
+        },
+      },
+      l1SmokeTests: [
+        'test/ci-test-manifest.test.js',
+        'test/test-routing.test.js',
+      ],
+    },
+    entry: { l3Command: 'npm run test:gate' },
+    domainList: ['account-deletion'],
+    domainTestIndex: { 'account-deletion': ['test/eea-launch-framework.test.js'] },
+    domainL1Index: { 'account-deletion': [] },
+    hasUnsafeUnknown: false,
+  });
+  assert.equal(plan.failClosed, true);
+  assert.equal(plan.failClosedReason, 'high_missing_domain_l1');
+  assert.equal(plan.L3.required, true);
+  assert.ok(plan.L1.tests.includes('test/ci-test-manifest.test.js'));
+  assert.ok(plan.L1.tests.includes('test/test-routing.test.js'));
+  assert.deepEqual(plan.L1.domainsMissingFocusedL1, ['account-deletion']);
+});
+
+test('HIGH missing required L2 → fail closed to L3', () => {
+  const plan = buildVerificationPlan({
+    riskClass: 'R3',
+    globalCore: {
+      riskClasses: {
+        R3: {
+          defaultVerification: ['L1', 'L2', 'L3', 'RELEASE_REVIEW'],
+          independentReview: true,
+          rollbackConsideration: true,
+          dbInvariants: true,
+        },
+      },
+      l1SmokeTests: ['test/smoke.test.js'],
+    },
+    entry: { l3Command: 'npm run test:gate' },
+    domainList: [],
+    domainTestIndex: {},
+    domainL1Index: {},
+    hasUnsafeUnknown: false,
+  });
+  assert.equal(plan.failClosed, true);
+  assert.equal(plan.L3.required, true);
+});
+
+test('base/head SHA diff resolution', () => {
+  const { execSync } = require('node:child_process');
+  const base = execSync('git rev-parse HEAD~1', { cwd: ROOT, encoding: 'utf8' }).trim();
+  const head = execSync('git rev-parse HEAD', { cwd: ROOT, encoding: 'utf8' }).trim();
+  const { collectChangedFiles } = require('../scripts/lib/test-routing/changed-files.mjs');
+  const files = collectChangedFiles(ROOT, { baseSha: base, headSha: head });
+  assert.ok(Array.isArray(files));
+});
+
+test('canonical L3 command remains npm run test:gate', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/auth/login.js'] });
+  assert.equal(plan.verificationPlan.L3.command, 'npm run test:gate');
+});
+
+test('same input produces same classifier output (determinism)', () => {
+  const input = { files: ['src/routes/family/account.js'] };
+  const a = routeChangedFiles(ROOT, input);
+  const b = routeChangedFiles(ROOT, input);
+  assert.deepEqual({
+    domains: a.domains,
+    riskClass: a.riskClass,
+    l1: a.verificationPlan.L1.tests,
+    l2count: a.verificationPlan.L2.tests.length,
+    l3: a.verificationPlan.L3.required,
+  }, {
+    domains: b.domains,
+    riskClass: b.riskClass,
+    l1: b.verificationPlan.L1.tests,
+    l2count: b.verificationPlan.L2.tests.length,
+    l3: b.verificationPlan.L3.required,
+  });
+});
+
+test('P0.1 account deletion routing has complete domain L1 coverage', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/family/account.js'] });
+  assert.equal(plan.riskClass, 'R3');
+  assert.ok(plan.domains.includes('account-deletion'));
+  assert.ok(plan.domains.includes('auth-security'));
+  assert.ok(plan.domains.includes('parent-experience'));
+  assert.equal(plan.verificationPlan.L1.required, true);
+  assert.equal(plan.verificationPlan.L2.required, true);
+  assert.equal(plan.verificationPlan.L3.required, true);
+  assert.notEqual(plan.verificationPlan.failClosed, true);
+  assert.equal(plan.verificationPlan.L1.domainsMissingFocusedL1, undefined);
+  assert.ok(plan.verificationPlan.L1.tests.length > 0);
+  assert.ok(plan.verificationPlan.L2.tests.length > 0);
+});
+
+test('synthetic P0.1 deletion classifier pilot', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/family/account.js'] });
+  assert.ok(plan.domains.includes('account-deletion'));
+  assert.ok(
+    plan.domains.includes('family-authz') || plan.domains.includes('auth-security'),
+    'deletion path should also touch authz domain',
+  );
+  assert.equal(plan.riskClass, 'R3');
+  assert.equal(riskClassToTier(plan.riskClass), 'HIGH');
+  assert.equal(plan.verificationPlan.L1.required, true);
+  assert.equal(plan.verificationPlan.L2.required, true);
+  assert.equal(plan.verificationPlan.L3.required, true);
+  assert.equal(plan.verificationPlan.independentReview, true);
+  assert.equal(plan.verificationPlan.rollbackConsideration, true);
+  assert.equal(plan.verificationPlan.dbInvariants, true);
+  assert.ok(plan.verificationPlan.L1.tests.length > 0);
+});
+
+test('Phase -1 PR self-classification is conservative (HIGH)', () => {
+  const plan = routeChangedFiles(ROOT, {
+    files: [
+      'scripts/lib/test-routing/route.mjs',
+      'config/process/global-core.json',
+      '.github/workflows/ci.yml',
+    ],
+  });
+  assert.equal(plan.riskClass, 'R3');
+  assert.equal(plan.verificationPlan.L3.required, true);
+});
+
+test('all configured domains resolve explicit l1Tests', () => {
+  const { overlay } = loadRoutingConfig(ROOT);
+  const domains = overlay.domains || {};
+  const { l1Index } = buildDomainTestIndex(ROOT, domains);
+  const domainIds = Object.keys(domains).sort();
+  assert.equal(domainIds.length, 18, 'expected 18 configured domains');
+  for (const id of domainIds) {
+    assert.ok(l1Index[id].length >= 1, `${id} should resolve at least one explicit l1Tests entry`);
+  }
+});
+
+test('broad domains retain restored L2 testGlobs coverage', () => {
+  const restoredL2Coverage = [
+    ['auth-security', 'test/auth-integration.test.js'],
+    ['payments-iap', 'test/iap-webhook.test.js'],
+    ['i18n-markets-legal', 'test/i18n-auth-surfaces.test.js'],
+    ['planning-schedule', 'test/schedule-apply.test.js'],
+    ['child-experience', 'test/child-dashboard-split.test.js'],
+    ['parent-experience', 'test/dashboard-views.test.js'],
+    ['db-migrations', 'test/migration-files-immutable.test.js'],
+    ['native-platform', 'test/widget-ios-routine.test.js'],
+  ];
+  for (const [domainId, representativeTest] of restoredL2Coverage) {
+    const gate = resolveDomainGate(ROOT, [domainId]);
+    assert.ok(
+      gate.tests.includes(representativeTest),
+      `${domainId} L2 should include ${representativeTest} via restored testGlobs`,
+    );
+  }
+});
+
+test('all Parent Experience domains resolve L2 tests', () => {
+  const peDomains = [
+    'family-authz',
+    'account-deletion',
+    'child-access',
+    'push-recipients',
+    'for-dig',
+    'parent-home',
+    'family-ui',
+    'settings',
+    'notifications',
+    'rewards',
+  ];
+  for (const id of peDomains) {
+    const gate = resolveDomainGate(ROOT, [id]);
+    assert.ok(gate.tests.length >= 1, `${id} should resolve at least one L2 test`);
+  }
 });

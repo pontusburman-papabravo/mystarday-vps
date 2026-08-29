@@ -50,6 +50,11 @@
         "public/js/parent-handoff*.js",
         "db/pin-*.js"
       ],
+      "l1Tests": [
+        "test/auth.test.js",
+        "test/auth-integration.test.js",
+        "test/credential-leak-guard.test.js"
+      ],
       "testGlobs": [
         "test/*auth*.test.js",
         "test/*pin*.test.js",
@@ -81,6 +86,11 @@
         "docs/app-store-iap.md",
         "docs/PAYMENTS_V1_STATUS.md"
       ],
+      "l1Tests": [
+        "test/iap-config-route.test.js",
+        "test/paywall-model-contract.test.js",
+        "test/iap-webhook.test.js"
+      ],
       "testGlobs": [
         "test/iap*.test.js",
         "test/paywall*.test.js",
@@ -103,6 +113,11 @@
         "public/js/cookie*.js",
         "locales/**",
         "config/markets/**"
+      ],
+      "l1Tests": [
+        "test/market-region.test.js",
+        "test/legal-routing.test.js",
+        "test/i18n-locale.test.js"
       ],
       "testGlobs": [
         "test/i18n*.test.js",
@@ -130,6 +145,11 @@
         "public/js/planning*.js",
         "public/js/print-schema*.js"
       ],
+      "l1Tests": [
+        "test/schedule-core.test.js",
+        "test/daily-logs-authz-contract.test.js",
+        "test/schedule-apply-routes.test.js"
+      ],
       "testGlobs": [
         "test/schedule*.test.js",
         "test/daily-log*.test.js",
@@ -155,6 +175,11 @@
         "public/js/child-pictogram*.js",
         "src/routes/children.js",
         "src/routes/rewards.js"
+      ],
+      "l1Tests": [
+        "test/child-dashboard-celebrations.test.js",
+        "test/fas-4a-daily-child-ux.test.js",
+        "test/child-read-aloud.test.js"
       ],
       "testGlobs": [
         "test/child-dashboard*.test.js",
@@ -186,6 +211,11 @@
         "src/routes/family/**",
         "src/routes/account/**"
       ],
+      "l1Tests": [
+        "test/onboarding-handoff-p0.test.js",
+        "test/signup-slim-journey.test.js",
+        "test/dashboard-cta.test.js"
+      ],
       "testGlobs": [
         "test/dashboard*.test.js",
         "test/onboarding*.test.js",
@@ -210,6 +240,11 @@
         "scripts/cloud-agent-bootstrap.sh",
         "test/helpers/setupTestDb.js",
         "test/helpers/db-test-lock.js"
+      ],
+      "l1Tests": [
+        "test/migration-rollback-gate.test.js",
+        "test/test-database-safety.test.js",
+        "test/migration-destructive-contract.test.js"
       ],
       "testGlobs": [
         "test/migration*.test.js",
@@ -238,6 +273,11 @@
         "public/sw.js",
         "config/cache-version.json"
       ],
+      "l1Tests": [
+        "test/native-bridge-contract.test.js",
+        "test/platform-runtime-flag.test.js",
+        "test/capacitor-webview-background.test.js"
+      ],
       "testGlobs": [
         "test/*ios*.test.js",
         "test/*android*.test.js",
@@ -249,6 +289,180 @@
         "test/native-bridge*.test.js",
         "test/platform-runtime*.test.js",
         "test/i18n-native-shell.test.js"
+      ]
+    },
+    "family-authz": {
+      "description": "Family authorization, parent-child access, revoked access, authz middleware",
+      "pathGlobs": [
+        "src/middleware/authz.js",
+        "src/routes/family/members.js",
+        "src/routes/family/pin.js",
+        "src/routes/family/invites.js",
+        "src/routes/family/pedagog.js"
+      ],
+      "l1Tests": [
+        "test/authz.test.js",
+        "test/revoked-access-contract.test.js",
+        "test/authz-middleware-mounted.test.js"
+      ],
+      "testGlobs": [
+        "test/authz*.test.js",
+        "test/revoked-access*.test.js",
+        "test/*authz*.test.js",
+        "test/r4-final-authority.integration.test.js",
+        "test/r4-final-security-blockers.integration.test.js"
+      ]
+    },
+    "account-deletion": {
+      "description": "Family account deletion route and authorization contracts",
+      "pathGlobs": [
+        "src/routes/family/account.js"
+      ],
+      "l1Tests": [
+        "test/authz.test.js",
+        "test/revoked-access-contract.test.js"
+      ],
+      "testGlobs": [
+        "test/eea-launch-framework.test.js",
+        "test/parent-session-handoff.integration.test.js",
+        "test/family-avatar-v1.test.js",
+        "test/release-compliance-gate.test.js"
+      ]
+    },
+    "child-access": {
+      "description": "Child login, child scope, child-to-parent privilege boundaries",
+      "pathGlobs": [
+        "src/routes/auth/child-login.js",
+        "src/routes/children.js",
+        "public/child-login.html",
+        "public/js/child-login.js"
+      ],
+      "l1Tests": [
+        "test/child-access-semantics.test.js",
+        "test/r43-child-login-authz.test.js"
+      ],
+      "testGlobs": [
+        "test/child-access*.test.js",
+        "test/child-login*.test.js",
+        "test/r43-child-login*.test.js",
+        "test/r44-adult-child-access.integration.test.js"
+      ]
+    },
+    "push-recipients": {
+      "description": "Push notification preferences and child-scoped recipient settings",
+      "pathGlobs": [
+        "src/routes/push.js",
+        "src/lib/push.js",
+        "src/lib/push-reminder-scheduler.js",
+        "public/js/push-manager.js",
+        "public/settings.html"
+      ],
+      "l1Tests": [
+        "test/push-notification-dedupe.test.js"
+      ],
+      "testGlobs": [
+        "test/push*.test.js",
+        "test/notification*.test.js"
+      ]
+    },
+    "for-dig": {
+      "description": "För Dig goals, activation, authorization and scoping",
+      "pathGlobs": [
+        "src/routes/for-dig/**",
+        "src/routes/for-dig.js",
+        "src/lib/for-dig-*.js",
+        "db/for-dig-*.js",
+        "public/for-dig.html",
+        "public/js/for-dig*.js"
+      ],
+      "l1Tests": [
+        "test/for-dig-config.test.js",
+        "test/for-dig-api-integration.test.js"
+      ],
+      "testGlobs": [
+        "test/for-dig*.test.js"
+      ]
+    },
+    "parent-home": {
+      "description": "Parent home (Hem), primary action, readiness, idag surfaces",
+      "pathGlobs": [
+        "public/js/home-*.js",
+        "public/js/idag*.js",
+        "public/dashboard.html"
+      ],
+      "l1Tests": [
+        "test/hem-10-vision.test.js",
+        "test/idag-state.test.js"
+      ],
+      "testGlobs": [
+        "test/hem*.test.js",
+        "test/idag*.test.js",
+        "test/r1-home-primary-action.contract.test.js",
+        "test/i18n-home*.test.js"
+      ]
+    },
+    "family-ui": {
+      "description": "Family hub, family drawer, mina personer, family management UI",
+      "pathGlobs": [
+        "public/js/family*.js",
+        "public/js/mina-personer*.js"
+      ],
+      "l1Tests": [
+        "test/family-hub-10-10.test.js",
+        "test/mina-personer-state.test.js"
+      ],
+      "testGlobs": [
+        "test/family-hub*.test.js",
+        "test/mina-personer*.test.js",
+        "test/family-ui*.test.js",
+        "test/family-image*.test.js"
+      ]
+    },
+    "settings": {
+      "description": "Parent settings, account management UI, trusted devices",
+      "pathGlobs": [
+        "public/settings.html",
+        "public/js/settings*.js",
+        "src/routes/account/**"
+      ],
+      "l1Tests": [
+        "test/settings-account-unlink.test.js",
+        "test/settings-logout-early-bind.test.js"
+      ],
+      "testGlobs": [
+        "test/settings*.test.js"
+      ]
+    },
+    "notifications": {
+      "description": "Notification log, email opt-out, notification delivery",
+      "pathGlobs": [
+        "src/routes/notifications.js",
+        "src/lib/notification*.js",
+        "src/lib/weekly-summary-scheduler.js",
+        "db/notification*.js"
+      ],
+      "l1Tests": [
+        "test/notification-log-metadata.test.js"
+      ],
+      "testGlobs": [
+        "test/notification*.test.js",
+        "test/weekly-summary*.test.js"
+      ]
+    },
+    "rewards": {
+      "description": "Reward visibility, redemption, parent reward management",
+      "pathGlobs": [
+        "src/routes/rewards.js",
+        "public/js/rewards*.js",
+        "public/js/dashboard-approvals.js"
+      ],
+      "l1Tests": [
+        "test/reward-visibility.integration.test.js"
+      ],
+      "testGlobs": [
+        "test/reward*.test.js",
+        "test/rewards*.test.js",
+        "test/skattkammaren*.test.js"
       ]
     }
   }

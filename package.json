@@ -118,6 +118,7 @@
     "ci:evidence": "node scripts/ci-evidence.mjs",
     "test:changed": "node scripts/test-changed.mjs",
     "test:domain": "node scripts/test-domain.mjs",
+    "ci:test-route": "node scripts/ci-test-route.mjs",
     "bootstrap:local-feature-flags": "node scripts/bootstrap-local-feature-flags.mjs",
     "activity-timer:prod-pilot": "node scripts/ops/activity-timer-prod-pilot.mjs",
     "family-device:stale-pilots": "node scripts/ops/family-device-stale-pilots.mjs",

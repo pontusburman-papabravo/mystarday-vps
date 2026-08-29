@@ -61,12 +61,17 @@ function summarizePlan(plan) {
   console.log('L1 CHANGED-FILES ROUTER');
   console.log(`Changed: ${plan.changedFiles.length} file(s)`);
   console.log(`Domains: ${plan.domains.join(', ') || '(none)'}`);
-  console.log(`Risk: ${plan.riskClass} → ${plan.recommendedLevel} (display)`);
+  console.log(`Automatic risk: ${plan.automaticRisk} (${plan.automaticRiskTier || plan.automaticRisk})`);
+  if (plan.manualRisk) console.log(`Manual risk: ${plan.manualRisk} (applied=${plan.manualApplied})`);
+  console.log(`Final risk: ${plan.riskClass} → ${plan.recommendedLevel} (display)`);
   console.log('Verification plan:');
   console.log(`  L1 required=${vp.L1.required} tests=${vp.L1.tests.length}`);
   console.log(`  L2 required=${vp.L2.required} domains=${vp.L2.domains.join(',') || '(none)'} tests=${vp.L2.tests.length}${vp.L2.l2NotResolved ? ' L2_NOT_RESOLVED' : ''}`);
   console.log(`  L3 required=${vp.L3.required} command=${vp.L3.command}`);
   console.log(`  releaseReview=${vp.releaseReview}`);
+  if (vp.independentReview) console.log(`  independentReview=true`);
+  if (vp.rollbackConsideration) console.log(`  rollbackConsideration=true`);
+  if (vp.dbInvariants) console.log(`  dbInvariants=true`);
   for (const r of plan.reason.slice(0, 12)) console.log(`  · ${r}`);
   if (plan.reason.length > 12) console.log(`  · … +${plan.reason.length - 12} more`);
 }

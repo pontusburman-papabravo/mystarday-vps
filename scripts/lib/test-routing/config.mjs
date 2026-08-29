@@ -85,7 +85,7 @@ export function collectFilesByGlobs(dir, patterns, prefix = '') {
 /**
  * Resolve domain test files from explicit globs under test/.
  * @param {string} root
- * @param {{ testGlobs?: string[], tests?: string[] }} domain
+ * @param {{ testGlobs?: string[], tests?: string[], l1Tests?: string[] }} domain
  */
 export function resolveDomainTests(root, domain) {
   const explicit = domain.tests || [];
@@ -95,16 +95,29 @@ export function resolveDomainTests(root, domain) {
 }
 
 /**
+ * Resolve explicit L1 contract tests for a domain (must exist on disk).
+ * @param {string} root
+ * @param {{ l1Tests?: string[] }} domain
+ */
+export function resolveDomainL1Tests(root, domain) {
+  const explicit = domain.l1Tests || [];
+  return explicit.filter((t) => fs.existsSync(path.join(root, t))).sort();
+}
+
+/**
  * @param {string} root
  * @param {Record<string, object>} domains
  */
 export function buildDomainTestIndex(root, domains) {
   /** @type {Record<string, string[]>} */
   const index = {};
+  /** @type {Record<string, string[]>} */
+  const l1Index = {};
   for (const [id, domain] of Object.entries(domains)) {
     index[id] = resolveDomainTests(root, domain);
+    l1Index[id] = resolveDomainL1Tests(root, domain);
   }
-  return index;
+  return { index, l1Index };
 }
 
 /**
