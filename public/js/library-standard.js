@@ -109,8 +109,14 @@ function renderStdSchedulesInStdTab() {
           ${sectionsHtml}
         </div>
         <div class="px-4 py-3 border-t border-lavender bg-sky/30 space-y-2">
+          <!-- Phase 4: demoted from a primary gold CTA to match library-schema.js's family-
+               template demotion (Phase 1C) — recurring-schedule application now primarily
+               happens from Weekly Schedule via "+ Lägg till → Från mall" (which also offers
+               merge/replace_sections/replace_day and custody scoping this dialog lacks). Kept
+               as a secondary/outline action, not removed — Bibliotek stays content-oriented;
+               applying a schedule to a week is the canonical flow's job. -->
           <button onclick="openScheduleCopyDialog('${s.id}', '${escHtml(s.name)}')"
-            class="w-full px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
+            class="w-full px-4 py-2.5 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl font-semibold text-sm transition-colors">
             ${escHtml(libPt('library.standard.copyToChild'))}
           </button>
           ${_libIsAdmin ? `<a href="/admin#lib-schedules" target="_blank"

@@ -761,9 +761,7 @@ function renderSchedule() {
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
         <h3 class="text-lg font-heading font-bold text-navy">${dayName(currentDay)}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child?escHtml(child.name):''}</h3>
-        <p class="text-sm text-text-soft">${window.ScheduleI18n ? ScheduleI18n.activityCount(scheduleItems.length) : spt('schedule.activityCount.other', { count: scheduleItems.length })}
-          <span class="text-xs text-purple-400 ml-1">💡 ${spt('schedule.actions.dragCopyHint')}</span>
-        </p>
+        <p class="text-sm text-text-soft">${window.ScheduleI18n ? ScheduleI18n.activityCount(scheduleItems.length) : spt('schedule.activityCount.other', { count: scheduleItems.length })}</p>
       </div>
       <div class="flex gap-2 flex-wrap items-start">
         <button onclick="${window.ScheduleAddMenu ? 'ScheduleAddMenu.openCopyDay()' : 'openCopyDayModal()'}" class="min-h-[44px] px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 ${spt('schedule.editor.copyDay')}</button>

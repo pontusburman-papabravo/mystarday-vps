@@ -93,6 +93,17 @@ function renderChildTabs() {
     btn.onclick = () => selectChild(child.id);
     container.appendChild(btn);
   }
+  updateManageSpecialDaysLink();
+}
+
+/** Phase 4 — keep the "Hantera specialdagar & lov" bridge link deep-linked to the currently
+ * selected child, so it opens Weekly Schedule's Specialdagar tab for the right child directly. */
+function updateManageSpecialDaysLink() {
+  const link = document.getElementById('calendarManageSpecialDaysLink');
+  if (!link) return;
+  link.href = selectedChildId
+    ? `/schedule?child=${encodeURIComponent(selectedChildId)}&view=special-days`
+    : '/schedule?view=special-days';
 }
 
 async function selectChild(childId) {

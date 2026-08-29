@@ -317,9 +317,11 @@
       <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
 
       <!-- Page title (hidden in magic — hero in #parentMagicPageMount) -->
-      <div class="mb-6 parent-magic-hide-header">
-        <h2 class="text-2xl font-heading font-bold text-navy dark:text-white" data-i18n="schedule.calendar.legacyTitle">📅 Kalender</h2>
-        <p class="text-text-soft dark:text-slate-400 text-sm mt-1" data-i18n="schedule.calendar.legacySub">Se ditt barns schema vecka för vecka</p>
+      <div class="mb-6 parent-magic-hide-header flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 class="text-2xl font-heading font-bold text-navy dark:text-white" data-i18n="schedule.calendar.legacyTitle">📅 Kalender</h2>
+          <p class="text-text-soft dark:text-slate-400 text-sm mt-1" data-i18n="schedule.calendar.legacySub">Se ditt barns schema vecka för vecka</p>
+        </div>
       </div>
 
       <!-- Loading state -->
@@ -359,9 +361,14 @@
               </svg>
             </button>
           </div>
-          <button id="calendarTodayBtn" onclick="goToToday()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gold text-gold hover:bg-gold-light transition-colors whitespace-nowrap" data-i18n="schedule.calendar.today">
-            Idag
-          </button>
+          <div class="flex items-center gap-2 flex-wrap justify-end">
+            <!-- Phase 4 — always inside #calendarUI so parent-magic chrome cannot hide the bridge
+                 to Specialdagar CRUD (see docs/schedule-canonical-architecture.md). -->
+            <a id="calendarManageSpecialDaysLink" href="/schedule?view=special-days" class="min-h-[44px] px-3 py-2 text-sm font-semibold text-navy border-2 border-lavender hover:border-gold rounded-xl transition-colors flex items-center gap-1.5 no-underline whitespace-nowrap" data-i18n="schedule.calendar.manageSpecialDays">🌟 Hantera specialdagar &amp; lov</a>
+            <button id="calendarTodayBtn" onclick="goToToday()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gold text-gold hover:bg-gold-light transition-colors whitespace-nowrap" data-i18n="schedule.calendar.today">
+              Idag
+            </button>
+          </div>
         </div>
 
         <!-- Calendar grid -->

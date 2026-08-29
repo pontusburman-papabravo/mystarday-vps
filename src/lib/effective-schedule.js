@@ -317,7 +317,48 @@ async function resolveEffectiveSchedule(childId, dateStr, options = {}) {
   };
 }
 
+/**
+ * Phase 4 — resolve the effective planning state for every date in [fromDateStr, toDateStr]
+ * (inclusive), for the Calendar week grid and any other multi-date caller. This is a THIN
+ * wrapper — it composes the exact same canonical logic as `resolveEffectiveSchedule()`, one
+ * date at a time, and introduces no separate precedence implementation whatsoever. Bounded to a
+ * small date range (Calendar's use case is a 7-day week); per Phase 3's performance audit,
+ * `resolveEffectiveSchedule()` itself is already a small, bounded number of queries, so N calls
+ * for a 7-day window stays well within acceptable query volume for a page-view-frequency
+ * endpoint — no caching or query batching was added ahead of a measured need.
+ *
+ * @param {string} childId
+ * @param {string} fromDateStr YYYY-MM-DD
+ * @param {string} toDateStr YYYY-MM-DD (inclusive)
+ * @param {{ client?: import('pg').PoolClient, timezone?: string }} [options]
+ * @returns {Promise<Map<string, Awaited<ReturnType<typeof resolveEffectiveSchedule>>>>} keyed by date string
+ */
+async function resolveEffectiveScheduleRange(childId, fromDateStr, toDateStr, options = {}) {
+  const q = options.client || db;
+  let timezone = options.timezone;
+  if (!timezone) {
+    const childRes = await q.query('SELECT timezone FROM child WHERE id = $1', [childId]);
+    if (childRes.rows.length === 0) {
+      throw Object.assign(new Error('Child not found'), { code: 'CHILD_NOT_FOUND' });
+    }
+    timezone = childRes.rows[0].timezone || 'Europe/Stockholm';
+  }
+
+  const dates = [];
+  for (let d = new Date(`${fromDateStr}T00:00:00Z`); d.toISOString().slice(0, 10) <= toDateStr; d.setUTCDate(d.getUTCDate() + 1)) {
+    dates.push(d.toISOString().slice(0, 10));
+  }
+
+  const results = new Map();
+  for (const dateStr of dates) {
+    // Intentionally sequential — see function doc comment on bounded range size.
+    results.set(dateStr, await resolveEffectiveSchedule(childId, dateStr, { client: q, timezone }));
+  }
+  return results;
+}
+
 module.exports = {
   BASE_TYPES,
   resolveEffectiveSchedule,
+  resolveEffectiveScheduleRange,
 };
