@@ -217,6 +217,15 @@ function mapFilesToAreaStatus(area, runResults) {
       evidence: { reason: 'test_files_missing', missing, files: wanted },
     };
   }
+
+  const unseen = wanted.filter((f) => !seen.has(f));
+  if (unseen.length) {
+    return {
+      status: STATUS.NOT_VERIFIED,
+      evidence: { reason: 'tests_not_seen_in_runs', unseen, files: wanted, seen: [...seen] },
+    };
+  }
+
   return {
     status: STATUS.PASS,
     evidence: { files: wanted, note: 'No failures in area test files.' },

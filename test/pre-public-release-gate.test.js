@@ -203,6 +203,18 @@ test('classifyOverall: BLOCKER wins over NOT_VERIFIED', () => {
   assert.equal(r.exitCode, EXIT.GO);
 });
 
+test('orchestrator reports ciReuse on Gate A JSON', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /ciReuse/);
+  assert.match(src, /actuallyReused/);
+  assert.match(src, /revalidatedStatus/);
+});
+test('orchestrator revalidates CI evidence instead of trusting JSON file', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /validateCiEvidenceForGateReuse/);
+  assert.doesNotMatch(src, /ciEvidence\?\.status === 'REUSE_ALLOWED'/);
+});
+
 test('orchestrator never enables widget flags', () => {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
   assert.doesNotMatch(src, /PRE_PUBLIC_GATE_ENABLE_WIDGET/);
@@ -220,6 +232,7 @@ test('orchestrator --help starts (no TDZ on require)', () => {
   assert.equal(r.status, 0, r.stderr || r.stdout);
   assert.match(r.stdout, /public-runtime/);
   assert.match(r.stdout, /native-store/);
+  assert.match(r.stdout, /--ci-evidence-file/);
 });
 
 test('admin release-readiness route exists in system.js', () => {
