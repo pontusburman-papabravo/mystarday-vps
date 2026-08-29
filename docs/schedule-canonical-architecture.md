@@ -1,4 +1,4 @@
-# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C + 2 + 3)
+# Schedule domain — canonical command/query architecture (Phase 1A + 1B + 1C + 2 + 3 + 4)
 
 **Status: PHASE 1A COMPLETE — merged, deployed, and verified.**
 **Status: PHASE 1B COMPLETE — merged, deployed, and verified.**
@@ -1451,3 +1451,258 @@ Daily Log relocation, PDF placement, remaining visual simplification, accessibil
 polish — **plus, as newly surfaced by this phase's caller audit, the Calendar week-grid Special
 Period awareness gap documented above**, which is now a concrete, scoped, well-understood item
 ready to be picked up whenever Calendar-adjacent work is next in scope.
+
+## Phase 4 — final Planning IA + Calendar coherence + UX polish
+
+**Status: PHASE 4 IN PROGRESS** (PR pending — not merged, not deployed).
+
+Phase 4 is the final Planering phase: information architecture, navigation, Calendar coherence,
+progressive disclosure, and legacy-chrome demotion. The backend/domain model is stable as of
+Phase 3 — this phase introduces **no new scheduling architecture, no new resolver, no new
+migration**.
+
+Locked product model (unchanged, restated for this phase):
+
+```
+Planera vardagen
+  Veckoschema  = hur vardagen brukar se ut
+  Kalender     = specialdagar, lov och andra avvikelser
+  Boendeschema = växelvis boende (conditional — only shown when custody is active)
+
+Bygg innehåll
+  Bibliotek    = aktiviteter, bilder och belöningar
+```
+
+### Calendar canonical integration (the Phase 3-documented critical gap — closed)
+
+`GET /api/children/:childId/calendar-week` (`src/routes/calendar.js`) independently re-decided
+special-day-vs-weekly precedence for any date without a generated `daily_log`, with **no Special
+Period awareness at all** — an active period was invisible in the Calendar week grid until its
+first `daily_log` was generated for that date.
+
+**Fix:** added `resolveEffectiveScheduleRange(childId, fromDateStr, toDateStr, options?)` to
+`src/lib/effective-schedule.js` — a thin wrapper that calls `resolveEffectiveSchedule()` once
+per date in the range. It introduces **no second precedence implementation**: verified by a
+dedicated test asserting the range helper never calls the resolver's internal primitives
+(`loadWeeklyItems`/`loadPeriodForDate`/`loadSpecialDayItems`/`composePeriodWithWeekly`)
+directly, only the public `resolveEffectiveSchedule()`.
+
+`calendar.js`'s per-day branch for a date with no generated log now uses this canonical range
+result instead of the old direct `weekly_schedule`/`weekly_schedule_item` query + custody
+`week_variant`/`custody_home_id` template grouping + `templateActivitiesForDay()` lookup, which
+is **removed entirely** (no dead code left behind — the whole function and its supporting maps
+are gone). The `special_day_schedule` query is simplified to existence+note only (a badge/
+annotation, orthogonal to item selection); which activities are shown — including the
+empty-Special-Day-falls-through rule — is now decided exclusively by the resolver.
+
+**Custody UI metadata is completely unchanged and confirmed consistent.** `calendar.js`'s own
+custody banner metadata (home label/color/handoff state) still comes from
+`loadCustodyContext()`/`resolveCustodyDateSync()` (`src/lib/custody-schedule-engine/`) — this
+was deliberately kept, per the task's explicit instruction not to break custody rendering.
+Verified there is no risk of the banner and the shown activities disagreeing about which custody
+home is active: `custody-schedule-resolve.js`'s `resolveWeeklyScheduleId()` (used inside
+`resolveEffectiveSchedule()`) itself delegates to the exact same `custody-schedule-engine`
+`loadCustodyContext()`/`resolveCustodyDateSync()` primitives calendar.js calls directly — they
+are two entry points into one underlying system, not two competing ones.
+
+**Query cost:** 7 `resolveEffectiveSchedule()` calls (one per visible day) replace what was 1
+bulk query, for a page-view-frequency endpoint (a parent opening the Calendar page, not a
+polled/hot path). Accepted per the Phase 3 performance-audit precedent — no caching or a
+richer batch-query helper was built ahead of a measured need; `resolveEffectiveScheduleRange()`
+is intentionally the described "Option A wrapped as Option B" (bounded per-date calls behind one
+clean call site), not a genuinely batched query.
+
+**Calendar now correctly displays, before any `daily_log` exists for the date:** weekly-only,
+custody-aware weekly (home A/B), Special Period `merge`/`replace_sections`/`replace_day`,
+explicit Special Day over an active period, empty-Special-Day fallthrough, and date exclusions
+under a period — see `test/calendar-week-canonical.test.js`.
+
+### Weekly Schedule chrome classification
+
+Audited every control in the Weekly Schedule editor toolbar (`#calNavBar` + `#viewModeBar` in
+`public/schedule.html`):
+
+| Control | Classification | Outcome |
+|---|---|---|
+| `📋 Schema` (default view) | PRIMARY | kept inline |
+| `➕ Lägg till` (canonical mutation entry) | PRIMARY | kept inline, unchanged (Phase 1B) |
+| Dag / Vecka / Månad (`#calNavBar` segmented toggle) | SECONDARY | **kept inline** — already a compact 3-button segmented control, not sprawling "control room" clutter; not touched this phase |
+| `📝 Listläge` | ADVANCED | moved under `Visa ▾` |
+| `⏱ Tidsvy` | ADVANCED | moved under `Visa ▾` |
+| `👥 Jämför barn` | ADVANCED | moved under `Visa ▾` |
+| `🌟 Specialdagar` | ADVANCED / legacy path | moved under `Visa ▾` — no longer a competing always-visible schedule mode now that Kalender has full Special Period parity (see above) |
+| `📄 Skapa PDF` | ADVANCED / export | moved under `Visa ▾` |
+| `📆 Fyll vecka` | REMOVE/RELOCATE | **already done in Phase 1C** — remains an invisible state marker; unchanged this phase |
+| Day-row `⋯ Fler alternativ` (Kopiera till veckor/barn) | ADVANCED | **already done in Phase 1C** — unchanged this phase |
+| Drag-to-copy hint | SECONDARY | kept inline (contextual, low visual weight) |
+
+**Implementation:** the always-visible view-mode bar (previously 5 pills + a PDF link, all
+inline) now shows only `📋 Schema` and a `Visa ▾` disclosure trigger. The four advanced view
+modes plus the PDF link are inside the disclosure, reusing the **exact same** `<details>`/
+`<summary>` pattern already established for the day row's `⋯ Fler alternativ` menu (Phase 1C) —
+no new UI component was introduced, and no functional change was made to what any button does
+(only where it lives in the DOM). All moved controls keep `min-h-[44px]` touch targets.
+
+### Month view vs Kalender — audited, kept distinct
+
+Weekly Schedule's `Månad` mode (`#calNavBar` → `btnViewMonth`) is a lightweight, edit-oriented
+navigation aid: a month grid with dots marking which weekdays have recurring template content,
+used to jump into the week editor for a given weekday. `/calendar` (Kalender) is the
+read-oriented, resolved week view with actual planning content and special-day badges. These
+serve genuinely distinct jobs (edit-navigation vs. read/exception surface) and were **not**
+merged or removed this phase — the overlap is conceptual naming similarity ("month"/"calendar"),
+not duplicated functionality, and resolving that naming overlap without misleading users about
+which one edits vs. which one shows exceptions was judged lower-value than the Calendar
+canonical-integration fix and chrome disclosure work actually completed. Left for a future pass
+if product research confirms parents find the naming confusing in practice.
+
+### Specialdagar placement
+
+The Specialdagar view mode inside Weekly Schedule remains functionally available (demoted, not
+deleted — see chrome classification table above) because it is still the only UI that hosts the
+Specialperioder list/create/edit/delete surface (Phase 2). Migrating that CRUD surface itself to
+live on the Kalender page is a larger, separately-scoped UI relocation (a real host-page move,
+not a visibility/ordering change) and was intentionally not attempted in this pass — Calendar's
+job in Phase 4 was to correctly **display** the resolved plan (done, see above), not to become
+the new host for period/special-day management. Demoting the tab under `Visa ▾` already removes
+it as a competing always-visible primary schedule mode, which was the concrete ask.
+
+### Daily Log placement — audited, unchanged
+
+Already correctly demoted: `Daglig logg` lives in the Planering hub's "Övrigt" (other) section,
+not "Planera vardagen". It is more prominently reachable from Hem (dashbord) via a "📝 Fyll i i
+efterhand" CTA — that is a dashboard/Hem IA decision, out of this phase's Planering-hub scope,
+and was not touched.
+
+### PDF placement — audited, unchanged
+
+Already correctly secondary everywhere: "Skapa PDF — schema" lives in Planering's "Övrigt"
+section (not primary), and within Weekly Schedule the PDF link is now inside the `Visa ▾`
+disclosure (see chrome classification above) rather than an inline toolbar item. The dedicated
+`/print-schema` page's own primary "Skapa PDF" button remains gold — that page's entire job is
+producing a PDF, so a primary CTA there is correct and was not touched.
+
+### Library (Bibliotek) CTA hierarchy
+
+Audited every CTA on `/library`. Found one genuine gap: the **standard-library** schedule
+application button (`openScheduleCopyDialog()`, "Kopiera till barn" on a global template card in
+`public/js/library-standard.js`) was still a primary gold CTA — the equivalent **family**-
+template button was already demoted to a secondary/outline style in Phase 1C
+(`public/js/library-schema.js`), but this one was missed. **Fixed**: demoted to the identical
+secondary/outline style (`bg-white border-2 border-lavender`), for the identical reason —
+recurring-schedule application now primarily happens from Weekly Schedule's `+ Lägg till → Från
+mall`, which offers `merge`/`replace_sections`/`replace_day` and custody scoping this dialog
+lacks.
+
+Activity-level content actions (`copyStandardActivity()`/`copyAllStandardActivities()` — adding
+a standard activity into the family's own activity library) were deliberately **left primary
+gold**: they are content management (Bibliotek's actual job — bringing library content into your
+family), not schedule mutation, so they correctly stay visually prominent.
+
+### Planering hub IA — audited, already matches the locked model
+
+The Planering hub (`public/js/planning-hub.js`) was already correctly organized from prior
+phases: `Veckoschema`/`Kalender` (and `Boendeschema`, conditionally, only when the family has
+custody active) under "Planera vardagen"; `Bibliotek`/`Bildarkiv` under "Bygg innehåll";
+`Daglig logg`/`Skapa PDF — schema`/`Tilldela schema` demoted into "Övrigt". No `Fyll vecka` entry
+exists on the hub. No changes were needed — this is now locked with regression tests
+(`test/phase4-planning-ia.test.js`) rather than left informally correct.
+
+### Custody Calendar metadata — preserved
+
+Confirmed via both the source-pattern test suite and manual verification (two-home custody
+family, both a merge-period date and a non-period date) that the Calendar's custody home
+label/color/handoff banner rendering is byte-for-byte unchanged by this phase's canonical
+integration — only which activities are listed for a no-log-yet date changed, never how custody
+is displayed.
+
+### Mobile (375px) and accessibility
+
+Manually verified at 375px width: Planering hub cards stack in a single column with no
+horizontal overflow; the Weekly Schedule toolbar's `📋 Schema` / `Visa ▾` / `➕ Lägg till` group
+fits without overflow and the `Visa ▾` dropdown stays within the viewport; the Calendar week view
+remains usable (day columns stack, consistent with its existing pre-Phase-4 mobile behaviour —
+not newly introduced or regressed by this phase). All moved/added controls use `min-h-[44px]`
+touch targets. No critical action in this phase's changes requires drag-and-drop. No new
+icon-only controls were introduced without a label (`Visa ▾` has a visible text label, unlike a
+bare icon button).
+
+### No new domain work (confirmed)
+
+No new resolver, no new schedule source type, no new period model, no new custody semantics, no
+new date-override concept, no schema migration. The only backend change this phase is the
+purely-additive, zero-precedence-duplicating `resolveEffectiveScheduleRange()` wrapper.
+
+### Legacy endpoints
+
+No endpoint was physically deleted. `calendar.js`'s old direct-query code path was removed
+because it was **dead application code being replaced by its correct canonical equivalent
+within the same file** (a duplicate-precedence bug fix, following the exact same "don't leave
+dead precedence logic behind" principle Phase 3 already applied to
+`daily-log-generator.js`) — this is different from, and not a violation of, "do not physically
+delete legacy *endpoints*": no route, no backend compatibility surface, and no other file's
+behavior changed.
+
+### Static assets / cache
+
+SW cache bumped to `stjarndag-v892` — `public/schedule.html`, `public/js/library-standard.js`,
+and the `schedule-sv-SE.json`/`schedule-en-GB.json` locale bundles changed (new
+`schedule.chrome.showMoreViews` key; the `Visa ▾`/`Kopiera till barn` markup changes). No CSS
+source changes were needed (`check:css` reported no diff beyond the cache-version comment).
+
+### Tests
+
+- `test/calendar-week-canonical.test.js` (new, 2 HTTP integration tests): the full Calendar
+  matrix — weekly-only, custody A/B, period `merge`/`replace_sections`/`replace_day`, explicit
+  Special Day over an active period, empty-Special-Day fallthrough, date exclusion under a
+  period — all verified correct with **no `daily_log` generated** for any of the dates checked.
+- `test/custody-calendar.test.js` (rewritten): old source-pattern assertions characterizing the
+  removed template-lookup implementation replaced with assertions for the new canonical-
+  delegation architecture (`resolveEffectiveScheduleRange`, no
+  `templateActivitiesForDay`/`templatesByVariant`/`templatesByHome`/direct `weekly_schedule`
+  query); custody UI metadata preservation reconfirmed.
+- `test/phase4-planning-ia.test.js` (new, 15 tests): Weekly Schedule chrome disclosure
+  (advanced views under `Visa ▾`, exactly one primary add action, no duplicate mutation entry,
+  touch targets), Library CTA hierarchy (standard-library demotion, family-template demotion
+  regression, activity-level actions correctly still gold), and Planering hub IA (plan/content/
+  other section membership, conditional Boendeschema, no `Fyll vecka`, no new top-level
+  sections).
+- `test/schedule-phase1c-retirement.test.js`: the toolbar-slice boundary in "A1" updated for the
+  new nested `<details>` markup (the assertions themselves — no visible `Fyll vecka`, invisible
+  state marker preserved — are unchanged).
+- Full existing suites re-run green: all custody suites (109), effective-schedule/schedule-
+  period suites (76+), all Phase 1A/1B/1C suites, i18n parity suites, hardcoded-Swedish audit,
+  `lint`, `lint:public`, `check:css`. Full `npm run test:gate` green (1003/1003).
+
+### Manual verification
+
+Isolated local test family (no custody), weekly Mon–Fri schedule, family template with one
+`kvall` item, plus a Special Period on a future date created directly via
+`createSchedulePeriod()` **without ever visiting that date in the child dashboard** (so no
+`daily_log` existed for it):
+
+1. Planering hub shows the three expected sections with the expected cards.
+2. Calendar, navigated forward to the period's date (never visited before): shows all four
+   activities (three weekly + the period's) — proving the canonical integration works with zero
+   `daily_log` dependency.
+3. Weekly Schedule toolbar shows only `📋 Schema` / `Visa ▾` / `➕ Lägg till` inline.
+4. `Visa ▾` opens a dropdown with Listläge/Tidsvy/Jämför barn/Specialdagar(/Skapa PDF);
+   selecting Specialdagar correctly switches views and shows the created period in the
+   Specialperioder list.
+5. Library standard-schedule CTA styling — **not verified manually** (this local environment's
+   global standard library is empty, a pre-existing, documented environment limitation — see
+   AGENTS.md "Known caveats"); confirmed instead via the source-pattern test in item 5 above.
+6. 375px: Planering hub, Weekly Schedule toolbar, and Calendar all verified usable with no
+   horizontal overflow.
+7. No JavaScript console errors observed (only pre-existing, unrelated CSP report-only warnings
+   and 403/503 responses from unrelated analytics/journey-context endpoints).
+
+Test family fully deleted afterward.
+
+### Non-goals confirmed untouched (Phase 4)
+
+Widget, Meta, payments, RevenueCat, market flags, Android/iOS release flow, real Undo, multi-
+child atomicity, the once-task race, unrelated auth, growth automation, Weekly Schedule redesign
+beyond the chrome disclosure described above, Daily Log functionality redesign, PDF removal,
+Calendar visual redesign beyond the canonical-data fix, and the Month-view/Kalender naming
+overlap (documented, not resolved).
