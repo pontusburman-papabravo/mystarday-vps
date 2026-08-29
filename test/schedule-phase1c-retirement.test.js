@@ -30,7 +30,10 @@ describe('Phase 1C — A. Fyll vecka retirement', () => {
     // Only the primary toolbar (#viewModeBar) is asserted — the legacy #fillWeekModal markup
     // (unreachable now that nothing triggers it) is intentionally left in place as harmless
     // dead markup per the strangler rule, rather than risking a larger deletion in this pass.
-    const toolbarRaw = html.slice(html.indexOf('id="viewModeBar"'), html.indexOf('</div>', html.indexOf('id="viewModeBar"')));
+    // Phase 4: the toolbar now nests a <details>/<div> disclosure (advanced view modes), so the
+    // first </div> after the bar's start tag is that nested div's close, not the bar's own close
+    // — extend the slice to the </div> that follows the fillWeekBtn marker instead.
+    const toolbarRaw = html.slice(html.indexOf('id="viewModeBar"'), html.indexOf('</div>', html.indexOf('id="fillWeekBtn"')));
     const toolbar = toolbarRaw.replace(/<!--[\s\S]*?-->/g, '');
     assert.doesNotMatch(toolbar, /data-i18n="schedule\.chrome\.fillWeek"/);
     assert.doesNotMatch(toolbar, /Fyll vecka/);

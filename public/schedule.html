@@ -434,13 +434,28 @@
           <!-- Child tabs -->
           <div id="childTabs" class="flex gap-2 flex-wrap mb-4"></div>
 
-          <!-- View mode bar (schema/tidsvy/jämför/specialdagar — secondary views) -->
+          <!-- View mode bar (Phase 4: only the default "schema" view stays inline — the
+               advanced/occasional-use view modes and the PDF export link are tucked under the
+               "showMoreViews" disclosure trigger, reusing the exact same <details>/<summary>
+               pattern already established for the day row's overflow ("moreOptions") menu, so
+               the primary toolbar reads as one obvious view + one obvious primary action instead
+               of five always-visible pills — see docs/schedule-canonical-architecture.md
+               "Phase 4" "Weekly Schedule chrome classification". The special-day view mode in
+               particular is kept here only as a secondary/legacy path — Kalender is now the
+               primary place special days and periods are visible (Phase 4 also gave Kalender
+               full Special Period parity). -->
           <div id="viewModeBar" class="hidden flex flex-wrap items-center gap-2 mb-3">
             <button id="btnNormalView" onclick="setViewMode('normal')" class="view-btn active" data-i18n="schedule.chrome.viewNormal">📋 Schema</button>
-            <button id="btnListView" onclick="setViewMode('list')" class="view-btn" data-i18n="schedule.chrome.viewList">📝 Listläge</button>
-            <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn" data-i18n="schedule.chrome.viewTimeline">⏱ Tidsvy</button>
-            <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn" data-i18n="schedule.chrome.viewSbs">👥 Jämför barn</button>
-            <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn" data-i18n="schedule.chrome.viewSpecialDays">🌟 Specialdagar</button>
+            <details class="relative">
+              <summary class="view-btn min-h-[44px] cursor-pointer list-none flex items-center gap-1" data-i18n="schedule.chrome.showMoreViews">Visa ▾</summary>
+              <div class="absolute left-0 mt-2 z-20 flex flex-col gap-1 bg-white border-2 border-lavender rounded-xl p-2 shadow-lg min-w-[200px]">
+                <button id="btnListView" onclick="setViewMode('list')" class="view-btn min-h-[44px] text-left" data-i18n="schedule.chrome.viewList">📝 Listläge</button>
+                <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn min-h-[44px] text-left" data-i18n="schedule.chrome.viewTimeline">⏱ Tidsvy</button>
+                <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn min-h-[44px] text-left" data-i18n="schedule.chrome.viewSbs">👥 Jämför barn</button>
+                <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn min-h-[44px] text-left" data-i18n="schedule.chrome.viewSpecialDays">🌟 Specialdagar</button>
+                <a id="schedulePrintLink" href="/print-schema" class="hidden view-btn min-h-[44px] text-left no-underline flex items-center" data-i18n-title="schedule.chrome.createPdfTitle" title="Skapa PDF — välj period" data-i18n="schedule.chrome.createPdf">📄 Skapa PDF</a>
+              </div>
+            </details>
             <span class="drag-copy-hint" data-i18n="schedule.actions.dragCopyHint">← Dra aktivitet till dag-flik för att kopiera</span>
             <button onclick="ScheduleAddMenu.open()" id="scheduleAddMenuBtn" class="hidden ml-auto min-h-[44px] px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-heading font-bold transition-colors flex items-center gap-1.5" data-i18n="schedule.addMenu.trigger">➕ Lägg till</button>
             <!-- Phase 1C: "Fyll vecka" retired as a primary visible control (superseded by "+ Lägg till → Från mall",
@@ -453,7 +468,6 @@
                  path (see docs/schedule-canonical-architecture.md "Phase 1C legacy retirement table") — nothing wires
                  them from the UI anymore. -->
             <span id="fillWeekBtn" class="hidden" aria-hidden="true"></span>
-            <a id="schedulePrintLink" href="/print-schema" class="hidden ml-2 px-3 py-1.5 bg-white border-2 border-lavender text-navy rounded-xl text-sm font-semibold hover:border-gold transition-colors flex items-center gap-1.5 no-underline" data-i18n-title="schedule.chrome.createPdfTitle" title="Skapa PDF — välj period" data-i18n="schedule.chrome.createPdf">📄 Skapa PDF</a>
           </div>
 
           <!-- Day selector -->
