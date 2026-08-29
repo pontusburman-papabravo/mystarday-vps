@@ -538,3 +538,67 @@ test('Phase 4 — calendar-week custody A/B: correct home items shown with no lo
     await db.cleanup();
   }
 });
+
+test('Phase 4 — calendar-week custody + period composition + log completion overlay', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createSchedulePeriod } = require('../src/lib/schedule-period');
+  const { getOrGenerateDailyLog } = require('../src/lib/daily-log-generator');
+  const tag = Date.now();
+  const password = 'calendar-custody-period-pass-1';
+  const passwordHash = await hashPassword(password);
+  const familyRes = await db.query(`INSERT INTO family (name, timezone, is_lifetime_free) VALUES ('Calendar custody period', 'Europe/Stockholm', true) RETURNING id`);
+  const familyId = familyRes.rows[0].id;
+  await db.query(`INSERT INTO feature_flag (key, enabled, description) VALUES ('custody_schedule_beta', true, 'calendar custody+period test') ON CONFLICT (key) DO UPDATE SET enabled = true`);
+  const email = `calendar-custody-period-${tag}@example.com`;
+  await db.query(`INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified) VALUES ($1, $2, $3, 'Parent', true, true)`, [email, passwordHash, familyId]);
+  const childRes = await db.query(`INSERT INTO child (family_id, name, emoji, username) VALUES ($1, 'Barn', '⭐', $2) RETURNING id`, [familyId, `barn-cp-${tag}`]);
+  const childId = childRes.rows[0].id;
+  await db.query(`INSERT INTO parent_child (parent_id, child_id, role) SELECT id, $2, 'primary' FROM parent WHERE email = $1`, [email, childId]);
+
+  const homeA = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos mamma') RETURNING id`, [familyId]);
+  const anchorMonday = '2027-03-01';
+  await db.query(
+    `INSERT INTO custody_pattern (child_id, anchor_date, interval_weeks, week_a_home_id, week_b_home_id, pattern_type) VALUES ($1, $2, 2, $3, $3, 'alternate_weeks')`,
+    [childId, anchorMonday, homeA.rows[0].id]
+  );
+
+  const weeklyAct = (await db.query(`INSERT INTO activity_template (family_id, name, icon, star_value, sort_order) VALUES ($1,'WeeklyCustody','⭐',1,0) RETURNING id`, [familyId])).rows[0].id;
+  const periodAct = (await db.query(`INSERT INTO activity_template (family_id, name, icon, star_value, sort_order) VALUES ($1,'PeriodCustody','⭐',1,0) RETURNING id`, [familyId])).rows[0].id;
+  const tpl = await db.query(`INSERT INTO weekly_schedule (family_id, name, sort_order, day_of_week, child_id) VALUES ($1, 'Mall', 0, 0, NULL) RETURNING id`, [familyId]);
+  await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'kvall')`, [tpl.rows[0].id, periodAct]);
+  await db.query(`INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, custody_home_id, week_variant) VALUES ($1, 1::smallint, 1::integer, $2, 'a') RETURNING id`, [childId, homeA.rows[0].id])
+    .then(async (r) => db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'morgon')`, [r.rows[0].id, weeklyAct]));
+
+  const periodDate = '2027-03-01';
+  await createSchedulePeriod({ familyId, childId, name: 'Custody period', startDate: periodDate, endDate: periodDate, sourceType: 'family_template', sourceId: tpl.rows[0].id, applyMode: 'merge' });
+  const { log } = await getOrGenerateDailyLog(childId, periodDate);
+  await db.query(`UPDATE daily_log_item SET completed = true WHERE daily_log_id = $1 AND activity_template_id = $2`, [log.id, periodAct]);
+
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+  try {
+    const session = await loginParent(baseUrl, email, password);
+    const headers = { 'Content-Type': 'application/json', Cookie: cookieHeader(session.cookies), 'X-CSRF-Token': session.csrfToken };
+    const todayUtc = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
+    const todayDow = todayUtc.getUTCDay();
+    const daysFromMonday = todayDow === 0 ? 6 : todayDow - 1;
+    const thisWeekMonday = new Date(todayUtc);
+    thisWeekMonday.setUTCDate(todayUtc.getUTCDate() - daysFromMonday);
+    const weekOffset = Math.round((new Date(`${periodDate}T00:00:00Z`) - thisWeekMonday) / (7 * 24 * 60 * 60 * 1000));
+
+    const body = await (await fetch(`${baseUrl}/api/children/${childId}/calendar-week?weekOffset=${weekOffset}`, { headers })).json();
+    const day = body.days.find((d) => d.date === periodDate);
+    assert.deepEqual(day.activities.map((a) => a.id).sort(), [periodAct, weeklyAct].sort(), '15: custody weekly + period merge shown from canonical state');
+    assert.equal(day.activities.find((a) => a.id === periodAct).completed, true, '15: completion overlaid from log');
+    assert.equal(day.activities.find((a) => a.id === weeklyAct).completed, false, '15: weekly item without completion stays not-done');
+    assert.ok(day.custody, '15: custody metadata preserved');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});

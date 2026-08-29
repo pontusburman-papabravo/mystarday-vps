@@ -187,8 +187,8 @@ router.get('/calendar-week', async (req, res) => {
       }
     }
 
-    // Phase 4 — canonical planning state for every date in the visible window, for dates that
-    // don't yet have a generated daily_log (see file header comment). This single call replaces
+    // Phase 4 — canonical planning state for every date in the visible window (see file header
+    // comment — planning content ALWAYS comes from here, never from daily_log). This single call replaces
     // the previous direct weekly_schedule/weekly_schedule_item query + custody-variant grouping
     // + template lookup, which independently re-decided special-day-vs-weekly precedence and had
     // no Special Period awareness at all (the gap documented in Phase 3's "Duplicate-precedence

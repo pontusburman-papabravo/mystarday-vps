@@ -1454,7 +1454,7 @@ ready to be picked up whenever Calendar-adjacent work is next in scope.
 
 ## Phase 4 — final Planning IA + Calendar coherence + UX polish
 
-**Status: PHASE 4 IN PROGRESS** (PR pending — not merged, not deployed).
+**Status: PHASE 4 READY FOR MERGE** (PR #1106 — draft, not merged, not deployed).
 
 Phase 4 is the final Planering phase: information architecture, navigation, Calendar coherence,
 progressive disclosure, and legacy-chrome demotion. The backend/domain model is stable as of
@@ -1487,13 +1487,12 @@ dedicated test asserting the range helper never calls the resolver's internal pr
 (`loadWeeklyItems`/`loadPeriodForDate`/`loadSpecialDayItems`/`composePeriodWithWeekly`)
 directly, only the public `resolveEffectiveSchedule()`.
 
-`calendar.js`'s per-day branch for a date with no generated log now uses this canonical range
-result instead of the old direct `weekly_schedule`/`weekly_schedule_item` query + custody
-`week_variant`/`custody_home_id` template grouping + `templateActivitiesForDay()` lookup, which
-is **removed entirely** (no dead code left behind — the whole function and its supporting maps
-are gone). The `special_day_schedule` query is simplified to existence+note only (a badge/
-annotation, orthogonal to item selection); which activities are shown — including the
-empty-Special-Day-falls-through rule — is now decided exclusively by the resolver.
+`calendar.js`'s per-day activity list now **always** uses the canonical range result for **every**
+date — with or without a generated `daily_log`. The old direct `weekly_schedule`/
+`weekly_schedule_item` query + custody `week_variant`/`custody_home_id` template grouping +
+`templateActivitiesForDay()` lookup is **removed entirely** (no dead code left behind). When a
+`daily_log` exists, it supplies an **execution-metadata overlay only** (completion status,
+day-level `isPaused`, and additive once-tasks) — never the planning item list itself.
 
 **Custody UI metadata is completely unchanged and confirmed consistent.** `calendar.js`'s own
 custody banner metadata (home label/color/handoff state) still comes from
@@ -1534,7 +1533,7 @@ Audited every control in the Weekly Schedule editor toolbar (`#calNavBar` + `#vi
 | `📄 Skapa PDF` | ADVANCED / export | moved under `Visa ▾` |
 | `📆 Fyll vecka` | REMOVE/RELOCATE | **already done in Phase 1C** — remains an invisible state marker; unchanged this phase |
 | Day-row `⋯ Fler alternativ` (Kopiera till veckor/barn) | ADVANCED | **already done in Phase 1C** — unchanged this phase |
-| Drag-to-copy hint | SECONDARY | kept inline (contextual, low visual weight) |
+| Drag-to-copy hint | SECONDARY | **demoted** — removed from the always-visible view-mode toolbar and the day-editor subtitle; the contextual day-tab selector hint (`schedule.chrome.daySelectorHint`) remains the sole drag guidance. Drag/drop itself is unchanged and optional. |
 
 **Implementation:** the always-visible view-mode bar (previously 5 pills + a PDF link, all
 inline) now shows only `📋 Schema` and a `Visa ▾` disclosure trigger. The four advanced view
@@ -1645,23 +1644,24 @@ behavior changed.
 
 ### Static assets / cache
 
-SW cache bumped to `stjarndag-v892` — `public/schedule.html`, `public/js/library-standard.js`,
-and the `schedule-sv-SE.json`/`schedule-en-GB.json` locale bundles changed (new
-`schedule.chrome.showMoreViews` key; the `Visa ▾`/`Kopiera till barn` markup changes). No CSS
-source changes were needed (`check:css` reported no diff beyond the cache-version comment).
+SW cache bumped to `stjarndag-v895` — `public/calendar.html` (bridge link moved inside
+`#calendarUI` so parent-magic chrome cannot hide it), `public/schedule.html` (drag-hint
+demotion), `public/js/schedule.js`. No CSS source changes were needed (`check:css` reported no
+diff beyond the cache-version comment).
 
 ### Tests
 
-- `test/calendar-week-canonical.test.js` (new, 2 HTTP integration tests): the full Calendar
-  matrix — weekly-only, custody A/B, period `merge`/`replace_sections`/`replace_day`, explicit
-  Special Day over an active period, empty-Special-Day fallthrough, date exclusion under a
-  period — all verified correct with **no `daily_log` generated** for any of the dates checked.
+- `test/calendar-week-canonical.test.js` (new, 5 HTTP integration tests): the full Calendar
+  matrix — weekly-only, custody A/B, custody+period+log overlay, period
+  `merge`/`replace_sections`/`replace_day`, explicit Special Day over an active period,
+  empty-Special-Day fallthrough, date exclusion under a period, plan/execution separation with
+  stale-log guards, and once-task additive overlay — verified for both no-log and has-log dates.
 - `test/custody-calendar.test.js` (rewritten): old source-pattern assertions characterizing the
   removed template-lookup implementation replaced with assertions for the new canonical-
   delegation architecture (`resolveEffectiveScheduleRange`, no
   `templateActivitiesForDay`/`templatesByVariant`/`templatesByHome`/direct `weekly_schedule`
   query); custody UI metadata preservation reconfirmed.
-- `test/phase4-planning-ia.test.js` (new, 15 tests): Weekly Schedule chrome disclosure
+- `test/phase4-planning-ia.test.js` (new, 16 tests): Weekly Schedule chrome disclosure
   (advanced views under `Visa ▾`, exactly one primary add action, no duplicate mutation entry,
   touch targets), Library CTA hierarchy (standard-library demotion, family-template demotion
   regression, activity-level actions correctly still gold), and Planering hub IA (plan/content/
@@ -1706,3 +1706,49 @@ child atomicity, the once-task race, unrelated auth, growth automation, Weekly S
 beyond the chrome disclosure described above, Daily Log functionality redesign, PDF removal,
 Calendar visual redesign beyond the canonical-data fix, and the Month-view/Kalender naming
 overlap (documented, not resolved).
+
+### Calendar plan/execution separation (final Phase 4 contract)
+
+Locked composition for every Calendar date:
+
+```
+canonical effective planning items   (resolveEffectiveScheduleRange)
++ completion/status overlay          (daily_log_item by activity_template_id, non-once-task only)
++ additive once-tasks                (daily_log_item where is_once_task = true)
++ day-level isPaused                 (daily_log.is_paused)
+=
+Calendar presentation
+```
+
+**Planning authority:** `resolveEffectiveSchedule()` / `resolveEffectiveScheduleRange()` — always,
+for every date, regardless of whether a `daily_log` exists. If weekly/period/special-day
+planning changes after a log was generated, Calendar immediately shows the **new** plan.
+
+**Execution authority:** `daily_log` / `daily_log_item` — completion overlay and once-tasks only.
+A stale log item for a removed/replaced planning slot **never** resurrects or replaces the current
+plan. If no canonical plan exists (`base_type = none`), a stale non-once log item is **not**
+treated as current planning.
+
+**Completion overlay grain:** match by `activity_template_id` on non-once-task log rows only.
+Once-task rows are excluded from the completion map (they can share an `activity_template_id`
+with a recurring item). If no matching log row exists, `completed` stays `null` on the canonical
+item (or `false` when the item was included in an earlier log generation — existing
+`getOrGenerateDailyLog` behaviour).
+
+**Once-task decision:** **preserved as additive execution-only items** appended after canonical
+planned items (`source: 'once_task'`). They never influence `base_type` or resolver output.
+
+**Stale removed items:** **not shown** on any date — Calendar is "planning with completion
+indicators", not a full execution-history view. Full history remains in Daglig logg.
+
+**Special Day badge:** `isSpecialDay` / `specialDayNote` reflect row existence (parent's note).
+`isSpecialDayActive` is true only when the resolver used a **populated** explicit Special Day as
+the planning base — an empty Special Day row does **not** get the active-override badge.
+
+**Activity `source` field:** describes **planning origin** (`template`, `special_period`,
+`special_day`, `once_task`) — not "this row came from daily_log". The legacy `source: 'log'`
+value is **removed** from Calendar responses.
+
+**Special Period presentation:** day-level `base_type` from the resolver drives exception
+styling; parents see product language ("avvikelse"/note), never internal terms like
+`merge`/`replace_sections`.

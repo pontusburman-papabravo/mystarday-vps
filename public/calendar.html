@@ -322,12 +322,6 @@
           <h2 class="text-2xl font-heading font-bold text-navy dark:text-white" data-i18n="schedule.calendar.legacyTitle">📅 Kalender</h2>
           <p class="text-text-soft dark:text-slate-400 text-sm mt-1" data-i18n="schedule.calendar.legacySub">Se ditt barns schema vecka för vecka</p>
         </div>
-        <!-- Phase 4 — Kalender is the primary place to SEE special days/periods, but the
-             create/edit/delete UI for them still lives in Weekly Schedule's "Specialdagar"
-             (Visa ▾) tab (Calendar itself is a read-only week view, not a CRUD surface). This is
-             an explicit secondary bridge to that surface — see
-             docs/schedule-canonical-architecture.md "Phase 4" "Specialdagar final placement". -->
-        <a id="calendarManageSpecialDaysLink" href="/schedule?view=special-days" class="min-h-[44px] px-3 py-2 text-sm font-semibold text-navy border-2 border-lavender hover:border-gold rounded-xl transition-colors flex items-center gap-1.5 no-underline whitespace-nowrap" data-i18n="schedule.calendar.manageSpecialDays">🌟 Hantera specialdagar &amp; lov</a>
       </div>
 
       <!-- Loading state -->
@@ -367,9 +361,14 @@
               </svg>
             </button>
           </div>
-          <button id="calendarTodayBtn" onclick="goToToday()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gold text-gold hover:bg-gold-light transition-colors whitespace-nowrap" data-i18n="schedule.calendar.today">
-            Idag
-          </button>
+          <div class="flex items-center gap-2 flex-wrap justify-end">
+            <!-- Phase 4 — always inside #calendarUI so parent-magic chrome cannot hide the bridge
+                 to Specialdagar CRUD (see docs/schedule-canonical-architecture.md). -->
+            <a id="calendarManageSpecialDaysLink" href="/schedule?view=special-days" class="min-h-[44px] px-3 py-2 text-sm font-semibold text-navy border-2 border-lavender hover:border-gold rounded-xl transition-colors flex items-center gap-1.5 no-underline whitespace-nowrap" data-i18n="schedule.calendar.manageSpecialDays">🌟 Hantera specialdagar &amp; lov</a>
+            <button id="calendarTodayBtn" onclick="goToToday()" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gold text-gold hover:bg-gold-light transition-colors whitespace-nowrap" data-i18n="schedule.calendar.today">
+              Idag
+            </button>
+          </div>
         </div>
 
         <!-- Calendar grid -->

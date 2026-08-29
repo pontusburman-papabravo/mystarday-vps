@@ -58,12 +58,16 @@ describe('Phase 4 — Weekly Schedule chrome (advanced views under disclosure)',
     assert.match(src, /view=special-days/);
   });
 
-  it('the disclosure reuses the existing overflow <details>/<summary> pattern (min-h-[44px] touch targets, no new component)', () => {
+  it('drag-copy hint is demoted — not an always-visible toolbar/day-header chrome control', () => {
     const html = read('public/schedule.html');
-    const detailsMatch = html.match(/<details class="relative">\s*<summary class="view-btn[\s\S]*?<\/details>/);
-    assert.ok(detailsMatch, 'expected a <details class="relative"> wrapping a view-btn styled <summary>');
-    const touchTargets = (detailsMatch[0].match(/min-h-\[44px\]/g) || []).length;
-    assert.ok(touchTargets >= 5, `expected at least 5 min-h-[44px] controls (trigger + 4 view buttons) inside the disclosure, found ${touchTargets}`);
+    const barStart = html.indexOf('id="viewModeBar"');
+    const barEnd = html.indexOf('id="fillWeekBtn"');
+    const bar = html.slice(barStart, barEnd);
+    assert.doesNotMatch(bar, /drag-copy-hint/, 'the view-mode toolbar must not show an always-visible drag-copy hint');
+    const scheduleJs = read('public/js/schedule.js');
+    const renderSlice = scheduleJs.slice(scheduleJs.indexOf('function renderSchedule'), scheduleJs.indexOf('function renderSchedule') + 1200);
+    assert.doesNotMatch(renderSlice, /dragCopyHint/, 'the day editor header must not repeat the drag-copy hint — day-tab selector hint is enough');
+    assert.match(html, /schedule\.chrome\.daySelectorHint/, 'contextual day-tab drag hint remains on the day selector only');
   });
 });
 
