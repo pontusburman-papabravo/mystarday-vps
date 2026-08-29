@@ -56,6 +56,7 @@
         "test/credential-leak-guard.test.js"
       ],
       "testGlobs": [
+        "test/*auth*.test.js",
         "test/*pin*.test.js",
         "test/*session*.test.js",
         "test/*privilege*.test.js",
@@ -91,6 +92,7 @@
         "test/iap-webhook.test.js"
       ],
       "testGlobs": [
+        "test/iap*.test.js",
         "test/paywall*.test.js",
         "test/revenuecat*.test.js",
         "test/payments*.test.js",
@@ -118,6 +120,7 @@
         "test/i18n-locale.test.js"
       ],
       "testGlobs": [
+        "test/i18n*.test.js",
         "test/market*.test.js",
         "test/legal*.test.js",
         "test/cookie*.test.js",
@@ -148,6 +151,7 @@
         "test/schedule-apply-routes.test.js"
       ],
       "testGlobs": [
+        "test/schedule*.test.js",
         "test/daily-log*.test.js",
         "test/custody*.test.js",
         "test/for-dig*.test.js",
@@ -178,6 +182,7 @@
         "test/child-read-aloud.test.js"
       ],
       "testGlobs": [
+        "test/child-dashboard*.test.js",
         "test/child-theme*.test.js",
         "test/child-today*.test.js",
         "test/child-pictogram*.test.js",
@@ -212,6 +217,7 @@
         "test/dashboard-cta.test.js"
       ],
       "testGlobs": [
+        "test/dashboard*.test.js",
         "test/onboarding*.test.js",
         "test/settings*.test.js",
         "test/hem*.test.js",
@@ -241,6 +247,7 @@
         "test/migration-destructive-contract.test.js"
       ],
       "testGlobs": [
+        "test/migration*.test.js",
         "test/setup-test-db*.test.js",
         "test/db-test-lock.test.js",
         "test/database*.test.js",
@@ -272,6 +279,7 @@
         "test/capacitor-webview-background.test.js"
       ],
       "testGlobs": [
+        "test/*ios*.test.js",
         "test/*android*.test.js",
         "test/*native*.test.js",
         "test/*widget*.test.js",

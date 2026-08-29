@@ -644,6 +644,26 @@ test('all configured domains resolve explicit l1Tests', () => {
   }
 });
 
+test('broad domains retain restored L2 testGlobs coverage', () => {
+  const restoredL2Coverage = [
+    ['auth-security', 'test/auth-integration.test.js'],
+    ['payments-iap', 'test/iap-webhook.test.js'],
+    ['i18n-markets-legal', 'test/i18n-auth-surfaces.test.js'],
+    ['planning-schedule', 'test/schedule-apply.test.js'],
+    ['child-experience', 'test/child-dashboard-split.test.js'],
+    ['parent-experience', 'test/dashboard-views.test.js'],
+    ['db-migrations', 'test/migration-files-immutable.test.js'],
+    ['native-platform', 'test/widget-ios-routine.test.js'],
+  ];
+  for (const [domainId, representativeTest] of restoredL2Coverage) {
+    const gate = resolveDomainGate(ROOT, [domainId]);
+    assert.ok(
+      gate.tests.includes(representativeTest),
+      `${domainId} L2 should include ${representativeTest} via restored testGlobs`,
+    );
+  }
+});
+
 test('all Parent Experience domains resolve L2 tests', () => {
   const peDomains = [
     'family-authz',
