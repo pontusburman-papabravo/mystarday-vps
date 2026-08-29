@@ -7,27 +7,23 @@
     "label": "Language",
     "sv-SE": "Svenska",
     "en-GB": "English",
-    "en-GB-beta": "English (Beta)",
-    "betaBadge": "Beta",
     "switchAria": "Change language",
     "choice": {
       "title": "Choose your language",
       "titleEn": "Choose your language",
       "description": "You can change the language later in Settings.",
       "descriptionEn": "You can change the language later in Settings.",
-      "betaNote": "The English version is in beta. Some text may still appear in Swedish.",
-      "betaNoteEn": "The English version is in beta. Some text may still appear in Swedish.",
       "confirm": "Continue",
       "required": "Choose a language to continue",
-      "childNote": "The parent experience is available in English beta. The child experience is still in Swedish while we complete the translation.",
-      "childNoteEn": "The parent experience is available in English beta. The child experience is still in Swedish while we complete the translation."
+      "childNote": "The parent experience is available in English. The child experience is still in Swedish while we complete the translation.",
+      "childNoteEn": "The parent experience is available in English. The child experience is still in Swedish while we complete the translation."
     },
     "offer": {
       "title": "My Starday is now available in English",
-      "body": "We are testing an English version of the app. It is still in beta, so some text may appear in Swedish and you may find translation or layout issues.",
+      "body": "My Starday is now also available in English. Some text may still appear in Swedish while we complete the translation.",
       "question": "Would you like to stay in Swedish or try English?",
       "staySwedish": "Stay in Swedish",
-      "tryEnglish": "Try English beta",
+      "tryEnglish": "Try English",
       "remindLater": "Remind me later"
     },
     "legacyNotice": {
@@ -505,8 +501,7 @@
       "save": "Save family settings"
     },
     "language": {
-      "description": "Choose the app language. English is in beta and may include incomplete translations.",
-      "betaNote": "English is in beta",
+      "description": "Choose the app language. Some English translations may still be incomplete.",
       "switchBack": "Switch back to Swedish"
     },
     "invite": {

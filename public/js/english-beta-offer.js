@@ -59,7 +59,7 @@
             <span data-i18n="language.offer.staySwedish">Fortsätt på svenska</span>
           </button>
           <button type="button" class="english-beta-offer__btn english-beta-offer__btn--primary" data-offer-action="accept_english">
-            <span data-i18n="language.offer.tryEnglish">Prova engelska beta</span>
+            <span data-i18n="language.offer.tryEnglish">Prova engelska</span>
           </button>
           <button type="button" class="english-beta-offer__btn english-beta-offer__btn--ghost" data-offer-action="remind_later">
             <span data-i18n="language.offer.remindLater">Påminn mig senare</span>

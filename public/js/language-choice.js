@@ -60,12 +60,8 @@
           </button>
           <button type="button" class="language-choice__btn${enActive}" data-locale-choice="en-GB">
             <span class="language-choice__label">English</span>
-            <span class="language-choice__beta">Beta</span>
           </button>
         </div>
-        <p class="language-choice__beta-note" data-i18n="language.choice.betaNote" hidden>
-          Den engelska versionen är i beta. Viss text kan fortfarande visas på svenska.
-        </p>
         <p class="language-choice__child-note" data-i18n="language.choice.childNote" hidden></p>
         <p class="language-choice__error" data-language-choice-error hidden role="alert"></p>
       </section>`;
@@ -89,11 +85,6 @@
       .language-choice__btn--suggested { border-color: #F5A623; box-shadow: 0 0 0 1px #F5A62333; }
       .language-choice__btn--selected { border-color: #F5A623; background: #FFF8EB; }
       .language-choice__label { font-weight: 700; color: #1B2340; font-size: 1rem; }
-      .language-choice__beta {
-        font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-        color: #6B3FA0; background: #EDE7F6; padding: 0.1rem 0.4rem; border-radius: 999px;
-      }
-      .language-choice__beta-note { font-size: 0.75rem; color: #6B3FA0; margin-top: 0.65rem; }
       .language-choice__child-note { font-size: 0.75rem; color: #5A6178; margin-top: 0.5rem; line-height: 1.45; }
       .language-choice__error { font-size: 0.8125rem; color: #ef4444; margin-top: 0.5rem; }
     `;
@@ -109,7 +100,6 @@
     container.innerHTML = buildHtml(suggest);
     I18n.apply(container);
 
-    const betaNote = container.querySelector('.language-choice__beta-note');
     const childNote = container.querySelector('.language-choice__child-note');
     const errorEl = container.querySelector('[data-language-choice-error]');
     let selected = isConfirmed() ? I18n.getCurrentLang() : null;
@@ -117,7 +107,6 @@
     if (selected) {
       const btn = container.querySelector(`[data-locale-choice="${selected}"]`);
       if (btn) btn.classList.add('language-choice__btn--selected');
-      if (selected === 'en-GB' && betaNote) betaNote.hidden = false;
       if (selected === 'en-GB' && childNote) childNote.hidden = false;
     }
 
@@ -137,7 +126,6 @@
         markConfirmed(locale);
         await I18n.load(locale);
         I18n.apply(document);
-        if (betaNote) betaNote.hidden = locale !== 'en-GB';
         if (childNote) childNote.hidden = locale !== 'en-GB';
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {

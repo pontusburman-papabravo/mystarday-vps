@@ -7,27 +7,23 @@
     "label": "Språk",
     "sv-SE": "Svenska",
     "en-GB": "English",
-    "en-GB-beta": "English (Beta)",
-    "betaBadge": "Beta",
     "switchAria": "Byt språk",
     "choice": {
       "title": "Välj språk",
       "titleEn": "Choose your language",
       "description": "Du kan ändra språk senare i Inställningar.",
       "descriptionEn": "You can change the language later in Settings.",
-      "betaNote": "Den engelska versionen är i beta. Viss text kan fortfarande visas på svenska.",
-      "betaNoteEn": "The English version is in beta. Some text may still appear in Swedish.",
       "confirm": "Fortsätt",
       "required": "Välj ett språk för att fortsätta",
-      "childNote": "Föräldradelen finns på engelska som beta. Barnets vy är fortfarande på svenska medan vi färdigställer översättningen.",
-      "childNoteEn": "The parent experience is available in English beta. The child experience is still in Swedish while we complete the translation."
+      "childNote": "Föräldradelen finns på engelska. Barnets vy är fortfarande på svenska medan vi färdigställer översättningen.",
+      "childNoteEn": "The parent experience is available in English. The child experience is still in Swedish while we complete the translation."
     },
     "offer": {
       "title": "My Starday finns nu på engelska",
-      "body": "Vi testar just nu en engelsk version av appen. Den är fortfarande i beta, så vissa texter kan vara på svenska och det kan finnas översättnings- eller layoutfel.",
+      "body": "My Starday finns nu även på engelska. Vissa texter kan fortfarande visas på svenska medan vi färdigställer översättningen.",
       "question": "Vill du fortsätta på svenska eller prova engelska?",
       "staySwedish": "Fortsätt på svenska",
-      "tryEnglish": "Prova engelska beta",
+      "tryEnglish": "Prova engelska",
       "remindLater": "Påminn mig senare"
     },
     "legacyNotice": {
@@ -505,8 +501,7 @@
       "save": "Spara familjeinställningar"
     },
     "language": {
-      "description": "Välj språk för appen. Engelska är i beta och kan innehålla ofullständiga översättningar.",
-      "betaNote": "English is in beta",
+      "description": "Välj språk för appen. Vissa engelska översättningar kan fortfarande vara ofullständiga.",
       "switchBack": "Byt tillbaka till svenska"
     },
     "invite": {

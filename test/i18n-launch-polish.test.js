@@ -197,19 +197,22 @@ describe('mobile overlay polish', () => {
     assert.match(read('public/schedule.html'), /modal-open-observer\.js/);
   });
 
-  it('only one language message on Home — beta banner removed, beta status lives in Settings', () => {
+  it('only one language message on Home — beta banner removed, no pre-release marking anywhere (Guideline 2.2)', () => {
     assert.equal(fs.existsSync(path.join(ROOT, 'public/js/english-beta-banner.js')), false);
     for (const file of ['public/dashboard.html', 'public/daily-log.html', 'public/settings.html']) {
       assert.doesNotMatch(read(file), /english-beta-banner/, `${file} must not load the beta banner`);
     }
-    // Beta status + report entry point stay discreet next to the language choice
+    // Report entry point stays discreet next to the language choice
     const settings = read('public/settings.html');
     assert.match(settings, /data-locale-switcher-mount/);
     assert.match(settings, /language\.reportIssue/);
     loadLocales();
     assert.equal(t('en-GB', 'language.reportIssue'), 'Report a language issue');
     assert.equal(t('sv-SE', 'language.reportIssue'), 'Rapportera språkfel');
-    assert.match(t('en-GB', 'language.choice.betaNote'), /beta/i);
+    // English must never be presented as beta/preview/test/trial/experimental (App Store 2.2)
+    assert.doesNotMatch(t('en-GB', 'language.en-GB'), /\b(beta|preview|test|trial|experimental)\b/i);
+    assert.doesNotMatch(t('en-GB', 'settings.language.description'), /\b(beta|preview|test|trial|experimental)\b/i);
+    assert.doesNotMatch(t('sv-SE', 'settings.language.description'), /\b(beta|preview|test|trial|experimental)\b/i);
   });
 });
 

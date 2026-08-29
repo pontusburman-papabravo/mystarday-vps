@@ -1,6 +1,6 @@
 /**
  * Language switcher — registration, login, settings.
- * Segmented Svenska | English·Beta control (no native select).
+ * Segmented Svenska | English control (no native select).
  */
 (function localeSwitcherModule() {
   const SWITCHER_CLASS = 'locale-switcher';
@@ -39,10 +39,8 @@
           </button>
           <button type="button" class="locale-switcher__option" data-locale-value="en-GB" data-locale-en aria-pressed="false">
             <span class="locale-switcher__en-label" data-i18n="language.en-GB">English</span>
-            <span class="locale-switcher__beta" data-i18n="language.betaBadge">Beta</span>
           </button>
         </div>
-        <p class="locale-switcher__beta-hint hidden" data-locale-beta-hint data-i18n="language.choice.betaNote"></p>
       </div>`;
   }
 
@@ -82,27 +80,6 @@
         color: #1B2340;
         box-shadow: 0 1px 4px rgba(27, 35, 64, 0.12);
       }
-      .locale-switcher__beta {
-        font-size: 0.62rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: #6B3FA0;
-        background: #EDE7F6;
-        padding: 0.12rem 0.4rem;
-        border-radius: 999px;
-        line-height: 1.2;
-      }
-      .locale-switcher__option[aria-pressed="true"] .locale-switcher__beta {
-        background: #F5A623;
-        color: #1B2340;
-      }
-      .locale-switcher__beta-hint {
-        margin-top: 0.5rem;
-        font-size: 0.75rem;
-        line-height: 1.45;
-        color: #6B3FA0;
-      }
       .locale-switcher--dark .locale-switcher__track {
         background: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.18);
@@ -115,9 +92,6 @@
         background: rgba(255, 255, 255, 0.96);
         color: #1B2340;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-      }
-      .locale-switcher--dark .locale-switcher__beta-hint {
-        color: rgba(255, 255, 255, 0.72);
       }
       .locale-switcher--compact { max-width: 18rem; }
     `;
@@ -151,13 +125,7 @@
     });
   }
 
-  function updateBetaHint(container, locale, showHints) {
-    const hint = container.querySelector('[data-locale-beta-hint]');
-    if (!hint) return;
-    hint.classList.toggle('hidden', !showHints || locale !== 'en-GB');
-  }
-
-  async function applyLocaleChange(container, next, previous, englishOk, showHints) {
+  async function applyLocaleChange(container, next, previous, englishOk) {
     if (_localeChangeInflight) return;
     if (next === 'en-GB' && !englishOk) {
       setSelected(container, 'sv-SE');
@@ -180,7 +148,6 @@
     } catch (_) { /* ignore */ }
     await I18n.load(next);
     setSelected(container, next);
-    updateBetaHint(container, next, showHints);
     I18n.apply(container);
 
     if (window.Auth && typeof Auth.api === 'function') {
@@ -219,7 +186,6 @@
     } catch (_) { /* ignore */ }
     await I18n.load(previous);
     setSelected(container, previous);
-    updateBetaHint(container, previous, showHints);
     I18n.apply(container);
     const msg = I18n.t('auth.errors.serverError');
     if (typeof window.showToast === 'function' && msg && msg !== 'auth.errors.serverError') {
@@ -237,7 +203,6 @@
     container.dataset.localeSwitcherMounted = '1';
 
     const dark = isDarkSurface(container);
-    const showHints = !dark;
     container.innerHTML = buildSwitcherHtml();
     const root = container.querySelector('.' + SWITCHER_CLASS);
     if (dark) root.classList.add('locale-switcher--dark', 'locale-switcher--compact');
@@ -253,7 +218,6 @@
     let locale = I18n.getCurrentLang();
     if (locale === 'en-GB' && !englishOk) locale = 'sv-SE';
     setSelected(container, locale);
-    updateBetaHint(container, locale, showHints);
     I18n.apply(container);
 
     container.querySelectorAll('[data-locale-value]').forEach((btn) => {
@@ -261,7 +225,7 @@
         const previous = I18n.getCurrentLang();
         const next = btn.getAttribute('data-locale-value');
         if (next === previous) return;
-        await applyLocaleChange(container, next, previous, englishOk, showHints);
+        await applyLocaleChange(container, next, previous, englishOk);
       });
     });
   }
