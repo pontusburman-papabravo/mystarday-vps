@@ -38,10 +38,14 @@
       "label": "CRITICAL",
       "description": "Auth, authorization, child/adult privilege, payment/IAP, deletion, privacy, migrations, market opening, credentials, irreversible state",
       "defaultVerification": [
+        "L1",
         "L2",
         "L3",
         "RELEASE_REVIEW"
-      ]
+      ],
+      "independentReview": true,
+      "rollbackConsideration": true,
+      "dbInvariants": true
     }
   },
   "unknownPolicy": {
@@ -78,6 +82,9 @@
       "README.md",
       "CHANGELOG.md"
     ],
+    "unknownCriticalRiskClass": "R3",
+    "unknownSharedCoreRiskClass": "R3",
+    "unknownUnmappedRiskClass": "R3",
     "unknownCriticalRecommendLevel": "L3",
     "unknownSharedCoreRecommendLevel": "L3",
     "unknownNonCriticalRecommendLevel": "L1"
@@ -108,6 +115,26 @@
     "public/js/trusted-device*.js"
   ],
   "r2MinDomains": 2,
+  "riskSemantics": {
+    "LOW": "R0",
+    "MEDIUM": "R1",
+    "HIGH": "R3"
+  },
+  "fixturePolicy": {
+    "description": "Destructive tests must use unique physical family IDs per test; no global shared destructive fixtures.",
+    "uniqueIdsPerTest": true,
+    "avoidGlobalDestructiveFixtures": true
+  },
+  "legacySunsetPolicy": {
+    "description": "Retained legacy surfaces require owner, reason, exit criterion, earliest removal point, and verification method before removal.",
+    "requiredFields": [
+      "owner",
+      "reason",
+      "exitCriterion",
+      "earliestRemoval",
+      "verificationMethod"
+    ]
+  },
   "l1SmokeTests": [
     "test/ci-test-manifest.test.js",
     "test/test-routing.test.js"

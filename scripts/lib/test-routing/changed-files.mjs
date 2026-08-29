@@ -4,6 +4,8 @@ import { execSync } from 'node:child_process';
  * @param {string} root
  * @param {object} options
  * @param {string} [options.baseRef]
+ * @param {string} [options.baseSha]
+ * @param {string} [options.headSha]
  * @param {boolean} [options.staged]
  * @param {boolean} [options.unstaged]
  * @param {string[]} [options.files]
@@ -14,6 +16,16 @@ export function collectChangedFiles(root, options = {}) {
   }
 
   const parts = [];
+
+  if (options.baseSha && options.headSha) {
+    const diff = execSync(`git diff --name-only ${options.baseSha} ${options.headSha}`, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return [...new Set(diff.split('\n').filter(Boolean).map((f) => f.replace(/\\/g, '/')))].sort();
+  }
+
   const baseRef = options.baseRef;
 
   if (baseRef) {
