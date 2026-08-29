@@ -109,6 +109,10 @@ export function fetchCiRun(deps, { headSha, workflowPath }) {
       name: j.name,
       conclusion: j.conclusion,
       status: j.status,
+      steps: (j.steps || []).map((s) => ({
+        name: s.name,
+        conclusion: s.conclusion,
+      })),
     }));
   } catch {
     return { error: 'gh_jobs_fetch_failed', run };

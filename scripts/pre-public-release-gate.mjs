@@ -22,6 +22,9 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+import { validateCiEvidenceForGateReuse } from './lib/ci-evidence/gate-reuse.mjs';
+import { loadTestManifest } from './lib/ci-evidence/manifest.mjs';
+
 const { loadEnvFile } = require('../src/lib/load-env.js');
 loadEnvFile();
 
@@ -55,13 +58,11 @@ const {
 const { gateDestructiveTestDatabaseCheck } = require('./lib/test-database-safety.cjs');
 const { classifyOverall, collectBlockers, collectUnverified, humanSummary, worstStatus } = require('./lib/pre-public-release-gate/report.cjs');
 
-function loadCiEvidenceFile(filePath) {
-  if (!filePath || !fs.existsSync(filePath)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch {
-    return null;
+function attachManifestFilesOnPass(run, files) {
+  if (run?.status === STATUS.PASS) {
+    run.evidence = { ...(run.evidence || {}), files: [...files] };
   }
+  return run;
 }
 
 function reusedCiCheck(id, evidence) {
@@ -415,8 +416,16 @@ async function main() {
       ? STATUS.NOT_VERIFIED
       : STATUS.PASS;
 
-  const ciEvidence = loadCiEvidenceFile(args.ciEvidenceFile);
-  const reuseCiEvidence = ciEvidence?.status === 'REUSE_ALLOWED';
+  const testManifest = loadTestManifest(ROOT);
+  let ciEvidence = null;
+  let reuseCiEvidence = false;
+  if (args.ciEvidenceFile) {
+    ciEvidence = validateCiEvidenceForGateReuse({
+      root: ROOT,
+      candidateSha,
+    });
+    reuseCiEvidence = ciEvidence.status === 'REUSE_ALLOWED';
+  }
 
   let credentials = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
   let extrasUnit = { status: STATUS.NOT_VERIFIED, evidence: { reason: 'skipped' } };
@@ -431,8 +440,8 @@ async function main() {
     gateUnit = reusedCiCheck('test_gate_unit', ciEvidence);
     gateDb = reusedCiCheck('test_gate_db', ciEvidence);
     testRuns.push(
-      { status: STATUS.PASS, evidence: { label: 'test_gate_unit', reusedFromCi: true, files: [] } },
-      { status: STATUS.PASS, evidence: { label: 'test_gate_db', reusedFromCi: true, files: [] } },
+      { status: STATUS.PASS, evidence: { label: 'test_gate_unit', reusedFromCi: true, files: testManifest.unit } },
+      { status: STATUS.PASS, evidence: { label: 'test_gate_db', reusedFromCi: true, files: testManifest.db } },
       { status: STATUS.PASS, evidence: { label: 'extra_unit', reusedFromCi: true, files: EXTRA_UNIT } },
       { status: STATUS.PASS, evidence: { label: 'extra_db', reusedFromCi: true, files: EXTRA_DB } }
     );
@@ -483,6 +492,8 @@ async function main() {
 
     gateUnit = runNpmScript('test:gate:unit', { label: 'test_gate_unit' });
     gateDb = runNpmScript('test:gate:db', { label: 'test_gate_db' });
+    attachManifestFilesOnPass(gateUnit, testManifest.unit);
+    attachManifestFilesOnPass(gateDb, testManifest.db);
     testRuns.push(gateUnit, gateDb);
     const ciStatus = [credentials, extrasUnit, extrasDb, gateUnit, gateDb].some((c) => c.status === STATUS.BLOCKER)
       ? STATUS.BLOCKER

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { evaluateCiEvidence, EVIDENCE_STATUS } from './lib/ci-evidence/evaluate.mjs';
 import { loadTestManifest } from './lib/ci-evidence/manifest.mjs';
 import { createGhDeps, fetchCiRun, probeGh } from './lib/ci-evidence/gh-fetch.mjs';
+import { loadWorkflowAtRef } from './lib/ci-evidence/workflow-contract.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -30,8 +31,15 @@ export function collectCiEvidence(options = {}) {
   const workingTreeClean = deps.isWorkingTreeClean();
   const workflowPath = config.workflowPath;
   const requiredJobs = config.requiredJobs || ['test'];
+  const requiredStepContracts = config.requiredStepContracts || [];
   const manifest = loadTestManifest(root);
   const workflowBlobSha = deps.gitBlobSha(headSha, workflowPath);
+  let workflowYaml = null;
+  try {
+    workflowYaml = loadWorkflowAtRef(root, headSha, workflowPath);
+  } catch {
+    workflowYaml = null;
+  }
 
   const ghProbe = options.skipGhFetch
     ? { available: true, authenticated: true }
@@ -43,6 +51,8 @@ export function collectCiEvidence(options = {}) {
       workingTreeClean,
       workflowPath,
       requiredJobs,
+      requiredStepContracts,
+      workflowYaml,
       workflowBlobSha,
       testManifestSha256: manifest.sha256,
       ghAvailable: false,
@@ -56,6 +66,8 @@ export function collectCiEvidence(options = {}) {
       workingTreeClean,
       workflowPath,
       requiredJobs,
+      requiredStepContracts,
+      workflowYaml,
       workflowBlobSha,
       testManifestSha256: manifest.sha256,
       ghAuthenticated: false,
@@ -72,6 +84,8 @@ export function collectCiEvidence(options = {}) {
         workingTreeClean,
         workflowPath,
         requiredJobs,
+        requiredStepContracts,
+        workflowYaml,
         workflowBlobSha,
         testManifestSha256: manifest.sha256,
         run: null,
@@ -89,6 +103,8 @@ export function collectCiEvidence(options = {}) {
     workingTreeClean,
     workflowPath,
     requiredJobs,
+    requiredStepContracts,
+    workflowYaml,
     workflowBlobSha,
     testManifestSha256: manifest.sha256,
     runWorkflowBlobSha: runWorkflowBlobSha || workflowBlobSha,

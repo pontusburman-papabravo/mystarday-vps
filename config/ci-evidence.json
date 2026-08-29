@@ -1,5 +1,22 @@
 {
   "workflowPath": ".github/workflows/ci.yml",
   "requiredJobs": ["test"],
+  "requiredStepContracts": [
+    {
+      "job": "test",
+      "stepName": "Credential leak guard",
+      "runIncludes": "check:credentials"
+    },
+    {
+      "job": "test",
+      "stepName": "Test",
+      "runIncludes": "test:gate"
+    },
+    {
+      "job": "test",
+      "stepName": "Migration rollback gate (G3c)",
+      "runIncludes": "migration-rollback-gate"
+    }
+  ],
   "source": "gh-cli"
 }

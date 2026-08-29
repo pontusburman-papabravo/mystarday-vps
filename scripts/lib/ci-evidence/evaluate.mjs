@@ -1,3 +1,5 @@
+import { verifyWorkflowStepContracts } from './workflow-contract.mjs';
+
 export const EVIDENCE_STATUS = {
   REUSE_ALLOWED: 'REUSE_ALLOWED',
   REUSE_FORBIDDEN: 'REUSE_FORBIDDEN',
@@ -12,6 +14,8 @@ export const EVIDENCE_STATUS = {
  * @param {boolean} input.workingTreeClean
  * @param {string} input.workflowPath
  * @param {string[]} input.requiredJobs
+ * @param {{ job?: string, stepName: string, runIncludes?: string }[]} [input.requiredStepContracts]
+ * @param {string} [input.workflowYaml]
  * @param {string} input.workflowBlobSha
  * @param {string} input.testManifestSha256
  * @param {boolean} [input.ghAvailable=true]
@@ -49,16 +53,16 @@ export function evaluateCiEvidence(input) {
     return result(EVIDENCE_STATUS.NOT_VERIFIED, 'head_sha_missing');
   }
 
+  if (!input.workingTreeClean) {
+    return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, 'dirty_working_tree');
+  }
+
   if (input.ghAvailable === false) {
     return result(EVIDENCE_STATUS.NOT_VERIFIED, 'gh_unavailable');
   }
 
   if (input.ghAuthenticated === false) {
     return result(EVIDENCE_STATUS.NOT_VERIFIED, 'gh_not_authenticated');
-  }
-
-  if (!input.workingTreeClean) {
-    return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, 'dirty_working_tree');
   }
 
   if (!input.run) {
@@ -110,6 +114,45 @@ export function evaluateCiEvidence(input) {
     }
   }
 
+  const stepContracts = input.requiredStepContracts || [];
+  if (stepContracts.length) {
+    if (!input.workflowYaml) {
+      return result(EVIDENCE_STATUS.NOT_VERIFIED, 'workflow_yaml_missing');
+    }
+
+    const workflowCheck = verifyWorkflowStepContracts(input.workflowYaml, stepContracts);
+    if (!workflowCheck.ok) {
+      return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, workflowCheck.reason, {
+        step: workflowCheck.step,
+        expectedIncludes: workflowCheck.expectedIncludes,
+        actualRun: workflowCheck.actualRun,
+      });
+    }
+
+    for (const contract of stepContracts) {
+      const jobName = contract.job || 'test';
+      const job = jobResults.find((j) => j.name === jobName);
+      const ghStep = (job?.steps || []).find((s) => s.name === contract.stepName);
+      if (!ghStep) {
+        return result(EVIDENCE_STATUS.NOT_VERIFIED, 'required_ci_step_missing', {
+          step: contract.stepName,
+          job: jobName,
+        });
+      }
+      if (ghStep.conclusion === 'skipped') {
+        return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, 'required_ci_step_skipped', {
+          step: contract.stepName,
+        });
+      }
+      if (ghStep.conclusion !== 'success') {
+        return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, 'required_ci_step_not_success', {
+          step: contract.stepName,
+          step_conclusion: ghStep.conclusion,
+        });
+      }
+    }
+  }
+
   const runWorkflowBlobSha = input.runWorkflowBlobSha ?? input.run.workflow_blob_sha;
   if (runWorkflowBlobSha && input.workflowBlobSha && runWorkflowBlobSha !== input.workflowBlobSha) {
     return result(EVIDENCE_STATUS.REUSE_FORBIDDEN, 'workflow_mismatch', {
@@ -128,5 +171,10 @@ export function evaluateCiEvidence(input) {
     required_jobs: jobResults
       .filter((j) => requiredJobs.includes(j.name))
       .map((j) => ({ name: j.name, conclusion: j.conclusion })),
+    required_steps: stepContracts.map((c) => ({
+      step: c.stepName,
+      job: c.job || 'test',
+      runIncludes: c.runIncludes,
+    })),
   });
 }

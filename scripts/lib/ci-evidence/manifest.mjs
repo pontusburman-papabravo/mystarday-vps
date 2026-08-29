@@ -38,3 +38,21 @@ export function loadTestManifest(root) {
   const packageJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
   return computeTestManifest(packageJson);
 }
+
+/**
+ * EXTRA_* files must be covered by test:gate before CI reuse may skip them.
+ * @param {{ unit: string[], db: string[] }} manifest
+ * @param {string[]} extraUnit
+ * @param {string[]} extraDb
+ */
+export function assertExtraFilesSubset(manifest, extraUnit, extraDb) {
+  const unitSet = new Set(manifest.unit);
+  const dbSet = new Set(manifest.db);
+  const missingUnit = extraUnit.filter((f) => !unitSet.has(f));
+  const missingDb = extraDb.filter((f) => !dbSet.has(f));
+  return {
+    ok: missingUnit.length === 0 && missingDb.length === 0,
+    missingUnit,
+    missingDb,
+  };
+}

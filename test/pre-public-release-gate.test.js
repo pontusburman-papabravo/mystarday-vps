@@ -203,6 +203,12 @@ test('classifyOverall: BLOCKER wins over NOT_VERIFIED', () => {
   assert.equal(r.exitCode, EXIT.GO);
 });
 
+test('orchestrator revalidates CI evidence instead of trusting JSON file', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
+  assert.match(src, /validateCiEvidenceForGateReuse/);
+  assert.doesNotMatch(src, /ciEvidence\?\.status === 'REUSE_ALLOWED'/);
+});
+
 test('orchestrator never enables widget flags', () => {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/pre-public-release-gate.mjs'), 'utf8');
   assert.doesNotMatch(src, /PRE_PUBLIC_GATE_ENABLE_WIDGET/);
