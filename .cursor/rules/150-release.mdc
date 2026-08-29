@@ -12,6 +12,9 @@ alwaysApply: false
 
 PR → CI (lint, css, migrate, test:gate, rollback gate) → merge main → deploy → health
 
+Agent loop (during dev): L1 `test:changed` → L2 `test:domain` → L3 `test:gate` at PR.  
+Release: L5 `release:preflight` · L6 `release:store-delta` (filtered manual checklist — full list stays in `docs/release/STORE_SUBMISSION_CHECKLIST.md`).
+
 ## Pre-merge
 
 - [ ] CI green locally if server touched

@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "description": "Global process core \u2014 reusable across product repos and future projects.",
+  "testLevels": {
+    "L1": "Agent fast check \u2014 minimal relevant verification (changed-files router)",
+    "L2": "Domain gate \u2014 targeted tests for one or more product domains",
+    "L3": "PR gate \u2014 canonical CI (test:gate + lint:public)",
+    "L4": "Full regression \u2014 npm test / test:full (outside normal critical path)",
+    "L5": "Release preflight \u2014 exact-SHA CI evidence reuse + release:preflight",
+    "L6": "Store manual delta \u2014 filtered human actions from canonical checklist"
+  },
+  "riskClasses": {
+    "R0": {
+      "label": "TRIVIAL",
+      "description": "Copy, typo, isolated CSS, mechanical documentation",
+      "defaultVerification": [
+        "L1"
+      ]
+    },
+    "R1": {
+      "label": "NORMAL",
+      "description": "Single-domain change within known mapping",
+      "defaultVerification": [
+        "L1",
+        "L2"
+      ]
+    },
+    "R2": {
+      "label": "CROSS_CUTTING",
+      "description": "Multiple domains, navigation, shared runtime, data flow",
+      "defaultVerification": [
+        "L1",
+        "L2",
+        "L3"
+      ]
+    },
+    "R3": {
+      "label": "CRITICAL",
+      "description": "Auth, authorization, child/adult privilege, payment/IAP, deletion, privacy, migrations, market opening, credentials, irreversible state",
+      "defaultVerification": [
+        "L2",
+        "L3",
+        "RELEASE_REVIEW"
+      ]
+    }
+  },
+  "unknownPolicy": {
+    "description": "No filename/content heuristics \u2014 only explicit path-class mappings.",
+    "never": "no_test_needed",
+    "criticalPathGlobs": [
+      "server.js",
+      "app.js",
+      "migrate.js",
+      "src/middleware/**",
+      "src/lib/db.js",
+      "src/lib/config.js",
+      "src/routes/auth/**",
+      "migrations/**",
+      "config/ci-evidence.json",
+      "config/release-compliance-gate.json",
+      "scripts/lib/**",
+      "scripts/release-preflight.mjs",
+      "scripts/pre-public-release-gate.mjs"
+    ],
+    "sharedCoreGlobs": [
+      "src/lib/**",
+      "src/middleware/**",
+      "scripts/lib/**",
+      "config/**",
+      "package.json",
+      ".github/workflows/**"
+    ],
+    "nonCriticalBroadenGlobs": [
+      "docs/**",
+      "product-operating-system/**",
+      ".cursor/rules/**",
+      ".ai/**",
+      "README.md",
+      "CHANGELOG.md"
+    ],
+    "unknownCriticalRecommendLevel": "L3",
+    "unknownSharedCoreRecommendLevel": "L3",
+    "unknownNonCriticalRecommendLevel": "L1"
+  },
+  "r0PathGlobs": [
+    "docs/**",
+    "product-operating-system/**",
+    ".cursor/rules/**",
+    "README.md",
+    "CHANGELOG.md",
+    "**/*.md"
+  ],
+  "r3PathGlobs": [
+    "src/routes/auth/**",
+    "src/middleware/authz.js",
+    "src/middleware/auth.js",
+    "src/middleware/subscription.js",
+    "src/routes/iap.js",
+    "src/routes/family/account.js",
+    "migrations/**",
+    "migrate.js",
+    "src/lib/market-region.js",
+    "src/lib/legal-routing.js",
+    "config/iap-product-contract.js",
+    "public/js/paywall*.js",
+    "public/js/iap*.js",
+    "public/js/parental-gate.js",
+    "public/js/trusted-device*.js"
+  ],
+  "r2MinDomains": 2,
+  "l1SmokeTests": [
+    "test/ci-test-manifest.test.js",
+    "test/test-routing.test.js"
+  ],
+  "contracts": {
+    "scope": "docs/process/contracts/SCOPE_CONTRACT.md",
+    "evidence": "docs/process/contracts/EVIDENCE_CONTRACT.md",
+    "stop": "docs/process/contracts/STOP_CONTRACT.md",
+    "parallelism": "docs/process/contracts/PARALLELISM_CONTRACT.md",
+    "context": "docs/process/contracts/CONTEXT_CONTRACT.md",
+    "modelEscalation": "docs/process/contracts/MODEL_ESCALATION_CONTRACT.md",
+    "acceptanceImmutability": "docs/process/contracts/ACCEPTANCE_IMMUTABILITY.md",
+    "noSilentFallbacks": "docs/process/contracts/NO_SILENT_FALLBACKS.md",
+    "shouldWeDoThisNow": "docs/process/contracts/SHOULD_WE_DO_THIS_NOW.md",
+    "scopeFreeze": "docs/process/contracts/SCOPE_FREEZE.md",
+    "externalTruth": "docs/process/contracts/EXTERNAL_TRUTH.md",
+    "independentReview": "docs/process/contracts/INDEPENDENT_REVIEW.md",
+    "featureLifecycle": "docs/process/contracts/FEATURE_LIFECYCLE.md"
+  }
+}

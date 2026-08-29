@@ -19,14 +19,30 @@ Unset email API keys for tests per root `AGENTS.md` (env unset email key vars).
 
 `lint:public` uses committed budget `config/lint-public-budget.json`. After cleaning warnings: `npm run lint:public:sync-budget` (ratchet down only). Do not raise without `--force-raise` + PR note. Also run `npm run css:build` and commit if you bump SW/`CACHE_NAME`.
 
+## Execution model (L1–L6)
+
+See **`131-test-execution-model.mdc`** and `docs/process/TEST_EXECUTION_MODEL.md`.
+
+During implementation — **do not** reflexively run full `npm test` or `test:gate`:
+
+```bash
+npm run test:changed              # L1 plan
+npm run test:changed -- --execute # L1 run
+npm run test:domain -- auth-security  # L2
+```
+
+Before merge (L3): `test:gate` + `lint:public` (CI required).
+
 ## Layers
 
 0. Lint (`lint` + `lint:public`) + CSS check (`css:build` matches committed)  
-1. **test:gate** (CI required)  
-2. Full `npm test` optional pre-release  
-3. Mobile smoke when native-affecting  
-4. Mobile smoke when native-affecting  
-5. Manual constitution test on UX (15 Section A)
+1. **L1/L2** — `test:changed` / `test:domain` during agent work  
+2. **L3 test:gate** (CI required before merge)  
+3. **L4** Full `npm test` optional pre-release  
+4. **L5** `release:preflight` before public release  
+5. **L6** `release:store-delta` for store manual actions  
+6. Mobile smoke when native-affecting  
+7. Manual constitution test on UX (15 Section A)
 
 **QA test account** (prod browser/mobile, agents only): founder account via `FOUNDER_QA_*` secrets — [`docs/founder-qa-test-account.md`](../docs/founder-qa-test-account.md). **Not** the App Store review account / Anna (see app-store-demo-konto).
 
