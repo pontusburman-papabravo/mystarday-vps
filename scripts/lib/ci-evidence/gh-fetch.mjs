@@ -78,7 +78,7 @@ export function fetchCiRun(deps, { headSha, workflowPath }) {
       '--limit',
       '5',
       '--json',
-      'databaseId,headSha,conclusion,workflowName,event,url,createdAt,updatedAt,runAttempt,workflowDatabaseId',
+      'databaseId,headSha,conclusion,workflowName,event,url,createdAt,updatedAt,attempt,workflowDatabaseId',
     ]);
   } catch (err) {
     const stderr = err?.stderr ? String(err.stderr) : '';
@@ -119,7 +119,7 @@ export function fetchCiRun(deps, { headSha, workflowPath }) {
       run_id: String(run.databaseId),
       head_sha: run.headSha,
       conclusion: run.conclusion,
-      run_attempt: run.runAttempt,
+      run_attempt: run.attempt,
       workflow_id: run.workflowDatabaseId ? String(run.workflowDatabaseId) : null,
       workflow_path: workflowPath,
       url: run.url,
