@@ -1,0 +1,267 @@
+'use strict';
+
+/**
+ * Phase 4 — GET /api/children/:childId/calendar-week must reflect the canonical planning state
+ * (resolveEffectiveSchedule()/resolveEffectiveScheduleRange()) for any date that does not yet
+ * have a generated daily_log, closing the gap documented in Phase 3's "Duplicate-precedence
+ * audit". See docs/schedule-canonical-architecture.md "Phase 4".
+ */
+
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { setupTestDb } = require('./helpers/setup.js');
+const { cookieHeader, listenApp, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
+const { hashPassword } = require('../src/lib/hash');
+
+process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
+process.env.RATE_LIMIT_ENABLED = 'false';
+process.env.EMAIL_ENABLED = 'false';
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+}
+
+async function loginParent(baseUrl, email, password) {
+  const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const text = await loginRes.text();
+  assert.equal(loginRes.status, 200, text);
+  let cookies = {};
+  for (const header of getSetCookieHeaders(loginRes)) {
+    cookies = mergeCookies(cookies, [header]);
+  }
+  return { cookies, csrfToken: JSON.parse(text).csrfToken };
+}
+
+test('Phase 4 — calendar-week reflects canonical planning state before a daily_log exists', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createSchedulePeriod } = require('../src/lib/schedule-period');
+  const tag = Date.now();
+  const password = 'calendar-canonical-pass-1';
+  const passwordHash = await hashPassword(password);
+
+  const familyRes = await db.query(`INSERT INTO family (name, timezone, is_lifetime_free) VALUES ('Calendar canonical', 'Europe/Stockholm', true) RETURNING id`);
+  const familyId = familyRes.rows[0].id;
+  const email = `calendar-canonical-${tag}@example.com`;
+  await db.query(`INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified) VALUES ($1, $2, $3, 'Parent', true, true)`, [email, passwordHash, familyId]);
+  const childRes = await db.query(`INSERT INTO child (family_id, name, emoji, username) VALUES ($1, 'Barn', '⭐', $2) RETURNING id`, [familyId, `barn-cal-${tag}`]);
+  const childId = childRes.rows[0].id;
+  await db.query(`INSERT INTO parent_child (parent_id, child_id, role) SELECT id, $2, 'primary' FROM parent WHERE email = $1`, [email, childId]);
+
+  async function seedActivity(name) {
+    const res = await db.query(`INSERT INTO activity_template (family_id, name, icon, star_value, sort_order) VALUES ($1, $2, '⭐', 1, 0) RETURNING id`, [familyId, name]);
+    return res.rows[0].id;
+  }
+  async function seedFamilyTemplate(items) {
+    const tpl = await db.query(`INSERT INTO weekly_schedule (family_id, name, sort_order, day_of_week, child_id) VALUES ($1, 'Mall', 0, 0, NULL) RETURNING id`, [familyId]);
+    for (const item of items) {
+      await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, $3, $4)`, [tpl.rows[0].id, item.activityId, item.sortOrder || 0, item.section || 'morgon']);
+    }
+    return tpl.rows[0].id;
+  }
+  async function seedWeeklyDay(dow, items) {
+    const sched = await db.query('INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, $2::smallint, $3::integer) RETURNING id', [childId, dow, dow]);
+    let so = 0;
+    for (const item of items) {
+      await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, $3, $4)`, [sched.rows[0].id, item.activityId, so++, item.section || 'morgon']);
+    }
+  }
+
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+  try {
+    const session = await loginParent(baseUrl, email, password);
+    const headers = { 'Content-Type': 'application/json', Cookie: cookieHeader(session.cookies), 'X-CSRF-Token': session.csrfToken };
+
+    async function fetchWeek(weekOffset) {
+      const res = await fetch(`${baseUrl}/api/children/${childId}/calendar-week?weekOffset=${weekOffset}`, { headers });
+      const body = await res.json();
+      assert.equal(res.status, 200, JSON.stringify(body));
+      return body;
+    }
+
+    // 1. weekly-only date
+    const weeklyAct = await seedActivity('Frukost');
+    await seedWeeklyDay(1, [{ activityId: weeklyAct, section: 'morgon' }]); // Monday
+
+    // Compute which weekOffset covers a known future Monday far enough out to be uncontested,
+    // but within calendar-week's ±52-week weekOffset bound.
+    const targetMonday = '2026-11-09'; // a Monday, ~10 weeks out — no daily_log exists yet
+    // Mirror calendar.js's own weekStart formula (this week's Monday + weekOffset*7 days) to
+    // compute the exact weekOffset that lands on targetMonday, regardless of what day "today" is.
+    const todayUtc = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
+    const todayDow = todayUtc.getUTCDay(); // 0=Sun..6=Sat
+    const daysFromMonday = todayDow === 0 ? 6 : todayDow - 1;
+    const thisWeekMonday = new Date(todayUtc);
+    thisWeekMonday.setUTCDate(todayUtc.getUTCDate() - daysFromMonday);
+    const weeksUntilTarget = Math.round((new Date(`${targetMonday}T00:00:00Z`) - thisWeekMonday) / (7 * 24 * 60 * 60 * 1000));
+
+    let week = await fetchWeek(weeksUntilTarget);
+    let day = week.days.find((d) => d.date === targetMonday);
+    assert.ok(day, `expected ${targetMonday} in the returned week`);
+    assert.equal(day.hasLog, false, 'no daily_log should exist yet for this future date');
+    assert.deepEqual(day.activities.map((a) => a.id), [weeklyAct], '1: weekly-only date shows the weekly item with no log dependency');
+
+    // 2. period merge
+    const periodAct = await seedActivity('Simskola');
+    const tplMerge = await seedFamilyTemplate([{ activityId: periodAct, section: 'kvall' }]);
+    const periodDate = '2026-11-10'; // the Tuesday after targetMonday
+    await createSchedulePeriod({ familyId, childId, name: 'Merge period', startDate: periodDate, endDate: periodDate, sourceType: 'family_template', sourceId: tplMerge, applyMode: 'merge' });
+    const weeklyTue = await seedActivity('Skola');
+    await seedWeeklyDay(2, [{ activityId: weeklyTue, section: 'morgon' }]);
+
+    week = await fetchWeek(weeksUntilTarget);
+    day = week.days.find((d) => d.date === periodDate);
+    assert.deepEqual(day.activities.map((a) => a.id).sort(), [periodAct, weeklyTue].sort(), '2: period merge shows weekly + period items with no log dependency');
+    // base_type is a day-level fact (per the locked Phase 3 response-shape contract — item-level
+    // provenance was deliberately not introduced), so every item for this date is tagged with
+    // the date's effective base_type, special_period, regardless of whether it originated from
+    // weekly or the period.
+    assert.ok(day.activities.every((a) => a.source === 'special_period'), '2: every item for a period-composed date is tagged source=special_period');
+
+    // 3. period replace_sections
+    const morningAct = await seedActivity('MorningA');
+    const oldEveningAct = await seedActivity('OldEveningB');
+    const newEveningAct = await seedActivity('NewEveningC');
+    const weeklyRow = await db.query('INSERT INTO weekly_schedule (child_id, day_of_week, sort_order) VALUES ($1, 3::smallint, 3::integer) RETURNING id', [childId]);
+    await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'morgon')`, [weeklyRow.rows[0].id, morningAct]);
+    await db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 1, 'kvall')`, [weeklyRow.rows[0].id, oldEveningAct]);
+    const tplSections = await seedFamilyTemplate([{ activityId: newEveningAct, section: 'kvall' }]);
+    const sectionsDate = '2026-11-11'; // Wednesday
+    await createSchedulePeriod({ familyId, childId, name: 'Sections period', startDate: sectionsDate, endDate: sectionsDate, sourceType: 'family_template', sourceId: tplSections, applyMode: 'replace_sections' });
+
+    week = await fetchWeek(weeksUntilTarget);
+    day = week.days.find((d) => d.date === sectionsDate);
+    const sectionIds = day.activities.map((a) => a.id);
+    assert.ok(sectionIds.includes(morningAct), '3: untouched morning section survives');
+    assert.ok(sectionIds.includes(newEveningAct), '3: period-replaced evening item present');
+    assert.ok(!sectionIds.includes(oldEveningAct), '3: old weekly evening item must never appear');
+
+    // 4. period replace_day
+    const weeklyThu = await seedActivity('WeeklyThu');
+    await seedWeeklyDay(4, [{ activityId: weeklyThu }]);
+    const dayAct = await seedActivity('ReplaceDayAct');
+    const tplDay = await seedFamilyTemplate([{ activityId: dayAct }]);
+    const replaceDayDate = '2026-11-12'; // Thursday
+    await createSchedulePeriod({ familyId, childId, name: 'Day period', startDate: replaceDayDate, endDate: replaceDayDate, sourceType: 'family_template', sourceId: tplDay, applyMode: 'replace_day' });
+
+    week = await fetchWeek(weeksUntilTarget);
+    day = week.days.find((d) => d.date === replaceDayDate);
+    assert.deepEqual(day.activities.map((a) => a.id), [dayAct], '4: replace_day shows only the period item, no weekly leakage');
+
+    // 5. explicit Special Day over an active period
+    const explicitAct = await seedActivity('ExplicitOverride');
+    const weeklyFri = await seedActivity('WeeklyFri');
+    await seedWeeklyDay(5, [{ activityId: weeklyFri }]);
+    const periodOverriddenAct = await seedActivity('PeriodOverridden');
+    const tplOverridden = await seedFamilyTemplate([{ activityId: periodOverriddenAct }]);
+    const overrideDate = '2026-11-13'; // Friday
+    await createSchedulePeriod({ familyId, childId, name: 'Overridden period', startDate: overrideDate, endDate: overrideDate, sourceType: 'family_template', sourceId: tplOverridden, applyMode: 'replace_day' });
+    const sd = await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, $2) RETURNING id`, [childId, overrideDate]);
+    await db.query(`INSERT INTO special_day_schedule_item (special_day_schedule_id, activity_template_id, name, section, sort_order) VALUES ($1, $2, 'X', 'morgon', 0)`, [sd.rows[0].id, explicitAct]);
+
+    week = await fetchWeek(weeksUntilTarget);
+    day = week.days.find((d) => d.date === overrideDate);
+    assert.deepEqual(day.activities.map((a) => a.id), [explicitAct], '5: explicit Special Day wins over the active period');
+    assert.equal(day.isSpecialDay, true);
+    assert.ok(day.activities.every((a) => a.source === 'special_day'));
+
+    // 6. empty explicit Special Day falls through
+    const weeklySat = await seedActivity('WeeklySat');
+    await seedWeeklyDay(6, [{ activityId: weeklySat }]); // Saturday
+    const emptyDate = '2026-11-14'; // Saturday
+    await db.query(`INSERT INTO special_day_schedule (child_id, date) VALUES ($1, $2)`, [childId, emptyDate]); // no items
+
+    week = await fetchWeek(weeksUntilTarget);
+    day = week.days.find((d) => d.date === emptyDate);
+    assert.equal(day.isSpecialDay, true, 'the badge still reflects the row exists');
+    assert.deepEqual(day.activities.map((a) => a.id), [weeklySat], '6: empty explicit Special Day falls through to weekly, not an empty day');
+
+    // 7. date exclusion under a period
+    const weeklySun = await seedActivity('WeeklySun');
+    const periodSunAct = await seedActivity('PeriodSun');
+    await seedWeeklyDay(0, [{ activityId: weeklySun }]); // Sunday
+    const tplSun = await seedFamilyTemplate([{ activityId: periodSunAct }]);
+    const exclusionDate = '2026-11-15'; // Sunday
+    await createSchedulePeriod({ familyId, childId, name: 'Exclusion period', startDate: exclusionDate, endDate: exclusionDate, sourceType: 'family_template', sourceId: tplSun, applyMode: 'merge' });
+    await db.query(`INSERT INTO schedule_date_exclusion (child_id, date, activity_template_id) VALUES ($1, $2, $3)`, [childId, exclusionDate, periodSunAct]);
+
+    week = await fetchWeek(weeksUntilTarget);
+    day = week.days.find((d) => d.date === exclusionDate);
+    assert.deepEqual(day.activities.map((a) => a.id), [weeklySun], '7: excluded period item absent, weekly item remains');
+
+    // 9. no daily-log dependency — confirmed by every assertion above (day.hasLog === false throughout).
+    assert.equal(day.hasLog, false, '9: none of these dates required a daily_log to show the correct plan');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});
+
+test('Phase 4 — calendar-week custody A/B: correct home items shown with no log dependency', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const tag = Date.now();
+  const password = 'calendar-custody-pass-1';
+  const passwordHash = await hashPassword(password);
+  const familyRes = await db.query(`INSERT INTO family (name, timezone, is_lifetime_free) VALUES ('Calendar custody', 'Europe/Stockholm', true) RETURNING id`);
+  const familyId = familyRes.rows[0].id;
+  const email = `calendar-custody-${tag}@example.com`;
+  await db.query(`INSERT INTO parent (email, password_hash, family_id, name, onboarding_completed, verified) VALUES ($1, $2, $3, 'Parent', true, true)`, [email, passwordHash, familyId]);
+  const childRes = await db.query(`INSERT INTO child (family_id, name, emoji, username) VALUES ($1, 'Barn', '⭐', $2) RETURNING id`, [familyId, `barn-cc-${tag}`]);
+  const childId = childRes.rows[0].id;
+  await db.query(`INSERT INTO parent_child (parent_id, child_id, role) SELECT id, $2, 'primary' FROM parent WHERE email = $1`, [email, childId]);
+
+  const homeA = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos mamma') RETURNING id`, [familyId]);
+  const homeB = await db.query(`INSERT INTO custody_home (family_id, label) VALUES ($1, 'Hos pappa') RETURNING id`, [familyId]);
+  const anchorMonday = '2026-11-09';
+  await db.query(
+    `INSERT INTO custody_pattern (child_id, anchor_date, interval_weeks, week_a_home_id, week_b_home_id, pattern_type) VALUES ($1, $2, 2, $3, $4, 'alternate_weeks')`,
+    [childId, anchorMonday, homeA.rows[0].id, homeB.rows[0].id]
+  );
+
+  const activityA = await db.query(`INSERT INTO activity_template (family_id, name, icon, star_value, sort_order) VALUES ($1,'HomeAAct','⭐',1,0) RETURNING id`, [familyId]);
+  const activityB = await db.query(`INSERT INTO activity_template (family_id, name, icon, star_value, sort_order) VALUES ($1,'HomeBAct','⭐',1,0) RETURNING id`, [familyId]);
+  await db.query(`INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, custody_home_id, week_variant) VALUES ($1, 1::smallint, 1::integer, $2, 'a') RETURNING id`, [childId, homeA.rows[0].id])
+    .then(async (r) => db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'morgon')`, [r.rows[0].id, activityA.rows[0].id]));
+  await db.query(`INSERT INTO weekly_schedule (child_id, day_of_week, sort_order, custody_home_id, week_variant) VALUES ($1, 1::smallint, 1::integer, $2, 'b') RETURNING id`, [childId, homeB.rows[0].id])
+    .then(async (r) => db.query(`INSERT INTO weekly_schedule_item (weekly_schedule_id, activity_template_id, sort_order, section) VALUES ($1, $2, 0, 'morgon')`, [r.rows[0].id, activityB.rows[0].id]));
+
+  const { createApp } = require('../app');
+  const { baseUrl, close } = await listenApp(createApp);
+  try {
+    const session = await loginParent(baseUrl, email, password);
+    const headers = { 'Content-Type': 'application/json', Cookie: cookieHeader(session.cookies), 'X-CSRF-Token': session.csrfToken };
+
+    const todayUtc = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
+    const todayDow = todayUtc.getUTCDay();
+    const daysFromMonday = todayDow === 0 ? 6 : todayDow - 1;
+    const thisWeekMonday = new Date(todayUtc);
+    thisWeekMonday.setUTCDate(todayUtc.getUTCDate() - daysFromMonday);
+    const weeksUntilAnchor = Math.round((new Date(`${anchorMonday}T00:00:00Z`) - thisWeekMonday) / (7 * 24 * 60 * 60 * 1000));
+
+    const weekA = await (await fetch(`${baseUrl}/api/children/${childId}/calendar-week?weekOffset=${weeksUntilAnchor}`, { headers })).json();
+    const dayA = weekA.days.find((d) => d.date === anchorMonday);
+    assert.deepEqual(dayA.activities.map((a) => a.id), [activityA.rows[0].id], '8: anchor week (home A) shows home A activity with no log dependency');
+    assert.equal(dayA.hasLog, false);
+
+    const nextMonday = '2026-11-16';
+    const weekB = await (await fetch(`${baseUrl}/api/children/${childId}/calendar-week?weekOffset=${weeksUntilAnchor + 1}`, { headers })).json();
+    const dayB = weekB.days.find((d) => d.date === nextMonday);
+    assert.deepEqual(dayB.activities.map((a) => a.id), [activityB.rows[0].id], '8: next week (home B) shows home B activity with no log dependency');
+  } finally {
+    await close();
+    await db.cleanup();
+  }
+});

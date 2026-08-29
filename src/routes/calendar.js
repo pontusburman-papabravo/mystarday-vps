@@ -2,8 +2,15 @@
  * Calendar routes — parent calendar view with weekly navigation.
  *
  * GET /api/children/:childId/calendar-week?weekOffset=0
- *   Returns 7 days of the target week with activities from
- *   daily_log (if generated) or weekly_schedule template (if not).
+ *   Returns 7 days of the target week. For a date with an already-generated daily_log,
+ *   activities come from that log (preserving completion status/history). For a date with NO
+ *   log yet, activities come from the canonical resolveEffectiveSchedule() /
+ *   resolveEffectiveScheduleRange() (docs/schedule-canonical-architecture.md "Phase 3"/"Phase
+ *   4") — the same precedence used everywhere else: populated explicit Special Day > active
+ *   Special Period composed with custody-aware weekly > custody-aware weekly. This route does
+ *   NOT independently decide that precedence itself (a Phase 3-documented gap, closed in Phase
+ *   4) — it only computes its own custody-specific UI metadata (home label/color/handoff
+ *   banner), which is unrelated to which activities are shown and is preserved unchanged.
  *   weekOffset: 0 = current week, +1 = next week, -1 = previous week.
  */
 
@@ -20,8 +27,8 @@ const {
   loadCustodyContext,
   resolveCustodyDateSync,
 } = require('../lib/custody-schedule-engine');
-const { weekVariantForHomeId } = require('../lib/custody-schedule-resolve');
 const { isActivationFlagEnabled, FLAG_KEYS } = require('../lib/activation-flags');
+const { resolveEffectiveScheduleRange, BASE_TYPES } = require('../lib/effective-schedule');
 
 const router = express.Router({ mergeParams: true });
 
@@ -57,20 +64,27 @@ function calendarDayCustodyPayload(resolved, schedule, parentHomeId) {
 }
 
 /**
- * Template lookup: custody_home_id → week_variant → legacy null (same order as resolve).
+ * Phase 4 — shapes one resolveEffectiveSchedule() item into the Calendar activity item shape.
+ * `id` uses activity_template_id (a stable, well-known identifier) since these dates have no
+ * generated daily_log_item/weekly_schedule_item row of their own to key off yet; no current
+ * frontend code reads `id` for canonical/template-sourced calendar activities (verified: only
+ * `section`, `completed`, `name`/`icon`, and count/grouping fields are read — see
+ * public/js/calendar-page.js, public/js/print-schema-core.js, public/js/child-week-overview.js).
  */
-function templateActivitiesForDay(templatesByVariant, templatesByHome, dow, resolved, schedule) {
-  const homeId = resolved?.activeHome?.id;
-  if (homeId) {
-    const byHome = templatesByHome[`${dow}_${homeId}`];
-    if (byHome) return byHome;
-  }
-  const variant = weekVariantForHomeId(schedule, homeId);
-  if (variant) {
-    const byVariant = templatesByVariant[`${dow}_${variant}`];
-    if (byVariant) return byVariant;
-  }
-  return templatesByVariant[`${dow}_legacy`] || [];
+function effectiveItemToCalendarActivity(item, baseType) {
+  return {
+    id: item.activity_template_id,
+    name: item.name,
+    icon: item.icon || '',
+    star_value: item.star_value || 1,
+    start_time: item.start_time || null,
+    end_time: item.end_time || null,
+    sort_order: item.sort_order || 0,
+    section: item.section || 'dag',
+    completed: null,
+    source: baseType === BASE_TYPES.SPECIAL_DAY ? 'special_day' : (baseType === BASE_TYPES.SPECIAL_PERIOD ? 'special_period' : 'template'),
+    is_exception: baseType === BASE_TYPES.SPECIAL_DAY || baseType === BASE_TYPES.SPECIAL_PERIOD,
+  };
 }
 
 /**
@@ -141,71 +155,28 @@ router.get('/calendar-week', async (req, res) => {
       }
     }
 
-    // Fetch all weekly schedule templates for this child
-    const templatesResult = await db.query(
-      `SELECT ws.day_of_week,
-              ws.week_variant,
-              ws.custody_home_id,
-              wsi.id AS item_id,
-              at.name,
-              at.icon,
-              at.star_value,
-              wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section
-       FROM weekly_schedule ws
-       LEFT JOIN weekly_schedule_item wsi ON wsi.weekly_schedule_id = ws.id
-       LEFT JOIN activity_template at ON at.id = wsi.activity_template_id
-       WHERE ws.child_id = $1
-         AND (
-           ($2::boolean = false AND ws.week_variant IS NULL)
-           OR ($2::boolean = true AND ws.week_variant IN ('a', 'b'))
-         )
-       ORDER BY ws.day_of_week ASC, ws.week_variant ASC NULLS FIRST, wsi.sort_order ASC`,
-      [childId, custodyActive]
-    );
+    // Phase 4 — canonical planning state for every date in the visible window, for dates that
+    // don't yet have a generated daily_log (see file header comment). This single call replaces
+    // the previous direct weekly_schedule/weekly_schedule_item query + custody-variant grouping
+    // + template lookup, which independently re-decided special-day-vs-weekly precedence and had
+    // no Special Period awareness at all (the gap documented in Phase 3's "Duplicate-precedence
+    // audit"). resolveEffectiveScheduleRange() is a thin wrapper that calls the exact same
+    // resolveEffectiveSchedule() used everywhere else in the codebase — no second precedence
+    // implementation was introduced here.
+    const effectiveByDate = await resolveEffectiveScheduleRange(childId, weekStart, weekEnd, { client: db, timezone: tz });
 
-    // Group templates by day_of_week + week_variant, and by custody_home_id fallback
-    const templatesByVariant = {};
-    const templatesByHome = {};
-    for (const row of templatesResult.rows) {
-      const variantKey = row.week_variant || 'legacy';
-      const variantMapKey = `${row.day_of_week}_${variantKey}`;
-      if (!templatesByVariant[variantMapKey]) templatesByVariant[variantMapKey] = [];
-      if (row.custody_home_id) {
-        const homeMapKey = `${row.day_of_week}_${row.custody_home_id}`;
-        if (!templatesByHome[homeMapKey]) templatesByHome[homeMapKey] = [];
-      }
-      if (row.item_id && row.name) {
-        const item = {
-          id: row.item_id,
-          name: row.name,
-          icon: row.icon || '',
-          star_value: row.star_value || 1,
-          start_time: row.start_time || null,
-          end_time: row.end_time || null,
-          sort_order: row.sort_order || 0,
-          section: row.section || 'dag',
-          completed: null,
-          source: 'template',
-          is_exception: false,
-        };
-        templatesByVariant[variantMapKey].push(item);
-        if (row.custody_home_id) {
-          templatesByHome[`${row.day_of_week}_${row.custody_home_id}`].push(item);
-        }
-      }
-    }
-
-    // Fetch special day schedules for this week
+    // Fetch special day schedules for this week — existence + note only. This is a badge/note
+    // annotation orthogonal to item selection: which activities are actually shown for a date is
+    // decided exclusively by resolveEffectiveScheduleRange() above (which already correctly
+    // treats an empty explicit Special Day as falling through to Period/Weekly), never by this
+    // query.
     const specialDaysResult = await db.query(
-      `SELECT sds.id AS schedule_id, sds.date::text AS date, sds.note,
-              sdsi.id AS item_id, sdsi.name, sdsi.icon, sdsi.star_value,
-              sdsi.start_time, sdsi.end_time, sdsi.sort_order, sdsi.section
+      `SELECT sds.id AS schedule_id, sds.date::text AS date, sds.note
        FROM special_day_schedule sds
-       LEFT JOIN special_day_schedule_item sdsi ON sdsi.special_day_schedule_id = sds.id
        WHERE sds.child_id = $1
          AND sds.date >= $2::date
          AND sds.date <= $3::date
-       ORDER BY sds.date ASC, sdsi.sort_order ASC`,
+       ORDER BY sds.date ASC`,
       [childId, weekStart, weekEnd]
     );
 
@@ -213,24 +184,7 @@ router.get('/calendar-week', async (req, res) => {
     const specialByDate = {};
     for (const row of specialDaysResult.rows) {
       const dateStr = row.date.slice(0, 10);
-      if (!specialByDate[dateStr]) {
-        specialByDate[dateStr] = { schedule_id: row.schedule_id, note: row.note, items: [] };
-      }
-      if (row.item_id && row.name) {
-        specialByDate[dateStr].items.push({
-          id: row.item_id,
-          name: row.name,
-          icon: row.icon || '',
-          star_value: row.star_value || 1,
-          start_time: row.start_time || null,
-          end_time: row.end_time || null,
-          sort_order: row.sort_order || 0,
-          section: row.section || 'dag',
-          completed: null,
-          source: 'special_day',
-          is_exception: true,
-        });
-      }
+      specialByDate[dateStr] = { schedule_id: row.schedule_id, note: row.note };
     }
 
     // Fetch daily logs for this week
@@ -303,20 +257,14 @@ router.get('/calendar-week', async (req, res) => {
         hasLog = true;
         isPaused = logsByDate[dateStr].is_paused || false;
         activities = logsByDate[dateStr].items;
-      } else if (isSpecialDay) {
-        // Use special day items when no log generated yet
-        activities = specialByDate[dateStr].items;
       } else {
-        const resolved = custodyByDate[dateStr];
-        activities = custodyActive
-          ? [...templateActivitiesForDay(
-            templatesByVariant,
-            templatesByHome,
-            dow,
-            resolved,
-            engineCtx.schedule
-          )]
-          : [...(templatesByVariant[`${dow}_legacy`] || [])];
+        // No log generated yet for this date — canonical planning state (Phase 4), correctly
+        // reflecting a populated explicit Special Day, an active Special Period under any
+        // apply_mode, or custody-aware weekly, with date exclusions already applied. An empty
+        // explicit Special Day (isSpecialDay true but no items) is intentionally NOT special-
+        // cased here — the resolver itself already falls through to Period/Weekly for that case.
+        const effective = effectiveByDate.get(dateStr);
+        activities = effective ? effective.items.map((item) => effectiveItemToCalendarActivity(item, effective.source.base_type)) : [];
       }
 
       let custody = null;
