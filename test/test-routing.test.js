@@ -20,6 +20,8 @@ const {
   matchGlob,
   mapFileToDomains,
   classifyUnknownFile,
+  loadRoutingConfig,
+  buildDomainTestIndex,
 } = require('../scripts/lib/test-routing/config.mjs');
 
 const { classifyRisk, riskToRecommendedLevel, resolveFinalRisk, riskClassToTier } = require('../scripts/lib/test-routing/risk.mjs');
@@ -586,6 +588,21 @@ test('same input produces same classifier output (determinism)', () => {
   });
 });
 
+test('P0.1 account deletion routing has complete domain L1 coverage', () => {
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/family/account.js'] });
+  assert.equal(plan.riskClass, 'R3');
+  assert.ok(plan.domains.includes('account-deletion'));
+  assert.ok(plan.domains.includes('auth-security'));
+  assert.ok(plan.domains.includes('parent-experience'));
+  assert.equal(plan.verificationPlan.L1.required, true);
+  assert.equal(plan.verificationPlan.L2.required, true);
+  assert.equal(plan.verificationPlan.L3.required, true);
+  assert.notEqual(plan.verificationPlan.failClosed, true);
+  assert.equal(plan.verificationPlan.L1.domainsMissingFocusedL1, undefined);
+  assert.ok(plan.verificationPlan.L1.tests.length > 0);
+  assert.ok(plan.verificationPlan.L2.tests.length > 0);
+});
+
 test('synthetic P0.1 deletion classifier pilot', () => {
   const plan = routeChangedFiles(ROOT, { files: ['src/routes/family/account.js'] });
   assert.ok(plan.domains.includes('account-deletion'));
@@ -616,7 +633,18 @@ test('Phase -1 PR self-classification is conservative (HIGH)', () => {
   assert.equal(plan.verificationPlan.L3.required, true);
 });
 
-test('all Parent Experience domains resolve tests', () => {
+test('all configured domains resolve explicit l1Tests', () => {
+  const { overlay } = loadRoutingConfig(ROOT);
+  const domains = overlay.domains || {};
+  const { l1Index } = buildDomainTestIndex(ROOT, domains);
+  const domainIds = Object.keys(domains).sort();
+  assert.equal(domainIds.length, 18, 'expected 18 configured domains');
+  for (const id of domainIds) {
+    assert.ok(l1Index[id].length >= 1, `${id} should resolve at least one explicit l1Tests entry`);
+  }
+});
+
+test('all Parent Experience domains resolve L2 tests', () => {
   const peDomains = [
     'family-authz',
     'account-deletion',
