@@ -279,8 +279,8 @@
 // stjarndag-v892: App Store 2.2 fix — remove "Beta" badge/label from English language selection (locale-switcher, language-choice)
 // stjarndag-v893: Phase 4 — Weekly Schedule chrome: advanced view modes + PDF export tucked under a "Visa" disclosure
 // stjarndag-v894: Phase 4 closure — Kalender links to Specialdagar as an explicit secondary bridge
-// stjarndag-v895: Phase 4 final closure — drag-hint demotion + Kalender bridge link visible in magic chrome
-const CACHE_NAME = 'stjarndag-v895';
+// stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+const CACHE_NAME = 'stjarndag-v896';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
