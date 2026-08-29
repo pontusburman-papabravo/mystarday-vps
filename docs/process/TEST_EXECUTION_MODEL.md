@@ -59,7 +59,7 @@ Outside normal agent loop. Use for release confidence or after large refactors.
 | R0 Trivial | L1 |
 | R1 Normal | L1 + relevant L2 |
 | R2 Cross-cutting | L1 + multi-domain L2 + L3 |
-| R3 Critical | Broad L2 + L3 + explicit release review |
+| R3 Critical | L1 + broad L2 + L3 + explicit release review |
 
 Path-based suggestion via `config/process/global-core.json`. Explicit `--min-risk` cannot be auto-downgraded.
 
