@@ -2,15 +2,21 @@
  * Calendar routes — parent calendar view with weekly navigation.
  *
  * GET /api/children/:childId/calendar-week?weekOffset=0
- *   Returns 7 days of the target week. For a date with an already-generated daily_log,
- *   activities come from that log (preserving completion status/history). For a date with NO
- *   log yet, activities come from the canonical resolveEffectiveSchedule() /
- *   resolveEffectiveScheduleRange() (docs/schedule-canonical-architecture.md "Phase 3"/"Phase
- *   4") — the same precedence used everywhere else: populated explicit Special Day > active
- *   Special Period composed with custody-aware weekly > custody-aware weekly. This route does
- *   NOT independently decide that precedence itself (a Phase 3-documented gap, closed in Phase
- *   4) — it only computes its own custody-specific UI metadata (home label/color/handoff
- *   banner), which is unrelated to which activities are shown and is preserved unchanged.
+ *   Returns 7 days of the target week. Locked Phase 4 contract
+ *   (docs/schedule-canonical-architecture.md "Phase 4 — Calendar plan/execution separation"):
+ *
+ *     Calendar's planning content = resolveEffectiveSchedule()/resolveEffectiveScheduleRange(),
+ *     for EVERY date — never daily_log, never conditional on whether a log happens to exist.
+ *     daily_log only supplies an EXECUTION-METADATA OVERLAY (completion status, day-level
+ *     isPaused) on top of that canonical list, plus once-tasks as an ADDITIVE execution-only
+ *     append. daily_log is never an alternate planning authority: if the weekly schedule or an
+ *     active Special Period changes after a log already exists, Calendar immediately reflects
+ *     the new plan — a stale, no-longer-canonical log item can never resurrect/replace it.
+ *
+ *   This route does NOT independently decide weekly/period/special-day precedence itself (the
+ *   Phase 3-documented gap, closed in Phase 4) — it only computes its own custody-specific UI
+ *   metadata (home label/color/handoff banner), which is unrelated to which activities are shown
+ *   and is preserved unchanged.
  *   weekOffset: 0 = current week, +1 = next week, -1 = previous week.
  */
 
@@ -65,11 +71,14 @@ function calendarDayCustodyPayload(resolved, schedule, parentHomeId) {
 
 /**
  * Phase 4 — shapes one resolveEffectiveSchedule() item into the Calendar activity item shape.
- * `id` uses activity_template_id (a stable, well-known identifier) since these dates have no
- * generated daily_log_item/weekly_schedule_item row of their own to key off yet; no current
- * frontend code reads `id` for canonical/template-sourced calendar activities (verified: only
- * `section`, `completed`, `name`/`icon`, and count/grouping fields are read — see
+ * `id` uses activity_template_id (a stable, well-known identifier) — used unconditionally now,
+ * even on a date that has a generated daily_log, since Calendar's item list always comes from
+ * the canonical planning state, never from daily_log_item rows directly. No current frontend
+ * code reads `id` for canonical/template-sourced calendar activities (verified: only `section`,
+ * `completed`, `name`/`icon`, and count/grouping fields are read — see
  * public/js/calendar-page.js, public/js/print-schema-core.js, public/js/child-week-overview.js).
+ * `completed` defaults to null here; §"completion overlay" below fills it in from a matching
+ * daily_log_item when one exists.
  */
 function effectiveItemToCalendarActivity(item, baseType) {
   return {
@@ -84,6 +93,29 @@ function effectiveItemToCalendarActivity(item, baseType) {
     completed: null,
     source: baseType === BASE_TYPES.SPECIAL_DAY ? 'special_day' : (baseType === BASE_TYPES.SPECIAL_PERIOD ? 'special_period' : 'template'),
     is_exception: baseType === BASE_TYPES.SPECIAL_DAY || baseType === BASE_TYPES.SPECIAL_PERIOD,
+  };
+}
+
+/**
+ * Phase 4 — shapes one once-task daily_log_item row into the Calendar activity item shape.
+ * Once-tasks are an execution-only, ADDITIVE overlay: appended after the canonical planning
+ * items, never merged/deduped against them, and never allowed to influence which canonical item
+ * is shown or its completion (see "identity audit" below for why matching by
+ * activity_template_id would be unsafe for once-tasks specifically).
+ */
+function onceTaskLogItemToCalendarActivity(row) {
+  return {
+    id: row.item_id,
+    name: row.name,
+    icon: row.icon || '',
+    star_value: row.star_value || 1,
+    start_time: row.start_time || null,
+    end_time: row.end_time || null,
+    sort_order: row.sort_order || 0,
+    section: row.section || 'dag',
+    completed: row.completed,
+    source: 'once_task',
+    is_exception: false,
   };
 }
 
@@ -187,12 +219,26 @@ router.get('/calendar-week', async (req, res) => {
       specialByDate[dateStr] = { schedule_id: row.schedule_id, note: row.note };
     }
 
-    // Fetch daily logs for this week
+    // Fetch daily logs for this week — Phase 4: this is now an EXECUTION-METADATA source only
+    // (completion overlay + once-task additive overlay + day-level is_paused), never the
+    // planning item list itself (that always comes from resolveEffectiveScheduleRange() below).
+    //
+    // §"identity audit" — daily_log_item.is_once_task rows can carry a non-null
+    // activity_template_id (a parent can pick an existing activity as a one-off "just today"
+    // extra occurrence — see src/routes/schedules/items.js). Matching completion by
+    // activity_template_id alone would therefore be unsafe for once-task rows: it could
+    // accidentally overlay a one-off's completion onto the recurring canonical item that
+    // happens to share the same activity_template_id, or silently absorb the once-task into the
+    // canonical row instead of showing it as the additional, separate occurrence it actually is.
+    // Completion overlay therefore only ever reads NON-once-task log rows; once-task rows are
+    // always kept as a wholly separate, additive list, regardless of activity_template_id.
     const logsResult = await db.query(
       `SELECT dl.id AS log_id,
               dl.date::text AS date,
               dl.is_paused,
               dli.id AS item_id,
+              dli.activity_template_id,
+              dli.is_once_task,
               dli.name,
               dli.icon,
               dli.star_value,
@@ -210,7 +256,8 @@ router.get('/calendar-week', async (req, res) => {
       [childId, weekStart, weekEnd]
     );
 
-    // Group logs by date string
+    // Group logs by date string: a completion-by-template-id map for the overlay, plus a
+    // separate additive once-task list.
     const logsByDate = {};
     for (const row of logsResult.rows) {
       const dateStr = row.date.slice(0, 10);
@@ -218,23 +265,15 @@ router.get('/calendar-week', async (req, res) => {
         logsByDate[dateStr] = {
           log_id: row.log_id,
           is_paused: row.is_paused,
-          items: [],
+          completionByTemplateId: new Map(),
+          onceTasks: [],
         };
       }
-      if (row.item_id && row.name) {
-        logsByDate[dateStr].items.push({
-          id: row.item_id,
-          name: row.name,
-          icon: row.icon || '',
-          star_value: row.star_value || 1,
-          start_time: row.start_time || null,
-          end_time: row.end_time || null,
-          sort_order: row.sort_order || 0,
-          section: row.section || 'dag',
-          completed: row.completed,
-          source: 'log',
-          is_exception: false,
-        });
+      if (!row.item_id) continue;
+      if (row.is_once_task) {
+        if (row.name) logsByDate[dateStr].onceTasks.push(onceTaskLogItemToCalendarActivity(row));
+      } else if (row.activity_template_id) {
+        logsByDate[dateStr].completionByTemplateId.set(row.activity_template_id, row.completed);
       }
     }
 
@@ -247,25 +286,44 @@ router.get('/calendar-week', async (req, res) => {
       const isToday = dateStr === todayStr;
       const isPast = dateStr < todayStr;
 
-      let activities;
-      let isPaused = false;
-      let hasLog = false;
+      // Phase 4 — the planning item list ALWAYS comes from the canonical resolver, for every
+      // date, regardless of whether a daily_log exists. A populated explicit Special Day, an
+      // active Special Period under any apply_mode, or custody-aware weekly (with date
+      // exclusions already applied) are all handled identically by the resolver — an empty
+      // explicit Special Day is intentionally NOT special-cased here, since the resolver already
+      // falls through to Period/Weekly for that case. If the plan changes after a log exists
+      // (weekly edited, a period starts/ends/changes), Calendar reflects the NEW plan
+      // immediately — a stale log item for a since-removed/replaced planning slot can never
+      // resurrect or replace the current plan; only a matching CURRENT canonical item can be
+      // overlaid with completion status.
+      const effective = effectiveByDate.get(dateStr);
+      const baseType = effective ? effective.source.base_type : BASE_TYPES.NONE;
+      const log = logsByDate[dateStr];
+
+      let activities = (effective ? effective.items : []).map((item) => {
+        const activity = effectiveItemToCalendarActivity(item, baseType);
+        // Completion overlay: only ever matches against non-once-task log rows (see the query
+        // comment above on why once-tasks are excluded from this map).
+        if (log && item.activity_template_id != null && log.completionByTemplateId.has(item.activity_template_id)) {
+          activity.completed = log.completionByTemplateId.get(item.activity_template_id);
+        }
+        return activity;
+      });
+      // Once-tasks are additive execution-only items — appended after the canonical planning
+      // items, never replacing or being deduped against them, and never influencing base_type.
+      if (log && log.onceTasks.length > 0) activities.push(...log.onceTasks);
+
+      const hasLog = !!log;
+      const isPaused = log ? (log.is_paused || false) : false;
       const isSpecialDay = !!specialByDate[dateStr];
       const specialDayNote = isSpecialDay ? (specialByDate[dateStr].note || null) : null;
-
-      if (logsByDate[dateStr]) {
-        hasLog = true;
-        isPaused = logsByDate[dateStr].is_paused || false;
-        activities = logsByDate[dateStr].items;
-      } else {
-        // No log generated yet for this date — canonical planning state (Phase 4), correctly
-        // reflecting a populated explicit Special Day, an active Special Period under any
-        // apply_mode, or custody-aware weekly, with date exclusions already applied. An empty
-        // explicit Special Day (isSpecialDay true but no items) is intentionally NOT special-
-        // cased here — the resolver itself already falls through to Period/Weekly for that case.
-        const effective = effectiveByDate.get(dateStr);
-        activities = effective ? effective.items.map((item) => effectiveItemToCalendarActivity(item, effective.source.base_type)) : [];
-      }
+      // §"Special Day badge" — isSpecialDay/specialDayNote are existence/note metadata ONLY
+      // (a parent's note on the date, worth surfacing even if the row is empty and therefore
+      // falls through to Period/Weekly for actual planned items — see docs "Phase 4"). They must
+      // never be read as "this date's plan came from a full override": isSpecialDayActive is the
+      // authoritative signal for that (true only when the resolver actually used a populated
+      // Special Day as the base for this date).
+      const isSpecialDayActive = baseType === BASE_TYPES.SPECIAL_DAY;
 
       let custody = null;
       if (custodyActive) {
@@ -292,6 +350,7 @@ router.get('/calendar-week', async (req, res) => {
         hasLog,
         isPaused,
         isSpecialDay,
+        isSpecialDayActive,
         specialDayNote,
         activities,
         completedCount,
