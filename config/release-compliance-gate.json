@@ -1,0 +1,206 @@
+{
+  "_comment": "Tunable allowlist/config for scripts/release-compliance-gate.mjs. Edit this file (not the check code) to teach the gate about new safe fixtures, markets, or hosts. See docs/release/RELEASE_GATE_MODEL.md.",
+
+  "preReleaseKeywords": [
+    "beta",
+    "test",
+    "trial",
+    "preview",
+    "experimental",
+    "early access",
+    "coming soon"
+  ],
+
+  "_placeholderScanSafeContextPatterns_comment": "'placeholder' is also a standard HTML form-field attribute (placeholder=\"hint text\") — that is normal web development, not review-unsafe copy. Only a placeholder used as prose (e.g. a heading literally saying '(placeholder)') should fail.",
+  "placeholderScanSafeContextPatterns": [
+    "placeholder\\s*[=:]\\s*[\"'`]",
+    "<input\\b",
+    "<textarea\\b",
+    "\\.placeholder\\b"
+  ],
+
+  "placeholderKeywords": [
+    "TODO",
+    "FIXME",
+    "lorem ipsum",
+    "example.com",
+    "your review password",
+    "not implemented",
+    "placeholder",
+    "sandbox",
+    "staging",
+    "dev only"
+  ],
+
+  "consumerScanGlobs": [
+    "public/*.html",
+    "public/en/*.html",
+    "public/resources/*.html",
+    "public/admin/*.html",
+    "public/js/**/*.js",
+    "public/admin/**/*.js",
+    "src/locales/**/*.json",
+    "config/en-ui-phrases.js",
+    "config/en-public-mirror.js",
+    "config/en-slug-words.js",
+    "config/journey-en-GB-translations.js",
+    "config/for-dig-goals-en-GB.json"
+  ],
+
+  "adminOrInternalPathPatterns": [
+    "^public/admin/",
+    "^docs/",
+    "^test/",
+    "^scripts/",
+    "^src/routes/admin/",
+    "^systemdokumentation/",
+    "^\\.ai/",
+    "^\\.cursor/",
+    "^ios/",
+    "^android/"
+  ],
+
+  "safeFixturePatterns": [
+    "[\\w.-]+@(test\\.[a-z]{2,4}|example\\.[a-z]{2,4})\\b",
+    "@example\\.(com|org|net)\\b",
+    "FOUNDER_QA_",
+    "APP_REVIEW_",
+    "RC1_QA_",
+    "SMOKE_PARENT_",
+    "SMOKE_CHILD"
+  ],
+
+  "_preReleaseKeywordSafeContextPatterns_comment": "Legitimate, store-compliant phrasing that happens to contain a pre-release keyword. 'free trial' subscription copy and 'coming soon' + waitlist messaging about a NOT-YET-launched market/feature are standard, allowed language — distinct from labeling an already-live feature as beta/trial/pre-release. Extend this list (not the check code) when a new legitimate phrase is found.",
+  "preReleaseKeywordSafeContextPatterns": [
+    "free\\s+trial",
+    "trial\\s+(period|days?|ends?|expires?|welcome)",
+    "\\d+[-\\s]day(s)?\\s+(free\\s+)?trial",
+    "trialDays",
+    "gratis\\s+provperiod",
+    "provperiod",
+    "waitlist",
+    "v[äa]ntelista",
+    "cannot be purchased yet",
+    "inte tillg[äa]nglig [äa]n",
+    "english\\s+(is\\s+)?coming\\s+soon",
+    "packages are coming soon"
+  ],
+
+  "_manualReviewConsumerPatterns_comment": "Consumer-visible phrases the gate cannot confidently classify as safe or blocking. These surface as MANUAL_REVIEW_REQUIRED, not P0 FAIL.",
+  "manualReviewConsumerPatterns": [
+    "anmäl intresse för.*beta",
+    "kommande beta",
+    "förhandsvisning.*beta"
+  ],
+
+  "_closedMarketSurfaces_comment": "When the gate key is false in src/lib/market-region.js GATE_DEFAULTS, files matching pathPatterns are NOT_APPLICABLE for blocking scans.",
+  "closedMarketSurfaces": [
+    {
+      "gateKey": "market_uk_open",
+      "pathPatterns": ["^public/en/uk-", "^public/en/uk/"]
+    }
+  ],
+
+  "reviewPackageDocs": [
+    "docs/app-store-review-notes.md",
+    "docs/app-store-connect-metadata.md",
+    "docs/app-store-connect-metadata-en-GB.md",
+    "docs/app-store-demo-konto.md",
+    "docs/app-store-testflight-checklist.md",
+    "docs/google-play-app-content.md",
+    "docs/android-play-data-safety-r45.md"
+  ],
+
+  "submissionMetadataEvidence": {
+    "apple": {
+      "reviewNotesDoc": "docs/app-store-review-notes.md",
+      "descriptionDocs": ["docs/app-store-connect-metadata.md", "docs/app-store-connect-metadata-en-GB.md"],
+      "reviewAccountDoc": "docs/app-store-demo-konto.md",
+      "testflightChecklistDoc": "docs/app-store-testflight-checklist.md",
+      "screenshotsProcessDoc": "docs/app-store-screenshots/README.md"
+    },
+    "google": {
+      "storeListingDoc": "docs/google-play-app-content.md",
+      "dataSafetyDoc": "docs/android-play-data-safety-r45.md"
+    }
+  },
+
+  "forbiddenUrlHostPatterns": [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "example\\.com",
+    "example\\.org",
+    "example\\.net",
+    "\\bstaging\\.",
+    "\\bdev\\.",
+    "ngrok",
+    "\\.local\\b",
+    "test\\.example"
+  ],
+
+  "_allowedProductionHosts_comment": "Defaults in check-legal-urls.cjs when empty.",
+  "allowedProductionHosts": [],
+
+  "expectedLiveMarketCountryCodes": ["SE"],
+
+  "localeFiles": [
+    "src/locales/sv-SE.json",
+    "src/locales/en-GB.json"
+  ],
+
+  "appleEula": {
+    "mode": "standard",
+    "standardUrl": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+    "forbiddenSelfHostedEulaPaths": ["/terms"]
+  },
+
+  "expectedLegalRoutePaths": [
+    "/privacy",
+    "/terms",
+    "/en/eea/privacy",
+    "/en/eea/terms",
+    "/en/eea/child-privacy",
+    "/en/uk/privacy",
+    "/en/uk/terms",
+    "/en/tracking-choices"
+  ],
+
+  "accountDeletionEvidence": {
+    "routeFile": "src/routes/family/account.js",
+    "routeMustMatch": "router\\.delete\\(['\"]\\/delete-account['\"]",
+    "clientEntryFile": "public/settings.html",
+    "clientEntryMustMatch": "deleteAccountBtn"
+  },
+
+  "authReviewAccessEvidence": {
+    "iosPrimaryAuthMethod": "apple",
+    "androidPrimaryAuthMethod": "google",
+    "reviewAccountDocs": ["docs/app-store-demo-konto.md"],
+    "requiresEmailPasswordFallbackDoc": true
+  },
+
+  "trackingDeclaration": {
+    "attUsed": false,
+    "idfaUsed": false,
+    "expectedInfoPlistMustNotContain": ["NSUserTrackingUsageDescription"],
+    "metaNativeSdkExpected": false
+  },
+
+  "iapEvidence": {
+    "killSwitchEnvVar": "BILLING_UI_DISABLED",
+    "dbFlagTable": "app_settings",
+    "dbFlagColumn": "payment_enabled",
+    "restorePurchasesUiFile": "public/js/paywall.js",
+    "restorePurchasesMustMatch": "restorePurchases"
+  },
+
+  "versionSources": {
+    "cacheVersionFile": "config/cache-version.json",
+    "swFile": "public/sw.js",
+    "swCacheNameConst": "CACHE_NAME",
+    "iosProjectFile": "ios/App/App.xcodeproj/project.pbxproj",
+    "androidVersionFile": "assets/play-store/android-version.json",
+    "androidSdkFile": "assets/play-store/android-sdk.json"
+  }
+}
