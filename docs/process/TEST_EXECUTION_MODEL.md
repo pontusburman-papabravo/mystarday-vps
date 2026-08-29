@@ -77,7 +77,7 @@ ROUTER ENTRY (config/test-routing.json)
 
 If a test run hangs, waits on a DB advisory lock, stalls without output (>5 min), or exceeds **2×** known runtime — stop and diagnose. Do not increase timeouts or rerun the full suite blindly.
 
-- Classify: `PRODUCT_CODE` | `TEST_HARNESS` | `DB_LOCK` | `CI_INFRA` | `NOT_YET_DETERMINED`
+- Classify: `PRODUCT_CODE` | `TEST_HARNESS` | `DB_LOCK` | `RESOURCE_LEAK` | `CI_INFRA` | `NOT_YET_DETERMINED`
 - Verify `setupTestDb()` / `listenApp()` cleanup; run smallest isolated reproducer
 - Max retry: **1** for deterministic failures; **0** for hangs/locks/leaks
 - **R3:** contaminated harness blocks further product work until clean

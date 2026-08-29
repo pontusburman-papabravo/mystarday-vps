@@ -19,7 +19,8 @@ the agent must **stop treating it as a normal test failure**.
 3. **Classify** the issue as one of:
    - `PRODUCT_CODE`
    - `TEST_HARNESS`
-   - `DB_LOCK` / `RESOURCE_LEAK`
+   - `DB_LOCK`
+   - `RESOURCE_LEAK`
    - `CI_INFRA`
    - `NOT_YET_DETERMINED`
 4. **Inspect** lifecycle/cleanup paths (`setupTestDb()`, `listenApp()`, advisory lock release)
@@ -35,7 +36,7 @@ The agent must **never** spend repeated long cycles rerunning a hanging suite wi
 - Advisory lock waits are **diagnostic signals**, not reasons to increase timeout
 - Every `setupTestDb()` must have **guaranteed cleanup**
 - Every `listenApp()` must have **guaranteed close**
-- Leaked test resources are treated as **TEST_HARNESS blockers**
+- Leaked test resources are treated as **RESOURCE_LEAK** blockers
 
 ## Retry limits
 
@@ -63,7 +64,7 @@ TEST_EXECUTION_STOP
 level: L1|L2|L3|L4
 command: <exact command>
 symptom: hang|lock_wait|no_output|2x_runtime|repeated_rerun
-classification: PRODUCT_CODE|TEST_HARNESS|DB_LOCK|CI_INFRA|NOT_YET_DETERMINED
+classification: PRODUCT_CODE|TEST_HARNESS|DB_LOCK|RESOURCE_LEAK|CI_INFRA|NOT_YET_DETERMINED
 pids: [<pid>, ...]
 next: <smallest reproducer or cleanup step>
 resume_allowed: yes|no

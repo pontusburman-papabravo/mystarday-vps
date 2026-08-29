@@ -53,7 +53,7 @@ Path suggestion in `config/process/global-core.json`. `--min-risk` cannot auto-d
 If a test command hangs, waits on a DB advisory lock, produces no output >5 min, or exceeds **2×** known runtime — **do not** treat as a normal failure or increase timeouts.
 
 1. Stop safely (specific PID — never `pkill -f`)
-2. Classify: `PRODUCT_CODE` | `TEST_HARNESS` | `DB_LOCK` | `CI_INFRA` | `NOT_YET_DETERMINED`
+2. Classify: `PRODUCT_CODE` | `TEST_HARNESS` | `DB_LOCK` | `RESOURCE_LEAK` | `CI_INFRA` | `NOT_YET_DETERMINED`
 3. Inspect `setupTestDb()` / `listenApp()` cleanup; run smallest isolated reproducer
 4. Report diagnosis before resuming implementation
 
