@@ -1,0 +1,57 @@
+---
+description: Test execution model L1–L6, changed-files router, domain gates, risk R0–R3.
+alwaysApply: true
+---
+
+# 131 — Test Execution Model
+
+**Owner docs:** `docs/process/TEST_EXECUTION_MODEL.md`, `config/process/global-core.json`
+
+## Levels
+
+| Level | Command | When |
+|-------|---------|------|
+| L1 | `npm run test:changed` | During implementation — minimal relevant verification |
+| L2 | `npm run test:domain -- <domain>` | Domain-targeted regression |
+| L3 | `npm run test:gate` + `lint:public` | PR merge gate (CI) |
+| L4 | `npm test` | Full regression — pre-release only |
+| L5 | `npm run release:preflight` | Release — exact-SHA evidence reuse |
+| L6 | `npm run release:store-delta` | Filtered manual store checklist |
+
+## L2 domains (8)
+
+`auth-security` · `payments-iap` · `i18n-markets-legal` · `planning-schedule` · `child-experience` · `parent-experience` · `db-migrations` · `native-platform`
+
+## Agent default
+
+Do **not** reflexively run `npm test` or full `test:gate` for small changes.
+
+1. `npm run test:changed` (add `--execute` to run)
+2. Relevant `npm run test:domain -- …` when L2 indicated
+3. `test:gate` before PR (L3)
+
+## Unknown files
+
+- Known mapping → relevant domain
+- Unknown non-critical → safe L1 broaden
+- Unknown critical/shared → recommend **L3** (fail-safe)
+- **Never** "no test needed" for unknown paths
+
+## Risk R0–R3
+
+| Class | Default |
+|-------|---------|
+| R0 | L1 |
+| R1 | L1 + L2 |
+| R2 cross-cutting | L1 + multi-L2 + L3 |
+| R3 | broad L2 + L3 + release review |
+
+Path suggestion in `config/process/global-core.json`. `--min-risk` cannot auto-downgrade.
+
+## Architecture
+
+```
+GLOBAL CORE (config/process/global-core.json)
+  → PROJECT OVERLAY (config/process/overlays/family-app.json)
+  → ROUTER (config/test-routing.json)
+```

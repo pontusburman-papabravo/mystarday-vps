@@ -1,0 +1,57 @@
+---
+description: Agent operating contracts — scope, evidence, stop, parallelism, context, escalation.
+alwaysApply: true
+---
+
+# 152 — Agent Operating Contracts
+
+**Owner docs:** `docs/process/GLOBAL_CORE.md`, `docs/process/contracts/`
+
+## Core contracts (permanent)
+
+| ID | Contract | Doc |
+|----|----------|-----|
+| A | Scope / blast radius | `SCOPE_CONTRACT.md` |
+| B | Evidence (`FACT` \| `NOT_VERIFIED`) | `EVIDENCE_CONTRACT.md` |
+| C | Acceptance immutability | `ACCEPTANCE_IMMUTABILITY.md` |
+| D | No silent fallbacks | `NO_SILENT_FALLBACKS.md` |
+| E | Stop when done | `STOP_CONTRACT.md` |
+| F | Parallelism | `PARALLELISM_CONTRACT.md` |
+| G | Context minimization | `CONTEXT_CONTRACT.md` |
+| H | Model escalation | `MODEL_ESCALATION_CONTRACT.md` |
+| I | Should-we-do-this-now | `SHOULD_WE_DO_THIS_NOW.md` |
+| J | Scope freeze | `SCOPE_FREEZE.md` |
+| K | External truth | `EXTERNAL_TRUTH.md` |
+| L | Independent review | `INDEPENDENT_REVIEW.md` |
+| M | Feature lifecycle | `FEATURE_LIFECYCLE.md` |
+
+## Scope expansion
+
+Material product/architecture/security/payment/auth/market/data expansion:
+
+```
+SCOPE_EXPANSION_REQUIRED
+```
+
+## Evidence
+
+Never invent evidence. Founder input: `EVIDENCE_SOURCE: founder_observation`.
+
+## Parallelism
+
+Only after `SCOPE_LOCKED`. Separate write scopes. Orchestrator integrates + runs shared verification.
+
+## Stuck
+
+Two failed attempts without verified progress → `ROOT_CAUSE_NOT_VERIFIED` → escalate or stop.
+
+## Hierarchy
+
+```
+GLOBAL PRINCIPLES (this + 131)
+  → PROJECT CONTRACT (family-app overlay)
+  → DOMAIN RULES (040–120, 131 domains)
+  → TASK SCOPE
+```
+
+Supersedes ad-hoc "run everything" testing guidance for agent loops. L3 merge gate unchanged (130).

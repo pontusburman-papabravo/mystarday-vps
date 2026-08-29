@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "project": "family-app",
+  "displayName": "family-routine-app",
+  "criticalAreas": [
+    "child/adult privilege",
+    "auth/session",
+    "payment/IAP",
+    "data deletion",
+    "DB/migrations",
+    "market opening",
+    "privacy/security",
+    "native store behavior"
+  ],
+  "externalSystems": [
+    "Apple App Store / TestFlight",
+    "Google Play",
+    "RevenueCat",
+    "production feature flags / app_settings"
+  ],
+  "productPrinciples": [
+    "family adaptability",
+    "child calm/simple UX",
+    "strong defaults",
+    "progressive customization",
+    "accessibility",
+    "recoverability",
+    "consistency"
+  ],
+  "domains": {
+    "auth-security": {
+      "description": "Authentication, authorization, sessions, PIN, child/adult privilege, rate limits",
+      "pathGlobs": [
+        "src/routes/auth/**",
+        "src/middleware/auth.js",
+        "src/middleware/authz.js",
+        "src/middleware/rateLimiter.js",
+        "src/middleware/subscription.js",
+        "src/routes/family/pin.js",
+        "src/routes/family/account.js",
+        "public/login.html",
+        "public/register.html",
+        "public/child-login.html",
+        "public/js/*login*.js",
+        "public/js/*auth*.js",
+        "public/js/parental-gate.js",
+        "public/js/trusted-device*.js",
+        "public/js/adult-privilege*.js",
+        "public/js/session*.js",
+        "public/js/parent-handoff*.js",
+        "db/pin-*.js"
+      ],
+      "testGlobs": [
+        "test/*auth*.test.js",
+        "test/*pin*.test.js",
+        "test/*session*.test.js",
+        "test/*privilege*.test.js",
+        "test/*child-access*.test.js",
+        "test/*child-login*.test.js",
+        "test/rate-limit*.test.js",
+        "test/*trusted-device*.test.js",
+        "test/*handoff*.test.js",
+        "test/*refresh-token*.test.js",
+        "test/*oauth*.test.js",
+        "test/*jwt*.test.js",
+        "test/authz*.test.js",
+        "test/credential-leak-guard.test.js",
+        "test/r4-final-security-blockers.integration.test.js",
+        "test/r4-final-authority.integration.test.js"
+      ]
+    },
+    "payments-iap": {
+      "description": "RevenueCat IAP, paywall, subscriptions, entitlements, billing kill switches",
+      "pathGlobs": [
+        "src/routes/iap.js",
+        "config/iap-product-contract.js",
+        "config/subscription-components.js",
+        "public/js/iap*.js",
+        "public/js/paywall*.js",
+        "public/js/revenuecat*.js",
+        "docs/app-store-iap.md",
+        "docs/PAYMENTS_V1_STATUS.md"
+      ],
+      "testGlobs": [
+        "test/iap*.test.js",
+        "test/paywall*.test.js",
+        "test/revenuecat*.test.js",
+        "test/payments*.test.js",
+        "test/billing*.test.js",
+        "test/limited-account-paywall*.test.js",
+        "test/review-subscription*.test.js"
+      ]
+    },
+    "i18n-markets-legal": {
+      "description": "Locales, markets, legal routing, cookie consent, regional launch",
+      "pathGlobs": [
+        "src/lib/i18n/**",
+        "src/lib/legal-routing.js",
+        "src/lib/market-region.js",
+        "src/lib/market-config.js",
+        "public/en.html",
+        "public/js/i18n*.js",
+        "public/js/cookie*.js",
+        "locales/**",
+        "config/markets/**"
+      ],
+      "testGlobs": [
+        "test/i18n*.test.js",
+        "test/market*.test.js",
+        "test/legal*.test.js",
+        "test/cookie*.test.js",
+        "test/eea-launch*.test.js",
+        "test/english-app*.test.js",
+        "test/grandfather-country*.test.js"
+      ]
+    },
+    "planning-schedule": {
+      "description": "Schedules, daily logs, planning hub, custody, for-dig, reports",
+      "pathGlobs": [
+        "src/routes/schedules/**",
+        "src/routes/daily-logs/**",
+        "src/routes/for-dig/**",
+        "src/routes/custody/**",
+        "public/schedule.html",
+        "public/js/schedule*.js",
+        "public/js/daily-log*.js",
+        "public/js/custody*.js",
+        "public/js/for-dig*.js",
+        "public/js/reports*.js",
+        "public/js/planning*.js",
+        "public/js/print-schema*.js"
+      ],
+      "testGlobs": [
+        "test/schedule*.test.js",
+        "test/daily-log*.test.js",
+        "test/custody*.test.js",
+        "test/for-dig*.test.js",
+        "test/reports*.test.js",
+        "test/planning*.test.js",
+        "test/print-schema*.test.js",
+        "test/merge-schedule*.test.js"
+      ]
+    },
+    "child-experience": {
+      "description": "Child dashboard, rewards, celebrations, child UX surfaces",
+      "pathGlobs": [
+        "public/child-dashboard.html",
+        "public/js/child-dashboard*.js",
+        "public/js/child-rewards*.js",
+        "public/js/child-system-menu.js",
+        "public/js/child-theme*.js",
+        "public/js/barnets-samling*.js",
+        "public/js/child-today*.js",
+        "public/js/child-activity*.js",
+        "public/js/child-pictogram*.js",
+        "src/routes/children.js",
+        "src/routes/rewards.js"
+      ],
+      "testGlobs": [
+        "test/child-dashboard*.test.js",
+        "test/child-theme*.test.js",
+        "test/child-today*.test.js",
+        "test/child-pictogram*.test.js",
+        "test/child-read-aloud.test.js",
+        "test/child-visual-theme.test.js",
+        "test/barnets-samling*.test.js",
+        "test/skattkammaren*.test.js",
+        "test/fas-4a-daily-child-ux.test.js",
+        "test/child-treasure*.test.js",
+        "test/child-substep*.test.js"
+      ]
+    },
+    "parent-experience": {
+      "description": "Parent dashboard, home, onboarding, settings, hubs",
+      "pathGlobs": [
+        "public/dashboard.html",
+        "public/index.html",
+        "public/js/dashboard*.js",
+        "public/js/home*.js",
+        "public/js/onboarding*.js",
+        "public/js/settings*.js",
+        "public/js/activation*.js",
+        "public/js/journey*.js",
+        "public/js/family*.js",
+        "src/routes/onboarding.js",
+        "src/routes/family/**",
+        "src/routes/account/**"
+      ],
+      "testGlobs": [
+        "test/dashboard*.test.js",
+        "test/onboarding*.test.js",
+        "test/settings*.test.js",
+        "test/hem*.test.js",
+        "test/idag*.test.js",
+        "test/parent*.test.js",
+        "test/activation*.test.js",
+        "test/journey*.test.js",
+        "test/family-hub*.test.js",
+        "test/planning-hub*.test.js",
+        "test/rewards-hub*.test.js",
+        "test/signup*.test.js"
+      ]
+    },
+    "db-migrations": {
+      "description": "PostgreSQL schema, migrations, migrate bootstrap",
+      "pathGlobs": [
+        "migrations/**",
+        "migrate.js",
+        "db/**",
+        "scripts/cloud-agent-bootstrap.sh",
+        "test/helpers/setupTestDb.js",
+        "test/helpers/db-test-lock.js"
+      ],
+      "testGlobs": [
+        "test/migration*.test.js",
+        "test/setup-test-db*.test.js",
+        "test/db-test-lock.test.js",
+        "test/database*.test.js",
+        "test/test-database-safety.test.js",
+        "test/migrate-flag-repair-guard.test.js"
+      ]
+    },
+    "native-platform": {
+      "description": "Capacitor iOS/Android, widgets, native bridges, store binaries",
+      "pathGlobs": [
+        "ios/**",
+        "android/**",
+        "capacitor.config.*",
+        "plugins/**",
+        "scripts/*ios*",
+        "scripts/*android*",
+        "scripts/cap*",
+        "scripts/patch-ios*.mjs",
+        "scripts/patch-android*.mjs",
+        "scripts/build-android*.mjs",
+        "scripts/prepare-*-native.mjs",
+        "public/js/platform.js",
+        "public/sw.js",
+        "config/cache-version.json"
+      ],
+      "testGlobs": [
+        "test/*ios*.test.js",
+        "test/*android*.test.js",
+        "test/*native*.test.js",
+        "test/*widget*.test.js",
+        "test/capacitor*.test.js",
+        "test/sw-precache*.test.js",
+        "test/android-aab*.test.js",
+        "test/native-bridge*.test.js",
+        "test/platform-runtime*.test.js",
+        "test/i18n-native-shell.test.js"
+      ]
+    }
+  }
+}

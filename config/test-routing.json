@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "globalCore": "config/process/global-core.json",
+  "overlay": "config/process/overlays/family-app.json",
+  "defaultBaseRef": "origin/main",
+  "l3Command": "npm run test:gate",
+  "lintCommand": "npm run lint:public"
+}
