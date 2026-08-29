@@ -11,7 +11,6 @@
  */
 
 const db = require('./db');
-const { resolveWeeklyScheduleId } = require('./custody-schedule-resolve');
 const { getDayOfWeek } = require('./schedule-date-utils');
 const { STOCKHOLM_TZ } = require('./stockholm-time');
 const { resolveEffectiveSchedule, BASE_TYPES } = require('./effective-schedule');
@@ -360,7 +359,21 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
      ORDER BY CASE sdsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, sdsi.sort_order ASC`,
     [scheduleId]
   );
-  const scheduleItems = sdsiResult.rows;
+  let scheduleItems = sdsiResult.rows;
+
+  // Phase 3 hardening — an empty explicit Special Day is NOT "clear the day": per the locked
+  // contract (docs "Empty Special Day contract") it falls through to whatever Special
+  // Period/weekly base is otherwise effective for this date. Before this fix, an empty
+  // scheduleItems here meant "remove everything" below, incorrectly emptying an already-
+  // generated log instead of falling back — a duplicate-precedence bug (this function was
+  // re-deciding "what's the desired state" instead of delegating to the canonical resolver for
+  // the empty case). Delegate to resolveEffectiveSchedule() for the fallback set; its shape
+  // (activity_template_id/name/icon/image_url/start_time/end_time/star_value/sort_order/section)
+  // already matches what the reconciliation logic below expects.
+  if (scheduleItems.length === 0) {
+    const effective = await resolveEffectiveSchedule(childId, scheduleDate, { client: q });
+    scheduleItems = effective.items;
+  }
 
   // Get current daily log items
   const dliResult = await q.query(
@@ -443,7 +456,21 @@ async function syncDailyLogForSpecialDay(scheduleId, scheduleDate, childId, clie
 }
 
 /**
- * Sync the daily log for today (or a specific date) with the weekly schedule.
+ * Sync the daily log for today (or a specific date) with the current canonical effective
+ * planning state (docs/schedule-canonical-architecture.md "Phase 3").
+ *
+ * Despite the name/call sites (always triggered by a WEEKLY schedule mutation), this does
+ * **not** mean "desired state = raw weekly items" — the desired state is always
+ * `resolveEffectiveSchedule(childId, syncDate).items`, which already correctly folds in
+ * whatever combination of custody-aware weekly + an active Special Period (any apply_mode) +
+ * date exclusions is actually effective for that date. This function must never re-derive that
+ * composition itself from raw `weekly_schedule`/`weekly_schedule_item`/`schedule_date_exclusion`
+ * rows — doing so would duplicate (and could silently drift from) the canonical precedence
+ * logic that already lives in effective-schedule.js.
+ *
+ * The ONE case this function still actively skips is a populated explicit Special Day — a
+ * weekly-triggered mutation must never rewrite a log that's fully overridden by an explicit
+ * Special Day (§3 below).
  *
  * @param {string} childId   - UUID of the child
  * @param {number} dayOfWeek - 0-6 (the day_of_week that was modified)
@@ -478,22 +505,21 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   if (logResult.rows.length === 0) return { synced: false, reason: 'no_log' };
   const logId = logResult.rows[0].id;
 
-  // Get weekly schedule items for the day of week (custody-aware)
-  const scheduleId = await resolveWeeklyScheduleId(q, childId, syncDate, tz);
+  // The canonical resolver is the SOLE source of the desired planning-state item set — see the
+  // function doc comment above. It already applies custody, Special Period composition (every
+  // apply_mode), and date exclusions; none of that is re-implemented here.
+  const effective = await resolveEffectiveSchedule(childId, syncDate, { client: q, timezone: tz });
 
-  let scheduleItems = [];
-  if (scheduleId) {
-    const siResult = await q.query(
-      `SELECT wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-              at.name, at.icon, at.image_url, at.star_value
-       FROM weekly_schedule_item wsi
-       JOIN activity_template at ON at.id = wsi.activity_template_id
-       WHERE wsi.weekly_schedule_id = $1
-       ORDER BY CASE wsi.section WHEN 'morgon' THEN 1 WHEN 'dag' THEN 2 WHEN 'kvall' THEN 3 WHEN 'natt' THEN 4 ELSE 5 END, wsi.sort_order ASC`,
-      [scheduleId]
-    );
-    scheduleItems = siResult.rows;
+  // A populated explicit Special Day fully overrides Weekly Schedule for this date — a weekly
+  // mutation must never rewrite that log (§3). Every other base_type (weekly / special_period /
+  // none) reconciles against effective.items below, including special_period under every
+  // apply_mode — a period date is NEVER skipped.
+  if (effective.source.base_type === BASE_TYPES.SPECIAL_DAY) {
+    console.log(`[DAILY-LOG-SYNC] child=${childId} date=${syncDate}: skipped — explicit Special Day is authoritative`);
+    return { synced: false, reason: 'explicit_special_day' };
   }
+
+  const scheduleItems = effective.items;
 
   const dliResult = await q.query(
     `SELECT id, activity_template_id, is_once_task, name, icon, start_time, end_time,
@@ -504,6 +530,16 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
   );
   const dailyItems = dliResult.rows;
 
+  // §9 identity audit — daily_log_item has a unique index on (daily_log_id, activity_template_id)
+  // WHERE activity_template_id IS NOT NULL (see the ON CONFLICT clause below and
+  // batchInsertDailyLogItems() above): the execution/history layer intentionally collapses to
+  // at most ONE row per activity_template_id per log, regardless of section/start_time/end_time.
+  // This is a pre-existing execution-layer constraint, unchanged by Phase 3 — it is coarser than
+  // the canonical planning-side duplicate-identity rule (activity_template_id + section +
+  // start_time + end_time) used inside effective-schedule.js's composePeriodWithWeekly(), which
+  // is exactly why that composition step already de-duplicates BEFORE this function ever sees
+  // the result; this reconciliation only needs to key on activity_template_id to match the
+  // storage-layer grain it has always used.
   const schedTemplateIds = new Set(scheduleItems.map(si => si.activity_template_id));
   const dailyByTemplate = new Map();
   for (const di of dailyItems) {
@@ -513,21 +549,9 @@ async function syncDailyLogWithSchedule(childId, dayOfWeek, client, targetDate) 
     dailyByTemplate.get(di.activity_template_id).push(di);
   }
 
-  // Exclude items that were removed "bara denna dag" via schedule_date_exclusion
-  let excludedTemplateIds = new Set();
-  try {
-    const exclRes = await q.query(
-      `SELECT activity_template_id FROM schedule_date_exclusion
-       WHERE child_id = $1 AND date = $2`,
-      [childId, syncDate]
-    );
-    excludedTemplateIds = new Set(exclRes.rows.map(r => r.activity_template_id));
-  } catch (_) { /* table may not exist yet during migration window */ }
-
   let added = 0, removed = 0, updated = 0;
 
   for (const si of scheduleItems) {
-    if (excludedTemplateIds.has(si.activity_template_id)) continue;
     const existing = dailyByTemplate.get(si.activity_template_id);
     if (!existing || existing.length === 0) {
       await q.query(

@@ -34,9 +34,17 @@ describe('FEAT-1B boendeschema', () => {
     assert.equal(isCustodyHandoffEve(ctx, '2026-06-04'), false);
   });
 
-  it('daily-log-generator uses custody schedule resolve', () => {
+  it('daily-log-generator uses custody schedule resolve (via the canonical effective-schedule resolver since Phase 3)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/lib/daily-log-generator.js'), 'utf8');
-    assert.match(src, /resolveWeeklyScheduleId/);
+    // Phase 3: daily-log-generator.js no longer calls resolveWeeklyScheduleId() directly —
+    // custody-aware weekly resolution now happens exclusively inside
+    // resolveEffectiveSchedule() (src/lib/effective-schedule.js), which this file delegates to
+    // for every planning-state read (first generation AND re-sync). Assert the delegation
+    // instead of the removed direct import.
+    assert.match(src, /resolveEffectiveSchedule/);
+    assert.doesNotMatch(src, /resolveWeeklyScheduleId/, 'daily-log-generator.js must not re-implement custody-aware weekly resolution directly — it must delegate to resolveEffectiveSchedule()');
+    const effectiveScheduleSrc = fs.readFileSync(path.join(ROOT, 'src/lib/effective-schedule.js'), 'utf8');
+    assert.match(effectiveScheduleSrc, /resolveWeeklyScheduleId/, 'the canonical resolver itself must still be custody-aware');
   });
 
   it('push-reminder filters by custody parent', () => {
