@@ -43,6 +43,8 @@ Canonical in `config/process/global-core.json` → `riskClasses`.
 | Feature lifecycle | [`contracts/FEATURE_LIFECYCLE.md`](./contracts/FEATURE_LIFECYCLE.md) |
 | Test execution stop | [`contracts/TEST_EXECUTION_STOP_RULE.md`](./contracts/TEST_EXECUTION_STOP_RULE.md) |
 
+Harness debt (flaky / lock / leak): [`TEST_HARNESS_DEBT.md`](./TEST_HARNESS_DEBT.md)
+
 ## Project overlays
 
 | Project | Overlay |
