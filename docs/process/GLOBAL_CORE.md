@@ -41,6 +41,7 @@ Canonical in `config/process/global-core.json` → `riskClasses`.
 | External truth | [`contracts/EXTERNAL_TRUTH.md`](./contracts/EXTERNAL_TRUTH.md) |
 | Independent review | [`contracts/INDEPENDENT_REVIEW.md`](./contracts/INDEPENDENT_REVIEW.md) |
 | Feature lifecycle | [`contracts/FEATURE_LIFECYCLE.md`](./contracts/FEATURE_LIFECYCLE.md) |
+| Test execution stop | [`contracts/TEST_EXECUTION_STOP_RULE.md`](./contracts/TEST_EXECUTION_STOP_RULE.md) |
 
 ## Project overlays
 
@@ -52,7 +53,7 @@ Canonical in `config/process/global-core.json` → `riskClasses`.
 ## Cursor rules
 
 - `131-test-execution-model.mdc` — L1–L6 + router commands
-- `152-agent-operating-contracts.mdc` — contracts A–M summary
+- `152-agent-operating-contracts.mdc` — contracts A–N summary
 
 ## ROI rule for new automation
 

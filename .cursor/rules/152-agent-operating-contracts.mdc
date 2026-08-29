@@ -24,6 +24,11 @@ alwaysApply: true
 | K | External truth | `EXTERNAL_TRUTH.md` |
 | L | Independent review | `INDEPENDENT_REVIEW.md` |
 | M | Feature lifecycle | `FEATURE_LIFECYCLE.md` |
+| N | Test execution stop | `TEST_EXECUTION_STOP_RULE.md` |
+
+## Test hangs / locks
+
+Hang, advisory lock wait, or resource leak → `TEST_EXECUTION_STOP` (contract N). Diagnose before rerunning. R3: harness clean before product work resumes.
 
 ## Scope expansion
 
