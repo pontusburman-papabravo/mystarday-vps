@@ -25,13 +25,20 @@ export function buildVerificationPlan(params) {
   const defaultLevels = new Set(spec.defaultVerification || ['L1']);
   const hints = riskHints(riskClass, globalCore);
 
-  const l1Tests = [...(globalCore.l1SmokeTests || [])];
+  const smokeTests = globalCore.l1SmokeTests || [];
+  const domainFocusedL1 = [];
+  const domainsMissingFocusedL1 = [];
+
   for (const d of domainList) {
     const explicit = domainL1Index?.[d] || [];
     if (explicit.length) {
-      l1Tests.push(...explicit);
+      domainFocusedL1.push(...explicit);
+    } else {
+      domainsMissingFocusedL1.push(d);
     }
   }
+
+  const l1Tests = [...smokeTests, ...domainFocusedL1];
 
   const l2Tests = [];
   for (const d of domainList) {
@@ -57,6 +64,18 @@ export function buildVerificationPlan(params) {
   }
 
   const isHigh = riskClass === 'R3';
+  if (
+    isHigh
+    && l1Required
+    && domainList.length > 0
+    && domainsMissingFocusedL1.length > 0
+  ) {
+    return failClosedPlan(entry, 'high_missing_domain_l1', globalCore, {
+      smokeTests,
+      domainFocusedL1,
+      domainsMissingFocusedL1,
+    });
+  }
   if (isHigh && l1Required && l1NotResolved) {
     return failClosedPlan(entry, 'high_missing_l1', globalCore);
   }
@@ -98,10 +117,20 @@ export function buildVerificationPlan(params) {
  * @param {object} entry
  * @param {string} reason
  */
-function failClosedPlan(entry, reason, globalCore = {}) {
-  const smoke = globalCore.l1SmokeTests || [];
+function failClosedPlan(entry, reason, globalCore = {}, l1Context = {}) {
+  const smoke = l1Context.smokeTests ?? globalCore.l1SmokeTests ?? [];
+  const domainFocused = l1Context.domainFocusedL1 ?? [];
+  const tests = dedupeTests([...smoke, ...domainFocused]);
   return {
-    L1: { required: true, tests: [...smoke], l1NotResolved: smoke.length === 0, failClosed: true },
+    L1: {
+      required: true,
+      tests,
+      l1NotResolved: tests.length === 0,
+      ...(l1Context.domainsMissingFocusedL1?.length
+        ? { domainsMissingFocusedL1: [...l1Context.domainsMissingFocusedL1] }
+        : {}),
+      failClosed: true,
+    },
     L2: { required: true, domains: [], tests: [], l2NotResolved: true, failClosed: true },
     L3: { required: true, command: entry.l3Command, failClosed: true },
     releaseReview: true,

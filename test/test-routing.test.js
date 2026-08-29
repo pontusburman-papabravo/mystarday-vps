@@ -119,7 +119,8 @@ test('R2 cumulative plan includes L1, multi-domain L2, and L3', () => {
 });
 
 test('R3 cumulative plan includes L1, L2, L3, and releaseReview', () => {
-  const plan = routeChangedFiles(ROOT, { files: ['src/routes/auth/login.js'] });
+  // push-recipients has explicit domain l1Tests; automatic R3 auth paths fail closed without them.
+  const plan = routeChangedFiles(ROOT, { files: ['src/routes/push.js'], minRisk: 'R3' });
   assert.equal(plan.riskClass, 'R3');
   assert.equal(plan.verificationPlan.L1.required, true);
   assert.equal(plan.verificationPlan.L2.required, true);
@@ -493,7 +494,39 @@ test('HIGH missing required L1 → fail closed to L3', () => {
     hasUnsafeUnknown: false,
   });
   assert.equal(plan.failClosed, true);
+  assert.equal(plan.failClosedReason, 'high_missing_domain_l1');
   assert.equal(plan.L3.required, true);
+});
+
+test('HIGH missing domain-focused L1 fails closed even when global smoke exists', () => {
+  const plan = buildVerificationPlan({
+    riskClass: 'R3',
+    globalCore: {
+      riskClasses: {
+        R3: {
+          defaultVerification: ['L1', 'L2', 'L3', 'RELEASE_REVIEW'],
+          independentReview: true,
+          rollbackConsideration: true,
+          dbInvariants: true,
+        },
+      },
+      l1SmokeTests: [
+        'test/ci-test-manifest.test.js',
+        'test/test-routing.test.js',
+      ],
+    },
+    entry: { l3Command: 'npm run test:gate' },
+    domainList: ['account-deletion'],
+    domainTestIndex: { 'account-deletion': ['test/eea-launch-framework.test.js'] },
+    domainL1Index: { 'account-deletion': [] },
+    hasUnsafeUnknown: false,
+  });
+  assert.equal(plan.failClosed, true);
+  assert.equal(plan.failClosedReason, 'high_missing_domain_l1');
+  assert.equal(plan.L3.required, true);
+  assert.ok(plan.L1.tests.includes('test/ci-test-manifest.test.js'));
+  assert.ok(plan.L1.tests.includes('test/test-routing.test.js'));
+  assert.deepEqual(plan.L1.domainsMissingFocusedL1, ['account-deletion']);
 });
 
 test('HIGH missing required L2 → fail closed to L3', () => {
