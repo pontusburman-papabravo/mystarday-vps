@@ -182,8 +182,26 @@
     }
     dismissGoogleLinking();
 
-    if (pageKind() === 'register' && window.CountryChoice && !CountryChoice.requireSelection()) {
-      return;
+    if (pageKind() === 'register') {
+      var countryOk = false;
+      try {
+        countryOk = window.RegistrationCountryGate
+          ? RegistrationCountryGate.allow(window.CountryChoice) === true
+          : false;
+      } catch (_) {
+        countryOk = false;
+      }
+      if (!countryOk) {
+        if (window.RegistrationCountryGate && RegistrationCountryGate.revealCountryError) {
+          RegistrationCountryGate.revealCountryError();
+        }
+        if (errEl) {
+          errEl.textContent = t('market.choice.required');
+          if (errEl.classList) errEl.classList.remove('hidden');
+          errEl.style.display = '';
+        }
+        return;
+      }
     }
 
     const btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');

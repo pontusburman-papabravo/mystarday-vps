@@ -146,16 +146,18 @@
 
   function closedMarketMessage(code) {
     if (!code || isCountryOpen(code)) return '';
-    if (window.I18n) {
-      if (code === 'IE') return I18n.t('market.choice.closedIe');
-      if (code === 'FI') return I18n.t('market.choice.closedFi');
-      if (code === 'NO') return I18n.t('market.choice.closedNo');
-      if (code === 'DK') return I18n.t('market.choice.closedDk');
-      if (code === 'GB') return I18n.t('market.choice.closedUk');
-      if (code === 'US') return I18n.t('market.choice.closedUs');
-      if (code === 'ZZ') return I18n.t('market.choice.closedOther');
-      if (code !== 'SE') return I18n.t('market.choice.closedEu');
-    }
+    try {
+      if (window.I18n && typeof window.I18n.t === 'function') {
+        if (code === 'IE') return window.I18n.t('market.choice.closedIe');
+        if (code === 'FI') return window.I18n.t('market.choice.closedFi');
+        if (code === 'NO') return window.I18n.t('market.choice.closedNo');
+        if (code === 'DK') return window.I18n.t('market.choice.closedDk');
+        if (code === 'GB') return window.I18n.t('market.choice.closedUk');
+        if (code === 'US') return window.I18n.t('market.choice.closedUs');
+        if (code === 'ZZ') return window.I18n.t('market.choice.closedOther');
+        if (code !== 'SE') return window.I18n.t('market.choice.closedEu');
+      }
+    } catch (_) { /* fall through */ }
     return 'My Starday is not available in your country yet.';
   }
 
@@ -217,14 +219,7 @@
 
     return {
       getSelected: () => selected,
-      requireSelection: () => {
-        if (selected && !closedMarketMessage(selected) && isCountryOpen(selected)) return true;
-        if (errorEl) {
-          errorEl.textContent = (window.I18n && I18n.t('market.choice.required')) || 'Välj land för att fortsätta';
-          errorEl.hidden = false;
-        }
-        return false;
-      },
+      requireSelection,
       isConfirmed: () => Boolean(selected) || isConfirmed(),
     };
   }
@@ -241,5 +236,48 @@
     autoMount();
   });
 
-  window.CountryChoice = { mount, autoMount, isConfirmed, getCountryCode: () => sessionStorage.getItem(STORAGE_KEY) };
+  function showSelectionError() {
+    const errorEl = document.querySelector('[data-country-choice-error]');
+    if (!errorEl) return;
+    let msg = 'Välj land för att fortsätta';
+    try {
+      if (window.I18n && typeof window.I18n.t === 'function') {
+        msg = window.I18n.t('market.choice.required') || msg;
+      }
+    } catch (_) { /* keep fallback */ }
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+
+  /**
+   * Registration country gate. Fail-closed. Never throws.
+   *
+   * isConfirmed() alone is not enough: it only reads sessionStorage and does
+   * not re-check current market-open state. This public function is the same
+   * contract as the former mount-local requireSelection.
+   */
+  function requireSelection() {
+    try {
+      const code = isConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
+      if (code && !closedMarketMessage(code) && isCountryOpen(code)) return true;
+      showSelectionError();
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  window.CountryChoice = {
+    mount,
+    autoMount,
+    isConfirmed,
+    getCountryCode: () => {
+      try {
+        return sessionStorage.getItem(STORAGE_KEY);
+      } catch (_) {
+        return null;
+      }
+    },
+    requireSelection,
+  };
 })();
