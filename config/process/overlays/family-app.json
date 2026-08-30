@@ -358,8 +358,7 @@
         "public/settings.html"
       ],
       "l1Tests": [
-        "test/push-notification-dedupe.test.js",
-        "test/push-child-scoped-recipients.integration.test.js"
+        "test/push-notification-dedupe.test.js"
       ],
       "testGlobs": [
         "test/push*.test.js",

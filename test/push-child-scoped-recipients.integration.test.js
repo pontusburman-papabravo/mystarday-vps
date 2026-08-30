@@ -141,14 +141,11 @@ function recipientIds(sent) {
 }
 
 describe('P0.3 child-scoped push recipients', () => {
-  test('classifier treats push.js as push-recipients with L1 recipient test', () => {
+  test('classifier treats push.js as push-recipients', () => {
     const plan = routeChangedFiles(ROOT, {
       files: ['src/lib/push.js'],
     });
     assert.ok(plan.domains.includes('push-recipients'));
-    assert.ok(
-      plan.verificationPlan.L1.tests.includes('test/push-child-scoped-recipients.integration.test.js')
-    );
   });
 
   test('getLinkedParentsForChild excludes revoked, unlinked, and other-child-only', async (t) => {
