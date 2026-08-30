@@ -9,6 +9,7 @@ const assert = require('node:assert/strict');
 const { setupTestDb } = require('./helpers/setup.js');
 const { cookieHeader, listenApp } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
+const { hashPassword } = require('../src/lib/hash');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -96,6 +97,121 @@ describe('E2 Notiser archive integration', () => {
       assert.equal(unreadAfter.json.count, 1);
     } finally {
       await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('failed native send does not insert a notification_log row', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real TEST_DATABASE_URL');
+    const pushNotifications = require('../src/lib/push-notifications');
+    try {
+      const family = await db.query(
+        `INSERT INTO family (name, timezone, is_lifetime_free)
+         VALUES ('E2 fail archive', 'Europe/Stockholm', true) RETURNING id`
+      );
+      const passwordHash = await hashPassword('e2-fail-pass-12');
+      const parent = await db.query(
+        `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed)
+         VALUES ($1, $2, $3, 'E2 Native Fail', true, true) RETURNING id`,
+        [`e2-fail-${Date.now()}@example.com`, passwordHash, family.rows[0].id]
+      );
+      const parentId = parent.rows[0].id;
+      const title = `E2-no-archive-${Date.now()}`;
+
+      const sent = await pushNotifications.sendPushNotification(parentId, {
+        title,
+        body: 'should not archive',
+        type: 'general',
+      }, {
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'ios', nativeToken: 'tok' }],
+        env: {},
+        logNotification: (id, payload) => require('../db/notification-log').logNotification(id, payload),
+      });
+      assert.equal(sent.sent, 0);
+
+      await new Promise((resolve) => setTimeout(resolve, 75));
+      const rows = await db.query(
+        `SELECT id FROM notification_log WHERE parent_id = $1 AND title = $2`,
+        [parentId, title]
+      );
+      assert.equal(rows.rows.length, 0);
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  test('actual native APNs HTTP 200 inserts a notification_log row', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real TEST_DATABASE_URL');
+    const { generateKeyPairSync } = require('crypto');
+    const pushNotifications = require('../src/lib/push-notifications');
+    const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+    const pem = privateKey.export({ type: 'pkcs8', format: 'pem' });
+    const http2 = {
+      connect() {
+        return {
+          close() {},
+          request() {
+            const listeners = {};
+            const req = {
+              on(event, fn) {
+                listeners[event] = fn;
+                return req;
+              },
+              end() {
+                queueMicrotask(() => listeners.response && listeners.response({ ':status': 200 }));
+              },
+              setTimeout() {},
+              destroy() {},
+            };
+            return req;
+          },
+        };
+      },
+    };
+    try {
+      const family = await db.query(
+        `INSERT INTO family (name, timezone, is_lifetime_free)
+         VALUES ('E2 ok archive', 'Europe/Stockholm', true) RETURNING id`
+      );
+      const parent = await db.query(
+        `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed)
+         VALUES ($1, $2, $3, 'E2 Native Ok', true, true) RETURNING id`,
+        [`e2-ok-${Date.now()}@example.com`, await hashPassword('e2-ok-pass-12'), family.rows[0].id]
+      );
+      const parentId = parent.rows[0].id;
+      const title = `E2-yes-archive-${Date.now()}`;
+
+      const sent = await pushNotifications.sendPushNotification(parentId, {
+        title,
+        body: 'should archive',
+        type: 'general',
+      }, {
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'ios', nativeToken: 'abcd1234efgh5678' }],
+        env: {
+          APNS_KEY_ID: 'KEYID12345',
+          APNS_TEAM_ID: 'TEAMID1234',
+          APNS_KEY_CONTENT: pem,
+        },
+        http2,
+        logNotification: (id, payload) => require('../db/notification-log').logNotification(id, payload),
+      });
+      assert.equal(sent.sent, 1);
+      let rows = { rows: [] };
+      for (let i = 0; i < 20 && rows.rows.length === 0; i++) {
+        rows = await db.query(
+          `SELECT id FROM notification_log WHERE parent_id = $1 AND title = $2`,
+          [parentId, title]
+        );
+        if (rows.rows.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
+      }
+      assert.equal(rows.rows.length, 1);
+    } finally {
       await db.cleanup();
     }
   });

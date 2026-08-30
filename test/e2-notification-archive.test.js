@@ -70,6 +70,7 @@ describe('E2 Notiser 7-day successful-push archive', () => {
     const send = read('src/lib/push-notifications.js');
     assert.match(send, /shouldArchiveSuccessfulPush/);
     assert.match(send, /if \(shouldArchiveSuccessfulPush\(totalSent\)\)/);
+    assert.match(send, /result && result\.delivered === true/);
     assert.match(send, /logNotification\(parentId, \{ title, body, type, url, metadata \}\)/);
     assert.doesNotMatch(send, /if \(totalSent > 0\)/);
     const db = read('db/notification-log.js');

@@ -301,6 +301,8 @@
       "description": "Family authorization, parent-child access, revoked access, authz middleware",
       "pathGlobs": [
         "src/middleware/authz.js",
+        "src/lib/family-people-access.js",
+        "src/routes/family/core.js",
         "src/routes/family/members.js",
         "src/routes/family/pin.js",
         "src/routes/family/invites.js",
@@ -309,12 +311,15 @@
       "l1Tests": [
         "test/authz.test.js",
         "test/revoked-access-contract.test.js",
-        "test/authz-middleware-mounted.test.js"
+        "test/authz-middleware-mounted.test.js",
+        "test/d2-family-people-access.test.js",
+        "test/d2-family-invite-scope.integration.test.js"
       ],
       "testGlobs": [
         "test/authz*.test.js",
         "test/revoked-access*.test.js",
         "test/*authz*.test.js",
+        "test/d2-*.test.js",
         "test/r4-final-authority.integration.test.js",
         "test/r4-final-security-blockers.integration.test.js"
       ]
@@ -359,16 +364,19 @@
       "pathGlobs": [
         "src/routes/push.js",
         "src/lib/push.js",
+        "src/lib/push-notifications.js",
         "src/lib/push-reminder-scheduler.js",
         "public/js/push-manager.js",
         "public/settings.html"
       ],
       "l1Tests": [
-        "test/push-notification-dedupe.test.js"
+        "test/push-notification-dedupe.test.js",
+        "test/e2-push-delivery-result.test.js"
       ],
       "testGlobs": [
         "test/push*.test.js",
-        "test/notification*.test.js"
+        "test/notification*.test.js",
+        "test/e2-*.test.js"
       ]
     },
     "for-dig": {
@@ -444,14 +452,18 @@
       "pathGlobs": [
         "src/routes/notifications.js",
         "src/lib/notification*.js",
+        "src/lib/push-notifications.js",
         "src/lib/weekly-summary-scheduler.js",
         "db/notification*.js"
       ],
       "l1Tests": [
-        "test/notification-log-metadata.test.js"
+        "test/notification-log-metadata.test.js",
+        "test/e2-notification-archive.test.js",
+        "test/e2-push-delivery-result.test.js"
       ],
       "testGlobs": [
         "test/notification*.test.js",
+        "test/e2-*.test.js",
         "test/weekly-summary*.test.js"
       ]
     },
