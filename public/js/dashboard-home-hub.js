@@ -338,7 +338,19 @@
     }
   }
 
-  function render(stats) {
+  function renderReadyOrError(children, focusId, loadError) {
+    if (loadError) {
+      return '<div class="parent-ready-empty" data-hem-status="error" role="alert">' +
+        '<p>' + escHtml(pt('home.status.loadError')) + '</p>' +
+        '<button type="button" class="parent-handoff-secondary mt-3" data-action="retry-hem">' +
+        escHtml(pt('home.status.retry')) + '</button></div>';
+    }
+    return renderReadyRow(children, focusId);
+  }
+
+  function render(stats, opts) {
+    opts = opts || {};
+    const loadError = !!opts.loadError;
     const mount = document.getElementById('parentHomeHubMount');
     if (!mount) return false;
 
@@ -360,9 +372,9 @@
     document.body.classList.add('parent-magic-dashboard');
     mount.classList.remove('hidden');
 
-    const children = (stats && stats.children) ? stats.children : [];
+    const children = (!loadError && stats && stats.children) ? stats.children : [];
     const focusId = findFocusChild(children);
-    const weekSeries = buildWeekSeries(children);
+    const weekSeries = loadError ? [] : buildWeekSeries(children);
 
     mount.innerHTML =
       '<div class="parent-home-hub' + (isAndroidFlatMode() ? '' : ' magic-3d-scene') + '">' +
@@ -372,15 +384,15 @@
       '<p class="parent-hub-sub">' + escHtml(pt('home.sub')) + '</p>' +
       '</div>' +
       renderQuickActions(children) +
-      '<div id="parentHubReadinessSlot" class="parent-hub-readiness-slot" aria-live="polite"></div>' +
-      '<section class="parent-ready-section parent-glass-card">' +
+      '<div id="parentHubReadinessSlot" class="parent-hub-readiness-slot" data-hem-level="safety" aria-live="polite"></div>' +
+      '<section class="parent-ready-section parent-glass-card" data-hem-level="status">' +
       '<div class="parent-ready-head">' +
       '<h2>' + escHtml(pt('home.ready.title')) + (children.length > 1 ? ' <span class="parent-ready-count">' + escHtml(pt('home.ready.childrenCount', { count: children.length })) + '</span>' : '') + '</h2>' +
       '</div>' +
-      '<div class="parent-ready-scroll">' + renderReadyRow(children, focusId) + '</div>' +
+      '<div class="parent-ready-scroll">' + renderReadyOrError(children, focusId, loadError) + '</div>' +
       '</section>' +
-      '<div id="parentHubCoachSlot" class="parent-hub-coach-slot" aria-live="polite"></div>' +
-      '<section class="parent-glass-card parent-handoff-card parent-handoff-large">' +
+      '<div id="parentHubCoachSlot" class="parent-hub-coach-slot" data-hem-level="coach" aria-live="polite"></div>' +
+      '<section class="parent-glass-card parent-handoff-card parent-handoff-large" data-hem-level="handoff">' +
       '<div class="parent-handoff-lock" aria-hidden="true">🔒</div>' +
       '<div class="parent-handoff-copy">' +
       '<p class="parent-handoff-title">' + escHtml(pt('home.handoff.title')) + '</p>' +
@@ -390,12 +402,13 @@
       '<button type="button" class="parent-handoff-primary" data-action="child-login">' + escHtml(pt('home.handoff.childLogin')) + '</button>' +
       '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">' + escHtml(pt('home.handoff.parentLogout')) + '</button>' +
       '</div></section>' +
-      '<section class="parent-glass-card parent-week-section">' +
+      (loadError ? '' :
+      '<section class="parent-glass-card parent-week-section" data-hem-level="week">' +
       '<div class="parent-ready-head">' +
       '<h3>' + escHtml(pt('home.weekStory.title')) + '</h3>' +
       '</div>' +
       renderWeekChart(weekSeries) +
-      '</section>' +
+      '</section>') +
       '</div>';
 
     const hubRoot = mount.querySelector('.parent-home-hub');
@@ -474,6 +487,11 @@
       }
       if (action === 'ledig-dag') {
         if (typeof window.openLedigDagModal === 'function') window.openLedigDagModal();
+        return;
+      }
+      if (action === 'retry-hem') {
+        if (typeof window.loadDashboardCards === 'function') window.loadDashboardCards();
+        if (window.HomeReadiness && typeof HomeReadiness.reload === 'function') HomeReadiness.reload();
         return;
       }
     }

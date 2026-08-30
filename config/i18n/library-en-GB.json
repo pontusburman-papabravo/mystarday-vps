@@ -139,6 +139,8 @@
       "leftUntil": "{{gap}} left until {{reward}}",
       "fallbackReward": "reward"
     },
+    "loadError": "Could not load the star overview. That does not mean the children have no stars.",
+    "retry": "Try again",
     "emptyChildrenBefore": "Add children under ",
     "emptyChildrenLink": "Family",
     "emptyChildrenAfter": " to see stars here.",

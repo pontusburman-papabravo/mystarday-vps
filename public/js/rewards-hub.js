@@ -100,7 +100,14 @@
     );
   }
 
-  function starsSectionInner(children) {
+  function starsSectionInner(children, loadError) {
+    if (loadError) {
+      return (
+        '<p class="text-sm text-text-soft px-1 leading-snug" data-rewards-load="error" role="alert">' +
+        escHtml(pt('library.rewardsHub.loadError')) +
+        '</p>'
+      );
+    }
     if (!children.length) {
       const familyLink = escHtml(pt('library.rewardsHub.emptyChildrenLink'));
       return (
@@ -127,14 +134,14 @@
   }
 
   async function fetchChildStars() {
-    if (!window.apiFetch) return [];
+    if (!window.apiFetch) return { ok: false, children: [] };
     try {
       const res = await window.apiFetch('/api/family/dashboard-stats');
-      if (!res.ok) return [];
+      if (!res.ok) return { ok: false, children: [] };
       const data = await res.json();
-      return data.children || [];
+      return { ok: true, children: data.children || [] };
     } catch (_) {
-      return [];
+      return { ok: false, children: [] };
     }
   }
 
@@ -178,7 +185,9 @@
 
     await renderPending();
 
-    const children = await fetchChildStars();
+    const stars = await fetchChildStars();
+    const children = stars.children || [];
+    const starsError = stars.ok === false;
     const reports = await reportsLinkHtml();
     const manage = manageLink();
 
@@ -187,7 +196,7 @@
     html +=
       sectionHtml(
         pt('library.rewardsHub.sections.starsChest'),
-        '<p class="text-sm text-text-soft mb-2 px-0.5">' + escHtml(pt('library.rewardsHub.starsSub')) + '</p>' + starsSectionInner(children)
+        '<p class="text-sm text-text-soft mb-2 px-0.5">' + escHtml(pt('library.rewardsHub.starsSub')) + '</p>' + starsSectionInner(children, starsError)
       );
     if (reports) {
       html += sectionHtml(pt('library.rewardsHub.sections.other'), '<div class="magic-hub-links grid gap-3">' + reports + '</div>');

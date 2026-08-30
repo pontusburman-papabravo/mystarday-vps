@@ -139,6 +139,8 @@
       "leftUntil": "{{gap}} kvar till {{reward}}",
       "fallbackReward": "belöning"
     },
+    "loadError": "Kunde inte ladda stjärnöversikten. Det betyder inte att barnen saknar stjärnor.",
+    "retry": "Försök igen",
     "emptyChildrenBefore": "Lägg till barn under ",
     "emptyChildrenLink": "Familj",
     "emptyChildrenAfter": " för att se stjärnor här.",
